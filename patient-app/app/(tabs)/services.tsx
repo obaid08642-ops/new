@@ -6,6 +6,8 @@ import { Icon, Screen, SectionHeader, ServiceTile, useTabBarHeight } from '../..
 import { HUB_COLUMN, Txt, useScreenUi, useTileColumns } from '../../src/components/home/homeKit';
 import { ServiceRows } from '../../src/components/home/ServiceRows';
 import { MAIN_SERVICES, MORE_SERVICES } from '../../src/features/services/catalog';
+import { useModules } from '../../src/context/ModulesContext';
+import { visibleItems } from '../../src/utils/moduleSwitches';
 
 /**
  * Services — board ServiceHub (canvas/ServiceHub.dc.html). The board is the labs and radiology hub; this
@@ -16,11 +18,14 @@ import { MAIN_SERVICES, MORE_SERVICES } from '../../src/features/services/catalo
 export default function ServicesScreen() {
   const { theme, c, tr } = useScreenUi();
   const barHeight = useTabBarHeight();
+  const { disabled } = useModules();
+  const mainServices = visibleItems(MAIN_SERVICES, (item) => item.route, disabled);
+  const moreServices = visibleItems(MORE_SERVICES, (item) => item.route, disabled);
   const cols = useTileColumns();
   // the tiles sit two across on a phone and four across on a tablet
   const perRow = cols === 4 ? 4 : 2;
   const rows = [];
-  for (let i = 0; i < MAIN_SERVICES.length; i += perRow) rows.push(MAIN_SERVICES.slice(i, i + perRow));
+  for (let i = 0; i < mainServices.length; i += perRow) rows.push(mainServices.slice(i, i + perRow));
 
   return (
     <Screen scroll theme={theme} edges={['top', 'start', 'end']} bottomSpace={barHeight + 40}>
@@ -48,6 +53,7 @@ export default function ServicesScreen() {
           <Txt size={15} color={c.text.secondary} style={{ flex: 1 }}>ابحث عن خدمة أو طبيب أو دواء</Txt>
         </Pressable>
 
+        {mainServices.length ? (
         <View style={{ gap: 10 }}>
           <SectionHeader title={tr('الخدمات الرئيسية')} theme={theme} />
           <View style={{ gap: 10 }}>
@@ -65,11 +71,14 @@ export default function ServicesScreen() {
             ))}
           </View>
         </View>
+        ) : null}
 
+        {moreServices.length ? (
         <View style={{ gap: 10 }}>
           <SectionHeader title={tr('خدمات إضافية')} theme={theme} />
-          <ServiceRows items={MORE_SERVICES} />
+          <ServiceRows items={moreServices} />
         </View>
+        ) : null}
       </View>
     </Screen>
   );

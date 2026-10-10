@@ -4,7 +4,7 @@ import { router, type Href } from 'expo-router';
 
 import { AppHeader, Card, EmptyState, ErrorState, Icon, OfflineState, Screen, StatusChip } from '../../../packages/ui-native/src';
 import ProductImage from '../../src/components/ProductImage';
-import { Glyph, PHARMACY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
+import { Glyph, PHARMACY_TONE, Pill, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
 import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
@@ -37,7 +37,7 @@ function Row({ item, onRemove, onAdd, onOpen }: { item: Med; onRemove: (m: Med) 
             ) : null}
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
               <StatusChip label={unavailable ? k('pharmacy.wishlist.unavailable') : k('pharmacy.wishlist.available')} tone={unavailable ? 'peach' : 'mint'} theme={theme} />
-              {needsRx(item) ? <Text style={{ ...scale(t, 'tag', 'bold'), color: c.status.warning.fg }}>{k('pharmacy.needsRx')}</Text> : null}
+              {needsRx(item) ? <Pill label={k('pharmacy.needsRx')} tone="warning" /> : null}
             </View>
           </View>
         </Pressable>

@@ -59,8 +59,8 @@
     "aiDesc": "علامات کی فوری خودکار جانچ اور رہنمائی",
     "mapTitle": "طبی مراکز کا نقشہ",
     "mapDesc": "قریبی کلینک، ہسپتال اور فارمیسی تلاش کریں",
-    "emergencyTitle": "ایمرجنسی اور ایمبولینس",
-    "emergencyDesc": "فوری ہنگامی امداد اور ایمبولینس کی درخواست",
+    "emergencyTitle": "فوری مدد",
+    "emergencyDesc": "اگر آپ کو فوراً مدد چاہیے تو نبض پلس میں مقرر کردہ فوری مدد کے نمبر پر کال کریں۔",
     "trustLicensed": "تصدیق شدہ اور لائسنس یافتہ",
     "trustLicensedSub": "مصدقہ طبی عملہ اور سہولیات",
     "trustGenuine": "100% اصل ادویات",
@@ -94,7 +94,7 @@
     "svcMaternity": "زچگی",
     "svcMap": "نقشہ",
     "svcHealth": "میری صحت",
-    "svcEmergency": "ایمرجنسی",
+    "svcEmergency": "فوری مدد",
     "aiTitle": "اسمارٹ طبی معاون",
     "aiSub": "اپنی علامات بتائیں اور ابتدائی رہنمائی حاصل کریں",
     "aiStart": "گفتگو شروع کریں",
@@ -108,7 +108,7 @@
     "allServices": "تمام خدمات",
     "doctorsTitle": "نمایاں ڈاکٹرز",
     "bookNow": "ابھی بُک کریں",
-    "currency": "ریال",
+    "currency": "ر.س",
     "unavailableTitle": "اس وقت صفحہ لوڈ نہیں ہو سکا",
     "unavailableBody": "اپنا کنکشن دیکھیں اور دوبارہ کوشش کریں۔",
     "retry": "دوبارہ کوشش کریں",
@@ -258,12 +258,12 @@
       "details": "تفصیل"
     },
     "emptyTitle": "ابھی کوئی آرڈر نہیں",
-    "emptyBody": "فارمیسیوں کو بھیجے گئے آپ کے آرڈرز یہاں نظر آئیں گے۔",
+    "emptyBody": "آپ کے فارمیسی، مشاورت، لیب، ریڈیولوجی اور نرسنگ کے آرڈرز یہاں نظر آتے ہیں۔",
     "browse": "دوائیں دیکھیں",
     "emptyCurrentTitle": "کوئی موجودہ آرڈر نہیں",
-    "emptyCurrentBody": "جو آرڈر فارمیسیوں کے جواب کا منتظر ہو یا راستے میں ہو وہ یہاں نظر آئے گا۔",
+    "emptyCurrentBody": "جو آرڈر انتظار میں ہو یا راستے میں ہو وہ یہاں نظر آتا ہے۔",
     "emptyPreviousTitle": "کوئی پچھلا آرڈر نہیں",
-    "emptyPreviousBody": "پہنچائے گئے اور منسوخ آرڈرز یہاں نظر آئیں گے۔",
+    "emptyPreviousBody": "مکمل اور منسوخ شدہ آرڈرز یہاں نظر آتے ہیں۔",
     "listErrorTitle": "آپ کے آرڈرز لوڈ نہیں ہو سکے",
     "unavailableTitle": "آرڈر لوڈ نہیں ہو سکا",
     "unavailableBody": "اپنا کنکشن چیک کریں اور دوبارہ کوشش کریں۔",
@@ -277,7 +277,15 @@
     "pickupTitle": "خود وصول کریں",
     "pickupNote": "آپ یہ آرڈر فارمیسی سے خود وصول کریں گے۔",
     "priceTitle": "قیمت",
-    "total": "کل"
+    "total": "کل",
+    "kind": {
+      "consultation": "طبی مشاورت",
+      "labs": "لیب ٹیسٹ",
+      "radiology": "ریڈیولوجی اسکین",
+      "nursing": "نرسنگ وزٹ"
+    },
+    "statusUnavailable": "اسٹیٹس دستیاب نہیں",
+    "partialNote": "کچھ آرڈرز لوڈ نہیں ہو سکے۔ باقی نیچے دکھائے گئے ہیں، تھوڑی دیر بعد دوبارہ کوشش کریں۔"
   },
   "Cart": {
     "eyebrow": "نجی کارٹ",
@@ -287,7 +295,7 @@
     "subtotal": "ذیلی مجموعہ",
     "homeVisitFee": "گھر کے دورے کی فیس",
     "total": "کل",
-    "currency": "SAR",
+    "currency": "ر.س",
     "notice": "یہاں اپنے کارٹ کی اشیاء اور کل رقم دیکھیں۔ اس صفحے پر چیک آؤٹ دستیاب نہیں ہے۔",
     "unavailableTitle": "کارٹ لوڈ نہیں ہو سکی",
     "unavailableBody": "براہ کرم بعد میں دوبارہ کوشش کریں۔",
@@ -311,6 +319,7 @@
     "remove": "{name} کو کارٹ سے ہٹائیں",
     "removed": "{name} کو کارٹ سے ہٹا دیا گیا",
     "needsRx": "نسخہ درکار ہے",
+    "onlineOnly": "صرف آن لائن",
     "rxBannerTitle": "ایک چیز کے لیے نسخہ درکار ہے",
     "rxBannerBody": "درخواست بھیجنے سے پہلے نسخہ اپ لوڈ کریں",
     "rxBannerAction": "اپ لوڈ",
@@ -456,7 +465,7 @@
     "noMatchesSub": "دوسرے الفاظ استعمال کریں",
     "packagesTitle": "جامع لیب پیکجز",
     "radiologyTitle": "ریڈیولوجی اور تشخیصی امیجنگ",
-    "sar": "ریال",
+    "sar": "ر.س",
     "searchLabs": "ٹیسٹ تلاش کریں...",
     "searchRadiology": "سکین تلاش کریں...",
     "serviceClinic": "لیب وزٹ",
@@ -736,7 +745,9 @@
     "emergencyPhone": "موبائل نمبر",
     "emergencyRequired": "نام اور موبائل نمبر درج کریں۔",
     "emergencySaveError": "رابطہ محفوظ نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
-    "emergencySave": "محفوظ کریں"
+    "emergencySave": "محفوظ کریں",
+    "nextAppointment": "آپ کی اگلی اپائنٹمنٹ",
+    "nextAppointmentUnavailable": "آپ کی اگلی اپائنٹمنٹ ابھی لوڈ نہیں ہو سکی۔"
   },
   "Prescriptions": {
     "title": "نسخے",
@@ -932,6 +943,20 @@
       "closed": "صرف پڑھنے کے لیے",
       "hoursLeft": "{count} گھنٹے باقی",
       "minutesLeft": "{count} منٹ باقی"
+    },
+    "composerTitle": "ڈاکٹر کو پیغام",
+    "composerLabel": "اپنا پیغام لکھیں",
+    "composerPlaceholder": "ڈاکٹر کے لیے پیغام لکھیں",
+    "send": "بھیجیں",
+    "sending": "بھیجا جا رہا ہے…",
+    "sent": "آپ کا پیغام بھیج دیا گیا۔",
+    "sendRetry": "دوبارہ کوشش کریں",
+    "sendErrors": {
+      "invalid": "زیادہ سے زیادہ 2000 حروف کا پیغام لکھیں۔",
+      "signedOut": "آپ کا سیشن ختم ہو گیا۔ سائن اِن کر کے دوبارہ بھیجیں۔",
+      "forbidden": "اس گفتگو میں ابھی پیغام نہیں بھیجے جا سکتے۔",
+      "network": "رابطہ نہیں ہو سکا۔ آپ کا پیغام ابھی نہیں بھیجا گیا، دوبارہ کوشش کریں۔",
+      "generic": "پیغام نہیں بھیجا جا سکا۔ دوبارہ کوشش کریں۔"
     }
   },
   "Sleep": {
@@ -1046,7 +1071,7 @@
     "emptyTitle": "کوئی خدمات نہیں",
     "emptyBody": "ابھی کوئی سروس دستیاب نہیں ہے۔",
     "noMatch": "آپ کی تلاش سے کوئی خدمت نہیں ملی۔",
-    "price": "{value} ریال",
+    "price": "{value} ر.س",
     "priceLabel": "قیمت",
     "durationLabel": "مدت",
     "insurance": "انشورنس دستیاب",
@@ -1073,7 +1098,7 @@
     "backToConsultations": "مشاورتوں پر واپس",
     "nameUnavailable": "ڈاکٹر کا نام دستیاب نہیں",
     "rating": "ریٹنگ {value}",
-    "price": "{value} ریال",
+    "price": "{value} ر.س",
     "back": "ڈاکٹرز پر واپس",
     "experience": "{value} سال کا تجربہ",
     "detailNotice": "بک کرنے کے لیے وقت اور ادائیگی کا طریقہ منتخب کریں۔ ادائیگی مکمل ہوتے ہی آپ کی بکنگ کی تصدیق ہو جاتی ہے۔",
@@ -1109,7 +1134,22 @@
     "connectionFailed": "کنکشن دستیاب نہیں۔ دوبارہ کوشش کریں۔",
     "confirmedTitle": "آپ کی اپوائنٹمنٹ بک ہو گئی",
     "confirmedBody": "اپوائنٹمنٹ کا وقت: {slot}",
-    "bookAnother": "ایک اور وقت بک کریں"
+    "bookAnother": "ایک اور وقت بک کریں",
+    "quick": "فوری فلٹر",
+    "nearest": "سب سے قریب",
+    "availableNow": "ابھی دستیاب",
+    "nearestOnline": "«سب سے قریب» صرف کلینک اور گھر کے دورے کے لیے ہے، آن لائن مشاورت کے لیے نہیں۔",
+    "locating": "آپ کا مقام تلاش کیا جا رہا ہے…",
+    "nearestNoPlace": "فاصلے کے مطابق ترتیب ممکن نہیں۔ مقام تک رسائی کی اجازت دیں یا شہر کے ساتھ پتہ محفوظ کریں۔",
+    "nearestCity": "{city} میں ڈاکٹر",
+    "visitType": "مشاورت کی قسم",
+    "verifiedDoctor": "تصدیق شدہ ڈاکٹر",
+    "licenseNumber": "لائسنس نمبر {number}",
+    "specialtyLabel": "تخصص",
+    "allSpecialties": "تمام تخصصات",
+    "paymentLabel": "ادائیگی",
+    "payment_insurance": "انشورنس قبول",
+    "payment_cash": "صرف نقد"
   },
   "LabsServices": {
     "eyebrow": "لیبارٹری کیئر",
@@ -1180,7 +1220,7 @@
     "highestRated": "سب سے زیادہ ریٹڈ",
     "lowestPrice": "کم ترین قیمت",
     "apply": "فلٹر لگائیں",
-    "price": "{value} SAR",
+    "price": "{value} ر.س",
     "duration": "{value} منٹ",
     "contrast": "کنٹراسٹ درکار ہو سکتا ہے",
     "emptyTitle": "کوئی سروس نہیں ملی",
@@ -1208,12 +1248,13 @@
     "shop": "خریداری شروع کریں",
     "open": "تفصیل دیکھیں",
     "untitled": "ادویات کا آئٹم",
-    "price": "{value} سعودی ریال",
+    "price": "{value} ر.س",
     "priceUnavailable": "قیمت دستیاب نہیں",
     "inStock": "دستیاب",
     "outOfStock": "دستیاب نہیں",
     "unavailableTitle": "خواہشات کی فہرست دستیاب نہیں",
-    "unavailableBody": "براہ کرم بعد میں دوبارہ کوشش کریں۔"
+    "unavailableBody": "براہ کرم بعد میں دوبارہ کوشش کریں۔",
+    "needsRx": "نسخہ درکار ہے"
   },
   "Search": {
     "title": "تلاش",
@@ -1247,7 +1288,7 @@
     "catFamily": "خاندان",
     "rxHelp": "جو چاہیے وہ نہیں ملا؟ نسخہ اپ لوڈ کریں، فارمیسیاں آپ کے لیے تلاش کریں گی",
     "rxAction": "نسخہ اپ لوڈ کریں",
-    "price": "{value} ریال",
+    "price": "{value} ر.س",
     "rating": "ریٹنگ {value}"
   },
   "Support": {
@@ -1277,21 +1318,18 @@
     }
   },
   "Emergency": {
-    "title": "ایمرجنسی",
-    "subtitle": "SOS بٹن صرف سنگین صورت میں دبائیں۔",
-    "trigger": "SOS ایمرجنسی کال بھیجیں",
-    "triggering": "بھیجا جا رہا ہے…",
-    "activeLabel": "SOS فعال ہے — ریسپانس ٹیم آ رہی ہے",
-    "cancel": "SOS منسوخ کریں",
-    "cancelling": "منسوخ کیا جا رہا ہے…",
-    "error": "ابھی کارروائی مکمل نہیں ہو سکی",
-    "state": "حالت"
+    "title": "فوری مدد",
+    "intro": "اگر آپ کو فوراً مدد چاہیے تو نبض پلس میں مقرر کردہ فوری مدد کے نمبر پر کال کریں۔",
+    "call": "{number} پر کال کریں",
+    "unavailable": "فوری مدد کا نمبر ابھی مقرر نہیں کیا گیا، اس لیے یہاں سے کال کرنے کے لیے کچھ نہیں ہے۔ اگر آپ خطرے میں ہیں تو اپنی مقامی ایمرجنسی سروسز سے رابطہ کریں۔",
+    "note": "نبض پلس ایمرجنسی سروس نہیں ہے اور آپ کے مقام پر مدد نہیں بھیج سکتا۔",
+    "loadError": "فوری مدد کا نمبر ابھی لوڈ نہیں ہو سکا۔"
   },
   "Returns": {
     "title": "واپسی کی درخواستیں",
     "empty": "کوئی درخواست نہیں",
     "error": "ابھی لوڈ نہیں ہو سکیں",
-    "sar": "SAR"
+    "sar": "ر.س"
   },
   "PublicProduct": {
     "backToCatalog": "کیٹالاگ پر واپس",
@@ -1323,7 +1361,7 @@
     "barcode": "بارکوڈ",
     "sku": "SKU",
     "origin": "ملکِ پیداوار",
-    "disclaimer": "مصنوعات کی معلومات نبض پلس کے تصدیق شدہ کیٹالاگ سے ہیں اور ڈاکٹر یا فارماسسٹ کے مشورے کا بدل نہیں۔ قیمتیں سعودی ریال (SAR) میں ہیں۔",
+    "disclaimer": "مصنوعات کی معلومات نبض پلس کے تصدیق شدہ کیٹالاگ سے ہیں اور ڈاکٹر یا فارماسسٹ کے مشورے کا بدل نہیں۔ قیمتیں ر.س میں ہیں۔",
     "browseCategory": "{category} دیکھیں",
     "productsInCategory": "اس زمرے میں {count} مصنوعات",
     "emptyCategory": "اس زمرے میں فی الحال کوئی شائع شدہ مصنوعات نہیں۔",
@@ -1357,7 +1395,13 @@
     "empty": "ابھی کوئی ایڈریس نہیں",
     "listLabel": "ایڈریس کی فہرست",
     "unnamed": "بغیر نام ایڈریس",
-    "default": "طے شدہ"
+    "default": "طے شدہ",
+    "edit": "ترمیم",
+    "editTitle": "پتہ ترمیم کریں",
+    "cancel": "منسوخ کریں",
+    "removeConfirmTitle": "پتہ ہٹانے کی تصدیق",
+    "removeConfirm": "کیا آپ پتہ «{name}» ہٹانا چاہتے ہیں؟ اسے واپس نہیں کیا جا سکتا۔",
+    "removeConfirmYes": "ہاں، ہٹائیں"
   },
   "ShareReport": {
     "title": "رپورٹس شیئر کریں",
@@ -1461,7 +1505,11 @@
     "manufacturer": "صنعت کار",
     "emptyBody": "موازنے کے لیے کیٹلاگ سے کم از کم دو ادویات منتخب کریں۔",
     "browse": "ادویات دیکھیں",
-    "back": "ادویات"
+    "back": "ادویات",
+    "requires_prescription": "نسخہ درکار ہے",
+    "online_exclusive": "صرف آن لائن",
+    "yes": "ہاں",
+    "no": "نہیں"
   },
   "PharmacyRequest": {
     "title": "دوا نام سے منگوائیں",
@@ -1494,7 +1542,8 @@
     "viewProduct": "پروڈکٹ دیکھیں",
     "another": "دوسرا بار کوڈ تلاش کریں",
     "requestByName": "نام سے منگوائیں",
-    "errorLookup": "بار کوڈ کی تلاش ناکام رہی۔ دوبارہ کوشش کریں۔"
+    "errorLookup": "بار کوڈ کی تلاش ناکام رہی۔ دوبارہ کوشش کریں۔",
+    "onlineOnly": "صرف آن لائن"
   },
   "PharmacyChat": {
     "title": "فارمیسی سے بات چیت",
@@ -1529,7 +1578,18 @@
     "back": "میری ملاقاتیں",
     "emptyBody": "ابھی کوئی سابقہ کال نہیں۔",
     "findDoctor": "ڈاکٹر تلاش کریں",
-    "unknownDoctor": "ڈاکٹر"
+    "unknownDoctor": "ڈاکٹر",
+    "unavailableTitle": "ابھی آپ کی کالز لوڈ نہیں ہو سکیں",
+    "unavailableBody": "اپنا کنکشن چیک کریں اور دوبارہ کوشش کریں۔",
+    "videoCall": "ویڈیو کال",
+    "voiceCall": "وائس کال",
+    "status": {
+      "ended": "کال مکمل",
+      "rejected": "مسترد کر دی گئی",
+      "missed": "چھوٹی ہوئی کال",
+      "active": "کال جاری ہے",
+      "pending": "زیر التوا کال"
+    }
   },
   "PostCallRating": {
     "title": "اپنے مشورے کی_rating",
@@ -1611,7 +1671,7 @@
     "aboutTitle": "About Laboratory",
     "defaultAbout": "A certified medical laboratory equipped with modern diagnostics.",
     "servicesTitle": "Available Tests",
-    "price": "{value} SAR"
+    "price": "{value} ر.س"
   },
   "NurseDetail": {
     "title": "Nurse Profile",
@@ -1628,7 +1688,7 @@
     "aboutTitle": "Professional Bio",
     "defaultBio": "A licensed healthcare nurse dedicated to delivering compassionate home care.",
     "servicesTitle": "Available Nursing Services",
-    "price": "{value} SAR",
+    "price": "{value} ر.س",
     "requestNurse": "Request Nursing Visit"
   },
   "MapExplorer": {
@@ -2362,7 +2422,7 @@
     "summaryPrescription": "نسخہ",
     "summaryRecommendations": "سفارشات",
     "summaryFollowUp": "{days} دنوں کے اندر فالو اپ تجویز کیا گیا ہے",
-    "summaryFollowUpBody": "اس مدت کے اندر رعایتی نرخ پر ابھی فالو اپ بک کریں۔",
+    "summaryFollowUpBody": "اس مدت کے اندر ابھی فالو اپ بک کریں۔",
     "actionBookFollowUp": "فالو اپ بک کریں",
     "actionOrderMedicines": "فارمیسی سے دوائیں منگوائیں",
     "actionBookTests": "ٹیسٹ بک کریں",
@@ -2538,6 +2598,7 @@
     "inviteCode": "دعوتی کوڈ",
     "inviteCopy": "کوڈ کاپی کریں",
     "inviteCopied": "کاپی ہو گیا",
+    "inviteCopyFailed": "کاپی نہیں ہو سکا۔ کوڈ منتخب کر کے خود کاپی کریں۔",
     "inviteFailed": "دعوت نہیں بن سکی۔ دوبارہ کوشش کریں۔",
     "joinCodeHint": "کوڈ یہاں پیسٹ کریں",
     "joinRelation": "رشتہ (اختیاری)",
@@ -3242,7 +3303,7 @@
       "insurance": "انشورنس: {list}"
     },
     "pharmacies": {
-      "title": "{city} میں تصدیق شدہ فارمیسیاں",
+      "title": "{city} کی فارمیسیاں",
       "intro": "{city} میں درج فارمیسیاں اور طبی مراکز۔",
       "notice": "آپ کی دوا کا آرڈر قریبی فارمیسیوں کو بھیجا جاتا ہے اور وہ پیشکشوں کے ساتھ جواب دیتی ہیں۔",
       "list": "فارمیسیاں اور طبی مراکز",
@@ -3259,6 +3320,7 @@
       "privacy": "رازداری کی پالیسی",
       "version": "ورژن {version} · نافذ العمل از {date}",
       "versionOnly": "ورژن {version}",
+      "currentVersion": "یہ متن کا موجودہ ورژن ہے۔ لانچ سے پہلے اسے قانونی طور پر منظور شدہ ورژن سے بدل دیا جائے گا۔",
       "back": "واپس"
     },
     "provider": {
@@ -3280,20 +3342,20 @@
         "description": "{neighborhood}، {city} میں {specialty} کے تصدیق شدہ ڈاکٹر۔ Nabd Plus کے ذریعے مشاورت بک کریں۔"
       },
       "homeNursing": {
-        "title": "{city} میں گھریلو نرسنگ خدمات | لائسنس یافتہ نگہداشت 24/7",
-        "description": "{city} میں تصدیق شدہ اور لائسنس یافتہ گھریلو نرسنگ۔ بزرگوں کی دیکھ بھال، آپریشن کے بعد کی نگہداشت اور روزمرہ مدد Nabd Plus کے ذریعے۔"
+        "title": "{city} میں گھریلو نرسنگ خدمات | نبض پلس",
+        "description": "{city} میں گھریلو نرسنگ بک کریں: بزرگوں کی دیکھ بھال، آپریشن کے بعد کی نگہداشت اور روزمرہ مدد، نبض پلس کے ذریعے۔"
       },
       "labs": {
-        "title": "{city} میں {test} لیب ٹیسٹ | گھر سے نمونہ",
-        "description": "{city} میں {test} لیب ٹیسٹ بک کریں، گھر سے نمونے اور تیز نتائج کے ساتھ، Nabd Plus کے ذریعے۔"
+        "title": "{city} میں {test} لیب ٹیسٹ | گھر پر نمونہ",
+        "description": "{city} میں {test} لیب ٹیسٹ بک کریں، گھر پر نمونہ لینے کی سہولت کے ساتھ، نبض پلس کے ذریعے۔"
       },
       "labsEmpty": {
         "title": "{city} میں {test} — پہلے فراہم کنندہ بنیں | Nabd",
         "description": "{city} میں {test} — ابھی کوئی فراہم کنندہ نہیں۔ شراکت دار لیب کے طور پر رجسٹر کریں۔"
       },
       "radiology": {
-        "title": "{city} میں {service} ریڈیالوجی | امیجنگ سینٹر",
-        "description": "{city} میں تصدیق شدہ مراکز پر {service} امیجنگ اپائنٹمنٹ Nabd Plus کے ذریعے بک کریں۔"
+        "title": "{city} میں {service} ریڈیولوجی | تشخیصی امیجنگ مراکز",
+        "description": "{city} میں {service} امیجنگ کی اپائنٹمنٹ امیجنگ مراکز میں نبض پلس کے ذریعے بک کریں۔"
       },
       "radiologyEmpty": {
         "title": "{city} میں {service} — پہلے مرکز بنیں | Nabd",
@@ -3304,8 +3366,8 @@
         "description": "{city} میں {service} کی تصدیق شدہ طبی خدمات۔ کلینک اور گھر پر نگہداشت Nabd Plus کے ذریعے۔"
       },
       "pharmacies": {
-        "title": "{city} کی فارمیسیاں | ادویات کی تیز ڈیلیوری",
-        "description": "{city} میں نسخے اور بغیر نسخے کی ادویات تلاش کریں، Nabd Plus کے ذریعے جغرافیائی نشریاتی ڈیلیوری کے ساتھ۔"
+        "title": "{city} کی فارمیسیاں | دوائیں آرڈر کریں اور پیشکشوں کا موازنہ کریں",
+        "description": "اپنی نسخہ یا دوا کا آرڈر {city} کی فارمیسیوں کو بھیجیں اور نبض پلس پر ان کی پیشکشوں کا موازنہ کریں۔"
       },
       "pharmaciesEmpty": {
         "title": "{city} کی فارمیسیاں — پہلے شراکت دار بنیں | Nabd",
@@ -3319,6 +3381,19 @@
         "description": "{city} میں {name}۔ خصوصی طبی خدمات، قبول شدہ انشورنس اور تصدیق شدہ ڈاکٹر۔",
         "country": "سعودی عرب"
       }
+    },
+    "ld": {
+      "labTest": "{city} میں {test} لیب ٹیسٹ",
+      "radiology": "{city} میں {service} امیجنگ",
+      "homeNursing": "{city} میں گھریلو نرسنگ اور طبی وزٹ کی خدمات",
+      "crumbDiagnostics": "تشخیص",
+      "crumbRadiology": "ریڈیولوجی",
+      "crumbHomeCare": "گھریلو نگہداشت",
+      "crumbServices": "خدمات",
+      "crumbPharmacy": "فارمیسی",
+      "crumbFacilities": "ہسپتال اور کلینک",
+      "crumbHealthGuide": "صحت گائیڈ",
+      "crumbDoctors": "ڈاکٹر"
     }
   },
   "InsuranceWeb": {
@@ -3329,13 +3404,10 @@
     "tabs": "انشورنس کے حصے",
     "tabPolicy": "پالیسی",
     "tabBenefits": "فوائد",
-    "tabClaims": "کلیمز",
-    "tabRefunds": "ریفنڈز",
     "tabNetwork": "نیٹ ورک",
     "shortcuts": "انشورنس شارٹ کٹس",
     "addPolicy": "پالیسی شامل کریں",
     "changePolicy": "پالیسی تبدیل کریں",
-    "submitClaim": "کلیم جمع کرائیں",
     "coverageCheck": "میری پالیسی کیا کور کرتی ہے",
     "noPolicyTitle": "کوئی پالیسی درج نہیں",
     "planLine": "کلاس {plan}",
@@ -3358,17 +3430,6 @@
     "disclaimer": "نبض+ آپ کی انشورنس کمپنی سے رابطہ نہیں کرتا۔ سہولت اپنے نظام میں آپ کی کمپنی سے منظوری لیتی ہے اور فیصلہ یہاں درج کرتی ہے۔ آپ صرف اپنی کو پے ادا کرتے ہیں۔",
     "benefitsEmpty": "دکھانے کے لیے کوئی فائدہ نہیں۔",
     "benefitTitle": "انشورنس کا فائدہ",
-    "claimsEmpty": "ابھی تک کوئی کلیم نہیں۔",
-    "claimServiceUnknown": "انشورنس سروس",
-    "claimStatus": {
-      "approved": "منظور",
-      "reimbursed": "ادائیگی واپس ہوئی",
-      "pending": "زیر جائزہ",
-      "rejected": "مسترد",
-      "unknown": "حیثیت دستیاب نہیں"
-    },
-    "refundsEmpty": "کوئی ریفنڈ نہیں۔",
-    "refundTitle": "ریفنڈ",
     "networkNoPolicy": "کوئی پالیسی محفوظ نہیں۔ نیٹ ورک فراہم کنندگان دیکھنے کے لیے پہلے اپنی پالیسی شامل کریں۔",
     "networkSearch": "فراہم کنندہ کے نام سے تلاش کریں",
     "networkEmpty": "دکھانے کے لیے نیٹ ورک کا کوئی فراہم کنندہ نہیں۔",
@@ -3386,27 +3447,6 @@
       "submit": "پالیسی محفوظ کریں",
       "invalid": "کمپنی چنیں اور درست پالیسی نمبر درج کریں (کم از کم 3 حروف)۔",
       "failed": "پالیسی محفوظ نہیں ہو سکی۔"
-    },
-    "claim": {
-      "title": "کلیم جمع کرائیں",
-      "lead": "کلیم کے لیے ادا شدہ بکنگ چنیں۔",
-      "booking": "ادا شدہ بکنگ",
-      "loading": "لوڈ ہو رہا ہے…",
-      "none": "کلیم کے اہل کوئی ادا شدہ بکنگ نہیں۔",
-      "placeholder": "چنیں…",
-      "note": "نوٹ (اختیاری)",
-      "submit": "کلیم جمع کرائیں",
-      "pick": "کلیم کے لیے ادا شدہ بکنگ چنیں۔",
-      "failed": "کلیم جمع نہیں ہو سکا۔",
-      "done": "کلیم جمع ہو گیا۔",
-      "viewClaims": "کلیمز دیکھیں",
-      "kind": {
-        "consultation": "طبی مشاورت",
-        "pharmacy": "ادویات",
-        "lab": "لیب ٹیسٹ",
-        "radiology": "ریڈیولوجی",
-        "nursing": "گھریلو نرسنگ"
-      }
     },
     "coverage": {
       "title": "میری پالیسی کیا کور کرتی ہے",
@@ -3549,10 +3589,10 @@
     "title": "آفرز اور پیکجز",
     "detailTitle": "آفر کی تفصیل",
     "emptyTitle": "فی الحال کوئی آفر دستیاب نہیں",
-    "price": "{amount} ریال",
+    "price": "{amount} ر.س",
     "discount": "{value} رعایت",
     "sponsored": "اسپانسرڈ",
-    "save": "{amount} ریال بچائیں",
+    "save": "{amount} ر.س بچائیں",
     "validUntil": "آفر {date} تک جائز ہے",
     "startsOn": "آفر {date} کو شروع ہوگا",
     "inclusions": "پیکج میں کیا شامل ہے",
@@ -3562,7 +3602,11 @@
     "noProviders": "اس آفر کے لیے فی الحال کوئی فراہم کنندہ دستیاب نہیں",
     "errorTitle": "آفرز لوڈ نہیں ہو سکے",
     "empty": "جلد دوبارہ دیکھیں، نئے آفرز مسلسل شامل ہوتے ہیں۔",
-    "error": "اپنا کنکشن چیک کریں اور دوبارہ کوشش کریں۔"
+    "error": "اپنا کنکشن چیک کریں اور دوبارہ کوشش کریں۔",
+    "share": "آفر شیئر کریں",
+    "shareDone": "شیئر کر دیا گیا۔",
+    "shareCopied": "لنک کاپی ہو گیا۔",
+    "shareFailed": "شیئر نہیں ہو سکا۔ ایڈریس بار سے لنک کاپی کریں۔"
   },
   "SettingsWeb": {
     "hubTitle": "ترتیبات",
@@ -3681,7 +3725,6 @@
     "aboutRules": "منسوخی اور رقم کی واپسی",
     "aboutRulesUnavailable": "اس وقت منسوخی اور رقم کی واپسی کی پالیسی لوڈ نہیں ہو سکی۔",
     "ruleCancelFull": "اپائنٹمنٹ کے وقت سے {hours} گھنٹے پہلے تک منسوخ کرنے پر پوری رقم واپس ملتی ہے۔",
-    "ruleCancelLate": "{hours} گھنٹے سے کم وقت میں منسوخی پر بکنگ کی رقم کا {fee}% کٹتا ہے۔",
     "ruleRefundDays": "رقم کی واپسی {min} سے {max} کام کے دنوں میں پہنچتی ہے۔",
     "ruleReturnDays": "استعمال نہ ہوئی مصنوعات وصولی کے {days} دن کے اندر واپس کی جا سکتی ہیں۔"
   },
@@ -3771,5 +3814,10 @@
     "message": "اپنا پیغام لکھیں",
     "attach": "تصویر منسلک کریں",
     "send": "بھیجیں"
+  },
+  "Modules": {
+    "unavailableTitle": "یہ سروس ابھی دستیاب نہیں ہے",
+    "unavailableBody": "ہم نے یہ سروس عارضی طور پر روک دی ہے۔ آپ باقی سائٹ استعمال کرتے رہ سکتے ہیں۔",
+    "unavailableHome": "ہوم پر واپس جائیں"
   }
 }

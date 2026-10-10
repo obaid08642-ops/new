@@ -40,11 +40,11 @@ describe('apiFetch security contract', () => {
   });
 
   it('returns null for a successful response with an empty body', async () => {
-    // GET /emergency/my/active answers 200 with no body when nothing is active; this used to throw and the orders
+    // A GET can answer 200 with no body when there is nothing to return; this used to throw and the orders
     // hub reported a failed section on every load.
     (global.fetch as jest.Mock).mockResolvedValue({ ok: true, text: jest.fn().mockResolvedValue('') });
 
-    await expect(apiFetch('/emergency/my/active')).resolves.toBeNull();
+    await expect(apiFetch('/orders/mine')).resolves.toBeNull();
   });
 
   it('does not create or retry as a guest session after an authentication error', async () => {

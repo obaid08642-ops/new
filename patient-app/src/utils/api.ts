@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import { STORAGE_KEYS } from '../constants';
 import { config } from '../core/config';
+import { reportModuleRefusal } from './moduleSwitches';
 
 // All runtime URLs resolve through ConfigManager, including explicit local-dev
 // settings. This legacy fetch client must not maintain a parallel localhost fallback.
@@ -105,11 +106,15 @@ export async function apiFetch<T = any>(endpoint: string, options: RequestInit =
       await clearLegacyTokenMirror();
       throw new Error(`AUTH_ERROR_${response.status}: ${errorMsg}`);
     }
-    if (response.status === 403) throw new Error(`AUTH_ERROR_403: ${errorMsg}`);
+    if (response.status === 403) {
+      const refusal = new Error(`AUTH_ERROR_403: ${errorMsg}`);
+      reportModuleRefusal(refusal);
+      throw refusal;
+    }
     throw new Error(errorMsg);
   }
 
-  // A 2xx with no body (e.g. GET /emergency/my/active when nothing is active) means "no data", not a broken
+  // A 2xx with no body (e.g. a GET with nothing to return) means "no data", not a broken
   // contract: treating it as an error made the orders hub report a failed section on every load.
   const text = await response.text();
   if (!text.trim()) return null as T;

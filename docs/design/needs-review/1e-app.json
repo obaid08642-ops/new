@@ -6,7 +6,7 @@
     "element": "Pharmacy name",
     "file": "",
     "line": 0,
-    "found": "[backend] The order and its allocations carry only pharmacy_account_id; no name reaches the patient after the offer is chosen, so the tracking card cannot name the pharmacy.",
+    "found": "[backend] Fixed on design/backend-fields: GET /patient/pharmacy/orders/:id now carries pharmacy_name_ar / pharmacy_name_en (pharmacy-order.service.ts:147-150); the tracking card names the pharmacy by language and hides the line when absent.",
     "suspect": "Backend gap: reviewer session."
   },
   {
@@ -26,7 +26,7 @@
     "element": "Legacy orders (GET /orders/mine)",
     "file": "",
     "line": 0,
-    "found": "[backend] These rows have no screen: order-tracking reads the governed endpoint, which answers order_not_found for a legacy id. They are listed without an action.",
+    "found": "[backend] Fixed on design/backend-fields: legacy rows open the tracking screen, which falls back to GET /orders/:id/tracking (orders.service.ts getTracking) for an id the governed endpoint does not know.",
     "suspect": "Backend gap: reviewer session."
   },
   {
@@ -43,20 +43,10 @@
     "batch": 1,
     "app": "patient-app",
     "screen": "/orders",
-    "element": "Emergency request status",
-    "file": "",
-    "line": 0,
-    "found": "[backend] GET /emergency/my/active answers 200 with an empty body when there is none and the patient view carries state, not status; the row says 'active' because the endpoint lists only the active one.",
-    "suspect": "Backend gap: reviewer session."
-  },
-  {
-    "batch": 1,
-    "app": "patient-app",
-    "screen": "/orders",
     "element": "Kind filter chips",
     "file": "",
     "line": 0,
-    "found": "[owner] The old screen filtered by service; the Orders board has only current / previous. Owner to confirm the filter is not wanted.",
+    "found": "[owner] Owner approved the service filter on 2026-10-10 (item 371): chips per kind, All by default, client-side. The board shows no chips; add them to the board.",
     "suspect": "Owner decision."
   },
   {
@@ -66,7 +56,7 @@
     "element": "Earlier prescription and fulfilment",
     "file": "",
     "line": 0,
-    "found": "[owner] Order again sends a delivery request without the earlier prescription_id or pickup choice (as before). Owner to say if they should carry over.",
+    "found": "[owner] Owner approved on 2026-10-10 (item 372): the earlier prescription_id and delivery or pickup now carry over. The prescription record has no validity field (backend/src/schemas/prescription.schema.ts:41), so it is carried whenever the order had one and the server only checks ownership; a validity field is needed for the \"still valid\" rule (waits for OC).",
     "suspect": "Owner decision."
   }
 ]

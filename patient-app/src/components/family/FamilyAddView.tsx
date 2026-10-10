@@ -10,6 +10,7 @@ import { HealthTabs, Notice, Panel, Row, useTab } from '../health/HealthKit';
 import { message, step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
+import { useCopy } from '../screen/useCopy';
 import { FAMILY_HUB, FamilyScreen } from './FamilyKit';
 
 /**
@@ -50,11 +51,12 @@ export function FamilyAddView() {
 
 function InviteTab({ cache }: { cache: React.MutableRefObject<string | null> }) {
   const { k, theme, c, t } = useScreenUi();
-  const [method, setMethod] = useState<'link' | 'qr' | 'code'>('link');
+  const [method, setMethod] = useState<'qr' | 'code'>('code');
   const [code, setCode] = useState<string | null>(cache.current);
   const [failed, setFailed] = useState(false);
   const [loading, setLoading] = useState(cache.current === null);
   const started = useRef(false);
+  const { copy, notice } = useCopy('invite');
 
   const create = React.useCallback(async () => {
     setLoading(true);
@@ -84,7 +86,7 @@ function InviteTab({ cache }: { cache: React.MutableRefObject<string | null> }) 
   const share = async () => {
     if (!code) return;
     try {
-      await Share.share({ message: k('family.invite.shareMessage', { code, url }) });
+      await Share.share({ message: k('family.invite.shareMessage', { code }) });
     } catch (e) {
       logError('family:invite:share', e);
     }
@@ -102,13 +104,7 @@ function InviteTab({ cache }: { cache: React.MutableRefObject<string | null> }) 
   return (
     <>
       <Section title={k('family.invite.method')}>
-        <Segmented label={k('family.invite.method')} value={method} onChange={(v) => setMethod(v as 'link' | 'qr' | 'code')} options={[{ value: 'link', label: k('family.invite.link') }, { value: 'qr', label: k('family.invite.qr') }, { value: 'code', label: k('family.invite.code') }]} theme={theme} />
-        {method === 'link' ? (
-          <View style={{ gap: 10 }}>
-            <Input label={k('family.invite.link')} value={url} readOnly theme={theme} testID="invite-link" />
-            <Button label={k('family.invite.share')} fullWidth onPress={() => void share()} theme={theme} testID="invite-share" />
-          </View>
-        ) : null}
+        <Segmented label={k('family.invite.method')} value={method} onChange={(v) => setMethod(v === 'qr' ? 'qr' : 'code')} options={[{ value: 'code', label: k('family.invite.code') }, { value: 'qr', label: k('family.invite.qr') }]} theme={theme} />
         {method === 'qr' ? (
           <View style={{ alignItems: 'center', gap: 12 }}>
             <View accessibilityLabel={k('family.invite.qrLabel')} style={{ padding: 16, borderRadius: 20, backgroundColor: c.brand.canvas, borderWidth: 1, borderColor: c.border.hairline, alignItems: 'center', gap: 8 }} testID="invite-qr">
@@ -124,7 +120,9 @@ function InviteTab({ cache }: { cache: React.MutableRefObject<string | null> }) 
               <Text selectable accessibilityLabel={`${k('family.invite.code')} ${code}`} style={{ ...scale(t, 'h1', 'bold'), color: c.text.primary, letterSpacing: 4, textAlign: 'center' }} testID="invite-code">{code}</Text>
             </View>
             <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('family.invite.codeHint')}</Text>
-            <Button label={k('family.invite.share')} variant="outline" fullWidth onPress={() => void share()} theme={theme} />
+            <Button label={k('common.copy')} variant="outline" fullWidth onPress={() => void copy(code)} theme={theme} testID="invite-copy-code" />
+            <Button label={k('family.invite.share')} fullWidth onPress={() => void share()} theme={theme} testID="invite-share-code" />
+            {notice}
           </View>
         ) : null}
       </Section>

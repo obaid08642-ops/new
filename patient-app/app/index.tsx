@@ -13,6 +13,7 @@ import { ensureGuestSession } from "../src/utils/guestSession";
 import { guestLogin } from "../src/store/slices/authSlice";
 import { launchRoute, needsSilentGuest } from "../src/utils/launchRoute";
 import { restoreSession } from "../src/utils/authSession";
+import { readIntroDone } from "../src/utils/onboardingGate";
 
 /**
  * The splash that opens the app: the Noon Dot on the canvas, then Home (HomeApp board). Colours come from the
@@ -32,11 +33,12 @@ export default function Index() {
   }, []);
 
   const planLaunch = async () => {
-    const [token, seen] = await Promise.all([
+    const [token, seen, introDone] = await Promise.all([
       SecureStore.getItemAsync(STORAGE_KEYS.AUTH_TOKEN).catch(() => null),
       AsyncStorage.getItem(STORAGE_KEYS.ONBOARDING_DONE).catch(() => null),
+      readIntroDone(),
     ]);
-    const state = { hasSession: Boolean(token), welcomeSeen: seen === "true" };
+    const state = { hasSession: Boolean(token), welcomeSeen: seen === "true", introDone };
     // the slice is not persisted: tell it about the session that is stored (guest or patient)
     if (token) {
       const refresh = await SecureStore.getItemAsync(STORAGE_KEYS.REFRESH_TOKEN).catch(() => null);
@@ -48,7 +50,7 @@ export default function Index() {
 
   const checkAppState = async (plan: ReturnType<typeof planLaunch>) => {
     try {
-      // First launch: Welcome. Every later launch: Home (as a patient, or as the guest the device already has or
+      // First launch: language, intro, then Welcome (once). Every later launch: Home (as a patient, or as the guest the device already has or
       // just got). Checkout and booking enforce the session policy at the action boundary.
       const { route, guest } = await plan;
       if (guest) {

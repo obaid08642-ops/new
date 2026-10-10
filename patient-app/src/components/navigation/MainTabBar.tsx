@@ -6,6 +6,7 @@ import { BottomTabBar, useTabBarHeight } from '../../../../packages/ui-native/sr
 import type { BottomTabItem } from '../../../../packages/ui/components/contract';
 import { useApp } from '../../context/AppContext';
 import { autoTranslate } from '../../i18n';
+import { useModules } from '../../context/ModulesContext';
 
 /**
  * The main tab bar, exactly as canvas/HomeApp.dc.html draws it: the shared native TabBar (floating glass pill,
@@ -46,6 +47,9 @@ export default function MainTabBar() {
   const barHeight = useTabBarHeight();
   const tr = (s: string) => autoTranslate(s, lang);
   const active = activeMainTab(pathname);
+  // a switched-off module has no tab (#953)
+  const { isHidden } = useModules();
+  const tabs = MAIN_TAB_ITEMS.filter((item) => !isHidden(item.route));
 
   return (
     <View
@@ -57,9 +61,9 @@ export default function MainTabBar() {
           theme={isDark ? 'dark' : 'light'}
           label={tr('التنقل الرئيسي')}
           value={active ?? ''}
-          items={MAIN_TAB_ITEMS.map(({ id, label, icon, raised }) => ({ id, label: tr(label), icon, raised }))}
+          items={tabs.map(({ id, label, icon, raised }) => ({ id, label: tr(label), icon, raised }))}
           onChange={(id) => {
-            const tab = MAIN_TAB_ITEMS.find((item) => item.id === id);
+            const tab = tabs.find((item) => item.id === id);
             if (tab) router.push(tab.route as never);
           }}
         />

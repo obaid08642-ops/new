@@ -3,6 +3,8 @@ import { locales } from "@/lib/i18n";
 import { siteOrigin } from "@/lib/seo";
 import { getProductSitemap } from "@/lib/api/public-products-server";
 import { patientApiUrl } from "@/lib/api/upstream";
+import { getDisabledModules } from "@/lib/api/public-config-server";
+import { MODULE_SITEMAPS } from "@/lib/modules";
 
 // Computed per request: a build-time prerender (backend unreachable during the image build) froze an
 // index with no product sitemaps. The backend count itself is cached for an hour (fetch revalidate).
@@ -21,6 +23,12 @@ export async function GET() {
     `${siteOrigin()}/sitemaps/labs.xml`,
     `${siteOrigin()}/sitemaps/radiology.xml`,
   ];
+  // a switched-off module drops its entity sitemaps (#953)
+  const disabled = await getDisabledModules();
+  const hidden = new Set([...disabled].flatMap((key) => MODULE_SITEMAPS[key] ?? []));
+  const kept = entries.filter((url) => !hidden.has(url.slice(url.lastIndexOf("/") + 1)));
+  entries.length = 0;
+  entries.push(...kept);
   for (const locale of locales) {
     // Light count endpoint (bytes, not megabytes): total → pages.
     let pages = 0;

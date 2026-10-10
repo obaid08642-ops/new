@@ -216,7 +216,7 @@ function PrescriptionMode() {
             ))}
           </Section>
           <View style={{ gap: 10 }}>
-            <CardAction label={k('ai.rx.askPharmacist')} tone="ink" onPress={() => router.push('/pharmacy/pharmacist-chat' as Href)} testID="assistant-pharmacist" />
+            <CardAction label={k('ai.rx.askPharmacist')} tone="ink" onPress={() => router.push('/pharmacy/rx-order?via=type' as Href)} testID="assistant-pharmacist" />
             <CardAction label={k('ai.rx.reminders')} tone="outline" onPress={() => router.push('/health/medications?tab=reminders&add=1' as Href)} />
             <CardAction label={k('ai.rx.share')} tone="outline" onPress={() => router.push('/consultations/share-report' as Href)} />
           </View>

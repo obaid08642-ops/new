@@ -38,10 +38,11 @@ export default async function MedicineComparePage({ params, searchParams }: Prop
   const value = (m: Record<string, unknown>, field: string) => {
     const v = m[field];
     if (v === null || v === undefined || v === "") return null;
+    if (typeof v === "boolean") return v ? t("yes") : t("no");
     return field === "price" && typeof v === "number" ? formatPrice(locale, v).text : String(v);
   };
   // a row that no medicine has data for is not drawn
-  const fields = (["active_ingredient", "price", "dosage_form", "manufacturer"] as const).filter((f) => items.some((m) => value(m, f) !== null));
+  const fields = (["active_ingredient", "price", "dosage_form", "manufacturer", "requires_prescription", "online_exclusive"] as const).filter((f) => items.some((m) => value(m, f) !== null));
   const back = `/${locale}/c`;
   const caret = getDirection(locale) === "rtl" ? "caret-right" : "caret-left";
 

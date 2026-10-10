@@ -697,8 +697,8 @@
     {
       "route": "/health/emergency-contacts",
       "element": "SOS notifies family",
-      "kind": "backend",
-      "note": "The family section says the emergency button sends the location to contacts and family (decision 14); confirm POST /emergency/trigger does.",
+      "kind": "client",
+      "note": "FIXED on design/sos-removal: the SOS is removed (decision 14) and the family note now only says these are the people to call in an emergency.",
       "file": "patient-app/src/components/health/ProfileView.tsx",
       "line": 313
     },

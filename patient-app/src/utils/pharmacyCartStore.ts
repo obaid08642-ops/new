@@ -21,6 +21,8 @@ export interface CartItem {
   iconColor?: string;
   iconBg?: string;
   activeIngredient?: string;
+  /** The medicine's `online_exclusive`, stored when the line is added (absent on lines saved before it existed, and when the source did not know it). */
+  onlineOnly?: boolean;
 }
 
 export type CartItemInput = Omit<CartItem, 'qty'> & { qty?: number };
@@ -42,8 +44,8 @@ export interface CartStorage {
 
 /** The only fields a local cart line keeps: any other field (a price, a payment choice, points) is dropped on the way in. */
 export function sanitizePharmacyCartItem(item: CartItemInput): CartItem {
-  const { id, name, rx, image, icon, iconColor, iconBg, activeIngredient, qty } = item;
-  return { id, name, rx, image, icon, iconColor, iconBg, activeIngredient, qty: qty || 1 };
+  const { id, name, rx, image, icon, iconColor, iconBg, activeIngredient, onlineOnly, qty } = item;
+  return { id, name, rx, image, icon, iconColor, iconBg, activeIngredient, ...(onlineOnly === true ? { onlineOnly: true } : {}), qty: qty || 1 };
 }
 
 /** What the device stored, kept only when it is a usable line (a corrupt or hand-edited entry must not break the cart). */
@@ -57,16 +59,16 @@ export function sanitizeStoredCart(value: unknown): CartItem[] {
     const name = text(line.name);
     const qty = typeof line.qty === 'number' && Number.isInteger(line.qty) && line.qty >= 1 ? Math.min(line.qty, MAX_LINE_QTY) : null;
     if (!id || !name || qty === null) return [];
-    return [sanitizePharmacyCartItem({ id, name, qty, rx: line.rx === true, image: text(line.image), icon: text(line.icon), iconColor: text(line.iconColor), iconBg: text(line.iconBg), activeIngredient: text(line.activeIngredient) })];
+    return [sanitizePharmacyCartItem({ id, name, qty, rx: line.rx === true, image: text(line.image), icon: text(line.icon), iconColor: text(line.iconColor), iconBg: text(line.iconBg), activeIngredient: text(line.activeIngredient), onlineOnly: line.onlineOnly === true })];
   });
 }
 
-/** `extra` joins `base`: the same medicine adds up (99 at most) and keeps the line data of `base`; a new one is appended. */
+/** `extra` joins `base`: the same medicine adds up (99 at most) and keeps the line data of `base` (the online-only flag is set when either line has it); a new one is appended. */
 export function mergeCarts(base: CartItem[], extra: CartItem[]): CartItem[] {
   const merged = base.map((line) => ({ ...line }));
   for (const line of extra) {
     const at = merged.findIndex((existing) => existing.id === line.id);
-    if (at >= 0) merged[at] = { ...merged[at], qty: Math.min(merged[at].qty + line.qty, MAX_LINE_QTY) };
+    if (at >= 0) merged[at] = { ...merged[at], ...(line.onlineOnly ? { onlineOnly: true } : {}), qty: Math.min(merged[at].qty + line.qty, MAX_LINE_QTY) };
     else merged.push({ ...line });
   }
   return merged;

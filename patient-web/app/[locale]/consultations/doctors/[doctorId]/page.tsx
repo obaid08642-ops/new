@@ -71,7 +71,7 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
   if (doctor.rating !== undefined) stats.push({ value: formatNumber(locale, doctor.rating), label: c("statRating") });
   if (doctor.experienceYears !== undefined) stats.push({ value: formatNumber(locale, doctor.experienceYears), label: c("statYears") });
   if (doctor.price !== undefined) stats.push({ value: formatPrice(locale, doctor.price).text, label: c("statPrice") });
-  const tags = [doctor.facility, doctor.acceptsInsurance ? c("acceptsInsurance") : undefined].filter((tag): tag is string => Boolean(tag));
+  const tags = [doctor.verified ? t("verifiedDoctor") : undefined, doctor.licenseNo ? t("licenseNumber", { number: doctor.licenseNo }) : undefined, doctor.facility, doctor.acceptsInsurance ? c("acceptsInsurance") : undefined].filter((tag): tag is string => Boolean(tag));
   const base = `/${locale}/consultations/doctors/${doctor.id}`;
 
   return (

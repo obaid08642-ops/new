@@ -6,6 +6,7 @@ import { Gate, Sheet, Section, useConsultFormat } from '../consult/ConsultKit';
 import { CareBar, CareHero, CareScreen } from '../care/CareKit';
 import { HealthTabs, MetricGrid, MetricTile, Notice, Panel, Pill, Row, rowsOf, useRemote, useTab } from '../health/HealthKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
+import { useCopy } from '../screen/useCopy';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 
@@ -325,6 +326,7 @@ function InviteTab() {
   const [applyCode, setApplyCode] = useState('');
   const [applying, setApplying] = useState(false);
   const [message, setMessage] = useState<{ tone: 'success' | 'danger'; text: string } | null>(null);
+  const { copy, notice } = useCopy('loyalty');
   const code = remote.data?.code ?? '';
   const stats = remote.data?.stats ?? { total: 0, registered: 0, rewarded: 0, earned_points: 0 };
   const invites = remote.data?.invites ?? [];
@@ -365,7 +367,9 @@ function InviteTab() {
           <Text selectable accessibilityLabel={`${k('loyalty.invite.yourCode')} ${code}`} testID="loyalty-code" style={{ ...scale(t, 'h2'), color: c.action.primary.bg, letterSpacing: 2, textAlign: 'center' }}>
             {code || '—'}
           </Text>
+          <Button label={k('common.copy')} variant="outline" size="lg" fullWidth disabled={!code} onPress={() => void copy(code)} theme={theme} testID="loyalty-copy" />
           <Button label={k('loyalty.invite.share')} size="lg" fullWidth disabled={!code} onPress={() => void share()} theme={theme} testID="loyalty-share" />
+          {notice}
         </View>
       </Panel>
       <Panel>

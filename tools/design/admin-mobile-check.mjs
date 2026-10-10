@@ -62,6 +62,7 @@ const FIXTURES = [
   [/\/admin\/providers\/acc-1$/, () => ({ account: { id: 'acc-1' }, profile: {}, documents: [], bank_accounts: [] })],
   [/\/finance\/refunds\/queue$/, () => []],
   [/\/returns\?/, () => []],
+  [/\/api\/admin\/modules$/, () => ({ modules: { pharmacy: true, consultations: true, labs_radiology: true, nursing: true, nutrition: true, maternity: true, mental_health: true, family: true, insurance: true, loyalty: false, ai: true, articles: true } })],
   [/\/(labs|radiology|nursing)\/admin\/catalog$/, () => [{ id: 'c1', name_ar: 'فحص', medical_review_status: 'pending' }, { id: 'c2', name_ar: 'فحص 2', medical_review_status: 'approved' }]],
 ];
 const EMPTY = { data: [], items: [], rows: [], total: 0, page: 1, pages: 1, summary: {}, counts: {} };
@@ -73,10 +74,12 @@ const PAGES = (arg('pages', '') ? arg('pages', '').split(',') : [
   'finance-suite', 'disputes', 'dashboard', 'legal-policies', 'orders', 'crm', 'provider-moderation',
   // migrated to DataTable in this step
   'search-intelligence', 'analytics', 'shortage-reports', 'gdpr', 'reports', 'financial-ledger', 'insurance-queue', 'pharmacy-procurement',
-  'system-ops', 'medicines-catalog', 'scheduled-reports', 'order-detail', 'catalog-governance', 'config-portal', 'fraud-monitoring',
+  'system-ops', 'medicines-catalog', 'scheduled-reports', 'order-detail', 'config-portal', 'fraud-monitoring',
   'commissions', 'notification-center', 'analytics-suite', 'ai-control', 'health-dashboard',
   // new mobile essentials
   'today', 'approvals',
+  // module switches (#953)
+  'module-switches',
 ]);
 
 const results = [];
@@ -308,6 +311,35 @@ for (const width of [390, 1280]) {
     ok(/تجاوز مهلة الخدمة/.test(text) && /عالق/.test(text) && /مدفوعات فاشلة/.test(text), 'today', width, 'urgent alerts missing');
     ok(await page.locator('a[href="/admin/orders/pharmacy/ord-1"]').count() >= 1, 'today', width, 'problem order link missing');
     ok(/طلبات نشطة/.test(text) && /15|١٥/.test(text), 'today', width, 'tiles missing');
+  });
+
+  await scenario('module-switches toggle', browser, width, async (page, requests) => {
+    let prompts = 0;
+    page.on('dialog', async (d) => { prompts += 1; await d.dismiss(); });
+    await page.goto(`${BASE}/admin/module-switches`);
+    await page.getByRole('switch', { name: /إيقاف الصيدلية/ }).waitFor();
+    ok(await page.getByRole('switch', { name: /تفعيل برنامج الولاء/ }).getAttribute('aria-checked') === 'false', 'module-switches toggle', width, 'a stored-off module is not shown as off');
+    await page.getByRole('switch', { name: /إيقاف الصيدلية/ }).click();
+    const dialog = page.getByRole('dialog', { name: /إيقاف خدمة «الصيدلية»/ });
+    await dialog.waitFor();
+    ok(/ستختفي هذه الخدمة من التطبيق والموقع/.test(await dialog.innerText()), 'module-switches toggle', width, 'consequence sentence missing');
+    ok(!requests.some((r) => r.method === 'PUT'), 'module-switches toggle', width, 'saved before confirmation');
+    await dialog.getByRole('button', { name: 'نعم، أوقف' }).click();
+    ok(await dialog.getByRole('alert').isVisible(), 'module-switches toggle', width, 'missing reason not stopped inline');
+    ok(!requests.some((r) => r.method === 'PUT'), 'module-switches toggle', width, 'saved without a reason');
+    await dialog.getByRole('button', { name: 'تراجع' }).click();
+    ok(!requests.some((r) => r.method === 'PUT'), 'module-switches toggle', width, 'cancel still saved');
+    await page.getByRole('switch', { name: /إيقاف الصيدلية/ }).click();
+    await page.getByRole('dialog').locator('textarea').fill('صيانة مجدولة للخدمة');
+    await page.getByRole('dialog').getByRole('button', { name: 'نعم، أوقف' }).click();
+    await page.waitForTimeout(400);
+    const put = requests.find((r) => r.method === 'PUT');
+    ok(!!put && /\/api\/admin\/admin\/modules\/pharmacy$/.test(put.url), 'module-switches toggle', width, `PUT url wrong: ${put?.url}`);
+    const body = put ? JSON.parse(put.body) : {};
+    ok(body.enabled === false && body.reason === 'صيانة مجدولة للخدمة', 'module-switches toggle', width, `PUT body wrong: ${put?.body}`);
+    ok(await page.getByRole('status').filter({ hasText: 'تم إيقاف خدمة «الصيدلية»' }).isVisible(), 'module-switches toggle', width, 'success line missing');
+    ok(await page.getByRole('switch', { name: /تفعيل الصيدلية/ }).getAttribute('aria-checked') === 'false', 'module-switches toggle', width, 'row did not flip to off');
+    ok(prompts === 0, 'module-switches toggle', width, 'a window dialog was used');
   });
 
   await scenario('payouts inline reject row', browser, width, async (page) => {

@@ -1,6 +1,8 @@
-// ACCEPTANCE — D-12 price ceiling on pharmacy offers (owner decision 2026-10-06 item 12, answer O-1:
-// the ceiling is the catalogue price held in the server database). Written by the reviewer before the
-// work; the implementing agent makes it pass and may not edit it (nor live-server.ts next to it).
+// ACCEPTANCE — D-12 catalogue price on pharmacy offers. Owner decision 2026-10-06 item 12, REVISED 2026-10-10:
+// a pharmacy MAY price above the catalogue (the official price may have risen before our catalogue was updated,
+// and non-medicine items have free prices). Nothing is blocked; the pharmacy is warned and the admin is told.
+// Written by the reviewer before the work; the implementing agent makes it pass and may not edit it (nor
+// live-server.ts next to it).
 //
 // The whole compiled backend runs (dist/main.js) on an in-memory MongoDB replica set and a local Redis.
 //
@@ -8,14 +10,17 @@
 //   1. Catalogue fields `sfda_price`, `sfda_price_source`, `sfda_price_updated_at`, filled from the
 //      catalogue `price` by scripts/migrations/2026-10-sfda-price-from-catalogue.ts (repo convention:
 //      dry-run by default, `--apply` writes; MONGODB_URI, DB_NAME); source text contains "catalogue".
-//   2. A pharmacy offer line mapped to a catalogue item (inventory sku == catalogue sku, or the
-//      inventory row's medicine_id) may not be priced above that item's `sfda_price`: listed price or
-//      `unit_price_override` above it -> 400 (code mentions the ceiling). At or below is fine.
-//   3. A medicine line that cannot be mapped to the catalogue is kept but marked "price not verified"
-//      (the offer item says `not_verified`), appears in the admin review list
-//      GET /api/v1/admin/pharmacy/price-review, and the offer cannot be SUBMITTED while such a line
-//      remains (400, code mentions price_not_verified).
-//   4. The admin edits an item's ceiling (PATCH /medicines/admin/catalog/:id { sfda_price }); every
+//   2. A pharmacy offer line mapped to a catalogue item (inventory sku == catalogue sku, or the inventory row's
+//      medicine_id) priced above that item's `sfda_price` (listed price or `unit_price_override`) is ACCEPTED:
+//      - the stored offer item carries `above_catalogue_price: true` and `catalogue_price` (the ceiling);
+//      - the draft answer carries a warning with the code `price_above_catalogue` (the provider app shows
+//        "drug prices are regulated: change them only when the official price has changed");
+//      - the admin is told: one admin notification (role admin, title_key mentioning price_above_catalogue)
+//        and an entry in GET /api/v1/admin/pharmacy/price-review naming the order and the medicine.
+//      At or below the ceiling: no flag, no warning, no admin notice.
+//   3. A line that cannot be mapped to the catalogue (cosmetics, local items, photo lines) is kept, marked
+//      `not_verified`, listed in the admin review list, and does NOT block submitting the offer.
+//   4. The admin edits an item's catalogue price (PATCH /medicines/admin/catalog/:id { sfda_price }); every
 //      change is audit-logged with the old and new value; a patient cannot.
 import { spawnSync } from 'child_process';
 import * as path from 'path';
@@ -28,7 +33,7 @@ const BACKEND = path.resolve(__dirname, '../..');
 const PHARM = 'ph-1';
 const HOUR = 3_600_000;
 
-describe('D-12: price ceiling = catalogue price', () => {
+describe('D-12: catalogue price, warn and tell the admin (never block)', () => {
   const stack = new LiveStack();
   let pharmacy = '';
   let admin = '';
@@ -86,35 +91,49 @@ describe('D-12: price ceiling = catalogue price', () => {
   });
 
   describe('offers', () => {
-    it('a line listed above the ceiling (95 > 80) is refused', async () => {
+    it('a line listed above the catalogue price (95 > 80) is accepted, flagged and warned about', async () => {
       const r = await draft([line('l-a', 'inv-a'), line('l-b', 'inv-b'), line('l-x', 'inv-x')]);
-      expect(r.status).toBe(400);
-      expect(JSON.stringify(r.body)).toMatch(/ceiling|sfda/i);
+      expect(r.status).toBeLessThan(300);
+      expect(JSON.stringify(r.body)).toMatch(/price_above_catalogue/);
+      const offer = await stack.db.collection('pharmacy_offers').findOne({ order_id: 'ord-1', pharmacy_account_id: PHARM });
+      const a = (offer?.items || []).find((i: any) => i.order_item_id === 'l-a');
+      expect(a).toMatchObject({ unit_price: 95, above_catalogue_price: true, catalogue_price: 80 });
+      const b = (offer?.items || []).find((i: any) => i.order_item_id === 'l-b');
+      expect(b?.above_catalogue_price).not.toBe(true);
     });
-    it('an override above the ceiling (85) is refused too', async () => {
-      const r = await draft([line('l-a', 'inv-a', { unit_price_override: 85, price_override_reason: 'x' }), line('l-b', 'inv-b'), line('l-x', 'inv-x')]);
-      expect(r.status).toBe(400);
-    });
-    it('at the ceiling it is accepted; the unmapped line is kept and marked not verified', async () => {
-      const r = await draft([line('l-a', 'inv-a', { unit_price_override: 80, price_override_reason: 'ceiling' }), line('l-b', 'inv-b'), line('l-x', 'inv-x')]);
+    it('an override above the catalogue price (85) is accepted and flagged too', async () => {
+      const r = await draft([line('l-a', 'inv-a', { unit_price_override: 85, price_override_reason: 'new official price' }), line('l-b', 'inv-b'), line('l-x', 'inv-x')]);
       expect(r.status).toBeLessThan(300);
       const offer = await stack.db.collection('pharmacy_offers').findOne({ order_id: 'ord-1', pharmacy_account_id: PHARM });
-      const x = (offer?.items || []).find((i: any) => i.order_item_id === 'l-x');
-      expect(JSON.stringify(x)).toMatch(/not_verified/);
       const a = (offer?.items || []).find((i: any) => i.order_item_id === 'l-a');
-      expect(a?.unit_price).toBe(80);
+      expect(a).toMatchObject({ unit_price: 85, above_catalogue_price: true, catalogue_price: 80 });
     });
-    it('the unmapped line is in the admin review list', async () => {
+    it('the admin is told: one admin notification and an entry in the review list', async () => {
+      const notes = await stack.db.collection('notifications').find({ role: 'admin' }).toArray();
+      expect(notes.some((n: any) => /price_above_catalogue/.test(String(n.title_key || '')))).toBe(true);
       const r = await stack.call(0, 'GET', '/api/v1/admin/pharmacy/price-review', admin);
       expect(r.status).toBe(200);
-      expect(JSON.stringify(r.body)).toContain('ord-1');
+      const body = JSON.stringify(r.body);
+      expect(body).toContain('ord-1');
+      expect(body).toMatch(/med-a|4001/);
       expect((await stack.call(0, 'GET', '/api/v1/admin/pharmacy/price-review', patient)).status).toBe(403);
     });
-    it('the offer cannot be submitted while a line is not verified', async () => {
+    it('at the catalogue price there is no flag and no warning; the unmapped line is kept and marked not verified', async () => {
+      const r = await draft([line('l-a', 'inv-a', { unit_price_override: 80, price_override_reason: 'catalogue' }), line('l-b', 'inv-b'), line('l-x', 'inv-x')]);
+      expect(r.status).toBeLessThan(300);
+      expect(JSON.stringify(r.body)).not.toMatch(/price_above_catalogue/);
+      const offer = await stack.db.collection('pharmacy_offers').findOne({ order_id: 'ord-1', pharmacy_account_id: PHARM });
+      const a = (offer?.items || []).find((i: any) => i.order_item_id === 'l-a');
+      expect(a?.unit_price).toBe(80);
+      expect(a?.above_catalogue_price).not.toBe(true);
+      const x = (offer?.items || []).find((i: any) => i.order_item_id === 'l-x');
+      expect(JSON.stringify(x)).toMatch(/not_verified/);
+    });
+    it('a not-verified line does not block submitting the offer', async () => {
       const offer = await stack.db.collection('pharmacy_offers').findOne({ order_id: 'ord-1', pharmacy_account_id: PHARM });
       const r = await stack.call(0, 'POST', `/api/v1/provider/pharmacy/broadcasts/ord-1/offers/${offer?.id}/submit`, pharmacy, {});
-      expect(r.status).toBe(400);
-      expect(JSON.stringify(r.body)).toMatch(/price_not_verified/);
+      expect(JSON.stringify(r.body)).not.toMatch(/price_not_verified|ceiling|price_above_catalogue/);
+      expect(r.status).toBeLessThan(300);
     });
   });
 

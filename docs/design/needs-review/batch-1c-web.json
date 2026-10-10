@@ -27,7 +27,7 @@
     "file": "backend/src/modules/pharmacy/services/pharmacy-offer.service.ts",
     "line": 298,
     "found": "patientDtoAsync sends constants for every offer: insurance_ready: true, cod_allowed: true and approx_delivery { eta_minutes: 60, label: \"Approximately within 1 hour\" }. None of them comes from the pharmacy or the order.",
-    "suspect": "The arrival estimate is a made-up number and is NOT drawn on the web (the board's \"arrives within [time]\" is left out). The two flags are drawn as sent (they decide whether the insurance choice is offered; selection with insurance is still validated by the backend, e.g. prescription_required_for_insurance_orders), but they say nothing about the pharmacy. They should come from the pharmacy's profile or be removed."
+    "suspect": "Fixed on design/backend-fields: the offer flags come from the profile (insurance_ready true only when known; cod_allowed false; no arrival estimate: pharmacy-offer.service.ts:330-352). The app no longer treats an unknown insurance_ready as ready; the web offer card names the pharmacy from pharmacy_name_ar / pharmacy_name_en. (was: The arrival estimate is a made-up number and is NOT drawn on the web (the board's \"arrives within [time]\" is left out). The two flags are drawn as sent (they decide whether the insurance choice is offered; selection with insurance is still validated by the backend, e.g. prescription_required_for_insurance_orders), but they say nothing about the pharmacy. They should come from the pharmacy's profile or be removed.)"
   },
   {
     "batch": 1,

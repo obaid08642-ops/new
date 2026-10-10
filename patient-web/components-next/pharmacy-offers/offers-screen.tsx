@@ -1,3 +1,4 @@
+import { pharmacyDisplayName } from "@/lib/pharmacy/order-view";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
@@ -76,7 +77,7 @@ export async function OffersScreen({ locale, orderId, variant }: Props) {
   const views: OfferView[] = offers.map((offer) => ({
     id: offer.id,
     open: offer.status === "open",
-    pharmacyName: offer.pharmacyName,
+    pharmacyName: pharmacyDisplayName(offer.pharmacyNames, locale) ?? offer.pharmacyName,
     total: offer.total,
     subtotal: offer.subtotal,
     deliveryFee: offer.deliveryFee,

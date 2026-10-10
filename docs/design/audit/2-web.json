@@ -13,7 +13,7 @@
         ],
         [
           "Appointment card (date tile, title, specialty, time, mode and status chips)",
-          "GET /care/appointments rows: slot_start, doctor_name, specialty_ar, service_type, status",
+          "GET /care/appointments rows: slot_start, doctor_name, specialty_name_ar / specialty_name_en by page language, service_type, status",
           "ok"
         ],
         [
@@ -124,6 +124,11 @@
         [
           "Message rows (type, time, attachment flag)",
           "GET /chat/threads/:param, GET /chat/threads/:param/messages",
+          "ok"
+        ],
+        [
+          "Text composer (issue 806)",
+          "POST /chat/threads/:id/messages { body, client_message_id } through /api/patient (allowlisted, method-pinned), drawn only when permissions can_chat and not read_only; shown after the server answers; error + retry; no uploads or voice",
           "ok"
         ]
       ]
@@ -303,7 +308,7 @@
       "elements": [
         [
           "Search, sort",
-          "?q=, ?sort= (links and a GET form)",
+          "?q=, ?sort= (links and a GET form); hidden when the server orders the list (distance, next slot)",
           "ok"
         ],
         [
@@ -318,12 +323,42 @@
         ],
         [
           "Verified seal",
-          "no verification field",
-          "hidden"
+          "verified (admin-approved and licence-verified, care.service.ts:497); the seal is drawn only when true",
+          "ok"
         ],
         [
           "Specialty line and doctor name by language",
           "specialty slug via SpecialtyNames (never the slug); name_ar / name_en by page language",
+          "fixed"
+        ],
+        [
+          "Visit type (clinic, video, home visit)",
+          "?type= -> GET /care/doctors type",
+          "ok"
+        ],
+        [
+          "Specialty select (issue 404)",
+          "?specialty=<slug> -> GET /care/doctors specialty (combines with ?q=); names from SpecialtyNames",
+          "ok"
+        ],
+        [
+          "Insurance / cash-only filter (issue 404)",
+          "?payment=insurance|cash -> accepts_insurance=true|false (care.controller.ts:39); \"cash\" = doctors who do not accept insurance",
+          "ok"
+        ],
+        [
+          "Quick filter 'Nearest'",
+          "?nearest=1&lat=&lng= -> sort=distance&lat=&lng=; no location: ?city= (saved address) -> city; browser location asked on tap only",
+          "ok"
+        ],
+        [
+          "Quick filter 'Available now'",
+          "?available=1 -> available_within=15 with the visit type (clinic by default)",
+          "ok"
+        ],
+        [
+          "Doctor list load failure",
+          "ConsultState error with retry (Doctors.unavailable*, Doctors.retry)",
           "fixed"
         ]
       ]
@@ -537,7 +572,7 @@
       "route": "/consultations/call-history",
       "element": "List",
       "kind": "backend",
-      "note": "Shows finished appointments; there is no call-record endpoint behind the name.",
+      "note": "Fixed on design/backend-fields: the list reads the call records (GET /calls/history: call_type, status, started_at, duration_seconds, appointment_id), not the finished appointments.",
       "file": "patient-web/app/[locale]/consultations/call-history/page.tsx",
       "line": 28
     },
@@ -553,9 +588,9 @@
       "route": "/consultations/doctors",
       "element": "Photo and verified seal",
       "kind": "client",
-      "note": "extractDoctors reads no photo_url or verification field because GET /care/doctors (toPublicDoctor) sends none; the card shows the neutral mark until the backend adds them.",
+      "note": "Fixed on design/backend-fields: the verified seal and the licence number are drawn from verified / scfhs_license_no; the photo is still not sent by toPublicDoctor.",
       "file": "patient-web/app/[locale]/consultations/doctors/page.tsx",
-      "line": 86
+      "line": 126
     },
     {
       "route": "/consultations/book/[doctorId]",
@@ -577,15 +612,15 @@
       "route": "/consultations/doctors",
       "element": "Filters",
       "kind": "owner",
-      "note": "The Consult board draws a specialty rail, visit-mode chips and a cash/insurance segmented filter; the page has search and sort only (not added: feature).",
+      "note": "Search, sort, visit type, Nearest and Available now are drawn, and since issue 404 (approved 2026-10-10) so are a specialty select (?specialty=, the slug filter) and an insurance / cash-only segmented filter (?payment=, accepts_insurance); the board's specialty rail is drawn as a select.",
       "file": "patient-web/app/[locale]/consultations/doctors/page.tsx",
-      "line": 58
+      "line": 81
     },
     {
       "route": "/appointments",
       "element": "Specialty line",
       "kind": "backend",
-      "note": "The appointment row carries specialty_ar only, so the specialty reads in Arabic on every language page.",
+      "note": "Fixed on design/backend-fields: the specialty follows the page language (specialty_name_ar / specialty_name_en, Q-19). Backend: the list GET /care/appointments (appointments.service.ts listMine) is not enriched, so the row has no doctor_name or specialty yet; the detail has both.",
       "file": "patient-web/app/[locale]/appointments/page.tsx",
       "line": 83
     },
@@ -604,6 +639,25 @@
       "note": "The video call, waiting room and room screens were only seen in their error and not-ready states here (no media backend in the check); the connected layout is not verified.",
       "file": "patient-web/app/[locale]/consultations/virtual-waiting-room/page.tsx",
       "line": 40
-    }
+    },
+    {
+      "route": "/consultations/doctors",
+      "element": "Nearest with Available now",
+      "kind": "backend",
+      "note": "GET /care/doctors orders available_within results by next slot and ignores sort=distance, so with both on the position is not sent (the city filter still is); a combined 'nearest free doctor' needs the server to accept both.",
+      "file": "patient-web/lib/consult/doctor-filters.ts",
+      "line": 72,
+      "backend": "backend/src/modules/care/care.service.ts:115"
+    },
+    {
+      "route": "/consultations/doctors",
+      "element": "Nearest by city wording",
+      "kind": "owner",
+      "note": "Approved 2026-10-10: Doctors in {city}",
+      "file": "patient-web/components-next/consult/doctor-quick-filters.tsx",
+      "line": 63
+    },
+    { "route": "/consultations/doctors", "element": "Cash-only filter", "kind": "owner", "note": "The server has accepts_insurance only: 'Cash only' means doctors who do NOT accept insurance (accepts_insurance=false), not 'any doctor, paid in cash'. A patient who pays cash can still book any doctor from the unfiltered list.", "file": "patient-web/lib/consult/doctor-filters.ts", "line": 76, "backend": "backend/src/modules/care/care.controller.ts:54" },
+    { "route": "/chat/[threadId]", "element": "Sent text is not shown", "kind": "owner", "note": "The thread page lists message activity only (type and time, never the text: the privacy rule of the page), so after the composer sends, the patient sees the new activity row but not what was written or what the doctor replied.", "file": "patient-web/components-next/consult/chat-composer.tsx", "line": 16 }
   ]
 }
