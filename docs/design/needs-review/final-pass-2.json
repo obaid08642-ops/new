@@ -56,7 +56,7 @@
     "element": "stale lines",
     "file": "docs/design/needs-review/final-pass.json",
     "line": 1,
-    "found": "[client] 49 older lines point to files deleted by the SOS removal, the cart/orders merges and the admin directory removal (the first two lines of this file are the SOS ones, fixed in #1270). They are kept unchanged so no nr-key shifts.",
+    "found": "[client] 50 older lines have no file or point to files deleted by the SOS removal, the cart/orders merges and the admin directory removal (the first two lines of this file are the SOS ones, fixed in #1270). They are kept unchanged so no nr-key shifts.",
     "suspect": "Reviewer: close the matching issues, then regenerate the needs-review files once."
   }
 ]
