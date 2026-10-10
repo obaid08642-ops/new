@@ -144,9 +144,9 @@
       "route": "/cart",
       "element": "Online-only note on a cart line",
       "kind": "owner",
-      "note": "The browser cart line stores name, pack, Rx flag and quantity; showing online-only needs a new stored flag (cart storage is not a design change): owner to decide.",
+      "note": "Fixed on design/rx-rules: stored on the line when added. Web add paths that cannot know it: the public product page, the product cards and the reorder picker (their answers do not send online_exclusive); the barcode and compare pages know it but have no add-to-cart.",
       "file": "patient-web/components-next/pharmacy/cart-screen.tsx",
-      "line": 154
+      "line": 155
     },
     {
       "route": "/cart",
@@ -154,7 +154,7 @@
       "kind": "owner",
       "note": "Consult a doctor opens the mapped specialty only when the admin has filled system_configs rx_consult_specialties (category to specialty); until then the answer is null and the specialty list opens.",
       "file": "patient-web/components-next/pharmacy/cart-screen.tsx",
-      "line": 183,
+      "line": 184,
       "backend": "backend/src/modules/medicines/rx-consult.controller.ts:44"
     }
   ]

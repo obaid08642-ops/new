@@ -261,6 +261,7 @@
     "remove": "إزالة {name} من السلة",
     "removed": "تمت إزالة {name} من السلة",
     "needsRx": "يحتاج وصفة",
+    "onlineOnly": "أونلاين فقط",
     "rxBannerTitle": "صنف يحتاج وصفة",
     "rxBannerBody": "ارفع الوصفة قبل إرسال الطلب",
     "rxBannerAction": "رفع",

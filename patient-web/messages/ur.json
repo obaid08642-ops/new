@@ -311,6 +311,7 @@
     "remove": "{name} کو کارٹ سے ہٹائیں",
     "removed": "{name} کو کارٹ سے ہٹا دیا گیا",
     "needsRx": "نسخہ درکار ہے",
+    "onlineOnly": "صرف آن لائن",
     "rxBannerTitle": "ایک چیز کے لیے نسخہ درکار ہے",
     "rxBannerBody": "درخواست بھیجنے سے پہلے نسخہ اپ لوڈ کریں",
     "rxBannerAction": "اپ لوڈ",

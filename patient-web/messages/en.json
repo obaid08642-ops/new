@@ -273,6 +273,7 @@
     "remove": "Remove {name} from the cart",
     "removed": "{name} was removed from the cart",
     "needsRx": "Needs a prescription",
+    "onlineOnly": "Online only",
     "rxBannerTitle": "An item needs a prescription",
     "rxBannerBody": "Upload the prescription before sending the request",
     "rxBannerAction": "Upload",

@@ -311,6 +311,7 @@
     "remove": "Alisin ang {name} sa kariton",
     "removed": "Naalis ang {name} sa kariton",
     "needsRx": "Kailangan ng reseta",
+    "onlineOnly": "Online lang",
     "rxBannerTitle": "May item na nangangailangan ng reseta",
     "rxBannerBody": "I-upload ang reseta bago ipadala ang kahilingan",
     "rxBannerAction": "I-upload",

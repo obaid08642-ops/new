@@ -130,9 +130,9 @@
       "route": "/pharmacy/cart",
       "element": "Online-only note on a cart line",
       "kind": "owner",
-      "note": "The local cart line stores name, picture, ingredient, Rx flag and quantity; showing online-only needs a new stored flag (cart storage is not a design change): owner to decide.",
+      "note": "Fixed on design/rx-rules: stored on the line when added. The wishlist, the home search rows and the alternatives rows do not send online_exclusive (backend lines above), so lines added from them carry no flag.",
       "file": "patient-app/app/pharmacy/cart.tsx",
-      "line": 40
+      "line": 41
     },
     {
       "route": "/pharmacy/cart",
@@ -140,7 +140,7 @@
       "kind": "owner",
       "note": "Consult a doctor opens the mapped specialty only when the admin has filled system_configs rx_consult_specialties (category to specialty); until then the answer is null and the full specialty list opens.",
       "file": "patient-app/app/pharmacy/cart.tsx",
-      "line": 75,
+      "line": 80,
       "backend": "backend/src/modules/medicines/rx-consult.controller.ts:44"
     },
     {

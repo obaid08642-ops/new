@@ -38,6 +38,11 @@ function Line({ item, last }: { item: CartItem; last: boolean }) {
         <Text style={{ ...scale(t, 'row', 'medium'), color: c.text.primary, ...flow }}>{item.name}</Text>
         {item.activeIngredient ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{item.activeIngredient}</Text> : null}
         {item.rx ? <Pill label={k('pharmacy.needsRx')} tone="warning" /> : null}
+        {item.onlineOnly ? (
+          <View style={{ alignSelf: 'flex-start', height: 28, paddingHorizontal: 10, borderRadius: 14, backgroundColor: c.action.selected.bg, justifyContent: 'center' }}>
+            <Text style={{ ...scale(t, 'meta'), color: c.action.selected.fg }}>{k('pharmacy.product.exclusive')}</Text>
+          </View>
+        ) : null}
         <Stepper
           value={item.qty}
           min={1}
