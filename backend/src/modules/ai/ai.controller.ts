@@ -5,7 +5,7 @@ import { AiService } from './ai.service';
 import { AiGatewayService } from './ai-gateway.service';
 import { JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
-import { TriageDto, SkinAnalysisDto, SetModeDto, SetPurposeDto, VoiceDto, OcrDto, CopilotSuggestDto, OcrTranslateDto, MedicineImageSearchDto, BarcodeLookupDto, AnalyzeMealDto, GenerateExercisePlanDto, GenerateDietPlanDto, UpdateAiConfigDto, UpdateAiProviderDto} from './ai.dto';
+import { TriageDto, SetModeDto, SetPurposeDto, VoiceDto, OcrDto, CopilotSuggestDto, OcrTranslateDto, MedicineImageSearchDto, BarcodeLookupDto, AnalyzeMealDto, GenerateExercisePlanDto, GenerateDietPlanDto, UpdateAiConfigDto, UpdateAiProviderDto} from './ai.dto';
 import { AiProviderName } from './ai-gateway.service';
 
 @Controller('ai')
@@ -123,12 +123,6 @@ export class AiController {
   @Post('ocr-translate')
   ocrTranslate(@Body() body: OcrTranslateDto) {
     return this.svc.ocrTranslate(body.image_base64 || '', body.target_lang || 'ar');
-  }
-
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
-  @Post('skin-analysis')
-  skinAnalysis(@Req() req: any, @Body() body: SkinAnalysisDto) {
-    return this.svc.skinAnalysis(body, req.user?.id);
   }
 
   @Post('medicine-image-search')
