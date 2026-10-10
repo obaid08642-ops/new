@@ -63,7 +63,7 @@ jobs:
       - name: Cleanup key
         if: ${{ always() }}
         run: rm -f ~/.ssh/id_deploy
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ always() }}
         with:
           name: ops-report-encrypted
