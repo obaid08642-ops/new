@@ -23,6 +23,33 @@ const ALLOWED_MEMBER_PERMISSIONS = [
   'pharmacy', 'payment', 'location', 'emergency', 'view_health', 'book_for',
 ];
 
+/** Legacy grant aliases (698): expanded to canonical keys on write. */
+const PERMISSION_ALIASES: Record<string, string[]> = {
+  view_health: ['vitals', 'reports'],
+  view_prescriptions: ['meds'],
+};
+
+/** Relation codes a member can carry (687) — free-text relation stays as display fallback. */
+const RELATION_CODES = ['spouse', 'parent', 'child', 'sibling', 'grandparent', 'grandchild', 'caregiver', 'other'];
+
+function assertRelationCode(relationCode: unknown): string | null {
+  if (relationCode === undefined || relationCode === null || relationCode === '') return null;
+  if (typeof relationCode !== 'string' || !RELATION_CODES.includes(relationCode)) {
+    throw new BadRequestException('relation_invalid');
+  }
+  return relationCode;
+}
+
+function canonicalPermissions(permissions: string[]): string[] {
+  const out: string[] = [];
+  for (const p of Array.isArray(permissions) ? permissions : []) {
+    for (const key of PERMISSION_ALIASES[p] || [p]) {
+      if (ALLOWED_MEMBER_PERMISSIONS.includes(key) && !out.includes(key)) out.push(key);
+    }
+  }
+  return out;
+}
+
 @Injectable()
 export class FamilyService {
   constructor(
@@ -116,7 +143,7 @@ export class FamilyService {
     };
   }
 
-  async joinGroup(userId: string, inviteCode: string, displayName?: string, relation?: string) {
+  async joinGroup(userId: string, inviteCode: string, displayName?: string, relation?: string, relationCode?: string) {
     const group = await this.groupM.findOne({
       invite_code: String(inviteCode || '').trim(),
       is_deleted: { $ne: true },
@@ -127,6 +154,7 @@ export class FamilyService {
     }
     const alreadyMember = (group as any).members?.some((m: any) => m.user_id === userId);
     if (alreadyMember) throw new ConflictException('already_member');
+    const code = assertRelationCode(relationCode);
     await this.groupM.updateOne(
       { id: (group as any).id },
       {
@@ -138,6 +166,7 @@ export class FamilyService {
             joined_at: new Date(),
             display_name: displayName,
             relation: relation?.trim()?.slice(0, 40) || null,
+            relation_code: code,
           },
         },
       },
@@ -161,7 +190,21 @@ export class FamilyService {
   async listMembers(userId: string) {
     const group = await this.findGroupByOwnerOrMember(userId);
     if (!group) throw new NotFoundException('No family group found');
-    return (group as any).members ?? [];
+    const members = ((group as any).members ?? []) as any[];
+    // 702: backfill a missing display_name from the user profile.
+    try {
+      const missing = members.filter((m: any) => !m?.display_name && m?.user_id);
+      if (missing.length) {
+        const users: any[] = await (this.connection as any)?.db?.collection?.('users')
+          ?.find({ id: { $in: missing.map((m: any) => m.user_id) } }, { projection: { _id: 0, id: 1, full_name: 1 } })
+          ?.toArray?.() ?? [];
+        const byId = new Map(users.map((u: any) => [u.id, u.full_name || null]));
+        for (const m of missing) m.display_name = byId.get(m.user_id) ?? null;
+      }
+    } catch {
+      // Unit doubles without collections keep the raw members.
+    }
+    return members;
   }
 
   async getMemberHealth(requesterId: string, targetMemberId: string) {
@@ -251,13 +294,17 @@ export class FamilyService {
   }
 
   /** Owner sets a member's relationship label (parent/spouse/child/caregiver/…) */
-  async updateMemberRelation(ownerId: string, targetUserId: string, relation: string) {
-    if (!relation?.trim()) throw new BadRequestException('relation is required');
+  async updateMemberRelation(ownerId: string, targetUserId: string, relation?: string, relationCode?: string) {
+    if (!relation?.trim() && relationCode === undefined) throw new BadRequestException('relation is required');
+    const code = assertRelationCode(relationCode);
     const group = await this.groupM.findOne({ owner_id: ownerId, is_deleted: { $ne: true } }).lean();
     if (!group) throw new ForbiddenException('Only the group owner can edit members');
+    const set: any = {};
+    if (relation?.trim()) set['members.$.relation'] = relation.trim().slice(0, 40);
+    if (code !== null || relationCode !== undefined) set['members.$.relation_code'] = code;
     const res = await this.groupM.updateOne(
       { id: (group as any).id, 'members.user_id': targetUserId },
-      { $set: { 'members.$.relation': relation.trim().slice(0, 40) } },
+      { $set: set },
     );
     const matched = (res as any)?.matchedCount ?? (res as any)?.nMatched;
     if (matched === 0) throw new NotFoundException('Member not found');
@@ -272,8 +319,7 @@ export class FamilyService {
     const group = await this.groupM.findOne({ owner_id: ownerId, is_deleted: { $ne: true } }).lean();
     if (!group) throw new ForbiddenException('Only the group owner can edit permissions');
     if (targetUserId === ownerId) throw new BadRequestException('Owner permissions cannot be modified');
-    const clean = (Array.isArray(permissions) ? permissions : [])
-      .filter((p) => ALLOWED_MEMBER_PERMISSIONS.includes(p));
+    const clean = canonicalPermissions(permissions);
     const res = await this.groupM.updateOne(
       { id: (group as any).id, 'members.user_id': targetUserId },
       { $set: { 'members.$.permissions': clean } },
