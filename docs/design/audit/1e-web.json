@@ -62,7 +62,8 @@
         ["Add to cart", "CartContext.addItem(id = matched_sku, price 0, rx when the order had a prescription_id); then the cart", "ok"],
         ["Typed-request lines (no matched_sku)", "counted, not added; link to the manual request", "ok"],
         ["Create + submit a new pharmacy order from this screen, address read from the profile, Date.now() idempotency key", "replaced: the cart's checkout sends the request with the current address and a stable key", "fixed"],
-        ["Price of a line", "none: a past price is not a price today", "hidden"]
+        ["Price of a line", "none: a past price is not a price today", "hidden"],
+        ["Needs-a-prescription chip on a line", "the earlier order prescription_id: the same rule that marks the cart line (an order line carries no flag of its own)", "fixed"]
       ],
       "notes": []
     },

@@ -12,7 +12,9 @@
         ["'Saved in your account' section", "removed: GET /cart is not read by the pharmacy cart page any more", "hidden"],
         ["Delivery address card (signed in)", "GET /users/me/addresses through the existing address hook; failure shows the card's error state, the cart still works", "ok"],
         ["Empty state (only after the device storage was read)", "cart-store ready flag; static keys", "ok"],
-        ["Prescription banner, empty-cart confirm, request button", "cart lines (rx flag); static keys", "ok"]
+        ["Prescription banner, empty-cart confirm, request button", "cart lines (rx flag); static keys", "ok"],
+        ["Consult a doctor link in the prescription banner", "GET /medicines/:id/consult-specialty per Rx line (public, medicine ids only): one agreed specialty opens the doctors of that specialty by slug, none / mixed / failed opens the specialty list (GET /api/rx-consult?ids=, a public proxy)", "fixed"],
+        ["Offers, discounts, points or promo on a line", "none drawn: a cart line holds only name, pack, Rx flag and quantity (C11)", "hidden"]
       ],
       "notes": ["Add, change and remove never call the backend; the cart is per owner (guest / user id), merged on sign-in, cleared on sign-out."]
     },
@@ -21,7 +23,9 @@
       "elements": [
         ["Request lines and count", "the browser cart (names, quantities, product ids); no price", "ok"],
         ["Send button", "POST /patient/pharmacy/orders then /submit (single-flight, idempotency key); the cart is cleared only after both succeeded and kept on every failure", "ok"],
-        ["Failure messages (no connection, 5xx, refusal, 403, session)", "translated keys by result; the cart stays as it was", "ok"]
+        ["Failure messages (no connection, 5xx, refusal, 403, session)", "translated keys by result; the cart stays as it was", "ok"],
+        ["Consult a doctor link in the missing-prescription banner", "GET /medicines/:id/consult-specialty per Rx line (public, medicine ids only): one agreed specialty opens the doctors of that specialty by slug, none / mixed / failed opens the specialty list (GET /api/rx-consult?ids=)", "fixed"],
+        ["Discount, coupon or points rows in the request summary", "none: the request has no price; the amounts come from the chosen offer", "hidden"]
       ],
       "notes": []
     }

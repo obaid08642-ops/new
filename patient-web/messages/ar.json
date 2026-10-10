@@ -261,6 +261,7 @@
     "remove": "إزالة {name} من السلة",
     "removed": "تمت إزالة {name} من السلة",
     "needsRx": "يحتاج وصفة",
+    "onlineOnly": "أونلاين فقط",
     "rxBannerTitle": "صنف يحتاج وصفة",
     "rxBannerBody": "ارفع الوصفة قبل إرسال الطلب",
     "rxBannerAction": "رفع",
@@ -1221,7 +1222,8 @@
     "inStock": "متوفر",
     "outOfStock": "غير متوفر",
     "unavailableTitle": "تعذر تحميل قائمة الأمنيات",
-    "unavailableBody": "يرجى المحاولة مرة أخرى لاحقًا."
+    "unavailableBody": "يرجى المحاولة مرة أخرى لاحقًا.",
+    "needsRx": "يحتاج وصفة"
   },
   "Search": {
     "title": "البحث",
@@ -1469,7 +1471,11 @@
     "manufacturer": "الشركة المصنعة",
     "emptyBody": "اختر دواءين على الأقل من الكتالوج للمقارنة بينهما.",
     "browse": "تصفح الأدوية",
-    "back": "الأدوية"
+    "back": "الأدوية",
+    "requires_prescription": "يتطلب وصفة",
+    "online_exclusive": "أونلاين فقط",
+    "yes": "نعم",
+    "no": "لا"
   },
   "PharmacyRequest": {
     "title": "اطلب دواءً بالاسم",
@@ -1502,7 +1508,8 @@
     "viewProduct": "عرض المنتج",
     "another": "بحث عن باركود آخر",
     "requestByName": "اطلبه بالاسم",
-    "errorLookup": "فشل البحث بالباركود. حاول مجددًا."
+    "errorLookup": "فشل البحث بالباركود. حاول مجددًا.",
+    "onlineOnly": "أونلاين فقط"
   },
   "PharmacyChat": {
     "title": "التفاوض مع الصيدلية",

@@ -6,7 +6,7 @@
  */
 export type BarcodeMatch = {
   kind: "exact" | "closest";
-  medicine: { id: string; slug?: string; name: string; form?: string; strength?: string; manufacturer?: string; price?: number; requiresRx: boolean };
+  medicine: { id: string; slug?: string; name: string; form?: string; strength?: string; manufacturer?: string; price?: number; requiresRx: boolean; onlineOnly: boolean };
 };
 
 type Row = Record<string, unknown>;
@@ -37,6 +37,7 @@ export function parseBarcodeLookup(payload: unknown, locale: string): BarcodeMat
       manufacturer: text(medicine.manufacturer),
       price,
       requiresRx: medicine.requires_prescription === true,
+      onlineOnly: medicine.online_exclusive === true,
     },
   };
 }

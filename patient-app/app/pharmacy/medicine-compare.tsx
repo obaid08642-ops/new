@@ -9,7 +9,7 @@ import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/
 import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
-import { medField, medGallery, medName, medPrice, needsRx, type Med } from '../../src/utils/pharmacyCatalog';
+import { medField, medGallery, medName, medPrice, needsRx, onlineOnly, type Med } from '../../src/utils/pharmacyCatalog';
 
 /**
  * Medicine comparison — the PharmacyHub template (canvas/PharmacyHub.dc.html, "قارن البدائل"). The medicines are the ones
@@ -39,6 +39,7 @@ const ROWS: Row[] = [
   { key: 'pack', label: 'pharmacy.compare.pack', value: (m) => text(m.package_size) },
   { key: 'price', label: 'pharmacy.compare.price', value: (m, { k, money }) => (medPrice(m) ? k('pharmacy.price', { n: money(medPrice(m) as number) }) : '') },
   { key: 'rx', label: 'pharmacy.compare.rx', value: (m, { k }) => (typeof m.requires_prescription === 'boolean' ? (needsRx(m) ? k('pharmacy.compare.yes') : k('pharmacy.compare.no')) : '') },
+  { key: 'online', label: 'pharmacy.product.exclusive', value: (m, { k }) => (typeof m.online_exclusive === 'boolean' ? (onlineOnly(m) ? k('pharmacy.compare.yes') : k('pharmacy.compare.no')) : '') },
   {
     key: 'side',
     label: 'pharmacy.compare.sideEffects',

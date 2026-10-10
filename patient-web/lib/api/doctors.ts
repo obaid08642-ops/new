@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { filterApiParams, serverOrdersList, type DoctorFilters } from "@/lib/consult/doctor-filters";
+import { isSpecialtySlug } from "@/lib/specialties";
 
 const doctorId = z.string().regex(/^[A-Za-z0-9_-]{1,128}$/);
 const doctorSchema = z.object({
@@ -53,11 +54,17 @@ export function extractDoctors(payload: unknown): DoctorRow[] {
 export function doctorDisplayName(doctor: Pick<DoctorRow, "name" | "nameAr" | "nameEn">, locale: string): string | undefined {
   return (locale === "ar" ? doctor.nameAr ?? doctor.nameEn : doctor.nameEn ?? doctor.nameAr) ?? doctor.name;
 }
+/**
+ * The doctors list query. A known specialty slug (the pharmacy cart's "Consult a doctor" and the specialty master) is the backend's
+ * exact `specialty` filter; any other specialty text stays the free-text `q` search. Nearest (by position) and Available now are
+ * ordered by the server (distance / earliest slot), so the page's own sort does not apply then.
+ */
 export function doctorQuery(input: { search?: string; specialty?: string; sort?: "rating" | "price" | "wait"; filters?: DoctorFilters }) {
   const params = new URLSearchParams();
-  const search = (input.search ?? input.specialty ?? "").trim();
+  const slug = !input.search?.trim() && isSpecialtySlug(input.specialty) ? (input.specialty as string).trim() : "";
+  const search = slug ? "" : (input.search ?? input.specialty ?? "").trim();
+  if (slug) params.set("specialty", slug);
   if (search) params.set("q", search.slice(0, 100));
-  // Nearest (by position) and Available now are ordered by the server (distance / earliest slot); the page's own sort does not apply then.
   const serverOrder = input.filters ? serverOrdersList(input.filters) : false;
   if (input.sort && !serverOrder) params.set("sort", input.sort);
   if (input.filters) for (const [key, value] of filterApiParams(input.filters)) params.set(key, value);

@@ -273,6 +273,7 @@
     "remove": "Remove {name} from the cart",
     "removed": "{name} was removed from the cart",
     "needsRx": "Needs a prescription",
+    "onlineOnly": "Online only",
     "rxBannerTitle": "An item needs a prescription",
     "rxBannerBody": "Upload the prescription before sending the request",
     "rxBannerAction": "Upload",
@@ -1221,7 +1222,8 @@
     "inStock": "In stock",
     "outOfStock": "Out of stock",
     "unavailableTitle": "Wishlist unavailable",
-    "unavailableBody": "Please try again later."
+    "unavailableBody": "Please try again later.",
+    "needsRx": "Needs a prescription"
   },
   "Search": {
     "title": "Search",
@@ -1469,7 +1471,11 @@
     "manufacturer": "Manufacturer",
     "emptyBody": "Select at least two medicines from the catalog to compare.",
     "browse": "Browse medicines",
-    "back": "Medicines"
+    "back": "Medicines",
+    "requires_prescription": "Prescription required",
+    "online_exclusive": "Online only",
+    "yes": "Yes",
+    "no": "No"
   },
   "PharmacyRequest": {
     "title": "Request a medicine by name",
@@ -1502,7 +1508,8 @@
     "viewProduct": "View the product",
     "another": "Look up another barcode",
     "requestByName": "Request it by name",
-    "errorLookup": "The barcode lookup failed. Try again."
+    "errorLookup": "The barcode lookup failed. Try again.",
+    "onlineOnly": "Online only"
   },
   "PharmacyChat": {
     "title": "Pharmacy negotiation",

@@ -21,6 +21,8 @@ export type BuyProduct = {
   activeIngredient: string | null;
   form: string | null;
   strength: string | null;
+  /** `online_exclusive`, when the source of the product knows it (the public product answer does not send it). */
+  onlineOnly?: boolean;
 };
 
 type Buy = {
@@ -47,8 +49,8 @@ export function BuyProvider({ locale, product, children }: { locale: string; pro
 
   // the cart keeps what to order, never the catalogue price (the pharmacies' offers carry the prices)
   const putInCart = useCallback(() => {
-    const { id, name, rx, image, slug, activeIngredient, form, strength } = product;
-    addItem({ id, name, rx, image, slug, activeIngredient, form, strength, qty });
+    const { id, name, rx, image, slug, activeIngredient, form, strength, onlineOnly } = product;
+    addItem({ id, name, rx, image, slug, activeIngredient, form, strength, onlineOnly: onlineOnly === true ? true : undefined, qty });
   }, [addItem, product, qty]);
 
   const addToCart = useCallback(() => {
