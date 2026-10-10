@@ -13,7 +13,7 @@ import { logError } from '../../src/utils/logger';
 import { ORDERS_TONE, hashRef, statusLook } from '../../src/utils/orderCenter';
 import { nextKey, readTracking, type TrackingView } from '../../src/utils/orderTracking';
 import { orderNumber } from '../../src/utils/pharmacyCheckout';
-import { orderIdParam } from '../../src/utils/pharmacyOffers';
+import { orderIdParam, pharmacyDisplayName } from '../../src/utils/pharmacyOffers';
 
 /**
  * Order tracking — board OrderTracking (canvas/OrderTracking.dc.html) for a governed pharmacy order. Everything on it is
@@ -24,7 +24,7 @@ import { orderIdParam } from '../../src/utils/pharmacyOffers';
  */
 
 export default function OrderTrackingScreen() {
-  const { theme, t, c, dir, flow, k, num } = useScreenUi();
+  const { theme, t, c, dir, flow, k, num, lang } = useScreenUi();
   const params = useLocalSearchParams<{ orderId?: string | string[] }>();
   const id = orderIdParam({ orderId: params.orderId });
   const date = useOrderDate();
@@ -104,6 +104,7 @@ export default function OrderTrackingScreen() {
   const phase = statusLook('pharmacy', view.status);
   const headline = view.cancelled ? k('orders.status.cancelled') : view.notStarted ? k(`orders.status.${phase.label}`) : view.done ? k(`orders.track.step.${view.steps[view.steps.length - 1].id}`) : current ? k(`orders.track.step.${current.id}`) : k(`orders.status.${phase.label}`);
   const { totals } = view;
+  const pharmacyName = pharmacyDisplayName(view.pharmacy, lang);
   const summary = [view.itemCount === 1 ? k('pharmacy.hub.oneItem') : view.itemCount > 1 ? k('pharmacy.hub.items', { n: num(view.itemCount) }) : ''].filter(Boolean).join(' · ');
 
   return (
@@ -172,7 +173,8 @@ export default function OrderTrackingScreen() {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <FIcon icon="storefront" tone={ORDERS_TONE} chip="soft" size={40} theme={theme} />
             <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
-              <Text style={{ ...scale(t, 'row', 'medium'), color: c.text.primary, ...flow }}>{view.fulfillment === 'pickup' ? k('orders.track.pickup') : k('orders.track.delivery')}</Text>
+              {pharmacyName ? <Text testID="tracking-pharmacy-name" style={{ ...scale(t, 'row', 'medium'), color: c.text.primary, ...flow }}>{pharmacyName}</Text> : null}
+              <Text style={{ ...scale(t, 'row', pharmacyName ? 'regular' : 'medium'), color: pharmacyName ? c.text.secondary : c.text.primary, ...flow }}>{view.fulfillment === 'pickup' ? k('orders.track.pickup') : k('orders.track.delivery')}</Text>
               {summary ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{summary}</Text> : null}
             </View>
             {totals.total !== null && totals.total > 0 ? <Money amount={totals.total} currency={totals.currency} size="bodyStrong" unit="tag" /> : null}

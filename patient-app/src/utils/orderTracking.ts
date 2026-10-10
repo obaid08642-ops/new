@@ -13,7 +13,7 @@
  * the arrival time is the courier's own `courier_eta`, and a courier is shown only when the pharmacy named one.
  */
 import { orderRoute, readPayOrder, type OrderRoute, type PayOrder } from './pharmacyCheckout';
-import type { OfferTotals } from './pharmacyOffers';
+import { orderPharmacyNames, type OfferTotals } from './pharmacyOffers';
 
 const text = (value: unknown): string | null => (typeof value === 'string' && value.trim() !== '' ? value.trim() : null);
 const record = (value: unknown): Record<string, unknown> | null => (value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : null);
@@ -54,6 +54,8 @@ export interface TrackingView {
   courier: Courier | null;
   itemCount: number;
   totals: OfferTotals;
+  /** The filling pharmacy's names as the server sent them (#366/#514); null when it sent none. */
+  pharmacy: { ar: string | null; en: string | null } | null;
   /** The screen that continues the order when it still needs the patient (offers, final price, insurance); null when this screen is it. */
   next: OrderRoute | null;
 }
@@ -133,6 +135,7 @@ export function readTracking(response: unknown): TrackingView | null {
     courier: name ? { name, phone: phone(delivery?.courier_phone) } : null,
     itemCount: Array.isArray(o.items) ? o.items.length : 0,
     totals: order.totals,
+    pharmacy: orderPharmacyNames(response),
     next,
   };
 }
