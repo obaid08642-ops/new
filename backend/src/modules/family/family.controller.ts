@@ -38,7 +38,7 @@ export class FamilyController {
 
   @Post('join')
   join(@Req() req: any, @Body() body: JoinDto) {
-    return this.familyService.joinGroup(this.authenticatedUserId(req), body.invite_code, body.display_name, body.relation);
+    return this.familyService.joinGroup(this.authenticatedUserId(req), body.invite_code, body.display_name, body.relation, body.relation_code);
   }
 
   @Post('leave')
@@ -48,7 +48,7 @@ export class FamilyController {
 
   @Patch('member/:userId/relation')
   setRelation(@Req() req: any, @Param('userId') targetUserId: string, @Body() body: SetRelationDto) {
-    return this.familyService.updateMemberRelation(this.authenticatedUserId(req), targetUserId, body.relation);
+    return this.familyService.updateMemberRelation(this.authenticatedUserId(req), targetUserId, body.relation, body.relation_code);
   }
 
   @Patch('members/:memberId/permissions')

@@ -180,6 +180,15 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'health.empty_subtitle': { ar: 'سيظهر هنا تاريخ طلباتك ووصفاتك', en: 'Orders & prescriptions will appear here', ur: 'یہاں ظاہر ہوگا' },
   'health.allergies': { ar: 'الحساسيات', en: 'Allergies', ur: 'الرجی' },
   'health.chronic': { ar: 'الأمراض المزمنة', en: 'Chronic Conditions', ur: 'دائمی بیماریاں' },
+  // Family relation codes (OC-C C-8: server sends codes, clients localize)
+  'family.relation.spouse': { ar: 'الزوج/الزوجة', en: 'Spouse', ur: 'شریک حیات' },
+  'family.relation.parent': { ar: 'الأب/الأم', en: 'Parent', ur: 'والدین' },
+  'family.relation.child': { ar: 'الابن/الابنة', en: 'Child', ur: 'بچہ' },
+  'family.relation.sibling': { ar: 'الأخ/الأخت', en: 'Sibling', ur: 'بہن بھائی' },
+  'family.relation.grandparent': { ar: 'الجد/الجدة', en: 'Grandparent', ur: 'دادا دادی' },
+  'family.relation.grandchild': { ar: 'الحفيد/الحفيدة', en: 'Grandchild', ur: 'پوتا پوتی' },
+  'family.relation.caregiver': { ar: 'مقدم الرعاية', en: 'Caregiver', ur: 'نگہداشت کنندہ' },
+  'family.relation.other': { ar: 'أخرى', en: 'Other', ur: 'دیگر' },
   // Health vitals / score / trends codes (OC-C C-7: server sends keys, clients localize)
   'health.vital.heart_rate': { ar: 'نبض القلب', en: 'Heart rate', ur: 'دل کی دھڑکن' },
   'health.vital.glucose': { ar: 'سكر الدم', en: 'Blood glucose', ur: 'خون کی شکر' },

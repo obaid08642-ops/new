@@ -842,7 +842,7 @@ export class NotificationsService {
       user_id: p.patient_id,
       title_key: 'notif.lab_booking_created.title',
       body_key: 'notif.lab_booking_created.body',
-      params: { tracking_id: p.tracking_id },
+      params: { tracking_id: p.tracking_id, result_id: p.result_id },
       type: NotificationType.INFO,
       action: { route: `/labs/booking/view/${p.booking_id}` },
     });
@@ -872,7 +872,7 @@ export class NotificationsService {
     if (!tk) return;
     await this.create({
       user_id: p.patient_id, title_key: tk, body_key: bk,
-      params: { tracking_id: p.tracking_id },
+      params: { tracking_id: p.tracking_id, result_id: p.result_id },
       type: NotificationType.INFO,
       priority: p.state === 'RESULT_READY' || p.state === 'REPORTED' ? NotificationPriority.HIGH : NotificationPriority.NORMAL,
       action: { route: `/labs/booking/view/${p.booking_id}` },
@@ -885,7 +885,7 @@ export class NotificationsService {
       user_id: p.patient_id,
       title_key: 'notif.lab_result_ready.title',
       body_key: 'notif.lab_result_ready.body',
-      params: { tracking_id: p.tracking_id },
+      params: { tracking_id: p.tracking_id, result_id: p.result_id },
       type: NotificationType.INFO,
       priority: NotificationPriority.HIGH,
       action: { route: `/labs/bookings/${p.booking_id}` },
@@ -899,10 +899,10 @@ export class NotificationsService {
       user_id: p.patient_id,
       title_key: p.critical ? 'notif.lab_result_critical.title' : 'notif.lab_result_ready.title',
       body_key: p.critical ? 'notif.lab_result_critical.body' : 'notif.lab_result_ready.body',
-      params: { tracking_id: p.tracking_id },
+      params: { tracking_id: p.tracking_id, result_id: p.result_id },
       type: NotificationType.INFO,
       priority: p.critical ? NotificationPriority.CRITICAL : NotificationPriority.HIGH,
-      action: { route: `/health/results/${p.result_id}` },
+      action: { route: `/health/results/${p.result_id}`, payload: { result_id: p.result_id }, discuss: { route: '/consultations/book' } },
     });
   }
 
@@ -914,7 +914,7 @@ export class NotificationsService {
       user_id: p.patient_id,
       title_key: 'notif.radiology_booking_created.title',
       body_key: 'notif.radiology_booking_created.body',
-      params: { tracking_id: p.tracking_id },
+      params: { tracking_id: p.tracking_id, result_id: p.result_id },
       type: NotificationType.INFO,
       action: { route: `/radiology/booking/view/${p.booking_id}` },
     });
@@ -942,7 +942,7 @@ export class NotificationsService {
     if (!tk) return;
     await this.create({
       user_id: p.patient_id, title_key: tk, body_key: bk,
-      params: { tracking_id: p.tracking_id },
+      params: { tracking_id: p.tracking_id, result_id: p.result_id },
       type: NotificationType.INFO,
       priority: p.state === 'REPORT_PUBLISHED' ? NotificationPriority.HIGH : NotificationPriority.NORMAL,
       action: { route: `/radiology/booking/view/${p.booking_id}` },
@@ -957,7 +957,7 @@ export class NotificationsService {
       body_key: p.critical ? 'notif.radiology_report_critical.body' : 'notif.radiology_report_published.body',
       type: NotificationType.INFO,
       priority: p.critical ? NotificationPriority.CRITICAL : NotificationPriority.HIGH,
-      action: { route: `/health/results/${p.result_id}` },
+      action: { route: `/health/results/${p.result_id}`, payload: { result_id: p.result_id }, discuss: { route: '/consultations/book' } },
     });
   }
 
@@ -969,7 +969,7 @@ export class NotificationsService {
       user_id: p.patient_id,
       title_key: p.critical ? 'notif.medical_report_critical.title' : 'notif.medical_report_new.title',
       body_key: p.critical ? 'notif.medical_report_critical.body' : 'notif.medical_report_new.body',
-      params: { tracking_id: p.tracking_id },
+      params: { tracking_id: p.tracking_id, result_id: p.result_id },
       type: NotificationType.INFO,
       priority: p.critical ? NotificationPriority.CRITICAL : NotificationPriority.HIGH,
       action: { route: `/health/reports/${p.id}` },
