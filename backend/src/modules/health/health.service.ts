@@ -8,7 +8,6 @@ import { VitalReadingRepository } from "./repositories/vitalreading.repository";
 import { MedicationReminderRepository } from "./repositories/medicationreminder.repository";
 import { SleepReadingRepository } from "./repositories/sleepreading.repository";
 import { OrdersService } from '../orders/orders.service';
-import { MedicalReportsService } from '../medical-reports/medical-reports.service';
 
 const VALID_TYPES = ['bp', 'glucose', 'heart_rate', 'weight', 'temperature', 'spo2'];
 
@@ -21,7 +20,6 @@ export class HealthService {
     @Inject(forwardRef(() => OrdersService)) private readonly orders: OrdersService,
     @InjectConnection() private readonly conn: Connection,
     @Optional() private readonly events?: EventEmitter2,
-    @Optional() private readonly medicalReports?: MedicalReportsService,
   ) {}
 
   // VITALS
@@ -639,12 +637,10 @@ export class HealthService {
   // --- WP 1.5 Additional Health/Medical Profile Service Methods ---
   // All methods below read exclusively from real persisted data.
 
-  /** Medical reports issued by doctors/facilities for this patient.
-   * Single concept with GET /medical-reports/mine (662/675): delegates to the
-   * canonical MedicalReportsService when wired; legacy slim shape otherwise.
-   */
+  /** Medical reports issued by doctors/facilities for this patient: the same `medicalreports`
+   * rows as GET /medical-reports/mine (one concept, 662/675), in the slim list shape the app and
+   * web read (date/title/doctor/facility/type), without bodies or attachment contents. */
   async listReports(user: any) {
-    if (this.medicalReports) return this.medicalReports.list(user, { limit: 50 });
     const rows = await this.conn.db.collection('medicalreports')
       .find({ patient_id: user.id }, { projection: { body: 0, 'attachments.base64': 0 } })
       .sort({ createdAt: -1 }).limit(50).toArray();

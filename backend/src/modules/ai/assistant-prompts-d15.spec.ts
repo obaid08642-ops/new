@@ -51,7 +51,7 @@ const SET = JSON.parse(readFileSync(path.join(__dirname, '..', '..', '..', 'acce
 
 function serviceFor() {
   const service: any = Object.create(AssistantService.prototype);
-  service.conn = { db: { collection: jest.fn(() => ({ find: jest.fn().mockReturnValue({ toArray: jest.fn().mockResolvedValue(MEDS) }) })) } };
+  service.conn = { db: { collection: jest.fn(() => ({ find: jest.fn().mockReturnValue({ toArray: jest.fn().mockResolvedValue(MEDS) }), findOne: jest.fn(async (q: any) => (MEDS as any[]).find((m) => m.id === q.id) ?? null) })) } };
   service.gateway = { generate: jest.fn().mockResolvedValue({ text: EVIL, provider: 'groq', model: 'fake', elapsed_ms: 1 }) };
   return service as AssistantService;
 }

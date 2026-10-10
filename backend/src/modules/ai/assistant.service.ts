@@ -140,6 +140,24 @@ export class AssistantService {
     return this.conn.db.collection('medicines');
   }
 
+  // Names only (not whole leaflets) for the ~21k catalogue items, refreshed every 10 minutes,
+  // so a message never loads the full catalogue into memory.
+  private static readonly INDEX_TTL_MS = 10 * 60_000;
+  private index: { at: number; rows: Array<{ id: string; names: string[] }> } | null = null;
+
+  private async nameIndex(): Promise<Array<{ id: string; names: string[] }>> {
+    if (this.index && Date.now() - this.index.at < AssistantService.INDEX_TTL_MS) return this.index.rows;
+    const docs: any[] = await this.medicines
+      .find({}, { projection: { _id: 0, id: 1, name_ar: 1, name_en: 1, generic_name: 1, active_ingredient: 1, 'translations.ur.name': 1, 'translations.hi.name': 1, 'translations.bn.name': 1, 'translations.tl.name': 1, 'translations.fil.name': 1, 'translations.en.name': 1, 'translations.ar.name': 1 } })
+      .toArray();
+    const rows = docs
+      .filter((m) => typeof m?.id === 'string')
+      .map((m) => ({ id: m.id as string, names: AssistantService.nameVariants(m) }))
+      .filter((r) => r.names.length);
+    this.index = { at: Date.now(), rows };
+    return rows;
+  }
+
   private static nameVariants(med: any): string[] {
     const out = new Set<string>();
     for (const k of ['name_ar', 'name_en', 'generic_name', 'active_ingredient']) {
@@ -206,13 +224,11 @@ export class AssistantService {
     }
 
     // 2. Catalogue-medicine questions are answered from the catalogue leaflet only.
-    const meds: any[] = await this.medicines.find({}).toArray();
-    const matched = meds
-      .map((m) => ({ med: m, names: AssistantService.nameVariants(m) }))
+    const matched = (await this.nameIndex())
       .filter(({ names }) => names.some((n) => AssistantService.mentions(message, n)))
       .sort((a, b) => Math.max(...b.names.map((n) => n.length)) - Math.max(...a.names.map((n) => n.length)));
-    if (matched.length) {
-      const med = matched[0].med;
+    const med: any = matched.length ? await this.medicines.findOne({ id: matched[0].id }) : null;
+    if (med) {
       return {
         kind: 'leaflet',
         text: LEAFLET_TEXT[locale],

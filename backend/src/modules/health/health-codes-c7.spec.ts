@@ -54,9 +54,14 @@ describe('OC C-7 health codes and ids', () => {
     expect(rows[0].items[0].medicine_id).toBe('med-panadol');
   });
 
-  it('report list delegates to the canonical medical-reports list when wired', async () => {
-    const canonical = [{ id: 'rep-1', title_en: 'CBC' }];
-    const svc: any = serviceFor({ medicalReports: { list: jest.fn().mockResolvedValue(canonical) } });
-    await expect(svc.listReports({ id: 'pat-1' })).resolves.toBe(canonical);
+  it('report list keeps the slim shape the app and web read, without bodies or attachment contents', async () => {
+    const svc: any = serviceFor();
+    const find = jest.fn().mockReturnValue({ sort: jest.fn().mockReturnThis(), limit: jest.fn().mockReturnThis(), toArray: jest.fn().mockResolvedValue([
+      { id: 'rep-1', title_en: 'CBC', issued_at: new Date('2026-10-01'), doctor_name: 'Dr A', report_type: 'lab', attachments: [{ name: 'a.pdf' }] },
+    ]) });
+    svc.conn.db.collection.mockReturnValue({ find });
+    const rows: any[] = await svc.listReports({ id: 'pat-1' });
+    expect(rows).toEqual([{ id: 'rep-1', date: '2026-10-01', title: 'CBC', doctor: 'Dr A', facility: null, type: 'lab', critical: false, has_attachments: true }]);
+    expect(find.mock.calls[0][1]).toEqual({ projection: { body: 0, 'attachments.base64': 0 } });
   });
 });

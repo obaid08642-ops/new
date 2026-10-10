@@ -70,7 +70,8 @@ export class AiController {
   }
 
   /** D-15: limited assistant — red flags, specialty routing, catalogue leaflets. Never a diagnosis. */
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  // Paid model behind it: 10 a minute by default (AI_ASSISTANT_RATE_PER_MIN overrides, e.g. the d-15 acceptance run).
+  @Throttle({ default: { limit: Number(process.env.AI_ASSISTANT_RATE_PER_MIN) || 10, ttl: 60000 } })
   @Post('assistant')
   assistant(@Req() req: any, @Body() body: AssistantDto) {
     if (!this.assistantSvc) throw new ServiceUnavailableException('ai_assistant_unavailable');

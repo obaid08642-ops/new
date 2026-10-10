@@ -41,7 +41,7 @@ const ZOLPIDEM: any = { id: 'med-zolpidem', name_ar: 'زولبيديم', name_en
 
 function serviceFor(down = false) {
   const service: any = Object.create(AssistantService.prototype);
-  service.conn = { db: { collection: jest.fn(() => ({ find: jest.fn().mockReturnValue({ toArray: jest.fn().mockResolvedValue([PANADOL, AUGMENTIN, ZOLPIDEM]) }) })) } };
+  service.conn = { db: { collection: jest.fn(() => ({ find: jest.fn().mockReturnValue({ toArray: jest.fn().mockResolvedValue([PANADOL, AUGMENTIN, ZOLPIDEM]) }), findOne: jest.fn(async (q: any) => ([PANADOL, AUGMENTIN, ZOLPIDEM] as any[]).find((m) => m.id === q.id) ?? null) })) } };
   service.gateway = down
     ? { generate: jest.fn().mockRejectedValue(new Error('overloaded')) }
     : { generate: jest.fn().mockResolvedValue({ text: EVIL, provider: 'groq', model: 'fake', elapsed_ms: 1 }) };
