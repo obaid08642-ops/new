@@ -1764,7 +1764,7 @@
   "family.invite.qr": "QR کوڈ",
   "family.invite.code": "کوڈ",
   "family.invite.share": "دعوت شیئر کریں",
-  "family.invite.shareMessage": "نبض پلس پر میرے خاندان میں شامل ہوں! کوڈ استعمال کریں: {code}\n{url}",
+  "family.invite.shareMessage": "نبض پلس پر میرے خاندان میں شامل ہوں! ایپ میں یہ کوڈ درج کریں: {code}",
   "family.invite.qrLabel": "خاندانی دعوت کا QR کوڈ",
   "family.invite.qrHint": "اس شخص سے کہیں کہ ایپ کے کیمرے سے یہ کوڈ اسکین کرے",
   "family.invite.codeHint": "یہ کوڈ اس شخص کو بھیجیں تاکہ وہ اپنی ایپ میں درج کرے",
@@ -3180,5 +3180,8 @@
   "consult.price.transport": "آمدورفت کی فیس",
   "consult.price.total": "کل",
   "consult.price.paid": "ادائیگی ہو گئی",
-  "consult.price.unpaid": "ابھی ادائیگی نہیں ہوئی"
+  "consult.price.unpaid": "ابھی ادائیگی نہیں ہوئی",
+  "consult.chat.voiceRecord": "صوتی پیغام ریکارڈ کریں",
+  "consult.chat.voiceStop": "روکیں اور بھیجیں",
+  "consult.chat.voicePermission": "صوتی پیغام ریکارڈ کرنے کے لیے فون کی سیٹنگز میں ایپ کو مائیکروفون کی اجازت دیں۔"
 }

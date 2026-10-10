@@ -1764,7 +1764,7 @@
   "family.invite.qr": "QR ng imbitasyon",
   "family.invite.code": "Code ng imbitasyon",
   "family.invite.share": "Ibahagi ang imbitasyon",
-  "family.invite.shareMessage": "Sumali sa pamilya ko sa Nabd Plus! Gamitin ang code: {code}\n{url}",
+  "family.invite.shareMessage": "Sumali sa pamilya ko sa Nabd Plus! Ilagay ang code na ito sa app: {code}",
   "family.invite.qrLabel": "QR code ng imbitasyon sa pamilya",
   "family.invite.qrHint": "Hilingin sa tao na i-scan ang code na ito gamit ang camera ng app",
   "family.invite.codeHint": "Ipadala ang code na ito sa tao para ilagay niya sa kanyang app",
@@ -3180,5 +3180,8 @@
   "consult.price.transport": "Bayad sa transportasyon",
   "consult.price.total": "Kabuuan",
   "consult.price.paid": "Bayad na",
-  "consult.price.unpaid": "Hindi pa bayad"
+  "consult.price.unpaid": "Hindi pa bayad",
+  "consult.chat.voiceRecord": "Mag-record ng voice note",
+  "consult.chat.voiceStop": "Ihinto at ipadala",
+  "consult.chat.voicePermission": "Payagan ang app na gamitin ang mikropono sa settings ng telepono para mag-record ng voice note."
 }

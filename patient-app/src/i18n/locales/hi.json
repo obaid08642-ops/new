@@ -1764,7 +1764,7 @@
   "family.invite.qr": "QR कोड",
   "family.invite.code": "कोड",
   "family.invite.share": "आमंत्रण साझा करें",
-  "family.invite.shareMessage": "Nabd Plus पर मेरे परिवार से जुड़ें! कोड इस्तेमाल करें: {code}\n{url}",
+  "family.invite.shareMessage": "Nabd Plus पर मेरे परिवार से जुड़ें! ऐप में यह कोड डालें: {code}",
   "family.invite.qrLabel": "परिवार के आमंत्रण का QR कोड",
   "family.invite.qrHint": "उस व्यक्ति से कहें कि ऐप के कैमरे से यह कोड स्कैन करे",
   "family.invite.codeHint": "यह कोड उस व्यक्ति को भेजें ताकि वह अपने ऐप में दर्ज करे",
@@ -3180,5 +3180,8 @@
   "consult.price.transport": "आवागमन शुल्क",
   "consult.price.total": "कुल",
   "consult.price.paid": "भुगतान हो गया",
-  "consult.price.unpaid": "अभी भुगतान नहीं हुआ"
+  "consult.price.unpaid": "अभी भुगतान नहीं हुआ",
+  "consult.chat.voiceRecord": "वॉइस नोट रिकॉर्ड करें",
+  "consult.chat.voiceStop": "रोकें और भेजें",
+  "consult.chat.voicePermission": "वॉइस नोट रिकॉर्ड करने के लिए फ़ोन की सेटिंग्स में ऐप को माइक्रोफ़ोन की अनुमति दें।"
 }

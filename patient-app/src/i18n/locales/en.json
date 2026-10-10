@@ -1800,7 +1800,7 @@
   "family.invite.qr": "QR code",
   "family.invite.code": "Code",
   "family.invite.share": "Share the invite",
-  "family.invite.shareMessage": "Join my family on Nabd Plus! Use the code: {code}\n{url}",
+  "family.invite.shareMessage": "Join my family on Nabd Plus! Enter this code in the app: {code}",
   "family.invite.qrLabel": "The family invite QR code",
   "family.invite.qrHint": "Ask the person to scan this code with the app's camera",
   "family.invite.codeHint": "Send this code to the person to enter in their app",
@@ -3216,5 +3216,8 @@
   "consult.price.transport": "Transportation fee",
   "consult.price.total": "Total",
   "consult.price.paid": "Paid",
-  "consult.price.unpaid": "Not paid yet"
+  "consult.price.unpaid": "Not paid yet",
+  "consult.chat.voiceRecord": "Record voice note",
+  "consult.chat.voiceStop": "Stop and send",
+  "consult.chat.voicePermission": "Allow the app to use the microphone in the phone settings to record a voice note."
 }

@@ -1800,7 +1800,7 @@
   "family.invite.qr": "رمز QR",
   "family.invite.code": "كود",
   "family.invite.share": "مشاركة الدعوة",
-  "family.invite.shareMessage": "انضم لعائلتي على نبض بلس! استخدم الكود: {code}\n{url}",
+  "family.invite.shareMessage": "انضم لعائلتي على نبض بلس! أدخل هذا الكود في التطبيق: {code}",
   "family.invite.qrLabel": "رمز QR لدعوة العائلة",
   "family.invite.qrHint": "اطلب من الشخص مسح هذا الرمز بكاميرا التطبيق",
   "family.invite.codeHint": "أرسل هذا الكود للشخص ليدخله في تطبيقه",
@@ -3216,5 +3216,8 @@
   "consult.price.transport": "رسوم الانتقال",
   "consult.price.total": "الإجمالي",
   "consult.price.paid": "تم الدفع",
-  "consult.price.unpaid": "لم يتم الدفع بعد"
+  "consult.price.unpaid": "لم يتم الدفع بعد",
+  "consult.chat.voiceRecord": "تسجيل رسالة صوتية",
+  "consult.chat.voiceStop": "إيقاف وإرسال",
+  "consult.chat.voicePermission": "اسمح للتطبيق باستخدام الميكروفون من إعدادات الهاتف لتسجيل رسالة صوتية."
 }
