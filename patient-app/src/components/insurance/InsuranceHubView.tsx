@@ -11,12 +11,12 @@ import { useGuestGuard } from '../../hooks/useGuestGuard';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { ChiLookup } from './ChiLookup';
-import { BenefitsTab, ClaimsTab, NetworkTab, RefundsTab } from './InsuranceHubTabs';
+import { BenefitsTab, NetworkTab } from './InsuranceHubTabs';
 import { FootNote, INSURANCE_REQUEST, INSURANCE_TABS, INSURANCE_TONE, InsuranceScreen, KIND_LOOK, requestState, usePolicy, type InsurancePolicy, type InsuranceTab } from './InsuranceKit';
 
 /**
- * The insurance hub (board Insurance, merge map 2 section 6, canonical `/insurance`): the tabs Policy, Benefits, Claims,
- * Refunds and Network in the route query. Policy holds the card, the insurer choice (the old /profile/insurance form),
+ * The insurance hub (board Insurance, merge map 2 section 6, canonical `/insurance`): the tabs Policy, Benefits and Network in the route
+ * query (view only: the facility asks the insurer, Nabd+ shows the decision; decision 35, no claims or refunds here). Policy holds the card, the insurer choice (the old /profile/insurance form),
  * the lookup in the portal of the Council of Health Insurance and the approval requests; the old /insurance/hub,
  * /insurance/policy-detail, /insurance/network-providers and /profile/insurance redirect here.
  * GET /users/me/insurance, POST /users/me/insurance, GET /insurance/companies(/:id/networks), GET /insurance/requests/my.
@@ -58,8 +58,6 @@ function Hub() {
       />
       {tab === 'policy' ? <PolicyTab /> : null}
       {tab === 'benefits' ? <BenefitsTab /> : null}
-      {tab === 'claims' ? <ClaimsTab /> : null}
-      {tab === 'refunds' ? <RefundsTab /> : null}
       {tab === 'network' ? <NetworkTab /> : null}
       <FootNote text={k('insurance.hub.note')} />
     </InsuranceScreen>
@@ -113,7 +111,6 @@ function PolicyTab() {
 
       <View style={{ flexDirection: 'row', gap: 8 }}>
         <ShortcutTile icon="shield-check" label={k('insurance.shortcut.coverage')} onPress={() => router.push('/insurance/coverage-check' as Href)} testID="tile-coverage" />
-        <ShortcutTile icon="file-text" label={k('insurance.shortcut.claim')} onPress={() => router.push('/insurance/submit-claim' as Href)} testID="tile-claim" />
         <ShortcutTile icon="hospital" label={k('insurance.shortcut.network')} onPress={() => router.setParams({ tab: 'network' })} testID="tile-network" />
       </View>
 

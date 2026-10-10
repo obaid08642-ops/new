@@ -3,7 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { InsuranceRequestView } from '../../components/insurance/InsuranceRequestView';
-import { claimStatus, refundStatus, requestState } from '../../components/insurance/InsuranceKit';
+import { requestState } from '../../components/insurance/InsuranceKit';
 import { message } from '../../components/screen/ScreenKit';
 import { translations } from '../../i18n';
 
@@ -133,7 +133,7 @@ describe('InsuranceRequestView', () => {
   it('shows the reason of a rejection when the provider gave one', async () => {
     serve(request({ state: 'REJECTED', self_pay_amount: 200, rejection_reason: 'TEST reason: service excluded' }));
     await render(wrap(<InsuranceRequestView />));
-    expect(await screen.findByText(k('insurance.claims.rejectedReason', { reason: 'TEST reason: service excluded' }))).toBeTruthy();
+    expect(await screen.findByText(k('insurance.request.rejectedReason', { reason: 'TEST reason: service excluded' }))).toBeTruthy();
   });
 
   it('draws no reason row when a rejection came without one', async () => {
@@ -158,11 +158,9 @@ describe('InsuranceRequestView', () => {
 });
 
 describe('insurance states', () => {
-  it('maps every request, claim and refund state to a label that exists in all six locales', () => {
+  it('maps every request state to a label that exists in all six locales', () => {
     const keys = [
       ...['PENDING_PROVIDER_REVIEW', 'APPROVED_FULL', 'COPAY_PENDING', 'COPAY_PAID', 'REJECTED', 'SELF_PAY_PENDING', 'SELF_PAY_PAID', 'EXPIRED', 'CANCELLED', 'x'].map((s) => requestState(s).key),
-      ...['approved', 'reimbursed', 'rejected', 'under_review', 'submitted', 'x'].map((s) => claimStatus(s).key),
-      ...['REQUESTED', 'APPROVED', 'EXECUTED', 'REJECTED', 'FAILED', 'x'].map((s) => refundStatus(s).key),
     ];
     for (const lang of ['ar', 'en', 'ur', 'hi', 'bn', 'fil'] as const) {
       const bucket = (translations as unknown as Record<string, Record<string, string>>)[lang];

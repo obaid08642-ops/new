@@ -58,7 +58,6 @@ const patientReadRoutes = [
   new RegExp("^/family/calendar$"),
   new RegExp("^/insurance/my-policy$"),
   new RegExp("^/insurance/benefits-summary$"),
-  new RegExp("^/insurance/claims$"),
   new RegExp(`^/payments/pharmacy/${orderId}/capabilities$`, "i"),
   new RegExp(`^/pharmacy/chat/threads\\?order_id=${orderId}$`, "i"),
   new RegExp(`^/pharmacy/chat/threads/${threadId}/messages$`, "i"),

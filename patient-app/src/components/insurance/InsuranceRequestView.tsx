@@ -156,7 +156,7 @@ export function InsuranceRequestView() {
           <>
             <ResultHero icon={hero.icon} tone={hero.tone} title={k(`insurance.request.${action}.title`)} body={k(`insurance.request.${action}.body`)} />
             {error ? <Notice tone="danger" text={error} testID="request-error" /> : null}
-            {request.state === 'REJECTED' && request.rejection_reason ? <Notice tone="danger" text={k('insurance.claims.rejectedReason', { reason: request.rejection_reason })} testID="request-reason" /> : null}
+            {request.state === 'REJECTED' && request.rejection_reason ? <Notice tone="danger" text={k('insurance.request.rejectedReason', { reason: request.rejection_reason })} testID="request-reason" /> : null}
             <Section title={k('insurance.request.amounts')}>
               <Panel testID="request-amounts">
                 <View style={{ paddingHorizontal: 14 }}>

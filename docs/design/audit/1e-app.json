@@ -9,14 +9,13 @@
         ["Title and back", "static key orders.title", "ok"],
         ["Current / previous tabs", "status of each row (utils/orderCenter.ts table)", "ok"],
         ["Kind tabs (doctors, labs, ... 12 chips with counts)", "removed: the board has two tabs; the kind shows in each card's icon and title", "hidden"],
-        ["Row title", "doctor_name / service_name_* / reason / claim service (server) else the kind key", "ok"],
+        ["Row title", "doctor_name / service_name_* / reason (server) else the kind key", "ok"],
         ["Row status pill", "status or state of the source, mapped to orders.status.*; unknown code shows 'status not available'", "ok"],
         ["Row number and date", "pharmacy id tail; slot_start / scheduled_at / createdAt (Intl)", "ok"],
-        ["Row amount", "pricing_snapshot.totals.total, appointment total_price/price, lab/radiology total, nursing total_price, claim/return amount; hidden when absent or 0", "ok"],
+        ["Row amount", "pricing_snapshot.totals.total, appointment total_price/price, lab/radiology total, nursing total_price, return amount; hidden when absent or 0", "ok"],
         ["Row action (track / details / order again)", "pharmacy status via orderRoute; other kinds their own screen", "ok"],
-        ["Partial-failure notice with retry", "count of failed endpoints (8 sources, each its own call)", "fixed"],
+        ["Partial-failure notice with retry", "count of failed endpoints (7 sources, each its own call)", "fixed"],
         ["All-failed state", "ErrorState or OfflineState with retry", "fixed"],
-        ["Insurance claim title", "claim.service (the old code read title / claim_number, which the API does not send)", "fixed"],
         ["Pull to refresh, list virtualised", "FlatList", "ok"]
       ],
       "notes": [
