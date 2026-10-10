@@ -151,7 +151,7 @@ export default function HomeScreen() {
         <ServiceGrid items={HOME_SERVICES} />
         <AiCard onPress={() => router.push('/ai')} />
         <ToolsRow tools={HOME_TOOLS} />
-        <AllServicesRow onPress={() => router.push('/services')} />
+        <AllServicesRow onPress={() => router.push('/(tabs)/services')} />
         {hasAppointment && appointment ? (
           <View style={{ gap: 10 }}>
             <SectionHeader title={tr('home.nextAppointment')} actionLabel={tr('home.allAppointments')} onActionPress={() => router.push('/consultations/appointments')} theme={theme} />

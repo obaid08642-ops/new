@@ -16,7 +16,6 @@
     "patient-app/app/p/[slug].tsx": 3,
     "patient-app/app/s/[type]/[slug].tsx": 3,
     "patient-app/app/search/index.tsx": 34,
-    "patient-app/app/services/index.tsx": 2,
     "patient-app/src/components/AppGate.tsx": 5,
     "patient-app/src/components/auth/AuthKit.tsx": 4,
     "patient-app/src/components/livekit-view.tsx": 10,

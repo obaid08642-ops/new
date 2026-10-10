@@ -195,7 +195,7 @@
   "patient-app patient-app/app/(tabs)/pharmacy.tsx": "done (batch 1 merged)",
   "patient-app patient-app/app/(tabs)/services.tsx": "done (#285)",
   "patient-app patient-app/app/index.tsx": "done (#285)",
-  "patient-app patient-app/app/services/index.tsx": "done (#285)",
+  "patient-app patient-app/app/services/index.tsx": "removed (owner 2026-10-10, #409): /services is the Services tab",
   "patient-web /": "done (#285)",
   "patient-web /ai": "done (batch 9 merged)",
   "patient-web /ai/chat-doctor": "done (batch 9 merged)",
