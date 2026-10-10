@@ -1,9 +1,8 @@
 {
   "$comment": "Recorded debt for tools/design/no-left-right.ts: physical left/right style keys and CSS properties, per file, when the gate landed. They move to start/end (logical properties) as each screen is rebuilt on the shells and the shared components. This file may only shrink.",
+  "total": 114,
   "files": {
     "admin/src/pages/admin/dashboard.tsx": 1,
-    "patient-app/app/emergency/sos-active.tsx": 10,
-    "patient-app/app/emergency/tracking.tsx": 1,
     "patient-app/src/components/Header.tsx": 6,
     "patient-app/src/components/MapPrimitives.web.tsx": 1,
     "patient-app/src/components/OfflineBanner.tsx": 2,
@@ -21,28 +20,26 @@
     "provider-app/src/components/LocationPickerModal.tsx": 1,
     "provider-app/src/components/ui.tsx": 13,
     "provider-app/src/context/index.tsx": 2,
-    "provider-app/src/screens/doctor/DoctorRegistration.tsx": 2,
     "provider-app/src/screens/doctor/doctor/PatientFileScreen.tsx": 2,
+    "provider-app/src/screens/doctor/DoctorRegistration.tsx": 2,
+    "provider-app/src/screens/facility/facility/_shared.tsx": 1,
+    "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx": 5,
     "provider-app/src/screens/facility/FacilityAuditLogScreen.tsx": 2,
     "provider-app/src/screens/facility/FacilityPatientTrackerScreen.tsx": 2,
     "provider-app/src/screens/facility/FacilityRegistration.tsx": 2,
     "provider-app/src/screens/facility/FacilityResourcesScreen.tsx": 1,
     "provider-app/src/screens/facility/FacilityUnifiedCalendarScreen.tsx": 2,
-    "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx": 5,
-    "provider-app/src/screens/facility/facility/_shared.tsx": 1,
     "provider-app/src/screens/lab/LabDashboard.tsx": 3,
     "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx": 3,
     "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx": 1,
+    "provider-app/src/screens/shared/blueprint/SubscriptionsAdsScreen.tsx": 1,
     "provider-app/src/screens/shared/RealScreens.tsx": 4,
     "provider-app/src/screens/shared/RealScreensExtended.tsx": 2,
     "provider-app/src/screens/shared/RegistrationSuccess.tsx": 2,
-    "provider-app/src/screens/shared/VideoCallRoom.tsx": 3,
-    "provider-app/src/screens/shared/blueprint/SubscriptionsAdsScreen.tsx": 1,
     "provider-app/src/screens/shared/shared/MediaConfigScreen.tsx": 1,
     "provider-app/src/screens/shared/shared/MedicalDrugIndexScreen.tsx": 1,
     "provider-app/src/screens/shared/shared/MedicalJobsDetail.tsx": 2,
     "provider-app/src/screens/shared/shared/ProviderProfileEditor.tsx": 1,
-    "provider-app/src/screens/facility/facility/HospitalDispatchScreen.tsx": 1
-  },
-  "total": 125
+    "provider-app/src/screens/shared/VideoCallRoom.tsx": 3
+  }
 }
