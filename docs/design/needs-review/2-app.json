@@ -126,7 +126,7 @@
     "element": "Urdu text",
     "file": "patient-app/app/consultations/appointment-detail.tsx",
     "line": 122,
-    "found": "[owner] Readex Pro has no Urdu glyphs, so Urdu falls back to a system font and mixes two typefaces in one line (seen at 390 in ur on every consultation screen); needs an Urdu-capable face approved by the owner.",
+    "found": "[owner] Readex Pro has no Urdu glyphs, so Urdu falls back to a system font and mixes two typefaces in one line (seen at 390 in ur on every consultation screen); Approved 2026-10-10 and fixed on design/app-owner-ui: Noto Nastaliq Urdu for ur only.",
     "suspect": "Owner decision."
   },
   {
