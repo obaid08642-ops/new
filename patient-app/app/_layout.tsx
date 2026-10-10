@@ -15,6 +15,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { I18nManager } from 'react-native';
 import { store } from '../src/store';
 import { AppProvider, useApp } from '../src/context/AppContext';
+import { useUrduFont } from '../src/theme/useUrduFont';
 import { SocketProvider } from '../src/context/SocketContext';
 import { CartProvider } from '../src/context/CartContext';
 import { DiagnosticsCartProvider } from '../src/context/DiagnosticsCartContext';
@@ -37,6 +38,12 @@ SplashScreen.preventAutoHideAsync();
 function ThemedStatusBar() {
   const { isDark } = useApp();
   return <StatusBar style={isDark ? 'light' : 'dark'} />;
+}
+
+// Urdu only (#394): loads Noto Nastaliq Urdu in the background; renders nothing, never blocks start.
+function UrduFontLoader() {
+  useUrduFont();
+  return null;
 }
 
 function RootLayout() {
@@ -88,6 +95,7 @@ function RootLayout() {
                   <DiagnosticsCartProvider>
                     <ConsultationsProvider>
                       <ThemedStatusBar />
+                      <UrduFontLoader />
                       <NotificationHandler />
                       <OfflineBanner />
                       <AppGate>

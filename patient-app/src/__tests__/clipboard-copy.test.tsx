@@ -47,22 +47,10 @@ beforeEach(() => {
 });
 
 describe('family invite copy', () => {
-  it('copies the exact invite link and says Copied', async () => {
+  it('copies the bare code (invite by code is the default, 695) and says Copied', async () => {
     await render(wrap(<FamilyAddView />));
     await act(async () => {
-      fireEvent.press(await screen.findByTestId('invite-copy-link', {}, SLOW));
-    });
-    expect(setString).toHaveBeenCalledWith('https://nabdahplus.app/join/TESTINV1');
-    expect(screen.getByText(k('common.copied'))).toBeTruthy();
-  });
-
-  it('copies the bare code from the Code method', async () => {
-    await render(wrap(<FamilyAddView />));
-    await act(async () => {
-      fireEvent.press(await screen.findByText(k('family.invite.code'), {}, SLOW));
-    });
-    await act(async () => {
-      fireEvent.press(screen.getByTestId('invite-copy-code'));
+      fireEvent.press(await screen.findByTestId('invite-copy-code', {}, SLOW));
     });
     expect(setString).toHaveBeenCalledWith('TESTINV1');
     expect(screen.getByText(k('common.copied'))).toBeTruthy();
@@ -72,7 +60,7 @@ describe('family invite copy', () => {
     setString.mockRejectedValue(new Error('denied'));
     await render(wrap(<FamilyAddView />));
     await act(async () => {
-      fireEvent.press(await screen.findByTestId('invite-copy-link', {}, SLOW));
+      fireEvent.press(await screen.findByTestId('invite-copy-code', {}, SLOW));
     });
     expect(screen.getByText(k('common.copyFailed'))).toBeTruthy();
     expect(screen.queryByText(k('common.copied'))).toBeNull();

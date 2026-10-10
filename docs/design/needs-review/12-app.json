@@ -146,7 +146,7 @@
     "element": "Hospital booking",
     "file": "patient-app/src/components/account/ProvidersMapView.tsx",
     "line": 205,
-    "found": "[owner] A hospital opens the consultations tab and a nurse kind the nursing tab: there is no hospital booking screen.",
+    "found": "[owner] Owner approved on 2026-10-10 (item 767): a hospital now opens its facility page (/consultations/clinic/[id]). A nurse kind still opens the nursing tab.",
     "suspect": "Owner decision."
   },
   {
@@ -166,7 +166,7 @@
     "element": "No delete or edit of an address",
     "file": "patient-app/src/components/account/AddressBookView.tsx",
     "line": 105,
-    "found": "[owner] The book can add (map) and set the default only; there is no edit or delete in the old screen or the board.",
+    "found": "[owner] Owner approved on 2026-10-10 (item 769): edit and delete are added (PATCH and DELETE /users/me/addresses/:id). Old note: the book could add (map) and set the default only; there was no edit or delete in the old screen or the board.",
     "suspect": "Owner decision."
   }
 ]
