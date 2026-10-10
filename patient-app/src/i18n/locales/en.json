@@ -3185,5 +3185,8 @@
   "address.deleteFailed": "We could not delete the address. Try again.",
   "address.editTitle": "Edit address",
   "address.editSave": "Save changes",
-  "address.editFailed": "We could not save the changes. Try again."
+  "address.editFailed": "We could not save the changes. Try again.",
+  "modules.unavailable.title": "This service is unavailable right now",
+  "modules.unavailable.body": "We have paused this service for the moment. You can keep using the rest of the app.",
+  "modules.unavailable.home": "Back to Home"
 }

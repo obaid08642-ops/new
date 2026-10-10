@@ -12,6 +12,8 @@ import { getPublicDoctors } from "@/lib/api/doctors-server";
 import { extractDoctors } from "@/lib/api/doctors";
 import { isOutage } from "@/lib/api/outage";
 import { readHomeContent, readPublicConfig, isWebMaintenance, selectHomeSections } from "@/lib/api/public-config-server";
+import { getDisabledModules } from "@/lib/api/public-config-server";
+import { isPathHidden } from "@/lib/modules";
 import { RetryErrorState } from "@/components-next/core/core-states";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -53,6 +55,7 @@ export default async function LandingPage({ params }: Props) {
 
   // Doctors and the public config are the page's data. A FAILURE of either (no answer, or a 5xx) shows the error state with a
   // retry inside the shell; an empty answer or a missing optional part (the curated sections) still just hides.
+  const disabled = await getDisabledModules();
   const [doctorsResponse, config, content] = await Promise.all([
     getPublicDoctors().catch(() => null),
     readPublicConfig(),
@@ -121,10 +124,10 @@ export default async function LandingPage({ params }: Props) {
         <div className={styles.heroGrid} data-aside="false">
           <HeroCard locale={locale} t={t} eyebrow={home("heroBadge")} title={home("heroTitle")} headingId="home-title" />
         </div>
-        <ServiceGrid locale={locale} t={t} signedIn={signedIn} />
-        <AiCard locale={locale} t={t} />
-        <CuratedSections sections={homeSections} locale={locale} t={t} />
-        <DoctorsSection doctors={doctors} locale={locale} t={t} specialties={specialties} />
+        <ServiceGrid locale={locale} t={t} signedIn={signedIn} disabled={disabled} />
+        <AiCard locale={locale} t={t} disabled={disabled} />
+        <CuratedSections sections={homeSections} locale={locale} t={t} disabled={disabled} />
+        <DoctorsSection doctors={isPathHidden(`/${locale}/consultations`, disabled) ? [] : doctors} locale={locale} t={t} specialties={specialties} />
       </div>
     </HomeShell>
   );

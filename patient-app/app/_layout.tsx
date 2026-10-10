@@ -23,6 +23,7 @@ import { ConsultationsProvider } from '../src/context/ConsultationsContext';
 import NotificationHandler from '../src/components/NotificationHandler';
 import OfflineBanner from '../src/components/OfflineBanner';
 import AppGate from '../src/components/AppGate';
+import { ModuleRouteGate, ModulesProvider } from '../src/context/ModulesContext';
 import { initSentry } from '../src/utils/sentry';
 import { SyncManager } from '../src/data/sync/SyncManager';
 import { BackgroundSynchronizer } from '../src/data/sync/BackgroundSynchronizer';
@@ -88,6 +89,7 @@ function RootLayout() {
   return (
     <Provider store={store}>
       <AppProvider>
+        <ModulesProvider>
           <SocketProvider>
             <GestureHandlerRootView style={{ flex: 1 }}>
               <SafeAreaProvider>
@@ -99,6 +101,7 @@ function RootLayout() {
                       <NotificationHandler />
                       <OfflineBanner />
                       <AppGate>
+                      <ModuleRouteGate>
                       <Stack 
                         screenOptions={{ headerShown: false, animation: 'fade_from_bottom', animationDuration: 250 }}
                       >
@@ -110,6 +113,7 @@ function RootLayout() {
                         <Stack.Screen name="ai-assistant" />
                         <Stack.Screen name="shared/location-picker" options={{ presentation: 'modal' }} />
                       </Stack>
+                      </ModuleRouteGate>
                       </AppGate>
                     </ConsultationsProvider>
                   </DiagnosticsCartProvider>
@@ -117,6 +121,7 @@ function RootLayout() {
               </SafeAreaProvider>
             </GestureHandlerRootView>
           </SocketProvider>
+        </ModulesProvider>
         </AppProvider>
     </Provider>
   );

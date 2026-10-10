@@ -17,6 +17,9 @@ import { ThemeToggle } from "@/components-next/theme-toggle";
 import { THEME_INIT_SCRIPT } from "@/app/theme";
 import { ServiceWorkerRegister } from "@/components-next/service-worker-register";
 import { CartProvider } from "@/lib/context/CartContext";
+import { ModuleRouteGate, ModulesProvider } from "@/components-next/modules/modules-provider";
+import { getDisabledModules } from "@/lib/api/public-config-server";
+import { isPathHidden } from "@/lib/modules";
 
 type Props = Readonly<{ children: React.ReactNode; params: Promise<{ locale: string }> }>;
 
@@ -65,6 +68,9 @@ export default async function LocaleLayout({ children, params }: Props) {
   // F82-1: only the namespaces client components read go into the HTML (lib/i18n/client-messages.ts).
   const messages = pickClientMessages(await getMessages({ locale: typedLocale }));
   const t = await getTranslations({ locale: typedLocale, namespace: "Shared" });
+  // module switches (#953): read once per request, fail-open; hides entry points and stops deep links into a switched-off module
+  const disabled = await getDisabledModules();
+  const moduleCopy = await getTranslations({ locale: typedLocale, namespace: "Modules" });
   const hasAccessToken = Boolean((await cookies()).get(authCookieNames.access)?.value);
   // proxy.ts puts the per-request CSP nonce here; an inline script without it is refused.
   const nonce = (await headers()).get("x-nonce") ?? undefined;
@@ -98,13 +104,19 @@ export default async function LocaleLayout({ children, params }: Props) {
         {hasAccessToken ? <PresenceBeacon /> : null}
         {/* The cart (lib/context/CartContext) was written but never mounted: every "add to cart" on the product pages
             was a no-op. It keeps its items in this browser only, so mounting it here costs no request. */}
-        <CartProvider>{children}</CartProvider>
+        <ModulesProvider disabled={[...disabled]}>
+          <CartProvider>
+            <ModuleRouteGate locale={typedLocale} title={moduleCopy("unavailableTitle")} body={moduleCopy("unavailableBody")} homeLabel={moduleCopy("unavailableHome")}>
+              {children}
+            </ModuleRouteGate>
+          </CartProvider>
+        </ModulesProvider>
         <footer className="site-footer">
           <nav aria-label={t("brand")} className="site-footer__links">
             <Link href={`/${typedLocale}/terms`}>{t("footerTerms")}</Link>
             <Link href={`/${typedLocale}/privacy`}>{t("footerPrivacy")}</Link>
             <Link href={`/${typedLocale}/settings/help`}>{t("footerSupport")}</Link>
-            <Link href={`/${typedLocale}/articles`}>{t("footerArticles")}</Link>
+            {isPathHidden("/articles", disabled) ? null : <Link href={`/${typedLocale}/articles`}>{t("footerArticles")}</Link>}
             <Link href={`/${typedLocale}/map`}>{t("footerMap")}</Link>
           </nav>
         </footer>

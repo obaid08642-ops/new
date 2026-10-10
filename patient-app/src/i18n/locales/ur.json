@@ -3149,5 +3149,8 @@
   "address.deleteFailed": "پتہ حذف نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
   "address.editTitle": "پتہ ترمیم کریں",
   "address.editSave": "تبدیلیاں محفوظ کریں",
-  "address.editFailed": "تبدیلیاں محفوظ نہیں ہو سکیں۔ دوبارہ کوشش کریں۔"
+  "address.editFailed": "تبدیلیاں محفوظ نہیں ہو سکیں۔ دوبارہ کوشش کریں۔",
+  "modules.unavailable.title": "یہ سروس ابھی دستیاب نہیں ہے",
+  "modules.unavailable.body": "ہم نے یہ سروس عارضی طور پر روک دی ہے۔ آپ باقی ایپ استعمال کرتے رہ سکتے ہیں۔",
+  "modules.unavailable.home": "ہوم پر واپس جائیں"
 }

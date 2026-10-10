@@ -3814,5 +3814,10 @@
     "message": "I-type ang iyong mensahe",
     "attach": "Mag-attach ng larawan",
     "send": "Ipadala"
+  },
+  "Modules": {
+    "unavailableTitle": "Hindi available ang serbisyong ito ngayon",
+    "unavailableBody": "Pansamantala naming inihinto ang serbisyong ito. Magagamit mo pa rin ang iba pang bahagi ng site.",
+    "unavailableHome": "Bumalik sa Home"
   }
 }

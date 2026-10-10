@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { NavLink } from "@/components-next/nav/nav-link";
+import { useDisabledModules } from "@/components-next/modules/modules-provider";
+import { isPathHidden } from "@/lib/modules";
 import { useRoutePrefetch } from "@/components-next/nav/use-route-prefetch";
 import { AppShell } from "@/components-next/ui-generated/shells";
 import { BottomTabBar } from "@/components-next/ui-generated/components/Surfaces";
@@ -62,9 +64,11 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
   const searchT = useTranslations("Search");
   const nav = useTranslations("HomeWeb");
   const hrefs = shellSectionHrefs(locale);
+  // a switched-off module has no section and no tab (#953)
+  const disabled = useDisabledModules();
   const rtl = getDirection(locale) === "rtl";
 
-  const tabs: Array<BottomTabItem & { href: string }> = [
+  const allTabs: Array<BottomTabItem & { href: string }> = [
     { id: "home", label: nav("navHome"), icon: "house", href: `/${locale}` },
     { id: "pharmacy", label: nav("navPharmacy"), icon: "pill", href: hrefs.pharmacy },
     { id: "consult", label: nav("navConsult"), icon: "stethoscope", href: hrefs.consult, raised: true },
@@ -72,13 +76,17 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
     { id: "nursing", label: nav("navNursing"), icon: "first-aid-kit", href: hrefs.nursing },
   ];
 
-  const sections = [
+  const tabs = allTabs.filter((tab) => !isPathHidden(tab.href, disabled));
+
+  const allSections = [
     { id: "home", label: nav("navHome"), href: `/${locale}` },
     { id: "pharmacy", label: nav("navPharmacy"), href: hrefs.pharmacy },
     { id: "consult", label: nav("navConsult"), href: hrefs.consult },
     { id: "labs", label: nav("navLabs"), href: hrefs.labs },
     { id: "nursing", label: nav("navNursing"), href: hrefs.nursing },
   ];
+
+  const sections = allSections.filter((s) => !isPathHidden(s.href, disabled));
 
   // The tabs are buttons that call router.push, which Next never prefetches: fetch their pages once the page is idle.
   // This frame does not know whether a session exists, so it assumes one: the diagnostics hub lists the patient's own
