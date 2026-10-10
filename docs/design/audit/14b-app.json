@@ -31,13 +31,16 @@
         ["Scan, photograph the pack, found / not found / failed", "GET /medicines/by-barcode/:code, POST /ai/medicine-image-search (unchanged)", "ok"],
         ["Type a barcode", "same GET /medicines/by-barcode/:code", "ok"],
         ["Check interactions section on a found medicine", "POST /ai/drug-interactions {drugs:[name]} (the server adds the saved medicines); verdict and hits as the server sent them; was /drug-scanner, whose old screen read fields the server never sends", "ok"],
-        ["Old route drug-scanner", "redirect to this screen", "ok"]
+        ["Old route drug-scanner", "redirect to this screen", "ok"],
+        ["Needs-a-prescription and online-only pills on a found medicine", "requires_prescription, online_exclusive of GET /medicines/by-barcode medicine", "fixed"]
       ],
       "notes": [] },
     { "route": "/pharmacy",
       "elements": [
         ["Filter sheet (sort, category, Rx only, price, form, maker)", "GET /medicines/filters; Apply writes filter_* to the URL (router.setParams); was /pharmacy/filters", "ok"],
-        ["My orders button", "now /orders (was /pharmacy/order-history)", "ok"]
+        ["My orders button", "now /orders (was /pharmacy/order-history)", "ok"],
+        ["Card note: needs a prescription / online only", "requires_prescription and online_exclusive of the GET /medicines row (productNote); one note line under the price", "fixed"],
+        ["Discount badge on a card", "discount_percent / old_price of the row, drawn only when canShowPromo (no prescription item)", "fixed"]
       ],
       "notes": [] },
     { "route": "/orders",

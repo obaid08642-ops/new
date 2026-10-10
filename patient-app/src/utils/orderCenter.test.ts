@@ -70,9 +70,9 @@ describe('the other services', () => {
     expect(statusLook('doctors', 'PENDING').label).toBe('awaitingConfirmation');
   });
 
-  it('a legacy order has no screen to open, so it has no route and no action', () => {
+  it('a legacy order opens the tracking screen (issue 368)', () => {
     const [r] = rows({ legacyOrders: [{ id: 'old-123456', state: 'PREPARING', items: [{}], createdAt: '2026-09-01T00:00:00Z' }] });
-    expect(r).toMatchObject({ kind: 'pharmacy', route: null, action: null });
+    expect(r).toMatchObject({ kind: 'pharmacy', route: { pathname: '/pharmacy/order-tracking', params: { orderId: 'old-123456' } }, action: 'track' });
   });
 
   it('lists the newest first, skips rows without an id, and splits current from previous', () => {

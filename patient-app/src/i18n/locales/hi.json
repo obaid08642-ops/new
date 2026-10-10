@@ -1115,7 +1115,7 @@
   "consult.hub.nearestOnline": "«सबसे नज़दीक» केवल क्लिनिक और घर पर विज़िट के लिए है, ऑनलाइन परामर्श के लिए नहीं।",
   "consult.hub.locating": "आपका स्थान खोजा जा रहा है…",
   "consult.hub.nearestNoPlace": "दूरी के अनुसार क्रम संभव नहीं है। स्थान की अनुमति दें या शहर के साथ पता सहेजें।",
-  "consult.hub.nearestCity": "{city} से दूरी के अनुसार क्रमबद्ध",
+  "consult.hub.nearestCity": "{city} में डॉक्टर",
   "consult.spec.title": "चिकित्सा विशेषज्ञताएँ",
   "consult.spec.searchLabel": "विशेषज्ञता खोजें",
   "consult.spec.search": "विशेषज्ञता खोजें",
@@ -3143,5 +3143,12 @@
   "guest.loginRequiredTitle": "साइन इन ज़रूरी है",
   "guest.loginRequiredBody": "इस सुविधा का उपयोग करने के लिए साइन इन करें।",
   "consult.calls.videoCall": "वीडियो कॉल",
-  "consult.calls.voiceCall": "वॉइस कॉल"
+  "consult.calls.voiceCall": "वॉइस कॉल",
+  "pharmacy.pay.methodsLegend": "भुगतान का तरीका",
+  "pharmacy.pay.method.card": "बैंक कार्ड",
+  "pharmacy.pay.method.apple-pay": "Apple Pay",
+  "pharmacy.pay.method.google-pay": "Google Pay",
+  "pharmacy.scan.unreadable": "इस फ़ोटो से कोई दवा नहीं पढ़ी जा सकी। ज़्यादा साफ़ फ़ोटो आज़माएँ या दवा का नाम बताकर मँगवाएँ।",
+  "orders.track.legacyEta": "लगभग {n} मिनट में पहुँचेगा",
+  "consult.doc.verified": "सत्यापित डॉक्टर"
 }

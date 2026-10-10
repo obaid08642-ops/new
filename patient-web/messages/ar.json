@@ -261,6 +261,7 @@
     "remove": "إزالة {name} من السلة",
     "removed": "تمت إزالة {name} من السلة",
     "needsRx": "يحتاج وصفة",
+    "onlineOnly": "أونلاين فقط",
     "rxBannerTitle": "صنف يحتاج وصفة",
     "rxBannerBody": "ارفع الوصفة قبل إرسال الطلب",
     "rxBannerAction": "رفع",
@@ -1109,7 +1110,17 @@
     "connectionFailed": "تعذر الاتصال — حاول مجدداً",
     "confirmedTitle": "تم حجز موعدك",
     "confirmedBody": "وقت الموعد: {slot}",
-    "bookAnother": "حجز موعد إضافي"
+    "bookAnother": "حجز موعد إضافي",
+    "quick": "تصفية سريعة",
+    "nearest": "الأقرب",
+    "availableNow": "متاح الآن",
+    "nearestOnline": "خيار «الأقرب» متاح للعيادة والزيارة المنزلية فقط، وليس للاستشارة عبر الإنترنت.",
+    "locating": "جارٍ تحديد موقعك…",
+    "nearestNoPlace": "لا يمكن الترتيب حسب الأقرب. اسمح بالوصول إلى موقعك أو احفظ عنواناً يتضمن المدينة.",
+    "nearestCity": "الأطباء في {city}",
+    "visitType": "نوع الاستشارة",
+    "verifiedDoctor": "طبيب موثّق",
+    "licenseNumber": "رقم الترخيص {number}"
   },
   "LabsServices": {
     "eyebrow": "الرعاية المخبرية",
@@ -1213,7 +1224,8 @@
     "inStock": "متوفر",
     "outOfStock": "غير متوفر",
     "unavailableTitle": "تعذر تحميل قائمة الأمنيات",
-    "unavailableBody": "يرجى المحاولة مرة أخرى لاحقًا."
+    "unavailableBody": "يرجى المحاولة مرة أخرى لاحقًا.",
+    "needsRx": "يحتاج وصفة"
   },
   "Search": {
     "title": "البحث",
@@ -1461,7 +1473,11 @@
     "manufacturer": "الشركة المصنعة",
     "emptyBody": "اختر دواءين على الأقل من الكتالوج للمقارنة بينهما.",
     "browse": "تصفح الأدوية",
-    "back": "الأدوية"
+    "back": "الأدوية",
+    "requires_prescription": "يتطلب وصفة",
+    "online_exclusive": "أونلاين فقط",
+    "yes": "نعم",
+    "no": "لا"
   },
   "PharmacyRequest": {
     "title": "اطلب دواءً بالاسم",
@@ -1494,7 +1510,8 @@
     "viewProduct": "عرض المنتج",
     "another": "بحث عن باركود آخر",
     "requestByName": "اطلبه بالاسم",
-    "errorLookup": "فشل البحث بالباركود. حاول مجددًا."
+    "errorLookup": "فشل البحث بالباركود. حاول مجددًا.",
+    "onlineOnly": "أونلاين فقط"
   },
   "PharmacyChat": {
     "title": "التفاوض مع الصيدلية",
@@ -1529,7 +1546,18 @@
     "back": "مواعيدي",
     "emptyBody": "لا توجد مكالمات سابقة بعد.",
     "findDoctor": "ابحث عن طبيب",
-    "unknownDoctor": "طبيب"
+    "unknownDoctor": "طبيب",
+    "unavailableTitle": "تعذّر تحميل مكالماتك الآن",
+    "unavailableBody": "تحقق من اتصالك ثم حاول مرة أخرى.",
+    "videoCall": "مكالمة فيديو",
+    "voiceCall": "مكالمة صوتية",
+    "status": {
+      "ended": "مكالمة مكتملة",
+      "rejected": "تم رفضها",
+      "missed": "مكالمة فائتة",
+      "active": "مكالمة نشطة حالياً",
+      "pending": "مكالمة معلّقة"
+    }
   },
   "PostCallRating": {
     "title": "قيّم استشارتك",

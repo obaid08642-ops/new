@@ -2,13 +2,13 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 
-import { AppHeader, Chip, DoctorCard, EmptyState, FIcon, OfferCard, Screen, Search, useTabBarHeight } from '../../../../packages/ui-native/src';
+import { AppHeader, Chip, DoctorCard, EmptyState, ErrorState, FIcon, OfferCard, Screen, Search, useTabBarHeight } from '../../../../packages/ui-native/src';
 import { COLUMN, step as scale, useScreenUi } from '../../../src/components/screen/ScreenKit';
 import { MODE_LOOK, Section, Sheet, goBack, visitMode, specialtyLook, type VisitMode } from '../../../src/components/consult/ConsultKit';
 import { Glyph } from '../../../src/components/pharmacy/PharmacyKit';
 import { apiFetch } from '../../../src/utils/api';
 import { logError } from '../../../src/utils/logger';
-import { buildDoctorsPath, nearbyFiltersEnabled, nearestApplies, resolveNearbyPlace, sortsByDistance, type NearbyPlace } from '../../../src/utils/consultNearby';
+import { buildDoctorsPath, doctorRows, keepsServerOrder, nearbyFiltersEnabled, nearestApplies, resolveNearbyPlace, type NearbyPlace } from '../../../src/utils/consultNearby';
 import { deviceNearbyDeps } from '../../../src/utils/consultNearbyDevice';
 import { pickLocalized } from '../../../src/utils/localize';
 
@@ -63,6 +63,7 @@ type ProviderRow = Partial<Doc> & {
   consultation_modes?: string[];
   rating_avg?: number;
   rating_count?: number;
+  reviews_count?: number;
   price_clinic?: number;
   price_online?: number;
   price_home?: number;
@@ -106,6 +107,8 @@ export default function Consultations() {
   // The rows as the server sent them; the card shape (with the localised name) is derived below so a language change re-derives it.
   const [providerRows, setProviderRows] = useState<ProviderRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [reload, setReload] = useState(0);
   const [specialties, setSpecialties] = useState<Spec[]>([]);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -147,14 +150,18 @@ export default function Consultations() {
   useEffect(() => {
     let live = true;
     const fetchDoctors = async () => {
+      setLoading(true);
+      setLoadFailed(false);
       try {
-        const data = await apiFetch<ProviderRow[]>(doctorsPath);
+        // GET /providers returns the array; GET /care/doctors (the quick filters) returns { items }
+        const data = await apiFetch<ProviderRow[] | { items?: ProviderRow[] }>(doctorsPath);
         if (!live) return;
-        setProviderRows(Array.isArray(data) ? data : []);
+        setProviderRows(doctorRows<ProviderRow>(data));
       } catch (err) {
         if (!live) return;
         logError('consultations:fetch-doctors', err);
         setProviderRows([]);
+        setLoadFailed(true);
       } finally {
         if (live) setLoading(false);
       }
@@ -163,7 +170,7 @@ export default function Consultations() {
     return () => {
       live = false;
     };
-  }, [doctorsPath]);
+  }, [doctorsPath, reload]);
 
   useEffect(() => {
     // Real specialties (names + live doctor counts) and real active offers
@@ -214,8 +221,8 @@ export default function Consultations() {
           loc: [x.district, x.city].filter(Boolean).join('، '),
           addr: x.address || '',
           services: (Array.isArray(x.consultation_modes) ? x.consultation_modes : []).map((m) => (m === 'video' ? 'online' : m)),
-          r: x.rating_avg ?? null,
-          rev: x.rating_count ?? 0,
+          r: x.rating_avg ?? x.rating ?? null,
+          rev: x.rating_count ?? x.reviews_count ?? 0,
           p: (typeof x.price_clinic === 'number' ? x.price_clinic : null) ?? x.price_online ?? x.price_home ?? null,
         } as Doc;
       }),
@@ -266,7 +273,7 @@ export default function Consultations() {
       })
       .sort((a, b) => {
         // "Nearest": the server's distance order is kept (the sort is stable)
-        if (sortsByDistance(doctorsPath) && filterSort === 'rating') return 0;
+        if (keepsServerOrder(doctorsPath) && filterSort === 'rating') return 0;
         if (filterSort === 'price') return priceOf(a) - priceOf(b);
         return (b.rating || Number(b.r || 0)) - (a.rating || Number(a.r || 0));
       });
@@ -406,6 +413,8 @@ export default function Consultations() {
                 <View key={i} style={{ height: 200, borderRadius: 28, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }} />
               ))}
             </View>
+          ) : loadFailed ? (
+            <ErrorState title={k('consult.error.title')} body={k('consult.error.body')} retryLabel={k('consult.retry')} onRetry={() => setReload((n) => n + 1)} theme={theme} testID="hub-doctors-error" />
           ) : listed.length === 0 ? (
             <EmptyState icon="stethoscope" tone="blue" title={k('consult.hub.empty')} body={k('consult.hub.emptyBody')} theme={theme} />
           ) : (

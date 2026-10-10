@@ -311,6 +311,7 @@
     "remove": "{name} کو کارٹ سے ہٹائیں",
     "removed": "{name} کو کارٹ سے ہٹا دیا گیا",
     "needsRx": "نسخہ درکار ہے",
+    "onlineOnly": "صرف آن لائن",
     "rxBannerTitle": "ایک چیز کے لیے نسخہ درکار ہے",
     "rxBannerBody": "درخواست بھیجنے سے پہلے نسخہ اپ لوڈ کریں",
     "rxBannerAction": "اپ لوڈ",
@@ -1109,7 +1110,17 @@
     "connectionFailed": "کنکشن دستیاب نہیں۔ دوبارہ کوشش کریں۔",
     "confirmedTitle": "آپ کی اپوائنٹمنٹ بک ہو گئی",
     "confirmedBody": "اپوائنٹمنٹ کا وقت: {slot}",
-    "bookAnother": "ایک اور وقت بک کریں"
+    "bookAnother": "ایک اور وقت بک کریں",
+    "quick": "فوری فلٹر",
+    "nearest": "سب سے قریب",
+    "availableNow": "ابھی دستیاب",
+    "nearestOnline": "«سب سے قریب» صرف کلینک اور گھر کے دورے کے لیے ہے، آن لائن مشاورت کے لیے نہیں۔",
+    "locating": "آپ کا مقام تلاش کیا جا رہا ہے…",
+    "nearestNoPlace": "فاصلے کے مطابق ترتیب ممکن نہیں۔ مقام تک رسائی کی اجازت دیں یا شہر کے ساتھ پتہ محفوظ کریں۔",
+    "nearestCity": "{city} میں ڈاکٹر",
+    "visitType": "مشاورت کی قسم",
+    "verifiedDoctor": "تصدیق شدہ ڈاکٹر",
+    "licenseNumber": "لائسنس نمبر {number}"
   },
   "LabsServices": {
     "eyebrow": "لیبارٹری کیئر",
@@ -1213,7 +1224,8 @@
     "inStock": "دستیاب",
     "outOfStock": "دستیاب نہیں",
     "unavailableTitle": "خواہشات کی فہرست دستیاب نہیں",
-    "unavailableBody": "براہ کرم بعد میں دوبارہ کوشش کریں۔"
+    "unavailableBody": "براہ کرم بعد میں دوبارہ کوشش کریں۔",
+    "needsRx": "نسخہ درکار ہے"
   },
   "Search": {
     "title": "تلاش",
@@ -1461,7 +1473,11 @@
     "manufacturer": "صنعت کار",
     "emptyBody": "موازنے کے لیے کیٹلاگ سے کم از کم دو ادویات منتخب کریں۔",
     "browse": "ادویات دیکھیں",
-    "back": "ادویات"
+    "back": "ادویات",
+    "requires_prescription": "نسخہ درکار ہے",
+    "online_exclusive": "صرف آن لائن",
+    "yes": "ہاں",
+    "no": "نہیں"
   },
   "PharmacyRequest": {
     "title": "دوا نام سے منگوائیں",
@@ -1494,7 +1510,8 @@
     "viewProduct": "پروڈکٹ دیکھیں",
     "another": "دوسرا بار کوڈ تلاش کریں",
     "requestByName": "نام سے منگوائیں",
-    "errorLookup": "بار کوڈ کی تلاش ناکام رہی۔ دوبارہ کوشش کریں۔"
+    "errorLookup": "بار کوڈ کی تلاش ناکام رہی۔ دوبارہ کوشش کریں۔",
+    "onlineOnly": "صرف آن لائن"
   },
   "PharmacyChat": {
     "title": "فارمیسی سے بات چیت",
@@ -1529,7 +1546,18 @@
     "back": "میری ملاقاتیں",
     "emptyBody": "ابھی کوئی سابقہ کال نہیں۔",
     "findDoctor": "ڈاکٹر تلاش کریں",
-    "unknownDoctor": "ڈاکٹر"
+    "unknownDoctor": "ڈاکٹر",
+    "unavailableTitle": "ابھی آپ کی کالز لوڈ نہیں ہو سکیں",
+    "unavailableBody": "اپنا کنکشن چیک کریں اور دوبارہ کوشش کریں۔",
+    "videoCall": "ویڈیو کال",
+    "voiceCall": "وائس کال",
+    "status": {
+      "ended": "کال مکمل",
+      "rejected": "مسترد کر دی گئی",
+      "missed": "چھوٹی ہوئی کال",
+      "active": "کال جاری ہے",
+      "pending": "زیر التوا کال"
+    }
   },
   "PostCallRating": {
     "title": "اپنے مشورے کی_rating",

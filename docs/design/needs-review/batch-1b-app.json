@@ -67,7 +67,7 @@
     "file": "backend/src/modules/prescriptions/prescriptions.service.ts",
     "line": 170,
     "found": "POST /prescriptions/upload calls medicines.createManualEntry for every line the OCR could not match (is_manual_entry) with the patient's own text; the app sends the OCR result as it is. A misread OCR line therefore creates a catalogue record. Not executed in the runtime check (mutation on the shared test database); read from the source.",
-    "suspect": "Backend/reviewer: confirm that manual entries stay out of the public catalogue until a pharmacist or admin approves them (publicCatalogFilter requires approval, so likely yes), and that the OCR result needs a patient review step before lines are saved (the app has none; the saved prescription is reviewed on /pharmacy/rx-order)."
+    "suspect": "Checked on design/backend-fields: createManualEntry stores the line unverified (medicines.service.ts:1008-1016) and the public catalogue needs approval (medicines.service.ts:125-131); the saved prescription is reviewed on /pharmacy/rx-order. (was: Backend/reviewer: confirm that manual entries stay out of the public catalogue until a pharmacist or admin approves them (publicCatalogFilter requires approval, so likely yes), and that the OCR result needs a patient review step before lines are saved (the app has none; the saved prescription is reviewed on /pharmacy/rx-order).)"
   },
   {
     "batch": 1,

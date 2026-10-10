@@ -311,6 +311,7 @@
     "remove": "{name} को कार्ट से हटाएँ",
     "removed": "{name} को कार्ट से हटा दिया गया",
     "needsRx": "पर्चा ज़रूरी है",
+    "onlineOnly": "केवल ऑनलाइन",
     "rxBannerTitle": "एक आइटम के लिए पर्चा ज़रूरी है",
     "rxBannerBody": "अनुरोध भेजने से पहले पर्चा अपलोड करें",
     "rxBannerAction": "अपलोड",
@@ -1109,7 +1110,17 @@
     "connectionFailed": "कनेक्शन उपलब्ध नहीं। फिर कोशिश करें।",
     "confirmedTitle": "आपकी अपॉइंटमेंट बुक हो गई",
     "confirmedBody": "अपॉइंटमेंट का समय: {slot}",
-    "bookAnother": "एक और समय बुक करें"
+    "bookAnother": "एक और समय बुक करें",
+    "quick": "त्वरित फ़िल्टर",
+    "nearest": "सबसे नज़दीक",
+    "availableNow": "अभी उपलब्ध",
+    "nearestOnline": "«सबसे नज़दीक» केवल क्लिनिक और घर पर विज़िट के लिए है, ऑनलाइन परामर्श के लिए नहीं।",
+    "locating": "आपका स्थान खोजा जा रहा है…",
+    "nearestNoPlace": "दूरी के अनुसार क्रम संभव नहीं है। स्थान की अनुमति दें या शहर के साथ पता सहेजें।",
+    "nearestCity": "{city} में डॉक्टर",
+    "visitType": "परामर्श का प्रकार",
+    "verifiedDoctor": "सत्यापित डॉक्टर",
+    "licenseNumber": "लाइसेंस नंबर {number}"
   },
   "LabsServices": {
     "eyebrow": "प्रयोगशाला देखभाल",
@@ -1213,7 +1224,8 @@
     "inStock": "उपलब्ध",
     "outOfStock": "स्टॉक में नहीं",
     "unavailableTitle": "विशलिस्ट उपलब्ध नहीं",
-    "unavailableBody": "कृपया बाद में फिर से कोशिश करें।"
+    "unavailableBody": "कृपया बाद में फिर से कोशिश करें।",
+    "needsRx": "पर्चा ज़रूरी है"
   },
   "Search": {
     "title": "खोज",
@@ -1461,7 +1473,11 @@
     "manufacturer": "निर्माता",
     "emptyBody": "तुलना के लिए कैटलॉग से कम से कम दो दवाएं चुनें।",
     "browse": "दवाएं देखें",
-    "back": "दवाएं"
+    "back": "दवाएं",
+    "requires_prescription": "नुस्खा आवश्यक",
+    "online_exclusive": "केवल ऑनलाइन",
+    "yes": "हाँ",
+    "no": "नहीं"
   },
   "PharmacyRequest": {
     "title": "दवा का नाम बताकर मँगवाएँ",
@@ -1494,7 +1510,8 @@
     "viewProduct": "उत्पाद देखें",
     "another": "दूसरा बारकोड खोजें",
     "requestByName": "नाम बताकर मँगवाएँ",
-    "errorLookup": "बारकोड खोज विफल रही। फिर कोशिश करें।"
+    "errorLookup": "बारकोड खोज विफल रही। फिर कोशिश करें।",
+    "onlineOnly": "केवल ऑनलाइन"
   },
   "PharmacyChat": {
     "title": "फ़ार्मेसी से बातचीत",
@@ -1529,7 +1546,18 @@
     "back": "मेरे अपॉइंटमेंट",
     "emptyBody": "अभी कोई पिछली कॉल नहीं।",
     "findDoctor": "डॉक्टर खोजें",
-    "unknownDoctor": "डॉक्टर"
+    "unknownDoctor": "डॉक्टर",
+    "unavailableTitle": "अभी आपकी कॉल लोड नहीं हो सकीं",
+    "unavailableBody": "अपना कनेक्शन जाँचें और फिर कोशिश करें।",
+    "videoCall": "वीडियो कॉल",
+    "voiceCall": "वॉइस कॉल",
+    "status": {
+      "ended": "कॉल पूरी हुई",
+      "rejected": "अस्वीकार की गई",
+      "missed": "छूटी हुई कॉल",
+      "active": "कॉल जारी है",
+      "pending": "लंबित कॉल"
+    }
   },
   "PostCallRating": {
     "title": "अपने परामर्श को रेट करें",

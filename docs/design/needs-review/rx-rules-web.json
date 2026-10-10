@@ -1,0 +1,72 @@
+[
+  {
+    "batch": 14,
+    "app": "patient-web",
+    "screen": "/p/[slug]",
+    "element": "Online-only badge on the product page",
+    "file": "patient-web/app/[locale]/p/[slug]/page.tsx",
+    "line": 279,
+    "found": "[backend] The public product answer (GET /public/product/:locale/:slug) sends is_rx and available_online but not online_exclusive (available_online means shipped online, not online only), so the page cannot show the badge. (backend: backend/src/modules/medicines/med-i18n.ts:304)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 14,
+    "app": "patient-web",
+    "screen": "/c/[[...category]]",
+    "element": "Online-only note on a card and in search results",
+    "file": "patient-web/components-next/pharmacy/product-grid.tsx",
+    "line": 69,
+    "found": "[backend] The public card answers (category items and product search) send is_rx but no online_exclusive; add it next to is_rx in the card DTOs. (backend: backend/src/modules/seo-search/seo-search.module.ts:652)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 14,
+    "app": "patient-web",
+    "screen": "/c/[[...category]]",
+    "element": "Old price and discount sent for a prescription item",
+    "file": "patient-web/components-next/pharmacy/product-grid.tsx",
+    "line": 55,
+    "found": "[backend] The public product DTO sends old_price, discount_percent and has_discount for an Rx item (the admin catalogue lists withhold them); the client hides them with canShowPromo, the DTO should too. (backend: backend/src/modules/medicines/med-i18n.ts:301)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 14,
+    "app": "patient-web",
+    "screen": "/wishlist",
+    "element": "Online-only chip on a wishlist row",
+    "file": "patient-web/app/[locale]/wishlist/page.tsx",
+    "line": 61,
+    "found": "[backend] GET /users/me/wishlist sends requires_prescription but not online_exclusive. (backend: backend/src/modules/users/users.service.ts:50)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 14,
+    "app": "patient-web",
+    "screen": "/search",
+    "element": "Needs-a-prescription and online-only on a medicine result",
+    "file": "patient-web/app/[locale]/search/search-client.tsx",
+    "line": 73,
+    "found": "[backend] GET /home/search medicine rows carry id, names, price only: no requires_prescription or online_exclusive. (backend: backend/src/modules/home/home.service.ts:203)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 14,
+    "app": "patient-web",
+    "screen": "/cart",
+    "element": "Online-only note on a cart line",
+    "file": "patient-web/components-next/pharmacy/cart-screen.tsx",
+    "line": 155,
+    "found": "[owner] Fixed on design/rx-rules: stored on the line when added. Web add paths that cannot know it: the public product page, the product cards and the reorder picker (their answers do not send online_exclusive); the barcode and compare pages know it but have no add-to-cart.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 14,
+    "app": "patient-web",
+    "screen": "/cart",
+    "element": "Suggested specialty needs the admin mapping",
+    "file": "patient-web/components-next/pharmacy/cart-screen.tsx",
+    "line": 184,
+    "found": "[owner] Consult a doctor opens the mapped specialty only when the admin has filled system_configs rx_consult_specialties (category to specialty); until then the answer is null and the specialty list opens. (backend: backend/src/modules/medicines/rx-consult.controller.ts:44)",
+    "suspect": "Owner decision."
+  }
+]

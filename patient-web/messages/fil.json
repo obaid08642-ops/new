@@ -311,6 +311,7 @@
     "remove": "Alisin ang {name} sa kariton",
     "removed": "Naalis ang {name} sa kariton",
     "needsRx": "Kailangan ng reseta",
+    "onlineOnly": "Online lang",
     "rxBannerTitle": "May item na nangangailangan ng reseta",
     "rxBannerBody": "I-upload ang reseta bago ipadala ang kahilingan",
     "rxBannerAction": "I-upload",
@@ -1109,7 +1110,17 @@
     "connectionFailed": "Hindi available ang koneksyon. Subukan muli.",
     "confirmedTitle": "Na-book ang iyong appointment",
     "confirmedBody": "Oras ng appointment: {slot}",
-    "bookAnother": "Mag-book ng isa pang oras"
+    "bookAnother": "Mag-book ng isa pang oras",
+    "quick": "Mabilis na filter",
+    "nearest": "Pinakamalapit",
+    "availableNow": "Available ngayon",
+    "nearestOnline": "Ang «Pinakamalapit» ay para lang sa klinika at home visit, hindi sa online na konsultasyon.",
+    "locating": "Hinahanap ang iyong lokasyon…",
+    "nearestNoPlace": "Hindi posibleng ayusin ayon sa distansya. Payagan ang access sa lokasyon o mag-save ng address na may lungsod.",
+    "nearestCity": "Mga doktor sa {city}",
+    "visitType": "Uri ng konsultasyon",
+    "verifiedDoctor": "Beripikadong doktor",
+    "licenseNumber": "Lisensya blg. {number}"
   },
   "LabsServices": {
     "eyebrow": "Pangangalaga sa laboratoryo",
@@ -1213,7 +1224,8 @@
     "inStock": "May stock",
     "outOfStock": "Walang stock",
     "unavailableTitle": "Hindi available ang wishlist",
-    "unavailableBody": "Pakisubukang muli mamaya."
+    "unavailableBody": "Pakisubukang muli mamaya.",
+    "needsRx": "Kailangan ng reseta"
   },
   "Search": {
     "title": "Paghahanap",
@@ -1461,7 +1473,11 @@
     "manufacturer": "Tagagawa",
     "emptyBody": "Pumili ng dalawa o higit pang gamot mula sa katalogo.",
     "browse": "Mag-browse",
-    "back": "Mga gamot"
+    "back": "Mga gamot",
+    "requires_prescription": "Kailangan ng reseta",
+    "online_exclusive": "Online lang",
+    "yes": "Oo",
+    "no": "Hindi"
   },
   "PharmacyRequest": {
     "title": "Humingi ng gamot sa pangalan",
@@ -1494,7 +1510,8 @@
     "viewProduct": "Tingnan ang produkto",
     "another": "Maghanap ng ibang barcode",
     "requestByName": "Hilingin sa pangalan",
-    "errorLookup": "Nabigo ang paghahanap ng barcode. Subukan muli."
+    "errorLookup": "Nabigo ang paghahanap ng barcode. Subukan muli.",
+    "onlineOnly": "Online lang"
   },
   "PharmacyChat": {
     "title": "Negosasyon sa parmasya",
@@ -1529,7 +1546,18 @@
     "back": "Mga appointment ko",
     "emptyBody": "Wala pang nakaraang tawag.",
     "findDoctor": "Maghanap ng doktor",
-    "unknownDoctor": "Doktor"
+    "unknownDoctor": "Doktor",
+    "unavailableTitle": "Hindi ma-load ang iyong mga tawag ngayon",
+    "unavailableBody": "Suriin ang iyong koneksyon at subukan muli.",
+    "videoCall": "Tawag na video",
+    "voiceCall": "Tawag na boses",
+    "status": {
+      "ended": "Natapos ang tawag",
+      "rejected": "Tinanggihan",
+      "missed": "Hindi nasagot na tawag",
+      "active": "Kasalukuyang tawag",
+      "pending": "Nakabinbing tawag"
+    }
   },
   "PostCallRating": {
     "title": "I-rate ang konsultasyon",

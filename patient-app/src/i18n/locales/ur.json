@@ -1115,7 +1115,7 @@
   "consult.hub.nearestOnline": "«سب سے قریب» صرف کلینک اور گھر کے دورے کے لیے ہے، آن لائن مشاورت کے لیے نہیں۔",
   "consult.hub.locating": "آپ کا مقام تلاش کیا جا رہا ہے…",
   "consult.hub.nearestNoPlace": "فاصلے کے مطابق ترتیب ممکن نہیں۔ مقام تک رسائی کی اجازت دیں یا شہر کے ساتھ پتہ محفوظ کریں۔",
-  "consult.hub.nearestCity": "{city} سے فاصلے کے مطابق ترتیب",
+  "consult.hub.nearestCity": "{city} میں ڈاکٹر",
   "consult.spec.title": "طبی شعبے",
   "consult.spec.searchLabel": "شعبے تلاش کریں",
   "consult.spec.search": "شعبہ تلاش کریں",
@@ -3143,5 +3143,12 @@
   "guest.loginRequiredTitle": "سائن اِن ضروری ہے",
   "guest.loginRequiredBody": "یہ فیچر استعمال کرنے کے لیے سائن اِن کریں۔",
   "consult.calls.videoCall": "ویڈیو کال",
-  "consult.calls.voiceCall": "وائس کال"
+  "consult.calls.voiceCall": "وائس کال",
+  "pharmacy.pay.methodsLegend": "ادائیگی کا طریقہ",
+  "pharmacy.pay.method.card": "بینک کارڈ",
+  "pharmacy.pay.method.apple-pay": "Apple Pay",
+  "pharmacy.pay.method.google-pay": "Google Pay",
+  "pharmacy.scan.unreadable": "اس تصویر سے کوئی دوا نہیں پڑھی جا سکی۔ زیادہ صاف تصویر آزمائیں یا دوا نام سے منگوائیں۔",
+  "orders.track.legacyEta": "تقریباً {n} منٹ میں پہنچے گا",
+  "consult.doc.verified": "تصدیق شدہ ڈاکٹر"
 }

@@ -1,19 +1,24 @@
 /**
- * The consultations hub's two quick filters, "Nearest" and "Available now" (owner decision, Batch 2), as query params of
- * the hub's doctor call (GET /providers?type=doctor):
+ * The consultations hub's two quick filters, "Nearest" and "Available now" (owner decision, Batch 2). They are answered
+ * by the public doctor search `GET /care/doctors` (backend Q-12 / Q-13), not by the plain `GET /providers?type=doctor`
+ * listing, which ignores them:
  *
- *   Nearest        -> sort=distance with the patient's lat/lng, or with the saved city when the location is not
- *                     available; for clinic and home-visit consultations only, never online/video.
- *   Available now  -> available_within=15 (minutes).
+ *   Nearest        -> sort=distance&lat=&lng= (device position); with no position the saved city is sent as the
+ *                     city filter (the server's own city fallback needs a signed-in user with a city, so the client
+ *                     sends the city itself). For clinic and home-visit only: the server rejects it for video.
+ *   Available now  -> available_within=15 (whole minutes, > 0) with type=clinic|video|home_visit (required by the
+ *                     server). The server orders by the earliest free slot and does not combine it with a distance
+ *                     order, so with both chosen the position is not sent (the city filter still is).
  *
- * Both controls are behind EXPO_PUBLIC_CONSULT_NEARBY_FILTERS=1 (default off) until the doctor search accepts these
- * params. With the flag off nothing here changes the call: the path is exactly `/providers?type=doctor`.
+ * Both controls are behind EXPO_PUBLIC_CONSULT_NEARBY_FILTERS=1 (set in eas.json for preview and production). With
+ * the flag off, or with neither filter active, the path is exactly `/providers?type=doctor`.
  */
 
 export type NearbyMode = 'clinic' | 'home' | 'online';
 export type NearbyPlace = { kind: 'coords'; lat: number; lng: number } | { kind: 'city'; city: string };
 
 export const DOCTORS_PATH = '/providers?type=doctor';
+export const CARE_DOCTORS_PATH = '/care/doctors';
 /** "Available now" means a doctor with a free slot within this many minutes. */
 export const AVAILABLE_WITHIN_MINUTES = 15;
 
@@ -25,28 +30,42 @@ export const nearestApplies = (mode: NearbyMode): boolean => mode !== 'online';
 
 const finite = (n: unknown): n is number => typeof n === 'number' && Number.isFinite(n);
 
+/** The `type` value the doctor search expects for each visit mode. */
+export const careType = (mode: NearbyMode): 'clinic' | 'video' | 'home_visit' => (mode === 'online' ? 'video' : mode === 'home' ? 'home_visit' : 'clinic');
+
 /**
- * The hub's doctor request. `place` is what "Nearest" needs (null: the patient's place is not known, so the sort is not
- * sent). With the flag off the path is the plain one, whatever the other arguments are.
+ * The hub's doctor request. `place` is what "Nearest" needs (null: the patient's place is not known, so nothing is
+ * sent for it). With the flag off, or with neither filter active, the path is the plain one.
  */
 export function buildDoctorsPath(opts: { enabled?: boolean; mode: NearbyMode; nearest: boolean; availableNow: boolean; place: NearbyPlace | null }): string {
   const enabled = opts.enabled ?? nearbyFiltersEnabled();
   if (!enabled) return DOCTORS_PATH;
-  const parts = [DOCTORS_PATH];
-  if (opts.nearest && nearestApplies(opts.mode) && opts.place) {
-    parts.push('sort=distance');
+  const nearest = opts.nearest && nearestApplies(opts.mode) && opts.place !== null;
+  if (!nearest && !opts.availableNow) return DOCTORS_PATH;
+  const parts: string[] = [`type=${careType(opts.mode)}`];
+  if (opts.availableNow) parts.push(`available_within=${AVAILABLE_WITHIN_MINUTES}`);
+  if (nearest && opts.place) {
     if (opts.place.kind === 'coords') {
-      if (finite(opts.place.lat) && finite(opts.place.lng)) parts.push(`lat=${opts.place.lat}`, `lng=${opts.place.lng}`);
+      if (!opts.availableNow && finite(opts.place.lat) && finite(opts.place.lng)) parts.push('sort=distance', `lat=${opts.place.lat}`, `lng=${opts.place.lng}`);
     } else if (opts.place.city.trim()) {
       parts.push(`city=${encodeURIComponent(opts.place.city.trim())}`);
     }
   }
-  if (opts.availableNow) parts.push(`available_within=${AVAILABLE_WITHIN_MINUTES}`);
-  return parts.join('&');
+  return `${CARE_DOCTORS_PATH}?${parts.join('&')}`;
 }
 
-/** True when the request asks the server for the distance order (the screen then keeps the server's order). */
+/** True when the server decides the order (distance, or earliest free slot): the screen then keeps it. */
+export const keepsServerOrder = (path: string): boolean => path.startsWith(CARE_DOCTORS_PATH) && /[?&](sort=distance|available_within=)/.test(path);
+
+/** True when the request asks the server for the distance order. */
 export const sortsByDistance = (path: string): boolean => path.includes('&sort=distance');
+
+/** The doctor rows of either response: the plain array of /providers, or `{ items }` of /care/doctors. */
+export function doctorRows<T>(data: unknown): T[] {
+  if (Array.isArray(data)) return data as T[];
+  const items = (data as { items?: unknown } | null)?.items;
+  return Array.isArray(items) ? (items as T[]) : [];
+}
 
 export interface NearbyDeps {
   /** The device position, or null when the permission is denied or the position cannot be read. */

@@ -1115,7 +1115,7 @@
   "consult.hub.nearestOnline": "«সবচেয়ে কাছের» শুধু ক্লিনিক ও বাড়িতে ভিজিটের জন্য, অনলাইন পরামর্শের জন্য নয়।",
   "consult.hub.locating": "আপনার অবস্থান খোঁজা হচ্ছে…",
   "consult.hub.nearestNoPlace": "দূরত্ব অনুযায়ী সাজানো সম্ভব নয়। অবস্থানের অনুমতি দিন অথবা শহরসহ একটি ঠিকানা সংরক্ষণ করুন।",
-  "consult.hub.nearestCity": "{city} থেকে দূরত্ব অনুযায়ী সাজানো",
+  "consult.hub.nearestCity": "{city}-এ ডাক্তার",
   "consult.spec.title": "চিকিৎসা বিশেষত্ব",
   "consult.spec.searchLabel": "বিশেষত্ব খুঁজুন",
   "consult.spec.search": "বিশেষত্ব খুঁজুন",
@@ -3143,5 +3143,12 @@
   "guest.loginRequiredTitle": "সাইন ইন প্রয়োজন",
   "guest.loginRequiredBody": "এই সুবিধা ব্যবহার করতে সাইন ইন করুন।",
   "consult.calls.videoCall": "ভিডিও কল",
-  "consult.calls.voiceCall": "ভয়েস কল"
+  "consult.calls.voiceCall": "ভয়েস কল",
+  "pharmacy.pay.methodsLegend": "পরিশোধের উপায়",
+  "pharmacy.pay.method.card": "ব্যাংক কার্ড",
+  "pharmacy.pay.method.apple-pay": "Apple Pay",
+  "pharmacy.pay.method.google-pay": "Google Pay",
+  "pharmacy.scan.unreadable": "এই ছবি থেকে কোনো ওষুধ পড়া যায়নি। আরও স্পষ্ট ছবি চেষ্টা করুন বা নাম দিয়ে ওষুধ চান।",
+  "orders.track.legacyEta": "প্রায় {n} মিনিটে পৌঁছাবে",
+  "consult.doc.verified": "যাচাইকৃত ডাক্তার"
 }

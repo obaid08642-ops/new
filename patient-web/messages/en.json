@@ -273,6 +273,7 @@
     "remove": "Remove {name} from the cart",
     "removed": "{name} was removed from the cart",
     "needsRx": "Needs a prescription",
+    "onlineOnly": "Online only",
     "rxBannerTitle": "An item needs a prescription",
     "rxBannerBody": "Upload the prescription before sending the request",
     "rxBannerAction": "Upload",
@@ -1109,7 +1110,17 @@
     "connectionFailed": "Connection unavailable. Try again.",
     "confirmedTitle": "Your appointment is booked",
     "confirmedBody": "Appointment time: {slot}",
-    "bookAnother": "Book another slot"
+    "bookAnother": "Book another slot",
+    "quick": "Quick filters",
+    "nearest": "Nearest",
+    "availableNow": "Available now",
+    "nearestOnline": "\"Nearest\" applies to clinic and home visits only, not online consultations.",
+    "locating": "Finding your location…",
+    "nearestNoPlace": "Sorting by distance is not possible. Allow location access or save an address with a city.",
+    "nearestCity": "Doctors in {city}",
+    "visitType": "Consultation type",
+    "verifiedDoctor": "Verified doctor",
+    "licenseNumber": "Licence no. {number}"
   },
   "LabsServices": {
     "eyebrow": "Laboratory care",
@@ -1213,7 +1224,8 @@
     "inStock": "In stock",
     "outOfStock": "Out of stock",
     "unavailableTitle": "Wishlist unavailable",
-    "unavailableBody": "Please try again later."
+    "unavailableBody": "Please try again later.",
+    "needsRx": "Needs a prescription"
   },
   "Search": {
     "title": "Search",
@@ -1461,7 +1473,11 @@
     "manufacturer": "Manufacturer",
     "emptyBody": "Select at least two medicines from the catalog to compare.",
     "browse": "Browse medicines",
-    "back": "Medicines"
+    "back": "Medicines",
+    "requires_prescription": "Prescription required",
+    "online_exclusive": "Online only",
+    "yes": "Yes",
+    "no": "No"
   },
   "PharmacyRequest": {
     "title": "Request a medicine by name",
@@ -1494,7 +1510,8 @@
     "viewProduct": "View the product",
     "another": "Look up another barcode",
     "requestByName": "Request it by name",
-    "errorLookup": "The barcode lookup failed. Try again."
+    "errorLookup": "The barcode lookup failed. Try again.",
+    "onlineOnly": "Online only"
   },
   "PharmacyChat": {
     "title": "Pharmacy negotiation",
@@ -1529,7 +1546,18 @@
     "back": "My appointments",
     "emptyBody": "No past calls yet.",
     "findDoctor": "Find a doctor",
-    "unknownDoctor": "Doctor"
+    "unknownDoctor": "Doctor",
+    "unavailableTitle": "We can't load your calls right now",
+    "unavailableBody": "Check your connection and try again.",
+    "videoCall": "Video call",
+    "voiceCall": "Voice call",
+    "status": {
+      "ended": "Call completed",
+      "rejected": "Declined",
+      "missed": "Missed call",
+      "active": "Call in progress",
+      "pending": "Pending call"
+    }
   },
   "PostCallRating": {
     "title": "Rate your consultation",

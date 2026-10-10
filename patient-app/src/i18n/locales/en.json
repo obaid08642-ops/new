@@ -1151,7 +1151,7 @@
   "consult.hub.nearestOnline": "\"Nearest\" applies to clinic and home visits only, not online consultations.",
   "consult.hub.locating": "Finding your location…",
   "consult.hub.nearestNoPlace": "Sorting by distance is not possible. Allow location access or save an address with a city.",
-  "consult.hub.nearestCity": "Sorted by distance from {city}",
+  "consult.hub.nearestCity": "Doctors in {city}",
   "consult.spec.title": "Medical specialties",
   "consult.spec.searchLabel": "Search specialties",
   "consult.spec.search": "Search for a specialty",
@@ -3179,5 +3179,12 @@
   "guest.loginRequiredTitle": "Sign-in required",
   "guest.loginRequiredBody": "Sign in to use this feature.",
   "consult.calls.videoCall": "Video call",
-  "consult.calls.voiceCall": "Voice call"
+  "consult.calls.voiceCall": "Voice call",
+  "pharmacy.pay.methodsLegend": "Payment method",
+  "pharmacy.pay.method.card": "Bank card",
+  "pharmacy.pay.method.apple-pay": "Apple Pay",
+  "pharmacy.pay.method.google-pay": "Google Pay",
+  "pharmacy.scan.unreadable": "No medicines could be read from this photo. Try a clearer photo, or request the medicine by name.",
+  "orders.track.legacyEta": "Arrives in about {n} min",
+  "consult.doc.verified": "Verified doctor"
 }

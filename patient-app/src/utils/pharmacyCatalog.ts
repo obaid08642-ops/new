@@ -22,6 +22,8 @@ export interface Med {
   package_size?: string | null;
   requires_prescription?: boolean;
   rx?: boolean;
+  /** Sold online only (the catalogue's `online_exclusive`): sent by the list, details, compare and barcode answers, not by the wishlist. */
+  online_exclusive?: boolean;
   category?: string | null;
   sub_category?: string | null;
   form?: string | null;
@@ -62,8 +64,21 @@ export function medPrice(m: Med): number | null {
   return Number.isFinite(p) && p > 0 ? p : null;
 }
 
-/** Percent off, from the API's own figure or from `old_price` over `price`; 0 when there is no real discount. */
+export const needsRx = (m: Pick<Med, 'requires_prescription' | 'rx'>): boolean => Boolean(m.requires_prescription || m.rx);
+
+/** The catalogue flags the item as sold online only. Only a real `true` counts: a missing field is never "online only". */
+export const onlineOnly = (m: Pick<Med, 'online_exclusive'>): boolean => m.online_exclusive === true;
+
+/**
+ * Owner decision 10 (C11): a prescription medicine carries no offer, discount, crossed-out price, points or promo badge.
+ * The one question every price block asks before it draws any of them; the server already withholds them, this keeps a
+ * row that still carries an old price (compare, wishlist, a cached list) from showing one.
+ */
+export const canShowPromo = (m: Pick<Med, 'requires_prescription' | 'rx'>): boolean => !needsRx(m);
+
+/** Percent off, from the API's own figure or from `old_price` over `price`; 0 when there is no real discount or the item needs a prescription. */
 export function discountPercent(m: Med): number {
+  if (!canShowPromo(m)) return 0;
   const given = Number(m.discount_percent);
   if (Number.isFinite(given) && given > 0) return Math.round(given);
   const price = medPrice(m);
@@ -71,7 +86,20 @@ export function discountPercent(m: Med): number {
   return price && Number.isFinite(old) && old > price ? Math.round((1 - price / old) * 100) : 0;
 }
 
-export const needsRx = (m: Med): boolean => Boolean(m.requires_prescription || m.rx);
+/** The crossed-out price, only beside a real discount on an item that may show one. */
+export function oldPriceOf(m: Med): number | null {
+  const old = Number(m.old_price);
+  return canShowPromo(m) && discountPercent(m) > 0 && Number.isFinite(old) && old > 0 ? old : null;
+}
+
+/**
+ * The note under a product's price: "needs a prescription" and "online only", each only when the catalogue says so,
+ * joined with a middle dot (the card has one note line, so the two labels share it). Undefined when neither applies.
+ */
+export function productNote(m: Med, labels: { rx: string; online: string }): string | undefined {
+  const parts = [needsRx(m) ? labels.rx : '', onlineOnly(m) ? labels.online : ''].filter(Boolean);
+  return parts.length ? parts.join(' · ') : undefined;
+}
 
 /** "Company · pack", each part only when the API has it. */
 export const medMeta = (m: Med): string => [m.manufacturer, m.package_size].filter((x): x is string => typeof x === 'string' && x.trim().length > 0).join(' · ');

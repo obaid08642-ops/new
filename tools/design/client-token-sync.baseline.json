@@ -33,7 +33,6 @@
     "provider-app/src/screens/facility/FacilityResourcesScreen.tsx": 2,
     "provider-app/src/screens/facility/facility/AddSubAccountScreen.tsx": 2,
     "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx": 1,
-    "provider-app/src/screens/facility/facility/HospitalDispatchScreen.tsx": 1,
     "provider-app/src/screens/facility/facility/InsuranceClaimsHubScreen.tsx": 1,
     "provider-app/src/screens/facility/facility/QRCheckinScreen.tsx": 3,
     "provider-app/src/screens/facility/facility/ShiftManagementScreen.tsx": 2,
