@@ -52,6 +52,22 @@ function quotaFor(provider: MailProvider, window: 'daily' | 'monthly'): number {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
 }
 
+/**
+ * Escape a value before it is interpolated into an email body.
+ *
+ * Several of these bodies carry data the requester controls — the device name,
+ * the User-Agent, the IP — so a device named `<img onerror=…>` would otherwise
+ * be rendered as markup in the admin's mail client.
+ */
+export function escapeHtml(value: unknown): string {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 @Injectable()
 export class MailService {
   private readonly logger = new Logger('MailService');
