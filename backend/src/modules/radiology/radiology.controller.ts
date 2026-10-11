@@ -1,5 +1,5 @@
 import { PROVIDER_ROLES } from '../../common/enums';
-import { Controller, Get, Post, Body, Param, Query, Patch, Put, Delete, UseGuards, ServiceUnavailableException } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post, Param, Query, Patch, Put, Delete, UseGuards, ServiceUnavailableException } from '@nestjs/common';
 import { RadiologyOpsService } from './radiology.service';
 import { Public, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
@@ -35,6 +35,19 @@ export class RadiologyController {
 
   @Public() @Get('compatible-providers')
   compatibleProviders(@Query('serviceIds') ids?: string) { return this.svc.compatibleProviders(ids ? ids.split(',') : []); }
+
+  @Public() @Get('providers/:providerAccountId/slots')
+  providerSlots(
+    @Param('providerAccountId') providerAccountId: string,
+    @Query('date') date: string,
+    @Query('duration') duration?: string
+  ) {
+    const dur = duration ? parseInt(duration, 10) : 30;
+    if (!Number.isInteger(dur) || dur < 10 || dur > 120) {
+      throw new BadRequestException('duration must be an integer between 10 and 120 minutes');
+    }
+    return this.svc.slotsForProvider(providerAccountId, date, dur);
+  }
 
   @Public() @Get('modalities')
   modalities() { return this.svc.modalities(); }
