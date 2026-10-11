@@ -125,7 +125,7 @@ export class BookingFlowService {
     };
     const ordered: ServiceState[] = [
       ServiceState.REQUESTED, ServiceState.MATCHING, ServiceState.ASSIGNED,
-      ServiceState.CONFIRMED, ServiceState.IN_PROGRESS, ServiceState.ARRIVED, ServiceState.COMPLETED,
+      ServiceState.CONFIRMED, ServiceState.ARRIVED, ServiceState.IN_PROGRESS, ServiceState.COMPLETED,
     ];
     return ordered.map(s => ({ key: s, label: labels[s], reached: eventTypes.has(evMap[s]) }));
   }
