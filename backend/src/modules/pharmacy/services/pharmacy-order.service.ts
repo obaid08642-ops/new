@@ -222,7 +222,6 @@ export class PharmacyOrderService {
         else if (decision?.patient_acceptance?.kind === 'co-pay') governed_state = 'CO_PAY_PENDING';
         else governed_state = 'INSURANCE_DECISION_READY';
       } else if (codRegistered) governed_state = 'COD_REGISTERED';
-      else if (order.pending_final_quote_snapshot?.hash) governed_state = 'FINAL_QUOTE_READY';
       else if (quoteAccepted) governed_state = 'FINAL_QUOTE_ACCEPTED';
       else governed_state = 'OFFER_SELECTED';
     }
@@ -233,9 +232,6 @@ export class PharmacyOrderService {
       selected_offer_snapshot: selected ? snapshot : undefined,
       selected_offer_hash: selected ? snapshot.hash : undefined,
       selected_offer_revision: selected ? Number(order.selected_offer_version) : undefined,
-      pending_final_quote_snapshot: order.pending_final_quote_snapshot || undefined,
-      pending_final_quote_hash: order.pending_final_quote_snapshot?.hash || undefined,
-      pending_final_quote_revision: order.pending_final_quote_snapshot?.offer_version || undefined,
       accepted_quote_snapshot: quoteAccepted || codRegistered
         ? { ...snapshot, cod_allowed: true }
         : undefined,
