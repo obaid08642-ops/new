@@ -1,5 +1,6 @@
 import { ForbiddenException } from '@nestjs/common';
 import { StorageService } from './storage.module';
+import { UploadSecurityService } from './upload-security.service';
 
 // A-0: only a pharmacy notified about (or allocated) the order that carries the file may open it.
 function make(opts: { recipients?: string[]; allocations?: string[] }) {
@@ -12,7 +13,7 @@ function make(opts: { recipients?: string[]; allocations?: string[] }) {
     },
   });
   const model: any = { findOne: jest.fn(async () => file), db: { collection: coll } };
-  const svc: any = new StorageService(model);
+  const svc: any = new StorageService(model, new UploadSecurityService());
   svc.adapter = { get: async () => ({ data_base64: 'eA==' }) };
   return svc as StorageService;
 }

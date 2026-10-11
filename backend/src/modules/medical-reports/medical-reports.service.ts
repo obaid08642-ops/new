@@ -5,6 +5,10 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { MedicalReport, MedicalReportType } from '../../schemas/medical-report.schema';
 import { MedicalReportRepository } from "./repositories/medicalreport.repository";
 import { hasEffectiveRole } from '../../common/auth.guard';
+import { FieldEncryptionService, MedicalAccessLogService } from '../../common/pdpl-compliance.module';
+
+/** 16.9: the report fields that are health data and are encrypted at rest. */
+const SENSITIVE_REPORT_FIELDS = ['patient_name', 'summary', 'body', 'diagnosis', 'recommendations'];
 
 @Injectable()
 export class MedicalReportsService {
@@ -12,6 +16,8 @@ export class MedicalReportsService {
     @Inject('MedicalReportRepository') private readonly model: MedicalReportRepository,
     private readonly events: EventEmitter2,
     @InjectConnection() private readonly connection: Connection,
+    private readonly fieldCrypto: FieldEncryptionService,
+    private readonly accessLog: MedicalAccessLogService,
   ) {}
 
   async list(user: any, opts: { type?: string; limit?: number; q?: string }) {
@@ -33,14 +39,33 @@ export class MedicalReportsService {
       if (!pid || !(r.shared_with_doctor_ids || []).includes(pid)) throw new NotFoundException();
     }
     if (!r.viewed_by_patient && r.patient_id === user.id) { r.viewed_by_patient = true; r.patient_viewed_at = new Date(); await r.save(); }
-    return r.toObject();
+
+    // 16.9: every read of a medical record leaves a row naming who read it.
+    await this.accessLog.record(
+      {
+        actor_id: user.id,
+        actor_role: user.role,
+        actor_kind: user.role === 'patient' ? 'patient' : user.role === 'admin' ? 'admin' : 'provider',
+        ip: user.ip,
+        device_id: user.device_id,
+        user_agent: user.ua,
+      },
+      { kind: 'medical_report', id, action: 'read' },
+    ).catch((e) => undefined);
+
+    // 16.9: the sensitive fields are ciphertext at rest; they are decrypted on
+    // the way out, so the database never holds the readable text.
+    const obj = r.toObject();
+    this.fieldCrypto.decryptFields(obj as Record<string, unknown>, SENSITIVE_REPORT_FIELDS);
+    return obj;
   }
 
   async create(user: any, body: any) {
     if (!['admin', 'doctor', 'hospital', 'radiology', 'lab'].includes(user.role)) throw new ForbiddenException('provider only');
     if (!body.patient_id) throw new BadRequestException('patient_id required');
     if (!body.title_ar) throw new BadRequestException('title_ar required');
-    const r = await this.model.create({
+    // 16.9: encrypt before the document is written.
+    const payload = this.fieldCrypto.encryptFields({
       patient_id: body.patient_id,
       patient_name: body.patient_name,
       title_ar: body.title_ar,
@@ -61,9 +86,12 @@ export class MedicalReportsService {
       facility_name: body.facility_name,
       attachments: body.attachments || [],
       issued_at: body.issued_at ? new Date(body.issued_at) : new Date(),
-    });
-    this.events.emit('medical_report.created', { id: r.id, patient_id: r.patient_id, critical: r.critical, tracking_id: r.tracking_id });
-    return r.toObject();
+    }, SENSITIVE_REPORT_FIELDS);
+    const r = await this.model.create(payload);
+    this.events.emit('medical_report.created', { id: r.id, patient_id: body.patient_id, critical: r.critical, tracking_id: r.tracking_id });
+    const created = r.toObject();
+    this.fieldCrypto.decryptFields(created as Record<string, unknown>, SENSITIVE_REPORT_FIELDS);
+    return created;
   }
 
   /** Public-ish: get by tracking_id (for share/print without auth complications). */
@@ -74,7 +102,13 @@ export class MedicalReportsService {
       const pid = await this.ownDoctorProfileId(user);
       if (!pid || !(r.shared_with_doctor_ids || []).includes(pid)) throw new NotFoundException();
     }
-    return r;
+    await this.accessLog.record(
+      { actor_id: user.id, actor_role: user.role, actor_kind: user.role === 'patient' ? 'patient' : user.role === 'admin' ? 'admin' : 'provider' },
+      { kind: 'medical_report', id: String(r.id), action: 'read_by_tracking' },
+    ).catch(() => undefined);
+    const obj = r.toObject ? r.toObject() : { ...r };
+    this.fieldCrypto.decryptFields(obj as Record<string, unknown>, SENSITIVE_REPORT_FIELDS);
+    return obj;
   }
 
   /** Resolve the caller's provider profile id when they act as a doctor. */

@@ -9,6 +9,7 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { Logger } from '@nestjs/common';
 import { CurrentUser, Public, JwtAuthGuard, SelfService } from '../../common/auth.guard';
 import { UploadDto, UploadSuggestionImageDto } from './storage.dto';
+import { Purpose, UploadSecurityService } from './upload-security.service';
 
 export enum StorageBackend { BASE64 = 'base64', S3 = 's3', CLOUDINARY = 'cloudinary', SUPABASE = 'supabase' }
 
@@ -129,7 +130,10 @@ export class StorageService {
    * document flows (KYC, images) keep working in dev/staging without object storage.
    */
   private adapter: StorageAdapter = S3R2Adapter.configured() ? new S3R2Adapter() : new Base64Adapter();
-  constructor(@InjectModel('StorageObject') private readonly model: Model<StorageObject>) {
+  constructor(
+    @InjectModel('StorageObject') private readonly model: Model<StorageObject>,
+    private readonly uploadSecurity: UploadSecurityService,
+  ) {
     if (!S3R2Adapter.configured()) {
       // eslint-disable-next-line no-console
       console.warn('S3 storage not configured (S3_BUCKET/S3_ENDPOINT/keys) — falling back to inline base64 storage');
@@ -199,21 +203,29 @@ export class StorageService {
    *  target='cloudinary' routes provider/user content (profile images, clinic
    *  galleries, KYC documents) to Cloudinary; the default stays R2 so the
    *  medicine catalogue is never affected. */
-  async upload(input: { owner_account_id: string; owner_kind?: string; mime: string; data_base64: string; original_name?: string; visibility?: 'private' | 'public_read'; customKey?: string; target?: 'r2' | 'cloudinary' }) {
+  async upload(input: { owner_account_id: string; owner_kind?: string; mime: string; data_base64: string; original_name?: string; visibility?: 'private' | 'public_read'; customKey?: string; target?: 'r2' | 'cloudinary'; purpose?: Purpose }) {
     if (!ALLOWED_MIME.has(input.mime)) throw new BadRequestException('unsupported mime: ' + input.mime);
-    const approxBytes = Math.floor((input.data_base64?.length || 0) * 0.75);
-    if (approxBytes > MAX_BYTES) throw new BadRequestException('file exceeds 8MB limit');
+    // 16.5: the type comes from the bytes, the name is random and EXIF/GPS never survives.
+    const inspected = await this.uploadSecurity.inspect({
+      purpose: input.purpose || 'lab_report',
+      declared_mime: input.mime,
+      data_base64: input.data_base64,
+      original_name: input.original_name,
+    });
+    const dataBase64 = inspected.bytes.toString('base64');
+    const approxBytes = inspected.size_bytes;
+    if (approxBytes > MAX_BYTES) throw new BadRequestException('file exceeds the hard size limit');
     if (input.target === 'cloudinary') {
       if (!this.cloudinaryConfigured()) throw new BadRequestException('CLOUDINARY_NOT_CONFIGURED');
-      return this.uploadCloudinary(input);
+      return this.uploadCloudinary({ ...input, data_base64: dataBase64 });
     }
     // Authenticated uploads have no client-selectable public visibility. A
     // separate reviewed publication workflow is required for catalogue media.
     if (!S3R2Adapter.configured()) throw new ServiceUnavailableException('PRIVATE_OBJECT_STORAGE_REQUIRED');
-    const checksum = crypto.createHash('sha256').update(input.data_base64).digest('hex');
+    const checksum = crypto.createHash('sha256').update(inspected.bytes).digest('hex');
     let adapterRes;
     try {
-      adapterRes = await this.adapter.put({ mime: input.mime, data_base64: input.data_base64, original_name: input.original_name || 'file', customKey: input.customKey });
+      adapterRes = await this.adapter.put({ mime: input.mime, data_base64: dataBase64, original_name: inspected.random_name, customKey: input.customKey });
     } catch (e: any) {
       this.logger.error(`S3/R2 put failed (${e.message}) — private upload refused`);
       throw new ServiceUnavailableException('PRIVATE_OBJECT_STORAGE_UNAVAILABLE');
@@ -221,7 +233,7 @@ export class StorageService {
     const obj = await this.model.create({
       backend: adapterRes.backend,
       mime: input.mime,
-      original_name: input.original_name || 'file',
+      original_name: inspected.random_name,
       size_bytes: approxBytes,
       checksum_sha256: checksum,
       data_base64: adapterRes.data_base64,
@@ -448,7 +460,7 @@ export class StorageController {
 @Module({
   imports: [MongooseModule.forFeature([{ name: 'StorageObject', schema: StorageObjectSchema }])],
   controllers: [StorageController],
-  providers: [StorageService],
-  exports: [StorageService, MongooseModule],
+  providers: [StorageService, UploadSecurityService],
+  exports: [StorageService, UploadSecurityService, MongooseModule],
 })
 export class StorageModule {}
