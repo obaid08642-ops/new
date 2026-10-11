@@ -315,8 +315,12 @@ export class UsersService {
     };
   }
 
+  /** 772: the privacy contract is exactly these five switches (safe defaults, all off). */
+  private static readonly PRIVACY_DEFAULTS = { location: false, analytics: false, shareData: false, marketing: false, thirdParty: false };
+
   async getPrivacySettings(id: string) {
-    return this.getSetting(id, 'privacy_settings', { profile_visible: true, share_data: false });
+    const stored = await this.getSetting(id, 'privacy_settings', null);
+    return { ...UsersService.PRIVACY_DEFAULTS, ...(stored && typeof stored === 'object' ? stored : {}) };
   }
   async updatePrivacySettings(id: string, body: any) {
     return this.setSetting(id, 'privacy_settings', body);
@@ -351,8 +355,11 @@ export class UsersService {
     return { success: true, access_token: tokens.accessToken, refresh_token: tokens.refreshToken };
   }
 
-  /** Active sessions = live refresh tokens tracked in Redis (device-bound, 7d TTL). */
-  async getSessions(id: string) {
+  /** Active sessions = live refresh tokens tracked in Redis (device-bound, 7d TTL).
+   * 773: each row flags is_current by matching the session device against the
+   * calling token's device claim, so the client never ends the session in use.
+   */
+  async getSessions(id: string, currentDev?: string) {
     try {
       const client = this.redisService.getClient?.();
       if (!client) return [];
@@ -364,7 +371,7 @@ export class UsersService {
         let device: string | null = null;
         try { device = JSON.parse(raw)?.d ?? null; } catch { /* keep null */ }
         const ttl = await client.ttl(`refresh:${jti}`);
-        sessions.push({ id: jti, device, expires_in_seconds: ttl });
+        sessions.push({ id: jti, device, expires_in_seconds: ttl, is_current: !!currentDev && !!device && String(device).slice(0, 32) === String(currentDev).slice(0, 32) });
       }
       return sessions;
     } catch {
