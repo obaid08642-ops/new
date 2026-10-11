@@ -1,3 +1,4 @@
+import { escapeRegex } from '../../common/slug.util';
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException, Logger, Inject, Optional } from '@nestjs/common';
 import { Model, Connection } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -63,21 +64,20 @@ export class AppointmentsService {
    * (any stored language). Null when the line names no catalogue item.
    */
   private async resolvePrescriptionMedicineId(name: unknown): Promise<string | null> {
-    const needle = String(name || '').trim().toLowerCase();
+    const needle = String(name || '').trim();
     if (!needle) return null;
     try {
       const col = (this.connection as any)?.collection?.('medicines') ?? (this.connection as any)?.db?.collection?.('medicines');
       if (!col) return null;
-      const rows: any[] = await col.find({}).toArray();
-      for (const m of rows) {
-        const names = [m?.name_ar, m?.name_en, ...(m?.translations && typeof m.translations === 'object' ? Object.values(m.translations).map((t: any) => t?.name) : [])]
-          .filter((n) => typeof n === 'string' && n.trim()).map((n: string) => n.trim().toLowerCase());
-        if (names.includes(needle)) return m.id || null;
-      }
+      // One exact (case-insensitive) name lookup, never a scan of the whole ~21k catalogue in memory.
+      const exact = new RegExp(`^${escapeRegex(needle)}$`, 'i');
+      const or = ['name_ar', 'name_en', 'translations.ur.name', 'translations.hi.name', 'translations.bn.name', 'translations.tl.name', 'translations.fil.name']
+        .map((field) => ({ [field]: exact }));
+      const hit: any = await col.findOne({ $or: or }, { projection: { _id: 0, id: 1 } });
+      return hit?.id || null;
     } catch {
       return null;
     }
-    return null;
   }
 
   /** 661/683: the consultation outcome's lab + radiology referrals, if the doctor issued any. */

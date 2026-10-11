@@ -9,7 +9,14 @@ function serviceFor(opts: { summary?: any; referral?: any | null; medicines?: an
   const meds = opts.medicines ?? [{ id: 'med-panadol', name_ar: 'بنادول', name_en: 'Panadol', translations: {} }];
   service.connection = {
     collection: jest.fn((name: string) => {
-      if (name === 'medicines') return { find: jest.fn().mockReturnValue({ toArray: jest.fn().mockResolvedValue(meds) }) };
+      if (name === 'medicines') return {
+        // Evaluates the $or of anchored name regexes like Mongo would, over the seeded rows.
+        findOne: jest.fn(async (q: any) => meds.find((m: any) => (q.$or || []).some((c: any) => {
+          const [field, re] = Object.entries(c)[0] as [string, RegExp];
+          const v = field.split('.').reduce((o: any, k) => (o == null ? o : o[k]), m);
+          return typeof v === 'string' && re.test(v);
+        })) ?? null),
+      };
       if (name === 'encounterreferrals') return { findOne: jest.fn().mockResolvedValue(opts.referral ?? null) };
       return { findOne: jest.fn().mockResolvedValue(null) };
     }),
