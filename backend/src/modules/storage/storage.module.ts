@@ -234,11 +234,31 @@ export class StorageService {
     return { id: obj.id, mime: obj.mime, size_bytes: obj.size_bytes, url: `/api/v1/storage/${obj.id}` };
   }
 
+  /**
+   * A-0: a pharmacy may open a patient's prescription file only when that file is attached to a
+   * pharmacy order of the same patient AND the pharmacy was notified about that order (broadcast
+   * recipient) or holds an allocation of it. Every other pharmacy keeps getting 403.
+   */
+  private async orderPharmacyMayRead(o: any, requester: { id: string; role?: string }): Promise<boolean> {
+    if (!requester?.id || !o?.id || !o?.owner_account_id) return false;
+    const db: any = (this.model as any).db;
+    if (!db?.collection) return false;
+    const uri = `/api/v1/storage/${encodeURIComponent(o.id)}`;
+    const orders: any[] = await db.collection('pharmacy_orders')
+      .find({ patient_account_id: { $eq: String(o.owner_account_id) }, 'prescription_attachments.uri': { $eq: uri } }, { projection: { _id: 0, id: 1 } })
+      .limit(50).toArray();
+    const orderIds = orders.map((r) => r.id).filter((v) => typeof v === 'string');
+    if (!orderIds.length) return false;
+    const who = { order_id: { $in: orderIds }, pharmacy_account_id: { $eq: String(requester.id) } };
+    if (await db.collection('pharmacy_broadcast_recipients').findOne(who, { projection: { _id: 1 } })) return true;
+    return !!(await db.collection('pharmacy_allocations').findOne(who, { projection: { _id: 1 } }));
+  }
+
   /** Fetch object — enforces owner_account_id privacy unless visibility=public_read. */
   async read(id: string, requester: { id: string; role?: string }) {
     const o = await this.model.findOne({ id, deleted: false });
     if (!o) throw new NotFoundException();
-    if (!canRead(o, requester)) throw new ForbiddenException();
+    if (!canRead(o, requester) && !(await this.orderPharmacyMayRead(o, requester))) throw new ForbiddenException();
     const data = await this.adapter.get(o);
     if (o.visibility !== 'public_read') delete (data as any).external_url;
     return { id: o.id, mime: o.mime, original_name: o.original_name, size_bytes: o.size_bytes, ...data };
@@ -249,7 +269,7 @@ export class StorageService {
   async signedUrl(id: string, requester: { id: string; role?: string }) {
     const o: any = await this.model.findOne({ id, deleted: false });
     if (!o) throw new NotFoundException();
-    if (!canRead(o, requester)) throw new ForbiddenException();
+    if (!canRead(o, requester) && !(await this.orderPharmacyMayRead(o, requester))) throw new ForbiddenException();
 
     // Cloudinary-hosted: build signed delivery URL
     if (o.backend === 'cloudinary' && o.external_key) {
