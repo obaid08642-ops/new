@@ -16,6 +16,9 @@ import { PharmacyAllocationRepository } from "./repositories/pharmacyallocation.
 
 function assertPatient(u: any) { if (!u || u.role !== 'patient') throw new ForbiddenException('patient_scope_required'); }
 
+/** A-4: governed states in which a card payment may be retried (no COD, owner decision 25). */
+const PAYMENT_RETRY_STATES = ['PAYMENT_PENDING', 'FINAL_QUOTE_ACCEPTED'];
+
 @Injectable()
 export class PharmacyOrderService {
   constructor(
@@ -551,18 +554,18 @@ export class PharmacyOrderService {
     }
 
     // Retryable governed states
-    const retryable = ['PAYMENT_PENDING', 'COD_REGISTERED', 'FINAL_QUOTE_ACCEPTED'].includes(governed.governed_state || '');
+    const retryable = PAYMENT_RETRY_STATES.includes(governed.governed_state || '');
     const retryReason = retryable ? governed.governed_state : null;
 
     return {
       order_id: id,
-      payment_method: order.payment_method || 'cash',
-      payment_status: order.payment_status || 'pending',
+      payment_method: order.payment_method || null,
+      payment_status: order.payment_status || null,
       governed_state: governed.governed_state || null,
-      amount: order.pricing_snapshot?.totals?.total || 0,
+      amount: order.pricing_snapshot?.totals?.total ?? null,
       currency: order.pricing_snapshot?.totals?.currency || 'SAR',
-      co_pay_amount: decision?.patient_share || 0,
-      insurer_share: decision?.insurer_share || 0,
+      co_pay_amount: decision?.patient_share ?? null,
+      insurer_share: decision?.insurer_share ?? null,
       active_intent: activeIntent ? { intent_id: activeIntent.intent_id, status: activeIntent.status, amount: activeIntent.amount, currency: activeIntent.currency, created_at: activeIntent.createdAt } : null,
       confirmed_evidence: confirmedEvidence ? { gateway: confirmedEvidence.gateway, payment_id: confirmedEvidence.gateway_payment_id, amount: confirmedEvidence.amount, currency: confirmedEvidence.currency, confirmed_at: confirmedEvidence.confirmed_at } : null,
       retryable,
@@ -571,55 +574,21 @@ export class PharmacyOrderService {
   }
 
   /**
-   * Retry payment for governed pharmacy orders.
-   * Creates a new payment intent (card) or re-registers COD.
-   * Method comes from the DTO (not from order state).
+   * A-4: prepare a card payment retry. Card only (owner decision 25: no cash on delivery). Refuses while a
+   * payment is already with the gateway (pending/authorized), so a retry can never charge twice; only
+   * intents the patient never started are closed. The new intent is made by the one card-intent path
+   * (PharmacyPaymentEvidenceService.createPaymentIntent), called by the controller.
    */
-  async retryPayment(user: any, id: string, idempotencyKey: string, method?: string): Promise<any> {
+  async prepareCardRetry(user: any, id: string, idempotencyKey: string): Promise<void> {
     assertPatient(user);
-    if (!/^[A-Za-z0-9._:-]{16,128}$/.test(String(idempotencyKey || ''))) throw new BadRequestException('idempotency_key_required');
     const order = await this.orders.findOne({ id, patient_account_id: user.id }).lean();
     if (!order) throw new NotFoundException('order_not_found');
     if (['cancelled', 'expired'].includes(String(order.status))) throw new BadRequestException('order_not_actionable');
-
-    const governed = this.governedView(order);
-    const retryable = ['PAYMENT_PENDING', 'COD_REGISTERED', 'FINAL_QUOTE_ACCEPTED'].includes(governed.governed_state || '');
-    if (!retryable) throw new BadRequestException('payment_not_retryable_in_current_state');
-
-    const paymentMethod = (method || order.payment_method || 'card').toLowerCase();
-
-    if (paymentMethod === 'cod') {
-      // Re-register COD commitment
-      if (String(order.payment_method || '').toLowerCase() === 'cod' && order.cod_registered_at) {
-        return { ok: true, idempotent: true, status: order.status, method: 'cod' };
-      }
-      if (!order.selected_offer_id || !order.pricing_snapshot?.hash) throw new BadRequestException('selected_quote_required');
-      if (!order.quote_accepted_at) throw new BadRequestException('final_quote_acceptance_required');
-      if (String(order.payment_method || '').toLowerCase() === 'insurance') throw new BadRequestException('insurance_orders_follow_insurance_decision_flow');
-      const now = new Date();
-      await this.orders.updateOne({ id: order.id }, {
-        $set: { payment_method: 'cod', cod_registered_at: now, cod_idempotency_key: idempotencyKey, status: PharmacyOrderState.COD_DUE_ON_DELIVERY },
-        $push: { timeline: { ts: now, event: 'cod_registered', by: user.id, meta: { amount: order.pricing_snapshot?.totals?.total } } },
-      } as any);
-      return { ok: true, idempotent: false, status: PharmacyOrderState.COD_DUE_ON_DELIVERY, method: 'cod' };
-    }
-
-    // Card payment — create new payment intent (invalidates old ones via idempotency key)
-    if (!['card', 'credit_card', 'moyasar'].includes(paymentMethod)) throw new BadRequestException('card_payment_intent_required');
-    if (!order.selected_offer_id || !Number.isInteger(Number(order.selected_offer_version)) || !order.pricing_snapshot?.hash) throw new BadRequestException('selected_quote_required');
-    const total = Math.round(Number(order.pricing_snapshot.totals?.total || 0) * 100) / 100;
-    const currency = String(order.pricing_snapshot.totals?.currency || 'SAR').toUpperCase();
+    if (!PAYMENT_RETRY_STATES.includes(this.governedView(order).governed_state || '')) throw new BadRequestException('payment_not_retryable_in_current_state');
     const intents = this.conn.collection('pharmacy_payment_intents');
-    // Invalidate previous pending intents for this order
-    await intents.updateMany({ order_id: id, status: { $in: ['requires_payment', 'initiating', 'pending', 'authorized'] } }, { $set: { status: 'cancelled', updatedAt: new Date() } });
-    const intent = {
-      intent_id: `pi_${require('crypto').randomUUID()}`, order_id: id, selected_offer_id: order.selected_offer_id,
-      selected_offer_version: Number(order.selected_offer_version), quote_snapshot_hash: order.pricing_snapshot.hash,
-      amount: total, currency, payer_account_id: user.id, idempotency_key: idempotencyKey,
-      status: 'requires_payment', adapter: 'sandbox_disabled', createdAt: new Date(), updatedAt: new Date(),
-    };
-    await intents.insertOne(intent as any);
-    return { intent_id: intent.intent_id, status: intent.status, amount: intent.amount, currency: intent.currency, adapter: 'sandbox_disabled', method: 'card' };
+    if (await intents.findOne({ order_id: id, status: { $in: ['pending', 'authorized'] } })) throw new BadRequestException('payment_in_progress');
+    // A replay of the same retry keeps its own intent (createPaymentIntent then returns it).
+    await intents.updateMany({ order_id: id, idempotency_key: { $ne: idempotencyKey }, status: { $in: ['requires_payment', 'initiating'] } }, { $set: { status: 'cancelled', updatedAt: new Date() } });
   }
 
   async update(user: any, id: string, body: any): Promise<any> {
