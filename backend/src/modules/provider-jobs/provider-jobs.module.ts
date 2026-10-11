@@ -209,7 +209,7 @@ export class ProviderJobsService {
       [ServiceState.ASSIGNED]: { pharmacy: 'PHARMACY_RECEIVED', lab: 'CREATED', radiology: 'PENDING', nursing: 'PROVIDER_ASSIGNED', consultation: 'PENDING' },
       [ServiceState.CONFIRMED]: { pharmacy: 'ACCEPTED', lab: 'CONFIRMED', radiology: 'CONFIRMED', nursing: 'CONFIRMED', consultation: 'CONFIRMED' },
       [ServiceState.IN_PROGRESS]: { pharmacy: 'PREPARING', lab: 'SAMPLE_COLLECTED', radiology: 'IN_PROGRESS', nursing: 'IN_PROGRESS', consultation: 'IN_PROGRESS' },
-      [ServiceState.ARRIVED]: { pharmacy: 'IN_TRANSIT', lab: 'SAMPLE_COLLECTED', radiology: 'ARRIVED_CHECKIN', nursing: 'ARRIVED', consultation: 'CHECKED_IN' },
+      [ServiceState.ARRIVED]: { pharmacy: 'UNSUPPORTED', lab: 'UNSUPPORTED', radiology: 'UNSUPPORTED', nursing: 'ARRIVED', consultation: 'UNSUPPORTED' },
       [ServiceState.COMPLETED]: { pharmacy: 'DELIVERED', lab: 'REPORTED', radiology: 'REPORT_PUBLISHED', nursing: 'COMPLETED', consultation: 'COMPLETED' },
       [ServiceState.CANCELLED]: { pharmacy: 'CANCELLED', lab: 'CANCELLED', radiology: 'CANCELLED', nursing: 'CANCELLED', consultation: 'CANCELLED' },
     };
@@ -235,8 +235,14 @@ export class ProviderJobsService {
   reject(user: any, type: string, id: string, reason?: string) { return this.act(user, type, id, ServiceState.CANCELLED, reason || 'provider_rejected'); }
   start(user: any, type: string, id: string, reason?: string) { return this.act(user, type, id, ServiceState.IN_PROGRESS, reason || 'provider_started'); }
   complete(user: any, type: string, id: string, reason?: string) { return this.act(user, type, id, ServiceState.COMPLETED, reason || 'provider_completed'); }
-  /** Arrived at patient location (home visit) or patient arrived at center. */
-  arrived(user: any, type: string, id: string, reason?: string) { return this.act(user, type, id, ServiceState.ARRIVED, reason || 'provider_arrived'); }
+  /** Arrived at patient location (home visit) — only for nursing/home-care home visits. */
+  arrived(user: any, type: string, id: string, reason?: string) {
+    const kind = this.kindAliases[type];
+    if (kind !== 'nursing') {
+      throw new BadRequestException('ARRIVED action only allowed for home visits (nursing)');
+    }
+    return this.act(user, type, id, ServiceState.ARRIVED, reason || 'provider_arrived');
+  }
   async updateInsurance(user: any, type: string, id: string, insuranceDetails: any) {
     if (!getEffectiveRoles(user).some((r) => PROVIDER_ROLES.includes(r))) {
       throw new ForbiddenException('provider_only');
