@@ -1078,19 +1078,6 @@ export class NotificationsService {
     // in the loyalty hub; push-spamming every +10 would be terrible UX.
   }
 
-  // ============ EPIC4/S20: Community scenarios ============
-  @OnEvent('community.comment_added')
-  async onCommunityComment(p: any) {
-    if (!p?.post_author_id) return;
-    await this.create({
-      user_id: p.post_author_id,
-      title_key: 'notif.community_reply.title',
-      body_key: 'notif.community_reply.body',
-      type: NotificationType.INFO,
-      action: { route: `/community/post-detail?id=${p.post_id}` },
-    });
-  }
-
   // ============ EPIC4/S20: AI scenarios ============
   @OnEvent('ai.triage_completed')
   async onAiTriageCompleted(p: any) {

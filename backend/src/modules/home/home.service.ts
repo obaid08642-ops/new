@@ -116,7 +116,7 @@ export class HomeService {
     const db = this.promoModel.db;
     const userId = this.request.user?.id;
 
-    const [campaigns, doctors, medicines, labs, rads, articles, diseaseArticles, insurers, posts, familyGroup]: any[] =
+    const [campaigns, doctors, medicines, labs, rads, articles, diseaseArticles, insurers, familyGroup]: any[] =
       await Promise.all([
         this.promoModel.find({ $or: [{ title_ar: regex }, { title_en: regex }] }).limit(10).lean(),
         db.collection('provider_profiles').find({
@@ -146,10 +146,6 @@ export class HomeService {
           is_active: true,
           $or: [{ name_ar: regex }, { name_en: regex }, { code: regex }],
         } as any).limit(4).toArray(),
-        db.collection('community_posts').find({
-          status: 'published', is_deleted: false,
-          $or: [{ title: regex }, { body: regex }, { tags: regex }],
-        } as any).limit(5).toArray(),
         // Family search is strictly scoped to the requester's own group
         userId
           ? db.collection('family_groups').findOne({ 'members.user_id': userId } as any)
@@ -259,16 +255,6 @@ export class HomeService {
         name: i.name_ar, nameEn: i.name_en || i.name_ar,
         sub: 'شركة تأمين', subEn: 'Insurance company',
         ic: 'health_and_safety', c: '#1ABC9C', cs: '#E6F8F5',
-      });
-    }
-
-    for (const p of posts) {
-      results.push({
-        id: p.id, type: 'مجتمع', typeEn: 'Community',
-        name: p.title, nameEn: p.title,
-        sub: `${p.upvotes ?? 0} إعجاب · ${p.comment_count ?? 0} تعليق`,
-        subEn: `${p.upvotes ?? 0} likes · ${p.comment_count ?? 0} comments`,
-        ic: 'groups', c: '#F5A623', cs: '#FEF4E4',
       });
     }
 
