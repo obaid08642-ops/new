@@ -49,28 +49,24 @@ export class LegalService {
   async getPolicy(key: string, lang = 'ar') {
     const p: any = await this.policies.findOne({ key }, { projection: { _id: 0 } });
     if (!p) return null;
-    // 753/796: ur/hi/bn/fil content when the admin filled it, else EN, else AR.
-    const supported = ['ar', 'en', 'ur', 'hi', 'bn', 'fil'];
-    const want = supported.includes(lang) ? lang : 'ar';
-    const localized = want !== 'ar' && want !== 'en' && (p as any)[`content_${want}`]
-      ? { content: (p as any)[`content_${want}`], language: want, title: (p as any)[`title_${want}`] || p.title_en || p.title_ar }
-      : want === 'ar' && p.content_ar
-        ? { content: p.content_ar, language: 'ar', title: p.title_ar }
-        : { content: p.content_en || p.content_ar, language: p.content_en ? 'en' : 'ar', title: p.title_en || p.title_ar };
+    // Owner 2026-10-12 (753/796): policies exist in Arabic and English only. An Arabic app or site gets
+    // the Arabic text; every other language (en, ur, hi, bn, fil) gets the English text.
+    const arabic = lang === 'ar' ? !!p.content_ar : !p.content_en;
+    const content = arabic ? p.content_ar : p.content_en;
     return {
       key: p.key,
-      title: localized.title,
+      title: arabic ? p.title_ar : p.title_en,
       version: p.version,
       effective_date: p.effective_date,
       last_updated: p.last_updated,
       change_log: p.change_log || [],
-      content: localized.content,
-      language: localized.language,
+      content,
+      language: arabic ? 'ar' : 'en',
     };
   }
 
   async listPolicies(): Promise<any[]> {
-    return this.policies.find({}, { projection: { _id: 0, key: 1, title_ar: 1, title_en: 1, title_ur: 1, title_hi: 1, title_bn: 1, title_fil: 1, version: 1, last_updated: 1, requires_acceptance: 1, applies_to: 1 } }).sort({ key: 1 }).toArray();
+    return this.policies.find({}, { projection: { _id: 0, key: 1, title_ar: 1, title_en: 1, version: 1, last_updated: 1, requires_acceptance: 1, applies_to: 1 } }).sort({ key: 1 }).toArray();
   }
 
   async upsertPolicy(adminId: string, key: string, patch: any) {
@@ -84,20 +80,12 @@ export class LegalService {
         key,
         title_ar: fields.title_ar || key,
         title_en: fields.title_en || key,
-        title_ur: fields.title_ur || '',
-        title_hi: fields.title_hi || '',
-        title_bn: fields.title_bn || '',
-        title_fil: fields.title_fil || '',
         version: fields.version || '1.0',
         effective_date: fields.effective_date ? new Date(fields.effective_date) : new Date(),
         last_updated: new Date(),
         change_log: [{ version: fields.version || '1.0', date: new Date(), note: change_note || 'initial', by: adminId }],
         content_ar: fields.content_ar || '',
         content_en: fields.content_en || '',
-        content_ur: fields.content_ur || '',
-        content_hi: fields.content_hi || '',
-        content_bn: fields.content_bn || '',
-        content_fil: fields.content_fil || '',
         requires_acceptance: fields.requires_acceptance ?? true,
         applies_to: fields.applies_to || ['all'],
       };

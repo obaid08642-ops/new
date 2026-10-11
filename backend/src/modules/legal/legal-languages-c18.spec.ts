@@ -1,33 +1,25 @@
 import { LegalService } from './legal.module';
 
-// OC-C C-18 (753/796): policies carry ur/hi/bn/fil content with EN fallback.
-function serviceFor(policies: any[]) {
+// Owner 2026-10-12 (753/796): Arabic for an Arabic app, English for every other language.
+function serviceFor(policy: any) {
   const service: any = Object.create(LegalService.prototype);
-  service.conn = {
-    collection: jest.fn(() => ({
-      findOne: jest.fn().mockImplementation(async (q: any) => policies.find((p) => p.key === q?.key) ?? null),
-    })),
-  };
+  service.conn = { collection: () => ({ findOne: jest.fn(async () => policy) }) };
   return service as LegalService;
 }
 
-const POLICY: any = {
-  key: 'privacy_policy', title_ar: 'الخصوصية', title_en: 'Privacy', version: '1.0',
-  content_ar: 'نص عربي', content_en: 'English text',
-  content_ur: 'اردو متن',
-};
+const POLICY: any = { key: 'privacy_policy', title_ar: 'الخصوصية', title_en: 'Privacy', version: '1.0', content_ar: 'نص عربي', content_en: 'English text' };
 
-describe('OC C-18 policy languages', () => {
-  it('serves the requested language content', async () => {
-    const svc = serviceFor([POLICY]);
-    expect((await svc.getPolicy('privacy_policy', 'ur'))?.content).toContain('اردو متن');
-    expect((await svc.getPolicy('privacy_policy', 'ar'))?.content).toContain('نص عربي');
+describe('policy language: Arabic or English', () => {
+  it('serves Arabic to ar and English to every other language', async () => {
+    const svc = serviceFor(POLICY);
+    expect(await svc.getPolicy('privacy_policy', 'ar')).toMatchObject({ content: 'نص عربي', title: 'الخصوصية', language: 'ar' });
+    for (const lang of ['en', 'ur', 'hi', 'bn', 'fil']) {
+      expect(await svc.getPolicy('privacy_policy', lang)).toMatchObject({ content: 'English text', title: 'Privacy', language: 'en' });
+    }
   });
 
-  it('falls back to English, then Arabic, for untranslated languages', async () => {
-    const svc = serviceFor([POLICY]);
-    const hi: any = await svc.getPolicy('privacy_policy', 'hi');
-    expect(hi.content).toContain('English text');
-    expect(hi.language).toBe('en');
+  it('falls back to the other language when one is missing', async () => {
+    expect(await serviceFor({ ...POLICY, content_en: '' }).getPolicy('privacy_policy', 'ur')).toMatchObject({ content: 'نص عربي', language: 'ar' });
+    expect(await serviceFor({ ...POLICY, content_ar: '' }).getPolicy('privacy_policy', 'ar')).toMatchObject({ content: 'English text', language: 'en' });
   });
 });

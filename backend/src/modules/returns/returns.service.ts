@@ -44,7 +44,8 @@ export class ReturnsService {
   /**
    * R7-2: photo evidence is stored as `media:<assetId>` (owned by the patient), never as a
    * presigned URL, which expires after 15 minutes. Readers get a fresh signed URL.
-   */  private async evidenceRefs(userId: string, docs: unknown): Promise<string[]> {
+   */
+  private async evidenceRefs(userId: string, docs: unknown): Promise<string[]> {
     if (!Array.isArray(docs) || !docs.length) return [];
     if (docs.length > 10) throw new BadRequestException('too_many_attachments');
     const ids = docs.map((d) => String(d || ''));
@@ -295,7 +296,9 @@ export class ReturnsService {
 
   async myReturns(userId: string) {
     const rows = await this.withEvidenceUrlsAll(await this.returnModel.find({ patient_id: userId }).sort({ createdAt: -1 }).lean() as any[]);
-    return Promise.all(rows.map(async (r: any) => ({ ...r, expected_refund: await this.refundEta(r.refund_method) })));
+    if (!rows.length) return rows;
+    const eta = await this.refundEta();
+    return rows.map((r: any) => ({ ...r, expected_refund: { ...eta, method: r.refund_method || 'original' } }));
   }
 
   /** Returns filed against this provider's orders: legacy `orders` plus
