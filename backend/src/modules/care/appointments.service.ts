@@ -405,7 +405,43 @@ export class AppointmentsService {
     if (!appt) throw new NotFoundException();
     await this.assertAppointmentAccess(appt, user);
 
-    // Cancellation & Refund Rules
+    const { refundPercentage, refundDestination, penaltyAmount } = this.calculateRefund(appt, user, reason, isNoShow);
+
+    appt.cancellation_reason = reason || '';
+    appt.refund_percentage = refundPercentage;
+    appt.refund_destination = refundDestination;
+    appt.doctor_penalty = penaltyAmount;
+    await appt.save();
+
+    // Emit event for Billing/Refund processors to act upon
+    this.events.emit('appointment.refund.calculated', {
+      appointment_id: id,
+      patient_id: appt.patient_id,
+      doctor_id: appt.doctor_id,
+      total_price: appt.total_price,
+      refund_percentage: refundPercentage,
+      refund_destination: refundDestination,
+      penalty_amount: penaltyAmount
+    });
+
+    return this.transition(id, APPT_STATES.CANCELLED, user, reason);
+  }
+
+  /**
+   * Preview the refund that would be issued if the caller cancelled now (same rules as cancel).
+   * Does NOT modify the appointment.
+   */
+  async previewRefund(id: string, user: any): Promise<{ refund_percentage: number; refund_destination: string; penalty_amount: number; estimated_amount: number }> {
+    const appt = await this.apptModel.findOne({ id });
+    if (!appt) throw new NotFoundException();
+    await this.assertAppointmentAccess(appt, user);
+    const { refundPercentage, refundDestination, penaltyAmount } = this.calculateRefund(appt, user);
+    const estimatedAmount = Math.round((Number(appt.total_price || 0) * refundPercentage) / 100);
+    return { refund_percentage: refundPercentage, refund_destination: refundDestination, penalty_amount: penaltyAmount, estimated_amount: estimatedAmount };
+  }
+
+  // Cancellation & Refund Rules (shared by cancel and previewRefund)
+  private calculateRefund(appt: any, user: any, reason?: string, isNoShow = false): { refundPercentage: number; refundDestination: string; penaltyAmount: number } {
     let refundPercentage = 0;
     let penaltyAmount = 0;
     let refundDestination = 'source';
@@ -433,25 +469,7 @@ export class AppointmentsService {
       refundPercentage = 100;
       refundDestination = 'source';
     }
-
-    appt.cancellation_reason = reason || '';
-    appt.refund_percentage = refundPercentage;
-    appt.refund_destination = refundDestination;
-    appt.doctor_penalty = penaltyAmount;
-    await appt.save();
-
-    // Emit event for Billing/Refund processors to act upon
-    this.events.emit('appointment.refund.calculated', {
-      appointment_id: id,
-      patient_id: appt.patient_id,
-      doctor_id: appt.doctor_id,
-      total_price: appt.total_price,
-      refund_percentage: refundPercentage,
-      refund_destination: refundDestination,
-      penalty_amount: penaltyAmount
-    });
-
-    return this.transition(id, APPT_STATES.CANCELLED, user, reason);
+    return { refundPercentage, refundDestination, penaltyAmount };
   }
 
   async confirm(id: string, user: any) {
