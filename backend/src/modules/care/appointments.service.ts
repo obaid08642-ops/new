@@ -1,3 +1,4 @@
+import { escapeRegex } from '../../common/slug.util';
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException, Logger, Inject, Optional } from '@nestjs/common';
 import { Model, Connection } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -57,6 +58,40 @@ export class AppointmentsService {
   }
 
   /** ===== Create ===== */
+
+  /**
+   * 660: resolve a prescription line to its catalogue medicine id by exact name
+   * (any stored language). Null when the line names no catalogue item.
+   */
+  private async resolvePrescriptionMedicineId(name: unknown): Promise<string | null> {
+    const needle = String(name || '').trim();
+    if (!needle) return null;
+    try {
+      const col = (this.connection as any)?.collection?.('medicines') ?? (this.connection as any)?.db?.collection?.('medicines');
+      if (!col) return null;
+      // One exact (case-insensitive) name lookup, never a scan of the whole ~21k catalogue in memory.
+      const exact = new RegExp(`^${escapeRegex(needle)}$`, 'i');
+      const or = ['name_ar', 'name_en', 'translations.ur.name', 'translations.hi.name', 'translations.bn.name', 'translations.tl.name', 'translations.fil.name']
+        .map((field) => ({ [field]: exact }));
+      const hit: any = await col.findOne({ $or: or }, { projection: { _id: 0, id: 1 } });
+      return hit?.id || null;
+    } catch {
+      return null;
+    }
+  }
+
+  /** 661/683: the consultation outcome's lab + radiology referrals, if the doctor issued any. */
+  private async outcomeReferrals(appt: any): Promise<{ lab_tests: string[]; radiology_scans: string[] } | null> {
+    try {
+      const col = (this.connection as any)?.collection?.('encounterreferrals') ?? (this.connection as any)?.db?.collection?.('encounterreferrals');
+      if (!col || !appt?._id) return null;
+      const ref: any = await col.findOne({ appointment_id: appt._id });
+      if (!ref) return null;
+      return { lab_tests: ref.requested_lab_tests || [], radiology_scans: ref.requested_radiology_scans || [] };
+    } catch {
+      return null;
+    }
+  }
 
   /**
    * D-38: the first online (video) consultation needs the current telehealth_consent.
@@ -511,9 +546,15 @@ export class AppointmentsService {
     if (!appt) throw new NotFoundException();
     await this.assertAppointmentAccess(appt, user);
     if (body && (body.diagnosis || body.notes || body.recommendations || (Array.isArray(body.prescription) && body.prescription.length))) {
+      // 660: keep the catalogue id per line (sent by the doctor app, else resolved by name).
+      const lines: any[] = [];
+      for (const line of (Array.isArray(body.prescription) ? body.prescription : [])) {
+        const name = line?.name;
+        lines.push({ ...line, medicine_id: line?.medicine_id || await this.resolvePrescriptionMedicineId(name) });
+      }
       appt.summary = {
         diagnosis: body.diagnosis, notes: body.notes, recommendations: body.recommendations,
-        prescription: Array.isArray(body.prescription) ? body.prescription : [],
+        prescription: lines,
         follow_up_recommended: !!body.follow_up_recommended,
         follow_up_window_days: body.follow_up_window_days != null ? Number(body.follow_up_window_days) : undefined,
         written_at: new Date(),
@@ -560,7 +601,13 @@ export class AppointmentsService {
     if (!appt.summary || !(appt.summary.diagnosis || appt.summary.notes || (appt.summary.prescription || []).length)) {
       throw new NotFoundException('summary not available yet');
     }
-    return { doctor_id: appt.doctor_id, ...appt.summary };
+    // 660: backfill catalogue ids for legacy lines; 661/683: attach outcome referrals.
+    const prescription: any[] = [];
+    for (const line of appt.summary.prescription || []) {
+      prescription.push({ ...line, medicine_id: line?.medicine_id || await this.resolvePrescriptionMedicineId(line?.name) });
+    }
+    const referrals = await this.outcomeReferrals(appt);
+    return { doctor_id: appt.doctor_id, ...appt.summary, prescription, ...(referrals ? { referrals } : {}) };
   }
 
   async reschedule(id: string, user: any, body: { slot_start: string }) {
