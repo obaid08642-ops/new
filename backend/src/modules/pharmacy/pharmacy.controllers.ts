@@ -52,6 +52,14 @@ export class PatientPharmacyController {
     return this.orders.registerCod(u, id, b?.idempotency_key || idemHeader);
   }
 
+  @Get('orders/:id/payment-status') paymentStatus(@CurrentUser() u: any, @Param('id') id: string) {
+    return this.orders.getPaymentStatus(u, id);
+  }
+
+  @Post('orders/:id/payment-retry') retryPayment(@CurrentUser() u: any, @Param('id') id: string, @Body() b: PaymentIntentDto, @Headers('idempotency-key') idemHeader?: string) {
+    return this.orders.retryPayment(u, id, b?.idempotency_key || idemHeader, b?.method);
+  }
+
   @Post('orders/:id/insurance/:kind/accept') acceptInsurance(@CurrentUser() u: any, @Param('id') id: string, @Param('kind') kind: string, @Body() b: AcceptInsuranceDto, @Headers('idempotency-key') idemHeader?: string) {
     return this.insurance.acceptByPatient(u, id, kind, b?.payment_method, b?.idempotency_key || idemHeader);
   }

@@ -325,6 +325,108 @@ export class PharmacyOrderService {
     return { ok: true, idempotent: false, status: PharmacyOrderState.COD_DUE_ON_DELIVERY };
   }
 
+  /**
+   * Read-only payment status endpoint.
+   * Returns the current payment state without creating any new records.
+   * No raw documents — only the governed view fields the clients need.
+   */
+  async getPaymentStatus(user: any, id: string): Promise<any> {
+    assertPatient(user);
+    const order = await this.orders.findOne({ id, patient_account_id: user.id }, { _id: 0, __v: 0 }).lean();
+    if (!order) throw new NotFoundException('order_not_found');
+
+    const governed = this.governedView(order);
+    const paymentMethod = String(order.payment_method || '').toLowerCase();
+    const paymentStatus = String(order.payment_status || '').toLowerCase();
+    const decision = order.insurance_decision || null;
+
+    // Active payment intent?
+    let activeIntent: any = null;
+    if (paymentMethod === 'card' || paymentMethod === 'moyasar') {
+      activeIntent = await this.conn.collection('pharmacy_payment_intents').findOne({
+        order_id: id, status: { $in: ['requires_payment', 'initiating', 'pending', 'authorized'] }
+      }, { projection: { _id: 0, intent_id: 1, status: 1, amount: 1, currency: 1, createdAt: 1 } });
+    }
+
+    // Confirmed evidence?
+    let confirmedEvidence: any = null;
+    if (['paid', 'covered_by_insurance', 'partially_refunded'].includes(paymentStatus)) {
+      confirmedEvidence = await this.conn.collection('pharmacy_payment_evidence').findOne({
+        order_id: id, status: 'confirmed'
+      }, { projection: { _id: 0, gateway: 1, gateway_payment_id: 1, amount: 1, currency: 1, confirmed_at: 1 } });
+    }
+
+    // Retryable governed states
+    const retryable = ['PAYMENT_PENDING', 'COD_REGISTERED', 'FINAL_QUOTE_ACCEPTED'].includes(governed.governed_state || '');
+    const retryReason = retryable ? governed.governed_state : null;
+
+    return {
+      order_id: id,
+      payment_method: order.payment_method || 'cash',
+      payment_status: order.payment_status || 'pending',
+      governed_state: governed.governed_state || null,
+      amount: order.pricing_snapshot?.totals?.total || 0,
+      currency: order.pricing_snapshot?.totals?.currency || 'SAR',
+      co_pay_amount: decision?.patient_share || 0,
+      insurer_share: decision?.insurer_share || 0,
+      active_intent: activeIntent ? { intent_id: activeIntent.intent_id, status: activeIntent.status, amount: activeIntent.amount, currency: activeIntent.currency, created_at: activeIntent.createdAt } : null,
+      confirmed_evidence: confirmedEvidence ? { gateway: confirmedEvidence.gateway, payment_id: confirmedEvidence.gateway_payment_id, amount: confirmedEvidence.amount, currency: confirmedEvidence.currency, confirmed_at: confirmedEvidence.confirmed_at } : null,
+      retryable,
+      retry_reason: retryReason,
+    };
+  }
+
+  /**
+   * Retry payment for governed pharmacy orders.
+   * Creates a new payment intent (card) or re-registers COD.
+   * Method comes from the DTO (not from order state).
+   */
+  async retryPayment(user: any, id: string, idempotencyKey: string, method?: string): Promise<any> {
+    assertPatient(user);
+    if (!/^[A-Za-z0-9._:-]{16,128}$/.test(String(idempotencyKey || ''))) throw new BadRequestException('idempotency_key_required');
+    const order = await this.orders.findOne({ id, patient_account_id: user.id }).lean();
+    if (!order) throw new NotFoundException('order_not_found');
+    if (['cancelled', 'expired'].includes(String(order.status))) throw new BadRequestException('order_not_actionable');
+
+    const governed = this.governedView(order);
+    const retryable = ['PAYMENT_PENDING', 'COD_REGISTERED', 'FINAL_QUOTE_ACCEPTED'].includes(governed.governed_state || '');
+    if (!retryable) throw new BadRequestException('payment_not_retryable_in_current_state');
+
+    const paymentMethod = (method || order.payment_method || 'card').toLowerCase();
+
+    if (paymentMethod === 'cod') {
+      // Re-register COD commitment
+      if (String(order.payment_method || '').toLowerCase() === 'cod' && order.cod_registered_at) {
+        return { ok: true, idempotent: true, status: order.status, method: 'cod' };
+      }
+      if (!order.selected_offer_id || !order.pricing_snapshot?.hash) throw new BadRequestException('selected_quote_required');
+      if (!order.quote_accepted_at) throw new BadRequestException('final_quote_acceptance_required');
+      if (String(order.payment_method || '').toLowerCase() === 'insurance') throw new BadRequestException('insurance_orders_follow_insurance_decision_flow');
+      const now = new Date();
+      await this.orders.updateOne({ id: order.id }, {
+        $set: { payment_method: 'cod', cod_registered_at: now, cod_idempotency_key: idempotencyKey, status: PharmacyOrderState.COD_DUE_ON_DELIVERY },
+        $push: { timeline: { ts: now, event: 'cod_registered', by: user.id, meta: { amount: order.pricing_snapshot?.totals?.total } } },
+      } as any);
+      return { ok: true, idempotent: false, status: PharmacyOrderState.COD_DUE_ON_DELIVERY, method: 'cod' };
+    }
+
+    // Card payment — create new payment intent (invalidates old ones via idempotency key)
+    if (!['card', 'credit_card', 'moyasar'].includes(paymentMethod)) throw new BadRequestException('card_payment_intent_required');
+    if (!order.selected_offer_id || !Number.isInteger(Number(order.selected_offer_version)) || !order.pricing_snapshot?.hash) throw new BadRequestException('selected_quote_required');
+    const total = Math.round(Number(order.pricing_snapshot.totals?.total || 0) * 100) / 100;
+    const currency = String(order.pricing_snapshot.totals?.currency || 'SAR').toUpperCase();
+    const intents = this.conn.collection('pharmacy_payment_intents');
+    // Invalidate previous pending intents for this order
+    await intents.updateMany({ order_id: id, status: { $in: ['requires_payment', 'initiating', 'pending', 'authorized'] } }, { $set: { status: 'cancelled', updatedAt: new Date() } });
+    const intent = {
+      intent_id: `pi_${require('crypto').randomUUID()}`, order_id: id, selected_offer_id: order.selected_offer_id,
+      selected_offer_version: Number(order.selected_offer_version), quote_snapshot_hash: order.pricing_snapshot.hash,
+      amount: total, currency, payer_account_id: user.id, idempotency_key: idempotencyKey,
+      status: 'requires_payment', adapter: 'sandbox_disabled', createdAt: new Date(), updatedAt: new Date(),
+    };
+    await intents.insertOne(intent as any);
+    return { intent_id: intent.intent_id, status: intent.status, amount: intent.amount, currency: intent.currency, adapter: 'sandbox_disabled', method: 'card' };
+  }
 
   async update(user: any, id: string, body: any): Promise<any> {
     assertPatient(user);
