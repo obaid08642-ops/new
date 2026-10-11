@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Put, Delete, Body, Param, Query, UseGuards, ServiceUnavailableException } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Put, Delete, Param, Query, UseGuards, ServiceUnavailableException, BadRequestException, Body } from '@nestjs/common';
 import { LabsService } from './labs.service';
 import { Public, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
@@ -234,5 +234,18 @@ export class LabsController {
   compatibleProviders(@Query('testIds') testIds?: string) {
     const ids = testIds ? testIds.split(',') : [];
     return this.svc.compatibleProviders(ids);
+  }
+
+  @Public() @Get('providers/:providerAccountId/slots')
+  providerSlots(
+    @Param('providerAccountId') providerAccountId: string,
+    @Query('date') date: string,
+    @Query('duration') duration?: string
+  ) {
+    const dur = duration ? parseInt(duration, 10) : 30;
+    if (!Number.isInteger(dur) || dur < 10 || dur > 120) {
+      throw new BadRequestException('duration must be an integer between 10 and 120 minutes');
+    }
+    return this.svc.slotsForProvider(providerAccountId, date, dur);
   }
 }
