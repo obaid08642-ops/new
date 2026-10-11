@@ -71,6 +71,7 @@ export class ProviderProfile {
   @Prop() district?: string;
   @Prop() address?: string;
   @Prop({ type: { lat: Number, lng: Number }, _id: false }) location?: { lat: number; lng: number };
+  @Prop({ default: "Asia/Riyadh" }) timezone?: string;
   @Prop({ default: 0 }) rating: number;
   @Prop({ default: 0 }) reviews_count: number;
   // Live aggregates maintained by the reviews service (provider-ops). Without these
