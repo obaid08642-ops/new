@@ -24,7 +24,10 @@ def provider_client(tok=None):
     return c
 
 
-def upload(c, name, mime='image/jpeg'):
+def upload(c, name, mime='image/png'):
+    # The bytes above are a PNG, so the declared MIME is a PNG. Phase 16.5
+    # decides the type from the magic bytes and refuses a mismatch, so claiming
+    # image/jpeg over PNG content is no longer accepted here.
     r = c.post('/storage/upload', {'data_base64': PNG, 'mime': mime, 'original_name': name})
     ref = r.get('id') or r.get('url')
     step(f'upload {name}', r.ok and ref, r)
