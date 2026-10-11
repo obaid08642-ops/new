@@ -690,31 +690,6 @@
    ]
   },
   {
-   "route": "HospitalDispatchScreen",
-   "elements": [
-    [
-     "data: List bookings",
-     "GET /home-care/bookings/nursing/all, GET /home-care/providers → bookings",
-     "ok"
-    ],
-    [
-     "button: Assign Nurse",
-     "local state setSelectedBooking",
-     "ok"
-    ],
-    [
-     "data: List nurses",
-     "GET /home-care/bookings/nursing/all, GET /home-care/providers → nurses",
-     "ok"
-    ],
-    [
-     "button: [{nurse.name_en}] {nurse.name_ar}",
-     "POST /home-care/bookings/:param/assign, GET /home-care/bookings/nursing/all, GET /home-care/providers",
-     "ok"
-    ]
-   ]
-  },
-  {
    "route": "InsuranceClaimsHubScreen",
    "elements": [
     [

@@ -20,7 +20,7 @@ import { logError } from '../../utils/logger';
  */
 
 type Chosen = { uri: string; base64: string };
-type Problem = 'read' | 'pick' | 'save' | null;
+type Problem = 'read' | 'pick' | 'save' | 'unreadable' | null;
 
 // the tag staff read next to the patient's own note (not shown to the patient)
 const OCR_TAG = 'OCR extraction; requires pharmacy review'; // i18n-ok: stored with the prescription for pharmacy staff, not UI text
@@ -64,10 +64,15 @@ export function useRxPhotoIntake(via: 'photo' | 'upload'): { body: React.ReactNo
     try {
       const image = `data:image/jpeg;base64,${chosen.base64}`;
       const ocr = await apiFetch<{ items?: unknown[] }>('/ai/prescription-ocr', { method: 'POST', body: JSON.stringify({ image_base64: image }) });
+      // #1027: like the web, nothing is saved when the photo gave no medicine lines (an empty prescription helps no pharmacy)
+      if (!Array.isArray(ocr?.items) || ocr.items.length === 0) {
+        setProblem('unreadable');
+        return;
+      }
       const typed = note.trim();
       const saved = await apiFetch<{ id?: string; data?: { id?: string } }>('/prescriptions/upload', {
         method: 'POST',
-        body: JSON.stringify({ upload_image: image, items: Array.isArray(ocr?.items) ? ocr.items : [], notes: typed ? `${OCR_TAG}\n${typed}` : OCR_TAG }),
+        body: JSON.stringify({ upload_image: image, items: ocr.items, notes: typed ? `${OCR_TAG}\n${typed}` : OCR_TAG }),
       });
       const id = saved?.data?.id || saved?.id;
       if (!id) throw new Error('prescription_id_missing');
@@ -118,6 +123,7 @@ export function useRxPhotoIntake(via: 'photo' | 'upload'): { body: React.ReactNo
 
       {problem === 'save' ? <Notice tone="danger" icon="warning" title={k('pharmacy.scan.errorTitle')} body={k('pharmacy.scan.errorBody')} /> : null}
       {problem === 'read' ? <Notice tone="danger" icon="warning" title={k('pharmacy.scan.readError')} /> : null}
+      {problem === 'unreadable' ? <Notice tone="danger" icon="warning" title={k('pharmacy.scan.unreadable')} /> : null}
       {problem === 'pick' ? <Notice tone="danger" icon="warning" title={k('pharmacy.scan.pickError')} /> : null}
 
       {/* the chosen photo */}

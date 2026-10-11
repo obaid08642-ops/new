@@ -49,8 +49,8 @@ describe.each(Object.entries(STRINGS))('%s strings', (_screen, strings) => {
       const out = autoTranslate(ar, lang) as string;
       expect(typeof out).toBe('string');
       expect(out.trim().length).toBeGreaterThan(0);
-      // not left in Arabic
-      expect(out).not.toBe(ar);
+      // not left in Arabic (the riyal symbol is the same in Arabic and Urdu: owner 2026-10-10)
+      if (!(ar === 'ر.س' && lang === 'ur')) expect(out).not.toBe(ar);
       if (ar.includes('{n}')) expect(out).toContain('{n}');
     }
   });

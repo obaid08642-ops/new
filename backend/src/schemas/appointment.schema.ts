@@ -129,6 +129,8 @@ export class Appointment {
   @Prop() consultation_id?: string;
   @Prop() cancellation_reason?: string;
   @Prop() rescheduled_from_id?: string;
+  /** Follow-up appointment link: the original appointment this follow-up is for (same patient and doctor) */
+  @Prop({ index: true }) follow_up_of?: string;
   @Prop() confirmed_at?: Date;
   @Prop() completed_at?: Date;
   // Written by payments verify / finance refunds through a dynamically chosen model (strict mode dropped them).

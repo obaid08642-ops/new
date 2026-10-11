@@ -8,7 +8,7 @@ import { Badge, SERVICE_ICONS } from '../../../../packages/ui-native/src';
 import { useCart } from '../../context/CartContext';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { showLocalizedAlert } from '../LocalizedAlert';
-import { medGallery, medName, needsRx, type Med } from '../../utils/pharmacyCatalog';
+import { medGallery, medName, needsRx, onlineOnly, type Med } from '../../utils/pharmacyCatalog';
 
 /**
  * Pieces the pharmacy hub, the product page, the wishlist and the comparison share, so each screen holds no colour,
@@ -91,6 +91,7 @@ export function useAddMedToCart() {
         rx: needsRx(m),
         image: medGallery(m)[0] || (typeof m.image === 'string' ? m.image : undefined),
         activeIngredient: String(m.active_ingredient ?? m.activeIngredient ?? '') || undefined,
+        onlineOnly: onlineOnly(m),
         qty,
       });
     },

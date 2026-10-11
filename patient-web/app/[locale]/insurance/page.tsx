@@ -1,15 +1,12 @@
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { getPatientClaims } from "@/lib/api/claims-server";
-import { parseClaims } from "@/lib/api/claims";
 import { getPatientInsuranceBenefits, getPatientInsurancePolicy } from "@/lib/api/insurance-server";
 import { parseInsuranceSummary, type InsuranceSummary } from "@/lib/api/insurance";
 import { callPatientApi } from "@/lib/api/upstream";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { formatDate } from "@/lib/format-date";
-import { formatPrice } from "@/lib/format-price";
-import { parseBenefits, parseProviders, parseRefunds, parseRequestRows, isRequestState, requestTone, tabOf, type InsuranceTab } from "@/lib/insurance/view";
+import { parseBenefits, parseProviders, parseRequestRows, isRequestState, requestTone, tabOf, type InsuranceTab } from "@/lib/insurance/view";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { Notice } from "@/components-next/consult/consult-parts";
@@ -20,8 +17,6 @@ import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/insurance/insurance.module.css";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string; q?: string; type?: string }> };
-
-const CLAIM_TONE = { approved: "good", reimbursed: "good", pending: "wait", rejected: "bad" } as const;
 
 /** One GET that may fail or throw: the part says so in place and the rest of the page still works. */
 async function read(call: () => Promise<Response>): Promise<{ status: number; body: unknown } | null> {
@@ -35,8 +30,9 @@ async function read(call: () => Promise<Response>): Promise<{ status: number; bo
 
 /**
  * The insurance hub (canvas/Insurance; merge map 2, section 6): the policy card, the three shortcuts and the tabs Policy,
- * Benefits, Claims, Refunds and Network (`?tab=`). It replaces the old overview, policy detail, benefits, claims, refunds and
- * network pages, which redirect here. Every value is the server's; a tab whose data cannot load says so in place.
+ * Benefits and Network (`?tab=`). It is view only (owner decision 35, 2026-10-10: the facility asks the insurer, Nabd+ shows the
+ * decision). It replaces the old overview, policy detail, benefits and network pages, which redirect here; the removed claims, refunds
+ * and submit-claim pages redirect here too. Every value is the server's; a tab whose data cannot load says so in place.
  */
 export default async function InsurancePage({ params, searchParams }: Props) {
   const { locale } = await params;
@@ -100,45 +96,6 @@ export default async function InsurancePage({ params, searchParams }: Props) {
         {benefits.map((row) => <InsuranceRow key={row.key} locale={locale} title={t("benefitTitle")} sub={row.note} />)}
       </RowsList>
     );
-  } else if (tab === "claims") {
-    const res = await read(() => getPatientClaims(token));
-    const claims = res && res.status >= 200 && res.status < 300 ? parseClaims(res.body) : null;
-    content = (
-      <>
-        <div className={styles.toolbar}>
-          <ButtonLink href={`${base}/submit-claim`} label={t("submitClaim")} size="md" />
-        </div>
-        {claims === null ? unavailable : claims.length === 0 ? empty(t("claimsEmpty")) : (
-          <RowsList label={t("tabClaims")}>
-            {claims.map((claim) => (
-              <InsuranceRow
-                key={claim.id}
-                locale={locale}
-                title={claim.service || t("claimServiceUnknown")}
-                sub={formatDate(locale, claim.date) ?? undefined}
-                badge={<StatusBadge tone={claim.status ? CLAIM_TONE[claim.status] : "plain"}>{t(`claimStatus.${claim.status ?? "unknown"}`)}</StatusBadge>}
-              />
-            ))}
-          </RowsList>
-        )}
-      </>
-    );
-  } else if (tab === "refunds") {
-    const res = await read(() => callPatientApi("/refunds/my", {}, token));
-    const refunds = res && res.status >= 200 && res.status < 300 ? parseRefunds(res.body) : null;
-    content = refunds === null ? unavailable : refunds.length === 0 ? empty(t("refundsEmpty")) : (
-      <RowsList label={t("tabRefunds")}>
-        {refunds.map((refund) => (
-          <InsuranceRow
-            key={refund.id}
-            locale={locale}
-            title={refund.amount !== undefined ? formatPrice(locale, refund.amount).text : t("refundTitle")}
-            sub={formatDate(locale, refund.date) ?? undefined}
-            badge={refund.status ? <StatusBadge>{refund.status}</StatusBadge> : undefined}
-          />
-        ))}
-      </RowsList>
-    );
   } else {
     // Network: the providers of the insurer on the profile (as the old page did); without a saved policy there is nothing to list.
     const profile = await read(() => callPatientApi("/users/me/profile", {}, token));
@@ -191,7 +148,7 @@ export default async function InsurancePage({ params, searchParams }: Props) {
         label={t("shortcuts")}
         items={[
           { href: `${base}/add-policy`, label: t("addPolicy"), icon: "plus", tone: "blue" },
-          { href: `${base}/submit-claim`, label: t("submitClaim"), icon: "file-text", tone: "coral" },
+          { href: `${base}?tab=network`, label: t("tabNetwork"), icon: "hospital", tone: "coral" },
           { href: `${base}/coverage-check`, label: t("coverageCheck"), icon: "shield-check", tone: "mint" },
         ]}
       />
@@ -202,8 +159,6 @@ export default async function InsurancePage({ params, searchParams }: Props) {
         options={[
           { value: "policy", label: t("tabPolicy") },
           { value: "benefits", label: t("tabBenefits") },
-          { value: "claims", label: t("tabClaims") },
-          { value: "refunds", label: t("tabRefunds") },
           { value: "network", label: t("tabNetwork") },
         ]}
       />

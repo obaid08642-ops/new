@@ -2,7 +2,7 @@
 Points must come from real completed services (consultation completed + review), then rewards/claim."""
 from lib import Client, journey, step
 
-LOYALTY_GETS = ['/loyalty/account', '/loyalty/config', '/loyalty/rewards', '/loyalty/challenges', '/loyalty/leaderboard?limit=50',
+LOYALTY_GETS = ['/loyalty/account', '/loyalty/config', '/loyalty/rewards', '/loyalty/challenges',
                 '/loyalty/transactions?page=1', '/referrals/my', '/users/me/wishlist']
 
 

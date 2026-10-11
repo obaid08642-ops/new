@@ -57,9 +57,9 @@
           "hidden"
         ],
         [
-          "Next appointment (map text)",
-          "the old web hub never read an appointments endpoint",
-          "hidden"
+          "Next appointment card (issue 678)",
+          "GET /home/upcoming-appointment (the home page request): doctor_name, scheduled_at, status -> link to /appointments/[id]; none = no card; failure = a note in place",
+          "ok"
         ],
         [
           "Error state with retry (vitals summary failed); in-place notes for score and doses",

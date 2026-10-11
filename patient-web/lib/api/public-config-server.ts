@@ -1,4 +1,6 @@
+import { cache } from "react";
 import { patientApiUrl } from "@/lib/api/upstream";
+import { parseDisabled, type DisabledModules, NONE_DISABLED } from "@/lib/modules";
 
 export type HomeSectionItem = { id?: string; title_ar?: string; title_en?: string; image_url?: string; deep_link?: string };
 export type HomeSection = { id?: string; title_ar?: string; title_en?: string; enabled?: boolean; position?: number; items?: HomeSectionItem[] };
@@ -38,9 +40,9 @@ export type PublicRead = { data: any | null; failed: boolean };
  */
 const PUBLIC_REVALIDATE_SECONDS = 60;
 
-async function readPublic(path: string): Promise<PublicRead> {
+async function readPublic(path: string, revalidate: number = PUBLIC_REVALIDATE_SECONDS): Promise<PublicRead> {
   try {
-    const res = await fetch(patientApiUrl(path), { headers: { Accept: "application/json" }, next: { revalidate: PUBLIC_REVALIDATE_SECONDS } });
+    const res = await fetch(patientApiUrl(path), { headers: { Accept: "application/json" }, next: { revalidate } });
     if (res.status >= 500) return { data: null, failed: true };
     if (!res.ok) return { data: null, failed: false };
     return { data: await res.json().catch(() => null), failed: false };
@@ -55,3 +57,13 @@ export const readPublicConfig = () => readPublic("/config");
 export const readHomeContent = () => readPublic("/content/home");
 export async function getPublicConfig(): Promise<any | null> { return (await readPublicConfig()).data; }
 export async function getHomeContent(): Promise<any | null> { return (await readHomeContent()).data; }
+
+/** Module switches (#953): GET /modules is public and cached 15 s, so a switch shows on the site within seconds. */
+const MODULES_REVALIDATE_SECONDS = 15;
+export const readModules = () => readPublic("/modules", MODULES_REVALIDATE_SECONDS);
+
+/** The switched-off modules for this render. FAIL-OPEN: when the call fails or answers oddly, nothing is hidden. One read per request. */
+export const getDisabledModules = cache(async (): Promise<DisabledModules> => {
+  const read = await readModules();
+  return read.failed ? NONE_DISABLED : parseDisabled(read.data);
+});

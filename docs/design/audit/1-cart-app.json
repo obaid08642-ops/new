@@ -9,7 +9,9 @@
         ["Line rows: picture, name, active ingredient, Rx pill, quantity stepper, remove", "the cart kept on this device (AsyncStorage, per owner); no request", "ok"],
         ["Loading placeholder before the device storage is read", "cart store ready flag; static key pharmacy.loading", "fixed"],
         ["Empty state", "shown only when the store is ready and holds no line", "ok"],
-        ["Price, total, stock", "none: a cart line carries no price (offers carry it)", "hidden"]
+        ["Price, total, stock", "none: a cart line carries no price (offers carry it)", "hidden"],
+        ["Consult a doctor row (Rx lines only)", "GET /medicines/:id/consult-specialty per Rx line (public, medicine ids only): one agreed specialty opens /consultations/doctor-search?specialty=<slug>, the doctors of that specialty by slug, none / mixed / failed opens the specialty list", "fixed"],
+        ["Offers, discounts, points or promo on a line", "none drawn: a cart line holds only name, picture, ingredient, Rx flag and quantity (C11)", "hidden"]
       ],
       "notes": ["Add, change and remove never call the backend; signing in merges the device cart into the patient's, signing out clears it."]
     },

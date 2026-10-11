@@ -1,3 +1,4 @@
+import { escapeRegex } from '../../common/slug.util';
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException, Logger, Inject, Optional } from '@nestjs/common';
 import { Model, Connection } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -57,6 +58,69 @@ export class AppointmentsService {
   }
 
   /** ===== Create ===== */
+
+  /**
+   * 660: resolve a prescription line to its catalogue medicine id by exact name
+   * (any stored language). Null when the line names no catalogue item.
+   */
+  private async resolvePrescriptionMedicineId(name: unknown): Promise<string | null> {
+    const needle = String(name || '').trim();
+    if (!needle) return null;
+    try {
+      const col = (this.connection as any)?.collection?.('medicines') ?? (this.connection as any)?.db?.collection?.('medicines');
+      if (!col) return null;
+      // One exact (case-insensitive) name lookup, never a scan of the whole ~21k catalogue in memory.
+      const exact = new RegExp(`^${escapeRegex(needle)}$`, 'i');
+      const or = ['name_ar', 'name_en', 'translations.ur.name', 'translations.hi.name', 'translations.bn.name', 'translations.tl.name', 'translations.fil.name']
+        .map((field) => ({ [field]: exact }));
+      const hit: any = await col.findOne({ $or: or }, { projection: { _id: 0, id: 1 } });
+      return hit?.id || null;
+    } catch {
+      return null;
+    }
+  }
+
+  /** 661/683: the consultation outcome's lab + radiology referrals, if the doctor issued any. */
+  private async outcomeReferrals(appt: any): Promise<{ lab_tests: string[]; radiology_scans: string[] } | null> {
+    try {
+      const col = (this.connection as any)?.collection?.('encounterreferrals') ?? (this.connection as any)?.db?.collection?.('encounterreferrals');
+      if (!col || !appt?._id) return null;
+      const ref: any = await col.findOne({ appointment_id: appt._id });
+      if (!ref) return null;
+      return { lab_tests: ref.requested_lab_tests || [], radiology_scans: ref.requested_radiology_scans || [] };
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * D-38: the first online (video) consultation needs the current telehealth_consent.
+   * Throws telehealth_consent_required when the patient has not accepted it. When the
+   * deployment configures no such policy (or the connection double has no collections),
+   * booking proceeds as before.
+   */
+  private async assertTelehealthConsent(patientId: string): Promise<void> {
+    let policies: any = null;
+    let acceptances: any = null;
+    try {
+      policies = (this.connection as any)?.collection?.('legal_policies')
+        ?? (this.connection as any)?.db?.collection?.('legal_policies');
+      acceptances = (this.connection as any)?.collection?.('legal_acceptances')
+        ?? (this.connection as any)?.db?.collection?.('legal_acceptances');
+    } catch {
+      return;
+    }
+    if (!policies || !acceptances) return;
+    const policy: any = await policies.findOne({ key: 'telehealth_consent' });
+    if (!policy || policy.requires_acceptance === false) return;
+    const accepted: any = await acceptances.findOne({
+      user_id: patientId,
+      policy_key: 'telehealth_consent',
+      version: policy.version,
+    });
+    if (!accepted) throw new BadRequestException('telehealth_consent_required');
+  }
+
   async create(user: any, body: {
     doctor_id: string;
     service_type: ServiceType;
@@ -70,6 +134,7 @@ export class AppointmentsService {
     insurance_member_id?: string;
     for_member_id?: string; // family booking on behalf of a member
     slot_lock_id?: string; // optional 10-min hold from POST /slot-locks/reserve (consumed on success, released on failure)
+    follow_up_of?: string; // follow-up appointment link to original appointment (same patient and doctor)
   }) {
     if (!body?.doctor_id || !body?.service_type || !body?.slot_start) {
       throw new BadRequestException('doctor_id, service_type, slot_start required');
@@ -97,6 +162,11 @@ export class AppointmentsService {
     if (!doctor) throw new NotFoundException('doctor_not_found');
     if (!doctor.consultation_modes?.includes(body.service_type)) {
       throw new BadRequestException(`doctor does not support service_type=${body.service_type}`);
+    }
+    // D-38: the first online (video) consultation needs telehealth_consent. Skipped when
+    // the deployment configures no such policy, so unit doubles without collections keep working.
+    if (body.service_type === 'video') {
+      await this.assertTelehealthConsent(patientId);
     }
     const slotStart = new Date(body.slot_start);
     if (isNaN(slotStart.getTime()) || slotStart.getTime() < Date.now() + 5 * 60_000) {
@@ -168,6 +238,19 @@ export class AppointmentsService {
         throw new BadRequestException('NO_INSURANCE_POLICY');
       }
     }
+
+    // Follow-up appointment: validate that the original appointment exists,
+    // belongs to the same patient and doctor, and is in a completed state.
+    let followUpOf: string | undefined;
+    if (body.follow_up_of) {
+      const original = await this.apptModel.findOne({ id: body.follow_up_of });
+      if (!original) throw new NotFoundException('original_appointment_not_found');
+      if (original.patient_id !== patientId) throw new ForbiddenException('follow_up_patient_mismatch');
+      if (original.doctor_id !== doctor.id) throw new ForbiddenException('follow_up_doctor_mismatch');
+      if (original.status !== APPT_STATES.COMPLETED) throw new BadRequestException('original_appointment_not_completed');
+      followUpOf = original.id;
+    }
+
     try {
       const appt = await this.apptModel.create({
         patient_id: patientId,
@@ -190,6 +273,7 @@ export class AppointmentsService {
         payment_method: pm,
         insurance_provider: body.insurance_provider,
         insurance_member_id: body.insurance_member_id,
+        follow_up_of: followUpOf,
         state_history: [
           { state: APPT_STATES.PENDING, at: new Date(), by_user_id: user.id, by_role: user.role || UserRole.PATIENT, note: 'created' },
         ],
@@ -356,7 +440,43 @@ export class AppointmentsService {
     if (!appt) throw new NotFoundException();
     await this.assertAppointmentAccess(appt, user);
 
-    // Cancellation & Refund Rules
+    const { refundPercentage, refundDestination, penaltyAmount } = this.calculateRefund(appt, user, reason, isNoShow);
+
+    appt.cancellation_reason = reason || '';
+    appt.refund_percentage = refundPercentage;
+    appt.refund_destination = refundDestination;
+    appt.doctor_penalty = penaltyAmount;
+    await appt.save();
+
+    // Emit event for Billing/Refund processors to act upon
+    this.events.emit('appointment.refund.calculated', {
+      appointment_id: id,
+      patient_id: appt.patient_id,
+      doctor_id: appt.doctor_id,
+      total_price: appt.total_price,
+      refund_percentage: refundPercentage,
+      refund_destination: refundDestination,
+      penalty_amount: penaltyAmount
+    });
+
+    return this.transition(id, APPT_STATES.CANCELLED, user, reason);
+  }
+
+  /**
+   * Preview the refund that would be issued if the caller cancelled now (same rules as cancel).
+   * Does NOT modify the appointment.
+   */
+  async previewRefund(id: string, user: any): Promise<{ refund_percentage: number; refund_destination: string; penalty_amount: number; estimated_amount: number }> {
+    const appt = await this.apptModel.findOne({ id });
+    if (!appt) throw new NotFoundException();
+    await this.assertAppointmentAccess(appt, user);
+    const { refundPercentage, refundDestination, penaltyAmount } = this.calculateRefund(appt, user);
+    const estimatedAmount = Math.round((Number(appt.total_price || 0) * refundPercentage) / 100);
+    return { refund_percentage: refundPercentage, refund_destination: refundDestination, penalty_amount: penaltyAmount, estimated_amount: estimatedAmount };
+  }
+
+  // Cancellation & Refund Rules (shared by cancel and previewRefund)
+  private calculateRefund(appt: any, user: any, reason?: string, isNoShow = false): { refundPercentage: number; refundDestination: string; penaltyAmount: number } {
     let refundPercentage = 0;
     let penaltyAmount = 0;
     let refundDestination = 'source';
@@ -384,25 +504,7 @@ export class AppointmentsService {
       refundPercentage = 100;
       refundDestination = 'source';
     }
-
-    appt.cancellation_reason = reason || '';
-    appt.refund_percentage = refundPercentage;
-    appt.refund_destination = refundDestination;
-    appt.doctor_penalty = penaltyAmount;
-    await appt.save();
-
-    // Emit event for Billing/Refund processors to act upon
-    this.events.emit('appointment.refund.calculated', {
-      appointment_id: id,
-      patient_id: appt.patient_id,
-      doctor_id: appt.doctor_id,
-      total_price: appt.total_price,
-      refund_percentage: refundPercentage,
-      refund_destination: refundDestination,
-      penalty_amount: penaltyAmount
-    });
-
-    return this.transition(id, APPT_STATES.CANCELLED, user, reason);
+    return { refundPercentage, refundDestination, penaltyAmount };
   }
 
   async confirm(id: string, user: any) {
@@ -444,9 +546,15 @@ export class AppointmentsService {
     if (!appt) throw new NotFoundException();
     await this.assertAppointmentAccess(appt, user);
     if (body && (body.diagnosis || body.notes || body.recommendations || (Array.isArray(body.prescription) && body.prescription.length))) {
+      // 660: keep the catalogue id per line (sent by the doctor app, else resolved by name).
+      const lines: any[] = [];
+      for (const line of (Array.isArray(body.prescription) ? body.prescription : [])) {
+        const name = line?.name;
+        lines.push({ ...line, medicine_id: line?.medicine_id || await this.resolvePrescriptionMedicineId(name) });
+      }
       appt.summary = {
         diagnosis: body.diagnosis, notes: body.notes, recommendations: body.recommendations,
-        prescription: Array.isArray(body.prescription) ? body.prescription : [],
+        prescription: lines,
         follow_up_recommended: !!body.follow_up_recommended,
         follow_up_window_days: body.follow_up_window_days != null ? Number(body.follow_up_window_days) : undefined,
         written_at: new Date(),
@@ -493,7 +601,13 @@ export class AppointmentsService {
     if (!appt.summary || !(appt.summary.diagnosis || appt.summary.notes || (appt.summary.prescription || []).length)) {
       throw new NotFoundException('summary not available yet');
     }
-    return { doctor_id: appt.doctor_id, ...appt.summary };
+    // 660: backfill catalogue ids for legacy lines; 661/683: attach outcome referrals.
+    const prescription: any[] = [];
+    for (const line of appt.summary.prescription || []) {
+      prescription.push({ ...line, medicine_id: line?.medicine_id || await this.resolvePrescriptionMedicineId(line?.name) });
+    }
+    const referrals = await this.outcomeReferrals(appt);
+    return { doctor_id: appt.doctor_id, ...appt.summary, prescription, ...(referrals ? { referrals } : {}) };
   }
 
   async reschedule(id: string, user: any, body: { slot_start: string }) {

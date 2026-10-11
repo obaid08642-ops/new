@@ -45,7 +45,7 @@ import { logError } from '../../src/utils/logger';
 import { currentDbLang } from '../../src/utils/localize';
 import { prefetchAlternatives, prefetchHotMedicines } from '../../src/utils/prefetch';
 import { getVisibleProductIds } from '../../src/utils/productNav';
-import { discountPercent, medField, medGallery, medMeta, medName, medPrice, needsRx, type Med } from '../../src/utils/pharmacyCatalog';
+import { canShowPromo, discountPercent, medField, medGallery, medMeta, medName, medPrice, needsRx, oldPriceOf, onlineOnly, productNote, type Med } from '../../src/utils/pharmacyCatalog';
 
 /**
  * Product page — board ProductFull (canvas/ProductFull.dc.html), field mapping in SPEC_PRODUCT_DOCTOR_DETAIL §A.
@@ -297,8 +297,9 @@ export default function ProductDetailScreen() {
     const name = medName(med);
     const price = medPrice(med);
     const rx = needsRx(med);
-    // Decision 10: no discount on prescription-only items.
-    const pct = rx ? 0 : discountPercent(med);
+    // Decision 10: no discount, crossed-out price or promo on prescription-only items (one rule: canShowPromo).
+    const pct = canShowPromo(med) ? discountPercent(med) : 0;
+    const oldPrice = oldPriceOf(med);
     const lastReviewed = med.last_reviewed ? new Date(med.last_reviewed) : null;
     const stock = med.pharmacies_count ?? med.stock_status?.pharmacies_count ?? 0;
     const storage = textOf(medField(med, 'storage_conditions'));
@@ -333,6 +334,7 @@ export default function ProductDetailScreen() {
       name,
       price,
       pct,
+      oldPrice,
       rx,
       enName: lang !== 'en' && med.name_en && med.name_en !== name ? med.name_en : '',
       ingredient: textOf(medField(med, 'active_ingredient')),
@@ -398,7 +400,8 @@ export default function ProductDetailScreen() {
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingHorizontal: 16 }} style={{ marginHorizontal: -16 }}>
         {view.alternatives.map((alt) => {
           const p = medPrice(alt);
-          const badge = p && view.price ? (p < view.price ? { label: k('pharmacy.product.cheaper'), tone: 'success' as const } : p === view.price ? { label: k('pharmacy.product.samePrice'), tone: 'neutral' as const } : undefined) : undefined;
+          // a "cheaper" tag is a promo-style badge: none on a prescription alternative (canShowPromo)
+          const badge = p && view.price && canShowPromo(alt) ? (p < view.price ? { label: k('pharmacy.product.cheaper'), tone: 'success' as const } : p === view.price ? { label: k('pharmacy.product.samePrice'), tone: 'neutral' as const } : undefined) : undefined;
           return (
             <MiniProduct
               key={String(alt.id)}
@@ -408,6 +411,7 @@ export default function ProductDetailScreen() {
               currency={p ? k('pharmacy.currency') : undefined}
               uri={medGallery(alt)[0]}
               badge={badge}
+              note={productNote(alt, { rx: k('pharmacy.needsRx'), online: k('pharmacy.product.exclusive') })}
               onPress={() => router.push({ pathname: '/pharmacy/product-detail', params: { id: alt.id } })}
             />
           );
@@ -503,7 +507,7 @@ export default function ProductDetailScreen() {
                   <Text style={{ ...scale(t, 'label', 'bold'), color: c.action.primary.fg }}>{k('pharmacy.discount', { n: num(view.pct) })}</Text>
                 </View>
               ) : null}
-              {med.online_exclusive ? (
+              {onlineOnly(med) ? (
                 <View style={{ height: 28, paddingHorizontal: 10, borderRadius: 14, backgroundColor: c.action.selected.bg, justifyContent: 'center' }}>
                   <Text style={{ ...scale(t, 'meta'), color: c.action.selected.fg }}>{k('pharmacy.product.exclusive')}</Text>
                 </View>
@@ -559,8 +563,8 @@ export default function ProductDetailScreen() {
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
                       <Text style={{ ...scale(t, 'authTitle', 'bold'), color: c.text.primary }}>{money(view.price)}</Text>
                       <Text style={{ ...scale(t, 'control', 'regular'), color: c.text.primary }}>{k('pharmacy.currency')}</Text>
-                      {view.pct > 0 && Number(med.old_price) > 0 ? (
-                        <Text style={{ ...scale(t, 'control', 'regular'), color: c.text.secondary, textDecorationLine: 'line-through' }}>{money(Number(med.old_price))}</Text>
+                      {view.pct > 0 && view.oldPrice ? (
+                        <Text style={{ ...scale(t, 'control', 'regular'), color: c.text.secondary, textDecorationLine: 'line-through' }}>{money(view.oldPrice)}</Text>
                       ) : null}
                     </View>
                   ) : null}
@@ -673,6 +677,7 @@ export default function ProductDetailScreen() {
                         price={p ? money(p) : undefined}
                         currency={p ? k('pharmacy.currency') : undefined}
                         uri={medGallery(r)[0]}
+                        note={productNote(r, { rx: k('pharmacy.needsRx'), online: k('pharmacy.product.exclusive') })}
                         onPress={() => router.push({ pathname: '/pharmacy/product-detail', params: { id: r.id } })}
                         onAdd={() => addToCart(r)}
                         addLabel={k('pharmacy.addToCart')}

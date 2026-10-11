@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { extractAppointmentRows } from "@/lib/api/appointments";
+import { extractAppointmentRows, specialtyFor } from "@/lib/api/appointments";
 import { getPatientAppointments } from "@/lib/api/appointments-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
@@ -80,7 +80,7 @@ export default async function AppointmentsPage({ params, searchParams }: Props) 
                   statusLabel={key ? c(`status.${key}`) : t("statusUnavailable")}
                   statusTone={statusTone(appointment.status)}
                   slotStart={appointment.slotStart}
-                  specialty={appointment.specialty}
+                  specialty={specialtyFor(appointment, locale)}
                   timeLine={appointment.slotStart ? <LocalTimeLine iso={appointment.slotStart} locale={locale} /> : undefined}
                   primary={primary}
                   primaryInk={activeTab === "upcoming" && (mode === "clinic" || mode === "home")}

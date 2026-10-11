@@ -267,6 +267,8 @@ export class EntityGraphService implements OnModuleInit {
     city?: string;
     district?: string;
     insurance?: string;
+    type?: string;
+    service?: string;
   }) {
     const docCol = this.connection.collection('provider_profiles');
     const query: any = { is_deleted: { $ne: true } };
@@ -289,7 +291,7 @@ export class EntityGraphService implements OnModuleInit {
 
     const doctors = await docCol
       .find(query)
-      .project({ id: 1, slug: 1, name_ar: 1, name_en: 1, specialty: 1, rating: 1, city: 1, facility_id: 1, experience_years: 1 })
+      .project({ id: 1, slug: 1, name_ar: 1, name_en: 1, specialty: 1, rating: 1, reviews_count: 1, city: 1, facility_id: 1, experience_years: 1 })
       .limit(20)
       .toArray();
 
@@ -300,6 +302,9 @@ export class EntityGraphService implements OnModuleInit {
     if (filters.district) facQuery.district = new RegExp(escapeRegex(String(filters.district)), 'i');
     if (filters.insurance) facQuery.accepted_insurance = new RegExp(escapeRegex(String(filters.insurance)), 'i');
     if (filters.specialty) facQuery.departments = new RegExp(escapeRegex(String(filters.specialty)), 'i');
+    // 785/786: facility type (pharmacy/lab/…) and test-or-service slug narrow the list.
+    if (filters.type) facQuery.type = new RegExp(`^${escapeRegex(String(filters.type))}$`, 'i');
+    if (filters.service) facQuery.departments = new RegExp(escapeRegex(String(filters.service)), 'i');
 
     const facilities = await facCol
       .find(facQuery)

@@ -2,14 +2,14 @@ import React, { useCallback, useRef, useState } from 'react';
 import { RefreshControl, Text, View } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
 
-import { AppHeader, Button, Card, EmptyState, ErrorState, OfflineState, Screen, StatusChip, StickyFooter } from '../../../packages/ui-native/src';
+import { AppHeader, Button, Card, EmptyState, ErrorState, FIcon, OfflineState, Screen, StatusChip, StickyFooter } from '../../../packages/ui-native/src';
 import { AmountRow, Money, Notice, QuoteLines } from '../../src/components/pharmacy/OfferKit';
 import { PHARMACY_TONE } from '../../src/components/pharmacy/PharmacyKit';
 import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch, newIdempotencyKey } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
-import { allocationLines, idemKey, mayHaveReachedServer, offerErrorKey, orderIdParam, parseOrder, quoteView, type OrderState, type QuoteLine, type QuoteView } from '../../src/utils/pharmacyOffers';
+import { allocationLines, idemKey, mayHaveReachedServer, offerErrorKey, orderIdParam, orderPharmacyNames, parseOrder, pharmacyDisplayName, quoteView, type OrderState, type QuoteLine, type QuoteView } from '../../src/utils/pharmacyOffers';
 
 /**
  * Final price — the PharmacyOffers board's offer card and sticky bar (canvas/PharmacyOffers.dc.html) for the chosen
@@ -23,13 +23,14 @@ import { allocationLines, idemKey, mayHaveReachedServer, offerErrorKey, orderIdP
  */
 
 export default function PharmacyFinalQuoteScreen() {
-  const { theme, t, c, dir, k, flow } = useScreenUi();
+  const { theme, t, c, dir, k, flow, lang } = useScreenUi();
   const params = useLocalSearchParams<{ orderId?: string | string[] }>();
   const id = orderIdParam(params);
 
   const [quote, setQuote] = useState<QuoteView | null>(null);
   const [order, setOrder] = useState<OrderState | null>(null);
   const [lines, setLines] = useState<QuoteLine[]>([]);
+  const [pharmacy, setPharmacy] = useState<{ ar: string | null; en: string | null } | null>(null);
   const [loading, setLoading] = useState(Boolean(id));
   const [refreshing, setRefreshing] = useState(false);
   const [failed, setFailed] = useState<'error' | 'offline' | null>(null);
@@ -49,6 +50,7 @@ export default function PharmacyFinalQuoteScreen() {
         setOrder(parsed);
         setQuote(quoteView(response));
         setLines(allocationLines(response, parsed?.selectedAllocationId ?? null));
+        setPharmacy(orderPharmacyNames(response));
         setFailed(null);
         hasData.current = true;
       } catch (error) {
@@ -149,6 +151,7 @@ export default function PharmacyFinalQuoteScreen() {
   }
 
   const { totals } = quote;
+  const pharmacyName = pharmacyDisplayName(pharmacy, lang);
   const fee = totals.deliveryFee !== null && totals.deliveryFee > 0 ? totals.deliveryFee : null;
   const canCod = quote.kind === 'accepted' && quote.cashCoverage && quote.codAllowed;
 
@@ -190,6 +193,12 @@ export default function PharmacyFinalQuoteScreen() {
                 {quote.kind === 'accept' ? k('pharmacy.quote.review') : quote.kind === 'accepted' ? k('pharmacy.quote.acceptedTitle') : k('pharmacy.quote.codTitle')}
               </Text>
             </View>
+            {pharmacyName ? (
+              <View testID="final-quote-pharmacy" style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <FIcon icon="storefront" tone={PHARMACY_TONE} chip="soft" size={32} theme={theme} />
+                <Text style={{ ...scale(t, 'row', 'medium'), color: c.text.primary, flex: 1, ...flow }}>{pharmacyName}</Text>
+              </View>
+            ) : null}
             <QuoteLines lines={lines} currency={totals.currency} />
             {lines.length ? <View style={{ height: 1, backgroundColor: c.border.subtle }} /> : null}
             {totals.subtotal !== null ? <AmountRow label={k('pharmacy.quote.subtotal')} totals={totals} amount={totals.subtotal} /> : null}

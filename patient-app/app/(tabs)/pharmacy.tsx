@@ -31,6 +31,7 @@ import { setVisibleProductIds } from '../../src/utils/productNav';
 import {
   PHARMACY_CATEGORIES,
   countFilters,
+  canShowPromo,
   discountPercent,
   filterMeds,
   listQuery,
@@ -38,7 +39,7 @@ import {
   medMeta,
   medName,
   medPrice,
-  needsRx,
+  productNote,
   type HubFilters,
   type Med,
 } from '../../src/utils/pharmacyCatalog';
@@ -356,7 +357,7 @@ export default function PharmacyHub() {
         renderItem={({ item }) => {
           if ('pad' in item) return <View style={{ flex: 1 }} />;
           const price = medPrice(item);
-          const pct = discountPercent(item);
+          const pct = canShowPromo(item) ? discountPercent(item) : 0;
           return (
             <View style={{ flex: 1, minWidth: 0 }}>
               <ProductCard
@@ -366,7 +367,7 @@ export default function PharmacyHub() {
                 currency={price ? k('pharmacy.currency') : undefined}
                 image={<ProductImage uri={medGallery(item)[0]} style={{ width: '100%', height: '100%' }} iconSize={40} />}
                 discountLabel={pct > 0 ? k('pharmacy.discount', { n: num(pct) }) : undefined}
-                rxLabel={needsRx(item) ? k('pharmacy.needsRx') : undefined}
+                rxLabel={productNote(item, { rx: k('pharmacy.needsRx'), online: k('pharmacy.product.exclusive') })}
                 addLabel={k('pharmacy.addToCart')}
                 onPress={() => openProduct(item)}
                 onAdd={() => addToCart(item)}

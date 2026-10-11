@@ -1,13 +1,15 @@
 import { patientApiUrl } from "@/lib/api/upstream";
 import { doctorQuery, doctorSlotsQuery } from "./doctors";
+import { filterApiParams, type DoctorFilters } from "@/lib/consult/doctor-filters";
 
 /**
  * F82-1: the public doctor list carries no credential, so the unfiltered list (home cards and the
  * first view of /consultations/doctors) goes through the Next data cache for a minute. A search
  * or specialty text is free-form and would fill the cache with one entry per query, so it is never cached.
  */
-export async function getPublicDoctors(input: { search?: string; specialty?: string; sort?: "rating" | "price" | "wait" } = {}): Promise<Response | null> {
-  const cacheable = !(input.search ?? input.specialty ?? "").trim();
+export async function getPublicDoctors(input: { search?: string; specialty?: string; sort?: "rating" | "price" | "wait"; filters?: DoctorFilters } = {}): Promise<Response | null> {
+  // a position or a window of minutes is free-form too: a filtered list is never cached
+  const cacheable = !(input.search ?? input.specialty ?? "").trim() && !(input.filters && filterApiParams(input.filters).length > 0);
   try { return await fetch(patientApiUrl(doctorQuery(input)), { headers: { Accept: "application/json" }, ...(cacheable ? { next: { revalidate: 60 } } : { cache: "no-store" as const }) }); } catch { return null; }
 }
 

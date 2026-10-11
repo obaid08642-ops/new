@@ -57,7 +57,7 @@ Each item is built **only from its spec** in `backend/acceptance/d-<n>/`, which 
   - D-31 double taps
   - D-37 insurance relay
 - **OC-B:**
-  - D-12 SFDA price ceiling
+  - D-12 catalogue price (**revised 2026-10-10: warn and tell the admin, never block**; follow the updated spec)
   - D-13 no pharmacy available
   - D-19 lab result deep link
 - **OC-C:**

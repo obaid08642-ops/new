@@ -319,38 +319,8 @@ export default function ConfigPortal() {
         {activeTab === 'maintenance' && (
           <div className="space-y-6">
             <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-              <h2 className="text-2xl font-bold text-red-700 mb-2 flex items-center gap-2">
-                 THE HIGH-PRIORITY SYSTEM MAINTENANCE KILL-SWITCH
-              </h2>
-              <p className="text-red-600 font-medium mb-4">
-                تفعيل هذا المفتاح سيضخ `FORCE_SYSTEM_MAINTENANCE: true` في الـ Redis Core Cache Cluster فوراً.
-                سيقوم باعتراض الـ API Gateway ويفصل جميع المستخدمين (503 Service Unavailable) ويعرض شاشة التحديث الجذري الطارئ.
-              </p>
-
               {systemStatus === 'online' ? (
-                <div className="space-y-4 bg-white p-6 rounded border border-red-100">
-                  <div className="flex items-start gap-3">
-                    <input type="checkbox" id="lock1" checked={killSwitchChecked1} onChange={(e) => setKillSwitchChecked1(e.target.checked)} className="mt-1 w-5 h-5 text-red-600 rounded" />
-                    <label htmlFor="lock1" className="text-gray-800 font-medium cursor-pointer">
-                      أقر بأنني على علم تام بأن هذا الإجراء سيوقف كافة العمليات الطبية والتجارية الحية.
-                    </label>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <input type="checkbox" id="lock2" checked={killSwitchChecked2} onChange={(e) => setKillSwitchChecked2(e.target.checked)} className="mt-1 w-5 h-5 text-red-600 rounded" />
-                    <label htmlFor="lock2" className="text-gray-800 font-medium cursor-pointer">
-                      تأكيد مستوى الأمان المزدوج: الإقفال وبدء وضع الصيانة.
-                    </label>
-                  </div>
-
-                  <button
-                    disabled
-                    title="مفتاح الصيانة غير مفعّل خادمياً: يتطلب Redis dispatch + اعتماد ثنائي + تحقق استرداد"
-                    className="w-full mt-4 bg-slate-300 text-slate-500 font-bold py-4 rounded-lg uppercase tracking-widest text-lg cursor-not-allowed"
-                  >
-                    Trigger System Kill-Switch (معطّل — يتطلب إعداد الخادم)
-                  </button>
-                  <p className="text-xs text-slate-500">زر الصيانة الطارئة معطّل عمداً: الخادم يرفض أي حالة صيانة شاملة بلا Redis dispatch وتدقيق غير قابل للتغيير. لا يُفعَّل إلا بعد تنفيذ ذلك خادمياً.</p>
-                </div>
+                <p className="text-slate-600 font-medium">إيقاف خدمة بعينها يتم من صفحة «مفاتيح الخدمات» (للمشرف الأعلى فقط).</p>
               ) : (
                 <div className="bg-white p-6 rounded border border-green-200 text-center">
                   <h3 className="text-xl font-bold text-gray-800 mb-4">النظام حالياً في وضع الإيقاف الطارئ.</h3>

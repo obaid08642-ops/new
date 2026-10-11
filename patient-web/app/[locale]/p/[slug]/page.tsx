@@ -18,7 +18,7 @@ import { ChipLink } from "@/components-next/pharmacy/chip-link";
 import { BuyActions, BuyBar, BuyProvider } from "@/components-next/pharmacy/product-buy";
 import { ProductGallery } from "@/components-next/pharmacy/product-gallery";
 import { ProductGrid, type GridProduct } from "@/components-next/pharmacy/product-grid";
-import { discountPercent } from "@/lib/discount";
+import { promoOldPrice, promoPercent } from "@/lib/discount";
 import { formatNumber, formatPrice } from "@/lib/format-price";
 import { ProductSections, type DetailGroup, type DetailSection } from "@/components-next/pharmacy/product-sections";
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
@@ -171,8 +171,9 @@ export default async function PublicProductPage({ params }: Props) {
   const hasPrice = product.price > 0;
   const discontinued = product.availability_status === "discontinued";
   const canBuy = hasPrice && !discontinued;
-  // Decision 10: no discount on prescription-only items.
-  const percent = product.is_rx ? 0 : discountPercent(product.price, product.old_price);
+  // Decision 10: no discount, crossed-out price or promo badge on prescription-only items (canShowPromo, via promoPercent).
+  const percent = promoPercent(product, product.price, product.old_price);
+  const crossedPrice = promoOldPrice(product, product.price, product.old_price);
   const money = formatPrice(locale, product.price);
 
   const alternatives: GridProduct[] = (await getPublicAlternatives(locale, product)).map((alt) => ({
@@ -297,8 +298,8 @@ export default async function PublicProductPage({ params }: Props) {
                     <div className={styles.priceRow}>
                       <strong className={styles.price}>{money.amount}</strong>
                       <span className={styles.currency}>{money.currency}</span>
-                      {!product.is_rx && product.old_price && product.old_price > product.price ? (
-                        <s className={styles.oldPrice}>{formatPrice(locale, product.old_price).text}</s>
+                      {crossedPrice ? (
+                        <s className={styles.oldPrice}>{formatPrice(locale, crossedPrice).text}</s>
                       ) : null}
                     </div>
                     <div className={styles.priceNote}>{[b("taxIncluded"), product.package_size].filter(Boolean).join(" · ")}</div>

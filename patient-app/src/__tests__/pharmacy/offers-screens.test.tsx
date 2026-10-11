@@ -33,6 +33,8 @@ jest.mock('expo-router', () => {
 jest.mock('react-native-localize', () => ({ getLocales: () => [], findBestLanguageTag: () => undefined }));
 jest.mock('../../context/AppContext', () => ({ useApp: () => ({ isDark: false, lang: 'en', isRTL: false }) }));
 jest.mock('../../components/LocalizedAlert', () => ({ showLocalizedAlert: jest.fn() }));
+// the in-context notification prompt is covered by __tests__/notification-in-context.test.tsx; here the phone already allows them
+jest.mock('../../components/NotificationAsk', () => ({ NotificationAsk: () => null }));
 jest.mock('../../utils/isOffline', () => ({ isOffline: jest.fn(async () => false) }));
 jest.mock('../../utils/logger', () => ({ logError: jest.fn() }));
 jest.mock('../../utils/api', () => ({ BASE_URL: 'https://api.example.test/api/v1', R2_PUBLIC_URL: 'https://cdn.example.test', apiFetch: jest.fn(), newIdempotencyKey: jest.fn(() => 'app-test-nonce-0001') }));

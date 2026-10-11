@@ -30,7 +30,8 @@ vi.mock("@/components-next/core/core-shell", () => ({
 vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: async () => "server-only-order-token" }));
 vi.mock("@/lib/api/upstream", () => ({ callPatientApi: server.api }));
 
-import { actionHref, OrderList } from "@/components-next/orders/order-list";
+import { actionHref, pharmacyRows, type CenterLabels } from "@/components-next/orders/center-rows";
+import { OrderList } from "@/components-next/orders/order-list";
 import { OrderDetailScreen } from "@/components-next/orders/order-detail-screen";
 import { OrdersScreen } from "@/components-next/orders/orders-screen";
 import { ReorderPicker } from "@/components-next/orders/reorder-picker";
@@ -64,6 +65,15 @@ const order = (over: Record<string, unknown> = {}) => ({
 });
 
 beforeEach(() => { server.api.mockReset(); });
+
+/** The order center reads five services; `answers` maps a path to its response, every other service answers an empty list. */
+const centerApi = (answers: Record<string, Response | (() => Response)>) =>
+  server.api.mockImplementation(async (path: string) => {
+    const answer = answers[path];
+    return answer ? (typeof answer === "function" ? answer() : answer.clone()) : json([]);
+  });
+const PHARMACY = "/patient/pharmacy/orders";
+const labels: CenterLabels = { orders: (k, v) => `${k}${v ? JSON.stringify(v) : ""}`, offers: (k) => k, consult: (k) => k, appointments: (k) => k, diagWeb: (k) => k, diagnostics: (k) => k, nursing: (k) => k };
 
 describe("reading what the API sends", () => {
   it("a list row carries the server's status and the price of the selected offer only; a zero total is no price", () => {
@@ -155,9 +165,9 @@ describe("the steps of the tracking page come from the order's status and logged
 
 describe("/orders", () => {
   it("draws the orders the backend sent through the server read, never the session token, and no style attribute", async () => {
-    server.api.mockResolvedValue(json([{ id: ORDER, status: "out_for_delivery", createdAt: ts(8), items: [{}], pricing_snapshot: { totals: { total: 51.5, currency: "SAR" } } }]));
+    centerApi({ [PHARMACY]: json([{ id: ORDER, status: "out_for_delivery", createdAt: ts(8), items: [{}], pricing_snapshot: { totals: { total: 51.5, currency: "SAR" } } }]) });
     const html = render(await OrdersScreen({ locale: "en" }));
-    expect(server.api).toHaveBeenCalledWith("/patient/pharmacy/orders", {}, TOKEN);
+    expect(server.api).toHaveBeenCalledWith(PHARMACY, {}, TOKEN);
     expect(html).toContain(`href="/en/orders/${ORDER}"`);
     expect(html).toContain(`href="/en/orders/${ORDER}/tracking"`); // out for delivery: the action is "track"
     expect(html).toContain("SAR 51.50"); // the server's price, as sent
@@ -167,10 +177,10 @@ describe("/orders", () => {
   });
 
   it("an order that is still being arranged continues through the order router; a delivered one can be ordered again; nothing is priced before an offer is selected", async () => {
-    server.api.mockResolvedValue(json([
+    centerApi({ [PHARMACY]: json([
       { id: ORDER, status: "broadcasting", items: [{}, {}], totals: { total: 0, currency: "SAR" } },
       { id: "11111111-2222-4333-8444-555555555555", status: "delivered", items: [{}], pricing_snapshot: { totals: { total: 20, currency: "SAR" } } },
-    ]));
+    ]) });
     const html = render(await OrdersScreen({ locale: "en" }));
     expect(html).toContain(`href="/en/pharmacy/order-confirm?orderId=${ORDER}"`);
     expect(html).not.toContain("SAR 0.00");
@@ -180,15 +190,15 @@ describe("/orders", () => {
   });
 
   it("with only finished orders it opens on the previous tab, where an order can be ordered again", () => {
-    const html = render(<OrderList locale="en" rows={[{ id: ORDER, status: "delivered", total: 20, currency: "SAR" }]} />);
+    const html = render(<OrderList locale="en" rows={pharmacyRows("en", [{ id: ORDER, status: "delivered", total: 20, currency: "SAR" }], labels)} />);
     expect(html).toContain(`href="/en/pharmacy/reorder?orderId=${ORDER}"`);
     expect(html).toContain("SAR 20.00");
   });
 
   it("says so when there is no order, and shows the error state with a retry when the backend fails", async () => {
-    server.api.mockResolvedValue(json([]));
+    centerApi({});
     expect(render(await OrdersScreen({ locale: "en" }))).toContain("No orders yet");
-    server.api.mockResolvedValue(new Response("{}", { status: 500 }));
+    server.api.mockImplementation(async () => new Response("{}", { status: 500 }));
     const failed = render(await OrdersScreen({ locale: "en" }));
     expect(failed).toContain("Your orders could not be loaded");
     expect(failed).toContain("Try again");
@@ -196,8 +206,36 @@ describe("/orders", () => {
   });
 
   it("sends a signed-out visitor to sign-in", async () => {
-    server.api.mockResolvedValue(new Response("{}", { status: 401 }));
+    server.api.mockImplementation(async () => new Response("{}", { status: 401 }));
     await expect(OrdersScreen({ locale: "en" })).rejects.toThrow("redirect:/en/login");
+  });
+
+  it("lists consultations, lab and radiology bookings and nursing visits next to the pharmacy orders, newest first, each with its own link and status", async () => {
+    const APPT = "0a1b2c3d-1111-4222-8333-444455556666";
+    const LAB = "0a1b2c3d-2222-4222-8333-444455556666";
+    const SCAN = "0a1b2c3d-3333-4222-8333-444455556666";
+    centerApi({
+      [PHARMACY]: json([{ id: ORDER, status: "out_for_delivery", createdAt: ts(8) }]),
+      "/care/appointments": json([{ id: APPT, status: "confirmed", service_type: "video", slot_start: ts(11), doctor_name: "Dr Test" }]),
+      "/labs/bookings/mine": json([{ id: LAB, state: "REPORT_READY", scheduled_at: ts(9), items: [{ name_en: "CBC" }] }]),
+      "/radiology/bookings/mine": json([{ id: SCAN, state: "CANCELLED", scheduled_at: ts(7), scan_name_en: "Chest X-ray" }]),
+      "/nursing/visits": json([{ id: "visit-1", status: "NURSE_EN_ROUTE", scheduled_at: ts(10), service_name: "Wound care" }]),
+    });
+    const html = render(await OrdersScreen({ locale: "en" }));
+    for (const href of [`/en/appointments/${APPT}`, `/en/orders/${ORDER}`, `/en/nursing/visits/visit-1`]) expect(html).toContain(`href="${href}"`);
+    for (const text of ["Dr Test", "Wound care", "Consultation", "Nursing visit", "Pharmacy order"]) expect(html).toContain(text);
+    // the current tab is open: the lab with a ready report and the cancelled scan are previous
+    expect(html).not.toContain("CBC");
+    expect(html).not.toContain("Chest X-ray");
+    expect(html.indexOf("Dr Test")).toBeLessThan(html.indexOf("Wound care")); // 11:00 before 10:00
+    expect(html.indexOf("Wound care")).toBeLessThan(html.indexOf("Pharmacy order")); // 10:00 before 08:00
+  });
+
+  it("keeps the other services when one does not answer, and says so", async () => {
+    centerApi({ [PHARMACY]: json([{ id: ORDER, status: "out_for_delivery" }]), "/care/appointments": new Response("{}", { status: 503 }) });
+    const html = render(await OrdersScreen({ locale: "en" }));
+    expect(html).toContain(`href="/en/orders/${ORDER}"`);
+    expect(html).toContain("Some orders could not be loaded");
   });
 });
 

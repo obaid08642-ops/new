@@ -76,7 +76,7 @@ export function translateBackendRoute(route: string): { pathname: string; params
   const VERBATIM_ROUTES = new Set([
     '/insurance', '/insurance/hub', '/returns/hub',
     '/loyalty/hub', '/loyalty/referrals', '/loyalty/challenges',
-    '/family', '/emergency/tracking',
+    '/family', '/emergency',
   ]);
   // The symptom timeline is the conversation of the assistant (merge map section 4, Batch 9)
   if (clean === '/ai/symptom-timeline') return { pathname: '/ai', params: { mode: 'symptoms' } };
@@ -171,7 +171,7 @@ export function routeFromNotificationData(data: any): void {
       case 'sos':
       case 'ambulance':
       case 'emergency':
-        router.push('/emergency/tracking' as any);
+        router.push('/emergency' as any);
         break;
       default: {
         // action payload embedded as JSON string (NotificationsService contract)
