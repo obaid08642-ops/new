@@ -98,7 +98,9 @@ export class LoyaltyService {
       earn_points: await this.earnTable().catch(() => ({ ...POINTS_TABLE })),
       earn_caps: overrides.earn_caps || {},
       max_redeem_percent: overrides.max_redeem_percent,
-      point_value_sar: overrides.point_value_sar,
+      // 746: cash-equivalent rate always served — 0.1 SAR/pt matches the finance
+      // engine default; the admin overrides it via PUT /loyalty/config.
+      point_value_sar: Number(overrides.point_value_sar ?? 0.1),
       redeem_enabled: overrides.redeem_enabled,
     };
   }
