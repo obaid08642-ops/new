@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authCookieNames, otpIdentifierCookie, setSessionCookies } from "@/lib/auth/cookies";
 import { callPatientApi } from "@/lib/api/upstream";
+import { guestMergeHeaders } from "@/lib/auth/guest-merge";
 
 const exchangeSchema = z.object({ authenticated: z.literal(true) });
 // The backend (AuthController.patientSessionExchange) answers {authenticated: true} and puts the session in two
@@ -39,7 +40,7 @@ export async function POST(request: Request) {
   // The backend wants the token in the JSON body (PatientSessionExchangeDto), not as a cookie.
   const upstream = await callPatientApi("/auth/session/exchange", {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: await guestMergeHeaders({ "content-type": "application/json" }),
     body: JSON.stringify({ exchange_token: exchangeToken }),
   });
   const data = await upstream.json().catch(() => null);

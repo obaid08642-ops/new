@@ -3,13 +3,14 @@ import { z } from "zod";
 import { setSessionCookies } from "@/lib/auth/cookies";
 import { callPatientApi } from "@/lib/api/upstream";
 import { boundedUpstreamError } from "@/lib/api/error-response";
+import { guestMergeHeaders } from "@/lib/auth/guest-merge";
 
 const loginSchema = z.object({ identifier: z.string().trim().min(3).max(320), password: z.string().min(1).max(1024) });
 function tokenPair(data: unknown) { const parsed = z.object({ token: z.object({ accessToken: z.string().min(1), refreshToken: z.string().min(1) }) }).passthrough().safeParse(data); return parsed.success ? parsed.data.token : null; }
 export async function POST(request: Request) {
   const input = loginSchema.safeParse(await request.json().catch(() => null));
   if (!input.success) return NextResponse.json({ message: "invalid_login_payload" }, { status: 400 });
-  const upstream = await callPatientApi("/auth/login", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(input.data) });
+  const upstream = await callPatientApi("/auth/login", { method: "POST", headers: await guestMergeHeaders({ "content-type": "application/json" }), body: JSON.stringify(input.data) });
   const data = await upstream.json().catch(() => null);
   if (!upstream.ok) return boundedUpstreamError(data, "login_failed", upstream.status);
   if (z.object({ requires_2fa: z.literal(true) }).safeParse(data).success) return NextResponse.json({ requires2fa: true }, { status: 200 });
