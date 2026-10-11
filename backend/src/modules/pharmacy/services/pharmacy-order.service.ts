@@ -89,6 +89,7 @@ export class PharmacyOrderService {
       qty: Math.max(1, Number(it.qty) || 1),
       match_status: OrderItemMatchStatus.MANUAL,
       matched_sku: it.sku || it.matched_sku, unit_price: it.unit_price,
+      requires_prescription: it.requires_prescription ?? true,
       intake_source: it.intake_source || 'manual',
       notes: it.notes,
     }));
@@ -138,7 +139,26 @@ export class PharmacyOrderService {
     assertPatient(user);
     const q: any = { patient_account_id: user.id };
     if (status) q.status = status;
-    return this.orders.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(200).lean();
+    const orders = await this.orders.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(200).lean();
+    // Compute governed_state for each order (same logic as detail)
+    for (const order of orders as any[]) {
+      const id = order.id;
+      const allocs = await this.allocs.find({ order_id: id }, { _id: 0 }).lean();
+      const allocStatuses = allocs.map((a: any) => a.status);
+      const isPersistent = ['cancelled', 'completed'].includes(order.status as any);
+      let effective_status = order.status;
+      if (!isPersistent && allocs.length > 0) {
+        const allClosed = allocStatuses.every((s: string) => ['delivered', 'cancelled', 'rejected', 'expired'].includes(s));
+        const anyDelivered = allocStatuses.some((s: string) => s === 'delivered');
+        const anyOOD = allocStatuses.some((s: string) => s === 'out_for_delivery');
+        const anyPreparing = allocStatuses.some((s: string) => ['preparing', 'ready_for_pickup'].includes(s));
+        if (allClosed && anyDelivered) effective_status = 'delivered' as any;
+        else if (anyOOD) effective_status = 'out_for_delivery' as any;
+        else if (anyPreparing) effective_status = 'in_fulfillment' as any;
+      }
+      order.governed_state = effective_status;
+    }
+    return orders;
   }
 
   async detail(user: any, id: string): Promise<any> {
@@ -189,9 +209,9 @@ export class PharmacyOrderService {
       .toArray().catch(() => []);
     for (const p of rows) {
       const registered = p.business_name || p.legal_name || null;
-      const ar = p.display_name_ar || p.name_ar || registered;
-      const en = p.display_name_en || p.name_en || registered;
-      out.set(p.account_id, { pharmacy_name_ar: ar ?? en ?? null, pharmacy_name_en: en ?? ar ?? null });
+      const ar = p.display_name_ar ?? p.name_ar ?? registered;
+      const en = p.display_name_en ?? p.name_en ?? registered;
+      out.set(p.account_id, { pharmacy_name_ar: ar ?? null, pharmacy_name_en: en ?? null });
     }
     return out;
   }
