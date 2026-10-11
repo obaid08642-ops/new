@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Query, ForbiddenException, BadRequestException, UseGuards, Param } from '@nestjs/common';
-import { Public } from '../../common/auth.guard'; '@nestjs/common';
+import { Public } from '../../common/auth.guard';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { CurrentUser, JwtAuthGuard, SelfService } from '../../common/auth.guard';
