@@ -295,12 +295,65 @@ export class PharmacyOfferService {
     if (!user?.id) throw new ForbiddenException('patient_identity_required');
     const order: any = await this.orders.findOne({ id: orderId, patient_account_id: user.id }).lean();
     if (!order) throw new NotFoundException('order_not_found');
-    const offers: any[] = await this.offers.find({ order_id: orderId, patient_account_id: user.id, status: 'submitted', quote_expires_at: { $gt: new Date() } })
-      .sort({ submitted_at: -1 }).lean();
-    return Promise.all(offers.map((offer) => this.patientDtoAsync(offer, order)));
+    
+    // Fetch broadcast for round/radius/expiry info (optional, may not exist in tests)
+    let broadcast: any = null;
+    if (this.broadcasts && typeof this.broadcasts.findOne === 'function') {
+      broadcast = await this.broadcasts.findOne({ order_id: orderId }).lean();
+    }
+    
+    // Fetch all offers for this order (all statuses), sort by version desc
+    const offers: any[] = await this.offers.find({ order_id: orderId, patient_account_id: user.id })
+      .sort({ version: -1 }).lean();
+    
+    // Patient's insurance policy (if any)
+    const patientInsurancePolicyId = order.insurance_policy_id || null;
+    const patientCoverageMode = order.coverage_mode || 'cash';
+    
+    return Promise.all(offers.map((offer) => this.patientDtoAsync(offer, order, broadcast, patientInsurancePolicyId, patientCoverageMode)));
   }
 
-  private async patientDtoAsync(offer: any, order: any) {
+  /**
+   * Compute clear offer state from offer status and quote_expires_at
+   * States: submitted / expired / withdrawn / selected
+   */
+  private computeOfferState(offer: any, orderSelectedOfferId?: string): string {
+    const now = new Date();
+    if (offer.id === orderSelectedOfferId) return 'selected';
+    if (offer.status === 'draft') return 'withdrawn';
+    if (offer.status === 'cancelled') return 'withdrawn';
+    if (offer.status === 'expired' || (offer.quote_expires_at && new Date(offer.quote_expires_at) <= now)) return 'expired';
+    if (offer.status === 'submitted') return 'submitted';
+    return offer.status; // fallback
+  }
+
+  /**
+   * Determine insurance flags for an offer:
+   * - pharmacy_accepts_insurance: boolean
+   * - expected_copay: number | null (if insurance accepted and decision exists)
+   */
+  private getInsuranceFlags(offer: any, order: any, profile: any, patientInsurancePolicyId: string | null, coverageMode: string): { pharmacy_accepts_insurance: boolean; expected_copay: number | null } {
+    // Pharmacy accepts insurance if profile indicates so or has accepted insurers
+    const pharmacyAccepts = profile?.accepts_insurance === true
+      || (Array.isArray(profile?.accepted_insurance) && profile.accepted_insurance.length > 0)
+      || (Array.isArray(profile?.insurance_contracts) && profile.insurance_contracts.length > 0);
+    
+    // If patient is using insurance mode and pharmacy accepts, check for co-pay from decision
+    let expectedCopay: number | null = null;
+    if (coverageMode === 'insurance' && pharmacyAccepts && patientInsurancePolicyId) {
+      const decision = order.insurance_decision;
+      if (decision && typeof decision.patient_share === 'number') {
+        expectedCopay = Number(decision.patient_share);
+      }
+    }
+    
+    return {
+      pharmacy_accepts_insurance: pharmacyAccepts,
+      expected_copay: expectedCopay,
+    };
+  }
+
+  private async patientDtoAsync(offer: any, order: any, broadcast: any, patientInsurancePolicyId: string | null, coverageMode: string) {
     const base = this.patientDto(offer);
     const profile: any = await this.connection.collection('provider_profiles').findOne({ account_id: offer.pharmacy_account_id });
     let approx: number | null = null;
@@ -317,14 +370,35 @@ export class PharmacyOfferService {
     const registeredName = profile?.business_name || profile?.legal_name || null;
     const pharmacyNameAr = profile?.display_name_ar || profile?.name_ar || registeredName;
     const pharmacyNameEn = profile?.display_name_en || profile?.name_en || registeredName;
-    // Q-4: no constants. Insurance readiness from the profile (flag, or its accepted insurers); no cash on delivery
-    // (owner decision 25); no delivery-time source exists, so the ETA is null and the clients hide it.
-    const profileInsuranceReady: boolean | null = typeof profile?.insurance_ready === 'boolean' ? profile.insurance_ready
+    
+    // Compute clear offer state
+    const offerState = this.computeOfferState(offer, order.selected_offer_id);
+    
+    // Insurance flags
+    const insuranceFlags = this.getInsuranceFlags(offer, order, profile, patientInsurancePolicyId, coverageMode);
+    
+    // Broadcast info
+    const broadcastInfo = broadcast ? {
+      current_round: broadcast.current_round ?? 1,
+      current_radius_km: broadcast.current_radius_km ?? 3,
+      round_expires_at: broadcast.round_expires_at || null,
+    } : null;
+
+    // Backward compat: insurance_ready from profile (Q-4 test)
+    const insuranceReady: boolean | null = typeof profile?.insurance_ready === 'boolean' ? profile.insurance_ready
       : Array.isArray(profile?.accepted_insurance) ? profile.accepted_insurance.length > 0 : null;
+    
     return {
       ...base,
-      // Shared governed contract: patient-app reads `lines` + status 'open'.
-      status: offer.status === 'submitted' ? 'open' : offer.status,
+      // Clear offer state: submitted / expired / withdrawn / selected
+      offer_state: offerState,
+      // Broadcast round/radius/expiry
+      broadcast: broadcastInfo,
+      // Insurance flags
+      pharmacy_accepts_insurance: insuranceFlags.pharmacy_accepts_insurance,
+      expected_copay: insuranceFlags.expected_copay,
+      // Backward compat
+      insurance_ready: insuranceReady,
       lines: (offer.items || []).map((item: any) => ({
         order_item_id: item.order_item_id,
         sku: item.sku,
@@ -343,7 +417,6 @@ export class PharmacyOfferService {
       expires_at: offer.quote_expires_at || null,
       // #512: the server's clock with the expiry, so a client with a wrong clock can still count down correctly.
       server_time: new Date().toISOString(),
-      insurance_ready: profileInsuranceReady,
       cod_allowed: false,
       quote_revision: Number(offer.version || 1),
       // Deterministic quote hash — identical to the one stored in
