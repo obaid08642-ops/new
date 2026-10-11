@@ -175,7 +175,25 @@ export class AuthService {
   }
 
   private normalizeOtpIdentifier(identifier: string) {
-    return identifier.trim().toLowerCase();
+    const trimmed = identifier.trim();
+    if (trimmed.includes('@')) return trimmed.toLowerCase();
+    return AuthService.normalizePhone(trimmed);
+  }
+
+  /**
+   * 431: one canonical form for phone identifiers so `05…`, `+9665…`,
+   * `009665…` and `9665…` all match the same account. Non-SA numbers and
+   * anything unparsable are returned trimmed and unchanged.
+   */
+  static normalizePhone(raw: string): string {
+    const digits = raw.replace(/[\s\-().]/g, '');
+    if (/^\+\d{7,15}$/.test(digits)) return digits;
+    const bare = digits.replace(/^\+/, '');
+    if (/^00\d{7,14}$/.test(bare)) return `+${bare.slice(2)}`;
+    if (/^0\d{9}$/.test(bare)) return `+966${bare.slice(1)}`;
+    if (/^966\d{9}$/.test(bare)) return `+${bare}`;
+    if (/^5\d{8}$/.test(bare)) return `+966${bare}`;
+    return raw.trim();
   }
 
   private otpKey(identifier: string) {
