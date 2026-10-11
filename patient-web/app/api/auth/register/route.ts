@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { otpIdentifierCookie } from "@/lib/auth/cookies";
 import { callPatientApi } from "@/lib/api/upstream";
+import { guestMergeHeaders } from "@/lib/auth/guest-merge";
 
 const schema = z.object({
   name: z.string().trim().min(2).max(120),
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "registration_policy_configuration_missing" }, { status: 503, headers: { "cache-control": "no-store" } });
   }
   const body = input.data;
-  const upstream = await callPatientApi("/auth/register", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+  const upstream = await callPatientApi("/auth/register", { method: "POST", headers: await guestMergeHeaders({ "content-type": "application/json" }), body: JSON.stringify(body) });
   const data = await upstream.json().catch(() => null);
   if (!upstream.ok) return NextResponse.json({ message: "registration_failed" }, { status: upstream.status, headers: { "cache-control": "no-store" } });
   const hasTokenField = data && typeof data === "object" && !Array.isArray(data) && Object.keys(data as Record<string, unknown>).some((key) => /token|secret|password/i.test(key));

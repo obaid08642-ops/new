@@ -3,6 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import { STORAGE_KEYS } from '../constants';
 import { config } from '../core/config';
 import { reportModuleRefusal } from './moduleSwitches';
+import { decodeJwt } from './jwt';
 
 // All runtime URLs resolve through ConfigManager, including explicit local-dev
 // settings. This legacy fetch client must not maintain a parallel localhost fallback.
@@ -52,6 +53,31 @@ async function saveToken(token: string): Promise<void> {
 
 const MUTATING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
+/** The endpoints that turn a guest session into a real account. */
+const SESSION_ESTABLISHING = /^\/auth\/(login|register|social-login|session\/exchange)(\/|\?|$)/;
+
+/**
+ * Phase 21.2 — the guest ACCESS TOKEN this device is holding, or null when the
+ * stored session is a real account.
+ *
+ * The token, not the guest's id: an id is visible to the pharmacy, in logs and
+ * in screenshots, so sending one would let anybody who ever saw it claim that
+ * guest's cart and orders. The backend verifies this token's signature and
+ * burns it for the merge.
+ */
+export async function currentGuestToken(): Promise<string | null> {
+  try {
+    const token = await SecureStore.getItemAsync(STORAGE_KEYS.AUTH_TOKEN);
+    if (!token || typeof token !== 'string' || token.length < 20) return null;
+    const claims = decodeJwt(token);
+    if (!claims) return null;
+    if (claims.is_guest !== true && claims.role !== 'guest') return null;
+    return token;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * The sign-in family. A 401 from one of these ("User not found", a wrong code) is the answer to that request, not a
  * statement about the stored session, so it must not delete the guest or patient token that is already there.
@@ -79,6 +105,12 @@ export async function apiFetch<T = any>(endpoint: string, options: RequestInit =
   // A caller that needs retry de-duplication passes its own stable key; otherwise one key per request.
   if (MUTATING_METHODS.has(String(options.method || 'GET').toUpperCase()) && !headers.has('Idempotency-Key')) {
     headers.set('Idempotency-Key', newIdempotencyKey());
+  }
+  // 21.2: signing in while a guest session is held carries the guest's own
+  // token, so the backend can prove the session and move its data.
+  if (SESSION_ESTABLISHING.test(endpoint) && !headers.has('x-guest-token')) {
+    const guestToken = await currentGuestToken();
+    if (guestToken) headers.set('x-guest-token', guestToken);
   }
 
   let response: Response;
