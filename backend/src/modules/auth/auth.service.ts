@@ -20,9 +20,15 @@ import { PasskeyService } from './passkey.service';
 import { DeviceTrustService } from './device-trust.service';
 import { AdminSessionService } from './admin-session.service';
 import { revokeAllCredentialSessions, revokeRedisRefreshSessions, RevocationResult } from '../../common/credential-revocation';
+import { Logger } from '@nestjs/common';
+import { randomUUID } from 'crypto';
+import { GuestService } from './guest.service';
+import { AccountLinkingService } from './account-linking.service';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   // M0-01: hardcoded admin seeding removed from boot — use scripts/seed-admin.ts instead.
   // M0-03: OTPs are now stored in Redis (TTL-based) instead of an in-memory Map,
   // so they survive restarts and work across multiple instances.
@@ -46,16 +52,38 @@ export class AuthService {
     @Optional() private push?: PushService,
     @Optional() private mail?: MailService,
     @Optional() private sms?: SmsService,
+    @Optional() private guests?: GuestService,
+    @Optional() private linking?: AccountLinkingService,
   ) {}
 
+  /**
+   * 21.6 — when socialLogin has just verified a Google/Apple token, that token
+   * is the proof for any link this account asked for with the same provider.
+   * Nothing from the request body takes part in this.
+   */
+  private async recordProviderLinkProofs(accountId: string, method: 'google' | 'apple', email: string): Promise<void> {
+    if (!this.linking) return;
+    try {
+      for (const linkId of await this.linking.pendingForProvider(accountId, method)) {
+        await this.linking.recordProviderProof(linkId, `${method}:${email.toLowerCase()}`, method);
+      }
+    } catch (e: any) {
+      this.logger.warn(`provider link proof failed: ${e?.message}`);
+    }
+  }
+
   signToken(user: any, deviceId?: string) {
+    // The access token carries its own id: the guest merge burns that jti so a
+    // captured guest token cannot be replayed (21.2). Without it, single-use
+    // could not be enforced.
+    const accessJti = randomUUID();
     const accessToken = this.jwt.sign(
-      { sub: user.id, id: user.id, role: user.role, phone: user.phone, is_guest: !!user.is_guest, tv: Number(user.token_version ?? 0), ...(deviceId ? { dev: deviceId.slice(0, 32) } : {}) },
+      { sub: user.id, id: user.id, role: user.role, phone: user.phone, is_guest: !!user.is_guest, tv: Number(user.token_version ?? 0), jti: accessJti, ...(deviceId ? { dev: deviceId.slice(0, 32) } : {}) },
       { expiresIn: '1h' } // Short-lived access token
     );
     // Refresh token carries a unique session id (jti) — tracked in Redis so
     // rotation can revoke the previous token and detect replay attacks.
-    const jti = require('crypto').randomUUID();
+    const jti = randomUUID();
     const refreshToken = this.jwt.sign(
       { sub: user.id, type: 'refresh', jti },
       { expiresIn: '14d' }
@@ -159,6 +187,56 @@ export class AuthService {
     await this.revokeAllUserSessions(userId).catch(() => {});
     this.events.emit('USER_LOGGED_OUT_ALL', { user_id: userId });
     return { ok: true, message: 'Logged out from all devices' };
+  }
+
+  /**
+   * 21.7 — sign out of one device. The refresh sessions bound to that device
+   * are revoked and its push token is removed, so a shared phone stops
+   * receiving this account's notifications.
+   */
+  async logoutDevice(userId: string, deviceId?: string) {
+    const client = (this.redisService as any).getClient?.();
+    let revoked = 0;
+    if (client) {
+      const jtis: string[] = await client.smembers(`refresh_user:${userId}`).catch(() => [] as string[]);
+      for (const jti of jtis) {
+        if (deviceId) {
+          const raw = await client.get(`refresh:${jti}`).catch(() => null);
+          let bound: string | null = null;
+          try { bound = raw ? JSON.parse(raw).d ?? null : null; } catch { bound = null; }
+          if (bound && bound !== deviceId) continue;
+        }
+        await client.del(`refresh:${jti}`);
+        await client.srem(`refresh_user:${userId}`, jti);
+        revoked += 1;
+      }
+    }
+    const db = (this.userModel as any).model?.db ?? (this.userModel as any).db;
+    let push_removed = 0;
+    if (db) {
+      const filter: Record<string, unknown> = { user_id: userId };
+      if (deviceId) filter.device_id = deviceId;
+      const res = await db.collection('push_tokens').deleteMany(filter).catch(() => null);
+      push_removed = res?.deletedCount ?? 0;
+    }
+    this.events.emit('USER_LOGGED_OUT', { user_id: userId, device_id: deviceId ?? null });
+    return { ok: true, sessions_revoked: revoked, push_tokens_removed: push_removed };
+  }
+
+  /** 21.7 — the signed-in devices of an account. */
+  async listSessions(userId: string) {
+    const client = (this.redisService as any).getClient?.();
+    if (!client) return [];
+    const jtis: string[] = await client.smembers(`refresh_user:${userId}`).catch(() => [] as string[]);
+    const out: Array<{ session_id: string; device_id: string | null }> = [];
+    for (const jti of jtis) {
+      const raw = await client.get(`refresh:${jti}`).catch(() => null);
+      if (!raw) continue;
+      let device: string | null = null;
+      try { device = JSON.parse(raw).d ?? null; } catch { device = null; }
+      out.push({ session_id: jti, device_id: device });
+    }
+    return out;
   }
 
   async recordComplianceConsent(userId: string, documentType: string, version: string) {
@@ -369,7 +447,7 @@ export class AuthService {
    * Claims an exchange token with SET NX before reading it, preventing two
    * concurrent callers from turning the same OTP verification into sessions.
    */
-  async exchangePatientSession(exchangeToken: string) {
+  async exchangePatientSession(exchangeToken: string, guestToken?: string) {
     AuthService.assertString(exchangeToken, 'exchange_token');
     const key = this.patientExchangeKey(exchangeToken);
     const redis = this.redisService.getClient();
@@ -388,6 +466,8 @@ export class AuthService {
       throw new UnauthorizedException({ message: 'exchange_token_invalid', code: 'exchange_token_invalid', statusCode: HttpStatus.UNAUTHORIZED });
     }
     const tokens = this.signToken(user, entry.device_id || undefined);
+    // 21.2: signing in with an email code merges the guest data too.
+    await this.mergeGuestFromRequest(guestToken, user.id);
     return { access_token: tokens.accessToken, refresh_token: tokens.refreshToken };
   }
 
@@ -564,7 +644,7 @@ export class AuthService {
     return { registered: true };
   }
 
-  async register(data: { full_name: string; phone?: string; password: string; email?: string; role?: UserRole }) {
+  async register(data: { full_name: string; phone?: string; password: string; email?: string; role?: UserRole }, guestToken?: string) {
     if (data.email !== undefined) AuthService.assertString(data.email, 'email');
     if (data.phone !== undefined) AuthService.assertString(data.phone, 'phone');
     AuthService.assertString(data.password, 'password');
@@ -632,10 +712,12 @@ export class AuthService {
     }
 
     this.events.emit(EVENTS.USER_REGISTERED, { user_id: u.id, role: u.role });
+    // 21.2: registering from a guest device keeps the cart and the orders.
+    await this.mergeGuestFromRequest(guestToken, u.id);
     return { user: this.publicUser(u), token: this.signToken(u) };
   }
 
-  async login(identifier: string, password: string, ctx?: { deviceToken?: string; ua?: string; ip?: string }) {
+  async login(identifier: string, password: string, ctx?: { deviceToken?: string; ua?: string; ip?: string }, guestToken?: string) {
     AuthService.assertString(identifier, 'identifier');
     AuthService.assertString(password, 'password');
     const isEmail = identifier.includes('@');
@@ -711,6 +793,8 @@ export class AuthService {
     u.last_login_at = new Date();
     await u.save();
     this.events.emit(EVENTS.USER_LOGGED_IN, { user_id: u.id, role: u.role });
+    // 21.2: password sign-in merges the guest data too.
+    await this.mergeGuestFromRequest(guestToken, u.id);
     return { user: this.publicUser(u), token: this.signToken(u) };
   }
 
@@ -928,31 +1012,30 @@ export class AuthService {
   }
 
   /** Re-point a guest's data to another account (used by the merge path). */
-  private async migrateGuestData(fromUserId: string, toUserId: string) {
-    const collections: Array<{ name: string; fields: string[] }> = [
-      { name: 'orders', fields: ['patient_id', 'user_id'] },
-      { name: 'carts', fields: ['user_id', 'patient_id'] },
-      { name: 'appointments', fields: ['patient_id', 'patient_account_id'] },
-      { name: 'pushtokens', fields: ['user_id'] },
-      { name: 'pushengagements', fields: ['user_id'] },
-      { name: 'notifications', fields: ['user_id'] },
-      { name: 'search_queries', fields: ['user_id'] },
-      { name: 'product_views', fields: ['user_id'] },
-      { name: 'storage_objects', fields: ['owner_account_id'] },
-    ];
-    for (const c of collections) {
-      for (const f of c.fields) {
-        try {
-          await (this.userModel.db as any).collection(c.name).updateMany(
-            { [f]: fromUserId }, { $set: { [f]: toUserId } },
-          );
-        } catch { /* best-effort per collection */ }
-      }
-    }
-    // Patient profile itself
+  /**
+   * 21.2 — after any sign-up or sign-in method produces an account, move the
+   * guest's data into it.
+   *
+   * `guestToken` is the guest's OWN access token. `GuestService.proveGuestToken`
+   * verifies its signature, expiry, `is_guest` flag and still-unmerged row, and
+   * burns its jti. There is no path where a bare guest id moves data. A merge
+   * failure never breaks the sign-in: the user is signed in and the reason is
+   * logged.
+   */
+  private async mergeGuestAfterSignIn(guestToken: string | undefined, targetUserId: string) {
+    if (!guestToken || !this.guests) return;
     try {
-      await this.patientModel.findOneAndUpdate({ user_id: fromUserId }, { $set: { user_id: toUserId } });
-    } catch { /* ok if none */ }
+      const proof = await this.guests.proveGuestToken(guestToken);
+      if (proof.guestAccountId === targetUserId) return;
+      await this.guests.mergeGuestIntoAccount(proof, targetUserId);
+    } catch (e: any) {
+      // A bad, expired or replayed guest token simply means no merge.
+      this.logger.warn(`guest merge skipped: ${e?.message}`);
+    }
+  }
+
+  private async mergeGuestFromRequest(guestToken: string | undefined, targetUserId: string) {
+    await this.mergeGuestAfterSignIn(guestToken, targetUserId);
   }
 
   async convertGuest(
@@ -1147,7 +1230,7 @@ export class AuthService {
     return u?.phone || u?.email || identifier;
   }
 
-  async socialLogin(dto: { provider: 'google' | 'apple' | 'x' | 'snapchat'; token: string; email?: string; name?: string }) {
+  async socialLogin(dto: { provider: 'google' | 'apple' | 'x' | 'snapchat'; token: string; email?: string; name?: string }, guestToken?: string) {
     // Q107: the email comes only from a provider token whose signature and
     // audience were verified, never from the body. X and Snapchat had no
     // verification at all (unsigned JWT decode, or a made-up address).
@@ -1185,6 +1268,13 @@ export class AuthService {
     u.last_login_at = new Date();
     await u.save();
     this.events.emit(EVENTS.USER_LOGGED_IN, { user_id: u.id, role: u.role });
+
+    // 21.6: a verified provider token is the ONLY proof for a provider link,
+    // and it is minted here from the identity this method just verified.
+    await this.recordProviderLinkProofs(u.id, dto.provider as 'google' | 'apple', email);
+
+    // 21.2: a guest who signs in with Google keeps the cart and the orders.
+    await this.mergeGuestFromRequest(guestToken, u.id);
 
     return { user: this.publicUser(u), token: this.signToken(u) };
   }
