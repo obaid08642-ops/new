@@ -8,6 +8,7 @@ import { NotificationTemplate, NotificationTemplateDocument, TEMPLATE_LANGS } fr
 import { InjectModel } from '@nestjs/mongoose';
 import { NotificationPriority, NotificationType } from '../../common/enums';
 import { EVENTS } from '../../common/events';
+import { resolveNotificationTarget } from './notification-target';
 import { NotificationRepository } from "./repositories/notification.repository";
 import { initializeApp, getApps, cert } from 'firebase-admin';
 import { getMessaging } from 'firebase-admin/messaging';
@@ -419,11 +420,15 @@ export class NotificationsService {
       const o = typeof r.toObject === 'function' ? r.toObject() : r;
       // read_by of a role-wide notice holds other accounts' ids: never sent back, only this user's `read`.
       const { read_by, ...rest } = o;
+      // 446: platform-neutral target (kind + id) and web path next to the app route.
+      const target = resolveNotificationTarget((o as any)?.action?.route);
       return {
         ...rest,
         title: this.i18n.t(o.title_key, lang, o.params),
         body: this.i18n.t(o.body_key, lang, o.params),
         read: Array.isArray(read_by) ? read_by.includes(user.id) : false,
+        target,
+        web_path: target?.web_path ?? null,
       };
     });
   }

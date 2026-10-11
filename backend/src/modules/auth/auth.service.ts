@@ -24,6 +24,7 @@ import { Logger } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { GuestService } from './guest.service';
 import { AccountLinkingService } from './account-linking.service';
+import { PasswordSecurityService } from '../../common/password-security.service';
 
 @Injectable()
 export class AuthService {
@@ -54,6 +55,8 @@ export class AuthService {
     @Optional() private sms?: SmsService,
     @Optional() private guests?: GuestService,
     @Optional() private linking?: AccountLinkingService,
+    // 16.2: length + breached-password policy, applied before anything is stored.
+    @Optional() private passwordSecurity?: PasswordSecurityService,
   ) {}
 
   /**
@@ -512,6 +515,11 @@ export class AuthService {
     await this.redisService.del(key);
     const user = await this.userModel.findOne({ id: entry.user_id });
     if (!user || user.active === false) throw new UnauthorizedException({ message: 'reset_token_invalid', code: 'reset_token_invalid', statusCode: HttpStatus.UNAUTHORIZED });
+    // 16.2: the new password must pass the same policy as a registration.
+    const resetPolicy = await this.passwordSecurity?.check(newPassword);
+    if (resetPolicy && !resetPolicy.ok) {
+      throw new BadRequestException({ message: resetPolicy.code, code: resetPolicy.code, statusCode: HttpStatus.BAD_REQUEST });
+    }
     user.password_hash = await bcrypt.hash(newPassword, 12);
     await user.save();
     // P3.0a: reset ends every session (access + refresh, patient + provider).
@@ -622,6 +630,12 @@ export class AuthService {
     // account is created when a required text is missing, stale, or unknown.
     await this.enforceSignupConsents(consents);
 
+    // 16.2: length and breach-list policy, before anything is stored.
+    const contractPolicy = await this.passwordSecurity?.check(data.password);
+    if (contractPolicy && !contractPolicy.ok) {
+      throw new BadRequestException({ message: contractPolicy.code, code: contractPolicy.code, statusCode: HttpStatus.BAD_REQUEST });
+    }
+
     const user = await this.userModel.create({
       full_name: data.name.trim(),
       ...(isEmail ? { email: identifier } : { phone: identifier }),
@@ -685,6 +699,11 @@ export class AuthService {
     }
     if (!ownershipProven) {
       throw new BadRequestException({ message: 'otp_required', code: 'otp_required', statusCode: HttpStatus.BAD_REQUEST });
+    }
+    // 16.2: length and breach-list policy, before anything is stored.
+    const policy = await this.passwordSecurity?.check(data.password);
+    if (policy && !policy.ok) {
+      throw new BadRequestException({ message: policy.code, code: policy.code, statusCode: HttpStatus.BAD_REQUEST });
     }
     const hash = await bcrypt.hash(data.password, 12);
     // S6 privilege-escalation fix: public registration may ONLY create patient or
