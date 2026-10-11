@@ -291,69 +291,31 @@ export class PharmacyOfferService {
     return this.providerDto(offer.toObject());
   }
 
-  async listForPatient(user: any, orderId: string) {
+  async listForPatient(user: any, orderId: string, includeClosed = false) {
     if (!user?.id) throw new ForbiddenException('patient_identity_required');
     const order: any = await this.orders.findOne({ id: orderId, patient_account_id: user.id }).lean();
     if (!order) throw new NotFoundException('order_not_found');
-    
-    // Fetch broadcast for round/radius/expiry info (optional, may not exist in tests)
-    let broadcast: any = null;
-    if (this.broadcasts && typeof this.broadcasts.findOne === 'function') {
-      broadcast = await this.broadcasts.findOne({ order_id: orderId }).lean();
-    }
-    
-    // Fetch all offers for this order (all statuses), sort by version desc
-    const offers: any[] = await this.offers.find({ order_id: orderId, patient_account_id: user.id })
-      .sort({ version: -1 }).lean();
-    
-    // Patient's insurance policy (if any)
-    const patientInsurancePolicyId = order.insurance_policy_id || null;
-    const patientCoverageMode = order.coverage_mode || 'cash';
-    
-    return Promise.all(offers.map((offer) => this.patientDtoAsync(offer, order, broadcast, patientInsurancePolicyId, patientCoverageMode)));
+    const broadcast: any = await this.broadcasts.findOne({ order_id: orderId }).lean();
+    // A-2: by default only the live offers the patient can choose (as before), so the clients' offer
+    // count and live refresh stay right. ?include=closed adds expired and withdrawn offers, latest version per
+    // pharmacy, so the client can show why one is gone. Drafts were never sent and are never returned.
+    const all: any[] = await this.offers.find({ order_id: orderId, patient_account_id: user.id, status: { $ne: 'draft' } })
+      .sort({ version: -1, submitted_at: -1 }).lean();
+    const seen = new Set<string>();
+    const latest = all.filter((o) => !seen.has(o.pharmacy_account_id) && !!seen.add(o.pharmacy_account_id));
+    const offers = includeClosed ? latest : latest.filter((o) => this.offerState(o, order) === 'submitted');
+    return Promise.all(offers.map((offer) => this.patientDtoAsync(offer, order, broadcast)));
   }
 
-  /**
-   * Compute clear offer state from offer status and quote_expires_at
-   * States: submitted / expired / withdrawn / selected
-   */
-  private computeOfferState(offer: any, orderSelectedOfferId?: string): string {
-    const now = new Date();
-    if (offer.id === orderSelectedOfferId) return 'selected';
-    if (offer.status === 'draft') return 'withdrawn';
+  /** A-2: one state per offer — submitted (live), selected, expired or withdrawn. */
+  private offerState(offer: any, order: any): 'submitted' | 'selected' | 'expired' | 'withdrawn' {
+    if (offer.status === 'selected' || (order?.selected_offer_id && offer.id === order.selected_offer_id)) return 'selected';
     if (offer.status === 'cancelled') return 'withdrawn';
-    if (offer.status === 'expired' || (offer.quote_expires_at && new Date(offer.quote_expires_at) <= now)) return 'expired';
-    if (offer.status === 'submitted') return 'submitted';
-    return offer.status; // fallback
+    if (offer.status === 'expired' || (offer.quote_expires_at && new Date(offer.quote_expires_at) <= new Date())) return 'expired';
+    return 'submitted';
   }
 
-  /**
-   * Determine insurance flags for an offer:
-   * - pharmacy_accepts_insurance: boolean
-   * - expected_copay: number | null (if insurance accepted and decision exists)
-   */
-  private getInsuranceFlags(offer: any, order: any, profile: any, patientInsurancePolicyId: string | null, coverageMode: string): { pharmacy_accepts_insurance: boolean; expected_copay: number | null } {
-    // Pharmacy accepts insurance if profile indicates so or has accepted insurers
-    const pharmacyAccepts = profile?.accepts_insurance === true
-      || (Array.isArray(profile?.accepted_insurance) && profile.accepted_insurance.length > 0)
-      || (Array.isArray(profile?.insurance_contracts) && profile.insurance_contracts.length > 0);
-    
-    // If patient is using insurance mode and pharmacy accepts, check for co-pay from decision
-    let expectedCopay: number | null = null;
-    if (coverageMode === 'insurance' && pharmacyAccepts && patientInsurancePolicyId) {
-      const decision = order.insurance_decision;
-      if (decision && typeof decision.patient_share === 'number') {
-        expectedCopay = Number(decision.patient_share);
-      }
-    }
-    
-    return {
-      pharmacy_accepts_insurance: pharmacyAccepts,
-      expected_copay: expectedCopay,
-    };
-  }
-
-  private async patientDtoAsync(offer: any, order: any, broadcast: any, patientInsurancePolicyId: string | null, coverageMode: string) {
+  private async patientDtoAsync(offer: any, order: any, broadcast?: any) {
     const base = this.patientDto(offer);
     const profile: any = await this.connection.collection('provider_profiles').findOne({ account_id: offer.pharmacy_account_id });
     let approx: number | null = null;
@@ -370,35 +332,27 @@ export class PharmacyOfferService {
     const registeredName = profile?.business_name || profile?.legal_name || null;
     const pharmacyNameAr = profile?.display_name_ar || profile?.name_ar || registeredName;
     const pharmacyNameEn = profile?.display_name_en || profile?.name_en || registeredName;
-    
-    // Compute clear offer state
-    const offerState = this.computeOfferState(offer, order.selected_offer_id);
-    
-    // Insurance flags
-    const insuranceFlags = this.getInsuranceFlags(offer, order, profile, patientInsurancePolicyId, coverageMode);
-    
-    // Broadcast info
-    const broadcastInfo = broadcast ? {
-      current_round: broadcast.current_round ?? 1,
-      current_radius_km: broadcast.current_radius_km ?? 3,
-      round_expires_at: broadcast.round_expires_at || null,
-    } : null;
-
-    // Backward compat: insurance_ready from profile (Q-4 test)
-    const insuranceReady: boolean | null = typeof profile?.insurance_ready === 'boolean' ? profile.insurance_ready
+    // Q-4: no constants. Insurance readiness from the profile (flag, or its accepted insurers); no cash on delivery
+    // (owner decision 25); no delivery-time source exists, so the ETA is null and the clients hide it.
+    const profileInsuranceReady: boolean | null = typeof profile?.insurance_ready === 'boolean' ? profile.insurance_ready
       : Array.isArray(profile?.accepted_insurance) ? profile.accepted_insurance.length > 0 : null;
-    
+    const state = this.offerState(offer, order);
+    // The insurer's decision is made on the chosen offer, so its patient share is that offer's co-pay only.
+    const share = order?.insurance_decision?.patient_share;
+    const expectedCopay = state === 'selected' && order?.coverage_mode === 'insurance' && typeof share === 'number' ? share : null;
     return {
       ...base,
-      // Clear offer state: submitted / expired / withdrawn / selected
-      offer_state: offerState,
-      // Broadcast round/radius/expiry
-      broadcast: broadcastInfo,
-      // Insurance flags
-      pharmacy_accepts_insurance: insuranceFlags.pharmacy_accepts_insurance,
-      expected_copay: insuranceFlags.expected_copay,
-      // Backward compat
-      insurance_ready: insuranceReady,
+      // Shared governed contract: patient-app reads `lines` + status 'open' (a live offer it can choose).
+      status: state === 'submitted' ? 'open' : state,
+      offer_state: state,
+      // A-2: the broadcast round the patient is waiting on, as stored; null when there is none.
+      broadcast: broadcast ? {
+        current_round: broadcast.current_round ?? null,
+        current_radius_km: broadcast.current_radius_km ?? null,
+        round_expires_at: broadcast.round_expires_at ?? null,
+      } : null,
+      pharmacy_accepts_insurance: profileInsuranceReady === true,
+      expected_copay: expectedCopay,
       lines: (offer.items || []).map((item: any) => ({
         order_item_id: item.order_item_id,
         sku: item.sku,
@@ -417,6 +371,7 @@ export class PharmacyOfferService {
       expires_at: offer.quote_expires_at || null,
       // #512: the server's clock with the expiry, so a client with a wrong clock can still count down correctly.
       server_time: new Date().toISOString(),
+      insurance_ready: profileInsuranceReady,
       cod_allowed: false,
       quote_revision: Number(offer.version || 1),
       // Deterministic quote hash — identical to the one stored in
