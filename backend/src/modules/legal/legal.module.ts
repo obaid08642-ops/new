@@ -49,21 +49,28 @@ export class LegalService {
   async getPolicy(key: string, lang = 'ar') {
     const p: any = await this.policies.findOne({ key }, { projection: { _id: 0 } });
     if (!p) return null;
-    const content = lang === 'ar' && p.content_ar ? p.content_ar : (p.content_en || p.content_ar);
+    // 753/796: ur/hi/bn/fil content when the admin filled it, else EN, else AR.
+    const supported = ['ar', 'en', 'ur', 'hi', 'bn', 'fil'];
+    const want = supported.includes(lang) ? lang : 'ar';
+    const localized = want !== 'ar' && want !== 'en' && (p as any)[`content_${want}`]
+      ? { content: (p as any)[`content_${want}`], language: want, title: (p as any)[`title_${want}`] || p.title_en || p.title_ar }
+      : want === 'ar' && p.content_ar
+        ? { content: p.content_ar, language: 'ar', title: p.title_ar }
+        : { content: p.content_en || p.content_ar, language: p.content_en ? 'en' : 'ar', title: p.title_en || p.title_ar };
     return {
       key: p.key,
-      title: lang === 'ar' ? p.title_ar : p.title_en,
+      title: localized.title,
       version: p.version,
       effective_date: p.effective_date,
       last_updated: p.last_updated,
       change_log: p.change_log || [],
-      content,
-      language: lang === 'ar' && p.content_ar ? 'ar' : 'en',
+      content: localized.content,
+      language: localized.language,
     };
   }
 
   async listPolicies(): Promise<any[]> {
-    return this.policies.find({}, { projection: { _id: 0, key: 1, title_ar: 1, title_en: 1, version: 1, last_updated: 1, requires_acceptance: 1, applies_to: 1 } }).sort({ key: 1 }).toArray();
+    return this.policies.find({}, { projection: { _id: 0, key: 1, title_ar: 1, title_en: 1, title_ur: 1, title_hi: 1, title_bn: 1, title_fil: 1, version: 1, last_updated: 1, requires_acceptance: 1, applies_to: 1 } }).sort({ key: 1 }).toArray();
   }
 
   async upsertPolicy(adminId: string, key: string, patch: any) {
@@ -77,12 +84,20 @@ export class LegalService {
         key,
         title_ar: fields.title_ar || key,
         title_en: fields.title_en || key,
+        title_ur: fields.title_ur || '',
+        title_hi: fields.title_hi || '',
+        title_bn: fields.title_bn || '',
+        title_fil: fields.title_fil || '',
         version: fields.version || '1.0',
         effective_date: fields.effective_date ? new Date(fields.effective_date) : new Date(),
         last_updated: new Date(),
         change_log: [{ version: fields.version || '1.0', date: new Date(), note: change_note || 'initial', by: adminId }],
         content_ar: fields.content_ar || '',
         content_en: fields.content_en || '',
+        content_ur: fields.content_ur || '',
+        content_hi: fields.content_hi || '',
+        content_bn: fields.content_bn || '',
+        content_fil: fields.content_fil || '',
         requires_acceptance: fields.requires_acceptance ?? true,
         applies_to: fields.applies_to || ['all'],
       };

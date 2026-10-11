@@ -8,6 +8,17 @@ import { ReturnRequestRepository } from "./repositories/returnrequest.repository
 import { RefundExecutor } from '../finance-engine/finance-engine.module';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 
+/** 761: return reason codes — free-text reasons map to `other` with the text kept as details. */
+export const RETURN_REASON_CODES = [
+  'wrong_item', 'damaged', 'expired', 'not_as_described',
+  'changed_mind', 'duplicate_order', 'late_delivery', 'other',
+] as const;
+
+function normalizeReasonCode(reason: unknown): string {
+  const r = String(reason || '').trim().toLowerCase();
+  return (RETURN_REASON_CODES as readonly string[]).includes(r) ? r : 'other';
+}
+
 /**
  * E1 S5 — Returns engine with Saudi pharmacy rules.
  *
@@ -33,8 +44,7 @@ export class ReturnsService {
   /**
    * R7-2: photo evidence is stored as `media:<assetId>` (owned by the patient), never as a
    * presigned URL, which expires after 15 minutes. Readers get a fresh signed URL.
-   */
-  private async evidenceRefs(userId: string, docs: unknown): Promise<string[]> {
+   */  private async evidenceRefs(userId: string, docs: unknown): Promise<string[]> {
     if (!Array.isArray(docs) || !docs.length) return [];
     if (docs.length > 10) throw new BadRequestException('too_many_attachments');
     const ids = docs.map((d) => String(d || ''));
@@ -243,13 +253,15 @@ export class ReturnsService {
       data.bookingKind = bookingKind;
     }
 
+    const reasonCode = normalizeReasonCode((data as any).reason_code ?? data.reason);
     const returnRequest = await this.returnModel.create({
       patient_id: userId,
       order_id: data.orderId,
       booking_kind: data.bookingKind || 'pharmacy',
       service_type: data.serviceType,
       reason: data.reason,
-      details: data.details,
+      reason_code: reasonCode,
+      details: data.details ?? (reasonCode === 'other' ? String(data.reason || '').trim() || null : null),
       items: reviewedItems,
       is_opened: data.is_opened === true,
       is_used: data.is_used === true,
@@ -259,11 +271,31 @@ export class ReturnsService {
       status: 'processing',
     } as any);
 
-    return returnRequest.toObject();
+    const created = returnRequest.toObject();
+    return { ...created, expected_refund: await this.refundEta(created.refund_method) };
+  }
+
+  /**
+   * 762: expected refund window from returns_policy (seeded wallet_refund_days_min/max),
+   * so the hub can show time-to-refund instead of hiding the line.
+   */
+  private async refundEta(method?: string): Promise<{ min_days: number; max_days: number; method: string }> {
+    let min_days = 3;
+    let max_days = 5;
+    try {
+      const doc: any = await (this.conn as any)?.collection?.('system_configs')?.findOne?.({ key: 'system_config' });
+      const pol = doc?.value?.returns_policy;
+      if (Number.isFinite(Number(pol?.wallet_refund_days_min))) min_days = Number(pol.wallet_refund_days_min);
+      if (Number.isFinite(Number(pol?.wallet_refund_days_max))) max_days = Number(pol.wallet_refund_days_max);
+    } catch {
+      // Config store unavailable: seeded defaults win.
+    }
+    return { min_days, max_days, method: method || 'original' };
   }
 
   async myReturns(userId: string) {
-    return this.withEvidenceUrlsAll(await this.returnModel.find({ patient_id: userId }).sort({ createdAt: -1 }).lean() as any[]);
+    const rows = await this.withEvidenceUrlsAll(await this.returnModel.find({ patient_id: userId }).sort({ createdAt: -1 }).lean() as any[]);
+    return Promise.all(rows.map(async (r: any) => ({ ...r, expected_refund: await this.refundEta(r.refund_method) })));
   }
 
   /** Returns filed against this provider's orders: legacy `orders` plus

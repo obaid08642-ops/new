@@ -7,6 +7,14 @@ export class UpdateLegalPolicyDto {
   @IsOptional() @IsDateString() effective_date?: string;
   @IsOptional() @IsString() content_ar?: string;
   @IsOptional() @IsString() content_en?: string;
+  @IsOptional() @IsString() content_ur?: string;
+  @IsOptional() @IsString() content_hi?: string;
+  @IsOptional() @IsString() content_bn?: string;
+  @IsOptional() @IsString() content_fil?: string;
+  @IsOptional() @IsString() title_ur?: string;
+  @IsOptional() @IsString() title_hi?: string;
+  @IsOptional() @IsString() title_bn?: string;
+  @IsOptional() @IsString() title_fil?: string;
   @IsOptional() @IsBoolean() requires_acceptance?: boolean;
   @IsOptional() @IsArray() @IsString({ each: true }) applies_to?: string[];
   @IsOptional() @IsString() change_note?: string;
