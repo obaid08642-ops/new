@@ -11,6 +11,8 @@ import { SignOutButton } from "@/components-next/sign-out-button";
 import { shellSectionHrefs } from "@/components-next/shell-links";
 import { ThemeButton } from "./theme-button";
 import type { Locale } from "@/lib/i18n";
+import { getDisabledModules } from "@/lib/api/public-config-server";
+import { isPathHidden } from "@/lib/modules";
 import { HomeTabBar } from "./home-tab-bar";
 import styles from "./home.module.css";
 
@@ -37,20 +39,23 @@ export async function HomeShell({
   surface: "home" | "dashboard";
   children: React.ReactNode;
 }) {
-  const [t, shared] = await Promise.all([
+  const [t, shared, disabled] = await Promise.all([
     getTranslations({ locale, namespace: "HomeWeb" }),
     getTranslations({ locale, namespace: "Shared" }),
+    getDisabledModules(),
   ]);
   const base = `/${locale}`;
   const hrefsOf = shellSectionHrefs(locale);
-  const sections: Array<{ id: string; href: string; label: string }> = [
+  // a switched-off module has no section and no tab (#953)
+  const allSections: Array<{ id: string; href: string; label: string }> = [
     { id: "pharmacy", href: hrefsOf.pharmacy, label: t("navPharmacy") },
     { id: "consult", href: hrefsOf.consult, label: t("navConsult") },
     { id: "labs", href: hrefsOf.labs, label: t("navLabs") },
     { id: "nursing", href: hrefsOf.nursing, label: t("navNursing") },
   ];
+  const sections = allSections.filter((s) => !isPathHidden(s.href, disabled));
   const home = signedIn ? `${base}/dashboard` : base;
-  const tabs: BottomTabItem[] = [
+  const allTabs: BottomTabItem[] = [
     { id: "home", label: t("navHome"), icon: "house" },
     { id: "pharmacy", label: t("navPharmacy"), icon: "pill" },
     { id: "consult", label: t("navConsult"), icon: "stethoscope", raised: true },
@@ -58,6 +63,7 @@ export async function HomeShell({
     { id: "nursing", label: t("navNursing"), icon: "first-aid-kit" },
   ];
   const hrefs = Object.fromEntries([["home", home], ...sections.map((s) => [s.id, s.href])]);
+  const tabs = allTabs.filter((tab) => tab.id === "home" || tab.id in hrefs);
 
   const topBar = (
     <div className={styles.top}>

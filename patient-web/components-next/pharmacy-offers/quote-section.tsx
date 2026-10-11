@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { buildFinalQuoteAcceptanceRequest } from "@/lib/api/pharmacy-actions";
 import { quoteToAccept, type PatientPharmacyOrderProgress, type PatientPharmacyQuote } from "@/lib/api/pharmacy-offers";
+import { pharmacyDisplayName } from "@/lib/pharmacy/order-view";
 import { formatMoney } from "./format";
 import { OnlinePaymentActions } from "./payment-actions";
 import { QuoteActions } from "./quote-actions";
@@ -46,6 +47,7 @@ type Props = {
 export async function QuoteSection({ locale, orderId, progress, screen }: Props) {
   const t = await getTranslations({ locale, namespace: "PharmacyOffers" });
   const state = progress.governedState ?? "";
+  const pharmacyName = pharmacyDisplayName(progress.pharmacyNames, locale);
   const quote = quoteToAccept(progress) ?? (progress.acceptedQuoteTotal !== undefined ? { total: progress.acceptedQuoteTotal } : undefined);
   const trackingHref = `/${locale}/orders/${encodeURIComponent(orderId)}/tracking`;
   const request = buildFinalQuoteAcceptanceRequest(orderId, quote?.hash, quote?.revision);
@@ -71,6 +73,7 @@ export async function QuoteSection({ locale, orderId, progress, screen }: Props)
       {state === "COD_REGISTERED" ? <p className={`${styles.notice} ${styles.noticeOk}`} role="status">{t("codRegistered")}</p> : null}
       <section className={styles.panel} aria-labelledby="quote-title">
         <h2 className={styles.panelTitle} id="quote-title">{t("quoteTitle")}</h2>
+        {pharmacyName ? <p className={styles.pharmacy} data-testid="quote-pharmacy">{pharmacyName}</p> : null}
         {canAccept ? <p className={styles.note}>{t("quoteLead")}</p> : null}
         {quote ? <QuoteTotals locale={locale} quote={quote} t={t} /> : null}
         {canAccept ? <QuoteActions orderId={orderId} quoteHash={quote?.hash} quoteRevision={quote?.revision} canAccept canRegisterCod={false} afterCod="refresh" /> : null}

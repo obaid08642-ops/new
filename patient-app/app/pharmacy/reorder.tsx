@@ -13,7 +13,7 @@ import { buildPatientPharmacyDraft, extractPatientPharmacyOrderId } from '../../
 import { checkoutErrorKey, noAnswerYet } from '../../src/utils/pharmacyCheckout';
 import { idemKey, orderIdParam } from '../../src/utils/pharmacyOffers';
 import { ORDERS_TONE } from '../../src/utils/orderCenter';
-import { readReorderLines, reorderBody, type ReorderLine } from '../../src/utils/reorder';
+import { readReorderLines, readReorderMeta, reorderBody, type ReorderLine, type ReorderMeta } from '../../src/utils/reorder';
 import { resolveEffectiveAddress, type SelectedAddress } from '../../src/utils/selectedAddress';
 
 /**
@@ -31,6 +31,7 @@ export default function PharmacyReorderScreen() {
   const [lines, setLines] = useState<ReorderLine[]>([]);
   const [loading, setLoading] = useState(Boolean(id));
   const [failed, setFailed] = useState<'error' | 'offline' | null>(null);
+  const [meta, setMeta] = useState<ReorderMeta>({ prescriptionId: null, fulfillment: null });
   const [address, setAddress] = useState<SelectedAddress | null>(null);
   const [loadingAddress, setLoadingAddress] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -46,7 +47,9 @@ export default function PharmacyReorderScreen() {
     setLoading(true);
     setFailed(null);
     try {
-      setLines(readReorderLines(await apiFetch(`/patient/pharmacy/orders/${id}`)));
+      const order = await apiFetch(`/patient/pharmacy/orders/${id}`);
+      setLines(readReorderLines(order));
+      setMeta(readReorderMeta(order));
     } catch (error) {
       logError('pharmacy:reorder:load', error);
       setFailed((await isOffline()) ? 'offline' : 'error');
@@ -94,7 +97,7 @@ export default function PharmacyReorderScreen() {
     setProblemKey(null);
     setNeedsLocation(false);
     try {
-      const body = JSON.stringify(reorderBody(chosen, address, buildPatientPharmacyDraft));
+      const body = JSON.stringify(reorderBody(chosen, address, buildPatientPharmacyDraft, meta));
       let pair = keys.current.get(body);
       if (!pair) {
         const nonce = newIdempotencyKey();

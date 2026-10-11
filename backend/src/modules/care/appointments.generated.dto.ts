@@ -16,7 +16,7 @@ export class FinishAppointmentDto {
   @IsOptional()
   @IsArray()
   @IsObject({ each: true })
-  prescription?: Array<{ name?: string; dose?: string; duration?: string }>;
+  prescription?: Array<{ name?: string; dose?: string; duration?: string; medicine_id?: string }>;
 
   @IsOptional()
   @IsBoolean()

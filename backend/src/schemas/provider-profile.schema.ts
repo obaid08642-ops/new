@@ -286,6 +286,10 @@ export class ProviderProfile {
    * a half object ({type:'Point'} with no coordinates) would poison the 2dsphere index. */
   @Prop({ type: GeoPointSchema, default: undefined })
   geoPoint?: { type: 'Point'; coordinates: [number, number] };
+
+  @Prop({ type: [Object], default: [] }) schedule_lab?: Array<{ day: string; open?: string; close?: string; open_evening?: string; close_evening?: string; closed?: boolean }>;
+  @Prop({ type: [Object], default: [] }) schedule_radiology?: Array<{ day: string; open?: string; close?: string; open_evening?: string; close_evening?: string; closed?: boolean }>;
+  @Prop({ type: [Object], default: [] }) schedule_nursing?: Array<{ day: string; open?: string; close?: string; open_evening?: string; close_evening?: string; closed?: boolean }>;
 }
 export type ProviderProfileDocument = ProviderProfile & Document;
 export const ProviderProfileSchema = SchemaFactory.createForClass(ProviderProfile);

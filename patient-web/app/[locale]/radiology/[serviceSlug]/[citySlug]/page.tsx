@@ -98,7 +98,7 @@ export default async function RadiologyCityPage({ params }: Props) {
           }),
           breadcrumbList([
             { name: "Nabd Plus", locale: locale as Locale, path: "/" },
-            { name: "Radiology", locale: locale as Locale, path: "/diagnostics/radiology" },
+            { name: t("ld.crumbRadiology"), locale: locale as Locale, path: "/diagnostics/radiology" },
             { name: decService, locale: locale as Locale, path: `/radiology/${serviceSlug}` },
             { name: decCity, locale: locale as Locale, path: `/radiology/${serviceSlug}/${citySlug}` },
           ]),
@@ -107,7 +107,7 @@ export default async function RadiologyCityPage({ params }: Props) {
             path: `/radiology/${serviceSlug}/${citySlug}`,
             locale: locale as Locale,
             // i18n-ok: structured data is kept exactly as published (SEO)
-            description: `Verified ${decService} diagnostic imaging procedure in ${decCity}`,
+            description: t("ld.radiology", { service: decService, city: decCity }),
           }),
         ]}
       />

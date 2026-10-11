@@ -198,13 +198,16 @@ describe('payment', () => {
     expect(screen.getAllByText(/80\.00/).length).toBeGreaterThan(0);
     expect(screen.getByText(/70\.00/)).toBeTruthy();
     expect(screen.getByText(/10\.00/)).toBeTruthy();
+    // #531: the server's methods are listed; the first is chosen, and the patient's pick is what is sent
+    expect(screen.getByTestId('payment-method-card')).toBeTruthy();
+    await tap(screen.getByTestId('payment-method-apple-pay'));
     const pay = screen.getByLabelText(k('pharmacy.pay.pay', { amount: `80.00 ${k('pharmacy.currency')}` }));
     await tap(pay);
     await tap(pay); // a second tap while pending
     expect(posts()).toHaveLength(1);
     const [path, init] = posts()[0];
     expect(path).toBe('/payments/intent/pharmacy/ord');
-    expect(JSON.parse(init.body as string)).toEqual({}); // no amount, no card data goes out
+    expect(JSON.parse(init.body as string)).toEqual({ method: 'apple-pay' }); // the chosen method only: no amount, no card data goes out
     expect((init.headers as Record<string, string>)['Idempotency-Key']).toMatch(/^[A-Za-z0-9._:-]{16,128}$/);
     await waitFor(() => expect(screen.getByLabelText(k('pharmacy.pay.pay', { amount: `80.00 ${k('pharmacy.currency')}` })).props.accessibilityState.disabled).toBe(true));
     await act(async () => release({ id: 'txn-1', status: 'pending', checkout_url: 'https://pay.example.test/hosted' }));

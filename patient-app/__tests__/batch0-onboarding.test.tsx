@@ -1,13 +1,14 @@
+import fs from 'fs';
+import path from 'path';
 import React from 'react';
-import { Linking, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import OnboardingIntro from '../app/(onboarding)/index';
+import OnboardingIntro from '../app/(onboarding)/intro';
 import OnboardingLanguage from '../app/(onboarding)/language';
-import OnboardingPermissions from '../app/(onboarding)/permissions';
-import { permissions } from '../src/services/PermissionsManager';
+import { resetIntroGateForTests } from '../src/utils/onboardingGate';
 import { STORAGE_KEYS } from '../src/constants';
 
 const mockRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn(), canGoBack: jest.fn(() => true) };
@@ -28,9 +29,6 @@ jest.mock('expo-apple-authentication', () => ({
   AppleAuthenticationButtonType: { CONTINUE: 1 },
   AppleAuthenticationButtonStyle: { WHITE: 0, BLACK: 2 },
 }));
-jest.mock('../src/services/PermissionsManager', () => ({
-  permissions: { check: jest.fn(), request: jest.fn() },
-}));
 
 const metrics = { frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 47, bottom: 34, left: 0, right: 0 } };
 const wrap = (node: React.ReactElement) => <SafeAreaProvider initialMetrics={metrics}>{node}</SafeAreaProvider>;
@@ -38,7 +36,7 @@ const wrap = (node: React.ReactElement) => <SafeAreaProvider initialMetrics={met
 beforeEach(async () => {
   jest.clearAllMocks();
   await AsyncStorage.clear();
-  (permissions.check as jest.Mock).mockResolvedValue('undetermined');
+  resetIntroGateForTests();
 });
 
 describe('Onboarding intro (sign-in kit look)', () => {
@@ -54,7 +52,7 @@ describe('Onboarding intro (sign-in kit look)', () => {
     expect(JSON.stringify(screen.toJSON())).not.toMatch(/←|\p{Extended_Pictographic}/u);
   });
 
-  it('Next moves through the slides; on the last one the button says Start and leaves for the language step', async () => {
+  it('Next moves through the slides; on the last one the button says Start, records the intro as done and opens Welcome', async () => {
     await render(wrap(<OnboardingIntro />));
     for (let i = 1; i < 5; i++) {
       await fireEvent.press(screen.getByTestId('onboarding-next'));
@@ -62,15 +60,22 @@ describe('Onboarding intro (sign-in kit look)', () => {
     }
     expect(screen.getByLabelText('ابدأ رحلتك الصحية')).toBeTruthy();
     await fireEvent.press(screen.getByTestId('onboarding-next'));
-    await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith('/(onboarding)/language'));
-    expect(await AsyncStorage.getItem(STORAGE_KEYS.ONBOARDING_DONE)).toBe('true');
+    await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith('/(auth)/welcome'));
+    expect(await AsyncStorage.getItem(STORAGE_KEYS.INTRO_DONE)).toBe('true');
   });
 
-  it('Skip records onboarding as done and leaves for the language step', async () => {
+  it('Skip records the intro as done and opens Welcome', async () => {
     await render(wrap(<OnboardingIntro />));
     await fireEvent.press(screen.getByTestId('onboarding-skip'));
-    await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith('/(onboarding)/language'));
-    expect(await AsyncStorage.getItem(STORAGE_KEYS.ONBOARDING_DONE)).toBe('true');
+    await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith('/(auth)/welcome'));
+    expect(await AsyncStorage.getItem(STORAGE_KEYS.INTRO_DONE)).toBe('true');
+  });
+
+  it('a storage failure never blocks the user: Skip still opens Welcome', async () => {
+    (AsyncStorage.setItem as jest.Mock).mockRejectedValueOnce(new Error('disk full'));
+    await render(wrap(<OnboardingIntro />));
+    await fireEvent.press(screen.getByTestId('onboarding-skip'));
+    await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith('/(auth)/welcome'));
   });
 });
 
@@ -87,65 +92,31 @@ describe('Onboarding language (Settings board radios)', () => {
     expect(style).toMatchObject({ textAlign: 'right', writingDirection: 'rtl' });
   });
 
-  it('choosing a language changes nothing until Continue, which applies it and opens the permissions step', async () => {
+  it('choosing a language applies it at once; Continue opens the intro', async () => {
     await render(wrap(<OnboardingLanguage />));
     await fireEvent.press(screen.getByTestId('language-ur'));
-    expect(mockSetLang).not.toHaveBeenCalled();
-    expect(screen.getByTestId('language-ur').props.accessibilityState.checked).toBe(true);
-    await fireEvent.press(screen.getByTestId('language-continue'));
     expect(mockSetLang).toHaveBeenCalledWith('ur');
-    expect(mockRouter.replace).toHaveBeenCalledWith('/(onboarding)/permissions');
+    expect(mockRouter.replace).not.toHaveBeenCalled();
+    await fireEvent.press(screen.getByTestId('language-continue'));
+    expect(mockRouter.replace).toHaveBeenCalledWith('/(onboarding)/intro');
   });
 
-  it('has a named back button', async () => {
+  it('is the first screen of the first launch: there is nothing to go back to', async () => {
     await render(wrap(<OnboardingLanguage />));
-    await fireEvent.press(screen.getByLabelText('رجوع'));
-    expect(mockRouter.back).toHaveBeenCalled();
+    expect(screen.queryByLabelText('رجوع')).toBeNull();
   });
 });
 
-describe('Onboarding permissions', () => {
-  it('asks only for what the app can really request: notifications, camera, location (no health-data row)', async () => {
-    await render(wrap(<OnboardingPermissions />));
-    expect(screen.getByText('الإشعارات')).toBeTruthy();
-    expect(screen.getByText('الكاميرا')).toBeTruthy();
-    expect(screen.getByText('الموقع')).toBeTruthy();
-    expect(screen.queryByText('البيانات الصحية')).toBeNull();
-    expect(screen.getAllByLabelText('السماح')).toHaveLength(3);
-    await waitFor(() => expect(permissions.check).toHaveBeenCalledTimes(3));
+describe('Onboarding asks for no permission (owner decision 6: permissions are asked in context)', () => {
+  const dir = path.join(__dirname, '..', 'app', '(onboarding)');
+  const files = fs.readdirSync(dir).filter((f) => /\.tsx?$/.test(f));
+
+  it('the onboarding folder holds only the language step, the intro and the layout', () => {
+    expect(files.sort()).toEqual(['_layout.tsx', 'intro.tsx', 'language.tsx']);
   });
 
-  it('Allow calls the real permission request for that row and shows the phone\'s answer', async () => {
-    (permissions.request as jest.Mock).mockImplementation(async (key: string) => (key === 'camera' ? 'granted' : 'denied'));
-    await render(wrap(<OnboardingPermissions />));
-    await fireEvent.press(screen.getByTestId('permission-camera-allow'));
-    expect(permissions.request).toHaveBeenCalledWith('camera');
-    await waitFor(() => expect(screen.getByText('تم السماح')).toBeTruthy());
-    await fireEvent.press(screen.getByTestId('permission-location-allow'));
-    expect(permissions.request).toHaveBeenCalledWith('location');
-    // refused: the dialog cannot be shown again, so the row offers the phone's settings
-    const open = jest.spyOn(Linking, 'openSettings').mockResolvedValue();
-    await waitFor(() => expect(screen.getByTestId('permission-location-settings')).toBeTruthy());
-    await fireEvent.press(screen.getByTestId('permission-location-settings'));
-    expect(open).toHaveBeenCalled();
-    await fireEvent.press(screen.getByTestId('permission-notifications-allow'));
-    expect(permissions.request).toHaveBeenCalledWith('notifications');
-  });
-
-  it('a permission the phone already granted shows as allowed on arrival', async () => {
-    (permissions.check as jest.Mock).mockImplementation(async (key: string) => (key === 'notifications' ? 'granted' : 'undetermined'));
-    await render(wrap(<OnboardingPermissions />));
-    await waitFor(() => expect(screen.getByText('تم السماح')).toBeTruthy());
-    expect(screen.getAllByLabelText('السماح')).toHaveLength(2);
-  });
-
-  it('Continue and "Skip for now" both finish onboarding and open the welcome screen', async () => {
-    await render(wrap(<OnboardingPermissions />));
-    await fireEvent.press(screen.getByTestId('permissions-continue'));
-    await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith('/(auth)/welcome'));
-    expect(await AsyncStorage.getItem(STORAGE_KEYS.ONBOARDING_DONE)).toBe('true');
-    mockRouter.replace.mockClear();
-    await fireEvent.press(screen.getByTestId('permissions-skip'));
-    await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith('/(auth)/welcome'));
+  it.each(files)('%s imports no permission API and asks nothing', (file) => {
+    const source = fs.readFileSync(path.join(dir, file), 'utf8');
+    expect(source).not.toMatch(/PermissionsManager|requestPermissionsAsync|request\w*PermissionsAsync|expo-(notifications|location|camera|image-picker|media-library)|useCameraPermissions|permissions\.(request|check)/);
   });
 });

@@ -239,7 +239,7 @@
         ],
         [
           "Invite: Create invite code, the code, Copy",
-          "POST /api/family/invite -> invite_code; clipboard",
+          "POST /api/family/invite -> invite_code; copyText (navigator.clipboard, execCommand fallback); an error shows when the copy fails",
           "ok"
         ],
         [

@@ -1,6 +1,6 @@
 import { randomBytes } from 'crypto';
 import { Injectable, NotFoundException, BadRequestException, ConflictException, ForbiddenException, Inject } from '@nestjs/common';
-import { Model, Types } from 'mongoose';
+import { Connection, Model, Types } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import * as bcrypt from 'bcryptjs';
 import { User, UserDocument } from '../../schemas/user.schema';
@@ -10,7 +10,7 @@ import { ProviderType, ProviderStatus, UserRole } from '../../common/enums';
 import { EVENTS } from '../../common/events';
 import { UserRepository } from "./repositories/user.repository";
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
 import { escapeRegex } from '../../common/slug.util';
 
@@ -57,6 +57,7 @@ export class ProvidersService {
     @InjectModel(ProviderBranch.name) private branchModel: Model<ProviderBranchDocument>,
     private events: EventEmitter2,
     private readonly publication: CatalogPublicationService,
+    @InjectConnection() private readonly connection: Connection,
   ) {}
 
   private async refreshPublicProjection(provider: any, actorId: string, reason: string) {
@@ -377,10 +378,19 @@ export class ProvidersService {
     return p;
   }
 
-  async getPublicById(id: string) {
+  async getPublicById(id: string, patientId?: string) {
     const p = await this.providerModel.findOne({ id, ...this.publicDiscoveryFilter() }, { _id: 0, __v: 0 });
     if (!p) throw new NotFoundException();
-    return this.toPublicProvider(p);
+    const out = this.toPublicProvider(p);
+    // Favourite status (patient CRM tag) only on the single-doctor view; lists stay synchronous.
+    const type = String(out.type || out.provider_type || '').toLowerCase();
+    out.is_favorite = false;
+    if (patientId && (type === 'doctor' || type === 'nurse')) {
+      const tag = await this.connection.db.collection('patient_crm_tags')
+        .findOne({ provider_id: { $eq: out.id }, patient_id: { $eq: String(patientId) } }, { projection: { _id: 0, is_favorite: 1 } });
+      out.is_favorite = tag?.is_favorite === true;
+    }
+    return out;
   }
 
   /**

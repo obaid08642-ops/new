@@ -103,6 +103,7 @@ import { FacilityOpsModule } from './modules/facility-ops/facility-ops.module';
 import { ProviderProductionModule } from './modules/provider-production/provider-production.module';
 import { ImpersonationSessionService } from './common/impersonation-session.service';
 import { CommonModule } from './common/common.module';
+import { PdplComplianceModule } from './common/pdpl-compliance.module';
 import { HealthController } from './health.controller';
 import { HealthDashboardController } from './modules/health/health-dashboard.controller';
 import { JwtAuthGuard } from './common/auth.guard';
@@ -138,6 +139,8 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
 @Module({
   imports: [
     CommonModule,
+    // 16.9: field-level encryption for health data + the medical access log.
+    PdplComplianceModule,
     SentryModule.forRoot(),
     HomeModule,
     HospitalModule,

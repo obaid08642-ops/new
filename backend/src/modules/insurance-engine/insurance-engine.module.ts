@@ -21,7 +21,7 @@ import { StepUp } from '../../common/step-up.guard';
 import { JwtAuthGuard, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
 import { InsuranceCompanySchema, InsuranceCompanyDocument } from '../../schemas/insurance.schema';
 import { PatientProfileSchema } from '../../schemas/patient-profile.schema';
-import { FraudService } from '../finance-engine/finance-engine.module';
+import { FraudService, RefundExecutor } from '../finance-engine/finance-engine.module';
 import { TransactionSchema } from '../../schemas/transaction.schema';
 import { OrderSchema } from '../../schemas/order.schema';
 import { LabBookingSchema } from '../../schemas/lab.schema';
@@ -785,6 +785,7 @@ export class RefundService {
     private events: EventEmitter2,
     private readonly fraud: FraudService,
     @Optional() @InjectConnection() private readonly conn?: Connection,
+    @Optional() private readonly refundExec?: RefundExecutor,
   ) {}
 
   policyFor(scheduledAt?: Date) {
@@ -847,16 +848,42 @@ export class RefundService {
   }
 
   adminQueue() {
-    return this.refunds.find({ state: 'REQUESTED' }, { _id: 0, __v: 0 }).sort({ createdAt: 1 }).limit(100).lean();
+    return this.refunds.find({ state: { $in: ['REQUESTED', 'FAILED'] } }, { _id: 0, __v: 0 }).sort({ createdAt: 1 }).limit(100).lean();
   }
 
   async decide(user: any, id: string, approve: boolean, note?: string) {
     const r = await this.refunds.findOne({ id: { $eq: id } });
     if (!r) throw new NotFoundException('refund not found');
-    if (r.state !== 'REQUESTED') throw new BadRequestException(`already ${r.state}`);
+    // FAILED can be approved again: the executor is idempotent per refund id, so a retry never pays twice.
+    const retry = approve && r.state === 'FAILED';
+    if (r.state !== 'REQUESTED' && !retry) throw new BadRequestException(`already ${r.state}`);
     r.state = approve ? 'APPROVED' : 'REJECTED';
-    r.history.push({ state: r.state, at: new Date(), by: user.id, note });
+    r.history.push({ state: r.state, at: new Date(), by: user.id, note: retry ? `retry: ${note || ''}`.trim() : note });
     await r.save();
+
+    // Approval moves the money (B-4). Success is EXECUTED; a gateway/ledger error is FAILED (shown to
+    // the admin, approvable again), never a silent "approved" with no refund behind it.
+    if (approve && this.refundExec) {
+      try {
+        const exec = await this.refundExec.execute({
+          refund_id: r.id,
+          booking_kind: r.booking_kind,
+          booking_id: r.booking_id,
+          patient_id: r.patient_id,
+          amount: r.refund_amount,
+          reason: `admin_refund_approved: ${note || 'no_reason'}`.slice(0, 180),
+          actor_id: user.id,
+        });
+        r.state = 'EXECUTED';
+        r.executed_at = new Date();
+        r.history.push({ state: 'EXECUTED', at: r.executed_at, by: user.id, note: exec?.gateway_refund_id ? `gateway ${exec.gateway_refund_id}` : exec?.method });
+      } catch (err: any) {
+        r.state = 'FAILED';
+        r.history.push({ state: 'FAILED', at: new Date(), by: user.id, note: String(err?.message || 'execution_failed').slice(0, 200) });
+      }
+      await r.save();
+    }
+
     return r.toObject();
   }
 }

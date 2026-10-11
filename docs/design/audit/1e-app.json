@@ -8,15 +8,14 @@
       "elements": [
         ["Title and back", "static key orders.title", "ok"],
         ["Current / previous tabs", "status of each row (utils/orderCenter.ts table)", "ok"],
-        ["Kind tabs (doctors, labs, ... 12 chips with counts)", "removed: the board has two tabs; the kind shows in each card's icon and title", "hidden"],
+        ["Service filter chips: All + the kinds present in the loaded rows (item 371, owner 2026-10-10)", "client-side filter over the rows already loaded (utils/orderCenter.ts kindsPresent / ofKind); no new call; refunds are the \"Returns and refunds\" chip (item 819)", "fixed"],
         ["Row title", "doctor_name / service_name_* / reason / claim service (server) else the kind key", "ok"],
         ["Row status pill", "status or state of the source, mapped to orders.status.*; unknown code shows 'status not available'", "ok"],
         ["Row number and date", "pharmacy id tail; slot_start / scheduled_at / createdAt (Intl)", "ok"],
         ["Row amount", "pricing_snapshot.totals.total, appointment total_price/price, lab/radiology total, nursing total_price, claim/return amount; hidden when absent or 0", "ok"],
         ["Row action (track / details / order again)", "pharmacy status via orderRoute; other kinds their own screen", "ok"],
-        ["Partial-failure notice with retry", "count of failed endpoints (9 sources, each its own call)", "fixed"],
+        ["Partial-failure notice with retry", "count of failed endpoints (8 sources, each its own call)", "fixed"],
         ["All-failed state", "ErrorState or OfflineState with retry", "fixed"],
-        ["Emergency row", "GET /emergency/my/active: location.address, active by definition", "fixed"],
         ["Insurance claim title", "claim.service (the old code read title / claim_number, which the API does not send)", "fixed"],
         ["Pull to refresh, list virtualised", "FlatList", "ok"]
       ],
@@ -43,7 +42,8 @@
         ["Address from /users/me/profile", "removed: same address source as checkout and request", "fixed"],
         ["Send request", "POST /patient/pharmacy/orders then /submit, keys reused only after no answer, single flight", "ok"],
         ["sku of a line", "matched_sku only; the old code sent the order item id as a product code", "fixed"],
-        ["Prices, payment method, insurance of the earlier order", "not carried over", "hidden"]
+        ["Prices, payment method, insurance of the earlier order", "not carried over (note text updated in six languages)", "hidden"],
+        ["Saved prescription and receiving method of the earlier order (item 372)", "GET /patient/pharmacy/orders/:id prescription_id and fulfillment, sent as prescription_id / fulfillment on the new request", "fixed"]
       ],
       "notes": []
     },
@@ -55,7 +55,8 @@
         ["Expected arrival", "delivery.courier_eta, only while out for delivery (old code read delivery.eta_minutes, which does not exist)", "fixed"],
         ["Courier name and call button", "delivery.courier_name / courier_phone, only when the pharmacy set them", "ok"],
         ["Order number and total", "id tail; pricing_snapshot totals", "ok"],
-        ["Pharmacy name", "no field on the order or the allocations (old code read selected_pharmacy_name / pharmacy_name, never sent)", "hidden"],
+        ["Pharmacy name", "order.pharmacy_name_ar / pharmacy_name_en (or the selected allocation's), Arabic on ar and English elsewhere; hidden when the server sends none", "ok"],
+        ["Legacy order (opened from /orders)", "GET /orders/:id/tracking when the governed read answers order_not_found: state, pharmacy_name, total, delivery.courier_*, delivery.eta_minutes", "fixed"],
         ["Live map and courier vehicle", "no courier position or vehicle in the backend", "hidden"],
         ["Raw 'governing state' line", "removed", "fixed"],
         ["Continue to offers / final price / insurance", "orderRoute of the order", "ok"],
@@ -82,12 +83,11 @@
     }
   ],
   "needsReview": [
-    { "route": "/pharmacy/order-tracking", "element": "Pharmacy name", "kind": "backend", "note": "The order and its allocations carry only pharmacy_account_id; no name reaches the patient after the offer is chosen, so the tracking card cannot name the pharmacy." },
+    { "route": "/pharmacy/order-tracking", "element": "Pharmacy name", "kind": "backend", "note": "Fixed on design/backend-fields: GET /patient/pharmacy/orders/:id now carries pharmacy_name_ar / pharmacy_name_en (pharmacy-order.service.ts:147-150); the tracking card names the pharmacy by language and hides the line when absent." },
     { "route": "/pharmacy/order-tracking", "element": "Live map and courier", "kind": "backend", "note": "No courier position, vehicle or photo in the order; delivery has courier_name, courier_phone, courier_eta, dispatched_at only. The board's map and vehicle line are not drawn." },
-    { "route": "/orders", "element": "Legacy orders (GET /orders/mine)", "kind": "backend", "note": "These rows have no screen: order-tracking reads the governed endpoint, which answers order_not_found for a legacy id. They are listed without an action." },
+    { "route": "/orders", "element": "Legacy orders (GET /orders/mine)", "kind": "backend", "note": "Fixed on design/backend-fields: legacy rows open the tracking screen, which falls back to GET /orders/:id/tracking (orders.service.ts getTracking) for an id the governed endpoint does not know." },
     { "route": "/orders", "element": "Amounts of appointments and bookings", "kind": "backend", "note": "total_price / price (appointments), total (labs, radiology), total_price (nursing) are used when positive; no currency field is sent, so SAR is assumed as in the rest of the app." },
-    { "route": "/orders", "element": "Emergency request status", "kind": "backend", "note": "GET /emergency/my/active answers 200 with an empty body when there is none and the patient view carries state, not status; the row says 'active' because the endpoint lists only the active one." },
-    { "route": "/orders", "element": "Kind filter chips", "kind": "owner", "note": "The old screen filtered by service; the Orders board has only current / previous. Owner to confirm the filter is not wanted." },
-    { "route": "/pharmacy/reorder", "element": "Earlier prescription and fulfilment", "kind": "owner", "note": "Order again sends a delivery request without the earlier prescription_id or pickup choice (as before). Owner to say if they should carry over." }
+    { "route": "/orders", "element": "Kind filter chips", "kind": "owner", "note": "Owner approved the service filter on 2026-10-10 (item 371): chips per kind, All by default, client-side. The board shows no chips; add them to the board." },
+    { "route": "/pharmacy/reorder", "element": "Earlier prescription and fulfilment", "kind": "owner", "note": "Owner approved on 2026-10-10 (item 372): the earlier prescription_id and delivery or pickup now carry over. The prescription record has no validity field (backend/src/schemas/prescription.schema.ts:41), so it is carried whenever the order had one and the server only checks ownership; a validity field is needed for the \"still valid\" rule (waits for OC)." }
   ]
 }

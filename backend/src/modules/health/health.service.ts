@@ -142,12 +142,12 @@ export class HealthService {
   async vitalsSummary(user: any) {
     const latest = await this.latestVitals(user);
     const definitions = [
-      { key: 'heart_rate', label: 'نبض القلب', icon: 'ecg_heart', color: '#EC4899', unit: 'bpm' },
-      { key: 'glucose', label: 'سكر الدم', icon: 'water_drop', color: '#F0A526', unit: 'mg/dL' },
-      { key: 'bp', label: 'ضغط الدم', icon: 'blood_pressure', color: '#8B5CF6', unit: 'mmHg' },
-      { key: 'weight', label: 'الوزن', icon: 'monitor_weight', color: '#10B981', unit: 'kg' },
-      { key: 'temperature', label: 'درجة الحرارة', icon: 'thermometer', color: '#F97316', unit: '°C' },
-      { key: 'spo2', label: 'أكسجين الدم', icon: 'water_drop', color: '#06B6D4', unit: '%' },
+      { key: 'heart_rate', label: 'نبض القلب', label_key: 'health.vital.heart_rate', icon: 'ecg_heart', color: '#EC4899', unit: 'bpm' },
+      { key: 'glucose', label: 'سكر الدم', label_key: 'health.vital.glucose', icon: 'water_drop', color: '#F0A526', unit: 'mg/dL' },
+      { key: 'bp', label: 'ضغط الدم', label_key: 'health.vital.bp', icon: 'blood_pressure', color: '#8B5CF6', unit: 'mmHg' },
+      { key: 'weight', label: 'الوزن', label_key: 'health.vital.weight', icon: 'monitor_weight', color: '#10B981', unit: 'kg' },
+      { key: 'temperature', label: 'درجة الحرارة', label_key: 'health.vital.temperature', icon: 'thermometer', color: '#F97316', unit: '°C' },
+      { key: 'spo2', label: 'أكسجين الدم', label_key: 'health.vital.spo2', icon: 'water_drop', color: '#06B6D4', unit: '%' },
     ];
     return definitions.flatMap((definition) => {
       const reading: any = latest[definition.key];
@@ -156,6 +156,7 @@ export class HealthService {
         key: definition.key,
         icon: definition.icon,
         label: definition.label,
+        label_key: definition.label_key,
         value: String(reading.value),
         unit: reading.unit || definition.unit,
         measured_at: reading.measured_at || null,
@@ -180,16 +181,18 @@ export class HealthService {
 
     const components: any[] = [];
     const recommendations: string[] = [];
+    const recommendation_keys: string[] = [];
+    const rec = (text: string, key: string) => { recommendations.push(text); recommendation_keys.push(key); };
 
     // 1) BMI from profile measurements (weight 20)
     const p: any = profile;
     if (p?.height_cm > 0 && p?.weight_kg > 0) {
       const bmi = p.weight_kg / Math.pow(p.height_cm / 100, 2);
       const score = bmi < 18.5 ? 55 : bmi < 25 ? 100 : bmi < 30 ? 70 : bmi < 35 ? 40 : 20;
-      components.push({ key: 'bmi', label: 'مؤشر كتلة الجسم', weight: 20, score, detail: { bmi: +bmi.toFixed(1) } });
-      if (bmi >= 25) recommendations.push('مؤشر كتلة الجسم أعلى من الطبيعي — نشاط بدني منتظم وتغذية متوازنة يساعدان على خفضه');
+      components.push({ key: 'bmi', label: 'مؤشر كتلة الجسم', label_key: 'health.component.bmi', weight: 20, score, detail: { bmi: +bmi.toFixed(1) } });
+      if (bmi >= 25) rec('مؤشر كتلة الجسم أعلى من الطبيعي — نشاط بدني منتظم وتغذية متوازنة يساعدان على خفضه', 'health.rec.bmi_high');
     } else {
-      recommendations.push('أكمل طولك ووزنك في الملف الصحي لتحسب درجتك بدقة أعلى');
+      rec('أكمل طولك ووزنك في الملف الصحي لتحسب درجتك بدقة أعلى', 'health.rec.profile_incomplete');
     }
 
     // 2) Blood pressure (weight 20)
@@ -198,8 +201,8 @@ export class HealthService {
       const [sys, dia] = String(bp.value).split('/').map((x: string) => parseFloat(x));
       const s = isNaN(sys) ? null : (sys <= 120 && (dia || 80) <= 80) ? 100 : (sys <= 130 && (dia || 85) <= 85) ? 80 : sys <= 140 ? 60 : 30;
       if (s !== null) {
-        components.push({ key: 'bp', label: 'ضغط الدم', weight: 20, score: s, detail: { value: bp.value, measured_at: bp.measured_at } });
-        if (s < 80) recommendations.push('قراءة ضغط الدم الأخيرة مرتفعة — قلل الملح وراقب الضغط بانتظام واستشر طبيبك');
+        components.push({ key: 'bp', label: 'ضغط الدم', label_key: 'health.component.bp', weight: 20, score: s, detail: { value: bp.value, measured_at: bp.measured_at } });
+        if (s < 80) rec('قراءة ضغط الدم الأخيرة مرتفعة — قلل الملح وراقب الضغط بانتظام واستشر طبيبك', 'health.rec.bp_high');
       }
     }
 
@@ -209,8 +212,8 @@ export class HealthService {
       const v = parseFloat(gl.value);
       if (!isNaN(v)) {
         const s = v >= 80 && v <= 140 ? 100 : v <= 180 ? 60 : 30;
-        components.push({ key: 'glucose', label: 'سكر الدم', weight: 15, score: s, detail: { value: gl.value, measured_at: gl.measured_at } });
-        if (s < 100) recommendations.push('قراءة السكر خارج النطاق الطبيعي — راجع خطة وجباتك وأدويتك مع طبيبك');
+        components.push({ key: 'glucose', label: 'سكر الدم', label_key: 'health.component.glucose', weight: 15, score: s, detail: { value: gl.value, measured_at: gl.measured_at } });
+        if (s < 100) rec('قراءة السكر خارج النطاق الطبيعي — راجع خطة وجباتك وأدويتك مع طبيبك', 'health.rec.glucose_off');
       }
     }
 
@@ -220,44 +223,50 @@ export class HealthService {
       const v = parseFloat(hr.value);
       if (!isNaN(v)) {
         const s = v >= 60 && v <= 100 ? 100 : (v >= 50 && v <= 110) ? 60 : 30;
-        components.push({ key: 'heart_rate', label: 'نبض القلب', weight: 10, score: s, detail: { value: hr.value, measured_at: hr.measured_at } });
+        components.push({ key: 'heart_rate', label: 'نبض القلب', label_key: 'health.component.heart_rate', weight: 10, score: s, detail: { value: hr.value, measured_at: hr.measured_at } });
       }
     }
 
     // 5) Sleep (weight 15) — latest device/manual sleep score
     const sl: any = sleep;
     if (sl?.sleep_score != null) {
-      components.push({ key: 'sleep', label: 'جودة النوم', weight: 15, score: Math.max(0, Math.min(100, sl.sleep_score)), detail: { duration_hours: sl.duration_hours, measured_at: sl.measured_at } });
-      if (sl.sleep_score < 60) recommendations.push('جودة نومك تحتاج تحسيناً — ثبّت موعد النوم وقلل الشاشات قبله');
+      components.push({ key: 'sleep', label: 'جودة النوم', label_key: 'health.component.sleep', weight: 15, score: Math.max(0, Math.min(100, sl.sleep_score)), detail: { duration_hours: sl.duration_hours, measured_at: sl.measured_at } });
+      if (sl.sleep_score < 60) rec('جودة نومك تحتاج تحسيناً — ثبّت موعد النوم وقلل الشاشات قبله', 'health.rec.sleep_low');
     }
 
     // 6) Tracking consistency (weight 20) — readings logged in the last 7 days
     if ((weekCount as number) > 0) {
       const s = weekCount >= 5 ? 100 : weekCount >= 3 ? 70 : 40;
-      components.push({ key: 'tracking', label: 'انتظام التسجيل', weight: 20, score: s, detail: { readings_last_7d: weekCount } });
-      if (s < 100) recommendations.push('سجّل مؤشراتك الحيوية بانتظام (٥ قراءات أسبوعياً) لرفع دقة درجتك');
+      components.push({ key: 'tracking', label: 'انتظام التسجيل', label_key: 'health.component.tracking', weight: 20, score: s, detail: { readings_last_7d: weekCount } });
+      if (s < 100) rec('سجّل مؤشراتك الحيوية بانتظام (٥ قراءات أسبوعياً) لرفع دقة درجتك', 'health.rec.tracking_low');
     } else {
-      recommendations.push('ابدأ بتسجيل مؤشراتك الحيوية (ضغط، سكر، وزن) لتفعيل درجة الصحة');
+      rec('ابدأ بتسجيل مؤشراتك الحيوية (ضغط، سكر، وزن) لتفعيل درجة الصحة', 'health.rec.tracking_start');
     }
 
     if (components.length < 2) {
       return {
         score: null,
         status: 'insufficient_data',
+        status_key: 'health.score.insufficient_data',
         components,
         recommendations,
+        recommendation_keys,
         message: 'لا توجد بيانات كافية لحساب درجة الصحة — أكمل ملفك وسجّل مؤشراتك',
+        message_key: 'health.score.message.insufficient_data',
       };
     }
 
     const totalWeight = components.reduce((s, c) => s + c.weight, 0);
     const weighted = components.reduce((s, c) => s + c.score * c.weight, 0);
     const score = Math.round(weighted / totalWeight);
+    const status = score >= 80 ? 'excellent' : score >= 60 ? 'good' : score >= 40 ? 'fair' : 'needs_attention';
     return {
       score,
-      status: score >= 80 ? 'excellent' : score >= 60 ? 'good' : score >= 40 ? 'fair' : 'needs_attention',
+      status,
+      status_key: `health.score.${status}`,
       components,
       recommendations: recommendations.slice(0, 4),
+      recommendation_keys: recommendation_keys.slice(0, 4),
     };
   }
 
@@ -628,7 +637,9 @@ export class HealthService {
   // --- WP 1.5 Additional Health/Medical Profile Service Methods ---
   // All methods below read exclusively from real persisted data.
 
-  /** Medical reports issued by doctors/facilities for this patient. */
+  /** Medical reports issued by doctors/facilities for this patient: the same `medicalreports`
+   * rows as GET /medical-reports/mine (one concept, 662/675), in the slim list shape the app and
+   * web read (date/title/doctor/facility/type), without bodies or attachment contents. */
   async listReports(user: any) {
     const rows = await this.conn.db.collection('medicalreports')
       .find({ patient_id: user.id }, { projection: { body: 0, 'attachments.base64': 0 } })
@@ -685,6 +696,7 @@ export class HealthService {
       medications: (r.items || []).map((i: any) => i.medicine_name_ar || i.medicine_name_en).filter(Boolean),
       items: (r.items || []).map((i: any) => ({
         name: i.medicine_name_ar || i.medicine_name_en || null,
+        medicine_id: i.medicine_id || i.substituted_to_medicine_id || null,
         dose: i.dose || null,
         frequency_hours: i.frequency_hours ?? null,
         duration_days: i.duration_days ?? null,
@@ -797,6 +809,7 @@ export class HealthService {
       out.push({
         id: d.id,
         name: d.name,
+        name_key: `health.vital.${d.id}`,
         unit: d.unit,
         normal: d.normal,
         current,

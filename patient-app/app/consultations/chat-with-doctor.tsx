@@ -63,6 +63,9 @@ interface Thread {
   is_active?: boolean;
 }
 
+// expo-audio is native: the recorder loads only when a thread allows voice notes
+const VoiceNoteButton = React.lazy(() => import('../../src/components/consult/VoiceNoteButton').then((m) => ({ default: m.VoiceNoteButton })));
+
 const kindOf = (type?: string): ChatMsg['kind'] => (type === 'image' || type === 'file' || type === 'voice' ? type : 'text');
 
 export default function ChatWithDoctorScreen() {
@@ -227,6 +230,32 @@ export default function ChatWithDoctorScreen() {
     }
   };
 
+  /** Uploads a picked or recorded file to the media store for this thread and sends it as a message that carries the media id. */
+  const sendAsset = async (asset: { uri: string; name: string; mime: string; size?: number }, kind: 'image' | 'file' | 'voice', durationSeconds?: number) => {
+    if (!threadId) {
+      showLocalizedAlert(k('consult.chat.sendFailedTitle'), k('consult.chat.notReady'));
+      return;
+    }
+    setAttaching(true);
+    const tempId = `tmp-${Date.now()}`;
+    setMessages((prev) => [...prev, { id: tempId, sender: 'me', text: kind === 'voice' ? '' : asset.name, time: stamp(), kind, pending: true }]);
+    try {
+      const form = new FormData();
+      form.append('file', { uri: asset.uri, name: asset.name, type: asset.mime } as unknown as Blob);
+      form.append('purpose', 'chat');
+      form.append('thread_id', threadId);
+      const up = await apiFetch<{ id?: string }>('/media/upload', { method: 'POST', body: form });
+      if (!up?.id) throw new Error('upload_failed');
+      await post({ body: kind === 'voice' ? '' : asset.name, type: kind, media_ids: [up.id], attachment_mime: asset.mime, attachment_name: asset.name, ...(asset.size ? { attachment_size: asset.size } : {}), ...(durationSeconds ? { duration_seconds: durationSeconds } : {}) }, tempId);
+      setMessages((prev) => prev.map((m) => (m.id === tempId ? { ...m, mediaId: up.id } : m)));
+    } catch (e) {
+      setMessages((prev) => prev.map((m) => (m.id === tempId ? { ...m, pending: false, failed: true } : m)));
+      if (!closedByServer(e)) showLocalizedAlert(k('consult.chat.attachFailedTitle'), k('consult.chat.attachFailedBody'));
+    } finally {
+      setAttaching(false);
+    }
+  };
+
   /** Photo or file: pick, upload to the media store for this thread, then send it as a message that carries the media id. */
   const attach = async (kind: 'image' | 'file') => {
     if (!threadId) {
@@ -252,27 +281,10 @@ export default function ChatWithDoctorScreen() {
         if (picked) asset = { uri: picked.uri, name: picked.name || 'file.pdf', mime: picked.mimeType || 'application/pdf', size: picked.size };
       }
       if (!asset) return;
-      setAttaching(true);
-      const tempId = `tmp-${Date.now()}`;
-      setMessages((prev) => [...prev, { id: tempId, sender: 'me', text: asset.name, time: stamp(), kind, pending: true }]);
-      try {
-        const form = new FormData();
-        form.append('file', { uri: asset.uri, name: asset.name, type: asset.mime } as unknown as Blob);
-        form.append('purpose', 'chat');
-        form.append('thread_id', threadId);
-        const up = await apiFetch<{ id?: string }>('/media/upload', { method: 'POST', body: form });
-        if (!up?.id) throw new Error('upload_failed');
-        await post({ body: asset.name, type: kind, media_ids: [up.id], attachment_mime: asset.mime, attachment_name: asset.name, ...(asset.size ? { attachment_size: asset.size } : {}) }, tempId);
-        setMessages((prev) => prev.map((m) => (m.id === tempId ? { ...m, mediaId: up.id } : m)));
-      } catch (e) {
-        setMessages((prev) => prev.map((m) => (m.id === tempId ? { ...m, pending: false, failed: true } : m)));
-        if (!closedByServer(e)) showLocalizedAlert(k('consult.chat.attachFailedTitle'), k('consult.chat.attachFailedBody'));
-      }
+      await sendAsset(asset, kind);
     } catch (e) {
       logError('consultations:chat:attach', e);
       showLocalizedAlert(k('consult.chat.attachFailedTitle'), k('consult.chat.attachFailedBody'));
-    } finally {
-      setAttaching(false);
     }
   };
 
@@ -317,6 +329,20 @@ export default function ChatWithDoctorScreen() {
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
               {rules.canAttach ? iconBtn(k('consult.chat.photo'), 'image', () => void attach('image'), 'chat-attach-image') : null}
               {rules.canAttach ? iconBtn(k('consult.chat.file'), 'file-text', () => void attach('file'), 'chat-attach-file') : null}
+              {rules.canVoice ? (
+                <React.Suspense fallback={null}>
+                <VoiceNoteButton
+                  disabled={attaching || Boolean(blocked && !readOnly)}
+                  startLabel={k('consult.chat.voiceRecord')}
+                  stopLabel={k('consult.chat.voiceStop')}
+                  onRecorded={(file) => void sendAsset({ uri: file.uri, name: file.name, mime: file.mime }, 'voice', file.durationSeconds)}
+                  onDenied={() => showLocalizedAlert(k('consult.chat.attachFailedTitle'), k('consult.chat.voicePermission'))}
+                  onError={() => showLocalizedAlert(k('consult.chat.attachFailedTitle'), k('consult.chat.attachFailedBody'))}
+                  theme={theme}
+                  testID="chat-voice"
+                />
+                </React.Suspense>
+              ) : null}
               {rules.canCall ? iconBtn(k('consult.chat.callDoctor'), 'headset', () => router.push({ pathname: '/consultations/virtual-waiting-room', params: { appointmentId: apptRef } } as unknown as Href), 'chat-call') : null}
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>

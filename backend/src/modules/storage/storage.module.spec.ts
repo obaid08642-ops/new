@@ -1,5 +1,6 @@
 import { ForbiddenException } from '@nestjs/common';
 import { StorageService } from './storage.module';
+import { UploadSecurityService } from './upload-security.service';
 
 describe('StorageService private-media contract', () => {
   let model: any;
@@ -7,7 +8,7 @@ describe('StorageService private-media contract', () => {
 
   beforeEach(() => {
     model = { findOne: jest.fn() };
-    service = new StorageService(model);
+    service = new StorageService(model, new UploadSecurityService());
     service.adapter = { get: jest.fn(async () => ({ mime: 'application/pdf', external_url: 'https://private-origin.example/file.pdf' })) };
   });
 

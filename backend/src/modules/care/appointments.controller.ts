@@ -43,6 +43,11 @@ export class AppointmentsController {
     return this.svc.cancel(id, user, body?.reason);
   }
 
+  @Get(':id/refund/preview')
+  refundPreview(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.svc.previewRefund(id, user);
+  }
+
   @Patch(':id/reschedule')
   reschedule(@Param('id') id: string, @CurrentUser() user: any, @Body() body: RescheduleAppointmentDto) {
     return this.svc.reschedule(id, user, body);

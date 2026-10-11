@@ -131,7 +131,7 @@ describe('orders center', () => {
     await screen.findByText(k('orders.emptyCurrent'));
     answer({
       '/care/appointments': new Error('x'), '/orders/mine': new Error('x'), '/patient/pharmacy/orders': new Error('x'), '/labs/bookings/mine': new Error('x'), '/radiology/bookings/mine': new Error('x'),
-      '/home-care/bookings/my': new Error('x'), '/insurance/claims': new Error('x'), '/pharmacy/returns': new Error('x'), '/emergency/my/active': new Error('x'),
+      '/home-care/bookings/my': new Error('x'), '/pharmacy/returns': new Error('x'),
     });
     await render(wrap(<OrderCenterScreen />));
     await waitFor(() => expect(screen.getAllByText(k('orders.loadError')).length).toBeGreaterThan(0));

@@ -8,7 +8,7 @@ import { Pill, goBack, useAddMedToCart } from '../../src/components/pharmacy/Pha
 import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
-import { medMeta, medName, medPrice, needsRx, type Med } from '../../src/utils/pharmacyCatalog';
+import { medMeta, medName, medPrice, needsRx, onlineOnly, type Med } from '../../src/utils/pharmacyCatalog';
 
 /**
  * Scan a medicine (second pass, section 3: the old barcode scanner and drug scanner in one screen) — the PharmacyHub family (no board of its own; the hub's search field opens it).
@@ -188,6 +188,7 @@ export default function BarcodeScannerScreen() {
           <Text style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>{medName(found.med)}</Text>
           {meta ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{meta}</Text> : null}
           {needsRx(found.med) ? <Pill label={k('pharmacy.needsRx')} tone="warning" /> : null}
+          {onlineOnly(found.med) ? <Pill label={k('pharmacy.product.exclusive')} tone="info" /> : null}
           {price ? (
             <Text style={{ ...scale(t, 'h4'), color: c.text.price, ...flow }}>
               {money(price)} <Text style={{ ...scale(t, 'meta', 'regular') }}>{k('pharmacy.currency')}</Text>

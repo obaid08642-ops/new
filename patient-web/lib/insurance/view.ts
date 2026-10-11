@@ -60,16 +60,6 @@ export function parseCoverage(payload: unknown): CoverageResult | null {
   return { eligible: root.eligible, serviceType: text(root.service_type), note: text(root.note_ar) ?? text(root.note) };
 }
 
-export type RefundRow = { id: string; amount?: number; status?: string; date?: string };
-
-/** GET /refunds/my. */
-export function parseRefunds(payload: unknown): RefundRow[] {
-  return listOf(payload).flatMap((row) => {
-    const id = text(row.id) ?? text(row._id);
-    return id ? [{ id, amount: num(row.amount), status: text(row.status), date: text(row.createdAt) ?? text(row.created_at) }] : [];
-  });
-}
-
 export type ProviderRow = { id: string; name: string; type?: string };
 
 /** GET /providers?insurance_company=…: the network providers of the patient's insurer. */
@@ -105,6 +95,6 @@ export function requestTone(state: string): RequestTone {
   return "plain";
 }
 
-export const TABS = ["policy", "benefits", "claims", "refunds", "network"] as const;
+export const TABS = ["policy", "benefits", "network"] as const;
 export type InsuranceTab = (typeof TABS)[number];
 export const tabOf = (value: string | undefined): InsuranceTab => ((TABS as readonly string[]).includes(value ?? "") ? (value as InsuranceTab) : "policy");

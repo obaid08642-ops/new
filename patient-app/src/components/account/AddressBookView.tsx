@@ -2,8 +2,9 @@ import React, { useCallback, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
 
-import { Button, Card, EmptyState, FIcon } from '../../../../packages/ui-native/src';
-import { Gate, goBack } from '../consult/ConsultKit';
+import { Button, Card, EmptyState, FIcon, Input } from '../../../../packages/ui-native/src';
+import { Gate, Sheet, goBack } from '../consult/ConsultKit';
+import { showLocalizedAlert } from '../LocalizedAlert';
 import { Notice, Pill, useRemote } from '../health/HealthKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
@@ -20,6 +21,8 @@ import { AccountScreen } from './AccountKit';
  */
 
 const MAP_PICKER = '/shared/location-picker' as Href;
+const EDIT_FIELDS = ['label', 'street', 'building', 'floor', 'notes'] as const;
+type EditField = (typeof EDIT_FIELDS)[number];
 
 export function AddressBookView() {
   const { select } = useLocalSearchParams<{ select?: string }>();
@@ -80,6 +83,54 @@ export function AddressBookView() {
   };
   const toMap = () => router.push(MAP_PICKER);
 
+  /* 769: edit and delete a saved address (PATCH / DELETE /users/me/addresses/:id) */
+  const [editing, setEditing] = useState<SelectedAddress | null>(null);
+  const [form, setForm] = useState<Record<EditField, string>>({ label: '', street: '', building: '', floor: '', notes: '' });
+  const [editSaving, setEditSaving] = useState(false);
+  const [editFailed, setEditFailed] = useState(false);
+  const [removeFailed, setRemoveFailed] = useState(false);
+  const openEdit = (address: SelectedAddress) => {
+    const stored = address as unknown as Record<string, unknown>;
+    const text = (key: string) => (typeof stored[key] === 'string' ? (stored[key] as string) : '');
+    setForm({ label: address.label ?? '', street: address.street ?? '', building: text('building'), floor: text('floor'), notes: text('notes') });
+    setEditFailed(false);
+    setEditing(address);
+  };
+  const saveEdit = async () => {
+    if (!editing || editSaving || !form.street.trim()) return;
+    setEditSaving(true);
+    setEditFailed(false);
+    try {
+      await apiFetch(`/users/me/addresses/${editing.id}`, { method: 'PATCH', body: JSON.stringify({ label: form.label.trim(), street: form.street.trim(), building: form.building.trim(), floor: form.floor.trim(), notes: form.notes.trim() }) });
+      setEditing(null);
+      void reload(true);
+    } catch (e) {
+      logError('account:address-edit', e);
+      setEditFailed(true);
+    } finally {
+      setEditSaving(false);
+    }
+  };
+  const remove = (address: SelectedAddress) =>
+    showLocalizedAlert(k('address.deleteTitle'), k('address.deleteBody'), [
+      { text: k('address.deleteCancel'), style: 'cancel' },
+      {
+        text: k('address.delete'),
+        style: 'destructive',
+        onPress: async () => {
+          setRemoveFailed(false);
+          try {
+            await apiFetch(`/users/me/addresses/${address.id}`, { method: 'DELETE' });
+            if (choice.current === address.id) choice.current = null;
+            void reload(true);
+          } catch (e) {
+            logError('account:address-delete', e);
+            setRemoveFailed(true);
+          }
+        },
+      },
+    ]);
+
   const footer = picking && addresses.length > 0 ? <Button label={k('address.confirm')} size="lg" fullWidth disabled={!selected || saving} loading={saving} onPress={() => void confirm()} theme={theme} testID="address-confirm" /> : undefined;
 
   return (
@@ -91,6 +142,7 @@ export function AddressBookView() {
           <>
             <Text accessibilityRole="header" style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>{k('address.saved')}</Text>
             {failed ? <Notice tone="danger" text={k('account.defaultFailed')} /> : null}
+            {removeFailed ? <Notice tone="danger" text={k('address.deleteFailed')} /> : null}
             <Card padding="none" theme={theme}>
               <View accessibilityRole="radiogroup" accessibilityLabel={k('address.saved')}>
                 {addresses.map((a, i) => {
@@ -98,13 +150,13 @@ export function AddressBookView() {
                   const line = [a.street, a.district, a.city].filter(Boolean).join(', ');
                   const name = [a.label ?? line, a.is_default ? k('address.default') : '', a.label ? line : '', hasMapPoint(a) ? '' : k('address.noPoint')].filter(Boolean).join(', ');
                   return (
+                    <View key={a.id} style={{ borderBottomWidth: i === addresses.length - 1 ? 0 : 1, borderBottomColor: c.border.hairline }}>
                     <Pressable
-                      key={a.id}
                       accessibilityRole="radio"
                       accessibilityLabel={name}
                       accessibilityState={{ checked: on }}
                       onPress={() => void choose(a)}
-                      style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 14, minHeight: 64, borderBottomWidth: i === addresses.length - 1 ? 0 : 1, borderBottomColor: c.border.hairline, opacity: pressed ? 0.85 : 1 })}
+                      style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 14, minHeight: 64, opacity: pressed ? 0.85 : 1 })}
                     >
                       <FIcon icon="map-pin-line" tone={ORDERS_TONE} chip="soft" size={40} theme={theme} />
                       <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
@@ -119,6 +171,13 @@ export function AddressBookView() {
                       </View>
                       <View style={{ width: 22, height: 22, borderRadius: 11, borderWidth: on ? 7 : 2, borderColor: on ? c.action.primary.bg : c.control.radioOff }} />
                     </Pressable>
+                    {picking ? null : (
+                      <View style={{ flexDirection: 'row', gap: 8, paddingHorizontal: 14, paddingBottom: 12 }}>
+                        <Button label={k('address.edit')} variant="outline" size="sm" onPress={() => openEdit(a)} theme={theme} testID={`address-edit-${a.id}`} />
+                        <Button label={k('address.delete')} variant="outline" size="sm" onPress={() => remove(a)} theme={theme} testID={`address-delete-${a.id}`} />
+                      </View>
+                    )}
+                    </View>
                   );
                 })}
               </View>
@@ -127,6 +186,15 @@ export function AddressBookView() {
           </>
         )}
       </Gate>
+      <Sheet open={editing !== null} title={k('address.editTitle')} onClose={() => setEditing(null)} closeLabel={k('consult.close')}>
+        <View style={{ gap: 12 }}>
+          {EDIT_FIELDS.map((field) => (
+            <Input key={field} label={k(`picker.field.${field}`)} placeholder={k(`picker.placeholder.${field}`)} value={form[field]} onChange={(text: string) => setForm((f) => ({ ...f, [field]: text }))} multiline={field === 'notes'} rows={3} theme={theme} testID={`address-edit-${field}`} />
+          ))}
+          {editFailed ? <Notice tone="danger" text={k('address.editFailed')} /> : null}
+          <Button label={k('address.editSave')} size="lg" fullWidth disabled={!form.street.trim()} loading={editSaving} onPress={() => void saveEdit()} theme={theme} testID="address-edit-save" />
+        </View>
+      </Sheet>
     </AccountScreen>
   );
 }

@@ -101,6 +101,28 @@ describe("the health hub", () => {
   });
 });
 
+describe("the health hub: next appointment (issue 678)", () => {
+  const APPT = "0a1b2c3d-1111-4222-8333-444455556666";
+  it("shows the same upcoming appointment the home page shows, with its link, time and status", async () => {
+    backend({ "/health/vitals/summary": [], "/home/upcoming-appointment": { id: APPT, doctor_name: "Dr Test", scheduled_at: "2026-10-12T09:30:00.000Z", status: "confirmed", patient_id: "private-patient" } });
+    const html = render(await HealthPage(page()));
+    expect(server.api).toHaveBeenCalledWith("/home/upcoming-appointment", {}, TOKEN);
+    expect(html).toContain("Dr Test");
+    expect(html).toContain("Your next appointment");
+    expect(html).toContain(`href="/en/appointments/${APPT}"`);
+    expect(html).toContain("2026-10-12T09:30:00.000Z");
+    expect(html).not.toContain("private-patient");
+  });
+  it("shows nothing when there is none, and says so in place when it could not be loaded", async () => {
+    backend({ "/health/vitals/summary": [], "/home/upcoming-appointment": json({}, 404) });
+    const none = render(await HealthPage(page()));
+    expect(none).not.toContain("Your next appointment");
+    expect(none).not.toContain("next appointment could not be loaded");
+    backend({ "/health/vitals/summary": [] });
+    expect(render(await HealthPage(page()))).toContain("next appointment could not be loaded");
+  });
+});
+
 describe("vitals: three tabs and a sheet", () => {
   it("history lists the saved readings, and ?add=1 opens the add-reading sheet on load", async () => {
     backend({ "/health/vitals": [{ id: "r1", key: "bp", value: "120/80", unit: "mmHg", measured_at: "2026-08-20T10:00:00.000Z" }] });

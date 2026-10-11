@@ -14,6 +14,7 @@ import { AdminAppointmentsController } from '../modules/care/appointments.contro
 import { FinanceController } from '../modules/admin/web-core/controllers/finance.controller';
 import { AdminController } from '../modules/admin/admin.controller';
 import { AdminCmsController } from '../modules/admin/enterprise/admin-cms.controller';
+import { ModuleSwitchesController } from '../modules/module-switches/module-switches.controller';
 import { ProviderOnboardingController } from '../modules/provider-onboarding/provider-onboarding.module';
 
 // Needs-review guard findings G-ROLE-ONLY-WRITE / G-OPEN: every sensitive admin write names the
@@ -64,6 +65,13 @@ describe('sensitive admin writes require a named permission', () => {
   it('the built-in admin role keeps every permission these routes need (no lock-out)', () => {
     const needed = Array.from(new Set(CASES.map((x) => x[3])));
     expect(needed.filter((p) => !ROLE_PERMISSIONS[UserRole.ADMIN].includes(p))).toEqual([]);
+  });
+
+  it('module switches need modules.manage, held by super admin only (owner 2026-10-10)', () => {
+    expect(perms(ModuleSwitchesController, 'PUT', 'admin/modules/:key')).toEqual([Permission.MODULES_MANAGE]);
+    expect(ROLE_PERMISSIONS[UserRole.SUPER_ADMIN]).toContain(Permission.MODULES_MANAGE);
+    const holders = Object.entries(ROLE_PERMISSIONS).filter(([, ps]) => ps.includes(Permission.MODULES_MANAGE)).map(([r]) => r);
+    expect(holders).toEqual([UserRole.SUPER_ADMIN]);
   });
 
   it('the admin contract download is declared admin-only', () => {

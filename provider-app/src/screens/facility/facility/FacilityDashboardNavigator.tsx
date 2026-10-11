@@ -51,7 +51,6 @@ import { InsuranceClaimsHubScreen } from './InsuranceClaimsHubScreen';
 import { StaffAttendanceScreen } from './StaffAttendanceScreen';
 import { SurgeryScheduleScreen } from './SurgeryScheduleScreen';
 import { CredentialingScreen } from './CredentialingScreen';
-import { HospitalDispatchScreen } from './HospitalDispatchScreen';
 import { FacilityOrderDetail } from './FacilityOrderDetail';
 
 const Stack = createNativeStackNavigator();
@@ -153,7 +152,6 @@ export function FacilityDashboardNavigator({ onLogout }: { onLogout: () => void 
       <Stack.Screen name="attendance">{({ navigation }: any) => <StaffAttendanceScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="surgery_sched">{({ navigation }: any) => <SurgeryScheduleScreen onBack={() => navigation.goBack()} surgeries={surgeries} onRefresh={fetchWardsAndSurgeries} />}</Stack.Screen>
       <Stack.Screen name="credentialing">{({ navigation }: any) => <CredentialingScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
-      <Stack.Screen name="hospital_dispatch">{({ navigation }: any) => <HospitalDispatchScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="facility_info">{({ navigation }: any) => <FacilityProfileConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="auto_reports">{({ navigation }: any) => <RevenueInsights role="facility" onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>

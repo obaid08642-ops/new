@@ -49,7 +49,7 @@
   {"route": "/settings/about", "elements": [
    ["App name and one line", "static keys SettingsWeb.aboutName, aboutLead", "ok"],
    ["Terms and privacy policy links", "links /terms, /privacy (stay public)", "ok"],
-   ["Cancellation and refund rules", "GET /system-config/public cancellation_policy, returns_policy (numbers only from the server)", "fixed"],
+   ["Cancellation and refund rules", "GET /system-config/public cancellation_policy (full_hours, half_hours, half_refund_percent: the three tiers incl. the 50% one, issue 781), returns_policy (numbers only from the server); the unproven late-fee line is gone", "fixed"],
    ["Four team cards (engineering, product, medical, 24/7 support)", "invented content, no source; removed", "hidden"]
   ]},
   {"route": "/profile", "elements": [
@@ -65,7 +65,8 @@
   ]},
   {"route": "/profile/addresses", "elements": [
    ["Saved addresses list with default chip", "GET /users/me/addresses", "ok"],
-   ["Remove address", "DELETE /api/patient/users/me/addresses/:id", "ok"],
+   ["Edit address (issue 769)", "PATCH /api/patient/users/me/addresses/:id with the changed fields only (allowlisted, idempotency key)", "ok"],
+   ["Remove address with a confirm step (issue 769)", "DELETE /api/patient/users/me/addresses/:id after \"Yes, remove\"", "ok"],
    ["Add address form (label, lines, region, city, district, notes)", "POST /api/patient/users/me/addresses; GET /locations/regions|cities|districts", "ok"],
    ["Pick mode ?select=1 (delivery address for pharmacy orders)", "the Batch 1 picker: GET /users/me/addresses, PATCH /users/me/addresses/:id is_default", "ok"],
    ["Pick on map step", "web has no map step (the app keeps /shared/location-picker)", "hidden"]
@@ -86,8 +87,8 @@
    ["Review cards: stars and comment", "GET /patient-ux/reviews (?target_id=)", "gap"]
   ]},
   {"route": "/map", "elements": [
-   ["Search, type filters, provider cards with directions and book", "GET /providers/map?radius=25", "ok"],
-   ["Map pane of the chosen provider", "OpenStreetMap embed", "gap"]
+   ["Search, type filters, provider cards with directions and book", "GET /providers/map?radius=25; a hospital card opens /facility/[id] (issue 767), a lab /diagnostics/labs/[id], a doctor /consultations/doctors/[id]", "ok"],
+   ["Map pane of the chosen provider", "OpenStreetMap embed; frame-src now allows https://www.openstreetmap.org (issue 777)", "ok"]
   ]},
   {"route": "/support/chat", "elements": [
    ["History, message box, quick replies, image attach", "GET/POST /api/patient/support/chat, POST /api/support/upload", "gap"],
@@ -109,6 +110,7 @@
   {"route": "/support/chat", "element": "Greeting bubble", "kind": "client", "note": "the first agent bubble is a local greeting, not a server message; the old 'online, replies within a minute' claim was removed.", "file": "patient-web/components-next/support-chat-client.tsx", "line": 55},
   {"route": "/reviews", "element": "Reviews list", "kind": "backend", "note": "GET /patient-ux/reviews is a partial route with no reviewer name or target shown; only stars and comment exist.", "file": "patient-web/app/[locale]/reviews/page.tsx", "line": 40},
   {"route": "/profile/addresses", "element": "Region, city, district selects", "kind": "client", "note": "the selects call the API origin from the browser (NEXT_PUBLIC_API_URL) instead of the web proxy; names exist in Arabic and English only. Runtime check: with NEXT_PUBLIC_API_URL unset the call goes to https://api.nabd.plus (ERR_CERT_AUTHORITY_INVALID in the sandbox, the only console error of the batch); the patient proxy allowlist has no /locations routes.", "file": "patient-web/components-next/account/geo-select.tsx", "line": 10},
-  {"route": "/settings/about", "element": "Cancellation rules", "kind": "owner", "note": "the server also publishes a half-refund tier (half_hours, half_refund_percent) that the app terms do not mention; only full_hours and late_fee_percent are written.", "file": "patient-web/app/[locale]/settings/about/page.tsx", "line": 29}
+  {"route": "/settings/about", "element": "Cancellation rules", "kind": "owner", "note": "the server also publishes a half-refund tier (half_hours, half_refund_percent) that the app terms do not mention; only full_hours and late_fee_percent are written.", "file": "patient-web/app/[locale]/settings/about/page.tsx", "line": 29},
+    { "route": "/map", "element": "Hospital card link", "kind": "backend", "note": "GET /providers/map ids are provider-profile ids; /facility/[id] reads the facilities collection (entity-graph getRelatedFacility). The link works only where the two ids are the same; the old /consultations/clinics/[id] link made the same assumption. The map answer carries no facility slug.", "file": "patient-web/lib/map/book-href.ts", "line": 10, "backend": "backend/src/modules/provider/providers.service.ts:361" }
  ]
 }

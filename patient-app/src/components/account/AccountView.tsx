@@ -11,6 +11,7 @@ import { logout } from '../../store/slices/authSlice';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { AccountScreen } from './AccountKit';
+import { useModules } from '../../context/ModulesContext';
 import { RX_TONE, CARE_TONE } from '../consult/ConsultKit';
 
 /**
@@ -29,6 +30,10 @@ export function AccountView() {
   const { k, theme, t, c, flow, num } = useScreenUi();
   const dispatch = useDispatch();
   const { isGuest, requireAuth } = useGuestGuard();
+  // switched-off modules (#953) lose their tile and row
+  const { isHidden } = useModules();
+  const showFamily = !isHidden('/family');
+  const showInsurance = !isHidden('/insurance');
   const user = useSelector((state: { auth: { user: AuthUser | null } }) => state.auth.user);
   const [counts, setCounts] = useState<Counts>(NONE);
 
@@ -97,7 +102,7 @@ export function AccountView() {
       )}
 
       <View style={{ flexDirection: 'row', gap: 10 }}>
-        {quick.map((item) => (
+        {quick.filter((item) => !isHidden(item.route)).map((item) => (
           <Pressable key={item.testID} accessibilityRole="button" accessibilityLabel={[item.label, item.value].filter(Boolean).join(', ')} onPress={go(item.route)} testID={item.testID} style={({ pressed }) => ({ flex: 1, opacity: pressed ? 0.85 : 1 })}>
             <Card theme={theme}>
               <View style={{ alignItems: 'center', gap: 8, minHeight: 84, justifyContent: 'center' }}>
@@ -111,9 +116,9 @@ export function AccountView() {
       </View>
 
       <Panel testID="account-rows">
-        <Row icon="map-pin-line" tone={RX_TONE} title={k('account.addresses')} subtitle={counts.addresses === null ? undefined : k('account.addressCount', { n: counts.addresses })} onPress={go('/profile/addresses')} testID="account-addresses" />
-        <Row icon="users-three" tone="peach" title={k('account.family')} subtitle={counts.family === null ? undefined : k('account.familyCount', { n: counts.family })} onPress={guarded('/family', 'family')} testID="account-family" />
-        <Row icon="shield-check" tone={CARE_TONE} title={k('account.insurance')} subtitle={counts.insurance ?? undefined} onPress={guarded('/profile/insurance', 'insurance')} last testID="account-insurance" />
+        <Row icon="map-pin-line" tone={RX_TONE} title={k('account.addresses')} subtitle={counts.addresses === null ? undefined : k('account.addressCount', { n: counts.addresses })} onPress={go('/profile/addresses')} last={!showFamily && !showInsurance} testID="account-addresses" />
+        {showFamily ? <Row icon="users-three" tone="peach" title={k('account.family')} subtitle={counts.family === null ? undefined : k('account.familyCount', { n: counts.family })} onPress={guarded('/family', 'family')} last={!showInsurance} testID="account-family" /> : null}
+        {showInsurance ? <Row icon="shield-check" tone={CARE_TONE} title={k('account.insurance')} subtitle={counts.insurance ?? undefined} onPress={guarded('/profile/insurance', 'insurance')} last testID="account-insurance" /> : null}
       </Panel>
       <Panel testID="account-settings-rows">
         <Row icon="gear" tone="ink" title={k('account.settings')} subtitle={k('account.settingsHint')} onPress={go('/settings')} testID="account-settings" />

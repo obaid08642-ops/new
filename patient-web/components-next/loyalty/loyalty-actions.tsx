@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { TextField } from "@/components-next/care/care-fields";
 import { Notice } from "@/components-next/consult/consult-parts";
+import { copyText } from "@/lib/copy-text";
 import styles from "./loyalty.module.css";
 
 /**
@@ -94,25 +95,24 @@ export function InvitePanel({ code }: { code: string }) {
 
   async function copy() {
     if (!code) return;
-    try {
-      await navigator.clipboard.writeText(code);
-      setMessage({ tone: "ok", text: t("copied") });
-    } catch {
-      setMessage({ tone: "bad", text: t("copyFailed") });
-    }
+    const ok = await copyText(code);
+    setMessage(ok ? { tone: "ok", text: t("copied") } : { tone: "bad", text: t("copyFailed") });
   }
 
   async function share() {
     if (!code) return;
     const text = t("shareMessage", { code });
-    const canShare = typeof navigator.share === "function";
-    try {
-      if (canShare) await navigator.share({ text });
-      else await navigator.clipboard.writeText(text);
-      setMessage({ tone: "ok", text: canShare ? t("shared") : t("copied") });
-    } catch {
-      /* the share sheet was dismissed */
+    if (typeof navigator.share === "function") {
+      try {
+        await navigator.share({ text });
+        setMessage({ tone: "ok", text: t("shared") });
+      } catch {
+        /* the share sheet was dismissed */
+      }
+      return;
     }
+    const ok = await copyText(text);
+    setMessage(ok ? { tone: "ok", text: t("copied") } : { tone: "bad", text: t("copyFailed") });
   }
 
   async function apply() {

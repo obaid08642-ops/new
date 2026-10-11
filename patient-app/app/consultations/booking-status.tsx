@@ -16,6 +16,7 @@ import { ConsultScreen, InfoRow, ModePill, ResultHero, StatusTag, appointmentSta
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 import { apiFetch } from '../../src/utils/api';
+import { priceSummary } from '../../src/utils/bookingPrice';
 import { consultationMutationHeaders } from '../../src/utils/consultation-payment';
 import { statusIs } from '../../src/utils/statusCase';
 
@@ -29,6 +30,12 @@ interface Appointment {
   scheduled_at?: string;
   doctor_name?: string;
   doctor?: { name?: string };
+  price?: number;
+  service_fee?: number;
+  home_visit_fee?: number;
+  transportation_fee?: number;
+  total_price?: number;
+  payment_status?: string;
 }
 
 /** Where an accepted booking goes. A clinic booking stays on this screen (its confirmation is the confirmed state). */
@@ -42,13 +49,16 @@ function acceptedRoute(appointment: Appointment | null, fallbackType: string): H
 
 /** The success state's summary: who, when and how, from the appointment the screen already reads. */
 function BookingSummary({ appointment, fallbackType }: { appointment: Appointment; fallbackType: string }) {
-  const { theme, t, c, flow, k } = useScreenUi();
+  const { theme, t, c, flow, k, money } = useScreenUi();
   const { date, clock } = useConsultFormat();
+  const price = priceSummary(appointment as Record<string, unknown>);
   const doctor = appointment.doctor?.name || appointment.doctor_name || '';
   const at = appointment.scheduled_at;
   const mode = visitMode(appointment.consultation_type || appointment.service_type || fallbackType);
-  if (!doctor && !at && !mode) return null;
+  if (!doctor && !at && !mode && !price) return null;
+  const amount = (value: number) => `${money(value)} ${k('consult.currency')}`;
   return (
+    <>
     <Card theme={theme}>
       {doctor ? (
         <View style={{ paddingVertical: 10, borderBottomWidth: at || mode ? 1 : 0, borderBottomColor: c.border.hairline }}>
@@ -64,6 +74,17 @@ function BookingSummary({ appointment, fallbackType }: { appointment: Appointmen
         </View>
       ) : null}
     </Card>
+    {price ? (
+      <Card theme={theme}>
+        <Text accessibilityRole="header" style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, paddingVertical: 6, ...flow }}>{k('consult.price.title')}</Text>
+        {price.lines.map((line, i) => (
+          <InfoRow key={line.key} label={k(`consult.price.${line.key}`)} value={amount(line.value)} last={i === price.lines.length - 1 && price.total === null} />
+        ))}
+        {price.total !== null ? <InfoRow label={k('consult.price.total')} value={amount(price.total)} strong last /> : null}
+        <Text style={{ ...scale(t, 'caption', 'regular'), color: c.text.secondary, paddingTop: 4, ...flow }}>{k(price.paid ? 'consult.price.paid' : 'consult.price.unpaid')}</Text>
+      </Card>
+    ) : null}
+    </>
   );
 }
 

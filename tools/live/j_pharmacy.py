@@ -191,7 +191,8 @@ def matrix_pharmacy(pat, pharm, meds, addr, admin=None):
         'delivery_address': {'label': 'المنزل', 'street': addr.get('street') or '', 'city': addr.get('city') or '',
                              'lat': float(addr.get('lat') or 0), 'lng': float(addr.get('lng') or 0)},
         'fulfillment': 'pickup',
-        'prescription_attachments': [{'uri': rx, 'type': 'image'}] if rx else [],
+        # the app sends the uploaded file's id; the server stores { type, uri } (A-0)
+        'prescription_attachments': [rx] if rx else [],
     }
     r = pat.post('/patient/pharmacy/orders', draft, headers={'Idempotency-Key': KEY('mx-pickup')})
     oid = r.get('id')
@@ -203,6 +204,10 @@ def matrix_pharmacy(pat, pharm, meds, addr, admin=None):
         mine = next((b for b in r.items() if b.get('order_id') == oid), None)
         step('the pharmacy sees the pickup broadcast', r.ok and mine, r.status)
         if mine:
+            # A-0: the notified pharmacy opens the patient's prescription photo through the storage route
+            att = next((a for a in (mine.get('attachments') or []) if a.get('uri')), None)
+            ok = bool(att) and pharm.get(str(att['uri']).replace('/api/v1', '', 1)).ok
+            step('the notified pharmacy opens the prescription file', ok, att)
             meds2 = mine.get('items') or mine.get('medicines') or []
             offer_items = [{'order_item_id': str(m.get('id') or m.get('order_item_id') or ''), 'availability': 'available',
                             'qty_offered': int(m.get('qty_requested') or m.get('qty') or m.get('quantity') or 1)} for m in meds2]
@@ -230,7 +235,7 @@ def matrix_pharmacy(pat, pharm, meds, addr, admin=None):
                              'lat': float(addr.get('lat') or 0), 'lng': float(addr.get('lng') or 0)},
         'fulfillment': 'delivery',
         'payment_mode': 'insurance',
-        'prescription_attachments': [{'uri': rx2, 'type': 'image'}] if rx2 else [],
+        'prescription_attachments': [rx2] if rx2 else [],
     }
     r = pat.post('/patient/pharmacy/orders', draft2, headers={'Idempotency-Key': KEY('mx-ins')})
     oid2 = r.get('id')

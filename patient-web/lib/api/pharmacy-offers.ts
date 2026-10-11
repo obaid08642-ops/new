@@ -18,6 +18,8 @@ export type PatientPharmacyOfferLine = {
 export type PatientPharmacyOffer = {
   id: string;
   pharmacyName?: string;
+  /** `pharmacy_name_ar` / `pharmacy_name_en` as the server sent them (the offer carries both). */
+  pharmacyNames?: { ar?: string; en?: string };
   status?: string;
   /** The server's totals of the offer (`totals.subtotal`, `totals.delivery_fee`, `totals.total`), drawn as sent. */
   subtotal?: number;
@@ -48,7 +50,15 @@ export type PatientPharmacyQuote = {
   currency?: string;
 };
 
+function pharmacyNamesOf(source: Record<string, unknown>) {
+  const ar = stringValue(source, ["pharmacy_name_ar"]);
+  const en = stringValue(source, ["pharmacy_name_en"]);
+  return ar || en ? { ar, en } : undefined;
+}
+
 export type PatientPharmacyOrderProgress = {
+  /** The filling pharmacy's names (#366/#375/#514): the selected allocation's, else the order's own; absent when the server sent none. */
+  pharmacyNames?: { ar?: string; en?: string };
   /** The order's own status (`draft`, `broadcasting`, `cash_card_payment_pending` ...). */
   status?: string;
   governedState?: string;
@@ -131,6 +141,7 @@ export function extractPatientPharmacyOffers(payload: unknown): PatientPharmacyO
     return [{
       id: id.data,
       pharmacyName: stringValue(source, ["pharmacy_name", "pharmacyName"]),
+      pharmacyNames: pharmacyNamesOf(source),
       status: stringValue(source, ["status"]),
       subtotal: numberValue(totals ?? {}, ["subtotal"]),
       deliveryFee: numberValue(totals ?? {}, ["delivery_fee", "deliveryFee"]),
@@ -191,7 +202,11 @@ export function extractPatientPharmacyOrderProgress(payload: unknown): PatientPh
     const id = item ? stringValue(item, ["id", "order_item_id"]) : undefined;
     return id ? [{ id, nameAr: stringValue(item!, ["name_ar"]), nameEn: stringValue(item!, ["name_en"]), rawName: stringValue(item!, ["raw_name", "name"]) }] : [];
   }) : [];
+  const selectedAllocation = stringValue(source, ["selected_allocation_id"]);
+  const allocationRecords = Array.isArray(source.allocations_detail) ? source.allocations_detail.flatMap((value) => { const r = valueRecord(value); return r ? [r] : []; }) : [];
+  const chosen = selectedAllocation ? allocationRecords.find((a) => a.id === selectedAllocation) : undefined;
   return {
+    pharmacyNames: (chosen ? pharmacyNamesOf(chosen) : undefined) ?? pharmacyNamesOf(source),
     status: stringValue(source, ["status"]),
     items: orderItems.length ? orderItems : undefined,
     governedState: governedStep(stringValue(source, ["governed_state", "governedState"])),

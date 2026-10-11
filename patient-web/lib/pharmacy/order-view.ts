@@ -79,6 +79,28 @@ export function orderAction(status: string | undefined): OrderAction {
 
 export type OrderLine = { id: string; name: string; qty: number; sku?: string };
 
+export type PharmacyNames = { ar?: string; en?: string };
+
+/** The pharmacy's name in the reader's language: Arabic for ar, English for every other language; the other field only when one is missing; undefined when none (never an id). */
+export function pharmacyDisplayName(names: PharmacyNames | undefined, locale: string): string | undefined {
+  if (!names) return undefined;
+  return locale === "ar" ? names.ar ?? names.en : names.en ?? names.ar;
+}
+
+/** The names of the pharmacy filling an order: the selected allocation's when the order names one, else the order's own. */
+export function orderPharmacyNames(source: Record<string, unknown> | undefined): PharmacyNames | undefined {
+  if (!source) return undefined;
+  const read = (r: Record<string, unknown> | undefined): PharmacyNames | undefined => {
+    const ar = text(r?.pharmacy_name_ar);
+    const en = text(r?.pharmacy_name_en);
+    return ar || en ? { ar, en } : undefined;
+  };
+  const selected = text(source.selected_allocation_id);
+  const allocations = Array.isArray(source.allocations_detail) ? source.allocations_detail : [];
+  const match = selected ? allocations.map(record).find((a) => a && a.id === selected) : undefined;
+  return read(match ?? undefined) ?? read(source);
+}
+
 export type OrderDetail = {
   id: string;
   status?: string;
@@ -93,6 +115,8 @@ export type OrderDetail = {
   totals?: { subtotal?: number; deliveryFee?: number; total: number; currency?: string };
   address?: { label?: string; street?: string; district?: string; city?: string };
   courier?: { name?: string; phone?: string; eta?: string };
+  /** The filling pharmacy's names as the server sent them (#366/#375/#514): absent when it sent none. */
+  pharmacyName?: PharmacyNames;
   /** What the server logged, in the order it logged it (`order.timeline`). */
   events: Array<{ event: string; at?: string }>;
   dispatchedAt?: string;
@@ -138,6 +162,7 @@ export function parseOrderDetail(payload: unknown, locale: string): OrderDetail 
     }),
     totals: price.total === undefined ? undefined : { subtotal: num(snapshotTotals?.subtotal), deliveryFee: num(snapshotTotals?.delivery_fee), total: price.total, currency: price.currency },
     address: address ? { label: text(address.label), street: text(address.street) ?? text(address.line1), district: text(address.district), city: text(address.city) } : undefined,
+    pharmacyName: orderPharmacyNames(source),
     courier: courier && (courier.name || courier.phone || courier.eta) ? courier : undefined,
     events: timeline.flatMap((entry) => {
       const row = record(entry);

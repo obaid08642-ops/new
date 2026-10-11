@@ -35,8 +35,8 @@
     "screen": "/loyalty/hub",
     "element": "Copy referral code",
     "file": "patient-app/src/components/loyalty/LoyaltyHub.tsx",
-    "line": 368,
-    "found": "[client] the old button used react-native Clipboard, which RN 0.86 no longer has (it would crash); dropped, the Share sheet remains; needs a clipboard package (owner to approve the dependency)",
+    "line": 370,
+    "found": "[client] Fixed on design/clipboard (owner decision 5, 2026-10-10): expo-clipboard approved; Copy sends the referral code, Copied or an error notice shows, Share stays. Was: the old button used react-native Clipboard, which RN 0.86 no longer has",
     "suspect": "Client-side: later batch."
   },
   {

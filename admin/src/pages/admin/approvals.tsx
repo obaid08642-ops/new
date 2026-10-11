@@ -22,8 +22,6 @@ const ROWS: Row[] = [
     count: async () => asList(await adminFetch('/api/admin/admin/providers/provider-deltas')).length },
   { key: 'withdrawals', label: 'طلبات سحب المزودين', hint: 'تنفيذ التحويل أو الرفض', href: '/admin/payouts',
     count: async () => asList(await adminFetch('/api/admin/admin/finance/withdrawals/pending')).length },
-  { key: 'refunds', label: 'طلبات الاسترداد', hint: 'قرار الاسترداد', href: '/admin/insurance-queue',
-    count: async () => asList(await adminFetch('/api/admin/admin/finance/refunds/queue')).length },
   { key: 'returns', label: 'طلبات الإرجاع', hint: 'قيد المراجعة', href: '/admin/returns',
     count: async () => asList(await adminFetch('/api/admin/admin/returns?status=processing')).length },
   { key: 'changes', label: 'اقتراحات تعديل الأدوية', hint: 'تعديل حقول أو صنف جديد أو صورة', href: '/admin/medicines-catalog',

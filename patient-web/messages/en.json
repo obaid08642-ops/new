@@ -59,8 +59,8 @@
     "aiDesc": "Instant AI-powered symptom checker and triage",
     "mapTitle": "Facility Map Explorer",
     "mapDesc": "Discover nearby clinics, hospitals and pharmacies",
-    "emergencyTitle": "Emergency & SOS",
-    "emergencyDesc": "Instant emergency assistance and ambulance request",
+    "emergencyTitle": "Urgent help",
+    "emergencyDesc": "If you need help right away, call the urgent-help number set up for Nabd Plus.",
     "trustLicensed": "Certified & Licensed",
     "trustLicensedSub": "Verified healthcare practitioners",
     "trustGenuine": "100% Genuine Medicines",
@@ -94,7 +94,7 @@
     "svcMaternity": "Maternity",
     "svcMap": "Map",
     "svcHealth": "My health",
-    "svcEmergency": "Emergency",
+    "svcEmergency": "Urgent help",
     "aiTitle": "Smart medical assistant",
     "aiSub": "Describe your symptoms and get first guidance",
     "aiStart": "Start chat",
@@ -220,12 +220,12 @@
       "details": "Details"
     },
     "emptyTitle": "No orders yet",
-    "emptyBody": "Orders you send to pharmacies appear here.",
+    "emptyBody": "Your pharmacy, consultation, lab, radiology and nursing orders appear here.",
     "browse": "Browse medicines",
     "emptyCurrentTitle": "No current orders",
-    "emptyCurrentBody": "An order that is waiting for pharmacies or on its way appears here.",
+    "emptyCurrentBody": "An order that is waiting or on its way appears here.",
     "emptyPreviousTitle": "No previous orders",
-    "emptyPreviousBody": "Delivered and cancelled orders appear here.",
+    "emptyPreviousBody": "Finished and cancelled orders appear here.",
     "listErrorTitle": "Your orders could not be loaded",
     "unavailableTitle": "The order could not be loaded",
     "unavailableBody": "Check your connection and try again.",
@@ -239,7 +239,15 @@
     "pickupTitle": "Pickup",
     "pickupNote": "You collect this order from the pharmacy.",
     "priceTitle": "Price",
-    "total": "Total"
+    "total": "Total",
+    "kind": {
+      "consultation": "Consultation",
+      "labs": "Lab test",
+      "radiology": "Radiology scan",
+      "nursing": "Nursing visit"
+    },
+    "statusUnavailable": "Status unavailable",
+    "partialNote": "Some orders could not be loaded. The rest are shown below; try again in a moment."
   },
   "Cart": {
     "eyebrow": "Private cart",
@@ -273,6 +281,7 @@
     "remove": "Remove {name} from the cart",
     "removed": "{name} was removed from the cart",
     "needsRx": "Needs a prescription",
+    "onlineOnly": "Online only",
     "rxBannerTitle": "An item needs a prescription",
     "rxBannerBody": "Upload the prescription before sending the request",
     "rxBannerAction": "Upload",
@@ -686,7 +695,9 @@
     "emergencyPhone": "Mobile number",
     "emergencyRequired": "Enter the name and mobile number.",
     "emergencySaveError": "The contact could not be saved. Try again.",
-    "emergencySave": "Save"
+    "emergencySave": "Save",
+    "nextAppointment": "Your next appointment",
+    "nextAppointmentUnavailable": "Your next appointment could not be loaded right now."
   },
   "Prescriptions": {
     "title": "Prescriptions",
@@ -932,6 +943,20 @@
       "closed": "Read-only",
       "hoursLeft": "{count} h left",
       "minutesLeft": "{count} min left"
+    },
+    "composerTitle": "Message to the doctor",
+    "composerLabel": "Write your message",
+    "composerPlaceholder": "Write a message to the doctor",
+    "send": "Send",
+    "sending": "Sending…",
+    "sent": "Your message was sent.",
+    "sendRetry": "Try again",
+    "sendErrors": {
+      "invalid": "Write a message of up to 2000 characters.",
+      "signedOut": "Your session ended. Sign in and send again.",
+      "forbidden": "Messages can’t be sent in this conversation right now.",
+      "network": "Couldn’t connect. Your message hasn’t been sent yet; try again.",
+      "generic": "The message couldn’t be sent. Try again."
     }
   },
   "Sleep": {
@@ -1109,7 +1134,22 @@
     "connectionFailed": "Connection unavailable. Try again.",
     "confirmedTitle": "Your appointment is booked",
     "confirmedBody": "Appointment time: {slot}",
-    "bookAnother": "Book another slot"
+    "bookAnother": "Book another slot",
+    "quick": "Quick filters",
+    "nearest": "Nearest",
+    "availableNow": "Available now",
+    "nearestOnline": "\"Nearest\" applies to clinic and home visits only, not online consultations.",
+    "locating": "Finding your location…",
+    "nearestNoPlace": "Sorting by distance is not possible. Allow location access or save an address with a city.",
+    "nearestCity": "Doctors in {city}",
+    "visitType": "Consultation type",
+    "verifiedDoctor": "Verified doctor",
+    "licenseNumber": "Licence no. {number}",
+    "specialtyLabel": "Specialty",
+    "allSpecialties": "All specialties",
+    "paymentLabel": "Payment",
+    "payment_insurance": "Accepts insurance",
+    "payment_cash": "Cash only"
   },
   "LabsServices": {
     "eyebrow": "Laboratory care",
@@ -1213,7 +1253,8 @@
     "inStock": "In stock",
     "outOfStock": "Out of stock",
     "unavailableTitle": "Wishlist unavailable",
-    "unavailableBody": "Please try again later."
+    "unavailableBody": "Please try again later.",
+    "needsRx": "Needs a prescription"
   },
   "Search": {
     "title": "Search",
@@ -1277,15 +1318,12 @@
     }
   },
   "Emergency": {
-    "title": "Emergency",
-    "subtitle": "Press the SOS button only in critical situations. The response team is notified immediately.",
-    "trigger": "Send SOS emergency call",
-    "triggering": "Sending…",
-    "activeLabel": "SOS is active — the response team is on the way",
-    "cancel": "Cancel SOS",
-    "cancelling": "Cancelling…",
-    "error": "Could not complete the action right now",
-    "state": "State"
+    "title": "Urgent help",
+    "intro": "If you need help right away, call the urgent-help number set up for Nabd Plus.",
+    "call": "Call {number}",
+    "unavailable": "No urgent-help number has been set up yet, so there is nothing to call from here. If you are in danger, contact your local emergency services.",
+    "note": "Nabd Plus is not an emergency service and cannot send help to your location.",
+    "loadError": "The urgent-help number could not be loaded right now."
   },
   "Returns": {
     "title": "Return requests",
@@ -1357,7 +1395,13 @@
     "empty": "No addresses yet",
     "listLabel": "Address list",
     "unnamed": "Unnamed address",
-    "default": "Default"
+    "default": "Default",
+    "edit": "Edit",
+    "editTitle": "Edit address",
+    "cancel": "Cancel",
+    "removeConfirmTitle": "Confirm removing the address",
+    "removeConfirm": "Remove the address “{name}”? This can’t be undone.",
+    "removeConfirmYes": "Yes, remove"
   },
   "ShareReport": {
     "title": "Share Reports",
@@ -1461,7 +1505,11 @@
     "manufacturer": "Manufacturer",
     "emptyBody": "Select at least two medicines from the catalog to compare.",
     "browse": "Browse medicines",
-    "back": "Medicines"
+    "back": "Medicines",
+    "requires_prescription": "Prescription required",
+    "online_exclusive": "Online only",
+    "yes": "Yes",
+    "no": "No"
   },
   "PharmacyRequest": {
     "title": "Request a medicine by name",
@@ -1494,7 +1542,8 @@
     "viewProduct": "View the product",
     "another": "Look up another barcode",
     "requestByName": "Request it by name",
-    "errorLookup": "The barcode lookup failed. Try again."
+    "errorLookup": "The barcode lookup failed. Try again.",
+    "onlineOnly": "Online only"
   },
   "PharmacyChat": {
     "title": "Pharmacy negotiation",
@@ -1529,7 +1578,18 @@
     "back": "My appointments",
     "emptyBody": "No past calls yet.",
     "findDoctor": "Find a doctor",
-    "unknownDoctor": "Doctor"
+    "unknownDoctor": "Doctor",
+    "unavailableTitle": "We can't load your calls right now",
+    "unavailableBody": "Check your connection and try again.",
+    "videoCall": "Video call",
+    "voiceCall": "Voice call",
+    "status": {
+      "ended": "Call completed",
+      "rejected": "Declined",
+      "missed": "Missed call",
+      "active": "Call in progress",
+      "pending": "Pending call"
+    }
   },
   "PostCallRating": {
     "title": "Rate your consultation",
@@ -2362,7 +2422,7 @@
     "summaryPrescription": "Prescription",
     "summaryRecommendations": "Recommendations",
     "summaryFollowUp": "Follow-up recommended within {days} days",
-    "summaryFollowUpBody": "Book the follow-up now at a discounted rate inside the window.",
+    "summaryFollowUpBody": "Book the follow-up now, inside this window.",
     "actionBookFollowUp": "Book follow-up",
     "actionOrderMedicines": "Order medicines from pharmacy",
     "actionBookTests": "Book tests",
@@ -2538,6 +2598,7 @@
     "inviteCode": "Invite code",
     "inviteCopy": "Copy code",
     "inviteCopied": "Copied",
+    "inviteCopyFailed": "Could not copy. Select the code and copy it by hand.",
     "inviteFailed": "Couldn't create the invite. Try again.",
     "joinCodeHint": "Paste the code here",
     "joinRelation": "Relation (optional)",
@@ -3242,7 +3303,7 @@
       "insurance": "Insurance: {list}"
     },
     "pharmacies": {
-      "title": "Verified Pharmacies in {city}",
+      "title": "Pharmacies in {city}",
       "intro": "Pharmacies and medical centres listed in {city}.",
       "notice": "Your medicine order is sent to nearby pharmacies, and they answer with offers.",
       "list": "Pharmacies and medical centres",
@@ -3259,6 +3320,7 @@
       "privacy": "Privacy policy",
       "version": "Version {version} · Effective {date}",
       "versionOnly": "Version {version}",
+      "currentVersion": "This is the current version of the text. It will be replaced by the legally approved version before launch.",
       "back": "Back"
     },
     "provider": {
@@ -3280,12 +3342,12 @@
         "description": "Verified {specialty} doctors in {neighborhood}, {city}. Book consultations via Nabd Plus."
       },
       "homeNursing": {
-        "title": "Home Nursing Services in {city} | Licensed Care 24/7",
-        "description": "Verified and licensed home nursing care in {city}. Senior care, post-op, and daily assistance via Nabd Plus."
+        "title": "Home Nursing Services in {city} | Nabd Plus",
+        "description": "Book home nursing care in {city}: senior care, post-op care and daily assistance via Nabd Plus."
       },
       "labs": {
         "title": "{test} Lab Test in {city} | Home Sample Collection",
-        "description": "Book verified {test} lab test in {city} with home collection and fast results via Nabd Plus."
+        "description": "Book a {test} lab test in {city} with home sample collection via Nabd Plus."
       },
       "labsEmpty": {
         "title": "{test} in {city} — Be first provider | Nabd",
@@ -3293,7 +3355,7 @@
       },
       "radiology": {
         "title": "{service} Radiology in {city} | Diagnostic Imaging Centers",
-        "description": "Book verified {service} imaging appointments in {city} with accredited medical centers via Nabd Plus."
+        "description": "Book {service} imaging appointments in {city} at imaging centres on Nabd Plus."
       },
       "radiologyEmpty": {
         "title": "{service} in {city} — Be first center | Nabd",
@@ -3304,8 +3366,8 @@
         "description": "Verified {service} healthcare services in {city}. In-clinic and home care via Nabd Plus."
       },
       "pharmacies": {
-        "title": "Verified Pharmacies in {city} | Fast Medicine Delivery",
-        "description": "Find prescription and OTC medicines in {city} with instant geo-broadcast delivery via Nabd Plus."
+        "title": "Pharmacies in {city} | Order Medicines and Compare Offers",
+        "description": "Send your prescription or medicine order to pharmacies in {city} and compare their offers on Nabd Plus."
       },
       "pharmaciesEmpty": {
         "title": "Pharmacies in {city} — Be first partner | Nabd",
@@ -3319,6 +3381,19 @@
         "description": "{name} in {city}. Specialized healthcare services, accepted insurances, and verified physicians.",
         "country": "Saudi Arabia"
       }
+    },
+    "ld": {
+      "labTest": "{test} lab test in {city}",
+      "radiology": "{service} imaging in {city}",
+      "homeNursing": "Home nursing and medical visit services in {city}",
+      "crumbDiagnostics": "Diagnostics",
+      "crumbRadiology": "Radiology",
+      "crumbHomeCare": "Home care",
+      "crumbServices": "Services",
+      "crumbPharmacy": "Pharmacy",
+      "crumbFacilities": "Hospitals and clinics",
+      "crumbHealthGuide": "Health guide",
+      "crumbDoctors": "Doctors"
     }
   },
   "InsuranceWeb": {
@@ -3329,13 +3404,10 @@
     "tabs": "Insurance sections",
     "tabPolicy": "Policy",
     "tabBenefits": "Benefits",
-    "tabClaims": "Claims",
-    "tabRefunds": "Refunds",
     "tabNetwork": "Network",
     "shortcuts": "Insurance shortcuts",
     "addPolicy": "Add policy",
     "changePolicy": "Change policy",
-    "submitClaim": "Submit a claim",
     "coverageCheck": "What my policy covers",
     "noPolicyTitle": "No policy recorded",
     "planLine": "Class {plan}",
@@ -3358,17 +3430,6 @@
     "disclaimer": "Nabd+ does not contact your insurer. The facility requests the approval from your insurer in its own systems and records the decision here. You pay only your co-pay.",
     "benefitsEmpty": "No benefits to show.",
     "benefitTitle": "Insurance benefit",
-    "claimsEmpty": "No claims yet.",
-    "claimServiceUnknown": "Insurance service",
-    "claimStatus": {
-      "approved": "Approved",
-      "reimbursed": "Reimbursed",
-      "pending": "Pending",
-      "rejected": "Rejected",
-      "unknown": "Status unavailable"
-    },
-    "refundsEmpty": "No refunds.",
-    "refundTitle": "Refund",
     "networkNoPolicy": "No saved policy. Add your policy first to see network providers.",
     "networkSearch": "Search by provider name",
     "networkEmpty": "No network providers to show.",
@@ -3386,27 +3447,6 @@
       "submit": "Save policy",
       "invalid": "Select a company and enter a valid policy number (at least 3 characters).",
       "failed": "Could not save the policy."
-    },
-    "claim": {
-      "title": "Submit a claim",
-      "lead": "Pick a paid booking to claim.",
-      "booking": "Paid booking",
-      "loading": "Loading…",
-      "none": "No paid bookings are eligible for a claim.",
-      "placeholder": "Pick…",
-      "note": "Note (optional)",
-      "submit": "Submit claim",
-      "pick": "Pick a paid booking to claim.",
-      "failed": "Could not submit the claim.",
-      "done": "Claim submitted.",
-      "viewClaims": "View claims",
-      "kind": {
-        "consultation": "Medical consultation",
-        "pharmacy": "Medicines",
-        "lab": "Lab tests",
-        "radiology": "Radiology",
-        "nursing": "Home nursing"
-      }
     },
     "coverage": {
       "title": "What my policy covers",
@@ -3562,7 +3602,11 @@
     "noProviders": "No providers are available for this offer right now",
     "errorTitle": "Offers could not be loaded",
     "empty": "Check back soon, new offers are added all the time.",
-    "error": "Check your connection and try again."
+    "error": "Check your connection and try again.",
+    "share": "Share offer",
+    "shareDone": "Shared.",
+    "shareCopied": "Link copied.",
+    "shareFailed": "Couldn’t share. Copy the link from the address bar."
   },
   "SettingsWeb": {
     "hubTitle": "Settings",
@@ -3681,7 +3725,6 @@
     "aboutRules": "Cancellation and refunds",
     "aboutRulesUnavailable": "The cancellation and refund policy could not be loaded right now.",
     "ruleCancelFull": "An appointment can be cancelled up to {hours} hours before its time for a full refund.",
-    "ruleCancelLate": "Cancelling less than {hours} hours before costs {fee}% of the booking.",
     "ruleRefundDays": "Refunds arrive within {min} to {max} business days.",
     "ruleReturnDays": "Unused products can be returned within {days} days of receipt."
   },
@@ -3771,5 +3814,10 @@
     "message": "Type your message",
     "attach": "Attach an image",
     "send": "Send"
+  },
+  "Modules": {
+    "unavailableTitle": "This service is unavailable right now",
+    "unavailableBody": "We have paused this service for the moment. You can keep using the rest of the site.",
+    "unavailableHome": "Back to Home"
   }
 }

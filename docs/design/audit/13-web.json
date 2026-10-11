@@ -120,6 +120,7 @@
       "elements": [
         ["Policy text (headings, paragraphs, bullets)", "GET /legal/policy/privacy_policy?lang= content", "fixed"],
         ["Version and date it applies from", "version, effective_date", "ok"],
+        ["Embedded copy of the official text when the legal service is down (issue 755/783)", "lib/legal/embedded-policies.ts, generated from docs/legal by scripts/embed-legal-policies.mjs; used only when the service cannot be reached AND the text is approved (not a draft, no [placeholder]); the texts are drafts today, so an outage still shows the unavailable page", "gap"],
         ["Hard-coded Arabic policy text shown in every language", "removed", "fixed"]
       ]
     },
@@ -128,6 +129,7 @@
       "elements": [
         ["Policy text (headings, paragraphs, bullets)", "GET /legal/policy/patient_terms?lang= content", "fixed"],
         ["Version and date it applies from", "version, effective_date", "ok"],
+        ["Embedded copy of the official text when the legal service is down (issue 755/783)", "lib/legal/embedded-policies.ts, generated from docs/legal by scripts/embed-legal-policies.mjs; used only when the service cannot be reached AND the text is approved (not a draft, no [placeholder]); the texts are drafts today, so an outage still shows the unavailable page", "gap"],
         ["Hard-coded Arabic terms shown in every language", "removed", "fixed"]
       ]
     },
@@ -245,9 +247,10 @@
       "route": "/medicine-catalog",
       "element": "Page text and static rules",
       "kind": "owner",
-      "note": "The intro says the page gives no pricing while the cards show prices and add to cart; and the page reads ?q= and ?page= so it is dynamic: the F82-3 query twin (not on this base) would make it static.",
+      "note": "Resolved by issue 797: the page is now a permanentRedirect to /c (q and page kept), so the old intro and the dynamic query read are gone; the canonical /c page keeps its own text.",
       "file": "patient-web/app/[locale]/medicine-catalog/page.tsx",
-      "line": 102
-    }
+      "line": 11
+    },
+    { "route": "/terms", "element": "Embedded fallback text", "kind": "owner", "note": "The embedded copy (issue 755/783) is built from docs/legal, which are drafts with [placeholders] until a Saudi lawyer approves them, so it stays off today. After approval: update docs/legal, run node patient-web/scripts/embed-legal-policies.mjs, commit the generated file. Only Arabic exists; every other language would show the Arabic text.", "file": "patient-web/lib/legal/embedded.ts", "line": 15 }
   ]
 }

@@ -34,15 +34,39 @@ export function readReorderLines(response: unknown): ReorderLine[] {
   });
 }
 
+/** What of the earlier order the new request carries besides its lines: the saved prescription and the receiving method. */
+export interface ReorderMeta {
+  prescriptionId: string | null;
+  fulfillment: 'delivery' | 'pickup' | null;
+}
+
+/**
+ * The earlier order's saved prescription (`prescription_id`) and receiving method (`fulfillment`). The prescription record
+ * has no validity date field (only a state), so the id is carried whenever the order has one; the server checks on create
+ * that it is the patient's own and answers not found otherwise (the screen then shows the usual send error).
+ */
+export function readReorderMeta(response: unknown): ReorderMeta {
+  const root = response && typeof response === 'object' ? (response as Record<string, unknown>) : null;
+  const order = (root?.data && typeof root.data === 'object' ? (root.data as Record<string, unknown>) : root) ?? {};
+  const fulfillment = text(order.fulfillment);
+  return { prescriptionId: text(order.prescription_id), fulfillment: fulfillment === 'pickup' || fulfillment === 'delivery' ? fulfillment : null };
+}
+
 type DraftItem = { raw_name: string; qty: number; sku?: string; intake_source: string };
 
 /** The request body for the lines kept, with the delivery address; a line without a matched code carries no `sku`. */
 export function reorderBody<D extends { items: DraftItem[] }>(
   lines: ReorderLine[],
   address: DeliveryAddress,
-  build: (items: Array<{ id: string; sku?: string; name: string; qty: number; intake_source: string }>, address: DeliveryAddress) => D,
+  build: (items: Array<{ id: string; sku?: string; name: string; qty: number; intake_source: string }>, address: DeliveryAddress, attachment?: string, opts?: { fulfillment?: 'delivery' | 'pickup'; prescription_id?: string }) => D,
+  meta?: ReorderMeta,
 ): D {
-  const draft = build(lines.map((l) => ({ id: l.key, sku: l.sku ?? undefined, name: l.name, qty: l.qty, intake_source: 'cart' })), address);
+  const draft = build(
+    lines.map((l) => ({ id: l.key, sku: l.sku ?? undefined, name: l.name, qty: l.qty, intake_source: 'cart' })),
+    address,
+    undefined,
+    { fulfillment: meta?.fulfillment ?? undefined, prescription_id: meta?.prescriptionId ?? undefined },
+  );
   // the builder falls back to the line id for the code; an order item id is not one
   return { ...draft, items: draft.items.map((item, i): DraftItem => (lines[i].sku ? item : { ...item, sku: undefined })) };
 }
