@@ -18,7 +18,7 @@ import { PharmacyOfferService } from './services/pharmacy-offer.service';
 import { PharmacyInsuranceDecisionService } from './services/pharmacy-insurance-decision.service';
 import { PharmacyExpiryCommandService } from './services/pharmacy-expiry-command.service';
 import { PharmacyPaymentEvidenceService } from './services/pharmacy-payment-evidence.service';
-import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsuranceDto, SelectOfferDto, AcceptFinalQuoteDto, RegisterCodDto, AcceptInsuranceDto, ItemActionDto, OutDto, DeliveredDto, InsuranceDecisionDto, CancelDto3, SetTrackingDto, RestockDto, SampleOrderDto, PreviewOfferDto, DraftOfferDto, RejectDto, PostDto, ReportDto, CreateDto2, MarkShortageDto, RejectDto5, SetCodPolicyDto } from './pharmacy.controllers.dto';
+import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsuranceDto, SelectOfferDto, AcceptFinalQuoteDto, RegisterCodDto, AcceptInsuranceDto, ItemActionDto, OutDto, DeliveredDto, InsuranceDecisionDto, CancelDto3, SetTrackingDto, RestockDto, SampleOrderDto, PreviewOfferDto, DraftOfferDto, RejectDto, PostDto, ReportDto, CreateDto2, MarkShortageDto, RejectDto5, SetCodPolicyDto, AdminUpdateSfdaPriceDto } from './pharmacy.controllers.dto';
 
 // =========================================================================
 //  PATIENT ENDPOINTS (/api/v2/patient/pharmacy/*)
@@ -179,33 +179,58 @@ export class AdminPharmacyController {
     ]);
     return { items, total, page, limit };
   }
-  @Post('expire-stale-allocations') expireStale() { return this.allocs.expireStale(); }
 
-  // D-12: Admin price-review list for items above catalogue price
+  // D-12: Admin price review list - supports both offers with not_verified/above_catalogue lines and price_review collection
   @Get('price-review') async priceReview(@Query() q: any) {
-    const col = (this.allocs as any).orders.db.collection('pharmacy_price_review');
+    const db = (this.allocs as any).orders.db;
+    const type = String(q?.type || 'offers'); // 'offers' or 'price_review'
+    const page = Math.max(1, Number(q?.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(q?.limit) || 25));
+    
+    if (type === 'price_review') {
+      const col = db.collection('pharmacy_price_review');
+      const filter: any = {};
+      if (q?.order_id) filter.order_id = String(q.order_id);
+      if (q?.offer_id) filter.offer_id = String(q.offer_id);
+      if (q?.pharmacy_account_id) filter.pharmacy_account_id = String(q.pharmacy_account_id);
+      if (q?.sku) filter.sku = String(q.sku);
+      if (q?.status) filter.status = String(q.status);
+      if (q?.from || q?.to) {
+        filter.created_at = {};
+        if (q.from) filter.created_at.$gte = new Date(String(q.from));
+        if (q.to) filter.created_at.$lte = new Date(String(q.to));
+      }
+      const [items, total] = await Promise.all([
+        col.find(filter).sort({ created_at: -1 }).skip((page - 1) * limit).limit(limit).toArray(),
+        col.countDocuments(filter),
+      ]);
+      return { items, total, page, limit };
+    }
+    
+    // Default: query pharmacy_offers for not_verified or above_catalogue_price lines
+    const col = db.collection('pharmacy_offers');
     const filter: any = {};
     if (q?.order_id) filter.order_id = String(q.order_id);
-    if (q?.offer_id) filter.offer_id = String(q.offer_id);
     if (q?.pharmacy_account_id) filter.pharmacy_account_id = String(q.pharmacy_account_id);
-    if (q?.sku) filter.sku = String(q.sku);
-    if (q?.status) filter.status = String(q.status);
     if (q?.from || q?.to) {
       filter.created_at = {};
       if (q.from) filter.created_at.$gte = new Date(String(q.from));
       if (q.to) filter.created_at.$lte = new Date(String(q.to));
     }
-    const page = Math.max(1, Number(q?.page) || 1);
-    const limit = Math.min(100, Math.max(1, Number(q?.limit) || 25));
+    filter.$or = [
+      { 'items.not_verified': true },
+      { 'items.above_catalogue_price': true },
+    ];
     const [items, total] = await Promise.all([
-      col.find(filter).sort({ created_at: -1 }).skip((page - 1) * limit).limit(limit).toArray(),
+      col.find(filter, { projection: { _id: 0, id: 1, order_id: 1, pharmacy_account_id: 1, items: 1, totals: 1, createdAt: 1, status: 1 } })
+        .sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).toArray(),
       col.countDocuments(filter),
     ]);
     return { items, total, page, limit };
   }
 
   // D-12: Admin update catalogue price (sfda_price) - audit logged
-  @Patch('medicines/admin/catalog/:id') async updateCatalogPrice(@Param('id') id: string, @Body() body: { sfda_price?: number }, @CurrentUser() u: any) {
+  @Patch('medicines/admin/catalog/:id') async updateCatalogPrice(@Param('id') id: string, @Body() body: AdminUpdateSfdaPriceDto, @CurrentUser() u: any) {
     const newPrice = Number(body?.sfda_price);
     if (!Number.isFinite(newPrice) || newPrice < 0) throw new BadRequestException('sfda_price_must_be_positive_number');
     const col = (this.allocs as any).orders.db.collection('medicines');

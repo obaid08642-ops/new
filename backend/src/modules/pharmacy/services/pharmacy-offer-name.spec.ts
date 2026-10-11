@@ -8,7 +8,7 @@ describe('PharmacyOfferService patient offer name', () => {
     const orders: any = { findOne: () => lean({ id: 'o-1', patient_account_id: 'p-1', delivery_address: {} }) };
     const offers: any = { find: () => lean([offer]) };
     const connection: any = { collection: () => ({ findOne: async () => ({ account_id: 'ph-1', business_name: 'صيدلية الشفاء' }) }) };
-    const service = new PharmacyOfferService(connection, offers, orders, {} as any, {} as any, {} as any, {} as any, {} as any);
+    const service = new PharmacyOfferService(connection, offers, orders, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any);
     const [out]: any[] = await service.listForPatient({ id: 'p-1' }, 'o-1');
     expect(out.pharmacy_name_ar).toBe('صيدلية الشفاء');
     expect(out.pharmacy_name_en).toBe('صيدلية الشفاء');

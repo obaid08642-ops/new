@@ -7,6 +7,7 @@ import { PharmacyAllocationState, PharmacyOrderState } from '../schemas/pharmacy
 import { EventBusService } from '../../events/event-bus.service';
 import { BusinessRulesService } from '../../business-rules/business-rules.module';
 import { PharmacyNotificationService } from './pharmacy-notification.service';
+import { Medicine } from '../../../schemas/medicine.schema';
 
 const OFFER_TTL_MS = 10 * 60_000;
 const ACTIVE_PHARMACY_STATUSES = ['approved', 'active'];
@@ -40,6 +41,7 @@ export class PharmacyOfferService {
     @InjectModel('PharmacyBroadcast') private readonly broadcasts: Model<any>,
     @InjectModel('PharmacyInventoryItem') private readonly inventory: Model<any>,
     @InjectModel('ProviderAccount') private readonly accounts: Model<any>,
+    @InjectModel('Medicine') private readonly medicines: Model<any>,
     private readonly bus: EventBusService,
     @Optional() private readonly pricing?: BusinessRulesService,
     @Optional() private readonly pharmacyNotif?: PharmacyNotificationService,
@@ -202,6 +204,47 @@ export class PharmacyOfferService {
     for (const orderItem of order.items) {
       items.push(await this.inventoryForOffer(userId, orderItem, byOrderItem.get(orderItem.id)!));
     }
+
+    // D-12: Price ceiling validation against catalogue sfda_price
+    for (const item of items) {
+      if (item.action === 'unavailable') continue;
+      
+      // Try to find matching medicine in catalogue
+      let medicine: any = null;
+      if (item.sku) {
+        medicine = await this.medicines.findOne({ sku: Number(item.sku) }).lean();
+      }
+      if (!medicine && item.order_item_id) {
+        // Try to match by medicine_id from order item
+        const orderItem = order.items.find((oi: any) => oi.id === item.order_item_id);
+        if (orderItem?.medicine_id) {
+          medicine = await this.medicines.findOne({ id: orderItem.medicine_id }).lean();
+        }
+      }
+      
+      if (medicine && medicine.sfda_price != null && medicine.sfda_price > 0) {
+        const ceiling = Number(medicine.sfda_price);
+        const offeredPrice = Number(item.unit_price);
+        if (offeredPrice > ceiling) {
+          throw new BadRequestException({
+            code: 'price_above_catalogue',
+            message: `Price ${offeredPrice} exceeds catalogue ceiling ${ceiling} for ${medicine.name_ar || medicine.name_en || medicine.id}`,
+            catalogue_price: ceiling,
+            offered_price: offeredPrice,
+            medicine_id: medicine.id,
+          });
+        }
+        // Mark item with catalogue price for reference
+        item.catalogue_price = ceiling;
+        item.above_catalogue_price = false;
+      } else if (!medicine) {
+        // Cannot map to catalogue - mark as not verified
+        item.not_verified = true;
+        item.catalogue_price = null;
+        item.above_catalogue_price = false;
+      }
+    }
+
     const subtotal = items.reduce((sum, item) => sum + (item.action === 'unavailable' ? 0 : item.unit_price * item.qty_offered), 0);
     // R6-4: delivery fee comes from the saved platform pricing (admin config-portal).
     let deliveryFee = 0;
@@ -288,6 +331,22 @@ export class PharmacyOfferService {
       { new: true },
     );
     if (!offer) throw new BadRequestException('offer_not_submittable');
+
+    // D-12: check for not_verified items - cannot submit while unverified lines exist
+    const notVerified = (offer.items || []).filter((item: any) => item.not_verified === true);
+    if (notVerified.length) {
+      throw new BadRequestException({
+        code: 'price_not_verified',
+        message: 'Offer contains lines that could not be verified against the catalogue',
+        unverified_count: notVerified.length,
+        unverified_items: notVerified.map((item: any) => ({
+          order_item_id: item.order_item_id,
+          sku: item.sku || null,
+          name_ar: item.name_ar || null,
+          name_en: item.name_en || null,
+        })),
+      });
+    }
 
     // D-12: check for price_above_catalogue items and add to admin price-review
     const priceWarnings = (offer.items || []).filter((item: any) => item.above_catalogue_price === true);

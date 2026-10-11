@@ -147,7 +147,29 @@ export class PharmacyOrderService {
     const allocationsDetail = allocs.map((a: any) => ({ ...a, ...(names.get(a.pharmacy_account_id) ?? { pharmacy_name_ar: null, pharmacy_name_en: null }) }));
     const pharmacies = [...new Set(allocs.map((a: any) => a.pharmacy_account_id).filter(Boolean))];
     const single = pharmacies.length === 1 ? names.get(pharmacies[0] as string) : undefined;
-    return { ...order, effective_status, allocations_detail: allocationsDetail, pharmacy_name_ar: single?.pharmacy_name_ar ?? null, pharmacy_name_en: single?.pharmacy_name_en ?? null, ...view };
+
+    // D-13: Add search state for pharmacy orders
+    let search: any = undefined;
+    if (String(order.status) === PharmacyOrderState.BROADCASTING) {
+      const broadcast: any = await this.conn.collection('pharmacy_broadcasts').findOne({ order_id: id });
+      if (broadcast) {
+        search = {
+          state: 'expanding',
+          round: broadcast.current_round,
+          radius_km: broadcast.current_radius_km,
+          ends_at: broadcast.round_expires_at,
+        };
+      }
+    } else if (String(order.status) === PharmacyOrderState.MANUAL_REVIEW) {
+      // Check if it was closed due to broadcast expiry
+      const hasBroadcastExpiry = order.timeline?.some((t: any) => t.event === 'broadcast_expired_manual_review');
+      if (hasBroadcastExpiry) {
+        search = { state: 'no_pharmacy_available' };
+        view.governed_state = 'AUTO_CANCELLED';
+      }
+    }
+
+    return { ...order, effective_status, allocations_detail: allocationsDetail, pharmacy_name_ar: single?.pharmacy_name_ar ?? null, pharmacy_name_en: single?.pharmacy_name_en ?? null, ...view, search };
   }
 
   /** Display names of pharmacies by account id, from their profile (the same names the offers list shows). */

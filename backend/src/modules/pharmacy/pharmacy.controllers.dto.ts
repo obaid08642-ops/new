@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, MaxLength, ValidateNested, Min } from 'class-validator';
 import { AllocationItemAction } from './schemas/pharmacy.schema';
 import { Type } from 'class-transformer';
 
@@ -297,6 +297,19 @@ export class RestockDto {
   qty?: number;
 
 }
+
+
+export class AdminUpdateSfdaPriceDto {
+  @IsNumber()
+  @Min(0)
+  sfda_price: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  sfda_price_reason?: string;
+}
+
 
 export class SampleOrderDto {
   @IsOptional()
