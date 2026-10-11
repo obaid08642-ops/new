@@ -59,6 +59,41 @@ export class AppointmentsService {
   /** ===== Create ===== */
 
   /**
+   * 660: resolve a prescription line to its catalogue medicine id by exact name
+   * (any stored language). Null when the line names no catalogue item.
+   */
+  private async resolvePrescriptionMedicineId(name: unknown): Promise<string | null> {
+    const needle = String(name || '').trim().toLowerCase();
+    if (!needle) return null;
+    try {
+      const col = (this.connection as any)?.collection?.('medicines') ?? (this.connection as any)?.db?.collection?.('medicines');
+      if (!col) return null;
+      const rows: any[] = await col.find({}).toArray();
+      for (const m of rows) {
+        const names = [m?.name_ar, m?.name_en, ...(m?.translations && typeof m.translations === 'object' ? Object.values(m.translations).map((t: any) => t?.name) : [])]
+          .filter((n) => typeof n === 'string' && n.trim()).map((n: string) => n.trim().toLowerCase());
+        if (names.includes(needle)) return m.id || null;
+      }
+    } catch {
+      return null;
+    }
+    return null;
+  }
+
+  /** 661/683: the consultation outcome's lab + radiology referrals, if the doctor issued any. */
+  private async outcomeReferrals(appt: any): Promise<{ lab_tests: string[]; radiology_scans: string[] } | null> {
+    try {
+      const col = (this.connection as any)?.collection?.('encounterreferrals') ?? (this.connection as any)?.db?.collection?.('encounterreferrals');
+      if (!col || !appt?._id) return null;
+      const ref: any = await col.findOne({ appointment_id: appt._id });
+      if (!ref) return null;
+      return { lab_tests: ref.requested_lab_tests || [], radiology_scans: ref.requested_radiology_scans || [] };
+    } catch {
+      return null;
+    }
+  }
+
+  /**
    * D-38: the first online (video) consultation needs the current telehealth_consent.
    * Throws telehealth_consent_required when the patient has not accepted it. When the
    * deployment configures no such policy (or the connection double has no collections),
@@ -511,9 +546,15 @@ export class AppointmentsService {
     if (!appt) throw new NotFoundException();
     await this.assertAppointmentAccess(appt, user);
     if (body && (body.diagnosis || body.notes || body.recommendations || (Array.isArray(body.prescription) && body.prescription.length))) {
+      // 660: keep the catalogue id per line (sent by the doctor app, else resolved by name).
+      const lines: any[] = [];
+      for (const line of (Array.isArray(body.prescription) ? body.prescription : [])) {
+        const name = line?.name;
+        lines.push({ ...line, medicine_id: line?.medicine_id || await this.resolvePrescriptionMedicineId(name) });
+      }
       appt.summary = {
         diagnosis: body.diagnosis, notes: body.notes, recommendations: body.recommendations,
-        prescription: Array.isArray(body.prescription) ? body.prescription : [],
+        prescription: lines,
         follow_up_recommended: !!body.follow_up_recommended,
         follow_up_window_days: body.follow_up_window_days != null ? Number(body.follow_up_window_days) : undefined,
         written_at: new Date(),
@@ -560,7 +601,13 @@ export class AppointmentsService {
     if (!appt.summary || !(appt.summary.diagnosis || appt.summary.notes || (appt.summary.prescription || []).length)) {
       throw new NotFoundException('summary not available yet');
     }
-    return { doctor_id: appt.doctor_id, ...appt.summary };
+    // 660: backfill catalogue ids for legacy lines; 661/683: attach outcome referrals.
+    const prescription: any[] = [];
+    for (const line of appt.summary.prescription || []) {
+      prescription.push({ ...line, medicine_id: line?.medicine_id || await this.resolvePrescriptionMedicineId(line?.name) });
+    }
+    const referrals = await this.outcomeReferrals(appt);
+    return { doctor_id: appt.doctor_id, ...appt.summary, prescription, ...(referrals ? { referrals } : {}) };
   }
 
   async reschedule(id: string, user: any, body: { slot_start: string }) {
