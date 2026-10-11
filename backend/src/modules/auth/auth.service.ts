@@ -25,6 +25,7 @@ import { randomUUID } from 'crypto';
 import { GuestService } from './guest.service';
 import { AccountLinkingService } from './account-linking.service';
 import { PasswordSecurityService } from '../../common/password-security.service';
+import { OtpAbuseGuard } from '../../common/otp-abuse.service';
 
 @Injectable()
 export class AuthService {
@@ -57,6 +58,8 @@ export class AuthService {
     @Optional() private linking?: AccountLinkingService,
     // 16.2: length + breached-password policy, applied before anything is stored.
     @Optional() private passwordSecurity?: PasswordSecurityService,
+    // 16.3: SMS pumping — per-IP fan-out, country allow-list, daily budget.
+    @Optional() private otpAbuse?: OtpAbuseGuard,
   ) {}
 
   /**
@@ -365,7 +368,7 @@ export class AuthService {
    * DTO for an unknown identifier to prevent account enumeration. The OTP and
    * its bcrypt hash are written only when an active account actually exists.
    */
-  async requestPatientOtp(identifier: string) {
+  async requestPatientOtp(identifier: string, ip?: string) {
     AuthService.assertString(identifier, 'identifier');
     const normalized = this.normalizeOtpIdentifier(identifier);
     const rate = await this.redisService.checkRateLimit(
@@ -375,6 +378,16 @@ export class AuthService {
     );
     if (!rate.allowed) {
       throw new HttpException({ message: 'otp_rate_limited', code: 'otp_rate_limited', statusCode: HttpStatus.TOO_MANY_REQUESTS }, HttpStatus.TOO_MANY_REQUESTS);
+    }
+
+    // 16.3: SMS pumping — served countries only, bounded fan-out per IP, and
+    // a daily budget that stops sends instead of failing at the provider.
+    const abuse = await this.otpAbuse?.check(normalized, ip);
+    if (abuse && !abuse.allowed) {
+      throw new HttpException(
+        { message: abuse.code, code: abuse.code, statusCode: HttpStatus.TOO_MANY_REQUESTS },
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
     }
 
     const user = await this.userModel.findOne(normalized.includes('@') ? { email: normalized } : { phone: normalized });
@@ -1123,7 +1136,7 @@ export class AuthService {
     return base;
   }
 
-  async sendOtp(identifier: string, purpose?: string) {
+  async sendOtp(identifier: string, purpose?: string, ip?: string) {
     AuthService.assertString(identifier, 'identifier');
     const normalized = this.normalizeOtpIdentifier(identifier);
     const rateLimitKey = this.otpIssueRateKey(normalized);
@@ -1133,6 +1146,18 @@ export class AuthService {
     const { allowed } = await this.redisService.checkRateLimit(rateLimitKey, maxAttempts, windowSeconds);
     if (!allowed) {
       throw new HttpException('Too many OTP requests. Please try again after 1 hour.', HttpStatus.TOO_MANY_REQUESTS);
+    }
+
+    // 16.3: SMS pumping. A botnet asking for codes against numbers it does not
+    // own burns the product's SMS budget, so the number must be on the served
+    // list, one IP may only fan out over a bounded set of numbers, and the
+    // daily budget stops sends rather than failing at the provider.
+    const abuse = await this.otpAbuse?.check(normalized, ip);
+    if (abuse && !abuse.allowed) {
+      throw new HttpException(
+        { message: abuse.code, code: abuse.code, statusCode: HttpStatus.TOO_MANY_REQUESTS },
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
     }
 
     const isEmail = normalized.includes('@');

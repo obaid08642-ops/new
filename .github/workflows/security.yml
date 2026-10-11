@@ -27,3 +27,35 @@ jobs:
           GITLEAKS_ENABLE_COMMENTS: 'false'
           GITLEAKS_ENABLE_SUMMARY: 'true'
         # gitleaks-action exits non-zero when leaks are found, failing the job.
+
+  # Phase 16.7 — npm audit as a gate: 0 high/critical runtime findings.
+  npm-audit:
+    name: npm audit (runtime, high/critical = 0)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install the backend (audit does not need a build)
+        working-directory: backend
+        run: npm ci --ignore-scripts
+      - name: Fail on high or critical runtime vulnerabilities
+        working-directory: backend
+        # --production: dev-only tooling is not what ships.
+        run: npm audit --audit-level=high --omit=dev
+
+  # Phase 16.7 — container image scanning.
+  trivy:
+    name: Trivy (dependency and filesystem scan)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan the backend dependency tree
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: backend
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          ignore-unfixed: true
