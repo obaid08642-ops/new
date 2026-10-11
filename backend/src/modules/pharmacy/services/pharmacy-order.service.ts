@@ -49,6 +49,34 @@ export class PharmacyOrderService {
     if (owned !== new Set(files).size) throw new NotFoundException('prescription_attachment_not_found');
   }
 
+  /**
+   * A-0 (Q-11 done right): the patient's attachment ids become `{ type, uri }` rows that the pharmacy
+   * screens and the Rx rules read. A file id must be the patient's own storage object; its type comes
+   * from the stored mime and the uri is the access-checked `/api/v1/storage/:id` (no base64, no raw
+   * bucket URL). An id of the patient's own prescription is not a file: it becomes the order's
+   * `prescription_id` when none was sent. Anything else (client-made objects, foreign ids) is dropped;
+   * assertOwnPrescriptionRefs already answered unknown ids with 404.
+   */
+  private async resolvePrescriptionAttachments(user: any, raw: unknown): Promise<{ files: Array<{ type: 'image' | 'pdf' | 'voice' | 'text'; uri: string }>; prescriptionId?: string }> {
+    const ids = [...new Set((Array.isArray(raw) ? raw : [])
+      .filter((a: unknown): a is string => typeof a === 'string' && a.trim() !== '')
+      .map((a) => a.trim()))];
+    if (!ids.length) return { files: [] };
+    const ownRx = await this.conn.collection('prescriptions')
+      .find({ id: { $in: ids }, patient_id: { $eq: user.id } }, { projection: { _id: 0, id: 1 } }).toArray();
+    const rxIds = new Set(ownRx.map((r: any) => r.id));
+    const fileIds = ids.filter((id) => !rxIds.has(id));
+    const stored = fileIds.length
+      ? await this.conn.collection('storage_objects')
+        .find({ id: { $in: fileIds }, owner_account_id: { $eq: user.id }, deleted: { $ne: true } }, { projection: { _id: 0, id: 1, mime: 1 } }).toArray()
+      : [];
+    const mimeOf = new Map(stored.map((o: any) => [o.id, String(o.mime || '').toLowerCase()]));
+    const typeOf = (mime: string): 'image' | 'pdf' | 'voice' | 'text' =>
+      mime.startsWith('image/') ? 'image' : mime === 'application/pdf' ? 'pdf' : mime.startsWith('audio/') ? 'voice' : 'text';
+    const files = fileIds.filter((id) => mimeOf.has(id)).map((id) => ({ type: typeOf(mimeOf.get(id)!), uri: `/api/v1/storage/${encodeURIComponent(id)}` }));
+    return { files, prescriptionId: ownRx[0]?.id };
+  }
+
   async create(user: any, body: any) {
     assertPatient(user);
     const sanitize = (str: any) => String(str || '').replace(/[<>]/g, '').trim();
@@ -79,6 +107,7 @@ export class PharmacyOrderService {
     }
     if (!items.length && !body.prescription_id) throw new BadRequestException('items_required');
     await this.assertOwnPrescriptionRefs(user, body);
+    const attachments = await this.resolvePrescriptionAttachments(user, body.prescription_attachments);
     const addr = body.delivery_address || {};
     const geo = addr.geo || (addr.lat && addr.lng ? { lat: Number(addr.lat), lng: Number(addr.lng) } : null);
     const normalizedAddress = { ...addr, ...(geo ? { geo } : {}) };
@@ -89,7 +118,7 @@ export class PharmacyOrderService {
       items,
       delivery_address: normalizedAddress,
       patient_notes: body.patient_notes,
-      prescription_id: typeof body.prescription_id === 'string' ? body.prescription_id : undefined,
+      prescription_id: typeof body.prescription_id === 'string' ? body.prescription_id : attachments.prescriptionId,
       manual_request: manual ? { name: sanitize(manual.name).slice(0, 200), details: typeof manual.details === 'string' ? sanitize(manual.details).slice(0, 500) : null } : undefined,
       payment_method: typeof body.payment_method === 'string' ? body.payment_method : 'cash',
       // F73: draft fulfillment + payment mode (validated by DTO enums).
@@ -97,7 +126,7 @@ export class PharmacyOrderService {
       payment_mode: body.payment_mode === 'insurance' ? 'insurance' : 'cash',
       insurance_policy_id: typeof body.insurance_policy_id === 'string' ? body.insurance_policy_id : undefined,
       delivery_address_id: typeof body.delivery_address_id === 'string' ? body.delivery_address_id : undefined,
-      prescription_attachments: body.prescription_attachments || [],
+      prescription_attachments: attachments.files,
       totals: { subtotal: 0, delivery_fee: 0, total: 0, currency: 'SAR' },
       timeline: [{ ts: new Date(), event: 'created' }],
     });
@@ -351,7 +380,11 @@ export class PharmacyOrderService {
     if (body.patient_notes !== undefined) order.patient_notes = body.patient_notes;
     // D-10: a prescription can be attached after the draft was created (the cart adds an Rx item later).
     await this.assertOwnPrescriptionRefs(user, body);
-    if (Array.isArray(body.prescription_attachments)) order.prescription_attachments = body.prescription_attachments;
+    if (Array.isArray(body.prescription_attachments)) {
+      const attachments = await this.resolvePrescriptionAttachments(user, body.prescription_attachments);
+      order.prescription_attachments = attachments.files;
+      if (typeof body.prescription_id !== 'string' && attachments.prescriptionId) order.prescription_id = attachments.prescriptionId;
+    }
     if (typeof body.prescription_id === 'string') order.prescription_id = body.prescription_id;
     order.timeline.push({ ts: new Date(), event: 'edited' });
     await order.save();
