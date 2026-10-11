@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Query, ForbiddenException, BadRequestException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, ForbiddenException, BadRequestException, UseGuards, Param } from '@nestjs/common';
+import { Public } from '../../common/auth.guard'; '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { CurrentUser, JwtAuthGuard, SelfService } from '../../common/auth.guard';
@@ -26,6 +27,19 @@ export class PatientHomeCareController {
       .limit(lim)
       .toArray();
     return { data: docs.map(({ _id, ...d }: any) => d) };
+  }
+
+  @Public() @Get('providers/:providerAccountId/slots')
+  providerSlots(
+    @Param('providerAccountId') providerAccountId: string,
+    @Query('date') date: string,
+    @Query('duration') duration?: string
+  ) {
+    const dur = duration ? parseInt(duration, 10) : 30;
+    if (!Number.isInteger(dur) || dur < 10 || dur > 120) {
+      throw new BadRequestException('duration must be an integer between 10 and 120 minutes');
+    }
+    return this.homeSvc.slotsForProvider(providerAccountId, date, dur);
   }
 
   @Get('packages')
