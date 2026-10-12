@@ -30,19 +30,19 @@ describe('InsuranceFlowService.providerDecideBooking (LJ-03)', () => {
   it('creates the request from the booking and maps full approval', async () => {
     const { service, created } = setup({ booking: LAB_BOOKING, policy: { company_id: 'c-1' } });
 
-    const result = await service.providerDecideBooking(USER, 'lab', 'lab-b1', { decision: 'approved' });
+    const result = await service.providerDecideBooking(USER, 'lab', 'lab-b1', { decision: 'approved', approval_ref: 'APR-1' });
 
     expect(created[0]).toMatchObject({ patient_id: 'patient-1', provider_id: 'lab-account-1', booking_kind: 'lab', price: 300 });
-    expect(service.decide).toHaveBeenCalledWith(USER, 'req-1', { decision: 'approve_full' });
+    expect(service.decide).toHaveBeenCalledWith(USER, 'req-1', { decision: 'approve_full', approval_ref: 'APR-1' });
     expect(result.state).toBe('APPROVED_FULL');
   });
 
   it('turns a copay amount into a partial approval with a server-computed percent', async () => {
     const { service } = setup({ booking: LAB_BOOKING });
 
-    await service.providerDecideBooking(USER, 'lab', 'lab-b1', { decision: 'partial', totalCopay: 90, reason: 'some items excluded' });
+    await service.providerDecideBooking(USER, 'lab', 'lab-b1', { decision: 'partial', totalCopay: 90, reason: 'some items excluded', approval_ref: 'APR-2' });
 
-    expect(service.decide).toHaveBeenCalledWith(USER, 'req-1', { decision: 'approve_partial', copay_percent: 30 });
+    expect(service.decide).toHaveBeenCalledWith(USER, 'req-1', { decision: 'approve_partial', copay_percent: 30, approval_ref: 'APR-2' });
   });
 
   it('requires a rejection reason and validates the decision value', async () => {
