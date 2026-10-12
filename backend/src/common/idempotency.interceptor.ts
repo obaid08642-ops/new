@@ -46,22 +46,35 @@ export class IdempotencyInterceptor implements NestInterceptor {
     const cacheKey = `idempotency:${scope}:${idempotencyKey}`;
     const requestHash = createHash('sha256').update(JSON.stringify(request.body || {})).digest('hex');
     const redis = this.redis.getClient();
-    const cachedResponse = await this.redis.getClient().get(cacheKey);
+    const cachedResponse = await redis.get(cacheKey);
 
+    // 15.2: a record WITHOUT a request_hash was written by an older writer and
+    // carries no body to compare, so replaying it would answer a reused key
+    // with a DIFFERENT body from the stale response instead of rejecting it.
+    // Such a row is a MISS: the write executes and the persist below heals it
+    // into the hashed shape, so the next replay is a real one.
     if (cachedResponse) {
-      const cached = JSON.parse(cachedResponse);
-      // Compatibility with records written by the former interceptor is kept
-      // only inside the new user/path scope; new records always carry a hash.
-      if (cached?.request_hash && cached.request_hash !== requestHash) {
-        throw new BadRequestException('idempotency_key_reused_with_different_request');
+      let cached: any;
+      try {
+        cached = JSON.parse(cachedResponse);
+      } catch {
+        cached = null;
       }
-      const response = cached?.response ?? cached;
-      return of(response && typeof response === 'object' ? { ...response, idempotent_replay: true } : response);
+      if (typeof cached?.request_hash === 'string') {
+        if (cached.request_hash !== requestHash) {
+          throw new BadRequestException('idempotency_key_reused_with_different_request');
+        }
+        const response = cached?.response ?? cached;
+        return of(response && typeof response === 'object' ? { ...response, idempotent_replay: true } : response);
+      }
     }
 
     const lockKey = `${cacheKey}:lock`;
     const lockAcquired = await redis.set(lockKey, '1', 'EX', 120, 'NX');
-    if (!lockAcquired) {
+    // Only the literal OK from SET NX means "the lock is mine"; anything else
+    // (null on contention, an error string, an unexpected client reply) must
+    // not let a second financial mutation through.
+    if (lockAcquired !== 'OK') {
       // A parallel request with the same user/method/path/key must not execute
       // a second financial mutation before the first response is persisted.
       throw new ConflictException('idempotency_request_in_progress');
