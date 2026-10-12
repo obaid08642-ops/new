@@ -18,6 +18,8 @@ import { getEffectiveRoles } from '../../common/auth.guard';
 
 const ALLOWED_ROLES_PROVIDER = ['radiology', 'admin', 'hospital'];
 
+import { nearestFirst } from '../provider/services/nearest-first';
+
 @Injectable()
 export class RadiologyOpsService {
   constructor(
@@ -381,51 +383,21 @@ export class RadiologyOpsService {
     if (opts.search) q.$text = { $search: opts.search };
     if (opts.home_only) q.home_visit_supported = true;
 
-    // #623: nearest filter - geo-based sorting by provider distance
-    if (opts.nearest && typeof opts.lat === 'number' && typeof opts.lng === 'number') {
-      const userLoc = { lat: opts.lat, lng: opts.lng };
-      // Fetch approved providers with geo location
-      const providers = await this.profileModel.find({
-        type: { $in: ['radiology', 'hospital'] },
-        status: 'active',
-        public_eligibility: true,
-        medical_review_status: 'approved',
-        'geo.lat': { $exists: true, $ne: null },
-        'geo.lng': { $exists: true, $ne: null }
-      }, { projection: { _id: 0, account_id: 1, geo: 1 } }).lean();
-      
-      // Calculate distance for each provider
-      const providerDistances = new Map<string, number>();
-      for (const p of providers) {
-        if (p.geo && typeof p.geo.lat === 'number' && typeof p.geo.lng === 'number') {
-          const dist = this.geo.distanceKm({ lat: opts.lat, lng: opts.lng }, { lat: p.geo.lat, lng: p.geo.lng });
-          providerDistances.set(p.account_id, dist);
-        }
-      }
-      
-      // Get all services first, then enrich with nearest provider distance
-      const services = await this.svcModel.find(q).lean();
-      
-      // Enrich services with nearest provider distance
-      const servicesWithDistance = services.map((svc: any) => {
-        let minDist = Number.POSITIVE_INFINITY;
-        // Check compatible providers for this service
-        const providerIds = svc.equipment_list ? svc.equipment_list.map((e: any) => e.provider_id).filter(Boolean) : [];
-        // Also check compatible providers
-        const compatible = await this.compatibleProviders([svc.id]);
-        for (const cp of compatible) {
-          const dist = providerDistances.get(cp.id);
-          if (dist !== undefined && dist < minDist) minDist = dist;
-        }
-        return { ...svc, nearest_provider_km: minDist === Number.POSITIVE_INFINITY ? null : Math.round(minDist * 10) / 10 };
-      });
-      
-      // Sort by nearest provider distance
-      servicesWithDistance.sort((a, b) => (a.nearest_provider_km ?? Number.POSITIVE_INFINITY) - (b.nearest_provider_km ?? Number.POSITIVE_INFINITY));
-      
-      return servicesWithDistance.slice(0, 120);
+    // #623: "nearest" orders scans by the closest approved centre that performs them (same rule as
+    // compatibleProviders: the centre's equipment_list holds the scan id or its modality).
+    if (opts.nearest && Number.isFinite(opts.lat) && Number.isFinite(opts.lng)) {
+      const here = { lat: opts.lat as number, lng: opts.lng as number };
+      const centres: any[] = await this.profileModel.find({
+        type: { $in: ['radiology', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
+        'geo.lat': { $type: 'number' }, 'geo.lng': { $type: 'number' },
+      }, { _id: 0, geo: 1, equipment_list: 1 }).lean();
+      const services: any[] = await this.svcModel.find(q).lean();
+      return nearestFirst(services, centres, here, (svc, centre) => {
+        const has: unknown[] = Array.isArray(centre.equipment_list) ? centre.equipment_list : [];
+        return has.includes(svc.id) || (!!svc.modality && has.includes(svc.modality));
+      }).slice(0, 120);
     }
-    
+
     if (!this.redis?.getWithSWR) return this.svcModel.find(q).sort({ popularity: -1 }).lean();
     const cacheKey = `cache:radiology-services:public:v1:${JSON.stringify(opts)}`;
     return this.redis.getWithSWR(cacheKey, 900, async () => this.svcModel.find(q).sort({ popularity: -1 }).lean());

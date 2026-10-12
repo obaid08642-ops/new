@@ -24,6 +24,8 @@ import { BusinessRulesService } from '../business-rules/business-rules.module';
 import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
 import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
 
+import { nearestFirst } from '../provider/services/nearest-first';
+
 @Injectable()
 export class LabsService {
   constructor(
@@ -48,7 +50,7 @@ export class LabsService {
     // Explicitly exclude any imaging entries — those belong to the separate Radiology module.
     q.$and = [{ category: { $ne: 'imaging' } }, { sample_type: { $ne: 'imaging' } }];
     if (opts.search) {
-      const re = new RegExp(opts.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\$&'), 'i');
+      const re = new RegExp(opts.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
       q.$or = [{ name_ar: re }, { name_en: re }, { short_code: re }];
     }
     
@@ -56,49 +58,22 @@ export class LabsService {
     if (opts.highest_rated) sortObj = { rating: -1, popularity: -1 };
     else if (opts.lowest_price) sortObj = { price: 1, popularity: -1 };
 
-    // #623: nearest filter - geo-based sorting by provider distance
-    if (opts.nearest && typeof opts.lat === 'number' && typeof opts.lng === 'number') {
-      const userLoc = { lat: opts.lat, lng: opts.lng };
-      // Fetch approved providers with geo location
-      const providers = await this.providerProfiles.find({
-        type: { $in: ['lab', 'hospital'] },
-        status: 'active',
-        public_eligibility: true,
-        medical_review_status: 'approved',
-        'geo.lat': { $exists: true, $ne: null },
-        'geo.lng': { $exists: true, $ne: null }
-      }, { projection: { _id: 0, account_id: 1, geo: 1 } }).lean();
-      
-      // Calculate distance for each provider
-      const providerDistances = new Map<string, number>();
-      for (const p of providers) {
-        if (p.geo && typeof p.geo.lat === 'number' && typeof p.geo.lng === 'number') {
-          const dist = this.geo.distanceKm(userLoc, { lat: p.geo.lat, lng: p.geo.lng });
-          providerDistances.set(p.account_id, dist);
-        }
-      }
-      
-      // Get all services first, then enrich with nearest provider distance
-      const services = await this.svcModel.find(q, { _id: 0, __v: 0 }).lean();
-      
-      // Enrich services with nearest provider distance
-      const servicesWithDistance = services.map((svc: any) => {
-        let minDist = Number.POSITIVE_INFINITY;
-        // Check compatible providers for this service
-        const providerIds = svc.compatible_providers || [];
-        for (const pid of providerIds) {
-          const dist = providerDistances.get(pid);
-          if (dist !== undefined && dist < minDist) minDist = dist;
-        }
-        return { ...svc, nearest_provider_km: minDist === Number.POSITIVE_INFINITY ? null : Math.round(minDist * 10) / 10 };
-      });
-      
-      // Sort by nearest provider distance
-      servicesWithDistance.sort((a, b) => (a.nearest_provider_km ?? Number.POSITIVE_INFINITY) - (b.nearest_provider_km ?? Number.POSITIVE_INFINITY));
-      
-      return servicesWithDistance.slice(0, 120);
+    // #623: "nearest" orders tests by the closest approved lab that runs them (same compatibility rule as
+    // compatibleProviders: the lab's test_categories hold the test id or its category). Without a valid
+    // location the normal order is kept.
+    if (opts.nearest && Number.isFinite(opts.lat) && Number.isFinite(opts.lng)) {
+      const here = { lat: opts.lat as number, lng: opts.lng as number };
+      const labs: any[] = await this.providerProfiles.find({
+        type: { $in: ['lab', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
+        'geo.lat': { $type: 'number' }, 'geo.lng': { $type: 'number' },
+      }, { projection: { _id: 0, geo: 1, test_categories: 1 } }).lean();
+      const services: any[] = await this.svcModel.find(q, { _id: 0, __v: 0 }).lean();
+      return nearestFirst(services, labs, here, (svc, lab) => {
+        const runs: unknown[] = Array.isArray(lab.test_categories) ? lab.test_categories : [];
+        return runs.includes(svc.id) || (!!svc.category && runs.includes(svc.category));
+      }).slice(0, 120);
     }
-    
+
     if (!this.redis?.getWithSWR) return this.svcModel.find(q, { _id: 0, __v: 0 }).sort(sortObj).limit(120);
     const cacheKey = `cache:lab-services:public:v1:${JSON.stringify(opts)}`;
     return this.redis.getWithSWR(cacheKey, 900, async () => this.svcModel.find(q, { _id: 0, __v: 0 }).sort(sortObj).limit(120));

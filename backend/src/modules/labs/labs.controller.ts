@@ -29,8 +29,8 @@ export class LabsController {
       highest_rated: hr === 'true' || hr === '1',
       nearest: nr === 'true' || nr === '1',
       lowest_price: lp === 'true' || lp === '1',
-      lat: lat ? parseFloat(lat) : undefined,
-      lng: lng ? parseFloat(lng) : undefined
+      lat: lat !== undefined && Number.isFinite(Number(lat)) ? Number(lat) : undefined,
+      lng: lng !== undefined && Number.isFinite(Number(lng)) ? Number(lng) : undefined
     });
   }
 
