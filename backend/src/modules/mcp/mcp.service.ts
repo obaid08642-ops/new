@@ -5,6 +5,7 @@ import { SearchIntentService } from '../search-intent/search-intent.service';
 import { EntityGraphService } from '../entity-graph/entity-graph.service';
 import { LocationService } from '../location/location.service';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
+import { AGENT_TOOL_SCOPES, issuer, mcpHost } from '../agent-oauth/agent-oauth.constants';
 
 export interface McpToolDefinition {
   name: string;
@@ -143,6 +144,87 @@ export const MCP_TOOLS: McpToolDefinition[] = [
   },
 ];
 
+/**
+ * AC-2 (docs/review/AGENT_COMMERCE_SPEC_2026-10-12.md): MCP Streamable HTTP
+ * transport versions this endpoint speaks. `2025-06-18` is current; `2024-11-05`
+ * stays so the existing JSON-RPC body shape (WebMCP, llms.txt docs) keeps working.
+ */
+export const MCP_PROTOCOL_VERSIONS = ['2025-06-18', '2024-11-05'] as const;
+export const MCP_LATEST_PROTOCOL_VERSION = '2025-06-18';
+export const MCP_LEGACY_PROTOCOL_VERSION = '2024-11-05';
+
+/**
+ * Version negotiation for `initialize`: echo the client's version when supported,
+ * offer the latest when it asks for something unknown, and keep the legacy version
+ * when it sends none (the old JSON-RPC shape has no version field).
+ */
+export function negotiateProtocolVersion(requested?: unknown): string {
+  if (typeof requested === 'string') {
+    return (MCP_PROTOCOL_VERSIONS as readonly string[]).includes(requested) ? requested : MCP_LATEST_PROTOCOL_VERSION;
+  }
+  return MCP_LEGACY_PROTOCOL_VERSION;
+}
+
+/**
+ * AC-2: the server card both as JSON here and at `/.well-known/mcp/server-card.json`.
+ * It names the Streamable HTTP transport plus the OAuth requirement and scopes, so an
+ * assistant knows which tools are anonymous and which need a patient sign-in (AC-1).
+ *
+ * URL rule (owner: nothing invented, and the AI discovery contract test collects every
+ * absolute URL): absolute URLs below are only ones that resolve today — the MCP endpoint
+ * paths (proxied in deploy/nginx/conf.d/mcp.conf) and the site metadata (a real web route).
+ * The RFC 9728 document itself is discovered through the 401 `WWW-Authenticate` header
+ * (the normative flow, covered by acceptance case 4), so it stays a relative path here.
+ */
+export function buildMcpServerCard() {
+  const publicUrl = (mcpHost() || 'https://mcp.nabd.plus').replace(/\/$/, '');
+  const site = (issuer() || 'https://nabd.plus').replace(/\/$/, '');
+  return {
+    schema: 'https://modelcontextprotocol.io/server-card/v0',
+    name: 'Nabd Plus Healthcare MCP Server',
+    description: 'Unified Model Context Protocol (MCP) server for Saudi healthcare discovery, consultation booking, and pharmacy services.',
+    version: '1.0.0',
+    protocol: {
+      transport: 'streamable-http',
+      versions_supported: [...MCP_PROTOCOL_VERSIONS],
+      json_responses: true,
+      sse: false,
+      endpoint: `${publicUrl}/api/v1/mcp`,
+    },
+    capabilities: {
+      tools: true,
+      resources: true,
+      prompts: false,
+    },
+    endpoints: {
+      mcp_rpc: `${publicUrl}/api/v1/mcp`,
+      tools: `${publicUrl}/api/v1/mcp/tools`,
+      server_card: `${publicUrl}/api/v1/mcp/server-card`,
+    },
+    authorization: {
+      type: 'oauth2',
+      authorization_server: site,
+      authorization_server_metadata: `${site}/.well-known/oauth-authorization-server`,
+      // Relative on purpose: absolute MCP-host metadata URLs are not in backend/openapi.json
+      // (generated with the /api/v1 prefix), so the discovery contract test cannot resolve them.
+      resource_metadata_path: '/.well-known/oauth-protected-resource/api/v1/mcp',
+      public_tools_anonymous: true,
+      scopes: {
+        'agent:read': 'Read the patient’s own orders, bookings and pharmacy offers.',
+        'agent:order': 'Send an OTC pharmacy request and read its offers. The patient selects an offer and pays on Nabd Plus.',
+        'agent:book': 'Hold a consultation, lab or nursing slot. The patient confirms and pays on Nabd Plus.',
+      },
+      authenticated_tools: { ...AGENT_TOOL_SCOPES },
+    },
+    tools: MCP_TOOLS.map((t) => t.name),
+    status: 'active',
+    governance: {
+      prescription_enforcement: 'strict_sfda_compliant',
+      booking_confirmation: 'user_approval_required',
+    },
+  };
+}
+
 @Injectable()
 export class McpService {
   private readonly logger = new Logger(McpService.name);
@@ -176,21 +258,27 @@ export class McpService {
     const { id, method, params } = body;
 
     switch (method) {
-      case 'initialize':
+      case 'initialize': {
+        // AC-2: Streamable HTTP version negotiation; the old shape (no version sent)
+        // keeps getting the legacy version (WebMCP and the llms.txt docs point at it).
+        const version = negotiateProtocolVersion((params as { protocolVersion?: unknown } | undefined)?.protocolVersion);
         return {
           jsonrpc: '2.0',
           id,
           result: {
-            protocolVersion: '2024-11-05',
+            protocolVersion: version,
             serverInfo: {
               name: 'nabdah-mcp-server',
               version: '1.0.0',
             },
             capabilities: {
-              tools: {},
+              tools: {
+                listChanged: false,
+              },
             },
           },
         };
+      }
 
       case 'notifications/initialized':
         return { jsonrpc: '2.0', id, result: {} };
@@ -245,6 +333,43 @@ export class McpService {
           },
         };
     }
+  }
+
+  /**
+   * AC-2: Streamable HTTP entry point. Validates the `MCP-Protocol-Version` request
+   * header (unknown versions are refused before any tool runs) and reports which
+   * version the returned body speaks, so the controller can echo it back in the
+   * `MCP-Protocol-Version` response header. JSON responses; no SSE stream.
+   */
+  async handleRpcRequestWithProtocol(
+    body: { jsonrpc?: string; id?: any; method?: string; params?: any },
+    headerVersion?: string,
+  ): Promise<{ version: string; response: any }> {
+    if (
+      headerVersion !== undefined &&
+      !(MCP_PROTOCOL_VERSIONS as readonly string[]).includes(headerVersion)
+    ) {
+      return {
+        version: headerVersion,
+        response: {
+          jsonrpc: '2.0',
+          id: body?.id ?? null,
+          error: {
+            code: -32600,
+            message: 'unsupported_protocol_version',
+            data: { error_code: 'UNSUPPORTED_PROTOCOL_VERSION', supported: [...MCP_PROTOCOL_VERSIONS] },
+          },
+        },
+      };
+    }
+    if (body?.method === 'initialize') {
+      const version = negotiateProtocolVersion(
+        (body.params as { protocolVersion?: unknown } | undefined)?.protocolVersion ?? headerVersion,
+      );
+      const response = await this.handleRpcRequest({ ...body, params: { ...body.params, protocolVersion: version } });
+      return { version, response };
+    }
+    return { version: headerVersion ?? MCP_LEGACY_PROTOCOL_VERSION, response: await this.handleRpcRequest(body) };
   }
 
   /**

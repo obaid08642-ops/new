@@ -18,6 +18,8 @@ import { getEffectiveRoles } from '../../common/auth.guard';
 
 const ALLOWED_ROLES_PROVIDER = ['radiology', 'admin', 'hospital'];
 
+import { nearestFirst } from '../provider/services/nearest-first';
+
 @Injectable()
 export class RadiologyOpsService {
   constructor(
@@ -380,10 +382,27 @@ export class RadiologyOpsService {
     if (opts.body_part) q.body_part = { $eq: opts.body_part };
     if (opts.search) q.$text = { $search: opts.search };
     if (opts.home_only) q.home_visit_supported = true;
+
+    // #623: "nearest" orders scans by the closest approved centre that performs them (same rule as
+    // compatibleProviders: the centre's equipment_list holds the scan id or its modality).
+    if (opts.nearest && Number.isFinite(opts.lat) && Number.isFinite(opts.lng)) {
+      const here = { lat: opts.lat as number, lng: opts.lng as number };
+      const centres: any[] = await this.profileModel.find({
+        type: { $in: ['radiology', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
+        'geo.lat': { $type: 'number' }, 'geo.lng': { $type: 'number' },
+      }, { _id: 0, geo: 1, equipment_list: 1 }).lean();
+      const services: any[] = await this.svcModel.find(q).lean();
+      return nearestFirst(services, centres, here, (svc, centre) => {
+        const has: unknown[] = Array.isArray(centre.equipment_list) ? centre.equipment_list : [];
+        return has.includes(svc.id) || (!!svc.modality && has.includes(svc.modality));
+      }).slice(0, 120);
+    }
+
     if (!this.redis?.getWithSWR) return this.svcModel.find(q).sort({ popularity: -1 }).lean();
     const cacheKey = `cache:radiology-services:public:v1:${JSON.stringify(opts)}`;
     return this.redis.getWithSWR(cacheKey, 900, async () => this.svcModel.find(q).sort({ popularity: -1 }).lean());
   }
+
 
   async modalities() {
     return this.svcModel.distinct('modality', { is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' });

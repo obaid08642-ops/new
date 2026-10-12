@@ -200,7 +200,7 @@ const NURSING_WIZARD: WizardConfig<NurseRegData> = {
     },
     signatoryRoleHint: { ar: 'مثال: المالك، المدير التنفيذي', en: 'e.g. Owner, CEO' },
     signatureTitle: { ar: 'توقيع الممثل المفوض', en: 'Authorized Signature' },
-    agree: { ar: 'أوافق على شروط وأحكام نبضة بلس وسياسة الخصوصية.', en: 'I agree to Nabdah Plus Terms & Privacy Policy.' },
+    agree: { ar: 'أوافق على شروط وأحكام نبض بلس وسياسة الخصوصية.', en: 'I agree to Nabd+ Terms & Privacy Policy.' },
     submitLabel: { ar: 'إرسال الطلب للمراجعة', en: 'Submit Application' },
     precheck: (data, AR) => {
       if (!data.nameAr.trim() || !data.nameEn.trim() || !data.managerEmail.trim() || !data.city.trim() || !data.address.trim()) {
