@@ -35,7 +35,8 @@ vi.mock("@/lib/api/public-config-server", () => ({ getDisabledModules: async () 
 const LOCALES = ["ar", "en", "ur", "hi", "bn", "fil"] as const;
 const ORIGIN = "https://nabd.plus";
 const props = (locale: string, feature: string) => ({ params: Promise.resolve({ locale, feature }) });
-const decode = (s: string) => s.replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+// &amp; last, so an escaped entity such as "&amp;lt;" decodes once, to "&lt;".
+const decode = (s: string) => s.replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
 
 function jsonLd(html: string): Array<Record<string, any>> {
   const blocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
