@@ -422,9 +422,9 @@ export class InsuranceFlowService {
     }
     if (copay > 0) {
       const pct = Math.min(99, Math.max(1, Math.round((copay / Math.max(1, Number(req.price) || 1)) * 100)));
-      return this.decide(user, req.id, { decision: 'approve_partial', copay_percent: pct });
+      return this.decide(user, req.id, { decision: 'approve_partial', copay_percent: pct, approval_ref: code });
     }
-    return this.decide(user, req.id, { decision: 'approve_full' });
+    return this.decide(user, req.id, { decision: 'approve_full', approval_ref: code });
   }
 
   /** LJ-03: one decision entry point for a provider on any service booking
@@ -458,18 +458,20 @@ export class InsuranceFlowService {
     if (req.state !== 'PENDING_PROVIDER_REVIEW') return req.toObject();
 
     const decision = String(body?.decision || body?.status || '').trim().toLowerCase();
-    const code = typeof body?.approval_code === 'string' ? body.approval_code.trim() : '';
+    // D-37: the insurer's approval number entered by the provider (approval_ref; approval_code and
+    // decision_reference are the older names some provider screens send). decide() requires it to approve.
+    const code = [body?.approval_ref, body?.approval_code, body?.decision_reference].find((v) => typeof v === 'string' && v.trim())?.trim() || '';
     if (code) await this.requests.updateOne({ id: req.id }, { $set: { insurer_approval_code: code } });
-    if (['approved', 'approve_full', 'full', 'approved_full'].includes(decision)) return this.decide(user, req.id, { decision: 'approve_full' });
+    if (['approved', 'approve_full', 'full', 'approved_full'].includes(decision)) return this.decide(user, req.id, { decision: 'approve_full', approval_ref: code });
     if (['partial', 'partial_approval', 'approve_partial'].includes(decision)) {
       const pct = Number(body?.copay_percent);
       const copay = Number(body?.copay ?? body?.totalCopay ?? 0) || 0;
-      if (pct > 0) return this.decide(user, req.id, { decision: 'approve_partial', copay_percent: pct });
+      if (pct > 0) return this.decide(user, req.id, { decision: 'approve_partial', copay_percent: pct, approval_ref: code });
       if (copay > 0) {
         const computed = Math.min(99, Math.max(1, Math.round((copay / Math.max(1, Number(req.price) || 1)) * 100)));
-        return this.decide(user, req.id, { decision: 'approve_partial', copay_percent: computed });
+        return this.decide(user, req.id, { decision: 'approve_partial', copay_percent: computed, approval_ref: code });
       }
-      return this.decide(user, req.id, { decision: 'approve_full' });
+      return this.decide(user, req.id, { decision: 'approve_full', approval_ref: code });
     }
     if (['rejected', 'reject'].includes(decision)) {
       const reason = String(body?.reason || body?.rejectReason || code || '').trim();

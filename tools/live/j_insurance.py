@@ -151,7 +151,7 @@ def insured_lab(pat, lab, other_lab, location='facility'):
     r = other_lab.patch(f'/labs/bookings/{bid}/insurance', {'status': 'approved', 'totalCopay': 0, 'items': []})
     step('another lab cannot decide this booking\'s insurance', r.status in (403, 404), r)
     items = [{'service_id': p['id'], 'isCovered': i == 0, 'rejectReason': None if i == 0 else 'غير مشمول', 'cashPrice': p.get('price')} for i, p in enumerate(picks)]
-    r = lab.patch(f'/labs/bookings/{bid}/insurance', {'status': 'partial_approval', 'totalCopay': 20, 'items': items})
+    r = lab.patch(f'/labs/bookings/{bid}/insurance', {'status': 'partial_approval', 'totalCopay': 20, 'items': items, 'approval_ref': f'APR-{bid[:8]}'})
     step('the assigned lab records a partial approval', r.ok and r.get('insurance_status') == 'partial_approval', r)
     rid = r.get('insurance_request_id')
     r = pat.get(f'/labs/bookings/{bid}')
