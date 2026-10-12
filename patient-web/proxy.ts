@@ -13,9 +13,9 @@ function isPublicLocaleHome(pathname: string) {
 // Indexable public surfaces: locale homes, articles, the v14 product pages
 // /{lang}/p/{slug}, category clusters /{lang}/c…, catalogue landing, plus the
 // public SEO detail surfaces that already emit index:true metadata
-// (doctor/facility/condition/pharmacies/labs/radiology/services/doctors-specialty).
+// (doctor/facility/condition/pharmacies/labs/radiology/services/doctors-specialty), and the feature pages /{lang}/features/{slug}.
 const LOCALE = "(?:ar|en|ur|hi|bn|fil)";
-const PUBLIC_INDEXABLE = new RegExp(`^\\/${LOCALE}(?:\\/(?:articles(?:\\/[^/]+)?|p\\/[^/]+|c(?:\\/.*)?|medicine-catalog|consultations\\/doctors(?:\\/[^/]+)?|diagnostics\\/labs(?:\\/[^/]+)?|diagnostics\\/radiology(?:\\/[^/]+)?|nursing\\/catalog|map|doctor\\/[^/]+|facility\\/[^/]+|condition\\/[^/]+|pharmacies(?:\\/[^/]+)?|labs(?:\\/[^/]+(?:\\/[^/]+)?)?|radiology(?:\\/[^/]+(?:\\/[^/]+)?)?|services(?:\\/[^/]+(?:\\/[^/]+)?)?|doctors\\/[^/]+(?:\\/[^/]+(?:\\/[^/]+)?)?|home-nursing(?:\\/[^/]+)?))?\\/?$`);
+const PUBLIC_INDEXABLE = new RegExp(`^\\/${LOCALE}(?:\\/(?:articles(?:\\/[^/]+)?|p\\/[^/]+|c(?:\\/.*)?|medicine-catalog|consultations\\/doctors(?:\\/[^/]+)?|diagnostics\\/labs(?:\\/[^/]+)?|diagnostics\\/radiology(?:\\/[^/]+)?|nursing\\/catalog|map|doctor\\/[^/]+|facility\\/[^/]+|condition\\/[^/]+|pharmacies(?:\\/[^/]+)?|labs(?:\\/[^/]+(?:\\/[^/]+)?)?|radiology(?:\\/[^/]+(?:\\/[^/]+)?)?|services(?:\\/[^/]+(?:\\/[^/]+)?)?|doctors\\/[^/]+(?:\\/[^/]+(?:\\/[^/]+)?)?|home-nursing(?:\\/[^/]+)?|features\\/[^/]+))?\\/?$`);
 
 function isPublicIndexable(pathname: string) {
   return isPublicLocaleHome(pathname) || PUBLIC_INDEXABLE.test(pathname);

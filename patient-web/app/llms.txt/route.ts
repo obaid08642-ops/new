@@ -15,6 +15,18 @@ const llmsText = `# Nabd Plus
 - [Arabic articles](/ar/articles): Public article listing, populated only from published backend content.
 - [English articles](/en/articles): Public article listing, populated only from published backend content.
 
+## Features
+
+Public pages that describe what each Nabd Plus feature does today (all six languages at /{lang}/features/{slug}); using a feature needs a signed-in account.
+
+- [Medication reminders](/ar/features/medication-reminders): Save reminders with a dose, frequency and times, see today's doses, refill dates and chronic medicines.
+- [Pregnancy](/ar/features/pregnancy): Pregnancy week, trimester and due date from your entries, logged kicks and contractions, baby growth and a cycle estimate.
+- [Mental health](/ar/features/mental-health): Mood journal, breathing and meditation sessions and booking with psychiatry doctors; no diagnosis or scoring, urgent help is a call to the configured urgent-help number.
+- [Nutrition](/ar/features/nutrition): Log meals and follow today's calories and water against daily targets you set.
+- [Family](/ar/features/family): Family group with per-member permissions, a family calendar, family chat and emergency contacts.
+- [Loyalty](/ar/features/loyalty): Nabd points balance and tier, rewards, health challenges and referral codes.
+- [Online consultations](/ar/features/online-consultations): Book a video consultation with a doctor, pay online in advance, join the call from the appointment and message the doctor inside the booking.
+
 ## Public product catalog (v14)
 
 - [Product pages](/{lang}/p/{slug}): Fully localized product pages per locale (ar, en, ur, hi, bn, fil) with price (SAR), availability, dosage form, strength, active ingredient and structured data (Product, MedicalDrug, FAQPage, BreadcrumbList).
