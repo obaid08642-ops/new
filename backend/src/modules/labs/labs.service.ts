@@ -10,6 +10,7 @@ import { LabServiceRepository } from "./repositories/labservice.repository";
 import { LabBookingRepository } from "./repositories/labbooking.repository";
 import { LabSampleRepository } from "./repositories/labsample.repository";
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
+import { LabTestCatalogItem, LabTestCatalogItemDocument } from '../../provider/schemas/capabilities.schema';
 import { pick } from '../../common/sanitize';
 
 /** P3.3 (F15): writable catalog fields — LabService model vocabulary (lab.schema).
@@ -37,6 +38,8 @@ export class LabsService {
     private readonly bus: EventBusService,
     private readonly engine: WorkflowEngineService,
     private readonly pdfService: LabPdfService,
+        private readonly geo: GeoEngineService,
+        @InjectModel(LabTestCatalogItem.name) private readonly labCatalog: Model<LabTestCatalogItemDocument>,
     @Optional() private readonly redis?: RedisService,
     @Optional() private readonly pricing?: BusinessRulesService,
     @Optional() private readonly insurance?: InsuranceFlowService,
@@ -121,6 +124,108 @@ export class LabsService {
       logo: profile.logo || null,
     }));
   }
+
+
+
+
+  async getCarousel(category?: string, limit = 20) {
+    const q: any = { active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' };
+    if (category) q.category = category;
+    q.$and = [{ category: { $ne: 'imaging' } }, { sample_type: { $ne: 'imaging' } }];
+    
+    const services = await this.svcModel.find(q, { _id: 0, __v: 0, id: 1, name_ar: 1, name_en: 1, category: 1, price: 1, short_code: 1, home_visit_supported: 1, test_categories: 1 })
+      .sort({ popularity: -1, name_ar: 1 })
+      .limit(limit)
+      .lean();
+    
+    const providerProfiles = await this.providerProfiles.find({
+      type: { $in: ['lab', 'hospital'] },
+      status: 'active',
+      public_eligibility: true,
+      medical_review_status: 'approved',
+      account_id: { $exists: true, $ne: null }
+    }, { projection: { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, rating_avg: 1, rating_count: 1, home_visit_supported: 1 } }).lean();
+    
+    const providerMap = new Map(providerProfiles.map(p => [p.account_id, p]));
+    
+    return services.map((svc: any) => {
+      const providers = (svc.test_categories || [])
+        .map((cat: string) => providerMap.get(cat))
+        .filter(Boolean)
+        .map(p => ({
+          id: p.account_id,
+          name: p.name_ar || p.name_en,
+          logo: p.logo,
+          rating: p.rating_count > 0 ? p.rating_avg : null,
+          homeVisitAvailable: p.home_visit_supported
+        }));
+      return {
+        id: svc.id,
+        name: svc.name_ar || svc.name_en,
+        category: svc.category,
+        price: svc.price,
+        short_code: svc.short_code,
+        home_visit_supported: svc.home_visit_supported,
+        providers: providers.slice(0, 5)
+      };
+    });
+  }
+
+  async priceComparison(serviceId: string) {
+    const service = await this.svcModel.findOne({ id: serviceId, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, __v: 0 });
+    if (!service) throw new NotFoundException('service_not_found');
+    
+    const catalogItems = await this.labCatalog.find({
+      provider_account_id: { $exists: true, $ne: null },
+      code: serviceId,
+      available: true
+    }, { projection: { _id: 0, provider_account_id: 1, code: 1, name_ar: 1, name_en: 1, price: 1, currency: 1, available: 1, home_collection_supported: 1 } }).lean();
+    
+    if (!catalogItems.length) {
+      return {
+        service_id: serviceId,
+        service_name: service.name_ar || service.name_en,
+        base_price: service.price,
+        comparisons: []
+      };
+    }
+    
+    const providerIds = catalogItems.map((c: any) => c.provider_account_id);
+    const profiles = await this.providerProfiles.find({
+      account_id: { $in: providerIds },
+      type: { $in: ['lab', 'hospital'] },
+      status: 'active',
+      public_eligibility: true,
+      medical_review_status: 'approved'
+    }, { projection: { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, rating_avg: 1, rating_count: 1, home_visit_supported: 1 } }).lean();
+    
+    const profileMap = new Map(profiles.map(p => [p.account_id, p]));
+    
+    const comparisons = catalogItems.map((item: any) => {
+      const profile = profileMap.get(item.provider_account_id);
+      return {
+        provider_id: item.provider_account_id,
+        name: profile?.name_ar || profile?.name_en || item.name_ar || item.name_en || 'Unknown',
+        logo: profile?.logo || null,
+        rating: profile?.rating_count > 0 ? profile.rating_avg : null,
+        home_visit_supported: profile?.home_visit_supported || false,
+        price: item.price,
+        currency: item.currency || 'SAR',
+        home_visit_price: null
+      };
+    });
+    
+    comparisons.sort((a, b) => a.price - b.price);
+    
+    return {
+      service_id: serviceId,
+      service_name: service.name_ar || service.name_en,
+      base_price: service.price,
+      comparisons
+    };
+  }
+
+
 
   async book(user: any, data: any) {
     if (!Array.isArray(data.items) || !data.items.length) throw new BadRequestException('items required');
