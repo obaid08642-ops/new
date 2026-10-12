@@ -120,8 +120,10 @@ export class AuthController {
   @Public()
   @Throttle({ default: { limit: 3, ttl: 600000 } })
   @Post('otp/request')
-  patientOtpRequest(@Body() dto: PatientOtpRequestDto) {
-    return this.auth.requestPatientOtp(dto.identifier);
+  patientOtpRequest(@Body() dto: PatientOtpRequestDto, @Req() req: Request) {
+    // 16.3: the caller's address bounds how many distinct numbers one caller
+    // may target, which is what stops SMS-pumping fan-out.
+    return this.auth.requestPatientOtp(dto.identifier, clientIp(req));
   }
 
   /** Issues an opaque, single-use, 60-second exchange token; never a session token. */
@@ -336,10 +338,10 @@ export class AuthController {
   @Header('Deprecation', 'true')
   @Throttle({ default: { limit: 5, ttl: 60000 } }) // E5-F4 SMS-bombing guard
   @Post('send-otp')
-  sendOtp(@Body() body: SendOtpDto) {
+  sendOtp(@Body() body: SendOtpDto, @Req() req: Request) {
     this.log.warn('deprecated auth alias called: send-otp (canonical: otp/request)');
     const id = body.identifier || body.email || body.phone || '';
-    return this.auth.sendOtp(id, body.purpose);
+    return this.auth.sendOtp(id, body.purpose, clientIp(req));
   }
 
   @Public()
