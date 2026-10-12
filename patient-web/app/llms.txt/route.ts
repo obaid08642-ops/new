@@ -29,7 +29,7 @@ ${LOCALES.map(([l, name]) => `- [${name} home](/${l}): Nabd Plus home in ${name}
 - Hospitals and clinics: ${origin}/{lang}/facility/{slug}.
 - Pharmacies: ${origin}/{lang}/pharmacy/{slug}; by city at ${origin}/{lang}/pharmacies/{city}.
 - [Lab tests](/ar/diagnostics/labs): lab tests by city at ${origin}/{lang}/labs/{test}/{city}; [lab packages](/ar/diagnostics/packages).
-- [Radiology](/ar/diagnostics/radiology): each service at ${origin}/{lang}/diagnostics/radiology/{id}; by city at ${origin}/{lang}/radiology/{service}/{city}.
+- [Radiology](/ar/diagnostics/radiology): each service at ${origin}/{lang}/diagnostics/radiology/{id}.
 - [Home nursing](/ar/nursing/catalog): the nursing catalogue; by city at ${origin}/{lang}/home-nursing/{city}.
 - [Arabic articles](/ar/articles), [English articles](/en/articles): health articles; each at ${origin}/{lang}/articles/{slug}.
 - Medical conditions: ${origin}/{lang}/condition/{code}.
