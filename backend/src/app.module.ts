@@ -13,6 +13,7 @@ import { LocationModule } from './modules/location/location.module';
 import { SearchIntentModule } from './modules/search-intent/search-intent.module';
 import { EntityGraphModule } from './modules/entity-graph/entity-graph.module';
 import { McpModule } from './modules/mcp/mcp.module';
+import { AgentOAuthModule } from './modules/agent-oauth/agent-oauth.module';
 import { AiCommerceModule } from './modules/ai-commerce/ai-commerce.module';
 import { LegalModule } from './modules/legal/legal.module';
 import { RatingsModule } from './modules/ratings/ratings.module';
@@ -156,6 +157,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     SearchIntentModule,
     EntityGraphModule,
     McpModule,
+    AgentOAuthModule,
     AiCommerceModule,
     LegalModule,
     RatingsModule,

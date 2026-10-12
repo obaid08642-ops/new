@@ -99,6 +99,8 @@ def insured_consultation(pat, doctor, decision='approve_partial'):
     r = doctor.get('/insurance/requests/provider/queue')
     step('the request reaches the doctor (InsuranceRequestsScreen)', r.ok and rid in str(r.body), r)
     body = {'decision': decision}
+    if decision in ('approve_full', 'approve_partial'):
+        body['approval_ref'] = f'APR-{rid[:8]}'  # D-37: the insurer's approval number, from the provider's system
     if decision == 'approve_partial':
         body['copay_percent'] = 20
     if decision == 'reject':
@@ -149,7 +151,7 @@ def insured_lab(pat, lab, other_lab, location='facility'):
     r = other_lab.patch(f'/labs/bookings/{bid}/insurance', {'status': 'approved', 'totalCopay': 0, 'items': []})
     step('another lab cannot decide this booking\'s insurance', r.status in (403, 404), r)
     items = [{'service_id': p['id'], 'isCovered': i == 0, 'rejectReason': None if i == 0 else 'غير مشمول', 'cashPrice': p.get('price')} for i, p in enumerate(picks)]
-    r = lab.patch(f'/labs/bookings/{bid}/insurance', {'status': 'partial_approval', 'totalCopay': 20, 'items': items})
+    r = lab.patch(f'/labs/bookings/{bid}/insurance', {'status': 'partial_approval', 'totalCopay': 20, 'items': items, 'approval_ref': f'APR-{bid[:8]}'})
     step('the assigned lab records a partial approval', r.ok and r.get('insurance_status') == 'partial_approval', r)
     rid = r.get('insurance_request_id')
     r = pat.get(f'/labs/bookings/{bid}')

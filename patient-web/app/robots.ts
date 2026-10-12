@@ -21,7 +21,8 @@ export default function robots(): MetadataRoute.Robots {
   ];
   // Public children below the auth-gated /diagnostics index must stay crawlable.
   const publicExplicitAllows = locales.flatMap((locale) =>
-    ["/diagnostics/labs", "/diagnostics/radiology", "/diagnostics/packages"].map((path) => `/${locale}${path}`),
+    // the public home-care service pages sit under the private /home-care tree
+    ["/diagnostics/labs", "/diagnostics/radiology", "/diagnostics/packages", "/home-care/services/"].map((path) => `/${locale}${path}`),
   );
 
   return {

@@ -1,3 +1,4 @@
+import { DIRECT_ANSWER_CLASS } from "@/components-next/seo/direct-answer";
 import type { ReactNode } from "react";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { Notice, RowCard } from "@/components-next/consult/consult-parts";
@@ -18,11 +19,12 @@ import styles from "./landing.module.css";
  * of it is server markup, so the page stays static: it reads no cookie and no header, and the text is the caller's.
  */
 
-/** The page: the shell with its top bar, the page title (the phone header and, from 768, the h1) and a one-line intro. */
-export function LandingPage({ locale, title, intro, backHref, children }: { locale: Locale; title: string; intro?: string; backHref?: string; children: ReactNode }) {
+/** The page: the shell with its top bar, the page title (the phone header and, from 768, the h1) and a one-line intro.
+ *  `introIsAnswer`: the intro is the entity's own answer text (AEO), marked for the JSON-LD speakable selector. */
+export function LandingPage({ locale, title, intro, introIsAnswer = false, backHref, children }: { locale: Locale; title: string; intro?: string; introIsAnswer?: boolean; backHref?: string; children: ReactNode }) {
   return (
     <ConsultPage locale={locale} title={title} backHref={backHref} width="wide">
-      {intro ? <p className={rx.lead}>{intro}</p> : null}
+      {intro ? <p className={introIsAnswer ? `${DIRECT_ANSWER_CLASS} ${rx.lead}` : rx.lead}>{intro}</p> : null}
       {children}
     </ConsultPage>
   );
@@ -83,6 +85,21 @@ export function LandingEmpty({ icon, tone, title, body, actionLabel, actionHref 
     <div className={rx.state} role="status">
       <LinkEmptyState icon={icon} tone={tone} title={title} body={body} actionLabel={actionLabel} actionHref={actionHref} />
     </div>
+  );
+}
+
+/** Questions and their answers, all visible (a feature page's FAQ; its FAQPage JSON-LD is built from the same items). */
+export function FaqList({ label, items }: { label: string; items: Array<{ q: string; a: string }> }) {
+  if (items.length === 0) return null;
+  return (
+    <ul className={styles.faq} aria-label={label}>
+      {items.map((item) => (
+        <li key={item.q} className={`${rx.card} ${styles.legal}`}>
+          <h3 className={styles.cardTitle}>{item.q}</h3>
+          <p className={styles.legalText}>{item.a}</p>
+        </li>
+      ))}
+    </ul>
   );
 }
 

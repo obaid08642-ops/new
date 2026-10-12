@@ -1,0 +1,8 @@
+/* The page's short direct answer (AEO): body text under the title, tokens only. */
+.answer {
+  margin: 0;
+  font-size: var(--nabd-font-size-row);
+  line-height: 1.6;
+  color: var(--nabd-color-text-secondary);
+  overflow-wrap: anywhere;
+}

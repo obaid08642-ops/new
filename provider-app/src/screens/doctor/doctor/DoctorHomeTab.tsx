@@ -277,7 +277,7 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
  )}
 
  <View style={{ marginTop: SP.lg }}>
- <NSecHeader title={AR ? 'منصات نبض بلس' : 'Nabdah Modules'} />
+ <NSecHeader title={AR ? 'منصات نبض بلس' : 'Nabd+ Modules'} />
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, flexWrap: 'wrap' }}>
    <TouchableOpacity 
      onPress={() => onNavigate('medical_jobs')}

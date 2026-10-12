@@ -59,7 +59,7 @@ describe('InsuranceFlowService', () => {
     it('approve_full → APPROVED_FULL with zero copay', async () => {
       const req = pendingReq();
       requests.findOne.mockResolvedValue(req);
-      const res = await service.decide({ id: 'prov-1', role: 'doctor' }, 'req-1', { decision: 'approve_full' });
+      const res = await service.decide({ id: 'prov-1', role: 'doctor' }, 'req-1', { decision: 'approve_full', approval_ref: 'APR-TEST' });
       expect(res.state).toBe('APPROVED_FULL');
       expect(res.copay_amount).toBe(0);
       expect(req.save).toHaveBeenCalled();
@@ -69,7 +69,7 @@ describe('InsuranceFlowService', () => {
     it('approve_partial computes copay = price × percent', async () => {
       const req = pendingReq();
       requests.findOne.mockResolvedValue(req);
-      const res = await service.decide({ id: 'prov-1', role: 'doctor' }, 'req-1', { decision: 'approve_partial', copay_percent: 20 });
+      const res = await service.decide({ id: 'prov-1', role: 'doctor' }, 'req-1', { decision: 'approve_partial', approval_ref: 'APR-TEST', copay_percent: 20 });
       expect(res.state).toBe('COPAY_PENDING');
       expect(res.copay_percent).toBe(20);
       expect(res.copay_amount).toBe(50); // 250 × 20%
@@ -79,7 +79,7 @@ describe('InsuranceFlowService', () => {
       const req = pendingReq();
       requests.findOne.mockResolvedValue(req);
       await expect(
-        service.decide({ id: 'prov-1', role: 'doctor' }, 'req-1', { decision: 'approve_partial', copay_percent: pct }),
+        service.decide({ id: 'prov-1', role: 'doctor' }, 'req-1', { decision: 'approve_partial', approval_ref: 'APR-TEST', copay_percent: pct }),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -106,13 +106,13 @@ describe('InsuranceFlowService', () => {
     it('forbids a different provider from deciding', async () => {
       const req = pendingReq();
       requests.findOne.mockResolvedValue(req);
-      await expect(service.decide({ id: 'prov-2', role: 'doctor' }, 'req-1', { decision: 'approve_full' })).rejects.toThrow(ForbiddenException);
+      await expect(service.decide({ id: 'prov-2', role: 'doctor' }, 'req-1', { decision: 'approve_full', approval_ref: 'APR-TEST' })).rejects.toThrow(ForbiddenException);
     });
 
     it('allows admin to decide on behalf of provider', async () => {
       const req = pendingReq();
       requests.findOne.mockResolvedValue(req);
-      const res = await service.decide({ id: 'admin-1', role: 'admin' }, 'req-1', { decision: 'approve_full' });
+      const res = await service.decide({ id: 'admin-1', role: 'admin' }, 'req-1', { decision: 'approve_full', approval_ref: 'APR-TEST' });
       expect(res.state).toBe('APPROVED_FULL');
     });
 
@@ -120,12 +120,12 @@ describe('InsuranceFlowService', () => {
       const req = pendingReq();
       req.state = 'APPROVED_FULL';
       requests.findOne.mockResolvedValue(req);
-      await expect(service.decide({ id: 'prov-1', role: 'doctor' }, 'req-1', { decision: 'approve_full' })).rejects.toThrow(BadRequestException);
+      await expect(service.decide({ id: 'prov-1', role: 'doctor' }, 'req-1', { decision: 'approve_full', approval_ref: 'APR-TEST' })).rejects.toThrow(BadRequestException);
     });
 
     it('throws NotFound for unknown request', async () => {
       requests.findOne.mockResolvedValue(null);
-      await expect(service.decide({ id: 'prov-1', role: 'doctor' }, 'nope', { decision: 'approve_full' })).rejects.toThrow(NotFoundException);
+      await expect(service.decide({ id: 'prov-1', role: 'doctor' }, 'nope', { decision: 'approve_full', approval_ref: 'APR-TEST' })).rejects.toThrow(NotFoundException);
     });
   });
 

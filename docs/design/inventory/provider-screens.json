@@ -1,5 +1,5 @@
 {
- "commit": "1e6da4f1",
+ "commit": "220f83ca",
  "routes": [
   {
    "app": "provider-app",
@@ -102,7 +102,7 @@
      "line": 38,
      "file": "provider-app/src/screens/shared/blueprint/AiMedicalCopilot.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:268"
+     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:277"
     }
    ],
    "files": 8,
@@ -275,7 +275,7 @@
      "line": 26,
      "file": "provider-app/src/screens/shared/blueprint/InventoryExpiryMonitor.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:202"
+     "backend": "backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:152"
     }
    ],
    "files": 9,
@@ -390,7 +390,7 @@
      "line": 45,
      "file": "provider-app/src/screens/shared/blueprint/NurseVisitConsole.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:268"
+     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:277"
     }
    ],
    "files": 9,
@@ -425,7 +425,7 @@
      "line": 46,
      "file": "provider-app/src/screens/shared/blueprint/PharmacyBroadcastResponse.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:137"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:149"
     },
     {
      "method": "POST",
@@ -435,7 +435,7 @@
      "line": 127,
      "file": "provider-app/src/screens/shared/blueprint/PharmacyBroadcastResponse.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:218"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:230"
     },
     {
      "method": "POST",
@@ -445,7 +445,7 @@
      "line": 112,
      "file": "provider-app/src/screens/shared/blueprint/PharmacyBroadcastResponse.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:217"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:229"
     },
     {
      "method": "POST",
@@ -455,7 +455,7 @@
      "line": 96,
      "file": "provider-app/src/screens/shared/blueprint/PharmacyBroadcastResponse.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:216"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:228"
     }
    ],
    "files": 9,
@@ -787,7 +787,7 @@
      "line": 33,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/auth/auth.controller.ts:151"
+     "backend": "backend/src/modules/auth/auth.controller.ts:178"
     },
     {
      "method": "GET",
@@ -817,7 +817,7 @@
      "line": 119,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:187"
+     "backend": "backend/src/modules/legal/legal.module.ts:190"
     },
     {
      "method": "GET",
@@ -827,7 +827,7 @@
      "line": 26,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:177"
+     "backend": "backend/src/modules/legal/legal.module.ts:180"
     },
     {
      "method": "GET",
@@ -957,7 +957,7 @@
      "line": 94,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:370"
+     "backend": "backend/src/modules/storage/storage.module.ts:402"
     }
    ],
    "files": 26,
@@ -992,7 +992,7 @@
      "line": 33,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/auth/auth.controller.ts:151"
+     "backend": "backend/src/modules/auth/auth.controller.ts:178"
     },
     {
      "method": "GET",
@@ -1022,7 +1022,7 @@
      "line": 119,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:187"
+     "backend": "backend/src/modules/legal/legal.module.ts:190"
     },
     {
      "method": "GET",
@@ -1032,7 +1032,7 @@
      "line": 26,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:177"
+     "backend": "backend/src/modules/legal/legal.module.ts:180"
     },
     {
      "method": "GET",
@@ -1162,7 +1162,7 @@
      "line": 94,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:370"
+     "backend": "backend/src/modules/storage/storage.module.ts:402"
     }
    ],
    "files": 26,
@@ -1263,7 +1263,7 @@
      "line": 33,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/auth/auth.controller.ts:151"
+     "backend": "backend/src/modules/auth/auth.controller.ts:178"
     },
     {
      "method": "GET",
@@ -1283,7 +1283,7 @@
      "line": 119,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:187"
+     "backend": "backend/src/modules/legal/legal.module.ts:190"
     },
     {
      "method": "GET",
@@ -1293,7 +1293,7 @@
      "line": 26,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:177"
+     "backend": "backend/src/modules/legal/legal.module.ts:180"
     },
     {
      "method": "GET",
@@ -1423,7 +1423,7 @@
      "line": 94,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:370"
+     "backend": "backend/src/modules/storage/storage.module.ts:402"
     }
    ],
    "files": 26,
@@ -1494,7 +1494,7 @@
      "line": 33,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/auth/auth.controller.ts:151"
+     "backend": "backend/src/modules/auth/auth.controller.ts:178"
     },
     {
      "method": "GET",
@@ -1514,7 +1514,7 @@
      "line": 119,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:187"
+     "backend": "backend/src/modules/legal/legal.module.ts:190"
     },
     {
      "method": "GET",
@@ -1524,7 +1524,7 @@
      "line": 26,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:177"
+     "backend": "backend/src/modules/legal/legal.module.ts:180"
     },
     {
      "method": "GET",
@@ -1654,7 +1654,7 @@
      "line": 94,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:370"
+     "backend": "backend/src/modules/storage/storage.module.ts:402"
     }
    ],
    "files": 26,
@@ -1786,7 +1786,7 @@
      "line": 33,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/auth/auth.controller.ts:151"
+     "backend": "backend/src/modules/auth/auth.controller.ts:178"
     },
     {
      "method": "GET",
@@ -1806,7 +1806,7 @@
      "line": 119,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:187"
+     "backend": "backend/src/modules/legal/legal.module.ts:190"
     },
     {
      "method": "GET",
@@ -1816,7 +1816,7 @@
      "line": 26,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:177"
+     "backend": "backend/src/modules/legal/legal.module.ts:180"
     },
     {
      "method": "GET",
@@ -1946,7 +1946,7 @@
      "line": 94,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:370"
+     "backend": "backend/src/modules/storage/storage.module.ts:402"
     }
    ],
    "files": 26,
@@ -1981,7 +1981,7 @@
      "line": 33,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/auth/auth.controller.ts:151"
+     "backend": "backend/src/modules/auth/auth.controller.ts:178"
     },
     {
      "method": "GET",
@@ -2001,7 +2001,7 @@
      "line": 119,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:187"
+     "backend": "backend/src/modules/legal/legal.module.ts:190"
     },
     {
      "method": "GET",
@@ -2011,7 +2011,7 @@
      "line": 26,
      "file": "provider-app/src/components/ContractModal.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:177"
+     "backend": "backend/src/modules/legal/legal.module.ts:180"
     },
     {
      "method": "GET",
@@ -2141,7 +2141,7 @@
      "line": 94,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:370"
+     "backend": "backend/src/modules/storage/storage.module.ts:402"
     }
    ],
    "files": 26,
@@ -2344,7 +2344,7 @@
      "line": 159,
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:273"
+     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:282"
     },
     {
      "method": "POST",
@@ -2354,7 +2354,7 @@
      "line": 169,
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:274"
+     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:283"
     },
     {
      "method": "POST",
@@ -2364,7 +2364,7 @@
      "line": 182,
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:277"
+     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:287"
     },
     {
      "method": "GET",
@@ -2374,7 +2374,7 @@
      "line": 124,
      "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:268"
+     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:277"
     },
     {
      "method": "POST",
@@ -2430,7 +2430,7 @@
      "line": 71,
      "file": "provider-app/src/screens/doctor/doctor/DoctorScheduleTab.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:268"
+     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:277"
     }
    ],
    "files": 9,
@@ -2776,7 +2776,7 @@
      "line": 87,
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:58"
+     "backend": "backend/src/modules/care/appointments.controller.ts:63"
     },
     {
      "method": "POST",
@@ -2786,7 +2786,7 @@
      "line": 91,
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:88"
+     "backend": "backend/src/modules/care/appointments.controller.ts:93"
     },
     {
      "method": "PATCH",
@@ -2796,7 +2796,7 @@
      "line": 88,
      "file": "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:76"
+     "backend": "backend/src/modules/care/appointments.controller.ts:81"
     }
    ],
    "files": 9,
@@ -3091,7 +3091,7 @@
      "line": 119,
      "file": "provider-app/src/screens/doctor/doctor/RequestTestScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:46"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:59"
     }
    ],
    "files": 11,
@@ -3476,7 +3476,7 @@
      "line": 56,
      "file": "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:268"
+     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:277"
     },
     {
      "method": "GET",
@@ -3656,7 +3656,7 @@
      "line": 52,
      "file": "provider-app/src/screens/facility/facility/FacilityOrderDetail.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:273"
+     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:282"
     }
    ],
    "files": 9,
@@ -3711,7 +3711,7 @@
      "line": 56,
      "file": "provider-app/src/screens/facility/facility/FacilityOrdersTab.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:268"
+     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:277"
     }
    ],
    "files": 8,
@@ -4006,7 +4006,7 @@
      "line": 66,
      "file": "provider-app/src/screens/facility/facility/QRCheckinScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/care/appointments.controller.ts:58"
+     "backend": "backend/src/modules/care/appointments.controller.ts:63"
     },
     {
      "method": "GET",
@@ -5312,7 +5312,7 @@
      "line": 81,
      "file": "provider-app/src/screens/nursing/NursingFieldOps.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:273"
+     "backend": "backend/src/modules/provider-jobs/provider-jobs.module.ts:282"
     },
     {
      "method": "POST",
@@ -5322,7 +5322,7 @@
      "line": 30,
      "file": "provider-app/src/screens/nursing/visitFiles.ts",
      "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:370"
+     "backend": "backend/src/modules/storage/storage.module.ts:402"
     }
    ],
    "files": 11,
@@ -5708,7 +5708,7 @@
      "line": 1508,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:138"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:150"
     },
     {
      "method": "GET",
@@ -5718,7 +5718,7 @@
      "line": 1487,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:139"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:151"
     },
     {
      "method": "POST",
@@ -5728,7 +5728,7 @@
      "line": 1497,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:140"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:152"
     }
    ],
    "files": 9,
@@ -5840,7 +5840,7 @@
      "line": 907,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:81"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:93"
     },
     {
      "method": "GET",
@@ -5850,7 +5850,7 @@
      "line": 925,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:85"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:97"
     },
     {
      "method": "POST",
@@ -5860,7 +5860,7 @@
      "line": 934,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:92"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:104"
     }
    ],
    "files": 9,
@@ -5895,7 +5895,7 @@
      "line": 1724,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:277"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:289"
     },
     {
      "method": "GET",
@@ -5905,7 +5905,7 @@
      "line": 1729,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:278"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:290"
     },
     {
      "method": "POST",
@@ -5915,7 +5915,7 @@
      "line": 1746,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:281"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:293"
     }
    ],
    "files": 9,
@@ -5961,7 +5961,7 @@
      "line": 247,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:214"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:226"
     },
     {
      "method": "POST",
@@ -5971,7 +5971,7 @@
      "line": 302,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:222"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:234"
     }
    ],
    "files": 10,
@@ -6006,7 +6006,7 @@
      "line": 38,
      "file": "provider-app/src/screens/pharmacy/PharmacyInsuranceDecision.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:81"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:93"
     },
     {
      "method": "GET",
@@ -6016,7 +6016,7 @@
      "line": 44,
      "file": "provider-app/src/screens/pharmacy/PharmacyInsuranceDecision.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:85"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:97"
     },
     {
      "method": "POST",
@@ -6026,7 +6026,7 @@
      "line": 158,
      "file": "provider-app/src/screens/pharmacy/PharmacyInsuranceDecision.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:98"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:110"
     }
    ],
    "files": 9,
@@ -6239,7 +6239,7 @@
      "line": 1790,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:102"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:114"
     },
     {
      "method": "PUT",
@@ -6249,7 +6249,7 @@
      "line": 1829,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:103"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:115"
     },
     {
      "method": "POST",
@@ -6294,7 +6294,7 @@
      "line": 1274,
      "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:137"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:149"
     }
    ],
    "files": 9,
@@ -6329,7 +6329,7 @@
      "line": 591,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:161"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:174"
     }
    ],
    "files": 9,
@@ -6374,7 +6374,7 @@
      "line": 519,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:161"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:174"
     }
    ],
    "files": 9,
@@ -6409,7 +6409,7 @@
      "line": 225,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:52"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:65"
     },
     {
      "method": "POST",
@@ -6419,7 +6419,7 @@
      "line": 228,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:56"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:69"
     },
     {
      "method": "POST",
@@ -6429,7 +6429,7 @@
      "line": 266,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:121"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:134"
     },
     {
      "method": "POST",
@@ -6449,7 +6449,7 @@
      "line": 282,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:148"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:161"
     },
     {
      "method": "PATCH",
@@ -6459,7 +6459,7 @@
      "line": 253,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:60"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:73"
     }
    ],
    "files": 9,
@@ -6494,7 +6494,7 @@
      "line": 105,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:87"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:100"
     }
    ],
    "files": 9,
@@ -6529,7 +6529,7 @@
      "line": 105,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:87"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:100"
     }
    ],
    "files": 9,
@@ -6588,7 +6588,7 @@
      "line": 33,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/auth/auth.controller.ts:151"
+     "backend": "backend/src/modules/auth/auth.controller.ts:178"
     },
     {
      "method": "POST",
@@ -6658,7 +6658,7 @@
      "line": 439,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:134"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:147"
     },
     {
      "method": "POST",
@@ -6668,7 +6668,7 @@
      "line": 433,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:128"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:141"
     },
     {
      "method": "POST",
@@ -6678,7 +6678,7 @@
      "line": 420,
      "file": "provider-app/src/screens/radiology/RadiologyDashboard.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/radiology/radiology.controller.ts:99"
+     "backend": "backend/src/modules/radiology/radiology.controller.ts:112"
     },
     {
      "method": "POST",
@@ -6688,7 +6688,7 @@
      "line": 94,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:370"
+     "backend": "backend/src/modules/storage/storage.module.ts:402"
     }
    ],
    "files": 10,
@@ -6834,7 +6834,7 @@
      "line": 172,
      "file": "provider-app/src/screens/shared/shared/ChatSystem.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:370"
+     "backend": "backend/src/modules/storage/storage.module.ts:402"
     }
    ],
    "files": 10,
@@ -7192,7 +7192,7 @@
      "line": 41,
      "file": "provider-app/src/screens/shared/shared/MediaConfigScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:394"
+     "backend": "backend/src/modules/storage/storage.module.ts:426"
     },
     {
      "method": "POST",
@@ -7202,7 +7202,7 @@
      "line": 91,
      "file": "provider-app/src/screens/shared/shared/MediaConfigScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:370"
+     "backend": "backend/src/modules/storage/storage.module.ts:402"
     }
    ],
    "files": 9,
@@ -7353,7 +7353,7 @@
      "line": 159,
      "file": "provider-app/src/screens/shared/shared/MedicalDrugIndexScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:370"
+     "backend": "backend/src/modules/storage/storage.module.ts:402"
     },
     {
      "method": "POST",
@@ -7363,7 +7363,7 @@
      "line": 167,
      "file": "provider-app/src/screens/shared/shared/MedicalDrugIndexScreen.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:405"
+     "backend": "backend/src/modules/storage/storage.module.ts:437"
     }
    ],
    "files": 14,
@@ -7538,7 +7538,7 @@
      "line": 81,
      "file": "provider-app/src/screens/shared/shared/MedicalJobsApplicant.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:370"
+     "backend": "backend/src/modules/storage/storage.module.ts:402"
     }
    ],
    "files": 14,
@@ -8000,7 +8000,7 @@
      "line": 33,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/auth/auth.controller.ts:151"
+     "backend": "backend/src/modules/auth/auth.controller.ts:178"
     },
     {
      "method": "POST",
@@ -8070,7 +8070,7 @@
      "line": 94,
      "file": "provider-app/src/api/provider.ts",
      "status": "OK",
-     "backend": "backend/src/modules/storage/storage.module.ts:370"
+     "backend": "backend/src/modules/storage/storage.module.ts:402"
     }
    ],
    "files": 10,
@@ -8105,7 +8105,7 @@
      "line": 322,
      "file": "provider-app/src/screens/shared/RealScreensExtended.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:305"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:317"
     },
     {
      "method": "POST",
@@ -8115,7 +8115,7 @@
      "line": 335,
      "file": "provider-app/src/screens/shared/RealScreensExtended.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:304"
+     "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:316"
     }
    ],
    "files": 9,

@@ -28,6 +28,10 @@ export class IndexNowService {
     return pub.replace(/^https?:\/\//, '').split('/')[0];
   }
 
+  private sameHost(url: string, host: string): boolean {
+    try { return new URL(url).host === host; } catch { return false; }
+  }
+
   async submitUrls(urls: string[]): Promise<IndexNowSubmissionResult> {
     if (!Array.isArray(urls) || urls.length === 0) {
       return {
@@ -40,13 +44,16 @@ export class IndexNowService {
 
     const host = this.getHost();
     const key = this.getKey();
-    const keyLocation = `https://${host}/${key}.txt`;
+    // The patient web serves the key at /indexnow-key.txt (patient-web/app/indexnow-key.txt);
+    // IndexNow accepts any keyLocation on the same host.
+    const keyLocation = `https://${host}/indexnow-key.txt`;
 
     // Deduplicate and filter valid URLs
     const cleanUrls = Array.from(
       new Set(
         urls
-          .filter((u) => typeof u === 'string' && u.startsWith('http'))
+          // IndexNow refuses a whole batch when one URL is on another host.
+          .filter((u) => typeof u === 'string' && /^https?:\/\//.test(u) && this.sameHost(u, host))
           .map((u) => u.trim()),
       ),
     );

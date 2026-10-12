@@ -178,4 +178,17 @@ The phases left from §7 of `OPENCODE_PLAN_2026-10-09.md` are split so they run 
 - Phase 22 still waits for the owner.
 - A session never starts a phase listed for another session.
 
-**Agent commerce (`AGENT_COMMERCE_SPEC_2026-10-12.md`, items AC-1 to AC-6):** starts after the reviewer pushes the acceptance tests to `backend/acceptance/ac-agent/`. The session doing it is named when it starts.
+**Agent commerce (`AGENT_COMMERCE_SPEC_2026-10-12.md`)**
+- AC-1 (OAuth) is merged (#1327), and the acceptance tests are in `backend/acceptance/ac-agent/` (#1326).
+- **OC-G** (new, owner 2026-10-12) builds AC-2 to AC-6, one PR per item, in order:
+
+| Item | What | Branch | Done when |
+|---|---|---|---|
+| AC-2 | MCP Streamable HTTP transport | `oc/AC-2` | ac-agent case 4 passes |
+| AC-3 | Authenticated tools | `oc/AC-3` | ac-agent cases 5 to 10 pass |
+| AC-4 | Deep links | `oc/AC-4` | |
+| AC-5 | Discovery contract test | `oc/AC-5` | ac-agent case 11 passes |
+| AC-6 | Safety | `oc/AC-6` | |
+
+- OC-G edits only `backend/src/modules/mcp`, `backend/src/modules/agent-oauth`, `patient-web/app/.well-known`, `llms*.txt` and new agent modules.
+- For anything else (pharmacy, booking or payment services), it calls the existing services and never copies their logic.
