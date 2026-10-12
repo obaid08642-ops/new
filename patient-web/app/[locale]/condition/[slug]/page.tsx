@@ -70,7 +70,7 @@ export default async function ConditionCanonicalPage({ params }: Props) {
   return (
     <LandingPage locale={locale} title={title} intro={overview} backHref={`/${locale}`}>
       {/* // i18n-ok: structured data is kept exactly as published (SEO) */}
-      <JsonLd data={[medicalCondition({ name: title, path: `/condition/${slug}`, locale: locale as Locale, symptoms: cond.symptoms ?? undefined, overview }), breadcrumbList([{ name: "Nabd Plus", locale: locale as Locale, path: "/" }, { name: locale === "ar" ? "دليل الحالات الصحية" : "Health Guide", locale: locale as Locale, path: "/health" }, { name: title, locale: locale as Locale, path: `/condition/${slug}` }])]} />
+      <JsonLd data={[medicalCondition({ name: title, path: `/condition/${slug}`, locale: locale as Locale, symptoms: cond.symptoms ?? undefined, overview }), breadcrumbList([{ name: "Nabd Plus", locale: locale as Locale, path: "/" }, { name: t("ld.crumbHealthGuide"), locale: locale as Locale, path: "/health" }, { name: title, locale: locale as Locale, path: `/condition/${slug}` }])]} />
 
       {symptoms.length ? (
         <LandingSection id="symptoms" title={t("condition.symptoms")}>

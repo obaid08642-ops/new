@@ -19,7 +19,10 @@ const validLocation = {
 };
 
 async function main() {
-  const uri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/nabdplus?replicaSet=rs0';
+  // Phase 16 / review item C: an explicit MONGODB_URI is required. A default host
+  // would let a mistyped run hit a local database that is not the one it names.
+  if (!process.env.MONGODB_URI) throw new Error('MONGODB_URI_required');
+  const uri = process.env.MONGODB_URI;
   await connect(uri, process.env.DB_NAME ? { dbName: process.env.DB_NAME } : {});
   const db = connection.db;
   if (!db) throw new Error('no database connection');

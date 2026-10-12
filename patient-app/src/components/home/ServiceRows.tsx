@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { router } from 'expo-router';
 
-import { Card, ListItem, SectionHeader } from '../../../../packages/ui-native/src';
+import { Card, ListItem } from '../../../../packages/ui-native/src';
 import type { ServiceRow } from '../../features/services/catalog';
 import { useScreenUi } from './homeKit';
 
@@ -29,16 +29,5 @@ export function ServiceRows({ items }: { items: ServiceRow[] }) {
         ))}
       </View>
     </Card>
-  );
-}
-
-/** A section title over a card of rows. */
-export function ServiceGroup({ title, items }: { title: string; items: ServiceRow[] }) {
-  const { theme, tr } = useScreenUi();
-  return (
-    <View style={{ gap: 10 }}>
-      <SectionHeader title={tr(title)} theme={theme} />
-      <ServiceRows items={items} />
-    </View>
   );
 }

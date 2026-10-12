@@ -164,7 +164,7 @@ export const autoTranslations: Record<string, Record<LangCode, string>> = {
   "متوسط": { ar: "متوسط", en: "Moderate", ur: "اعتدال", hi: "मध्यम", bn: "মাঝারি", fil: "Moderate" },
   "الكل": { ar: "الكل", en: "All", ur: "سب", hi: "सभी", bn: "সব", fil: "All" },
   "الآن": { ar: "الآن", en: "Now", ur: "اب", hi: "अभी", bn: "এখন", fil: "Now" },
-  "ر.س": { ar: "ر.س", en: "SAR", ur: "ریال", hi: "SAR", bn: "SAR", fil: "SAR" },
+  "ر.س": { ar: "ر.س", en: "SAR", ur: "ر.س", hi: "SAR", bn: "SAR", fil: "SAR" },
   "اليوم": { ar: "اليوم", en: "Today", ur: "آج", hi: "आज", bn: "আজ", fil: "Today" },
   "أمس": { ar: "أمس", en: "Yesterday", ur: "کل", hi: "कल", bn: "গতকাল", fil: "Yesterday" },
   "أدوية": { ar: "أدوية", en: "Medicines", ur: "ادویات", hi: "दवाइयाँ", bn: "ওষুধ", fil: "Medicines" },

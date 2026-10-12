@@ -16,6 +16,9 @@ import { PharmacyAllocationRepository } from "./repositories/pharmacyallocation.
 
 function assertPatient(u: any) { if (!u || u.role !== 'patient') throw new ForbiddenException('patient_scope_required'); }
 
+/** A-4: governed states in which a card payment may be retried (no COD, owner decision 25). */
+const PAYMENT_RETRY_STATES = ['PAYMENT_PENDING', 'FINAL_QUOTE_ACCEPTED'];
+
 @Injectable()
 export class PharmacyOrderService {
   constructor(
@@ -49,6 +52,34 @@ export class PharmacyOrderService {
     if (owned !== new Set(files).size) throw new NotFoundException('prescription_attachment_not_found');
   }
 
+  /**
+   * A-0 (Q-11 done right): the patient's attachment ids become `{ type, uri }` rows that the pharmacy
+   * screens and the Rx rules read. A file id must be the patient's own storage object; its type comes
+   * from the stored mime and the uri is the access-checked `/api/v1/storage/:id` (no base64, no raw
+   * bucket URL). An id of the patient's own prescription is not a file: it becomes the order's
+   * `prescription_id` when none was sent. Anything else (client-made objects, foreign ids) is dropped;
+   * assertOwnPrescriptionRefs already answered unknown ids with 404.
+   */
+  private async resolvePrescriptionAttachments(user: any, raw: unknown): Promise<{ files: Array<{ type: 'image' | 'pdf' | 'voice' | 'text'; uri: string }>; prescriptionId?: string }> {
+    const ids = [...new Set((Array.isArray(raw) ? raw : [])
+      .filter((a: unknown): a is string => typeof a === 'string' && a.trim() !== '')
+      .map((a) => a.trim()))];
+    if (!ids.length) return { files: [] };
+    const ownRx = await this.conn.collection('prescriptions')
+      .find({ id: { $in: ids }, patient_id: { $eq: user.id } }, { projection: { _id: 0, id: 1 } }).toArray();
+    const rxIds = new Set(ownRx.map((r: any) => r.id));
+    const fileIds = ids.filter((id) => !rxIds.has(id));
+    const stored = fileIds.length
+      ? await this.conn.collection('storage_objects')
+        .find({ id: { $in: fileIds }, owner_account_id: { $eq: user.id }, deleted: { $ne: true } }, { projection: { _id: 0, id: 1, mime: 1 } }).toArray()
+      : [];
+    const mimeOf = new Map(stored.map((o: any) => [o.id, String(o.mime || '').toLowerCase()]));
+    const typeOf = (mime: string): 'image' | 'pdf' | 'voice' | 'text' =>
+      mime.startsWith('image/') ? 'image' : mime === 'application/pdf' ? 'pdf' : mime.startsWith('audio/') ? 'voice' : 'text';
+    const files = fileIds.filter((id) => mimeOf.has(id)).map((id) => ({ type: typeOf(mimeOf.get(id)!), uri: `/api/v1/storage/${encodeURIComponent(id)}` }));
+    return { files, prescriptionId: ownRx[0]?.id };
+  }
+
   async create(user: any, body: any) {
     assertPatient(user);
     const sanitize = (str: any) => String(str || '').replace(/[<>]/g, '').trim();
@@ -79,6 +110,7 @@ export class PharmacyOrderService {
     }
     if (!items.length && !body.prescription_id) throw new BadRequestException('items_required');
     await this.assertOwnPrescriptionRefs(user, body);
+    const attachments = await this.resolvePrescriptionAttachments(user, body.prescription_attachments);
     const addr = body.delivery_address || {};
     const geo = addr.geo || (addr.lat && addr.lng ? { lat: Number(addr.lat), lng: Number(addr.lng) } : null);
     const normalizedAddress = { ...addr, ...(geo ? { geo } : {}) };
@@ -89,7 +121,7 @@ export class PharmacyOrderService {
       items,
       delivery_address: normalizedAddress,
       patient_notes: body.patient_notes,
-      prescription_id: typeof body.prescription_id === 'string' ? body.prescription_id : undefined,
+      prescription_id: typeof body.prescription_id === 'string' ? body.prescription_id : attachments.prescriptionId,
       manual_request: manual ? { name: sanitize(manual.name).slice(0, 200), details: typeof manual.details === 'string' ? sanitize(manual.details).slice(0, 500) : null } : undefined,
       payment_method: typeof body.payment_method === 'string' ? body.payment_method : 'cash',
       // F73: draft fulfillment + payment mode (validated by DTO enums).
@@ -97,7 +129,7 @@ export class PharmacyOrderService {
       payment_mode: body.payment_mode === 'insurance' ? 'insurance' : 'cash',
       insurance_policy_id: typeof body.insurance_policy_id === 'string' ? body.insurance_policy_id : undefined,
       delivery_address_id: typeof body.delivery_address_id === 'string' ? body.delivery_address_id : undefined,
-      prescription_attachments: body.prescription_attachments || [],
+      prescription_attachments: attachments.files,
       totals: { subtotal: 0, delivery_fee: 0, total: 0, currency: 'SAR' },
       timeline: [{ ts: new Date(), event: 'created' }],
     });
@@ -109,15 +141,80 @@ export class PharmacyOrderService {
     assertPatient(user);
     const q: any = { patient_account_id: user.id };
     if (status) q.status = status;
-    return this.orders.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(200).lean();
+    const orders = await this.orders.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(200).lean();
+    if (!orders.length) return [];
+
+    // Fetch all allocations in one query (fix N+1)
+    const orderIds = orders.map((o: any) => o.id);
+    const allocs = await this.allocs.find({ order_id: { $in: orderIds } }, { _id: 0, __v: 0 }).lean();
+    const allocsByOrder = new Map<string, any[]>();
+    for (const a of allocs) {
+      const list = allocsByOrder.get(a.order_id) || [];
+      list.push(a);
+      allocsByOrder.set(a.order_id, list);
+    }
+
+    // Fetch all pharmacy names in one query
+    const pharmacyIds = [...new Set(allocs.map((a: any) => a.pharmacy_account_id).filter(Boolean))];
+    const pharmacyNamesMap = await this.pharmacyNames(pharmacyIds);
+
+    // Enrich each order with governed_state, requires_prescription, courier, unit_price
+    const catalogueFlags = await this.enrichItemsWithCatalogueFlags(
+      orders.flatMap((o: any) => o.items || [])
+    );
+
+    // Build offer items map for unit_price from pricing_snapshot
+    const offerItemsMap = new Map<string, Map<string, number>>();
+    for (const o of orders) {
+      const map = new Map<string, number>();
+      if (o.pricing_snapshot?.totals && Array.isArray(o.pricing_snapshot.items)) {
+        for (const oi of o.pricing_snapshot.items) {
+          if (oi.order_item_id && oi.unit_price !== undefined) map.set(oi.order_item_id, oi.unit_price);
+        }
+      }
+      offerItemsMap.set(o.id, map);
+    }
+
+    return orders.map((order: any) => {
+      const orderAllocs = allocsByOrder.get(order.id) || [];
+      const effectiveStatus = this.computeEffectiveStatus(order, orderAllocs);
+      const view = this.governedView(order); // Use basic governedView, detail() will add async checks
+
+      // Enrich items with catalogue flags and unit_price
+      const offerPriceMap = offerItemsMap.get(order.id) || new Map();
+      const itemsWithFlags = (order.items || []).map((it: any) => {
+        const flags = catalogueFlags.get(it.id) || { requires_prescription: false, controlled: false };
+        const unitPrice = offerPriceMap.get(it.id);
+        return { ...it, requires_prescription: flags.requires_prescription, controlled: flags.controlled, ...(unitPrice !== undefined ? { unit_price: unitPrice } : {}) };
+      });
+
+      // Courier fields from allocation delivery
+      const courierName = orderAllocs.find((a: any) => a.delivery?.courier_name)?.delivery?.courier_name ?? null;
+      const courierPhone = orderAllocs.find((a: any) => a.delivery?.courier_phone)?.delivery?.courier_phone ?? null;
+
+      // Pharmacy names for allocations
+      const allocationsDetail = orderAllocs.map((a: any) => ({ ...a, ...(pharmacyNamesMap.get(a.pharmacy_account_id) ?? { pharmacy_name_ar: null, pharmacy_name_en: null }) }));
+      const pharmacies = [...new Set(orderAllocs.map((a: any) => a.pharmacy_account_id).filter(Boolean))];
+      const single = pharmacies.length === 1 ? pharmacyNamesMap.get(pharmacies[0] as string) : undefined;
+
+      return {
+        ...order,
+        effective_status: effectiveStatus,
+        items: itemsWithFlags,
+        allocations_detail: allocationsDetail,
+        pharmacy_name_ar: single?.pharmacy_name_ar ?? null,
+        pharmacy_name_en: single?.pharmacy_name_en ?? null,
+        courier_name: courierName,
+        courier_phone: courierPhone,
+        ...view,
+      };
+    });
   }
 
-  async detail(user: any, id: string): Promise<any> {
-    const order = await this.orders.findOne({ id }, { _id: 0, __v: 0 }).lean();
-    if (!order) throw new NotFoundException('order_not_found');
-    if (user.role === 'patient' && order.patient_account_id !== user.id) throw new ForbiddenException('not_yours');
-    const allocs = await this.allocs.find({ order_id: id }, { _id: 0, __v: 0 }).lean();
-    // Phase 2 hardening: compute effective_status as auto-heal aggregation across allocations.
+  /**
+   * Compute effective_status from order and its allocations (shared by detail and list).
+   */
+  private computeEffectiveStatus(order: any, allocs: any[]): string {
     const allocStatuses = allocs.map((a: any) => a.status);
     let effective_status = order.status;
     const isPersistent = ['cancelled', 'completed'].includes(order.status as any);
@@ -130,7 +227,16 @@ export class PharmacyOrderService {
       else if (anyOOD) effective_status = 'out_for_delivery' as any;
       else if (anyPreparing) effective_status = 'in_fulfillment' as any;
     }
-    const view: any = this.governedView(order);
+    return effective_status;
+  }
+
+  async detail(user: any, id: string): Promise<any> {
+    const order = await this.orders.findOne({ id }, { _id: 0, __v: 0 }).lean();
+    if (!order) throw new NotFoundException('order_not_found');
+    if (user.role === 'patient' && order.patient_account_id !== user.id) throw new ForbiddenException('not_yours');
+    const allocs = await this.allocs.find({ order_id: id }, { _id: 0, __v: 0 }).lean();
+    const effectiveStatus = this.computeEffectiveStatus(order, allocs);
+    let view: any = this.governedView(order);
     // Q-3: unselected broadcasting orders derive ORDER_BROADCASTING / OFFERS_READY
     // from live offers (submitted, quote not expired). Draft/expired/cancelled and
     // other orders' offers never count; an expired offer flips back to BROADCASTING.
@@ -147,7 +253,52 @@ export class PharmacyOrderService {
     const allocationsDetail = allocs.map((a: any) => ({ ...a, ...(names.get(a.pharmacy_account_id) ?? { pharmacy_name_ar: null, pharmacy_name_en: null }) }));
     const pharmacies = [...new Set(allocs.map((a: any) => a.pharmacy_account_id).filter(Boolean))];
     const single = pharmacies.length === 1 ? names.get(pharmacies[0] as string) : undefined;
-    return { ...order, effective_status, allocations_detail: allocationsDetail, pharmacy_name_ar: single?.pharmacy_name_ar ?? null, pharmacy_name_en: single?.pharmacy_name_en ?? null, ...view };
+
+    // D-10: enrich order items with requires_prescription and controlled from catalogue
+    const catalogueFlags = await this.enrichItemsWithCatalogueFlags(order.items || []);
+    const itemsWithFlags = (order.items || []).map((it: any) => {
+      const flags = catalogueFlags.get(it.id) || { requires_prescription: false, controlled: false };
+      return { ...it, requires_prescription: flags.requires_prescription, controlled: flags.controlled };
+    });
+
+    // Courier fields from allocation delivery (when assigned)
+    const courierName = allocs.find((a: any) => a.delivery?.courier_name)?.delivery?.courier_name ?? null;
+    const courierPhone = allocs.find((a: any) => a.delivery?.courier_phone)?.delivery?.courier_phone ?? null;
+
+    // Unit price per line from selected offer (pricing_snapshot or offer items)
+    const offerItemsMap = new Map<string, number>();
+    if (order.pricing_snapshot?.totals && Array.isArray(order.pricing_snapshot.items)) {
+      for (const oi of order.pricing_snapshot.items) {
+        if (oi.order_item_id && oi.unit_price !== undefined) offerItemsMap.set(oi.order_item_id, oi.unit_price);
+      }
+    } else if (order.selected_offer_id) {
+      // Fallback: try to fetch from offer collection if not in snapshot
+      const offer: any = await this.conn.collection('pharmacy_offers').findOne(
+        { id: order.selected_offer_id },
+        { projection: { _id: 0, items: 1 } }
+      );
+      if (offer?.items) {
+        for (const oi of offer.items) {
+          if (oi.order_item_id && oi.unit_price !== undefined) offerItemsMap.set(oi.order_item_id, oi.unit_price);
+        }
+      }
+    }
+    const itemsWithPrice = itemsWithFlags.map((it: any) => {
+      const unitPrice = offerItemsMap.get(it.id);
+      return { ...it, ...(unitPrice !== undefined ? { unit_price: unitPrice } : {}) };
+    });
+
+    return {
+      ...order,
+      effective_status: effectiveStatus,
+      items: itemsWithPrice,
+      allocations_detail: allocationsDetail,
+      pharmacy_name_ar: single?.pharmacy_name_ar ?? null,
+      pharmacy_name_en: single?.pharmacy_name_en ?? null,
+      courier_name: courierName,
+      courier_phone: courierPhone,
+      ...view,
+    };
   }
 
   /** Display names of pharmacies by account id, from their profile (the same names the offers list shows). */
@@ -162,9 +313,59 @@ export class PharmacyOrderService {
       const registered = p.business_name || p.legal_name || null;
       const ar = p.display_name_ar || p.name_ar || registered;
       const en = p.display_name_en || p.name_en || registered;
-      out.set(p.account_id, { pharmacy_name_ar: ar ?? en ?? null, pharmacy_name_en: en ?? ar ?? null });
+      // Use || for fallback so empty string falls back to the other language
+      out.set(p.account_id, { pharmacy_name_ar: ar || en || null, pharmacy_name_en: en || ar || null });
     }
     return out;
+  }
+
+  /**
+   * Fetch requires_prescription and controlled flags for order items by matching
+   * medicine_id, sku, or name with the medicines catalogue (D-10).
+   * Returns a map of item id -> { requires_prescription: boolean, controlled: boolean }
+   */
+  private async enrichItemsWithCatalogueFlags(items: any[]): Promise<Map<string, { requires_prescription: boolean; controlled: boolean }>> {
+    const result = new Map<string, { requires_prescription: boolean; controlled: boolean }>();
+    if (!items?.length) return result;
+
+    const ids = [...new Set(items.map((it) => (typeof it?.medicine_id === 'string' ? it.medicine_id.trim() : '')).filter(Boolean))];
+    const skus = [...new Set(items.map((it) => {
+      const v = it?.sku ?? it?.matched_sku;
+      return v === undefined || v === null ? '' : String(v).trim();
+    }).filter(Boolean))];
+    const names = [...new Set(items.flatMap((it) => [it?.name, it?.name_ar, it?.name_en, it?.raw_name].map((n) => (typeof n === 'string' ? n.trim().toLowerCase() : '')).filter(Boolean)))];
+
+    const or: any[] = [];
+    if (ids.length) or.push({ id: { $in: ids } });
+    if (skus.length) {
+      const numeric = skus.map(Number).filter((n) => Number.isFinite(n));
+      or.push({ sku: { $in: [...skus, ...numeric] } });
+    }
+    for (const n of names) {
+      const exact = new RegExp(`^\\s*${n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`, 'i');
+      or.push({ name_ar: exact }, { name_en: exact });
+    }
+
+    if (!or.length) return result;
+
+    const meds: any[] = await this.conn.collection('medicines')
+      .find({ $or: or }, { projection: { _id: 0, id: 1, sku: 1, name_ar: 1, name_en: 1, requires_prescription: 1, controlled: 1 } })
+      .toArray();
+
+    for (const it of items) {
+      const id = typeof it?.medicine_id === 'string' ? it.medicine_id.trim() : '';
+      const sku = it?.sku ?? it?.matched_sku;
+      const skuStr = sku === undefined || sku === null ? '' : String(sku).trim();
+      const ln = [it?.name, it?.name_ar, it?.name_en, it?.raw_name].map((n) => (typeof n === 'string' ? n.trim().toLowerCase() : '')).filter(Boolean);
+      const med = (id && meds.find((m) => m.id === id))
+        || (skuStr && meds.find((m) => m.sku !== undefined && m.sku !== null && String(m.sku) === skuStr))
+        || meds.find((m) => ln.includes(typeof m.name_ar === 'string' ? m.name_ar.trim().toLowerCase() : '') || ln.includes(typeof m.name_en === 'string' ? m.name_en.trim().toLowerCase() : ''));
+      result.set(it.id, {
+        requires_prescription: med?.requires_prescription === true,
+        controlled: med?.controlled === true,
+      });
+    }
+    return result;
   }
 
   /** True when a gateway transaction for this order is still open (initiating, pending or authorized). */
@@ -222,7 +423,6 @@ export class PharmacyOrderService {
         else if (decision?.patient_acceptance?.kind === 'co-pay') governed_state = 'CO_PAY_PENDING';
         else governed_state = 'INSURANCE_DECISION_READY';
       } else if (codRegistered) governed_state = 'COD_REGISTERED';
-      else if (order.pending_final_quote_snapshot?.hash) governed_state = 'FINAL_QUOTE_READY';
       else if (quoteAccepted) governed_state = 'FINAL_QUOTE_ACCEPTED';
       else governed_state = 'OFFER_SELECTED';
     }
@@ -233,9 +433,6 @@ export class PharmacyOrderService {
       selected_offer_snapshot: selected ? snapshot : undefined,
       selected_offer_hash: selected ? snapshot.hash : undefined,
       selected_offer_revision: selected ? Number(order.selected_offer_version) : undefined,
-      pending_final_quote_snapshot: order.pending_final_quote_snapshot || undefined,
-      pending_final_quote_hash: order.pending_final_quote_snapshot?.hash || undefined,
-      pending_final_quote_revision: order.pending_final_quote_snapshot?.offer_version || undefined,
       accepted_quote_snapshot: quoteAccepted || codRegistered
         ? { ...snapshot, cod_allowed: true }
         : undefined,
@@ -325,6 +522,74 @@ export class PharmacyOrderService {
     return { ok: true, idempotent: false, status: PharmacyOrderState.COD_DUE_ON_DELIVERY };
   }
 
+  /**
+   * Read-only payment status endpoint.
+   * Returns the current payment state without creating any new records.
+   * No raw documents — only the governed view fields the clients need.
+   */
+  async getPaymentStatus(user: any, id: string): Promise<any> {
+    assertPatient(user);
+    const order = await this.orders.findOne({ id, patient_account_id: user.id }, { _id: 0, __v: 0 }).lean();
+    if (!order) throw new NotFoundException('order_not_found');
+
+    const governed = this.governedView(order);
+    const paymentMethod = String(order.payment_method || '').toLowerCase();
+    const paymentStatus = String(order.payment_status || '').toLowerCase();
+    const decision = order.insurance_decision || null;
+
+    // Active payment intent?
+    let activeIntent: any = null;
+    if (paymentMethod === 'card' || paymentMethod === 'moyasar') {
+      activeIntent = await this.conn.collection('pharmacy_payment_intents').findOne({
+        order_id: id, status: { $in: ['requires_payment', 'initiating', 'pending', 'authorized'] }
+      }, { projection: { _id: 0, intent_id: 1, status: 1, amount: 1, currency: 1, createdAt: 1 } });
+    }
+
+    // Confirmed evidence?
+    let confirmedEvidence: any = null;
+    if (['paid', 'covered_by_insurance', 'partially_refunded'].includes(paymentStatus)) {
+      confirmedEvidence = await this.conn.collection('pharmacy_payment_evidence').findOne({
+        order_id: id, status: 'confirmed'
+      }, { projection: { _id: 0, gateway: 1, gateway_payment_id: 1, amount: 1, currency: 1, confirmed_at: 1 } });
+    }
+
+    // Retryable governed states
+    const retryable = PAYMENT_RETRY_STATES.includes(governed.governed_state || '');
+    const retryReason = retryable ? governed.governed_state : null;
+
+    return {
+      order_id: id,
+      payment_method: order.payment_method || null,
+      payment_status: order.payment_status || null,
+      governed_state: governed.governed_state || null,
+      amount: order.pricing_snapshot?.totals?.total ?? null,
+      currency: order.pricing_snapshot?.totals?.currency || 'SAR',
+      co_pay_amount: decision?.patient_share ?? null,
+      insurer_share: decision?.insurer_share ?? null,
+      active_intent: activeIntent ? { intent_id: activeIntent.intent_id, status: activeIntent.status, amount: activeIntent.amount, currency: activeIntent.currency, created_at: activeIntent.createdAt } : null,
+      confirmed_evidence: confirmedEvidence ? { gateway: confirmedEvidence.gateway, payment_id: confirmedEvidence.gateway_payment_id, amount: confirmedEvidence.amount, currency: confirmedEvidence.currency, confirmed_at: confirmedEvidence.confirmed_at } : null,
+      retryable,
+      retry_reason: retryReason,
+    };
+  }
+
+  /**
+   * A-4: prepare a card payment retry. Card only (owner decision 25: no cash on delivery). Refuses while a
+   * payment is already with the gateway (pending/authorized), so a retry can never charge twice; only
+   * intents the patient never started are closed. The new intent is made by the one card-intent path
+   * (PharmacyPaymentEvidenceService.createPaymentIntent), called by the controller.
+   */
+  async prepareCardRetry(user: any, id: string, idempotencyKey: string): Promise<void> {
+    assertPatient(user);
+    const order = await this.orders.findOne({ id, patient_account_id: user.id }).lean();
+    if (!order) throw new NotFoundException('order_not_found');
+    if (['cancelled', 'expired'].includes(String(order.status))) throw new BadRequestException('order_not_actionable');
+    if (!PAYMENT_RETRY_STATES.includes(this.governedView(order).governed_state || '')) throw new BadRequestException('payment_not_retryable_in_current_state');
+    const intents = this.conn.collection('pharmacy_payment_intents');
+    if (await intents.findOne({ order_id: id, status: { $in: ['pending', 'authorized'] } })) throw new BadRequestException('payment_in_progress');
+    // A replay of the same retry keeps its own intent (createPaymentIntent then returns it).
+    await intents.updateMany({ order_id: id, idempotency_key: { $ne: idempotencyKey }, status: { $in: ['requires_payment', 'initiating'] } }, { $set: { status: 'cancelled', updatedAt: new Date() } });
+  }
 
   async update(user: any, id: string, body: any): Promise<any> {
     assertPatient(user);
@@ -351,7 +616,11 @@ export class PharmacyOrderService {
     if (body.patient_notes !== undefined) order.patient_notes = body.patient_notes;
     // D-10: a prescription can be attached after the draft was created (the cart adds an Rx item later).
     await this.assertOwnPrescriptionRefs(user, body);
-    if (Array.isArray(body.prescription_attachments)) order.prescription_attachments = body.prescription_attachments;
+    if (Array.isArray(body.prescription_attachments)) {
+      const attachments = await this.resolvePrescriptionAttachments(user, body.prescription_attachments);
+      order.prescription_attachments = attachments.files;
+      if (typeof body.prescription_id !== 'string' && attachments.prescriptionId) order.prescription_id = attachments.prescriptionId;
+    }
     if (typeof body.prescription_id === 'string') order.prescription_id = body.prescription_id;
     order.timeline.push({ ts: new Date(), event: 'edited' });
     await order.save();

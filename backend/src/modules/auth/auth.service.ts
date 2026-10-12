@@ -6,7 +6,7 @@ import { createPublicKey, KeyObject } from 'crypto';
 import * as nodemailer from 'nodemailer';
 import { Optional } from '@nestjs/common';
 import { PushService } from '../push/push.module';
-import { MailService } from '../mail/mail.module';
+import { escapeHtml, MailService } from '../mail/mail.module';
 import { SmsService } from '../sms/sms.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { User, UserDocument } from '../../schemas/user.schema';
@@ -20,9 +20,16 @@ import { PasskeyService } from './passkey.service';
 import { DeviceTrustService } from './device-trust.service';
 import { AdminSessionService } from './admin-session.service';
 import { revokeAllCredentialSessions, revokeRedisRefreshSessions, RevocationResult } from '../../common/credential-revocation';
+import { Logger } from '@nestjs/common';
+import { randomUUID } from 'crypto';
+import { GuestService } from './guest.service';
+import { AccountLinkingService } from './account-linking.service';
+import { PasswordSecurityService } from '../../common/password-security.service';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   // M0-01: hardcoded admin seeding removed from boot — use scripts/seed-admin.ts instead.
   // M0-03: OTPs are now stored in Redis (TTL-based) instead of an in-memory Map,
   // so they survive restarts and work across multiple instances.
@@ -46,16 +53,40 @@ export class AuthService {
     @Optional() private push?: PushService,
     @Optional() private mail?: MailService,
     @Optional() private sms?: SmsService,
+    @Optional() private guests?: GuestService,
+    @Optional() private linking?: AccountLinkingService,
+    // 16.2: length + breached-password policy, applied before anything is stored.
+    @Optional() private passwordSecurity?: PasswordSecurityService,
   ) {}
 
+  /**
+   * 21.6 — when socialLogin has just verified a Google/Apple token, that token
+   * is the proof for any link this account asked for with the same provider.
+   * Nothing from the request body takes part in this.
+   */
+  private async recordProviderLinkProofs(accountId: string, method: 'google' | 'apple', email: string): Promise<void> {
+    if (!this.linking) return;
+    try {
+      for (const linkId of await this.linking.pendingForProvider(accountId, method)) {
+        await this.linking.recordProviderProof(linkId, `${method}:${email.toLowerCase()}`, method);
+      }
+    } catch (e: any) {
+      this.logger.warn(`provider link proof failed: ${e?.message}`);
+    }
+  }
+
   signToken(user: any, deviceId?: string) {
+    // The access token carries its own id: the guest merge burns that jti so a
+    // captured guest token cannot be replayed (21.2). Without it, single-use
+    // could not be enforced.
+    const accessJti = randomUUID();
     const accessToken = this.jwt.sign(
-      { sub: user.id, id: user.id, role: user.role, phone: user.phone, is_guest: !!user.is_guest, tv: Number(user.token_version ?? 0), ...(deviceId ? { dev: deviceId.slice(0, 32) } : {}) },
+      { sub: user.id, id: user.id, role: user.role, phone: user.phone, is_guest: !!user.is_guest, tv: Number(user.token_version ?? 0), jti: accessJti, ...(deviceId ? { dev: deviceId.slice(0, 32) } : {}) },
       { expiresIn: '1h' } // Short-lived access token
     );
     // Refresh token carries a unique session id (jti) — tracked in Redis so
     // rotation can revoke the previous token and detect replay attacks.
-    const jti = require('crypto').randomUUID();
+    const jti = randomUUID();
     const refreshToken = this.jwt.sign(
       { sub: user.id, type: 'refresh', jti },
       { expiresIn: '14d' }
@@ -161,6 +192,56 @@ export class AuthService {
     return { ok: true, message: 'Logged out from all devices' };
   }
 
+  /**
+   * 21.7 — sign out of one device. The refresh sessions bound to that device
+   * are revoked and its push token is removed, so a shared phone stops
+   * receiving this account's notifications.
+   */
+  async logoutDevice(userId: string, deviceId?: string) {
+    const client = (this.redisService as any).getClient?.();
+    let revoked = 0;
+    if (client) {
+      const jtis: string[] = await client.smembers(`refresh_user:${userId}`).catch(() => [] as string[]);
+      for (const jti of jtis) {
+        if (deviceId) {
+          const raw = await client.get(`refresh:${jti}`).catch(() => null);
+          let bound: string | null = null;
+          try { bound = raw ? JSON.parse(raw).d ?? null : null; } catch { bound = null; }
+          if (bound && bound !== deviceId) continue;
+        }
+        await client.del(`refresh:${jti}`);
+        await client.srem(`refresh_user:${userId}`, jti);
+        revoked += 1;
+      }
+    }
+    const db = (this.userModel as any).model?.db ?? (this.userModel as any).db;
+    let push_removed = 0;
+    if (db) {
+      const filter: Record<string, unknown> = { user_id: userId };
+      if (deviceId) filter.device_id = deviceId;
+      const res = await db.collection('push_tokens').deleteMany(filter).catch(() => null);
+      push_removed = res?.deletedCount ?? 0;
+    }
+    this.events.emit('USER_LOGGED_OUT', { user_id: userId, device_id: deviceId ?? null });
+    return { ok: true, sessions_revoked: revoked, push_tokens_removed: push_removed };
+  }
+
+  /** 21.7 — the signed-in devices of an account. */
+  async listSessions(userId: string) {
+    const client = (this.redisService as any).getClient?.();
+    if (!client) return [];
+    const jtis: string[] = await client.smembers(`refresh_user:${userId}`).catch(() => [] as string[]);
+    const out: Array<{ session_id: string; device_id: string | null }> = [];
+    for (const jti of jtis) {
+      const raw = await client.get(`refresh:${jti}`).catch(() => null);
+      if (!raw) continue;
+      let device: string | null = null;
+      try { device = JSON.parse(raw).d ?? null; } catch { device = null; }
+      out.push({ session_id: jti, device_id: device });
+    }
+    return out;
+  }
+
   async recordComplianceConsent(userId: string, documentType: string, version: string) {
     // We update a consent log array inside the user's document
     await this.userModel.updateOne(
@@ -175,7 +256,25 @@ export class AuthService {
   }
 
   private normalizeOtpIdentifier(identifier: string) {
-    return identifier.trim().toLowerCase();
+    const trimmed = identifier.trim();
+    if (trimmed.includes('@')) return trimmed.toLowerCase();
+    return AuthService.normalizePhone(trimmed);
+  }
+
+  /**
+   * 431: one canonical form for phone identifiers so `05…`, `+9665…`,
+   * `009665…` and `9665…` all match the same account. Non-SA numbers and
+   * anything unparsable are returned trimmed and unchanged.
+   */
+  static normalizePhone(raw: string): string {
+    const digits = raw.replace(/[\s\-().]/g, '');
+    if (/^\+\d{7,15}$/.test(digits)) return digits;
+    const bare = digits.replace(/^\+/, '');
+    if (/^00\d{7,14}$/.test(bare)) return `+${bare.slice(2)}`;
+    if (/^0\d{9}$/.test(bare)) return `+966${bare.slice(1)}`;
+    if (/^966\d{9}$/.test(bare)) return `+${bare}`;
+    if (/^5\d{8}$/.test(bare)) return `+966${bare}`;
+    return raw.trim();
   }
 
   private otpKey(identifier: string) {
@@ -351,7 +450,7 @@ export class AuthService {
    * Claims an exchange token with SET NX before reading it, preventing two
    * concurrent callers from turning the same OTP verification into sessions.
    */
-  async exchangePatientSession(exchangeToken: string) {
+  async exchangePatientSession(exchangeToken: string, guestToken?: string) {
     AuthService.assertString(exchangeToken, 'exchange_token');
     const key = this.patientExchangeKey(exchangeToken);
     const redis = this.redisService.getClient();
@@ -370,6 +469,8 @@ export class AuthService {
       throw new UnauthorizedException({ message: 'exchange_token_invalid', code: 'exchange_token_invalid', statusCode: HttpStatus.UNAUTHORIZED });
     }
     const tokens = this.signToken(user, entry.device_id || undefined);
+    // 21.2: signing in with an email code merges the guest data too.
+    await this.mergeGuestFromRequest(guestToken, user.id);
     return { access_token: tokens.accessToken, refresh_token: tokens.refreshToken };
   }
 
@@ -414,6 +515,11 @@ export class AuthService {
     await this.redisService.del(key);
     const user = await this.userModel.findOne({ id: entry.user_id });
     if (!user || user.active === false) throw new UnauthorizedException({ message: 'reset_token_invalid', code: 'reset_token_invalid', statusCode: HttpStatus.UNAUTHORIZED });
+    // 16.2: the new password must pass the same policy as a registration.
+    const resetPolicy = await this.passwordSecurity?.check(newPassword);
+    if (resetPolicy && !resetPolicy.ok) {
+      throw new BadRequestException({ message: resetPolicy.code, code: resetPolicy.code, statusCode: HttpStatus.BAD_REQUEST });
+    }
     user.password_hash = await bcrypt.hash(newPassword, 12);
     await user.save();
     // P3.0a: reset ends every session (access + refresh, patient + provider).
@@ -425,6 +531,63 @@ export class AuthService {
    * Contract V1 patient registration. This deliberately does not issue a
    * session token: the new account must complete the opaque OTP bridge first.
    */
+
+  /** Raw legal collections when the service is wired to a real connection (skipped in unit doubles). */
+  private get legalDb(): any | null {
+    try {
+      return (this.userModel as any)?.model?.db ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * D-38: sign-up needs the current patient texts. When the deployment configures
+   * legal_policies, patient_terms and privacy_policy must each be consented at their
+   * current version, and no consent may name an unknown policy. Otherwise 400 — and
+   * the caller creates no account. Deployments without configured policies keep the
+   * legacy behaviour.
+   */
+  private async enforceSignupConsents(consents: Array<{ policy_id: string; version: string }>): Promise<void> {
+    const db = this.legalDb;
+    if (!db) return;
+    const col = db.collection('legal_policies');
+    if (!col) return;
+    const required: any[] = await col.find({ key: { $in: ['patient_terms', 'privacy_policy'] } }).toArray();
+    const configured = required.filter((p: any) => p && p.requires_acceptance !== false);
+    const all: any[] = await col.find({}).toArray();
+    if (!configured.length && !all.length) return;
+    const byKey = new Map(configured.map((p: any) => [p.key, p]));
+    for (const key of ['patient_terms', 'privacy_policy']) {
+      const policy = byKey.get(key);
+      if (!policy) continue;
+      const given = consents.find((c) => c.policy_id === key);
+      if (!given || given.version !== policy.version) {
+        throw new BadRequestException({ message: 'consent_invalid', code: 'consent_invalid', statusCode: HttpStatus.BAD_REQUEST });
+      }
+    }
+    if (all.length) {
+      const known = new Set(all.map((p: any) => p.key));
+      for (const c of consents) {
+        if (!known.has(c.policy_id)) {
+          throw new BadRequestException({ message: 'consent_invalid', code: 'consent_invalid', statusCode: HttpStatus.BAD_REQUEST });
+        }
+      }
+    }
+  }
+
+  /** D-38: record the signup consents in legal_acceptances with version and time. */
+  private async recordSignupAcceptances(userId: string, consents: Array<{ policy_id: string; version: string }>): Promise<void> {
+    const db = this.legalDb;
+    if (!db) return;
+    const col = db.collection('legal_acceptances');
+    if (!col) return;
+    const now = new Date();
+    for (const c of consents) {
+      await col.insertOne({ user_id: userId, policy_key: c.policy_id, version: c.version, timestamp: now });
+    }
+  }
+
   async registerPatientContract(data: {
     name: string;
     identifier: string;
@@ -463,6 +626,16 @@ export class AuthService {
       throw new ConflictException({ message: 'identifier_already_registered', code: 'identifier_already_registered', statusCode: HttpStatus.CONFLICT });
     }
 
+    // D-38: sign-up records acceptance of the current patient texts. Refused before any
+    // account is created when a required text is missing, stale, or unknown.
+    await this.enforceSignupConsents(consents);
+
+    // 16.2: length and breach-list policy, before anything is stored.
+    const contractPolicy = await this.passwordSecurity?.check(data.password);
+    if (contractPolicy && !contractPolicy.ok) {
+      throw new BadRequestException({ message: contractPolicy.code, code: contractPolicy.code, statusCode: HttpStatus.BAD_REQUEST });
+    }
+
     const user = await this.userModel.create({
       full_name: data.name.trim(),
       ...(isEmail ? { email: identifier } : { phone: identifier }),
@@ -476,6 +649,8 @@ export class AuthService {
       full_name: user.full_name,
       ...(isEmail ? { email: identifier } : { phone: identifier }),
     });
+    // D-38: the signup acceptances land in legal_acceptances with version and time.
+    await this.recordSignupAcceptances(user.id, consents);
     this.events.emit(EVENTS.USER_REGISTERED, { user_id: user.id, role: user.role });
 
     // The response remains minimal; requestPatientOtp emits the opaque delivery DTO.
@@ -483,7 +658,7 @@ export class AuthService {
     return { registered: true };
   }
 
-  async register(data: { full_name: string; phone?: string; password: string; email?: string; role?: UserRole }) {
+  async register(data: { full_name: string; phone?: string; password: string; email?: string; role?: UserRole }, guestToken?: string) {
     if (data.email !== undefined) AuthService.assertString(data.email, 'email');
     if (data.phone !== undefined) AuthService.assertString(data.phone, 'phone');
     AuthService.assertString(data.password, 'password');
@@ -525,6 +700,11 @@ export class AuthService {
     if (!ownershipProven) {
       throw new BadRequestException({ message: 'otp_required', code: 'otp_required', statusCode: HttpStatus.BAD_REQUEST });
     }
+    // 16.2: length and breach-list policy, before anything is stored.
+    const policy = await this.passwordSecurity?.check(data.password);
+    if (policy && !policy.ok) {
+      throw new BadRequestException({ message: policy.code, code: policy.code, statusCode: HttpStatus.BAD_REQUEST });
+    }
     const hash = await bcrypt.hash(data.password, 12);
     // S6 privilege-escalation fix: public registration may ONLY create patient or
     // independently-onboarding provider accounts (which stay unverified until admin
@@ -551,10 +731,12 @@ export class AuthService {
     }
 
     this.events.emit(EVENTS.USER_REGISTERED, { user_id: u.id, role: u.role });
+    // 21.2: registering from a guest device keeps the cart and the orders.
+    await this.mergeGuestFromRequest(guestToken, u.id);
     return { user: this.publicUser(u), token: this.signToken(u) };
   }
 
-  async login(identifier: string, password: string, ctx?: { deviceToken?: string; ua?: string; ip?: string }) {
+  async login(identifier: string, password: string, ctx?: { deviceToken?: string; ua?: string; ip?: string }, guestToken?: string) {
     AuthService.assertString(identifier, 'identifier');
     AuthService.assertString(password, 'password');
     const isEmail = identifier.includes('@');
@@ -630,6 +812,8 @@ export class AuthService {
     u.last_login_at = new Date();
     await u.save();
     this.events.emit(EVENTS.USER_LOGGED_IN, { user_id: u.id, role: u.role });
+    // 21.2: password sign-in merges the guest data too.
+    await this.mergeGuestFromRequest(guestToken, u.id);
     return { user: this.publicUser(u), token: this.signToken(u) };
   }
 
@@ -732,9 +916,9 @@ export class AuthService {
           <h2 style="color:#0E8FA3">تنبيه أمني — لوحة تحكم نبض</h2>
           <p>تم تسجيل الدخول إلى حساب الأدمن واعتماد جهاز جديد:</p>
           <ul>
-            <li><b>الجهاز:</b> ${device?.name || 'غير معروف'}</li>
-            <li><b>المتصفح/النظام:</b> ${device?.user_agent || '-'}</li>
-            <li><b>عنوان IP:</b> ${ip || '-'}</li>
+            <li><b>الجهاز:</b> ${escapeHtml(device?.name || 'غير معروف')}</li>
+            <li><b>المتصفح/النظام:</b> ${escapeHtml(device?.user_agent || '-')}</li>
+            <li><b>عنوان IP:</b> ${escapeHtml(ip || '-')}</li>
             <li><b>الوقت:</b> ${when}</li>
           </ul>
           <p>إذا لم يكن هذا أنت، ادخل فورًا إلى <b>الأمان ومفاتيح الدخول</b> واحذف الجهاز وغيّر كلمة المرور.</p>
@@ -760,9 +944,9 @@ export class AuthService {
       const html = `<div dir="rtl" style="font-family:Tahoma,Arial,sans-serif;line-height:1.9">
           <h2 style="color:#0E8FA3">${ok ? 'تسجيل دخول — لوحة تحكم نبض' : 'محاولة دخول فاشلة — لوحة تحكم نبض'}</h2>
           <ul>
-            <li><b>الحساب:</b> ${u.email || '-'}</li>
-            <li><b>الجهاز:</b> ${ctx?.deviceName || 'غير معروف'}</li>
-            <li><b>عنوان IP:</b> ${ctx?.ip || '-'}</li>
+            <li><b>الحساب:</b> ${escapeHtml(u.email || '-')}</li>
+            <li><b>الجهاز:</b> ${escapeHtml(ctx?.deviceName || 'غير معروف')}</li>
+            <li><b>عنوان IP:</b> ${escapeHtml(ctx?.ip || '-')}</li>
             <li><b>الوقت:</b> ${when}</li>
           </ul>
           ${ok ? '' : '<p>إذا لم يكن هذا أنت، غيّر كلمة المرور فورًا.</p>'}
@@ -847,31 +1031,30 @@ export class AuthService {
   }
 
   /** Re-point a guest's data to another account (used by the merge path). */
-  private async migrateGuestData(fromUserId: string, toUserId: string) {
-    const collections: Array<{ name: string; fields: string[] }> = [
-      { name: 'orders', fields: ['patient_id', 'user_id'] },
-      { name: 'carts', fields: ['user_id', 'patient_id'] },
-      { name: 'appointments', fields: ['patient_id', 'patient_account_id'] },
-      { name: 'pushtokens', fields: ['user_id'] },
-      { name: 'pushengagements', fields: ['user_id'] },
-      { name: 'notifications', fields: ['user_id'] },
-      { name: 'search_queries', fields: ['user_id'] },
-      { name: 'product_views', fields: ['user_id'] },
-      { name: 'storage_objects', fields: ['owner_account_id'] },
-    ];
-    for (const c of collections) {
-      for (const f of c.fields) {
-        try {
-          await (this.userModel.db as any).collection(c.name).updateMany(
-            { [f]: fromUserId }, { $set: { [f]: toUserId } },
-          );
-        } catch { /* best-effort per collection */ }
-      }
-    }
-    // Patient profile itself
+  /**
+   * 21.2 — after any sign-up or sign-in method produces an account, move the
+   * guest's data into it.
+   *
+   * `guestToken` is the guest's OWN access token. `GuestService.proveGuestToken`
+   * verifies its signature, expiry, `is_guest` flag and still-unmerged row, and
+   * burns its jti. There is no path where a bare guest id moves data. A merge
+   * failure never breaks the sign-in: the user is signed in and the reason is
+   * logged.
+   */
+  private async mergeGuestAfterSignIn(guestToken: string | undefined, targetUserId: string) {
+    if (!guestToken || !this.guests) return;
     try {
-      await this.patientModel.findOneAndUpdate({ user_id: fromUserId }, { $set: { user_id: toUserId } });
-    } catch { /* ok if none */ }
+      const proof = await this.guests.proveGuestToken(guestToken);
+      if (proof.guestAccountId === targetUserId) return;
+      await this.guests.mergeGuestIntoAccount(proof, targetUserId);
+    } catch (e: any) {
+      // A bad, expired or replayed guest token simply means no merge.
+      this.logger.warn(`guest merge skipped: ${e?.message}`);
+    }
+  }
+
+  private async mergeGuestFromRequest(guestToken: string | undefined, targetUserId: string) {
+    await this.mergeGuestAfterSignIn(guestToken, targetUserId);
   }
 
   async convertGuest(
@@ -1066,7 +1249,7 @@ export class AuthService {
     return u?.phone || u?.email || identifier;
   }
 
-  async socialLogin(dto: { provider: 'google' | 'apple' | 'x' | 'snapchat'; token: string; email?: string; name?: string }) {
+  async socialLogin(dto: { provider: 'google' | 'apple' | 'x' | 'snapchat'; token: string; email?: string; name?: string }, guestToken?: string) {
     // Q107: the email comes only from a provider token whose signature and
     // audience were verified, never from the body. X and Snapchat had no
     // verification at all (unsigned JWT decode, or a made-up address).
@@ -1104,6 +1287,13 @@ export class AuthService {
     u.last_login_at = new Date();
     await u.save();
     this.events.emit(EVENTS.USER_LOGGED_IN, { user_id: u.id, role: u.role });
+
+    // 21.6: a verified provider token is the ONLY proof for a provider link,
+    // and it is minted here from the identity this method just verified.
+    await this.recordProviderLinkProofs(u.id, dto.provider as 'google' | 'apple', email);
+
+    // 21.2: a guest who signs in with Google keeps the cart and the orders.
+    await this.mergeGuestFromRequest(guestToken, u.id);
 
     return { user: this.publicUser(u), token: this.signToken(u) };
   }

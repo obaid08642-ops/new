@@ -59,8 +59,8 @@
     "aiDesc": "Mabilisang pagsusuri ng sintomas gamit ang AI",
     "mapTitle": "Mapa ng mga Pasilidad",
     "mapDesc": "Tuklasin ang mga kalapit na klinika, ospital at botika",
-    "emergencyTitle": "Emergency at Ambulansya",
-    "emergencyDesc": "Agarang tulong sa emerhensya at kahilingan sa ambulansya",
+    "emergencyTitle": "Agarang tulong",
+    "emergencyDesc": "Kung kailangan mo ng agarang tulong, tawagan ang numero ng agarang tulong na itinakda sa Nabd Plus.",
     "trustLicensed": "Sertipikado at May Lisensya",
     "trustLicensedSub": "Mga beripikadong medikal na pasilidad at kawani",
     "trustGenuine": "100% Tunay na Gamot",
@@ -94,7 +94,7 @@
     "svcMaternity": "Pagbubuntis",
     "svcMap": "Mapa",
     "svcHealth": "Aking kalusugan",
-    "svcEmergency": "Emergency",
+    "svcEmergency": "Agarang tulong",
     "aiTitle": "Matalinong katulong na medikal",
     "aiSub": "Ilarawan ang iyong mga sintomas at kumuha ng paunang gabay",
     "aiStart": "Simulan ang chat",
@@ -258,12 +258,12 @@
       "details": "Mga detalye"
     },
     "emptyTitle": "Wala pang order",
-    "emptyBody": "Dito lalabas ang mga order mo sa mga botika.",
+    "emptyBody": "Dito lumalabas ang iyong mga order sa botika, konsultasyon, lab, radiology at nursing.",
     "browse": "Tingnan ang mga gamot",
     "emptyCurrentTitle": "Walang kasalukuyang order",
-    "emptyCurrentBody": "Dito lalabas ang order na naghihintay sa mga botika o papunta na sa iyo.",
+    "emptyCurrentBody": "Dito lumalabas ang order na naghihintay o papunta na.",
     "emptyPreviousTitle": "Walang nakaraang order",
-    "emptyPreviousBody": "Dito lalabas ang mga naihatid at nakanselang order.",
+    "emptyPreviousBody": "Dito lumalabas ang mga natapos at kinanselang order.",
     "listErrorTitle": "Hindi ma-load ang mga order mo",
     "unavailableTitle": "Hindi ma-load ang order",
     "unavailableBody": "Tingnan ang koneksyon mo at subukan ulit.",
@@ -277,7 +277,15 @@
     "pickupTitle": "Pagkuha",
     "pickupNote": "Ikaw mismo ang kukuha ng order na ito sa botika.",
     "priceTitle": "Presyo",
-    "total": "Kabuuan"
+    "total": "Kabuuan",
+    "kind": {
+      "consultation": "Konsultasyon",
+      "labs": "Pagsusuri sa laboratoryo",
+      "radiology": "Radyolohiya (scan)",
+      "nursing": "Pagbisita ng nars"
+    },
+    "statusUnavailable": "Hindi available ang status",
+    "partialNote": "May mga order na hindi ma-load. Nasa ibaba ang iba; subukan muli sa ilang sandali."
   },
   "Cart": {
     "eyebrow": "Pribadong cart",
@@ -311,6 +319,7 @@
     "remove": "Alisin ang {name} sa kariton",
     "removed": "Naalis ang {name} sa kariton",
     "needsRx": "Kailangan ng reseta",
+    "onlineOnly": "Online lang",
     "rxBannerTitle": "May item na nangangailangan ng reseta",
     "rxBannerBody": "I-upload ang reseta bago ipadala ang kahilingan",
     "rxBannerAction": "I-upload",
@@ -736,7 +745,9 @@
     "emergencyPhone": "Numero ng mobile",
     "emergencyRequired": "Ilagay ang pangalan at numero ng mobile.",
     "emergencySaveError": "Hindi na-save ang contact. Subukan muli.",
-    "emergencySave": "I-save"
+    "emergencySave": "I-save",
+    "nextAppointment": "Ang iyong susunod na appointment",
+    "nextAppointmentUnavailable": "Hindi ma-load ngayon ang iyong susunod na appointment."
   },
   "Prescriptions": {
     "title": "Mga reseta",
@@ -932,6 +943,20 @@
       "closed": "Pagbasa lamang",
       "hoursLeft": "{count} oras na natitira",
       "minutesLeft": "{count} minuto na natitira"
+    },
+    "composerTitle": "Mensahe sa doktor",
+    "composerLabel": "Isulat ang iyong mensahe",
+    "composerPlaceholder": "Sumulat ng mensahe para sa doktor",
+    "send": "Ipadala",
+    "sending": "Ipinapadala…",
+    "sent": "Naipadala ang iyong mensahe.",
+    "sendRetry": "Subukan muli",
+    "sendErrors": {
+      "invalid": "Sumulat ng mensaheng hanggang 2000 character.",
+      "signedOut": "Natapos ang iyong session. Mag-sign in at ipadala muli.",
+      "forbidden": "Hindi makapagpadala ng mensahe sa usapang ito ngayon.",
+      "network": "Hindi makakonekta. Hindi pa naipapadala ang iyong mensahe; subukan muli.",
+      "generic": "Hindi naipadala ang mensahe. Subukan muli."
     }
   },
   "Sleep": {
@@ -1109,7 +1134,22 @@
     "connectionFailed": "Hindi available ang koneksyon. Subukan muli.",
     "confirmedTitle": "Na-book ang iyong appointment",
     "confirmedBody": "Oras ng appointment: {slot}",
-    "bookAnother": "Mag-book ng isa pang oras"
+    "bookAnother": "Mag-book ng isa pang oras",
+    "quick": "Mabilis na filter",
+    "nearest": "Pinakamalapit",
+    "availableNow": "Available ngayon",
+    "nearestOnline": "Ang «Pinakamalapit» ay para lang sa klinika at home visit, hindi sa online na konsultasyon.",
+    "locating": "Hinahanap ang iyong lokasyon…",
+    "nearestNoPlace": "Hindi posibleng ayusin ayon sa distansya. Payagan ang access sa lokasyon o mag-save ng address na may lungsod.",
+    "nearestCity": "Mga doktor sa {city}",
+    "visitType": "Uri ng konsultasyon",
+    "verifiedDoctor": "Beripikadong doktor",
+    "licenseNumber": "Lisensya blg. {number}",
+    "specialtyLabel": "Espesyalidad",
+    "allSpecialties": "Lahat ng espesyalidad",
+    "paymentLabel": "Bayad",
+    "payment_insurance": "Tumatanggap ng insurance",
+    "payment_cash": "Cash lang"
   },
   "LabsServices": {
     "eyebrow": "Pangangalaga sa laboratoryo",
@@ -1213,7 +1253,8 @@
     "inStock": "May stock",
     "outOfStock": "Walang stock",
     "unavailableTitle": "Hindi available ang wishlist",
-    "unavailableBody": "Pakisubukang muli mamaya."
+    "unavailableBody": "Pakisubukang muli mamaya.",
+    "needsRx": "Kailangan ng reseta"
   },
   "Search": {
     "title": "Paghahanap",
@@ -1277,15 +1318,12 @@
     }
   },
   "Emergency": {
-    "title": "Emergency",
-    "subtitle": "Pindutin lamang ang SOS sa mga kritikal na sitwasyon.",
-    "trigger": "Magpadala ng SOS",
-    "triggering": "Ipinapadala…",
-    "activeLabel": "Aktibo ang SOS — paparating na ang response team",
-    "cancel": "Kanselahin ang SOS",
-    "cancelling": "Kinakansela…",
-    "error": "Hindi makumpleto ang aksyon ngayon",
-    "state": "Estado"
+    "title": "Agarang tulong",
+    "intro": "Kung kailangan mo ng agarang tulong, tawagan ang numero ng agarang tulong na itinakda sa Nabd Plus.",
+    "call": "Tawagan ang {number}",
+    "unavailable": "Wala pang naitakdang numero ng agarang tulong, kaya walang matatawagan mula rito. Kung nasa panganib ka, makipag-ugnayan sa lokal na emergency services.",
+    "note": "Hindi emergency service ang Nabd Plus at hindi ito makapagpapadala ng tulong sa iyong lokasyon.",
+    "loadError": "Hindi ma-load ang numero ng agarang tulong ngayon."
   },
   "Returns": {
     "title": "Mga return request",
@@ -1357,7 +1395,13 @@
     "empty": "Wala pang address",
     "listLabel": "Listahan ng mga address",
     "unnamed": "Walang pangalang address",
-    "default": "Default"
+    "default": "Default",
+    "edit": "I-edit",
+    "editTitle": "I-edit ang address",
+    "cancel": "Kanselahin",
+    "removeConfirmTitle": "Kumpirmahin ang pagtanggal ng address",
+    "removeConfirm": "Alisin ang address na “{name}”? Hindi na ito maibabalik.",
+    "removeConfirmYes": "Oo, alisin"
   },
   "ShareReport": {
     "title": "Ibahagi ang mga Ulat",
@@ -1461,7 +1505,11 @@
     "manufacturer": "Tagagawa",
     "emptyBody": "Pumili ng dalawa o higit pang gamot mula sa katalogo.",
     "browse": "Mag-browse",
-    "back": "Mga gamot"
+    "back": "Mga gamot",
+    "requires_prescription": "Kailangan ng reseta",
+    "online_exclusive": "Online lang",
+    "yes": "Oo",
+    "no": "Hindi"
   },
   "PharmacyRequest": {
     "title": "Humingi ng gamot sa pangalan",
@@ -1494,7 +1542,8 @@
     "viewProduct": "Tingnan ang produkto",
     "another": "Maghanap ng ibang barcode",
     "requestByName": "Hilingin sa pangalan",
-    "errorLookup": "Nabigo ang paghahanap ng barcode. Subukan muli."
+    "errorLookup": "Nabigo ang paghahanap ng barcode. Subukan muli.",
+    "onlineOnly": "Online lang"
   },
   "PharmacyChat": {
     "title": "Negosasyon sa parmasya",
@@ -1529,7 +1578,18 @@
     "back": "Mga appointment ko",
     "emptyBody": "Wala pang nakaraang tawag.",
     "findDoctor": "Maghanap ng doktor",
-    "unknownDoctor": "Doktor"
+    "unknownDoctor": "Doktor",
+    "unavailableTitle": "Hindi ma-load ang iyong mga tawag ngayon",
+    "unavailableBody": "Suriin ang iyong koneksyon at subukan muli.",
+    "videoCall": "Tawag na video",
+    "voiceCall": "Tawag na boses",
+    "status": {
+      "ended": "Natapos ang tawag",
+      "rejected": "Tinanggihan",
+      "missed": "Hindi nasagot na tawag",
+      "active": "Kasalukuyang tawag",
+      "pending": "Nakabinbing tawag"
+    }
   },
   "PostCallRating": {
     "title": "I-rate ang konsultasyon",
@@ -2362,7 +2422,7 @@
     "summaryPrescription": "Reseta",
     "summaryRecommendations": "Mga rekomendasyon",
     "summaryFollowUp": "Inirerekomenda ang follow-up sa loob ng {days} araw",
-    "summaryFollowUpBody": "I-book na ang follow-up sa may diskwentong halaga sa loob ng panahong ito.",
+    "summaryFollowUpBody": "I-book na ang follow-up sa loob ng panahong ito.",
     "actionBookFollowUp": "Mag-book ng follow-up",
     "actionOrderMedicines": "Umorder ng gamot sa botika",
     "actionBookTests": "Mag-book ng mga test",
@@ -2538,6 +2598,7 @@
     "inviteCode": "Code ng imbitasyon",
     "inviteCopy": "Kopyahin ang code",
     "inviteCopied": "Nakopya",
+    "inviteCopyFailed": "Hindi nakopya. Piliin ang code at kopyahin nang mano-mano.",
     "inviteFailed": "Hindi nagawa ang imbitasyon. Subukan muli.",
     "joinCodeHint": "I-paste ang code dito",
     "joinRelation": "Relasyon (opsyonal)",
@@ -3242,7 +3303,7 @@
       "insurance": "Seguro: {list}"
     },
     "pharmacies": {
-      "title": "Mga na-verify na botika sa {city}",
+      "title": "Mga botika sa {city}",
       "intro": "Mga botika at medical center na nakalista sa {city}.",
       "notice": "Ipinapadala ang order mo ng gamot sa mga kalapit na botika, at sumasagot sila ng mga alok.",
       "list": "Mga botika at medical center",
@@ -3259,6 +3320,7 @@
       "privacy": "Patakaran sa privacy",
       "version": "Bersyon {version} · Epektibo mula {date}",
       "versionOnly": "Bersyon {version}",
+      "currentVersion": "Ito ang kasalukuyang bersyon ng teksto. Papalitan ito ng bersyong inaprubahan ng batas bago ang paglulunsad.",
       "back": "Bumalik"
     },
     "provider": {
@@ -3280,20 +3342,20 @@
         "description": "Mga na-verify na doktor sa {specialty} sa {neighborhood}, {city}. Mag-book ng konsultasyon sa Nabd Plus."
       },
       "homeNursing": {
-        "title": "Mga serbisyo ng home nursing sa {city} | May lisensyang pangangalaga 24/7",
-        "description": "Na-verify at may lisensyang home nursing sa {city}. Pangangalaga sa nakatatanda, pagkatapos ng operasyon at pang-araw-araw na tulong sa Nabd Plus."
+        "title": "Home nursing sa {city} | Nabd Plus",
+        "description": "Mag-book ng home nursing sa {city}: pangangalaga sa nakatatanda, pangangalaga pagkatapos ng operasyon at pang-araw-araw na tulong sa Nabd Plus."
       },
       "labs": {
-        "title": "Lab test na {test} sa {city} | Koleksyon ng sample sa bahay",
-        "description": "Mag-book ng lab test na {test} sa {city} na may koleksyon sa bahay at mabilis na resulta sa Nabd Plus."
+        "title": "{test} lab test sa {city} | Pagkuha ng sample sa bahay",
+        "description": "Mag-book ng {test} lab test sa {city} na may pagkuha ng sample sa bahay sa Nabd Plus."
       },
       "labsEmpty": {
         "title": "{test} sa {city} — Maging unang provider | Nabd",
         "description": "{test} sa {city} — wala pang provider. Magparehistro bilang katuwang na lab."
       },
       "radiology": {
-        "title": "Radiology na {service} sa {city} | Mga diagnostic imaging center",
-        "description": "Mag-book ng imaging appointment na {service} sa {city} sa mga akreditadong center sa Nabd Plus."
+        "title": "{service} radiology sa {city} | Mga diagnostic imaging center",
+        "description": "Mag-book ng {service} imaging appointment sa {city} sa mga imaging center sa Nabd Plus."
       },
       "radiologyEmpty": {
         "title": "{service} sa {city} — Maging unang center | Nabd",
@@ -3304,8 +3366,8 @@
         "description": "Mga na-verify na serbisyong pangkalusugan na {service} sa {city}. Pangangalaga sa klinika at sa bahay sa Nabd Plus."
       },
       "pharmacies": {
-        "title": "Mga na-verify na botika sa {city} | Mabilis na paghahatid ng gamot",
-        "description": "Maghanap ng reseta at OTC na gamot sa {city} na may instant geo-broadcast na paghahatid sa Nabd Plus."
+        "title": "Mga botika sa {city} | Mag-order ng gamot at ikumpara ang mga alok",
+        "description": "Ipadala ang iyong reseta o order ng gamot sa mga botika sa {city} at ikumpara ang kanilang mga alok sa Nabd Plus."
       },
       "pharmaciesEmpty": {
         "title": "Mga botika sa {city} — Maging unang katuwang | Nabd",
@@ -3319,6 +3381,19 @@
         "description": "{name} sa {city}. Mga espesyalisadong serbisyong pangkalusugan, tinatanggap na insurance at mga na-verify na doktor.",
         "country": "Kaharian ng Arabyang Saudita"
       }
+    },
+    "ld": {
+      "labTest": "{test} lab test sa {city}",
+      "radiology": "{service} imaging sa {city}",
+      "homeNursing": "Mga serbisyo ng home nursing at medical visit sa {city}",
+      "crumbDiagnostics": "Diyagnostiko",
+      "crumbRadiology": "Radyolohiya",
+      "crumbHomeCare": "Pangangalaga sa bahay",
+      "crumbServices": "Mga serbisyo",
+      "crumbPharmacy": "Botika",
+      "crumbFacilities": "Mga ospital at klinika",
+      "crumbHealthGuide": "Gabay sa kalusugan",
+      "crumbDoctors": "Mga doktor"
     }
   },
   "InsuranceWeb": {
@@ -3329,13 +3404,10 @@
     "tabs": "Mga seksyon ng insurance",
     "tabPolicy": "Polisiya",
     "tabBenefits": "Mga benepisyo",
-    "tabClaims": "Mga claim",
-    "tabRefunds": "Mga refund",
     "tabNetwork": "Mga kasaping provider",
     "shortcuts": "Mga shortcut ng insurance",
     "addPolicy": "Magdagdag ng polisiya",
     "changePolicy": "Palitan ang polisiya",
-    "submitClaim": "Magsumite ng claim",
     "coverageCheck": "Ano ang saklaw ng polisiya ko",
     "noPolicyTitle": "Walang naitalang polisiya",
     "planLine": "Klase {plan}",
@@ -3358,17 +3430,6 @@
     "disclaimer": "Hindi nakikipag-ugnayan ang Nabd+ sa iyong insurer. Ang pasilidad ang humihingi ng pag-apruba sa iyong insurer sa sarili nitong mga sistema at itinatala ang desisyon dito. Ang co-pay mo lang ang babayaran mo.",
     "benefitsEmpty": "Walang benepisyong maipapakita.",
     "benefitTitle": "Benepisyo ng insurance",
-    "claimsEmpty": "Wala pang claim.",
-    "claimServiceUnknown": "Serbisyo ng insurance",
-    "claimStatus": {
-      "approved": "Naaprubahan",
-      "reimbursed": "Na-reimburse",
-      "pending": "Nakabinbin",
-      "rejected": "Tinanggihan",
-      "unknown": "Hindi available ang status"
-    },
-    "refundsEmpty": "Walang refund.",
-    "refundTitle": "Ibinalik na bayad",
     "networkNoPolicy": "Walang naka-save na polisiya. Magdagdag muna ng polisiya para makita ang mga provider sa network.",
     "networkSearch": "Hanapin ayon sa pangalan ng provider",
     "networkEmpty": "Walang provider sa network na maipapakita.",
@@ -3386,27 +3447,6 @@
       "submit": "I-save ang polisiya",
       "invalid": "Pumili ng kumpanya at maglagay ng wastong numero ng polisiya (hindi bababa sa 3 karakter).",
       "failed": "Hindi na-save ang polisiya."
-    },
-    "claim": {
-      "title": "Magsumite ng claim",
-      "lead": "Pumili ng bayad na booking na iki-claim.",
-      "booking": "Bayad na booking",
-      "loading": "Naglo-load…",
-      "none": "Walang bayad na booking na kwalipikado sa claim.",
-      "placeholder": "Pumili…",
-      "note": "Tala (opsyonal)",
-      "submit": "Isumite ang claim",
-      "pick": "Pumili ng bayad na booking na iki-claim.",
-      "failed": "Hindi naisumite ang claim.",
-      "done": "Naisumite na ang claim.",
-      "viewClaims": "Tingnan ang mga claim",
-      "kind": {
-        "consultation": "Konsultasyong medikal",
-        "pharmacy": "Mga gamot",
-        "lab": "Mga lab test",
-        "radiology": "Radyolohiya",
-        "nursing": "Nars sa bahay"
-      }
     },
     "coverage": {
       "title": "Ano ang saklaw ng polisiya ko",
@@ -3562,7 +3602,11 @@
     "noProviders": "Walang available na provider para sa alok na ito ngayon",
     "errorTitle": "Hindi ma-load ang mga alok",
     "empty": "Bumalik ka agad, patuloy na nadaragdagan ang mga alok.",
-    "error": "Suriin ang koneksyon mo at subukan muli."
+    "error": "Suriin ang koneksyon mo at subukan muli.",
+    "share": "I-share ang alok",
+    "shareDone": "Naibahagi na.",
+    "shareCopied": "Nakopya ang link.",
+    "shareFailed": "Hindi naibahagi. Kopyahin ang link mula sa address bar."
   },
   "SettingsWeb": {
     "hubTitle": "Mga setting",
@@ -3681,7 +3725,6 @@
     "aboutRules": "Pagkansela at mga refund",
     "aboutRulesUnavailable": "Hindi ma-load ngayon ang patakaran sa pagkansela at refund.",
     "ruleCancelFull": "Maaaring kanselahin ang appointment hanggang {hours} oras bago ito para sa buong refund.",
-    "ruleCancelLate": "Ang pagkansela nang wala pang {hours} oras bago ay may singil na {fee}% ng booking.",
     "ruleRefundDays": "Darating ang refund sa loob ng {min} hanggang {max} araw ng trabaho.",
     "ruleReturnDays": "Maaaring ibalik ang mga hindi nagamit na produkto sa loob ng {days} araw mula sa pagtanggap."
   },
@@ -3771,5 +3814,10 @@
     "message": "I-type ang iyong mensahe",
     "attach": "Mag-attach ng larawan",
     "send": "Ipadala"
+  },
+  "Modules": {
+    "unavailableTitle": "Hindi available ang serbisyong ito ngayon",
+    "unavailableBody": "Pansamantala naming inihinto ang serbisyong ito. Magagamit mo pa rin ang iba pang bahagi ng site.",
+    "unavailableHome": "Bumalik sa Home"
   }
 }

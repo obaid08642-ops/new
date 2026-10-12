@@ -91,6 +91,7 @@ export function BarcodeScreen({ locale }: { locale: Locale }) {
             <div className={rx.chips}>
               <StatusChip label={found.kind === "exact" ? t("foundTitle") : t("closestTitle")} tone={found.kind === "exact" ? "mint" : "amber"} />
               {product.requiresRx ? <StatusChip label={t("needsRx")} tone="amber" /> : null}
+              {product.onlineOnly ? <StatusChip label={t("onlineOnly")} tone="mint" /> : null}
             </div>
             <div className={rx.resultHead}>
               <FIcon icon="pill" tone={PHARMACY_TONE} size={48} />

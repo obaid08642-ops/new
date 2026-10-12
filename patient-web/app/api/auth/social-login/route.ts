@@ -3,6 +3,7 @@ import { z } from "zod";
 import { setSessionCookies } from "@/lib/auth/cookies";
 import { callPatientApi } from "@/lib/api/upstream";
 import { boundedUpstreamError } from "@/lib/api/error-response";
+import { guestMergeHeaders } from "@/lib/auth/guest-merge";
 
 const socialSchema = z.object({
   provider: z.enum(["google", "apple"]),
@@ -19,7 +20,7 @@ function tokenPair(data: unknown) {
 export async function POST(request: Request) {
   const input = socialSchema.safeParse(await request.json().catch(() => null));
   if (!input.success) return NextResponse.json({ message: "invalid_social_payload" }, { status: 400 });
-  const upstream = await callPatientApi("/auth/social-login", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(input.data) });
+  const upstream = await callPatientApi("/auth/social-login", { method: "POST", headers: await guestMergeHeaders({ "content-type": "application/json" }), body: JSON.stringify(input.data) });
   const data = await upstream.json().catch(() => null);
   if (!upstream.ok) return boundedUpstreamError(data, "social_login_failed", upstream.status);
   const tokens = tokenPair(data);

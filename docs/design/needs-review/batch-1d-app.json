@@ -17,7 +17,7 @@
     "file": "backend/src/modules/payments/payments.module.ts",
     "line": 309,
     "found": "POST /payments/intent/pharmacy/:id ignores the body (`method` is not read); the transaction is created with method = order.payment_method (so \"cash\" or \"insurance\" for an order paid online) and the hosted page offers whatever the gateway offers.",
-    "suspect": "Backend should either honour the chosen method (and advertise the real ones) or the board should drop the list; owner decision."
+    "suspect": "Fixed on design/backend-fields: the backend honours the chosen method (payments.module.ts:378-386) and capabilities advertise card, apple-pay and google-pay; the payment screen lists them and sends the pick. (was: Backend should either honour the chosen method (and advertise the real ones) or the board should drop the list; owner decision.)"
   },
   {
     "batch": 1,

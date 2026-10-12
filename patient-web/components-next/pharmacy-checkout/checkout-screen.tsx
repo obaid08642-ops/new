@@ -12,6 +12,7 @@ import { EmptyState, Skeleton } from "@/components-next/ui-generated/components/
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { AddressCard } from "@/components-next/pharmacy/address-card";
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
+import { RxConsultLink } from "@/components-next/pharmacy/rx-consult-link";
 import { useDeliveryAddress } from "@/components-next/pharmacy/use-delivery-address";
 import { OFFER_TONES } from "@/components-next/pharmacy-offers/tones";
 import { useCart } from "@/lib/context/CartContext";
@@ -171,7 +172,7 @@ export function CheckoutScreen({ locale }: { locale: Locale }) {
           </ul>
         </section>
 
-        {hasRxItems ? <PrescriptionNotice state={prescription} locale={locale} /> : null}
+        {hasRxItems ? <PrescriptionNotice state={prescription} locale={locale} lines={items} /> : null}
 
         <section className={styles.group} aria-labelledby="checkout-fulfil">
           <h2 className={styles.legend} id="checkout-fulfil">{t("fulfilLegend")}</h2>
@@ -243,7 +244,7 @@ export function CheckoutScreen({ locale }: { locale: Locale }) {
 }
 
 /** A cart with prescription medicines needs a saved prescription: say which of the real answers it got. */
-function PrescriptionNotice({ state, locale }: { state: PrescriptionState; locale: Locale }) {
+function PrescriptionNotice({ state, locale, lines }: { state: PrescriptionState; locale: Locale; lines: ReadonlyArray<{ id: string; rx: boolean }> }) {
   const t = useTranslations("PharmacyCheckout");
   if (state.status === "idle" || state.status === "loading") return <p className={rx.note} role="status">{t("rxChecking")}</p>;
   if (state.status === "found") return <p className={`${ov.notice} ${ov.noticeOk}`} role="status">{t("rxAttached")}</p>;
@@ -257,7 +258,7 @@ function PrescriptionNotice({ state, locale }: { state: PrescriptionState; local
       </div>
       <div className={rx.bannerActions}>
         <Link className={rx.bannerAction} href={`/${locale}/pharmacy/rx-order?via=photo`}>{t("rxUpload")}</Link>
-        <Link className={rx.bannerAction} href={`/${locale}/consultations/specialties`}>{t("rxConsult")}</Link>
+        <RxConsultLink className={rx.bannerAction} locale={locale} lines={lines} label={t("rxConsult")} />
       </div>
     </div>
   );

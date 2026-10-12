@@ -18,6 +18,8 @@ export const STORAGE_KEYS = {
   THEME: '@nabdah_theme',
   LANGUAGE: '@nabdah_language',
   ONBOARDING_DONE: '@nabdah_onboarding_done',
+  // First-launch intro (language step, then the slides): set once when the user finishes or skips; the suffix is the version.
+  INTRO_DONE: '@nabdah_intro_done_v1',
   CART: '@nabdah_cart',
   SAVED_ADDRESSES: '@nabdah_addresses',
   HEALTH_PROFILE: '@nabdah_health_profile',
@@ -85,9 +87,3 @@ export const FAMILY_RELATIONS = [
   { id: 'grandmother', nameAr: 'جدة', icon: 'user' },
 ];
 
-export const EMERGENCY_NUMBERS = {
-  ambulance: '997',
-  police: '999',
-  fire: '998',
-  civilDefense: '911',
-};

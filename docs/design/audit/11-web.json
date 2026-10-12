@@ -9,7 +9,7 @@
       ["Ways to earn, current and next tier perks", "GET /loyalty/config earn_ways, tiers[].perks", "ok"],
       ["Challenges: stats, rows, join, progress, status", "GET /loyalty/challenges; POST /loyalty/challenges/:id/join", "ok"],
       ["Challenge default target 7 and end date 30 June", "invented in the old screen", "fixed"],
-      ["Invite: your code, copy, share", "GET /referrals/my code; clipboard and share sheet of the browser", "ok"],
+      ["Invite: your code, copy, share", "GET /referrals/my code; copyText (navigator.clipboard, execCommand fallback) and the share sheet; an error shows when the copy fails", "ok"],
       ["Invite: apply a friend code", "POST /referrals/apply", "ok"],
       ["Invite: earned points, total invited, invite list", "GET /referrals/my stats, invites", "ok"],
       ["Referral amounts (50 / 100 points) in the copy and the +100 chips", "no endpoint sends them", "hidden"],
@@ -28,7 +28,8 @@
       ["Title, provider, sponsored", "GET /offers/:id title_ar/title_en, provider.name, target.sponsored", "ok"],
       ["Price, old price, saving", "GET /offers/:id discounted_price, original_price (saving = their difference)", "ok"],
       ["Validity, inclusions, terms", "GET /offers/:id start_date, end_date, target.inclusions, target.terms", "ok"],
-      ["Providers to book with", "GET /promotions/offers/:id/providers; links to /consultations/book/[id]", "ok"]
+      ["Providers to book with", "GET /promotions/offers/:id/providers; links to /consultations/book/[id]", "ok"],
+      ["Share button (issue 752)", "navigator.share with a copy-link fallback (lib/share.ts, lib/copy-text.ts); no request", "ok"]
     ] }
   ],
   "needsReview": [

@@ -146,7 +146,7 @@
  {
   "scenario": 2,
   "step": "upload prescription",
-  "problem": "Web blocks when OCR finds no lines, the app uploads anyway with empty items and shows \"no lines\" afterwards: the same step behaves differently.",
+  "problem": "Fixed on design/backend-fields: the app now stops when the photo gives no medicine lines (RxIntake.tsx), like the web. (was: Web blocks when OCR finds no lines, the app uploads anyway with empty items and shows \"no lines\" afterwards: the same step behaves differently.)",
   "kind": "other",
   "file": "patient-app/app/pharmacy/scan-prescription.tsx",
   "line": 71

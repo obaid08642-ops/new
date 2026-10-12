@@ -100,7 +100,7 @@ export default async function LabTestCityPage({ params }: Props) {
           }),
           breadcrumbList([
             { name: "Nabd Plus", locale: locale as Locale, path: "/" },
-            { name: "Diagnostics", locale: locale as Locale, path: "/diagnostics/labs" },
+            { name: t("ld.crumbDiagnostics"), locale: locale as Locale, path: "/diagnostics/labs" },
             { name: decTest, locale: locale as Locale, path: `/labs/${testSlug}` },
             { name: decCity, locale: locale as Locale, path: `/labs/${testSlug}/${citySlug}` },
           ]),
@@ -109,7 +109,7 @@ export default async function LabTestCityPage({ params }: Props) {
             path: `/labs/${testSlug}/${citySlug}`,
             locale: locale as Locale,
             // i18n-ok: structured data is kept exactly as published (SEO)
-            description: `Verified ${decTest} diagnostic test in ${decCity}`,
+            description: t("ld.labTest", { test: decTest, city: decCity }),
           }),
         ]}
       />

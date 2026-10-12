@@ -500,7 +500,7 @@
     "step": "facility steps",
     "status": "broken",
     "tag": "[client]",
-    "problem": "The facility steps keep their saving flag `loading` inside the registration data, so `loading: false` is part of `full_data` sent with the final submit. Kept as is in M9 so the payload stays identical; move the flag out of the data in a later change.",
+    "problem": "Fixed (already on main): DigitalCheckin was removed; NursingFieldOps posts /nursing/visits/:id/transit (home-care.controller.ts:241-255), which moves the booking to IN_TRANSIT and notifies the patient. (was: The facility steps keep their saving flag `loading` inside the registration data, so `loading: false` is part of `full_data` sent with the final submit. Kept as is in M9 so the payload stays identical; move the flag out of the data in a later change.)",
     "file": "provider-app/src/screens/facility/FacilityRegistration.tsx",
     "line": 175,
     "batch": "provider",

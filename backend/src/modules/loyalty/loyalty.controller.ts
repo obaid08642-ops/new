@@ -30,12 +30,6 @@ export class LoyaltyController {
     return this.loyaltyService.getTransactions(req.user?.id ?? 'guest', +page || 1);
   }
 
-  /** GET /api/v1/loyalty/leaderboard — Top 50 users this month */
-  @Get('leaderboard')
-  getLeaderboard(@Query('limit') limit: string) {
-    return this.loyaltyService.getLeaderboard(+limit || 50);
-  }
-
   /** GET /api/v1/loyalty/challenges — Active challenges + user progress */
   @Get('challenges')
   getChallenges(@Req() req: any) {

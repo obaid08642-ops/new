@@ -8,10 +8,10 @@ import { Module, Injectable, Controller, Get, Post, Put, Body, Param, Query, Req
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { Request } from 'express';
-import { JwtAuthGuard, CurrentUser, Public, Roles } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Public, Roles, SelfService } from '../../common/auth.guard';
 import { LegalEnterpriseService } from './legal-enterprise.service';
 import { LegalEnterpriseController } from './legal-enterprise.controller';
-import { UserRole } from '../../common/enums';
+import { PROVIDER_ROLES, UserRole } from '../../common/enums';
 import { UpdateLegalPolicyDto, UpdateCommissionsDto } from './legal.dto';
 
 const DEFAULT_COMMISSIONS = {
@@ -49,16 +49,19 @@ export class LegalService {
   async getPolicy(key: string, lang = 'ar') {
     const p: any = await this.policies.findOne({ key }, { projection: { _id: 0 } });
     if (!p) return null;
-    const content = lang === 'ar' && p.content_ar ? p.content_ar : (p.content_en || p.content_ar);
+    // Owner 2026-10-12 (753/796): policies exist in Arabic and English only. An Arabic app or site gets
+    // the Arabic text; every other language (en, ur, hi, bn, fil) gets the English text.
+    const arabic = lang === 'ar' ? !!p.content_ar : !p.content_en;
+    const content = arabic ? p.content_ar : p.content_en;
     return {
       key: p.key,
-      title: lang === 'ar' ? p.title_ar : p.title_en,
+      title: arabic ? p.title_ar : p.title_en,
       version: p.version,
       effective_date: p.effective_date,
       last_updated: p.last_updated,
       change_log: p.change_log || [],
       content,
-      language: lang === 'ar' && p.content_ar ? 'ar' : 'en',
+      language: arabic ? 'ar' : 'en',
     };
   }
 
@@ -128,7 +131,15 @@ export class LegalService {
     const applicable = await this.policies.find({ requires_acceptance: true }, { projection: { key: 1, version: 1, title_ar: 1, title_en: 1, applies_to: 1 } }).toArray();
     const accepted = await this.acceptances.find({ user_id: user.id }, { projection: { policy_key: 1, version: 1 } }).toArray();
     const accMap = new Map(accepted.map((a: any) => [`${a.policy_key}:${a.version}`, true]));
-    return applicable.filter((p: any) => !accMap.has(`${p.key}:${p.version}`) && ((p.applies_to || ['all']).includes('all') || (p.applies_to || []).includes(user.role) || (p.applies_to || []).includes('provider') || (p.applies_to || []).includes('patient')));
+    // D-38: a caller is only asked for their own side's texts ('patient' vs 'provider') plus shared ones.
+    const role = String(user?.role || '');
+    const side = role === UserRole.PATIENT ? 'patient'
+      : (role === 'provider' || user?.scope === 'provider' || PROVIDER_ROLES.includes(role)) ? 'provider' : null;
+    const applies = (p: any) => {
+      const list = Array.isArray(p?.applies_to) && p.applies_to.length ? p.applies_to : ['all'];
+      return list.includes('all') || (side !== null && list.includes(side));
+    };
+    return applicable.filter((p: any) => !accMap.has(`${p.key}:${p.version}`) && applies(p));
   }
 
   async getCommissions() {
@@ -158,7 +169,6 @@ export class LegalService {
 }
 
 @Controller()
-@Roles(UserRole.ADMIN)
 export class LegalController {
   constructor(private readonly svc: LegalService) {}
 
@@ -176,8 +186,10 @@ export class LegalController {
   @UseGuards(JwtAuthGuard)
   pending(@CurrentUser() user: any): Promise<any[]> { return this.svc.pendingAcceptances(user); }
 
+  // Every signed-in user accepts their own texts (patients and providers, not only admins).
   @Post('legal/accept/:key')
   @UseGuards(JwtAuthGuard)
+  @SelfService()
   accept(@CurrentUser() user: any, @Param('key') key: string, @Req() req: Request) {
     return this.svc.accept(user, key, req);
   }
@@ -203,6 +215,7 @@ export class LegalController {
 
   @Get('finance/commission-for')
   @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
   commissionFor(@Query('provider_id') pid: string, @Query('service_type') st: string) {
     return this.svc.commissionFor(pid || '', st || 'pharmacy');
   }

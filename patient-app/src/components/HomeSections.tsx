@@ -10,6 +10,7 @@ import { FIcon, SectionHeader } from '../../../packages/ui-native/src';
 import { apiFetch } from '../utils/api';
 import { internalRoute } from '../utils/deepLinks';
 import { Plain, useScreenUi } from './home/homeKit';
+import { useModules } from '../context/ModulesContext';
 
 type Item = { id?: string; title_ar?: string; title_en?: string; image_url?: string; deep_link?: string };
 type Section = { id?: string; type?: string; title_ar?: string; title_en?: string; enabled?: boolean; items?: Item[] };
@@ -19,7 +20,12 @@ const IMAGE_HEIGHT = 112;
 
 export default function HomeSections() {
   const { theme, t, c, lang } = useScreenUi();
-  const [sections, setSections] = useState<Section[]>([]);
+  const [allSections, setSections] = useState<Section[]>([]);
+  const { isHidden } = useModules();
+  // curated cards that open a switched-off module are not drawn (#953)
+  const sections = allSections
+    .map((s) => ({ ...s, items: (s.items || []).filter((item) => !isHidden(internalRoute(item.deep_link))) }))
+    .filter((s) => s.items.length > 0);
 
   useEffect(() => {
     let cancelled = false;

@@ -24,7 +24,10 @@ def provider_client(tok=None):
     return c
 
 
-def upload(c, name, mime='image/jpeg'):
+def upload(c, name, mime='image/png'):
+    # The bytes above are a PNG, so the declared MIME is a PNG. Phase 16.5
+    # decides the type from the magic bytes and refuses a mismatch, so claiming
+    # image/jpeg over PNG content is no longer accepted here.
     r = c.post('/storage/upload', {'data_base64': PNG, 'mime': mime, 'original_name': name})
     ref = r.get('id') or r.get('url')
     step(f'upload {name}', r.ok and ref, r)
@@ -57,7 +60,9 @@ def register_pharmacy():
         'express_minutes': 0, 'working_hours': hours, 'accepts_insurance': False, 'accepted_insurance': [],
         'insurance_plans': {}, 'accepts_cash': True, 'rx_dispensing': True, 'otc_selling': True, 'enabled_categories': ['otc', 'rx']})
     step('step3: capabilities + hours', r.ok, r)
-    docs2 = [upload(c, n, 'application/pdf') for n in ('cr_document', 'moh_license', 'sfda_license')]
+    # Same PNG payload as above, so the declared MIME must be image/png here too:
+    # 16.5 reads the type from the bytes and refuses a mismatch.
+    docs2 = [upload(c, n) for n in ('cr_document', 'moh_license', 'sfda_license')]
     logo = upload(c, 'pharmacy_logo')
     loc = {'lat': 24.7136, 'lng': 46.6753}
     r = c.post('/provider-onboarding/step2', {

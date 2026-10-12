@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
+import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
 import { Stepper } from "@/components-next/ui-generated/components/Inputs";
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
@@ -60,6 +61,7 @@ export function ReorderPicker({ locale, orderId, lines, skipped, needsPrescripti
                 <label className={styles.pickLabel}>
                   <input type="checkbox" checked={pick.on} onChange={() => setPicks((all) => ({ ...all, [line.id]: { ...pick, on: !pick.on } }))} />
                   <span className={styles.pickName}>{line.name}</span>
+                  {needsPrescription ? <StatusChip label={cart("needsRx")} tone="amber" /> : null}
                 </label>
                 {pick.on ? (
                   <Stepper

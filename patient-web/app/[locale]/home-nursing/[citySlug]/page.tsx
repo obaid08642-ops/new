@@ -102,7 +102,7 @@ export default async function HomeNursingCityPage({ params }: Props) {
           }),
           breadcrumbList([
             { name: "Nabd Plus", locale: locale as Locale, path: "/" },
-            { name: "Home Care", locale: locale as Locale, path: "/home-care/services" },
+            { name: t("ld.crumbHomeCare"), locale: locale as Locale, path: "/home-care/services" },
             { name: decCity, locale: locale as Locale, path: `/home-nursing/${citySlug}` },
           ]),
           nursingService({
@@ -110,7 +110,7 @@ export default async function HomeNursingCityPage({ params }: Props) {
             path: `/home-nursing/${citySlug}`,
             locale: locale as Locale,
             // i18n-ok: structured data is kept exactly as published (SEO)
-            description: `Licensed home nursing and medical visit services in ${decCity}`,
+            description: t("ld.homeNursing", { city: decCity }),
           }),
         ]}
       />

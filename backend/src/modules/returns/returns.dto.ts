@@ -9,6 +9,10 @@ export class CreateDto {
   @IsString()
   reason: string;
 
+  @IsOptional()
+  @IsString()
+  reason_code?: string;
+
   @IsDefined()
   @IsString()
   orderId: string;
