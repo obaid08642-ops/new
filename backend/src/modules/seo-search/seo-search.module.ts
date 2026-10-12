@@ -1,5 +1,6 @@
 
 import { BackfillSlugsDto } from './seo-search.dto';
+import { buildMedicineReport, medicineReportMarkdown } from './medicine-publication-report';
 /** Arabic/English search normalization: strip Arabic diacritics & tatweel, unify alef/hamza/yeh/teh-marbuta variants, NFKD + lowercase + collapse spaces. Pure, locale-safe. */
 export function normalizeSearchText(input: string): string {
   return (input ?? "")
@@ -173,6 +174,11 @@ function slugify(s: string): string {
 @Injectable()
 export class SeoSearchService {
   constructor(@InjectConnection() private readonly conn: Connection) {}
+
+  /** The database connection, for read-only reports built outside this service. */
+  connection(): Connection {
+    return this.conn;
+  }
   // R49: sitemap pages are 5000-doc reads (~10-12s live). Slugs change only via
   // backfill/indexing, so a 6h in-process cache is safe. Zero new deps by design.
   private readonly sitemapCache = new Map<string, { exp: number; val: any }>();
@@ -1160,6 +1166,16 @@ export class SeoAdminController {
   @Get('status')
   async status() {
     return this.svc.indexingStatus();
+  }
+
+  /**
+   * Medicine SEO report (owner 2026-10-12): approved for publication, and translation gaps per
+   * public locale among them. Counts only; nothing is filled in.
+   */
+  @Get('medicine-report')
+  async medicineReport(@Query('format') format?: string) {
+    const report = await buildMedicineReport(this.svc.connection());
+    return format === 'markdown' ? { markdown: medicineReportMarkdown(report) } : report;
   }
 
   /**
