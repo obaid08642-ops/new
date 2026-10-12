@@ -7,6 +7,8 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { readPublicEntity } from "@/lib/api/public-read";
 import { readSegment, type ExploreResult } from "@/lib/api/entity-explore";
+import { findCatalogItem } from "@/lib/api/catalog-lookup";
+import { DirectAnswer } from "@/components-next/seo/direct-answer";
 import { CardGrid, LandingEmpty, LandingPage, LandingSection, ServiceCard } from "@/components-next/landing/landing-kit";
 import { LAB, pickText } from "@/components-next/diagnostics/diag-parts";
 
@@ -14,7 +16,10 @@ type Props = { params: Promise<{ locale: string; testSlug: string; citySlug: str
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus";
 
-async function fetchLabTestData(testSlug: string, citySlug: string) {
+async function fetchLabTestData(testSlug: string, citySlug: string, locale: string) {
+  // Only a real, reviewed lab test has a page; its name comes from the catalogue.
+  const test = await findCatalogItem("lab", testSlug);
+  if (!test) return null;
   const json = await readPublicEntity<ExploreResult>(
     `${API_BASE}/api/v1/entity-graph/explore?city=${encodeURIComponent(citySlug)}`,
     3600,
@@ -23,25 +28,27 @@ async function fetchLabTestData(testSlug: string, citySlug: string) {
   return {
     facilities: json.facilities ?? [],
     city: readSegment(citySlug),
-    test: readSegment(testSlug),
+    test: pickText(locale as Locale, test.name_ar, test.name_en) ?? readSegment(testSlug),
   };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, testSlug, citySlug } = await params;
   if (!isLocale(locale)) return {};
-  const data = await fetchLabTestData(testSlug, citySlug);
-  const hasFacilities = Boolean(data && data.facilities.length > 0);
+  const data = await fetchLabTestData(testSlug, citySlug, locale);
+  if (!data) return { robots: { index: false, follow: false } };
+  const hasFacilities = data.facilities.length > 0;
   const t = await getTranslations({ locale, namespace: "PublicLanding" });
-  const vars = { test: readSegment(testSlug), city: readSegment(citySlug) };
+  const vars = { test: data.test, city: readSegment(citySlug) };
 
   if (!hasFacilities) {
+    // an empty city page is thin content: it stays reachable but is not indexed
     const canonical = localizedUrl(locale as Locale, `/labs/${encodeURIComponent(testSlug)}/${encodeURIComponent(citySlug)}`);
     return {
       title: t("meta.labsEmpty.title", vars),
       description: t("meta.labsEmpty.description", vars),
-      alternates: { canonical, languages: Object.fromEntries(locales.map((l) => [l, localizedUrl(l, `/labs/${encodeURIComponent(testSlug)}/${encodeURIComponent(citySlug)}`)])) },
-      robots: { index: true, follow: true },
+      alternates: { canonical, languages: { ...Object.fromEntries(locales.map((l) => [l, localizedUrl(l, `/labs/${encodeURIComponent(testSlug)}/${encodeURIComponent(citySlug)}`)])), "x-default": localizedUrl("ar", `/labs/${encodeURIComponent(testSlug)}/${encodeURIComponent(citySlug)}`) } },
+      robots: { index: false, follow: true },
     };
   }
 
@@ -77,12 +84,13 @@ export default async function LabTestCityPage({ params }: Props) {
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
 
-  const data = await fetchLabTestData(testSlug, citySlug);
-  const hasFacilities = Boolean(data && data.facilities.length > 0);
+  const data = await fetchLabTestData(testSlug, citySlug, locale);
   if (!data) notFound();
+  const hasFacilities = data.facilities.length > 0;
 
   const t = await getTranslations("PublicLanding");
-  const decTest = readSegment(testSlug);
+  const seo = await getTranslations("SeoAnswer");
+  const decTest = data.test;
   const decCity = readSegment(citySlug);
   const vars = { test: decTest, city: decCity };
   const facilities = data.facilities;
@@ -97,6 +105,7 @@ export default async function LabTestCityPage({ params }: Props) {
             title: pageTitle,
             path: `/labs/${testSlug}/${citySlug}`,
             locale: locale as Locale,
+            speakable: true,
           }),
           breadcrumbList([
             { name: "Nabd Plus", locale: locale as Locale, path: "/" },
@@ -114,6 +123,7 @@ export default async function LabTestCityPage({ params }: Props) {
         ]}
       />
 
+      <DirectAnswer sentences={[seo("labWho", { test: decTest, city: decCity })]} />
       {!hasFacilities ? (
         <LandingEmpty icon={LAB.icon} tone={LAB.tone} title={t("labs.emptyTitle", vars)} body={t("labs.emptyBody", vars)} actionLabel={t("labs.register")} actionHref={`/${locale}/consultations/doctors`} />
       ) : (

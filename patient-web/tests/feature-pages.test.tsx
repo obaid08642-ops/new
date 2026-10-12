@@ -134,4 +134,11 @@ describe("feature pages", () => {
       expect(disallow.some((d) => "/ar/features/pregnancy".startsWith(d))).toBe(false);
     }
   });
+
+  it("get no noindex header from the proxy", async () => {
+    const { isPublicIndexable } = await import("@/lib/seo/public-indexable");
+    for (const locale of LOCALES) {
+      for (const feature of FEATURE_PAGES) expect(isPublicIndexable(`/${locale}/features/${feature.slug}`)).toBe(true);
+    }
+  });
 });

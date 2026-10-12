@@ -15,6 +15,16 @@ export interface RelatedGraphResponse {
   relationships: Record<string, any>;
 }
 
+/**
+ * Public pages and SEO read only reviewed, published entities (catalog governance): the same rule
+ * as the public lists (care.service PUBLIC_PROVIDER_FILTER / PUBLIC_FACILITY_FILTER, the public
+ * product filter). An unreviewed or suspended entity is a 404, never a page.
+ */
+const PUBLIC_DOCTOR = { type: 'doctor', status: 'active', public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
+const PUBLIC_PHARMACY = { type: 'pharmacy', status: 'active', public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
+const PUBLIC_FACILITY = { is_active: true, public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
+const PUBLIC_MEDICINE = { public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
+
 @Injectable()
 export class EntityGraphService implements OnModuleInit {
   private readonly logger = new Logger(EntityGraphService.name);
@@ -60,10 +70,11 @@ export class EntityGraphService implements OnModuleInit {
         return this.getRelatedDoctor(entityId);
       case 'condition':
         return this.getRelatedCondition(entityId);
+      case 'pharmacy':
+        return this.getRelatedPharmacy(entityId);
       case 'facility':
       case 'hospital':
       case 'clinic':
-      case 'pharmacy':
         return this.getRelatedFacility(entityId);
       default:
         throw new NotFoundException(`Unsupported entity type: ${entityType}`);
@@ -73,6 +84,7 @@ export class EntityGraphService implements OnModuleInit {
   private async getRelatedMedicine(identifier: string): Promise<RelatedGraphResponse> {
     const medCol = this.connection.collection(CATALOG_COLLECTIONS.medicines);
     const medicine = await medCol.findOne({
+      ...PUBLIC_MEDICINE,
       $or: [{ slug: identifier }, { sku: Number(identifier) || -1 }, { id: identifier }],
     });
 
@@ -85,6 +97,7 @@ export class EntityGraphService implements OnModuleInit {
     if (activeIng) {
       alternatives = await medCol
         .find({
+          ...PUBLIC_MEDICINE,
           active_ingredient: activeIng,
           _id: { $ne: medicine._id },
         })
@@ -129,6 +142,7 @@ export class EntityGraphService implements OnModuleInit {
   private async getRelatedDoctor(identifier: string): Promise<RelatedGraphResponse> {
     const docCol = this.connection.collection('provider_profiles');
     const doctor = await docCol.findOne({
+      ...PUBLIC_DOCTOR,
       $or: [{ id: identifier }, { slug: identifier }],
     });
 
@@ -141,7 +155,7 @@ export class EntityGraphService implements OnModuleInit {
     if (doctor.facility_id) {
       const facCol = this.connection.collection('facilities');
       facility = await facCol.findOne(
-        { $or: [{ id: doctor.facility_id }, { slug: doctor.facility_id }] },
+        { ...PUBLIC_FACILITY, $or: [{ id: doctor.facility_id }, { slug: doctor.facility_id }] },
         { projection: { name_ar: 1, name_en: 1, slug: 1, city: 1, district: 1, address: 1, phone: 1, accepted_insurance: 1 } },
       );
     }
@@ -165,7 +179,10 @@ export class EntityGraphService implements OnModuleInit {
         name_ar: doctor.name_ar || doctor.full_name,
         name_en: doctor.name_en,
         specialty: doctor.specialty,
-        rating: doctor.rating || 4.8,
+        // a real rating or none: never a default (owner rule, nothing invented)
+        rating: typeof doctor.rating === 'number' ? doctor.rating : (typeof doctor.rating_avg === 'number' ? doctor.rating_avg : null),
+        reviews_count: typeof doctor.reviews_count === 'number' ? doctor.reviews_count : null,
+        consultation_modes: Array.isArray(doctor.consultation_modes) ? doctor.consultation_modes : [],
         experience_years: doctor.experience_years,
         city: doctor.city,
       },
@@ -187,8 +204,8 @@ export class EntityGraphService implements OnModuleInit {
     const docCol = this.connection.collection('provider_profiles');
     const doctors = await docCol
       .find({
+        ...PUBLIC_DOCTOR,
         specialty: { $in: condition.specialties },
-        is_deleted: { $ne: true },
       })
       .project({ id: 1, slug: 1, name_ar: 1, name_en: 1, specialty: 1, rating: 1, city: 1 })
       .limit(6)
@@ -200,7 +217,7 @@ export class EntityGraphService implements OnModuleInit {
     if (condition.relevant_ingredients?.length) {
       const ingRegexes = condition.relevant_ingredients.map(ing => new RegExp(escapeRegex(String(ing)), 'i'));
       medicines = await medCol
-        .find({ active_ingredient: { $in: ingRegexes } })
+        .find({ ...PUBLIC_MEDICINE, active_ingredient: { $in: ingRegexes } })
         .project({ id: 1, sku: 1, slug: 1, name_ar: 1, name_en: 1, price: 1, form: 1, strength: 1, active_ingredient: 1 })
         .limit(6)
         .toArray();
@@ -219,9 +236,37 @@ export class EntityGraphService implements OnModuleInit {
     };
   }
 
+  /** A pharmacy is a provider profile of type pharmacy (reviewed and active). */
+  private async getRelatedPharmacy(identifier: string): Promise<RelatedGraphResponse> {
+    const pharmacy: any = await this.connection.collection('provider_profiles').findOne({
+      ...PUBLIC_PHARMACY,
+      $or: [{ id: identifier }, { slug: identifier }],
+    });
+    if (!pharmacy) throw new NotFoundException(`Pharmacy '${identifier}' not found`);
+    return {
+      entity_type: 'pharmacy',
+      entity_id: identifier,
+      entity: {
+        id: pharmacy.id,
+        slug: pharmacy.slug,
+        name_ar: pharmacy.name_ar || pharmacy.full_name,
+        name_en: pharmacy.name_en,
+        type: 'pharmacy',
+        city: pharmacy.city,
+        district: pharmacy.district,
+        address: pharmacy.address || pharmacy.clinic_address,
+        phone: pharmacy.phone,
+        working_hours: pharmacy.working_hours || [],
+        accepted_insurance: pharmacy.accepted_insurance || [],
+      },
+      relationships: { doctors: [], departments: [] },
+    };
+  }
+
   private async getRelatedFacility(identifier: string): Promise<RelatedGraphResponse> {
     const facCol = this.connection.collection('facilities');
     const facility = await facCol.findOne({
+      ...PUBLIC_FACILITY,
       $or: [{ id: identifier }, { slug: identifier }],
     });
 
@@ -232,7 +277,7 @@ export class EntityGraphService implements OnModuleInit {
     // Find doctors practicing at this facility
     const docCol = this.connection.collection('provider_profiles');
     const doctors = await docCol
-      .find({ facility_id: facility.id, is_deleted: { $ne: true } })
+      .find({ ...PUBLIC_DOCTOR, facility_id: facility.id })
       .project({ id: 1, slug: 1, name_ar: 1, name_en: 1, specialty: 1, rating: 1 })
       .limit(10)
       .toArray();
@@ -271,7 +316,7 @@ export class EntityGraphService implements OnModuleInit {
     service?: string;
   }) {
     const docCol = this.connection.collection('provider_profiles');
-    const query: any = { is_deleted: { $ne: true } };
+    const query: any = { ...PUBLIC_DOCTOR };
 
     if (filters.specialty) {
       query.specialty = new RegExp(`^${escapeRegex(String(filters.specialty))}$`, 'i');
@@ -297,7 +342,7 @@ export class EntityGraphService implements OnModuleInit {
 
     // Fetch related facilities
     const facCol = this.connection.collection('facilities');
-    const facQuery: any = {};
+    const facQuery: any = { ...PUBLIC_FACILITY };
     if (filters.city) facQuery.city = new RegExp(escapeRegex(String(filters.city)), 'i');
     if (filters.district) facQuery.district = new RegExp(escapeRegex(String(filters.district)), 'i');
     if (filters.insurance) facQuery.accepted_insurance = new RegExp(escapeRegex(String(filters.insurance)), 'i');

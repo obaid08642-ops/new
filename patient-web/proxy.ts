@@ -1,26 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
+import { isPublicIndexable } from "./lib/seo/public-indexable";
 import { contentSecurityPolicy, CSP_INJECT_HEADER, CSP_NONCE_PLACEHOLDER, edgeNonceEnabled, hasSessionCookie } from "./lib/security/csp";
 
 const handleI18nRouting = createMiddleware(routing);
 const noIndexHeader = "noindex, nofollow, noarchive";
 
-function isPublicLocaleHome(pathname: string) {
-  return routing.locales.some((locale) => pathname === `/${locale}` || pathname === `/${locale}/`);
-}
-
-// Indexable public surfaces: locale homes, articles, the v14 product pages
-// /{lang}/p/{slug}, category clusters /{lang}/c…, catalogue landing, plus the
-// public SEO detail surfaces that already emit index:true metadata
-// (doctor/facility/condition/pharmacies/labs/radiology/services/doctors-specialty), and the feature pages /{lang}/features/{slug}.
 const LOCALE = "(?:ar|en|ur|hi|bn|fil)";
-const PUBLIC_INDEXABLE = new RegExp(`^\\/${LOCALE}(?:\\/(?:articles(?:\\/[^/]+)?|p\\/[^/]+|c(?:\\/.*)?|medicine-catalog|consultations\\/doctors(?:\\/[^/]+)?|diagnostics\\/labs(?:\\/[^/]+)?|diagnostics\\/radiology(?:\\/[^/]+)?|nursing\\/catalog|map|doctor\\/[^/]+|facility\\/[^/]+|condition\\/[^/]+|pharmacies(?:\\/[^/]+)?|labs(?:\\/[^/]+(?:\\/[^/]+)?)?|radiology(?:\\/[^/]+(?:\\/[^/]+)?)?|services(?:\\/[^/]+(?:\\/[^/]+)?)?|doctors\\/[^/]+(?:\\/[^/]+(?:\\/[^/]+)?)?|home-nursing(?:\\/[^/]+)?|features\\/[^/]+))?\\/?$`);
-
-function isPublicIndexable(pathname: string) {
-  return isPublicLocaleHome(pathname) || PUBLIC_INDEXABLE.test(pathname);
-}
-
 const LEGACY_MEDICINE = new RegExp(`^\\/(${LOCALE})\\/medicines\\/([A-Za-z0-9_-]{1,64})\\/?$`);
 const API_BASE = (process.env.NABD_API_BASE_URL || "https://api.nabd.plus/api/v1").replace(/\/$/, "");
 
