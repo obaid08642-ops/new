@@ -474,8 +474,11 @@ describe('Agent commerce (spec 2026-10-12 §3)', () => {
 
     describe('case 7: offers', () => {
       beforeAll(async () => {
+        // A real submitted offer carries the order's patient and a live quote window (pharmacy-offer.service).
+        const order: any = await stack.db.collection('pharmacy_orders').findOne({ id: orderId });
         await stack.db.collection('pharmacy_offers').insertOne({
           id: 'off-ac-1', order_id: orderId, pharmacy_account_id: PHARM, status: 'submitted', version: 1,
+          patient_account_id: order?.patient_account_id ?? order?.patient_id, quote_expires_at: new Date(Date.now() + 30 * 60_000),
           items: [{ order_item_id: 'x', unit_price: 12, qty: 2, availability: 'available' }], total: 24, currency: 'SAR', createdAt: new Date(),
         });
       });
