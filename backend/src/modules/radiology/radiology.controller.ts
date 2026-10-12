@@ -20,7 +20,9 @@ export class RadiologyController {
     @Query('home_visit') hv?: string,
     @Query('highest_rated') hr?: string,
     @Query('nearest') nr?: string,
-    @Query('lowest_price') lp?: string
+    @Query('lowest_price') lp?: string,
+    @Query('lat') lat?: string,
+    @Query('lng') lng?: string
   ) {
     return this.svc.list({ 
       modality: m, 
@@ -29,7 +31,9 @@ export class RadiologyController {
       home_only: ho === '1' || hv === 'true' || hv === '1',
       highest_rated: hr === 'true' || hr === '1',
       nearest: nr === 'true' || nr === '1',
-      lowest_price: lp === 'true' || lp === '1'
+      lowest_price: lp === 'true' || lp === '1',
+      lat: lat !== undefined && Number.isFinite(Number(lat)) ? Number(lat) : undefined,
+      lng: lng !== undefined && Number.isFinite(Number(lng)) ? Number(lng) : undefined
     });
   }
 
