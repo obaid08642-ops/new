@@ -309,7 +309,17 @@ export class AuthService {
     const delivered: string[] = [];
     if (!isEmailIdentifier && user?.phone) {
       try {
-        if (await this.sms?.sendOtp(user.phone, code)) delivered.push('sms');
+        if (await this.sms?.sendOtp(user.phone, code)) {
+          delivered.push('sms');
+          // 16.3: the daily budget is spent only now, when a message really
+          // left. check() only reads it, so a refused or undelivered OTP costs
+          // nothing. If the budget is already gone, stop before sending.
+          const spent = await this.otpAbuse?.recordSmsSent();
+          if (spent === false) {
+            this.logger.warn('otp not sent: the daily SMS budget is spent');
+            return delivered;
+          }
+        }
       } catch { /* fall through to push/email */ }
     }
     if (user?.id) try {
