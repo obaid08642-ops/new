@@ -11,10 +11,12 @@ import {
   Get,
   Injectable,
   NotFoundException,
+  Optional,
   Param,
   Post,
   UseGuards,
 } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -61,7 +63,10 @@ export class RejectDoctorArticleDto {
 
 @Injectable()
 export class DoctorArticlesService {
-  constructor(@InjectConnection() private readonly conn: Connection) {}
+  constructor(
+    @InjectConnection() private readonly conn: Connection,
+    @Optional() private readonly events?: EventEmitter2,
+  ) {}
 
   private get profiles() {
     return this.conn.db.collection('provider_profiles');
@@ -178,6 +183,7 @@ export class DoctorArticlesService {
       .join('\n');
     await this.assertNoPrescriptionBrand(hay);
     await this.articles.updateOne({ id }, { $set: { status: 'PUBLISHED', published_at: new Date() } });
+    this.events?.emit('article.changed', { id });
     return { ok: true, id, status: 'PUBLISHED' };
   }
 

@@ -21,6 +21,16 @@ export const ENTITY_ROUTE_KEYS: Record<string, string> = {
   article: 'articles',
 };
 
+/** EntityType → the patient-web path prefix of its public pages (after the locale). */
+export const ENTITY_PATH_PREFIXES: Record<string, string[]> = {
+  medicine: ['/p/'],
+  doctor: ['/doctor/'],
+  'lab-service': ['/labs/'],
+  'home-care-service': ['/home-care/services/'],
+  facility: ['/facility/'],
+  article: ['/articles/'],
+};
+
 export function controlsMap(rows: Array<SeoControlRow | any>): Map<string, boolean> {
   const m = new Map<string, boolean>();
   for (const r of rows || []) {
@@ -41,7 +51,9 @@ export function robotsDisallowLines(controls: Map<string, boolean>): string[] {
   const lines: string[] = [];
   for (const [type, key] of Object.entries(ENTITY_ROUTE_KEYS)) {
     if (controls.get(key.toLowerCase()) === false) {
-      lines.push(`Disallow: /s/${type}/`);
+      for (const prefix of ENTITY_PATH_PREFIXES[type] || []) {
+        for (const l of ['ar', 'en', 'ur', 'hi', 'bn', 'fil']) lines.push(`Disallow: /${l}${prefix}`);
+      }
     }
   }
   return lines;

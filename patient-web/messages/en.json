@@ -3819,5 +3819,20 @@
     "unavailableTitle": "This service is unavailable right now",
     "unavailableBody": "We have paused this service for the moment. You can keep using the rest of the site.",
     "unavailableHome": "Back to Home"
+  },
+  "AgentConsent": {
+    "metaTitle": "Connect an AI assistant",
+    "title": "Connect {client} to Nabd Plus",
+    "intro": "{client} is asking to use your Nabd Plus account.",
+    "scopesTitle": "It will be able to:",
+    "scopeRead": "See your own orders and bookings",
+    "scopeOrder": "Send pharmacy requests for non-prescription items",
+    "scopeBook": "Hold consultation, lab and nursing appointments for you",
+    "confirmNote": "The assistant only prepares. You always confirm and pay on Nabd Plus. Prescription items always need your prescription.",
+    "revokeNote": "You can disconnect it at any time in Settings.",
+    "approve": "Allow",
+    "deny": "Don't allow",
+    "errorTitle": "This request can't continue",
+    "errorBody": "The link from the assistant is not valid or has expired. Go back to the assistant and start again."
   }
 }

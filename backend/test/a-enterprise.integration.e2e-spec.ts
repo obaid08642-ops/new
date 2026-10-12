@@ -440,7 +440,7 @@ describe('A6 integration', () => {
     expect(row.current_en).toBe('Save changes');
   });
 
-  it('GO-3: blocking medicine-catalog removes /s/medicine/ from sitemap and adds robots Disallow; re-enable restores', async () => {
+  it('GO-3: blocking medicine-catalog removes the product pages (/{locale}/p/) from sitemap and adds robots Disallow; re-enable restores', async () => {
     // baseline: sitemap contains medicine slugs, robots lacks the Disallow
     const before = await request(app.getHttpServer()).get('/api/v1/seo/sitemap.xml').expect(200);
     const robotsBefore = await request(app.getHttpServer()).get('/api/v1/seo/robots.txt').expect(200);
@@ -450,13 +450,13 @@ describe('A6 integration', () => {
       .send({ route_key: 'medicine-catalog', indexable: false, reason: 'GO-3 probe: حجب مؤقت' }).expect(201);
 
     const blocked = await request(app.getHttpServer()).get('/api/v1/seo/sitemap.xml').expect(200);
-    expect(blocked.text).not.toContain('/s/medicine/');
+    expect(blocked.text).not.toMatch(/\/(ar|en|ur|hi|bn|fil)\/p\//);
     const robotsBlocked = await request(app.getHttpServer()).get('/api/v1/seo/robots.txt').expect(200);
-    expect(robotsBlocked.text).toContain('Disallow: /s/medicine/');
+    for (const l of ['ar', 'en', 'ur', 'hi', 'bn', 'fil']) expect(robotsBlocked.text).toContain(`Disallow: /${l}/p/`);
     // other types unaffected
     // other types unaffected: sitemap still lists doctor entries (seeded via provider profiles may be
     // empty, so accept either a doctor entry or a valid non-empty urlset)
-    if (!blocked.text.includes('/s/doctor/')) {
+    if (!/\/(ar|en)\/doctor\//.test(blocked.text)) {
       expect(blocked.text).toContain('<urlset');
     }
 
@@ -465,7 +465,7 @@ describe('A6 integration', () => {
       .send({ route_key: 'medicine-catalog', indexable: true, reason: 'GO-3 probe: استعادة' }).expect(201);
     const restored = await request(app.getHttpServer()).get('/api/v1/seo/sitemap.xml').expect(200);
     const robotsRestored = await request(app.getHttpServer()).get('/api/v1/seo/robots.txt').expect(200);
-    expect(robotsRestored.text).not.toContain('Disallow: /s/medicine/');
+    expect(robotsRestored.text).not.toContain('Disallow: /ar/p/');
     void restored;
   });
 });
