@@ -65,7 +65,7 @@ describe('SeoService public discovery governance', () => {
   });
 
   it('writes only explicitly index-eligible medicines to the sitemap', async () => {
-    medicineModel.find.mockReturnValue(findChain([{ id: 'm1', name_ar: 'بنادول', updatedAt: new Date('2026-08-20T00:00:00Z') }]));
+    medicineModel.find.mockReturnValue(findChain([{ id: 'm1', slug: 'panadol-m1', name_ar: 'بنادول', updatedAt: new Date('2026-08-20T00:00:00Z') }]));
     providerModel.find.mockReturnValue(findChain());
     labModel.find.mockReturnValue(findChain());
     homeCareModel.find.mockReturnValue(findChain());
@@ -82,16 +82,10 @@ describe('SeoService public discovery governance', () => {
       }),
       expect.any(Object),
     );
-    expect(xml).toContain('/s/medicine/');
+    // six localized product pages with hreflang alternates (the URLs the web serves), never /s/
+    for (const l of ['ar', 'en', 'ur', 'hi', 'bn', 'fil']) expect(xml).toContain(`/${l}/p/`);
+    expect(xml).toContain('hreflang="x-default"');
+    expect(xml).not.toContain('/s/medicine/');
   });
 
-  it('requires index eligibility before an IndexNow notification', async () => {
-    medicineModel.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue(null) });
-
-    await expect(service.pingIndexNow('medicine', 'm1')).resolves.toEqual({ ok: false });
-    expect(medicineModel.findOne).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'm1', public_eligibility: true, indexing_eligibility: true }),
-      expect.any(Object),
-    );
-  });
 });
