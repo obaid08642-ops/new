@@ -1,55 +1,55 @@
 import { NextResponse } from "next/server";
+import { backendList, LLMS_LOCALES, siteOriginForLlms, sixLocaleLinks } from "@/lib/llms-full";
+
+// Dynamic: the feeds are cached in the Next data cache (a build without the backend must not freeze a 503).
+export const dynamic = "force-dynamic";
+
+type Slugged = { slug?: string };
+type Named = { id?: string; slug?: string; short_code?: string; name_ar?: string; name_en?: string; name?: string };
+
+const name = (x: Named) => x.name_en || x.name || x.name_ar || x.short_code || x.slug || x.id || "";
 
 /**
- * Verified against live API: 38 real fields — id, sku, slug, name, official_name, description, indications, dosage_instructions, side_effects, warnings, storage_conditions, how_to_use[], category, sub_category, sub_sub_category, form, strength, package_size, active_ingredient, manufacturer, barcode, price, old_price, discount_percent, currency, is_rx, available, images, etc. — total 20990
- * Each line: slug | name | price | category | form | strength | package_size | active_ingredient | is_rx | indications | dosage_instructions | warnings | url
+ * llms-full.txt: every public entity with its page in the six site languages, from the same
+ * backend feeds as the sitemaps (only public, reviewed entities). Products are listed per
+ * language in /llms-full/{lang}.txt because their slug is translated per language.
  */
 export async function GET() {
-  const base = process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus";
+  const origin = siteOriginForLlms();
   try {
-    // Paginate through all 20990 (API limit 1000/page = 21 pages)
-    const all: any[] = [];
-    for (let page = 1; page <= 21; page++) {
-      const res = await fetch(`${base}/api/v1/public/products/search?limit=1000&page=${page}&locale=ar`, { next: { revalidate: 86400 } });
-      const data: any = await res.json().catch(() => null);
-      const items: any[] = Array.isArray(data) ? data : data?.data || data?.products || data?.items || [];
-      if (!items.length) break;
-      all.push(...items);
-      if (!data?.has_more) break;
-    }
-    const products = all;
-    const lines = products.slice(0, 21000).map((p: any) => {
-      const how = Array.isArray(p.how_to_use) ? p.how_to_use.join('; ') : (p.how_to_use || '');
-      const warn = Array.isArray(p.warnings) ? p.warnings.join('; ') : (p.warnings || '');
-      const ind = Array.isArray(p.indications) ? p.indications.join('; ') : (p.indications || '');
-      const dosage = p.dosage_instructions || '';
-      return [
-        p.slug || p.sku || "",
-        (p.name || "").replace(/\|/g, " "),
-        p.price ?? "",
-        (p.category || "").replace(/\|/g, " "),
-        (p.form || "").replace(/\|/g, " "),
-        (p.strength || "").replace(/\|/g, " "),
-        (p.package_size || "").replace(/\|/g, " "),
-        (p.active_ingredient || "").replace(/\|/g, " "),
-        p.is_rx ? "Rx" : "OTC",
-        ind.slice(0, 80).replace(/\|/g, " "),
-        dosage.slice(0, 80).replace(/\|/g, " "),
-        warn.slice(0, 80).replace(/\|/g, " "),
-        how.slice(0, 80).replace(/\|/g, " "),
-        p.url || `https://www.nabd.plus/ar/p/${p.slug || p.sku}`,
-      ].join(" | ");
-    });
-    const header = `# Nabd Plus — Full Catalog 20990 x38 fields — ${new Date().toISOString().slice(0,10)}\n# slug | name | price | category | form | strength | package_size | active_ingredient | is_rx | indications | dosage | warnings | how_to_use | url\n`;
-    const body = header + lines.join("\n");
-    return new NextResponse(body, {
-      headers: {
-        "Cache-Control": "public, max-age=86400, stale-while-revalidate=86400",
-        "Content-Type": "text/plain; charset=utf-8",
-        "X-Content-Type-Options": "nosniff",
-      },
-    });
+    const [doctors, facilities, pharmacies, conditions, articles, labs, radiology, nursing] = await Promise.all([
+      backendList<Slugged>("/public/sitemaps/doctors/ar"),
+      backendList<Slugged>("/public/sitemaps/facilities/ar"),
+      backendList<Slugged>("/public/sitemaps/pharmacies/ar"),
+      backendList<Slugged>("/public/sitemaps/conditions/ar"),
+      backendList<Slugged>("/public/sitemaps/articles/ar", 3600),
+      backendList<Named>("/labs/services?limit=100"),
+      backendList<Named>("/radiology/services?limit=100"),
+      backendList<Named>("/home-care/services"),
+    ]);
+    const section = (title: string, lines: string[]) => (lines.length ? [`## ${title}`, "", ...lines, ""] : []);
+    const bySlug = (rows: Slugged[], prefix: string) => rows.filter((r) => r.slug).map((r) => sixLocaleLinks(String(r.slug), `${prefix}/${encodeURIComponent(String(r.slug))}`));
+    const body = [
+      "# Nabd Plus: full list of public pages",
+      "",
+      "> Every public page in Arabic (ar), English (en), Urdu (ur), Hindi (hi), Bengali (bn) and Filipino (fil). Only reviewed, published entities are listed. Prices and availability are on each page and can change.",
+      "",
+      "## Products (one file per language: the product slug is translated)",
+      "",
+      ...LLMS_LOCALES.map((l) => `- [Products in ${l}](${origin}/llms-full/${l}.txt)`),
+      "",
+      ...section("Doctors", bySlug(doctors, "/doctor")),
+      ...section("Hospitals and clinics", bySlug(facilities, "/facility")),
+      ...section("Pharmacies", bySlug(pharmacies, "/pharmacy")),
+      ...section("Medical conditions", bySlug(conditions, "/condition")),
+      ...section("Health articles", bySlug(articles, "/articles")),
+      ...section("Radiology services", radiology.filter((r) => r.id).map((r) => sixLocaleLinks(name(r), `/diagnostics/radiology/${encodeURIComponent(String(r.id))}`))),
+      ...section("Home nursing services", nursing.filter((r) => r.id).map((r) => sixLocaleLinks(name(r), `/home-care/services/${encodeURIComponent(String(r.id))}`))),
+      ...section("Lab tests (each test has a page per city: /{lang}/labs/{test}/{city})", labs.map((r) => r.slug || r.short_code || r.id).filter(Boolean).map((t) => `- ${t}`)),
+    ].join("\n");
+    return new NextResponse(body, { headers: { "Cache-Control": "public, max-age=21600, stale-while-revalidate=86400", "Content-Type": "text/plain; charset=utf-8", "X-Content-Type-Options": "nosniff" } });
   } catch {
-    return new NextResponse("# llms-full.txt temporarily unavailable\n", { status: 503, headers: { "Content-Type": "text/plain" } });
+    // The route errors so the last good copy keeps being served; a first-ever miss says so.
+    return new NextResponse("# llms-full.txt temporarily unavailable\n", { status: 503, headers: { "Content-Type": "text/plain; charset=utf-8", "Retry-After": "300" } });
   }
 }
