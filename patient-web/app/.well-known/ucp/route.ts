@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 const origin = (process.env.NEXT_PUBLIC_SITE_ORIGIN || "https://nabd.plus").replace(/\/$/, "");
+const api = (process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus").replace(/\/$/, "");
 
 /**
  * Universal Commerce Protocol (UCP) Discovery Endpoint (ucp.dev)
@@ -20,7 +21,7 @@ export function GET() {
       endpoints: {
         catalog: `${origin}/.well-known/ai-catalog.json`,
         openapi: `${origin}/.well-known/openapi.json`,
-        search: `${origin}/api/v1/public/products/search`,
+        search: `${api}/api/v1/public/products/search`,
       }
     },
     protocol_version: "1.0",
@@ -34,7 +35,7 @@ export function GET() {
     endpoints: {
       catalog: `${origin}/.well-known/ai-catalog.json`,
       openapi: `${origin}/.well-known/openapi.json`,
-      search: `${origin}/api/v1/public/products/search`,
+      search: `${api}/api/v1/public/products/search`,
     },
     status: "discovery-only",
   }, {

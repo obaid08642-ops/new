@@ -1,47 +1,56 @@
 import { NextResponse } from "next/server";
 
+const origin = (process.env.NEXT_PUBLIC_SITE_ORIGIN || "https://nabd.plus").replace(/\/$/, "");
+const api = (process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus").replace(/\/$/, "");
+const mcp = (process.env.NEXT_PUBLIC_MCP_URL || "https://mcp.nabd.plus").replace(/\/$/, "");
+
+const LOCALES: Array<[string, string]> = [
+  ["ar", "Arabic"], ["en", "English"], ["ur", "Urdu"], ["hi", "Hindi"], ["bn", "Bengali"], ["fil", "Filipino"],
+];
+
+/**
+ * llms.txt (llmstxt.org): what Nabd Plus is and where its public pages are, in the six site
+ * languages. Every URL here resolves (tests/ai-discovery-contract.test.ts); {lang} is one of
+ * ar, en, ur, hi, bn, fil and every page exists in all six. The full list of pages is in
+ * llms-full.txt and the sitemaps.
+ */
 const llmsText = `# Nabd Plus
 
-> Nabd Plus is a patient web portal. Public content is limited to the published website entry points; patient data always requires an authenticated server session.
+> Nabd Plus is a Saudi healthcare platform: patients find doctors and book consultations (clinic, video, home visit), send medicine requests that pharmacies answer with offers, and book lab tests, radiology and home nursing. Payment is by Moyasar on Nabd Plus pages. Prescription medicines always need a prescription. The site is in Arabic, English, Urdu, Hindi, Bengali and Filipino.
 
-## Public entry points
+## Home in each language
 
-- [Arabic home](/ar): Public Nabd Plus patient portal entry point.
-- [English home](/en): Public Nabd Plus patient portal entry point.
-- [Urdu home](/ur): Public Nabd Plus patient portal entry point.
-- [Hindi home](/hi): Public Nabd Plus patient portal entry point.
-- [Bengali home](/bn): Public Nabd Plus patient portal entry point.
-- [Filipino home](/fil): Public Nabd Plus patient portal entry point.
-- [Arabic articles](/ar/articles): Public article listing, populated only from published backend content.
-- [English articles](/en/articles): Public article listing, populated only from published backend content.
+${LOCALES.map(([l, name]) => `- [${name} home](/${l}): Nabd Plus home in ${name}.`).join("\n")}
 
-## Public product catalog (v14)
+## Public pages (each in ar, en, ur, hi, bn, fil)
 
-- [Product pages](/{lang}/p/{slug}): Fully localized product pages per locale (ar, en, ur, hi, bn, fil) with price (SAR), availability, dosage form, strength, active ingredient and structured data (Product, MedicalDrug, FAQPage, BreadcrumbList).
-- [Category clusters](/{lang}/c/{main}[/{sub}]): Paginated, indexable category listings with live product counts.
-- Product API: GET https://api.nabd.plus/api/v1/public/products/search?q={term}&locale={ar|en|ur|hi|bn|fil} — localized, buy-ready product search (sku, price, availability, canonical URL).
-- Product by SKU: GET https://api.nabd.plus/api/v1/public/products/by-sku/{sku}?locale={lang}.
-- Product by slug: GET https://api.nabd.plus/api/v1/public/product/{locale}/{slug} — strict single-locale DTO (no mixed-language fields).
-- Categories: GET https://api.nabd.plus/api/v1/public/categories/{locale} — localized category tree with counts.
-- Product sitemaps: [/sitemap.xml](/sitemap.xml) → /sitemaps/products/{locale}/{page}.xml.
+- [Medicines and products](/ar/c): category listing; each product at ${origin}/{lang}/p/{slug} (the slug is translated per language) with price in SAR, active ingredient, dosage form, strength, and whether it needs a prescription.
+- [Doctors](/ar/consultations/doctors): doctors who passed review; each doctor at ${origin}/{lang}/doctor/{slug}; [by specialty](/ar/consultations/specialties) and by specialty and city at ${origin}/{lang}/doctors/{specialty}/{city}.
+- Hospitals and clinics: ${origin}/{lang}/facility/{slug}.
+- Pharmacies: ${origin}/{lang}/pharmacy/{slug}; by city at ${origin}/{lang}/pharmacies/{city}.
+- [Lab tests](/ar/diagnostics/labs): lab tests by city at ${origin}/{lang}/labs/{test}/{city}; [lab packages](/ar/diagnostics/packages).
+- [Radiology](/ar/diagnostics/radiology): each service at ${origin}/{lang}/diagnostics/radiology/{id}; by city at ${origin}/{lang}/radiology/{service}/{city}.
+- [Home nursing](/ar/nursing/catalog): the nursing catalogue; by city at ${origin}/{lang}/home-nursing/{city}.
+- [Arabic articles](/ar/articles), [English articles](/en/articles): health articles; each at ${origin}/{lang}/articles/{slug}.
+- Medical conditions: ${origin}/{lang}/condition/{code}.
 
-Language resolution is strict: for a given locale, every field resolves from that locale's translation, falling back to English then Arabic per field — product content is never mixed between languages.
+## Full lists
 
-## Agent discovery
+- [llms-full.txt](/llms-full.txt): every public doctor, facility, pharmacy, condition, article, lab test, radiology and nursing service, with their pages in all six languages, and the product catalogue in each language.
+- [Sitemap index](/sitemap.xml): every public page with its six language versions (hreflang).
 
-- [API catalog](https://nabd.plus/.well-known/api-catalog): RFC 9727 Linkset for the limited public catalog subset.
-- [OpenAPI subset](https://nabd.plus/.well-known/openapi.json): Public catalog operations only; not the private patient API.
-- [ARD catalog](https://nabd.plus/.well-known/ai-catalog.json): Public capabilities discoverable by agents.
-- [Agent Skills index](https://nabd.plus/.well-known/agent-skills/index.json): Public-content skill only.
-- [Auth instructions](https://nabd.plus/auth.md): Current authentication boundary and agent-access status.
+## For AI agents
 
-No public OAuth/OIDC authorization server, OAuth protected-resource metadata, MCP server card, WebMCP tool surface, or DNS-AID records are enabled by this website deployment. Agents must not infer those capabilities from the patient web login.
+- [MCP server card](/.well-known/mcp/server-card.json): the Nabd Plus MCP server (${mcp}/api/v1/mcp). Search and detail tools are public; tools that act for a patient need the patient's sign-in (see auth.md).
+- [Auth instructions](/auth.md): how an assistant signs a patient in, and what it can and cannot do. The patient always confirms and pays on Nabd Plus.
+- [API catalog](/.well-known/api-catalog), [OpenAPI subset](/.well-known/openapi.json) and [AI catalog](/.well-known/ai-catalog.json): the public catalogue endpoints.
+- Product search: ${api}/api/v1/public/products/search?q={term}&locale={lang} (by SKU: ${api}/api/v1/public/products/by-sku/{sku}?locale={lang}).
+- Categories: ${api}/api/v1/public/categories/{lang}.
 
-## Privacy and content boundaries
+## Privacy and limits
 
-- Patient records, appointments, prescriptions, conversations, notifications, family data, reminders, and health information are private and must not be treated as public content.
-- Public pages do not provide medical diagnosis, treatment recommendations, pricing promises, or patient-specific advice.
-- Catalogue information is sourced from the authorized backend when available. Its publication and classification boundaries are controlled by backend contracts.
+- Patient records, appointments, prescriptions, messages, orders, family and health data are private. They are never public content and are only shown to the signed-in patient.
+- Public pages give general information. They are not a diagnosis or treatment advice for a person, and prices and availability can change; the product page and the patient's order show the current values.
 `;
 
 export function GET() {

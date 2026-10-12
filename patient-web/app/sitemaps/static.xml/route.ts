@@ -21,11 +21,10 @@ export async function GET() {
     { path: "/diagnostics/labs", changefreq: "daily", priority: "0.8" },
     { path: "/diagnostics/radiology", changefreq: "daily", priority: "0.8" },
     { path: "/nursing/catalog", changefreq: "daily", priority: "0.7" },
-    { path: "/nutrition", changefreq: "weekly", priority: "0.7" },
-    { path: "/maternity", changefreq: "weekly", priority: "0.6" },
-    { path: "/mental-health", changefreq: "weekly", priority: "0.6" },
-    { path: "/family", changefreq: "weekly", priority: "0.6" },
-    { path: "/health", changefreq: "weekly", priority: "0.7" },
+    { path: "/consultations/specialties", changefreq: "weekly", priority: "0.7" },
+    { path: "/diagnostics/packages", changefreq: "weekly", priority: "0.7" },
+    // Only public, indexable pages: the signed-in hubs (/health, /family, /maternity, /nutrition,
+    // /mental-health) answer noindex and /health, /family are disallowed in robots.ts.
   ];
   const rows = visibleItems(all, (r) => r.path, await getDisabledModules());
   const urls = locales.flatMap((locale) =>

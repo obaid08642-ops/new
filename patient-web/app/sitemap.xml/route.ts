@@ -22,6 +22,7 @@ export async function GET() {
     `${siteOrigin()}/sitemaps/pharmacies.xml`,
     `${siteOrigin()}/sitemaps/labs.xml`,
     `${siteOrigin()}/sitemaps/radiology.xml`,
+    `${siteOrigin()}/sitemaps/articles.xml`,
   ];
   // a switched-off module drops its entity sitemaps (#953)
   const disabled = await getDisabledModules();

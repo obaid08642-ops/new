@@ -9,7 +9,7 @@ Nabd Plus provides standards-compliant discovery metadata for AI agents and auto
 - **Agent Resource Discovery (ARD)**: https://nabd.plus/.well-known/ai-catalog.json
 - **A2A Protocol Agent Card**: https://nabd.plus/.well-known/agent-card.json
 - **Agent Skills Directory**: https://nabd.plus/.well-known/agent-skills/index.json
-- **OpenAPI 3.1 & MPP Specification**: https://nabd.plus/openapi.json
+- **OpenAPI 3.1 (public catalog subset)**: https://nabd.plus/.well-known/openapi.json
 
 ## Access Model & Security Boundary
 No public OAuth/OIDC authorization server is exposed for autonomous uncontrolled agent registration; all access requires human-in-the-loop patient confirmation.
