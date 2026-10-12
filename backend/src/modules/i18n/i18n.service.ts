@@ -180,6 +180,15 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'health.empty_subtitle': { ar: 'سيظهر هنا تاريخ طلباتك ووصفاتك', en: 'Orders & prescriptions will appear here', ur: 'یہاں ظاہر ہوگا' },
   'health.allergies': { ar: 'الحساسيات', en: 'Allergies', ur: 'الرجی' },
   'health.chronic': { ar: 'الأمراض المزمنة', en: 'Chronic Conditions', ur: 'دائمی بیماریاں' },
+  // Return reason codes (OC-C C-18: server sends codes, clients localize)
+  'returns.reason.wrong_item': { ar: 'صنف خاطئ', en: 'Wrong item', ur: 'غلط چیز' },
+  'returns.reason.damaged': { ar: 'تالف', en: 'Damaged', ur: 'خراب' },
+  'returns.reason.expired': { ar: 'منتهي الصلاحية', en: 'Expired', ur: 'معیاد ختم' },
+  'returns.reason.not_as_described': { ar: 'غير مطابق للوصف', en: 'Not as described', ur: 'تفصیل کے مطابق نہیں' },
+  'returns.reason.changed_mind': { ar: 'غيرت رأيي', en: 'Changed mind', ur: 'ارادہ بدل گیا' },
+  'returns.reason.duplicate_order': { ar: 'طلب مكرر', en: 'Duplicate order', ur: 'دہرا آرڈر' },
+  'returns.reason.late_delivery': { ar: 'تأخر التوصيل', en: 'Late delivery', ur: 'دیر سے ڈلیوری' },
+  'returns.reason.other': { ar: 'أخرى', en: 'Other', ur: 'دیگر' },
   // Family relation codes (OC-C C-8: server sends codes, clients localize)
   'family.relation.spouse': { ar: 'الزوج/الزوجة', en: 'Spouse', ur: 'شریک حیات' },
   'family.relation.parent': { ar: 'الأب/الأم', en: 'Parent', ur: 'والدین' },

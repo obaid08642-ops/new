@@ -49,16 +49,19 @@ export class LegalService {
   async getPolicy(key: string, lang = 'ar') {
     const p: any = await this.policies.findOne({ key }, { projection: { _id: 0 } });
     if (!p) return null;
-    const content = lang === 'ar' && p.content_ar ? p.content_ar : (p.content_en || p.content_ar);
+    // Owner 2026-10-12 (753/796): policies exist in Arabic and English only. An Arabic app or site gets
+    // the Arabic text; every other language (en, ur, hi, bn, fil) gets the English text.
+    const arabic = lang === 'ar' ? !!p.content_ar : !p.content_en;
+    const content = arabic ? p.content_ar : p.content_en;
     return {
       key: p.key,
-      title: lang === 'ar' ? p.title_ar : p.title_en,
+      title: arabic ? p.title_ar : p.title_en,
       version: p.version,
       effective_date: p.effective_date,
       last_updated: p.last_updated,
       change_log: p.change_log || [],
       content,
-      language: lang === 'ar' && p.content_ar ? 'ar' : 'en',
+      language: arabic ? 'ar' : 'en',
     };
   }
 
