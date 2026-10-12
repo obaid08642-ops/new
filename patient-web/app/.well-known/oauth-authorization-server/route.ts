@@ -1,35 +1,12 @@
 import { NextResponse } from "next/server";
+import { getOAuthDocument } from "@/lib/api/agent-oauth-server";
 
-const origin = (process.env.NEXT_PUBLIC_SITE_ORIGIN || "https://nabd.plus").replace(/\/$/, "");
-
-/** RFC 8414 metadata for the current Nabd Plus web auth entry points.
- *  Full OIDC provider (jwks, id tokens) is a roadmap item; these are the
- *  real interactive endpoints the patient web uses today. */
-const doc = {
-  issuer: origin,
-  authorization_endpoint: `${origin}/api/auth/login`,
-  token_endpoint: `${origin}/api/auth/session/exchange`,
-  registration_endpoint: `${origin}/api/auth/register`,
-  response_types_supported: ["code"],
-  grant_types_supported: ["authorization_code", "refresh_token"],
-  token_endpoint_auth_methods_supported: ["none"],
-  service_documentation: `${origin}/auth.md`,
-  agent_auth: {
-    skill: `${origin}/auth.md`,
-    register_uri: `${origin}/api/auth/register`,
-    claim_uri: `${origin}/api/auth/otp/request`,
-    supported_identity_types: ["email", "phone", "anonymous"],
-    supported_credential_types: ["session_cookie", "bearer_token", "otp"],
-    identity_types_supported: ["email", "phone", "anonymous"],
-    anonymous: {
-      credential_types_supported: ["session_cookie", "anonymous_token"],
-      claim_uri: `${origin}/api/auth/guest`
-    }
-  },
-  scopes_supported: ["patient", "public", "catalog:read"],
-} as const;
-
-export function GET() {
+/** RFC 8414 metadata of the agent authorization server (AC-1). The issuer is this site; the
+ *  document comes from the backend that runs the endpoints, so every URL in it is real. */
+export async function GET() {
+  const upstream = await getOAuthDocument("metadata");
+  const doc = upstream.ok ? await upstream.json().catch(() => null) : null;
+  if (!doc) return NextResponse.json({ error: "temporarily_unavailable" }, { status: 503, headers: { "Retry-After": "60", "Cache-Control": "no-store" } });
   return NextResponse.json(doc, {
     headers: { "Access-Control-Allow-Origin": "*", "Cache-Control": "public, max-age=900, stale-while-revalidate=3600", "Content-Type": "application/json; charset=utf-8" },
   });

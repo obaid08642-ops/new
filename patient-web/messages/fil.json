@@ -3819,5 +3819,20 @@
     "unavailableTitle": "Hindi available ang serbisyong ito ngayon",
     "unavailableBody": "Pansamantala naming inihinto ang serbisyong ito. Magagamit mo pa rin ang iba pang bahagi ng site.",
     "unavailableHome": "Bumalik sa Home"
+  },
+  "AgentConsent": {
+    "metaTitle": "Ikonekta ang isang AI assistant",
+    "title": "Ikonekta ang {client} sa Nabd Plus",
+    "intro": "Humihingi ng pahintulot ang {client} na gamitin ang iyong Nabd Plus account.",
+    "scopesTitle": "Magagawa nito ang mga ito:",
+    "scopeRead": "Tingnan ang sarili mong mga order at booking",
+    "scopeOrder": "Magpadala ng mga request sa botika para sa mga item na hindi kailangan ng reseta",
+    "scopeBook": "Pansamantalang magreserba ng konsultasyon, lab at nursing na appointment para sa iyo",
+    "confirmNote": "Naghahanda lang ang assistant. Ikaw palagi ang nagkukumpirma at nagbabayad sa Nabd Plus. Ang mga item na may reseta ay laging nangangailangan ng iyong reseta.",
+    "revokeNote": "Maaari mo itong idiskonekta anumang oras sa Settings.",
+    "approve": "Payagan",
+    "deny": "Huwag payagan",
+    "errorTitle": "Hindi maituloy ang request na ito",
+    "errorBody": "Hindi valid o expired na ang link mula sa assistant. Bumalik sa assistant at magsimulang muli."
   }
 }
