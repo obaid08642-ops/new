@@ -23,6 +23,8 @@ export interface RelatedGraphResponse {
 const PUBLIC_DOCTOR = { type: 'doctor', status: 'active', public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
 const PUBLIC_PHARMACY = { type: 'pharmacy', status: 'active', public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
 const PUBLIC_FACILITY = { is_active: true, public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
+// 787: labs, radiology centres and pharmacies listed by type in explore (same rule, any provider type).
+const PUBLIC_TYPED_PROVIDER = { status: 'active', public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
 const PUBLIC_MEDICINE = { public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
 
 @Injectable()
@@ -357,12 +359,27 @@ export class EntityGraphService implements OnModuleInit {
       .limit(10)
       .toArray();
 
+    // 787: lab/radiology/pharmacy providers live in provider_profiles by type —
+    // list them in the city (with rating + review count) next to facilities.
+    let providers: any[] = [];
+    if (filters.type && ['lab', 'radiology', 'pharmacy'].includes(String(filters.type).toLowerCase())) {
+      const pq: any = { ...PUBLIC_TYPED_PROVIDER, type: new RegExp(`^${escapeRegex(String(filters.type))}$`, 'i') };
+      if (filters.city) pq.city = new RegExp(escapeRegex(String(filters.city)), 'i');
+      providers = await docCol
+        .find(pq)
+        .project({ id: 1, name_ar: 1, name_en: 1, type: 1, city: 1, district: 1, rating: 1, reviews_count: 1 })
+        .limit(20)
+        .toArray();
+    }
+
     return {
       filters,
       total_doctors: doctors.length,
       doctors,
       total_facilities: facilities.length,
       facilities,
+      total_providers: providers.length,
+      providers,
     };
   }
 }
