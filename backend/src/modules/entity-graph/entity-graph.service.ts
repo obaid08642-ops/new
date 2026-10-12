@@ -271,7 +271,9 @@ export class EntityGraphService implements OnModuleInit {
     service?: string;
   }) {
     const docCol = this.connection.collection('provider_profiles');
-    const query: any = { is_deleted: { $ne: true } };
+    // Public explore: only approved, active providers (the MCP and public pages use the same rule).
+    const PUBLIC_PROVIDER = { status: { $in: ['active', 'verified'] }, is_active: { $ne: false }, is_deleted: { $ne: true } };
+    const query: any = { ...PUBLIC_PROVIDER };
 
     if (filters.specialty) {
       query.specialty = new RegExp(`^${escapeRegex(String(filters.specialty))}$`, 'i');
@@ -316,7 +318,7 @@ export class EntityGraphService implements OnModuleInit {
     // list them in the city (with rating + review count) next to facilities.
     let providers: any[] = [];
     if (filters.type && ['lab', 'radiology', 'pharmacy'].includes(String(filters.type).toLowerCase())) {
-      const pq: any = { type: new RegExp(`^${escapeRegex(String(filters.type))}$`, 'i') };
+      const pq: any = { ...PUBLIC_PROVIDER, type: new RegExp(`^${escapeRegex(String(filters.type))}$`, 'i') };
       if (filters.city) pq.city = new RegExp(escapeRegex(String(filters.city)), 'i');
       providers = await docCol
         .find(pq)
