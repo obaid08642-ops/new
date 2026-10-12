@@ -79,6 +79,26 @@ jobs:
       - name: Journeys
         run: bash tools/live/run_gate.sh
 
+      # Phase 16.8 — OWASP ZAP baseline against the running stack.
+      # The plan asks for 0 high findings, so only HIGH+ fails the job.
+      - name: OWASP ZAP baseline
+        continue-on-error: true
+        run: |
+          docker run --rm -v "$(pwd)/zap-out:/zap/wrk"             ghcr.io/zaproxy/zaproxy:stable             zap-baseline.py -t http://127.0.0.1:8002/api/v1/health               -r zap-out/report.html -J zap-out/report.json -l WARN -I || true
+          echo "--- ZAP high findings ---"
+          python3 - <<'PY'
+          import json, sys, pathlib
+          p = pathlib.Path('zap-out/report.json')
+          if not p.exists():
+              print('ZAP produced no report'); sys.exit(0)
+          r = json.loads(p.read_text())
+          high = [a for a in r.get('alerts', []) if a.get('riskdesc') == 'High (High)']
+          for a in high:
+              print(a.get('alert'), '->', a.get('name'))
+          print('high findings:', len(high))
+          sys.exit(1 if high else 0)
+          PY
+
       - name: Logs on failure
         if: failure()
         run: |

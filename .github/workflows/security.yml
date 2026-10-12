@@ -27,3 +27,71 @@ jobs:
           GITLEAKS_ENABLE_COMMENTS: 'false'
           GITLEAKS_ENABLE_SUMMARY: 'true'
         # gitleaks-action exits non-zero when leaks are found, failing the job.
+
+  # Phase 16.7 — npm audit as a gate: 0 high/critical runtime findings.
+  npm-audit:
+    name: npm audit (runtime, high/critical = 0)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install the backend (audit does not need a build)
+        working-directory: backend
+        run: npm ci --ignore-scripts
+      - name: Fail on high or critical runtime vulnerabilities
+        working-directory: backend
+        # --omit=dev: dev-only tooling is not what ships.
+        #
+        # Two advisories are pre-existing debt that cannot be cleared without a
+        # MAJOR upgrade (nodemailer 10, and fastify advisories with no 5.x fix).
+        # They are listed rather than hidden: the job prints them on every run
+        # and still fails on anything NEW. Re-baseline each when it lands.
+        #
+        # @nestjs/platform-fastify and sharp were NOT baselined: both had
+        # non-breaking fixes and are upgraded in this branch.
+        run: |
+          npm audit --omit=dev --json > /tmp/audit.json || true
+          node -e '
+            const a = require("/tmp/audit.json");
+            const KNOWN = new Set(["fastify", "nodemailer"]);
+            const v = a.vulnerabilities || {};
+            const known = [], fresh = [];
+            for (const [name, x] of Object.entries(v)) {
+              if (x.severity !== "high" && x.severity !== "critical") continue;
+              (KNOWN.has(name) ? known : fresh).push(`${name}@${x.range} (${x.severity})`);
+            }
+            if (known.length) {
+              console.log("Known-unfixed (need a MAJOR upgrade, tracked separately):");
+              for (const k of known) console.log("  - " + k);
+            }
+            if (fresh.length) {
+              console.error("\nNew high/critical vulnerabilities:");
+              for (const f of fresh) console.error("  - " + f);
+              process.exit(1);
+            }
+            console.log("No new high/critical runtime vulnerabilities.");
+          '
+
+  # Phase 16.7 — container image scanning.
+  trivy:
+    name: Trivy (dependency and filesystem scan)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan the backend dependency tree
+        # Pinned by real commit SHA (review item F: no invented pins).
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: backend
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          ignore-unfixed: true
+        # The pre-existing advisories that need a MAJOR upgrade are listed in
+        # backend/.trivyignore with the reason and the target version, so this
+        # gate blocks NEW findings instead of failing forever on known debt.
+        # (The action has no ignorefile input; Trivy reads TRIVY_IGNOREFILE.)
+        env:
+          TRIVY_IGNOREFILE: backend/.trivyignore
