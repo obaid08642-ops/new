@@ -26,7 +26,7 @@ export type FeaturePage = {
 export const FEATURE_PAGES: readonly FeaturePage[] = [
   { slug: "medication-reminders", key: "medicationReminders", icon: SERVICE_ICONS.pharmacy.icon, tone: SERVICE_ICONS.pharmacy.tone, cta: "/health/medications", points: 3, faq: 3 },
   { slug: "pregnancy", key: "pregnancy", icon: SERVICE_ICONS.maternity.icon, tone: SERVICE_ICONS.maternity.tone, cta: "/maternity", points: 3, faq: 3 },
-  { slug: "mental-health", key: "mentalHealth", icon: SERVICE_ICONS.mind.icon, tone: SERVICE_ICONS.mind.tone, cta: "/mental-health", secondary: { href: "/emergency", labelKey: "urgentCta" }, points: 3, faq: 3 },
+  { slug: "mental-health", key: "mentalHealth", icon: SERVICE_ICONS.mind.icon, tone: SERVICE_ICONS.mind.tone, cta: "/mental-health", secondary: { href: "/emergency", labelKey: "urgentCta" }, points: 2, faq: 3 },
   { slug: "nutrition", key: "nutrition", icon: SERVICE_ICONS.nutrition.icon, tone: SERVICE_ICONS.nutrition.tone, cta: "/nutrition", points: 3, faq: 3 },
   { slug: "family", key: "family", icon: SERVICE_ICONS.family.icon, tone: SERVICE_ICONS.family.tone, cta: "/family", points: 3, faq: 3 },
   { slug: "loyalty", key: "loyalty", icon: SERVICE_ICONS.points.icon, tone: SERVICE_ICONS.points.tone, cta: "/loyalty", points: 3, faq: 3 },

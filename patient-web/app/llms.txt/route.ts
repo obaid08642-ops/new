@@ -28,7 +28,7 @@ Public pages that describe what each Nabd Plus feature does today (all six langu
 
 - [Medication reminders](/ar/features/medication-reminders): Save reminders with a dose, frequency and times, see today's doses, refill dates and chronic medicines.
 - [Pregnancy](/ar/features/pregnancy): Pregnancy week, trimester and due date from your entries, logged kicks and contractions, baby growth and a cycle estimate.
-- [Mental health](/ar/features/mental-health): Mood journal, breathing and meditation sessions and booking with psychiatry doctors; no diagnosis or scoring, urgent help is a call to the configured urgent-help number.
+- [Mental health](/ar/features/mental-health): Mood journal and booking with psychiatry doctors; no diagnosis or scoring, urgent help is a call to the configured urgent-help number.
 - [Nutrition](/ar/features/nutrition): Log meals and follow today's calories and water against daily targets you set.
 - [Family](/ar/features/family): Family group with per-member permissions, a family calendar, family chat and emergency contacts.
 - [Loyalty](/ar/features/loyalty): Nabd points balance and tier, rewards, health challenges and referral codes.

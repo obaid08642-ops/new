@@ -123,6 +123,20 @@ describe("feature pages", () => {
     }
   });
 
+  it("the mental health page has no Relax (breathing, meditation): deferred for clinical review (#851)", async () => {
+    const RELAX: Record<string, RegExp> = {
+      ar: /الاسترخاء|التنفس|التأمل/, en: /relax|breathing|meditation/i, ur: /سکون|سانس|مراقب/,
+      hi: /आराम|साँस|ध्यान/, bn: /শিথিলতা|শ্বাস|ধ্যান/, fil: /pagpapahinga|paghinga|meditasyon/i,
+    };
+    for (const locale of LOCALES) {
+      const html = renderToStaticMarkup((await FeaturePage(props(locale, "mental-health"))) as ReactElement);
+      const meta = await generateMetadata(props(locale, "mental-health"));
+      expect([locale, RELAX[locale].test(html + String(meta.title) + String(meta.description))]).toEqual([locale, false]);
+      expect(() => lookup(locale, "FeaturePages.mentalHealth.p3Title")).toThrow();
+    }
+    expect(await llms().text()).not.toMatch(/breathing|meditation/i);
+  });
+
   it("are listed in the sitemap and llms.txt and not disallowed by robots", async () => {
     const xml = await (await staticSitemap()).text();
     for (const feature of FEATURE_PAGES) for (const locale of LOCALES) expect(xml).toContain(`<loc>${ORIGIN}/${locale}/features/${feature.slug}</loc>`);
