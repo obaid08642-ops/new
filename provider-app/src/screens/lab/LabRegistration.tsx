@@ -244,8 +244,8 @@ const DIAGNOSTICS_WIZARD: WizardConfig<DiagnosticsRegData> = {
     signatoryRoleHint: { ar: 'مثال: المالك، المدير العام', en: 'e.g. Owner, General Manager' },
     signatureTitle: { ar: 'توقيع الممثل النظامي للمركز', en: 'Authorized Representative Signature' },
     agree: {
-      ar: 'أوافق على شروط وأحكام نبضة بلس وسياسة الخصوصية، وأؤكد صحة جميع البيانات المدخلة.',
-      en: 'I agree to Nabdah Plus Terms & Conditions and Privacy Policy, and confirm all data is accurate.',
+      ar: 'أوافق على شروط وأحكام نبض بلس وسياسة الخصوصية، وأؤكد صحة جميع البيانات المدخلة.',
+      en: 'I agree to Nabd+ Terms & Conditions and Privacy Policy, and confirm all data is accurate.',
     },
     submitLabel: { ar: 'إرسال ملف المركز للمراجعة', en: 'Submit Center Application' },
     precheck: (data, AR) => {

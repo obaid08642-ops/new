@@ -925,8 +925,8 @@ function AddCustomTest({ onBack }:{ onBack:()=>void }) {
  <NHeader title={AR?'إضافة فحص مخصص':'Add Custom Test'} onBack={onBack} />
  <NCard style={{backgroundColor:theme.warnBg,marginBottom:SP.xl}}>
  <Text style={{fontSize:FS.sm,color:theme.warn,lineHeight:20,textAlign:AR?'right':'left'}}>
- {AR?'الفحوصات المخصصة تنتظر موافقة إدارة نبضة بلس قبل ظهورها للمرضى (24 ساعة).'
- :'Custom tests await Nabdah admin approval before visible to patients (24h).'}
+ {AR?'الفحوصات المخصصة تنتظر موافقة إدارة نبض بلس قبل ظهورها للمرضى (24 ساعة).'
+ :'Custom tests await Nabd+ admin approval before visible to patients (24h).'}
  </Text>
  </NCard>
  <NInput label={AR?'اسم الفحص بالعربي':'Name (Arabic)'} placeholder={AR?'فحص الفيريتين المتقدم':'Advanced Ferritin'} value={nameAr} onChange={setNameAr} required />

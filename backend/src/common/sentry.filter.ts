@@ -18,11 +18,7 @@ export class SentryExceptionFilter extends BaseExceptionFilter {
     // Attach active user context to Sentry event if authenticated
     const user = request?.user;
     if (user) {
-      Sentry.setUser({
-        id: user.id,
-        email: user.email || '',
-        username: user.name || user.id,
-      });
+      Sentry.setUser(sentryUserContext(user));
     }
 
     // Determine HTTP status code
@@ -37,6 +33,21 @@ export class SentryExceptionFilter extends BaseExceptionFilter {
 
     super.catch(exception, host);
   }
+}
+
+/**
+ * Phase 13, task 13.R5 (reviewer fix instruction 4): build the Sentry user context from the
+ * account id only.
+ *
+ * Sentry is a third-party processor and this filter runs for *every* authenticated request that
+ * throws, including 4xx that are never captured. Sending the patient's e-mail address (and their
+ * real name, which the previous `username` field carried) put direct contact data into a system
+ * that is neither the PDPL export path nor the PDPL erasure path in `docs/architecture/DATA_MAP.md`
+ * §4. Health data is "sensitive" under the Saudi PDPL, so the id is the most we send.
+ */
+export function sentryUserContext(user: unknown): { id: string } {
+  const u = (user ?? {}) as { id?: unknown; account_id?: unknown };
+  return { id: String(u.id ?? u.account_id ?? '') };
 }
 
 /**
