@@ -99,6 +99,8 @@ def insured_consultation(pat, doctor, decision='approve_partial'):
     r = doctor.get('/insurance/requests/provider/queue')
     step('the request reaches the doctor (InsuranceRequestsScreen)', r.ok and rid in str(r.body), r)
     body = {'decision': decision}
+    if decision in ('approve_full', 'approve_partial'):
+        body['approval_ref'] = f'APR-{rid[:8]}'  # D-37: the insurer's approval number, from the provider's system
     if decision == 'approve_partial':
         body['copay_percent'] = 20
     if decision == 'reject':
