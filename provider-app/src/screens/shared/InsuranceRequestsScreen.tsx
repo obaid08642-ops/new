@@ -40,6 +40,8 @@ export function InsuranceRequestsScreen({ onBack }: { onBack: () => void }) {
   const [mode, setMode] = useState<DecisionMode>(null);
   const [copayPct, setCopayPct] = useState('');
   const [reason, setReason] = useState('');
+  // D-37: the insurer's approval number, entered from the provider's own system (required to approve).
+  const [approvalRef, setApprovalRef] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const load = useCallback(async (isRefresh = false) => {
@@ -65,11 +67,19 @@ export function InsuranceRequestsScreen({ onBack }: { onBack: () => void }) {
     setMode(null);
     setCopayPct('');
     setReason('');
+    setApprovalRef('');
   };
 
   const submitDecision = async () => {
     if (!target || !mode) return;
     const body: any = { decision: mode };
+    if (mode === 'approve_full' || mode === 'approve_partial') {
+      if (!approvalRef.trim()) {
+        show(AR ? 'رقم موافقة التأمين إلزامي' : 'The insurer approval number is required', 'error');
+        return;
+      }
+      body.approval_ref = approvalRef.trim();
+    }
     if (mode === 'approve_partial') {
       const pct = Number(copayPct);
       if (!pct || pct <= 0 || pct >= 100) {
@@ -217,6 +227,25 @@ export function InsuranceRequestsScreen({ onBack }: { onBack: () => void }) {
                 </TouchableOpacity>
               ))}
             </View>
+
+            {(mode === 'approve_full' || mode === 'approve_partial') && (
+              <View style={{ marginBottom: SP.lg }}>
+                <Text style={{ fontSize: FS.sm, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
+                  {AR ? 'رقم موافقة التأمين (إلزامي)' : 'Insurer approval number (required)'}
+                </Text>
+                <TextInput
+                  value={approvalRef}
+                  onChangeText={setApprovalRef}
+                  autoCapitalize="characters"
+                  placeholder="APR-XXXXX"
+                  placeholderTextColor={theme.textHint}
+                  style={{
+                    backgroundColor: theme.inputBg, borderWidth: 1, borderColor: theme.border,
+                    borderRadius: R.md, padding: SP.md, color: theme.text, fontSize: FS.md, textAlign: 'center',
+                  }}
+                />
+              </View>
+            )}
 
             {mode === 'approve_partial' && (
               <View style={{ marginBottom: SP.lg }}>
