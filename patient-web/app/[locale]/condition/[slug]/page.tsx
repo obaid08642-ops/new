@@ -1,5 +1,5 @@
 import { JsonLd } from "@/components-next/json-ld";
-import { medicalCondition, breadcrumbList } from "@/lib/seo/structured-data";
+import { medicalWebPage, medicalCondition, breadcrumbList } from "@/lib/seo/structured-data";
 import type { Metadata } from "next";
 import { localizedUrl } from "@/lib/seo";
 import { isLocale, locales, type Locale } from "@/lib/i18n";
@@ -68,9 +68,9 @@ export default async function ConditionCanonicalPage({ params }: Props) {
   const medicines = rels.relevant_medicines ?? [];
 
   return (
-    <LandingPage locale={locale} title={title} intro={overview} backHref={`/${locale}`}>
+    <LandingPage locale={locale} title={title} intro={overview} introIsAnswer backHref={`/${locale}`}>
       {/* // i18n-ok: structured data is kept exactly as published (SEO) */}
-      <JsonLd data={[medicalCondition({ name: title, path: `/condition/${slug}`, locale: locale as Locale, symptoms: cond.symptoms ?? undefined, overview }), breadcrumbList([{ name: "Nabd Plus", locale: locale as Locale, path: "/" }, { name: t("ld.crumbHealthGuide"), locale: locale as Locale, path: "/health" }, { name: title, locale: locale as Locale, path: `/condition/${slug}` }])]} />
+      <JsonLd data={[medicalWebPage({ title, locale: locale as Locale, path: `/condition/${slug}`, speakable: Boolean(overview) }), medicalCondition({ name: title, path: `/condition/${slug}`, locale: locale as Locale, symptoms: cond.symptoms ?? undefined, overview }), breadcrumbList([{ name: "Nabd Plus", locale: locale as Locale, path: "/" }, { name: t("ld.crumbHealthGuide"), locale: locale as Locale, path: "/health" }, { name: title, locale: locale as Locale, path: `/condition/${slug}` }])]} />
 
       {symptoms.length ? (
         <LandingSection id="symptoms" title={t("condition.symptoms")}>

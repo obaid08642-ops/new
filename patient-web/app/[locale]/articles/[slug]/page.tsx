@@ -1,7 +1,8 @@
 import { JsonLd } from "@/components-next/json-ld";
 import { medicalWebPage, breadcrumbList } from "@/lib/seo/structured-data";
 import type { Metadata } from "next";
-import { localizedUrl } from "@/lib/seo";
+import { localizedUrl, siteOrigin } from "@/lib/seo";
+import { DIRECT_ANSWER_CLASS } from "@/components-next/seo/direct-answer";
 import { isLocale, locales } from "@/lib/i18n";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -19,15 +20,27 @@ import styles from "@/components-next/articles/articles.module.css";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
+/** The language the article's text is shown in: articles are written in Arabic and/or English. */
+function contentLanguage(locale: string, article: { titleAr?: string; titleEn?: string }) {
+  if (locale === "ar") return article.titleAr ? "ar" : "en";
+  return article.titleEn ? "en" : "ar";
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
-  if (!isLocale(locale)) return {};
+  if (!isLocale(locale) || !articleSlug(slug)) return {};
   const t = await getTranslations({ locale, namespace: "Articles" });
-  const canonical = localizedUrl(locale, `/articles/${encodeURIComponent(slug)}`);
+  const response = await getPublicArticle(slug).catch(() => null);
+  const article = response && response.ok ? parseArticle(await response.json().catch(() => null)) : null;
+  // An unpublished or unknown article is not indexed.
+  if (!article) return { robots: { index: false, follow: false } };
+  const title = articleTitle(locale, article, t("untitled"));
+  const description = (articleExcerpt(locale, article) ?? t("subtitle")).replace(/\s+/g, " ").slice(0, 160);
   const pathWithoutLocale = `/articles/${encodeURIComponent(slug)}`;
+  const canonical = localizedUrl(locale, pathWithoutLocale);
   return {
-    title: t("title"),
-    description: t("subtitle"),
+    title,
+    description,
     alternates: {
       canonical,
       languages: {
@@ -35,7 +48,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         "x-default": localizedUrl("ar", pathWithoutLocale),
       },
     },
-    openGraph: { type: "website", url: canonical },
+    openGraph: {
+      type: "article", url: canonical, title, description,
+      ...(article.publishedAt ? { publishedTime: article.publishedAt } : {}),
+      ...(article.coverImage ? { images: [{ url: article.coverImage, alt: title }] } : {}),
+    },
     robots: { index: true, follow: true },
   };
 }
@@ -83,8 +100,12 @@ export default async function ArticlePage({ params }: Props) {
             "@type": "Article",
             headline: title,
             ...(excerpt ? { description: excerpt } : {}),
-            url: `${path}`,
-            inLanguage: locale,
+            url: localizedUrl(locale, path),
+            // the text is the article's own (Arabic or English); the page chrome is in the reader's locale
+            inLanguage: contentLanguage(locale, article),
+            ...(article.coverImage ? { image: article.coverImage } : {}),
+            publisher: { "@type": "Organization", name: "Nabd Plus", url: siteOrigin() }, // i18n-ok: brand name in structured data
+            speakable: { "@type": "SpeakableSpecification", cssSelector: ["h1", ".nabd-direct-answer"] },
             ...(publishedAt ? { datePublished: publishedAt } : {}),
             ...(authorName ? { author: { "@type": "Person", name: authorName, ...(authorTitle ? { jobTitle: authorTitle } : {}) } } : {}),
           },
@@ -98,13 +119,13 @@ export default async function ArticlePage({ params }: Props) {
       {article.category ? <CategoryPill>{article.category}</CategoryPill> : null}
       {facts.length ? <SectionCard id="article-facts"><Facts rows={facts} label={title} /></SectionCard> : null}
       <SectionCard id="article-summary" title={t("summary")}>
-        <p className={styles.summary} dir="auto">{excerpt || t("excerptUnavailable")}</p>
+        <p className={`${excerpt ? `${DIRECT_ANSWER_CLASS} ` : ""}${styles.summary}`} dir="auto">{excerpt || t("excerptUnavailable")}</p>
       </SectionCard>
       <Notice>{t("bodyHidden")}</Notice>
       <Notice>{t("disclaimer")}</Notice>
       <CiteThis
         title={title}
-        uri={`https://www.nabd.plus/${locale}/articles/${encodeURIComponent(slug)}`}
+        uri={localizedUrl(locale, `/articles/${encodeURIComponent(slug)}`)}
         author={authorName}
         authorTitle={authorTitle}
         publishedAt={publishedAt}

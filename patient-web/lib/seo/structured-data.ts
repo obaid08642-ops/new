@@ -6,10 +6,13 @@ import { siteOrigin } from "@/lib/seo";
 export function medicalWebPage(input: {
   title: string; description?: string | null; locale: Locale; path: string;
   datePublished?: string | null; dateModified?: string | null;
+  /** The page carries a DirectAnswer (AEO): voice assistants read the title and that answer. */
+  speakable?: boolean;
 }): Record<string, unknown> {
   return {
     "@context": "https://schema.org", "@type": "MedicalWebPage",
     name: input.title,
+    ...(input.speakable ? { speakable: { "@type": "SpeakableSpecification", cssSelector: ["h1", ".nabd-direct-answer"] } } : {}),
     ...(input.description ? { description: input.description } : {}),
     url: `${siteOrigin()}/${input.locale}${input.path}`,
     inLanguage: input.locale,
@@ -114,11 +117,11 @@ export function radiologyService(input: {
   name: string; path: string; locale: Locale; description?: string | null;
 }): Record<string, unknown> {
   return {
-    "@context": "https://schema.org", "@type": "MedicalProcedure",
+    // schema.org DiagnosticProcedure ("Diagnostic" is not a MedicalProcedureType value)
+    "@context": "https://schema.org", "@type": "DiagnosticProcedure",
     name: input.name,
     url: `${siteOrigin()}/${input.locale}${input.path}`,
     inLanguage: input.locale,
-    procedureType: "Diagnostic",
     ...(input.description ? { description: input.description } : {}),
   };
 }
@@ -127,11 +130,11 @@ export function nursingService(input: {
   name: string; path: string; locale: Locale; description?: string | null;
 }): Record<string, unknown> {
   return {
+    // a home nursing service; "Nursing" is not a MedicalProcedureType value, so no procedureType
     "@context": "https://schema.org", "@type": "MedicalProcedure",
     name: input.name,
     url: `${siteOrigin()}/${input.locale}${input.path}`,
     inLanguage: input.locale,
-    procedureType: "Nursing",
     ...(input.description ? { description: input.description } : {}),
   };
 }

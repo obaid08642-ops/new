@@ -2,7 +2,7 @@
 import './instrument';
 import './config/strip-placeholder-secrets';
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe, Logger, VersioningType } from '@nestjs/common';
+import { ValidationPipe, Logger, VersioningType, RequestMethod } from '@nestjs/common';
 import { SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { createNabdahOpenApiDocument } from './config/openapi.config';
@@ -169,7 +169,14 @@ async function bootstrap() {
     }
   }));
   app.use(require('express').urlencoded({ limit: '25mb', extended: true }));
-  app.setGlobalPrefix('api');
+  // AC-1: OAuth discovery documents live at the host root (RFC 8414, RFC 9728).
+  app.setGlobalPrefix('api', {
+    exclude: [
+      { path: '.well-known/oauth-authorization-server', method: RequestMethod.GET },
+      { path: '.well-known/oauth-protected-resource', method: RequestMethod.GET },
+      { path: '.well-known/oauth-protected-resource/api/v1/mcp', method: RequestMethod.GET },
+    ],
+  });
   app.enableVersioning({
     type: VersioningType.URI,
     defaultVersion: '1',
