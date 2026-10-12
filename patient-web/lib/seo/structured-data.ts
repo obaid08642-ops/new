@@ -8,6 +8,8 @@ export function medicalWebPage(input: {
   datePublished?: string | null; dateModified?: string | null;
   /** The page carries a DirectAnswer (AEO): voice assistants read the title and that answer. */
   speakable?: boolean;
+  /** What the page is about (a feature or topic name), and the CSS selectors a voice assistant may read aloud. */
+  about?: string | null; speakableSelectors?: string[];
 }): Record<string, unknown> {
   return {
     "@context": "https://schema.org", "@type": "MedicalWebPage",
@@ -16,6 +18,8 @@ export function medicalWebPage(input: {
     ...(input.description ? { description: input.description } : {}),
     url: `${siteOrigin()}/${input.locale}${input.path}`,
     inLanguage: input.locale,
+    ...(input.about ? { about: { "@type": "Thing", name: input.about } } : {}),
+    ...(input.speakableSelectors?.length ? { speakable: { "@type": "SpeakableSpecification", cssSelector: input.speakableSelectors } } : {}),
     ...(input.datePublished ? { datePublished: input.datePublished } : {}),
     ...(input.dateModified ? { dateModified: input.dateModified } : {}),
   };
@@ -46,14 +50,15 @@ export function physician(input: { name: string; path: string; locale: Locale; s
   };
 }
 
-export function service(input: { name: string; path: string; locale: Locale; provider?: string | null; description?: string | null }): Record<string, unknown> {
+export function service(input: { name: string; path: string; locale: Locale; provider?: string | null; description?: string | null; serviceType?: string; areaServed?: string | null }): Record<string, unknown> {
   return {
     "@context": "https://schema.org", "@type": "Service",
     name: input.name,
     url: `${siteOrigin()}/${input.locale}${input.path}`,
     ...(input.provider ? { provider: { "@type": "Organization", name: input.provider } } : {}),
     ...(input.description ? { description: input.description } : {}),
-    serviceType: "HealthCareService",
+    serviceType: input.serviceType ?? "HealthCareService",
+    ...(input.areaServed ? { areaServed: { "@type": "Country", name: input.areaServed } } : {}),
   };
 }
 

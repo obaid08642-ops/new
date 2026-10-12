@@ -88,4 +88,19 @@ export function LandingEmpty({ icon, tone, title, body, actionLabel, actionHref 
   );
 }
 
+/** Questions and their answers, all visible (a feature page's FAQ; its FAQPage JSON-LD is built from the same items). */
+export function FaqList({ label, items }: { label: string; items: Array<{ q: string; a: string }> }) {
+  if (items.length === 0) return null;
+  return (
+    <ul className={styles.faq} aria-label={label}>
+      {items.map((item) => (
+        <li key={item.q} className={`${rx.card} ${styles.legal}`}>
+          <h3 className={styles.cardTitle}>{item.q}</h3>
+          <p className={styles.legalText}>{item.a}</p>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export { Notice };

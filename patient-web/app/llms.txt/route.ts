@@ -22,6 +22,18 @@ const llmsText = `# Nabd Plus
 
 ${LOCALES.map(([l, name]) => `- [${name} home](/${l}): Nabd Plus home in ${name}.`).join("\n")}
 
+## Features
+
+Public pages that describe what each Nabd Plus feature does today (all six languages at /{lang}/features/{slug}); using a feature needs a signed-in account.
+
+- [Medication reminders](/ar/features/medication-reminders): Save reminders with a dose, frequency and times, see today's doses, refill dates and chronic medicines.
+- [Pregnancy](/ar/features/pregnancy): Pregnancy week, trimester and due date from your entries, logged kicks and contractions, baby growth and a cycle estimate.
+- [Mental health](/ar/features/mental-health): Mood journal and booking with psychiatry doctors; no diagnosis or scoring, urgent help is a call to the configured urgent-help number.
+- [Nutrition](/ar/features/nutrition): Log meals and follow today's calories and water against daily targets you set.
+- [Family](/ar/features/family): Family group with per-member permissions, a family calendar, family chat and emergency contacts.
+- [Loyalty](/ar/features/loyalty): Nabd points balance and tier, rewards, health challenges and referral codes.
+- [Online consultations](/ar/features/online-consultations): Book a video consultation with a doctor, pay online in advance, join the call from the appointment and message the doctor inside the booking.
+
 ## Public pages (each in ar, en, ur, hi, bn, fil)
 
 - [Medicines and products](/ar/c): category listing; each product at ${origin}/{lang}/p/{slug} (the slug is translated per language) with price in SAR, active ingredient, dosage form, strength, and whether it needs a prescription.
