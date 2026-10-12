@@ -3706,13 +3706,13 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow Nabdah Plus to access your camera"
+          "cameraPermission": "Allow Nabd+ to access your camera"
         }
       ],
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Allow Nabdah Plus to use your location"
+          "locationWhenInUsePermission": "Allow Nabd+ to use your location"
         }
       ],
       [
