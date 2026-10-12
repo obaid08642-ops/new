@@ -1102,7 +1102,9 @@ export class NotificationsService {
   @OnEvent('insurance.decided')
   async onInsuranceDecided(p: any) {
     if (!p?.patient_id) return;
-    const approved = ['approved', 'partially_approved', 'partial_approval', 'APPROVED'].includes(p.state);
+    // D-37: the request states are APPROVED_FULL / COPAY_PENDING / REJECTED (insurance-engine decide());
+    // an approval must never be announced as a rejection, and the note opens the request itself.
+    const approved = ['APPROVED_FULL', 'COPAY_PENDING', 'approved', 'partially_approved', 'partial_approval', 'APPROVED'].includes(p.state);
     await this.create({
       user_id: p.patient_id,
       title_key: approved ? 'notif.insurance_approved.title' : 'notif.insurance_rejected.title',
@@ -1110,7 +1112,7 @@ export class NotificationsService {
       params: approved && p.copay_amount != null ? { amount: p.copay_amount } : {},
       type: NotificationType.INFO,
       priority: NotificationPriority.HIGH,
-      action: { route: '/insurance/hub' },
+      action: p.request_id ? { route: `/insurance/requests/${p.request_id}`, kind: 'insurance_request', id: p.request_id } : { route: '/insurance/hub' },
     });
   }
 

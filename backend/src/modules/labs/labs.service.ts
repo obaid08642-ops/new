@@ -229,7 +229,7 @@ export class LabsService {
   /** LJ-03: the lab decision is a decision on the insurance request engine, not a
    * free-form status string. The booking mirrors the engine's server-computed
    * decision so the existing patient screen keeps working. */
-  async updateInsuranceApproval(id: string, payload: { status?: string; totalCopay?: number; items?: any[]; reason?: string }, user: any) {
+  async updateInsuranceApproval(id: string, payload: { status?: string; totalCopay?: number; items?: any[]; reason?: string; approval_ref?: string }, user: any) {
     if (!getEffectiveRoles(user).some(role => ['admin', 'lab', 'hospital'].includes(role))) throw new ForbiddenException();
     const b = await this.bkgModel.findOne({ id: { $eq: id } });
     if (!b) throw new NotFoundException();
@@ -247,6 +247,7 @@ export class LabsService {
       const rejected = items.find((it: any) => it?.isCovered === false || it?.rejectReason);
       request = await this.insurance.providerDecideBooking(user, 'lab', id, {
         decision: rawStatus,
+        approval_ref: payload.approval_ref,
         totalCopay: payload.totalCopay,
         copay: payload.totalCopay,
         reason: payload.reason || rejected?.rejectReason,
