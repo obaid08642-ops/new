@@ -33,6 +33,17 @@ export class RadiologyController {
     });
   }
 
+  @Public() @Get('carousel')
+  carousel(@Query('modality') modality?: string, @Query('limit') limit?: string) {
+    return this.svc.getCarousel(modality, parseInt(limit || '20'));
+  }
+
+  @Public() @Get('price-comparison')
+  priceComparison(@Query('serviceId') serviceId: string) {
+    if (!serviceId) throw new BadRequestException('serviceId required');
+    return this.svc.priceComparison(serviceId);
+  }
+
   @Public() @Get('compatible-providers')
   compatibleProviders(@Query('serviceIds') ids?: string) { return this.svc.compatibleProviders(ids ? ids.split(',') : []); }
 

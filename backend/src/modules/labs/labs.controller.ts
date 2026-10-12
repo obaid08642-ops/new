@@ -230,6 +230,17 @@ export class LabsController {
     return this.svc.getById(id);
   }
 
+  @Public() @Get('carousel')
+  carousel(@Query('category') category?: string, @Query('limit') limit?: string) {
+    return this.svc.getCarousel(category, parseInt(limit || '20'));
+  }
+
+  @Public() @Get('price-comparison')
+  priceComparison(@Query('serviceId') serviceId: string) {
+    if (!serviceId) throw new BadRequestException('serviceId required');
+    return this.svc.priceComparison(serviceId);
+  }
+
   @Public() @Get('compatible-providers')
   compatibleProviders(@Query('testIds') testIds?: string) {
     const ids = testIds ? testIds.split(',') : [];

@@ -103,6 +103,95 @@ export class LabsService {
     }));
   }
 
+  async getCarousel(category?: string, limit = 20) {
+    const q: any = { active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' };
+    if (category) q.category = category;
+    // Explicitly exclude any imaging entries
+    q.$and = [{ category: { $ne: 'imaging' } }, { sample_type: { $ne: 'imaging' } }];
+    
+    const services = await this.svcModel.find(q, { _id: 0, __v: 0, name_ar: 1, name_en: 1, category: 1, price: 1, short_code: 1, home_visit_supported: 1 })
+      .sort({ popularity: -1, name_ar: 1 })
+      .limit(limit)
+      .lean();
+    
+    // Get approved providers for each service
+    const providerProfiles = await this.providerProfiles.find({
+      type: { $in: ['lab', 'hospital'] },
+      status: 'active',
+      public_eligibility: true,
+      medical_review_status: 'approved',
+      account_id: { $exists: true, $ne: null }
+    }, { projection: { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, rating_avg: 1, rating_count: 1, home_visit_supported: 1 } }).lean();
+    
+    const providerMap = new Map(providerProfiles.map(p => [p.account_id, p]));
+    
+    return services.map((svc: any) => {
+      const providers = (svc.compatible_providers || [])
+        .map(pid => providerMap.get(pid))
+        .filter(Boolean)
+        .map(p => ({
+          id: p.account_id,
+          name: p.name_ar || p.name_en,
+          logo: p.logo,
+          rating: p.rating_count > 0 ? p.rating_avg : null,
+          homeVisitAvailable: p.home_visit_supported
+        }));
+      return {
+        id: svc.id,
+        name: svc.name_ar || svc.name_en,
+        category: svc.category,
+        price: svc.price,
+        short_code: svc.short_code,
+        home_visit_supported: svc.home_visit_supported,
+        providers: providers.slice(0, 5)
+      };
+    });
+  }
+
+  async priceComparison(serviceId: string) {
+    const service = await this.svcModel.findOne({ id: serviceId, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, __v: 0 });
+    if (!service) throw new NotFoundException('service_not_found');
+    
+    // Get all approved providers that offer this service
+    const providers = await this.providerProfiles.find({
+      type: { $in: ['lab', 'hospital'] },
+      status: 'active',
+      public_eligibility: true,
+      medical_review_status: 'approved',
+      $or: [
+        { test_categories: { $in: [serviceId] } },
+        { test_categories: { $in: [service.category] } }
+      ]
+    }, { projection: { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, rating_avg: 1, rating_count: 1, home_visit_supported: 1, test_categories: 1 } }).lean();
+    
+    const comparisons = [];
+    for (const p of providers) {
+      const hasService = (p.test_categories || []).includes(serviceId) || (p.test_categories || []).includes(service.category);
+      if (hasService) {
+        comparisons.push({
+          provider_id: p.account_id,
+          name: p.name_ar || p.name_en,
+          logo: p.logo,
+          rating: p.rating_count > 0 ? p.rating_avg : null,
+          home_visit_supported: p.home_visit_supported,
+          // Price would come from provider's inventory/pricing
+          // For now return service base price
+          price: service.price,
+          home_visit_price: service.home_visit_price || null
+        });
+      }
+    }
+    
+    comparisons.sort((a, b) => a.price - b.price);
+    
+    return {
+      service_id: serviceId,
+      service_name: service.name_ar || service.name_en,
+      base_price: service.price,
+      comparisons
+    };
+  }
+
   async book(user: any, data: any) {
     if (!Array.isArray(data.items) || !data.items.length) throw new BadRequestException('items required');
     if (!data.scheduled_at) throw new BadRequestException('scheduled_at required');

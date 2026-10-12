@@ -419,6 +419,83 @@ export class RadiologyOpsService {
     }));
   }
 
+  async getCarousel(modality?: string, limit = 20) {
+    const q: any = { is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' };
+    if (modality) q.modality = modality;
+    
+    const services = await this.svcModel.find(q, { _id: 0, __v: 0, id: 1, name_ar: 1, name_en: 1, modality: 1, body_part: 1, short_code: 1, price: 1, home_visit_supported: 1 })
+      .sort({ popularity: -1 })
+      .limit(limit)
+      .lean();
+    
+    const providerProfiles = await this.profileModel.find({
+      type: { $in: ['radiology', 'hospital'] },
+      status: 'active',
+      public_eligibility: true,
+      medical_review_status: 'approved',
+      account_id: { $exists: true, $ne: null }
+    }, { projection: { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, rating_avg: 1, rating_count: 1, home_visit_supported: 1 } }).lean();
+    
+    const providerMap = new Map(providerProfiles.map(p => [p.account_id, p]));
+    
+    return services.map((svc: any) => {
+      const compatible = await this.compatibleProviders([svc.id]);
+      const providers = compatible.map(cp => {
+        const p = providerMap.get(cp.id);
+        return p ? {
+          id: p.account_id,
+          name: p.name_ar || p.name_en,
+          logo: p.logo,
+          rating: p.rating_count > 0 ? p.rating_avg : null,
+          homeVisitAvailable: p.home_visit_supported
+        } : null;
+      }).filter(Boolean);
+      
+      return {
+        id: svc.id,
+        name: svc.name_ar || svc.name_en,
+        modality: svc.modality,
+        body_part: svc.body_part,
+        price: svc.price,
+        short_code: svc.short_code,
+        home_visit_supported: svc.home_visit_supported,
+        providers: providers.slice(0, 5)
+      };
+    });
+  }
+
+  async priceComparison(serviceId: string) {
+    const service = await this.svcModel.findOne({ id: serviceId, is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' });
+    if (!service) throw new NotFoundException('service_not_found');
+    
+    // Get all approved providers that offer this service
+    const compatible = await this.compatibleProviders([serviceId]);
+    const comparisons = [];
+    
+    for (const cp of compatible) {
+      comparisons.push({
+        provider_id: cp.id,
+        name: cp.name,
+        logo: cp.logo,
+        rating: cp.rating,
+        home_visit_supported: cp.homeVisitAvailable,
+        price: service.price,
+        home_visit_price: service.home_visit_price || null
+      });
+    }
+    
+    comparisons.sort((a, b) => a.price - b.price);
+    
+    return {
+      service_id: serviceId,
+      service_name: service.name_ar || service.name_en,
+      modality: service.modality,
+      body_part: service.body_part,
+      base_price: service.price,
+      comparisons
+    };
+  }
+
   async book(user: any, body: any) {
     // Only the approved catalog decides what is booked and what it costs; the body names the scan and center.
     const serviceId = typeof body?.service_id === 'string' ? body.service_id : '';
