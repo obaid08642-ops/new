@@ -89,7 +89,9 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: '1'
           ignore-unfixed: true
-          # The pre-existing advisories that need a MAJOR upgrade are listed
-          # there with the reason and the target version, so this gate blocks
-          # NEW findings instead of failing forever on known debt.
-          ignorefile: backend/.trivyignore
+        # The pre-existing advisories that need a MAJOR upgrade are listed in
+        # backend/.trivyignore with the reason and the target version, so this
+        # gate blocks NEW findings instead of failing forever on known debt.
+        # (The action has no ignorefile input; Trivy reads TRIVY_IGNOREFILE.)
+        env:
+          TRIVY_IGNOREFILE: backend/.trivyignore

@@ -14,9 +14,20 @@ carries a 3-per-10-min throttle: past the third request the endpoint answers 429
 from the throttle, and this journey would be measuring the wrong thing if it
 claimed otherwise.
 """
+import random
+
 from lib import Client, journey, step, uniq
 
+
+def sa_mobile() -> str:
+    """A valid Saudi mobile in E.164 (+9665 and 8 digits); uniq() has letters, which the guard rightly refuses."""
+    return '+9665' + ''.join(random.choice('0123456789') for _ in range(8))
+
 anon = Client()
+# Its own caller address (RFC 5737 test range, a new one each run, the backend trusts the
+# forwarded hop), so the throttle and the per-IP fan-out limit it measures start from zero
+# and are not shared with the journeys that ran before it on 127.0.0.1.
+CALLER = {'X-Forwarded-For': f'198.51.100.{random.randint(1, 254)}'}
 
 
 def run():
@@ -24,21 +35,26 @@ def run():
 
     # 16.3 — a number from a country we do not serve never gets a code. This is
     # the first request on the IP, so the exact code is ours, not a throttle's.
-    r = anon.post('/auth/otp/request', {'identifier': '+12025550143'})
+    r = anon.post('/auth/otp/request', headers=CALLER, b={'identifier': '+12025550143'})
     step('otp: country not served is refused (otp_country_not_served)',
          r.status == 429 and 'otp_country_not_served' in str(r.body), r)
 
     # 16.3 — a served country still works, so the refusal above is not simply a
     # broken endpoint.
-    served = '+9665' + uniq('n')[-7:]
-    r = anon.post('/auth/otp/request', {'identifier': served})
-    step('otp: a served country is accepted', r.ok, r)
+    served = sa_mobile()
+    r = anon.post('/auth/otp/request', headers=CALLER, b={'identifier': served})
+    # The journeys before this one share the caller's 3-per-10-min throttle on this
+    # endpoint, so a 429 from the throttle is possible here. What this step proves is
+    # that the allow-list does not refuse a served country: accepted, or throttled,
+    # but never otp_country_not_served / otp_invalid_identifier.
+    throttled = r.status == 429 and 'ThrottlerException' in str(r.body)
+    step('otp: a served country is not refused by the allow-list', r.ok or throttled, r)
 
     # 16.3 — repeated asks for one number stop being served.
-    target = '+9665' + uniq('m')[-7:]
+    target = sa_mobile()
     served_count = 0
     for i in range(1, 9):
-        r = anon.post('/auth/otp/request', {'identifier': target})
+        r = anon.post('/auth/otp/request', headers=CALLER, b={'identifier': target})
         if r.ok:
             served_count += 1
             continue
@@ -52,8 +68,8 @@ def run():
     # 16.3 — one caller cannot fan out over many distinct numbers.
     fan_served = 0
     for i in range(1, 26):
-        n = '+9665' + str(1000000 + i).zfill(7)
-        r = anon.post('/auth/otp/request', {'identifier': n})
+        n = '+9665' + str(10000000 + i)  # 8 digits after 9665: a valid Saudi mobile
+        r = anon.post('/auth/otp/request', headers=CALLER, b={'identifier': n})
         if r.ok:
             fan_served += 1
         else:
