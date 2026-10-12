@@ -3,18 +3,8 @@
  * Dry-run by default; --apply writes changes.
  * Usage: MONGODB_URI=... DB_NAME=... npx ts-node scripts/migrations/2026-10-sfda-price-from-catalogue.ts [--apply]
  */
-import { MongoClient, Db, Collection } from 'mongodb';
-
-interface Medicine {
-  id: string;
-  sku?: number;
-  price?: number;
-  sfda_price?: number;
-  sfda_price_source?: string;
-  sfda_price_updated_at?: Date;
-  updated_by?: string;
-  updatedAt?: Date;
-}
+import { connect, Connection, Model } from 'mongoose';
+import { Medicine, MedicineSchema } from '../src/schemas/medicine.schema';
 
 async function main() {
   const args = process.argv.slice(2);
@@ -23,11 +13,10 @@ async function main() {
   const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017';
   const dbName = process.env.DB_NAME || 'nabd';
   
-  const client = new MongoClient(uri);
-  await client.connect();
+  await connect(uri, { dbName });
   
-  const db = client.db(dbName);
-  const medicines: Collection<Medicine> = db.collection('medicines');
+  const db = (await import('mongoose')).default.connection.db;
+  const medicines = db.collection('medicines');
   
   console.log(`[migration] Connected to ${dbName}. Apply mode: ${apply}`);
   
@@ -63,7 +52,7 @@ async function main() {
   
   console.log(`[migration] Scanned ${count} medicines. ${apply ? 'Updated' : 'Would update'} ${updated} documents.`);
   
-  await client.close();
+  await import('mongoose').then(m => m.default.connection.close());
 }
 
 main().catch((err) => {

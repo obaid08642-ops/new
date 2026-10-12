@@ -93,6 +93,9 @@ export class CatalogMedicineFieldsDto {
   @IsOptional() @IsArray() @IsString({ each: true }) interactions?: string[];
   // audit note (price history / change log)
   @IsOptional() @IsString() @MaxLength(500) reason?: string;
+  // D-12: SFDA price ceiling fields
+  @IsOptional() @IsNumber() @Min(0) sfda_price?: number;
+  @IsOptional() @IsString() @MaxLength(500) sfda_price_reason?: string;
 }
 
 export class AdminUpdateCatalogDto extends CatalogMedicineFieldsDto {

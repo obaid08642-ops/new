@@ -1757,6 +1757,11 @@ export class MedicinesService {
       const priceReason = String(patch?.reason || '').trim();
       if (priceReason.length < 5) throw new BadRequestException('price_change_reason_required');
     }
+    // D-12: Handle sfda_price changes with audit logging
+    if (clean.sfda_price !== undefined && Number(clean.sfda_price) !== Number(med.sfda_price || 0)) {
+      const sfdaReason = String(patch?.sfda_price_reason || patch?.reason || '').trim();
+      if (sfdaReason.length < 5) throw new BadRequestException('sfda_price_change_reason_required');
+    }
     if (patch?.availability_status !== undefined) {
       const allowed = ['none', 'availability_may_be_limited', 'admin_flagged_shortage', 'discontinued'];
       if (!allowed.includes(patch.availability_status)) throw new BadRequestException('invalid availability_status');
@@ -1787,6 +1792,10 @@ export class MedicinesService {
     await this.model.updateOne({ id: medicineId }, { $set: { ...clean, ...extra, ...governanceReset, updatedAt: new Date() } });
     if (clean.price !== undefined && Number(clean.price) !== Number(med.price || 0)) {
       await this.priceHistory.insertOne({ id: `mph_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`, medicine_id: medicineId, before_price: Number(med.price || 0), after_price: Number(clean.price), reason: String(patch.reason).trim(), changed_by: adminId, createdAt: new Date() });
+    }
+    // D-12: Audit log for sfda_price changes
+    if (clean.sfda_price !== undefined && Number(clean.sfda_price) !== Number(med.sfda_price || 0)) {
+      await this.priceHistory.insertOne({ id: `msfda_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`, medicine_id: medicineId, before_sfda_price: Number(med.sfda_price || 0), after_sfda_price: Number(clean.sfda_price), reason: String(patch.sfda_price_reason || patch.reason).trim(), changed_by: adminId, createdAt: new Date() });
     }
     // Physically delete any image the edit removed (main image, gallery
     // entries, image_1..5 slots) from R2 — no orphaned files on the CDN.
