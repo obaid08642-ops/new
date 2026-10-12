@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, ForbiddenException, BadRequestException,
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { pick } from '../../common/sanitize';
+import { GeoEngineService } from '../../provider/services/geo-engine.service';
 
 /** P3.3 (F15): writable catalog fields — id/_id/active/governance flags excluded. */
 export const RADIOLOGY_CATALOG_FIELDS = [
@@ -30,6 +31,7 @@ export class RadiologyOpsService {
     @InjectModel('ProviderProfile') private profileModel: Model<any>,
     private engine: WorkflowEngineService,
     private events: EventEmitter2,
+    private readonly geo: GeoEngineService,
     @Optional() private readonly redis?: RedisService,
     @Optional() private readonly insurance?: InsuranceFlowService,
   ) {}
@@ -407,7 +409,8 @@ export class RadiologyOpsService {
       const services = await this.svcModel.find(q).lean();
       
       // Enrich services with nearest provider distance
-      const servicesWithDistance = services.map((svc: any) => {
+      const servicesWithDistance: any[] = [];
+      for (const svc of services) {
         let minDist = Number.POSITIVE_INFINITY;
         // Check compatible providers for this service
         const providerIds = svc.equipment_list ? svc.equipment_list.map((e: any) => e.provider_id).filter(Boolean) : [];
@@ -417,8 +420,8 @@ export class RadiologyOpsService {
           const dist = providerDistances.get(cp.id);
           if (dist !== undefined && dist < minDist) minDist = dist;
         }
-        return { ...svc, nearest_provider_km: minDist === Number.POSITIVE_INFINITY ? null : Math.round(minDist * 10) / 10 };
-      });
+        servicesWithDistance.push({ ...svc, nearest_provider_km: minDist === Number.POSITIVE_INFINITY ? null : Math.round(minDist * 10) / 10 });
+      }
       
       // Sort by nearest provider distance
       servicesWithDistance.sort((a, b) => (a.nearest_provider_km ?? Number.POSITIVE_INFINITY) - (b.nearest_provider_km ?? Number.POSITIVE_INFINITY));

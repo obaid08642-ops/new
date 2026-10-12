@@ -11,6 +11,7 @@ import { LabBookingRepository } from "./repositories/labbooking.repository";
 import { LabSampleRepository } from "./repositories/labsample.repository";
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
 import { pick } from '../../common/sanitize';
+import { GeoEngineService } from '../../provider/services/geo-engine.service';
 
 /** P3.3 (F15): writable catalog fields — LabService model vocabulary (lab.schema).
  * id/_id/is_deleted/governance flags excluded. */
@@ -35,6 +36,7 @@ export class LabsService {
     private readonly bus: EventBusService,
     private readonly engine: WorkflowEngineService,
     private readonly pdfService: LabPdfService,
+    private readonly geo: GeoEngineService,
     @Optional() private readonly redis?: RedisService,
     @Optional() private readonly pricing?: BusinessRulesService,
     @Optional() private readonly insurance?: InsuranceFlowService,
@@ -48,7 +50,7 @@ export class LabsService {
     // Explicitly exclude any imaging entries — those belong to the separate Radiology module.
     q.$and = [{ category: { $ne: 'imaging' } }, { sample_type: { $ne: 'imaging' } }];
     if (opts.search) {
-      const re = new RegExp(opts.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\$&'), 'i');
+      const re = new RegExp(opts.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
       q.$or = [{ name_ar: re }, { name_en: re }, { short_code: re }];
     }
     
