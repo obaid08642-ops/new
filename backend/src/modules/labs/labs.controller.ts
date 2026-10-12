@@ -12,21 +12,25 @@ export class LabsController {
 
   @Public() @Get('services')
   services(
-    @Query('category') cat?: string, 
-    @Query('search') q?: string, 
+    @Query('category') cat?: string,
+    @Query('search') q?: string,
     @Query('home_only') ho?: string,
     @Query('home_visit') hv?: string,
     @Query('highest_rated') hr?: string,
     @Query('nearest') nr?: string,
-    @Query('lowest_price') lp?: string
+    @Query('lowest_price') lp?: string,
+    @Query('lat') lat?: string,
+    @Query('lng') lng?: string
   ) {
-    return this.svc.list({ 
-      category: cat, 
-      search: q, 
+    return this.svc.list({
+      category: cat,
+      search: q,
       home_only: ho === '1' || hv === 'true' || hv === '1',
       highest_rated: hr === 'true' || hr === '1',
       nearest: nr === 'true' || nr === '1',
-      lowest_price: lp === 'true' || lp === '1'
+      lowest_price: lp === 'true' || lp === '1',
+      lat: lat ? parseFloat(lat) : undefined,
+      lng: lng ? parseFloat(lng) : undefined
     });
   }
 

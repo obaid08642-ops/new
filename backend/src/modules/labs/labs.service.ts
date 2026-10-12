@@ -40,7 +40,7 @@ export class LabsService {
     @Optional() private readonly insurance?: InsuranceFlowService,
   ) {}
 
-  async list(opts: { category?: string; search?: string; home_only?: boolean; packages_only?: boolean; highest_rated?: boolean; nearest?: boolean; lowest_price?: boolean }) {
+  async list(opts: { category?: string; search?: string; home_only?: boolean; packages_only?: boolean; highest_rated?: boolean; nearest?: boolean; lowest_price?: boolean; lat?: number; lng?: number }) {
     const q: any = { active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' };
     if (opts.category) q.category = opts.category;
     if (opts.home_only) q.home_visit_supported = true;
@@ -48,7 +48,7 @@ export class LabsService {
     // Explicitly exclude any imaging entries — those belong to the separate Radiology module.
     q.$and = [{ category: { $ne: 'imaging' } }, { sample_type: { $ne: 'imaging' } }];
     if (opts.search) {
-      const re = new RegExp(opts.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+      const re = new RegExp(opts.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\$&'), 'i');
       q.$or = [{ name_ar: re }, { name_en: re }, { short_code: re }];
     }
     
@@ -56,10 +56,54 @@ export class LabsService {
     if (opts.highest_rated) sortObj = { rating: -1, popularity: -1 };
     else if (opts.lowest_price) sortObj = { price: 1, popularity: -1 };
 
+    // #623: nearest filter - geo-based sorting by provider distance
+    if (opts.nearest && typeof opts.lat === 'number' && typeof opts.lng === 'number') {
+      const userLoc = { lat: opts.lat, lng: opts.lng };
+      // Fetch approved providers with geo location
+      const providers = await this.providerProfiles.find({
+        type: { $in: ['lab', 'hospital'] },
+        status: 'active',
+        public_eligibility: true,
+        medical_review_status: 'approved',
+        'geo.lat': { $exists: true, $ne: null },
+        'geo.lng': { $exists: true, $ne: null }
+      }, { projection: { _id: 0, account_id: 1, geo: 1 } }).lean();
+      
+      // Calculate distance for each provider
+      const providerDistances = new Map<string, number>();
+      for (const p of providers) {
+        if (p.geo && typeof p.geo.lat === 'number' && typeof p.geo.lng === 'number') {
+          const dist = this.geo.distanceKm(userLoc, { lat: p.geo.lat, lng: p.geo.lng });
+          providerDistances.set(p.account_id, dist);
+        }
+      }
+      
+      // Get all services first, then enrich with nearest provider distance
+      const services = await this.svcModel.find(q, { _id: 0, __v: 0 }).lean();
+      
+      // Enrich services with nearest provider distance
+      const servicesWithDistance = services.map((svc: any) => {
+        let minDist = Number.POSITIVE_INFINITY;
+        // Check compatible providers for this service
+        const providerIds = svc.compatible_providers || [];
+        for (const pid of providerIds) {
+          const dist = providerDistances.get(pid);
+          if (dist !== undefined && dist < minDist) minDist = dist;
+        }
+        return { ...svc, nearest_provider_km: minDist === Number.POSITIVE_INFINITY ? null : Math.round(minDist * 10) / 10 };
+      });
+      
+      // Sort by nearest provider distance
+      servicesWithDistance.sort((a, b) => (a.nearest_provider_km ?? Number.POSITIVE_INFINITY) - (b.nearest_provider_km ?? Number.POSITIVE_INFINITY));
+      
+      return servicesWithDistance.slice(0, 120);
+    }
+    
     if (!this.redis?.getWithSWR) return this.svcModel.find(q, { _id: 0, __v: 0 }).sort(sortObj).limit(120);
     const cacheKey = `cache:lab-services:public:v1:${JSON.stringify(opts)}`;
     return this.redis.getWithSWR(cacheKey, 900, async () => this.svcModel.find(q, { _id: 0, __v: 0 }).sort(sortObj).limit(120));
   }
+
 
   async categoryCounts() {
     const agg = await this.svcModel.aggregate([
