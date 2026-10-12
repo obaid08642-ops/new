@@ -3,6 +3,7 @@ import { locales } from "@/lib/i18n";
 import { SITEMAP_NS, hreflangLinks, localizedUrl } from "@/lib/seo";
 import { getDisabledModules } from "@/lib/api/public-config-server";
 import { visibleItems } from "@/lib/modules";
+import { FEATURE_PAGES } from "@/lib/seo/feature-pages";
 
 // 5 minutes (was a day): a module switched off in the admin leaves the sitemap within minutes (#953)
 export const revalidate = 300;
@@ -13,7 +14,7 @@ function esc(s: string) {
 
 /** Static, indexable site entry points (per locale). */
 export async function GET() {
-  const all: Array<{ path: string; changefreq: string; priority: string }> = [
+  const all: Array<{ path: string; changefreq: string; priority: string; gate?: string }> = [
     { path: "", changefreq: "weekly", priority: "1.0" },
     { path: "/articles", changefreq: "daily", priority: "0.8" },
     { path: "/c", changefreq: "daily", priority: "0.9" },
@@ -21,13 +22,14 @@ export async function GET() {
     { path: "/diagnostics/labs", changefreq: "daily", priority: "0.8" },
     { path: "/diagnostics/radiology", changefreq: "daily", priority: "0.8" },
     { path: "/nursing/catalog", changefreq: "daily", priority: "0.7" },
-    { path: "/nutrition", changefreq: "weekly", priority: "0.7" },
-    { path: "/maternity", changefreq: "weekly", priority: "0.6" },
-    { path: "/mental-health", changefreq: "weekly", priority: "0.6" },
-    { path: "/family", changefreq: "weekly", priority: "0.6" },
-    { path: "/health", changefreq: "weekly", priority: "0.7" },
+    { path: "/consultations/specialties", changefreq: "weekly", priority: "0.7" },
+    { path: "/diagnostics/packages", changefreq: "weekly", priority: "0.7" },
+    // Only public, indexable pages: the signed-in hubs (/health, /family, /maternity, /nutrition,
+    // /mental-health) answer noindex and /health, /family are disallowed in robots.ts.
+    // The public feature pages; one leaves the sitemap when the module of its signed-in screen is switched off
+    ...FEATURE_PAGES.map((feature) => ({ path: `/features/${feature.slug}`, changefreq: "monthly", priority: "0.6", gate: feature.cta })),
   ];
-  const rows = visibleItems(all, (r) => r.path, await getDisabledModules());
+  const rows = visibleItems(all, (r) => r.gate ?? r.path, await getDisabledModules());
   const urls = locales.flatMap((locale) =>
     rows.map(
       (r) => `  <url><loc>${esc(localizedUrl(locale, r.path))}</loc>${hreflangLinks(r.path)}<changefreq>${r.changefreq}</changefreq><priority>${r.priority}</priority></url>`,

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Headers, ForbiddenException, ServiceUnavailableException, Optional } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Headers, ForbiddenException, ServiceUnavailableException, Optional, BadRequestException } from '@nestjs/common';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -39,7 +39,8 @@ export class PatientPharmacyController {
   @Post('orders/:id/cancel') @RequireIdempotency() cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelDto) { return this.orders.cancel(u, id, b?.reason || ''); }
   @Post('orders/:id/payment-intent') paymentIntent(@CurrentUser() u: any, @Param('id') id: string, @Body() b: PaymentIntentDto) { return this.payments.createPaymentIntent(u, id, b?.idempotency_key); }
   @Post('orders/:id/insurance-rejection/cancel') cancelRejectedInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelRejectedInsuranceDto, @Headers('idempotency-key') idemHeader?: string) { return this.insurance.cancelRejectedByPatient(u, id, b?.idempotency_key || idemHeader); }
-  @Get('orders/:id/offers') listOffers(@CurrentUser() u: any, @Param('id') id: string) { return this.offers.listForPatient(u, id); }
+  // A-2: ?include=closed also returns the expired, withdrawn and earlier offers, each with its offer_state.
+  @Get('orders/:id/offers') listOffers(@CurrentUser() u: any, @Param('id') id: string, @Query('include') include?: string) { return this.offers.listForPatient(u, id, include === 'closed'); }
   @Post('orders/:id/offers/:offerId/select') selectOffer(@CurrentUser() u: any, @Param('id') id: string, @Param('offerId') offerId: string, @Body() b: SelectOfferDto, @Headers('idempotency-key') idemHeader?: string) {
     return this.offers.selectByPatient(u, id, offerId, b?.idempotency_key || idemHeader, b?.coverage_mode);
   }
@@ -50,6 +51,17 @@ export class PatientPharmacyController {
 
   @Post('orders/:id/cod/register') registerCod(@CurrentUser() u: any, @Param('id') id: string, @Body() b: RegisterCodDto, @Headers('idempotency-key') idemHeader?: string) {
     return this.orders.registerCod(u, id, b?.idempotency_key || idemHeader);
+  }
+
+  @Get('orders/:id/payment-status') paymentStatus(@CurrentUser() u: any, @Param('id') id: string) {
+    return this.orders.getPaymentStatus(u, id);
+  }
+
+  @Post('orders/:id/payment-retry') async retryPayment(@CurrentUser() u: any, @Param('id') id: string, @Body() b: PaymentIntentDto, @Headers('idempotency-key') idemHeader?: string) {
+    const key = b?.idempotency_key || idemHeader || '';
+    if (!/^[A-Za-z0-9._:-]{16,128}$/.test(key)) throw new BadRequestException('idempotency_key_required');
+    await this.orders.prepareCardRetry(u, id, key);
+    return this.payments.createPaymentIntent(u, id, key);
   }
 
   @Post('orders/:id/insurance/:kind/accept') acceptInsurance(@CurrentUser() u: any, @Param('id') id: string, @Param('kind') kind: string, @Body() b: AcceptInsuranceDto, @Headers('idempotency-key') idemHeader?: string) {

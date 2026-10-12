@@ -40,6 +40,7 @@ import { Permission, RequirePermissions } from '../../common/permissions';
 export class InsuranceServiceRequest {
   // Written by the services but previously undeclared: strict mode silently dropped it (tools/audit/schemadrift.js).
   @Prop() insurer_approval_code?: string;
+  @Prop() approval_ref?: string;
   @Prop({ required: true, unique: true, default: () => uuid() }) id: string;
   @Prop({ required: true, index: true }) patient_id: string;
   @Prop() patient_name?: string;
@@ -421,9 +422,9 @@ export class InsuranceFlowService {
     }
     if (copay > 0) {
       const pct = Math.min(99, Math.max(1, Math.round((copay / Math.max(1, Number(req.price) || 1)) * 100)));
-      return this.decide(user, req.id, { decision: 'approve_partial', copay_percent: pct });
+      return this.decide(user, req.id, { decision: 'approve_partial', copay_percent: pct, approval_ref: code });
     }
-    return this.decide(user, req.id, { decision: 'approve_full' });
+    return this.decide(user, req.id, { decision: 'approve_full', approval_ref: code });
   }
 
   /** LJ-03: one decision entry point for a provider on any service booking
@@ -457,18 +458,20 @@ export class InsuranceFlowService {
     if (req.state !== 'PENDING_PROVIDER_REVIEW') return req.toObject();
 
     const decision = String(body?.decision || body?.status || '').trim().toLowerCase();
-    const code = typeof body?.approval_code === 'string' ? body.approval_code.trim() : '';
+    // D-37: the insurer's approval number entered by the provider (approval_ref; approval_code and
+    // decision_reference are the older names some provider screens send). decide() requires it to approve.
+    const code = [body?.approval_ref, body?.approval_code, body?.decision_reference].find((v) => typeof v === 'string' && v.trim())?.trim() || '';
     if (code) await this.requests.updateOne({ id: req.id }, { $set: { insurer_approval_code: code } });
-    if (['approved', 'approve_full', 'full', 'approved_full'].includes(decision)) return this.decide(user, req.id, { decision: 'approve_full' });
+    if (['approved', 'approve_full', 'full', 'approved_full'].includes(decision)) return this.decide(user, req.id, { decision: 'approve_full', approval_ref: code });
     if (['partial', 'partial_approval', 'approve_partial'].includes(decision)) {
       const pct = Number(body?.copay_percent);
       const copay = Number(body?.copay ?? body?.totalCopay ?? 0) || 0;
-      if (pct > 0) return this.decide(user, req.id, { decision: 'approve_partial', copay_percent: pct });
+      if (pct > 0) return this.decide(user, req.id, { decision: 'approve_partial', copay_percent: pct, approval_ref: code });
       if (copay > 0) {
         const computed = Math.min(99, Math.max(1, Math.round((copay / Math.max(1, Number(req.price) || 1)) * 100)));
-        return this.decide(user, req.id, { decision: 'approve_partial', copay_percent: computed });
+        return this.decide(user, req.id, { decision: 'approve_partial', copay_percent: computed, approval_ref: code });
       }
-      return this.decide(user, req.id, { decision: 'approve_full' });
+      return this.decide(user, req.id, { decision: 'approve_full', approval_ref: code });
     }
     if (['rejected', 'reject'].includes(decision)) {
       const reason = String(body?.reason || body?.rejectReason || code || '').trim();
@@ -479,21 +482,36 @@ export class InsuranceFlowService {
   }
 
   /** Provider manual decision (BR-2.4): full | partial(copay_percent) | reject(reason). */
-  async decide(user: any, id: string, body: any) {    const req = await this.requests.findOne({ id: { $eq: id } });
+  async decide(user: any, id: string, body: any) {
+    const req = await this.requests.findOne({ id: { $eq: id } });
     if (!req) throw new NotFoundException('request not found');
     if (req.provider_id !== user.id && user.role !== 'admin') throw new ForbiddenException();
     if (req.state !== 'PENDING_PROVIDER_REVIEW') throw new BadRequestException(`request already decided (${req.state})`);
 
     const decision = body?.decision;
     if (decision === 'approve_full') {
+      const approvalRef = typeof body?.approval_ref === 'string' ? body.approval_ref.trim() : '';
+      if (!approvalRef) throw new BadRequestException('approval_ref is required for approve_full');
       this.push(req, 'APPROVED_FULL', user.id);
       req.copay_percent = 0; req.copay_amount = 0;
+      req.approval_ref = approvalRef;
     } else if (decision === 'approve_partial') {
+      const approvalRef = typeof body?.approval_ref === 'string' ? body.approval_ref.trim() : '';
+      if (!approvalRef) throw new BadRequestException('approval_ref is required for approve_partial');
       const pct = Number(body?.copay_percent);
-      if (!pct || pct <= 0 || pct >= 100) throw new BadRequestException('copay_percent must be between 1 and 99');
-      this.push(req, 'COPAY_PENDING', user.id, `patient copay ${pct}%`);
-      req.copay_percent = pct;
-      req.copay_amount = Math.round(req.price * (pct / 100) * 100) / 100;
+      const copayAmount = Number(body?.copay_amount);
+      if ((!pct || pct <= 0 || pct >= 100) && (!copayAmount || copayAmount <= 0)) {
+        throw new BadRequestException('copay_percent (1-99) or copay_amount (>0) is required for approve_partial');
+      }
+      this.push(req, 'COPAY_PENDING', user.id, `patient copay ${pct || copayAmount}%`);
+      if (pct && pct > 0 && pct < 100) {
+        req.copay_percent = pct;
+        req.copay_amount = Math.round(req.price * (pct / 100) * 100) / 100;
+      } else if (copayAmount && copayAmount > 0) {
+        req.copay_amount = Math.round(copayAmount * 100) / 100;
+        req.copay_percent = Math.min(99, Math.max(1, Math.round((req.copay_amount / Math.max(1, req.price)) * 100)));
+      }
+      req.approval_ref = approvalRef;
     } else if (decision === 'reject') {
       if (!body?.reason?.trim()) throw new BadRequestException('rejection reason is required');
       this.push(req, 'REJECTED', user.id, body.reason.trim());
