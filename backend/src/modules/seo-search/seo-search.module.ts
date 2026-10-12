@@ -156,6 +156,8 @@ import { SeoController } from './seo.controller';
 import { SeoService } from './seo.service';
 import { IndexNowService } from './indexnow.service';
 import { SeoIndexingListener } from './seo-indexing.listener';
+import { SeoIndexingService } from './seo-indexing.service';
+import { publicIndexableFilter, siteOrigin } from './seo-public-urls';
 import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
 import { FacilityRepository } from './seo-repositories/facility.repository';
 import { HomeCareServiceRepository } from './seo-repositories/homecareservice.repository';
@@ -277,18 +279,6 @@ export class SeoSearchService {
         };
       }
     }
-  }
-
-  async sitemapXml(): Promise<string> {
-    const meds = await this.conn.collection(CATALOG_COLLECTIONS.medicines)
-      .find({ is_deleted: { $ne: true } }, { projection: { _id: 0, id: 1, slug: 1, name_ar: 1, updatedAt: 1 } })
-      .sort({ usage_count: -1 }).limit(2000).toArray();
-    const urls = meds.map((m: any) => {
-      const slug = m.slug || slugify(`${m.name_ar || ''}-${String(m.id).slice(0, 6)}`);
-      const lastmod = m.updatedAt ? new Date(m.updatedAt).toISOString().slice(0, 10) : '2026-07-01';
-      return `  <url><loc>${SITE}/s/medicine/${slug}</loc><lastmod>${lastmod}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>`;
-    });
-    return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>`;
   }
 
   private publicProductFilter() {
@@ -462,10 +452,10 @@ export class SeoSearchService {
     };
   }
 
-  /** Doctor slugs for sitemaps. */
+  /** Doctor slugs for sitemaps: public, medically reviewed and index-eligible doctors only. */
   async publicDoctorSitemap() {
     const rows = await this.conn.collection('provider_profiles')
-      .find({ provider_type: 'doctor', is_active: { $ne: false } }, { projection: { _id: 0, slug: 1, id: 1, updatedAt: 1 } })
+      .find(publicIndexableFilter('doctor'), { projection: { _id: 0, slug: 1, id: 1, updatedAt: 1 } })
       .limit(5000)
       .toArray();
     return rows.map((d: any) => ({
@@ -474,10 +464,10 @@ export class SeoSearchService {
     }));
   }
 
-  /** Facility slugs for sitemaps. */
+  /** Facility slugs for sitemaps: public, reviewed and index-eligible facilities only. */
   async publicFacilitySitemap() {
     const rows = await this.conn.collection('facilities')
-      .find({ is_active: { $ne: false } }, { projection: { _id: 0, slug: 1, id: 1, updatedAt: 1 } })
+      .find(publicIndexableFilter('facility'), { projection: { _id: 0, slug: 1, id: 1, updatedAt: 1 } })
       .limit(5000)
       .toArray();
     return rows.map((f: any) => ({
@@ -489,14 +479,49 @@ export class SeoSearchService {
   /** Condition slugs for sitemaps. */
   async publicConditionSitemap() {
     const rows = await this.conn.collection('conditions')
-      .find({ is_deleted: { $ne: true } }, { projection: { _id: 0, slug: 1, code: 1, id: 1, updatedAt: 1 } })
+      // the same rule the page applies (entity-graph: is_active), so the sitemap lists no 404s
+      .find(publicIndexableFilter('condition'), { projection: { _id: 0, slug: 1, code: 1, id: 1, updatedAt: 1 } })
       .limit(5000)
       .toArray();
     // Q17: condition records carry `code` (headache, fever…), which is the public slug /condition/:slug resolves;
     // reading only slug/id emitted /condition/undefined for every condition in the sitemap.
     return rows
-      .map((c: any) => ({ slug: c.slug || c.code || c.id, lastmod: c.updatedAt ? new Date(c.updatedAt).toISOString().slice(0, 10) : undefined }))
+      .map((c: any) => ({ slug: c.code || c.slug || c.id, lastmod: c.updatedAt ? new Date(c.updatedAt).toISOString().slice(0, 10) : undefined }))
       .filter((c: { slug?: string }) => typeof c.slug === 'string' && c.slug.length > 0);
+  }
+
+  /** (specialty, city) pairs that have public doctors, for /{locale}/doctors/{specialty}/{city}. */
+  async publicDoctorCitySitemap() {
+    const rows = await this.conn.collection('provider_profiles').aggregate([
+      { $match: { ...publicIndexableFilter('doctor'), specialty: { $type: 'string', $ne: '' }, city: { $type: 'string', $ne: '' } } },
+      { $group: { _id: { specialty: '$specialty', city: '$city' }, updatedAt: { $max: '$updatedAt' } } },
+      { $limit: 5000 },
+    ]).toArray();
+    return rows.map((r: any) => ({
+      specialty: r._id.specialty,
+      city: r._id.city,
+      lastmod: r.updatedAt ? new Date(r.updatedAt).toISOString().slice(0, 10) : undefined,
+    }));
+  }
+
+  /** Pharmacy slugs for sitemaps (/{locale}/pharmacy/{slug}). */
+  async publicPharmacySitemap() {
+    const rows = await this.conn.collection('provider_profiles')
+      .find(publicIndexableFilter('pharmacy'), { projection: { _id: 0, slug: 1, id: 1, updatedAt: 1 } })
+      .limit(5000)
+      .toArray();
+    return rows.map((p: any) => ({ slug: p.slug || p.id, lastmod: p.updatedAt ? new Date(p.updatedAt).toISOString().slice(0, 10) : undefined }));
+  }
+
+  /** Published article slugs for sitemaps (/{locale}/articles/{slug}). */
+  async publicArticleSitemap() {
+    const rows = await this.conn.collection('articles')
+      .find(publicIndexableFilter('article'), { projection: { _id: 0, slug: 1, updatedAt: 1, published_at: 1 } })
+      .limit(5000)
+      .toArray();
+    return rows
+      .filter((a: any) => typeof a.slug === 'string' && a.slug)
+      .map((a: any) => ({ slug: a.slug, lastmod: (a.updatedAt || a.published_at) ? new Date(a.updatedAt || a.published_at).toISOString().slice(0, 10) : undefined }));
   }
 
   /** Location paths for sitemaps. */
@@ -900,18 +925,18 @@ export class SeoSearchController {
 
 
   @Public()
+  /** The public sitemap is the patient web's (six locales, hreflang, paginated catalogue). */
   @Get('sitemap.xml')
-  async sitemap(@Res() res: Response) {
-    res.setHeader('Content-Type', 'application/xml');
+  sitemap(@Res() res: Response) {
     res.setHeader('Cache-Control', 'public, max-age=3600');
-    res.send(await this.svc.sitemapXml());
+    res.redirect(301, `${siteOrigin()}/sitemap.xml`);
   }
 
   @Public()
   @Get('robots.txt')
   robots(@Res() res: Response) {
     res.setHeader('Content-Type', 'text/plain');
-    res.send(`User-agent: *\nAllow: /s/\nAllow: /sitemap.xml\nDisallow: /api/\nSitemap: ${SITE}/sitemap.xml\n`);
+    res.send(`User-agent: *\nAllow: /sitemap.xml\nDisallow: /api/\nSitemap: ${siteOrigin()}/sitemap.xml\n`);
   }
 
   /** Site-wide structured data (Organization + LocalBusiness + FAQ) for the future site shell. */
@@ -1143,6 +1168,27 @@ export class SeoSearchController {
   }
 
   @Public()
+  @Get('public/sitemaps/doctor-cities/:locale')
+  async publicDoctorCitySitemap(@Param('locale') locale: string) {
+    const urls = await this.svc.publicDoctorCitySitemap();
+    return { locale, total: urls.length, urls };
+  }
+
+  @Public()
+  @Get('public/sitemaps/pharmacies/:locale')
+  async publicPharmacySitemap(@Param('locale') locale: string) {
+    const urls = await this.svc.publicPharmacySitemap();
+    return { locale, total: urls.length, urls };
+  }
+
+  @Public()
+  @Get('public/sitemaps/articles/:locale')
+  async publicArticleSitemap(@Param('locale') locale: string) {
+    const urls = await this.svc.publicArticleSitemap();
+    return { locale, total: urls.length, urls };
+  }
+
+  @Public()
   @Get('public/sitemaps/locations/:locale')
   async publicLocationSitemap(@Param('locale') locale: string) {
     const urls = await this.svc.publicLocationSitemap();
@@ -1244,6 +1290,7 @@ export class SeoAdminController {
     SeoService,
     IndexNowService,
     SeoIndexingListener,
+    SeoIndexingService,
     RedisCacheInterceptor,
     { provide: 'FacilityRepository', useClass: FacilityRepository },
     { provide: 'ArticleRepository', useClass: ArticleRepository },
@@ -1252,6 +1299,6 @@ export class SeoAdminController {
     { provide: 'MedicineRepository', useClass: MedicineRepository },
     { provide: 'ProviderProfileRepository', useClass: ProviderProfileRepository },
   ],
-  exports: [SeoService, IndexNowService],
+  exports: [SeoService, IndexNowService, SeoIndexingService],
 })
 export class SeoSearchModule {}
