@@ -36,7 +36,7 @@ const pkce = () => {
 const jwtPayload = (t: string) => JSON.parse(Buffer.from(t.split('.')[1] || '', 'base64url').toString('utf8') || 'null');
 const noSecretIn = (url: string) => !/(access_token|refresh_token|id_token|[?&]token=|session|bearer)/i.test(url);
 
-describe('Agent commerce (AC-1 … AC-6 acceptance)', () => {
+describe('Agent commerce (spec 2026-10-12 §3)', () => {
   const stack = new LiveStack();
   let patientA = '';
   let patientB = '';
