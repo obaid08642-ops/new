@@ -40,6 +40,7 @@ import { Permission, RequirePermissions } from '../../common/permissions';
 export class InsuranceServiceRequest {
   // Written by the services but previously undeclared: strict mode silently dropped it (tools/audit/schemadrift.js).
   @Prop() insurer_approval_code?: string;
+  @Prop() approval_ref?: string;
   @Prop({ required: true, unique: true, default: () => uuid() }) id: string;
   @Prop({ required: true, index: true }) patient_id: string;
   @Prop() patient_name?: string;
@@ -479,21 +480,36 @@ export class InsuranceFlowService {
   }
 
   /** Provider manual decision (BR-2.4): full | partial(copay_percent) | reject(reason). */
-  async decide(user: any, id: string, body: any) {    const req = await this.requests.findOne({ id: { $eq: id } });
+  async decide(user: any, id: string, body: any) {
+    const req = await this.requests.findOne({ id: { $eq: id } });
     if (!req) throw new NotFoundException('request not found');
     if (req.provider_id !== user.id && user.role !== 'admin') throw new ForbiddenException();
     if (req.state !== 'PENDING_PROVIDER_REVIEW') throw new BadRequestException(`request already decided (${req.state})`);
 
     const decision = body?.decision;
     if (decision === 'approve_full') {
+      const approvalRef = typeof body?.approval_ref === 'string' ? body.approval_ref.trim() : '';
+      if (!approvalRef) throw new BadRequestException('approval_ref is required for approve_full');
       this.push(req, 'APPROVED_FULL', user.id);
       req.copay_percent = 0; req.copay_amount = 0;
+      req.approval_ref = approvalRef;
     } else if (decision === 'approve_partial') {
+      const approvalRef = typeof body?.approval_ref === 'string' ? body.approval_ref.trim() : '';
+      if (!approvalRef) throw new BadRequestException('approval_ref is required for approve_partial');
       const pct = Number(body?.copay_percent);
-      if (!pct || pct <= 0 || pct >= 100) throw new BadRequestException('copay_percent must be between 1 and 99');
-      this.push(req, 'COPAY_PENDING', user.id, `patient copay ${pct}%`);
-      req.copay_percent = pct;
-      req.copay_amount = Math.round(req.price * (pct / 100) * 100) / 100;
+      const copayAmount = Number(body?.copay_amount);
+      if ((!pct || pct <= 0 || pct >= 100) && (!copayAmount || copayAmount <= 0)) {
+        throw new BadRequestException('copay_percent (1-99) or copay_amount (>0) is required for approve_partial');
+      }
+      this.push(req, 'COPAY_PENDING', user.id, `patient copay ${pct || copayAmount}%`);
+      if (pct && pct > 0 && pct < 100) {
+        req.copay_percent = pct;
+        req.copay_amount = Math.round(req.price * (pct / 100) * 100) / 100;
+      } else if (copayAmount && copayAmount > 0) {
+        req.copay_amount = Math.round(copayAmount * 100) / 100;
+        req.copay_percent = Math.min(99, Math.max(1, Math.round((req.copay_amount / Math.max(1, req.price)) * 100)));
+      }
+      req.approval_ref = approvalRef;
     } else if (decision === 'reject') {
       if (!body?.reason?.trim()) throw new BadRequestException('rejection reason is required');
       this.push(req, 'REJECTED', user.id, body.reason.trim());

@@ -209,16 +209,15 @@ export class InsuranceService {
     );
 
     if (!matchingContract) {
-      return {
-        covered: false,
-        reason: `Provider/Facility does not accept patient's insurance network (${patientIns.provider} - ${patientIns.network})`,
-        copay_percent: 100,
-        copay_flat: 0,
-        requires_preauth: false,
-        patient_policy: patientIns,
-        nphies_live: false,
-        manual_approval_required: true,
-      };
+return {
+      covered: false,
+      reason: 'Patient has no registered insurance policy',
+      copay_percent: 100,
+      copay_flat: 0,
+      requires_preauth: false,
+      patient_policy: patientIns,
+      manual_approval_required: true,
+    };
     }
 
     // Now check if there is a coverage rule for this service
@@ -252,7 +251,6 @@ export class InsuranceService {
       copay_flat: copayFlat,
       requires_preauth: requiresPreauth,
       patient_policy: patientIns,
-      nphies_live: false,
       manual_approval_required: true,
     };
   }
@@ -303,7 +301,6 @@ Use null for any field not clearly visible. Do not guess.`;
       verified: false,
       pdf_url: fileData.pdf_url || null,
       ocr_extracted: !!fileData.ocr_extracted,
-      nphies_eligible: false,
     };
     if (patientId) {
       await this.patientModel.findOneAndUpdate(
@@ -332,7 +329,7 @@ Use null for any field not clearly visible. Do not guess.`;
       String(ins.company_id || '').toLowerCase().includes(code)
     );
     if (!matches) {
-      return { eligible: false, reason: 'no_matching_policy_on_file', nphies_live: false, manual_approval_required: true };
+      return { eligible: false, reason: 'no_matching_policy_on_file', manual_approval_required: true };
     }
     
     // LOCAL eligibility check — provider enters approval result manually
@@ -340,7 +337,6 @@ Use null for any field not clearly visible. Do not guess.`;
     return {
       eligible: true,
       source: 'stored_policy',
-      nphies_live: false,
       verified: !!ins.verified,
       network: ins.network || null,
       network_class: ins.class || null,
@@ -371,7 +367,6 @@ Use null for any field not clearly visible. Do not guess.`;
       verified: policyData.verified ?? false,
       pdf_url: policyData.pdf_url,
       ocr_extracted: policyData.ocr_extracted ?? false,
-      nphies_eligible: policyData.nphies_eligible ?? false,
     };
     await patient.save();
     return { success: true, insurance: patient.insurance };
@@ -653,12 +648,6 @@ export class InsuranceController {
   @Post('upload-policy')
   uploadPolicy(@CurrentUser() u: any, @Body() body: UploadPolicyDto) {
     return this.svc.uploadPolicy(body, u?.id);
-  }
-
-  @SelfService()
-  @Post('nphies/eligibility')
-  nphiesEligibility(@Body() body: NphiesEligibilityDto) {
-    return this.svc.nphiesEligibility(body.national_id, body.insurance_company_code, body.member_id);
   }
 
   @SelfService()
