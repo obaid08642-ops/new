@@ -209,15 +209,15 @@ export class InsuranceService {
     );
 
     if (!matchingContract) {
-return {
-      covered: false,
-      reason: 'Patient has no registered insurance policy',
-      copay_percent: 100,
-      copay_flat: 0,
-      requires_preauth: false,
-      patient_policy: patientIns,
-      manual_approval_required: true,
-    };
+      return {
+        covered: false,
+        reason: `Provider/Facility does not accept patient's insurance network (${patientIns.provider} - ${patientIns.network})`,
+        copay_percent: 100,
+        copay_flat: 0,
+        requires_preauth: false,
+        patient_policy: patientIns,
+        manual_approval_required: true,
+      };
     }
 
     // Now check if there is a coverage rule for this service
