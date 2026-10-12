@@ -1,7 +1,36 @@
 import { Injectable } from '@nestjs/common';
 
 type Lang = 'ar' | 'en' | 'ur';
-const DEFAULT: Lang = 'ar';
+
+/**
+ * Locales this dictionary actually carries. The apps ship six (ar, en, ur, hi, bn, fil/tl),
+ * so a stored user locale is regularly outside this set.
+ */
+const DICT_LOCALES: readonly string[] = ['ar', 'en', 'ur'];
+
+/**
+ * Phase 18.2 (owner decision): the user's chosen language → the device language if it is
+ * supported → **English**. Arabic is only ever correct when the user chose it or the device
+ * is in Arabic, "so Urdu, Hindi, Bengali and Filipino users no longer get Arabic silently".
+ *
+ * It used to be `'ar'`. `PushService.userLang` and the notification delivery path deliberately
+ * return the user's own locale, including `hi`/`bn`/`fil`; those keys are absent here, so
+ * `entry[lang]` was `undefined` and every one of those users was served **Arabic** built-in
+ * push and notification text. English is the specified last resort, so a locale the
+ * dictionary cannot serve must land there rather than on Arabic.
+ */
+const DEFAULT: Lang = 'en';
+
+/**
+ * Resolve any locale tag onto a locale this dictionary can actually serve.
+ * Region subtags are dropped (`en-US` → `en`), matching is case-insensitive, and anything
+ * unknown or unsupported becomes English rather than Arabic.
+ */
+export function resolveLang(input?: string | null): Lang {
+  if (typeof input !== 'string') return DEFAULT;
+  const primary = input.trim().toLowerCase().split(/[-_]/)[0];
+  return DICT_LOCALES.includes(primary) ? (primary as Lang) : DEFAULT;
+}
 
 /**
  * Centralized i18n dictionary. Backend keys here are mirrored on each client.
@@ -835,13 +864,15 @@ export class I18nService {
   t(key: string, lang: Lang = DEFAULT, params?: Record<string, any>): string {
     const entry = DICTIONARY[key];
     if (!entry) return key;
-    let v = entry[lang] || entry[DEFAULT] || key;
+    const resolved = resolveLang(lang);
+    let v = entry[resolved] || entry[DEFAULT] || key;
     if (params) for (const [k, val] of Object.entries(params)) v = v.replace(`{${k}}`, String(val));
     return v;
   }
   all(lang: Lang = DEFAULT) {
+    const resolved = resolveLang(lang);
     const out: Record<string, string> = {};
-    for (const k of Object.keys(DICTIONARY)) out[k] = DICTIONARY[k][lang] || DICTIONARY[k][DEFAULT];
+    for (const k of Object.keys(DICTIONARY)) out[k] = DICTIONARY[k][resolved] || DICTIONARY[k][DEFAULT];
     return out;
   }
   raw() {
