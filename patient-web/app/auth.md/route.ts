@@ -23,7 +23,7 @@ In compliance with the Saudi Personal Data Protection Law (PDPL), National Healt
 
 ## PCI-DSS & Payment Security Architecture
 1. **Hosted Checkout Links Only**: In adherence to PCI-DSS Level 1 security and Saudi Central Bank (SAMA) payment rules, AI agents and client interfaces NEVER ingest, transmit, or store primary account numbers (PAN), credit card credentials, or CVVs.
-2. **Hand-Off Mechanism**: All payable actions (telehealth booking, pharmacy order checkout, diagnostic booking, insurance co-pay) dynamically generate a secure, cryptographic, hosted payment session URL (checkoutUrl). The user is safely redirected to licensed payment gateways (Mada, Visa, Mastercard, Apple Pay, Tabby, Tamara) to complete transaction confirmation.
+2. **Hand-Off Mechanism**: All payable actions (telehealth booking, pharmacy order checkout, diagnostic booking, insurance co-pay) dynamically generate a secure, cryptographic, hosted payment session URL (checkoutUrl). The user is safely redirected to licensed payment gateways (Mada, Visa/Mastercard, Apple Pay) to complete transaction confirmation. No other payment method is currently supported.
 
 ## Agent Registration & Public Capabilities
 - **Registration URI**: https://nabd.plus/api/auth/register
