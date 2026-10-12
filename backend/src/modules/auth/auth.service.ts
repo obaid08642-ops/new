@@ -18,6 +18,7 @@ import { PatientProfileRepository } from "./repositories/patientprofile.reposito
 import { RedisService } from '../redis/redis.service';
 import { PasskeyService } from './passkey.service';
 import { DeviceTrustService } from './device-trust.service';
+import { normalizeDigits } from './checkout-contact.service';
 import { AdminSessionService } from './admin-session.service';
 import { revokeAllCredentialSessions, revokeRedisRefreshSessions, RevocationResult } from '../../common/credential-revocation';
 import { Logger } from '@nestjs/common';
@@ -25,6 +26,7 @@ import { randomUUID } from 'crypto';
 import { GuestService } from './guest.service';
 import { AccountLinkingService } from './account-linking.service';
 import { PasswordSecurityService } from '../../common/password-security.service';
+import { OtpAbuseGuard } from '../../common/otp-abuse.service';
 
 @Injectable()
 export class AuthService {
@@ -57,6 +59,8 @@ export class AuthService {
     @Optional() private linking?: AccountLinkingService,
     // 16.2: length + breached-password policy, applied before anything is stored.
     @Optional() private passwordSecurity?: PasswordSecurityService,
+    // 16.3: SMS pumping — per-IP fan-out, country allow-list, daily budget.
+    @Optional() private otpAbuse?: OtpAbuseGuard,
   ) {}
 
   /**
@@ -265,9 +269,17 @@ export class AuthService {
    * 431: one canonical form for phone identifiers so `05…`, `+9665…`,
    * `009665…` and `9665…` all match the same account. Non-SA numbers and
    * anything unparsable are returned trimmed and unchanged.
+   *
+   * Phase 17.9: the login OTP and the password-reset token are typed on a phone
+   * keypad, and an Arabic-locale keyboard produces Arabic-Indic (٠-٩) or Eastern
+   * Arabic-Indic (۰-۹) digits. Those are converted to Latin *before* the shape
+   * checks, because otherwise no pattern matches and the raw string is returned,
+   * so the OTP key is built from a different string than the stored number and the
+   * lookup silently misses the account. Reuses the one helper the checkout path
+   * already uses rather than adding a second digit table.
    */
   static normalizePhone(raw: string): string {
-    const digits = raw.replace(/[\s\-().]/g, '');
+    const digits = normalizeDigits(raw).replace(/[\s\-().]/g, '');
     if (/^\+\d{7,15}$/.test(digits)) return digits;
     const bare = digits.replace(/^\+/, '');
     if (/^00\d{7,14}$/.test(bare)) return `+${bare.slice(2)}`;
@@ -300,7 +312,17 @@ export class AuthService {
     const delivered: string[] = [];
     if (!isEmailIdentifier && user?.phone) {
       try {
-        if (await this.sms?.sendOtp(user.phone, code)) delivered.push('sms');
+        if (await this.sms?.sendOtp(user.phone, code)) {
+          delivered.push('sms');
+          // 16.3: the daily budget is spent only now, when a message really
+          // left. check() only reads it, so a refused or undelivered OTP costs
+          // nothing. If the budget is already gone, stop before sending.
+          const spent = await this.otpAbuse?.recordSmsSent();
+          if (spent === false) {
+            this.logger.warn('otp not sent: the daily SMS budget is spent');
+            return delivered;
+          }
+        }
       } catch { /* fall through to push/email */ }
     }
     if (user?.id) try {
@@ -365,7 +387,7 @@ export class AuthService {
    * DTO for an unknown identifier to prevent account enumeration. The OTP and
    * its bcrypt hash are written only when an active account actually exists.
    */
-  async requestPatientOtp(identifier: string) {
+  async requestPatientOtp(identifier: string, ip?: string) {
     AuthService.assertString(identifier, 'identifier');
     const normalized = this.normalizeOtpIdentifier(identifier);
     const rate = await this.redisService.checkRateLimit(
@@ -375,6 +397,16 @@ export class AuthService {
     );
     if (!rate.allowed) {
       throw new HttpException({ message: 'otp_rate_limited', code: 'otp_rate_limited', statusCode: HttpStatus.TOO_MANY_REQUESTS }, HttpStatus.TOO_MANY_REQUESTS);
+    }
+
+    // 16.3: SMS pumping — served countries only, bounded fan-out per IP, and
+    // a daily budget that stops sends instead of failing at the provider.
+    const abuse = await this.otpAbuse?.check(normalized, ip);
+    if (abuse && !abuse.allowed) {
+      throw new HttpException(
+        { message: abuse.code, code: abuse.code, statusCode: HttpStatus.TOO_MANY_REQUESTS },
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
     }
 
     const user = await this.userModel.findOne(normalized.includes('@') ? { email: normalized } : { phone: normalized });
@@ -1123,7 +1155,7 @@ export class AuthService {
     return base;
   }
 
-  async sendOtp(identifier: string, purpose?: string) {
+  async sendOtp(identifier: string, purpose?: string, ip?: string) {
     AuthService.assertString(identifier, 'identifier');
     const normalized = this.normalizeOtpIdentifier(identifier);
     const rateLimitKey = this.otpIssueRateKey(normalized);
@@ -1133,6 +1165,18 @@ export class AuthService {
     const { allowed } = await this.redisService.checkRateLimit(rateLimitKey, maxAttempts, windowSeconds);
     if (!allowed) {
       throw new HttpException('Too many OTP requests. Please try again after 1 hour.', HttpStatus.TOO_MANY_REQUESTS);
+    }
+
+    // 16.3: SMS pumping. A botnet asking for codes against numbers it does not
+    // own burns the product's SMS budget, so the number must be on the served
+    // list, one IP may only fan out over a bounded set of numbers, and the
+    // daily budget stops sends rather than failing at the provider.
+    const abuse = await this.otpAbuse?.check(normalized, ip);
+    if (abuse && !abuse.allowed) {
+      throw new HttpException(
+        { message: abuse.code, code: abuse.code, statusCode: HttpStatus.TOO_MANY_REQUESTS },
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
     }
 
     const isEmail = normalized.includes('@');
