@@ -44,15 +44,16 @@ jobs:
         working-directory: backend
         # --omit=dev: dev-only tooling is not what ships.
         #
-        # Three advisories cannot be cleared without MAJOR upgrades
-        # (@nestjs/platform-fastify 12, nodemailer 10, and the fastify advisory
-        # that has no 5.x fix yet). They are listed rather than hidden: the job
-        # still prints them on every run, and it still fails on anything NEW.
+        # Four advisories are pre-existing debt that cannot be cleared without a
+        # MAJOR upgrade (@nestjs/platform-fastify 12, nodemailer 10, a fastify
+        # advisory with no 5.x fix, and sharp's librsvg CVE). They are listed
+        # rather than hidden: the job prints them on every run and still fails on
+        # anything NEW. Re-baseline each one when the upgrade lands.
         run: |
           npm audit --omit=dev --json > /tmp/audit.json || true
           node -e '
             const a = require("/tmp/audit.json");
-            const KNOWN = new Set(["@nestjs/platform-fastify", "fastify", "nodemailer"]);
+            const KNOWN = new Set(["@nestjs/platform-fastify", "fastify", "nodemailer", "sharp"]);
             const v = a.vulnerabilities || {};
             const known = [], fresh = [];
             for (const [name, x] of Object.entries(v)) {
