@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 
 const origin = (process.env.NEXT_PUBLIC_SITE_ORIGIN || "https://nabd.plus").replace(/\/$/, "");
+// Backend endpoints are served on the API host; the website host (nabd.plus) has no /api/v1.
+const api = (process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus").replace(/\/$/, "");
 
 const catalog = {
   specVersion: "1.0",
@@ -14,7 +16,7 @@ const catalog = {
       identifier: "urn:air:nabd.plus:catalog:products",
       displayName: "Real-time AI product catalog and availability feed",
       type: "application/json",
-      url: `${origin}/api/v1/public/ai-catalog/products`,
+      url: `${api}/api/v1/public/ai-catalog/products`,
       representativeQueries: [
         "What medicines and OTC products are available?",
         "Find product prices and active ingredients.",
@@ -30,7 +32,7 @@ const catalog = {
       identifier: "urn:air:nabd.plus:catalog:categories",
       displayName: "Multi-lingual category tree across 6 languages",
       type: "application/json",
-      url: `${origin}/api/v1/public/categories/ar`,
+      url: `${api}/api/v1/public/categories/ar`,
       representativeQueries: [
         "Browse healthcare categories.",
         "استعراض تصنيفات الصيدلية والرعاية الصحية",
@@ -45,7 +47,7 @@ const catalog = {
       identifier: "urn:air:nabd.plus:consultations:doctors",
       displayName: "Doctor consultations: Video, Clinic visit, and Home visit",
       type: "application/json",
-      url: `${origin}/api/v1/doctors`,
+      url: `${api}/api/v1/doctors`,
       representativeQueries: [
         "Find verified doctors, clinics, and hospital networks in Saudi Arabia.",
         "Check doctor consultation fees for video, clinic, or home visit.",
@@ -76,7 +78,7 @@ const catalog = {
       identifier: "urn:air:nabd.plus:diagnostics:labs",
       displayName: "Laboratory diagnostics: Home sample collection & Lab visits",
       type: "application/json",
-      url: `${origin}/api/v1/labs/services`,
+      url: `${api}/api/v1/labs/services`,
       representativeQueries: [
         "Book laboratory blood tests with home sample collection.",
         "حجز تحاليل مخبرية مع خدمة سحب العينات من المنزل أو زيارة المختبر",
@@ -91,7 +93,7 @@ const catalog = {
       identifier: "urn:air:nabd.plus:diagnostics:radiology",
       displayName: "Radiology scans & medical imaging catalog",
       type: "application/json",
-      url: `${origin}/api/v1/radiology/services`,
+      url: `${api}/api/v1/radiology/services`,
       representativeQueries: [
         "Find MRI, CT scans, and X-ray services in licensed imaging centers.",
         "استعراض خدمات الأشعة التشخيصية (رنين مغناطيسي، أشعة سينية، سونار)",
@@ -106,7 +108,7 @@ const catalog = {
       identifier: "urn:air:nabd.plus:care:nursing",
       displayName: "Published home nursing and elderly care catalog",
       type: "application/json",
-      url: `${origin}/api/v1/home-care/services`,
+      url: `${api}/api/v1/home-care/services`,
       representativeQueries: [
         "What licensed home nursing services are available?",
         "خدمات التمريض المنزلي المعتمدة ورعاية كبار السن وتبديل الجروح",
@@ -121,7 +123,7 @@ const catalog = {
       identifier: "urn:air:nabd.plus:commerce:checkout-session",
       displayName: "AI Agent Checkout Session Hand-off API",
       type: "application/json",
-      url: `${origin}/api/v1/public/ai-commerce/checkout-session`,
+      url: `${api}/api/v1/public/ai-commerce/checkout-session`,
       representativeQueries: [
         "Create a secure checkout session for patient order.",
         "Hand off prepared medical cart to patient for final payment.",
@@ -130,21 +132,6 @@ const catalog = {
         "सुरक्षित चेकआउट सत्र बनाएं",
         "নিরাপদ চেকআউট সেশন তৈরি করুন",
         "Gumawa ng ligtas na sesyon ng pag-checkout para sa pasyente."
-      ]
-    },
-    {
-      id: "urn:air:nabd.plus:payments:modalities",
-      identifier: "urn:air:nabd.plus:payments:modalities",
-      displayName: "Payment modalities: Hosted payment gateway vs Insurance approval",
-      type: "application/json",
-      url: `${origin}/api/appointments/payment-capabilities`,
-      representativeQueries: [
-        "What payment methods and insurance companies are supported?",
-        "طرق الدفع الإلكتروني (مدى، فيزا، ماستركارد، تابي، تمارا) وشركات التأمين المعتمدة",
-        "ادائیگی کے طریقے اور انشورنس سپورٹ",
-        "भुगतान के तरीके और बीमा सहायता",
-        "পেমেন্ট পদ্ধতি এবং বীমা সমর্থন",
-        "Mga paraan ng pagbabayad at suportadong insurance."
       ]
     },
     {

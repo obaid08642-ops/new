@@ -24,6 +24,8 @@ import { BusinessRulesService } from '../business-rules/business-rules.module';
 import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
 import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
 
+import { nearestFirst } from '../provider/services/nearest-first';
+
 @Injectable()
 export class LabsService {
   constructor(
@@ -40,7 +42,7 @@ export class LabsService {
     @Optional() private readonly insurance?: InsuranceFlowService,
   ) {}
 
-  async list(opts: { category?: string; search?: string; home_only?: boolean; packages_only?: boolean; highest_rated?: boolean; nearest?: boolean; lowest_price?: boolean }) {
+  async list(opts: { category?: string; search?: string; home_only?: boolean; packages_only?: boolean; highest_rated?: boolean; nearest?: boolean; lowest_price?: boolean; lat?: number; lng?: number }) {
     const q: any = { active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' };
     if (opts.category) q.category = opts.category;
     if (opts.home_only) q.home_visit_supported = true;
@@ -56,10 +58,27 @@ export class LabsService {
     if (opts.highest_rated) sortObj = { rating: -1, popularity: -1 };
     else if (opts.lowest_price) sortObj = { price: 1, popularity: -1 };
 
+    // #623: "nearest" orders tests by the closest approved lab that runs them (same compatibility rule as
+    // compatibleProviders: the lab's test_categories hold the test id or its category). Without a valid
+    // location the normal order is kept.
+    if (opts.nearest && Number.isFinite(opts.lat) && Number.isFinite(opts.lng)) {
+      const here = { lat: opts.lat as number, lng: opts.lng as number };
+      const labs: any[] = await this.providerProfiles.find({
+        type: { $in: ['lab', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
+        'geo.lat': { $type: 'number' }, 'geo.lng': { $type: 'number' },
+      }, { projection: { _id: 0, geo: 1, test_categories: 1 } }).lean();
+      const services: any[] = await this.svcModel.find(q, { _id: 0, __v: 0 }).lean();
+      return nearestFirst(services, labs, here, (svc, lab) => {
+        const runs: unknown[] = Array.isArray(lab.test_categories) ? lab.test_categories : [];
+        return runs.includes(svc.id) || (!!svc.category && runs.includes(svc.category));
+      }).slice(0, 120);
+    }
+
     if (!this.redis?.getWithSWR) return this.svcModel.find(q, { _id: 0, __v: 0 }).sort(sortObj).limit(120);
     const cacheKey = `cache:lab-services:public:v1:${JSON.stringify(opts)}`;
     return this.redis.getWithSWR(cacheKey, 900, async () => this.svcModel.find(q, { _id: 0, __v: 0 }).sort(sortObj).limit(120));
   }
+
 
   async categoryCounts() {
     const agg = await this.svcModel.aggregate([
@@ -229,7 +248,7 @@ export class LabsService {
   /** LJ-03: the lab decision is a decision on the insurance request engine, not a
    * free-form status string. The booking mirrors the engine's server-computed
    * decision so the existing patient screen keeps working. */
-  async updateInsuranceApproval(id: string, payload: { status?: string; totalCopay?: number; items?: any[]; reason?: string }, user: any) {
+  async updateInsuranceApproval(id: string, payload: { status?: string; totalCopay?: number; items?: any[]; reason?: string; approval_ref?: string }, user: any) {
     if (!getEffectiveRoles(user).some(role => ['admin', 'lab', 'hospital'].includes(role))) throw new ForbiddenException();
     const b = await this.bkgModel.findOne({ id: { $eq: id } });
     if (!b) throw new NotFoundException();
@@ -247,6 +266,7 @@ export class LabsService {
       const rejected = items.find((it: any) => it?.isCovered === false || it?.rejectReason);
       request = await this.insurance.providerDecideBooking(user, 'lab', id, {
         decision: rawStatus,
+        approval_ref: payload.approval_ref,
         totalCopay: payload.totalCopay,
         copay: payload.totalCopay,
         reason: payload.reason || rejected?.rejectReason,

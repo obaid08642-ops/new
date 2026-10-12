@@ -55,7 +55,7 @@ export class SmsService {
         // Taqnyat Integration
         const res = await axios.post('https://api.taqnyat.sa/v1/messages', {
           recipients: [phone],
-          body: `Your Nabdah Plus OTP is: ${otp}`,
+          body: `Your Nabd+ OTP is: ${otp}`,
           sender: 'Nabdah'
         }, {
           headers: { Authorization: `Bearer ${process.env.TAQNYAT_API_KEY}` }

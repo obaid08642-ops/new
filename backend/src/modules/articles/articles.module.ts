@@ -7,10 +7,11 @@ import { CreateDto, UpdateDto } from './articles.dto';
 import { DoctorArticlesController, DoctorArticlesService, RejectDoctorArticleDto } from './doctor-articles.controller';
 import {
   Body, Controller, Delete, Get, Injectable, Module,
-  NotFoundException, Param, Patch, Post, Query, Req, UseGuards,
+  NotFoundException, Optional, Param, Patch, Post, Query, Req, UseGuards,
 } from '@nestjs/common';
 import { InjectConnection, InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { v4 as uuidv4 } from 'uuid';
 import { JwtAuthGuard, Public, Roles, CurrentUser, SelfService } from '../../common/auth.guard';
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
@@ -28,7 +29,16 @@ const ARTICLE_UPDATE_FIELDS = [
 
 @Injectable()
 export class ArticlesService {
-  constructor(@InjectModel(Article.name) private model: Model<any>) {}
+  constructor(
+    @InjectModel(Article.name) private model: Model<any>,
+    @Optional() private readonly events?: EventEmitter2,
+  ) {}
+
+  /** SEO: every article change pings its six localized URLs (SeoIndexingListener). */
+  private changed<T>(id: string | undefined, result: T): T {
+    if (id) this.events?.emit('article.changed', { id });
+    return result;
+  }
 
   list(query: any) {
     const { category, q, limit = '20', page = '1' } = query;
@@ -64,7 +74,7 @@ export class ArticlesService {
 
   async create(body: any) {
     const slug = buildSlug(body.title_ar || body.title_en || 'article', require('crypto').randomUUID());
-    return this.model.create({
+    const doc: any = await this.model.create({
       title_ar: body.title_ar,
       title_en: body.title_en,
       excerpt_ar: body.excerpt_ar,
@@ -81,6 +91,7 @@ export class ArticlesService {
       slug,
       status: 'DRAFT',
     });
+    return this.changed(doc?.id, doc);
   }
 
   update(id: string, body: any) {
@@ -88,19 +99,19 @@ export class ArticlesService {
     const patch = Object.fromEntries(
       Object.entries(body || {}).filter(([key, value]) => ARTICLE_UPDATE_FIELDS.includes(key) && value !== undefined),
     );
-    return this.model.findOneAndUpdate({ id: { $eq: id } }, { $set: patch }, { new: true });
+    return this.model.findOneAndUpdate({ id: { $eq: id } }, { $set: patch }, { new: true }).then((r) => this.changed(id, r));
   }
 
   publish(id: string) {
-    return this.model.findOneAndUpdate({ id }, { $set: { status: 'PUBLISHED', published_at: new Date() } }, { new: true });
+    return this.model.findOneAndUpdate({ id }, { $set: { status: 'PUBLISHED', published_at: new Date() } }, { new: true }).then((r) => this.changed(id, r));
   }
 
   unpublish(id: string) {
-    return this.model.findOneAndUpdate({ id }, { $set: { status: 'DRAFT' } }, { new: true });
+    return this.model.findOneAndUpdate({ id }, { $set: { status: 'DRAFT' } }, { new: true }).then((r) => this.changed(id, r));
   }
 
   remove(id: string) {
-    return this.model.findOneAndUpdate({ id }, { $set: { is_deleted: true } }, { new: true });
+    return this.model.findOneAndUpdate({ id }, { $set: { is_deleted: true } }, { new: true }).then((r) => this.changed(id, r));
   }
 
   /** Admin list; `status` (e.g. IN_REVIEW for doctor articles waiting for review) narrows it. */

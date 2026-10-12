@@ -197,7 +197,7 @@ const PHARMACY_WIZARD: WizardConfig<PharmacyRegData> = {
     },
     signatoryRoleHint: { ar: 'مثال: المالك، المدير التنفيذي', en: 'e.g. Owner, CEO' },
     signatureTitle: { ar: 'توقيع الممثل المفوض', en: 'Authorized Signature' },
-    agree: { ar: 'أوافق على شروط وأحكام نبضة بلس وسياسة الخصوصية، وأقر بصحة البيانات.', en: 'I agree to terms & conditions.' },
+    agree: { ar: 'أوافق على شروط وأحكام نبض بلس وسياسة الخصوصية، وأقر بصحة البيانات.', en: 'I agree to terms & conditions.' },
     submitLabel: { ar: 'إرسال ملف الصيدلية للمراجعة', en: 'Submit Pharmacy Application' },
     precheck: (d, AR) => {
       if (!d.nameAr.trim() || !d.nameEn.trim() || !d.type || !d.city.trim() || !d.address.trim()) {

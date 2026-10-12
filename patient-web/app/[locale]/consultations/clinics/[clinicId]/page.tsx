@@ -19,19 +19,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, clinicId } = await params;
   if (!isLocale(locale)) return {};
   const t = await getTranslations({ locale, namespace: "Clinics" });
-  const canonical = localizedUrl(locale, `/consultations/clinics/${encodeURIComponent(clinicId)}`);
+  // The facility's one public page is /facility/{slug}: the canonical points there and this screen
+  // (doctors and booking at the clinic) is not indexed on its own.
+  const response = await getPublicClinic(clinicId).catch(() => null);
+  const raw = response && response.ok ? await response.json().catch(() => null) : null;
+  const clinic = extractClinic(raw);
+  if (!clinic) return { robots: { index: false, follow: false } };
+  const record = ((raw as { data?: unknown } | null)?.data ?? raw) as { slug?: unknown; name_en?: unknown } | null;
+  const key = typeof record?.slug === "string" && record.slug ? record.slug : clinic.id;
+  const facilityPath = `/facility/${encodeURIComponent(key)}`;
+  const name = (locale !== "ar" && typeof record?.name_en === "string" && record.name_en) || clinic.name || t("title");
   return {
-    title: t("title"),
+    title: `${name} | ${t("title")}`,
     description: t("subtitle"),
     alternates: {
-      canonical,
+      canonical: localizedUrl(locale, facilityPath),
       languages: {
-        ...Object.fromEntries(locales.map((l) => [l, localizedUrl(l, `/consultations/clinics/${encodeURIComponent(clinicId)}`)])),
-        "x-default": localizedUrl("ar", `/consultations/clinics/${encodeURIComponent(clinicId)}`),
+        ...Object.fromEntries(locales.map((l) => [l, localizedUrl(l, facilityPath)])),
+        "x-default": localizedUrl("ar", facilityPath),
       },
     },
-    openGraph: { type: "website", url: canonical },
-    robots: { index: true, follow: true },
+    openGraph: { type: "website", url: localizedUrl(locale, facilityPath), title: name },
+    robots: { index: false, follow: true },
   };
 }
 

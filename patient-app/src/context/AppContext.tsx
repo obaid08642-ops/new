@@ -5,6 +5,7 @@ import React, {
   useCallback,
   useMemo,
   useEffect,
+  useRef,
 } from 'react';
 import { useColorScheme as useDeviceColorScheme } from 'react-native';
 import { getLocales } from 'react-native-localize';
@@ -12,6 +13,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors } from '../theme';
 import { LanguageManager } from '../i18n/LanguageManager';
 import { config as appConfig } from '../core/config';
+import { subscribeDeepLinkLanguage, takeDeepLinkLanguage } from '../navigation/deepLinkLanguage';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -71,6 +73,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
   const [lang, setLangState] = useState<LangCode>(() => detectDeviceLanguage());
   const [runtimeConfig, setRuntimeConfig] = useState<any>({});
+  // set once a deep link chose the language, so the stored language read at start-up does not undo it
+  const linkedLangApplied = useRef(false);
 
   const refreshConfig = useCallback(async () => {
     try {
@@ -99,7 +103,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         ) {
           setThemeModeState(savedTheme);
         }
-        if (savedLang && LANGUAGES.some((language) => language.code === savedLang)) {
+        // A deep link's language (/{locale}/ prefix) wins over the saved one: apply it like the picker does
+        const linked = takeDeepLinkLanguage();
+        if (linked) {
+          setLangRef.current(linked);
+        } else if (linkedLangApplied.current) {
+          /* a deep link already set the language while storage was loading */
+        } else if (savedLang && LANGUAGES.some((language) => language.code === savedLang)) {
           setLangState(savedLang as LangCode);
           // Keep the i18n engine (and every DB field picker) in sync
           try { LanguageManager.getInstance().setLanguage(savedLang as LangCode, false); } catch {}
@@ -138,6 +148,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     // content (drug names, descriptions...) in the newly selected language.
     try { LanguageManager.getInstance().setLanguage(l as any, false); } catch {}
   }, []);
+
+  // Deep links that arrive while the app runs (or after hydration) switch the language the same way.
+  const setLangRef = useRef(setLang);
+  setLangRef.current = setLang;
+  useEffect(
+    () =>
+      subscribeDeepLinkLanguage(() => {
+        const linked = takeDeepLinkLanguage();
+        if (!linked) return;
+        linkedLangApplied.current = true;
+        setLangRef.current(linked);
+      }),
+    [],
+  );
 
   const value = useMemo<AppContextValue>(
     () => ({
