@@ -8,6 +8,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { patientApiUrl } from "@/lib/api/upstream";
 import { readPublicEntity } from "@/lib/api/public-read";
 import { readSegment } from "@/lib/api/entity-explore";
+import { findCatalogItem } from "@/lib/api/catalog-lookup";
 import { extractRadiologyServices } from "@/lib/api/radiology";
 import { CardGrid, LandingEmpty, LandingPage, LandingSection, ServiceCard } from "@/components-next/landing/landing-kit";
 import { RADIOLOGY, money, pickText } from "@/components-next/diagnostics/diag-parts";
@@ -30,44 +31,21 @@ async function fetchRadiologyData(serviceSlug: string, citySlug: string) {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, serviceSlug, citySlug } = await params;
   if (!isLocale(locale)) return {};
-  const data = await fetchRadiologyData(serviceSlug, citySlug);
-  const hasServices = Boolean(data && data.services.length > 0);
+  // The service list here does not depend on the city, so every city variant shows the same page:
+  // it points at the service's own page (/diagnostics/radiology/{id}) and is not indexed itself.
+  const item = await findCatalogItem("radiology", serviceSlug);
+  if (!item || !(item.id || item._id)) return { robots: { index: false, follow: false } };
   const t = await getTranslations({ locale, namespace: "PublicLanding" });
-  const vars = { service: readSegment(serviceSlug), city: readSegment(citySlug) };
-  if (!hasServices) {
-    const canonical = localizedUrl(locale as Locale, `/radiology/${encodeURIComponent(serviceSlug)}/${encodeURIComponent(citySlug)}`);
-    return {
-      title: t("meta.radiologyEmpty.title", vars),
-      description: t("meta.radiologyEmpty.description", vars),
-      alternates: { canonical, languages: Object.fromEntries(locales.map((l) => [l, localizedUrl(l, `/radiology/${encodeURIComponent(serviceSlug)}/${encodeURIComponent(citySlug)}`)])) },
-      robots: { index: true, follow: true },
-    };
-  }
-
-  const canonical = localizedUrl(
-    locale as Locale,
-    `/radiology/${encodeURIComponent(serviceSlug)}/${encodeURIComponent(citySlug)}`,
-  );
-  const title = t("meta.radiology.title", vars);
-  const desc = t("meta.radiology.description", vars);
-
+  const vars = { service: pickText(locale as Locale, item.name_ar, item.name_en) ?? readSegment(serviceSlug), city: readSegment(citySlug) };
+  const servicePath = `/diagnostics/radiology/${encodeURIComponent(String(item.id || item._id))}`;
   return {
-    title,
-    description: desc,
+    title: t("meta.radiology.title", vars),
+    description: t("meta.radiology.description", vars),
     alternates: {
-      canonical,
-      languages: {
-        ...Object.fromEntries(
-          locales.map((l) => [
-            l,
-            localizedUrl(l, `/radiology/${encodeURIComponent(serviceSlug)}/${encodeURIComponent(citySlug)}`),
-          ]),
-        ),
-        "x-default": localizedUrl("ar", `/radiology/${encodeURIComponent(serviceSlug)}/${encodeURIComponent(citySlug)}`),
-      },
+      canonical: localizedUrl(locale as Locale, servicePath),
+      languages: { ...Object.fromEntries(locales.map((l) => [l, localizedUrl(l, servicePath)])), "x-default": localizedUrl("ar", servicePath) },
     },
-    openGraph: { title, description: desc, url: canonical, type: "website" },
-    robots: { index: true, follow: true },
+    robots: { index: false, follow: true },
   };
 }
 

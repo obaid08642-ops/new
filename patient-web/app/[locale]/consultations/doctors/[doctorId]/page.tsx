@@ -23,16 +23,25 @@ export async function generateMetadata({ params }: { params: Promise<{ doctorId:
   const { locale, doctorId } = await params;
   if (!isLocale(locale)) return {};
   const t = await getTranslations({ locale, namespace: "Doctors" });
-  const canonical = localizedUrl(locale, `/consultations/doctors/${encodeURIComponent(doctorId)}`);
+  // This is the booking screen of a doctor. The doctor's one public page is /doctor/{slug}: the
+  // canonical points there and this screen is not indexed on its own (no duplicate doctor page).
+  const response = await getPublicDoctor(doctorId).catch(() => null);
+  const raw = response && response.ok ? await response.json().catch(() => null) : null;
+  const doctor = extractDoctor(raw);
+  if (!doctor) return { robots: { index: false, follow: false } };
+  const record = ((raw as { data?: unknown } | null)?.data ?? raw) as { slug?: unknown } | null;
+  const key = typeof record?.slug === "string" && record.slug ? record.slug : doctor.id;
+  const profilePath = `/doctor/${encodeURIComponent(key)}`;
+  const name = doctorDisplayName(doctor, locale) || t("title");
   return {
-    title: t("title"),
+    title: `${name} | ${t("title")}`,
     description: t("subtitle"),
     alternates: {
-      canonical,
-      languages: { ...Object.fromEntries(locales.map((l) => [l, localizedUrl(l, canonical.replace(`/${locale}`, "") )])), "x-default": localizedUrl("ar", canonical.replace(`/${locale}`, "")) },
+      canonical: localizedUrl(locale, profilePath),
+      languages: { ...Object.fromEntries(locales.map((l) => [l, localizedUrl(l, profilePath)])), "x-default": localizedUrl("ar", profilePath) },
     },
-    openGraph: { type: "website", url: canonical },
-    robots: { index: true, follow: true },
+    openGraph: { type: "profile", url: localizedUrl(locale, profilePath), title: name },
+    robots: { index: false, follow: true },
   };
 }
 
