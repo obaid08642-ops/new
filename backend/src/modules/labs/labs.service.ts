@@ -10,6 +10,7 @@ import { LabServiceRepository } from "./repositories/labservice.repository";
 import { LabBookingRepository } from "./repositories/labbooking.repository";
 import { LabSampleRepository } from "./repositories/labsample.repository";
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
+import { LabTestCatalogItem, LabTestCatalogItemDocument } from '../../provider/schemas/capabilities.schema';
 import { pick } from '../../common/sanitize';
 
 /** P3.3 (F15): writable catalog fields — LabService model vocabulary (lab.schema).
@@ -31,10 +32,12 @@ export class LabsService {
     @Inject('LabBookingRepository') private readonly bkgModel: LabBookingRepository,
     @Inject('LabSampleRepository') private readonly sampleModel: LabSampleRepository,
     @InjectModel(ProviderProfile.name) private readonly providerProfiles: Model<ProviderProfileDocument>,
+    @InjectModel(LabTestCatalogItem.name) private readonly labCatalog: Model<LabTestCatalogItemDocument>,
     private readonly events: EventEmitter2,
     private readonly bus: EventBusService,
     private readonly engine: WorkflowEngineService,
     private readonly pdfService: LabPdfService,
+    private readonly geo: GeoEngineService,
     @Optional() private readonly redis?: RedisService,
     @Optional() private readonly pricing?: BusinessRulesService,
     @Optional() private readonly insurance?: InsuranceFlowService,
@@ -109,7 +112,7 @@ export class LabsService {
     // Explicitly exclude any imaging entries
     q.$and = [{ category: { $ne: 'imaging' } }, { sample_type: { $ne: 'imaging' } }];
     
-    const services = await this.svcModel.find(q, { _id: 0, __v: 0, name_ar: 1, name_en: 1, category: 1, price: 1, short_code: 1, home_visit_supported: 1 })
+    const services = await this.svcModel.find(q, { _id: 0, __v: 0, id: 1, name_ar: 1, name_en: 1, category: 1, price: 1, short_code: 1, home_visit_supported: 1, compatible_providers: 1 })
       .sort({ popularity: -1, name_ar: 1 })
       .limit(limit)
       .lean();
@@ -152,35 +155,48 @@ export class LabsService {
     const service = await this.svcModel.findOne({ id: serviceId, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, __v: 0 });
     if (!service) throw new NotFoundException('service_not_found');
     
-    // Get all approved providers that offer this service
-    const providers = await this.providerProfiles.find({
+    // Get real provider prices from LabTestCatalogItem (provider capabilities)
+    const catalogItems = await this.labCatalog.find({
+      provider_account_id: { $exists: true, $ne: null },
+      code: serviceId,
+      available: true
+    }, { projection: { _id: 0, provider_account_id: 1, code: 1, name_ar: 1, name_en: 1, price: 1, currency: 1, available: 1, home_collection_supported: 1 } }).lean();
+    
+    if (!catalogItems.length) {
+      // Fallback: return service base price with no provider comparisons
+      return {
+        service_id: serviceId,
+        service_name: service.name_ar || service.name_en,
+        base_price: service.price,
+        comparisons: []
+      };
+    }
+    
+    // Get provider profiles for names/logos/ratings
+    const providerIds = catalogItems.map((c: any) => c.provider_account_id);
+    const profiles = await this.providerProfiles.find({
+      account_id: { $in: providerIds },
       type: { $in: ['lab', 'hospital'] },
       status: 'active',
       public_eligibility: true,
-      medical_review_status: 'approved',
-      $or: [
-        { test_categories: { $in: [serviceId] } },
-        { test_categories: { $in: [service.category] } }
-      ]
-    }, { projection: { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, rating_avg: 1, rating_count: 1, home_visit_supported: 1, test_categories: 1 } }).lean();
+      medical_review_status: 'approved'
+    }, { projection: { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, rating_avg: 1, rating_count: 1, home_visit_supported: 1 } }).lean();
     
-    const comparisons = [];
-    for (const p of providers) {
-      const hasService = (p.test_categories || []).includes(serviceId) || (p.test_categories || []).includes(service.category);
-      if (hasService) {
-        comparisons.push({
-          provider_id: p.account_id,
-          name: p.name_ar || p.name_en,
-          logo: p.logo,
-          rating: p.rating_count > 0 ? p.rating_avg : null,
-          home_visit_supported: p.home_visit_supported,
-          // Price would come from provider's inventory/pricing
-          // For now return service base price
-          price: service.price,
-          home_visit_price: service.home_visit_price || null
-        });
-      }
-    }
+    const profileMap = new Map(profiles.map(p => [p.account_id, p]));
+    
+    const comparisons = catalogItems.map((item: any) => {
+      const profile = profileMap.get(item.provider_account_id);
+      return {
+        provider_id: item.provider_account_id,
+        name: profile?.name_ar || profile?.name_en || item.name_ar || item.name_en || 'Unknown',
+        logo: profile?.logo || null,
+        rating: profile?.rating_count > 0 ? profile.rating_avg : null,
+        home_visit_supported: profile?.home_visit_supported || false,
+        price: item.price,
+        currency: item.currency || 'SAR',
+        home_visit_price: null // Not tracked separately in lab catalog
+      };
+    });
     
     comparisons.sort((a, b) => a.price - b.price);
     
