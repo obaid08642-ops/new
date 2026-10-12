@@ -298,7 +298,34 @@ export class PharmacyOrderService {
       courier_name: courierName,
       courier_phone: courierPhone,
       ...view,
+
+      // D-13: search state for pharmacy orders
+      search: await this.getSearchState(order),
     };
+  }
+
+  // D-13: Get search state for pharmacy order
+  private async getSearchState(order: any): Promise<any> {
+    if (String(order.status) === PharmacyOrderState.BROADCASTING) {
+      const broadcast: any = await this.conn.collection('pharmacy_broadcasts').findOne({ order_id: order.id });
+      if (broadcast) {
+        return {
+          state: 'expanding',
+          round: broadcast.current_round,
+          radius_km: broadcast.current_radius_km,
+          ends_at: broadcast.round_expires_at,
+        };
+      }
+      return { state: 'expanding' };
+    }
+    if (String(order.status) === PharmacyOrderState.MANUAL_REVIEW) {
+      // Check if it was closed due to broadcast expiry
+      const hasBroadcastExpiry = order.timeline?.some((t: any) => t.event === 'broadcast_expired_manual_review');
+      if (hasBroadcastExpiry) {
+        return { state: 'no_pharmacy_available' };
+      }
+    }
+    return undefined;
   }
 
   /** Display names of pharmacies by account id, from their profile (the same names the offers list shows). */
@@ -425,6 +452,11 @@ export class PharmacyOrderService {
       } else if (codRegistered) governed_state = 'COD_REGISTERED';
       else if (quoteAccepted) governed_state = 'FINAL_QUOTE_ACCEPTED';
       else governed_state = 'OFFER_SELECTED';
+    }
+    // D-13: If order is in MANUAL_REVIEW due to broadcast expiry without offer selected
+    else if (String(order.status) === PharmacyOrderState.MANUAL_REVIEW) {
+      const hasBroadcastExpiry = order.timeline?.some((t: any) => t.event === 'broadcast_expired_manual_review');
+      if (hasBroadcastExpiry) governed_state = 'AUTO_CANCELLED';
     }
 
     const view: any = {

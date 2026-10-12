@@ -137,4 +137,19 @@ export class PharmacyNotificationService {
     const o = await this.orders.findOne({ id: orderId }, { id: 1, patient_account_id: 1 }).lean();
     return o ? { id: o.id, patient_account_id: o.patient_account_id } : null;
   }
+
+  // D-13: Notify patient when no pharmacy is available (broadcast expired without offer)
+  async notifyPatientNoPharmacyAvailable(orderId: string) {
+    const order = await this.lookupOrderId(orderId);
+    if (!order) return;
+    await this.notif.create({
+      user_id: order.patient_account_id,
+      title_key: 'pharmacy.no_pharmacy_available.title',
+      body_key: 'pharmacy.no_pharmacy_available.body',
+      params: { order_id: order.id },
+      type: NotificationType.ALERT,
+      priority: NotificationPriority.HIGH,
+      action: { type: 'open_pharmacy_order', order_id: order.id },
+    }).catch(() => null);
+  }
 }

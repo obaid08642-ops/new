@@ -4,6 +4,7 @@ import { Connection, Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { PharmacyOrderState } from '../schemas/pharmacy.schema';
 import { PharmacyBroadcastService } from './pharmacy-broadcast.service';
+import { PharmacyNotificationService } from './pharmacy-notification.service';
 
 const LEASE_MS = 60_000;
 const DEFAULT_LIMIT = 50;
@@ -35,6 +36,7 @@ export class PharmacyExpiryCommandService {
     @InjectModel('PharmacyBroadcast') private readonly broadcasts: Model<any>,
     @InjectModel('PharmacyOrder') private readonly orders: Model<any>,
     private readonly broadcastService: PharmacyBroadcastService,
+    private readonly pharmacyNotif: PharmacyNotificationService,
   ) {}
 
   private limit(value?: number) {
@@ -126,6 +128,11 @@ export class PharmacyExpiryCommandService {
         payload: { broadcast_id: claimed.id, order_id: claimed.order_id, current_round: claimed.current_round, selection_required: true, reason },
       }, now, session);
     });
+    
+    // D-13: Notify patient when final round expires without offer selected
+    if (reason === 'final_round_elapsed_without_selected_offer') {
+      await this.pharmacyNotif.notifyPatientNoPharmacyAvailable(claimed.order_id).catch(() => null);
+    }
   }
 
   private async expireBroadcast(candidate: any, now: Date): Promise<{ outcome: 'advanced' | 'closed' | 'claimed'; recipient_intents: number }> {

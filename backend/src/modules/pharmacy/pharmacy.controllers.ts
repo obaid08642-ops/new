@@ -191,6 +191,30 @@ export class AdminPharmacyController {
     ]);
     return { items, total, page, limit };
   }
+
+  // D-12: Admin price review list - offers with not_verified or above_catalogue_price lines
+  @Get('price-review') async priceReview(@Query() q: any) {
+    const col = (this.allocs as any).orders.db.collection('pharmacy_price_review');
+    const filter: any = {};
+    if (q?.order_id) filter.order_id = String(q.order_id);
+    if (q?.offer_id) filter.offer_id = String(q.offer_id);
+    if (q?.pharmacy_account_id) filter.pharmacy_account_id = String(q.pharmacy_account_id);
+    if (q?.sku) filter.sku = String(q.sku);
+    if (q?.status) filter.status = String(q.status);
+    if (q?.from || q?.to) {
+      filter.created_at = {};
+      if (q.from) filter.created_at.$gte = new Date(String(q.from));
+      if (q.to) filter.created_at.$lte = new Date(String(q.to));
+    }
+    const page = Math.max(1, Number(q?.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(q?.limit) || 25));
+    const [items, total] = await Promise.all([
+      col.find(filter).sort({ created_at: -1 }).skip((page - 1) * limit).limit(limit).toArray(),
+      col.countDocuments(filter),
+    ]);
+    return { items, total, page, limit };
+  }
+
   @Post('expire-stale-allocations') expireStale() { return this.allocs.expireStale(); }
 }
 
