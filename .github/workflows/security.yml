@@ -44,16 +44,18 @@ jobs:
         working-directory: backend
         # --omit=dev: dev-only tooling is not what ships.
         #
-        # Four advisories are pre-existing debt that cannot be cleared without a
-        # MAJOR upgrade (@nestjs/platform-fastify 12, nodemailer 10, a fastify
-        # advisory with no 5.x fix, and sharp's librsvg CVE). They are listed
-        # rather than hidden: the job prints them on every run and still fails on
-        # anything NEW. Re-baseline each one when the upgrade lands.
+        # Two advisories are pre-existing debt that cannot be cleared without a
+        # MAJOR upgrade (nodemailer 10, and fastify advisories with no 5.x fix).
+        # They are listed rather than hidden: the job prints them on every run
+        # and still fails on anything NEW. Re-baseline each when it lands.
+        #
+        # @nestjs/platform-fastify and sharp were NOT baselined: both had
+        # non-breaking fixes and are upgraded in this branch.
         run: |
           npm audit --omit=dev --json > /tmp/audit.json || true
           node -e '
             const a = require("/tmp/audit.json");
-            const KNOWN = new Set(["@nestjs/platform-fastify", "fastify", "nodemailer", "sharp"]);
+            const KNOWN = new Set(["fastify", "nodemailer"]);
             const v = a.vulnerabilities || {};
             const known = [], fresh = [];
             for (const [name, x] of Object.entries(v)) {
@@ -87,3 +89,7 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: '1'
           ignore-unfixed: true
+          # The pre-existing advisories that need a MAJOR upgrade are listed
+          # there with the reason and the target version, so this gate blocks
+          # NEW findings instead of failing forever on known debt.
+          ignorefile: backend/.trivyignore
