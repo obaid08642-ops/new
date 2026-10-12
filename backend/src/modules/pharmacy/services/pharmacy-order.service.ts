@@ -16,6 +16,9 @@ import { PharmacyAllocationRepository } from "./repositories/pharmacyallocation.
 
 function assertPatient(u: any) { if (!u || u.role !== 'patient') throw new ForbiddenException('patient_scope_required'); }
 
+/** A-4: governed states in which a card payment may be retried (no COD, owner decision 25). */
+const PAYMENT_RETRY_STATES = ['PAYMENT_PENDING', 'FINAL_QUOTE_ACCEPTED'];
+
 @Injectable()
 export class PharmacyOrderService {
   constructor(
@@ -519,6 +522,74 @@ export class PharmacyOrderService {
     return { ok: true, idempotent: false, status: PharmacyOrderState.COD_DUE_ON_DELIVERY };
   }
 
+  /**
+   * Read-only payment status endpoint.
+   * Returns the current payment state without creating any new records.
+   * No raw documents — only the governed view fields the clients need.
+   */
+  async getPaymentStatus(user: any, id: string): Promise<any> {
+    assertPatient(user);
+    const order = await this.orders.findOne({ id, patient_account_id: user.id }, { _id: 0, __v: 0 }).lean();
+    if (!order) throw new NotFoundException('order_not_found');
+
+    const governed = this.governedView(order);
+    const paymentMethod = String(order.payment_method || '').toLowerCase();
+    const paymentStatus = String(order.payment_status || '').toLowerCase();
+    const decision = order.insurance_decision || null;
+
+    // Active payment intent?
+    let activeIntent: any = null;
+    if (paymentMethod === 'card' || paymentMethod === 'moyasar') {
+      activeIntent = await this.conn.collection('pharmacy_payment_intents').findOne({
+        order_id: id, status: { $in: ['requires_payment', 'initiating', 'pending', 'authorized'] }
+      }, { projection: { _id: 0, intent_id: 1, status: 1, amount: 1, currency: 1, createdAt: 1 } });
+    }
+
+    // Confirmed evidence?
+    let confirmedEvidence: any = null;
+    if (['paid', 'covered_by_insurance', 'partially_refunded'].includes(paymentStatus)) {
+      confirmedEvidence = await this.conn.collection('pharmacy_payment_evidence').findOne({
+        order_id: id, status: 'confirmed'
+      }, { projection: { _id: 0, gateway: 1, gateway_payment_id: 1, amount: 1, currency: 1, confirmed_at: 1 } });
+    }
+
+    // Retryable governed states
+    const retryable = PAYMENT_RETRY_STATES.includes(governed.governed_state || '');
+    const retryReason = retryable ? governed.governed_state : null;
+
+    return {
+      order_id: id,
+      payment_method: order.payment_method || null,
+      payment_status: order.payment_status || null,
+      governed_state: governed.governed_state || null,
+      amount: order.pricing_snapshot?.totals?.total ?? null,
+      currency: order.pricing_snapshot?.totals?.currency || 'SAR',
+      co_pay_amount: decision?.patient_share ?? null,
+      insurer_share: decision?.insurer_share ?? null,
+      active_intent: activeIntent ? { intent_id: activeIntent.intent_id, status: activeIntent.status, amount: activeIntent.amount, currency: activeIntent.currency, created_at: activeIntent.createdAt } : null,
+      confirmed_evidence: confirmedEvidence ? { gateway: confirmedEvidence.gateway, payment_id: confirmedEvidence.gateway_payment_id, amount: confirmedEvidence.amount, currency: confirmedEvidence.currency, confirmed_at: confirmedEvidence.confirmed_at } : null,
+      retryable,
+      retry_reason: retryReason,
+    };
+  }
+
+  /**
+   * A-4: prepare a card payment retry. Card only (owner decision 25: no cash on delivery). Refuses while a
+   * payment is already with the gateway (pending/authorized), so a retry can never charge twice; only
+   * intents the patient never started are closed. The new intent is made by the one card-intent path
+   * (PharmacyPaymentEvidenceService.createPaymentIntent), called by the controller.
+   */
+  async prepareCardRetry(user: any, id: string, idempotencyKey: string): Promise<void> {
+    assertPatient(user);
+    const order = await this.orders.findOne({ id, patient_account_id: user.id }).lean();
+    if (!order) throw new NotFoundException('order_not_found');
+    if (['cancelled', 'expired'].includes(String(order.status))) throw new BadRequestException('order_not_actionable');
+    if (!PAYMENT_RETRY_STATES.includes(this.governedView(order).governed_state || '')) throw new BadRequestException('payment_not_retryable_in_current_state');
+    const intents = this.conn.collection('pharmacy_payment_intents');
+    if (await intents.findOne({ order_id: id, status: { $in: ['pending', 'authorized'] } })) throw new BadRequestException('payment_in_progress');
+    // A replay of the same retry keeps its own intent (createPaymentIntent then returns it).
+    await intents.updateMany({ order_id: id, idempotency_key: { $ne: idempotencyKey }, status: { $in: ['requires_payment', 'initiating'] } }, { $set: { status: 'cancelled', updatedAt: new Date() } });
+  }
 
   async update(user: any, id: string, body: any): Promise<any> {
     assertPatient(user);

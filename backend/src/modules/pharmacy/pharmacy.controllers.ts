@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Headers, ForbiddenException, ServiceUnavailableException, Optional } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Headers, ForbiddenException, ServiceUnavailableException, Optional, BadRequestException } from '@nestjs/common';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -51,6 +51,17 @@ export class PatientPharmacyController {
 
   @Post('orders/:id/cod/register') registerCod(@CurrentUser() u: any, @Param('id') id: string, @Body() b: RegisterCodDto, @Headers('idempotency-key') idemHeader?: string) {
     return this.orders.registerCod(u, id, b?.idempotency_key || idemHeader);
+  }
+
+  @Get('orders/:id/payment-status') paymentStatus(@CurrentUser() u: any, @Param('id') id: string) {
+    return this.orders.getPaymentStatus(u, id);
+  }
+
+  @Post('orders/:id/payment-retry') async retryPayment(@CurrentUser() u: any, @Param('id') id: string, @Body() b: PaymentIntentDto, @Headers('idempotency-key') idemHeader?: string) {
+    const key = b?.idempotency_key || idemHeader || '';
+    if (!/^[A-Za-z0-9._:-]{16,128}$/.test(key)) throw new BadRequestException('idempotency_key_required');
+    await this.orders.prepareCardRetry(u, id, key);
+    return this.payments.createPaymentIntent(u, id, key);
   }
 
   @Post('orders/:id/insurance/:kind/accept') acceptInsurance(@CurrentUser() u: any, @Param('id') id: string, @Param('kind') kind: string, @Body() b: AcceptInsuranceDto, @Headers('idempotency-key') idemHeader?: string) {
