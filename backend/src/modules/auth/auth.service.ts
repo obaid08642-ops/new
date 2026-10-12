@@ -18,6 +18,7 @@ import { PatientProfileRepository } from "./repositories/patientprofile.reposito
 import { RedisService } from '../redis/redis.service';
 import { PasskeyService } from './passkey.service';
 import { DeviceTrustService } from './device-trust.service';
+import { normalizeDigits } from './checkout-contact.service';
 import { AdminSessionService } from './admin-session.service';
 import { revokeAllCredentialSessions, revokeRedisRefreshSessions, RevocationResult } from '../../common/credential-revocation';
 import { Logger } from '@nestjs/common';
@@ -265,9 +266,17 @@ export class AuthService {
    * 431: one canonical form for phone identifiers so `05…`, `+9665…`,
    * `009665…` and `9665…` all match the same account. Non-SA numbers and
    * anything unparsable are returned trimmed and unchanged.
+   *
+   * Phase 17.9: the login OTP and the password-reset token are typed on a phone
+   * keypad, and an Arabic-locale keyboard produces Arabic-Indic (٠-٩) or Eastern
+   * Arabic-Indic (۰-۹) digits. Those are converted to Latin *before* the shape
+   * checks, because otherwise no pattern matches and the raw string is returned,
+   * so the OTP key is built from a different string than the stored number and the
+   * lookup silently misses the account. Reuses the one helper the checkout path
+   * already uses rather than adding a second digit table.
    */
   static normalizePhone(raw: string): string {
-    const digits = raw.replace(/[\s\-().]/g, '');
+    const digits = normalizeDigits(raw).replace(/[\s\-().]/g, '');
     if (/^\+\d{7,15}$/.test(digits)) return digits;
     const bare = digits.replace(/^\+/, '');
     if (/^00\d{7,14}$/.test(bare)) return `+${bare.slice(2)}`;
