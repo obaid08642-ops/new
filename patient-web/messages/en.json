@@ -3960,5 +3960,20 @@
       "a3": "No. Nabd Plus is not for emergencies. In an emergency, call 997.",
       "cta": "Find a video doctor"
     }
+  },
+  "AgentConsent": {
+    "metaTitle": "Connect an AI assistant",
+    "title": "Connect {client} to Nabd Plus",
+    "intro": "{client} is asking to use your Nabd Plus account.",
+    "scopesTitle": "It will be able to:",
+    "scopeRead": "See your own orders and bookings",
+    "scopeOrder": "Send pharmacy requests for non-prescription items",
+    "scopeBook": "Hold consultation, lab and nursing appointments for you",
+    "confirmNote": "The assistant only prepares. You always confirm and pay on Nabd Plus. Prescription items always need your prescription.",
+    "revokeNote": "You can disconnect it at any time in Settings.",
+    "approve": "Allow",
+    "deny": "Don't allow",
+    "errorTitle": "This request can't continue",
+    "errorBody": "The link from the assistant is not valid or has expired. Go back to the assistant and start again."
   }
 }

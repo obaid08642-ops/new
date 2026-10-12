@@ -47,7 +47,10 @@ describe("agent discovery public contracts", () => {
     const skills = await (await getSkills()).json();
     expect(skills.skills[0].sha256).toMatch(/^[a-f0-9]{64}$/);
     const auth = await (await getAuth()).text();
-    expect(auth).toContain("No public OAuth/OIDC authorization server");
+    // AC-1: the agent OAuth server is real now; the instructions describe it and its limits.
+    expect(auth).toContain("PKCE (S256 only)");
+    expect(auth).toContain("The patient confirms and pays on Nabd Plus");
+    expect(auth).not.toMatch(/\/api\/auth\/(login|register|session\/exchange)|tabby|tamara|x402|usdc|wallet/i);
     const skill = await (await getSkill()).text();
     expect(skill).toContain("No mutations");
   });

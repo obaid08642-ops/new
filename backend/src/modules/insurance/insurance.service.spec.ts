@@ -255,7 +255,7 @@ describe('InsuranceService', () => {
       const res = await service.nphiesEligibility('1092839482', 'bupa');
       expect(res.eligible).toBe(false);
       expect(res.reason).toBe('no_matching_policy_on_file');
-      expect(res.nphies_live).toBe(false);
+      expect(res).not.toHaveProperty('nphies_live');
     });
 
     it('should return stored-policy eligibility when the national id matches', async () => {
@@ -274,7 +274,7 @@ describe('InsuranceService', () => {
       const res = await service.nphiesEligibility('1092839482', 'bupa');
       expect(res.eligible).toBe(true);
       expect(res.source).toBe('stored_policy');
-      expect(res.nphies_live).toBe(false);
+      expect(res).not.toHaveProperty('nphies_live');
       expect(res.verified).toBe(true);
       expect(res.network).toBe('gold');
     });

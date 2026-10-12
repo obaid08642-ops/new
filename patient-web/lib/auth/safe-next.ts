@@ -8,7 +8,7 @@ const LOCALES = ["ar", "en", "ur", "hi", "bn", "fil"];
 export function safeNextPath(value: string | null | undefined): string | null {
   if (typeof value !== "string") return null;
   const v = value.trim();
-  if (!v || v.length > 512 || !v.startsWith("/") || v.startsWith("//") || v.includes("\\") || /[\u0000-\u001f]/.test(v)) return null;
+  if (!v || v.length > 2048 || !v.startsWith("/") || v.startsWith("//") || v.includes("\\") || /[\u0000-\u001f]/.test(v)) return null;
   if (/^\/[^/?#]*:/.test(v)) return null;
   const [, first, second] = v.split(/[/?#]/);
   if (!LOCALES.includes(first)) return null;
