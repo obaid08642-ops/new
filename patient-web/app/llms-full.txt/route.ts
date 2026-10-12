@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { backendList, LLMS_LOCALES, siteOriginForLlms, sixLocaleLinks } from "@/lib/llms-full";
 
-export const revalidate = 21600;
+// Dynamic: the feeds are cached in the Next data cache (a build without the backend must not freeze a 503).
+export const dynamic = "force-dynamic";
 
 type Slugged = { slug?: string };
 type Named = { id?: string; slug?: string; short_code?: string; name_ar?: string; name_en?: string; name?: string };

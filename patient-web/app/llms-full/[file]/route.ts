@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { backendList, cell, LLMS_LOCALES, type LlmsLocale, siteOriginForLlms } from "@/lib/llms-full";
 
-export const revalidate = 86400;
+// Dynamic: the feeds are cached in the Next data cache (a build without the backend must not freeze a 503).
+export const dynamic = "force-dynamic";
 
 type Product = { slug?: string; sku?: string | number; name?: string; price?: number; currency?: string; form?: string; strength?: string; active_ingredient?: string; category?: string; is_rx?: boolean; url?: string };
 type Props = { params: Promise<{ file: string }> };

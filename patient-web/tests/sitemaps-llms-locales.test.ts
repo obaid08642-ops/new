@@ -65,10 +65,15 @@ describe("entity sitemaps: six locales, hreflang + x-default on every URL", () =
     expect(xml).not.toMatch(/undefined|\/s\//);
   });
 
-  it.each(SITEMAPS.map(([f]) => [f]))("%s never publishes an invented or empty list when the backend is down", async (file) => {
+  it.each(SITEMAPS.map(([f]) => [f]))("%s answers 503 + Retry-After when the backend is down (never an invented or empty list)", async (file) => {
     stubBackend(false);
-    const { GET } = await import(`@/app/sitemaps/${file}/route`);
-    await expect(GET()).rejects.toThrow();
+    const mod = await import(`@/app/sitemaps/${file}/route`);
+    const res: Response = await mod.GET();
+    expect(res.status).toBe(503);
+    expect(res.headers.get("retry-after")).toBeTruthy();
+    expect(await res.text()).not.toContain("<url>");
+    // dynamic: a build without the backend neither fails nor freezes an empty file
+    expect(mod.dynamic).toBe("force-dynamic");
   });
 
   it("the doctors sitemap no longer lists the any-city duplicates of each doctor", async () => {

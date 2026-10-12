@@ -10,9 +10,9 @@ export function backendOrigin() {
 }
 
 /**
- * GET a backend JSON feed for a sitemap. Throws when the backend fails: the route then errors
- * and Next keeps serving the last good copy (stale-if-error), instead of publishing an empty
- * sitemap that would tell crawlers every page is gone.
+ * GET a backend JSON feed for a sitemap. Throws when the backend fails (see `sitemapRoute`): an
+ * empty sitemap is never published, it would tell crawlers every page is gone. The feed itself is
+ * kept in the Next data cache for `revalidate` seconds.
  */
 export async function sitemapFeed<T>(path: string, revalidate = 21600): Promise<T> {
   const res = await fetch(`${backendOrigin()}/api/v1${path}`, {
@@ -54,4 +54,17 @@ export function urlsetResponse(entries: string[]) {
 /** A whole sitemap of locale-less paths, capped to the protocol limit (six URLs per path). */
 export function localizedSitemap(entries: Entry[]) {
   return urlsetResponse(entries.slice(0, Math.floor(MAX_SITEMAP_URLS / locales.length)).flatMap(localizedEntries));
+}
+
+/**
+ * Runs a sitemap builder. When a feed fails it answers 503 + Retry-After, so crawlers come back
+ * later and keep the URLs they know (never an empty or invented list). The routes are dynamic: a
+ * build without the backend must not fail or freeze an empty file.
+ */
+export async function sitemapRoute(build: () => Promise<Response>): Promise<Response> {
+  try {
+    return await build();
+  } catch {
+    return new NextResponse("sitemap temporarily unavailable", { status: 503, headers: { "Retry-After": "600", "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" } });
+  }
 }
