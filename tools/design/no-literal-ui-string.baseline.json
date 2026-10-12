@@ -40,7 +40,6 @@
     "patient-web/app/.well-known/openapi.json/route.ts": 8,
     "patient-web/app/[locale]/not-found.tsx": 4,
     "patient-web/app/api/diagnostics/compatible-labs/route.ts": 1,
-    "patient-web/app/api/x402/route.ts": 1,
     "patient-web/app/manifest.ts": 1,
     "patient-web/components-next/mobile-bottom-nav.tsx": 1,
     "patient-web/components-next/nabd-mark.tsx": 2,
