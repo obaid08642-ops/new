@@ -163,3 +163,19 @@ The phase 13–22 work on `fix/audit-2026-09` is audited by the OpenCode session
 **This session (Queue A/C) does not touch `fix/audit-2026-09` or `oc/phase-audit`.**
 
 The PRs already open into the fix branch (#294/#300, #299, #311) stay as they are; the reviewer handles them.
+
+## Owner, 2026-10-12: phases split over three sessions, and agent commerce
+
+The phases left from §7 of `OPENCODE_PLAN_2026-10-09.md` are split so they run in parallel. The rules of §7 are unchanged: port from `main`, one phase per PR, never edit acceptance tests.
+
+| Session | Phases, in order | Notes |
+|---|---|---|
+| **OC-D** | 16.3 fix (OTP number normalisation, budget last; no failing `npm audit` gate before the fastify fix; real ZAP gate), then **23** audit trail, then **20** observability | Audit and observability touch the same logging code, so they stay in one session. |
+| **OC-E** (new) | **19** compliance, then **13** owner requirements, then **18** languages | 18 touches many files, so it goes last. |
+| **OC-F** (new) | **15** resilience, then **14** performance | 14 goes last; it touches hot paths the other sessions are porting. |
+
+- Phase 17: the UI parts go to the design session as needs-review entries; the backend parts go to OC-E after 18.
+- Phase 22 still waits for the owner.
+- A session never starts a phase listed for another session.
+
+**Agent commerce (`AGENT_COMMERCE_SPEC_2026-10-12.md`, items AC-1 to AC-6):** starts after the reviewer pushes the acceptance tests to `backend/acceptance/ac-agent/`. The session doing it is named when it starts.
