@@ -261,7 +261,8 @@ export class SeoService {
     const origin = siteOrigin();
     // Sitemap protocol limit per file. The patient web's paginated sitemaps carry the full catalogue.
     const MAX_URLS = 50_000;
-    const xmlEsc = (v: string) => v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    // Also quotes: the value goes into href="..." attributes (slugs come from provider data).
+    const xmlEsc = (v: string) => v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 
     const addUrl = (loc: string, lastmod: string, changefreq = 'weekly', priority = 0.7, alternates = '') => {
       const cleanLoc = loc.trim();

@@ -88,4 +88,15 @@ describe('SeoService public discovery governance', () => {
     expect(xml).not.toContain('/s/medicine/');
   });
 
+  it('escapes quotes so a slug cannot break out of an href attribute', async () => {
+    medicineModel.find.mockReturnValue(findChain([{ id: 'm1', slug: `x" onload="y'z`, name_ar: 'بنادول' }]));
+    for (const m of [providerModel, labModel, homeCareModel, facilityModel, articleModel]) m.find.mockReturnValue(findChain());
+
+    const xml = await service.sitemap();
+
+    expect(xml).toContain('/ar/p/x');
+    expect(xml).not.toMatch(/" onload=/);
+    for (const href of xml.match(/href="[^"]*"/g) ?? []) expect(href).not.toMatch(/['<>]/);
+  });
+
 });
