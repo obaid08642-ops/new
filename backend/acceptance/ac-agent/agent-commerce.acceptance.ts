@@ -34,6 +34,8 @@ const pkce = () => {
   return { verifier, challenge: b64url(createHash('sha256').update(verifier).digest()) };
 };
 const jwtPayload = (t: string) => JSON.parse(Buffer.from(t.split('.')[1] || '', 'base64url').toString('utf8') || 'null');
+/** True when `url` is exactly on the patient web's origin (not a look-alike host that merely starts with it). */
+const onSite = (url: unknown) => { try { return new URL(String(url)).origin === SITE; } catch { return false; } };
 const noSecretIn = (url: string) => !/(access_token|refresh_token|id_token|[?&]token=|session|bearer)/i.test(url);
 
 describe('Agent commerce (spec 2026-10-12 §3)', () => {
@@ -147,7 +149,7 @@ describe('Agent commerce (spec 2026-10-12 §3)', () => {
         expect(typeof r.body[k]).toBe('string');
       }
       // the consent page is on the patient web; the machine endpoints are on this backend
-      expect(r.body.authorization_endpoint.startsWith(SITE)).toBe(true);
+      expect(onSite(r.body.authorization_endpoint)).toBe(true);
       for (const k of ['token_endpoint', 'registration_endpoint', 'revocation_endpoint']) {
         const p = new URL(r.body[k]).pathname;
         const probe = await fetch(url(p), { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: '' });
@@ -449,7 +451,7 @@ describe('Agent commerce (spec 2026-10-12 §3)', () => {
         orderId = r.data.order_id;
         expect(typeof orderId).toBe('string');
         expect(typeof r.data.status).toBe('string');
-        expect(String(r.data.tracking_url).startsWith(SITE)).toBe(true);
+        expect(onSite(String(r.data.tracking_url))).toBe(true);
         expect(r.data.tracking_url).toContain(orderId);
         expect(noSecretIn(r.data.tracking_url)).toBe(true);
         expect(await stack.db.collection('pharmacy_broadcasts').findOne({ order_id: orderId })).not.toBeNull();
@@ -489,7 +491,7 @@ describe('Agent commerce (spec 2026-10-12 §3)', () => {
         const r = await tool('choose_offer_link', { order_id: orderId, offer_id: 'off-ac-1' }, a.access);
         expect(r.ok).toBe(true);
         const link = String(r.data.url ?? r.data.offer_url);
-        expect(link.startsWith(SITE)).toBe(true);
+        expect(onSite(link)).toBe(true);
         expect(link).toContain(orderId);
         expect(noSecretIn(link)).toBe(true);
         expect(strip(await stack.db.collection('pharmacy_orders').findOne({ id: orderId }))).toEqual(orderBefore);
@@ -530,7 +532,7 @@ describe('Agent commerce (spec 2026-10-12 §3)', () => {
         const ttl = new Date(expiresAt).getTime() - Date.now();
         expect(ttl).toBeGreaterThan(0);
         expect(ttl).toBeLessThanOrEqual(10 * 60_000 + 5_000);
-        expect(String(r.data.payment_url).startsWith(SITE)).toBe(true);
+        expect(onSite(String(r.data.payment_url))).toBe(true);
         expect(r.data.payment_url).toContain(bookingId);
         expect(noSecretIn(r.data.payment_url)).toBe(true);
         // the normal hold: the patient's own slot lock for that slot, with the same expiry
