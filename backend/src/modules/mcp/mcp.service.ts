@@ -90,6 +90,7 @@ export const MCP_TOOLS: McpToolDefinition[] = [
         quantity: { type: 'number', default: 1 },
         slot: { type: 'string', description: 'Selected appointment slot time if booking' },
         insurance_policy_id: { type: 'string', description: 'Patient insurance policy reference if claiming' },
+        locale: { type: 'string', enum: ['ar', 'en', 'ur', 'hi', 'bn', 'fil'], default: 'ar', description: "The user's language for the returned links" },
       },
       required: ['transaction_type', 'entity_id'],
     },
@@ -575,6 +576,10 @@ export class McpService {
 
   private async toolPrepareTransaction(args: Record<string, any>) {
     const { transaction_type, entity_id, quantity = 1, slot, insurance_policy_id } = args;
+    // Links open real pages in the user's language: the patient confirms and pays on Nabd Plus itself.
+    const locale = ['ar', 'en', 'ur', 'hi', 'bn', 'fil'].includes(String(args.locale)) ? String(args.locale) : 'ar';
+    const site = (process.env.PUBLIC_SITE_ORIGIN || 'https://nabd.plus').replace(/\/$/, '');
+    const web = (path: string) => `${site}/${locale}${path}`;
 
     if (transaction_type === 'medicine_order') {
       const medCol = this.connection.collection(CATALOG_COLLECTIONS.medicines);
@@ -588,7 +593,7 @@ export class McpService {
       });
       if (!med) throw new NotFoundException(`Medicine '${entity_id}' not found`);
 
-      const price = Number(med.price) || 20.0;
+      const price = Number(med.price);
       const requiresRx = Boolean(med.requires_prescription);
 
       // STRICT SAFETY ENFORCEMENT: If prescription is required, AI CANNOT bypass it!
@@ -604,8 +609,8 @@ export class McpService {
           error_code: 'RX_VERIFICATION_REQUIRED',
           message:
             'This medicine requires a verified medical prescription under SFDA regulations. AI agents cannot bypass prescription verification. Please upload your prescription or request a doctor consultation.',
-          prescription_upload_url: 'https://nabd.plus/ar/pharmacy/scan-prescription',
-          doctor_consultation_url: 'https://nabd.plus/ar/consultations/specialties',
+          prescription_upload_url: web('/pharmacy/scan-prescription'),
+          doctor_consultation_url: web('/consultations/specialties'),
           deep_link: 'nabdplus://pharmacy/scan-prescription',
         };
       }
@@ -629,8 +634,10 @@ export class McpService {
             ? 'No catalog price on file — the pharmacy offer sets the binding price.'
             : 'Catalog unit price for reference — VAT, delivery and the binding total are set by the pharmacy offer.',
         },
-        checkout_url: `https://nabd.plus/ar/cart/checkout?sku=${med.sku || entity_id}&qty=${quantity}`,
-        deep_link: `nabdplus://cart/checkout?sku=${med.sku || entity_id}&qty=${quantity}`,
+        // The medicine page, where the patient adds it to the cart (the cart lives on the device and the
+        // order goes to pharmacies for offers, so there is no checkout an agent can pre-fill).
+        checkout_url: web(`/p/${encodeURIComponent(med.slug || med.id)}`),
+        deep_link: `nabdplus://medicine/${encodeURIComponent(med.slug || med.id)}`,
       };
     }
 
@@ -670,17 +677,17 @@ export class McpService {
           pricing_note: 'Profile prices for reference — service fee, VAT and the binding total are set server-side at booking.',
           insurance_covered: Boolean(insurance_policy_id),
         },
-        booking_checkout_url: `https://nabd.plus/ar/consultations/book?doctorId=${doc.id}`,
-        deep_link: `nabdplus://consultations/book?doctorId=${doc.id}`,
+        booking_checkout_url: web(`/consultations/book/${encodeURIComponent(doc.id)}`),
+        deep_link: `nabdplus://consultations/book/${encodeURIComponent(doc.id)}`,
       };
     }
 
-    return {
-      transaction_type,
-      entity_id,
-      can_checkout: true,
-      checkout_url: `https://nabd.plus/ar/checkout?id=${entity_id}`,
-      deep_link: `nabdplus://checkout?id=${entity_id}`,
-    };
+    if (transaction_type === 'lab_booking') {
+      return { transaction_type, entity_id, can_checkout: true, checkout_url: web(`/labs/${encodeURIComponent(entity_id)}`) };
+    }
+    if (transaction_type === 'nursing_booking') {
+      return { transaction_type, entity_id, can_checkout: true, checkout_url: web('/nursing/catalog') };
+    }
+    throw new BadRequestException(`Unsupported transaction_type '${transaction_type}'`);
   }
 }

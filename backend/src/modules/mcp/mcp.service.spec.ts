@@ -173,7 +173,16 @@ describe('McpService', () => {
       expect(res.pricing.catalog_unit_price).toBe(15.5);
       expect(res.pricing).not.toHaveProperty('total_sar');
       expect(res.pricing).not.toHaveProperty('vat_15_percent');
-      expect(res.checkout_url).toContain('https://nabd.plus/ar/cart/checkout');
+      // The real product page (the patient adds it to the cart there), not a checkout that ignores the item.
+      expect(res.checkout_url).toBe('https://nabd.plus/ar/p/panadol-extra');
+    });
+
+    it('links open real pages in the user language', async () => {
+      const med: any = await service.executeTool('prepare_transaction', { transaction_type: 'medicine_order', entity_id: 'panadol-extra', locale: 'en' });
+      expect(med.checkout_url).toBe('https://nabd.plus/en/p/panadol-extra');
+      const doc: any = await service.executeTool('prepare_transaction', { transaction_type: 'consultation_booking', entity_id: 'doc-1', locale: 'ur' });
+      expect(doc.booking_checkout_url).toBe('https://nabd.plus/ur/consultations/book/doc-1');
+      await expect(service.executeTool('prepare_transaction', { transaction_type: 'pizza', entity_id: 'x' })).rejects.toThrow('Unsupported transaction_type');
     });
 
     it('gates AI medicine reads on public eligibility (approved catalog only)', async () => {
