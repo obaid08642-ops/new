@@ -1,0 +1,106 @@
+name: P15 web browsers
+
+# 15.10 (CI side): patient-web on desktop browsers via Playwright
+# WebKit (Safari proxy), Firefox and Chromium (Chrome desktop + the Samsung
+# Internet proxy — Samsung Internet ships no Playwright build; it is
+# Chromium-based, so Chromium covers the engine here and a real Galaxy
+# device covers the shell in the device-farm matrix). Safari iOS 16+ and
+# Chrome Android shells are covered by real devices in the farm
+# (tools/live/device_farm.yml); this job covers the engines in CI.
+#
+# Playwright is NOT assumed on the image: the job installs the pinned
+# build itself (same pin style as patient-production-ci.yml) with
+# --with-deps so the browsers exist too.
+#
+# API TARGET: never production. live-gate.yml's convention is a stack this repo
+# starts itself (backend :8002 via tools/live/start-backend.sh) — this job
+# deliberately starts no backend, so it must not borrow production either. It
+# targets the repo's documented staging host instead
+# (deploy/nginx/conf.d/staging.conf: `server_name staging.nabd.plus` proxies
+# /api/v1/ to the isolated staging backend), overridable with the
+# NABD_STAGING_API_BASE_URL repository variable. The guard step below FAILS the
+# job if anything ever points this workflow back at api.nabd.plus. Precondition:
+# that staging host has to be deployed and reachable (docs/deploy/
+# DEPLOY_BRIEF_FOR_AGENT.md records that it is not defined in the production
+# compose file yet) — when it is missing this job fails loudly instead of
+# passing silently.
+on:
+  pull_request:
+    paths:
+      - 'patient-web/**'
+      - 'tools/live/web_browsers_smoke.mjs'
+      - '.github/workflows/p15-web-browsers.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p15-browsers-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NABD_API_BASE_URL: ${{ vars.NABD_STAGING_API_BASE_URL || 'https://staging.nabd.plus/api/v1' }}
+
+jobs:
+  browsers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.4.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: patient-web/pnpm-lock.yaml
+      - name: Install
+        working-directory: patient-web
+        run: corepack enable && pnpm install --frozen-lockfile
+      - name: Install Playwright + browsers (self-contained, pinned)
+        run: npx --yes playwright@1.63.0 install --with-deps chromium firefox webkit
+      - name: Guard — the API base must never be production
+        env:
+          API_BASE: ${{ env.NABD_API_BASE_URL }}
+        run: |
+          set -euo pipefail
+          host=$(printf '%s' "$API_BASE" | sed -E 's#^[a-zA-Z]+://##; s#^[^@]*@##; s#[:/?].*$##')
+          case "$host" in
+            api.nabd.plus|nabd.plus|www.nabd.plus|admin.nabd.plus|provider.nabd.plus|cdn.nabd.plus)
+              echo "REFUSING: NABD_API_BASE_URL points at PRODUCTION host '$host' ($API_BASE)" >&2
+              exit 1 ;;
+          esac
+          echo "API base for the build and the smoke run: $API_BASE (host '$host', non-production)"
+      - name: Build
+        working-directory: patient-web
+        run: pnpm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+          NEXT_PUBLIC_SITE_ORIGIN: http://localhost:3000
+      - name: Start production server
+        working-directory: patient-web
+        env:
+          NEXT_PUBLIC_SITE_ORIGIN: http://localhost:3000
+          PORT: 3000
+          HOSTNAME: 127.0.0.1
+        run: |
+          cp -r .next/static .next/standalone/.next/static
+          [ -d public ] && cp -r public .next/standalone/public || true
+          (node .next/standalone/server.js &> /tmp/next.log &)
+          for i in $(seq 1 60); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/ar || true)
+            if [ "$code" = "200" ]; then echo "server ready after ${i}x2s"; exit 0; fi
+            sleep 2
+          done
+          echo "server not ready"; tail -100 /tmp/next.log; exit 1
+      - name: Browser smoke (${{ matrix.browser }})
+        env:
+          SMOKE_BROWSER: ${{ matrix.browser }}
+          SMOKE_BASE: http://localhost:3000
+        run: node tools/live/web_browsers_smoke.mjs
