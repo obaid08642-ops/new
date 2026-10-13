@@ -310,8 +310,9 @@ export class PharmacyOrderService {
 
     // D-26: what a cancel right now would refund — before dispatch the full
     // total including the delivery fee, once out for delivery minus the fee.
-    const cancelTotal = Math.round(Number(order.totals?.total ?? 0) * 100) / 100;
-    const cancelFee = Math.round(Number(order.totals?.delivery_fee ?? 0) * 100) / 100;
+    // Governed orders carry their prices in pricing_snapshot (same fallback as cancel()).
+    const cancelTotal = Math.round(Number(order.totals?.total ?? order.pricing_snapshot?.totals?.total ?? 0) * 100) / 100;
+    const cancelFee = Math.round(Number(order.totals?.delivery_fee ?? order.pricing_snapshot?.totals?.delivery_fee ?? 0) * 100) / 100;
     const cancelAfterDispatch = String(order.status).toLowerCase() === 'out_for_delivery';
     const cancelRefundNow = {
       percent: 100,

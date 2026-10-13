@@ -12,10 +12,11 @@ function make(appt: any) {
 const inHours = (h: number) => new Date(Date.now() + h * 3_600_000).toISOString();
 
 describe('refund preview (B-11)', () => {
-  it('patient > 24h: 100% to source; < 24h: 50% to wallet; nothing saved', async () => {
+  // D-26 (owner): the full-refund window is 2 h (was 24 h).
+  it('patient > 2h: 100% to source; < 2h: 50% to wallet; nothing saved', async () => {
     const far = make({ id: 'a', patient_id: 'p', slot_start: inHours(48), total_price: 200 });
     await expect(far.svc.previewRefund('a', { id: 'p', role: UserRole.PATIENT })).resolves.toEqual({ refund_percentage: 100, refund_destination: 'source', penalty_amount: 0, estimated_amount: 200 });
-    const near = make({ id: 'a', patient_id: 'p', slot_start: inHours(3), total_price: 200 });
+    const near = make({ id: 'a', patient_id: 'p', slot_start: inHours(1), total_price: 200 });
     await expect(near.svc.previewRefund('a', { id: 'p', role: UserRole.PATIENT })).resolves.toMatchObject({ refund_percentage: 50, refund_destination: 'wallet', estimated_amount: 100 });
     expect(far.doc.save).not.toHaveBeenCalled();
   });

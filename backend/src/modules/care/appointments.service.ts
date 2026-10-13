@@ -12,6 +12,7 @@ import { SlotLocksService } from '../slot-locks/slot-locks.module';
 import { AppointmentRepository } from "./repositories/appointment.repository";
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
 import { hasEffectiveRole } from '../../common/auth.guard';
+import { DEFAULT_REFUND_POLICY } from '../refund-policy/refund-policy.defaults';
 
 /** Platform fee schedule (SAR). Move to DB/config when admin dashboard supports it. */
 const PLATFORM_FEES = {
@@ -484,22 +485,11 @@ export class AppointmentsService {
   }
 
   private async getRefundPolicy(): Promise<any> {
-    // Unit doubles construct the service without a connection: keep the legacy
-    // B-11 read model (24h full-refund window) so those pinned expectations hold.
     if (!this.connection || typeof (this.connection as any).collection !== 'function') {
-      return {
-        consultation: { full_refund_min_hours: 24, late_refund_percent: 50, patient_no_show_percent: 0, free_reschedules: 1, free_reschedule_min_hours: 2 },
-        home_visit: { trip_fee_sar: 40, patient_absent_percent: 0 },
-        pharmacy: { refund_delivery_fee_before_dispatch: true },
-      };
+      return DEFAULT_REFUND_POLICY;
     }
-    // Live default is the owner's table (D-26): 2h full window.
     const doc: any = await this.connection.collection('system_configs').findOne({ key: 'refund_policy' }, { projection: { _id: 0, value: 1 } });
-    return doc?.value || {
-      consultation: { full_refund_min_hours: 2, late_refund_percent: 50, patient_no_show_percent: 0, free_reschedules: 1, free_reschedule_min_hours: 2 },
-      home_visit: { trip_fee_sar: 40, patient_absent_percent: 0 },
-      pharmacy: { refund_delivery_fee_before_dispatch: true },
-    };
+    return doc?.value || DEFAULT_REFUND_POLICY;
   }
 
   // Cancellation & Refund Rules (shared by cancel and previewRefund)
@@ -509,7 +499,7 @@ export class AppointmentsService {
     let refundDestination = 'source';
 
     const policy = await this.getRefundPolicy();
-    const consultationPolicy = policy.consultation || { full_refund_min_hours: 2, late_refund_percent: 50, patient_no_show_percent: 0 };
+    const consultationPolicy = policy.consultation || DEFAULT_REFUND_POLICY.consultation;
 
     const slotStart = new Date(appt.slot_start);
     const hoursUntilAppointment = (slotStart.getTime() - Date.now()) / (1000 * 60 * 60);

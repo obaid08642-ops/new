@@ -3,12 +3,8 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { DEFAULT_REFUND_POLICY } from './refund-policy.defaults';
 
-const DEFAULT_REFUND_POLICY = {
-  consultation: { full_refund_min_hours: 2, late_refund_percent: 50, patient_no_show_percent: 0, free_reschedules: 1, free_reschedule_min_hours: 2 },
-  home_visit: { trip_fee_sar: 40, patient_absent_percent: 0 },
-  pharmacy: { refund_delivery_fee_before_dispatch: true },
-};
 
 @Controller('refund-policy')
 export class PublicRefundPolicyController {
@@ -51,16 +47,26 @@ export class AdminRefundPolicyController {
     const p = policy.pharmacy || {};
     if (typeof p.refund_delivery_fee_before_dispatch !== 'boolean') bad.push('pharmacy.refund_delivery_fee_before_dispatch');
     if (bad.length) throw new BadRequestException(`invalid_refund_policy: ${bad.join(', ')}`);
+    // Only the validated fields are stored; anything else in the body is dropped.
+    const clean = {
+      consultation: {
+        full_refund_min_hours: c.full_refund_min_hours, late_refund_percent: c.late_refund_percent,
+        patient_no_show_percent: c.patient_no_show_percent, free_reschedules: c.free_reschedules,
+        free_reschedule_min_hours: c.free_reschedule_min_hours,
+      },
+      home_visit: { trip_fee_sar: h.trip_fee_sar, patient_absent_percent: h.patient_absent_percent },
+      pharmacy: { refund_delivery_fee_before_dispatch: p.refund_delivery_fee_before_dispatch },
+    };
     const now = new Date();
     await this.conn.collection('system_configs').updateOne(
       { key: 'refund_policy' },
-      { $set: { value: policy, updated_by: u?.id, updatedAt: now }, $setOnInsert: { key: 'refund_policy', createdAt: now } },
+      { $set: { value: clean, updated_by: u?.id, updatedAt: now }, $setOnInsert: { key: 'refund_policy', createdAt: now } },
       { upsert: true },
     );
     await this.conn.collection('audit_logs').insertOne({
       id: `refund_policy_${now.getTime()}`, actor_id: u?.id, actor_role: 'admin',
-      action: 'refund_policy.set', after: policy, createdAt: now,
+      action: 'refund_policy.set', after: clean, createdAt: now,
     });
-    return { ok: true, policy };
+    return { ok: true, policy: clean };
   }
 }
