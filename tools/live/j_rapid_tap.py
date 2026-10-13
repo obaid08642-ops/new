@@ -71,8 +71,10 @@ def run():
 
     journey('rapid-tap book: 10 taps on "book" create exactly one appointment')
     import os
-    from j_concurrency import DOCTOR, free_slots, book
+    import j_concurrency
+    from j_concurrency import free_slots, book
     free, _ = free_slots(pat, 1)
+    DOCTOR = j_concurrency.DOCTOR
     if not free:
         step('SKIP rapid-tap book (no free clinic slots)', True, 'skipped: no live slots')
     else:
@@ -111,11 +113,11 @@ def run():
         step('no 5xx under the burst', all(r.status < 500 for r in rs), [r.status for r in rs])
 
     journey('rapid-tap send: 10 taps on "send" deliver exactly one message')
-    mine = pat.get('/care/appointments')
-    rows = mine.body if isinstance(mine.body, list) else (mine.get('data') or mine.get('items') or [])
-    aid = next((a.get('id') for a in rows if isinstance(a, dict) and a.get('id')), None)
+    # The consultation chat opens only after the doctor finishes the visit, so the burst
+    # goes to the thread of a finished consultation (an upcoming one answers 403 by design).
+    aid = j_concurrency.completed_consultation(pat)
     if not aid:
-        step('SKIP rapid-tap send (no appointment to attach the thread to)', True, 'skipped: book drill produced none')
+        step('a finished consultation to attach the chat thread to', False, 'see the failed booking/visit step above')
     else:
         r = pat.post('/chat/threads/booking', {'booking_kind': 'consultation', 'booking_id': aid})
         tid = (r.body.get('data') or r.body).get('id') if isinstance(r.body, dict) else None
@@ -134,8 +136,11 @@ def run():
                  len(rs) == 10 and len(ids) == 1,
                  [f'{s.status}:{str(s.get("id"))[:12]}' for s in rs])
             msgs = pat.get(f'/chat/threads/{tid}/messages')
-            items = msgs.body if isinstance(msgs.body, list) else msgs.items()
-            n = str(items).count(cmid)
+            # ChatService.listMessages answers {messages: [...], has_more}.
+            items = msgs.body if isinstance(msgs.body, list) else (msgs.get('messages') or msgs.items())
+            # The list does not echo client_message_id; count the server message id instead.
+            mid = str(next(iter(ids), '') or '')
+            n = sum(1 for m in items if isinstance(m, dict) and str(m.get('id')) == mid) if mid else 0
             step('the burst delivers the message exactly once', n == 1, f'{n} copies in thread')
             step('no 5xx under the burst', all(s.status < 500 for s in rs), [s.status for s in rs])
 

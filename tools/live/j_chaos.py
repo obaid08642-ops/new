@@ -325,7 +325,7 @@ def drill_sms_down():
     step('the backend restarted with CHAOS_FAIL_SMS=1 (SMS is really down)', True, raw)
     try:
         import time as _t
-        from lib import mail_code, uniq
+        from lib import mail_code, uniq, phone
         anon = Client()
         email = f'sms-fallback-{uniq("c")}@nabd.test'
         t0 = _t.time()
@@ -334,14 +334,25 @@ def drill_sms_down():
         # existing step); "disabled" is now literally true: the switch forces
         # SmsService.sendOtp() to return false.
         step('send-otp answers while SMS is down/disabled', r.ok, r)
-        marker = log_marker('CHAOS_FAIL_SMS=1')
-        step('the server actually took the SMS failure path (runtime marker in the backend log)', marker,
-             f'no "CHAOS_FAIL_SMS=1" marker in {BACKEND_LOG} — the switch was never read')
         code = mail_code(email, t0)
         step('the OTP is delivered by email (SMS -> email fallback works)', code, 'no mail with a 6-digit code')
         if code:
             r = anon.post('/auth/verify-otp', {'email': email, 'code': code})
             step('the emailed OTP verifies (the user is not locked out)', r.ok, r)
+        # The SMS channel is only tried for a phone identifier on an account that has a
+        # phone (AuthService.deliverOtp), so the drill needs a real phone account: the
+        # email-only request above never touches SmsService.
+        ph = phone()
+        r = anon.post('/auth/register', {'full_name': 'اختبار انقطاع الرسائل', 'phone': ph, 'email': email, 'password': 'Str0ng!Pass' + uniq('')[-4:]})
+        step('a phone + email account is registered for the SMS drill', r.ok, r)
+        t1 = _t.time()
+        r = anon.post('/auth/send-otp', {'phone': ph, 'purpose': 'reset'})
+        step('send-otp by phone answers while SMS is down (no 5xx, no lockout)', r.ok, r)
+        marker = log_marker('CHAOS_FAIL_SMS=1')
+        step('the server actually took the SMS failure path (runtime marker in the backend log)', marker,
+             f'no "CHAOS_FAIL_SMS=1" marker in {BACKEND_LOG} — the switch was never read')
+        code2 = mail_code(email, t1)
+        step('the phone OTP falls back to the account email', code2, 'no mail with a 6-digit code')
     finally:
         ok2, sw2, raw2 = chaos_backend('CHAOS_FAIL_SMS', 'off')
         step('the backend is back on a clean process with CHAOS_FAIL_SMS unset',

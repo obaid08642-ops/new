@@ -79,12 +79,12 @@ describe('15.4 the patient-app outbox', () => {
   it('replays in enqueue order', async () => {
     await enqueue({ kind: 'notification.mark_read', method: 'POST', path: '/notifications/read', body: { id: '1' } });
     await enqueue({ kind: 'notification.mark_read', method: 'POST', path: '/notifications/read', body: { id: '2' } });
-    const order: number[] = [];
+    const order: string[] = [];
     await flush(async (e) => {
       order.push((e.body as any).id);
       return true;
     });
-    expect(order).toEqual([1, 2]);
+    expect(order).toEqual(['1', '2']);
   });
 
   it('records a failed attempt and reports it', async () => {

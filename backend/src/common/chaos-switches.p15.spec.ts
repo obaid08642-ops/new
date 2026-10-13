@@ -118,9 +118,10 @@ describe('15.11 chaos failure switches (mocked)', () => {
         success: false,
         reason: 'livekit_not_configured',
       });
-      await expect(svc.removeParticipant('room-1', 'p-1')).resolves.toEqual({
-        success: false,
-        reason: 'livekit_not_configured',
+      // Removal is a moderation action: it fails visibly with a 409, never a 5xx.
+      await expect(svc.removeParticipant('room-1', 'p-1')).rejects.toMatchObject({
+        status: 409,
+        response: { reason: 'livekit_not_configured' },
       });
     });
   });

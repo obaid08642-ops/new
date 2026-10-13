@@ -103,7 +103,7 @@ jobs:
           fi
 
       - name: Fuzz the spec — 0 server errors allowed
-        run: bash backend/scripts/schemathesis_fuzz.sh --base-url http://127.0.0.1:8002 --spec backend/openapi.json
+        run: bash backend/scripts/schemathesis_fuzz.sh --base-url http://127.0.0.1:8002 --spec backend/openapi.json --max-examples 10 --workers 4  # 1,652 operations: bounded so every phase fits the 60-min job
 
       - name: Logs on failure
         if: failure()

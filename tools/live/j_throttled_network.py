@@ -84,18 +84,15 @@ def keyed_replay_check():
 
     from lib import Client
     from j_accounts import app_signup
-    from j_concurrency import free_slots, book
+    from j_concurrency import completed_consultation
 
     pat = Client(app_signup(label='throttle-replay')['token'], 'throttle-replay')
-    free, _ = free_slots(pat, 1)
-    if not free:
-        skip('safe-action queue replay', 'no free clinic slot to hang a booking thread on')
+    # The consultation chat opens only after the doctor finishes the visit.
+    aid = completed_consultation(pat)
+    if not aid:
+        step('a finished consultation to hang the chat thread on', False, 'see the failed booking/visit step above')
         return
-    appt = book(pat, free[0], key=f'throttle-replay-appt-{uuid.uuid4()}')
-    if not appt.ok or not appt.get('id'):
-        skip('safe-action queue replay', f'booking for the thread failed: {str(appt)[:160]}')
-        return
-    t = pat.post('/chat/threads/booking', {'booking_kind': 'consultation', 'booking_id': appt.get('id')})
+    t = pat.post('/chat/threads/booking', {'booking_kind': 'consultation', 'booking_id': aid})
     tid = (t.body.get('data') or t.body).get('id') if isinstance(t.body, dict) else None
     if not tid:
         skip('safe-action queue replay', f'no booking thread: {str(t)[:160]}')
@@ -111,8 +108,11 @@ def keyed_replay_check():
     step('the replay is FLAGGED as a replay instead of being re-executed (idempotent_replay: true)',
          replay.get('idempotent_replay') is True, str(replay.body)[:200])
     msgs = pat.get(f'/chat/threads/{tid}/messages')
-    items = msgs.body if isinstance(msgs.body, list) else msgs.items()
-    n = str(items).count(cmid)
+    # ChatService.listMessages answers {messages: [...], has_more}.
+    items = msgs.body if isinstance(msgs.body, list) else (msgs.get('messages') or msgs.items())
+    # The list does not echo client_message_id; count the server message id instead.
+    mid = str(first.get('id') or '')
+    n = sum(1 for m in items if isinstance(m, dict) and str(m.get('id')) == mid) if mid else 0
     step('the thread holds exactly one copy of the replayed message', n == 1, f'{n} copies in thread')
 
 

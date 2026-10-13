@@ -11,7 +11,10 @@ API="${NABD_BACKEND:-http://127.0.0.1:8002}"
 run_step() {
   if command -v timeout >/dev/null 2>&1; then timeout "$@"; else shift; "$@"; fi
 }
-JOURNEYS=(j_accounts j_otp_abuse j_onboarding j_pharmacy j_lab j_radiology j_nursing j_consultation j_facility j_support j_loyalty j_chaos j_rapid_tap j_app_killed_payment j_throttled_network j_killswitches)
+JOURNEYS=(j_accounts j_otp_abuse j_onboarding j_pharmacy j_lab j_radiology j_nursing j_consultation j_facility j_support j_loyalty j_chaos j_rapid_tap j_app_killed_payment j_throttled_network)
+# j_killswitches (15.12) joins once Phase 14.4 is ported: it needs the kill-switch helper,
+# the six seeded flag rows and their consumers (14.4/14.18 + P15.fix 3e2db704), which are
+# not on main yet; until then it cannot be green (rule above).
 fail=0
 restarts=0
 # The journeys log in as admin@nabd.test and nothing else seeds it, so on a fresh

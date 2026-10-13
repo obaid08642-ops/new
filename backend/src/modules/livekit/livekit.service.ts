@@ -1,5 +1,5 @@
 import { isOnlineConsultation } from '../chat/consultation-window';
-import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, Logger, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import { AccessToken } from 'livekit-server-sdk';
 import { randomUUID } from 'crypto';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
@@ -397,7 +397,9 @@ export class LiveKitService {
 
   async removeParticipant(roomName: string, participantId: string) {
     const svc = this.roomService();
-    if (!svc) return { success: false, reason: 'livekit_not_configured' };
+    // Removing someone is a moderation action: without LiveKit it must fail visibly (409),
+    // not report a soft success:false the admin screen could read as done. Never a 5xx.
+    if (!svc) throw new ConflictException({ success: false, reason: 'livekit_not_configured', message: 'livekit_not_configured' });
     await svc.removeParticipant(roomName, participantId).catch(() => null);
     return { success: true };
   }

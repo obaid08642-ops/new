@@ -84,7 +84,7 @@ if [ "$DRY_RUN" -eq 0 ] && [[ "$RUNNER" == "<unresolved"* ]]; then
   exit 1
 fi
 
-CMD=("$RUNNER" "run" "$SPEC_RESOLVED" "--base-url" "$BASE_URL" "--checks" "$CHECKS")
+CMD=("$RUNNER" "run" "$SPEC_RESOLVED" "--url" "$BASE_URL" "--checks" "$CHECKS")
 [ -n "$WORKERS" ] && CMD+=("--workers" "$WORKERS")
 [ -n "$MAX_EXAMPLES" ] && CMD+=("--max-examples" "$MAX_EXAMPLES")
 if [ -n "$AUTH_TOKEN" ]; then

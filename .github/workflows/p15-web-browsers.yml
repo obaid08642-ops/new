@@ -64,7 +64,11 @@ jobs:
         working-directory: patient-web
         run: corepack enable && pnpm install --frozen-lockfile
       - name: Install Playwright + browsers (self-contained, pinned)
-        run: npx --yes playwright@1.63.0 install --with-deps chromium firefox webkit
+        # The smoke script imports 'playwright' from tools/live, so the package is installed
+        # there (not only the CLI through npx); then only this matrix leg's browser.
+        run: |
+          npm install --no-save --no-package-lock --prefix tools/live playwright@1.63.0
+          tools/live/node_modules/.bin/playwright install --with-deps ${{ matrix.browser }}
       - name: Guard — the API base must never be production
         env:
           API_BASE: ${{ env.NABD_API_BASE_URL }}

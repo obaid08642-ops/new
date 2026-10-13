@@ -38,7 +38,7 @@ export class SmsService {
     // asserts the real degraded path rather than a provider error. Never in
     // production.
     if (isChaosFail('sms')) {
-      this.logger.log('CHAOS_FAIL_SMS is set; no SMS message was sent.');
+      this.logger.log('CHAOS_FAIL_SMS=1: chaos drill, no SMS message was sent.');
       return false;
     }
     if (!(await this.isEnabled())) {

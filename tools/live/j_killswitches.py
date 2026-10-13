@@ -57,10 +57,10 @@ def run():
     r = anon.get('/config')
     step('/config is public and carries app_versions (fail-open when unset)',
          r.ok and isinstance(r.get('app_versions'), (dict, type(None))), r)
-    orig = admin.get('/admin/config/app-versions')
+    orig = admin.get('/admin/admin/config/app-versions')
     step('admin app-versions read is reachable', orig.ok and isinstance(orig.body, dict), orig)
     if orig.ok:
-        back = admin.req('PUT', '/admin/config/app-versions', orig.body if isinstance(orig.body, dict) else {'apps': {}})
+        back = admin.req('PUT', '/admin/admin/config/app-versions', orig.body if isinstance(orig.body, dict) else {'apps': {}})
         step('admin app-versions write path is operable (wrote back the value just read: zero net change)',
              back.ok, back)
         r2 = anon.get('/config')
@@ -82,15 +82,15 @@ def run():
     before = dict(snapshot)
     for key in FLAGS:
         start = before.get(key)
-        off = admin.post(f'/admin/feature-flags/{key}', {'enabled': False})
+        off = admin.post(f'/admin/admin/feature-flags/{key}', {'enabled': False})
         _, feat_off = config_features(anon)
         step(f'{key}: switching OFF reaches /config (clients see false)',
              off.ok and feat_off.get(key) is False, f'set={off.status} config={feat_off.get(key)}')
-        on = admin.post(f'/admin/feature-flags/{key}', {'enabled': True})
+        on = admin.post(f'/admin/admin/feature-flags/{key}', {'enabled': True})
         _, feat_on = config_features(anon)
         step(f'{key}: switching ON reaches /config (clients see true)',
              on.ok and feat_on.get(key) is True, f'set={on.status} config={feat_on.get(key)}')
-        restore = admin.post(f'/admin/feature-flags/{key}', {'enabled': start if start is not None else False})
+        restore = admin.post(f'/admin/admin/feature-flags/{key}', {'enabled': start if start is not None else False})
         step(f'{key}: restored to the pre-run value', restore.ok, restore)
 
     journey('kill switches (14.18): the toggles left nothing permanently changed')
