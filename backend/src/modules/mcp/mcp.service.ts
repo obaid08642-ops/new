@@ -239,21 +239,6 @@ export class McpService {
   /**
    * Main entry point for MCP JSON-RPC 2.0 requests.
    */
-  /**
-   * Authenticated agent tools (AC-3). The caller is already authenticated and scoped
-   * (McpController). Until AC-3 implements a tool, it answers "not available" and changes nothing.
-   */
-  async handleAgentToolCall(body: { id?: any; params?: any }, principal: { client_id: string; patient_id: string }) {
-    const toolName = String(body?.params?.name ?? '');
-    const requestId = `mcp_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
-    this.auditToolCall(toolName, requestId, false, 'TOOL_NOT_AVAILABLE').catch(() => null);
-    return {
-      jsonrpc: '2.0',
-      id: body?.id,
-      error: { code: -32601, message: 'tool_not_available', data: { error_code: 'TOOL_NOT_AVAILABLE', tool: toolName, client_id: principal.client_id, request_id: requestId } },
-    };
-  }
-
   async handleRpcRequest(body: { jsonrpc?: string; id?: any; method?: string; params?: any }) {
     const { id, method, params } = body;
 
