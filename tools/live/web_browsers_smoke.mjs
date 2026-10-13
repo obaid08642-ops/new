@@ -34,6 +34,9 @@ try {
     try {
       await page.goto(BASE + route, { waitUntil: 'load', timeout: 60000 });
     } catch (e) { errors.push(`goto failed: ${String(e).slice(0, 200)}`); }
+    // Measure after the client fetches settle (Firefox fires 'load' before the page has
+    // rendered its data or error state); a page that never goes idle is measured anyway.
+    await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
     let chars = 0;
     // Pass a function, not a string: a string is evaluated as an expression, so '() => …'
     // returned the function itself (undefined after serialisation) and every page read as 0.
