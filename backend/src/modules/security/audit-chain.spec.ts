@@ -138,6 +138,21 @@ describe('Phase 23 audit chain (23.1 + 23.3)', () => {
     expect(after.checked).toBeLessThan(before.checked);
   });
 
+  it('a query operator smuggled through a timeline field is refused', async () => {
+    await service.write({ action: 'a', user_id: 'u-1' });
+    // A bare value would let $ne / $regex through as operators; $eq plus the
+    // shape check means these are refused outright.
+    for (const bad of [{ $ne: null }, { $regex: '.*' }, 'a$b', 'x y']) {
+      await expect(
+        service.timeline({ user_id: bad as any }),
+      ).rejects.toThrow('audit_timeline_bad_user_id');
+    }
+  });
+
+  it('a timeline needs a subject', async () => {
+    await expect(service.timeline({})).rejects.toThrow('audit_timeline_needs_a_subject');
+  });
+
   it('an audit failure never breaks the action the user asked for', async () => {
     const broken = { write: async () => { throw new Error('db down'); } } as any;
     // write() swallows internally, so the observable contract is: no throw.

@@ -186,10 +186,19 @@ export class AuditService {
    * Events are ordered oldest-first, because a timeline is read as a story.
    */
   async timeline(subject: { user_id?: string; resource_kind?: string; resource_id?: string }, limit = 200) {
-    const filter: any = {};
-    if (subject.user_id) filter.user_id = subject.user_id;
-    if (subject.resource_kind) filter.resource_kind = subject.resource_kind;
-    if (subject.resource_id) filter.resource_id = subject.resource_id;
+    const filter: Record<string, { $eq: string }> = {};
+    // $eq rather than a bare value, and a strict shape check, so a caller can
+    // never smuggle a query operator (`$ne`, `$regex`) through these fields:
+    // they are compared for equality against one literal key each.
+    for (const key of ['user_id', 'resource_kind', 'resource_id'] as const) {
+      const value = subject[key];
+      if (value === undefined || value === null || value === '') continue;
+      const asString = String(value);
+      if (!/^[A-Za-z0-9_.:-]{1,128}$/.test(asString)) {
+        throw new BadRequestException(`audit_timeline_bad_${key}`);
+      }
+      filter[key] = { $eq: asString };
+    }
     if (Object.keys(filter).length === 0) throw new BadRequestException('audit_timeline_needs_a_subject');
     return this.logs.find(filter).sort({ sequence: 1 }).limit(Math.min(limit, 500)).lean();
   }
