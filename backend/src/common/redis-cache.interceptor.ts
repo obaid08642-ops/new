@@ -40,7 +40,10 @@ export class RedisCacheInterceptor implements NestInterceptor {
     if (!policy) return next.handle();
     if (this.hasAuthSignal(request)) return next.handle();
 
-    const cacheKey = `http_cache:${request.originalUrl || request.url || ''}`;
+    // A body that depends on the language is stored per language, or one locale's copy would be
+    // served to every other.
+    const lang = policy.varyLanguage ? String(request.headers?.['accept-language'] || '').split(',')[0].trim().toLowerCase().slice(0, 16) : '';
+    const cacheKey = `http_cache:${request.originalUrl || request.url || ''}${lang ? `|lang=${lang}` : ''}`;
     try {
       const cachedResponse = await this.redis.getClient().get(cacheKey);
       if (cachedResponse) {
