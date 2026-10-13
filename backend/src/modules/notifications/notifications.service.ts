@@ -908,7 +908,7 @@ export class NotificationsService {
       params: { tracking_id: p.tracking_id, result_id: p.result_id },
       type: NotificationType.INFO,
       priority: p.critical ? NotificationPriority.CRITICAL : NotificationPriority.HIGH,
-      action: { route: `/health/results/${p.result_id}`, payload: { result_id: p.result_id }, discuss: { route: '/consultations/book' } },
+      action: { route: `/health/results/${p.result_id}`, payload: { result_id: p.result_id, discuss: { route: '/consultations/book' } }, discuss: { route: '/consultations/book' } },
     });
   }
 
