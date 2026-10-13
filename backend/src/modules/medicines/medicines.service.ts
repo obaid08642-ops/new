@@ -8,6 +8,7 @@ import { Medicine, MedicineDocument } from '../../schemas/medicine.schema';
 import { EVENTS } from '../../common/events';
 import { clampPageInt } from '../../common/safe-query';
 import { PurgeBus } from '../../common/purge-bus';
+import { connectionFlagSource, isKilled } from '../../common/killswitches/killswitches.helper';
 import { MedicineRepository } from "./repositories/medicine.repository";
 import { RedisService } from '../redis/redis.service';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
@@ -252,13 +253,28 @@ export class MedicinesService {
   private trackSearch(term: string | undefined, resultsCount: number, userId?: string) {
     const t = (term || '').trim();
     if (!t || t.length < 2) return;
-    this.conn.collection('search_queries').insertOne({
-      term: t,
-      term_lc: t.toLowerCase(),
-      user_id: userId || null,
-      results_count: resultsCount,
-      createdAt: new Date(),
-    }).catch(() => { /* analytics must never slow search */ });
+    // Kill switch (analytics ingestion): accept-and-drop. Search results are
+    // unaffected; only the search_queries write is skipped. The flag read stays
+    // async/off-path so search latency never depends on it.
+    this.analyticsIngestAllowed().then((ok) => {
+      if (!ok) return;
+      this.conn.collection('search_queries').insertOne({
+        term: t,
+        term_lc: t.toLowerCase(),
+        user_id: userId || null,
+        results_count: resultsCount,
+        createdAt: new Date(),
+      }).catch(() => { /* analytics must never slow search */ });
+    }).catch(() => { /* analytics must never break search */ });
+  }
+
+  /** False only when analytics ingestion is explicitly killed (fail-open). */
+  private async analyticsIngestAllowed(): Promise<boolean> {
+    try {
+      return !(await isKilled('analyticsIngestion', connectionFlagSource(this.conn)));
+    } catch {
+      return true;
+    }
   }
 
   /**
@@ -268,6 +284,11 @@ export class MedicinesService {
   async didYouMean(term: string) {
     const t = (term || '').trim().toLowerCase();
     if (t.length < 3) return { suggestion: null };
+    // Kill switch (search suggestions): direct matches only, no suggestion
+    // expansion and no suggester (pool) reads.
+    if (await isKilled('searchSuggestions', connectionFlagSource(this.conn))) {
+      return { suggestion: null, alternatives: [], query: term };
+    }
 
     const lev = (a: string, b: string): number => {
       const m = a.length, n = b.length;
@@ -756,6 +777,24 @@ export class MedicinesService {
         if (keys.length) await client.del(...keys);
       }
     } catch { /* cache invalidation is best-effort */ }
+    this.schedulePurge();
+  }
+
+  private purgeTimer: NodeJS.Timeout | null = null;
+
+  /**
+   * 14.8: every catalogue write (price, availability, image, approval, import) ends in
+   * invalidateCache, so the edge purge (Cloudflare tag + Next revalidateTag) starts here.
+   * Writes in one burst (a CSV import, a bulk approve) share one purge 500 ms later, well
+   * inside the 5 s budget. A purge failure is logged and never fails the write.
+   */
+  private schedulePurge(): void {
+    if (!this.purgeBus || this.purgeTimer) return;
+    this.purgeTimer = setTimeout(() => {
+      this.purgeTimer = null;
+      this.purgeBus!.purge(['medicines']).catch((e: any) => this.logger.error(`purge medicines failed: ${e?.message || e}`));
+    }, 500);
+    this.purgeTimer.unref?.();
   }
 
   // ── Pre-computed Aggregations Cron Jobs (Task 2.5) ─────────────────
@@ -1827,14 +1866,6 @@ export class MedicinesService {
     }
     this.audit('medicine.admin_direct_edit', medicineId, adminId, 'admin', { before, after, requires_reapproval: requiresReapproval, images_deleted: removed });
     await this.invalidateCache();
-    // 14.8: a price, availability or image change must invalidate every cached
-    // copy now, not when the TTL happens to expire. Purge failures are logged
-    // loudly but never fail the admin write itself (short TTLs are the
-    // backstop); the PurgeBus itself throws on misconfiguration so a silently
-    // skipped edge can never hide.
-    if (this.purgeBus && (clean.price !== undefined || (patch as any)?.availability_status !== undefined || (patch as any)?.image !== undefined)) {
-      await this.purgeBus.purge(['medicines']).catch((e: any) => (this as any).logger?.error?.(`purge medicines failed: ${e?.message || e}`));
-    }
     return { ok: true, updated: Object.keys({ ...clean, ...extra }), requires_reapproval: requiresReapproval };
   }
 }

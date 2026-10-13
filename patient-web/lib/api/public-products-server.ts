@@ -119,7 +119,8 @@ async function getJson<T>(path: string, revalidate = 3600): Promise<T | null> {
   try {
     const res = await fetch(patientApiUrl(path), {
       headers: { Accept: "application/json" },
-      next: { revalidate },
+      // 14.8: tagged so a catalogue change revalidates product pages at once (POST /api/revalidate).
+      next: { revalidate, tags: ["medicines"] },
     } as RequestInit);
     if (!res.ok) return null;
     return (await res.json()) as T;

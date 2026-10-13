@@ -5,7 +5,7 @@ import { UserRole } from '../../common/enums';
 import { AgentOAuthService } from './agent-oauth.service';
 import { authorizationServerMetadata, protectedResourceMetadata } from './agent-oauth.constants';
 import {
-  AdminCreateAgentClientDto, AdminUpdateAgentClientDto, AuthorizeDecisionDto, AuthorizeQueryDto,
+  AdminCreateAgentClientDto, AdminUpdateAgentClientDto, AgentActivityQueryDto, AuthorizeDecisionDto, AuthorizeQueryDto,
   RegisterClientDto, RevokeRequestDto, TokenRequestDto,
 } from './agent-oauth.dto';
 
@@ -130,5 +130,20 @@ export class AdminAgentClientsController {
   @Patch(':clientId')
   update(@Param('clientId') clientId: string, @Body() body: AdminUpdateAgentClientDto) {
     return this.oauth.adminSetBlocked(clientId, body.blocked);
+  }
+}
+
+/**
+ * AC-6: admin view of agent activity, with filters by client, patient and tool.
+ * Backend only; the UI ("agent activity" admin page) goes to the design session.
+ */
+@Controller('admin/agent-activity')
+@Roles(UserRole.ADMIN)
+export class AgentActivityController {
+  constructor(private readonly oauth: AgentOAuthService) {}
+
+  @Get()
+  list(@Query() q: AgentActivityQueryDto) {
+    return this.oauth.listAgentActivity(q);
   }
 }
