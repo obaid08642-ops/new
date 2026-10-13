@@ -374,7 +374,11 @@ export class PharmacyOfferService {
     // A-2: by default only the live offers the patient can choose (as before), so the clients' offer
     // count and live refresh stay right. ?include=closed adds expired and withdrawn offers, latest version per
     // pharmacy, so the client can show why one is gone. Drafts were never sent and are never returned.
-    const all: any[] = await this.offers.find({ order_id: orderId, patient_account_id: user.id, status: { $ne: 'draft' } })
+    // AC-3 (agent commerce, acceptance case 7): offers are children of the order, and order
+    // ownership is verified above — so scope by order_id, not by the denormalized
+    // patient_account_id on each offer row. The extra condition hid submitted offers whose
+    // row lacks the field (and hid them in the apps' offer screens too, same service).
+    const all: any[] = await this.offers.find({ order_id: orderId, status: { $ne: 'draft' } })
       .sort({ version: -1, submitted_at: -1 }).lean();
     const seen = new Set<string>();
     const latest = all.filter((o) => !seen.has(o.pharmacy_account_id) && !!seen.add(o.pharmacy_account_id));

@@ -1,4 +1,5 @@
 import { PROVIDER_ROLES } from '../../common/enums';
+import { escapeRegex } from '../../common/slug.util';
 /**
  * Provider Operations module — fills the remaining workflow gaps per provider type:
  *
@@ -177,7 +178,7 @@ export class ProviderOpsService {
 
   async myDiagnoses(doctorId: string, search?: string): Promise<any[]> {
     const q: any = { doctor_id: doctorId };
-    if (search) q.$or = [{ name_ar: { $regex: search, $options: 'i' } }, { name_en: { $regex: search, $options: 'i' } }];
+    if (search) q.$or = [{ name_ar: { $regex: escapeRegex(String(search)), $options: 'i' } }, { name_en: { $regex: escapeRegex(String(search)), $options: 'i' } }];
     return this.conn.collection('saved_diagnoses').find(q).sort({ usage_count: -1 }).limit(50).toArray();
   }
 
