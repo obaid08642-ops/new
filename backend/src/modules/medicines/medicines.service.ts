@@ -6,6 +6,7 @@ import { Connection } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Medicine, MedicineDocument } from '../../schemas/medicine.schema';
 import { EVENTS } from '../../common/events';
+import { clampPageInt } from '../../common/safe-query';
 import { MedicineRepository } from "./repositories/medicine.repository";
 import { RedisService } from '../redis/redis.service';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
@@ -116,7 +117,7 @@ export class MedicinesService {
 
   /** Typo-tolerant regex: letters joined by ≤2 arbitrary chars (catches dropped/added letters). */
   private tolerantRegex(term: string): string {
-    const clean = term.replace(/[.*+?^${}()|[\]\\]/g, '').trim();
+    const clean = term.replace(/[.*+?^${}()|[\]\\\u0000-\u001F\u007F-\u009F]/g, '').trim();
     if (clean.length < 3) return clean;
     return clean.split('').join('.{0,2}'); // MongoDB-PCRE safe (no \p classes)
   }
@@ -167,25 +168,31 @@ export class MedicinesService {
 
   private buildQuery(search?: string, category?: string, includeUnverified = true) {
     const q: any = includeUnverified ? { is_deleted: { $ne: true } } : this.publicCatalogFilter();
+    // User text is matched literally: control characters dropped (MongoDB rejects a NUL in a
+    // regex), regex metacharacters escaped (an input like "+" made the pattern invalid: 500,
+    // and raw patterns are a ReDoS vector), length capped.
+    if (typeof search === 'string') search = search.replace(/[\u0000-\u001F\u007F-\u009F]/g, ' ').trim().slice(0, 100);
     if (search) {
+      const esc = (v: string) => v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const lit = esc(search);
       const norm = this.normalizeSearchText(search);
       const ors: any[] = [
-        { name_ar: { $regex: search, $options: 'i' } },
-        { name_en: { $regex: search, $options: 'i' } },
-        { active_ingredient: { $regex: search, $options: 'i' } },
-        { generic_name: { $regex: search, $options: 'i' } },
-        { barcode: { $regex: `^${search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' } }, // barcode prefix match
-        { manufacturer: { $regex: search, $options: 'i' } },
+        { name_ar: { $regex: lit, $options: 'i' } },
+        { name_en: { $regex: lit, $options: 'i' } },
+        { active_ingredient: { $regex: lit, $options: 'i' } },
+        { generic_name: { $regex: lit, $options: 'i' } },
+        { barcode: { $regex: `^${lit}$`, $options: 'i' } }, // barcode exact match
+        { manufacturer: { $regex: lit, $options: 'i' } },
       ];
       // Normalized search_text (hamza/taa/alef-insensitive) + synonym expansion.
       // search_text is stored lowercase-normalized, so a CASE-SENSITIVE prefix
       // regex (^norm) uses the btree index — the fast path for most queries.
       if (norm) {
         ors.unshift({ search_text: { $regex: `^${norm.replace(/[.*+?^${}()|[\]\\]/g, '')}` } });
-        ors.push({ search_text: { $regex: norm, $options: 'i' } });
+        ors.push({ search_text: { $regex: esc(norm), $options: 'i' } });
       }
       for (const syn of this.expandSynonyms(search).slice(0, 4)) {
-        if (syn !== search) ors.push({ name_en: { $regex: syn, $options: 'i' } }, { name_ar: { $regex: syn, $options: 'i' } }, { search_text: { $regex: this.normalizeSearchText(syn), $options: 'i' } });
+        if (syn !== search) ors.push({ name_en: { $regex: esc(syn), $options: 'i' } }, { name_ar: { $regex: esc(syn), $options: 'i' } }, { search_text: { $regex: esc(this.normalizeSearchText(syn)), $options: 'i' } });
       }
       q.$or = ors;
     }
@@ -422,7 +429,7 @@ export class MedicinesService {
     sort = 'smart_ranking',
     pharmacyId?: string,
   ) {
-    const cap = Math.min(Math.max(maxItems || 500, 1), 500);
+    const cap = clampPageInt(maxItems || 500, 1, 500);
     const cacheKey = `med:list:governed-v2:${search || ''}:${category || ''}:${includeUnverified}:${cap}:${sort}:${pharmacyId || 'global'}`;
     const cached = await this.redis.getJson<any[]>(cacheKey);
     if (cached) return cached;
@@ -512,8 +519,8 @@ export class MedicinesService {
     sort = 'smart_ranking',
     pharmacyId?: string,
   ) {
-    const safeLimit = Math.min(Math.max(limit, 1), 100);
-    const safePage = Math.max(page, 1);
+    const safeLimit = clampPageInt(limit, 30, 100);
+    const safePage = clampPageInt(page, 1);
     const cacheKey = `med:page:governed-v2:${search || ''}:${category || ''}:${includeUnverified}:${safePage}:${safeLimit}:${sort}:${pharmacyId || 'global'}`;
     const cached = await this.redis.getJson<any>(cacheKey);
     if (cached) return cached;
@@ -570,7 +577,7 @@ export class MedicinesService {
    * Cursor encodes the last item's (name_ar, id); the next page continues after it.
    */
   async cursorPage(search: string | undefined, category: string | undefined, cursor: string | undefined, limit = 30) {
-    const safeLimit = Math.min(Math.max(limit, 1), 100);
+    const safeLimit = clampPageInt(limit, 30, 100);
     const q: any = this.publicCatalogFilter();
     if (search) Object.assign(q, this.buildQuery(search, category, false));
     else if (category) q.category = category;
@@ -1157,8 +1164,8 @@ export class MedicinesService {
 
   /** Admin: list shortage reports (filterable by status, paginated). */
   async listShortageReports(status = 'pending', page = 1, limit = 20): Promise<any> {
-    const safeLimit = Math.min(Math.max(limit, 1), 100);
-    const safePage = Math.max(page, 1);
+    const safeLimit = clampPageInt(limit, 30, 100);
+    const safePage = clampPageInt(page, 1);
     const filter = status === 'all' ? {} : { status };
     const [rows, total] = await Promise.all([
       this.shortageReports.find(filter, { projection: { _id: 0 } })
@@ -1305,14 +1312,14 @@ export class MedicinesService {
 
   /** Admin: list image suggestions. */
   async listImageSuggestions(status = 'pending', page = 1, limit = 20): Promise<any> {
-    const safeLimit = Math.min(Math.max(limit, 1), 100);
+    const safeLimit = clampPageInt(limit, 30, 100);
     const filter = status === 'all' ? {} : { status };
     const [rows, total] = await Promise.all([
       this.imageSuggestions.find(filter, { projection: { _id: 0 } })
-        .sort({ createdAt: -1 }).skip((Math.max(page, 1) - 1) * safeLimit).limit(safeLimit).toArray(),
+        .sort({ createdAt: -1 }).skip((clampPageInt(page, 1) - 1) * safeLimit).limit(safeLimit).toArray(),
       this.imageSuggestions.countDocuments(filter),
     ]);
-    return { data: rows, total, page: Math.max(page, 1), total_pages: Math.ceil(total / safeLimit) };
+    return { data: rows, total, page: clampPageInt(page, 1), total_pages: Math.ceil(total / safeLimit) };
   }
 
   /** Admin: approve → new image goes live in R2, old one deleted, DB updated. */
@@ -1543,15 +1550,15 @@ export class MedicinesService {
 
   /** Admin: list change requests with filters. */
   async listChangeRequests(status = 'pending', type?: string, page = 1, limit = 20): Promise<any> {
-    const safeLimit = Math.min(Math.max(limit, 1), 100);
+    const safeLimit = clampPageInt(limit, 30, 100);
     const filter: any = status === 'all' ? {} : { status };
     if (type) filter.type = type;
     const [rows, total] = await Promise.all([
       this.changeRequests.find(filter, { projection: { _id: 0 } })
-        .sort({ createdAt: -1 }).skip((Math.max(page, 1) - 1) * safeLimit).limit(safeLimit).toArray(),
+        .sort({ createdAt: -1 }).skip((clampPageInt(page, 1) - 1) * safeLimit).limit(safeLimit).toArray(),
       this.changeRequests.countDocuments(filter),
     ]);
-    return { data: rows, total, page: Math.max(page, 1), total_pages: Math.ceil(total / safeLimit) };
+    return { data: rows, total, page: clampPageInt(page, 1), total_pages: Math.ceil(total / safeLimit) };
   }
 
   /** Admin: approve → the proposed change is applied to the catalog NOW.
@@ -1620,8 +1627,8 @@ export class MedicinesService {
   /** Admin: direct edit of any catalog item (search → edit → save, no request needed). */
   /** Admin catalog browser: paginated, searchable, incl. soft-deleted filter. */
   async adminListCatalog(opts: { q?: string; category?: string; page?: number; limit?: number; includeDeleted?: boolean }) {
-    const page = Math.max(1, opts.page || 1);
-    const limit = Math.min(100, Math.max(1, opts.limit || 25));
+    const page = clampPageInt(opts.page, 1);
+    const limit = clampPageInt(opts.limit, 25, 100);
     const filter: any = {};
     // AuditPlugin auto-hides deleted docs unless the query pins is_deleted:true —
     // so includeDeleted needs two parallel queries (active + deleted) merged.
@@ -1708,8 +1715,8 @@ export class MedicinesService {
 
   /** Admin reports: top-selling medicines + most-reported-unavailable. */
   async getPriceHistory(medicineId: string, page = 1, limit = 50): Promise<{ data: any[]; total: number; page: number; pages: number }> {
-    const safePage = Math.max(1, page);
-    const safeLimit = Math.min(100, Math.max(1, limit));
+    const safePage = clampPageInt(page, 1);
+    const safeLimit = clampPageInt(limit, 50, 100);
     const [data, total] = await Promise.all([
       this.priceHistory.find({ medicine_id: medicineId }, { projection: { _id: 0 } }).sort({ createdAt: -1 }).skip((safePage - 1) * safeLimit).limit(safeLimit).toArray(),
       this.priceHistory.countDocuments({ medicine_id: medicineId }),

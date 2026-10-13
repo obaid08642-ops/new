@@ -172,7 +172,7 @@ The phases left from §7 of `OPENCODE_PLAN_2026-10-09.md` are split so they run 
 |---|---|---|
 | **OC-D** | 16.3 fix (OTP number normalisation, budget last; no failing `npm audit` gate before the fastify fix; real ZAP gate), then **23** audit trail, then **20** observability | Audit and observability touch the same logging code, so they stay in one session. |
 | **OC-E** (new) | **19** compliance, then **13** owner requirements, then **18** languages | 18 touches many files, so it goes last. |
-| **OC-F** (new) | **15** resilience, then **14** performance | 14 goes last; it touches hot paths the other sessions are porting. |
+| **OC-F** (new) | **15** resilience, then **14** performance | 14 goes last; it touches hot paths the other sessions are porting. **Phase 14 must also port the kill switches (14.4/14.18 helper, the six seeded flags and their consumers, P15.fix `3e2db704`) and then add `j_killswitches` back to `tools/live/run_gate.sh` JOURNEYS; that journey has been waiting on it since the P15 review.** |
 
 - Phase 17: the UI parts go to the design session as needs-review entries; the backend parts go to OC-E after 18.
 - Phase 22 still waits for the owner.
