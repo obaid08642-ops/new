@@ -3,6 +3,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { Response } from 'express';
 import { JwtAuthGuard, Roles } from '../../../common/auth.guard';
+import { ShedOnOverload } from '../../../common/load-shedding.guard';
 import { UserRole } from '../../../common/enums';
 import { IsDateString, IsIn, IsOptional } from 'class-validator';
 
@@ -33,6 +34,7 @@ const DAY = { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } };
  * from profile/user creation. Every endpoint also serves ?format=csv and ?format=xlsx.
  */
 @Controller('admin/reports')
+@ShedOnOverload() // 14.17: admin reports shed first under overload
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
 export class AdminReportsController {

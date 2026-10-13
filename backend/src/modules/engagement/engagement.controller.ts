@@ -3,6 +3,7 @@ import { Throttle } from '@nestjs/throttler';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
+import { ShedOnOverload } from '../../common/load-shedding.guard';
 import { connectionFlagSource, isKilled } from '../../common/killswitches/killswitches.helper';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
@@ -48,6 +49,8 @@ export class EngagementController {
 
   @Post('events')
   @Throttle({ default: { limit: 30, ttl: 60000 } })
+  @ShedOnOverload() // 14.17: nudges/analytics events shed first
+  @ShedOnOverload() // 14.17: nudges/analytics events shed first
   async trackEvent(@CurrentUser() user: any, @Body() body: EngagementEventDto) {
     if (!body?.kind || !INTEREST_KINDS.includes(body.kind as any)) {
       throw new BadRequestException('invalid_kind');
