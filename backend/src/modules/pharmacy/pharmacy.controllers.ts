@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Headers, ForbiddenException, ServiceUnavailableException, Optional, BadRequestException } from '@nestjs/common';
-import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -18,7 +18,7 @@ import { PharmacyOfferService } from './services/pharmacy-offer.service';
 import { PharmacyInsuranceDecisionService } from './services/pharmacy-insurance-decision.service';
 import { PharmacyExpiryCommandService } from './services/pharmacy-expiry-command.service';
 import { PharmacyPaymentEvidenceService } from './services/pharmacy-payment-evidence.service';
-import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsuranceDto, SelectOfferDto, AcceptFinalQuoteDto, RegisterCodDto, AcceptInsuranceDto, ItemActionDto, OutDto, DeliveredDto, InsuranceDecisionDto, CancelDto3, SetTrackingDto, RestockDto, SampleOrderDto, PreviewOfferDto, DraftOfferDto, RejectDto, PostDto, ReportDto, CreateDto2, MarkShortageDto, RejectDto5, SetCodPolicyDto } from './pharmacy.controllers.dto';
+import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsuranceDto, SelectOfferDto, AcceptFinalQuoteDto, RegisterCodDto, AcceptInsuranceDto, ItemActionDto, OutDto, DeliveredDto, InsuranceDecisionDto, CancelDto3, SetTrackingDto, RestockDto, SampleOrderDto, PreviewOfferDto, DraftOfferDto, RejectDto, PostDto, ReportDto, CreateDto2, MarkShortageDto, RejectDto5, SetCodPolicyDto, SetPaymentRulesDto, SetPharmacyCodDto } from './pharmacy.controllers.dto';
 
 // =========================================================================
 //  PATIENT ENDPOINTS (/api/v2/patient/pharmacy/*)
@@ -268,6 +268,55 @@ export class AdminFulfillmentPolicyController {
     );
     await this.conn.collection('audit_logs').insertOne({ id: uuidv4(), actor_id: u?.id, actor_role: 'admin', action: 'pharmacy.cod_policy_set', after: { active: b.active === true }, createdAt: now });
     return this.col.findOne({ id: 'platform-cod' }, { projection: { _id: 0 } });
+  }
+}
+
+/** D-25: admin-owned pharmacy COD cap (SAR). Public read, admin write. */
+@Controller('admin/payment-rules')
+@Roles(UserRole.ADMIN)
+@UseGuards(JwtAuthGuard)
+export class AdminPaymentRulesController {
+  constructor(@InjectConnection() private readonly conn: Connection) {}
+  @Put()
+  async set(@CurrentUser() u: any, @Body() b: SetPaymentRulesDto): Promise<any> {
+    const maxSar = Math.floor(Number(b?.pharmacy_cod_max_sar));
+    const now = new Date();
+    await this.conn.collection('system_configs').updateOne(
+      { key: 'payment_rules' },
+      { $set: { value: { pharmacy_cod_max_sar: maxSar }, updated_by: u?.id, updatedAt: now }, $setOnInsert: { key: 'payment_rules', createdAt: now } },
+      { upsert: true },
+    );
+    await this.conn.collection('audit_logs').insertOne({ id: uuidv4(), actor_id: u?.id, actor_role: 'admin', action: 'payment_rules.set', after: { pharmacy_cod_max_sar: maxSar }, createdAt: now });
+    return { pharmacy_cod_max_sar: maxSar };
+  }
+}
+
+@Controller('payment-rules')
+export class PublicPaymentRulesController {
+  constructor(@InjectConnection() private readonly conn: Connection) {}
+  @Public()
+  @Get()
+  async get(): Promise<any> {
+    const doc: any = await this.conn.collection('system_configs').findOne({ key: 'payment_rules' }, { projection: { _id: 0, value: 1 } });
+    return { pharmacy_cod_max_sar: Number(doc?.value?.pharmacy_cod_max_sar ?? 0) };
+  }
+}
+
+/** D-25: a pharmacy switches its own cash-on-delivery on or off. */
+@Controller('provider/pharmacy/cod')
+@Roles(UserRole.PHARMACY, UserRole.ADMIN)
+@UseGuards(JwtAuthGuard)
+export class PharmacyCodSelfController {
+  constructor(@InjectConnection() private readonly conn: Connection) {}
+  @Put()
+  async set(@CurrentUser() u: any, @Body() b: SetPharmacyCodDto): Promise<any> {
+    const now = new Date();
+    await this.conn.collection('provider_accounts').updateOne(
+      { id: u?.id },
+      { $set: { cod_enabled: b.enabled === true, updated_by: u?.id, updatedAt: now } },
+    );
+    await this.conn.collection('audit_logs').insertOne({ id: uuidv4(), actor_id: u?.id, actor_role: u?.role || 'provider', action: 'pharmacy.cod_self_switch', after: { enabled: b.enabled === true }, createdAt: now });
+    return { enabled: b.enabled === true };
   }
 }
 

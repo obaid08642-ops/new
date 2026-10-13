@@ -302,6 +302,16 @@ export class UnifiedBookingsService {
     if (!['cash', 'card', 'insurance'].includes(paymentMethod)) {
       throw new BadRequestException('payment_method_not_supported');
     }
+    // D-25: no cash for online consultations and home doctor visits (same rule as POST /care/appointments).
+    const svcCtx = body?.type === 'video' ? 'online_consultation' : body?.type === 'home' ? 'home_visit' : 'in_clinic';
+    const allowed: Record<string, string[]> = {
+      online_consultation: ['card'],
+      home_visit: ['card', 'insurance'],
+      in_clinic: ['cash', 'card', 'insurance'],
+    };
+    if (!(allowed[svcCtx] || []).includes(paymentMethod)) {
+      throw new BadRequestException(`payment_method_${paymentMethod}_not_allowed_for_${svcCtx}`);
+    }
     const slotStart = await this.resolveConsultationSlot(body?.doctor_id || '', body?.type as any, body?.slot_id || '');
     const booking: any = await this.apptSvc.create(user, {
       doctor_id: body!.doctor_id!,

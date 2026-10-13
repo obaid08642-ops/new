@@ -11,6 +11,7 @@ import { EventBusService } from '../../events/event-bus.service';
 import { WorkflowEngineService } from '../../workflow-engine/workflow-engine.module';
 
 import { PharmacyAllocationState } from '../schemas/pharmacy.schema';
+import { escapeRegex } from '../../../common/slug.util';
 import { PharmacyOrderRepository } from "./repositories/pharmacyorder.repository";
 import { PharmacyAllocationRepository } from "./repositories/pharmacyallocation.repository";
 
@@ -363,7 +364,7 @@ export class PharmacyOrderService {
       or.push({ sku: { $in: [...skus, ...numeric] } });
     }
     for (const n of names) {
-      const exact = new RegExp(`^\\s*${n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`, 'i');
+      const exact = new RegExp(`^\\s*${escapeRegex(n)}\\s*$`, 'i');
       or.push({ name_ar: exact }, { name_en: exact });
     }
 
@@ -535,6 +536,40 @@ export class PharmacyOrderService {
     if (!order.quote_accepted_at) throw new BadRequestException('final_quote_acceptance_required');
     if (String(order.payment_method || '').toLowerCase() === 'insurance') throw new BadRequestException('insurance_orders_follow_insurance_decision_flow');
     if (['cancelled', 'expired'].includes(String(order.status))) throw new BadRequestException('order_not_actionable');
+    // D-25: cash on delivery only when ALL hold — no prescription item, no insurance,
+    // under the admin cap, returning patient, pharmacy allows cash.
+    const hasAttachedPrescription = typeof order.prescription_id === 'string' && order.prescription_id.trim() !== ''
+      || (Array.isArray(order.prescription_attachments) && order.prescription_attachments.some((a: any) => typeof a?.uri === 'string' && a.uri.trim() !== ''));
+    if (hasAttachedPrescription) throw new BadRequestException('cod_not_allowed_prescription_item');
+    const rxFlags = await this.enrichItemsWithCatalogueFlags(order.items || []);
+    if (Array.from(rxFlags.values()).some((f) => f.requires_prescription === true)) {
+      throw new BadRequestException('cod_not_allowed_prescription_item');
+    }
+    if (String(order.payment_method || '').toLowerCase() === 'insurance' || String(order.coverage_mode || '').toLowerCase() === 'insurance') {
+      throw new BadRequestException('cod_not_allowed_insurance_order');
+    }
+    const rulesDoc: any = await this.conn.collection('system_configs').findOne({ key: 'payment_rules' }, { projection: { _id: 0, value: 1 } });
+    const cap = Number(rulesDoc?.value?.pharmacy_cod_max_sar ?? 0);
+    const orderTotal = Math.round(Number(order.pricing_snapshot?.totals?.total || 0) * 100) / 100;
+    if (cap > 0 && orderTotal > cap) {
+      throw new BadRequestException('cod_not_allowed_over_cap');
+    }
+    const completedOrder = await this.orders.findOne({
+      patient_account_id: user.id,
+      status: { $in: [PharmacyOrderState.DELIVERED, PharmacyOrderState.COMPLETED] },
+    }, { _id: 1 }).lean();
+    if (!completedOrder) {
+      throw new BadRequestException('cod_not_allowed_no_completed_orders');
+    }
+    if (typeof order.pharmacy_account_id === 'string' && order.pharmacy_account_id) {
+      const account: any = await this.conn.collection('provider_accounts').findOne(
+        { id: order.pharmacy_account_id },
+        { projection: { _id: 0, cod_enabled: 1 } },
+      );
+      if (account?.cod_enabled === false) {
+        throw new BadRequestException('cod_not_allowed_pharmacy_disabled');
+      }
+    }
     const now = new Date();
     await this.orders.updateOne({ id: order.id }, {
       $set: { payment_method: 'cod', cod_registered_at: now, cod_idempotency_key: idempotencyKey, status: PharmacyOrderState.COD_DUE_ON_DELIVERY },

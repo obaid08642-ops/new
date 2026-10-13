@@ -31,6 +31,7 @@ import {
   PatientPharmacyController, ProviderPharmacyController,
   ProviderInventoryExtController, AdminPharmacyController, AdminPharmacySeedController,
     ProviderBroadcastController, AdminBroadcastController, AdminFulfillmentPolicyController, AdminPharmacyInsuranceController,
+    AdminPaymentRulesController, PublicPaymentRulesController, PharmacyCodSelfController,
     PharmacyChatController, AdminPharmacyChatController,
   ProviderShortageController, AdminShortageController, PatientShortageController,
 } from './pharmacy.controllers';
@@ -152,6 +153,7 @@ import { B2BVoiceController } from './pharmacy-b2b-voice.controller';
     // F17: demo seeders exist ONLY in explicit test mode (404 elsewhere).
     ...(process.env.NODE_ENV === 'test' && process.env.ALLOW_TEST_SEED === 'true' ? [AdminPharmacySeedController] : []),
       ProviderBroadcastController, AdminBroadcastController, AdminFulfillmentPolicyController, AdminPharmacyInsuranceController,
+    AdminPaymentRulesController, PublicPaymentRulesController, PharmacyCodSelfController,
   PharmacyChatController, AdminPharmacyChatController,
     ProviderShortageController,
     AdminShortageController,

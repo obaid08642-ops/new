@@ -34,6 +34,10 @@ export class CreateBookingDto {
   @IsString()
   payment_method?: string;
 
+  @IsOptional()
+  @IsString()
+  provider_id?: string;
+
 }
 
 export class RespondDto {

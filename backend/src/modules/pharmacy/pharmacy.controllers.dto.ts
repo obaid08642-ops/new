@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, MaxLength, Min, ValidateNested } from 'class-validator';
 import { AllocationItemAction } from './schemas/pharmacy.schema';
 import { Type } from 'class-transformer';
 
@@ -505,4 +505,17 @@ export class SetCodPolicyDto {
   @IsDefined()
   @IsBoolean()
   active: boolean;
+}
+
+export class SetPaymentRulesDto {
+  @IsDefined()
+  @IsNumber()
+  @Min(1)
+  pharmacy_cod_max_sar: number;
+}
+
+export class SetPharmacyCodDto {
+  @IsDefined()
+  @IsBoolean()
+  enabled: boolean;
 }

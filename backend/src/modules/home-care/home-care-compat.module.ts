@@ -130,6 +130,10 @@ export class HomeCareCompatController {
   @Header('Sunset', 'Sat, 01 Aug 2026 00:00:00 GMT')
   @Post('bookings') async createBooking(@CurrentUser() u: any, @Body() body: CreateBookingDto) {
     if (u?.role !== 'patient') throw new ForbiddenException('patient_only');
+    // D-25: home nursing is never cash (same rule as POST /nursing/bookings).
+    if (String(body?.payment_method || 'card').toLowerCase() === 'cash') {
+      throw new BadRequestException('payment_method_cash_not_allowed_for_home_visit');
+    }
     if (!body?.service_id) throw new BadRequestException('service_id is required');
     if (!body?.scheduled_at) throw new BadRequestException('scheduled_at is required');
     const svc: any = await this.services.findOne({ id: { $eq: body.service_id }, active: true }).lean();

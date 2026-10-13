@@ -3971,6 +3971,20 @@
         ]
       }
     },
+    "/api/v1/admin/pharmacy/price-review": {
+      "get": {
+        "operationId": "AdminPharmacyController_priceReview",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminPharmacy"
+        ]
+      }
+    },
     "/api/v1/admin/pharmacy/expire-stale-allocations": {
       "post": {
         "operationId": "AdminPharmacyController_expireStale",
@@ -4378,6 +4392,68 @@
         },
         "tags": [
           "AdminPharmacyInsurance"
+        ]
+      }
+    },
+    "/api/v1/admin/payment-rules": {
+      "put": {
+        "operationId": "AdminPaymentRulesController_set",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetPaymentRulesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminPaymentRules"
+        ]
+      }
+    },
+    "/api/v1/payment-rules": {
+      "get": {
+        "operationId": "PublicPaymentRulesController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PublicPaymentRules"
+        ]
+      }
+    },
+    "/api/v1/provider/pharmacy/cod": {
+      "put": {
+        "operationId": "PharmacyCodSelfController_set",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetPharmacyCodDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PharmacyCodSelf"
         ]
       }
     },
@@ -28159,12 +28235,167 @@
         ]
       }
     },
+    "/api/v1/security/audit/timeline": {
+      "get": {
+        "operationId": "AuditController_timeline",
+        "parameters": [
+          {
+            "name": "user_id",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "resource_kind",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "resource_id",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Audit"
+        ]
+      }
+    },
+    "/api/v1/security/audit/export.csv": {
+      "get": {
+        "operationId": "AuditController_exportCsv",
+        "parameters": [
+          {
+            "name": "user_id",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "resource_kind",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "resource_id",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Audit"
+        ]
+      }
+    },
+    "/api/v1/security/audit/verify": {
+      "get": {
+        "operationId": "AuditController_verify",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Audit"
+        ]
+      }
+    },
     "/api/v1/security/audit/critical": {
       "get": {
         "operationId": "AuditController_critical",
         "parameters": [],
         "responses": {
           "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Audit"
+        ]
+      }
+    },
+    "/api/v1/security/audit/retention/holds": {
+      "get": {
+        "operationId": "AuditController_holds",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Audit"
+        ]
+      },
+      "post": {
+        "operationId": "AuditController_placeHold",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Audit"
+        ]
+      }
+    },
+    "/api/v1/security/audit/retention/holds/{id}": {
+      "delete": {
+        "operationId": "AuditController_releaseHold",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Audit"
+        ]
+      }
+    },
+    "/api/v1/security/audit/retention/run": {
+      "post": {
+        "operationId": "AuditController_runRetention",
+        "parameters": [],
+        "responses": {
+          "201": {
             "description": ""
           }
         },
@@ -40561,6 +40792,14 @@
         "properties": {}
       },
       "SetCodPolicyDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "SetPaymentRulesDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "SetPharmacyCodDto": {
         "type": "object",
         "properties": {}
       },
