@@ -385,4 +385,40 @@ export class AgentOAuthService implements OnModuleInit {
     if (!r.matchedCount) throw new NotFoundException('connection_not_found');
     return { ok: true, client_id: clientId };
   }
+
+  // ── Admin activity (AC-6) ────────────────────────────────────────────────
+
+  /**
+   * AC-6: admin view of agent activity (backend only; the UI goes to the design
+   * session). Reads the audit entries every agent tool writes (actor_type 'agent'),
+   * with filters by client, patient and tool. Page size is capped.
+   */
+  async listAgentActivity(q: { client_id?: string; patient_id?: string; tool?: string; limit?: string; page?: string }) {
+    const filter: Record<string, unknown> = { actor_type: 'agent' };
+    // Pinned with $eq so query operators can never be injected through the filters.
+    if (typeof q.client_id === 'string' && q.client_id) filter.client_id = { $eq: q.client_id.slice(0, 200) };
+    if (typeof q.patient_id === 'string' && q.patient_id) filter.patient_id = { $eq: q.patient_id.slice(0, 200) };
+    if (typeof q.tool === 'string' && q.tool) filter.tool = { $eq: q.tool.slice(0, 120) };
+    const limit = Math.min(200, Math.max(1, Number(q.limit) || 50));
+    const page = Math.max(1, Number(q.page) || 1);
+    const col = this.conn.collection('mcp_audit_log');
+    const [total, rows] = await Promise.all([
+      col.countDocuments(filter),
+      col.find(filter).sort({ at: -1 }).skip((page - 1) * limit).limit(limit).toArray(),
+    ]);
+    return {
+      items: (rows as Array<Record<string, unknown>>).map((r) => ({
+        id: r.id ?? null,
+        tool: r.tool ?? null,
+        ok: r.ok ?? null,
+        error_code: r.error_code ?? null,
+        at: r.at ?? null,
+        actor_type: r.actor_type ?? null,
+        client_id: r.client_id ?? null,
+        patient_id: r.patient_id ?? null,
+        ref: typeof r.ref === 'string' ? r.ref.slice(0, 2000) : null,
+      })),
+      total, limit, page,
+    };
+  }
 }
