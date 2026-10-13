@@ -3,6 +3,17 @@ import { PharmacyOfferService } from '../services/pharmacy-offer.service';
 
 const lean = (value: any) => ({ lean: jest.fn().mockResolvedValue(value) });
 
+function emptyCollection() {
+  return {
+    findOne: jest.fn().mockResolvedValue(null),
+    findOneAndUpdate: jest.fn().mockResolvedValue(null),
+    deleteOne: jest.fn().mockResolvedValue({ deletedCount: 0 }),
+    updateOne: jest.fn().mockResolvedValue({ acknowledged: true }),
+    insertOne: jest.fn().mockResolvedValue({ acknowledged: true }),
+    insertMany: jest.fn().mockResolvedValue({ acknowledged: true }),
+  };
+}
+
 describe('PharmacyOfferService', () => {
   const order = {
     id: 'order-1', patient_account_id: 'patient-1', status: 'broadcasting',
@@ -21,7 +32,8 @@ describe('PharmacyOfferService', () => {
       create: jest.fn(async (value) => ({ ...value, toObject: () => value })),
     };
     const allocations = overrides.allocations || {};
-    const connection = overrides.connection || { startSession: jest.fn() };
+    // D-12: the catalogue lookup and the price-review list are plain collections; here they are empty.
+    const connection = overrides.connection || { startSession: jest.fn(), collection: jest.fn(() => emptyCollection()) };
     const bus = { emit: jest.fn().mockResolvedValue(undefined) };
     return new PharmacyOfferService(connection as any, offers as any, orders as any, allocations as any, broadcasts as any, inventory as any, accounts as any, bus as any, (overrides as any).pricing);
   }
@@ -79,7 +91,7 @@ describe('PharmacyOfferService', () => {
   });
 
   it('rejects patient offer selection with no valid idempotency key before reserving stock', async () => {
-    const connection = { startSession: jest.fn() };
+    const connection = { startSession: jest.fn(), collection: jest.fn(() => emptyCollection()) };
     const svc = service({ connection });
     await expect(svc.selectByPatient({ id: 'patient-1', role: 'patient' }, 'order-1', 'offer-1', 'short'))
       .rejects.toBeInstanceOf(BadRequestException);
@@ -116,7 +128,7 @@ describe('PharmacyOfferService', () => {
       toObject() { return this; },
     };
     const audit = { insertMany: jest.fn().mockResolvedValue({ acknowledged: true }) };
-    const connection = { collection: jest.fn(() => audit) };
+    const connection = { collection: jest.fn((name: string) => (name === 'pharmacy_price_override_audit' ? audit : emptyCollection())) };
     const offers: any = {
       findOne: jest.fn(() => lean(null)),
       findOneAndUpdate: jest.fn(async () => submittedOffer),
