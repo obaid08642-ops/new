@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { MongoRepository } from '../../../common/database/mongo.repository';
 // Ensure correct import
-import {  FeatureFlag, FeatureFlagDocument  } from '../../../schemas/feature-flag.schema';
+import {  FeatureFlag, FeatureFlagDocument  } from '../feature-flag.schema';
 
 @Injectable()
 export class FeatureFlagRepository extends MongoRepository<FeatureFlagDocument> {

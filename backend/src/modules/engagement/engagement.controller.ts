@@ -1,9 +1,10 @@
-import { Body, Controller, Post, UseGuards, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Logger, Post, UseGuards, BadRequestException } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
 import { ShedOnOverload } from '../../common/load-shedding.guard';
+import { connectionFlagSource, isKilled } from '../../common/killswitches/killswitches.helper';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { NotificationsService } from '../notifications/notifications.service';
@@ -38,6 +39,8 @@ class EngagementEventDto {
 @Controller('engagement')
 @UseGuards(JwtAuthGuard)
 export class EngagementController {
+  private readonly logger = new Logger(EngagementController.name);
+
   constructor(
     @InjectConnection() private readonly conn: Connection,
     @InjectQueue('engagement-nudges') private readonly queue: Queue,
@@ -66,6 +69,13 @@ export class EngagementController {
 
     await this.conn.collection('user_interest_events').insertOne(event);
 
+    // Kill switch: the interest event above is still recorded (analytics),
+    // but nothing is enqueued and nothing is sent.
+    if (await isKilled('nudges', connectionFlagSource(this.conn))) {
+      this.logger.debug(`nudges killed \u2014 dropped enqueue for event ${event.id}`);
+      return { ok: true, event_id: event.id, nudges_killed: true };
+    }
+
     // Get the admin-configured delay for this kind
     const rule = await this.conn.collection('engagement_nudge_rules').findOne({ kind: body.kind });
     const delayMinutes = rule?.delay_minutes || 5;
@@ -91,6 +101,8 @@ export async function processNudge(
   notifications: NotificationsService,
   eventId: string,
 ) {
+  // Kill switch also stops already-queued jobs from sending; dropped silently.
+  if (await isKilled('nudges', connectionFlagSource(conn))) return;
   const event = await conn.collection('user_interest_events').findOne({ id: eventId });
   if (!event) return;
 

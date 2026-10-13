@@ -3,6 +3,7 @@ Payloads copied from patient-app app/pharmacy/{checkout,broadcast-status,final-q
 src/utils/pharmacy-draft.ts and provider-app screens/pharmacy/PharmacyDashboard.tsx."""
 import json, uuid, urllib.parse
 from lib import Client, journey, step
+from j_nursing import card_payment
 
 KEY = lambda tag: f'mobile-{tag}-{uuid.uuid4()}'
 
@@ -132,8 +133,18 @@ def run(pat, pharm, admin=None, meds=None):
         rev = order.get('pending_final_quote_revision') if state == 'FINAL_QUOTE_READY' else order.get('selected_offer_revision')
         r = pat.post(f'/patient/pharmacy/orders/{oid}/final-quote/accept', {'quote_hash': h, 'quote_revision': rev}, headers={'Idempotency-Key': KEY('final-quote')})
         step('accept final quote', r.ok, r)
+    # D-25: cash on delivery needs an earlier delivered order, so a first order is paid by card.
+    if admin:
+        r = admin.put('/admin/admin/payment-rules', {'pharmacy_cod_max_sar': 1000})
+        step('admin sets the COD limit', r.ok, r)
+    r = pat.get('/payment-rules')
+    step('patient app reads the payment rules', r.ok and (r.body.get('data', r.body) if isinstance(r.body, dict) else {}).get('pharmacy_cod_max_sar'), r)
     r = pat.post(f'/patient/pharmacy/orders/{oid}/cod/register', None, headers={'Idempotency-Key': KEY('cod')})
-    step('register cash on delivery', r.ok, r)
+    first_order = r.status == 400 and 'cod_first_order_not_allowed' in json.dumps(r.body, ensure_ascii=False)
+    step('cash on delivery refused on the patient\'s first order (D-25)', first_order, r)
+    paid_by_card = False
+    if first_order:
+        paid_by_card = bool(card_payment(pat, 'pharmacy', oid))
 
     if admin:
         journey('pharmacy order: platform cash-on-delivery policy (admin config-portal)')
@@ -157,8 +168,12 @@ def run(pat, pharm, admin=None, meds=None):
     # PharmacyDashboard: expectedTotal = detail.order.pricing_snapshot.totals.total ?? allocation.totals.total
     total = ((det.get('order') or {}).get('pricing_snapshot') or {}).get('totals', {}).get('total') or (alloc.get('totals') or {}).get('total')
     step('pharmacy sees the amount to collect', total, det)
-    r = pharm.post(f'/provider/pharmacy/allocations/{aid}/delivered', {'collection': {'method': 'cash', 'amount_collected': float(total or 0)}})
-    step('pharmacy: delivered with cash collected', r.ok, f'{r} (expected_total={total})')
+    if paid_by_card:
+        r = pharm.post(f'/provider/pharmacy/allocations/{aid}/delivered', {})
+        step('pharmacy: delivered (paid by card, nothing to collect)', r.ok, r)
+    else:
+        r = pharm.post(f'/provider/pharmacy/allocations/{aid}/delivered', {'collection': {'method': 'cash', 'amount_collected': float(total or 0)}})
+        step('pharmacy: delivered with cash collected', r.ok, f'{r} (expected_total={total})')
 
     journey('pharmacy order: everyone sees the final state')
     o = pat.get(f'/patient/pharmacy/orders/{oid}')
@@ -340,7 +355,9 @@ def open_order(pat, pharm, meds, addr):
         fq = order.get('governed_state') == 'FINAL_QUOTE_READY'
         pat.post(f'/patient/pharmacy/orders/{oid}/final-quote/accept', {'quote_hash': order.get('pending_final_quote_hash' if fq else 'selected_offer_hash'),
                  'quote_revision': order.get('pending_final_quote_revision' if fq else 'selected_offer_revision')}, headers={'Idempotency-Key': KEY('final-quote')})
-    pat.post(f'/patient/pharmacy/orders/{oid}/cod/register', None, headers={'Idempotency-Key': KEY('cod')})
+    r = pat.post(f'/patient/pharmacy/orders/{oid}/cod/register', None, headers={'Idempotency-Key': KEY('cod')})
+    if not r.ok:
+        card_payment(pat, 'pharmacy', oid)  # D-25: no COD for this patient/order
     alloc = next((a for a in pharm.get('/provider/pharmacy/allocations').items() if a.get('order_id') == oid), None)
     return oid, alloc
 

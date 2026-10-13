@@ -1,6 +1,7 @@
 import { Injectable, CanActivate, ExecutionContext, ServiceUnavailableException, SetMetadata, Optional } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { monitorEventLoopDelay } from 'perf_hooks';
+import { getHeapStatistics } from 'v8';
 
 /**
  * 14.17 — load shedding by priority.
@@ -25,9 +26,9 @@ export function ShedOnOverload(): MethodDecorator & ClassDecorator {
 }
 
 export interface LoadSignal {
-  /** Mean event-loop delay in ms over the recent window. */
+  /** Mean event-loop delay in ms over the last few seconds. */
   eventLoopDelayMs(): number;
-  /** Heap used ratio 0..1. */
+  /** Heap used as a share (0..1) of the V8 heap limit. */
   heapUsedRatio(): number;
 }
 
@@ -40,25 +41,37 @@ const DEFAULT_OVERLOAD = {
   retryAfterSeconds: 5,
 };
 
+/** Window after which the event-loop histogram starts over, so the mean tracks current load. */
+const LOOP_WINDOW_MS = 5_000;
+
 function realLoadSignal(): LoadSignal {
   let histogram: ReturnType<typeof monitorEventLoopDelay> | undefined;
+  let windowStart = Date.now();
+  let lastMeanMs = 0;
   try {
     histogram = monitorEventLoopDelay({ resolution: 20 });
-    (histogram as any).enable?.();
+    histogram.enable();
   } catch {
     histogram = undefined;
   }
   return {
     eventLoopDelayMs: () => {
-      try {
-        return (histogram as any)?.mean ? (histogram as any).mean / 1e6 : 0;
-      } catch {
-        return 0;
+      if (!histogram) return 0;
+      // The histogram accumulates from enable(); without a reset its mean is the average
+      // since boot and barely moves under a fresh overload (or stays high long after one).
+      if (Date.now() - windowStart >= LOOP_WINDOW_MS) {
+        lastMeanMs = Number.isFinite(histogram.mean) ? histogram.mean / 1e6 : 0;
+        histogram.reset();
+        windowStart = Date.now();
       }
+      const current = Number.isFinite(histogram.mean) ? histogram.mean / 1e6 : 0;
+      return Math.max(current, lastMeanMs);
     },
     heapUsedRatio: () => {
-      const m = process.memoryUsage();
-      return m.heapTotal > 0 ? m.heapUsed / m.heapTotal : 0;
+      // heapUsed/heapTotal is not memory pressure: V8 grows heapTotal lazily, so that ratio sits
+      // near 0.9 on a healthy process. The ceiling that matters is the heap size limit.
+      const limit = getHeapStatistics().heap_size_limit;
+      return limit > 0 ? process.memoryUsage().heapUsed / limit : 0;
     },
   };
 }
