@@ -1,4 +1,5 @@
 import { Controller, Get, Param, NotFoundException } from '@nestjs/common';
+import { safeDecode } from '../../common/slug.util';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { Public } from '../../common/auth.guard';
@@ -15,7 +16,7 @@ export class SeoController {
   @Public()
   @Get('resolve/:type/:slug')
   async resolve(@Param('type') type: string, @Param('slug') slug: string) {
-    const s = decodeURIComponent(slug);
+    const s = safeDecode(slug);
     const bySlugOrName = (extra: any = {}) => ({
       $or: [{ slug: s }, { id: s }, { name_ar: s }, { name_en: s }], ...extra,
     });

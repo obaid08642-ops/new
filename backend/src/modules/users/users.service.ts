@@ -1,4 +1,5 @@
 import { Injectable, Optional, NotFoundException, ForbiddenException, UnauthorizedException, BadRequestException, Inject } from '@nestjs/common';
+import { escapeRegex } from '../../common/slug.util';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { JwtService } from '@nestjs/jwt';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -88,7 +89,7 @@ export class UsersService {
   listAll(role?: UserRole, search?: string) {
     const q: any = {};
     if (role) q.role = role;
-    if (search) q.$or = [{ full_name: { $regex: search, $options: 'i' } }, { phone: { $regex: search, $options: 'i' } }];
+    if (search) q.$or = [{ full_name: { $regex: escapeRegex(String(search)), $options: 'i' } }, { phone: { $regex: escapeRegex(String(search)), $options: 'i' } }];
     return this.userRepository.find(q, { _id: 0, password_hash: 0, __v: 0 }, { sort: { createdAt: -1 }, limit: 500 });
   }
 

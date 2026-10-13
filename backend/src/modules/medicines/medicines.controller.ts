@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Headers, Param, Patch, Post, Query, UseGuards, Delete, Put, GoneException, Res, Header, BadRequestException } from '@nestjs/common';
+import { escapeRegex } from '../../common/slug.util';
 import { MedicinesService } from './medicines.service';
 import { queryInt } from '../../common/safe-query';
 import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
@@ -344,7 +345,7 @@ export class MedicinesController {
       filter = svcAny.buildFilter({ search, category, sort });
     } else {
       filter = { is_deleted: { $ne: true } };
-      if (search) filter.$or = [{ name_ar: { $regex: search, $options: 'i' } }, { name_en: { $regex: search, $options: 'i' } }];
+      if (search) filter.$or = [{ name_ar: { $regex: escapeRegex(String(search)), $options: 'i' } }, { name_en: { $regex: escapeRegex(String(search)), $options: 'i' } }];
       if (category && category !== 'all') filter.category = category;
     }
     try {

@@ -656,7 +656,7 @@ export class MedicinesService {
       const term = t._id;
       if (!term || term.length < 3) continue;
       const hits = await this.model.find(
-        { $or: [{ name_ar: { $regex: term, $options: 'i' } }, { name_en: { $regex: term, $options: 'i' } }], ...this.publicCatalogFilter() },
+        { $or: [{ name_ar: { $regex: escapeRegex(String(term)), $options: 'i' } }, { name_en: { $regex: escapeRegex(String(term)), $options: 'i' } }], ...this.publicCatalogFilter() },
         { _id: 0, id: 1 } as any,
       ).limit(50);
       for (const h of hits as any[]) {
