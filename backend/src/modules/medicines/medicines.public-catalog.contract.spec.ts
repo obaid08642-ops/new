@@ -2,7 +2,7 @@ import { BadRequestException } from '@nestjs/common';
 import { MedicinesService } from './medicines.service';
 
 function createService(rows: any[] = []) {
-  const chain = { sort: jest.fn().mockReturnValue({ limit: jest.fn().mockResolvedValue(rows) }) };
+  const chain = { sort: jest.fn().mockReturnValue({ maxTimeMS: jest.fn().mockReturnValue({ limit: jest.fn().mockResolvedValue(rows) }) }) };
   const model: any = { find: jest.fn().mockReturnValue(chain) };
   const service = new MedicinesService(
     model, { emit: jest.fn() } as any, {} as any,

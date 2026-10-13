@@ -143,7 +143,7 @@ export class MedicinesService {
     const rows: any[] = await this.model.find(
       { ...this.publicCatalogFilter(), category: normalizedCategory },
       MedicinesService.CARD_PROJECTION,
-    ).sort({ name_ar: 1, id: 1 }).limit(500);
+    ).sort({ name_ar: 1, id: 1 }).maxTimeMS(5000).limit(500); // 14.15: bound worst-case latency
     return rows.map((row: any) => {
       const raw = row?.toObject ? row.toObject() : row;
       const localized = localizeMedicineStructured(raw, dbLocale);
