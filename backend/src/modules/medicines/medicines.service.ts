@@ -117,7 +117,7 @@ export class MedicinesService {
 
   /** Typo-tolerant regex: letters joined by ≤2 arbitrary chars (catches dropped/added letters). */
   private tolerantRegex(term: string): string {
-    const clean = term.replace(/[.*+?^${}()|[\]\\]/g, '').trim();
+    const clean = term.replace(/[.*+?^${}()|[\]\\\u0000-\u001F\u007F-\u009F]/g, '').trim();
     if (clean.length < 3) return clean;
     return clean.split('').join('.{0,2}'); // MongoDB-PCRE safe (no \p classes)
   }
@@ -168,25 +168,31 @@ export class MedicinesService {
 
   private buildQuery(search?: string, category?: string, includeUnverified = true) {
     const q: any = includeUnverified ? { is_deleted: { $ne: true } } : this.publicCatalogFilter();
+    // User text is matched literally: control characters dropped (MongoDB rejects a NUL in a
+    // regex), regex metacharacters escaped (an input like "+" made the pattern invalid: 500,
+    // and raw patterns are a ReDoS vector), length capped.
+    if (typeof search === 'string') search = search.replace(/[\u0000-\u001F\u007F-\u009F]/g, ' ').trim().slice(0, 100);
     if (search) {
+      const esc = (v: string) => v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const lit = esc(search);
       const norm = this.normalizeSearchText(search);
       const ors: any[] = [
-        { name_ar: { $regex: search, $options: 'i' } },
-        { name_en: { $regex: search, $options: 'i' } },
-        { active_ingredient: { $regex: search, $options: 'i' } },
-        { generic_name: { $regex: search, $options: 'i' } },
-        { barcode: { $regex: `^${search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' } }, // barcode prefix match
-        { manufacturer: { $regex: search, $options: 'i' } },
+        { name_ar: { $regex: lit, $options: 'i' } },
+        { name_en: { $regex: lit, $options: 'i' } },
+        { active_ingredient: { $regex: lit, $options: 'i' } },
+        { generic_name: { $regex: lit, $options: 'i' } },
+        { barcode: { $regex: `^${lit}$`, $options: 'i' } }, // barcode exact match
+        { manufacturer: { $regex: lit, $options: 'i' } },
       ];
       // Normalized search_text (hamza/taa/alef-insensitive) + synonym expansion.
       // search_text is stored lowercase-normalized, so a CASE-SENSITIVE prefix
       // regex (^norm) uses the btree index — the fast path for most queries.
       if (norm) {
         ors.unshift({ search_text: { $regex: `^${norm.replace(/[.*+?^${}()|[\]\\]/g, '')}` } });
-        ors.push({ search_text: { $regex: norm, $options: 'i' } });
+        ors.push({ search_text: { $regex: esc(norm), $options: 'i' } });
       }
       for (const syn of this.expandSynonyms(search).slice(0, 4)) {
-        if (syn !== search) ors.push({ name_en: { $regex: syn, $options: 'i' } }, { name_ar: { $regex: syn, $options: 'i' } }, { search_text: { $regex: this.normalizeSearchText(syn), $options: 'i' } });
+        if (syn !== search) ors.push({ name_en: { $regex: esc(syn), $options: 'i' } }, { name_ar: { $regex: esc(syn), $options: 'i' } }, { search_text: { $regex: esc(this.normalizeSearchText(syn)), $options: 'i' } });
       }
       q.$or = ors;
     }

@@ -35,8 +35,11 @@ try {
       await page.goto(BASE + route, { waitUntil: 'load', timeout: 60000 });
     } catch (e) { errors.push(`goto failed: ${String(e).slice(0, 200)}`); }
     let chars = 0;
-    try { chars = (await page.evaluate('() => document.body ? document.body.innerText.length : 0')) || 0; } catch { /* gone */ }
-    if (chars < 200) errors.push(`blank-or-thin page: ${chars} text chars`);
+    // Pass a function, not a string: a string is evaluated as an expression, so '() => …'
+    // returned the function itself (undefined after serialisation) and every page read as 0.
+    try { chars = (await page.evaluate(() => (document.body ? document.body.innerText.length : 0))) || 0; } catch { /* gone */ }
+    // "Not blank": the ErrorState (backend down, retry button) is a valid render and is ~130 chars.
+    if (chars < 80) errors.push(`blank-or-thin page: ${chars} text chars`);
     console.log(`${BROWSER} ${route}: ${errors.length ? 'FAIL ' + errors.join(' | ') : `ok (${chars} chars)`}`);
     failures.push(...errors.map((m) => `${BROWSER} ${route}: ${m}`));
     await page.close();
