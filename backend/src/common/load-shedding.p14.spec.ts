@@ -93,11 +93,16 @@ describe('14.17 LoadSheddingGuard (mocked load signal)', () => {
 
   it('the real heap signal is measured against the V8 heap limit, so a calm process is not "overloaded"', () => {
     // heapUsed/heapTotal sits near 0.9 on a healthy process (V8 grows heapTotal lazily); the
-    // guard would then shed every opt-in route all the time.
-    const g: any = new LoadSheddingGuard(new Reflector(), undefined as any, undefined as any);
-    const ratio = g.signal.heapUsedRatio();
-    const { heap_size_limit } = require('v8').getHeapStatistics();
-    expect(ratio).toBeCloseTo(process.memoryUsage().heapUsed / heap_size_limit, 2);
-    expect(ratio).toBeLessThan(0.85);
+    // guard would then shed every opt-in route all the time. Fixed numbers keep this deterministic.
+    const v8 = require('v8');
+    const mem = jest.spyOn(process, 'memoryUsage').mockReturnValue({ rss: 0, heapTotal: 1000, heapUsed: 900, external: 0, arrayBuffers: 0 } as any);
+    const lim = jest.spyOn(v8, 'getHeapStatistics').mockReturnValue({ heap_size_limit: 4000 } as any);
+    try {
+      const g: any = new LoadSheddingGuard(new Reflector(), undefined as any, undefined as any);
+      expect(g.signal.heapUsedRatio()).toBeCloseTo(0.225, 5); // 900 / 4000, not 900 / 1000
+    } finally {
+      mem.mockRestore();
+      lim.mockRestore();
+    }
   });
 });
