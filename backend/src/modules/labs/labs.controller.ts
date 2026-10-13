@@ -236,7 +236,7 @@ export class LabsController {
 
   @Public() @Get('carousel')
   carousel(@Query('category') category?: string, @Query('limit') limit?: string) {
-    return this.svc.getCarousel(category, parseInt(limit || '20'));
+    return this.svc.getCarousel(category, parseInt(limit || '20', 10));
   }
 
   @Public() @Get('price-comparison')

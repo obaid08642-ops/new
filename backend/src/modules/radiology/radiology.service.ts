@@ -1,5 +1,4 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Optional } from '@nestjs/common';
-import { GeoEngineService } from '../../provider/services/geo-engine.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { pick } from '../../common/sanitize';
@@ -21,6 +20,11 @@ const ALLOWED_ROLES_PROVIDER = ['radiology', 'admin', 'hospital'];
 
 import { nearestFirst } from '../provider/services/nearest-first';
 
+/** Public card for a provider in carousels and price lists: no contact or account details. */
+function publicProvider(p: any) {
+  return { id: p.account_id, name_ar: p.name_ar ?? null, name_en: p.name_en ?? null, logo: p.logo ?? null, rating: p.rating_count > 0 ? p.rating_avg : null, rating_count: p.rating_count || 0 };
+}
+
 @Injectable()
 export class RadiologyOpsService {
   constructor(
@@ -33,9 +37,7 @@ export class RadiologyOpsService {
     @InjectModel('ProviderProfile') private profileModel: Model<any>,
     private engine: WorkflowEngineService,
     private events: EventEmitter2,
-        private readonly geo: GeoEngineService,
-    @InjectModel("RadiologyServiceCatalogItem") private readonly radioCatalog: Model<any>,
-@Optional() private readonly redis?: RedisService,
+    @Optional() private readonly redis?: RedisService,
     @Optional() private readonly insurance?: InsuranceFlowService,
   ) {}
 
@@ -441,116 +443,49 @@ export class RadiologyOpsService {
     }));
   }
 
-
-
-
+  // #624 carousel: popular approved scans, each with the approved centers equipped for it (the
+  // center's equipment_list holds the scan id or its modality, the rule compatibleProviders uses).
   async getCarousel(modality?: string, limit = 20) {
+    const lim = Math.min(Math.max(Number.isFinite(limit) ? limit : 20, 1), 50);
     const q: any = { is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' };
-    if (modality) q.modality = modality;
-    
-    const services = await this.svcModel.find(q, { _id: 0, __v: 0, id: 1, name_ar: 1, name_en: 1, modality: 1, body_part: 1, short_code: 1, price: 1, home_visit_supported: 1, equipment_list: 1 })
-      .sort({ popularity: -1 })
-      .limit(limit)
-      .lean();
-    
-    const providerProfiles = await this.profileModel.find({
-      type: { $in: ['radiology', 'hospital'] },
-      status: 'active',
-      public_eligibility: true,
-      medical_review_status: 'approved',
-      account_id: { $exists: true, $ne: null }
-    }, { projection: { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, rating_avg: 1, rating_count: 1, home_visit_supported: 1 } }).lean();
-    
-    const providerMap = new Map(providerProfiles.map(p => [p.account_id, p]));
-    
-    const results = [];
-    for (const svc of services) {
-      const compatible = await this.compatibleProviders([svc.id]);
-      const providers = compatible.map(cp => {
-        const p = providerMap.get(cp.id);
-        return p ? {
-          id: p.account_id,
-          name: p.name_ar || p.name_en,
-          logo: p.logo,
-          rating: p.rating_count > 0 ? p.rating_avg : null,
-          homeVisitAvailable: p.home_visit_supported
-        } : null;
-      }).filter(Boolean);
-      
-      results.push({
-        id: svc.id,
-        name: svc.name_ar || svc.name_en,
-        modality: svc.modality,
-        body_part: svc.body_part,
-        price: svc.price,
-        short_code: svc.short_code,
-        home_visit_supported: svc.home_visit_supported,
-        providers: providers.slice(0, 5)
-      });
-    }
-    return results;
-  }
-
-  async priceComparison(serviceId: string) {
-    const service = await this.svcModel.findOne({ id: serviceId, is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' });
-    if (!service) throw new NotFoundException('service_not_found');
-    
-    const catalogItems = await this.radioCatalog.find({
-      provider_account_id: { $exists: true, $ne: null },
-      scan_type: service.modality,
-      body_part: service.body_part,
-      available: true
-    }, { projection: { _id: 0, provider_account_id: 1, scan_type: 1, body_part: 1, name_ar: 1, name_en: 1, price: 1, currency: 1, available: 1 } }).lean();
-    
-    if (!catalogItems.length) {
-      return {
-        service_id: serviceId,
-        service_name: service.name_ar || service.name_en,
-        modality: service.modality,
-        body_part: service.body_part,
-        base_price: service.price,
-        comparisons: []
-      };
-    }
-    
-    const providerIds = catalogItems.map((c: any) => c.provider_account_id);
-    const profiles = await this.profileModel.find({
-      account_id: { $in: providerIds },
-      type: { $in: ['radiology', 'hospital'] },
-      status: 'active',
-      public_eligibility: true,
-      medical_review_status: 'approved'
-    }, { projection: { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, rating_avg: 1, rating_count: 1, home_visit_supported: 1 } }).lean();
-    
-    const profileMap = new Map(profiles.map(p => [p.account_id, p]));
-    
-    const comparisons = catalogItems.map((item: any) => {
-      const profile = profileMap.get(item.provider_account_id);
-      return {
-        provider_id: item.provider_account_id,
-        name: profile?.name_ar || profile?.name_en || item.name_ar || item.name_en || 'Unknown',
-        logo: profile?.logo || null,
-        rating: profile?.rating_count > 0 ? profile.rating_avg : null,
-        home_visit_supported: profile?.home_visit_supported || false,
-        price: item.price,
-        currency: item.currency || 'SAR',
-        home_visit_price: null
-      };
+    if (modality) q.modality = String(modality);
+    const services: any[] = await this.svcModel.find(q, { _id: 0, id: 1, name_ar: 1, name_en: 1, modality: 1, body_part: 1, short_code: 1, price: 1, image_url: 1 })
+      .sort({ popularity: -1, name_ar: 1 }).limit(lim).lean();
+    const centers: any[] = await this.profileModel.find({
+      type: { $in: ['radiology', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved', account_id: { $exists: true, $ne: null },
+    }, { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, rating_avg: 1, rating_count: 1, equipment_list: 1 }).lean();
+    return services.map((svc) => {
+      const fit = centers.filter((p) => {
+        const eq: unknown[] = Array.isArray(p.equipment_list) ? p.equipment_list : [];
+        return eq.includes(svc.id) || (!!svc.modality && eq.includes(svc.modality));
+      }).sort((a, b) => (b.rating_count > 0 ? b.rating_avg : 0) - (a.rating_count > 0 ? a.rating_avg : 0));
+      return { ...svc, providers_count: fit.length, providers: fit.slice(0, 5).map(publicProvider) };
     });
-    
-    comparisons.sort((a, b) => a.price - b.price);
-    
-    return {
-      service_id: serviceId,
-      service_name: service.name_ar || service.name_en,
-      modality: service.modality,
-      body_part: service.body_part,
-      base_price: service.price,
-      comparisons
-    };
   }
 
-
+  // #631 price comparison: each approved center's own price for this scan from its capabilities
+  // catalog (provider_capabilities_radiology: scan_type = modality and the same body part,
+  // case-insensitive). Centers with no priced entry are not listed.
+  async priceComparison(serviceId: string) {
+    const svc: any = await this.svcModel.findOne({ id: serviceId, is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, id: 1, name_ar: 1, name_en: 1, modality: 1, body_part: 1, price: 1 }).lean();
+    if (!svc) throw new NotFoundException('service_not_found');
+    if (!svc.modality) return { service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, catalog_price: svc.price ?? null, offers: [] };
+    const exact = (v: string) => new RegExp(`^${String(v).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
+    const items: any[] = await this.svcModel.db.collection('provider_capabilities_radiology').find({
+      available: true, scan_type: exact(svc.modality), ...(svc.body_part ? { body_part: exact(svc.body_part) } : {}),
+    }, { projection: { _id: 0, provider_account_id: 1, price: 1, currency: 1, contrast_supported: 1, insurance_covered: 1 } }).toArray();
+    const priced = items.filter((i) => typeof i.price === 'number' && i.price > 0);
+    const profiles: any[] = priced.length ? await this.profileModel.find({
+      account_id: { $in: [...new Set(priced.map((i) => i.provider_account_id))] }, type: { $in: ['radiology', 'hospital'] },
+      status: 'active', public_eligibility: true, medical_review_status: 'approved',
+    }, { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, rating_avg: 1, rating_count: 1 }).lean() : [];
+    const byId = new Map(profiles.map((p) => [p.account_id, p]));
+    const offers = priced.filter((i) => byId.has(i.provider_account_id)).map((i) => ({
+      provider: publicProvider(byId.get(i.provider_account_id)), price: i.price, currency: i.currency || 'SAR',
+      contrast_supported: !!i.contrast_supported, insurance_covered: !!i.insurance_covered,
+    })).sort((a, b) => a.price - b.price);
+    return { service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, catalog_price: svc.price ?? null, offers };
+  }
 
   async book(user: any, body: any) {
     // Only the approved catalog decides what is booked and what it costs; the body names the scan and center.

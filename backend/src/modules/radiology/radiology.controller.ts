@@ -39,7 +39,7 @@ export class RadiologyController {
 
   @Public() @Get('carousel')
   carousel(@Query('modality') modality?: string, @Query('limit') limit?: string) {
-    return this.svc.getCarousel(modality, parseInt(limit || '20'));
+    return this.svc.getCarousel(modality, parseInt(limit || '20', 10));
   }
 
   @Public() @Get('price-comparison')
