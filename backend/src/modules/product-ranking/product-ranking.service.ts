@@ -312,16 +312,6 @@ export class ProductRankingService {
     }
 
     // Fallback: Query MongoDB metrics and hydrate ZSet
-    const query: any = {};
-    // Plain strings with $eq: a query-string value can never become a Mongo operator.
-    const pharmacyId = typeof scope.pharmacyId === 'string' ? scope.pharmacyId : '';
-    query.pharmacy_id = { $eq: pharmacyId && pharmacyId !== 'global' ? pharmacyId : 'global' };
-
-    const category = typeof scope.category === 'string' ? scope.category.trim().toLowerCase() : '';
-    if (category && category !== 'all') {
-      query.category = { $eq: category };
-    }
-
     const sortField: any = isTrending ? { trending_score: -1 } : { composite_score: -1 };
     const { docs, count } = await this.mongoRanked(scope, sortField, offset, limit);
 
@@ -344,15 +334,15 @@ export class ProductRankingService {
     offset?: number,
     limit?: number,
   ): Promise<{ docs: any[]; count: number }> {
-    const query: any = {};
-    if (scope.pharmacyId && scope.pharmacyId !== 'global') {
-      query.pharmacy_id = scope.pharmacyId;
-    } else {
-      query.pharmacy_id = 'global';
-    }
+    // Request values reach this query, so they are coerced to strings and matched with $eq
+    // (a crafted object can never become an operator).
+    const query: Record<string, { $eq: string }> = {};
+    const pharmacyId = typeof scope.pharmacyId === 'string' ? scope.pharmacyId : '';
+    query.pharmacy_id = { $eq: pharmacyId && pharmacyId !== 'global' ? pharmacyId : 'global' };
 
-    if (scope.category && scope.category.trim() !== '' && scope.category.toLowerCase() !== 'all') {
-      query.category = scope.category.trim().toLowerCase();
+    const category = typeof scope.category === 'string' ? scope.category.trim().toLowerCase() : '';
+    if (category && category !== 'all') {
+      query.category = { $eq: category };
     }
 
     const docs = await this.metricsModel.find(query).sort(sort).skip(offset ?? 0).limit(limit ?? 20).exec();
