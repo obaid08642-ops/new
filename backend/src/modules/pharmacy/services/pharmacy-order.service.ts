@@ -248,6 +248,26 @@ export class PharmacyOrderService {
     if (view.governed_state === 'FINAL_QUOTE_ACCEPTED' && String(order.payment_status || '').toLowerCase() !== 'paid' && await this.hasActivePayment(id)) {
       view.governed_state = 'PAYMENT_PENDING';
     }
+    // D-13 (owner decision 13): never an endless wait. While broadcasting, the patient sees the round,
+    // the radius and when it ends; once the broadcast closed with no offer selected (the expiry command
+    // moves the order to manual_review), the patient sees "no pharmacy available" (AUTO_CANCELLED).
+    let searchState: any = null;
+    const status = String(order.status);
+    if (status === PharmacyOrderState.BROADCASTING || status === PharmacyOrderState.MANUAL_REVIEW) {
+      const broadcast: any = await this.conn.collection('pharmacy_broadcasts').findOne({ order_id: { $eq: id } });
+      const expired = (order.timeline || []).some((t: any) => t?.event === 'broadcast_expired_manual_review');
+      if (status === PharmacyOrderState.BROADCASTING && broadcast?.lock_state === 'open') {
+        searchState = {
+          state: 'expanding',
+          round: broadcast.current_round ?? 1,
+          radius_km: broadcast.current_radius_km ?? null,
+          ends_at: broadcast.round_expires_at || null,
+        };
+      } else if (!order.selected_offer_id && (broadcast?.lock_state === 'closed' || expired)) {
+        searchState = { state: 'no_pharmacy_available' };
+        view.governed_state = 'AUTO_CANCELLED';
+      }
+    }
     // #366/#375/#514: the patient sees which pharmacy is filling the order (its public display name only).
     const names = await this.pharmacyNames(allocs.map((a: any) => a.pharmacy_account_id));
     const allocationsDetail = allocs.map((a: any) => ({ ...a, ...(names.get(a.pharmacy_account_id) ?? { pharmacy_name_ar: null, pharmacy_name_en: null }) }));
@@ -297,6 +317,7 @@ export class PharmacyOrderService {
       pharmacy_name_en: single?.pharmacy_name_en ?? null,
       courier_name: courierName,
       courier_phone: courierPhone,
+      search: searchState,
       ...view,
     };
   }
