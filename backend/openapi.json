@@ -33673,6 +33673,46 @@
         ]
       }
     },
+    "/api/v1/refund-policy": {
+      "get": {
+        "operationId": "PublicRefundPolicyController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PublicRefundPolicy"
+        ]
+      }
+    },
+    "/api/v1/admin/refund-policy": {
+      "get": {
+        "operationId": "AdminRefundPolicyController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminRefundPolicy"
+        ]
+      },
+      "put": {
+        "operationId": "AdminRefundPolicyController_set",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminRefundPolicy"
+        ]
+      }
+    },
     "/api/v1/billing/invoice/{kind}/{bookingId}": {
       "get": {
         "operationId": "BillingController_invoice",

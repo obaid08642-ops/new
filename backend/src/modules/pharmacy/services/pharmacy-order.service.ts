@@ -308,6 +308,17 @@ export class PharmacyOrderService {
       return { ...it, ...(unitPrice !== undefined ? { unit_price: unitPrice } : {}) };
     });
 
+    // D-26: what a cancel right now would refund — before dispatch the full
+    // total including the delivery fee, once out for delivery minus the fee.
+    // Governed orders carry their prices in pricing_snapshot (same fallback as cancel()).
+    const cancelTotal = Math.round(Number(order.totals?.total ?? order.pricing_snapshot?.totals?.total ?? 0) * 100) / 100;
+    const cancelFee = Math.round(Number(order.totals?.delivery_fee ?? order.pricing_snapshot?.totals?.delivery_fee ?? 0) * 100) / 100;
+    const cancelAfterDispatch = String(order.status).toLowerCase() === 'out_for_delivery';
+    const cancelRefundNow = {
+      percent: 100,
+      amount: cancelAfterDispatch ? Math.max(0, Math.round((cancelTotal - cancelFee) * 100) / 100) : cancelTotal,
+    };
+
     return {
       ...order,
       effective_status: effectiveStatus,
@@ -318,6 +329,7 @@ export class PharmacyOrderService {
       courier_name: courierName,
       courier_phone: courierPhone,
       search: searchState,
+      cancellation: { refund_now: cancelRefundNow },
       ...view,
     };
   }
@@ -749,6 +761,9 @@ export class PharmacyOrderService {
       kind: 'pharmacy', entity_id: order.id, from_domain: order.status, to_domain: PharmacyOrderState.CANCELLED,
       actor_account_id: actor.id, actor_role: actor.role, patient_account_id: order.patient_account_id, reason,
       mutate: async () => {
+        const priorStatus = String(order.status);
+        const refundTotal = Math.round(Number(order.totals?.total ?? order.pricing_snapshot?.totals?.total ?? 0) * 100) / 100;
+        const refundDeliveryFee = Math.round(Number(order.totals?.delivery_fee ?? order.pricing_snapshot?.totals?.delivery_fee ?? 0) * 100) / 100;
         order.status = PharmacyOrderState.CANCELLED;
         order.cancellation_reason = reason;
         order.timeline.push({ ts: new Date(), event: `cancelled_by_${actor.role}`, by: actor.id, meta: { reason } });
@@ -765,6 +780,9 @@ export class PharmacyOrderService {
           }
         }
         this.bus.emit({ type: 'pharmacy.allocations_released', entity_type: 'order', entity_id: id, actor_account_id: actor.id, actor_role: actor.role, patient_account_id: order.patient_account_id, reason_code: reason, meta: { released_allocations: openAllocs.length } }).catch(() => null);
+        // D-26: fan out for the refund listener (before dispatch: full total;
+        // once out for delivery: total minus the delivery fee).
+        this.bus.emit({ type: 'pharmacy.order.cancelled', entity_type: 'order', entity_id: id, actor_account_id: actor.id, actor_role: actor.role, patient_account_id: order.patient_account_id, reason_code: reason, meta: { prior_status: priorStatus, total: refundTotal, delivery_fee: refundDeliveryFee } }).catch(() => null);
         return { ok: true };
       },
     });
