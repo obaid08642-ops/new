@@ -1,4 +1,4 @@
-import { Module, Injectable, Controller, Get, NestMiddleware, MiddlewareConsumer, UseGuards, Query } from '@nestjs/common';
+import { Module, Injectable, Controller, Get, NestMiddleware, MiddlewareConsumer, UseGuards, Query, BadRequestException } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { OnEvent } from '@nestjs/event-emitter';
@@ -8,11 +8,153 @@ import { UserRole } from '../../common/enums';
 import { Request, Response, NextFunction } from 'express';
 import { randomUUID, createHash } from 'crypto';
 
+/** 23.1 — the full field set the plan requires of every event. */
+export interface AuditEntry {
+  action: string;
+  /* who */
+  user_id?: string;
+  role?: string;
+  impersonator_id?: string;
+  /* what */
+  resource_kind?: string;
+  resource_id?: string;
+  details?: any;
+  changes?: { before?: Record<string, any>; after?: Record<string, any> };
+  /* where */
+  ip?: string;
+  device_id?: string;
+  user_agent?: string;
+  platform?: string;
+  app_version?: string;
+  /* why — required for admin and financial actions */
+  reason?: string;
+  severity?: 'info' | 'warn' | 'critical';
+  correlation_id?: string;
+}
+
+/**
+ * JSON with object keys sorted, so that hashing the same logical event twice
+ * produces the same string. Without this, `{a:1,b:2}` and `{b:2,a:1}` would
+ * hash differently and a chain would look tampered with when nothing changed.
+ */
+function stableStringify(value: any): string {
+  if (value === null || value === undefined) return 'null';
+  if (Array.isArray(value)) return `[${value.map(stableStringify).join(',')}]`;
+  if (value instanceof Date) return value.toISOString();
+  if (typeof value === 'object') {
+    return `{${Object.keys(value).sort().map((k) => `${JSON.stringify(k)}:${stableStringify(value[k])}`).join(',')}}`;
+  }
+  return JSON.stringify(value);
+}
+
 @Injectable()
 export class AuditService {
   constructor(@InjectModel('AuditLog') private logs: Model<any>) {}
-  async write(entry: { action: string; user_id?: string; role?: string; ip?: string; user_agent?: string; resource_kind?: string; resource_id?: string; details?: any; severity?: 'info' | 'warn' | 'critical'; correlation_id?: string }) {
-    try { await this.logs.create(entry); } catch {}
+  /**
+   * Append one event, chained to the previous one (23.3).
+   *
+   * The hash covers the canonical JSON of the event plus the previous row's
+   * hash, so an edit or a deletion anywhere makes every later row mismatch.
+   * `sequence` is allocated with findOneAndUpdate + $inc, which is atomic, so
+   * two concurrent writers cannot claim the same slot.
+   *
+   * A failure here must never break the action the user asked for, so it is
+   * swallowed — but it is logged, because a trail that silently stops is worse
+   * than no trail.
+   */
+  async write(entry: AuditEntry) {
+    try {
+      // A counter in its own collection: $inc with upsert is atomic, so two
+      // concurrent writers cannot claim the same slot, and the counter document
+      // never shows up as if it were an audit event.
+      const counter = await (this.logs as any).db
+        .collection('audit_sequence')
+        .findOneAndUpdate(
+          { _id: 'global' },
+          { $inc: { value: 1 } },
+          { upsert: true, returnDocument: 'after' },
+        );
+      const sequence = Number(counter?.value ?? 1);
+
+      // The most recent row is the chain's current head.
+      const previous = await this.logs.findOne({}).sort({ sequence: -1 }).lean<any>();
+      const prev_hash = (previous?.hash as string) || null;
+
+      const row = {
+        ...entry,
+        // The hash must cover what is actually stored, so the schema default is
+        // applied here too. Hashing an entry whose severity is undefined while
+        // the row ends up 'info' makes a clean chain look tampered with.
+        severity: entry.severity ?? 'info',
+        sequence,
+        prev_hash,
+      };
+      const hash = this.hashRow(row);
+      await this.logs.create({ ...row, hash });
+    } catch (e: any) {
+      // eslint-disable-next-line no-console
+      console.error(`[audit] failed to record ${entry?.action}: ${e?.message}`);
+    }
+  }
+
+  /**
+   * The canonical hash of one event: a stable JSON form of the fields plus the
+   * previous hash. Key order must not matter, so the object is sorted.
+   */
+  private hashRow(row: Record<string, any>): string {
+    const canonical = Object.keys(row)
+      .filter((k) => k !== 'hash' && row[k] !== undefined)
+      .sort()
+      .map((k) => `${k}=${stableStringify(row[k])}`)
+      .join('|');
+    return createHash('sha256').update(`${canonical}|prev=${row.prev_hash ?? ''}`).digest('hex');
+  }
+
+  /**
+   * 23.3 Verify — walk the chain and report the first break.
+   *
+   * Returns where it broke rather than a bare boolean, because "the audit log
+   * was tampered with" is not actionable and "row 412 does not match its
+   * predecessor" is.
+   */
+  async verifyChain(options: { limit?: number } = {}) {
+    const limit = Math.min(options.limit ?? 5000, 50_000);
+    // Chained, not find(filter, options): Model.find's second argument is a
+    // projection, so sort/limit passed there are silently ignored.
+    const rows: any[] = await this.logs.find({}).sort({ sequence: 1 }).limit(limit).lean<any[]>();
+    let prev: string | null = null;
+    let checked = 0;
+    for (const row of rows as any[]) {
+      const expected = this.hashRow({
+        action: row.action,
+        user_id: row.user_id,
+        role: row.role,
+        impersonator_id: row.impersonator_id,
+        resource_kind: row.resource_kind,
+        resource_id: row.resource_id,
+        details: row.details,
+        changes: row.changes,
+        ip: row.ip,
+        device_id: row.device_id,
+        user_agent: row.user_agent,
+        platform: row.platform,
+        app_version: row.app_version,
+        reason: row.reason,
+        severity: row.severity,
+        correlation_id: row.correlation_id,
+        sequence: row.sequence,
+        prev_hash: row.prev_hash,
+      });
+      if ((row.prev_hash ?? null) !== prev) {
+        return { ok: false, broken_at: row.sequence ?? null, reason: 'prev_hash_mismatch', checked };
+      }
+      if (row.hash !== expected) {
+        return { ok: false, broken_at: row.sequence ?? null, reason: 'hash_mismatch', checked };
+      }
+      prev = row.hash ?? null;
+      checked += 1;
+    }
+    return { ok: true, checked, broken_at: null, reason: null };
   }
   async query(filter: any = {}, limit = 100) { return this.logs.find(filter).sort({ createdAt: -1 }).limit(Math.min(limit, 500)).lean(); }
 
@@ -38,6 +180,72 @@ export class AuditService {
       .lean();
     return { logs, total, page, limit };
   }
+
+  /**
+   * 23.4 — a timeline for one subject: a user, an order, a booking, a provider.
+   * Events are ordered oldest-first, because a timeline is read as a story.
+   */
+  async timeline(subject: { user_id?: string; resource_kind?: string; resource_id?: string }, limit = 200) {
+    const filter: any = {};
+    if (subject.user_id) filter.user_id = subject.user_id;
+    if (subject.resource_kind) filter.resource_kind = subject.resource_kind;
+    if (subject.resource_id) filter.resource_id = subject.resource_id;
+    if (Object.keys(filter).length === 0) throw new BadRequestException('audit_timeline_needs_a_subject');
+    return this.logs.find(filter).sort({ sequence: 1 }).limit(Math.min(limit, 500)).lean();
+  }
+
+  /**
+   * 23.4 — CSV export for a legal request. The export must match the stored
+   * events exactly, so the rows come from the same query the timeline uses and
+   * nothing is reformatted on the way out.
+   */
+  async exportCsv(subject: { user_id?: string; resource_kind?: string; resource_id?: string }, limit = 10_000) {
+    const rows = await this.timeline(subject, limit);
+    const header = [
+      'sequence', 'createdAt', 'action', 'role', 'user_id', 'impersonator_id',
+      'resource_kind', 'resource_id', 'severity', 'ip', 'device_id', 'platform',
+      'app_version', 'reason', 'correlation_id', 'details', 'hash',
+    ];
+    const escape = (v: any): string => {
+      if (v === null || v === undefined) return '';
+      const str = typeof v === 'object' ? JSON.stringify(v) : String(v);
+      // A leading =, +, - or @ is executed by a spreadsheet: prefix it.
+      const safe = /^[=+\-@]/.test(str) ? `'${str}` : str;
+      return `"${safe.replace(/"/g, '""')}"`;
+    };
+    const body = rows.map((r: any) => header.map((h) => escape(r[h])).join(','));
+    return [header.join(','), ...body].join('\n');
+  }
+
+  /**
+   * 23.4 — PII is masked for anyone who is not the owner. Super admins see
+   * full detail; named roles and the subject themselves see the rest masked.
+   * Masking happens on read, so the stored event is never altered.
+   */
+  maskFor(events: any[], viewer: { id?: string; role?: string }) {
+    const full = viewer?.role === UserRole.SUPER_ADMIN || viewer?.id === events[0]?.user_id;
+    if (full) return events;
+    return events.map((e) => ({
+      ...e,
+      user_id: maskId(e.user_id),
+      device_id: e.device_id ? maskId(e.device_id) : e.device_id,
+      ip: e.ip ? maskIp(e.ip) : e.ip,
+      user_agent: e.user_agent ? '[redacted]' : e.user_agent,
+      details: e.details ? maskObject(e.details) : e.details,
+    }));
+  }
+
+  /** 23.1 — patient login/device history, which `last_login_at` alone cannot give. */
+  async loginHistory(userId: string, limit = 100) {
+    return this.logs
+      .find({ user_id: userId, action: { $in: ['patient_login', 'patient_register', 'patient_logout', 'login_failed', 'admin_login', 'provider_login'] } })
+      .sort({ sequence: -1 })
+      .limit(Math.min(limit, 500))
+      .lean();
+  }
+
+  /** 23.1 — a role that touches money or configuration must say why. */
+  static readonly REASONS_REQUIRED = new Set(['admin_refund', 'user_modify', 'commission_change', 'admin_force_cancel', 'config_change']);
 
   async queryPersonal(userId: string, options: { page?: number; limit?: number }) {
     const page = Math.max(1, options.page || 1);
@@ -96,6 +304,21 @@ export class AuditService {
   /** Irreversible user deletion by admin */
   @OnEvent('admin.user_deleted') async onUserDeleted(p: any) { await this.write({ action: 'user_deleted', user_id: p.admin_id, role: 'admin', resource_kind: 'user', resource_id: p.target_user_id, details: { target_role: p.role, phone_tail: p.phone_tail }, severity: 'critical' }); }
 }
+/** 23.4 — keep the shape, drop the digits that identify a person. */
+function maskId(v?: string) { if (!v) return v; return v.length <= 4 ? '***' : `${v.slice(0, 2)}***${v.slice(-2)}`; }
+function maskIp(v?: string) { if (!v) return v; const p = v.split('.'); return p.length === 4 ? `${p[0]}.${p[1]}.x.x` : 'masked'; }
+function maskObject(o: any): any {
+  if (Array.isArray(o)) return o.map(maskObject);
+  if (o && typeof o === 'object') {
+    const out: any = {};
+    for (const [k, v] of Object.entries(o)) {
+      out[k] = /phone|email|national_id|id_number|password|token/i.test(k) ? '[redacted]' : maskObject(v);
+    }
+    return out;
+  }
+  return o;
+}
+
 function hashTail(s?: string) { if (!s) return null; return createHash('sha256').update(s).digest('hex').slice(0, 12); }
 
 /** Tracing + Correlation-ID + slow-request middleware. */
@@ -161,6 +384,68 @@ export class AuditController {
   @Get('recent')
   @Roles(UserRole.ADMIN)
   recent() { return this.svc.query({}, 200); }
+
+  /**
+   * 23.4 — a timeline per user, order/booking or provider.
+   *
+   * Reading the trail is itself logged (23.4): an auditor's own access to the
+   * audit log is exactly what a later reviewer will ask about.
+   */
+  @Get('timeline')
+  @Roles(UserRole.ADMIN)
+  async timeline(
+    @CurrentUser() admin: any,
+    @Query('user_id') userId?: string,
+    @Query('resource_kind') kind?: string,
+    @Query('resource_id') resourceId?: string,
+  ) {
+    const subject = { user_id: userId, resource_kind: kind, resource_id: resourceId };
+    const events = await this.svc.timeline(subject);
+    await this.svc.write({
+      action: 'audit_timeline_read',
+      user_id: admin.id,
+      role: admin.role,
+      severity: 'warn',
+      details: { subject, rows: events.length },
+    });
+    return { subject, events: this.svc.maskFor(events, admin) };
+  }
+
+  /** 23.4 — CSV export for a legal request; the rows are the stored events. */
+  @Get('export.csv')
+  @Roles(UserRole.ADMIN)
+  async exportCsv(
+    @CurrentUser() admin: any,
+    @Query('user_id') userId?: string,
+    @Query('resource_kind') kind?: string,
+    @Query('resource_id') resourceId?: string,
+  ) {
+    const subject = { user_id: userId, resource_kind: kind, resource_id: resourceId };
+    const csv = await this.svc.exportCsv(subject);
+    await this.svc.write({
+      action: 'audit_export',
+      user_id: admin.id,
+      role: admin.role,
+      severity: 'critical',
+      details: { subject, reason: 'legal_request' },
+    });
+    return csv;
+  }
+
+  /** 23.3 — the tamper-evidence check, so an operator can run it on demand. */
+  @Get('verify')
+  @Roles(UserRole.ADMIN)
+  async verify() {
+    const result = await this.svc.verifyChain();
+    if (!result.ok) {
+      await this.svc.write({
+        action: 'audit_chain_broken',
+        severity: 'critical',
+        details: { broken_at: result.broken_at, reason: result.reason },
+      });
+    }
+    return result;
+  }
 
   @Get('critical')
   @Roles(UserRole.ADMIN)
