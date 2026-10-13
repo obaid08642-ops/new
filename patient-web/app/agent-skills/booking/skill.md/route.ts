@@ -8,18 +8,17 @@ Enables authorized AI agents and LLM assistants to discover verified healthcare 
 ## Capabilities
 - **Provider Discovery**: Search verified doctors by specialty, city, neighborhood, and accepted insurance network.
 - **Availability Checking**: Inspect available consultation slots and home-visit hours.
-- **Transaction Preparation**: Generate secure, human-in-the-loop booking sessions with transparent pricing in SAR and 15% VAT.
+- **Transaction Preparation**: Prepare human-in-the-loop booking requests with the provider's reference prices in SAR (service fee, VAT and the binding total are set server-side at booking, never quoted by the agent).
 
 ## Security & Regulatory Boundaries
-- **No Autonomous Financial Execution**: The AI agent cannot charge cards or complete transactions without explicit patient confirmation and OTP verification.
-- **Strict Idempotency**: All booking requests must provide an idempotency key (UUID v4) to eliminate double-booking risks.
-- **Identity & Session**: Patient health records and sensitive clinical information require authenticated JWT session headers; never exposed via unauthenticated discovery tools.
+- **No Autonomous Financial Execution**: The AI agent never handles card data and never completes a payment. The patient confirms and pays on Nabd Plus itself (Moyasar, on Nabd Plus pages).
+- **Identity & Session**: Patient health records and sensitive clinical information require an authenticated session; never exposed via unauthenticated discovery tools.
 
 ## Protocol & Tool References
-- MCP Endpoint: https://api.nabd.plus/api/v1/mcp
+- MCP Endpoint: https://mcp.nabd.plus/api/v1/mcp
 - Tool: check_availability
 - Tool: prepare_transaction (type: consultation_booking, lab_booking, nursing_booking)
-- Checkout Handoff: https://nabd.plus/checkout?session_id={SESSION_ID}
+- Authenticated holds: a signed-in patient's agent (OAuth 2.1, see /auth.md) prepares holds and requests through the MCP agent tools, which return the patient's Nabd Plus page URL (order tracking / booking status) where the patient selects, confirms and pays.
 `;
 
 export function GET() {
