@@ -1,25 +1,10 @@
 /**
  * Six-locale parity contract for the patient app.
  *
- * The `ar` and `en` dictionaries are complete, but `ur`, `hi`, `bn` and `fil` each miss
- * keys that Arabic has. Nothing in CI noticed, because the merge in `i18n/index.ts`
- * quietly fills the hole with the Arabic source text — so a Urdu, Hindi, Bengali or
- * Filipino patient is shown 36 Arabic strings inside an otherwise localized screen, and
- * the UI never raises an error.
- *
- * The reviewer's rule of 2026-10-13 is that every user-visible string or notification key
- * ships in all six languages with no fallback. This file is the gate that enforces it.
- *
- * `PENDING_HUMAN_TRANSLATION` below is the honest list of what is not done yet. It is an
- * allowlist, not a licence: a key may only stay on it until a native reviewer supplies the
- * copy. Two tests below make sure the list cannot silently rot — a translated key must
- * come off it, and a brand-new key may never be added to it. Both fail CI, so the debt can
- * only shrink.
- *
- * Machine translation is deliberately not used here. `docs/review/phase-review/P18.md`
- * records that user-facing medical and checkout copy requires a qualified human reviewer;
- * shipping machine output would make the app look localized while a patient cannot
- * actually read what they are agreeing to.
+ * `i18n/index.ts` quietly fills a missing key with the Arabic source text, so a gap never
+ * raises an error: an Urdu, Hindi, Bengali or Filipino patient just sees Arabic inside a
+ * localized screen. The owner's rule (AGENTS.md, translation rule) is every key in all six
+ * languages with no fallback; this file is the gate that enforces it.
  */
 import { describe, expect, it } from '@jest/globals';
 
@@ -52,30 +37,18 @@ const secondaryKeys = Object.fromEntries(
   Object.entries(SECONDARY).map(([lang, dict]) => [lang, flatten(dict)]),
 );
 
-/**
- * Keys present in `ar`/`en` but still awaiting a native reviewer in ur/hi/bn/fil.
- * All 36 are checkout, cart and pharmacy copy.
- */
-const PENDING_HUMAN_TRANSLATION = [
-  'cart.s16', 'cart.s17', 'cart.s18', 'cart.s19', 'cart.s20', 'cart.s21',
-  'checkout.s12', 'checkout.s13', 'checkout.s14', 'checkout.s15', 'checkout.s16',
-  'checkout.s17', 'checkout.s18', 'checkout.s19', 'checkout.s20', 'checkout.s21',
-  'checkout.s22', 'checkout.s23', 'checkout.s24',
-  'pharm.s8', 'pharm.s9', 'pharm.s10', 'pharm.s11', 'pharm.s12', 'pharm.s13',
-  'pharm.s14', 'pharm.s15', 'pharm.s16', 'pharm.s17', 'pharm.s18', 'pharm.s19',
-  'pharm.s20', 'pharm.s21', 'pharm.s22', 'pharm.s23', 'pharm.s24',
-] as const;
-
-const PENDING = new Set<string>(PENDING_HUMAN_TRANSLATION);
+/** Scripts that must not carry Arabic letters: a hit means the Arabic source was copied in. */
+const ARABIC_LETTERS = /[\u0600-\u06FF]/;
+const NON_ARABIC_SCRIPT = { en, hi, bn, fil: tl } as const;
 
 describe('patient app six-locale parity', () => {
   it('keeps ar and en complete', () => {
     expect(Object.keys(arKeys).sort()).toEqual(Object.keys(enKeys).sort());
   });
 
-  it.each(Object.entries(secondaryKeys))('%s misses nothing outside the pending list', (lang, have) => {
+  it.each(Object.entries(secondaryKeys))('%s misses no key Arabic has', (lang, have) => {
     const missing = Object.keys(arKeys)
-      .filter((key) => !(key in have) && !PENDING.has(key))
+      .filter((key) => !(key in have))
       .sort();
     expect(missing).toEqual([]);
   });
@@ -92,24 +65,14 @@ describe('patient app six-locale parity', () => {
     expect(blank).toEqual([]);
   });
 
-  it('does not let the pending list rot: a translated key must come off it', () => {
-    // Guards against the list becoming a permanent excuse. Each time a native reviewer
-    // lands a translation this test fails, and the entry is removed.
-    const alreadyDone = PENDING_HUMAN_TRANSLATION.filter((key) => {
-      const arValue = typeof arKeys[key] === 'string' ? (arKeys[key] as string).trim() : '';
-      return Object.values(secondaryKeys).every((have) => {
-        const value = have[key];
-        // A translated value is present and is not simply the Arabic source repeated.
-        return typeof value === 'string' && value.trim() !== '' && value.trim() !== arValue;
-      });
-    });
-    expect(alreadyDone).toEqual([]);
-  });
-
-  it('pins the pending list exactly, so new debt cannot be added silently', () => {
-    const actuallyMissing = Object.keys(arKeys)
-      .filter((key) => Object.values(secondaryKeys).some((have) => !(key in have)))
-      .sort();
-    expect([...PENDING].sort()).toEqual(actuallyMissing);
-  });
+  it.each(Object.entries(NON_ARABIC_SCRIPT).map(([lang, dict]) => [lang, flatten(dict)] as const))(
+    '%s carries no Arabic source text',
+    (lang, have) => {
+      const arabic = Object.entries(have)
+        .filter(([, v]) => typeof v === 'string' && ARABIC_LETTERS.test(v))
+        .map(([k]) => k)
+        .sort();
+      expect(arabic).toEqual([]);
+    },
+  );
 });
