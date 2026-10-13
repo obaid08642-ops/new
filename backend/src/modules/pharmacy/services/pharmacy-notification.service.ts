@@ -137,4 +137,17 @@ export class PharmacyNotificationService {
     const o = await this.orders.findOne({ id: orderId }, { id: 1, patient_account_id: 1 }).lean();
     return o ? { id: o.id, patient_account_id: o.patient_account_id } : null;
   }
+
+  /** D-13: notify patient that their order was auto-cancelled because no pharmacy was available */
+  async notifyPatientOrderAutoCancelled(patientId: string, orderId: string) {
+    await this.notif.create({
+      user_id: patientId,
+      title_key: 'pharmacy.order_auto_cancelled.title',
+      body_key: 'pharmacy.order_auto_cancelled.body',
+      params: { order_id: orderId },
+      type: NotificationType.ALERT,
+      priority: NotificationPriority.HIGH,
+      action: { type: 'open_pharmacy_order', order_id: orderId },
+    }).catch(() => null);
+  }
 }

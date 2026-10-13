@@ -10,6 +10,7 @@ describe('PharmacyExpiryCommandService', () => {
   const dueBroadcast = { id: 'broadcast-1', order_id: 'order-1', current_round: 1, current_radius_km: 3, lock_state: 'open', notified_pharmacies: ['pharmacy-1'], round_expires_at: new Date('2026-08-27T09:59:00.000Z') };
   const stages = [{ stage: 1, radius_km: 3, timeout_seconds: 90 }, { stage: 2, radius_km: 5, timeout_seconds: 90 }, { stage: 3, radius_km: 10, timeout_seconds: 90 }];
 
+  const pharmacyNotif: any = { notifyPatientOrderAutoCancelled: jest.fn().mockResolvedValue(undefined) };
   function setup(options: { offers?: any[]; broadcasts?: any[]; offerClaim?: any; broadcastClaim?: any; eligible?: any[]; stagesError?: Error; recipientDuplicate?: boolean; outboxDuplicate?: boolean } = {}) {
     const outbox = { updateOne: jest.fn().mockImplementation(async () => { if (options.outboxDuplicate) { const error: any = new Error('duplicate'); error.code = 11000; throw error; } return { upsertedCount: 1 }; }) };
     const recipients = { updateOne: jest.fn().mockResolvedValue(options.recipientDuplicate ? { matchedCount: 1, upsertedCount: 0 } : { upsertedCount: 1 }) };
@@ -25,7 +26,8 @@ describe('PharmacyExpiryCommandService', () => {
       getBroadcastStages: jest.fn().mockImplementation(async () => { if (options.stagesError) throw options.stagesError; return stages; }),
       findEligiblePharmaciesWithin: jest.fn().mockResolvedValue(options.eligible ?? [{ account_id: 'pharmacy-2' }]),
     };
-    return { service: new PharmacyExpiryCommandService(connection, offers, broadcasts, orders, broadcastService), connection, offers, broadcasts, orders, outbox, recipients, broadcastService, session };
+    const pharmacyNotif: any = { notifyPatientOrderAutoCancelled: jest.fn().mockResolvedValue(undefined) };
+    return { service: new PharmacyExpiryCommandService(connection, offers, broadcasts, orders, broadcastService, pharmacyNotif), connection, offers, broadcasts, orders, outbox, recipients, broadcastService, session };
   }
 
   it('expires only due draft/submitted quotes using a lease claim and transactionally records the idempotent intent', async () => {
@@ -67,7 +69,7 @@ describe('PharmacyExpiryCommandService', () => {
     const missingPolicy = setup({ offers: [], broadcasts: [dueBroadcast], stagesError: new ServiceUnavailableException('validated_pharmacy_broadcast_policy_required') });
     const closed = await missingPolicy.service.expireDuePharmacyOffers(now);
     expect(closed).toEqual(expect.objectContaining({ closed_broadcasts: 1, advanced_rounds: 0 }));
-    expect(missingPolicy.orders.updateOne).toHaveBeenCalledWith(expect.objectContaining({ id: 'order-1' }), expect.objectContaining({ $set: { status: 'manual_review' } }), expect.anything());
+    expect(missingPolicy.orders.updateOne).toHaveBeenCalledWith(expect.objectContaining({ id: 'order-1' }), expect.objectContaining({ $set: { status: 'auto_cancelled' } }), expect.anything());
   });
 
   it('closes the final elapsed round into manual review without allocation or recipient delivery', async () => {
@@ -77,7 +79,7 @@ describe('PharmacyExpiryCommandService', () => {
     expect(result).toEqual(expect.objectContaining({ closed_broadcasts: 1, advanced_rounds: 0, recipient_intents: 0 }));
     expect(broadcastService.findEligiblePharmaciesWithin).not.toHaveBeenCalled();
     expect(broadcasts.updateOne).toHaveBeenCalledWith(expect.objectContaining({ id: 'broadcast-1' }), expect.objectContaining({ $set: { lock_state: 'closed' } }), expect.anything());
-    expect(orders.updateOne).toHaveBeenCalledWith(expect.objectContaining({ id: 'order-1', $or: expect.any(Array) }), expect.objectContaining({ $set: { status: 'manual_review' } }), expect.anything());
+    expect(orders.updateOne).toHaveBeenCalledWith(expect.objectContaining({ id: 'order-1', $or: expect.any(Array) }), expect.objectContaining({ $set: { status: 'auto_cancelled' } }), expect.anything());
   });
 
   it('runs one extended stage after the final standard round instead of closing (own-delivery radius)', async () => {

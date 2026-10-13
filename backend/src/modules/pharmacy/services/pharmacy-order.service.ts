@@ -248,6 +248,24 @@ export class PharmacyOrderService {
     if (view.governed_state === 'FINAL_QUOTE_ACCEPTED' && String(order.payment_status || '').toLowerCase() !== 'paid' && await this.hasActivePayment(id)) {
       view.governed_state = 'PAYMENT_PENDING';
     }
+    // D-13: add search state for broadcasting orders
+    let searchState: any = null;
+    if (String(order.status) === PharmacyOrderState.BROADCASTING) {
+      const broadcast: any = await this.conn.collection('pharmacy_broadcasts').findOne({ order_id: id });
+      if (broadcast) {
+        if (broadcast.lock_state === 'closed') {
+          searchState = { state: 'no_pharmacy_available' };
+          view.governed_state = 'AUTO_CANCELLED';
+        } else if (broadcast.lock_state === 'open') {
+          searchState = {
+            state: 'expanding',
+            round: broadcast.current_round ?? 1,
+            radius_km: broadcast.current_radius_km ?? 3,
+            ends_at: broadcast.round_expires_at || null,
+          };
+        }
+      }
+    }
     // #366/#375/#514: the patient sees which pharmacy is filling the order (its public display name only).
     const names = await this.pharmacyNames(allocs.map((a: any) => a.pharmacy_account_id));
     const allocationsDetail = allocs.map((a: any) => ({ ...a, ...(names.get(a.pharmacy_account_id) ?? { pharmacy_name_ar: null, pharmacy_name_en: null }) }));
@@ -297,6 +315,7 @@ export class PharmacyOrderService {
       pharmacy_name_en: single?.pharmacy_name_en ?? null,
       courier_name: courierName,
       courier_phone: courierPhone,
+      search: searchState,
       ...view,
     };
   }

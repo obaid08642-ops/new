@@ -35,6 +35,7 @@ export enum PharmacyOrderState {
   DELIVERED = 'delivered',
   COMPLETED = 'completed',
   CANCELLED = 'cancelled',
+  AUTO_CANCELLED = 'auto_cancelled',
 }
 
 export enum PharmacyAllocationState {
@@ -77,8 +78,8 @@ export const ORDER_TRANSITIONS: Record<PharmacyOrderState, PharmacyOrderState[]>
   [PharmacyOrderState.DRAFT]: [PharmacyOrderState.INTAKE_PROCESSING, PharmacyOrderState.READY_FOR_SPLIT, PharmacyOrderState.BROADCASTING, PharmacyOrderState.CANCELLED],
   [PharmacyOrderState.INTAKE_PROCESSING]: [PharmacyOrderState.READY_FOR_SPLIT, PharmacyOrderState.BROADCASTING, PharmacyOrderState.MANUAL_REVIEW, PharmacyOrderState.CANCELLED],
   [PharmacyOrderState.READY_FOR_SPLIT]: [PharmacyOrderState.BROADCASTING, PharmacyOrderState.ALLOCATING, PharmacyOrderState.CANCELLED],
-  [PharmacyOrderState.BROADCASTING]: [PharmacyOrderState.AWAITING_FULL_ACCEPTANCE, PharmacyOrderState.OFFER_SELECTION_PENDING, PharmacyOrderState.ALLOCATING, PharmacyOrderState.NEGOTIATING_SUBSTITUTES, PharmacyOrderState.MANUAL_REVIEW, PharmacyOrderState.CANCELLED],
-  [PharmacyOrderState.AWAITING_FULL_ACCEPTANCE]: [PharmacyOrderState.BROADCASTING, PharmacyOrderState.OFFER_SELECTION_PENDING, PharmacyOrderState.ALLOCATING, PharmacyOrderState.NEGOTIATING_SUBSTITUTES, PharmacyOrderState.MANUAL_REVIEW, PharmacyOrderState.CANCELLED],
+  [PharmacyOrderState.BROADCASTING]: [PharmacyOrderState.AWAITING_FULL_ACCEPTANCE, PharmacyOrderState.OFFER_SELECTION_PENDING, PharmacyOrderState.ALLOCATING, PharmacyOrderState.NEGOTIATING_SUBSTITUTES, PharmacyOrderState.MANUAL_REVIEW, PharmacyOrderState.CANCELLED, PharmacyOrderState.AUTO_CANCELLED],
+  [PharmacyOrderState.AWAITING_FULL_ACCEPTANCE]: [PharmacyOrderState.BROADCASTING, PharmacyOrderState.OFFER_SELECTION_PENDING, PharmacyOrderState.ALLOCATING, PharmacyOrderState.NEGOTIATING_SUBSTITUTES, PharmacyOrderState.MANUAL_REVIEW, PharmacyOrderState.CANCELLED, PharmacyOrderState.AUTO_CANCELLED],
   [PharmacyOrderState.NEGOTIATING_SUBSTITUTES]: [PharmacyOrderState.ALLOCATING, PharmacyOrderState.PARTIALLY_ALLOCATED, PharmacyOrderState.FULLY_ALLOCATED, PharmacyOrderState.MANUAL_REVIEW, PharmacyOrderState.CANCELLED],
   [PharmacyOrderState.ALLOCATING]: [PharmacyOrderState.PARTIALLY_ALLOCATED, PharmacyOrderState.FULLY_ALLOCATED, PharmacyOrderState.NEGOTIATING_SUBSTITUTES, PharmacyOrderState.MANUAL_REVIEW, PharmacyOrderState.CANCELLED],
   [PharmacyOrderState.PARTIALLY_ALLOCATED]: [PharmacyOrderState.FULLY_ALLOCATED, PharmacyOrderState.NEGOTIATING_SUBSTITUTES, PharmacyOrderState.CONFIRMED, PharmacyOrderState.MANUAL_REVIEW, PharmacyOrderState.CANCELLED],
@@ -95,6 +96,7 @@ export const ORDER_TRANSITIONS: Record<PharmacyOrderState, PharmacyOrderState[]>
   [PharmacyOrderState.DELIVERED]: [PharmacyOrderState.COMPLETED],
   [PharmacyOrderState.COMPLETED]: [],
   [PharmacyOrderState.CANCELLED]: [],
+  [PharmacyOrderState.AUTO_CANCELLED]: [],
 };
 
 export const ALLOCATION_TRANSITIONS: Record<PharmacyAllocationState, PharmacyAllocationState[]> = {
