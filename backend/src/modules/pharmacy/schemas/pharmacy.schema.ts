@@ -410,6 +410,8 @@ export class PharmacyOffer extends Document {
     qty_requested: number; qty_offered: number; inventory_item_id?: string;
     sku?: string; name_ar?: string; name_en?: string; unit_price?: number; currency?: string;
     inventory_price_updated_at?: Date;
+    above_catalogue_price?: boolean;
+    catalogue_price?: number;
   }>;
   @Prop({ type: Object, required: true }) totals: { subtotal: number; delivery_fee: number; total: number; currency: string };
   @Prop({ maxlength: 500 }) provider_note?: string;

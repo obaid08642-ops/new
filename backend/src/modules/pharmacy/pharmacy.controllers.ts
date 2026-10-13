@@ -191,6 +191,20 @@ export class AdminPharmacyController {
     ]);
     return { items, total, page, limit };
   }
+
+  @Get('price-review') async priceReview(@Query() q: any) {
+    const col = this.allocs.db.collection('notifications');
+    const filter: any = { role: 'admin', title_key: 'price_above_catalogue' };
+    if (q?.order_id) filter['body.order_id'] = String(q.order_id);
+    if (q?.offer_id) filter['body.offer_id'] = String(q.offer_id);
+    const page = Math.max(1, Number(q?.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(q?.limit) || 25));
+    const [items, total] = await Promise.all([
+      col.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).toArray(),
+      col.countDocuments(filter),
+    ]);
+    return { items, total, page, limit };
+  }
   @Post('expire-stale-allocations') expireStale() { return this.allocs.expireStale(); }
 }
 

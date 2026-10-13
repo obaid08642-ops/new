@@ -16,6 +16,9 @@ export class Medicine {
   @Prop() manufacturer?: string;
   @Prop({ default: 'medications', index: true }) category: string; // medications|skincare|...
   @Prop({ default: 0 }) price: number;
+  @Prop() sfda_price?: number;
+  @Prop() sfda_price_source?: string;
+  @Prop() sfda_price_updated_at?: Date;
   @Prop() image?: string;
   @Prop() description_ar?: string;
   @Prop() description_en?: string;

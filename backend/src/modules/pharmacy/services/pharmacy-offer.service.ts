@@ -146,6 +146,29 @@ export class PharmacyOfferService {
 
     const requested = Math.max(1, Number(orderItem.qty) || 1);
     const offered = Math.min(requested, Math.max(1, Math.floor(Number(input.qty_offered) || requested)), Number(inventoryItem.stock));
+    const finalPrice = input.unit_price_override !== undefined && input.unit_price_override !== null
+      ? Math.round(Number(input.unit_price_override) * 100) / 100
+      : Number(inventoryItem.price);
+    // D-10: no discount on prescription-only lines.
+    if (input.unit_price_override !== undefined && input.unit_price_override !== null && orderItem.requires_prescription === true && finalPrice < Number(inventoryItem.price)) {
+      throw new BadRequestException({ code: 'rx_discount_not_allowed', message: 'rx_discount_not_allowed' });
+    }
+    // D-12: check catalogue price ceiling (sfda_price).
+    let aboveCatalogue = false;
+    let cataloguePrice: number | undefined;
+    if (inventoryItem.sku) {
+      const medicine: any = await this.connection.collection('medicines').findOne(
+        { sku: inventoryItem.sku },
+        { projection: { _id: 0, sfda_price: 1 } }
+      );
+      if (medicine?.sfda_price !== undefined && medicine.sfd_price !== null) {
+        const cataloguePriceVal = Number(medicine.sfd_price);
+        if (finalPrice > cataloguePriceVal) {
+          aboveCatalogue = true;
+          cataloguePrice = cataloguePriceVal;
+        }
+      }
+    }
     const result: any = {
       order_item_id: orderItem.id,
       action: input.availability,
@@ -155,9 +178,11 @@ export class PharmacyOfferService {
       sku: inventoryItem.sku,
       name_ar: inventoryItem.name_ar,
       name_en: inventoryItem.name_en,
-      unit_price: Number(inventoryItem.price),
+      unit_price: finalPrice,
       currency: inventoryItem.currency || 'SAR',
       inventory_price_updated_at: inventoryItem.updatedAt || null,
+      above_catalogue_price: aboveCatalogue,
+      catalogue_price: cataloguePrice,
     };
     // Master spec: provider may override the item price; the catalog price is preserved for admin audit.
     if (input.unit_price_override !== undefined && input.unit_price_override !== null) {
@@ -165,7 +190,7 @@ export class PharmacyOfferService {
       if (!Number.isFinite(override) || override <= 0 || override > 100000) throw new BadRequestException('invalid_price_override');
       const rounded = Math.round(override * 100) / 100;
       // D-10: no discount on prescription-only lines (the flag is stamped from the catalogue at submit).
-      if (orderItem.requires_prescription === true && rounded < result.unit_price) {
+      if (orderItem.requires_prescription === true && rounded < Number(inventoryItem.price)) {
         throw new BadRequestException({ code: 'rx_discount_not_allowed', message: 'rx_discount_not_allowed' });
       }
       if (rounded !== result.unit_price) {
@@ -288,6 +313,16 @@ export class PharmacyOfferService {
       actor_account_id: user.id, actor_role: 'pharmacy', patient_account_id: offer.patient_account_id,
       reason_code: 'provider_offer_submitted', meta: { order_id: orderId, offer_id: offer.id, version: offer.version },
     });
+    // D-12: notify admin if any line is above catalogue price
+    const hasAbove = (offer.items || []).some((item: any) => item.above_catalogue_price === true);
+    if (hasAbove) {
+      const aboveItems = (offer.items || []).filter((i: any) => i.above_catalogue_price === true);
+      await this.connection.collection('notifications').insertOne({
+        id: uuidv4(), user_id: 'admin', role: 'admin', title_key: 'price_above_catalogue',
+        body: { order_id: orderId, offer_id: offer.id, items: aboveItems.map((i: any) => ({ order_item_id: i.order_item_id, catalogue_price: i.catalogue_price, offered_price: i.unit_price })) },
+        createdAt: new Date(),
+      });
+    }
     return this.providerDto(offer.toObject());
   }
 
@@ -495,10 +530,12 @@ export class PharmacyOfferService {
   }
 
   private providerDto(offer: any) {
+    const hasAboveCatalogue = (offer.items || []).some((item: any) => item.above_catalogue_price === true);
     return {
       id: offer.id, order_id: offer.order_id, status: offer.status, version: offer.version,
       items: offer.items, totals: offer.totals, quote_expires_at: offer.quote_expires_at,
       estimated_preparation_minutes: offer.estimated_preparation_minutes, fulfillment: offer.fulfillment || { policy_status: 'unavailable_read_only' }, pricing_source: offer.pricing_source,
+      ...(hasAboveCatalogue ? { warnings: [{ code: 'price_above_catalogue', message: 'drug prices are regulated: change them only when the official price has changed' }] } : {}),
     };
   }
 
