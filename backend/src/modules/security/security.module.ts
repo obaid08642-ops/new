@@ -1,4 +1,6 @@
-import { Module, Injectable, Controller, Get, NestMiddleware, MiddlewareConsumer, UseGuards, Query, BadRequestException } from '@nestjs/common';
+import { Module, Injectable, Controller, Get, Post, Delete, Body, Param, NestMiddleware, MiddlewareConsumer, UseGuards, Query, BadRequestException, Logger } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { AuditRetentionService } from './audit-retention.service';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { OnEvent } from '@nestjs/event-emitter';
@@ -64,34 +66,36 @@ export class AuditService {
    */
   async write(entry: AuditEntry) {
     try {
-      // A counter in its own collection: $inc with upsert is atomic, so two
-      // concurrent writers cannot claim the same slot, and the counter document
-      // never shows up as if it were an audit event.
-      const counter = await (this.logs as any).db
-        .collection('audit_sequence')
-        .findOneAndUpdate(
-          { _id: 'global' },
-          { $inc: { value: 1 } },
-          { upsert: true, returnDocument: 'after' },
-        );
-      const sequence = Number(counter?.value ?? 1);
-
-      // The most recent row is the chain's current head.
-      const previous = await this.logs.findOne({}).sort({ sequence: -1 }).lean<any>();
-      const prev_hash = (previous?.hash as string) || null;
-
-      const row = {
-        ...entry,
-        // The hash must cover what is actually stored, so the schema default is
-        // applied here too. Hashing an entry whose severity is undefined while
-        // the row ends up 'info' makes a clean chain look tampered with.
-        severity: entry.severity ?? 'info',
-        sequence,
-        prev_hash,
-      };
-      const hash = this.hashRow(row);
-      await this.logs.create({ ...row, hash });
+      // The chain head (last sequence + its hash) lives in one counter document and is advanced
+      // with a compare-and-set, so two concurrent writers can never both link to the same
+      // predecessor (reading "the latest row" instead let them, and the chain then looked
+      // tampered with when nothing was). A lost race simply retries on the new head.
+      const heads = (this.logs as any).db.collection('audit_sequence');
+      for (let attempt = 0; attempt < 20; attempt++) {
+        const head: any = (await heads.findOne({ _id: 'global' })) || { value: 0, head_hash: null };
+        const sequence = Number(head.value || 0) + 1;
+        const prev_hash = (head.head_hash as string) || null;
+        const row = {
+          ...entry,
+          // The hash covers what is stored, so the schema default is applied here too.
+          severity: entry.severity ?? 'info',
+          sequence,
+          prev_hash,
+        };
+        const hash = this.hashRow(row);
+        const claimed = await heads.updateOne(
+          { _id: 'global', value: head.value ?? 0 },
+          { $set: { value: sequence, head_hash: hash } },
+          { upsert: !head._id },
+        ).catch((e: any) => (e?.code === 11000 ? { matchedCount: 0, upsertedCount: 0 } : Promise.reject(e)));
+        if (!claimed.matchedCount && !claimed.upsertedCount) continue;
+        await this.logs.create({ ...row, hash });
+        return;
+      }
+      throw new Error('audit_chain_contention');
     } catch (e: any) {
+      // A failure here must never break the user's action, but a trail that silently stops is
+      // worse than none: say so.
       // eslint-disable-next-line no-console
       console.error(`[audit] failed to record ${entry?.action}: ${e?.message}`);
     }
@@ -119,40 +123,44 @@ export class AuditService {
    */
   async verifyChain(options: { limit?: number } = {}) {
     const limit = Math.min(options.limit ?? 5000, 50_000);
-    // Chained, not find(filter, options): Model.find's second argument is a
-    // projection, so sort/limit passed there are silently ignored.
     const rows: any[] = await this.logs.find({}).sort({ sequence: 1 }).limit(limit).lean<any[]>();
-    let prev: string | null = null;
+    // Rows removed by the retention schedule leave a tombstone (sequence, hash, prev_hash, no
+    // content), so a lawful deletion keeps the links intact and is not reported as tampering.
+    const last = rows[rows.length - 1]?.sequence ?? 0;
+    const tombs: any[] = rows.length
+      ? await (this.logs as any).db.collection('audit_tombstones').find({ sequence: { $lte: last } }).sort({ sequence: 1 }).toArray()
+      : [];
+    const bySeq = new Map<number, any>();
+    for (const t of tombs) bySeq.set(Number(t.sequence), { ...t, tombstone: true });
+    for (const r of rows) bySeq.set(Number(r.sequence), r);
+    const chain = [...bySeq.values()].filter((r) => r.sequence !== undefined).sort((x, y) => x.sequence - y.sequence);
+    let prev: string | null = chain.length && chain[0].sequence > 1 ? (chain[0].prev_hash ?? null) : null;
     let checked = 0;
-    for (const row of rows as any[]) {
-      const expected = this.hashRow({
-        action: row.action,
-        user_id: row.user_id,
-        role: row.role,
-        impersonator_id: row.impersonator_id,
-        resource_kind: row.resource_kind,
-        resource_id: row.resource_id,
-        details: row.details,
-        changes: row.changes,
-        ip: row.ip,
-        device_id: row.device_id,
-        user_agent: row.user_agent,
-        platform: row.platform,
-        app_version: row.app_version,
-        reason: row.reason,
-        severity: row.severity,
-        correlation_id: row.correlation_id,
-        sequence: row.sequence,
-        prev_hash: row.prev_hash,
-      });
+    for (const row of chain) {
+      // A deleted row without a tombstone shows up here: the next row's prev_hash no longer matches.
       if ((row.prev_hash ?? null) !== prev) {
         return { ok: false, broken_at: row.sequence ?? null, reason: 'prev_hash_mismatch', checked };
       }
-      if (row.hash !== expected) {
-        return { ok: false, broken_at: row.sequence ?? null, reason: 'hash_mismatch', checked };
+      if (!row.tombstone) {
+        const expected = this.hashRow({
+          action: row.action, user_id: row.user_id, role: row.role, impersonator_id: row.impersonator_id,
+          resource_kind: row.resource_kind, resource_id: row.resource_id, details: row.details, changes: row.changes,
+          ip: row.ip, device_id: row.device_id, user_agent: row.user_agent, platform: row.platform,
+          app_version: row.app_version, reason: row.reason, severity: row.severity, correlation_id: row.correlation_id,
+          sequence: row.sequence, prev_hash: row.prev_hash,
+        });
+        if (row.hash !== expected) return { ok: false, broken_at: row.sequence ?? null, reason: 'hash_mismatch', checked };
       }
       prev = row.hash ?? null;
       checked += 1;
+    }
+    // Deleting the newest rows leaves no successor to mismatch, so compare the end of the chain
+    // with the head the writer recorded (only when the whole chain was read).
+    if (rows.length < limit && chain.length) {
+      const head: any = await (this.logs as any).db.collection('audit_sequence').findOne({ _id: 'global' });
+      if (head?.head_hash && head.head_hash !== prev) {
+        return { ok: false, broken_at: Number(head.value) || null, reason: 'tail_missing', checked };
+      }
     }
     return { ok: true, checked, broken_at: null, reason: null };
   }
@@ -366,7 +374,7 @@ export class SecurityHeadersMiddleware implements NestMiddleware {
 @Controller('security/audit')
 @UseGuards(JwtAuthGuard)
 export class AuditController {
-  constructor(private svc: AuditService) {}
+  constructor(private svc: AuditService, private readonly retention: AuditRetentionService) {}
 
   @Get('admin')
   @Roles(UserRole.ADMIN)
@@ -459,12 +467,65 @@ export class AuditController {
   @Get('critical')
   @Roles(UserRole.ADMIN)
   critical() { return this.svc.query({ severity: 'critical' }, 100); }
+
+  // 23.5 — legal holds and the retention schedule. Every action is itself in the trail.
+  @Get('retention/holds')
+  @Roles(UserRole.SUPER_ADMIN)
+  holds() { return this.retention.listHolds(); }
+
+  @Post('retention/holds')
+  @Roles(UserRole.SUPER_ADMIN)
+  async placeHold(@CurrentUser() admin: any, @Body() body: { user_id?: string; resource_id?: string; reason?: string; until?: string }) {
+    const reason = typeof body?.reason === 'string' ? body.reason.trim() : '';
+    if (reason.length < 5) throw new BadRequestException('legal_hold_reason_required');
+    const user_id = typeof body?.user_id === 'string' && body.user_id ? body.user_id : undefined;
+    const resource_id = typeof body?.resource_id === 'string' && body.resource_id ? body.resource_id : undefined;
+    if (!user_id && !resource_id) throw new BadRequestException('legal_hold_needs_a_subject');
+    const until = typeof body?.until === 'string' && !Number.isNaN(Date.parse(body.until)) ? body.until : undefined;
+    const out = await this.retention.placeHold({ user_id, resource_id, reason, until }, admin);
+    await this.svc.write({ action: 'audit_legal_hold_placed', user_id: admin.id, role: admin.role, reason, severity: 'critical', details: { subject_user_id: user_id, subject_resource_id: resource_id, until } });
+    return out;
+  }
+
+  @Delete('retention/holds/:id')
+  @Roles(UserRole.SUPER_ADMIN)
+  async releaseHold(@CurrentUser() admin: any, @Param('id') id: string) {
+    if (!/^[a-f0-9]{24}$/i.test(String(id))) throw new BadRequestException('invalid_hold_id');
+    const out = await this.retention.releaseHold(id);
+    await this.svc.write({ action: 'audit_legal_hold_released', user_id: admin.id, role: admin.role, severity: 'critical', details: { hold_id: id } });
+    return out;
+  }
+
+  @Post('retention/run')
+  @Roles(UserRole.SUPER_ADMIN)
+  async runRetention(@CurrentUser() admin: any) {
+    const out = await this.retention.apply();
+    await this.svc.write({ action: 'audit_retention_run', user_id: admin.id, role: admin.role, severity: 'warn', details: out.summary });
+    return out;
+  }
+}
+
+/** 23.5 — the retention schedule runs once a day; holds always win over the schedule. */
+@Injectable()
+export class AuditRetentionJob {
+  private readonly logger = new Logger(AuditRetentionJob.name);
+  constructor(private readonly retention: AuditRetentionService, private readonly audit: AuditService) {}
+  @Cron(CronExpression.EVERY_DAY_AT_3AM)
+  async run() {
+    if (process.env.AUDIT_RETENTION_ENABLED !== 'true') return; // off until the owner/lawyer confirm the periods
+    try {
+      const out = await this.retention.apply();
+      await this.audit.write({ action: 'audit_retention_run', role: 'system', severity: 'warn', details: out.summary });
+    } catch (e: any) {
+      this.logger.error(`retention run failed: ${e?.message}`);
+    }
+  }
 }
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: 'AuditLog', schema: AuditLogSchema }])],
   controllers: [AuditController],
-  providers: [AuditService, TracingMiddleware, SecurityHeadersMiddleware],
+  providers: [AuditService, AuditRetentionService, AuditRetentionJob, TracingMiddleware, SecurityHeadersMiddleware],
   exports: [AuditService, TracingMiddleware, SecurityHeadersMiddleware],
 })
 export class SecurityModule {

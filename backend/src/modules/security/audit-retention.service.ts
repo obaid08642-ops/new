@@ -82,14 +82,29 @@ export class AuditRetentionService {
 
       // A held row is excluded from the delete set rather than deleted and
       // reinserted, so a hold can never be lost to a partial run.
-      const candidates = await this.conn.collection('audit_logs').find(filter).project({ _id: 1, user_id: 1, resource_id: 1 }).toArray();
+      const candidates = await this.conn.collection('audit_logs').find(filter).project({ _id: 1, user_id: 1, resource_id: 1, sequence: 1, hash: 1, prev_hash: 1 }).toArray();
       const blocked = candidates.filter((r: any) => this.isHeld(holds, r));
       const deletable = candidates.filter((r: any) => !this.isHeld(holds, r));
 
+      // Each deleted row leaves a tombstone with only its chain links (no content, no personal
+      // data), written first, so AuditService.verifyChain still sees an unbroken chain after a
+      // lawful deletion and only real tampering is reported.
+      const chained = deletable.filter((r: any) => r.sequence !== undefined && r.sequence !== null);
+      if (chained.length) {
+        await this.conn.collection('audit_tombstones').bulkWrite(chained.map((r: any) => ({
+          updateOne: {
+            filter: { sequence: r.sequence },
+            update: { $setOnInsert: { sequence: r.sequence, hash: r.hash ?? null, prev_hash: r.prev_hash ?? null, kind, deleted_at: now } },
+            upsert: true,
+          },
+        })), { ordered: false });
+      }
       const deleted = deletable.length
         ? (await this.conn.collection('audit_logs').deleteMany({ _id: { $in: deletable.map((r: any) => r._id) } })).deletedCount
         : 0;
-      const anonymized = policy.action === 'anonymize' ? 0 : 0;
+      // Only 'delete' policies are applied by kind here; the 'default' (anonymise) policy has no
+      // owner-approved period yet, so it is not run (nothing is anonymised silently).
+      const anonymized = 0;
 
       summary[kind] = { deleted, anonymized, held: blocked.length };
       if (deleted || blocked.length) {

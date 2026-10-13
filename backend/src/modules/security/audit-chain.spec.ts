@@ -43,6 +43,7 @@ describe('Phase 23 audit chain (23.1 + 23.3)', () => {
     // otherwise sequences keep climbing across tests and the assertions that
     // name a broken row would be asserting the wrong number.
     await conn.collection('audit_sequence').deleteMany({});
+    await conn.collection('audit_tombstones').deleteMany({});
   });
 
   it('records every field 23.1 asks for', async () => {
@@ -158,5 +159,26 @@ describe('Phase 23 audit chain (23.1 + 23.3)', () => {
     // write() swallows internally, so the observable contract is: no throw.
     await expect(service.write({ action: 'ok' })).resolves.toBeUndefined();
     expect(broken).toBeTruthy();
+  });
+
+  it('concurrent writers never fork the chain (review: both used to link to the same row)', async () => {
+    await Promise.all(Array.from({ length: 25 }, (_, i) => service.write({ action: 'burst', resource_id: `r-${i}` })));
+    const rows = await Logs.find({}).sort({ sequence: 1 }).lean<any[]>();
+    expect(rows.map((r) => r.sequence)).toEqual(Array.from({ length: 25 }, (_, i) => i + 1));
+    expect(await service.verifyChain()).toMatchObject({ ok: true, checked: 25 });
+  });
+
+  it('a retention deletion that leaves tombstones is not reported as tampering', async () => {
+    for (const a of ['a', 'b', 'c', 'd']) await service.write({ action: a });
+    const victim: any = await Logs.findOne({ sequence: 2 }).lean();
+    await conn.collection('audit_tombstones').insertOne({ sequence: 2, hash: victim.hash, prev_hash: victim.prev_hash });
+    await Logs.deleteOne({ sequence: 2 });
+    expect(await service.verifyChain()).toMatchObject({ ok: true, checked: 4 });
+  });
+
+  it('deleting the newest event is caught too (the stored head no longer matches)', async () => {
+    for (const a of ['a', 'b', 'c']) await service.write({ action: a });
+    await Logs.deleteOne({ sequence: 3 });
+    expect(await service.verifyChain()).toMatchObject({ ok: false, reason: 'tail_missing' });
   });
 });
