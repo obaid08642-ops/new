@@ -215,22 +215,38 @@ export class AgentToolsService {
 
   private toToolError(e: unknown): { errorCode: string; message: string; extra: Record<string, unknown>; status?: number } {
     const err = e as { errorCode?: string; code?: string; message?: string; status?: number; response?: unknown };
-    if (err?.errorCode) return { errorCode: String(err.errorCode), message: String(err.message || err.errorCode), extra: {} };
+    if (err?.errorCode) return { errorCode: String(err.errorCode), message: this.safeMessage(String(err.message || err.errorCode), 'tool_failed', true), extra: {} };
     const msg = String(err?.message || 'tool_failed');
     const status = typeof err?.status === 'number' ? err.status : undefined;
     const codeOf = (fallback: string) =>
       msg.split(':')[0].trim().toUpperCase().replace(/[^A-Z0-9_]/g, '_').slice(0, 64) || fallback;
-    if (status === 404 || /not_found|not found/i.test(msg)) return { errorCode: codeOf('NOT_FOUND'), message: msg, extra: {}, status };
+    if (status === 404 || /not_found|not found/i.test(msg)) return { errorCode: codeOf('NOT_FOUND'), message: this.safeMessage(msg, 'not_found', true), extra: {}, status };
     if (status === 409 || /slot_taken|slot_already_booked|conflict/i.test(msg)) {
-      return { errorCode: /slot/i.test(msg) ? 'SLOT_TAKEN' : 'CONFLICT', message: msg, extra: {}, status };
+      return { errorCode: /slot/i.test(msg) ? 'SLOT_TAKEN' : 'CONFLICT', message: this.safeMessage(msg, 'conflict', true), extra: {}, status };
     }
     if (status === 403 || /forbidden|not_yours|insufficient/i.test(msg)) {
-      return { errorCode: 'FORBIDDEN', message: msg, extra: {}, status };
+      return { errorCode: 'FORBIDDEN', message: this.safeMessage(msg, 'forbidden', true), extra: {}, status };
     }
     if (status === 400 || /required|invalid|expired|not_supported|not_allowed|not_orderable|mismatch/i.test(msg)) {
-      return { errorCode: codeOf('BAD_REQUEST'), message: msg, extra: {}, status };
+      return { errorCode: codeOf('BAD_REQUEST'), message: this.safeMessage(msg, 'bad_request', true), extra: {}, status };
     }
-    return { errorCode: 'TOOL_FAILED', message: msg, extra: {}, status };
+    this.logger.warn(`agent tool internal error redacted: ${msg.slice(0, 300)}`);
+    return { errorCode: 'TOOL_FAILED', message: 'tool_failed', extra: {}, status };
+  }
+
+  /**
+   * AC-6: tool errors are codes, never stack traces or storage internals. A message is
+   * sent only when it is short plain text without structural characters (`{ } " \n $ @`)
+   * or sensitive keywords (identifiers, secrets, stack frames); anything else becomes the
+   * generic fallback while the raw error stays server-side (logs + admin activity view).
+   */
+  private safeMessage(msg: string, fallback: string, logRaw: boolean): string {
+    const risky = msg.length > 300
+      || /[{}\\"`\n\r$@;]/.test(msg)
+      || /\bstack\b|\bpassword\b|\bsecret\b|\bpatient_id\b|\bphone\b|\bemail\b|\bnational\b|\btoken\b|\bat [\w/.]+:\d+:\d+/.test(msg);
+    if (!risky) return msg;
+    if (logRaw) this.logger.warn(`agent tool message redacted: ${msg.slice(0, 300)}`);
+    return fallback;
   }
 
   // ── dispatch ──
