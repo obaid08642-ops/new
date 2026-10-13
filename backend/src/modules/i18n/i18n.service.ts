@@ -732,6 +732,8 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'admin.auth.reason': { ar: 'أدخل السبب والتفصيل', en: 'Enter reason and details', ur: 'وجہ' },
   'admin.auth.reason.required': { ar: 'يلزم إدخال سبب', en: 'Reason is required', ur: 'وجہ ضروری' },
   'admin.auth.done': { ar: 'تم تنفيذ الإجراء بنجاح', en: 'Action executed', ur: 'انجام' },
+  'pharmacy.order_auto_cancelled.title': { ar: 'لا توجد صيدلية متاحة', en: 'No pharmacy available', ur: 'کوئی فارمیسی دستیاب نہیں' },
+  'pharmacy.order_auto_cancelled.body': { ar: 'لم ترد أي صيدلية قريبة على طلبك. لم يُخصم منك أي مبلغ، ويمكنك إعادة المحاولة لاحقًا.', en: 'No nearby pharmacy answered your order. You were not charged, and you can try again later.', ur: 'قریب کی کسی فارمیسی نے آپ کے آرڈر کا جواب نہیں دیا۔ آپ سے کوئی رقم نہیں لی گئی، آپ بعد میں دوبارہ کوشش کر سکتے ہیں۔' },
   'admin.pharmacy.price_above_catalogue': { ar: 'عرض صيدلية بسعر أعلى من سعر الكتالوج: راجعه وحدّث السعر إن تغيّر السعر الرسمي', en: 'A pharmacy offer is priced above the catalogue: review it and update the price if the official price changed', ur: 'فارمیسی کی پیشکش کیٹلاگ قیمت سے زیادہ ہے: جائزہ لیں اور سرکاری قیمت بدلی ہو تو قیمت اپ ڈیٹ کریں' },
 
   // ============ NOTIFICATIONS CENTER ============
