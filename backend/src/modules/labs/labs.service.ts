@@ -152,7 +152,7 @@ export class LabsService {
   // catalog (provider_capabilities_lab: code = the test's short code, or the same Arabic name,
   // the rule ServiceCapabilityService uses). Labs with no priced entry are not listed.
   async priceComparison(serviceId: string) {
-    const svc: any = await this.svcModel.findOne({ id: serviceId, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, id: 1, name_ar: 1, name_en: 1, short_code: 1, price: 1 }).lean();
+    const svc: any = await this.svcModel.findOne({ id: { $eq: String(serviceId) }, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, id: 1, name_ar: 1, name_en: 1, short_code: 1, price: 1 }).lean();
     if (!svc) throw new NotFoundException('service_not_found');
     const codes = [svc.id, svc.short_code].filter(Boolean);
     const items: any[] = await this.svcModel.db.collection('provider_capabilities_lab').find({

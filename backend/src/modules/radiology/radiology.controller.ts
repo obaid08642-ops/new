@@ -44,7 +44,7 @@ export class RadiologyController {
 
   @Public() @Get('price-comparison')
   priceComparison(@Query('serviceId') serviceId: string) {
-    if (!serviceId) throw new BadRequestException('serviceId required');
+    if (typeof serviceId !== 'string' || !serviceId) throw new BadRequestException('serviceId required');
     return this.svc.priceComparison(serviceId);
   }
 

@@ -467,7 +467,7 @@ export class RadiologyOpsService {
   // catalog (provider_capabilities_radiology: scan_type = modality and the same body part,
   // case-insensitive). Centers with no priced entry are not listed.
   async priceComparison(serviceId: string) {
-    const svc: any = await this.svcModel.findOne({ id: serviceId, is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, id: 1, name_ar: 1, name_en: 1, modality: 1, body_part: 1, price: 1 }).lean();
+    const svc: any = await this.svcModel.findOne({ id: { $eq: String(serviceId) }, is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, id: 1, name_ar: 1, name_en: 1, modality: 1, body_part: 1, price: 1 }).lean();
     if (!svc) throw new NotFoundException('service_not_found');
     if (!svc.modality) return { service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, catalog_price: svc.price ?? null, offers: [] };
     const exact = (v: string) => new RegExp(`^${String(v).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');

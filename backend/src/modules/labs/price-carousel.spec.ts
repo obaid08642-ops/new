@@ -5,7 +5,7 @@ const chain = (rows: any[]) => ({ sort: () => ({ limit: () => ({ lean: async () 
 function svcModel(services: any[], caps: Record<string, any[]>, seen: any[]) {
   return {
     find: (q: any) => { seen.push(q); return chain(services); },
-    findOne: (q: any) => ({ lean: async () => services.find((s) => s.id === q.id) || null }),
+    findOne: (q: any) => ({ lean: async () => services.find((s) => s.id === (q.id?.$eq ?? q.id)) || null }),
     db: { collection: (name: string) => ({ find: (q: any) => { seen.push({ name, q }); return { toArray: async () => caps[name] || [] }; } }) },
   };
 }
