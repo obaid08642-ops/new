@@ -2821,6 +2821,20 @@
         ]
       }
     },
+    "/api/v1/admin/agent-activity": {
+      "get": {
+        "operationId": "AgentActivityController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AgentActivity"
+        ]
+      }
+    },
     "/api/v1/payment-rules": {
       "get": {
         "operationId": "PaymentRulesController_rules",
@@ -17265,6 +17279,30 @@
         ]
       }
     },
+    "/api/v1/home-care/bookings": {
+      "post": {
+        "operationId": "PatientHomeCareController_book",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PatientHomeCare"
+        ]
+      }
+    },
     "/api/v1/home-care/bookings/my": {
       "get": {
         "operationId": "PatientHomeCareController_myBookings",
@@ -17940,30 +17978,6 @@
         ],
         "responses": {
           "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "PatientHomeCare"
-        ]
-      }
-    },
-    "/api/v1/home-care/bookings": {
-      "post": {
-        "operationId": "PatientHomeCareController_book",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/BookDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
             "description": ""
           }
         },
