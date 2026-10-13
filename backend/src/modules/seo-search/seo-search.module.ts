@@ -143,6 +143,7 @@ import { InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { Response } from 'express';
 import { Public, Roles } from '../../common/auth.guard';
+import { PublicCache } from '../../common/public-cache.decorator';
 import { UserRole } from '../../common/enums';
 import { AutoEntitySeoPipelineService, PipelineEntityType } from '../events/auto-entity-seo-pipeline.service';
 import { resolveMedicinePublicDto, productLocaleToDb, PUBLIC_CATALOG_LOCALES } from '../medicines/med-i18n';
@@ -927,6 +928,7 @@ export class SeoSearchController {
 
 
   @Public()
+  @PublicCache(3600, ['seo', 'sitemap'])
   /** The public sitemap is the patient web's (six locales, hreflang, paginated catalogue). */
   @Get('sitemap.xml')
   sitemap(@Res() res: Response) {
