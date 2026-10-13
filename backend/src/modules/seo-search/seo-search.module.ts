@@ -606,7 +606,7 @@ export class SeoSearchService {
       'الرعاية الصحية المنزلية والأجهزة الطبية': 'الرعاية الصحية المنزلية والأجهزة الطبية',
     };
 
-    const decodedCat = category ? safeDecode(category).trim() : 'all';
+    const decodedCat = category ? safeDecode(category).replace(/[\u0000-\u001F\u007F-\u009F]/g, '').trim() : 'all';
     const resolvedCat = CANONICAL_CATEGORY_MAP[decodedCat.toLowerCase()] || CANONICAL_CATEGORY_MAP[decodedCat] || decodedCat;
 
     if (resolvedCat && resolvedCat !== 'all' && resolvedCat !== 'الكل') {
@@ -620,8 +620,15 @@ export class SeoSearchService {
       ];
       if (sub) {
         const decodedSub = safeDecode(sub).trim();
-        const subEscaped = decodedSub.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        filter[key('sub_category')] = { $regex: subEscaped, $options: 'i' };
+        // Fuzz-found 500: control characters (NUL, C0/C1) reach Mongo inside a
+        // $regex and the driver rejects them. Strip them — never the user's
+        // visible text — and skip the clause when nothing searchable remains,
+        // instead of matching everything or crashing.
+        const cleanSub = decodedSub.replace(/[\u0000-\u001F\u007F-\u009F]/g, '').trim();
+        if (cleanSub) {
+          const subEscaped = cleanSub.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          filter[key('sub_category')] = { $regex: subEscaped, $options: 'i' };
+        }
       }
     }
 
