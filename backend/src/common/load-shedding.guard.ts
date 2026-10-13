@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, ExecutionContext, ServiceUnavailableException, SetMetadata } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, ServiceUnavailableException, SetMetadata, Optional } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { monitorEventLoopDelay } from 'perf_hooks';
 
@@ -67,8 +67,10 @@ function realLoadSignal(): LoadSignal {
 export class LoadSheddingGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
-    private readonly signal: LoadSignal = realLoadSignal(),
-    private readonly limits = DEFAULT_OVERLOAD,
+    // Optional so Nest DI can instantiate the guard globally: unprovided params
+    // arrive as undefined and the defaults below apply. Tests inject mocks directly.
+    @Optional() private readonly signal: LoadSignal = realLoadSignal(),
+    @Optional() private readonly limits: typeof DEFAULT_OVERLOAD = DEFAULT_OVERLOAD,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

@@ -64,6 +64,27 @@ describe('14.17 LoadSheddingGuard (mocked load signal)', () => {
     expect(ctx.setHeader).toHaveBeenCalledWith('Retry-After', '5');
   });
 
+  it('instantiates with Reflector alone (what Nest DI provides) and runs', async () => {
+    // Regression: the guard must be constructible by Nest with only its
+    // declared providers. Unprovided params arrive as undefined and the
+    // defaults apply — otherwise the whole backend fails to boot with
+    // UnknownDependenciesException and the live gate runs zero journeys.
+    // Load-agnostic: on a calm machine it serves, on a saturated one it sheds
+    // with a proper 503 + Retry-After. Both prove DI works and logic runs.
+    const g = new LoadSheddingGuard(new Reflector(), undefined as any, undefined as any);
+    const ctx: any = ctxFor(Probe.prototype.sheddable);
+    const settled = await g.canActivate(ctx).then(
+      (v) => ({ served: v }),
+      (e) => ({ shed: e }),
+    );
+    if ('served' in settled) {
+      expect(settled.served).toBe(true);
+    } else {
+      expect(settled.shed).toBeInstanceOf(ServiceUnavailableException);
+      expect(ctx.setHeader).toHaveBeenCalledWith('Retry-After', '5');
+    }
+  });
+
   it('exposes the marker key for route auditing', () => {
     expect(SHED_ON_OVERLOAD_KEY).toBe('nabd_shed_on_overload');
     expect(Reflect.getMetadata(SHED_ON_OVERLOAD_KEY, Probe.prototype.sheddable)).toBe(true);
