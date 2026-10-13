@@ -8,6 +8,14 @@ const mockService = {
   handleAgentToolCall: jest.fn(async (body: any) => ({ jsonrpc: '2.0', id: body?.id ?? null, result: {} })),
 } as any;
 const mockOAuth = { verifyAccessToken: jest.fn(async () => null) } as any;
+const mockAgentTools = {
+  dispatch: jest.fn(async (tool: string, args: unknown, principal: unknown, id: unknown) => ({
+    jsonrpc: '2.0', id: id ?? null, result: { content: [{ type: 'text', text: '{}' }], structuredContent: {} },
+  })),
+  dispatchPublic: jest.fn(async (tool: string, args: unknown, id: unknown) => ({
+    jsonrpc: '2.0', id: id ?? null, result: { content: [{ type: 'text', text: '{}' }], structuredContent: {} },
+  })),
+} as any;
 
 const res = () => {
   const headers: Record<string, string> = {};
@@ -20,7 +28,7 @@ const res = () => {
 };
 
 describe('McpController Streamable HTTP headers (AC-2)', () => {
-  const controller = new McpController(mockService, mockOAuth);
+  const controller = new McpController(mockService, mockOAuth, mockAgentTools);
 
   it('echoes MCP-Protocol-Version 2025-06-18 on initialize', async () => {
     const r = res();
