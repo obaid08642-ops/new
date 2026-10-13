@@ -1,6 +1,7 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { BaseExceptionFilter } from '@nestjs/core';
 import * as Sentry from '@sentry/nestjs';
+import { ERROR_CATALOG, type PlatformErrorCode } from './error-catalog';
 
 @Catch()
 export class SentryExceptionFilter extends BaseExceptionFilter {
@@ -61,18 +62,17 @@ export function translateMongoError(exception: unknown): HttpException | null {
   if (exception instanceof HttpException) return null;
   const err = exception as { name?: string; code?: number | string };
   if (!err || typeof err !== 'object') return null;
-  if (err.name === 'CastError') {
-    return new HttpException('Not Found', HttpStatus.NOT_FOUND);
-  }
-  // Direct `new ObjectId(badInput)` throws BSONError (not CastError) — same semantics.
-  if (err.name === 'BSONError') {
-    return new HttpException('Not Found', HttpStatus.NOT_FOUND);
-  }
-  if (err.name === 'ValidationError') {
-    return new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
-  }
-  if (err.name === 'MongoServerError' && err.code === 11000) {
-    return new HttpException('Conflict', HttpStatus.CONFLICT);
-  }
-  return null;
+  // Phase 13, task 13.R5: raise catalogued codes rather than raw English status words.
+  // The status values are unchanged, so existing callers and specs keep working; only
+  // the body gains a stable `code` a client can switch on.
+  const codeFor = (name: string): PlatformErrorCode | null => {
+    // CastError and a direct `new ObjectId(badInput)` (BSONError) share semantics.
+    if (name === 'CastError' || name === 'BSONError') return 'not_found';
+    if (name === 'ValidationError') return 'bad_request';
+    return null;
+  };
+  const byName = err.name ? codeFor(err.name) : null;
+  const code = byName ?? (err.name === 'MongoServerError' && err.code === 11000 ? 'conflict' : null);
+  if (!code) return null;
+  return new HttpException({ statusCode: ERROR_CATALOG[code].status, code, message: code }, ERROR_CATALOG[code].status);
 }
