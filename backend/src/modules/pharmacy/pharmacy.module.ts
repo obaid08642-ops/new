@@ -32,8 +32,7 @@ import {
   ProviderInventoryExtController, AdminPharmacyController, AdminPharmacySeedController,
     ProviderBroadcastController, AdminBroadcastController, AdminFulfillmentPolicyController, AdminPharmacyInsuranceController,
     PharmacyChatController, AdminPharmacyChatController,
-  ProviderShortageController, AdminShortageController, PatientShortageController,
-} from './pharmacy.controllers';
+  ProviderShortageController, AdminShortageController, PatientShortageController, PaymentRulesController } from './pharmacy.controllers';
 import { PharmacyOrdersProviderService } from './services/pharmacy-orders-provider.service';
 import { PharmacyOfferService } from './services/pharmacy-offer.service';
 import { PharmacyInsuranceDecisionService } from './services/pharmacy-insurance-decision.service';
@@ -145,6 +144,7 @@ import { B2BVoiceController } from './pharmacy-b2b-voice.controller';
     { provide: "SystemConfigRepository", useClass: SystemConfigRepository }
   ],
   controllers: [
+    PaymentRulesController,
     PatientPharmacyController,
     ProviderPharmacyController,
     ProviderInventoryExtController,

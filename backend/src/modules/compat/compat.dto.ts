@@ -87,6 +87,7 @@ export class CreateDto {
   @IsString()
   insurance_policy_id?: string;
 
+
 }
 
 export class BookDto {
@@ -118,6 +119,27 @@ export class BookDto {
   @IsString()
   insurance_policy_id?: string;
 
+
+  // D-25: the fields HomeCareSvc.book reads. Without them the /home-care/bookings alias refused every
+  // real booking (provider_id is required there) once the older duplicate route stopped shadowing it.
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  provider_id?: string;
+
+  // free-form: the visit address the apps send ({ lat, lng, address, ... }), stored as given.
+  @IsOptional()
+  @IsObject()
+  address?: Record<string, unknown>;
+
+  // free-form: the contact name/phone the apps send for the visit.
+  @IsOptional()
+  @IsObject()
+  contact?: Record<string, unknown>;
+
+  @IsOptional()
+  @IsNumber()
+  sessions_count?: number;
 }
 
 export class BareSendDto {

@@ -118,12 +118,17 @@ export class PatientHomeCareController {
     if (body.package_id && !body.service_id) {
       throw new BadRequestException('package_booking_not_supported_use_service');
     }
+    // Every field HomeCareSvc.book reads is forwarded, so this alias behaves exactly like
+    // POST /nursing/bookings (it dropped provider_id, which book() requires).
     const booking = await this.homeSvc.book(u, {
       service_id: body.service_id,
       scheduled_at: body.scheduled_at,
       notes: body.notes,
       payment_method: body.payment_method,
-      ...(body.address_id ? { address: { address_id: body.address_id } } : {}),
+      provider_id: body.provider_id,
+      contact: body.contact,
+      sessions_count: body.sessions_count,
+      ...(body.address ? { address: body.address } : body.address_id ? { address: { address_id: body.address_id } } : {}),
     });
     const { _id, ...out } = booking as any;
     return { data: out };

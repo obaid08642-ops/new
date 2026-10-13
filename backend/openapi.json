@@ -2821,6 +2821,82 @@
         ]
       }
     },
+    "/api/v1/admin/agent-activity": {
+      "get": {
+        "operationId": "AgentActivityController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AgentActivity"
+        ]
+      }
+    },
+    "/api/v1/payment-rules": {
+      "get": {
+        "operationId": "PaymentRulesController_rules",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PaymentRules"
+        ]
+      }
+    },
+    "/api/v1/admin/payment-rules": {
+      "put": {
+        "operationId": "PaymentRulesController_setRules",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentRulesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PaymentRules"
+        ]
+      }
+    },
+    "/api/v1/provider/pharmacy/cod": {
+      "put": {
+        "operationId": "PaymentRulesController_setPharmacyCod",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PharmacyCodSettingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PaymentRules"
+        ]
+      }
+    },
     "/api/v1/patient/pharmacy/orders": {
       "post": {
         "operationId": "PatientPharmacyController_create",
@@ -40650,6 +40726,14 @@
         "properties": {}
       },
       "AdminUpdateAgentClientDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "PaymentRulesDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "PharmacyCodSettingDto": {
         "type": "object",
         "properties": {}
       },
