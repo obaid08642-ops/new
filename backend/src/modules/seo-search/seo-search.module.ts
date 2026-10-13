@@ -639,10 +639,11 @@ export class SeoSearchService {
           { [`translations.${db}.search_aliases`]: trx },
         );
       }
-      if (filter.$or) {
+      // A query that normalises to nothing (control characters only) adds no filter: Mongo refuses an empty $or.
+      if (qOrClauses.length && filter.$or) {
         filter.$and = [{ $or: filter.$or }, { $or: qOrClauses }];
         delete filter.$or;
-      } else {
+      } else if (qOrClauses.length) {
         filter.$or = qOrClauses;
       }
     }
