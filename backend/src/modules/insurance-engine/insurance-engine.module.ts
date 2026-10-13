@@ -36,6 +36,35 @@ import { Permission, RequirePermissions } from '../../common/permissions';
 // Schemas
 // ============================================================================
 
+/**
+ * Batch 7 insurance, chunk oc/E-ins-2 (#835). The request states the engine **actually writes**,
+ * published so the clients build their enum from the server instead of guessing.
+ *
+ * Measured against `push()` call sites: these 7 and no others. Two further values are declared
+ * on the schema for forward compatibility but nothing writes them, so they are listed
+ * separately rather than advertised as live:
+ *  - `APPROVED_PARTIAL` - a partial decision goes straight to `COPAY_PENDING`;
+ *  - `EXPIRED`         - declared only.
+ *
+ * patient-web's parser (`lib/api/insurance-request.ts:4`) lists `SELF_PAY_PENDING` and
+ * `SELF_PAY_PAID`, which the engine never produces, and omits `APPEAL_PENDING`, which it does -
+ * so an appealed request renders "Unable to load insurance". That parser is the design
+ * session's; this list is what it should be built from.
+ */
+export const INSURANCE_REQUEST_STATES = [
+  'PENDING_PROVIDER_REVIEW',
+  'APPROVED_FULL',
+  'COPAY_PENDING',
+  'COPAY_PAID',
+  'REJECTED',
+  'APPEAL_PENDING',
+  'CANCELLED',
+] as const;
+
+/** Declared on the schema but never written. See the note above. */
+export const INSURANCE_REQUEST_RESERVED_STATES = ['APPROVED_PARTIAL', 'EXPIRED'] as const;
+
+
 @Schema({ timestamps: true })
 export class InsuranceServiceRequest {
   // Written by the services but previously undeclared: strict mode silently dropped it (tools/audit/schemadrift.js).
@@ -403,8 +432,25 @@ export class InsuranceFlowService {
     return req.toObject();
   }
 
+  /**
+   * Batch 7 insurance, chunk oc/E-ins-2 (#830 / #846): one approval number on the read side.
+   *
+   * D-37 already unified the write - `decide()` stores exactly one field, `insurer_approval_code`.
+   * Both clients read `approval_code ?? insurer_approval_code`, and `approval_code` is never
+   * written, so the read always fell through to the same field anyway. The D-37 canonical name
+   * `approval_ref` is now mirrored from that one stored value, so the two names can never
+   * disagree and a future client change can collapse to a single name.
+   */
+  private presentRequest(req: any): any {
+    if (!req || typeof req !== 'object') return req;
+    const code = req.insurer_approval_code;
+    if (typeof code === 'string' && code.trim()) return { ...req, approval_ref: code.trim() };
+    return req;
+  }
+
   async myRequests(user: any) {
-    return this.requests.find({ patient_id: user.id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean();
+    const rows = await this.requests.find({ patient_id: user.id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean();
+    return (rows as any[]).map((r) => this.presentRequest(r));
   }
 
   async providerQueue(user: any, state?: string) {
@@ -433,7 +479,7 @@ export class InsuranceFlowService {
     const req = await this.requests.findOne({ id: { $eq: id } }, { _id: 0, __v: 0 }).lean();
     if (!req) throw new NotFoundException('request not found');
     if ((req as any).patient_id !== user.id && (req as any).provider_id !== user.id && user.role !== 'admin') throw new ForbiddenException();
-    return req;
+    return this.presentRequest(req);
   }
 
     /** Doctor gatekeeper for consultation insurance (provider-app sheet):
