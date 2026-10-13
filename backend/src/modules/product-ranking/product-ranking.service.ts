@@ -313,14 +313,13 @@ export class ProductRankingService {
 
     // Fallback: Query MongoDB metrics and hydrate ZSet
     const query: any = {};
-    if (scope.pharmacyId && scope.pharmacyId !== 'global') {
-      query.pharmacy_id = scope.pharmacyId;
-    } else {
-      query.pharmacy_id = 'global';
-    }
+    // Plain strings with $eq: a query-string value can never become a Mongo operator.
+    const pharmacyId = typeof scope.pharmacyId === 'string' ? scope.pharmacyId : '';
+    query.pharmacy_id = { $eq: pharmacyId && pharmacyId !== 'global' ? pharmacyId : 'global' };
 
-    if (scope.category && scope.category.trim() !== '' && scope.category.toLowerCase() !== 'all') {
-      query.category = scope.category.trim().toLowerCase();
+    const category = typeof scope.category === 'string' ? scope.category.trim().toLowerCase() : '';
+    if (category && category !== 'all') {
+      query.category = { $eq: category };
     }
 
     const sortField: any = isTrending ? { trending_score: -1 } : { composite_score: -1 };

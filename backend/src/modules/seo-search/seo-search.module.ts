@@ -606,7 +606,8 @@ export class SeoSearchService {
       'الرعاية الصحية المنزلية والأجهزة الطبية': 'الرعاية الصحية المنزلية والأجهزة الطبية',
     };
 
-    const decodedCat = category ? safeDecode(category).trim() : 'all';
+    // Control characters (a NUL makes MongoDB reject the regex) never belong in a category name.
+    const decodedCat = category ? safeDecode(category).replace(/[\u0000-\u001F\u007F-\u009F]/g, '').trim() || 'all' : 'all';
     const resolvedCat = CANONICAL_CATEGORY_MAP[decodedCat.toLowerCase()] || CANONICAL_CATEGORY_MAP[decodedCat] || decodedCat;
 
     if (resolvedCat && resolvedCat !== 'all' && resolvedCat !== 'الكل') {
@@ -619,7 +620,7 @@ export class SeoSearchService {
         { category: { $regex: escaped, $options: 'i' } },
       ];
       if (sub) {
-        const decodedSub = safeDecode(sub).trim();
+        const decodedSub = safeDecode(sub).replace(/[\u0000-\u001F\u007F-\u009F]/g, '').trim();
         const subEscaped = decodedSub.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         filter[key('sub_category')] = { $regex: subEscaped, $options: 'i' };
       }
