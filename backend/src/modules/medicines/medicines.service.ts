@@ -235,7 +235,9 @@ export class MedicinesService {
         'رعاية منزلية': 'الرعاية الصحية المنزلية والأجهزة الطبية',
         'الرعاية الصحية المنزلية والأجهزة الطبية': 'الرعاية الصحية المنزلية والأجهزة الطبية',
       };
-      const resolved = CANONICAL_MAP[category.toLowerCase()] || CANONICAL_MAP[category] || category;
+      // Own keys only: a query value like "__proto__" must not resolve to Object.prototype (500).
+      const own = (k: string) => (Object.prototype.hasOwnProperty.call(CANONICAL_MAP, k) ? CANONICAL_MAP[k] : undefined);
+      const resolved = own(category.toLowerCase()) || own(category) || category;
       const cleanTerm = resolved.replace(/^ال/, '').trim();
       const escaped = cleanTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       if (q.$or) {
