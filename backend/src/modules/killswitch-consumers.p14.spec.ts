@@ -19,7 +19,7 @@ import { MedicinesService } from './medicines/medicines.service';
 /** Connection mock: featureflags answers from `flags`; every other collection throws. */
 function flagsConn(flags: Record<string, boolean>, extra: Record<string, any> = {}) {
   const collection = jest.fn((name: string) => {
-    if (name === 'featureflags') {
+    if (name === 'feature_flags' || name === 'featureflags') {
       return {
         findOne: jest.fn(async (q: any) => {
           const key = q?.key?.$eq ?? q?.key;
@@ -218,7 +218,7 @@ describe('F9 kill switches wired into consumers (mocked)', () => {
     let poolTouched = false;
     const conn: any = {
       collection: jest.fn((name: string) => {
-        if (name === 'featureflags') {
+        if (name === 'feature_flags' || name === 'featureflags') {
           return { findOne: jest.fn(async () => ({ key: 'search_suggestions_enabled', enabled: false })) };
         }
         poolTouched = true;

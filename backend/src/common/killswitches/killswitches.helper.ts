@@ -139,7 +139,7 @@ export async function readFlag(
 
 /**
  * Duck-typed flag source over a raw mongoose Connection. Reads the SAME
- * `featureflags` collection (`{ key, enabled }` rows) that
+ * `feature_flags` collection (`{ key, enabled }` rows) that
  * FeatureFlagsService owns, normalizing both row shapes via
  * normalizeFlagRow. Absent row / missing collection / store error => null
  * (fail-open upstream). For services that already hold a Connection and
@@ -151,7 +151,7 @@ export function connectionFlagSource(
   return {
     isEnabled: async (key: string) => {
       try {
-        const col = conn?.collection?.('featureflags');
+        const col = conn?.collection?.('feature_flags');
         if (!col || typeof col.findOne !== 'function') return null;
         return normalizeFlagRow(await col.findOne({ key: { $eq: key } }));
       } catch {
