@@ -11,7 +11,7 @@ function svcWith(offers: any[], order: any = {}, broadcast: any = null) {
   svc.offers = { find };
   svc.orders = { findOne: () => lean({ id: 'ord1', patient_account_id: 'pat1', ...order }) };
   svc.broadcasts = { findOne: () => lean(broadcast) };
-  svc.connection = { collection: () => ({ findOne: async () => ({ insurance_ready: true }) }) };
+  svc.conn = { collection: () => ({ findOne: async () => ({ insurance_ready: true }) }) };
   svc.patientDto = (o: any) => ({ id: o.id });
   return { svc: svc as PharmacyOfferService, find };
 }

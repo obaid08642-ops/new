@@ -21,9 +21,19 @@ describe('PharmacyOfferService', () => {
       create: jest.fn(async (value) => ({ ...value, toObject: () => value })),
     };
     const allocations = overrides.allocations || {};
-    const connection = overrides.connection || { startSession: jest.fn() };
+    const conn = overrides.conn || { 
+      collection: jest.fn((name: string) => {
+        if (name === 'medicines') return { findOne: jest.fn().mockResolvedValue(null) };
+        if (name === 'pharmacy_price_override_audit') return { insertMany: jest.fn().mockResolvedValue({}) };
+        return { findOne: jest.fn().mockResolvedValue(null), insertMany: jest.fn().mockResolvedValue({}) };
+      }),
+      startSession: jest.fn().mockResolvedValue({ 
+        withTransaction: jest.fn(async (work) => work({})), 
+        endSession: jest.fn().mockResolvedValue(undefined) 
+      }),
+    };
     const bus = { emit: jest.fn().mockResolvedValue(undefined) };
-    return new PharmacyOfferService(connection as any, offers as any, orders as any, allocations as any, broadcasts as any, inventory as any, accounts as any, bus as any, (overrides as any).pricing);
+    return new PharmacyOfferService(conn as any, offers as any, orders as any, allocations as any, broadcasts as any, inventory as any, accounts as any, bus as any, (overrides as any).pricing);
   }
 
   it('derives item price and total from pharmacy inventory rather than client input', async () => {
@@ -116,12 +126,12 @@ describe('PharmacyOfferService', () => {
       toObject() { return this; },
     };
     const audit = { insertMany: jest.fn().mockResolvedValue({ acknowledged: true }) };
-    const connection = { collection: jest.fn(() => audit) };
+    const conn = { collection: jest.fn(() => audit) };
     const offers: any = {
       findOne: jest.fn(() => lean(null)),
       findOneAndUpdate: jest.fn(async () => submittedOffer),
     };
-    const svc = service({ connection, offers });
+    const svc = service({ conn, offers });
     await svc.submitDraft({ id: 'pharmacy-1', role: 'provider' }, 'order-1', 'offer-1');
     expect(audit.insertMany).toHaveBeenCalledWith(expect.arrayContaining([
       expect.objectContaining({ order_id: 'order-1', offer_id: 'offer-1', catalog_price: 17.5, override_price: 20, changed_by: 'pharmacy-1' }),

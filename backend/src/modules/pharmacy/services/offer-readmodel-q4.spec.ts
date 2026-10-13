@@ -3,7 +3,7 @@ import { PharmacyOfferService } from './pharmacy-offer.service';
 
 const svcWith = (profiles: Record<string, any>) => {
   const svc: any = Object.create(PharmacyOfferService.prototype);
-  svc.connection = { collection: () => ({ findOne: async (q: any) => profiles[q.account_id] ?? null }) };
+  svc.conn = { collection: () => ({ findOne: async (q: any) => profiles[q.account_id] ?? null }) };
   svc.patientDto = (o: any) => ({ id: o.id });
   return svc;
 };

@@ -33,7 +33,7 @@ type ProviderOfferInput = {
 @Injectable()
 export class PharmacyOfferService {
   constructor(
-    @InjectConnection() private readonly connection: Connection,
+    @InjectConnection() private readonly conn: Connection,
     @InjectModel('PharmacyOffer') private readonly offers: Model<any>,
     @InjectModel('PharmacyOrder') private readonly orders: Model<any>,
     @InjectModel('PharmacyAllocation') private readonly allocations: Model<any>,
@@ -157,11 +157,11 @@ export class PharmacyOfferService {
     let aboveCatalogue = false;
     let cataloguePrice: number | undefined;
     if (inventoryItem.sku) {
-      const medicine: any = await this.connection.collection('medicines').findOne(
+      const medicine: any = await this.conn.collection('medicines').findOne(
         { sku: inventoryItem.sku },
         { projection: { _id: 0, sfda_price: 1 } }
       );
-      if (medicine?.sfda_price !== undefined && medicine.sfd_price !== null) {
+      if (medicine?.sfda_price !== undefined && medicine.sfda_price !== null) {
         const cataloguePriceVal = Number(medicine.sfd_price);
         if (finalPrice > cataloguePriceVal) {
           aboveCatalogue = true;
@@ -290,7 +290,7 @@ export class PharmacyOfferService {
     // Master spec: every provider price override lands in an admin-visible audit collection.
     const overridden = (offer.items || []).filter((item: any) => item.price_source === 'provider_override');
     if (overridden.length) {
-      await this.connection.collection('pharmacy_price_override_audit').insertMany(overridden.map((item: any) => ({
+      await this.conn.collection('pharmacy_price_override_audit').insertMany(overridden.map((item: any) => ({
         id: uuidv4(),
         order_id: orderId,
         offer_id: offer.id,
@@ -317,7 +317,7 @@ export class PharmacyOfferService {
     const hasAbove = (offer.items || []).some((item: any) => item.above_catalogue_price === true);
     if (hasAbove) {
       const aboveItems = (offer.items || []).filter((i: any) => i.above_catalogue_price === true);
-      await this.connection.collection('notifications').insertOne({
+      await this.conn.collection('notifications').insertOne({
         id: uuidv4(), user_id: 'admin', role: 'admin', title_key: 'price_above_catalogue',
         body: { order_id: orderId, offer_id: offer.id, items: aboveItems.map((i: any) => ({ order_item_id: i.order_item_id, catalogue_price: i.catalogue_price, offered_price: i.unit_price })) },
         createdAt: new Date(),
@@ -352,7 +352,7 @@ export class PharmacyOfferService {
 
   private async patientDtoAsync(offer: any, order: any, broadcast?: any) {
     const base = this.patientDto(offer);
-    const profile: any = await this.connection.collection('provider_profiles').findOne({ account_id: offer.pharmacy_account_id });
+    const profile: any = await this.conn.collection('provider_profiles').findOne({ account_id: offer.pharmacy_account_id });
     let approx: number | null = null;
     const pg = profile?.geo; const og = order?.delivery_address?.geo;
     if (pg && og && Number.isFinite(Number(pg.lat)) && Number.isFinite(Number(og.lat))) {
@@ -424,7 +424,7 @@ export class PharmacyOfferService {
   // Inventory tracking is OPTIONAL per provider (default off — no-balances model).
   async tracksInventory(pharmacy_account_id: string): Promise<boolean> {
     try {
-      const doc: any = await this.connection.collection('provider_settings').findOne({ provider_id: pharmacy_account_id });
+      const doc: any = await this.conn.collection('provider_settings').findOne({ provider_id: pharmacy_account_id });
       return doc?.inventory_tracking === true;
     } catch {
       return false;
@@ -440,7 +440,7 @@ export class PharmacyOfferService {
     if (coverage && !['cash', 'cod', 'card', 'insurance'].includes(coverage)) {
       throw new BadRequestException('invalid_coverage_mode');
     }
-    const session = await this.connection.startSession();
+    const session = await this.conn.startSession();
     try {
       let selected: any;
       await session.withTransaction(async () => {

@@ -160,6 +160,7 @@ export class ProviderInventoryExtController {
 @Roles(UserRole.ADMIN)
 export class AdminPharmacyController {
   constructor(
+    @InjectConnection() private readonly conn: Connection,
     private seedSvc: PharmacySeedService,
     private split: SmartSplitService,
     private allocs: PharmacyAllocationService,
@@ -172,7 +173,7 @@ export class AdminPharmacyController {
   }
   // Master spec: admin audit trail for provider unit-price overrides on offers.
   @Get('price-overrides') async priceOverrides(@Query() q: any) {
-    const col = (this.allocs as any).orders.db.collection('pharmacy_price_override_audit');
+    const col = this.conn.collection('pharmacy_price_override_audit');
     const filter: any = {};
     if (q?.order_id) filter.order_id = String(q.order_id);
     if (q?.offer_id) filter.offer_id = String(q.offer_id);
@@ -193,7 +194,7 @@ export class AdminPharmacyController {
   }
 
   @Get('price-review') async priceReview(@Query() q: any) {
-    const col = this.allocs.db.collection('notifications');
+    const col = this.conn.collection('notifications');
     const filter: any = { role: 'admin', title_key: 'price_above_catalogue' };
     if (q?.order_id) filter['body.order_id'] = String(q.order_id);
     if (q?.offer_id) filter['body.offer_id'] = String(q.offer_id);
