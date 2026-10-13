@@ -1125,7 +1125,13 @@ export class SeoSearchController {
   ) {
     if (!(PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale)) throw new NotFoundException('locale_not_supported');
     const cat = category || 'all';
-    return this.svc.publicCategoryProducts(locale, cat, sub, parseInt(page || '1'), parseInt(limit || '24'), q);
+    // parseInt('garbage') is NaN, and NaN reaches Mongo as skip/limit and
+    // comes back as a 500. Anything unparseable falls back to the default.
+    const bounded = (raw: string | undefined, fallback: number, max: number) => {
+      const n = Number.parseInt(raw ?? '', 10);
+      return Number.isFinite(n) && n > 0 ? Math.min(n, max) : fallback;
+    };
+    return this.svc.publicCategoryProducts(locale, cat, sub, bounded(page, 1, 10_000), bounded(limit, 24, 100), q);
   }
 
   /** Product sitemap page as JSON (the web app renders same-host XML). */
