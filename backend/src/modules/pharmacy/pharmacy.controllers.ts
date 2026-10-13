@@ -164,6 +164,7 @@ export class AdminPharmacyController {
     private split: SmartSplitService,
     private allocs: PharmacyAllocationService,
     private broadcast: PharmacyBroadcastService,
+    @InjectConnection() private readonly conn: Connection,
   ) {}
   @Post('split/:orderId') async manualSplit(@Param('orderId') id: string) {
     // Backward-compat: if order is in broadcasting state, route to broadcast fallback.
@@ -192,15 +193,16 @@ export class AdminPharmacyController {
     return { items, total, page, limit };
   }
 
-  @Get('price-review') async priceReview(@Query() q: any) {
-    const col = this.allocs.db.collection('notifications');
-    const filter: any = { role: 'admin', title_key: 'price_above_catalogue' };
-    if (q?.order_id) filter['body.order_id'] = String(q.order_id);
-    if (q?.offer_id) filter['body.offer_id'] = String(q.offer_id);
+  /** D-12: offers with a line above the catalogue price or a line not mapped to the catalogue. */
+  @Get('price-review') async priceReview(@Query() q: any): Promise<{ items: any[]; total: number; page: number; limit: number }> {
+    const col = this.conn.collection('pharmacy_price_reviews');
+    const filter: any = { status: q?.status === 'closed' ? 'closed' : 'open' };
+    if (typeof q?.order_id === 'string' && q.order_id) filter.order_id = { $eq: q.order_id };
+    if (q?.reason === 'price_above_catalogue' || q?.reason === 'not_verified') filter['lines.reason'] = q.reason;
     const page = Math.max(1, Number(q?.page) || 1);
     const limit = Math.min(100, Math.max(1, Number(q?.limit) || 25));
     const [items, total] = await Promise.all([
-      col.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).toArray(),
+      col.find(filter, { projection: { _id: 0 } }).sort({ updatedAt: -1 }).skip((page - 1) * limit).limit(limit).toArray(),
       col.countDocuments(filter),
     ]);
     return { items, total, page, limit };

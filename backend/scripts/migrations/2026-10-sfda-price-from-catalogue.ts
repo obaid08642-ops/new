@@ -1,45 +1,35 @@
-// Migration: fill sfda_price, sfda_price_source, sfda_price_updated_at from catalogue price
-// Usage: npx ts-node --transpile-only scripts/migrations/2026-10-sfda-price-from-catalogue.ts [--apply]
-import { MongoClient } from 'mongodb';
-import { buildSlug } from '../common/slug.util';
+// D-12 (owner O-1, 2026-10-06): the catalogue price in the server DB is the reference price.
+// Fills sfda_price, sfda_price_source and sfda_price_updated_at from `price` on items that have
+// no sfda_price yet (an admin-corrected value is never overwritten). Items without a price stay
+// unset and their offer lines read "not verified".
+// Usage: MONGODB_URI=... DB_NAME=... npx ts-node --transpile-only scripts/migrations/2026-10-sfda-price-from-catalogue.ts [--apply]
+import mongoose from 'mongoose';
 
-const DRY_RUN = !process.argv.includes('--apply');
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017';
+const APPLY = process.argv.includes('--apply');
+const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URL || 'mongodb://127.0.0.1:27017';
 const DB_NAME = process.env.DB_NAME || 'nabd';
+const SOURCE = 'catalogue (owner 2026-10-06)';
 
 async function run() {
-  const client = await MongoClient.connect(MONGODB_URI);
-  const db = client.db(DB_NAME);
-  const meds = db.collection('medicines');
-
-  const cursor = meds.find({ sfda_price: { $exists: false } }, { projection: { _id: 1, id: 1, price: 1, name_ar: 1, name_en: 1 } });
-  let count = 0;
-  for await (const med of cursor) {
-    const price = Number(med.price || 0);
-    if (price > 0) {
-      if (!DRY_RUN) {
-        await meds.updateOne(
-          { id: med.id },
-          {
-            $set: {
-              sfda_price: price,
-              sfda_price_source: 'catalogue',
-              sfda_price_updated_at: new Date(),
-              updatedAt: new Date(),
-            },
-          },
-        );
-      }
-      count++;
-      console.log(`[${DRY_RUN ? 'DRY-RUN' : 'APPLY'}] ${med.id} ${med.name_ar || med.name_en || ''} -> sfda_price=${price}`);
-    }
+  await mongoose.connect(MONGODB_URI, { dbName: DB_NAME });
+  const meds = mongoose.connection.collection('medicines');
+  const filter = { sfda_price: { $exists: false }, price: { $gt: 0 } };
+  const pending = await meds.countDocuments(filter);
+  if (!APPLY) {
+    console.log(JSON.stringify({ mode: 'dry-run', would_update: pending }));
+    return;
   }
-  console.log(`Total ${count} medicines ${DRY_RUN ? 'would be' : 'were'} updated.`);
-  await client.close();
-  process.exit(0);
+  // One server-side update: sfda_price = price for every unset row.
+  const res = await meds.updateMany(filter, [
+    { $set: { sfda_price: '$price', sfda_price_source: SOURCE, sfda_price_updated_at: '$$NOW' } },
+  ]);
+  console.log(JSON.stringify({ mode: 'apply', updated: res.modifiedCount }));
 }
 
-run().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+run()
+  .then(() => mongoose.disconnect())
+  .catch(async (e) => {
+    console.error(e);
+    await mongoose.disconnect().catch(() => null);
+    process.exit(1);
+  });

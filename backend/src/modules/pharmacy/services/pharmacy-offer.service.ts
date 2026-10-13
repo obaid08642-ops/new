@@ -146,29 +146,6 @@ export class PharmacyOfferService {
 
     const requested = Math.max(1, Number(orderItem.qty) || 1);
     const offered = Math.min(requested, Math.max(1, Math.floor(Number(input.qty_offered) || requested)), Number(inventoryItem.stock));
-    const finalPrice = input.unit_price_override !== undefined && input.unit_price_override !== null
-      ? Math.round(Number(input.unit_price_override) * 100) / 100
-      : Number(inventoryItem.price);
-    // D-10: no discount on prescription-only lines.
-    if (input.unit_price_override !== undefined && input.unit_price_override !== null && orderItem.requires_prescription === true && finalPrice < Number(inventoryItem.price)) {
-      throw new BadRequestException({ code: 'rx_discount_not_allowed', message: 'rx_discount_not_allowed' });
-    }
-    // D-12: check catalogue price ceiling (sfda_price).
-    let aboveCatalogue = false;
-    let cataloguePrice: number | undefined;
-    if (inventoryItem.sku) {
-      const medicine: any = await this.connection.collection('medicines').findOne(
-        { sku: inventoryItem.sku },
-        { projection: { _id: 0, sfda_price: 1 } }
-      );
-      if (medicine?.sfda_price !== undefined && medicine.sfd_price !== null) {
-        const cataloguePriceVal = Number(medicine.sfd_price);
-        if (finalPrice > cataloguePriceVal) {
-          aboveCatalogue = true;
-          cataloguePrice = cataloguePriceVal;
-        }
-      }
-    }
     const result: any = {
       order_item_id: orderItem.id,
       action: input.availability,
@@ -178,11 +155,9 @@ export class PharmacyOfferService {
       sku: inventoryItem.sku,
       name_ar: inventoryItem.name_ar,
       name_en: inventoryItem.name_en,
-      unit_price: finalPrice,
+      unit_price: Number(inventoryItem.price),
       currency: inventoryItem.currency || 'SAR',
       inventory_price_updated_at: inventoryItem.updatedAt || null,
-      above_catalogue_price: aboveCatalogue,
-      catalogue_price: cataloguePrice,
     };
     // Master spec: provider may override the item price; the catalog price is preserved for admin audit.
     if (input.unit_price_override !== undefined && input.unit_price_override !== null) {
@@ -200,7 +175,79 @@ export class PharmacyOfferService {
         result.price_override_reason = String(input.price_override_reason || '').slice(0, 500);
       }
     }
+    await this.markCataloguePrice(result, inventoryItem);
     return result;
+  }
+
+  /**
+   * D-12 (owner decision 12, revised 2026-10-10): the catalogue price (`sfda_price`) is a reference,
+   * not a block. A line priced above it is accepted and flagged (the pharmacy is warned, the admin is
+   * told); a line that maps to no catalogue item (cosmetics, local items, photo lines) is kept and
+   * marked `not_verified`. Mapping: the inventory row's `medicine_id`, else its sku against the
+   * catalogue sku (stored as a number or a string).
+   */
+  private async markCataloguePrice(line: any, inventoryItem: any) {
+    const sku = inventoryItem.sku;
+    const or: any[] = [];
+    if (inventoryItem.medicine_id) or.push({ id: String(inventoryItem.medicine_id) });
+    if (sku !== undefined && sku !== null && sku !== '') {
+      or.push({ sku: String(sku) });
+      if (/^\d+$/.test(String(sku))) or.push({ sku: Number(sku) });
+    }
+    const medicine: any = or.length
+      ? await this.connection.collection('medicines').findOne({ $or: or, is_deleted: { $ne: true } }, { projection: { _id: 0, id: 1, sku: 1, sfda_price: 1 } })
+      : null;
+    const ceiling = Number(medicine?.sfda_price);
+    if (!medicine || !Number.isFinite(ceiling) || ceiling <= 0) {
+      line.price_check = 'not_verified';
+      return;
+    }
+    line.medicine_id = medicine.id;
+    line.price_check = 'verified';
+    if (Number(line.unit_price) > ceiling) {
+      line.above_catalogue_price = true;
+      line.catalogue_price = ceiling;
+    }
+  }
+
+  /**
+   * D-12: the admin review list holds one row per offer (kept current as the draft changes and on
+   * submit) and the admin gets one notice per offer with a line above the catalogue price.
+   * A draft with nothing to check clears its open row.
+   */
+  private async reportPriceReview(offer: any, orderId: string) {
+    const reviews = this.connection.collection('pharmacy_price_reviews');
+    const lines = (offer.items || []).filter((i: any) => i.above_catalogue_price === true || i.price_check === 'not_verified');
+    if (!lines.length) {
+      await reviews.deleteOne({ offer_id: offer.id, status: 'open' });
+      return;
+    }
+    const now = new Date();
+    const res: any = await reviews.findOneAndUpdate(
+      { offer_id: offer.id },
+      {
+        $set: {
+          order_id: orderId, offer_version: offer.version, offer_status: offer.status, pharmacy_account_id: offer.pharmacy_account_id,
+          lines: lines.map((i: any) => ({
+            order_item_id: i.order_item_id, medicine_id: i.medicine_id || null, sku: i.sku ?? null, name_ar: i.name_ar ?? null,
+            reason: i.above_catalogue_price ? 'price_above_catalogue' : 'not_verified',
+            catalogue_price: i.catalogue_price ?? null, offered_price: i.unit_price ?? null,
+          })),
+          status: 'open', updatedAt: now,
+        },
+        $setOnInsert: { id: uuidv4(), createdAt: now },
+      },
+      { upsert: true, returnDocument: 'after' },
+    );
+    const reviewId = (res?.value ?? res)?.id;
+    if (lines.some((i: any) => i.above_catalogue_price === true)) {
+      await this.connection.collection('notifications').updateOne(
+        { role: 'admin', type: 'pharmacy_price_review', 'body.offer_id': offer.id },
+        { $setOnInsert: { id: uuidv4(), user_id: 'admin', role: 'admin', type: 'pharmacy_price_review', title_key: 'admin.pharmacy.price_above_catalogue',
+          body: { order_id: orderId, offer_id: offer.id, review_id: reviewId }, read: false, createdAt: now } },
+        { upsert: true },
+      );
+    }
   }
 
   private async serverQuote(userId: string, order: any, inputs: ProviderOfferItemInput[]) {
@@ -275,7 +322,9 @@ export class PharmacyOfferService {
     const offer: any = prior
       ? await this.offers.findOneAndUpdate({ id: prior.id, status: 'draft' }, { $set: values }, { new: true })
       : await this.offers.create({ id: uuidv4(), ...values, created_at: now, timeline: [{ ts: now, event: 'draft_created', by: user.id }] });
-    return this.providerDto(offer.toObject ? offer.toObject() : offer);
+    const saved = offer.toObject ? offer.toObject() : offer;
+    await this.reportPriceReview(saved, orderId);
+    return this.providerDto(saved);
   }
 
   async submitDraft(user: any, orderId: string, offerId: string) {
@@ -313,16 +362,7 @@ export class PharmacyOfferService {
       actor_account_id: user.id, actor_role: 'pharmacy', patient_account_id: offer.patient_account_id,
       reason_code: 'provider_offer_submitted', meta: { order_id: orderId, offer_id: offer.id, version: offer.version },
     });
-    // D-12: notify admin if any line is above catalogue price
-    const hasAbove = (offer.items || []).some((item: any) => item.above_catalogue_price === true);
-    if (hasAbove) {
-      const aboveItems = (offer.items || []).filter((i: any) => i.above_catalogue_price === true);
-      await this.connection.collection('notifications').insertOne({
-        id: uuidv4(), user_id: 'admin', role: 'admin', title_key: 'price_above_catalogue',
-        body: { order_id: orderId, offer_id: offer.id, items: aboveItems.map((i: any) => ({ order_item_id: i.order_item_id, catalogue_price: i.catalogue_price, offered_price: i.unit_price })) },
-        createdAt: new Date(),
-      });
-    }
+    await this.reportPriceReview(offer, orderId);
     return this.providerDto(offer.toObject());
   }
 
@@ -535,7 +575,8 @@ export class PharmacyOfferService {
       id: offer.id, order_id: offer.order_id, status: offer.status, version: offer.version,
       items: offer.items, totals: offer.totals, quote_expires_at: offer.quote_expires_at,
       estimated_preparation_minutes: offer.estimated_preparation_minutes, fulfillment: offer.fulfillment || { policy_status: 'unavailable_read_only' }, pricing_source: offer.pricing_source,
-      ...(hasAboveCatalogue ? { warnings: [{ code: 'price_above_catalogue', message: 'drug prices are regulated: change them only when the official price has changed' }] } : {}),
+      // D-12: a code the provider app translates (no sentence in one language).
+      ...(hasAboveCatalogue ? { warnings: [{ code: 'price_above_catalogue' }] } : {}),
     };
   }
 
