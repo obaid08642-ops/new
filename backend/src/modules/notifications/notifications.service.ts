@@ -141,7 +141,8 @@ export class NotificationsService {
       } catch { /* fail open — deliver anyway */ }
     }
     // R6-3: resolve the admin template (or built-in text) once per delivery.
-    let lang = 'ar';
+    // 18.2: no stored locale means no Arabic. English is the specified last resort.
+    let lang = 'en';
     try {
       if (n.user_id) {
         const u: any = await this.model.db.model('User').findOne({ id: n.user_id }, { lang: 1 }).lean();

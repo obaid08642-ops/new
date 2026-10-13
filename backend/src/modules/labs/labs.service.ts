@@ -26,6 +26,11 @@ import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-revie
 
 import { nearestFirst } from '../provider/services/nearest-first';
 
+/** Public card for a provider in carousels and price lists: no contact or account details. */
+function publicProvider(p: any) {
+  return { id: p.account_id, name_ar: p.name_ar ?? null, name_en: p.name_en ?? null, logo: p.logo ?? null, rating: p.rating_count > 0 ? p.rating_avg : null, rating_count: p.rating_count || 0 };
+}
+
 @Injectable()
 export class LabsService {
   constructor(
@@ -120,6 +125,54 @@ export class LabsService {
       rating: profile.rating_count > 0 ? profile.rating_avg : null,
       logo: profile.logo || null,
     }));
+  }
+
+  // #624 carousel: popular approved tests, each with the approved labs that run it (the lab's
+  // test_categories hold the test id or its category, the rule compatibleProviders uses).
+  async getCarousel(category?: string, limit = 20) {
+    const lim = Math.min(Math.max(Number.isFinite(limit) ? limit : 20, 1), 50);
+    const q: any = { active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved', is_package: { $ne: true },
+      $and: [{ category: { $ne: 'imaging' } }, { sample_type: { $ne: 'imaging' } }] };
+    if (category) q.category = String(category);
+    const services: any[] = await this.svcModel.find(q, { _id: 0, id: 1, name_ar: 1, name_en: 1, category: 1, price: 1, short_code: 1, image_url: 1 })
+      .sort({ popularity: -1, name_ar: 1 }).limit(lim).lean();
+    const labs: any[] = await this.providerProfiles.find({
+      type: { $in: ['lab', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved', account_id: { $exists: true, $ne: null },
+    }, { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, rating_avg: 1, rating_count: 1, test_categories: 1 }).lean();
+    return services.map((svc) => {
+      const runs = labs.filter((p) => {
+        const cats: unknown[] = Array.isArray(p.test_categories) ? p.test_categories : [];
+        return cats.includes(svc.id) || (!!svc.category && cats.includes(svc.category));
+      }).sort((a, b) => (b.rating_count > 0 ? b.rating_avg : 0) - (a.rating_count > 0 ? a.rating_avg : 0));
+      return { ...svc, providers_count: runs.length, providers: runs.slice(0, 5).map(publicProvider) };
+    });
+  }
+
+  // #631 price comparison: each approved lab's own price for this test from its capabilities
+  // catalog (provider_capabilities_lab: code = the test's short code, or the same Arabic name,
+  // the rule ServiceCapabilityService uses). Labs with no priced entry are not listed.
+  async priceComparison(serviceId: string) {
+    const svc: any = await this.svcModel.findOne({ id: { $eq: String(serviceId) }, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, id: 1, name_ar: 1, name_en: 1, short_code: 1, price: 1 }).lean();
+    if (!svc) throw new NotFoundException('service_not_found');
+    const codes = [svc.id, svc.short_code].filter(Boolean);
+    const items: any[] = await this.svcModel.db.collection('provider_capabilities_lab').find({
+      available: true, $or: [{ code: { $in: codes } }, ...(svc.name_ar ? [{ name_ar: svc.name_ar }] : [])],
+    }, { projection: { _id: 0, provider_account_id: 1, price: 1, currency: 1, home_collection_supported: 1, turnaround_hours: 1, insurance_covered: 1 } }).toArray();
+    return { service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, catalog_price: svc.price ?? null, offers: await this.priceOffers(items, ['lab', 'hospital']) };
+  }
+
+  private async priceOffers(items: any[], types: string[]) {
+    const priced = items.filter((i) => typeof i.price === 'number' && i.price > 0);
+    if (!priced.length) return [];
+    const profiles: any[] = await this.providerProfiles.find({
+      account_id: { $in: [...new Set(priced.map((i) => i.provider_account_id))] }, type: { $in: types },
+      status: 'active', public_eligibility: true, medical_review_status: 'approved',
+    }, { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, rating_avg: 1, rating_count: 1 }).lean();
+    const byId = new Map(profiles.map((p) => [p.account_id, p]));
+    return priced.filter((i) => byId.has(i.provider_account_id)).map((i) => ({
+      provider: publicProvider(byId.get(i.provider_account_id)), price: i.price, currency: i.currency || 'SAR',
+      home_collection_supported: !!i.home_collection_supported, turnaround_hours: i.turnaround_hours ?? null, insurance_covered: !!i.insurance_covered,
+    })).sort((a, b) => a.price - b.price);
   }
 
   async book(user: any, data: any) {

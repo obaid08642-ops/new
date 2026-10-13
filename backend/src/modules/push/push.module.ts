@@ -451,9 +451,12 @@ export class PushService implements OnModuleInit {
         .findOne({ id: { $eq: String(userId) } }, { projection: { _id: 0, locale: 1, language: 1 } });
       const raw = String(u?.locale || u?.language || '').toLowerCase().split(/[-_]/)[0];
       const lang = raw === 'tl' ? 'fil' : raw;
-      return supported.includes(lang) ? lang : 'ar';
+      // 18.2: a locale the user never chose must not become Arabic. English is the
+      // specified last resort; I18nService then maps the hi/bn/fil values it cannot
+      // serve onto English as well.
+      return supported.includes(lang) ? lang : 'en';
     } catch {
-      return 'ar';
+      return 'en';
     }
   }
 
