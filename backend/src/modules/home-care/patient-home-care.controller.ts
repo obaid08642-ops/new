@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Query, ForbiddenException, BadRequestException, UseGuards, Param, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, ForbiddenException, BadRequestException, UseGuards, Param } from '@nestjs/common';
 import { Public } from '../../common/auth.guard';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -6,7 +6,7 @@ import { CurrentUser, JwtAuthGuard, SelfService } from '../../common/auth.guard'
 import { BookDto } from '../compat/compat.dto';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { HomeCareSvc } from './home-care.service';
-import { nearestFirst } from '../../provider/services/nearest-first';
+import { nearestFirst } from '../provider/services/nearest-first';
 
 const uid = (u: any) => u?.id || u?._id || u?.user_id;
 
@@ -54,114 +54,58 @@ export class PatientHomeCareController {
     return { data: docs.map(({ _id, ...d }: any) => d) };
   }
 
-  // #645: Search and filters for nursing services
+  // #645: search and filters for nursing services. Nursing is always a home visit and ratings belong
+  // to nurses, not services, so the filters are the catalog's own fields: text, category, price.
+  // With lat/lng the list is ordered nearest-first by the closest approved nurse offering the
+  // service (provider_profiles.nursing_services[].key, the same rule HomeCareSvc.book enforces).
+  // Live tracking (#647) is GET /nursing/visits/:id/tracking.
   @Get('services/search')
   async searchServices(
-    @Query('q') searchQuery?: string,
+    @Query('q') q?: string,
     @Query('category') category?: string,
-    @Query('home_visit') homeVisit?: string,
     @Query('min_price') minPrice?: string,
     @Query('max_price') maxPrice?: string,
-    @Query('rating') rating?: string,
     @Query('lat') lat?: string,
     @Query('lng') lng?: string,
-    @Query('radius_km') radiusKm?: string,
     @Query('limit') limit?: string,
-    @Query('page') page?: string
+    @Query('page') page?: string,
   ) {
-    const query = { is_active: { $ne: false }, kind: { $ne: 'package' } } as any;
-    if (searchQuery) {
-      const re = new RegExp(searchQuery.trim().replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&'), 'i');
-      (query as any).$or = [{ name_ar: re }, { name_en: re }, { short_code: re }];
+    const filter: Record<string, any> = { is_active: { $ne: false }, kind: { $ne: 'package' } };
+    const text = (q || '').trim().slice(0, 100);
+    if (text) {
+      const re = new RegExp(text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+      filter.$or = [{ name_ar: re }, { name_en: re }];
     }
-    if (category) (query as any).category = category;
-    if (homeVisit === '1' || homeVisit === 'true') (query as any).home_visit_supported = true;
-    if (minPrice || maxPrice) {
-      (query as any).price = {};
-      if (minPrice) (query as any).price.$gte = parseFloat(minPrice);
-      if (maxPrice) (query as any).price.$lte = parseFloat(maxPrice);
+    if (category) filter.category = String(category);
+    const min = parseFloat(minPrice || '');
+    const max = parseFloat(maxPrice || '');
+    if (Number.isFinite(min) || Number.isFinite(max)) {
+      filter.price = {};
+      if (Number.isFinite(min)) filter.price.$gte = min;
+      if (Number.isFinite(max)) filter.price.$lte = max;
     }
-    if (rating) (query as any).rating_avg = { $gte: parseFloat(rating) };
+    const pageNum = Math.max(parseInt(page || '1', 10) || 1, 1);
+    const limitNum = Math.min(Math.max(parseInt(limit || '50', 10) || 50, 1), 200);
 
-    let services = await this.conn.db
+    const services: any[] = (await this.conn.db
       .collection(CATALOG_COLLECTIONS.nursing_services)
-      .find(query)
-      .limit(parseInt(limit || '50'))
-      .toArray();
+      .find(filter, { projection: { _id: 0 } })
+      .limit(1000)
+      .toArray());
 
-    // #645: nearest filter with geo using nearestFirst utility
-    let latNum: number | undefined;
-    let lngNum: number | undefined;
-    if (lat && Number.isFinite(parseFloat(lat))) latNum = parseFloat(lat);
-    if (lng && Number.isFinite(parseFloat(lng))) lngNum = parseFloat(lng);
-
-    if (latNum !== undefined && lngNum !== undefined) {
-      const providers = await this.conn.db
-        .collection('provider_profiles')
-        .find({
-          type: { $in: ['nurse', 'nursing', 'home_care'] },
-          status: 'active',
-          public_eligibility: true,
-          medical_review_status: 'approved',
-          'geo.lat': { $exists: true, $ne: null },
-          'geo.lng': { $exists: true, $ne: null }
-        }, { projection: { _id: 0, account_id: 1, geo: 1, delivery_zones: 1 } })
-        .toArray();
-
-      // Use nearestFirst utility from provider/services/nearest-first.ts
-      services = nearestFirst(
-        services,
-        providers,
-        { lat: latNum, lng: lngNum },
-        (svc, p) => {
-          // Check if provider serves this service via test_categories
-          return (svc.test_categories || []).includes(p.account_id);
-        }
-      ).map(s => ({ ...s, nearest_provider_km: s.nearest_provider_km }));
+    const latNum = parseFloat(lat || '');
+    const lngNum = parseFloat(lng || '');
+    let list: any[] = services;
+    if (Number.isFinite(latNum) && Number.isFinite(lngNum)) {
+      const nurses = await this.conn.db.collection('provider_profiles').find({
+        type: { $in: ['home_care', 'nursing', 'nurse'] }, status: 'active', public_eligibility: true,
+        medical_review_status: 'approved', 'geo.lat': { $ne: null }, 'geo.lng': { $ne: null },
+      } as any, { projection: { _id: 0, account_id: 1, geo: 1, nursing_services: 1 } }).toArray();
+      list = nearestFirst(services, nurses as any[], { lat: latNum, lng: lngNum },
+        (svc, p: any) => (p.nursing_services || []).some((n: any) => n?.key === svc.id));
     }
-
-    // Apply pagination
-    const pageNum = Math.max(parseInt(page || '1'), 1);
-    const limitNum = Math.min(parseInt(limit || '50'), 200);
     const skip = (pageNum - 1) * limitNum;
-    const paginated = services.slice(skip, skip + limitNum);
-    return { data: paginated, page: pageNum, limit: limitNum };
-  }
-
-  // #647: Live tracking for nursing visits
-  @Get('bookings/:id/tracking')
-  async getTracking(@CurrentUser() u: any, @Param('id') id: string) {
-    const userId = uid(u);
-    if (!userId) throw new ForbiddenException('authenticated_user_required');
-    
-    const booking = await this.conn.db
-      .collection('home_care_bookings')
-      .findOne({ id, patient_id: userId } as any);
-    if (!booking) throw new NotFoundException('booking_not_found');
-    
-    // Return tracking info based on booking state
-    return {
-      booking_id: id,
-      state: booking.state,
-      provider: booking.provider_id ? {
-        id: booking.provider_id,
-        name: booking.provider_name || null,
-        phone: booking.provider_phone || null,
-        gps_lat: booking.gps_lat || null,
-        gps_lng: booking.gps_lng || null,
-        last_location_update: booking.gps_updated_at || null
-      } : null,
-      timeline: booking.timeline || [],
-      estimated_arrival: booking.estimated_arrival || null,
-      current_step: this.getCurrentStep(booking.state),
-      steps: ['CONFIRMED', 'PROVIDER_ASSIGNED', 'EN_ROUTE', 'ARRIVED', 'IN_PROGRESS', 'COMPLETED']
-    };
-  }
-
-  private getCurrentStep(state: string): number {
-    const steps = ['CONFIRMED', 'PROVIDER_ASSIGNED', 'EN_ROUTE', 'ARRIVED', 'IN_PROGRESS', 'COMPLETED'];
-    const idx = steps.indexOf(state);
-    return idx >= 0 ? idx : 0;
+    return { data: list.slice(skip, skip + limitNum), page: pageNum, limit: limitNum, total: list.length };
   }
 
   // P5.3d: alias of canonical POST /nursing/bookings — same single
