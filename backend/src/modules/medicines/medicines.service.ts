@@ -7,6 +7,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Medicine, MedicineDocument } from '../../schemas/medicine.schema';
 import { EVENTS } from '../../common/events';
 import { clampPageInt } from '../../common/safe-query';
+import { PurgeBus } from '../../common/purge-bus';
 import { MedicineRepository } from "./repositories/medicine.repository";
 import { RedisService } from '../redis/redis.service';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
@@ -32,6 +33,7 @@ export class MedicinesService {
     @Optional() private readonly seoPipeline?: AutoEntitySeoPipelineService,
     @Optional() private readonly rankingService?: ProductRankingService,
     @Optional() private readonly manualBoosts?: ManualBoostsService,
+    @Optional() private readonly purgeBus?: PurgeBus,
   ) {}
 
   /** R77: labeled sponsored flags from the governed manual layer (order untouched). */
@@ -1825,6 +1827,14 @@ export class MedicinesService {
     }
     this.audit('medicine.admin_direct_edit', medicineId, adminId, 'admin', { before, after, requires_reapproval: requiresReapproval, images_deleted: removed });
     await this.invalidateCache();
+    // 14.8: a price, availability or image change must invalidate every cached
+    // copy now, not when the TTL happens to expire. Purge failures are logged
+    // loudly but never fail the admin write itself (short TTLs are the
+    // backstop); the PurgeBus itself throws on misconfiguration so a silently
+    // skipped edge can never hide.
+    if (this.purgeBus && (clean.price !== undefined || (patch as any)?.availability_status !== undefined || (patch as any)?.image !== undefined)) {
+      await this.purgeBus.purge(['medicines']).catch((e: any) => (this as any).logger?.error?.(`purge medicines failed: ${e?.message || e}`));
+    }
     return { ok: true, updated: Object.keys({ ...clean, ...extra }), requires_reapproval: requiresReapproval };
   }
 }
