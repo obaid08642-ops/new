@@ -125,9 +125,38 @@ export class HomeCareCompatController {
     throw new ForbiddenException('booking_access_denied');
   }
 
-  // D-25: POST /home-care/bookings is served by PatientHomeCareController's alias of the canonical
-  // HomeCareSvc.book (provider check, card/insurance only for a home visit). This older copy took
-  // the route first and accepted cash.
+  @SelfService()
+  @Header('Deprecation', 'true')
+  @Header('Sunset', 'Sat, 01 Aug 2026 00:00:00 GMT')
+  @Post('bookings') async createBooking(@CurrentUser() u: any, @Body() body: CreateBookingDto) {
+    if (u?.role !== 'patient') throw new ForbiddenException('patient_only');
+    if (!body?.service_id) throw new BadRequestException('service_id is required');
+    if (!body?.scheduled_at) throw new BadRequestException('scheduled_at is required');
+    // D-25: a home visit is paid by card or insurance, never cash (same rule as POST /nursing/bookings).
+    if (String(body.payment_method || '').trim().toLowerCase() === 'cash') {
+      throw new BadRequestException('payment_method_cash_not_allowed_for_home_visit');
+    }
+    const svc: any = await this.services.findOne({ id: { $eq: body.service_id }, active: true }).lean();
+    if (!svc) throw new NotFoundException('service not found');
+    const address = body.address_id ? await this.savedAddress(u.id, body.address_id) : body.address;
+    const doc = await this.bookings.create({
+      patient_id: u.id,
+      service_id: svc?.id || body.service_id,
+      service_name_ar: svc?.name_ar || body.service_name_ar,
+      duration: svc.duration || 'hour',
+      total: svc.price,
+      total_price: svc.price,
+      scheduled_at: new Date(body.scheduled_at),
+      address,
+      notes: body.notes?.trim() || undefined,
+      payment_method: body.payment_method,
+      provider_id: undefined,
+      state: 'NEW_REQUEST',
+      state_history: [{ state: 'NEW_REQUEST', at: new Date(), by: u.id }],
+    });
+    try { this.emitter?.emit('homecare.booking_created', { booking_id: doc.id, patient_id: u.id }); } catch {}
+    return doc.toObject();
+  }
 
   @Header('Deprecation', 'true')
   @Header('Sunset', 'Sat, 01 Aug 2026 00:00:00 GMT')
