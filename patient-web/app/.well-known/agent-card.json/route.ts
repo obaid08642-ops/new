@@ -32,14 +32,13 @@ const agentCard = {
     "medicine_search",
     "doctor_search",
     "diagnostics_booking",
-    "home_nursing_booking",
-    "insurance_verification"
+    "home_nursing_booking"
   ],
   skills: [
     {
       id: "urn:air:nabd.plus:skill:medicine-ordering",
       name: "Medicine Ordering and Availability",
-      description: "Search 20,990+ SFDA-compliant pharmaceutical products, therapeutic alternatives, and public pricing ceilings.",
+      description: "Search SFDA-compliant pharmaceutical products, therapeutic alternatives, and public pricing ceilings.",
       url: `${origin}/agent-skills/ordering/skill.md`
     },
     {

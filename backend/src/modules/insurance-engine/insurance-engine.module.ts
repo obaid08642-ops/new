@@ -279,6 +279,54 @@ export class InsuranceFlowService {
     return { has_policy: !!(ins && (ins.company_id || ins.provider || ins.policy_number)), policy: ins };
   }
 
+  /**
+   * Batch 7 insurance, chunk oc/E-ins-1 (#829, #845, #837).
+   *
+   * Relay-only (decision 35 / D-37): this reads the **saved policy** and nothing else. It does
+   * not ask an insurer anything, so the answer must not read like a live check.
+   *
+   *  - `note_code` replaces the hard-coded Arabic `note_ar` sentence (queue §2 step 5: send a
+   *    code, let the client translate it). `note_ar` is left for the two patient-web readers
+   *    that call it today (`lib/insurance/view.ts:51,60`); the design session switches them to
+   *    `note_code` and the Arabic field can then go.
+   *  - `has_policy` is the neutral name for what `eligible` always meant ("a policy is on
+   *    file"). `eligible` is kept because the clients read it; the two always agree.
+   *  - `live_check: false` says out loud that nothing was checked with an insurer, and no
+   *    `nphies_*` field is returned.
+   */
+  async coverageCheckAnswer(user: any, query: any) {
+    const { has_policy, policy } = await this.myPolicy(user);
+    return {
+      eligible: has_policy,
+      has_policy,
+      policy,
+      service_type: query?.service_type || 'consultation',
+      live_check: false,
+      note_code: has_policy ? 'coverage_decided_by_provider' : 'no_policy_on_file',
+      note_ar: has_policy
+        ? 'التغطية النهائية يحددها مزود الخدمة عند مراجعة الطلب'
+        : 'لا توجد وثيقة تأمين في ملفك — أضفها أولًا',
+    };
+  }
+
+  /**
+   * Batch 7 insurance, chunk oc/E-ins-1 (#836).
+   *
+   * Benefits rows carry a stable `key` the client translates. There is no benefit amount,
+   * limit or usage anywhere in the platform, so none is invented here: until the owner
+   * supplies real plan limits this row is only the "who decides coverage" notice.
+   */
+  async benefitsAnswer(user: any) {
+    const { has_policy, policy } = await this.myPolicy(user);
+    return {
+      has_policy,
+      policy,
+      benefits: has_policy
+        ? [{ key: 'manual_review', note_code: 'coverage_decided_by_provider', amounts_available: false }]
+        : [],
+    };
+  }
+
   private bookingModel(kind: string): { kind: string; model: Model<any> } {
     const value = String(kind || '').trim().toLowerCase();
     if (['pharmacy', 'order', 'orders'].includes(value)) return { kind: 'pharmacy', model: this.orders };
@@ -716,21 +764,15 @@ export class InsuranceFlowController {
   @Post('save-policy') savePolicy(@CurrentUser() u: any, @Body() b: SavePolicyDto) { return this.svc.savePolicy(u, b); }
   @Get('my-policy') myPolicy(@CurrentUser() u: any) { return this.svc.myPolicy(u); }
 
+  // #829/#845/#837: renamed body, same route (the clients call `coverage-check`). The answer is
+  // the saved policy only and says so with `live_check` and `note_code`.
   @Get('coverage-check') async coverageCheck(@CurrentUser() u: any, @Query() q: any) {
-    const { has_policy, policy } = await this.svc.myPolicy(u);
-    return {
-      eligible: has_policy,
-      policy,
-      service_type: q?.service_type || 'consultation',
-      note_ar: has_policy
-        ? 'التغطية النهائية يحددها مزود الخدمة عند مراجعة الطلب'
-        : 'لا توجد وثيقة تأمين في ملفك — أضفها أولًا',
-    };
+    return this.svc.coverageCheckAnswer(u, q);
   }
 
+  // #836: rows carry a translatable key instead of one hard-coded Arabic sentence.
   @Get('benefits-summary') async benefits(@CurrentUser() u: any) {
-    const { has_policy, policy } = await this.svc.myPolicy(u);
-    return { has_policy, policy, benefits: has_policy ? [{ key: 'manual_review', note_ar: 'تخضع الموافقة لمراجعة مزود الخدمة لوثيقتك' }] : [] };
+    return this.svc.benefitsAnswer(u);
   }
 
   @SelfService()

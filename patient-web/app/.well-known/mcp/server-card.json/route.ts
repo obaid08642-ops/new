@@ -26,7 +26,8 @@ export function GET() {
       },
       capabilities: {
         tools: true,
-        resources: true,
+        // AC-5: no resources or prompts exist on this endpoint (tools only).
+        resources: false,
         prompts: false,
       },
       endpoints: {

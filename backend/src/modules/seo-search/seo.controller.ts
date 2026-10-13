@@ -1,4 +1,5 @@
 import { JwtAuthGuard, Roles, Public } from '../../common/auth.guard';
+import { PublicCache } from '../../common/public-cache.decorator';
 import { UseGuards } from '@nestjs/common';
 import { Controller, Get, Post, Body, Param, NotFoundException, Header, Res, UseInterceptors } from '@nestjs/common';
 import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
@@ -55,6 +56,7 @@ export class SeoController {
    * every medicine, doctor, lab service, home-care service and facility.
    */
   @Public()
+  @PublicCache(3600, ['seo', 'sitemap'])
   @Get('sitemap.xml')
   async sitemap(@Res() res: Response) {
     const xml = await this.svc.sitemap();
@@ -68,6 +70,7 @@ export class SeoController {
    * generated from live catalogue data.
    */
   @Public()
+  @PublicCache(3600, ['seo'])
   @Get('llms.txt')
   async llmsTxt(@Res() res: Response) {
     const txt = await this.svc.llmsTxt();
@@ -80,6 +83,7 @@ export class SeoController {
    * robots.txt — references the sitemap so crawlers can discover everything.
    */
   @Public()
+  @PublicCache(86400, ['seo'])
   @Get('robots.txt')
   async robots(@Res() res: Response) {
     const txt = await this.svc.robots();
@@ -92,6 +96,7 @@ export class SeoController {
    * IndexNow key verification file: search engines request this to verify domain ownership.
    */
   @Public()
+  @PublicCache(86400, ['seo'])
   @Get('indexnow-key.txt')
   async indexNowKey(@Res() res: Response) {
     const key = this.indexNowSvc.getKey();

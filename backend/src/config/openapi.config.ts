@@ -42,7 +42,32 @@ export function createNabdahOpenApiDocument(app: INestApplication): OpenAPIObjec
 
   document.paths = Object.fromEntries(normalizedPaths);
   addPatientContractPackPaths(document);
+  declareTemplatedPathParams(document);
   return document;
+}
+
+/**
+ * Every `{name}` in a path is a required path parameter. Swagger only documents the ones a
+ * handler reads with @Param(), so stub routes (retired endpoints that answer a fixed error)
+ * and wildcards came out with undeclared parameters, which makes the spec invalid for
+ * clients and fuzzers. Declare the missing ones as plain strings.
+ */
+function declareTemplatedPathParams(document: OpenAPIObject) {
+  const methods = ['get', 'put', 'post', 'delete', 'patch', 'options', 'head'];
+  for (const [path, item] of Object.entries(document.paths) as [string, any][]) {
+    const names = [...path.matchAll(/\{([^}]+)\}/g)].map((m) => m[1]);
+    if (!names.length) continue;
+    const atPath = new Set((item.parameters || []).filter((p: any) => p?.in === 'path').map((p: any) => p.name));
+    for (const method of methods) {
+      const op = item[method];
+      if (!op) continue;
+      const declared = new Set([...atPath, ...(op.parameters || []).filter((p: any) => p?.in === 'path').map((p: any) => p.name)]);
+      const missing = names.filter((n) => !declared.has(n));
+      if (missing.length) {
+        op.parameters = [...(op.parameters || []), ...missing.map((name) => ({ name, in: 'path', required: true, schema: { type: 'string' } }))];
+      }
+    }
+  }
 }
 
 /**

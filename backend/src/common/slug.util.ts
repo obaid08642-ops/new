@@ -53,3 +53,9 @@ export function escapeRegex(input: string): string {
   if (!input) return '';
   return String(input).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
+
+/** decodeURIComponent that never throws: a malformed escape (a lone `%`) keeps the raw text
+ *  instead of turning a bad request into a 500. */
+export function safeDecode(input: string): string {
+  try { return decodeURIComponent(input); } catch { return input; }
+}
