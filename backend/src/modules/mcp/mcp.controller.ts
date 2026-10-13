@@ -2,6 +2,7 @@ import { Controller, Post, Get, Body, HttpCode, UseInterceptors, Req, Res, HttpE
 import type { Request, Response } from 'express';
 import { Throttle } from '@nestjs/throttler';
 import { McpService, MCP_TOOLS, MCP_LEGACY_PROTOCOL_VERSION, buildMcpServerCard } from './mcp.service';
+import { AgentToolsService } from './agent-tools.service';
 import { Public } from '../../common/auth.guard';
 import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
 import { HandleRpcDto } from './mcp.dto';
@@ -11,7 +12,11 @@ import { AGENT_TOOL_SCOPES, resourceMetadataUrl } from '../agent-oauth/agent-oau
 @Controller('mcp')
 @UseInterceptors(RedisCacheInterceptor)
 export class McpController {
-  constructor(private readonly mcpService: McpService, private readonly agentOAuth: AgentOAuthService) {}
+  constructor(
+    private readonly mcpService: McpService,
+    private readonly agentOAuth: AgentOAuthService,
+    private readonly agentTools: AgentToolsService,
+  ) {}
 
   /**
    * AC-2: MCP 2025-06-18 Streamable HTTP transport (JSON responses, no SSE stream).
@@ -48,7 +53,21 @@ export class McpController {
         res.setHeader('WWW-Authenticate', `Bearer resource_metadata="${meta}", error="insufficient_scope", scope="${scope}"`);
         throw new HttpException({ jsonrpc: '2.0', id: body.id ?? null, error: { code: -32003, message: 'insufficient_scope', data: { error_code: 'INSUFFICIENT_SCOPE', scope } } }, HttpStatus.FORBIDDEN);
       }
-      return this.mcpService.handleAgentToolCall(body, principal);
+      // AC-3: through the existing services (no copies of booking or order logic).
+      // (scope is only set when toolName is a string key of AGENT_TOOL_SCOPES.)
+      return this.agentTools.dispatch(
+        toolName as string, ((body.params as { arguments?: unknown } | undefined)?.arguments ?? {}) as Record<string, unknown>,
+        principal, body.id ?? null,
+      );
+    }
+    // AC-3: consultation_slots is public (real slots only, no patient data).
+    if (toolName === 'consultation_slots') {
+      const out = await this.agentTools.dispatchPublic(
+        toolName, ((body.params as { arguments?: unknown } | undefined)?.arguments ?? {}) as Record<string, unknown>,
+        body.id ?? null,
+      );
+      res.setHeader('MCP-Protocol-Version', headerVersion ?? MCP_LEGACY_PROTOCOL_VERSION);
+      return out;
     }
     const { version, response } = await this.mcpService.handleRpcRequestWithProtocol(body, headerVersion);
     res.setHeader('MCP-Protocol-Version', version);

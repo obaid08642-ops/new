@@ -1749,6 +1749,75 @@
         ]
       }
     },
+    "/api/v1/public/sitemaps/doctor-cities/{locale}": {
+      "get": {
+        "operationId": "SeoSearchController_publicDoctorCitySitemap",
+        "parameters": [
+          {
+            "name": "locale",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "SeoSearch"
+        ]
+      }
+    },
+    "/api/v1/public/sitemaps/pharmacies/{locale}": {
+      "get": {
+        "operationId": "SeoSearchController_publicPharmacySitemap",
+        "parameters": [
+          {
+            "name": "locale",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "SeoSearch"
+        ]
+      }
+    },
+    "/api/v1/public/sitemaps/articles/{locale}": {
+      "get": {
+        "operationId": "SeoSearchController_publicArticleSitemap",
+        "parameters": [
+          {
+            "name": "locale",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "SeoSearch"
+        ]
+      }
+    },
     "/api/v1/public/sitemaps/locations/{locale}": {
       "get": {
         "operationId": "SeoSearchController_publicLocationSitemap",
@@ -1776,6 +1845,29 @@
       "get": {
         "operationId": "SeoAdminController_status",
         "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "SeoAdmin"
+        ]
+      }
+    },
+    "/api/v1/admin/seo/medicine-report": {
+      "get": {
+        "operationId": "SeoAdminController_medicineReport",
+        "parameters": [
+          {
+            "name": "format",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": ""
@@ -2353,6 +2445,22 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "type",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "service",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -2387,6 +2495,18 @@
         "tags": [
           "Mcp"
         ]
+      },
+      "get": {
+        "operationId": "McpController_handleGet",
+        "parameters": [],
+        "responses": {
+          "405": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Mcp"
+        ]
       }
     },
     "/api/v1/mcp/tools": {
@@ -2414,6 +2534,290 @@
         },
         "tags": [
           "Mcp"
+        ]
+      }
+    },
+    "/api/v1/.well-known/oauth-authorization-server": {
+      "get": {
+        "operationId": "AgentOAuthWellKnownController_authorizationServer",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AgentOAuthWellKnown"
+        ]
+      }
+    },
+    "/api/v1/.well-known/oauth-protected-resource": {
+      "get": {
+        "operationId": "AgentOAuthWellKnownController_protectedResource",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AgentOAuthWellKnown"
+        ]
+      }
+    },
+    "/api/v1/.well-known/oauth-protected-resource/api/v1/mcp": {
+      "get": {
+        "operationId": "AgentOAuthWellKnownController_protectedResourceMcp",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AgentOAuthWellKnown"
+        ]
+      }
+    },
+    "/api/v1/oauth/metadata": {
+      "get": {
+        "operationId": "AgentOAuthController_metadata",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AgentOAuth"
+        ]
+      }
+    },
+    "/api/v1/oauth/protected-resource": {
+      "get": {
+        "operationId": "AgentOAuthController_protectedResource",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AgentOAuth"
+        ]
+      }
+    },
+    "/api/v1/oauth/register": {
+      "post": {
+        "operationId": "AgentOAuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterClientDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AgentOAuth"
+        ]
+      }
+    },
+    "/api/v1/oauth/authorize": {
+      "get": {
+        "operationId": "AgentOAuthController_consent",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AgentOAuth"
+        ]
+      },
+      "post": {
+        "operationId": "AgentOAuthController_decide",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthorizeDecisionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AgentOAuth"
+        ]
+      }
+    },
+    "/api/v1/oauth/token": {
+      "post": {
+        "operationId": "AgentOAuthController_token",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AgentOAuth"
+        ]
+      }
+    },
+    "/api/v1/oauth/revoke": {
+      "post": {
+        "operationId": "AgentOAuthController_revoke",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AgentOAuth"
+        ]
+      }
+    },
+    "/api/v1/patient/agent-connections": {
+      "get": {
+        "operationId": "PatientAgentConnectionsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PatientAgentConnections"
+        ]
+      }
+    },
+    "/api/v1/patient/agent-connections/{clientId}": {
+      "delete": {
+        "operationId": "PatientAgentConnectionsController_revoke",
+        "parameters": [
+          {
+            "name": "clientId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PatientAgentConnections"
+        ]
+      }
+    },
+    "/api/v1/admin/agent-clients": {
+      "get": {
+        "operationId": "AdminAgentClientsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminAgentClients"
+        ]
+      },
+      "post": {
+        "operationId": "AdminAgentClientsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminCreateAgentClientDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminAgentClients"
+        ]
+      }
+    },
+    "/api/v1/admin/agent-clients/{clientId}": {
+      "patch": {
+        "operationId": "AdminAgentClientsController_update",
+        "parameters": [
+          {
+            "name": "clientId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUpdateAgentClientDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminAgentClients"
         ]
       }
     },
@@ -3143,6 +3547,20 @@
         ]
       }
     },
+    "/api/v1/admin/ops/alerts": {
+      "get": {
+        "operationId": "OpsController_alerts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ops"
+        ]
+      }
+    },
     "/api/v1/admin/ops/overview": {
       "get": {
         "operationId": "OpsController_overview",
@@ -3383,7 +3801,16 @@
     "/api/v1/media/{key}": {
       "delete": {
         "operationId": "MediaController_deleteFile",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": ""
@@ -3391,6 +3818,53 @@
         },
         "tags": [
           "Media"
+        ]
+      }
+    },
+    "/api/v1/modules": {
+      "get": {
+        "operationId": "ModuleSwitchesController_read",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ModuleSwitches"
+        ]
+      }
+    },
+    "/api/v1/admin/modules/{key}": {
+      "put": {
+        "operationId": "ModuleSwitchesController_write",
+        "parameters": [
+          {
+            "name": "key",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetModuleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ModuleSwitches"
         ]
       }
     },
@@ -3875,6 +4349,43 @@
         ]
       }
     },
+    "/api/v1/auth/logout-device": {
+      "post": {
+        "operationId": "AuthController_logoutDevice",
+        "parameters": [
+          {
+            "name": "x-device-id",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/sessions": {
+      "get": {
+        "operationId": "AuthController_sessions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
     "/api/v1/auth/consent": {
       "post": {
         "operationId": "AuthController_recordConsent",
@@ -3995,6 +4506,168 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/SocialLoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/link-account": {
+      "post": {
+        "operationId": "AuthController_linkAccount",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkAccountDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/confirm-account-link": {
+      "post": {
+        "operationId": "AuthController_confirmAccountLink",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmAccountLinkDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/linked-accounts": {
+      "get": {
+        "operationId": "AuthController_linkedAccounts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/checkout-contact": {
+      "post": {
+        "operationId": "AuthController_storeCheckoutContact",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckoutContactDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/checkout-contact/cash-limits": {
+      "get": {
+        "operationId": "AuthController_cashLimits",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/guest/capabilities": {
+      "get": {
+        "operationId": "AuthController_guestCapabilities",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/admin/guest/capabilities": {
+      "put": {
+        "operationId": "AuthController_setGuestCapabilities",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuestCapabilitiesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/guest/cleanup": {
+      "post": {
+        "operationId": "AuthController_cleanupGuests",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuestCleanupDto"
               }
             }
           }
@@ -4204,6 +4877,62 @@
         },
         "tags": [
           "AdminDevices"
+        ]
+      }
+    },
+    "/api/v1/auth/admin-recovery/generate": {
+      "post": {
+        "operationId": "AdminRecoveryController_generate",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminRecovery"
+        ]
+      }
+    },
+    "/api/v1/auth/admin-recovery/start": {
+      "post": {
+        "operationId": "AdminRecoveryController_start",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminRecovery"
+        ]
+      }
+    },
+    "/api/v1/auth/admin-recovery/redeem": {
+      "post": {
+        "operationId": "AdminRecoveryController_redeem",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminRecovery"
+        ]
+      }
+    },
+    "/api/v1/auth/step-up/issue": {
+      "post": {
+        "operationId": "StepUpController_issue",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "StepUp"
         ]
       }
     },
@@ -4743,6 +5472,56 @@
         "parameters": [],
         "responses": {
           "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/v1/users/me/data-export": {
+      "get": {
+        "operationId": "UsersController_exportMyData",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/v1/users/me/consents": {
+      "get": {
+        "operationId": "UsersController_getMyConsents",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Users"
+        ]
+      },
+      "post": {
+        "operationId": "UsersController_recordConsent",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordConsentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
             "description": ""
           }
         },
@@ -6277,7 +7056,16 @@
       },
       "patch": {
         "operationId": "MedicinesController_updateLegacyDisabled",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": ""
@@ -6413,7 +7201,16 @@
     "/api/v1/medicines/admin/catalog/{id}/legacy-delete-disabled": {
       "delete": {
         "operationId": "MedicinesController_deleteCatalogLegacyDisabled",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": ""
@@ -6427,7 +7224,16 @@
     "/api/v1/medicines/{id}/approve": {
       "post": {
         "operationId": "MedicinesController_approveLegacyDisabled",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": ""
@@ -6441,7 +7247,16 @@
     "/api/v1/medicines/{id}/reject": {
       "post": {
         "operationId": "MedicinesController_rejectLegacyDisabled",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": ""
@@ -6528,6 +7343,66 @@
         },
         "tags": [
           "PublicCatalog"
+        ]
+      }
+    },
+    "/api/v1/medicines/{id}/consult-specialty": {
+      "get": {
+        "operationId": "RxConsultController_consultSpecialty",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Specialty to consult for a prescription-only item / التخصص المناسب لاستشارة طبيب",
+        "tags": [
+          "Medicines"
+        ]
+      }
+    },
+    "/api/v1/admin/pharmacy/rx-consult-specialties": {
+      "get": {
+        "operationId": "RxConsultController_getMapping",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Medicines"
+        ]
+      },
+      "put": {
+        "operationId": "RxConsultController_setMapping",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RxConsultSpecialtiesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Medicines"
         ]
       }
     },
@@ -6785,6 +7660,29 @@
       "get": {
         "operationId": "PrescriptionsController_pharmacyQueue",
         "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Prescriptions"
+        ]
+      }
+    },
+    "/api/v1/prescriptions/{id}/image": {
+      "get": {
+        "operationId": "PrescriptionsController_image",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": ""
@@ -7946,16 +8844,16 @@
         ]
       }
     },
-    "/api/v1/emergency/trigger": {
+    "/api/v1/emergency/share-location": {
       "post": {
-        "operationId": "EmergencyController_trigger",
+        "operationId": "EmergencyController_shareLocation",
         "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/TriggerDto"
+                "$ref": "#/components/schemas/ShareLocationDto"
               }
             }
           }
@@ -7967,956 +8865,30 @@
         },
         "tags": [
           "Emergency"
-        ]
-      }
-    },
-    "/api/v1/emergency/my/active": {
-      "get": {
-        "operationId": "EmergencyController_myActive",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Emergency"
-        ]
-      }
-    },
-    "/api/v1/emergency/{id}/cancel": {
-      "post": {
-        "operationId": "EmergencyController_cancel",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Emergency"
-        ]
-      }
-    },
-    "/api/v1/emergency/driver/missions": {
-      "get": {
-        "operationId": "EmergencyController_driverMissions",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Emergency"
-        ]
-      }
-    },
-    "/api/v1/emergency/{id}/claim": {
-      "post": {
-        "operationId": "EmergencyController_claim",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ClaimDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Emergency"
-        ]
-      }
-    },
-    "/api/v1/emergency/tracking": {
-      "get": {
-        "operationId": "EmergencyController_tracking",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Emergency"
-        ]
-      }
-    },
-    "/api/v1/emergency/{id}/track": {
-      "post": {
-        "operationId": "EmergencyController_track",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TrackDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Emergency"
-        ]
-      }
-    },
-    "/api/v1/emergency/active": {
-      "get": {
-        "operationId": "EmergencyController_active",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Emergency"
-        ]
-      }
-    },
-    "/api/v1/emergency/{id}": {
-      "get": {
-        "operationId": "EmergencyController_one",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Emergency"
-        ]
-      }
-    },
-    "/api/v1/emergency/{id}/assign": {
-      "post": {
-        "operationId": "EmergencyController_assign",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AssignDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Emergency"
-        ]
-      }
-    },
-    "/api/v1/emergency/{id}/escalate-997": {
-      "post": {
-        "operationId": "EmergencyController_escalate997",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Escalate997Dto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Emergency"
-        ]
-      }
-    },
-    "/api/v1/emergency/{id}/auto-dispatch": {
-      "post": {
-        "operationId": "EmergencyController_autoDispatch",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Emergency"
-        ]
-      }
-    },
-    "/api/v1/emergency/{id}/resolve": {
-      "post": {
-        "operationId": "EmergencyController_resolve",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ResolveDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Emergency"
-        ]
-      }
-    },
-    "/api/v1/provider/ambulance/fleet": {
-      "get": {
-        "operationId": "ProviderAmbulanceFleetController_list",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "ProviderAmbulanceFleet"
-        ]
-      },
-      "post": {
-        "operationId": "ProviderAmbulanceFleetController_create",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "ProviderAmbulanceFleet"
-        ]
-      }
-    },
-    "/api/v1/provider/ambulance/fleet/{id}": {
-      "patch": {
-        "operationId": "ProviderAmbulanceFleetController_update",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "ProviderAmbulanceFleet"
-        ]
-      },
-      "delete": {
-        "operationId": "ProviderAmbulanceFleetController_remove",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "ProviderAmbulanceFleet"
-        ]
-      }
-    },
-    "/api/v1/admin/ambulance/fleet": {
-      "get": {
-        "operationId": "AdminAmbulanceFleetController_list",
-        "parameters": [
-          {
-            "name": "status",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "AdminAmbulanceFleet"
-        ]
-      }
-    },
-    "/api/v1/admin/ambulance/fleet/{id}/approve": {
-      "post": {
-        "operationId": "AdminAmbulanceFleetController_approve",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "AdminAmbulanceFleet"
-        ]
-      }
-    },
-    "/api/v1/admin/ambulance/fleet/{id}/reject": {
-      "post": {
-        "operationId": "AdminAmbulanceFleetController_reject",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RejectDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "AdminAmbulanceFleet"
-        ]
-      }
-    },
-    "/api/v1/ai/config": {
-      "get": {
-        "operationId": "AiController_getConfig",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Ai"
-        ]
-      },
-      "post": {
-        "operationId": "AiController_updateConfig",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateAiConfigDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Ai"
-        ]
-      }
-    },
-    "/api/v1/ai/admin/gateway": {
-      "get": {
-        "operationId": "AiController_gatewayStatus",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Ai"
-        ]
-      }
-    },
-    "/api/v1/ai/admin/gateway/provider/{key}": {
-      "post": {
-        "operationId": "AiController_updateProvider",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateAiProviderDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Ai"
-        ]
-      }
-    },
-    "/api/v1/ai/admin/gateway/mode": {
-      "post": {
-        "operationId": "AiController_setMode",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SetModeDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Ai"
-        ]
-      }
-    },
-    "/api/v1/ai/admin/gateway/purpose": {
-      "post": {
-        "operationId": "AiController_setPurpose",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SetPurposeDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Ai"
-        ]
-      }
-    },
-    "/api/v1/ai/admin/usage": {
-      "get": {
-        "operationId": "AiController_usage",
-        "parameters": [
-          {
-            "name": "days",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Ai"
-        ]
-      }
-    },
-    "/api/v1/ai/triage": {
-      "post": {
-        "operationId": "AiController_triage",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TriageDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Ai"
-        ]
-      }
-    },
-    "/api/v1/ai/triage/history": {
-      "get": {
-        "operationId": "AiController_triageHistory",
-        "parameters": [
-          {
-            "name": "limit",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Ai"
-        ]
-      }
-    },
-    "/api/v1/ai/voice-to-order": {
-      "post": {
-        "operationId": "AiController_voice",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/VoiceDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Ai"
-        ]
-      }
-    },
-    "/api/v1/ai/prescription-ocr": {
-      "post": {
-        "operationId": "AiController_ocr",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/OcrDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Ai"
-        ]
-      }
-    },
-    "/api/v1/ai/parse-excel": {
-      "post": {
-        "operationId": "AiController_parseExcel",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Ai"
-        ]
-      }
-    },
-    "/api/v1/ai/copilot/suggest": {
-      "post": {
-        "operationId": "AiController_copilotSuggest",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CopilotSuggestDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Ai"
-        ]
-      }
-    },
-    "/api/v1/ai/ocr-translate": {
-      "post": {
-        "operationId": "AiController_ocrTranslate",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/OcrTranslateDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Ai"
-        ]
-      }
-    },
-    "/api/v1/ai/skin-analysis": {
-      "post": {
-        "operationId": "AiController_skinAnalysis",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SkinAnalysisDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Ai"
-        ]
-      }
-    },
-    "/api/v1/ai/medicine-image-search": {
-      "post": {
-        "operationId": "AiController_medicineImageSearch",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MedicineImageSearchDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Ai"
-        ]
-      }
-    },
-    "/api/v1/ai/barcode-lookup": {
-      "post": {
-        "operationId": "AiController_barcodeLookup",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/BarcodeLookupDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Ai"
-        ]
-      }
-    },
-    "/api/v1/ai/analyze-meal": {
-      "post": {
-        "operationId": "AiController_analyzeMeal",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AnalyzeMealDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Ai"
-        ]
-      }
-    },
-    "/api/v1/ai/analyze-report": {
-      "post": {
-        "operationId": "AiController_analyzeReport",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Ai"
-        ]
-      }
-    },
-    "/api/v1/ai/generate-exercise-plan": {
-      "post": {
-        "operationId": "AiController_generateExercisePlan",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/GenerateExercisePlanDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Ai"
-        ]
-      }
-    },
-    "/api/v1/ai/generate-diet-plan": {
-      "post": {
-        "operationId": "AiController_generateDietPlan",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/GenerateDietPlanDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Ai"
-        ]
-      }
-    },
-    "/api/v1/ai/drug-interactions": {
-      "post": {
-        "operationId": "AiInteractionsController_check",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CheckDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "AiInteractions"
         ]
       }
     },
     "/api/v1/notifications": {
       "get": {
         "operationId": "NotificationsController_list",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "lang",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "accept-language",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": ""
@@ -9187,6 +9159,563 @@
         ]
       }
     },
+    "/api/v1/ai/config": {
+      "get": {
+        "operationId": "AiController_getConfig",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ai"
+        ]
+      },
+      "post": {
+        "operationId": "AiController_updateConfig",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAiConfigDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ai"
+        ]
+      }
+    },
+    "/api/v1/ai/admin/gateway": {
+      "get": {
+        "operationId": "AiController_gatewayStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ai"
+        ]
+      }
+    },
+    "/api/v1/ai/admin/gateway/provider/{key}": {
+      "post": {
+        "operationId": "AiController_updateProvider",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAiProviderDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ai"
+        ]
+      }
+    },
+    "/api/v1/ai/admin/gateway/mode": {
+      "post": {
+        "operationId": "AiController_setMode",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetModeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ai"
+        ]
+      }
+    },
+    "/api/v1/ai/admin/gateway/purpose": {
+      "post": {
+        "operationId": "AiController_setPurpose",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetPurposeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ai"
+        ]
+      }
+    },
+    "/api/v1/ai/admin/usage": {
+      "get": {
+        "operationId": "AiController_usage",
+        "parameters": [
+          {
+            "name": "days",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ai"
+        ]
+      }
+    },
+    "/api/v1/ai/triage": {
+      "post": {
+        "operationId": "AiController_triage",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TriageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ai"
+        ]
+      }
+    },
+    "/api/v1/ai/assistant": {
+      "post": {
+        "operationId": "AiController_assistant",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssistantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ai"
+        ]
+      }
+    },
+    "/api/v1/ai/triage/history": {
+      "get": {
+        "operationId": "AiController_triageHistory",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ai"
+        ]
+      }
+    },
+    "/api/v1/ai/voice-to-order": {
+      "post": {
+        "operationId": "AiController_voice",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VoiceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ai"
+        ]
+      }
+    },
+    "/api/v1/ai/prescription-ocr": {
+      "post": {
+        "operationId": "AiController_ocr",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OcrDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ai"
+        ]
+      }
+    },
+    "/api/v1/ai/parse-excel": {
+      "post": {
+        "operationId": "AiController_parseExcel",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ai"
+        ]
+      }
+    },
+    "/api/v1/ai/copilot/suggest": {
+      "post": {
+        "operationId": "AiController_copilotSuggest",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CopilotSuggestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ai"
+        ]
+      }
+    },
+    "/api/v1/ai/ocr-translate": {
+      "post": {
+        "operationId": "AiController_ocrTranslate",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OcrTranslateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ai"
+        ]
+      }
+    },
+    "/api/v1/ai/medicine-image-search": {
+      "post": {
+        "operationId": "AiController_medicineImageSearch",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MedicineImageSearchDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ai"
+        ]
+      }
+    },
+    "/api/v1/ai/barcode-lookup": {
+      "post": {
+        "operationId": "AiController_barcodeLookup",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BarcodeLookupDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ai"
+        ]
+      }
+    },
+    "/api/v1/ai/analyze-meal": {
+      "post": {
+        "operationId": "AiController_analyzeMeal",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalyzeMealDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ai"
+        ]
+      }
+    },
+    "/api/v1/ai/analyze-report": {
+      "post": {
+        "operationId": "AiController_analyzeReport",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ai"
+        ]
+      }
+    },
+    "/api/v1/ai/generate-exercise-plan": {
+      "post": {
+        "operationId": "AiController_generateExercisePlan",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateExercisePlanDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ai"
+        ]
+      }
+    },
+    "/api/v1/ai/generate-diet-plan": {
+      "post": {
+        "operationId": "AiController_generateDietPlan",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateDietPlanDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Ai"
+        ]
+      }
+    },
+    "/api/v1/ai/drug-interactions": {
+      "post": {
+        "operationId": "AiInteractionsController_check",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AiInteractions"
+        ]
+      }
+    },
+    "/api/v1/ai/content-review": {
+      "get": {
+        "operationId": "AiContentReviewController_list",
+        "parameters": [
+          {
+            "name": "status",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AiContentReview"
+        ]
+      }
+    },
+    "/api/v1/ai/content-review/{id}/decision": {
+      "post": {
+        "operationId": "AiContentReviewController_decide",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiContentReviewDecisionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AiContentReview"
+        ]
+      }
+    },
     "/api/v1/admin/events": {
       "get": {
         "operationId": "AdminEventsController_list",
@@ -9327,6 +9856,98 @@
         ],
         "responses": {
           "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Chat"
+        ]
+      }
+    },
+    "/api/v1/chat/threads/{threadId}/close": {
+      "post": {
+        "operationId": "ChatController_closeThread[0]",
+        "parameters": [
+          {
+            "name": "threadId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Chat"
+        ]
+      }
+    },
+    "/api/v1/chats/threads/{threadId}/close": {
+      "post": {
+        "operationId": "ChatController_closeThread[1]",
+        "parameters": [
+          {
+            "name": "threadId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Chat"
+        ]
+      }
+    },
+    "/api/v1/chat/threads/{threadId}/extend": {
+      "post": {
+        "operationId": "ChatController_extendThread[0]",
+        "parameters": [
+          {
+            "name": "threadId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Chat"
+        ]
+      }
+    },
+    "/api/v1/chats/threads/{threadId}/extend": {
+      "post": {
+        "operationId": "ChatController_extendThread[1]",
+        "parameters": [
+          {
+            "name": "threadId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
             "description": ""
           }
         },
@@ -10343,254 +10964,6 @@
         ]
       }
     },
-    "/api/v1/drivers/online": {
-      "post": {
-        "operationId": "DriversController_online",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/OnlineDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Drivers"
-        ]
-      }
-    },
-    "/api/v1/drivers/offline": {
-      "post": {
-        "operationId": "DriversController_offline",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Drivers"
-        ]
-      }
-    },
-    "/api/v1/drivers/shift": {
-      "get": {
-        "operationId": "DriversController_shift",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Drivers"
-        ]
-      }
-    },
-    "/api/v1/drivers/location": {
-      "post": {
-        "operationId": "DriversController_location",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LocationDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Drivers"
-        ]
-      }
-    },
-    "/api/v1/drivers/{driverId}/location": {
-      "get": {
-        "operationId": "DriversController_getDriverLocation",
-        "parameters": [
-          {
-            "name": "driverId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Drivers"
-        ]
-      }
-    },
-    "/api/v1/drivers/orders/available": {
-      "get": {
-        "operationId": "DriversController_available",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Drivers"
-        ]
-      }
-    },
-    "/api/v1/drivers/orders/active": {
-      "get": {
-        "operationId": "DriversController_active",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Drivers"
-        ]
-      }
-    },
-    "/api/v1/drivers/orders/history": {
-      "get": {
-        "operationId": "DriversController_history",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Drivers"
-        ]
-      }
-    },
-    "/api/v1/drivers/orders/{id}/accept": {
-      "post": {
-        "operationId": "DriversController_accept",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Drivers"
-        ]
-      }
-    },
-    "/api/v1/drivers/orders/{id}/pickup": {
-      "post": {
-        "operationId": "DriversController_pickup",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Drivers"
-        ]
-      }
-    },
-    "/api/v1/drivers/orders/{id}/deliver": {
-      "post": {
-        "operationId": "DriversController_deliver",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DeliverDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Drivers"
-        ]
-      }
-    },
-    "/api/v1/drivers/admin/online": {
-      "get": {
-        "operationId": "DriversController_allOnline",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Drivers"
-        ]
-      }
-    },
-    "/api/v1/drivers/available": {
-      "get": {
-        "operationId": "DriversController_listAvailable",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Drivers"
-        ]
-      }
-    },
     "/api/v1/care/specialties": {
       "get": {
         "operationId": "CareController_specialties",
@@ -10727,6 +11100,22 @@
           },
           {
             "name": "sort",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "available_within",
             "required": true,
             "in": "query",
             "schema": {
@@ -10973,6 +11362,20 @@
         ]
       }
     },
+    "/api/v1/care/appointments/calls/mine": {
+      "get": {
+        "operationId": "AppointmentsController_myCalls",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Appointments"
+        ]
+      }
+    },
     "/api/v1/care/appointments/{id}": {
       "get": {
         "operationId": "AppointmentsController_one",
@@ -11053,6 +11456,29 @@
         ]
       }
     },
+    "/api/v1/care/appointments/{id}/refund/preview": {
+      "get": {
+        "operationId": "AppointmentsController_refundPreview",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Appointments"
+        ]
+      }
+    },
     "/api/v1/care/appointments/{id}/reschedule": {
       "patch": {
         "operationId": "AppointmentsController_reschedule",
@@ -11112,6 +11538,52 @@
     "/api/v1/care/appointments/{id}/check-in": {
       "patch": {
         "operationId": "AppointmentsController_checkIn",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Appointments"
+        ]
+      }
+    },
+    "/api/v1/care/appointments/{id}/en-route": {
+      "patch": {
+        "operationId": "AppointmentsController_enRoute",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Appointments"
+        ]
+      }
+    },
+    "/api/v1/care/appointments/{id}/arrive": {
+      "patch": {
+        "operationId": "AppointmentsController_arrive",
         "parameters": [
           {
             "name": "id",
@@ -11214,6 +11686,29 @@
     "/api/v1/care/appointments/{id}/summary": {
       "get": {
         "operationId": "AppointmentsController_summary",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Appointments"
+        ]
+      }
+    },
+    "/api/v1/care/appointments/{id}/call": {
+      "get": {
+        "operationId": "AppointmentsController_call",
         "parameters": [
           {
             "name": "id",
@@ -11427,16 +11922,6 @@
             }
           }
         ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SendMessageDto"
-              }
-            }
-          }
-        },
         "responses": {
           "201": {
             "description": ""
@@ -12746,6 +13231,22 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "lat",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lng",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -13592,6 +14093,45 @@
         ]
       }
     },
+    "/api/v1/labs/providers/{providerAccountId}/slots": {
+      "get": {
+        "operationId": "LabsController_providerSlots",
+        "parameters": [
+          {
+            "name": "providerAccountId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "duration",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Labs"
+        ]
+      }
+    },
     "/api/v1/lab-results": {
       "post": {
         "operationId": "LabResultsController_create",
@@ -14249,7 +14789,16 @@
     "/api/v1/health/wearables/{deviceId}": {
       "delete": {
         "operationId": "HealthModuleController_unlinkWearable",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": ""
@@ -14843,7 +15392,161 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "The Health Check is successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {},
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The Health Check is not successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        },
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -14857,7 +15560,161 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "The Health Check is successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {},
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The Health Check is not successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        },
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -15202,6 +16059,20 @@
         },
         "responses": {
           "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "SupportChat"
+        ]
+      }
+    },
+    "/api/v1/support/chat/state": {
+      "get": {
+        "operationId": "SupportChatController_chatState",
+        "parameters": [],
+        "responses": {
+          "200": {
             "description": ""
           }
         },
@@ -16052,6 +16923,22 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "lat",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lng",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -16070,6 +16957,45 @@
         "parameters": [
           {
             "name": "serviceIds",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Radiology"
+        ]
+      }
+    },
+    "/api/v1/radiology/providers/{providerAccountId}/slots": {
+      "get": {
+        "operationId": "RadiologyController_providerSlots",
+        "parameters": [
+          {
+            "name": "providerAccountId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "duration",
             "required": true,
             "in": "query",
             "schema": {
@@ -20362,6 +21288,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "idempotency-key",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -20392,6 +21326,14 @@
             "name": "id",
             "required": true,
             "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "include",
+            "required": true,
+            "in": "query",
             "schema": {
               "type": "string"
             }
@@ -20538,6 +21480,70 @@
         ]
       }
     },
+    "/api/v1/patient/pharmacy/orders/{id}/payment-status": {
+      "get": {
+        "operationId": "PatientPharmacyController_paymentStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PatientPharmacy"
+        ]
+      }
+    },
+    "/api/v1/patient/pharmacy/orders/{id}/payment-retry": {
+      "post": {
+        "operationId": "PatientPharmacyController_retryPayment",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "idempotency-key",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentIntentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PatientPharmacy"
+        ]
+      }
+    },
     "/api/v1/patient/pharmacy/orders/{id}/insurance/{kind}/accept": {
       "post": {
         "operationId": "PatientPharmacyController_acceptInsurance",
@@ -20584,6 +21590,29 @@
         },
         "tags": [
           "PatientPharmacy"
+        ]
+      }
+    },
+    "/api/v1/provider/pharmacy/offers": {
+      "get": {
+        "operationId": "ProviderPharmacyController_myOffers",
+        "parameters": [
+          {
+            "name": "status",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ProviderPharmacy"
         ]
       }
     },
@@ -20812,7 +21841,16 @@
     "/api/v1/provider/pharmacy/allocations/{id}/insurance": {
       "post": {
         "operationId": "ProviderPharmacyController_updateInsurance",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": ""
@@ -20928,7 +21966,16 @@
     "/api/v1/provider/pharmacy/orders/{id}/accept": {
       "post": {
         "operationId": "ProviderPharmacyAliasController_accept",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": ""
@@ -20942,7 +21989,16 @@
     "/api/v1/provider/pharmacy/orders/{id}/submit-basket": {
       "post": {
         "operationId": "ProviderPharmacyAliasController_submitBasket",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": ""
@@ -20979,7 +22035,16 @@
     "/api/v1/provider/pharmacy/orders/{id}/preparing": {
       "post": {
         "operationId": "ProviderPharmacyController_orderPreparing",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": ""
@@ -20993,7 +22058,16 @@
     "/api/v1/provider/pharmacy/orders/{id}/ready": {
       "post": {
         "operationId": "ProviderPharmacyController_orderReady",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": ""
@@ -21007,7 +22081,16 @@
     "/api/v1/provider/pharmacy/orders/{id}/dispatch": {
       "post": {
         "operationId": "ProviderPharmacyAliasController_dispatch",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": ""
@@ -21307,7 +22390,16 @@
     "/api/v1/provider/pharmacy/broadcasts/{orderId}/i-have-all": {
       "post": {
         "operationId": "ProviderBroadcastController_haveAll",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": ""
@@ -21321,7 +22413,16 @@
     "/api/v1/provider/pharmacy/broadcasts/{orderId}/i-have-partial": {
       "post": {
         "operationId": "ProviderBroadcastController_havePartial",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": ""
@@ -21391,7 +22492,16 @@
     "/api/v1/admin/pharmacy/broadcasts/{orderId}/advance": {
       "post": {
         "operationId": "AdminBroadcastController_advance",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": ""
@@ -21519,7 +22629,16 @@
     "/api/v1/admin/pharmacy/orders/{orderId}/insurance-decision": {
       "post": {
         "operationId": "AdminPharmacyInsuranceController_decide",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": ""
@@ -22240,7 +23359,16 @@
     "/api/v1/pharmacy/prescriptions/{rxNumber}": {
       "get": {
         "operationId": "PharmacyOpsController_byRxNumber",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "rxNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": ""
@@ -22366,7 +23494,16 @@
     "/api/v1/pharmacy/orders/{id}/accept": {
       "post": {
         "operationId": "PharmacyOpsController_accept",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": ""
@@ -22380,7 +23517,16 @@
     "/api/v1/pharmacy/orders/{id}/reject": {
       "post": {
         "operationId": "PharmacyOpsController_reject",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": ""
@@ -22394,7 +23540,16 @@
     "/api/v1/pharmacy/orders/{id}/preparing": {
       "post": {
         "operationId": "PharmacyOpsController_preparingAction",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": ""
@@ -22408,7 +23563,16 @@
     "/api/v1/pharmacy/orders/{id}/ready": {
       "post": {
         "operationId": "PharmacyOpsController_readyAction",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": ""
@@ -22422,7 +23586,16 @@
     "/api/v1/pharmacy/orders/{id}/partial": {
       "post": {
         "operationId": "PharmacyOpsController_partial",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": ""
@@ -22478,7 +23651,16 @@
     "/api/v1/pharmacy/orders/{id}": {
       "get": {
         "operationId": "PharmacyOpsController_orderDetail",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": ""
@@ -22492,7 +23674,24 @@
     "/api/v1/pharmacy/orders/{id}/items/{idx}/unavailable": {
       "post": {
         "operationId": "PharmacyOpsController_itemUnavailable",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "idx",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": ""
@@ -22506,7 +23705,24 @@
     "/api/v1/pharmacy/orders/{id}/items/{idx}/restore": {
       "post": {
         "operationId": "PharmacyOpsController_itemRestore",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "idx",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": ""
@@ -22520,7 +23736,24 @@
     "/api/v1/pharmacy/orders/{id}/items/{idx}/qty": {
       "post": {
         "operationId": "PharmacyOpsController_itemQty",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "idx",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": ""
@@ -22534,7 +23767,24 @@
     "/api/v1/pharmacy/orders/{id}/items/{idx}/substitute": {
       "post": {
         "operationId": "PharmacyOpsController_itemSub",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "idx",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": ""
@@ -22548,7 +23798,16 @@
     "/api/v1/pharmacy/orders/{id}/submit-basket": {
       "post": {
         "operationId": "PharmacyOpsController_submitBasket",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": ""
@@ -23959,6 +25218,20 @@
         ]
       }
     },
+    "/api/v1/unified-bookings/diagnostics/cart": {
+      "delete": {
+        "operationId": "UnifiedBookingsController_clearDiagnosticsCart",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "UnifiedBookings"
+        ]
+      }
+    },
     "/api/v1/unified-bookings/checkout-cart": {
       "post": {
         "operationId": "UnifiedBookingsController_checkout",
@@ -24631,7 +25904,16 @@
     "/api/v1/nursing/visits/{id}/respond": {
       "post": {
         "operationId": "NursingController_respondToVisit",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": ""
@@ -24830,29 +26112,6 @@
         },
         "tags": [
           "Nursing"
-        ]
-      }
-    },
-    "/api/v1/home-care/bookings/{bookingId}": {
-      "get": {
-        "operationId": "HomeCareContractController_getOwnedBooking",
-        "parameters": [
-          {
-            "name": "bookingId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "HomeCareContract"
         ]
       }
     },
@@ -25598,6 +26857,45 @@
         ]
       }
     },
+    "/api/v1/home-care/providers/{providerAccountId}/slots": {
+      "get": {
+        "operationId": "PatientHomeCareController_providerSlots",
+        "parameters": [
+          {
+            "name": "providerAccountId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "duration",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PatientHomeCare"
+        ]
+      }
+    },
     "/api/v1/nursing/nurses/{id}": {
       "get": {
         "operationId": "PatientNurseProfileController_one",
@@ -25618,6 +26916,29 @@
         },
         "tags": [
           "PatientNurseProfile"
+        ]
+      }
+    },
+    "/api/v1/home-care/bookings/{bookingId}": {
+      "get": {
+        "operationId": "HomeCareContractController_getOwnedBooking",
+        "parameters": [
+          {
+            "name": "bookingId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "HomeCareContract"
         ]
       }
     },
@@ -25799,6 +27120,47 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/CompleteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ProviderJobs"
+        ]
+      }
+    },
+    "/api/v1/provider/jobs/{type}/{id}/arrived": {
+      "post": {
+        "operationId": "ProviderJobsController_arrived",
+        "parameters": [
+          {
+            "name": "type",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArrivedDto"
               }
             }
           }
@@ -26085,6 +27447,49 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntentMethodDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Payments"
+        ]
+      }
+    },
+    "/api/v1/payments/intent/diagnostics": {
+      "post": {
+        "operationId": "PaymentsController_diagnosticsIntent",
+        "parameters": [
+          {
+            "name": "idempotency-key",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiagnosticsIntentDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": ""
@@ -26464,7 +27869,24 @@
     "/api/v1/moyasar/callback": {
       "get": {
         "operationId": "MoyasarController_callback",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": ""
@@ -26568,37 +27990,6 @@
       "get": {
         "operationId": "RealtimeSseController_stream",
         "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "RealtimeSse"
-        ]
-      }
-    },
-    "/api/v1/realtime/booking/{type}/{id}": {
-      "get": {
-        "operationId": "RealtimeSseController_bookingStream",
-        "parameters": [
-          {
-            "name": "type",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": ""
@@ -27061,111 +28452,6 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/EscalateDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "ProviderOps"
-        ]
-      }
-    },
-    "/api/v1/provider/ops/ambulance/{id}/eta": {
-      "get": {
-        "operationId": "ProviderOpsController_eta",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "lat",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "lng",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "ProviderOps"
-        ]
-      }
-    },
-    "/api/v1/provider/ops/ambulance/{id}/handover": {
-      "post": {
-        "operationId": "ProviderOpsController_handover",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/HandoverDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "ProviderOps"
-        ]
-      }
-    },
-    "/api/v1/provider/ops/ambulance/{id}/complete": {
-      "post": {
-        "operationId": "ProviderOpsController_complete",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CompleteDto"
               }
             }
           }
@@ -28227,30 +29513,6 @@
         ]
       }
     },
-    "/api/v1/insurance/nphies/eligibility": {
-      "post": {
-        "operationId": "InsuranceController_nphiesEligibility",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NphiesEligibilityDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Insurance"
-        ]
-      }
-    },
     "/api/v1/insurance/claims/submit": {
       "post": {
         "operationId": "InsuranceController_submitClaim",
@@ -29217,342 +30479,6 @@
         ]
       }
     },
-    "/api/v1/community/posts": {
-      "get": {
-        "operationId": "CommunityController_listPosts",
-        "parameters": [
-          {
-            "name": "page",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "limit",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "tag",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "category",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Community"
-        ]
-      },
-      "post": {
-        "operationId": "CommunityController_createPost",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreatePostDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Community"
-        ]
-      }
-    },
-    "/api/v1/community/posts/{id}": {
-      "get": {
-        "operationId": "CommunityController_getPost",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Community"
-        ]
-      },
-      "delete": {
-        "operationId": "CommunityController_deletePost",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Community"
-        ]
-      }
-    },
-    "/api/v1/community/posts/{id}/comment": {
-      "post": {
-        "operationId": "CommunityController_addComment",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AddCommentDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Community"
-        ]
-      }
-    },
-    "/api/v1/community/posts/{id}/vote": {
-      "put": {
-        "operationId": "CommunityController_votePost",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/VotePostDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Community"
-        ]
-      }
-    },
-    "/api/v1/community/admin/pending": {
-      "get": {
-        "operationId": "CommunityController_pendingPosts",
-        "parameters": [
-          {
-            "name": "page",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Community"
-        ]
-      }
-    },
-    "/api/v1/community/admin/{id}/moderate": {
-      "put": {
-        "operationId": "CommunityController_moderatePost",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ModeratePostDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Community"
-        ]
-      }
-    },
-    "/api/v1/community/live-sessions": {
-      "get": {
-        "operationId": "CommunityController_listSessions",
-        "parameters": [
-          {
-            "name": "status",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Community"
-        ]
-      },
-      "post": {
-        "operationId": "CommunityController_createSession",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateSessionDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Community"
-        ]
-      }
-    },
-    "/api/v1/community/live-sessions/{id}/join": {
-      "put": {
-        "operationId": "CommunityController_joinSession",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Community"
-        ]
-      }
-    },
-    "/api/v1/community/live-sessions/{id}/status": {
-      "put": {
-        "operationId": "CommunityController_updateSessionStatus",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateSessionStatusDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Community"
-        ]
-      }
-    },
     "/api/v1/loyalty/config": {
       "get": {
         "operationId": "LoyaltyController_getConfig",
@@ -29599,29 +30525,6 @@
         "parameters": [
           {
             "name": "page",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Loyalty"
-        ]
-      }
-    },
-    "/api/v1/loyalty/leaderboard": {
-      "get": {
-        "operationId": "LoyaltyController_getLeaderboard",
-        "parameters": [
-          {
-            "name": "limit",
             "required": true,
             "in": "query",
             "schema": {
@@ -31151,68 +32054,6 @@
         ]
       }
     },
-    "/api/v1/wallet/balance": {
-      "get": {
-        "operationId": "NabdExtensionsController_getWalletBalance",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "NabdExtensions"
-        ]
-      }
-    },
-    "/api/v1/wallet/credit": {
-      "post": {
-        "operationId": "NabdExtensionsController_creditWallet",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreditWalletDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "NabdExtensions"
-        ]
-      }
-    },
-    "/api/v1/wallet/debit": {
-      "post": {
-        "operationId": "NabdExtensionsController_debitWallet",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DebitWalletDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "NabdExtensions"
-        ]
-      }
-    },
     "/api/v1/referral/code": {
       "post": {
         "operationId": "NabdExtensionsController_getReferralCode",
@@ -32022,68 +32863,6 @@
         ]
       }
     },
-    "/api/v1/mental-health/crisis-contacts": {
-      "get": {
-        "operationId": "MentalHealthController_getCrisisContacts",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "summary": "Get personal crisis contacts / جهات المساعدة الشخصية",
-        "tags": [
-          "Mental Health – الصحة النفسية"
-        ]
-      },
-      "post": {
-        "operationId": "MentalHealthController_addCrisisContact",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AddCrisisContactDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "summary": "Add a personal crisis contact / إضافة جهة مساعدة شخصية",
-        "tags": [
-          "Mental Health – الصحة النفسية"
-        ]
-      }
-    },
-    "/api/v1/mental-health/crisis-contacts/{id}": {
-      "delete": {
-        "operationId": "MentalHealthController_deleteCrisisContact",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "summary": "Delete a personal crisis contact / حذف جهة مساعدة شخصية",
-        "tags": [
-          "Mental Health – الصحة النفسية"
-        ]
-      }
-    },
     "/api/v1/mental-health/dashboard": {
       "get": {
         "operationId": "MentalHealthController_getDashboard",
@@ -32099,17 +32878,43 @@
         ]
       }
     },
-    "/api/v1/mental-health/assessment-questions": {
+    "/api/v1/mental-health/urgent-help": {
       "get": {
-        "operationId": "MentalHealthCompatController_questions",
+        "operationId": "MentalHealthUrgentHelpController_get",
         "parameters": [],
         "responses": {
           "200": {
             "description": ""
           }
         },
+        "summary": "The urgent-help phone number set by the admin / رقم المساعدة العاجلة",
         "tags": [
-          "MentalHealthCompat"
+          "Mental Health – الصحة النفسية"
+        ]
+      }
+    },
+    "/api/v1/admin/mental-health/urgent-help": {
+      "put": {
+        "operationId": "MentalHealthUrgentHelpController_set",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UrgentHelpDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Set the urgent-help phone number (admin) / تعيين رقم المساعدة العاجلة",
+        "tags": [
+          "Mental Health – الصحة النفسية"
         ]
       }
     },
@@ -32155,6 +32960,62 @@
         "parameters": [],
         "responses": {
           "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Returns"
+        ]
+      }
+    },
+    "/api/v1/pharmacy/returns/provider/{id}": {
+      "get": {
+        "operationId": "ReturnsController_providerDetail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Returns"
+        ]
+      }
+    },
+    "/api/v1/pharmacy/returns/provider/{id}/respond": {
+      "post": {
+        "operationId": "ReturnsController_providerRespond",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProviderRespondDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
             "description": ""
           }
         },
@@ -32564,7 +33425,16 @@
     "/api/v1/admin/articles": {
       "get": {
         "operationId": "ArticlesAdminController_list",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "status",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": ""
@@ -32598,6 +33468,27 @@
       }
     },
     "/api/v1/admin/articles/{id}": {
+      "get": {
+        "operationId": "ArticlesAdminController_one",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ArticlesAdmin"
+        ]
+      },
       "patch": {
         "operationId": "ArticlesAdminController_update",
         "parameters": [
@@ -32694,6 +33585,98 @@
         },
         "tags": [
           "ArticlesAdmin"
+        ]
+      }
+    },
+    "/api/v1/admin/articles/{id}/approve": {
+      "post": {
+        "operationId": "ArticlesAdminController_approve",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ArticlesAdmin"
+        ]
+      }
+    },
+    "/api/v1/admin/articles/{id}/reject": {
+      "post": {
+        "operationId": "ArticlesAdminController_reject",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejectDoctorArticleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ArticlesAdmin"
+        ]
+      }
+    },
+    "/api/v1/doctor/articles": {
+      "post": {
+        "operationId": "DoctorArticlesController_submit",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitDoctorArticleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "DoctorArticles"
+        ]
+      },
+      "get": {
+        "operationId": "DoctorArticlesController_mine",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "DoctorArticles"
         ]
       }
     },
@@ -35234,6 +36217,167 @@
         ]
       }
     },
+    "/api/v1/admin/reports/payments": {
+      "get": {
+        "operationId": "AdminReportsController_payments",
+        "parameters": [
+          {
+            "name": "format",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminReports"
+        ]
+      }
+    },
+    "/api/v1/admin/reports/refunds": {
+      "get": {
+        "operationId": "AdminReportsController_refunds",
+        "parameters": [
+          {
+            "name": "format",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminReports"
+        ]
+      }
+    },
+    "/api/v1/admin/reports/payouts": {
+      "get": {
+        "operationId": "AdminReportsController_payouts",
+        "parameters": [
+          {
+            "name": "format",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminReports"
+        ]
+      }
+    },
+    "/api/v1/admin/reports/loyalty": {
+      "get": {
+        "operationId": "AdminReportsController_loyalty",
+        "parameters": [
+          {
+            "name": "format",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminReports"
+        ]
+      }
+    },
+    "/api/v1/admin/reports/disputes": {
+      "get": {
+        "operationId": "AdminReportsController_disputes",
+        "parameters": [
+          {
+            "name": "format",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminReports"
+        ]
+      }
+    },
+    "/api/v1/admin/reports/audit": {
+      "get": {
+        "operationId": "AdminReportsController_audit",
+        "parameters": [
+          {
+            "name": "format",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminReports"
+        ]
+      }
+    },
+    "/api/v1/admin/reports/ledger": {
+      "get": {
+        "operationId": "AdminReportsController_ledger",
+        "parameters": [
+          {
+            "name": "format",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminReports"
+        ]
+      }
+    },
     "/api/v1/admin/search": {
       "get": {
         "operationId": "AdminSearchController_search",
@@ -35297,7 +36441,16 @@
     "/api/v1/admin/crm/patients/{id}/legacy-impersonate-disabled": {
       "post": {
         "operationId": "AdminCrmController_impersonateLegacyDisabled",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": ""
@@ -36918,6 +38071,58 @@
         ]
       }
     },
+    "/api/v1/admin/config/dispute-config": {
+      "get": {
+        "operationId": "AdminConfigController_getDisputeConfig",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminConfig"
+        ]
+      },
+      "put": {
+        "operationId": "AdminConfigController_updateDisputeConfig",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminConfig"
+        ]
+      }
+    },
+    "/api/v1/admin/config/orders-console-config": {
+      "get": {
+        "operationId": "AdminConfigController_getOrdersConsoleConfig",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminConfig"
+        ]
+      },
+      "put": {
+        "operationId": "AdminConfigController_updateOrdersConsoleConfig",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminConfig"
+        ]
+      }
+    },
     "/api/v1/admin/config/app-versions": {
       "get": {
         "operationId": "AdminConfigController_getAppVersions",
@@ -37411,39 +38616,6 @@
         },
         "tags": [
           "AdminBroadcast"
-        ]
-      }
-    },
-    "/api/v1/emergency/{id}/dispatch": {
-      "post": {
-        "operationId": "AdminEmergencyController_dispatch",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DispatchDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "AdminEmergency"
         ]
       }
     },
@@ -38983,8 +40155,8 @@
     }
   },
   "info": {
-    "title": "Nabdah Plus Enterprise API",
-    "description": "The Nabdah Plus versioned backend API.\n\n**Authentication.** Protected operations require an `Authorization: Bearer <JWT>` header using the `access-token` scheme.\n**Authorization.** JWT authentication does not carry OAuth scopes in this API. Each operation documents its required account role and ownership constraints; clients must not infer authorization from authentication alone.\n**Compatibility.** Legacy operations remain documented only while supported and are marked deprecated with their canonical replacement.",
+    "title": "Nabd+ Enterprise API",
+    "description": "The Nabd+ versioned backend API.\n\n**Authentication.** Protected operations require an `Authorization: Bearer <JWT>` header using the `access-token` scheme.\n**Authorization.** JWT authentication does not carry OAuth scopes in this API. Each operation documents its required account role and ownership constraints; clients must not infer authorization from authentication alone.\n**Compatibility.** Legacy operations remain documented only while supported and are marked deprecated with their canonical replacement.",
     "version": "2.0.0",
     "contact": {}
   },
@@ -39101,6 +40273,30 @@
         "type": "object",
         "properties": {}
       },
+      "RegisterClientDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "AuthorizeDecisionDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "TokenRequestDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "RevokeRequestDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "AdminCreateAgentClientDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "AdminUpdateAgentClientDto": {
+        "type": "object",
+        "properties": {}
+      },
       "CreateCheckoutSessionDto": {
         "type": "object",
         "properties": {}
@@ -39134,6 +40330,10 @@
         "properties": {}
       },
       "PresignedUrlDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "SetModuleDto": {
         "type": "object",
         "properties": {}
       },
@@ -39205,6 +40405,26 @@
         "type": "object",
         "properties": {}
       },
+      "LinkAccountDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "ConfirmAccountLinkDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "CheckoutContactDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "GuestCapabilitiesDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "GuestCleanupDto": {
+        "type": "object",
+        "properties": {}
+      },
       "PasskeyEnrollVerifyDto": {
         "type": "object",
         "properties": {}
@@ -39262,6 +40482,10 @@
         "properties": {}
       },
       "ChangePasswordDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "EraseAccountDto": {
         "type": "object",
         "properties": {}
       },
@@ -39346,6 +40570,10 @@
         "properties": {}
       },
       "ImportCsvDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "RxConsultSpecialtiesDto": {
         "type": "object",
         "properties": {}
       },
@@ -39445,23 +40673,23 @@
         "type": "object",
         "properties": {}
       },
-      "TriggerDto": {
+      "ShareLocationDto": {
         "type": "object",
         "properties": {}
       },
-      "ClaimDto": {
+      "RegisterTokenDto": {
         "type": "object",
         "properties": {}
       },
-      "Escalate997Dto": {
+      "ScheduleDto": {
         "type": "object",
         "properties": {}
       },
-      "ResolveDto": {
+      "TemplateUpsertDto": {
         "type": "object",
         "properties": {}
       },
-      "UpdateDto": {
+      "TemplatePreviewDto": {
         "type": "object",
         "properties": {}
       },
@@ -39485,6 +40713,10 @@
         "type": "object",
         "properties": {}
       },
+      "AssistantDto": {
+        "type": "object",
+        "properties": {}
+      },
       "VoiceDto": {
         "type": "object",
         "properties": {}
@@ -39498,10 +40730,6 @@
         "properties": {}
       },
       "OcrTranslateDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "SkinAnalysisDto": {
         "type": "object",
         "properties": {}
       },
@@ -39529,19 +40757,7 @@
         "type": "object",
         "properties": {}
       },
-      "RegisterTokenDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "ScheduleDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "TemplateUpsertDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "TemplatePreviewDto": {
+      "AiContentReviewDecisionDto": {
         "type": "object",
         "properties": {}
       },
@@ -39574,18 +40790,6 @@
         "properties": {}
       },
       "AddParticipantDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "OnlineDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "LocationDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "DeliverDto": {
         "type": "object",
         "properties": {}
       },
@@ -39846,6 +41050,10 @@
         "properties": {}
       },
       "UpdateStatusDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateDto": {
         "type": "object",
         "properties": {}
       },
@@ -40273,6 +41481,10 @@
         "type": "object",
         "properties": {}
       },
+      "ResolveDto": {
+        "type": "object",
+        "properties": {}
+      },
       "MarkDto": {
         "type": "object",
         "properties": {}
@@ -40357,6 +41569,10 @@
         "type": "object",
         "properties": {}
       },
+      "ArrivedDto": {
+        "type": "object",
+        "properties": {}
+      },
       "InsuranceDto": {
         "type": "object",
         "properties": {}
@@ -40370,6 +41586,14 @@
         "properties": {}
       },
       "FallbackDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "IntentMethodDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "DiagnosticsIntentDto": {
         "type": "object",
         "properties": {}
       },
@@ -40414,10 +41638,6 @@
         "properties": {}
       },
       "SignDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "HandoverDto": {
         "type": "object",
         "properties": {}
       },
@@ -40481,10 +41701,6 @@
         "type": "object",
         "properties": {}
       },
-      "NphiesEligibilityDto": {
-        "type": "object",
-        "properties": {}
-      },
       "SubmitClaimDto": {
         "type": "object",
         "properties": {}
@@ -40542,30 +41758,6 @@
         "properties": {}
       },
       "RespondPermissionDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "CreatePostDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "AddCommentDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "VotePostDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "ModeratePostDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "CreateSessionDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "UpdateSessionStatusDto": {
         "type": "object",
         "properties": {}
       },
@@ -40669,14 +41861,6 @@
         "type": "object",
         "properties": {}
       },
-      "CreditWalletDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "DebitWalletDto": {
-        "type": "object",
-        "properties": {}
-      },
       "ClaimReferralDto": {
         "type": "object",
         "properties": {}
@@ -40749,11 +41933,23 @@
         "type": "object",
         "properties": {}
       },
-      "AddCrisisContactDto": {
+      "UrgentHelpDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "ProviderRespondDto": {
         "type": "object",
         "properties": {}
       },
       "CreateBanDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "RejectDoctorArticleDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "SubmitDoctorArticleDto": {
         "type": "object",
         "properties": {}
       },

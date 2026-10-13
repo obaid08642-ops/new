@@ -15,7 +15,35 @@ from datetime import date, timedelta
 from lib import Client, journey, step, summary
 from j_accounts import app_signup
 
-DOCTOR = os.environ.get('DOCTOR_ID', '262d226e-ffed-41a5-b8e3-d4af2b8d4aa3')
+DOCTOR = os.environ.get('DOCTOR_ID', '')
+DOCTOR_CLIENT = None
+_ADMIN = None
+
+
+def ensure_doctor():
+    """Public id of a doctor with open clinic hours. DOCTOR_ID wins; otherwise a real doctor is
+    registered, approved and publishes hours here (as j_consultation does), so a fresh DB (CI)
+    never depends on an id that only exists in one machine's database."""
+    global DOCTOR, DOCTOR_CLIENT
+    if DOCTOR:
+        return DOCTOR
+    import j_admin, j_onboarding
+    from j_consultation import doctor_publishes_hours
+    global _ADMIN
+    if _ADMIN is None:  # one admin session per run: admin login is rate-limited
+        _ADMIN, _ = j_admin.login()
+    admin = _ADMIN
+    specs = Client(None, 'anon').get('/catalogs/specialties')
+    spec = next((x.get('code') or x.get('id') for x in (specs.body if isinstance(specs.body, list) else specs.items())), 'cardiology')
+    p = j_onboarding.register_type('doctor', {'specialty': spec, 'academic_degree': 'consultant', 'consultation_modes': ['clinic']})
+    j_onboarding.admin_review(admin, p)
+    j_onboarding.provider_after_approval(p)
+    doc = Client(p['token'], 'doctor')
+    doctor_publishes_hours(doc, admin)
+    DOCTOR_CLIENT = doc
+    DOCTOR = doc.get('/provider-onboarding/my-profile').get('id') or ''
+    step('a doctor with open clinic hours exists for the slot journeys', bool(DOCTOR), 'no public doctor id')
+    return DOCTOR
 
 
 def at_once(calls):
@@ -32,9 +60,38 @@ def at_once(calls):
     return out
 
 
+def completed_consultation(pat):
+    """A paid clinic consultation the doctor has finished, as the apps do it (book + card,
+    accept, check-in, start, finish). The consultation chat only opens after the doctor
+    finishes the visit (ChatService.verifyCommunicationAllowed), so chat drills need this.
+    Returns the appointment id, or None (the failed step says why)."""
+    import j_consultation
+    global DOCTOR, DOCTOR_CLIENT
+    # A fresh doctor every time: the slot list does not apply the doctor's buffer (Q37), so
+    # reusing a doctor whose slots an earlier drill booked can land on a buffered slot (409).
+    DOCTOR, DOCTOR_CLIENT = '', None
+    ensure_doctor()
+    doc = DOCTOR_CLIENT
+    aid = j_consultation.book_paid(pat, doc)
+    if not aid:
+        return None
+    r = doc.get('/provider/jobs/queue?status=incoming&kind=consultation')
+    inc = [j.get('id') for j in (r.body if isinstance(r.body, list) else r.items())]
+    if aid in inc:
+        r = doc.post(f'/provider/jobs/consultation/{aid}/accept', {})
+        step('doctor accepts', r.ok, r)
+    for action in ('check-in', 'start'):
+        r = doc.req('PATCH', f'/care/appointments/{aid}/{action}', {})
+        step(f'appointment {action}', r.ok, r)
+    r = doc.post(f'/care/appointments/{aid}/finish', {'diagnosis': 'متابعة', 'notes': 'راحة', 'recommendations': 'مراجعة عند الحاجة'})
+    step('doctor finishes the visit (the chat opens)', r.ok, r)
+    return aid if r.ok else None
+
+
 def free_slots(pat, n):
     """n available clinic slots whose neighbours are free too, spaced 2 apart (so the doctor's buffer around one
     booking cannot block the next: Q37 shows the slot list does not apply that buffer). Searches the next 7 days."""
+    ensure_doctor()
     for d in range(1, 8):
         day = (date.today() + timedelta(days=d)).isoformat()
         r = pat.get(f'/care/doctors/{DOCTOR}/slots?date={day}&service_type=clinic')

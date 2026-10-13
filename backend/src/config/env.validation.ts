@@ -9,6 +9,16 @@ export function validateEnvironment(env: Record<string, unknown>) {
   if (String(env.ALLOWED_ORIGINS).split(',').map((value) => value.trim()).includes('*')) {
     throw new Error('FATAL: ALLOWED_ORIGINS must not contain wildcard origin in production');
   }
+  // Chaos-drill switches are test tooling, not an operational kill switch (that
+  // is the admin feature flags). One stray variable in production would
+  // silently disable every OTP SMS and all LiveKit room control, so refuse to
+  // boot with one. See src/common/chaos-switches.ts.
+  const chaos = ['CHAOS_FAIL_SMS', 'CHAOS_FAIL_LIVEKIT'].filter(
+    (name) => typeof env[name] === 'string' && String(env[name]).trim(),
+  );
+  if (chaos.length) {
+    throw new Error(`FATAL: chaos drill switches must not be set in production: ${chaos.join(', ')}`);
+  }
   return env;
 }
 

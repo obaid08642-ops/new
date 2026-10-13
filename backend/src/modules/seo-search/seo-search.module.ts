@@ -4,6 +4,8 @@ import { buildMedicineReport, medicineReportMarkdown } from './medicine-publicat
 /** Arabic/English search normalization: strip Arabic diacritics & tatweel, unify alef/hamza/yeh/teh-marbuta variants, NFKD + lowercase + collapse spaces. Pure, locale-safe. */
 export function normalizeSearchText(input: string): string {
   return (input ?? "")
+    // Control characters (NUL, C0/C1) never belong in a search and MongoDB rejects a NUL in a regex.
+    .replace(/[\u0000-\u001F\u007F-\u009F]/g, " ")
     .normalize("NFKD")
     .toLowerCase()
     .replace(/[\u064B-\u065F\u0670\u0640]/g, "")
@@ -779,7 +781,7 @@ export class SeoSearchService {
     q = normalizeSearchText(q || '');
     const term = (q || '').trim();
     if (term.length < 2) return { query: q, results: {}, total: 0 };
-    const rx = { $regex: term, $options: 'i' };
+    const rx = { $regex: term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' };
     const medProj = { _id: 0, id: 1, name_ar: 1, name_en: 1, price: 1, image: 1, category: 1, manufacturer: 1 };
     const docProj = { _id: 0, id: 1, name: 1, full_name: 1, specialty: 1, photo_url: 1, rating: 1, city: 1 };
     const terms = expandMultilingualSearchTerms(q || '');

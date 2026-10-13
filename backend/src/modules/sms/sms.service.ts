@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import axios from 'axios';
+import { isChaosFail } from '../../common/chaos-switches';
 
 /**
  * SMS channel — DISABLED by default for the current phase.
@@ -32,6 +33,14 @@ export class SmsService {
   }
 
   async sendOtp(phone: string, otp: string): Promise<boolean> {
+    // 15.11 chaos drill: force the documented fallback (false, i.e. email+push)
+    // before the enabled-check and before any provider HTTP call, so the drill
+    // asserts the real degraded path rather than a provider error. Never in
+    // production.
+    if (isChaosFail('sms')) {
+      this.logger.log('CHAOS_FAIL_SMS=1: chaos drill, no SMS message was sent.');
+      return false;
+    }
     if (!(await this.isEnabled())) {
       this.logger.log('SMS delivery is disabled; no SMS message was sent.');
       return false;
