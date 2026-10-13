@@ -27,10 +27,21 @@ describe('PushService templated text (R7-7)', () => {
     expect(service.queueNotification).toHaveBeenCalledWith('u1', 'عنوان معدل', 'نص معدل', {}, 'high');
   });
 
-  it('falls back to Arabic for an unknown user or language', async () => {
+  // Phase 18.2: an unknown user or an unknown language falls back to **English**, not Arabic
+  // ("Arabic only when the user chose it or the device is in Arabic, so Urdu, Hindi, Bengali
+  // and Filipino users no longer get Arabic silently"). The `tl` → `fil` alias is unchanged:
+  // Filipino is a supported app locale, so it is kept as the user's own choice.
+  it('falls back to English for an unknown user or language, and keeps the tl→fil alias', async () => {
     const service = serviceFor({ user: null });
-    expect(await service.userLang('nobody')).toBe('ar');
+    expect(await service.userLang('nobody')).toBe('en');
     const tl = serviceFor({ user: { locale: 'tl-PH' } });
     expect(await tl.userLang('x')).toBe('fil');
+  });
+
+  it('a Hindi user keeps their locale but the built-in text is English, not Arabic', async () => {
+    const service = serviceFor({ user: { id: 'u1', locale: 'hi-IN' } });
+    expect(await service.userLang('u1')).toBe('hi');
+    await service.queueTemplated('u1', 'push.cart.reminder.title', 'push.cart.reminder.body', { type: 'cart' });
+    expect(service.queueNotification).toHaveBeenCalledWith('u1', 'Your cart is waiting', expect.stringContaining('medicines in your cart'), { type: 'cart' }, 'high');
   });
 });
