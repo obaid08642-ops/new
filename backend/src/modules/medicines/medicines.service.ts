@@ -656,7 +656,7 @@ export class MedicinesService {
       const term = t._id;
       if (!term || term.length < 3) continue;
       const hits = await this.model.find(
-        { $or: [{ name_ar: { $regex: term, $options: 'i' } }, { name_en: { $regex: term, $options: 'i' } }], ...this.publicCatalogFilter() },
+        { $or: [{ name_ar: { $regex: escapeRegex(String(term)), $options: 'i' } }, { name_en: { $regex: escapeRegex(String(term)), $options: 'i' } }], ...this.publicCatalogFilter() },
         { _id: 0, id: 1 } as any,
       ).limit(50);
       for (const h of hits as any[]) {
@@ -1471,7 +1471,7 @@ export class MedicinesService {
     'name_ar', 'name_en', 'active_ingredient', 'generic_name', 'manufacturer',
     'category', 'sub_category', 'brand', 'description_ar', 'description_en', 'dosage_ar', 'dosage_en',
     'form', 'strength', 'usage_instructions_ar', 'usage_instructions_en',
-    'requires_prescription', 'controlled', 'online_exclusive', 'barcode', 'price', 'images', 'image',
+    'requires_prescription', 'controlled', 'online_exclusive', 'barcode', 'price', 'sfda_price', 'images', 'image',
     'indications_ar', 'indications_en', 'contraindications_ar', 'contraindications_en',
     'warnings_ar', 'warnings_en', 'side_effects_ar', 'side_effects_en',
     'precautions_ar', 'precautions_en', 'interactions', 'package_size', 'storage_conditions',
@@ -1794,6 +1794,15 @@ export class MedicinesService {
     await this.model.updateOne({ id: medicineId }, { $set: { ...clean, ...extra, ...governanceReset, updatedAt: new Date() } });
     if (clean.price !== undefined && Number(clean.price) !== Number(med.price || 0)) {
       await this.priceHistory.insertOne({ id: `mph_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`, medicine_id: medicineId, before_price: Number(med.price || 0), after_price: Number(clean.price), reason: String(patch.reason).trim(), changed_by: adminId, createdAt: new Date() });
+    }
+    // D-12: the catalogue price ceiling is an operational field (no re-review) with its own source and
+    // date; every change is audit-logged with the old and new value.
+    if (clean.sfda_price !== undefined) {
+      const next = Number(clean.sfda_price);
+      if (!Number.isFinite(next) || next <= 0) throw new BadRequestException('invalid_sfda_price');
+      const prev = med.sfda_price ?? null;
+      await this.model.updateOne({ id: medicineId }, { $set: { sfda_price: next, sfda_price_source: `admin ${adminId}`, sfda_price_updated_at: new Date() } });
+      if (Number(prev) !== next) this.audit('medicine.sfda_price_changed', medicineId, adminId, 'admin', { before_sfda_price: prev, after_sfda_price: next });
     }
     // Physically delete any image the edit removed (main image, gallery
     // entries, image_1..5 slots) from R2 — no orphaned files on the CDN.

@@ -732,6 +732,7 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'admin.auth.reason': { ar: 'أدخل السبب والتفصيل', en: 'Enter reason and details', ur: 'وجہ' },
   'admin.auth.reason.required': { ar: 'يلزم إدخال سبب', en: 'Reason is required', ur: 'وجہ ضروری' },
   'admin.auth.done': { ar: 'تم تنفيذ الإجراء بنجاح', en: 'Action executed', ur: 'انجام' },
+  'admin.pharmacy.price_above_catalogue': { ar: 'عرض صيدلية بسعر أعلى من سعر الكتالوج: راجعه وحدّث السعر إن تغيّر السعر الرسمي', en: 'A pharmacy offer is priced above the catalogue: review it and update the price if the official price changed', ur: 'فارمیسی کی پیشکش کیٹلاگ قیمت سے زیادہ ہے: جائزہ لیں اور سرکاری قیمت بدلی ہو تو قیمت اپ ڈیٹ کریں' },
 
   // ============ NOTIFICATIONS CENTER ============
   'notif.title': { ar: 'الإشعارات', en: 'Notifications', ur: 'اطلاعات' },

@@ -47,11 +47,16 @@ export function mapWebSegments(parts: readonly string[]): string | null {
     case 'consultations':
       if (a === 'doctors') return b ? `/consultations/doctor/${seg(b)}` : '/search?view=doctors';
       if (a === 'clinics' && b) return `/consultations/clinic/${seg(b)}`;
+      // AC-4: an agent booking hold links to the web booking-status page; open the same screen in the app.
+      if (a === 'booking-status') return '/consultations/booking-status';
       return '/consultations';
     case 'facility':
       return a ? `/facility/${seg(a)}` : '/consultations';
-    // Pharmacy profile and pharmacies by city: the app has no pharmacy profile screen, so the pharmacy hub
+    // Pharmacy profile and pharmacies by city: the app has no pharmacy profile screen, so the pharmacy hub.
+    // AC-4: an agent pharmacy request links to the web broadcast-status page; open the same screen in the app.
     case 'pharmacy':
+      if (a === 'broadcast-status') return '/pharmacy/broadcast-status';
+      return '/pharmacy';
     case 'pharmacies':
       return '/pharmacy';
     // Lab tests by city: the diagnostics hub (labs side)
@@ -64,10 +69,16 @@ export function mapWebSegments(parts: readonly string[]): string | null {
       if (a === 'labs') return b && b !== 'book' ? `/diagnostics/lab/${seg(b)}` : '/diagnostics';
       if (a === 'packages') return b ? `/diagnostics/package-detail?id=${seg(b)}` : '/diagnostics/packages';
       if (a === 'radiology') return b ? `/diagnostics/test-detail?id=${seg(b)}&type=radiology` : '/diagnostics?tab=radiology';
+      // AC-4: an agent lab hold links to the web booking page (/diagnostics/bookings/<domain>/<id>);
+      // open the diagnostics order screen for the same booking.
+      if (a === 'bookings') return parts[3] ? `/diagnostics/order/${seg(parts[3])}` : '/diagnostics';
       return '/diagnostics';
-    // Home nursing by city and the nursing catalogue: the nursing hub
+    // Home nursing by city and the nursing catalogue: the nursing hub.
+    // AC-4: an agent nursing hold links to the web visit page; open the visit tracking screen.
     case 'home-nursing':
+      return '/nursing';
     case 'nursing':
+      if (a === 'visits' && b) return `/nursing/live-tracking?type=nurse&bookingId=${seg(b)}`;
       return '/nursing';
     case 'home-care':
       return a === 'services' && b ? `/nursing/service-info?serviceId=${seg(b)}` : '/nursing';

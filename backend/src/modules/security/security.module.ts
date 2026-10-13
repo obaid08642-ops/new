@@ -1,4 +1,5 @@
 import { Module, Injectable, Controller, Get, NestMiddleware, MiddlewareConsumer, UseGuards, Query } from '@nestjs/common';
+import { escapeRegex } from '../../common/slug.util';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { OnEvent } from '@nestjs/event-emitter';
@@ -25,9 +26,9 @@ export class AuditService {
     if (options.user_id) filter.user_id = options.user_id;
     if (options.search) {
       filter.$or = [
-        { action: { $regex: options.search, $options: 'i' } },
-        { resource_kind: { $regex: options.search, $options: 'i' } },
-        { resource_id: { $regex: options.search, $options: 'i' } },
+        { action: { $regex: escapeRegex(String(options.search)), $options: 'i' } },
+        { resource_kind: { $regex: escapeRegex(String(options.search)), $options: 'i' } },
+        { resource_id: { $regex: escapeRegex(String(options.search)), $options: 'i' } },
       ];
     }
     const total = await this.logs.countDocuments(filter);
