@@ -1788,6 +1788,10 @@ export class MedicinesService {
     if (clean.price !== undefined && Number(clean.price) !== Number(med.price || 0)) {
       await this.priceHistory.insertOne({ id: `mph_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`, medicine_id: medicineId, before_price: Number(med.price || 0), after_price: Number(clean.price), reason: String(patch.reason).trim(), changed_by: adminId, createdAt: new Date() });
     }
+    // D-12: audit log for sfda_price changes
+    if (clean.sfd_price !== undefined && Number(clean.sfd_price) !== Number(med.sfd_price || 0)) {
+      await this.connection.collection('medicine_sfd_price_history').insertOne({ id: `msf_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`, medicine_id: medicineId, before_sfd_price: Number(med.sfd_price || 0), after_sfd_price: Number(clean.sfd_price), sfda_price_source: clean.sfd_price_source || 'admin', changed_by: adminId, createdAt: new Date() });
+    }
     // Physically delete any image the edit removed (main image, gallery
     // entries, image_1..5 slots) from R2 — no orphaned files on the CDN.
     const after = { ...clean, ...extra };
