@@ -48,6 +48,7 @@ import { SeedModule } from './modules/seed/seed.module';
 import { CareModule } from './modules/care/care.module';
 import { LabsModule } from './modules/labs/labs.module';
 import { HomeCareModule } from './modules/home-care/home-care.module';
+import { RefundPolicyModule } from './modules/refund-policy/refund-policy.module';
 import { HealthModule } from './modules/health/health.module';
 import { MedicalProgramsModule } from './modules/medical-programs/medical-programs.module';
 import { SupportModule } from './modules/support/support.module';
@@ -260,6 +261,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     ReturnsModule,
     BansModule,
     HomeCareModule,
+    RefundPolicyModule,
     BillingModule,
     ArticlesModule,
     InsuranceEngineModule,
