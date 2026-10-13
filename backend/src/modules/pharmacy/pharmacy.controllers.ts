@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Headers, ForbiddenException, ServiceUnavailableException, Optional, BadRequestException } from '@nestjs/common';
-import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { CurrentUser, JwtAuthGuard, Roles, Public } from '../../common/auth.guard';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -18,7 +18,7 @@ import { PharmacyOfferService } from './services/pharmacy-offer.service';
 import { PharmacyInsuranceDecisionService } from './services/pharmacy-insurance-decision.service';
 import { PharmacyExpiryCommandService } from './services/pharmacy-expiry-command.service';
 import { PharmacyPaymentEvidenceService } from './services/pharmacy-payment-evidence.service';
-import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsuranceDto, SelectOfferDto, AcceptFinalQuoteDto, RegisterCodDto, AcceptInsuranceDto, ItemActionDto, OutDto, DeliveredDto, InsuranceDecisionDto, CancelDto3, SetTrackingDto, RestockDto, SampleOrderDto, PreviewOfferDto, DraftOfferDto, RejectDto, PostDto, ReportDto, CreateDto2, MarkShortageDto, RejectDto5, SetCodPolicyDto } from './pharmacy.controllers.dto';
+import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsuranceDto, SelectOfferDto, AcceptFinalQuoteDto, RegisterCodDto, AcceptInsuranceDto, ItemActionDto, OutDto, DeliveredDto, InsuranceDecisionDto, CancelDto3, SetTrackingDto, RestockDto, SampleOrderDto, PreviewOfferDto, DraftOfferDto, RejectDto, PostDto, ReportDto, CreateDto2, MarkShortageDto, RejectDto5, SetCodPolicyDto, PaymentRulesDto, PharmacyCodSettingDto } from './pharmacy.controllers.dto';
 
 // =========================================================================
 //  PATIENT ENDPOINTS (/api/v2/patient/pharmacy/*)
@@ -353,4 +353,46 @@ export class AdminShortageController {
 export class PatientShortageController {
   constructor(private svc: PharmacyShortageService) {}
   @Get('lookup') lookup(@Query('sku') sku?: string, @Query('generic_name') gn?: string) { return this.svc.lookupForPatient(sku, gn); }
+}
+
+
+/** D-25 (owner decision 25): the cash-on-delivery cap, public for the apps, set by an admin. */
+@Controller()
+export class PaymentRulesController {
+  constructor(@InjectConnection() private readonly conn: Connection) {}
+
+  @Public()
+  @Get('payment-rules')
+  async rules() {
+    const doc: any = await this.conn.collection('system_configs').findOne({ key: 'payment_rules' });
+    return { pharmacy_cod_max_sar: Number(doc?.value?.pharmacy_cod_max_sar) > 0 ? Number(doc.value.pharmacy_cod_max_sar) : null };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
+  @Put('admin/payment-rules')
+  async setRules(@CurrentUser() u: any, @Body() b: PaymentRulesDto) {
+    const cap = Number(b?.pharmacy_cod_max_sar);
+    if (!(cap > 0)) throw new BadRequestException('pharmacy_cod_max_sar_must_be_positive');
+    await this.conn.collection('system_configs').updateOne(
+      { key: 'payment_rules' },
+      { $set: { 'value.pharmacy_cod_max_sar': cap, updated_by: u?.id ?? null, updatedAt: new Date() } },
+      { upsert: true },
+    );
+    return { pharmacy_cod_max_sar: cap };
+  }
+
+  /** The pharmacy switches its own cash on delivery (absent = allowed). */
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.PHARMACY)
+  @Put('provider/pharmacy/cod')
+  async setPharmacyCod(@CurrentUser() u: any, @Body() b: PharmacyCodSettingDto) {
+    if (!u?.id) throw new ForbiddenException('provider_identity_required');
+    await this.conn.collection('provider_settings').updateOne(
+      { provider_id: u.id },
+      { $set: { cod_enabled: b.enabled === true, updatedAt: new Date() } },
+      { upsert: true },
+    );
+    return { cod_enabled: b.enabled === true };
+  }
 }

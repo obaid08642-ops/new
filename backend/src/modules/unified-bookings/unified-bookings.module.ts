@@ -302,6 +302,10 @@ export class UnifiedBookingsService {
     if (!['cash', 'card', 'insurance'].includes(paymentMethod)) {
       throw new BadRequestException('payment_method_not_supported');
     }
+    // D-25 (owner decision 25): no cash for online or home visits. Checked before the slot, so the
+    // answer is always about the payment method (AppointmentsService.create enforces the same rule).
+    if (paymentMethod === 'cash' && body?.type === 'video') throw new BadRequestException('payment_method_cash_not_allowed_for_online_consultation');
+    if (paymentMethod === 'cash' && body?.type === 'home') throw new BadRequestException('payment_method_cash_not_allowed_for_home_visit');
     const slotStart = await this.resolveConsultationSlot(body?.doctor_id || '', body?.type as any, body?.slot_id || '');
     const booking: any = await this.apptSvc.create(user, {
       doctor_id: body!.doctor_id!,

@@ -546,12 +546,57 @@ export class PharmacyOrderService {
     if (!order.quote_accepted_at) throw new BadRequestException('final_quote_acceptance_required');
     if (String(order.payment_method || '').toLowerCase() === 'insurance') throw new BadRequestException('insurance_orders_follow_insurance_decision_flow');
     if (['cancelled', 'expired'].includes(String(order.status))) throw new BadRequestException('order_not_actionable');
+    await this.assertCodAllowed(order, user.id);
     const now = new Date();
     await this.orders.updateOne({ id: order.id }, {
       $set: { payment_method: 'cod', cod_registered_at: now, cod_idempotency_key: idempotencyKey, status: PharmacyOrderState.COD_DUE_ON_DELIVERY },
       $push: { timeline: { ts: now, event: 'cod_registered', by: user.id, meta: { amount: order.pricing_snapshot?.totals?.total } } },
     } as any);
     return { ok: true, idempotent: false, status: PharmacyOrderState.COD_DUE_ON_DELIVERY };
+  }
+
+  /**
+   * D-25 (owner decision 25): cash on delivery only when ALL hold, otherwise 400 with a `cod_*` code
+   * and the order is left unchanged:
+   *  - no prescription item (an attachment, a prescription_id, or a catalogue Rx line);
+   *  - no insurance;
+   *  - the order total is not above the admin cap (`GET /payment-rules`; no cap set = no COD);
+   *  - the patient has at least one delivered/completed pharmacy order;
+   *  - the selected pharmacy has not switched cash on delivery off for itself.
+   */
+  private async assertCodAllowed(order: any, patientId: string) {
+    const db = this.conn;
+    const items: any[] = Array.isArray(order.items) ? order.items : [];
+    const hasAttachment = (Array.isArray(order.prescription_attachments) && order.prescription_attachments.length > 0) || !!order.prescription_id;
+    let rxLine = items.some((i) => i?.requires_prescription === true);
+    if (!rxLine && !hasAttachment) {
+      const ids = items.map((i) => i?.medicine_id).filter((v) => typeof v === 'string');
+      const skus = items.map((i) => i?.matched_sku).filter((v) => v !== undefined && v !== null && v !== '').map(String);
+      const or: any[] = [];
+      if (ids.length) or.push({ id: { $in: ids } });
+      if (skus.length) or.push({ sku: { $in: [...skus, ...skus.filter((x) => /^\d+$/.test(x)).map(Number)] } });
+      if (or.length) rxLine = !!(await db.collection('medicines').findOne({ $or: or, requires_prescription: true }, { projection: { _id: 1 } }));
+    }
+    if (hasAttachment || rxLine) throw new BadRequestException('cod_not_allowed_prescription');
+    if (String(order.coverage_mode || '').toLowerCase() === 'insurance' || order.insurance_decision) throw new BadRequestException('cod_not_allowed_insurance');
+    const rules: any = await db.collection('system_configs').findOne({ key: 'payment_rules' });
+    const cap = Number(rules?.value?.pharmacy_cod_max_sar);
+    const total = Number(order.pricing_snapshot?.totals?.total ?? order.totals?.total ?? 0);
+    if (!(cap > 0) || !(total > 0) || total > cap) throw new BadRequestException('cod_over_limit');
+    const returning = await db.collection('pharmacy_orders').findOne(
+      { patient_account_id: patientId, status: { $in: [PharmacyOrderState.DELIVERED, PharmacyOrderState.COMPLETED] } },
+      { projection: { _id: 1 } },
+    );
+    if (!returning) throw new BadRequestException('cod_first_order_not_allowed');
+    let pharmacyId: string | undefined = order.pharmacy_account_id;
+    if (!pharmacyId && order.selected_offer_id) {
+      const offer: any = await db.collection('pharmacy_offers').findOne({ id: order.selected_offer_id }, { projection: { pharmacy_account_id: 1 } });
+      pharmacyId = offer?.pharmacy_account_id;
+    }
+    if (pharmacyId) {
+      const settings: any = await db.collection('provider_settings').findOne({ provider_id: pharmacyId }, { projection: { cod_enabled: 1 } });
+      if (settings?.cod_enabled === false) throw new BadRequestException('cod_disabled_by_pharmacy');
+    }
   }
 
   /**
