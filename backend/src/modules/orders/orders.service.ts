@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { escapeRegex } from '../../common/slug.util';
 // Use the CommonJS runtime export directly; namespace imports can be non-constructable in production bundles.
 const PDFDocument = require('pdfkit');
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, Inject, ServiceUnavailableException, Optional } from '@nestjs/common';
@@ -365,7 +366,7 @@ export class OrdersService {
   async listAll(state?: OrderState, search?: string) {
     const q: any = {};
     if (state) q.state = state;
-    if (search) q.$or = [{ id: search }, { patient_phone: { $regex: search, $options: 'i' } }];
+    if (search) q.$or = [{ id: search }, { patient_phone: { $regex: escapeRegex(String(search)), $options: 'i' } }];
     const query = this.orderModel.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(500);
     return typeof (query as any)?.lean === 'function' ? (query as any).lean() : query;
   }

@@ -1,4 +1,5 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { escapeRegex } from '../../common/slug.util';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { JwtAuthGuard } from '../../common/auth.guard';
@@ -42,10 +43,10 @@ export class ProviderDrugIndexController {
   async list(@Query('search') search?: string, @Query('category') category?: string, @Query('limit') limit = '50') {
     const q: any = { is_deleted: { $ne: true } };
     if (search) q.$or = [
-      { name_ar: { $regex: search, $options: 'i' } },
-      { name_en: { $regex: search, $options: 'i' } },
-      { active_ingredient: { $regex: search, $options: 'i' } },
-      { manufacturer: { $regex: search, $options: 'i' } },
+      { name_ar: { $regex: escapeRegex(String(search)), $options: 'i' } },
+      { name_en: { $regex: escapeRegex(String(search)), $options: 'i' } },
+      { active_ingredient: { $regex: escapeRegex(String(search)), $options: 'i' } },
+      { manufacturer: { $regex: escapeRegex(String(search)), $options: 'i' } },
     ];
     if (category && category !== 'all') {
       // Match the catalog's real Arabic category names directly (no collapsing).

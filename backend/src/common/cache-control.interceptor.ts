@@ -40,6 +40,9 @@ export class CacheControlInterceptor implements NestInterceptor {
     const isPrivate = PRIVATE_PREFIXES.some(p => url.startsWith(p));
     return next.handle().pipe(
       tap(() => {
+        // A handler that wrote the raw response (@Res()) has already sent it: setting a header then
+        // throws ERR_HTTP_HEADERS_SENT and turns a good answer into a 500.
+        if (res.headersSent) return;
         if (isPublic) {
           res.setHeader?.('Cache-Control', 'public, max-age=300, s-maxage=300, stale-while-revalidate=60');
           res.setHeader?.('Vary', 'Accept-Encoding, Accept-Language');

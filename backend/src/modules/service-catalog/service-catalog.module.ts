@@ -1,4 +1,5 @@
 import { Module, Controller, Get, Post, Put, Patch, Delete, Body, Param, Query, UseGuards, ForbiddenException, NotFoundException, BadRequestException, Injectable } from '@nestjs/common';
+import { escapeRegex } from '../../common/slug.util';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtAuthGuard, Roles, CurrentUser } from '../../common/auth.guard';
@@ -175,7 +176,7 @@ export class ServiceCatalogService {
   async adminListAll(entity_type: 'lab' | 'radiology', q: any) {
     const Model: any = entity_type === 'lab' ? this.labs : this.rads;
     const filter: any = {};
-    if (q.search) filter.$or = [{ name_ar: { $regex: q.search, $options: 'i' } }, { name_en: { $regex: q.search, $options: 'i' } }];
+    if (q.search) filter.$or = [{ name_ar: { $regex: escapeRegex(String(q.search)), $options: 'i' } }, { name_en: { $regex: escapeRegex(String(q.search)), $options: 'i' } }];
     const services = await Model.find(filter, { _id: 0, __v: 0 }).limit(500).lean();
     const ownMap: Record<string, any> = {};
     for (const o of await this.own.find({ entity_type: { $eq: entity_type }, entity_id: { $in: services.map((s: any) => s.id) } }).lean()) ownMap[o.entity_id] = o;

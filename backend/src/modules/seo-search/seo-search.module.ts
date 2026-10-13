@@ -1,5 +1,6 @@
 
 import { BackfillSlugsDto } from './seo-search.dto';
+import { safeDecode } from '../../common/slug.util';
 import { buildMedicineReport, medicineReportMarkdown } from './medicine-publication-report';
 /** Arabic/English search normalization: strip Arabic diacritics & tatweel, unify alef/hamza/yeh/teh-marbuta variants, NFKD + lowercase + collapse spaces. Pure, locale-safe. */
 export function normalizeSearchText(input: string): string {
@@ -290,7 +291,7 @@ export class SeoSearchService {
   /** Strict per-locale public product DTO by slug (v14 catalog URLs /{lang}/p/{slug}). */
   async publicProductBySlug(locale: string, slug: string) {
     const db = productLocaleToDb(locale);
-    const decoded = decodeURIComponent(slug || '').trim();
+    const decoded = safeDecode(slug || '').trim();
     if (!decoded) throw new NotFoundException('product_not_found');
     const med: any = await this.conn.collection(CATALOG_COLLECTIONS.medicines).findOne(
       { ...this.publicProductFilter(), [`translations.${db}.slug`]: decoded },
@@ -604,7 +605,7 @@ export class SeoSearchService {
       'الرعاية الصحية المنزلية والأجهزة الطبية': 'الرعاية الصحية المنزلية والأجهزة الطبية',
     };
 
-    const decodedCat = category ? decodeURIComponent(category).trim() : 'all';
+    const decodedCat = category ? safeDecode(category).trim() : 'all';
     const resolvedCat = CANONICAL_CATEGORY_MAP[decodedCat.toLowerCase()] || CANONICAL_CATEGORY_MAP[decodedCat] || decodedCat;
 
     if (resolvedCat && resolvedCat !== 'all' && resolvedCat !== 'الكل') {
@@ -617,7 +618,7 @@ export class SeoSearchService {
         { category: { $regex: escaped, $options: 'i' } },
       ];
       if (sub) {
-        const decodedSub = decodeURIComponent(sub).trim();
+        const decodedSub = safeDecode(sub).trim();
         const subEscaped = decodedSub.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         filter[key('sub_category')] = { $regex: subEscaped, $options: 'i' };
       }
@@ -771,7 +772,7 @@ export class SeoSearchService {
       } catch { /* boost is best-effort; base order stands */ }
     }
     return {
-      locale, category: decodedCat, sub_category: sub ? decodeURIComponent(sub) : null,
+      locale, category: decodedCat, sub_category: sub ? safeDecode(sub) : null,
       page: Math.max(page, 1), limit: perPage, total,
       items,
     };
@@ -1127,7 +1128,13 @@ export class SeoSearchController {
   ) {
     if (!(PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale)) throw new NotFoundException('locale_not_supported');
     const cat = category || 'all';
-    return this.svc.publicCategoryProducts(locale, cat, sub, parseInt(page || '1'), parseInt(limit || '24'), q);
+    // parseInt('garbage') is NaN, and NaN reaches Mongo as skip/limit and
+    // comes back as a 500. Anything unparseable falls back to the default.
+    const bounded = (raw: string | undefined, fallback: number, max: number) => {
+      const n = Number.parseInt(raw ?? '', 10);
+      return Number.isFinite(n) && n > 0 ? Math.min(n, max) : fallback;
+    };
+    return this.svc.publicCategoryProducts(locale, cat, sub, bounded(page, 1, 10_000), bounded(limit, 24, 100), q);
   }
 
   /** Product sitemap page as JSON (the web app renders same-host XML). */
