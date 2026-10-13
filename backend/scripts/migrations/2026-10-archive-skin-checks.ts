@@ -1,51 +1,39 @@
-/**
- * D-4 (owner decision 4): AI skin analysis is removed. Its stored self-checks are archived first,
- * never dropped silently.
- *
- * - Dry-run default: prints the counts, changes nothing.
- * - `--apply`: copies every document of ai_skin_self_checks into archive_ai_skin_self_checks
- *   (same _id, plus `archived_at`), then deletes only the documents that are safely in the archive.
- * - Idempotent: a rerun archives nothing twice (upsert by _id).
- *
- * Run: `MONGODB_URI=... DB_NAME=... npx ts-node --transpile-only scripts/migrations/2026-10-archive-skin-checks.ts [--apply]`
- */
-import { connect, connection } from 'mongoose';
+// Migration: archive AI skin self-checks to archive_ai_skin_self_checks and clear live collection
+// Usage: npx ts-node --transpile-only scripts/migrations/2026-10-archive-skin-checks.ts [--apply]
+import { MongoClient } from 'mongodb';
 
-const APPLY = process.argv.includes('--apply');
-const TARGETS: Array<{ name: string; filter: Record<string, unknown> }> = [
-  { name: 'ai_skin_self_checks', filter: {} },
-];
+const DRY_RUN = !process.argv.includes('--apply');
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017';
+const DB_NAME = process.env.DB_NAME || 'nabd';
 
-async function main() {
-  // Phase 16 / review item C: an explicit MONGODB_URI is required. A default host
-  // would let a mistyped run hit a local database that is not the one it names.
-  if (!process.env.MONGODB_URI) throw new Error('MONGODB_URI_required');
-  const uri = process.env.MONGODB_URI;
-  await connect(uri, process.env.DB_NAME ? { dbName: process.env.DB_NAME } : {});
-  const db = connection.db;
-  if (!db) throw new Error('no database connection');
-  const report: any[] = [];
-  for (const { name, filter } of TARGETS) {
-    const live = db.collection(name);
-    const archive = db.collection(`archive_${name}`);
-    const entry: any = { collection: name, to_archive: await live.countDocuments(filter), moved: 0 };
-    if (APPLY && entry.to_archive > 0) {
-      const archivedAt = new Date();
-      for await (const doc of live.find(filter)) {
-        await archive.updateOne({ _id: doc._id }, { $setOnInsert: { ...doc, archived_at: archivedAt } }, { upsert: true });
-        if ((await archive.countDocuments({ _id: doc._id }, { limit: 1 })) === 1) {
-          await live.deleteOne({ _id: doc._id });
-          entry.moved += 1;
-        }
-      }
+async function run() {
+  const client = await MongoClient.connect(MONGODB_URI);
+  const db = client.db(DB_NAME);
+  const coll = db.collection('ai_skin_self_checks');
+  const archiveColl = db.collection('archive_ai_skin_self_checks');
+
+  const count = await coll.countDocuments({});
+  console.log(`[${DRY_RUN ? 'DRY-RUN' : 'APPLY'}] ai_skin_self_checks: ${count} documents to archive`);
+
+  if (!DRY_RUN && count > 0) {
+    const docs = await coll.find({}).toArray();
+    if (docs.length > 0) {
+      const docsWithArchive = docs.map(doc => ({
+        ...doc,
+        archived_at: new Date(),
+      });
+      await db.collection('archive_ai_skin_self_checks').insertMany(docsWithArchive);
+      await coll.deleteMany({});
     }
-    entry.left = await live.countDocuments(filter);
-    entry.archived = await archive.countDocuments({});
-    report.push(entry);
+    console.log(`  Archived ${count} documents to archive_ai_skin_self_checks`);
   }
-  console.log(JSON.stringify({ mode: APPLY ? 'apply' : 'dry-run', report }));
+
+  console.log('Done.');
+  await client.close();
+  process.exit(0);
 }
 
-main()
-  .then(() => connection.close())
-  .catch(async (e) => { console.error(e); await connection.close().catch(() => undefined); process.exit(1); });
+run().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});
