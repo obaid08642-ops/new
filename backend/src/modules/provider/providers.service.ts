@@ -277,7 +277,7 @@ export class ProvidersService {
     const q: any = {};
     if (type) q.type = type;
     if (status) q.status = status;
-    if (search) q.$or = [{ name_ar: { $regex: search, $options: 'i' } }, { name_en: { $regex: search, $options: 'i' } }];
+    if (search) q.$or = [{ name_ar: { $regex: escapeRegex(String(search)), $options: 'i' } }, { name_en: { $regex: escapeRegex(String(search)), $options: 'i' } }];
     return this.providerModel.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(500).lean();
   }
   private publicDiscoveryFilter() {

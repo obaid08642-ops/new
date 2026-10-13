@@ -1,5 +1,6 @@
 
 import { BackfillSlugsDto } from './seo-search.dto';
+import { safeDecode } from '../../common/slug.util';
 import { buildMedicineReport, medicineReportMarkdown } from './medicine-publication-report';
 /** Arabic/English search normalization: strip Arabic diacritics & tatweel, unify alef/hamza/yeh/teh-marbuta variants, NFKD + lowercase + collapse spaces. Pure, locale-safe. */
 export function normalizeSearchText(input: string): string {
@@ -143,6 +144,7 @@ import { InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { Response } from 'express';
 import { Public, Roles } from '../../common/auth.guard';
+import { PublicCache } from '../../common/public-cache.decorator';
 import { UserRole } from '../../common/enums';
 import { AutoEntitySeoPipelineService, PipelineEntityType } from '../events/auto-entity-seo-pipeline.service';
 import { resolveMedicinePublicDto, productLocaleToDb, PUBLIC_CATALOG_LOCALES } from '../medicines/med-i18n';
@@ -290,7 +292,7 @@ export class SeoSearchService {
   /** Strict per-locale public product DTO by slug (v14 catalog URLs /{lang}/p/{slug}). */
   async publicProductBySlug(locale: string, slug: string) {
     const db = productLocaleToDb(locale);
-    const decoded = decodeURIComponent(slug || '').trim();
+    const decoded = safeDecode(slug || '').trim();
     if (!decoded) throw new NotFoundException('product_not_found');
     const med: any = await this.conn.collection(CATALOG_COLLECTIONS.medicines).findOne(
       { ...this.publicProductFilter(), [`translations.${db}.slug`]: decoded },
@@ -604,7 +606,7 @@ export class SeoSearchService {
       'الرعاية الصحية المنزلية والأجهزة الطبية': 'الرعاية الصحية المنزلية والأجهزة الطبية',
     };
 
-    const decodedCat = category ? decodeURIComponent(category).trim() : 'all';
+    const decodedCat = category ? safeDecode(category).trim() : 'all';
     const resolvedCat = CANONICAL_CATEGORY_MAP[decodedCat.toLowerCase()] || CANONICAL_CATEGORY_MAP[decodedCat] || decodedCat;
 
     if (resolvedCat && resolvedCat !== 'all' && resolvedCat !== 'الكل') {
@@ -617,7 +619,7 @@ export class SeoSearchService {
         { category: { $regex: escaped, $options: 'i' } },
       ];
       if (sub) {
-        const decodedSub = decodeURIComponent(sub).trim();
+        const decodedSub = safeDecode(sub).trim();
         const subEscaped = decodedSub.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         filter[key('sub_category')] = { $regex: subEscaped, $options: 'i' };
       }
@@ -771,7 +773,7 @@ export class SeoSearchService {
       } catch { /* boost is best-effort; base order stands */ }
     }
     return {
-      locale, category: decodedCat, sub_category: sub ? decodeURIComponent(sub) : null,
+      locale, category: decodedCat, sub_category: sub ? safeDecode(sub) : null,
       page: Math.max(page, 1), limit: perPage, total,
       items,
     };
@@ -927,6 +929,7 @@ export class SeoSearchController {
 
 
   @Public()
+  @PublicCache(3600, ['seo', 'sitemap'])
   /** The public sitemap is the patient web's (six locales, hreflang, paginated catalogue). */
   @Get('sitemap.xml')
   sitemap(@Res() res: Response) {

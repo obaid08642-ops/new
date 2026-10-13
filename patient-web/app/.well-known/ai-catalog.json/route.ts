@@ -61,7 +61,7 @@ const catalog = {
     {
       id: "urn:air:nabd.plus:consultations:booking",
       identifier: "urn:air:nabd.plus:consultations:booking",
-      displayName: "Doctor appointment booking API (Cash & Insurance)",
+      displayName: "Doctor appointment booking: the patient confirms and pays on Nabd Plus (never autonomous)",
       type: "application/json",
       url: `${origin}/api/appointments/book`,
       representativeQueries: [

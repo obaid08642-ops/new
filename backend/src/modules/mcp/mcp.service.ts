@@ -193,7 +193,8 @@ export function buildMcpServerCard() {
     },
     capabilities: {
       tools: true,
-      resources: true,
+      // AC-5: no resources or prompts exist on this endpoint (tools only), so nothing else is advertised.
+      resources: false,
       prompts: false,
     },
     endpoints: {
