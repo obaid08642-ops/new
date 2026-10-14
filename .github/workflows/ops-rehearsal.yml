@@ -136,7 +136,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 75
     env:
-      SHA: 3ca66ab1291e6cc9be813b77ffb888a7443a8e5f
+      SHA: 4d9e85ab47995511461252d75ee3423303e3808c   # main + PR 1419 (patient-web docker context); the production run pins main after the merge
+      OPS_RELEASE_SHA: 4d9e85ab47995511461252d75ee3423303e3808c   # the task's pinned SHA, overridden to the rehearsed release
     steps:
       - uses: actions/checkout@v4
       - name: Build the release from main (same script the server-ops workflow runs)
