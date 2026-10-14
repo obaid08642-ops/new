@@ -23,6 +23,15 @@ const CATALOG = readFileSync(
   "utf8",
 );
 
+/**
+ * `NextResponse.json()` does not expose a readable `_body` synchronously, so the body has
+ * to be awaited. Reading `_body` returns "" and silently makes every assertion below
+ * vacuous, which is exactly what the first version of this file did.
+ */
+async function bodyOf(response: unknown): Promise<string> {
+  return String(await (response as Response).text());
+}
+
 /** Pull the published code identifiers straight out of the backend source. */
 function publishedCodes(): string[] {
   return [...CATALOG.matchAll(/^\s{2}([A-Z][A-Z0-9_]+):\s*\{ status:/gm)].map((m) => m[1]);
@@ -34,37 +43,39 @@ describe("backend error codes reach the client", () => {
     expect(publishedCodes()).toContain("NOT_FOUND");
   });
 
-  it("forwards every catalogued code through boundedUpstreamError", () => {
-    const dropped = publishedCodes().filter((code) => {
-      const response = boundedUpstreamError({ code, message: "x" }, "fallback", 400);
-      const body = (response as unknown as { _body?: string })._body ?? "";
-      return !body.includes(code);
-    });
+  it("forwards every catalogued code through boundedUpstreamError", async () => {
+    const dropped: string[] = [];
+    for (const code of publishedCodes()) {
+      const body = await bodyOf(boundedUpstreamError({ code, message: "x" }, "fallback", 400));
+      if (!body.includes(code)) dropped.push(code);
+    }
     expect(dropped).toEqual([]);
   });
 
-  it("matches the convention the rest of the backend already uses", () => {
+  it("matches the convention the rest of the backend already uses", async () => {
     const legacy = ["AUTHENTICATION_REQUIRED", "DUPLICATE_TRANSACTION", "CONCURRENT_SLOT_CONFLICT"];
     for (const code of legacy) {
-      const body = (boundedUpstreamError({ code }, "fallback", 400) as unknown as { _body?: string })._body ?? "";
-      expect(body).toContain(code);
+      expect(await bodyOf(boundedUpstreamError({ code }, "fallback", 400))).toContain(code);
     }
     expect(publishedCodes().every((c) => /^[A-Z][A-Z0-9_]*$/.test(c))).toBe(true);
   });
 
-  it("still refuses a code that is not a well-formed identifier", () => {
-    const body =
-      (boundedUpstreamError({ code: "bad code with spaces" }, "fallback", 400) as unknown as {
-        _body?: string;
-      })._body ?? "";
+  it("still refuses a code that is not a well-formed identifier", async () => {
+    const body = await bodyOf(boundedUpstreamError({ code: "bad code with spaces" }, "fallback", 400));
     expect(body).not.toContain("bad code with spaces");
     expect(body).toContain("fallback");
   });
 
-  it("does not forward a code that is absurdly long", () => {
-    const long = "A".repeat(200);
-    const body =
-      (boundedUpstreamError({ code: long }, "fallback", 400) as unknown as { _body?: string })._body ?? "";
-    expect(body).not.toContain(long);
+  it("does not forward a code that is absurdly long", async () => {
+    const body = await bodyOf(boundedUpstreamError({ code: "A".repeat(200) }, "fallback", 400));
+    expect(body).not.toContain("A".repeat(200));
+    expect(body).toContain("fallback");
+  });
+
+  it("actually reads a body, so the assertions above cannot pass vacuously", async () => {
+    // Guards the guard: if this ever returns "", every other test in this file is a no-op.
+    expect(await bodyOf(boundedUpstreamError({ code: "NOT_FOUND", message: "x" }, "f", 404))).toContain(
+      "NOT_FOUND",
+    );
   });
 });
