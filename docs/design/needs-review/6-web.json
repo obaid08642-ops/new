@@ -41,7 +41,7 @@
     "line": 147,
     "found": "[client] Fixed on design/oc-patient-other-1: the hub reads GET /family/emergency-contacts and draws '[N] contacts' on the row (the hint when the call fails or the list is empty).",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "fixed before this session (verified on main: family/page.tsx:82 counts GET /family/emergency-contacts)"
   },
   {
     "batch": 6,

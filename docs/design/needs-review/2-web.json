@@ -19,7 +19,7 @@
     "line": 28,
     "found": "[backend] Fixed on design/backend-fields: the list reads the call records (GET /calls/history: call_type, status, started_at, duration_seconds, appointment_id), not the finished appointments.",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open"
+    "review_status": "fixed before this session (verified on main: call-history/page.tsx:40 reads GET /calls/history)"
   },
   {
     "batch": 2,

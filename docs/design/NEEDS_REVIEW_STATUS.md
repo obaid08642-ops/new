@@ -8,25 +8,25 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| Patient app and web | 434 | 130 | 232 | 60 | 1 | 11 |
+| Patient app and web | 434 | 113 | 245 | 64 | 1 | 11 |
 | Other | 28 | 21 | 7 | 0 | 0 | 0 |
 | Admin | 93 | 30 | 45 | 18 | 0 | 0 |
 | Admin journeys | 20 | 4 | 16 | 0 | 0 | 0 |
 | Final pass | 8 | 8 | 0 | 0 | 0 | 0 |
-| Patient journeys | 86 | 41 | 44 | 1 | 0 | 0 |
-| Provider app | 30 | 8 | 21 | 1 | 0 | 0 |
-| Provider journeys | 34 | 25 | 9 | 0 | 0 | 0 |
-| **Total** | **733** | **267** | **374** | **80** | **1** | **11** |
+| Patient journeys | 86 | 38 | 47 | 1 | 0 | 0 |
+| Provider app | 30 | 7 | 22 | 1 | 0 | 0 |
+| Provider journeys | 34 | 22 | 12 | 0 | 0 | 0 |
+| **Total** | **733** | **243** | **394** | **84** | **1** | **11** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| client | 167 | 74 | 74 | 19 | 0 | 0 |
+| client | 167 | 60 | 85 | 22 | 0 | 0 |
 | owner | 100 | 67 | 24 | 6 | 1 | 2 |
-| backend | 229 | 45 | 156 | 24 | 0 | 4 |
-| untagged | 237 | 81 | 120 | 31 | 0 | 5 |
-| **Total** | **733** | **267** | **374** | **80** | **1** | **11** |
+| backend | 229 | 38 | 162 | 25 | 0 | 4 |
+| untagged | 237 | 78 | 123 | 31 | 0 | 5 |
+| **Total** | **733** | **243** | **394** | **84** | **1** | **11** |
 
 ## By file
 
@@ -35,8 +35,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `1-cart-app.json` | 1 | 0 | 1 | 0 | 0 | 0 |
 | `1-cart-web.json` | 4 | 0 | 3 | 0 | 0 | 1 |
 | `10-app.json` | 3 | 0 | 3 | 0 | 0 | 0 |
-| `10-web.json` | 4 | 2 | 2 | 0 | 0 | 0 |
-| `11-app.json` | 5 | 1 | 2 | 1 | 0 | 1 |
+| `10-web.json` | 4 | 1 | 3 | 0 | 0 | 0 |
+| `11-app.json` | 5 | 0 | 3 | 1 | 0 | 1 |
 | `11-web.json` | 4 | 0 | 3 | 0 | 0 | 1 |
 | `12-app.json` | 17 | 3 | 11 | 2 | 0 | 1 |
 | `12-web.json` | 13 | 2 | 10 | 1 | 0 | 0 |
@@ -46,20 +46,20 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `14a-web.json` | 5 | 0 | 5 | 0 | 0 | 0 |
 | `14b-app.json` | 5 | 1 | 4 | 0 | 0 | 0 |
 | `14b-web.json` | 4 | 0 | 3 | 1 | 0 | 0 |
-| `1e-app.json` | 6 | 4 | 0 | 2 | 0 | 0 |
-| `1e-web.json` | 10 | 3 | 6 | 1 | 0 | 0 |
-| `2-app.json` | 17 | 7 | 7 | 3 | 0 | 0 |
-| `2-web.json` | 14 | 9 | 3 | 2 | 0 | 0 |
-| `3-app.json` | 10 | 5 | 5 | 0 | 0 | 0 |
+| `1e-app.json` | 6 | 2 | 2 | 2 | 0 | 0 |
+| `1e-web.json` | 10 | 1 | 8 | 1 | 0 | 0 |
+| `2-app.json` | 17 | 6 | 8 | 3 | 0 | 0 |
+| `2-web.json` | 14 | 8 | 4 | 2 | 0 | 0 |
+| `3-app.json` | 10 | 4 | 6 | 0 | 0 | 0 |
 | `3-web.json` | 8 | 3 | 5 | 0 | 0 | 0 |
 | `4-app.json` | 8 | 3 | 5 | 0 | 0 | 0 |
 | `4-web.json` | 7 | 1 | 6 | 0 | 0 | 0 |
 | `5-app.json` | 18 | 4 | 10 | 4 | 0 | 0 |
-| `5-web.json` | 11 | 4 | 7 | 0 | 0 | 0 |
-| `6-app.json` | 10 | 6 | 2 | 2 | 0 | 0 |
-| `6-web.json` | 8 | 4 | 4 | 0 | 0 | 0 |
-| `7-app.json` | 14 | 6 | 5 | 3 | 0 | 0 |
-| `7-web.json` | 16 | 7 | 7 | 2 | 0 | 0 |
+| `5-web.json` | 11 | 2 | 9 | 0 | 0 | 0 |
+| `6-app.json` | 10 | 5 | 3 | 2 | 0 | 0 |
+| `6-web.json` | 8 | 3 | 5 | 0 | 0 | 0 |
+| `7-app.json` | 14 | 5 | 5 | 4 | 0 | 0 |
+| `7-web.json` | 16 | 4 | 7 | 5 | 0 | 0 |
 | `8-app.json` | 9 | 2 | 7 | 0 | 0 | 0 |
 | `8-web.json` | 13 | 5 | 7 | 0 | 0 | 1 |
 | `9-app.json` | 8 | 2 | 6 | 0 | 0 | 0 |
@@ -86,11 +86,11 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1d-web.json` | 10 | 2 | 5 | 3 | 0 | 0 |
 | `final-pass-2.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `final-pass.json` | 4 | 4 | 0 | 0 | 0 | 0 |
-| `journeys.json` | 86 | 41 | 44 | 1 | 0 | 0 |
-| `provider-admin-ish.json` | 3 | 2 | 1 | 0 | 0 | 0 |
+| `journeys.json` | 86 | 38 | 47 | 1 | 0 | 0 |
+| `provider-admin-ish.json` | 3 | 1 | 2 | 0 | 0 | 0 |
 | `provider-doctor.json` | 6 | 1 | 5 | 0 | 0 | 0 |
 | `provider-facility.json` | 6 | 0 | 6 | 0 | 0 | 0 |
-| `provider-journeys.json` | 34 | 25 | 9 | 0 | 0 | 0 |
+| `provider-journeys.json` | 34 | 22 | 12 | 0 | 0 | 0 |
 | `provider-lab.json` | 4 | 3 | 1 | 0 | 0 | 0 |
 | `provider-nursing.json` | 2 | 0 | 2 | 0 | 0 | 0 |
 | `provider-pharmacy.json` | 2 | 0 | 1 | 1 | 0 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 7 | 0 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 12 | 5 | 7 | 0 | 0 | 0 |
-| **Total** | **733** | **267** | **374** | **80** | **1** | **11** |
+| **Total** | **733** | **243** | **394** | **84** | **1** | **11** |
 
 ## Owner decisions (1)
 
@@ -108,15 +108,13 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---:|---|---|---|
 | 1 | `13-web.json#13` `patient-web/lib/legal/embedded.ts:15` | /terms Embedded fallback text | [owner] The embedded copy (issue 755/783) is built from docs/legal, which are drafts with [placeholders] until a Saudi lawyer approves them, so it stays off today. After approval: update docs/legal, run node patient-web… |
 
-## Open and unverified (278)
+## Open and unverified (254)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
 | `1-cart-web.json#2` | owner | closed-unverified (issue #364: closed with no linked PR) | /cart Address card request | [owner] A signed-in cart still reads the saved address (read-only, not a cart call); confirm that 'opening the cart makes no call' excludes the address card, or drop it from the c… |
-| `10-web.json#1` | client | open | /articles/[slug] Bookmark button | [client] Fixed on design/oc-patient-other-1: the article page has a Save / Remove from saved button (status from GET /articles/bookmarks/:slug/status, change by POST .../toggle th… |
 | `10-web.json#2` | client | open (issue #742) | /articles/[slug] Article body | [client] The page shows the summary and a notice that the full text is not available here; the body is HTML and the parser drops it on purpose. Decide how to show it safely (sanit… |
 | `11-app.json#0` | backend | closed-unverified (issue #744: closed with no linked PR) | /loyalty/hub Purchase-typed challenges | [backend] the Challenges tab shows what GET /loyalty/challenges sends and filters nothing; if the server still sends a challenge that asks for buying medicines it must be removed … |
-| `11-app.json#3` | client | open | /loyalty/hub Copy referral code | [client] Fixed on design/clipboard (owner decision 5, 2026-10-10): expo-clipboard approved; Copy sends the referral code, Copied or an error notice shows, Share stays. Was: the ol… |
 | `11-web.json#0` | backend | closed-unverified (issue #749: closed with no linked PR) | /loyalty Purchase-typed challenges | [backend] the Challenges tab shows what GET /loyalty/challenges sends and filters nothing; a challenge that asks for buying medicines must be removed by the server (decision 9) |
 | `12-app.json#1` | backend | closed-unverified (issue #754: closed with no linked PR) | /settings/about Cancellation and refund text | [backend] Decision 26: /system-config/public sends numbers only; the sentences are templates in the locale files filled with those numbers, not server text. |
 | `12-app.json#2` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /terms App /terms and /privacy not redirected | [owner] They are (auth) screens of Batch 13 and the register screen links to them before sign-in; left untouched. Redirect to /settings/about?tab=legal once the owner confirms the… |
@@ -131,21 +129,15 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `14a-app.json#1` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /consultations/chat-with-doctor Call camera and microphone on/off | [owner] The camera and microphone switch belongs to the calls decision; the button only opens the existing waiting room. |
 | `14a-app.json#5` | owner | closed-unverified (issue #804: closed with no linked PR) | /consultations/cancel-reschedule Cancel and refund text (decision 26) | [owner] The consultation cancel screen already reads cancellation_policy from /system-config/public and no screen has a hard-coded 12/24 h copy; nothing to remove. |
 | `14b-app.json#4` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /diagnostics/sample-tracking Static preparation and visit tips (items 628 / 629) | [owner] needs medical review before launch: diag.track.prep (fasting 8 to 12 hours) and diag.tech.tips are fixed texts for every package; owner approved them on condition of a med… |
-| `1e-app.json#0` | backend | open | /pharmacy/order-tracking Pharmacy name | [backend] Fixed on design/backend-fields: GET /patient/pharmacy/orders/:id now carries pharmacy_name_ar / pharmacy_name_en (pharmacy-order.service.ts:147-150); the tracking card n… |
-| `1e-app.json#2` | backend | open | /orders Legacy orders (GET /orders/mine) | [backend] Fixed on design/backend-fields: legacy rows open the tracking screen, which falls back to GET /orders/:id/tracking (orders.service.ts getTracking) for an id the governed… |
 | `1e-app.json#4` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /orders Kind filter chips | [owner] Owner approved the service filter on 2026-10-10 (item 371): chips per kind, All by default, client-side. The board shows no chips; add them to the board. |
 | `1e-app.json#5` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /pharmacy/reorder Earlier prescription and fulfilment | [owner] Owner approved on 2026-10-10 (item 372): the earlier prescription_id and delivery or pickup now carry over. The prescription record has no validity field (backend/src/sche… |
-| `1e-web.json#2` | backend | open | /orders/[orderId]/tracking Pharmacy name | [backend] Fixed on design/backend-fields: the order detail carries pharmacy_name_ar / pharmacy_name_en (pharmacy-order.service.ts:147-150); the tracking summary row names the phar… |
-| `1e-web.json#3` | backend | open | /orders/[orderId] Reorder through /orders/:id/reorder | [backend] Fixed on design/backend-fields: the unused BFF route app/api/orders/[orderId]/reorder was removed (the web reorders through the cart). |
 | `1e-web.json#9` | client | open | /orders Insurance claims and returns | [client] The app's order center also lists insurance claims and pharmacy returns; the web list has the five services of issue 378 only (claims and returns have their own pages). N… |
 | `2-app.json#0` | client | open (issue #382) | /consultations/appointments List call | [client] GET /care/appointments is made inside ConsultationsContext, so the inventory lists no call for this route; the context also maps the list once for the whole app. |
 | `2-app.json#3` | backend | open (issue #385) | /consultations/home-visit-tracking Doctor on the way, map | [backend] Fixed on design/backend-fields: the step "Doctor on the way" follows EN_ROUTE / ARRIVED (Q-15); there is still no doctor position, so no map is drawn. |
-| `2-app.json#4` | client | open | /consultations/cancel-reschedule Refund policy | [client] Fixed on design/oc-patient-other-1: the screen read consultation_type, which the appointment does not have (the field is service_type: clinic, video or home), so every ap… |
 | `2-app.json#10` | backend | open | /consultations Nearest and Available now filters | [backend] Done on the client: the filters call GET /care/doctors (Q-12/Q-13). Backend limits: sort=distance with only a city needs the signed-in user's city (the client sends city… |
 | `2-app.json#12` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /consultations/appointment-detail Urdu text | [owner] Readex Pro has no Urdu glyphs, so Urdu falls back to a system font and mixes two typefaces in one line (seen at 390 in ur on every consultation screen); Approved 2026-10-1… |
 | `2-app.json#13` | backend | open | /consultations/doctor/[id] Board elements without data | [backend] Fixed on design/backend-fields: the verified badge (verified, care.service.ts:497), the SCFHS number and the public rating / reviews_count are drawn; the rating-distribu… |
 | `2-app.json#16` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /consultations Nearest label with a city | [owner] Approved 2026-10-10: Doctors in {city} |
-| `2-web.json#1` | backend | open | /consultations/call-history List | [backend] Fixed on design/backend-fields: the list reads the call records (GET /calls/history: call_type, status, started_at, duration_seconds, appointment_id), not the finished a… |
 | `2-web.json#3` | client | open | /consultations/doctors Photo and verified seal | [client] Fixed on design/backend-fields: the verified seal and the licence number are drawn from verified / scfhs_license_no; the photo is still not sent by toPublicDoctor. |
 | `2-web.json#6` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /consultations/doctors Filters | [owner] Search, sort, visit type, Nearest and Available now are drawn, and since issue 404 (approved 2026-10-10) so are a specialty select (?specialty=, the slug filter) and an in… |
 | `2-web.json#7` | backend | open | /appointments Specialty line | [backend] Fixed on design/backend-fields: the specialty follows the page language (specialty_name_ar / specialty_name_en, Q-19). Backend: the list GET /care/appointments (appointm… |
@@ -158,7 +150,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `3-app.json#3` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /diagnostics Compare prices shortcut | [owner] Opens the test search (lab-comparison needs a test); confirm that is the intended entry. |
 | `3-app.json#6` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /diagnostics/sample-tracking Preparation text, six default steps | [owner] Static medical text and a fixed step list, not from the booking; confirm the wording. |
 | `3-app.json#7` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /diagnostics/technician-tracking Tips | [owner] [screen is now a redirect; kept so issue indices stay stable] Static text; the old third tip (samples sent in cold containers) was dropped as an unverified claim. |
-| `3-app.json#8` | client | open | /diagnostics/cart Cart context | [client] Fixed on design/oc-patient-other-1: the cart is now kept on the device per signed-in patient (AsyncStorage key @nabd_diag_cart:v1:<user id>), restored on the next start a… |
 | `3-web.json#2` | client | open (issue #634) | /diagnostics service-booking-modal.tsx | [client] nursing/catalog's Book button now opens a window that says nothing was booked and links to /nursing (the old fake confirmation is gone); a real booking from the catalogue… |
 | `3-web.json#3` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /diagnostics labs carousel, cash filter, add toggle | [owner] board elements with no endpoint on the hub (no lab list, no cash flag, the cart is page based) |
 | `3-web.json#6` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /diagnostics/technician-tracking live map | [owner] the board's live map needs a collector position the tracking API does not send |
@@ -170,30 +161,22 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `5-app.json#10` | client | open | /health/emergency-contacts SOS notifies family | [client] FIXED on design/sos-removal: the SOS is removed (decision 14) and the family note now only says these are the people to call in an emergency. |
 | `5-app.json#11` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /wearables/hub Not in the merge map | [owner] Manual vitals entry duplicated the Add reading sheet and nothing linked to it: redirected to /health/vitals. |
 | `5-app.json#14` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /health/sleep-score Static sleep tips | [owner] Four educational tips are static text (translated): confirm they stay. |
-| `5-web.json#0` | client | open | /health/sleep Add sleep | [client] Fixed on design/oc-patient-other-1: the sleep page has the form (hours, score) that posts to /api/patient/health/sleep (allowlisted) like the app. |
-| `5-web.json#1` | client | open | /health/profile Add and delete my emergency contacts | [client] Fixed on design/oc-patient-other-1: my contacts can be added (POST) and removed (DELETE) on the web through the /api/patient proxy (allowlisted), the same calls as the ap… |
 | `5-web.json#6` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /health/vitals Today tab | [owner] Today shows the latest reading of each vital (summary endpoint), not only readings taken today. Confirm that is what Today means. |
 | `5-web.json#9` | client | open (issue #682) | /health Dead API helpers | [client] getPatientReports and parseReports (lib/api/reports*.ts, vitals-server.ts) have no screen left; kept with their tests for the reviewer to delete. |
 | `6-app.json#0` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /family/member-health Book on their behalf | [owner] Opens the consultations tab without the member: booking for a member is not wired (the booking flow takes no member); the permission 'booking' exists but nothing uses it. |
 | `6-app.json#1` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /family Board 'Permissions' row and 'full / managed / view' chips | [owner] The board draws a permission level per member and a group permissions row; the backend has only a flat list of 9 permissions per member, so the count is shown and the row … |
-| `6-app.json#2` | client | open | /family/add Copy invite | [client] Fixed on design/clipboard (owner decision 5, 2026-10-10): expo-clipboard approved; Copy sends the invite link (Link method) or the code (Code method), Copied or an error … |
 | `6-app.json#4` | client | open (issue #688) | /family/calendar Date field | [client] Event date is typed as ISO text; a date and time picker in the shared kit would replace it (feature, not done here). |
 | `6-app.json#8` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /family/emergency-contacts Entry from the hub | [owner] Kept as a row (board draws it); it redirects to the medical profile Emergency tab (Batch 5). |
 | `6-app.json#9` | client | open (issue #693) | /family/calendar Person with no family group | [client] Runtime check: the seeded patient has no group, so GET /family/calendar answers 404 and GET /family/chat/messages 403 (not_active_family_member); both screens show the ge… |
 | `6-web.json#0` | client | open (issue #694) | /family/add Scan QR tab | [client] The web has no camera scanner (the code or link is pasted), as before; the app scans. Not added: it is a feature, and the camera permission handling stays as it was. |
 | `6-web.json#2` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /family Board row 'الصلاحيات' | [owner] Not drawn: permissions are per member (merge map B) and the badge on each member row shows how many of the four grants they have; confirm the board row can go. |
-| `6-web.json#3` | client | open | /family Emergency contacts count | [client] Fixed on design/oc-patient-other-1: the hub reads GET /family/emergency-contacts and draws '[N] contacts' on the row (the hint when the call fails or the list is empty). |
 | `6-web.json#6` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /family Board frames | [owner] Family.dc.html has one mobile frame (the hub) and no web frames; the other four screens follow the closest templates (list, detail with tabs, chat, form with tabs). |
 | `7-app.json#0` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /insurance Refunds tab | [owner] Removed 2026-10-10 (decision 35): the Refunds tab of the insurance hub is gone on app and web (order and return refunds stay in Orders and Returns). |
 | `7-app.json#1` | client | open (issue #820) | /insurance/copay Co-pay screen not merged | [client] Picks the newest COPAY_PENDING from /requests/my and posts the intent with no method; the request page reads one id and asks capabilities. Different payment paths, so kep… |
 | `7-app.json#2` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /insurance/payment-split Cash payment button removed | [owner] Old approval-pending offered pay cash to /payments/processing with no params; removed per decision 25. |
-| `7-app.json#9` | client | open | /insurance/submit-claim Receipt upload | [client] Removed 2026-10-10 (decision 35): the claim form and its receipt upload are gone; the route redirects to the hub. |
 | `7-app.json#12` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /insurance Claims tab and Submit a claim: keep under decision 35? | [owner] Removed 2026-10-10 (decision 35): the claims and refunds tabs and the claim form are removed (owner decision 35, insurance is relay-only and view-only). |
 | `7-app.json#13` | client | open (issue #832) | /insurance Other batches still say Nabd+ checks or retrieves insurance automati… | [client] Batch 14 text, not changed here: nur.book.insFetched, nur.book.inReviewBody, nur.book.insNote, diag.upload.readFailed, pharmacy.ins.processingTitle, consult.confirm.insur… |
 | `7-web.json#0` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /insurance/requests/[requestId] Pay-cash link of the old approval wait | [owner] the old page offered cash (with a made-up payments/processing ref) after a decline; owner decision 25 forbids cash for online consultations, so the merged page has only ac… |
-| `7-web.json#6` | client | open | /insurance Claims with a status outside the four known are dropped | [client] Removed 2026-10-10 (decision 35): the Claims tab and parseClaims are gone; the route redirects to the hub. |
-| `7-web.json#7` | backend | open | /insurance Refund status shown raw | [backend] Removed 2026-10-10 (decision 35): the Refunds tab is gone; the route redirects to the hub. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:867) |
-| `7-web.json#9` | client | open | /insurance/submit-claim Claimable bookings are collected in the browser | [client] Removed 2026-10-10 (decision 35): the claim form is gone; the route redirects to the hub. |
 | `7-web.json#10` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /insurance/add-policy No policy-card OCR on web | [owner] the brief says the OCR extract stays; the web form never had one (typed fields only). Decide whether web needs it. |
 | `7-web.json#14` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /insurance/submit-claim Claim flow under decision 35? | [owner] Removed 2026-10-10 (decision 35): the claim form and the Claims tab are removed (owner decision 35). |
 | `7-web.json#15` | client | open (issue #848) | /insurance Other batches still say Nabd+ checks or retrieves insurance automati… | [client] Batch 14 text, not changed here: NursingWeb.insuranceTitle, DiagWeb.insuranceSub, DiagWeb.insuranceHintLink, Diagnostics.insuranceNoticeSub, PharmacyCheckout.insuranceBod… |
@@ -298,12 +281,9 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `final-pass.json#2` | client | open | MedicalJobsScreen guest applications list | [client] GET /recruitment/guest/mine answers 400 with the patient session and with none (runtime check, provider area 'shared'); the screen sends only device_id, so the call fails… |
 | `final-pass.json#3` | client | open | public directory pages (/articles, /doctors, /facilities, /home-care-services, … | [client] The server-side fetch uses a relative/BFF-less URL (`${base}/api/v1${endpoint}`), so the six directory pages render empty (NO_ROUTE x6 in the admin inventory); the pages … |
 | `journeys.json#2` | untagged | open (issue #1011) | 1 offers (no answer yet) | While no pharmacy has answered, the offers page only polls every 15 s with the sentence "an empty list does not mean the order was cancelled": no "expanding the search" step, no f… |
-| `journeys.json#3` | untagged | open | 1 offers (no answer yet) | Fixed on design/oc-journeys-1: /pharmacy/waiting-for-pharmacy is a redirect to broadcast-status (offers-screen.tsx), whose waiting state has the confirmed cancel for any status; t… |
-| `journeys.json#5` | untagged | open | 1 select offer | Fixed on design/oc-journeys-1: tracking shows a "Continue" button to the order's next step (final price, payment, insurance) from the order router. Selecting an offer from broadca… |
 | `journeys.json#7` | untagged | open (issue #1016) | 1 accept and pay | Two payment UIs for the same step: inline method buttons on the offers page (OnlinePaymentActions) and the separate /pharmacy/payment page. |
 | `journeys.json#8` | untagged | open | 1 order detail / tracking | Fixed on design/oc-journeys-1 (cancel button on order detail and tracking until the order is dispatched; the refund rule text of decision 26 waits for the OC-A policy D-26). No ca… |
 | `journeys.json#9` | untagged | open (issue #1018) | 1 checkout | Checkout offers "دفع مباشر" vs "عبر التأمين" as a toggle per order; decision 30 wants insurance or self-pay chosen at the start of the service and the app checkout has no insuranc… |
-| `journeys.json#11` | untagged | open (issue #1020) | 1 browse / product | Already fixed: /medicines and /medicine-catalog are permanent redirects to /c (catalogueHref). Three web catalogues: /c (canonical), /medicines (dashboard tile "الأدوية") and /med… |
 | `journeys.json#14` | untagged | open | 1 browse / product | Partly fixed on design/oc-journeys-1: the app badge now reads "أونلاين فقط" (six languages); the web badge waits for the public product answer to carry online_exclusive (backend/s… |
 | `journeys.json#22` | untagged | open (issue #1031) | 2 cart with Rx item | Web and app differ: the web cart goes straight to checkout and uses the "active" prescription, the app cart goes to rx-order to pick a prescription first. |
 | `journeys.json#23` | untagged | open (issue #1032) | 2 order from prescription | rx-order (web) has no pickup/delivery choice and no insurance choice (the cart checkout has both), and always creates the draft with payment_mode cash. |
@@ -338,16 +318,12 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `journeys.json#77` | untagged | open (issue #1086) | 9 connection loss | Offline, tapping "request offers" in the cart ends on the browser's own error page; the service worker has no fetch handler or offline page. |
 | `journeys.json#78` | untagged | open (issue #1087) | 9 payment | The payment-result screen is pharmacy-specific: a returned consultation or nursing payment has no order to track. |
 | `journeys.json#83` | untagged | open (issue #1092) | 10 dashboard | The dashboard keeps a "المحادثات" (/chat) tile (decision 24 removes the chat list). |
-| `provider-admin-ish.json#1` | client | open | NurseVisitConsole Screen content | [client] Fixed on design/oc-provider: now lists the active visits and opens the field-ops screen (was a stub). |
 | `provider-admin-ish.json#2` | backend | open | RevenueInsights API GET /provider/ops/wallet/ledger | [backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider-ops/provi… |
 | `provider-doctor.json#2` | client | open | EPrescriptionScreen {t.titleAr} {t.drugs.length} | [client] Button "{t.titleAr} {t.drugs.length}" shows a success message without sending a request. |
 | `provider-journeys.json#1` | backend | open | pharmacy-inventory-ext.service map lines to catalogue | [backend] The search only reads the pharmacy's own inventory rows (provider_account_id = caller), minimum 2 characters; a new pharmacy with empty inventory can answer every line o… |
 | `provider-journeys.json#2` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | PharmacyBroadcastResponse send offer | [owner] A custom unit price field is accepted (admin audit endpoint exists) while the same screen says prices are never entered by hand; confirm with decision 12 (price ceiling) t… |
-| `provider-journeys.json#3` | backend | open | pharmacy-offer.service patient accepts | [backend] When the patient selects an offer the service only emits bus event pharmacy.offer.selected; nothing subscribes to it and notifyPharmacyNewAllocation is never called, so … |
 | `provider-journeys.json#4` | backend | open | pharmacy.schema prepare | [backend] A partially_confirmed allocation can only go to confirmed, rejected or cancelled; confirm() with an unavailable line tries partially_confirmed again and item changes are… |
 | `provider-journeys.json#5` | client | open (issue #1146) | PharmacyDashboard hand over / delivery | [client] The prescription dispensing path is a "disabled" notice and the old order detail and broadcast screens are defined but never rendered (dead code). |
-| `provider-journeys.json#6` | client | open | PharmacyDashboard hand over / delivery | [client] Fixed on design/oc-provider: new Prescription review screen (PharmacyPrescriptionReview.tsx): both queues, verify, and an approved substitute for hand-typed lines. Before… |
-| `provider-journeys.json#9` | client | open | AppointmentDetailScreen consultation | [client] Fixed on design/oc-provider: reschedule uses a date picker and a time picker (AppointmentDetailScreen.tsx). No endpoint lists free slots of an existing appointment. Befor… |
 | `provider-journeys.json#10` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | EPrescriptionScreen prescription | [owner] The client never calls POST /prescriptions/:id/send and offers no pharmacy to send to (the "Pharmacy on Nabd Plus" row has no handler); with decision 18 (patient orders th… |
 | `provider-journeys.json#13` | backend | open | home-care-compat.module done | [backend] visit-report with complete:true moves to COMPLETED from ARRIVED without the patient signature that /nursing/visits/:id/complete requires, so the two end-of-visit paths g… |
 | `provider-journeys.json#18` | backend | open (issue #1179) | provider-ops.module balance | [backend] The wallet figure is earned minus payouts, clamped at 0, over only the latest 200 rows and counting pending (escrow) earnings; the withdrawal check uses the real ledger … |
