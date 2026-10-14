@@ -8,7 +8,7 @@
 # the end; they are never printed. Script output is cut to its last lines with e-mail addresses and phone numbers masked.
 set +e
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
-SHA=${OPS_RELEASE_SHA:-3ca66ab1291e6cc9be813b77ffb888a7443a8e5f}
+SHA=${OPS_RELEASE_SHA:-8c8c08ac4706278a127b6605fc8596f10e6f4f7c}
 S8=${SHA:0:8}
 REL=${OPS_RELEASE_DIR:-/opt/nabdah/releases}/$S8
 DK="sudo -n docker"
