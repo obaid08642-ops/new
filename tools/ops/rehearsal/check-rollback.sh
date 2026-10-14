@@ -7,8 +7,15 @@ no() { echo "FAIL: $1"; fail=1; }
 grep -q "forced failure at $STEP" "$OUT" && echo "reached the forced failure point ($STEP)" || no "forced point not reached"
 [ "$RC" = 1 ] && echo "exit=1" || no "exit=$RC"
 grep -q 'deploy: rollback complete' "$OUT" && echo "task reports: rollback complete" || no "task did not report a complete rollback"
-OLD=$(sudo docker image inspect -f '{{.Id}}' nabdah-prod-backend:latest)
-for s in backend admin-web patient-web; do [ "$(sudo docker inspect -f '{{.Image}}' nabdah-$s)" = "$OLD" ] && echo "$s: old image" || no "$s not on the old image"; done
+# each service runs the image the task pinned as its newest rollback-<ts> tag (patient-web: the committed container)
+for s in backend admin-web patient-web; do
+  TAG=$(sudo docker images --format '{{.Tag}}' nabdah-$s | grep '^rollback-' | sort | tail -1)
+  WANT=$(sudo docker image inspect -f '{{.Id}}' nabdah-$s:$TAG 2>/dev/null)
+  [ -n "$WANT" ] && [ "$(sudo docker inspect -f '{{.Image}}' nabdah-$s)" = "$WANT" ] && echo "$s: old image ($TAG)" || no "$s not on its rollback image"
+done
+STUB=$(sudo docker image inspect -f '{{.Id}}' nabdah-prod-backend:latest)
+[ "$(sudo docker inspect -f '{{.Image}}' nabdah-backend)" = "$STUB" ] && echo "backend: the stub image it ran before" || no "backend not on the stub image"
+sudo grep -qF social_login_temporarily_disabled $D/nginx/conf.d/nabd.plus.conf && echo "Q107 hotfix still in the api vhost" || no "Q107 hotfix lost"
 for c in nabdah-worker nabdah-meilisearch; do sudo docker inspect $c >/dev/null 2>&1 && no "$c still exists" || echo "$c: removed"; done
 sudo sha256sum -c --quiet /opt/nabdah/old.sums && echo "nginx.conf, compose file, .env.production: identical to before" || no "files differ from before"
 sudo test -e $D/docker-compose.release.yml && no "docker-compose.release.yml left behind" || echo "release override: removed"

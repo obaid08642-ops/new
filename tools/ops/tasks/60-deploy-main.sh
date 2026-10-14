@@ -13,7 +13,8 @@
 #   6. checks: health, readiness background_worker=up, site/admin/API 200, metrics 404 without token,
 #      cache MISS->HIT on a public answer and BYPASS with Authorization
 # Any failure in 3-6: files, env and images back, worker and meilisearch removed, old stack verified; exit 1.
-# Secret values are never printed. REHEARSE_FAIL_AT=<step> forces a failure (rehearsal only).
+# Secret values are never printed. REHEARSE_FAIL_AT=<step> forces a failure; REHEARSE_MISSING_IMAGE=<service> treats
+# that service's running image as gone from the host, as patient-web's is in production (rehearsal only).
 set -u
 SHA=${OPS_RELEASE_SHA:-3ca66ab1291e6cc9be813b77ffb888a7443a8e5f}
 S8=${SHA:0:8}
@@ -68,7 +69,14 @@ declare -A OLDIMG OLDREF
 for s in $APP_SERVICES; do
   OLDIMG[$s]=$($DK inspect -f '{{.Image}}' nabdah-$s)
   OLDREF[$s]=$($DK inspect -f '{{.Config.Image}}' nabdah-$s)
-  $DK tag "${OLDIMG[$s]}" "nabdah-$s:rollback-$TS"
+  # preflight 2026-10-14: the running patient-web's image was deleted from the host (the container still runs it);
+  # without an image there is nothing to roll back to, so the running container is committed as the rollback image
+  if [ "${REHEARSE_MISSING_IMAGE:-}" = "$s" ] || ! $DK image inspect "${OLDIMG[$s]}" >/dev/null 2>&1; then
+    $DK commit -q nabdah-$s "nabdah-$s:rollback-$TS" >/dev/null 2>&1 || { echo "deploy: ABORT cannot keep a rollback image of $s"; exit 1; }
+    OLDIMG[$s]=$($DK image inspect -f '{{.Id}}' "nabdah-$s:rollback-$TS")
+    echo "deploy: $s ran an image no longer on the host; its container was committed as the rollback image"
+  fi
+  $DK tag "${OLDIMG[$s]}" "nabdah-$s:rollback-$TS" || { echo "deploy: ABORT cannot tag the rollback image of $s"; exit 1; }
 done
 SNAP=$B/deploy-files-pre-$S8-$TS.tgz
 sudo -n tar -czf "$SNAP" -C $D --ignore-failed-read $NEW .env.production 2>/dev/null
@@ -103,6 +111,14 @@ echo "deploy: release images loaded"
 
 # ---------------------------------------------------------------- 4. files and env
 W=$(mktemp -d); tar -xzf "$REL/deploy.tgz" -C $W || rollback "unpack deploy.tgz"
+# The server's api vhost carries the Q107 hotfix (social sign-in answers 403) that main does not have; it stays until
+# the owner decides to lift it (a separate change), so it is carried into main's file.
+Q107='  location = /api/v1/auth/social-login { default_type application/json; return 403 '"'"'{"statusCode":403,"message":"social_login_temporarily_disabled"}'"'"'; } # Q107 hotfix: social-login off until the verified backend is deployed'
+if sudo -n grep -qF 'social_login_temporarily_disabled' $D/nginx/conf.d/nabd.plus.conf; then
+  awk -v l="$Q107" '{print} /^  server_name api\.nabd\.plus;$/ && !d {print l; d=1}' "$W/deploy/nginx/conf.d/nabd.plus.conf" > "$W/q107" && mv "$W/q107" "$W/deploy/nginx/conf.d/nabd.plus.conf"
+  grep -qF 'social_login_temporarily_disabled' "$W/deploy/nginx/conf.d/nabd.plus.conf" || { rm -rf $W; rollback "Q107 hotfix not carried over"; }
+  echo "deploy: Q107 hotfix (social sign-in 403) kept in the api vhost"
+fi
 for f in $NEW; do
   [ "$f" = docker-compose.release.yml ] && continue
   [ -f "$W/deploy/$f" ] || { rm -rf $W; rollback "main has no deploy/$f"; }
