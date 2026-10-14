@@ -1,8 +1,9 @@
 """Journey: pharmacy order, patient-app -> pharmacy (provider-app) -> patient -> delivery -> admin.
 Payloads copied from patient-app app/pharmacy/{checkout,broadcast-status,final-quote}.tsx,
 src/utils/pharmacy-draft.ts and provider-app screens/pharmacy/PharmacyDashboard.tsx."""
-import uuid, urllib.parse
+import json, uuid, urllib.parse
 from lib import Client, journey, step
+from j_nursing import card_payment
 
 KEY = lambda tag: f'mobile-{tag}-{uuid.uuid4()}'
 
@@ -113,6 +114,16 @@ def run(pat, pharm, admin=None, meds=None):
     of = offers[0]
     r = pat.post(f"/patient/pharmacy/orders/{oid}/offers/{of.get('id') or of.get('offer_id')}/select", {'coverage_mode': 'cash'}, headers={'Idempotency-Key': KEY('offer')})
     step('select offer (cash)', r.ok, r)
+    # P3: the pharmacy's "My offers" shows this offer as chosen.
+    oid_offer = of.get('id') or of.get('offer_id')
+    r = pharm.get('/provider/pharmacy/offers')
+    mine = [x for x in r.items() if x.get('id') == oid_offer]
+    step('pharmacy "my offers" shows the offer as chosen', r.ok and mine and mine[0].get('view_status') == 'chosen', r)
+    r = pharm.get('/provider/pharmacy/offers?status=chosen')
+    step('"my offers" filters by status', r.ok and all(x.get('view_status') == 'chosen' for x in r.items()) and any(x.get('id') == oid_offer for x in r.items()), r)
+    # P5: the chosen pharmacy is notified at once.
+    r = pharm.get('/notifications')
+    step('pharmacy notified that its offer was chosen', r.ok and 'new_allocation' in json.dumps(r.body, ensure_ascii=False) and oid in json.dumps(r.body, ensure_ascii=False), r)
     o = pat.get(f'/patient/pharmacy/orders/{oid}')
     order = o.body.get('data', o.body) if isinstance(o.body, dict) else {}
     state = order.get('governed_state')
@@ -122,8 +133,18 @@ def run(pat, pharm, admin=None, meds=None):
         rev = order.get('pending_final_quote_revision') if state == 'FINAL_QUOTE_READY' else order.get('selected_offer_revision')
         r = pat.post(f'/patient/pharmacy/orders/{oid}/final-quote/accept', {'quote_hash': h, 'quote_revision': rev}, headers={'Idempotency-Key': KEY('final-quote')})
         step('accept final quote', r.ok, r)
+    # D-25: cash on delivery needs an earlier delivered order, so a first order is paid by card.
+    if admin:
+        r = admin.put('/admin/admin/payment-rules', {'pharmacy_cod_max_sar': 1000})
+        step('admin sets the COD limit', r.ok, r)
+    r = pat.get('/payment-rules')
+    step('patient app reads the payment rules', r.ok and (r.body.get('data', r.body) if isinstance(r.body, dict) else {}).get('pharmacy_cod_max_sar'), r)
     r = pat.post(f'/patient/pharmacy/orders/{oid}/cod/register', None, headers={'Idempotency-Key': KEY('cod')})
-    step('register cash on delivery', r.ok, r)
+    first_order = r.status == 400 and 'cod_first_order_not_allowed' in json.dumps(r.body, ensure_ascii=False)
+    step('cash on delivery refused on the patient\'s first order (D-25)', first_order, r)
+    paid_by_card = False
+    if first_order:
+        paid_by_card = bool(card_payment(pat, 'pharmacy', oid))
 
     if admin:
         journey('pharmacy order: platform cash-on-delivery policy (admin config-portal)')
@@ -147,8 +168,12 @@ def run(pat, pharm, admin=None, meds=None):
     # PharmacyDashboard: expectedTotal = detail.order.pricing_snapshot.totals.total ?? allocation.totals.total
     total = ((det.get('order') or {}).get('pricing_snapshot') or {}).get('totals', {}).get('total') or (alloc.get('totals') or {}).get('total')
     step('pharmacy sees the amount to collect', total, det)
-    r = pharm.post(f'/provider/pharmacy/allocations/{aid}/delivered', {'collection': {'method': 'cash', 'amount_collected': float(total or 0)}})
-    step('pharmacy: delivered with cash collected', r.ok, f'{r} (expected_total={total})')
+    if paid_by_card:
+        r = pharm.post(f'/provider/pharmacy/allocations/{aid}/delivered', {})
+        step('pharmacy: delivered (paid by card, nothing to collect)', r.ok, r)
+    else:
+        r = pharm.post(f'/provider/pharmacy/allocations/{aid}/delivered', {'collection': {'method': 'cash', 'amount_collected': float(total or 0)}})
+        step('pharmacy: delivered with cash collected', r.ok, f'{r} (expected_total={total})')
 
     journey('pharmacy order: everyone sees the final state')
     o = pat.get(f'/patient/pharmacy/orders/{oid}')
@@ -181,7 +206,8 @@ def matrix_pharmacy(pat, pharm, meds, addr, admin=None):
         'delivery_address': {'label': 'المنزل', 'street': addr.get('street') or '', 'city': addr.get('city') or '',
                              'lat': float(addr.get('lat') or 0), 'lng': float(addr.get('lng') or 0)},
         'fulfillment': 'pickup',
-        'prescription_attachments': [{'uri': rx, 'type': 'image'}] if rx else [],
+        # the app sends the uploaded file's id; the server stores { type, uri } (A-0)
+        'prescription_attachments': [rx] if rx else [],
     }
     r = pat.post('/patient/pharmacy/orders', draft, headers={'Idempotency-Key': KEY('mx-pickup')})
     oid = r.get('id')
@@ -193,6 +219,10 @@ def matrix_pharmacy(pat, pharm, meds, addr, admin=None):
         mine = next((b for b in r.items() if b.get('order_id') == oid), None)
         step('the pharmacy sees the pickup broadcast', r.ok and mine, r.status)
         if mine:
+            # A-0: the notified pharmacy opens the patient's prescription photo through the storage route
+            att = next((a for a in (mine.get('attachments') or []) if a.get('uri')), None)
+            ok = bool(att) and pharm.get(str(att['uri']).replace('/api/v1', '', 1)).ok
+            step('the notified pharmacy opens the prescription file', ok, att)
             meds2 = mine.get('items') or mine.get('medicines') or []
             offer_items = [{'order_item_id': str(m.get('id') or m.get('order_item_id') or ''), 'availability': 'available',
                             'qty_offered': int(m.get('qty_requested') or m.get('qty') or m.get('quantity') or 1)} for m in meds2]
@@ -220,7 +250,7 @@ def matrix_pharmacy(pat, pharm, meds, addr, admin=None):
                              'lat': float(addr.get('lat') or 0), 'lng': float(addr.get('lng') or 0)},
         'fulfillment': 'delivery',
         'payment_mode': 'insurance',
-        'prescription_attachments': [{'uri': rx2, 'type': 'image'}] if rx2 else [],
+        'prescription_attachments': [rx2] if rx2 else [],
     }
     r = pat.post('/patient/pharmacy/orders', draft2, headers={'Idempotency-Key': KEY('mx-ins')})
     oid2 = r.get('id')
@@ -325,7 +355,9 @@ def open_order(pat, pharm, meds, addr):
         fq = order.get('governed_state') == 'FINAL_QUOTE_READY'
         pat.post(f'/patient/pharmacy/orders/{oid}/final-quote/accept', {'quote_hash': order.get('pending_final_quote_hash' if fq else 'selected_offer_hash'),
                  'quote_revision': order.get('pending_final_quote_revision' if fq else 'selected_offer_revision')}, headers={'Idempotency-Key': KEY('final-quote')})
-    pat.post(f'/patient/pharmacy/orders/{oid}/cod/register', None, headers={'Idempotency-Key': KEY('cod')})
+    r = pat.post(f'/patient/pharmacy/orders/{oid}/cod/register', None, headers={'Idempotency-Key': KEY('cod')})
+    if not r.ok:
+        card_payment(pat, 'pharmacy', oid)  # D-25: no COD for this patient/order
     alloc = next((a for a in pharm.get('/provider/pharmacy/allocations').items() if a.get('order_id') == oid), None)
     return oid, alloc
 

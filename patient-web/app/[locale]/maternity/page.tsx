@@ -1,188 +1,203 @@
-import Link from "next/link";
+import type { ReactNode } from "react";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Baby, CalendarDays, ChevronLeft, Heart, Sparkles, Stethoscope, Activity } from "lucide-react";
 import { requirePatientAccess } from "@/lib/auth/session";
-import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
-import { VectorMaternity } from "@/components-next/vector-illustrations";
-import styles from "./maternity.module.css";
+import { formatDate } from "@/lib/format-date";
+import { getDirection, isLocale } from "@/lib/i18n";
+import { pickTab } from "@/lib/health/view";
+import { cycleWindow, parseMaternity, trimesterOf, type MaternityView } from "@/lib/maternity/view";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { Notice, RowCard } from "@/components-next/consult/consult-parts";
+import { CareHero, RecordRow } from "@/components-next/care/care-kit";
+import { HealthTabs, RowsCard, SectionHead } from "@/components-next/health/health-kit";
+import { ButtonLink } from "@/components-next/pharmacy/button-link";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
+import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
+import rx from "@/components-next/pharmacy/rx.module.css";
+import styles from "@/components-next/health/health.module.css";
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string | string[] }> };
+const TABS = ["pregnancy", "baby", "ovulation"] as const;
+const MATERNITY = SERVICE_ICONS.maternity;
 
-export default async function MaternityPage({ params }: Props) {
+/**
+ * Maternity (canvas/CareHub; merge map 2 section 8): one screen with three tabs, `?tab=pregnancy|baby|ovulation`, absorbing the
+ * old tracker, baby-growth and ovulation pages. All three read the one GET /maternity/profile. Pregnancy shows the week ring, the
+ * trimester, the due date and the logged kicks and contractions; Baby growth the growth entries; Ovulation the estimate computed
+ * from the last period and the cycle length (always labelled an estimate). The weekly articles and the fetal-week image of the
+ * board are not drawn: GET /maternity/content returns no content yet and the images belong on the CDN (Needs review).
+ */
+export default async function MaternityPage({ params, searchParams }: Props) {
   const { locale } = await params;
+  const query = await searchParams;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
+  const t = await getTranslations("MaternityWeb");
+  const rs = await getTranslations("RouteState");
   const token = await requirePatientAccess(locale);
-  const t = await getTranslations("Maternity");
-  const response = await callPatientApi("/maternity/profile", {}, token);
+  const base = `/${locale}/maternity`;
+  const caret = getDirection(locale) === "rtl" ? "caret-left" : "caret-right";
+
+  const frame = (body: ReactNode, tab?: (typeof TABS)[number]) => (
+    <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/dashboard`}>
+      {tab ? (
+        <HealthTabs label={t("tabsLabel")} base={base} active={tab} options={[
+          { value: "pregnancy", label: t("tabPregnancy") },
+          { value: "baby", label: t("tabBaby") },
+          { value: "ovulation", label: t("tabOvulation") },
+        ]} />
+      ) : null}
+      {body}
+    </ConsultPage>
+  );
+
+  let response: Response;
+  try {
+    response = await callPatientApi("/maternity/profile", {}, token);
+  } catch {
+    return frame(<ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
+  }
   if (response.status === 401) redirect(`/${locale}/login`);
-  const raw = response.ok ? await response.json().catch(() => null) : null;
-  const root = raw && typeof raw === "object" && !Array.isArray(raw) ? (raw as Record<string, unknown>) : null;
-  const profile = root && typeof root.data === "object" && root.data !== null ? (root.data as Record<string, unknown>) : root;
-  const hasProfile = !!profile && Object.keys(profile).length > 0;
-  const week = Number(profile?.pregnancy_week ?? profile?.current_week ?? profile?.week ?? NaN);
-  const dueDate =
-    typeof profile?.due_date === "string"
-      ? profile.due_date
-      : typeof profile?.expected_delivery_date === "string"
-        ? profile.expected_delivery_date
-        : null;
-  const mode = typeof profile?.mode === "string" ? profile.mode : null;
+  if (!response.ok) return frame(<ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
 
-  const validWeek = Number.isFinite(week) && week > 0 ? Math.min(week, 42) : null;
-  const progressPercent = validWeek ? Math.min(Math.round((validWeek / 40) * 100), 100) : 0;
-  const trimester = validWeek
-    ? validWeek <= 13
-      ? locale === "ar" ? "الثلث الأول" : "1st Trimester"
-      : validWeek <= 27
-        ? locale === "ar" ? "الثلث الثاني" : "2nd Trimester"
-        : locale === "ar" ? "الثلث الثالث" : "3rd Trimester"
-    : null;
+  const profile = parseMaternity(await response.json().catch(() => null));
+  if (!profile.ready) {
+    return frame(<ConsultState kind="empty" icon={MATERNITY.icon} tone={MATERNITY.tone} title={t("emptyTitle")} body={t("emptyBody")} actionLabel={t("setupAction")} actionHref={`${base}/maternity-setup`} />);
+  }
 
+  const tab = pickTab(query.tab, TABS, profile.pregnant ? "pregnancy" : "ovulation");
+  const number = new Intl.NumberFormat(locale);
+  const date = (value: string | null) => formatDate(locale, value);
+
+  return frame(
+    <>
+      <div className={styles.toolbar}>
+        <span />
+        <ButtonLink href={`${base}/maternity-setup`} label={t("updateProfile")} size="md" variant="outline" />
+      </div>
+      {tab === "pregnancy" ? <PregnancyTab t={t} profile={profile} number={number} date={date} /> : null}
+      {tab === "baby" ? <BabyTab t={t} profile={profile} number={number} date={date} /> : null}
+      {tab === "ovulation" ? <OvulationTab t={t} profile={profile} locale={locale} /> : null}
+      <RowCard href={`/${locale}/consultations/doctors?specialty=gynecology`} icon="stethoscope" tone="blue" title={t("consultTitle")} sub={t("consultSub")} caret={<Icon name={caret} size={16} tone="secondary" />} />
+      <RowCard href={`/${locale}/diagnostics/radiology`} icon="scan" tone="violet" title={t("scansTitle")} sub={t("scansSub")} caret={<Icon name={caret} size={16} tone="secondary" />} />
+      <Notice warn>{t("notice")}</Notice>
+    </>,
+    tab,
+  );
+}
+
+type Tr = Awaited<ReturnType<typeof getTranslations>>;
+type TabProps = { t: Tr; profile: MaternityView; number: Intl.NumberFormat; date: (value: string | null) => string | null };
+
+function PregnancyTab({ t, profile, number, date }: TabProps) {
+  if (!profile.pregnant) {
+    return <ConsultState kind="empty" icon={MATERNITY.icon} tone={MATERNITY.tone} title={t("notPregnantTitle")} body={t("notPregnantBody")} />;
+  }
+  const due = date(profile.dueDate);
   return (
-    <main className={`main ${styles.page}`}>
-      <Link href={`/${locale}/dashboard`} className={styles.back}>
-        <ChevronLeft size={17} aria-hidden="true" />
-        {locale === "ar" ? "لوحة التحكم" : "Dashboard"}
-      </Link>
-
-      <section className={styles.hero}>
-        <div>
-          <p className={styles.eyebrow}>
-            <Heart size={15} aria-hidden="true" />
-            {locale === "ar" ? "رعاية الأم والجنين" : "Maternal & Fetal Care"}
-          </p>
-          <h1>{t("title")}</h1>
-          <p>
-            {locale === "ar"
-              ? "متابعة دقيقة لكل مراحل الحمل وتطور الجنين مع توجيهات طبية مخصصة وفحوصات دورية معتمدة."
-              : "Comprehensive tracking of pregnancy stages and fetal milestones with clinical guidance."}
-          </p>
-        </div>
-        <span className={styles.heroVector}>
-          <VectorMaternity size={48} aria-hidden="true" />
-        </span>
-      </section>
-
-      {!response.ok ? (
-        <section className={styles.state} role="alert">
-          <VectorMaternity size={48} aria-hidden="true" />
-          <p>{t("error")}</p>
-        </section>
-      ) : !hasProfile ? (
-        <section className={styles.state}>
-          <VectorMaternity size={48} aria-hidden="true" />
-          <p>{t("empty")}</p>
-          <div className={styles.quickNav} style={{ marginTop: "16px" }}>
-            <Link href={`/${locale}/consultations/doctors`} className={styles.quickBtnPrimary}>
-              <Stethoscope size={18} aria-hidden="true" />
-              {locale === "ar" ? "استشارة طبيبة نساء وولادة" : "Consult Obstetrician"}
-            </Link>
-          </div>
-        </section>
-      ) : (
+    <>
+      {profile.week !== null ? (
+        <CareHero
+          tone={MATERNITY.tone}
+          icon={MATERNITY.icon}
+          label={t("tabPregnancy")}
+          ring={{ value: Math.min(profile.week, 40) / 40, label: t("ringLabel", { week: number.format(profile.week) }), valueText: number.format(profile.week), caption: t("weekUnit") }}
+          title={t(`trimester${trimesterOf(profile.week)}`)}
+          lines={due ? [t("dueOn", { date: due })] : []}
+        />
+      ) : due ? (
+        <CareHero tone={MATERNITY.tone} icon={MATERNITY.icon} label={t("tabPregnancy")} title={t("tabPregnancy")} lines={[t("dueOn", { date: due })]} />
+      ) : null}
+      {profile.kicks.length ? (
         <>
-          {validWeek ? (
-            <article className={styles.progressCard}>
-              <div className={styles.progressTop}>
-                <div className={styles.weekHighlight}>
-                  <span className={styles.weekNum}>{validWeek}</span>
-                  <span className={styles.weekLabel}>{t("week")}</span>
-                </div>
-                {trimester ? (
-                  <span className={styles.trimesterBadge}>
-                    <Sparkles size={14} aria-hidden="true" />
-                    {trimester}
-                  </span>
-                ) : null}
-              </div>
-
-              <div className={styles.progressBarBg}>
-                <div className={styles.progressBarFill} style={{ inlineSize: `${progressPercent}%` }} />
-              </div>
-
-              <div className={styles.progressMeta}>
-                <span>{progressPercent}% {locale === "ar" ? "من رحلة الحمل" : "of journey"}</span>
-                <span>40 {locale === "ar" ? "أسبوعاً" : "weeks"}</span>
-              </div>
-            </article>
-          ) : null}
-
-          <section className={styles.metricsGrid} aria-label={t("title")}>
-            {dueDate ? (
-              <article className={styles.metricCard}>
-                <div className={styles.metricTop}>
-                  <span>{t("dueDate")}</span>
-                  <span className={styles.metricGlyph}>
-                    <CalendarDays size={18} aria-hidden="true" />
-                  </span>
-                </div>
-                <p className={styles.metricValue}>
-                  {new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(dueDate))}
-                </p>
-                <p className={styles.metricSub}>
-                  {locale === "ar" ? "الموعد المقدر للولادة" : "Estimated delivery date"}
-                </p>
-              </article>
-            ) : null}
-
-            {mode ? (
-              <article className={styles.metricCard}>
-                <div className={styles.metricTop}>
-                  <span>{t("mode")}</span>
-                  <span className={styles.metricGlyph}>
-                    <Baby size={18} aria-hidden="true" />
-                  </span>
-                </div>
-                <p className={styles.metricValue}>{mode}</p>
-                <p className={styles.metricSub}>
-                  {locale === "ar" ? "برنامج المتابعة النشط" : "Active tracking mode"}
-                </p>
-              </article>
-            ) : null}
-
-            <article className={styles.metricCard}>
-              <div className={styles.metricTop}>
-                <span>{locale === "ar" ? "سجل المتابعة" : "Tracker Log"}</span>
-                <span className={styles.metricGlyph}>
-                  <Activity size={18} aria-hidden="true" />
-                </span>
-              </div>
-              <p className={styles.metricValue}>
-                <Link href={`/${locale}/maternity/tracker`} style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 4 }}>
-                  {locale === "ar" ? "عرض الأحداث" : "View Events"}
-                </Link>
-              </p>
-              <p className={styles.metricSub}>
-                {locale === "ar" ? "حركات الجنين ومؤشرات الفحص" : "Fetal movements & notes"}
-              </p>
-            </article>
-          </section>
-
-          <nav className={styles.quickNav} aria-label={locale === "ar" ? "خدمات الأمومة" : "Maternity Services"}>
-            <Link href={`/${locale}/maternity/tracker`} className={styles.quickBtnPrimary}>
-              <Activity size={18} aria-hidden="true" />
-              {locale === "ar" ? "سجل متابعة الأعراض والحركة" : "Movement & Symptom Log"}
-            </Link>
-            <Link href={`/${locale}/consultations/doctors`} className={styles.quickBtn}>
-              <Stethoscope size={18} aria-hidden="true" />
-              {locale === "ar" ? "حجز استشارة نساء وتوليد" : "Obstetrician Consultation"}
-            </Link>
-            <Link href={`/${locale}/diagnostics/radiology`} className={styles.quickBtn}>
-              <Sparkles size={18} aria-hidden="true" />
-              {locale === "ar" ? "فحص السونار والأشعة" : "Ultrasound & Scans"}
-            </Link>
-          </nav>
-
-          <p className={styles.notice}>
-            {locale === "ar"
-              ? "تنبيه طبي: المواعيد وتواريخ الحمل المعروضة هي تقديرات إرشادية تعتمد على بياناتك المسجلة، ولا تغني عن الاستشارة الدورية مع طبيبتك المختصة."
-              : "Medical disclaimer: All dates and gestational ages are estimates and do not replace formal clinical ultrasound or doctor evaluation."}
-          </p>
+          <SectionHead id="kicks" title={t("kicksTitle")} />
+          <RowsCard label={t("kicksTitle")}>
+            {profile.kicks.map((kick) => (
+              <li key={kick.id}>
+                <RecordRow icon="baby" tone="pink" title={t("kickCount", { count: kick.count })} sub={[kick.durationSeconds !== null ? t("seconds", { value: number.format(kick.durationSeconds) }) : null, date(kick.date)].filter((line): line is string => line !== null)} />
+              </li>
+            ))}
+          </RowsCard>
         </>
-      )}
-    </main>
+      ) : null}
+      {profile.contractions.length ? (
+        <>
+          <SectionHead id="contractions" title={t("contractionsTitle")} />
+          <RowsCard label={t("contractionsTitle")}>
+            {profile.contractions.map((item) => (
+              <li key={item.id}>
+                <RecordRow
+                  icon="heartbeat"
+                  tone={SERVICE_ICONS.health.tone}
+                  title={t("contractionRow")}
+                  sub={[
+                    item.intervalSeconds !== null ? t("interval", { value: number.format(item.intervalSeconds) }) : null,
+                    item.durationSeconds !== null ? t("duration", { value: number.format(item.durationSeconds) }) : null,
+                    date(item.date),
+                  ].filter((line): line is string => line !== null)}
+                />
+              </li>
+            ))}
+          </RowsCard>
+        </>
+      ) : null}
+      {profile.kicks.length === 0 && profile.contractions.length === 0 ? <p className={rx.note} role="status">{t("logsEmpty")}</p> : null}
+    </>
+  );
+}
+
+function BabyTab({ t, profile, number, date }: TabProps) {
+  if (profile.growth.length === 0) {
+    return <ConsultState kind="empty" icon="chart-line-up" tone="mint" title={t("growthTitle")} body={t("growthEmpty")} />;
+  }
+  return (
+    <>
+      <SectionHead id="growth" title={t("growthTitle")} />
+      <RowsCard label={t("growthTitle")}>
+        {profile.growth.map((entry) => (
+          <li key={entry.id}>
+            <RecordRow
+              icon="chart-line-up"
+              tone="mint"
+              title={t("monthN", { month: number.format(entry.month) })}
+              sub={[
+                entry.weightKg !== null ? t("weightKg", { value: number.format(entry.weightKg) }) : null,
+                entry.heightCm !== null ? t("heightCm", { value: number.format(entry.heightCm) }) : null,
+                entry.headCm !== null ? t("headCm", { value: number.format(entry.headCm) }) : null,
+                date(entry.date),
+              ].filter((line): line is string => line !== null)}
+            />
+          </li>
+        ))}
+      </RowsCard>
+    </>
+  );
+}
+
+function OvulationTab({ t, profile, locale }: { t: Tr; profile: MaternityView; locale: string }) {
+  const window = !profile.pregnant && profile.lastPeriod && profile.cycleLength ? cycleWindow(profile.lastPeriod, profile.cycleLength) : null;
+  if (!window) {
+    return <ConsultState kind="empty" icon="calendar-dots" tone="violet" title={t("cycleTitle")} body={profile.pregnant ? t("cyclePregnant") : t("cycleEmpty")} actionLabel={t("updateProfile")} actionHref={`/${locale}/maternity/maternity-setup`} />;
+  }
+  const day = (value: Date) => new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: "UTC" }).format(value);
+  return (
+    <>
+      <CareHero
+        tone="violet"
+        icon="calendar-dots"
+        label={t("cycleTitle")}
+        title={t("cycleTitle")}
+        lines={[profile.regular === null ? null : profile.regular ? t("regular") : t("irregular")].filter((line): line is string => line !== null)}
+        badge={t("estimate")}
+      />
+      <RowsCard label={t("cycleTitle")}>
+        <li><RecordRow icon="calendar-dots" tone="violet" title={t("ovulationDay")} end={<bdi>{day(window.ovulation)}</bdi>} /></li>
+        <li><RecordRow icon="heart" tone="pink" title={t("fertileWindow")} end={<bdi>{`${day(window.start)} - ${day(window.end)}`}</bdi>} /></li>
+        <li><RecordRow icon="drop" tone={SERVICE_ICONS.health.tone} title={t("nextPeriod")} end={<bdi>{day(window.next)}</bdi>} /></li>
+      </RowsCard>
+      <Notice>{t("estimateNotice")}</Notice>
+    </>
   );
 }

@@ -6,7 +6,9 @@ import { AppHeader, Button, EmptyState, ErrorState, OfflineState, Screen, Segmen
 import { Money, Notice, OfferHero, PharmacyOfferCard } from '../../src/components/pharmacy/OfferKit';
 import { PHARMACY_TONE } from '../../src/components/pharmacy/PharmacyKit';
 import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
+import { pharmacyPolicyLines, usePublicPolicy } from '../../src/components/account/PolicyText';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { NotificationAsk } from '../../src/components/NotificationAsk';
 import { apiFetch, newIdempotencyKey } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
@@ -61,6 +63,7 @@ export default function BroadcastStatusScreen() {
   const [confirming, setConfirming] = useState(false);
   const [pickError, setPickError] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
+  const policy = usePublicPolicy();
   const [cancelError, setCancelError] = useState<string | null>(null);
   const [now, setNow] = useState(() => Date.now());
 
@@ -205,7 +208,8 @@ export default function BroadcastStatusScreen() {
 
   const askCancel = () => {
     if (cancelling) return;
-    showLocalizedAlert(k('pharmacy.offers.cancelTitle'), k('pharmacy.offers.cancelBody'), [
+    const rules = pharmacyPolicyLines(policy.data, k);
+    showLocalizedAlert(k('pharmacy.offers.cancelTitle'), [k('pharmacy.offers.cancelBody'), ...rules].join('\n\n'), [
       { text: k('pharmacy.offers.cancelKeep'), style: 'cancel' },
       { text: k('pharmacy.offers.cancelConfirm'), style: 'destructive', onPress: () => void doCancel() },
     ]);
@@ -229,7 +233,7 @@ export default function BroadcastStatusScreen() {
   );
 
   if (!orderId) {
-    return state(<EmptyState icon="receipt" tone={PHARMACY_TONE} title={k('pharmacy.offers.noOrder')} body={k('pharmacy.offers.noOrderBody')} actionLabel={k('pharmacy.offers.myOrders')} onAction={() => router.replace('/pharmacy/order-history' as Href)} theme={theme} />);
+    return state(<EmptyState icon="receipt" tone={PHARMACY_TONE} title={k('pharmacy.offers.noOrder')} body={k('pharmacy.offers.noOrderBody')} actionLabel={k('pharmacy.offers.myOrders')} onAction={() => router.replace('/orders' as Href)} theme={theme} />);
   }
   if (loading) {
     return (
@@ -256,7 +260,7 @@ export default function BroadcastStatusScreen() {
     return state(<EmptyState icon="check-circle" tone="mint" title={k('pharmacy.offers.alreadyChosen')} body={k('pharmacy.offers.alreadyChosenBody')} actionLabel={k('pharmacy.offers.continueOrder')} onAction={() => router.replace({ pathname: postSelectionRoute(order), params: { orderId } } as Href)} theme={theme} />);
   }
   if (phase === 'draft') {
-    return state(<EmptyState icon="receipt" tone={PHARMACY_TONE} title={k('pharmacy.offers.notSent')} body={k('pharmacy.offers.notSentBody')} actionLabel={k('pharmacy.offers.myOrders')} onAction={() => router.replace('/pharmacy/order-history' as Href)} theme={theme} />);
+    return state(<EmptyState icon="receipt" tone={PHARMACY_TONE} title={k('pharmacy.offers.notSent')} body={k('pharmacy.offers.notSentBody')} actionLabel={k('pharmacy.offers.myOrders')} onAction={() => router.replace('/orders' as Href)} theme={theme} />);
   }
 
   const open = offers.filter((o) => o.open);
@@ -311,6 +315,7 @@ export default function BroadcastStatusScreen() {
         ) : open.length === 0 ? (
           <View style={{ gap: 12 }}>
             <Text style={{ ...scale(t, 'caption'), lineHeight: 24, color: c.text.secondary, textAlign: 'center' }}>{k('pharmacy.offers.waitingBody')}</Text>
+            <NotificationAsk bodyKey="notifAsk.offers" />
             <Button label={k('pharmacy.offers.refresh')} variant="secondary" size="md" fullWidth loading={refreshing} onPress={() => void load('manual')} theme={theme} />
           </View>
         ) : (

@@ -1,0 +1,30 @@
+{
+  "slice": "seo-feature-pages",
+  "batch": "seo",
+  "app": "patient-web",
+  "screens": [
+    {
+      "route": "/features/[feature]",
+      "elements": [
+        ["H1 and back link to Home", "static keys FeaturePages.<feature>.title (seven slugs from lib/seo/feature-pages.ts; any other slug is a 404)", "ok"],
+        ["Direct answer under the H1 (.nabd-direct-answer, JSON-LD speakable)", "static key FeaturePages.<feature>.answer", "ok"],
+        ["What you can do (three rows)", "static keys FeaturePages.<feature>.p1..p3Title/Body, written from the signed-in screens", "ok"],
+        ["Questions and answers (visible, same items as the FAQPage JSON-LD)", "static keys FeaturePages.<feature>.q1..q3/a1..a3", "ok"],
+        ["Sign-in note", "static key FeaturePages.common.signInNote", "ok"],
+        ["Call to action to the signed-in screen (and Urgent help on mental health)", "FEATURE_PAGES[].cta: /health/medications, /maternity, /mental-health (+ /emergency), /nutrition, /family, /loyalty, /consultations/doctors?type=video", "ok"],
+        ["Metadata (title, description, canonical, hreflang x6 + x-default, index, OpenGraph, Twitter)", "hubMetadata with FeaturePages.<feature>.metaTitle/metaDescription", "ok"],
+        ["JSON-LD MedicalWebPage, BreadcrumbList, FAQPage (+ Service for online consultations, no price)", "lib/seo/structured-data.ts, lib/seo/json-ld.ts faqJsonLd", "ok"]
+      ]
+    }
+  ],
+  "needsReview": [
+    {
+      "route": "/features/[feature]",
+      "element": "Feature page layout",
+      "kind": "client",
+      "note": "The seven public feature pages (SEO, owner 2026-10-12) have no board: they are built on the public landing kit (LandingPage, LandingSection, CardGrid/EntityRow, the new FaqList, Notice, ActionLinks) with tokens only and need a board review by the design session.",
+      "file": "patient-web/app/[locale]/features/[feature]/page.tsx",
+      "line": 67
+    }
+  ]
+}

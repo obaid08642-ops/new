@@ -1,5 +1,6 @@
 import { JsonLd } from "@/components-next/json-ld";
-import { physician, breadcrumbList } from "@/lib/seo/structured-data";
+import { physician, breadcrumbList, medicalWebPage } from "@/lib/seo/structured-data";
+import { DirectAnswer } from "@/components-next/seo/direct-answer";
 import type { Metadata } from "next";
 import { localizedUrl } from "@/lib/seo";
 import { isLocale, locales, type Locale } from "@/lib/i18n";
@@ -38,8 +39,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!data?.entity) return { robots: { index: false, follow: false } };
 
   const name = locale === "ar" ? (data.entity.name_ar || data.entity.name_en) : (data.entity.name_en || data.entity.name_ar);
-  const citySuffix = city ? `/${encodeURIComponent(city)}` : "";
-  const canonical = localizedUrl(locale as Locale, `/doctor/${encodeURIComponent(slug)}${citySuffix}`);
+  // A /doctor/{slug}/{city} variant shows the same doctor: it points at the doctor's own page and is
+  // not indexed on its own (no duplicate page per city).
+  const canonical = localizedUrl(locale as Locale, `/doctor/${encodeURIComponent(slug)}`);
   // The words come from messages for the page's locale (a locale argument keeps this free of request headers: public ISR page).
   const [c, names, shared] = await Promise.all([
     getTranslations({ locale, namespace: "ConsultWeb" }),
@@ -58,12 +60,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     alternates: {
       canonical,
       languages: {
-        ...Object.fromEntries(locales.map((l) => [l, localizedUrl(l, `/doctor/${encodeURIComponent(slug)}${citySuffix}`)])),
-        "x-default": localizedUrl("ar", `/doctor/${encodeURIComponent(slug)}${citySuffix}`),
+        ...Object.fromEntries(locales.map((l) => [l, localizedUrl(l, `/doctor/${encodeURIComponent(slug)}`)])),
+        "x-default": localizedUrl("ar", `/doctor/${encodeURIComponent(slug)}`),
       },
     },
     openGraph: { title: name, description: desc, url: canonical, type: "profile" },
-    robots: { index: true, follow: true },
+    robots: city ? { index: false, follow: true } : { index: true, follow: true },
   };
 }
 
@@ -77,6 +79,7 @@ export default async function DoctorCanonicalPage({ params }: Props) {
 
   const c = await getTranslations("ConsultWeb");
   const names = await getTranslations("SpecialtyNames");
+  const seo = await getTranslations("SeoAnswer");
   const doctor = data.entity;
   const relationships = data.relationships || {};
   const facility = relationships.facility;
@@ -89,12 +92,26 @@ export default async function DoctorCanonicalPage({ params }: Props) {
   const stats: ProfileStat[] = [];
   if (doctor.rating) stats.push({ value: formatNumber(locale, Number(doctor.rating)), label: c("statRating") });
   if (doctor.experience_years) stats.push({ value: formatNumber(locale, Number(doctor.experience_years)), label: c("statYears") });
+  const specialtyName = specialtyLabel(names, doctor.specialty);
+  const MODE_KEYS = { clinic: "modeClinic", video: "modeVideo", home: "modeHome" } as const;
+  const modes = (Array.isArray(doctor.consultation_modes) ? doctor.consultation_modes : [])
+    .filter((m: string): m is keyof typeof MODE_KEYS => m in MODE_KEYS)
+    .map((m: keyof typeof MODE_KEYS) => seo(MODE_KEYS[m]));
+  // AEO: who the doctor is and how to book, from the profile's own fields only.
+  const directAnswer = [
+    specialtyName ? seo("doctorWho", { name: doctorName, specialty: specialtyName }) : null,
+    facilityName ? seo("doctorFacility", { facility: facilityName }) : null,
+    doctor.city ? seo("doctorCity", { city: doctor.city }) : null,
+    modes.length ? seo("doctorModes", { modes: new Intl.ListFormat(locale, { type: "conjunction" }).format(modes) }) : null,
+    seo("doctorBook"),
+  ];
   const insurers: string[] = Array.isArray(relationships.accepted_insurance) ? relationships.accepted_insurance : [];
 
   return (
     <ConsultPage locale={locale} title={doctorName} backHref={`/${locale}/consultations/doctors`}>
       <JsonLd
         data={[
+          medicalWebPage({ title: doctorName, locale: locale as Locale, path: `/doctor/${slug}`, speakable: true }),
           physician({
             name: doctorName,
             path: doctorPath,
@@ -106,11 +123,12 @@ export default async function DoctorCanonicalPage({ params }: Props) {
           }),
           breadcrumbList([
             { name: "Nabd Plus", locale: locale as Locale, path: "/" }, // i18n-ok: brand name in structured data
-            { name: doctor.specialty || "Doctors", locale: locale as Locale, path: "/consultations/doctors" }, // i18n-ok: structured-data fallback label
+            { name: doctor.specialty || (await getTranslations("PublicLanding"))("ld.crumbDoctors"), locale: locale as Locale, path: "/consultations/doctors" },
             { name: doctorName, locale: locale as Locale, path: doctorPath },
           ]),
         ]}
       />
+      <DirectAnswer sentences={directAnswer} />
       <ProfileHeader line={[specialtyLabel(names, doctor.specialty), facilityName].filter(Boolean).join(" · ") || undefined} stats={stats} />
       {insurers.length > 0 ? (
         <SectionCard id="doctor-insurance" title={c("acceptedInsurance")}>

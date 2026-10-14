@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { apiFetch } from '@/utils/api';
 import { dateLocale } from '../../utils/dates';
+import { DataTable, type LooseRow } from '@/components/DataTable';
 
 const KIND_AR: Record<string, string> = { pharmacy: 'صيدلية', lab: 'تحاليل مخبرية', radiology: 'أشعة', nursing: 'تمريض منزلي', consultation: 'استشارة طبية' };
 
@@ -83,18 +84,17 @@ export default function OrderDetailPage() {
           {Array.isArray(data.items) && data.items.length > 0 && (
             <div className="bg-white rounded-2xl border border-slate-200 p-6 overflow-x-auto">
               <h2 className="font-bold text-slate-800 mb-4">محتويات الطلب</h2>
-              <table className="w-full text-right text-sm">
-                <thead><tr className="bg-slate-50 text-xs text-slate-500"><th className="p-2">البند</th><th className="p-2">الكمية</th><th className="p-2">السعر</th></tr></thead>
-                <tbody className="divide-y divide-slate-100">
-                  {data.items.map((it: any, i: number) => (
-                    <tr key={i}>
-                      <td className="p-2 font-medium">{it.name_ar || it.test_name_ar || it.name || it.service_name || it.title || `#${i + 1}`}</td>
-                      <td className="p-2">{it.quantity ?? it.qty ?? 1}</td>
-                      <td className="p-2 font-bold">{it.price ?? it.cashPrice ?? '—'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <DataTable
+                bare
+                dense
+                rows={data.items.map((it: LooseRow, i: number) => ({ it, i })) as { it: LooseRow; i: number }[]}
+                getRowKey={({ i }) => String(i)}
+                columns={[
+                  { key: 'name', header: 'البند', className: 'font-medium', render: ({ it, i }) => it.name_ar || it.test_name_ar || it.name || it.service_name || it.title || `#${i + 1}` },
+                  { key: 'qty', header: 'الكمية', render: ({ it }) => it.quantity ?? it.qty ?? 1 },
+                  { key: 'price', header: 'السعر', className: 'font-bold', render: ({ it }) => it.price ?? it.cashPrice ?? '—' },
+                ]}
+              />
             </div>
           )}
 
@@ -103,13 +103,13 @@ export default function OrderDetailPage() {
             {(!data.history || data.history.length === 0) ? (
               <p className="text-sm text-slate-400">لا توجد حركات مسجلة بعد.</p>
             ) : (
-              <ol className="relative border-r-2 border-teal-100 pr-4 space-y-4">
+              <ol className="relative border-s-2 border-teal-100 ps-4 space-y-4">
                 {data.history.map((h: any, i: number) => (
                   <li key={i} className="relative">
-                    <span className="absolute -right-[23px] top-1 w-3 h-3 rounded-full bg-teal-500"></span>
+                    <span className="absolute -start-[23px] top-1 w-3 h-3 rounded-full bg-teal-500"></span>
                     <div className="text-sm font-bold text-slate-800">{h.from ? `${h.from} ← ${h.to}` : h.to}</div>
                     {h.note && <div className="text-xs text-slate-500 mt-0.5">{h.note}</div>}
-                    <div className="text-xs text-slate-400 mt-0.5">{h.by && <span className="ml-2">{h.by}</span>}<span dir="ltr">{fmt(h.at)}</span></div>
+                    <div className="text-xs text-slate-400 mt-0.5">{h.by && <span className="me-2">{h.by}</span>}<span dir="ltr">{fmt(h.at)}</span></div>
                   </li>
                 ))}
               </ol>

@@ -90,9 +90,9 @@ export function RxOrderScreen({ locale, prescription }: { locale: Locale; prescr
               title={t("noItemsTitle")}
               body={t("noItemsBody")}
               actionLabel={t("title")}
-              actionHref={`/${locale}/pharmacy/scan-prescription`}
+              actionHref={`/${locale}/pharmacy/rx-order?via=photo`}
               secondaryLabel={t("addByName")}
-              secondaryHref={`/${locale}/pharmacy/request`}
+              secondaryHref={`/${locale}/pharmacy/rx-order?via=type`}
             />
           </div>
         )}

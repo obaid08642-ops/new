@@ -27,12 +27,12 @@ const centralTestMap: Record<string, any> = {};
 fetchCentralCatalog().then((m) => Object.assign(centralTestMap, m)).catch(() => {});
 const lookupTest = (tid: string) => centralTestMap[String(tid || '').toLowerCase()];
 import {
- PromotionsDashboard, CreateCampaignScreen, ProfileWebConfig,
+ PromotionsDashboard, CreateCampaignScreen, 
  ReputationHub, LiveOrderAlarmModal, CrmHub, RevenueInsights,
  LabSampleScannerScreen
 } from '../shared/BlueprintScreens';
-import { MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderHomeStats, GlobalSystemSettings, ChatSystem } from '../shared/SharedScreens';
-import { WorkingHoursEditorScreen, SecurityManagementScreen } from '../shared/RealScreens';
+import { MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderProfileEditor, WithdrawalWorkflow, ProviderHomeStats, GlobalSystemSettings, ChatSystem } from '../shared/SharedScreens';
+import { WorkingHoursEditorScreen, SecurityManagementScreen, NotificationsCenterScreen } from '../shared/RealScreens';
 import { LabBundlesScreen, LabHomeServiceScreen } from '../shared/RealScreensExtended';
 
 const { width: W } = Dimensions.get('window');
@@ -224,13 +224,14 @@ export function LabDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
      <Stack.Screen name="home_collection">{({ navigation, route }: any) => <HomeCollection order={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="qr_label">{({ navigation, route }: any) => <QRSampleLabel sample={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="wallet">{({ navigation }: any) => <ProviderWalletScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+     <Stack.Screen name="withdrawal_workflow">{({ navigation }: any) => <WithdrawalWorkflow onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="chat">{({ navigation }: any) => <ChatSystem onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="tat_tracker">{({ navigation }: any) => <TATTracker onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="insurance">{({ navigation }: any) => <LabInsurance onBack={() => navigation.goBack()} />}</Stack.Screen>
 
      <Stack.Screen name="promotions">{({ navigation }: any) => <PromotionsDashboard onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="create_promo">{({ navigation }: any) => <CreateCampaignScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
-     <Stack.Screen name="web_config">{({ navigation }: any) => <ProfileWebConfig onBack={() => navigation.goBack()} />}</Stack.Screen>
+     <Stack.Screen name="web_config">{({ navigation }: any) => <ProviderProfileEditor role="other" onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="reputation">{({ navigation }: any) => <ReputationHub onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="crm">{({ navigation }: any) => <CrmHub onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="revenue_insights">{({ navigation }: any) => <RevenueInsights onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -248,6 +249,7 @@ export function LabDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
      <Stack.Screen name="password">{({ navigation }: any) => <SecurityManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="2fa">{({ navigation }: any) => <SecurityManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="devices">{({ navigation }: any) => <SecurityManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+     <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
    </Stack.Navigator>
  );
 }
@@ -311,7 +313,8 @@ function LabHome({ onNav, onTriggerAlarm }:{ onNav:(s:string,p?:any)=>void; onTr
  </View>
  <View style={{flexDirection:'row',gap:SP.sm,alignItems:'center'}}>
  <NOnlineToggle value={user?.isOnline??true} onToggle={toggleOnline} />
- <TouchableOpacity style={[s.iconBtn,{backgroundColor:theme.surface2}]}><I name="bell" size={20} color={theme.text} /></TouchableOpacity>
+ {/* Needs-review issue 1185: the bell opens the notifications center */}
+ <TouchableOpacity onPress={()=>onNav('notifications')} accessibilityRole="button" accessibilityLabel={AR?'الإشعارات':'Notifications'} style={[s.iconBtn,{backgroundColor:theme.surface2}]}><I name="bell" size={20} color={theme.text} /></TouchableOpacity>
  </View>
  </View>
 
@@ -922,8 +925,8 @@ function AddCustomTest({ onBack }:{ onBack:()=>void }) {
  <NHeader title={AR?'إضافة فحص مخصص':'Add Custom Test'} onBack={onBack} />
  <NCard style={{backgroundColor:theme.warnBg,marginBottom:SP.xl}}>
  <Text style={{fontSize:FS.sm,color:theme.warn,lineHeight:20,textAlign:AR?'right':'left'}}>
- {AR?'الفحوصات المخصصة تنتظر موافقة إدارة نبضة بلس قبل ظهورها للمرضى (24 ساعة).'
- :'Custom tests await Nabdah admin approval before visible to patients (24h).'}
+ {AR?'الفحوصات المخصصة تنتظر موافقة إدارة نبض بلس قبل ظهورها للمرضى (24 ساعة).'
+ :'Custom tests await Nabd+ admin approval before visible to patients (24h).'}
  </Text>
  </NCard>
  <NInput label={AR?'اسم الفحص بالعربي':'Name (Arabic)'} placeholder={AR?'فحص الفيريتين المتقدم':'Advanced Ferritin'} value={nameAr} onChange={setNameAr} required />
@@ -1149,7 +1152,7 @@ function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
 // QR SAMPLE LABEL
 // ══════════════════════════════════════════════════════════════════
 function QRSampleLabel({ sample, onBack }:{ sample:any; onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ const { theme } = useTheme(); const { lang } = useLang(); const AR = lang==='ar';
  return (
  <NScroll>
  <NHeader title={AR?'ملصق QR للعينة':'QR Sample Label'} onBack={onBack} />
@@ -1157,15 +1160,15 @@ function QRSampleLabel({ sample, onBack }:{ sample:any; onBack:()=>void }) {
  <View style={{width:160,height:160,borderRadius:R.xl,borderWidth:3,borderColor:tokens.purple,alignItems:'center',justifyContent:'center'}}>
  <I name="qr" size={60} color={tokens.purple} />
  </View>
- <Text style={{fontSize:FS.lg,fontWeight:FW.bold,color:theme.text,marginTop:SP.xl}}>{sample?.barcode??'SMP-2025-XXX'}</Text>
+ <Text style={{fontSize:FS.lg,fontWeight:FW.bold,color:theme.text,marginTop:SP.xl}}>{/* Needs-review issue 1187: no made-up sample number */}{sample?.barcode??'—'}</Text>
  <Text style={{fontSize:FS.sm,color:theme.textSub,marginTop:SP.xs}}>{sample?.patient??'—'}</Text>
  <View style={{flexDirection:'row',flexWrap:'wrap',gap:SP.xs,justifyContent:'center',marginTop:SP.md}}>
- {(sample?.tests??['cbc']).map((tid:string)=>{const t=lookupTest(tid);return <View key={tid} style={{backgroundColor:withAlpha(tokens.purple, 0.10),paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:withAlpha(tokens.purple, 0.30)}}><Text style={{fontSize:FS.xs,color:tokens.purple}}>{t?(AR?t.ar:t.en):tid}</Text></View>;})}
+ {(sample?.tests??[]).map((tid:string)=>{const t=lookupTest(tid);return <View key={tid} style={{backgroundColor:withAlpha(tokens.purple, 0.10),paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:withAlpha(tokens.purple, 0.30)}}><Text style={{fontSize:FS.xs,color:tokens.purple}}>{t?(AR?t.ar:t.en):tid}</Text></View>;})}
  </View>
  </NCard>
  <View style={{gap:SP.md}}>
  <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'اطبع الملصق من جهاز الباركود المرتبط برقم العينة' : 'Print the label from the barcode device linked to the sample number'}</Text>
- <NBtn label={AR?'حفظ كصورة':'Save as Image'} variant="outline" onPress={()=>show(AR?'تم الحفظ':'Saved','success')} />
+ {/* Needs-review issue 1188: "Save as Image" claimed success without saving anything; removed. */}
  </View>
  </NScroll>
  );
@@ -1229,6 +1232,8 @@ function LabInsurance({ onBack }:{ onBack:()=>void }) {
  const [orders, setOrders] = useState<any[]>([]);
  const [loading, setLoading] = useState(true);
  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+ // D-37: the insurer's approval number from the lab's own system (required to approve).
+ const [approvalRef, setApprovalRef] = useState('');
 
  const fetchOrders = async () => {
  try {
@@ -1246,13 +1251,19 @@ function LabInsurance({ onBack }:{ onBack:()=>void }) {
  useEffect(() => { fetchOrders(); }, []);
 
  const handleUpdateInsurance = async (status: string) => {
+ if (status !== 'rejected' && !approvalRef.trim()) {
+ show(AR ? 'رقم موافقة التأمين إلزامي' : 'The insurer approval number is required', 'error');
+ return;
+ }
  try {
  await client.patch(`/labs/bookings/${selectedOrder.id}/insurance`, {
  status,
+ ...(status !== 'rejected' ? { approval_ref: approvalRef.trim() } : {}),
  totalCopay: selectedOrder.insurance_copay || 0,
  items: selectedOrder.items
  });
  show(AR ? 'تم التحديث بنجاح' : 'Updated successfully', 'success');
+ setApprovalRef('');
  setSelectedOrder(null);
  fetchOrders();
  } catch(e) {
@@ -1316,6 +1327,9 @@ function LabInsurance({ onBack }:{ onBack:()=>void }) {
  </NCard>
  ))}
 
+ <NCard style={{marginTop: SP.lg}}>
+ <NInput label={AR ? 'رقم موافقة التأمين (إلزامي للاعتماد)' : 'Insurer approval number (required to approve)'} placeholder="APR-XXXXX" value={approvalRef} onChange={setApprovalRef} />
+ </NCard>
  <View style={{flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.xl, marginBottom: SP.xxl}}>
  <NBtn label={AR ? 'رفض' : 'Reject'} variant="danger" onPress={() => handleUpdateInsurance('rejected')} style={{flex: 1}} />
  <NBtn label={AR ? 'اعتماد' : 'Approve'} onPress={() => handleUpdateInsurance('partial_approval')} style={{flex: 1}} />

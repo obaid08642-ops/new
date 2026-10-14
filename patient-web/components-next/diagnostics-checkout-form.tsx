@@ -8,6 +8,7 @@ import { Button } from "@/components-next/ui-generated/components/Button";
 import consult from "@/components-next/consult/consult.module.css";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/diagnostics/diag.module.css";
+import { diagnosticOrderNextHref } from "@/lib/diagnostics-links";
 
 const TIMES = ["09:00", "10:30", "12:00", "14:00", "15:30", "17:00"];
 
@@ -135,7 +136,7 @@ export function DiagnosticsCheckoutForm({
       await fetch("/api/diagnostics/cart", { method: "DELETE" }).catch(() => null);
       // The website cart lives in localStorage (diagnostics-cart-client.tsx): clear it too, or the ordered tests stay in the cart.
       try { localStorage.removeItem("nabd-diagnostics-cart"); } catch { /* storage unavailable */ }
-      router.push(`/${locale}/diagnostics/orders/${encodeURIComponent(orderId)}`);
+      router.push(diagnosticOrderNextHref(locale, order));
       router.refresh();
     } catch {
       setError(t("errOrder"));

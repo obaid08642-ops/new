@@ -71,7 +71,7 @@ describe('payment view (decided by the server flags)', () => {
     expect(paymentView(order({ payment_status: 'paid' }), caps(), null)).toEqual({ kind: 'paid' });
   });
   it('payable only with a positive server amount and an advertised method; the amount is the capabilities one', () => {
-    expect(paymentView(order(), caps(30), null)).toEqual({ kind: 'payable', amount: 30, currency: 'SAR' });
+    expect(paymentView(order(), caps(30), null)).toEqual({ kind: 'payable', amount: 30, currency: 'SAR', methods: ['card', 'apple-pay'] });
     expect(paymentView(order(), caps(80, []), null)).toMatchObject({ kind: 'noMethods', amount: 80 });
     expect(paymentView(order(), caps(0), null)).toEqual({ kind: 'blocked', reason: 'other' });
     expect(paymentView(order(), caps('80'), null)).toMatchObject({ kind: 'payable', amount: 80 });

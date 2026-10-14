@@ -137,10 +137,15 @@ export class HomeCareSvc {
       kind: 'nursing', entity_id: b.id, from_domain: b.state, to_domain: 'CANCELLED',
       actor_account_id: user.id, actor_role: user.role, patient_account_id: b.patient_id, reason: 'user_cancelled',
       mutate: async () => {
+        const priorState = String(b.state);
+        const total = Number((b as any).total ?? (b as any).total_price ?? 0);
         b.state_history.push({ from: b.state, to: 'CANCELLED', by_user_id: user.id, at: new Date() });
         b.state = 'CANCELLED' as any;
         await b.save();
-        this.events.emit('homecare.booking_cancelled', { booking_id: b.id });
+        this.events.emit('homecare.booking_cancelled', {
+          booking_id: b.id, patient_id: b.patient_id, prior_state: priorState,
+          total, payment_method: (b as any).payment_method,
+        });
         return b.toObject();
       },
     });
@@ -183,6 +188,83 @@ export class HomeCareSvc {
   async adminCatalog(user: any) {
     if (!getEffectiveRoles(user).includes('admin')) throw new ForbiddenException();
     return this.svcModel.find({ is_deleted: { $ne: true } }, { _id: 0, __v: 0 }).sort({ medical_review_status: 1, popularity: -1, name_ar: 1 }).limit(1000);
+  }
+
+  async slotsForProvider(providerAccountId: string, dateStr: string, duration_minutes = 30) {
+    // Validate duration: must be integer between 10 and 120
+    const duration = parseInt(String(duration_minutes), 10);
+    if (!Number.isInteger(duration) || duration < 10 || duration > 120) {
+      throw new BadRequestException('duration must be an integer between 10 and 120 minutes');
+    }
+
+    const profile = await this.svcModel.db.collection('provider_profiles').findOne({
+      account_id: providerAccountId,
+      type: { $in: ['home_care', 'nursing', 'nurse'] },
+      status: 'active',
+      public_eligibility: true,
+      medical_review_status: 'approved',
+    });
+    if (!profile) throw new NotFoundException('provider_not_found');
+    if (!profile.schedule_home || !profile.schedule_home.length) {
+      return { date: dateStr, slots: [], reason: 'no_schedule' };
+    }
+
+    const date = new Date(dateStr + 'T00:00:00Z');
+    if (isNaN(date.getTime())) return { date: dateStr, slots: [], reason: 'invalid_date' };
+
+    const dow = date.getUTCDay();
+    const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+    const fullDays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+    const dayMatches = (d: any) => {
+      const v = String(d ?? '').toLowerCase();
+      return v === 'all' || v === String(dow) || v === dayKeys[dow] || v === fullDays[dow];
+    };
+
+    const windows = (profile.schedule_home || []).filter((w) => w && !w.closed && dayMatches(w.day)).flatMap((w) => [
+      ...(w.open && w.close ? [{ open: w.open, close: w.close }] : []),
+      ...(w.open_evening && w.close_evening ? [{ open: w.open_evening, close: w.close_evening }] : []),
+    ]);
+
+    if (!windows.length) return { date: dateStr, slots: [], reason: 'closed' };
+
+    const baseDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+    const slots: { id: string; start: string; end: string; label: string; available: boolean }[] = [];
+    const seen = new Set<string>();
+    const now = Date.now();
+
+    for (const w of windows) {
+      const [oh, om] = w.open.split(':').map(Number);
+      const [ch, cm] = w.close.split(':').map(Number);
+      const openTs = new Date(baseDate.getTime() + oh * 3600_000 + om * 60_000);
+      let closeTs = new Date(baseDate.getTime() + ch * 3600_000 + cm * 60_000);
+      if (closeTs.getTime() <= openTs.getTime()) closeTs = new Date(closeTs.getTime() + 24 * 3600_000);
+      for (let t = openTs.getTime(); t + duration * 60_000 <= closeTs.getTime(); t += duration * 60_000) {
+        const start = new Date(t);
+        const end = new Date(t + duration * 60_000);
+        if (start.getTime() < now + 15 * 60_000) continue;
+        const slotId = start.toISOString();
+        if (seen.has(slotId)) continue;
+        seen.add(slotId);
+        slots.push({ id: slotId, start: slotId, end: end.toISOString(), label: slotId.substring(11, 16), available: true });
+      }
+    }
+    slots.sort((x, y) => x.start.localeCompare(y.start));
+    if (slots.length === 0) return { date: dateStr, slots: [], reason: 'no_slots' };
+
+    // Mark booked slots as unavailable
+    const startOfDay = new Date(baseDate.getTime());
+    const endOfDay = new Date(baseDate.getTime() + 24 * 3600_000);
+    const booked = await this.bkgModel.find({
+      provider_id: providerAccountId,
+      scheduled_at: { $gte: startOfDay, $lt: endOfDay },
+      state: { $nin: ['CANCELLED', 'COMPLETED'] },
+    }).select({ scheduled_at: 1 }).lean();
+    const bookedSet = new Set(booked.map((b: any) => new Date(b.scheduled_at).toISOString()));
+    for (const s of slots) {
+      if (bookedSet.has(s.start)) s.available = false;
+    }
+    return { date: dateStr, slots };
   }
 
   async deleteCatalog(user: any, id: string) {

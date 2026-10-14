@@ -40,6 +40,15 @@ describe('PharmacyAllocationService fulfillment gate', () => {
     expect(paymentCollection.findOne).toHaveBeenCalledWith(expect.objectContaining({ order_id: 'order-1', selected_offer_id: 'offer-1', selected_offer_version: 3, quote_snapshot_hash: 'quote-hash-1', amount: 75, currency: 'SAR', payer_account_id: 'patient-1', status: 'confirmed', gateway_payment_id: { $exists: true }, webhook_event_id: { $exists: true } }));
   });
 
+  it('#1143: an allocation with an unavailable line goes partially_confirmed, and confirming it again goes ahead to confirmed', async () => {
+    const paid = setup({}, { id: 'evidence-1', status: 'confirmed' });
+    paid.allocation.items = [{ action: 'available' }, { action: 'unavailable' }];
+    await paid.service.confirm({ id: 'pharmacy-1', role: 'pharmacy' }, 'alloc-1');
+    expect(paid.allocation.status).toBe(PharmacyAllocationState.PARTIALLY_CONFIRMED);
+    await paid.service.confirm({ id: 'pharmacy-1', role: 'pharmacy' }, 'alloc-1');
+    expect(paid.allocation.status).toBe(PharmacyAllocationState.CONFIRMED);
+  });
+
   it('permits confirmation only with matching payment evidence and rejects a mismatched quote first', async () => {
     const paid = setup({}, { id: 'evidence-1', status: 'confirmed' });
     await expect(paid.service.confirm({ id: 'pharmacy-1', role: 'pharmacy' }, 'alloc-1')).resolves.toEqual({ id: 'alloc-1' });

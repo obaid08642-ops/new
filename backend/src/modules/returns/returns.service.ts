@@ -1,5 +1,7 @@
 import { MediaService } from '../media/media.service';
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Inject, Optional } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { MEDIA_RELEASE, mediaRefId } from '../media/media-cleanup.service';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException, ConflictException, Inject, Optional } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection, Types } from 'mongoose';
 import { ReturnRequest } from '../../schemas/returns.schema';
@@ -7,6 +9,17 @@ import { ReturnRequest } from '../../schemas/returns.schema';
 import { ReturnRequestRepository } from "./repositories/returnrequest.repository";
 import { RefundExecutor } from '../finance-engine/finance-engine.module';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
+
+/** 761: return reason codes — free-text reasons map to `other` with the text kept as details. */
+export const RETURN_REASON_CODES = [
+  'wrong_item', 'damaged', 'expired', 'not_as_described',
+  'changed_mind', 'duplicate_order', 'late_delivery', 'other',
+] as const;
+
+function normalizeReasonCode(reason: unknown): string {
+  const r = String(reason || '').trim().toLowerCase();
+  return (RETURN_REASON_CODES as readonly string[]).includes(r) ? r : 'other';
+}
 
 /**
  * E1 S5 — Returns engine with Saudi pharmacy rules.
@@ -28,7 +41,24 @@ export class ReturnsService {
     private readonly refundExec: RefundExecutor,
     @InjectConnection() private readonly conn: Connection,
     @Optional() private readonly media?: MediaService,
+    @Optional() private readonly events?: EventEmitter2,
   ) {}
+
+  /**
+   * D-32 (gap G2): the patient withdraws a return that no one has decided yet; its evidence files (`media:<id>`) lose
+   * their stored objects and rows, and the request is removed. A decided return stays (it is the refund record).
+   */
+  async withdraw(id: string, patientId: string) {
+    const ret: any = await this.returnModel.findOne({ id: { $eq: String(id) }, patient_id: { $eq: String(patientId) } } as any);
+    if (!ret) throw new NotFoundException('return_not_found');
+    if (ret.status !== 'processing') throw new ConflictException('return_already_decided');
+    const ids = (Array.isArray(ret.attached_docs) ? ret.attached_docs : []).map(mediaRefId).filter((v: string | null): v is string => !!v);
+    await this.returnModel.deleteOne({ id: { $eq: ret.id }, patient_id: { $eq: String(patientId) } } as any);
+    if (ids.length) {
+      try { this.events?.emit(MEDIA_RELEASE, { ids, owner_id: String(patientId) }); } catch { /* cleanup is best effort */ }
+    }
+    return { withdrawn: true, id: ret.id };
+  }
 
   /**
    * R7-2: photo evidence is stored as `media:<assetId>` (owned by the patient), never as a
@@ -243,13 +273,15 @@ export class ReturnsService {
       data.bookingKind = bookingKind;
     }
 
+    const reasonCode = normalizeReasonCode((data as any).reason_code ?? data.reason);
     const returnRequest = await this.returnModel.create({
       patient_id: userId,
       order_id: data.orderId,
       booking_kind: data.bookingKind || 'pharmacy',
       service_type: data.serviceType,
       reason: data.reason,
-      details: data.details,
+      reason_code: reasonCode,
+      details: data.details ?? (reasonCode === 'other' ? String(data.reason || '').trim() || null : null),
       items: reviewedItems,
       is_opened: data.is_opened === true,
       is_used: data.is_used === true,
@@ -259,11 +291,33 @@ export class ReturnsService {
       status: 'processing',
     } as any);
 
-    return returnRequest.toObject();
+    const created = returnRequest.toObject();
+    return { ...created, expected_refund: await this.refundEta(created.refund_method) };
+  }
+
+  /**
+   * 762: expected refund window from returns_policy (seeded wallet_refund_days_min/max),
+   * so the hub can show time-to-refund instead of hiding the line.
+   */
+  private async refundEta(method?: string): Promise<{ min_days: number; max_days: number; method: string }> {
+    let min_days = 3;
+    let max_days = 5;
+    try {
+      const doc: any = await (this.conn as any)?.collection?.('system_configs')?.findOne?.({ key: 'system_config' });
+      const pol = doc?.value?.returns_policy;
+      if (Number.isFinite(Number(pol?.wallet_refund_days_min))) min_days = Number(pol.wallet_refund_days_min);
+      if (Number.isFinite(Number(pol?.wallet_refund_days_max))) max_days = Number(pol.wallet_refund_days_max);
+    } catch {
+      // Config store unavailable: seeded defaults win.
+    }
+    return { min_days, max_days, method: method || 'original' };
   }
 
   async myReturns(userId: string) {
-    return this.withEvidenceUrlsAll(await this.returnModel.find({ patient_id: userId }).sort({ createdAt: -1 }).lean() as any[]);
+    const rows = await this.withEvidenceUrlsAll(await this.returnModel.find({ patient_id: userId }).sort({ createdAt: -1 }).lean() as any[]);
+    if (!rows.length) return rows;
+    const eta = await this.refundEta();
+    return rows.map((r: any) => ({ ...r, expected_refund: { ...eta, method: r.refund_method || 'original' } }));
   }
 
   /** Returns filed against this provider's orders: legacy `orders` plus
@@ -278,6 +332,33 @@ export class ReturnsService {
     const ids = [...legacy.map((o: any) => o.id), ...allocs.map((a: any) => a.order_id)].filter(Boolean);
     if (!ids.length) return [];
     return this.withEvidenceUrlsAll(await this.returnModel.find({ order_id: { $in: ids } } as any).sort({ createdAt: -1 }).lean() as any[]);
+  }
+
+  /** P7: true when the return's order went to this pharmacy (legacy order or a governed allocation). */
+  private async isPharmacyOfReturn(request: any, providerId: string): Promise<boolean> {
+    const db: any = this.returnModel.db;
+    const [legacy, alloc] = await Promise.all([
+      db.collection('orders').findOne({ id: request.order_id, pharmacy_id: providerId }, { projection: { _id: 1 } }),
+      db.collection('pharmacy_allocations').findOne({ order_id: request.order_id, pharmacy_account_id: providerId }, { projection: { _id: 1 } }),
+    ]);
+    return !!(legacy || alloc);
+  }
+
+  /** P7: one return of this pharmacy's orders, with the evidence photos. */
+  async providerReturnDetail(id: string, providerId: string) {
+    const request: any = await this.returnModel.findOne({ id }).lean();
+    if (!request || !(await this.isPharmacyOfReturn(request, providerId))) throw new NotFoundException('Return request not found');
+    return this.withEvidenceUrls(request);
+  }
+
+  /** P7: the pharmacy agrees with or disputes a return that is still being processed. The admin decides the money. */
+  async providerRespond(id: string, providerId: string, agree: boolean, note?: string) {
+    const request: any = await this.returnModel.findOne({ id }).lean();
+    if (!request || !(await this.isPharmacyOfReturn(request, providerId))) throw new NotFoundException('Return request not found');
+    if (request.status !== 'processing') throw new BadRequestException('return_already_decided');
+    const pharmacy_response = { agree, note: typeof note === 'string' ? note.trim().slice(0, 500) : undefined, at: new Date(), by: providerId };
+    await (this.returnModel as any).updateOne({ id }, { $set: { pharmacy_response } });
+    return { ok: true, id, pharmacy_response };
   }
 
   async getById(id: string, userId: string, userRole: string) {

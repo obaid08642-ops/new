@@ -11,6 +11,8 @@ import { extractDoctors } from "@/lib/api/doctors";
 import { isOutage } from "@/lib/api/outage";
 import { readHomeContent, readPublicConfig, isWebMaintenance, selectHomeSections } from "@/lib/api/public-config-server";
 import { PublicDataUnavailableError } from "@/lib/api/public-unavailable";
+import { getDisabledModules } from "@/lib/api/public-config-server";
+import { isPathHidden } from "@/lib/modules";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -59,8 +61,9 @@ export default async function LandingPage({ params }: Props) {
 
   // Doctors and the public config are the page's data. A FAILURE of either (no answer, or a 5xx) throws: Next then keeps the
   // last good copy of this page (stale-if-error, #302), and with no copy the nonce server answers with the unavailable page
-  // (503, retry). Caching an error or an empty page would replace the good copy. An empty answer or a missing optional part
-  // (the curated sections) still just hides.
+  // (503, with a retry; owner decision 2026-10-06). Caching an error or an empty page would replace the good copy. An empty
+  // answer or a missing optional part (the curated sections) still just hides.
+  const disabled = await getDisabledModules();
   const [doctorsResponse, config, content] = await Promise.all([
     getPublicDoctors().catch(() => null),
     readPublicConfig(),
@@ -121,10 +124,10 @@ export default async function LandingPage({ params }: Props) {
         <div className={styles.heroGrid} data-aside="false">
           <HeroCard locale={locale} t={t} eyebrow={home("heroBadge")} title={home("heroTitle")} headingId="home-title" />
         </div>
-        <ServiceGrid locale={locale} t={t} />
-        <AiCard locale={locale} t={t} />
-        <CuratedSections sections={homeSections} locale={locale} t={t} />
-        <DoctorsSection doctors={doctors} locale={locale} t={t} specialties={specialties} />
+        <ServiceGrid locale={locale} t={t} disabled={disabled} />
+        <AiCard locale={locale} t={t} disabled={disabled} />
+        <CuratedSections sections={homeSections} locale={locale} t={t} disabled={disabled} />
+        <DoctorsSection doctors={isPathHidden(`/${locale}/consultations`, disabled) ? [] : doctors} locale={locale} t={t} specialties={specialties} />
       </div>
     </HomeShell>
   );

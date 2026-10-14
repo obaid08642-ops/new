@@ -16,6 +16,7 @@ import { allowedImageUrl } from "@/lib/image-hosts";
 import { specialtyLabel, type SpecialtySlug } from "@/lib/specialties";
 import type { HomeSection } from "@/lib/api/public-config-server";
 import type { Locale } from "@/lib/i18n";
+import { NONE_DISABLED, isPathHidden, visibleItems, type DisabledModules } from "@/lib/modules";
 import styles from "./home.module.css";
 
 type T = Awaited<ReturnType<typeof getTranslations>>;
@@ -98,9 +99,9 @@ export function AppointmentCard({
 const MAIN_SERVICES = new Set<ServiceName>(["consult", "pharmacy", "lab", "nursing"]);
 
 /** `signedIn` is given by a per-request page (the dashboard); the static Home leaves it out and each link asks the session identity itself (F82-3). */
-export function ServiceGrid({ locale, t, signedIn }: { locale: Locale; t: T; signedIn?: boolean }) {
+export function ServiceGrid({ locale, t, signedIn, disabled = NONE_DISABLED }: { locale: Locale; t: T; signedIn?: boolean; disabled?: DisabledModules }) {
   const base = `/${locale}`;
-  const items: Array<{ name: ServiceName; label: string; href: string }> = [
+  const all: Array<{ name: ServiceName; label: string; href: string }> = [
     { name: "consult", label: t("svcConsult"), href: `${base}/consultations/doctors` },
     { name: "pharmacy", label: t("svcPharmacy"), href: `${base}/c` },
     { name: "lab", label: t("svcLabs"), href: `${base}/diagnostics` },
@@ -111,6 +112,8 @@ export function ServiceGrid({ locale, t, signedIn }: { locale: Locale; t: T; sig
     { name: "health", label: t("svcHealth"), href: `${base}/health` },
     { name: "emergency", label: t("svcEmergency"), href: `${base}/emergency` },
   ];
+  // a switched-off module has no tile (#953)
+  const items = visibleItems(all, (s) => s.href, disabled);
   return (
     <section aria-label={t("services")}>
       <ul className={`${styles.services} ${styles.rise}`}>
@@ -126,14 +129,13 @@ export function ServiceGrid({ locale, t, signedIn }: { locale: Locale; t: T; sig
   );
 }
 
-/** The smart assistant card with its five tools. */
-export function AiCard({ locale, t }: { locale: Locale; t: T }) {
+/** The smart assistant card: two modes of the assistant and the monthly report (owner decisions 4 and 7: no skin analysis, no chat entry). */
+export function AiCard({ locale, t, disabled = NONE_DISABLED }: { locale: Locale; t: T; disabled?: DisabledModules }) {
   const base = `/${locale}/ai`;
+  if (isPathHidden(base, disabled)) return null;
   const tools: Array<{ icon: FillIconName; tone: ServiceTone; label: string; href: string }> = [
-    { icon: "heartbeat", tone: TONE.care, label: t("aiSymptoms"), href: `${base}/symptom-checker` },
-    { icon: "translate", tone: "violet", label: t("aiTranslator"), href: `${base}/prescription-translator` },
-    { icon: "scan", tone: "pink", label: t("aiSkin"), href: `${base}/skin-analysis` },
-    { icon: "robot", tone: "blue", label: t("aiDoctor"), href: `${base}/chat-doctor` },
+    { icon: "heartbeat", tone: TONE.care, label: t("aiSymptoms"), href: `${base}?mode=symptoms` },
+    { icon: "translate", tone: "violet", label: t("aiTranslator"), href: `${base}?mode=prescription` },
     { icon: "chart-line-up", tone: "mint", label: t("aiReport"), href: `${base}/monthly-report` },
   ];
   return (
@@ -144,7 +146,7 @@ export function AiCard({ locale, t }: { locale: Locale; t: T }) {
           <h2 id="home-ai-title" className={styles.aiTitle}>{t("aiTitle")}</h2>
           <span className={styles.aiSub}>{t("aiSub")}</span>
         </div>
-        <Link href={`${base}/triage`} className={styles.aiStart}>{t("aiStart")}</Link>
+        <Link href={base} className={styles.aiStart}>{t("aiStart")}</Link>
       </div>
       <ul className={styles.aiTools}>
         {tools.map((tool) => (
@@ -163,11 +165,9 @@ export function AiCard({ locale, t }: { locale: Locale; t: T }) {
 const MORE: Array<{ key: string; href: string; icon: FillIconName; tone: ServiceTone }> = [
   { key: "appointments", href: "appointments", icon: "calendar-dots", tone: "blue" },
   { key: "medicines", href: "medicines", icon: "pill", tone: TONE.rx },
-  { key: "diagnostics", href: "diagnostics", icon: "test-tube", tone: "mint" },
   { key: "orders", href: "orders", icon: "package", tone: TONE.care },
-  { key: "health", href: "health", icon: "heartbeat", tone: TONE.rx },
   { key: "homeCare", href: "home-care", icon: "first-aid-kit", tone: TONE.care },
-  { key: "reminders", href: "reminders", icon: "clock-counter-clockwise", tone: "violet" },
+  { key: "reminders", href: "health/medications?tab=all", icon: "clock-counter-clockwise", tone: "violet" },
   { key: "prescriptions", href: "prescriptions", icon: "prescription", tone: TONE.rx },
   { key: "family", href: "family", icon: "users-three", tone: "peach" },
   { key: "chat", href: "chat", icon: "chat-circle-text", tone: "blue" },
@@ -176,26 +176,22 @@ const MORE: Array<{ key: string; href: string; icon: FillIconName; tone: Service
   { key: "offers", href: "offers", icon: "gift", tone: "pink" },
   { key: "programs", href: "programs", icon: "heart", tone: "mint" },
   { key: "returns", href: "returns", icon: "arrows-left-right", tone: "amber" },
-  { key: "community", href: "community", icon: "users", tone: "violet" },
-  { key: "nutrition", href: "nutrition", icon: "bowl-food", tone: TONE.food },
-  { key: "maternity", href: "maternity", icon: "baby", tone: "pink" },
-  { key: "aiTriage", href: "ai", icon: "sparkle", tone: "violet" },
   { key: "reports", href: "reports", icon: "file-text", tone: "blue" },
   { key: "loyalty", href: "loyalty", icon: "star", tone: "amber" },
   { key: "support", href: "support", icon: "headset", tone: TONE.care },
-  { key: "emergency", href: "emergency", icon: "ambulance", tone: "peach" },
   { key: "profile", href: "profile", icon: "user", tone: "blue" },
   { key: "settings", href: "settings", icon: "gear", tone: "ink" },
   { key: "articles", href: "articles", icon: "clipboard-text", tone: "mint" },
 ];
 
-/** Every other patient page, as the board's ListItem rows (the signed-in home; `labels` is the Dashboard namespace). */
-export function AllServices({ locale, t, labels }: { locale: Locale; t: T; labels: T }) {
+/** Every other patient page (the ones the service grid and the assistant card above do not already show), as the board's ListItem rows (the signed-in home; `labels` is the Dashboard namespace). */
+export function AllServices({ locale, t, labels, disabled = NONE_DISABLED }: { locale: Locale; t: T; labels: T; disabled?: DisabledModules }) {
+  const more = visibleItems(MORE, (m) => `/${locale}/${m.href}`, disabled);
   return (
     <section className={styles.section} aria-label={t("allServices")}>
       <SectionHeader title={t("allServices")} />
       <ul className={styles.rows}>
-        {MORE.map((m) => (
+        {more.map((m) => (
           <li key={m.key}>
             <Link href={`/${locale}/${m.href}`} className={styles.rowLink}>
               <ListItem title={labels(m.key)} leading={{ icon: m.icon, tone: m.tone }} />
@@ -212,14 +208,15 @@ export function AllServices({ locale, t, labels }: { locale: Locale; t: T; label
  * route) and an image URL: the link is followed only when it is a page that exists on the web (under the page's locale), the
  * image only from the hosts next/image may load. Anything else renders the card as plain text instead of breaking the page.
  */
-export function CuratedSections({ sections, locale, t }: { sections: HomeSection[]; locale: Locale; t: T }) {
+export function CuratedSections({ sections, locale, t, disabled = NONE_DISABLED }: { sections: HomeSection[]; locale: Locale; t: T; disabled?: DisabledModules }) {
   const ar = locale === "ar";
   const pick = (a?: string, e?: string) => (ar ? a || e : e || a) || "";
   return (
     <>
       {sections.map((section) => {
         const title = pick(section.title_ar, section.title_en);
-        const items = (section.items ?? []).filter((item) => pick(item.title_ar, item.title_en));
+        // a curated card that opens a switched-off module is not drawn (#953)
+        const items = (section.items ?? []).filter((item) => pick(item.title_ar, item.title_en) && !isPathHidden(curatedHref(item.deep_link, locale), disabled));
         if (!items.length) return null;
         return (
           <section key={section.id || section.title_ar || title} className={styles.section} aria-label={title || t("offersTitle")}>

@@ -8,7 +8,7 @@
 
 /** The first path segment of every section a curated card may open: each is a folder or file of `app/`. */
 export const DEEP_LINK_SECTIONS: readonly string[] = [
-  '(tabs)', 'ai', 'ai-assistant', 'articles', 'community', 'consultations', 'delivery', 'diagnostics', 'doctor',
+  '(tabs)', 'ai', 'ai-assistant', 'articles','consultations', 'delivery', 'diagnostics', 'doctor',
   'drug-scanner', 'emergency', 'facility', 'family', 'health', 'insurance', 'loyalty', 'map', 'maternity', 'medicine',
   'mental-health', 'notifications', 'nursing', 'nutrition', 'offers', 'orders', 'payments', 'pharmacy', 'profile',
   'programs', 'reports', 'returns', 'reviews', 'search', 'services', 'settings', 'support', 'voice', 'wearables',

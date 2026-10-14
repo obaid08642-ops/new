@@ -9,7 +9,19 @@ export type InsuranceCopayRequest = {
   copay_amount: number;
   self_pay_amount: number;
   policy?: { company_name?: string };
+  /** The provider's record of the insurer's decision; present only when the server sent it (never invented). */
+  approval_code?: string;
+  copay_percent?: number;
+  rejection_reason?: string;
 };
+
+/** The optional decision fields of a request row (the approval number is `approval_code` from the provider app, `insurer_approval_code` from the insurance engine): a missing, null or wrongly typed value is simply left out. */
+export function insuranceDecisionOf(row: unknown): Pick<InsuranceCopayRequest, 'approval_code' | 'copay_percent' | 'rejection_reason'> {
+  const rec = (row && typeof row === 'object' ? row : {}) as Record<string, unknown>;
+  const text = (v: unknown) => (typeof v === 'string' && v.trim() ? v.trim() : undefined);
+  const percent = typeof rec.copay_percent === 'number' && Number.isFinite(rec.copay_percent) && rec.copay_percent >= 0 && rec.copay_percent <= 100 ? rec.copay_percent : undefined;
+  return { approval_code: text(rec.approval_code) ?? text(rec.insurer_approval_code), copay_percent: percent, rejection_reason: text(rec.rejection_reason) };
+}
 
 export function parseInsuranceCopayRequest(value: unknown): InsuranceCopayRequest {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('insurance request not found');
@@ -24,7 +36,7 @@ export function parseInsuranceCopayRequest(value: unknown): InsuranceCopayReques
   if (!id || !bookingId || !allowed.has(state as InsuranceCopayState) || !Number.isFinite(price) || price <= 0 || !Number.isFinite(copay) || copay < 0 || !Number.isFinite(selfPay) || selfPay < 0) {
     throw new Error('invalid insurance request contract');
   }
-  return { id, booking_id: bookingId, booking_kind: typeof request.booking_kind === 'string' ? request.booking_kind : '', state: state as InsuranceCopayState, price, copay_amount: copay, self_pay_amount: selfPay, policy: request.policy as InsuranceCopayRequest['policy'] };
+  return { id, booking_id: bookingId, booking_kind: typeof request.booking_kind === 'string' ? request.booking_kind : '', state: state as InsuranceCopayState, price, copay_amount: copay, self_pay_amount: selfPay, policy: request.policy as InsuranceCopayRequest['policy'], ...insuranceDecisionOf(request) };
 }
 
 export function insurancePaymentAction(request: InsuranceCopayRequest): 'provider_review' | 'covered' | 'checkout_copay' | 'accept_self_pay' | 'checkout_self_pay' | 'paid' | 'unavailable' {

@@ -306,6 +306,160 @@ This replaces the earlier Q-14 note.
 
 The core services keep priority: pharmacy, consultations, labs/radiology, nursing. The reviewer approves (delegated by the owner).
 
+## H. Added 2026-10-08 (owner approved the reviewer's proposals)
+
+### 28. Security sweep S-1 … S-7
+
+The review session writes acceptance tests; OpenCode fixes whatever fails.
+
+| Id | What is proved |
+|---|---|
+| S-1 | **Secrets.** An inventory of every env var, marking which reach a browser or app (`NEXT_PUBLIC_*`, `EXPO_PUBLIC_*`): none may be a secret. Every secret that was ever committed (the repo is public) is rotated by the owner through server-ops. gitleaks stays on every PR. |
+| S-2 | **Ownership.** A table of every route and where it checks that the caller owns the id it touches. No route trusts a user id from the body or the query. |
+| S-3 | **Database rules.** MongoDB has no RLS; S-2 plus S-7 replace it. Every query on user data filters by the authenticated owner on the server. |
+| S-4 | **Mass assignment.** A strict DTO on every write route; unknown fields are rejected (`forbidNonWhitelisted`, already on). A list per route of the fields a user may never set: price, amount, status, owner id, role, verified, payment_status. |
+| S-5 | **Payments.** Every amount is looked up on the server from the booking, order or offer, never from the client. Every payment webhook verifies its signature (Moyasar HMAC); `MOYASAR_WEBHOOK_SECRET` is added on the server. |
+| S-6 | **Rate limits.** Login, sign-up, OTP, password reset, and every route that calls a paid service (AI, SMS, email, OCR, maps). The limit per route is documented, and a client that exceeds it gets 429 with `Retry-After`. |
+| S-7 | **Proof.** For every user-owned record type, user A creates a record and user B tries to read, update and delete it. Every attempt answers 403 or 404. The output goes in the PR. |
+
+### 29. Search
+
+**Where search looks**
+- Each section searches its own content: pharmacy → medicines and products; consultations → specialties and doctors; labs/radiology → tests and packages; nursing → services.
+- Home searches everything and shows the results grouped by type.
+
+**Engine:** Meilisearch, self-hosted on our server (about 300 MB of RAM; Elasticsearch is too heavy for the server). It gives:
+- full-text search;
+- relevance ranking;
+- typo tolerance;
+- filters and facets;
+- autocomplete;
+- highlighting.
+
+**Arabic and the 6 languages**
+- Arabic normalisation: أ/إ/آ→ا, ى→ي, ة→ه, diacritics and tatweel removed.
+- Synonyms:
+  - brand ↔ active ingredient;
+  - Arabic ↔ English names;
+  - common misspellings.
+- Every result is searchable in all 6 locales (ar, en, ur, hi, bn, fil); the index has one document per item, with its fields for every locale.
+
+**Rules**
+- Prescription-only items are never promoted or boosted in results.
+- Only active, approved items and providers appear.
+- MongoDB stays the source of truth: the index is rebuilt from it, and every change is pushed to the index.
+
+### 30. Insurance chosen first
+
+1. The patient saves their insurance once in the profile: company, plan class (VIP/A/B/C…) and policy number. Insurance networks already store plan tiers (`tier_level`).
+2. At the start of every service (pharmacy, consultation, labs/radiology, nursing) the patient picks **Insurance** or **Self-pay**.
+3. With **Insurance**, lists show only providers contracted with that company **and that class**. A pharmacy order is broadcast only to in-network pharmacies.
+4. At checkout the final eligibility is checked (approval and co-pay). If it is refused, self-pay is offered.
+5. Every provider records the companies **and classes** it accepts.
+
+### 31. Double taps and bad networks (verify and prove)
+
+**Already built**
+- Payment, booking and order writes use an idempotency key: 64 backend routes, plus the clients' API helpers.
+- A repeated request with the same key returns the first result instead of acting twice.
+- Payment intents also refuse a second live intent for the same booking.
+
+**What has to be proved, as tests**
+- Tapping Pay, Book or Send twice, even with a slow network, charges or books **once**.
+- Every action button is disabled while its request is in flight.
+- On a timeout or lost connection:
+  - the same key is retried, never a new one;
+  - the screen shows a clear state ("checking your payment…") and asks the server for the result, instead of asking the user to pay again.
+- Offline:
+  - browsing shows the cached copy;
+  - the cart works locally;
+  - actions that need the server show a clear error and keep the user's input.
+- Tests run on throttled 3G and on an offline/online flip, on web (Playwright) and app (unit plus Maestro where possible).
+
+### 32. Where data and files live
+
+This becomes a document, `docs/architecture/DATA_MAP.md`, written by the review session.
+
+**Data**
+- All records live in MongoDB on the server:
+  - medicines (`medicines`);
+  - providers (`provider_accounts`, `provider_profiles`, `provider_settings`, `provider_contracts`);
+  - availability (`provideravailability`, `provider_schedule_slots`);
+  - facilities;
+  - insurance (`insurance_networks`, `insuranceservicerequests`);
+  - bookings, orders and payments.
+
+**Files**
+- Files go to object storage (Cloudflare R2, through the S3 API).
+- Each file has a visibility:
+  - **Public:** product, doctor and clinic photos, served through the CDN.
+  - **Private:** licences, KYC documents, prescriptions and reports. They are served only through the authenticated API, after an owner or admin check, and never as a public link.
+
+**Owner question:** none. The document lists, per entity, every field, where it is stored, who can read it and how long it is kept (decision 22, PDPL).
+
+## I. Added 2026-10-08 (delegated to the reviewer: "take the best decision")
+
+### 33. Backups and secrets after the 2026-10-08 incident
+
+Background: `docs/review/INCIDENT_2026-10-08_PUBLIC_BACKUPS.md`.
+
+**Backups**
+- The nightly `mongodump` (whole database) stays on the server for 14 days.
+- An off-server copy goes **only** to a separate, private bucket (`nabd-backups`): no public domain, its own API token limited to that bucket, and old copies expire after 30 days.
+- The medicine catalogue also gets a weekly separate export: JSON plus the image list. It is the most valuable data.
+- A monthly restore test proves the backups work, using `restore-drill.sh` on a scratch database.
+
+**Secrets**
+- `JWT_SECRET` is rotated during the next deploy: everyone signs in again, and today that is only test accounts.
+- Any secret stored inside the database (system config, provider integrations) is listed and rotated.
+- The secrets list (S-1, decision 28) records each secret's last rotation date.
+
+**Test data:** test accounts may be deleted before launch (owner). The medicine catalogue is never touched.
+
+### 34. An "Operations & Security" page in admin (read-only for most admins)
+
+| Section | What it shows |
+|---|---|
+| Backups | Time and size of the last local and off-server backup, the last restore-test result, red when older than 26 h. |
+| Security | Failed sign-ins, rate-limit hits, blocked requests, new admin devices, step-up failures (24 h / 7 d). |
+| Secrets | Name, last rotation date and owner of each secret, with a reminder when one is older than 180 days. **Never the values.** |
+| PDPL | Data export and erasure requests with their status; who accessed which health records (decision 22). |
+| Incidents | A list of incidents with their status, linked to the incident notes. |
+
+This page reports what happened. It does not replace the alerts: a backup failure or an error spike also sends an email or push to the owner.
+
+## I. Added 2026-10-08 (owner)
+
+### 35. Insurance is relay-only
+
+1. Nabd+ has **no integration with any insurer** and never contacts one. There is no NPHIES or insurer-portal connection, now or planned.
+2. When the patient picks **Insurance**, the request and the data the provider needs (company, class, policy number, card image, the order or booking) go **only to the provider contracted with that company and class** (decision 30).
+3. The provider requests the approval **in its own systems** (NPHIES or the insurer portal), then updates the request in the provider app:
+   - approved in full, approved in part, or rejected;
+   - the approval number, and the co-pay (percentage or amount);
+   - the reason, when rejected.
+4. The patient is notified at every change. On a partial approval they pay the co-pay; on a rejection they pay themselves or cancel at no charge.
+5. The provider-app inbox is the shared `InsuranceRequestsScreen` (`/insurance/requests/provider/queue`, `/insurance/requests/:id/decide`). The old doctor `InsuranceClaimScreen` (unrouted, sent a hard-coded "APPROVED" and an invented 80 %) is removed (#712).
+6. Backend endpoints named `nphies*` answer from data stored on file. They are renamed or removed so that nothing implies a live check (queue D-37).
+
+### 36. Legal documents are published now
+
+1. The five texts in `docs/legal/` (patient terms, privacy policy, provider agreement, telehealth consent, cancellation and refund) are published in the apps now, as version 1.0. There are no real users yet.
+2. A lawyer reviews them later. Any change after that is a new version; a new major version forces re-acceptance.
+3. Every app screen that shows a legal text reads it from `legal_policies` (`/legal/policy/:key`). Nothing is hard-coded in a screen (queue D-38).
+4. The placeholders (trade name, CR number, address, email) are filled from admin before launch.
+
+### 37. Licensing model: a pure marketplace
+
+1. Every provider is a **licensed facility**, or a licensed practitioner listed **under** a licensed facility: doctors, nurses, lab and radiology staff, pharmacists.
+   - SCFHS registration for each practitioner.
+   - A MOH (or SFDA, for pharmacies) facility licence that is valid on the day of every order.
+2. Nabd+ employs nobody who provides care. It does not sell medicine or hold stock.
+3. Online consultations only go through a facility licensed for telehealth. Home visits, nursing, labs, radiology and pharmacy go through facilities licensed for that service.
+4. Expired licences block the provider automatically (licence expiry date stored and checked).
+5. The legal entity for Nabd+ is a **commercial registration** (an individual establishment is enough to start), not a freelance document (see `LEGAL_RESEARCH_2026-10-08.md` §6–7).
+6. Patient payments are **not held** by Nabd+. The payment gateway settles each provider's share directly (marketplace/split settlement), and Nabd+ receives only its commission. This avoids the need for a SAMA payment licence.
+
 ## Order of work (reviewer's proposal)
 
 1. **Item 16 (module switches) first.** It lets the owner hide a module at once while its removal or merge is still being built.

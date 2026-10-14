@@ -1,23 +1,12 @@
 import { notFound } from "next/navigation";
-import { getTranslations, setRequestLocale } from "next-intl/server";
-import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { RequestScreen } from "@/components-next/pharmacy/request-screen";
+import { redirectKeepingQuery } from "@/lib/redirect-keep-query";
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-export async function generateMetadata({ params }: Props) {
-  const { locale } = await params;
-  if (!isLocale(locale)) return {};
-  const t = await getTranslations({ locale, namespace: "PharmacyRequest" });
-  return { title: t("title") };
-}
-
-/** Ask the nearby pharmacies for a medicine by name (the merged manual-order, custom-item and drug-not-found screens). */
-export default async function PharmacyRequestPage({ params }: Props) {
+/** Merged into the one "order with a prescription" screen (second pass, section 11): this is its "type the names" way in. The query is kept. */
+export default async function PharmacyRequestPage({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  setRequestLocale(locale);
-  await requirePatientAccess(locale);
-  return <RequestScreen locale={locale} />;
+  redirectKeepingQuery(`/${locale}/pharmacy/rx-order`, await searchParams, { via: "type" });
 }

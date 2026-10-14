@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { router, type Href } from 'expo-router';
-import { useSelector } from 'react-redux';
 
 import { ApptCard, ConsultList, useConsultFormat } from '../../src/components/consult/ConsultKit';
 import { useScreenUi } from '../../src/components/screen/ScreenKit';
@@ -19,25 +18,25 @@ import { logError } from '../../src/utils/logger';
 interface CallSession {
   id: string;
   appointment_id?: string;
-  caller_id: string;
-  callee_id: string;
   call_type: 'voice' | 'video' | 'group';
-  status: 'pending' | 'active' | 'ended' | 'missed' | 'rejected';
+  /** GET /calls/history: INITIATED | ACTIVE | ENDED | FAILED (end_reason 'rejected' when declined). */
+  status: string;
+  end_reason?: string | null;
   duration_seconds?: number;
-  createdAt: string;
+  started_at?: string | null;
+  ended_at?: string | null;
 }
 
 type Tone = 'success' | 'warning' | 'danger' | 'info' | 'neutral';
 
-function look(status: string, isCaller: boolean): { key: string; tone: Tone } {
-  switch (status) {
-    case 'ended':
+/** The server's call states (needs-review issue 397); the history row says nothing about who called, so no direction is drawn. */
+function look(status: string, endReason?: string | null): { key: string; tone: Tone } {
+  switch (String(status).toUpperCase()) {
+    case 'ENDED':
       return { key: 'consult.calls.ended', tone: 'success' };
-    case 'rejected':
-      return { key: isCaller ? 'consult.calls.rejectedByOther' : 'consult.calls.rejected', tone: 'danger' };
-    case 'missed':
-      return { key: isCaller ? 'consult.calls.noAnswer' : 'consult.calls.missed', tone: 'danger' };
-    case 'active':
+    case 'FAILED':
+      return endReason === 'rejected' ? { key: 'consult.calls.rejected', tone: 'danger' } : { key: 'consult.calls.missed', tone: 'danger' };
+    case 'ACTIVE':
       return { key: 'consult.calls.active', tone: 'info' };
     default:
       return { key: 'consult.calls.pending', tone: 'warning' };
@@ -47,7 +46,6 @@ function look(status: string, isCaller: boolean): { key: string; tone: Tone } {
 export default function CallHistoryScreen() {
   const { c, k } = useScreenUi();
   const { dateTime, num } = useConsultFormat();
-  const me = useSelector((state: { auth?: { user?: { id?: string } } }) => state.auth?.user)?.id;
 
   const [calls, setCalls] = useState<CallSession[]>([]);
   const [loading, setLoading] = useState(true);
@@ -118,14 +116,14 @@ export default function CallHistoryScreen() {
       empty={{ icon: 'headset', title: k('consult.calls.empty'), body: k('consult.calls.emptyBody') }}
       keyExtractor={(item) => item.id}
       renderItem={(item) => {
-        const isCaller = item.caller_id === me;
-        const st = look(item.status, isCaller);
+        const st = look(item.status, item.end_reason);
         const again = callAgainParams(item);
-        const line = [dateTime(item.createdAt), item.status === 'ended' ? duration(item.duration_seconds) : ''].filter(Boolean).join(' · ');
+        const at = item.started_at ?? item.ended_at;
+        const line = [at ? dateTime(at) : '', String(item.status).toUpperCase() === 'ENDED' ? duration(item.duration_seconds) : ''].filter(Boolean).join(' · ');
         return (
           <ApptCard
             icon={{ name: item.call_type === 'video' ? 'video-camera' : 'headset', tone: item.call_type === 'video' ? 'violet' : 'blue' }}
-            title={k(isCaller ? 'consult.calls.outgoing' : 'consult.calls.incoming')}
+            title={k(item.call_type === 'video' ? 'consult.calls.videoCall' : 'consult.calls.voiceCall')}
             subtitle={line}
             status={{ label: k(st.key), tone: st.tone }}
             actions={again ? [{ label: k('consult.calls.callAgain'), tone: 'ink', flex: true, onPress: () => router.push({ pathname: '/consultations/video-call', params: again } as unknown as Href) }] : []}

@@ -1,0 +1,3 @@
+[
+  { "route": "/admin/config-portal", "file": "admin/src/pages/admin/config-portal.tsx", "line": 346, "status": "ok", "reason": "Reviewed: truthful status text next to the disabled kill-switch button (the button itself stays reported as dead at :344), not a placeholder." }
+]

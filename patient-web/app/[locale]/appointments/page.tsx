@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { extractAppointmentRows } from "@/lib/api/appointments";
+import { extractAppointmentRows, specialtyFor } from "@/lib/api/appointments";
 import { getPatientAppointments } from "@/lib/api/appointments-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
@@ -64,7 +64,7 @@ export default async function AppointmentsPage({ params, searchParams }: Props) 
               let primary: CardAction | undefined = detail;
               if (activeTab === "upcoming") {
                 if (mode === "video" && isJoinable(appointment.status)) primary = { href: `/${locale}/consultations/virtual-waiting-room?appointmentId=${id}`, label: c("actionWaitingRoom") };
-                else if (mode === "clinic") primary = { href: `/${locale}/consultations/clinic-confirm?appointmentId=${id}&view=location`, label: c("actionLocation") };
+                else if (mode === "clinic") primary = { href: `/${locale}/consultations/booking-status?appointmentId=${id}&view=location`, label: c("actionLocation") };
                 else if (mode === "home") primary = { href: `/${locale}/consultations/home-visit-tracking?appointmentId=${id}`, label: c("actionTrack") };
               }
               const secondary = activeTab === "upcoming" && isOpen(appointment.status) ? { href: `/${locale}/consultations/cancel-reschedule?appointmentId=${id}`, label: c("actionEdit") } : undefined;
@@ -80,7 +80,7 @@ export default async function AppointmentsPage({ params, searchParams }: Props) 
                   statusLabel={key ? c(`status.${key}`) : t("statusUnavailable")}
                   statusTone={statusTone(appointment.status)}
                   slotStart={appointment.slotStart}
-                  specialty={appointment.specialty}
+                  specialty={specialtyFor(appointment, locale)}
                   timeLine={appointment.slotStart ? <LocalTimeLine iso={appointment.slotStart} locale={locale} /> : undefined}
                   primary={primary}
                   primaryInk={activeTab === "upcoming" && (mode === "clinic" || mode === "home")}

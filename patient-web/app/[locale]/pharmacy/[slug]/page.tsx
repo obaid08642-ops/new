@@ -1,5 +1,7 @@
 import { JsonLd } from "@/components-next/json-ld";
-import { pharmacy, breadcrumbList } from "@/lib/seo/structured-data";
+import { patientApiUrl } from "@/lib/api/upstream";
+import { pharmacy, breadcrumbList, medicalWebPage } from "@/lib/seo/structured-data";
+import { DirectAnswer } from "@/components-next/seo/direct-answer";
 import type { Metadata } from "next";
 import { localizedUrl } from "@/lib/seo";
 import { isLocale, locales, type Locale } from "@/lib/i18n";
@@ -15,20 +17,16 @@ import styles from "@/components-next/pharmacy/pharmacy.module.css";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus";
-
 async function fetchPharmacy(slug: string) {
   try {
-    const res = await fetch(`${API_BASE}/api/v1/entity-graph/related/pharmacy/${encodeURIComponent(slug)}`, {
+    // issue 473: the same server base as every other server fetch (patientApiUrl); appending /api/v1 to a public base
+    // that already ends in it made every pharmacy page a 404.
+    const res = await fetch(patientApiUrl(`/entity-graph/related/pharmacy/${encodeURIComponent(slug)}`), {
       next: { revalidate: 3600 },
     });
-    if (!res.ok) {
-      // Fallback to general provider or facility lookup
-      const fallback = await fetch(`${API_BASE}/api/v1/seo/resolve/doctor/${encodeURIComponent(slug)}`);
-      if (!fallback.ok) return null;
-      const entity = await fallback.json();
-      return { entity, relationships: {} };
-    }
+    // The backend resolves the reviewed pharmacy profile; anything else is a 404 (the old fallback
+    // to the doctor resolver could draw a doctor as a pharmacy).
+    if (!res.ok) return null;
     return await res.json();
   } catch {
     return null;
@@ -69,6 +67,7 @@ export default async function PharmacyCanonicalPage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("PharmacyBrowse");
   const shared = await getTranslations("Shared");
+  const seo = await getTranslations("SeoAnswer");
 
   const data = await fetchPharmacy(slug);
   if (!data?.entity) notFound();
@@ -79,6 +78,7 @@ export default async function PharmacyCanonicalPage({ params }: Props) {
   const text = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : null);
 
   const jsonLd = [
+    medicalWebPage({ title: name, locale: locale as Locale, path, speakable: true }),
     pharmacy({
       name,
       path,
@@ -101,7 +101,7 @@ export default async function PharmacyCanonicalPage({ params }: Props) {
   if (delivery) facts.push({ icon: "moped", tone: "peach", label: t("pharmacyDelivery"), value: delivery });
   const license = text(ph.sfda_license_number) || text(ph.license_number);
   if (license) facts.push({ icon: "shield-check", tone: "blue", label: t("pharmacyLicense"), value: license });
-  const rxHref = ph.id ? `/${locale}/pharmacy/scan-prescription?pharmacyId=${encodeURIComponent(String(ph.id))}` : `/${locale}/pharmacy/scan-prescription`;
+  const rxHref = ph.id ? `/${locale}/pharmacy/rx-order?via=photo&pharmacyId=${encodeURIComponent(String(ph.id))}` : `/${locale}/pharmacy/rx-order?via=photo`;
 
   return (
     <CoreShell locale={locale as Locale} title={name} backHref={`/${locale}/pharmacies`} width="narrow">
@@ -111,6 +111,10 @@ export default async function PharmacyCanonicalPage({ params }: Props) {
           <FIcon icon="pill" tone={PHARMACY_TONE} size={56} />
           <h1 className={styles.pharmacyName}>{name}</h1>
         </div>
+        <DirectAnswer sentences={[
+          text(ph.city) ? seo("pharmacyWho", { name, city: text(ph.city) as string }) : seo("pharmacyWhoNoCity", { name }),
+          seo("pharmacyHow"),
+        ]} />
         {facts.length ? (
           <Card elevation="card" padding="md">
             <dl className={styles.facts}>

@@ -1,28 +1,12 @@
 import { notFound } from "next/navigation";
-import { getTranslations, setRequestLocale } from "next-intl/server";
-import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { CoreShell } from "@/components-next/core/core-shell";
-import { DrugInteractionChecker } from "@/components-next/drug-interaction-checker";
-import styles from "@/components-next/pharmacy/pharmacy.module.css";
+import { redirectKeepingQuery } from "@/lib/redirect-keep-query";
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-export default async function DrugInteractionsPage({ params }: Props) {
+/** Merged into the one "scan a medicine" screen (second pass, section 3): the interaction check is a section of pharmacy/barcode. The query is kept. */
+export default async function DrugInteractionsPage({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  setRequestLocale(locale);
-  await requirePatientAccess(locale);
-  const t = await getTranslations("PharmacyBrowse");
-
-  return (
-    <CoreShell locale={locale} title={t("ixTitle")} backHref={`/${locale}/pharmacy`}>
-      <div className={styles.page}>
-        <div className={styles.head}>
-          <h1 className={styles.title}>{t("ixTitle")}</h1>
-        </div>
-        <DrugInteractionChecker locale={locale} />
-      </div>
-    </CoreShell>
-  );
+  redirectKeepingQuery(`/${locale}/pharmacy/barcode`, await searchParams);
 }

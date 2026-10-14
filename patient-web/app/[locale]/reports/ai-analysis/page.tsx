@@ -1,15 +1,14 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
-import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
+import { redirectKeepingQuery } from "@/lib/redirect-keep-query";
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-/** تحليل التقارير بالذكاء — تحويل إلى الشاشة الموحدة /ai/report (نفس عقد /api/ai/analyze-report المؤكد، لا تكرار). */
-export default async function AiAnalysisPage({ params }: Props) {
+/** The report analysis is the report mode of the assistant (merge map section 4). */
+export default async function Page({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
-  await requirePatientAccess(locale);
-  redirect(`/${locale}/ai/report`);
+  redirectKeepingQuery(`/${locale}/ai`, await searchParams, { mode: "report" });
 }

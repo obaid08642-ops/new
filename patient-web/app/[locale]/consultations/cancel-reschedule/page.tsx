@@ -8,7 +8,9 @@ import { APPOINTMENT_ID, MODE_VISUAL, modeOf } from "@/lib/consult/appointment-v
 import { AppointmentActions } from "@/components-next/appointment-actions";
 import { AppointmentRescheduleForm } from "@/components-next/appointment-reschedule-form";
 import { ConsultPage } from "@/components-next/consult/consult-page";
-import { BulletList, Hero, SectionCard } from "@/components-next/consult/consult-parts";
+import { Hero } from "@/components-next/consult/consult-parts";
+import { PolicyCard, policyLines } from "@/components-next/consult/policy-lines";
+import { getCancellationPolicy, refundPercent } from "@/lib/consult/cancellation-policy";
 import { LocalTimeLine } from "@/components-next/consult/local-time-line";
 import styles from "@/components-next/consult/consult.module.css";
 
@@ -32,7 +34,9 @@ export default async function ConsultationCancelReschedulePage({ params, searchP
 
   const slotMs = appointment.slotStart ? Date.parse(appointment.slotStart) : NaN;
   const hoursUntil = Number.isFinite(slotMs) ? (slotMs - Date.now()) / 3600000 : null;
-  const refundPct = hoursUntil === null ? null : hoursUntil >= 24 ? 100 : hoursUntil >= 12 ? 50 : 0;
+  // The rule is the server's (public system configuration); the screen only reads its numbers and never writes one.
+  const policy = await getCancellationPolicy(token);
+  const refundPct = refundPercent(hoursUntil, policy);
   const mode = modeOf(appointment.serviceType);
   const visual = mode ? MODE_VISUAL[mode] : undefined;
 
@@ -42,9 +46,7 @@ export default async function ConsultationCancelReschedulePage({ params, searchP
         {Number.isFinite(slotMs) && appointment.slotStart ? <LocalTimeLine iso={appointment.slotStart} locale={locale} className={styles.heroSub} /> : null}
       </Hero>
       {refundPct !== null ? <p className={styles.ok} role="status">{c("expectedRefund", { percent: refundPct })}</p> : null}
-      <SectionCard id="cancel-policy" title={c("policyTitle")}>
-        <BulletList items={[c("policy24"), c("policy12"), c("policyNone")]} />
-      </SectionCard>
+      <PolicyCard title={c("policyTitle")} lines={policyLines(c, policy)} />
       <AppointmentRescheduleForm
         appointmentId={appointmentId}
         labels={{ title: a("rescheduleTitle"), date: a("rescheduleDate"), reason: a("rescheduleReason"), submit: a("rescheduleSubmit"), cancel: a("rescheduleCancel"), conflict: a("rescheduleConflict"), failed: a("rescheduleFailed"), unavailable: a("rescheduleUnavailable"), invalid: a("rescheduleInvalid") }}

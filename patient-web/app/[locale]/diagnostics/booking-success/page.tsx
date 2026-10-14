@@ -9,6 +9,7 @@ import { LAB, RADIOLOGY } from "@/components-next/diagnostics/diag-parts";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import consult from "@/components-next/consult/consult.module.css";
+import { diagnosticBookingHref } from "@/lib/diagnostics-links";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ bookingId?: string; domain?: string }> };
 
@@ -44,7 +45,7 @@ export default async function DiagnosticsBookingSuccessPage({ params, searchPara
       </section>
       <ActionLinks
         actions={[
-          { href: `/${locale}/diagnostics/${domain}/${encodeURIComponent(bookingId)}`, label: t("bookingDetailsCta") },
+          { href: diagnosticBookingHref(locale, domain, bookingId), label: t("bookingDetailsCta") },
           { href: `/${locale}/diagnostics/bookings`, label: t("myRequests"), variant: "outline" },
           { href: `/${locale}/diagnostics`, label: t("backToHub"), variant: "ghost" },
         ]}

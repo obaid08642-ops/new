@@ -12,6 +12,7 @@ import { Input } from "@/components-next/ui-generated/components/Inputs";
 import { Segmented } from "@/components-next/ui-generated/components/Controls";
 import { StickyFooter } from "@/components-next/ui-generated/shells/StickyFooter";
 import { ConsultPage } from "@/components-next/consult/consult-page";
+import { PolicyCard } from "@/components-next/consult/policy-lines";
 import { Hero, SectionCard } from "@/components-next/consult/consult-parts";
 import { formatPrice } from "@/lib/format-price";
 import rx from "@/components-next/pharmacy/rx.module.css";
@@ -45,13 +46,19 @@ function newIdempotencyKey(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-export function BookingFlow({ doctorId, locale, doctor, top }: { doctorId: string; locale: string; doctor: DoctorRow | null; top?: ReactNode }) {
+export function BookingFlow({ doctorId, locale, doctor, top, policy }: { doctorId: string; locale: string; doctor: DoctorRow | null; top?: ReactNode; policy?: { title: string; lines: string[] } }) {
   const t = useTranslations("BookConsultation");
   const names = useTranslations("SpecialtyNames");
   const specialty = specialtyLabel(names, doctor?.specialty);
   const router = useRouter();
   const days = useMemo(() => nextDays(7, locale), [locale]);
-  const [visitType, setVisitType] = useState<VisitType>("clinic");
+  // Only the visit types this doctor offers (consultation_modes → clinic / online / home) (needs-review issue 1037).
+  const offered = useMemo<VisitType[]>(() => {
+    if (!doctor) return [...VISIT_TYPES];
+    const modes = VISIT_TYPES.filter((type) => (type === "clinic" ? doctor.clinic : type === "video" ? doctor.online : doctor.home));
+    return modes.length ? modes : [...VISIT_TYPES];
+  }, [doctor]);
+  const [visitType, setVisitType] = useState<VisitType>(offered[0]);
   const [dayIndex, setDayIndex] = useState(0);
   const [slots, setSlots] = useState<Array<{ start: string; end: string; label: string; available: boolean }>>([]);
   const [slotsReason, setSlotsReason] = useState<string | null>(null);
@@ -64,6 +71,13 @@ export function BookingFlow({ doctorId, locale, doctor, top }: { doctorId: strin
   const [homeAddress, setHomeAddress] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // #402: the visit length is the chosen slot's own length (start to end, from the doctor's schedule); none when it cannot be read.
+  const chosen = slots.find((slot) => slot.start === selectedSlot);
+  const durationMinutes = (() => {
+    if (!chosen) return null;
+    const minutes = Math.round((Date.parse(chosen.end) - Date.parse(chosen.start)) / 60_000);
+    return Number.isInteger(minutes) && minutes >= 10 && minutes <= 120 ? minutes : null;
+  })();
   const allowedMethods = visitType === "clinic" ? (["cash", "card", "insurance"] as const) : (["card", "insurance"] as const);
 
   function pickVisitType(v: VisitType) {
@@ -133,6 +147,7 @@ export function BookingFlow({ doctorId, locale, doctor, top }: { doctorId: strin
           doctor_id: doctorId,
           service_type: visitType,
           slot_start: selectedSlot,
+          duration_minutes: durationMinutes ?? undefined,
           payment_method: paymentMethod,
           patient_notes: notes.trim() || undefined,
           visit_location: visitLocation,
@@ -141,17 +156,18 @@ export function BookingFlow({ doctorId, locale, doctor, top }: { doctorId: strin
       });
       if (res.ok) {
         const data = await res.json().catch(() => null);
-        // Insurance continues to the payment-split flow with the server-issued
+        // Insurance continues to the insurance request page with the server-issued
         // request id (mirrors mobile); card/cash land on the appointment page.
         if (paymentMethod === "insurance" && data?.insurance_request_id) {
-          router.push(`/${locale}/insurance/payment-split?request_id=${encodeURIComponent(data.insurance_request_id)}`);
+          router.push(`/${locale}/insurance/requests/${encodeURIComponent(data.insurance_request_id)}`);
           return;
         }
         router.push(`/${locale}/appointments/${data?.id || ""}`);
         return;
       }
       const data = await res.json().catch(() => null);
-      setError(typeof data?.message === "string" ? data.message : "booking_failed");
+      // Never show the server's raw message (English/codes) to the patient (needs-review issue 1039).
+      setError(String(data?.message ?? "").includes("slot_taken") ? t("slotTaken") : "booking_failed");
     } catch {
       setError("booking_failed");
     } finally {
@@ -179,7 +195,7 @@ export function BookingFlow({ doctorId, locale, doctor, top }: { doctorId: strin
           label={t("visitType")}
           value={visitType}
           onChange={(value) => pickVisitType(value === "video" ? "video" : value === "home" ? "home" : "clinic")}
-          options={VISIT_TYPES.map((type) => ({ value: type, label: t(`types.${type}`) }))}
+          options={offered.map((type) => ({ value: type, label: t(`types.${type}`) }))}
         />
       </SectionCard>
       <SectionCard id="book-day" title={t("selectDay")}>
@@ -227,9 +243,11 @@ export function BookingFlow({ doctorId, locale, doctor, top }: { doctorId: strin
         />
         {visitType !== "clinic" ? <p className={`${styles.body} ${styles.muted}`}>{t("cashClinicOnly")}</p> : null}
       </SectionCard>
-      {price ? (
+      {policy ? <PolicyCard title={policy.title} lines={policy.lines} /> : null}
+      {price || durationMinutes !== null ? (
         <section className={`${rx.card} ${styles.priceCard}`} aria-label={t("fee")}>
-          <div className={styles.totalRow}><span>{t("fee")}</span><span>{price.text}</span></div>
+          {durationMinutes !== null ? <div className={styles.totalRow}><span>{t("duration")}</span><span>{t("durationValue", { n: new Intl.NumberFormat(locale).format(durationMinutes) })}</span></div> : null}
+          {price ? <div className={styles.totalRow}><span>{t("fee")}</span><span>{price.text}</span></div> : null}
         </section>
       ) : null}
       {error ? <p className={styles.error} role="alert">{error === "booking_failed" ? t("bookingFailed") : error}</p> : null}

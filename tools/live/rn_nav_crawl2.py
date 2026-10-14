@@ -35,8 +35,7 @@ ONLY = [x for x in os.environ.get('ONLY', '').split(',') if x]
 NAV_FILE = {'doctor': 'doctor/doctor/DoctorDashboardNavigator.tsx', 'hospital': 'facility/facility/FacilityDashboardNavigator.tsx',
             'facility': 'facility/facility/FacilityDashboardNavigator.tsx', 'lab': 'lab/LabDashboard.tsx',
             'home_care': 'nursing/NursingDashboard.tsx', 'nursing': 'nursing/NursingDashboard.tsx',
-            'pharmacy': 'pharmacy/PharmacyDashboard.tsx', 'radiology': 'radiology/RadiologyDashboard.tsx',
-            'ambulance': 'ambulance/AmbulanceDashboard.tsx'}
+            'pharmacy': 'pharmacy/PharmacyDashboard.tsx', 'radiology': 'radiology/RadiologyDashboard.tsx'}
 DANGER = re.compile(r'حذف|تسجيل الخروج|خروج|logout|sign out|delete|إيقاف|حظر|block|إلغاء الحساب|تعطيل الحساب|EN$|English|العربية', re.I)
 SUBMIT = re.compile(r'حفظ|إرسال|تأكيد|أضف|إضافة|اعتماد|قبول|رفض|بدء|إنهاء|تحديث|Save|Submit|Confirm|Add|Accept|Reject|Start|Finish|Update', re.I)
 TAPPABLE = '[tabindex="0"]:visible, button:visible, [role="button"]:visible, [role="switch"]:visible, [role="checkbox"]:visible, [role="radio"]:visible, [role="tab"]:visible, a[href]:visible'

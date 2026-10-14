@@ -226,7 +226,7 @@ export default function ShareReportScreen() {
       status={status}
       onRetry={() => void load()}
       footer={footer}
-      empty={{ icon: 'file-text', title: k('consult.share.empty'), actionLabel: k('consult.share.backToReports'), onAction: () => router.push('/reports/hub' as Href) }}
+      empty={{ icon: 'file-text', title: k('consult.share.empty'), actionLabel: k('consult.share.backToReports'), onAction: () => router.push('/health/records?tab=reports' as Href) }}
       keyExtractor={(r) => r.id}
       renderItem={(r) => {
         const on = selected.includes(r.id);

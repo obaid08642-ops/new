@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards, BadRequestException, NotFoundException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CurrentUser, JwtAuthGuard, SelfService } from '../../common/auth.guard';
 import { v4 as uuid } from 'uuid';
@@ -42,25 +42,25 @@ export class UsersAddressesController {
   async updateAddress(@CurrentUser('id') id: string, @Param('addressId') addressId: string, @Body() body: UpdateAddressDto) {
     const profile = await this.users.getPatientProfile(id);
     const addresses = profile.addresses || [];
-    
+    const idx = addresses.findIndex(a => a.id === addressId);
+    // Needs-review issue 380: an id that is not one of the caller's addresses is 404, and nothing changes.
+    if (idx === -1) throw new NotFoundException('address_not_found');
+
     if (body.is_default) {
       addresses.forEach(a => (a.is_default = false));
     }
-    
-    const idx = addresses.findIndex(a => a.id === addressId);
-    if (idx !== -1) {
-      const line = (body.street ?? body.line1)?.trim();
-      addresses[idx] = { ...addresses[idx], ...body, ...(line ? { street: line, line1: line } : {}) };
-      await this.users.updatePatientProfile(id, { addresses });
-      return addresses[idx];
-    }
-    return null;
+    const line = (body.street ?? body.line1)?.trim();
+    addresses[idx] = { ...addresses[idx], ...body, ...(line ? { street: line, line1: line } : {}) };
+    await this.users.updatePatientProfile(id, { addresses });
+    return addresses[idx];
   }
 
   @Delete(':addressId')
   async removeAddress(@CurrentUser('id') id: string, @Param('addressId') addressId: string) {
     const profile = await this.users.getPatientProfile(id);
-    const addresses = (profile.addresses || []).filter(a => a.id !== addressId);
+    const all = profile.addresses || [];
+    if (!all.some(a => a.id === addressId)) throw new NotFoundException('address_not_found');
+    const addresses = all.filter(a => a.id !== addressId);
     await this.users.updatePatientProfile(id, { addresses });
     return { ok: true };
   }

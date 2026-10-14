@@ -1,20 +1,26 @@
-// @ts-nocheck
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Alert } from 'react-native';
-import { router } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useApp } from '../../src/context/AppContext';
-import { Icon } from '../../src/components/Icon';
-import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
-import { apiFetch } from '../../src/utils/api';
+import React, { useEffect, useState } from 'react';
+import { View } from 'react-native';
+import { router, type Href } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
-import { pickLocalized } from '../../src/utils/localize';
-import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
+import { Button, Chip, Input } from '../../../packages/ui-native/src';
+import { Section } from '../../src/components/consult/ConsultKit';
+import { Notice, rowsOf } from '../../src/components/health/HealthKit';
+import { InsuranceScreen, INSURANCE_HUB } from '../../src/components/insurance/InsuranceKit';
+import { useScreenUi } from '../../src/components/screen/ScreenKit';
+import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
+import { pickLocalized } from '../../src/utils/localize';
+
+interface Company { id: string; code?: string; name_ar?: string; name_en?: string }
+
+/**
+ * Add a policy (board Insurance, merge map 2 keeps this screen): the insurer from the catalog, the policy details and the
+ * optional scan of the card (POST /insurance/ocr-extract fills the fields, the patient reviews them). POST
+ * /insurance/save-policy with the body this screen always sent; the policy is never marked verified here.
+ */
 export default function AddPolicyScreen() {
-  const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
-  
+  const { k, theme } = useScreenUi();
   const [company, setCompany] = useState('');
   const [policyNum, setPolicyNum] = useState('');
   const [memberId, setMemberId] = useState('');
@@ -23,26 +29,27 @@ export default function AddPolicyScreen() {
   const [ocrUsed, setOcrUsed] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
-  const [companies, setCompanies] = useState<any[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [notice, setNotice] = useState<{ tone: 'danger' | 'success'; text: string } | null>(null);
 
-  const pick = (d:any)=> Array.isArray(d) ? d : (Array.isArray(d?.data) ? d.data : []);
-  React.useEffect(() => {
+  useEffect(() => {
     apiFetch('/insurance/companies')
-      .then(res => setCompanies(pick(res)))
-      .catch(() => setCompanies([]));
+      .then((res) => setCompanies(rowsOf<Company>(res)))
+      .catch((e) => { logError('insurance:add-policy:companies', e); setCompanies([]); });
   }, []);
 
   const handleScanCard = async () => {
+    setNotice(null);
     try {
       const perm = await ImagePicker.requestCameraPermissionsAsync();
       if (!perm.granted) {
-        showLocalizedAlert('إذن الكاميرا', 'نحتاج إذن الكاميرا لمسح بطاقة التأمين.');
+        setNotice({ tone: 'danger', text: k('insurance.add.cameraDenied') });
         return;
       }
       const shot = await ImagePicker.launchCameraAsync({ base64: true, quality: 0.7 });
       if (shot.canceled || !shot.assets?.[0]?.base64) return;
       setIsScanning(true);
-      const res = await apiFetch('/insurance/ocr-extract', {
+      const res = await apiFetch<{ success?: boolean; extracted_data?: Record<string, string> }>('/insurance/ocr-extract', {
         method: 'POST',
         body: JSON.stringify({ image_base64: shot.assets[0].base64, mime_type: 'image/jpeg' }),
       });
@@ -52,30 +59,31 @@ export default function AddPolicyScreen() {
         if (data.national_id) setMemberId(data.national_id);
         if (data.member_name) setMemberName(data.member_name);
         if (data.expiry_date) setExpiry(data.expiry_date);
-        // Match the extracted provider name against the real companies list
         if (data.provider) {
           const needle = String(data.provider).toLowerCase();
-          const match = companies.find(c =>
+          const match = companies.find((c) =>
             String(c.name_ar || '').toLowerCase().includes(needle) ||
             String(c.name_en || '').toLowerCase().includes(needle) ||
             needle.includes(String(c.code || '').toLowerCase()));
           if (match) setCompany(match.id);
         }
         setOcrUsed(true);
-        showLocalizedAlert('نجح المسح', 'تم استخراج البيانات المرئية من البطاقة — راجعها قبل الحفظ.');
+        setNotice({ tone: 'success', text: k('insurance.add.scanned') });
       }
-    } catch (err: any) {
-      showLocalizedAlert('خطأ', err.message || 'فشل التعرف على البطاقة — أدخل البيانات يدويًا');
+    } catch (err) {
+      logError('insurance:add-policy:ocr', err);
+      setNotice({ tone: 'danger', text: k('insurance.add.scanFailed') });
     } finally {
       setIsScanning(false);
     }
   };
 
   const handleSave = async () => {
-    if (!company || !policyNum) return;
+    if (!company || !policyNum || isSaving) return;
     setIsSaving(true);
+    setNotice(null);
     try {
-      const compObj = companies.find(c => c.id === company);
+      const compObj = companies.find((c) => c.id === company);
       await apiFetch('/insurance/save-policy', {
         method: 'POST',
         body: JSON.stringify({
@@ -89,116 +97,37 @@ export default function AddPolicyScreen() {
           ocr_extracted: ocrUsed,
         }),
       });
-      router.replace('/insurance/hub');
-    } catch (err: any) {
-      showLocalizedAlert('خطأ', err.message || 'فشل حفظ بوليصة التأمين');
+      router.replace(INSURANCE_HUB as Href);
+    } catch (err) {
+      logError('insurance:add-policy:save', err);
+      setNotice({ tone: 'danger', text: k('insurance.add.saveFailed') });
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background } ]}>
-      <View style={[styles.header, { paddingTop: insets.top + 8, backgroundColor: isDark ? colors.surface : colors.white } ]}>
-        <AppText variant="bodySM">إضافة بوليصة تأمين</AppText>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Icon name="back" size={22} color={colors.textPrimary} />
-        </TouchableOpacity>
-      </View>
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]} showsVerticalScrollIndicator={false}>
-        {/* Scan Card Option */}
-        <TouchableOpacity 
-          onPress={handleScanCard}
-          disabled={isScanning}
-          style={[styles.scanCard, { backgroundColor: isDark ? colors.surface : '#EBF3FF', borderColor: colors.primary + '40' } ]}>
-          {isScanning ? (
-            <ActivityIndicator size="small" color={colors.primary} />
-          ) : (
-            <>
-              <View>
-                <AppText variant="bodySM">مسح بطاقة التأمين</AppText>
-                <AppText variant="bodySM">صوّر بطاقتك وسنستخرج البيانات تلقائياً</AppText>
-              </View>
-              <Icon name="camera" size={28} color={colors.primary} />
-            </>
-          )}
-        </TouchableOpacity>
-
-        <View style={styles.orRow}>
-          <View style={[styles.orLine, { backgroundColor: colors.border }]} />
-          <AppText variant="bodySM">أو أدخل يدوياً</AppText>
-          <View style={[styles.orLine, { backgroundColor: colors.border }]} />
-        </View>
-
-        {/* Company Selection */}
-        <View style={[styles.card, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
-          <AppText variant="bodySM">شركة التأمين</AppText>
-          {companies.length === 0 && (
-            <AppText variant="bodySM" color={colors.textTertiary}>لا توجد شركات تأمين متعاقدة متاحة حاليًا</AppText>
-          )}
-          <View style={styles.companiesGrid}>
-            {companies.map(c => (
-              <TouchableOpacity key={c.id} onPress={() => setCompany(c.id)}
-                style={[styles.companyBtn, company === c.id && { borderColor: colors.primary, backgroundColor: colors.primary + '12' } ]}>
-                <AppText variant="bodySM">{pickLocalized(c.name_ar, c.name_en) || c.code}</AppText>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        {/* Policy Details */}
-        <View style={[styles.card, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
-          <AppText variant="bodySM">بيانات البوليصة</AppText>
-          {[
-            { label: 'رقم البوليصة', val: policyNum, setter: setPolicyNum, placeholder: 'رقم البوليصة كما في البطاقة' },
-            { label: 'رقم العضوية / الهوية الوطنية', val: memberId, setter: setMemberId, placeholder: 'الهوية الوطنية / الإقامة' },
-            { label: 'اسم العضو (اختياري)', val: memberName, setter: setMemberName, placeholder: 'الاسم كما في البطاقة' },
-            { label: 'تاريخ الانتهاء (اختياري)', val: expiry, setter: setExpiry, placeholder: 'YYYY-MM-DD' },
-          ].map((f, i) => (
-            <View key={i} style={styles.fieldWrap}>
-              <AppText variant="bodySM">{f.label}</AppText>
-              <View style={[styles.inputRow, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary, borderColor: colors.border } ]}>
-                <TextInput style={[styles.input, { color: colors.textPrimary }]} value={f.val} onChangeText={f.setter as any}
-                  placeholder={f.placeholder} placeholderTextColor={colors.textTertiary} textAlign="right" />
-              </View>
-            </View>
+    <InsuranceScreen
+      title={k('insurance.add.title')}
+      footer={<Button label={k('insurance.add.save')} size="lg" fullWidth loading={isSaving} disabled={!company || !policyNum} onPress={() => void handleSave()} theme={theme} testID="add-save" />}
+      testID="insurance-add-policy"
+    >
+      <Button label={k('insurance.add.scan')} variant="outline" fullWidth loading={isScanning} onPress={() => void handleScanCard()} theme={theme} testID="add-scan" />
+      {notice ? <Notice tone={notice.tone} text={notice.text} testID="add-notice" /> : null}
+      <Section title={k('insurance.add.company')}>
+        {companies.length === 0 ? <Notice tone="info" text={k('insurance.add.noCompanies')} /> : null}
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+          {companies.map((c) => (
+            <Chip key={c.id} label={pickLocalized(c.name_ar, c.name_en) || c.code || ''} selected={company === c.id} onPress={() => setCompany(c.id)} theme={theme} testID={`add-company-${c.id}`} />
           ))}
         </View>
-      </ScrollView>
-      <View style={[styles.bottomBar, { paddingBottom: insets.bottom + 8, backgroundColor: isDark ? colors.surface : colors.white } ]}>
-        <TouchableOpacity onPress={handleSave} disabled={!company || !policyNum || isSaving}
-          activeOpacity={0.85} style={{ opacity: !company || !policyNum ? 0.6 : 1 }}>
-          <View style={[styles.saveBtn, { backgroundColor: '#0f3460' }]}>
-            <AppText variant="bodySM">{isSaving ? 'جاري الحفظ...' : 'حفظ وإضافة البوليصة '}</AppText>
-          </View>
-        </TouchableOpacity>
-      </View>
-    </View>
+      </Section>
+      <Section title={k('insurance.add.details')}>
+        <Input label={k('insurance.add.policyNumber')} placeholder={k('insurance.add.policyNumberHint')} value={policyNum} onChange={setPolicyNum} theme={theme} testID="add-policy-number" />
+        <Input label={k('insurance.add.memberId')} placeholder={k('insurance.add.memberIdHint')} value={memberId} onChange={setMemberId} theme={theme} testID="add-member-id" />
+        <Input label={k('insurance.add.memberName')} placeholder={k('insurance.add.memberNameHint')} value={memberName} onChange={setMemberName} theme={theme} testID="add-member-name" />
+        <Input label={k('insurance.add.expiry')} placeholder={k('insurance.add.expiryHint')} value={expiry} onChange={setExpiry} theme={theme} testID="add-expiry" />
+      </Section>
+    </InsuranceScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  header: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 14 },
-  title: { fontSize: 17, fontWeight: '800' },
-  content: { padding: 16, gap: 12 },
-  scanCard: { borderRadius: 18, borderWidth: 1.5, padding: 16, flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between' },
-  scanTitle: { fontSize: 15, fontWeight: '800', textAlign: 'right', marginBottom: 4 },
-  scanSub: { fontSize: 12, fontWeight: '400', textAlign: 'right' },
-  orRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 10 },
-  orLine: { flex: 1, height: 1 },
-  orText: { fontSize: 13, fontWeight: '400' },
-  card: { borderRadius: 20, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
-  cardTitle: { fontSize: 14, fontWeight: '800', textAlign: 'right', marginBottom: 12 },
-  companiesGrid: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 8 },
-  companyBtn: { width: '22%', borderRadius: 14, borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.1)', padding: 10, alignItems: 'center', gap: 4 },
-  companyLogo: { fontSize: 22 },
-  companyName: { fontSize: 9, fontWeight: '700', textAlign: 'center', lineHeight: 13 },
-  fieldWrap: { marginBottom: 10 },
-  fieldLabel: { fontSize: 12, fontWeight: '700', textAlign: 'right', marginBottom: 6 },
-  inputRow: { flexDirection: 'row-reverse', alignItems: 'center', borderRadius: 12, borderWidth: 1, height: 46, paddingHorizontal: 12 },
-  input: { flex: 1, fontSize: 14, fontWeight: '400' },
-  bottomBar: { paddingHorizontal: 16, paddingTop: 12 },
-  saveBtn: { height: 54, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-  saveBtnText: { color: '#fff', fontSize: 16, fontWeight: '800' },
-});

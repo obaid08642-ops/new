@@ -141,7 +141,7 @@ export default function BookingConfirmScreen() {
 
       if (payMethod === 'insurance') {
         if (!appointment.insurance_request_id) throw new Error(k('consult.confirm.insuranceRequestFailed'));
-        router.replace({ pathname: '/insurance/payment-split', params: { request_id: appointment.insurance_request_id, appointmentId: appointment.id, booking_kind: 'consultation' } } as unknown as Href);
+        router.replace({ pathname: '/insurance/request', params: { id: appointment.insurance_request_id, appointmentId: appointment.id, booking_kind: 'consultation' } } as unknown as Href);
         return;
       }
 
@@ -213,7 +213,7 @@ export default function BookingConfirmScreen() {
       {payMethod === 'insurance' ? (
         <>
           <Notice tone={insuranceReady ? 'info' : 'warning'} text={k(insuranceReady ? 'consult.confirm.insuranceReady' : 'consult.confirm.insuranceNotReady')} />
-          <Button label={k('consult.confirm.manageInsurance')} variant="ghost" size="md" onPress={() => router.push('/profile/insurance' as Href)} theme={theme} />
+          <Button label={k('consult.confirm.manageInsurance')} variant="ghost" size="md" onPress={() => router.push({ pathname: '/insurance', params: { tab: 'policy' } } as unknown as Href)} theme={theme} />
         </>
       ) : null}
 

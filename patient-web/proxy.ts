@@ -1,27 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
+import { isPublicIndexable } from "./lib/seo/public-indexable";
 import { contentSecurityPolicy, CSP_INJECT_HEADER, CSP_NONCE_PLACEHOLDER, edgeNonceEnabled, hasSessionCookie } from "./lib/security/csp";
 
 const handleI18nRouting = createMiddleware(routing);
 const noIndexHeader = "noindex, nofollow, noarchive";
 const NO_STORE = "private, no-cache, no-store, max-age=0, must-revalidate";
 
-function isPublicLocaleHome(pathname: string) {
-  return routing.locales.some((locale) => pathname === `/${locale}` || pathname === `/${locale}/`);
-}
-
-// Indexable public surfaces: locale homes, articles, the v14 product pages
-// /{lang}/p/{slug}, category clusters /{lang}/c…, catalogue landing, plus the
-// public SEO detail surfaces that already emit index:true metadata
-// (doctor/facility/condition/pharmacies/labs/radiology/services/doctors-specialty/voice).
 const LOCALE = "(?:ar|en|ur|hi|bn|fil)";
-const PUBLIC_INDEXABLE = new RegExp(`^\\/${LOCALE}(?:\\/(?:articles(?:\\/[^/]+)?|p\\/[^/]+|c(?:\\/.*)?|medicine-catalog|consultations\\/doctors(?:\\/[^/]+)?|diagnostics\\/labs(?:\\/[^/]+)?|diagnostics\\/radiology(?:\\/[^/]+)?|nursing\\/catalog|map|doctor\\/[^/]+|facility\\/[^/]+|condition\\/[^/]+|pharmacies(?:\\/[^/]+)?|labs(?:\\/[^/]+(?:\\/[^/]+)?)?|radiology(?:\\/[^/]+(?:\\/[^/]+)?)?|services(?:\\/[^/]+(?:\\/[^/]+)?)?|doctors\\/[^/]+(?:\\/[^/]+(?:\\/[^/]+)?)?|home-nursing(?:\\/[^/]+)?|voice))?\\/?$`);
-
-function isPublicIndexable(pathname: string) {
-  return isPublicLocaleHome(pathname) || PUBLIC_INDEXABLE.test(pathname);
-}
-
 // F82-3: the translated page that answers when a public page failed with no cached copy (app/[locale]/unavailable). It is
 // static, so it takes the stamping path like a public page; it is never indexed and never stored.
 const UNAVAILABLE_PAGE = new RegExp(`^\\/${LOCALE}\\/unavailable\\/?$`);
@@ -95,6 +82,8 @@ export async function proxy(request: NextRequest) {
   const policy = contentSecurityPolicy(nonce);
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
+  // The page a gated route came from, so the sign-in can send the patient back to it (lib/auth/session.ts).
+  requestHeaders.set("x-nabd-path", `${pathname}${request.nextUrl.search}`);
   requestHeaders.set("Content-Security-Policy", policy);
 
   const requestWithNonce = new NextRequest(request, { headers: requestHeaders });

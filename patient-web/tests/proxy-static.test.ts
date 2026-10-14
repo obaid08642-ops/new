@@ -92,9 +92,9 @@ describe("the dynamic twins of the list pages and the unavailable page are confi
       expect(rewrite.source).toContain(":locale(ar|en|ur|hi|bn|fil)");
     }
     const keys = (path: string) => rewrites.filter((r) => r.source.includes(path)).map((r) => r.has[0].key).sort();
-    expect(keys("/c/:path*")).toEqual(["page", "q"]);
-    expect(keys("/consultations/doctors")).toEqual(["q", "sort", "specialty"]);
-    expect(keys("/articles")).toEqual(["category", "q"]);
+    expect(keys("/c/:path*")).toEqual(["page", "q", "sort"]);
+    expect(keys("/consultations/doctors")).toEqual(["available", "city", "lat", "lng", "nearest", "payment", "q", "sort", "specialty", "type"]);
+    expect(keys("/articles")).toEqual(["category", "q", "tab"]);
   });
 
   it("next.config.ts runs them (and the unavailable page's, on the nonce server's header) before the filesystem", async () => {
@@ -102,7 +102,7 @@ describe("the dynamic twins of the list pages and the unavailable page are confi
     const config = (await import("../next.config")).default as { rewrites?: () => Promise<{ beforeFiles: Array<{ source: string; has?: Array<{ type: string; key: string; value?: string }> }> }> };
     const { beforeFiles } = await config.rewrites!();
     const { UNAVAILABLE_FALLBACK_HEADER } = await import("../lib/security/query-twin");
-    expect(beforeFiles.filter((r) => r.has?.[0]?.type === "query")).toHaveLength(7);
+    expect(beforeFiles.filter((r) => r.has?.[0]?.type === "query")).toHaveLength(16);
     const fallback = beforeFiles.find((r) => r.has?.[0]?.type === "header")!;
     expect(fallback.has![0]).toMatchObject({ key: UNAVAILABLE_FALLBACK_HEADER, value: "1" });
     expect(fallback.source).toBe("/:locale(ar|en|ur|hi|bn|fil)/:path*");

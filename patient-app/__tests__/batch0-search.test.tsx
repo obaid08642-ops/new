@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import SearchRoute from '../app/search/index';
 import { apiFetch } from '../src/utils/api';
 import { isOffline } from '../src/utils/isOffline';
-import { blocksFor, countByFilter, routeFor, sponsoredFirst, type SearchResult } from '../src/utils/searchResults';
+import { blocksFor, countByFilter, fromGrouped, routeFor } from '../src/utils/searchResults';
 
 const mockRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn(), canGoBack: jest.fn(() => true) };
 let mockParams: Record<string, string> = {};
@@ -33,17 +33,25 @@ const ui = (
   </SafeAreaProvider>
 );
 
-/** Fixture rows shaped like GET /home/search (fixtures live in the tests only, never in the screen). */
-const ROWS: SearchResult[] = [
-  { id: 'm1', type: 'دواء', typeEn: 'Medicine', name: 'باراسيتامول 500', nameEn: 'Paracetamol 500', sub: 'سيتامول', subEn: 'Paracetamol', price: '12', priceEn: '12' },
-  { id: 'm2', type: 'دواء', name: 'باراسيتامول شراب', nameEn: 'Paracetamol syrup', sub: 'شراب', price: '0' },
-  { id: 'm3', type: 'دواء', name: 'باراسيتامول 1000', nameEn: 'Paracetamol 1000' },
-  { id: 'm4', type: 'دواء', name: 'باراسيتامول فوار', nameEn: 'Paracetamol effervescent' },
-  { id: 'd1', type: 'دكتور', typeEn: 'Doctor', name: 'د. سارة', nameEn: 'Dr. Sara', sub: 'باطنية', price: '200', priceEn: '200' },
-  { id: 'l1', type: 'تحليل', name: 'صورة دم', nameEn: 'CBC', sub: 'CBC', price: '60', priceEn: '60' },
-  { id: 'r1', type: 'أشعة', name: 'أشعة صدر', nameEn: 'Chest X-ray', price: '150', priceEn: '150' },
-  { id: 'p1', type: 'باقة', name: 'باقة فحص شامل', nameEn: 'Full check-up', sponsored: true, price: '300', priceEn: '300' },
-];
+/** Fixtures shaped like the grouped GET /search answer (D-29; fixtures live in the tests only, never in the screen). */
+const item = (type: string, id: string, name: string, price: number | null = null, extra: Record<string, unknown> = {}) =>
+  ({ id, type, section: null, name, name_locale: 'ar', price, requires_prescription: false, ...extra });
+const answer = (en = false) => ({
+  query: 'x', engine: 'mongo', groups: [
+    { type: 'medicine', items: [
+      item('medicine', 'm1', en ? 'Paracetamol 500' : 'باراسيتامول 500', 12),
+      item('medicine', 'm2', en ? 'Paracetamol syrup' : 'باراسيتامول شراب', 0),
+      item('medicine', 'm3', en ? 'Paracetamol 1000' : 'باراسيتامول 1000'),
+      item('medicine', 'm4', en ? 'Paracetamol effervescent' : 'باراسيتامول فوار'),
+    ] },
+    { type: 'doctor', items: [item('doctor', 'd1', en ? 'Dr. Sara' : 'د. سارة', 200, { specialty: 'internal_medicine' })] },
+    { type: 'lab_test', items: [item('lab_test', 'l1', en ? 'CBC' : 'صورة دم', 60)] },
+    { type: 'radiology', items: [item('radiology', 'r1', en ? 'Chest X-ray' : 'أشعة صدر', 150)] },
+    { type: 'nursing', items: [item('nursing', 'n1', en ? 'Injection at home' : 'حقنة في المنزل', 120)] },
+  ],
+});
+const EMPTY = { query: 'x', engine: 'mongo', groups: [] };
+const ROWS = fromGrouped(answer());
 
 const type = async (text: string) => {
   await fireEvent.changeText(screen.getByLabelText('بحث'), text);
@@ -76,7 +84,7 @@ describe('Search screen (board Search)', () => {
 
   it('recent searches come from the phone: tapping one searches it, "Clear" empties the list', async () => {
     await AsyncStorage.setItem('@nabdah_recent_searches', JSON.stringify(['بنادول', 'فيتامين د']));
-    (apiFetch as jest.Mock).mockResolvedValue([]);
+    (apiFetch as jest.Mock).mockResolvedValue(EMPTY);
     await render(ui);
     await waitFor(() => expect(screen.getByText('عمليات البحث الأخيرة')).toBeTruthy());
     expect(screen.getByLabelText('بنادول')).toBeTruthy();
@@ -86,16 +94,16 @@ describe('Search screen (board Search)', () => {
   });
 
   it('typing searches after the debounce and draws the results in blocks with counts on the chips', async () => {
-    (apiFetch as jest.Mock).mockResolvedValue(ROWS);
+    (apiFetch as jest.Mock).mockResolvedValue(answer());
     await render(ui);
     await type('باراسيتامول');
     expect(apiFetch).not.toHaveBeenCalled(); // debounced
-    await waitFor(() => expect(apiFetch).toHaveBeenCalledWith(`/home/search?q=${encodeURIComponent('باراسيتامول')}`), { timeout: 3000 });
+    await waitFor(() => expect(apiFetch).toHaveBeenCalledWith(`/search?q=${encodeURIComponent('باراسيتامول')}&locale=ar&limit=10`), { timeout: 3000 });
     await waitFor(() => expect(screen.getByText('أدوية ومنتجات')).toBeTruthy());
     // blocks of the board (the chips carry the same words, so the titles are found by their heading role)
     expect(screen.getByRole('header', { name: 'أطباء' })).toBeTruthy();
     expect(screen.getByRole('header', { name: 'تحاليل وأشعة' })).toBeTruthy();
-    expect(screen.getByRole('header', { name: 'عروض' })).toBeTruthy();
+    expect(screen.getByRole('header', { name: 'خدمات تمريض' })).toBeTruthy();
     // chips: only kinds that have results, each with its real count; "All" counts everything
     expect(screen.getByLabelText('الكل 8')).toBeTruthy();
     expect(screen.getByLabelText('أدوية 4')).toBeTruthy();
@@ -104,10 +112,10 @@ describe('Search screen (board Search)', () => {
     // medicines preview 3 rows with a "see all (4)" link; a "0" price is not drawn, a real one is
     expect(screen.getByLabelText('الكل (4)')).toBeTruthy();
     expect(screen.queryByText('باراسيتامول فوار')).toBeNull();
-    expect(screen.getByLabelText('باراسيتامول 500. سيتامول. 12 ر.س')).toBeTruthy();
-    expect(screen.getByLabelText('باراسيتامول شراب. شراب')).toBeTruthy();
-    // sponsored results carry the ad marker
-    expect(screen.getByText('إعلان')).toBeTruthy();
+    expect(screen.getByLabelText('باراسيتامول 500. 12 ر.س')).toBeTruthy();
+    expect(screen.getByLabelText('باراسيتامول شراب')).toBeTruthy();
+    // nothing is promoted: no ad marker (decision 29)
+    expect(screen.queryByText('إعلان')).toBeNull();
     // the upload card is the board's last block
     expect(screen.getByText('رفع الوصفة')).toBeTruthy();
     // the search is remembered
@@ -115,41 +123,42 @@ describe('Search screen (board Search)', () => {
   });
 
   it('a chip filters, "see all" jumps to the kind, and a result opens its real route', async () => {
-    (apiFetch as jest.Mock).mockResolvedValue(ROWS);
+    (apiFetch as jest.Mock).mockResolvedValue(answer());
     mockParams = { q: 'باراسيتامول' };
     await render(ui);
     await waitFor(() => expect(screen.getByText('أدوية ومنتجات')).toBeTruthy(), { timeout: 3000 });
     await fireEvent.press(screen.getByLabelText('الكل (4)'));
     expect(screen.getByLabelText('أدوية 4').props.accessibilityState.selected).toBe(true);
-    expect(screen.queryByLabelText('د. سارة. باطنية. 200 ر.س')).toBeNull(); // the doctors block is gone
+    expect(screen.queryByLabelText('د. سارة. 200 ر.س')).toBeNull(); // the doctors block is gone
     expect(screen.queryByText('تحاليل وأشعة')).toBeNull();
     expect(screen.getByLabelText('باراسيتامول فوار')).toBeTruthy(); // all four now
-    await fireEvent.press(screen.getByLabelText('باراسيتامول 500. سيتامول. 12 ر.س'));
+    await fireEvent.press(screen.getByLabelText('باراسيتامول 500. 12 ر.س'));
     expect(mockRouter.push).toHaveBeenCalledWith({ pathname: '/pharmacy/product-detail', params: { id: 'm1' } });
   });
 
   it('English reads the English fields and translates the labels', async () => {
     mockLang = 'en';
-    (apiFetch as jest.Mock).mockResolvedValue(ROWS);
+    (apiFetch as jest.Mock).mockResolvedValue(answer(true));
     mockParams = { q: 'para' };
     await render(ui);
     await waitFor(() => expect(screen.getByText('Medicines and products')).toBeTruthy(), { timeout: 3000 });
-    expect(screen.getByLabelText('Paracetamol 500. Paracetamol. 12 SAR')).toBeTruthy();
+    expect(screen.getByLabelText('Paracetamol 500. 12 SAR')).toBeTruthy();
+    expect(apiFetch).toHaveBeenCalledWith('/search?q=para&locale=en&limit=10');
     expect(screen.getByLabelText('Search')).toBeTruthy();
   });
 
   it('no results: an empty state and the prescription upload, never a blank page', async () => {
-    (apiFetch as jest.Mock).mockResolvedValue([]);
+    (apiFetch as jest.Mock).mockResolvedValue(EMPTY);
     mockParams = { q: 'xyz' };
     await render(ui);
     await waitFor(() => expect(screen.getByText('لا توجد نتائج')).toBeTruthy(), { timeout: 3000 });
     expect(screen.getByText('رفع الوصفة')).toBeTruthy();
     await fireEvent.press(screen.getByText('رفع الوصفة'));
-    expect(mockRouter.push).toHaveBeenCalledWith('/pharmacy/scan-prescription');
+    expect(mockRouter.push).toHaveBeenCalledWith('/pharmacy/rx-order?via=photo');
   });
 
   it('a failed search shows the error state with a retry that searches again', async () => {
-    (apiFetch as jest.Mock).mockRejectedValueOnce(new Error('boom')).mockResolvedValueOnce(ROWS);
+    (apiFetch as jest.Mock).mockRejectedValueOnce(new Error('boom')).mockResolvedValueOnce(answer());
     mockParams = { q: 'باراسيتامول' };
     await render(ui);
     await waitFor(() => expect(screen.getByText('تعذر تنفيذ البحث')).toBeTruthy(), { timeout: 3000 });
@@ -174,16 +183,33 @@ describe('Search screen (board Search)', () => {
 });
 
 describe('search result rules', () => {
-  it('counts per chip, blocks per chip, sponsored first, and the routes of every kind', () => {
+  it('counts per chip, blocks per chip, and the routes of every kind', () => {
     const counts = countByFilter(ROWS);
-    expect(counts).toMatchObject({ all: 8, meds: 4, doctors: 1, labs: 1, radiology: 1, offers: 1 });
-    expect(blocksFor(ROWS, 'all').map((b) => b.section.key)).toEqual(['meds', 'doctors', 'tests', 'offers']);
+    expect(counts).toMatchObject({ all: 8, meds: 4, doctors: 1, labs: 1, radiology: 1, nursing: 1 });
+    expect(blocksFor(ROWS, 'all').map((b) => b.section.key)).toEqual(['meds', 'doctors', 'tests', 'nursing']);
     expect(blocksFor(ROWS, 'radiology').map((b) => b.section.key)).toEqual(['tests']);
     expect(blocksFor(ROWS, 'radiology')[0].rows).toHaveLength(1);
-    expect(sponsoredFirst([{ sponsored: false, id: 'a' }, { sponsored: true, id: 'b' }]).map((r) => r.id)).toEqual(['b', 'a']);
     expect(routeFor({ id: 'x', type: 'دكتور' })).toBe('/consultations/doctor/x');
+    expect(routeFor({ id: 'cardiology', type: 'تخصص' })).toEqual({ pathname: '/search', params: { view: 'doctors', specialty: 'cardiology' } });
+    expect(routeFor({ id: 'n1', type: 'تمريض' })).toEqual({ pathname: '/nursing/service-details', params: { serviceId: 'n1' } });
     expect(routeFor({ id: 'x', type: 'أشعة' })).toEqual({ pathname: '/diagnostics/test-detail', params: { id: 'x', type: 'radiology' } });
     expect(routeFor({ id: 'x', slug: 's', type: 'مقال' })).toBe('/articles/s');
     expect(routeFor({ type: 'دواء' })).toBeNull();
+  });
+});
+
+describe('grouped answer (D-29)', () => {
+  it('maps the API types to the page kinds, opens a specialty by its code and an article by its slug, and drops unknown rows', () => {
+    const rows = fromGrouped({ groups: [
+      { type: 'specialty', items: [{ id: 'spec-cardiology', type: 'specialty', name: 'القلب', code: 'cardiology' }] },
+      { type: 'article', items: [{ id: 'a-uuid', type: 'article', name: 'الحمى', slug: 'fever' }] },
+      { type: 'lab_package', items: [{ id: 'pkg', type: 'lab_package', name: 'باقة', price: 400 }] },
+      { type: 'other', items: [{ id: 'x', type: 'other', name: 'x' }] },
+    ] });
+    expect(rows.map((r) => [r.type, r.id])).toEqual([['تخصص', 'cardiology'], ['مقال', 'a-uuid'], ['تحليل', 'pkg']]);
+    expect(routeFor(rows[1])).toBe('/articles/fever');
+    expect(rows[2].price).toBe('400');
+    expect(fromGrouped(null)).toEqual([]);
+    expect(fromGrouped([])).toEqual([]);
   });
 });

@@ -7,35 +7,35 @@ vi.mock("next-intl", () => ({
 }));
 vi.mock("@/components-next/core/core-shell", () => ({ CoreShell: ({ children }: { children: unknown }) => children }));
 
-import { NotificationSettingsClient, type SettingRow } from "@/app/[locale]/notifications/settings/notification-settings-client";
+import { AppearanceLanguage } from "@/components-next/settings/appearance-language";
+import { SwitchList, type SwitchRow } from "@/components-next/settings/switch-list";
 import { ResultItem, SearchClient } from "@/app/[locale]/search/search-client";
 
 // Fixture props live in this test only; the shipped pages read the API.
-const labels = {
-  appearance: "appearance", appearanceAuto: "auto", appearanceLight: "light", appearanceDark: "dark", appearanceHint: "hint",
-  language: "language", notifications: "notifications", channels: "channels", saveFailed: "failed", unavailable: "unavailable",
-};
-const rows: SettingRow[] = [
-  { group: "categories", key: "appointments", label: "Appointments", value: true },
-  { group: "categories", key: "marketing", label: "Offers", value: false },
-  { group: "channels", key: "email", label: "Email", value: false },
+const rows: SwitchRow[] = [
+  { id: "categories.appointments", group: "categories", key: "appointments", label: "Appointments", value: true },
+  { id: "categories.marketing", group: "categories", key: "marketing", label: "Offers", value: false },
+  { id: "channels.email", group: "channels", key: "email", label: "Email", value: false },
 ];
 
-describe("notification settings screen", () => {
-  it("draws the board's rows: a segmented appearance, six languages, a named switch per setting", () => {
-    const html = renderToStaticMarkup(<NotificationSettingsClient locale="ar" rows={rows} labels={labels} />);
+// The Batch 0 notification-settings screen was split in Batch 12 (merge map section 3): appearance and language are
+// `/settings/language`, the switches are `/settings/notifications`. The assertions are the old ones, one per new component.
+describe("settings language screen", () => {
+  it("draws the board's rows: a segmented appearance and the six languages", () => {
+    const html = renderToStaticMarkup(<AppearanceLanguage locale="ar" />);
     expect((html.match(/role="radio"/g) || []).length).toBe(3 + 6); // 3 appearance options + 6 languages
     expect(html).toContain('role="radiogroup"');
+    expect(html).not.toContain("style=");
+  });
+});
+
+describe("notification switches", () => {
+  it("draws a named switch per setting", () => {
+    const html = renderToStaticMarkup(<SwitchList kind="notifications" label="Notifications" rows={rows} />);
     expect((html.match(/role="switch"/g) || []).length).toBe(3);
     expect(html).toMatch(/role="switch" aria-checked="true" aria-label="Appointments"/);
     expect(html).toMatch(/role="switch" aria-checked="false" aria-label="Offers"/);
     expect(html).not.toContain("style=");
-  });
-
-  it("says so, instead of showing switches, when the API sent no settings", () => {
-    const html = renderToStaticMarkup(<NotificationSettingsClient locale="en" rows={[]} labels={labels} />);
-    expect(html).toContain("unavailable");
-    expect(html).not.toContain('role="switch"');
   });
 });
 

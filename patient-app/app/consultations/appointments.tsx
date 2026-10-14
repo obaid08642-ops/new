@@ -7,6 +7,7 @@ import { Glyph } from '../../src/components/pharmacy/PharmacyKit';
 import { useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useConsultations } from '../../src/context/ConsultationsContext';
 import { statusCode, statusIs } from '../../src/utils/statusCase';
+import { PAST, UPCOMING } from '../../src/utils/appointmentTabs';
 
 /**
  * My appointments — board Appointments (canvas/Appointments.dc.html). The list is what GET /care/appointments returns
@@ -14,9 +15,6 @@ import { statusCode, statusIs } from '../../src/utils/statusCase';
  * status allow: the waiting room (online), the clinic's place (clinic), the visit tracking (home), edit or cancel, and
  * "book again" for a finished visit with a known doctor.
  */
-
-const UPCOMING = ['confirmed', 'pending'];
-const PAST = ['completed', 'cancelled'];
 
 export default function AppointmentsScreen() {
   const { theme, c, k } = useScreenUi();
@@ -38,7 +36,7 @@ export default function AppointmentsScreen() {
   const primary = (id: string, mode: VisitMode | null) => {
     if (mode === 'online') return { label: k('consult.appt.waitingRoom'), onPress: () => open(id, '/consultations/virtual-waiting-room'), flex: true };
     if (mode === 'home') return { label: k('consult.appt.trackVisit'), onPress: () => open(id, '/consultations/home-visit-tracking'), tone: 'ink' as const, flex: true };
-    if (mode === 'clinic') return { label: k('consult.appt.directions'), onPress: () => open(id, '/consultations/clinic-location'), tone: 'ink' as const, flex: true };
+    if (mode === 'clinic') return { label: k('consult.appt.directions'), onPress: () => router.push({ pathname: '/consultations/booking-status', params: { appointmentId: id, state: 'confirmed', view: 'location' } } as unknown as Href), tone: 'ink' as const, flex: true };
     return null;
   };
 

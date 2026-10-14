@@ -1,0 +1,19 @@
+/* The loyalty hub and the offers (Batch 11; no board: the CareHub hero, rows and tabs). The shell, cards, rows and tabs come from core,
+   pharmacy/rx.module.css, health/health.module.css and consult/consult.module.css; this file adds the progress bar, the referral
+   code and the price line. Tokens only, logical properties only, no inline styles. */
+
+.progress { inline-size: 100%; block-size: 8px; accent-color: var(--nabd-tone-fg); }
+.code { margin: 0; text-align: center; font-size: var(--nabd-font-size-h2); font-weight: 700; letter-spacing: 0.12em; color: var(--nabd-color-action-primary-bg); overflow-wrap: anywhere; }
+.pad { display: flex; flex-direction: column; gap: 12px; min-inline-size: 0; }
+.fieldHint { margin: 0; font-size: var(--nabd-font-size-small); color: var(--nabd-color-text-secondary); }
+.prices { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; min-inline-size: 0; }
+.price { font-size: var(--nabd-font-size-h3); font-weight: 700; font-variant-numeric: tabular-nums; }
+.was { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); text-decoration: line-through; font-variant-numeric: tabular-nums; }
+.pillRow { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.cardLink { display: flex; flex-direction: column; gap: 10px; color: inherit; text-decoration: none; min-inline-size: 0; }
+.cardLink:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; border-radius: var(--nabd-radius-3xl); }
+.cover { inline-size: 100%; block-size: auto; max-block-size: 220px; object-fit: cover; border-radius: var(--nabd-radius-3xl); background: var(--nabd-color-bg-sunken); }
+.delta { font-weight: 700; font-variant-numeric: tabular-nums; }
+.deltaUp { color: var(--nabd-color-status-success-fg); }
+.deltaDown { color: var(--nabd-color-status-danger-fg); }
+.tiles3 { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 10px; }

@@ -1,5 +1,6 @@
 // No zod: the result screen is a client component. Everything here only READS what the server sent; it never decides
 // that a payment happened. "Paid" is the server's word (`payment_status: "paid"` on the order, or a verified transaction).
+import { governedStep } from "./governed-step";
 
 function record(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
@@ -33,7 +34,7 @@ export function parseOrderPaymentView(payload: unknown): OrderPaymentView | null
   const coverage = text(source.coverage_mode);
   return {
     status: text(source.status),
-    governedState: text(source.governed_state),
+    governedState: governedStep(source.governed_state),
     coverageMode: coverage === "cash" || coverage === "insurance" ? coverage : undefined,
     paymentStatus: text(source.payment_status),
     totals: totals ? { subtotal: num(totals.subtotal), deliveryFee: num(totals.delivery_fee), total: num(totals.total), currency: text(totals.currency) } : undefined,

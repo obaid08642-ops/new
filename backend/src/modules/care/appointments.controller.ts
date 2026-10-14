@@ -4,6 +4,7 @@ import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth
 import { UserRole } from '../../common/enums';import { ApptState } from '../../schemas/appointment.schema';
 import { CreateAppointmentDto, CancelAppointmentDto, RescheduleAppointmentDto, JoinWaitlistDto} from './appointments.dto';
 import { FinishAppointmentDto, CancelDto } from './appointments.generated.dto';
+import { Permission, RequirePermissions } from '../../common/permissions';
 
 @Controller('care/appointments')
 @SelfService()
@@ -22,6 +23,11 @@ export class AppointmentsController {
     return this.svc.listMine(user, status);
   }
 
+  @Get('calls/mine')
+  myCalls(@CurrentUser() user: any) {
+    return this.svc.callsFor(user);
+  }
+
   @Get(':id')
   one(@Param('id') id: string, @CurrentUser() user: any) {
     return this.svc.one(user, id);
@@ -35,6 +41,11 @@ export class AppointmentsController {
   @Patch(':id/cancel')
   cancel(@Param('id') id: string, @CurrentUser() user: any, @Body() body: CancelAppointmentDto) {
     return this.svc.cancel(id, user, body?.reason);
+  }
+
+  @Get(':id/refund/preview')
+  refundPreview(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.svc.previewRefund(id, user);
   }
 
   @Patch(':id/reschedule')
@@ -53,6 +64,18 @@ export class AppointmentsController {
   @Roles(UserRole.DOCTOR, UserRole.HOSPITAL, UserRole.ADMIN, UserRole.PATIENT)
   checkIn(@Param('id') id: string, @CurrentUser() user: any) {
     return this.svc.checkIn(id, user);
+  }
+
+  @Patch(':id/en-route')
+  @Roles(UserRole.DOCTOR, UserRole.ADMIN)
+  enRoute(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.svc.enRoute(id, user);
+  }
+
+  @Patch(':id/arrive')
+  @Roles(UserRole.DOCTOR, UserRole.ADMIN)
+  arrive(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.svc.arrive(id, user);
   }
 
   @Patch(':id/start')
@@ -78,6 +101,11 @@ export class AppointmentsController {
     return this.svc.getSummary(id, user);
   }
 
+  @Get(':id/call')
+  call(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.svc.callJoin(id, user);
+  }
+
 }
 
 /**
@@ -95,6 +123,7 @@ export class AdminAppointmentsController {
     return this.svc.adminList(Math.min(Math.max(Number(limit) || 50, 1), 200), status);
   }
 
+  @RequirePermissions(Permission.ORDER_CANCEL)
   @Post(':id/cancel')
   cancel(@Param('id') id: string, @Body() body: CancelDto, @CurrentUser() user: any) {
     return this.svc.cancel(id, { ...user, role: UserRole.ADMIN }, body?.reason);

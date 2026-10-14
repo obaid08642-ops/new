@@ -1,8 +1,9 @@
+import { PROVIDER_ROLES } from '../../common/enums';
 import { isProviderRole } from '../../common/enums';
 import { Controller, Post, Get, Patch, Delete, Body, Param, Query, Req, Inject } from '@nestjs/common';
 import { ServiceUnavailableException } from '@nestjs/common';
 import { DisableDto, EndConsultationDto, IssueSickLeaveDto, IssueMedicalReportDto, SetAvailDto, PreviewAdHocDto, DispatchDto, WithdrawAliasDto, UploadProfileImageDto, ReplaceImageDto, AssignStaffDto } from './provider.controllers.dto';
-import { RegisterDto, LoginDto, RefreshDto, LogoutDto, SendOtpDto, VerifyEmailDto, ForgotDto, VerifyResetCodeDto, ResetDto, AddPhoneDto, UploadDocDto, UploadDocDto2, UpsertBankDto, SubmitDeltaDto, SubmitDeltaDto2, InviteDto, AcceptDto, UpdateDto2, RejectDeltaDto, RejectDeltaDto2, ApproveDto, RejectDto, NeedsChangesDto, SuspendDto, ReactivateDto, AcceptDto2, RejectDto2, StartDto, CompleteDto, CancelDto, UpsertPharmaDto, UpsertLabDto, UpsertLabDto2, UpsertRadDto, UpsertRadDto2, UpsertDocDto, UpsertDocDto2, UpsertHcDto, UpsertHcDto2, UpsertDto, UpsertDto2 } from './provider.controllers.generated.dto';
+import { RegisterDto, LoginDto, RefreshDto, LogoutDto, SendOtpDto, VerifyEmailDto, ForgotDto, VerifyResetCodeDto, ResetDto, AddPhoneDto, UploadDocDto, UploadDocDto2, UpsertBankDto, SubmitDeltaDto, SubmitDeltaDto2, InviteDto, AcceptDto, UpdateDto2, RejectDeltaDto, RejectDeltaDto2, ApproveDto, RejectDto, NeedsChangesDto, SuspendDto, ReactivateDto, ReviewDocumentDto, AcceptDto2, RejectDto2, StartDto, CompleteDto, CancelDto, UpsertPharmaDto, UpsertLabDto, UpsertLabDto2, UpsertRadDto, UpsertRadDto2, UpsertDocDto, UpsertDocDto2, UpsertHcDto, UpsertHcDto2, UpsertDto, UpsertDto2 } from './provider.controllers.generated.dto';
 import { LedgerService } from '../finance-engine/finance-engine.module';
 import { ChangePasswordDto, UpdateProfileDto, InsuranceCopayDto, SeedUnassignedDto } from './provider.patch.dto';
 import { ProviderAuthService } from './services/provider-auth.service';
@@ -22,6 +23,7 @@ import { AssignmentStrategyService } from './services/assignment-strategy.servic
 import { ProviderImageProcessorService } from './services/provider-image-processor.service';
 import { Public, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { Permission, RequirePermissions } from '../../common/permissions';
 import { OtpPurpose } from './schemas';
 
 function meta(req: any) { return { ip: req?.ip || req?.headers?.['x-forwarded-for'], ua: req?.headers?.['user-agent'] }; }
@@ -94,14 +96,17 @@ export class ProviderProfileController {
 
   @SelfService()
   @Post('bank-account') upsertBank(@CurrentUser() u: any, @Body() body: UpsertBankDto) { return this.svc.upsertBank(u, body); }
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('bank-account') getBank(@CurrentUser() u: any) { return this.svc.getBank(u); }
   @Public() @Get('banks') banks() { return this.svc.banks_list(); }
 
+  // D-32: the provider app's own photo route had no access declaration, so the write guard answered 403 to every doctor.
+  @Roles(...PROVIDER_ROLES, 'provider')
   @Post('profile/image/upload')
   async uploadProfileImage(@CurrentUser() user: any, @Body() body: UploadProfileImageDto) {
     return this.processor.enqueueJob({
       owner_id: user.id,
-      owner_type: user.role === 'nurse' ? 'nurse' : 'doctor',
+      owner_type: user.role === 'nurse' || user.provider_type === 'nurse' ? 'nurse' : 'doctor',
       data_base64: body.data_base64,
       mime: body.mime,
       original_name: body.original_name,
@@ -149,12 +154,23 @@ export class ProviderAdminController {
   // any provider user and must see every registration detail, same as moderation).
   @Get('by-user/:userId') byUser(@CurrentUser() u: any, @Param('userId') userId: string) { return this.svc.detailByUser(u, userId); }
   @Get('provider-deltas') getDeltas(@CurrentUser() u: any) { return this.svc.listDeltas(u); }
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post('provider-deltas/:id/approve') approveDelta(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.approveDelta(u, id); }
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post('provider-deltas/:id/reject') rejectDelta(@CurrentUser() u: any, @Param('id') id: string, @Body() body: RejectDeltaDto) { return this.svc.rejectDelta(u, id, body); }
   @Get(':id') detail(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.detail(u, id); }
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/approve') approve(@CurrentUser() u: any, @Param('id') id: string, @Body() body: ApproveDto) { return this.svc.approve(u, id, body); }
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/reject') reject(@CurrentUser() u: any, @Param('id') id: string, @Body() body: RejectDto) { return this.svc.reject(u, id, body); }
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/approve-bank') approveBank(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.approveBank(u, id); }
+  // B-4 (#940): licence review per document — each licence file is decided
+  // on its own instead of bulk-approving everything with the account.
+  @RequirePermissions(Permission.FACILITY_EDIT)
+  @Post(':id/documents/:docId/approve') approveDocument(@CurrentUser() u: any, @Param('id') id: string, @Param('docId') docId: string, @Body() body: ReviewDocumentDto) { return this.svc.reviewDocument(u, id, docId, 'approve', body?.note || body?.reason); }
+  @RequirePermissions(Permission.FACILITY_EDIT)
+  @Post(':id/documents/:docId/reject') rejectDocument(@CurrentUser() u: any, @Param('id') id: string, @Param('docId') docId: string, @Body() body: ReviewDocumentDto) { return this.svc.reviewDocument(u, id, docId, 'reject', body?.reason || body?.note); }
 
   @Post(':id/reprocess-image')
   async reprocessImage(@Param('id') id: string) {
@@ -175,8 +191,11 @@ export class ProviderAdminController {
   async getImageLogs(@Param('id') id: string) {
     return this.processor.getImageLogs(id);
   }
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/request-changes') needsChanges(@CurrentUser() u: any, @Param('id') id: string, @Body() body: NeedsChangesDto) { return this.svc.requestChanges(u, id, body); }
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/suspend') suspend(@CurrentUser() u: any, @Param('id') id: string, @Body() body: SuspendDto) { return this.svc.suspend(u, id, body); }
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/reactivate') reactivate(@CurrentUser() u: any, @Param('id') id: string, @Body() body: ReactivateDto) { return this.svc.reactivate(u, id, body); }
 }
 
@@ -297,7 +316,8 @@ export class ProviderRequestsController {
       provider_id: String(u?.id), booking_id: id, booking_kind: 'provider_request',
       service_type: preq.type || 'consultation', price, policy,
       copay_amount: patientShare, copay_percent: price > 0 ? Math.round((patientShare / price) * 10000) / 100 : 0,
-      approval_code: approvalCode || null, state,
+      // #830/#846: one approval number, under the names the insurance engine uses (never `approval_code`)
+      insurer_approval_code: approvalCode || null, approval_ref: approvalCode || null, state,
       decided_by: String(u?.id), decided_at: new Date(),
       ...(rejected ? { rejection_reason: String(reason).trim() } : {}),
       updatedAt: new Date(),

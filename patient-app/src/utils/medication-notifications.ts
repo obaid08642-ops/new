@@ -42,7 +42,8 @@ type MedicationNotificationData = {
   reminder_id: string;
   time_key: string;
   source: 'local';
-  screen: '/health/medication-reminder-list';
+  screen: '/health/medications';
+  params: { tab: 'reminders' };
   important: 'true' | 'false';
   snoozed?: 'true';
 };
@@ -158,7 +159,8 @@ function notificationData(reminder: LocalMedicationReminder, timeKey: string, im
     reminder_id: reminder.id,
     time_key: timeKey,
     source: 'local',
-    screen: '/health/medication-reminder-list',
+    screen: '/health/medications',
+    params: { tab: 'reminders' },
     important: important ? 'true' : 'false',
     ...(snoozed ? { snoozed: 'true' } : {}),
   };

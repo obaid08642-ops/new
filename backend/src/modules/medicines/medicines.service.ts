@@ -1,4 +1,6 @@
 import { Injectable, NotFoundException, Inject, BadRequestException, Logger, Optional } from '@nestjs/common';
+import { Permission } from '../../common/permissions';
+import { hasEffectivePermission } from '../../common/effective-permissions';
 import { Cron } from '@nestjs/schedule';
 import { Model } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -6,6 +8,9 @@ import { Connection } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Medicine, MedicineDocument } from '../../schemas/medicine.schema';
 import { EVENTS } from '../../common/events';
+import { clampPageInt } from '../../common/safe-query';
+import { PurgeBus } from '../../common/purge-bus';
+import { connectionFlagSource, isKilled } from '../../common/killswitches/killswitches.helper';
 import { MedicineRepository } from "./repositories/medicine.repository";
 import { RedisService } from '../redis/redis.service';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
@@ -31,6 +36,7 @@ export class MedicinesService {
     @Optional() private readonly seoPipeline?: AutoEntitySeoPipelineService,
     @Optional() private readonly rankingService?: ProductRankingService,
     @Optional() private readonly manualBoosts?: ManualBoostsService,
+    @Optional() private readonly purgeBus?: PurgeBus,
   ) {}
 
   /** R77: labeled sponsored flags from the governed manual layer (order untouched). */
@@ -39,7 +45,8 @@ export class MedicinesService {
     try {
       const ids = await this.manualBoosts.activeIds();
       if (ids.size === 0) return items;
-      return items.map((m: any) => (m && ids.has(String(m.id)) ? { ...m, sponsored: true } : m));
+      // A prescription-only item is never promoted (owner decisions 10 and 29).
+      return items.map((m: any) => (m && ids.has(String(m.id)) && m.requires_prescription !== true ? { ...m, sponsored: true } : m));
     } catch { return items; }
   }
 
@@ -116,7 +123,7 @@ export class MedicinesService {
 
   /** Typo-tolerant regex: letters joined by ≤2 arbitrary chars (catches dropped/added letters). */
   private tolerantRegex(term: string): string {
-    const clean = term.replace(/[.*+?^${}()|[\]\\]/g, '').trim();
+    const clean = term.replace(/[.*+?^${}()|[\]\\\u0000-\u001F\u007F-\u009F]/g, '').trim();
     if (clean.length < 3) return clean;
     return clean.split('').join('.{0,2}'); // MongoDB-PCRE safe (no \p classes)
   }
@@ -141,7 +148,7 @@ export class MedicinesService {
     const rows: any[] = await this.model.find(
       { ...this.publicCatalogFilter(), category: normalizedCategory },
       MedicinesService.CARD_PROJECTION,
-    ).sort({ name_ar: 1, id: 1 }).limit(500);
+    ).sort({ name_ar: 1, id: 1 }).maxTimeMS(5000).limit(500); // 14.15: bound worst-case latency
     return rows.map((row: any) => {
       const raw = row?.toObject ? row.toObject() : row;
       const localized = localizeMedicineStructured(raw, dbLocale);
@@ -167,25 +174,35 @@ export class MedicinesService {
 
   private buildQuery(search?: string, category?: string, includeUnverified = true) {
     const q: any = includeUnverified ? { is_deleted: { $ne: true } } : this.publicCatalogFilter();
+    // User text is matched literally: control characters dropped (MongoDB rejects a NUL in a
+    // regex), regex metacharacters escaped (an input like "+" made the pattern invalid: 500,
+    // and raw patterns are a ReDoS vector), length capped.
+    if (typeof search === 'string') search = search.replace(/[\u0000-\u001F\u007F-\u009F]/g, ' ').trim().slice(0, 100);
+    // Fuzz gate (15.6): same NUL-byte hardening for the category filter — an
+    // exact-match on a NUL-containing string makes MongoDB throw (500).
+    // Garbage sanitizes to empty/undefined and matches nothing (200 []).
+    if (typeof category === 'string') category = category.replace(/[\u0000-\u001F\u007F-\u009F]/g, '').trim().slice(0, 100) || undefined;
     if (search) {
+      const esc = (v: string) => v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const lit = esc(search);
       const norm = this.normalizeSearchText(search);
       const ors: any[] = [
-        { name_ar: { $regex: search, $options: 'i' } },
-        { name_en: { $regex: search, $options: 'i' } },
-        { active_ingredient: { $regex: search, $options: 'i' } },
-        { generic_name: { $regex: search, $options: 'i' } },
-        { barcode: { $regex: `^${search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' } }, // barcode prefix match
-        { manufacturer: { $regex: search, $options: 'i' } },
+        { name_ar: { $regex: lit, $options: 'i' } },
+        { name_en: { $regex: lit, $options: 'i' } },
+        { active_ingredient: { $regex: lit, $options: 'i' } },
+        { generic_name: { $regex: lit, $options: 'i' } },
+        { barcode: { $regex: `^${lit}$`, $options: 'i' } }, // barcode exact match
+        { manufacturer: { $regex: lit, $options: 'i' } },
       ];
       // Normalized search_text (hamza/taa/alef-insensitive) + synonym expansion.
       // search_text is stored lowercase-normalized, so a CASE-SENSITIVE prefix
       // regex (^norm) uses the btree index — the fast path for most queries.
       if (norm) {
         ors.unshift({ search_text: { $regex: `^${norm.replace(/[.*+?^${}()|[\]\\]/g, '')}` } });
-        ors.push({ search_text: { $regex: norm, $options: 'i' } });
+        ors.push({ search_text: { $regex: esc(norm), $options: 'i' } });
       }
       for (const syn of this.expandSynonyms(search).slice(0, 4)) {
-        if (syn !== search) ors.push({ name_en: { $regex: syn, $options: 'i' } }, { name_ar: { $regex: syn, $options: 'i' } }, { search_text: { $regex: this.normalizeSearchText(syn), $options: 'i' } });
+        if (syn !== search) ors.push({ name_en: { $regex: esc(syn), $options: 'i' } }, { name_ar: { $regex: esc(syn), $options: 'i' } }, { search_text: { $regex: esc(this.normalizeSearchText(syn)), $options: 'i' } });
       }
       q.$or = ors;
     }
@@ -225,7 +242,9 @@ export class MedicinesService {
         'رعاية منزلية': 'الرعاية الصحية المنزلية والأجهزة الطبية',
         'الرعاية الصحية المنزلية والأجهزة الطبية': 'الرعاية الصحية المنزلية والأجهزة الطبية',
       };
-      const resolved = CANONICAL_MAP[category.toLowerCase()] || CANONICAL_MAP[category] || category;
+      // Own keys only: a query value like "__proto__" must not resolve to Object.prototype (500).
+      const own = (k: string) => (Object.prototype.hasOwnProperty.call(CANONICAL_MAP, k) ? CANONICAL_MAP[k] : undefined);
+      const resolved = own(category.toLowerCase()) || own(category) || category;
       const cleanTerm = resolved.replace(/^ال/, '').trim();
       const escaped = cleanTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       if (q.$or) {
@@ -243,13 +262,28 @@ export class MedicinesService {
   private trackSearch(term: string | undefined, resultsCount: number, userId?: string) {
     const t = (term || '').trim();
     if (!t || t.length < 2) return;
-    this.conn.collection('search_queries').insertOne({
-      term: t,
-      term_lc: t.toLowerCase(),
-      user_id: userId || null,
-      results_count: resultsCount,
-      createdAt: new Date(),
-    }).catch(() => { /* analytics must never slow search */ });
+    // Kill switch (analytics ingestion): accept-and-drop. Search results are
+    // unaffected; only the search_queries write is skipped. The flag read stays
+    // async/off-path so search latency never depends on it.
+    this.analyticsIngestAllowed().then((ok) => {
+      if (!ok) return;
+      this.conn.collection('search_queries').insertOne({
+        term: t,
+        term_lc: t.toLowerCase(),
+        user_id: userId || null,
+        results_count: resultsCount,
+        createdAt: new Date(),
+      }).catch(() => { /* analytics must never slow search */ });
+    }).catch(() => { /* analytics must never break search */ });
+  }
+
+  /** False only when analytics ingestion is explicitly killed (fail-open). */
+  private async analyticsIngestAllowed(): Promise<boolean> {
+    try {
+      return !(await isKilled('analyticsIngestion', connectionFlagSource(this.conn)));
+    } catch {
+      return true;
+    }
   }
 
   /**
@@ -259,6 +293,11 @@ export class MedicinesService {
   async didYouMean(term: string) {
     const t = (term || '').trim().toLowerCase();
     if (t.length < 3) return { suggestion: null };
+    // Kill switch (search suggestions): direct matches only, no suggestion
+    // expansion and no suggester (pool) reads.
+    if (await isKilled('searchSuggestions', connectionFlagSource(this.conn))) {
+      return { suggestion: null, alternatives: [], query: term };
+    }
 
     const lev = (a: string, b: string): number => {
       const m = a.length, n = b.length;
@@ -399,10 +438,12 @@ export class MedicinesService {
   /** Compute list badges so catalog rows can render RX/discount/shortage chips. */
   private withBadges(m: any) {
     const price = m.price || 0;
-    const old = m.old_price || 0;
+    // D-10: no discount or offer is shown on prescription-only items.
+    const old = m.requires_prescription === true ? 0 : (m.old_price || 0);
     const discount_percent = old > price && price > 0 ? Math.round((1 - price / old) * 100) : 0;
+    const { old_price: _hiddenOldPrice, ...rest } = m;
     return {
-      ...m,
+      ...(m.requires_prescription === true ? rest : m),
       discount_percent,
       has_discount: discount_percent > 0,
       potentially_unavailable: m.availability_status === 'availability_may_be_limited' || m.availability_status === 'admin_flagged_shortage',
@@ -420,7 +461,8 @@ export class MedicinesService {
     sort = 'smart_ranking',
     pharmacyId?: string,
   ) {
-    const cap = Math.min(Math.max(maxItems || 500, 1), 500);
+    const cap = clampPageInt(maxItems || 500, 1, 500);
+    if (typeof category === 'string') category = category.replace(/[\u0000-\u001F\u007F-\u009F]/g, '').trim().slice(0, 100) || undefined;
     const cacheKey = `med:list:governed-v2:${search || ''}:${category || ''}:${includeUnverified}:${cap}:${sort}:${pharmacyId || 'global'}`;
     const cached = await this.redis.getJson<any[]>(cacheKey);
     if (cached) return cached;
@@ -510,8 +552,9 @@ export class MedicinesService {
     sort = 'smart_ranking',
     pharmacyId?: string,
   ) {
-    const safeLimit = Math.min(Math.max(limit, 1), 100);
-    const safePage = Math.max(page, 1);
+    const safeLimit = clampPageInt(limit, 30, 100);
+    const safePage = clampPageInt(page, 1);
+    if (typeof category === 'string') category = category.replace(/[\u0000-\u001F\u007F-\u009F]/g, '').trim().slice(0, 100) || undefined;
     const cacheKey = `med:page:governed-v2:${search || ''}:${category || ''}:${includeUnverified}:${safePage}:${safeLimit}:${sort}:${pharmacyId || 'global'}`;
     const cached = await this.redis.getJson<any>(cacheKey);
     if (cached) return cached;
@@ -564,11 +607,50 @@ export class MedicinesService {
   }
 
   /**
+   * #450/#472: the governed catalogue with the pharmacy screens' filters (forms, brands, prescription-only, price
+   * range) and orders (price ascending/descending, newest; otherwise the usual relevance order). A list when no page
+   * is asked, else { data, total, page, limit, total_pages }.
+   */
+  async filtered(
+    search: string | undefined,
+    category: string | undefined,
+    f: { forms: string[]; brands: string[]; rx_only: boolean; min_price?: number; max_price?: number },
+    sort: string,
+    page: number | undefined,
+    limit = 30,
+  ) {
+    const q: any = this.buildQuery(search, (category && category !== 'all') ? category : undefined, false);
+    const and: any[] = q.$and ? [...q.$and] : [];
+    delete q.$and;
+    const anyOf = (field: string, values: string[]) => ({ $or: values.map((v) => ({ [field]: { $regex: escapeRegex(v), $options: 'i' } })) });
+    if (f.forms.length) and.push(anyOf('form', f.forms));
+    if (f.brands.length) and.push(anyOf('manufacturer', f.brands));
+    if (f.rx_only) q.requires_prescription = true;
+    if (f.min_price !== undefined || f.max_price !== undefined) {
+      q.price = { $gt: 0, ...(f.min_price !== undefined ? { $gte: f.min_price } : {}), ...(f.max_price !== undefined ? { $lte: f.max_price } : {}) };
+    } else if (sort === 'price_asc' || sort === 'price_desc') {
+      q.price = { $gt: 0 }; // a missing price is not the cheapest
+    }
+    if (and.length) q.$and = and;
+    const order: any = sort === 'price_asc' ? { price: 1, id: 1 }
+      : sort === 'price_desc' ? { price: -1, id: 1 }
+      : sort === 'newest' ? { createdAt: -1, id: 1 }
+      : { verified: -1, usage_count: -1, name_ar: 1 };
+    const safeLimit = clampPageInt(limit, 30, 100);
+    const safePage = page === undefined ? 1 : clampPageInt(page, 1);
+    const find = this.model.find(q, MedicinesService.CARD_PROJECTION).sort(order).skip((safePage - 1) * safeLimit).limit(safeLimit);
+    const rows = (await find as any[]).map((m: any) => this.withBadges(m?.toObject ? m.toObject() : m));
+    if (page === undefined) return rows;
+    const total = await (this.model as any).countDocuments(q);
+    return { data: rows, total, page: safePage, limit: safeLimit, total_pages: Math.ceil(total / safeLimit) };
+  }
+
+  /**
    * Cursor-based catalog browsing (O(1) page turns at any depth, no skip-scan).
    * Cursor encodes the last item's (name_ar, id); the next page continues after it.
    */
   async cursorPage(search: string | undefined, category: string | undefined, cursor: string | undefined, limit = 30) {
-    const safeLimit = Math.min(Math.max(limit, 1), 100);
+    const safeLimit = clampPageInt(limit, 30, 100);
     const q: any = this.publicCatalogFilter();
     if (search) Object.assign(q, this.buildQuery(search, category, false));
     else if (category) q.category = category;
@@ -647,7 +729,7 @@ export class MedicinesService {
       const term = t._id;
       if (!term || term.length < 3) continue;
       const hits = await this.model.find(
-        { $or: [{ name_ar: { $regex: term, $options: 'i' } }, { name_en: { $regex: term, $options: 'i' } }], ...this.publicCatalogFilter() },
+        { $or: [{ name_ar: { $regex: escapeRegex(String(term)), $options: 'i' } }, { name_en: { $regex: escapeRegex(String(term)), $options: 'i' } }], ...this.publicCatalogFilter() },
         { _id: 0, id: 1 } as any,
       ).limit(50);
       for (const h of hits as any[]) {
@@ -745,6 +827,24 @@ export class MedicinesService {
         if (keys.length) await client.del(...keys);
       }
     } catch { /* cache invalidation is best-effort */ }
+    this.schedulePurge();
+  }
+
+  private purgeTimer: NodeJS.Timeout | null = null;
+
+  /**
+   * 14.8: every catalogue write (price, availability, image, approval, import) ends in
+   * invalidateCache, so the edge purge (Cloudflare tag + Next revalidateTag) starts here.
+   * Writes in one burst (a CSV import, a bulk approve) share one purge 500 ms later, well
+   * inside the 5 s budget. A purge failure is logged and never fails the write.
+   */
+  private schedulePurge(): void {
+    if (!this.purgeBus || this.purgeTimer) return;
+    this.purgeTimer = setTimeout(() => {
+      this.purgeTimer = null;
+      this.purgeBus!.purge(['medicines']).catch((e: any) => this.logger.error(`purge medicines failed: ${e?.message || e}`));
+    }, 500);
+    this.purgeTimer.unref?.();
   }
 
   // ── Pre-computed Aggregations Cron Jobs (Task 2.5) ─────────────────
@@ -831,7 +931,7 @@ export class MedicinesService {
 
     // 2) Fuzzy match on name / active_ingredient (in case scanner read a textual code)
     const fuzzy = await this.model.findOne(
-      { $or: [{ name_en: { $regex: c, $options: 'i' } }, { active_ingredient: { $regex: c, $options: 'i' } }], ...this.publicCatalogFilter() },
+      { $or: [{ name_en: { $regex: escapeRegex(c), $options: 'i' } }, { active_ingredient: { $regex: escapeRegex(c), $options: 'i' } }], ...this.publicCatalogFilter() },
       { _id: 0, __v: 0 },
     ).lean();
     if (fuzzy) return { found: true, source: 'fuzzy', medicine: fuzzy, codes_tried: candidates };
@@ -885,8 +985,10 @@ export class MedicinesService {
     return {
       categories: categories.filter(Boolean),
       brands: brands.filter(Boolean),
-      forms: forms.length ? forms.filter(Boolean) : ['أقراص', 'كبسولات', 'شراب', 'حقن', 'كريم / مرهم', 'نقط'],
-      sortOptions: ['الأكثر مبيعاً', 'السعر: من الأقل للأعلى', 'السعر: من الأعلى للأقل', 'الأحدث']
+      // Needs-review #449: only forms that exist in the public catalogue (no invented fallback list).
+      forms: forms.filter(Boolean),
+      // #450: the ids GET /medicines accepts as `sort` (the screens translate them); no display text from the server.
+      sortOptions: ['relevant', 'price_asc', 'price_desc', 'newest'],
     };
   }
 
@@ -922,7 +1024,12 @@ export class MedicinesService {
       med.active_ingredient
         ? this.model.find(
             { active_ingredient: med.active_ingredient, id: { $ne: id }, ...this.publicCatalogFilter() },
-            { _id: 0, id: 1, name_ar: 1, name_en: 1, price: 1, manufacturer: 1, requires_prescription: 1 },
+            // Needs-review issue 460: the alternative cards also need a picture, the pack and the name in every language.
+            {
+              _id: 0, id: 1, name_ar: 1, name_en: 1, price: 1, manufacturer: 1, requires_prescription: 1,
+              image_1: 1, images: { $slice: 1 }, package_size: 1,
+              ...Object.fromEntries((['ur', 'hi', 'bn', 'tl'] as const).map((lang) => [`translations.${lang}.name`, 1])),
+            },
           ).limit(8)
         : [],
       this.aggregateStock(id),
@@ -940,12 +1047,22 @@ export class MedicinesService {
       raw.image,
     ].filter((u: any, i: number, arr: any[]) => typeof u === 'string' && u.length > 4 && arr.indexOf(u) === i);
 
-    // Dynamic discount — old_price is the pre-discount price
+    // Dynamic discount — old_price is the pre-discount price. D-10: never on prescription-only items.
+    const rx = raw.requires_prescription === true;
     const price = raw.price || 0;
-    const old = raw.old_price || 0;
+    const old = rx ? 0 : (raw.old_price || 0);
     const discount_percent = old > price && price > 0 ? Math.round((1 - price / old) * 100) : 0;
 
-    const localizedRaw = localizeMedicineStructured(raw, lang);
+    const localizedRaw: any = localizeMedicineStructured(raw, lang);
+    if (rx) delete localizedRaw.old_price;
+    // Alternatives follow the same rule (each one is checked on its own flag).
+    const altsOut = Array.isArray(alts)
+      ? alts.map((a: any) => {
+        if (a?.requires_prescription !== true) return a;
+        const { old_price: _hidden, ...rest } = a?.toObject ? a.toObject() : a;
+        return { ...rest, discount_percent: 0, has_discount: false };
+      })
+      : alts;
 
     return {
       ...localizedRaw,
@@ -957,7 +1074,7 @@ export class MedicinesService {
       potentially_unavailable: raw.availability_status === 'availability_may_be_limited' || raw.availability_status === 'admin_flagged_shortage',
       discontinued: raw.availability_status === 'discontinued',
       available: raw.availability_status === 'none' || !raw.availability_status,
-      alternatives: alts,
+      alternatives: altsOut,
       stock_status: stock,
     };
   }
@@ -1139,8 +1256,8 @@ export class MedicinesService {
 
   /** Admin: list shortage reports (filterable by status, paginated). */
   async listShortageReports(status = 'pending', page = 1, limit = 20): Promise<any> {
-    const safeLimit = Math.min(Math.max(limit, 1), 100);
-    const safePage = Math.max(page, 1);
+    const safeLimit = clampPageInt(limit, 30, 100);
+    const safePage = clampPageInt(page, 1);
     const filter = status === 'all' ? {} : { status };
     const [rows, total] = await Promise.all([
       this.shortageReports.find(filter, { projection: { _id: 0 } })
@@ -1287,14 +1404,14 @@ export class MedicinesService {
 
   /** Admin: list image suggestions. */
   async listImageSuggestions(status = 'pending', page = 1, limit = 20): Promise<any> {
-    const safeLimit = Math.min(Math.max(limit, 1), 100);
+    const safeLimit = clampPageInt(limit, 30, 100);
     const filter = status === 'all' ? {} : { status };
     const [rows, total] = await Promise.all([
       this.imageSuggestions.find(filter, { projection: { _id: 0 } })
-        .sort({ createdAt: -1 }).skip((Math.max(page, 1) - 1) * safeLimit).limit(safeLimit).toArray(),
+        .sort({ createdAt: -1 }).skip((clampPageInt(page, 1) - 1) * safeLimit).limit(safeLimit).toArray(),
       this.imageSuggestions.countDocuments(filter),
     ]);
-    return { data: rows, total, page: Math.max(page, 1), total_pages: Math.ceil(total / safeLimit) };
+    return { data: rows, total, page: clampPageInt(page, 1), total_pages: Math.ceil(total / safeLimit) };
   }
 
   /** Admin: approve → new image goes live in R2, old one deleted, DB updated. */
@@ -1434,11 +1551,19 @@ export class MedicinesService {
   private get changeRequests() { return this.conn.collection('catalog_change_requests'); }
 
   /** Fields a change-request (or admin direct edit) may touch — mass-assignment whitelist. */
+  /** Editable fields whose change needs a fresh medical review before the item is public again. */
+  static readonly REVIEW_FIELDS = new Set([
+    'name_ar', 'name_en', 'active_ingredient', 'generic_name', 'description_ar', 'description_en', 'dosage_ar', 'dosage_en',
+    'form', 'strength', 'usage_instructions_ar', 'usage_instructions_en', 'requires_prescription',
+    'indications_ar', 'indications_en', 'contraindications_ar', 'contraindications_en',
+    'warnings_ar', 'warnings_en', 'side_effects_ar', 'side_effects_en', 'precautions_ar', 'precautions_en', 'interactions',
+  ]);
+
   static readonly EDITABLE_FIELDS = [
     'name_ar', 'name_en', 'active_ingredient', 'generic_name', 'manufacturer',
     'category', 'sub_category', 'brand', 'description_ar', 'description_en', 'dosage_ar', 'dosage_en',
     'form', 'strength', 'usage_instructions_ar', 'usage_instructions_en',
-    'requires_prescription', 'barcode', 'price', 'images', 'image',
+    'requires_prescription', 'controlled', 'online_exclusive', 'barcode', 'price', 'sfda_price', 'images', 'image',
     'indications_ar', 'indications_en', 'contraindications_ar', 'contraindications_en',
     'warnings_ar', 'warnings_en', 'side_effects_ar', 'side_effects_en',
     'precautions_ar', 'precautions_en', 'interactions', 'package_size', 'storage_conditions',
@@ -1517,15 +1642,15 @@ export class MedicinesService {
 
   /** Admin: list change requests with filters. */
   async listChangeRequests(status = 'pending', type?: string, page = 1, limit = 20): Promise<any> {
-    const safeLimit = Math.min(Math.max(limit, 1), 100);
+    const safeLimit = clampPageInt(limit, 30, 100);
     const filter: any = status === 'all' ? {} : { status };
     if (type) filter.type = type;
     const [rows, total] = await Promise.all([
       this.changeRequests.find(filter, { projection: { _id: 0 } })
-        .sort({ createdAt: -1 }).skip((Math.max(page, 1) - 1) * safeLimit).limit(safeLimit).toArray(),
+        .sort({ createdAt: -1 }).skip((clampPageInt(page, 1) - 1) * safeLimit).limit(safeLimit).toArray(),
       this.changeRequests.countDocuments(filter),
     ]);
-    return { data: rows, total, page: Math.max(page, 1), total_pages: Math.ceil(total / safeLimit) };
+    return { data: rows, total, page: clampPageInt(page, 1), total_pages: Math.ceil(total / safeLimit) };
   }
 
   /** Admin: approve → the proposed change is applied to the catalog NOW.
@@ -1593,10 +1718,15 @@ export class MedicinesService {
 
   /** Admin: direct edit of any catalog item (search → edit → save, no request needed). */
   /** Admin catalog browser: paginated, searchable, incl. soft-deleted filter. */
-  async adminListCatalog(opts: { q?: string; category?: string; page?: number; limit?: number; includeDeleted?: boolean }) {
-    const page = Math.max(1, opts.page || 1);
-    const limit = Math.min(100, Math.max(1, opts.limit || 25));
+  async adminListCatalog(opts: { q?: string; category?: string; page?: number; limit?: number; includeDeleted?: boolean; status?: string }) {
+    const page = clampPageInt(opts.page, 1);
+    const limit = clampPageInt(opts.limit, 25, 100);
     const filter: any = {};
+    // B-4 (#947): items-to-review queue — the catalog manager filters by
+    // medical review status. Allowlisted: exact match, never a regex.
+    if (opts.status && ['pending', 'approved', 'rejected', 'suspended'].includes(opts.status)) {
+      filter.medical_review_status = opts.status;
+    }
     // AuditPlugin auto-hides deleted docs unless the query pins is_deleted:true —
     // so includeDeleted needs two parallel queries (active + deleted) merged.
     if (opts.category) filter.category = opts.category;
@@ -1671,6 +1801,19 @@ export class MedicinesService {
   async adminApproveCatalog(medicineId: string, approve: boolean, adminId: string) {
     const med: any = await this.model.findOne({ id: medicineId }, { _id: 0, __v: 0 }).lean();
     if (!med) throw new NotFoundException('الصنف غير موجود');
+    // F8: a waiting revision is published (applied as the approver's edit) or discarded; the approved version stays.
+    if (med.pending_revision && typeof med.pending_revision === 'object') {
+      const changes = { ...(med.pending_revision.changes || {}) };
+      await this.model.updateOne({ id: medicineId }, { $set: { pending_revision: null } });
+      if (approve) {
+        await this.applyCatalogEdit(medicineId, changes, adminId);
+        this.audit('medicine.revision_approved', medicineId, adminId, 'admin', { changes, submitted_by: med.pending_revision.submitted_by });
+      } else {
+        this.audit('medicine.revision_rejected', medicineId, adminId, 'admin', { changes, submitted_by: med.pending_revision.submitted_by });
+      }
+      await this.invalidateCache();
+      return { ok: true, id: medicineId, revision: approve ? 'approved' : 'rejected', medical_review_status: med.medical_review_status };
+    }
     await this.model.updateOne(
       { id: medicineId },
       { $set: { medical_review_status: approve ? 'approved' : 'rejected', public_eligibility: !!approve, verified: approve ? true : med.verified, last_reviewed: new Date(), updated_by: adminId, updatedAt: new Date() } },
@@ -1682,8 +1825,8 @@ export class MedicinesService {
 
   /** Admin reports: top-selling medicines + most-reported-unavailable. */
   async getPriceHistory(medicineId: string, page = 1, limit = 50): Promise<{ data: any[]; total: number; page: number; pages: number }> {
-    const safePage = Math.max(1, page);
-    const safeLimit = Math.min(100, Math.max(1, limit));
+    const safePage = clampPageInt(page, 1);
+    const safeLimit = clampPageInt(limit, 50, 100);
     const [data, total] = await Promise.all([
       this.priceHistory.find({ medicine_id: medicineId }, { projection: { _id: 0 } }).sort({ createdAt: -1 }).skip((safePage - 1) * safeLimit).limit(safeLimit).toArray(),
       this.priceHistory.countDocuments({ medicine_id: medicineId }),
@@ -1720,7 +1863,47 @@ export class MedicinesService {
     };
   }
 
+  /**
+   * F8 (owner decision 2026-10-05, pending revision "b"): an edit to a PUBLISHED item by an editor without
+   * catalog.approve is stored as `pending_revision` (joined with any earlier pending edit); patients keep the approved
+   * version until an approver publishes it (adminApproveCatalog). An approver's edit and an edit to a draft are applied
+   * directly.
+   */
   async adminUpdateCatalog(medicineId: string, patch: any, adminId: string) {
+    const found: any = await this.getById(medicineId);
+    const med: any = typeof found?.toObject === 'function' ? found.toObject() : found;
+    if (!med) throw new NotFoundException('الصنف غير موجود');
+    const published = med.public_eligibility === true || med.indexing_eligibility === true || med.medical_review_status === 'approved';
+    if (!published || await this.canApproveCatalog(adminId)) return this.applyCatalogEdit(medicineId, patch, adminId);
+
+    const clean = this.pickEditable(patch);
+    const changes: Record<string, unknown> = { ...clean };
+    if (patch?.availability_status !== undefined) changes.availability_status = patch.availability_status;
+    if (patch?.image !== undefined) changes.image = patch.image;
+    if (Object.keys(changes).length === 0) throw new BadRequestException('patch must include at least one editable field');
+    if (clean.price !== undefined && Number(clean.price) !== Number(med.price || 0) && String(patch?.reason || '').trim().length < 5) {
+      throw new BadRequestException('price_change_reason_required');
+    }
+    const prev = med.pending_revision && typeof med.pending_revision === 'object' ? med.pending_revision : null;
+    const reason = String(patch?.reason || '').trim() || (prev?.changes as any)?.reason;
+    const revision = {
+      changes: { ...(prev?.changes || {}), ...changes, ...(reason ? { reason } : {}) },
+      submitted_by: adminId,
+      submitted_at: new Date(),
+    };
+    await this.model.updateOne({ id: medicineId }, { $set: { pending_revision: revision, updatedAt: new Date() } });
+    this.audit('medicine.revision_submitted', medicineId, adminId, 'admin', { changes });
+    return { ok: true, updated: Object.keys(changes), requires_reapproval: true, pending_revision: true };
+  }
+
+  /** Whether this staff account holds catalog.approve (role, custom roles or direct permissions). */
+  private async canApproveCatalog(userId: string): Promise<boolean> {
+    const user: any = await this.conn.collection('users').findOne({ id: { $eq: String(userId) } });
+    if (!user) return false;
+    return hasEffectivePermission(this.conn, user, Permission.CATALOG_APPROVE);
+  }
+
+  private async applyCatalogEdit(medicineId: string, patch: any, adminId: string) {
     // getById returns a mongoose document: spreading it ({ ...med }) drops `id`, and the publication
     // refresh below then ran with an undefined id -> 404 to the admin after the edit was already saved.
     const found: any = await this.getById(medicineId);
@@ -1742,11 +1925,15 @@ export class MedicinesService {
     }
     const before: any = {};
     for (const f of Object.keys({ ...clean, ...extra })) before[f] = med[f] ?? null;
-    // Any public content change requires a fresh medical review. Availability-only
-    // changes still refresh the public projection but do not bypass this rule.
-    const requiresReapproval = med.public_eligibility === true
+    // A change to MEDICAL content (names, ingredients, form, strength, the clinical texts, the prescription flag)
+    // needs a fresh medical review and takes a published item down until then. Operational fields (price,
+    // availability, images, barcode, category, the 'controlled' and 'online only' flags) do not: a price
+    // correction must not unpublish an approved medicine (admin journey 2). Setting 'controlled' only restricts.
+    const wasPublished = med.public_eligibility === true
       || med.indexing_eligibility === true
       || med.medical_review_status === 'approved';
+    // F8: an edit reaching here is an approver's (published directly) or a draft's (stays unpublished): no reset.
+    const requiresReapproval = false;
     const governanceReset = requiresReapproval ? {
       verified: false,
       public_eligibility: false,
@@ -1758,6 +1945,29 @@ export class MedicinesService {
     await this.model.updateOne({ id: medicineId }, { $set: { ...clean, ...extra, ...governanceReset, updatedAt: new Date() } });
     if (clean.price !== undefined && Number(clean.price) !== Number(med.price || 0)) {
       await this.priceHistory.insertOne({ id: `mph_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`, medicine_id: medicineId, before_price: Number(med.price || 0), after_price: Number(clean.price), reason: String(patch.reason).trim(), changed_by: adminId, createdAt: new Date() });
+    }
+    // B-4 (#945): the change log covers every edited field, not just the
+    // price. One row per changed field (price/sfda keep their legacy shapes
+    // above); the price-history read already returns every row per medicine.
+    {
+      const afterAll: any = { ...clean, ...extra };
+      const reason = String(patch?.reason || patch?.sfda_price_reason || '').trim() || null;
+      for (const field of Object.keys(afterAll)) {
+        if (field === 'price' || field === 'sfda_price' || field === 'sfda_price_reason') continue;
+        const prev = med[field] ?? null;
+        const next = afterAll[field];
+        if (JSON.stringify(prev) === JSON.stringify(next)) continue;
+        await this.priceHistory.insertOne({ id: `mch_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`, medicine_id: medicineId, field, before: prev, after: next, reason, changed_by: adminId, createdAt: new Date() });
+      }
+    }
+    // D-12: the catalogue price ceiling is an operational field (no re-review) with its own source and
+    // date; every change is audit-logged with the old and new value.
+    if (clean.sfda_price !== undefined) {
+      const next = Number(clean.sfda_price);
+      if (!Number.isFinite(next) || next <= 0) throw new BadRequestException('invalid_sfda_price');
+      const prev = med.sfda_price ?? null;
+      await this.model.updateOne({ id: medicineId }, { $set: { sfda_price: next, sfda_price_source: `admin ${adminId}`, sfda_price_updated_at: new Date() } });
+      if (Number(prev) !== next) this.audit('medicine.sfda_price_changed', medicineId, adminId, 'admin', { before_sfda_price: prev, after_sfda_price: next });
     }
     // Physically delete any image the edit removed (main image, gallery
     // entries, image_1..5 slots) from R2 — no orphaned files on the CDN.
@@ -1774,8 +1984,9 @@ export class MedicinesService {
     const merged = { ...med, ...after };
     const removed = collectImgs(med).filter(u => !collectImgs(merged).includes(u));
     for (const url of removed) this.events.emit('storage.delete_by_url', { url });
-    if (requiresReapproval) {
-      await this.refreshPublicProjection({ ...med, ...after, ...governanceReset }, adminId, 'medicine_admin_edit_reapproval');
+    // A published item is refreshed either way: taken down for review, or re-published with the new price/image.
+    if (wasPublished) {
+      await this.refreshPublicProjection({ ...med, ...after, ...governanceReset }, adminId, requiresReapproval ? 'medicine_admin_edit_reapproval' : 'medicine_admin_edit');
     }
     this.audit('medicine.admin_direct_edit', medicineId, adminId, 'admin', { before, after, requires_reapproval: requiresReapproval, images_deleted: removed });
     await this.invalidateCache();

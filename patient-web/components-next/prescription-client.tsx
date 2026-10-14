@@ -1,24 +1,32 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { ConsultState } from "@/components-next/consult/consult-state";
+import { useCart } from "@/lib/context/CartContext";
+import { reminderPayload, toMedicationViews, type MedicationView } from "@/lib/consult/prescription-view";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/consult/consult.module.css";
 
-type Med = { id?: string; name?: string; name_ar?: string; dose?: string; dosage?: string; freq?: string; frequency?: string; duration?: string; instruction?: string };
-type Prescription = { id?: string; appointment_id?: string; appointmentId?: string; title_ar?: string; title_en?: string; doctor_name?: string; diagnosis?: string; medications?: Med[] };
+type Prescription = { id?: string; appointment_id?: string; appointmentId?: string; title_ar?: string; title_en?: string; doctor_name?: string; diagnosis?: string; items?: unknown[]; medications?: unknown[] };
 
 function newIdempotencyKey(): string {
   if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-/** The doctor-issued prescription of an appointment: its medicines, a reminder for each, and the order from a pharmacy. */
-export function PrescriptionClient({ locale, appointmentId }: { locale: string; appointmentId?: string }) {
+/**
+ * The doctor-issued prescription of an appointment, a section of the appointment page (merge map 2, section 1): its medicines,
+ * a reminder for each, and the order. Decision 18: "order these medicines" puts the prescribed medicines that carry a catalogue
+ * product id into the (local) cart and opens it; with none, it opens the pharmacy's prescription order as before.
+ */
+export function PrescriptionClient({ locale, appointmentId }: { locale: string; appointmentId: string }) {
   const t = useTranslations("ConsultClient");
+  const router = useRouter();
+  const { addItem } = useCart();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [item, setItem] = useState<Prescription | null>(null);
@@ -29,13 +37,11 @@ export function PrescriptionClient({ locale, appointmentId }: { locale: string; 
     setLoading(true); setError(null);
     try {
       const res = await fetch("/api/patient/prescriptions/active", { cache: "no-store", credentials: "same-origin" });
+      if (!res.ok) throw new Error("load_failed");
       const data: unknown = await res.json().catch(() => null);
       const root = data as { data?: unknown } | null;
       const list: Prescription[] = Array.isArray(root?.data) ? (root.data as Prescription[]) : Array.isArray(data) ? (data as Prescription[]) : [];
-      const match = appointmentId
-        ? list.find((p) => String(p.appointment_id || p.appointmentId || "") === String(appointmentId)) || null
-        : list[0] || null;
-      setItem(match);
+      setItem(list.find((p) => String(p.appointment_id || p.appointmentId || "") === String(appointmentId)) || null);
     } catch {
       setError(t("rxLoadFailed"));
     } finally {
@@ -45,25 +51,18 @@ export function PrescriptionClient({ locale, appointmentId }: { locale: string; 
 
   useEffect(() => { void load(); }, [load]);
 
-  async function addReminder(med: Med) {
-    if (busy) return;
-    const key = String(med.id || med.name || med.name_ar || "");
-    if (!key || added.includes(key)) return;
+  async function addReminder(med: MedicationView) {
+    if (busy || added.includes(med.id)) return;
     setBusy(true);
     try {
       const res = await fetch("/api/patient/health/reminders", {
         method: "POST",
         headers: { "content-type": "application/json", "idempotency-key": newIdempotencyKey() },
         credentials: "same-origin",
-        body: JSON.stringify({
-          medication_name: med.name || med.name_ar || t("rxMedicineFallback"),
-          dosage: med.dosage || med.dose || "",
-          frequency: med.frequency || med.freq || "daily",
-          prescription_id: item?.id,
-        }),
+        body: JSON.stringify(reminderPayload(med, item?.id)),
       });
       if (!res.ok) throw new Error("reminder_failed");
-      setAdded((p) => [...p, key]);
+      setAdded((p) => [...p, med.id]);
     } catch {
       setError(t("rxReminderFailed"));
     } finally {
@@ -82,7 +81,12 @@ export function PrescriptionClient({ locale, appointmentId }: { locale: string; 
   }
   if (!item) return <ConsultState kind="empty" icon="prescription" title={t("rxNoneTitle")} body={t("rxNone")} />;
 
-  const meds: Med[] = Array.isArray(item.medications) ? item.medications : [];
+  const meds = toMedicationViews(item);
+  const orderable = meds.filter((m) => m.medicineId);
+  const orderThese = () => {
+    for (const med of orderable) addItem({ id: String(med.medicineId), name: med.name, rx: true });
+    router.push(`/${locale}/cart`);
+  };
   return (
     <div className={styles.stack}>
       <section className={rx.card} aria-labelledby="rx-title">
@@ -91,20 +95,23 @@ export function PrescriptionClient({ locale, appointmentId }: { locale: string; 
         {item.diagnosis ? <p className={`${styles.body} ${styles.muted}`}>{t("rxDiagnosis", { value: item.diagnosis })}</p> : null}
       </section>
       <ul className={styles.list} aria-label={t("rxMedicines")}>
-        {meds.map((m, i) => {
-          const key = String(m.id || m.name || m.name_ar || i);
-          const done = added.includes(key);
-          const dosing = [m.dosage || m.dose, m.frequency || m.freq, m.duration].filter(Boolean).join(" · ");
+        {meds.map((m) => {
+          const done = added.includes(m.id);
+          const dosing = [m.dose, m.durationDays ? t("rxDays", { n: m.durationDays }) : "", m.instruction].filter(Boolean).join(" · ");
           return (
-            <li key={key} className={rx.card}>
-              <span className={styles.rowTitle}>{m.name || m.name_ar}</span>
+            <li key={m.id} className={rx.card}>
+              <span className={styles.rowTitle}>{m.name}</span>
               {dosing ? <span className={styles.rowSub}>{dosing}</span> : null}
               <Button variant={done ? "ghost" : "outline"} size="sm" label={done ? t("rxInReminders") : t("rxAddReminder")} disabled={busy || done} onClick={() => void addReminder(m)} />
             </li>
           );
         })}
       </ul>
-      {item.id ? <ButtonLink href={`/${locale}/pharmacy/rx-order?prescriptionId=${encodeURIComponent(item.id)}`} label={t("rxOrder")} /> : null}
+      {orderable.length > 0 ? (
+        <Button label={t("rxOrder")} onClick={orderThese} />
+      ) : item.id ? (
+        <ButtonLink href={`/${locale}/pharmacy/rx-order?prescriptionId=${encodeURIComponent(item.id)}`} label={t("rxOrder")} />
+      ) : null}
     </div>
   );
 }

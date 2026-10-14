@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Query, BadRequestException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, BadRequestException, NotImplementedException, UseGuards } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { v4 as uuid } from 'uuid';
@@ -23,6 +23,15 @@ export class WearablesController {
   @Post('devices')
   async register(@CurrentUser() u: any, @Body() body: RegisterDto) {
     if (!body?.kind) throw new BadRequestException('kind_required');
+    // 667: registration stays behind the wearables_enabled kill-switch (default on).
+    try {
+      const cfg: any = await this.conn.collection('system_configs').findOne({ key: 'kill_switches' });
+      const sw = Array.isArray(cfg?.value) ? cfg.value.find((s: any) => s?.key === 'wearables_enabled') : null;
+      if (sw && sw.value === false) throw new NotImplementedException('wearable_provider_not_enabled');
+    } catch (e: any) {
+      if (e?.message === 'wearable_provider_not_enabled') throw e;
+      // Config store unavailable: stay open (current behaviour).
+    }
     const dev = {
       id: uuid(),
       user_id: uid(u),

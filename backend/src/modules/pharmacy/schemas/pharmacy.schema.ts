@@ -408,6 +408,8 @@ export class PharmacyOffer extends Document {
     qty_requested: number; qty_offered: number; inventory_item_id?: string;
     sku?: string; name_ar?: string; name_en?: string; unit_price?: number; currency?: string;
     inventory_price_updated_at?: Date;
+    above_catalogue_price?: boolean;
+    catalogue_price?: number;
   }>;
   @Prop({ type: Object, required: true }) totals: { subtotal: number; delivery_fee: number; total: number; currency: string };
   @Prop({ maxlength: 500 }) provider_note?: string;
@@ -460,6 +462,8 @@ export class PharmacyChatMessage extends Document {
   @Prop({ required: true }) sender_account_id: string;
   @Prop({ required: true, enum: ['patient', 'pharmacy', 'system'] }) sender_role: string;
   @Prop() text?: string;
+  /** System lines carry a code the patient apps translate (the Arabic text stays for the pharmacy app). */
+  @Prop() system_code?: 'substitute_accepted' | 'substitute_rejected' | 'item_removed';
   @Prop() image_uri?: string;
   @Prop({ type: Object }) substitute_offer?: { sku?: string; name?: string; active_ingredient?: string; brand?: string; dosage?: string; form?: string; image_uri?: string; price?: number; notes?: string };
   @Prop({ default: false }) blocked: boolean;

@@ -10,13 +10,14 @@ import { Button } from "@/components-next/ui-generated/components/Button";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { Input } from "@/components-next/ui-generated/components/Inputs";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
+import type { ReactNode } from "react";
 import type { Locale } from "@/lib/i18n";
 import { newIdempotencyKey } from "@/lib/pharmacy/broadcast";
 import { MAX_RX_FILE_BYTES, checkRxFile, ocrItems, postJsonWithProgress, prepareRxImage, uploadedPrescriptionId } from "@/lib/pharmacy/rx-upload";
 import { PHARMACY_TONE } from "./tones";
 import rx from "./rx.module.css";
 
-type Failure = "type" | "size" | "read" | "unreadable" | "ocr" | "save" | "session";
+type Failure = "type" | "size" | "read" | "unreadable" | "ocr" | "busy" | "save" | "session";
 type Phase =
   | { kind: "idle" }
   | { kind: "preparing" }
@@ -27,11 +28,12 @@ type Phase =
 const NOTE_MAX = 500;
 
 /**
- * The prescription upload (canvas/RxUpload). One photo, read by the OCR (POST /ai/prescription-ocr) and saved for the
+ * The photo and upload ways in of "order with a prescription" (canvas/RxUpload; `before` is the ways-in switch and `after` the
+ * patient's active prescriptions). One photo, read by the OCR (POST /ai/prescription-ocr) and saved for the
  * pharmacist (POST /prescriptions/upload); then the patient orders from it (/pharmacy/rx-order). The stages and the
  * progress shown are the real ones: what the server answered, and the bytes the browser has sent.
  */
-export function RxUploadScreen({ locale }: { locale: Locale }) {
+export function RxUploadScreen({ locale, via = "photo", before, after }: { locale: Locale; via?: "photo" | "upload"; before?: ReactNode; after?: ReactNode }) {
   const t = useTranslations("RxUpload");
   const flow = useTranslations("PharmacyFlow");
   const router = useRouter();
@@ -83,6 +85,8 @@ export function RxUploadScreen({ locale }: { locale: Locale }) {
         body: JSON.stringify({ image_base64: image }),
       });
       if (response.status === 401) return setPhase({ kind: "failed", reason: "session" });
+      // issue 504: the per-person limit (429) says "wait a minute", apart from the reader being unavailable
+      if (response.status === 429) return setPhase({ kind: "failed", reason: "busy" });
       if (!response.ok) return setPhase({ kind: "failed", reason: "ocr" });
       items = ocrItems(await response.json().catch(() => null));
     } catch {
@@ -120,6 +124,7 @@ export function RxUploadScreen({ locale }: { locale: Locale }) {
     read: t("errorRead"),
     unreadable: t("errorUnreadable"),
     ocr: t("errorOcr"),
+    busy: t("errorBusy"),
     save: t("errorSave"),
     session: flow("sessionEnded"),
   };
@@ -139,6 +144,7 @@ export function RxUploadScreen({ locale }: { locale: Locale }) {
     >
       <div className={rx.page}>
         <div className={rx.head}><h1 className={rx.title}>{t("title")}</h1></div>
+        {before}
 
         <input ref={cameraRef} type="file" accept="image/*" capture="environment" hidden aria-label={t("cameraInput")} onChange={(event) => void pick(event)} />
         <input ref={photosRef} type="file" accept="image/*" hidden aria-label={t("photosInput")} onChange={(event) => void pick(event)} />
@@ -148,8 +154,8 @@ export function RxUploadScreen({ locale }: { locale: Locale }) {
           <h2 className={rx.dropTitle}>{t("dropTitle")}</h2>
           <p className={rx.dropHint}>{t("dropHint")}</p>
           <div className={rx.dropButtons}>
-            <Button label={t("camera")} startIcon="camera" size="md" disabled={busy} onClick={() => cameraRef.current?.click()} />
-            <Button label={t("photos")} startIcon="image" variant="outline" size="md" disabled={busy} onClick={() => photosRef.current?.click()} />
+            {via === "photo" ? <Button label={t("camera")} startIcon="camera" size="md" disabled={busy} onClick={() => cameraRef.current?.click()} /> : null}
+            {via === "upload" ? <Button label={t("photos")} startIcon="image" size="md" disabled={busy} onClick={() => photosRef.current?.click()} /> : null}
           </div>
         </section>
 
@@ -198,13 +204,14 @@ export function RxUploadScreen({ locale }: { locale: Locale }) {
           <div className={rx.error} role="alert">
             {errorText[failure]}
             <div className={rx.errorActions}>
-              {failure === "unreadable" ? <Link className={rx.textLink} href={`/${locale}/pharmacy/request`}>{t("addByName")}</Link> : null}
+              {failure === "unreadable" || failure === "ocr" ? <Link className={rx.textLink} href={`/${locale}/pharmacy/rx-order?via=type`}>{t("addByName")}</Link> : null}
               {failure === "session" ? <Link className={rx.textLink} href={`/${locale}/login`}>{flow("signIn")}</Link> : null}
             </div>
           </div>
         ) : null}
 
         <div className={rx.deskActions}>{submitButton}</div>
+        {after}
       </div>
     </CoreShell>
   );

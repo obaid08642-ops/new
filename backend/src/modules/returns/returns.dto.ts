@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsIn, IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class CreateDto {
   @IsDefined()
@@ -8,6 +8,10 @@ export class CreateDto {
   @IsDefined()
   @IsString()
   reason: string;
+
+  @IsOptional()
+  @IsString()
+  reason_code?: string;
 
   @IsDefined()
   @IsString()
@@ -50,5 +54,16 @@ export class DecideDto {
 
   @IsOptional()
   @IsString()
+  note?: string;
+}
+
+/** P7: the pharmacy's view on a return. */
+export class ProviderRespondDto {
+  @IsBoolean()
+  agree!: boolean;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
   note?: string;
 }

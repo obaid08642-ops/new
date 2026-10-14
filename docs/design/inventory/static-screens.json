@@ -49,11 +49,6 @@
     "verdict": "static",
     "reason": "components-next/onboarding-permissions-client.tsx asks the browser for geolocation and Notification permission; no API call and nothing is stored."
   },
-  "/privacy": {
-    "file": "patient-web/app/[locale]/privacy/page.tsx",
-    "verdict": "static",
-    "reason": "Legal text rendered by components-next/legal-terms.tsx (LegalPrivacy); no fetch. Static by design."
-  },
   "/provider-info": {
     "file": "patient-web/app/[locale]/provider-info/page.tsx",
     "verdict": "static",
@@ -73,11 +68,6 @@
     "file": "patient-web/app/[locale]/settings/language/page.tsx",
     "verdict": "static",
     "reason": "components-next/locale-selector.tsx switches the locale in the URL; saved on the device only, as the page says. No backend field."
-  },
-  "/terms": {
-    "file": "patient-web/app/[locale]/terms/page.tsx",
-    "verdict": "static",
-    "reason": "Legal text rendered by components-next/legal-terms.tsx (LegalTerms); no fetch. Static by design."
   },
   "/voice": {
     "file": "patient-web/app/[locale]/voice/page.tsx",

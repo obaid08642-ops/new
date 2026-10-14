@@ -19,6 +19,7 @@
 import { BadGatewayException, BadRequestException, Injectable, Logger, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { connectionFlagSource, isKilled } from '../../common/killswitches/killswitches.helper';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export type AiProviderName =
@@ -151,6 +152,11 @@ export class AiGatewayService {
 
   /** Unified generation with automatic fallback across the chain. */
   async generate(opts: AiGenerateOptions): Promise<AiGenerateResult> {
+    // Kill switch: when explicitly disabled, skip every provider call and
+    // return nothing billable. Absent flag / store outage fails open.
+    if (await isKilled('ai', connectionFlagSource(this.conn))) {
+      throw new ServiceUnavailableException('ai_disabled_by_kill_switch');
+    }
     const chain = await this.attemptChain(opts.feature);
     if (chain.length === 0) throw new ServiceUnavailableException('ai_provider_unavailable');
 

@@ -1,4 +1,6 @@
 import { Injectable, Optional, NotFoundException, ForbiddenException, UnauthorizedException, BadRequestException, Inject } from '@nestjs/common';
+import { MEDIA_RELEASE, mediaRefId } from '../media/media-cleanup.service';
+import { escapeRegex } from '../../common/slug.util';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { JwtService } from '@nestjs/jwt';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -48,7 +50,10 @@ export class UsersService {
         price: Number(med?.price ?? item.price ?? 0),
         image: med?.image || item.image,
         requires_prescription: med?.requires_prescription ?? item.requires_prescription ?? false,
-        available: !!med,
+        // #464: "available" means the item is still in the public catalogue (approved, published, not withdrawn
+        // or discontinued); a row that only remains in the collection is not available to order.
+        available: !!med && med.is_deleted !== true && med.public_eligibility === true && med.medical_review_status === 'approved'
+          && med.active !== false && med.availability_status !== 'discontinued',
       };
     });
   }
@@ -88,7 +93,7 @@ export class UsersService {
   listAll(role?: UserRole, search?: string) {
     const q: any = {};
     if (role) q.role = role;
-    if (search) q.$or = [{ full_name: { $regex: search, $options: 'i' } }, { phone: { $regex: search, $options: 'i' } }];
+    if (search) q.$or = [{ full_name: { $regex: escapeRegex(String(search)), $options: 'i' } }, { phone: { $regex: escapeRegex(String(search)), $options: 'i' } }];
     return this.userRepository.find(q, { _id: 0, password_hash: 0, __v: 0 }, { sort: { createdAt: -1 }, limit: 500 });
   }
 
@@ -197,7 +202,14 @@ export class UsersService {
       if (k.startsWith('$') || k.includes('.')) continue;
       if (UsersService.PATIENT_PROFILE_EDITABLE.has(k)) mapped[k] = v;
     }
-    return this.patientRepository.updateOne({ user_id }, { $set: mapped }, { upsert: true, new: true, projection: { _id: 0, __v: 0 } });
+    // D-32: a replaced avatar (`media:<id>`) loses its stored file once the new one is saved.
+    const previous: any = 'avatar_url' in mapped ? await this.patientRepository.findOne({ user_id }, { avatar_url: 1 }) : null;
+    const saved = await this.patientRepository.updateOne({ user_id }, { $set: mapped }, { upsert: true, new: true, projection: { _id: 0, __v: 0 } });
+    const oldId = mediaRefId(previous?.avatar_url);
+    if (oldId && previous?.avatar_url !== mapped.avatar_url) {
+      try { this.events?.emit(MEDIA_RELEASE, { ids: [oldId], owner_id: user_id }); } catch { /* cleanup is best effort */ }
+    }
+    return saved;
   }
 
 
@@ -315,8 +327,12 @@ export class UsersService {
     };
   }
 
+  /** 772: the privacy contract is exactly these five switches (safe defaults, all off). */
+  private static readonly PRIVACY_DEFAULTS = { location: false, analytics: false, shareData: false, marketing: false, thirdParty: false };
+
   async getPrivacySettings(id: string) {
-    return this.getSetting(id, 'privacy_settings', { profile_visible: true, share_data: false });
+    const stored = await this.getSetting(id, 'privacy_settings', null);
+    return { ...UsersService.PRIVACY_DEFAULTS, ...(stored && typeof stored === 'object' ? stored : {}) };
   }
   async updatePrivacySettings(id: string, body: any) {
     return this.setSetting(id, 'privacy_settings', body);
@@ -351,8 +367,11 @@ export class UsersService {
     return { success: true, access_token: tokens.accessToken, refresh_token: tokens.refreshToken };
   }
 
-  /** Active sessions = live refresh tokens tracked in Redis (device-bound, 7d TTL). */
-  async getSessions(id: string) {
+  /** Active sessions = live refresh tokens tracked in Redis (device-bound, 7d TTL).
+   * 773: each row flags is_current by matching the session device against the
+   * calling token's device claim, so the client never ends the session in use.
+   */
+  async getSessions(id: string, currentDev?: string) {
     try {
       const client = this.redisService.getClient?.();
       if (!client) return [];
@@ -364,7 +383,7 @@ export class UsersService {
         let device: string | null = null;
         try { device = JSON.parse(raw)?.d ?? null; } catch { /* keep null */ }
         const ttl = await client.ttl(`refresh:${jti}`);
-        sessions.push({ id: jti, device, expires_in_seconds: ttl });
+        sessions.push({ id: jti, device, expires_in_seconds: ttl, is_current: !!currentDev && !!device && String(device).slice(0, 32) === String(currentDev).slice(0, 32) });
       }
       return sessions;
     } catch {

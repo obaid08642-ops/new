@@ -1,5 +1,14 @@
 # OpenCode work queue (state on 2026-10-06)
 
+> **2026-10-09: the active task list is `docs/review/OPENCODE_PLAN_2026-10-09.md` (sessions OC-A, OC-B, OC-C, OC-D). Read it first; it overrides this file where they differ.**
+
+> **Owner, 2026-10-14 (newest; overrides everything below where they differ):**
+> - **OC-B, OC-C and OC-F are closed for OpenCode.** The lead reviewer finishes their remaining work: the open issues of §5 and §6, D-29, D-36, F8 (pending catalogue revisions, #294/#300) and the remaining Phase 14 items. Do not push `oc/B-*`, `oc/C-*` or `oc/P14-*` branches.
+> - **The open issues of OC-A (§4)** are also verified, fixed and closed by the lead reviewer. OC-A keeps only **D-30** (insurance first) once its spec is on `main`.
+> - **D-32** (file replacement removes the old object; account erasure) goes to the lead reviewer.
+> - **OC-D** (Phase 20, then D-28, D-33, D-34, D-35) and **OC-E** (Phases 19, 13, 18) are unchanged.
+> - **Never commit `backend/package-lock.json` changes that drop entries** (`gaxios`, `gcp-metadata`, `node-fetch`, `google-logging-utils`): that breaks `npm ci` in CI. `oc/D-17` and `oc/AC-6` did this and were not merged.
+
 Read this file and `AGENTS.md` at the start of every OpenCode session. This file is the task list; `AGENTS.md` holds the rules. If they disagree, this file's **Git rules** win (they are newer, owner 2026-10-06).
 
 ## Where your instructions come from (owner, 2026-10-06)
@@ -109,26 +118,50 @@ Order (do not skip ahead):
 
 | Id | Issue | Item | Waits for |
 |---|---|---|---|
-| D-16 | #335 | Module switches: one flag per module, a public read endpoint, and the server refuses a switched-off module's routes. | spec |
-| D-14 | #333 | Emergency: remove the whole ambulance system: dispatch, missions, tracking, fleet, the `drivers` module, and the ambulance provider type in the provider app, registration, KYC and admin. Archive the data first. Keep "send my location to my emergency contacts". | spec (owner O-2 answered: remove) |
-| D-10 | #329 | Rx rules on the server: no promo, offer or points on Rx items; an order with an Rx item needs an attached prescription; `controlled` items are never orderable. | spec |
-| D-15 | #334 | AI assistant limits: specialty routing, leaflet mode, the output filter, red flags, the disclaimer, and a 100+ prompt test set in CI. | spec + test set |
-| D-1 | #320 | Community removed (archive first). Doctor articles: verified doctors only, admin approval, no comments, Rx brand-name block. | spec |
-| D-8 | #327 | Mental health: remove assessment scoring and crisis handling; urgent-help number in admin config. | spec |
-| D-2 | #321 | Remove the loyalty leaderboard. | spec |
-| D-4 | #323 | Remove AI skin analysis. | spec |
-| D-9 | #328 | Loyalty challenges: health-habit `target_action` only; existing purchase challenges ended and archived. | spec |
-| D-12 | #331 | SFDA price ceiling: `sfda_price` and its source; line mapping; reject offers over the ceiling; unmapped lines go to admin review. | spec (owner O-1 answered: the catalogue `price` in the server DB is the ceiling) |
-| D-13 | #332 | Offers waiting: the final "no pharmacy available" state (with Q-3). | spec, Q-3 |
-| D-17 | #336 | Doctor public view: SCFHS licence and `verified`; never national ID, phone or email. | spec |
-| D-19 | #338 | Lab result push deep link to the result. | spec |
+| D-16 | #335 | Module switches: one flag per module, a public read endpoint, and the server refuses a switched-off module's routes. | spec merged (`backend/acceptance/d-16`) |
+| D-14 | #333 | Emergency: remove the whole ambulance system: dispatch, missions, tracking, fleet, the `drivers` module, and the ambulance provider type in the provider app, registration, KYC and admin. Archive the data first. Keep "send my location to my emergency contacts". | spec #605 |
+| D-10 | #329 | Rx rules on the server: no promo, offer or points on Rx items; an order with an Rx item needs an attached prescription; `controlled` items are never orderable. | spec #353 |
+| D-15 | #334 | AI assistant limits: specialty routing, leaflet mode, the output filter, red flags, the disclaimer, and a 100+ prompt test set in CI. | spec + test set #354 |
+| D-1 | #320 | Community removed (archive first). Doctor articles: verified doctors only, admin approval, no comments, Rx brand-name block. | spec merged (#608): start now |
+| D-8 | #327 | Mental health: remove assessment scoring and crisis handling; urgent-help number in admin config. | spec merged (#609): start now |
+| D-2 | #321 | Remove the loyalty leaderboard. | spec merged (#610): start now |
+| D-4 | #323 | Remove AI skin analysis. | spec merged (#611): start now |
+| D-9 | #328 | Loyalty challenges: health-habit `target_action` only; existing purchase challenges ended and archived. | spec merged (#613): start now |
+| D-12 | #331 | SFDA price ceiling: `sfda_price` and its source; line mapping; reject offers over the ceiling; unmapped lines go to admin review. | spec merged (#606): start now (owner O-1 answered: the catalogue `price` in the server DB is the ceiling) |
+| D-13 | #332 | Offers waiting: the final "no pharmacy available" state (with Q-3). | spec merged (#614): start now, Q-3 |
+| D-17 | #336 | Doctor public view: SCFHS licence and `verified`; never national ID, phone or email. | spec merged (#615): start now (urgent: `/providers` leaks national id, phone, email, IBAN today) |
+| D-19 | #338 | Lab result push deep link to the result. | spec merged (#616): start now |
 | D-7 | #326 | One assistant endpoint replacing the seven AI routes. | owner-approved merge map |
 
-| D-26 | — | Cancellation and refund policy (decision 26). One admin-editable policy per service type: consultations, home visit and nursing, pharmacy delivery. Used by every cancel path, returned with each booking or order (the rule plus the refund the patient would get now), refunded to the original payment method. The clients show only the server value; remove the hard-coded copies. | spec |
-| D-25 | — | Payment method by service (decision 25). The server refuses cash for online consultations, home visits and nursing. Pharmacy cash on delivery only under all of its conditions. | spec |
-| D-24 | — | Doctor chat only inside a booking (decision 24). Online: text, voice, images, files and the call. Clinic or home: text, images and files for 72 h after completion. The doctor can close or extend once. Read-only after the window. | spec |
+| D-26 | — | Cancellation and refund policy (decision 26). One admin-editable policy per service type: consultations, home visit and nursing, pharmacy delivery. Used by every cancel path, returned with each booking or order (the rule plus the refund the patient would get now), refunded to the original payment method. The clients show only the server value; remove the hard-coded copies. | spec #582 |
+| D-25 | — | Payment method by service (decision 25). The server refuses cash for online consultations, home visits and nursing. Pharmacy cash on delivery only under all of its conditions. | spec #583 |
+| D-24 | — | **Done by the lead reviewer (2026-10-09, branch review/provider-backend-p3-d1): acceptance d-24 16/16.** Do not start it. Doctor chat only inside a booking; 72 h window; close/extend once; voice and calls by visit type; 997 and book-follow-up on the thread. | done |
+
+| D-28 | — | Security sweep S-1 … S-7 (decision 28): fix whatever the reviewer's S-specs show failing. | specs S-5 #620, S-6 #619, S-7 #618 |
+| D-29 | — | Search (decision 29): self-hosted Meilisearch, index rebuild from MongoDB plus change sync, Arabic normalisation and synonyms, 6 locales, a scoped search per section and a grouped global search. | spec |
+| D-30 | — | Insurance first (decision 30): profile insurance with class; provider networks with companies and classes; list and broadcast filters; final eligibility at checkout. | spec |
+| D-31 | — | Double taps and bad networks (decision 31): close whatever the reviewer's tests show (one charge or booking per key, the same key on retry, a result check instead of a re-pay). | spec |
+
+| D-33 | — | Backups (decision 33): `backup.sh` uploads only to the private backup bucket (`BACKUP_S3_*` settings, never `S3_BUCKET`); a weekly medicine-catalogue export; a monthly restore drill; a backup-status record that the admin page reads. | spec |
+| D-34 | — | Admin "Operations & Security" page (decision 34): backend read endpoints (admin-only, no secret values), the five sections, and the owner alerts. | spec |
+| D-35 | — | Admin on two devices (owner): at most 2 active enrolled admin devices per admin (the owner's iPhone and MacBook). A third device is refused until one is revoked. Enrolling a new device needs approval from an already-enrolled device plus email step-up. Every enrolment and revoke is audit-logged and shown on the decision-34 page. | spec |
+| D-36 | — | Legal documents in 6 locales: `legal_policies` stores content per locale (ar, en, ur, hi, bn, fil), not only ar/en. New keys: `telehealth_consent` and `refund_policy`. A new major version forces re-acceptance; every acceptance records the version, time and device. The texts come from `docs/legal/*`, published now as version 1.0 (decision 36); the lawyer's review later is a new version. | spec |
+| D-37 | — | Insurance relay-only (decision 35). (1) `DecideDto`: add `approval_ref` (required for `approve_full`/`approve_partial`), `copay_amount` (number, optional, alongside `copay_percent`); `reason` required for `reject`. (2) Notify the patient (push + in-app) on every state change. (3) The same inbox for every provider type: pharmacy, doctor/facility, lab, radiology, nursing; each sees only requests addressed to it. (4) Rename or remove `nphies*` endpoints and fields (`nphies_live`, `nphies_eligible`) so that nothing implies a live insurer check; patient and provider texts say "the facility requests the approval". (5) Tests: decide with and without `approval_ref`, a non-addressed provider gets 403, the patient sees the co-pay. | spec |
+| D-38 | — | Legal texts live in the apps (decision 36). (1) patient-web `/terms`, `/privacy`, plus new `/refund-policy` and `/telehealth-consent`, read `/legal/policy/:key?lang=` on the server with revalidation and render safe Markdown; delete the hard-coded arrays in `components-next/legal-terms.tsx`. (2) patient-app: the same four screens. (3) Sign-up records acceptance of `patient_terms` and `privacy_policy`; the first online consultation records `telehealth_consent`; provider onboarding already records `provider_agreement`. (4) Keys: `patient_terms`, `privacy_policy`, `provider_agreement`, `telehealth_consent`, `refund_policy`. (5) Bug: `LegalService.pendingAcceptances` matches every policy for every user (`applies_to.includes('provider') || includes('patient')`), so a provider is asked to accept the patient terms; match only `all` or the user's own role, with a test per role. The texts are loaded into `legal_policies` by the reviewer through server-ops. | spec |
 
 Items 3, 5, 6, 11 and 18 are UI only (design session). Items 21–23 are owner tasks. Item 20 is Q-12 / Q-13.
+
+## Queue D: large needs-review issues (owner, 2026-10-08), base `main`
+
+The design session's audit found problems in every app. They are GitHub issues with the label `needs-review`. The owner's routing rule (2026-10-08):
+- **`route:opencode` + `size:large`** are yours: work that needs a new endpoint, a new flow or a state-machine change.
+- **`size:small`** issues go to the review session; **`needs-owner`** waits for the owner. Do not take either.
+
+List yours with `GET /repos/obaid08642-ops/new/issues?labels=route:opencode&state=open`.
+- Do them **after Queue C**, oldest first, **one issue per PR**: branch `oc/NR-<issue>`, title `[OC NR-<issue>] <summary>`, with `Closes #<issue>` in the body.
+- Each issue names the exact client `file:line` and, where known, the backend line. Read only those files.
+- Token budget: keep each item small. If an issue needs more than one module or a product decision, write `BLOCKED: <reason>` in a comment on the issue and move on.
+- An issue that is a removed feature (decision 14 ambulance, community, leaderboard, skin analysis, mental-health scoring) is not built: comment `removed feature` and move on.
 
 ## Queue B: replaced by the phase audit (owner, 2026-10-06)
 
@@ -137,3 +170,32 @@ The phase 13–22 work on `fix/audit-2026-09` is audited by the OpenCode session
 **This session (Queue A/C) does not touch `fix/audit-2026-09` or `oc/phase-audit`.**
 
 The PRs already open into the fix branch (#294/#300, #299, #311) stay as they are; the reviewer handles them.
+
+## Owner, 2026-10-12: phases split over three sessions, and agent commerce
+
+The phases left from §7 of `OPENCODE_PLAN_2026-10-09.md` are split so they run in parallel. The rules of §7 are unchanged: port from `main`, one phase per PR, never edit acceptance tests.
+
+| Session | Phases, in order | Notes |
+|---|---|---|
+| **OC-D** | 16.3 fix (OTP number normalisation, budget last; no failing `npm audit` gate before the fastify fix; real ZAP gate), then **23** audit trail, then **20** observability | Audit and observability touch the same logging code, so they stay in one session. |
+| **OC-E** (new) | **19** compliance, then **13** owner requirements, then **18** languages | 18 touches many files, so it goes last. |
+| **OC-F** (new) | **15** resilience, then **14** performance | 14 goes last; it touches hot paths the other sessions are porting. **Phase 14 must also port the kill switches (14.4/14.18 helper, the six seeded flags and their consumers, P15.fix `3e2db704`) and then add `j_killswitches` back to `tools/live/run_gate.sh` JOURNEYS; that journey has been waiting on it since the P15 review.** |
+
+- Phase 17: the UI parts go to the design session as needs-review entries; the backend parts go to OC-E after 18.
+- Phase 22 still waits for the owner.
+- A session never starts a phase listed for another session.
+
+**Agent commerce (`AGENT_COMMERCE_SPEC_2026-10-12.md`)**
+- AC-1 (OAuth) is merged (#1327), and the acceptance tests are in `backend/acceptance/ac-agent/` (#1326).
+- **OC-G** (new, owner 2026-10-12) builds AC-2 to AC-6, one PR per item, in order:
+
+| Item | What | Branch | Done when |
+|---|---|---|---|
+| AC-2 | MCP Streamable HTTP transport | `oc/AC-2` | ac-agent case 4 passes |
+| AC-3 | Authenticated tools | `oc/AC-3` | ac-agent cases 5 to 10 pass |
+| AC-4 | Deep links | `oc/AC-4` | |
+| AC-5 | Discovery contract test | `oc/AC-5` | ac-agent case 11 passes |
+| AC-6 | Safety | `oc/AC-6` | |
+
+- OC-G edits only `backend/src/modules/mcp`, `backend/src/modules/agent-oauth`, `patient-web/app/.well-known`, `llms*.txt` and new agent modules.
+- For anything else (pharmacy, booking or payment services), it calls the existing services and never copies their logic.

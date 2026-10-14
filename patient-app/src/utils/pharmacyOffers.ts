@@ -88,6 +88,9 @@ export function parseOffer(raw: unknown): OfferView | null {
   const lines = readLines(o.lines);
   const availableCount = lines.filter((l) => l.available).length;
   const expires = typeof o.expires_at === 'string' || typeof o.expires_at === 'number' ? new Date(o.expires_at as string | number).getTime() : NaN;
+  // issue 512: the server sends its clock; the expiry is moved onto this phone's clock so a wrong phone time does not skew the countdown.
+  const serverNow = typeof o.server_time === 'string' ? new Date(o.server_time).getTime() : NaN;
+  const localExpires = Number.isFinite(expires) && Number.isFinite(serverNow) ? Date.now() + (expires - serverNow) : expires;
   const status = text(o.status) ?? 'open';
   return {
     id,
@@ -97,12 +100,12 @@ export function parseOffer(raw: unknown): OfferView | null {
     nameEn: text(o.pharmacy_name_en) ?? null,
     distanceKm: num(o.approx_distance_km),
     prepMinutes: num(o.preparation_minutes),
-    expiresAt: Number.isFinite(expires) ? expires : null,
+    expiresAt: Number.isFinite(localExpires) ? localExpires : null,
     totals: readTotals(o.totals),
     lines,
     availableCount,
     allAvailable: lines.length > 0 && availableCount === lines.length,
-    insuranceReady: o.insurance_ready !== false,
+    insuranceReady: o.insurance_ready === true,
     note: text(o.provider_note),
   };
 }
@@ -113,9 +116,33 @@ export function parseOffers(response: unknown): OfferView[] {
   return rows.map(parseOffer).filter((o): o is OfferView => o !== null);
 }
 
-/** The pharmacy's name in the reader's language, the other language when only that one exists, null when the server sent none. */
+/** The pharmacy's name in the reader's language: Arabic for ar, English for every other language; the other field only when that one is missing; null when the server sent none (never an id). */
+export function pharmacyDisplayName(names: { ar: string | null; en: string | null } | null, lang: string): string | null {
+  if (!names) return null;
+  return lang === 'ar' ? names.ar ?? names.en : names.en ?? names.ar;
+}
+
 export function offerName(offer: OfferView, lang: string): string | null {
-  return lang === 'ar' || lang === 'ur' ? offer.nameAr ?? offer.nameEn : offer.nameEn ?? offer.nameAr;
+  return pharmacyDisplayName({ ar: offer.nameAr, en: offer.nameEn }, lang);
+}
+
+/**
+ * The filling pharmacy's names on an order (`GET /patient/pharmacy/orders/:id`, #366/#375/#514): the chosen allocation's
+ * `pharmacy_name_ar/en` when the order names a selected allocation, else the order's own (set when one pharmacy fills it).
+ */
+export function orderPharmacyNames(response: unknown): { ar: string | null; en: string | null } | null {
+  const raw = response && typeof response === 'object' ? ((response as { data?: unknown }).data ?? response) : null;
+  if (!raw || typeof raw !== 'object') return null;
+  const o = raw as Record<string, unknown>;
+  const read = (r: Record<string, unknown> | undefined) => {
+    const ar = r ? text(r.pharmacy_name_ar) : null;
+    const en = r ? text(r.pharmacy_name_en) : null;
+    return ar || en ? { ar: ar ?? null, en: en ?? null } : null;
+  };
+  const selected = text(o.selected_allocation_id);
+  const allocs = Array.isArray(o.allocations_detail) ? o.allocations_detail : [];
+  const match = selected ? (allocs.find((a) => a && typeof a === 'object' && (a as { id?: unknown }).id === selected) as Record<string, unknown> | undefined) : undefined;
+  return read(match) ?? read(o);
 }
 
 export type OfferSort = 'price' | 'nearest' | 'fastest';
@@ -160,7 +187,7 @@ export function parseOrder(response: unknown): OrderState | null {
   if (!status) return null;
   return {
     status,
-    governedState: text(o.governed_state),
+    governedState: governedStep(o.governed_state),
     selectedOfferId: text(o.selected_offer_id),
     selectedAllocationId: text(o.selected_allocation_id),
     coverageMode: text(o.coverage_mode),
@@ -301,7 +328,7 @@ export function quoteView(response: unknown): QuoteView | null {
   const raw = response && typeof response === 'object' ? ((response as { data?: unknown }).data ?? response) : null;
   if (!raw || typeof raw !== 'object') return null;
   const o = raw as Record<string, unknown>;
-  const state = text(o.governed_state);
+  const state = governedStep(o.governed_state);
   const pending = state === 'FINAL_QUOTE_READY';
   const snap = (pending ? o.pending_final_quote_snapshot : o.selected_offer_snapshot) as Record<string, unknown> | undefined;
   const accepted = o.accepted_quote_snapshot as Record<string, unknown> | undefined;
@@ -318,4 +345,13 @@ export function quoteView(response: unknown): QuoteView | null {
   else if (state === 'FINAL_QUOTE_ACCEPTED') kind = 'accepted';
   else if (state === 'COD_REGISTERED') kind = 'cod';
   return { kind, totals, hash, revision, governedState: state, codAllowed, cashCoverage };
+}
+
+/**
+ * The server's governed step, as the screens route it. Q-21: PAYMENT_PENDING (an accepted quote with a payment under way)
+ * is still the pay step: the payment screen resumes the same transaction.
+ */
+export function governedStep(value: unknown): string | null {
+  const state = typeof value === 'string' && value.trim() ? value.trim() : null;
+  return state === 'PAYMENT_PENDING' ? 'FINAL_QUOTE_ACCEPTED' : state;
 }

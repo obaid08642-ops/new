@@ -1,0 +1,390 @@
+{
+  "api": [
+    {
+      "fn": "start",
+      "args": [
+        {
+          "phone": "0561234567",
+          "password": "Passw0rd!x",
+          "full_name": "Sara Omar",
+          "email": "hospital@example.com",
+          "type": "hospital"
+        }
+      ]
+    },
+    {
+      "fn": "onboardingLogin",
+      "args": [
+        "hospital@example.com",
+        "Passw0rd!x",
+        "hospital"
+      ]
+    },
+    {
+      "fn": "step2",
+      "args": [
+        {
+          "name_ar": "مستشفى نبض",
+          "name_en": "Nabd Hospital",
+          "city": "riyadh_city",
+          "address": "Olaya Street 1",
+          "location": {
+            "lat": 24.7136,
+            "lng": 46.6753
+          },
+          "license_number": "1010202020",
+          "cr_number": "1010202020",
+          "moh_license_number": "MOH-H-777",
+          "license_documents": [
+            "https://cdn.test/cr.jpg",
+            "https://cdn.test/moh-old.jpg"
+          ],
+          "clinic_images": [
+            "https://cdn.test/f0.jpg",
+            "https://cdn.test/f1.jpg"
+          ],
+          "logo": "https://cdn.test/logo.jpg",
+          "languages": [
+            "ar",
+            "en",
+            "ur"
+          ]
+        }
+      ]
+    },
+    {
+      "fn": "step3",
+      "args": [
+        {
+          "doctors_roster": [
+            {
+              "name": "د. سامي",
+              "email": "sami@example.com",
+              "specialty": "cardiology",
+              "modes": [
+                "clinic",
+                "online"
+              ],
+              "price_clinic": 150,
+              "price_online": 90,
+              "price_home": 0,
+              "insurance_clinic": true,
+              "insurance_online": false,
+              "insurance_home": false,
+              "working_hours": [
+                {
+                  "day": "SUN",
+                  "open": "09:00",
+                  "close": "15:00"
+                },
+                {
+                  "day": "MON",
+                  "open": "09:00",
+                  "close": "15:00"
+                }
+              ],
+              "clinic_images": [
+                "https://cdn.test/d0.jpg"
+              ]
+            }
+          ],
+          "pharmacy_roster": [
+            {
+              "name": "صيدلية",
+              "email": "ph@example.com",
+              "delivery": true,
+              "insurance": true,
+              "working_hours": [
+                {
+                  "day": "FRI",
+                  "open": "09:00",
+                  "close": "17:00"
+                }
+              ],
+              "clinic_images": [
+                "https://cdn.test/p.jpg"
+              ]
+            }
+          ],
+          "lab_roster": [
+            {
+              "name": "مختبر",
+              "email": "lab@example.com",
+              "tests": [
+                "cbc",
+                "tsh"
+              ],
+              "prices": {
+                "cbc": 30,
+                "tsh": 80
+              },
+              "home_service": true,
+              "home_fee": 25,
+              "insurance": true,
+              "working_hours": [
+                {
+                  "day": "SAT",
+                  "open": "08:00",
+                  "close": "12:00"
+                }
+              ],
+              "clinic_images": []
+            }
+          ],
+          "radiology_roster": [
+            {
+              "name": "أشعة",
+              "email": "rad@example.com",
+              "scans": [
+                "xray"
+              ],
+              "prices": {
+                "xray": 120
+              },
+              "home_service": false,
+              "home_fee": 0,
+              "insurance": false,
+              "working_hours": [],
+              "clinic_images": []
+            }
+          ],
+          "nursing_roster": [
+            {
+              "name": "تمريض",
+              "email": "nurse@example.com",
+              "services": [
+                "injection"
+              ],
+              "prices": {
+                "injection": 40
+              },
+              "home_service": true,
+              "home_fee": 15,
+              "insurance": true,
+              "working_hours": [],
+              "clinic_images": []
+            }
+          ],
+          "accepts_cash": false,
+          "accepted_insurance": [
+            "bupa"
+          ],
+          "insurance_plans": {
+            "bupa": [
+              "gold"
+            ]
+          },
+          "has_insurance_coordinator": true
+        }
+      ]
+    },
+    {
+      "fn": "uploadSignature",
+      "args": [
+        "data:image/png;base64,SIGNATURE"
+      ]
+    },
+    {
+      "fn": "step2",
+      "args": [
+        {
+          "iban": "SA0380000000608010167519",
+          "bank_account_name": "Nabd Hospital Co"
+        }
+      ]
+    },
+    {
+      "fn": "submit",
+      "args": [
+        {
+          "signer_name": "Sara Omar",
+          "signer_role": "General Manager",
+          "signature_url": "https://cdn.test/signature.png",
+          "lat": 24.7136,
+          "lng": 46.6753,
+          "full_data": {
+            "facilityNameAr": "مستشفى نبض",
+            "facilityNameEn": "Nabd Hospital",
+            "facilityType": "hospital",
+            "managerName": "Sara Omar",
+            "managerPhone": "0561234567",
+            "managerEmail": "hospital@example.com",
+            "languages": [
+              "ar",
+              "en",
+              "ur"
+            ],
+            "crNumber": "1010202020",
+            "mohLicense": "MOH-H-777",
+            "mohDocUri": "https://cdn.test/moh-old.jpg",
+            "region": "riyadh",
+            "city": "riyadh_city",
+            "district": "olaya",
+            "fullAddress": "Olaya Street 1",
+            "location": {
+              "lat": 24.7136,
+              "lng": 46.6753
+            },
+            "subProviders": [
+              {
+                "type": "doctor",
+                "nameAr": "د. سامي",
+                "nameEn": "Dr Sami",
+                "email": "Sami@Example.com",
+                "license": "L-1",
+                "specialty": "cardiology",
+                "degree": "consultant",
+                "shift": "both",
+                "clinicEnabled": true,
+                "onlineEnabled": true,
+                "homeEnabled": false,
+                "priceClinic": "150",
+                "priceOnline": "90",
+                "priceHome": "",
+                "insClinic": true,
+                "insOnline": false,
+                "insHome": false,
+                "workDays": [
+                  "SUN",
+                  "MON"
+                ],
+                "startHour": "09:00",
+                "endHour": "15:00",
+                "clinicImagesUris": [
+                  "file:///cache/d0.jpg"
+                ]
+              },
+              {
+                "type": "lab",
+                "nameAr": "مختبر",
+                "nameEn": "Lab",
+                "email": "lab@example.com",
+                "enabledTests": [
+                  "cbc",
+                  "tsh"
+                ],
+                "testPrices": {
+                  "cbc": 30,
+                  "tsh": 80
+                },
+                "homeEnabled": true,
+                "priceHome": "25",
+                "acceptsInsurance": true,
+                "workDays": [
+                  "SAT"
+                ],
+                "startHour": "08:00",
+                "endHour": "12:00",
+                "clinicImagesUris": []
+              },
+              {
+                "type": "radiology",
+                "nameAr": "أشعة",
+                "nameEn": "Rad",
+                "email": "rad@example.com",
+                "enabledScans": [
+                  "xray"
+                ],
+                "scanPrices": {
+                  "xray": 120
+                },
+                "homeEnabled": false,
+                "priceHome": "",
+                "acceptsInsurance": false,
+                "clinicImagesUris": []
+              },
+              {
+                "type": "nursing",
+                "nameAr": "تمريض",
+                "nameEn": "Nursing",
+                "email": "nurse@example.com",
+                "enabledNursing": [
+                  "injection"
+                ],
+                "nursingPrices": {
+                  "injection": 40
+                },
+                "homeEnabled": true,
+                "priceHome": "15",
+                "acceptsInsurance": true,
+                "clinicImagesUris": []
+              },
+              {
+                "type": "pharmacy",
+                "nameAr": "صيدلية",
+                "nameEn": "Pharmacy",
+                "email": "ph@example.com",
+                "pharmDelivery": true,
+                "acceptsInsurance": true,
+                "workDays": [
+                  "FRI"
+                ],
+                "clinicImagesUris": [
+                  "https://cdn.test/p.jpg"
+                ]
+              }
+            ],
+            "cashOnly": false,
+            "acceptedInsurance": [
+              {
+                "companyId": "bupa",
+                "plans": [
+                  "gold"
+                ]
+              }
+            ],
+            "hasInsuranceCoordinator": true,
+            "signerName": "Sara Omar",
+            "signerRole": "General Manager",
+            "termsAgreed": false,
+            "loading": false,
+            "iban": "SA0380000000608010167519",
+            "accountHolderName": "Nabd Hospital Co"
+          }
+        }
+      ]
+    }
+  ],
+  "uploads_before_refactor": [
+    {
+      "fn": "uploadFile",
+      "args": [
+        "file:///cache/cr.jpg",
+        "image/jpeg",
+        "cr.jpg"
+      ]
+    },
+    {
+      "fn": "uploadFile",
+      "args": [
+        "file:///cache/logo.jpg",
+        "image/jpeg",
+        "logo.jpg"
+      ]
+    },
+    {
+      "fn": "uploadFile",
+      "args": [
+        "file:///cache/f0.jpg",
+        "image/jpeg",
+        "facility_0.jpg"
+      ]
+    },
+    {
+      "fn": "uploadFile",
+      "args": [
+        "file:///cache/f1.jpg",
+        "image/jpeg",
+        "facility_1.jpg"
+      ]
+    },
+    {
+      "fn": "uploadFile",
+      "args": [
+        "file:///cache/d0.jpg",
+        "image/jpeg",
+        "doctor_0.jpg"
+      ]
+    }
+  ]
+}

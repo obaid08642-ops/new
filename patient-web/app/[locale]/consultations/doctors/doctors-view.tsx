@@ -1,7 +1,8 @@
 import { StaleWhileRevalidate } from "@/components-next/nav/stale-while-revalidate";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { specialtyLabel } from "@/lib/specialties";
+import { SPECIALTY_SLUGS, isSpecialtySlug, specialtyLabel } from "@/lib/specialties";
 import { doctorDisplayName, extractDoctors } from "@/lib/api/doctors";
 import { getPublicDoctors } from "@/lib/api/doctors-server";
 import { isOutage } from "@/lib/api/outage";
@@ -11,17 +12,23 @@ import { localizedUrl } from "@/lib/seo";
 import type { Metadata } from "next";
 import type { ConsultMode } from "@/components-next/ui-generated/components/contract";
 import { Button } from "@/components-next/ui-generated/components/Button";
+import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { DoctorListCard } from "@/components-next/consult/doctor-list-card";
+import { DoctorQuickFilters } from "@/components-next/consult/doctor-quick-filters";
+import { effectiveType, filterPageParams, nearestApplies, parseDoctorFilters, PAYMENT_FILTERS, serverOrdersList, VISIT_TYPES, type DoctorFilters, type PaymentFilter, type VisitType } from "@/lib/consult/doctor-filters";
 import { LinkSegmented } from "@/components-next/consult/link-segmented";
 import styles from "@/components-next/consult/consult.module.css";
 
-export type DoctorsViewProps = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string; specialty?: string; sort?: "rating" | "price" | "wait" }> };
+export type DoctorsViewProps = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string; specialty?: string; sort?: "rating" | "price" | "wait"; type?: string; payment?: string; available?: string; nearest?: string; lat?: string; lng?: string; city?: string }> };
 type Props = DoctorsViewProps;
 
-/** F82-3: the list is one view with two routes: the static page (no query) and its dynamic twin under /q (lib/security/query-twin.ts). */
+/**
+ * F82-3: the list is one view with two routes: the static/ISR page (no query: the same list for everyone) and its dynamic twin
+ * under /q for a search, a specialty, a sort or a filter (lib/security/query-twin.ts). `searchParams` is undefined on the static route.
+ */
 export const DOCTORS_REVALIDATE_SECONDS = 60;
 
 export async function doctorsMetadata({ params }: Pick<Props, "params">): Promise<Metadata> {
@@ -49,12 +56,31 @@ export async function DoctorsView({ params, searchParams }: Props) {
   const c = await getTranslations("ConsultWeb");
   const names = await getTranslations("SpecialtyNames");
   let doctors: ReturnType<typeof extractDoctors> = [];
-  const response = await getPublicDoctors({ search: sp.q, specialty: sp.specialty, sort: ["rating", "price", "wait"].includes(sp.sort ?? "") ? sp.sort : undefined });
-  // A failure (no answer, or a 5xx) is not an empty list: this page is cached, and a cached "no doctors" would replace the good copy.
-  if (isOutage(response)) throw new PublicDataUnavailableError("doctors");
-  if (response && response.ok) doctors = extractDoctors(await response.json().catch(() => null));
+  const filters = parseDoctorFilters(sp);
+  const shownType = effectiveType(filters);
+  let failed = false;
+  const response = await getPublicDoctors({ search: sp.q, specialty: sp.specialty, sort: ["rating", "price", "wait"].includes(sp.sort ?? "") ? sp.sort : undefined, filters }).catch(() => null);
+  // A failure (no answer, or a 5xx) on the cached page throws, so Next keeps the last good copy instead of caching an error
+  // (stale-if-error, issue 302). On the twin (never cached) the error state with a retry shows, as before.
+  if (isOutage(response) && searchParams === undefined) throw new PublicDataUnavailableError("doctors");
+  if (response && response.ok) {
+    doctors = extractDoctors(await response.json().catch(() => null));
+  } else failed = true;
 
-  const sortHref = (sort: string) => `/${locale}/consultations/doctors?${new URLSearchParams({ ...(sp.q ? { q: sp.q } : sp.specialty ? { specialty: sp.specialty } : {}), sort }).toString()}`;
+  // a specialty slug (from the pharmacy cart "Consult a doctor") filters the list and shows by its name, never as raw text in the search field
+  const specialtyName = specialtyLabel(names, sp.specialty);
+
+  // every link keeps the text search and the chosen filters, so the URL is the whole state (shareable)
+  const text = { q: sp.q, specialty: sp.specialty };
+  const pageHref = (params: URLSearchParams) => `/${locale}/consultations/doctors${params.size ? `?${params.toString()}` : ""}`;
+  const sortHref = (sort: string) => pageHref(filterPageParams(filters, { ...text, sort }));
+  const withFilters = (next: Partial<DoctorFilters>, sort = sp.sort) => pageHref(filterPageParams({ ...filters, ...next }, { ...text, sort }));
+  const typeHref = (type: VisitType) => withFilters({ type: filters.type === type ? undefined : type, nearest: filters.nearest && nearestApplies(type) });
+  const paymentHref = (payment: PaymentFilter) => withFilters({ payment: filters.payment === payment ? undefined : payment });
+  const nearestBase = filterPageParams({ ...filters, nearest: false, place: null }, { ...text, sort: sp.sort });
+  nearestBase.set("nearest", "1");
+  const filtered = Boolean(filters.type || filters.payment || filters.availableNow || filters.nearest);
+  const typeLabels: Record<VisitType, string> = { clinic: t("service_clinic"), video: t("service_video"), home_visit: t("service_home") };
 
   return (
     <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/consultations`} width="wide">
@@ -63,21 +89,65 @@ export async function DoctorsView({ params, searchParams }: Props) {
         <label className={styles.searchField}>
           <Icon name="search" size={20} tone="secondary" />
           <span className="sr-only">{t("searchLabel")}</span>
-          <input id="doctor-search" name="q" defaultValue={sp.q ?? sp.specialty ?? ""} placeholder={t("searchPlaceholder")} className={styles.searchInput} />
+          <input id="doctor-search" name="q" defaultValue={sp.q ?? (specialtyName ? "" : sp.specialty ?? "")} placeholder={t("searchPlaceholder")} className={styles.searchInput} />
+        </label>
+        {[...filterPageParams(filters)].map(([name, value]) => <input key={name} type="hidden" name={name} value={value} />)}
+        <label className={`${styles.searchField} ${styles.searchSelect}`}>
+          <span className="sr-only">{t("specialtyLabel")}</span>
+          <select name="specialty" defaultValue={isSpecialtySlug(sp.specialty) ? sp.specialty.trim() : ""}>
+            <option value="">{t("allSpecialties")}</option>
+            {SPECIALTY_SLUGS.map((slug) => <option key={slug} value={slug}>{names(slug)}</option>)}
+          </select>
         </label>
         <Button type="submit" label={t("search")} size="lg" />
       </form>
+      {specialtyName ? (
+        <div className={styles.activeFilter}>
+          <StatusChip label={specialtyName} tone="blue" />
+          <Link className={styles.activeFilterClear} href={`/${locale}/consultations/doctors`}>{t("clearSearch")}</Link>
+        </div>
+      ) : null}
       <LinkSegmented
-        label={t("sortLabel")}
-        value={sp.sort ?? ""}
-        options={[
-          { value: "rating", label: t("sortRating"), href: sortHref("rating") },
-          { value: "price", label: t("sortPrice"), href: sortHref("price") },
-          { value: "wait", label: t("sortWait"), href: sortHref("wait") },
-        ]}
+        label={t("visitType")}
+        value={shownType ?? ""}
+        options={VISIT_TYPES.map((type) => ({ value: type, label: typeLabels[type], href: typeHref(type) }))}
       />
-      {doctors.length === 0 ? (
-        <ConsultState kind="empty" title={t("emptyTitle")} body={t("emptyBody")} />
+      <LinkSegmented
+        label={t("paymentLabel")}
+        value={filters.payment ?? ""}
+        options={PAYMENT_FILTERS.map((payment) => ({ value: payment, label: t(`payment_${payment}`), href: paymentHref(payment) }))}
+      />
+      <DoctorQuickFilters
+        availableHref={withFilters({ availableNow: !filters.availableNow })}
+        availableOn={filters.availableNow}
+        nearestOffHref={withFilters({ nearest: false, place: null })}
+        nearestOnBase={pageHref(nearestBase)}
+        nearestOn={filters.nearest}
+        nearestBlocked={!nearestApplies(shownType)}
+        nearestCity={filters.place?.kind === "city" ? filters.place.city : undefined}
+      />
+      {serverOrdersList(filters) ? null : (
+        <LinkSegmented
+          label={t("sortLabel")}
+          value={sp.sort ?? ""}
+          options={[
+            { value: "rating", label: t("sortRating"), href: sortHref("rating") },
+            { value: "price", label: t("sortPrice"), href: sortHref("price") },
+            { value: "wait", label: t("sortWait"), href: sortHref("wait") },
+          ]}
+        />
+      )}
+      {failed ? (
+        <ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailableBody")} retryLabel={t("retry")} />
+      ) : doctors.length === 0 ? (
+        <ConsultState
+          kind="empty"
+          title={t("emptyTitle")}
+          body={t("emptyBody")}
+          // a way out of the empty list: clear the search when one is active, otherwise back to the consultations hub
+          actionLabel={sp.q || sp.specialty || sp.sort || filtered ? t("clearSearch") : t("backToConsultations")}
+          actionHref={sp.q || sp.specialty || sp.sort || filtered ? `/${locale}/consultations/doctors` : `/${locale}/consultations`}
+        />
       ) : (
         <ul className={`${styles.list} ${styles.grid}`} aria-label={t("title")}>
           {doctors.map((doctor) => {
@@ -99,6 +169,7 @@ export async function DoctorsView({ params, searchParams }: Props) {
                   nextSlotIso={doctor.nextSlot}
                   price={doctor.price}
                   bookLabel={c("book")}
+                  verifiedLabel={doctor.verified ? t("verifiedDoctor") : undefined}
                 />
               </li>
             );

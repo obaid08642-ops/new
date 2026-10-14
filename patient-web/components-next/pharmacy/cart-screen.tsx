@@ -20,6 +20,7 @@ import { AddressCard } from "./address-card";
 import { ButtonLink } from "./button-link";
 import { CatalogImage } from "./catalog-image";
 import { PHARMACY_TONE } from "./tones";
+import { RxConsultLink } from "./rx-consult-link";
 import { useDeliveryAddress } from "./use-delivery-address";
 import cs from "./cart-screen.module.css";
 import rx from "./rx.module.css";
@@ -46,7 +47,7 @@ export function CartScreen({ locale, signedIn }: { locale: Locale; signedIn: boo
   const address = useDeliveryAddress(signedIn && ready && items.length > 0);
 
   const checkout = `/${locale}/cart/checkout`;
-  const upload = `/${locale}/pharmacy/scan-prescription`;
+  const upload = `/${locale}/pharmacy/rx-order?via=photo`;
 
   const changeQty = (item: CartItem, next: number) => {
     if (next < 1) {
@@ -151,6 +152,7 @@ export function CartScreen({ locale, signedIn }: { locale: Locale; signedIn: boo
                       )}
                       {pack ? <span className={cs.sub}>{pack}</span> : null}
                       {item.rx ? <StatusChip label={t("needsRx")} tone="amber" /> : null}
+                      {item.onlineOnly ? <StatusChip label={t("onlineOnly")} tone="mint" /> : null}
                     </div>
                     <div className={cs.end}>
                       <Stepper
@@ -177,7 +179,10 @@ export function CartScreen({ locale, signedIn }: { locale: Locale; signedIn: boo
                 <span className={rx.bannerTitle}>{t("rxBannerTitle")}</span>
                 <span className={rx.bannerText}>{t("rxBannerBody")}</span>
               </div>
-              <Link className={rx.bannerAction} href={upload}>{t("rxBannerAction")}</Link>
+              <div className={rx.bannerActions}>
+                <Link className={rx.bannerAction} href={upload}>{t("rxBannerAction")}</Link>
+                <RxConsultLink className={rx.bannerAction} locale={locale} lines={items} label={t("rxConsultAction")} />
+              </div>
             </div>
           ) : null}
         </div>

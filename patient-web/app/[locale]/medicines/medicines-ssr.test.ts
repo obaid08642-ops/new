@@ -8,7 +8,7 @@ const state = vi.hoisted(() => ({
   requirePatientAccess: vi.fn(),
 }));
 
-vi.mock("next/navigation", () => ({ notFound: vi.fn(), redirect: vi.fn(), useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
+vi.mock("next/navigation", () => ({ notFound: vi.fn(), redirect: vi.fn(), permanentRedirect: vi.fn(), useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 // the shell is a client frame (router, intl hooks, language and theme controls); this test is about the data boundary
 vi.mock("@/components-next/core/core-shell", () => ({ CoreShell: ({ children }: { children: unknown }) => children }));
@@ -33,17 +33,14 @@ describe("medicines SSR boundary", () => {
     state.requirePatientAccess.mockReset().mockResolvedValue(serverToken);
   });
 
-  it("renders bounded catalog results through the server boundary without embedding the token", async () => {
-    state.getPublicMedicines.mockResolvedValue(new Response(JSON.stringify([{ id: medicineId, name_en: "Catalog medicine", active_ingredient: "Ingredient", price: 99 }]), { status: 200 }));
+  it("permanently redirects the old medicines list to the canonical catalogue, keeping the category, search words and page", async () => {
+    const { permanentRedirect } = await import("next/navigation");
 
-    const html = renderToStaticMarkup(await MedicinesPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ q: "catalog", page: "1" }) }));
+    await MedicinesPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ q: "catalog", page: "2", category: "vitamins", sort: "trending" }) });
 
-    expect(state.getPublicMedicines).toHaveBeenCalledWith({ q: "catalog", page: 1 });
+    expect(permanentRedirect).toHaveBeenCalledWith("/en/c/vitamins?q=catalog&page=2");
     expect(state.requirePatientAccess).not.toHaveBeenCalled();
-    expect(html).not.toContain(serverToken);
-    // no price in the list: checked on the text, not the markup (the card's icon is an SVG whose path data holds digits)
-    expect(html).not.toMatch(/>[^<]*\b99\b[^<]*</);
-    expect(html).toContain(`/en/medicines/${medicineId}`);
+    expect(state.getPublicMedicines).not.toHaveBeenCalled();
   });
 
   it("redirects the legacy medicine detail URL to the canonical v14 product page without a patient session", async () => {

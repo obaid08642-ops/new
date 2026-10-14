@@ -109,9 +109,10 @@ export function DiagnosticsInsuranceApprovalClient({ orderId, labName, visitType
   const headerKey = order.status === "approved" ? "approvalApproved" : order.status === "partial_approval" ? "approvalPartial" : order.status === "rejected" ? "approvalRejected" : "approvalWaiting";
   const hybridCash = order.items.filter((i) => !i.covered && order.status !== "rejected" && (cashOptIn[i.id] ?? false))
     .reduce((s, i) => s + i.price, 0);
-  const finalToPay = order.status === "rejected" ? 0 : order.copayAmount + hybridCash + (visitType === "home" ? 50 : 0);
+  // Only server amounts; no invented 50 SAR home-visit fee (needs-review issue 632).
+  const finalToPay = order.status === "rejected" ? 0 : order.copayAmount + hybridCash;
   const checkoutQuery = order.status === "rejected"
-    ? `visitType=${encodeURIComponent(visitType)}&isInsurance=false&total=${order.totalAmount + (visitType === "home" ? 50 : 0)}`
+    ? `visitType=${encodeURIComponent(visitType)}&isInsurance=false&total=${order.totalAmount}`
     : `visitType=${encodeURIComponent(visitType)}&isInsurance=hybrid&copay=${finalToPay}`;
   const tone = order.status === "approved" ? DIAG_TONES.good : order.status === "partial_approval" ? DIAG_TONES.warn : order.status === "rejected" ? DIAG_TONES.quiet : DIAG_TONES.info;
 
@@ -158,7 +159,6 @@ export function DiagnosticsInsuranceApprovalClient({ orderId, labName, visitType
           <h2 className={consult.sectionTitle}>{t("financialSummary")}</h2>
           <div className={styles.line}><span>{t("summaryTotal")}</span><span className={styles.lineValue}><bdi>{money(order.totalAmount)}</bdi></span></div>
           <div className={styles.line}><span>{t("summaryCovered", { percent: formatNumber(locale, order.coveragePercent) })}</span><span className={styles.lineValue}><bdi>{money(order.coveredAmount)}</bdi></span></div>
-          {visitType === "home" ? <div className={styles.line}><span>{t("summaryHomeFee")}</span><span className={styles.lineValue}><bdi>{money(50)}</bdi></span></div> : null}
           {hybridCash > 0 ? <div className={styles.line}><span>{t("summaryExtraCash")}</span><span className={styles.lineValue}><bdi>{money(hybridCash)}</bdi></span></div> : null}
           <div className={styles.totalLine}><span>{t("summaryDue")}</span><span><bdi>{money(finalToPay)}</bdi></span></div>
         </section>

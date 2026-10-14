@@ -5,6 +5,7 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { Button, Toggle } from '../../../packages/ui-native/src';
 import { ConsultScreen, Gate, ResultHero, Section, type GateStatus } from '../../src/components/consult/ConsultKit';
 import { AmountLine, Block, ListCard, Tag, goBackDiag } from '../../src/components/diagnostics/DiagKit';
+import InsuranceUploadForm from '../../src/components/diagnostics/InsuranceUploadForm';
 import { Notice } from '../../src/components/pharmacy/OfferKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
@@ -31,10 +32,18 @@ interface ApprovalDetails {
 
 const str = (v: unknown): string => (typeof v === 'string' || typeof v === 'number' ? String(v) : '');
 // The home-visit fee the screen has always added to the amount to pay (not sent by the server; see Needs review).
-const HOME_VISIT_FEE = 50;
+
+/**
+ * The insurance step of a lab / radiology booking, two states of one screen: without `orderId` the upload form (prescription,
+ * insurance, visit, lab: it creates the booking and replaces this route with `?orderId=`), with it the facility's answer.
+ */
+export default function InsuranceApproval() {
+  const { orderId } = useLocalSearchParams<{ orderId?: string }>();
+  return orderId ? <ApprovalStatus /> : <InsuranceUploadForm />;
+}
 
 /** The lab's answer to an insurance request: waiting, then what is covered and what the patient pays (board CheckoutV2 totals). Polls every 3 seconds until answered. */
-export default function InsuranceApproval() {
+function ApprovalStatus() {
   const { theme, t, c, k, num, flow, money } = useScreenUi();
   const params = useLocalSearchParams<{ labName?: string; visitType?: string; orderId?: string }>();
   const labName = params.labName || k('diag.checkout.chosenLab');
@@ -119,7 +128,7 @@ export default function InsuranceApproval() {
       if (!item.covered && optedInCashItems.includes(item.id || item.name)) hybridCashAdditions += item.price;
     }
   }
-  const finalTotalToPay = details ? details.copayAmount + hybridCashAdditions + (visitType === 'home' ? HOME_VISIT_FEE : 0) : 0;
+  const finalTotalToPay = details ? details.copayAmount + hybridCashAdditions : 0; // only server amounts, no invented home fee (needs-review issues 813, 626)
 
   const hero =
     status === 'full'
@@ -138,7 +147,7 @@ export default function InsuranceApproval() {
           size="lg"
           fullWidth
           label={k('diag.ins.payOwn')}
-          onPress={() => router.push({ pathname: '/diagnostics/checkout', params: { visitType, isInsurance: 'false', total: (details?.totalAmount ?? 0) + (visitType === 'home' ? HOME_VISIT_FEE : 0) } } as unknown as Href)}
+          onPress={() => router.push({ pathname: '/diagnostics/checkout', params: { visitType, isInsurance: 'false', total: details?.totalAmount ?? 0 } } as unknown as Href)}
         />
         <Button theme={theme} size="lg" fullWidth variant="outline" label={k('diag.ins.consult')} onPress={() => router.push('/consultations' as Href)} />
       </>
@@ -151,7 +160,7 @@ export default function InsuranceApproval() {
         onPress={() => {
           // pay the server-computed copay through the insurance engine when the request is linked; otherwise the local checkout
           if (insuranceRequestId) {
-            router.push({ pathname: '/insurance/payment-split', params: { request_id: insuranceRequestId, booking_kind: 'lab' } } as unknown as Href);
+            router.push({ pathname: '/insurance/request', params: { id: insuranceRequestId, booking_kind: 'lab' } } as unknown as Href);
             return;
           }
           router.push({ pathname: '/diagnostics/checkout', params: { visitType, isInsurance: 'hybrid', copay: finalTotalToPay } } as unknown as Href);
@@ -196,7 +205,6 @@ export default function InsuranceApproval() {
                 <View style={{ padding: 14, gap: 10 }}>
                   <AmountLine label={k('diag.ins.totalCost')} amount={details.totalAmount} />
                   <AmountLine label={k('diag.ins.covers', { pct: num(details.coveragePercent) })} amount={details.coveredAmount} success minus />
-                  {visitType === 'home' ? <AmountLine label={k('diag.ins.homeFee')} amount={HOME_VISIT_FEE} /> : null}
                   {hybridCashAdditions > 0 ? <AmountLine label={k('diag.ins.extraCash')} amount={hybridCashAdditions} /> : null}
                   <View style={{ height: 1, backgroundColor: c.border.hairline }} />
                   <AmountLine label={k('diag.ins.toPay')} amount={finalTotalToPay} strong />

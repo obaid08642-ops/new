@@ -68,7 +68,7 @@ describe("the cart screen (canvas/Cart)", () => {
     expect(html).toContain('href="/en/p/paracetamol-500"');
     expect(html).toContain("Needs a prescription");
     expect(html).toContain("An item needs a prescription");
-    expect(html).toContain('href="/en/pharmacy/scan-prescription"');
+    expect(html).toContain('href="/en/pharmacy/rx-order?via=photo"');
     expect(html).toContain('href="/en/cart/checkout"');
     expect(html).toContain("Set by the pharmacy&#x27;s offer"); // the delivery fee is not invented
     expect(html).toContain("Shown with each offer"); // nor the final price
@@ -77,6 +77,12 @@ describe("the cart screen (canvas/Cart)", () => {
     expect(text).not.toMatch(/SAR|ر\.س|\d+\.\d{2}|Subtotal|Estimated|Price not available|catalogue price|in stock|out of stock/i);
     expect(html).not.toContain("Saved in your account"); // no server cart is read or drawn
     expect(html).not.toContain("style=");
+  });
+
+  it("draws the online-only chip only on the line that carries the flag", () => {
+    cart.value = { ...cart.value, items: [item({ onlineOnly: true }), item({ id: "m2", name: "Amoxicillin", qty: 1 })], itemCount: 3 };
+    const html = renderToStaticMarkup(<CartScreen locale="en" signedIn={false} />);
+    expect(html.match(/Online only/g)).toHaveLength(1);
   });
 
   it("names the quantity controls per item, and the minus at 1 says it removes", () => {
@@ -124,7 +130,7 @@ describe("the delivery address card", () => {
     expect(ready).toContain("Deliver to");
     expect(ready).toContain("Home");
     expect(ready).toContain("12 King Fahd Rd, Olaya, Riyadh");
-    expect(ready).toContain('href="/en/profile/addresses"');
+    expect(ready).toContain('href="/en/profile/addresses?select=1"');
     expect(renderToStaticMarkup(<AddressCard locale="en" state={{ status: "none" }} />)).toContain("Add a delivery address");
     expect(renderToStaticMarkup(<AddressCard locale="en" state={{ status: "nolocation", address: { ...located, lat: null, lng: null } }} />)).toContain("This address has no location");
     expect(renderToStaticMarkup(<AddressCard locale="en" state={{ status: "error" }} />)).toContain("could not be loaded");
@@ -134,13 +140,16 @@ describe("the delivery address card", () => {
 });
 
 describe("the prescription upload screen (canvas/RxUpload)", () => {
-  it("names both file inputs, offers camera and photos, and cannot be submitted without a photo", () => {
-    const html = renderToStaticMarkup(<RxUploadScreen locale="en" />);
+  it("names both file inputs, offers the picker of the chosen way (camera or photos), and cannot be submitted without a photo", () => {
+    const html = renderToStaticMarkup(<RxUploadScreen locale="en" via="photo" />);
+    const upload = renderToStaticMarkup(<RxUploadScreen locale="en" via="upload" />);
+    expect(upload).toContain("Photos");
+    expect(upload).not.toContain(">Camera<");
+    expect(html).not.toContain(">Photos<");
     expect(html).toContain('aria-label="Take a photo of the prescription"');
     expect(html).toContain('aria-label="Choose a prescription photo from this device"');
     expect(html).toContain('capture="environment"');
     expect(html).toContain("Camera");
-    expect(html).toContain("Photos");
     expect(html).toMatch(/<button[^>]*disabled[^>]*>(?:(?!<\/button>).)*Save prescription and continue/s);
     expect(html).not.toContain("style=");
     expect(html).not.toContain("<progress");
@@ -284,6 +293,13 @@ describe("the prescription photo", () => {
     expect(items).toEqual([{ name: "Panadol 500", quantity: 2 }, { name: "Augmentin", quantity: 1 }, { name: "Lots", quantity: 100 }]);
     expect(ocrItems({})).toEqual([]);
     expect(ocrItems(null)).toEqual([]);
+  });
+
+  it("links the catalogue product the server matched, for the assistant only (#881)", async () => {
+    const { ocrItemsWithLeaflet } = await import("@/lib/pharmacy/rx-upload");
+    expect(ocrItemsWithLeaflet({ items: [{ raw_name_string: "Panadol 500", requested_quantity: 2, slug: "panadol-500" }, { raw_name_string: "X", slug: "../admin" }] }))
+      .toEqual([{ name: "Panadol 500", quantity: 2, slug: "panadol-500" }, { name: "X", quantity: 1, slug: null }]);
+    expect(ocrItems({ items: [{ raw_name_string: "Panadol 500", slug: "panadol-500" }] })).toEqual([{ name: "Panadol 500", quantity: 1 }]);
   });
 
   it("takes the saved prescription's id from the upload's answer", () => {

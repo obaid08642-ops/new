@@ -8,17 +8,16 @@
  *   GET /labs/bookings/mine         lab bookings (`state`, `total`, `scheduled_at`)
  *   GET /radiology/bookings/mine    radiology bookings (`state`, `total`)
  *   GET /home-care/bookings/my      nursing visits (`state`, `total_price`, `address`)
- *   GET /insurance/claims           claims (`service`, `amount`, `status`)
  *   GET /pharmacy/returns           returns (`reason`, `amount`, `status`)
- *   GET /emergency/my/active        the active SOS (`state`, `location.address`)
  *
  * A status the table below does not know is shown as "status not available", never as the server's raw code.
  */
 import { SERVICE_ICONS, type FillIconName, type ServiceTone } from '../../../packages/ui/icons/fill';
 import { orderNumber, orderRoute } from './pharmacyCheckout';
+import { governedStep } from './pharmacyOffers';
 import { num } from './pharmacyOffers';
 
-export type OrderKind = 'doctors' | 'pharmacy' | 'labs' | 'radiology' | 'nursing' | 'ambulance' | 'insurance' | 'returns';
+export type OrderKind = 'doctors' | 'pharmacy' | 'labs' | 'radiology' | 'nursing' | 'returns';
 export type Bucket = 'current' | 'previous';
 export type PillTone = ServiceTone | 'danger' | 'neutral';
 
@@ -121,7 +120,6 @@ const STATUS: Record<string, StatusLook> = {
   REPORTED: s('resultReady', 'mint', 'previous'),
   APPROVED: s('approved', 'mint', 'previous'),
   PARTIAL_APPROVAL: s('partialApproval', 'amber', 'previous'),
-  REIMBURSED: s('reimbursed', 'mint', 'previous'),
   RESOLVED: s('resolved', 'mint', 'previous'),
   // ended without service
   CANCELLED: s('cancelled', 'danger', 'previous'),
@@ -134,7 +132,7 @@ const STATUS: Record<string, StatusLook> = {
 };
 
 /**
- * Claims and returns say `pending` and `processing` in their own sense (under review), which the appointment and order
+ * Returns say `pending` and `processing` in their own sense (under review), which the appointment and order
  * tables read as "awaiting confirmation"; they get their own small table.
  */
 const REVIEWED: Record<string, StatusLook> = {
@@ -148,7 +146,7 @@ export const STATUS_LABELS: readonly string[] = [...new Set([...Object.values(ST
 
 export function statusLook(kind: OrderKind, status: string | null | undefined): StatusLook {
   const code = String(status ?? '').trim().toUpperCase();
-  if ((kind === 'insurance' || kind === 'returns') && REVIEWED[code]) return REVIEWED[code];
+  if (kind === 'returns' && REVIEWED[code]) return REVIEWED[code];
   return STATUS[code] ?? UNKNOWN;
 }
 
@@ -189,8 +187,6 @@ export const KIND_ICON: Record<OrderKind, { icon: FillIconName; tone: ServiceTon
   labs: SERVICE_ICONS.lab,
   radiology: SERVICE_ICONS.radiology,
   nursing: SERVICE_ICONS.nursing,
-  ambulance: SERVICE_ICONS.emergency,
-  insurance: SERVICE_ICONS.insurance,
   returns: { icon: 'arrows-left-right', tone: SERVICE_ICONS.radiology.tone },
 };
 
@@ -237,7 +233,7 @@ function pharmacyRow(o: Record<string, unknown>): OrderRow | null {
   const snapshot = record(o.pricing_snapshot);
   const total = num(record(snapshot?.totals)?.total);
   const currency = text(record(snapshot?.totals)?.currency);
-  const next = orderRoute({ id, status, governed_state: text(o.governed_state), payment_status: text(o.payment_status), selected_offer_id: text(o.selected_offer_id), payment_method: text(o.payment_method) });
+  const next = orderRoute({ id, status, governed_state: governedStep(o.governed_state), payment_status: text(o.payment_status), selected_offer_id: text(o.selected_offer_id), payment_method: text(o.payment_method) });
   const lower = status.toLowerCase();
   const reorder = REORDERABLE.has(lower);
   return row('pharmacy', o, status, {
@@ -258,9 +254,7 @@ export interface OrderSources {
   labs?: unknown;
   radiology?: unknown;
   nursing?: unknown;
-  claims?: unknown;
   returns?: unknown;
-  emergency?: unknown;
 }
 
 /** The server's own name of a service, in the language asked (`name_<lang>` falls back to the other of ar / en). */
@@ -288,8 +282,8 @@ export function buildRows(src: OrderSources, pick: PickName): OrderRow[] {
   }
   for (const o of listOf(src.legacyOrders)) {
     const items = Array.isArray(o.items) ? o.items.length : 0;
-    // the legacy orders have no screen of their own: the governed order screens do not know their ids
-    push(row('pharmacy', o, text(o.state) ?? text(o.status) ?? 'PENDING', { sub: items > 0 ? { key: items === 1 ? 'pharmacy.hub.oneItem' : 'pharmacy.hub.items', n: items } : text(o.pharmacy_name) ? { text: text(o.pharmacy_name) as string } : null, number: idOf(o) ? orderNumber(idOf(o) as string) : null }));
+    // #368: a legacy order opens the tracking screen, which reads GET /orders/:id/tracking when the governed read does not know its id
+    push(row('pharmacy', o, text(o.state) ?? text(o.status) ?? 'PENDING', { sub: items > 0 ? { key: items === 1 ? 'pharmacy.hub.oneItem' : 'pharmacy.hub.items', n: items } : text(o.pharmacy_name) ? { text: text(o.pharmacy_name) as string } : null, number: idOf(o) ? orderNumber(idOf(o) as string) : null, route: idOf(o) ? { pathname: '/pharmacy/order-tracking', params: { orderId: idOf(o) as string } } : null, action: 'track' }));
   }
   for (const o of listOf(src.pharmacyOrders)) push(pharmacyRow(o));
   for (const b of listOf(src.labs)) {
@@ -331,17 +325,6 @@ export function buildRows(src: OrderSources, pick: PickName): OrderRow[] {
       }),
     );
   }
-  for (const c of listOf(src.claims)) {
-    push(
-      row('insurance', c, text(c.status) ?? 'pending', {
-        title: text(c.service),
-        at: time(c.date) ?? time(c.createdAt),
-        amount: firstAmount(c, ['amount']),
-        route: { pathname: '/insurance/hub', params: { tab: 'claims' } },
-        action: 'details',
-      }),
-    );
-  }
   for (const r of listOf(src.returns)) {
     const id = idOf(r);
     const orderId = text(r.order_id);
@@ -355,15 +338,22 @@ export function buildRows(src: OrderSources, pick: PickName): OrderRow[] {
       }),
     );
   }
-  const emergency = record(record(src.emergency)?.data) ?? record(src.emergency);
-  if (emergency && idOf(emergency)) {
-    const address = addressText(record(emergency.location)?.address ?? emergency.address);
-    push(row('ambulance', emergency, 'active', { sub: address ? { text: address } : null, route: { pathname: '/emergency/tracking' }, action: 'track' }));
-  }
 
   return rows.sort((a, b) => (b.at ?? 0) - (a.at ?? 0));
 }
 
 export function inBucket(rows: OrderRow[], bucket: Bucket): OrderRow[] {
   return rows.filter((r) => r.look.bucket === bucket);
+}
+
+/** The kinds the service filter offers, in the order of the chips. */
+export const KIND_ORDER: readonly OrderKind[] = ['doctors', 'pharmacy', 'labs', 'radiology', 'nursing', 'returns'];
+/** Only the kinds present in the loaded rows get a chip. */
+export function kindsPresent(rows: OrderRow[]): OrderKind[] {
+  const seen = new Set(rows.map((r) => r.kind));
+  return KIND_ORDER.filter((kind) => seen.has(kind));
+}
+/** The service filter (client-side over what is loaded): null = all services. */
+export function ofKind(rows: OrderRow[], kind: OrderKind | null): OrderRow[] {
+  return kind === null ? rows : rows.filter((r) => r.kind === kind);
 }

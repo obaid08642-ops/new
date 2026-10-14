@@ -130,7 +130,8 @@ describe("the payment result is whatever the backend says, never the address", (
         if (!handlers.order) throw new Error("offline");
         return handlers.order();
       }
-      if (String(url).includes("/api/payments/verify/")) {
+      // the stored status (GET) and the explicit refresh (POST verify) answer the same bounded shape
+      if (String(url).includes("/api/payments/verify/") || String(url).includes("/api/payments/status/")) {
         if (!handlers.verify) throw new Error("offline");
         return handlers.verify();
       }
@@ -186,9 +187,18 @@ describe("the payment result is whatever the backend says, never the address", (
     expect((await checkPayment({ orderId: ORDER, transactionId: TXN }, route({ order: () => json(503, null), verify: () => json(502, null) }))).phase).toEqual({ kind: "error" });
   });
 
-  it("asks the bounded verification route (not the raw transaction), by POST, with the cookie", async () => {
+  it("issue 534: polls the read-only stored status; asks the provider (POST verify) only when told to refresh", async () => {
     const fetchImpl = route({ order: () => json(200, {}), verify: () => json(200, { status: "pending" }) });
     await checkPayment({ orderId: ORDER, transactionId: TXN }, fetchImpl);
+    expect((fetchImpl as unknown as { mock: { calls: unknown[][] } }).mock.calls.map((c) => String(c[0]))).toContain(`/api/payments/status/${TXN}`);
+    const refreshing = route({ order: () => json(200, {}), verify: () => json(200, { status: "pending" }) });
+    await checkPayment({ orderId: ORDER, transactionId: TXN }, refreshing, true);
+    expect((refreshing as unknown as { mock: { calls: unknown[][] } }).mock.calls.map((c) => String(c[0]))).toContain(`/api/payments/verify/${TXN}`);
+  });
+
+  it("asks the bounded verification route (not the raw transaction), by POST, with the cookie", async () => {
+    const fetchImpl = route({ order: () => json(200, {}), verify: () => json(200, { status: "pending" }) });
+    await checkPayment({ orderId: ORDER, transactionId: TXN }, fetchImpl, true);
     const verify = (fetchImpl as unknown as ReturnType<typeof vi.fn>).mock.calls.find(([url]) => String(url).includes("/verify/"));
     expect(verify?.[0]).toBe(`/api/payments/verify/${TXN}`);
     expect(verify?.[1]).toMatchObject({ method: "POST", credentials: "same-origin" });
@@ -265,7 +275,7 @@ describe("where an order belongs, from the states the backend really produces", 
     expect(to({ status: "broadcasting" })).toBe(`/en/pharmacy/broadcast-status?orderId=${ORDER}`);
     expect(to({ status: "offer_selection_pending" })).toBe(`/en/pharmacy/broadcast-status?orderId=${ORDER}`);
     expect(to({ status: "negotiating_substitutes" })).toBe(`/en/pharmacy/broadcast-status?orderId=${ORDER}`);
-    expect(to({ status: "draft" })).toBe(`/en/pharmacy/waiting-for-pharmacy?orderId=${ORDER}`);
+    expect(to({ status: "draft" })).toBe(`/en/pharmacy/broadcast-status?orderId=${ORDER}`);
     expect(to({ status: "delivered" })).toBe(`/en/orders/${ORDER}/tracking`);
     expect(to({})).toBe(`/en/orders/${ORDER}/tracking`);
   });
@@ -399,7 +409,7 @@ describe("the pay screen", () => {
     expect(html).toContain("Covered by insurance");
     expect(html).toContain("SAR 6.00");
     expect(html).toContain("Your share, to pay now");
-    expect(html).toContain("Your insurer covers its part");
+    expect(html).toContain("Once the insurer decides, you pay only your share");
   });
 
   it("keeps a card number, and anything else the patient could type, out of the module (no storage, no logging, no URL)", () => {

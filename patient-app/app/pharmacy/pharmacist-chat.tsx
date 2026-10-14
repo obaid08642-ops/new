@@ -20,7 +20,13 @@ import { logError } from '../../src/utils/logger';
  */
 
 type Thread = { id: string; order_id?: string; order_item_id?: string; status?: string; resolution?: string };
-type Message = { id: string; text?: string; sender_role?: string; createdAt?: string; substitute_offer?: { name?: string; sku?: string; price?: number; notes?: string } };
+const SYSTEM_LINE: Record<string, string> = {
+  substitute_accepted: 'pharmacy.chat.resolution.accepted',
+  substitute_rejected: 'pharmacy.chat.resolution.rejected',
+  item_removed: 'pharmacy.chat.resolution.removed',
+};
+
+type Message = { id: string; text?: string; sender_role?: string; system_code?: string; createdAt?: string; substitute_offer?: { name?: string; sku?: string; price?: number; notes?: string } };
 type Problem = 'send' | 'decision' | 'blocked' | 'length' | null;
 
 const MAX_LENGTH = 1000;
@@ -131,7 +137,7 @@ export default function PharmacistChatScreen() {
     return (
       <Screen theme={theme} direction={dir} header={header} testID="pharmacist-chat-screen">
         <View style={{ ...COLUMN, flex: 1, justifyContent: 'center', paddingHorizontal: 16 }}>
-          <EmptyState icon="chat-circle-text" tone={PHARMACY_TONE} title={k('pharmacy.chat.noOrderTitle')} body={k('pharmacy.chat.noOrderBody')} actionLabel={k('pharmacy.hub.orders')} onAction={() => router.replace('/pharmacy/order-history')} theme={theme} />
+          <EmptyState icon="chat-circle-text" tone={PHARMACY_TONE} title={k('pharmacy.chat.noOrderTitle')} body={k('pharmacy.chat.noOrderBody')} actionLabel={k('pharmacy.hub.orders')} onAction={() => router.replace('/orders')} theme={theme} />
         </View>
       </Screen>
     );
@@ -159,7 +165,10 @@ export default function PharmacistChatScreen() {
 
   const bubble = (item: Message) => {
     if (item.sender_role === 'system') {
-      return <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{item.text}</Text>;
+      // The server's own line is Arabic only: show the translated outcome for its code, nothing otherwise.
+      const key = SYSTEM_LINE[String(item.system_code || '')];
+      if (!key) return null;
+      return <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k(key)}</Text>;
     }
     const mine = item.sender_role === 'patient';
     const fg = mine ? c.action.primary.fg : c.text.primary;

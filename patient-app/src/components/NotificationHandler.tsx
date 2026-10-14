@@ -31,6 +31,7 @@ const ALLOWED_SCREENS = new Set([
   '/consultations/booking-status',
   '/consultations/chat-with-doctor',
   '/consultations/virtual-waiting-room',
+  // merged into appointment-detail / booking-status (batch 14); notifications sent before the merge still carry them and the routes redirect
   '/consultations/summary',
   '/consultations/clinic-confirm',
   '/consultations/prescription-from-doctor',
@@ -40,30 +41,38 @@ const ALLOWED_SCREENS = new Set([
   '/diagnostics/orders',
   '/diagnostics/my-results',
   '/nursing/insurance-status',
-  '/emergency/sos-active',
+  '/emergency',
   '/insurance',
+  '/insurance/request',
   '/returns/hub',
   '/notifications',
   '/loyalty',
   '/offers',
-  '/health/medication-reminder-list',
+  '/health/medications',
+  '/health/medication-reminder-list', // notifications scheduled before the merge still carry it; the route redirects
 ]);
 
 // Legacy type → screen resolver (kept for backward compatibility)
 function resolveLegacyRoute(data: any): { pathname: string; params: Record<string, any> } | null {
   switch (data?.type) {
     case 'chat':
-      return {
-        pathname: '/consultations/chat-with-doctor',
-        params: { doctorId: data.doctorId || data.senderId, doctorName: data.senderName, appointmentId: data.appointmentId || data.bookingId },
-      };
+      // Decision 24: the doctor thread belongs to a booking; a chat notification without one opens the bookings list.
+      return data.appointmentId || data.bookingId
+        ? {
+            pathname: '/consultations/chat-with-doctor',
+            params: { doctorId: data.doctorId || data.senderId, doctorName: data.senderName, appointmentId: data.appointmentId || data.bookingId },
+          }
+        : { pathname: '/consultations/appointments', params: {} };
     case 'prescription':
-      return { pathname: '/consultations/prescription-from-doctor', params: { prescriptionId: data.prescriptionId, doctorId: data.doctorId } };
+      // The prescription is a section of its appointment's page.
+      return data.appointmentId || data.bookingId
+        ? { pathname: '/consultations/appointment-detail', params: { appointmentId: data.appointmentId || data.bookingId } }
+        : { pathname: '/consultations/appointments', params: {} };
     case 'order':
       return { pathname: '/pharmacy/order-tracking', params: { orderId: data.orderId } };
     case 'consultation':
       return data.bookingId
-        ? { pathname: '/consultations/appointment-detail', params: { id: data.bookingId } }
+        ? { pathname: '/consultations/appointment-detail', params: { appointmentId: data.bookingId } }
         : { pathname: '/consultations/appointments', params: {} };
     // M6 additions
     case 'booking_accepted':
@@ -73,11 +82,11 @@ function resolveLegacyRoute(data: any): { pathname: string; params: Record<strin
       if (data.bookingKind === 'nursing' || data.booking_kind === 'nursing' || data.kind === 'home-care') {
         return { pathname: '/nursing/insurance-status', params: { bookingId: data.bookingId || data.booking_id || '' } };
       }
-      return { pathname: '/insurance', params: { requestId: data.requestId } };
+      return data.requestId ? { pathname: '/insurance/request', params: { id: data.requestId } } : { pathname: '/insurance', params: {} };
     case 'report_ready':
       return { pathname: '/diagnostics/my-results', params: {} };
     case 'emergency_update':
-      return { pathname: '/emergency/sos-active', params: {} };
+      return { pathname: '/emergency', params: {} };
     case 'refund_status':
       return { pathname: '/returns/hub', params: {} };
     default:
@@ -91,7 +100,8 @@ export default function NotificationHandler() {
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    // Register token with backend and reconcile explicit local medication actions.
+    // Register the token with the backend (only if notifications are already allowed: the phone's dialog is never shown here,
+    // it comes from the in-context prompts) and reconcile explicit local medication actions.
     registerForPushNotificationsAsync();
     flushMedicationDoseActions().catch(() => { /* a later app launch will retry */ });
 

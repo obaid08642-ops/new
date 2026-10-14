@@ -49,7 +49,7 @@ export default async function CartPrescriptionPage({ params }: Props) {
 
   const prescription = extractCartPrescription(await response.json().catch(() => null));
   const issued = formatDate(locale, prescription?.date);
-  const upload = `/${locale}/pharmacy/scan-prescription`;
+  const upload = `/${locale}/pharmacy/rx-order?via=photo`;
 
   return (
     <CoreShell locale={locale} title={t("cartTitle")} backHref={back} width="narrow">

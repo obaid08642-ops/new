@@ -1,6 +1,8 @@
-import { Body, Controller, Get, Post, Query, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Query, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard, SelfService } from '../../common/auth.guard';
+import { JwtAuthGuard, NoGuestsGuard, SelfService } from '../../common/auth.guard';
+import { AiUserQuotaGuard } from '../ai/ai-user-quota.guard';
+import { NutritionPlanService } from './nutrition-plan.service';
 import { NutritionService } from './nutrition.service';
 import { UpdateProfileDto, LogMealDto, LogExerciseDto, LogWaterDto} from './nutrition.dto';
 
@@ -9,7 +11,7 @@ import { UpdateProfileDto, LogMealDto, LogExerciseDto, LogWaterDto} from './nutr
 @Controller('nutrition')
 @SelfService()
 export class NutritionController {
-  constructor(private readonly nutritionService: NutritionService) {}
+  constructor(private readonly nutritionService: NutritionService, private readonly plans: NutritionPlanService) {}
 
   private authenticatedPatientId(req: any): string {
     const userId = req?.user?.id;
@@ -17,6 +19,23 @@ export class NutritionController {
       throw new UnauthorizedException('authenticated_patient_required');
     }
     return userId;
+  }
+
+  /* ───────── AI plan (owner decision 2026-10-05) ───────── */
+  @ApiOperation({ summary: 'My latest AI nutrition plan (204 when none) | خطتي الغذائية' })
+  @Get('plan')
+  async getPlan(@Req() req: any, @Res({ passthrough: true }) res: any) {
+    const plan = await this.plans.latest(this.authenticatedPatientId(req));
+    if (!plan) { res.status(204); return undefined; }
+    return plan;
+  }
+
+  @ApiOperation({ summary: 'Generate my AI nutrition plan from my profile | إنشاء خطة غذائية' })
+  @UseGuards(NoGuestsGuard, AiUserQuotaGuard)
+  @HttpCode(201)
+  @Post('plan/generate')
+  generatePlan(@Req() req: any) {
+    return this.plans.generate(this.authenticatedPatientId(req));
   }
 
   /* ───────── Profile ───────── */

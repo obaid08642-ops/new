@@ -7,6 +7,7 @@ import { LedgerService, ApprovalService } from '../../../finance-engine/finance-
 import { CurrentUser, Roles } from '../../../../common/auth.guard';
 import { UserRole } from '../../../../common/enums';
 import { RejectPayoutDto } from './finance.dto';
+import { Permission, RequirePermissions } from '../../../../common/permissions';
 
 /**
  * M5 fix: provider withdrawals written by provider-ops (`ProviderWithdrawal`,
@@ -71,6 +72,7 @@ export class FinanceController {
     return { data: normalized };
   }
 
+  @RequirePermissions(Permission.FINANCE_PAYOUT_APPROVE)
   @Post('withdrawals/:id/execute')
   async executePayout(@Param('id') id: string, @CurrentUser() admin: any) {
     // Resolve the withdrawal WITHOUT mutating it first — we must validate
@@ -134,6 +136,7 @@ export class FinanceController {
     return { success: true, message: 'Payout executed successfully', amount, provider_id: providerId, available_after: (await this.ledger.providerBalance(providerId)).available, source: legacyDoc ? 'legacy' : 'provider_ops' };
   }
 
+  @RequirePermissions(Permission.FINANCE_PAYOUT_APPROVE)
   @Post('withdrawals/:id/reject')
   async rejectPayout(@Param('id') id: string, @Body() body: RejectPayoutDto) {
     // Legacy withdrawals are keyed by Mongo `_id`; provider-ops withdrawals

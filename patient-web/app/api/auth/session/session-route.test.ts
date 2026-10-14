@@ -31,6 +31,23 @@ describe("GET /api/auth/session", () => {
     expect(body).toEqual({ authenticated: true, user: { id: "u1", is_guest: true } });
   });
 
+  it("refreshes an expired access token and answers authenticated:true with the new cookies", async () => {
+    state.cookie = "stale";
+    state.callPatientApi.mockImplementation(async (path: string, _init: unknown, token?: string) => {
+      if (path === "/auth/refresh") return new Response(JSON.stringify({ accessToken: "fresh", refreshToken: "fresh-r" }), { status: 200 });
+      return token === "fresh" ? new Response(JSON.stringify({ id: "u1" }), { status: 200 }) : new Response("{}", { status: 401 });
+    });
+    const res = await GET();
+    expect(await res.json()).toEqual({ authenticated: true, user: { id: "u1" } });
+    expect(res.headers.get("set-cookie")).toContain("nabd_access=fresh");
+  });
+
+  it("answers authenticated:false when the refresh token is refused too", async () => {
+    state.cookie = "stale";
+    state.callPatientApi.mockResolvedValue(new Response("{}", { status: 401 }));
+    expect((await (await GET()).json()).authenticated).toBe(false);
+  });
+
   it("still passes an upstream outage through as an error status", async () => {
     state.cookie = "live";
     state.callPatientApi.mockResolvedValue(new Response("{}", { status: 503 }));

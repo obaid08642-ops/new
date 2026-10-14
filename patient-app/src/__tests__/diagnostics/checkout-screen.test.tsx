@@ -64,6 +64,6 @@ describe('DiagnosticsCheckoutScreen', () => {
       fireEvent.press(screen.getByLabelText(k('diag.checkout.toInsurance')));
     });
     expect(mockApi).not.toHaveBeenCalled();
-    expect(mockPush).toHaveBeenCalledWith(expect.objectContaining({ pathname: '/diagnostics/insurance-upload', params: expect.objectContaining({ labId: 'lab-1', labName: 'Test lab', serviceType: 'home', time: '09:00' }) }));
+    expect(mockPush).toHaveBeenCalledWith(expect.objectContaining({ pathname: '/diagnostics/insurance-approval', params: expect.objectContaining({ labId: 'lab-1', labName: 'Test lab', serviceType: 'home', time: '09:00' }) }));
   });
 });

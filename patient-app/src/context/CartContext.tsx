@@ -12,7 +12,7 @@ import { isAnyOf } from '@reduxjs/toolkit';
 
 import { resetStoreAction } from '../store/actions/recovery';
 import { startAppListening } from '../store/middleware/listenerMiddleware';
-import { logout } from '../store/slices/authSlice';
+import { logout, offlineUnauthenticated } from '../store/slices/authSlice';
 import { createPharmacyCartStore, EMPTY_CART_SNAPSHOT, sanitizePharmacyCartItem, type CartItem, type CartItemInput } from '../utils/pharmacyCartStore';
 
 export { sanitizePharmacyCartItem };
@@ -49,7 +49,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   // the sign-out of the auth slice (and a full store reset) clear the cart in memory and on the device
   useEffect(() => {
-    const stop = startAppListening({ matcher: isAnyOf(logout, resetStoreAction), effect: () => { void store.signOut(); } });
+    const stop = startAppListening({ matcher: isAnyOf(logout, offlineUnauthenticated, resetStoreAction), effect: () => { void store.signOut(); } });
     return () => { stop(); };
   }, [store]);
 

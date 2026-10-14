@@ -2,8 +2,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 
-import { AppHeader, Button, Card, EmptyState, ErrorState, FIcon, Icon, OfflineState, Screen, StickyFooter } from '../../../packages/ui-native/src';
+import { AppHeader, Button, Card, EmptyState, ErrorState, FIcon, Icon, OfflineState, Screen, Segmented, StickyFooter } from '../../../packages/ui-native/src';
+import { useManualRequest } from '../../src/components/pharmacy/ManualRequest';
 import { PHARMACY_TONE, Pill, goBack } from '../../src/components/pharmacy/PharmacyKit';
+import { useRxPhotoIntake } from '../../src/components/pharmacy/RxIntake';
 import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
 import { dateLocaleFor } from '../../src/utils/dates';
@@ -11,9 +13,12 @@ import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 
 /**
- * Prescription order — the RxUpload family (no board of its own): the prescription the patient picked (or has just
- * uploaded) with its medicines, then on to the address and the request for offers (/pharmacy/checkout, which reads the
- * prescription). Without an id it lists the patient's active prescriptions (GET /prescriptions/active).
+ * Order with a prescription (second pass, section 11: the old request, rx-order and scan-prescription in one screen) — the
+ * RxUpload family. With a `prescriptionId` it shows the prescription the patient picked (or has just uploaded) with its
+ * medicines, then on to the address and the request for offers (/pharmacy/checkout, which reads the prescription). Without
+ * one it offers three ways in, chosen in the URL as `?via=photo|upload|type` (photo, upload from the phone's photos, type the
+ * names) and lists the patient's active prescriptions (GET /prescriptions/active) under the first two. The steps after it
+ * (offers, payment, tracking) are unchanged.
  *
  * Only what the API sends is drawn. GET /prescriptions/:id returns the medicines as name, dose, frequency and
  * duration, with no quantity; a quantity is shown only when a line carries one.
@@ -42,7 +47,11 @@ const itemQty = (i: RxItem) => {
 
 export default function PharmacyPrescriptionOrderScreen() {
   const { theme, t, c, dir, flow, lang, k, num } = useScreenUi();
-  const { prescriptionId } = useLocalSearchParams<{ prescriptionId?: string }>();
+  const { prescriptionId, via: viaParam } = useLocalSearchParams<{ prescriptionId?: string; via?: string }>();
+  const viaRaw = Array.isArray(viaParam) ? viaParam[0] : viaParam;
+  const via: 'photo' | 'upload' | 'type' = viaRaw === 'upload' || viaRaw === 'type' ? viaRaw : 'photo';
+  const intake = useRxPhotoIntake(via === 'upload' ? 'upload' : 'photo');
+  const manual = useManualRequest();
   const requestedId = Array.isArray(prescriptionId) ? prescriptionId[0] : prescriptionId;
   const [prescription, setPrescription] = useState<Rx | null>(null);
   const [active, setActive] = useState<Rx[]>([]);
@@ -53,7 +62,11 @@ export default function PharmacyPrescriptionOrderScreen() {
     setLoading(true);
     setFailed(null);
     try {
-      if (requestedId) {
+      if (!requestedId && via === 'type') {
+        // typing the names needs no list of prescriptions
+        setActive([]);
+        setPrescription(null);
+      } else if (requestedId) {
         const response = await apiFetch<Rx | { data?: Rx }>(`/prescriptions/${requestedId}`);
         setPrescription(response && 'data' in response && response.data ? response.data : (response as Rx));
         setActive([]);
@@ -69,7 +82,7 @@ export default function PharmacyPrescriptionOrderScreen() {
     } finally {
       setLoading(false);
     }
-  }, [requestedId]);
+  }, [requestedId, via]);
 
   useEffect(() => {
     void load();
@@ -108,9 +121,59 @@ export default function PharmacyPrescriptionOrderScreen() {
         </View>
       </StickyFooter>
     ) : undefined;
+  const shownFooter = requestedId ? footer : via === 'type' ? manual.footer : intake.footer;
 
   let body: React.ReactNode;
-  if (loading) {
+  if (!requestedId) {
+    body = (
+      <View style={{ gap: 20 }}>
+        <Segmented
+          label={k('pharmacy.rx.ways')}
+          value={via}
+          onChange={(v) => router.setParams({ via: v })}
+          options={[
+            { value: 'photo', label: k('pharmacy.rx.viaPhoto') },
+            { value: 'upload', label: k('pharmacy.rx.viaUpload') },
+            { value: 'type', label: k('pharmacy.rx.viaType') },
+          ]}
+          theme={theme}
+        />
+        {via === 'type' ? manual.body : intake.body}
+        {via !== 'type' && !failed && !loading && active.length ? (
+          <View style={{ gap: 12 }}>
+            <Text style={{ ...scale(t, 'meta', 'regular'), lineHeight: 20, color: c.text.secondary, ...flow }}>{k('pharmacy.rx.listIntro')}</Text>
+            {active.map((rx) => {
+              const st = stateLabel(rx);
+              const count = Array.isArray(rx.items) ? rx.items.length : 0;
+              return (
+                <Pressable
+                  key={rx.id}
+                  accessibilityRole="button"
+                  accessibilityLabel={k('pharmacy.rx.number', { id: shortId(rx) })}
+                  onPress={() => router.replace({ pathname: '/pharmacy/rx-order', params: { prescriptionId: String(rx.id) } })}
+                >
+                  <Card padding="sm" theme={theme}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                      <FIcon icon="prescription" tone={PHARMACY_TONE} size={44} theme={theme} />
+                      <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
+                        <Text style={{ ...scale(t, 'row', 'medium'), color: c.text.primary, ...flow }}>{k('pharmacy.rx.number', { id: shortId(rx) })}</Text>
+                        <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>
+                          {[count === 1 ? k('pharmacy.hub.oneItem') : count > 1 ? k('pharmacy.hub.items', { n: num(count) }) : '', dateOf(rx)].filter(Boolean).join(' · ')}
+                        </Text>
+                        {st ? <Pill label={st.label} tone={st.tone} /> : null}
+                      </View>
+                      <Icon name={dir === 'rtl' ? 'caret-left' : 'caret-right'} size={18} theme={theme} tone="secondary" />
+                    </View>
+                  </Card>
+                </Pressable>
+              );
+            })}
+          </View>
+        ) : null}
+        {via !== 'type' && failed ? <ErrorState title={k('pharmacy.rx.listError')} body={k('pharmacy.error.body')} retryLabel={k('pharmacy.retry')} onRetry={() => void load()} theme={theme} /> : null}
+      </View>
+    );
+  } else if (loading) {
     body = (
       <View accessibilityLabel={k('pharmacy.loading')} accessibilityState={{ busy: true }} style={{ gap: 12 }}>
         {[0, 1, 2].map((i) => (
@@ -121,7 +184,7 @@ export default function PharmacyPrescriptionOrderScreen() {
   } else if (failed === 'offline') {
     body = <OfflineState title={k('pharmacy.offline.title')} body={k('pharmacy.offline.body')} retryLabel={k('pharmacy.retry')} onRetry={() => void load()} theme={theme} />;
   } else if (failed === 'error') {
-    body = <ErrorState title={requestedId ? k('pharmacy.rx.loadError') : k('pharmacy.rx.listError')} body={k('pharmacy.error.body')} retryLabel={k('pharmacy.retry')} onRetry={() => void load()} theme={theme} />;
+    body = <ErrorState title={k('pharmacy.rx.loadError')} body={k('pharmacy.error.body')} retryLabel={k('pharmacy.retry')} onRetry={() => void load()} theme={theme} />;
   } else if (requestedId && prescription) {
     const st = stateLabel(prescription);
     body = (
@@ -157,52 +220,15 @@ export default function PharmacyPrescriptionOrderScreen() {
           </View>
         ) : null}
         {!items.length ? (
-          <EmptyState icon="prescription" tone={PHARMACY_TONE} title={k('pharmacy.rx.noLines')} actionLabel={k('pharmacy.rx.uploadNew')} onAction={() => router.replace('/pharmacy/scan-prescription')} theme={theme} />
+          <EmptyState icon="prescription" tone={PHARMACY_TONE} title={k('pharmacy.rx.noLines')} actionLabel={k('pharmacy.rx.uploadNew')} onAction={() => router.replace('/pharmacy/rx-order')} theme={theme} />
         ) : null}
-      </View>
-    );
-  } else if (!active.length) {
-    body = (
-      <EmptyState icon="prescription" tone={PHARMACY_TONE} title={k('pharmacy.rx.empty')} body={k('pharmacy.rx.emptyBody')} actionLabel={k('pharmacy.rx.uploadNew')} onAction={() => router.push('/pharmacy/scan-prescription')} theme={theme} />
-    );
-  } else {
-    body = (
-      <View style={{ gap: 12 }}>
-        <Text style={{ ...scale(t, 'meta', 'regular'), lineHeight: 20, color: c.text.secondary, ...flow }}>{k('pharmacy.rx.listIntro')}</Text>
-        {active.map((rx) => {
-          const st = stateLabel(rx);
-          const count = Array.isArray(rx.items) ? rx.items.length : 0;
-          return (
-            <Pressable
-              key={rx.id}
-              accessibilityRole="button"
-              accessibilityLabel={k('pharmacy.rx.number', { id: shortId(rx) })}
-              onPress={() => router.replace({ pathname: '/pharmacy/rx-order', params: { prescriptionId: String(rx.id) } })}
-            >
-              <Card padding="sm" theme={theme}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                  <FIcon icon="prescription" tone={PHARMACY_TONE} size={44} theme={theme} />
-                  <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
-                    <Text style={{ ...scale(t, 'row', 'medium'), color: c.text.primary, ...flow }}>{k('pharmacy.rx.number', { id: shortId(rx) })}</Text>
-                    <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>
-                      {[count === 1 ? k('pharmacy.hub.oneItem') : count > 1 ? k('pharmacy.hub.items', { n: num(count) }) : '', dateOf(rx)].filter(Boolean).join(' · ')}
-                    </Text>
-                    {st ? <Pill label={st.label} tone={st.tone} /> : null}
-                  </View>
-                  <Icon name={dir === 'rtl' ? 'caret-left' : 'caret-right'} size={18} theme={theme} tone="secondary" />
-                </View>
-              </Card>
-            </Pressable>
-          );
-        })}
-        <Button label={k('pharmacy.rx.uploadNew')} variant="outline" size="md" fullWidth onPress={() => router.push('/pharmacy/scan-prescription')} theme={theme} />
       </View>
     );
   }
 
   return (
-    <Screen theme={theme} direction={dir} header={header} footer={footer} testID="rx-order-screen">
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24, flexGrow: 1 }}>
+    <Screen theme={theme} direction={dir} header={header} footer={shownFooter} keyboard testID="rx-order-screen">
+      <ScrollView style={{ flex: 1 }} keyboardShouldPersistTaps="handled" contentContainerStyle={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24, flexGrow: 1 }}>
         {body}
       </ScrollView>
     </Screen>

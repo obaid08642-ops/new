@@ -1,7 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-@Schema()
+// The collection is named explicitly: without it Mongoose pluralised the class to `featureflags`,
+// while /config (ConfigService) and the kill-switch helper read `feature_flags`, so an admin
+// toggle never reached the clients.
+@Schema({ collection: 'feature_flags' })
 export class FeatureFlag {
   @Prop({ required: true, unique: true })
   key: string;

@@ -10,7 +10,7 @@ import type { LangCode } from '../../context/AppContext';
 const STRINGS: Record<string, string[]> = {
   search: [
     'ابحث عن دواء، طبيب، تحليل…', 'بحث', 'مسح', 'ماسح الأدوية', 'إلغاء',
-    'الكل', 'أدوية', 'أطباء', 'تحاليل', 'أشعة', 'عروض', 'مقالات', 'أمراض', 'تأمين', 'مجتمع', 'عائلة',
+    'الكل', 'أدوية', 'أطباء', 'تحاليل', 'أشعة', 'عروض', 'مقالات', 'أمراض', 'تأمين', 'عائلة',
     'أدوية ومنتجات', 'تحاليل وأشعة', 'مقالات ومعلومات',
     'ر.س', 'إعلان', 'جاري التحميل...',
     'عمليات البحث الأخيرة', 'تصفّح حسب القسم',
@@ -49,8 +49,8 @@ describe.each(Object.entries(STRINGS))('%s strings', (_screen, strings) => {
       const out = autoTranslate(ar, lang) as string;
       expect(typeof out).toBe('string');
       expect(out.trim().length).toBeGreaterThan(0);
-      // not left in Arabic
-      expect(out).not.toBe(ar);
+      // not left in Arabic (the riyal symbol is the same in Arabic and Urdu: owner 2026-10-10)
+      if (!(ar === 'ر.س' && lang === 'ur')) expect(out).not.toBe(ar);
       if (ar.includes('{n}')) expect(out).toContain('{n}');
     }
   });

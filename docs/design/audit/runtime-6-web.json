@@ -1,0 +1,1337 @@
+[
+ {
+  "route": "/family",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/family/members",
+    "status": 404
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/family/my-group",
+    "status": 404
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [],
+  "overlay": 0,
+  "textLen": 112
+ },
+ {
+  "route": "/family",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/chat net::ERR_ABORTED",
+   "GET /ar/health/profile net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/calendar net::ERR_ABORTED",
+   "GET /ar/family/chat net::ERR_ABORTED",
+   "GET /ar/health/profile net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 296
+ },
+ {
+  "route": "/family",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [],
+  "overlay": 0,
+  "textLen": 74
+ },
+ {
+  "route": "/family/calendar",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/calendar",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/family/calendar",
+    "status": 404
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 106
+ },
+ {
+  "route": "/family/calendar",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/calendar",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 106
+ },
+ {
+  "route": "/family/calendar",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/calendar",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 80
+ },
+ {
+  "route": "/family/chat",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/chat",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "GET",
+    "path": "/api/patient/users/me/profile",
+    "status": 200,
+    "shape": "object{wishlist,user_id,age,gender,blood_type,allergies,…} wishlist[0] allergies[0] chronic_diseases[1] current_medications[0] emergency_contacts[1] addresses[0] chronic_conditions[1]"
+   },
+   {
+    "method": "GET",
+    "path": "/api/patient/family/chat/messages",
+    "status": 403,
+    "shape": "object{message,error,statusCode}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/users/me/profile",
+    "status": 200
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/family/chat/messages",
+    "status": 403
+   }
+  ],
+  "consoleErrors": [
+   "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+   "f: MISSING_MESSAGE: FamilyWeb.chatBack (ar)\n    at d (http://localhost:3930/_next/static/chunks/1816-c2b4ff523959e04a.js:1:11525)\n    at p (http://localhost:3930/_next/static/chunks/1816-c2b4ff523959e"
+  ],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 126
+ },
+ {
+  "route": "/family/chat",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/chat",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/patient/users/me/profile",
+    "status": 200,
+    "shape": "array(0)"
+   },
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "GET",
+    "path": "/api/patient/family/chat/messages",
+    "status": 200,
+    "shape": "array(0)"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 63
+ },
+ {
+  "route": "/family/chat",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/chat",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "GET",
+    "path": "/api/patient/family/chat/messages",
+    "status": 500,
+    "shape": "object{message}"
+   },
+   {
+    "method": "GET",
+    "path": "/api/patient/users/me/profile",
+    "status": 500,
+    "shape": "non-json"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  ],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 50
+ },
+ {
+  "route": "/family/invite",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/add",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 106
+ },
+ {
+  "route": "/family/invite",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/add",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 106
+ },
+ {
+  "route": "/family/invite",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/add",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 106
+ },
+ {
+  "route": "/family/join",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/add",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 91
+ },
+ {
+  "route": "/family/join",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/add",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 91
+ },
+ {
+  "route": "/family/join",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/add",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 91
+ },
+ {
+  "route": "/family/permission-requests",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/family/members",
+    "status": 404
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/family/my-group",
+    "status": 404
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [],
+  "overlay": 0,
+  "textLen": 112
+ },
+ {
+  "route": "/family/permission-requests",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/calendar net::ERR_ABORTED",
+   "GET /ar/family/chat net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/health/profile net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/calendar net::ERR_ABORTED",
+   "GET /ar/family/chat net::ERR_ABORTED",
+   "GET /ar/health/profile net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 296
+ },
+ {
+  "route": "/family/permission-requests",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [],
+  "overlay": 0,
+  "textLen": 74
+ },
+ {
+  "route": "/family/permissions",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "GET",
+    "path": "/api/v1/family/members",
+    "status": 404
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/family/my-group",
+    "status": 404
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   },
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [],
+  "overlay": 0,
+  "textLen": 112
+ },
+ {
+  "route": "/family/permissions",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family/chat net::ERR_ABORTED",
+   "GET /ar/health/profile net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/calendar net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/chat net::ERR_ABORTED",
+   "GET /ar/health/profile net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 296
+ },
+ {
+  "route": "/family/permissions",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [],
+  "overlay": 0,
+  "textLen": 74
+ },
+ {
+  "route": "/family/scan",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/add",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 97
+ },
+ {
+  "route": "/family/scan",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/add",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 97
+ },
+ {
+  "route": "/family/scan",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/add",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 97
+ },
+ {
+  "route": "/health/add-family-member",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/add",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 106
+ },
+ {
+  "route": "/health/add-family-member",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/add",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 106
+ },
+ {
+  "route": "/health/add-family-member",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/add",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 106
+ },
+ {
+  "route": "/family/add",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/add",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 106
+ },
+ {
+  "route": "/family/add",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/add",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 106
+ },
+ {
+  "route": "/family/add",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/add",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 106
+ },
+ {
+  "route": "/family/add?tab=join&code=ABC123",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/add",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 91
+ },
+ {
+  "route": "/family/add?tab=join&code=ABC123",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/add",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 91
+ },
+ {
+  "route": "/family/add?tab=join&code=ABC123",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/add",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 91
+ },
+ {
+  "route": "/family/add?tab=scan",
+  "scenario": "normal",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/add",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [
+   {
+    "method": "POST",
+    "path": "/api/v1/auth/heartbeat",
+    "status": 201
+   },
+   {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "status": 200
+   }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 97
+ },
+ {
+  "route": "/family/add?tab=scan",
+  "scenario": "empty",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/add",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 97
+ },
+ {
+  "route": "/family/add?tab=scan",
+  "scenario": "error",
+  "session": "signed-in",
+  "status": 200,
+  "finalPath": "/ar/family/add",
+  "api": [
+   {
+    "method": "GET",
+    "path": "/api/auth/session",
+    "status": 200,
+    "shape": "object{authenticated,user}"
+   },
+   {
+    "method": "POST",
+    "path": "/api/auth/heartbeat",
+    "status": 200,
+    "shape": "non-json"
+   }
+  ],
+  "server": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failed": [
+   "GET /ar/family net::ERR_ABORTED",
+   "GET /ar/family/add net::ERR_ABORTED",
+   "GET /ar/family net::ERR_ABORTED"
+  ],
+  "overlay": 0,
+  "textLen": 97
+ }
+]

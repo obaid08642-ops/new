@@ -1,6 +1,8 @@
 import { z } from "zod";
 
-const medicineIdSchema = z.string().regex(/^[A-Za-z0-9_-]{1,64}$/);
+// "compare" is the static sibling route (/medicines/compare); it is never a medicine id, so the legacy detail route
+// does not ask the upstream for it when Next evaluates that route's metadata for the compare path
+const medicineIdSchema = z.string().regex(/^[A-Za-z0-9_-]{1,64}$/).refine((value) => value !== "compare");
 const searchSchema = z.object({
   q: z.string().trim().max(80).optional(),
   page: z.coerce.number().int().min(1).max(100).default(1),

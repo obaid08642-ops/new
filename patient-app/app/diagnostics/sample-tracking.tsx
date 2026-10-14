@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
+import { Linking, Text, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 
-import { ConsultScreen, Gate, InfoRow, StatusTag, useConsultFormat, type GateStatus } from '../../src/components/consult/ConsultKit';
-import { Block, ListCard, Timeline, diagStatus, goBackDiag, type TimelineStep } from '../../src/components/diagnostics/DiagKit';
+import { CARE_TONE, ConsultScreen, Gate, InfoRow, StatusTag, useConsultFormat, type GateStatus } from '../../src/components/consult/ConsultKit';
+import { Block, ListCard, PersonRow, Timeline, TrackHead, diagStatus, goBackDiag, type TimelineStep } from '../../src/components/diagnostics/DiagKit';
 import { StatusPill } from '../../src/components/orders/OrderKit';
 import { Notice } from '../../src/components/pharmacy/OfferKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
@@ -18,7 +18,7 @@ const str = (v: unknown): string => (typeof v === 'string' || typeof v === 'numb
 // What a sample goes through when the server sent no steps of its own: the first is done (the order was received), the second when a technician is assigned.
 const DEFAULT_STEPS = ['diag.track.step1', 'diag.track.step2', 'diag.track.step3', 'diag.track.step4', 'diag.track.step5', 'diag.track.step6'];
 
-/** Tracking of a lab sample: the status, the technician and the time, the preparation note and the steps (board OrderTracking). Refreshes every 15 seconds. */
+/** Tracking of a lab sample (board OrderTracking): the status, the time, the technician block (arrival, who, call, tips) for a home collection, the preparation note and the steps. Also the old technician-tracking screen. Refreshes every 15 seconds. */
 export default function SampleTrackingScreen() {
   const { t, c, k, num, flow } = useScreenUi();
   const fmt = useConsultFormat();
@@ -70,7 +70,11 @@ export default function SampleTrackingScreen() {
   const firstTodo = raw.findIndex((s) => !s.done);
   const steps: TimelineStep[] = raw.map((s, i) => ({ key: s.key, title: s.title, time: s.time || undefined, state: s.done ? 'done' : i === firstTodo ? 'current' : 'todo' }));
   const st = diagStatus('lab', booking?.state);
-  const eta = tracking?.eta !== undefined && tracking?.eta !== null ? Number(tracking.eta) : null;
+  const eta = tracking?.eta !== undefined && tracking?.eta !== null && tracking?.eta !== '' ? Number(tracking.eta) : null;
+  const techName = str(tracking?.techName);
+  const phone = str(tracking?.techPhone);
+  // The technician block belongs to a home collection: the booking says so, or the server has assigned a technician.
+  const showTech = str(booking?.location_type) === 'home' || Boolean(techName);
 
   return (
     <ConsultScreen testID="diagnostics-sample-tracking" title={k('diag.track.sampleTitle')} onBack={goBackDiag}>
@@ -82,11 +86,24 @@ export default function SampleTrackingScreen() {
           </View>
           <ListCard>
             <View style={{ paddingHorizontal: 14 }}>
-              <InfoRow label={k('diag.track.technician')} value={str(tracking?.techName)} />
               <InfoRow label={k('diag.track.appointment')} value={fmt.dateTime(booking?.scheduled_at)} last />
             </View>
           </ListCard>
         </Block>
+        {showTech ? (
+          <>
+            <Block gap={16}>
+              <TrackHead label={k('diag.tech.eta')} value={eta !== null && Number.isFinite(eta) ? k('diag.track.minutes', { n: num(eta) }) : k('diag.tech.noEta')} />
+              {techName ? (
+                <PersonRow icon="user-circle" tone={CARE_TONE} title={techName} line={k('diag.tech.role')} actionIcon={phone ? 'headset' : undefined} actionLabel={k('diag.order.call')} onAction={() => void Linking.openURL(`tel:${phone}`)} />
+              ) : null}
+            </Block>
+            <Block gap={8}>
+              <Text accessibilityRole="header" style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{k('diag.tech.tipsTitle')}</Text>
+              <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, ...flow }}>{k('diag.tech.tips')}</Text>
+            </Block>
+          </>
+        ) : null}
         <Notice tone="info" text={k('diag.track.prep')} />
         <Block gap={14}>
           <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>{k('diag.track.stages')}</Text>

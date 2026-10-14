@@ -6,6 +6,7 @@ import * as crypto from 'crypto';
 import { PharmacyAllocationState, PharmacyOrderState } from '../schemas/pharmacy.schema';
 import { EventBusService } from '../../events/event-bus.service';
 import { BusinessRulesService } from '../../business-rules/business-rules.module';
+import { PharmacyNotificationService } from './pharmacy-notification.service';
 
 const OFFER_TTL_MS = 10 * 60_000;
 const ACTIVE_PHARMACY_STATUSES = ['approved', 'active'];
@@ -25,6 +26,8 @@ type ProviderOfferInput = {
   /** Reserved for a server policy; client values are never accepted as authority. */
   delivery_option?: 'delivery' | 'pickup';
   eta_minutes?: number;
+  /** #507: the pharmacy's own preparation estimate in minutes (5-240), or none. */
+  preparation_minutes?: number;
   /** Optional pharmacy note to the patient (max 500 chars). */
   provider_note?: string;
 };
@@ -41,6 +44,7 @@ export class PharmacyOfferService {
     @InjectModel('ProviderAccount') private readonly accounts: Model<any>,
     private readonly bus: EventBusService,
     @Optional() private readonly pricing?: BusinessRulesService,
+    @Optional() private readonly pharmacyNotif?: PharmacyNotificationService,
   ) {}
 
   private async assertActivePharmacy(user: any) {
@@ -52,6 +56,40 @@ export class PharmacyOfferService {
     }).lean();
     if (!account) throw new ForbiddenException('approved_pharmacy_account_required');
     return account;
+  }
+
+  /**
+   * P3 "My offers": this pharmacy's offers with the state it sees: draft, sent, chosen, not_chosen
+   * (the patient picked another pharmacy), expired or cancelled, and the quote expiry.
+   */
+  async listForPharmacy(user: any, status?: string) {
+    await this.assertActivePharmacy(user);
+    const rows: any[] = await this.offers.find({ pharmacy_account_id: { $eq: user.id } }, { _id: 0, __v: 0, expiry_claim: 0 })
+      .sort({ updatedAt: -1 }).limit(200).lean();
+    const orderIds = [...new Set(rows.map((o) => o.order_id))];
+    const orders: any[] = orderIds.length
+      ? await this.orders.find({ id: { $in: orderIds } }, { _id: 0, id: 1, selected_offer_id: 1, status: 1 }).lean()
+      : [];
+    const byId = new Map(orders.map((o) => [o.id, o]));
+    const now = Date.now();
+    const view = (o: any) => {
+      const order = byId.get(o.order_id);
+      if (o.status === 'draft') return 'draft';
+      if (o.status === 'selected') return 'chosen';
+      if (o.status === 'cancelled') return 'cancelled';
+      if (o.status === 'expired') return 'expired';
+      if (order?.selected_offer_id && order.selected_offer_id !== o.id) return 'not_chosen';
+      if (o.quote_expires_at && new Date(o.quote_expires_at).getTime() <= now) return 'expired';
+      return 'sent';
+    };
+    const out = rows.map((o) => ({
+      id: o.id, order_id: o.order_id, version: o.version, status: o.status, view_status: view(o),
+      totals: o.totals, items_count: Array.isArray(o.items) ? o.items.length : 0,
+      quote_expires_at: o.quote_expires_at, estimated_preparation_minutes: o.estimated_preparation_minutes ?? null,
+      allocation_id: o.allocation_id ?? null, created_at: o.createdAt, updated_at: o.updatedAt,
+    }));
+    const wanted = typeof status === 'string' && status.trim() ? status.trim() : null;
+    return wanted ? out.filter((o) => o.view_status === wanted) : out;
   }
 
   private async loadBroadcastForPharmacy(user: any, orderId: string) {
@@ -128,6 +166,10 @@ export class PharmacyOfferService {
       const override = Number(input.unit_price_override);
       if (!Number.isFinite(override) || override <= 0 || override > 100000) throw new BadRequestException('invalid_price_override');
       const rounded = Math.round(override * 100) / 100;
+      // D-10: no discount on prescription-only lines (the flag is stamped from the catalogue at submit).
+      if (orderItem.requires_prescription === true && rounded < Number(inventoryItem.price)) {
+        throw new BadRequestException({ code: 'rx_discount_not_allowed', message: 'rx_discount_not_allowed' });
+      }
       if (rounded !== result.unit_price) {
         result.catalog_price = result.unit_price;
         result.unit_price = rounded;
@@ -135,10 +177,82 @@ export class PharmacyOfferService {
         result.price_override_reason = String(input.price_override_reason || '').slice(0, 500);
       }
     }
+    await this.markCataloguePrice(result, inventoryItem);
     return result;
   }
 
-  private async serverQuote(userId: string, order: any, inputs: ProviderOfferItemInput[]) {
+  /**
+   * D-12 (owner decision 12, revised 2026-10-10): the catalogue price (`sfda_price`) is a reference,
+   * not a block. A line priced above it is accepted and flagged (the pharmacy is warned, the admin is
+   * told); a line that maps to no catalogue item (cosmetics, local items, photo lines) is kept and
+   * marked `not_verified`. Mapping: the inventory row's `medicine_id`, else its sku against the
+   * catalogue sku (stored as a number or a string).
+   */
+  private async markCataloguePrice(line: any, inventoryItem: any) {
+    const sku = inventoryItem.sku;
+    const or: any[] = [];
+    if (inventoryItem.medicine_id) or.push({ id: String(inventoryItem.medicine_id) });
+    if (sku !== undefined && sku !== null && sku !== '') {
+      or.push({ sku: String(sku) });
+      if (/^\d+$/.test(String(sku))) or.push({ sku: Number(sku) });
+    }
+    const medicine: any = or.length
+      ? await this.connection.collection('medicines').findOne({ $or: or, is_deleted: { $ne: true } }, { projection: { _id: 0, id: 1, sku: 1, sfda_price: 1 } })
+      : null;
+    const ceiling = Number(medicine?.sfda_price);
+    if (!medicine || !Number.isFinite(ceiling) || ceiling <= 0) {
+      line.price_check = 'not_verified';
+      return;
+    }
+    line.medicine_id = medicine.id;
+    line.price_check = 'verified';
+    if (Number(line.unit_price) > ceiling) {
+      line.above_catalogue_price = true;
+      line.catalogue_price = ceiling;
+    }
+  }
+
+  /**
+   * D-12: the admin review list holds one row per offer (kept current as the draft changes and on
+   * submit) and the admin gets one notice per offer with a line above the catalogue price.
+   * A draft with nothing to check clears its open row.
+   */
+  private async reportPriceReview(offer: any, orderId: string) {
+    const reviews = this.connection.collection('pharmacy_price_reviews');
+    const lines = (offer.items || []).filter((i: any) => i.above_catalogue_price === true || i.price_check === 'not_verified');
+    if (!lines.length) {
+      await reviews.deleteOne({ offer_id: offer.id, status: 'open' });
+      return;
+    }
+    const now = new Date();
+    const res: any = await reviews.findOneAndUpdate(
+      { offer_id: offer.id },
+      {
+        $set: {
+          order_id: orderId, offer_version: offer.version, offer_status: offer.status, pharmacy_account_id: offer.pharmacy_account_id,
+          lines: lines.map((i: any) => ({
+            order_item_id: i.order_item_id, medicine_id: i.medicine_id || null, sku: i.sku ?? null, name_ar: i.name_ar ?? null,
+            reason: i.above_catalogue_price ? 'price_above_catalogue' : 'not_verified',
+            catalogue_price: i.catalogue_price ?? null, offered_price: i.unit_price ?? null,
+          })),
+          status: 'open', updatedAt: now,
+        },
+        $setOnInsert: { id: uuidv4(), createdAt: now },
+      },
+      { upsert: true, returnDocument: 'after' },
+    );
+    const reviewId = (res?.value ?? res)?.id;
+    if (lines.some((i: any) => i.above_catalogue_price === true)) {
+      await this.connection.collection('notifications').updateOne(
+        { role: 'admin', type: 'pharmacy_price_review', 'body.offer_id': offer.id },
+        { $setOnInsert: { id: uuidv4(), user_id: 'admin', role: 'admin', type: 'pharmacy_price_review', title_key: 'admin.pharmacy.price_above_catalogue',
+          body: { order_id: orderId, offer_id: offer.id, review_id: reviewId }, read: false, createdAt: now } },
+        { upsert: true },
+      );
+    }
+  }
+
+  private async serverQuote(userId: string, order: any, inputs: ProviderOfferItemInput[], preparationMinutes?: number) {
     if (!Array.isArray(inputs) || inputs.length === 0) throw new BadRequestException('offer_items_required');
     const byOrderItem = new Map(inputs.map((item) => [item.order_item_id, item]));
     if (byOrderItem.size !== order.items.length || order.items.some((item: any) => !byOrderItem.has(item.id))) {
@@ -159,7 +273,10 @@ export class PharmacyOfferService {
         feeSource = 'platform_pricing_config';
       }
     } catch { /* quote never fails on pricing config */ }
-    const estimatedPreparationMinutes = Math.max(15, Math.min(60, 10 + items.filter((item) => item.action !== 'unavailable').length * 5));
+    // #507: the preparation time is the pharmacy's own estimate when it gives one; without it there is none (the
+    // patient sees no time and "fastest" sorts it last), never a number computed from the line count.
+    const prep = Number(preparationMinutes);
+    const estimatedPreparationMinutes = Number.isInteger(prep) && prep >= 5 && prep <= 240 ? prep : null;
     return {
       items,
       totals: { subtotal: Math.round(subtotal * 100) / 100, delivery_fee: deliveryFee, total: Math.round((subtotal + deliveryFee) * 100) / 100, currency: 'SAR' },
@@ -175,7 +292,7 @@ export class PharmacyOfferService {
 
   async previewQuote(user: any, orderId: string, body: ProviderOfferInput) {
     const { order } = await this.loadBroadcastForPharmacy(user, orderId);
-    const quote = await this.serverQuote(user.id, order, body?.items || []);
+    const quote = await this.serverQuote(user.id, order, body?.items || [], body?.preparation_minutes);
     return {
       ...quote,
       quote_ttl_seconds: Math.floor(OFFER_TTL_MS / 1000),
@@ -186,7 +303,7 @@ export class PharmacyOfferService {
 
   async upsertDraft(user: any, orderId: string, body: ProviderOfferInput) {
     const { broadcast, order } = await this.loadBroadcastForPharmacy(user, orderId);
-    const quote = await this.serverQuote(user.id, order, body?.items || []);
+    const quote = await this.serverQuote(user.id, order, body?.items || [], body?.preparation_minutes);
     const now = new Date();
     const prior: any = await this.offers.findOne({ order_id: orderId, pharmacy_account_id: user.id, status: { $in: ['draft', 'submitted'] } }).lean();
     if (prior?.status === 'submitted') throw new BadRequestException('submitted_offer_cannot_be_edited_create_new_version');
@@ -210,7 +327,9 @@ export class PharmacyOfferService {
     const offer: any = prior
       ? await this.offers.findOneAndUpdate({ id: prior.id, status: 'draft' }, { $set: values }, { new: true })
       : await this.offers.create({ id: uuidv4(), ...values, created_at: now, timeline: [{ ts: now, event: 'draft_created', by: user.id }] });
-    return this.providerDto(offer.toObject ? offer.toObject() : offer);
+    const saved = offer.toObject ? offer.toObject() : offer;
+    await this.reportPriceReview(saved, orderId);
+    return this.providerDto(saved);
   }
 
   async submitDraft(user: any, orderId: string, offerId: string) {
@@ -248,19 +367,39 @@ export class PharmacyOfferService {
       actor_account_id: user.id, actor_role: 'pharmacy', patient_account_id: offer.patient_account_id,
       reason_code: 'provider_offer_submitted', meta: { order_id: orderId, offer_id: offer.id, version: offer.version },
     });
+    await this.reportPriceReview(offer, orderId);
     return this.providerDto(offer.toObject());
   }
 
-  async listForPatient(user: any, orderId: string) {
+  async listForPatient(user: any, orderId: string, includeClosed = false) {
     if (!user?.id) throw new ForbiddenException('patient_identity_required');
     const order: any = await this.orders.findOne({ id: orderId, patient_account_id: user.id }).lean();
     if (!order) throw new NotFoundException('order_not_found');
-    const offers: any[] = await this.offers.find({ order_id: orderId, patient_account_id: user.id, status: 'submitted', quote_expires_at: { $gt: new Date() } })
-      .sort({ submitted_at: -1 }).lean();
-    return Promise.all(offers.map((offer) => this.patientDtoAsync(offer, order)));
+    const broadcast: any = await this.broadcasts.findOne({ order_id: orderId }).lean();
+    // A-2: by default only the live offers the patient can choose (as before), so the clients' offer
+    // count and live refresh stay right. ?include=closed adds expired and withdrawn offers, latest version per
+    // pharmacy, so the client can show why one is gone. Drafts were never sent and are never returned.
+    // AC-3 (agent commerce, acceptance case 7): offers are children of the order, and order
+    // ownership is verified above — so scope by order_id, not by the denormalized
+    // patient_account_id on each offer row. The extra condition hid submitted offers whose
+    // row lacks the field (and hid them in the apps' offer screens too, same service).
+    const all: any[] = await this.offers.find({ order_id: orderId, status: { $ne: 'draft' } })
+      .sort({ version: -1, submitted_at: -1 }).lean();
+    const seen = new Set<string>();
+    const latest = all.filter((o) => !seen.has(o.pharmacy_account_id) && !!seen.add(o.pharmacy_account_id));
+    const offers = includeClosed ? latest : latest.filter((o) => this.offerState(o, order) === 'submitted');
+    return Promise.all(offers.map((offer) => this.patientDtoAsync(offer, order, broadcast)));
   }
 
-  private async patientDtoAsync(offer: any, order: any) {
+  /** A-2: one state per offer — submitted (live), selected, expired or withdrawn. */
+  private offerState(offer: any, order: any): 'submitted' | 'selected' | 'expired' | 'withdrawn' {
+    if (offer.status === 'selected' || (order?.selected_offer_id && offer.id === order.selected_offer_id)) return 'selected';
+    if (offer.status === 'cancelled') return 'withdrawn';
+    if (offer.status === 'expired' || (offer.quote_expires_at && new Date(offer.quote_expires_at) <= new Date())) return 'expired';
+    return 'submitted';
+  }
+
+  private async patientDtoAsync(offer: any, order: any, broadcast?: any) {
     const base = this.patientDto(offer);
     const profile: any = await this.connection.collection('provider_profiles').findOne({ account_id: offer.pharmacy_account_id });
     let approx: number | null = null;
@@ -273,12 +412,31 @@ export class PharmacyOfferService {
       const d = 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       if (Number.isFinite(d)) approx = Math.round(d * 2) / 2; // 0.5km rounding — approximate only
     }
-    const pharmacyNameAr = profile?.display_name_ar || profile?.name_ar || null;
-    const pharmacyNameEn = profile?.display_name_en || profile?.name_en || null;
+    // Needs-review #509: registered pharmacies carry business_name / legal_name (provider schema).
+    const registeredName = profile?.business_name || profile?.legal_name || null;
+    const pharmacyNameAr = profile?.display_name_ar || profile?.name_ar || registeredName;
+    const pharmacyNameEn = profile?.display_name_en || profile?.name_en || registeredName;
+    // Q-4: no constants. Insurance readiness from the profile (flag, or its accepted insurers); no cash on delivery
+    // (owner decision 25); no delivery-time source exists, so the ETA is null and the clients hide it.
+    const profileInsuranceReady: boolean | null = typeof profile?.insurance_ready === 'boolean' ? profile.insurance_ready
+      : Array.isArray(profile?.accepted_insurance) ? profile.accepted_insurance.length > 0 : null;
+    const state = this.offerState(offer, order);
+    // The insurer's decision is made on the chosen offer, so its patient share is that offer's co-pay only.
+    const share = order?.insurance_decision?.patient_share;
+    const expectedCopay = state === 'selected' && order?.coverage_mode === 'insurance' && typeof share === 'number' ? share : null;
     return {
       ...base,
-      // Shared governed contract: patient-app reads `lines` + status 'open'.
-      status: offer.status === 'submitted' ? 'open' : offer.status,
+      // Shared governed contract: patient-app reads `lines` + status 'open' (a live offer it can choose).
+      status: state === 'submitted' ? 'open' : state,
+      offer_state: state,
+      // A-2: the broadcast round the patient is waiting on, as stored; null when there is none.
+      broadcast: broadcast ? {
+        current_round: broadcast.current_round ?? null,
+        current_radius_km: broadcast.current_radius_km ?? null,
+        round_expires_at: broadcast.round_expires_at ?? null,
+      } : null,
+      pharmacy_accepts_insurance: profileInsuranceReady === true,
+      expected_copay: expectedCopay,
       lines: (offer.items || []).map((item: any) => ({
         order_item_id: item.order_item_id,
         sku: item.sku,
@@ -295,8 +453,10 @@ export class PharmacyOfferService {
       pharmacy_name: pharmacyNameAr || pharmacyNameEn,
       preparation_minutes: offer.estimated_preparation_minutes ?? null,
       expires_at: offer.quote_expires_at || null,
-      insurance_ready: true,
-      cod_allowed: true,
+      // #512: the server's clock with the expiry, so a client with a wrong clock can still count down correctly.
+      server_time: new Date().toISOString(),
+      insurance_ready: profileInsuranceReady,
+      cod_allowed: false,
       quote_revision: Number(offer.version || 1),
       // Deterministic quote hash — identical to the one stored in
       // pricing_snapshot.hash at selection time.
@@ -305,7 +465,7 @@ export class PharmacyOfferService {
         .update(JSON.stringify({ offer_id: offer.id, offer_version: offer.version, totals: offer.totals }))
         .digest('hex'),
       approx_distance_km: approx,
-      approx_delivery: { eta_minutes: 60, label_ar: 'خلال ساعة تقريباً', label_en: 'Approximately within 1 hour' },
+      approx_delivery: { eta_minutes: null, label_ar: null, label_en: null },
       provider_note: typeof offer.provider_note === 'string' ? offer.provider_note : null,
     };
   }
@@ -341,7 +501,7 @@ export class PharmacyOfferService {
             const replayOffer: any = await this.offers.findOne({ id: offerId }).session(session);
             const replayAllocation: any = await this.allocations.findOne({ id: order.selected_allocation_id }).session(session);
             if (!replayOffer || !replayAllocation) throw new BadRequestException('selection_replay_incomplete');
-            selected = { offer: replayOffer, allocation: replayAllocation, next_status: order.status };
+            selected = { offer: replayOffer, allocation: replayAllocation, next_status: order.status, replay: true };
             return;
           }
           throw new BadRequestException('another_offer_already_selected');
@@ -410,6 +570,8 @@ export class PharmacyOfferService {
         type: 'pharmacy.offer.selected', entity_type: 'pharmacy_offer', entity_id: offerId,
         actor_account_id: user.id, actor_role: 'patient', reason_code: 'patient_explicit_selection', meta: { order_id: orderId },
       });
+      // P5: tell the chosen pharmacy at once (push + in-app); best effort, never blocks the patient's choice.
+      if (!selected.replay) await this.pharmacyNotif?.notifyPharmacyNewAllocation(selected.allocation);
       return { offer: this.patientDto(selected.offer), allocation_id: selected.allocation.id, next_status: selected.next_status };
     } finally {
       await session.endSession();
@@ -417,10 +579,13 @@ export class PharmacyOfferService {
   }
 
   private providerDto(offer: any) {
+    const hasAboveCatalogue = (offer.items || []).some((item: any) => item.above_catalogue_price === true);
     return {
       id: offer.id, order_id: offer.order_id, status: offer.status, version: offer.version,
       items: offer.items, totals: offer.totals, quote_expires_at: offer.quote_expires_at,
       estimated_preparation_minutes: offer.estimated_preparation_minutes, fulfillment: offer.fulfillment || { policy_status: 'unavailable_read_only' }, pricing_source: offer.pricing_source,
+      // D-12: a code the provider app translates (no sentence in one language).
+      ...(hasAboveCatalogue ? { warnings: [{ code: 'price_above_catalogue' }] } : {}),
     };
   }
 

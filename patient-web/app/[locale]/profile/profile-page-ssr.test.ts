@@ -6,7 +6,8 @@ const state = vi.hoisted(() => ({ token: "profile-server-token-never-in-html", r
 vi.mock("next/navigation", () => ({ notFound: vi.fn(), redirect: state.redirect, useRouter: () => ({ refresh: vi.fn() }) }));
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
-vi.mock("@/lib/i18n", () => ({ isLocale: () => true }));
+vi.mock("@/lib/i18n", () => ({ isLocale: () => true, getDirection: () => "ltr" }));
+vi.mock("@/components-next/core/core-shell", () => ({ CoreShell: ({ children }: { children: unknown }) => children }));
 vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: async () => state.token }));
 vi.mock("@/lib/api/upstream", () => ({ callPatientApi: async () => state.responses.shift()! }));
 
@@ -18,7 +19,7 @@ describe("profile SSR boundary", () => {
     state.redirect.mockReset();
     state.responses = [
       new Response(JSON.stringify({ fullName: "Visible patient", storage_key: "private-storage-key" }), { status: 200 }),
-      new Response(JSON.stringify({ bloodType: "O+", internal_note: "clinical-private-note" }), { status: 200 }),
+      new Response(JSON.stringify({ blood_type: "O+", internal_note: "clinical-private-note" }), { status: 200 }), // the field /medical-profile really sends (needs-review issue 770)
       new Response(null, { status: 503 }),
     ];
   });

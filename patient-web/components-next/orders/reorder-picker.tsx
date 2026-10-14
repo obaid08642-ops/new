@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
+import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
 import { Stepper } from "@/components-next/ui-generated/components/Inputs";
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
@@ -36,7 +37,7 @@ export function ReorderPicker({ locale, orderId, lines, skipped, needsPrescripti
     return (
       <div className={rx.state} role="status">
         <EmptyState icon="pill" tone={PHARMACY_TONE} title={t("emptyTitle")} body={t("emptyBody")} actionLabel={t("backToOrder")} onAction={() => router.push(`/${locale}/orders/${encodeURIComponent(orderId)}`)} />
-        {skipped > 0 ? <div className={styles.skipped}><p className={rx.note}>{t("skipped", { count: skipped })}</p><Link className={rx.textLink} href={`/${locale}/pharmacy/request`}>{t("sendRequest")}</Link></div> : null}
+        {skipped > 0 ? <div className={styles.skipped}><p className={rx.note}>{t("skipped", { count: skipped })}</p><Link className={rx.textLink} href={`/${locale}/pharmacy/rx-order?via=type`}>{t("sendRequest")}</Link></div> : null}
       </div>
     );
   }
@@ -60,6 +61,7 @@ export function ReorderPicker({ locale, orderId, lines, skipped, needsPrescripti
                 <label className={styles.pickLabel}>
                   <input type="checkbox" checked={pick.on} onChange={() => setPicks((all) => ({ ...all, [line.id]: { ...pick, on: !pick.on } }))} />
                   <span className={styles.pickName}>{line.name}</span>
+                  {needsPrescription ? <StatusChip label={cart("needsRx")} tone="amber" /> : null}
                 </label>
                 {pick.on ? (
                   <Stepper
@@ -79,7 +81,7 @@ export function ReorderPicker({ locale, orderId, lines, skipped, needsPrescripti
         </ul>
       </section>
       {needsPrescription ? <p className={`${styles.notice} ${styles.noticeWarn}`}>{t("rxNote")}</p> : null}
-      {skipped > 0 ? <div className={styles.skipped}><p className={rx.note}>{t("skipped", { count: skipped })}</p><Link className={rx.textLink} href={`/${locale}/pharmacy/request`}>{t("sendRequest")}</Link></div> : null}
+      {skipped > 0 ? <div className={styles.skipped}><p className={rx.note}>{t("skipped", { count: skipped })}</p><Link className={rx.textLink} href={`/${locale}/pharmacy/rx-order?via=type`}>{t("sendRequest")}</Link></div> : null}
       {chosen.length === 0 ? <p className={rx.note} role="status">{t("pickOne")}</p> : null}
       <div className={styles.actions}>
         <Button label={t("addToCart")} fullWidth disabled={chosen.length === 0} loading={adding} onClick={add} />

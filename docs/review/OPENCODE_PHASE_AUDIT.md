@@ -9,6 +9,8 @@
 
 It fixes what is broken, completes what is missing, and takes out what the owner removed, so that the reviewer's independent review finds as little as possible. **Your statuses are not trusted.** The reviewer re-checks everything. Every claim needs evidence that the reviewer can re-run.
 
+> **2026-10-08 (lead reviewer): superseded for branches and sessions by `docs/review/SESSION_MESSAGES_2026-10-08.md`.** Three sessions now work on their own branches (`oc/tip-repair`, `oc/pa-15-22-23`, `oc/pa-13-21`), each with a draft PR into `oc/phase-audit`. Nobody pushes to `oc/phase-audit` any more. The method in §4–§6 still applies.
+
 ## 1. Branch and git rules (binding)
 
 - **Work only on `oc/phase-audit`.** It already exists: the tip of `fix/audit-2026-09` (`a0df24b3`) plus the reviewer's P15–P21 report and acceptance tests.

@@ -1,0 +1,42 @@
+[
+  {
+    "batch": "provider",
+    "app": "provider-app",
+    "screen": "LabOrderDetail",
+    "element": "mock-name: openSampleForResults = async () => {",
+    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+    "line": 509,
+    "found": "[client] mock-name (mock-scan): openSampleForResults = async () => {",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": "provider",
+    "app": "provider-app",
+    "screen": "LabTestMenuScreen",
+    "element": "dummy-value: Test Name (English)",
+    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+    "line": 1617,
+    "found": "[client] dummy-value (mock-scan): Test Name (English)",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": "provider",
+    "app": "provider-app",
+    "screen": "LabTestMenuScreen",
+    "element": "dummy-value: Test Name (Arabic)",
+    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+    "line": 1618,
+    "found": "[client] dummy-value (mock-scan): Test Name (Arabic)",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": "provider",
+    "app": "provider-app",
+    "screen": "LabTestMenuScreen",
+    "element": "API GET /provider/capabilities/lab-services",
+    "file": "provider-app/src/screens/lab/LabDashboard.tsx",
+    "line": 1516,
+    "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/service-catalog/service-catalog-compat.controller.ts:15)",
+    "suspect": "Backend gap: reviewer session."
+  }
+]

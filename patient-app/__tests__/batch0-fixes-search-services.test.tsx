@@ -8,7 +8,7 @@ import DoctorSearchView from '../src/components/views/DoctorSearchView';
 import PharmacyProductSearchView from '../src/components/views/PharmacyProductSearchView';
 import { apiFetch } from '../src/utils/api';
 import { routeFor } from '../src/utils/searchResults';
-import { MORE_SERVICES, SERVICE_GROUPS } from '../src/features/services/catalog';
+import { MORE_SERVICES } from '../src/features/services/catalog';
 import { Colors } from '../src/theme';
 
 /**
@@ -122,25 +122,25 @@ describe('pharmacy search view keeps the query', () => {
 });
 
 describe('search results lead to the item that was shown', () => {
-  it('a package opens its own page with its id (GET /offers/:id)', () => {
-    expect(routeFor({ id: 'c9', type: 'باقة', name: 'باقة' })).toEqual({ pathname: '/offers/[id]', params: { id: 'c9' } });
+  it('D-29: each kind of the grouped search opens its own screen', () => {
+    expect(routeFor({ id: 'm1', type: 'دواء', name: 'x' })).toEqual({ pathname: '/pharmacy/product-detail', params: { id: 'm1' } });
+    expect(routeFor({ id: 'cardiology', type: 'تخصص', name: 'x' })).toEqual({ pathname: '/search', params: { view: 'doctors', specialty: 'cardiology' } });
+    expect(routeFor({ id: 'n1', type: 'تمريض', name: 'x' })).toEqual({ pathname: '/nursing/service-details', params: { serviceId: 'n1' } });
+    // offers are not part of the global search any more (decision 29 searches the sections' own content)
+    expect(routeFor({ id: 'c9', type: 'باقة', name: 'باقة' })).toBeNull();
   });
 
-  it('the package page is a screen of the app', () => {
+  it('the package page is still a screen of the app (reached from the offers list)', () => {
     expect(existsSync(join(__dirname, '..', 'app', 'offers', '[id].tsx'))).toBe(true);
   });
 });
 
 describe('services rows lead where the label says', () => {
-  const rows = [...MORE_SERVICES, ...SERVICE_GROUPS.flatMap((g) => g.items)];
+  const rows = [...MORE_SERVICES];
   const route = (title: string) => rows.find((r) => r.title === title)?.route;
 
   it('eye exam and dentistry open the doctors search filtered to their specialty (they both opened the same unfiltered list)', () => {
     expect(route('فحص النظر')).toBe('/search?view=doctors&specialty=ophthalmology');
     expect(route('طب الأسنان')).toBe('/search?view=doctors&specialty=dentistry');
-  });
-
-  it('the AI assistant row opens the same assistant as the Home card', () => {
-    expect(SERVICE_GROUPS.flatMap((g) => g.items).find((r) => r.title === 'المساعد الطبي الذكي')?.route).toBe('/ai-assistant');
   });
 });

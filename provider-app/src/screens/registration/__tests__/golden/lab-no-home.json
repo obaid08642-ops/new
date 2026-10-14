@@ -1,0 +1,277 @@
+{
+  "api": [
+    {
+      "fn": "start",
+      "args": [
+        {
+          "phone": "0581234567",
+          "password": "Passw0rd!x",
+          "full_name": "Reem Khan",
+          "email": "center@example.com",
+          "type": "lab"
+        }
+      ]
+    },
+    {
+      "fn": "onboardingLogin",
+      "args": [
+        "center@example.com",
+        "Passw0rd!x",
+        "lab"
+      ]
+    },
+    {
+      "fn": "step2",
+      "args": [
+        {
+          "license_number": "1010404040",
+          "license_documents": [
+            "https://cdn.test/cr.jpg",
+            "https://cdn.test/moh.pdf"
+          ]
+        }
+      ]
+    },
+    {
+      "fn": "step3",
+      "args": [
+        {
+          "test_categories": [
+            "cbc",
+            "tsh"
+          ],
+          "test_prices": {
+            "cbc": "30",
+            "tsh": "80"
+          },
+          "test_insurance_map": {
+            "cbc": true
+          },
+          "test_turnaround_map": {
+            "cbc": "24h"
+          },
+          "test_home_map": {
+            "cbc": true
+          },
+          "home_collector_count": 3,
+          "home_collector_gender": "female",
+          "equipment_list": [
+            "xray",
+            "mri"
+          ],
+          "scan_prices": {
+            "xray": "120",
+            "mri": "900"
+          },
+          "consultation_modes": [
+            "clinic"
+          ],
+          "home_visit_supported": false,
+          "home_visit_radius_km": 6,
+          "home_collection_fee": 20,
+          "target_genders": "both",
+          "working_hours": [
+            {
+              "day": "SUN",
+              "open": null,
+              "close": null,
+              "open_evening": "16:00",
+              "close_evening": "20:00",
+              "closed": false
+            },
+            {
+              "day": "MON",
+              "open": null,
+              "close": null,
+              "open_evening": "16:00",
+              "close_evening": "20:00",
+              "closed": false
+            }
+          ],
+          "schedule_home": []
+        }
+      ]
+    },
+    {
+      "fn": "step2",
+      "args": [
+        {
+          "name_ar": "مركز نبض",
+          "name_en": "Nabd Center",
+          "tech_officer_name": "Tariq Ali",
+          "tech_officer_scfhs": "778899",
+          "lab_category": "Class A",
+          "lab_accreditation": "CBAHI",
+          "city": "riyadh_city",
+          "location": {
+            "lat": 24.7136,
+            "lng": 46.6753
+          },
+          "address": "Olaya 9",
+          "district": "olaya",
+          "accepts_insurance": false,
+          "accepted_insurance": [],
+          "insurance_plans": {},
+          "cr_number": "1010404040",
+          "moh_license_number": "MOH-C-9",
+          "tax_number": "300999888700003",
+          "license_documents": [
+            "https://cdn.test/cr.jpg",
+            "https://cdn.test/moh.pdf"
+          ],
+          "languages": [
+            "ar",
+            "en"
+          ]
+        }
+      ]
+    },
+    {
+      "fn": "uploadSignature",
+      "args": [
+        "data:image/png;base64,SIGNATURE"
+      ]
+    },
+    {
+      "fn": "step2",
+      "args": [
+        {
+          "iban": "SA0380000000608010167519",
+          "bank_account_name": "Nabd Center Co"
+        }
+      ]
+    },
+    {
+      "fn": "submit",
+      "args": [
+        {
+          "signer_name": "Reem Khan",
+          "signer_role": "Director",
+          "lat": 24.7136,
+          "lng": 46.6753,
+          "signature_url": "https://cdn.test/signature.png",
+          "full_data": {
+            "nameAr": "مركز نبض",
+            "nameEn": "Nabd Center",
+            "centerType": "lab",
+            "managerName": "Reem Khan",
+            "managerPhone": "0581234567",
+            "managerEmail": "center@example.com",
+            "techOfficerName": "Tariq Ali",
+            "techOfficerScfhs": "778899",
+            "crNumber": "1010404040",
+            "mohLicense": "MOH-C-9",
+            "iban": "SA0380000000608010167519",
+            "accountHolderName": "Nabd Center Co",
+            "taxNumber": "300999888700003",
+            "languages": [
+              "ar",
+              "en"
+            ],
+            "logoUri": "",
+            "city": "riyadh_city",
+            "location": {
+              "lat": 24.7136,
+              "lng": 46.6753
+            },
+            "district": "olaya",
+            "address": "Olaya 9",
+            "hasHomeSvc": false,
+            "homeRadius": 6,
+            "homeCollectorCount": "3",
+            "homeCollectionFee": "20",
+            "targetGenders": "both",
+            "homeCollectorGender": "female",
+            "enabledTests": [
+              "cbc",
+              "tsh"
+            ],
+            "testPrices": {
+              "cbc": "30",
+              "tsh": "80"
+            },
+            "testHomeAvail": {
+              "cbc": true
+            },
+            "testTurnaround": {
+              "cbc": "24h"
+            },
+            "testInsuranceCov": {
+              "cbc": true
+            },
+            "scanInsuranceCov": {
+              "xray": true
+            },
+            "enabledScans": [
+              "xray",
+              "mri"
+            ],
+            "scanPrices": {
+              "xray": "120",
+              "mri": "900"
+            },
+            "bundles": [],
+            "workDays": [
+              "SUN",
+              "MON"
+            ],
+            "shiftType": "evening",
+            "openTime": "08:00",
+            "closeTime": "14:00",
+            "eveningOpenTime": "16:00",
+            "eveningCloseTime": "20:00",
+            "homeWorkDays": [],
+            "homeShiftType": "morning",
+            "homeOpenTime": "09:00",
+            "homeCloseTime": "12:00",
+            "homeEveningOpenTime": "",
+            "homeEveningCloseTime": "",
+            "vacationDate": "",
+            "cashOnly": true,
+            "acceptedInsurance": [],
+            "signerName": "Reem Khan",
+            "signerRole": "Director",
+            "termsAgreed": true,
+            "region": "riyadh",
+            "labCategory": "Class A",
+            "labAccreditation": "CBAHI"
+          }
+        }
+      ]
+    }
+  ],
+  "uploads_before_refactor": [
+    {
+      "fn": "uploadFile",
+      "args": [
+        "file:///cache/cr.jpg",
+        "image/jpeg",
+        "cr.jpg"
+      ]
+    },
+    {
+      "fn": "uploadFile",
+      "args": [
+        "file:///cache/moh.pdf",
+        "image/jpeg",
+        "moh.jpg"
+      ]
+    },
+    {
+      "fn": "uploadFile",
+      "args": [
+        "file:///cache/cr.jpg",
+        "application/pdf",
+        "cr_document"
+      ]
+    },
+    {
+      "fn": "uploadFile",
+      "args": [
+        "file:///cache/moh.pdf",
+        "application/pdf",
+        "moh_license"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,6362 @@
+{
+ "generated": "tools/design/admin-inventory.mjs",
+ "screens": {
+  "/admin/ai-control": [
+   {
+    "kind": "button",
+    "label": "تلقائي (Fallback + Round Robin)",
+    "src": "POST /ai/admin/gateway/mode; GET /ai/admin/gateway; GET /ai/admin/usage",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/ai-control.tsx",
+    "line": 61
+   },
+   {
+    "kind": "input",
+    "label": "يدوي — تثبيت مزود... تثبيت:",
+    "src": "onChange sends POST /ai/admin/gateway/mode; GET /ai/admin/gateway; GET /ai/admin/usage",
+    "status": "ok",
+    "file": "admin/src/pages/admin/ai-control.tsx",
+    "line": 67
+   },
+   {
+    "kind": "input",
+    "label": "تلقائي",
+    "src": "onChange sends POST /ai/admin/gateway/purpose; GET /ai/admin/gateway; GET /ai/admin/usage",
+    "status": "ok",
+    "file": "admin/src/pages/admin/ai-control.tsx",
+    "line": 87
+   },
+   {
+    "kind": "button",
+    "label": "تعطيل تفعيل",
+    "src": "POST /ai/admin/gateway/provider/:param; GET /ai/admin/gateway; GET /ai/admin/usage",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/ai-control.tsx",
+    "line": 126
+   },
+   {
+    "kind": "input",
+    "label": "24 ساعة 7 أيام 30 يوم",
+    "src": "state days used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/ai-control.tsx",
+    "line": 141
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/analytics-suite": [
+   {
+    "kind": "input",
+    "label": "date",
+    "src": "state from used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/analytics-suite.tsx",
+    "line": 21
+   },
+   {
+    "kind": "input",
+    "label": "date",
+    "src": "state to used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/analytics-suite.tsx",
+    "line": 21
+   },
+   {
+    "kind": "input",
+    "label": "الكل الصيدلية المختبر الأشعة التمريض الاستشارات",
+    "src": "state domain used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/analytics-suite.tsx",
+    "line": 21
+   },
+   {
+    "kind": "button",
+    "label": "تحديث",
+    "src": "GET /api/admin/admin/analytics-suite/funnels; GET /api/admin/admin/analytics-suite/cohorts; GET /api/admin/admin/analytics-suite/provider-le",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/analytics-suite.tsx",
+    "line": 21
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/analytics": [
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/analytics.tsx",
+    "line": 64
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/appointments-oversight": [
+   {
+    "kind": "button",
+    "label": "تحديث",
+    "src": "GET /api/admin/admin/appointments",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/appointments-oversight.tsx",
+    "line": 20
+   },
+   {
+    "kind": "button",
+    "label": "إلغاء",
+    "src": "POST /api/admin/admin/appointments/:param/cancel; GET /api/admin/admin/appointments; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/appointments-oversight.tsx",
+    "line": 26
+   }
+  ],
+  "/admin/approvals": [
+   {
+    "kind": "button",
+    "label": "تحديث",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/approvals.tsx",
+    "line": 74
+   },
+   {
+    "kind": "button",
+    "label": "تعذر التحميل — إعادة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/approvals.tsx",
+    "line": 88
+   }
+  ],
+  "/admin/article-review": [
+   {
+    "kind": "button",
+    "label": "عودة إلى القائمة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/article-review.tsx",
+    "line": 96
+   },
+   {
+    "kind": "button",
+    "label": "اعتماد ونشر",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/article-review.tsx",
+    "line": 100
+   },
+   {
+    "kind": "button",
+    "label": "رفض",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/article-review.tsx",
+    "line": 101
+   },
+   {
+    "kind": "button",
+    "label": "فتح المقال",
+    "src": "GET /admin/articles/:param",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/article-review.tsx",
+    "line": 119
+   },
+   {
+    "kind": "action",
+    "label": "سيظهر المقال للمرضى فوراً بعد فحص النص من أسماء الأدوية التي",
+    "src": "POST /admin/articles/:param/:param",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/article-review.tsx",
+    "line": 126
+   },
+   {
+    "kind": "action",
+    "label": "سيظهر المقال للمرضى فوراً بعد فحص النص من أسماء الأدوية التي",
+    "src": "cancel; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/article-review.tsx",
+    "line": 126
+   },
+   {
+    "kind": "input",
+    "label": "textarea",
+    "src": "state reason used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/article-review.tsx",
+    "line": 139
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 41,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 42,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onConfirm",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 46,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 47,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/audit-logs": [
+   {
+    "kind": "input",
+    "label": "تصفية باسم الإجراء",
+    "src": "state action used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/audit-logs.tsx",
+    "line": 73
+   },
+   {
+    "kind": "input",
+    "label": "معرّف المنفّذ",
+    "src": "state adminId used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/audit-logs.tsx",
+    "line": 74
+   },
+   {
+    "kind": "input",
+    "label": "نوع المورد",
+    "src": "state targetType used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/audit-logs.tsx",
+    "line": 75
+   },
+   {
+    "kind": "input",
+    "label": "معرّف المورد",
+    "src": "state targetId used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/audit-logs.tsx",
+    "line": 76
+   },
+   {
+    "kind": "input",
+    "label": "date",
+    "src": "state from used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/audit-logs.tsx",
+    "line": 77
+   },
+   {
+    "kind": "input",
+    "label": "date",
+    "src": "state to used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/audit-logs.tsx",
+    "line": 78
+   },
+   {
+    "kind": "button",
+    "label": "تحديث",
+    "src": "GET /api/admin/admin/audit",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/audit-logs.tsx",
+    "line": 79
+   },
+   {
+    "kind": "button",
+    "label": "تصدير CSV (الصفحة الحالية)",
+    "src": "exportCsv; helper/browser call",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/audit-logs.tsx",
+    "line": 80
+   },
+   {
+    "kind": "button",
+    "label": "السابق",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/audit-logs.tsx",
+    "line": 98
+   },
+   {
+    "kind": "button",
+    "label": "التالي",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/audit-logs.tsx",
+    "line": 98
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/FilterSheet.tsx",
+    "line": 25,
+    "via": "FilterSheet"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/FilterSheet.tsx",
+    "line": 30,
+    "via": "FilterSheet"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/FilterSheet.tsx",
+    "line": 37,
+    "via": "FilterSheet"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/FilterSheet.tsx",
+    "line": 38,
+    "via": "FilterSheet"
+   }
+  ],
+  "/admin/broadcast-monitor": [
+   {
+    "kind": "button",
+    "label": "تحديث",
+    "src": "GET /api/admin/admin/pharmacy/broadcasts",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/broadcast-monitor.tsx",
+    "line": 17
+   }
+  ],
+  "/admin/catalog-manager": [
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 228
+   },
+   {
+    "kind": "button",
+    "label": "+ إضافة صنف جديد",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 236
+   },
+   {
+    "kind": "input",
+    "label": "بحث بالاسم أو الكود أو الفئة…",
+    "src": "state search used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 243
+   },
+   {
+    "kind": "input",
+    "label": "الاسم (عربي)",
+    "src": "state specNameAr used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 256
+   },
+   {
+    "kind": "input",
+    "label": "Name (en)",
+    "src": "state specNameEn used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 257
+   },
+   {
+    "kind": "button",
+    "label": "حفظ التخصص",
+    "src": "POST /catalogs/admin/specialties; GET \u0001adminBase\u0001",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 258
+   },
+   {
+    "kind": "button",
+    "label": "تعطيل",
+    "src": "DELETE /catalogs/admin/specialties/:param; GET \u0001adminBase\u0001; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 264
+   },
+   {
+    "kind": "button",
+    "label": "اعتماد المحدد",
+    "src": "POST \u0001crudBase\u0001/bulk-approve; GET \u0001adminBase\u0001; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 276
+   },
+   {
+    "kind": "button",
+    "label": "رفض المحدد",
+    "src": "POST \u0001crudBase\u0001/bulk-approve; GET \u0001adminBase\u0001; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 277
+   },
+   {
+    "kind": "button",
+    "label": "إلغاء التحديد",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 278
+   },
+   {
+    "kind": "input",
+    "label": "تحديد للاعتماد الجماعي",
+    "src": "state selected used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 285
+   },
+   {
+    "kind": "button",
+    "label": "اعتماد",
+    "src": "POST \u0001crudBase\u0001/:param/approve; GET \u0001adminBase\u0001; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 294
+   },
+   {
+    "kind": "button",
+    "label": "رفض",
+    "src": "POST \u0001crudBase\u0001/:param/approve; GET \u0001adminBase\u0001; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 295
+   },
+   {
+    "kind": "button",
+    "label": "تعديل",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 296
+   },
+   {
+    "kind": "button",
+    "label": "حذف",
+    "src": "DELETE \u0001crudBase\u0001/:param; GET \u0001adminBase\u0001; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 297
+   },
+   {
+    "kind": "action",
+    "label": "تعديل الصنف إضافة صنف جديد — المراجعة الطبية والنشر إلغاء جا",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 306
+   },
+   {
+    "kind": "action",
+    "label": "تعديل الصنف إضافة صنف جديد — المراجعة الطبية والنشر إلغاء جا",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 308
+   },
+   {
+    "kind": "input",
+    "label": "select",
+    "src": "state editing used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 314
+   },
+   {
+    "kind": "input",
+    "label": "textarea",
+    "src": "state editing used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 323
+   },
+   {
+    "kind": "input",
+    "label": "checkbox",
+    "src": "state editing used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 326
+   },
+   {
+    "kind": "input",
+    "label": "input",
+    "src": "state editing used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 328
+   },
+   {
+    "kind": "button",
+    "label": "إلغاء",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 336
+   },
+   {
+    "kind": "button",
+    "label": "جارٍ الحفظ… حفظ",
+    "src": "save; POST \u0001crudBase\u0001; PUT \u0001crudBase\u0001/:param; GET \u0001adminBase\u0001",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 337
+   },
+   {
+    "kind": "button",
+    "label": "+ شركة جديدة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 418
+   },
+   {
+    "kind": "button",
+    "label": "+ شبكة/فئة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 419
+   },
+   {
+    "kind": "link",
+    "label": "قواعد التغطية التفصيلية ←",
+    "src": "link /admin/insurance-companies",
+    "status": "ok",
+    "link": "/admin/insurance-companies",
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 420
+   },
+   {
+    "kind": "button",
+    "label": "تعديل",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 430
+   },
+   {
+    "kind": "button",
+    "label": "تفعيل تعطيل",
+    "src": "PATCH /insurance/companies/:param; GET \u0001adminBase\u0001",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 431
+   },
+   {
+    "kind": "button",
+    "label": "+ شبكة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 432
+   },
+   {
+    "kind": "button",
+    "label": "حذف",
+    "src": "DELETE /insurance/companies/:param/networks/:param; GET \u0001adminBase\u0001; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 437
+   },
+   {
+    "kind": "action",
+    "label": "تعديل شركة شركة جديدة إلغاء حفظ",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 445
+   },
+   {
+    "kind": "action",
+    "label": "تعديل شركة شركة جديدة إلغاء حفظ",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 446
+   },
+   {
+    "kind": "input",
+    "label": "الاسم (عربي)",
+    "src": "state form used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 448
+   },
+   {
+    "kind": "input",
+    "label": "Name (en)",
+    "src": "state form used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 449
+   },
+   {
+    "kind": "input",
+    "label": "الكود",
+    "src": "state form used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 450
+   },
+   {
+    "kind": "button",
+    "label": "إلغاء",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 452
+   },
+   {
+    "kind": "button",
+    "label": "حفظ",
+    "src": "saveCompany; PATCH /insurance/companies/:param; POST /insurance/companies; GET \u0001adminBase\u0001",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 453
+   },
+   {
+    "kind": "action",
+    "label": "شبكة/فئة جديدة — الشركة — إلغاء حفظ",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 459
+   },
+   {
+    "kind": "action",
+    "label": "شبكة/فئة جديدة — الشركة — إلغاء حفظ",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 460
+   },
+   {
+    "kind": "input",
+    "label": "— الشركة —",
+    "src": "state netForm used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 462
+   },
+   {
+    "kind": "input",
+    "label": "الكود",
+    "src": "state netForm used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 466
+   },
+   {
+    "kind": "input",
+    "label": "الاسم (عربي)",
+    "src": "state netForm used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 467
+   },
+   {
+    "kind": "button",
+    "label": "إلغاء",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 469
+   },
+   {
+    "kind": "button",
+    "label": "حفظ",
+    "src": "saveNetwork; POST /insurance/companies/:param/networks; GET \u0001adminBase\u0001",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/catalog-manager.tsx",
+    "line": 470
+   },
+   {
+    "kind": "link",
+    "label": "العودة لمركز القيادة",
+    "src": "link /admin/command-center",
+    "status": "ok",
+    "link": "/admin/command-center",
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 267,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "فتح القائمة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 276,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 288,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "إغلاق القائمة",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 307,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "ميلادي هجري",
+    "src": "navigation; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 333,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "تسجيل الخروج",
+    "src": "logout; POST /auth/logout; navigation",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 344,
+    "via": "AdminGuard"
+   }
+  ],
+  "/admin/command-center": [
+   {
+    "kind": "button",
+    "label": "تحديث فوري",
+    "src": "GET /api/admin/admin/command-center-v2; GET /api/admin/admin/analytics-suite/online; GET /api/admin/admin/ops/overview; GET /api/admin/admin",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/command-center.tsx",
+    "line": 34
+   },
+   {
+    "kind": "link",
+    "label": "فتح",
+    "src": "link /admin/orders",
+    "status": "ok",
+    "link": "/admin/orders",
+    "file": "admin/src/pages/admin/command-center.tsx",
+    "line": 56
+   },
+   {
+    "kind": "link",
+    "label": "فتح",
+    "src": "link /admin/finance-suite",
+    "status": "ok",
+    "link": "/admin/finance-suite",
+    "file": "admin/src/pages/admin/command-center.tsx",
+    "line": 56
+   },
+   {
+    "kind": "link",
+    "label": "إدارة دورة الطلبات",
+    "src": "link /admin/orders",
+    "status": "ok",
+    "link": "/admin/orders",
+    "file": "admin/src/pages/admin/command-center.tsx",
+    "line": 56
+   },
+   {
+    "kind": "link",
+    "label": "التسوية والدفعات",
+    "src": "link /admin/finance-suite",
+    "status": "ok",
+    "link": "/admin/finance-suite",
+    "file": "admin/src/pages/admin/command-center.tsx",
+    "line": 56
+   },
+   {
+    "kind": "link",
+    "label": "الطوابير والتشغيل",
+    "src": "link /admin/system-ops",
+    "status": "ok",
+    "link": "/admin/system-ops",
+    "file": "admin/src/pages/admin/command-center.tsx",
+    "line": 56
+   },
+   {
+    "kind": "link",
+    "label": "النزاعات المالية",
+    "src": "link /admin/disputes",
+    "status": "ok",
+    "link": "/admin/disputes",
+    "file": "admin/src/pages/admin/command-center.tsx",
+    "line": 56
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/commissions": [
+   {
+    "kind": "button",
+    "label": "تحديث",
+    "src": "load; GET /api/admin/admin/finance/ledger/summary; GET /api/admin/admin/finance/commissions",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/commissions.tsx",
+    "line": 83
+   },
+   {
+    "kind": "input",
+    "label": "مزود خدمة فئة حملة",
+    "src": "state rule used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/commissions.tsx",
+    "line": 169
+   },
+   {
+    "kind": "input",
+    "label": "account/user id",
+    "src": "state rule used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/commissions.tsx",
+    "line": 175
+   },
+   {
+    "kind": "input",
+    "label": "pharmacy/lab/…",
+    "src": "state rule used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/commissions.tsx",
+    "line": 178
+   },
+   {
+    "kind": "input",
+    "label": "number",
+    "src": "state rule used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/commissions.tsx",
+    "line": 181
+   },
+   {
+    "kind": "input",
+    "label": "date",
+    "src": "state rule used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/commissions.tsx",
+    "line": 184
+   },
+   {
+    "kind": "input",
+    "label": "date",
+    "src": "state rule used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/commissions.tsx",
+    "line": 187
+   },
+   {
+    "kind": "button",
+    "label": "حفظ القاعدة",
+    "src": "saveRule; POST /api/admin/admin/finance-engine/commission-rules; GET /api/admin/admin/finance-engine/commission-rules/history",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/commissions.tsx",
+    "line": 190
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/config-portal": [
+   {
+    "kind": "button",
+    "label": "تعديلات الـ SLA",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 229
+   },
+   {
+    "kind": "button",
+    "label": "مفتاح الإيقاف الطارئ",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 235
+   },
+   {
+    "kind": "button",
+    "label": "التسعير والذروة",
+    "src": "GET /api/admin/business-rules/config/pricing",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 242
+   },
+   {
+    "kind": "button",
+    "label": "إصدارات التطبيقات",
+    "src": "GET /api/admin/admin/config/app-versions",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 248
+   },
+   {
+    "kind": "button",
+    "label": "رقم المساعدة العاجلة",
+    "src": "GET /api/admin/mental-health/urgent-help",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 254
+   },
+   {
+    "kind": "button",
+    "label": "استشر طبيب (أدوية الوصفة)",
+    "src": "GET /api/admin/admin/pharmacy/rx-consult-specialties",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 260
+   },
+   {
+    "kind": "input",
+    "label": "number",
+    "src": "state consultationDuration used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 279
+   },
+   {
+    "kind": "input",
+    "label": "number",
+    "src": "state callRingingDuration used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 287
+   },
+   {
+    "kind": "input",
+    "label": "number",
+    "src": "state jwtExpiry used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 295
+   },
+   {
+    "kind": "button",
+    "label": "مُفعّل موقوف",
+    "src": "toggleCod; PUT /api/admin/admin/pharmacy/fulfillment-policies/cod",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 305
+   },
+   {
+    "kind": "button",
+    "label": "حفظ التعديلات (Override Globally)",
+    "src": "handleUpdateSLA; PUT /api/admin/admin/config/sla; prompt()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 312
+   },
+   {
+    "kind": "button",
+    "label": "إلغاء وضع الصيانة (Restore Systems)",
+    "src": "PUT /api/admin/admin/governance/trigger-emergency-maintenance",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 327
+   },
+   {
+    "kind": "input",
+    "label": "number",
+    "src": "state surgeStart used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 346
+   },
+   {
+    "kind": "input",
+    "label": "number",
+    "src": "state surgeEnd used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 349
+   },
+   {
+    "kind": "input",
+    "label": "number",
+    "src": "state surgeMult used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 352
+   },
+   {
+    "kind": "input",
+    "label": "number",
+    "src": "state deliveryFee used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 355
+   },
+   {
+    "kind": "input",
+    "label": "number",
+    "src": "state serviceFee used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 358
+   },
+   {
+    "kind": "button",
+    "label": "حفظ التسعير",
+    "src": "POST /api/admin/business-rules/config/surge; POST /api/admin/business-rules/config/fees",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 361
+   },
+   {
+    "kind": "input",
+    "label": "1.0.0",
+    "src": "state appVersions used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 376
+   },
+   {
+    "kind": "input",
+    "label": "1.2.0",
+    "src": "state appVersions used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 379
+   },
+   {
+    "kind": "input",
+    "label": "checkbox",
+    "src": "value",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 382
+   },
+   {
+    "kind": "input",
+    "label": "رسالة الصيانة (عربي)",
+    "src": "state appVersions used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 386
+   },
+   {
+    "kind": "input",
+    "label": "Maintenance message",
+    "src": "state appVersions used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 387
+   },
+   {
+    "kind": "button",
+    "label": "حفظ الإصدارات",
+    "src": "PUT /api/admin/admin/config/app-versions",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 391
+   },
+   {
+    "kind": "input",
+    "label": "input",
+    "src": "state urgentPhone used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 402
+   },
+   {
+    "kind": "button",
+    "label": "حفظ الرقم",
+    "src": "PUT /api/admin/admin/mental-health/urgent-help",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 404
+   },
+   {
+    "kind": "input",
+    "label": "بدون تصفية",
+    "src": "state rxConsult used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 417
+   },
+   {
+    "kind": "input",
+    "label": "الافتراضي",
+    "src": "state rxConsult used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 431
+   },
+   {
+    "kind": "button",
+    "label": "حفظ الربط",
+    "src": "PUT /api/admin/admin/pharmacy/rx-consult-specialties",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/config-portal.tsx",
+    "line": 438
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/content-growth": [
+   {
+    "kind": "button",
+    "label": "المقالات الكوبونات والعروض الأسئلة الشائعة حملات Push وA/B",
+    "src": "GET /support/admin/faqs",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "button",
+    "label": "اعتماد ونشر",
+    "src": "POST /api/admin/admin/cms/:param/publish; PATCH /api/admin/admin/cms/:param/unpublish; GET /api/admin/admin/cms/articles; GET /api/admin/adm",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "button",
+    "label": "سحب",
+    "src": "POST /api/admin/admin/cms/:param/publish; PATCH /api/admin/admin/cms/:param/unpublish; GET /api/admin/admin/cms/articles; GET /api/admin/adm",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "form",
+    "label": "إنشاء ونشر/جدولة مقال تاريخ النشر (اختياري للتشغيل الفوري) ح",
+    "src": "saveArticle; POST /api/admin/admin/cms/articles; POST /api/admin/admin/cms/:param/schedule; POST /api/admin/admin/cms/:param/publish; GET /a",
+    "status": "ok",
+    "warn": "Sensitive action (POST /api/admin/admin/cms/:param/publish) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "العنوان العربي",
+    "src": "state article used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "العنوان الإنجليزي",
+    "src": "state article used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "slug",
+    "src": "state article used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "وسوم مفصولة بفاصلة",
+    "src": "state article used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "ملخص",
+    "src": "state article used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "نص المقال",
+    "src": "state article used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "datetime-local",
+    "src": "state article used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "سبب التعديل",
+    "src": "state article used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "button",
+    "label": "حفظ وتدقيق",
+    "src": "submits the enclosing form",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53,
+    "submit": true
+   },
+   {
+    "kind": "button",
+    "label": "إيقاف تفعيل",
+    "src": "PATCH /api/admin/admin/coupons/:param; GET /api/admin/admin/cms/articles; GET /api/admin/admin/coupons; GET /api/admin/admin/notification-ce",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "form",
+    "label": "إنشاء عرض نسبة مبلغ إنشاء وتدقيق",
+    "src": "saveCoupon; POST /api/admin/admin/coupons; GET /api/admin/admin/cms/articles; GET /api/admin/admin/coupons; GET /api/admin/admin/notificatio",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "CODE",
+    "src": "state coupon used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "العنوان",
+    "src": "state coupon used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "نسبة مبلغ",
+    "src": "state coupon used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "القيمة",
+    "src": "state coupon used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "حد السلة",
+    "src": "state coupon used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "سقف الخصم",
+    "src": "state coupon used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "حد الاستخدام الكلي",
+    "src": "state coupon used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "datetime-local",
+    "src": "state coupon used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "سبب الإنشاء",
+    "src": "state coupon used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "button",
+    "label": "إنشاء وتدقيق",
+    "src": "submits the enclosing form",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53,
+    "submit": true
+   },
+   {
+    "kind": "button",
+    "label": "تعديل",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "button",
+    "label": "إخفاء",
+    "src": "DELETE /support/admin/faqs/:param; GET /support/admin/faqs; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "form",
+    "label": "إضافة / تعديل سؤال حفظ السؤال",
+    "src": "saveFaq; POST /support/admin/faqs; GET /support/admin/faqs",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "السؤال (عربي)",
+    "src": "state faq used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "السؤال (إنجليزي)",
+    "src": "state faq used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "الجواب (عربي)",
+    "src": "state faq used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "الجواب (إنجليزي)",
+    "src": "state faq used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "button",
+    "label": "حفظ السؤال",
+    "src": "submits the enclosing form",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53,
+    "submit": true
+   },
+   {
+    "kind": "button",
+    "label": "إرسال الآن",
+    "src": "POST /api/admin/admin/notification-center/campaigns/:param/send; GET /api/admin/admin/cms/articles; GET /api/admin/admin/coupons; GET /api/a",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "form",
+    "label": "منشئ حملة Push المرضى المزودون كل المستخدمين جدولة اختيارية",
+    "src": "saveCampaign; POST /api/admin/admin/notification-center/campaigns; GET /api/admin/admin/cms/articles; GET /api/admin/admin/coupons; GET /api",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "اسم الحملة",
+    "src": "state campaign used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "عنوان النسخة A",
+    "src": "state campaign used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "نص النسخة A",
+    "src": "state campaign used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "المرضى المزودون كل المستخدمين",
+    "src": "state campaign used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "مسار deep link اختياري يبدأ بـ /",
+    "src": "state campaign used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "datetime-local",
+    "src": "state campaign used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "عنوان النسخة B",
+    "src": "state campaign used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "نص النسخة B",
+    "src": "state campaign used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "input",
+    "label": "checkbox",
+    "src": "state campaign used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53
+   },
+   {
+    "kind": "button",
+    "label": "إنشاء الحملة",
+    "src": "submits the enclosing form",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 53,
+    "submit": true
+   },
+   {
+    "kind": "link",
+    "label": "العودة لمركز القيادة",
+    "src": "link /admin/command-center",
+    "status": "ok",
+    "link": "/admin/command-center",
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 267,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "فتح القائمة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 276,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 288,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "إغلاق القائمة",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 307,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "ميلادي هجري",
+    "src": "navigation; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 333,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "تسجيل الخروج",
+    "src": "logout; POST /auth/logout; navigation",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 344,
+    "via": "AdminGuard"
+   }
+  ],
+  "/admin/crm": [
+   {
+    "kind": "input",
+    "label": "اسم أو جوال أو بريد أو معرّف",
+    "src": "state q used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/crm.tsx",
+    "line": 18
+   },
+   {
+    "kind": "button",
+    "label": "بحث",
+    "src": "GET /api/admin/admin/crm/patients",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/crm.tsx",
+    "line": 18
+   },
+   {
+    "kind": "button",
+    "label": "· طلب",
+    "src": "GET /api/admin/admin/crm/patients/:param/360",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/crm.tsx",
+    "line": 18
+   },
+   {
+    "kind": "button",
+    "label": "السابق",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/crm.tsx",
+    "line": 18
+   },
+   {
+    "kind": "button",
+    "label": "التالي",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/crm.tsx",
+    "line": 18
+   },
+   {
+    "kind": "button",
+    "label": "تسجيل انتحال للدعم",
+    "src": "POST /api/admin/admin/impersonation/start; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/crm.tsx",
+    "line": 18
+   },
+   {
+    "kind": "link",
+    "label": "العودة لمركز القيادة",
+    "src": "link /admin/command-center",
+    "status": "ok",
+    "link": "/admin/command-center",
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 267,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "فتح القائمة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 276,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 288,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "إغلاق القائمة",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 307,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "ميلادي هجري",
+    "src": "navigation; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 333,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "تسجيل الخروج",
+    "src": "logout; POST /auth/logout; navigation",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 344,
+    "via": "AdminGuard"
+   }
+  ],
+  "/admin/dashboard": [
+   {
+    "kind": "action",
+    "label": "<DataTable> onRowClick",
+    "src": "navigation",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/dashboard.tsx",
+    "line": 169
+   },
+   {
+    "kind": "action",
+    "label": "اتصال تفاصيل",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/dashboard.tsx",
+    "line": 193
+   },
+   {
+    "kind": "link",
+    "label": "تفاصيل",
+    "src": "link /admin/order-detail",
+    "status": "ok",
+    "link": "/admin/order-detail",
+    "file": "admin/src/pages/admin/dashboard.tsx",
+    "line": 194
+   },
+   {
+    "kind": "button",
+    "label": "-",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/dashboard.tsx",
+    "line": 220
+   },
+   {
+    "kind": "action",
+    "label": "تفاصيل بؤرة الطلب ✕ المنطقة: نوع الطلب: عدد الطلبات: كثافة ا",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/dashboard.tsx",
+    "line": 237
+   },
+   {
+    "kind": "action",
+    "label": "تفاصيل بؤرة الطلب ✕ المنطقة: نوع الطلب: عدد الطلبات: كثافة ا",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/dashboard.tsx",
+    "line": 238
+   },
+   {
+    "kind": "button",
+    "label": "✕",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/dashboard.tsx",
+    "line": 241
+   },
+   {
+    "kind": "button",
+    "label": "إغلاق",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/dashboard.tsx",
+    "line": 249
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/disputes": [
+   {
+    "kind": "input",
+    "label": "بحث في العميل أو الموضوع",
+    "src": "state query used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/disputes.tsx",
+    "line": 46
+   },
+   {
+    "kind": "button",
+    "label": "تحديث",
+    "src": "GET /api/admin/admin/disputes",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/disputes.tsx",
+    "line": 46
+   },
+   {
+    "kind": "button",
+    "label": "مراجعة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/disputes.tsx",
+    "line": 62
+   },
+   {
+    "kind": "button",
+    "label": "السابق",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/disputes.tsx",
+    "line": 65
+   },
+   {
+    "kind": "button",
+    "label": "التالي",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/disputes.tsx",
+    "line": 65
+   },
+   {
+    "kind": "input",
+    "label": "رفض الاعتراض إغلاق بلا إجراء مالي استرداد كامل إلى المحفظة ا",
+    "src": "state decision used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/disputes.tsx",
+    "line": 66
+   },
+   {
+    "kind": "input",
+    "label": "number",
+    "src": "state amount used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/disputes.tsx",
+    "line": 66
+   },
+   {
+    "kind": "input",
+    "label": "textarea",
+    "src": "state reason used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/disputes.tsx",
+    "line": 66
+   },
+   {
+    "kind": "button",
+    "label": "إلغاء",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/disputes.tsx",
+    "line": 66
+   },
+   {
+    "kind": "button",
+    "label": "جارٍ الحفظ… تأكيد القرار",
+    "src": "POST /api/admin/admin/disputes/:param/resolve; GET /api/admin/admin/disputes; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/disputes.tsx",
+    "line": 66
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/finance-suite": [
+   {
+    "kind": "input",
+    "label": "date",
+    "src": "state from used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/finance-suite.tsx",
+    "line": 32
+   },
+   {
+    "kind": "input",
+    "label": "date",
+    "src": "state to used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/finance-suite.tsx",
+    "line": 32
+   },
+   {
+    "kind": "input",
+    "label": "يومي أسبوعي شهري",
+    "src": "state granularity used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/finance-suite.tsx",
+    "line": 32
+   },
+   {
+    "kind": "button",
+    "label": "تحديث",
+    "src": "GET /api/admin/admin/finance/revenue; GET /api/admin/admin/finance/commissions; GET /api/admin/admin/finance/reconciliation; GET /api/admin/",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/finance-suite.tsx",
+    "line": 32
+   },
+   {
+    "kind": "form",
+    "label": "نسب العمولات (JSON) نسبة VAT سبب التغيير حفظ وتدقيق الإعدادا",
+    "src": "saveConfig; POST /api/admin/admin/finance/commissions/config; GET /api/admin/admin/finance/revenue; GET /api/admin/admin/finance/commissions",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/finance-suite.tsx",
+    "line": 59
+   },
+   {
+    "kind": "input",
+    "label": "textarea",
+    "src": "state ratesText used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/finance-suite.tsx",
+    "line": 59
+   },
+   {
+    "kind": "input",
+    "label": "number",
+    "src": "state vatRate used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/finance-suite.tsx",
+    "line": 59
+   },
+   {
+    "kind": "input",
+    "label": "textarea",
+    "src": "state reason used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/finance-suite.tsx",
+    "line": 59
+   },
+   {
+    "kind": "button",
+    "label": "حفظ وتدقيق الإعدادات",
+    "src": "submits the enclosing form",
+    "status": "ok",
+    "file": "admin/src/pages/admin/finance-suite.tsx",
+    "line": 59,
+    "submit": true
+   },
+   {
+    "kind": "button",
+    "label": "اعتماد",
+    "src": "POST /api/admin/admin/finance/payouts/:param/:param; GET /api/admin/admin/finance/revenue; GET /api/admin/admin/finance/commissions; GET /ap",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/finance-suite.tsx",
+    "line": 73
+   },
+   {
+    "kind": "button",
+    "label": "رفض",
+    "src": "POST /api/admin/admin/finance/payouts/:param/:param; GET /api/admin/admin/finance/revenue; GET /api/admin/admin/finance/commissions; GET /ap",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/finance-suite.tsx",
+    "line": 73
+   },
+   {
+    "kind": "form",
+    "label": "عرض الكشف",
+    "src": "loadStatement; GET /api/admin/admin/finance/providers/:param/statement",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/finance-suite.tsx",
+    "line": 77
+   },
+   {
+    "kind": "input",
+    "label": "معرّف المزوّد",
+    "src": "state providerId used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/finance-suite.tsx",
+    "line": 77
+   },
+   {
+    "kind": "button",
+    "label": "عرض الكشف",
+    "src": "submits the enclosing form",
+    "status": "ok",
+    "file": "admin/src/pages/admin/finance-suite.tsx",
+    "line": 77,
+    "submit": true
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/financial-ledger": [
+   {
+    "kind": "button",
+    "label": "السجل المالي والمدفوعات",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/financial-ledger.tsx",
+    "line": 169
+   },
+   {
+    "kind": "button",
+    "label": "تسعير المستودعات (B2B Warehouse)",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/financial-ledger.tsx",
+    "line": 172
+   },
+   {
+    "kind": "button",
+    "label": "Execute Payout",
+    "src": "POST /api/admin/admin/finance/withdrawals/:param/execute; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/financial-ledger.tsx",
+    "line": 245
+   },
+   {
+    "kind": "button",
+    "label": "إرسال تسعيرة المشتريات للصيدلية",
+    "src": "PATCH /api/admin/admin/extended-operations/issue-quote/:param",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/financial-ledger.tsx",
+    "line": 281
+   },
+   {
+    "kind": "input",
+    "label": "0.00",
+    "src": "value item",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/pages/admin/financial-ledger.tsx",
+    "line": 297
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/fraud-monitoring": [
+   {
+    "kind": "input",
+    "label": "بحث في التنبيهات والسجلات",
+    "src": "state query used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/fraud-monitoring.tsx",
+    "line": 86
+   },
+   {
+    "kind": "input",
+    "label": "كل درجات الخطورة high medium low",
+    "src": "state severity used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/fraud-monitoring.tsx",
+    "line": 87
+   },
+   {
+    "kind": "button",
+    "label": "السابق",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/fraud-monitoring.tsx",
+    "line": 182
+   },
+   {
+    "kind": "button",
+    "label": "التالي",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/fraud-monitoring.tsx",
+    "line": 185
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/gdpr": [
+   {
+    "kind": "form",
+    "label": "معرّف المستخدم الطلب تصدير البيانات حذف/إخفاء البيانات إنشاء",
+    "src": "create; POST /api/admin/admin/gdpr/requests; GET /api/admin/admin/gdpr/requests; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/gdpr.tsx",
+    "line": 15
+   },
+   {
+    "kind": "input",
+    "label": "input",
+    "src": "state userId used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/gdpr.tsx",
+    "line": 15
+   },
+   {
+    "kind": "input",
+    "label": "تصدير البيانات حذف/إخفاء البيانات",
+    "src": "state type used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/gdpr.tsx",
+    "line": 15
+   },
+   {
+    "kind": "button",
+    "label": "إنشاء الطلب",
+    "src": "submits the enclosing form",
+    "status": "ok",
+    "file": "admin/src/pages/admin/gdpr.tsx",
+    "line": 15,
+    "submit": true
+   },
+   {
+    "kind": "button",
+    "label": "الكل",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/gdpr.tsx",
+    "line": 15
+   },
+   {
+    "kind": "button",
+    "label": "( )",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/gdpr.tsx",
+    "line": 15
+   },
+   {
+    "kind": "button",
+    "label": "بدء المعالجة",
+    "src": "POST /api/admin/admin/gdpr/:param/:param; GET /api/admin/admin/gdpr/requests; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/gdpr.tsx",
+    "line": 30
+   },
+   {
+    "kind": "button",
+    "label": "إكمال التصدير",
+    "src": "POST /api/admin/admin/gdpr/:param/:param; GET /api/admin/admin/gdpr/requests; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/gdpr.tsx",
+    "line": 31
+   },
+   {
+    "kind": "button",
+    "label": "إكمال الحذف",
+    "src": "POST /api/admin/admin/gdpr/:param/:param; GET /api/admin/admin/gdpr/requests; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/gdpr.tsx",
+    "line": 32
+   },
+   {
+    "kind": "button",
+    "label": "السابق",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/gdpr.tsx",
+    "line": 37
+   },
+   {
+    "kind": "button",
+    "label": "التالي",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/gdpr.tsx",
+    "line": 37
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/health-dashboard": [
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/home-curation": [
+   {
+    "kind": "button",
+    "label": "أعلى",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/home-curation.tsx",
+    "line": 19
+   },
+   {
+    "kind": "button",
+    "label": "أسفل",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/home-curation.tsx",
+    "line": 19
+   },
+   {
+    "kind": "button",
+    "label": "حذف القسم",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/home-curation.tsx",
+    "line": 19
+   },
+   {
+    "kind": "input",
+    "label": "معرّف القسم",
+    "src": "value section",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/pages/admin/home-curation.tsx",
+    "line": 19
+   },
+   {
+    "kind": "input",
+    "label": "النوع",
+    "src": "value section",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/pages/admin/home-curation.tsx",
+    "line": 19
+   },
+   {
+    "kind": "input",
+    "label": "العنوان",
+    "src": "value section",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/pages/admin/home-curation.tsx",
+    "line": 19
+   },
+   {
+    "kind": "input",
+    "label": "checkbox",
+    "src": "value section",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/pages/admin/home-curation.tsx",
+    "line": 19
+   },
+   {
+    "kind": "input",
+    "label": "معرّف",
+    "src": "value item",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/pages/admin/home-curation.tsx",
+    "line": 19
+   },
+   {
+    "kind": "input",
+    "label": "العنوان",
+    "src": "value item",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/pages/admin/home-curation.tsx",
+    "line": 19
+   },
+   {
+    "kind": "input",
+    "label": "رابط الصورة",
+    "src": "value item",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/pages/admin/home-curation.tsx",
+    "line": 19
+   },
+   {
+    "kind": "input",
+    "label": "المسار",
+    "src": "value item",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/pages/admin/home-curation.tsx",
+    "line": 19
+   },
+   {
+    "kind": "button",
+    "label": "حذف",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/home-curation.tsx",
+    "line": 19
+   },
+   {
+    "kind": "button",
+    "label": "إضافة عنصر",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/home-curation.tsx",
+    "line": 19
+   },
+   {
+    "kind": "button",
+    "label": "إضافة قسم",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/home-curation.tsx",
+    "line": 19
+   },
+   {
+    "kind": "input",
+    "label": "textarea",
+    "src": "state reason used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/home-curation.tsx",
+    "line": 19
+   },
+   {
+    "kind": "button",
+    "label": "جارٍ النشر… حفظ الترتيب وتدقيقه",
+    "src": "POST /api/admin/admin/governance-controls/home-curation",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/home-curation.tsx",
+    "line": 19
+   }
+  ],
+  "/admin/image-suggestions": [
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/image-suggestions.tsx",
+    "line": 68
+   },
+   {
+    "kind": "button",
+    "label": "اعتماد",
+    "src": "POST /medicines/admin/image-suggestions/:param/:param; GET /medicines/admin/image-suggestions; confirm(); prompt()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/image-suggestions.tsx",
+    "line": 108
+   },
+   {
+    "kind": "button",
+    "label": "رفض",
+    "src": "POST /medicines/admin/image-suggestions/:param/:param; GET /medicines/admin/image-suggestions; confirm(); prompt()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/image-suggestions.tsx",
+    "line": 112
+   },
+   {
+    "kind": "button",
+    "label": "السابق",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/image-suggestions.tsx",
+    "line": 125
+   },
+   {
+    "kind": "button",
+    "label": "التالي",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/image-suggestions.tsx",
+    "line": 127
+   },
+   {
+    "kind": "button",
+    "label": "جاري التحميل… تحميل العقد PDF",
+    "src": "downloadContract; GET /api/admin/provider-onboarding/admin/contracts/:param",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/ProviderFullDetail.tsx",
+    "line": 525,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "input",
+    "label": "checkbox",
+    "src": "onChange sends POST /api/admin/provider-onboarding/admin/contracts/:param/visibility",
+    "status": "ok",
+    "file": "admin/src/components/ProviderFullDetail.tsx",
+    "line": 535,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "ProviderFullDetail"
+   }
+  ],
+  "/admin/impersonation": [
+   {
+    "kind": "button",
+    "label": "إخفاء الشريط",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/impersonation.tsx",
+    "line": 18
+   },
+   {
+    "kind": "input",
+    "label": "ابحث بالاسم أو الهاتف أو البريد",
+    "src": "state query used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/impersonation.tsx",
+    "line": 18
+   },
+   {
+    "kind": "button",
+    "label": "اختيار",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/impersonation.tsx",
+    "line": 18
+   },
+   {
+    "kind": "input",
+    "label": "سبب جلسة الدعم والتذكرة المرتبطة بها",
+    "src": "state reason used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/impersonation.tsx",
+    "line": 18
+   },
+   {
+    "kind": "button",
+    "label": "إنشاء جلسة 15 دقيقة",
+    "src": "POST /api/admin/admin/impersonation/start; GET /support-session/context; GET /api/admin/admin/impersonation; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/impersonation.tsx",
+    "line": 18
+   },
+   {
+    "kind": "button",
+    "label": "إبطال",
+    "src": "POST /api/admin/admin/impersonation/:param/revoke; GET /api/admin/admin/impersonation; prompt()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/impersonation.tsx",
+    "line": 18
+   }
+  ],
+  "/admin/insurance-companies": [
+   {
+    "kind": "button",
+    "label": "إلغاء + إضافة شركة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/insurance-companies.tsx",
+    "line": 196
+   },
+   {
+    "kind": "input",
+    "label": "مثال: cigna",
+    "src": "state newCode used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/insurance-companies.tsx",
+    "line": 210
+   },
+   {
+    "kind": "input",
+    "label": "سيجنا",
+    "src": "state newNameAr used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/insurance-companies.tsx",
+    "line": 214
+   },
+   {
+    "kind": "input",
+    "label": "Cigna",
+    "src": "state newNameEn used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/insurance-companies.tsx",
+    "line": 218
+   },
+   {
+    "kind": "button",
+    "label": "حفظ الشركة",
+    "src": "addCompany; POST /insurance/companies; GET /insurance/companies/all",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/insurance-companies.tsx",
+    "line": 220
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/insurance-companies.tsx",
+    "line": 236
+   },
+   {
+    "kind": "input",
+    "label": "input",
+    "src": "state editNameAr used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/insurance-companies.tsx",
+    "line": 240
+   },
+   {
+    "kind": "input",
+    "label": "input",
+    "src": "state editNameEn used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/insurance-companies.tsx",
+    "line": 241
+   },
+   {
+    "kind": "button",
+    "label": "حفظ",
+    "src": "saveEdit; PATCH /insurance/companies/:param; GET /insurance/companies/all",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/insurance-companies.tsx",
+    "line": 242
+   },
+   {
+    "kind": "button",
+    "label": "إلغاء",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/insurance-companies.tsx",
+    "line": 243
+   },
+   {
+    "kind": "button",
+    "label": "تعديل",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/insurance-companies.tsx",
+    "line": 255
+   },
+   {
+    "kind": "button",
+    "label": "تعطيل تفعيل",
+    "src": "PATCH /insurance/companies/:param; GET /insurance/companies/all",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/insurance-companies.tsx",
+    "line": 261
+   },
+   {
+    "kind": "button",
+    "label": "إلغاء + إضافة فئة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/insurance-companies.tsx",
+    "line": 274
+   },
+   {
+    "kind": "input",
+    "label": "الكود: vip",
+    "src": "state tierCode used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/insurance-companies.tsx",
+    "line": 284
+   },
+   {
+    "kind": "input",
+    "label": "الاسم: VIP",
+    "src": "state tierNameAr used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/insurance-companies.tsx",
+    "line": 285
+   },
+   {
+    "kind": "input",
+    "label": "Name: VIP",
+    "src": "state tierNameEn used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/insurance-companies.tsx",
+    "line": 286
+   },
+   {
+    "kind": "input",
+    "label": "المستوى",
+    "src": "state tierLevel used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/insurance-companies.tsx",
+    "line": 287
+   },
+   {
+    "kind": "button",
+    "label": "حفظ الفئة",
+    "src": "addTier; POST /insurance/companies/:param/networks; GET /insurance/companies/all",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/insurance-companies.tsx",
+    "line": 288
+   },
+   {
+    "kind": "button",
+    "label": "قواعد التحمل",
+    "src": "GET /insurance/networks/:param/rules",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/insurance-companies.tsx",
+    "line": 304
+   },
+   {
+    "kind": "button",
+    "label": "×",
+    "src": "DELETE /insurance/companies/:param/networks/:param; GET /insurance/companies/all; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/insurance-companies.tsx",
+    "line": 305
+   },
+   {
+    "kind": "input",
+    "label": "service_type",
+    "src": "state ruleForm used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/insurance-companies.tsx",
+    "line": 316
+   },
+   {
+    "kind": "input",
+    "label": "service_key?",
+    "src": "state ruleForm used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/insurance-companies.tsx",
+    "line": 317
+   },
+   {
+    "kind": "input",
+    "label": "copay%",
+    "src": "state ruleForm used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/insurance-companies.tsx",
+    "line": 318
+   },
+   {
+    "kind": "input",
+    "label": "cap?",
+    "src": "state ruleForm used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/insurance-companies.tsx",
+    "line": 319
+   },
+   {
+    "kind": "input",
+    "label": "checkbox",
+    "src": "state ruleForm used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/insurance-companies.tsx",
+    "line": 320
+   },
+   {
+    "kind": "button",
+    "label": "حفظ القاعدة",
+    "src": "POST /insurance/networks/:param/rules; GET /insurance/networks/:param/rules",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/insurance-companies.tsx",
+    "line": 321
+   }
+  ],
+  "/admin/insurance-queue": [
+   {
+    "kind": "button",
+    "label": "ر.س إجمالي",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/insurance-queue.tsx",
+    "line": 48
+   },
+   {
+    "kind": "button",
+    "label": "تحديث",
+    "src": "load; GET /api/admin/admin/insurance/stats; GET /api/admin/admin/insurance/requests",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/insurance-queue.tsx",
+    "line": 74
+   },
+   {
+    "kind": "action",
+    "label": "<DataTable> onRowClick",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/insurance-queue.tsx",
+    "line": 86
+   },
+   {
+    "kind": "action",
+    "label": "تفاصيل طلب التأمين ✕ المريض الخدمة القناة المزود السعر نسبة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/insurance-queue.tsx",
+    "line": 113
+   },
+   {
+    "kind": "action",
+    "label": "تفاصيل طلب التأمين ✕ المريض الخدمة القناة المزود السعر نسبة",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/insurance-queue.tsx",
+    "line": 114
+   },
+   {
+    "kind": "button",
+    "label": "✕",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/insurance-queue.tsx",
+    "line": 117
+   },
+   {
+    "kind": "button",
+    "label": "إغلاق",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/insurance-queue.tsx",
+    "line": 143
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/legal-policies": [
+   {
+    "kind": "button",
+    "label": "تحرير المحتوى (يرفع الإصدار)",
+    "src": "GET /legal/policy/:param",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/legal-policies.tsx",
+    "line": 52
+   },
+   {
+    "kind": "action",
+    "label": "تحرير: ⚠️ الحفظ يرفع رقم الإصدار تلقائياً ويجبر المستخدمين ع",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/legal-policies.tsx",
+    "line": 61
+   },
+   {
+    "kind": "action",
+    "label": "تحرير: ⚠️ الحفظ يرفع رقم الإصدار تلقائياً ويجبر المستخدمين ع",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/legal-policies.tsx",
+    "line": 62
+   },
+   {
+    "kind": "input",
+    "label": "textarea",
+    "src": "state editContent used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/legal-policies.tsx",
+    "line": 65
+   },
+   {
+    "kind": "button",
+    "label": "جارٍ الحفظ... حفظ وإصدار جديد",
+    "src": "save; PUT /api/admin/admin/legal/policy/:param; GET /legal/policies",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/legal-policies.tsx",
+    "line": 72
+   },
+   {
+    "kind": "button",
+    "label": "إلغاء",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/legal-policies.tsx",
+    "line": 75
+   }
+  ],
+  "/admin/live-chat-console": [],
+  "/admin/locations": [
+   {
+    "kind": "input",
+    "label": "منطقة مدينة حي",
+    "src": "state form used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/locations.tsx",
+    "line": 54
+   },
+   {
+    "kind": "input",
+    "label": "الكود (مثال: sa-riyadh)",
+    "src": "state form used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/locations.tsx",
+    "line": 55
+   },
+   {
+    "kind": "input",
+    "label": "الاسم بالعربية",
+    "src": "state form used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/locations.tsx",
+    "line": 56
+   },
+   {
+    "kind": "input",
+    "label": "الاسم بالإنجليزية",
+    "src": "state form used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/locations.tsx",
+    "line": 57
+   },
+   {
+    "kind": "input",
+    "label": "كود الأب (اختياري)",
+    "src": "state form used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/locations.tsx",
+    "line": 58
+   },
+   {
+    "kind": "button",
+    "label": "إضافة",
+    "src": "create; POST /api/admin/admin/locations; GET /api/admin/admin/locations",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/locations.tsx",
+    "line": 60
+   },
+   {
+    "kind": "input",
+    "label": "مناطق مدن أحياء",
+    "src": "state type used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/locations.tsx",
+    "line": 63
+   },
+   {
+    "kind": "input",
+    "label": "بحث",
+    "src": "state q used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/locations.tsx",
+    "line": 64
+   },
+   {
+    "kind": "button",
+    "label": "تعطيل",
+    "src": "DELETE /api/admin/admin/locations/:param; GET /api/admin/admin/locations; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/locations.tsx",
+    "line": 77
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/loyalty-config": [
+   {
+    "kind": "input",
+    "label": "number",
+    "src": "state config used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 99
+   },
+   {
+    "kind": "input",
+    "label": "number",
+    "src": "state config used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 100
+   },
+   {
+    "kind": "input",
+    "label": "number",
+    "src": "state config used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 101
+   },
+   {
+    "kind": "input",
+    "label": "number",
+    "src": "state config used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 102
+   },
+   {
+    "kind": "input",
+    "label": "checkbox",
+    "src": "state config used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 103
+   },
+   {
+    "kind": "input",
+    "label": "الافتراضي",
+    "src": "state config used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 110
+   },
+   {
+    "kind": "input",
+    "label": "بلا سقف",
+    "src": "state config used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 123
+   },
+   {
+    "kind": "button",
+    "label": "حفظ الإعدادات",
+    "src": "saveConfig; PUT /admin/admin/loyalty/config; GET /loyalty/config; GET /admin/loyalty/rewards; GET /admin/loyalty/challenges",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 130
+   },
+   {
+    "kind": "input",
+    "label": "الاسم بالعربية",
+    "src": "state rewardDraft used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 136
+   },
+   {
+    "kind": "input",
+    "label": "Name (EN)",
+    "src": "state rewardDraft used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 137
+   },
+   {
+    "kind": "input",
+    "label": "النقاط",
+    "src": "state rewardDraft used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 138
+   },
+   {
+    "kind": "input",
+    "label": "كوبون كاشباك شارة هدية",
+    "src": "state rewardDraft used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 139
+   },
+   {
+    "kind": "button",
+    "label": "إضافة",
+    "src": "createReward; POST /admin/admin/loyalty/rewards; GET /loyalty/config; GET /admin/loyalty/rewards; GET /admin/loyalty/challenges",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 142
+   },
+   {
+    "kind": "button",
+    "label": "مفعّلة معطّلة",
+    "src": "PATCH /admin/admin/loyalty/rewards/:param; GET /loyalty/config; GET /admin/loyalty/rewards; GET /admin/loyalty/challenges",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 148
+   },
+   {
+    "kind": "input",
+    "label": "الاسم بالعربية",
+    "src": "state challengeDraft used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 158
+   },
+   {
+    "kind": "input",
+    "label": "Name (EN)",
+    "src": "state challengeDraft used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 159
+   },
+   {
+    "kind": "input",
+    "label": "الإجراء",
+    "src": "state challengeDraft used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 160
+   },
+   {
+    "kind": "input",
+    "label": "الهدف",
+    "src": "state challengeDraft used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 161
+   },
+   {
+    "kind": "input",
+    "label": "النقاط",
+    "src": "state challengeDraft used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 162
+   },
+   {
+    "kind": "input",
+    "label": "date",
+    "src": "state challengeDraft used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 163
+   },
+   {
+    "kind": "input",
+    "label": "date",
+    "src": "state challengeDraft used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 164
+   },
+   {
+    "kind": "button",
+    "label": "إضافة تحدٍ",
+    "src": "createChallenge; POST /admin/admin/loyalty/challenges; GET /loyalty/config; GET /admin/loyalty/rewards; GET /admin/loyalty/challenges",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 165
+   },
+   {
+    "kind": "button",
+    "label": "مفعّل معطّل",
+    "src": "PATCH /admin/admin/loyalty/challenges/:param; GET /loyalty/config; GET /admin/loyalty/rewards; GET /admin/loyalty/challenges",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 171
+   }
+  ],
+  "/admin/medicines-catalog": [
+   {
+    "kind": "input",
+    "label": "textarea",
+    "src": "state form used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 299
+   },
+   {
+    "kind": "input",
+    "label": "input",
+    "src": "state form used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 301
+   },
+   {
+    "kind": "button",
+    "label": "الكتالوج طلبات التغيير التقارير",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 319
+   },
+   {
+    "kind": "input",
+    "label": "بحث بالاسم / المادة الفعالة / الباركود / الشركة...",
+    "src": "state q used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 332
+   },
+   {
+    "kind": "button",
+    "label": "مسح الباركود إدخال باركود",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 333
+   },
+   {
+    "kind": "input",
+    "label": "الفئة (اختياري)",
+    "src": "state category used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 336
+   },
+   {
+    "kind": "input",
+    "label": "checkbox",
+    "src": "state includeDeleted used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 338
+   },
+   {
+    "kind": "input",
+    "label": "file",
+    "src": "POST /medicines/admin/import-csv; GET /medicines/admin/catalog",
+    "status": "ok",
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 343
+   },
+   {
+    "kind": "button",
+    "label": "+ إضافة صنف جديد",
+    "src": "openCreate; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 347
+   },
+   {
+    "kind": "input",
+    "label": "checkbox",
+    "src": "value",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 372
+   },
+   {
+    "kind": "button",
+    "label": "×",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 382
+   },
+   {
+    "kind": "input",
+    "label": "file",
+    "src": "POST /storage/upload; GET /storage/:param/signed-url",
+    "status": "ok",
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 390
+   },
+   {
+    "kind": "input",
+    "label": "مثال: تحديث تسعيرة المورد / عرض ترويجي",
+    "src": "state form used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 423
+   },
+   {
+    "kind": "button",
+    "label": "حفظ",
+    "src": "saveForm; POST /medicines/admin/catalog; PATCH /medicines/admin/catalog/:param; GET /medicines/admin/catalog",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 427
+   },
+   {
+    "kind": "button",
+    "label": "إلغاء",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 430
+   },
+   {
+    "kind": "button",
+    "label": "قد يكون غير متوفر ✓ تفعيل شعار النقص",
+    "src": "POST /medicines/admin/catalog/:param/availability; GET /medicines/admin/catalog",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 459
+   },
+   {
+    "kind": "button",
+    "label": "تعديل سريع",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 469
+   },
+   {
+    "kind": "button",
+    "label": "تعديل",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 470
+   },
+   {
+    "kind": "button",
+    "label": "رفض",
+    "src": "POST /medicines/admin/catalog/:param/approve; GET /medicines/admin/catalog; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 472
+   },
+   {
+    "kind": "button",
+    "label": "اعتماد",
+    "src": "POST /medicines/admin/catalog/:param/approve; GET /medicines/admin/catalog; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 474
+   },
+   {
+    "kind": "button",
+    "label": "استرجاع",
+    "src": "POST /medicines/admin/catalog/:param/delete; GET /medicines/admin/catalog; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 477
+   },
+   {
+    "kind": "button",
+    "label": "حذف",
+    "src": "POST /medicines/admin/catalog/:param/delete; GET /medicines/admin/catalog; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 479
+   },
+   {
+    "kind": "button",
+    "label": "السابق",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 489
+   },
+   {
+    "kind": "button",
+    "label": "التالي",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 490
+   },
+   {
+    "kind": "button",
+    "label": "بانتظار المراجعة معتمدة partially_approved معتمدة جزئياً مرف",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 502
+   },
+   {
+    "kind": "input",
+    "label": "checkbox",
+    "src": "value checked",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 542
+   },
+   {
+    "kind": "input",
+    "label": "input",
+    "src": "value ov",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 552
+   },
+   {
+    "kind": "button",
+    "label": "اعتماد",
+    "src": "POST /medicines/admin/change-requests/:param/:param; GET /medicines/admin/change-requests",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 570
+   },
+   {
+    "kind": "button",
+    "label": "رفض",
+    "src": "POST /medicines/admin/change-requests/:param/:param; GET /medicines/admin/change-requests",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 571
+   },
+   {
+    "kind": "action",
+    "label": "تأكيد التغيير",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 624
+   },
+   {
+    "kind": "action",
+    "label": "تأكيد التغيير",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 624
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   },
+   {
+    "kind": "action",
+    "label": "مسح الباركود",
+    "src": "onClick -> parent/prop callback onClose",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/BarcodeScanner.tsx",
+    "line": 71,
+    "via": "BarcodeScanner"
+   },
+   {
+    "kind": "action",
+    "label": "مسح الباركود إغلاق جارٍ فتح الكاميرا… بحث",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/BarcodeScanner.tsx",
+    "line": 72,
+    "via": "BarcodeScanner"
+   },
+   {
+    "kind": "button",
+    "label": "إغلاق",
+    "src": "onClick -> parent/prop callback onClose",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/BarcodeScanner.tsx",
+    "line": 75,
+    "via": "BarcodeScanner"
+   },
+   {
+    "kind": "form",
+    "label": "بحث",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/BarcodeScanner.tsx",
+    "line": 81,
+    "via": "BarcodeScanner"
+   },
+   {
+    "kind": "input",
+    "label": "رمز الباركود",
+    "src": "state typed used by logic/request",
+    "status": "ok",
+    "file": "admin/src/components/BarcodeScanner.tsx",
+    "line": 85,
+    "via": "BarcodeScanner"
+   },
+   {
+    "kind": "button",
+    "label": "بحث",
+    "src": "submits the enclosing form",
+    "status": "ok",
+    "file": "admin/src/components/BarcodeScanner.tsx",
+    "line": 86,
+    "via": "BarcodeScanner",
+    "submit": true
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 41,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 42,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onConfirm",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 46,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 47,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "link",
+    "label": "العودة لمركز القيادة",
+    "src": "link /admin/command-center",
+    "status": "ok",
+    "link": "/admin/command-center",
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 267,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "فتح القائمة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 276,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 288,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "إغلاق القائمة",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 307,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "ميلادي هجري",
+    "src": "navigation; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 333,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "تسجيل الخروج",
+    "src": "logout; POST /auth/logout; navigation",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 344,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "action",
+    "label": "تعديل سريع السعر (ر.س) سبب تغيير السعر (يُسجَّل في سجل الأسع",
+    "src": "onClick -> parent/prop callback onClose",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/MedicineQuickEdit.tsx",
+    "line": 118,
+    "via": "MedicineQuickEdit"
+   },
+   {
+    "kind": "form",
+    "label": "تعديل سريع",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/MedicineQuickEdit.tsx",
+    "line": 119,
+    "via": "MedicineQuickEdit"
+   },
+   {
+    "kind": "form",
+    "label": "تعديل سريع",
+    "src": "submit; PATCH /medicines/admin/catalog/:param; POST /medicines/admin/catalog/:param/availability",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/components/MedicineQuickEdit.tsx",
+    "line": 119,
+    "via": "MedicineQuickEdit"
+   },
+   {
+    "kind": "input",
+    "label": "input",
+    "src": "state price used by logic/request",
+    "status": "ok",
+    "file": "admin/src/components/MedicineQuickEdit.tsx",
+    "line": 126,
+    "via": "MedicineQuickEdit"
+   },
+   {
+    "kind": "input",
+    "label": "input",
+    "src": "state reason used by logic/request",
+    "status": "ok",
+    "file": "admin/src/components/MedicineQuickEdit.tsx",
+    "line": 130,
+    "via": "MedicineQuickEdit"
+   },
+   {
+    "kind": "input",
+    "label": "checkbox",
+    "src": "state rx used by logic/request",
+    "status": "ok",
+    "file": "admin/src/components/MedicineQuickEdit.tsx",
+    "line": 135,
+    "via": "MedicineQuickEdit"
+   },
+   {
+    "kind": "input",
+    "label": "select",
+    "src": "state availability used by logic/request",
+    "status": "ok",
+    "file": "admin/src/components/MedicineQuickEdit.tsx",
+    "line": 139,
+    "via": "MedicineQuickEdit"
+   },
+   {
+    "kind": "button",
+    "label": "حفظ",
+    "src": "submits the enclosing form",
+    "status": "ok",
+    "file": "admin/src/components/MedicineQuickEdit.tsx",
+    "line": 165,
+    "via": "MedicineQuickEdit",
+    "submit": true
+   },
+   {
+    "kind": "button",
+    "label": "إغلاق",
+    "src": "onClick -> parent/prop callback onClose",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/MedicineQuickEdit.tsx",
+    "line": 166,
+    "via": "MedicineQuickEdit"
+   },
+   {
+    "kind": "action",
+    "label": "تأكيد التغيير",
+    "src": "PATCH /medicines/admin/catalog/:param; POST /medicines/admin/catalog/:param/availability",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/components/MedicineQuickEdit.tsx",
+    "line": 171,
+    "via": "MedicineQuickEdit"
+   },
+   {
+    "kind": "action",
+    "label": "تأكيد التغيير",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/MedicineQuickEdit.tsx",
+    "line": 171,
+    "via": "MedicineQuickEdit"
+   }
+  ],
+  "/admin/module-switches": [
+   {
+    "kind": "button",
+    "label": "إيقاف الخدمة تفعيل الخدمة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/module-switches.tsx",
+    "line": 82
+   },
+   {
+    "kind": "action",
+    "label": "سبب التغيير",
+    "src": "PUT /api/admin/admin/modules/:param",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/module-switches.tsx",
+    "line": 97
+   },
+   {
+    "kind": "action",
+    "label": "سبب التغيير",
+    "src": "cancel; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/module-switches.tsx",
+    "line": 97
+   },
+   {
+    "kind": "input",
+    "label": "textarea",
+    "src": "state reason used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/module-switches.tsx",
+    "line": 108
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 41,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 42,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onConfirm",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 46,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 47,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/notification-center": [
+   {
+    "kind": "input",
+    "label": "عنوان الإشعار",
+    "src": "state title used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/notification-center.tsx",
+    "line": 218
+   },
+   {
+    "kind": "input",
+    "label": "مستخدم واحد (بالمعرف)",
+    "src": "state segment used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/notification-center.tsx",
+    "line": 222
+   },
+   {
+    "kind": "input",
+    "label": "user_id",
+    "src": "state singleUser used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/notification-center.tsx",
+    "line": 230
+   },
+   {
+    "kind": "input",
+    "label": "محتوى الرسالة...",
+    "src": "state body used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/notification-center.tsx",
+    "line": 235
+   },
+   {
+    "kind": "input",
+    "label": "/pharmacy/cart",
+    "src": "state deepLink used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/notification-center.tsx",
+    "line": 239
+   },
+   {
+    "kind": "input",
+    "label": "checkbox",
+    "src": "state asCampaign used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/notification-center.tsx",
+    "line": 244
+   },
+   {
+    "kind": "input",
+    "label": "datetime-local",
+    "src": "state scheduledAt used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/notification-center.tsx",
+    "line": 248
+   },
+   {
+    "kind": "button",
+    "label": "جارٍ الإرسال... جدولة الحملة إرسال الآن",
+    "src": "send; POST /api/admin/admin/notification-center/campaigns; POST /api/admin/admin/notification-center/broadcasts; GET /api/admin/admin/notifi",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/notification-center.tsx",
+    "line": 253
+   },
+   {
+    "kind": "button",
+    "label": "تشغيل إعادة الاستهداف يدوياً",
+    "src": "runRetarget; POST /api/admin/admin/notification-center/retarget/run",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/notification-center.tsx",
+    "line": 256
+   },
+   {
+    "kind": "input",
+    "label": "مفتاح القالب (مثال: appt.reminder)",
+    "src": "state tplKey used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/notification-center.tsx",
+    "line": 270
+   },
+   {
+    "kind": "input",
+    "label": "select",
+    "src": "state tplLang used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/notification-center.tsx",
+    "line": 271
+   },
+   {
+    "kind": "input",
+    "label": "params JSON {\"name\":\"..\"}",
+    "src": "state tplParams used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/notification-center.tsx",
+    "line": 274
+   },
+   {
+    "kind": "button",
+    "label": "حفظ القالب",
+    "src": "saveTemplate; POST /api/admin/notifications/admin/templates; GET /api/admin/notifications/admin/templates",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/notification-center.tsx",
+    "line": 275
+   },
+   {
+    "kind": "input",
+    "label": "العنوان",
+    "src": "state tplTitle used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/notification-center.tsx",
+    "line": 281
+   },
+   {
+    "kind": "input",
+    "label": "النص",
+    "src": "state tplBody used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/notification-center.tsx",
+    "line": 282
+   },
+   {
+    "kind": "button",
+    "label": "معاينة",
+    "src": "POST /api/admin/notifications/admin/templates/:param/preview",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/notification-center.tsx",
+    "line": 297
+   },
+   {
+    "kind": "button",
+    "label": "إرسال تجريبي",
+    "src": "POST /api/admin/notifications/admin/templates/:param/test-send; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/notification-center.tsx",
+    "line": 298
+   },
+   {
+    "kind": "button",
+    "label": "السابق",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/notification-center.tsx",
+    "line": 312
+   },
+   {
+    "kind": "button",
+    "label": "التالي",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/notification-center.tsx",
+    "line": 314
+   },
+   {
+    "kind": "button",
+    "label": "إرسال الآن",
+    "src": "POST /api/admin/admin/notification-center/campaigns/:param/send; GET /api/admin/admin/notification-center/stats/overview; GET /api/admin/adm",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/notification-center.tsx",
+    "line": 345
+   },
+   {
+    "kind": "button",
+    "label": "إلغاء",
+    "src": "DELETE /api/admin/admin/notification-center/campaigns/:param; GET /api/admin/admin/notification-center/stats/overview; GET /api/admin/admin/",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/notification-center.tsx",
+    "line": 346
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/nursing-portal": [
+   {
+    "kind": "input",
+    "label": "— اختر —",
+    "src": "state selected used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/nursing-portal.tsx",
+    "line": 91
+   },
+   {
+    "kind": "button",
+    "label": "إعادة تعيين تعيين",
+    "src": "POST /api/admin/admin/nursing/requests/:param/:param; GET /api/admin/admin/nursing/requests/:param/eligible-providers; GET /api/admin/admin/",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/nursing-portal.tsx",
+    "line": 103
+   },
+   {
+    "kind": "button",
+    "label": "إلغاء",
+    "src": "POST /api/admin/admin/nursing/requests/:param/:param; GET /api/admin/admin/nursing/requests/:param/eligible-providers; GET /api/admin/admin/",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/nursing-portal.tsx",
+    "line": 110
+   }
+  ],
+  "/admin/order-detail": [
+   {
+    "kind": "button",
+    "label": "→ عودة لمركز القيادة",
+    "src": "navigation",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/order-detail.tsx",
+    "line": 31
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/orders/[kind]/[id]": [
+   {
+    "kind": "link",
+    "label": "العودة إلى الطلبات",
+    "src": "link /admin/orders",
+    "status": "ok",
+    "link": "/admin/orders",
+    "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
+    "line": 58
+   },
+   {
+    "kind": "button",
+    "label": "تحديث",
+    "src": "GET /api/admin/admin/orders/:param/:param",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
+    "line": 58
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
+    "line": 73
+   },
+   {
+    "kind": "input",
+    "label": "number",
+    "src": "state amount used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
+    "line": 74
+   },
+   {
+    "kind": "input",
+    "label": "input",
+    "src": "state providerId used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
+    "line": 74
+   },
+   {
+    "kind": "input",
+    "label": "number",
+    "src": "state hours used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
+    "line": 74
+   },
+   {
+    "kind": "input",
+    "label": "textarea",
+    "src": "state note used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
+    "line": 74
+   },
+   {
+    "kind": "input",
+    "label": "textarea",
+    "src": "state reason used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
+    "line": 74
+   },
+   {
+    "kind": "button",
+    "label": "إلغاء",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
+    "line": 74
+   },
+   {
+    "kind": "button",
+    "label": "جارٍ التنفيذ… تأكيد وتدقيق",
+    "src": "POST /api/admin/admin/orders/:param/:param/:param; GET /api/admin/admin/orders/:param/:param; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
+    "line": 74
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/orders": [
+   {
+    "kind": "input",
+    "label": "بحث بالمعرّف أو العميل",
+    "src": "state filters used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/orders/index.tsx",
+    "line": 41
+   },
+   {
+    "kind": "input",
+    "label": "select",
+    "src": "state filters used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/orders/index.tsx",
+    "line": 41
+   },
+   {
+    "kind": "input",
+    "label": "الحالة",
+    "src": "state filters used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/orders/index.tsx",
+    "line": 41
+   },
+   {
+    "kind": "input",
+    "label": "date",
+    "src": "state filters used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/orders/index.tsx",
+    "line": 41
+   },
+   {
+    "kind": "input",
+    "label": "الأحدث أولاً الأقدم أولاً القيمة تصاعدياً القيمة تنازلياً",
+    "src": "state filters used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/orders/index.tsx",
+    "line": 41
+   },
+   {
+    "kind": "link",
+    "label": "فتح التفاصيل",
+    "src": "link /admin/orders/:param/:param",
+    "status": "ok",
+    "link": "/admin/orders/:param/:param",
+    "file": "admin/src/pages/admin/orders/index.tsx",
+    "line": 66
+   },
+   {
+    "kind": "button",
+    "label": "السابق",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/orders/index.tsx",
+    "line": 70
+   },
+   {
+    "kind": "button",
+    "label": "التالي",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/orders/index.tsx",
+    "line": 70
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/payouts": [
+   {
+    "kind": "button",
+    "label": "تحديث الطلبات",
+    "src": "fetchPayouts; GET /api/admin/admin/finance/withdrawals/pending",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/payouts.tsx",
+    "line": 82
+   },
+   {
+    "kind": "button",
+    "label": "إعادة المحاولة",
+    "src": "fetchPayouts; GET /api/admin/admin/finance/withdrawals/pending",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/payouts.tsx",
+    "line": 92
+   },
+   {
+    "kind": "button",
+    "label": "تنفيذ التحويل",
+    "src": "POST /api/admin/admin/finance/withdrawals/:param/execute; GET /api/admin/admin/finance/withdrawals/pending; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/payouts.tsx",
+    "line": 120
+   },
+   {
+    "kind": "button",
+    "label": "رفض",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/payouts.tsx",
+    "line": 126
+   },
+   {
+    "kind": "input",
+    "label": "سبب الرفض (يظهر للمزود)",
+    "src": "state rejectReason used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/payouts.tsx",
+    "line": 138
+   },
+   {
+    "kind": "button",
+    "label": "تأكيد الرفض",
+    "src": "POST /api/admin/admin/finance/withdrawals/:param/reject; GET /api/admin/admin/finance/withdrawals/pending",
+    "status": "ok",
+    "warn": "Sensitive action (POST /api/admin/admin/finance/withdrawals/:param/reject) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/payouts.tsx",
+    "line": 144
+   },
+   {
+    "kind": "button",
+    "label": "تراجع",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/payouts.tsx",
+    "line": 145
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/pharmacy-procurement": [
+   {
+    "kind": "button",
+    "label": "تحديث",
+    "src": "load; GET /api/admin/admin/extended-operations/procurement/pending",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/pharmacy-procurement.tsx",
+    "line": 102
+   },
+   {
+    "kind": "button",
+    "label": "إغلاق مراجعة وإصدار عرض",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/pharmacy-procurement.tsx",
+    "line": 133
+   },
+   {
+    "kind": "input",
+    "label": "1",
+    "src": "state itemQties used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/pharmacy-procurement.tsx",
+    "line": 152
+   },
+   {
+    "kind": "input",
+    "label": "0.00",
+    "src": "state itemPrices used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/pharmacy-procurement.tsx",
+    "line": 161
+   },
+   {
+    "kind": "input",
+    "label": "0",
+    "src": "state itemDiscounts used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/pharmacy-procurement.tsx",
+    "line": 170
+   },
+   {
+    "kind": "button",
+    "label": "إصدار عرض السعر للصيدلية",
+    "src": "issueQuote; PATCH /api/admin/admin/extended-operations/issue-quote/:param; GET /api/admin/admin/extended-operations/procurement/pending",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/pharmacy-procurement.tsx",
+    "line": 191
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/price-override-audit": [
+   {
+    "kind": "input",
+    "label": "بحث بالدواء أو الصيدلية…",
+    "src": "state search used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/price-override-audit.tsx",
+    "line": 72
+   },
+   {
+    "kind": "button",
+    "label": "تحديث",
+    "src": "GET /api/admin/admin/governance-controls/medicine-price-history",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/price-override-audit.tsx",
+    "line": 82
+   },
+   {
+    "kind": "button",
+    "label": "السابق",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/price-override-audit.tsx",
+    "line": 160
+   },
+   {
+    "kind": "button",
+    "label": "التالي",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/price-override-audit.tsx",
+    "line": 170
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/provider-audits": [
+   {
+    "kind": "button",
+    "label": "اعتماد التعديل وتطبيقه",
+    "src": "POST /api/admin/admin/providers/provider-deltas/:param/approve; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/provider-audits.tsx",
+    "line": 116
+   },
+   {
+    "kind": "button",
+    "label": "رفض التعديل",
+    "src": "POST /api/admin/admin/providers/provider-deltas/:param/reject; prompt()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/provider-audits.tsx",
+    "line": 123
+   }
+  ],
+  "/admin/provider-moderation": [
+   {
+    "kind": "button",
+    "label": "توثيق التسجيل (Onboarding)",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/provider-moderation.tsx",
+    "line": 265
+   },
+   {
+    "kind": "button",
+    "label": "تعديلات الحسابات (Delta Mutations)",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/provider-moderation.tsx",
+    "line": 268
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/provider-moderation.tsx",
+    "line": 287
+   },
+   {
+    "kind": "action",
+    "label": "طلب تعديل ملف المزود",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/provider-moderation.tsx",
+    "line": 293
+   },
+   {
+    "kind": "button",
+    "label": "Approve Provider (اعتماد)",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/provider-moderation.tsx",
+    "line": 326
+   },
+   {
+    "kind": "button",
+    "label": "Request changes (طلب تعديلات)",
+    "src": "POST /api/admin/admin/providers/:param/:param; prompt()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/provider-moderation.tsx",
+    "line": 329
+   },
+   {
+    "kind": "button",
+    "label": "Reject (رفض)",
+    "src": "POST /api/admin/admin/providers/:param/:param; prompt()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/provider-moderation.tsx",
+    "line": 332
+   },
+   {
+    "kind": "button",
+    "label": "Reactivate (إعادة تفعيل)",
+    "src": "POST /api/admin/admin/providers/:param/reactivate; prompt()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/provider-moderation.tsx",
+    "line": 335
+   },
+   {
+    "kind": "button",
+    "label": "Approve bank account (اعتماد الحساب البنكي)",
+    "src": "POST /api/admin/admin/providers/:param/approve-bank",
+    "status": "ok",
+    "warn": "Sensitive action (POST /api/admin/admin/providers/:param/approve-bank) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/provider-moderation.tsx",
+    "line": 339
+   },
+   {
+    "kind": "button",
+    "label": "تأكيد واعتماد التعديلات",
+    "src": "POST /api/admin/admin/providers/provider-deltas/:param/approve; prompt()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/provider-moderation.tsx",
+    "line": 381
+   },
+   {
+    "kind": "button",
+    "label": "رفض التعديلات",
+    "src": "POST /api/admin/admin/providers/provider-deltas/:param/reject; prompt()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/provider-moderation.tsx",
+    "line": 384
+   },
+   {
+    "kind": "action",
+    "label": "المزود النوع البريد عند الاعتماد يصبح الحساب فعالاً ويظهر في",
+    "src": "submitApprove; POST /api/admin/admin/providers/:param/approve",
+    "status": "ok",
+    "warn": "Sensitive action (POST /api/admin/admin/providers/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/provider-moderation.tsx",
+    "line": 398
+   },
+   {
+    "kind": "action",
+    "label": "المزود النوع البريد عند الاعتماد يصبح الحساب فعالاً ويظهر في",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/provider-moderation.tsx",
+    "line": 398
+   },
+   {
+    "kind": "input",
+    "label": "textarea",
+    "src": "state approveReason used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/provider-moderation.tsx",
+    "line": 415
+   },
+   {
+    "kind": "input",
+    "label": "number",
+    "src": "state approveCash used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/provider-moderation.tsx",
+    "line": 419
+   },
+   {
+    "kind": "input",
+    "label": "number",
+    "src": "state approveIns used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/provider-moderation.tsx",
+    "line": 422
+   },
+   {
+    "kind": "button",
+    "label": "جاري التحميل… تحميل العقد PDF",
+    "src": "downloadContract; GET /api/admin/provider-onboarding/admin/contracts/:param",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/ProviderFullDetail.tsx",
+    "line": 525,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "input",
+    "label": "checkbox",
+    "src": "onChange sends POST /api/admin/provider-onboarding/admin/contracts/:param/visibility",
+    "status": "ok",
+    "file": "admin/src/components/ProviderFullDetail.tsx",
+    "line": 535,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 41,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 42,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onConfirm",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 46,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 47,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "input",
+    "label": "المنطقة",
+    "src": "state region used by logic/request",
+    "status": "ok",
+    "file": "admin/src/components/GeoPicker.tsx",
+    "line": 26,
+    "via": "GeoPicker"
+   },
+   {
+    "kind": "input",
+    "label": "المدينة",
+    "src": "state city used by logic/request",
+    "status": "ok",
+    "file": "admin/src/components/GeoPicker.tsx",
+    "line": 29,
+    "via": "GeoPicker"
+   },
+   {
+    "kind": "input",
+    "label": "الحي",
+    "src": "state district used by logic/request",
+    "status": "ok",
+    "file": "admin/src/components/GeoPicker.tsx",
+    "line": 32,
+    "via": "GeoPicker"
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "ProviderFullDetail"
+   }
+  ],
+  "/admin/rbac": [
+   {
+    "kind": "form",
+    "label": "إنشاء دور مخصص سيُسجل الإنشاء في audit ولا تقبل مفاتيح الصلا",
+    "src": "createRole; POST /api/admin/admin/rbac/roles; GET /api/admin/admin/rbac/catalog; GET /api/admin/admin/rbac/roles; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/rbac.tsx",
+    "line": 81
+   },
+   {
+    "kind": "input",
+    "label": "support_ops",
+    "src": "state form used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/rbac.tsx",
+    "line": 81
+   },
+   {
+    "kind": "input",
+    "label": "input",
+    "src": "state form used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/rbac.tsx",
+    "line": 81
+   },
+   {
+    "kind": "input",
+    "label": "checkbox",
+    "src": "state form used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/rbac.tsx",
+    "line": 81
+   },
+   {
+    "kind": "input",
+    "label": "textarea",
+    "src": "state form used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/rbac.tsx",
+    "line": 81
+   },
+   {
+    "kind": "button",
+    "label": "جارٍ الحفظ… إنشاء الدور وتدقيقه",
+    "src": "submits the enclosing form",
+    "status": "ok",
+    "file": "admin/src/pages/admin/rbac.tsx",
+    "line": 81,
+    "submit": true
+   },
+   {
+    "kind": "form",
+    "label": "إسناد أدوار لموظف للموظفين (admin/super_admin/support_agent)",
+    "src": "assignRoles; POST /api/admin/admin/rbac/users/:param/roles; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/rbac.tsx",
+    "line": 82
+   },
+   {
+    "kind": "input",
+    "label": "user id",
+    "src": "state assignUser used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/rbac.tsx",
+    "line": 82
+   },
+   {
+    "kind": "input",
+    "label": "textarea",
+    "src": "state assignReason used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/rbac.tsx",
+    "line": 82
+   },
+   {
+    "kind": "input",
+    "label": "checkbox",
+    "src": "state assignKeys used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/rbac.tsx",
+    "line": 82
+   },
+   {
+    "kind": "button",
+    "label": "جارٍ الحفظ… حفظ الإسناد وتدقيقه",
+    "src": "submits the enclosing form",
+    "status": "ok",
+    "file": "admin/src/pages/admin/rbac.tsx",
+    "line": 82,
+    "submit": true
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/reports": [
+   {
+    "kind": "link",
+    "label": "تصدير CSV",
+    "src": "GET /api/admin/admin/reports/:param (OK)",
+    "status": "ok",
+    "file": "admin/src/pages/admin/reports.tsx",
+    "line": 101
+   },
+   {
+    "kind": "link",
+    "label": "تصدير XLSX",
+    "src": "GET /api/admin/admin/reports/:param (OK)",
+    "status": "ok",
+    "file": "admin/src/pages/admin/reports.tsx",
+    "line": 102
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/reports.tsx",
+    "line": 107
+   },
+   {
+    "kind": "input",
+    "label": "date",
+    "src": "state from used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/reports.tsx",
+    "line": 114
+   },
+   {
+    "kind": "input",
+    "label": "date",
+    "src": "state to used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/reports.tsx",
+    "line": 115
+   },
+   {
+    "kind": "input",
+    "label": "select",
+    "src": "state groupBy used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/reports.tsx",
+    "line": 117
+   },
+   {
+    "kind": "button",
+    "label": "تحديث",
+    "src": "GET /api/admin/admin/reports/:param",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/reports.tsx",
+    "line": 121
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/returns": [
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/returns.tsx",
+    "line": 75
+   },
+   {
+    "kind": "button",
+    "label": "اعتماد الاسترداد",
+    "src": "POST /api/admin/admin/returns/:param/decide; GET /api/admin/admin/returns; prompt()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/returns.tsx",
+    "line": 106
+   },
+   {
+    "kind": "button",
+    "label": "رفض الطلب",
+    "src": "POST /api/admin/admin/returns/:param/decide; GET /api/admin/admin/returns; prompt()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/returns.tsx",
+    "line": 108
+   }
+  ],
+  "/admin/scheduled-reports": [
+   {
+    "kind": "form",
+    "label": "التقرير التواتر يومي أسبوعي شهري الساعة UTC الصيغة CSV JSON",
+    "src": "create; POST /api/admin/admin/scheduled-reports; GET /api/admin/admin/scheduled-reports",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/scheduled-reports.tsx",
+    "line": 19
+   },
+   {
+    "kind": "input",
+    "label": "select",
+    "src": "state form used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/scheduled-reports.tsx",
+    "line": 19
+   },
+   {
+    "kind": "input",
+    "label": "يومي أسبوعي شهري",
+    "src": "state form used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/scheduled-reports.tsx",
+    "line": 19
+   },
+   {
+    "kind": "input",
+    "label": "number",
+    "src": "state form used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/scheduled-reports.tsx",
+    "line": 19
+   },
+   {
+    "kind": "input",
+    "label": "CSV JSON",
+    "src": "state form used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/scheduled-reports.tsx",
+    "line": 19
+   },
+   {
+    "kind": "input",
+    "label": "ops@example.com, finance@example.com",
+    "src": "state form used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/scheduled-reports.tsx",
+    "line": 19
+   },
+   {
+    "kind": "button",
+    "label": "إضافة الجدولة",
+    "src": "submits the enclosing form",
+    "status": "ok",
+    "file": "admin/src/pages/admin/scheduled-reports.tsx",
+    "line": 19,
+    "submit": true
+   },
+   {
+    "kind": "button",
+    "label": "تشغيل الآن",
+    "src": "POST /api/admin/admin/scheduled-reports/:param/run; GET /api/admin/admin/scheduled-reports/:param/runs; GET /api/admin/admin/scheduled-repor",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/scheduled-reports.tsx",
+    "line": 19
+   },
+   {
+    "kind": "button",
+    "label": "إيقاف تفعيل",
+    "src": "PATCH /api/admin/admin/scheduled-reports/:param; GET /api/admin/admin/scheduled-reports",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/scheduled-reports.tsx",
+    "line": 19
+   },
+   {
+    "kind": "button",
+    "label": "سجل التسليم",
+    "src": "GET /api/admin/admin/scheduled-reports/:param/runs",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/scheduled-reports.tsx",
+    "line": 19
+   },
+   {
+    "kind": "button",
+    "label": "حذف",
+    "src": "DELETE /api/admin/admin/scheduled-reports/:param; GET /api/admin/admin/scheduled-reports; confirm(); prompt()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/scheduled-reports.tsx",
+    "line": 19
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/search-intelligence": [
+   {
+    "kind": "input",
+    "label": "تصفية حسب اللغة",
+    "src": "state selectedLocale used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/search-intelligence.tsx",
+    "line": 87
+   },
+   {
+    "kind": "button",
+    "label": "تحديث البيانات",
+    "src": "GET /api/admin/admin/governance-controls/search-intent-analytics",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/search-intelligence.tsx",
+    "line": 99
+   },
+   {
+    "kind": "form",
+    "label": "جارٍ التحليل… تحليل النية",
+    "src": "handleTestIntent; POST /search/intent",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/search-intelligence.tsx",
+    "line": 144
+   },
+   {
+    "kind": "input",
+    "label": "مثال: دكتور باطنة في الرياض حي الملز بوبا أو panadol extra riyadh",
+    "src": "state testQuery used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/search-intelligence.tsx",
+    "line": 145
+   },
+   {
+    "kind": "button",
+    "label": "جارٍ التحليل… تحليل النية",
+    "src": "submits the enclosing form",
+    "status": "ok",
+    "file": "admin/src/pages/admin/search-intelligence.tsx",
+    "line": 152,
+    "submit": true
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/search": [
+   {
+    "kind": "input",
+    "label": "id / جوال / اسم…",
+    "src": "state q used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/search.tsx",
+    "line": 47
+   },
+   {
+    "kind": "button",
+    "label": "بحث",
+    "src": "GET /api/admin/admin/search",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/search.tsx",
+    "line": 49
+   }
+  ],
+  "/admin/security": [
+   {
+    "kind": "input",
+    "label": "اسم الجهاز (مثال: iPhone 15 / MacBook)",
+    "src": "state deviceName used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/security.tsx",
+    "line": 143
+   },
+   {
+    "kind": "button",
+    "label": "بانتظار البصمة... 🔐 تسجيل بمفتاح أمان",
+    "src": "enroll; POST /auth/passkey/enroll/options; POST /auth/passkey/enroll/verify; GET /auth/passkey/eligibility; GET /auth/passkey/devices; GET /",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/security.tsx",
+    "line": 152
+   },
+   {
+    "kind": "button",
+    "label": "حذف",
+    "src": "DELETE /auth/passkey/devices/:param; GET /auth/passkey/eligibility; GET /auth/passkey/devices; GET /api/admin/admin/devices; GET /auth/me; c",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/security.tsx",
+    "line": 191
+   },
+   {
+    "kind": "button",
+    "label": "إيقاف القفل تفعيل القفل على هذا المتصفح",
+    "src": "POST /api/admin/admin/devices/lock; GET /auth/passkey/eligibility; GET /auth/passkey/devices; GET /api/admin/admin/devices; GET /auth/me; co",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/security.tsx",
+    "line": 219
+   }
+  ],
+  "/admin/segments": [
+   {
+    "kind": "button",
+    "label": "حذف",
+    "src": "DELETE /api/admin/admin/segments/:param; GET /api/admin/admin/segments; GET /api/admin/admin/segments/fields; confirm(); prompt()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/segments.tsx",
+    "line": 19
+   },
+   {
+    "kind": "form",
+    "label": "إنشاء شريحة مطابقة القواعد كل القواعد أي قاعدة حذف القاعدة إ",
+    "src": "save; POST /api/admin/admin/segments; GET /api/admin/admin/segments; GET /api/admin/admin/segments/fields",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/segments.tsx",
+    "line": 19
+   },
+   {
+    "kind": "input",
+    "label": "اسم الشريحة بالعربية",
+    "src": "state name used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/segments.tsx",
+    "line": 19
+   },
+   {
+    "kind": "input",
+    "label": "وصف اختياري",
+    "src": "state description used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/segments.tsx",
+    "line": 19
+   },
+   {
+    "kind": "input",
+    "label": "كل القواعد أي قاعدة",
+    "src": "state match used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/segments.tsx",
+    "line": 19
+   },
+   {
+    "kind": "input",
+    "label": "select",
+    "src": "value rule",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/pages/admin/segments.tsx",
+    "line": 19
+   },
+   {
+    "kind": "input",
+    "label": "operator",
+    "src": "value rule",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/pages/admin/segments.tsx",
+    "line": 19
+   },
+   {
+    "kind": "input",
+    "label": "القيمة",
+    "src": "value rule",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/pages/admin/segments.tsx",
+    "line": 19
+   },
+   {
+    "kind": "button",
+    "label": "حذف القاعدة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/segments.tsx",
+    "line": 19
+   },
+   {
+    "kind": "button",
+    "label": "إضافة قاعدة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/segments.tsx",
+    "line": 19
+   },
+   {
+    "kind": "input",
+    "label": "textarea",
+    "src": "state reason used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/segments.tsx",
+    "line": 19
+   },
+   {
+    "kind": "button",
+    "label": "معاينة الجمهور",
+    "src": "POST /api/admin/admin/segments/preview",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/segments.tsx",
+    "line": 19
+   },
+   {
+    "kind": "button",
+    "label": "حفظ وتدقيق",
+    "src": "submits the enclosing form",
+    "status": "ok",
+    "file": "admin/src/pages/admin/segments.tsx",
+    "line": 19,
+    "submit": true
+   }
+  ],
+  "/admin/shortage-reports": [
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/shortage-reports.tsx",
+    "line": 76
+   },
+   {
+    "kind": "button",
+    "label": "اعتماد (إظهار الشارة)",
+    "src": "POST /medicines/admin/shortage-reports/:param/:param; GET /medicines/admin/shortage-reports; prompt()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/shortage-reports.tsx",
+    "line": 118
+   },
+   {
+    "kind": "button",
+    "label": "رفض",
+    "src": "POST /medicines/admin/shortage-reports/:param/:param; GET /medicines/admin/shortage-reports; prompt()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/shortage-reports.tsx",
+    "line": 125
+   },
+   {
+    "kind": "button",
+    "label": "إزالة الشارة (توفر المخزون)",
+    "src": "POST /medicines/admin/catalog/:param/clear-shortage-badge; GET /medicines/admin/shortage-reports; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/shortage-reports.tsx",
+    "line": 135
+   },
+   {
+    "kind": "button",
+    "label": "السابق",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/shortage-reports.tsx",
+    "line": 149
+   },
+   {
+    "kind": "button",
+    "label": "التالي",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/shortage-reports.tsx",
+    "line": 151
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/support-tickets": [
+   {
+    "kind": "button",
+    "label": "الكل",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/support-tickets.tsx",
+    "line": 64
+   },
+   {
+    "kind": "button",
+    "label": "تحديث",
+    "src": "load; GET /support/admin/requests",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/support-tickets.tsx",
+    "line": 73
+   },
+   {
+    "kind": "button",
+    "label": "بدء المعالجة",
+    "src": "PATCH /support/admin/requests/:param; GET /support/admin/requests",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/support-tickets.tsx",
+    "line": 106
+   },
+   {
+    "kind": "button",
+    "label": "حلّها",
+    "src": "PATCH /support/admin/requests/:param; GET /support/admin/requests",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/support-tickets.tsx",
+    "line": 109
+   },
+   {
+    "kind": "button",
+    "label": "إغلاق",
+    "src": "PATCH /support/admin/requests/:param; GET /support/admin/requests; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/support-tickets.tsx",
+    "line": 112
+   },
+   {
+    "kind": "button",
+    "label": "إخفاء المحادثة والرد",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/support-tickets.tsx",
+    "line": 114
+   },
+   {
+    "kind": "input",
+    "label": "اكتب رد الدعم…",
+    "src": "state replyText used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/support-tickets.tsx",
+    "line": 131
+   },
+   {
+    "kind": "button",
+    "label": "إرسال",
+    "src": "POST /support/requests/:param/reply; GET /support/admin/requests",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/support-tickets.tsx",
+    "line": 138
+   }
+  ],
+  "/admin/system-ops": [
+   {
+    "kind": "button",
+    "label": "الطوابير الترجمات SEO Feature Flags",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/system-ops.tsx",
+    "line": 21
+   },
+   {
+    "kind": "button",
+    "label": "إعادة المحاولات الفاشلة",
+    "src": "POST /api/admin/admin/ops/queues/:param/retry-failed; GET /api/admin/admin/ops/queues; GET /api/admin/admin/ops/translations; GET /api/admin",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/system-ops.tsx",
+    "line": 21
+   },
+   {
+    "kind": "button",
+    "label": "إعادة المحاولة",
+    "src": "POST /api/admin/admin/ops/queues/:param/jobs/:param/retry; GET /api/admin/admin/ops/queues; GET /api/admin/admin/ops/translations; GET /api/",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/system-ops.tsx",
+    "line": 32
+   },
+   {
+    "kind": "input",
+    "label": "العربية English Urdu",
+    "src": "state lang used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/system-ops.tsx",
+    "line": 34
+   },
+   {
+    "kind": "form",
+    "label": "تعديل ترجمة حفظ الترجمة",
+    "src": "saveTranslation; POST /api/admin/admin/ops/translations; GET /api/admin/admin/ops/queues; GET /api/admin/admin/ops/translations; GET /api/ad",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/system-ops.tsx",
+    "line": 44
+   },
+   {
+    "kind": "input",
+    "label": "المفتاح",
+    "src": "state translationKey used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/system-ops.tsx",
+    "line": 44
+   },
+   {
+    "kind": "input",
+    "label": "القيمة الجديدة",
+    "src": "state translationValue used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/system-ops.tsx",
+    "line": 44
+   },
+   {
+    "kind": "button",
+    "label": "حفظ الترجمة",
+    "src": "submits the enclosing form",
+    "status": "ok",
+    "file": "admin/src/pages/admin/system-ops.tsx",
+    "line": 44,
+    "submit": true
+   },
+   {
+    "kind": "button",
+    "label": "حجب إتاحة",
+    "src": "POST /api/admin/admin/ops/seo/controls; GET /api/admin/admin/ops/queues; GET /api/admin/admin/ops/translations; GET /api/admin/admin/ops/seo",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/system-ops.tsx",
+    "line": 53
+   },
+   {
+    "kind": "link",
+    "label": "مفاتيح الخدمات",
+    "src": "link /admin/module-switches",
+    "status": "ok",
+    "link": "/admin/module-switches",
+    "file": "admin/src/pages/admin/system-ops.tsx",
+    "line": 55
+   },
+   {
+    "kind": "button",
+    "label": "تعطيل تفعيل",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/system-ops.tsx",
+    "line": 55
+   },
+   {
+    "kind": "form",
+    "label": "تعديل راية مفعلة نسبة rollout حفظ وتدقيق",
+    "src": "saveFlag; POST /api/admin/admin/governance-controls/feature-flags; GET /api/admin/admin/ops/queues; GET /api/admin/admin/ops/translations; G",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/system-ops.tsx",
+    "line": 55
+   },
+   {
+    "kind": "input",
+    "label": "feature.key",
+    "src": "state flag used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/system-ops.tsx",
+    "line": 55
+   },
+   {
+    "kind": "input",
+    "label": "checkbox",
+    "src": "state flag used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/system-ops.tsx",
+    "line": 55
+   },
+   {
+    "kind": "input",
+    "label": "number",
+    "src": "state flag used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/system-ops.tsx",
+    "line": 55
+   },
+   {
+    "kind": "input",
+    "label": "سبب التغيير",
+    "src": "state flag used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/system-ops.tsx",
+    "line": 55
+   },
+   {
+    "kind": "button",
+    "label": "حفظ وتدقيق",
+    "src": "submits the enclosing form",
+    "status": "ok",
+    "file": "admin/src/pages/admin/system-ops.tsx",
+    "line": 55,
+    "submit": true
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/admin/today": [
+   {
+    "kind": "link",
+    "label": "بانتظار موافقتي",
+    "src": "link /admin/approvals",
+    "status": "ok",
+    "link": "/admin/approvals",
+    "file": "admin/src/pages/admin/today.tsx",
+    "line": 93
+   },
+   {
+    "kind": "button",
+    "label": "تحديث",
+    "src": "load; GET /api/admin/admin/command-center-v2; GET /api/admin/admin/ops/alerts; GET /api/admin/admin/ops/overview; GET /api/admin/admin/ops/d",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/today.tsx",
+    "line": 94
+   },
+   {
+    "kind": "link",
+    "label": "فتح",
+    "src": "link /admin/orders/:param/:param",
+    "status": "ok",
+    "link": "/admin/orders/:param/:param",
+    "file": "admin/src/pages/admin/today.tsx",
+    "line": 152
+   },
+   {
+    "kind": "link",
+    "label": "فتح",
+    "src": "link /admin/finance-suite",
+    "status": "ok",
+    "link": "/admin/finance-suite",
+    "file": "admin/src/pages/admin/today.tsx",
+    "line": 163
+   }
+  ],
+  "/admin/users-management": [
+   {
+    "kind": "input",
+    "label": "بحث بالاسم أو الهاتف أو البريد...",
+    "src": "state searchTerm used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/users-management.tsx",
+    "line": 221
+   },
+   {
+    "kind": "input",
+    "label": "select",
+    "src": "state roleFilter used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/users-management.tsx",
+    "line": 228
+   },
+   {
+    "kind": "input",
+    "label": "كل الحالات نشط بانتظار الاعتماد موقوف / معلّق",
+    "src": "state statusFilter used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/users-management.tsx",
+    "line": 235
+   },
+   {
+    "kind": "button",
+    "label": "عرض الملف",
+    "src": "GET /api/admin/admin/users/:param/overview; GET /api/admin/admin/providers/by-user/:param",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/users-management.tsx",
+    "line": 290
+   },
+   {
+    "kind": "button",
+    "label": "إعادة تفعيل",
+    "src": "POST /api/admin/admin/users/:param/unban; GET /api/admin/admin/providers/by-user/:param; POST /api/admin/admin/providers/:param/reactivate; ",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/users-management.tsx",
+    "line": 297
+   },
+   {
+    "kind": "button",
+    "label": "تعليق / إيقاف",
+    "src": "POST /api/admin/admin/users/:param/ban; GET /api/admin/admin/users; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/users-management.tsx",
+    "line": 305
+   },
+   {
+    "kind": "button",
+    "label": "حذف نهائي",
+    "src": "DELETE /api/admin/admin/users/:param; GET /api/admin/admin/users; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/users-management.tsx",
+    "line": 313
+   },
+   {
+    "kind": "button",
+    "label": "← عودة لإدارة المستخدمين",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/users-management.tsx",
+    "line": 338
+   },
+   {
+    "kind": "button",
+    "label": "✕ خروج",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/users-management.tsx",
+    "line": 339
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "GET /api/admin/admin/users/:param/overview",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/users-management.tsx",
+    "line": 352
+   },
+   {
+    "kind": "button",
+    "label": "✓ اعتماد",
+    "src": "POST /api/admin/admin/providers/:param/:param; GET /api/admin/admin/users/:param/overview; GET /api/admin/admin/providers/by-user/:param; GE",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/users-management.tsx",
+    "line": 461
+   },
+   {
+    "kind": "button",
+    "label": "✕ رفض",
+    "src": "POST /api/admin/admin/providers/:param/:param; GET /api/admin/admin/users/:param/overview; GET /api/admin/admin/providers/by-user/:param; GE",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/users-management.tsx",
+    "line": 463
+   },
+   {
+    "kind": "button",
+    "label": "⏸ إيقاف / تعليق",
+    "src": "POST /api/admin/admin/providers/:param/:param; GET /api/admin/admin/users/:param/overview; GET /api/admin/admin/providers/by-user/:param; GE",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/users-management.tsx",
+    "line": 465
+   },
+   {
+    "kind": "button",
+    "label": "↩ إعادة تفعيل",
+    "src": "POST /api/admin/admin/providers/:param/:param; GET /api/admin/admin/users/:param/overview; GET /api/admin/admin/providers/by-user/:param; GE",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/users-management.tsx",
+    "line": 468
+   },
+   {
+    "kind": "button",
+    "label": "جاري التحميل… تحميل العقد PDF",
+    "src": "downloadContract; GET /api/admin/provider-onboarding/admin/contracts/:param",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/ProviderFullDetail.tsx",
+    "line": 525,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "input",
+    "label": "checkbox",
+    "src": "onChange sends POST /api/admin/provider-onboarding/admin/contracts/:param/visibility",
+    "status": "ok",
+    "file": "admin/src/components/ProviderFullDetail.tsx",
+    "line": 535,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "input",
+    "label": "المنطقة",
+    "src": "state region used by logic/request",
+    "status": "ok",
+    "file": "admin/src/components/GeoPicker.tsx",
+    "line": 26,
+    "via": "GeoPicker"
+   },
+   {
+    "kind": "input",
+    "label": "المدينة",
+    "src": "state city used by logic/request",
+    "status": "ok",
+    "file": "admin/src/components/GeoPicker.tsx",
+    "line": 29,
+    "via": "GeoPicker"
+   },
+   {
+    "kind": "input",
+    "label": "الحي",
+    "src": "state district used by logic/request",
+    "status": "ok",
+    "file": "admin/src/components/GeoPicker.tsx",
+    "line": 32,
+    "via": "GeoPicker"
+   },
+   {
+    "kind": "action",
+    "label": "<tr> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/DataTable.tsx",
+    "line": 66,
+    "via": "DataTable"
+   }
+  ],
+  "/login": [
+   {
+    "kind": "form",
+    "label": "رقم الجوال أو البريد الإلكتروني كلمة المرور جارٍ التحقق… تسج",
+    "src": "submitCredentials; POST /api/admin/auth/login; navigation",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/login.tsx",
+    "line": 150
+   },
+   {
+    "kind": "input",
+    "label": "input",
+    "src": "state identifier used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/login.tsx",
+    "line": 151
+   },
+   {
+    "kind": "input",
+    "label": "password",
+    "src": "state password used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/login.tsx",
+    "line": 152
+   },
+   {
+    "kind": "button",
+    "label": "جارٍ التحقق… تسجيل الدخول",
+    "src": "submits the enclosing form",
+    "status": "ok",
+    "file": "admin/src/pages/login.tsx",
+    "line": 153,
+    "submit": true
+   },
+   {
+    "kind": "button",
+    "label": "نسيت كلمة المرور؟",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/login.tsx",
+    "line": 154
+   },
+   {
+    "kind": "form",
+    "label": "أدخل رمز التحقق المكوّن من 6 أرقام. جارٍ التحقق… تأكيد الرمز",
+    "src": "submitOtp; POST /api/admin/auth/verify-2fa; navigation",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/login.tsx",
+    "line": 157
+   },
+   {
+    "kind": "input",
+    "label": "input",
+    "src": "state otp used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/login.tsx",
+    "line": 159
+   },
+   {
+    "kind": "button",
+    "label": "جارٍ التحقق… تأكيد الرمز",
+    "src": "submits the enclosing form",
+    "status": "ok",
+    "file": "admin/src/pages/login.tsx",
+    "line": 160,
+    "submit": true
+   },
+   {
+    "kind": "button",
+    "label": "رجوع",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/login.tsx",
+    "line": 161
+   },
+   {
+    "kind": "button",
+    "label": "بانتظار المفتاح… تأكيد بمفتاح الأمان",
+    "src": "submitPasskey; POST /api/admin/auth/passkey-verify; navigation",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/login.tsx",
+    "line": 164
+   },
+   {
+    "kind": "button",
+    "label": "رجوع",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/login.tsx",
+    "line": 164
+   },
+   {
+    "kind": "form",
+    "label": "أدخل بريدك أو رقمك المسجل لإرسال رمز الاستعادة. جارٍ الإرسال",
+    "src": "requestReset; POST /api/admin/auth/public/:param",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/login.tsx",
+    "line": 166
+   },
+   {
+    "kind": "input",
+    "label": "input",
+    "src": "state identifier used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/login.tsx",
+    "line": 166
+   },
+   {
+    "kind": "button",
+    "label": "جارٍ الإرسال… إرسال الرمز",
+    "src": "submits the enclosing form",
+    "status": "ok",
+    "file": "admin/src/pages/login.tsx",
+    "line": 166,
+    "submit": true
+   },
+   {
+    "kind": "button",
+    "label": "رجوع",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/login.tsx",
+    "line": 166
+   },
+   {
+    "kind": "form",
+    "label": "جارٍ الحفظ… تعيين كلمة المرور رجوع",
+    "src": "confirmReset; POST /api/admin/auth/public/:param",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/login.tsx",
+    "line": 168
+   },
+   {
+    "kind": "input",
+    "label": "رمز التحقق",
+    "src": "state resetCode used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/login.tsx",
+    "line": 168
+   },
+   {
+    "kind": "input",
+    "label": "كلمة المرور الجديدة",
+    "src": "state newPassword used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/login.tsx",
+    "line": 168
+   },
+   {
+    "kind": "button",
+    "label": "جارٍ الحفظ… تعيين كلمة المرور",
+    "src": "submits the enclosing form",
+    "status": "ok",
+    "file": "admin/src/pages/login.tsx",
+    "line": 168,
+    "submit": true
+   },
+   {
+    "kind": "button",
+    "label": "رجوع",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/login.tsx",
+    "line": 168
+   }
+  ]
+ }
+}

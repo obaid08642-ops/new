@@ -1,13 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { LoaderCircle } from "lucide-react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components-next/ui-generated/components/Button";
+import { Spinner } from "@/components-next/ui-generated/components/Spinner";
+import rx from "@/components-next/pharmacy/rx.module.css";
+import forms from "@/components-next/consult/consult.module.css";
+import styles from "@/components-next/settings/settings.module.css";
 
 export type ChatMsg = { id: string; from: "user" | "agent"; text: string; time: string };
-const QUICK = ["إلغاء حجز", "مشكلة في طلب", "استرداد المبلغ", "سؤال عن التأمين", "شكوى"];
-const QUICK_EN = ["Cancel booking", "Order issue", "Refund", "Insurance question", "Complaint"];
+const QUICK = ["quickCancel", "quickOrder", "quickRefund", "quickInsurance", "quickComplaint"] as const;
 
-function parseHistory(payload: unknown, locale: string): ChatMsg[] {
+function parseHistory(payload: unknown): ChatMsg[] {
   const root = (payload && typeof payload === "object" ? payload : {}) as Record<string, unknown>;
   const list = [root.data, root.messages, root.history].find(Array.isArray);
   if (!Array.isArray(list)) return [];
@@ -25,8 +29,12 @@ function parseHistory(payload: unknown, locale: string): ChatMsg[] {
   });
 }
 
-export function SupportChatClient({ locale }: { locale: string }) {
-  const ar = locale === "ar";
+/**
+ * The support chat (GET and POST /api/patient/support/chat, image upload through /api/support/upload): the history, a message
+ * box, quick replies and an image attachment, on the shared chat bubbles. The logic is the old client's; the texts are keys.
+ */
+export function SupportChatClient() {
+  const t = useTranslations("SupportChatWeb");
   const [messages, setMessages] = useState<ChatMsg[] | null>(null);
   const [draft, setDraft] = useState("");
   const [typing, setTyping] = useState(false);
@@ -34,28 +42,19 @@ export function SupportChatClient({ locale }: { locale: string }) {
   const [error, setError] = useState<string | null>(null);
   const bottom = useRef<HTMLDivElement | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const greeting = t("greeting");
+  const failedReply = t("replyFailed");
 
   useEffect(() => {
     (async () => {
+      let history: ChatMsg[] = [];
       try {
         const res = await fetch("/api/patient/support/chat", { cache: "no-store", credentials: "same-origin" });
-        const history = res.ok ? parseHistory(await res.json().catch(() => null), locale) : [];
-        setMessages(history.length > 0 ? history : [{
-          id: "greet",
-          from: "agent",
-          text: ar ? "مرحباً! أنا دعم نبض — كيف أقدر أساعدك؟" : "Hello! This is Nabd support — how can I help?",
-          time: "",
-        }]);
-      } catch {
-        setMessages([{
-          id: "greet",
-          from: "agent",
-          text: ar ? "مرحباً! أنا دعم نبض — كيف أقدر أساعدك؟" : "Hello! This is Nabd support — how can I help?",
-          time: "",
-        }]);
-      }
+        history = res.ok ? parseHistory(await res.json().catch(() => null)) : [];
+      } catch { /* the greeting below is shown instead */ }
+      setMessages(history.length > 0 ? history : [{ id: "greet", from: "agent", text: greeting, time: "" }]);
     })();
-  }, [ar, locale]);
+  }, [greeting]);
 
   useEffect(() => { bottom.current?.scrollIntoView({ block: "end" }); }, [messages, typing]);
 
@@ -77,14 +76,11 @@ export function SupportChatClient({ locale }: { locale: string }) {
       });
       const data = await res.json().catch(() => null);
       const rec = (data && typeof data === "object" ? data : {}) as Record<string, unknown>;
-      const reply = typeof rec.reply === "string" && rec.reply
-        ? rec.reply
-        : (ar ? "عذراً، حدث خطأ — حاول مجدداً" : "Sorry, something went wrong — please retry");
+      const reply = typeof rec.reply === "string" && rec.reply ? rec.reply : failedReply;
       setMessages((ms) => [...(ms ?? []), { id: `a-${Date.now()}`, from: "agent", text: reply, time: stamp }]);
     } catch {
-      setMessages((ms) => [...(ms ?? []), { id: `a-${Date.now()}`, from: "agent", text: ar ? "عذراً، حدث خطأ — حاول مجدداً" : "Sorry, something went wrong — please retry", time: stamp }]);
-    }
-    finally { setTyping(false); }
+      setMessages((ms) => [...(ms ?? []), { id: `a-${Date.now()}`, from: "agent", text: failedReply, time: stamp }]);
+    } finally { setTyping(false); }
   }
 
   async function attach(file: File) {
@@ -96,7 +92,7 @@ export function SupportChatClient({ locale }: { locale: string }) {
         reader.onerror = () => reject(new Error("read"));
         reader.readAsDataURL(file);
       });
-      if (!dataUrl) { setError(ar ? "تعذّر قراءة الملف" : "Could not read file"); return; }
+      if (!dataUrl) { setError(t("readFailed")); return; }
       const res = await fetch("/api/support/upload", {
         method: "POST",
         headers: { "content-type": "application/json", "idempotency-key": `web-support-file-${Date.now()}` },
@@ -107,46 +103,44 @@ export function SupportChatClient({ locale }: { locale: string }) {
       const rec = (data && typeof data === "object" ? data : {}) as Record<string, unknown>;
       const url = typeof rec.url === "string" ? rec.url : typeof (rec.data as Record<string, unknown> | undefined)?.url === "string"
         ? (rec.data as Record<string, unknown>).url as string : null;
-      if (!res.ok || !url) { setError(ar ? "تعذّر الإرفاق" : "Attachment failed"); return; }
-      await send(`${ar ? "مرفق: " : "Attachment: "}${url}`);
-    } catch { setError(ar ? "تعذّر الإرفاق" : "Attachment failed"); }
+      if (!res.ok || !url) { setError(t("attachFailed")); return; }
+      await send(t("attachment", { url }));
+    } catch { setError(t("attachFailed")); }
     finally { setAttaching(false); }
   }
 
-  const quick = ar ? QUICK : QUICK_EN;
   return (
-    <div>
-      <p role="status">{ar ? "متاح الآن • ردّ خلال دقيقة" : "Online now • replies within a minute"}</p>
+    <>
       {messages === null ? (
-        <p role="status"><LoaderCircle size={18} aria-hidden="true" /> {ar ? "جارٍ التحميل…" : "Loading…"}</p>
+        <p className={rx.status} role="status"><Spinner />{t("loading")}</p>
       ) : (
-        <ul aria-label={ar ? "المحادثة" : "Conversation"}>
+        <ul className={rx.messages} aria-label={t("conversation")}>
           {messages.map((m) => (
-            <li key={m.id} style={{ textAlign: m.from === "user" ? "left" : "right" }}>
-              <span>{m.text}</span>
-              {m.time ? <span> — {m.time}</span> : null}
+            <li key={m.id} className={`${rx.message} ${m.from === "user" ? rx.messageMine : rx.messageTheirs}`}>
+              <p className={`${rx.bubble} ${m.from === "user" ? rx.bubbleMine : rx.bubbleTheirs}`}>{m.text}</p>
+              {m.time ? <span className={rx.messageMeta}><bdi>{m.time}</bdi></span> : null}
             </li>
           ))}
-          {typing ? <li>{ar ? "يكتب…" : "Typing…"}</li> : null}
+          {typing ? <li className={`${rx.message} ${rx.messageTheirs}`}><p className={`${rx.bubble} ${rx.bubbleTheirs}`}>{t("typing")}</p></li> : null}
         </ul>
       )}
       <div ref={bottom} />
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }} aria-label={ar ? "ردود سريعة" : "Quick replies"}>
-        {quick.map((q) => <button key={q} type="button" onClick={() => send(q)} disabled={typing}>{q}</button>)}
+      <div className={forms.choices} role="group" aria-label={t("quickReplies")}>
+        {QUICK.map((key) => <button key={key} type="button" className={forms.choice} onClick={() => void send(t(key))} disabled={typing}>{t(key)}</button>)}
       </div>
-      {error ? <p role="alert">{error}</p> : null}
-      <form onSubmit={(e) => { e.preventDefault(); send(draft); }}>
+      {error ? <p className={forms.error} role="alert">{error}</p> : null}
+      <form className={rx.composer} onSubmit={(event: FormEvent) => { event.preventDefault(); void send(draft); }}>
         <input ref={fileRef} type="file" accept="image/*" hidden
-          onChange={(e) => { const f = e.target.files?.[0]; if (f) attach(f); e.target.value = ""; }} />
-        <button type="button" onClick={() => fileRef.current?.click()} disabled={attaching} aria-label={ar ? "إرفاق صورة" : "Attach image"}>
-          {attaching ? <LoaderCircle size={17} aria-hidden="true" /> : "+"}
-        </button>
-        <label>
-          <span>{ar ? "اكتب رسالتك..." : "Type your message..."}</span>
-          <input value={draft} onChange={(e) => setDraft(e.target.value)} maxLength={2000} />
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) void attach(f); e.target.value = ""; }} />
+        <label className={forms.field}>
+          <span className={forms.label}>{t("message")}</span>
+          <input className={forms.control} value={draft} onChange={(e) => setDraft(e.target.value)} maxLength={2000} />
         </label>
-        <button type="submit" disabled={typing || !draft.trim()}>{ar ? "إرسال" : "Send"}</button>
+        <div className={styles.actionsRow}>
+          <Button label={t("attach")} variant="outline" startIcon="image" loading={attaching} onClick={() => fileRef.current?.click()} />
+          <Button type="submit" label={t("send")} disabled={typing || !draft.trim()} />
+        </div>
       </form>
-    </div>
+    </>
   );
 }

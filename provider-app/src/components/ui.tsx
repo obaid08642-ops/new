@@ -6,7 +6,7 @@ import React, { useRef, useEffect, useState, ReactNode } from 'react';
 import {
  View, Text, TextInput, TouchableOpacity, ScrollView,
  StyleSheet, Animated, Modal, ActivityIndicator, Image,
- Switch, Dimensions, Platform, KeyboardAvoidingView,
+ Switch, Platform, KeyboardAvoidingView, useWindowDimensions,
  TouchableWithoutFeedback, Vibration, Pressable
 } from 'react-native';
 import { useTheme, useLang, useToast } from '../context';
@@ -17,7 +17,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import client from '../api/client';
 
-const { width: W, height: H } = Dimensions.get('window');
+// DEVICE_STANDARD §3: layout reads the live window (rotation, split-screen, foldables) through
+// useWindowDimensions inside each component, never a module-level Dimensions.get snapshot.
+
+// Layout constants shared with the tests (DEVICE_STANDARD §1).
+export const HEADER_BAR_MIN = 44;
+export const BOTTOM_NAV_MIN = 56;
 
 // ─── Logo ─────────────────────────────────────────────────────────────────────
 export function NLogo({ size = 56 }: { size?: number }) {
@@ -39,8 +44,8 @@ export function NCard({ children, style, onPress, noPad, accent }:
  backgroundColor:theme.card, borderRadius:R.xl,
  padding: noPad ? 0 : SP.xl,
  borderWidth:1, borderColor:theme.border,
- borderLeftWidth: accent ? 4 : 1,
- borderLeftColor: accent ?? theme.border,
+ borderStartWidth: accent ? 4 : 1,
+ borderStartColor: accent ?? theme.border,
  overflow:'hidden', ...SH_MD,
  }, style]}>
  {children}
@@ -85,7 +90,8 @@ export function NBtn({
  return (
  <Animated.View style={[{ transform:[{scale:sc}] }, full ? {width:'100%'} : {}]}>
  <TouchableOpacity onPress={press} activeOpacity={0.9} disabled={disabled||loading}
- style={[{ height:h, backgroundColor:bg, borderRadius:R.lg, borderWidth:1.5, borderColor:bd,
+ hitSlop={size==='xs' ? { top:5, bottom:5 } : undefined}
+ style={[{ minHeight:h, backgroundColor:bg, borderRadius:R.lg, borderWidth:1.5, borderColor:bd,
  flexDirection:'row', alignItems:'center', justifyContent:'center', paddingHorizontal:px, gap:SP.sm,
  }, style]}>
  {loading
@@ -204,7 +210,7 @@ export function NPhoneInput({ value, onChange, error, label, required, innerRef 
             </Text>
           )}
           <View style={[s.inputWrap, { flexDirection:isRTL?'row-reverse':'row', backgroundColor:theme.inputBg,
-            borderColor:error?theme.borderErr:focused?theme.borderFocus:theme.border, height:52, paddingVertical:0 }]}>
+            borderColor:error?theme.borderErr:focused?theme.borderFocus:theme.border, minHeight:52, paddingVertical:0 }]}>
             <View style={[s.phonePrefix, { borderRightWidth:isRTL?0:1, borderLeftWidth:isRTL?1:0, borderColor:theme.border }]}>
               <Text style={{ fontSize:FS.md, color:theme.text, fontWeight:FW.semi }}> +966</Text>
             </View>
@@ -343,7 +349,7 @@ export function NAvatar({ name, size=44, uri, online, style }:
  : <Text style={{ fontSize:size*0.36, color:theme.primary, fontWeight:FW.bold }}>{initials}</Text>}
  </View>
  {online !== undefined && (
- <View style={{ position:'absolute', bottom:1, right:1, width:size*0.28, height:size*0.28,
+ <View style={{ position:'absolute', bottom:1, end:1, width:size*0.28, height:size*0.28,
  borderRadius:size*0.14, backgroundColor:online?theme.success:theme.danger, borderWidth:2, borderColor:theme.card }} />
  )}
  </View>
@@ -396,12 +402,14 @@ export function NHeader({ title, sub, step, total, onBack, right, style }:
  const { theme } = useTheme();
  const { isRTL } = useLang();
  const insets = useSafeAreaInsets();
+ // Content starts below the notch / Dynamic Island / Android status bar. insets.left/right are physical
+ // (landscape cut-outs), so they are the one place where left/right is correct.
  return (
- <View style={[{ paddingBottom: SP.xs, paddingTop: Math.max(insets.top, 0) }, style]}>
+ <View style={[{ paddingBottom: SP.xs, paddingTop: Math.max(insets.top, 0), paddingLeft: insets.left, paddingRight: insets.right }, style]}>
  {(onBack||step) && (
- <View style={{ flexDirection:isRTL?'row-reverse':'row', alignItems:'center', justifyContent:'space-between', marginBottom:SP.xs }}>
+ <View testID="nheader-bar" style={{ flexDirection:isRTL?'row-reverse':'row', alignItems:'center', justifyContent:'space-between', marginBottom:SP.xs, minHeight:HEADER_BAR_MIN }}>
  {onBack
- ? <TouchableOpacity onPress={onBack} style={[s.backBtn, { backgroundColor:theme.surface2 }]}>
+ ? <TouchableOpacity onPress={onBack} hitSlop={{ top:2, bottom:2, left:2, right:2 }} style={[s.backBtn, { backgroundColor:theme.surface2 }]}>
  <Text style={{ fontSize:FS.md, color:theme.text }}>{isRTL?'→':'←'}</Text>
  </TouchableOpacity>
  : <View style={{ width:40 }} />}
@@ -423,25 +431,32 @@ export function NSheet({ visible, onClose, title, children, height }:
  { visible:boolean; onClose:()=>void; title?:string; children:ReactNode; height?:number }) {
  const { theme } = useTheme();
  const { isRTL } = useLang();
+ const insets = useSafeAreaInsets();
+ const { height: H } = useWindowDimensions();
  const ty = useRef(new Animated.Value(H)).current;
  useEffect(() => {
  Animated.spring(ty, { toValue:visible?0:H, tension:65, friction:12, useNativeDriver:true }).start();
  }, [visible]);
  if (!visible) return null;
+ // Never taller than the space below the status bar / Dynamic Island.
+ const maxH = Math.max(H - insets.top - SP.xl, 0);
  return (
  <Modal transparent animationType="none" visible={visible} onRequestClose={onClose}>
  <TouchableWithoutFeedback onPress={onClose}>
  <View style={[StyleSheet.absoluteFill, { backgroundColor:theme.overlay }]} />
  </TouchableWithoutFeedback>
- <Animated.View style={[s.sheet, {
- height: height ?? H*0.65, backgroundColor:theme.surface2,
+ <KeyboardAvoidingView pointerEvents="box-none" style={s.sheetHost} behavior={Platform.OS==='ios'?'padding':'height'}>
+ <Animated.View testID="nsheet" style={[s.sheet, {
+ height: Math.min(height ?? H*0.65, maxH), maxHeight: maxH, backgroundColor:theme.surface2,
  borderTopLeftRadius:R.xxxl, borderTopRightRadius:R.xxxl,
+ paddingBottom: SP.xl + insets.bottom, paddingStart: SP.xl + insets.left, paddingEnd: SP.xl + insets.right,
  transform:[{translateY:ty}],
  }]}>
  <View style={[s.sheetHandle, { backgroundColor:theme.border }]} />
  {title && <Text style={[s.sheetTitle, { color:theme.text, textAlign:isRTL?'right':'left' }]}>{title}</Text>}
- <ScrollView showsVerticalScrollIndicator={false}>{children}</ScrollView>
+ <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">{children}</ScrollView>
  </Animated.View>
+ </KeyboardAvoidingView>
  </Modal>
  );
 }
@@ -451,15 +466,20 @@ export function NConfirm({ visible, title, msg, onOk, onCancel, okLabel, cancelL
  { visible:boolean; title:string; msg:string; onOk:()=>void; onCancel:()=>void;
  okLabel?:string; cancelLabel?:string; variant?:'danger'|'primary' }) {
  const { t } = useLang();
+ const insets = useSafeAreaInsets();
+ const { width: W, height: H } = useWindowDimensions();
+ const cardMaxH = Math.max(H - insets.top - insets.bottom - SP.xxl * 2, 0);
  return (
- <Modal transparent visible={visible} animationType="fade">
+ <Modal transparent visible={visible} animationType="fade" onRequestClose={onCancel}>
  <TouchableWithoutFeedback onPress={onCancel}>
  <View style={[StyleSheet.absoluteFill, { backgroundColor:'rgba(0,0,0,0.55)' }]} />
  </TouchableWithoutFeedback>
- <View style={s.confirmCenter}>
- <NCard style={{ width:W-48, padding:SP.xxl }}>
+ <View testID="nconfirm-host" pointerEvents="box-none" style={[s.confirmCenter, { paddingTop:SP.xxl + insets.top, paddingBottom:SP.xxl + insets.bottom, paddingStart:SP.xxl + insets.left, paddingEnd:SP.xxl + insets.right }]}>
+ <NCard style={{ width:Math.min(W - 48, 480), maxHeight:cardMaxH, padding:SP.xxl }}>
+ <ScrollView style={{ flexShrink:1 }} showsVerticalScrollIndicator={false}>
  <Text style={s.confirmTitle}>{title}</Text>
  <Text style={s.confirmMsg}>{msg}</Text>
+ </ScrollView>
  <View style={{ flexDirection:'row', gap:SP.md }}>
  <View style={{ flex:1 }}><NBtn label={cancelLabel??t('cancel')} variant="secondary" onPress={onCancel} /></View>
  <View style={{ flex:1 }}><NBtn label={okLabel??t('confirm')} variant={variant} onPress={onOk} /></View>
@@ -478,7 +498,7 @@ export function NLoading({ visible, msg }:{ visible:boolean; msg?:string }) {
  return (
  <Modal transparent visible animationType="fade">
  <View style={[StyleSheet.absoluteFill, { backgroundColor:theme.overlay, justifyContent:'center', alignItems:'center' }]}>
- <NCard style={{ alignItems:'center', padding:SP.xxxl, minWidth:200 }}>
+ <NCard style={{ alignItems:'center', padding:SP.xxxl, minWidth:200, maxWidth:'90%' }}>
  <ActivityIndicator size="large" color={theme.primary} />
  <Text style={{ marginTop:SP.lg, color:theme.text, fontSize:FS.md, fontWeight:FW.med }}>{msg??t('loading')}</Text>
  </NCard>
@@ -667,7 +687,7 @@ export function NSearch({ value, onChange, placeholder, style }:
  const { isRTL, t } = useLang();
  return (
  <View style={[{ flexDirection:isRTL?'row-reverse':'row', alignItems:'center', gap:SP.md,
- backgroundColor:theme.inputBg, borderRadius:R.xl, paddingHorizontal:SP.lg, height:48,
+ backgroundColor:theme.inputBg, borderRadius:R.xl, paddingHorizontal:SP.lg, minHeight:48,
  borderWidth:1, borderColor:theme.border }, style]}>
  <I name="search" size={18} color={theme.textHint} />
  <TextInput value={value} onChangeText={onChange}
@@ -684,10 +704,10 @@ export function NSearch({ value, onChange, placeholder, style }:
 export function NScroll({ children, style, pad=true, refreshControl }:{ children:ReactNode; style?:object; pad?:boolean; refreshControl?:any }) {
  const insets = useSafeAreaInsets();
  return (
- <KeyboardAvoidingView style={{ flex:1 }} behavior={Platform.OS==='ios'?'padding':undefined}>
- <ScrollView style={[{flex:1},style]}
- contentContainerStyle={pad ? { padding:SP.xl, paddingTop: Math.max(insets.top, SP.xl), paddingBottom:48 } : undefined}
- keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}
+ <KeyboardAvoidingView style={{ flex:1 }} behavior={Platform.OS==='ios'?'padding':'height'}>
+ <ScrollView testID="nscroll" style={[{flex:1},style]}
+ contentContainerStyle={pad ? { padding:SP.xl, paddingTop: Math.max(insets.top, SP.xl), paddingBottom: Math.max(48, insets.bottom + SP.xl), paddingLeft: Math.max(SP.xl, insets.left), paddingRight: Math.max(SP.xl, insets.right) } : undefined}
+ keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets showsVerticalScrollIndicator={false}
  refreshControl={refreshControl}>
  {children}
  </ScrollView>
@@ -710,7 +730,7 @@ export function NPriceInput({ label, value, onChange, error, required, innerRef 
             {label}{required && <Text style={{ color:theme.danger }}> *</Text>}
           </Text>
           <View style={[s.inputWrap, { backgroundColor:theme.inputBg, borderColor:error?theme.borderErr:theme.border,
-            flexDirection:isRTL?'row-reverse':'row', height:52, paddingVertical:0 }]}>
+            flexDirection:isRTL?'row-reverse':'row', minHeight:52, paddingVertical:0 }]}>
             <TextInput ref={inputRef} value={value} onChangeText={v=>onChange(v.replace(/[^0-9.]/g,''))}
               placeholder="0" placeholderTextColor={theme.textHint} keyboardType="numeric"
               style={[s.textInput, { flex:1, color:theme.text, paddingHorizontal:SP.lg }]} />
@@ -730,8 +750,12 @@ export function NBottomNav({ tabs, active, onPress }:
  { tabs:{key:string;icon:string;label:string;badge?:number}[]; active:string; onPress:(k:string)=>void }) {
  const { theme } = useTheme();
  const { isRTL } = useLang();
+ const insets = useSafeAreaInsets();
+ // Bar = 56 content + the bottom inset (iOS home indicator / Android gesture or 3-button bar).
+ // insets.left/right are physical landscape cut-outs.
  return (
- <View style={[s.bottomNav, { backgroundColor:theme.navBg, borderTopColor:theme.border, flexDirection:isRTL?'row-reverse':'row' }]}>
+ <View testID="nbottomnav" style={[s.bottomNav, { backgroundColor:theme.navBg, borderTopColor:theme.border, paddingBottom:insets.bottom, paddingLeft:insets.left, paddingRight:insets.right }]}>
+ <View testID="nbottomnav-row" style={{ flexDirection:isRTL?'row-reverse':'row', minHeight:BOTTOM_NAV_MIN, alignItems:'center' }}>
  {tabs.map(tab => {
  const isActive = active===tab.key;
  return (
@@ -749,6 +773,7 @@ export function NBottomNav({ tabs, active, onPress }:
  );
  })}
  </View>
+ </View>
  );
 }
 
@@ -759,27 +784,28 @@ const s = StyleSheet.create({
  textInput: { flex:1, fontSize:FS.base, paddingVertical:0 },
  inputIcon: { fontSize:FS.lg },
  hint: { fontSize:FS.xs, marginTop:SP.xs },
- phonePrefix: { paddingHorizontal:SP.md, height:'100%', justifyContent:'center', alignItems:'center' },
+ phonePrefix: { paddingHorizontal:SP.md, alignSelf:'stretch', justifyContent:'center', alignItems:'center' },
  checkbox: { width:22, height:22, borderRadius:R.sm, borderWidth:2, alignItems:'center', justifyContent:'center' },
  radioOuter: { width:22, height:22, borderRadius:11, borderWidth:2, alignItems:'center', justifyContent:'center' },
  radioInner: { width:10, height:10, borderRadius:5 },
  backBtn: { width:40, height:40, borderRadius:R.md, alignItems:'center', justifyContent:'center' },
- sheet: { position:'absolute', bottom:0, left:0, right:0, padding:SP.xl },
+ sheetHost: { ...StyleSheet.absoluteFill, justifyContent:'flex-end' },
+ sheet: { paddingTop:SP.xl },
  sheetHandle: { width:40, height:4, borderRadius:R.full, alignSelf:'center', marginBottom:SP.xl },
  sheetTitle: { fontSize:FS.xl, fontWeight:FW.bold, marginBottom:SP.xl },
- confirmCenter: { position:'absolute', top:0, left:0, right:0, bottom:0, justifyContent:'center', alignItems:'center', padding:SP.xxl },
+ confirmCenter: { ...StyleSheet.absoluteFill, justifyContent:'center', alignItems:'center' },
  confirmTitle: { fontSize:FS.xl, fontWeight:FW.bold, textAlign:'center', marginBottom:SP.md },
  confirmMsg: { fontSize:FS.md, textAlign:'center', lineHeight:22, marginBottom:SP.xxl },
  successIcon: { width:100, height:100, borderRadius:50, alignItems:'center', justifyContent:'center', marginBottom:SP.xxl, shadowColor:tokens.success, shadowOffset:{width:0,height:0}, shadowOpacity:0.3, shadowRadius:20, elevation:10 },
  otpBox: { width:52, height:60, borderRadius:R.lg, borderWidth:2, textAlign:'center', fontSize:FS.xl, fontWeight:FW.bold },
  onlineTrack: { width:52, height:28, borderRadius:14, borderWidth:1.5, justifyContent:'center', paddingHorizontal:3, alignItems:'flex-start' },
  onlineDot: { width:20, height:20, borderRadius:10 },
- bottomNav: { borderTopWidth:StyleSheet.hairlineWidth, paddingBottom:Platform.OS==='ios'?24:10, paddingTop:SP.sm },
- navTab: { flex:1, alignItems:'center' },
+ bottomNav: { borderTopWidth:StyleSheet.hairlineWidth },
+ navTab: { flex:1, alignItems:'center', justifyContent:'center', minHeight:44, minWidth:44, paddingVertical:SP.xs },
  navIconWrap: { width:44, height:30, borderRadius:R.md, alignItems:'center', justifyContent:'center', marginBottom:2, position:'relative' },
- navBadge: { position:'absolute', top:-4, right:-4, minWidth:16, height:16, borderRadius:8, alignItems:'center', justifyContent:'center', paddingHorizontal:3 },
+ navBadge: { position:'absolute', top:-4, end:-4, minWidth:16, height:16, borderRadius:8, alignItems:'center', justifyContent:'center', paddingHorizontal:3 },
  navBadgeTxt: { color:'#FFF', fontSize:9, fontWeight:'700' },
- priceSuffix: { paddingHorizontal:SP.md, height:'100%', justifyContent:'center', alignItems:'center' },
+ priceSuffix: { paddingHorizontal:SP.md, alignSelf:'stretch', justifyContent:'center', alignItems:'center' },
 });
 
 // ─── Profile Photo Image Uploader & WebView Optimizer ──────────────────────────
@@ -792,7 +818,7 @@ export function NImageOptimizerWebView({ visible, onClose }: { visible: boolean;
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <View style={{ flex: 1, backgroundColor: '#000', paddingTop: insets.top }}>
-        <View style={{ height: 60, backgroundColor: '#111', flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 }}>
+        <View style={{ minHeight: 60, backgroundColor: '#111', flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 }}>
           <Text style={{ color: '#FFF', fontSize: 16, fontWeight: 'bold' }}>
             {AR ? ' تحسين وتفريغ الصورة' : ' Remove Background'}
           </Text>
@@ -1037,7 +1063,7 @@ export function NDropdown({
  <TouchableOpacity
  onPress={() => setOpen(true)}
  style={{
- height: 48,
+ minHeight: 48,
  borderRadius: R.md,
  borderWidth: 1,
  borderColor: theme.border,
@@ -1187,6 +1213,7 @@ export function NDatePickerSheet({
 }) {
  const { theme } = useTheme();
  const { isRTL } = useLang();
+ const insets = useSafeAreaInsets();
  
  // Initial date parse or fallback to today
  const initialDate = value ? new Date(value) : new Date();
@@ -1248,7 +1275,7 @@ export function NDatePickerSheet({
  borderTopLeftRadius: R.xl,
  borderTopRightRadius: R.xl,
  padding: SP.xl,
- paddingBottom: Platform.OS === 'ios' ? 40 : SP.xl,
+ paddingBottom: SP.xl + insets.bottom,
  borderWidth: 1,
  borderColor: theme.border,
  }}>

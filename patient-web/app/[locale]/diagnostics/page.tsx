@@ -25,6 +25,7 @@ import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import styles from "@/components-next/diagnostics/diag.module.css";
 import type { Metadata } from "next";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
+import { diagnosticBookingHref } from "@/lib/diagnostics-links";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ kind?: string; place?: string; pay?: string }> };
 
@@ -155,7 +156,8 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
         <QuickLink href={`/${locale}/diagnostics/results`} icon="chart-line-up" tone={DIAG_TONES.good} label={t("quickResults")} />
         <QuickLink href={`/${locale}/diagnostics/lab-comparison`} icon="arrows-left-right" tone={DIAG_TONES.facility} label={t("quickCompare")} />
       </div>
-      <RowCard href={`/${locale}/diagnostics/bookings`} icon={SERVICE_ICONS.insurance.icon} tone={SERVICE_ICONS.insurance.tone} title={t("insuranceTitle")} sub={t("insuranceSub")} caret={caret} />
+      {/* "Use your insurance / upload your card" opens the policy form, not the bookings list (needs-review issue 1062). */}
+      <RowCard href={`/${locale}/insurance/add-policy`} icon={SERVICE_ICONS.insurance.icon} tone={SERVICE_ICONS.insurance.tone} title={t("insuranceTitle")} sub={t("insuranceSub")} caret={caret} />
 
       {catalogFailed ? (
         <ConsultState kind="error" title={t("catalogErrorTitle")} body={t("catalogErrorBody")} retryLabel={t("retry")} />
@@ -240,7 +242,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
             return (
               <RowCard
                 key={booking.id}
-                href={`/${locale}/diagnostics/${domain}/${booking.id}`}
+                href={diagnosticBookingHref(locale, domain, booking.id)}
                 icon={domain === "labs" ? LAB.icon : RADIOLOGY.icon}
                 tone={domain === "labs" ? LAB.tone : RADIOLOGY.tone}
                 title={label}

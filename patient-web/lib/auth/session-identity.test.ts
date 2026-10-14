@@ -77,6 +77,6 @@ describe("the shared session identity", () => {
     const { resolve } = await import("node:path");
     const source = readFileSync(resolve(process.cwd(), "lib/auth/session-identity.ts"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
     expect(source).not.toMatch(/localStorage|sessionStorage|indexedDB|document\.cookie/);
-    expect([...source.matchAll(/from "([^"]+)"/g)].map((m) => m[1])).toEqual(["react"]);
+    expect([...source.matchAll(/from "([^"]+)"/g)].map((m) => m[1])).toEqual(["react", "@/lib/auth/session-hint"]); // the hint reader is a local, dependency-free module (issue 363)
   });
 });

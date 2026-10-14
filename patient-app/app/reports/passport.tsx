@@ -1,340 +1,120 @@
-// @ts-nocheck
-import { logError } from '../../src/utils/logger';
-// app/reports/passport.tsx
-import React from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  StatusBar,
-  Share,
-  Alert,
-} from "react-native";
-import { useRouter } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useApp } from "../../src/context/AppContext";
-import { Icon } from "../../src/components/Icon";
-import {
-  AppText,
-  Card,
-  Badge,
-  IconButton,
-  Button,
-} from "../../src/components/ui";
-import { apiFetch } from "../../src/utils/api";
-import QRCode from "react-native-qrcode-svg";
-import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
-import { ScreenState } from '../../src/components/ScreenStates';
+import React from 'react';
+import { Linking, Pressable, Share, Text, View } from 'react-native';
+import QRCode from 'react-native-qrcode-svg';
 
-// PASSPORT_DATA removed
+import { Card } from '../../../packages/ui-native/src';
+import { tokens } from '../../../packages/design-tokens/dist/ts/tokens';
+import { RX_TONE, Gate, InfoRow, Section, ShareGlyph, useConsultFormat } from '../../src/components/consult/ConsultKit';
+import { HealthScreen, Panel, Pill, Row, bodyOf, useRemote } from '../../src/components/health/HealthKit';
+import { Glyph } from '../../src/components/pharmacy/PharmacyKit';
+import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
+import { apiFetch } from '../../src/utils/api';
+
+/**
+ * The Health ID card (restyle only; linked from the medical profile and the health hub): GET /medical-profile for the summary
+ * and GET /medical-profile/passport-token for the QR. The QR holds only a short-lived opaque token, never medical data. The
+ * old /health/health-id (a QR with the national id) redirects here.
+ */
+
+interface Passport {
+  full_name?: string; blood_type?: string; date_of_birth?: string; gender?: string;
+  allergies?: Array<{ name?: string }>; long_term_medications?: Array<{ name?: string; dosage?: string; dose?: string }>;
+  emergencyContacts?: Array<{ name?: string; phone?: string }>;
+}
+interface PassportToken { token?: string; format?: string; version?: number; expires_at?: string }
 
 export default function HealthPassportScreen() {
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
-  const [profile, setProfile] = React.useState<any>(null);
-  const [passportToken, setPassportToken] = React.useState<any>(null);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
+  const { k, theme, t, c, flow, num } = useScreenUi();
+  const fmt = useConsultFormat();
+  const { status, data, reload } = useRemote(async () => {
+    const [profile, token] = await Promise.all([apiFetch('/medical-profile'), apiFetch('/medical-profile/passport-token').catch(() => null)]);
+    return { profile: bodyOf<Passport>(profile), token: (token ?? null) as PassportToken | null };
+  }, [], 'reports:passport');
+  const profile = data?.profile;
+  const token = data?.token;
+  const light = tokens('light').color;
+  const age = profile?.date_of_birth ? Math.floor((Date.now() - new Date(profile.date_of_birth).getTime()) / 31557600000) : null;
 
-  React.useEffect(() => {
-    setLoading(true);
-    setError(null);
-    apiFetch('/medical-profile')
-      .then(res => setProfile(res))
-      .catch(() => setError('تعذر تحميل الملف الطبي'))
-      .finally(() => setLoading(false));
-    apiFetch('/medical-profile/passport-token').then(res => setPassportToken(res)).catch(() => setPassportToken(null));
-  }, []);
-
-  const handleSharePassport = async () => {
+  const share = () => {
     if (!profile) return;
-    const name = profile.full_name || 'مريض';
-    const bloodType = profile.blood_type || 'غير محدد';
-    const allergies = (profile.allergies || []).map((a: any) => a.name).join(', ') || 'لا يوجد';
-    
-    try {
-      await Share.share({
-        message: `الملف الطبي السريع للمريض: ${name}\nفصيلة الدم: ${bloodType}\nالحساسية: ${allergies}`,
-      });
-    } catch (error) {
-      logError('reports:passport', error);
-    }
+    const allergies = (profile.allergies ?? []).map((a) => a.name).filter(Boolean).join(', ') || k('health.id.noAllergies');
+    Share.share({ message: `${k('health.id.shareTitle', { name: profile.full_name || k('health.id.patient') })}\n${k('health.id.bloodType')}: ${profile.blood_type || k('health.id.unknown')}\n${k('health.id.allergies')}: ${allergies}` }).catch(() => undefined);
   };
 
   return (
-    <View style={[st.container, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
-
-      {/* Header */}
-      <View
-        style={[
-          st.hdr,
-          {
-            paddingTop: insets.top + 8,
-            backgroundColor: colors.surface,
-            borderBottomColor: colors.borderLight,
-          },
-        ]}
-      >
-        <IconButton icon="back" onPress={() => router.back()} />
-        <View style={{ alignItems: "center" }}>
-          <AppText variant="h4">جواز السفر الصحي</AppText>
-          <AppText variant="caption" color={colors.textTertiary}>
-            ملخص طبي سريع للمشاركة الآمنة
-          </AppText>
-        </View>
-        <IconButton icon="share" onPress={handleSharePassport} />
-      </View>
-
-      <ScreenState loading={loading} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          padding: 16,
-          gap: 16,
-          paddingBottom: insets.bottom + 60,
-        }}
-      >
-        {/* QR Code Card */}
-        <Card style={st.qrCard}>
-          <AppText variant="h5" align="center" style={{ marginBottom: 4 }}>
-            مسح الملف الطبي السريع
-          </AppText>
-          <AppText variant="caption" color={colors.textTertiary} align="center">
-            رمز مؤقت لا يتضمن بياناتك الطبية مباشرة
-          </AppText>
-
-          {/* QR contains only a short-lived opaque backend token, never medical data. */}
-          <View style={st.qrContainer}>
-            <View style={[st.qrSquare, { borderColor: colors.primary }]}>
-              {passportToken?.token ? (
-                <QRCode
-                  value={JSON.stringify({
-                    t: passportToken.format,
-                    v: passportToken.version,
-                    token: passportToken.token,
-                  })}
-                  size={180}
-                  color={colors.textPrimary}
-                  backgroundColor="white"
-                />
+    <HealthScreen
+      title={k('health.id.title')}
+      actions={[{ key: 'share', label: k('health.records.share'), icon: <ShareGlyph />, onPress: share }]}
+      testID="health-id-screen"
+    >
+      <Gate status={status} onRetry={() => void reload()}>
+        <Card theme={theme}>
+          <View style={{ alignItems: 'center', gap: 8 }}>
+            <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary }}>{k('health.id.scan')}</Text>
+            <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('health.id.scanHint')}</Text>
+            <View accessibilityLabel={k('health.id.qr')} style={{ padding: 14, borderRadius: 20, backgroundColor: light.bg.surface, borderWidth: 1, borderColor: c.border.hairline }}>
+              {token?.token ? (
+                <QRCode value={JSON.stringify({ t: token.format, v: token.version, token: token.token })} size={180} color={light.text.primary} backgroundColor={light.bg.surface} />
               ) : (
-                <AppText variant="caption" color={colors.textTertiary}>تعذر إصدار رمز آمن الآن. حاول لاحقاً.</AppText>
+                <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.tertiary, textAlign: 'center', width: 180 }}>{k('health.id.noToken')}</Text>
               )}
             </View>
-          </View>
-
-          <Badge
-            label={passportToken?.expires_at ? `رمز مؤقت حتى ${new Date(passportToken.expires_at).toLocaleTimeString()}` : 'يتطلب اتصالاً آمناً'}
-            color={colors.success}
-            style={{ alignSelf: "center", marginTop: 12 }}
-          />
-        </Card>
-
-        {/* General Info Card */}
-        <Card style={st.infoGrid}>
-          <View
-            style={[
-              st.gridItem,
-              { borderLeftWidth: 1, borderLeftColor: colors.borderLight },
-            ]}
-          >
-            <AppText variant="caption" color={colors.textTertiary}>
-              فصيلة الدم
-            </AppText>
-            <AppText variant="h3" color={colors.error}>
-              {profile?.blood_type || "غير محدد"}
-            </AppText>
-          </View>
-          <View
-            style={[
-              st.gridItem,
-              { borderLeftWidth: 1, borderLeftColor: colors.borderLight },
-            ]}
-          >
-            <AppText variant="caption" color={colors.textTertiary}>
-              العمر / الجنس
-            </AppText>
-            <AppText variant="h5">
-              {profile?.date_of_birth ? Math.floor((Date.now() - new Date(profile.date_of_birth).getTime()) / 31557600000) + ' سنة' : '--'} / {profile?.gender === 'female' ? 'أنثى' : 'ذكر'}
-            </AppText>
-          </View>
-          <View style={st.gridItem}>
-            <AppText variant="caption" color={colors.textTertiary}>
-              المريض
-            </AppText>
-            <AppText variant="h6" numberOfLines={1}>
-              {profile?.full_name || "مريض"}
-            </AppText>
+            <Pill label={token?.expires_at ? k('health.id.until', { time: fmt.clock(token.expires_at) }) : k('health.id.needsConnection')} tone="success" />
           </View>
         </Card>
 
-        {/* Allergies Card */}
-        <Card>
-          <View
-            style={{
-              flexDirection: "row-reverse",
-              gap: 8,
-              alignItems: "center",
-              marginBottom: 8,
-            }}
-          >
-            <Icon name="warning" size={20} color={colors.warning} />
-            <AppText variant="h5">حساسية الأدوية أو الأغذية</AppText>
-          </View>
-          <View
-            style={{ flexDirection: "row-reverse", flexWrap: "wrap", gap: 8 }}
-          >
-            {(!profile?.allergies || profile.allergies.length === 0) ? (
-              <AppText variant="caption" color={colors.textTertiary}>لا توجد حساسية مسجلة</AppText>
-            ) : null}
-            {profile?.allergies?.map((allergy: any, i: number) => (
-              <Badge key={i} label={allergy.name} color={colors.warning} />
-            ))}
+        <Card theme={theme}>
+          <View>
+            <InfoRow label={k('health.id.patient')} value={profile?.full_name || ''} strong />
+            <InfoRow label={k('health.id.bloodType')} value={profile?.blood_type || k('health.id.unknown')} strong />
+            <InfoRow label={k('health.id.ageGender')} value={[age != null ? k('health.id.years', { n: num(age) }) : '', profile?.gender === 'female' ? k('health.profile.female') : profile?.gender === 'male' ? k('health.profile.male') : ''].filter(Boolean).join(' / ')} last />
           </View>
         </Card>
 
-        {/* Active Medications */}
-        <Card>
-          <View
-            style={{
-              flexDirection: "row-reverse",
-              gap: 8,
-              alignItems: "center",
-              marginBottom: 12,
-            }}
-          >
-            <Icon name="medication" size={20} color={colors.success} />
-            <AppText variant="h5">الأدوية المستمرة النشطة</AppText>
-          </View>
-          {(!profile?.long_term_medications || profile.long_term_medications.length === 0) ? (
-             <AppText variant="caption" color={colors.textTertiary} align="right">لا توجد أدوية مستمرة مسجلة</AppText>
-          ) : null}
-          {profile?.long_term_medications?.map((med: any, i: number) => (
-            <View
-              key={i}
-              style={[
-                st.medRow,
-                {
-                  borderBottomColor: colors.borderLight,
-                  borderBottomWidth:
-                    i === profile.long_term_medications.length - 1 ? 0 : 1,
-                },
-              ]}
-            >
-              <View style={{ alignItems: "flex-start" }}>
-                <Badge label="مستمر" color={colors.success} />
-              </View>
-              <View style={{ flex: 1, alignItems: "flex-end" }}>
-                <AppText variant="labelMD">{med.name}</AppText>
-                <AppText variant="caption" color={colors.textSecondary}>
-                  {med.dosage || med.dose}
-                </AppText>
-              </View>
+        <Section title={k('health.id.allergies')}>
+          {(profile?.allergies ?? []).length === 0 ? (
+            <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{k('health.id.noAllergies')}</Text>
+          ) : (
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+              {(profile?.allergies ?? []).map((a, i) => <Pill key={i} label={a.name ?? ''} tone="warning" />)}
             </View>
-          ))}
-        </Card>
+          )}
+        </Section>
 
-        {/* Emergency Contacts */}
-        <Card>
-          <View
-            style={{
-              flexDirection: "row-reverse",
-              gap: 8,
-              alignItems: "center",
-              marginBottom: 12,
-            }}
-          >
-            <Icon name="emergency" size={20} color={colors.error} />
-            <AppText variant="h5">جهات اتصال الطوارئ</AppText>
-          </View>
-          {(!profile?.emergencyContacts || profile.emergencyContacts.length === 0) ? (
-            <AppText variant="caption" color={colors.textTertiary} align="right">لا توجد جهات اتصال طوارئ</AppText>
-          ) : null}
-          {profile?.emergencyContacts?.map((contact: any, i: number) => (
-            <TouchableOpacity
-              key={i}
-              activeOpacity={0.8}
-              onPress={() =>
-                showLocalizedAlert(
-                  "اتصال الطوارئ",
-                  `هل ترغب في الاتصال بـ ${contact.name}؟`,
-                )
-              }
-              style={[
-                st.contactRow,
-                {
-                  borderBottomColor: colors.borderLight,
-                  borderBottomWidth:
-                    i === profile.emergencyContacts.length - 1 ? 0 : 1,
-                },
-              ]}
-            >
-              <Icon name="call" size={20} color={colors.error} />
-              <View style={{ flex: 1, alignItems: "flex-end" }}>
-                <AppText variant="labelMD">{contact.name}</AppText>
-                <AppText variant="caption" color={colors.textSecondary}>
-                  {contact.phone}
-                </AppText>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </Card>
-      </ScrollView>
-      </ScreenState>
-    </View>
+        <Section title={k('health.id.medicines')}>
+          {(profile?.long_term_medications ?? []).length === 0 ? (
+            <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{k('health.id.noMedicines')}</Text>
+          ) : (
+            <Panel>
+              {(profile?.long_term_medications ?? []).map((m, i, all) => <Row key={i} icon="pill" tone={RX_TONE} title={m.name ?? ''} subtitle={m.dosage || m.dose} trailing={<Pill label={k('health.id.ongoing')} tone="success" />} last={i === all.length - 1} />)}
+            </Panel>
+          )}
+        </Section>
+
+        <Section title={k('health.id.contacts')}>
+          {(profile?.emergencyContacts ?? []).length === 0 ? (
+            <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{k('health.id.noContacts')}</Text>
+          ) : (
+            <Panel>
+              {(profile?.emergencyContacts ?? []).map((m, i, all) => (
+                <Row
+                  key={i}
+                  icon="user"
+                  tone="peach"
+                  title={m.name ?? ''}
+                  subtitle={m.phone}
+                  trailing={m.phone ? (
+                    <Pressable accessibilityRole="button" accessibilityLabel={k('health.emergency.call', { name: m.name ?? '' })} onPress={() => Linking.openURL(`tel:${m.phone}`).catch(() => undefined)} style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: c.status.success.bg }}>
+                      <Glyph name="headset" size={20} color={c.status.success.fg} />
+                    </Pressable>
+                  ) : undefined}
+                  last={i === all.length - 1}
+                />
+              ))}
+            </Panel>
+          )}
+        </Section>
+      </Gate>
+    </HealthScreen>
   );
 }
-
-const st = StyleSheet.create({
-  container: { flex: 1 },
-  hdr: {
-    flexDirection: "row-reverse",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-  },
-  qrCard: { padding: 20, alignItems: "center" },
-  qrContainer: {
-    marginTop: 16,
-    width: 204,
-    height: 204,
-    padding: 10,
-    backgroundColor: "transparent",
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    elevation: 2,
-  },
-  qrSquare: {
-    width: "100%",
-    height: "100%",
-    borderWidth: 2,
-    borderRadius: 10,
-    padding: 10,
-    justifyContent: "space-between",
-  },
-  infoGrid: { flexDirection: "row-reverse", paddingVertical: 12 },
-  gridItem: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 8,
-  },
-  medRow: {
-    flexDirection: "row-reverse",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 12,
-  },
-  contactRow: {
-    flexDirection: "row-reverse",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 12,
-  },
-});

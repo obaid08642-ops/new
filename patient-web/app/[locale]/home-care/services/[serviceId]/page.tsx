@@ -1,208 +1,114 @@
-import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { JsonLd } from "@/components-next/json-ld";
+import { DirectAnswer } from "@/components-next/seo/direct-answer";
+import { breadcrumbList, medicalWebPage, nursingService } from "@/lib/seo/structured-data";
+import { localizedUrl } from "@/lib/seo";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ArrowLeft, ArrowRight, Clock3, ShieldCheck } from "lucide-react";
-import { extractHomeCareService } from "@/lib/api/home-care-services";
+import { extractHomeCareService, findHomeCareServiceInCatalog, parseHomeCareServiceId } from "@/lib/api/home-care-services";
+import { getPublicNursingCatalog } from "@/lib/api/nursing-catalog-server";
 import { getPatientHomeCareService } from "@/lib/api/home-care-services-server";
-import { requirePatientAccess } from "@/lib/auth/session";
-import { isLocale } from "@/lib/i18n";
-import { VectorNursing } from "@/components-next/vector-illustrations";
-import styles from "../services.module.css";
+import { getOptionalPatientAccessToken } from "@/lib/auth/session";
+import { isLocale, locales } from "@/lib/i18n";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { Facts, Hero, Notice, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
+import { NURSING, ServiceChips, serviceIcon } from "@/components-next/nursing/nursing-parts";
+import { money, pickText } from "@/components-next/diagnostics/diag-parts";
+import consult from "@/components-next/consult/consult.module.css";
 
 type Props = { params: Promise<{ locale: string; serviceId: string }> };
+
+/** The public catalogue entry for this service (what crawlers and signed-out patients read). */
+async function publicService(serviceId: string) {
+  if (!parseHomeCareServiceId(serviceId).success) return null;
+  const catalog = await getPublicNursingCatalog().catch(() => null);
+  if (!catalog || !catalog.ok) return null;
+  return findHomeCareServiceInCatalog(await catalog.json().catch(() => null), serviceId);
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale, serviceId } = await params;
+  if (!isLocale(locale)) return {};
+  const service = await publicService(serviceId);
+  if (!service) return { robots: { index: false, follow: false } };
+  const t = await getTranslations({ locale, namespace: "NursingWeb" });
+  const seo = await getTranslations({ locale, namespace: "SeoAnswer" });
+  const name = pickText(locale, service.nameAr, service.nameEn) ?? t("serviceTitle");
+  const description = (pickText(locale, service.descriptionAr, service.descriptionEn) ?? seo("homeCareWho", { name })).replace(/\s+/g, " ").slice(0, 160);
+  const path = `/home-care/services/${encodeURIComponent(serviceId)}`;
+  const canonical = localizedUrl(locale, path);
+  return {
+    title: `${name} | ${t("serviceTitle")}`,
+    description,
+    alternates: { canonical, languages: { ...Object.fromEntries(locales.map((l) => [l, localizedUrl(l, path)])), "x-default": localizedUrl("ar", path) } },
+    openGraph: { type: "website", url: canonical, title: name, description },
+    robots: { index: true, follow: true },
+  };
+}
+
+/** One home care service (canvas/ServiceHub detail): its name, what it is, the price and duration, and whether insurance covers it. */
 export default async function HomeCareServicePage({ params }: Props) {
   const { locale, serviceId } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
-  const t = await getTranslations("HomeCareServices");
-  const token = await requirePatientAccess(locale);
-  const response = await getPatientHomeCareService(serviceId, token);
-  if (response.status === 401) redirect(`/${locale}/login`);
-  if (response.status === 403 || response.status === 404) notFound();
-  if (!response.ok)
+  const t = await getTranslations("NursingWeb");
+  const seo = await getTranslations("SeoAnswer");
+  // issue 650: the service page is public. A signed-in patient reads the service endpoint; everyone else (and a patient whose
+  // session has ended) reads the service out of the public catalog. Signing in is asked for at booking, not here.
+  if (!parseHomeCareServiceId(serviceId).success) notFound();
+  const back = `/${locale}/home-care/services`;
+  const token = await getOptionalPatientAccessToken();
+  let service: ReturnType<typeof extractHomeCareService> = null;
+  let reachable = true;
+  if (token) {
+    const response = await getPatientHomeCareService(serviceId, token);
+    if (response.ok) service = extractHomeCareService(await response.json().catch(() => null));
+    else if (response.status === 403 || response.status === 404) notFound();
+    else if (response.status !== 401) reachable = false;
+  }
+  if (!service && reachable) {
+    const catalog = await getPublicNursingCatalog();
+    if (!catalog || !catalog.ok) reachable = false;
+    else service = findHomeCareServiceInCatalog(await catalog.json().catch(() => null), serviceId);
+  }
+  if (!service && !reachable) {
     return (
-      <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", gap: 16, display: "grid", placeItems: "center" } as any}>
-        <section
-          className={styles.state}
-          role="alert"
-          style={{ border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", padding: 24, gap: 16, display: "grid", placeItems: "center" } as any}
-        >
-          <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.12)", border: "1px solid #E8EDEE" } as any}>
-            <VectorNursing size={48} aria-hidden="true" />
-          </span>
-          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2 as any, WebkitBoxOrient: "vertical" as any, overflow: "hidden" } as any}>
-            {t("unavailableTitle")}
-          </h1>
-          <p style={{ color: "#6B7C6E", overflowWrap: "anywhere" } as any}>{t("unavailableBody")}</p>
-          <Link
-            href={`/${locale}/home-care/services`}
-            className={styles.action}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "10px 20px",
-              borderRadius: 20,
-              border: "1px solid #E8EDEE",
-              background: "#5FD9B3",
-              color: "#1E332E",
-              fontWeight: 700,
-              textDecoration: "none",
-              overflowWrap: "anywhere",
-            } as any}
-          >
-            {t("back")}
-          </Link>
-        </section>
-      </main>
+      <ConsultPage locale={locale} title={t("serviceTitle")} backHref={back}>
+        <ConsultState kind="error" title={t("serviceUnavailableTitle")} body={t("serviceUnavailableBody")} retryLabel={t("retry")} actionLabel={t("back")} actionHref={back} />
+      </ConsultPage>
     );
-  const service = extractHomeCareService(await response.json().catch(() => null));
+  }
   if (!service) notFound();
-  const rtl = locale === "ar" || locale === "ur";
-  const Arrow = rtl ? ArrowLeft : ArrowRight;
-  const name = rtl ? (service.nameAr ?? service.nameEn) : (service.nameEn ?? service.nameAr);
-  const description = rtl ? (service.descriptionAr ?? service.descriptionEn) : (service.descriptionEn ?? service.descriptionAr);
+  const name = pickText(locale, service.nameAr, service.nameEn) ?? "";
+  const description = pickText(locale, service.descriptionAr, service.descriptionEn);
+  const duration = [service.durationValue, service.duration].filter(Boolean).join(" ");
+  const rows: FactRow[] = [
+    ...(service.price !== undefined ? [{ label: t("priceLabel"), value: money(locale, service.price), icon: "tag" as const, tone: NURSING.tone }] : []),
+    ...(duration ? [{ label: t("durationLabel"), value: duration, icon: "clock-counter-clockwise" as const, tone: NURSING.tone }] : []),
+  ];
   return (
-    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC", gap: 16 } as any}>
-      <Link
-        href={`/${locale}/home-care/services`}
-        className={styles.back}
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 8,
-          padding: "10px 20px",
-          borderRadius: 20,
-          border: "1px solid #E8EDEE",
-          background: "#5FD9B3",
-          color: "#1E332E",
-          fontWeight: 700,
-          textDecoration: "none",
-          width: "fit-content",
-          overflowWrap: "anywhere",
-        } as any}
-      >
-        <Arrow size={16} aria-hidden="true" />
-        {t("back")}
-      </Link>
-      <article
-        className={styles.detail}
-        style={{
-          display: "grid",
-          gap: 16,
-          padding: 24,
-          border: "1px solid #E8EDEE",
-          borderRadius: 20,
-          background: "rgba(255,255,255,.82)",
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
-        } as any}
-      >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
-          <p className={styles.eyebrow} style={{ color: "#1E332E", overflowWrap: "anywhere", fontWeight: 700 } as any}>
-            {t("eyebrow")}
-          </p>
-          <span
-            style={{
-              display: "grid",
-              placeItems: "center",
-              width: 48,
-              height: 48,
-              borderRadius: 16,
-              background: "rgba(95,217,179,.12)",
-              border: "1px solid #E8EDEE",
-              flex: "0 0 auto",
-            } as any}
-          >
-            <VectorNursing size={48} aria-hidden="true" />
-          </span>
-        </div>
-        <h1
-          style={{
-            color: "#1E332E",
-            overflowWrap: "anywhere",
-            display: "-webkit-box",
-            WebkitLineClamp: 2 as any,
-            WebkitBoxOrient: "vertical" as any,
-            overflow: "hidden",
-          } as any}
-        >
-          {name}
-        </h1>
-        {description ? (
-          <p
-            className={styles.description}
-            style={{ color: "#6B7C6E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2 as any, WebkitBoxOrient: "vertical" as any, overflow: "hidden" } as any}
-          >
-            {description}
-          </p>
-        ) : null}
-        <div className={styles.facts} style={{ display: "flex", gap: 16, flexWrap: "wrap" } as any}>
-          {service.price !== undefined ? (
-            <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-                padding: "8px 12px",
-                borderRadius: 20,
-                border: "1px solid #E8EDEE",
-                background: "rgba(255,255,255,.82)",
-                color: "#1E332E",
-                fontWeight: 700,
-                overflowWrap: "anywhere",
-              } as any}
-            >
-              <strong>{t("priceLabel")}</strong>
-              {t("price", { value: service.price })}
-            </span>
-          ) : null}
-          {service.durationValue !== undefined || service.duration ? (
-            <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-                padding: "8px 12px",
-                borderRadius: 20,
-                border: "1px solid #E8EDEE",
-                background: "rgba(255,255,255,.82)",
-                color: "#1E332E",
-                overflowWrap: "anywhere",
-              } as any}
-            >
-              <Clock3 size={16} aria-hidden="true" />
-              <strong>{t("durationLabel")}</strong>
-              {[service.durationValue, service.duration].filter(Boolean).join(" ")}
-            </span>
-          ) : null}
-          {service.insuranceAvailable ? (
-            <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-                padding: "8px 12px",
-                borderRadius: 20,
-                border: "1px solid #E8EDEE",
-                background: "#5FD9B3",
-                color: "#1E332E",
-                fontWeight: 700,
-                overflowWrap: "anywhere",
-              } as any}
-            >
-              <ShieldCheck size={16} aria-hidden="true" />
-              {t("insurance")}
-            </span>
-          ) : null}
-        </div>
-        <p
-          className={styles.notice}
-          style={{ color: "#6B7C6E", overflowWrap: "anywhere", border: "1px solid #E8EDEE", borderRadius: 20, background: "rgba(255,255,255,.82)", padding: "12px 16px" } as any}
-        >
-          {t("bookingNotice")}
-        </p>
-      </article>
-    </main>
+    <ConsultPage locale={locale} title={name || t("serviceTitle")} backHref={back}>
+      <JsonLd data={[
+        medicalWebPage({ title: name || t("serviceTitle"), locale, path: `/home-care/services/${serviceId}`, description: description ?? null, speakable: true }),
+        nursingService({ name: name || t("serviceTitle"), locale, path: `/home-care/services/${serviceId}`, description: description ?? null }),
+        breadcrumbList([{ name: t("serviceTitle"), locale, path: "/nursing/catalog" }, { name: name || t("serviceTitle"), locale, path: `/home-care/services/${serviceId}` }]),
+      ]} />
+      <Hero icon={serviceIcon(service.nameAr, service.nameEn)} tone={NURSING.tone} title={name} sub={t("eyebrow")}>
+        <ServiceChips insurance={service.insuranceAvailable ? t("insurance") : undefined} />
+      </Hero>
+      <DirectAnswer sentences={[seo("homeCareWho", { name: name || t("serviceTitle") })]} />
+      {description ? (
+        <SectionCard id="service-about" title={t("aboutTitle")}>
+          <p className={consult.body}>{description}</p>
+        </SectionCard>
+      ) : null}
+      {rows.length > 0 ? (
+        <SectionCard id="service-facts">
+          <Facts rows={rows} label={t("serviceTitle")} />
+        </SectionCard>
+      ) : null}
+      <Notice>{t("bookingNotice")}</Notice>
+    </ConsultPage>
   );
 }

@@ -11,8 +11,8 @@ import { isOffline } from '../../utils/isOffline';
 import { logError } from '../../utils/logger';
 
 /**
- * Clinic location (`clinic-confirm?view=location`) — the consult kit's screen (tokens, translation keys). The place is what
- * clinic-confirm reads: GET /care/appointments/:id and the doctor's facility (GET /care/doctors/:doctor_id). The map and the
+ * Clinic location (`booking-status?view=location`) — the consult kit's screen (tokens, translation keys). The place is what
+ * the clinic confirmation reads: GET /care/appointments/:id and the doctor's facility (GET /care/doctors/:doctor_id). The map and the
  * directions button are drawn only when the doctor's record states coordinates; none is invented.
  */
 

@@ -2,6 +2,7 @@
 // GET /patient/pharmacy/orders/:id (the detail) send, and nothing else: an order's status, its lines, the price the
 // server stored for the selected offer, the courier the pharmacy named and the events the server logged. Nothing is
 // computed, guessed or filled in; a field the API did not send is left out and the screens do not draw it.
+import { governedStep } from "./governed-step";
 
 function record(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
@@ -78,6 +79,28 @@ export function orderAction(status: string | undefined): OrderAction {
 
 export type OrderLine = { id: string; name: string; qty: number; sku?: string };
 
+export type PharmacyNames = { ar?: string; en?: string };
+
+/** The pharmacy's name in the reader's language: Arabic for ar, English for every other language; the other field only when one is missing; undefined when none (never an id). */
+export function pharmacyDisplayName(names: PharmacyNames | undefined, locale: string): string | undefined {
+  if (!names) return undefined;
+  return locale === "ar" ? names.ar ?? names.en : names.en ?? names.ar;
+}
+
+/** The names of the pharmacy filling an order: the selected allocation's when the order names one, else the order's own. */
+export function orderPharmacyNames(source: Record<string, unknown> | undefined): PharmacyNames | undefined {
+  if (!source) return undefined;
+  const read = (r: Record<string, unknown> | undefined): PharmacyNames | undefined => {
+    const ar = text(r?.pharmacy_name_ar);
+    const en = text(r?.pharmacy_name_en);
+    return ar || en ? { ar, en } : undefined;
+  };
+  const selected = text(source.selected_allocation_id);
+  const allocations = Array.isArray(source.allocations_detail) ? source.allocations_detail : [];
+  const match = selected ? allocations.map(record).find((a) => a && a.id === selected) : undefined;
+  return read(match ?? undefined) ?? read(source);
+}
+
 export type OrderDetail = {
   id: string;
   status?: string;
@@ -92,6 +115,8 @@ export type OrderDetail = {
   totals?: { subtotal?: number; deliveryFee?: number; total: number; currency?: string };
   address?: { label?: string; street?: string; district?: string; city?: string };
   courier?: { name?: string; phone?: string; eta?: string };
+  /** The filling pharmacy's names as the server sent them (#366/#375/#514): absent when it sent none. */
+  pharmacyName?: PharmacyNames;
   /** What the server logged, in the order it logged it (`order.timeline`). */
   events: Array<{ event: string; at?: string }>;
   dispatchedAt?: string;
@@ -121,7 +146,7 @@ export function parseOrderDetail(payload: unknown, locale: string): OrderDetail 
   return {
     id,
     status: text(source.effective_status) ?? text(source.status),
-    governedState: text(source.governed_state),
+    governedState: governedStep(source.governed_state),
     paymentStatus: text(source.payment_status),
     coverageMode: coverage === "cash" || coverage === "insurance" ? coverage : undefined,
     createdAt: text(source.createdAt) ?? text(source.created_at),
@@ -137,6 +162,7 @@ export function parseOrderDetail(payload: unknown, locale: string): OrderDetail 
     }),
     totals: price.total === undefined ? undefined : { subtotal: num(snapshotTotals?.subtotal), deliveryFee: num(snapshotTotals?.delivery_fee), total: price.total, currency: price.currency },
     address: address ? { label: text(address.label), street: text(address.street) ?? text(address.line1), district: text(address.district), city: text(address.city) } : undefined,
+    pharmacyName: orderPharmacyNames(source),
     courier: courier && (courier.name || courier.phone || courier.eta) ? courier : undefined,
     events: timeline.flatMap((entry) => {
       const row = record(entry);
@@ -182,6 +208,15 @@ export function trackingSteps(detail: Pick<OrderDetail, "status" | "fulfillment"
     const at = [...detail.events].reverse().find((entry) => EVENTS[id].includes(entry.event))?.at;
     return { id, state, at: state === "upcoming" ? undefined : at };
   });
+}
+
+/**
+ * Whether the patient may still cancel the order: it is not finished, not cancelled, and not yet on its way (decision 26:
+ * a cancel before dispatch refunds in full). The server has the last word and refuses a cancel it cannot do.
+ */
+export function canCancelOrder(status: string | undefined): boolean {
+  const key = (status ?? "").toLowerCase();
+  return key !== "" && key !== "delivered" && key !== "completed" && key !== "cancelled" && key !== "out_for_delivery";
 }
 
 /** Whether the order can still change on its own (so the tracking page keeps asking the server). */

@@ -6,6 +6,7 @@ import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { IconButton } from "@/components-next/ui-generated/components/Button";
 import { CatalogImage } from "./catalog-image";
 import { PHARMACY_TONE } from "./tones";
+import { WishlistHeart } from "./wishlist-heart";
 import styles from "./product-detail.module.css";
 
 /**
@@ -14,7 +15,7 @@ import styles from "./product-detail.module.css";
  * the picture in a dialog (the page's existing zoom). With no picture there is the category's own icon on its
  * tinted tile, never a stock photo (spec A, "Gallery").
  */
-export function ProductGallery({ name, images, badge }: { name: string; images: string[]; badge?: string }) {
+export function ProductGallery({ name, images, badge, itemId, locale }: { name: string; images: string[]; badge?: string; itemId?: string; locale: string }) {
   const t = useTranslations("PharmacyBrowse");
   const [index, setIndex] = useState(0);
   const zoom = useRef<HTMLDialogElement>(null);
@@ -48,6 +49,7 @@ export function ProductGallery({ name, images, badge }: { name: string; images: 
           </div>
         )}
         {badge ? <span className={styles.stageBadge}>{badge}</span> : null}
+        {itemId ? <WishlistHeart itemId={itemId} locale={locale} /> : null}
       </div>
       {images.length > 1 ? (
         <ul className={styles.thumbs} aria-label={t("imageOf", { n: index + 1, total: images.length })}>

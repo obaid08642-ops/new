@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { PrescriptionsService } from './prescriptions.service';
 import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { PrescriptionState, UserRole } from '../../common/enums';
@@ -19,6 +19,12 @@ export class PrescriptionsController {
   @Post('upload')
   upload(@Body() body: UploadDto, @CurrentUser() user: any) {
     return this.svc.uploadByPatient(user, body);
+  }
+
+  /** D-32: the patient deletes their own uploaded prescription and its photo. */
+  @Delete(':id')
+  remove(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.svc.deleteByPatient(user, id);
   }
 
   @Post('manual-entry')
@@ -72,6 +78,11 @@ export class PrescriptionsController {
   @Roles(UserRole.PHARMACY)
   pharmacyQueue(@CurrentUser('id') id: string) {
     return this.svc.listForPharmacy(id);
+  }
+
+  @Get(':id/image')
+  image(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.svc.getImageForUser(id, user);
   }
 
   @Get(':id')

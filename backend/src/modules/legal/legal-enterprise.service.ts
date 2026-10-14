@@ -6,6 +6,7 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { UserRole } from '../../common/enums';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import * as crypto from 'crypto';
 import * as ExcelJS from 'exceljs';
@@ -77,9 +78,13 @@ export class LegalEnterpriseService {
   }
 
   /** Download acceptance snapshot PDF (with hash verification info). */
-  async acceptancePdf(acceptanceId: string): Promise<{ pdf: Buffer; sha256: string } | null> {
+  async acceptancePdf(acceptanceId: string, requester: { id?: string; role?: string }): Promise<{ pdf: Buffer; sha256: string } | null> {
     const a: any = await this.archives.findOne({ acceptance_id: acceptanceId });
     if (!a) return null;
+    // The certificate carries the user's name, IP and device: only its owner or an admin may read it.
+    // Anyone else gets the same answer as a missing archive, so ids cannot be probed.
+    const isAdmin = requester?.role === UserRole.ADMIN || requester?.role === UserRole.SUPER_ADMIN;
+    if (!isAdmin && (!requester?.id || a.user_id !== requester.id)) return null;
     const pdf = this.buildPdf(`Legal Acceptance Certificate`, [
       `Acceptance ID: ${a.acceptance_id}`,
       `User: ${a.user_id} (${a.user_role})${a.user_name ? ' — ' + a.user_name : ''}`,

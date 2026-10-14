@@ -58,6 +58,7 @@ export default async function WishlistPage({ params }: Props) {
                       <span className={styles.rowMeta}>
                         {item.price !== undefined ? <span className={styles.rowPrice}>{formatPrice(locale, item.price).text}</span> : null}
                         {item.inStock === false ? <StatusChip label={t("outOfStock")} tone={PHARMACY_TONE} /> : item.inStock === true ? <StatusChip label={t("inStock")} tone="mint" /> : null}
+                        {item.requiresPrescription === true ? <StatusChip label={t("needsRx")} tone="amber" /> : null}
                       </span>
                     </span>
                     <span className={styles.rowEnd}><Icon name={caret} size={16} tone="secondary" /></span>
@@ -69,7 +70,7 @@ export default async function WishlistPage({ params }: Props) {
         ) : (
           <div className={styles.state}>
             <EmptyState icon="heart" tone={PHARMACY_TONE} title={t("empty")} />
-            <Link href={`/${locale}/medicine-catalog`} className={`nabd-button nabd-button--primary nabd-button--lg nabd-button--full ${styles.linkButton}`}>
+            <Link href={`/${locale}/c`} className={`nabd-button nabd-button--primary nabd-button--lg nabd-button--full ${styles.linkButton}`}>
               <span className="nabd-button__label">{t("shop")}</span>
             </Link>
           </div>

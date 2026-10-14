@@ -19,13 +19,22 @@ describe('notification routes the backend writes, translated to screens that exi
     }
   });
 
-  it('a community notification keeps the post id from its query', () => {
-    expect(translateBackendRoute('/community/post-detail?id=p42')).toEqual({ pathname: '/community/post-detail', params: { id: 'p42' } });
-    expect(translateBackendRoute('/community/post-detail')).toBeNull();
+  it('a community notification opens the articles (community is removed, owner decision 1)', () => {
+    expect(translateBackendRoute('/community/post-detail?id=p42')).toEqual({ pathname: '/articles' });
+    expect(translateBackendRoute('/community/post-detail')).toEqual({ pathname: '/articles' });
+    expect(translateBackendRoute('/community')).toEqual({ pathname: '/articles' });
   });
 
-  it('the family permission request opens its screen', () => {
-    expect(translateBackendRoute('/family/permission-request')).toEqual({ pathname: '/family/permission-request' });
+  it('the family permission request opens the Requests section of the family hub (Batch 6)', () => {
+    expect(translateBackendRoute('/family/permission-request')).toEqual({ pathname: '/family' });
+    expect(translateBackendRoute('/health/family-hub')).toEqual({ pathname: '/family' });
+  });
+
+  it('the old loyalty routes open their tab of the loyalty hub; the removed leaderboard opens the hub (Batch 11)', () => {
+    expect(translateBackendRoute('/loyalty/hub')).toEqual({ pathname: '/loyalty/hub' });
+    expect(translateBackendRoute('/loyalty/referrals')).toEqual({ pathname: '/loyalty/hub', params: { tab: 'invite' } });
+    expect(translateBackendRoute('/loyalty/challenges')).toEqual({ pathname: '/loyalty/hub', params: { tab: 'challenges' } });
+    expect(translateBackendRoute('/loyalty/leaderboard')).toEqual({ pathname: '/loyalty/hub' });
   });
 
   it('routes the app has no screen for stay untranslated (the wallet is not a product: no wallet screen)', () => {
@@ -34,7 +43,7 @@ describe('notification routes the backend writes, translated to screens that exi
   });
 
   it('what it returns is a screen of the app', () => {
-    for (const route of ['/health/results/r1', '/reports/r1', '/community/post-detail?id=p1', '/family/permission-request', '/orders/o1/tracking', '/consultations/appointments']) {
+    for (const route of ['/health/results/r1', '/reports/r1', '/community/post-detail?id=p1', '/family/permission-request', '/health/family-hub', '/orders/o1/tracking', '/consultations/appointments']) {
       const target = translateBackendRoute(route);
       expect(target).not.toBeNull();
       expect(screenExists(target!.pathname)).toBe(true);

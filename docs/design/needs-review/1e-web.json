@@ -26,7 +26,7 @@
     "element": "Pharmacy name",
     "file": "",
     "line": 0,
-    "found": "[backend] GET /patient/pharmacy/orders/:id has no pharmacy name (allocations hold only pharmacy_account_id; the offers list drops expired offers), so the board's pharmacy row cannot be drawn.",
+    "found": "[backend] Fixed on design/backend-fields: the order detail carries pharmacy_name_ar / pharmacy_name_en (pharmacy-order.service.ts:147-150); the tracking summary row names the pharmacy by page language.",
     "suspect": "Backend gap: reviewer session."
   },
   {
@@ -36,7 +36,7 @@
     "element": "Reorder through /orders/:id/reorder",
     "file": "",
     "line": 0,
-    "found": "[backend] The legacy reorder and reorder-partial refuse pharmacy orders (503 canonical_pharmacy_flow_required); the web reorders through the cart. The BFF route app/api/orders/[orderId]/reorder is now unused by any screen.",
+    "found": "[backend] Fixed on design/backend-fields: the unused BFF route app/api/orders/[orderId]/reorder was removed (the web reorders through the cart).",
     "suspect": "Backend gap: reviewer session."
   },
   {
@@ -88,5 +88,15 @@
     "line": 0,
     "found": "[backend] GET /patient/pharmacy/orders returns raw documents without governed_state; list actions are chosen by status and the order router reads the detail.",
     "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/orders",
+    "element": "Insurance claims and returns",
+    "file": "patient-web/components-next/orders/center-rows.ts",
+    "line": 79,
+    "found": "[client] The app's order center also lists insurance claims and pharmacy returns; the web list has the five services of issue 378 only (claims and returns have their own pages). Needs an owner decision to merge them.",
+    "suspect": "Client-side: later batch."
   }
 ]

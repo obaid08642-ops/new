@@ -179,7 +179,7 @@ describe("the dynamic twins of the list pages", () => {
       const source = read(file);
       expect(source, relative(ROOT, file)).not.toMatch(/generateStaticParams/);
       expect(source, relative(ROOT, file)).toMatch(/robots: \{ index: false, follow: true \}/);
-      expect(source, relative(ROOT, file)).toMatch(/View\(props\)/);
+      expect(source, relative(ROOT, file)).toMatch(/View\(props[,)]/);
     }
   });
 });

@@ -12,7 +12,7 @@ import { readPaymentResult, readResultParams, type PaymentResult } from '../../s
 /**
  * The result of a payment — the Success board's state (a check on its ring, the amount, the reference) and the board's
  * state components for everything else. The result comes only from the server: this screen asks it
- * (POST /payments/verify/:transaction, or GET /moyasar/payments/sync/:id for the id the payment page's redirect carries),
+ * (GET /payments/status/:ref by our transaction id or the gateway's id, with POST /payments/verify/:transaction as the refresh),
  * asks again while the payment is pending (every 3 s, at most 15 times, and when the app comes back to the foreground),
  * and draws "paid" only when the server's status says `paid`. The `status` and `amount` of the address (a redirect, a deep
  * link, anything a person can type) are not read, so a link can never show a payment as made.
@@ -50,8 +50,13 @@ export default function PaymentResultRoute() {
     if (timer.current) clearTimeout(timer.current);
     attempts.current += 1;
     try {
-      // the server's own answer: the transaction as the gateway reports it, or (for the id of the gateway's redirect) its payment record
-      const raw = transactionId ? await apiFetch(`/payments/verify/${encodeURIComponent(transactionId)}`, { method: 'POST' }) : await apiFetch(`/moyasar/payments/sync/${encodeURIComponent(gatewayId ?? '')}`);
+      // the server's own answer (issues 533/534): the stored status (GET /payments/status/:ref, read-only, by our id or
+      // the gateway's), and on the first check and every fourth one the explicit refresh that asks the gateway (POST verify)
+      const ref = transactionId ?? gatewayId ?? '';
+      const refresh = transactionId !== null && (attempts.current === 1 || attempts.current % 4 === 0);
+      const raw = refresh
+        ? await apiFetch(`/payments/verify/${encodeURIComponent(ref)}`, { method: 'POST' })
+        : await apiFetch(`/payments/status/${encodeURIComponent(ref)}`);
       const next = readPaymentResult(raw);
       if (!alive.current) return;
       if (!next || next.phase === 'unknown') {
@@ -102,14 +107,14 @@ export default function PaymentResultRoute() {
   };
   const home = () => router.replace('/(tabs)' as Href);
   const toOrder = () => router.replace({ pathname: '/pharmacy/order-tracking', params: { orderId: p.bookingId } });
-  const toOrders = () => router.replace('/pharmacy/order-history' as Href);
+  const toOrders = () => router.replace('/orders' as Href);
   const retryPay = () => (pharmacy ? router.replace({ pathname: '/pharmacy/payment', params: { orderId: p.bookingId } }) : router.back());
 
   const visit = (() => {
     if (!p.visitType) return null;
     const appointment = p.bookingId;
     if (appointment) return { label: p.visitType === 'clinic' ? k('payments.result.clinicLocation') : p.visitType === 'home' ? k('payments.result.trackDoctor') : k('payments.result.waitingRoom'), go: () => router.push({ pathname: '/consultations/booking-status', params: { appointmentId: appointment, visitType: p.visitType } }) };
-    if (p.visitType === 'clinic') return { label: k('payments.result.clinicLocation'), go: () => router.push('/consultations/clinic-location' as Href) };
+    if (p.visitType === 'clinic') return { label: k('payments.result.clinicLocation'), go: () => router.push({ pathname: '/consultations/booking-status', params: { view: 'location' } } as unknown as Href) };
     if (p.visitType === 'home') return { label: k('payments.result.trackDoctor'), go: () => router.push('/consultations/home-visit-tracking' as Href) };
     return { label: k('payments.result.waitingRoom'), go: () => router.push({ pathname: '/consultations/booking-status', params: { visitType: p.visitType } }) };
   })();

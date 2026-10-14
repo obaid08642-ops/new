@@ -1,23 +1,33 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
-import { FileText, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getPublicArticleCategories, getPublicArticles } from "@/lib/api/articles-server";
 import { parseArticleCategories, parseArticleList } from "@/lib/api/articles";
-import { isLocale, locales } from "@/lib/i18n";
-import { RetryButton } from "@/components-next/retry-button";
 import { isOutage } from "@/lib/api/outage";
 import { PublicDataUnavailableError } from "@/lib/api/public-unavailable";
-import { VectorHealthShield } from "@/components-next/vector-illustrations";
-import styles from "./articles.module.css";
+import { isLocale, locales } from "@/lib/i18n";
+import { pickTab } from "@/lib/health/view";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { ArticleRows, ArticleSearch, CategoryChips, ARTICLE_TONE } from "@/components-next/articles/article-kit";
+import { HealthTabs } from "@/components-next/health/health-kit";
 
 /**
- * F82-3: the article list is one view with two routes: the static/ISR page (no `searchParams`) and its dynamic twin under
- * /q for a search or a category (proxy.ts, lib/security/query-twin.ts).
+ * F82-3: the article list is one view with two routes. The static/ISR page (no `searchParams`: the All tab, no search) is
+ * the one that is cached and shared; a request with `?q=`, `?category=` or `?tab=` (the Saved tab needs the session) is
+ * answered by the dynamic twin under /q (lib/security/query-twin.ts). `searchParams` is undefined on the static route.
  */
-export type ArticlesViewProps = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string; category?: string }> };
+export type ArticlesViewProps = {
+  params: Promise<{ locale: string }>;
+  searchParams?: Promise<{ tab?: string | string[]; q?: string | string[]; category?: string | string[] }>;
+};
+/** Renders the Saved tab. Passed only by the dynamic twin: it reads the session, so the static page must not import it. */
+type SavedRenderer = (locale: string) => Promise<ReactNode>;
 type Props = ArticlesViewProps;
+
+const TABS = ["all", "saved"] as const;
+const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
 
 export async function articlesMetadata({ params }: Omit<Props, "searchParams">): Promise<Metadata> {
   const { locale } = await params;
@@ -38,88 +48,51 @@ export async function articlesMetadata({ params }: Omit<Props, "searchParams">):
   };
 }
 
-export async function ArticlesView({ params, searchParams }: Props) {
+/**
+ * Health articles (merge map, Batch 10): the tabs All and Saved in `?tab=`. All is the public list (GET /articles, with `?q=` and
+ * `?category=`, and GET /articles/categories); Saved is the patient's bookmarks (GET /articles/bookmarks/mine) and needs a sign-in.
+ * The old /articles/bookmarks redirects here with `?tab=saved`. No comments (owner decision 1).
+ */
+export async function ArticlesView({ params, searchParams }: Props, renderSaved?: SavedRenderer) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("Articles");
-  const Chevron = locale === "ar" || locale === "ur" ? ChevronLeft : ChevronRight;
+  const rs = await getTranslations("RouteState");
   const query = searchParams ? await searchParams : {};
+  const tab = pickTab(query.tab, TABS, "all");
+  const q = first(query.q)?.trim().slice(0, 80) || undefined;
+  const category = first(query.category)?.trim().slice(0, 120) || undefined;
+  const base = `/${locale}/articles`;
 
-  const [response, categoriesResponse] = await Promise.all([
-    getPublicArticles({ q: query.q, category: query.category }),
-    getPublicArticleCategories(),
-  ]);
+  const frame = (body: ReactNode) => (
+    <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}`}>
+      <HealthTabs label={t("title")} base={base} active={tab} options={[{ value: "all", label: t("tabAll") }, { value: "saved", label: t("tabSaved") }]} />
+      {body}
+    </ConsultPage>
+  );
+  const unavailable = () => frame(<ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
 
-  // A failure (no answer, or a 5xx) is not an empty list: this page is cached, so it throws and Next keeps the last good copy.
-  if (isOutage(response)) throw new PublicDataUnavailableError("articles");
-  if (!response || !response.ok)
-    return (
-      <main className="main" style={{ background: "#FDFDFC" }}>
-        <section className={styles.state} role="alert" style={{ borderRadius: 20, border: "1px solid #E8EDEE", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
-          <VectorHealthShield size={48} aria-hidden="true" />
-          <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("unavailableTitle")}</h1>
-          <p style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("unavailable")}</p>
-          <RetryButton />
-        </section>
-      </main>
-    );
+  // the Saved tab reads the session, so it only ever renders on the dynamic twin (?tab=saved), which passes it in
+  if (tab === "saved" && renderSaved) return frame(await renderSaved(locale));
 
+  const [response, categoriesResponse] = await Promise.all([getPublicArticles({ q, category }), getPublicArticleCategories()]);
+  // A failure (no answer, or a 5xx) on the cached page throws, so Next keeps the last good copy instead of caching an error
+  // (stale-if-error, issue 302). On the twin (never cached) the error state with a retry shows, as before.
+  if (isOutage(response) && searchParams === undefined) throw new PublicDataUnavailableError("articles");
+  if (!response || !response.ok) return unavailable();
   const articles = parseArticleList(await response.json().catch(() => null));
   const categories = categoriesResponse?.ok ? parseArticleCategories(await categoriesResponse.json().catch(() => null)) : [];
 
-  return (
-    <main className={`main ${styles.page}`} style={{ background: "#FDFDFC" }}>
-      <section className={styles.hero} style={{ gap: 16 } as any}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
-          <div style={{ display: "grid", gap: 8, minWidth: 0, flex: "1 1 260px" }}>
-            <p className={styles.eyebrow} style={{ color: "#1E332E", gap: 8 } as any}>
-              <span style={{ display: "grid", placeItems: "center", width: 32, height: 32, borderRadius: 12, background: "rgba(95,217,179,.14)", border: "1px solid #E8EDEE", flex: "0 0 auto" }}><FileText size={16} aria-hidden="true" style={{ color: "#1E332E" } as any} /></span>
-              <span style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("eyebrow")}</span>
-            </p>
-            <h1 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("title")}</h1>
-            <p style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("notice")}</p>
-          </div>
-          <span style={{ display: "grid", placeItems: "center", width: 48, height: 48, borderRadius: 16, background: "rgba(255,255,255,.82)", border: "1px solid #E8EDEE", flex: "0 0 auto" }}><VectorHealthShield size={48} aria-hidden="true" /></span>
-        </div>
-        <form className={styles.search} method="get" style={{ borderRadius: 20, border: "1px solid #E8EDEE", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", gap: 8 } as any}>
-          <Search size={18} aria-hidden="true" style={{ color: "#1E332E" } as any} />
-          <input name="q" defaultValue={query.q || ""} maxLength={80} placeholder={t("searchPlaceholder")} aria-label={t("searchPlaceholder")} style={{ color: "#1E332E" } as any} />
-          <button type="submit" style={{ background: "#5FD9B3", color: "#1E332E", borderRadius: 20, border: "1px solid #E8EDEE", fontWeight: 760 } as any}>{t("search")}</button>
-        </form>
-        {categories.length ? (
-          <nav className={styles.chips} aria-label={t("categories")}>
-            {categories.map((category) => (
-              <Link className={query.category === category ? styles.chipActive : styles.chip} key={category} href={`/${locale}/articles?category=${encodeURIComponent(category)}`}>
-                <span dir="auto">{category}</span>
-              </Link>
-            ))}
-          </nav>
-        ) : null}
-      </section>
-
+  return frame(
+    <>
+      <ArticleSearch q={q} category={category} placeholder={t("searchPlaceholder")} submitLabel={t("search")} />
+      {categories.length ? <CategoryChips label={t("categories")} allLabel={t("allCategories")} base={base} categories={categories} active={category} /> : null}
       {articles.length ? (
-        <section className={styles.list} style={{ gap: 16 } as any}>
-          {articles.map((article) => (
-            <Link className={styles.card} key={article.slug} href={`/${locale}/articles/${article.slug}`} style={{ borderRadius: 20, border: "1px solid #E8EDEE", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any}>
-              <span className={styles.icon} aria-hidden="true" style={{ width: 48, height: 48, borderRadius: 16, background: "rgba(95,217,179,.14)", border: "1px solid #E8EDEE", color: "#1E332E" } as any}>
-                <FileText size={20} />
-              </span>
-              <span className={styles.copy} style={{ gap: 8 } as any}>
-                <strong dir="auto" style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{locale === "ar" ? article.titleAr || article.titleEn : article.titleEn || article.titleAr || t("untitled")}</strong>
-                <span dir="auto" style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{article.category || t("categoryUnavailable")}</span>
-              </span>
-              <Chevron className={styles.arrow} size={18} aria-hidden="true" style={{ color: "#1E332E" } as any} />
-            </Link>
-          ))}
-        </section>
+        <ArticleRows locale={locale} articles={articles} label={t("title")} untitled={t("untitled")} />
       ) : (
-        <section className={styles.empty} style={{ borderRadius: 20, border: "1px dashed #E8EDEE", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", gap: 16 } as any}>
-          <VectorHealthShield size={48} aria-hidden="true" />
-          <h2 style={{ color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{t("noResultsTitle")}</h2>
-          <p style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{query.q || query.category ? t("noResults") : t("empty")}</p>
-        </section>
+        <ConsultState kind="empty" icon="file-text" tone={ARTICLE_TONE} title={t("noResultsTitle")} body={q || category ? t("noResults") : t("empty")} />
       )}
-    </main>
+    </>,
   );
 }

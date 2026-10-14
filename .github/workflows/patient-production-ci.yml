@@ -70,6 +70,9 @@ jobs:
         run: npx tsc --project ../packages/shared-contracts/tsconfig.json
       - name: Type check
         run: npx tsc --noEmit
+      # P14.13: the Socket.IO cross-process test starts its own throw-away redis-server
+      - name: Install redis-server (stopped; tests start their own)
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq redis-server && sudo systemctl stop redis-server || true
       - name: Run unit and contract tests
         run: npm test -- --runInBand
       - name: Build

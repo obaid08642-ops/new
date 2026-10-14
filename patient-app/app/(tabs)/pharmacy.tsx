@@ -19,6 +19,7 @@ import {
 } from '../../../packages/ui-native/src';
 import type { FillIconName, ServiceTone } from '../../../packages/ui/icons/fill';
 import ProductImage from '../../src/components/ProductImage';
+import { FilterSheet } from '../../src/components/pharmacy/FilterSheet';
 import { CountBadge, GlyphRound, GlyphSquare, PHARMACY_TONE, SECONDARY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useCart } from '../../src/context/CartContext';
@@ -30,6 +31,7 @@ import { setVisibleProductIds } from '../../src/utils/productNav';
 import {
   PHARMACY_CATEGORIES,
   countFilters,
+  canShowPromo,
   discountPercent,
   filterMeds,
   listQuery,
@@ -37,7 +39,7 @@ import {
   medMeta,
   medName,
   medPrice,
-  needsRx,
+  productNote,
   type HubFilters,
   type Med,
 } from '../../src/utils/pharmacyCatalog';
@@ -62,7 +64,7 @@ const go = (href: string) => router.push(href as Href);
 const QUICK: { key: string; label: string; icon: FillIconName; tone: ServiceTone; route: string }[] = [
   { key: 'chat', label: 'pharmacy.hub.chat', icon: 'chat-circle-text', tone: 'mint', route: '/pharmacy/pharmacist-chat' },
   { key: 'favorites', label: 'pharmacy.favorites', icon: 'heart', tone: PHARMACY_TONE, route: '/pharmacy/wishlist' },
-  { key: 'reminders', label: 'pharmacy.hub.reminders', icon: 'bell', tone: 'violet', route: '/health/medication-reminder-list' },
+  { key: 'reminders', label: 'pharmacy.hub.reminders', icon: 'bell', tone: 'violet', route: '/health/medications?tab=reminders' },
 ];
 
 function ProductSkeleton({ cols }: { cols: number }) {
@@ -93,7 +95,7 @@ export default function PharmacyHub() {
   const addToCart = useAddMedToCart();
   const isMember = useSelector((s: { auth?: { isAuthenticated?: boolean; isGuest?: boolean } }) => Boolean(s.auth?.isAuthenticated && !s.auth?.isGuest));
 
-  // what the filter screen hands back
+  // what the filter sheet hands back (the filters live in the URL)
   const params = useLocalSearchParams<{
     filter_category?: string;
     filter_forms?: string;
@@ -115,6 +117,7 @@ export default function PharmacyHub() {
   );
   const activeFilterCount = countFilters({ ...filters, category: params.filter_category && params.filter_category === activeCat ? activeCat : undefined });
 
+  const [filterOpen, setFilterOpen] = useState(false);
   const [medicines, setMedicines] = useState<Med[]>([]);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState<'error' | 'offline' | null>(null);
@@ -122,6 +125,21 @@ export default function PharmacyHub() {
   const [term, setTerm] = useState('');
   const [reloadKey, setReloadKey] = useState(0);
   const [lastOrder, setLastOrder] = useState<{ id: string; count: number; at: string } | null>(null);
+  /** #451: the catalogue's own categories (GET /medicines/categories); a chip whose category has no item is not drawn. */
+  const [catalogCats, setCatalogCats] = useState<Set<string> | null>(null);
+  useEffect(() => {
+    let stale = false;
+    apiFetch<Array<{ slug?: string; count?: number }>>('/medicines/categories')
+      .then((rows) => {
+        if (!stale && Array.isArray(rows)) setCatalogCats(new Set(rows.filter((r) => (r.count ?? 0) > 0).map((r) => String(r.slug))));
+      })
+      .catch(() => {
+        /* the chips stay as they are */
+      });
+    return () => {
+      stale = true;
+    };
+  }, []);
 
   // the search words are sent to the server once typing pauses
   useEffect(() => {
@@ -210,7 +228,7 @@ export default function PharmacyHub() {
       {/* title, my orders, cart */}
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
         <Text accessibilityRole="header" style={{ flex: 1, ...scale(t, 'h1'), letterSpacing: -0.3, color: c.text.primary, ...flow }}>{k('pharmacy.title')}</Text>
-        <GlyphRound name="receipt" label={k('pharmacy.hub.orders')} onPress={() => go('/pharmacy/order-history')} />
+        <GlyphRound name="receipt" label={k('pharmacy.hub.orders')} onPress={() => go('/orders')} />
         <GlyphRound name="package" label={k('pharmacy.cart')} onPress={() => go('/pharmacy/cart')}>
           <CountBadge count={itemCount} />
         </GlyphRound>
@@ -232,11 +250,11 @@ export default function PharmacyHub() {
             theme={theme}
           />
         </View>
-        <GlyphSquare name="camera" label={k('pharmacy.hub.photoRx')} onPress={() => go('/pharmacy/scan-prescription')} />
+        <GlyphSquare name="camera" label={k('pharmacy.hub.photoRx')} onPress={() => go('/pharmacy/rx-order?via=photo')} />
       </View>
 
       {/* upload the prescription */}
-      <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.uploadRx')} onPress={() => go('/pharmacy/scan-prescription')}>
+      <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.uploadRx')} onPress={() => go('/pharmacy/rx-order?via=photo')}>
         <Card tint={PHARMACY_TONE} padding="md" elevation="flat" theme={theme}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
             <FIcon icon="prescription" tone={PHARMACY_TONE} chip="solid" size={56} theme={theme} />
@@ -301,8 +319,8 @@ export default function PharmacyHub() {
       {/* the filter chip and the categories */}
       <View style={{ marginHorizontal: -16 }}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingHorizontal: 16 }}>
-          <Chip label={k('pharmacy.hub.filter')} startIcon="sliders" count={activeFilterCount > 0 ? activeFilterCount : undefined} selected={activeFilterCount > 0} onPress={() => go('/pharmacy/filters')} theme={theme} />
-          {PHARMACY_CATEGORIES.map((cat) => (
+          <Chip label={k('pharmacy.hub.filter')} startIcon="sliders" count={activeFilterCount > 0 ? activeFilterCount : undefined} selected={activeFilterCount > 0} onPress={() => setFilterOpen(true)} theme={theme} />
+          {PHARMACY_CATEGORIES.filter((cat) => cat.id === 'all' || !catalogCats || catalogCats.has(cat.dbName)).map((cat) => (
             <Chip key={cat.id} label={k(cat.labelKey)} selected={activeCat === cat.id} onPress={() => setActiveCat(cat.id)} theme={theme} />
           ))}
         </ScrollView>
@@ -329,7 +347,7 @@ export default function PharmacyHub() {
         title={k(searching ? 'pharmacy.hub.noMatch' : 'pharmacy.hub.noProducts')}
         body={k('pharmacy.hub.emptyBody')}
         actionLabel={k('pharmacy.hub.manualRequest')}
-        onAction={() => go('/pharmacy/request')}
+        onAction={() => go('/pharmacy/rx-order?via=type')}
         theme={theme}
       />
     );
@@ -354,7 +372,7 @@ export default function PharmacyHub() {
         renderItem={({ item }) => {
           if ('pad' in item) return <View style={{ flex: 1 }} />;
           const price = medPrice(item);
-          const pct = discountPercent(item);
+          const pct = canShowPromo(item) ? discountPercent(item) : 0;
           return (
             <View style={{ flex: 1, minWidth: 0 }}>
               <ProductCard
@@ -364,7 +382,7 @@ export default function PharmacyHub() {
                 currency={price ? k('pharmacy.currency') : undefined}
                 image={<ProductImage uri={medGallery(item)[0]} style={{ width: '100%', height: '100%' }} iconSize={40} />}
                 discountLabel={pct > 0 ? k('pharmacy.discount', { n: num(pct) }) : undefined}
-                rxLabel={needsRx(item) ? k('pharmacy.needsRx') : undefined}
+                rxLabel={productNote(item, { rx: k('pharmacy.needsRx'), online: k('pharmacy.product.exclusive') })}
                 addLabel={k('pharmacy.addToCart')}
                 onPress={() => openProduct(item)}
                 onAdd={() => addToCart(item)}
@@ -373,6 +391,15 @@ export default function PharmacyHub() {
               />
             </View>
           );
+        }}
+      />
+      <FilterSheet
+        open={filterOpen}
+        onClose={() => setFilterOpen(false)}
+        initial={params}
+        onApply={(next) => {
+          router.setParams(next);
+          setFilterOpen(false);
         }}
       />
     </Screen>

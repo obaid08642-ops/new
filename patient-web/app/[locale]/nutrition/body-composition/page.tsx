@@ -1,13 +1,14 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { isLocale } from "@/lib/i18n";
+import { redirectKeepingQuery } from "@/lib/redirect-keep-query";
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-/** Parity with app nutrition/body-composition: advanced metrics unavailable, use body targets. */
-export default async function NutritionBodyCompositionPage({ params }: Props) {
+/** Body composition is the Target tab of the nutrition hub. */
+export default async function Page({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
-  redirect(`/${locale}/nutrition/body-target`);
+  redirectKeepingQuery(`/${locale}/nutrition`, await searchParams, {"tab": "target"});
 }

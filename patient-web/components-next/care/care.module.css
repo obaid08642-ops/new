@@ -1,0 +1,23 @@
+/* The care hubs (Batch 8: maternity, nutrition, mental health, programs; canvas/CareHub). The shell, the cards, the rows and the
+   tabs come from core, pharmacy/rx.module.css, health/health.module.css and consult/consult.module.css; this file adds only the
+   board's tinted summary card. Tokens only, logical properties only, no inline styles. */
+
+.hero {
+  display: flex; align-items: center; gap: 16px; padding: 18px; box-sizing: border-box; min-inline-size: 0;
+  border-radius: var(--nabd-radius-3xl); border: 1px solid var(--nabd-color-border-hairline);
+  background: linear-gradient(160deg, var(--nabd-color-bg-surface) 0%, var(--nabd-tone-bg) 100%);
+}
+.heroMark { flex: none; display: inline-flex; }
+.heroBody { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 4px; }
+.heroTitle { margin: 0; font-size: var(--nabd-font-size-body-lg); font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
+.heroLine { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.heroLine bdi { unicode-bidi: isolate; }
+.badge {
+  align-self: flex-start; display: inline-flex; align-items: center; min-block-size: 26px; padding-inline: 10px; border-radius: var(--nabd-radius-pill);
+  background: var(--nabd-tone-bg); color: var(--nabd-tone-fg); font-size: var(--nabd-font-size-small); font-weight: 600;
+}
+.end { flex: none; font-size: var(--nabd-font-size-label); font-weight: 600; font-variant-numeric: tabular-nums; color: var(--nabd-color-text-secondary); }
+.end bdi { unicode-bidi: isolate; }
+.sessionDone { text-decoration: line-through; color: var(--nabd-color-text-secondary); }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.hint { margin: 0; font-size: var(--nabd-font-size-small); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }

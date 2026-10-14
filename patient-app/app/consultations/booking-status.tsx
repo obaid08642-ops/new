@@ -10,10 +10,13 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { Button, Card } from '../../../packages/ui-native/src';
 import BookingConfirmForm from '../../src/components/BookingConfirmForm';
+import ClinicConfirmation from '../../src/components/consult/ClinicConfirmation';
+import ClinicLocationView from '../../src/components/views/ClinicLocationView';
 import { ConsultScreen, InfoRow, ModePill, ResultHero, StatusTag, appointmentStatus, useConsultFormat, visitMode } from '../../src/components/consult/ConsultKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 import { apiFetch } from '../../src/utils/api';
+import { priceSummary } from '../../src/utils/bookingPrice';
 import { consultationMutationHeaders } from '../../src/utils/consultation-payment';
 import { statusIs } from '../../src/utils/statusCase';
 
@@ -27,25 +30,35 @@ interface Appointment {
   scheduled_at?: string;
   doctor_name?: string;
   doctor?: { name?: string };
+  price?: number;
+  service_fee?: number;
+  home_visit_fee?: number;
+  transportation_fee?: number;
+  total_price?: number;
+  payment_status?: string;
 }
 
-function acceptedRoute(appointment: Appointment | null, fallbackType: string): Href {
+/** Where an accepted booking goes. A clinic booking stays on this screen (its confirmation is the confirmed state). */
+function acceptedRoute(appointment: Appointment | null, fallbackType: string): Href | null {
   const appointmentId = appointment?.id;
   const type = appointment?.service_type || fallbackType;
-  if (type === 'clinic') return { pathname: '/consultations/clinic-confirm', params: { appointmentId } } as unknown as Href;
+  if (type === 'clinic') return null;
   if (type === 'home') return { pathname: '/consultations/home-visit-tracking', params: { appointmentId } } as unknown as Href;
   return { pathname: '/consultations/virtual-waiting-room', params: { appointmentId } } as unknown as Href;
 }
 
 /** The success state's summary: who, when and how, from the appointment the screen already reads. */
 function BookingSummary({ appointment, fallbackType }: { appointment: Appointment; fallbackType: string }) {
-  const { theme, t, c, flow, k } = useScreenUi();
+  const { theme, t, c, flow, k, money } = useScreenUi();
   const { date, clock } = useConsultFormat();
+  const price = priceSummary(appointment as Record<string, unknown>);
   const doctor = appointment.doctor?.name || appointment.doctor_name || '';
   const at = appointment.scheduled_at;
   const mode = visitMode(appointment.consultation_type || appointment.service_type || fallbackType);
-  if (!doctor && !at && !mode) return null;
+  if (!doctor && !at && !mode && !price) return null;
+  const amount = (value: number) => `${money(value)} ${k('consult.currency')}`;
   return (
+    <>
     <Card theme={theme}>
       {doctor ? (
         <View style={{ paddingVertical: 10, borderBottomWidth: at || mode ? 1 : 0, borderBottomColor: c.border.hairline }}>
@@ -61,6 +74,17 @@ function BookingSummary({ appointment, fallbackType }: { appointment: Appointmen
         </View>
       ) : null}
     </Card>
+    {price ? (
+      <Card theme={theme}>
+        <Text accessibilityRole="header" style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, paddingVertical: 6, ...flow }}>{k('consult.price.title')}</Text>
+        {price.lines.map((line, i) => (
+          <InfoRow key={line.key} label={k(`consult.price.${line.key}`)} value={amount(line.value)} last={i === price.lines.length - 1 && price.total === null} />
+        ))}
+        {price.total !== null ? <InfoRow label={k('consult.price.total')} value={amount(price.total)} strong last /> : null}
+        <Text style={{ ...scale(t, 'caption', 'regular'), color: c.text.secondary, paddingTop: 4, ...flow }}>{k(price.paid ? 'consult.price.paid' : 'consult.price.unpaid')}</Text>
+      </Card>
+    ) : null}
+    </>
   );
 }
 
@@ -71,7 +95,7 @@ export default function BookingStatusScreen() {
   const visitType = String(params.visitType || 'video');
   const isInsurance = params.isInsurance === 'true';
   const isToday = params.isToday !== 'false';
-  const [mode, setMode] = useState<Mode>(params.payment_pending === 'true' ? 'pending' : appointmentId ? 'success' : 'confirm');
+  const [mode, setMode] = useState<Mode>(params.payment_pending === 'true' || params.state === 'confirmed' ? 'pending' : appointmentId ? 'success' : 'confirm');
 
   /* ── success: the same spring ── */
   const pop = useRef(new Animated.Value(0)).current;
@@ -86,9 +110,12 @@ export default function BookingStatusScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [cancelling, setCancelling] = useState(false);
 
+  // `k` is a new function on every render; the refresh must not depend on it, or the effect below asks again after every answer.
+  const kRef = useRef(k);
+  kRef.current = k;
   const refresh = useCallback(async () => {
     if (!appointmentId) {
-      setError(k('consult.status.missingId'));
+      setError(kRef.current('consult.status.missingId'));
       return;
     }
     setRefreshing(true);
@@ -96,11 +123,11 @@ export default function BookingStatusScreen() {
     try {
       setAppointment(await apiFetch<Appointment>(`/care/appointments/${encodeURIComponent(appointmentId)}`));
     } catch (reason) {
-      setError((reason instanceof Error && reason.message) || k('consult.status.refreshFailed'));
+      setError((reason instanceof Error && reason.message) || kRef.current('consult.status.refreshFailed'));
     } finally {
       setRefreshing(false);
     }
-  }, [appointmentId, k]);
+  }, [appointmentId]);
 
   useEffect(() => {
     // the success state draws its summary from the same appointment the pending state reads
@@ -112,7 +139,8 @@ export default function BookingStatusScreen() {
   const cancelled = statusIs(status, ['cancelled', 'no_show']);
 
   useEffect(() => {
-    if (mode === 'pending' && confirmed) router.push(acceptedRoute(appointment, visitType));
+    const next = mode === 'pending' && confirmed ? acceptedRoute(appointment, visitType) : null;
+    if (next) router.push(next);
   }, [mode, confirmed]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const cancel = () =>
@@ -131,8 +159,9 @@ export default function BookingStatusScreen() {
               body: JSON.stringify({ reason: 'patient_cancelled' }),
             });
             setAppointment(updated || { ...appointment, status: 'CANCELLED' });
-          } catch (reason) {
-            showLocalizedAlert(k('consult.status.cancelFailed'), (reason instanceof Error && reason.message) || k('consult.confirm.tryLater'));
+          } catch {
+            // Never the server's raw message (English/codes) (needs-review issue 1054).
+            showLocalizedAlert(k('consult.status.cancelFailed'), k('consult.confirm.tryLater'));
           } finally {
             setCancelling(false);
           }
@@ -142,6 +171,12 @@ export default function BookingStatusScreen() {
 
   /* ── 1: confirm and pay (the original logic, as it was) ── */
   if (mode === 'confirm') return <BookingConfirmForm />;
+
+  /* ── clinic location (the old clinic-confirm?view=location) ── */
+  if (params.view === 'location') return <ClinicLocationView />;
+
+  /* ── confirmed clinic booking: its confirmation (QR, place, preparation) ── */
+  if (mode === 'pending' && confirmed && (appointment?.service_type || visitType) === 'clinic') return <ClinicConfirmation appointmentId={appointmentId} />;
 
   /* ── 2: the booking was placed ── */
   if (mode === 'success') {

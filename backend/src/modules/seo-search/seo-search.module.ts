@@ -1,8 +1,12 @@
 
 import { BackfillSlugsDto } from './seo-search.dto';
+import { safeDecode } from '../../common/slug.util';
+import { buildMedicineReport, medicineReportMarkdown } from './medicine-publication-report';
 /** Arabic/English search normalization: strip Arabic diacritics & tatweel, unify alef/hamza/yeh/teh-marbuta variants, NFKD + lowercase + collapse spaces. Pure, locale-safe. */
 export function normalizeSearchText(input: string): string {
   return (input ?? "")
+    // Control characters (NUL, C0/C1) never belong in a search and MongoDB rejects a NUL in a regex.
+    .replace(/[\u0000-\u001F\u007F-\u009F]/g, " ")
     .normalize("NFKD")
     .toLowerCase()
     .replace(/[\u064B-\u065F\u0670\u0640]/g, "")
@@ -16,7 +20,7 @@ export function normalizeSearchText(input: string): string {
 }
 
 /** Common medical active ingredients and symptoms mapping across Arabic, English, and South Asian / regional languages */
-const MULTILINGUAL_SYNONYM_MAP: Array<{ canonical: string; variants: string[] }> = [
+export const MULTILINGUAL_SYNONYM_MAP: Array<{ canonical: string; variants: string[] }> = [
   {
     canonical: 'paracetamol',
     variants: [
@@ -32,7 +36,7 @@ const MULTILINGUAL_SYNONYM_MAP: Array<{ canonical: string; variants: string[] }>
     canonical: 'ibuprofen',
     variants: [
       'ibuprofen', 'brufen', 'advil', 'motrin',
-      'ايبوبروفين', 'بروفين', 'ادFilteredفيل',
+      'ايبوبروفين', 'بروفين', 'ادفيل',
       'آئیبوپروفین', 'بروفین', // Urdu
       'इबुप्रोफेन', 'ब्रुफेन', // Hindi
       'আইবুপ্রোফেন', // Bengali
@@ -140,6 +144,7 @@ import { InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { Response } from 'express';
 import { Public, Roles } from '../../common/auth.guard';
+import { PublicCache } from '../../common/public-cache.decorator';
 import { UserRole } from '../../common/enums';
 import { AutoEntitySeoPipelineService, PipelineEntityType } from '../events/auto-entity-seo-pipeline.service';
 import { resolveMedicinePublicDto, productLocaleToDb, PUBLIC_CATALOG_LOCALES } from '../medicines/med-i18n';
@@ -155,6 +160,8 @@ import { SeoController } from './seo.controller';
 import { SeoService } from './seo.service';
 import { IndexNowService } from './indexnow.service';
 import { SeoIndexingListener } from './seo-indexing.listener';
+import { SeoIndexingService } from './seo-indexing.service';
+import { publicIndexableFilter, siteOrigin } from './seo-public-urls';
 import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
 import { FacilityRepository } from './seo-repositories/facility.repository';
 import { HomeCareServiceRepository } from './seo-repositories/homecareservice.repository';
@@ -162,6 +169,10 @@ import { LabServiceRepository } from './seo-repositories/labservice.repository';
 import { MedicineRepository } from './seo-repositories/medicine.repository';
 import { ProviderProfileRepository } from './seo-repositories/providerprofile.repository';
 import { ArticleRepository } from './seo-repositories/article.repository';
+
+/** Orders of the public catalogue (#816); anything else is the default popularity order. */
+export const CATALOGUE_SORTS = ['popular', 'price_asc', 'price_desc', 'newest'] as const;
+export type CatalogueSort = (typeof CATALOGUE_SORTS)[number];
 
 const SITE = process.env.API_PUBLIC_URL?.replace('/api/v1', '') || 'https://api.nabd.plus';
 const SITE_NAME = 'نبض';
@@ -173,6 +184,11 @@ function slugify(s: string): string {
 @Injectable()
 export class SeoSearchService {
   constructor(@InjectConnection() private readonly conn: Connection) {}
+
+  /** The database connection, for read-only reports built outside this service. */
+  connection(): Connection {
+    return this.conn;
+  }
   // R49: sitemap pages are 5000-doc reads (~10-12s live). Slugs change only via
   // backfill/indexing, so a 6h in-process cache is safe. Zero new deps by design.
   private readonly sitemapCache = new Map<string, { exp: number; val: any }>();
@@ -273,18 +289,6 @@ export class SeoSearchService {
     }
   }
 
-  async sitemapXml(): Promise<string> {
-    const meds = await this.conn.collection(CATALOG_COLLECTIONS.medicines)
-      .find({ is_deleted: { $ne: true } }, { projection: { _id: 0, id: 1, slug: 1, name_ar: 1, updatedAt: 1 } })
-      .sort({ usage_count: -1 }).limit(2000).toArray();
-    const urls = meds.map((m: any) => {
-      const slug = m.slug || slugify(`${m.name_ar || ''}-${String(m.id).slice(0, 6)}`);
-      const lastmod = m.updatedAt ? new Date(m.updatedAt).toISOString().slice(0, 10) : '2026-07-01';
-      return `  <url><loc>${SITE}/s/medicine/${slug}</loc><lastmod>${lastmod}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>`;
-    });
-    return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>`;
-  }
-
   private publicProductFilter() {
     return { is_deleted: { $ne: true }, public_eligibility: true, indexing_eligibility: true, medical_review_status: 'approved' } as any;
   }
@@ -292,7 +296,7 @@ export class SeoSearchService {
   /** Strict per-locale public product DTO by slug (v14 catalog URLs /{lang}/p/{slug}). */
   async publicProductBySlug(locale: string, slug: string) {
     const db = productLocaleToDb(locale);
-    const decoded = decodeURIComponent(slug || '').trim();
+    const decoded = safeDecode(slug || '').trim();
     if (!decoded) throw new NotFoundException('product_not_found');
     const med: any = await this.conn.collection(CATALOG_COLLECTIONS.medicines).findOne(
       { ...this.publicProductFilter(), [`translations.${db}.slug`]: decoded },
@@ -334,7 +338,9 @@ export class SeoSearchService {
   async publicProductSearch(q: string, locale = 'ar', limit = 20, page = 1) {
     const db = productLocaleToDb(locale);
     const term = normalizeSearchText(q || '');
-    const perPage = Math.min(Math.max(limit, 1), 50);
+    // A search is capped at 50. The plain catalogue listing (no term) pages up to 1000, like the 5000-URL sitemap
+    // pages: /llms-full asks for 1000 per page and stopped after the first 50 products when this was 50 for both.
+    const perPage = Math.min(Math.max(Number.isFinite(limit) ? limit : 20, 1), term ? 50 : 1000);
     const filter: any = { ...this.publicProductFilter() };
     if (term) {
       const terms = expandMultilingualSearchTerms(q || '').slice(0, 6);
@@ -456,10 +462,10 @@ export class SeoSearchService {
     };
   }
 
-  /** Doctor slugs for sitemaps. */
+  /** Doctor slugs for sitemaps: public, medically reviewed and index-eligible doctors only. */
   async publicDoctorSitemap() {
     const rows = await this.conn.collection('provider_profiles')
-      .find({ provider_type: 'doctor', is_active: { $ne: false } }, { projection: { _id: 0, slug: 1, id: 1, updatedAt: 1 } })
+      .find(publicIndexableFilter('doctor'), { projection: { _id: 0, slug: 1, id: 1, updatedAt: 1 } })
       .limit(5000)
       .toArray();
     return rows.map((d: any) => ({
@@ -468,10 +474,10 @@ export class SeoSearchService {
     }));
   }
 
-  /** Facility slugs for sitemaps. */
+  /** Facility slugs for sitemaps: public, reviewed and index-eligible facilities only. */
   async publicFacilitySitemap() {
     const rows = await this.conn.collection('facilities')
-      .find({ is_active: { $ne: false } }, { projection: { _id: 0, slug: 1, id: 1, updatedAt: 1 } })
+      .find(publicIndexableFilter('facility'), { projection: { _id: 0, slug: 1, id: 1, updatedAt: 1 } })
       .limit(5000)
       .toArray();
     return rows.map((f: any) => ({
@@ -483,14 +489,49 @@ export class SeoSearchService {
   /** Condition slugs for sitemaps. */
   async publicConditionSitemap() {
     const rows = await this.conn.collection('conditions')
-      .find({ is_deleted: { $ne: true } }, { projection: { _id: 0, slug: 1, code: 1, id: 1, updatedAt: 1 } })
+      // the same rule the page applies (entity-graph: is_active), so the sitemap lists no 404s
+      .find(publicIndexableFilter('condition'), { projection: { _id: 0, slug: 1, code: 1, id: 1, updatedAt: 1 } })
       .limit(5000)
       .toArray();
     // Q17: condition records carry `code` (headache, fever…), which is the public slug /condition/:slug resolves;
     // reading only slug/id emitted /condition/undefined for every condition in the sitemap.
     return rows
-      .map((c: any) => ({ slug: c.slug || c.code || c.id, lastmod: c.updatedAt ? new Date(c.updatedAt).toISOString().slice(0, 10) : undefined }))
+      .map((c: any) => ({ slug: c.code || c.slug || c.id, lastmod: c.updatedAt ? new Date(c.updatedAt).toISOString().slice(0, 10) : undefined }))
       .filter((c: { slug?: string }) => typeof c.slug === 'string' && c.slug.length > 0);
+  }
+
+  /** (specialty, city) pairs that have public doctors, for /{locale}/doctors/{specialty}/{city}. */
+  async publicDoctorCitySitemap() {
+    const rows = await this.conn.collection('provider_profiles').aggregate([
+      { $match: { ...publicIndexableFilter('doctor'), specialty: { $type: 'string', $ne: '' }, city: { $type: 'string', $ne: '' } } },
+      { $group: { _id: { specialty: '$specialty', city: '$city' }, updatedAt: { $max: '$updatedAt' } } },
+      { $limit: 5000 },
+    ]).toArray();
+    return rows.map((r: any) => ({
+      specialty: r._id.specialty,
+      city: r._id.city,
+      lastmod: r.updatedAt ? new Date(r.updatedAt).toISOString().slice(0, 10) : undefined,
+    }));
+  }
+
+  /** Pharmacy slugs for sitemaps (/{locale}/pharmacy/{slug}). */
+  async publicPharmacySitemap() {
+    const rows = await this.conn.collection('provider_profiles')
+      .find(publicIndexableFilter('pharmacy'), { projection: { _id: 0, slug: 1, id: 1, updatedAt: 1 } })
+      .limit(5000)
+      .toArray();
+    return rows.map((p: any) => ({ slug: p.slug || p.id, lastmod: p.updatedAt ? new Date(p.updatedAt).toISOString().slice(0, 10) : undefined }));
+  }
+
+  /** Published article slugs for sitemaps (/{locale}/articles/{slug}). */
+  async publicArticleSitemap() {
+    const rows = await this.conn.collection('articles')
+      .find(publicIndexableFilter('article'), { projection: { _id: 0, slug: 1, updatedAt: 1, published_at: 1 } })
+      .limit(5000)
+      .toArray();
+    return rows
+      .filter((a: any) => typeof a.slug === 'string' && a.slug)
+      .map((a: any) => ({ slug: a.slug, lastmod: (a.updatedAt || a.published_at) ? new Date(a.updatedAt || a.published_at).toISOString().slice(0, 10) : undefined }));
   }
 
   /** Location paths for sitemaps. */
@@ -525,7 +566,7 @@ export class SeoSearchService {
   }
 
   /** Paginated products inside a localized category cluster. */
-  async publicCategoryProducts(locale: string, category: string, sub?: string, page = 1, limit = 24, q?: string) {
+  async publicCategoryProducts(locale: string, category: string, sub?: string, page = 1, limit = 24, q?: string, sort: CatalogueSort = 'popular') {
     const db = productLocaleToDb(locale);
     const key = (f: string) => db === 'ar' ? f : `translations.${db}.${f === 'category' ? 'main_category' : f}`;
     const filter: any = { ...this.publicProductFilter() };
@@ -571,7 +612,8 @@ export class SeoSearchService {
       'الرعاية الصحية المنزلية والأجهزة الطبية': 'الرعاية الصحية المنزلية والأجهزة الطبية',
     };
 
-    const decodedCat = category ? decodeURIComponent(category).trim() : 'all';
+    // Control characters (a NUL makes MongoDB reject the regex) never belong in a category name.
+    const decodedCat = category ? safeDecode(category).replace(/[\u0000-\u001F\u007F-\u009F]/g, '').trim() || 'all' : 'all';
     const resolvedCat = CANONICAL_CATEGORY_MAP[decodedCat.toLowerCase()] || CANONICAL_CATEGORY_MAP[decodedCat] || decodedCat;
 
     if (resolvedCat && resolvedCat !== 'all' && resolvedCat !== 'الكل') {
@@ -584,7 +626,7 @@ export class SeoSearchService {
         { category: { $regex: escaped, $options: 'i' } },
       ];
       if (sub) {
-        const decodedSub = decodeURIComponent(sub).trim();
+        const decodedSub = safeDecode(sub).replace(/[\u0000-\u001F\u007F-\u009F]/g, '').trim();
         const subEscaped = decodedSub.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         filter[key('sub_category')] = { $regex: subEscaped, $options: 'i' };
       }
@@ -604,10 +646,11 @@ export class SeoSearchService {
           { [`translations.${db}.search_aliases`]: trx },
         );
       }
-      if (filter.$or) {
+      // A query that normalises to nothing (control characters only) adds no filter: Mongo refuses an empty $or.
+      if (qOrClauses.length && filter.$or) {
         filter.$and = [{ $or: filter.$or }, { $or: qOrClauses }];
         delete filter.$or;
-      } else {
+      } else if (qOrClauses.length) {
         filter.$or = qOrClauses;
       }
     }
@@ -615,11 +658,13 @@ export class SeoSearchService {
     const perPage = Math.min(Math.max(limit, 1), 48);
     // Popularity-first ordering (views → rating → stable id). Deliberately NOT
     // image-first: imageless medicines were buried under cosmetics on "All".
-    const sortClause: any = {
-      usage_count: -1,
-      rating: -1,
-      _id: 1,
-    };
+    // #816: the patient may order by price or newest; the default stays popularity (views, rating, stable id).
+    const sortClause: any = sort === 'price_asc' ? { price: 1, _id: 1 }
+      : sort === 'price_desc' ? { price: -1, _id: 1 }
+      : sort === 'newest' ? { createdAt: -1, _id: 1 }
+      : { usage_count: -1, rating: -1, _id: 1 };
+    // An explicit price order skips items without a real price (a 0 is "no price", never the cheapest).
+    if (sort === 'price_asc' || sort === 'price_desc') filter.price = { $gt: 0 };
 
     const cursor = this.conn.collection(CATALOG_COLLECTIONS.medicines)
       .find(filter, { projection: { _id: 0, id: 1, sku: 1, slug: 1, name_ar: 1, name_en: 1, price: 1, old_price: 1, image_1: 1, image: 1, images: 1, form: 1, strength: 1, package_size: 1, category: 1, sub_category: 1, active_ingredient: 1, requires_prescription: 1, availability_status: 1, usage_count: 1, translations: 1 } } as any)
@@ -645,7 +690,7 @@ export class SeoSearchService {
     // 24× paracetamol. Max 2 per active ingredient. 60s in-process cache.
     // Known trade-off: a promoted item whose natural rank is beyond page 1 may
     // reappear on its natural page (stateless endpoint). Harmless; page-1 wins.
-    if (Math.max(page, 1) === 1 && !q?.trim()) {
+    if (Math.max(page, 1) === 1 && !q?.trim() && sort === 'popular') {
       try {
         const toDto = (m: any) => {
           const dto = resolveMedicinePublicDto(m, locale);
@@ -663,7 +708,8 @@ export class SeoSearchService {
               .project({ _id: 0, drug_id: 1 }).toArray().catch(() => []);
             const ranked = top.map((t: any) => t.drug_id).filter(Boolean);
             const rankPos = new Map(ranked.map((id: string, i: number) => [id, i]));
-            const pins = items.filter((i: any) => rankPos.has(i.id))
+            // A prescription-only item is never promoted (owner decisions 10 and 29): it keeps its natural place.
+            const pins = items.filter((i: any) => rankPos.has(i.id) && !i.is_rx)
               .sort((a: any, b: any) => rankPos.get(a.id)! - rankPos.get(b.id)!).slice(0, 8);
             const pinIds = new Set(pins.map((i: any) => i.id));
             const ingCount = new Map<string, number>();
@@ -731,14 +777,14 @@ export class SeoSearchService {
           }
           const rankPos = new Map(ranked.map((id: string, i: number) => [id, i]));
           items = [
-            ...items.filter((i: any) => rankPos.has(i.id)).sort((a: any, b: any) => rankPos.get(a.id)! - rankPos.get(b.id)!).slice(0, 8),
-            ...items.filter((i: any) => !rankPos.has(i.id)),
+            ...items.filter((i: any) => rankPos.has(i.id) && !i.is_rx).sort((a: any, b: any) => rankPos.get(a.id)! - rankPos.get(b.id)!).slice(0, 8),
+            ...items.filter((i: any) => !rankPos.has(i.id) || i.is_rx),
           ].slice(0, perPage);
         }
       } catch { /* boost is best-effort; base order stands */ }
     }
     return {
-      locale, category: decodedCat, sub_category: sub ? decodeURIComponent(sub) : null,
+      locale, category: decodedCat, sub_category: sub ? safeDecode(sub) : null,
       page: Math.max(page, 1), limit: perPage, total,
       items,
     };
@@ -748,7 +794,7 @@ export class SeoSearchService {
     q = normalizeSearchText(q || '');
     const term = (q || '').trim();
     if (term.length < 2) return { query: q, results: {}, total: 0 };
-    const rx = { $regex: term, $options: 'i' };
+    const rx = { $regex: term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' };
     const medProj = { _id: 0, id: 1, name_ar: 1, name_en: 1, price: 1, image: 1, category: 1, manufacturer: 1 };
     const docProj = { _id: 0, id: 1, name: 1, full_name: 1, specialty: 1, photo_url: 1, rating: 1, city: 1 };
     const terms = expandMultilingualSearchTerms(q || '');
@@ -894,18 +940,19 @@ export class SeoSearchController {
 
 
   @Public()
+  @PublicCache(3600, ['seo', 'sitemap'])
+  /** The public sitemap is the patient web's (six locales, hreflang, paginated catalogue). */
   @Get('sitemap.xml')
-  async sitemap(@Res() res: Response) {
-    res.setHeader('Content-Type', 'application/xml');
+  sitemap(@Res() res: Response) {
     res.setHeader('Cache-Control', 'public, max-age=3600');
-    res.send(await this.svc.sitemapXml());
+    res.redirect(301, `${siteOrigin()}/sitemap.xml`);
   }
 
   @Public()
   @Get('robots.txt')
   robots(@Res() res: Response) {
     res.setHeader('Content-Type', 'text/plain');
-    res.send(`User-agent: *\nAllow: /s/\nAllow: /sitemap.xml\nDisallow: /api/\nSitemap: ${SITE}/sitemap.xml\n`);
+    res.send(`User-agent: *\nAllow: /sitemap.xml\nDisallow: /api/\nSitemap: ${siteOrigin()}/sitemap.xml\n`);
   }
 
   /** Site-wide structured data (Organization + LocalBusiness + FAQ) for the future site shell. */
@@ -1091,10 +1138,18 @@ export class SeoSearchController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('q') q?: string,
+    @Query('sort') sort?: string,
   ) {
     if (!(PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale)) throw new NotFoundException('locale_not_supported');
     const cat = category || 'all';
-    return this.svc.publicCategoryProducts(locale, cat, sub, parseInt(page || '1'), parseInt(limit || '24'), q);
+    const order: CatalogueSort = (CATALOGUE_SORTS as readonly string[]).includes(sort || '') ? sort as CatalogueSort : 'popular';
+    // parseInt('garbage') is NaN, and NaN reaches Mongo as skip/limit and
+    // comes back as a 500. Anything unparseable falls back to the default.
+    const bounded = (raw: string | undefined, fallback: number, max: number) => {
+      const n = Number.parseInt(raw ?? '', 10);
+      return Number.isFinite(n) && n > 0 ? Math.min(n, max) : fallback;
+    };
+    return this.svc.publicCategoryProducts(locale, cat, sub, bounded(page, 1, 10_000), bounded(limit, 24, 100), q, order);
   }
 
   /** Product sitemap page as JSON (the web app renders same-host XML). */
@@ -1137,6 +1192,27 @@ export class SeoSearchController {
   }
 
   @Public()
+  @Get('public/sitemaps/doctor-cities/:locale')
+  async publicDoctorCitySitemap(@Param('locale') locale: string) {
+    const urls = await this.svc.publicDoctorCitySitemap();
+    return { locale, total: urls.length, urls };
+  }
+
+  @Public()
+  @Get('public/sitemaps/pharmacies/:locale')
+  async publicPharmacySitemap(@Param('locale') locale: string) {
+    const urls = await this.svc.publicPharmacySitemap();
+    return { locale, total: urls.length, urls };
+  }
+
+  @Public()
+  @Get('public/sitemaps/articles/:locale')
+  async publicArticleSitemap(@Param('locale') locale: string) {
+    const urls = await this.svc.publicArticleSitemap();
+    return { locale, total: urls.length, urls };
+  }
+
+  @Public()
   @Get('public/sitemaps/locations/:locale')
   async publicLocationSitemap(@Param('locale') locale: string) {
     const urls = await this.svc.publicLocationSitemap();
@@ -1160,6 +1236,16 @@ export class SeoAdminController {
   @Get('status')
   async status() {
     return this.svc.indexingStatus();
+  }
+
+  /**
+   * Medicine SEO report (owner 2026-10-12): approved for publication, and translation gaps per
+   * public locale among them. Counts only; nothing is filled in.
+   */
+  @Get('medicine-report')
+  async medicineReport(@Query('format') format?: string) {
+    const report = await buildMedicineReport(this.svc.connection());
+    return format === 'markdown' ? { markdown: medicineReportMarkdown(report) } : report;
   }
 
   /**
@@ -1228,6 +1314,7 @@ export class SeoAdminController {
     SeoService,
     IndexNowService,
     SeoIndexingListener,
+    SeoIndexingService,
     RedisCacheInterceptor,
     { provide: 'FacilityRepository', useClass: FacilityRepository },
     { provide: 'ArticleRepository', useClass: ArticleRepository },
@@ -1236,6 +1323,6 @@ export class SeoAdminController {
     { provide: 'MedicineRepository', useClass: MedicineRepository },
     { provide: 'ProviderProfileRepository', useClass: ProviderProfileRepository },
   ],
-  exports: [SeoService, IndexNowService],
+  exports: [SeoService, IndexNowService, SeoIndexingService],
 })
 export class SeoSearchModule {}

@@ -7,8 +7,10 @@ import {
   mayHaveReachedServer,
   offerErrorKey,
   offerName,
+  pharmacyDisplayName,
   offerPhase,
   orderIdParam,
+  parseOffer,
   parseOffers,
   parseOrder,
   postSelectionRoute,
@@ -84,9 +86,10 @@ describe('parseOffers', () => {
     expect(parseOffers([{ totals: { total: 5 } }, offer()])).toHaveLength(1);
   });
 
-  it('insurance is ready unless the server says otherwise', () => {
+  it('insurance is offered only when the server says the pharmacy takes it (issue 519: null = unknown = not offered)', () => {
     expect(parseOffers([offer({ insurance_ready: false })])[0].insuranceReady).toBe(false);
-    expect(parseOffers([offer({ insurance_ready: undefined })])[0].insuranceReady).toBe(true);
+    expect(parseOffers([offer({ insurance_ready: undefined })])[0].insuranceReady).toBe(false);
+    expect(parseOffers([offer({ insurance_ready: null })])[0].insuranceReady).toBe(false);
   });
 
   it('a submitted-looking status other than open is not selectable', () => {
@@ -109,6 +112,14 @@ describe('names, sorting, the lowest price, expiry', () => {
     expect(offerName(onlyEn, 'ar')).toBe('Test pharmacy');
     const [none] = parseOffers([offer({ pharmacy_name_ar: null, pharmacy_name_en: null })]);
     expect(offerName(none, 'en')).toBeNull();
+  });
+
+  it('the pharmacy name is Arabic for ar and English for every other language; no names, no line', () => {
+    const names = { ar: 'صيدلية النور', en: 'Al Noor' };
+    expect(pharmacyDisplayName(names, 'ar')).toBe('صيدلية النور');
+    for (const lang of ['en', 'ur', 'hi', 'bn', 'tl']) expect(pharmacyDisplayName(names, lang)).toBe('Al Noor');
+    expect(pharmacyDisplayName({ ar: 'صيدلية النور', en: null }, 'ur')).toBe('صيدلية النور');
+    expect(pharmacyDisplayName(null, 'en')).toBeNull();
   });
 
   it('sorts by the server number; an offer without it goes last; the input is not changed', () => {
@@ -275,5 +286,21 @@ describe('final quote', () => {
     ]);
     expect(allocationLines({ allocations_detail: [] }, 'al1')).toEqual([]);
     expect(allocationLines({}, null)).toEqual([]);
+  });
+});
+
+describe('issue 512: the countdown runs on the server clock', () => {
+  it('moves the expiry onto this phone clock using server_time', () => {
+    const realNow = Date.now;
+    Date.now = () => Date.parse('2026-10-09T10:00:00.000Z'); // the phone is 5 minutes behind the server
+    try {
+      const offer = parseOffer({ id: 'o1', status: 'open', lines: [], expires_at: '2026-10-09T10:15:00.000Z', server_time: '2026-10-09T10:05:00.000Z' });
+      // 10 minutes left on the server's clock, so 10 minutes from the phone's "now"
+      expect(offer?.expiresAt).toBe(Date.parse('2026-10-09T10:10:00.000Z'));
+      const noServerTime = parseOffer({ id: 'o2', status: 'open', lines: [], expires_at: '2026-10-09T10:15:00.000Z' });
+      expect(noServerTime?.expiresAt).toBe(Date.parse('2026-10-09T10:15:00.000Z'));
+    } finally {
+      Date.now = realNow;
+    }
   });
 });

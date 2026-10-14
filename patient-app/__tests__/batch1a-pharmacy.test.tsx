@@ -128,7 +128,7 @@ describe('Pharmacy hub (board PharmacyHub)', () => {
     await render(wrap(<PharmacyHub />));
     await waitFor(() => expect(screen.getByText('لا توجد منتجات')).toBeTruthy());
     await fireEvent.press(screen.getByLabelText('طلب دواء خاص'));
-    expect(mockRouter.push).toHaveBeenCalledWith('/pharmacy/request');
+    expect(mockRouter.push).toHaveBeenCalledWith('/pharmacy/rx-order?via=type');
   });
 });
 

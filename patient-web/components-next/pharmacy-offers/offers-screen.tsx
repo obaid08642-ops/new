@@ -1,3 +1,4 @@
+import { pharmacyDisplayName } from "@/lib/pharmacy/order-view";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
@@ -15,6 +16,9 @@ import { OfferList, type OfferView } from "./offer-list";
 import { OffersLiveRefresh } from "./live-refresh";
 import { QuoteSection } from "./quote-section";
 import { statusKey } from "./status";
+import { extractRecord } from "@/lib/api/profile";
+import { pharmacyCancelRules } from "./cancel-rules";
+import { WaitingActions } from "./waiting-actions";
 import { OFFER_TONES } from "./tones";
 import styles from "./offers.module.css";
 
@@ -55,6 +59,12 @@ export async function OffersScreen({ locale, orderId, variant }: Props) {
     );
   }
 
+  // the rules shown in the cancel confirmation come from the server's public config, only the numbers it sent (decision 26)
+  const settingsT = await getTranslations({ locale, namespace: "SettingsWeb" });
+  const configResponse = await callPatientApi("/system-config/public");
+  const config = configResponse.ok ? extractRecord(await configResponse.json().catch(() => null)) : null;
+  const cancelRules = pharmacyCancelRules(config, { prep: t("cancelRulePrep"), refundDays: (min, max) => settingsT("ruleRefundDays", { min, max }), returnDays: (days) => settingsT("ruleReturnDays", { days }) });
+
   const offers = extractPatientPharmacyOffers(await offersResponse.json().catch(() => null));
   const progress = extractPatientPharmacyOrderProgress(await orderResponse.json().catch(() => null)) ?? {};
   const state = progress.governedState ?? "";
@@ -67,13 +77,14 @@ export async function OffersScreen({ locale, orderId, variant }: Props) {
   const views: OfferView[] = offers.map((offer) => ({
     id: offer.id,
     open: offer.status === "open",
-    pharmacyName: offer.pharmacyName,
+    pharmacyName: pharmacyDisplayName(offer.pharmacyNames, locale) ?? offer.pharmacyName,
     total: offer.total,
     subtotal: offer.subtotal,
     deliveryFee: offer.deliveryFee,
     currency: offer.currency,
     preparationMinutes: offer.preparationMinutes,
     expiresAt: offer.expiresAt,
+    serverTime: offer.serverTime,
     insuranceReady: offer.insuranceReady,
     codAllowed: offer.codAllowed,
     distanceKm: offer.approxDistanceKm,
@@ -102,6 +113,12 @@ export async function OffersScreen({ locale, orderId, variant }: Props) {
         ) : null}
 
         {browsing ? <OffersLiveRefresh active={views.length === 0} /> : null}
+        {browsing && !views.length ? (
+          <>
+            {progress.status ? <p className={styles.lead}>{(progress.status ?? "").toLowerCase() === "draft" ? t("waitingDraft") : t("waitingLead")}</p> : null}
+            <WaitingActions orderId={orderId} canCancel={Boolean(progress.status)} rules={cancelRules} />
+          </>
+        ) : null}
         {negotiating ? (
           <section className={styles.panel} aria-labelledby="negotiation-hint">
             <p className={styles.panelTitle} id="negotiation-hint">{t("negotiationHint")}</p>

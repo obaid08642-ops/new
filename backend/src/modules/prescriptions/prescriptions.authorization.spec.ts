@@ -11,7 +11,7 @@ describe('PrescriptionsService authorization and verified creation', () => {
     diagnosis: 'must not be returned',
     notes: 'must not be returned',
     createdAt: new Date('2030-01-01T00:00:00.000Z'),
-    items: [{ medicine_name_ar: 'دواء', dose: 'قرص', frequency_hours: 8, duration_days: 5 }],
+    items: [{ medicine_name_ar: 'دواء', dose: 'قرص', frequency_hours: 8, duration_days: 5, quantity: 2, medicine_id: 'medicine-approved' }],
   };
 
   const createService = (overrides: {
@@ -63,7 +63,7 @@ describe('PrescriptionsService authorization and verified creation', () => {
     await expect(service.getByIdForUser('rx-sandbox-1', actor)).resolves.toEqual({
       id: 'rx-sandbox-1',
       status: 'CREATED_BY_DOCTOR',
-      items: [{ name: 'دواء', dose: 'قرص', frequency: { every_hours: 8 }, duration: 5 }],
+      items: [{ name: 'دواء', dose: 'قرص', frequency: { every_hours: 8 }, duration: 5, quantity: 2, medicine_id: 'medicine-approved' }],
       issued_at: '2030-01-01T00:00:00.000Z',
       doctor: { display_name: 'د. طبيب', specialty: 'باطنة' },
     });

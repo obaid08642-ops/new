@@ -15,6 +15,7 @@ import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import orders from "@/components-next/orders/orders.module.css";
 import styles from "@/components-next/diagnostics/diag.module.css";
+import { diagnosticBookingHref } from "@/lib/diagnostics-links";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -49,11 +50,12 @@ export default async function DiagnosticsBookingsPage({ params }: Props) {
         <ul className={orders.list} aria-label={t("bookingsTitle")}>
           {rows.map(({ domain, booking }) => {
             const visual = domain === "labs" ? LAB : RADIOLOGY;
-            const title = domain === "labs" ? d("labs.label") : pickText(locale, booking.scanNameAr, booking.scanNameEn) ?? d("radiology.label");
+            // needs-review issue 636: a lab booking shows its first test name (the list sends items), the generic label only without one
+            const title = domain === "labs" ? pickText(locale, booking.testNameAr, booking.testNameEn) ?? d("labs.label") : pickText(locale, booking.scanNameAr, booking.scanNameEn) ?? d("radiology.label");
             const status = diagStatus(booking.state);
             return (
               <li className={orders.order} key={`${domain}-${booking.id}`}>
-                <Link className={orders.orderLink} href={`/${locale}/diagnostics/${domain}/${encodeURIComponent(booking.id)}`}>
+                <Link className={orders.orderLink} href={diagnosticBookingHref(locale, domain, booking.id)}>
                   <FIcon icon={visual.icon} tone={visual.tone} size={44} />
                   <span className={orders.orderText}>
                     <span className={orders.orderTitle}>{title}</span>

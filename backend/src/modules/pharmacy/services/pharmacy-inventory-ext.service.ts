@@ -1,4 +1,5 @@
 import { Injectable, ForbiddenException, NotFoundException, Inject } from '@nestjs/common';
+import { escapeRegex } from '../../../common/slug.util';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { PharmacyInventoryItem } from '../../provider/schemas/capabilities.schema';
@@ -22,10 +23,10 @@ export class PharmacyInventoryExtService {
     if (barcode) filter.barcode = barcode;
     if (q && q.length >= 2) {
       filter.$or = [
-        { name_ar: { $regex: q, $options: 'i' } },
-        { name_en: { $regex: q, $options: 'i' } },
-        { sku: { $regex: q, $options: 'i' } },
-        { generic_name: { $regex: q, $options: 'i' } },
+        { name_ar: { $regex: escapeRegex(String(q)), $options: 'i' } },
+        { name_en: { $regex: escapeRegex(String(q)), $options: 'i' } },
+        { sku: { $regex: escapeRegex(String(q)), $options: 'i' } },
+        { generic_name: { $regex: escapeRegex(String(q)), $options: 'i' } },
       ];
     }
     return this.inv.find(filter, { _id: 0, __v: 0 }).sort({ name_ar: 1 }).limit(50).lean();

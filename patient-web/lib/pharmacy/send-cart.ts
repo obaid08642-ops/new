@@ -6,7 +6,7 @@ import type { DeliveryAddress } from "./delivery-address";
  * only after the backend confirmed that the order was created and submitted. Every failure (no connection, a 5xx, a 4xx,
  * a lost session) leaves the cart exactly as it was: nothing is cleared and no line is removed, so the patient can retry.
  */
-export type SendFailure = "session" | "forbidden" | "network" | "send";
+export type SendFailure = "session" | "forbidden" | "network" | "server" | "send";
 export type SendOutcome = { status: "busy" } | { status: "sent"; orderId: string } | { status: "failed"; failure: SendFailure };
 
 type Attempt = ReturnType<typeof createBroadcastAttempt>;
@@ -28,8 +28,9 @@ export async function sendCartRequest(
     onSent();
     return { status: "sent", orderId: result.orderId };
   }
-  // no answer, or a 5xx that may or may not have been applied: the retry is the same request and will not create a second order
-  const unknown = result.status === undefined || result.status >= 500;
-  const failure: SendFailure = result.reason === "unauthenticated" ? "session" : result.status === 403 ? "forbidden" : unknown ? "network" : "send";
+  // No answer: a connection problem. A 5xx: the server answered with an error (journey 9: it is not "check your connection").
+  // Either may or may not have been applied: the retry is the same request and will not create a second order.
+  const failure: SendFailure = result.reason === "unauthenticated" ? "session" : result.status === 403 ? "forbidden"
+    : result.status === undefined ? "network" : result.status >= 500 ? "server" : "send";
   return { status: "failed", failure };
 }

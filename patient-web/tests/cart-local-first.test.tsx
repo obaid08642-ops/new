@@ -73,7 +73,7 @@ describe("every sign-in and sign-out reaches the cart", () => {
 describe("nothing puts a price in the cart", () => {
   it("add-to-cart from the product page, the product cards and the reorder picker passes no price", () => {
     const buy = code("components-next/pharmacy/product-buy.tsx");
-    expect(buy).toMatch(/addItem\(\{ id, name, rx, image, slug, activeIngredient, form, strength, qty \}\)/);
+    expect(buy).toMatch(/addItem\(\{ id, name, rx, image, slug, activeIngredient, form, strength, onlineOnly: onlineOnly === true \? true : undefined, qty \}\)/);
     const grid = code("components-next/pharmacy/product-grid.tsx");
     const call = grid.slice(grid.indexOf("addItem({"), grid.indexOf("setAdded("));
     expect(call).not.toMatch(/price/);

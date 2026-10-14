@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { RefreshControl, Text, View } from 'react-native';
-import { router, useFocusEffect, type Href } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
 
 import { EmptyState, ErrorState, OfflineState, Radio, Screen, Search, Segmented, useTabBarHeight } from '../../../packages/ui-native/src';
 import { CARE_TONE, Section, Sheet } from '../../src/components/consult/ConsultKit';
@@ -51,7 +51,9 @@ export default function DiagnosticsHub() {
   const barHeight = useTabBarHeight();
   const { items, itemCount, total, addItem, removeItem } = useDiagnosticsCart();
 
-  const [mainTab, setMainTab] = useState<MainTab>('labs');
+  // `?tab=radiology` opens the radiology side (the services catalogue's imaging entry; needs-review issue 414).
+  const { tab } = useLocalSearchParams<{ tab?: string }>();
+  const [mainTab, setMainTab] = useState<MainTab>(tab === 'radiology' ? 'radiology' : 'labs');
   const [place, setPlace] = useState<Place>('home');
   const [query, setQuery] = useState('');
   const [sheet, setSheet] = useState(false);
@@ -208,10 +210,10 @@ export default function DiagnosticsHub() {
 
             <View style={{ gap: 4 }}>
               <Segmented theme={theme} label={k('diag.place.group')} options={placeOptions} value={place} onChange={(v) => setPlace(v as Place)} />
-              {place === 'home' ? <PlaceRow text={addressLine} actionLabel={address ? k('diag.addr.change') : k('diag.addr.choose')} onAction={() => router.push('/delivery/address-select' as Href)} /> : null}
+              {place === 'home' ? <PlaceRow text={addressLine} actionLabel={address ? k('diag.addr.change') : k('diag.addr.choose')} onAction={() => router.push('/profile/addresses?select=1' as Href)} /> : null}
             </View>
 
-            <LinkCard icon="shield-check" tone={INSURANCE_TONE} title={k('diag.hub.insTitle')} body={k('diag.hub.insBody')} onPress={() => router.push('/diagnostics/insurance-upload' as Href)} />
+            <LinkCard icon="shield-check" tone={INSURANCE_TONE} title={k('diag.hub.insTitle')} body={k('diag.hub.insBody')} onPress={() => router.push('/diagnostics/insurance-approval' as Href)} />
           </>
         )}
 

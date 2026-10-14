@@ -53,13 +53,13 @@ export default function PharmacyOrderConfirmRoute() {
   );
 
   if (!id) {
-    return state(<EmptyState icon="receipt" tone={PHARMACY_TONE} title={k('pharmacy.offers.noOrder')} body={k('pharmacy.offers.noOrderBody')} actionLabel={k('pharmacy.offers.myOrders')} onAction={() => router.replace('/pharmacy/order-history' as Href)} theme={theme} />);
+    return state(<EmptyState icon="receipt" tone={PHARMACY_TONE} title={k('pharmacy.offers.noOrder')} body={k('pharmacy.offers.noOrderBody')} actionLabel={k('pharmacy.offers.myOrders')} onAction={() => router.replace('/orders' as Href)} theme={theme} />);
   }
   if (failed === 'offline') {
     return state(<OfflineState title={k('pharmacy.offline.title')} body={k('pharmacy.offline.body')} retryLabel={k('pharmacy.retry')} onRetry={() => void open()} theme={theme} />);
   }
   if (failed === 'error') {
-    return state(<ErrorState title={k('pharmacy.confirm.loadError')} body={k('pharmacy.error.body')} retryLabel={k('pharmacy.retry')} onRetry={() => void open()} actionLabel={k('pharmacy.offers.myOrders')} onAction={() => router.replace('/pharmacy/order-history' as Href)} theme={theme} />);
+    return state(<ErrorState title={k('pharmacy.confirm.loadError')} body={k('pharmacy.error.body')} retryLabel={k('pharmacy.retry')} onRetry={() => void open()} actionLabel={k('pharmacy.offers.myOrders')} onAction={() => router.replace('/orders' as Href)} theme={theme} />);
   }
   return (
     <Screen theme={theme} direction={dir} header={header} scroll testID="order-confirm-screen">

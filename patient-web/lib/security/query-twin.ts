@@ -19,9 +19,9 @@ export const LOCALES = "ar|en|ur|hi|bn|fil";
 type Rule = { source: string; params: readonly string[]; twin: string; destination: string };
 
 export const QUERY_TWIN_RULES: readonly Rule[] = [
-  { source: `/:locale(${LOCALES})/c/:path*`, params: ["page", "q"], twin: "c", destination: "/:locale/q/c/:path*" },
-  { source: `/:locale(${LOCALES})/consultations/doctors`, params: ["q", "specialty", "sort"], twin: "consultations/doctors", destination: "/:locale/q/consultations/doctors" },
-  { source: `/:locale(${LOCALES})/articles`, params: ["q", "category"], twin: "articles", destination: "/:locale/q/articles" },
+  { source: `/:locale(${LOCALES})/c/:path*`, params: ["page", "q", "sort"], twin: "c", destination: "/:locale/q/c/:path*" },
+  { source: `/:locale(${LOCALES})/consultations/doctors`, params: ["q", "specialty", "sort", "type", "payment", "available", "nearest", "lat", "lng", "city"], twin: "consultations/doctors", destination: "/:locale/q/consultations/doctors" },
+  { source: `/:locale(${LOCALES})/articles`, params: ["q", "category", "tab"], twin: "articles", destination: "/:locale/q/articles" },
 ];
 
 type Rewrite = { source: string; destination: string; has: Array<{ type: "query" | "header"; key: string; value?: string }> };

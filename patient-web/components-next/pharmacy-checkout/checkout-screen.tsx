@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { CoreShell } from "@/components-next/core/core-shell";
 import { StickyFooter } from "@/components-next/ui-generated/shells";
@@ -12,6 +12,7 @@ import { EmptyState, Skeleton } from "@/components-next/ui-generated/components/
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { AddressCard } from "@/components-next/pharmacy/address-card";
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
+import { RxConsultLink } from "@/components-next/pharmacy/rx-consult-link";
 import { useDeliveryAddress } from "@/components-next/pharmacy/use-delivery-address";
 import { OFFER_TONES } from "@/components-next/pharmacy-offers/tones";
 import { useCart } from "@/lib/context/CartContext";
@@ -171,7 +172,7 @@ export function CheckoutScreen({ locale }: { locale: Locale }) {
           </ul>
         </section>
 
-        {hasRxItems ? <PrescriptionNotice state={prescription} locale={locale} /> : null}
+        {hasRxItems ? <PrescriptionNotice state={prescription} locale={locale} lines={items} /> : null}
 
         <section className={styles.group} aria-labelledby="checkout-fulfil">
           <h2 className={styles.legend} id="checkout-fulfil">{t("fulfilLegend")}</h2>
@@ -215,7 +216,7 @@ export function CheckoutScreen({ locale }: { locale: Locale }) {
 
         {failure ? (
           <div className={rx.error} role="alert">
-            {failure === "session" ? flow("sessionEnded") : failure === "forbidden" ? t("errorForbidden") : failure === "network" ? t("errorNetwork") : t("errorSend")}
+            {failure === "session" ? flow("sessionEnded") : failure === "forbidden" ? t("errorForbidden") : failure === "network" ? t("errorNetwork") : failure === "server" ? t("errorServer") : t("errorSend")}
             {failure === "session" ? <div className={rx.errorActions}><Link className={rx.textLink} href={`/${locale}/login`}>{flow("signIn")}</Link></div> : null}
           </div>
         ) : null}
@@ -243,7 +244,7 @@ export function CheckoutScreen({ locale }: { locale: Locale }) {
 }
 
 /** A cart with prescription medicines needs a saved prescription: say which of the real answers it got. */
-function PrescriptionNotice({ state, locale }: { state: PrescriptionState; locale: Locale }) {
+function PrescriptionNotice({ state, locale, lines }: { state: PrescriptionState; locale: Locale; lines: ReadonlyArray<{ id: string; rx: boolean }> }) {
   const t = useTranslations("PharmacyCheckout");
   if (state.status === "idle" || state.status === "loading") return <p className={rx.note} role="status">{t("rxChecking")}</p>;
   if (state.status === "found") return <p className={`${ov.notice} ${ov.noticeOk}`} role="status">{t("rxAttached")}</p>;
@@ -255,13 +256,17 @@ function PrescriptionNotice({ state, locale }: { state: PrescriptionState; local
         <span className={rx.bannerTitle}>{t("rxMissingTitle")}</span>
         <span className={rx.bannerText}>{t("rxMissingBody")}</span>
       </div>
-      <Link className={rx.bannerAction} href={`/${locale}/pharmacy/scan-prescription`}>{t("rxUpload")}</Link>
+      <div className={rx.bannerActions}>
+        <Link className={rx.bannerAction} href={`/${locale}/pharmacy/rx-order?via=photo`}>{t("rxUpload")}</Link>
+        <RxConsultLink className={rx.bannerAction} locale={locale} lines={lines} label={t("rxConsult")} />
+      </div>
     </div>
   );
 }
 
 /** The insurance row of canvas/CheckoutV2: who insures the patient, from the saved policy; no number is drawn. */
 function InsuranceCard({ state, locale }: { state: PolicyState; locale: Locale }) {
+  const pathname = usePathname();
   const t = useTranslations("PharmacyCheckout");
   if (state.status === "idle" || state.status === "loading") {
     return <section className={rx.card} aria-busy="true" aria-label={t("insuranceLoading")}><Skeleton variant="text" lines={2} /></section>;
@@ -276,7 +281,7 @@ function InsuranceCard({ state, locale }: { state: PolicyState; locale: Locale }
             <span className={rx.cardValue}>{t("insuranceNone")}</span>
             <span className={rx.cardLabel}>{t("insuranceNoneBody")}</span>
           </div>
-          <Link className={rx.cardLink} href={`/${locale}/insurance/add-policy`}>{t("insuranceAdd")}</Link>
+          <Link className={rx.cardLink} href={`/${locale}/insurance/add-policy?next=${encodeURIComponent(pathname)}`}>{t("insuranceAdd")}</Link>
         </div>
       </section>
     );

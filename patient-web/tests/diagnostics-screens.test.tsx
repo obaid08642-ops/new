@@ -151,7 +151,7 @@ describe("the flows the redesign must not touch", () => {
   });
 
   it("none of the screens writes an inline style, a raw colour or a fake booking", () => {
-    for (const file of ["components-next/diagnostics-cart-client.tsx", "components-next/diagnostics-checkout-form.tsx", "components-next/lab-booking-form.tsx", "components-next/diagnostics-insurance-approval-client.tsx", "components-next/diagnostics-sample-tracking-client.tsx", "components-next/diagnostics-technician-tracking-client.tsx", "components-next/diagnostics-document-upload.tsx", "components-next/diagnostics-search-client.tsx", "components-next/diagnostics/diag-parts.tsx"]) {
+    for (const file of ["components-next/diagnostics-cart-client.tsx", "components-next/diagnostics-checkout-form.tsx", "components-next/lab-booking-form.tsx", "components-next/diagnostics-insurance-approval-client.tsx", "components-next/diagnostics-sample-tracking-client.tsx", "components-next/diagnostics-document-upload.tsx", "components-next/diagnostics-search-client.tsx", "components-next/diagnostics/diag-parts.tsx"]) {
       const source = code(file);
       expect(source, file).not.toMatch(/style=\{/);
       expect(source, file).not.toMatch(/#[0-9a-fA-F]{6}\b/);

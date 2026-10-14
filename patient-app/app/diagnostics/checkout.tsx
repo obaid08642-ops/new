@@ -59,7 +59,7 @@ export default function DiagnosticsCheckoutScreen() {
         return;
       }
       router.push({
-        pathname: '/diagnostics/insurance-upload',
+        pathname: '/diagnostics/insurance-approval',
         params: {
           labId: String(params.labId),
           labName: params.labName || '',

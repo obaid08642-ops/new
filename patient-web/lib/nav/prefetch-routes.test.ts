@@ -30,6 +30,13 @@ describe("isFullPrefetchRoute", () => {
     expect(isFullPrefetchRoute("/ar/diagnostics/labs", { signedIn: true })).toBe(true);
   });
 
+  it("never allows the Saved tab of the articles (it reads the patient's bookmarks), only the public list", () => {
+    expect(isFullPrefetchRoute("/ar/articles?tab=saved")).toBe(false);
+    expect(isFullPrefetchRoute("/ar/articles?q=sleep&tab=saved")).toBe(false);
+    expect(isFullPrefetchRoute("/ar/articles?tab=all")).toBe(true);
+    expect(isFullPrefetchRoute("/ar/articles?category=Wellness")).toBe(true);
+  });
+
   it("refuses anything that is not a path of this site", () => {
     for (const href of ["https://example.com/ar/c", "//example.com/ar/c", "ar/c", "", "/api/patient/orders", "/ar/api/auth/logout"]) {
       expect(isFullPrefetchRoute(href), href).toBe(false);

@@ -1,6 +1,6 @@
 import { randomBytes } from 'crypto';
 import { Injectable, NotFoundException, BadRequestException, ConflictException, ForbiddenException, Inject } from '@nestjs/common';
-import { Model, Types } from 'mongoose';
+import { Connection, Model, Types } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import * as bcrypt from 'bcryptjs';
 import { User, UserDocument } from '../../schemas/user.schema';
@@ -10,7 +10,7 @@ import { ProviderType, ProviderStatus, UserRole } from '../../common/enums';
 import { EVENTS } from '../../common/events';
 import { UserRepository } from "./repositories/user.repository";
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
 import { escapeRegex } from '../../common/slug.util';
 
@@ -40,6 +40,15 @@ function generateTempPassword(): string {
   return randomBytes(18).toString('base64url');
 }
 
+/** D-17: fields no public provider read returns (identity, banking, KYC, commissions, audit, internal ids). */
+const PUBLIC_PROVIDER_HIDDEN = [
+  'national_id', 'iqama', 'passport', 'iban', 'bank_account_name', 'bank', 'bank_name', 'bank_account',
+  'license_documents', 'documents', 'kyc', 'kyc_documents', 'signature_url', 'signer_name', 'signer_role',
+  'tax_number', 'commission_rate', 'commission_cash_pct', 'commission_insurance_pct', 'approved_by', 'rejected_reason',
+  'provenance', 'registration_steps', 'onboarding_step', 'user_id', 'account_id', 'email', 'password', 'password_hash',
+  'pharmacy_roster', 'ambulance_roster', 'vehicle_plates', 'tech_officer_scfhs',
+] as const;
+
 @Injectable()
 export class ProvidersService {
   constructor(
@@ -48,6 +57,7 @@ export class ProvidersService {
     @InjectModel(ProviderBranch.name) private branchModel: Model<ProviderBranchDocument>,
     private events: EventEmitter2,
     private readonly publication: CatalogPublicationService,
+    @InjectConnection() private readonly connection: Connection,
   ) {}
 
   private async refreshPublicProjection(provider: any, actorId: string, reason: string) {
@@ -267,7 +277,7 @@ export class ProvidersService {
     const q: any = {};
     if (type) q.type = type;
     if (status) q.status = status;
-    if (search) q.$or = [{ name_ar: { $regex: search, $options: 'i' } }, { name_en: { $regex: search, $options: 'i' } }];
+    if (search) q.$or = [{ name_ar: { $regex: escapeRegex(String(search)), $options: 'i' } }, { name_en: { $regex: escapeRegex(String(search)), $options: 'i' } }];
     return this.providerModel.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(500).lean();
   }
   private publicDiscoveryFilter() {
@@ -286,8 +296,9 @@ export class ProvidersService {
     insurance_class?: string,
   ) {
     const q: any = this.publicDiscoveryFilter();
-    if (type) q.type = type;
-    if (city) q.city = city;
+    // Query values are compared as plain strings ($eq), never read as operators.
+    if (type) q.type = { $eq: String(type) };
+    if (city) q.city = { $eq: String(city) };
 
     if (insurance_company || insurance_network || insurance_class) {
       const elemMatch: any = {};
@@ -332,12 +343,13 @@ export class ProvidersService {
       q.insurance_contracts = { $elemMatch: elemMatch };
     }
 
-    return this.providerModel.find(q, { _id: 0, __v: 0 }).sort({ rating: -1, createdAt: -1 }).limit(200).lean();
+    const rows = await this.providerModel.find(q, { _id: 0, __v: 0 }).sort({ rating: -1, createdAt: -1 }).limit(200).lean();
+    return rows.map((r: any) => this.toPublicProvider(r));
   }
   /** Map providers: ACTIVE only, must have real stored coordinates. */
   async mapProviders(type?: string, lat?: number, lng?: number, radiusKm?: number) {
     const q: any = { ...this.publicDiscoveryFilter(), 'location.lat': { $exists: true, $ne: null }, 'location.lng': { $exists: true, $ne: null } };
-    if (type) q.type = type;
+    if (type) q.type = { $eq: String(type) };
     const rows = await this.providerModel.find(q, { _id: 0, __v: 0, password_hash: 0 }).limit(300).lean();
     const hav = (la1: number, ln1: number, la2: number, ln2: number) => {
       const R = 6371, dLa = (la2 - la1) * Math.PI / 180, dLn = (ln2 - ln1) * Math.PI / 180;
@@ -350,6 +362,9 @@ export class ProvidersService {
       const item: any = {
         id: o.id || o.user_id, type: o.type, name_ar: o.name_ar, name_en: o.name_en,
         city: o.city, district: o.district, rating: o.rating ?? null,
+        // #766: one shape for the map: the rating count and the insurers the profile lists ride with the rating.
+        rating_count: Number.isFinite(Number(o.rating_count)) ? Number(o.rating_count) : 0,
+        accepted_insurance: Array.isArray(o.accepted_insurance) ? o.accepted_insurance.filter((x: unknown) => typeof x === 'string') : [],
         lat: loc.lat, lng: loc.lng,
         distance_km: (lat != null && lng != null && isFinite(lat) && isFinite(lng))
           ? Math.round(hav(lat, lng, loc.lat, loc.lng) * 10) / 10 : null,
@@ -367,9 +382,35 @@ export class ProvidersService {
     return p;
   }
 
-  async getPublicById(id: string) {
+  async getPublicById(id: string, patientId?: string) {
     const p = await this.providerModel.findOne({ id, ...this.publicDiscoveryFilter() }, { _id: 0, __v: 0 });
     if (!p) throw new NotFoundException();
+    const out = this.toPublicProvider(p);
+    // Favourite status (patient CRM tag) only on the single-doctor view; lists stay synchronous.
+    const type = String(out.type || out.provider_type || '').toLowerCase();
+    out.is_favorite = false;
+    if (patientId && (type === 'doctor' || type === 'nurse')) {
+      const tag = await this.connection.db.collection('patient_crm_tags')
+        .findOne({ provider_id: { $eq: out.id }, patient_id: { $eq: String(patientId) } }, { projection: { _id: 0, is_favorite: 1 } });
+      out.is_favorite = tag?.is_favorite === true;
+    }
+    return out;
+  }
+
+  /**
+   * D-17: what a public provider read may carry. Never identity, banking, KYC files, commissions or internal ids; an
+   * individual (doctor, nurse) also never shows a personal phone or email, and a nurse no home address or location
+   * (rule N7). Facilities keep their business contact and address. Adds the SCFHS licence number and `verified`
+   * (admin approval plus a verified licence).
+   */
+  private toPublicProvider(raw: any): any {
+    const p = raw?.toObject ? raw.toObject() : { ...(raw || {}) };
+    for (const k of PUBLIC_PROVIDER_HIDDEN) delete p[k];
+    const type = String(p.type || p.provider_type || '').toLowerCase();
+    if (type === 'doctor' || type === 'nurse') { delete p.phone; delete p.mobile; delete p.whatsapp; delete p.email; }
+    if (type === 'nurse') { delete p.address; delete p.lat; delete p.lng; delete p.geo; delete p.location; }
+    p.scfhs_license_no = p.scfhs_license_number || null;
+    p.verified = p.medical_review_status === 'approved' && p.license_verified === true;
     return p;
   }
   async myProfile(actor: any) {
@@ -399,7 +440,6 @@ export class ProvidersService {
       [ProviderType.RADIOLOGY]: UserRole.RADIOLOGY,
       [ProviderType.HOME_CARE]: UserRole.HOME_CARE,
       [ProviderType.NURSING]: UserRole.NURSING,
-      [ProviderType.AMBULANCE]: UserRole.AMBULANCE,
     }[type];
   }
   private publicUser(u: any) {

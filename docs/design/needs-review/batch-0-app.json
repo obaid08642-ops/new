@@ -3,11 +3,11 @@
     "batch": 0,
     "app": "patient-app",
     "screen": "/(onboarding)",
-    "element": "Onboarding intro, language and permissions screens: no entry point",
-    "file": "patient-app/app/(onboarding)/index.tsx",
-    "line": 79,
+    "element": "Onboarding intro and language screens: no entry point (permissions screen removed)",
+    "file": "patient-app/app/(onboarding)/intro.tsx",
+    "line": 67,
     "found": "No file in app/ or src/ outside app/(onboarding) pushes or replaces to /(onboarding) (grep for '(onboarding)'); the only references are the Stack.Screen in app/_layout.tsx:98 and a type in src/types/index.ts:651. The three screens chain to each other (intro to language to permissions to /(auth)/welcome) but nothing starts the chain.",
-    "suspect": "OWNER DECISION: the launch rule (first launch Welcome, later launches Home as a guest) is now in the splash and Welcome already carries language and theme. Should the three finished onboarding screens (intro slides, language, permissions) come before Welcome on the first launch, or be removed? If they stay, the first launch becomes intro -> language -> permissions -> Welcome and the splash sends a first launch to /(onboarding) instead of Welcome; if they go, delete app/(onboarding) and the permissions request needs another home (Home, at the first use of the camera or location). Until decided they stay unreachable except by deep link."
+    "suspect": "OWNER DECISION: the launch rule (first launch Welcome, later launches Home as a guest) is now in the splash and Welcome already carries language and theme. Should the three finished onboarding screens (intro slides, language, permissions) come before Welcome on the first launch, or be removed? If they stay, the first launch becomes intro -> language -> permissions -> Welcome and the splash sends a first launch to /(onboarding) instead of Welcome; if they go, delete app/(onboarding) and the permissions request needs another home (Home, at the first use of the camera or location). Until decided they stay unreachable except by deep link. APPROVED 2026-10-10 (owner decision 6) and fixed on design/onboarding-first-launch: the first launch is now Language -> Intro -> Welcome once (splash launchRoute, flag INTRO_DONE), the permissions screen is deleted and each permission is asked in context (camera, photos, location already did; notifications now from NotificationAsk on the offers screen and the notification settings; no prompt at app start). The intro file moved from index.tsx to intro.tsx so it no longer shares the URL / with the splash."
   },
   {
     "batch": 0,
@@ -17,7 +17,7 @@
     "file": "patient-app/app/index.tsx",
     "line": 16,
     "found": "Three files resolve to the URL '/': app/index.tsx (splash), app/(tabs)/index.tsx (Home) and app/(onboarding)/index.tsx (intro). Two resolve to '/services': app/(tabs)/services.tsx (Services tab: tiles and search pill) and app/services/index.tsx ('All services' guide, 23 rows). Callers using the bare URL: Home 'كل الخدمات' router.push('/services') (app/(tabs)/index.tsx:138) and the notifications back fallback router.replace('/') (app/notifications/index.tsx:160). Callers that include the group name ('/(tabs)', '/(onboarding)/language') are not ambiguous. The screen inventory lists both pairs under the same route.",
-    "suspect": "OWNER DECISION or a device check. Fixed here: the notifications back fallback now uses '/(tabs)' (no longer the bare '/'). Left: two files still resolve to '/services' (app/(tabs)/services.tsx, the tab screen, and app/services/index.tsx, the 23-row guide), and Home 'كل الخدمات' pushes the bare '/services'. Which one is the destination of that row? The answer (the guide, or the tab screen) decides which file is renamed or given its own path; I cannot determine expo-router's tie-break without a device. '/' is also shared by app/index.tsx (splash) and app/(onboarding)/index.tsx; that follows the onboarding decision above."
+    "suspect": "OWNER DECISION or a device check. Fixed here: the notifications back fallback now uses '/(tabs)' (no longer the bare '/'). Left: two files still resolve to '/services' (app/(tabs)/services.tsx, the tab screen, and app/services/index.tsx, the 23-row guide), and Home 'كل الخدمات' pushes the bare '/services'. Which one is the destination of that row? The answer (the guide, or the tab screen) decides which file is renamed or given its own path; I cannot determine expo-router's tie-break without a device. '/' is also shared by app/index.tsx (splash) and app/(onboarding)/index.tsx; that follows the onboarding decision above. Approved 2026-10-10 (owner, #409), '/services' part fixed on design/owner-small: 'All services' opens the Services tab (Home pushes '/(tabs)/services'), the 23-row guide app/services/index.tsx and its data are deleted, so '/services' now has one file and old deep links open the tab."
   },
   {
     "batch": 0,

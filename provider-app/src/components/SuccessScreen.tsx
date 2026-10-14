@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, useWindowDimensions } from 'react-native';
 // DEVICE_STANDARD §5: the safe-area-context SafeAreaView (iOS and Android), never react-native's iOS-only one
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { I as NIcon } from './icons';
@@ -13,10 +13,9 @@ interface SuccessScreenProps {
   message?: string;
 }
 
-const { width } = Dimensions.get('window');
-
 export const SuccessScreen = ({ onDone, title, message }: SuccessScreenProps) => {
   const { theme } = useTheme();
+  const { width } = useWindowDimensions();
   const { lang } = useLang();
   const AR = lang === 'ar';
 

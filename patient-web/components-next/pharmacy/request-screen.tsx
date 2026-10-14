@@ -8,6 +8,7 @@ import { CoreShell } from "@/components-next/core/core-shell";
 import { StickyFooter } from "@/components-next/ui-generated/shells";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { Input } from "@/components-next/ui-generated/components/Inputs";
+import type { ReactNode } from "react";
 import type { Locale } from "@/lib/i18n";
 import { newIdempotencyKey, sendBroadcast } from "@/lib/pharmacy/broadcast";
 import { AddressCard } from "./address-card";
@@ -19,11 +20,11 @@ const NAME_MAX = 200;
 const DETAILS_MAX = 500;
 
 /**
- * Ask the nearby pharmacies for a medicine the catalogue does not have (the app's `request` screen). The request is created
+ * The "type the names" way in of "order with a prescription" (`before` is the ways-in switch). Ask the nearby pharmacies for a medicine the catalogue does not have (the app's `request` screen). The request is created
  * and submitted (POST /patient/pharmacy/orders with `manual_request` and the saved address, then /submit), so it really
  * reaches the pharmacies; before this rebuild the web only created a draft that nobody was ever asked about.
  */
-export function RequestScreen({ locale }: { locale: Locale }) {
+export function RequestScreen({ locale, before }: { locale: Locale; before?: ReactNode }) {
   const t = useTranslations("PharmacyRequest");
   const rxT = useTranslations("RxUpload");
   const flow = useTranslations("PharmacyFlow");
@@ -70,6 +71,7 @@ export function RequestScreen({ locale }: { locale: Locale }) {
         }}
       >
         <div className={rx.head}><h1 className={rx.title}>{t("title")}</h1></div>
+        {before}
         <p className={rx.lead}>{t("subtitle")}</p>
 
         <Input label={t("name")} placeholder={t("namePh")} hint={t("nameHint")} value={name} disabled={sending} onChange={(value) => setName(value.slice(0, NAME_MAX))} />

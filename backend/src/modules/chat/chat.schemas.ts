@@ -18,6 +18,12 @@ export class ChatThread {
   @Prop() last_message_sender_id?: string;
   @Prop({ type: Object, default: {} }) unread_counts: Record<string, number>;
   @Prop({ default: true }) is_active: boolean;
+  // Decision 24: the doctor closes a consultation thread early, or extends it once.
+  @Prop() closed_at?: Date;
+  @Prop() closed_by?: string;
+  @Prop() extended_until?: Date;
+  @Prop({ default: 0 }) extension_count?: number;
+  @Prop() extended_by?: string;
   @Prop() created_by?: string;
 }
 export type ChatThreadDocument = ChatThread & Document;

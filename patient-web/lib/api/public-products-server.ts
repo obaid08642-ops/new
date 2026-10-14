@@ -122,7 +122,8 @@ async function readJson<T>(path: string, revalidate = 3600): Promise<PublicRead<
   try {
     const res = await fetch(patientApiUrl(path), {
       headers: { Accept: "application/json" },
-      next: { revalidate },
+      // 14.8: tagged so a catalogue change revalidates product pages at once (POST /api/revalidate).
+      next: { revalidate, tags: ["medicines"] },
     } as RequestInit);
     if (res.status >= 500) return { data: null, failed: true };
     if (!res.ok) return { data: null, failed: false };
@@ -189,9 +190,10 @@ export async function getPublicCategoryProducts(
   category: string | undefined,
   sub: string | undefined,
   page: number,
-  q?: string
+  q?: string,
+  sort?: "popular" | "price_asc" | "price_desc" | "newest"
 ): Promise<CategoryItems | null> {
-  return (await readPublicCategoryProducts(locale, category, sub, page, q)).data;
+  return (await readPublicCategoryProducts(locale, category, sub, page, q, sort)).data;
 }
 
 export async function readPublicCategoryProducts(
@@ -199,13 +201,16 @@ export async function readPublicCategoryProducts(
   category: string | undefined,
   sub: string | undefined,
   page: number,
-  q?: string
+  q?: string,
+  sort?: "popular" | "price_asc" | "price_desc" | "newest"
 ): Promise<PublicRead<CategoryItems>> {
   if (!isLocale(locale)) return { data: null, failed: false };
   const catParam = category && category.trim() ? category : "all";
   const params = new URLSearchParams({ category: catParam, page: String(page) });
   if (sub) params.set("sub", sub);
   if (q && q.trim()) params.set("q", q.trim());
+  // #816: the catalogue order; the default (popularity) is left out so the static page and its cache key stay the same
+  if (sort && sort !== "popular") params.set("sort", sort);
   const read = await readJson<CategoryItems>(`/public/categories/${locale}/items?${params.toString()}`);
   const data = read.data;
   if (!data) return { data: null, failed: read.failed };

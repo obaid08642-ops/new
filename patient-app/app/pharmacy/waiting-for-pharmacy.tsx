@@ -11,6 +11,6 @@ import { orderIdParam } from '../../src/utils/pharmacyOffers';
 export default function WaitingForPharmacyRedirect() {
   const params = useLocalSearchParams<{ orderId?: string | string[]; requestId?: string | string[] }>();
   const id = orderIdParam(params);
-  const href: Href = id ? { pathname: '/pharmacy/broadcast-status', params: { orderId: id } } : '/pharmacy/order-history';
+  const href: Href = id ? { pathname: '/pharmacy/broadcast-status', params: { orderId: id } } : '/orders';
   return <Redirect href={href} />;
 }

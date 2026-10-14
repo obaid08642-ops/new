@@ -23,12 +23,22 @@ import styles from "@/components-next/pharmacy/pharmacy.module.css";
  */
 export type CategoryViewProps = {
   params: Promise<{ locale: string; category?: string[] }>;
-  searchParams?: Promise<{ page?: string; q?: string }>;
+  searchParams?: Promise<{ page?: string; q?: string; sort?: string }>;
 };
 type Props = CategoryViewProps;
 
 /** The window of the static page: the catalogue reads it is made of are cached for the same hour (lib/api/public-products-server.ts). */
 export const CATEGORY_REVALIDATE_SECONDS = 3600;
+
+/** #816: the orders the catalogue API accepts; anything else is the default popularity order. */
+const SORTS = [
+  { id: "popular", label: "sortPopular" }, // i18n-ok: label is a PharmacyBrowse message key
+  { id: "price_asc", label: "sortPriceAsc" }, // i18n-ok: label is a PharmacyBrowse message key
+  { id: "price_desc", label: "sortPriceDesc" }, // i18n-ok: label is a PharmacyBrowse message key
+  { id: "newest", label: "sortNewest" }, // i18n-ok: label is a PharmacyBrowse message key
+] as const;
+type Sort = (typeof SORTS)[number]["id"];
+const parseSort = (raw?: string): Sort => (SORTS.find((s) => s.id === raw)?.id ?? "popular");
 
 function parsePage(raw?: string) {
   const n = Number(raw || "1");
@@ -78,11 +88,12 @@ export async function CategoryView({ params, searchParams }: Props) {
   const sParams = (await searchParams) ?? {};
   const page = parsePage(sParams.page);
   const q = (sParams.q || "").trim();
+  const sort = parseSort(sParams.sort);
   const [main, sub] = decoded;
 
   const [treeRead, dataRead] = await Promise.all([
     readPublicCategories(typedLocale),
-    readPublicCategoryProducts(typedLocale, main || "all", sub, page, q),
+    readPublicCategoryProducts(typedLocale, main || "all", sub, page, q, sort),
   ]);
   // A failed read (no answer, or a 5xx) is not an empty catalogue: this page is cached, and a cached "no products" or error
   // would replace the good copy. Throwing keeps it (stale-if-error, #302).
@@ -94,7 +105,7 @@ export async function CategoryView({ params, searchParams }: Props) {
   const heading = q ? t("resultsFor", { query: q }) : isAll ? t("allTitle") : (sub || main);
   const totalProducts = data?.total ?? 0;
   const pages = Math.max(Math.ceil(totalProducts / (data?.limit || 24)), 1);
-  const qParam = q ? `&q=${encodeURIComponent(q)}` : "";
+  const qParam = `${q ? `&q=${encodeURIComponent(q)}` : ""}${sort !== "popular" ? `&sort=${sort}` : ""}`;
   const basePath = isAll
     ? `/${locale}/c`
     : `/${locale}/c/${encodeURIComponent(main)}${sub ? `/${encodeURIComponent(sub)}` : ""}`;
@@ -203,6 +214,14 @@ export async function CategoryView({ params, searchParams }: Props) {
             {subs.map(([name, count]) => (
               <ChipLink key={name} href={`/${locale}/c/${encodeURIComponent(activeCategory.name)}/${encodeURIComponent(name)}`} label={name} count={count} selected={sub === name} />
             ))}
+          </nav>
+        ) : null}
+        {totalProducts > 1 ? (
+          <nav aria-label={t("sortLabel")} className={styles.chips}>
+            {SORTS.map((o) => {
+              const query = [q ? `q=${encodeURIComponent(q)}` : "", o.id !== "popular" ? `sort=${o.id}` : ""].filter(Boolean).join("&");
+              return <ChipLink key={o.id} href={query ? `${basePath}?${query}` : basePath} label={t(o.label)} selected={sort === o.id} />;
+            })}
           </nav>
         ) : null}
         {totalProducts > 0 ? <p className={styles.phoneCount}>{t("productsCount", { count: totalProducts })}</p> : null}

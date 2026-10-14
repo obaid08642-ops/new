@@ -117,6 +117,14 @@ export default function PharmacyCheckoutScreen() {
         keys.current.set(body, pair);
       }
       let orderId = created.current?.body === body ? created.current.orderId : null;
+      if (!orderId && created.current) {
+        // issue 544: the delivery mode or the address changed after the draft was created: that draft is edited
+        // (PATCH takes everything but the payment mode, which this screen does not change), never a second one created
+        const { payment_mode: _paymentMode, ...patch } = draft as Record<string, unknown>;
+        await apiFetch(`/patient/pharmacy/orders/${created.current.orderId}`, { method: 'PATCH', headers: { 'Idempotency-Key': newIdempotencyKey() }, body: JSON.stringify(patch) });
+        orderId = created.current.orderId;
+        created.current = { body, orderId };
+      }
       if (!orderId) {
         const response = await apiFetch('/patient/pharmacy/orders', { method: 'POST', headers: { 'Idempotency-Key': pair.create }, body });
         orderId = extractPatientPharmacyOrderId(response);

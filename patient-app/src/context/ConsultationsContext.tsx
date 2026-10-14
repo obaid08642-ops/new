@@ -33,7 +33,7 @@ export function ConsultationsProvider({ children }: { children: ReactNode }) {
           emoji: '',
           at: a.appointment_date || a.scheduled_at || undefined,
           time: a.start_time || '',
-          type: a.consultation_type || 'online',
+          type: a.service_type || a.consultation_type || 'online',
           status: a.status || 'pending',
           price: a.consultation_fee || a.price || 0,
         }));
