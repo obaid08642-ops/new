@@ -17,7 +17,8 @@ describe("patient API allowlist", () => {
     expect(isAllowedPatientApiPath(`/patient/pharmacy/orders/${"91047ef2-ad36-422a-a184-629693e7c729"}`)).toBe(true);
     expect(isAllowedPatientApiPath(`/orders/${"91047ef2-ad36-422a-a184-629693e7c729"}/tracking`)).toBe(true);
     expect(isAllowedPatientApiPath("/cart")).toBe(true);
-    expect(isAllowedPatientApiPath("/cart/checkout")).toBe(true);
+    // issue 554: the server cart checkout is not a web call any more (the cart is local-first; only sending the order needs the backend)
+    expect(isAllowedPatientApiPath("/cart/checkout")).toBe(false);
     expect(isAllowedPatientApiPath("/care/appointments/123e4567-e89b-12d3-a456-426614174000")).toBe(true);
     expect(isAllowedPatientApiPath("/cart/prescription")).toBe(true);
     expect(isAllowedPatientApiPath("/nursing/visits")).toBe(true);

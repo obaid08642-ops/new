@@ -696,6 +696,9 @@ export class PharmacyOrderService {
     }
     if (body.delivery_address) order.delivery_address = body.delivery_address;
     if (body.patient_notes !== undefined) order.patient_notes = body.patient_notes;
+    // #544: changing the delivery mode or the saved address edits this draft; it never needs a second one.
+    if (body.fulfillment === 'delivery' || body.fulfillment === 'pickup') (order as any).fulfillment = body.fulfillment;
+    if (typeof body.delivery_address_id === 'string') (order as any).delivery_address_id = body.delivery_address_id.slice(0, 100);
     // D-10: a prescription can be attached after the draft was created (the cart adds an Rx item later).
     await this.assertOwnPrescriptionRefs(user, body);
     if (Array.isArray(body.prescription_attachments)) {

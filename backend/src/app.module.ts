@@ -31,7 +31,8 @@ import { validateEnvironment } from './config/env.validation';
 import { MongooseModule } from '@nestjs/mongoose';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { ScheduleModule } from '@nestjs/schedule';
+import { backgroundImports, backgroundProviders } from './common/process-role';
+import { WorkerHeartbeatService } from './common/worker-heartbeat.service';
 import { BullModule } from '@nestjs/bullmq';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { LoadSheddingGuard } from './common/load-shedding.guard';
@@ -194,7 +195,8 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
       connection: bullRedisConnection(),
     }),
     EventEmitterModule.forRoot({ wildcard: true, maxListeners: 50 }),
-    ScheduleModule.forRoot(),
+    // P14.26: cron jobs run only in the worker role (or `all`), never once per API cluster worker
+    ...backgroundImports(),
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: process.env.THROTTLER_LIMIT ? parseInt(process.env.THROTTLER_LIMIT, 10) : 200 }]),
     I18nCoreModule,
     AuthModule,
@@ -277,6 +279,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
   controllers: [HealthController, HealthDashboardController, ProviderPayoutsController],
   providers: [
     ImpersonationSessionService,
+    ...backgroundProviders([WorkerHeartbeatService]),
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: WriteGuard },
     { provide: APP_GUARD, useClass: ThrottlerGuard },

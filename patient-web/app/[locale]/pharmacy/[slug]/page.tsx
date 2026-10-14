@@ -1,4 +1,5 @@
 import { JsonLd } from "@/components-next/json-ld";
+import { patientApiUrl } from "@/lib/api/upstream";
 import { pharmacy, breadcrumbList, medicalWebPage } from "@/lib/seo/structured-data";
 import { DirectAnswer } from "@/components-next/seo/direct-answer";
 import type { Metadata } from "next";
@@ -16,11 +17,11 @@ import styles from "@/components-next/pharmacy/pharmacy.module.css";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus";
-
 async function fetchPharmacy(slug: string) {
   try {
-    const res = await fetch(`${API_BASE}/api/v1/entity-graph/related/pharmacy/${encodeURIComponent(slug)}`, {
+    // issue 473: the same server base as every other server fetch (patientApiUrl); appending /api/v1 to a public base
+    // that already ends in it made every pharmacy page a 404.
+    const res = await fetch(patientApiUrl(`/entity-graph/related/pharmacy/${encodeURIComponent(slug)}`), {
       next: { revalidate: 3600 },
     });
     // The backend resolves the reviewed pharmacy profile; anything else is a 404 (the old fallback

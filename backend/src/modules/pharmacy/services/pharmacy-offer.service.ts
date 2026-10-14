@@ -26,6 +26,8 @@ type ProviderOfferInput = {
   /** Reserved for a server policy; client values are never accepted as authority. */
   delivery_option?: 'delivery' | 'pickup';
   eta_minutes?: number;
+  /** #507: the pharmacy's own preparation estimate in minutes (5-240), or none. */
+  preparation_minutes?: number;
   /** Optional pharmacy note to the patient (max 500 chars). */
   provider_note?: string;
 };
@@ -250,7 +252,7 @@ export class PharmacyOfferService {
     }
   }
 
-  private async serverQuote(userId: string, order: any, inputs: ProviderOfferItemInput[]) {
+  private async serverQuote(userId: string, order: any, inputs: ProviderOfferItemInput[], preparationMinutes?: number) {
     if (!Array.isArray(inputs) || inputs.length === 0) throw new BadRequestException('offer_items_required');
     const byOrderItem = new Map(inputs.map((item) => [item.order_item_id, item]));
     if (byOrderItem.size !== order.items.length || order.items.some((item: any) => !byOrderItem.has(item.id))) {
@@ -271,7 +273,10 @@ export class PharmacyOfferService {
         feeSource = 'platform_pricing_config';
       }
     } catch { /* quote never fails on pricing config */ }
-    const estimatedPreparationMinutes = Math.max(15, Math.min(60, 10 + items.filter((item) => item.action !== 'unavailable').length * 5));
+    // #507: the preparation time is the pharmacy's own estimate when it gives one; without it there is none (the
+    // patient sees no time and "fastest" sorts it last), never a number computed from the line count.
+    const prep = Number(preparationMinutes);
+    const estimatedPreparationMinutes = Number.isInteger(prep) && prep >= 5 && prep <= 240 ? prep : null;
     return {
       items,
       totals: { subtotal: Math.round(subtotal * 100) / 100, delivery_fee: deliveryFee, total: Math.round((subtotal + deliveryFee) * 100) / 100, currency: 'SAR' },
@@ -287,7 +292,7 @@ export class PharmacyOfferService {
 
   async previewQuote(user: any, orderId: string, body: ProviderOfferInput) {
     const { order } = await this.loadBroadcastForPharmacy(user, orderId);
-    const quote = await this.serverQuote(user.id, order, body?.items || []);
+    const quote = await this.serverQuote(user.id, order, body?.items || [], body?.preparation_minutes);
     return {
       ...quote,
       quote_ttl_seconds: Math.floor(OFFER_TTL_MS / 1000),
@@ -298,7 +303,7 @@ export class PharmacyOfferService {
 
   async upsertDraft(user: any, orderId: string, body: ProviderOfferInput) {
     const { broadcast, order } = await this.loadBroadcastForPharmacy(user, orderId);
-    const quote = await this.serverQuote(user.id, order, body?.items || []);
+    const quote = await this.serverQuote(user.id, order, body?.items || [], body?.preparation_minutes);
     const now = new Date();
     const prior: any = await this.offers.findOne({ order_id: orderId, pharmacy_account_id: user.id, status: { $in: ['draft', 'submitted'] } }).lean();
     if (prior?.status === 'submitted') throw new BadRequestException('submitted_offer_cannot_be_edited_create_new_version');
