@@ -12,18 +12,20 @@ import { Roles, JwtAuthGuard, Public } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { MetricsService } from '../../common/metrics.service';
 import { SLO_TARGETS } from '../../common/slo-targets';
+import { MetricsScrapeGuard } from './metrics-scrape.guard';
 
 /**
- * Scrape surface is @Public + @SkipThrottle, matching the rest of the health
- * family: Prometheus cannot carry a JWT, and a scrape must never be the thing
- * that trips a rate limit for a real user. The counters carry no user data and
- * no identifiers, so there is nothing to protect here.
+ * Scrape surface: no user JWT (Prometheus cannot carry one) and @SkipThrottle (a scrape must never trip a rate limit for a
+ * real user), but NOT open: the counters carry no user data, yet they map every route with its error rate and latency,
+ * so `metrics` and `summary` need the scrape token (MetricsScrapeGuard; 404 without it). `health-slo` stays public: one
+ * boolean and the overall ratio, what an uptime check needs.
  */
 @Controller('observability')
 export class ObservabilityController {
   constructor(private readonly metrics: MetricsService) {}
 
   @Public()
+  @UseGuards(MetricsScrapeGuard)
   @SkipThrottle()
   @Get('metrics')
   @Header('Content-Type', 'text/plain; version=0.0.4; charset=utf-8')
@@ -33,6 +35,7 @@ export class ObservabilityController {
 
   /** A compact summary for a health dashboard or a smoke test. */
   @Public()
+  @UseGuards(MetricsScrapeGuard)
   @SkipThrottle()
   @Get('summary')
   summary() {
