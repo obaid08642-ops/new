@@ -3201,5 +3201,13 @@
   "nur.step.IN_TRANSIT": "الممرض في الطريق",
   "nur.step.ARRIVED": "وصل الممرض",
   "nur.step.CARE_IN_PROGRESS": "الرعاية جارية",
-  "nur.step.COMPLETED": "اكتملت الزيارة"
+  "nur.step.COMPLETED": "اكتملت الزيارة",
+  "emergency.share": "أرسل موقعي لعائلتي",
+  "emergency.sharePermission": "اسمح بالوصول إلى الموقع لإرسال موقعك لعائلتك.",
+  "emergency.shareError": "تعذر إرسال موقعك الآن. حاول مرة أخرى.",
+  "emergency.shareNoContacts": "لا توجد جهات اتصال للطوارئ بعد.",
+  "emergency.shareAddContacts": "أضف جهات اتصال الطوارئ",
+  "emergency.shareSent": "تم إرسال موقعك إلى {n} من جهات الاتصال في التطبيق.",
+  "emergency.shareSms": "أرسل رسالة نصية إلى {name}",
+  "emergency.shareContact": "جهة الاتصال"
 }

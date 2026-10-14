@@ -1323,7 +1323,15 @@
     "call": "Tawagan ang {number}",
     "unavailable": "Wala pang naitakdang numero ng agarang tulong, kaya walang matatawagan mula rito. Kung nasa panganib ka, makipag-ugnayan sa lokal na emergency services.",
     "note": "Hindi emergency service ang Nabd Plus at hindi ito makapagpapadala ng tulong sa iyong lokasyon.",
-    "loadError": "Hindi ma-load ang numero ng agarang tulong ngayon."
+    "loadError": "Hindi ma-load ang numero ng agarang tulong ngayon.",
+    "share": "Ipadala ang lokasyon ko sa pamilya ko",
+    "sharePermission": "Payagan ang access sa lokasyon para maipadala ito sa pamilya mo.",
+    "shareError": "Hindi maipadala ang lokasyon mo ngayon. Subukan muli.",
+    "shareNoContacts": "Wala ka pang emergency contact.",
+    "shareAddContacts": "Magdagdag ng emergency contact",
+    "shareSent": "Naipadala ang lokasyon mo sa {n} contact sa app.",
+    "shareSms": "Mag-text kay {name}",
+    "shareContact": "ang contact mo"
   },
   "Returns": {
     "title": "Mga return request",
