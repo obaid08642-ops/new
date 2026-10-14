@@ -1770,7 +1770,8 @@
     "waysLabel": "Ways to order with a prescription",
     "viaPhoto": "Photograph",
     "viaUpload": "Upload",
-    "viaType": "Type names"
+    "viaType": "Type names",
+    "errorBusy": "Too many attempts in a short time. Wait a minute, then try again."
   },
   "HubSeo": {
     "privacy": {
@@ -2251,7 +2252,8 @@
       "network": "The service could not be reached. Check your connection and try again.",
       "generic": "The action could not be completed. Nothing was changed.",
       "alreadyPaid": "This order is already paid."
-    }
+    },
+    "lastFromYou": "You: {text}"
   },
   "PharmacyCheckout": {
     "title": "Checkout",

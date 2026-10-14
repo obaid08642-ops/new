@@ -20,3 +20,11 @@ describe("one conversation as the backend sends it", () => {
     expect(extractPatientPharmacyThreadDetail({ messages: [] }).thread).toBeNull();
   });
 });
+
+describe("thread summaries (issue 525)", () => {
+  it("reads the pharmacy's name per language and a bounded preview of the last message", () => {
+    const [t] = extractPatientPharmacyThreads([{ id: "91047ef2-ad36-422a-a184-629693e7c729", pharmacy_name_ar: "صيدلية", pharmacy_name_en: "Pharmacy", last_message: { text: "x".repeat(300), from: "pharmacy" } }]);
+    expect(t).toMatchObject({ pharmacyNameAr: "صيدلية", pharmacyNameEn: "Pharmacy", lastFrom: "pharmacy" });
+    expect(t.lastText).toHaveLength(120);
+  });
+});

@@ -17,7 +17,7 @@ import { MAX_RX_FILE_BYTES, checkRxFile, ocrItems, postJsonWithProgress, prepare
 import { PHARMACY_TONE } from "./tones";
 import rx from "./rx.module.css";
 
-type Failure = "type" | "size" | "read" | "unreadable" | "ocr" | "save" | "session";
+type Failure = "type" | "size" | "read" | "unreadable" | "ocr" | "busy" | "save" | "session";
 type Phase =
   | { kind: "idle" }
   | { kind: "preparing" }
@@ -85,6 +85,8 @@ export function RxUploadScreen({ locale, via = "photo", before, after }: { local
         body: JSON.stringify({ image_base64: image }),
       });
       if (response.status === 401) return setPhase({ kind: "failed", reason: "session" });
+      // issue 504: the per-person limit (429) says "wait a minute", apart from the reader being unavailable
+      if (response.status === 429) return setPhase({ kind: "failed", reason: "busy" });
       if (!response.ok) return setPhase({ kind: "failed", reason: "ocr" });
       items = ocrItems(await response.json().catch(() => null));
     } catch {
@@ -122,6 +124,7 @@ export function RxUploadScreen({ locale, via = "photo", before, after }: { local
     read: t("errorRead"),
     unreadable: t("errorUnreadable"),
     ocr: t("errorOcr"),
+    busy: t("errorBusy"),
     save: t("errorSave"),
     session: flow("sessionEnded"),
   };

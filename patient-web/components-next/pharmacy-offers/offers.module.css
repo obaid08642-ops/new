@@ -149,6 +149,7 @@
 .rowLink { color: inherit; text-decoration: none; }
 .rowBody { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
 .rowName { margin: 0; font-size: var(--nabd-font-size-row); font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
+.rowSub { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .rowEnd { flex: none; color: var(--nabd-color-icon-secondary); display: inline-flex; }
 
 .messages { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
