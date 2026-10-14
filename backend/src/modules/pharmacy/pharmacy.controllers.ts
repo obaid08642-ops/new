@@ -27,7 +27,7 @@ import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsura
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.PATIENT)
 export class PatientPharmacyController {
-  constructor(private orders: PharmacyOrderService, private offers: PharmacyOfferService, private insurance: PharmacyInsuranceDecisionService, private cardPayments: PaymentsService) {}
+  constructor(private orders: PharmacyOrderService, private offers: PharmacyOfferService, private insurance: PharmacyInsuranceDecisionService, private cardPayments: PaymentsService, @Optional() private allocations?: PharmacyAllocationService) {}
   // Order roots are state-changing: keys are mandatory (P0-01). The global
   // IdempotencyInterceptor then guarantees replay-safety (24h cache +
   // in-progress lock + body-hash mismatch guard). Mobile + web BFF already send keys.
@@ -67,6 +67,14 @@ export class PatientPharmacyController {
 
   @Post('orders/:id/insurance/:kind/accept') acceptInsurance(@CurrentUser() u: any, @Param('id') id: string, @Param('kind') kind: string, @Body() b: AcceptInsuranceDto, @Headers('idempotency-key') idemHeader?: string) {
     return this.insurance.acceptByPatient(u, id, kind, b?.payment_method, b?.idempotency_key || idemHeader);
+  }
+
+  // P13-R2: the patient decides a proposed substitute per item (never automatic).
+  @Post('allocations/:id/items/:itemId/accept-substitute') acceptSubstitute(@CurrentUser() u: any, @Param('id') id: string, @Param('itemId') itemId: string) {
+    return this.allocations!.decideSubstitute(u, id, itemId, 'accepted');
+  }
+  @Post('allocations/:id/items/:itemId/reject-substitute') rejectSubstitute(@CurrentUser() u: any, @Param('id') id: string, @Param('itemId') itemId: string) {
+    return this.allocations!.decideSubstitute(u, id, itemId, 'rejected');
   }
 }
 
