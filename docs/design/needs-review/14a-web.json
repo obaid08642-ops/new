@@ -7,7 +7,8 @@
     "file": "patient-web/app/[locale]/chat/[threadId]/page.tsx",
     "line": 99,
     "found": "[owner] The web thread shows message activity only (no text, no sending) by an earlier privacy decision, so text, photo, file, voice note and the call of decision 24 cannot be offered here; the app has the composer.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "fixed #1285 (issue #806)"
   },
   {
     "batch": 14,
@@ -17,7 +18,8 @@
     "file": "patient-web/app/[locale]/appointments/[appointmentId]/page.tsx",
     "line": 94,
     "found": "[backend] POST /care/appointments takes no field for the original appointment, so a follow-up is only a normal booking with the doctor pre-selected; the booking page ignores ?followUp=.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1381 (issue #807)"
   },
   {
     "batch": 14,
@@ -27,7 +29,8 @@
     "file": "patient-web/app/[locale]/appointments/[appointmentId]/page.tsx",
     "line": 146,
     "found": "[owner] summaryFollowUpBody promises a discounted rate that no server field states.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "fixed #1285 (issue #808)"
   },
   {
     "batch": 14,
@@ -37,7 +40,8 @@
     "file": "patient-web/app/[locale]/consultations/cancel-reschedule/page.tsx",
     "line": 39,
     "found": "[backend] The percentage is derived from the policy numbers and the slot time on the server render; no endpoint states the refund for this appointment now (decision 26).",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1302 (issue #809)"
   },
   {
     "batch": 14,
@@ -47,6 +51,7 @@
     "file": "patient-web/components-next/prescription-client.tsx",
     "line": 86,
     "found": "[backend] Decision 18 is wired for items that carry medicine_id; an item written by hand has no product, so a prescription of only such lines opens the pharmacy prescription order instead.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1299 (issue #810)"
   }
 ]

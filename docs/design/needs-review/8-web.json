@@ -7,7 +7,8 @@
     "file": "patient-web/app/[locale]/mental-health/page.tsx",
     "line": 67,
     "found": "[backend] urgent-help number config missing: GET /system-config/public returns only cancellation_policy and returns_policy; the button stays hidden and no number is hard-coded. (backend: backend/src/modules/admin/governance/system-config.controller.ts:53)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #725 (issue #858)"
   },
   {
     "batch": 8,
@@ -17,7 +18,8 @@
     "file": "patient-web/lib/api/patient-allowlist.ts",
     "line": 63,
     "found": "[backend] GET/POST/DELETE /mental-health/crisis-contacts still exist (the app emergency screen uses them); remove them with the app screen under decision 8. The web proxy no longer allows the GET. (backend: backend/src/modules/mental-health/mental-health.controller.ts:77)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "closed-unverified (issue #859: closed with no linked PR)"
   },
   {
     "batch": 8,
@@ -27,7 +29,8 @@
     "file": "patient-web/app/[locale]/nutrition/page.tsx",
     "line": 21,
     "found": "[backend] GET /nutrition/plan has no backend route (NO_ROUTE); the Plan tab is hidden and nothing is invented.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1395 (issue #860)"
   },
   {
     "batch": 8,
@@ -37,7 +40,8 @@
     "file": "patient-web/app/[locale]/maternity/page.tsx",
     "line": 102,
     "found": "[backend] GET /maternity/content returns empty lists (weekly_tips, links) and there is no fetal-week endpoint; the board's 'Read this week' list and fetal size line are not drawn, no image is bundled (owner decision D). (backend: backend/src/modules/maternity/maternity.service.ts:38)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open (issue #861)"
   },
   {
     "batch": 8,
@@ -47,7 +51,8 @@
     "file": "patient-web/app/[locale]/maternity/page.tsx",
     "line": 151,
     "found": "[client] The web can only read these logs (POST /maternity/kicks, /contractions, /infant-growth exist and the old pages could not log either); adding forms is a feature.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "open (issue #862)"
   },
   {
     "batch": 8,
@@ -57,7 +62,8 @@
     "file": "patient-web/lib/maternity/view.ts",
     "line": 30,
     "found": "[backend] The profile's estimate_notice is an English-only sentence, so it is not shown; a translated notice is used. (backend: backend/src/modules/maternity/maternity.service.ts:52)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1387 (issue #863)"
   },
   {
     "batch": 8,
@@ -67,7 +73,8 @@
     "file": "patient-web/app/[locale]/mental-health/mood/page.tsx",
     "line": 50,
     "found": "[client] The web has no form to log a mood (POST /mental-health/mood exists; the old page was read-only); adding it is a feature.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "open (issue #864)"
   },
   {
     "batch": 8,
@@ -77,7 +84,8 @@
     "file": "patient-web/app/[locale]/mental-health/mood/page.tsx",
     "line": 56,
     "found": "[backend] entry.mood is a raw server string shown as is (not translated); the backend should send a code from a fixed list.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1387 (issue #865)"
   },
   {
     "batch": 8,
@@ -87,7 +95,8 @@
     "file": "patient-web/app/[locale]/mental-health/relax/page.tsx",
     "line": 64,
     "found": "[client] The Relax screen lists recorded sessions only; starting a session needs the app (the old pages were history only; the app guides live in the hub).",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "open (issue #866)"
   },
   {
     "batch": 8,
@@ -97,7 +106,8 @@
     "file": "patient-web/app/[locale]/mental-health/therapist-match/page.tsx",
     "line": 13,
     "found": "[client] specialty=psychiatry goes into the doctor list's free-text search (doctorQuery); FIXED: doctorQuery now sends q (the only text param GET /care/doctors reads; it regex-matches the specialty slug), previously it sent search, which the backend ignored.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1247 #1254 (issue #867)"
   },
   {
     "batch": 8,
@@ -107,7 +117,8 @@
     "file": "patient-web/app/[locale]/nutrition/page.tsx",
     "line": 53,
     "found": "[client] The day is new Date().toISOString().slice(0, 10) (UTC), so between midnight and 03:00 in Saudi Arabia the hub shows yesterday; unchanged logic.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1219 (issue #868)"
   },
   {
     "batch": 8,
@@ -117,7 +128,8 @@
     "file": "patient-web/app/[locale]/nutrition/page.tsx",
     "line": 92,
     "found": "[client] Water is shown from the summary only; the app logs it through POST /nutrition/water, the web has no control for it (feature).",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "open (issue #869)"
   },
   {
     "batch": 8,
@@ -127,6 +139,7 @@
     "file": "patient-web/components-next/programs-active-client.tsx",
     "line": 97,
     "found": "[client] The message shows only for session id '4' (hard-coded in the handler); the reward should come from the server's answer.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1219 (issue #870)"
   }
 ]

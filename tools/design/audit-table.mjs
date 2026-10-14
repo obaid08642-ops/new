@@ -118,14 +118,26 @@ L.push(WIRING
   : `_${(a.screens ?? []).length} screen(s): ${count.ok} ok, ${count.fixed} fixed, ${count.hidden} hidden, ${count.gap} gap; ${(a.needsReview ?? []).length} Needs-review line(s)._`, '');
 const md = L.join('\n');
 
-const needs = (a.needsReview ?? []).map((n) => ({
-  batch: a.batch, app: a.app, screen: n.route, element: n.element,
-  file: n.file ?? '', line: n.line ?? 0, found: `[${n.kind}] ${n.note}${n.backend ? ` (backend: ${n.backend})` : ''}`, suspect: n.kind === 'backend' ? 'Backend gap: reviewer session.' : n.kind === 'owner' ? 'Owner decision.' : 'Client-side: later batch.',
-}));
-const needsJson = JSON.stringify(needs, null, 2) + '\n';
-
 const mdPath = src.replace(/\.json$/, '.md');
 const nrPath = join(REPO, 'docs/design/needs-review', `${basename(src, '.json')}.json`);
+
+// review_status (owner, 2026-10-14; tools/design/needs-review-status.mjs) is kept across re-runs: a line keeps the
+// status it already has (matched on screen, element, file and line); a new line starts as open, an owner line as
+// owner-decision.
+const statusKey = (e) => `${e.screen}|${e.element}|${e.file}|${e.line}`;
+const previousStatus = new Map();
+if (existsSync(nrPath)) {
+  for (const e of JSON.parse(readFileSync(nrPath, 'utf8'))) if (e.review_status) previousStatus.set(statusKey(e), e.review_status);
+}
+const needs = (a.needsReview ?? []).map((n) => {
+  const e = {
+    batch: a.batch, app: a.app, screen: n.route, element: n.element,
+    file: n.file ?? '', line: n.line ?? 0, found: `[${n.kind}] ${n.note}${n.backend ? ` (backend: ${n.backend})` : ''}`, suspect: n.kind === 'backend' ? 'Backend gap: reviewer session.' : n.kind === 'owner' ? 'Owner decision.' : 'Client-side: later batch.',
+  };
+  e.review_status = previousStatus.get(statusKey(e)) ?? (n.kind === 'owner' ? 'owner-decision' : 'open');
+  return e;
+});
+const needsJson = JSON.stringify(needs, null, 2) + '\n';
 
 if (CHECK) {
   if (existsSync(mdPath) && readFileSync(mdPath, 'utf8') !== md) problems.push(`${mdPath} is stale: re-run without --check`);

@@ -7,7 +7,8 @@
     "file": "provider-app/src/screens/facility/FacilityAuditLogScreen.tsx",
     "line": 16,
     "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider/provider-facility.controller.ts:29)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1206 (issue #1121)"
   },
   {
     "batch": "provider",
@@ -17,7 +18,8 @@
     "file": "provider-app/src/screens/facility/FacilityLeaveRequestsScreen.tsx",
     "line": 33,
     "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider/leave-requests.controller.ts:18)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1206 (issue #1123)"
   },
   {
     "batch": "provider",
@@ -27,7 +29,8 @@
     "file": "provider-app/src/screens/facility/FacilityPatientTrackerScreen.tsx",
     "line": 16,
     "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider/provider-facility.controller.ts:62)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1206 (issue #1124)"
   },
   {
     "batch": "provider",
@@ -37,7 +40,8 @@
     "file": "provider-app/src/screens/facility/FacilityUnifiedCalendarScreen.tsx",
     "line": 18,
     "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider/provider-facility.controller.ts:42)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1206 (issue #1125)"
   },
   {
     "batch": "provider",
@@ -47,7 +51,8 @@
     "file": "provider-app/src/screens/facility/facility/InsuranceClaimsHubScreen.tsx",
     "line": 54,
     "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:737)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1206 (issue #1128)"
   },
   {
     "batch": "provider",
@@ -57,6 +62,7 @@
     "file": "provider-app/src/screens/facility/facility/ShiftManagementScreen.tsx",
     "line": 83,
     "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider/provider-facility.controller.ts:81)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1206 (issue #1129)"
   }
 ]
