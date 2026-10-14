@@ -46,6 +46,24 @@ jobs:
           # public log: only the short status lines of mutating tasks
           grep -E '^(x0|cleanup|deploy|rotate):' report.txt | sed -E 's/[0-9]{1,3}(\.[0-9]{1,3}){3}/<ip>/g' || true
           echo "report lines: $(wc -l < report.txt)"
+      - name: Cloudflare tasks (RUN lines "cf:<name>" -> tools/ops/cf/<name>.sh, output into the encrypted report)
+        if: ${{ !cancelled() }}
+        env:
+          CF: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          Z: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+        run: |
+          set +e
+          for t in $(grep -E '^\s*cf:' tools/ops/RUN | sed -E 's/^\s*cf://'); do
+            f=tools/ops/cf/$t.sh
+            [ -f "$f" ] || { echo "missing $f"; continue; }
+            echo "== cf task $t" | tee -a report.txt
+            timeout 300 bash "$f" >> report.txt 2>&1
+            echo "   exit=$?"
+          done
+          grep -E '^(cf):' report.txt || true
+      - name: Encrypt report
+        if: ${{ !cancelled() }}
+        run: |
           openssl rand -hex 32 > k.txt
           openssl enc -aes-256-cbc -pbkdf2 -salt -in report.txt -out report.enc -pass file:k.txt
           openssl pkeyutl -encrypt -pubin -inkey tools/ops/report_pubkey.pub -pkeyopt rsa_padding_mode:oaep -in k.txt -out k.enc
