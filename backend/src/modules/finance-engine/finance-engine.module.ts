@@ -1,3 +1,5 @@
+import { copayRefundable, findCopayTransaction } from '../../common/copay-transaction';
+import { ModuleRef } from '@nestjs/core';
 /**
  * EPIC 1 — FINANCE & MARKETPLACE ENGINE
  * Enterprise-grade financial core for the Nabd marketplace:
@@ -20,6 +22,7 @@
 import {
   Module, Global, Injectable, Controller, Post, Get, Put, Body, Param, Query,
   UseGuards, BadRequestException, NotFoundException, ForbiddenException, Logger,
+  Optional,
 } from '@nestjs/common';
 import { ValidateCouponDto, LoyaltyQuoteDto, SetCommissionRuleDto, ResolveCommissionDto, RequestApprovalDto, DecideApprovalDto } from './finance-engine.dto';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -525,6 +528,7 @@ export class RefundExecutor {
     private readonly ledger: LedgerService,
     private readonly fraud: FraudService,
     private readonly events: EventEmitter2,
+    @Optional() private readonly moduleRef?: ModuleRef,
   ) {}
 
   private moyasarKey(): string {
@@ -555,7 +559,7 @@ export class RefundExecutor {
     reason: string;
     actor_id: string;
   }): Promise<{ ok: boolean; method: string; gateway_refund_id?: string; provider_debited?: number }> {
-    const amount = round2(opts.amount);
+    let amount = round2(opts.amount);
     if (!(amount > 0)) throw new BadRequestException('refund amount must be positive');
 
     // Idempotency: a completed execution for this refund_id is a no-op
@@ -567,7 +571,7 @@ export class RefundExecutor {
       { booking_id: opts.booking_id, status: { $in: ['paid', 'refunded'] } } as any,
       { sort: { createdAt: -1 } } as any,
     );
-    const paidTransaction: any = await this.conn.collection('transactions').findOne({
+    let paidTransaction: any = await this.conn.collection('transactions').findOne({
       booking_kind: opts.booking_kind, booking_id: opts.booking_id, status: 'paid',
     } as any);
     const bookingCollections: Record<string, string> = {
@@ -587,6 +591,16 @@ export class RefundExecutor {
       const owner = String(booking.patient_id || booking.patient_account_id || booking.user_id || '');
       if (owner && owner !== String(opts.patient_id)) throw new ForbiddenException('refund_patient_mismatch');
     }
+    // Q96: an insured booking's copay is paid on its insurance request (booking_kind
+    // 'insurance'), never on the booking: refund that card payment, capped at it.
+    let viaCopay = false;
+    if (!paidTransaction && !paidPayment && booking) {
+      paidTransaction = await findCopayTransaction(this.conn as never, booking, opts.booking_id);
+      viaCopay = !!paidTransaction;
+    }
+    // The patient paid only the copay: a refund of the booking's price returns at most what is left of it.
+    if (viaCopay) amount = Math.min(amount, round2(copayRefundable(paidTransaction)));
+    if (!(amount > 0)) throw new BadRequestException('refund_exceeds_paid: nothing left to refund');
     const originalMethod = String(paidTransaction?.method || booking?.payment_method || '').toLowerCase();
     const bookingState = String(booking?.status || '').toLowerCase();
     const cashLike = originalMethod === 'cash' || originalMethod === 'cod' || originalMethod === 'cash_on_delivery';
@@ -653,6 +667,18 @@ export class RefundExecutor {
         { _id: paidPayment._id } as any,
         { $set: { refunded_amount: newRefunded, status: newRefunded >= Number(paidPayment.amount || 0) - 0.001 ? 'refunded' : 'paid', refunded_at: new Date() } },
       );
+    }
+    // 1b) A card payment kept in `transactions` (the current checkout, copays included) goes back
+    // to the card through the gateway; before this it only got a ledger row.
+    else if (cardPaidTx && !cashLike) {
+      // Loaded here, not at the top: payments.module imports this file, so a static import is a cycle
+      // that leaves PaymentsService's own dependencies undefined at boot.
+      const { PaymentsService } = await import('../payments/payments.module');
+      const payments: any = this.moduleRef?.get(PaymentsService, { strict: false });
+      if (!payments) throw new BadRequestException('payment_gateway_not_configured');
+      const r = await payments.refundTransactionAsSystem(String(paidTransaction.id), amount, opts.reason);
+      method = 'gateway';
+      gatewayRefundId = r?.gateway_refund_id;
     }
     // 2) Cash: the money never entered the platform — record the refund in the
     // ledger only. No patient wallet is created, credited, or read here.
