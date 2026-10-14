@@ -2,21 +2,27 @@ import { RedisThrottlerStorage } from './throttler-redis.storage';
 
 /**
  * D-28/S-6: the throttle store is shared through Redis, and Redis is a
- * throttle dependency — never an availability dependency. If Redis is down,
- * the guard must allow traffic, not 500 the API.
+ * throttle dependency, never an availability dependency. If Redis is down the
+ * API keeps answering, and each instance still enforces the limit with its own
+ * in-memory counter (the sign-in and OTP limits never switch off).
  */
 describe('RedisThrottlerStorage', () => {
-  it('fails open when Redis is unreachable (fallback client has no eval)', async () => {
+  const hitUntilBlocked = async (svc: RedisThrottlerStorage) => {
+    const first = await svc.increment('k', 60_000, 2, 60_000, 'default');
+    await svc.increment('k', 60_000, 2, 60_000, 'default');
+    const third = await svc.increment('k', 60_000, 2, 60_000, 'default');
+    svc.onApplicationShutdown();
+    return { first, third };
+  };
+
+  it('falls back to the in-memory counter when Redis is unreachable (fallback client has no eval)', async () => {
     const svc = new RedisThrottlerStorage({ getClient: () => ({ status: 'fallback' }) } as any);
-    await expect(svc.increment('k', 60_000, 1, 60_000, 'default')).resolves.toEqual({
-      totalHits: 0,
-      timeToExpire: 0,
-      isBlocked: false,
-      timeToBlockExpire: 0,
-    });
+    const { first, third } = await hitUntilBlocked(svc);
+    expect(first).toMatchObject({ totalHits: 1, isBlocked: false });
+    expect(third).toMatchObject({ totalHits: 3, isBlocked: true });
   });
 
-  it('fails open when the Lua call itself throws', async () => {
+  it('falls back to the in-memory counter when the Lua call itself throws', async () => {
     const svc = new RedisThrottlerStorage({
       getClient: () => ({
         status: 'ready',
@@ -25,12 +31,9 @@ describe('RedisThrottlerStorage', () => {
         },
       }),
     } as any);
-    await expect(svc.increment('k', 60_000, 1, 60_000, 'default')).resolves.toEqual({
-      totalHits: 0,
-      timeToExpire: 0,
-      isBlocked: false,
-      timeToBlockExpire: 0,
-    });
+    const { first, third } = await hitUntilBlocked(svc);
+    expect(first).toMatchObject({ totalHits: 1, isBlocked: false });
+    expect(third).toMatchObject({ totalHits: 3, isBlocked: true });
   });
 
   it('maps one shared Redis verdict onto the guard record both instances read', async () => {

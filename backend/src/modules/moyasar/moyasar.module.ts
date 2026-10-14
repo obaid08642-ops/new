@@ -369,8 +369,9 @@ export class MoyasarService {
     if (!isMoyasarWebhookAuthenticated(payload, signature, raw)) {
       throw new BadRequestException('invalid_signature');
     }
-    // Moyasar sends the payment object directly as the webhook body
-    const moyasarId: string | undefined = payload?.id ?? payload?.data?.id;
+    // The native Moyasar body nests the payment in `data` (its top-level id is the event id); the
+    // older shape sends the payment object itself as the body.
+    const moyasarId: string | undefined = payload?.data?.id ?? payload?.id;
     if (moyasarId) {
       await this.syncPaymentStatus(moyasarId);
     }

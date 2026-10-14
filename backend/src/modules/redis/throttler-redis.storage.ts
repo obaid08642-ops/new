@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import type { ThrottlerStorage } from '@nestjs/throttler';
+import { Injectable, OnApplicationShutdown } from '@nestjs/common';
+import { ThrottlerStorageService, type ThrottlerStorage } from '@nestjs/throttler';
 import { RedisService } from './redis.service';
 
 /**
@@ -11,8 +11,9 @@ import { RedisService } from './redis.service';
  * Redis and updates it atomically with Lua.
  *
  * Redis is a throttle dependency, not an availability dependency: if Redis is
- * unreachable, the guard fails open and every request is allowed. A rate-limit
- * outage must not become an API outage.
+ * unreachable, each instance falls back to Nest's in-memory counter (the
+ * pre-D-28 behaviour). A rate-limit outage must not become an API outage, and
+ * it must not switch the sign-in and OTP limits off either.
  */
 const THROTTLE_SCRIPT = `
 local count_key = KEYS[1]
@@ -49,11 +50,13 @@ return { hits, redis.call('PTTL', count_key), 0, 0 }
 `;
 
 @Injectable()
-export class RedisThrottlerStorage implements ThrottlerStorage {
+export class RedisThrottlerStorage implements ThrottlerStorage, OnApplicationShutdown {
+  private readonly local = new ThrottlerStorageService();
+
   constructor(private readonly redis: RedisService) {}
 
-  private allow(): { totalHits: number; timeToExpire: number; isBlocked: boolean; timeToBlockExpire: number } {
-    return { totalHits: 0, timeToExpire: 0, isBlocked: false, timeToBlockExpire: 0 };
+  onApplicationShutdown(): void {
+    this.local.onApplicationShutdown();
   }
 
   async increment(
@@ -65,7 +68,7 @@ export class RedisThrottlerStorage implements ThrottlerStorage {
   ): Promise<{ totalHits: number; timeToExpire: number; isBlocked: boolean; timeToBlockExpire: number }> {
     const client = this.redis.getClient();
     if (!client || client.status === 'fallback' || typeof client.eval !== 'function') {
-      return this.allow();
+      return this.local.increment(key, ttl, limit, blockDuration, throttlerName);
     }
 
     try {
@@ -88,7 +91,7 @@ export class RedisThrottlerStorage implements ThrottlerStorage {
         timeToBlockExpire: Math.max(0, Math.ceil((Number(blockMs) || 0) / 1000)),
       };
     } catch {
-      return this.allow();
+      return this.local.increment(key, ttl, limit, blockDuration, throttlerName);
     }
   }
 }
