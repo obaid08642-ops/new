@@ -8,6 +8,7 @@ import { Notification, NotificationSchema } from '../../schemas/notification.sch
 import { NotificationTemplate, NotificationTemplateSchema } from '../../schemas/notification-template.schema';
 import { NotificationRepository } from "./repositories/notification.repository";
 import { NotificationDeliveryProcessor } from './notification-delivery.processor';
+import { backgroundProviders } from '../../common/process-role';
 
 import { SmsModule } from '../sms/sms.module';
 import { PushModule } from '../push/push.module';
@@ -24,7 +25,8 @@ import { PushModule } from '../push/push.module';
   providers: [
     NotificationsService,
     NotificationSseController,
-    NotificationDeliveryProcessor,
+    // P14.26: the queue consumer runs in the worker role; the API only enqueues
+    ...backgroundProviders([NotificationDeliveryProcessor]),
     { provide: 'NotificationRepository', useClass: NotificationRepository },
   ],
   exports: [NotificationsService, NotificationSseController],

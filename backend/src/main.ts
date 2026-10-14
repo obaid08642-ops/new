@@ -31,6 +31,7 @@ const os = require('node:os');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const mongoSanitize = require('express-mongo-sanitize');
 import { SentryExceptionFilter } from './common/sentry.filter';
+import { processRole } from './common/process-role';
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
 import { WinstonModule } from 'nest-winston';
@@ -41,6 +42,8 @@ import * as winston from 'winston';
 const clusterEnabled =
   process.env.CLUSTER_MODE !== 'false' &&
   process.env.NODE_ENV === 'production' &&
+  // P14.26: the worker role is one process (each job runs once); scale it with more containers, not forks
+  processRole() !== 'worker' &&
   (cluster as any).isPrimary;
 
 if (clusterEnabled) {
@@ -207,7 +210,7 @@ async function bootstrap() {
   const port = parseInt(process.env.PORT || '8002', 10);
   const workerId = (cluster as any).worker?.id ?? 'standalone';
   await app.listen(port, '0.0.0.0');
-  logger.log(`Nabd NestJS Backend [worker ${workerId}] listening on http://0.0.0.0:${port}`);
+  logger.log(`Nabd NestJS Backend [worker ${workerId}, role ${processRole()}] listening on http://0.0.0.0:${port}`);
   if (swaggerEnabled) logger.log(`Swagger UI available at http://0.0.0.0:${port}/api/docs`);
 
   // Cache Warming (non-blocking) — fills Redis so first requests are cache hits
