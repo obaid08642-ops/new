@@ -68,7 +68,7 @@ export default async function MentalHealthPage({ params }: Props) {
       <RowCard href={`/${locale}/mental-health/mood`} icon="heart" tone="pink" title={t("moodRow")} sub={t("moodRowSub")} caret={arrow} />
       <RowCard href={`/${locale}/mental-health/relax`} icon="brain" tone="violet" title={t("relaxRow")} sub={t("relaxRowSub")} caret={arrow} />
       <RowCard href={`/${locale}/consultations/doctors?specialty=psychiatry`} icon="stethoscope" tone="blue" title={t("therapistRow")} sub={t("therapistRowSub")} caret={arrow} />
-      <RowCard href={`/${locale}/emergency`} icon="ambulance" tone="coral" title={em("title")} sub={t("urgentRowSub")} caret={arrow} />
+      <RowCard href={`/${locale}/emergency`} icon={SERVICE_ICONS.emergency.icon} tone={SERVICE_ICONS.emergency.tone} title={em("title")} sub={t("urgentRowSub")} caret={arrow} />
       <Notice>{t("notice")}</Notice>
     </ConsultPage>
   );
