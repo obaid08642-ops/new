@@ -50,7 +50,10 @@ export class UsersService {
         price: Number(med?.price ?? item.price ?? 0),
         image: med?.image || item.image,
         requires_prescription: med?.requires_prescription ?? item.requires_prescription ?? false,
-        available: !!med,
+        // #464: "available" means the item is still in the public catalogue (approved, published, not withdrawn
+        // or discontinued); a row that only remains in the collection is not available to order.
+        available: !!med && med.is_deleted !== true && med.public_eligibility === true && med.medical_review_status === 'approved'
+          && med.active !== false && med.availability_status !== 'discontinued',
       };
     });
   }

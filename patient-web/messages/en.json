@@ -2075,7 +2075,12 @@
       "high_potassium": "Potassium can rise too high. Regular blood tests are needed.",
       "severe_low_blood_pressure": "Severe drop in blood pressure. Never take these together.",
       "rhabdomyolysis": "Risk of muscle damage (rhabdomyolysis). Ask your doctor about a different antibiotic."
-    }
+    },
+    "sortLabel": "Sort",
+    "sortPopular": "Most popular",
+    "sortPriceAsc": "Price: low to high",
+    "sortPriceDesc": "Price: high to low",
+    "sortNewest": "Newest"
   },
   "PharmacyOffers": {
     "backToOrder": "Back to the order",
@@ -3184,7 +3189,8 @@
       "okay": "Okay",
       "bad": "Not good",
       "terrible": "Very bad"
-    }
+    },
+    "urgentRowSub": "Call the urgent-help number"
   },
   "ProgramsWeb": {
     "title": "My health programs",
@@ -3259,7 +3265,8 @@
     "explainAnother": "Explain something else",
     "untitledReport": "Medical report",
     "reportsUnavailable": "Your reports could not be loaded now. Try again in a moment.",
-    "leafletLink": "Read the leaflet"
+    "leafletLink": "Read the leaflet",
+    "historyTitle": "Your earlier questions"
   },
   "MonthlyReportWeb": {
     "title": "Your monthly report",

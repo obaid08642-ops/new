@@ -170,6 +170,10 @@ import { MedicineRepository } from './seo-repositories/medicine.repository';
 import { ProviderProfileRepository } from './seo-repositories/providerprofile.repository';
 import { ArticleRepository } from './seo-repositories/article.repository';
 
+/** Orders of the public catalogue (#816); anything else is the default popularity order. */
+export const CATALOGUE_SORTS = ['popular', 'price_asc', 'price_desc', 'newest'] as const;
+export type CatalogueSort = (typeof CATALOGUE_SORTS)[number];
+
 const SITE = process.env.API_PUBLIC_URL?.replace('/api/v1', '') || 'https://api.nabd.plus';
 const SITE_NAME = 'نبض';
 
@@ -560,7 +564,7 @@ export class SeoSearchService {
   }
 
   /** Paginated products inside a localized category cluster. */
-  async publicCategoryProducts(locale: string, category: string, sub?: string, page = 1, limit = 24, q?: string) {
+  async publicCategoryProducts(locale: string, category: string, sub?: string, page = 1, limit = 24, q?: string, sort: CatalogueSort = 'popular') {
     const db = productLocaleToDb(locale);
     const key = (f: string) => db === 'ar' ? f : `translations.${db}.${f === 'category' ? 'main_category' : f}`;
     const filter: any = { ...this.publicProductFilter() };
@@ -652,11 +656,13 @@ export class SeoSearchService {
     const perPage = Math.min(Math.max(limit, 1), 48);
     // Popularity-first ordering (views → rating → stable id). Deliberately NOT
     // image-first: imageless medicines were buried under cosmetics on "All".
-    const sortClause: any = {
-      usage_count: -1,
-      rating: -1,
-      _id: 1,
-    };
+    // #816: the patient may order by price or newest; the default stays popularity (views, rating, stable id).
+    const sortClause: any = sort === 'price_asc' ? { price: 1, _id: 1 }
+      : sort === 'price_desc' ? { price: -1, _id: 1 }
+      : sort === 'newest' ? { createdAt: -1, _id: 1 }
+      : { usage_count: -1, rating: -1, _id: 1 };
+    // An explicit price order skips items without a real price (a 0 is "no price", never the cheapest).
+    if (sort === 'price_asc' || sort === 'price_desc') filter.price = { $gt: 0 };
 
     const cursor = this.conn.collection(CATALOG_COLLECTIONS.medicines)
       .find(filter, { projection: { _id: 0, id: 1, sku: 1, slug: 1, name_ar: 1, name_en: 1, price: 1, old_price: 1, image_1: 1, image: 1, images: 1, form: 1, strength: 1, package_size: 1, category: 1, sub_category: 1, active_ingredient: 1, requires_prescription: 1, availability_status: 1, usage_count: 1, translations: 1 } } as any)
@@ -682,7 +688,7 @@ export class SeoSearchService {
     // 24× paracetamol. Max 2 per active ingredient. 60s in-process cache.
     // Known trade-off: a promoted item whose natural rank is beyond page 1 may
     // reappear on its natural page (stateless endpoint). Harmless; page-1 wins.
-    if (Math.max(page, 1) === 1 && !q?.trim()) {
+    if (Math.max(page, 1) === 1 && !q?.trim() && sort === 'popular') {
       try {
         const toDto = (m: any) => {
           const dto = resolveMedicinePublicDto(m, locale);
@@ -700,7 +706,8 @@ export class SeoSearchService {
               .project({ _id: 0, drug_id: 1 }).toArray().catch(() => []);
             const ranked = top.map((t: any) => t.drug_id).filter(Boolean);
             const rankPos = new Map(ranked.map((id: string, i: number) => [id, i]));
-            const pins = items.filter((i: any) => rankPos.has(i.id))
+            // A prescription-only item is never promoted (owner decisions 10 and 29): it keeps its natural place.
+            const pins = items.filter((i: any) => rankPos.has(i.id) && !i.is_rx)
               .sort((a: any, b: any) => rankPos.get(a.id)! - rankPos.get(b.id)!).slice(0, 8);
             const pinIds = new Set(pins.map((i: any) => i.id));
             const ingCount = new Map<string, number>();
@@ -768,8 +775,8 @@ export class SeoSearchService {
           }
           const rankPos = new Map(ranked.map((id: string, i: number) => [id, i]));
           items = [
-            ...items.filter((i: any) => rankPos.has(i.id)).sort((a: any, b: any) => rankPos.get(a.id)! - rankPos.get(b.id)!).slice(0, 8),
-            ...items.filter((i: any) => !rankPos.has(i.id)),
+            ...items.filter((i: any) => rankPos.has(i.id) && !i.is_rx).sort((a: any, b: any) => rankPos.get(a.id)! - rankPos.get(b.id)!).slice(0, 8),
+            ...items.filter((i: any) => !rankPos.has(i.id) || i.is_rx),
           ].slice(0, perPage);
         }
       } catch { /* boost is best-effort; base order stands */ }
@@ -1129,16 +1136,18 @@ export class SeoSearchController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('q') q?: string,
+    @Query('sort') sort?: string,
   ) {
     if (!(PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale)) throw new NotFoundException('locale_not_supported');
     const cat = category || 'all';
+    const order: CatalogueSort = (CATALOGUE_SORTS as readonly string[]).includes(sort || '') ? sort as CatalogueSort : 'popular';
     // parseInt('garbage') is NaN, and NaN reaches Mongo as skip/limit and
     // comes back as a 500. Anything unparseable falls back to the default.
     const bounded = (raw: string | undefined, fallback: number, max: number) => {
       const n = Number.parseInt(raw ?? '', 10);
       return Number.isFinite(n) && n > 0 ? Math.min(n, max) : fallback;
     };
-    return this.svc.publicCategoryProducts(locale, cat, sub, bounded(page, 1, 10_000), bounded(limit, 24, 100), q);
+    return this.svc.publicCategoryProducts(locale, cat, sub, bounded(page, 1, 10_000), bounded(limit, 24, 100), q, order);
   }
 
   /** Product sitemap page as JSON (the web app renders same-host XML). */

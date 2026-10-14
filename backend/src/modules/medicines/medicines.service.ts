@@ -45,7 +45,8 @@ export class MedicinesService {
     try {
       const ids = await this.manualBoosts.activeIds();
       if (ids.size === 0) return items;
-      return items.map((m: any) => (m && ids.has(String(m.id)) ? { ...m, sponsored: true } : m));
+      // A prescription-only item is never promoted (owner decisions 10 and 29).
+      return items.map((m: any) => (m && ids.has(String(m.id)) && m.requires_prescription !== true ? { ...m, sponsored: true } : m));
     } catch { return items; }
   }
 
@@ -606,6 +607,45 @@ export class MedicinesService {
   }
 
   /**
+   * #450/#472: the governed catalogue with the pharmacy screens' filters (forms, brands, prescription-only, price
+   * range) and orders (price ascending/descending, newest; otherwise the usual relevance order). A list when no page
+   * is asked, else { data, total, page, limit, total_pages }.
+   */
+  async filtered(
+    search: string | undefined,
+    category: string | undefined,
+    f: { forms: string[]; brands: string[]; rx_only: boolean; min_price?: number; max_price?: number },
+    sort: string,
+    page: number | undefined,
+    limit = 30,
+  ) {
+    const q: any = this.buildQuery(search, (category && category !== 'all') ? category : undefined, false);
+    const and: any[] = q.$and ? [...q.$and] : [];
+    delete q.$and;
+    const anyOf = (field: string, values: string[]) => ({ $or: values.map((v) => ({ [field]: { $regex: escapeRegex(v), $options: 'i' } })) });
+    if (f.forms.length) and.push(anyOf('form', f.forms));
+    if (f.brands.length) and.push(anyOf('manufacturer', f.brands));
+    if (f.rx_only) q.requires_prescription = true;
+    if (f.min_price !== undefined || f.max_price !== undefined) {
+      q.price = { $gt: 0, ...(f.min_price !== undefined ? { $gte: f.min_price } : {}), ...(f.max_price !== undefined ? { $lte: f.max_price } : {}) };
+    } else if (sort === 'price_asc' || sort === 'price_desc') {
+      q.price = { $gt: 0 }; // a missing price is not the cheapest
+    }
+    if (and.length) q.$and = and;
+    const order: any = sort === 'price_asc' ? { price: 1, id: 1 }
+      : sort === 'price_desc' ? { price: -1, id: 1 }
+      : sort === 'newest' ? { createdAt: -1, id: 1 }
+      : { verified: -1, usage_count: -1, name_ar: 1 };
+    const safeLimit = clampPageInt(limit, 30, 100);
+    const safePage = page === undefined ? 1 : clampPageInt(page, 1);
+    const find = this.model.find(q, MedicinesService.CARD_PROJECTION).sort(order).skip((safePage - 1) * safeLimit).limit(safeLimit);
+    const rows = (await find as any[]).map((m: any) => this.withBadges(m?.toObject ? m.toObject() : m));
+    if (page === undefined) return rows;
+    const total = await (this.model as any).countDocuments(q);
+    return { data: rows, total, page: safePage, limit: safeLimit, total_pages: Math.ceil(total / safeLimit) };
+  }
+
+  /**
    * Cursor-based catalog browsing (O(1) page turns at any depth, no skip-scan).
    * Cursor encodes the last item's (name_ar, id); the next page continues after it.
    */
@@ -947,7 +987,8 @@ export class MedicinesService {
       brands: brands.filter(Boolean),
       // Needs-review #449: only forms that exist in the public catalogue (no invented fallback list).
       forms: forms.filter(Boolean),
-      sortOptions: ['الأكثر مبيعاً', 'السعر: من الأقل للأعلى', 'السعر: من الأعلى للأقل', 'الأحدث']
+      // #450: the ids GET /medicines accepts as `sort` (the screens translate them); no display text from the server.
+      sortOptions: ['relevant', 'price_asc', 'price_desc', 'newest'],
     };
   }
 

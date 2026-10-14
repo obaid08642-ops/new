@@ -2075,7 +2075,12 @@
       "high_potassium": "ارتفاع البوتاسيوم. يلزم فحص دوري.",
       "severe_low_blood_pressure": "هبوط حاد في ضغط الدم. لا تجمع بينهما أبداً.",
       "rhabdomyolysis": "خطر تلف العضلات (انحلال الربيدات). اسأل طبيبك عن مضاد حيوي آخر."
-    }
+    },
+    "sortLabel": "الترتيب",
+    "sortPopular": "الأكثر طلبًا",
+    "sortPriceAsc": "السعر: من الأقل",
+    "sortPriceDesc": "السعر: من الأعلى",
+    "sortNewest": "الأحدث"
   },
   "PharmacyOffers": {
     "backToOrder": "العودة إلى الطلب",
@@ -3184,7 +3189,8 @@
       "okay": "عادي",
       "bad": "سيئ",
       "terrible": "سيئ جداً"
-    }
+    },
+    "urgentRowSub": "اتصل برقم المساعدة العاجلة"
   },
   "ProgramsWeb": {
     "title": "برامجي الصحية",
@@ -3259,7 +3265,8 @@
     "explainAnother": "اشرح شيئاً آخر",
     "untitledReport": "تقرير طبي",
     "reportsUnavailable": "تعذر تحميل تقاريرك الآن. أعد المحاولة بعد قليل.",
-    "leafletLink": "اقرأ النشرة"
+    "leafletLink": "اقرأ النشرة",
+    "historyTitle": "أسئلتك السابقة"
   },
   "MonthlyReportWeb": {
     "title": "تقريرك الشهري",

@@ -2075,7 +2075,12 @@
       "high_potassium": "Maaaring tumaas nang sobra ang potassium. Kailangan ng regular na blood test.",
       "severe_low_blood_pressure": "Matinding pagbaba ng presyon ng dugo. Huwag kailanman pagsabayin ang mga ito.",
       "rhabdomyolysis": "Panganib ng pinsala sa kalamnan (rhabdomyolysis). Tanungin ang iyong doktor tungkol sa ibang antibiotic."
-    }
+    },
+    "sortLabel": "Pagkakasunod",
+    "sortPopular": "Pinakasikat",
+    "sortPriceAsc": "Presyo: mababa pataas",
+    "sortPriceDesc": "Presyo: mataas pababa",
+    "sortNewest": "Pinakabago"
   },
   "PharmacyOffers": {
     "backToOrder": "Bumalik sa order",
@@ -3184,7 +3189,8 @@
       "okay": "Ayos lang",
       "bad": "Hindi mabuti",
       "terrible": "Napakasama"
-    }
+    },
+    "urgentRowSub": "Tawagan ang numero ng agarang tulong"
   },
   "ProgramsWeb": {
     "title": "Aking mga health program",
@@ -3259,7 +3265,8 @@
     "explainAnother": "Magpaliwanag ng iba",
     "untitledReport": "Ulat na medikal",
     "reportsUnavailable": "Hindi ma-load ang iyong mga ulat ngayon. Subukan muli mamaya.",
-    "leafletLink": "Basahin ang leaflet"
+    "leafletLink": "Basahin ang leaflet",
+    "historyTitle": "Mga dati mong tanong"
   },
   "MonthlyReportWeb": {
     "title": "Iyong buwanang ulat",

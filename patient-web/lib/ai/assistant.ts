@@ -45,6 +45,28 @@ export function triageCareLevel(payload: unknown): CareLevel | null {
   return level === "emergency" || level === "consultation" ? level : null;
 }
 
+/** The doctor specialty slug the triage answer names (keyword rules on the server), for `?specialty=`; null when none. */
+export function triageSpecialty(payload: unknown): string | null {
+  const root = record(payload);
+  const source = record(root?.data) ?? root;
+  const value = source?.specialty;
+  return typeof value === "string" && /^[a-z][a-z_]{1,39}$/.test(value) ? value : null;
+}
+
+export type PastTriage = { asked: string; level: CareLevel; specialty: string | null };
+
+/** GET /ai/triage/history (newest first) read oldest first; rows without the asked text or a care level are left out. */
+export function parseTriageHistory(payload: unknown): PastTriage[] {
+  const rows = Array.isArray(payload) ? payload : Array.isArray(record(payload)?.data) ? (record(payload)?.data as unknown[]) : [];
+  const out: PastTriage[] = [];
+  for (const row of rows) {
+    const asked = record(row)?.symptoms;
+    const level = triageCareLevel(row);
+    if (typeof asked === "string" && asked.trim() && level) out.push({ asked, level, specialty: triageSpecialty(row) });
+  }
+  return out.reverse();
+}
+
 /** The text of an analysis answer (POST /api/ai/analyze-report); null when it has none. */
 export function analysisSummary(payload: unknown): string | null {
   const root = record(payload);

@@ -183,7 +183,8 @@ export class AssistantService {
     return RED_FLAGS.some((re) => re.test(message));
   }
 
-  private static mapSpecialty(message: string): string | null {
+  /** The specialty a symptom text points to (keyword rules), or null; also used by POST /ai/triage. */
+  static mapSpecialty(message: string): string | null {
     const rule = SPECIALTY_RULES.find((r) => r.test(message));
     if (!rule) return null;
     return SPECIALTY_MASTER.some((s) => s.slug === rule.slug) ? rule.slug : 'general_practice';
