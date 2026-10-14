@@ -18,12 +18,12 @@ import { DICTIONARY, resolveLang } from '../modules/i18n/i18n.service';
 
 /** Stable, machine-readable failure identifiers. Treat these as a published contract. */
 export type PlatformErrorCode =
-  | 'bad_request'
-  | 'unauthorized'
-  | 'forbidden'
-  | 'not_found'
-  | 'conflict'
-  | 'internal_error';
+  | 'BAD_REQUEST'
+  | 'UNAUTHORIZED'
+  | 'FORBIDDEN'
+  | 'NOT_FOUND'
+  | 'CONFLICT'
+  | 'INTERNAL_ERROR';
 
 export interface CatalogEntry {
   /** HTTP status this code is raised with. */
@@ -39,12 +39,12 @@ export interface CatalogEntry {
  * integrity spec asserts that, so a partial translation fails CI rather than shipping.
  */
 export const ERROR_CATALOG: Record<PlatformErrorCode, CatalogEntry> = {
-  bad_request: { status: HttpStatus.BAD_REQUEST, i18nKey: 'err.bad_request' },
-  unauthorized: { status: HttpStatus.UNAUTHORIZED, i18nKey: 'err.unauthorized' },
-  forbidden: { status: HttpStatus.FORBIDDEN, i18nKey: 'err.forbidden' },
-  not_found: { status: HttpStatus.NOT_FOUND, i18nKey: 'err.not_found' },
-  conflict: { status: HttpStatus.CONFLICT, i18nKey: 'err.conflict' },
-  internal_error: { status: HttpStatus.INTERNAL_SERVER_ERROR, i18nKey: 'err.internal_error' },
+  BAD_REQUEST: { status: HttpStatus.BAD_REQUEST, i18nKey: 'err.bad_request' },
+  UNAUTHORIZED: { status: HttpStatus.UNAUTHORIZED, i18nKey: 'err.unauthorized' },
+  FORBIDDEN: { status: HttpStatus.FORBIDDEN, i18nKey: 'err.forbidden' },
+  NOT_FOUND: { status: HttpStatus.NOT_FOUND, i18nKey: 'err.not_found' },
+  CONFLICT: { status: HttpStatus.CONFLICT, i18nKey: 'err.conflict' },
+  INTERNAL_ERROR: { status: HttpStatus.INTERNAL_SERVER_ERROR, i18nKey: 'err.internal_error' },
 };
 
 export function isPlatformErrorCode(value: unknown): value is PlatformErrorCode {
@@ -52,14 +52,14 @@ export function isPlatformErrorCode(value: unknown): value is PlatformErrorCode 
 }
 
 /**
- * Reverse lookup. An unmapped status collapses to `internal_error` rather than
+ * Reverse lookup. An unmapped status collapses to `INTERNAL_ERROR` rather than
  * echoing the raw status back at the caller, so an unrecognised code can never
  * masquerade as a meaningful one.
  */
 export function errorCodeForStatus(status: number): PlatformErrorCode {
   const hit = (Object.keys(ERROR_CATALOG) as PlatformErrorCode[])
     .find((code) => ERROR_CATALOG[code].status === status);
-  return hit ?? 'internal_error';
+  return hit ?? 'INTERNAL_ERROR';
 }
 
 export interface PlatformErrorBody {
@@ -80,7 +80,7 @@ export function platformErrorBody(
   lang?: string | null,
   opts?: { forceMissing?: boolean },
 ): PlatformErrorBody {
-  const entry = ERROR_CATALOG[code] ?? ERROR_CATALOG.internal_error;
+  const entry = ERROR_CATALOG[code] ?? ERROR_CATALOG.INTERNAL_ERROR;
   const resolved = resolveLang(lang);
   const fromDict = DICTIONARY[entry.i18nKey];
   // `forceMissing` exists only for the spec: it proves the code survives a lookup miss.

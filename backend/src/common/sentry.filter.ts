@@ -67,12 +67,12 @@ export function translateMongoError(exception: unknown): HttpException | null {
   // the body gains a stable `code` a client can switch on.
   const codeFor = (name: string): PlatformErrorCode | null => {
     // CastError and a direct `new ObjectId(badInput)` (BSONError) share semantics.
-    if (name === 'CastError' || name === 'BSONError') return 'not_found';
-    if (name === 'ValidationError') return 'bad_request';
+    if (name === 'CastError' || name === 'BSONError') return 'NOT_FOUND';
+    if (name === 'ValidationError') return 'BAD_REQUEST';
     return null;
   };
   const byName = err.name ? codeFor(err.name) : null;
-  const code = byName ?? (err.name === 'MongoServerError' && err.code === 11000 ? 'conflict' : null);
+  const code = byName ?? (err.name === 'MongoServerError' && err.code === 11000 ? 'CONFLICT' : null);
   if (!code) return null;
   return new HttpException({ statusCode: ERROR_CATALOG[code].status, code, message: code }, ERROR_CATALOG[code].status);
 }
