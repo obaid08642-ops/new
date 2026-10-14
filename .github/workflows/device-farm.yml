@@ -58,7 +58,7 @@ jobs:
           bash tools/live/run_device_farm.sh --apk "$(ls /tmp/farm/*.apk | head -1)" --out /tmp/ftl-report.json
       - name: Attach the device-farm report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: device-farm-report
           path: /tmp/ftl-report.json
