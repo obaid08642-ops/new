@@ -1671,7 +1671,8 @@
     "aboutTitle": "About Laboratory",
     "defaultAbout": "A certified medical laboratory equipped with modern diagnostics.",
     "servicesTitle": "Available Tests",
-    "price": "{value} SAR"
+    "price": "{value} SAR",
+    "ratingLine": "রেটিং ৫-এর মধ্যে {rating} · রেটিংয়ের সংখ্যা {count}"
   },
   "NurseDetail": {
     "title": "Nurse Profile",
@@ -2049,7 +2050,14 @@
     "ixSeverityLow": "কম ঝুঁকি",
     "citeTitle": "এই তথ্যের উদ্ধৃতি দিন",
     "citeCopy": "উদ্ধৃতি কপি করুন",
-    "citeCopied": "কপি হয়েছে"
+    "citeCopied": "কপি হয়েছে",
+    "ixNote": {
+      "bleeding_risk": "রক্তপাতের ঝুঁকি বাড়ে। এখনই ডাক্তারের সাথে যোগাযোগ করুন।",
+      "lactic_acidosis": "ল্যাকটিক অ্যাসিডোসিসের ঝুঁকি। অ্যালকোহল এড়িয়ে চলুন।",
+      "high_potassium": "পটাশিয়াম অনেক বেড়ে যেতে পারে। নিয়মিত রক্ত পরীক্ষা প্রয়োজন।",
+      "severe_low_blood_pressure": "রক্তচাপ মারাত্মকভাবে কমে যেতে পারে। এগুলো কখনো একসাথে খাবেন না।",
+      "rhabdomyolysis": "পেশির ক্ষতির (র্যাবডোমায়োলাইসিস) ঝুঁকি। অন্য অ্যান্টিবায়োটিকের বিষয়ে আপনার ডাক্তারকে জিজ্ঞেস করুন।"
+    }
   },
   "PharmacyOffers": {
     "backToOrder": "অর্ডারে ফিরুন",
@@ -2623,7 +2631,12 @@
     "chatNoGroupTitle": "আপনি এখনও কোনো পারিবারিক গ্রুপে নেই",
     "chatNoGroupBody": "চ্যাট শুরু করতে পারিবারিক গ্রুপ তৈরি করুন বা আমন্ত্রণে যোগ দিন।",
     "chatJoin": "কোড দিয়ে যোগ দিন",
-    "emergencyCount": "{count}টি পরিচিতি"
+    "emergencyCount": "{count}টি পরিচিতি",
+    "joinError": {
+      "invalid_invite_code": "এই আমন্ত্রণ কোডটি সঠিক নয়। এটি যাচাই করুন বা নতুন কোড চান।",
+      "invite_expired": "এই আমন্ত্রণ কোডের মেয়াদ শেষ। পরিবারের মালিকের কাছে নতুন কোড চান।",
+      "already_member": "আপনি ইতিমধ্যে এই পরিবারের সদস্য।"
+    }
   },
   "DiagWeb": {
     "retry": "আবার চেষ্টা করুন",
@@ -3136,6 +3149,13 @@
     "durationMinutes": "সময়কাল: {value} মিনিট",
     "completed": "সম্পন্ন",
     "notCompleted": "সম্পন্ন হয়নি",
+    "moodValue": {
+      "great": "খুব ভালো",
+      "good": "ভালো",
+      "okay": "মোটামুটি",
+      "bad": "ভালো না",
+      "terrible": "খুব খারাপ"
+    },
     "urgentRowSub": "জরুরি সহায়তার নম্বরে কল করুন"
   },
   "ProgramsWeb": {
@@ -3513,6 +3533,20 @@
       "acceptRetry": "নিজে পরিশোধের সিদ্ধান্ত নথিভুক্ত করা যায়নি। আবার চেষ্টা করুন।",
       "payFailed": "নিরাপদ অনলাইন পেমেন্ট শুরু করা যায়নি। কোনো পেমেন্ট নিশ্চিত হয়নি।",
       "payRetry": "অনলাইন পেমেন্ট শুরু করা যায়নি। কোনো পেমেন্ট নিশ্চিত হয়নি।"
+    },
+    "noteCode": {
+      "coverage_decided_by_provider": "আপনার অনুরোধ পর্যালোচনার সময় সেবা প্রদানকারী চূড়ান্ত কভারেজ ঠিক করে।",
+      "no_policy_on_file": "আপনার ফাইলে কোনো বিমা পলিসি নেই। আগে একটি যোগ করুন।"
+    },
+    "providerType": {
+      "doctor": "ডাক্তার",
+      "pharmacy": "ফার্মেসি",
+      "hospital": "হাসপাতাল",
+      "clinic": "ক্লিনিক",
+      "lab": "ল্যাবরেটরি",
+      "radiology": "রেডিওলজি সেন্টার",
+      "home_care": "হোম কেয়ার",
+      "nursing": "নার্সিং"
     }
   },
   "LoyaltyHubWeb": {

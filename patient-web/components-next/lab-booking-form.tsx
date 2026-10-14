@@ -28,7 +28,7 @@ export function LabBookingForm({ locale, serviceId, providerId, serviceName, hom
       const r = await fetch("/api/patient/labs/bookings", { method: "POST", headers: { "content-type": "application/json", "idempotency-key": key.current }, body: JSON.stringify({ items: [{ service_id: serviceId }], provider_account_id: providerId, scheduled_at: new Date(scheduledAt).toISOString(), location_type: locationType, payment_method: paymentMethod, documents }) });
       const data = await r.json().catch(() => null);
       if (!r.ok || !data?.id) throw new Error(data?.message || "booking_failed");
-      router.push(`/${locale}/diagnostics/labs/${data.id}`);
+      router.push(`/${locale}/diagnostics/booking-success?bookingId=${encodeURIComponent(String(data.id))}&domain=labs`);
     } catch (e: unknown) { setState("error"); setError(e instanceof Error && e.message === "slot_taken" ? t("errSlotTaken") : t("errBooking")); }
   }
   return (

@@ -3188,5 +3188,12 @@
   "modules.unavailable.title": "यह सेवा अभी उपलब्ध नहीं है",
   "modules.unavailable.body": "हमने यह सेवा कुछ समय के लिए रोक दी है। आप ऐप की बाकी सेवाएँ इस्तेमाल करते रह सकते हैं।",
   "modules.unavailable.home": "होम पर वापस जाएँ",
+  "pharmacy.scan.ix.bleeding_risk": "खून बहने का खतरा बढ़ जाता है। तुरंत डॉक्टर से मिलें।",
+  "pharmacy.scan.ix.lactic_acidosis": "लैक्टिक एसिडोसिस का खतरा। शराब से बचें।",
+  "pharmacy.scan.ix.high_potassium": "पोटैशियम बहुत बढ़ सकता है। नियमित खून की जाँच ज़रूरी है।",
+  "pharmacy.scan.ix.severe_low_blood_pressure": "ब्लड प्रेशर बहुत गिर सकता है। इन्हें कभी एक साथ न लें।",
+  "pharmacy.scan.ix.rhabdomyolysis": "मांसपेशियों को नुकसान (रैबडोमायोलिसिस) का खतरा। अपने डॉक्टर से किसी दूसरी एंटीबायोटिक के बारे में पूछें।",
+  "insurance.noteCode.coverage_decided_by_provider": "अंतिम कवरेज सेवा प्रदाता आपके अनुरोध की समीक्षा करते समय तय करता है।",
+  "insurance.noteCode.no_policy_on_file": "आपकी फ़ाइल में कोई बीमा पॉलिसी नहीं है। पहले एक जोड़ें।",
   "ai.history.title": "आपके पिछले सवाल"
 }

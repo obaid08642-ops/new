@@ -263,4 +263,11 @@ export class LabsController {
     }
     return this.svc.slotsForProvider(providerAccountId, date, dur);
   }
+
+  // #639: the public page of one approved lab (the id the compatible-providers list gives: its account id), with its
+  // rating count and the tests it prices. Declared last so every fixed one-segment route above wins.
+  @Public() @Get(':id')
+  publicLab(@Param('id') id: string) {
+    return this.svc.publicLab(id);
+  }
 }

@@ -127,7 +127,7 @@ export class PharmacyChatService {
     t.status = 'closed';
     t.resolution = 'accepted';
     await t.save();
-    await this.messages.create({ id: uuidv4(), thread_id, sender_account_id: 'system', sender_role: 'system', text: `البديل مقبول من المريض.` });
+    await this.messages.create({ id: uuidv4(), thread_id, sender_account_id: 'system', sender_role: 'system', system_code: 'substitute_accepted', text: `البديل مقبول من المريض.` });
     await this.bus.emit({ type: 'substitute.accepted', entity_type: 'chat', entity_id: t.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: t.patient_account_id, pharmacy_account_id: t.pharmacy_account_id, meta: { order_id: t.order_id, order_item_id: t.order_item_id, message_id: msg.id } });
     return { ok: true };
   }
@@ -150,7 +150,7 @@ export class PharmacyChatService {
         await order.save();
       }
     }
-    await this.messages.create({ id: uuidv4(), thread_id, sender_account_id: 'system', sender_role: 'system', text: action === 'rejected' ? `المريض رفض البديل.` : `تم حذف الصنف من الطلب.` });
+    await this.messages.create({ id: uuidv4(), thread_id, sender_account_id: 'system', sender_role: 'system', system_code: action === 'rejected' ? 'substitute_rejected' : 'item_removed', text: action === 'rejected' ? `المريض رفض البديل.` : `تم حذف الصنف من الطلب.` });
     await this.bus.emit({ type: action === 'rejected' ? 'substitute.rejected' : 'substitute.item_removed', entity_type: 'chat', entity_id: t.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: t.patient_account_id, pharmacy_account_id: t.pharmacy_account_id, meta: { order_id: t.order_id, order_item_id: t.order_item_id } });
     return { ok: true };
   }

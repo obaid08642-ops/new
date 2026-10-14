@@ -58,6 +58,9 @@ export async function FinalQuoteScreen({ locale, orderId }: { locale: Locale; or
   );
 }
 
+/** System lines are Arabic-only server text: the screen shows the translated outcome of their code instead. */
+const SYSTEM_RESOLUTION: Record<string, "accepted" | "rejected" | "removed"> = { substitute_accepted: "accepted", substitute_rejected: "rejected", item_removed: "removed" };
+
 /** `/orders/:id/offers/negotiation`: the order's conversations with pharmacies about substitutes. */
 export async function NegotiationListScreen({ locale, orderId }: { locale: Locale; orderId: string }) {
   if (!UUID.test(orderId)) notFound();
@@ -163,7 +166,9 @@ export async function NegotiationThreadScreen({ locale, orderId, threadId }: { l
                             return (
                 <li key={message.id} className={`${styles.message} ${role === "patient" ? styles.mine : role === "system" ? styles.system : styles.theirs}`}>
                   {role ? <span className={styles.sender}>{t(`sender.${role}`)}</span> : null}
-                  {message.text ? <p className={styles.body} dir="auto">{message.text}</p> : null}
+                  {role === "system"
+                    ? (SYSTEM_RESOLUTION[message.systemCode ?? ""] ? <p className={styles.body}>{t(`resolution.${SYSTEM_RESOLUTION[message.systemCode ?? ""]}`)}</p> : null)
+                    : message.text ? <p className={styles.body} dir="auto">{message.text}</p> : null}
                   {message.substitute ? (
                     <div className={styles.substitute}>
                       <span className={styles.substituteTitle}>{t("suggestedSubstitute")}</span>

@@ -1671,7 +1671,8 @@
     "aboutTitle": "About Laboratory",
     "defaultAbout": "A certified medical laboratory equipped with modern diagnostics.",
     "servicesTitle": "Available Tests",
-    "price": "{value} SAR"
+    "price": "{value} SAR",
+    "ratingLine": "रेटिंग 5 में से {rating} · रेटिंग की संख्या {count}"
   },
   "NurseDetail": {
     "title": "Nurse Profile",
@@ -2049,7 +2050,14 @@
     "ixSeverityLow": "कम जोखिम",
     "citeTitle": "इस जानकारी का हवाला दें",
     "citeCopy": "उद्धरण कॉपी करें",
-    "citeCopied": "कॉपी हो गया"
+    "citeCopied": "कॉपी हो गया",
+    "ixNote": {
+      "bleeding_risk": "खून बहने का खतरा बढ़ जाता है। तुरंत डॉक्टर से मिलें।",
+      "lactic_acidosis": "लैक्टिक एसिडोसिस का खतरा। शराब से बचें।",
+      "high_potassium": "पोटैशियम बहुत बढ़ सकता है। नियमित खून की जाँच ज़रूरी है।",
+      "severe_low_blood_pressure": "ब्लड प्रेशर बहुत गिर सकता है। इन्हें कभी एक साथ न लें।",
+      "rhabdomyolysis": "मांसपेशियों को नुकसान (रैबडोमायोलिसिस) का खतरा। अपने डॉक्टर से किसी दूसरी एंटीबायोटिक के बारे में पूछें।"
+    }
   },
   "PharmacyOffers": {
     "backToOrder": "ऑर्डर पर वापस",
@@ -2623,7 +2631,12 @@
     "chatNoGroupTitle": "आप अभी किसी पारिवारिक समूह में नहीं हैं",
     "chatNoGroupBody": "चैट शुरू करने के लिए पारिवारिक समूह बनाएँ या आमंत्रण से जुड़ें।",
     "chatJoin": "कोड से जुड़ें",
-    "emergencyCount": "{count} संपर्क"
+    "emergencyCount": "{count} संपर्क",
+    "joinError": {
+      "invalid_invite_code": "यह आमंत्रण कोड मान्य नहीं है। इसे जाँचें या नया कोड माँगें।",
+      "invite_expired": "इस आमंत्रण कोड की समय-सीमा खत्म हो गई है। परिवार के मालिक से नया कोड माँगें।",
+      "already_member": "आप पहले से इस परिवार के सदस्य हैं।"
+    }
   },
   "DiagWeb": {
     "retry": "फिर से कोशिश करें",
@@ -3136,6 +3149,13 @@
     "durationMinutes": "अवधि: {value} मिनट",
     "completed": "पूरा हुआ",
     "notCompleted": "पूरा नहीं हुआ",
+    "moodValue": {
+      "great": "बहुत अच्छा",
+      "good": "अच्छा",
+      "okay": "ठीक-ठाक",
+      "bad": "अच्छा नहीं",
+      "terrible": "बहुत बुरा"
+    },
     "urgentRowSub": "तत्काल सहायता नंबर पर कॉल करें"
   },
   "ProgramsWeb": {
@@ -3513,6 +3533,20 @@
       "acceptRetry": "स्वयं भुगतान दर्ज नहीं हो सका। फिर कोशिश करें।",
       "payFailed": "सुरक्षित ऑनलाइन भुगतान शुरू नहीं हो सका। कोई भुगतान पुष्ट नहीं हुआ।",
       "payRetry": "ऑनलाइन भुगतान शुरू नहीं हो सका। कोई भुगतान पुष्ट नहीं हुआ।"
+    },
+    "noteCode": {
+      "coverage_decided_by_provider": "अंतिम कवरेज सेवा प्रदाता आपके अनुरोध की समीक्षा करते समय तय करता है।",
+      "no_policy_on_file": "आपकी फ़ाइल में कोई बीमा पॉलिसी नहीं है। पहले एक जोड़ें।"
+    },
+    "providerType": {
+      "doctor": "डॉक्टर",
+      "pharmacy": "फ़ार्मेसी",
+      "hospital": "अस्पताल",
+      "clinic": "क्लिनिक",
+      "lab": "प्रयोगशाला",
+      "radiology": "रेडियोलॉजी केंद्र",
+      "home_care": "घरेलू देखभाल",
+      "nursing": "नर्सिंग"
     }
   },
   "LoyaltyHubWeb": {

@@ -188,8 +188,8 @@ describe("mental health", () => {
   });
 
   it("the mood journal lists the entries; the relax screen reads only the open tab", async () => {
-    backend({ "/mental-health/mood": [{ id: "e1", mood: "calm", energy_level: 4, logged_at: "2026-10-01T10:00:00.000Z" }], "/mental-health/breathing": [{ id: "b1", technique: "box", rounds: 4, duration_seconds: 120 }], "/mental-health/meditation": [{ id: "d1", type: "body scan", duration_minutes: 10, completed: true }] });
-    expect(render(await MoodPage({ params }))).toContain("calm");
+    backend({ "/mental-health/mood": [{ id: "e1", mood: "good", energy_level: 4, logged_at: "2026-10-01T10:00:00.000Z" }], "/mental-health/breathing": [{ id: "b1", technique: "box", rounds: 4, duration_seconds: 120 }], "/mental-health/meditation": [{ id: "d1", type: "body scan", duration_minutes: 10, completed: true }] });
+    expect(render(await MoodPage({ params }))).toContain(">Good<");
     const breathing = render(await RelaxPage(page()));
     expect(breathing).toContain("box");
     expect(server.api).not.toHaveBeenCalledWith("/mental-health/meditation", {}, TOKEN);

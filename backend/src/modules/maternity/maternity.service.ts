@@ -49,7 +49,7 @@ export class MaternityService {
       await profile.save();
     }
     const source = profile.toObject();
-    return { ...source, current_week: week, profile_ready: Boolean(source.is_pregnant ? source.due_date : source.last_period_date && source.cycle_length), tracking_mode: source.is_pregnant ? 'pregnancy' : 'cycle', estimate_notice: 'Dates and fertile-window information are estimates based on your entries, not medical diagnosis or contraception.' };
+    return { ...source, current_week: week, profile_ready: Boolean(source.is_pregnant ? source.due_date : source.last_period_date && source.cycle_length), tracking_mode: source.is_pregnant ? 'pregnancy' : 'cycle', estimate_notice_code: 'dates_are_estimates', estimate_notice: 'Dates and fertile-window information are estimates based on your entries, not medical diagnosis or contraception.' };
   }
 
   async updateProfile(userId: string, updateData: any): Promise<any> {

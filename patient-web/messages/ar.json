@@ -1671,7 +1671,8 @@
     "aboutTitle": "عن المختبر",
     "defaultAbout": "مختبر طبي مجهز بأحدث الأجهزة والتقنيات لتقديم نتائج دقيقة.",
     "servicesTitle": "التحاليل المتوفرة",
-    "price": "{value} ر.س"
+    "price": "{value} ر.س",
+    "ratingLine": "التقييم {rating} من 5 · عدد التقييمات {count}"
   },
   "NurseDetail": {
     "title": "ملف الممرض/ة",
@@ -2049,7 +2050,14 @@
     "ixSeverityLow": "خطورة منخفضة",
     "citeTitle": "استشهد بهذه المعلومة",
     "citeCopy": "نسخ الاقتباس",
-    "citeCopied": "تم النسخ"
+    "citeCopied": "تم النسخ",
+    "ixNote": {
+      "bleeding_risk": "زيادة خطر النزيف. راجع الطبيب فوراً.",
+      "lactic_acidosis": "خطر الحماض اللبني. تجنّب الكحول.",
+      "high_potassium": "ارتفاع البوتاسيوم. يلزم فحص دوري.",
+      "severe_low_blood_pressure": "هبوط حاد في ضغط الدم. لا تجمع بينهما أبداً.",
+      "rhabdomyolysis": "خطر تلف العضلات (انحلال الربيدات). اسأل طبيبك عن مضاد حيوي آخر."
+    }
   },
   "PharmacyOffers": {
     "backToOrder": "العودة إلى الطلب",
@@ -2623,7 +2631,12 @@
     "chatNoGroupTitle": "لست عضوًا في مجموعة عائلية بعد",
     "chatNoGroupBody": "أنشئ مجموعة عائلية أو انضم بدعوة لبدء المحادثة.",
     "chatJoin": "انضمام بكود",
-    "emergencyCount": "{count} جهات"
+    "emergencyCount": "{count} جهات",
+    "joinError": {
+      "invalid_invite_code": "رمز الدعوة غير صحيح. تأكد منه واطلب رمزاً جديداً إذا لزم الأمر.",
+      "invite_expired": "انتهت صلاحية رمز الدعوة. اطلب من صاحب العائلة رمزاً جديداً.",
+      "already_member": "أنت عضو في هذه العائلة بالفعل."
+    }
   },
   "DiagWeb": {
     "retry": "حاول مرة أخرى",
@@ -3136,6 +3149,13 @@
     "durationMinutes": "المدة: {value} دقيقة",
     "completed": "مكتملة",
     "notCompleted": "غير مكتملة",
+    "moodValue": {
+      "great": "ممتاز",
+      "good": "جيد",
+      "okay": "عادي",
+      "bad": "سيئ",
+      "terrible": "سيئ جداً"
+    },
     "urgentRowSub": "اتصل برقم المساعدة العاجلة"
   },
   "ProgramsWeb": {
@@ -3513,6 +3533,20 @@
       "acceptRetry": "تعذّر تسجيل اختيار الدفع الذاتي. أعد المحاولة.",
       "payFailed": "تعذّر بدء الدفع الإلكتروني بأمان. لم يتم تأكيد أي دفع.",
       "payRetry": "تعذّر بدء الدفع الإلكتروني. لم يتم تأكيد أي دفع."
+    },
+    "noteCode": {
+      "coverage_decided_by_provider": "التغطية النهائية يحددها مقدم الخدمة عند مراجعة طلبك.",
+      "no_policy_on_file": "لا توجد وثيقة تأمين في ملفك. أضفها أولاً."
+    },
+    "providerType": {
+      "doctor": "طبيب",
+      "pharmacy": "صيدلية",
+      "hospital": "مستشفى",
+      "clinic": "عيادة",
+      "lab": "مختبر",
+      "radiology": "مركز أشعة",
+      "home_care": "رعاية منزلية",
+      "nursing": "تمريض"
     }
   },
   "LoyaltyHubWeb": {

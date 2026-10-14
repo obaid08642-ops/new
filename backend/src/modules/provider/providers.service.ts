@@ -296,8 +296,9 @@ export class ProvidersService {
     insurance_class?: string,
   ) {
     const q: any = this.publicDiscoveryFilter();
-    if (type) q.type = type;
-    if (city) q.city = city;
+    // Query values are compared as plain strings ($eq), never read as operators.
+    if (type) q.type = { $eq: String(type) };
+    if (city) q.city = { $eq: String(city) };
 
     if (insurance_company || insurance_network || insurance_class) {
       const elemMatch: any = {};

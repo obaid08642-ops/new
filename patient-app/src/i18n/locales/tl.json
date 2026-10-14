@@ -3188,5 +3188,12 @@
   "modules.unavailable.title": "Hindi available ang serbisyong ito ngayon",
   "modules.unavailable.body": "Pansamantala naming inihinto ang serbisyong ito. Magagamit mo pa rin ang iba pang bahagi ng app.",
   "modules.unavailable.home": "Bumalik sa Home",
+  "pharmacy.scan.ix.bleeding_risk": "Mas mataas ang panganib ng pagdurugo. Magpatingin agad sa doktor.",
+  "pharmacy.scan.ix.lactic_acidosis": "Panganib ng lactic acidosis. Iwasan ang alak.",
+  "pharmacy.scan.ix.high_potassium": "Maaaring tumaas nang sobra ang potassium. Kailangan ng regular na blood test.",
+  "pharmacy.scan.ix.severe_low_blood_pressure": "Matinding pagbaba ng presyon ng dugo. Huwag kailanman pagsabayin ang mga ito.",
+  "pharmacy.scan.ix.rhabdomyolysis": "Panganib ng pinsala sa kalamnan (rhabdomyolysis). Tanungin ang iyong doktor tungkol sa ibang antibiotic.",
+  "insurance.noteCode.coverage_decided_by_provider": "Ang provider ang magpapasya sa huling coverage kapag sinuri nito ang iyong request.",
+  "insurance.noteCode.no_policy_on_file": "Walang insurance policy sa iyong file. Magdagdag muna ng isa.",
   "ai.history.title": "Mga dati mong tanong"
 }

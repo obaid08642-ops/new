@@ -3188,5 +3188,12 @@
   "modules.unavailable.title": "یہ سروس ابھی دستیاب نہیں ہے",
   "modules.unavailable.body": "ہم نے یہ سروس عارضی طور پر روک دی ہے۔ آپ باقی ایپ استعمال کرتے رہ سکتے ہیں۔",
   "modules.unavailable.home": "ہوم پر واپس جائیں",
+  "pharmacy.scan.ix.bleeding_risk": "خون بہنے کا خطرہ بڑھ جاتا ہے۔ فوراً ڈاکٹر سے رجوع کریں۔",
+  "pharmacy.scan.ix.lactic_acidosis": "لیکٹک ایسڈوسس کا خطرہ۔ الکحل سے پرہیز کریں۔",
+  "pharmacy.scan.ix.high_potassium": "پوٹاشیم بہت بڑھ سکتا ہے۔ باقاعدہ خون کا ٹیسٹ ضروری ہے۔",
+  "pharmacy.scan.ix.severe_low_blood_pressure": "بلڈ پریشر بہت گر سکتا ہے۔ انہیں کبھی ایک ساتھ نہ لیں۔",
+  "pharmacy.scan.ix.rhabdomyolysis": "پٹھوں کو نقصان (رابڈومائیولائسس) کا خطرہ۔ اپنے ڈاکٹر سے کسی دوسری اینٹی بائیوٹک کے بارے میں پوچھیں۔",
+  "insurance.noteCode.coverage_decided_by_provider": "حتمی کوریج کا فیصلہ سروس فراہم کنندہ آپ کی درخواست کا جائزہ لیتے وقت کرتا ہے۔",
+  "insurance.noteCode.no_policy_on_file": "آپ کی فائل میں کوئی انشورنس پالیسی نہیں ہے۔ پہلے ایک شامل کریں۔",
   "ai.history.title": "آپ کے پچھلے سوالات"
 }
