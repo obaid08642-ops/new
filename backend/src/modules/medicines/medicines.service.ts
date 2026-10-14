@@ -1,4 +1,6 @@
 import { Injectable, NotFoundException, Inject, BadRequestException, Logger, Optional } from '@nestjs/common';
+import { Permission } from '../../common/permissions';
+import { hasEffectivePermission } from '../../common/effective-permissions';
 import { Cron } from '@nestjs/schedule';
 import { Model } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -1758,6 +1760,19 @@ export class MedicinesService {
   async adminApproveCatalog(medicineId: string, approve: boolean, adminId: string) {
     const med: any = await this.model.findOne({ id: medicineId }, { _id: 0, __v: 0 }).lean();
     if (!med) throw new NotFoundException('الصنف غير موجود');
+    // F8: a waiting revision is published (applied as the approver's edit) or discarded; the approved version stays.
+    if (med.pending_revision && typeof med.pending_revision === 'object') {
+      const changes = { ...(med.pending_revision.changes || {}) };
+      await this.model.updateOne({ id: medicineId }, { $set: { pending_revision: null } });
+      if (approve) {
+        await this.applyCatalogEdit(medicineId, changes, adminId);
+        this.audit('medicine.revision_approved', medicineId, adminId, 'admin', { changes, submitted_by: med.pending_revision.submitted_by });
+      } else {
+        this.audit('medicine.revision_rejected', medicineId, adminId, 'admin', { changes, submitted_by: med.pending_revision.submitted_by });
+      }
+      await this.invalidateCache();
+      return { ok: true, id: medicineId, revision: approve ? 'approved' : 'rejected', medical_review_status: med.medical_review_status };
+    }
     await this.model.updateOne(
       { id: medicineId },
       { $set: { medical_review_status: approve ? 'approved' : 'rejected', public_eligibility: !!approve, verified: approve ? true : med.verified, last_reviewed: new Date(), updated_by: adminId, updatedAt: new Date() } },
@@ -1807,7 +1822,47 @@ export class MedicinesService {
     };
   }
 
+  /**
+   * F8 (owner decision 2026-10-05, pending revision "b"): an edit to a PUBLISHED item by an editor without
+   * catalog.approve is stored as `pending_revision` (joined with any earlier pending edit); patients keep the approved
+   * version until an approver publishes it (adminApproveCatalog). An approver's edit and an edit to a draft are applied
+   * directly.
+   */
   async adminUpdateCatalog(medicineId: string, patch: any, adminId: string) {
+    const found: any = await this.getById(medicineId);
+    const med: any = typeof found?.toObject === 'function' ? found.toObject() : found;
+    if (!med) throw new NotFoundException('الصنف غير موجود');
+    const published = med.public_eligibility === true || med.indexing_eligibility === true || med.medical_review_status === 'approved';
+    if (!published || await this.canApproveCatalog(adminId)) return this.applyCatalogEdit(medicineId, patch, adminId);
+
+    const clean = this.pickEditable(patch);
+    const changes: Record<string, unknown> = { ...clean };
+    if (patch?.availability_status !== undefined) changes.availability_status = patch.availability_status;
+    if (patch?.image !== undefined) changes.image = patch.image;
+    if (Object.keys(changes).length === 0) throw new BadRequestException('patch must include at least one editable field');
+    if (clean.price !== undefined && Number(clean.price) !== Number(med.price || 0) && String(patch?.reason || '').trim().length < 5) {
+      throw new BadRequestException('price_change_reason_required');
+    }
+    const prev = med.pending_revision && typeof med.pending_revision === 'object' ? med.pending_revision : null;
+    const reason = String(patch?.reason || '').trim() || (prev?.changes as any)?.reason;
+    const revision = {
+      changes: { ...(prev?.changes || {}), ...changes, ...(reason ? { reason } : {}) },
+      submitted_by: adminId,
+      submitted_at: new Date(),
+    };
+    await this.model.updateOne({ id: medicineId }, { $set: { pending_revision: revision, updatedAt: new Date() } });
+    this.audit('medicine.revision_submitted', medicineId, adminId, 'admin', { changes });
+    return { ok: true, updated: Object.keys(changes), requires_reapproval: true, pending_revision: true };
+  }
+
+  /** Whether this staff account holds catalog.approve (role, custom roles or direct permissions). */
+  private async canApproveCatalog(userId: string): Promise<boolean> {
+    const user: any = await this.conn.collection('users').findOne({ id: { $eq: String(userId) } });
+    if (!user) return false;
+    return hasEffectivePermission(this.conn, user, Permission.CATALOG_APPROVE);
+  }
+
+  private async applyCatalogEdit(medicineId: string, patch: any, adminId: string) {
     // getById returns a mongoose document: spreading it ({ ...med }) drops `id`, and the publication
     // refresh below then ran with an undefined id -> 404 to the admin after the edit was already saved.
     const found: any = await this.getById(medicineId);
@@ -1836,7 +1891,8 @@ export class MedicinesService {
     const wasPublished = med.public_eligibility === true
       || med.indexing_eligibility === true
       || med.medical_review_status === 'approved';
-    const requiresReapproval = wasPublished && Object.keys(clean).some((f) => MedicinesService.REVIEW_FIELDS.has(f));
+    // F8: an edit reaching here is an approver's (published directly) or a draft's (stays unpublished): no reset.
+    const requiresReapproval = false;
     const governanceReset = requiresReapproval ? {
       verified: false,
       public_eligibility: false,

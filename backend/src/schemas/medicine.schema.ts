@@ -11,6 +11,8 @@ export class Medicine {
   @Prop({ default: () => uuid() }) id: string;
   @Prop({ unique: true, sparse: true, index: true }) slug?: string;
   @Prop({ required: true, index: 'text' }) name_ar: string;
+  // F8: an editor's change to a published item waits here until an approver publishes or discards it.
+  @Prop({ type: Object, default: null }) pending_revision?: { changes: Record<string, unknown>; submitted_by: string; submitted_at: Date } | null;
   @Prop({ index: 'text' }) name_en?: string;
   @Prop({ index: 'text' }) active_ingredient?: string;
   @Prop() manufacturer?: string;

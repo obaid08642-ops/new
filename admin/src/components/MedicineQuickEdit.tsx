@@ -88,7 +88,9 @@ export function MedicineQuickEdit({ medicine, onClose, onSaved }: { medicine: Lo
         const body: Record<string, unknown> = {};
         if (priceChanged) { body.price = priceNumber; body.reason = reason.trim(); }
         if (changes.some((c) => c.label.startsWith('يتطلب'))) body.requires_prescription = rx;
-        await apiFetch(`/medicines/admin/catalog/${encodeURIComponent(medicine.id)}`, { method: 'PATCH', body: JSON.stringify(body) });
+        const saved: any = await apiFetch(`/medicines/admin/catalog/${encodeURIComponent(medicine.id)}`, { method: 'PATCH', body: JSON.stringify(body) });
+        // F8: without the approve permission the change waits for an approver.
+        if (saved?.pending_revision) alert('حُفظ التعديل وينتظر اعتماد مسؤول الكتالوج.');
       }
       if (availabilityChanged) {
         await apiFetch(`/medicines/admin/catalog/${encodeURIComponent(medicine.id)}/availability`, { method: 'POST', body: JSON.stringify({ status: availability }) });

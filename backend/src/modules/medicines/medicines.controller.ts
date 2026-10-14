@@ -288,7 +288,7 @@ export class MedicinesController {
   /** P6.0: medical-review decision (approve surfaces the item publicly). */
   @Post('admin/catalog/:id/approve')
   @Roles(UserRole.ADMIN)
-  @RequirePermissions(Permission.CATALOG_UPDATE)
+  @RequirePermissions(Permission.CATALOG_APPROVE)
   adminApprove(@Param('id') id: string, @Body() body: AdminApproveCatalogDto, @CurrentUser('id') by: string) {
     return this.svc.adminApproveCatalog(id, body?.approve !== false, by);
   }
