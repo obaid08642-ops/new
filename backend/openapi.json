@@ -7221,6 +7221,88 @@
         ]
       }
     },
+    "/api/v1/admin/providers/{id}/documents/{docId}/approve": {
+      "post": {
+        "operationId": "ProviderAdminController_approveDocument",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "docId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewDocumentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ProviderAdmin"
+        ]
+      }
+    },
+    "/api/v1/admin/providers/{id}/documents/{docId}/reject": {
+      "post": {
+        "operationId": "ProviderAdminController_rejectDocument",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "docId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewDocumentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "ProviderAdmin"
+        ]
+      }
+    },
     "/api/v1/admin/providers/{id}/reprocess-image": {
       "post": {
         "operationId": "ProviderAdminController_reprocessImage",
@@ -16552,6 +16634,29 @@
         ]
       }
     },
+    "/api/v1/labs/{id}": {
+      "get": {
+        "operationId": "LabsController_publicLab",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Labs"
+        ]
+      }
+    },
     "/api/v1/lab-results": {
       "post": {
         "operationId": "LabResultsController_create",
@@ -16633,219 +16738,6 @@
         },
         "tags": [
           "LabResults"
-        ]
-      }
-    },
-    "/api/v1/labs/bookings/queue": {
-      "get": {
-        "operationId": "LabsEngineController_getQueue",
-        "parameters": [
-          {
-            "name": "lab_id",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "LabsEngine"
-        ]
-      }
-    },
-    "/api/v1/labs/bookings/{id}/respond": {
-      "post": {
-        "operationId": "LabsEngineController_respondToBooking",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RespondToBookingDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "LabsEngine"
-        ]
-      }
-    },
-    "/api/v1/labs/bookings/collect-sample/{id}": {
-      "post": {
-        "operationId": "LabsEngineController_collectSample",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CollectSampleDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "LabsEngine"
-        ]
-      }
-    },
-    "/api/v1/labs/bookings/finalize-test/{id}": {
-      "post": {
-        "operationId": "LabsEngineController_finalizeTest",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/FinalizeTestDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "LabsEngine"
-        ]
-      }
-    },
-    "/api/v1/labs/bookings/catalog": {
-      "get": {
-        "operationId": "LabsEngineController_getCatalog",
-        "parameters": [
-          {
-            "name": "lab_id",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "LabsEngine"
-        ]
-      },
-      "post": {
-        "operationId": "LabsEngineController_updateCatalog",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateCatalogDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "LabsEngine"
-        ]
-      }
-    },
-    "/api/v1/labs/bookings/wallet": {
-      "get": {
-        "operationId": "LabsEngineController_getWallet",
-        "parameters": [
-          {
-            "name": "lab_id",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "LabsEngine"
-        ]
-      }
-    },
-    "/api/v1/labs/{id}": {
-      "get": {
-        "operationId": "PatientLabsCatalogController_one",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "PatientLabsCatalog"
         ]
       }
     },
@@ -21057,6 +20949,14 @@
           },
           {
             "name": "include_deleted",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
             "required": true,
             "in": "query",
             "schema": {
@@ -41008,6 +40908,10 @@
         "type": "object",
         "properties": {}
       },
+      "ReviewDocumentDto": {
+        "type": "object",
+        "properties": {}
+      },
       "ReplaceImageDto": {
         "type": "object",
         "properties": {}
@@ -41553,22 +41457,6 @@
         "properties": {}
       },
       "ForceStateDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "RespondToBookingDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "CollectSampleDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "FinalizeTestDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "UpdateCatalogDto": {
         "type": "object",
         "properties": {}
       },
