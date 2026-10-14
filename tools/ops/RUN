@@ -1,3 +1,5 @@
-# 2026-10-14 read-only: production state vs main, room for staging, Cloudflare plan and rules (owner asked in chat).
+# 2026-10-14 build session, read-only: cause of today's outage, how production is deployed, state vs main, Cloudflare token check.
+55-inspect-outage
+12-inspect-deploy
 50-inspect-scale
 cf:10-inspect
