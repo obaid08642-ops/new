@@ -2,6 +2,13 @@
 
 > **2026-10-09: the active task list is `docs/review/OPENCODE_PLAN_2026-10-09.md` (sessions OC-A, OC-B, OC-C, OC-D). Read it first; it overrides this file where they differ.**
 
+> **Owner, 2026-10-14 (newest; overrides everything below where they differ):**
+> - **OC-B, OC-C and OC-F are closed for OpenCode.** The lead reviewer finishes their remaining work: the open issues of §5 and §6, D-29, D-36, F8 (pending catalogue revisions, #294/#300) and the remaining Phase 14 items. Do not push `oc/B-*`, `oc/C-*` or `oc/P14-*` branches.
+> - **The open issues of OC-A (§4)** are also verified, fixed and closed by the lead reviewer. OC-A keeps only **D-30** (insurance first) once its spec is on `main`.
+> - **D-32** (file replacement removes the old object; account erasure) goes to the lead reviewer.
+> - **OC-D** (Phase 20, then D-28, D-33, D-34, D-35) and **OC-E** (Phases 19, 13, 18) are unchanged.
+> - **Never commit `backend/package-lock.json` changes that drop entries** (`gaxios`, `gcp-metadata`, `node-fetch`, `google-logging-utils`): that breaks `npm ci` in CI. `oc/D-17` and `oc/AC-6` did this and were not merged.
+
 Read this file and `AGENTS.md` at the start of every OpenCode session. This file is the task list; `AGENTS.md` holds the rules. If they disagree, this file's **Git rules** win (they are newer, owner 2026-10-06).
 
 ## Where your instructions come from (owner, 2026-10-06)
