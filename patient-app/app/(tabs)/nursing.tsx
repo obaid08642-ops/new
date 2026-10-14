@@ -93,6 +93,16 @@ export default function NursingHub() {
   );
 
   const nothing = !loading && !failed && services.length === 0 && packages.length === 0;
+  // #645: the search box narrows the services and packages shown here (every name the record carries, any language).
+  const needle = search.trim().toLocaleLowerCase();
+  const matches = (row: Rec) =>
+    !needle || ['name_ar', 'name_en', 'title', 'name'].some((f) => typeof row[f] === 'string' && (row[f] as string).toLocaleLowerCase().includes(needle))
+    || (row.translations && typeof row.translations === 'object' && Object.values(row.translations as Record<string, unknown>).some((v) => {
+      const name = v && typeof v === 'object' ? (v as Rec).name : undefined;
+      return typeof name === 'string' && name.toLocaleLowerCase().includes(needle);
+    }));
+  const shownServices = services.filter(matches);
+  const shownPackages = packages.filter(matches);
 
   return (
     <Screen
@@ -143,9 +153,9 @@ export default function NursingHub() {
         {!loading && !failed && !nothing ? (
           <View style={{ gap: 22 }}>
             <Section title={k('nur.hub.packages')}>
-              {packages.length > 0 ? (
+              {shownPackages.length > 0 ? (
                 <Strip>
-                  {packages.map((pkg) => {
+                  {shownPackages.map((pkg) => {
                     const name = text(pickLocalized(pkg.name_ar as string | undefined, pkg.title as string | undefined));
                     const kind = pkg.type === 'monthly' ? k('nur.hub.monthly') : pkg.type === 'weekly' ? k('nur.hub.weekly') : text(pkg.duration) || k('nur.hub.careService');
                     return <PackageCard key={text(pkg.id)} width={268} name={name} desc={kind} price={priceOf(pkg.price)} icon="first-aid-kit" tone={CARE_TONE} actionLabel={k('nur.hub.book')} onPress={() => toService(text(pkg.id), name)} />;
@@ -158,7 +168,7 @@ export default function NursingHub() {
 
             <Section title={k('nur.hub.services')}>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-                {services.map((svc) => {
+                {shownServices.map((svc) => {
                   const title = text(pickDbField(svc, 'name') ?? svc.name_ar ?? svc.name_en ?? svc.title);
                   const look = serviceGlyph(svc.id);
                   return (
@@ -176,6 +186,9 @@ export default function NursingHub() {
                   );
                 })}
               </View>
+              {needle && shownServices.length === 0 ? (
+                <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }} testID="nursing-no-match">{k('nur.hub.noMatch')}</Text>
+              ) : null}
             </Section>
           </View>
         ) : null}

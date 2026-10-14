@@ -196,9 +196,15 @@ export function PrescriptionSection({ appointmentId, fallback }: { appointmentId
     if (failed) showLocalizedAlert(k('consult.rx.someFailedTitle'), k('consult.rx.someFailedBody', { n: num(failed), total: num(pending.length) }));
   };
 
-  // Decision 18: "اطلب الأدوية دي" puts the prescribed medicines that are in the catalogue into the (local) cart and opens it.
+  // Decision 18: "اطلب الأدوية دي". With a saved prescription the checkout opens on it (`prescriptionId`): its lines are
+  // ordered and the order carries prescription_id, so the prescription counts as uploaded (#659). Without one, the
+  // prescribed catalogue medicines go into the (local) cart as before.
   const orderable = medications.filter((m) => m.medicine_id);
   const orderThese = async () => {
+    if (prescription?.id) {
+      router.push({ pathname: '/pharmacy/checkout', params: { prescriptionId: String(prescription.id) } } as unknown as Href);
+      return;
+    }
     setOrdering(true);
     try {
       for (const med of orderable) await addItem({ id: String(med.medicine_id), name: med.name, rx: true });

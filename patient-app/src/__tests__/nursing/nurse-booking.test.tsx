@@ -48,11 +48,14 @@ const tap = async (el: Parameters<typeof fireEvent.press>[0]) => {
   });
 };
 
+const SLOT = new Date(Date.now() + 2 * 86_400_000).toISOString();
 const nurse = { id: 'nurse-1', name: 'Test Nurse', facility: 'Test facility', rating: 4.5, reviews_count: 3, degree: 'Test degree', price: 100, reviews: [{ user: 'Test user', text: 'Test review' }] };
 
 function answer(profile: unknown, post: (path: string) => unknown = () => ({})) {
   apiFetch.mockImplementation(async (path: string, init?: RequestInit) => {
     if (init?.method === 'POST') return post(path);
+    // #642: the nurse's own free times for the day
+    if (path.startsWith('/home-care/providers/nurse-1/slots')) return { slots: [{ start: SLOT, available: true }] };
     if (path.startsWith('/home-care/providers/')) return nurse;
     if (path.startsWith('/insurance/coverage-check')) return { provider: 'Test insurer', policy: 'P-1' };
     if (path.startsWith('/users/me/profile')) return profile;
@@ -89,7 +92,8 @@ describe('nurse booking page', () => {
     await waitFor(() => expect(mockRouter.replace).toHaveBeenCalled());
     const [first, second] = posts();
     expect(first[0]).toBe('/nursing/bookings');
-    expect(JSON.parse(first[1].body)).toMatchObject({ provider_id: 'nurse-1', service_id: 'svc-1', payment_method: 'card' });
+    expect(JSON.parse(first[1].body)).toMatchObject({ provider_id: 'nurse-1', service_id: 'svc-1', payment_method: 'card', scheduled_at: SLOT });
+    expect(apiFetch.mock.calls.some(([path]) => String(path).startsWith('/home-care/providers/nurse-1/slots?date='))).toBe(true);
     expect(second[0]).toBe('/payments/intent/nursing/b-1');
     expect(mockRouter.replace.mock.calls[0][0]).toMatchObject({ pathname: '/payments/result', params: { bookingKind: 'nursing', bookingId: 'b-1' } });
   });

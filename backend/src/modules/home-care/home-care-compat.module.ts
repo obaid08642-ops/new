@@ -48,7 +48,7 @@ export class HomeCareCompatController {
   @Get('services') servicesList(@Query() q: any) {
     // Patients only see services that passed medical review (same rule as /nursing/catalog).
     const filter: any = { active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' };
-    if (q?.category) filter.category = q.category;
+    if (q?.category) filter.category = { $eq: String(q.category) };
     return this.services.find(filter, { _id: 0, __v: 0 }).lean();
   }
 
