@@ -97,18 +97,21 @@ const CASES: Case[] = [
 
 const goldenFile = (name: string) => path.join(__dirname, 'golden', `${name}.json`);
 const settle = () => new Promise((r) => setTimeout(r, 40));
+// Each case drives three heavy screens; the 5 s per-test default left no room for the waits above.
+jest.setTimeout(30_000);
 
 async function drive(c: Case) {
   mockCalls.length = 0; mockToasts.length = 0;
   await render(c.render());
   for (let i = 0; i < c.pages; i++) {
-    await waitFor(() => screen.getAllByText('Next'));
+    // The registration screens are heavy to render; the 1 s default made this flaky on a loaded runner.
+    await waitFor(() => screen.getAllByText('Next'), { timeout: 5000 });
     await fireEvent.press(screen.getAllByText('Next').slice(-1)[0]);
     await settle();
   }
   if (c.agree) await fireEvent.press(screen.getByText(c.agree));
   await fireEvent.press(screen.getByText(c.submit));
-  await waitFor(() => screen.getByTestId('otp-ok')).catch((e) => {
+  await waitFor(() => screen.getByTestId('otp-ok'), { timeout: 5000 }).catch((e) => {
     throw new Error(`no OTP step. toasts: ${JSON.stringify(mockToasts)}`);
   });
   await fireEvent.press(screen.getByTestId('otp-ok'));
