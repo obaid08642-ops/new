@@ -14,6 +14,11 @@ Notifications.setNotificationHandler({
   }),
 });
 
+/**
+ * Registers this device's push token with the backend. The phone's permission dialog is NOT shown here (owner decision 6,
+ * 2026-10-10: permissions are asked in context, never at launch): on app start the token is registered only when the user
+ * already allowed notifications. The dialog comes from `askNotificationsInContext`, at the first screen that needs it.
+ */
 export async function registerForPushNotificationsAsync(): Promise<string | null> {
   if (!Device.isDevice) {
     console.log('Must use physical device for Push Notifications');
@@ -22,16 +27,9 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
 
   try {
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
 
     if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-
-    if (finalStatus !== 'granted') {
-      console.log('Failed to get push token for push notification!');
-      return null;
+      return null; // not allowed (yet): nothing to register, and nothing is asked here
     }
 
     // Prefer native FCM token on Android (direct via our Firebase project);
@@ -102,6 +100,22 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
   } catch (e) {
     console.error('Error registering push token', e);
     return null;
+  }
+}
+
+/**
+ * The in-context notification request: called when the user taps "Turn on" on a notification prompt (a place that needs
+ * notifications: offers waiting for pharmacies, notification settings). Shows the phone's dialog once, then registers the
+ * push token when it is allowed. Returns the phone's answer; "denied" is final on the phone, so the prompt then offers
+ * the phone's settings instead.
+ */
+export async function askNotificationsInContext(): Promise<'granted' | 'denied' | 'undetermined'> {
+  try {
+    const { status } = await Notifications.requestPermissionsAsync();
+    if (status === 'granted') void registerForPushNotificationsAsync();
+    return status === 'granted' ? 'granted' : status === 'denied' ? 'denied' : 'undetermined';
+  } catch {
+    return 'denied';
   }
 }
 

@@ -33,58 +33,38 @@ import { Spinner } from './Spinner';
  *     that problem.
  */
 
+/*
+ * Every Skeleton shape and width is a class (css/Feedback.css): the variant is a
+ * finite set, and so is `width` — auto | full | half is the contract's whole
+ * range — which becomes `nabd-skeleton--w-<width>` (auto, 100%, 50%).
+ */
 const SKELETON_W: Record<NonNullable<SkeletonProps['width']>, string> = {
-  auto: 'auto',
-  full: '100%',
-  half: '50%',
+  auto: 'nabd-skeleton--w-auto',
+  full: 'nabd-skeleton--w-full',
+  half: 'nabd-skeleton--w-half',
 };
 
 export function Skeleton({ variant = 'text', lines = 1, width = 'full', testID }: SkeletonProps) {
   const w = SKELETON_W[width];
 
   if (variant === 'circle') {
-    return (
-      <span
-        data-testid={testID}
-        aria-hidden
-        style={{ display: 'inline-block', width: 44, height: 44, borderRadius: 'var(--nabd-radius-pill)', background: 'var(--nabd-color-bg-sunken)' }}
-      />
-    );
+    return <span data-testid={testID} aria-hidden className="nabd-skeleton nabd-skeleton--circle" />;
   }
   if (variant === 'tile') {
-    return (
-      <span
-        data-testid={testID}
-        aria-hidden
-        style={{ display: 'inline-block', width: 128, height: 128, borderRadius: 'var(--nabd-radius-2xl)', background: 'var(--nabd-color-bg-sunken)' }}
-      />
-    );
+    return <span data-testid={testID} aria-hidden className="nabd-skeleton nabd-skeleton--tile" />;
   }
   if (variant === 'block' || variant === 'title') {
-    const height = variant === 'title' ? 'var(--nabd-font-size-h3)' : 64;
-    return (
-      <span
-        data-testid={testID}
-        aria-hidden
-        style={{ display: 'block', width: w, height, borderRadius: 'var(--nabd-radius-md)', background: 'var(--nabd-color-bg-sunken)' }}
-      />
-    );
+    return <span data-testid={testID} aria-hidden className={clsx('nabd-skeleton', `nabd-skeleton--${variant}`, w)} />;
   }
 
   return (
-    <span data-testid={testID} aria-hidden style={{ display: 'grid', gap: 'var(--nabd-space-2xs)', width: w }}>
+    <span data-testid={testID} aria-hidden className={clsx('nabd-skeleton', 'nabd-skeleton--text', w)}>
       {Array.from({ length: lines }).map((_, i) => (
         <span
           key={i}
-          style={{
-            display: 'block',
-            height: 12,
-            // A trailing line is shorter, which is what makes a stack of them
-            // read as text rather than as a barcode.
-            width: i === lines - 1 && lines > 1 ? '60%' : '100%',
-            borderRadius: 'var(--nabd-radius-pill)',
-            background: 'var(--nabd-color-bg-sunken)',
-          }}
+          // A trailing line is shorter, which is what makes a stack of them
+          // read as text rather than as a barcode.
+          className={clsx('nabd-skeleton__line', { 'nabd-skeleton__line--last': i === lines - 1 && lines > 1 })}
         />
       ))}
     </span>
@@ -121,21 +101,12 @@ function StateLayout({
       data-testid={testID}
       data-kind={kind}
       role={role}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 14,
-        paddingInline: 32,
-        paddingBlock: 'var(--nabd-space-xl)',
-        textAlign: 'center',
-        color: 'var(--nabd-color-text-primary)',
-      }}
+      className="nabd-state"
     >
       <FIcon icon={icon} tone={tone} size={112} />
-      <h2 style={{ margin: 0, fontSize: '22px', fontWeight: 700 }}>{title}</h2>
-      {body ? <p style={{ margin: 0, fontSize: '14.5px', lineHeight: 1.7, color: 'var(--nabd-color-text-secondary)' }}>{body}</p> : null}
-      {children ? <div style={{ width: '100%', marginTop: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>{children}</div> : null}
+      <h2 className="nabd-state__title">{title}</h2>
+      {body ? <p className="nabd-state__body">{body}</p> : null}
+      {children ? <div className="nabd-state__actions">{children}</div> : null}
     </div>
   );
 }
@@ -146,7 +117,7 @@ function TextAction({ label, onClick }: { label: string; onClick?: () => void })
     <button
       type="button"
       onClick={onClick}
-      style={{ height: 48, border: 0, background: 'transparent', fontFamily: 'inherit', fontSize: '15px', fontWeight: 600, color: 'var(--nabd-color-text-primary)', cursor: 'pointer' }}
+      className="nabd-state__text-action"
     >
       {label}
     </button>
@@ -196,7 +167,7 @@ export function ErrorState({
           <>
             {body}
             {detail ? (
-              <code style={{ display: 'block', marginTop: 4, fontSize: 'var(--nabd-font-size-micro)', color: 'var(--nabd-color-text-tertiary)' }}>{detail}</code>
+              <code className="nabd-state__detail">{detail}</code>
             ) : null}
           </>
         ) : undefined
@@ -238,49 +209,23 @@ export function Toast({
   durationMs,
   testID,
 }: ToastProps) {
-  const accent = {
-    neutral: 'var(--nabd-color-text-secondary)',
-    primary: 'var(--nabd-color-action-primary-bg)',
-    success: 'var(--nabd-color-status-success-fg)',
-    warning: 'var(--nabd-color-status-warning-fg)',
-    danger: 'var(--nabd-color-status-danger-fg)',
-    info: 'var(--nabd-color-status-info-fg)',
-  }[tone];
-
+  // The accent (the 4px start edge) is the tone's modifier in css/Feedback.css.
   return (
     <div
       role="status"
       aria-live="polite"
       data-testid={testID}
       data-duration={durationMs}
-      style={{
-        position: 'fixed',
-        insetInline: 'var(--nabd-space-md)',
-        bottom: 'calc(var(--nabd-space-4xl) + env(safe-area-inset-bottom))',
-        zIndex: 'var(--nabd-z-toast)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 'var(--nabd-space-2xs)',
-        padding: 'var(--nabd-space-sm)',
-        borderRadius: 'var(--nabd-radius-md)',
-        background: 'var(--nabd-color-bg-inverse)',
-        color: 'var(--nabd-color-text-onInverse)',
-        boxShadow: 'var(--nabd-shadow-raised)',
-        borderInlineStart: `4px solid ${accent}`,
-      }}
+      className={clsx('nabd-toast', `nabd-toast--${tone}`)}
     >
-      <span style={{ flex: 1, fontSize: 'var(--nabd-font-size-body)' }}>{message}</span>
+      <span className="nabd-toast__message">{message}</span>
       {actionLabel ? (
-        <button type="button" style={{ background: 'transparent', border: 0, color: 'inherit', fontWeight: 700, cursor: 'pointer' }}>
+        <button type="button" className="nabd-toast__action">
           {actionLabel}
         </button>
       ) : null}
       {dismissible ? (
-        <button
-          type="button"
-          aria-label={dismissLabel}
-          style={{ background: 'transparent', border: 0, color: 'inherit', cursor: 'pointer', display: 'grid', placeItems: 'center' }}
-        >
+        <button type="button" aria-label={dismissLabel} className="nabd-toast__dismiss">
           <Icon name="close" size={16} tone="onBrand" />
         </button>
       ) : null}
@@ -324,62 +269,27 @@ export function Modal({
   const isSheet = variant === 'sheet';
 
   return (
-    <div
-      data-testid={testID}
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 'var(--nabd-z-modal)',
-        display: 'grid',
-        placeItems: isSheet ? 'end center' : 'center',
-        background: 'color-mix(in srgb, var(--nabd-color-bg-inverse) 55%, transparent)',
-      }}
-    >
+    <div data-testid={testID} className={clsx('nabd-modal', { 'nabd-modal--sheet': isSheet })}>
       <div
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        style={{
-          width: isSheet ? '100%' : 'min(480px, calc(100vw - var(--nabd-space-xl)))',
-          maxBlockSize: isSheet ? '85vh' : undefined,
-          overflow: 'auto',
-          padding: 'var(--nabd-space-lg)',
-          borderRadius: isSheet ? 'var(--nabd-radius-3xl) var(--nabd-radius-3xl) 0 0' : 'var(--nabd-radius-2xl)',
-          background: 'var(--nabd-color-bg-elevated)',
-          boxShadow: 'var(--nabd-shadow-raised)',
-          display: 'grid',
-          gap: 'var(--nabd-space-sm)',
-        }}
+        className="nabd-modal__dialog"
       >
-        <h2 id={titleId} style={{ margin: 0, fontSize: 'var(--nabd-font-size-h3)', color: 'var(--nabd-color-text-primary)' }}>
+        <h2 id={titleId} className="nabd-modal__title">
           {title}
         </h2>
-        {body ? (
-          <p style={{ margin: 0, fontSize: 'var(--nabd-font-size-body)', color: 'var(--nabd-color-text-secondary)' }}>
-            {body}
-          </p>
-        ) : null}
-        <div style={{ display: 'flex', gap: 'var(--nabd-space-2xs)', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+        {body ? <p className="nabd-modal__body">{body}</p> : null}
+        <div className="nabd-modal__actions">
           {cancelLabel ? <Button label={cancelLabel} variant="ghost" size="sm" /> : null}
           <Button label={confirmLabel} size="sm" variant={destructive ? 'danger' : 'primary'} loading={loading} />
         </div>
         <button
           type="button"
           aria-label={closeLabel}
-          style={{
-            position: 'absolute',
-            top: 'var(--nabd-space-2xs)',
-            insetInlineEnd: 'var(--nabd-space-2xs)',
-            minWidth: 44,
-            minHeight: 44,
-            display: 'grid',
-            placeItems: 'center',
-            background: 'transparent',
-            border: 0,
-            cursor: 'pointer',
-          }}
+          className="nabd-modal__close"
         >
           <Icon name="close" size={18} />
         </button>
@@ -405,18 +315,18 @@ export function DataTable<T>({
   }
   if (rows.length === 0) {
     return (
-      <p data-testid={testID} style={{ padding: 'var(--nabd-space-lg)', color: 'var(--nabd-color-text-secondary)' }}>
+      <p data-testid={testID} className="nabd-data-table__empty">
         {emptyMessage}
       </p>
     );
   }
 
   return (
-    <div style={{ overflowX: 'auto' }} data-testid={testID}>
-      <table style={{ inlineSize: '100%', borderCollapse: 'collapse' }}>
+    <div className="nabd-data-table" data-testid={testID}>
+      <table className="nabd-data-table__table">
         {/* A caption is not decoration: it is what a screen reader announces
             when the user lands on the table, and "table" alone is not enough. */}
-        <caption style={{ textAlign: 'start', padding: 'var(--nabd-space-2xs)', color: 'var(--nabd-color-text-secondary)' }}>
+        <caption className="nabd-data-table__caption">
           {caption}
         </caption>
         <thead>
@@ -426,14 +336,7 @@ export function DataTable<T>({
                 key={c.key}
                 scope="col"
                 aria-sort={c.sortable ? 'none' : undefined}
-                style={{
-                  textAlign: c.numeric ? 'end' : 'start',
-                  padding: 'var(--nabd-space-2xs)',
-                  fontSize: 'var(--nabd-font-size-label)',
-                  color: 'var(--nabd-color-text-tertiary)',
-                  borderBottom: '1px solid var(--nabd-color-border-default)',
-                  whiteSpace: 'nowrap',
-                }}
+                className={clsx('nabd-data-table__th', { 'nabd-data-table__th--numeric': c.numeric })}
               >
                 {c.header}
               </th>
@@ -446,12 +349,7 @@ export function DataTable<T>({
               {columns.map((c) => (
                 <td
                   key={c.key}
-                  style={{
-                    textAlign: c.numeric ? 'end' : 'start',
-                    padding: 'var(--nabd-space-2xs)',
-                    fontVariantNumeric: c.numeric ? 'tabular-nums' : undefined,
-                    borderBottom: '1px solid var(--nabd-color-border-default)',
-                  }}
+                  className={clsx('nabd-data-table__td', { 'nabd-data-table__td--numeric': c.numeric })}
                 >
                   {c.render ? c.render(row) : String((row as Record<string, unknown>)[c.key] ?? '')}
                 </td>
@@ -472,25 +370,20 @@ export function DataTable<T>({
  */
 export function ChartCard({ title, subtitle, summary, legend, children, testID }: ChartCardProps & { children?: React.ReactNode }) {
   return (
-    <section
-      data-testid={testID}
-      style={{ display: 'grid', gap: 'var(--nabd-space-2xs)', padding: 'var(--nabd-space-md)', background: 'var(--nabd-color-bg-surface)', borderRadius: 'var(--nabd-radius-lg)' }}
-    >
+    <section data-testid={testID} className="nabd-chart-card">
       <div>
-        <h3 style={{ margin: 0, fontSize: 'var(--nabd-font-size-bodyStrong)', color: 'var(--nabd-color-text-primary)' }}>{title}</h3>
-        {subtitle ? (
-          <p style={{ margin: 0, fontSize: 'var(--nabd-font-size-caption)', color: 'var(--nabd-color-text-secondary)' }}>{subtitle}</p>
-        ) : null}
+        <h3 className="nabd-chart-card__title">{title}</h3>
+        {subtitle ? <p className="nabd-chart-card__subtitle">{subtitle}</p> : null}
       </div>
       <div role="img" aria-label={summary}>
         {children}
       </div>
       {legend?.length ? (
-        <ul style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--nabd-space-sm)', listStyle: 'none', margin: 0, padding: 0 }}>
+        <ul className="nabd-chart-card__legend">
           {legend.map((l) => (
-            <li key={l.label} style={{ display: 'flex', gap: 'var(--nabd-space-3xs)', fontSize: 'var(--nabd-font-size-caption)' }}>
+            <li key={l.label} className="nabd-chart-card__legend-item">
               <span>{l.label}</span>
-              <strong style={{ fontVariantNumeric: 'tabular-nums' }}>{l.value}</strong>
+              <strong className="nabd-chart-card__legend-value">{l.value}</strong>
             </li>
           ))}
         </ul>

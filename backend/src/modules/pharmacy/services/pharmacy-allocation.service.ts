@@ -245,9 +245,11 @@ export class PharmacyAllocationService {
     if (!anyAvailable) {
       this.transition(a, PharmacyAllocationState.REJECTED, user.id, { reason: 'all_items_unavailable' });
       a.rejection_reason = 'all_items_unavailable';
-    } else if (anyUnavailable) {
+    } else if (anyUnavailable && a.status !== PharmacyAllocationState.PARTIALLY_CONFIRMED) {
       this.transition(a, PharmacyAllocationState.PARTIALLY_CONFIRMED, user.id);
     } else {
+      // #1143: confirming a partially confirmed allocation goes ahead with the available lines (it used to ask for
+      // partially_confirmed again, which the state machine refuses, so the order could never reach preparation).
       this.transition(a, PharmacyAllocationState.CONFIRMED, user.id);
     }
     a.estimated_ready_at = new Date(Date.now() + (a.estimated_preparation_minutes || 30) * 60_000);

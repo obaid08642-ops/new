@@ -1,83 +1,58 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Bell } from "lucide-react";
+import { getPatientNotificationSettings } from "@/lib/api/notification-settings-server";
+import { extractNotificationPreferences, NOTIFICATION_CATEGORIES, NOTIFICATION_CHANNELS } from "@/lib/api/notification-settings";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { getPatientNotificationSettings } from "@/lib/api/notification-settings-server";
-import { extractNotificationSettings } from "@/lib/api/notification-settings";
-import { NotificationToggle } from "./notification-toggle";
-import styles from "../settings.module.css";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { Group } from "@/components-next/settings/settings-kit";
+import { SwitchList, type SwitchRow } from "@/components-next/settings/switch-list";
+import styles from "@/components-next/settings/settings.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
 
-const LABELS: Record<string, { ar: string; en: string }> = {
-  general: { ar: "عامة", en: "General" },
-  appointments: { ar: "المواعيد", en: "Appointments" },
-  orders: { ar: "الطلبات", en: "Orders" },
-  offers: { ar: "العروض", en: "Offers" },
-  medications: { ar: "الأدوية", en: "Medications" },
-  doctorMessages: { ar: "رسائل الأطباء", en: "Doctor messages" },
-  emergency: { ar: "الطوارئ", en: "Emergency" },
-  sound: { ar: "الصوت", en: "Sound" },
-  vibration: { ar: "الاهتزاز", en: "Vibration" },
-};
+const CATEGORY_LABEL = {
+  appointments: "catAppointments", orders: "catOrders", health: "catHealth",
+  chat: "catChat", account: "catAccount", marketing: "catMarketing",
+} as const;
+const CHANNEL_LABEL = { push: "chPush", email: "chEmail", sms: "chSms" } as const;
 
+/**
+ * `/settings/notifications` (merge map section 3): the one notification-preferences screen, GET and PATCH
+ * /users/me/notification-settings. It absorbed the Batch 0 `/notifications/settings` (which redirects here); the theme and the
+ * language that screen also held are on `/settings/language`.
+ */
 export default async function SettingsNotificationsPage({ params }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
-  await getTranslations("Settings");
-  const ar = locale === "ar";
+  const t = await getTranslations("NotificationSettings");
+  const rs = await getTranslations("RouteState");
   const token = await requirePatientAccess(locale);
-  // Backend binding: real upstream via getPatientNotificationSettings → callPatientApi, no mock
-  const response = await getPatientNotificationSettings(token);
+  const back = `/${locale}/settings`;
+  const failed = (
+    <ConsultPage locale={locale} title={t("title")} backHref={back}>
+      <ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />
+    </ConsultPage>
+  );
+  let response: Response;
+  try { response = await getPatientNotificationSettings(token); } catch { return failed; }
   if (response.status === 401) redirect(`/${locale}/login`);
   if (response.status === 403 || response.status === 404) notFound();
-  if (!response.ok) {
-    return (
-      <main className={`main ${styles.page}`}>
-        <section className={styles.state} role="alert">
-          <Bell size={20} aria-hidden="true" style={{ color: "#1E332E" }} />
-          <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>
-            {ar ? "تعذر تحميل إعدادات الإشعارات" : "Could not load notification settings"}
-          </h1>
-        </section>
-      </main>
-    );
-  }
-  const settings = extractNotificationSettings(await response.json().catch(() => null));
-  const entries = Object.entries(LABELS);
+  if (!response.ok) return failed;
+
+  const prefs = extractNotificationPreferences(await response.json().catch(() => null));
+  const categories: SwitchRow[] = NOTIFICATION_CATEGORIES.flatMap((key) => typeof prefs.categories[key] === "boolean"
+    ? [{ id: `categories.${key}`, group: "categories", key, label: t(CATEGORY_LABEL[key]), value: prefs.categories[key] === true }] : []);
+  const channels: SwitchRow[] = NOTIFICATION_CHANNELS.flatMap((key) => typeof prefs.channels[key] === "boolean"
+    ? [{ id: `channels.${key}`, group: "channels", key, label: t(CHANNEL_LABEL[key]), value: prefs.channels[key] === true }] : []);
 
   return (
-    <main className={`main ${styles.page}`}>
-      <Link href={`/${locale}/settings`} style={{ color: "#1E332E", fontWeight: 760, textDecoration: "none", overflowWrap: "anywhere" as any }}>
-        {ar ? "الإعدادات" : "Settings"}
-      </Link>
-      <section className={styles.hero}>
-        <p className={styles.eyebrow}>
-          <Bell size={15} aria-hidden="true" />
-          {ar ? "الإشعارات" : "Notifications"}
-        </p>
-        <h1 style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? "إعدادات الإشعارات" : "Notification settings"}</h1>
-        <p style={{ overflowWrap: "anywhere" } as any}>{ar ? "فعّل أو عطّل كل فئة — تُحفظ فوراً." : "Toggle each category — saved immediately."}</p>
-        <span className={styles.icon} style={{ backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" } as any} aria-hidden="true">
-          <Bell size={22} color="#1E332E" />
-        </span>
-      </section>
-      <section className={styles.grid}>
-        {entries.map(([key, label]) => (
-          <article key={key} className={styles.card} style={{ alignItems: "center" }}>
-            <span className={styles.icon}>
-              <Bell size={20} aria-hidden="true" />
-            </span>
-            <div style={{ minInlineSize: 0 }}>
-              <h2 style={{ margin: 0, fontSize: "1.05rem", color: "#1E332E", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{ar ? label.ar : label.en}</h2>
-            </div>
-            <NotificationToggle initial={settings[key as keyof typeof settings] === true} settingKey={key} label={ar ? label.ar : label.en} />
-          </article>
-        ))}
-      </section>
-    </main>
+    <ConsultPage locale={locale} title={t("title")} backHref={back}>
+      {categories.length + channels.length === 0 ? <p className={styles.hint} role="status">{t("unavailable")}</p> : null}
+      {categories.length > 0 ? <Group id="categories" title={t("notifications")}><SwitchList kind="notifications" label={t("notifications")} rows={categories} /></Group> : null}
+      {channels.length > 0 ? <Group id="channels" title={t("channels")}><SwitchList kind="notifications" label={t("channels")} rows={channels} /></Group> : null}
+    </ConsultPage>
   );
 }

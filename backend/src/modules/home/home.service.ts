@@ -6,6 +6,15 @@ import { Appointment, AppointmentDocument } from '../../schemas/appointment.sche
 import { REQUEST } from '@nestjs/core';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 
+/**
+ * Needs-review #419: provider profiles have no top-level `name`; they carry display/registered names
+ * (provider-profile.schema.ts). Returns the first one present.
+ */
+export function providerDisplayName(p: any): string | null {
+  if (!p) return null;
+  return p.display_name_ar || p.name_ar || p.display_name_en || p.name_en || p.business_name || p.legal_name || p.name || p.facility_name || null;
+}
+
 @Injectable()
 export class HomeService {
   constructor(
@@ -34,11 +43,16 @@ export class HomeService {
       return {
         id: (c as any).id || String((c as any)._id),
         t: c.title_ar,
+        // Needs-review issue 751: the English title too, and no discount when there is no real original price
+        // (a 0 original price gave "NaN%" or "-Infinity%").
+        t_en: c.title_en || null,
         price: c.discounted_price,
         old: c.original_price,
-        disc: Math.round(((c.original_price - c.discounted_price) / c.original_price) * 100) + '%',
+        disc: c.original_price > 0 && typeof c.discounted_price === 'number'
+          ? Math.round(((c.original_price - c.discounted_price) / c.original_price) * 100) + '%'
+          : null,
         rating: prov?.rating_avg ?? null,
-        prov: prov?.name || prov?.facility_name || 'شريك نبض',
+        prov: providerDisplayName(prov) || 'شريك نبض',
         c: '#FF4B55',
         ic: 'local_offer',
         sponsored: c.target_parameters?.sponsored || false,
@@ -71,7 +85,7 @@ export class HomeService {
       const prov: any = await this.apptModel.db.collection('provider_profiles').findOne({
         $or: [{ id: upcoming.doctor_id }, { user_id: upcoming.doctor_user_id }, { account_id: upcoming.doctor_id }],
       } as any);
-      doctorName = prov?.name || '';
+      doctorName = providerDisplayName(prov) || '';
     }
 
     return {
@@ -79,7 +93,11 @@ export class HomeService {
       date: dateStr,
       doctorName: doctorName || null,
       type: typeAr,
-      time: timeStr
+      time: timeStr,
+      // Needs-review issue 442: the exact start (ISO, UTC) and state, so a client formats the time in the
+      // patient's own zone instead of reading `date` (midnight UTC) or the server-zone `time`.
+      scheduled_at: upcoming.slot_start.toISOString(),
+      status: upcoming.status,
     };
   }
 
@@ -98,7 +116,7 @@ export class HomeService {
     const db = this.promoModel.db;
     const userId = this.request.user?.id;
 
-    const [campaigns, doctors, medicines, labs, rads, articles, diseaseArticles, insurers, posts, familyGroup]: any[] =
+    const [campaigns, doctors, medicines, labs, rads, articles, diseaseArticles, insurers, familyGroup]: any[] =
       await Promise.all([
         this.promoModel.find({ $or: [{ title_ar: regex }, { title_en: regex }] }).limit(10).lean(),
         db.collection('provider_profiles').find({
@@ -128,10 +146,6 @@ export class HomeService {
           is_active: true,
           $or: [{ name_ar: regex }, { name_en: regex }, { code: regex }],
         } as any).limit(4).toArray(),
-        db.collection('community_posts').find({
-          status: 'published', is_deleted: false,
-          $or: [{ title: regex }, { body: regex }, { tags: regex }],
-        } as any).limit(5).toArray(),
         // Family search is strictly scoped to the requester's own group
         userId
           ? db.collection('family_groups').findOne({ 'members.user_id': userId } as any)
@@ -153,7 +167,7 @@ export class HomeService {
     const results: any[] = [];
 
     for (const c of campaigns) {
-      const provName = (c.provider_id && (provMap.get(String(c.provider_id))?.name || provMap.get(String(c.provider_id))?.facility_name)) || null;
+      const provName = (c.provider_id && providerDisplayName(provMap.get(String(c.provider_id)))) || null;
       results.push({
         id: c._id?.toString() || c.id,
         type: 'باقة', typeEn: 'Package',
@@ -241,16 +255,6 @@ export class HomeService {
         name: i.name_ar, nameEn: i.name_en || i.name_ar,
         sub: 'شركة تأمين', subEn: 'Insurance company',
         ic: 'health_and_safety', c: '#1ABC9C', cs: '#E6F8F5',
-      });
-    }
-
-    for (const p of posts) {
-      results.push({
-        id: p.id, type: 'مجتمع', typeEn: 'Community',
-        name: p.title, nameEn: p.title,
-        sub: `${p.upvotes ?? 0} إعجاب · ${p.comment_count ?? 0} تعليق`,
-        subEn: `${p.upvotes ?? 0} likes · ${p.comment_count ?? 0} comments`,
-        ic: 'groups', c: '#F5A623', cs: '#FEF4E4',
       });
     }
 

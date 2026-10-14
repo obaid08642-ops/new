@@ -1,36 +1,35 @@
-// @ts-nocheck
 import React, { useState } from "react";
-import {
-  View,
-  StyleSheet,
-  StatusBar,
-  KeyboardAvoidingView,
-  Platform,
-  Alert,
-} from "react-native";
+import { View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useApp } from "../../src/context/AppContext";
-import { Icon } from "../../src/components/Icon";
-import { AppText, Button, Input, IconButton } from "../../src/components/ui";
+import { Button, Icon, Screen, StickyFooter } from "../../../packages/ui-native/src";
 import { apiFetch } from "../../src/utils/api";
-import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
-import { ScreenState } from '../../src/components/ScreenStates';
+import { LocalizedText } from '../../src/components/LocalizedText';
+import { AuthBody, AuthError, AuthField, AuthFooter, AuthTitle, AuthTopBar, FONT, useAuthUi } from '../../src/components/auth/AuthKit';
+import { serverMessage } from '../../src/utils/serverMessage';
+import { isValidEmail } from '../../src/utils/login-credentials';
 
 export default function ResetPasswordScreen() {
-  const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
+  const { theme, c, tr } = useAuthUi();
   const params = useLocalSearchParams();
-  const email = (params.email as string) || "";
+  // The email and the code come from the code screen. The backend verifies the code here, once (it consumes it),
+  // so the code arrives pre-filled and stays editable; opened without the email (a link, a restart) the screen asks for it.
+  const emailParam = ((params.email as string) || "").trim();
+  const [emailInput, setEmailInput] = useState("");
+  const email = (emailParam || emailInput).trim().toLowerCase();
   const [pw, setPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
-  const [code, setCode] = useState("");
-  const [show, setShow] = useState(false);
+  const [code, setCode] = useState(((params.code as string) || "").trim());
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleReset = async () => {
-    if (pw.length < 6 || pw !== confirmPw || !code.trim()) return;
+    // say what is wrong instead of doing nothing
+    if (!isValidEmail(email)) { setErrorMessage("auth.reset.errEmail"); return; }
+    if (!code.trim()) { setErrorMessage("errors.codeRequired"); return; }
+    if (pw.length < 6) { setErrorMessage("auth.err.passwordShort"); return; }
+    if (pw !== confirmPw) { setErrorMessage("auth.err.mismatch"); return; }
+    setErrorMessage(null);
     setLoading(true);
     try {
       await apiFetch("/auth/reset-password", {
@@ -44,136 +43,123 @@ export default function ResetPasswordScreen() {
       setLoading(false);
       setDone(true);
     } catch (err: any) {
-      showLocalizedAlert("خطأ", err.message || "فشل حفظ كلمة المرور الجديدة");
+      setErrorMessage(serverMessage(err, "auth.reset.saveFailed"));
       setLoading(false);
     }
   };
 
   if (done) {
     return (
-      <View
-        style={[
-          st.c,
-          {
-            backgroundColor: colors.background,
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 16,
-          },
-        ]}
+      <Screen
+        theme={theme}
+        footer={
+          <StickyFooter theme={theme}>
+            <AuthFooter>
+              <Button
+                label={tr('auth.login')}
+                variant="primary"
+                size="lg"
+                fullWidth
+                theme={theme}
+                onPress={() => router.replace("/(auth)/login")}
+                testID="reset-done-login"
+              />
+            </AuthFooter>
+          </StickyFooter>
+        }
       >
-        <View
-          style={[st.iconCircle, { backgroundColor: colors.successSurface }]}
-        >
-          <Icon name="check_circle" size={40} color={colors.success} />
-        </View>
-        <AppText variant="h2" align="center">
-          تم بنجاح!
-        </AppText>
-        <AppText variant="bodySM" color={colors.textTertiary} align="center">
-          يمكنك الآن تسجيل الدخول بكلمة مرورك الجديدة
-        </AppText>
-        <Button
-          label="تسجيل الدخول"
-          variant="gradient"
-          size="lg"
-          onPress={() => router.replace("/(auth)/login")}
-          style={{ marginTop: 16, width: "80%" }}
-        />
-      </View>
+        <AuthBody>
+          <AuthTopBar />
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 14 }}>
+            <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: c.status.success.bg, alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="check" size={34} theme={theme} color={c.status.success.fg} />
+            </View>
+            <LocalizedText accessibilityRole="header" style={{ fontFamily: FONT.bold, fontSize: 24, lineHeight: 32, color: c.text.primary, textAlign: 'center' }}>
+              {'auth.reset.doneTitle'}
+            </LocalizedText>
+            <LocalizedText style={{ fontFamily: FONT.regular, fontSize: 15, lineHeight: 24, color: c.text.secondary, textAlign: 'center' }}>
+              {'auth.reset.doneBody'}
+            </LocalizedText>
+          </View>
+        </AuthBody>
+      </Screen>
     );
   }
 
+  const mismatch = Boolean(confirmPw) && pw !== confirmPw;
   return (
-    <KeyboardAvoidingView
-      style={[st.c, { backgroundColor: colors.background }]}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    <Screen
+      theme={theme}
+      keyboard
+      scroll
+      footer={
+        <StickyFooter theme={theme}>
+          <AuthFooter>
+            <Button
+              label={tr(loading ? 'common.pleaseWait' : 'auth.reset.submit')}
+              variant="primary"
+              size="lg"
+              fullWidth
+              loading={loading}
+              theme={theme}
+              onPress={handleReset}
+              testID="reset-submit"
+            />
+          </AuthFooter>
+        </StickyFooter>
+      }
     >
-      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
-      <View
-        style={[
-          st.hdr,
-          {
-            paddingTop: insets.top + 8,
-            backgroundColor: colors.surface,
-            borderBottomColor: colors.borderLight,
-          },
-        ]}
-      >
-        <View style={{ width: 40 }} />
-        <AppText variant="h4">كلمة مرور جديدة</AppText>
-        <IconButton icon="back" onPress={() => router.back()} />
-      </View>
-      <View style={st.body}>
-        <View
-          style={[st.iconCircle, { backgroundColor: colors.primarySurface }]}
-        >
-          <Icon name="lock" size={32} color={colors.primary} />
-        </View>
-        <AppText variant="h3" align="center">
-          أدخل كلمة مرور جديدة
-        </AppText>
-        <Input
+      <AuthBody>
+      <AuthTopBar onBack={() => router.back()} />
+      <AuthTitle title="auth.reset.title" sub="auth.reset.sub" />
+      <View style={{ marginTop: 22, gap: 12 }}>
+        {emailParam ? null : (
+          <AuthField
+            label="auth.email"
+            placeholder="name@example.com"
+            ltr
+            keyboardType="email-address"
+            autoComplete="email"
+            textContentType="emailAddress"
+            value={emailInput}
+            onChangeText={setEmailInput}
+            testID="reset-email"
+          />
+        )}
+        <AuthField
+          label="auth.code"
+          placeholder="auth.reset.codePlaceholder"
+          ltr
+          keyboardType="number-pad"
+          autoComplete="one-time-code"
+          textContentType="oneTimeCode"
           value={code}
           onChangeText={setCode}
-          placeholder="رمز التحقق المرسل إليك"
-          icon="shield"
-          style={{ width: "100%", marginTop: 16 }}
+          testID="reset-code"
         />
-        <Input
+        <AuthField
+          label="auth.reset.newPassword"
+          hint="auth.passwordHint"
+          secure
+          autoComplete="new-password"
+          textContentType="newPassword"
           value={pw}
           onChangeText={setPw}
-          placeholder="كلمة المرور الجديدة"
-          icon="lock"
-          secureTextEntry={!show}
-          iconRight={show ? "eyeOff" : "eye"}
-          onIconRightPress={() => setShow(!show)}
-          style={{ width: "100%", marginTop: 16 }}
+          testID="reset-password"
         />
-        <Input
+        <AuthField
+          label="auth.confirmPassword"
+          secure
+          autoComplete="new-password"
+          textContentType="newPassword"
           value={confirmPw}
           onChangeText={setConfirmPw}
-          placeholder="تأكيد كلمة المرور"
-          icon="lock"
-          secureTextEntry={!show}
-          error={confirmPw && pw !== confirmPw ? "غير متطابقتين" : ""}
-          style={{ width: "100%" }}
+          error={mismatch ? "auth.err.mismatch" : undefined}
+          testID="reset-confirm"
         />
-        <Button
-          label="حفظ كلمة المرور"
-          variant="gradient"
-          size="lg"
-          loading={loading}
-          onPress={handleReset}
-          style={{ marginTop: 16 }}
-        />
+        <AuthError message={errorMessage} />
       </View>
-    </KeyboardAvoidingView>
+      </AuthBody>
+    </Screen>
   );
 }
-
-const st = StyleSheet.create({
-  c: { flex: 1 },
-  hdr: {
-    flexDirection: "row-reverse",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-  },
-  body: {
-    flex: 1,
-    alignItems: "center",
-    padding: 24,
-    gap: 12,
-    justifyContent: "center",
-  },
-  iconCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 24,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

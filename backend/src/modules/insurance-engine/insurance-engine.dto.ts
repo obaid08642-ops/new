@@ -97,8 +97,16 @@ export class DecideDto {
   decision: string;
 
   @IsOptional()
+  @IsString()
+  approval_ref?: string;
+
+  @IsOptional()
   @IsNumber()
   copay_percent?: number;
+
+  @IsOptional()
+  @IsNumber()
+  copay_amount?: number;
 
   @IsOptional()
   @IsString()

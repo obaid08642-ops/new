@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
     "login", "register", "forgot-password", "password-reset", "otp",
     "dashboard", "orders", "appointments", "chat", "notifications", "health",
     "prescriptions", "reminders", "profile", "wishlist", "wallet", "reports",
-    "programs", "returns", "support", "family", "community", "offers",
+    "programs", "returns", "support", "family", "offers",
     "emergency", "cart", "settings", "home-care", "insurance",
   ];
   // Private leaf paths under otherwise public trees (a prefix disallow would
@@ -21,7 +21,8 @@ export default function robots(): MetadataRoute.Robots {
   ];
   // Public children below the auth-gated /diagnostics index must stay crawlable.
   const publicExplicitAllows = locales.flatMap((locale) =>
-    ["/diagnostics/labs", "/diagnostics/radiology", "/diagnostics/packages"].map((path) => `/${locale}${path}`),
+    // the public home-care service pages sit under the private /home-care tree
+    ["/diagnostics/labs", "/diagnostics/radiology", "/diagnostics/packages", "/home-care/services/"].map((path) => `/${locale}${path}`),
   );
 
   return {

@@ -1,0 +1,122 @@
+[
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/c/[[...category]]",
+    "element": "Whole public catalogue: category chips, product grid, product pages, alternatives (also /p/[slug], /medicine/[slug], /medicines)",
+    "file": "patient-web/lib/api/public-products-server.ts",
+    "line": 0,
+    "found": "On the seeded local backend (NODE_ENV=test) GET /public/categories/:locale answers {categories: []} and GET /public/categories/:locale/items answers total 0, so /ar/c shows the real empty state and every /p/<slug> is the not-found page. The owner-approved PharmacySeedService added 2 test pharmacies and 7 inventory items, but the public product catalogue (collection `medicines`, v14 import) is still empty. Data-bound sections (product cards, gallery, details, alternatives) were therefore only looked at with TEST payloads injected in the browser/mock layer, kept out of the repo.",
+    "suspect": "The v14 catalogue file is not available offline; the reviewer session has to import it on the seeded backend before the product, category and medicine screens can be checked against real rows (prices, images, long names, Rx and discount cases)."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/p/[slug]",
+    "element": "Add to cart, Buy now, product-card add buttons (every screen of this batch that lists products)",
+    "file": "patient-web/lib/context/CartContext.tsx",
+    "line": 44,
+    "found": "CartProvider was defined but never mounted anywhere (grep for <CartProvider> found nothing), so useCart() returned its no-op default and every add-to-cart on the product pages, the category grid and the header cart badge did nothing. This slice mounts it in app/[locale]/layout.tsx (it keeps items in this browser's localStorage under nabd_patient_cart_v1 and makes no request). /cart additionally shows a SEPARATE server cart (GET /cart, 'items synced with your account').",
+    "suspect": "Two carts exist: the browser cart that the product pages fill and the server cart (GET/POST /cart/items). Whether checkout (app/api/cart/checkout, components-next/checkout-flow.tsx) should read the browser cart, the server cart, or both is a decision for the cart slice (Batch 1b) and the reviewer; nothing here writes the server cart."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/p/[slug]",
+    "element": "Heart (add to wishlist) button of canvas/ProductWeb and ProductFull",
+    "file": "patient-web/lib/api/patient-allowlist.ts",
+    "line": 37,
+    "found": "The patient BFF proxy allowlist has only `^/users/me/wishlist$` (the list read). The backend serves POST /users/me/wishlist/:itemId (users.controller.ts toggleWishlist) but the web cannot reach it, so the wishlist screen is read-only on the web and the board's heart button is not drawn on the product page (a dead control is not shipped).",
+    "suspect": "Add the toggle route (POST /users/me/wishlist/:id) to the BFF allowlist for web parity with the app, then the heart button can be added to the product gallery."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/p/[slug]",
+    "element": "Product page sections the boards draw but the public DTO does not carry (cold-chain chip, interactions, contraindications, precautions, pregnancy and breastfeeding, controlled-drug row, medical review date, shortage note, related products, 'available in N nearby pharmacies', delivery/pickup times, insurance row, loyalty points line, 'online exclusive' badge)",
+    "file": "backend/src/modules/medicines/med-i18n.ts",
+    "line": 273,
+    "found": "GET /public/product/:locale/:slug returns resolveMedicinePublicDto(): name, description, indications[], dosage_instructions, side_effects[], warnings[], storage_conditions, how_to_use[], package_content_details, brand_benefits, category chain, form, strength, package_size, active_ingredient, manufacturer, barcode, price, old_price, is_rx, available, availability_status, country_of_origin, images. It has none of: cold_chain, controlled, interactions[], contraindications, precautions, pregnancy_info, breastfeeding_info, last_reviewed / medical_review_status, shortage_notes, related_product_ids, online_exclusive, pharmacies_count, covered_by_insurance. SPEC_PRODUCT_DOCTOR_DETAIL section A lists them. Those rows and sections are hidden, not invented.",
+    "suspect": "The public DTO should carry the spec's fields (the full medicine schema has them); the delivery/pickup segmented control and the pharmacies-nearby line need an offers/location endpoint. Alternatives are real (GET /public/products/search by active ingredient, exact match) but 'related products' has no source."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/p/[slug]",
+    "element": "Structured data (JSON-LD Product offers): shippingDetails and hasMerchantReturnPolicy",
+    "file": "patient-web/app/[locale]/p/[slug]/page.tsx",
+    "line": 126,
+    "found": "The Product JSON-LD hard-codes a shipping rate of 15.00 SAR, a 7-day free-return policy and a priceValidUntil 30 days from now for every product. None of it comes from the API. Kept as it was (the slice keeps SEO as is); only the visible page changed.",
+    "suspect": "Made-up commercial terms published to search engines. Remove them or source them from real shipping and return settings."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/pharmacy/filters",
+    "element": "Filters the page used to offer: dosage form, manufacturer, prescription-only, price range, price/newest sorting",
+    "file": "patient-web/components-next/pharmacy-filters-client.tsx",
+    "line": 18,
+    "found": "GET /medicines accepts only q/search, category, sort (smart_ranking | trending), pharmacy_id, page, limit and cursor (medicines.controller.ts list). The old screen sent forms, brands, rx, min_price, max_price and four sort names to /medicines, where the list page ignored them (and read different parameter names than the filters page wrote). The rebuilt screen offers only category and the two orderings and the medicines list now forwards them; the other filters are not drawn because nothing applies them.",
+    "suspect": "GET /medicines/filters returns forms and brands, and the app screen shows them, so the list endpoint is expected to filter on them; add forms, brands, rx, min_price, max_price and price sorting to GET /medicines, then the controls can come back."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/pharmacy/[slug]",
+    "element": "Pharmacy page data source and base URL",
+    "file": "patient-web/app/[locale]/pharmacy/[slug]/page.tsx",
+    "line": 22,
+    "found": "The page calls `${NEXT_PUBLIC_API_URL}/api/v1/entity-graph/related/pharmacy/:slug`, which the backend answers from the FACILITIES collection (getRelatedFacility): /ar/pharmacy/andalusia-clinic on the seeded backend renders a polyclinic as a 'pharmacy'. The seeded pharmacies (provider profiles of the new test seed) have no public page. On a miss it falls back to /seo/resolve/doctor/:slug (a doctor resolver). It also appends /api/v1 to NEXT_PUBLIC_API_URL, so with the local environment's value (which already ends in /api/v1) the URL doubles and every pharmacy page is 404.",
+    "suspect": "Pharmacies need their own public lookup (slug, name, city, district, delivery time, license); the page should use patientApiUrl() like the other server fetches and drop the doctor fallback. Fields it reads (name_ar, name_en, city, district, estimated_delivery_time, sfda_license_number, license_number) are guesses at an entity shape the backend does not document."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/medicines",
+    "element": "Medicine rows and pager",
+    "file": "patient-web/app/[locale]/medicines/page.tsx",
+    "line": 22,
+    "found": "GET /medicines returns an array with no total, so the pager shows 'next' when a page is full (24 rows) and cannot say how many pages exist. Rows carry no price or image (extractMedicineRows reads names, ingredient, form, strength, Rx only), and medicines-ssr.test.ts requires that no price is shown here.",
+    "suspect": "Either the list endpoint should return a total and a price/image, or this list should be served from the public catalogue (/public/categories/:locale/items) like /c, which has both."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/medicines/compare",
+    "element": "Compare table entry point",
+    "file": "patient-web/app/[locale]/medicines/compare/page.tsx",
+    "line": 34,
+    "found": "The page needs ?ids=a,b (up to 4) and reads each with an unauthenticated GET /medicines/:id; nothing on the web links to it with ids (the app compares through POST /medicines/compare), so patients only reach the empty state. The table reads name, active_ingredient, price, dosage_form, manufacturer from the raw medicine record.",
+    "suspect": "Needs a way to pick medicines (a 'compare' action on cards) and to use POST /medicines/compare like the app; field names (dosage_form, price) are unverified against the public DTO."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/p/[slug]",
+    "element": "Shared 'cite this information' block (also on /articles/[slug])",
+    "file": "patient-web/components-next/cite-this.tsx",
+    "line": 0,
+    "found": "The component was rebuilt for this page: inline styles, raw colours, hard-coded Arabic/English strings and the BibTeX block and button are gone (BibTeX is technical wording for a patient screen; the same fields are in the JSON-LD). The articles page uses the same component and now shows the plain citation with one copy button.",
+    "suspect": "Articles (Batch 10) should confirm that the BibTeX export is not wanted there."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/p/[slug]",
+    "element": "Missing product: status and robots",
+    "file": "patient-web/app/[locale]/p/[slug]/page.tsx",
+    "line": 75,
+    "found": "Production build against the seeded backend: GET /ar/p/test-missing answers HTTP 200 with <meta name=\"robots\" content=\"index, follow\"> although the page calls notFound() (the upstream answers 404). Same code as main (notFound at the same place), so this is not new in this batch.",
+    "suspect": "A soft 404 that crawlers may index: the not-found response should be 404 or noindex. Probably the streamed response (headers sent before notFound) plus the root layout robots. To check on the F82-1 rendering change (static/ISR for public pages), which touches this route."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/medicines/compare",
+    "element": "Extra upstream call on every render",
+    "file": "patient-web/app/[locale]/medicines/[medicineId]/page.tsx",
+    "line": 13,
+    "found": "Production build: a plain GET /ar/medicines/compare makes the server call GET /api/v1/public/product-by-id/ar/compare (404), i.e. the legacy [medicineId] route's metadata resolver runs with medicineId=\"compare\". The compare page itself renders (200, real empty state). The call is visible in the backend log twice per request.",
+    "suspect": "The dynamic sibling route is evaluated for the static path; harmless to users but a wasted upstream call and log noise. Not found on the agent's dev run; needs a look at how Next 16 matches [medicineId] next to compare (parseMedicineId may accept the word compare)."
+  }
+]

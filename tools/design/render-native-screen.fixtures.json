@@ -1,0 +1,3994 @@
+{
+  "_comment": "TEST VALUES for `render-native-screen.mjs --api fixture`: invented, clearly marked as tests, never real patient data. They exist only to draw the data-bound blocks of Home (name, reminder, appointment, records, curated offers) and the pharmacy hub and product screens (a catalogue of marked test products) in a design render. Shipped code never reads this file. Batch 1c adds TEST pharmacy offers and orders (the shape of the backend patient endpoints; names, prices and ids are invented). Batch 1d adds TEST orders for payment, insurance decision and checkout, TEST payment capabilities and TEST payment results (the shape of the backend answers of payments.module.ts and pharmacy-order.service.ts; amounts and ids are invented). Batch 5 adds TEST health data (vitals, score, reminders, sleep, medical profile, contacts, records, wearables) in the shape the health screens read; names, values and ids are invented. Batch 12 adds TEST settings, sessions, storage, FAQ, legal documents, returns, support chat and requests, providers on the map and a TEST insurance.",
+  "/users/me/display": {
+    "display_name": "مستخدم تجريبي"
+  },
+  "/notifications": [
+    {
+      "id": "test-n1",
+      "type": "info",
+      "title": "إشعار تجريبي",
+      "body": "",
+      "read": false
+    }
+  ],
+  "/loyalty/account": {
+    "points": 1250,
+    "tier": "silver"
+  },
+  "/health/reminders": [
+    {
+      "id": "test-1",
+      "medicine_name_ar": "دواء تجريبي",
+      "dose": "حبة واحدة",
+      "dosage_count": 1,
+      "frequency": "daily",
+      "active": true,
+      "chronic": false,
+      "times": [
+        "08:00",
+        "20:00"
+      ],
+      "today_doses": [
+        {
+          "time_key": "08:00",
+          "status": "taken"
+        },
+        {
+          "time_key": "20:00",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": "test-2",
+      "medicine_name_ar": "دواء مزمن تجريبي",
+      "dose": "500 mg",
+      "dosage_count": 1,
+      "frequency": "daily",
+      "active": true,
+      "chronic": true,
+      "times": [
+        "13:00"
+      ],
+      "refill_date": "2026-10-20T00:00:00Z",
+      "total_days": 30,
+      "pills_remaining": 12,
+      "original_qty": 30,
+      "today_doses": [
+        {
+          "time_key": "13:00",
+          "status": "pending"
+        }
+      ]
+    }
+  ],
+  "/nutrition/daily-summary": {
+    "meals_count": 2,
+    "calories": {
+      "consumed": 800,
+      "target": 2000
+    },
+    "macros": {
+      "protein_g": 40,
+      "carbs_g": 90,
+      "fat_g": 20,
+      "fiber_g": 10
+    },
+    "water": {
+      "consumed_ml": 600,
+      "target_ml": 2000
+    }
+  },
+  "/maternity/profile": {
+    "profile_ready": true,
+    "is_pregnant": true,
+    "current_week": 22,
+    "due_date": "2027-01-15",
+    "last_period_date": "2026-09-20",
+    "cycle_length": 28,
+    "is_regular": true
+  },
+  "/mental-health/mood": [
+    {
+      "id": "test-mood-1",
+      "mood": "good",
+      "logged_at": "2026-10-06T20:00:00Z",
+      "notes": "ملاحظة تجريبية",
+      "tags": [
+        "calm"
+      ]
+    },
+    {
+      "id": "test-mood-2",
+      "mood": "okay",
+      "logged_at": "2026-10-05T20:00:00Z",
+      "tags": []
+    }
+  ],
+  "/health/vitals/summary": [
+    {
+      "type": "test",
+      "key": "bp",
+      "label": "ضغط الدم",
+      "value": "120/80",
+      "unit": "mmHg",
+      "measured_at": "2026-10-05T08:00:00Z"
+    },
+    {
+      "type": "test",
+      "key": "glucose",
+      "label": "السكر",
+      "value": "98",
+      "unit": "mg/dL",
+      "measured_at": "2026-10-05T07:30:00Z"
+    },
+    {
+      "type": "test",
+      "key": "weight",
+      "label": "الوزن",
+      "value": "72",
+      "unit": "kg",
+      "measured_at": "2026-10-04T09:00:00Z"
+    },
+    {
+      "type": "test",
+      "key": "temperature",
+      "label": "الحرارة",
+      "value": "36.8",
+      "unit": "°C",
+      "measured_at": "2026-10-04T09:05:00Z"
+    }
+  ],
+  "/home/upcoming-appointment": {
+    "id": "test-appt",
+    "date": "2026-10-26",
+    "doctorName": "د. طبيب تجريبي",
+    "type": "استشارة فيديو",
+    "time": "04:30 م"
+  },
+  "/content/home": {
+    "sections": [
+      {
+        "id": "test-offers",
+        "title_ar": "عروض وباقات",
+        "title_en": "Offers and packages",
+        "enabled": true,
+        "items": [
+          {
+            "id": "1",
+            "title_ar": "عنصر تجريبي",
+            "title_en": "Test item",
+            "deep_link": "/offers"
+          },
+          {
+            "id": "2",
+            "title_ar": "عنصر تجريبي ثانٍ",
+            "title_en": "Second test item",
+            "deep_link": "/offers"
+          }
+        ]
+      }
+    ]
+  },
+  "/medicines": [
+    {
+      "id": "test-med",
+      "name_ar": "منتج تجريبي ١",
+      "name_en": "Test product 1",
+      "manufacturer": "شركة تجريبية",
+      "package_size": "٢٤ قرص",
+      "price": 18.5,
+      "old_price": 22,
+      "requires_prescription": false,
+      "category": "الأدوية والعلاج"
+    },
+    {
+      "id": "test-alt",
+      "name_ar": "منتج تجريبي ٢",
+      "name_en": "Test product 2",
+      "manufacturer": "شركة تجريبية",
+      "package_size": "٣٠ قرص",
+      "price": 24,
+      "requires_prescription": true,
+      "category": "الأدوية والعلاج"
+    },
+    {
+      "id": "test-3",
+      "name_ar": "منتج تجريبي ٣ باسم أطول قليلًا ليلتف على سطرين",
+      "name_en": "Test product 3",
+      "price": 9,
+      "requires_prescription": false,
+      "category": "العناية بالبشرة"
+    },
+    {
+      "id": "test-4",
+      "name_ar": "منتج تجريبي ٤",
+      "name_en": "Test product 4",
+      "manufacturer": "شركة تجريبية",
+      "requires_prescription": false,
+      "category": "الأم والطفل"
+    }
+  ],
+  "/patient/pharmacy/orders": [
+    {
+      "id": "test-order-aaa111",
+      "createdAt": "2026-10-06T10:00:00Z",
+      "status": "out_for_delivery",
+      "selected_offer_id": "test-offer-1",
+      "payment_status": "paid",
+      "pricing_snapshot": {
+        "offer_id": "test-offer-1",
+        "offer_version": 1,
+        "totals": {
+          "subtotal": 70,
+          "delivery_fee": 10,
+          "total": 80,
+          "currency": "SAR"
+        },
+        "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "items": [
+        {
+          "id": "ti1",
+          "raw_name": "منتج تجريبي ١",
+          "qty": 2,
+          "matched_sku": "TEST-SKU-1"
+        },
+        {
+          "id": "ti2",
+          "raw_name": "منتج تجريبي ٢",
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "test-order-bbb222",
+      "createdAt": "2026-10-05T10:00:00Z",
+      "status": "broadcasting",
+      "items": [
+        {
+          "id": "ti1",
+          "raw_name": "منتج تجريبي ١",
+          "qty": 2,
+          "matched_sku": "TEST-SKU-1"
+        }
+      ]
+    },
+    {
+      "id": "test-delivered",
+      "createdAt": "2026-10-01T10:00:00Z",
+      "status": "delivered",
+      "selected_offer_id": "test-offer-1",
+      "payment_status": "paid",
+      "pricing_snapshot": {
+        "offer_id": "test-offer-1",
+        "offer_version": 1,
+        "totals": {
+          "subtotal": 70,
+          "delivery_fee": 10,
+          "total": 80,
+          "currency": "SAR"
+        },
+        "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "items": [
+        {
+          "id": "ti1",
+          "raw_name": "منتج تجريبي ١",
+          "qty": 2,
+          "matched_sku": "TEST-SKU-1"
+        },
+        {
+          "id": "ti2",
+          "raw_name": "منتج تجريبي ٢",
+          "qty": 1
+        }
+      ]
+    }
+  ],
+  "/users/me/wishlist": [
+    {
+      "id": "test-med",
+      "name_ar": "منتج تجريبي ١",
+      "name_en": "Test product 1",
+      "price": 18.5,
+      "requires_prescription": false,
+      "available": true
+    },
+    {
+      "id": "test-alt",
+      "name_ar": "منتج تجريبي ٢",
+      "name_en": "Test product 2",
+      "price": 24,
+      "requires_prescription": true,
+      "available": false
+    }
+  ],
+  "/medicines/filters": {
+    "categories": [
+      "medications",
+      "skincare",
+      "baby"
+    ],
+    "brands": [
+      "شركة تجريبية",
+      "شركة تجريبية ٢"
+    ],
+    "forms": [
+      "أقراص",
+      "شراب",
+      "كريم"
+    ],
+    "sortOptions": []
+  },
+  "/medicines/test-med/details": {
+    "id": "test-med",
+    "name_ar": "منتج تجريبي ١",
+    "name_en": "Test product 1",
+    "manufacturer": "شركة تجريبية",
+    "country_of_origin": "بلد تجريبي",
+    "package_size": "٢٤ قرص",
+    "form": "أقراص",
+    "strength": "٥٠٠ ملغ",
+    "active_ingredient": "مادة فعالة تجريبية",
+    "generic_name": "اسم علمي تجريبي",
+    "category": "الأدوية والعلاج",
+    "sub_category": "فئة فرعية تجريبية",
+    "price": 18.5,
+    "old_price": 22,
+    "discount_percent": 16,
+    "has_discount": true,
+    "requires_prescription": false,
+    "cold_chain": true,
+    "controlled": false,
+    "online_exclusive": true,
+    "pharmacies_count": 3,
+    "availability_status": "availability_may_be_limited",
+    "potentially_unavailable": true,
+    "shortage_notes": "ملاحظة نقص تجريبية",
+    "sku": 100200,
+    "barcode": "6290000000000",
+    "medical_review_status": "approved",
+    "last_reviewed": "2026-09-01T00:00:00Z",
+    "images": [],
+    "description_ar": "وصف تجريبي للمنتج.",
+    "indications_ar": [
+      "دواعي استعمال تجريبية ١",
+      "دواعي استعمال تجريبية ٢"
+    ],
+    "dosage_ar": "جرعة تجريبية",
+    "usage_instructions_ar": "إرشادات تجريبية",
+    "warnings_ar": [
+      "تحذير تجريبي"
+    ],
+    "side_effects_ar": [
+      "أثر جانبي تجريبي ١",
+      "أثر جانبي تجريبي ٢"
+    ],
+    "interactions": [
+      "مادة تتداخل تجريبية"
+    ],
+    "pregnancy_info_ar": "معلومات حمل تجريبية",
+    "breastfeeding_info_ar": "معلومات رضاعة تجريبية",
+    "storage_conditions_ar": "أقل من ٢٥°",
+    "alternatives": [
+      {
+        "id": "test-alt",
+        "name_ar": "منتج تجريبي ٢",
+        "price": 16,
+        "manufacturer": "شركة تجريبية"
+      },
+      {
+        "id": "test-3",
+        "name_ar": "منتج تجريبي ٣",
+        "price": 18.5,
+        "manufacturer": "شركة تجريبية ٢"
+      },
+      {
+        "id": "test-4",
+        "name_ar": "منتج تجريبي ٤",
+        "price": 30
+      }
+    ],
+    "related_product_ids": [
+      "test-3",
+      "test-4"
+    ]
+  },
+  "/medicines/compare": [
+    {
+      "id": "test-med",
+      "name_ar": "منتج تجريبي ١",
+      "manufacturer": "شركة تجريبية",
+      "active_ingredient": "مادة فعالة تجريبية",
+      "strength": "٥٠٠ ملغ",
+      "form": "أقراص",
+      "package_size": "٢٤ قرص",
+      "price": 18.5,
+      "requires_prescription": false,
+      "side_effects_ar": [
+        "أثر جانبي تجريبي"
+      ]
+    },
+    {
+      "id": "test-alt",
+      "name_ar": "منتج تجريبي ٢",
+      "manufacturer": "شركة تجريبية ٢",
+      "active_ingredient": "مادة فعالة تجريبية",
+      "strength": "٥٠٠ ملغ",
+      "form": "أقراص",
+      "package_size": "٣٠ قرص",
+      "price": 24,
+      "requires_prescription": true
+    }
+  ],
+  "/prescriptions/active": [
+    {
+      "id": "test-rx-0001a1",
+      "state": "UPLOADED_BY_PATIENT",
+      "createdAt": "2026-10-01T09:30:00.000Z",
+      "items": [
+        {
+          "medicine_name_ar": "دواء تجريبي ١"
+        },
+        {
+          "medicine_name_ar": "دواء تجريبي ٢"
+        }
+      ]
+    },
+    {
+      "id": "test-rx-0002b2",
+      "state": "VERIFIED_BY_PHARMACIST",
+      "createdAt": "2026-09-28T16:10:00.000Z",
+      "items": [
+        {
+          "medicine_name_ar": "دواء تجريبي ٣"
+        }
+      ]
+    }
+  ],
+  "/prescriptions/test-rx": {
+    "id": "test-rx-0001a1",
+    "status": "UPLOADED_BY_PATIENT",
+    "issued_at": "2026-10-01T09:30:00.000Z",
+    "items": [
+      {
+        "name": "دواء تجريبي ١",
+        "dose": "جرعة تجريبية",
+        "frequency": null,
+        "duration": 5
+      },
+      {
+        "name": "دواء تجريبي ٢",
+        "dose": null,
+        "frequency": null,
+        "duration": null
+      }
+    ],
+    "doctor": {
+      "display_name": null,
+      "specialty": null
+    }
+  },
+  "/users/me/addresses": [
+    {
+      "id": "test-addr",
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية",
+      "lat": 24.7,
+      "lng": 46.7,
+      "is_default": true
+    },
+    {
+      "id": "test-addr-2",
+      "label": "عمل تجريبي",
+      "street": "طريق تجريبي",
+      "city": "مدينة تجريبية",
+      "lat": 24.8,
+      "lng": 46.6
+    },
+    {
+      "id": "test-addr-3",
+      "street": "عنوان تجريبي بلا موقع"
+    }
+  ],
+  "/pharmacy/chat/threads": [
+    {
+      "id": "test-thread",
+      "order_id": "test-order",
+      "order_item_id": "test-item-1",
+      "status": "open"
+    },
+    {
+      "id": "test-thread-2",
+      "order_id": "test-order",
+      "order_item_id": "test-item-2",
+      "status": "open"
+    }
+  ],
+  "/pharmacy/chat/threads/test-thread/messages": {
+    "thread": {
+      "id": "test-thread",
+      "status": "open"
+    },
+    "messages": [
+      {
+        "id": "m1",
+        "sender_role": "pharmacy",
+        "text": "رسالة تجريبية من الصيدلية",
+        "createdAt": "2026-10-02T10:00:00.000Z",
+        "substitute_offer": {
+          "name": "بديل تجريبي",
+          "price": 12.5
+        }
+      },
+      {
+        "id": "m2",
+        "sender_role": "patient",
+        "text": "رد تجريبي",
+        "createdAt": "2026-10-02T10:05:00.000Z"
+      },
+      {
+        "id": "m3",
+        "sender_role": "system",
+        "text": "رسالة نظام تجريبية",
+        "createdAt": "2026-10-02T10:06:00.000Z"
+      }
+    ]
+  },
+  "/medicines/by-barcode/test-code": {
+    "found": true,
+    "medicine": {
+      "id": "test-med",
+      "name_ar": "منتج تجريبي ١",
+      "name_en": "Test product 1",
+      "manufacturer": "شركة تجريبية",
+      "package_size": "٢٤ قرص",
+      "price": 18.5,
+      "requires_prescription": true
+    }
+  },
+  "/patient/pharmacy/orders/test-order": {
+    "id": "test",
+    "status": "broadcasting",
+    "items": [
+      {
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-order/offers": [
+    {
+      "id": "test-offer-1",
+      "status": "open",
+      "pharmacy_name_ar": "صيدلية تجريبية ١",
+      "pharmacy_name_en": "Test pharmacy 1",
+      "approx_distance_km": 1.5,
+      "preparation_minutes": 20,
+      "expires_at": "@in+585s",
+      "insurance_ready": true,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "lines": [
+        {
+          "order_item_id": "i1",
+          "name": "منتج تجريبي ١",
+          "available": true,
+          "requested_qty": 2,
+          "offered_qty": 2,
+          "unit_price": 20,
+          "currency": "SAR"
+        },
+        {
+          "order_item_id": "i2",
+          "name": "منتج تجريبي ٢",
+          "available": true,
+          "requested_qty": 1,
+          "offered_qty": 1,
+          "unit_price": 30,
+          "currency": "SAR"
+        }
+      ],
+      "provider_note": null
+    },
+    {
+      "id": "test-offer-2",
+      "status": "open",
+      "pharmacy_name_ar": "صيدلية تجريبية ٢",
+      "pharmacy_name_en": "Test pharmacy 2",
+      "approx_distance_km": 4,
+      "preparation_minutes": 35,
+      "expires_at": "@in+240s",
+      "insurance_ready": true,
+      "totals": {
+        "subtotal": 95,
+        "delivery_fee": 0,
+        "total": 95,
+        "currency": "SAR"
+      },
+      "lines": [
+        {
+          "order_item_id": "i1",
+          "name": "منتج تجريبي ١",
+          "available": true,
+          "requested_qty": 2,
+          "offered_qty": 2,
+          "unit_price": 25,
+          "currency": "SAR"
+        },
+        {
+          "order_item_id": "i2",
+          "name": "منتج تجريبي ٢",
+          "available": false,
+          "requested_qty": 1,
+          "offered_qty": 0,
+          "unit_price": 45,
+          "currency": "SAR",
+          "alternative": "بديل تجريبي"
+        }
+      ],
+      "provider_note": "ملاحظة تجريبية من الصيدلية"
+    },
+    {
+      "id": "test-offer-3",
+      "status": "open",
+      "pharmacy_name_ar": null,
+      "pharmacy_name_en": null,
+      "approx_distance_km": null,
+      "preparation_minutes": null,
+      "expires_at": "@in+30s",
+      "insurance_ready": true,
+      "totals": {
+        "subtotal": 88,
+        "delivery_fee": 12,
+        "total": 100,
+        "currency": "SAR"
+      },
+      "lines": []
+    }
+  ],
+  "/patient/pharmacy/orders/test-order-none": {
+    "id": "test",
+    "status": "broadcasting",
+    "items": [
+      {
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-order-none/offers": [],
+  "/patient/pharmacy/orders/test-order-review": {
+    "id": "test",
+    "status": "manual_review",
+    "items": [
+      {
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-order-review/offers": [],
+  "/patient/pharmacy/orders/test-order-cancelled": {
+    "id": "test",
+    "status": "cancelled",
+    "items": [
+      {
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-order-cancelled/offers": [],
+  "/patient/pharmacy/orders/test-order-selected": {
+    "id": "test",
+    "status": "cash_card_payment_pending",
+    "items": [
+      {
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "selected_offer_id": "test-offer-1",
+    "governed_state": "OFFER_SELECTED"
+  },
+  "/patient/pharmacy/orders/test-order-selected/offers": [],
+  "/patient/pharmacy/orders/test-order-quote": {
+    "id": "test",
+    "status": "cash_card_payment_pending",
+    "items": [
+      {
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "governed_state": "OFFER_SELECTED",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "coverage_mode": "cash",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "allocations_detail": [
+      {
+        "id": "test-alloc",
+        "items": [
+          {
+            "order_item_id": "i1",
+            "name": "منتج تجريبي ١",
+            "qty_offered": 2,
+            "unit_price": 20,
+            "action": "available"
+          },
+          {
+            "order_item_id": "i2",
+            "name": "منتج تجريبي ٢",
+            "qty_offered": 1,
+            "unit_price": 30,
+            "action": "substitute"
+          }
+        ]
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-order-accepted": {
+    "id": "test",
+    "status": "cash_card_payment_pending",
+    "items": [
+      {
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "governed_state": "FINAL_QUOTE_ACCEPTED",
+    "accepted_quote_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "cod_allowed": true
+    },
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "coverage_mode": "cash",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "allocations_detail": [
+      {
+        "id": "test-alloc",
+        "items": [
+          {
+            "order_item_id": "i1",
+            "name": "منتج تجريبي ١",
+            "qty_offered": 2,
+            "unit_price": 20,
+            "action": "available"
+          },
+          {
+            "order_item_id": "i2",
+            "name": "منتج تجريبي ٢",
+            "qty_offered": 1,
+            "unit_price": 30,
+            "action": "substitute"
+          }
+        ]
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-order-cod": {
+    "id": "test",
+    "status": "cod_due_on_delivery",
+    "items": [
+      {
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "governed_state": "COD_REGISTERED",
+    "accepted_quote_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "cod_allowed": true
+    },
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "coverage_mode": "cash",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "allocations_detail": [
+      {
+        "id": "test-alloc",
+        "items": [
+          {
+            "order_item_id": "i1",
+            "name": "منتج تجريبي ١",
+            "qty_offered": 2,
+            "unit_price": 20,
+            "action": "available"
+          },
+          {
+            "order_item_id": "i2",
+            "name": "منتج تجريبي ٢",
+            "qty_offered": 1,
+            "unit_price": 30,
+            "action": "substitute"
+          }
+        ]
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-order-noquote": {
+    "id": "test",
+    "status": "confirmed",
+    "items": [
+      {
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "governed_state": "CONFIRMED"
+  },
+  "/patient/pharmacy/orders/test-pay": {
+    "id": "test-order-0001a1",
+    "status": "cash_card_payment_pending",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "delivery",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "cash",
+    "payment_method": "card",
+    "governed_state": "FINAL_QUOTE_ACCEPTED",
+    "accepted_quote_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "cod_allowed": true
+    },
+    "accepted_quote_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "accepted_quote_revision": 1
+  },
+  "/payments/pharmacy/test-pay/capabilities": {
+    "booking_id": "test-pay",
+    "amount": 80,
+    "currency": "SAR",
+    "methods": [
+      {
+        "id": "card",
+        "kind": "online"
+      },
+      {
+        "id": "apple-pay",
+        "kind": "online"
+      },
+      {
+        "id": "google-pay",
+        "kind": "online"
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-pay-pickup": {
+    "id": "test-order-0001a1",
+    "status": "cash_card_payment_pending",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "pickup",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "cash",
+    "payment_method": "card",
+    "governed_state": "FINAL_QUOTE_ACCEPTED",
+    "accepted_quote_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "cod_allowed": true
+    },
+    "accepted_quote_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "accepted_quote_revision": 1
+  },
+  "/payments/pharmacy/test-pay-pickup/capabilities": {
+    "booking_id": "test-pay-pickup",
+    "amount": 80,
+    "currency": "SAR",
+    "methods": [
+      {
+        "id": "card",
+        "kind": "online"
+      },
+      {
+        "id": "apple-pay",
+        "kind": "online"
+      },
+      {
+        "id": "google-pay",
+        "kind": "online"
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-pay-nomethods": {
+    "id": "test-order-0001a1",
+    "status": "cash_card_payment_pending",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "delivery",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "cash",
+    "payment_method": "card",
+    "governed_state": "FINAL_QUOTE_ACCEPTED",
+    "accepted_quote_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "cod_allowed": true
+    },
+    "accepted_quote_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "accepted_quote_revision": 1
+  },
+  "/payments/pharmacy/test-pay-nomethods/capabilities": {
+    "booking_id": "test-pay-nomethods",
+    "amount": 80,
+    "currency": "SAR",
+    "methods": []
+  },
+  "/patient/pharmacy/orders/test-pay-paid": {
+    "id": "test-order-0001a1",
+    "status": "cash_card_payment_pending",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "delivery",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "cash",
+    "payment_method": "card",
+    "governed_state": "FINAL_QUOTE_ACCEPTED",
+    "accepted_quote_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "cod_allowed": true
+    },
+    "accepted_quote_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "accepted_quote_revision": 1,
+    "payment_status": "paid"
+  },
+  "/patient/pharmacy/orders/test-pay-quote": {
+    "id": "test-order-0001a1",
+    "status": "cash_card_payment_pending",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "delivery",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "cash",
+    "payment_method": "card",
+    "governed_state": "OFFER_SELECTED"
+  },
+  "/payments/pharmacy/test-pay-quote/capabilities": {
+    "__error": "final_quote_acceptance_required"
+  },
+  "/patient/pharmacy/orders/test-pay-cod": {
+    "id": "test-order-0001a1",
+    "status": "cod_due_on_delivery",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "delivery",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "cash",
+    "payment_method": "cod",
+    "governed_state": "COD_REGISTERED",
+    "accepted_quote_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "cod_allowed": true
+    }
+  },
+  "/payments/pharmacy/test-pay-cod/capabilities": {
+    "__error": "cod_orders_do_not_require_online_payment"
+  },
+  "/patient/pharmacy/orders/test-pay-cancelled": {
+    "id": "test-order-0001a1",
+    "status": "cancelled",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "delivery",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "cash",
+    "payment_method": "card",
+    "governed_state": "CANCELLED"
+  },
+  "/payments/pharmacy/test-pay-cancelled/capabilities": {
+    "booking_id": "test-pay-cancelled",
+    "amount": 80,
+    "currency": "SAR",
+    "methods": [
+      {
+        "id": "card",
+        "kind": "online"
+      },
+      {
+        "id": "apple-pay",
+        "kind": "online"
+      },
+      {
+        "id": "google-pay",
+        "kind": "online"
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-pay-error": {
+    "id": "test-order-0001a1",
+    "status": "cash_card_payment_pending",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "delivery",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "cash",
+    "payment_method": "card",
+    "governed_state": "FINAL_QUOTE_ACCEPTED",
+    "accepted_quote_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "cod_allowed": true
+    },
+    "accepted_quote_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "accepted_quote_revision": 1
+  },
+  "/payments/pharmacy/test-pay-error/capabilities": {
+    "__error": "something_unexpected"
+  },
+  "/patient/pharmacy/orders/test-ins-processing": {
+    "id": "test-order-0001a1",
+    "status": "insurance_decision_pending",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "delivery",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "insurance",
+    "payment_method": "insurance",
+    "governed_state": "INSURANCE_PROCESSING"
+  },
+  "/patient/pharmacy/orders/test-ins-partial": {
+    "id": "test-order-0001a1",
+    "status": "waiting_copay",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "delivery",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "insurance",
+    "payment_method": "insurance",
+    "governed_state": "INSURANCE_DECISION_READY",
+    "insurance_decision": {
+      "outcome": "partial",
+      "patient_share": 30,
+      "insurer_share": 50
+    },
+    "insurance_decision_summary": {
+      "decision": "APPROVED_PARTIAL",
+      "co_pay_amount": 30,
+      "insurer_share": 50,
+      "currency": "SAR"
+    },
+    "insurance_item_decisions": [
+      {
+        "order_item_id": "i1",
+        "decision": "APPROVED_PARTIAL",
+        "line_amount": 40,
+        "covered_amount": 20,
+        "co_pay_amount": 20,
+        "reason": "سبب تجريبي"
+      },
+      {
+        "order_item_id": "i2",
+        "decision": "APPROVED_FULL",
+        "line_amount": 30,
+        "covered_amount": 30,
+        "co_pay_amount": 0,
+        "reason": null
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-ins-accepted": {
+    "id": "test-order-0001a1",
+    "status": "waiting_copay",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "delivery",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "insurance",
+    "payment_method": "insurance",
+    "governed_state": "INSURANCE_DECISION_READY",
+    "insurance_decision": {
+      "outcome": "partial",
+      "patient_share": 30,
+      "insurer_share": 50,
+      "patient_acceptance": {
+        "kind": "co-pay"
+      }
+    },
+    "insurance_decision_summary": {
+      "decision": "APPROVED_PARTIAL",
+      "co_pay_amount": 30,
+      "insurer_share": 50,
+      "currency": "SAR"
+    },
+    "insurance_item_decisions": [
+      {
+        "order_item_id": "i1",
+        "decision": "APPROVED_PARTIAL",
+        "line_amount": 40,
+        "covered_amount": 20,
+        "co_pay_amount": 20,
+        "reason": "سبب تجريبي"
+      },
+      {
+        "order_item_id": "i2",
+        "decision": "APPROVED_FULL",
+        "line_amount": 30,
+        "covered_amount": 30,
+        "co_pay_amount": 0,
+        "reason": null
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-ins-rejected": {
+    "id": "test-order-0001a1",
+    "status": "manual_review",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "delivery",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "insurance",
+    "payment_method": "insurance",
+    "governed_state": "INSURANCE_DECISION_READY",
+    "insurance_decision": {
+      "outcome": "rejected",
+      "patient_share": 80,
+      "insurer_share": 0
+    },
+    "insurance_decision_summary": {
+      "decision": "REJECTED",
+      "co_pay_amount": 80,
+      "insurer_share": 0,
+      "currency": "SAR"
+    },
+    "insurance_item_decisions": [
+      {
+        "order_item_id": "i1",
+        "decision": "REJECTED",
+        "line_amount": 40,
+        "covered_amount": 0,
+        "co_pay_amount": 40,
+        "reason": "سبب تجريبي"
+      },
+      {
+        "order_item_id": "i2",
+        "decision": "REJECTED",
+        "line_amount": 30,
+        "covered_amount": 0,
+        "co_pay_amount": 30,
+        "reason": "سبب تجريبي"
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-ins-full": {
+    "id": "test-order-0001a1",
+    "status": "confirmed",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "delivery",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "insurance",
+    "payment_method": "insurance",
+    "governed_state": "CONFIRMED",
+    "payment_status": "covered_by_insurance",
+    "insurance_decision": {
+      "outcome": "full",
+      "patient_share": 0,
+      "insurer_share": 80
+    },
+    "insurance_decision_summary": {
+      "decision": "APPROVED_FULL",
+      "co_pay_amount": 0,
+      "insurer_share": 80,
+      "currency": "SAR"
+    },
+    "insurance_item_decisions": [
+      {
+        "order_item_id": "i1",
+        "decision": "APPROVED_FULL",
+        "line_amount": 40,
+        "covered_amount": 40,
+        "co_pay_amount": 0,
+        "reason": null
+      },
+      {
+        "order_item_id": "i2",
+        "decision": "APPROVED_FULL",
+        "line_amount": 30,
+        "covered_amount": 30,
+        "co_pay_amount": 0,
+        "reason": null
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-pay-ins": {
+    "id": "test-order-0001a1",
+    "status": "waiting_copay",
+    "items": [
+      {
+        "id": "i1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2
+      },
+      {
+        "id": "i2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "delivery_address": {
+      "label": "عنوان تجريبي",
+      "street": "شارع تجريبي",
+      "city": "مدينة تجريبية"
+    },
+    "fulfillment": "delivery",
+    "selected_offer_id": "test-offer-1",
+    "selected_allocation_id": "test-alloc",
+    "selected_offer_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "selected_offer_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "selected_offer_revision": 1,
+    "coverage_mode": "insurance",
+    "payment_method": "insurance",
+    "governed_state": "INSURANCE_DECISION_READY",
+    "insurance_decision": {
+      "outcome": "partial",
+      "patient_share": 30,
+      "insurer_share": 50,
+      "patient_acceptance": {
+        "kind": "co-pay"
+      }
+    },
+    "insurance_decision_summary": {
+      "decision": "APPROVED_PARTIAL",
+      "co_pay_amount": 30,
+      "insurer_share": 50,
+      "currency": "SAR"
+    },
+    "insurance_item_decisions": [
+      {
+        "order_item_id": "i1",
+        "decision": "APPROVED_PARTIAL",
+        "line_amount": 40,
+        "covered_amount": 20,
+        "co_pay_amount": 20,
+        "reason": "سبب تجريبي"
+      },
+      {
+        "order_item_id": "i2",
+        "decision": "APPROVED_FULL",
+        "line_amount": 30,
+        "covered_amount": 30,
+        "co_pay_amount": 0,
+        "reason": null
+      }
+    ]
+  },
+  "/payments/pharmacy/test-pay-ins/capabilities": {
+    "booking_id": "test-pay-ins",
+    "amount": 30,
+    "currency": "SAR",
+    "methods": [
+      {
+        "id": "card",
+        "kind": "online"
+      },
+      {
+        "id": "apple-pay",
+        "kind": "online"
+      },
+      {
+        "id": "google-pay",
+        "kind": "online"
+      }
+    ]
+  },
+  "POST /payments/verify/test-txn-paid": {
+    "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+    "status": "paid",
+    "amount": 80,
+    "currency": "SAR",
+    "paid_at": "2026-10-06T09:30:00.000Z"
+  },
+  "POST /payments/verify/test-txn-pending": {
+    "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+    "status": "pending",
+    "amount": 80,
+    "currency": "SAR",
+    "paid_at": null
+  },
+  "POST /payments/verify/test-txn-failed": {
+    "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+    "status": "failed",
+    "amount": 80,
+    "currency": "SAR",
+    "paid_at": null
+  },
+  "POST /payments/verify/test-txn-cancelled": {
+    "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+    "status": "cancelled",
+    "amount": 80,
+    "currency": "SAR",
+    "paid_at": null
+  },
+  "/patient/pharmacy/orders/test-delivered": {
+    "id": "test-delivered",
+    "status": "delivered",
+    "governed_state": "DELIVERED",
+    "items": [
+      {
+        "id": "ti1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2,
+        "matched_sku": "TEST-SKU-1"
+      },
+      {
+        "id": "ti2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ]
+  },
+  "/patient/pharmacy/orders/test-track": {
+    "id": "test-track-ccdd33",
+    "status": "out_for_delivery",
+    "governed_state": "OUT_FOR_DELIVERY",
+    "payment_status": "paid",
+    "selected_offer_id": "test-offer-1",
+    "fulfillment": "delivery",
+    "items": [
+      {
+        "id": "ti1",
+        "raw_name": "منتج تجريبي ١",
+        "qty": 2,
+        "matched_sku": "TEST-SKU-1"
+      },
+      {
+        "id": "ti2",
+        "raw_name": "منتج تجريبي ٢",
+        "qty": 1
+      }
+    ],
+    "pricing_snapshot": {
+      "offer_id": "test-offer-1",
+      "offer_version": 1,
+      "totals": {
+        "subtotal": 70,
+        "delivery_fee": 10,
+        "total": 80,
+        "currency": "SAR"
+      },
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "timeline": [
+      {
+        "ts": "2026-10-06T09:00:00Z",
+        "event": "all_allocations_confirmed"
+      },
+      {
+        "ts": "2026-10-06T09:20:00Z",
+        "event": "fulfillment_started"
+      },
+      {
+        "ts": "2026-10-06T10:05:00Z",
+        "event": "first_out_for_delivery"
+      }
+    ],
+    "delivery": {
+      "courier_name": "مندوب تجريبي",
+      "courier_phone": "+966500000000",
+      "courier_eta": "2026-10-06T10:45:00Z"
+    }
+  },
+  "/care/appointments": [
+    {
+      "id": "test-appt",
+      "status": "CONFIRMED",
+      "doctor_name": "د. تجريبي",
+      "service_type": "video",
+      "slot_start": "2026-10-07T09:00:00Z",
+      "total_price": 150
+    },
+    {
+      "id": "test-appt-video",
+      "status": "confirmed",
+      "doctor_id": "test-doc",
+      "doctor_name": "د. طبيب تجريبي",
+      "specialty": "تخصص تجريبي",
+      "consultation_type": "online",
+      "scheduled_at": "2026-10-12T09:30:00Z",
+      "price": 150
+    },
+    {
+      "id": "test-appt",
+      "status": "confirmed",
+      "doctor_id": "test-doc",
+      "doctor_name": "د. طبيب تجريبي",
+      "specialty": "تخصص تجريبي",
+      "consultation_type": "clinic",
+      "scheduled_at": "2026-10-13T11:00:00Z",
+      "price": 150
+    },
+    {
+      "id": "test-appt-home",
+      "status": "pending",
+      "doctor_id": "test-doc",
+      "doctor_name": "د. طبيب تجريبي",
+      "specialty": "تخصص تجريبي",
+      "consultation_type": "home",
+      "scheduled_at": "2026-10-14T16:00:00Z",
+      "price": 150
+    },
+    {
+      "id": "test-appt-done",
+      "status": "completed",
+      "doctor_id": "test-doc",
+      "doctor_name": "د. طبيب تجريبي",
+      "specialty": "تخصص تجريبي",
+      "consultation_type": "online",
+      "scheduled_at": "2026-09-28T10:00:00Z",
+      "price": 150
+    }
+  ],
+  "/labs/bookings/mine": [
+    {
+      "id": "test-lab-order",
+      "state": "SAMPLE_COLLECTED",
+      "service_name_ar": "تحاليل تجريبية",
+      "visit_type": "home",
+      "scheduled_at": "2026-10-08T08:00:00Z",
+      "total": 90,
+      "items": [
+        {
+          "name_ar": "تحليل تجريبي ١"
+        }
+      ],
+      "provider_name": "مختبر تجريبي ١"
+    },
+    {
+      "id": "test-lab-done",
+      "state": "REPORTED",
+      "service_name_ar": "تحليل تجريبي ٢",
+      "visit_type": "clinic",
+      "scheduled_at": "2026-10-01T08:00:00Z",
+      "total": 120,
+      "items": [
+        {
+          "name_ar": "تحليل تجريبي ٢"
+        }
+      ],
+      "reports": [
+        {
+          "id": "rep1"
+        }
+      ],
+      "provider_name": "مختبر تجريبي ١"
+    }
+  ],
+  "/providers": [
+    {
+      "id": "test-doc-1",
+      "name_ar": "د. طبيب تجريبي ١",
+      "name_en": "Test doctor 1",
+      "title": "استشاري",
+      "specialty": "باطنة",
+      "city": "مدينة تجريبية",
+      "district": "حي تجريبي",
+      "address": "عيادة تجريبية",
+      "consultation_modes": [
+        "clinic",
+        "home",
+        "video"
+      ],
+      "rating_avg": 4.6,
+      "rating_count": 128,
+      "price_clinic": 200,
+      "price_online": 170,
+      "price_home": 250,
+      "is_online": true
+    },
+    {
+      "id": "test-doc-2",
+      "name_ar": "د. طبيبة تجريبية ٢",
+      "name_en": "Test doctor 2",
+      "title": "استشاري",
+      "specialty": "جلدية",
+      "city": "مدينة تجريبية",
+      "district": "حي تجريبي",
+      "address": "عيادة تجريبية",
+      "consultation_modes": [
+        "clinic",
+        "video"
+      ],
+      "rating_avg": 4.6,
+      "rating_count": 128,
+      "price_clinic": 180,
+      "price_online": 150,
+      "price_home": 230,
+      "is_online": true
+    }
+  ],
+  "/care/specialties": [
+    {
+      "slug": "internal",
+      "name_ar": "باطنة",
+      "name_en": "Internal",
+      "count": 12
+    },
+    {
+      "slug": "dental",
+      "name_ar": "أسنان",
+      "name_en": "Dental",
+      "count": 8
+    },
+    {
+      "slug": "derma",
+      "name_ar": "جلدية",
+      "name_en": "Dermatology",
+      "count": 5
+    },
+    {
+      "slug": "eyes",
+      "name_ar": "عيون",
+      "name_en": "Eyes",
+      "count": 4
+    },
+    {
+      "slug": "heart",
+      "name_ar": "قلب",
+      "name_en": "Cardiology",
+      "count": 3
+    }
+  ],
+  "/home/offers": [
+    {
+      "id": "test-offer1",
+      "t": "عرض تجريبي ١",
+      "prov": "مقدم تجريبي",
+      "disc": "20%",
+      "price": 80,
+      "old": 100,
+      "rating": 4.5
+    },
+    {
+      "id": "test-offer2",
+      "t": "عرض تجريبي ٢",
+      "prov": "مقدم تجريبي",
+      "disc": "10%",
+      "price": 90,
+      "old": 100,
+      "sponsored": true
+    }
+  ],
+  "/insurance/companies": [],
+  "/care/appointments/test-appt": {
+    "id": "test-appt",
+    "status": "CONFIRMED",
+    "scheduled_at": "2026-10-12T09:30:00Z",
+    "slot_start": "2026-10-12T09:30:00Z",
+    "consultation_type": "clinic",
+    "service_type": "clinic",
+    "payment_method": "card",
+    "doctor_id": "test-doc",
+    "doctor_name": "د. طبيب تجريبي",
+    "specialty": "تخصص تجريبي",
+    "doctor": {
+      "name": "د. طبيب تجريبي",
+      "specialty": "تخصص تجريبي"
+    },
+    "price": 150,
+    "amount": 150,
+    "state_history": [
+      {
+        "state": "CONFIRMED",
+        "at": "2026-10-12T08:00:00Z"
+      }
+    ]
+  },
+  "/care/appointments/test-appt-home": {
+    "id": "test-appt-home",
+    "status": "CONFIRMED",
+    "scheduled_at": "2026-10-12T09:30:00Z",
+    "slot_start": "2026-10-12T09:30:00Z",
+    "consultation_type": "home",
+    "service_type": "home",
+    "payment_method": "card",
+    "doctor_id": "test-doc",
+    "doctor_name": "د. طبيب تجريبي",
+    "specialty": "تخصص تجريبي",
+    "doctor": {
+      "name": "د. طبيب تجريبي",
+      "specialty": "تخصص تجريبي"
+    },
+    "price": 150,
+    "amount": 150,
+    "state_history": [
+      {
+        "state": "CONFIRMED",
+        "at": "2026-10-12T08:00:00Z"
+      }
+    ]
+  },
+  "/care/appointments/test-appt-video": {
+    "id": "test-appt-video",
+    "status": "CONFIRMED",
+    "scheduled_at": "2026-10-12T09:30:00Z",
+    "slot_start": "2026-10-12T09:30:00Z",
+    "consultation_type": "online",
+    "service_type": "video",
+    "payment_method": "card",
+    "doctor_id": "test-doc",
+    "doctor_name": "د. طبيب تجريبي",
+    "specialty": "تخصص تجريبي",
+    "doctor": {
+      "name": "د. طبيب تجريبي",
+      "specialty": "تخصص تجريبي"
+    },
+    "price": 150,
+    "amount": 150,
+    "state_history": [
+      {
+        "state": "CONFIRMED",
+        "at": "2026-10-12T08:00:00Z"
+      }
+    ]
+  },
+  "/care/appointments/test-appt-done": {
+    "id": "test-appt-done",
+    "status": "COMPLETED",
+    "scheduled_at": "2026-10-12T09:30:00Z",
+    "slot_start": "2026-10-12T09:30:00Z",
+    "consultation_type": "online",
+    "service_type": "video",
+    "payment_method": "card",
+    "doctor_id": "test-doc",
+    "doctor_name": "د. طبيب تجريبي",
+    "specialty": "تخصص تجريبي",
+    "doctor": {
+      "name": "د. طبيب تجريبي",
+      "specialty": "تخصص تجريبي"
+    },
+    "price": 150,
+    "amount": 150,
+    "state_history": [
+      {
+        "state": "CONFIRMED",
+        "at": "2026-10-12T08:00:00Z"
+      }
+    ]
+  },
+  "/care/appointments/test-appt-done/summary": {
+    "doctor_id": "test-doc",
+    "diagnosis": "تشخيص تجريبي",
+    "prescription": [
+      {
+        "medicine_name": "دواء تجريبي",
+        "dose": "حبة يوميا",
+        "duration": "7 أيام"
+      }
+    ],
+    "notes": "ملاحظات تجريبية",
+    "recommendations": "توصية تجريبية",
+    "follow_up_recommended": true,
+    "follow_up_window_days": 14
+  },
+  "/care/appointments/test-appt/summary": {
+    "doctor_id": "test-doc",
+    "diagnosis": "تشخيص تجريبي",
+    "prescription": [
+      {
+        "medicine_name": "دواء تجريبي",
+        "dose": "حبة يوميا",
+        "duration": "7 أيام"
+      }
+    ],
+    "notes": "ملاحظات تجريبية",
+    "recommendations": "توصية تجريبية",
+    "follow_up_recommended": true,
+    "follow_up_window_days": 14
+  },
+  "/care/doctors/test-doc": {
+    "id": "test-doc",
+    "name_ar": "د. طبيب تجريبي",
+    "name_en": "Test doctor c",
+    "title": "استشاري",
+    "specialty": "باطنة",
+    "city": "مدينة تجريبية",
+    "district": "حي تجريبي",
+    "address": "عيادة تجريبية",
+    "consultation_modes": [
+      "clinic",
+      "home",
+      "video"
+    ],
+    "rating_avg": 4.6,
+    "rating_count": 128,
+    "price_clinic": 200,
+    "price_online": 170,
+    "price_home": 250,
+    "is_online": true,
+    "bio": "نبذة تجريبية عن الطبيب.",
+    "years_experience": 12,
+    "languages": [
+      "العربية",
+      "English"
+    ],
+    "accepts_insurance": true,
+    "facility": {
+      "name_ar": "مستشفى تجريبي"
+    },
+    "hospital": "مستشفى تجريبي",
+    "sub_specialties": [
+      "تخصص دقيق تجريبي"
+    ],
+    "reviews_data": [
+      {
+        "id": "r1",
+        "rating": 5,
+        "text": "تقييم تجريبي",
+        "date": "2026-09-20"
+      }
+    ]
+  },
+  "/care/doctors/test-doc/slots": {
+    "slots": [
+      {
+        "start": "2026-10-12T09:00:00Z",
+        "available": true
+      },
+      {
+        "start": "2026-10-12T09:30:00Z",
+        "available": true
+      },
+      {
+        "start": "2026-10-12T10:00:00Z",
+        "available": false
+      },
+      {
+        "start": "2026-10-12T11:00:00Z",
+        "available": true
+      }
+    ]
+  },
+  "/care/facilities/test-clinic": {
+    "name_ar": "عيادة تجريبية",
+    "name_en": "Test clinic",
+    "city": "مدينة تجريبية",
+    "description_ar": "وصف تجريبي للعيادة.",
+    "doctors": [
+      {
+        "id": "test-doc",
+        "name_ar": "د. طبيب تجريبي",
+        "specialty_ar": "باطنة"
+      }
+    ]
+  },
+  "/system-config/public": {
+    "cancellation_policy": {
+      "full_hours": 24,
+      "full_refund": true,
+      "half_hours": 12,
+      "half_refund_percent": 50,
+      "late_fee_percent": 25,
+      "pharmacy_prep_cancellable": false
+    },
+    "returns_policy": {
+      "unused_days": 7,
+      "intact_packaging_required": true,
+      "wallet_refund_days_min": 3,
+      "wallet_refund_days_max": 5
+    }
+  },
+  "/config": {
+    "contact": {
+      "support_phone": "+966500000000"
+    }
+  },
+  "/calls/history": {
+    "data": [
+      {
+        "id": "test-call-1",
+        "caller_id": "test-user",
+        "callee_id": "test-doc",
+        "call_type": "video",
+        "status": "ended",
+        "duration_seconds": 840,
+        "createdAt": "2026-10-05T10:00:00Z"
+      },
+      {
+        "id": "test-call-2",
+        "caller_id": "test-doc",
+        "callee_id": "test-user",
+        "call_type": "voice",
+        "status": "missed",
+        "createdAt": "2026-10-03T18:20:00Z"
+      }
+    ],
+    "total": 2,
+    "page": 1,
+    "total_pages": 1
+  },
+  "/medical-reports/mine": {
+    "data": [
+      {
+        "id": "test-report",
+        "title_ar": "تقرير تجريبي",
+        "facility_name": "مستشفى تجريبي",
+        "doctor_name": "د. طبيب تجريبي",
+        "issued_at": "2026-09-01T10:00:00Z",
+        "summary": "ملخص تجريبي",
+        "lab_booking_id": "x",
+        "viewed_by_patient": false,
+        "critical": true
+      },
+      {
+        "id": "test-report-2",
+        "title_ar": "أشعة تجريبية",
+        "facility_name": "مركز تجريبي",
+        "issued_at": "2026-08-01T10:00:00Z",
+        "radiology_booking_id": "y",
+        "viewed_by_patient": true
+      }
+    ]
+  },
+  "/medical-reports/test-report": {
+    "id": "test-report",
+    "title_ar": "تقرير تجريبي",
+    "shared_with": []
+  },
+  "/care/doctors": {
+    "items": [
+      {
+        "id": "test-doc",
+        "name_ar": "د. طبيب تجريبي",
+        "specialty": "باطنة",
+        "hospital": "مستشفى تجريبي"
+      }
+    ],
+    "total": 1
+  },
+  "/insurance/requests/my": [],
+  "/chat/threads/booking": {
+    "id": "test-thread"
+  },
+  "/chat/threads/test-thread/messages": [
+    {
+      "id": "m1",
+      "sender_role": "doctor",
+      "body": "رسالة تجريبية من الطبيب",
+      "createdAt": "2026-10-06T09:00:00Z"
+    },
+    {
+      "id": "m2",
+      "sender_role": "patient",
+      "body": "رد تجريبي من المريض",
+      "createdAt": "2026-10-06T09:02:00Z"
+    }
+  ],
+  "/users/me/profile": {
+    "id": "test-user",
+    "full_name": "مستخدم تجريبي",
+    "user_id": "test-user",
+    "insurance": {
+      "provider": "TEST",
+      "company_id": "TEST",
+      "network": "NET",
+      "class": "A"
+    }
+  },
+  "/payments/consultation/test-appt/capabilities": {
+    "methods": []
+  },
+  "POST /chat/threads/booking": {
+    "id": "test-thread"
+  },
+  "/health/score": {
+    "score": 78,
+    "status": "good",
+    "components": [
+      {
+        "key": "vitals",
+        "label": "المؤشرات",
+        "score": 82
+      },
+      {
+        "key": "sleep",
+        "label": "النوم",
+        "score": 70
+      }
+    ],
+    "recommendations": [
+      "توصية تجريبية: حافظ على نومك المنتظم"
+    ]
+  },
+  "/health/vitals": [
+    {
+      "id": "test-v1",
+      "type": "bp",
+      "value": "120/80",
+      "unit": "mmHg",
+      "measured_at": "2026-10-05T08:00:00Z",
+      "context": "morning"
+    },
+    {
+      "id": "test-v2",
+      "type": "bp",
+      "value": "126/84",
+      "unit": "mmHg",
+      "measured_at": "2026-10-04T20:00:00Z",
+      "context": "evening"
+    }
+  ],
+  "/health/trends": [
+    {
+      "id": "glucose",
+      "name": "سكر الدم",
+      "unit": "mg/dL",
+      "color": "#000000",
+      "current": 98,
+      "normal": [
+        70,
+        110
+      ],
+      "trend": "مستقر (اختبار)",
+      "trendDir": "flat",
+      "insight": "ملاحظة تجريبية",
+      "labels": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "data": [
+        {
+          "value": 104,
+          "index": 0
+        },
+        {
+          "value": 99,
+          "index": 1
+        },
+        {
+          "value": 101,
+          "index": 2
+        },
+        {
+          "value": 96,
+          "index": 3
+        },
+        {
+          "value": 98,
+          "index": 4
+        }
+      ]
+    },
+    {
+      "id": "weight",
+      "name": "الوزن",
+      "unit": "kg",
+      "color": "#000000",
+      "current": 72,
+      "normal": [
+        60,
+        80
+      ],
+      "data": [
+        {
+          "value": 74,
+          "index": 0
+        },
+        {
+          "value": 73,
+          "index": 1
+        },
+        {
+          "value": 72,
+          "index": 2
+        }
+      ]
+    }
+  ],
+  "/health/sleep": [
+    {
+      "id": "test-s1",
+      "measured_at": "2026-10-05T06:30:00Z",
+      "duration_hours": 7.5,
+      "sleep_score": 84,
+      "source": "manual"
+    },
+    {
+      "id": "test-s2",
+      "measured_at": "2026-10-04T06:30:00Z",
+      "duration_hours": 6,
+      "sleep_score": 62,
+      "source": "device"
+    },
+    {
+      "id": "test-s3",
+      "measured_at": "2026-10-03T06:30:00Z",
+      "duration_hours": 8,
+      "sleep_score": 90,
+      "source": "manual"
+    }
+  ],
+  "/health/prescriptions": [
+    {
+      "id": "test-rx1",
+      "doctorName": "د. طبيب تجريبي",
+      "date": "2026-09-20",
+      "medications": [
+        "دواء تجريبي 500 mg",
+        "دواء تجريبي آخر"
+      ],
+      "isPurchased": false,
+      "isOcr": true,
+      "ocrAccuracy": 93
+    },
+    {
+      "id": "test-rx2",
+      "doctorName": "د. طبيبة تجريبية",
+      "date": "2026-08-02",
+      "medications": [
+        "دواء تجريبي"
+      ],
+      "isPurchased": true
+    }
+  ],
+  "/health/reports": [
+    {
+      "id": "test-hr1",
+      "date": "2026-09-01",
+      "title": "تقرير صحي تجريبي",
+      "doctor": "د. طبيب تجريبي",
+      "facility": "مستشفى تجريبي",
+      "type": "فحص",
+      "critical": true,
+      "has_attachments": true
+    }
+  ],
+  "/medical-reports/timeline": [
+    {
+      "id": "e1",
+      "type": "appointment",
+      "date": "2026-09-30",
+      "time": "10:00",
+      "title": "زيارة تجريبية",
+      "details": "تفاصيل تجريبية"
+    },
+    {
+      "id": "e2",
+      "type": "lab",
+      "date": "2026-09-12",
+      "time": "09:00",
+      "title": "تحليل تجريبي",
+      "details": "نتيجة تجريبية"
+    },
+    {
+      "id": "e3",
+      "type": "prescription",
+      "date": "2026-09-01",
+      "time": "12:00",
+      "title": "وصفة تجريبية",
+      "details": "دواء تجريبي"
+    }
+  ],
+  "/reports/test-report": {
+    "id": "test-report",
+    "title_ar": "تقرير تجريبي",
+    "facility_name": "مستشفى تجريبي",
+    "doctor_name": "د. طبيب تجريبي",
+    "issued_at": "2026-09-01T10:00:00Z",
+    "report_type": "consultation_note",
+    "critical": true,
+    "summary": "ملخص تجريبي للتقرير",
+    "diagnosis": "تشخيص تجريبي",
+    "recommendations": "توصيات تجريبية",
+    "categories": [
+      {
+        "name": "فحص تجريبي",
+        "tests": [
+          {
+            "name": "اختبار تجريبي",
+            "value": 5.4,
+            "unit": "mmol/L",
+            "status": "normal"
+          },
+          {
+            "name": "اختبار آخر",
+            "value": 12,
+            "unit": "g/dL",
+            "status": "high"
+          }
+        ]
+      }
+    ]
+  },
+  "/medical-profile": {
+    "blood_type": "O+",
+    "height_cm": 175,
+    "weight_kg": 72,
+    "gender": "male",
+    "full_name": "مستخدم تجريبي",
+    "date_of_birth": "1990-01-01",
+    "chronic_diseases": [
+      {
+        "id": "c1",
+        "name": "حالة مزمنة تجريبية"
+      }
+    ],
+    "allergies": [
+      {
+        "id": "a1",
+        "name": "حساسية تجريبية"
+      }
+    ],
+    "long_term_medications": [
+      {
+        "name": "دواء مزمن تجريبي",
+        "dosage": "500 mg"
+      }
+    ],
+    "emergencyContacts": [
+      {
+        "name": "جهة تجريبية",
+        "phone": "+966500000000"
+      }
+    ]
+  },
+  "/medical-profile/passport-token": {
+    "token": "test-token-not-real",
+    "format": "nabd-passport",
+    "version": 1,
+    "expires_at": "2026-10-06T23:00:00Z"
+  },
+  "/health/chronic-diseases": [
+    {
+      "id": "d1",
+      "name": "حالة مزمنة تجريبية",
+      "severity": "متوسطة",
+      "controlled": true,
+      "diagnosedDate": "2020-01-01",
+      "doctor": "د. طبيب تجريبي",
+      "nextCheckup": "2026-12-01",
+      "medications": [
+        "دواء تجريبي"
+      ],
+      "tips": [
+        "نصيحة تجريبية"
+      ]
+    }
+  ],
+  "/health/chronic-meds": [
+    {
+      "id": "test-2",
+      "name": "دواء مزمن تجريبي",
+      "dose": "500 mg",
+      "frequency": "daily",
+      "refill_date": "2026-10-20T00:00:00Z",
+      "days_until_refill": 14,
+      "pills_remaining": 12
+    }
+  ],
+  "/health/emergency-contacts": [
+    {
+      "id": "ec1",
+      "name": "جهة تجريبية",
+      "relation": "أخ",
+      "phone": "+966500000000",
+      "isPrimary": true
+    }
+  ],
+  "/family/emergency-contacts": [
+    {
+      "user_id": "f1",
+      "display_name": "فرد تجريبي",
+      "phone": "+966500000001",
+      "relation": "أخت"
+    }
+  ],
+  "/wearables/devices": [
+    {
+      "id": "w1",
+      "name": "Fitbit",
+      "kind": "fitbit",
+      "connected_at": "2026-09-01T10:00:00Z"
+    }
+  ],
+  "/wearables/data": [
+    {
+      "metric": "steps",
+      "value": 6400,
+      "unit": "",
+      "recorded_at": "2026-10-05T20:00:00Z"
+    },
+    {
+      "metric": "heart_rate",
+      "value": 72,
+      "unit": "bpm",
+      "recorded_at": "2026-10-05T20:00:00Z"
+    }
+  ],
+  "/family/my-group": {
+    "id": "test-group",
+    "name": "عائلة تجريبية",
+    "members": [
+      {
+        "user_id": "test-owner",
+        "role": "owner",
+        "display_name": "مالك تجريبي",
+        "permissions": []
+      },
+      {
+        "user_id": "test-m1",
+        "role": "member",
+        "display_name": "فرد تجريبي ١",
+        "relation": "الزوجة",
+        "permissions": [
+          "vitals",
+          "meds",
+          "reports"
+        ]
+      },
+      {
+        "user_id": "test-m2",
+        "role": "member",
+        "display_name": "فرد تجريبي ٢",
+        "relation": "الابن",
+        "permissions": [
+          "vitals",
+          "meds",
+          "reports",
+          "appointments",
+          "booking"
+        ]
+      },
+      {
+        "user_id": "test-m3",
+        "role": "member",
+        "display_name": "فرد تجريبي ٣",
+        "relation": "الأم",
+        "permissions": [
+          "vitals"
+        ]
+      }
+    ]
+  },
+  "/family/members": [
+    {
+      "id": "test-m1",
+      "name": "فرد تجريبي ١"
+    },
+    {
+      "id": "test-m2",
+      "name": "فرد تجريبي ٢"
+    }
+  ],
+  "/family/permissions/pending": [
+    {
+      "_id": "test-req",
+      "requester_name": "فرد تجريبي ٣",
+      "createdAt": "2026-10-05T10:00:00Z",
+      "permissions": [
+        "vitals",
+        "meds",
+        "reports"
+      ]
+    }
+  ],
+  "/family/member-records/test-m1": {
+    "vitals": [
+      {
+        "type": "heart_rate",
+        "value": 72,
+        "unit": "bpm"
+      },
+      {
+        "type": "bp",
+        "value": "120/80",
+        "unit": "mmHg"
+      },
+      {
+        "type": "weight",
+        "value": 64,
+        "unit": "kg"
+      }
+    ],
+    "meds": [
+      {
+        "medicine_name_ar": "دواء تجريبي",
+        "dose": "500 mg",
+        "frequency": "مرة يومياً"
+      }
+    ],
+    "next_appointment": {
+      "doctor_name": "د. طبيب تجريبي",
+      "specialty": "باطنة",
+      "scheduled_at": "2026-10-20T09:00:00Z"
+    },
+    "profile": {
+      "birth_date": "1990-01-01"
+    }
+  },
+  "/family/calendar": [
+    {
+      "id": "test-e1",
+      "title": "موعد تجريبي",
+      "type": "appointment",
+      "event_date": "2026-10-12T09:30:00Z",
+      "time": "09:30",
+      "member": "فرد تجريبي ١",
+      "can_delete": true
+    },
+    {
+      "id": "test-e2",
+      "title": "دواء تجريبي",
+      "type": "medication",
+      "event_date": "2026-10-13T08:00:00Z",
+      "member": "فرد تجريبي ٢",
+      "can_delete": false
+    },
+    {
+      "id": "test-e3",
+      "title": "تحليل تجريبي",
+      "type": "lab",
+      "event_date": "2026-10-15T07:30:00Z",
+      "member": "فرد تجريبي ٣",
+      "can_delete": true
+    }
+  ],
+  "/family/chat/messages": [
+    {
+      "id": "test-c1",
+      "text": "رسالة تجريبية من فرد العائلة",
+      "sender_id": "test-m1",
+      "sender_name": "فرد تجريبي ١",
+      "created_at": "2026-10-06T09:00:00Z"
+    },
+    {
+      "id": "test-c2",
+      "text": "رد تجريبي منّي",
+      "sender_id": "test-user",
+      "created_at": "2026-10-06T09:02:00Z"
+    },
+    {
+      "id": "test-c3",
+      "text": "رسالة تجريبية ثانية",
+      "sender_id": "test-m2",
+      "sender_name": "فرد تجريبي ٢",
+      "created_at": "2026-10-06T09:05:00Z"
+    }
+  ],
+  "POST /family/invite": {
+    "invite_code": "TEST42"
+  },
+  "/labs/packages": [
+    {
+      "id": "test-lab-pkg",
+      "name_ar": "باقة فحص تجريبية",
+      "name_en": "باقة فحص تجريبية",
+      "price": 299,
+      "category": "blood",
+      "home_visit_supported": true,
+      "facility_visit_supported": true,
+      "turnaround_hours": 24,
+      "fasting_required": true,
+      "fasting_hours": 8,
+      "description_ar": "وصف تجريبي للباقة",
+      "old_price": 399,
+      "popularity": 90,
+      "included_services": [
+        "تحليل تجريبي ١",
+        "تحليل تجريبي ٢",
+        "تحليل تجريبي ٣"
+      ]
+    },
+    {
+      "id": "test-lab-pkg-2",
+      "name_ar": "باقة هرمونات تجريبية",
+      "name_en": "باقة هرمونات تجريبية",
+      "price": 450,
+      "category": "hormones",
+      "home_visit_supported": true,
+      "facility_visit_supported": true,
+      "turnaround_hours": 24,
+      "description_ar": "وصف تجريبي ثانٍ",
+      "included_services": [
+        "تحليل تجريبي ٢",
+        "تحليل تجريبي ٤"
+      ]
+    }
+  ],
+  "/labs/packages/test-lab-pkg": {
+    "id": "test-lab-pkg",
+    "name_ar": "باقة فحص تجريبية",
+    "name_en": "باقة فحص تجريبية",
+    "price": 299,
+    "category": "blood",
+    "home_visit_supported": true,
+    "facility_visit_supported": true,
+    "turnaround_hours": 24,
+    "fasting_required": true,
+    "fasting_hours": 8,
+    "description_ar": "وصف تجريبي للباقة",
+    "old_price": 399,
+    "popularity": 90,
+    "included_services": [
+      "تحليل تجريبي ١",
+      "تحليل تجريبي ٢",
+      "تحليل تجريبي ٣"
+    ]
+  },
+  "/labs/packages/test-lab-pkg-2": {
+    "id": "test-lab-pkg-2",
+    "name_ar": "باقة هرمونات تجريبية",
+    "name_en": "باقة هرمونات تجريبية",
+    "price": 450,
+    "category": "hormones",
+    "home_visit_supported": true,
+    "facility_visit_supported": true,
+    "turnaround_hours": 24,
+    "description_ar": "وصف تجريبي ثانٍ",
+    "included_services": [
+      "تحليل تجريبي ٢",
+      "تحليل تجريبي ٤"
+    ]
+  },
+  "/labs/services": [
+    {
+      "id": "test-lab-test",
+      "name_ar": "تحليل تجريبي ١",
+      "name_en": "تحليل تجريبي ١",
+      "price": 90,
+      "category": "blood",
+      "home_visit_supported": true,
+      "facility_visit_supported": true,
+      "turnaround_hours": 24,
+      "fasting_required": true,
+      "fasting_hours": 8,
+      "preparation_ar": [
+        "خطوة تحضير تجريبية ١",
+        "خطوة تحضير تجريبية ٢"
+      ],
+      "preparation_en": [
+        "خطوة تحضير تجريبية ١",
+        "خطوة تحضير تجريبية ٢"
+      ],
+      "description_ar": "وصف تجريبي للتحليل"
+    },
+    {
+      "id": "test-lab-test-2",
+      "name_ar": "تحليل تجريبي ٢",
+      "name_en": "تحليل تجريبي ٢",
+      "price": 120,
+      "category": "hormones",
+      "home_visit_supported": false,
+      "facility_visit_supported": true,
+      "turnaround_hours": 48
+    },
+    {
+      "id": "test-lab-test-3",
+      "name_ar": "تحليل تجريبي ٣",
+      "name_en": "تحليل تجريبي ٣",
+      "price": 60,
+      "category": "vitamins",
+      "home_visit_supported": true,
+      "facility_visit_supported": true,
+      "turnaround_hours": 24
+    },
+    {
+      "id": "test-lab-test-4",
+      "name_ar": "تحليل تجريبي ٤",
+      "name_en": "تحليل تجريبي ٤",
+      "price": 75,
+      "category": "immunity",
+      "home_visit_supported": true,
+      "facility_visit_supported": true,
+      "turnaround_hours": 24,
+      "fasting_required": true,
+      "fasting_hours": 10
+    }
+  ],
+  "/labs/services/test-lab-test": {
+    "id": "test-lab-test",
+    "name_ar": "تحليل تجريبي ١",
+    "name_en": "تحليل تجريبي ١",
+    "price": 90,
+    "category": "blood",
+    "home_visit_supported": true,
+    "facility_visit_supported": true,
+    "turnaround_hours": 24,
+    "fasting_required": true,
+    "fasting_hours": 8,
+    "preparation_ar": [
+      "خطوة تحضير تجريبية ١",
+      "خطوة تحضير تجريبية ٢"
+    ],
+    "preparation_en": [
+      "خطوة تحضير تجريبية ١",
+      "خطوة تحضير تجريبية ٢"
+    ],
+    "description_ar": "وصف تجريبي للتحليل"
+  },
+  "/labs/services/test-lab-test-2": {
+    "id": "test-lab-test-2",
+    "name_ar": "تحليل تجريبي ٢",
+    "name_en": "تحليل تجريبي ٢",
+    "price": 120,
+    "category": "hormones",
+    "home_visit_supported": false,
+    "facility_visit_supported": true,
+    "turnaround_hours": 48
+  },
+  "/radiology/services": [
+    {
+      "id": "test-rad",
+      "name_ar": "فحص أشعة تجريبي",
+      "name_en": "فحص أشعة تجريبي",
+      "price": 250,
+      "category": "xray",
+      "home_visit_supported": true,
+      "facility_visit_supported": true,
+      "turnaround_hours": 12,
+      "description_ar": "وصف تجريبي للأشعة"
+    },
+    {
+      "id": "test-rad-2",
+      "name_ar": "فحص رنين تجريبي",
+      "name_en": "فحص رنين تجريبي",
+      "price": 900,
+      "category": "mri",
+      "home_visit_supported": false,
+      "facility_visit_supported": true,
+      "turnaround_hours": 24
+    }
+  ],
+  "/radiology/services/test-rad": {
+    "id": "test-rad",
+    "name_ar": "فحص أشعة تجريبي",
+    "name_en": "فحص أشعة تجريبي",
+    "price": 250,
+    "category": "xray",
+    "home_visit_supported": true,
+    "facility_visit_supported": true,
+    "turnaround_hours": 12,
+    "description_ar": "وصف تجريبي للأشعة"
+  },
+  "/labs/categories": [
+    {
+      "slug": "blood",
+      "name_ar": "الدم",
+      "name_en": "Blood"
+    },
+    {
+      "slug": "hormones",
+      "name_ar": "الهرمونات",
+      "name_en": "Hormones"
+    }
+  ],
+  "/providers?type=lab": [
+    {
+      "id": "test-lab",
+      "name": "مختبر تجريبي ١",
+      "rating": 4.7,
+      "distance": "3.2 كم",
+      "home_visit_enabled": true
+    },
+    {
+      "id": "test-lab-2",
+      "name": "مختبر تجريبي ٢",
+      "rating": 4.4,
+      "distance": "6 كم",
+      "home_visit_enabled": false
+    }
+  ],
+  "/providers/test-lab": {
+    "id": "test-lab",
+    "name": "مختبر تجريبي ١",
+    "rating": 4.7,
+    "distance": "3.2 كم",
+    "home_visit_enabled": true,
+    "branches": 3,
+    "address": "عنوان تجريبي",
+    "description": "وصف تجريبي للمختبر"
+  },
+  "/labs/services?providerId=test-lab": [
+    {
+      "id": "test-lab-test",
+      "name_ar": "تحليل تجريبي ١",
+      "name_en": "تحليل تجريبي ١",
+      "price": 90,
+      "category": "blood",
+      "home_visit_supported": true,
+      "facility_visit_supported": true,
+      "turnaround_hours": 24,
+      "fasting_required": true,
+      "fasting_hours": 8,
+      "preparation_ar": [
+        "خطوة تحضير تجريبية ١",
+        "خطوة تحضير تجريبية ٢"
+      ],
+      "preparation_en": [
+        "خطوة تحضير تجريبية ١",
+        "خطوة تحضير تجريبية ٢"
+      ],
+      "description_ar": "وصف تجريبي للتحليل"
+    },
+    {
+      "id": "test-lab-test-3",
+      "name_ar": "تحليل تجريبي ٣",
+      "name_en": "تحليل تجريبي ٣",
+      "price": 60,
+      "category": "vitamins",
+      "home_visit_supported": true,
+      "facility_visit_supported": true,
+      "turnaround_hours": 24
+    }
+  ],
+  "/labs/compatible-providers?testIds=test-lab-test": [
+    {
+      "id": "test-lab",
+      "name": "مختبر تجريبي ١",
+      "rating": 4.7,
+      "distance": "3.2 كم",
+      "home_visit_enabled": true
+    },
+    {
+      "id": "test-lab-2",
+      "name": "مختبر تجريبي ٢",
+      "rating": 4.4,
+      "distance": "6 كم",
+      "home_visit_enabled": false
+    }
+  ],
+  "/labs/compatible-providers?testIds=test-lab-test,test-lab-test-2": [
+    {
+      "id": "test-lab",
+      "name": "مختبر تجريبي ١",
+      "rating": 4.7,
+      "distance": "3.2 كم",
+      "home_visit_enabled": true
+    }
+  ],
+  "/radiology/compatible-providers?serviceIds=test-rad": [
+    {
+      "id": "test-lab",
+      "name": "مختبر تجريبي ١",
+      "rating": 4.7,
+      "distance": "3.2 كم",
+      "home_visit_enabled": true
+    }
+  ],
+  "/radiology/bookings/mine": [
+    {
+      "id": "test-rad-order",
+      "state": "CONFIRMED",
+      "service_name_ar": "فحص أشعة تجريبي",
+      "center_name": "مركز تجريبي",
+      "scheduled_at": "2026-10-09T10:00:00Z",
+      "total": 250
+    }
+  ],
+  "/radiology/reports/mine": [],
+  "/labs/bookings/test-lab-order": {
+    "id": "test-lab-order",
+    "state": "SAMPLE_COLLECTED",
+    "scheduled_at": "2026-10-08T08:00:00Z",
+    "createdAt": "2026-10-06T07:00:00Z",
+    "total": 90,
+    "location_type": "home",
+    "items": [
+      {
+        "name_ar": "تحليل تجريبي ١",
+        "name_en": "تحليل تجريبي ١",
+        "price": 90
+      }
+    ],
+    "technician": {
+      "name": "فني تجريبي",
+      "eta": "20 دقيقة",
+      "phone": "+966500000000"
+    },
+    "provider_name": "مختبر تجريبي ١"
+  },
+  "/labs/bookings/test-lab-order/tracking": {
+    "eta": 15,
+    "techName": "فني تجريبي",
+    "techPhone": "+966500000000"
+  },
+  "/radiology/bookings/test-lab-order": {
+    "__error": "not_found"
+  },
+  "/radiology/bookings/test-lab-done": {
+    "__error": "not_found"
+  },
+  "/labs/bookings/test-lab-done": {
+    "id": "test-lab-done",
+    "state": "REPORTED",
+    "scheduled_at": "2026-10-08T08:00:00Z",
+    "createdAt": "2026-10-06T07:00:00Z",
+    "total": 90,
+    "location_type": "home",
+    "items": [
+      {
+        "name_ar": "تحليل تجريبي ١",
+        "name_en": "تحليل تجريبي ١",
+        "price": 90
+      }
+    ],
+    "technician": {
+      "name": "فني تجريبي",
+      "eta": "20 دقيقة",
+      "phone": "+966500000000"
+    },
+    "provider_name": "مختبر تجريبي ١",
+    "results": [
+      {
+        "id": "r1",
+        "name": "تحليل تجريبي ١",
+        "result": "5.4",
+        "reference": "4.0 - 6.0",
+        "isAbnormal": false
+      },
+      {
+        "id": "r2",
+        "name": "تحليل تجريبي ٢",
+        "result": "9.1",
+        "reference": "4.0 - 6.0",
+        "isAbnormal": true
+      }
+    ],
+    "reports": [
+      {
+        "id": "rep1"
+      }
+    ]
+  },
+  "/labs/bookings/test-ins": {
+    "id": "test-ins",
+    "insurance_status": "partial_approval",
+    "insurance_copay": 30,
+    "insurance_request_id": "test-ins-req",
+    "items": [
+      {
+        "service_id": "s1",
+        "name_ar": "تحليل تجريبي ١",
+        "price": 90,
+        "isCovered": true
+      },
+      {
+        "service_id": "s2",
+        "name_ar": "تحليل تجريبي ٢",
+        "price": 120,
+        "isCovered": false,
+        "rejectReason": "سبب رفض تجريبي"
+      }
+    ]
+  },
+  "/users/me/insurance": {
+    "provider": "TEST",
+    "provider_name": "شركة تأمين تجريبية",
+    "policy_number": "TEST-123456",
+    "national_id": "1000000000",
+    "member_name": "مستخدم تجريبي",
+    "network": "شبكة تجريبية",
+    "class": "A",
+    "expiry_date": "2027-12-31",
+    "verified": true
+  },
+  "/insurance/requests/test-req": {
+    "id": "test-req",
+    "booking_id": "test-b",
+    "booking_kind": "lab",
+    "state": "COPAY_PENDING",
+    "price": 200,
+    "copay_amount": 40,
+    "self_pay_amount": 0,
+    "createdAt": "2026-10-01T09:00:00.000Z"
+  },
+  "/insurance/requests/test-req-review": {
+    "id": "test-req-review",
+    "booking_id": "test-b",
+    "booking_kind": "consultation",
+    "state": "PENDING_PROVIDER_REVIEW",
+    "price": 200,
+    "copay_amount": 0,
+    "self_pay_amount": 0,
+    "createdAt": "2026-10-01T09:00:00.000Z"
+  },
+  "/insurance/requests/test-req-rejected": {
+    "id": "test-req-rejected",
+    "booking_id": "test-b",
+    "booking_kind": "radiology",
+    "state": "REJECTED",
+    "price": 200,
+    "copay_amount": 0,
+    "self_pay_amount": 200,
+    "createdAt": "2026-10-01T09:00:00.000Z"
+  },
+  "/insurance/benefits-summary": [
+    {
+      "service": "استشارات (بيانات تجريبية)",
+      "coverage": 80,
+      "remaining": 4000,
+      "annualLimit": 5000,
+      "usedAmount": 1000,
+      "usedCount": 2,
+      "limitCount": 10
+    },
+    {
+      "service": "تحاليل (بيانات تجريبية)",
+      "coverage": 60,
+      "remaining": 1500,
+      "annualLimit": 2000,
+      "usedAmount": 500
+    }
+  ],
+  "/providers?insurance_company=TEST&insurance_network=NET&insurance_class=A": [
+    {
+      "id": "test-p1",
+      "type": "hospital",
+      "name_ar": "مستشفى تجريبي",
+      "name_en": "TEST hospital",
+      "city": "الرياض",
+      "phone": "+966500000000",
+      "specialties": [
+        "باطنة"
+      ]
+    },
+    {
+      "id": "test-p2",
+      "type": "pharmacy",
+      "name_ar": "صيدلية تجريبية",
+      "name_en": "TEST pharmacy",
+      "city": "جدة"
+    }
+  ],
+  "/insurance/coverage-check?service_type=consultation": {
+    "covered": true,
+    "copay_percent": 20,
+    "copay_flat": 50,
+    "requires_preauth": false,
+    "company_name_ar": "شركة تجريبية",
+    "class": "A"
+  },
+  "/home-care/services": [
+    {
+      "id": "svc-iv",
+      "name_ar": "خدمة تمريض تجريبية ١",
+      "name_en": "خدمة تمريض تجريبية ١",
+      "description_ar": "وصف تجريبي للخدمة الأولى",
+      "description_en": "وصف تجريبي للخدمة الأولى",
+      "price": 150
+    },
+    {
+      "id": "svc-wound",
+      "name_ar": "خدمة تمريض تجريبية ٢",
+      "name_en": "خدمة تمريض تجريبية ٢",
+      "description_ar": "وصف تجريبي للخدمة الثانية",
+      "description_en": "وصف تجريبي للخدمة الثانية",
+      "price": 120
+    },
+    {
+      "id": "test-svc",
+      "name_ar": "خدمة تمريض تجريبية ٣",
+      "name_en": "خدمة تمريض تجريبية ٣",
+      "description_ar": "وصف تجريبي",
+      "description_en": "وصف تجريبي",
+      "price": 90
+    }
+  ],
+  "/home-care/packages": [
+    {
+      "id": "test-nur-pkg",
+      "name_ar": "باقة رعاية تجريبية",
+      "title": "باقة رعاية تجريبية",
+      "type": "monthly"
+    },
+    {
+      "id": "test-nur-pkg-2",
+      "name_ar": "باقة رعاية تجريبية ٢",
+      "title": "باقة رعاية تجريبية ٢",
+      "type": "weekly"
+    }
+  ],
+  "/home-care/services/svc-iv": {
+    "id": "svc-iv",
+    "name_ar": "خدمة تمريض تجريبية ١",
+    "name_en": "خدمة تمريض تجريبية ١",
+    "description_ar": "وصف تجريبي كامل للخدمة يشرح ما تتضمنه الزيارة.",
+    "description_en": "وصف تجريبي كامل للخدمة يشرح ما تتضمنه الزيارة.",
+    "price": 150,
+    "duration_value": 1,
+    "duration": "hour",
+    "insurance_availability": true,
+    "preparation_ar": [
+      "تحضير تجريبي ١",
+      "تحضير تجريبي ٢"
+    ],
+    "preparation_en": [
+      "تحضير تجريبي ١",
+      "تحضير تجريبي ٢"
+    ]
+  },
+  "/home-care/providers": [
+    {
+      "id": "test-nurse",
+      "name_ar": "ممرض تجريبي ١",
+      "facility_name": "منشأة تجريبية",
+      "gender": "male",
+      "available_now": true,
+      "rating": 4.7,
+      "distance_km": 3.2,
+      "price": 150
+    },
+    {
+      "id": "test-nurse-2",
+      "name_ar": "ممرضة تجريبية ٢",
+      "facility_name": "منشأة تجريبية ٢",
+      "gender": "female",
+      "available_now": false,
+      "rating": 4.9,
+      "price": null
+    }
+  ],
+  "/home-care/providers/test-nurse": {
+    "id": "test-nurse",
+    "name": "ممرض تجريبي ١",
+    "facility": "منشأة تجريبية",
+    "rating": 4.7,
+    "reviews_count": 12,
+    "degree": "بكالوريوس تمريض (تجريبي)",
+    "price": 150,
+    "reviews": [
+      {
+        "user": "مريض تجريبي",
+        "text": "تقييم تجريبي"
+      }
+    ],
+    "service_name_ar": "خدمة تمريض تجريبية ١"
+  },
+  "/nursing/bookings/mine": [
+    {
+      "id": "test-visit",
+      "state": "CONFIRMED",
+      "service_name_ar": "خدمة تمريض تجريبية ١",
+      "scheduled_at": "2026-10-08T08:00:00Z"
+    },
+    {
+      "id": "test-visit-2",
+      "state": "COMPLETED",
+      "service_name_ar": "خدمة تمريض تجريبية ٢",
+      "scheduled_at": "2026-10-01T10:30:00Z"
+    },
+    {
+      "id": "test-visit-3",
+      "state": "PENDING_INSURANCE",
+      "service_name_ar": "خدمة تمريض تجريبية ١",
+      "scheduled_at": "2026-10-12T09:00:00Z"
+    }
+  ],
+  "/nursing/visits/test-visit/tracking": {
+    "status": "IN_PROGRESS",
+    "eta_minutes": 12,
+    "nurse_name": "ممرض تجريبي ١",
+    "nurse_title": "ممرض مسجل (تجريبي)",
+    "nurse_phone": "+966500000000",
+    "current_lat": 24.7136,
+    "current_lng": 46.6753,
+    "hospital_lat": 24.72,
+    "hospital_lng": 46.68
+  },
+  "/nursing/visits/test-visit-done/tracking": {
+    "status": "COMPLETED",
+    "nurse_name": "ممرض تجريبي ١",
+    "vitals": {
+      "pulse": 72,
+      "bp": "120/80"
+    },
+    "notes": "ملاحظة تجريبية"
+  },
+  "/home-care/bookings/test-nur-ins": {
+    "id": "test-nur-ins",
+    "state": "APPROVED_PARTIAL",
+    "payment_method": "insurance",
+    "copay_amount": 30,
+    "insurance_decision": {
+      "outcome": "APPROVED_PARTIAL"
+    }
+  },
+  "/nutrition/meals": [
+    {
+      "id": "test-meal-1",
+      "name": "وجبة تجريبية ١",
+      "calories": 350,
+      "meal_type": "breakfast",
+      "protein_g": 20,
+      "logged_at": "2026-10-07T07:30:00Z"
+    },
+    {
+      "id": "test-meal-2",
+      "name": "وجبة تجريبية ٢",
+      "calories": 450,
+      "meal_type": "lunch",
+      "logged_at": "2026-10-07T13:00:00Z"
+    }
+  ],
+  "/nutrition/profile": {
+    "profile_ready": true,
+    "goal": "maintain",
+    "activity_level": "moderate",
+    "height_cm": 170,
+    "weight_kg": 70,
+    "target_weight_kg": 68,
+    "daily_calorie_target": 2000,
+    "daily_water_target_ml": 2000,
+    "dietary_restrictions": [],
+    "allergies": [],
+    "bmi": 24.2
+  },
+  "/medical/programs/active": [
+    {
+      "id": "diabetes",
+      "title": "برنامج تجريبي ١",
+      "duration": "٨ أسابيع",
+      "completedSessions": 1,
+      "totalSessions": 4,
+      "nextSessionTitle": "جلسة تجريبية",
+      "nextSessionDate": "2026-10-12",
+      "nextSessionTime": "10:00",
+      "milestoneReward": "مكافأة تجريبية",
+      "rewardDesc": "وصف تجريبي",
+      "sessionsList": [
+        {
+          "id": 1,
+          "title": "زيارة تجريبية ١",
+          "status": "completed"
+        },
+        {
+          "id": 2,
+          "title": "زيارة تجريبية ٢",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "زيارة تجريبية ٣",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "زيارة تجريبية ٤",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": "hypertension",
+      "title": "برنامج تجريبي ٢",
+      "duration": "٦ أسابيع",
+      "completedSessions": 0,
+      "totalSessions": 3,
+      "sessionsList": [
+        {
+          "id": 1,
+          "title": "زيارة تجريبية",
+          "status": "pending"
+        }
+      ]
+    }
+  ],
+  "/articles": {
+    "data": [
+      {
+        "id": "test-article",
+        "slug": "test-article",
+        "title_ar": "مقال تجريبي عن النوم الصحي",
+        "title_en": "Test article about healthy sleep",
+        "excerpt_ar": "ملخص تجريبي للمقال، يظهر سطرين كحد أقصى في القائمة.",
+        "body_ar": "نص تجريبي للمقال. فقرة أولى عن النوم المنتظم.\n\nفقرة ثانية تجريبية عن تقليل الشاشات قبل النوم.",
+        "category": "نصائح تجريبية",
+        "author_name": "د. طبيب تجريبي",
+        "author_title": "طبيب باطنة",
+        "views": 1280,
+        "published_at": "2026-09-20T09:00:00Z",
+        "tags": [
+          "نوم",
+          "تجريبي"
+        ]
+      },
+      {
+        "id": "test-article-2",
+        "slug": "test-article-2",
+        "title_ar": "مقال تجريبي ثانٍ",
+        "excerpt_ar": "ملخص تجريبي ثانٍ.",
+        "category": "نصائح تجريبية",
+        "author_name": "د. طبيب تجريبي",
+        "views": 42,
+        "published_at": "2026-09-10T09:00:00Z"
+      }
+    ]
+  },
+  "/articles/categories": [
+    "نصائح تجريبية",
+    "تغذية تجريبية"
+  ],
+  "/articles/bookmarks/mine": [
+    {
+      "id": "test-article",
+      "slug": "test-article",
+      "title_ar": "مقال تجريبي عن النوم الصحي",
+      "title_en": "Test article about healthy sleep",
+      "excerpt_ar": "ملخص تجريبي للمقال، يظهر سطرين كحد أقصى في القائمة.",
+      "body_ar": "نص تجريبي للمقال. فقرة أولى عن النوم المنتظم.\n\nفقرة ثانية تجريبية عن تقليل الشاشات قبل النوم.",
+      "category": "نصائح تجريبية",
+      "author_name": "د. طبيب تجريبي",
+      "author_title": "طبيب باطنة",
+      "views": 1280,
+      "published_at": "2026-09-20T09:00:00Z",
+      "tags": [
+        "نوم",
+        "تجريبي"
+      ]
+    }
+  ],
+  "/articles/test-article": {
+    "id": "test-article",
+    "slug": "test-article",
+    "title_ar": "مقال تجريبي عن النوم الصحي",
+    "title_en": "Test article about healthy sleep",
+    "excerpt_ar": "ملخص تجريبي للمقال، يظهر سطرين كحد أقصى في القائمة.",
+    "body_ar": "نص تجريبي للمقال. فقرة أولى عن النوم المنتظم.\n\nفقرة ثانية تجريبية عن تقليل الشاشات قبل النوم.",
+    "category": "نصائح تجريبية",
+    "author_name": "د. طبيب تجريبي",
+    "author_title": "طبيب باطنة",
+    "views": 1280,
+    "published_at": "2026-09-20T09:00:00Z",
+    "tags": [
+      "نوم",
+      "تجريبي"
+    ]
+  },
+  "/articles/bookmarks/test-article/status": {
+    "bookmarked": false
+  },
+  "/loyalty/config": {
+    "tiers": [
+      {
+        "id": "bronze",
+        "label": "مستوى تجريبي ١",
+        "minPts": 0,
+        "perks": [
+          "ميزة تجريبية ١"
+        ]
+      },
+      {
+        "id": "silver",
+        "label": "مستوى تجريبي ٢",
+        "minPts": 1000,
+        "perks": [
+          "ميزة تجريبية ٢",
+          "ميزة تجريبية ٣"
+        ]
+      },
+      {
+        "id": "gold",
+        "label": "مستوى تجريبي ٣",
+        "minPts": 3000,
+        "perks": [
+          "ميزة تجريبية ٤"
+        ]
+      }
+    ],
+    "earn_ways": [
+      {
+        "action": "طريقة تجريبية ١",
+        "pts": 50
+      },
+      {
+        "action": "طريقة تجريبية ٢",
+        "pts": 20
+      }
+    ]
+  },
+  "/loyalty/transactions?page=1": {
+    "transactions": [
+      {
+        "id": "test-tx1",
+        "points_delta": 50,
+        "reason": "booking_completed",
+        "createdAt": "2026-10-01T10:00:00.000Z"
+      },
+      {
+        "id": "test-tx2",
+        "points_delta": -300,
+        "reason": "reward_claimed",
+        "createdAt": "2026-10-03T10:00:00.000Z"
+      }
+    ]
+  },
+  "/loyalty/rewards": [
+    {
+      "id": "test-rw1",
+      "title": "مكافأة تجريبية ١",
+      "description": "وصف تجريبي",
+      "points_required": 300,
+      "reward_type": "coupon"
+    },
+    {
+      "id": "test-rw2",
+      "title": "مكافأة تجريبية ٢",
+      "description": "وصف تجريبي",
+      "points_required": 5000,
+      "reward_type": "service"
+    }
+  ],
+  "/loyalty/challenges": [
+    {
+      "id": "test-ch1",
+      "title": "تحدٍّ تجريبي ١",
+      "desc": "وصف تجريبي",
+      "reward_points": 50,
+      "target_count": 7,
+      "user_progress": 3,
+      "joined": true,
+      "end_date": "2026-12-31T00:00:00.000Z"
+    },
+    {
+      "id": "test-ch2",
+      "title": "تحدٍّ تجريبي ٢",
+      "desc": "وصف تجريبي",
+      "reward_points": 30
+    }
+  ],
+  "/referrals/my": {
+    "code": "TEST42",
+    "stats": {
+      "total": 2,
+      "registered": 1,
+      "rewarded": 1,
+      "earned_points": 100
+    },
+    "invites": [
+      {
+        "id": "test-inv1",
+        "name": "صديق تجريبي ١",
+        "status": "rewarded",
+        "created_at": "2026-09-20T10:00:00.000Z"
+      },
+      {
+        "id": "test-inv2",
+        "name": "صديق تجريبي ٢",
+        "status": "registered",
+        "created_at": "2026-10-02T10:00:00.000Z"
+      }
+    ]
+  },
+  "/offers/test-offer1": {
+    "id": "test-offer1",
+    "title_ar": "عرض تجريبي ١",
+    "title_en": "Test offer 1",
+    "provider": {
+      "name": "مقدم تجريبي"
+    },
+    "original_price": 100,
+    "discounted_price": 80,
+    "end_date": "2026-12-31T00:00:00.000Z",
+    "target": {
+      "inclusions": [
+        "بند تجريبي ١",
+        "بند تجريبي ٢"
+      ],
+      "terms": [
+        "شرط تجريبي ١"
+      ]
+    }
+  },
+  "/promotions/offers/test-offer1/providers": [
+    {
+      "id": "test-prov1",
+      "name": "مقدم تجريبي ١",
+      "specialty": "تخصص تجريبي",
+      "city": "مدينة تجريبية",
+      "rating_avg": 4.5,
+      "rating_count": 12
+    }
+  ],
+  "/users/me/notification-settings": {
+    "general": true,
+    "appointments": true,
+    "orders": true,
+    "offers": false,
+    "medications": true,
+    "doctorMessages": true,
+    "emergency": true,
+    "sound": true,
+    "vibration": false
+  },
+  "/users/me/privacy-settings": {
+    "location": true,
+    "analytics": true,
+    "shareData": false,
+    "marketing": false,
+    "thirdParty": false
+  },
+  "/users/me/security-settings": {
+    "biometric": true,
+    "two_factor": false
+  },
+  "/users/me/sessions": [
+    {
+      "id": "test-s1",
+      "device": "جهاز تجريبي ١",
+      "location": "مدينة تجريبية",
+      "time": "الآن",
+      "current": true
+    },
+    {
+      "id": "test-s2",
+      "device": "جهاز تجريبي ٢",
+      "location": "مدينة تجريبية",
+      "time": "أمس"
+    }
+  ],
+  "/users/me/storage": {
+    "items": [
+      {
+        "label": "سجلات تجريبية",
+        "val": "٢ MB",
+        "pct": 20
+      },
+      {
+        "label": "ملفات تجريبية",
+        "val": "٦ MB",
+        "pct": 60
+      }
+    ],
+    "total": "٨ MB"
+  },
+  "/support/faqs": [
+    {
+      "category": "فئة تجريبية ١",
+      "q": "سؤال تجريبي ١؟",
+      "a": "جواب تجريبي ١."
+    },
+    {
+      "category": "فئة تجريبية ٢",
+      "q": "سؤال تجريبي ٢؟",
+      "a": "جواب تجريبي ٢."
+    }
+  ],
+  "/legal/policies": [
+    {
+      "key": "test-terms",
+      "title_ar": "شروط تجريبية",
+      "title_en": "Test terms",
+      "version": "1.0"
+    },
+    {
+      "key": "test-privacy",
+      "title_ar": "خصوصية تجريبية",
+      "title_en": "Test privacy",
+      "version": "1.0"
+    }
+  ],
+  "/legal/policy/test-terms": {
+    "key": "test-terms",
+    "title": "شروط تجريبية",
+    "version": "1.0",
+    "content": "نص تجريبي لوثيقة قانونية.\nسطر تجريبي ثانٍ."
+  },
+  "/pharmacy/returns": [
+    {
+      "id": "test-return-1abcdef",
+      "service_type": "pharmacy",
+      "order_id": "test-order-12345678",
+      "amount": 45,
+      "status": "processing",
+      "createdAt": "2026-10-01T10:00:00Z",
+      "reason": "سبب تجريبي",
+      "refund_method": "original"
+    },
+    {
+      "id": "test-return-2abcdef",
+      "service_type": "consultation",
+      "order_id": "test-appt-12345678",
+      "amount": 120,
+      "status": "completed",
+      "createdAt": "2026-09-20T10:00:00Z",
+      "resolved_at": "2026-09-22T10:00:00Z",
+      "reason": "سبب تجريبي",
+      "refund_method": "original"
+    }
+  ],
+  "/pharmacy/returns/test-return-1": {
+    "id": "test-return-1abcdef",
+    "service_type": "pharmacy",
+    "order_id": "test-order-12345678",
+    "amount": 45,
+    "status": "approved",
+    "createdAt": "2026-10-01T10:00:00Z",
+    "resolved_at": "2026-10-02T10:00:00Z",
+    "reason": "سبب تجريبي",
+    "refund_method": "original"
+  },
+  "/pharmacy/returns/eligible/pharmacy": [
+    {
+      "id": "test-order-12345678",
+      "amount": 45
+    },
+    {
+      "id": "test-order-87654321",
+      "amount": 80
+    }
+  ],
+  "/support/chat": [
+    {
+      "id": "c1",
+      "from": "user",
+      "text": "رسالة تجريبية من المريض",
+      "time": "10:00"
+    },
+    {
+      "id": "c2",
+      "from": "agent",
+      "text": "رد تجريبي من الدعم",
+      "time": "10:05",
+      "isBot": true
+    }
+  ],
+  "/support/requests/mine": [
+    {
+      "id": "test-req-123456",
+      "subject": "طلب دعم تجريبي",
+      "status": "مفتوح",
+      "date": "2026-10-01",
+      "lastUpdate": "2026-10-02"
+    }
+  ],
+  "/providers/map": [
+    {
+      "id": "test-prov-1",
+      "name": "مزود تجريبي ١",
+      "type": "pharmacy",
+      "rating": 4.5,
+      "reviews_count": 12,
+      "distance_km": 1.2,
+      "lat": 24.71,
+      "lng": 46.68,
+      "is_available": true
+    },
+    {
+      "id": "test-prov-2",
+      "name": "مزود تجريبي ٢",
+      "type": "doctor",
+      "distance_km": 3.4,
+      "lat": 24.72,
+      "lng": 46.7,
+      "consultation_fee": 150,
+      "specialties": [
+        "تخصص تجريبي"
+      ]
+    }
+  ],
+  "/user/insurance": {
+    "provider": "تأمين تجريبي"
+  }
+}

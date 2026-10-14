@@ -17,7 +17,8 @@ describe("patient API allowlist", () => {
     expect(isAllowedPatientApiPath(`/patient/pharmacy/orders/${"91047ef2-ad36-422a-a184-629693e7c729"}`)).toBe(true);
     expect(isAllowedPatientApiPath(`/orders/${"91047ef2-ad36-422a-a184-629693e7c729"}/tracking`)).toBe(true);
     expect(isAllowedPatientApiPath("/cart")).toBe(true);
-    expect(isAllowedPatientApiPath("/cart/checkout")).toBe(true);
+    // issue 554: the server cart checkout is not a web call any more (the cart is local-first; only sending the order needs the backend)
+    expect(isAllowedPatientApiPath("/cart/checkout")).toBe(false);
     expect(isAllowedPatientApiPath("/care/appointments/123e4567-e89b-12d3-a456-426614174000")).toBe(true);
     expect(isAllowedPatientApiPath("/cart/prescription")).toBe(true);
     expect(isAllowedPatientApiPath("/nursing/visits")).toBe(true);
@@ -30,6 +31,9 @@ describe("patient API allowlist", () => {
     expect(isAllowedPatientApiPath("/payments/pharmacy/91047ef2-ad36-422a-a184-629693e7c729/capabilities")).toBe(true);
     expect(isAllowedPatientApiPath("/pharmacy/chat/threads?order_id=91047ef2-ad36-422a-a184-629693e7c729")).toBe(true);
     expect(isAllowedPatientApiPath("/pharmacy/chat/threads/91047ef2-ad36-422a-a184-629693e7c729/messages")).toBe(true);
+    expect(isAllowedPatientApiPath("/chat/threads/91047ef2-ad36-422a-a184-629693e7c729/permissions")).toBe(true);
+    expect(isAllowedPatientApiPath("/chat/threads/not-a-uuid/permissions")).toBe(false);
+    expect(isAllowedPatientApiRequest("/chat/threads/91047ef2-ad36-422a-a184-629693e7c729/permissions", "POST")).toBe(false);
     expect(isAllowedPatientApiPath("/medical-profile")).toBe(false);
   });
 
@@ -64,7 +68,9 @@ describe("patient API allowlist", () => {
     expect(isAllowedPatientApiRequest("/users/me/notification-settings", "POST")).toBe(false);
     expect(isAllowedPatientApiPath("/nursing/visits?limit=10")).toBe(false);
     expect(isAllowedPatientApiRequest("/users/me/wishlist", "GET")).toBe(true);
-    expect(isAllowedPatientApiRequest("/users/me/wishlist/med-1", "POST")).toBe(false);
+    expect(isAllowedPatientApiRequest("/users/me/wishlist/med-1", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/users/me/wishlist/med-1", "GET")).toBe(false);
+    expect(isAllowedPatientApiRequest("/users/me/wishlist/med-1", "DELETE")).toBe(false);
   });
 
   it("fails closed for malformed or nested order identifiers", () => {
@@ -93,6 +99,17 @@ describe("patient API allowlist", () => {
         "DELETE"
       )
     ).toBe(false);
+  });
+});
+
+describe("patient allowlist: the delivery address picker", () => {
+  const address = "91047ef2-ad36-422a-a184-629693e7c729";
+  it("lets the patient change one of their own saved addresses (to make it the default), and nothing wider", () => {
+    expect(isAllowedPatientApiRequest(`/users/me/addresses/${address}`, "PATCH")).toBe(true);
+    expect(isAllowedPatientApiRequest("/users/me/addresses", "PATCH")).toBe(false);
+    expect(isAllowedPatientApiRequest(`/users/me/addresses/${address}/x`, "PATCH")).toBe(false);
+    expect(isAllowedPatientApiRequest(`/users/me/addresses/${address}`, "PUT")).toBe(false);
+    expect(isAllowedPatientApiRequest("/users/me/profile/addresses", "PATCH")).toBe(false);
   });
 });
 

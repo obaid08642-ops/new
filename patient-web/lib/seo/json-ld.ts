@@ -50,7 +50,7 @@ export function faqJsonLd(faqs: { q: string; a: string }[]) {
     mainEntity: faqs.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
   };
 }
-export const speakable = { '@type': 'SpeakableSpecification', cssSelector: ['.product-title', '.faq'] };
+export const speakable = { '@type': 'SpeakableSpecification', cssSelector: ['h1', '.nabd-direct-answer'] };
 
 export function physicianJsonLd(d: any, locale: string) {
   return {
@@ -82,13 +82,14 @@ export function procedureJsonLd(s: any, locale: string) {
     inLanguage: locale,
   };
 }
-export function howToJsonLd(p: any) {
+/** HowTo from the catalogue's own steps; the title comes from the page's language. */
+export function howToJsonLd(p: any, title: string) {
   const steps: string[] = Array.isArray(p.how_to_use) ? p.how_to_use : (p.how_to_use ? String(p.how_to_use).split('\n') : []);
   if (!steps.length) return null;
   return {
     '@context': 'https://schema.org',
     '@type': 'HowTo',
-    name: `طريقة استخدام ${p.name || p.slug}`,
+    name: title,
     step: steps.filter(Boolean).map((t: string) => ({ '@type': 'HowToStep', text: String(t).trim() })),
   };
 }

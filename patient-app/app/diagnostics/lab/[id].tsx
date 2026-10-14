@@ -1,193 +1,98 @@
-// @ts-nocheck
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, FlatList, TextInput, Image, ActivityIndicator, Platform, Alert, StatusBar, KeyboardAvoidingView, Modal, I18nManager, Dimensions, Linking } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { AppText } from '../../../src/components/ui';
-import { useApp } from '../../../src/context/AppContext';
-import Icon from '@expo/vector-icons/MaterialCommunityIcons';
-import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Linking, Text, View } from 'react-native';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
+
+import { Button } from '../../../../packages/ui-native/src';
+import { ConsultScreen, Gate, InfoRow, Section, type GateStatus } from '../../../src/components/consult/ConsultKit';
+import { DetailHead, ListCard, LAB_TONE, TestRow, diagLook, goBackDiag, useDiagText } from '../../../src/components/diagnostics/DiagKit';
+import { showLocalizedAlert } from '../../../src/components/LocalizedAlert';
+import { step as scale, useScreenUi } from '../../../src/components/screen/ScreenKit';
 import { useDiagnosticsCart } from '../../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../../src/utils/api';
+import { isOffline } from '../../../src/utils/isOffline';
 import { logError } from '../../../src/utils/logger';
-import { showLocalizedAlert } from '../../../src/components/LocalizedAlert';
-import { ScreenState } from '../../../src/components/ScreenStates';
+import { normalizeLabList, normalizeProvider, recordOf, type CatalogItem, type LabProvider } from '../../../src/utils/labMappers';
 
+/** A lab's profile: who it is, how to get there, and the tests it offers with the add toggle (board ServiceHub lab card, opened). */
 export default function LabProfile() {
-  const router = useRouter();
-  const { id } = useLocalSearchParams();
-  const { colors } = useApp();
-  const { items, addItem } = useDiagnosticsCart();
-  
-  const [lab, setLab] = useState<any>(null);
-  const [tests, setTests] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { theme, t, c, k, num, flow } = useScreenUi();
+  const text = useDiagText();
+  const { id: rawId } = useLocalSearchParams<{ id: string }>();
+  const id = String(rawId ?? '');
+  const { items, addItem, removeItem } = useDiagnosticsCart();
+  const [lab, setLab] = useState<LabProvider | null>(null);
+  const [tests, setTests] = useState<CatalogItem[]>([]);
+  const [status, setStatus] = useState<GateStatus>('loading');
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setError(null);
-      try {
-        const [labRes, testsRes] = await Promise.all([
-          apiFetch(`/providers/${id}`),
-          apiFetch(`/labs/services?providerId=${id}`)
-        ]);
-        setLab(labRes.data || labRes);
-        setTests(testsRes.data || testsRes || []);
-      } catch (err) {
-        logError('diagnostics:lab:detail', err);
-        setError('تعذر تحميل بيانات المختبر');
-        // Fallback or handle error
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (id) fetchData();
+  const load = useCallback(async () => {
+    setStatus('loading');
+    try {
+      const [labRes, testsRes] = await Promise.all([apiFetch<unknown>(`/providers/${id}`), apiFetch<unknown>(`/labs/services?providerId=${id}`)]);
+      const provider = normalizeProvider(recordOf(labRes));
+      setLab(provider);
+      setTests(normalizeLabList(testsRes));
+      setStatus(provider ? 'ready' : 'error');
+    } catch (err) {
+      logError('diagnostics:lab:detail', err);
+      setStatus((await isOffline()) ? 'offline' : 'error');
+    }
   }, [id]);
 
-  if (loading) {
-    return (
-      <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' } ]}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </SafeAreaView>
-    );
-  }
+  useEffect(() => {
+    if (id) void load();
+  }, [id, load]);
 
-  if (!lab) {
-    return (
-      <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' } ]}>
-        <AppText>حدث خطأ في جلب بيانات المختبر</AppText>
-        <TouchableOpacity onPress={() => router.back()} style={{ marginTop: 20 }}>
-          <AppText style={{ color: colors.primary }}>عودة</AppText>
-        </TouchableOpacity>
-      </SafeAreaView>
-    );
-  }
+  const openMaps = () => {
+    if (!lab) return;
+    const url = lab.lat !== null && lab.lng !== null ? `https://www.google.com/maps/dir/?api=1&destination=${lab.lat},${lab.lng}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lab.address)}`;
+    Linking.openURL(url).catch(() => showLocalizedAlert(k('diag.lab.mapsFailed')));
+  };
+  const isAdded = (testId: string) => items.some((item) => item.id === testId && (item.lockedProviderId === id || !item.lockedProviderId));
 
   return (
-    <ScreenState loading={false} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background } ]}>
-      <Stack.Screen options={{ headerShown: false }} />
-
-      <View style={[styles.topHeader, { backgroundColor: colors.background } ]}>
-        <View style={{ width: 40 }}/>
-        <AppText style={{ fontSize: 18, fontWeight: 'bold', color: colors.textPrimary }}>ملف المختبر</AppText>
-        <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
-          <Icon name={I18nManager.isRTL ? 'arrow-right' : 'arrow-left'} size={24} color={colors.textPrimary} />
-        </TouchableOpacity>
-      </View>
-
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        
-        {/* Banner */}
-        <Animated.View entering={FadeInDown.duration(400)} style={[styles.banner, { backgroundColor: colors.surface, borderColor: colors.border } ]}>
-          <View style={[styles.logoWrap, { backgroundColor: `${lab.color || '#1A1F71'}15` }]} >
-            <Icon name={lab.logo || 'hospital-building'} size={64} color={lab.color || '#1A1F71'} />
-          </View>
-          <AppText style={{ fontSize: 24, fontWeight: 'bold', color: colors.textPrimary, marginTop: 16 }}>{lab.name}</AppText>
-          
-          <View style={styles.metaRow}>
-            <View style={styles.metaItem}>
-              <Icon name="star" size={16} color="#FFD700" />
-              <AppText style={{ fontSize: 14, color: colors.textSecondary, marginLeft: 4 }}>{lab.rating ?? '—'}</AppText>
-            </View>
-            {lab.distance != null && (
-              <View style={styles.metaItem}>
-                <Icon name="map-marker-outline" size={16} color={colors.textSecondary} />
-                <AppText style={{ fontSize: 14, color: colors.textSecondary, marginLeft: 4 }}>{lab.distance}</AppText>
+    <ConsultScreen testID="diagnostics-lab" title={k('diag.lab.title')} onBack={goBackDiag} onRefresh={() => void load()}>
+      <Gate status={status} onRetry={() => void load()}>
+        {lab ? (
+          <>
+            <DetailHead icon="test-tube" tone={LAB_TONE} title={lab.name} body={lab.description || undefined} />
+            <ListCard>
+              <View style={{ paddingHorizontal: 14 }}>
+                <InfoRow label={k('diag.lab.rating')} value={lab.rating !== null ? num(lab.rating, { maximumFractionDigits: 1 }) : ''} />
+                <InfoRow label={k('diag.lab.distance')} value={text.distance(lab.distance)} />
+                <InfoRow label={k('diag.lab.branches')} value={lab.branches !== null ? num(lab.branches) : ''} />
+                <InfoRow label={k('diag.lab.address')} value={lab.address} last />
               </View>
-            )}
-            {lab.branches != null && (
-              <View style={styles.metaItem}>
-                <Icon name="store-outline" size={16} color={colors.textSecondary} />
-                <AppText style={{ fontSize: 14, color: colors.textSecondary, marginLeft: 4 }}>{lab.branches} فرع</AppText>
-              </View>
-            )}
-          </View>
-
-          {(lab.lat != null && lab.lng != null) || lab.address ? (
-            <TouchableOpacity
-              style={[styles.directionBtn, { backgroundColor: colors.primary }]}
-              onPress={() => {
-                const url = lab.lat != null && lab.lng != null
-                  ? `https://www.google.com/maps/dir/?api=1&destination=${lab.lat},${lab.lng}`
-                  : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lab.address)}`;
-                Linking.openURL(url).catch(() => showLocalizedAlert('تعذّر فتح الخرائط'));
-              }}
-            >
-              <Icon name="directions" size={20} color="#fff" />
-              <AppText style={{ color: '#fff', fontWeight: 'bold', fontSize: 14, marginLeft: 8 }}>الاتجاهات للمختبر</AppText>
-            </TouchableOpacity>
-          ) : null}
-        </Animated.View>
-
-        {/* About */}
-        <Animated.View entering={FadeInDown.duration(400).delay(100)} style={styles.section}>
-          <AppText variant="h3" color={colors.textPrimary} style={styles.sectionTitle}>عن المختبر</AppText>
-          <AppText style={{ fontSize: 14, color: colors.textSecondary, lineHeight: 24, textAlign: I18nManager.isRTL ? 'right' : 'left' }}>
-            {lab.description || `تعتبر ${lab.name} من أحدث المختبرات الطبية المجهزة بأفضل التقنيات. نقدم مجموعة متكاملة من التحاليل المخبرية لضمان دقة وسرعة النتائج مع التزامنا بأعلى معايير الجودة العالمية.`}
-          </AppText>
-        </Animated.View>
-
-        {/* Tests */}
-        <Animated.View entering={FadeInDown.duration(400).delay(200)} style={styles.section}>
-          <AppText variant="h3" color={colors.textPrimary} style={styles.sectionTitle}>التحاليل المتوفرة هنا</AppText>
-          
-          {tests.map((test, i) => {
-             const isAdded = items.some(item => item.id === test.id && (item.lockedProviderId === id || !item.lockedProviderId));
-             return (
-             <TouchableOpacity 
-               key={i} 
-               style={[styles.testItem, { backgroundColor: colors.surface, borderColor: colors.border }]} 
-               onPress={() => (router.push as any)(`/diagnostics/test-detail?id=${test.id}&labId=${id}`)}
-             >
-               <View style={[styles.testIconWrap, { backgroundColor: `${test.color || '#1E88E5'}15` }]} >
-                 <Icon name={test.icon || 'water-outline'} size={28} color={test.color || '#1E88E5'} />
-               </View>
-               <View style={styles.testTextWrap}>
-                 <AppText style={{ fontWeight: 'bold', fontSize: 14, color: colors.textPrimary, textAlign: I18nManager.isRTL ? 'right' : 'left' }}>{test.name}</AppText>
-                 <AppText style={{ fontSize: 16, fontWeight: '900', color: colors.primary, marginTop: 4, textAlign: I18nManager.isRTL ? 'right' : 'left' }}>{test.price} ر.س</AppText>
-               </View>
-
-               {isAdded ? (
-                 <View style={[styles.addBtn, { backgroundColor: '#4CAF50' } ]}>
-                   <Icon name="check-bold" size={18} color="#fff" />
-                   <AppText style={{ color: '#fff', fontSize: 12, fontWeight: 'bold', marginLeft: 4 }}>مضاف للسلة</AppText>
-                 </View>
-               ) : (
-                 <TouchableOpacity 
-                   style={[styles.addBtn, { backgroundColor: '#E53935' }]}
-                   onPress={() => addItem({ id: test.id, name: test.name, price: test.price, kind: 'lab', lockedProviderId: id as string })}
-                 >
-                   <Icon name="cart-plus" size={18} color="#fff" />
-                   <AppText style={{ color: '#fff', fontSize: 12, fontWeight: 'bold', marginLeft: 4 }}>أضف للسلة</AppText>
-                 </TouchableOpacity>
-               )}
-
-             </TouchableOpacity>
-          ); })}
-        </Animated.View>
-
-      </ScrollView>
-    </SafeAreaView>
-    </ScreenState>
+            </ListCard>
+            {(lab.lat !== null && lab.lng !== null) || lab.address ? <Button theme={theme} size="lg" fullWidth variant="outline" startIcon="map-pin" label={k('diag.lab.directions')} onPress={openMaps} /> : null}
+            <Section title={k('diag.lab.tests')}>
+              {tests.length > 0 ? (
+                <ListCard>
+                  {tests.map((test, i) => {
+                    const on = isAdded(test.id);
+                    return (
+                      <TestRow
+                        key={test.id}
+                        name={test.name}
+                        icon={diagLook(test.category)}
+                        price={test.price}
+                        last={i === tests.length - 1}
+                        onPress={() => router.push(`/diagnostics/test-detail?id=${test.id}&labId=${id}` as Href)}
+                        toggle={{
+                          on,
+                          label: on ? k('diag.cart.remove', { name: test.name }) : k('diag.cart.add', { name: test.name }),
+                          onPress: () => (on ? void removeItem(test.id, 'lab') : void addItem({ id: test.id, name: test.name, price: test.price ?? 0, kind: 'lab', lockedProviderId: id })),
+                        }}
+                      />
+                    );
+                  })}
+                </ListCard>
+              ) : (
+                <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{k('diag.lab.noTests')}</Text>
+              )}
+            </Section>
+          </>
+        ) : null}
+      </Gate>
+    </ConsultScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: { flex: 1 },
-  topHeader: { flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 12, borderBottomWidth: 1 },
-  headerBtn: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
-  scrollContent: { padding: 20 },
-  banner: { alignItems: 'center', padding: 24, borderRadius: 24, borderWidth: 1, marginBottom: 32 },
-  logoWrap: { width: 100, height: 100, borderRadius: 50, alignItems: 'center', justifyContent: 'center' },
-  metaRow: { flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 16, marginTop: 16, marginBottom: 24 },
-  metaItem: { flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', alignItems: 'center' },
-  directionBtn: { flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12, width: '100%' },
-  section: { marginBottom: 32 },
-  sectionTitle: { marginBottom: 12, textAlign: I18nManager.isRTL ? 'right' : 'left' },
-  testItem: { flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row', alignItems: 'center', padding: 16, borderRadius: 20, borderWidth: 1, marginBottom: 12 },
-  testIconWrap: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', marginLeft: I18nManager.isRTL ? 12 : 0, marginRight: I18nManager.isRTL ? 0 : 12 },
-  testTextWrap: { flex: 1, paddingHorizontal: 8 },
-  addBtn: { flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 }
-});

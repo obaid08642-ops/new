@@ -1,3 +1,4 @@
+import { PROVIDER_ROLES } from '../../common/enums';
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -24,6 +25,7 @@ export class ProviderFacilityController {
     return rows.flatMap((r: any) => [r.id, r.user_id].filter(Boolean).map(String));
   }
 
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('audit-logs')
   async auditLogs(@CurrentUser() user: any, @Query('limit') limit = '100') {
     const fid = await facilityIdOf(this.conn, uid(user));
@@ -36,6 +38,7 @@ export class ProviderFacilityController {
     }));
   }
 
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('calendar')
   async calendar(@CurrentUser() user: any, @Query('days') days = '30') {
     const fid = await facilityIdOf(this.conn, uid(user));
@@ -55,6 +58,7 @@ export class ProviderFacilityController {
     }));
   }
 
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('patients/active')
   async activePatients(@CurrentUser() user: any) {
     const fid = await facilityIdOf(this.conn, uid(user));
@@ -73,6 +77,7 @@ export class ProviderFacilityController {
     return users.map((x: any) => ({ id: x.id || String(x._id), name: x.full_name, phone: x.phone, email: x.email }));
   }
 
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('subaccounts')
   async subaccounts(@CurrentUser() user: any) {
     const fid = await facilityIdOf(this.conn, uid(user));

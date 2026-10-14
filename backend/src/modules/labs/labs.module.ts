@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LabsController } from './labs.controller';
 import { LabResultsController } from './lab-results.controller';
-import { LabsEngineController } from './controllers/labs-engine.controller';
 import { LabsService } from './labs.service';
 import { LabResultsService } from './lab-results.service';
 import { LabPdfService } from './lab-pdf.service';
@@ -18,7 +17,6 @@ import { LabResultRepository } from "./repositories/labresult.repository";
 import { LabSampleRepository } from "./repositories/labsample.repository";
 import { LabServiceRepository } from "./repositories/labservice.repository";
 import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
-import { PatientLabsCatalogController } from './labs-compat.controller';
 
 @Module({
   imports: [
@@ -35,7 +33,7 @@ import { PatientLabsCatalogController } from './labs-compat.controller';
       { name: ProviderProfile.name, schema: ProviderProfileSchema },
     ]),
   ],
-  controllers: [LabsController, LabResultsController, LabsEngineController, PatientLabsCatalogController],
+  controllers: [LabsController, LabResultsController],
   providers: [LabsService, LabResultsService, LabPdfService, { provide: 'LabBookingRepository', useClass: LabBookingRepository }, { provide: 'LabResultRepository', useClass: LabResultRepository }, { provide: 'LabSampleRepository', useClass: LabSampleRepository }, { provide: 'LabServiceRepository', useClass: LabServiceRepository }],
   exports: [LabsService, LabResultsService, LabPdfService],
 })

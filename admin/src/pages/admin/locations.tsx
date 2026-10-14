@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Head from 'next/head';
+import { DataTable } from '@/components/DataTable';
 import { apiFetch } from '../../utils/api';
 
 type Loc = { code: string; name_ar: string; name_en: string; type: string; parent_code?: string | null; is_active?: boolean };
@@ -63,7 +64,18 @@ export default function LocationsAdminPage() {
       <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="بحث" className="border rounded px-3 py-2"/>
     </div>
     {loading ? <div className="p-8 text-center">جاري التحميل...</div> : (
-    <div className="bg-white rounded-xl border overflow-hidden"><table className="w-full text-right text-sm"><thead className="bg-slate-50"><tr><th className="p-3">الكود</th><th className="p-3">عربي</th><th className="p-3">إنجليزي</th><th className="p-3">الأب</th><th className="p-3">الحالة</th><th className="p-3">إجراء</th></tr></thead>
-    <tbody>{rows.map((r) => <tr key={r.code} className="border-t"><td className="p-3 font-mono text-xs" dir="ltr">{r.code}</td><td className="p-3">{r.name_ar}</td><td className="p-3">{r.name_en}</td><td className="p-3 font-mono text-xs" dir="ltr">{r.parent_code || '—'}</td><td className="p-3">{r.is_active === false ? 'معطّل' : 'نشط'}</td><td className="p-3">{r.is_active !== false ? <button disabled={busy === r.code} onClick={() => void deactivate(r.code)} className="rounded border px-2 py-1 text-xs text-rose-700">تعطيل</button> : <span className="text-xs text-slate-400">—</span>}</td></tr>)}</tbody></table></div>)}
+<DataTable
+      rows={rows}
+      getRowKey={(r) => r.code}
+      emptyText=""
+      columns={[
+        { key: 'code', header: 'الكود', className: 'font-mono text-xs', render: (r) => <span dir="ltr">{r.code}</span> },
+        { key: 'ar', header: 'عربي', render: (r) => r.name_ar },
+        { key: 'en', header: 'إنجليزي', render: (r) => r.name_en },
+        { key: 'parent', header: 'الأب', className: 'font-mono text-xs', render: (r) => <span dir="ltr">{r.parent_code || '—'}</span> },
+        { key: 'status', header: 'الحالة', render: (r) => (r.is_active === false ? 'معطّل' : 'نشط') },
+        { key: 'action', header: 'إجراء', actions: true, render: (r) => (r.is_active !== false ? <button disabled={busy === r.code} onClick={() => void deactivate(r.code)} className="rounded border px-2 py-1 text-xs text-rose-700">تعطيل</button> : <span className="text-xs text-slate-400">—</span>) },
+      ]}
+    />)}
   </div></>);
 }

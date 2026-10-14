@@ -19,6 +19,7 @@ import { fileURLToPath } from 'node:url';
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const BOARD = join(REPO, 'docs/design/canvas/FIcon.dc.html');
 const OUT = join(REPO, 'packages/ui/icons/fill.ts');
+const OUT_GLYPHS = join(REPO, 'packages/ui/icons/fill-glyphs.ts');
 
 const html = readFileSync(BOARD, 'utf8');
 const m = html.match(/const P = (\{[^\n]*\});/);
@@ -72,14 +73,29 @@ export const SERVICE_ICONS = {
 export type ServiceName = keyof typeof SERVICE_ICONS;
 `;
 
+// One named export per glyph, so a module that knows its glyph statically (the route error boundary, which ships
+// in every route's bundle) imports just that outline and the bundler drops the other 77 (issue #286).
+const constName = (n) => `FILL_${n.toUpperCase().replace(/-/g, '_')}`;
+const glyphs = `/* GENERATED from docs/design/canvas/FIcon.dc.html by tools/design/extract-ficon.mjs. Do not edit. */
+/**
+ * The filled icon set, one named export per glyph (viewBox 0 0 256 256, see FILL_ICON_VIEWBOX in ./fill).
+ * Import only the glyphs a module draws; FILL_ICON_PATHS in ./fill is the same data keyed by name for the
+ * components that pick a glyph at run time.
+ */
+${names.map((n) => `export const ${constName(n)} = ${JSON.stringify(paths[n])};`).join('\n')}
+`;
+
 if (process.argv.includes('--check')) {
-  const have = existsSync(OUT) ? readFileSync(OUT, 'utf8') : '';
-  if (have !== body) {
-    console.error('extract-ficon: packages/ui/icons/fill.ts is stale. Run: node tools/design/extract-ficon.mjs');
+  const stale = [[OUT, body, 'fill.ts'], [OUT_GLYPHS, glyphs, 'fill-glyphs.ts']].filter(
+    ([file, want]) => (existsSync(file) ? readFileSync(file, 'utf8') : '') !== want,
+  );
+  if (stale.length) {
+    console.error(`extract-ficon: packages/ui/icons/${stale.map((x) => x[2]).join(', ')} stale. Run: node tools/design/extract-ficon.mjs`);
     process.exit(1);
   }
-  console.log(`extract-ficon: packages/ui/icons/fill.ts matches the board (${names.length} icons).`);
+  console.log(`extract-ficon: packages/ui/icons/fill.ts and fill-glyphs.ts match the board (${names.length} icons).`);
 } else {
   writeFileSync(OUT, body);
-  console.log(`extract-ficon: wrote packages/ui/icons/fill.ts (${names.length} icons).`);
+  writeFileSync(OUT_GLYPHS, glyphs);
+  console.log(`extract-ficon: wrote packages/ui/icons/fill.ts and fill-glyphs.ts (${names.length} icons).`);
 }

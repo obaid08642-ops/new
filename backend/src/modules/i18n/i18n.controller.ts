@@ -12,7 +12,8 @@ export class I18nController {
   @Public()
   @Get()
   bundle(@Query('lang') lang: 'ar' | 'en' | 'ur') {
-    return this.svc.all(lang || 'ar');
+    // 18.2: resolveLang() maps an unsupported or absent locale to English.
+    return this.svc.all(lang as any);
   }
 
   @Public()

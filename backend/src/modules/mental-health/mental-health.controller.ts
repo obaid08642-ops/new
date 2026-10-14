@@ -1,8 +1,8 @@
 import { JwtAuthGuard, SelfService } from '../../common/auth.guard';
-import { Body, Controller, Delete, Get, Param, Post, Query, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { MentalHealthService } from './mental-health.service';
-import { LogMeditationDto, LogBreathingDto, AddCrisisContactDto, LogMoodDto } from './mental-health.dto';
+import { LogMeditationDto, LogBreathingDto, LogMoodDto } from './mental-health.dto';
 
 @ApiTags('Mental Health – الصحة النفسية')
 @UseGuards(JwtAuthGuard)
@@ -72,25 +72,10 @@ export class MentalHealthController {
     return this.mentalHealthService.getBreathingHistory(this.patientId(req));
   }
 
-  /** No self-assessment endpoint: the service does not score or diagnose mental-health conditions. */
-
-  @Get('crisis-contacts')
-  @ApiOperation({ summary: 'Get personal crisis contacts / جهات المساعدة الشخصية' })
-  getCrisisContacts(@Req() req: any) {
-    return this.mentalHealthService.getCrisisContacts(this.patientId(req));
-  }
-
-  @Post('crisis-contacts')
-  @ApiOperation({ summary: 'Add a personal crisis contact / إضافة جهة مساعدة شخصية' })
-  addCrisisContact(@Req() req: any, @Body() body: AddCrisisContactDto) {
-    return this.mentalHealthService.addCrisisContact(this.patientId(req), body);
-  }
-
-  @Delete('crisis-contacts/:id')
-  @ApiOperation({ summary: 'Delete a personal crisis contact / حذف جهة مساعدة شخصية' })
-  deleteCrisisContact(@Req() req: any, @Param('id') id: string) {
-    return this.mentalHealthService.deleteCrisisContact(this.patientId(req), id);
-  }
+  /**
+   * Owner decision 8 (D-8): no self-assessment scoring and no in-app crisis handling. The one
+   * "Need urgent help?" number comes from admin config (MentalHealthUrgentHelpController).
+   */
 
   @Get('dashboard')
   @ApiOperation({ summary: 'Get the non-diagnostic wellbeing dashboard / لوحة دعم ذاتي غير تشخيصية' })

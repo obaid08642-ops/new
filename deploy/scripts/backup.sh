@@ -18,7 +18,9 @@ SIZE=$(du -h "$FILE" | cut -f1)
 echo "[$(date)] local backup: $FILE ($SIZE)"
 
 # Upload to R2 (S3-compatible) when configured
-if [ -n "${S3_ENDPOINT:-}" ] && [ -n "${S3_BUCKET:-}" ] && [ -n "${S3_ACCESS_KEY_ID:-}" ]; then
+# Upload disabled 2026-10-08: S3_BUCKET is the PUBLIC CDN bucket (cdn.nabd.plus), so backups
+# uploaded there were downloadable by anyone. Re-enable only with a PRIVATE bucket + encryption.
+if [ "${BACKUP_UPLOAD_ENABLED:-0}" = 1 ] && [ -n "${S3_ENDPOINT:-}" ] && [ -n "${S3_BUCKET:-}" ] && [ -n "${S3_ACCESS_KEY_ID:-}" ]; then
   export AWS_ACCESS_KEY_ID="$S3_ACCESS_KEY_ID"
   export AWS_SECRET_ACCESS_KEY="$S3_SECRET_ACCESS_KEY"
   aws s3 cp "$FILE" "s3://${S3_BUCKET}/backups/$(basename "$FILE")" \

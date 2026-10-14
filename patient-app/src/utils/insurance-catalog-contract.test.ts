@@ -7,8 +7,8 @@ describe('Patient unified insurance catalog contract', () => {
 
   const consultations = read('app/(tabs)/consultations/index.tsx');
   const bookingConfirmation = read('src/components/BookingConfirmForm.tsx');
-  const insuranceUpload = read('app/diagnostics/insurance-upload.tsx');
-  const profileInsurance = read('app/profile/insurance.tsx');
+  const insuranceUpload = read('src/components/diagnostics/InsuranceUploadForm.tsx');
+  const profileInsurance = read('src/components/insurance/InsuranceHubView.tsx');
   const addPolicy = read('app/insurance/add-policy.tsx');
 
   it('uses the Backend catalog and company-specific networks in every company-selection flow', () => {
@@ -17,7 +17,7 @@ describe('Patient unified insurance catalog contract', () => {
     }
     expect(consultations).toContain('`/insurance/companies/${insCompany}/networks`');
     expect(insuranceUpload).toContain('`/insurance/companies/${selCompany}/networks`');
-    expect(profileInsurance).toContain('`/insurance/companies/${c.id || c.code}/networks`');
+    expect(profileInsurance).toContain('`/insurance/companies/${id}/networks`');
   });
 
   it('does not ship a static company or plan fallback in operational Patient screens', () => {
@@ -34,7 +34,7 @@ describe('Patient unified insurance catalog contract', () => {
   it('fails closed when a company-selection catalog cannot be loaded instead of substituting stale data', () => {
     expect(consultations).toContain('setInsuranceCatalogUnavailable(true)');
     expect(insuranceUpload).toContain('setInsuranceCatalogUnavailable(true)');
-    expect(bookingConfirmation).toContain("apiFetch<any>('/users/me/profile')");
+    expect(bookingConfirmation).toMatch(/apiFetch<[^(]*>\('\/users\/me\/profile'\)/);
     expect(bookingConfirmation).toContain('insuranceReady');
     expect(bookingConfirmation).not.toMatch(/coverage-check|copay_percent|\/insurance\/requests/);
   });

@@ -332,7 +332,7 @@ describe('handoff §3 — native controls (components 2/4) keep the web semantic
     const g = light.color.action.primary.gradient;
     expect(json).toMatch(svgColour(g.from));
     expect(json).toMatch(svgColour(g.to));
-    expect(json).toContain('"height":56');
+    expect(json).toContain('"minHeight":56'); // a 56 tall page CTA that grows when a long label wraps (translation rule: buttons grow with the text)
     expect(json).toContain('"borderRadius":18');
   });
 });

@@ -1,18 +1,20 @@
-import { Body, Controller, Post, Get, Param, Query, Req, UseGuards, UseInterceptors, UploadedFile, BadRequestException, ServiceUnavailableException } from '@nestjs/common';
+import { Body, Controller, Post, Get, Param, Query, Req, UseGuards, UseInterceptors, UploadedFile, BadRequestException, ServiceUnavailableException, Optional } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AiService } from './ai.service';
 import { AiGatewayService } from './ai-gateway.service';
 import { JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
-import { TriageDto, SkinAnalysisDto, SetModeDto, SetPurposeDto, VoiceDto, OcrDto, CopilotSuggestDto, OcrTranslateDto, MedicineImageSearchDto, BarcodeLookupDto, AnalyzeMealDto, GenerateExercisePlanDto, GenerateDietPlanDto, UpdateAiConfigDto, UpdateAiProviderDto} from './ai.dto';
+import { TriageDto, SetModeDto, SetPurposeDto, VoiceDto, OcrDto, CopilotSuggestDto, OcrTranslateDto, MedicineImageSearchDto, BarcodeLookupDto, AnalyzeMealDto, GenerateExercisePlanDto, GenerateDietPlanDto, UpdateAiConfigDto, UpdateAiProviderDto} from './ai.dto';
+import { AssistantDto } from './assistant.service';
+import { AssistantService } from './assistant.service';
 import { AiProviderName } from './ai-gateway.service';
 
 @Controller('ai')
 @SelfService()
 @UseGuards(JwtAuthGuard)
 export class AiController {
-  constructor(private svc: AiService, private gateway: AiGatewayService) {}
+  constructor(private svc: AiService, private gateway: AiGatewayService, @Optional() private assistantSvc?: AssistantService) {}
 
   @Get('config')
   @Roles(UserRole.ADMIN)
@@ -65,6 +67,15 @@ export class AiController {
   @Post('triage')
   triage(@Req() req: any, @Body() body: TriageDto) {
     return this.svc.triage(body, req.user?.id);
+  }
+
+  /** D-15: limited assistant — red flags, specialty routing, catalogue leaflets. Never a diagnosis. */
+  // Paid model behind it: 10 a minute by default (AI_ASSISTANT_RATE_PER_MIN overrides, e.g. the d-15 acceptance run).
+  @Throttle({ default: { limit: Number(process.env.AI_ASSISTANT_RATE_PER_MIN) || 10, ttl: 60000 } })
+  @Post('assistant')
+  assistant(@Req() req: any, @Body() body: AssistantDto) {
+    if (!this.assistantSvc) throw new ServiceUnavailableException('ai_assistant_unavailable');
+    return this.assistantSvc.assist(req.user?.id, body);
   }
 
   @Get('triage/history')
@@ -123,12 +134,6 @@ export class AiController {
   @Post('ocr-translate')
   ocrTranslate(@Body() body: OcrTranslateDto) {
     return this.svc.ocrTranslate(body.image_base64 || '', body.target_lang || 'ar');
-  }
-
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
-  @Post('skin-analysis')
-  skinAnalysis(@Req() req: any, @Body() body: SkinAnalysisDto) {
-    return this.svc.skinAnalysis(body, req.user?.id);
   }
 
   @Post('medicine-image-search')

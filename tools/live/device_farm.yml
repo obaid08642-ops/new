@@ -1,0 +1,48 @@
+# P15.10 device-farm matrix, per release (Firebase Test Lab).
+#
+# Provider choice: Firebase Test Lab. docs/review/NATIVE_CI_PROPOSAL.md already
+# narrows the field to "Firebase Test Lab or BrowserStack App Automate"; FTL is
+# picked because (a) it consumes the EAS-built APK/IPA directly with no test
+# code for the Android leg (Robo crawl), (b) it runs from CI with a service
+# account (`gcloud firebase test ...`), (c) it stocks low-end Android devices,
+# tablets and iPhones, and (d) per-run billing fits the per-release cadence.
+# Known gaps, stated plainly: FTL does NOT stock a Huawei without Google
+# services — that leg stays a physical-device manual pass per release; and
+# model IDs below are validated against the live catalog by run_device_farm.sh
+# before anything runs (a retired model fails the run loudly, never silently).
+#
+# Coverage asked by the plan: small + large phones, tablets, a low-end
+# Android (2-3 GB RAM), Huawei w/o GMS (manual — see above), iPhone SE and
+# Pro Max classes, dark mode, font scale 200% (largest), Arabic + English.
+# Locales/dark-mode/font-scale are Robo crawl dimensions, not separate runs.
+android:
+  app: null # APK path supplied at run time (--apk), built by EAS (needs an Expo account)
+  robo: true
+  timeout: 900s
+  locales: [ar_SA, en_US]
+  models:
+    # low-end Android, 2-3 GB RAM class
+    - { model: redfin, version: 30, locale: ar_SA, orientation: portrait }
+    # small phone
+    - { model: bluejay, version: 33, locale: ar_SA, orientation: portrait }
+    # large phone
+    - { model: panther, version: 33, locale: en_US, orientation: portrait }
+    # tablet
+    - { model: gts8uwifi, version: 33, locale: ar_SA, orientation: landscape }
+    # Samsung shell (Samsung Internet proxy host): Galaxy class
+    - { model: dm1q, version: 34, locale: ar_SA, orientation: portrait }
+ios:
+  app: null # IPA path supplied at run time (--ipa), built by EAS (needs an Expo account)
+  # iPhone SE class + Pro Max class; FTL iOS legs need a test bundle alongside
+  # the .ipa (robo is Android-only), so the iOS leg runs the same smoke via an
+  # XCUITest bundle when one exists — until then the runner executes the
+  # Android leg and reports iOS as BLOCKED with the exact pending command.
+  timeout: 900s
+  models:
+    - { model: iphone13pro, version: '16.6', locale: ar_SA, orientation: portrait }
+    - { model: iphone8, version: '16.6', locale: en_US, orientation: portrait }
+manual:
+  # Not stocked on any farm: must be signed off by hand per release.
+  - Huawei without Google services (push/maps fallback paths, 15.4 + 15.8)
+  - TalkBack (Android) + VoiceOver (iOS) pass in Arabic and English (17.8)
+  - font scale 200% + dark mode on the low-end Android above

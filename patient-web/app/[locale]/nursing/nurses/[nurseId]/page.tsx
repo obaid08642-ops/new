@@ -1,16 +1,19 @@
 import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ArrowLeft, ArrowRight, Award, Clock, MapPin, ShieldCheck, Star } from "lucide-react";
 import { getPublicNurse, extractNurse } from "@/lib/api/nursing-server";
 import { getPatientAddresses } from "@/lib/api/addresses-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { NursingBookingForm } from "@/components-next/nursing-booking-form";
-import { VectorNursing } from "@/components-next/vector-illustrations";
-import styles from "./nurse-detail.module.css";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { Facts, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
+import { ProfileHeader, type ProfileStat } from "@/components-next/consult/profile-header";
+import { NURSING } from "@/components-next/nursing/nursing-parts";
+import { money, pickText } from "@/components-next/diagnostics/diag-parts";
+import consult from "@/components-next/consult/consult.module.css";
 
 type Props = { params: Promise<{ locale: string; nurseId: string }> };
 
@@ -41,12 +44,12 @@ async function NursingBookingSection({
   locale: string;
   nurse: { id: string; services?: Array<{ id: string; name: string; name_ar?: string; name_en?: string; price?: number }> };
 }) {
-  const t = await getTranslations("NurseDetail");
+  const t = await getTranslations("NursingWeb");
   const services = (nurse.services || [])
     .filter((s) => s.id && s.name)
     .map((s) => ({
       id: s.id,
-      name: locale === "ar" ? s.name_ar || s.name : s.name_en || s.name,
+      name: pickText(locale, s.name_ar || s.name, s.name_en || s.name) ?? s.name,
       price: s.price,
     }));
   if (!services.length) return null;
@@ -71,131 +74,61 @@ async function NursingBookingSection({
     addresses = [];
   }
   return (
-    <section aria-label={t("requestNurse")}>
-      <h2>{t("requestNurse")}</h2>
+    <SectionCard id="nurse-request" title={t("requestNurse")}>
       <NursingBookingForm locale={locale} services={services} addresses={addresses} />
-    </section>
+    </SectionCard>
   );
 }
 
+/** One nurse (canvas/DoctorFull): who it is, the figures the server sent, what the nurse offers, and the booking form. Public: reads nothing of the visitor but the booking form's addresses, as before. */
 export default async function NurseDetailPage({ params }: Props) {
   const { locale, nurseId } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
 
-  const t = await getTranslations("NurseDetail");
+  const t = await getTranslations("NursingWeb");
   const response = await getPublicNurse(nurseId);
   if (!response || response.status === 404) notFound();
+  const back = `/${locale}/nursing/catalog`;
 
   if (!response.ok) {
     return (
-      <main className={`main ${styles.page}`}>
-        <section className={styles.state} role="alert">
-          <VectorNursing size={54} aria-hidden="true" />
-          <h1>{t("unavailableTitle")}</h1>
-          <p>{t("unavailableBody")}</p>
-          <Link href={`/${locale}/nursing/catalog`} className={styles.action}>
-            {t("retry")}
-          </Link>
-        </section>
-      </main>
+      <ConsultPage locale={locale} title={t("nurseTitle")} backHref={back}>
+        <ConsultState kind="error" title={t("nurseUnavailableTitle")} body={t("nurseUnavailableBody")} retryLabel={t("retry")} actionLabel={t("back")} actionHref={back} />
+      </ConsultPage>
     );
   }
 
   const nurse = extractNurse(await response.json().catch(() => null));
   if (!nurse) notFound();
 
-  const rtl = locale === "ar" || locale === "ur";
-  const Arrow = rtl ? ArrowLeft : ArrowRight;
+  const name = pickText(locale, nurse.name_ar || nurse.name, nurse.name_en || nurse.name) ?? nurse.name;
+  const specialty = pickText(locale, nurse.specialty_ar || nurse.specialty, nurse.specialty_en || nurse.specialty);
+  const stats: ProfileStat[] = [
+    ...(nurse.experience_years ? [{ value: new Intl.NumberFormat(locale, { style: "unit", unit: "year", unitDisplay: "long", maximumFractionDigits: 0 }).format(nurse.experience_years), label: t("experienceLabel") }] : []),
+    ...(typeof nurse.rating === "number" && nurse.rating > 0 ? [{ value: new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(nurse.rating), label: t("ratingLabel") }] : []),
+  ];
+  const serviceRows: FactRow[] = (nurse.services ?? []).map((svc) => ({
+    label: pickText(locale, svc.name_ar || svc.name, svc.name_en || svc.name) ?? svc.name,
+    value: [svc.price !== undefined ? money(locale, svc.price) : "", svc.duration ?? ""].filter(Boolean).join(" · "),
+    icon: NURSING.icon,
+    tone: NURSING.tone,
+  }));
 
   return (
-    <main className={`main ${styles.page}`}>
-      <Link href={`/${locale}/nursing/catalog`} className={styles.back}>
-        <Arrow size={17} aria-hidden="true" />
-        {t("back")}
-      </Link>
-
-      <article className={styles.detail}>
-        <div className={styles.profileHeader}>
-          <div className={styles.avatar}>
-            {nurse.avatar ? (
-              <img src={nurse.avatar} alt={nurse.name} className={styles.avatarImg} />
-            ) : (
-              <VectorNursing size={48} aria-hidden="true" />
-            )}
-          </div>
-          <div className={styles.mainInfo}>
-            <div className={styles.badgeRow}>
-              <span className={styles.verifiedBadge}>
-                <ShieldCheck size={14} aria-hidden="true" />
-                {t("verified")}
-              </span>
-              <span className={styles.ratingBadge}>
-                <Star size={14} fill="#F59E0B" color="#F59E0B" aria-hidden="true" />
-                <strong>{nurse.rating?.toFixed(1)}</strong>
-              </span>
-            </div>
-            <h1>{locale === "ar" ? nurse.name_ar || nurse.name : nurse.name_en || nurse.name}</h1>
-            <p className={styles.specialty}>{locale === "ar" ? nurse.specialty_ar || nurse.specialty : nurse.specialty_en || nurse.specialty}</p>
-            {nurse.city ? (
-              <p className={styles.location}>
-                <MapPin size={14} aria-hidden="true" />
-                <span>{nurse.city}</span>
-              </p>
-            ) : null}
-          </div>
-        </div>
-
-        <div className={styles.statsRow}>
-          <div className={styles.statCard}>
-            <Award size={20} aria-hidden="true" />
-            <strong>{nurse.experience_years} {t("years")}</strong>
-            <small>{t("experienceLabel")}</small>
-          </div>
-          <div className={styles.statCard}>
-            <Star size={20} fill="#F59E0B" color="#F59E0B" aria-hidden="true" />
-            <strong>{nurse.rating?.toFixed(1)}</strong>
-            <small>{t("ratingLabel")}</small>
-          </div>
-          <div className={styles.statCard}>
-            <Clock size={20} aria-hidden="true" />
-            <strong>24/7</strong>
-            <small>{t("homeCareLabel")}</small>
-          </div>
-        </div>
-
-        <section className={styles.section}>
-          <h2>{t("aboutTitle")}</h2>
-          <p className={styles.aboutText}>{nurse.bio || t("defaultBio")}</p>
-        </section>
-
-        {nurse.services && nurse.services.length > 0 ? (
-          <section className={styles.section}>
-            <h2>{t("servicesTitle")}</h2>
-            <div className={styles.serviceList}>
-              {nurse.services.map((svc) => (
-                <div key={svc.id} className={styles.serviceItem}>
-                  <div>
-                    <strong>{locale === "ar" ? svc.name_ar || svc.name : svc.name_en || svc.name}</strong>
-                    {svc.duration ? <small>{svc.duration}</small> : null}
-                  </div>
-                  {svc.price !== undefined ? (
-                    <span className={styles.price}>{t("price", { value: svc.price })}</span>
-                  ) : null}
-                </div>
-              ))}
-            </div>
-          </section>
-        ) : null}
-
-        <div className={styles.actionRow}>
-          <Link href={`/${locale}/nursing/booking`} className={styles.bookButton}>
-            {t("requestNurse")}
-          </Link>
-        </div>
-
-        <NursingBookingSection locale={locale} nurse={nurse} />
-      </article>
-    </main>
+    <ConsultPage locale={locale} title={name} backHref={back}>
+      <ProfileHeader icon="user-circle" tone={NURSING.tone} line={[specialty, nurse.city].filter(Boolean).join(" · ") || undefined} stats={stats} />
+      {nurse.bio ? (
+        <SectionCard id="nurse-about" title={t("aboutTitle")}>
+          <p className={consult.body}>{nurse.bio}</p>
+        </SectionCard>
+      ) : null}
+      {serviceRows.length > 0 ? (
+        <SectionCard id="nurse-services" title={t("nurseServicesTitle")}>
+          <Facts rows={serviceRows} label={t("nurseServicesTitle")} />
+        </SectionCard>
+      ) : null}
+      <NursingBookingSection locale={locale} nurse={nurse} />
+    </ConsultPage>
   );
 }

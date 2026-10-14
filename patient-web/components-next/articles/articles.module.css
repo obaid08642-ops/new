@@ -1,0 +1,12 @@
+/* Health articles (Batch 10): the search field, the category chips and the rows. Tokens only, no inline style (CSP). */
+.search { display: flex; align-items: center; gap: var(--nabd-space-sm); padding: var(--nabd-space-xs); padding-inline-start: var(--nabd-space-md); background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-xl); min-inline-size: 0; }
+.search:focus-within { border-color: var(--nabd-color-text-primary); }
+.search input { flex: 1; min-inline-size: 0; min-block-size: 44px; border: 0; outline: 0; background: transparent; color: var(--nabd-color-text-primary); font: inherit; font-size: var(--nabd-font-size-body); }
+.search input::placeholder { color: var(--nabd-color-text-secondary); }
+.chips { display: flex; flex-wrap: wrap; gap: var(--nabd-space-sm); }
+.chip { display: inline-flex; align-items: center; min-block-size: 44px; padding-inline: var(--nabd-space-md); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-pill); background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-segment); text-decoration: none; overflow-wrap: anywhere; }
+.chip[aria-current="true"] { background: var(--nabd-color-action-selected-bg); border-color: var(--nabd-color-action-selected-bg); color: var(--nabd-color-action-selected-fg); font-weight: 700; }
+.chip:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.meta { margin: 0; color: var(--nabd-color-text-secondary); font-size: var(--nabd-font-size-label); overflow-wrap: anywhere; }
+.pill { align-self: flex-start; padding: 2px var(--nabd-space-sm); border-radius: var(--nabd-radius-pill); background: var(--nabd-color-status-info-bg); color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-caption); font-weight: 700; }
+.summary { margin: 0; color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-control); line-height: 1.7; overflow-wrap: anywhere; white-space: pre-line; }

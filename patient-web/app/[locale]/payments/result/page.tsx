@@ -1,54 +1,43 @@
-import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { callPatientApi } from "@/lib/api/upstream";
+import { PaymentResult } from "@/components-next/pharmacy-checkout/payment-result";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
-import { VectorInsurance } from "@/components-next/vector-illustrations";
-import styles from "./payment-result.module.css";
 
-type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ status?: string; ref?: string; id?: string }> };
+type Query = { ref?: string | string[]; id?: string | string[]; orderId?: string | string[]; status?: string | string[] };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Query> };
+const REFERENCE = /^[A-Za-z0-9_-]{1,128}$/;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const first = (value: string | string[] | undefined) => ((Array.isArray(value) ? value[0] : value) ?? "").trim();
 
+export async function generateMetadata({ params }: Pick<Props, "params">) {
+  const { locale } = await params;
+  if (!isLocale(locale)) return {};
+  const t = await getTranslations({ locale, namespace: "Payments" });
+  return { title: t("pageTitle") };
+}
+
+/**
+ * Where the payment provider (or our own links) sends the patient after paying. The address only says WHICH payment:
+ * `?ref=` is our transaction reference, `?id=` is the provider's payment id, `?orderId=` the pharmacy order. The
+ * `?status=` the provider appends is never read: whether the payment succeeded is what the backend says, asked by the screen.
+ */
 export default async function PaymentResultPage({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
-  // Moyasar returns ?id=pay_…&status=…; our own links use ?ref=. The query status is never proof of payment.
-  const { status = "processing", ref: refParam = "", id: gatewayId = "" } = await searchParams;
-  const ref = refParam || gatewayId;
-  const t = await getTranslations("Payments");
-  const token = await requirePatientAccess(locale);
-
-  let verified: string | null = null;
-  if (ref && /^[A-Za-z0-9_-]{1,128}$/.test(ref)) {
-    const res = await callPatientApi(`/payments/status/${encodeURIComponent(ref)}`, {}, token);
-    if (res.status === 401) redirect(`/${locale}/login`);
-    if (res.ok) {
-      const data = await res.json().catch(() => null);
-      const s = data?.data?.status ?? data?.status;
-      if (typeof s === "string") verified = s.toLowerCase();
-    }
-  }
-  // R70: success is shown only after the server verified the payment. Without verification an address with
-  // ?status=paid used to show "payment confirmed and linked to your order" (even for an unknown payment id).
-  const finalStatus = verified ?? (["failed", "failure", "declined", "cancelled"].includes(status) ? status : "processing");
-  const ok = ["success", "paid", "completed", "succeeded"].includes(finalStatus);
-  const failed = ["failed", "failure", "declined", "cancelled"].includes(finalStatus);
-
-  return <main className={`main ${styles.page}`}>
-    <section className={styles.card}>
-      <VectorInsurance size={48} aria-hidden="true" />
-      {ok ? <CheckCircle2 size={48} className={styles.ok} aria-hidden="true" />
-        : failed ? <XCircle size={48} className={styles.fail} aria-hidden="true" />
-        : <Loader2 size={48} className={styles.pending} aria-hidden="true" />}
-      <h1>{ok ? t("successTitle") : failed ? t("failedTitle") : t("processingTitle")}</h1>
-      <p>{ok ? t("successBody") : failed ? t("failedBody") : t("processingBody")}</p>
-      {ref ? <p className={styles.ref}>{t("reference")}: {ref}</p> : null}
-      <div className={styles.actions}>
-        {failed ? <Link className={styles.primary} href={`/${locale}/cart/checkout`}>{t("retry")}</Link> : null}
-        <Link className={ok ? styles.primary : styles.secondary} href={`/${locale}/orders`}>{t("myOrders")}</Link>
-      </div>
-    </section>
-  </main>;
+  const query = await searchParams;
+  await requirePatientAccess(locale);
+  const ref = first(query.ref);
+  const gatewayId = first(query.id);
+  const orderId = first(query.orderId);
+  const reference = [ref, gatewayId].find((value) => REFERENCE.test(value));
+  return (
+    <PaymentResult
+      locale={locale}
+      reference={reference}
+      transactionId={UUID.test(ref) ? ref : undefined}
+      orderId={UUID.test(orderId) ? orderId : undefined}
+    />
+  );
 }

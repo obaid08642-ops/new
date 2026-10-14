@@ -14,6 +14,8 @@ describe("llms.txt route", () => {
     expect(body).toContain("[Arabic articles](/ar/articles)");
     expect(body).toContain("[English articles](/en/articles)");
     expect(body).toContain("Patient records");
+    expect(body).toContain("## Features");
+    expect(body).toContain("[Pregnancy](/ar/features/pregnancy)");
     expect(body).not.toContain("accessToken");
   });
 });

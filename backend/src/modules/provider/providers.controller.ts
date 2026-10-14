@@ -39,8 +39,8 @@ export class ProvidersController {
 
   @Public()
   @Get(':id')
-  one(@Param('id') id: string) {
-    return this.svc.getPublicById(id);
+  one(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.svc.getPublicById(id, user?.id);
   }
 
   /** My own provider profile */

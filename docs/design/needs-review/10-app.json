@@ -1,0 +1,32 @@
+[
+  {
+    "batch": 10,
+    "app": "patient-app",
+    "screen": "/articles/[slug]",
+    "element": "Author link and Book button",
+    "file": "patient-app/src/components/articles/ArticlesViews.tsx",
+    "line": 212,
+    "found": "[backend] The article has author_name and author_title only, no doctor id, so the author cannot link to the doctor profile or to booking (decision 1: the author's name links to the profile and to booking). Add the doctor id to the article answer; the screen draws the link then. (backend: backend/src/schemas/article.schema.ts:21)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 10,
+    "app": "patient-app",
+    "screen": "/articles",
+    "element": "Search results of type community",
+    "file": "patient-app/src/utils/searchResults.ts",
+    "line": 70,
+    "found": "[backend] The home search still returns community posts (type 'مجتمع'); the app no longer has a section or a route for them, so they are not drawn. Remove them from the search answer when the community module is deleted. (backend: backend/src/modules/home/home.service.ts:249)",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 10,
+    "app": "patient-app",
+    "screen": "/community/post-detail",
+    "element": "Community reply notification",
+    "file": "patient-app/src/hooks/usePushNotifications.ts",
+    "line": 68,
+    "found": "[backend] The backend still sends community.comment_added notifications with the route /community/post-detail; the app opens the articles for it. Remove the listener with the community module. (backend: backend/src/modules/notifications/notifications.service.ts:1046)",
+    "suspect": "Backend gap: reviewer session."
+  }
+]

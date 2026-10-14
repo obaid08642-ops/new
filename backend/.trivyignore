@@ -1,0 +1,43 @@
+# Trivy baseline — Phase 16.7
+#
+# These are PRE-EXISTING high advisories in direct dependencies that cannot be
+# cleared without a MAJOR upgrade. They are listed here so the Trivy gate
+# blocks NEW findings instead of failing forever on known debt.
+#
+#   nodemailer  9.1.1 -> 10.x   (breaking; the mail module was rewritten in 21.4)
+#   fastify     5.12.5         (npm reports no 5.x fix at all for these)
+#
+# Two more were NOT baselined, because they had non-breaking fixes and are
+# fixed in the lockfile by this branch:
+#
+#   @nestjs/platform-fastify  11.2.1 -> 11.2.7  (GHSA-9c5c-9qcx-q35q, a
+#       path-scoped middleware bypass — an auth bypass)
+#   sharp  0.35.2 -> 0.35.5                    (GHSA-wq5f-xc86-pv6w / CVE-2026-96889,
+#       the librsvg CVE)
+#
+# Trivy reports some of these by CVE and some by GHSA depending on the advisory
+# source, so both spellings are listed.
+#
+# Re-baseline each of these the day its upgrade merges, and delete the lines.
+# Reviewed 2026-10-12.
+
+# nodemailer — needs 10.x
+CVE-2026-90776
+GHSA-6vj9-mwq6-2f5v
+GHSA-8vvx-rff5-p5rq
+GHSA-g57g-f23g-4646
+GHSA-v53p-9fqp-m79j
+GHSA-prgh-xp8r-p3m5
+
+# fastify — no 5.x fix published
+CVE-2026-76169
+CVE-2026-84428
+CVE-2026-84469
+CVE-2026-84504
+GHSA-w2qp-rph6-63g4
+GHSA-3m5p-2c4r-xxw2
+GHSA-4mh8-r7rc-xpvc
+GHSA-667r-xxjv-c9mm
+GHSA-p68q-wchp-6fh7
+GHSA-hwr6-493r-vm6h
+GHSA-9q9j-q6p8-xq58

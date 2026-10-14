@@ -8,6 +8,7 @@ import { NotificationTemplate, NotificationTemplateDocument, TEMPLATE_LANGS } fr
 import { InjectModel } from '@nestjs/mongoose';
 import { NotificationPriority, NotificationType } from '../../common/enums';
 import { EVENTS } from '../../common/events';
+import { resolveNotificationTarget } from './notification-target';
 import { NotificationRepository } from "./repositories/notification.repository";
 import { initializeApp, getApps, cert } from 'firebase-admin';
 import { getMessaging } from 'firebase-admin/messaging';
@@ -140,7 +141,8 @@ export class NotificationsService {
       } catch { /* fail open — deliver anyway */ }
     }
     // R6-3: resolve the admin template (or built-in text) once per delivery.
-    let lang = 'ar';
+    // 18.2: no stored locale means no Arabic. English is the specified last resort.
+    let lang = 'en';
     try {
       if (n.user_id) {
         const u: any = await this.model.db.model('User').findOne({ id: n.user_id }, { lang: 1 }).lean();
@@ -398,20 +400,36 @@ export class NotificationsService {
     }
   }
 
-  async listForUser(user: any) {
+  /**
+   * #417/#443: the texts come in the language the app or web asked for (`?lang=`, else Accept-Language). The token
+   * carries no language, so the old `user.lang` was always Arabic. ar and ur have their own texts; every other
+   * language gets English.
+   */
+  static listLang(requested?: string, acceptLanguage?: string): 'ar' | 'en' | 'ur' {
+    const first = String(requested || acceptLanguage || '').split(',')[0].trim().toLowerCase().slice(0, 2);
+    if (first === 'ar' || first === 'ur') return first;
+    return first ? 'en' : 'ar';
+  }
+
+  async listForUser(user: any, lang: 'ar' | 'en' | 'ur' = 'ar') {
     const rows: any[] = await this.model.find(
       { $or: [{ user_id: user.id }, { role: user.role }, { role: 'all' }] },
       { _id: 0, __v: 0 },
     ).sort({ createdAt: -1 }).limit(200);
     // Resolve i18n keys to readable text; creators that stored plain Arabic pass through unchanged
-    const lang = (user?.lang as any) || 'ar';
     return rows.map((r: any) => {
       const o = typeof r.toObject === 'function' ? r.toObject() : r;
+      // read_by of a role-wide notice holds other accounts' ids: never sent back, only this user's `read`.
+      const { read_by, ...rest } = o;
+      // 446: platform-neutral target (kind + id) and web path next to the app route.
+      const target = resolveNotificationTarget((o as any)?.action?.route);
       return {
-        ...o,
+        ...rest,
         title: this.i18n.t(o.title_key, lang, o.params),
         body: this.i18n.t(o.body_key, lang, o.params),
-        read: Array.isArray(o.read_by) ? o.read_by.includes(user.id) : false,
+        read: Array.isArray(read_by) ? read_by.includes(user.id) : false,
+        target,
+        web_path: target?.web_path ?? null,
       };
     });
   }
@@ -664,7 +682,7 @@ export class NotificationsService {
   }
   @OnEvent('report.ready')
   async onReportReady(p: any) {
-    if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.report_ready.title', body_key: 'notif.report_ready.body', type: NotificationType.INFO, action: { route: `/reports/${p.report_id}` } });
+    if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.report_ready.title', body_key: 'notif.report_ready.body', type: NotificationType.LABS, action: { route: `/reports/${p.report_id}` } });
   }
   @OnEvent('refund.requested')
   async onRefundRequested(p: any) {
@@ -674,46 +692,69 @@ export class NotificationsService {
   async onRefundDecided(p: any) {
     if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.refund_decided.title', body_key: 'notif.refund_decided.body', type: NotificationType.INFO, priority: NotificationPriority.HIGH });
   }
+  /** #939: the provider app's bell reads provider_notifications, so the admin's decision is written there too. */
+  private async providerDecisionBell(providerAccountId: string, key: string) {
+    await this.notifyProviderAccount(providerAccountId, {
+      type: 'kyc_update',
+      title_ar: this.i18n.t(`notif.${key}.title`, 'ar'), title_en: this.i18n.t(`notif.${key}.title`, 'en'),
+      body_ar: this.i18n.t(`notif.${key}.body`, 'ar'), body_en: this.i18n.t(`notif.${key}.body`, 'en'),
+    }).catch(() => null);
+  }
   @OnEvent('provider.approved')
   async onProviderApproved(p: any) {
     if (p.provider_id) await this.create({ user_id: p.provider_id, title_key: 'notif.provider_approved.title', body_key: 'notif.provider_approved.body', type: NotificationType.INFO, priority: NotificationPriority.HIGH });
+    if (p.provider_id) await this.providerDecisionBell(p.provider_id, 'provider_approved');
+  }
+  @OnEvent('provider.rejected')
+  async onProviderRejected(p: any) {
+    if (p.provider_id) await this.create({ user_id: p.provider_id, title_key: 'notif.provider_rejected.title', body_key: 'notif.provider_rejected.body', type: NotificationType.INFO, priority: NotificationPriority.HIGH });
+    if (p.provider_id) await this.providerDecisionBell(p.provider_id, 'provider_rejected');
+  }
+  @OnEvent('provider.changes_requested')
+  async onProviderChangesRequested(p: any) {
+    if (p.provider_id) await this.create({ user_id: p.provider_id, title_key: 'notif.provider_changes_requested.title', body_key: 'notif.provider_changes_requested.body', type: NotificationType.INFO, priority: NotificationPriority.HIGH });
+    if (p.provider_id) await this.providerDecisionBell(p.provider_id, 'provider_changes_requested');
+  }
+  // B-4 (#940): per-document licence decisions reach the provider too.
+  @OnEvent('provider.document_reviewed')
+  async onProviderDocumentReviewed(p: any) {
+    if (!p.provider_id) return;
+    const key = p.decision === 'approve' ? 'provider_document_approved' : 'provider_document_rejected';
+    await this.create({ user_id: p.provider_id, title_key: `notif.${key}.title`, body_key: `notif.${key}.body`, params: { doc_type: p.doc_type || '' }, type: NotificationType.INFO, priority: NotificationPriority.HIGH });
+    await this.providerDecisionBell(p.provider_id, key);
   }
   @OnEvent('emergency.resolved')
   async onEmergencyResolved(p: any) {
     if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.emergency_resolved.title', body_key: 'notif.emergency_resolved.body', type: NotificationType.INFO });
-  }
-  @OnEvent('medication.missed')
-  async onMedicationMissed(p: any) {
-    if (p.user_id) await this.create({ user_id: p.user_id, title_key: 'notif.medication_missed.title', body_key: 'notif.medication_missed.body', type: NotificationType.MEDICATION, priority: NotificationPriority.HIGH });
   }
   // ============ APPOINTMENT Lifecycle (EventBus payload shape: patient_account_id) ============
   @OnEvent('doctor_appointment.created')
   async onApptCreated(p: any) {
     const uid = p.patient_account_id || p.patient_id;
     if (!uid) return;
-    await this.create({ user_id: uid, title_key: 'notif.appt_created.title', body_key: 'notif.appt_created.body', type: NotificationType.INFO, action: { route: `/consultations/appointments` } });
+    await this.create({ user_id: uid, title_key: 'notif.appt_created.title', body_key: 'notif.appt_created.body', type: NotificationType.APPOINTMENT, action: { route: `/consultations/appointments` } });
     // Notify the doctor about the new booking
     if (p.meta?.doctor_id) {
-      await this.create({ user_id: p.meta.doctor_id, title_key: 'notif.appt_new_for_doctor.title', body_key: 'notif.appt_new_for_doctor.body', type: NotificationType.INFO, priority: NotificationPriority.HIGH });
+      await this.create({ user_id: p.meta.doctor_id, title_key: 'notif.appt_new_for_doctor.title', body_key: 'notif.appt_new_for_doctor.body', type: NotificationType.APPOINTMENT, priority: NotificationPriority.HIGH });
     }
   }
   @OnEvent('doctor_appointment.confirmed')
   async onApptConfirmed(p: any) {
     const uid = p.patient_account_id || p.patient_id;
     if (!uid) return;
-    await this.create({ user_id: uid, title_key: 'notif.appt_confirmed.title', body_key: 'notif.appt_confirmed.body', type: NotificationType.INFO, priority: NotificationPriority.HIGH, action: { route: `/consultations/appointments` } });
+    await this.create({ user_id: uid, title_key: 'notif.appt_confirmed.title', body_key: 'notif.appt_confirmed.body', type: NotificationType.APPOINTMENT, priority: NotificationPriority.HIGH, action: { route: `/consultations/appointments` } });
   }
   @OnEvent('doctor_appointment.cancelled')
   async onApptCancelled(p: any) {
     const uid = p.patient_account_id || p.patient_id;
     if (!uid) return;
-    await this.create({ user_id: uid, title_key: 'notif.appt_cancelled.title', body_key: 'notif.appt_cancelled.body', type: NotificationType.INFO, priority: NotificationPriority.HIGH });
+    await this.create({ user_id: uid, title_key: 'notif.appt_cancelled.title', body_key: 'notif.appt_cancelled.body', type: NotificationType.APPOINTMENT, priority: NotificationPriority.HIGH });
   }
   @OnEvent('doctor_appointment.completed')
   async onApptCompleted(p: any) {
     const uid = p.patient_account_id || p.patient_id;
     if (!uid) return;
-    await this.create({ user_id: uid, title_key: 'notif.appt_completed.title', body_key: 'notif.appt_completed.body', type: NotificationType.INFO, action: { route: `/consultations/appointments` } });
+    await this.create({ user_id: uid, title_key: 'notif.appt_completed.title', body_key: 'notif.appt_completed.body', type: NotificationType.APPOINTMENT, action: { route: `/consultations/appointments` } });
   }
 
   // ============ HOME NURSING Lifecycle ============
@@ -787,7 +828,24 @@ export class NotificationsService {
   }
   @OnEvent('medication.missed')
   async onMissed(p: any) {
-    if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.medication_missed.title', body_key: 'notif.medication_missed.body', type: NotificationType.MEDICATION, priority: NotificationPriority.HIGH });
+    if (!p.patient_id) return;
+    await this.create({ user_id: p.patient_id, title_key: 'notif.medication_missed.title', body_key: 'notif.medication_missed.body', type: NotificationType.MEDICATION, priority: NotificationPriority.HIGH });
+    // #1078: family members who may see this patient's medicines (the group owner, or a member granted meds / view_health).
+    const group: any = await this.model.db.collection('family_groups').findOne(
+      { is_deleted: { $ne: true }, $or: [{ owner_id: p.patient_id }, { 'members.user_id': p.patient_id }] },
+      { projection: { _id: 0, owner_id: 1, members: 1 } },
+    ).catch(() => null);
+    if (!group) return;
+    const members: any[] = Array.isArray(group.members) ? group.members : [];
+    const name = members.find((m) => m?.user_id === p.patient_id)?.display_name || '';
+    const recipients = new Set<string>();
+    if (group.owner_id && group.owner_id !== p.patient_id) recipients.add(group.owner_id);
+    for (const m of members) {
+      if (m?.user_id && m.user_id !== p.patient_id && Array.isArray(m.permissions) && (m.permissions.includes('meds') || m.permissions.includes('view_health'))) recipients.add(m.user_id);
+    }
+    for (const uid of recipients) {
+      await this.create({ user_id: uid, title_key: 'notif.family_medication_missed.title', body_key: 'notif.family_medication_missed.body', params: { name }, type: NotificationType.MEDICATION, priority: NotificationPriority.HIGH, action: { route: '/family' } }).catch(() => null);
+    }
   }
 
   // ============ LAB Lifecycle ============
@@ -798,7 +856,7 @@ export class NotificationsService {
       user_id: p.patient_id,
       title_key: 'notif.lab_booking_created.title',
       body_key: 'notif.lab_booking_created.body',
-      params: { tracking_id: p.tracking_id },
+      params: { tracking_id: p.tracking_id, result_id: p.result_id },
       type: NotificationType.INFO,
       action: { route: `/labs/booking/view/${p.booking_id}` },
     });
@@ -828,7 +886,7 @@ export class NotificationsService {
     if (!tk) return;
     await this.create({
       user_id: p.patient_id, title_key: tk, body_key: bk,
-      params: { tracking_id: p.tracking_id },
+      params: { tracking_id: p.tracking_id, result_id: p.result_id },
       type: NotificationType.INFO,
       priority: p.state === 'RESULT_READY' || p.state === 'REPORTED' ? NotificationPriority.HIGH : NotificationPriority.NORMAL,
       action: { route: `/labs/booking/view/${p.booking_id}` },
@@ -841,7 +899,7 @@ export class NotificationsService {
       user_id: p.patient_id,
       title_key: 'notif.lab_result_ready.title',
       body_key: 'notif.lab_result_ready.body',
-      params: { tracking_id: p.tracking_id },
+      params: { tracking_id: p.tracking_id, result_id: p.result_id },
       type: NotificationType.INFO,
       priority: NotificationPriority.HIGH,
       action: { route: `/labs/bookings/${p.booking_id}` },
@@ -855,10 +913,10 @@ export class NotificationsService {
       user_id: p.patient_id,
       title_key: p.critical ? 'notif.lab_result_critical.title' : 'notif.lab_result_ready.title',
       body_key: p.critical ? 'notif.lab_result_critical.body' : 'notif.lab_result_ready.body',
-      params: { tracking_id: p.tracking_id },
+      params: { tracking_id: p.tracking_id, result_id: p.result_id },
       type: NotificationType.INFO,
       priority: p.critical ? NotificationPriority.CRITICAL : NotificationPriority.HIGH,
-      action: { route: `/health/results/${p.result_id}` },
+      action: { route: `/health/results/${p.result_id}`, payload: { result_id: p.result_id, discuss: { route: '/consultations/book' } }, discuss: { route: '/consultations/book' } },
     });
   }
 
@@ -870,7 +928,7 @@ export class NotificationsService {
       user_id: p.patient_id,
       title_key: 'notif.radiology_booking_created.title',
       body_key: 'notif.radiology_booking_created.body',
-      params: { tracking_id: p.tracking_id },
+      params: { tracking_id: p.tracking_id, result_id: p.result_id },
       type: NotificationType.INFO,
       action: { route: `/radiology/booking/view/${p.booking_id}` },
     });
@@ -898,7 +956,7 @@ export class NotificationsService {
     if (!tk) return;
     await this.create({
       user_id: p.patient_id, title_key: tk, body_key: bk,
-      params: { tracking_id: p.tracking_id },
+      params: { tracking_id: p.tracking_id, result_id: p.result_id },
       type: NotificationType.INFO,
       priority: p.state === 'REPORT_PUBLISHED' ? NotificationPriority.HIGH : NotificationPriority.NORMAL,
       action: { route: `/radiology/booking/view/${p.booking_id}` },
@@ -913,7 +971,7 @@ export class NotificationsService {
       body_key: p.critical ? 'notif.radiology_report_critical.body' : 'notif.radiology_report_published.body',
       type: NotificationType.INFO,
       priority: p.critical ? NotificationPriority.CRITICAL : NotificationPriority.HIGH,
-      action: { route: `/health/results/${p.result_id}` },
+      action: { route: `/health/results/${p.result_id}`, payload: { result_id: p.result_id }, discuss: { route: '/consultations/book' } },
     });
   }
 
@@ -925,7 +983,7 @@ export class NotificationsService {
       user_id: p.patient_id,
       title_key: p.critical ? 'notif.medical_report_critical.title' : 'notif.medical_report_new.title',
       body_key: p.critical ? 'notif.medical_report_critical.body' : 'notif.medical_report_new.body',
-      params: { tracking_id: p.tracking_id },
+      params: { tracking_id: p.tracking_id, result_id: p.result_id },
       type: NotificationType.INFO,
       priority: p.critical ? NotificationPriority.CRITICAL : NotificationPriority.HIGH,
       action: { route: `/health/reports/${p.id}` },
@@ -1034,19 +1092,6 @@ export class NotificationsService {
     // in the loyalty hub; push-spamming every +10 would be terrible UX.
   }
 
-  // ============ EPIC4/S20: Community scenarios ============
-  @OnEvent('community.comment_added')
-  async onCommunityComment(p: any) {
-    if (!p?.post_author_id) return;
-    await this.create({
-      user_id: p.post_author_id,
-      title_key: 'notif.community_reply.title',
-      body_key: 'notif.community_reply.body',
-      type: NotificationType.INFO,
-      action: { route: `/community/post-detail?id=${p.post_id}` },
-    });
-  }
-
   // ============ EPIC4/S20: AI scenarios ============
   @OnEvent('ai.triage_completed')
   async onAiTriageCompleted(p: any) {
@@ -1066,7 +1111,9 @@ export class NotificationsService {
   @OnEvent('insurance.decided')
   async onInsuranceDecided(p: any) {
     if (!p?.patient_id) return;
-    const approved = ['approved', 'partially_approved', 'partial_approval', 'APPROVED'].includes(p.state);
+    // D-37: the request states are APPROVED_FULL / COPAY_PENDING / REJECTED (insurance-engine decide());
+    // an approval must never be announced as a rejection, and the note opens the request itself.
+    const approved = ['APPROVED_FULL', 'COPAY_PENDING', 'approved', 'partially_approved', 'partial_approval', 'APPROVED'].includes(p.state);
     await this.create({
       user_id: p.patient_id,
       title_key: approved ? 'notif.insurance_approved.title' : 'notif.insurance_rejected.title',
@@ -1074,7 +1121,7 @@ export class NotificationsService {
       params: approved && p.copay_amount != null ? { amount: p.copay_amount } : {},
       type: NotificationType.INFO,
       priority: NotificationPriority.HIGH,
-      action: { route: '/insurance/hub' },
+      action: p.request_id ? { route: `/insurance/requests/${p.request_id}`, kind: 'insurance_request', id: p.request_id } : { route: '/insurance/hub' },
     });
   }
 

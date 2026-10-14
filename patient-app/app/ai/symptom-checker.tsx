@@ -1,6 +1,8 @@
-import { Redirect } from 'expo-router';
+import React from 'react';
 
-/** The legacy symptom checker inferred conditions and treatment-oriented tips; use the structured guided triage flow instead. */
-export default function SymptomCheckerRedirect() {
-  return <Redirect href="/ai/triage" />;
+import { RedirectKeepingParams } from '../../src/components/health/RedirectKeepingParams';
+
+/** Old route (merge map section 4, Batch 9): the symptom checker is the symptoms mode of the assistant. */
+export default function AppAiSymptomCheckerRedirect() {
+  return <RedirectKeepingParams to="/ai" params={{ mode: 'symptoms' }} />;
 }

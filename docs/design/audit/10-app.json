@@ -1,0 +1,39 @@
+{
+  "slice": "10-app", "batch": 10, "app": "patient-app",
+  "screens": [
+    { "route": "/articles", "elements": [
+      ["Tabs All / Saved (?tab=)", "route query", "ok"],
+      ["Search field", "GET /articles?q= (user input, debounced)", "ok"],
+      ["Category chips (?category=)", "GET /articles/categories; GET /articles?category=", "ok"],
+      ["Article cards: cover, category, title, excerpt, author name, views, date", "GET /articles title_ar/en, excerpt_ar/en, cover_image, category, author_name, views, published_at", "ok"],
+      ["Saved list and its empty state with Browse button", "GET /articles/bookmarks/mine", "ok"],
+      ["Loading, error with retry, offline", "shared Gate states", "ok"],
+      ["Old bookmarks header button", "replaced by the Saved tab", "fixed"],
+      ["Author link to the doctor profile and Book link", "no doctor id on the article", "hidden"]
+    ] },
+    { "route": "/articles/[slug]", "elements": [
+      ["Cover, category, title, date, views, body, tags", "GET /articles/:slug", "ok"],
+      ["Author name and title (text)", "GET /articles/:slug author_name, author_title", "ok"],
+      ["Author link to the doctor profile, Book button", "no doctor id on the article", "hidden"],
+      ["Bookmark button (state and toggle)", "GET /articles/bookmarks/:slug/status; POST /articles/bookmarks/:slug/toggle", "ok"],
+      ["Share button", "native share sheet", "ok"],
+      ["Related articles", "GET /articles?category=&limit=4", "ok"],
+      ["All articles button", "static link to /articles", "ok"],
+      ["Comments", "removed (owner decision 1): no UI", "hidden"]
+    ] },
+    { "route": "/articles/bookmarks", "elements": [
+      ["Redirect to /articles?tab=saved (query kept)", "RedirectKeepingParams", "ok"]
+    ] },
+    { "route": "/community/hub", "elements": [
+      ["Screen, posts, composer, API calls, translations", "removed (owner decision 1); the route redirects to /articles", "fixed"]
+    ] },
+    { "route": "/community/post-detail", "elements": [
+      ["Screen, post, comments, votes, API calls, translations", "removed (owner decision 1); the route redirects to /articles", "fixed"]
+    ] }
+  ],
+  "needsReview": [
+    { "route": "/articles/[slug]", "element": "Author link and Book button", "kind": "backend", "note": "The article has author_name and author_title only, no doctor id, so the author cannot link to the doctor profile or to booking (decision 1: the author's name links to the profile and to booking). Add the doctor id to the article answer; the screen draws the link then.", "file": "patient-app/src/components/articles/ArticlesViews.tsx", "line": 212, "backend": "backend/src/schemas/article.schema.ts:21" },
+    { "route": "/articles", "element": "Search results of type community", "kind": "backend", "note": "The home search still returns community posts (type 'مجتمع'); the app no longer has a section or a route for them, so they are not drawn. Remove them from the search answer when the community module is deleted.", "file": "patient-app/src/utils/searchResults.ts", "line": 70, "backend": "backend/src/modules/home/home.service.ts:249" },
+    { "route": "/community/post-detail", "element": "Community reply notification", "kind": "backend", "note": "The backend still sends community.comment_added notifications with the route /community/post-detail; the app opens the articles for it. Remove the listener with the community module.", "file": "patient-app/src/hooks/usePushNotifications.ts", "line": 68, "backend": "backend/src/modules/notifications/notifications.service.ts:1046" }
+  ]
+}

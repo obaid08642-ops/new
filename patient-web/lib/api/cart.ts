@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const lineIdSchema = z.string().min(1).max(200);
 
-export type PatientCartLine = { lineId: string; kind: string; serviceId: string; name?: string; quantity?: number; price?: number; paymentMethod?: string; homeVisit?: boolean };
+export type PatientCartLine = { lineId: string; kind: string; serviceId: string; name?: string; nameEn?: string; quantity?: number; price?: number; paymentMethod?: string; homeVisit?: boolean };
 export type PatientCartSummary = { groups: Array<{ kind: string; count?: number; subtotal?: number; items: PatientCartLine[] }>; subtotal?: number; homeVisitFee?: number; total?: number; currency?: string };
 
 function record(value: unknown): Record<string, unknown> | null { return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null; }
@@ -24,7 +24,7 @@ export function extractCartSummary(payload: unknown): PatientCartSummary | null 
       const lineId = stringField(item, ["line_id", "lineId"]);
       const serviceId = stringField(item, ["service_id", "serviceId"]);
       if (!lineId || !serviceId) return [];
-      return [{ lineId, serviceId, kind: group.kind as string, name: stringField(item, ["name_ar", "name_en"]), quantity: numberField(item, ["qty", "quantity"]), price: numberField(item, ["price"]), paymentMethod: stringField(item, ["payment_method", "paymentMethod"]), homeVisit: item.home_visit === true } satisfies PatientCartLine];
+      return [{ lineId, serviceId, kind: group.kind as string, name: stringField(item, ["name_ar", "name_en"]), nameEn: stringField(item, ["name_en"]), quantity: numberField(item, ["qty", "quantity"]), price: numberField(item, ["price"]), paymentMethod: stringField(item, ["payment_method", "paymentMethod"]), homeVisit: item.home_visit === true } satisfies PatientCartLine];
     }) : [];
     return [{ kind: group.kind as string, count: numberField(group, ["count"]), subtotal: numberField(group, ["subtotal"]), items }];
   });

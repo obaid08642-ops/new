@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ConflictException, ForbiddenException, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -161,7 +161,8 @@ export class PrescriptionsService {
     let hasManual = false;
     for (const it of data.items || []) {
       // Normalize the name field — OCR may return any of these keys.
-      const medName = (it.name_ar || it.medicine_name_ar || it.name || it.name_en || '').toString().trim();
+      // POST /ai/prescription-ocr answers raw_name_string / requested_quantity (needs-review #497).
+      const medName = (it.name_ar || it.medicine_name_ar || it.name || it.name_en || it.raw_name_string || '').toString().trim();
       const medNameEn = (it.name_en || it.medicine_name_en || '').toString().trim() || undefined;
       if (!medName) continue; // skip blank items rather than crashing
       let medId = it.medicine_id;
@@ -189,7 +190,7 @@ export class PrescriptionsService {
         frequency_hours: it.frequency_hours,
         times_per_day: it.times_per_day,
         duration_days: it.duration_days,
-        quantity: it.quantity,
+        quantity: it.quantity ?? it.requested_quantity,
         instructions: it.frequency || it.instructions,
         is_manual_entry: !it.medicine_id,
       });
@@ -205,6 +206,23 @@ export class PrescriptionsService {
     });
     this.events.emit(EVENTS.PRESCRIPTION_CREATED, { prescription_id: rx.id, patient_id: rx.patient_id });
     return rx.toObject();
+  }
+
+  /**
+   * D-32 (gap G1): the patient deletes a prescription they uploaded, and its photo goes with it. Only their own upload
+   * that no live pharmacy order still uses; a doctor's prescription is never deleted by the patient.
+   */
+  async deleteByPatient(patient: any, id: string) {
+    const rx: any = await this.model.findOne({ id: { $eq: String(id) }, patient_id: { $eq: String(patient?.id || '') } });
+    if (!rx) throw new NotFoundException('prescription_not_found');
+    if (rx.state !== PrescriptionState.UPLOADED_BY_PATIENT || rx.doctor_id) throw new ForbiddenException('only_own_uploads_can_be_deleted');
+    const finished = ['cancelled', 'canceled', 'completed', 'delivered', 'expired', 'rejected', 'refunded', 'closed'];
+    const inUse = await this.appointments.db.collection('pharmacy_orders').countDocuments({
+      prescription_id: { $eq: rx.id }, status: { $nin: finished },
+    });
+    if (inUse > 0) throw new ConflictException('prescription_attached_to_open_order');
+    await this.model.deleteOne({ id: { $eq: rx.id }, patient_id: { $eq: rx.patient_id } });
+    return { deleted: true, id: rx.id };
   }
 
   async transition(id: string, to: string, by: any) {
@@ -320,22 +338,35 @@ export class PrescriptionsService {
     return this.model.find(query, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(100);
   }
 
-  /** Active prescriptions for the patient — everything not dispensed/archived. */
+  /** Active prescriptions for the patient — everything not dispensed/archived.
+   * Q-10: lists never carry the base64 photo; the image comes from GET :id/image. */
   async activeForPatient(user: any) {
     return this.model.find(
       { patient_id: user.id, state: { $nin: [PrescriptionState.DISPENSED, PrescriptionState.ARCHIVED] } },
-      { _id: 0, __v: 0 },
+      { _id: 0, __v: 0, upload_image: 0 },
     ).sort({ createdAt: -1 }).limit(100);
   }
 
   async listMine(patient_id: string) {
-    return this.model.find({ patient_id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(100);
+    return this.model.find({ patient_id }, { _id: 0, __v: 0, upload_image: 0 }).sort({ createdAt: -1 }).limit(100);
   }
   async listForDoctor(doctor_id: string) {
-    return this.model.find({ doctor_id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(200);
+    return this.model.find({ doctor_id }, { _id: 0, __v: 0, upload_image: 0 }).sort({ createdAt: -1 }).limit(200);
   }
   async listForPharmacy(pharmacy_id: string) {
-    return this.model.find({ pharmacy_id, state: { $in: [PrescriptionState.SENT_TO_PHARMACY, PrescriptionState.PARTIALLY_EDITED, PrescriptionState.APPROVED] } }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(200);
+    return this.model.find({ pharmacy_id, state: { $in: [PrescriptionState.SENT_TO_PHARMACY, PrescriptionState.PARTIALLY_EDITED, PrescriptionState.APPROVED] } }, { _id: 0, __v: 0, upload_image: 0 }).sort({ createdAt: -1 }).limit(200);
+  }
+
+  /** Q-10: owner-checked photo fetch — only a participant (or privileged admin) gets the bytes. */
+  async getImageForUser(id: string, user: any) {
+    const rx: any = await this.model.findOne({ id }, { _id: 0, __v: 0, id: 1, patient_id: 1, doctor_id: 1, pharmacy_id: 1, upload_image: 1 });
+    if (!rx) throw new NotFoundException();
+    const roles = getEffectiveRoles(user);
+    const hasPrivilegedAdminRole = roles.includes(UserRole.ADMIN) || roles.includes(UserRole.SUPER_ADMIN);
+    const isParticipant = [rx.patient_id, rx.doctor_id, rx.pharmacy_id].filter(Boolean).includes(user?.id);
+    if (!hasPrivilegedAdminRole && !isParticipant) throw new NotFoundException();
+    if (!rx.upload_image) throw new NotFoundException();
+    return { id: rx.id, upload_image: rx.upload_image };
   }
   private async toPatientWebDto(rx: any) {
     let doctor: any = null;
@@ -352,6 +383,9 @@ export class PrescriptionsService {
         dose: item.dose || null,
         frequency: item.frequency_hours != null ? { every_hours: item.frequency_hours } : (item.times_per_day != null ? { times_per_day: item.times_per_day } : null),
         duration: item.duration_days ?? null,
+        // Needs-review #483/#495/#542: an order from a prescription needs the prescribed quantity and catalogue id.
+        quantity: item.quantity ?? null,
+        medicine_id: item.medicine_id ?? null,
       })),
       issued_at: rx.createdAt ? new Date(rx.createdAt).toISOString() : null,
       doctor: {

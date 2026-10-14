@@ -11,8 +11,10 @@ import { DeviceTrustModule } from './modules/device-trust/device-trust.module';
 import { SeoSearchModule } from './modules/seo-search/seo-search.module';
 import { LocationModule } from './modules/location/location.module';
 import { SearchIntentModule } from './modules/search-intent/search-intent.module';
+import { SearchModule } from './modules/search/search.controller';
 import { EntityGraphModule } from './modules/entity-graph/entity-graph.module';
 import { McpModule } from './modules/mcp/mcp.module';
+import { AgentOAuthModule } from './modules/agent-oauth/agent-oauth.module';
 import { AiCommerceModule } from './modules/ai-commerce/ai-commerce.module';
 import { LegalModule } from './modules/legal/legal.module';
 import { RatingsModule } from './modules/ratings/ratings.module';
@@ -21,6 +23,7 @@ import { PresenceModule } from './modules/presence/presence.module';
 import { OpsModule } from './modules/ops/ops.module';
 import { FeatureFlagsModule } from './modules/feature-flags/feature-flags.module';
 import { MediaModule } from './modules/media/media.module';
+import { ModuleSwitchesModule } from './modules/module-switches/module-switches.module';
 import { MoyasarModule } from './modules/moyasar/moyasar.module';
 import { FinanceEngineModule } from './modules/finance-engine/finance-engine.module';
 import { ConfigModule } from '@nestjs/config';
@@ -28,9 +31,11 @@ import { validateEnvironment } from './config/env.validation';
 import { MongooseModule } from '@nestjs/mongoose';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { ScheduleModule } from '@nestjs/schedule';
+import { backgroundImports, backgroundProviders } from './common/process-role';
+import { WorkerHeartbeatService } from './common/worker-heartbeat.service';
 import { BullModule } from '@nestjs/bullmq';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { LoadSheddingGuard } from './common/load-shedding.guard';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { OrdersModule } from './modules/orders/orders.module';
@@ -43,10 +48,10 @@ import { AiModule } from './modules/ai/ai.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { EventsModule } from './modules/events/events.module';
 import { SeedModule } from './modules/seed/seed.module';
-import { DriversModule } from './modules/drivers/drivers.module';
 import { CareModule } from './modules/care/care.module';
 import { LabsModule } from './modules/labs/labs.module';
 import { HomeCareModule } from './modules/home-care/home-care.module';
+import { RefundPolicyModule } from './modules/refund-policy/refund-policy.module';
 import { HealthModule } from './modules/health/health.module';
 import { MedicalProgramsModule } from './modules/medical-programs/medical-programs.module';
 import { SupportModule } from './modules/support/support.module';
@@ -103,6 +108,7 @@ import { FacilityOpsModule } from './modules/facility-ops/facility-ops.module';
 import { ProviderProductionModule } from './modules/provider-production/provider-production.module';
 import { ImpersonationSessionService } from './common/impersonation-session.service';
 import { CommonModule } from './common/common.module';
+import { PdplComplianceModule } from './common/pdpl-compliance.module';
 import { HealthController } from './health.controller';
 import { HealthDashboardController } from './modules/health/health-dashboard.controller';
 import { JwtAuthGuard } from './common/auth.guard';
@@ -138,6 +144,8 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
 @Module({
   imports: [
     CommonModule,
+    // 16.9: field-level encryption for health data + the medical access log.
+    PdplComplianceModule,
     SentryModule.forRoot(),
     HomeModule,
     HospitalModule,
@@ -151,8 +159,10 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     SeoSearchModule,
     LocationModule,
     SearchIntentModule,
+    SearchModule,
     EntityGraphModule,
     McpModule,
+    AgentOAuthModule,
     AiCommerceModule,
     LegalModule,
     RatingsModule,
@@ -160,6 +170,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     OpsModule,
     FeatureFlagsModule,
     MediaModule,
+    ModuleSwitchesModule,
     ConfigModule.forRoot({ isGlobal: true, validate: validateEnvironment }),
     MongooseModule.forRootAsync({
       useFactory: () => ({
@@ -184,7 +195,8 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
       connection: bullRedisConnection(),
     }),
     EventEmitterModule.forRoot({ wildcard: true, maxListeners: 50 }),
-    ScheduleModule.forRoot(),
+    // P14.26: cron jobs run only in the worker role (or `all`), never once per API cluster worker
+    ...backgroundImports(),
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: process.env.THROTTLER_LIMIT ? parseInt(process.env.THROTTLER_LIMIT, 10) : 200 }]),
     I18nCoreModule,
     AuthModule,
@@ -198,7 +210,6 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     EventsModule,
     RealtimeModule,
     SeedModule,
-    DriversModule,
     CareModule,
     DoctorsModule,
     LabsModule,
@@ -255,6 +266,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     ReturnsModule,
     BansModule,
     HomeCareModule,
+    RefundPolicyModule,
     BillingModule,
     ArticlesModule,
     InsuranceEngineModule,
@@ -267,10 +279,12 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
   controllers: [HealthController, HealthDashboardController, ProviderPayoutsController],
   providers: [
     ImpersonationSessionService,
+    ...backgroundProviders([WorkerHeartbeatService]),
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: WriteGuard },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: AdminGateGuard },
+    { provide: APP_GUARD, useClass: LoadSheddingGuard },
     { provide: APP_GUARD, useClass: StepUpGuard },
     StepUpService,
     { provide: APP_INTERCEPTOR, useClass: AuditLogInterceptor },

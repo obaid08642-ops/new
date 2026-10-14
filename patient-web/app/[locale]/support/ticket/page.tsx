@@ -1,94 +1,78 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { callPatientApi } from "@/lib/api/upstream";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { ChevronLeft, LifeBuoy, MessageSquare, Clock } from "lucide-react";
-import { VectorSupport } from "@/components-next/vector-illustrations";
-import styles from "../support.module.css";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { RowCard } from "@/components-next/consult/consult-parts";
+import { LocalDate } from "@/components-next/orders/local-date";
+import { StatusChip } from "@/components-next/ui-generated/components/Controls";
+import forms from "@/components-next/consult/consult.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
 
+type Ticket = { id: string; title: string; status: string; createdAt?: string };
+
+function readTickets(payload: unknown): Ticket[] {
+  const root = payload && typeof payload === "object" && !Array.isArray(payload) ? (payload as { data?: unknown }) : null;
+  const list = Array.isArray(root?.data) ? root.data : Array.isArray(payload) ? payload : [];
+  return list.flatMap((item: unknown, index: number) => {
+    const r = item && typeof item === "object" ? (item as Record<string, unknown>) : null;
+    if (!r) return [];
+    return [{
+      id: String(r.id ?? index),
+      title: String(r.title ?? r.name ?? r.type ?? r.id ?? ""),
+      status: typeof r.status === "string" ? r.status : "",
+      createdAt: typeof r.created_at === "string" ? r.created_at : undefined,
+    }];
+  });
+}
+
+/** `/support/ticket`: the patient's support requests (GET /support/requests/mine), the flow screen the help screen links to. */
 export default async function Page({ params }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("SupportTicket");
+  const rs = await getTranslations("RouteState");
+  const a = await getTranslations("AccountWeb");
   const token = await requirePatientAccess(locale);
   const res = await callPatientApi("/support/requests/mine", {}, token);
   if (res.status === 401) redirect(`/${locale}/login`);
-  const payload = res.ok ? await res.json().catch(() => null) : null;
-  const list: any[] = Array.isArray(payload?.data) ? payload.data : Array.isArray(payload) ? payload : [];
-  const isAr = locale === "ar";
+  const back = `/${locale}/settings/help?tab=requests`;
+  if (!res.ok) {
+    return (
+      <ConsultPage locale={locale} title={t("title")} backHref={back}>
+        <ConsultState kind="error" title={a("loadErrorTitle")} body={a("loadErrorBody")} retryLabel={rs("retry")} />
+      </ConsultPage>
+    );
+  }
+  const list = readTickets(await res.json().catch(() => null));
 
   return (
-    <main className={`main ${styles.page}`}>
-      <Link
-        href={`/${locale}/dashboard`}
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 6,
-          color: "var(--brand-deep)",
-          fontWeight: 750,
-          textDecoration: "none",
-        }}
-      >
-        <ChevronLeft size={17} aria-hidden="true" />
-        {t("back")}
-      </Link>
-
-      <section className={styles.hero}>
-        <div className={styles.heroCopy}>
-          <p className={styles.eyebrow}>
-            <LifeBuoy size={15} aria-hidden="true" />
-            {isAr ? "تذاكر الدعم الفني" : "Technical Support Tickets"}
-          </p>
-          <h1>{t("title")}</h1>
-          <p>
-            {isAr
-              ? "متابعة التذاكر المفتوحة والتحديثات الواردة من فريق الدعم الفني."
-              : "Track active support tickets and updates from our care team."}
-          </p>
-        </div>
-        <div className={styles.heroIllustration}>
-          <VectorSupport size={80} />
-        </div>
-      </section>
-
-      <section className={styles.card}>
-        <h2 className={styles.cardTitle}>
-          <MessageSquare size={20} aria-hidden="true" />
-          {isAr ? "سجل التذاكر" : "Ticket History"}
-        </h2>
-        {list.length === 0 ? (
-          <p style={{ color: "var(--muted)", margin: 0, textAlign: "center", padding: "2rem" }}>
-            {t("empty")}
-          </p>
-        ) : (
-          <div style={{ display: "grid", gap: "0.65rem" }}>
-            {list.map((item: any, i: number) => (
-              <div key={String(item?.id ?? i)} className={styles.ticketItem}>
-                <div>
-                  <strong className={styles.ticketSubject}>
-                    {String(item?.title ?? item?.name ?? item?.type ?? item?.id ?? "")}
-                  </strong>
-                  {item?.created_at ? (
-                    <span style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13, color: "var(--muted)", marginTop: 4 }}>
-                      <Clock size={13} aria-hidden="true" />
-                      {String(item.created_at).slice(0, 10)}
-                    </span>
-                  ) : null}
-                </div>
-                <span className={styles.ticketStatus}>
-                  {item?.status || (isAr ? "مفتوحة" : "Open")}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-    </main>
+    <ConsultPage locale={locale} title={t("title")} backHref={back}>
+      {list.length === 0 ? (
+        <ConsultState kind="empty" icon="headset" tone="mint" title={t("empty")} />
+      ) : (
+        <ul className={forms.list} aria-label={t("title")}>
+          {list.map((item) => (
+            <li key={item.id}>
+              <RowCard
+                icon="headset"
+                tone="mint"
+                title={item.title}
+                extra={
+                  <>
+                    {item.createdAt ? <LocalDate iso={item.createdAt} locale={locale} /> : null}
+                    {item.status ? <StatusChip label={item.status} tone="ink" /> : null}
+                  </>
+                }
+              />
+            </li>
+          ))}
+        </ul>
+      )}
+    </ConsultPage>
   );
 }

@@ -59,6 +59,8 @@ export type PublicProductCard = {
   available: boolean;
   image: string | null;
   images?: string[];
+  /** Only the search endpoint sends it (the category listing does not). */
+  active_ingredient?: string | null;
 };
 
 const CDN = (process.env.NEXT_PUBLIC_CDN_BASE_URL || "https://cdn.nabd.plus").replace(/\/$/, "");
@@ -117,7 +119,8 @@ async function getJson<T>(path: string, revalidate = 3600): Promise<T | null> {
   try {
     const res = await fetch(patientApiUrl(path), {
       headers: { Accept: "application/json" },
-      next: { revalidate },
+      // 14.8: tagged so a catalogue change revalidates product pages at once (POST /api/revalidate).
+      next: { revalidate, tags: ["medicines"] },
     } as RequestInit);
     if (!res.ok) return null;
     return (await res.json()) as T;
@@ -163,13 +166,15 @@ export async function getPublicCategoryProducts(
   category: string | undefined,
   sub: string | undefined,
   page: number,
-  q?: string
+  q?: string,
+  sort?: "popular" | "price_asc" | "price_desc" | "newest"
 ): Promise<CategoryItems | null> {
   if (!isLocale(locale)) return null;
   const catParam = category && category.trim() ? category : "all";
   const params = new URLSearchParams({ category: catParam, page: String(page) });
   if (sub) params.set("sub", sub);
   if (q && q.trim()) params.set("q", q.trim());
+  if (sort && sort !== "popular") params.set("sort", sort);
   const data = await getJson<CategoryItems>(`/public/categories/${locale}/items?${params.toString()}`);
   if (!data) return null;
   return {
@@ -180,6 +185,31 @@ export async function getPublicCategoryProducts(
       image: resolveImageUri(it.image) || (Array.isArray(it.images) && it.images[0] ? resolveImageUri(it.images[0]) : null),
     })),
   };
+}
+
+/**
+ * Products with the same active ingredient (the product page's "alternatives"): the public product search
+ * (`GET /public/products/search`) by the ingredient, kept to exact matches of it, without the product itself.
+ * Empty when the product has no active ingredient or the search is unavailable: the section is then hidden.
+ */
+export async function getPublicAlternatives(
+  locale: Locale,
+  product: { id: string; active_ingredient: string | null },
+  max = 5,
+): Promise<PublicProductCard[]> {
+  const ingredient = (product.active_ingredient || "").trim();
+  if (!isLocale(locale) || !ingredient) return [];
+  const params = new URLSearchParams({ q: ingredient, locale, page: "1", limit: "12" });
+  const data = await getJson<{ items?: PublicProductCard[] }>(`/public/products/search?${params.toString()}`);
+  const wanted = ingredient.toLowerCase();
+  return (data?.items || [])
+    .filter((it) => it.id !== product.id && (it.active_ingredient || "").trim().toLowerCase() === wanted && it.price > 0)
+    .slice(0, max)
+    .map((it) => ({
+      ...it,
+      name: cleanProductName(it.name, it.official_name),
+      image: resolveImageUri(it.image) || (Array.isArray(it.images) && it.images[0] ? resolveImageUri(it.images[0]) : null),
+    }));
 }
 
 export type ProductSitemapPage = {

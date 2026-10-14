@@ -18,6 +18,23 @@ describe('NursingController ownership', () => {
     return { controller: new NursingController(model, serviceModel, nurseModel, conn, events, engine, homeSvc), model, engine };
   }
 
+  it('returns the recorded visit steps with the tracking (#647)', async () => {
+    const booking: any = {
+      id: 'visit-1', patient_id: 'patient-1', provider_id: 'nurse-1', state: NursingBookingState.IN_TRANSIT,
+      state_history: [
+        { from: '', to: NursingBookingState.CONFIRMED, at: new Date('2026-10-14T08:00:00Z') },
+        { from: NursingBookingState.CONFIRMED, to: NursingBookingState.IN_TRANSIT, at: new Date('2026-10-14T08:10:00Z') },
+        { from: 'x', to: null },
+      ],
+    };
+    const { controller } = makeController(booking);
+    const out = await controller.getVisitTracking('visit-1', { id: 'patient-1', role: 'patient' });
+    expect(out.steps).toEqual([
+      { status: 'CONFIRMED', at: '2026-10-14T08:00:00.000Z' },
+      { status: 'IN_TRANSIT', at: '2026-10-14T08:10:00.000Z' },
+    ]);
+  });
+
   it('rejects a patient from reading another patient visit', async () => {
     const booking: any = { id: 'visit-1', patient_id: 'patient-1', provider_id: 'nurse-1' };
     const { controller } = makeController(booking);

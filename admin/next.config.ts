@@ -11,35 +11,22 @@ import type { NextConfig } from "next";
  * The admin talks to the BFF on its own origin, so the policy stays on 'self'
  * unless the owner declares extra hosts — no wildcard trust.
  */
-const list = (value?: string) => (value || "").split(",").map((s) => s.trim()).filter(Boolean);
-
-const API_ORIGIN = process.env.NEXT_PUBLIC_API_ORIGIN || process.env.ADMIN_BACKEND_URL || "";
-
-const isDev = process.env.NODE_ENV !== "production";
-
-const csp = [
-  "default-src 'self'",
-  // Next's inline bootstrap script has no nonce here (the admin does not use a
-  // nonce middleware), so the inline allowance stays; moving the app to
-  // CSS-modules-only styling is what removes it, tracked separately.
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' blob: data: https:",
-  "font-src 'self' data:",
-  `connect-src 'self'${list(API_ORIGIN).map((o) => ` ${o}`).join("")}${isDev ? " http: https: ws:" : ""}`,
-  "frame-src 'self'",
-  "object-src 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "frame-ancestors 'none'",
-  "worker-src 'self' blob:",
-  "manifest-src 'self'",
-  ...(isDev ? [] : ["upgrade-insecure-requests"]),
-].join("; ");
-
+// The policy itself is set per request by src/proxy.ts (F68: fresh nonce, no-store); the static headers below
+// are the rest of the set.
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Owner decision 2026-10-10 (#981-#993): the public directory pages live in patient-web, not here. `/` goes to the
+  // console; src/proxy.ts sends a visitor without a session on to /login.
+  async redirects() {
+    return [
+      { source: "/", destination: "/admin/dashboard", permanent: false },
+      // Owner decision 2026-10-10 (#949): one medicines editor. The old governance page is gone.
+      // Owner decision 2026-10-10 (D-1): community moderation is gone; the admin reviews doctor articles instead.
+      { source: "/admin/community-moderation", destination: "/admin/article-review", permanent: true },
+      { source: "/admin/catalog-governance", destination: "/admin/medicines-catalog", permanent: true },
+    ];
+  },
   async headers() {
     return [{ source: "/:path*", headers: [
       { key: "X-Content-Type-Options", value: "nosniff" },
@@ -47,9 +34,14 @@ const nextConfig: NextConfig = {
       { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
       { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
       { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
-      { key: "Content-Security-Policy", value: csp },
+      { key: "Content-Security-Policy", value: "frame-ancestors 'none'; object-src 'none'; base-uri 'self'" },
       ...(process.env.NODE_ENV === "production" ? [{ key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" }] : []),
-    ] }];
+    ] }, {
+      // Barcode scan on the medicine catalogue is the only screen that opens the camera (same origin only).
+      // Listed after the global entry, so this Permissions-Policy replaces it for this one path.
+      source: "/admin/medicines-catalog",
+      headers: [{ key: "Permissions-Policy", value: "camera=(self), microphone=(), geolocation=()" }],
+    }];
   },
 };
 

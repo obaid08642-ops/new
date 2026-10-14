@@ -1,10 +1,12 @@
-import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
+import { isOnlineConsultation } from '../chat/consultation-window';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, Logger, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import { AccessToken } from 'livekit-server-sdk';
 import { randomUUID } from 'crypto';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Model, Connection, Types } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { APPT_STATES } from '../../schemas/appointment.schema';
+import { isChaosFail } from '../../common/chaos-switches';
 
 @Injectable()
 export class LiveKitService {
@@ -179,6 +181,8 @@ export class LiveKitService {
     if (['CANCELLED', 'COMPLETED', 'RESCHEDULED', 'NO_SHOW'].includes(String(appt.status))) {
       throw new BadRequestException('appointment_not_active');
     }
+    // Decision 24: calls belong to online consultations only; a clinic or home visit has none.
+    if (!isOnlineConsultation(appt)) throw new BadRequestException('calls_only_for_online_consultations');
     const patientId = String(appt.patient_id || appt.user_id || '');
     // doctor_user_id is the account id doctors authenticate with; profile ids
     // (doctor_id) never match a caller id — it must come after account ids.
@@ -354,6 +358,10 @@ export class LiveKitService {
 
   /** LiveKit server RoomService — available when LIVEKIT_URL is configured. */
   private roomService(): any | null {
+    // 15.11 chaos drill: behave exactly as if the LiveKit server were
+    // unconfigured, so the callers' documented degraded answers ([] and
+    // livekit_not_configured) are what the drill asserts. Never in production.
+    if (isChaosFail('livekit')) return null;
     if (!process.env.LIVEKIT_URL || !process.env.LIVEKIT_API_KEY || !process.env.LIVEKIT_API_SECRET) return null;
     try {
       const { RoomServiceClient } = require('livekit-server-sdk');
@@ -389,7 +397,9 @@ export class LiveKitService {
 
   async removeParticipant(roomName: string, participantId: string) {
     const svc = this.roomService();
-    if (!svc) return { success: false, reason: 'livekit_not_configured' };
+    // Removing someone is a moderation action: without LiveKit it must fail visibly (409),
+    // not report a soft success:false the admin screen could read as done. Never a 5xx.
+    if (!svc) throw new ConflictException({ success: false, reason: 'livekit_not_configured', message: 'livekit_not_configured' });
     await svc.removeParticipant(roomName, participantId).catch(() => null);
     return { success: true };
   }

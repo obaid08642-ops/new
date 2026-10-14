@@ -9,6 +9,8 @@ export class PatientProfile {
   @Prop({ type: [Object], default: [] }) wishlist?: any[];
   @Prop({ default: () => uuid() }) id: string;
   @Prop({ required: true, index: true }) user_id: string;
+  // D-32: the patient's photo as `media:<id>` (PATCH /users/me/profile); undeclared before, so strict mode dropped it.
+  @Prop() avatar_url?: string;
   @Prop() age?: number;
   @Prop({ enum: ['male', 'female'] }) gender?: string;
   @Prop() blood_type?: string;

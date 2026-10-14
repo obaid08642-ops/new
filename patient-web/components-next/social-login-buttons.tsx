@@ -1,10 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import styles from "./login-form.module.css";
+import { useTranslations } from "next-intl";
+import { getStableDeviceId } from "@/lib/auth/device-id";
+import { announceSignedIn } from "@/lib/auth/session-identity";
+import styles from "./auth/auth.module.css";
 
-type Props = { locale: string; labels: { guest: string; guestLoading: string; error: string } };
+type Props = { locale: string };
 
 declare global {
   interface Window { google?: any; apple?: any }
@@ -24,15 +28,18 @@ function loadScript(src: string): Promise<void> {
  * Real social + guest sign-in for the web patient app.
  * Google renders only when NEXT_PUBLIC_GOOGLE_CLIENT_ID is configured, and
  * exchanges the OAuth access token with the backend (which verifies it against
- * Google's userinfo endpoint). Guest sign-in is always available.
+ * Google's userinfo endpoint). Guest sign-in is always available and reuses this
+ * browser's guest account (one stable device id), landing on Home like /welcome does.
  */
-export function SocialLoginButtons({ locale, labels }: Props) {
+export function SocialLoginButtons({ locale }: Props) {
   const router = useRouter();
+  const t = useTranslations("Login");
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
   const tokenClient = useRef<any>(null);
-  const ar = locale === "ar";
+  const failedMessage = t("unavailable");
+  const googleMessage = t("googleUnavailable");
 
   useEffect(() => {
     if (!googleClientId) return;
@@ -44,44 +51,61 @@ export function SocialLoginButtons({ locale, labels }: Props) {
           client_id: googleClientId,
           scope: "openid email profile",
           callback: async (response: any) => {
-            if (!response?.access_token) { setError(labels.error); setBusy(null); return; }
+            if (!response?.access_token) { setError(failedMessage); setBusy(null); return; }
             try {
               const res = await fetch("/api/auth/social-login", {
                 method: "POST",
-                headers: { "content-type": "application/json", "x-nabd-device-id": crypto.randomUUID() },
+                headers: { "content-type": "application/json", "x-nabd-device-id": getStableDeviceId() },
                 body: JSON.stringify({ provider: "google", token: response.access_token }),
               });
               if (!res.ok) throw new Error("social_failed");
+              announceSignedIn();
               router.replace(`/${locale}/dashboard`); router.refresh();
-            } catch { setError(labels.error); } finally { setBusy(null); }
+            } catch { setError(failedMessage); } finally { setBusy(null); }
+          },
+          // The popup was closed, blocked or could not open: the buttons must come back.
+          error_callback: (failure: { type?: string } | undefined) => {
+            setBusy(null);
+            if (failure?.type !== "popup_closed") setError(googleMessage);
           },
         });
       })
-      .catch(() => undefined);
+      .catch(() => { if (!cancelled) setError(googleMessage); });
     return () => { cancelled = true; };
-  }, [googleClientId, locale, labels.error, router]);
+  }, [googleClientId, locale, failedMessage, googleMessage, router]);
+
+  function googleLogin() {
+    setError(null);
+    // The script has not loaded (offline, blocked): say so instead of leaving the buttons disabled.
+    if (!tokenClient.current) { setError(googleMessage); return; }
+    setBusy("google");
+    try { tokenClient.current.requestAccessToken(); } catch { setBusy(null); setError(googleMessage); }
+  }
 
   async function guestLogin() {
     if (busy) return;
     setBusy("guest"); setError(null);
     try {
-      const res = await fetch("/api/auth/guest", { method: "POST", headers: { "x-nabd-device-id": crypto.randomUUID() } });
+      const res = await fetch("/api/auth/guest", { method: "POST", headers: { "x-nabd-device-id": getStableDeviceId() } });
       if (!res.ok) throw new Error("guest_failed");
-      router.replace(`/${locale}/dashboard`); router.refresh();
-    } catch { setError(labels.error); setBusy(null); }
+      announceSignedIn();
+      router.replace(`/${locale}`); router.refresh();
+    } catch { setError(failedMessage); setBusy(null); }
   }
 
-  return <div className={styles.socialArea}>
-    {googleClientId ? (
-      <div className={styles.socialGrid} aria-label={ar ? "طرق الدخول الاجتماعي" : "Social sign in options"}>
-        <button type="button" className={`${styles.socialButton} ${styles.google}`} disabled={busy !== null} onClick={() => { setBusy("google"); setError(null); tokenClient.current?.requestAccessToken(); }} aria-label="Google">
-          <span>G</span>
-        </button>
+  return <>
+    {googleClientId ? <>
+      <div className={styles.divider}>{t("orContinueWith")}</div>
+      <div className={styles.social} aria-label={t("otherWays")}>
+        <button type="button" className={styles.socialButton} disabled={busy !== null} onClick={googleLogin}>Google</button>
       </div>
-    ) : null}
-    <button type="button" className={styles.guestButton} onClick={guestLogin} disabled={busy !== null}>
-      {busy === "guest" ? labels.guestLoading : labels.guest}
-    </button>
-    {error ? <p className={styles.blocked} role="alert">{error}</p> : null}
-  </div>;
+    </> : null}
+    <div className={styles.foot}>
+      <span>{t("noAccount")} <Link className={styles.link} href={`/${locale}/register`}>{t("createAccount")}</Link></span>
+      <button type="button" className={`${styles.link} ${styles.guest}`} onClick={guestLogin} disabled={busy !== null}>
+        {busy === "guest" ? t("guestLoading") : t("guestContinue")}
+      </button>
+    </div>
+    {error ? <p className={styles.error} role="alert">{error}</p> : null}
+  </>;
 }

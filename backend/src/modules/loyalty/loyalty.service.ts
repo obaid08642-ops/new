@@ -37,6 +37,21 @@ const POINTS_TABLE: Record<string, number> = {
 /** Reasons tied to a purchase/completion (no earning caps); everything else is capped. */
 const PURCHASE_REASONS = new Set(['booking_completed', 'order_delivered', 'challenge_completed']);
 
+// D-9 (owner decision 9): challenges are health habits only. A target_action tied to buying
+// medicines can never be created, updated into, or shown to patients.
+const PURCHASE_CHALLENGE_EXACT = new Set(['order_delivered', 'order_medicine']);
+const PURCHASE_CHALLENGE_PATTERN = /(purchas|checkout|\bbuy\b|cart)/i;
+const PURCHASE_CHALLENGE_ORDER = /(^order[_-])|([_-]order([_-]|$))/i;
+
+/** True when a challenge target_action is tied to buying medicines (D-9). */
+export function isPurchaseChallengeAction(action: unknown): boolean {
+  if (typeof action !== 'string' || !action.trim()) return false;
+  const a = action.trim();
+  return PURCHASE_CHALLENGE_EXACT.has(a)
+    || PURCHASE_CHALLENGE_PATTERN.test(a)
+    || PURCHASE_CHALLENGE_ORDER.test(a);
+}
+
 /** Earned points expire after this many days (lazy sweep on account read). */
 const POINTS_TTL_DAYS = 365;
 
@@ -83,7 +98,9 @@ export class LoyaltyService {
       earn_points: await this.earnTable().catch(() => ({ ...POINTS_TABLE })),
       earn_caps: overrides.earn_caps || {},
       max_redeem_percent: overrides.max_redeem_percent,
-      point_value_sar: overrides.point_value_sar,
+      // 746: cash-equivalent rate always served — 0.1 SAR/pt matches the finance
+      // engine default; the admin overrides it via PUT /loyalty/config.
+      point_value_sar: Number(overrides.point_value_sar ?? 0.1),
       redeem_enabled: overrides.redeem_enabled,
     };
   }
@@ -236,7 +253,19 @@ export class LoyaltyService {
     // emitters send patient_id (orders/drivers); user_id kept for older callers
     const uid = payload?.user_id || payload?.patient_id;
     if (!uid) return;
+    if (await this.isPrescriptionOnlyOrder(payload.order_id)) return; // D-10: no points for Rx items
     await this.awardPoints(uid, 'order_delivered', 'order', payload.order_id);
+  }
+
+  /**
+   * D-10 (owner decision 10): prescription-only items earn no loyalty points. A pharmacy order whose every
+   * line is Rx (flag stamped from the catalogue at submit) earns nothing; an order with any OTC line still does.
+   */
+  private async isPrescriptionOnlyOrder(orderId?: string): Promise<boolean> {
+    if (!orderId || !this.conn) return false;
+    const order: any = await this.conn.collection('pharmacy_orders').findOne({ id: orderId }, { projection: { _id: 0, items: 1 } }).catch(() => null);
+    const items: any[] = Array.isArray(order?.items) ? order.items : [];
+    return items.length > 0 && items.every((it) => it?.requires_prescription === true);
   }
 
   /** The workflow engine emits service.completed for every domain (pharmacy, lab, radiology, nursing,
@@ -244,7 +273,10 @@ export class LoyaltyService {
   @OnEvent('service.completed')
   async onServiceCompleted(p: { patient_account_id?: string; entity_type?: string; entity_id?: string }) {
     if (!p?.patient_account_id || !p?.entity_id) return;
-    if (p.entity_type === 'order') await this.awardPoints(p.patient_account_id, 'order_delivered', 'order', p.entity_id);
+    if (p.entity_type === 'order') {
+      if (await this.isPrescriptionOnlyOrder(p.entity_id)) return; // D-10: no points for Rx items
+      await this.awardPoints(p.patient_account_id, 'order_delivered', 'order', p.entity_id);
+    }
     else await this.awardPoints(p.patient_account_id, 'booking_completed', 'appointment', p.entity_id);
   }
 
@@ -311,7 +343,10 @@ export class LoyaltyService {
     const challenges = await this.challengeM.find({ active: true, start_date: { $lte: now }, end_date: { $gte: now } }).lean();
     const progressList = await this.progressM.find({ user_id: userId }).lean();
     const progressMap = Object.fromEntries((progressList as any[]).map((p: any) => [p.challenge_id, p]));
-    return challenges.map((ch: any) => ({
+    // D-9: purchase-tied challenges are never shown to patients.
+    return (challenges as any[])
+      .filter((ch: any) => !isPurchaseChallengeAction(ch?.target_action))
+      .map((ch: any) => ({
       ...ch,
       user_progress: progressMap[ch.id]?.progress_count ?? 0,
       completed: progressMap[ch.id]?.completed ?? false,
@@ -484,6 +519,8 @@ export class LoyaltyService {
     const start = new Date(body.start_date);
     const end = new Date(body.end_date);
     if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end <= start) throw new BadRequestException('end_date must be after start_date');
+    // D-9: challenges are health habits only — nothing tied to buying medicines.
+    if (isPurchaseChallengeAction(body.target_action)) throw new BadRequestException('purchase_challenges_not_allowed');
     return this.challengeM.create({
       id: uuidv4(),
       title_ar: String(body.title_ar).trim(),
@@ -506,6 +543,10 @@ export class LoyaltyService {
     if (body.end_date !== undefined) patch.end_date = new Date(body.end_date);
     if (body.active !== undefined) patch.active = body.active === true;
     if (!Object.keys(patch).length) throw new BadRequestException('no challenge fields to update');
+    // D-9: a challenge can never be changed into a purchase challenge.
+    if (patch.target_action !== undefined && isPurchaseChallengeAction(patch.target_action)) {
+      throw new BadRequestException('purchase_challenges_not_allowed');
+    }
     if (patch.start_date && patch.end_date && patch.end_date <= patch.start_date) throw new BadRequestException('end_date must be after start_date');
     const updated = await this.challengeM.findOneAndUpdate({ id }, patch);
     if (!updated) throw new NotFoundException('challenge not found');

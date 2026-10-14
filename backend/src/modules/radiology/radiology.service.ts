@@ -18,6 +18,13 @@ import { getEffectiveRoles } from '../../common/auth.guard';
 
 const ALLOWED_ROLES_PROVIDER = ['radiology', 'admin', 'hospital'];
 
+import { nearestFirst } from '../provider/services/nearest-first';
+
+/** Public card for a provider in carousels and price lists: no contact or account details. */
+function publicProvider(p: any) {
+  return { id: p.account_id, name_ar: p.name_ar ?? null, name_en: p.name_en ?? null, logo: p.logo ?? null, rating: p.rating_count > 0 ? p.rating_avg : null, rating_count: p.rating_count || 0 };
+}
+
 @Injectable()
 export class RadiologyOpsService {
   constructor(
@@ -380,10 +387,27 @@ export class RadiologyOpsService {
     if (opts.body_part) q.body_part = { $eq: opts.body_part };
     if (opts.search) q.$text = { $search: opts.search };
     if (opts.home_only) q.home_visit_supported = true;
+
+    // #623: "nearest" orders scans by the closest approved centre that performs them (same rule as
+    // compatibleProviders: the centre's equipment_list holds the scan id or its modality).
+    if (opts.nearest && Number.isFinite(opts.lat) && Number.isFinite(opts.lng)) {
+      const here = { lat: opts.lat as number, lng: opts.lng as number };
+      const centres: any[] = await this.profileModel.find({
+        type: { $in: ['radiology', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
+        'geo.lat': { $type: 'number' }, 'geo.lng': { $type: 'number' },
+      }, { _id: 0, geo: 1, equipment_list: 1 }).lean();
+      const services: any[] = await this.svcModel.find(q).lean();
+      return nearestFirst(services, centres, here, (svc, centre) => {
+        const has: unknown[] = Array.isArray(centre.equipment_list) ? centre.equipment_list : [];
+        return has.includes(svc.id) || (!!svc.modality && has.includes(svc.modality));
+      }).slice(0, 120);
+    }
+
     if (!this.redis?.getWithSWR) return this.svcModel.find(q).sort({ popularity: -1 }).lean();
     const cacheKey = `cache:radiology-services:public:v1:${JSON.stringify(opts)}`;
     return this.redis.getWithSWR(cacheKey, 900, async () => this.svcModel.find(q).sort({ popularity: -1 }).lean());
   }
+
 
   async modalities() {
     return this.svcModel.distinct('modality', { is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' });
@@ -417,6 +441,50 @@ export class RadiologyOpsService {
       homeVisitAvailable: Boolean(profile.home_visit_supported),
       rating: profile.rating_count > 0 ? profile.rating_avg : null, logo: profile.logo || null,
     }));
+  }
+
+  // #624 carousel: popular approved scans, each with the approved centers equipped for it (the
+  // center's equipment_list holds the scan id or its modality, the rule compatibleProviders uses).
+  async getCarousel(modality?: string, limit = 20) {
+    const lim = Math.min(Math.max(Number.isFinite(limit) ? limit : 20, 1), 50);
+    const q: any = { is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' };
+    if (modality) q.modality = String(modality);
+    const services: any[] = await this.svcModel.find(q, { _id: 0, id: 1, name_ar: 1, name_en: 1, modality: 1, body_part: 1, short_code: 1, price: 1, image_url: 1 })
+      .sort({ popularity: -1, name_ar: 1 }).limit(lim).lean();
+    const centers: any[] = await this.profileModel.find({
+      type: { $in: ['radiology', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved', account_id: { $exists: true, $ne: null },
+    }, { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, rating_avg: 1, rating_count: 1, equipment_list: 1 }).lean();
+    return services.map((svc) => {
+      const fit = centers.filter((p) => {
+        const eq: unknown[] = Array.isArray(p.equipment_list) ? p.equipment_list : [];
+        return eq.includes(svc.id) || (!!svc.modality && eq.includes(svc.modality));
+      }).sort((a, b) => (b.rating_count > 0 ? b.rating_avg : 0) - (a.rating_count > 0 ? a.rating_avg : 0));
+      return { ...svc, providers_count: fit.length, providers: fit.slice(0, 5).map(publicProvider) };
+    });
+  }
+
+  // #631 price comparison: each approved center's own price for this scan from its capabilities
+  // catalog (provider_capabilities_radiology: scan_type = modality and the same body part,
+  // case-insensitive). Centers with no priced entry are not listed.
+  async priceComparison(serviceId: string) {
+    const svc: any = await this.svcModel.findOne({ id: { $eq: String(serviceId) }, is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, id: 1, name_ar: 1, name_en: 1, modality: 1, body_part: 1, price: 1 }).lean();
+    if (!svc) throw new NotFoundException('service_not_found');
+    if (!svc.modality) return { service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, catalog_price: svc.price ?? null, offers: [] };
+    const exact = (v: string) => new RegExp(`^${String(v).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
+    const items: any[] = await this.svcModel.db.collection('provider_capabilities_radiology').find({
+      available: true, scan_type: exact(svc.modality), ...(svc.body_part ? { body_part: exact(svc.body_part) } : {}),
+    }, { projection: { _id: 0, provider_account_id: 1, price: 1, currency: 1, contrast_supported: 1, insurance_covered: 1 } }).toArray();
+    const priced = items.filter((i) => typeof i.price === 'number' && i.price > 0);
+    const profiles: any[] = priced.length ? await this.profileModel.find({
+      account_id: { $in: [...new Set(priced.map((i) => i.provider_account_id))] }, type: { $in: ['radiology', 'hospital'] },
+      status: 'active', public_eligibility: true, medical_review_status: 'approved',
+    }, { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, rating_avg: 1, rating_count: 1 }).lean() : [];
+    const byId = new Map(profiles.map((p) => [p.account_id, p]));
+    const offers = priced.filter((i) => byId.has(i.provider_account_id)).map((i) => ({
+      provider: publicProvider(byId.get(i.provider_account_id)), price: i.price, currency: i.currency || 'SAR',
+      contrast_supported: !!i.contrast_supported, insurance_covered: !!i.insurance_covered,
+    })).sort((a, b) => a.price - b.price);
+    return { service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, catalog_price: svc.price ?? null, offers };
   }
 
   async book(user: any, body: any) {
@@ -626,4 +694,84 @@ export class RadiologyOpsService {
     await b.save();
     return b;
   }
+
+
+
+  async slotsForProvider(providerAccountId: string, dateStr: string, duration_minutes = 30) {
+    // Validate duration: must be integer between 10 and 120
+    const duration = parseInt(String(duration_minutes), 10);
+    if (!Number.isInteger(duration) || duration < 10 || duration > 120) {
+      throw new BadRequestException('duration must be an integer between 10 and 120 minutes');
+    }
+
+    const profile = await this.profileModel.findOne({
+      account_id: providerAccountId,
+      type: { $in: ['radiology', 'hospital'] },
+      status: 'active',
+      public_eligibility: true,
+      medical_review_status: 'approved',
+    }).lean();
+    if (!profile) throw new NotFoundException('provider_not_found');
+    if (!(profile as any).schedule_clinic || !(profile as any).schedule_clinic.length) {
+      return { date: dateStr, slots: [], reason: 'no_schedule' };
+    }
+
+    const date = new Date(dateStr + 'T00:00:00Z');
+    if (isNaN(date.getTime())) return { date: dateStr, slots: [], reason: 'invalid_date' };
+
+    const dow = date.getUTCDay();
+    const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+    const fullDays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+    const dayMatches = (d: any) => {
+      const v = String(d ?? '').toLowerCase();
+      return v === 'all' || v === String(dow) || v === dayKeys[dow] || v === fullDays[dow];
+    };
+
+    const windows = ((profile as any).schedule_clinic || []).filter((w) => w && !w.closed && dayMatches(w.day)).flatMap((w) => [
+      ...(w.open && w.close ? [{ open: w.open, close: w.close }] : []),
+      ...(w.open_evening && w.close_evening ? [{ open: w.open_evening, close: w.close_evening }] : []),
+    ]);
+
+    if (!windows.length) return { date: dateStr, slots: [], reason: 'closed' };
+
+    const baseDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+    const slots: { id: string; start: string; end: string; label: string; available: boolean }[] = [];
+    const seen = new Set<string>();
+    const now = Date.now();
+
+    for (const w of windows) {
+      const [oh, om] = w.open.split(':').map(Number);
+      const [ch, cm] = w.close.split(':').map(Number);
+      const openTs = new Date(baseDate.getTime() + oh * 3600_000 + om * 60_000);
+      let closeTs = new Date(baseDate.getTime() + ch * 3600_000 + cm * 60_000);
+      if (closeTs.getTime() <= openTs.getTime()) closeTs = new Date(closeTs.getTime() + 24 * 3600_000);
+      for (let t = openTs.getTime(); t + duration * 60_000 <= closeTs.getTime(); t += duration * 60_000) {
+        const start = new Date(t);
+        const end = new Date(t + duration * 60_000);
+        if (start.getTime() < now + 15 * 60_000) continue;
+        const slotId = start.toISOString();
+        if (seen.has(slotId)) continue;
+        seen.add(slotId);
+        slots.push({ id: slotId, start: slotId, end: end.toISOString(), label: slotId.substring(11, 16), available: true });
+      }
+    }
+    slots.sort((x, y) => x.start.localeCompare(y.start));
+    if (slots.length === 0) return { date: dateStr, slots: [], reason: 'no_slots' };
+
+    // Mark booked slots as unavailable
+    const startOfDay = new Date(baseDate.getTime());
+    const endOfDay = new Date(baseDate.getTime() + 24 * 3600_000);
+    const booked = await this.bkgModel.find({
+      provider_account_id: providerAccountId,
+      scheduled_at: { $gte: startOfDay, $lt: endOfDay },
+      state: { $nin: ['CANCELLED', 'REPORT_READY'] },
+    }).select({ scheduled_at: 1 }).lean();
+    const bookedSet = new Set(booked.map((b: any) => new Date(b.scheduled_at).toISOString()));
+    for (const s of slots) {
+      if (bookedSet.has(s.start)) s.available = false;
+    }
+    return { date: dateStr, slots };
+  }
+
 }

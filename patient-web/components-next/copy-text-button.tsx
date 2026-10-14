@@ -1,24 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components-next/ui-generated/components/Button";
 
-export function CopyTextButton({ text, locale }: { text: string; locale: string }) {
+/** Copies a text (the health ID share code) to the clipboard and says so for two seconds. */
+export function CopyTextButton({ text }: { text: string }) {
+  const t = useTranslations("HealthWeb");
   const [copied, setCopied] = useState(false);
-  const ar = locale === "ar";
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
 
   async function onCopy() {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      timer.current = setTimeout(() => setCopied(false), 2000);
     } catch {
       setCopied(false);
     }
   }
 
-  return (
-    <button type="button" onClick={onCopy}>
-      {copied ? (ar ? "تم النسخ!" : "Copied!") : (ar ? "نسخ" : "Copy")}
-    </button>
-  );
+  return <Button variant="outline" size="md" label={copied ? t("copied") : t("copy")} onClick={() => void onCopy()} />;
 }

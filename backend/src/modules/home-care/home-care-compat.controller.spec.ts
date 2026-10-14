@@ -31,4 +31,13 @@ describe('HomeCareCompatController access and state contract', () => {
       .rejects.toBeInstanceOf(BadRequestException);
     expect(booking.save).not.toHaveBeenCalled();
   });
+
+  it.each(['CONFIRMED', 'IN_TRANSIT'])('checks in a visit the nurse accepted (%s) — needs-review #1162', async (state) => {
+    const { controller } = make();
+    const booking: any = { id: 'visit-2', provider_id: 'nurse-1', state, state_history: [], save: jest.fn(), markModified: jest.fn() };
+    controller.bookings.findOne.mockResolvedValue(booking);
+    await expect(controller.checkIn({ id: 'nurse-1', role: 'nurse', provider_type: 'nursing' }, 'visit-2', {}))
+      .resolves.toMatchObject({ ok: true, state: 'ARRIVED' });
+    expect(booking.save).toHaveBeenCalled();
+  });
 });

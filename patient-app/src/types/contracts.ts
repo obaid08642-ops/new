@@ -236,6 +236,10 @@ export interface Appointment {
   spec?: string;
   emoji?: string;
   date?: string;
+  /** The appointment's date as the server sent it (ISO), for the screens to format. */
+  at?: string;
+  /** The doctor's id, for "book again". */
+  docId?: string;
   time?: string;
   status?: AppointmentStatus;
   type?: AppointmentMode | string;

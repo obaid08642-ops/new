@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, ForbiddenException, NotFoundException, BadRequestException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, ForbiddenException, NotFoundException, BadRequestException, GoneException, UseGuards } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { CurrentUser, Roles, SelfService } from '../../common/auth.guard';
@@ -65,15 +65,10 @@ export class ConsultationsCompatController {
     }));
   }
 
+  /** Decision 24: consultation messages go only through the booking thread (POST /chat/threads/:id/messages),
+   *  which applies the chat window, the voice and call rules and the doctor's close/extend. */
   @Post(':id/messages')
-  async sendMessage(@Param('id') id: string, @CurrentUser() user: any, @Body() body: SendMessageDto) {
-    const u = uid(user);
-    const b = await this.ownedAppointment(id, u);
-    const text = String(body?.body || '').trim();
-    if (!text) throw new BadRequestException('نص الرسالة مطلوب');
-    const ins = await this.conn.collection('consultation_messages').insertOne({
-      consultation_id: b.id || String(b._id), sender_id: u, body: text, createdAt: now(),
-    } as any);
-    return { ok: true, id: String(ins.insertedId) };
+  sendMessage(@Param('id') _id: string) {
+    throw new GoneException('use_booking_chat_thread');
   }
 }

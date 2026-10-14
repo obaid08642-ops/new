@@ -12,6 +12,7 @@ import {
 import { CONTRACT_NAMES } from "@nabd/ui/components/contract";
 import { WEB_ONLY } from "@nabd/ui/components/contract";
 import { SERVICE_TILES } from "@nabd/ui/components/fixtures";
+import { COMPONENT_CSS, withResolvedStyles } from "./support/resolve-css";
 
 /**
  * 12.A7 — the component contract.
@@ -73,7 +74,8 @@ describe("12.A7 — touch targets", () => {
   it("no component hard-codes a height below the touch target", () => {
     // The rule the components actually keep: a control may be 32px VISUAL and 44px
     // of target, so a bare px height in a component is the thing to catch.
-    const src = readFileSync(resolve(process.cwd(), "../packages/ui/components/Button.tsx"), "utf8");
+    // the geometry is in the component's sheet (components.css: no style attributes)
+    const src = readFileSync(resolve(process.cwd(), "../packages/ui/components/css/Button.css"), "utf8");
     const heights = [...src.matchAll(/height:\s*(\d+)/g)].map((m) => Number(m[1]));
     for (const h of heights) {
       expect(h, `a literal height of ${h}px in Button`).toBeGreaterThanOrEqual(32);
@@ -142,11 +144,14 @@ describe("12.A7 — light and dark", () => {
       const hexes = [...src.matchAll(/#[0-9A-Fa-f]{3,8}\b/g)].map((m) => m[0]);
       expect(hexes, `${file} has a raw hex: ${hexes.join(", ")}`).toEqual([]);
     }
+    const sheetHexes = [...COMPONENT_CSS.matchAll(/#[0-9A-Fa-f]{3,8}\b/g)].map((m) => m[0]);
+    expect(sheetHexes, `components.css has a raw hex: ${sheetHexes.join(", ")}`).toEqual([]);
   });
 
   it("every colour reference is a --nabd- token, so the themes actually swap", () => {
-    const src = readFileSync(resolve(process.cwd(), "../packages/ui/components/Surfaces.tsx"), "utf8");
-    const colors = [...src.matchAll(/(?:color|background|borderColor|boxShadow|fill):\s*([^;]+);/g)].map((m) => m[1]);
+    // the colours live in the component sheet now (components.css: no style attributes)
+    const colors = [...COMPONENT_CSS.matchAll(/(?:^|[\s{;])(?:color|background|border-color|box-shadow|fill|stop-color):\s*([^;}]+)/g)].map((m) => m[1].trim());
+    expect(colors.length).toBeGreaterThan(50);
     for (const c of colors) {
       expect(c, `"${c}" is not a token reference`).toMatch(/var\(--nabd-|transparent|currentColor|inherit|none|color-mix/);
     }
@@ -177,21 +182,25 @@ describe("12.A7 — the two families are kept apart", () => {
 
 describe("handoff §1 — FIcon", () => {
   it("is a tinted square at 32% radius with a 52% glyph, coloured by tokens", () => {
+    // The tile is SVG (a free size needs no style attribute): the chip is a rect with rx = 32%.
     const html = markup(FIcon, { icon: "pill", tone: "mint", size: 50 });
-    expect(html).toContain("border-radius:16px");
+    expect(html).toContain('rx="16"');
     expect(html).toContain('width="26"');
-    expect(html).toContain("background:var(--nabd-color-service-mint-bg)");
-    expect(html).toContain('fill="var(--nabd-color-service-mint-fg)"');
+    expect(html).toContain("fill:var(--nabd-color-service-mint-bg)");
+    expect(html).toContain("fill:var(--nabd-color-service-mint-fg)");
     expect(html).not.toMatch(/#[0-9a-fA-F]{6}/);
   });
 
   it("solid is the tone gradient with the white glyph token; none is the bare glyph", () => {
     const solid = markup(FIcon, { icon: "pill", tone: "teal", chip: "solid" });
-    expect(solid).toContain("linear-gradient(160deg, var(--nabd-color-service-teal-solid-from) 0%, var(--nabd-color-service-teal-solid-to) 100%)");
-    expect(solid).toContain('fill="var(--nabd-color-icon-onSolid)"');
+    // the 160deg gradient is an SVG linearGradient whose stops are the tone's solid pair
+    expect(solid).toContain("<linearGradient");
+    expect(solid).toContain("stop-color:var(--nabd-color-service-teal-solid-from)");
+    expect(solid).toContain("stop-color:var(--nabd-color-service-teal-solid-to)");
+    expect(solid).toContain("fill:var(--nabd-color-icon-onSolid)");
     const none = markup(FIcon, { icon: "pill", tone: "teal", chip: "none", size: 24 });
     expect(none).toContain('width="24"');
-    expect(none).toContain("background:transparent");
+    expect(none).not.toContain("<rect");
   });
 
   it("is decorative unless it is given a name", () => {
@@ -500,7 +509,7 @@ describe("handoff §3 — states and the main tab bar (components 4/4) match the
     expect(html.match(/aria-current="page"/g)).toHaveLength(1);
     expect(html).toContain("background:var(--nabd-color-action-selected-bg)");
     expect(html).toContain("linear-gradient(180deg, var(--nabd-color-action-fab-from) 0%, var(--nabd-color-action-fab-to) 100%)");
-    expect(html).toContain("margin-top:-34px");
+    expect(html).toContain("margin-block-start:-34px");
     for (const name of ["الرئيسية", "الاستشارات", "التحاليل"]) expect(html).toContain(`aria-label="${name}"`);
     // the label is shown only on the active item
     expect(html.match(/<span aria-hidden="true">/g)).toHaveLength(1);
@@ -536,5 +545,52 @@ function renderRating(props: Record<string, unknown> = {}) {
 }
 
 function markup(Component: unknown, props: Record<string, unknown>) {
-  return renderToStaticMarkup(createElement(Component as never, props as never));
+  // The components are styled by class; the assertions read what the sheet applies (support/resolve-css).
+  return withResolvedStyles(renderToStaticMarkup(createElement(Component as never, props as never)));
 }
+
+describe("CSP (F68) — the components never set a style attribute", () => {
+  // patient-web's style-src has no 'unsafe-inline': a server-rendered style="…" is refused and
+  // the component renders unstyled. Everything here is rendered raw, without the resolver.
+  const raw = (Component: unknown, props: Record<string, unknown>) => renderToStaticMarkup(createElement(Component as never, props as never));
+  const cases: Array<[string, unknown, Record<string, unknown>]> = [
+    ["Button", Button, { label: "x", variant: "primary", size: "sm", disabled: true, startIcon: "plus" }],
+    ["IconButton", IconButton, { name: "close", label: "x", variant: "glass", shape: "square", size: "lg" }],
+    ["FIcon solid", FIcon, { icon: "pill", tone: "teal", chip: "solid", size: 37 }],
+    ["Segmented", Segmented, { label: "x", value: "a", size: "sm", options: [{ value: "a", label: "A" }, { value: "b", label: "B", disabled: true }] }],
+    ["Toggle", Toggle, { label: "x", value: true }],
+    ["Radio", Radio, { label: "x", selected: true }],
+    ["StatusChip", StatusChip, { label: "x", tone: "violet" }],
+    ["Chip", Chip, { label: "x", count: 3, selected: true }],
+    ["Search", Search, { label: "x", value: "q", variant: "page", onClear: () => undefined, clearLabel: "c" }],
+    ["Select", Select, { label: "x", value: "", options: [{ value: "a", label: "A" }], invalid: true }],
+    ["Stepper", Stepper, { label: "x", value: 1, min: 1, max: 3, decrementLabel: "-", incrementLabel: "+" }],
+    ["Card", Card, { title: "x", tint: "amber" }],
+    ["ListItem", ListItem, { title: "x", leading: { icon: "pill", tone: "coral" } }],
+    ["ServiceTile", ServiceTile, { name: "pharmacy", label: "x" }],
+    ["Avatar", Avatar, { name: "Amina Saleh", size: "lg" }],
+    ["Rating", Rating, { value: 4.5, count: 3 }],
+    ["Tabs", Tabs, { label: "x", value: "a", variant: "segmented", items: [{ id: "a", label: "A", icon: "home" }, { id: "b", label: "B", icon: "bell", badge: 2 }] }],
+    ["Badge", Badge, { label: "x", tone: "danger" }],
+    ["DoctorCard", DoctorCard, { name: "x", specialty: "y", rating: 4.8, ratingCount: 9, nextSlot: "10:00", price: "150", bookLabel: "b" }],
+    ["ProductCard", ProductCard, { name: "x", price: "10", was: "12", addLabel: "a" }],
+    ["OfferCard", OfferCard, { title: "x", price: "1", tag: "t", icon: "test-tube", tone: "mint" }],
+    ["Timeline", Timeline, { steps: [{ label: "a", state: "done" }, { label: "b", state: "current" }] }],
+    ["ProgressRing", ProgressRing, { value: 0.4, tone: "pink", label: "x", size: 71 }],
+    ["EmptyState", EmptyState, { icon: "magnifying-glass", tone: "violet", title: "x", actionLabel: "a" }],
+    ["ErrorState", ErrorState, { title: "x", retryLabel: "r" }],
+    ["OfflineState", OfflineState, { title: "x", retryLabel: "r" }],
+    ["BottomTabBar", BottomTabBar, { label: "x", activeId: "home", items: [{ id: "home", label: "h", icon: "house" }, { id: "c", label: "c", icon: "stethoscope", raised: true }] }],
+  ];
+  for (const [name, Component, props] of cases) {
+    it(`${name} renders with no style attribute and no <style> element`, () => {
+      const html = raw(Component, props);
+      expect(html).not.toMatch(/<[a-zA-Z][^>]*\sstyle="/);
+      expect(html).not.toMatch(/<style[\s>]/);
+    });
+  }
+
+  it("every service tone a component can take has its class in tones.css", () => {
+    for (const tone of SERVICE_TONES) expect(COMPONENT_CSS).toContain(`.nabd-tone--${tone} {`);
+  });
+});

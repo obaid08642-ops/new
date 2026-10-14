@@ -1,56 +1,16 @@
-import { NextResponse } from "next/server";
+import { sitemapRoute, citySlugs, listItems, localizedSitemap, MAX_SITEMAP_URLS, sitemapFeed } from "@/lib/sitemap";
 import { locales } from "@/lib/i18n";
-import { localizedUrl } from "@/lib/seo";
 
-export const revalidate = 21600;
+// Dynamic: the feeds are cached in the Next data cache instead (a build without the backend must not fail).
+export const dynamic = "force-dynamic";
 
-function esc(s: string) {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
-export async function GET() {
-  const backendUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus";
-  let tests: string[] = [];
-  try {
-    const res = await fetch(`${backendUrl}/api/v1/labs/services?limit=100`, { next: { revalidate: 21600 } });
-    if (res.ok) {
-      const data: any = await res.json();
-      const items: any[] = Array.isArray(data) ? data : data?.data || data?.items || [];
-      tests = items.map((x: any) => x.slug || x.short_code || x.id).filter(Boolean).slice(0, 100);
-    }
-  } catch {}
-  if (!tests.length) {
-    tests = [
-      "complete-blood-count-cbc",
-      "lipid-profile",
-      "fasting-blood-glucose",
-      "liver-function-test-lft",
-      "kidney-function-test-kft",
-      "vitamin-d-test",
-      "thyroid-profile-tsh",
-      "hba1c-glycated-hemoglobin",
-    ];
-  }
-  // Central GEO: fetch all 150 cities from unified seed via API (fallback to 12)
-  let cities: string[] = ["riyadh", "jeddah", "dammam", "makkah", "madinah", "khobar", "tabuk", "abha", "qassim", "hail", "jubail", "yanbu"];
-  try {
-    const geoRes = await fetch(`${backendUrl}/api/v1/locations/cities`, { next: { revalidate: 21600 } });
-    if (geoRes.ok) {
-      const geoData: any = await geoRes.json();
-      const geoCities: string[] = (Array.isArray(geoData) ? geoData : geoData?.data || []).map((c: any) => c.code?.replace(/^sa-/, '').toLowerCase()).filter(Boolean);
-      if (geoCities.length > 20) cities = geoCities.slice(0, 150);
-    }
-  } catch {}
-
-  const urls = locales.flatMap((locale) =>
-    tests.flatMap((test) =>
-      cities.map((city) => {
-        const loc = localizedUrl(locale, `/labs/${encodeURIComponent(test)}/${city}`);
-        return `  <url><loc>${esc(loc)}</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>`;
-      }),
-    ),
-  );
-
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join("\n")}\n</urlset>`;
-  return new NextResponse(xml, { headers: { "Content-Type": "application/xml; charset=utf-8" } });
+/** Lab tests by city: /{locale}/labs/{test}/{city} for the reviewed lab catalogue (no invented
+ *  fallback list), six locales + x-default, within the 50,000-URL limit. */
+export function GET() {
+  return sitemapRoute(async () => {
+    const [data, cities] = await Promise.all([sitemapFeed<unknown>("/labs/services?limit=100"), citySlugs()]);
+    const tests = listItems<{ slug?: string; short_code?: string; id?: string }>(data).map((x) => x.slug || x.short_code || x.id).filter((t): t is string => Boolean(t)).slice(0, 100);
+    const perTest = Math.max(1, Math.floor(MAX_SITEMAP_URLS / locales.length / Math.max(tests.length, 1)));
+    return localizedSitemap(tests.flatMap((t) => cities.slice(0, perTest).map((c) => ({ path: `/labs/${encodeURIComponent(t)}/${encodeURIComponent(c)}`, priority: "0.7" }))));
+  });
 }

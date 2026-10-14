@@ -24,87 +24,37 @@
             {
               "scheme": "https",
               "host": "app.nabd.plus",
+              "path": "/ar"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/en"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/ur"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/hi"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/bn"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/fil"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
               "pathPrefix": "/p/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/medicine/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/doctor/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/condition/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/facility/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/doctors/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/home-nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/s/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/pharmacy/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/pharmacies/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/consultations/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/labs/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/radiology/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/c/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/articles/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/services/"
             },
             {
               "scheme": "https",
@@ -114,167 +64,7 @@
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/ar/medicine/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ar/doctor/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ar/condition/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ar/facility/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ar/doctors/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ar/home-nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ar/s/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ar/pharmacy/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ar/pharmacies/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ar/consultations/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ar/labs/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ar/radiology/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ar/nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ar/c/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ar/articles/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ar/services/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
               "pathPrefix": "/en/p/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/en/medicine/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/en/doctor/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/en/condition/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/en/facility/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/en/doctors/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/en/home-nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/en/s/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/en/pharmacy/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/en/pharmacies/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/en/consultations/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/en/labs/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/en/radiology/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/en/nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/en/c/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/en/articles/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/en/services/"
             },
             {
               "scheme": "https",
@@ -284,167 +74,7 @@
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/ur/medicine/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ur/doctor/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ur/condition/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ur/facility/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ur/doctors/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ur/home-nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ur/s/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ur/pharmacy/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ur/pharmacies/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ur/consultations/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ur/labs/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ur/radiology/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ur/nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ur/c/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ur/articles/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/ur/services/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
               "pathPrefix": "/hi/p/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/hi/medicine/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/hi/doctor/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/hi/condition/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/hi/facility/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/hi/doctors/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/hi/home-nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/hi/s/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/hi/pharmacy/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/hi/pharmacies/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/hi/consultations/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/hi/labs/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/hi/radiology/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/hi/nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/hi/c/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/hi/articles/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabd.plus",
-              "pathPrefix": "/hi/services/"
             },
             {
               "scheme": "https",
@@ -454,67 +84,67 @@
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/bn/medicine/"
+              "pathPrefix": "/fil/p/"
             },
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/bn/doctor/"
+              "path": "/c"
             },
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/bn/condition/"
+              "path": "/ar/c"
             },
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/bn/facility/"
+              "path": "/en/c"
             },
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/bn/doctors/"
+              "path": "/ur/c"
             },
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/bn/home-nursing/"
+              "path": "/hi/c"
             },
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/bn/s/"
+              "path": "/bn/c"
             },
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/bn/pharmacy/"
+              "path": "/fil/c"
             },
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/bn/pharmacies/"
+              "pathPrefix": "/c/"
             },
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/bn/consultations/"
+              "pathPrefix": "/ar/c/"
             },
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/bn/labs/"
+              "pathPrefix": "/en/c/"
             },
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/bn/radiology/"
+              "pathPrefix": "/ur/c/"
             },
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/bn/nursing/"
+              "pathPrefix": "/hi/c/"
             },
             {
               "scheme": "https",
@@ -524,22 +154,37 @@
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/bn/articles/"
+              "pathPrefix": "/fil/c/"
             },
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/bn/services/"
+              "pathPrefix": "/doctor/"
             },
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/fil/p/"
+              "pathPrefix": "/ar/doctor/"
             },
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/fil/medicine/"
+              "pathPrefix": "/en/doctor/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ur/doctor/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/hi/doctor/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/bn/doctor/"
             },
             {
               "scheme": "https",
@@ -549,12 +194,32 @@
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/fil/condition/"
+              "pathPrefix": "/doctors/"
             },
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/fil/facility/"
+              "pathPrefix": "/ar/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/en/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ur/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/hi/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/bn/doctors/"
             },
             {
               "scheme": "https",
@@ -564,12 +229,172 @@
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/fil/home-nursing/"
+              "path": "/consultations/doctors"
             },
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/fil/s/"
+              "path": "/ar/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/en/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/ur/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/hi/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/bn/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/fil/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ar/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/en/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ur/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/hi/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/bn/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/fil/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ar/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/en/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ur/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/hi/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/bn/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/fil/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ar/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/en/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ur/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/hi/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/bn/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/fil/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/pharmacy/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ar/pharmacy/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/en/pharmacy/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ur/pharmacy/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/hi/pharmacy/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/bn/pharmacy/"
             },
             {
               "scheme": "https",
@@ -579,12 +404,67 @@
             {
               "scheme": "https",
               "host": "app.nabd.plus",
+              "pathPrefix": "/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ar/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/en/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ur/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/hi/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/bn/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
               "pathPrefix": "/fil/pharmacies/"
             },
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/fil/consultations/"
+              "pathPrefix": "/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ar/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/en/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ur/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/hi/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/bn/labs/"
             },
             {
               "scheme": "https",
@@ -594,17 +474,417 @@
             {
               "scheme": "https",
               "host": "app.nabd.plus",
+              "path": "/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/ar/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/en/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/ur/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/hi/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/bn/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/fil/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ar/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/en/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ur/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/hi/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/bn/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/fil/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/ar/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/en/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/ur/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/hi/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/bn/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/fil/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ar/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/en/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ur/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/hi/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/bn/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/fil/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ar/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/en/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ur/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/hi/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/bn/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
               "pathPrefix": "/fil/radiology/"
             },
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/fil/nursing/"
+              "path": "/diagnostics/radiology"
             },
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/fil/c/"
+              "path": "/ar/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/en/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/ur/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/hi/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/bn/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/fil/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ar/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/en/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ur/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/hi/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/bn/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/fil/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ar/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/en/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ur/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/hi/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/bn/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/fil/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/ar/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/en/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/ur/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/hi/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/bn/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/fil/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ar/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/en/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ur/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/hi/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/bn/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/fil/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/ar/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/en/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/ur/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/hi/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/bn/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/fil/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/articles/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ar/articles/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/en/articles/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ur/articles/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/hi/articles/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/bn/articles/"
             },
             {
               "scheme": "https",
@@ -614,7 +894,67 @@
             {
               "scheme": "https",
               "host": "app.nabd.plus",
-              "pathPrefix": "/fil/services/"
+              "pathPrefix": "/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ar/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/en/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ur/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/hi/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/bn/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/fil/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/ar"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/en"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/ur"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/hi"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/bn"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/fil"
             },
             {
               "scheme": "https",
@@ -624,167 +964,7 @@
             {
               "scheme": "https",
               "host": "nabd.plus",
-              "pathPrefix": "/medicine/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/doctor/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/condition/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/facility/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/doctors/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/home-nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/s/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/pharmacy/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/pharmacies/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/consultations/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/labs/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/radiology/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/c/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/articles/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/services/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
               "pathPrefix": "/ar/p/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ar/medicine/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ar/doctor/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ar/condition/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ar/facility/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ar/doctors/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ar/home-nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ar/s/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ar/pharmacy/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ar/pharmacies/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ar/consultations/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ar/labs/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ar/radiology/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ar/nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ar/c/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ar/articles/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ar/services/"
             },
             {
               "scheme": "https",
@@ -794,167 +974,7 @@
             {
               "scheme": "https",
               "host": "nabd.plus",
-              "pathPrefix": "/en/medicine/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/en/doctor/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/en/condition/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/en/facility/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/en/doctors/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/en/home-nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/en/s/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/en/pharmacy/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/en/pharmacies/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/en/consultations/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/en/labs/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/en/radiology/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/en/nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/en/c/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/en/articles/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/en/services/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
               "pathPrefix": "/ur/p/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ur/medicine/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ur/doctor/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ur/condition/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ur/facility/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ur/doctors/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ur/home-nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ur/s/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ur/pharmacy/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ur/pharmacies/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ur/consultations/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ur/labs/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ur/radiology/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ur/nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ur/c/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ur/articles/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/ur/services/"
             },
             {
               "scheme": "https",
@@ -964,167 +984,7 @@
             {
               "scheme": "https",
               "host": "nabd.plus",
-              "pathPrefix": "/hi/medicine/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/hi/doctor/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/hi/condition/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/hi/facility/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/hi/doctors/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/hi/home-nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/hi/s/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/hi/pharmacy/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/hi/pharmacies/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/hi/consultations/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/hi/labs/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/hi/radiology/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/hi/nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/hi/c/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/hi/articles/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/hi/services/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
               "pathPrefix": "/bn/p/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/bn/medicine/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/bn/doctor/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/bn/condition/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/bn/facility/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/bn/doctors/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/bn/home-nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/bn/s/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/bn/pharmacy/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/bn/pharmacies/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/bn/consultations/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/bn/labs/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/bn/radiology/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/bn/nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/bn/c/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/bn/articles/"
-            },
-            {
-              "scheme": "https",
-              "host": "nabd.plus",
-              "pathPrefix": "/bn/services/"
             },
             {
               "scheme": "https",
@@ -1134,67 +994,67 @@
             {
               "scheme": "https",
               "host": "nabd.plus",
-              "pathPrefix": "/fil/medicine/"
+              "path": "/c"
             },
             {
               "scheme": "https",
               "host": "nabd.plus",
-              "pathPrefix": "/fil/doctor/"
+              "path": "/ar/c"
             },
             {
               "scheme": "https",
               "host": "nabd.plus",
-              "pathPrefix": "/fil/condition/"
+              "path": "/en/c"
             },
             {
               "scheme": "https",
               "host": "nabd.plus",
-              "pathPrefix": "/fil/facility/"
+              "path": "/ur/c"
             },
             {
               "scheme": "https",
               "host": "nabd.plus",
-              "pathPrefix": "/fil/doctors/"
+              "path": "/hi/c"
             },
             {
               "scheme": "https",
               "host": "nabd.plus",
-              "pathPrefix": "/fil/home-nursing/"
+              "path": "/bn/c"
             },
             {
               "scheme": "https",
               "host": "nabd.plus",
-              "pathPrefix": "/fil/s/"
+              "path": "/fil/c"
             },
             {
               "scheme": "https",
               "host": "nabd.plus",
-              "pathPrefix": "/fil/pharmacy/"
+              "pathPrefix": "/c/"
             },
             {
               "scheme": "https",
               "host": "nabd.plus",
-              "pathPrefix": "/fil/pharmacies/"
+              "pathPrefix": "/ar/c/"
             },
             {
               "scheme": "https",
               "host": "nabd.plus",
-              "pathPrefix": "/fil/consultations/"
+              "pathPrefix": "/en/c/"
             },
             {
               "scheme": "https",
               "host": "nabd.plus",
-              "pathPrefix": "/fil/labs/"
+              "pathPrefix": "/ur/c/"
             },
             {
               "scheme": "https",
               "host": "nabd.plus",
-              "pathPrefix": "/fil/radiology/"
+              "pathPrefix": "/hi/c/"
             },
             {
               "scheme": "https",
               "host": "nabd.plus",
-              "pathPrefix": "/fil/nursing/"
+              "pathPrefix": "/bn/c/"
             },
             {
               "scheme": "https",
@@ -1204,12 +1064,802 @@
             {
               "scheme": "https",
               "host": "nabd.plus",
+              "pathPrefix": "/doctor/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ar/doctor/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/en/doctor/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ur/doctor/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/hi/doctor/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/bn/doctor/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/fil/doctor/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ar/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/en/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ur/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/hi/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/bn/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/fil/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/ar/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/en/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/ur/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/hi/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/bn/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/fil/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ar/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/en/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ur/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/hi/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/bn/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/fil/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ar/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/en/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ur/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/hi/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/bn/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/fil/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ar/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/en/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ur/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/hi/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/bn/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/fil/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/pharmacy/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ar/pharmacy/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/en/pharmacy/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ur/pharmacy/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/hi/pharmacy/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/bn/pharmacy/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/fil/pharmacy/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ar/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/en/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ur/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/hi/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/bn/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/fil/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ar/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/en/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ur/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/hi/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/bn/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/fil/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/ar/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/en/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/ur/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/hi/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/bn/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/fil/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ar/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/en/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ur/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/hi/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/bn/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/fil/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/ar/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/en/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/ur/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/hi/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/bn/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/fil/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ar/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/en/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ur/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/hi/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/bn/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/fil/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ar/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/en/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ur/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/hi/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/bn/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/fil/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/ar/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/en/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/ur/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/hi/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/bn/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/fil/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ar/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/en/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ur/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/hi/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/bn/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/fil/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ar/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/en/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ur/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/hi/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/bn/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/fil/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/ar/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/en/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/ur/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/hi/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/bn/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/fil/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ar/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/en/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ur/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/hi/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/bn/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/fil/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/ar/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/en/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/ur/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/hi/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/bn/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/fil/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/articles/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ar/articles/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/en/articles/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ur/articles/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/hi/articles/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/bn/articles/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
               "pathPrefix": "/fil/articles/"
             },
             {
               "scheme": "https",
               "host": "nabd.plus",
-              "pathPrefix": "/fil/services/"
+              "pathPrefix": "/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ar/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/en/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ur/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/hi/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/bn/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/fil/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/ar"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/en"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/ur"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/hi"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/bn"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/fil"
             },
             {
               "scheme": "https",
@@ -1219,167 +1869,7 @@
             {
               "scheme": "https",
               "host": "www.nabd.plus",
-              "pathPrefix": "/medicine/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/doctor/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/condition/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/facility/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/doctors/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/home-nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/s/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/pharmacy/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/pharmacies/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/consultations/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/labs/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/radiology/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/c/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/articles/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/services/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
               "pathPrefix": "/ar/p/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ar/medicine/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ar/doctor/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ar/condition/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ar/facility/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ar/doctors/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ar/home-nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ar/s/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ar/pharmacy/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ar/pharmacies/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ar/consultations/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ar/labs/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ar/radiology/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ar/nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ar/c/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ar/articles/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ar/services/"
             },
             {
               "scheme": "https",
@@ -1389,167 +1879,7 @@
             {
               "scheme": "https",
               "host": "www.nabd.plus",
-              "pathPrefix": "/en/medicine/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/en/doctor/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/en/condition/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/en/facility/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/en/doctors/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/en/home-nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/en/s/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/en/pharmacy/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/en/pharmacies/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/en/consultations/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/en/labs/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/en/radiology/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/en/nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/en/c/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/en/articles/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/en/services/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
               "pathPrefix": "/ur/p/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ur/medicine/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ur/doctor/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ur/condition/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ur/facility/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ur/doctors/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ur/home-nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ur/s/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ur/pharmacy/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ur/pharmacies/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ur/consultations/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ur/labs/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ur/radiology/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ur/nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ur/c/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ur/articles/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/ur/services/"
             },
             {
               "scheme": "https",
@@ -1559,167 +1889,7 @@
             {
               "scheme": "https",
               "host": "www.nabd.plus",
-              "pathPrefix": "/hi/medicine/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/hi/doctor/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/hi/condition/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/hi/facility/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/hi/doctors/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/hi/home-nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/hi/s/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/hi/pharmacy/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/hi/pharmacies/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/hi/consultations/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/hi/labs/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/hi/radiology/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/hi/nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/hi/c/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/hi/articles/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/hi/services/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
               "pathPrefix": "/bn/p/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/bn/medicine/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/bn/doctor/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/bn/condition/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/bn/facility/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/bn/doctors/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/bn/home-nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/bn/s/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/bn/pharmacy/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/bn/pharmacies/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/bn/consultations/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/bn/labs/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/bn/radiology/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/bn/nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/bn/c/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/bn/articles/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.nabd.plus",
-              "pathPrefix": "/bn/services/"
             },
             {
               "scheme": "https",
@@ -1729,67 +1899,67 @@
             {
               "scheme": "https",
               "host": "www.nabd.plus",
-              "pathPrefix": "/fil/medicine/"
+              "path": "/c"
             },
             {
               "scheme": "https",
               "host": "www.nabd.plus",
-              "pathPrefix": "/fil/doctor/"
+              "path": "/ar/c"
             },
             {
               "scheme": "https",
               "host": "www.nabd.plus",
-              "pathPrefix": "/fil/condition/"
+              "path": "/en/c"
             },
             {
               "scheme": "https",
               "host": "www.nabd.plus",
-              "pathPrefix": "/fil/facility/"
+              "path": "/ur/c"
             },
             {
               "scheme": "https",
               "host": "www.nabd.plus",
-              "pathPrefix": "/fil/doctors/"
+              "path": "/hi/c"
             },
             {
               "scheme": "https",
               "host": "www.nabd.plus",
-              "pathPrefix": "/fil/home-nursing/"
+              "path": "/bn/c"
             },
             {
               "scheme": "https",
               "host": "www.nabd.plus",
-              "pathPrefix": "/fil/s/"
+              "path": "/fil/c"
             },
             {
               "scheme": "https",
               "host": "www.nabd.plus",
-              "pathPrefix": "/fil/pharmacy/"
+              "pathPrefix": "/c/"
             },
             {
               "scheme": "https",
               "host": "www.nabd.plus",
-              "pathPrefix": "/fil/pharmacies/"
+              "pathPrefix": "/ar/c/"
             },
             {
               "scheme": "https",
               "host": "www.nabd.plus",
-              "pathPrefix": "/fil/consultations/"
+              "pathPrefix": "/en/c/"
             },
             {
               "scheme": "https",
               "host": "www.nabd.plus",
-              "pathPrefix": "/fil/labs/"
+              "pathPrefix": "/ur/c/"
             },
             {
               "scheme": "https",
               "host": "www.nabd.plus",
-              "pathPrefix": "/fil/radiology/"
+              "pathPrefix": "/hi/c/"
             },
             {
               "scheme": "https",
               "host": "www.nabd.plus",
-              "pathPrefix": "/fil/nursing/"
+              "pathPrefix": "/bn/c/"
             },
             {
               "scheme": "https",
@@ -1799,12 +1969,802 @@
             {
               "scheme": "https",
               "host": "www.nabd.plus",
+              "pathPrefix": "/doctor/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ar/doctor/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/en/doctor/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ur/doctor/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/hi/doctor/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/bn/doctor/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/fil/doctor/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ar/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/en/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ur/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/hi/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/bn/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/fil/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/ar/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/en/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/ur/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/hi/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/bn/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/fil/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ar/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/en/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ur/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/hi/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/bn/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/fil/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ar/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/en/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ur/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/hi/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/bn/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/fil/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ar/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/en/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ur/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/hi/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/bn/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/fil/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/pharmacy/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ar/pharmacy/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/en/pharmacy/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ur/pharmacy/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/hi/pharmacy/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/bn/pharmacy/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/fil/pharmacy/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ar/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/en/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ur/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/hi/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/bn/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/fil/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ar/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/en/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ur/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/hi/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/bn/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/fil/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/ar/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/en/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/ur/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/hi/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/bn/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/fil/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ar/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/en/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ur/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/hi/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/bn/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/fil/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/ar/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/en/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/ur/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/hi/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/bn/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/fil/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ar/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/en/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ur/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/hi/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/bn/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/fil/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ar/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/en/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ur/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/hi/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/bn/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/fil/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/ar/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/en/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/ur/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/hi/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/bn/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/fil/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ar/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/en/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ur/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/hi/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/bn/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/fil/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ar/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/en/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ur/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/hi/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/bn/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/fil/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/ar/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/en/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/ur/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/hi/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/bn/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/fil/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ar/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/en/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ur/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/hi/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/bn/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/fil/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/ar/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/en/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/ur/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/hi/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/bn/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/fil/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/articles/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ar/articles/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/en/articles/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ur/articles/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/hi/articles/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/bn/articles/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
               "pathPrefix": "/fil/articles/"
             },
             {
               "scheme": "https",
               "host": "www.nabd.plus",
-              "pathPrefix": "/fil/services/"
+              "pathPrefix": "/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ar/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/en/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ur/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/hi/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/bn/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/fil/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/ar"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/en"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/ur"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/hi"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/bn"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/fil"
             },
             {
               "scheme": "https",
@@ -1814,167 +2774,7 @@
             {
               "scheme": "https",
               "host": "app.nabdahplus.com",
-              "pathPrefix": "/medicine/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/doctor/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/condition/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/facility/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/doctors/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/home-nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/s/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/pharmacy/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/pharmacies/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/consultations/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/labs/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/radiology/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/c/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/articles/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/services/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
               "pathPrefix": "/ar/p/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ar/medicine/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ar/doctor/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ar/condition/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ar/facility/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ar/doctors/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ar/home-nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ar/s/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ar/pharmacy/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ar/pharmacies/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ar/consultations/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ar/labs/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ar/radiology/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ar/nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ar/c/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ar/articles/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ar/services/"
             },
             {
               "scheme": "https",
@@ -1984,167 +2784,7 @@
             {
               "scheme": "https",
               "host": "app.nabdahplus.com",
-              "pathPrefix": "/en/medicine/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/en/doctor/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/en/condition/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/en/facility/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/en/doctors/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/en/home-nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/en/s/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/en/pharmacy/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/en/pharmacies/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/en/consultations/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/en/labs/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/en/radiology/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/en/nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/en/c/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/en/articles/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/en/services/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
               "pathPrefix": "/ur/p/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ur/medicine/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ur/doctor/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ur/condition/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ur/facility/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ur/doctors/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ur/home-nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ur/s/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ur/pharmacy/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ur/pharmacies/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ur/consultations/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ur/labs/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ur/radiology/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ur/nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ur/c/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ur/articles/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/ur/services/"
             },
             {
               "scheme": "https",
@@ -2154,167 +2794,7 @@
             {
               "scheme": "https",
               "host": "app.nabdahplus.com",
-              "pathPrefix": "/hi/medicine/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/hi/doctor/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/hi/condition/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/hi/facility/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/hi/doctors/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/hi/home-nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/hi/s/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/hi/pharmacy/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/hi/pharmacies/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/hi/consultations/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/hi/labs/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/hi/radiology/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/hi/nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/hi/c/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/hi/articles/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/hi/services/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
               "pathPrefix": "/bn/p/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/bn/medicine/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/bn/doctor/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/bn/condition/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/bn/facility/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/bn/doctors/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/bn/home-nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/bn/s/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/bn/pharmacy/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/bn/pharmacies/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/bn/consultations/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/bn/labs/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/bn/radiology/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/bn/nursing/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/bn/c/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/bn/articles/"
-            },
-            {
-              "scheme": "https",
-              "host": "app.nabdahplus.com",
-              "pathPrefix": "/bn/services/"
             },
             {
               "scheme": "https",
@@ -2324,67 +2804,67 @@
             {
               "scheme": "https",
               "host": "app.nabdahplus.com",
-              "pathPrefix": "/fil/medicine/"
+              "path": "/c"
             },
             {
               "scheme": "https",
               "host": "app.nabdahplus.com",
-              "pathPrefix": "/fil/doctor/"
+              "path": "/ar/c"
             },
             {
               "scheme": "https",
               "host": "app.nabdahplus.com",
-              "pathPrefix": "/fil/condition/"
+              "path": "/en/c"
             },
             {
               "scheme": "https",
               "host": "app.nabdahplus.com",
-              "pathPrefix": "/fil/facility/"
+              "path": "/ur/c"
             },
             {
               "scheme": "https",
               "host": "app.nabdahplus.com",
-              "pathPrefix": "/fil/doctors/"
+              "path": "/hi/c"
             },
             {
               "scheme": "https",
               "host": "app.nabdahplus.com",
-              "pathPrefix": "/fil/home-nursing/"
+              "path": "/bn/c"
             },
             {
               "scheme": "https",
               "host": "app.nabdahplus.com",
-              "pathPrefix": "/fil/s/"
+              "path": "/fil/c"
             },
             {
               "scheme": "https",
               "host": "app.nabdahplus.com",
-              "pathPrefix": "/fil/pharmacy/"
+              "pathPrefix": "/c/"
             },
             {
               "scheme": "https",
               "host": "app.nabdahplus.com",
-              "pathPrefix": "/fil/pharmacies/"
+              "pathPrefix": "/ar/c/"
             },
             {
               "scheme": "https",
               "host": "app.nabdahplus.com",
-              "pathPrefix": "/fil/consultations/"
+              "pathPrefix": "/en/c/"
             },
             {
               "scheme": "https",
               "host": "app.nabdahplus.com",
-              "pathPrefix": "/fil/labs/"
+              "pathPrefix": "/ur/c/"
             },
             {
               "scheme": "https",
               "host": "app.nabdahplus.com",
-              "pathPrefix": "/fil/radiology/"
+              "pathPrefix": "/hi/c/"
             },
             {
               "scheme": "https",
               "host": "app.nabdahplus.com",
-              "pathPrefix": "/fil/nursing/"
+              "pathPrefix": "/bn/c/"
             },
             {
               "scheme": "https",
@@ -2394,17 +2874,1337 @@
             {
               "scheme": "https",
               "host": "app.nabdahplus.com",
+              "pathPrefix": "/doctor/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ar/doctor/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/en/doctor/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ur/doctor/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/hi/doctor/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/bn/doctor/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/fil/doctor/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ar/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/en/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ur/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/hi/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/bn/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/fil/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/ar/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/en/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/ur/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/hi/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/bn/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/fil/consultations/doctors"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ar/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/en/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ur/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/hi/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/bn/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/fil/consultations/doctors/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ar/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/en/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ur/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/hi/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/bn/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/fil/facility/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ar/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/en/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ur/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/hi/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/bn/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/fil/consultations/clinics/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/pharmacy/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ar/pharmacy/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/en/pharmacy/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ur/pharmacy/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/hi/pharmacy/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/bn/pharmacy/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/fil/pharmacy/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ar/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/en/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ur/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/hi/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/bn/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/fil/pharmacies/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ar/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/en/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ur/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/hi/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/bn/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/fil/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/ar/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/en/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/ur/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/hi/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/bn/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/fil/diagnostics/labs"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ar/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/en/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ur/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/hi/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/bn/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/fil/diagnostics/labs/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/ar/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/en/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/ur/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/hi/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/bn/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/fil/diagnostics/packages"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ar/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/en/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ur/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/hi/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/bn/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/fil/diagnostics/packages/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ar/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/en/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ur/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/hi/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/bn/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/fil/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/ar/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/en/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/ur/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/hi/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/bn/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/fil/diagnostics/radiology"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ar/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/en/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ur/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/hi/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/bn/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/fil/diagnostics/radiology/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ar/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/en/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ur/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/hi/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/bn/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/fil/home-nursing/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/ar/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/en/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/ur/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/hi/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/bn/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/fil/nursing/catalog"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ar/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/en/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ur/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/hi/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/bn/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/fil/home-care/services/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/ar/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/en/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/ur/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/hi/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/bn/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/fil/articles"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/articles/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ar/articles/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/en/articles/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ur/articles/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/hi/articles/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/bn/articles/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
               "pathPrefix": "/fil/articles/"
             },
             {
               "scheme": "https",
               "host": "app.nabdahplus.com",
-              "pathPrefix": "/fil/services/"
+              "pathPrefix": "/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ar/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/en/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ur/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/hi/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/bn/condition/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/fil/condition/"
             },
             {
               "scheme": "nabdplus"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/ar/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/en/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/ur/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/hi/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/bn/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/fil/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/ar/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/en/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/ur/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/hi/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/bn/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "path": "/fil/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ar/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/en/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ur/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/hi/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/bn/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/fil/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ar/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/en/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/ur/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/hi/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/bn/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/fil/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/ar/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/en/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/ur/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/hi/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/bn/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/fil/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/ar/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/en/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/ur/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/hi/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/bn/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "path": "/fil/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ar/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/en/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ur/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/hi/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/bn/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/fil/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ar/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/en/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/ur/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/hi/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/bn/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/fil/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/ar/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/en/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/ur/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/hi/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/bn/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/fil/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/ar/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/en/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/ur/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/hi/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/bn/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "path": "/fil/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ar/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/en/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ur/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/hi/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/bn/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/fil/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ar/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/en/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/ur/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/hi/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/bn/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/fil/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/ar/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/en/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/ur/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/hi/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/bn/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/fil/pharmacy/broadcast-status"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/ar/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/en/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/ur/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/hi/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/bn/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "path": "/fil/consultations/booking-status"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ar/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/en/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ur/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/hi/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/bn/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/fil/diagnostics/bookings/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ar/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/en/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/ur/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/hi/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/bn/nursing/visits/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/fil/nursing/visits/"
             }
-            ],
+          ],
           "category": [
             "BROWSABLE",
             "DEFAULT"
@@ -2434,6 +4234,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.patient.nabd",
+      "usesAppleSignIn": true,
       "associatedDomains": [
         "applinks:app.nabd.plus",
         "applinks:nabd.plus",
@@ -2465,13 +4266,13 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow Nabdah Plus to access your camera"
+          "cameraPermission": "Allow Nabd+ to access your camera"
         }
       ],
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Allow Nabdah Plus to use your location"
+          "locationWhenInUsePermission": "Allow Nabd+ to use your location"
         }
       ],
       [

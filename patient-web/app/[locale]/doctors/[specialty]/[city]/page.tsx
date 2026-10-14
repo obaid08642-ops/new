@@ -1,30 +1,26 @@
 import { JsonLd } from "@/components-next/json-ld";
-import { medicalWebPage, breadcrumbList, physician } from "@/lib/seo/structured-data";
+import { medicalWebPage, breadcrumbList } from "@/lib/seo/structured-data";
 import type { Metadata } from "next";
 import { localizedUrl } from "@/lib/seo";
 import { isLocale, locales, type Locale } from "@/lib/i18n";
-import Link from "next/link";
-import { VectorDoctor } from "@/components-next/vector-illustrations";
 import { notFound } from "next/navigation";
-import { setRequestLocale } from "next-intl/server";
-import { Building2, MapPin, Star } from "lucide-react";
-import styles from "./doctors-city.module.css";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { readPublicEntity } from "@/lib/api/public-read";
+import { readSegment, type ExploreResult } from "@/lib/api/entity-explore";
+import { CONSULT } from "@/components-next/consult/consult-parts";
+import { DoctorListCard } from "@/components-next/consult/doctor-list-card";
+import { CardGrid, EntityRow, LandingPage, LandingSection } from "@/components-next/landing/landing-kit";
+import { pickText } from "@/components-next/diagnostics/diag-parts";
 
 type Props = { params: Promise<{ locale: string; specialty: string; city: string }> };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus";
 
 async function fetchDoctorsByLocation(specialty: string, city: string) {
-  try {
-    const res = await fetch(
-      `${API_BASE}/api/v1/entity-graph/explore?specialty=${encodeURIComponent(specialty)}&city=${encodeURIComponent(city)}`,
-      { next: { revalidate: 3600 } },
-    );
-    if (!res.ok) return null;
-    return await res.json();
-  } catch {
-    return null;
-  }
+  return readPublicEntity<ExploreResult>(
+    `${API_BASE}/api/v1/entity-graph/explore?specialty=${encodeURIComponent(specialty)}&city=${encodeURIComponent(city)}`,
+    3600,
+  );
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -37,13 +33,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { robots: { index: false, follow: false } };
   }
 
+  const t = await getTranslations({ locale, namespace: "PublicLanding" });
+  const vars = { specialty: readSegment(specialty), city: readSegment(city) };
   const canonical = localizedUrl(locale as Locale, `/doctors/${encodeURIComponent(specialty)}/${encodeURIComponent(city)}`);
-  const title = locale === "ar"
-    ? `أطباء ${specialty} في ${city} | احجز موعدك الآن`
-    : `${specialty} Doctors in ${city} | Book Appointment`;
-  const desc = locale === "ar"
-    ? `قائمة الأطباء المعتمدين لتخصص ${specialty} في ${city}. احجز استشارتك مع نخبة من الأطباء والمراكز المعتمدة عبر نبضة بلس.`
-    : `Verified ${specialty} doctors and clinics in ${city}. Book in-clinic or online consultation via Nabd Plus.`;
+  const title = t("meta.doctorsCity.title", vars);
+  const desc = t("meta.doctorsCity.description", vars);
 
   return {
     title,
@@ -71,15 +65,14 @@ export default async function DoctorsSpecialtyCityPage({ params }: Props) {
     notFound();
   }
 
-  const doctors = data.doctors || [];
-  const facilities = data.facilities || [];
-
-  const pageTitle = locale === "ar"
-    ? `أطباء ${specialty} في ${city}`
-    : `${specialty} Doctors in ${city}`;
+  const t = await getTranslations("PublicLanding");
+  const doctors = data.doctors ?? [];
+  const facilities = data.facilities ?? [];
+  const vars = { specialty: readSegment(specialty), city: readSegment(city) };
+  const pageTitle = t("doctorsCity.title", vars);
 
   return (
-    <main className={`main ${styles.page}`}>
+    <LandingPage locale={locale} title={pageTitle} intro={t("doctorsCity.intro", vars)} backHref={`/${locale}/consultations/specialties`}>
       <JsonLd
         data={[
           medicalWebPage({
@@ -88,83 +81,51 @@ export default async function DoctorsSpecialtyCityPage({ params }: Props) {
             locale: locale as Locale,
           }),
           breadcrumbList([
-            { name: "Nabd Plus", locale: locale as Locale, path: "/" },
+            { name: "Nabd Plus", locale: locale as Locale, path: "/" }, // i18n-ok: structured data is kept exactly as published (SEO)
             { name: specialty, locale: locale as Locale, path: `/consultations/specialties` },
             { name: city, locale: locale as Locale, path: `/doctors/${specialty}/${city}` },
           ]),
         ]}
       />
 
-      <section className={styles.header}>
-        <div>
-          <p className={styles.eyebrow}>{specialty}</p>
-          <h1>{pageTitle}</h1>
-          <p className={styles.subtitle}>
-            {locale === "ar"
-              ? `استعرض الأطباء والمراكز الطبية المعتمدة في ${city} مع تقييمات موثقة وأسعار شفافة.`
-              : `Browse verified doctors and clinics in ${city} with verified reviews and transparent pricing.`}
-          </p>
-        </div>
-        <span className={styles.vectorWrap} aria-hidden="true">
-          <VectorDoctor size={48} />
-        </span>
-      </section>
-
       {doctors.length ? (
-        <section className={styles.section} aria-label={locale === "ar" ? "الأطباء المتاحون" : "Available Doctors"}>
-          <h2 className={styles.sectionHead}>
-            <VectorDoctor size={20} aria-hidden="true" />
-            {locale === "ar" ? "الأطباء المتاحون" : "Available Doctors"}
-          </h2>
-          <div className={styles.grid}>
-            {doctors.map((doc: any) => (
-              <div key={doc.id} className={styles.card}>
-                <h3 className={styles.cardTitle}>
-                  <Link href={`/${locale}/doctor/${doc.slug || doc.id}`}>
-                    {locale === "ar" ? (doc.name_ar || doc.name_en) : (doc.name_en || doc.name_ar)}
-                  </Link>
-                </h3>
-                <p className={styles.meta} style={{ overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as any}>{doc.specialty}</p>
-                {doc.rating ? (
-                  <span className={styles.rating}>
-                    <Star size={14} fill="#eab308" color="#b45309" aria-hidden="true" />
-                    {doc.rating}
-                  </span>
-                ) : null}
-                <Link href={`/${locale}/consultations/doctors/${doc.id || doc.slug}`} className={styles.primaryBtn} style={{ background: "#5FD9B3", color: "#1E332E", borderRadius: "20px", border: "1px solid #E8EDEE" } as any}>
-                  {locale === "ar" ? "حجز موعد" : "Book Appointment"}
-                </Link>
-              </div>
+        <LandingSection id="doctors" title={t("doctorsCity.doctors")}>
+          <CardGrid label={t("doctorsCity.doctors")}>
+            {doctors.map((doc) => (
+              <li key={doc.id}>
+                <DoctorListCard
+                  locale={locale}
+                  href={`/${locale}/doctor/${doc.slug || doc.id}`}
+                  name={pickText(locale, doc.name_ar ?? undefined, doc.name_en ?? undefined) ?? ""}
+                  specialty={doc.specialty ?? undefined}
+                  place={doc.city ?? undefined}
+                  modes={[]}
+                  bookLabel={t("doctorsCity.book")}
+                />
+              </li>
             ))}
-          </div>
-        </section>
+          </CardGrid>
+        </LandingSection>
       ) : null}
 
       {facilities.length ? (
-        <section className={styles.section} aria-label={locale === "ar" ? "المستشفيات والمراكز التابعة" : "Associated Hospitals & Clinics"}>
-          <h2 className={styles.sectionHead}>
-            <Building2 size={18} aria-hidden="true" />
-            {locale === "ar" ? "المستشفيات والمراكز التابعة" : "Associated Hospitals & Clinics"}
-          </h2>
-          <div className={styles.grid}>
-            {facilities.map((fac: any) => (
-              <div key={fac.id} className={styles.card}>
-                <h3 className={styles.cardTitle}>
-                  <Link href={`/${locale}/facility/${fac.slug || fac.id}`}>
-                    {locale === "ar" ? (fac.name_ar || fac.name_en) : (fac.name_en || fac.name_ar)}
-                  </Link>
-                </h3>
-                <p className={styles.facilityMeta}>
-                  <MapPin size={14} aria-hidden="true" />
-                  <span>
-                    {fac.city} {fac.district ? `- ${fac.district}` : ""}
-                  </span>
-                </p>
-              </div>
+        <LandingSection id="facilities" title={t("doctorsCity.facilities")}>
+          <CardGrid label={t("doctorsCity.facilities")}>
+            {facilities.map((fac) => (
+              <li key={fac.id}>
+                <EntityRow
+                  locale={locale}
+                  href={`/${locale}/facility/${fac.slug || fac.id}`}
+                  icon="hospital"
+                  tone={CONSULT.tone}
+                  title={pickText(locale, fac.name_ar ?? undefined, fac.name_en ?? undefined) ?? ""}
+                  sub={[fac.city, fac.district].filter(Boolean).join(" - ") || undefined}
+                />
+              </li>
             ))}
-          </div>
-        </section>
+          </CardGrid>
+        </LandingSection>
       ) : null}
-    </main>
+    </LandingPage>
   );
 }

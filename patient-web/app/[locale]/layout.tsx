@@ -4,18 +4,22 @@ import { fontVariables } from "@/app/fonts";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { LocaleSelector } from "@/components-next/locale-selector";
 import { SessionActions } from "@/components-next/session-actions";
 import { PresenceBeacon } from "@/components-next/presence-beacon";
 import { NabdMark } from "@/components-next/nabd-mark";
-import { ShieldCheck } from "lucide-react";
 import { authCookieNames } from "@/lib/auth/cookies";
 import { getDirection, isLocale, locales, type Locale } from "@/lib/i18n";
-import { WebMcpProvider } from "@/components-next/web-mcp-provider";
+import { WebMcpLoader } from "@/components-next/web-mcp-loader";
+import { pickClientMessages } from "@/lib/i18n/client-messages";
 import { ThemeToggle } from "@/components-next/theme-toggle";
 import { THEME_INIT_SCRIPT } from "@/app/theme";
 import { ServiceWorkerRegister } from "@/components-next/service-worker-register";
+import { CartProvider } from "@/lib/context/CartContext";
+import { ModuleRouteGate, ModulesProvider } from "@/components-next/modules/modules-provider";
+import { getDisabledModules } from "@/lib/api/public-config-server";
+import { isPathHidden } from "@/lib/modules";
 
 type Props = Readonly<{ children: React.ReactNode; params: Promise<{ locale: string }> }>;
 
@@ -61,13 +65,19 @@ export default async function LocaleLayout({ children, params }: Props) {
   if (!isLocale(locale)) notFound();
   const typedLocale = locale as Locale;
   setRequestLocale(typedLocale);
-  const messages = await getMessages({ locale: typedLocale });
+  // F82-1: only the namespaces client components read go into the HTML (lib/i18n/client-messages.ts).
+  const messages = pickClientMessages(await getMessages({ locale: typedLocale }));
   const t = await getTranslations({ locale: typedLocale, namespace: "Shared" });
+  // module switches (#953): read once per request, fail-open; hides entry points and stops deep links into a switched-off module
+  const disabled = await getDisabledModules();
+  const moduleCopy = await getTranslations({ locale: typedLocale, namespace: "Modules" });
   const hasAccessToken = Boolean((await cookies()).get(authCookieNames.access)?.value);
+  // proxy.ts puts the per-request CSP nonce here; an inline script without it is refused.
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
 
   return (
     <NextIntlClientProvider messages={messages}>
-      <WebMcpProvider locale={typedLocale} />
+      <WebMcpLoader locale={typedLocale} />
       <div className={`shell ${fontVariables}`} lang={typedLocale} dir={getDirection(typedLocale)}>
         {/*
           12.A3 — the theme has to be known before the first pixel, or every
@@ -75,7 +85,7 @@ export default async function LocaleLayout({ children, params }: Props) {
           at the top of the body for that reason; see app/theme.ts for why it
           sets BOTH data-theme and .dark.
         */}
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <header className="topbar">
           <Link className="brand" href={`/${typedLocale}`}>
             <span className="brand-mark">
@@ -88,23 +98,26 @@ export default async function LocaleLayout({ children, params }: Props) {
             <ThemeToggle label={t("theme")} />
             {hasAccessToken ? (
               <SessionActions locale={typedLocale} accountLabel={t("account")} signOutLabel={t("signOut")} />
-            ) : (
-              <Link className="button button-primary header-login" href={`/${typedLocale}/login`}>
-                <ShieldCheck size={16} aria-hidden="true" />
-                <span>{t("patientSignIn")}</span>
-              </Link>
-            )}
+            ) : null}
           </div>
         </header>
         {hasAccessToken ? <PresenceBeacon /> : null}
-        {children}
-        <footer style={{ borderTop: "1px solid #E8EDEE", marginTop: 48, padding: "24px 16px", background: "#FDFDFC" }}>
-          <nav aria-label={t("brand")} style={{ display: "flex", flexWrap: "wrap", gap: "12px 24px", rowGap: 12, columnGap: 24 }}>
-            <Link href={`/${typedLocale}/terms`} style={{ padding: "4px 0", whiteSpace: "nowrap" }}>{typedLocale === "ar" ? "الشروط" : "Terms"}</Link>
-            <Link href={`/${typedLocale}/privacy`} style={{ padding: "4px 0", whiteSpace: "nowrap" }}>{typedLocale === "ar" ? "الخصوصية" : "Privacy"}</Link>
-            <Link href={`/${typedLocale}/support`} style={{ padding: "4px 0", whiteSpace: "nowrap" }}>{typedLocale === "ar" ? "الدعم" : "Support"}</Link>
-            <Link href={`/${typedLocale}/articles`} style={{ padding: "4px 0", whiteSpace: "nowrap" }}>{typedLocale === "ar" ? "المقالات" : "Articles"}</Link>
-            <Link href={`/${typedLocale}/map`} style={{ padding: "4px 0", whiteSpace: "nowrap" }}>{typedLocale === "ar" ? "الخريطة" : "Map"}</Link>
+        {/* The cart (lib/context/CartContext) was written but never mounted: every "add to cart" on the product pages
+            was a no-op. It keeps its items in this browser only, so mounting it here costs no request. */}
+        <ModulesProvider disabled={[...disabled]}>
+          <CartProvider>
+            <ModuleRouteGate locale={typedLocale} title={moduleCopy("unavailableTitle")} body={moduleCopy("unavailableBody")} homeLabel={moduleCopy("unavailableHome")}>
+              {children}
+            </ModuleRouteGate>
+          </CartProvider>
+        </ModulesProvider>
+        <footer className="site-footer">
+          <nav aria-label={t("brand")} className="site-footer__links">
+            <Link href={`/${typedLocale}/terms`}>{t("footerTerms")}</Link>
+            <Link href={`/${typedLocale}/privacy`}>{t("footerPrivacy")}</Link>
+            <Link href={`/${typedLocale}/settings/help`}>{t("footerSupport")}</Link>
+            {isPathHidden("/articles", disabled) ? null : <Link href={`/${typedLocale}/articles`}>{t("footerArticles")}</Link>}
+            <Link href={`/${typedLocale}/map`}>{t("footerMap")}</Link>
           </nav>
         </footer>
       </div>

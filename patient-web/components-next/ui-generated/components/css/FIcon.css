@@ -1,0 +1,29 @@
+/*
+ * GENERATED FILE — DO NOT EDIT.
+ *
+ * Mirrored from packages/ui/components/css/FIcon.css by tools/design/sync-ui-components.mjs.
+ *
+ * patient-web cannot import from packages/: Turbopack refuses to resolve outside
+ * the app root, and the type checker does not, so the failure only appears at
+ * `next build`. This file is a copy, not a port — the renderer a screen uses and
+ * the renderer the conformance gallery exercises are the same code, so the
+ * artwork cannot drift between them. Run the script after changing the package;
+ * `--check` in CI fails if this drifts.
+ *
+ * tests/module-boundary.test.ts enforces the boundary this mirror exists to work
+ * around.
+ */
+/* FIcon (components/FIcon.tsx). Size, radius and glyph box are SVG attributes. */
+.nabd-ficon { display: inline-grid; place-items: center; flex-shrink: 0; isolation: isolate; }
+.nabd-ficon > svg { grid-area: 1 / 1; }
+.nabd-ficon__chipbox { display: block; z-index: -1; }
+/* box-shadow, not filter: drop-shadow — a filter promotes a compositing layer and
+   changed the text anti-aliasing of unrelated components on the same page. The
+   32% radius only shapes the (24px-blurred) shadow; the tile's own corner is the
+   rect's exact rx. */
+.nabd-ficon--solid { box-shadow: var(--nabd-shadow-tile); border-radius: 32%; }
+.nabd-ficon--soft .nabd-ficon__chip { fill: var(--nabd-tone-bg); }
+.nabd-ficon__from { stop-color: var(--nabd-tone-solid-from); }
+.nabd-ficon__to { stop-color: var(--nabd-tone-solid-to); }
+.nabd-ficon__glyph { fill: var(--nabd-tone-fg); }
+.nabd-ficon--solid .nabd-ficon__glyph { fill: var(--nabd-color-icon-onSolid); }

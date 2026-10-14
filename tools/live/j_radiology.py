@@ -124,7 +124,7 @@ def run(pat, center, other_center=None, admin=None):
         rid = rq.get('id')
         step('insurance request opened', rq.ok and rid, rq)
         if rid:
-            d = center.post(f'/insurance/requests/{rid}/decide', {'decision': 'approve_partial', 'copay_percent': 15})
+            d = center.post(f'/insurance/requests/{rid}/decide', {'decision': 'approve_partial', 'copay_percent': 15, 'approval_ref': f'APR-{rid[:8]}'})
             step('center decides partial copay', d.ok, d)
             import time as _time
             state = None

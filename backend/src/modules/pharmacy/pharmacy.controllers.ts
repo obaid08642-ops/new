@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Headers, ForbiddenException, ServiceUnavailableException } from '@nestjs/common';
-import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Headers, ForbiddenException, ServiceUnavailableException, Optional, BadRequestException } from '@nestjs/common';
+import { CurrentUser, JwtAuthGuard, Roles, Public } from '../../common/auth.guard';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -17,8 +17,8 @@ import { PharmacyOrdersProviderService } from './services/pharmacy-orders-provid
 import { PharmacyOfferService } from './services/pharmacy-offer.service';
 import { PharmacyInsuranceDecisionService } from './services/pharmacy-insurance-decision.service';
 import { PharmacyExpiryCommandService } from './services/pharmacy-expiry-command.service';
-import { PharmacyPaymentEvidenceService } from './services/pharmacy-payment-evidence.service';
-import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsuranceDto, SelectOfferDto, AcceptFinalQuoteDto, RegisterCodDto, AcceptInsuranceDto, ItemActionDto, OutDto, DeliveredDto, InsuranceDecisionDto, CancelDto3, SetTrackingDto, RestockDto, SampleOrderDto, PreviewOfferDto, DraftOfferDto, RejectDto, PostDto, ReportDto, CreateDto2, MarkShortageDto, RejectDto5, SetCodPolicyDto } from './pharmacy.controllers.dto';
+import { PaymentsService } from '../payments/payments.module';
+import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsuranceDto, SelectOfferDto, AcceptFinalQuoteDto, RegisterCodDto, AcceptInsuranceDto, ItemActionDto, OutDto, DeliveredDto, InsuranceDecisionDto, CancelDto3, SetTrackingDto, RestockDto, SampleOrderDto, PreviewOfferDto, DraftOfferDto, RejectDto, PostDto, ReportDto, CreateDto2, MarkShortageDto, RejectDto5, SetCodPolicyDto, PaymentRulesDto, PharmacyCodSettingDto } from './pharmacy.controllers.dto';
 
 // =========================================================================
 //  PATIENT ENDPOINTS (/api/v2/patient/pharmacy/*)
@@ -27,7 +27,7 @@ import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsura
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.PATIENT)
 export class PatientPharmacyController {
-  constructor(private orders: PharmacyOrderService, private offers: PharmacyOfferService, private insurance: PharmacyInsuranceDecisionService, private payments: PharmacyPaymentEvidenceService) {}
+  constructor(private orders: PharmacyOrderService, private offers: PharmacyOfferService, private insurance: PharmacyInsuranceDecisionService, private cardPayments: PaymentsService) {}
   // Order roots are state-changing: keys are mandatory (P0-01). The global
   // IdempotencyInterceptor then guarantees replay-safety (24h cache +
   // in-progress lock + body-hash mismatch guard). Mobile + web BFF already send keys.
@@ -37,9 +37,9 @@ export class PatientPharmacyController {
   @Patch('orders/:id') @RequireIdempotency() update(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateDto) { return this.orders.update(u, id, b); }
   @Post('orders/:id/submit') @RequireIdempotency() submit(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.submit(u, id); }
   @Post('orders/:id/cancel') @RequireIdempotency() cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelDto) { return this.orders.cancel(u, id, b?.reason || ''); }
-  @Post('orders/:id/payment-intent') paymentIntent(@CurrentUser() u: any, @Param('id') id: string, @Body() b: PaymentIntentDto) { return this.payments.createPaymentIntent(u, id, b?.idempotency_key); }
-  @Post('orders/:id/insurance-rejection/cancel') cancelRejectedInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelRejectedInsuranceDto) { return this.insurance.cancelRejectedByPatient(u, id, b?.idempotency_key); }
-  @Get('orders/:id/offers') listOffers(@CurrentUser() u: any, @Param('id') id: string) { return this.offers.listForPatient(u, id); }
+  @Post('orders/:id/insurance-rejection/cancel') cancelRejectedInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelRejectedInsuranceDto, @Headers('idempotency-key') idemHeader?: string) { return this.insurance.cancelRejectedByPatient(u, id, b?.idempotency_key || idemHeader); }
+  // A-2: ?include=closed also returns the expired, withdrawn and earlier offers, each with its offer_state.
+  @Get('orders/:id/offers') listOffers(@CurrentUser() u: any, @Param('id') id: string, @Query('include') include?: string) { return this.offers.listForPatient(u, id, include === 'closed'); }
   @Post('orders/:id/offers/:offerId/select') selectOffer(@CurrentUser() u: any, @Param('id') id: string, @Param('offerId') offerId: string, @Body() b: SelectOfferDto, @Headers('idempotency-key') idemHeader?: string) {
     return this.offers.selectByPatient(u, id, offerId, b?.idempotency_key || idemHeader, b?.coverage_mode);
   }
@@ -50,6 +50,19 @@ export class PatientPharmacyController {
 
   @Post('orders/:id/cod/register') registerCod(@CurrentUser() u: any, @Param('id') id: string, @Body() b: RegisterCodDto, @Headers('idempotency-key') idemHeader?: string) {
     return this.orders.registerCod(u, id, b?.idempotency_key || idemHeader);
+  }
+
+  @Get('orders/:id/payment-status') paymentStatus(@CurrentUser() u: any, @Param('id') id: string) {
+    return this.orders.getPaymentStatus(u, id);
+  }
+
+  @Post('orders/:id/payment-retry') async retryPayment(@CurrentUser() u: any, @Param('id') id: string, @Body() b: PaymentIntentDto, @Headers('idempotency-key') idemHeader?: string) {
+    const key = b?.idempotency_key || idemHeader || '';
+    if (!/^[A-Za-z0-9._:-]{16,128}$/.test(key)) throw new BadRequestException('idempotency_key_required');
+    await this.orders.prepareCardRetry(u, id, key);
+    // Q104: the retry opens a real gateway checkout (Moyasar via PaymentsService), never a local
+    // "sandbox" intent no gateway sees. An open checkout for this order is returned, not doubled.
+    return this.cardPayments.createPaymentIntent(u, 'pharmacy', id, key, 'card');
   }
 
   @Post('orders/:id/insurance/:kind/accept') acceptInsurance(@CurrentUser() u: any, @Param('id') id: string, @Param('kind') kind: string, @Body() b: AcceptInsuranceDto, @Headers('idempotency-key') idemHeader?: string) {
@@ -69,7 +82,14 @@ export class ProviderPharmacyController {
     private inv: PharmacyInventoryExtService,
     private providerOrders: PharmacyOrdersProviderService,
     private insurance: PharmacyInsuranceDecisionService,
+    @Optional() private offersSvc?: PharmacyOfferService,
   ) {}
+
+  /** P3 "My offers": ?status=draft|sent|chosen|not_chosen|expired|cancelled */
+  @Get('offers') myOffers(@CurrentUser() u: any, @Query('status') status?: string) {
+    if (!isProviderRole(u?.role)) throw new ForbiddenException();
+    return this.offersSvc!.listForPharmacy(u, status);
+  }
 
   @Get('allocations') list(@CurrentUser() u: any, @Query('status') status?: string) {
     if (!isProviderRole(u?.role)) throw new ForbiddenException();
@@ -145,6 +165,7 @@ export class AdminPharmacyController {
     private split: SmartSplitService,
     private allocs: PharmacyAllocationService,
     private broadcast: PharmacyBroadcastService,
+    @InjectConnection() private readonly conn: Connection,
   ) {}
   @Post('split/:orderId') async manualSplit(@Param('orderId') id: string) {
     // Backward-compat: if order is in broadcasting state, route to broadcast fallback.
@@ -168,6 +189,21 @@ export class AdminPharmacyController {
     const limit = Math.min(100, Math.max(1, Number(q?.limit) || 25));
     const [items, total] = await Promise.all([
       col.find(filter).sort({ changed_at: -1 }).skip((page - 1) * limit).limit(limit).toArray(),
+      col.countDocuments(filter),
+    ]);
+    return { items, total, page, limit };
+  }
+
+  /** D-12: offers with a line above the catalogue price or a line not mapped to the catalogue. */
+  @Get('price-review') async priceReview(@Query() q: any): Promise<{ items: any[]; total: number; page: number; limit: number }> {
+    const col = this.conn.collection('pharmacy_price_reviews');
+    const filter: any = { status: q?.status === 'closed' ? 'closed' : 'open' };
+    if (typeof q?.order_id === 'string' && q.order_id) filter.order_id = { $eq: q.order_id };
+    if (q?.reason === 'price_above_catalogue' || q?.reason === 'not_verified') filter['lines.reason'] = q.reason;
+    const page = Math.max(1, Number(q?.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(q?.limit) || 25));
+    const [items, total] = await Promise.all([
+      col.find(filter, { projection: { _id: 0 } }).sort({ updatedAt: -1 }).skip((page - 1) * limit).limit(limit).toArray(),
       col.countDocuments(filter),
     ]);
     return { items, total, page, limit };
@@ -269,13 +305,15 @@ export class PharmacyChatController {
   constructor(private chat: PharmacyChatService) {}
   @Get('threads') list(@CurrentUser() u: any, @Query('order_id') oid?: string) { return this.chat.listThreads(u, oid); }
   @Get('threads/:id/messages') msgs(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.listMessages(u, id); }
-  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
+  // Both sides of the substitute negotiation write; the service checks the caller is the thread's patient or pharmacy (needs-review issue 517).
+  @Roles(UserRole.PHARMACY, UserRole.PATIENT, UserRole.ADMIN)
   @Post('threads/:id/messages') post(@CurrentUser() u: any, @Param('id') id: string, @Body() b: PostDto) { return this.chat.postMessage(u, id, b); }
-  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
+  // The patient decides on a substitute (the service refuses anyone but the thread's patient).
+  @Roles(UserRole.PATIENT)
   @Post('threads/:id/accept-substitute/:msgId') accept(@CurrentUser() u: any, @Param('id') id: string, @Param('msgId') mid: string) { return this.chat.acceptSubstitute(u, id, mid); }
-  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
+  @Roles(UserRole.PATIENT)
   @Post('threads/:id/reject') reject(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.rejectOrRemove(u, id, 'rejected'); }
-  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
+  @Roles(UserRole.PATIENT)
   @Post('threads/:id/remove-item') remove(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.rejectOrRemove(u, id, 'removed'); }
 }
 
@@ -316,4 +354,46 @@ export class AdminShortageController {
 export class PatientShortageController {
   constructor(private svc: PharmacyShortageService) {}
   @Get('lookup') lookup(@Query('sku') sku?: string, @Query('generic_name') gn?: string) { return this.svc.lookupForPatient(sku, gn); }
+}
+
+
+/** D-25 (owner decision 25): the cash-on-delivery cap, public for the apps, set by an admin. */
+@Controller()
+export class PaymentRulesController {
+  constructor(@InjectConnection() private readonly conn: Connection) {}
+
+  @Public()
+  @Get('payment-rules')
+  async rules() {
+    const doc: any = await this.conn.collection('system_configs').findOne({ key: 'payment_rules' });
+    return { pharmacy_cod_max_sar: Number(doc?.value?.pharmacy_cod_max_sar) > 0 ? Number(doc.value.pharmacy_cod_max_sar) : null };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
+  @Put('admin/payment-rules')
+  async setRules(@CurrentUser() u: any, @Body() b: PaymentRulesDto) {
+    const cap = Number(b?.pharmacy_cod_max_sar);
+    if (!(cap > 0)) throw new BadRequestException('pharmacy_cod_max_sar_must_be_positive');
+    await this.conn.collection('system_configs').updateOne(
+      { key: 'payment_rules' },
+      { $set: { 'value.pharmacy_cod_max_sar': cap, updated_by: u?.id ?? null, updatedAt: new Date() } },
+      { upsert: true },
+    );
+    return { pharmacy_cod_max_sar: cap };
+  }
+
+  /** The pharmacy switches its own cash on delivery (absent = allowed). */
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.PHARMACY)
+  @Put('provider/pharmacy/cod')
+  async setPharmacyCod(@CurrentUser() u: any, @Body() b: PharmacyCodSettingDto) {
+    if (!u?.id) throw new ForbiddenException('provider_identity_required');
+    await this.conn.collection('provider_settings').updateOne(
+      { provider_id: u.id },
+      { $set: { cod_enabled: b.enabled === true, updatedAt: new Date() } },
+      { upsert: true },
+    );
+    return { cod_enabled: b.enabled === true };
+  }
 }

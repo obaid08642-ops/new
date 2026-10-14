@@ -164,7 +164,7 @@ export const config: AppConfig = {
 
   // ── Identity ─────────────────────────────────────────────────────────────
   appName:            'نبض بلس',
-  appNameEn:          'Nabdah Plus',
+  appNameEn:          'Nabd+',
   appVersion:         Constants.expoConfig?.version         ?? '1.0.0',
   buildNumber:        String(Constants.expoConfig?.ios?.buildNumber ?? '1'),
   bundleId:           Constants.expoConfig?.ios?.bundleIdentifier ?? 'com.nabdahplus.app',

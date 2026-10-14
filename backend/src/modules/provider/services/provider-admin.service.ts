@@ -25,26 +25,6 @@ export class ProviderAdminService {
   ) {}
 
 
-  /** Physically delete a provider's stored images (Cloudinary/R2) so rejected or
-   *  replaced assets never linger. Accepts storage IDs or raw URLs. */
-  private async purgeImages(values: any[]) {
-    const flat: string[] = [];
-    for (const v of values) {
-      if (Array.isArray(v)) flat.push(...v.map(String));
-      else if (v) flat.push(String(v));
-    }
-    for (const s of flat) {
-      try {
-        let url = s.startsWith('http') ? s : null;
-        if (!url) {
-          const obj = await (this.accounts.model.db.collection('storage_objects') as any).findOne({ id: s });
-          url = obj?.external_url || null;
-        }
-        if (url) this.events.emit('storage.delete_by_url', { url });
-      } catch { /* best-effort cleanup */ }
-    }
-  }
-
   private assertAdmin(user: any) {
     if (!user || (user.role !== 'admin' && user.role !== 'super_admin')) {
       throw new ForbiddenException('admin only');
@@ -183,6 +163,8 @@ export class ProviderAdminService {
       } }] as any,
     );
     await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_approved', after: { note: body?.note || body?.reason, commission: body?.commission, commission_cash: body?.commission_cash, commission_insurance: body?.commission_insurance } });
+    // #939: the provider hears the result (the bell and push), not only at the next sign-in.
+    this.events.emit('provider.approved', { provider_id: id });
 
     // Trigger Automatic SEO / Content / Discovery Pipeline
     const prof: any = await this.accounts.model.db.collection('provider_profiles').findOne({ account_id: id });
@@ -210,7 +192,10 @@ export class ProviderAdminService {
       { $set: { status: 'rejected', rejected_reason: a.rejection_reason, public_eligibility: false, indexing_eligibility: false } },
     );
     await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_rejected', after: { reason: a.rejection_reason } });
-    // Free storage: rejected provider's images are physically deleted (Cloudinary/R2)
+    this.events.emit('provider.rejected', { provider_id: id, reason: a.rejection_reason });
+    // The rejected application's images and licence documents are KEPT (private, owner/admin only): a rejection is
+    // usually 'fix and resubmit', and the reviewed files are the record of what was rejected and why. Their
+    // retention is the data map's (decision 32), not a side effect of the rejection.
     const prof: any = await this.accounts.model.db.collection('provider_profiles').findOne({ account_id: id });
     if (prof) {
       const pType = (prof.type || (a as any).provider_type || 'doctor') as any;
@@ -221,11 +206,6 @@ export class ProviderAdminService {
         action: 'deactivate',
       }).catch(() => {});
 
-      const docs: any[] = await this.accounts.model.db.collection('provider_documents').find({ account_id: id }).toArray();
-      await this.purgeImages([
-        prof.profile_photo, prof.logo, prof.clinic_images, prof.license_documents,
-        ...docs.map((d: any) => d.storage_object_id || d.file_url || d.storage_id || d.url),
-      ]);
     }
     return a.toObject();
   }
@@ -244,6 +224,45 @@ export class ProviderAdminService {
     return { ok: true, account_id: id, approved };
   }
 
+  /**
+   * B-4 (#940): licence review per document. The account-level approve() used
+   * to bulk-approve every pending document; reviewers now decide each licence
+   * file on its own: approve, or reject with a reason the provider can act on.
+   */
+  async reviewDocument(user: any, accountId: string, docId: string, decision: 'approve' | 'reject', note?: string) {
+    this.assertAdmin(user);
+    const doc: any = await this.docs.findOne({ id: { $eq: String(docId) }, account_id: { $eq: String(accountId) } });
+    if (!doc) throw new NotFoundException('provider_document_not_found');
+    const pending = [DocumentReviewStatus.PENDING, DocumentReviewStatus.UNDER_REVIEW, DocumentReviewStatus.NEEDS_REPLACEMENT];
+    if (!pending.includes(doc.review_status)) {
+      throw new BadRequestException(`document_already_reviewed_${doc.review_status}`);
+    }
+    const now = new Date();
+    if (decision === 'approve') {
+      doc.review_status = DocumentReviewStatus.APPROVED;
+      doc.reviewer_id = user.id;
+      doc.reviewer_note = typeof note === 'string' ? note.slice(0, 500) : undefined;
+      doc.reviewed_at = now;
+    } else {
+      const reason = String(note || '').trim();
+      if (reason.length < 5) throw new BadRequestException('document_rejection_reason_required');
+      doc.review_status = DocumentReviewStatus.REJECTED;
+      doc.reviewer_id = user.id;
+      doc.reviewer_note = reason.slice(0, 500);
+      doc.reviewed_at = now;
+    }
+    await doc.save();
+    await this.audit.create({
+      provider_account_id: accountId,
+      actor_id: user.id,
+      actor_role: 'admin',
+      action: decision === 'approve' ? 'admin.provider_document_approved' : 'admin.provider_document_rejected',
+      after: { doc_id: docId, doc_type: doc.doc_type, review_status: doc.review_status, note: doc.reviewer_note || null },
+    });
+    this.events.emit('provider.document_reviewed', { provider_id: accountId, doc_id: docId, doc_type: doc.doc_type, decision });
+    return { ok: true, account_id: accountId, doc_id: docId, review_status: doc.review_status };
+  }
+
   async requestChanges(user: any, id: string, body: any) {
     this.assertAdmin(user);
     const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();
@@ -253,6 +272,7 @@ export class ProviderAdminService {
       await this.docs.updateMany({ account_id: id, doc_type: { $in: body.docs_needing_replacement } }, { $set: { review_status: DocumentReviewStatus.NEEDS_REPLACEMENT, reviewer_id: user.id, reviewer_note: body?.note, reviewed_at: new Date() } });
     }
     await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_needs_changes', after: { note: body?.note, docs: body?.docs_needing_replacement } });
+    this.events.emit('provider.changes_requested', { provider_id: id });
     return a.toObject();
   }
 

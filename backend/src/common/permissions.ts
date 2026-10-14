@@ -35,6 +35,8 @@ export enum Permission {
   CATALOG_READ = 'catalog.read',
   CATALOG_CREATE = 'catalog.create',
   CATALOG_UPDATE = 'catalog.update',
+  /** F8: publishes catalogue edits; an editor without it leaves a pending revision for an approver. */
+  CATALOG_APPROVE = 'catalog.approve',
   CATALOG_PRICE_WRITE = 'catalog.price.write',
   CATALOG_IMPORT = 'catalog.import',
   CATALOG_DELETE_RESTORE = 'catalog.delete_restore',
@@ -76,6 +78,8 @@ export enum Permission {
   OPS_CRONS_RUN = 'ops.crons.run',
   TRANSLATIONS_EDIT = 'translations.edit',
   SEO_CONTROL = 'seo.control',
+  // Owner 2026-10-10: turning whole services on/off is super-admin only.
+  MODULES_MANAGE = 'modules.manage',
 }
 
 /** Arabic labels for the permission catalog (RBAC editor UI). */
@@ -106,6 +110,7 @@ export const PERMISSION_LABELS_AR: Record<string, string> = {
   [Permission.CATALOG_READ]: 'قراءة كتالوج الأدوية',
   [Permission.CATALOG_CREATE]: 'إنشاء صنف في الكتالوج',
   [Permission.CATALOG_UPDATE]: 'تعديل صنف في الكتالوج',
+  [Permission.CATALOG_APPROVE]: 'اعتماد تعديلات الكتالوج ونشرها',
   [Permission.CATALOG_PRICE_WRITE]: 'تغيير سعر صنف',
   [Permission.CATALOG_IMPORT]: 'استيراد الكتالوج',
   [Permission.CATALOG_DELETE_RESTORE]: 'حذف أو استعادة صنف',
@@ -138,6 +143,7 @@ export const PERMISSION_LABELS_AR: Record<string, string> = {
   [Permission.OPS_CRONS_RUN]: 'تشغيل المهام الدورية يدويًا',
   [Permission.TRANSLATIONS_EDIT]: 'تحرير الترجمات',
   [Permission.SEO_CONTROL]: 'التحكم بنشر SEO',
+  [Permission.MODULES_MANAGE]: 'تشغيل وإيقاف الخدمات',
 };
 
 export interface OwnershipOptions {
@@ -174,7 +180,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     Permission.TRANSLATIONS_EDIT, Permission.SEO_CONTROL,
     Permission.CATALOG_READ, Permission.CATALOG_CREATE, Permission.CATALOG_UPDATE,
     Permission.CATALOG_PRICE_WRITE, Permission.CATALOG_IMPORT,
-    Permission.CATALOG_DELETE_RESTORE, Permission.CATALOG_SHORTAGE_DECIDE,
+    Permission.CATALOG_DELETE_RESTORE, Permission.CATALOG_SHORTAGE_DECIDE, Permission.CATALOG_APPROVE,
   ],
   [UserRole.SUPPORT_AGENT]: [
     Permission.DOCTOR_READ,

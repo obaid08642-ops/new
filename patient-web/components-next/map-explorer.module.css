@@ -1,34 +1,45 @@
-.container{display:flex;height:calc(100dvh - 80px);position:relative;background:#FDFDFC}
-.sidebar{width:420px;background:rgba(255,255,255,.92);border-inline-end:1px solid #E8EDEE;display:flex;flex-direction:column;z-index:10;overflow:hidden;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
-.header{padding:24px 16px 8px;display:grid;gap:8px}
-.header h1{font-size:clamp(1.4rem,2.5vw,1.75rem);font-weight:800;color:#1E332E;margin:0;letter-spacing:-.03em;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.header p{font-size:13px;color:var(--muted);margin:0;line-height:1.6;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.searchBox{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.92);border:1px solid #E8EDEE;border-radius:16px;padding:8px 16px;margin:8px 16px 16px;color:#1E332E;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
-.searchBox:focus-within{border-color:#5FD9B3;box-shadow:0 0 0 3px rgba(95,217,179,.22)}
-.searchBox input{border:none;background:transparent;width:100%;font-size:14px;color:#1E332E;outline:none}
-.filterRow{display:flex;gap:8px;padding:0 16px 16px;overflow-x:auto;scrollbar-width:none}
-.filterPill{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:999px;border:1px solid #E8EDEE;background:#fff;color:var(--muted);font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer;transition:all .2s var(--ease-premium, ease)}
-.activePill{background:#5FD9B3;color:#1E332E;border-color:#5FD9B3}
-.list{flex:1;overflow-y:auto;padding:8px 16px 24px;display:flex;flex-direction:column;gap:16px}
-.card{background:rgba(255,255,255,.92);border:1px solid #E8EDEE;border-radius:20px;padding:16px;cursor:pointer;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);transition:border-color .2s var(--ease-premium, ease),box-shadow .2s var(--ease-premium, ease)}
-.card:hover{border-color:#5FD9B3;box-shadow:var(--shadow-md, 0 4px 12px rgba(0,0,0,.06))}
-.activeCard{border-color:#5FD9B3;background:rgba(95,217,179,.08)}
-.cardTop{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px}
-.cardTop strong{font-size:15px;color:#1E332E;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.rating{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#1E332E;flex-shrink:0}
-.address{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;margin:0 0 16px;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.cardActions{display:flex;gap:8px}
-.dirBtn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:16px;border:1px solid #E8EDEE;color:#1E332E;font-size:12px;font-weight:700;text-decoration:none;background:#fff}
-.bookBtn{display:inline-flex;align-items:center;justify-content:center;flex:1;padding:8px 16px;border-radius:16px;background:#5FD9B3;color:#1E332E;font-size:12px;font-weight:700;text-decoration:none;transition:background .2s}
-.bookBtn:hover{background:#1E332E;color:#fff}
-.mapArea{flex:1;position:relative;background:#E8EDEE;display:flex;align-items:center;justify-content:center}
-.mapCanvas{width:100%;height:100%;background:radial-gradient(circle at center,#FDFDFC 0%,#E8EDEE 100%);display:flex;align-items:center;justify-content:center;padding:24px}
-.mapOverlayNotice{background:rgba(255,255,255,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid #E8EDEE;border-radius:20px;padding:24px;max-width:420px;text-align:center;box-shadow:var(--shadow-md, 0 10px 30px rgba(0,0,0,.08));display:grid;place-items:center;gap:8px}
-.mapOverlayNotice h3{font-size:18px;font-weight:800;color:#1E332E;margin:8px 0 0;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.mapOverlayNotice p{font-size:14px;color:var(--muted);margin:0;line-height:1.6;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.emptyState{text-align:center;padding:48px 16px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:16px}
-.emptyState svg{inline-size:48px;block-size:48px}
-@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-.spin{animation:spin 3s linear infinite}
-@media(max-width:768px){.container{flex-direction:column;height:auto}.sidebar{width:100%;height:500px}.mapArea{height:300px}}
-@media(prefers-reduced-motion:reduce){.spin{animation:none}}
+/* The facilities map (Batch 12; no board: the current layout on the shared tokens and controls). A list and a map pane, side by
+   side from 1024. Tokens only, logical properties only, no inline styles (the CSP refuses them). */
+
+.srOnly { position: absolute; inline-size: 1px; block-size: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.layout { display: flex; flex-direction: column; gap: var(--nabd-space-sm); min-inline-size: 0; }
+.side { display: flex; flex-direction: column; gap: var(--nabd-space-sm); min-inline-size: 0; }
+
+.state { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0; padding: var(--nabd-space-lg); text-align: center; color: var(--nabd-color-text-secondary); font-size: var(--nabd-font-size-control); }
+
+.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--nabd-space-sm); }
+.card {
+  display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; min-inline-size: 0;
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline);
+  border-radius: var(--nabd-radius-3xl); box-shadow: var(--nabd-shadow-card);
+}
+.cardOn { border-color: var(--nabd-color-border-strong); }
+.cardMain {
+  display: flex; align-items: center; gap: 12px; min-block-size: 44px; min-inline-size: 0; padding: 0; border: 0; background: transparent;
+  color: inherit; font: inherit; text-align: start; cursor: pointer;
+}
+.cardMain:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; border-radius: var(--nabd-radius-sm); }
+.cardText { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 2px; }
+.cardTitle { font-size: var(--nabd-font-size-row); font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
+.cardSub { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.rating { flex: none; display: inline-flex; align-items: center; gap: 4px; font-size: var(--nabd-font-size-label); font-weight: 700; }
+.cardActions { display: flex; flex-wrap: wrap; gap: 8px; }
+.cardActions > .action { flex: 1 1 8rem; min-inline-size: 0; text-decoration: none; }
+
+.pane {
+  min-block-size: 280px; overflow: hidden; display: flex; align-items: center; justify-content: center;
+  background: var(--nabd-color-bg-sunken); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-3xl);
+}
+.frame { inline-size: 100%; block-size: 100%; min-block-size: 280px; border: 0; }
+.idle { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: var(--nabd-space-lg); text-align: center; max-inline-size: 420px;
+  /* On the sunken pane, secondary text is 4.15:1; the idle note sits on a surface card like the list rows, which gives it 4.5:1+. */
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-2xl); }
+.idleTitle { margin: 0; font-size: var(--nabd-font-size-body-lg); font-weight: 700; }
+.idleBody { margin: 0; font-size: var(--nabd-font-size-control); line-height: 1.6; color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.idleNote { margin: 0; font-size: var(--nabd-font-size-caption); color: var(--nabd-color-text-tertiary); }
+
+@media (min-width: 1024px) {
+  .layout { flex-direction: row; align-items: stretch; }
+  .side { flex: 0 0 420px; max-block-size: calc(100dvh - 160px); overflow-y: auto; }
+  .pane { flex: 1; min-block-size: 480px; }
+}

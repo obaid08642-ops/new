@@ -24,6 +24,7 @@ import { redisUrlFromEnv } from '../redis/redis.service';
 import { RegisterDto, TrackDto, UnregisterPushDto, WebSubscribeDto, WebUnsubscribeDto, SendCampaignDto } from './push.dto';
 import { NotificationTemplate, NotificationTemplateDocument, NotificationTemplateSchema } from '../../schemas/notification-template.schema';
 import { I18nService } from '../i18n/i18n.service';
+import { runsBackgroundWork } from '../../common/process-role';
 
 
 // ── Schema ────────────────────────────────────────────────────────────
@@ -339,6 +340,8 @@ export class PushService implements OnModuleInit {
 
       this.queue = new Queue('push_notifications', { connection });
 
+      // P14.26: the consumer runs in the worker role; an API process only enqueues
+      if (!runsBackgroundWork()) return;
       this.worker = new Worker('push_notifications', async (job) => {
         await this.deliverPush(job.data);
       }, {
@@ -451,9 +454,12 @@ export class PushService implements OnModuleInit {
         .findOne({ id: { $eq: String(userId) } }, { projection: { _id: 0, locale: 1, language: 1 } });
       const raw = String(u?.locale || u?.language || '').toLowerCase().split(/[-_]/)[0];
       const lang = raw === 'tl' ? 'fil' : raw;
-      return supported.includes(lang) ? lang : 'ar';
+      // 18.2: a locale the user never chose must not become Arabic. English is the
+      // specified last resort; I18nService then maps the hi/bn/fil values it cannot
+      // serve onto English as well.
+      return supported.includes(lang) ? lang : 'en';
     } catch {
-      return 'ar';
+      return 'en';
     }
   }
 

@@ -2,15 +2,23 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components-next/ui-generated/components/Button";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
+import { LinkButton } from "./link-button";
+import styles from "./auth/auth.module.css";
+
+type State = "unknown" | "granted" | "denied" | "unsupported";
 
 export function OnboardingPermissionsClient({ locale }: { locale: string }) {
-  const ar = locale === "ar";
-  const [location, setLocation] = useState<"unknown" | "granted" | "denied">("unknown");
-  const [notif, setNotif] = useState<"unknown" | "granted" | "denied" | "unsupported">("unknown");
+  const t = useTranslations("Onboarding");
+  const [location, setLocation] = useState<State>("unknown");
+  const [notif, setNotif] = useState<State>("unknown");
 
   async function askLocation() {
     try {
-      if (!("geolocation" in navigator)) { setLocation("denied"); return; }
+      if (!("geolocation" in navigator)) { setLocation("unsupported"); return; }
       await new Promise<GeolocationPosition>((resolve, reject) =>
         navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 8000 }));
       setLocation("granted");
@@ -25,25 +33,31 @@ export function OnboardingPermissionsClient({ locale }: { locale: string }) {
     } catch { setNotif("denied"); }
   }
 
+  const label = (state: State) =>
+    state === "granted" ? t("allowed") : state === "denied" ? t("denied") : state === "unsupported" ? t("unsupported") : t("allow");
+
   return (
-    <div>
-      <section aria-label={ar ? "الموقع" : "Location"}>
-        <h2>{ar ? "الموقع" : "Location"}</h2>
-        <p>{ar ? "نستخدم موقعك لاقتراح أقرب الأطباء والصيدليات وحساب التوصيل." : "We use your location to suggest nearby doctors, pharmacies and delivery."}</p>
-        <button type="button" onClick={askLocation} disabled={location === "granted"}>
-          {location === "granted" ? (ar ? "تم السماح ✓" : "Granted ✓") : (ar ? "السماح بالموقع" : "Allow location")}
-        </button>
+    <div className={styles.form}>
+      <section className={styles.perm} aria-label={t("locationTitle")}>
+        <FIcon icon={SERVICE_ICONS.map.icon} tone={SERVICE_ICONS.map.tone} size={44} />
+        <div className={styles.permText}>
+          <h2 className={styles.permTitle}>{t("locationTitle")}</h2>
+          <p className={styles.hint}>{t("locationBody")}</p>
+        </div>
+        <Button variant="outline" size="sm" label={label(location)} onClick={askLocation} disabled={location !== "unknown"} />
       </section>
-      <section aria-label={ar ? "الإشعارات" : "Notifications"}>
-        <h2>{ar ? "الإشعارات" : "Notifications"}</h2>
-        <p>{ar ? "تنبيهات المواعيد والأدوية ونتائج التحاليل." : "Appointment, medication and lab-result alerts."}</p>
-        <button type="button" onClick={askNotif} disabled={notif === "granted"}>
-          {notif === "granted" ? (ar ? "تم السماح ✓" : "Granted ✓") : (ar ? "السماح بالإشعارات" : "Allow notifications")}
-        </button>
+      <section className={styles.perm} aria-label={t("notificationsTitle")}>
+        <FIcon icon={SERVICE_ICONS.points.icon} tone={SERVICE_ICONS.points.tone} size={44} />
+        <div className={styles.permText}>
+          <h2 className={styles.permTitle}>{t("notificationsTitle")}</h2>
+          <p className={styles.hint}>{t("notificationsBody")}</p>
+        </div>
+        <Button variant="outline" size="sm" label={label(notif)} onClick={askNotif} disabled={notif !== "unknown"} />
       </section>
-      <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-        <Link href={`/${locale}/welcome`}>{ar ? "ابدأ" : "Get started"}</Link>
-      </nav>
+      <div className={styles.actions}>
+        <LinkButton href={`/${locale}/welcome`} label={t("start")} />
+        <p className={styles.foot}><Link className={styles.link} href={`/${locale}/welcome`}>{t("skip")}</Link></p>
+      </div>
     </div>
   );
 }

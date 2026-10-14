@@ -70,6 +70,9 @@ jobs:
         run: npx tsc --project ../packages/shared-contracts/tsconfig.json
       - name: Type check
         run: npx tsc --noEmit
+      # P14.13: the Socket.IO cross-process test starts its own throw-away redis-server
+      - name: Install redis-server (stopped; tests start their own)
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq redis-server && sudo systemctl stop redis-server || true
       - name: Run unit and contract tests
         run: npm test -- --runInBand
       - name: Build
@@ -83,6 +86,9 @@ jobs:
         working-directory: packages/design-tokens
     steps:
       - uses: actions/checkout@v4
+        # locale-parity --base origin/main reads en.json from main: needs the full history, not depth 1.
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -127,6 +133,9 @@ jobs:
         run: npm run no-100vh
       - name: No SafeAreaView from react-native; no new Dimensions.get (strict + ratchet)
         run: npm run no-rn-safeareaview
+      # QUALITY_STANDARDS §1: no raster over 200 KB in the apps or patient-web/public.
+      - name: No raster asset over 200 KB (WebP/AVIF, CDN)
+        run: npm run no-large-raster
       - name: No new physical left/right, start/end only (ratchet)
         run: npm run no-left-right
       # A4: a missing translation key is not an error in next-intl, it renders the
@@ -134,6 +143,14 @@ jobs:
       # the public nursing catalogue. This compares every locale against en.
       - name: Every locale covers every key (i18n coverage)
         run: node ../../tools/design/i18n-coverage.mjs
+      # Owner rule 2026-10-06 (same strictness as colours): no user-visible text in code, every key in all six
+      # languages. Both are ratchets that only go down; a new key must be complete in ar, en, ur, hi, bn, fil/tl.
+      - name: Locale parity (6 languages, no English left in a non-English file)
+        run: node ../../tools/design/locale-parity.mjs --base origin/main
+      - name: Install compiler
+        run: npm install --ignore-scripts --no-save typescript@5.9.3
+      - name: No literal UI string in JSX/TSX (ratchet)
+        run: node ../../tools/design/no-literal-ui-string.mjs
       # A0 across the OTHER THREE clients. provider-app/src/theme/tokens.ts
       # claimed in its own comment to be a mirror of tokens.json and held the
       # pre-A2 palette while ten screens imported it: the token contrast check
@@ -143,8 +160,6 @@ jobs:
         run: node ../../tools/design/sync-client-tokens.mjs --check
       - name: No new off-palette colour in the mobile/admin clients (ratchet)
         run: node ../../tools/design/client-token-sync.mjs
-      - name: Install compiler
-        run: npm install --ignore-scripts --no-save typescript@5.9.3
       - name: Type check the generated TypeScript module
         run: npx tsc --noEmit --strict --target ES2022 --module ESNext --moduleResolution bundler dist/ts/tokens.ts
 

@@ -1,25 +1,38 @@
 import { describe, expect, it } from "vitest";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-const css = readFileSync(resolve(process.cwd(), "app/[locale]/articles/articles.module.css"), "utf8");
+const css = readFileSync(resolve(process.cwd(), "components-next/articles/articles.module.css"), "utf8");
+const kit = readFileSync(resolve(process.cwd(), "components-next/articles/article-kit.tsx"), "utf8");
 const page = readFileSync(resolve(process.cwd(), "app/[locale]/articles/page.tsx"), "utf8");
+const detail = readFileSync(resolve(process.cwd(), "app/[locale]/articles/[slug]/page.tsx"), "utf8");
 
 describe("articles design", () => {
-  it("provides accessible search, category filters, and honest empty states", () => {
+  it("provides an accessible search, category chips with 44 px targets and honest states", () => {
     expect(css).toContain(".search:focus-within");
-    expect(css).toContain(".chipActive");
-    expect(css).toContain(".empty, .state");
-    expect(css).toContain("border: 1px dashed");
+    expect(css).toContain('.chip[aria-current="true"]');
+    expect(css).toContain("min-block-size: 44px");
+    expect(kit).toContain('role="search"');
+    expect(page).toContain('kind="empty"');
+    expect(page).toContain('kind="error"');
   });
 
-  it("keeps external category and title text readable across mixed directions", () => {
-    expect(page).toContain('dir="auto"');
-    expect(css).toContain('text-align: match-parent');
-    expect(page).toContain('locale === "ar" || locale === "ur" ? ChevronLeft : ChevronRight');
+  it("keeps external category and title text readable across mixed directions and mirrors the caret", () => {
+    expect(kit).toContain('dir="auto"');
+    expect(kit).toContain('getDirection(locale) === "rtl" ? "caret-left" : "caret-right"');
   });
-  it("limits hover animation and honours reduced-motion preferences", () => {
-    expect(css).toContain("@media (hover: hover) and (pointer: fine)");
-    expect(css).toContain("prefers-reduced-motion: reduce");
+
+  it("uses tokens only: no colour, no inline style, no raw hex in the styles or the pages", () => {
+    for (const source of [css, kit, page, detail]) {
+      expect(source).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
+      expect(source).not.toMatch(/\bstyle=\{/);
+      expect(source).not.toMatch(/rgba?\(/);
+    }
+  });
+
+  it("has no comment form and no community code left", () => {
+    expect(existsSync(resolve(process.cwd(), "components-next/community-comment-form.tsx"))).toBe(false);
+    expect(existsSync(resolve(process.cwd(), "app/api/community"))).toBe(false);
+    expect(detail).not.toMatch(/<textarea|CommentForm|comment-form/i);
   });
 });

@@ -71,11 +71,19 @@ export class JoinDto {
   @IsOptional()
   @IsString()
   relation?: string;
+
+  @IsOptional()
+  @IsString()
+  relation_code?: string;
 }
 export class SetRelationDto {
-  @IsDefined()
+  @IsOptional()
   @IsString()
-  relation: string;
+  relation?: string;
+
+  @IsOptional()
+  @IsString()
+  relation_code?: string;
 }
 export class SetContractPermissionsDto {
   @IsDefined()

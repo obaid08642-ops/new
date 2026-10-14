@@ -7,6 +7,7 @@ import {
   View, Animated, StyleSheet, StyleProp, ViewStyle, Text,
 } from 'react-native';
 import { useApp } from '../../context/AppContext';
+import { useScreenUi } from '../../components/home/homeKit';
 import { BorderRadius, Spacing } from '../tokens';
 import { DSText } from './Text';
 
@@ -119,6 +120,7 @@ export function DSStepIndicator({
   variant = 'bars',
 }: DSStepIndicatorProps) {
   const { colors } = useApp();
+  const { c } = useScreenUi();
   const activeColor = color ?? colors.primary;
 
   if (variant === 'dots') {
@@ -184,7 +186,7 @@ export function DSStepIndicator({
               style={{
                 fontSize: 11,
                 fontWeight: '700',
-                color: isActive ? '#fff' : isDone ? activeColor : colors.textTertiary,
+                color: isActive ? c.text.onBrand : isDone ? activeColor : colors.textTertiary,
               }}
             >
               {i + 1}

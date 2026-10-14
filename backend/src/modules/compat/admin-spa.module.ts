@@ -27,7 +27,7 @@ import {
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
-import { CreateDto, CreateRuleDto, CreateAutoRuleDto, ExpandDto, DispatchDto, ReassignDto, UpdateDto, CreateDto2, ManualAdjustDto, RedeemDto, ToggleSystemDto, SendDto, RejectDto, ShortageDto, CustomReportDto, AssignDto, CouponUpdateDto, LoyaltyEarnRuleUpdateDto, DeliveryRuleUpdateDto, PromotionUpdateDto, ClaimApprovalDto, PermissionEntryDto, WorkflowEntryDto, AlertRuleDto, ThemeConfigDto, AiConfigDto, AutoRuleUpdateDto } from './admin-spa.dto';
+import { CreateDto, CreateRuleDto, CreateAutoRuleDto, ExpandDto, ReassignDto, UpdateDto, CreateDto2, ManualAdjustDto, RedeemDto, ToggleSystemDto, SendDto, RejectDto, ShortageDto, CustomReportDto, AssignDto, CouponUpdateDto, LoyaltyEarnRuleUpdateDto, DeliveryRuleUpdateDto, PromotionUpdateDto, ClaimApprovalDto, PermissionEntryDto, WorkflowEntryDto, AlertRuleDto, ThemeConfigDto, AiConfigDto, AutoRuleUpdateDto } from './admin-spa.dto';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -175,29 +175,6 @@ class AdminBroadcastController extends AdminController {
   }
 }
 
-/* ── emergency dispatch (complements emergency.controller assign) ────────── */
-@Controller('emergency')
-@UseGuards(JwtAuthGuard)
-@Roles(UserRole.ADMIN)
-class AdminEmergencyController extends AdminController {
-  @Post(':id/dispatch')
-  async dispatch(@Param('id') id: string, @CurrentUser() user: any, @Body() body: DispatchDto) {
-    if (!body?.ambulance_id) throw new BadRequestException('ambulance_id مطلوب');
-    const res = await this.conn.collection('emergency_requests').updateOne(
-      byId(id) as any,
-      {
-        $set: { assigned_ambulance_id: body.ambulance_id, state: 'DISPATCH_INITIATED', updatedAt: now() },
-        $push: { state_history: { from: null, to: 'DISPATCH_INITIATED', by: uid(user), note: body.note || `ambulance ${body.ambulance_id}`, at: now() } } as any,
-      },
-    );
-    if (!res.matchedCount) throw new NotFoundException('بلاغ الطوارئ غير موجود');
-    await this.conn.collection('sos_dispatches').insertOne({
-      emergency_id: id, ambulance_id: body.ambulance_id, note: body.note || null,
-      dispatched_by: uid(user), createdAt: now(),
-    } as any);
-    return { ok: true, state: 'DISPATCH_INITIATED' };
-  }
-}
 
 /* ── provider ops master-data lists ──────────────────────────────────────── */
 @Controller('contracts')
@@ -1381,7 +1358,6 @@ class AdminNursingPortalController extends AdminController {
     AdminNursingPortalController,
     AdminDashboardController,
     AdminBroadcastController,
-    AdminEmergencyController,
     AdminContractsController,
     AdminShiftsController,
     AdminScorecardController,

@@ -26,13 +26,14 @@ import { DoctorUrgentRequests } from '../components/DoctorUrgentRequests';
 import { DoctorQueueList } from '../components/DoctorQueueList';
 import { FacilityInvitationsScreen } from '../FacilityInvitationsScreen';
 import {
- PromotionsDashboard, CreateCampaignScreen, ProfileWebConfig,
+ PromotionsDashboard, CreateCampaignScreen, 
  SubscriptionsAdsScreen, AffiliatePortal, ReputationHub,
  LiveOrderAlarmModal, CrmHub, RevenueInsights, AiMedicalCopilot,
- SmartOutboundReferralNetwork, SosDispatchScreen, GpsRouterScreen
+ SmartOutboundReferralNetwork
 } from '../../shared/BlueprintScreens';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { tokens } from '../../../theme/tokens';
+import { mergeDateAndTime, isFutureSlot } from '../../../utils/slotPick';
 import { Stack, VirtualWaitingRoomScreen, styles } from './_shared';
 import { EPrescriptionScreen } from './EPrescriptionScreen';
 import { SickLeaveScreen } from './SickLeaveScreen';
@@ -40,13 +41,12 @@ import { MedicalReportScreen } from './MedicalReportScreen';
 import { ReferralScreen } from './ReferralScreen';
 import { DoctorAvailabilityScreen } from './DoctorAvailabilityScreen';
 import { DoctorServiceManagementScreen } from './DoctorServiceManagementScreen';
-import { CertificatesConfigScreen, PreVisitChatScreen, InboundMedicalReportsScreen } from './CertificatesConfigScreen';
-import { DoctorLocationScreen } from './DoctorLocationScreen';
+import { CertificatesConfigScreen } from '../../shared/SharedScreens';
+import { PreVisitChatScreen } from './PreVisitChatScreen';
+import { InboundMedicalReportsScreen } from './InboundMedicalReportsScreen';
 
-import { DoctorWalletTab } from './DoctorWalletTab';
 import { DoctorSettingsTab } from './DoctorSettingsTab';
 import { PatientFileScreen } from './PatientFileScreen';
-import { DoctorProfileEditScreen } from './DoctorProfileEditScreen';
 
 // ══════════════════════════════════════════════════════════════════════════════
 // APPOINTMENT DETAIL
@@ -61,8 +61,9 @@ export function AppointmentDetailScreen({ apt, onBack, onNavigate }:
  const [showCancel, setShowCancel] = useState(false);
  const [cancelReason, setCancelReason] = useState('');
  const [showResched, setShowResched] = useState(false);
- const [newDate, setNewDate] = useState('');
- const [newTime, setNewTime] = useState('');
+ const [newDate, setNewDate] = useState<Date | null>(null);
+ const [newTime, setNewTime] = useState<Date | null>(null);
+ const [picker, setPicker] = useState<'date' | 'time' | null>(null);
  const apptId = String(apt?.id || apt?.appointment_id || '');
 
  async function doPatch(action: string, body?: any) {
@@ -71,7 +72,7 @@ export function AppointmentDetailScreen({ apt, onBack, onNavigate }:
    try {
      await client.patch(`/care/appointments/${apptId}/${action}`, body || {});
      show(action === 'confirm' ? (AR ? 'تم تأكيد الموعد' : 'Appointment confirmed') : action === 'cancel' ? (AR ? 'تم إلغاء الموعد' : 'Appointment cancelled') : (AR ? 'تمت إعادة الجدولة' : 'Appointment rescheduled'), 'success');
-     setShowCancel(false); setShowResched(false); setCancelReason('');
+     setShowCancel(false); setShowResched(false); setCancelReason(''); setNewDate(null); setNewTime(null); setPicker(null);
    } catch (err: any) {
      show(err?.response?.data?.message || (AR ? 'تعذر تنفيذ الإجراء — تحقق من الاتصال' : 'Action failed — check connection'), 'error');
    } finally {
@@ -80,9 +81,10 @@ export function AppointmentDetailScreen({ apt, onBack, onNavigate }:
  }
 
  function submitReschedule() {
-   const iso = Date.parse(`${newDate.trim()}T${newTime.trim()}:00`);
-   if (!Number.isFinite(iso)) { show(AR ? 'أدخل التاريخ (YYYY-MM-DD) والوقت (HH:mm)' : 'Enter date (YYYY-MM-DD) and time (HH:mm)', 'error'); return; }
-   doPatch('reschedule', { slot_start: new Date(iso).toISOString() });
+   if (!newDate || !newTime) { show(AR ? 'اختر التاريخ والوقت' : 'Pick a date and a time', 'error'); return; }
+   const slot = mergeDateAndTime(newDate, newTime);
+   if (!isFutureSlot(slot, new Date())) { show(AR ? 'اختر موعداً في المستقبل' : 'Pick a time in the future', 'error'); return; }
+   doPatch('reschedule', { slot_start: slot.toISOString() });
  }
 
  return (
@@ -135,8 +137,28 @@ export function AppointmentDetailScreen({ apt, onBack, onNavigate }:
  )}
  {showResched && (
  <NCard style={{ marginTop: SP.md }}>
- <NInput placeholder="YYYY-MM-DD" value={newDate} onChange={setNewDate} />
- <NInput placeholder="HH:mm" value={newTime} onChange={setNewTime} />
+ <TouchableOpacity accessibilityRole="button" onPress={() => setPicker('date')} style={{ borderWidth: 1, borderColor: theme.border, borderRadius: R.md, padding: SP.md, marginBottom: SP.sm }}>
+ <Text style={{ color: theme.textSub, fontSize: FS.xs, textAlign: AR ? 'right' : 'left' }}>{AR ? 'التاريخ' : 'Date'}</Text>
+ <Text style={{ color: theme.text, fontSize: FS.md, textAlign: AR ? 'right' : 'left' }}>{newDate ? newDate.toLocaleDateString(AR ? 'ar-SA' : 'en-GB') : (AR ? 'اختر التاريخ' : 'Pick a date')}</Text>
+ </TouchableOpacity>
+ <TouchableOpacity accessibilityRole="button" onPress={() => setPicker('time')} style={{ borderWidth: 1, borderColor: theme.border, borderRadius: R.md, padding: SP.md }}>
+ <Text style={{ color: theme.textSub, fontSize: FS.xs, textAlign: AR ? 'right' : 'left' }}>{AR ? 'الوقت' : 'Time'}</Text>
+ <Text style={{ color: theme.text, fontSize: FS.md, textAlign: AR ? 'right' : 'left' }}>{newTime ? newTime.toLocaleTimeString(AR ? 'ar-SA' : 'en-GB', { hour: '2-digit', minute: '2-digit' }) : (AR ? 'اختر الوقت' : 'Pick a time')}</Text>
+ </TouchableOpacity>
+ {picker && (
+ <DateTimePicker
+ value={(picker === 'date' ? newDate : newTime) || new Date()}
+ mode={picker}
+ is24Hour
+ minimumDate={picker === 'date' ? new Date() : undefined}
+ display="default"
+ onChange={(_e, d) => {
+ setPicker(null);
+ if (!d) return;
+ if (picker === 'date') setNewDate(d); else setNewTime(d);
+ }}
+ />
+ )}
  <NBtn label={AR ? 'تأكيد الموعد الجديد' : 'Confirm new slot'} loading={acting} onPress={submitReschedule} style={{ marginTop: SP.md }} />
  </NCard>
  )}

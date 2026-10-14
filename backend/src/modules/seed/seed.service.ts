@@ -43,7 +43,6 @@ export class SeedService implements OnModuleInit {
       () => this.seedSystemConfig(),
       () => this.seedMedicines(),
       () => this.seedLabs(),
-      () => this.seedFacilities(),
       () => this.seedFulfillmentPolicies(),
     ]) {
       try {
@@ -57,6 +56,9 @@ export class SeedService implements OnModuleInit {
     if (testSeedEnabled) {
       for (const step of [
         () => this.seedPatient(),
+        // Real hospital names with stock photos, insurer lists and hours: test data only, never on a
+        // production boot (owner: no invented content; Q103).
+        () => this.seedFacilities(),
         () => this.seedPharmacies(),
         () => this.seedDoctors(),
         () => this.seedExtraProviders(),
@@ -191,6 +193,8 @@ export class SeedService implements OnModuleInit {
         account_id: user.id,
         type: ProviderType.DOCTOR,
         status: ProviderStatus.ACTIVE,
+        // Needs-review issue 447: the public doctor list (GET /care/doctors) shows only reviewed, public profiles.
+        public_eligibility: true, medical_review_status: 'approved',
         name_ar: d.name_ar, name_en: d.name_en,
         specialty: d.specialty, title: d.title, license_number: d.license_number,
         years_experience: d.years_experience, city: d.city, district: d.district,
@@ -246,6 +250,8 @@ export class SeedService implements OnModuleInit {
       await this.providerModel.create({
         user_id: labUser.id, account_id: labUser.id,
         type: ProviderType.LAB, status: ProviderStatus.ACTIVE,
+        // Needs-review issue 624: the public lab/radiology lists show only reviewed, public profiles (test data).
+        public_eligibility: true, medical_review_status: 'approved',
         name_ar: 'معمل نبض الطبي', name_en: 'Nabd Medical Lab',
         city: 'الرياض', district: 'العليا', location: { lat: 24.7136, lng: 46.6753 },
         license_verified: true, approved_at: new Date(),
@@ -264,6 +270,8 @@ export class SeedService implements OnModuleInit {
       await this.providerModel.create({
         user_id: radUser.id, account_id: radUser.id,
         type: ProviderType.RADIOLOGY, status: ProviderStatus.ACTIVE,
+        // Needs-review issue 624: the public lab/radiology lists show only reviewed, public profiles (test data).
+        public_eligibility: true, medical_review_status: 'approved',
         name_ar: 'مركز نبض للأشعة', name_en: 'Nabd Radiology Center',
         city: 'الرياض', district: 'العليا', location: { lat: 24.7130, lng: 46.6740 },
         license_verified: true, approved_at: new Date(),
@@ -376,7 +384,7 @@ export class SeedService implements OnModuleInit {
       await this.configModel.create({
         key: mainKey,
         value: {
-          consultation_followup_hours: 24
+          consultation_followup_hours: 72
         }
       });
       this.logger.log('Seeded default system config (follow-up hours)');

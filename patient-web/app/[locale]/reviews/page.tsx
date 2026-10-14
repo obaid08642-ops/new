@@ -1,90 +1,69 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { callPatientApi } from "@/lib/api/upstream";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { Star, ChevronLeft, MessageSquareQuote } from "lucide-react";
+import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { Stars } from "@/components-next/account/stars";
+import rx from "@/components-next/pharmacy/rx.module.css";
+import forms from "@/components-next/consult/consult.module.css";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ target?: string }> };
 
+type Review = { id: string; rating: number; comment?: string };
+
+function readReviews(payload: unknown): Review[] {
+  const root = payload && typeof payload === "object" && !Array.isArray(payload) ? (payload as { data?: unknown }) : null;
+  const list = Array.isArray(root?.data) ? root.data : [];
+  return list.flatMap((item: unknown, index: number) => {
+    const r = item && typeof item === "object" ? (item as Record<string, unknown>) : null;
+    if (!r) return [];
+    return [{
+      id: String(r.id ?? index),
+      rating: Math.min(Math.max(Number(r.rating) || 0, 0), 5),
+      comment: typeof r.comment === "string" && r.comment ? r.comment : undefined,
+    }];
+  });
+}
+
+/** `/reviews`: the reviews the server returns (GET /patient-ux/reviews, optionally for one `?target=`), on the shared card. */
 export default async function ReviewsPage({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const { target = "" } = await searchParams;
   const t = await getTranslations("Reviews");
+  const a = await getTranslations("AccountWeb");
+  const rs = await getTranslations("RouteState");
   const token = await requirePatientAccess(locale);
   const q = target && /^[A-Za-z0-9_-]{1,128}$/.test(target) ? `?target_id=${encodeURIComponent(target)}` : "";
   const res = await callPatientApi(`/patient-ux/reviews${q}`, {}, token);
   if (res.status === 401) redirect(`/${locale}/login`);
-  const payload = res.ok ? await res.json().catch(() => null) : null;
-  const list: any[] = Array.isArray(payload?.data) ? payload.data : [];
-  const isAr = locale === "ar";
+  const back = `/${locale}/dashboard`;
+  if (!res.ok) {
+    return (
+      <ConsultPage locale={locale} title={t("title")} backHref={back}>
+        <ConsultState kind="error" title={a("reviewsErrorTitle")} body={a("reviewsErrorBody")} retryLabel={rs("retry")} />
+      </ConsultPage>
+    );
+  }
+  const list = readReviews(await res.json().catch(() => null));
 
   return (
-    <main className="main" style={{ padding: "24px 16px", maxWidth: 760, margin: "0 auto", minHeight: "60vh" }}>
-      <Link
-        href={`/${locale}/dashboard`}
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 6,
-          color: "var(--brand-deep)",
-          fontWeight: 750,
-          textDecoration: "none",
-          marginBottom: 16,
-        }}
-      >
-        <ChevronLeft size={17} aria-hidden="true" />
-        {t("back")}
-      </Link>
-
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-        <MessageSquareQuote size={28} color="var(--brand-deep)" />
-        <h1 style={{ margin: 0, fontSize: "1.6rem", color: "var(--ink)" }}>{t("title")}</h1>
-      </div>
-
+    <ConsultPage locale={locale} title={t("title")} backHref={back}>
       {list.length === 0 ? (
-        <div style={{ background: "#FFFFFF", borderRadius: 20, padding: 36, textAlign: "center", border: "1px dashed var(--line)", color: "var(--muted)" }}>
-          <Star size={36} color="var(--muted)" style={{ margin: "0 auto 12px" }} />
-          <p style={{ margin: 0 }}>{t("empty")}</p>
-        </div>
+        <ConsultState kind="empty" icon="star" tone="amber" title={t("empty")} />
       ) : (
-        <ul style={{ listStyle: "none", padding: 0, display: "grid", gap: 12 }}>
-          {list.map((r: any, i: number) => {
-            const score = Math.min(Math.max(Number(r?.rating) || 0, 0), 5);
-            return (
-              <li
-                key={String(r?.id ?? i)}
-                style={{
-                  background: "#FFFFFF",
-                  borderRadius: 18,
-                  padding: "18px 20px",
-                  boxShadow: "var(--shadow-sm)",
-                  border: "1px solid var(--line)",
-                }}
-              >
-                <div style={{ display: "flex", gap: 4, alignItems: "center" }} aria-label={`${score}/5`}>
-                  {[1, 2, 3, 4, 5].map((starIdx) => (
-                    <Star
-                      key={starIdx}
-                      size={18}
-                      fill={starIdx <= score ? "#FBBF24" : "none"}
-                      color={starIdx <= score ? "#F59E0B" : "rgba(22,33,58,0.2)"}
-                    />
-                  ))}
-                </div>
-                {r?.comment ? (
-                  <p style={{ color: "var(--ink)", margin: "10px 0 0", lineHeight: 1.6, fontSize: "0.95rem" }}>
-                    {String(r.comment)}
-                  </p>
-                ) : null}
-              </li>
-            );
-          })}
+        <ul className={forms.list} aria-label={t("title")}>
+          {list.map((review) => (
+            <li key={review.id} className={rx.card}>
+              <Stars score={review.rating} label={a("ratingOf", { score: review.rating })} />
+              {review.comment ? <p className={forms.body}>{review.comment}</p> : null}
+            </li>
+          ))}
         </ul>
       )}
-    </main>
+    </ConsultPage>
   );
 }

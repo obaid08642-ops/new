@@ -1,3 +1,6 @@
+import { Roles } from '../../common/auth.guard';
+import { UserRole } from '../../common/enums';
+import { PROVIDER_ROLES } from '../../common/enums';
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -8,6 +11,7 @@ import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 export class CapabilitiesCatalogController {
   constructor(@InjectConnection() private conn: Connection) {}
 
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('lab-services')
   async labServices() {
     const rows = await this.conn.collection(CATALOG_COLLECTIONS.lab_services).find({ active: { $ne: false } } as any).limit(300).toArray();

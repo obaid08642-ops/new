@@ -120,8 +120,9 @@ export function Button({
       style={({ pressed }) => [
         styles.base,
         {
-          // an sm button is 40 to look at and 44 to hit (hitSlop below)
-          height: HEIGHT[size],
+          // an sm button is 40 to look at and 44 to hit (hitSlop below); it grows when a long label wraps (Hindi, Bengali, Filipino)
+          minHeight: HEIGHT[size],
+          paddingVertical: 6,
           paddingHorizontal: PAD_X[size],
           backgroundColor: v.bg,
           borderWidth: v.border,
@@ -143,7 +144,7 @@ export function Button({
         ) : startIcon ? (
           <ButtonIcon name={startIcon} size={px} theme={theme} color={v.fg} />
         ) : null}
-        <Text numberOfLines={1} style={{ color: v.fg, fontSize: FONT[size].size, fontFamily: FONT[size].family }}>
+        <Text style={{ flexShrink: 1, textAlign: 'center', color: v.fg, fontSize: FONT[size].size, fontFamily: FONT[size].family }}>
           {label}
         </Text>
         {!loading && endIcon ? <ButtonIcon name={endIcon} size={px} theme={theme} color={v.fg} /> : null}
@@ -238,7 +239,7 @@ const styles = StyleSheet.create({
     overflow: 'visible',
   },
   center: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
-  content: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, zIndex: 1 },
+  content: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, zIndex: 1, flexShrink: 1 },
   full: { alignSelf: 'stretch' },
   invalidDot: {
     position: 'absolute',

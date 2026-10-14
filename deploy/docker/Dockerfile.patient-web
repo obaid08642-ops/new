@@ -25,6 +25,8 @@ RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# F68: the nonce server fronts Next (fresh CSP nonce on cached public pages); Next listens on PORT+1 inside.
+COPY --from=builder --chown=nextjs:nodejs /app/server ./server
 USER nextjs
 EXPOSE 3000
-CMD ["node", "server.js"]
+CMD ["node", "server/nonce-server.mjs"]

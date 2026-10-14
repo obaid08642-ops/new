@@ -1,0 +1,23 @@
+/* The delivery address picker (Batch 1e): the patient's saved addresses as a list of choices, the one in use marked.
+   Tokens only, logical properties only, no inline styles (the CSP refuses them). */
+
+.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.choice {
+  display: flex; align-items: center; gap: 12px; padding: 12px 14px; box-sizing: border-box; min-inline-size: 0; min-block-size: 44px; cursor: pointer;
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline);
+  border-radius: var(--nabd-radius-3xl); box-shadow: var(--nabd-shadow-card);
+}
+.choiceOn { border-color: var(--nabd-color-action-primary-bg); }
+.choiceOff { cursor: not-allowed; opacity: .7; }
+.choice:has(input:focus-visible) { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.choice input { flex: none; inline-size: 22px; block-size: 22px; margin: 0; accent-color: var(--nabd-color-action-primary-bg); }
+.choiceText { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 3px; }
+.choiceTitle { font-size: var(--nabd-font-size-row); font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
+.choiceLine { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.hint { margin: 0; font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); line-height: 1.6; overflow-wrap: anywhere; }
+.actions { display: flex; flex-direction: column; gap: 10px; }
+.error {
+  margin: 0; padding: 12px 14px; border-radius: var(--nabd-radius-xl); font-size: var(--nabd-font-size-control); overflow-wrap: anywhere;
+  background: var(--nabd-color-status-danger-bg); color: var(--nabd-color-status-danger-fg);
+}

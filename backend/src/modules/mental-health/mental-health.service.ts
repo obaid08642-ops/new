@@ -1,8 +1,7 @@
-import { BadRequestException, Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Inject } from '@nestjs/common';
 import {
   BreathingSession,
   BreathingTechnique,
-  CrisisContact,
   MeditationSession,
   MeditationType,
   MoodEntry,
@@ -12,7 +11,6 @@ import {
 import { MoodEntryRepository } from './repositories/moodentry.repository';
 import { MeditationSessionRepository } from './repositories/meditationsession.repository';
 import { BreathingSessionRepository } from './repositories/breathingsession.repository';
-import { CrisisContactRepository } from './repositories/crisiscontact.repository';
 
 const MAX_HISTORY_DAYS = 365;
 const MAX_MOOD_TAGS = 8;
@@ -25,7 +23,6 @@ export class MentalHealthService {
     @Inject('MoodEntryRepository') private readonly moodModel: MoodEntryRepository,
     @Inject('MeditationSessionRepository') private readonly meditationModel: MeditationSessionRepository,
     @Inject('BreathingSessionRepository') private readonly breathingModel: BreathingSessionRepository,
-    @Inject('CrisisContactRepository') private readonly crisisModel: CrisisContactRepository,
   ) {}
 
   private requirePatientId(userId: string): void {
@@ -200,43 +197,6 @@ export class MentalHealthService {
   async getBreathingHistory(userId: string) {
     this.requirePatientId(userId);
     return this.breathingModel.find({ patient_id: userId }).sort({ logged_at: -1 }).limit(30).lean();
-  }
-
-  /* ───── Personal crisis contacts: no hard-coded regional contacts ───── */
-
-  async getCrisisContacts(userId: string) {
-    this.requirePatientId(userId);
-    const userContacts = await this.crisisModel.find({ patient_id: userId }).lean();
-    return { user_contacts: userContacts };
-  }
-
-  async addCrisisContact(userId: string, data: Partial<CrisisContact>) {
-    this.requirePatientId(userId);
-    const name = typeof data?.contact_name === 'string' ? data.contact_name.trim() : '';
-    const phone = typeof data?.phone === 'string' ? data.phone.trim() : '';
-    const relationship = typeof data?.relationship === 'string' ? data.relationship.trim() : undefined;
-    if (!name || name.length > 80 || !phone || !/^[0-9+()\-\s]{3,30}$/.test(phone) || (relationship !== undefined && relationship.length > 80)) {
-      throw new BadRequestException('بيانات جهة الاتصال غير صالحة / Crisis contact data is invalid');
-    }
-    if (data.is_professional !== undefined && typeof data.is_professional !== 'boolean') {
-      throw new BadRequestException('is_professional يجب أن يكون true أو false / is_professional must be true or false');
-    }
-    const contact = await this.crisisModel.create({
-      patient_id: userId,
-      contact_name: name,
-      phone,
-      ...(relationship ? { relationship } : {}),
-      ...(data.is_professional !== undefined ? { is_professional: data.is_professional } : {}),
-    } as Partial<CrisisContact>);
-    return contact.toObject();
-  }
-
-  async deleteCrisisContact(userId: string, contactId: string) {
-    this.requirePatientId(userId);
-    if (!contactId?.trim()) throw new BadRequestException('معرّف جهة الاتصال مطلوب / A contact identifier is required');
-    const result = await this.crisisModel.findOneAndDelete({ patient_id: userId, id: contactId });
-    if (!result) throw new NotFoundException('جهة الاتصال غير موجودة / Crisis contact not found');
-    return { deleted: true };
   }
 
   async getDashboard(userId: string) {

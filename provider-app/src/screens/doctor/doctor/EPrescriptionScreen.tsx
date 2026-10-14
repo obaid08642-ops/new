@@ -26,10 +26,10 @@ import { DoctorUrgentRequests } from '../components/DoctorUrgentRequests';
 import { DoctorQueueList } from '../components/DoctorQueueList';
 import { FacilityInvitationsScreen } from '../FacilityInvitationsScreen';
 import {
- PromotionsDashboard, CreateCampaignScreen, ProfileWebConfig,
+ PromotionsDashboard, CreateCampaignScreen, 
  SubscriptionsAdsScreen, AffiliatePortal, ReputationHub,
  LiveOrderAlarmModal, CrmHub, RevenueInsights, AiMedicalCopilot,
- SmartOutboundReferralNetwork, SosDispatchScreen, GpsRouterScreen
+ SmartOutboundReferralNetwork
 } from '../../shared/BlueprintScreens';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { tokens } from '../../../theme/tokens';
@@ -140,8 +140,12 @@ export function EPrescriptionScreen({ apt, onBack }:
   await client.post('/prescriptions/create', payload);
   show(AR ? 'تم إصدار الوصفة الطبية وإرسالها للمريض ' : 'Prescription issued and sent to patient ', 'success');
   onBack();
-  } catch (err: any) {
-  show(AR ? 'حدث خطأ أثناء إرسال الوصفة' : 'Error sending prescription', 'error');
+  } catch (err) {
+  const raw = String((err as { response?: { data?: { message?: unknown } } })?.response?.data?.message || '');
+  // server rule: only an IN_PROGRESS appointment of this doctor accepts a prescription
+  show(/in-progress appointment/i.test(raw)
+    ? (AR ? 'لا يمكن إصدار الوصفة: يجب أن تكون الاستشارة جارية (ابدأها أولاً، ولا تُنهِها قبل الوصفة).' : 'Cannot issue the prescription: the consultation must be in progress (start it first, and do not finish it before prescribing).')
+    : (raw || (AR ? 'حدث خطأ أثناء إرسال الوصفة' : 'Error sending prescription')), 'error');
   } finally {
   setLoading(false);
   }
@@ -248,29 +252,7 @@ export function EPrescriptionScreen({ apt, onBack }:
  placeholder={AR ? 'مثال: تناول الدواء بعد الأكل، الإكثار من الماء...' : 'e.g., Take with food, drink plenty of water...'}
  value={drugNotes} onChange={setDrugNotes} multi lines={3} icon="" />
 
- {/* Routing options */}
- <NCard style={{ marginBottom: SP.xl }}>
- <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text,
- marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'إرسال الوصفة إلى:' : 'Send Prescription to:'}
- </Text>
- {[
- { icon:'messageSquare', ar:'المريض مباشرة (WhatsApp / SMS)', en:'Patient directly (WhatsApp / SMS)' },
- { icon:'box', ar:'صيدلية في نبض بلس', en:'Pharmacy on Nabd Plus' },
- { icon:'printer', ar:'طباعة PDF', en:'Print / PDF' },
- ...(apt?.insurance && apt.insurance !== 'Cash' ? [{ icon:'shield', ar:'رفع للاعتماد التأميني (Pre-Approval)', en:'Send for Insurance Pre-Approval (TPA)' }] : []),
- ].map((opt, i) => (
- <TouchableOpacity key={i} style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md,
- paddingVertical: SP.md, alignItems: 'center',
- borderBottomWidth: i < 2 ? StyleSheet.hairlineWidth : 0, borderBottomColor: theme.border }}>
- <I name={opt.icon} size={20} color={theme.textSub} />
- <Text style={{ flex: 1, color: theme.text, fontSize: FS.md, textAlign: AR ? 'right' : 'left' }}>
- {AR ? opt.ar : opt.en}
- </Text>
- <I name="chevronRight" size={16} color={theme.textSub} />
- </TouchableOpacity>
- ))}
- </NCard>
+ {/* Needs-review issue 1115: the "send to" options had no action; POST /prescriptions/create already delivers the prescription to the patient. */}
 
  <NBtn label={AR ? ' حفظ وإصدار الوصفة' : ' Save & Issue Prescription'}
  disabled={drugs.length === 0}

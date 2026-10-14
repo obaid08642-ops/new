@@ -10,6 +10,7 @@ export { InsuranceConfigScreen } from './shared/InsuranceConfigScreen';
 export { CertificatesConfigScreen } from './shared/CertificatesConfigScreen';
 export { MediaConfigScreen } from './shared/MediaConfigScreen';
 export { ProviderWalletScreen } from './shared/ProviderWalletScreen';
+export { ProviderProfileEditor } from './shared/ProviderProfileEditor';
 export { ProviderHomeStats } from './shared/ProviderHomeStats';
 export { GlobalSystemSettings } from './shared/GlobalSystemSettings';
 export * from './shared/_shared';

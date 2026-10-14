@@ -121,7 +121,7 @@ export default function SupportTicketsPage() {
                       <div className="border-t border-slate-100 pt-3 space-y-3">
                         <div className="max-h-56 overflow-y-auto space-y-2">
                           {(t.thread || []).map((m: any, i: number) => (
-                            <div key={i} className={`rounded-xl p-3 text-sm max-w-[80%] ${m.role === 'admin' ? 'bg-teal-50 mr-auto' : 'bg-slate-100'}`}>
+                            <div key={i} className={`rounded-xl p-3 text-sm max-w-[80%] ${m.role === 'admin' ? 'bg-teal-50 ms-auto' : 'bg-slate-100'}`}>
                               <div className="text-[10px] text-slate-400 mb-1">{m.role === 'admin' ? 'الدعم' : 'المستخدم'} · {new Date(m.at).toLocaleString(dateLocale())}</div>
                               {m.message}
                             </div>

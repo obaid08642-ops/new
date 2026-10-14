@@ -1,36 +1,45 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
-import type { LabService } from "@/app/[locale]/diagnostics/search/page";
+import { useTranslations } from "next-intl";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { LAB, TestList, TestRow } from "@/components-next/diagnostics/diag-parts";
+import consult from "@/components-next/consult/consult.module.css";
+import { formatPrice } from "@/lib/format-price";
 
-export function DiagnosticsSearchClient({ services, initialQuery, locale }: {
-  services: LabService[]; initialQuery: string; locale: string;
-}) {
-  const ar = locale === "ar";
+export type SearchRow = { id: string; name: string; category?: string; price?: number };
+
+/** The live filter of the diagnostics search (canvas/Search): one field over the tests the server sent; each result goes to the test's page. */
+export function DiagnosticsSearchClient({ services, initialQuery, locale }: { services: SearchRow[]; initialQuery: string; locale: string }) {
+  const t = useTranslations("DiagWeb");
   const [q, setQ] = useState(initialQuery);
-  const results = useMemo(() => (q ? services.filter((t) => t.name.includes(q)) : services), [services, q]);
+  const results = useMemo(() => {
+    const needle = q.trim().toLocaleLowerCase(locale);
+    return needle ? services.filter((s) => `${s.name} ${s.category ?? ""}`.toLocaleLowerCase(locale).includes(needle)) : services;
+  }, [services, q, locale]);
   return (
-    <div>
-      <label>
-        <span>{ar ? "ابحث عن تحليل..." : "Search tests..."}</span>
-        <input type="search" autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder={ar ? "ابحث عن تحليل..." : "Search tests..."} />
+    <>
+      <label className={consult.searchField}>
+        <Icon name="search" size={20} tone="secondary" />
+        <span className="sr-only">{t("searchTests")}</span>
+        <input type="search" autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("searchTests")} className={consult.searchInput} />
       </label>
       {results.length === 0 ? (
-        <p role="status">{ar ? "لا توجد نتائج" : "No results"}</p>
+        <ConsultState kind="empty" icon="magnifying-glass" tone={LAB.tone} title={t("noResultsTitle")} body={t("noResultsBody")} />
       ) : (
-        <ul>
-          {results.map((t) => (
-            <li key={t.id}>
-              <Link href={`/${locale}/diagnostics/test-detail?testId=${encodeURIComponent(t.id)}`}>
-                <strong>{t.name}</strong>
-                {t.category ? <span> — {t.category}</span> : null}
-                <span> — {t.price} {ar ? "ر.س" : "SAR"}</span>
-              </Link>
-            </li>
+        <TestList label={t("searchResults")}>
+          {results.map((s) => (
+            <TestRow
+              key={s.id}
+              href={`/${locale}/diagnostics/test-detail?testId=${encodeURIComponent(s.id)}`}
+              title={s.name}
+              note={s.category}
+              price={s.price !== undefined ? formatPrice(locale, s.price).text : undefined}
+            />
           ))}
-        </ul>
+        </TestList>
       )}
-    </div>
+    </>
   );
 }
