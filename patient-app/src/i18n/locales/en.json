@@ -3222,5 +3222,8 @@
   "care.nut.planDay": "Day {n}",
   "ai.history.title": "Your earlier questions",
   "search.kind.specialties": "Specialties",
-  "search.kind.nursingServices": "Nursing services"
+  "search.kind.nursingServices": "Nursing services",
+  "insurance.benefits.requestsTitle": "Insurance requests: {count}",
+  "insurance.benefits.insurerCovered": "Covered by insurer",
+  "insurance.benefits.youPaid": "You paid"
 }

@@ -3222,5 +3222,8 @@
   "care.nut.planDay": "दिन {n}",
   "ai.history.title": "आपके पिछले सवाल",
   "search.kind.specialties": "विशेषज्ञताएं",
-  "search.kind.nursingServices": "नर्सिंग सेवाएं"
+  "search.kind.nursingServices": "नर्सिंग सेवाएं",
+  "insurance.benefits.requestsTitle": "बीमा अनुरोध: {count}",
+  "insurance.benefits.insurerCovered": "बीमा कंपनी ने कवर किया",
+  "insurance.benefits.youPaid": "आपने भुगतान किया"
 }

@@ -3586,7 +3586,9 @@
       "radiology": "রেডিওলজি সেন্টার",
       "home_care": "হোম কেয়ার",
       "nursing": "নার্সিং"
-    }
+    },
+    "memberLine": "সদস্য নম্বর: {id}",
+    "expiryLine": "মেয়াদ শেষ: {date}"
   },
   "LoyaltyHubWeb": {
     "title": "নাবদ পয়েন্ট",

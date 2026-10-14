@@ -24,10 +24,19 @@ function makeService(opts: { hasPolicy: boolean }) {
       lean: jest.fn().mockResolvedValue({ user_id: 'u1', insurance: opts.hasPolicy ? POLICY : null }),
     }),
   };
-  const companies = { find: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue([]) }) };
-  const svc: any = new (InsuranceFlowService as any)(
-    { findOne: jest.fn().mockResolvedValue(null) }, companies, patient,
-  );
+  const companies = {
+    find: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue([]) }),
+    findOne: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue({ logo_url: 'https://cdn.example.test/c1.png', logo_verified_at: new Date(), name_en: 'Company' }) }),
+  };
+  const requests = {
+    findOne: jest.fn().mockResolvedValue(null),
+    find: jest.fn().mockReturnValue({ limit: () => ({ lean: jest.fn().mockResolvedValue([
+      { state: 'APPROVED_FULL', price: 200 },
+      { state: 'COPAY_PAID', price: 100, copay_amount: 20 },
+      { state: 'REJECTED', price: 50 },
+    ]) }) }),
+  };
+  const svc: any = new (InsuranceFlowService as any)(requests, companies, patient);
   return svc;
 }
 
@@ -90,5 +99,18 @@ describe('E-ins-1 relay-only insurance answers carry a code, never an Arabic-onl
     expect(out.policy.policy_number).toBe('P-9');
     expect(out.policy.expiry_date).toBe('2027-01-01');
     expect(out.policy.plan_class).toBe('VIP');
+  });
+
+  it('#838: the policy card gets the verified insurer logo, the membership number and the expiry as saved', async () => {
+    const out = await makeService({ hasPolicy: true }).myPolicy(user);
+    expect(out.policy).toMatchObject({ member_id: 'M-1', expiry_date: '2027-01-01', company_logo_url: 'https://cdn.example.test/c1.png' });
+  });
+
+  it('#823/#826: benefits carry the patient\'s own request totals and the policy expiry, never an invented limit', async () => {
+    const out = await makeService({ hasPolicy: true }).benefitsAnswer(user);
+    expect(out.usage).toEqual({ requests: 3, approved: 2, rejected: 1, insurer_covered: 280, patient_share: 20, currency: 'SAR' });
+    expect(out.annual_limit).toBeNull();
+    expect(out.expiry_date).toBe('2027-01-01');
+    expect((await makeService({ hasPolicy: false }).benefitsAnswer(user)).usage).toBeNull();
   });
 });

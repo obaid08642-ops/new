@@ -3222,5 +3222,8 @@
   "care.nut.planDay": "دن {n}",
   "ai.history.title": "آپ کے پچھلے سوالات",
   "search.kind.specialties": "شعبے",
-  "search.kind.nursingServices": "نرسنگ خدمات"
+  "search.kind.nursingServices": "نرسنگ خدمات",
+  "insurance.benefits.requestsTitle": "انشورنس درخواستیں: {count}",
+  "insurance.benefits.insurerCovered": "انشورنس کمپنی نے ادا کیا",
+  "insurance.benefits.youPaid": "آپ نے ادا کیا"
 }

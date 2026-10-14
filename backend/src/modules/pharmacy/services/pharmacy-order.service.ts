@@ -479,6 +479,10 @@ export class PharmacyOrderService {
         co_pay_amount: Number(decision.patient_share || 0),
         insurer_share: Number(decision.insurer_share || 0),
         currency: decision.currency || snapshot?.totals?.currency || 'SAR',
+        // #523: what the patient already accepted, so a screen reopened after a reload says so instead of offering it again
+        patient_acceptance: decision.patient_acceptance
+          ? { kind: decision.patient_acceptance.kind, accepted_at: decision.patient_acceptance.accepted_at ?? null }
+          : null,
       };
       view.insurance_item_decisions = (decision.items || []).map((item: any) => {
         const lineAmount = Math.round(Number(item.unit_price || 0) * Number(item.quoted_qty || 0) * 100) / 100;

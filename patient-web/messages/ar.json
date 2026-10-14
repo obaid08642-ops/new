@@ -3586,7 +3586,9 @@
       "radiology": "مركز أشعة",
       "home_care": "رعاية منزلية",
       "nursing": "تمريض"
-    }
+    },
+    "memberLine": "رقم العضوية: {id}",
+    "expiryLine": "تنتهي في {date}"
   },
   "LoyaltyHubWeb": {
     "title": "نقاط نبض",

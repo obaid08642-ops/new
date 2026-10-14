@@ -3222,5 +3222,8 @@
   "care.nut.planDay": "اليوم {n}",
   "ai.history.title": "أسئلتك السابقة",
   "search.kind.specialties": "تخصصات",
-  "search.kind.nursingServices": "خدمات تمريض"
+  "search.kind.nursingServices": "خدمات تمريض",
+  "insurance.benefits.requestsTitle": "طلبات التأمين: {count}",
+  "insurance.benefits.insurerCovered": "غطّته شركة التأمين",
+  "insurance.benefits.youPaid": "دفعتَه أنت"
 }
