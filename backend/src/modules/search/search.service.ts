@@ -15,6 +15,7 @@ import {
   displayName, escapeRegex, sourceFilter, textScore, toSearchDocument, tolerantPattern,
 } from './search-documents';
 import { MeiliClient } from './meili.client';
+import { runsBackgroundWork } from '../../common/process-role';
 
 export const SEARCH_INDEX = 'search_index';
 const META = 'search_index_meta';
@@ -55,6 +56,8 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
 
   async onApplicationBootstrap() {
     if (process.env.SEARCH_SYNC === 'off') return;
+    // P14.26: the index is kept by the worker role; API processes only query it
+    if (!runsBackgroundWork()) return;
     await this.index.createIndex({ key: 1 }, { unique: true }).catch(() => null);
     await this.index.createIndex({ src: 1 }).catch(() => null);
     await this.index.createIndex({ type: 1 }).catch(() => null);

@@ -168,6 +168,17 @@ describe('Phase 23 audit chain (23.1 + 23.3)', () => {
     expect(await service.verifyChain()).toMatchObject({ ok: true, checked: 25 });
   });
 
+  it('no event is lost when two processes each write in a burst (CI dropped one of 25)', async () => {
+    // a second AuditService instance stands for another API process on the same database
+    const other = new AuditService(Logs as any);
+    const burst = (svc: AuditService, tag: string) =>
+      Array.from({ length: 40 }, (_, i) => svc.write({ action: 'burst', resource_id: `${tag}-${i}` }));
+    await Promise.all([...burst(service, 'a'), ...burst(other, 'b')]);
+    const rows = await Logs.find({}).sort({ sequence: 1 }).lean<any[]>();
+    expect(rows.map((r) => r.sequence)).toEqual(Array.from({ length: 80 }, (_, i) => i + 1));
+    expect(await service.verifyChain()).toMatchObject({ ok: true, checked: 80 });
+  });
+
   it('a retention deletion that leaves tombstones is not reported as tampering', async () => {
     for (const a of ['a', 'b', 'c', 'd']) await service.write({ action: a });
     const victim: any = await Logs.findOne({ sequence: 2 }).lean();
