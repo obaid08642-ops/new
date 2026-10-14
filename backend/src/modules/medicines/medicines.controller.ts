@@ -260,9 +260,10 @@ export class MedicinesController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('include_deleted') includeDeleted?: string,
+    @Query('status') status?: string,
   ) {
     return this.svc.adminListCatalog({
-      q, category,
+      q, category, status,
       page: queryInt(page, 1), limit: queryInt(limit, 25),
       includeDeleted: includeDeleted === '1' || includeDeleted === 'true',
     });

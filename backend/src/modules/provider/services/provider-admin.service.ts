@@ -224,6 +224,45 @@ export class ProviderAdminService {
     return { ok: true, account_id: id, approved };
   }
 
+  /**
+   * B-4 (#940): licence review per document. The account-level approve() used
+   * to bulk-approve every pending document; reviewers now decide each licence
+   * file on its own: approve, or reject with a reason the provider can act on.
+   */
+  async reviewDocument(user: any, accountId: string, docId: string, decision: 'approve' | 'reject', note?: string) {
+    this.assertAdmin(user);
+    const doc: any = await this.docs.findOne({ id: docId, account_id: accountId });
+    if (!doc) throw new NotFoundException('provider_document_not_found');
+    const pending = [DocumentReviewStatus.PENDING, DocumentReviewStatus.UNDER_REVIEW, DocumentReviewStatus.NEEDS_REPLACEMENT];
+    if (!pending.includes(doc.review_status)) {
+      throw new BadRequestException(`document_already_reviewed_${doc.review_status}`);
+    }
+    const now = new Date();
+    if (decision === 'approve') {
+      doc.review_status = DocumentReviewStatus.APPROVED;
+      doc.reviewer_id = user.id;
+      doc.reviewer_note = typeof note === 'string' ? note.slice(0, 500) : undefined;
+      doc.reviewed_at = now;
+    } else {
+      const reason = String(note || '').trim();
+      if (reason.length < 5) throw new BadRequestException('document_rejection_reason_required');
+      doc.review_status = DocumentReviewStatus.REJECTED;
+      doc.reviewer_id = user.id;
+      doc.reviewer_note = reason.slice(0, 500);
+      doc.reviewed_at = now;
+    }
+    await doc.save();
+    await this.audit.create({
+      provider_account_id: accountId,
+      actor_id: user.id,
+      actor_role: 'admin',
+      action: decision === 'approve' ? 'admin.provider_document_approved' : 'admin.provider_document_rejected',
+      after: { doc_id: docId, doc_type: doc.doc_type, review_status: doc.review_status, note: doc.reviewer_note || null },
+    });
+    this.events.emit('provider.document_reviewed', { provider_id: accountId, doc_id: docId, doc_type: doc.doc_type, decision });
+    return { ok: true, account_id: accountId, doc_id: docId, review_status: doc.review_status };
+  }
+
   async requestChanges(user: any, id: string, body: any) {
     this.assertAdmin(user);
     const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();
