@@ -21623,6 +21623,50 @@
         ]
       }
     },
+    "/api/v1/prescriptions/{id}": {
+      "delete": {
+        "operationId": "PrescriptionsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Prescriptions"
+        ]
+      },
+      "get": {
+        "operationId": "PrescriptionsController_one",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Prescriptions"
+        ]
+      }
+    },
     "/api/v1/prescriptions/manual-entry": {
       "post": {
         "operationId": "PrescriptionsController_manualEntry",
@@ -21842,29 +21886,6 @@
     "/api/v1/prescriptions/{id}/image": {
       "get": {
         "operationId": "PrescriptionsController_image",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Prescriptions"
-        ]
-      }
-    },
-    "/api/v1/prescriptions/{id}": {
-      "get": {
-        "operationId": "PrescriptionsController_one",
         "parameters": [
           {
             "name": "id",
@@ -32777,6 +32798,36 @@
         ]
       }
     },
+    "/api/v1/nutrition/plan": {
+      "get": {
+        "operationId": "NutritionController_getPlan",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "My latest AI nutrition plan (204 when none) | خطتي الغذائية",
+        "tags": [
+          "Nutrition | التغذية"
+        ]
+      }
+    },
+    "/api/v1/nutrition/plan/generate": {
+      "post": {
+        "operationId": "NutritionController_generatePlan",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Generate my AI nutrition plan from my profile | إنشاء خطة غذائية",
+        "tags": [
+          "Nutrition | التغذية"
+        ]
+      }
+    },
     "/api/v1/nutrition/profile": {
       "get": {
         "operationId": "NutritionController_getProfile",
@@ -33370,6 +33421,27 @@
       }
     },
     "/api/v1/pharmacy/returns/{id}": {
+      "delete": {
+        "operationId": "ReturnsController_withdraw",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Returns"
+        ]
+      },
       "get": {
         "operationId": "ReturnsController_getDetails",
         "parameters": [

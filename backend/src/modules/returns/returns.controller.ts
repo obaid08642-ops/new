@@ -1,5 +1,5 @@
 import { PROVIDER_ROLES } from '../../common/enums';
-import { Controller, Get, Post, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, Post, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ReturnsService } from './returns.service';
 import { JwtAuthGuard, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
@@ -49,6 +49,12 @@ export class ReturnsController {
   @Get('eligible/:serviceType')
   eligible(@Param('serviceType') serviceType: string, @CurrentUser() user: any) {
     return this.returnsService.eligibleBookings(user.id, serviceType);
+  }
+
+  /** D-32: the patient withdraws an undecided return; its evidence files are deleted. */
+  @Delete(':id')
+  async withdraw(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.returnsService.withdraw(id, user.id);
   }
 
   @Get(':id')

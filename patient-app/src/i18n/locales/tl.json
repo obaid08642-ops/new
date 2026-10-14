@@ -3209,5 +3209,15 @@
   "emergency.shareAddContacts": "Magdagdag ng emergency contact",
   "emergency.shareSent": "Naipadala ang lokasyon mo sa {n} contact sa app.",
   "emergency.shareSms": "Mag-text kay {name}",
-  "emergency.shareContact": "ang contact mo"
+  "emergency.shareContact": "ang contact mo",
+  "care.nut.tabPlan": "Plano",
+  "care.nut.planEmpty": "Gumawa ng plano mula sa iyong nutrition profile (taas, timbang, layunin at allergy).",
+  "care.nut.planGenerate": "Gawin ang plano ko",
+  "care.nut.planRegenerate": "Gumawa ng bagong plano",
+  "care.nut.planNeedsProfile": "Ilagay muna ang taas at timbang mo sa tab na Layunin.",
+  "care.nut.planQuota": "Naabot mo na ang limitasyon ng AI ngayong araw. Subukan bukas.",
+  "care.nut.planFailed": "Hindi magawa ang plano ngayon. Subukan muli.",
+  "care.nut.planNutritionist": "Kumonsulta sa isang nutritionist",
+  "care.nut.planNotice": "Ang planong ito ay pangkalahatang gabay mula sa AI assistant, hindi reseta ng doktor. Kausapin muna ang isang nutritionist bago ang malaking pagbabago.",
+  "care.nut.planDay": "Araw {n}"
 }
