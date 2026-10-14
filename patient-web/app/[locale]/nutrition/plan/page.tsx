@@ -5,7 +5,7 @@ import { redirectKeepingQuery } from "@/lib/redirect-keep-query";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-/** The plan is a tab of the nutrition hub; it stays hidden until GET /nutrition/plan exists, and the hub then opens Today. */
+/** The plan is a tab of the nutrition hub (`?tab=plan`, the AI nutrition plan). */
 export default async function Page({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();

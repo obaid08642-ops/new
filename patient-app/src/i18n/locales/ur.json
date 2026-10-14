@@ -3194,5 +3194,15 @@
   "pharmacy.scan.ix.severe_low_blood_pressure": "بلڈ پریشر بہت گر سکتا ہے۔ انہیں کبھی ایک ساتھ نہ لیں۔",
   "pharmacy.scan.ix.rhabdomyolysis": "پٹھوں کو نقصان (رابڈومائیولائسس) کا خطرہ۔ اپنے ڈاکٹر سے کسی دوسری اینٹی بائیوٹک کے بارے میں پوچھیں۔",
   "insurance.noteCode.coverage_decided_by_provider": "حتمی کوریج کا فیصلہ سروس فراہم کنندہ آپ کی درخواست کا جائزہ لیتے وقت کرتا ہے۔",
-  "insurance.noteCode.no_policy_on_file": "آپ کی فائل میں کوئی انشورنس پالیسی نہیں ہے۔ پہلے ایک شامل کریں۔"
+  "insurance.noteCode.no_policy_on_file": "آپ کی فائل میں کوئی انشورنس پالیسی نہیں ہے۔ پہلے ایک شامل کریں۔",
+  "care.nut.tabPlan": "منصوبہ",
+  "care.nut.planEmpty": "اپنے غذائی پروفائل (قد، وزن، ہدف اور الرجی) سے منصوبہ بنائیں۔",
+  "care.nut.planGenerate": "میرا منصوبہ بنائیں",
+  "care.nut.planRegenerate": "نیا منصوبہ بنائیں",
+  "care.nut.planNeedsProfile": "پہلے ہدف کے ٹیب میں اپنا قد اور وزن درج کریں۔",
+  "care.nut.planQuota": "آپ آج کی AI حد تک پہنچ گئے ہیں۔ کل دوبارہ کوشش کریں۔",
+  "care.nut.planFailed": "منصوبہ ابھی نہیں بن سکا۔ دوبارہ کوشش کریں۔",
+  "care.nut.planNutritionist": "ماہرِ غذائیت سے رجوع کریں",
+  "care.nut.planNotice": "یہ منصوبہ AI اسسٹنٹ کی عمومی رہنمائی ہے، طبی نسخہ نہیں۔ کسی بڑی تبدیلی سے پہلے ماہرِ غذائیت سے بات کریں۔",
+  "care.nut.planDay": "دن {n}"
 }

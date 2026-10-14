@@ -3194,5 +3194,15 @@
   "pharmacy.scan.ix.severe_low_blood_pressure": "هبوط حاد في ضغط الدم. لا تجمع بينهما أبداً.",
   "pharmacy.scan.ix.rhabdomyolysis": "خطر تلف العضلات (انحلال الربيدات). اسأل طبيبك عن مضاد حيوي آخر.",
   "insurance.noteCode.coverage_decided_by_provider": "التغطية النهائية يحددها مقدم الخدمة عند مراجعة طلبك.",
-  "insurance.noteCode.no_policy_on_file": "لا توجد وثيقة تأمين في ملفك. أضفها أولاً."
+  "insurance.noteCode.no_policy_on_file": "لا توجد وثيقة تأمين في ملفك. أضفها أولاً.",
+  "care.nut.tabPlan": "الخطة",
+  "care.nut.planEmpty": "أنشئ خطة من ملفك الغذائي (الطول والوزن والهدف والحساسية).",
+  "care.nut.planGenerate": "أنشئ خطتي",
+  "care.nut.planRegenerate": "أنشئ خطة جديدة",
+  "care.nut.planNeedsProfile": "أكمل طولك ووزنك في تبويب الهدف أولاً.",
+  "care.nut.planQuota": "وصلت إلى الحد اليومي للمساعد الذكي. حاول غداً.",
+  "care.nut.planFailed": "تعذر إنشاء الخطة الآن. حاول مرة أخرى.",
+  "care.nut.planNutritionist": "تابع مع أخصائي تغذية",
+  "care.nut.planNotice": "هذه الخطة إرشادات عامة من المساعد الذكي وليست وصفة طبية. استشر أخصائي تغذية قبل أي تغيير كبير.",
+  "care.nut.planDay": "اليوم {n}"
 }

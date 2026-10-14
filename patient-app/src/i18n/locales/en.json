@@ -3194,5 +3194,15 @@
   "pharmacy.scan.ix.severe_low_blood_pressure": "Severe drop in blood pressure. Never take these together.",
   "pharmacy.scan.ix.rhabdomyolysis": "Risk of muscle damage (rhabdomyolysis). Ask your doctor about a different antibiotic.",
   "insurance.noteCode.coverage_decided_by_provider": "The provider decides the final coverage when it reviews your request.",
-  "insurance.noteCode.no_policy_on_file": "There is no insurance policy on your file. Add one first."
+  "insurance.noteCode.no_policy_on_file": "There is no insurance policy on your file. Add one first.",
+  "care.nut.tabPlan": "Plan",
+  "care.nut.planEmpty": "Create a plan from your nutrition profile (height, weight, goal and allergies).",
+  "care.nut.planGenerate": "Create my plan",
+  "care.nut.planRegenerate": "Create a new plan",
+  "care.nut.planNeedsProfile": "Add your height and weight in the Target tab first.",
+  "care.nut.planQuota": "You have reached today's AI limit. Try again tomorrow.",
+  "care.nut.planFailed": "The plan could not be created right now. Try again.",
+  "care.nut.planNutritionist": "Follow up with a nutritionist",
+  "care.nut.planNotice": "This plan is general guidance from the AI assistant, not a medical prescription. Talk to a nutritionist before any big change.",
+  "care.nut.planDay": "Day {n}"
 }

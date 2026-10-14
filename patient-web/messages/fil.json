@@ -3104,7 +3104,18 @@
     "mealName": "Pangalan ng pagkain",
     "mealCalories": "Mga calorie (kcal)",
     "saveMeal": "I-save ang pagkain",
-    "mealNotice": "Nase-save ang iyong mga pagkain sa profile at kusang nag-a-update ang iyong pang-araw-araw na buod."
+    "mealNotice": "Nase-save ang iyong mga pagkain sa profile at kusang nag-a-update ang iyong pang-araw-araw na buod.",
+    "tabPlan": "Plano",
+    "planEmptyTitle": "Wala pang plano sa nutrisyon",
+    "planEmptyBody": "Gumawa ng plano mula sa iyong nutrition profile (taas, timbang, layunin at allergy).",
+    "planGenerate": "Gawin ang plano ko",
+    "planRegenerate": "Gumawa ng bagong plano",
+    "planNeedsProfile": "Ilagay muna ang taas at timbang mo sa tab na Layunin.",
+    "planQuota": "Naabot mo na ang limitasyon ng AI ngayong araw. Subukan bukas.",
+    "planFailed": "Hindi magawa ang plano ngayon. Subukan muli.",
+    "planNutritionist": "Kumonsulta sa isang nutritionist",
+    "planNotice": "Ang planong ito ay pangkalahatang gabay mula sa AI assistant, hindi reseta ng doktor. Kausapin muna ang isang nutritionist bago ang malaking pagbabago.",
+    "planDay": "Araw {n}"
   },
   "MentalWeb": {
     "title": "Kalusugang pangkaisipan",

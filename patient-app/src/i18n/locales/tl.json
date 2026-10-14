@@ -3194,5 +3194,15 @@
   "pharmacy.scan.ix.severe_low_blood_pressure": "Matinding pagbaba ng presyon ng dugo. Huwag kailanman pagsabayin ang mga ito.",
   "pharmacy.scan.ix.rhabdomyolysis": "Panganib ng pinsala sa kalamnan (rhabdomyolysis). Tanungin ang iyong doktor tungkol sa ibang antibiotic.",
   "insurance.noteCode.coverage_decided_by_provider": "Ang provider ang magpapasya sa huling coverage kapag sinuri nito ang iyong request.",
-  "insurance.noteCode.no_policy_on_file": "Walang insurance policy sa iyong file. Magdagdag muna ng isa."
+  "insurance.noteCode.no_policy_on_file": "Walang insurance policy sa iyong file. Magdagdag muna ng isa.",
+  "care.nut.tabPlan": "Plano",
+  "care.nut.planEmpty": "Gumawa ng plano mula sa iyong nutrition profile (taas, timbang, layunin at allergy).",
+  "care.nut.planGenerate": "Gawin ang plano ko",
+  "care.nut.planRegenerate": "Gumawa ng bagong plano",
+  "care.nut.planNeedsProfile": "Ilagay muna ang taas at timbang mo sa tab na Layunin.",
+  "care.nut.planQuota": "Naabot mo na ang limitasyon ng AI ngayong araw. Subukan bukas.",
+  "care.nut.planFailed": "Hindi magawa ang plano ngayon. Subukan muli.",
+  "care.nut.planNutritionist": "Kumonsulta sa isang nutritionist",
+  "care.nut.planNotice": "Ang planong ito ay pangkalahatang gabay mula sa AI assistant, hindi reseta ng doktor. Kausapin muna ang isang nutritionist bago ang malaking pagbabago.",
+  "care.nut.planDay": "Araw {n}"
 }
