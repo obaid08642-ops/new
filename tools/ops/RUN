@@ -1,3 +1,2 @@
-# 2026-10-14 build session, read-only: who powered the host off (incident follow-up) and the facts the deploy of main needs.
-56-inspect-shutdown
-57-deploy-preflight
+# 2026-10-14 build session, read-only: Cloudflare credential check (Global API Key + e-mail, or token) and zone state.
+cf:10-inspect
