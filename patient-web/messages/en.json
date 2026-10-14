@@ -3231,7 +3231,8 @@
     "askPharmacist": "Ask the pharmacist",
     "explainAnother": "Explain something else",
     "untitledReport": "Medical report",
-    "reportsUnavailable": "Your reports could not be loaded now. Try again in a moment."
+    "reportsUnavailable": "Your reports could not be loaded now. Try again in a moment.",
+    "leafletLink": "Read the leaflet"
   },
   "MonthlyReportWeb": {
     "title": "Your monthly report",

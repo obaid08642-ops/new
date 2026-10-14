@@ -5,6 +5,7 @@ import { Connection } from 'mongoose';
 import * as ExcelJS from 'exceljs';
 import { AiGatewayService } from './ai-gateway.service';
 import { AiContentReviewService } from './ai-content-review.service';
+import { escapeRegex } from '../../common/slug.util';
 
 /**
  * AI features service — ALL generation goes through the AI Gateway,
@@ -204,7 +205,30 @@ Return ONLY valid JSON with this exact structure:
   }
 
   async prescriptionOcr(base64: string) {
-    return this.ocrTranslate(base64, 'ar');
+    const res = await this.ocrTranslate(base64, 'ar');
+    return { ...res, items: await this.matchCatalogMedicines(res.items) };
+  }
+
+  /**
+   * #881: each name read from the photo is matched (exact name, any case) to a public, reviewed catalogue medicine, so the
+   * client links its product page, whose leaflet is the catalogue's own text. No leaflet is generated here.
+   */
+  private async matchCatalogMedicines(items: unknown): Promise<any[]> {
+    const list = Array.isArray(items) ? items.slice(0, 50) : [];
+    const out: any[] = [];
+    for (const item of list) {
+      const name = typeof (item as any)?.raw_name_string === 'string' ? (item as any).raw_name_string.trim().slice(0, 100) : '';
+      let med: any = null;
+      if (name.length >= 2) {
+        const re = new RegExp(`^${escapeRegex(name)}$`, 'i');
+        med = await this.conn.collection('medicines').findOne(
+          { is_deleted: { $ne: true }, public_eligibility: true, indexing_eligibility: true, medical_review_status: 'approved', $or: [{ name_en: re }, { name_ar: re }] },
+          { projection: { _id: 0, id: 1, slug: 1 } },
+        );
+      }
+      out.push({ ...(item as object), medicine_id: med?.id ?? null, slug: typeof med?.slug === 'string' ? med.slug : null });
+    }
+    return out;
   }
 
   async copilotSuggest(notes: string) {
