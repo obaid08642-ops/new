@@ -328,7 +328,7 @@ describe("the shared pieces", () => {
     expect(pickTab(["b"], ["a", "b"] as const, "a")).toBe("b");
     expect(isFlag("1")).toBe(true);
     expect(isFlag("0")).toBe(false);
-    const doses = todayDoses([{ id: "1", medicineName: "A", times: ["20:00", "08:00"], todayDoses: [], dose: undefined, frequency: undefined }]);
+    const doses = todayDoses([{ id: "1", medicineName: "A", times: ["20:00", "08:00"], todayDoses: [], dose: undefined, frequency: undefined, chronic: false }]);
     expect(doses.map((dose) => `${dose.timeKey}:${dose.status}`)).toEqual(["08:00:pending", "20:00:pending"]);
     expect(profileItems([{ id: "1", name: "A" }, { name: "no id" }, { id: "3" }])).toEqual([{ id: "1", name: "A" }]);
     expect(familyContacts({ data: [{ user_id: "u", display_name: "Omar", phone: "+966507654321" }, { phone: "x" }] })).toEqual([{ id: "u", name: "Omar", relation: undefined, maskedPhone: "•••••••••4321" }]);
@@ -344,5 +344,17 @@ describe("the shared pieces", () => {
     expect(css).not.toMatch(/\b(left|right|margin-left|margin-right|padding-left|padding-right)\s*:/);
     expect(css).toContain("a.tile:focus-visible");
     expect(css).toContain(".iconButton:focus-visible");
+  });
+});
+
+describe("reminder summaries keep the chronic flag (issue 676)", () => {
+  it("reads chronic from GET /health/reminders so an edit does not clear it", async () => {
+    const { extractMedicationReminderSummaries } = await import("@/lib/api/reminders");
+    const [chronic, plain] = extractMedicationReminderSummaries([
+      { id: "8f2c1a0e-1d3b-4c5a-9e7f-0a1b2c3d4e5f", medicine_name_en: "Metformin", times: ["08:00"], chronic: true },
+      { id: "9a3d2b1f-2e4c-4d6b-8f80-1b2c3d4e5f60", medicine_name_en: "Vitamin D", times: ["09:00"] },
+    ]);
+    expect(chronic?.chronic).toBe(true);
+    expect(plain?.chronic).toBe(false);
   });
 });

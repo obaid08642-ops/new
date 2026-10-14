@@ -53,23 +53,26 @@ const kindOf = (raw: unknown): Kind => (KINDS as string[]).includes(String(raw))
 const numberOrNull = (value: unknown): number | null => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 const textList = (value: unknown): string[] => (Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []);
 
+/**
+ * One row of GET /providers/map, read in the server's one shape (#766): id, type, name_ar, name_en, rating, lat, lng,
+ * distance_km, rating_count, accepted_insurance. The answer carries no open state or price, so those stay empty.
+ */
 function readProvider(p: Record<string, unknown>): Provider {
-  const location = (p.location ?? {}) as { lat?: unknown; lng?: unknown };
-  const distance = numberOrNull(p.distance_km ?? p.distance);
+  const distance = numberOrNull(p.distance_km);
   return {
-    id: String(p.id || p._id),
-    name: pickLocalized(p.name_ar as string, (p.name || p.full_name || p.clinic_name) as string) || '',
-    kind: kindOf(p.type || p.provider_type),
-    rating: numberOrNull(p.rating ?? p.avg_rating),
-    reviews: numberOrNull(p.reviews_count ?? p.total_reviews) ?? 0,
+    id: String(p.id ?? ''),
+    name: pickLocalized(p.name_ar as string, p.name_en as string) || '',
+    kind: kindOf(p.type),
+    rating: numberOrNull(p.rating),
+    reviews: numberOrNull(p.rating_count) ?? 0,
     distance,
-    eta: numberOrNull(p.eta_minutes) ?? (distance !== null ? Math.round(distance * 4) : null),
-    isOpen: typeof (p.is_available ?? p.is_open) === 'boolean' ? ((p.is_available ?? p.is_open) as boolean) : null,
-    price: numberOrNull(p.consultation_fee ?? p.price),
-    lat: numberOrNull(p.lat ?? p.latitude ?? location.lat),
-    lng: numberOrNull(p.lng ?? p.longitude ?? location.lng),
-    specialties: textList(p.specialties ?? p.services),
-    insurance: textList(p.accepted_insurance ?? p.insurance_providers),
+    eta: distance !== null ? Math.round(distance * 4) : null,
+    isOpen: null,
+    price: null,
+    lat: numberOrNull(p.lat),
+    lng: numberOrNull(p.lng),
+    specialties: textList(p.specialties),
+    insurance: textList(p.accepted_insurance),
   };
 }
 
@@ -104,10 +107,9 @@ export function ProvidersMapView() {
         const params = new URLSearchParams();
         if (lat) params.set('lat', String(lat));
         if (lng) params.set('lng', String(lng));
-        params.set('radius', '15');
+        params.set('radius_km', '15');
         const response = await apiFetch(`/providers/map?${params.toString()}`);
-        const body = response as { data?: unknown; results?: unknown } | null;
-        const list: unknown[] = Array.isArray(response) ? response : Array.isArray(body?.data) ? body.data : Array.isArray(body?.results) ? body.results : [];
+        const list: unknown[] = Array.isArray(response) ? response : [];
         setProviders(list.map((row) => readProvider(row as Record<string, unknown>)));
         setFailed(false);
       } catch (e) {
