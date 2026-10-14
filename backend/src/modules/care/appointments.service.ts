@@ -382,6 +382,30 @@ export class AppointmentsService {
 
     const obj: any = appt.toObject();
     
+    // B-1: follow-up linkage, both directions. `follow_up_of` is stored at
+    // booking time (same patient + doctor, original completed — validated in
+    // create); the original also lists its follow-ups so clients can render
+    // the "follow-up link to the original appointment" (#802 app, #807 web).
+    // Follow-ups share this appointment's patient and doctor by construction,
+    // so no additional access check is needed beyond the one above.
+    // Enrichment only: a lookup failure must never break the core read.
+    let followUps: any[] = [];
+    try {
+      const children: any[] = await this.apptModel
+        .find({ follow_up_of: obj.id }, { _id: 0, __v: 0 })
+        .sort({ slot_start: 1 })
+        .lean();
+      followUps = (children || []).map((c: any) => ({
+        id: c.id,
+        slot_start: c.slot_start,
+        status: c.status,
+        service_type: c.service_type,
+      }));
+    } catch {
+      followUps = [];
+    }
+    obj.follow_ups = followUps;
+    
     // Q-16: video appointments carry what the call screen needs (room route).
     if (obj.service_type === 'video') {
       const joinable = [APPT_STATES.CONFIRMED, APPT_STATES.CHECKED_IN, APPT_STATES.IN_PROGRESS].includes(obj.status);

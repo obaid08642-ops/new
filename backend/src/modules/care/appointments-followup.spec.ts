@@ -124,3 +124,84 @@ describe('AppointmentsService follow_up_of validation', () => {
     expect(apptModel.create).toHaveBeenCalledWith(expect.objectContaining({ follow_up_of: 'appt-original' }));
   });
 });
+
+describe('AppointmentsService follow-up reverse link (original lists its follow-ups)', () => {
+  const apptModel: any = {
+    findOne: jest.fn(),
+    create: jest.fn(),
+    find: jest.fn(),
+  };
+  const providerModel: any = { findOne: jest.fn().mockResolvedValue(null) };
+  const connection: any = {
+    collection: jest.fn(() => ({
+      findOne: jest.fn(),
+      updateOne: jest.fn(),
+    }))
+  };
+  const events: any = { emit: jest.fn() };
+  const engine: any = {
+    apply: jest.fn(async (opts: any) => opts.mutate()),
+    announceCreated: jest.fn(),
+  };
+  const insurance: any = { createRequest: jest.fn() };
+  const service = new AppointmentsService(apptModel, providerModel, connection, events, engine, insurance);
+  const patient = { id: 'pat-1', role: UserRole.PATIENT, full_name: 'Patient' };
+
+  beforeEach(() => jest.clearAllMocks());
+
+  const originalDoc = (over: any = {}) => ({
+    id: 'appt-original',
+    patient_id: 'pat-1',
+    doctor_id: 'doc-1',
+    status: APPT_STATES.COMPLETED,
+    service_type: 'clinic',
+    slot_start: new Date('2026-09-01T10:00:00Z'),
+    toObject: () => ({
+      id: 'appt-original',
+      patient_id: 'pat-1',
+      doctor_id: 'doc-1',
+      status: APPT_STATES.COMPLETED,
+      service_type: 'clinic',
+      slot_start: new Date('2026-09-01T10:00:00Z'),
+      ...over,
+    }),
+  });
+  const childRows = (rows: any[]) => ({
+    sort: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(rows) }),
+  });
+
+  it('detail of the original lists its follow-ups', async () => {
+    apptModel.findOne.mockResolvedValue(originalDoc());
+    apptModel.find.mockReturnValue(childRows([
+      { id: 'appt-f1', slot_start: new Date('2026-10-01T10:00:00Z'), status: APPT_STATES.CONFIRMED, service_type: 'clinic', follow_up_of: 'appt-original' },
+      { id: 'appt-f2', slot_start: new Date('2026-11-01T10:00:00Z'), status: APPT_STATES.PENDING, service_type: 'video', follow_up_of: 'appt-original' },
+    ]));
+
+    const out: any = await service.one(patient, 'appt-original');
+
+    expect(apptModel.find).toHaveBeenCalledWith({ follow_up_of: 'appt-original' }, expect.anything());
+    expect(out.follow_ups).toEqual([
+      { id: 'appt-f1', slot_start: new Date('2026-10-01T10:00:00Z'), status: APPT_STATES.CONFIRMED, service_type: 'clinic' },
+      { id: 'appt-f2', slot_start: new Date('2026-11-01T10:00:00Z'), status: APPT_STATES.PENDING, service_type: 'video' },
+    ]);
+  });
+
+  it('detail with no follow-ups returns an empty list', async () => {
+    apptModel.findOne.mockResolvedValue(originalDoc());
+    apptModel.find.mockReturnValue(childRows([]));
+
+    const out: any = await service.one(patient, 'appt-original');
+
+    expect(out.follow_ups).toEqual([]);
+  });
+
+  it('detail of a follow-up still carries follow_up_of', async () => {
+    apptModel.findOne.mockResolvedValue(originalDoc({ id: 'appt-f1', follow_up_of: 'appt-original', status: APPT_STATES.CONFIRMED }));
+    apptModel.find.mockReturnValue(childRows([]));
+
+    const out: any = await service.one(patient, 'appt-f1');
+
+    expect(out.follow_up_of).toBe('appt-original');
+    expect(out.follow_ups).toEqual([]);
+  });
+});
