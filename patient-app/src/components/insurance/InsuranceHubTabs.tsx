@@ -4,7 +4,7 @@ import { router, type Href } from 'expo-router';
 
 import { Button, Input, type FillIconName } from '../../../../packages/ui-native/src';
 import { Gate, Section, useConsultFormat } from '../consult/ConsultKit';
-import { HealthTabs, Notice, Panel, Pill, Row, rowsOf, useRemote } from '../health/HealthKit';
+import { HealthTabs, Notice, Panel, Row, rowsOf, useRemote } from '../health/HealthKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { pickLocalized } from '../../utils/localize';
@@ -15,53 +15,47 @@ import { INSURANCE_TONE, Stat, usePolicy } from './InsuranceKit';
  * what the server sent: nothing is summed, estimated or filled in on the device.
  */
 
-interface Benefit {
-  service?: string;
-  coverage?: number;
-  remaining?: number;
-  annualLimit?: number;
-  usedAmount?: number;
-  usedCount?: number;
-  limitCount?: number;
+/** GET /insurance/benefits-summary (issues 823 and 826): the patient's own use of the policy and its expiry, as the server sums them. */
+interface BenefitsAnswer {
+  has_policy?: boolean;
+  benefits?: Array<{ key?: string; note_code?: string }>;
+  usage?: { requests?: number; approved?: number; rejected?: number; insurer_covered?: number; patient_share?: number } | null;
+  expiry_date?: string | null;
 }
 
-/** GET /insurance/benefits-summary: the benefits of the policy with what is used and what is left. */
+const NOTE_CODES = ['coverage_decided_by_provider', 'no_policy_on_file'] as const;
+type NoteCode = (typeof NOTE_CODES)[number];
+
+/**
+ * The Benefits tab: the requests decided under the policy with what the insurer covered and what the patient paid, the
+ * policy's expiry, and who decides the coverage. There is no plan limit in the platform, so none is drawn (never invented).
+ */
 export function BenefitsTab() {
   const { k, t, c, flow } = useScreenUi();
   const fmt = useConsultFormat();
-  const benefits = useRemote(async () => rowsOf<Benefit>(await apiFetch('/insurance/benefits-summary')), [], 'insurance:benefits');
-  const rows = benefits.data ?? [];
+  const answer = useRemote(async () => (await apiFetch('/insurance/benefits-summary')) as BenefitsAnswer, [], 'insurance:benefits');
+  const data = answer.data;
   const money = (n: unknown) => (typeof n === 'number' ? `${fmt.money(n)} ${k('consult.currency')}` : '—');
+  const notes = (data?.benefits ?? []).map((b) => b.note_code).filter((code): code is NoteCode => (NOTE_CODES as readonly string[]).includes(String(code)));
+  const usage = data?.usage ?? null;
+  const expiry = data?.expiry_date ? fmt.date(data.expiry_date) : '';
   return (
-    <Gate status={benefits.status} onRetry={() => void benefits.reload()}>
-      {rows.length === 0 ? (
-        <Notice tone="info" text={k('insurance.benefits.empty')} testID="benefits-empty" />
+    <Gate status={answer.status} onRetry={() => void answer.reload()}>
+      {!data?.has_policy ? (
+        <Notice tone="info" text={k('insurance.noteCode.no_policy_on_file')} testID="benefits-empty" />
       ) : (
         <View style={{ gap: 12 }} testID="benefits-list">
-          {rows.map((b, i) => {
-            const pct = typeof b.usedAmount === 'number' && typeof b.annualLimit === 'number' && b.annualLimit > 0 ? Math.min(100, (b.usedAmount / b.annualLimit) * 100) : null;
-            return (
-              <View key={`${b.service}-${i}`} style={{ borderRadius: 24, padding: 16, gap: 12, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                  <Text style={{ ...scale(t, 'body', 'bold'), color: c.text.primary, flex: 1, ...flow }}>{b.service}</Text>
-                  {typeof b.coverage === 'number' ? <Pill label={k('insurance.benefits.coverage', { value: fmt.num(b.coverage) })} tone="info" /> : null}
-                </View>
-                {pct !== null ? (
-                  <View accessibilityRole="progressbar" accessibilityValue={{ min: 0, max: 100, now: Math.round(pct) }} style={{ height: 8, borderRadius: 4, backgroundColor: c.border.hairline, overflow: 'hidden' }}>
-                    <View style={{ width: `${pct}%`, height: 8, borderRadius: 4, backgroundColor: c.action.primary.bg }} />
-                  </View>
-                ) : null}
-                <View style={{ flexDirection: 'row', gap: 8 }}>
-                  <Stat label={k('insurance.benefits.limit')} value={money(b.annualLimit)} />
-                  <Stat label={k('insurance.benefits.used')} value={money(b.usedAmount)} />
-                  <Stat label={k('insurance.benefits.remaining')} value={money(b.remaining)} tone="success" />
-                </View>
-                {typeof b.limitCount === 'number' && b.limitCount > 0 ? (
-                  <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('insurance.benefits.visits', { used: fmt.num(b.usedCount ?? 0), limit: fmt.num(b.limitCount) })}</Text>
-                ) : null}
+          {usage ? (
+            <View style={{ borderRadius: 24, padding: 16, gap: 12, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }}>
+              <Text style={{ ...scale(t, 'body', 'bold'), color: c.text.primary, ...flow }}>{k('insurance.benefits.requestsTitle', { count: fmt.num(usage.requests ?? 0) })}</Text>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <Stat label={k('insurance.benefits.insurerCovered')} value={money(usage.insurer_covered)} tone="success" />
+                <Stat label={k('insurance.benefits.youPaid')} value={money(usage.patient_share)} />
               </View>
-            );
-          })}
+            </View>
+          ) : null}
+          {expiry ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('insurance.policy.expiresOn', { date: expiry })}</Text> : null}
+          {notes.map((code) => <Notice key={code} tone="info" text={k(`insurance.noteCode.${code}`)} />)}
         </View>
       )}
     </Gate>

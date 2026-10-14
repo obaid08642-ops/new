@@ -417,7 +417,18 @@ describe('payment result', () => {
     apiFetch.mockResolvedValue({ moyasar_id: 'pay_abc', status: 'initiated', amount: 80 });
     await render(wrap(<PaymentResultScreen />));
     await screen.findByText(k('payments.result.checkingTitle'));
-    expect(apiFetch).toHaveBeenCalledWith('/moyasar/payments/sync/pay_abc');
+    // issue 533: the read-only status by the gateway's id, never the Moyasar sync that only refreshes its own record
+    expect(apiFetch).toHaveBeenCalledWith('/payments/status/pay_abc');
+  });
+
+  it('issue 550: the return address names our transaction as ?ref=, which is verified first and then polled read-only', async () => {
+    mockParams.current = { ref: 'txn-7', id: 'pay_abc', status: 'paid' };
+    apiFetch.mockResolvedValue({ id: 'txn-7', status: 'pending', amount: 80 });
+    await render(wrap(<PaymentResultScreen />));
+    await screen.findByText(k('payments.result.checkingTitle'));
+    expect(apiFetch).toHaveBeenCalledWith('/payments/verify/txn-7', { method: 'POST' });
+    await act(async () => { jest.advanceTimersByTime(3000); });
+    expect(apiFetch).toHaveBeenCalledWith('/payments/status/txn-7');
   });
 
   it('opens the hosted page a service hands over (https only), once, and then asks the server', async () => {

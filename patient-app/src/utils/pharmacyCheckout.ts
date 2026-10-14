@@ -376,8 +376,10 @@ const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v
  * not read: the result is asked of the server, never taken from the address.
  */
 export function readResultParams(params: Record<string, string | string[] | undefined>): ResultParams {
-  const id = first(params.transactionId) ?? first(params.moyasarId) ?? first(params.id);
-  const gateway = id !== null && id.startsWith('pay_');
+  // `ref` is our transaction id on the provider's return address (issue 550); the provider's own `id` comes with it
+  const ours = first(params.transactionId) ?? first(params.ref) ?? first(params.moyasarId);
+  const id = ours ?? first(params.id);
+  const gateway = ours === null && id !== null && id.startsWith('pay_');
   return {
     transactionId: gateway ? null : id,
     gatewayId: gateway ? id : null,

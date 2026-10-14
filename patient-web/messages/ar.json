@@ -1289,7 +1289,15 @@
     "rxHelp": "لم تجد ما تبحث عنه؟ ارفع الوصفة وتبحث الصيدليات عنه لك",
     "rxAction": "رفع الوصفة",
     "price": "{value} ر.س",
-    "rating": "التقييم {value}"
+    "rating": "التقييم {value}",
+    "kindMedicine": "دواء",
+    "kindDoctor": "طبيب",
+    "kindSpecialty": "تخصص",
+    "kindLab": "تحليل",
+    "kindLabPackage": "باقة تحاليل",
+    "kindRadiology": "أشعة",
+    "kindNursing": "تمريض",
+    "kindArticle": "مقال"
   },
   "Support": {
     "title": "الدعم",
@@ -1477,7 +1485,11 @@
     "resultTitle": "نتيجة التحليل",
     "error": "تعذر إكمال التحليل. حاول مرة أخرى.",
     "disclaimer": "هذا التحليل إرشادي ولا يغني عن استشارة الطبيب.",
-    "empty": "لا توجد تقارير طبية متاحة بعد."
+    "empty": "لا توجد تقارير طبية متاحة بعد.",
+    "unavailableTitle": "شرح تقريري",
+    "unavailableBody": "شرح التقارير الطبية آلياً غير متاح حالياً. افتح تقاريرك أو شاركها مع طبيب ليشرحها لك.",
+    "openReports": "تقاريري",
+    "shareReport": "مشاركة تقرير مع الطبيب"
   },
   "Payments": {
     "successTitle": "تم الدفع بنجاح",
@@ -3576,7 +3588,9 @@
       "radiology": "مركز أشعة",
       "home_care": "رعاية منزلية",
       "nursing": "تمريض"
-    }
+    },
+    "memberLine": "رقم العضوية: {id}",
+    "expiryLine": "تنتهي في {date}"
   },
   "LoyaltyHubWeb": {
     "title": "نقاط نبض",

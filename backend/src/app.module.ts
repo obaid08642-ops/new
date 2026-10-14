@@ -11,6 +11,7 @@ import { DeviceTrustModule } from './modules/device-trust/device-trust.module';
 import { SeoSearchModule } from './modules/seo-search/seo-search.module';
 import { LocationModule } from './modules/location/location.module';
 import { SearchIntentModule } from './modules/search-intent/search-intent.module';
+import { SearchModule } from './modules/search/search.controller';
 import { EntityGraphModule } from './modules/entity-graph/entity-graph.module';
 import { McpModule } from './modules/mcp/mcp.module';
 import { AgentOAuthModule } from './modules/agent-oauth/agent-oauth.module';
@@ -157,6 +158,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     SeoSearchModule,
     LocationModule,
     SearchIntentModule,
+    SearchModule,
     EntityGraphModule,
     McpModule,
     AgentOAuthModule,

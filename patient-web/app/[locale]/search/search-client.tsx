@@ -12,7 +12,7 @@ import { Search } from "@/components-next/ui-generated/components/Inputs";
 import { SERVICE_ICONS, type FillIconName, type ServiceName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { CoreShell } from "@/components-next/core/core-shell";
-import { extractSearchResults, intentRedirect, truncateQuery, type SearchResult } from "@/lib/api/search";
+import { extractGroupedResults, intentRedirect, truncateQuery, type SearchResult } from "@/lib/api/search";
 import { specialtyLabel, type SpecialtySlug } from "@/lib/specialties";
 import { isLocale, type Locale } from "@/lib/i18n";
 import styles from "./search.module.css";
@@ -20,21 +20,21 @@ import styles from "./search.module.css";
 type Tab = "all" | "medicines" | "doctors" | "labs" | "radiology" | "other";
 
 /**
- * What a result is, from the API's stable English type (`typeEn`): its group on the page, the glyph
- * and tone of the board's icon set, and the detail page that exists for it (none for kinds without
- * one: those rows are not links).
+ * What a result is, from the search API's type (D-29, mapped to a kind by `extractGroupedResults`): its group
+ * on the page, the glyph and tone of the board's icon set, its label key, and the detail page that exists
+ * for it (none for kinds without one: those rows are not links).
  */
 const toneOf = (service: ServiceName): ServiceTone => SERVICE_ICONS[service].tone;
-const KINDS: Record<string, { group: Exclude<Tab, "all">; icon: FillIconName; tone: ServiceTone; href?: (id: string, locale: string) => string }> = {
-  Medicine: { group: "medicines", icon: "pill", tone: toneOf("pharmacy"), href: (id, l) => `/${l}/medicines/${encodeURIComponent(id)}` },
-  Doctor: { group: "doctors", icon: "stethoscope", tone: toneOf("consult"), href: (id, l) => `/${l}/consultations/doctors/${encodeURIComponent(id)}` },
-  Lab: { group: "labs", icon: "test-tube", tone: toneOf("lab") },
-  Radiology: { group: "radiology", icon: "scan", tone: toneOf("radiology"), href: (id, l) => `/${l}/diagnostics/radiology/${encodeURIComponent(id)}` },
-  Package: { group: "other", icon: "gift", tone: toneOf("points") },
-  Article: { group: "other", icon: "file-text", tone: toneOf("nutrition"), href: (id, l) => `/${l}/articles/${encodeURIComponent(id)}` },
-  Disease: { group: "other", icon: "heartbeat", tone: toneOf("health"), href: (id, l) => `/${l}/articles/${encodeURIComponent(id)}` },
-  Insurance: { group: "other", icon: "shield-check", tone: toneOf("insurance") },
-  Family: { group: "other", icon: "users", tone: toneOf("maternity") },
+type KindLabel = "kindMedicine" | "kindDoctor" | "kindSpecialty" | "kindLab" | "kindLabPackage" | "kindRadiology" | "kindNursing" | "kindArticle";
+const KINDS: Record<string, { group: Exclude<Tab, "all">; icon: FillIconName; tone: ServiceTone; label: KindLabel; href?: (id: string, locale: string) => string }> = {
+  Medicine: { group: "medicines", icon: "pill", tone: toneOf("pharmacy"), label: "kindMedicine", href: (id, l) => `/${l}/medicines/${encodeURIComponent(id)}` }, // i18n-ok: label is a Search message key
+  Doctor: { group: "doctors", icon: "stethoscope", tone: toneOf("consult"), label: "kindDoctor", href: (id, l) => `/${l}/consultations/doctors/${encodeURIComponent(id)}` }, // i18n-ok: label is a Search message key
+  Specialty: { group: "doctors", icon: "stethoscope", tone: toneOf("consult"), label: "kindSpecialty", href: (code, l) => `/${l}/consultations/doctors?specialty=${encodeURIComponent(code)}` }, // i18n-ok: label is a Search message key
+  Lab: { group: "labs", icon: "test-tube", tone: toneOf("lab"), label: "kindLab" }, // i18n-ok: label is a Search message key
+  LabPackage: { group: "labs", icon: "test-tube", tone: toneOf("lab"), label: "kindLabPackage" }, // i18n-ok: label is a Search message key
+  Radiology: { group: "radiology", icon: "scan", tone: toneOf("radiology"), label: "kindRadiology", href: (id, l) => `/${l}/diagnostics/radiology/${encodeURIComponent(id)}` }, // i18n-ok: label is a Search message key
+  Nursing: { group: "other", icon: SERVICE_ICONS.nursing.icon, tone: toneOf("nursing"), label: "kindNursing", href: (id, l) => `/${l}/home-care/services/${encodeURIComponent(id)}` }, // i18n-ok: label is a Search message key
+  Article: { group: "other", icon: "file-text", tone: toneOf("nutrition"), label: "kindArticle", href: (slug, l) => `/${l}/articles/${encodeURIComponent(slug)}` }, // i18n-ok: label is a Search message key
 };
 const FALLBACK = { group: "other" as const, icon: "magnifying-glass" as FillIconName, tone: toneOf("consult") };
 
@@ -82,7 +82,7 @@ export function ResultItem({ result, locale, query }: { result: SearchResult; lo
       <span className={styles.meta}>
         {price ? <span className={styles.price}>{t("price", { value: price })}</span> : null}
         {rate ? <span className={styles.rate}>{t("rating", { value: rate })}</span> : null}
-        <StatusChip label={result.type} tone={kind.tone} />
+        {"label" in kind ? <StatusChip label={t(kind.label)} tone={kind.tone} /> : null}
       </span>
     </span>
   </>;
@@ -112,9 +112,10 @@ export function SearchClient({ locale, initialQuery = "" }: { locale: string; in
     timer.current = setTimeout(async () => {
       setState("loading");
       try {
-        const response = await fetch(`/api/patient/home/search?q=${encodeURIComponent(q)}`, { cache: "no-store" });
+        // D-29: the grouped home search; the API returns each name in the page's locale.
+        const response = await fetch(`/api/patient/search?q=${encodeURIComponent(q)}&locale=${encodeURIComponent(shellLocale)}&limit=10`, { cache: "no-store" });
         if (!response.ok) throw new Error("search_unavailable");
-        const found = extractSearchResults(await response.json().catch(() => []), locale);
+        const found = extractGroupedResults(await response.json().catch(() => null));
         // F71: one request per query. Only a query that found NOTHING asks the intent parser, and a confident intent
         // (a specialty, a lab, a medicine catalogue) takes the person to that page instead of an empty list.
         if (found.length === 0) {
@@ -132,7 +133,7 @@ export function SearchClient({ locale, initialQuery = "" }: { locale: string; in
       }
     }, 350);
     return () => { if (timer.current) clearTimeout(timer.current); };
-  }, [q, locale, attempt]);
+  }, [q, locale, shellLocale, attempt]);
 
   const counts = useMemo(() => {
     const c: Record<Tab, number> = { all: results.length, medicines: 0, doctors: 0, labs: 0, radiology: 0, other: 0 };
