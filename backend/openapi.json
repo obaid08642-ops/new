@@ -3052,39 +3052,6 @@
         ]
       }
     },
-    "/api/v1/patient/pharmacy/orders/{id}/payment-intent": {
-      "post": {
-        "operationId": "PatientPharmacyController_paymentIntent",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PaymentIntentDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "PatientPharmacy"
-        ]
-      }
-    },
     "/api/v1/patient/pharmacy/orders/{id}/insurance-rejection/cancel": {
       "post": {
         "operationId": "PatientPharmacyController_cancelRejectedInsurance",
@@ -13390,6 +13357,314 @@
         },
         "tags": [
           "AdminFinanceEngine"
+        ]
+      }
+    },
+    "/api/v1/payments/intent/{type}/{id}": {
+      "post": {
+        "operationId": "PaymentsController_intent",
+        "parameters": [
+          {
+            "name": "type",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "idempotency-key",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntentMethodDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Payments"
+        ]
+      }
+    },
+    "/api/v1/payments/intent/diagnostics": {
+      "post": {
+        "operationId": "PaymentsController_diagnosticsIntent",
+        "parameters": [
+          {
+            "name": "idempotency-key",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiagnosticsIntentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Payments"
+        ]
+      }
+    },
+    "/api/v1/payments/verify/{txn}": {
+      "post": {
+        "operationId": "PaymentsController_verify",
+        "parameters": [
+          {
+            "name": "txn",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Payments"
+        ]
+      }
+    },
+    "/api/v1/payments/retry/{type}/{id}": {
+      "post": {
+        "operationId": "PaymentsController_retry",
+        "parameters": [
+          {
+            "name": "type",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "idempotency-key",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Payments"
+        ]
+      }
+    },
+    "/api/v1/payments/refund/{txn}": {
+      "post": {
+        "operationId": "PaymentsController_refund",
+        "parameters": [
+          {
+            "name": "txn",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefundPaymentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Payments"
+        ]
+      }
+    },
+    "/api/v1/payments/capture/{txn}": {
+      "post": {
+        "operationId": "PaymentsController_capture",
+        "parameters": [
+          {
+            "name": "txn",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Payments"
+        ]
+      }
+    },
+    "/api/v1/payments/pharmacy/{orderId}/capabilities": {
+      "get": {
+        "operationId": "PaymentsController_pharmacyCapabilities",
+        "parameters": [
+          {
+            "name": "orderId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Payments"
+        ]
+      }
+    },
+    "/api/v1/payments/consultation/{id}/capabilities": {
+      "get": {
+        "operationId": "PaymentsController_consultationCapabilities",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Payments"
+        ]
+      }
+    },
+    "/api/v1/payments/booking/{type}/{id}": {
+      "get": {
+        "operationId": "PaymentsController_list",
+        "parameters": [
+          {
+            "name": "type",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Payments"
+        ]
+      }
+    },
+    "/api/v1/payments/webhook/{provider}": {
+      "post": {
+        "operationId": "PaymentsWebhookController_webhook",
+        "parameters": [
+          {
+            "name": "provider",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "moyasar-signature",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PaymentsWebhook"
         ]
       }
     },
@@ -27695,314 +27970,6 @@
         ]
       }
     },
-    "/api/v1/payments/intent/{type}/{id}": {
-      "post": {
-        "operationId": "PaymentsController_intent",
-        "parameters": [
-          {
-            "name": "type",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "idempotency-key",
-            "required": true,
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IntentMethodDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Payments"
-        ]
-      }
-    },
-    "/api/v1/payments/intent/diagnostics": {
-      "post": {
-        "operationId": "PaymentsController_diagnosticsIntent",
-        "parameters": [
-          {
-            "name": "idempotency-key",
-            "required": true,
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DiagnosticsIntentDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Payments"
-        ]
-      }
-    },
-    "/api/v1/payments/verify/{txn}": {
-      "post": {
-        "operationId": "PaymentsController_verify",
-        "parameters": [
-          {
-            "name": "txn",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Payments"
-        ]
-      }
-    },
-    "/api/v1/payments/retry/{type}/{id}": {
-      "post": {
-        "operationId": "PaymentsController_retry",
-        "parameters": [
-          {
-            "name": "type",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "idempotency-key",
-            "required": true,
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Payments"
-        ]
-      }
-    },
-    "/api/v1/payments/refund/{txn}": {
-      "post": {
-        "operationId": "PaymentsController_refund",
-        "parameters": [
-          {
-            "name": "txn",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RefundPaymentDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Payments"
-        ]
-      }
-    },
-    "/api/v1/payments/capture/{txn}": {
-      "post": {
-        "operationId": "PaymentsController_capture",
-        "parameters": [
-          {
-            "name": "txn",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Payments"
-        ]
-      }
-    },
-    "/api/v1/payments/pharmacy/{orderId}/capabilities": {
-      "get": {
-        "operationId": "PaymentsController_pharmacyCapabilities",
-        "parameters": [
-          {
-            "name": "orderId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Payments"
-        ]
-      }
-    },
-    "/api/v1/payments/consultation/{id}/capabilities": {
-      "get": {
-        "operationId": "PaymentsController_consultationCapabilities",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Payments"
-        ]
-      }
-    },
-    "/api/v1/payments/booking/{type}/{id}": {
-      "get": {
-        "operationId": "PaymentsController_list",
-        "parameters": [
-          {
-            "name": "type",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Payments"
-        ]
-      }
-    },
-    "/api/v1/payments/webhook/{provider}": {
-      "post": {
-        "operationId": "PaymentsWebhookController_webhook",
-        "parameters": [
-          {
-            "name": "provider",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "moyasar-signature",
-            "required": true,
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "PaymentsWebhook"
-        ]
-      }
-    },
     "/api/v1/moyasar/payments": {
       "post": {
         "operationId": "MoyasarController_createPayment",
@@ -40789,10 +40756,6 @@
         "type": "object",
         "properties": {}
       },
-      "PaymentIntentDto": {
-        "type": "object",
-        "properties": {}
-      },
       "CancelRejectedInsuranceDto": {
         "type": "object",
         "properties": {}
@@ -40806,6 +40769,10 @@
         "properties": {}
       },
       "RegisterCodDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "PaymentIntentDto": {
         "type": "object",
         "properties": {}
       },
@@ -41434,6 +41401,18 @@
         "properties": {}
       },
       "DecideApprovalDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "IntentMethodDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "DiagnosticsIntentDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "RefundPaymentDto": {
         "type": "object",
         "properties": {}
       },
@@ -42066,18 +42045,6 @@
         "properties": {}
       },
       "FallbackDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "IntentMethodDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "DiagnosticsIntentDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "RefundPaymentDto": {
         "type": "object",
         "properties": {}
       },

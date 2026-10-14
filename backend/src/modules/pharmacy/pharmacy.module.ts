@@ -1,3 +1,4 @@
+import { PaymentsModule } from '../payments/payments.module';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AiModule } from '../ai/ai.module';
@@ -81,6 +82,8 @@ import { B2BVoiceController } from './pharmacy-b2b-voice.controller';
     AiModule,
     // P5.3: merged from PharmacyOpsModule (pharmacy_ops/ → pharmacy/)
     OrdersModule,
+    // Q104: the card-payment retry opens a real checkout through PaymentsService.
+    PaymentsModule,
     MongooseModule.forFeature([
       { name: 'PharmacyOrder', schema: PharmacyOrderSchema },
       { name: 'PharmacyAllocation', schema: PharmacyAllocationSchema },
