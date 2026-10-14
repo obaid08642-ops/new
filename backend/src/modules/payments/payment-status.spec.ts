@@ -19,7 +19,7 @@ describe('payment status and the patient view of a transaction', () => {
   it('answers the stored status by our id or the provider id, without calling the provider or emitting anything', async () => {
     const out = await svc.paymentStatus({ id: 'pat-1', role: 'patient' }, 'pay_abc');
     expect(JSON.stringify(lastQuery)).toContain('gateway_intent_id');
-    expect(out).toEqual({ id: 'txn-1', booking_kind: 'pharmacy', booking_id: 'po-1', amount: 115, method: 'card', gateway: 'moyasar', status: 'pending', checkout_url: 'https://pay.example.test/x' });
+    expect(out).toEqual({ id: 'txn-1', booking_kind: 'pharmacy', booking_id: 'po-1', amount: 115, method: 'card', gateway: 'moyasar', gateway_intent_id: 'pay_abc', status: 'pending', checkout_url: 'https://pay.example.test/x' });
     expect(svc.adapter.verify).not.toHaveBeenCalled();
     expect(svc.events.emit).not.toHaveBeenCalled();
   });
@@ -32,9 +32,9 @@ describe('payment status and the patient view of a transaction', () => {
     await expect(svc.paymentStatus({ id: 'adm', role: 'admin' }, 'txn-1')).resolves.toMatchObject({ id: 'txn-1' });
   });
 
-  it('never returns the provider payload, ids, secret, patient id or idempotency key (except a Stripe client secret)', () => {
+  it('never returns the provider payload, charge id, secret, patient id or idempotency key (except a Stripe client secret)', () => {
     const view = svc.publicTxn(txn);
-    for (const k of ['webhook_payload', 'gateway_intent_id', 'gateway_charge_id', 'client_secret', 'patient_id', 'idempotency_key', '_id', '__v']) expect(view).not.toHaveProperty(k);
+    for (const k of ['webhook_payload', 'gateway_charge_id', 'client_secret', 'patient_id', 'idempotency_key', '_id', '__v']) expect(view).not.toHaveProperty(k);
     expect(svc.publicTxn({ ...txn, gateway: 'stripe' }).client_secret).toBe('secret');
   });
 

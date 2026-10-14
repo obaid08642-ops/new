@@ -241,10 +241,11 @@ export class PaymentsService {
   private publicTxn(t: any) {
     if (!t) return t;
     const o = t.toObject ? t.toObject() : { ...t };
-    // #553: an allow-list, not a deny-list: provider ids, payloads, the patient id and the idempotency key stay
-    // server-side. `client_secret` is kept only for a gateway whose page needs it in the client (Stripe Elements).
+    // #553: an allow-list, not a deny-list: the provider's payload, charge id, the patient id and the idempotency key
+    // stay server-side. The provider's payment id (`gateway_intent_id`) is not a secret: the provider puts it in the
+    // return address anyway, and the result screen uses it. `client_secret` is kept only for Stripe Elements.
     const out: Record<string, unknown> = {};
-    for (const k of ['id', 'booking_kind', 'booking_id', 'amount', 'currency', 'method', 'gateway', 'status', 'checkout_url', 'paid_at', 'failure_reason', 'refunded_amount', 'createdAt', 'updatedAt']) {
+    for (const k of ['id', 'booking_kind', 'booking_id', 'amount', 'currency', 'method', 'gateway', 'gateway_intent_id', 'status', 'checkout_url', 'paid_at', 'failure_reason', 'refunded_amount', 'createdAt', 'updatedAt']) {
       if (o[k] !== undefined) out[k] = o[k];
     }
     if (o.gateway === 'stripe' && o.client_secret) out.client_secret = o.client_secret;
