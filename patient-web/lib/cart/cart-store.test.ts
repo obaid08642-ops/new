@@ -339,3 +339,39 @@ describe("whose cart a session answer names", () => {
     for (const status of ["anonymous", "unknown", "loading"]) expect(cartAccountId({ status })).toBeNull();
   });
 });
+
+describe("the online-only flag of a line", () => {
+  it("is stored when the line is added, saved in the browser and read back", () => {
+    const storage = new MemoryStorage();
+    const store = newStore(storage);
+    store.add({ ...paracetamol, onlineOnly: true });
+    store.add(amoxicillin);
+    expect(store.getSnapshot().items.map((line) => [line.id, line.onlineOnly])).toEqual([["m1", true], ["m2", undefined]]);
+    const saved = JSON.parse(storage.getItem(GUEST_CART_KEY) ?? "[]") as Array<Record<string, unknown>>;
+    expect(saved[0].onlineOnly).toBe(true);
+    expect("onlineOnly" in saved[1]).toBe(false);
+    const next = newStore(storage);
+    next.load();
+    expect(next.getSnapshot().items.map((line) => line.onlineOnly)).toEqual([true, undefined]);
+  });
+
+  it("an old stored cart without the field still loads, with no flag", () => {
+    const old = [{ id: "m1", name: "Paracetamol 500", qty: 2, rx: false, slug: "paracetamol-500" }];
+    const loaded = sanitizeCartItems(old);
+    expect(loaded).toHaveLength(1);
+    expect(loaded[0]).toMatchObject({ id: "m1", qty: 2, rx: false, slug: "paracetamol-500" });
+    expect(loaded[0].onlineOnly).toBeUndefined();
+    expect(sanitizeCartItems([{ ...old[0], onlineOnly: "yes" }])[0].onlineOnly).toBeUndefined();
+    const storage = new MemoryStorage();
+    storage.setItem(GUEST_CART_KEY, JSON.stringify(old));
+    const store = newStore(storage);
+    store.load();
+    expect(store.getSnapshot().items).toHaveLength(1);
+  });
+
+  it("is kept by a merge when either line has it", () => {
+    const base = [{ id: "m1", name: "A", qty: 1, rx: false }];
+    expect(mergeCarts(base, [{ id: "m1", name: "A", qty: 1, rx: false, onlineOnly: true }])[0]).toMatchObject({ qty: 2, onlineOnly: true });
+    expect(mergeCarts([{ ...base[0], onlineOnly: true }], [{ ...base[0] }])[0]).toMatchObject({ qty: 2, onlineOnly: true });
+  });
+});

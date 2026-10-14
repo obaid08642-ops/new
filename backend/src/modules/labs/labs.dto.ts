@@ -92,6 +92,11 @@ export class UpdateInsDto {
   @IsString()
   status?: string;
 
+  // D-37: the insurer's approval number, required to approve.
+  @IsOptional()
+  @IsString()
+  approval_ref?: string;
+
 
   @IsOptional()
   @IsNumber()

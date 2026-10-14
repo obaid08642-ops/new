@@ -198,13 +198,16 @@ describe('payment', () => {
     expect(screen.getAllByText(/80\.00/).length).toBeGreaterThan(0);
     expect(screen.getByText(/70\.00/)).toBeTruthy();
     expect(screen.getByText(/10\.00/)).toBeTruthy();
+    // #531: the server's methods are listed; the first is chosen, and the patient's pick is what is sent
+    expect(screen.getByTestId('payment-method-card')).toBeTruthy();
+    await tap(screen.getByTestId('payment-method-apple-pay'));
     const pay = screen.getByLabelText(k('pharmacy.pay.pay', { amount: `80.00 ${k('pharmacy.currency')}` }));
     await tap(pay);
     await tap(pay); // a second tap while pending
     expect(posts()).toHaveLength(1);
     const [path, init] = posts()[0];
     expect(path).toBe('/payments/intent/pharmacy/ord');
-    expect(JSON.parse(init.body as string)).toEqual({}); // no amount, no card data goes out
+    expect(JSON.parse(init.body as string)).toEqual({ method: 'apple-pay' }); // the chosen method only: no amount, no card data goes out
     expect((init.headers as Record<string, string>)['Idempotency-Key']).toMatch(/^[A-Za-z0-9._:-]{16,128}$/);
     await waitFor(() => expect(screen.getByLabelText(k('pharmacy.pay.pay', { amount: `80.00 ${k('pharmacy.currency')}` })).props.accessibilityState.disabled).toBe(true));
     await act(async () => release({ id: 'txn-1', status: 'pending', checkout_url: 'https://pay.example.test/hosted' }));
@@ -414,7 +417,18 @@ describe('payment result', () => {
     apiFetch.mockResolvedValue({ moyasar_id: 'pay_abc', status: 'initiated', amount: 80 });
     await render(wrap(<PaymentResultScreen />));
     await screen.findByText(k('payments.result.checkingTitle'));
-    expect(apiFetch).toHaveBeenCalledWith('/moyasar/payments/sync/pay_abc');
+    // issue 533: the read-only status by the gateway's id, never the Moyasar sync that only refreshes its own record
+    expect(apiFetch).toHaveBeenCalledWith('/payments/status/pay_abc');
+  });
+
+  it('issue 550: the return address names our transaction as ?ref=, which is verified first and then polled read-only', async () => {
+    mockParams.current = { ref: 'txn-7', id: 'pay_abc', status: 'paid' };
+    apiFetch.mockResolvedValue({ id: 'txn-7', status: 'pending', amount: 80 });
+    await render(wrap(<PaymentResultScreen />));
+    await screen.findByText(k('payments.result.checkingTitle'));
+    expect(apiFetch).toHaveBeenCalledWith('/payments/verify/txn-7', { method: 'POST' });
+    await act(async () => { jest.advanceTimersByTime(3000); });
+    expect(apiFetch).toHaveBeenCalledWith('/payments/status/txn-7');
   });
 
   it('opens the hosted page a service hands over (https only), once, and then asks the server', async () => {

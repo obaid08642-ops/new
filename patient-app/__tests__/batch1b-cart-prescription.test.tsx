@@ -67,14 +67,14 @@ const T = (key: string, vars: Record<string, string | number> = {}) => LOCALES.a
 
 const metrics = { frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 47, bottom: 34, left: 0, right: 0 } };
 const store = () => configureStore({ reducer: { auth: authReducer } });
-function CartSeed({ lines }: { lines: Array<{ id: string; name: string; rx: boolean; qty: number; activeIngredient?: string }> }) {
+function CartSeed({ lines }: { lines: Array<{ id: string; name: string; rx: boolean; qty: number; activeIngredient?: string; onlineOnly?: boolean }> }) {
   const { addItem, items } = useCart();
   React.useEffect(() => {
     lines.forEach((l) => void addItem(l));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return <>{items.map((i) => <Text key={i.id}>{`in-cart:${i.id}:${i.qty}`}</Text>)}</>;
 }
-const wrap = (node: React.ReactNode, lines: Array<{ id: string; name: string; rx: boolean; qty: number; activeIngredient?: string }> = []) => (
+const wrap = (node: React.ReactNode, lines: Array<{ id: string; name: string; rx: boolean; qty: number; activeIngredient?: string; onlineOnly?: boolean }> = []) => (
   <Provider store={store()}>
     <SafeAreaProvider initialMetrics={metrics}>
       <CartProvider>
@@ -143,6 +143,15 @@ describe('Cart (board Cart)', () => {
     expect(mockRouter.push).toHaveBeenCalledWith('/pharmacy/checkout');
     await fireEvent.press(screen.getByLabelText(T('pharmacy.cart.remove', { name: 'دواء أ' })));
     await waitFor(() => expect(screen.getByText(T('pharmacy.cart.emptyTitle'))).toBeTruthy());
+  });
+
+  it('draws the "online only" chip on the line that was added with the flag, and on no other line', async () => {
+    await render(wrap(<Cart />, [
+      { id: 'o', name: 'دواء أونلاين', rx: false, qty: 1, onlineOnly: true },
+      { id: 'p', name: 'دواء عادي', rx: false, qty: 1 },
+    ]));
+    await waitFor(() => expect(screen.getByText('دواء أونلاين')).toBeTruthy());
+    expect(screen.getAllByText(T('pharmacy.product.exclusive'))).toHaveLength(1);
   });
 
   it('a prescription medicine shows the banner (upload) and the button chooses the prescription first', async () => {

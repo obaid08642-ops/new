@@ -7,6 +7,7 @@ import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, SERVICE_ICONS, type FillIconName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { Spinner } from "@/components-next/ui-generated/components/Spinner";
 import { peekSwr, putSwr } from "@/lib/swr-lite";
+import { mapBookHref } from "@/lib/map/book-href";
 import forms from "@/components-next/consult/consult.module.css";
 import styles from "./map-explorer.module.css";
 
@@ -118,14 +119,7 @@ export function MapExplorerClient({ locale, labels }: { locale: string; labels: 
     { id: "nursing", label: labels.filterNursing },
   ];
 
-  const bookHref = (prov: Provider) =>
-    prov.type === "hospital"
-      ? `/${locale}/consultations/clinics/${prov.id}`
-      : prov.type === "lab"
-        ? `/${locale}/diagnostics/labs/${prov.id}`
-        : prov.type === "doctor"
-          ? `/${locale}/consultations/doctors/${prov.id}`
-          : `/${locale}/c`;
+  const bookHref = (prov: Provider) => mapBookHref(locale, prov);
 
   return (
     <div className={styles.layout}>

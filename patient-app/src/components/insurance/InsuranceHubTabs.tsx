@@ -4,170 +4,59 @@ import { router, type Href } from 'expo-router';
 
 import { Button, Input, type FillIconName } from '../../../../packages/ui-native/src';
 import { Gate, Section, useConsultFormat } from '../consult/ConsultKit';
-import { HealthTabs, Notice, Panel, Pill, Row, rowsOf, useRemote } from '../health/HealthKit';
+import { HealthTabs, Notice, Panel, Row, rowsOf, useRemote } from '../health/HealthKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { pickLocalized } from '../../utils/localize';
-import { INSURANCE_TONE, Stat, claimStatus, refundStatus, usePolicy } from './InsuranceKit';
+import { INSURANCE_TONE, Stat, usePolicy } from './InsuranceKit';
 
 /**
- * The Benefits, Claims, Refunds and Network tabs of the insurance hub. Every amount, percentage and state on them is
+ * The Benefits and Network tabs of the insurance hub. Every amount, percentage and state on them is
  * what the server sent: nothing is summed, estimated or filled in on the device.
  */
 
-interface Benefit {
-  service?: string;
-  coverage?: number;
-  remaining?: number;
-  annualLimit?: number;
-  usedAmount?: number;
-  usedCount?: number;
-  limitCount?: number;
+/** GET /insurance/benefits-summary (issues 823 and 826): the patient's own use of the policy and its expiry, as the server sums them. */
+interface BenefitsAnswer {
+  has_policy?: boolean;
+  benefits?: Array<{ key?: string; note_code?: string }>;
+  usage?: { requests?: number; approved?: number; rejected?: number; insurer_covered?: number; patient_share?: number } | null;
+  expiry_date?: string | null;
 }
 
-/** GET /insurance/benefits-summary: the benefits of the policy with what is used and what is left. */
+const NOTE_CODES = ['coverage_decided_by_provider', 'no_policy_on_file'] as const;
+type NoteCode = (typeof NOTE_CODES)[number];
+
+/**
+ * The Benefits tab: the requests decided under the policy with what the insurer covered and what the patient paid, the
+ * policy's expiry, and who decides the coverage. There is no plan limit in the platform, so none is drawn (never invented).
+ */
 export function BenefitsTab() {
   const { k, t, c, flow } = useScreenUi();
   const fmt = useConsultFormat();
-  const benefits = useRemote(async () => rowsOf<Benefit>(await apiFetch('/insurance/benefits-summary')), [], 'insurance:benefits');
-  const rows = benefits.data ?? [];
+  const answer = useRemote(async () => (await apiFetch('/insurance/benefits-summary')) as BenefitsAnswer, [], 'insurance:benefits');
+  const data = answer.data;
   const money = (n: unknown) => (typeof n === 'number' ? `${fmt.money(n)} ${k('consult.currency')}` : '—');
+  const notes = (data?.benefits ?? []).map((b) => b.note_code).filter((code): code is NoteCode => (NOTE_CODES as readonly string[]).includes(String(code)));
+  const usage = data?.usage ?? null;
+  const expiry = data?.expiry_date ? fmt.date(data.expiry_date) : '';
   return (
-    <Gate status={benefits.status} onRetry={() => void benefits.reload()}>
-      {rows.length === 0 ? (
-        <Notice tone="info" text={k('insurance.benefits.empty')} testID="benefits-empty" />
+    <Gate status={answer.status} onRetry={() => void answer.reload()}>
+      {!data?.has_policy ? (
+        <Notice tone="info" text={k('insurance.noteCode.no_policy_on_file')} testID="benefits-empty" />
       ) : (
         <View style={{ gap: 12 }} testID="benefits-list">
-          {rows.map((b, i) => {
-            const pct = typeof b.usedAmount === 'number' && typeof b.annualLimit === 'number' && b.annualLimit > 0 ? Math.min(100, (b.usedAmount / b.annualLimit) * 100) : null;
-            return (
-              <View key={`${b.service}-${i}`} style={{ borderRadius: 24, padding: 16, gap: 12, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                  <Text style={{ ...scale(t, 'body', 'bold'), color: c.text.primary, flex: 1, ...flow }}>{b.service}</Text>
-                  {typeof b.coverage === 'number' ? <Pill label={k('insurance.benefits.coverage', { value: fmt.num(b.coverage) })} tone="info" /> : null}
-                </View>
-                {pct !== null ? (
-                  <View accessibilityRole="progressbar" accessibilityValue={{ min: 0, max: 100, now: Math.round(pct) }} style={{ height: 8, borderRadius: 4, backgroundColor: c.border.hairline, overflow: 'hidden' }}>
-                    <View style={{ width: `${pct}%`, height: 8, borderRadius: 4, backgroundColor: c.action.primary.bg }} />
-                  </View>
-                ) : null}
-                <View style={{ flexDirection: 'row', gap: 8 }}>
-                  <Stat label={k('insurance.benefits.limit')} value={money(b.annualLimit)} />
-                  <Stat label={k('insurance.benefits.used')} value={money(b.usedAmount)} />
-                  <Stat label={k('insurance.benefits.remaining')} value={money(b.remaining)} tone="success" />
-                </View>
-                {typeof b.limitCount === 'number' && b.limitCount > 0 ? (
-                  <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('insurance.benefits.visits', { used: fmt.num(b.usedCount ?? 0), limit: fmt.num(b.limitCount) })}</Text>
-                ) : null}
+          {usage ? (
+            <View style={{ borderRadius: 24, padding: 16, gap: 12, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }}>
+              <Text style={{ ...scale(t, 'body', 'bold'), color: c.text.primary, ...flow }}>{k('insurance.benefits.requestsTitle', { count: fmt.num(usage.requests ?? 0) })}</Text>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <Stat label={k('insurance.benefits.insurerCovered')} value={money(usage.insurer_covered)} tone="success" />
+                <Stat label={k('insurance.benefits.youPaid')} value={money(usage.patient_share)} />
               </View>
-            );
-          })}
+            </View>
+          ) : null}
+          {expiry ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('insurance.policy.expiresOn', { date: expiry })}</Text> : null}
+          {notes.map((code) => <Notice key={code} tone="info" text={k(`insurance.noteCode.${code}`)} />)}
         </View>
-      )}
-    </Gate>
-  );
-}
-
-interface Claim {
-  id?: string;
-  service?: string;
-  provider?: string;
-  date?: string;
-  amount?: number;
-  covered?: number;
-  patient?: number;
-  status?: string;
-  rejectionReason?: string;
-}
-
-/** GET /insurance/claims: the claims with their state, amounts as the insurer decided them. */
-export function ClaimsTab() {
-  const { k, theme, t, c, flow } = useScreenUi();
-  const fmt = useConsultFormat();
-  const claims = useRemote(async () => rowsOf<Claim>(await apiFetch('/insurance/claims')), [], 'insurance:claims');
-  const rows = claims.data ?? [];
-  const money = (n: unknown) => (typeof n === 'number' ? `${fmt.money(n)} ${k('consult.currency')}` : '—');
-  return (
-    <>
-      <Button label={k('insurance.claims.new')} fullWidth onPress={() => router.push('/insurance/submit-claim' as Href)} theme={theme} testID="claim-new" />
-      <Gate status={claims.status} onRetry={() => void claims.reload()}>
-        {rows.length === 0 ? (
-          <Notice tone="info" text={k('insurance.claims.empty')} testID="claims-empty" />
-        ) : (
-          <View style={{ gap: 12 }} testID="claims-list">
-            {rows.map((claim, i) => {
-              const status = claimStatus(claim.status);
-              return (
-                <View key={String(claim.id ?? i)} style={{ borderRadius: 24, padding: 16, gap: 10, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
-                    <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
-                      <Text style={{ ...scale(t, 'body', 'bold'), color: c.text.primary, ...flow }}>{claim.service}</Text>
-                      <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{[claim.provider, fmt.date(claim.date)].filter(Boolean).join(' · ')}</Text>
-                      {claim.id ? <Text style={{ ...scale(t, 'tag', 'regular'), color: c.text.tertiary, ...flow }}>{`#${claim.id}`}</Text> : null}
-                    </View>
-                    <Pill label={k(status.key)} tone={status.tone} />
-                  </View>
-                  <View style={{ flexDirection: 'row', gap: 8 }}>
-                    <Stat label={k('insurance.claims.paid')} value={money(claim.patient)} />
-                    <Stat label={k('insurance.claims.covered')} value={money(claim.covered)} tone="success" />
-                    <Stat label={k('insurance.claims.total')} value={money(claim.amount)} />
-                  </View>
-                  {String(claim.status).toLowerCase() === 'rejected' && claim.rejectionReason ? <Notice tone="danger" text={k('insurance.claims.rejectedReason', { reason: claim.rejectionReason })} /> : null}
-                  {String(claim.status).toLowerCase() === 'rejected' ? (
-                    <Button label={k('insurance.claims.appeal')} variant="outline" fullWidth onPress={() => router.push('/support/chat' as Href)} theme={theme} testID={`claim-appeal-${i}`} />
-                  ) : null}
-                  {String(claim.status).toLowerCase() === 'approved' ? (
-                    <Button label={k('insurance.claims.refund')} variant="outline" fullWidth onPress={() => router.setParams({ tab: 'refunds' })} theme={theme} testID={`claim-refund-${i}`} />
-                  ) : null}
-                </View>
-              );
-            })}
-          </View>
-        )}
-      </Gate>
-    </>
-  );
-}
-
-interface Refund {
-  id?: string;
-  reason?: string;
-  booking_id?: string;
-  refund_amount?: number;
-  amount_paid?: number;
-  state?: string;
-  createdAt?: string;
-}
-
-/** GET /refunds/my: the refund requests and the state the payments team gave each. */
-export function RefundsTab() {
-  const { k } = useScreenUi();
-  const fmt = useConsultFormat();
-  const refunds = useRemote(async () => rowsOf<Refund>(await apiFetch('/refunds/my')), [], 'insurance:refunds');
-  const rows = refunds.data ?? [];
-  return (
-    <Gate status={refunds.status} onRetry={() => void refunds.reload()}>
-      {rows.length === 0 ? (
-        <Notice tone="info" text={k('insurance.refunds.empty')} testID="refunds-empty" />
-      ) : (
-        <Panel testID="refunds-list">
-          {rows.map((r, i) => {
-            const status = refundStatus(r.state);
-            const amount = r.refund_amount ?? r.amount_paid;
-            return (
-              <Row
-                key={String(r.id ?? i)}
-                icon="receipt"
-                tone={INSURANCE_TONE}
-                title={r.reason || r.booking_id || k('insurance.refunds.request')}
-                subtitle={typeof amount === 'number' ? `${fmt.money(amount)} ${k('consult.currency')}` : undefined}
-                caption={fmt.date(r.createdAt)}
-                trailing={<Pill label={k(status.key)} tone={status.tone} />}
-                last={i === rows.length - 1}
-              />
-            );
-          })}
-        </Panel>
       )}
     </Gate>
   );

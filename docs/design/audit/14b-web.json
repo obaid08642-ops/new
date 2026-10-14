@@ -30,7 +30,8 @@
       "elements": [
         ["Typed barcode lookup, found / closest / not found / failed", "GET /api/patient/medicines/by-barcode/:code (unchanged)", "ok"],
         ["Check interactions section, prefilled with the found medicine", "POST /api/ai/drug-interactions {drugs}; was /pharmacy/interactions; non-Arabic notes are not shown (server sends Arabic only)", "ok"],
-        ["Old routes interactions and drug-scanner", "redirects to this screen", "ok"]
+        ["Old routes interactions and drug-scanner", "redirects to this screen", "ok"],
+        ["Online-only chip on a found medicine", "online_exclusive of GET /medicines/by-barcode medicine (needs-a-prescription chip unchanged)", "fixed"]
       ],
       "notes": [] },
     { "route": "/pharmacy/broadcast-status",
@@ -45,7 +46,9 @@
       "elements": [
         ["Category chips, search, pagination", "public categories API (unchanged); the old filters page and the medicines list redirect here with the category in the path", "ok"],
         ["Barcode button of the search field", "opens scan a medicine; the filter button is gone (the chips are the filters)", "ok"],
-        ["Old routes /medicines, /medicine, /medicine-catalog, /medicine/[slug]", "permanent redirects to /c and /p/[slug]; /p and /c keep their metadata and JSON-LD; Batch 13 had not changed the medicine-catalog route", "ok"]
+        ["Old routes /medicines, /medicine, /medicine-catalog, /medicine/[slug]", "permanent redirects to /c and /p/[slug]; /p and /c keep their metadata and JSON-LD; Batch 13 had not changed the medicine-catalog route", "ok"],
+        ["Discount badge on a card, and the cheaper tag of an alternative", "old_price over price of the public card, drawn only when canShowPromo (promoPercent); the public card still carries old_price for a prescription item", "fixed"],
+        ["Online-only note on a card", "not drawn: GET /public/categories/:locale/items sends is_rx but no online_exclusive", "gap"]
       ],
       "notes": [] },
     { "route": "/cart/checkout",
@@ -66,6 +69,6 @@
       "file": "patient-web/components-next/drug-interaction-checker.tsx", "line": 95 },
     { "route": "/pharmacy/broadcast-status", "element": "Cancel / returns text (decision 26)", "kind": "client",
       "note": "No hard-coded 12/24 h or 4/24 h copy exists in the lab or pharmacy screens; the order cancel confirmation shows no cancellation or returns rule. GET /system-config/public has cancellation_policy and returns_policy for it.",
-      "file": "patient-web/components-next/pharmacy-offers/waiting-actions.tsx", "line": 34 }
+      "file": "patient-web/components-next/pharmacy-offers/waiting-actions.tsx", "line": 22 }
   ]
 }

@@ -281,7 +281,7 @@ export type PaymentView =
   | { kind: 'cancelled' }
   | { kind: 'blocked'; reason: Exclude<PayBlock, 'cod' | 'covered'> }
   | { kind: 'noMethods'; amount: number; currency: string | null }
-  | { kind: 'payable'; amount: number; currency: string | null };
+  | { kind: 'payable'; amount: number; currency: string | null; methods: string[] };
 
 /**
  * What the payment screen offers, decided by the server's own flags: the order's `payment_status`, its `governed_state`
@@ -298,7 +298,7 @@ export function paymentView(order: PayOrder, caps: Capabilities | null, blocked:
   if (blocked) return { kind: 'blocked', reason: blocked };
   if (!caps || caps.amount === null || !(caps.amount > 0)) return { kind: 'blocked', reason: 'other' };
   if (caps.methods.length === 0) return { kind: 'noMethods', amount: caps.amount, currency: caps.currency };
-  return { kind: 'payable', amount: caps.amount, currency: caps.currency };
+  return { kind: 'payable', amount: caps.amount, currency: caps.currency, methods: caps.methods };
 }
 
 export interface Intent {
@@ -376,8 +376,10 @@ const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v
  * not read: the result is asked of the server, never taken from the address.
  */
 export function readResultParams(params: Record<string, string | string[] | undefined>): ResultParams {
-  const id = first(params.transactionId) ?? first(params.moyasarId) ?? first(params.id);
-  const gateway = id !== null && id.startsWith('pay_');
+  // `ref` is our transaction id on the provider's return address (issue 550); the provider's own `id` comes with it
+  const ours = first(params.transactionId) ?? first(params.ref) ?? first(params.moyasarId);
+  const id = ours ?? first(params.id);
+  const gateway = ours === null && id !== null && id.startsWith('pay_');
   return {
     transactionId: gateway ? null : id,
     gatewayId: gateway ? id : null,

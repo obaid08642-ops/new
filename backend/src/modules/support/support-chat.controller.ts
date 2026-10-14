@@ -22,10 +22,30 @@ export class SupportChatController {
   @Get()
   async bareList(@CurrentUser() user: any): Promise<any[]> {
     const t: any = await this.col.findOne({ user_id: user.id, channel: 'chat' }, { sort: { createdAt: -1 }, projection: { _id: 0, id: 1, thread: 1 } } as any);
+    // 760: reading the thread stamps the patient read time (reply/read state).
+    if (t?.id) await this.col.updateOne({ id: t.id }, { $set: { patient_read_at: now() } } as any).catch(() => null);
     return (t?.thread || []).map((m: any, i: number) => ({
       id: `${t.id}:${i}`, from: m.by === user.id ? 'user' : 'agent', text: m.message,
       time: m.at, isBot: m.role === 'system',
     }));
+  }
+
+  /** 760: reply/read state of the patient's chat ticket (poll this for agent replies). */
+  @Get('state')
+  async chatState(@CurrentUser() user: any) {
+    const t: any = await this.col.findOne({ user_id: user.id, channel: 'chat' }, { sort: { createdAt: -1 }, projection: { _id: 0, id: 1, tracking_id: 1, status: 1, thread: 1, patient_read_at: 1 } } as any);
+    if (!t) return { ticket_id: null, unread_agent_replies: 0, last_agent_reply_at: null, patient_read_at: null };
+    const readAt = t.patient_read_at ? new Date(t.patient_read_at).getTime() : 0;
+    const agentMsgs = (t.thread || []).filter((m: any) => m.by !== user.id && m.role !== 'system' && m.at);
+    const last = agentMsgs.length ? new Date(Math.max(...agentMsgs.map((m: any) => new Date(m.at).getTime()))) : null;
+    return {
+      ticket_id: t.id,
+      tracking_id: t.tracking_id || null,
+      status: t.status || null,
+      last_agent_reply_at: last,
+      patient_read_at: t.patient_read_at || null,
+      unread_agent_replies: agentMsgs.filter((m: any) => new Date(m.at).getTime() > readAt).length,
+    };
   }
 
   /** One chat conversation per patient: messages append to the open chat ticket (a new ticket only when none is open). */

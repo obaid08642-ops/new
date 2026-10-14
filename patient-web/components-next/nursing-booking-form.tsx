@@ -9,6 +9,7 @@ import { Segmented } from "@/components-next/ui-generated/components/Controls";
 import { Input, Select } from "@/components-next/ui-generated/components/Inputs";
 import { Chip } from "@/components-next/ui-generated/components/Surfaces";
 import styles from "@/components-next/nursing/nursing.module.css";
+import { formatPrice } from "@/lib/format-price";
 
 export type BookingService = { id: string; name: string; price?: number };
 export type BookingAddress = { id: string; label: string };
@@ -88,7 +89,7 @@ export function NursingBookingForm({
   const [method, setMethod] = useState<"card" | "insurance">("card");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const money = useMemo(() => new Intl.NumberFormat(locale, { style: "currency", currency: "SAR" }), [locale]);
+  const money = useMemo(() => ({ format: (value: number) => formatPrice(locale, value).text }), [locale]);
   const clock = useMemo(() => new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" }), [locale]);
 
   async function onSubmit(e: React.FormEvent) {

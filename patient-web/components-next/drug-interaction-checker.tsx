@@ -10,7 +10,9 @@ import type { ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
 import styles from "@/components-next/pharmacy/pharmacy.module.css";
 
-type Hit = { severity?: string; note_ar?: string; note?: string };
+type Hit = { severity?: string; code?: string; note_ar?: string; note?: string };
+const IX_NOTES = ["bleeding_risk", "lactic_acidosis", "high_potassium", "severe_low_blood_pressure", "rhabdomyolysis"] as const;
+const ixNoteCode = (code?: string) => IX_NOTES.find((known) => known === code);
 type Result = { checked?: number; safe?: boolean; interactions?: Hit[] };
 
 /** The three levels the checker states; any other word from the API is not shown as a label. */
@@ -92,7 +94,8 @@ export function DrugInteractionChecker({ locale, initialDrugs = [] }: { locale: 
           <p className={styles.verdict}>{result.safe ? t("ixSafe") : t("ixAttention")}</p>
           {(result.interactions || []).map((h, i) => {
             const level = severityOf(h.severity);
-            const note = locale === "ar" ? h.note_ar || h.note : h.note;
+            const code = ixNoteCode(h.code);
+            const note = code ? t(`ixNote.${code}`) : locale === "ar" ? h.note_ar || h.note : h.note;
             return (
               <div key={i} className={styles.hit}>
                 {level ? <StatusChip label={t(level.key)} tone={level.tone} /> : null}

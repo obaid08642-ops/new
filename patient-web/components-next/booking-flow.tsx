@@ -71,6 +71,13 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy }: { doctorI
   const [homeAddress, setHomeAddress] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // #402: the visit length is the chosen slot's own length (start to end, from the doctor's schedule); none when it cannot be read.
+  const chosen = slots.find((slot) => slot.start === selectedSlot);
+  const durationMinutes = (() => {
+    if (!chosen) return null;
+    const minutes = Math.round((Date.parse(chosen.end) - Date.parse(chosen.start)) / 60_000);
+    return Number.isInteger(minutes) && minutes >= 10 && minutes <= 120 ? minutes : null;
+  })();
   const allowedMethods = visitType === "clinic" ? (["cash", "card", "insurance"] as const) : (["card", "insurance"] as const);
 
   function pickVisitType(v: VisitType) {
@@ -140,6 +147,7 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy }: { doctorI
           doctor_id: doctorId,
           service_type: visitType,
           slot_start: selectedSlot,
+          duration_minutes: durationMinutes ?? undefined,
           payment_method: paymentMethod,
           patient_notes: notes.trim() || undefined,
           visit_location: visitLocation,
@@ -236,9 +244,10 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy }: { doctorI
         {visitType !== "clinic" ? <p className={`${styles.body} ${styles.muted}`}>{t("cashClinicOnly")}</p> : null}
       </SectionCard>
       {policy ? <PolicyCard title={policy.title} lines={policy.lines} /> : null}
-      {price ? (
+      {price || durationMinutes !== null ? (
         <section className={`${rx.card} ${styles.priceCard}`} aria-label={t("fee")}>
-          <div className={styles.totalRow}><span>{t("fee")}</span><span>{price.text}</span></div>
+          {durationMinutes !== null ? <div className={styles.totalRow}><span>{t("duration")}</span><span>{t("durationValue", { n: new Intl.NumberFormat(locale).format(durationMinutes) })}</span></div> : null}
+          {price ? <div className={styles.totalRow}><span>{t("fee")}</span><span>{price.text}</span></div> : null}
         </section>
       ) : null}
       {error ? <p className={styles.error} role="alert">{error === "booking_failed" ? t("bookingFailed") : error}</p> : null}

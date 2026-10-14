@@ -61,6 +61,12 @@ interface Doctor {
   languages?: string[];
   license_number?: string;
   scfhs_license_number?: string;
+  /** The public card model (GET /care/doctors/:id): `verified` = admin-approved and licence-verified, the SCFHS number, `rating` / `reviews_count`, `clinicPhotos`. */
+  verified?: boolean;
+  scfhs_license_no?: string;
+  rating?: number;
+  reviews_count?: number;
+  clinicPhotos?: string[];
   accepts_insurance?: boolean;
   reviews_data?: Review[];
 }
@@ -191,12 +197,15 @@ export default function DoctorProfile() {
   });
   const price = getPrice(activeVt);
   const look = specialtyLook(doc?.specialty || doc?.sp);
+  const licenseNo = doc?.scfhs_license_no ?? doc?.scfhs_license_number;
+  const ratingAvg = doc?.rating_avg ?? doc?.rating ?? 0;
+  const ratingCount = doc?.rating_count ?? doc?.reviews_count ?? 0;
   const reviews = Array.isArray(doc?.reviews_data) ? doc.reviews_data : [];
   const education = doc?.education ? (Array.isArray(doc.education) ? doc.education.map((e) => `${e.degree} — ${e.school}`).join('\n') : String(doc.education)) : '';
   const info: Array<{ icon: 'file-text' | 'globe' | 'identification-card' | 'shield-check'; label: string; value: string }> = [
     ...(education ? [{ icon: 'file-text' as const, label: k('consult.doc.education'), value: education }] : []),
     ...(Array.isArray(doc?.languages) && doc.languages.length > 0 ? [{ icon: 'globe' as const, label: k('consult.doc.languages'), value: doc.languages.map(languageName).join('، ') }] : []),
-    ...(doc?.scfhs_license_number ? [{ icon: 'identification-card' as const, label: k('consult.doc.license'), value: doc.scfhs_license_number }] : []),
+    ...(licenseNo ? [{ icon: 'identification-card' as const, label: k('consult.doc.license'), value: licenseNo }] : []),
     ...(doc?.accepts_insurance ? [{ icon: 'shield-check' as const, label: k('consult.doc.insurance'), value: k('consult.doc.acceptsInsurance') }] : []),
   ];
 
@@ -232,6 +241,7 @@ export default function DoctorProfile() {
                   <FIcon icon={look.icon} tone={look.tone} size={96} theme={theme} />
                 )}
                 {doc.is_online ? <StatusTag label={k('consult.doc.availableNow')} tone="success" /> : null}
+                {doc.verified === true ? <StatusTag label={k('consult.doc.verified')} tone="info" /> : null}
                 <Text accessibilityRole="header" style={{ ...scale(t, 'h2'), color: c.text.primary, textAlign: 'center' }}>{name}</Text>
                 {[doc.title, doc.specialty || doc.sp].filter(Boolean).length > 0 ? <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{[doc.title, doc.specialty || doc.sp].filter(Boolean).join(' — ')}</Text> : null}
                 {facilityName ? (
@@ -253,11 +263,11 @@ export default function DoctorProfile() {
                   </View>
                 ) : null}
               </View>
-              {(doc.years_experience ?? 0) > 0 || (doc.rating_count ?? 0) > 0 || (doc.rating_avg ?? 0) > 0 ? (
+              {(doc.years_experience ?? 0) > 0 || ratingCount > 0 || ratingAvg > 0 ? (
                 <View style={{ flexDirection: 'row', gap: 8, marginTop: 14 }}>
                   {(doc.years_experience ?? 0) > 0 ? <Stat value={`${num(doc.years_experience ?? 0)}+`} label={k('consult.doc.years')} tone="blue" /> : null}
-                  {(doc.rating_count ?? 0) > 0 ? <Stat value={num(doc.rating_count ?? 0)} label={k('consult.doc.reviews')} tone="mint" /> : null}
-                  {(doc.rating_avg ?? 0) > 0 ? <Stat value={num(doc.rating_avg ?? 0, { maximumFractionDigits: 1 })} label={k('consult.doc.average')} tone="amber" /> : null}
+                  {ratingCount > 0 ? <Stat value={num(ratingCount)} label={k('consult.doc.reviews')} tone="mint" /> : null}
+                  {ratingAvg > 0 ? <Stat value={num(ratingAvg, { maximumFractionDigits: 1 })} label={k('consult.doc.average')} tone="amber" /> : null}
                 </View>
               ) : null}
             </Card>
@@ -292,7 +302,7 @@ export default function DoctorProfile() {
             ) : null}
 
             {[
-              { key: 'clinic', title: k('consult.doc.clinicPhotos'), urls: doc.clinic_images, w: 180 },
+              { key: 'clinic', title: k('consult.doc.clinicPhotos'), urls: doc.clinic_images ?? doc.clinicPhotos, w: 180 },
               { key: 'facility', title: k('consult.doc.facilityPhotos'), urls: doc.facility_images, w: 200 },
             ]
               .filter((g) => Array.isArray(g.urls) && g.urls.length > 0)

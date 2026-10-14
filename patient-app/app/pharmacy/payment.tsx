@@ -2,7 +2,7 @@ import React, { useCallback, useRef, useState } from 'react';
 import { Linking, RefreshControl, Text, View } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
 
-import { AppHeader, Button, Card, EmptyState, ErrorState, FIcon, OfflineState, Screen, StickyFooter } from '../../../packages/ui-native/src';
+import { AppHeader, Button, Card, EmptyState, ErrorState, FIcon, OfflineState, Radio, Screen, StickyFooter } from '../../../packages/ui-native/src';
 import { AmountRow, Money, Notice } from '../../src/components/pharmacy/OfferKit';
 import { PHARMACY_TONE, goBack } from '../../src/components/pharmacy/PharmacyKit';
 import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
@@ -36,6 +36,8 @@ export default function PharmacyPaymentScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [failed, setFailed] = useState<'error' | 'offline' | null>(null);
   const [paying, setPaying] = useState(false);
+  /** The method the patient picked from those the server advertises; null = the first one. */
+  const [picked, setPicked] = useState<string | null>(null);
   const [problemKey, setProblemKey] = useState<string | null>(null);
   /** A payment that was started (the server holds its transaction) but whose page did not open: the result screen can ask about it. */
   const [startedTxn, setStartedTxn] = useState<string | null>(null);
@@ -89,13 +91,14 @@ export default function PharmacyPaymentScreen() {
 
   const pay = async () => {
     if (!id || busy.current || view?.kind !== 'payable') return;
+    const method = picked && view.methods.includes(picked) ? picked : view.methods[0];
     busy.current = true;
     setPaying(true);
     setProblemKey(null);
     setStartedTxn(null);
     if (!payKey.current) payKey.current = idemKey('payment', [id], newIdempotencyKey());
     try {
-      const response = await apiFetch(`/payments/intent/pharmacy/${id}`, { method: 'POST', headers: { 'Idempotency-Key': payKey.current }, body: JSON.stringify({}) });
+      const response = await apiFetch(`/payments/intent/pharmacy/${id}`, { method: 'POST', headers: { 'Idempotency-Key': payKey.current }, body: JSON.stringify({ method }) });
       payKey.current = null;
       const intent = readIntent(response);
       if (!intent.transactionId) throw new Error('payment_intent_unreadable');
@@ -174,6 +177,7 @@ export default function PharmacyPaymentScreen() {
     return state(<EmptyState icon="credit-card" tone="amber" title={k('pharmacy.pay.noMethodsTitle')} body={k('pharmacy.pay.noMethodsBody')} actionLabel={k('pharmacy.retry')} onAction={() => void load('first')} secondaryActionLabel={k('pharmacy.quote.orderStatus')} onSecondaryAction={toTracking} theme={theme} />);
   }
 
+  const chosen = picked && view.methods.includes(picked) ? picked : view.methods[0];
   const totals = { ...order.totals, currency: view.currency ?? order.totals.currency };
   const symbol = !totals.currency || totals.currency === 'SAR' ? k('pharmacy.currency') : totals.currency;
   const fee = totals.deliveryFee !== null && totals.deliveryFee > 0 ? totals.deliveryFee : null;
@@ -242,6 +246,17 @@ export default function PharmacyPaymentScreen() {
             </View>
           </View>
         </Card>
+
+        <View style={{ gap: 8 }}>
+          <Text accessibilityRole="header" style={{ ...scale(t, 'meta', 'bold'), color: c.text.secondary, ...flow }}>{k('pharmacy.pay.methodsLegend')}</Text>
+          <Card theme={theme}>
+            <View accessibilityRole="radiogroup" testID="payment-methods">
+              {view.methods.map((m, i) => (
+                <Radio key={m} label={k(`pharmacy.pay.method.${m}`)} selected={chosen === m} onChange={() => setPicked(m)} divider={i < view.methods.length - 1} disabled={paying} direction={dir} theme={theme} testID={`payment-method-${m}`} />
+              ))}
+            </View>
+          </Card>
+        </View>
 
         <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}>
           <FIcon icon="lock" tone="ink" chip="soft" size={32} theme={theme} />

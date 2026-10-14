@@ -34,6 +34,11 @@ export class CreateBookingDto {
   @IsString()
   payment_method?: string;
 
+  // Clients that book a chosen nurse send it; this compat path still queues the request unassigned.
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  provider_id?: string;
 }
 
 export class RespondDto {

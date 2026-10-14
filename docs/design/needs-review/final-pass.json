@@ -1,0 +1,42 @@
+[
+  {
+    "batch": "final",
+    "app": "patient-app",
+    "screen": "/emergency/sos, /emergency/sos-active, /emergency/tracking",
+    "element": "SOS trigger, active request, tracking",
+    "file": "patient-app/app/emergency/sos.tsx",
+    "line": 61,
+    "found": "[client] The screens call POST /emergency/trigger, GET /emergency/my/active, GET /emergency/tracking and POST /emergency/:id/cancel, and the backend no longer serves them (404 at runtime and NO_ROUTE in the inventory; decision 14). Also sos-active.tsx:46, tracking.tsx:33.",
+    "suspect": "Client-side: remove with the patient SOS removal PR (#852 #1088-#1090 #1094); the single Emergency screen needs the urgent-help number config."
+  },
+  {
+    "batch": "final",
+    "app": "patient-web",
+    "screen": "/emergency, /emergency/sos, /emergency/sos-active, /emergency/tracking",
+    "element": "SOS trigger and active request",
+    "file": "patient-web/app/[locale]/emergency/sos-actions.tsx",
+    "line": 30,
+    "found": "[client] Same as the app: /api/patient/emergency/trigger, /emergency/my/active, /emergency/tracking and /emergency/:id/cancel have no backend route any more (NO_ROUTE x5 in the inventory; also emergency/page.tsx:30, sos-actions.tsx:47, components-next/emergency-sos-active-client.tsx:36, emergency-tracking-client.tsx:46).",
+    "suspect": "Client-side: remove with the patient SOS removal PR."
+  },
+  {
+    "batch": "final",
+    "app": "provider-app",
+    "screen": "MedicalJobsScreen",
+    "element": "guest applications list",
+    "file": "provider-app/src/screens/shared/shared/MedicalJobsScreen.tsx",
+    "line": 138,
+    "found": "[client] GET /recruitment/guest/mine answers 400 with the patient session and with none (runtime check, provider area 'shared'); the screen sends only device_id, so the call fails for a signed-in provider.",
+    "suspect": "Client-side or backend: check what the endpoint requires; hide the list when it fails."
+  },
+  {
+    "batch": "final",
+    "app": "admin",
+    "screen": "public directory pages (/articles, /doctors, /facilities, /home-care-services, /lab-services, /medicines)",
+    "element": "directory lists",
+    "file": "admin/src/components/PublicDirectory.tsx",
+    "line": 125,
+    "found": "[client] The server-side fetch uses a relative/BFF-less URL (`${base}/api/v1${endpoint}`), so the six directory pages render empty (NO_ROUTE x6 in the admin inventory); the pages are served outside /admin and are not behind the admin guard.",
+    "suspect": "Client-side: point the fetch at the public API base or remove the pages (flagged in the admin audit)."
+  }
+]

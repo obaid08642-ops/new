@@ -11,11 +11,16 @@ export class Medicine {
   @Prop({ default: () => uuid() }) id: string;
   @Prop({ unique: true, sparse: true, index: true }) slug?: string;
   @Prop({ required: true, index: 'text' }) name_ar: string;
+  // F8: an editor's change to a published item waits here until an approver publishes or discards it.
+  @Prop({ type: Object, default: null }) pending_revision?: { changes: Record<string, unknown>; submitted_by: string; submitted_at: Date } | null;
   @Prop({ index: 'text' }) name_en?: string;
   @Prop({ index: 'text' }) active_ingredient?: string;
   @Prop() manufacturer?: string;
   @Prop({ default: 'medications', index: true }) category: string; // medications|skincare|...
   @Prop({ default: 0 }) price: number;
+  @Prop() sfda_price?: number;
+  @Prop() sfda_price_source?: string;
+  @Prop() sfda_price_updated_at?: Date;
   @Prop() image?: string;
   @Prop() description_ar?: string;
   @Prop() description_en?: string;

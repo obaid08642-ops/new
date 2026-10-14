@@ -3,6 +3,7 @@ import { Model } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { controlsMap, isTypeIndexable, robotsDisallowLines } from './seo-controls.util';
+import { PublicEntityType, SITE_LOCALES, localizedPaths, publicCitySlugs, siteOrigin } from './seo-public-urls';
 import { buildSlug, parseSlugSuffix, slugify, escapeRegex } from '../../common/slug.util';
 import { MedicineRepository } from "./seo-repositories/medicine.repository";
 import { LabServiceRepository } from "./seo-repositories/labservice.repository";
@@ -257,34 +258,45 @@ export class SeoService {
     const now = new Date().toISOString();
     const urls: string[] = [];
     const seenUrls = new Set<string>();
+    const origin = siteOrigin();
+    // Sitemap protocol limit per file. The patient web's paginated sitemaps carry the full catalogue.
+    const MAX_URLS = 50_000;
+    // Also quotes: the value goes into href="..." attributes (slugs come from provider data).
+    const xmlEsc = (v: string) => v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 
-    const addUrl = (loc: string, lastmod: string, changefreq = 'weekly', priority = 0.7) => {
+    const addUrl = (loc: string, lastmod: string, changefreq = 'weekly', priority = 0.7, alternates = '') => {
       const cleanLoc = loc.trim();
-      if (!cleanLoc || seenUrls.has(cleanLoc)) return;
+      if (!cleanLoc || seenUrls.has(cleanLoc) || urls.length >= MAX_URLS) return;
       seenUrls.add(cleanLoc);
-      urls.push(`<url><loc>${cleanLoc}</loc><lastmod>${lastmod}</lastmod><changefreq>${changefreq}</changefreq><priority>${priority}</priority></url>`);
+      urls.push(`<url><loc>${xmlEsc(cleanLoc)}</loc>${alternates}<lastmod>${lastmod}</lastmod><changefreq>${changefreq}</changefreq><priority>${priority}</priority></url>`);
     };
 
-    // Homepage + static landing
-    addUrl(`${PUBLIC_BASE}/`, now, 'daily', 1.0);
+    // Locale homes
+    for (const l of SITE_LOCALES) addUrl(`${origin}/${l}`, now, 'daily', 1.0);
 
+    // One entry per locale page, each with the six hreflang alternates and x-default (Arabic).
     const pushEntities = async (
-      type: string,
+      type: PublicEntityType,
       model: any,
       query: any,
       priority = 0.7,
       changefreq = 'weekly',
+      cities: string[] = [],
     ) => {
       try {
         const docs = await model
-          .find(query, { id: 1, name_ar: 1, name_en: 1, full_name: 1, title_ar: 1, title_en: 1, updatedAt: 1 })
+          .find(query, { id: 1, slug: 1, code: 1, short_code: 1, translations: 1, name_ar: 1, name_en: 1, full_name: 1, title_ar: 1, title_en: 1, updatedAt: 1 })
           .lean()
-          .limit(5000); // safety cap per sitemap
+          .limit(5000); // safety cap per type
         for (const d of docs as any[]) {
-          const name = d.name_ar || d.name_en || d.full_name || d.title_ar || d.title_en || 'item';
-          const slug = buildSlug(name, d.id);
           const lastmod = d.updatedAt ? new Date(d.updatedAt).toISOString() : now;
-          addUrl(`${PUBLIC_BASE}/s/${type}/${slug}`, lastmod, changefreq, priority);
+          const perLocale = SITE_LOCALES.map((l) => localizedPaths(type, d, l, cities));
+          const variants = perLocale[0]?.length ?? 0;
+          for (let i = 0; i < variants; i++) {
+            const links = SITE_LOCALES.map((l, li) => perLocale[li][i] ? `<xhtml:link rel="alternate" hreflang="${l}" href="${xmlEsc(origin + perLocale[li][i])}"/>` : '').join('')
+              + (perLocale[0][i] ? `<xhtml:link rel="alternate" hreflang="x-default" href="${xmlEsc(origin + perLocale[0][i])}"/>` : '');
+            SITE_LOCALES.forEach((_, li) => { if (perLocale[li][i]) addUrl(origin + perLocale[li][i], lastmod, changefreq, priority, links); });
+          }
         }
       } catch { /* best effort */ }
     };
@@ -292,12 +304,12 @@ export class SeoService {
     // Only explicitly index-eligible public entities may enter crawler outputs.
     // Admin seo_controls can additionally block a whole entity type.
     const controls = await this.loadControls();
-    if (isTypeIndexable('medicine', controls)) await pushEntities('medicine', this.medM, this.publicQuery('medicine', true), 0.8);
     if (isTypeIndexable('doctor', controls)) await pushEntities('doctor', this.providerM, this.publicQuery('doctor', true), 0.85, 'weekly');
-    if (isTypeIndexable('lab-service', controls)) await pushEntities('lab-service', this.labSvcM, this.publicQuery('lab-service', true), 0.7);
-    if (isTypeIndexable('home-care-service', controls)) await pushEntities('home-care-service', this.hcSvcM, this.publicQuery('home-care-service', true), 0.7);
     if (isTypeIndexable('facility', controls)) await pushEntities('facility', this.facilityM, this.publicQuery('facility', true), 0.6, 'monthly');
     if (isTypeIndexable('article', controls)) await pushEntities('article', this.articleM, this.publicQuery('article', true), 0.6, 'weekly');
+    if (isTypeIndexable('home-care-service', controls)) await pushEntities('home_care_service', this.hcSvcM, this.publicQuery('home-care-service', true), 0.7);
+    if (isTypeIndexable('lab-service', controls)) await pushEntities('lab_service', this.labSvcM, this.publicQuery('lab-service', true), 0.7, 'weekly', (await publicCitySlugs(this.conn)).slice(0, 6));
+    if (isTypeIndexable('medicine', controls)) await pushEntities('medicine', this.medM, this.publicQuery('medicine', true), 0.8);
 
     // Dynamically include all materialized projections from the AutoEntitySeoPipeline
     try {
@@ -307,14 +319,13 @@ export class SeoService {
         .toArray();
 
       for (const p of projections) {
-        const path = p.canonical_path ? (p.canonical_path.startsWith('/') ? p.canonical_path : `/${p.canonical_path}`) : `/s/${p.entity_type}/${p.slug}`;
-        const loc = p.canonical_url || `${PUBLIC_BASE}/ar${path}`;
+        if (!p.canonical_url) continue; // a projection without a web URL has no page to list
         const lastmod = p.updated_at ? new Date(p.updated_at).toISOString() : now;
-        addUrl(loc, lastmod, 'weekly', 0.8);
+        addUrl(p.canonical_url, lastmod, 'weekly', 0.8);
       }
     } catch { /* best effort */ }
 
-    return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.join('')}</urlset>`;
+    return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">${urls.join('')}</urlset>`;
   }
 
   // ====================================================================
@@ -348,6 +359,12 @@ export class SeoService {
   // (llmstxt.org convention). Generated from live data so answers about
   // Nabdah Plus cite correct services, specialties and coverage.
   // ====================================================================
+  /** The Arabic page of an entity (the six localized pages are listed in the sitemap). */
+  private arUrl(type: PublicEntityType, e: any, cities: string[] = []): string | null {
+    const path = localizedPaths(type, e, 'ar', cities)[0];
+    return path ? `${siteOrigin()}${path}` : null;
+  }
+
   async llmsTxt(): Promise<string> {
     const lines: string[] = [];
     lines.push('# Nabd (نَبْض)');
@@ -365,7 +382,7 @@ export class SeoService {
     // ── Doctors (live top-rated sample) ──────────────────────────
     try {
       const doctors = await this.providerM
-        .find(this.publicQuery('doctor', true), { id: 1, name_ar: 1, name_en: 1, full_name: 1, specialty: 1, city: 1, rating_avg: 1 })
+        .find(this.publicQuery('doctor', true), { id: 1, slug: 1, name_ar: 1, name_en: 1, full_name: 1, specialty: 1, city: 1, rating_avg: 1 })
         .sort({ rating_avg: -1 })
         .limit(30)
         .lean();
@@ -374,9 +391,9 @@ export class SeoService {
         lines.push('');
         for (const d of doctors as any[]) {
           const name = d.name_ar || d.name_en || d.full_name || 'Doctor';
-          const slug = buildSlug(name, d.id);
           const meta = [d.specialty, d.city].filter(Boolean).join(' · ');
-          lines.push(`- [${name}](${PUBLIC_BASE}/s/doctor/${slug})${meta ? `: ${meta}` : ''}`);
+          const url = this.arUrl('doctor', d);
+          if (url) lines.push(`- [${name}](${url})${meta ? `: ${meta}` : ''}`);
         }
         lines.push('');
       }
@@ -393,8 +410,8 @@ export class SeoService {
         lines.push('');
         for (const p of pharmacies) {
           const name = p.name_ar || p.name_en || 'Pharmacy';
-          const slug = p.slug || buildSlug(name, p.id);
-          lines.push(`- [${name}](${PUBLIC_BASE}/ar/pharmacy/${slug})${p.city ? `: ${p.city}` : ''}`);
+          const url = this.arUrl('pharmacy', p);
+          if (url) lines.push(`- [${name}](${url})${p.city ? `: ${p.city}` : ''}`);
         }
         lines.push('');
       }
@@ -403,7 +420,7 @@ export class SeoService {
     // ── Hospitals & Clinics ──────────────────────────────────────
     try {
       const facilities = await this.facilityM
-        .find(this.publicQuery('facility', true), { id: 1, name_ar: 1, name_en: 1, city: 1, type: 1 })
+        .find(this.publicQuery('facility', true), { id: 1, slug: 1, name_ar: 1, name_en: 1, city: 1, type: 1 })
         .limit(20)
         .lean();
       if (facilities.length) {
@@ -411,8 +428,8 @@ export class SeoService {
         lines.push('');
         for (const f of facilities as any[]) {
           const name = f.name_ar || f.name_en || 'Facility';
-          const slug = buildSlug(name, f.id);
-          lines.push(`- [${name}](${PUBLIC_BASE}/s/facility/${slug})${f.city ? `: ${f.city}` : ''}`);
+          const url = this.arUrl('facility', f);
+          if (url) lines.push(`- [${name}](${url})${f.city ? `: ${f.city}` : ''}`);
         }
         lines.push('');
       }
@@ -421,7 +438,7 @@ export class SeoService {
     // ── Medicines ────────────────────────────────────────────────
     try {
       const meds = await this.medM
-        .find(this.publicQuery('medicine', true), { id: 1, name_ar: 1, name_en: 1, category: 1 })
+        .find(this.publicQuery('medicine', true), { id: 1, slug: 1, translations: 1, name_ar: 1, name_en: 1, category: 1 })
         .limit(30)
         .lean();
       if (meds.length) {
@@ -429,8 +446,8 @@ export class SeoService {
         lines.push('');
         for (const m of meds as any[]) {
           const name = m.name_ar || m.name_en || 'Medicine';
-          const slug = buildSlug(name, m.id);
-          lines.push(`- [${name}](${PUBLIC_BASE}/s/medicine/${slug})${m.category ? `: ${m.category}` : ''}`);
+          const url = this.arUrl('medicine', m);
+          if (url) lines.push(`- [${name}](${url})${m.category ? `: ${m.category}` : ''}`);
         }
         lines.push('');
       }
@@ -439,15 +456,17 @@ export class SeoService {
     // ── Services: labs, radiology, home care ─────────────────────
     try {
       const labSvcs = await this.labSvcM
-        .find(this.publicQuery('lab-service', true), { id: 1, name_ar: 1, name_en: 1 })
+        .find(this.publicQuery('lab-service', true), { id: 1, slug: 1, short_code: 1, name_ar: 1, name_en: 1 })
         .limit(15)
         .lean();
-      if (labSvcs.length) {
+      const firstCity = (await publicCitySlugs(this.conn))[0];
+      if (labSvcs.length && firstCity) {
         lines.push('## Lab tests (تحاليل مخبرية)');
         lines.push('');
         for (const s of labSvcs as any[]) {
           const name = s.name_ar || s.name_en || 'Lab service';
-          lines.push(`- [${name}](${PUBLIC_BASE}/s/lab-service/${buildSlug(name, s.id)})`);
+          const url = this.arUrl('lab_service', s, [firstCity]);
+          if (url) lines.push(`- [${name}](${url})`);
         }
         lines.push('');
       }
@@ -463,7 +482,8 @@ export class SeoService {
         lines.push('');
         for (const s of hcSvcs as any[]) {
           const name = s.name_ar || s.name_en || 'Home-care service';
-          lines.push(`- [${name}](${PUBLIC_BASE}/s/home-care-service/${buildSlug(name, s.id)})`);
+          const url = this.arUrl('home_care_service', s);
+          if (url) lines.push(`- [${name}](${url})`);
         }
         lines.push('');
       }
@@ -472,7 +492,7 @@ export class SeoService {
     // ── Articles (health content hub) ────────────────────────────
     try {
       const articles = await this.articleM
-        .find(this.publicQuery('article', true), { id: 1, title_ar: 1, title_en: 1, category: 1 })
+        .find(this.publicQuery('article', true), { id: 1, slug: 1, title_ar: 1, title_en: 1, category: 1 })
         .limit(20)
         .lean();
       if (articles.length) {
@@ -480,7 +500,8 @@ export class SeoService {
         lines.push('');
         for (const a of articles as any[]) {
           const title = a.title_ar || a.title_en || 'Article';
-          lines.push(`- [${title}](${PUBLIC_BASE}/s/article/${buildSlug(title, a.id)})${a.category ? `: ${a.category}` : ''}`);
+          const url = this.arUrl('article', a);
+          if (url) lines.push(`- [${title}](${url})${a.category ? `: ${a.category}` : ''}`);
         }
         lines.push('');
       }
@@ -492,41 +513,5 @@ export class SeoService {
     lines.push('- Payments: mada, Visa, Mastercard, Apple Pay (via Moyasar), cash in clinic, Saudi insurance networks');
     lines.push('');
     return lines.join('\n');
-  }
-
-  // ====================================================================
-  // INDEX NOW PING — proactively notify Google & Bing when new entities are added.
-  // Call this from create-medicine, register-doctor, etc. flows.
-  // ====================================================================
-  async pingIndexNow(type: string, id: string): Promise<{ ok: boolean }> {
-    try {
-      const model = this.modelFor(type);
-      if (!model) return { ok: false };
-      const entity: any = await model.findOne({ ...this.publicQuery(type, true), id }, { _id: 0 }).lean();
-      if (!entity) return { ok: false };
-      const name = entity.name_ar || entity.name_en || entity.full_name || 'item';
-      const url = this.buildShareUrl(type, name, id);
-      const key = process.env.INDEXNOW_KEY;
-      if (!key) {
-        // Soft-fail — endpoint exists but no key configured yet
-        return { ok: false };
-      }
-      // Fire-and-forget HTTP POST to IndexNow (no SDK required)
-      const fetch = (globalThis as any).fetch;
-      if (typeof fetch === 'function') {
-        await fetch('https://api.indexnow.org/IndexNow', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            host: new URL(PUBLIC_BASE).host,
-            key,
-            urlList: [url],
-          }),
-        }).catch(() => null);
-      }
-      return { ok: true };
-    } catch {
-      return { ok: false };
-    }
   }
 }

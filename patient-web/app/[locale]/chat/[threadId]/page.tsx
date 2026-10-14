@@ -7,6 +7,7 @@ import { callPatientApi } from "@/lib/api/upstream";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ChatComposer } from "@/components-next/consult/chat-composer";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { ActionLinks, Notice, RowCard } from "@/components-next/consult/consult-parts";
 import { LocalTimeLine } from "@/components-next/consult/local-time-line";
@@ -94,6 +95,8 @@ export default async function ChatThreadPage({ params }: Props) {
           ))}
         </ul>
       )}
+      {/* issue 806: text composer, only where the server's rules say the patient may chat and the thread is not read-only */}
+      {permissions?.canChat && !permissions.readOnly ? <ChatComposer threadId={threadId} /> : null}
       {closed ? <Notice>{t("closed")}</Notice> : null}
       {followUpHref ? <ActionLinks actions={[{ href: followUpHref, label: t("bookFollowUp") }]} /> : null}
       <Notice>{t("bodyHidden")}</Notice>

@@ -1,6 +1,8 @@
-import { Redirect } from "expo-router";
+import React from 'react';
 
-// Owner decision 8 (D-8): no in-app crisis handling; the emergency entry is the SOS screen.
-export default function EmergencyIndex() {
-  return <Redirect href="/emergency/sos" />;
+import { UrgentHelpView } from '../../src/components/emergency/UrgentHelpView';
+
+/** The one urgent-help screen (owner decision 14): the number comes from the admin config, never from the app. */
+export default function EmergencyScreen() {
+  return <UrgentHelpView />;
 }

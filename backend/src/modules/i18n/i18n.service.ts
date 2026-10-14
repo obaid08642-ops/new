@@ -1,7 +1,36 @@
 import { Injectable } from '@nestjs/common';
 
 type Lang = 'ar' | 'en' | 'ur';
-const DEFAULT: Lang = 'ar';
+
+/**
+ * Locales this dictionary actually carries. The apps ship six (ar, en, ur, hi, bn, fil/tl),
+ * so a stored user locale is regularly outside this set.
+ */
+const DICT_LOCALES: readonly string[] = ['ar', 'en', 'ur'];
+
+/**
+ * Phase 18.2 (owner decision): the user's chosen language → the device language if it is
+ * supported → **English**. Arabic is only ever correct when the user chose it or the device
+ * is in Arabic, "so Urdu, Hindi, Bengali and Filipino users no longer get Arabic silently".
+ *
+ * It used to be `'ar'`. `PushService.userLang` and the notification delivery path deliberately
+ * return the user's own locale, including `hi`/`bn`/`fil`; those keys are absent here, so
+ * `entry[lang]` was `undefined` and every one of those users was served **Arabic** built-in
+ * push and notification text. English is the specified last resort, so a locale the
+ * dictionary cannot serve must land there rather than on Arabic.
+ */
+const DEFAULT: Lang = 'en';
+
+/**
+ * Resolve any locale tag onto a locale this dictionary can actually serve.
+ * Region subtags are dropped (`en-US` → `en`), matching is case-insensitive, and anything
+ * unknown or unsupported becomes English rather than Arabic.
+ */
+export function resolveLang(input?: string | null): Lang {
+  if (typeof input !== 'string') return DEFAULT;
+  const primary = input.trim().toLowerCase().split(/[-_]/)[0];
+  return DICT_LOCALES.includes(primary) ? (primary as Lang) : DEFAULT;
+}
 
 /**
  * Centralized i18n dictionary. Backend keys here are mirrored on each client.
@@ -180,6 +209,50 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'health.empty_subtitle': { ar: 'سيظهر هنا تاريخ طلباتك ووصفاتك', en: 'Orders & prescriptions will appear here', ur: 'یہاں ظاہر ہوگا' },
   'health.allergies': { ar: 'الحساسيات', en: 'Allergies', ur: 'الرجی' },
   'health.chronic': { ar: 'الأمراض المزمنة', en: 'Chronic Conditions', ur: 'دائمی بیماریاں' },
+  // Return reason codes (OC-C C-18: server sends codes, clients localize)
+  'returns.reason.wrong_item': { ar: 'صنف خاطئ', en: 'Wrong item', ur: 'غلط چیز' },
+  'returns.reason.damaged': { ar: 'تالف', en: 'Damaged', ur: 'خراب' },
+  'returns.reason.expired': { ar: 'منتهي الصلاحية', en: 'Expired', ur: 'معیاد ختم' },
+  'returns.reason.not_as_described': { ar: 'غير مطابق للوصف', en: 'Not as described', ur: 'تفصیل کے مطابق نہیں' },
+  'returns.reason.changed_mind': { ar: 'غيرت رأيي', en: 'Changed mind', ur: 'ارادہ بدل گیا' },
+  'returns.reason.duplicate_order': { ar: 'طلب مكرر', en: 'Duplicate order', ur: 'دہرا آرڈر' },
+  'returns.reason.late_delivery': { ar: 'تأخر التوصيل', en: 'Late delivery', ur: 'دیر سے ڈلیوری' },
+  'returns.reason.other': { ar: 'أخرى', en: 'Other', ur: 'دیگر' },
+  // Family relation codes (OC-C C-8: server sends codes, clients localize)
+  'family.relation.spouse': { ar: 'الزوج/الزوجة', en: 'Spouse', ur: 'شریک حیات' },
+  'family.relation.parent': { ar: 'الأب/الأم', en: 'Parent', ur: 'والدین' },
+  'family.relation.child': { ar: 'الابن/الابنة', en: 'Child', ur: 'بچہ' },
+  'family.relation.sibling': { ar: 'الأخ/الأخت', en: 'Sibling', ur: 'بہن بھائی' },
+  'family.relation.grandparent': { ar: 'الجد/الجدة', en: 'Grandparent', ur: 'دادا دادی' },
+  'family.relation.grandchild': { ar: 'الحفيد/الحفيدة', en: 'Grandchild', ur: 'پوتا پوتی' },
+  'family.relation.caregiver': { ar: 'مقدم الرعاية', en: 'Caregiver', ur: 'نگہداشت کنندہ' },
+  'family.relation.other': { ar: 'أخرى', en: 'Other', ur: 'دیگر' },
+  // Health vitals / score / trends codes (OC-C C-7: server sends keys, clients localize)
+  'health.vital.heart_rate': { ar: 'نبض القلب', en: 'Heart rate', ur: 'دل کی دھڑکن' },
+  'health.vital.glucose': { ar: 'سكر الدم', en: 'Blood glucose', ur: 'خون کی شکر' },
+  'health.vital.bp': { ar: 'ضغط الدم', en: 'Blood pressure', ur: 'بلڈ پریشر' },
+  'health.vital.weight': { ar: 'الوزن', en: 'Weight', ur: 'وزن' },
+  'health.vital.temperature': { ar: 'درجة الحرارة', en: 'Temperature', ur: 'بخار' },
+  'health.vital.spo2': { ar: 'أكسجين الدم', en: 'Blood oxygen', ur: 'خون میں آکسیجن' },
+  'health.component.bmi': { ar: 'مؤشر كتلة الجسم', en: 'Body mass index', ur: 'جسمانی ماس انڈیکس' },
+  'health.component.bp': { ar: 'ضغط الدم', en: 'Blood pressure', ur: 'بلڈ پریشر' },
+  'health.component.glucose': { ar: 'سكر الدم', en: 'Blood glucose', ur: 'خون کی شکر' },
+  'health.component.heart_rate': { ar: 'نبض القلب', en: 'Heart rate', ur: 'دل کی دھڑکن' },
+  'health.component.sleep': { ar: 'جودة النوم', en: 'Sleep quality', ur: 'نیند کا معیار' },
+  'health.component.tracking': { ar: 'انتظام التسجيل', en: 'Tracking consistency', ur: 'باقاعدہ اندراج' },
+  'health.score.excellent': { ar: 'ممتازة', en: 'Excellent', ur: 'بہترین' },
+  'health.score.good': { ar: 'جيدة', en: 'Good', ur: 'اچھی' },
+  'health.score.fair': { ar: 'متوسطة', en: 'Fair', ur: 'درمیانی' },
+  'health.score.needs_attention': { ar: 'تحتاج متابعة', en: 'Needs attention', ur: 'توجہ درکار' },
+  'health.score.insufficient_data': { ar: 'بيانات غير كافية', en: 'Insufficient data', ur: 'ناکافی ڈیٹا' },
+  'health.score.message.insufficient_data': { ar: 'لا توجد بيانات كافية لحساب درجة الصحة — أكمل ملفك وسجّل مؤشراتك', en: 'Not enough data to compute your health score — complete your profile and log vitals', ur: 'ہیلتھ اسکور کے لیے کافی ڈیٹا نہیں — پروفائل مکمل کریں اور علامات درج کریں' },
+  'health.rec.bmi_high': { ar: 'مؤشر كتلة الجسم أعلى من الطبيعي — نشاط بدني منتظم وتغذية متوازنة يساعدان على خفضه', en: 'BMI is above normal — regular activity and balanced nutrition help lower it', ur: 'بی ایم آئی معمول سے زیادہ ہے — باقاعدہ ورزش اور متوازن غذا مددگار ہے' },
+  'health.rec.profile_incomplete': { ar: 'أكمل طولك ووزنك في الملف الصحي لتحسب درجتك بدقة أعلى', en: 'Add your height and weight to compute your score accurately', ur: 'درست اسکور کے لیے قد اور وزن درج کریں' },
+  'health.rec.bp_high': { ar: 'قراءة ضغط الدم الأخيرة مرتفعة — قلل الملح وراقب الضغط بانتظام واستشر طبيبك', en: 'Latest blood pressure is high — cut salt, monitor regularly, consult your doctor', ur: 'بلڈ پریشر زیادہ ہے — نمک کم کریں، باقاعدہ نگرانی کریں، ڈاکٹر سے مشورہ کریں' },
+  'health.rec.glucose_off': { ar: 'قراءة السكر خارج النطاق الطبيعي — راجع خطة وجباتك وأدويتك مع طبيبك', en: 'Glucose is out of range — review meals and medication with your doctor', ur: 'شوگر معمول سے باہر ہے — خوراک اور دوا ڈاکٹر سے دیکھیں' },
+  'health.rec.sleep_low': { ar: 'جودة نومك تحتاج تحسيناً — ثبّت موعد النوم وقلل الشاشات قبله', en: 'Sleep quality needs work — fix bedtime and cut screens before bed', ur: 'نیند بہتر بنائیں — سونے کا وقت مقرر کریں، اسکرین کم کریں' },
+  'health.rec.tracking_low': { ar: 'سجّل مؤشراتك الحيوية بانتظام (٥ قراءات أسبوعياً) لرفع دقة درجتك', en: 'Log vitals regularly (5 readings a week) to sharpen your score', ur: 'باقاعدگی سے علامات درج کریں (ہفتے میں ۵ بار)' },
+  'health.rec.tracking_start': { ar: 'ابدأ بتسجيل مؤشراتك الحيوية (ضغط، سكر، وزن) لتفعيل درجة الصحة', en: 'Start logging vitals (pressure, glucose, weight) to enable your score', ur: 'ہیلتھ اسکور کے لیے علامات درج کرنا شروع کریں' },
 
   // ============ Emergency ============
   'emergency.title': { ar: 'طوارئ', en: 'Emergency', ur: 'ایمرجنسی' },
@@ -659,6 +732,9 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'admin.auth.reason': { ar: 'أدخل السبب والتفصيل', en: 'Enter reason and details', ur: 'وجہ' },
   'admin.auth.reason.required': { ar: 'يلزم إدخال سبب', en: 'Reason is required', ur: 'وجہ ضروری' },
   'admin.auth.done': { ar: 'تم تنفيذ الإجراء بنجاح', en: 'Action executed', ur: 'انجام' },
+  'pharmacy.order_auto_cancelled.title': { ar: 'لا توجد صيدلية متاحة', en: 'No pharmacy available', ur: 'کوئی فارمیسی دستیاب نہیں' },
+  'pharmacy.order_auto_cancelled.body': { ar: 'لم ترد أي صيدلية قريبة على طلبك. لم يُخصم منك أي مبلغ، ويمكنك إعادة المحاولة لاحقًا.', en: 'No nearby pharmacy answered your order. You were not charged, and you can try again later.', ur: 'قریب کی کسی فارمیسی نے آپ کے آرڈر کا جواب نہیں دیا۔ آپ سے کوئی رقم نہیں لی گئی، آپ بعد میں دوبارہ کوشش کر سکتے ہیں۔' },
+  'admin.pharmacy.price_above_catalogue': { ar: 'عرض صيدلية بسعر أعلى من سعر الكتالوج: راجعه وحدّث السعر إن تغيّر السعر الرسمي', en: 'A pharmacy offer is priced above the catalogue: review it and update the price if the official price changed', ur: 'فارمیسی کی پیشکش کیٹلاگ قیمت سے زیادہ ہے: جائزہ لیں اور سرکاری قیمت بدلی ہو تو قیمت اپ ڈیٹ کریں' },
 
   // ============ NOTIFICATIONS CENTER ============
   'notif.title': { ar: 'الإشعارات', en: 'Notifications', ur: 'اطلاعات' },
@@ -706,6 +782,11 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'err.unauthorized': { ar: 'انتهت الجلسة، يرجى تسجيل الدخول مجدداً', en: 'Session expired, please login again', ur: 'سیشن ختم' },
   'err.forbidden': { ar: 'لا تملك صلاحية لهذا الإجراء', en: 'You do not have permission', ur: 'اجازت نہیں' },
   'err.not_found': { ar: 'العنصر غير موجود', en: 'Item not found', ur: 'موجود نہیں' },
+  // 13.R5: generic catalog copy for the platform error codes raised by the exception
+  // filter. Added here (not inline in code) so ar/en/ur ship together and cannot drift.
+  'err.bad_request': { ar: 'الطلب غير صالح', en: 'The request is not valid', ur: 'درخواست درست نہیں' },
+  'err.conflict': { ar: 'هذه البيانات موجودة مسبقاً', en: 'That record already exists', ur: 'یہ ریکارڈ پہلے سے موجود ہے' },
+  'err.internal_error': { ar: 'حدث خطأ غير متوقع. حاول مرة أخرى', en: 'Something went wrong. Please try again', ur: 'کچھ گڑبڑ ہو گئی۔ دوبارہ کوشش کریں' },
 
   // ============ Common action labels ============
   'act.confirm': { ar: 'تأكيد', en: 'Confirm', ur: 'تصدیق' },
@@ -750,6 +831,10 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'notif.provider_rejected.body': { ar: 'راجع سبب الرفض في التطبيق وتواصل مع الدعم إذا احتجت مساعدة.', en: 'See the reason in the app and contact support if you need help.', ur: 'وجہ ایپ میں دیکھیں اور مدد کے لیے سپورٹ سے رابطہ کریں۔' },
   'notif.provider_changes_requested.title': { ar: 'مطلوب تعديل في طلب التسجيل', en: 'Changes needed on your application', ur: 'آپ کی درخواست میں تبدیلی درکار ہے' },
   'notif.provider_changes_requested.body': { ar: 'طلبت الإدارة تعديل بعض البيانات أو المستندات. افتح التطبيق لمعرفة المطلوب.', en: 'The admin asked for some details or documents to be updated. Open the app to see what is needed.', ur: 'انتظامیہ نے کچھ معلومات یا دستاویزات کی تبدیلی مانگی ہے۔ تفصیل کے لیے ایپ کھولیں۔' },
+  'notif.provider_document_approved.title': { ar: 'تم قبول مستند الترخيص', en: 'Your licence document was approved', ur: 'آپ کی لائسنس دستاویز منظور ہو گئی' },
+  'notif.provider_document_approved.body': { ar: 'قبلت الإدارة مستند {doc_type}. لا يلزم أي إجراء.', en: 'The admin approved your {doc_type} document. No action needed.', ur: 'انتظامیہ نے آپ کی {doc_type} دستاویز منظور کر لی۔ کسی کارروائی کی ضرورت نہیں۔' },
+  'notif.provider_document_rejected.title': { ar: 'تم رفض مستند الترخيص', en: 'Your licence document was rejected', ur: 'آپ کی لائسنس دستاویز مسترد ہو گئی' },
+  'notif.provider_document_rejected.body': { ar: 'رفضت الإدارة مستند {doc_type}. راجع السبب وأعد الرفع.', en: 'The admin rejected your {doc_type} document. Check the reason and re-upload.', ur: 'انتظامیہ نے آپ کی {doc_type} دستاویز مسترد کر دی۔ وجہ دیکھیں اور دوبارہ اپ لوڈ کریں۔' },
   'notif.refund_requested.title': { ar: 'تم استلام طلب الاسترداد', en: 'Refund request received', ur: 'رقم کی واپسی کی درخواست موصول' },
   'notif.refund_requested.body': { ar: 'سنراجع طلبك ونبلغك بالقرار.', en: 'We will review your request and let you know the decision.', ur: 'ہم آپ کی درخواست دیکھ کر فیصلے سے آگاہ کریں گے۔' },
   'notif.refund_decided.title': { ar: 'قرار طلب الاسترداد', en: 'Refund decision', ur: 'رقم کی واپسی کا فیصلہ' },
@@ -791,13 +876,15 @@ export class I18nService {
   t(key: string, lang: Lang = DEFAULT, params?: Record<string, any>): string {
     const entry = DICTIONARY[key];
     if (!entry) return key;
-    let v = entry[lang] || entry[DEFAULT] || key;
+    const resolved = resolveLang(lang);
+    let v = entry[resolved] || entry[DEFAULT] || key;
     if (params) for (const [k, val] of Object.entries(params)) v = v.replace(`{${k}}`, String(val));
     return v;
   }
   all(lang: Lang = DEFAULT) {
+    const resolved = resolveLang(lang);
     const out: Record<string, string> = {};
-    for (const k of Object.keys(DICTIONARY)) out[k] = DICTIONARY[k][lang] || DICTIONARY[k][DEFAULT];
+    for (const k of Object.keys(DICTIONARY)) out[k] = DICTIONARY[k][resolved] || DICTIONARY[k][DEFAULT];
     return out;
   }
   raw() {

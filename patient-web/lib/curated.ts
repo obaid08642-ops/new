@@ -7,7 +7,7 @@ import { isLocale } from "@/lib/i18n";
  */
 export const WEB_ROUTE_ROOTS = [
   "ai", "appointments", "articles", "c", "cart", "chat", "community", "condition", "consultations", "dashboard", "delivery",
-  "diagnostics", "doctor", "doctors", "drug-scanner", "emergency", "facility", "family", "health", "home-care", "home-nursing",
+  "diagnostics", "doctor", "doctors", "drug-scanner", "emergency", "facility", "family", "features", "health", "home-care", "home-nursing",
   "insurance", "labs", "loyalty", "map", "maternity", "medicine", "medicine-catalog", "medicines", "mental-health",
   "notifications", "nursing", "nutrition", "offers", "orders", "p", "payments", "pharmacies", "pharmacy", "prescriptions", "privacy",
   "profile", "programs", "provider-info", "radiology", "reports", "returns", "reviews", "room", "s", "search",

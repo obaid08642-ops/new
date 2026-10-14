@@ -54,7 +54,15 @@ describe("public product page (catalog v14)", () => {
     expect(html).toMatch(/>419\.60<\/strong><span[^>]*>SAR</);
     expect(html).not.toContain("style=");
     expect(html).toContain('"@type":"Product"');
-    expect(html).toContain('"@type":"MedicalDrug"');
+    // schema.org Drug (MedicalDrug is not a schema.org type), with a parsed DrugStrength
+    expect(html).toContain('"@type":"Drug"');
+    expect(html).not.toContain('MedicalDrug');
+    expect(html).toContain('"@type":"DrugStrength","strengthValue":15,"strengthUnit":"mg"');
+    // AEO: the direct answer under the title, from the product's own fields, and speakable points at it
+    expect(html).toContain('class="nabd-direct-answer');
+    expect(html).toContain('".nabd-direct-answer"');
+    // FAQ and HowTo questions come from messages, never hard-coded Arabic
+    expect(html).not.toMatch(/الآثار الجانبية|التخزين —|الجرعة —|طريقة استخدام/);
     expect(html).toContain('"@type":"FAQPage"');
     expect(html).toContain('"@type":"BreadcrumbList"');
     expect(html).toContain('"sku":"697836"');

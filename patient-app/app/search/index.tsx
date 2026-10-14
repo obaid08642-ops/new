@@ -4,18 +4,21 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Card, Chip, EmptyState, ErrorState, FIcon, Icon, OfflineState, Screen, SectionHeader, Search, SERVICE_ICONS, Skeleton, StatusChip, type ServiceName } from '../../../packages/ui-native/src';
+import { Card, Chip, EmptyState, ErrorState, FIcon, Icon, OfflineState, Screen, SectionHeader, Search, SERVICE_ICONS, Skeleton, type ServiceName } from '../../../packages/ui-native/src';
 import PharmacyProductSearchView from '../../src/components/views/PharmacyProductSearchView';
 import DoctorSearchView from '../../src/components/views/DoctorSearchView';
 import { LocalizedText } from '../../src/components/LocalizedText';
 import { COLUMN, FONT, tint, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
+import { useModules } from '../../src/context/ModulesContext';
+import { visibleItems } from '../../src/utils/moduleSwitches';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import {
   FILTERS,
   blocksFor,
   countByFilter,
+  fromGrouped,
   iconFor,
   routeFor,
   type ResultBlock,
@@ -27,12 +30,13 @@ import {
  *
  * A sticky glass header with the page search field and "Cancel"; with a query, the filter chips (only for kinds that
  * have results, each with its count) and the results in blocks: medicines, doctors as a row of cards, tests and
- * imaging, then the rest of what GET /home/search returns. With no query: recent searches (kept on the phone)
+ * imaging, then the rest of what the grouped search (GET /search, D-29) returns. With no query: recent searches (kept on the phone)
  * and a "browse by section" grid. Only real data is drawn: a block, a price or a line is hidden when the backend
  * does not send it.
  */
 
 const RECENT_KEY = '@nabdah_recent_searches';
+const SEARCH_LOCALES: string[] = ['ar', 'en', 'ur', 'hi', 'bn', 'fil'];
 const RECENT_MAX = 8;
 const DEBOUNCE_MS = 500;
 
@@ -110,7 +114,6 @@ function ResultRow({ r, term, last, size, onOpen }: { r: SearchResult; term: str
         <FIcon icon={icon} tone={tone} size={48} theme={theme} />
       )}
       <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
-        {r.sponsored ? <StatusChip label={tr('إعلان')} tone="amber" theme={theme} /> : null}
         <Highlight text={name} term={term} style={{ ...scale(t, 'segment', 'medium'), color: c.text.primary, ...flow }} />
         {sub ? <Text numberOfLines={2} style={{ ...scale(t, 'label', 'regular'), color: c.text.secondary, ...flow }}>{sub}</Text> : null}
         {size === 'media' ? priceLine : null}
@@ -196,6 +199,8 @@ function Block({ block, term, filter, count, onOpen, onSeeAll }: { block: Result
 /** "Didn't find what you wanted? Upload the prescription": the board's dashed card, opening the real upload. */
 function UploadCard() {
   const { theme, t, c, flow } = useScreenUi();
+  const { isHidden } = useModules();
+  if (isHidden('/pharmacy')) return null;
   return (
     <Pressable
       accessibilityRole="link"
@@ -233,8 +238,10 @@ function ResultsSkeleton() {
 /** With no query: recent searches, then the browse grid. */
 function Discover({ recent, onPick, onClear }: { recent: string[]; onPick: (q: string) => void; onClear: () => void }) {
   const { theme, t, c, flow, tr } = useScreenUi();
+  const { disabled } = useModules();
+  const browse = visibleItems(BROWSE, (item) => item.route, disabled);
   const rows: (typeof BROWSE)[] = [];
-  for (let i = 0; i < BROWSE.length; i += 4) rows.push(BROWSE.slice(i, i + 4));
+  for (let i = 0; i < browse.length; i += 4) rows.push(browse.slice(i, i + 4));
   return (
     <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 40, gap: 24 }}>
       {recent.length ? (
@@ -279,7 +286,8 @@ function Discover({ recent, onPick, onClear }: { recent: string[]; onPick: (q: s
 }
 
 function SearchScreen({ initialQuery }: { initialQuery: string }) {
-  const { theme, t, c, dir, tr } = useScreenUi();
+  const { theme, t, c, dir, tr, lang } = useScreenUi();
+  const modules = useModules();
   const insets = useSafeAreaInsets();
   const [query, setQuery] = useState(initialQuery);
   const [filter, setFilter] = useState('all');
@@ -324,10 +332,12 @@ function SearchScreen({ initialQuery }: { initialQuery: string }) {
     }
     let stale = false;
     const timer = setTimeout(() => {
-      apiFetch<SearchResult[] | { data?: SearchResult[] }>(`/home/search?q=${encodeURIComponent(term)}`)
+      // D-29: the grouped search; the API returns each name in the screen's language.
+      const locale = SEARCH_LOCALES.includes(lang) ? lang : 'ar';
+      apiFetch<unknown>(`/search?q=${encodeURIComponent(term)}&locale=${locale}&limit=10`)
         .then((res) => {
           if (stale) return;
-          setRows(Array.isArray(res) ? res : res?.data ?? []);
+          setRows(fromGrouped(res));
           setAnswered(term);
           saveRecent(term);
         })
@@ -341,7 +351,7 @@ function SearchScreen({ initialQuery }: { initialQuery: string }) {
       stale = true;
       clearTimeout(timer);
     };
-  }, [term, nonce, saveRecent]);
+  }, [term, nonce, saveRecent, lang]);
 
   const counts = useMemo(() => countByFilter(rows), [rows]);
   // a chip whose kind is gone from the new results falls back to "All"
@@ -374,7 +384,7 @@ function SearchScreen({ initialQuery }: { initialQuery: string }) {
             label={tr('بحث')}
             onClear={() => setQuery('')}
             clearLabel={tr('مسح')}
-            onScanPress={() => router.push('/pharmacy/barcode-scanner' as Href)}
+            onScanPress={modules.isHidden('/pharmacy') ? undefined : () => router.push('/pharmacy/barcode-scanner' as Href)}
             scanLabel={tr('ماسح الأدوية')}
             testID="search-field"
             theme={theme}

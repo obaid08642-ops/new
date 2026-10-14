@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 const origin = (process.env.NEXT_PUBLIC_SITE_ORIGIN || "https://nabd.plus").replace(/\/$/, "");
+const mcp = (process.env.NEXT_PUBLIC_MCP_URL || "https://mcp.nabd.plus").replace(/\/$/, "");
 
 /**
  * A2A Protocol Agent Card (RFC / A2A Protocol Specification)
@@ -18,12 +19,12 @@ const agentCard = {
   supportedInterfaces: [
     {
       protocol: "https",
-      url: `${origin}/api/v1/mcp`,
+      url: `${mcp}/api/v1/mcp`,
       transport: "json-rpc",
     },
     {
       protocol: "https",
-      url: `${origin}/api/v1/public/ai-catalog`,
+      url: `${origin}/.well-known/ai-catalog.json`,
       transport: "rest",
     }
   ],
@@ -31,14 +32,13 @@ const agentCard = {
     "medicine_search",
     "doctor_search",
     "diagnostics_booking",
-    "home_nursing_booking",
-    "insurance_verification"
+    "home_nursing_booking"
   ],
   skills: [
     {
       id: "urn:air:nabd.plus:skill:medicine-ordering",
       name: "Medicine Ordering and Availability",
-      description: "Search 20,990+ SFDA-compliant pharmaceutical products, therapeutic alternatives, and public pricing ceilings.",
+      description: "Search SFDA-compliant pharmaceutical products, therapeutic alternatives, and public pricing ceilings.",
       url: `${origin}/agent-skills/ordering/skill.md`
     },
     {

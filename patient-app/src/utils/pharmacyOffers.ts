@@ -105,7 +105,7 @@ export function parseOffer(raw: unknown): OfferView | null {
     lines,
     availableCount,
     allAvailable: lines.length > 0 && availableCount === lines.length,
-    insuranceReady: o.insurance_ready !== false,
+    insuranceReady: o.insurance_ready === true,
     note: text(o.provider_note),
   };
 }
@@ -116,9 +116,33 @@ export function parseOffers(response: unknown): OfferView[] {
   return rows.map(parseOffer).filter((o): o is OfferView => o !== null);
 }
 
-/** The pharmacy's name in the reader's language, the other language when only that one exists, null when the server sent none. */
+/** The pharmacy's name in the reader's language: Arabic for ar, English for every other language; the other field only when that one is missing; null when the server sent none (never an id). */
+export function pharmacyDisplayName(names: { ar: string | null; en: string | null } | null, lang: string): string | null {
+  if (!names) return null;
+  return lang === 'ar' ? names.ar ?? names.en : names.en ?? names.ar;
+}
+
 export function offerName(offer: OfferView, lang: string): string | null {
-  return lang === 'ar' || lang === 'ur' ? offer.nameAr ?? offer.nameEn : offer.nameEn ?? offer.nameAr;
+  return pharmacyDisplayName({ ar: offer.nameAr, en: offer.nameEn }, lang);
+}
+
+/**
+ * The filling pharmacy's names on an order (`GET /patient/pharmacy/orders/:id`, #366/#375/#514): the chosen allocation's
+ * `pharmacy_name_ar/en` when the order names a selected allocation, else the order's own (set when one pharmacy fills it).
+ */
+export function orderPharmacyNames(response: unknown): { ar: string | null; en: string | null } | null {
+  const raw = response && typeof response === 'object' ? ((response as { data?: unknown }).data ?? response) : null;
+  if (!raw || typeof raw !== 'object') return null;
+  const o = raw as Record<string, unknown>;
+  const read = (r: Record<string, unknown> | undefined) => {
+    const ar = r ? text(r.pharmacy_name_ar) : null;
+    const en = r ? text(r.pharmacy_name_en) : null;
+    return ar || en ? { ar: ar ?? null, en: en ?? null } : null;
+  };
+  const selected = text(o.selected_allocation_id);
+  const allocs = Array.isArray(o.allocations_detail) ? o.allocations_detail : [];
+  const match = selected ? (allocs.find((a) => a && typeof a === 'object' && (a as { id?: unknown }).id === selected) as Record<string, unknown> | undefined) : undefined;
+  return read(match) ?? read(o);
 }
 
 export type OfferSort = 'price' | 'nearest' | 'fastest';

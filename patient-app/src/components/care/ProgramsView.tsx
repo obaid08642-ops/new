@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
 import { Button, EmptyState } from '../../../../packages/ui-native/src';
-import { Gate, Sheet } from '../consult/ConsultKit';
+import { Gate, Sheet, useConsultFormat } from '../consult/ConsultKit';
 import { DoseMark, HealthTabs, Notice, Panel, Pill, Row, rowsOf, useRemote } from '../health/HealthKit';
 import { useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
@@ -30,6 +30,8 @@ interface Program {
   nextSessionTitle?: string;
   nextSessionDate?: string;
   nextSessionTime?: string;
+  /** "YYYY-MM-DDTHH:mm:00" or "YYYY-MM-DD" (#855), formatted here for the reader's language. */
+  nextSessionAt?: string | null;
   milestoneReward?: string;
   rewardDesc?: string;
   sessionsList: Session[];
@@ -53,6 +55,13 @@ export function ProgramsActiveView() {
   }, [remote.data]);
 
   const selected = programs.find((p) => p.id === active) ?? programs[0];
+  const fmt = useConsultFormat();
+  const sessionWhen = (p: Program): string => {
+    const at = typeof p.nextSessionAt === 'string' ? p.nextSessionAt : '';
+    if (at.length > 10) return `${fmt.date(at)} · ${fmt.clock(at)}`;
+    if (at) return fmt.date(`${at}T00:00:00`);
+    return [p.nextSessionDate, p.nextSessionTime].filter(Boolean).join(' · ');
+  };
 
   const complete = async () => {
     if (!confirm || !selected) return;
@@ -93,7 +102,7 @@ export function ProgramsActiveView() {
             </CareHero>
             {reward ? <Notice tone="success" text={k('care.prog.congrats', { reward })} testID="programs-reward-won" /> : null}
             <Panel>
-              {selected.nextSessionTitle ? <Row icon="calendar-dots" tone={TEAL_TONE} title={k('care.prog.nextSession')} subtitle={selected.nextSessionTitle} caption={[selected.nextSessionDate, selected.nextSessionTime].filter(Boolean).join(' · ') || undefined} last={!selected.milestoneReward} /> : null}
+              {selected.nextSessionTitle ? <Row icon="calendar-dots" tone={TEAL_TONE} title={k('care.prog.nextSession')} subtitle={selected.nextSessionTitle} caption={sessionWhen(selected) || undefined} last={!selected.milestoneReward} /> : null}
               {selected.milestoneReward ? <Row icon="gift" tone="amber" title={k('care.prog.nextReward')} subtitle={selected.milestoneReward} caption={selected.rewardDesc} last /> : null}
             </Panel>
             <Panel>

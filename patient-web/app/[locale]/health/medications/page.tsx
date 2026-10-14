@@ -63,7 +63,7 @@ export default async function MedicationsPage({ params, searchParams }: Props) {
         </FormSheet>
         {editing ? (
           <FormSheet title={t("reminderEdit")} triggerLabel={t("reminderEdit")} closeLabel={t("close")} defaultOpen closeHref={here} hideTrigger>
-            <ReminderForm initial={{ id: editing.id, name: editing.medicineName ?? "", dose: editing.dose ?? "", times: editing.times.join(", "), frequency: editing.frequency ?? "daily" }} />
+            <ReminderForm initial={{ id: editing.id, name: editing.medicineName ?? "", dose: editing.dose ?? "", times: editing.times.join(", "), frequency: editing.frequency ?? "daily", chronic: editing.chronic }} />
           </FormSheet>
         ) : null}
       </div>

@@ -79,6 +79,8 @@ export class CatalogMedicineFieldsDto {
   /** Decision 11: the "online only" badge. */
   @IsOptional() @IsBoolean() online_exclusive?: boolean;
   @IsOptional() @IsNumber() @Min(0) price?: number;
+  @IsOptional() @IsNumber() @Min(0) sfda_price?: number;
+  @IsOptional() @IsString() @MaxLength(300) sfda_price_source?: string;
   @IsOptional() @IsArray() @IsString({ each: true }) images?: string[];
   @IsOptional() @IsArray() @IsString({ each: true }) indications_ar?: string[];
   @IsOptional() @IsArray() @IsString({ each: true }) indications_en?: string[];

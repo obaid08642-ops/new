@@ -154,8 +154,7 @@ export function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, s
  </View>
 
   {/* Live Operational Command Center */}
-  <NSecHeader title={AR ? ' مركز العمليات المباشر' : ' Live Command Center'} 
-              action={AR ? 'توسيع' : 'Expand'} onAction={() => onNavigate('hospital_dispatch')} />
+  <NSecHeader title={AR ? ' مركز العمليات المباشر' : ' Live Command Center'} />
   <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: SP.xl }}>
     <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, paddingHorizontal: SP.xs }}>
       <NCard style={{ width: 150, backgroundColor: theme.surface2, borderColor: theme.danger }}>
@@ -215,7 +214,6 @@ export function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, s
  { icon: '', ar: 'الحضور\nوالانصراف', en: 'Attendance', screen: 'attendance' },
  { icon: '', ar: 'التوثيق\nالمهني', en: 'Credentialing', screen: 'credentialing' },
  { icon:'', ar:'تتبع\nالمرضى', en:'Patient\nTracker', screen:'patient_tracker' },
- { icon: '', ar: 'لوحة\nالتوجيه', en: 'Dispatch\nPanel', screen: 'hospital_dispatch' },
  { icon:'', ar:'التواصل\nالداخلي', en:'Internal\nChat', screen:'internal_chat' },
  { icon:'', ar:'سجل\nالتدقيق', en:'Audit\nLogs', screen:'audit_logs' },
  { icon:'', ar:'التعاميم\nوالإعلانات', en:'Broadcasts', screen:'announcements' },

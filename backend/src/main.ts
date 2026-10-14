@@ -2,7 +2,7 @@
 import './instrument';
 import './config/strip-placeholder-secrets';
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe, Logger, VersioningType } from '@nestjs/common';
+import { ValidationPipe, Logger, VersioningType, RequestMethod } from '@nestjs/common';
 import { SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { createNabdahOpenApiDocument } from './config/openapi.config';
@@ -31,6 +31,8 @@ const os = require('node:os');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const mongoSanitize = require('express-mongo-sanitize');
 import { SentryExceptionFilter } from './common/sentry.filter';
+import { processRole } from './common/process-role';
+import { listLimitMiddleware } from './common/list-limit.middleware';
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
 import { WinstonModule } from 'nest-winston';
@@ -41,6 +43,8 @@ import * as winston from 'winston';
 const clusterEnabled =
   process.env.CLUSTER_MODE !== 'false' &&
   process.env.NODE_ENV === 'production' &&
+  // P14.26: the worker role is one process (each job runs once); scale it with more containers, not forks
+  processRole() !== 'worker' &&
   (cluster as any).isPrimary;
 
 if (clusterEnabled) {
@@ -120,6 +124,8 @@ async function bootstrap() {
   } else {
     const trustProxyHops = Number.parseInt(process.env.TRUST_PROXY_HOPS || '2', 10);
     app.getHttpAdapter().getInstance().set('trust proxy', Number.isFinite(trustProxyHops) ? trustProxyHops : 2);
+    // P14.25: no list endpoint can be asked for an unbounded page
+    app.use(listLimitMiddleware);
     app.use((req: any, _res: any, next: any) => {
       if (req.body && typeof req.body === 'object') {
         mongoSanitize.sanitize(req.body, { replaceWith: '_' });
@@ -157,9 +163,16 @@ async function bootstrap() {
     contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false,
   }));
-  app.use(compression());
+  // P14.25: behind nginx (gzip on, gzip_proxied any) compression belongs at the edge, not on the API's event loop;
+  // HTTP_COMPRESSION=edge (production compose) turns it off here. Without a proxy (dev) Node still compresses.
+  if (process.env.HTTP_COMPRESSION !== 'edge') app.use(compression());
   app.use(cookieParser());
-  app.useWebSocketAdapter(new ConfiguredIoAdapter(app, allowedOrigins));
+  // P14.13: Socket.IO across processes and nodes through Redis (skipped in unit/boot tests, which run without one).
+  const ioAdapter = new ConfiguredIoAdapter(app, allowedOrigins);
+  if (process.env.NODE_ENV !== 'test' || process.env.SOCKET_REDIS_ADAPTER === 'on') {
+    await ioAdapter.connectToRedis(process.env.REDIS_URL || (process.env.REDIS_HOST ? `redis://${process.env.REDIS_PASSWORD ? `:${encodeURIComponent(process.env.REDIS_PASSWORD)}@` : ''}${process.env.REDIS_HOST}:${process.env.REDIS_PORT || 6379}` : undefined));
+  }
+  app.useWebSocketAdapter(ioAdapter);
   app.useGlobalFilters(new SentryExceptionFilter(app.getHttpAdapter()));
 
   app.use(require('express').json({
@@ -169,7 +182,14 @@ async function bootstrap() {
     }
   }));
   app.use(require('express').urlencoded({ limit: '25mb', extended: true }));
-  app.setGlobalPrefix('api');
+  // AC-1: OAuth discovery documents live at the host root (RFC 8414, RFC 9728).
+  app.setGlobalPrefix('api', {
+    exclude: [
+      { path: '.well-known/oauth-authorization-server', method: RequestMethod.GET },
+      { path: '.well-known/oauth-protected-resource', method: RequestMethod.GET },
+      { path: '.well-known/oauth-protected-resource/api/v1/mcp', method: RequestMethod.GET },
+    ],
+  });
   app.enableVersioning({
     type: VersioningType.URI,
     defaultVersion: '1',
@@ -195,7 +215,7 @@ async function bootstrap() {
   const port = parseInt(process.env.PORT || '8002', 10);
   const workerId = (cluster as any).worker?.id ?? 'standalone';
   await app.listen(port, '0.0.0.0');
-  logger.log(`Nabd NestJS Backend [worker ${workerId}] listening on http://0.0.0.0:${port}`);
+  logger.log(`Nabd NestJS Backend [worker ${workerId}, role ${processRole()}] listening on http://0.0.0.0:${port}`);
   if (swaggerEnabled) logger.log(`Swagger UI available at http://0.0.0.0:${port}/api/docs`);
 
   // Cache Warming (non-blocking) — fills Redis so first requests are cache hits

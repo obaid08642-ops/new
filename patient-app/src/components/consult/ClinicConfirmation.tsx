@@ -120,7 +120,8 @@ export default function ClinicConfirmation({ appointmentId }: { appointmentId: s
   return (
     <ConsultScreen
       title={k('consult.clinic.title')}
-      actions={[{ key: 'close', label: k('consult.close'), icon: <Glyph name="x-circle" size={22} color={c.icon.primary} />, onPress: () => router.replace('/(tabs)' as Href) }]}
+      // 396: the back button only (no extra close); after a booking it leaves the flow to home
+      onBack={() => router.replace('/(tabs)' as Href)}
       onRefresh={() => void load(true)}
       refreshing={refreshing}
       testID="clinic-confirm-screen"

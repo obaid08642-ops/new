@@ -6,7 +6,7 @@
     "element": "Refunds tab",
     "file": "patient-app/src/components/insurance/InsuranceKit.tsx",
     "line": 32,
-    "found": "[owner] Map 2 says Refunds is web only; the old app hub had it and claims link to it, so it is kept. Remove or keep?",
+    "found": "[owner] Removed 2026-10-10 (decision 35): the Refunds tab of the insurance hub is gone on app and web (order and return refunds stay in Orders and Returns).",
     "suspect": "Owner decision."
   },
   {
@@ -45,8 +45,8 @@
     "screen": "/insurance",
     "element": "Claims totals and benefits totals",
     "file": "patient-app/src/components/insurance/InsuranceHubTabs.tsx",
-    "line": 97,
-    "found": "[backend] Old UI summed claims and used a fixed 500000 annual limit; not shown. Backend could return totals and the policy limit.",
+    "line": 29,
+    "found": "[backend] Removed 2026-10-10 (decision 35): the Claims tab is gone; the old UI used a fixed 500000 annual limit that is not shown. Backend could return the policy limit.",
     "suspect": "Backend gap: reviewer session."
   },
   {
@@ -55,7 +55,7 @@
     "screen": "/insurance",
     "element": "Insurer save sends class A",
     "file": "patient-app/src/components/insurance/InsuranceHubView.tsx",
-    "line": 222,
+    "line": 219,
     "found": "[client] The old profile form always sent class: 'A'; kept unchanged, the real class is unknown to the patient.",
     "suspect": "Client-side: later batch."
   },
@@ -84,8 +84,8 @@
     "app": "patient-app",
     "screen": "/profile/insurance",
     "element": "Profile and nurse screens still link the old route",
-    "file": "patient-app/app/profile/index.tsx",
-    "line": 23,
+    "file": "patient-app/src/components/account/AccountView.tsx",
+    "line": 116,
     "found": "[client] Redirect works; these files hold old Arabic literals so were left for the batch that owns them.",
     "suspect": "Client-side: later batch."
   },
@@ -95,8 +95,8 @@
     "screen": "/insurance/submit-claim",
     "element": "Receipt upload",
     "file": "patient-app/app/insurance/submit-claim.tsx",
-    "line": 71,
-    "found": "[client] Uploaded image is stored by URL only; no size or type check on the device.",
+    "line": 6,
+    "found": "[client] Removed 2026-10-10 (decision 35): the claim form and its receipt upload are gone; the route redirects to the hub.",
     "suspect": "Client-side: later batch."
   },
   {
@@ -125,8 +125,8 @@
     "screen": "/insurance",
     "element": "Claims tab and Submit a claim: keep under decision 35?",
     "file": "patient-app/src/components/insurance/InsuranceHubTabs.tsx",
-    "line": 92,
-    "found": "[owner] Decision 35 defines only the provider relay; the claims and refunds tabs and the claim form (Nabd+ side reimbursement) are not covered by it. Keep, change or remove?",
+    "line": 29,
+    "found": "[owner] Removed 2026-10-10 (decision 35): the claims and refunds tabs and the claim form are removed (owner decision 35, insurance is relay-only and view-only).",
     "suspect": "Owner decision."
   },
   {

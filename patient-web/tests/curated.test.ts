@@ -6,7 +6,7 @@ import { allowedImageUrl, IMAGE_HOSTS } from "../lib/image-hosts";
 
 const localeDir = resolve(process.cwd(), "app/[locale]");
 // The auth and onboarding screens are not places a curated banner sends anyone.
-const NOT_LINKABLE = new Set(["forgot-password", "login", "otp", "password-reset", "register", "welcome", "onboarding"]);
+const NOT_LINKABLE = new Set(["forgot-password", "login", "otp", "password-reset", "register", "welcome", "onboarding", "oauth"]);
 
 describe("curated home links", () => {
   it("lists exactly the pages that exist under app/[locale] (minus the sign-in screens)", () => {

@@ -58,6 +58,9 @@ export async function FinalQuoteScreen({ locale, orderId }: { locale: Locale; or
   );
 }
 
+/** System lines are Arabic-only server text: the screen shows the translated outcome of their code instead. */
+const SYSTEM_RESOLUTION: Record<string, "accepted" | "rejected" | "removed"> = { substitute_accepted: "accepted", substitute_rejected: "rejected", item_removed: "removed" };
+
 /** `/orders/:id/offers/negotiation`: the order's conversations with pharmacies about substitutes. */
 export async function NegotiationListScreen({ locale, orderId }: { locale: Locale; orderId: string }) {
   if (!UUID.test(orderId)) notFound();
@@ -92,6 +95,8 @@ export async function NegotiationListScreen({ locale, orderId }: { locale: Local
           <ul className={styles.rows} aria-label={t("negotiationTitle")}>
             {threads.map((thread) => {
               const item = thread.orderItemId ? names.get(thread.orderItemId) : undefined;
+              // the pharmacy's name in the page's language; the other language only when that is all it has
+              const pharmacy = (locale === "ar" ? thread.pharmacyNameAr ?? thread.pharmacyNameEn : thread.pharmacyNameEn ?? thread.pharmacyNameAr) ?? null;
               const status = thread.status === "open" || thread.status === "closed" || thread.status === "archived" ? thread.status : null;
               const resolution = thread.resolution === "accepted" || thread.resolution === "rejected" || thread.resolution === "removed" || thread.resolution === "timeout" ? thread.resolution : null;
               return (
@@ -100,6 +105,8 @@ export async function NegotiationListScreen({ locale, orderId }: { locale: Local
                     <FIcon icon="chat-circle-text" tone={OFFER_TONES.pharmacy} size={48} />
                     <span className={styles.rowBody}>
                       <span className={styles.rowName}>{item ? t("conversationFor", { name: item }) : t("threadTitle")}</span>
+                      {pharmacy ? <span className={styles.rowSub} dir="auto">{pharmacy}</span> : null}
+                      {thread.lastText ? <span className={styles.rowSub} dir="auto">{thread.lastFrom === "patient" ? t("lastFromYou", { text: thread.lastText }) : thread.lastText}</span> : null}
                       <span className={styles.chips}>
                         {status ? <StatusChip label={t(`thread.${status}`)} tone={status === "open" ? OFFER_TONES.good : OFFER_TONES.info} /> : null}
                         {resolution ? <StatusChip label={t(`resolution.${resolution}`)} tone={OFFER_TONES.info} /> : null}
@@ -163,7 +170,9 @@ export async function NegotiationThreadScreen({ locale, orderId, threadId }: { l
                             return (
                 <li key={message.id} className={`${styles.message} ${role === "patient" ? styles.mine : role === "system" ? styles.system : styles.theirs}`}>
                   {role ? <span className={styles.sender}>{t(`sender.${role}`)}</span> : null}
-                  {message.text ? <p className={styles.body} dir="auto">{message.text}</p> : null}
+                  {role === "system"
+                    ? (SYSTEM_RESOLUTION[message.systemCode ?? ""] ? <p className={styles.body}>{t(`resolution.${SYSTEM_RESOLUTION[message.systemCode ?? ""]}`)}</p> : null)
+                    : message.text ? <p className={styles.body} dir="auto">{message.text}</p> : null}
                   {message.substitute ? (
                     <div className={styles.substitute}>
                       <span className={styles.substituteTitle}>{t("suggestedSubstitute")}</span>

@@ -16,7 +16,8 @@
 .policy { gap: 14px; }
 .policyTop { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .policyName { margin: 0; font-size: var(--nabd-font-size-body-lg); font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
-.policySub { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.policySub { display: block; font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.policyLogo { inline-size: 44px; block-size: 44px; object-fit: contain; border-radius: var(--nabd-radius-pill); background: var(--nabd-color-bg-surface); }
 
 /* ---- the badge of a status: neutral by default, the status tokens for approved / waiting / declined ---- */
 .badge {

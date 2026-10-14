@@ -1,15 +1,16 @@
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { getPatientClaims } from "@/lib/api/claims-server";
-import { parseClaims } from "@/lib/api/claims";
 import { getPatientInsuranceBenefits, getPatientInsurancePolicy } from "@/lib/api/insurance-server";
 import { parseInsuranceSummary, type InsuranceSummary } from "@/lib/api/insurance";
 import { callPatientApi } from "@/lib/api/upstream";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { formatDate } from "@/lib/format-date";
-import { formatPrice } from "@/lib/format-price";
-import { parseBenefits, parseProviders, parseRefunds, parseRequestRows, isRequestState, requestTone, tabOf, type InsuranceTab } from "@/lib/insurance/view";
+import { parseBenefits, parseProviders, parseRequestRows, isRequestState, requestTone, tabOf, type InsuranceTab } from "@/lib/insurance/view";
+
+/** GET /providers sends the provider type as a code (ProviderType); the page translates it, never shows it raw. */
+const PROVIDER_TYPES = ["doctor", "pharmacy", "hospital", "clinic", "lab", "radiology", "home_care", "nursing"] as const;
+const isProviderType = (value?: string): value is (typeof PROVIDER_TYPES)[number] => PROVIDER_TYPES.some((type) => type === value);
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { Notice } from "@/components-next/consult/consult-parts";
@@ -20,8 +21,6 @@ import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/insurance/insurance.module.css";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string; q?: string; type?: string }> };
-
-const CLAIM_TONE = { approved: "good", reimbursed: "good", pending: "wait", rejected: "bad" } as const;
 
 /** One GET that may fail or throw: the part says so in place and the rest of the page still works. */
 async function read(call: () => Promise<Response>): Promise<{ status: number; body: unknown } | null> {
@@ -35,8 +34,9 @@ async function read(call: () => Promise<Response>): Promise<{ status: number; bo
 
 /**
  * The insurance hub (canvas/Insurance; merge map 2, section 6): the policy card, the three shortcuts and the tabs Policy,
- * Benefits, Claims, Refunds and Network (`?tab=`). It replaces the old overview, policy detail, benefits, claims, refunds and
- * network pages, which redirect here. Every value is the server's; a tab whose data cannot load says so in place.
+ * Benefits and Network (`?tab=`). It is view only (owner decision 35, 2026-10-10: the facility asks the insurer, Nabd+ shows the
+ * decision). It replaces the old overview, policy detail, benefits and network pages, which redirect here; the removed claims, refunds
+ * and submit-claim pages redirect here too. Every value is the server's; a tab whose data cannot load says so in place.
  */
 export default async function InsurancePage({ params, searchParams }: Props) {
   const { locale } = await params;
@@ -97,46 +97,7 @@ export default async function InsurancePage({ params, searchParams }: Props) {
     const benefits = res && res.status >= 200 && res.status < 300 ? parseBenefits(res.body) : null;
     content = benefits === null ? unavailable : benefits.length === 0 ? empty(t("benefitsEmpty")) : (
       <RowsList label={t("tabBenefits")}>
-        {benefits.map((row) => <InsuranceRow key={row.key} locale={locale} title={t("benefitTitle")} sub={row.note} />)}
-      </RowsList>
-    );
-  } else if (tab === "claims") {
-    const res = await read(() => getPatientClaims(token));
-    const claims = res && res.status >= 200 && res.status < 300 ? parseClaims(res.body) : null;
-    content = (
-      <>
-        <div className={styles.toolbar}>
-          <ButtonLink href={`${base}/submit-claim`} label={t("submitClaim")} size="md" />
-        </div>
-        {claims === null ? unavailable : claims.length === 0 ? empty(t("claimsEmpty")) : (
-          <RowsList label={t("tabClaims")}>
-            {claims.map((claim) => (
-              <InsuranceRow
-                key={claim.id}
-                locale={locale}
-                title={claim.service || t("claimServiceUnknown")}
-                sub={formatDate(locale, claim.date) ?? undefined}
-                badge={<StatusBadge tone={claim.status ? CLAIM_TONE[claim.status] : "plain"}>{t(`claimStatus.${claim.status ?? "unknown"}`)}</StatusBadge>}
-              />
-            ))}
-          </RowsList>
-        )}
-      </>
-    );
-  } else if (tab === "refunds") {
-    const res = await read(() => callPatientApi("/refunds/my", {}, token));
-    const refunds = res && res.status >= 200 && res.status < 300 ? parseRefunds(res.body) : null;
-    content = refunds === null ? unavailable : refunds.length === 0 ? empty(t("refundsEmpty")) : (
-      <RowsList label={t("tabRefunds")}>
-        {refunds.map((refund) => (
-          <InsuranceRow
-            key={refund.id}
-            locale={locale}
-            title={refund.amount !== undefined ? formatPrice(locale, refund.amount).text : t("refundTitle")}
-            sub={formatDate(locale, refund.date) ?? undefined}
-            badge={refund.status ? <StatusBadge>{refund.status}</StatusBadge> : undefined}
-          />
-        ))}
+        {benefits.map((row) => <InsuranceRow key={row.key} locale={locale} title={t("benefitTitle")} sub={row.noteCode ? t(`noteCode.${row.noteCode}`) : undefined} />)}
       </RowsList>
     );
   } else {
@@ -172,7 +133,7 @@ export default async function InsurancePage({ params, searchParams }: Props) {
         </form>
         {providers === null ? unavailable : providers.length === 0 ? empty(t("networkEmpty")) : (
           <RowsList label={t("tabNetwork")}>
-            {providers.map((provider) => <InsuranceRow key={provider.id} locale={locale} title={provider.name} sub={provider.type} />)}
+            {providers.map((provider) => <InsuranceRow key={provider.id} locale={locale} title={provider.name} sub={isProviderType(provider.type) ? t(`providerType.${provider.type}`) : undefined} />)}
           </RowsList>
         )}
       </>
@@ -186,12 +147,17 @@ export default async function InsurancePage({ params, searchParams }: Props) {
         sub={summary.planClass ? t("planLine", { plan: summary.planClass }) : undefined}
         badge={summary.hasPolicy ? t("active") : t("none")}
         tone={summary.hasPolicy ? "good" : "plain"}
+        logoUrl={summary.logoUrl}
+        lines={[
+          summary.memberId ? t("memberLine", { id: summary.memberId }) : null,
+          summary.expiryDate && formatDate(locale, summary.expiryDate) ? t("expiryLine", { date: formatDate(locale, summary.expiryDate) as string }) : null,
+        ].filter((line): line is string => !!line)}
       />
       <ShortcutGrid
         label={t("shortcuts")}
         items={[
           { href: `${base}/add-policy`, label: t("addPolicy"), icon: "plus", tone: "blue" },
-          { href: `${base}/submit-claim`, label: t("submitClaim"), icon: "file-text", tone: "coral" },
+          { href: `${base}?tab=network`, label: t("tabNetwork"), icon: "hospital", tone: "coral" },
           { href: `${base}/coverage-check`, label: t("coverageCheck"), icon: "shield-check", tone: "mint" },
         ]}
       />
@@ -202,8 +168,6 @@ export default async function InsurancePage({ params, searchParams }: Props) {
         options={[
           { value: "policy", label: t("tabPolicy") },
           { value: "benefits", label: t("tabBenefits") },
-          { value: "claims", label: t("tabClaims") },
-          { value: "refunds", label: t("tabRefunds") },
           { value: "network", label: t("tabNetwork") },
         ]}
       />

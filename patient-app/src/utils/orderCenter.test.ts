@@ -1,9 +1,9 @@
 import { translations } from '../i18n';
-import { STATUS_LABELS, buildRows, inBucket, listOf, statusLook, type OrderSources } from './orderCenter';
+import { STATUS_LABELS, buildRows, inBucket, kindsPresent, listOf, ofKind, statusLook, type OrderRow, type OrderSources } from './orderCenter';
 
 /**
  * The order list is built from each service's own answer. These are TEST payloads shaped like the backend's (stored order,
- * appointment, booking, claim, return and the SOS patient view); what is proved is where each row goes, which fields reach
+ * appointment, booking and return); what is proved is where each row goes, which fields reach
  * the screen and which never do (a status the table does not know, an amount the server did not send).
  */
 
@@ -50,29 +50,23 @@ describe('the other services', () => {
     const all = rows({
       appointments: [{ id: 'a1', status: 'CONFIRMED', doctor_name: 'Dr Test', service_type: 'video', slot_start: '2026-10-05T09:00:00Z', total_price: 150 }],
       labs: [{ id: 'l1', state: 'SAMPLE_COLLECTED', service_name_en: 'CBC', visit_type: 'home', scheduled_at: '2026-10-04T09:00:00Z', total: 90 }],
-      claims: [{ id: 'c1', status: 'pending', service: 'Test service', amount: 200, date: '2026-10-03' }],
       returns: [{ id: 'r1', status: 'processing', reason: 'Wrong item', order_id: 'ord-bbbbbb222222', amount: 25, createdAt: '2026-10-02T09:00:00Z' }],
-      emergency: { id: 'e1', state: 'DISPATCHED', location: { address: 'Test road' }, createdAt: '2026-10-06T09:00:00Z' },
     });
-    expect(all.map((r) => r.kind)).toEqual(['ambulance', 'doctors', 'labs', 'insurance', 'returns']);
+    expect(all.map((r) => r.kind)).toEqual(['doctors', 'labs', 'returns']);
     const byKind = Object.fromEntries(all.map((r) => [r.kind, r]));
     expect(byKind.doctors).toMatchObject({ title: 'Dr Test', amount: { value: 150, currency: null }, sub: { key: 'orders.sub.video' }, route: { pathname: '/consultations/appointment-detail', params: { appointmentId: 'a1' } } });
     expect(byKind.labs).toMatchObject({ title: 'CBC', amount: { value: 90 }, sub: { key: 'orders.sub.labHome' } });
-    expect(byKind.insurance).toMatchObject({ title: 'Test service', amount: { value: 200 } });
     expect(byKind.returns).toMatchObject({ title: 'Wrong item', sub: { key: 'orders.sub.returnOf', ref: '222222' } });
-    // the SOS patient view has `location.address` (not `address`) and no status of its own: the endpoint lists the active one
-    expect(byKind.ambulance).toMatchObject({ sub: { text: 'Test road' }, status: 'active' });
   });
 
-  it('a claim or a return that is "pending" or "processing" is under review, an appointment that is PENDING awaits confirmation', () => {
-    expect(statusLook('insurance', 'pending').label).toBe('underReview');
+  it('a return that is "pending" or "processing" is under review, an appointment that is PENDING awaits confirmation', () => {
     expect(statusLook('returns', 'processing').label).toBe('underReview');
     expect(statusLook('doctors', 'PENDING').label).toBe('awaitingConfirmation');
   });
 
-  it('a legacy order has no screen to open, so it has no route and no action', () => {
+  it('a legacy order opens the tracking screen (issue 368)', () => {
     const [r] = rows({ legacyOrders: [{ id: 'old-123456', state: 'PREPARING', items: [{}], createdAt: '2026-09-01T00:00:00Z' }] });
-    expect(r).toMatchObject({ kind: 'pharmacy', route: null, action: null });
+    expect(r).toMatchObject({ kind: 'pharmacy', route: { pathname: '/pharmacy/order-tracking', params: { orderId: 'old-123456' } }, action: 'track' });
   });
 
   it('lists the newest first, skips rows without an id, and splits current from previous', () => {
@@ -113,5 +107,14 @@ describe('listOf', () => {
     expect(listOf({ items: [{ id: 3 }] })).toEqual([{ id: 3 }]);
     expect(listOf('x')).toEqual([]);
     expect(listOf(null)).toEqual([]);
+  });
+});
+
+describe('service filter (371)', () => {
+  const rows = [{ kind: 'labs' }, { kind: 'doctors' }, { kind: 'labs' }, { kind: 'returns' }] as unknown as OrderRow[];
+  it('lists the kinds present in the chip order and filters by one', () => {
+    expect(kindsPresent(rows)).toEqual(['doctors', 'labs', 'returns']);
+    expect(ofKind(rows, 'labs')).toHaveLength(2);
+    expect(ofKind(rows, null)).toHaveLength(4);
   });
 });

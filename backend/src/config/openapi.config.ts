@@ -13,9 +13,9 @@ export const NABDAH_ACCESS_TOKEN_SECURITY_SCHEME = 'access-token';
 
 export function buildNabdahOpenApiConfig() {
   return new DocumentBuilder()
-    .setTitle('Nabdah Plus Enterprise API')
+    .setTitle('Nabd+ Enterprise API')
     .setDescription([
-      'The Nabdah Plus versioned backend API.',
+      'The Nabd+ versioned backend API.',
       '',
       '**Authentication.** Protected operations require an `Authorization: Bearer <JWT>` header using the `access-token` scheme.',
       '**Authorization.** JWT authentication does not carry OAuth scopes in this API. Each operation documents its required account role and ownership constraints; clients must not infer authorization from authentication alone.',
@@ -42,7 +42,32 @@ export function createNabdahOpenApiDocument(app: INestApplication): OpenAPIObjec
 
   document.paths = Object.fromEntries(normalizedPaths);
   addPatientContractPackPaths(document);
+  declareTemplatedPathParams(document);
   return document;
+}
+
+/**
+ * Every `{name}` in a path is a required path parameter. Swagger only documents the ones a
+ * handler reads with @Param(), so stub routes (retired endpoints that answer a fixed error)
+ * and wildcards came out with undeclared parameters, which makes the spec invalid for
+ * clients and fuzzers. Declare the missing ones as plain strings.
+ */
+function declareTemplatedPathParams(document: OpenAPIObject) {
+  const methods = ['get', 'put', 'post', 'delete', 'patch', 'options', 'head'];
+  for (const [path, item] of Object.entries(document.paths) as [string, any][]) {
+    const names = [...path.matchAll(/\{([^}]+)\}/g)].map((m) => m[1]);
+    if (!names.length) continue;
+    const atPath = new Set((item.parameters || []).filter((p: any) => p?.in === 'path').map((p: any) => p.name));
+    for (const method of methods) {
+      const op = item[method];
+      if (!op) continue;
+      const declared = new Set([...atPath, ...(op.parameters || []).filter((p: any) => p?.in === 'path').map((p: any) => p.name)]);
+      const missing = names.filter((n) => !declared.has(n));
+      if (missing.length) {
+        op.parameters = [...(op.parameters || []), ...missing.map((name) => ({ name, in: 'path', required: true, schema: { type: 'string' } }))];
+      }
+    }
+  }
 }
 
 /**

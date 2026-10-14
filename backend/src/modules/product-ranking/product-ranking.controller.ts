@@ -13,6 +13,7 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Request } from 'express';
 import { IsString, IsNotEmpty, IsOptional, IsNumber, IsObject } from 'class-validator';
 import { Public } from '../../common/auth.guard';
+import { ShedOnOverload } from '../../common/load-shedding.guard';
 import { ProductRankingEventService, RankingEventType } from './product-ranking-event.service';
 import { ProductRankingService } from './product-ranking.service';
 
@@ -48,6 +49,7 @@ export class RecordEventPayload {
 
 @ApiTags('Product Ranking')
 @Controller('medicines/events')
+@ShedOnOverload() // 14.17: recommendations shed first under overload
 export class ProductRankingController {
   constructor(
     private readonly eventService: ProductRankingEventService,

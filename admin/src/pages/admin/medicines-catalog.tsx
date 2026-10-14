@@ -5,6 +5,7 @@ import { dateLocale } from '../../utils/dates';
 import { DataTable, type LooseRow, type LooseValue } from '@/components/DataTable';
 import { BarcodeScanner, canScanWithCamera } from '@/components/BarcodeScanner';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { useCan } from '@/components/AdminGuard';
 import { MedicineQuickEdit, SensitiveChangeList, isPublished, sensitiveChanges, type SensitiveChange } from '@/components/MedicineQuickEdit';
 
 /**
@@ -83,6 +84,8 @@ export default function MedicinesCatalogPage() {
   const [quickItem, setQuickItem] = useState<LooseRow | null>(null);
   const [scanOpen, setScanOpen] = useState(false);
   const [scanNote, setScanNote] = useState('');
+  const canImport = useCan('catalog.import');
+  const [importNote, setImportNote] = useState('');
   const [formConfirm, setFormConfirm] = useState<{ changes: SensitiveChange[]; published: boolean; run: () => Promise<void> } | null>(null);
 
   // change requests
@@ -191,7 +194,9 @@ export default function MedicinesCatalogPage() {
         if (formMode === 'create') {
           await apiFetch('/medicines/admin/catalog', { method: 'POST', body: JSON.stringify(payload) });
         } else if (editId) {
-          await apiFetch(`/medicines/admin/catalog/${editId}`, { method: 'PATCH', body: JSON.stringify(payload) });
+          const saved: any = await apiFetch(`/medicines/admin/catalog/${editId}`, { method: 'PATCH', body: JSON.stringify(payload) });
+          // F8: without the approve permission the change waits for an approver; the public item is unchanged.
+          if (saved?.pending_revision) alert('حُفظ التعديل وينتظر اعتماد مسؤول الكتالوج. يرى المرضى النسخة المعتمدة حتى يُنشر.');
         }
         setFormMode('closed');
         setFormConfirm(null);
@@ -226,8 +231,29 @@ export default function MedicinesCatalogPage() {
   };
 
   // P6.0: direct medical-review decision on the catalog item.
+  // CSV import into the medical-review queue (moved here from the old catalog-governance page, owner decision #949).
+  const importCsv = async (file?: File) => {
+    if (!file) return;
+    setBusy('import'); setError(''); setImportNote('');
+    try {
+      const csv = await file.text();
+      if (csv.split(/\r?\n/).filter((line) => line.trim()).length < 2) throw new Error('ملف CSV فارغ أو بلا صفوف بيانات.');
+      const r = await apiFetch<{ imported?: number; failed?: number; needs_review?: number }>('/medicines/admin/import-csv', {
+        method: 'POST', body: JSON.stringify({ csv, auto_approve: false }),
+      });
+      const imported = Number(r.imported ?? 0);
+      setImportNote(`تم إدخال ${imported} صفاً؛ ${Number(r.needs_review ?? imported)} قيد المراجعة الطبية، وفشل ${Number(r.failed ?? 0)}.`);
+      await loadCatalog();
+    } catch (e: unknown) {
+      setError(e instanceof Error && e.message ? e.message : 'تعذر استيراد CSV.');
+    } finally { setBusy(null); }
+  };
+
   const decideItem = async (m: any, approve: boolean) => {
-    if (!confirm(`${approve ? 'اعتماد' : 'رفض'} «${m.name_ar || m.name_en}»؟${approve ? ' سيظهر في الكتالوج العام.' : ''}`)) return;
+    const question = m.pending_revision
+      ? `${approve ? 'نشر' : 'رفض'} التعديل المقترح على «${m.name_ar || m.name_en}»؟${approve ? ' سيظهر للمرضى.' : ' تبقى النسخة المعتمدة كما هي.'}`
+      : `${approve ? 'اعتماد' : 'رفض'} «${m.name_ar || m.name_en}»؟${approve ? ' سيظهر في الكتالوج العام.' : ''}`;
+    if (!confirm(question)) return;
     setBusy(m.id);
     try {
       await apiFetch(`/medicines/admin/catalog/${m.id}/approve`, { method: 'POST', body: JSON.stringify({ approve }) });
@@ -316,9 +342,17 @@ export default function MedicinesCatalogPage() {
               <label className="flex items-center gap-2 text-sm text-slate-600">
                 <input type="checkbox" checked={includeDeleted} onChange={e => setIncludeDeleted(e.target.checked)} /> إظهار المحذوفة
               </label>
+              {canImport && (
+                <label className="border border-slate-300 bg-white rounded-lg px-4 py-2 text-sm font-bold text-slate-700 cursor-pointer">
+                  استيراد CSV إلى طابور المراجعة
+                  <input type="file" accept=".csv,text/csv" className="hidden" disabled={busy === 'import'}
+                    onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; void importCsv(f); }} />
+                </label>
+              )}
               <button onClick={openCreate} className="bg-teal-600 hover:bg-teal-700 text-white font-bold px-5 py-2 rounded-lg ms-auto">+ إضافة صنف جديد</button>
             </div>
 
+            {importNote && <p role="status" className="text-sm text-emerald-700">{importNote}</p>}
             {scanNote && <p role="status" className="text-sm text-amber-700">{scanNote}</p>}
 
             {formMode !== 'closed' && (
@@ -439,7 +473,14 @@ export default function MedicinesCatalogPage() {
                         <div className="flex gap-2">
                           <button onClick={() => setQuickItem(m)} className="text-teal-700 font-bold text-xs">تعديل سريع</button>
                           <button onClick={() => openEdit(m)} className="text-teal-700 font-bold text-xs">تعديل</button>
-                          {m.medical_review_status === 'approved' ? (
+                          {m.pending_revision ? (
+                            // F8: an editor's change waits here; patients still see the approved version.
+                            <>
+                              <button onClick={() => alert(`تعديل بانتظار الاعتماد:\n${Object.entries(m.pending_revision.changes || {}).map(([k, v]) => `${k}: ${typeof v === 'object' ? JSON.stringify(v) : String(v)}`).join('\n')}`)} className="text-amber-700 font-bold text-xs">تعديل بانتظار الاعتماد</button>
+                              <button onClick={() => decideItem(m, true)} disabled={busy === m.id} className="text-green-700 font-bold text-xs">نشر التعديل</button>
+                              <button onClick={() => decideItem(m, false)} disabled={busy === m.id} className="text-red-600 font-bold text-xs">رفض التعديل</button>
+                            </>
+                          ) : m.medical_review_status === 'approved' ? (
                             <button onClick={() => decideItem(m, false)} disabled={busy === m.id} className="text-amber-700 font-bold text-xs">رفض</button>
                           ) : (
                             <button onClick={() => decideItem(m, true)} disabled={busy === m.id} className="text-green-700 font-bold text-xs">اعتماد</button>

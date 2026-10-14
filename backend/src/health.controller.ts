@@ -4,6 +4,8 @@ import { Public } from './common/auth.guard';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { RedisService } from './modules/redis/redis.service';
+import { processRole } from './common/process-role';
+import { WORKER_HEARTBEAT_KEY } from './common/worker-heartbeat.service';
 
 @SkipThrottle()
 @Controller()
@@ -46,6 +48,11 @@ export class HealthController {
     } catch {}
 
     const status = mongoOk && redisOk ? 'ok' : 'degraded';
+    // P14.26: whether a worker process runs the cron jobs and queue consumers (reported, not part of `status`, so a
+    // missing worker never takes the API out of rotation)
+    const backgroundWorker = processRole() === 'api'
+      ? ((await this.redis.get(WORKER_HEARTBEAT_KEY).catch(() => null)) ? 'up' : 'down')
+      : 'in-process';
 
     return {
       status,
@@ -55,6 +62,7 @@ export class HealthController {
       details: {
         mongodb: mongoOk ? 'up' : 'down',
         redis: redisOk ? 'up' : 'down',
+        background_worker: backgroundWorker,
       },
     };
   }

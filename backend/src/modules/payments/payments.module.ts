@@ -1,4 +1,4 @@
-import { Module, Injectable, Controller, Post, Get, Body, Param, Logger, BadRequestException, BadGatewayException, NotFoundException, ServiceUnavailableException, UseGuards, UseInterceptors, Req, HttpCode, Headers } from '@nestjs/common';
+import { Module, Injectable, Controller, Post, Get, Body, Param, Logger, BadRequestException, BadGatewayException, NotFoundException, ServiceUnavailableException, UseGuards, UseInterceptors, Req, HttpCode, Headers, Optional } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -17,6 +17,8 @@ import { RealtimeService } from '../realtime/realtime.service';
 import { RealtimeModule } from '../realtime/realtime.module';
 import { FraudService } from '../finance-engine/finance-engine.module';
 import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
+import { CircuitBreakerService } from '../../common/circuit-breaker.service';
+import { externalFetch, externalUnavailable, runExternalCall } from '../../common/external-call';
 import * as crypto from 'crypto';
 import { Request } from 'express';
 import { UserRole } from '../../common/enums';
@@ -31,91 +33,148 @@ import {
 } from './payment-gateway';
 
 /**
+ * Fallback for a failed or short-circuited payment-gateway operation.
+ *
+ * opossum runs the fallback after ANY failed attempt, not only on an open
+ * circuit, so an already-typed reason is re-thrown as-is: the user-facing error
+ * then says what actually happened. Anything else becomes the generic
+ * "payment temporarily unavailable".
+ */
+function gatewayUnavailable() {
+  return (...args: unknown[]) => {
+    const err = args[args.length - 1];
+    if (err instanceof ServiceUnavailableException || err instanceof BadGatewayException) throw err;
+    const msg = err instanceof Error ? err.message : String(err ?? '');
+    if (/timed out after/i.test(msg)) throw new ServiceUnavailableException('payment_gateway_timeout');
+    throw new BadGatewayException('payment_gateway_unavailable');
+  };
+}
+
+/**
  * F60 (plan item): one PaymentGateway contract, adapter chosen by
  * PAYMENT_PROVIDER. The adapter classes below are the real HTTP
  * implementations; payment-gateway.ts owns the contract and the selection.
+ *
+ * 15.7: every call goes through `runExternalCall`, which attaches a hard
+ * abort (a breaker cannot cancel a socket) and a shared named breaker. The
+ * work functions are args-driven on purpose — a breaker cached by name must
+ * never execute the first caller's closure.
  */
-class StripeAdapter implements PaymentGateway {
+export class StripeAdapter implements PaymentGateway {
   readonly name = 'stripe' as const;
   private base = 'https://api.stripe.com/v1';
+  constructor(@Optional() private readonly breakers?: CircuitBreakerService) {}
   private headers() { return { Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}`, 'Content-Type': 'application/x-www-form-urlencoded' }; }
   async createIntent(o: CreateIntentRequest) {
+    const run = async (body: URLSearchParams) => {
+      const r = await externalFetch(`${this.base}/payment_intents`, { method: 'POST', headers: this.headers(), body });
+      const j: any = await r.json();
+      if (!r.ok) throw new BadGatewayException(j.error?.message || 'stripe_intent_failed');
+      return { intent_id: j.id, client_secret: j.client_secret };
+    };
     const body = new URLSearchParams({ amount: String(Math.round(o.amount * 100)), currency: (o.currency || 'sar').toLowerCase(), description: o.description || 'Nabd booking', 'automatic_payment_methods[enabled]': 'true' });
-    const r = await fetch(`${this.base}/payment_intents`, { method: 'POST', headers: this.headers(), body });
-    const j: any = await r.json();
-    if (!r.ok) throw new BadGatewayException(j.error?.message || 'stripe_intent_failed');
-    return { intent_id: j.id, client_secret: j.client_secret };
+    return runExternalCall(this.breakers, `payment:${this.name}:create_intent`, run, [body], gatewayUnavailable());
   }
   async verify(id: string) {
-    const r = await fetch(`${this.base}/payment_intents/${id}`, { headers: this.headers() });
-    const j: any = await r.json();
-    const map: any = { succeeded: 'paid', requires_payment_method: 'failed', canceled: 'cancelled', processing: 'pending' };
-    return { status: (map[j.status] || 'pending') as VerifyResult['status'], charge_id: j.latest_charge, raw: j };
+    const run = async (intentId: string) => {
+      const r = await externalFetch(`${this.base}/payment_intents/${intentId}`, { headers: this.headers() });
+      const j: any = await r.json();
+      const map: any = { succeeded: 'paid', requires_payment_method: 'failed', canceled: 'cancelled', processing: 'pending' };
+      return { status: (map[j.status] || 'pending') as VerifyResult['status'], charge_id: j.latest_charge, raw: j };
+    };
+    return runExternalCall(this.breakers, `payment:${this.name}:verify`, run, [id], gatewayUnavailable());
   }
   async refund(chargeId: string, amount?: number) {
-    const body = new URLSearchParams({ charge: chargeId, ...(amount ? { amount: String(Math.round(amount * 100)) } : {}) });
-    const r = await fetch(`${this.base}/refunds`, { method: 'POST', headers: this.headers(), body });
-    const j: any = await r.json();
-    return { refunded: r.ok, raw: j };
+    const run = async (charge: string, amt?: number) => {
+      const body = new URLSearchParams({ charge, ...(amt ? { amount: String(Math.round(amt * 100)) } : {}) });
+      const r = await externalFetch(`${this.base}/refunds`, { method: 'POST', headers: this.headers(), body });
+      const j: any = await r.json();
+      return { refunded: r.ok, raw: j };
+    };
+    return runExternalCall(this.breakers, `payment:${this.name}:refund`, run, [chargeId, amount], gatewayUnavailable());
   }
 }
 
-class TapAdapter implements PaymentGateway {
+export class TapAdapter implements PaymentGateway {
   readonly name = 'tap' as const;
   private base = 'https://api.tap.company/v2';
+  constructor(@Optional() private readonly breakers?: CircuitBreakerService) {}
   private headers() { return { Authorization: `Bearer ${process.env.TAP_API_KEY}`, 'Content-Type': 'application/json' }; }
   async createIntent(o: CreateIntentRequest) {
-    const body = JSON.stringify({ amount: o.amount, currency: o.currency || 'SAR', description: o.description, source: { id: 'src_all' }, redirect: { url: process.env.PUBLIC_APP_URL || 'https://example.com/payment/return' } });
-    const r = await fetch(`${this.base}/charges`, { method: 'POST', headers: this.headers(), body });
-    const j: any = await r.json();
-    if (!r.ok) throw new BadGatewayException(j.errors?.[0]?.description || 'tap_intent_failed');
-    return { intent_id: j.id, checkout_url: j.transaction?.url };
+    const run = async (req: CreateIntentRequest) => {
+      const body = JSON.stringify({ amount: req.amount, currency: req.currency || 'SAR', description: req.description, source: { id: 'src_all' }, redirect: { url: process.env.PUBLIC_APP_URL || 'https://example.com/payment/return' } });
+      const r = await externalFetch(`${this.base}/charges`, { method: 'POST', headers: this.headers(), body });
+      const j: any = await r.json();
+      if (!r.ok) throw new BadGatewayException(j.errors?.[0]?.description || 'tap_intent_failed');
+      return { intent_id: j.id, checkout_url: j.transaction?.url };
+    };
+    return runExternalCall(this.breakers, `payment:${this.name}:create_intent`, run, [o], gatewayUnavailable());
   }
   async verify(id: string) {
-    const r = await fetch(`${this.base}/charges/${id}`, { headers: this.headers() });
-    const j: any = await r.json();
-    const map: any = { CAPTURED: 'paid', INITIATED: 'pending', FAILED: 'failed', CANCELLED: 'cancelled' };
-    return { status: (map[j.status] || 'pending') as VerifyResult['status'], charge_id: j.id, raw: j };
+    const run = async (chargeId: string) => {
+      const r = await externalFetch(`${this.base}/charges/${chargeId}`, { headers: this.headers() });
+      const j: any = await r.json();
+      const map: any = { CAPTURED: 'paid', INITIATED: 'pending', FAILED: 'failed', CANCELLED: 'cancelled' };
+      return { status: (map[j.status] || 'pending') as VerifyResult['status'], charge_id: j.id, raw: j };
+    };
+    return runExternalCall(this.breakers, `payment:${this.name}:verify`, run, [id], gatewayUnavailable());
   }
   async refund(id: string, amount?: number) {
-    const r = await fetch(`${this.base}/refunds`, { method: 'POST', headers: this.headers(), body: JSON.stringify({ charge_id: id, amount }) });
-    const j: any = await r.json();
-    return { refunded: r.ok, raw: j };
+    const run = async (chargeId: string, amt?: number) => {
+      const r = await externalFetch(`${this.base}/refunds`, { method: 'POST', headers: this.headers(), body: JSON.stringify({ charge_id: chargeId, amount: amt }) });
+      const j: any = await r.json();
+      return { refunded: r.ok, raw: j };
+    };
+    return runExternalCall(this.breakers, `payment:${this.name}:refund`, run, [id, amount], gatewayUnavailable());
   }
 }
 
-class MoyasarAdapter implements PaymentGateway {
+export class MoyasarAdapter implements PaymentGateway {
   readonly name = 'moyasar' as const;
   private get base() { return moyasarBase(); }
+  constructor(@Optional() private readonly breakers?: CircuitBreakerService) {}
   private headers() {
     const b = Buffer.from(`${process.env.MOYASAR_API_KEY}:`).toString('base64');
     return { Authorization: `Basic ${b}`, 'Content-Type': 'application/json' };
   }
   async createIntent(o: CreateIntentRequest) {
-    const body = JSON.stringify({ amount: Math.round(o.amount * 100), currency: o.currency || 'SAR', description: o.description, callback_url: process.env.PAYMENT_RESULT_URL || `${process.env.PUBLIC_APP_URL || ''}/payments/result` });
-    const r = await fetch(`${this.base}/payments`, { method: 'POST', headers: this.headers(), body });
-    const j: any = await r.json();
-    if (!r.ok) throw new BadGatewayException(j.message || 'moyasar_intent_failed');
-    return { intent_id: j.id, checkout_url: j.source?.transaction_url };
+    const run = async (req: CreateIntentRequest) => {
+      const base = process.env.PAYMENT_RESULT_URL || `${process.env.PUBLIC_APP_URL || ''}/payments/result`;
+      // #550: the return address names our transaction (`?ref=`); the provider appends its own id and status after it.
+      const callback = req.return_ref ? `${base}${base.includes('?') ? '&' : '?'}ref=${encodeURIComponent(req.return_ref)}` : base;
+      const body = JSON.stringify({ amount: Math.round(req.amount * 100), currency: req.currency || 'SAR', description: req.description, callback_url: callback });
+      const r = await externalFetch(`${this.base}/payments`, { method: 'POST', headers: this.headers(), body });
+      const j: any = await r.json();
+      if (!r.ok) throw new BadGatewayException(j.message || 'moyasar_intent_failed');
+      return { intent_id: j.id, checkout_url: j.source?.transaction_url };
+    };
+    return runExternalCall(this.breakers, `payment:${this.name}:create_intent`, run, [o], gatewayUnavailable());
   }
   async verify(id: string) {
-    const r = await fetch(`${this.base}/payments/${id}`, { headers: this.headers() });
-    const j: any = await r.json();
-    const map: any = { paid: 'paid', initiated: 'pending', failed: 'failed', authorized: 'pending' };
-    return { status: (map[j.status] || 'pending') as VerifyResult['status'], charge_id: j.id, raw: j };
+    const run = async (paymentId: string) => {
+      const r = await externalFetch(`${this.base}/payments/${paymentId}`, { headers: this.headers() });
+      const j: any = await r.json();
+      const map: any = { paid: 'paid', initiated: 'pending', failed: 'failed', authorized: 'pending' };
+      return { status: (map[j.status] || 'pending') as VerifyResult['status'], charge_id: j.id, raw: j };
+    };
+    return runExternalCall(this.breakers, `payment:${this.name}:verify`, run, [id], gatewayUnavailable());
   }
   async refund(id: string, amount?: number) {
-    const body = JSON.stringify(amount ? { amount: Math.round(amount * 100) } : {});
-    const r = await fetch(`${this.base}/payments/${id}/refund`, { method: 'POST', headers: this.headers(), body });
-    const j: any = await r.json();
-    return { refunded: r.ok, raw: j };
+    // Moyasar's documented route is singular: POST /payments/:id/refund.
+    const run = async (paymentId: string, amt?: number) => {
+      const body = JSON.stringify(amt ? { amount: Math.round(amt * 100) } : {});
+      const r = await externalFetch(`${this.base}/payments/${paymentId}/refund`, { method: 'POST', headers: this.headers(), body });
+      const j: any = await r.json();
+      return { refunded: r.ok, raw: j };
+    };
+    return runExternalCall(this.breakers, `payment:${this.name}:refund`, run, [id, amount], gatewayUnavailable());
   }
 }
 
-const GATEWAY_FACTORIES: Partial<Record<PaymentProvider, () => PaymentGateway>> = {
-  stripe: () => new StripeAdapter(),
-  tap: () => new TapAdapter(),
-  moyasar: () => new MoyasarAdapter(),
+const GATEWAY_FACTORIES: Partial<Record<PaymentProvider, (breakers?: CircuitBreakerService) => PaymentGateway>> = {
+  stripe: (breakers) => new StripeAdapter(breakers),
+  tap: (breakers) => new TapAdapter(breakers),
+  moyasar: (breakers) => new MoyasarAdapter(breakers),
 };
 
 function selectAdapter(): PaymentGateway {
@@ -182,11 +241,28 @@ export class PaymentsService {
   private publicTxn(t: any) {
     if (!t) return t;
     const o = t.toObject ? t.toObject() : { ...t };
-    delete o.webhook_payload;
-    delete o.idempotency_key;
-    delete o._id;
-    delete o.__v;
-    return o;
+    // #553: an allow-list, not a deny-list: the provider's payload, charge id, the patient id and the idempotency key
+    // stay server-side. The provider's payment id (`gateway_intent_id`) is not a secret: the provider puts it in the
+    // return address anyway, and the result screen uses it. `client_secret` is kept only for Stripe Elements.
+    const out: Record<string, unknown> = {};
+    for (const k of ['id', 'booking_kind', 'booking_id', 'amount', 'currency', 'method', 'gateway', 'gateway_intent_id', 'status', 'checkout_url', 'paid_at', 'failure_reason', 'refunded_amount', 'createdAt', 'updatedAt']) {
+      if (o[k] !== undefined) out[k] = o[k];
+    }
+    if (o.gateway === 'stripe' && o.client_secret) out.client_secret = o.client_secret;
+    return out;
+  }
+
+  /**
+   * #533/#534/#550: the stored status of one payment, read-only (no provider call, no write, no event), for the
+   * patient who owns it. `ref` is our transaction id or the provider's payment id from the return address.
+   * Another patient's payment answers 404, like a missing one. `POST /payments/verify/:txn` stays the explicit refresh.
+   */
+  async paymentStatus(user: any, ref: string) {
+    const id = String(ref || '').trim();
+    if (!/^[A-Za-z0-9_-]{1,128}$/.test(id)) throw new NotFoundException('txn_not_found');
+    const t: any = await this.txns.findOne({ $or: [{ id: { $eq: id } }, { gateway_intent_id: { $eq: id } }, { gateway_charge_id: { $eq: id } }] }).lean();
+    if (!t || (t.patient_id !== user?.id && !['admin', 'super_admin'].includes(user?.role))) throw new NotFoundException('txn_not_found');
+    return this.publicTxn(t);
   }
 
   // ── Governed pharmacy orders (pharmacy_orders collection) ─────────────────
@@ -229,6 +305,8 @@ export class PaymentsService {
     if (!order) throw new NotFoundException('booking_not_found');
     if (order.patient_account_id !== user?.id && user?.role !== 'admin') throw new BadRequestException('not_authorized');
     if (!order.selected_offer_id || !order.pricing_snapshot?.hash) throw new BadRequestException('selected_quote_required');
+    // #553: a paid order advertises nothing more to pay.
+    if (order.payment_status === 'paid') throw new BadRequestException('booking_already_paid');
     const amount = this.pharmacyDueAmount(order);
     const configured = !!(process.env.MOYASAR_API_KEY || process.env.STRIPE_SECRET_KEY || process.env.TAP_API_KEY);
     const methods = configured
@@ -400,7 +478,7 @@ export class PaymentsService {
     }
     let intent: { intent_id: string; client_secret?: string; checkout_url?: string };
     try {
-      intent = await this.adapter.createIntent({ amount, currency: 'SAR', description: `Nabd ${kind} #${id.slice(0, 8)}`, metadata: { booking_id: id, kind } });
+      intent = await this.adapter.createIntent({ amount, currency: 'SAR', description: `Nabd ${kind} #${id.slice(0, 8)}`, metadata: { booking_id: id, kind }, return_ref: txn.id });
     } catch (error: any) {
       // Fail-closed gateway (no keys configured) must surface as 503, not 502:
       // mark the reservation failed and rethrow the original 503.
@@ -497,20 +575,33 @@ export class PaymentsService {
     // a sabotage vector (griefing patients' paid bookings). Providers escalate
     // to admin; patients use the approval flow (/refunds/request).
     if (user.role !== 'admin') throw new BadRequestException('not_authorized');
+    const { txn } = await this.refundTransactionAsSystem(transactionId, amount, reason);
+    return this.publicTxn(txn);
+  }
+
+  /**
+   * Money back to the card at the gateway for one paid transaction. Callers decide who may refund:
+   * the admin endpoint above, and RefundExecutor (approved refund requests, cancellation policy),
+   * which before this only wrote a ledger row for card payments kept in `transactions`.
+   */
+  async refundTransactionAsSystem(transactionId: string, amount?: number, reason?: string): Promise<{ txn: any; gateway_refund_id?: string }> {
     const t = await this.txns.findOne({ id: transactionId });
     if (!t) throw new NotFoundException();
     if (t.status !== 'paid' && t.status !== 'partially_refunded') throw new BadRequestException('cannot_refund');
-    const r = await this.adapter.refund(t.gateway_charge_id, amount);
+    const refundable = Math.max(0, Number(t.amount || 0) - Number(t.refunded_amount || 0));
+    const value = amount === undefined ? refundable : Math.round(Number(amount) * 100) / 100;
+    if (!(value > 0) || value > refundable + 0.001) throw new BadRequestException('refund_exceeds_paid');
+    const r = await this.adapter.refund(t.gateway_charge_id || t.gateway_intent_id, value);
     if (!r.refunded) throw new BadRequestException('refund_failed');
-    const full = !amount || amount >= t.amount;
-    t.status = full ? 'refunded' : 'partially_refunded';
-    t.refunded_amount = (t.refunded_amount || 0) + (amount || t.amount);
+    t.refunded_amount = Math.round((Number(t.refunded_amount || 0) + value) * 100) / 100;
+    t.status = t.refunded_amount >= Number(t.amount || 0) - 0.001 ? 'refunded' : 'partially_refunded';
     t.refunded_at = new Date();
     t.refund_reason = reason;
     await t.save();
-    await this.modelFor(t.booking_kind).updateOne({ id: t.booking_id }, { $set: { payment_status: 'refunded' } });
+    if (t.status === 'refunded') await this.modelFor(t.booking_kind).updateOne({ id: { $eq: t.booking_id } }, { $set: { payment_status: 'refunded' } });
     this.realtime.emitToUser(t.patient_id, 'payment.updated', { transaction_id: t.id, status: t.status });
-    return this.publicTxn(t);
+    const raw: any = (r as any).raw || {};
+    return { txn: t, gateway_refund_id: raw?.id || raw?.refund_id };
   }
 
   /**
@@ -615,6 +706,7 @@ export class PaymentsController {
   @Post('capture/:txn') capture(@CurrentUser() u: any, @Param('txn') txn: string) { return this.svc.capturePayment(u, txn); }
   @Get('pharmacy/:orderId/capabilities') pharmacyCapabilities(@CurrentUser() u: any, @Param('orderId') orderId: string) { return this.svc.getPharmacyCapabilities(u, orderId); }
   @Get('consultation/:id/capabilities') consultationCapabilities(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.getConsultationCapabilities(u, id); }
+  @Get('status/:ref') status(@CurrentUser() u: any, @Param('ref') ref: string) { return this.svc.paymentStatus(u, ref); }
   @Get('booking/:type/:id') list(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string) { return this.svc.listForBooking(u, t, id); }
 }
 

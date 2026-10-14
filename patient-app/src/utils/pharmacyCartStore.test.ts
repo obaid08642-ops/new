@@ -242,3 +242,34 @@ describe('signing out', () => {
     expect(seen).toEqual([0]);
   });
 });
+
+describe('the online-only flag of a line', () => {
+  it('is stored when the line is added, saved on the device and read back', async () => {
+    const storage = new MemoryStorage();
+    const store = createPharmacyCartStore(storage);
+    await store.add({ ...paracetamol, onlineOnly: true });
+    await store.add(amoxicillin);
+    expect(store.getSnapshot().items.map((line) => [line.id, line.onlineOnly])).toEqual([['m1', true], ['m2', undefined]]);
+    const saved = JSON.parse(storage.data.get(DEVICE_CART_KEY) ?? '[]') as Array<Record<string, unknown>>;
+    expect(saved[0].onlineOnly).toBe(true);
+    expect('onlineOnly' in saved[1]).toBe(false);
+    const next = createPharmacyCartStore(storage);
+    await next.load();
+    expect(next.getSnapshot().items.map((line) => line.onlineOnly)).toEqual([true, undefined]);
+  });
+
+  it('an old stored cart without the field still loads, with no flag', () => {
+    const old = [{ id: 'm1', name: 'Paracetamol 500', qty: 2, rx: false, image: 'https://cdn.example/p.png' }];
+    const loaded = sanitizeStoredCart(old);
+    expect(loaded).toHaveLength(1);
+    expect(loaded[0]).toMatchObject({ id: 'm1', qty: 2, rx: false });
+    expect(loaded[0].onlineOnly).toBeUndefined();
+    expect(sanitizeStoredCart([{ ...old[0], onlineOnly: 'yes' }])[0].onlineOnly).toBeUndefined();
+  });
+
+  it('survives a merge and is set when the second line of the same medicine has it', () => {
+    const base = [{ id: 'm1', name: 'A', qty: 1, rx: false }];
+    expect(mergeCarts(base, [{ id: 'm1', name: 'A', qty: 1, rx: false, onlineOnly: true }])[0]).toMatchObject({ qty: 2, onlineOnly: true });
+    expect(mergeCarts([{ ...base[0], onlineOnly: true }], [{ ...base[0] }])[0]).toMatchObject({ qty: 2, onlineOnly: true });
+  });
+});

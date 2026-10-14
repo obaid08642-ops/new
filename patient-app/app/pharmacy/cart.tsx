@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 
@@ -8,6 +8,9 @@ import { Glyph, Notice, PHARMACY_TONE, Pill, goBack } from '../../src/components
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useCart, type CartItem } from '../../src/context/CartContext';
+import { apiFetch } from '../../src/utils/api';
+import { logError } from '../../src/utils/logger';
+import { cartSpecialty, consultTarget, rxLineIds, specialtySlugOf } from '../../src/utils/rxConsult';
 
 /**
  * Pharmacy cart — board Cart (canvas/Cart.dc.html).
@@ -35,6 +38,11 @@ function Line({ item, last }: { item: CartItem; last: boolean }) {
         <Text style={{ ...scale(t, 'row', 'medium'), color: c.text.primary, ...flow }}>{item.name}</Text>
         {item.activeIngredient ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{item.activeIngredient}</Text> : null}
         {item.rx ? <Pill label={k('pharmacy.needsRx')} tone="warning" /> : null}
+        {item.onlineOnly ? (
+          <View style={{ alignSelf: 'flex-start', height: 28, paddingHorizontal: 10, borderRadius: 14, backgroundColor: c.action.selected.bg, justifyContent: 'center' }}>
+            <Text style={{ ...scale(t, 'meta'), color: c.action.selected.fg }}>{k('pharmacy.product.exclusive')}</Text>
+          </View>
+        ) : null}
         <Stepper
           value={item.qty}
           min={1}
@@ -64,6 +72,34 @@ function Line({ item, last }: { item: CartItem; last: boolean }) {
 export default function PharmacyCartScreen() {
   const { theme, t, c, dir, flow, k, num } = useScreenUi();
   const { items, hasRxItems, clearCart, ready } = useCart();
+  const [consulting, setConsulting] = useState(false);
+  const consultBusy = useRef(false);
+
+  // "Consult a doctor": the specialty the admin mapped to the prescription medicines of the cart (GET /medicines/:id/consult-specialty,
+  // public, ids only). One agreed specialty opens its doctors; none, a mixed cart or a failed read opens the full specialty list.
+  const consult = async () => {
+    if (consultBusy.current) return;
+    consultBusy.current = true;
+    setConsulting(true);
+    let slug: string | null = null;
+    try {
+      const answers = await Promise.all(
+        rxLineIds(items).map(async (id) => {
+          try {
+            return specialtySlugOf(await apiFetch(`/medicines/${encodeURIComponent(id)}/consult-specialty`));
+          } catch (e) {
+            logError('pharmacy:cart:consult-specialty', e);
+            return null;
+          }
+        }),
+      );
+      slug = cartSpecialty(answers);
+    } finally {
+      consultBusy.current = false;
+      setConsulting(false);
+    }
+    router.push(consultTarget(slug) as unknown as Href);
+  };
 
   const confirmClear = () =>
     showLocalizedAlert(k('pharmacy.cart.clearTitle'), k('pharmacy.cart.clearBody'), [
@@ -143,7 +179,7 @@ export default function PharmacyCartScreen() {
         ) : null}
 
         {hasRxItems ? (
-          <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.cart.rxConsult')} onPress={() => go('/consultations/specialty-select')}>
+          <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.cart.rxConsult')} accessibilityState={{ busy: consulting }} disabled={consulting} onPress={() => void consult()} style={{ opacity: consulting ? 0.6 : 1 }}>
             <Card padding="sm" theme={theme}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                 <FIcon icon="stethoscope" tone="blue" size={40} theme={theme} />
