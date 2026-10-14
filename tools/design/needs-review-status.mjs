@@ -85,7 +85,7 @@ const table = (title, m) => {
   L.push(`| **Total** | **${rows.length}** | ${STATES.map((s) => `**${total[s]}**`).join(' | ')} |`);
   return L;
 };
-const esc = (t) => String(t ?? '').replace(/\|/g, '\\|').replace(/\s+/g, ' ').trim();
+const esc = (t) => String(t ?? '').replace(/\\/g, '\\\\').replace(/\|/g, '\\|').replace(/\s+/g, ' ').trim();
 const short = (t, n = 220) => { const s = esc(t); return s.length > n ? `${s.slice(0, n - 1)}…` : s; };
 
 const L = [];
