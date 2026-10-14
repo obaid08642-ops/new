@@ -3219,5 +3219,6 @@
   "care.nut.planFailed": "The plan could not be created right now. Try again.",
   "care.nut.planNutritionist": "Follow up with a nutritionist",
   "care.nut.planNotice": "This plan is general guidance from the AI assistant, not a medical prescription. Talk to a nutritionist before any big change.",
-  "care.nut.planDay": "Day {n}"
+  "care.nut.planDay": "Day {n}",
+  "ai.history.title": "Your earlier questions"
 }

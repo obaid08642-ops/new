@@ -3219,5 +3219,6 @@
   "care.nut.planFailed": "تعذر إنشاء الخطة الآن. حاول مرة أخرى.",
   "care.nut.planNutritionist": "تابع مع أخصائي تغذية",
   "care.nut.planNotice": "هذه الخطة إرشادات عامة من المساعد الذكي وليست وصفة طبية. استشر أخصائي تغذية قبل أي تغيير كبير.",
-  "care.nut.planDay": "اليوم {n}"
+  "care.nut.planDay": "اليوم {n}",
+  "ai.history.title": "أسئلتك السابقة"
 }

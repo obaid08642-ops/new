@@ -19,9 +19,8 @@ const MIND = SERVICE_ICONS.mind;
 /**
  * Mental health hub (canvas/CareHub; merge map section 5): the self-reported summary (GET /mental-health/dashboard) and the way into
  * the mood journal, Relax (breathing and meditation) and therapist booking (the doctor list filtered to psychiatry).
- * Owner decision 8: no self-assessment, no scoring, no in-app crisis handling. The one "Need urgent help?" button (the phone
- * dialer, number from the admin config) is NOT drawn: GET /system-config/public has no such number yet (Needs review), and no number
- * is ever written in the code.
+ * Owner decision 8: no self-assessment, no scoring, no in-app crisis handling. The one urgent-help row opens the emergency page,
+ * which reads the number from the admin config (GET /system-config/public); no number is ever written in the code.
  */
 export default async function MentalHealthPage({ params }: Props) {
   const { locale } = await params;
@@ -29,6 +28,7 @@ export default async function MentalHealthPage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("MentalWeb");
   const rs = await getTranslations("RouteState");
+  const em = await getTranslations("Emergency");
   const token = await requirePatientAccess(locale);
   const caret = getDirection(locale) === "rtl" ? "caret-left" : "caret-right";
   const unavailable = (
@@ -68,6 +68,7 @@ export default async function MentalHealthPage({ params }: Props) {
       <RowCard href={`/${locale}/mental-health/mood`} icon="heart" tone="pink" title={t("moodRow")} sub={t("moodRowSub")} caret={arrow} />
       <RowCard href={`/${locale}/mental-health/relax`} icon="brain" tone="violet" title={t("relaxRow")} sub={t("relaxRowSub")} caret={arrow} />
       <RowCard href={`/${locale}/consultations/doctors?specialty=psychiatry`} icon="stethoscope" tone="blue" title={t("therapistRow")} sub={t("therapistRowSub")} caret={arrow} />
+      <RowCard href={`/${locale}/emergency`} icon={SERVICE_ICONS.emergency.icon} tone={SERVICE_ICONS.emergency.tone} title={em("title")} sub={t("urgentRowSub")} caret={arrow} />
       <Notice>{t("notice")}</Notice>
     </ConsultPage>
   );

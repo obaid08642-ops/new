@@ -3176,7 +3176,8 @@
       "okay": "عادي",
       "bad": "سيئ",
       "terrible": "سيئ جداً"
-    }
+    },
+    "urgentRowSub": "اتصل برقم المساعدة العاجلة"
   },
   "ProgramsWeb": {
     "title": "برامجي الصحية",
@@ -3251,7 +3252,8 @@
     "explainAnother": "اشرح شيئاً آخر",
     "untitledReport": "تقرير طبي",
     "reportsUnavailable": "تعذر تحميل تقاريرك الآن. أعد المحاولة بعد قليل.",
-    "leafletLink": "اقرأ النشرة"
+    "leafletLink": "اقرأ النشرة",
+    "historyTitle": "أسئلتك السابقة"
   },
   "MonthlyReportWeb": {
     "title": "تقريرك الشهري",

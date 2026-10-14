@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
@@ -16,12 +16,12 @@ import { AI_HOME, AnswerCard, CheckRow, MyBubble } from './AssistantKit';
 /**
  * The one assistant (merge map section 4, owner decision 7): three modes in the route (`?mode=symptoms|prescription|report`).
  *  - symptoms: POST /ai/triage { symptoms, red_flags } (the old triage screen and the old assistant chat). The answer is the
- *    server's `care_level`: emergency shows the urgent-help block first, anything else the "book a consultation" button.
- *    No diagnosis, no treatment, no doses.
+ *    server's `care_level`: emergency shows the urgent-help block first (the emergency screen, number from the admin config),
+ *    anything else the "book a consultation" button, which opens the doctor list on the server's `specialty` when it names one.
+ *    No diagnosis, no treatment, no doses. Earlier questions come from GET /ai/triage/history.
  *  - prescription: the photo of a prescription or leaflet, POST /ai/ocr-translate { image_base64, target_lang }.
  *  - report: the server refuses automated report interpretation (POST /ai/analyze-report answers "unavailable"), so the mode
  *    sends no request and points to the reports and to a consultation.
- * The conversation is the answers of this visit; the server keeps no history.
  */
 
 const MODES = ['symptoms', 'prescription', 'report'] as const;
@@ -33,6 +33,9 @@ const FLAGS = [
 ] as const;
 
 const BOOK = '/(tabs)/consultations' as Href;
+const URGENT_HELP = '/emergency' as Href;
+const doctorsFor = (specialty: string | null): Href =>
+  (specialty ? `/search?view=doctors&specialty=${encodeURIComponent(specialty)}` : BOOK) as Href;
 
 export function AssistantView() {
   const { k } = useScreenUi();
@@ -53,8 +56,15 @@ export function AssistantView() {
   );
 }
 
-interface Triage { care_level?: string }
-interface Turn { id: string; symptoms: string; care_level: string }
+interface Triage { care_level?: string; specialty?: string | null; symptoms?: string; createdAt?: string }
+interface Turn { id: string; symptoms: string; care_level: string; specialty: string | null }
+
+const toTurn = (data: Triage | null | undefined, symptoms: string, id: string): Turn => ({
+  id,
+  symptoms,
+  care_level: String(data?.care_level ?? ''),
+  specialty: typeof data?.specialty === 'string' && data.specialty ? data.specialty : null,
+});
 
 function SymptomsMode() {
   const { k } = useScreenUi();
@@ -63,6 +73,18 @@ function SymptomsMode() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [turns, setTurns] = useState<Turn[]>([]);
+  const [past, setPast] = useState<Turn[]>([]);
+
+  useEffect(() => {
+    let live = true;
+    apiFetch('/ai/triage/history?limit=20')
+      .then((rows) => {
+        if (!live || !Array.isArray(rows)) return;
+        setPast((rows as Triage[]).filter((r) => typeof r?.symptoms === 'string').reverse().map((r, i) => toTurn(r, String(r.symptoms), `past-${i}`)));
+      })
+      .catch((e) => logError('ai:triage:history', e));
+    return () => { live = false; };
+  }, []);
 
   const toggle = (value: string) =>
     setFlags((current) => {
@@ -78,7 +100,7 @@ function SymptomsMode() {
     setError(null);
     try {
       const data = (await apiFetch('/ai/triage', { method: 'POST', body: JSON.stringify({ symptoms, red_flags: flags.length ? flags : ['none'] }) })) as Triage;
-      setTurns((current) => [...current, { id: String(Date.now()), symptoms, care_level: String(data?.care_level ?? '') }]);
+      setTurns((current) => [...current, toTurn(data, symptoms, String(Date.now()))]);
       setText('');
       setFlags([]);
     } catch (e) {
@@ -92,10 +114,22 @@ function SymptomsMode() {
   return (
     <>
       <Notice text={k('ai.symptoms.notice')} />
+      {past.length ? (
+        <Section title={k('ai.history.title')}>
+          <View style={{ gap: 10 }} testID="assistant-history">
+            {past.map((turn) => (
+              <View key={turn.id} style={{ gap: 10 }} testID={`assistant-turn-${turn.id}`}>
+                <MyBubble text={turn.symptoms} />
+                <TriageAnswer careLevel={turn.care_level} specialty={turn.specialty} />
+              </View>
+            ))}
+          </View>
+        </Section>
+      ) : null}
       {turns.map((turn) => (
         <View key={turn.id} style={{ gap: 10 }} testID={`assistant-turn-${turn.id}`}>
           <MyBubble text={turn.symptoms} />
-          <TriageAnswer careLevel={turn.care_level} />
+          <TriageAnswer careLevel={turn.care_level} specialty={turn.specialty} />
         </View>
       ))}
       <Section title={k('ai.symptoms.question')}>
@@ -120,7 +154,7 @@ function SendButton({ label, busy, onPress }: { label: string; busy: boolean; on
 }
 
 /** The server's answer to a triage: a red flag first (urgent help), otherwise the way into a consultation. */
-function TriageAnswer({ careLevel }: { careLevel: string }) {
+function TriageAnswer({ careLevel, specialty }: { careLevel: string; specialty: string | null }) {
   const { k, t, c, flow } = useScreenUi();
   const emergency = careLevel === 'emergency';
   return (
@@ -129,7 +163,8 @@ function TriageAnswer({ careLevel }: { careLevel: string }) {
         <Text accessibilityRole="header" style={{ ...scale(t, 'h3'), color: emergency ? c.status.danger.fg : c.text.primary, ...flow }}>{k(emergency ? 'ai.emergencyTitle' : 'ai.consultationTitle')}</Text>
         <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{k(emergency ? 'ai.emergencyBody' : 'ai.consultationBody')}</Text>
       </View>
-      <CardAction label={k('ai.bookConsultation')} tone={emergency ? 'outline' : 'primary'} onPress={() => router.push(BOOK)} testID="assistant-book" />
+      {emergency ? <CardAction label={k('emergency.title')} onPress={() => router.push(URGENT_HELP)} testID="assistant-urgent" /> : null}
+      <CardAction label={k('ai.bookConsultation')} tone={emergency ? 'outline' : 'primary'} onPress={() => router.push(doctorsFor(specialty))} testID="assistant-book" />
     </AnswerCard>
   );
 }

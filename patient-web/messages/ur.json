@@ -3176,7 +3176,8 @@
       "okay": "ٹھیک ہے",
       "bad": "اچھا نہیں",
       "terrible": "بہت برا"
-    }
+    },
+    "urgentRowSub": "فوری مدد کے نمبر پر کال کریں"
   },
   "ProgramsWeb": {
     "title": "میرے صحت پروگرام",
@@ -3251,7 +3252,8 @@
     "explainAnother": "کچھ اور سمجھائیں",
     "untitledReport": "طبی رپورٹ",
     "reportsUnavailable": "آپ کی رپورٹس ابھی لوڈ نہیں ہو سکیں۔ کچھ دیر بعد دوبارہ کوشش کریں۔",
-    "leafletLink": "معلوماتی پرچہ پڑھیں"
+    "leafletLink": "معلوماتی پرچہ پڑھیں",
+    "historyTitle": "آپ کے پچھلے سوالات"
   },
   "MonthlyReportWeb": {
     "title": "آپ کی ماہانہ رپورٹ",

@@ -65,6 +65,8 @@ const patientReadRoutes = [
   new RegExp("^/mental-health/breathing$"),
   new RegExp("^/mental-health/mood\\?days=30$"),
   new RegExp("^/mental-health/meditation$"),
+  // The assistant lists the patient's own earlier triage questions (GET /ai/triage/history, issues 873/882).
+  new RegExp("^/ai/triage/history\\?limit=\\d{1,3}$"),
   new RegExp("^/users/me/privacy-settings$"),
   new RegExp("^/users/me/security-settings$"),
   new RegExp("^/users/me/storage$"),
