@@ -194,7 +194,9 @@ export default function MedicinesCatalogPage() {
         if (formMode === 'create') {
           await apiFetch('/medicines/admin/catalog', { method: 'POST', body: JSON.stringify(payload) });
         } else if (editId) {
-          await apiFetch(`/medicines/admin/catalog/${editId}`, { method: 'PATCH', body: JSON.stringify(payload) });
+          const saved: any = await apiFetch(`/medicines/admin/catalog/${editId}`, { method: 'PATCH', body: JSON.stringify(payload) });
+          // F8: without the approve permission the change waits for an approver; the public item is unchanged.
+          if (saved?.pending_revision) alert('حُفظ التعديل وينتظر اعتماد مسؤول الكتالوج. يرى المرضى النسخة المعتمدة حتى يُنشر.');
         }
         setFormMode('closed');
         setFormConfirm(null);
@@ -248,7 +250,10 @@ export default function MedicinesCatalogPage() {
   };
 
   const decideItem = async (m: any, approve: boolean) => {
-    if (!confirm(`${approve ? 'اعتماد' : 'رفض'} «${m.name_ar || m.name_en}»؟${approve ? ' سيظهر في الكتالوج العام.' : ''}`)) return;
+    const question = m.pending_revision
+      ? `${approve ? 'نشر' : 'رفض'} التعديل المقترح على «${m.name_ar || m.name_en}»؟${approve ? ' سيظهر للمرضى.' : ' تبقى النسخة المعتمدة كما هي.'}`
+      : `${approve ? 'اعتماد' : 'رفض'} «${m.name_ar || m.name_en}»؟${approve ? ' سيظهر في الكتالوج العام.' : ''}`;
+    if (!confirm(question)) return;
     setBusy(m.id);
     try {
       await apiFetch(`/medicines/admin/catalog/${m.id}/approve`, { method: 'POST', body: JSON.stringify({ approve }) });
@@ -468,7 +473,14 @@ export default function MedicinesCatalogPage() {
                         <div className="flex gap-2">
                           <button onClick={() => setQuickItem(m)} className="text-teal-700 font-bold text-xs">تعديل سريع</button>
                           <button onClick={() => openEdit(m)} className="text-teal-700 font-bold text-xs">تعديل</button>
-                          {m.medical_review_status === 'approved' ? (
+                          {m.pending_revision ? (
+                            // F8: an editor's change waits here; patients still see the approved version.
+                            <>
+                              <button onClick={() => alert(`تعديل بانتظار الاعتماد:\n${Object.entries(m.pending_revision.changes || {}).map(([k, v]) => `${k}: ${typeof v === 'object' ? JSON.stringify(v) : String(v)}`).join('\n')}`)} className="text-amber-700 font-bold text-xs">تعديل بانتظار الاعتماد</button>
+                              <button onClick={() => decideItem(m, true)} disabled={busy === m.id} className="text-green-700 font-bold text-xs">نشر التعديل</button>
+                              <button onClick={() => decideItem(m, false)} disabled={busy === m.id} className="text-red-600 font-bold text-xs">رفض التعديل</button>
+                            </>
+                          ) : m.medical_review_status === 'approved' ? (
                             <button onClick={() => decideItem(m, false)} disabled={busy === m.id} className="text-amber-700 font-bold text-xs">رفض</button>
                           ) : (
                             <button onClick={() => decideItem(m, true)} disabled={busy === m.id} className="text-green-700 font-bold text-xs">اعتماد</button>
