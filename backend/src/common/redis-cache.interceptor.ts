@@ -59,7 +59,17 @@ export class RedisCacheInterceptor implements NestInterceptor {
         if (!data) return;
         try {
           this.setPublicHeaders(response, policy);
-          await this.redis.getClient().set(cacheKey, JSON.stringify(data), 'EX', policy.ttl);
+          const client = this.redis.getClient();
+          await client.set(cacheKey, JSON.stringify(data), 'EX', policy.ttl);
+          // 14.8: index the key under each tag so PurgeBus can DEL by tag.
+          // Index rows expire with the entry (plus slack), so a crashed purger
+          // cannot leak them forever.
+          if (policy.tags && policy.tags.length) {
+            for (const tag of policy.tags) {
+              await (client as any).sadd?.(`cache:tag:${tag}`, cacheKey);
+              await (client as any).expire?.(`cache:tag:${tag}`, policy.ttl + 60);
+            }
+          }
         } catch {
           /* cache write failures are invisible to the caller */
         }
