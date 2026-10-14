@@ -1,4 +1,4 @@
-import { IsArray, IsDefined, IsIn, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsDefined, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ServiceType } from '../../schemas/appointment.schema';
 
@@ -30,7 +30,10 @@ export class CreateAppointmentDto {
   @IsNotEmpty()
   slot_start: string;
 
-  @IsNumber()
+  // The chosen slot's length (the web sends it from the slot); bounded like the slot endpoints (10-120 minutes).
+  @IsInt()
+  @Min(10)
+  @Max(120)
   @IsOptional()
   duration_minutes?: number;
 

@@ -3195,5 +3195,12 @@
   "pharmacy.scan.ix.rhabdomyolysis": "Panganib ng pinsala sa kalamnan (rhabdomyolysis). Tanungin ang iyong doktor tungkol sa ibang antibiotic.",
   "insurance.noteCode.coverage_decided_by_provider": "Ang provider ang magpapasya sa huling coverage kapag sinuri nito ang iyong request.",
   "insurance.noteCode.no_policy_on_file": "Walang insurance policy sa iyong file. Magdagdag muna ng isa.",
+  "nur.hub.noMatch": "Walang serbisyong tugma sa hinanap mo",
+  "nur.live.steps": "Mga hakbang ng pagbisita",
+  "nur.step.CONFIRMED": "Kumpirmado ang pagbisita",
+  "nur.step.IN_TRANSIT": "Papunta na ang nars",
+  "nur.step.ARRIVED": "Dumating na ang nars",
+  "nur.step.CARE_IN_PROGRESS": "Isinasagawa ang pag-aalaga",
+  "nur.step.COMPLETED": "Tapos na ang pagbisita",
   "ai.history.title": "Mga dati mong tanong"
 }
