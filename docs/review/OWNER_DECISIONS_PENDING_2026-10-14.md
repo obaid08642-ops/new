@@ -1,4 +1,6 @@
-# Owner decisions pending (2026-10-14)
+# Owner decisions (2026-10-14)
+
+**Answered 2026-10-14: the owner approved all 28 recommendations of section B as written.** The fix session applies them; section C stays with the owner.
 
 Every `owner-decision` line of `docs/design/needs-review/*.json` (63 lines) and every open issue labelled
 `route:owner` (45 issues), grouped into one question each, with the lead reviewer's recommendation. The owner answers
