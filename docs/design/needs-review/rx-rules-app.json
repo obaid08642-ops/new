@@ -52,7 +52,7 @@
     "line": 80,
     "found": "[owner] Consult a doctor opens the mapped specialty only when the admin has filled system_configs rx_consult_specialties (category to specialty); until then the answer is null and the full specialty list opens. (backend: backend/src/modules/medicines/rx-consult.controller.ts:44)",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md)"
   },
   {
     "batch": 14,
