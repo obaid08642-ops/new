@@ -41,7 +41,7 @@
     "line": 1,
     "found": "Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision (issue #983)"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #983)"
   },
   {
     "batch": "admin",
@@ -63,7 +63,7 @@
     "line": 1,
     "found": "Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision (issue #985)"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #985)"
   },
   {
     "batch": "admin",
@@ -85,7 +85,7 @@
     "line": 1,
     "found": "Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision (issue #987)"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #987)"
   },
   {
     "batch": "admin",
@@ -96,7 +96,7 @@
     "line": 1,
     "found": "Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision (issue #988)"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #988)"
   },
   {
     "batch": "admin",
@@ -118,7 +118,7 @@
     "line": 1,
     "found": "Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision (issue #990)"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #990)"
   },
   {
     "batch": "admin",
@@ -140,7 +140,7 @@
     "line": 1,
     "found": "Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision (issue #992)"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #992)"
   },
   {
     "batch": "admin",
@@ -151,6 +151,6 @@
     "line": 1,
     "found": "Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision (issue #993)"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #993)"
   }
 ]

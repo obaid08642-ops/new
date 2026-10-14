@@ -30,7 +30,7 @@
     "line": 145,
     "found": "[owner] Not drawn: permissions are per member (merge map B) and the badge on each member row shows how many of the four grants they have; confirm the board row can go.",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision (issue #696)"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #696)"
   },
   {
     "batch": 6,
@@ -74,7 +74,7 @@
     "line": 37,
     "found": "[owner] Family.dc.html has one mobile frame (the hub) and no web frames; the other four screens follow the closest templates (list, detail with tabs, chat, form with tabs).",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision (issue #701)"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #701)"
   },
   {
     "batch": 6,

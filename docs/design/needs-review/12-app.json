@@ -30,7 +30,7 @@
     "line": 1,
     "found": "[owner] They are (auth) screens of Batch 13 and the register screen links to them before sign-in; left untouched. Redirect to /settings/about?tab=legal once the owner confirms the pre-sign-in case.",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision (issue #755)"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #755)"
   },
   {
     "batch": 12,
@@ -41,7 +41,7 @@
     "line": 71,
     "found": "[owner] The old 'copy in 24 hours' and 'transfer to another platform (FHIR)' actions had no handler and no endpoint; hidden. Decide if they are wanted.",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision (issue #756)"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #756)"
   },
   {
     "batch": 12,
@@ -118,7 +118,7 @@
     "line": 113,
     "found": "[owner] The Account board has the row but no screen or endpoint exists; not drawn.",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision (issue #763)"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #763)"
   },
   {
     "batch": 12,
