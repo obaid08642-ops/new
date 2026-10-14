@@ -3135,7 +3135,8 @@
     "meditationUnavailable": "Type not available",
     "durationMinutes": "Duration: {value} min",
     "completed": "Completed",
-    "notCompleted": "Not completed"
+    "notCompleted": "Not completed",
+    "urgentRowSub": "Call the urgent-help number"
   },
   "ProgramsWeb": {
     "title": "My health programs",
@@ -3209,7 +3210,8 @@
     "askPharmacist": "Ask the pharmacist",
     "explainAnother": "Explain something else",
     "untitledReport": "Medical report",
-    "reportsUnavailable": "Your reports could not be loaded now. Try again in a moment."
+    "reportsUnavailable": "Your reports could not be loaded now. Try again in a moment.",
+    "historyTitle": "Your earlier questions"
   },
   "MonthlyReportWeb": {
     "title": "Your monthly report",

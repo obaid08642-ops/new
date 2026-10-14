@@ -5,6 +5,7 @@ import { Connection } from 'mongoose';
 import * as ExcelJS from 'exceljs';
 import { AiGatewayService } from './ai-gateway.service';
 import { AiContentReviewService } from './ai-content-review.service';
+import { AssistantService } from './assistant.service';
 
 /**
  * AI features service — ALL generation goes through the AI Gateway,
@@ -100,8 +101,12 @@ export class AiService {
 
     const emergencyFlags = new Set(['chest_pain', 'breathing_difficulty', 'fainting_or_unresponsive', 'heavy_bleeding', 'new_confusion', 'severe_allergic_reaction', 'severe_injury']);
     const careLevel = redFlags.some((flag) => emergencyFlags.has(flag)) ? 'emergency' : 'consultation';
+    // The doctor specialty the words point to (keyword rules, the assistant's own), so the client opens the doctor list
+    // filtered by it; null when nothing matches. Not a diagnosis.
+    const specialty = AssistantService.mapSpecialty(symptoms);
     const result = {
       care_level: careLevel,
+      specialty,
       selected_red_flags: redFlags,
       notice: careLevel === 'emergency'
         ? 'selected_emergency_signs_require_local_emergency_services'
@@ -116,6 +121,7 @@ export class AiService {
       body_region: bodyRegion ?? null,
       red_flags: redFlags,
       care_level: careLevel,
+      specialty,
       createdAt: new Date(),
     });
     try { this.eventEmitter?.emit('ai.triage_completed', { patient_id: ownerId, care_level: careLevel }); } catch { /* notification is non-blocking */ }

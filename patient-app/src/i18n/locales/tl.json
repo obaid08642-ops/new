@@ -3187,5 +3187,6 @@
   "address.editFailed": "Hindi nai-save ang mga pagbabago. Subukan muli.",
   "modules.unavailable.title": "Hindi available ang serbisyong ito ngayon",
   "modules.unavailable.body": "Pansamantala naming inihinto ang serbisyong ito. Magagamit mo pa rin ang iba pang bahagi ng app.",
-  "modules.unavailable.home": "Bumalik sa Home"
+  "modules.unavailable.home": "Bumalik sa Home",
+  "ai.history.title": "Mga dati mong tanong"
 }

@@ -3187,5 +3187,6 @@
   "address.editFailed": "পরিবর্তন সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
   "modules.unavailable.title": "এই সেবাটি এখন পাওয়া যাচ্ছে না",
   "modules.unavailable.body": "আমরা সেবাটি সাময়িকভাবে বন্ধ রেখেছি। অ্যাপের বাকি সেবাগুলো আপনি ব্যবহার করতে পারবেন।",
-  "modules.unavailable.home": "হোমে ফিরে যান"
+  "modules.unavailable.home": "হোমে ফিরে যান",
+  "ai.history.title": "আপনার আগের প্রশ্নগুলো"
 }

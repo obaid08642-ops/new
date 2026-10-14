@@ -3135,7 +3135,8 @@
     "meditationUnavailable": "प्रकार उपलब्ध नहीं",
     "durationMinutes": "अवधि: {value} मिनट",
     "completed": "पूरा हुआ",
-    "notCompleted": "पूरा नहीं हुआ"
+    "notCompleted": "पूरा नहीं हुआ",
+    "urgentRowSub": "तत्काल सहायता नंबर पर कॉल करें"
   },
   "ProgramsWeb": {
     "title": "मेरे स्वास्थ्य कार्यक्रम",
@@ -3209,7 +3210,8 @@
     "askPharmacist": "फार्मासिस्ट से पूछें",
     "explainAnother": "कुछ और समझाएं",
     "untitledReport": "मेडिकल रिपोर्ट",
-    "reportsUnavailable": "आपकी रिपोर्ट अभी लोड नहीं हो सकीं। थोड़ी देर बाद फिर कोशिश करें।"
+    "reportsUnavailable": "आपकी रिपोर्ट अभी लोड नहीं हो सकीं। थोड़ी देर बाद फिर कोशिश करें।",
+    "historyTitle": "आपके पिछले सवाल"
   },
   "MonthlyReportWeb": {
     "title": "आपकी मासिक रिपोर्ट",

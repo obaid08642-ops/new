@@ -3187,5 +3187,6 @@
   "address.editFailed": "We could not save the changes. Try again.",
   "modules.unavailable.title": "This service is unavailable right now",
   "modules.unavailable.body": "We have paused this service for the moment. You can keep using the rest of the app.",
-  "modules.unavailable.home": "Back to Home"
+  "modules.unavailable.home": "Back to Home",
+  "ai.history.title": "Your earlier questions"
 }

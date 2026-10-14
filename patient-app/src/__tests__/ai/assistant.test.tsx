@@ -36,6 +36,7 @@ beforeEach(() => {
   mockParams.current = {};
   mockPush.mockClear();
   mockApi.mockReset();
+  mockApi.mockResolvedValue([]);
 });
 
 const ask = async (text: string) => {
@@ -75,6 +76,30 @@ describe('AssistantView', () => {
     await waitFor(() => expect(screen.getByTestId('assistant-emergency')).toBeTruthy());
     expect(screen.getByText(k('ai.emergencyTitle'))).toBeTruthy();
     expect(screen.getByText(k('ai.disclaimer'))).toBeTruthy();
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('assistant-urgent'));
+    });
+    expect(mockPush).toHaveBeenCalledWith('/emergency');
+  });
+
+  it('opens the doctor list on the specialty the server names (issue 871)', async () => {
+    mockApi.mockResolvedValue({ care_level: 'consultation', specialty: 'dermatology' });
+    await ask('rash');
+    await waitFor(() => expect(screen.getByTestId('assistant-answer')).toBeTruthy());
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('assistant-book'));
+    });
+    expect(mockPush).toHaveBeenCalledWith('/search?view=doctors&specialty=dermatology');
+  });
+
+  it('shows the earlier questions from GET /ai/triage/history (issue 873)', async () => {
+    mockApi.mockImplementation(async (path: string) =>
+      path.startsWith('/ai/triage/history') ? [{ symptoms: 'itchy skin', care_level: 'consultation', specialty: 'dermatology' }] : []);
+    await render(wrap(<AssistantView />));
+    await waitFor(() => expect(screen.getByTestId('assistant-history')).toBeTruthy());
+    expect(screen.getByText(k('ai.history.title'))).toBeTruthy();
+    expect(screen.getByText('itchy skin')).toBeTruthy();
+    expect(mockApi).toHaveBeenCalledWith('/ai/triage/history?limit=20');
   });
 
   it('says so when the request fails and keeps what was typed', async () => {
@@ -90,7 +115,7 @@ describe('AssistantView', () => {
       fireEvent.press(screen.getByTestId('assistant-send'));
     });
     expect(screen.getByText(k('ai.symptoms.required'))).toBeTruthy();
-    expect(mockApi).not.toHaveBeenCalled();
+    expect(mockApi).not.toHaveBeenCalledWith('/ai/triage', expect.anything());
   });
 
   it('the report mode sends no request and points to the reports', async () => {

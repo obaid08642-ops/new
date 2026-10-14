@@ -24,6 +24,15 @@ describe('AiService safe guided triage and skin self-check contract', () => {
     expect(gateway.generate).not.toHaveBeenCalled();
   });
 
+  it('names the doctor specialty the words point to, or null when none matches (issues 871, 879)', async () => {
+    const { service, triage } = makeService();
+    const skin = await service.triage({ symptoms: 'طفح جلدي وحكة منذ يومين', red_flags: ['none'] }, 'patient-1');
+    expect(skin).toEqual(expect.objectContaining({ care_level: 'consultation', specialty: 'dermatology' }));
+    expect(triage.insertOne).toHaveBeenLastCalledWith(expect.objectContaining({ specialty: 'dermatology' }));
+    const vague = await service.triage({ symptoms: 'tired all day', red_flags: ['none'] }, 'patient-1');
+    expect(vague.specialty).toBeNull();
+  });
+
   it('requires an authenticated patient, explicit symptoms, and known red-flag values', async () => {
     const { service } = makeService();
     await expect(service.triage({ symptoms: 'صداع', red_flags: ['none'] }, undefined)).rejects.toBeInstanceOf(BadRequestException);

@@ -3135,7 +3135,8 @@
     "meditationUnavailable": "قسم دستیاب نہیں",
     "durationMinutes": "دورانیہ: {value} منٹ",
     "completed": "مکمل",
-    "notCompleted": "نامکمل"
+    "notCompleted": "نامکمل",
+    "urgentRowSub": "فوری مدد کے نمبر پر کال کریں"
   },
   "ProgramsWeb": {
     "title": "میرے صحت پروگرام",
@@ -3209,7 +3210,8 @@
     "askPharmacist": "فارماسسٹ سے پوچھیں",
     "explainAnother": "کچھ اور سمجھائیں",
     "untitledReport": "طبی رپورٹ",
-    "reportsUnavailable": "آپ کی رپورٹس ابھی لوڈ نہیں ہو سکیں۔ کچھ دیر بعد دوبارہ کوشش کریں۔"
+    "reportsUnavailable": "آپ کی رپورٹس ابھی لوڈ نہیں ہو سکیں۔ کچھ دیر بعد دوبارہ کوشش کریں۔",
+    "historyTitle": "آپ کے پچھلے سوالات"
   },
   "MonthlyReportWeb": {
     "title": "آپ کی ماہانہ رپورٹ",

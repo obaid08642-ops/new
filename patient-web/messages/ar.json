@@ -3135,7 +3135,8 @@
     "meditationUnavailable": "النوع غير متاح",
     "durationMinutes": "المدة: {value} دقيقة",
     "completed": "مكتملة",
-    "notCompleted": "غير مكتملة"
+    "notCompleted": "غير مكتملة",
+    "urgentRowSub": "اتصل برقم المساعدة العاجلة"
   },
   "ProgramsWeb": {
     "title": "برامجي الصحية",
@@ -3209,7 +3210,8 @@
     "askPharmacist": "اسأل الصيدلي",
     "explainAnother": "اشرح شيئاً آخر",
     "untitledReport": "تقرير طبي",
-    "reportsUnavailable": "تعذر تحميل تقاريرك الآن. أعد المحاولة بعد قليل."
+    "reportsUnavailable": "تعذر تحميل تقاريرك الآن. أعد المحاولة بعد قليل.",
+    "historyTitle": "أسئلتك السابقة"
   },
   "MonthlyReportWeb": {
     "title": "تقريرك الشهري",

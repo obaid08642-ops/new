@@ -42,7 +42,7 @@ import SkinRedirect from "@/app/[locale]/ai/skin-analysis/page";
 import ChatDoctorRedirect from "@/app/[locale]/ai/chat-doctor/page";
 import VoiceRedirect from "@/app/[locale]/voice/page";
 import { AnswerCard, AskedBubble } from "@/components-next/assistant/assistant-kit";
-import { analysisSummary, parseMode, RED_FLAGS, triageCareLevel, triageRequestBody } from "@/lib/ai/assistant";
+import { analysisSummary, parseMode, parseTriageHistory, RED_FLAGS, triageCareLevel, triageRequestBody, triageSpecialty } from "@/lib/ai/assistant";
 import { isAllowedPatientApiRequest } from "@/lib/api/patient-allowlist";
 
 const params = Promise.resolve({ locale: "en" });
@@ -79,6 +79,21 @@ describe("the assistant's pure parts", () => {
     expect(triageCareLevel({ response: "go to the ER now" })).toBeNull();
     expect(triageCareLevel({ care_level: "clinical_assessment" })).toBeNull();
     expect(triageCareLevel(null)).toBeNull();
+  });
+
+  it("reads the specialty slug the server names and the history oldest first (issues 879, 882)", () => {
+    expect(triageSpecialty({ care_level: "consultation", specialty: "dermatology" })).toBe("dermatology");
+    expect(triageSpecialty({ specialty: null })).toBeNull();
+    expect(triageSpecialty({ specialty: "../admin" })).toBeNull();
+    expect(parseTriageHistory([
+      { symptoms: "rash", care_level: "consultation", specialty: "dermatology" },
+      { symptoms: "", care_level: "consultation" },
+      { symptoms: "chest pain", care_level: "emergency", specialty: null },
+    ])).toEqual([
+      { asked: "chest pain", level: "emergency", specialty: null },
+      { asked: "rash", level: "consultation", specialty: "dermatology" },
+    ]);
+    expect(parseTriageHistory({ error: "x" })).toEqual([]);
   });
 
   it("reads the analysis text from the fields the endpoint answers with", () => {

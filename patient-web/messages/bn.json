@@ -3135,7 +3135,8 @@
     "meditationUnavailable": "ধরন পাওয়া যায়নি",
     "durationMinutes": "সময়কাল: {value} মিনিট",
     "completed": "সম্পন্ন",
-    "notCompleted": "সম্পন্ন হয়নি"
+    "notCompleted": "সম্পন্ন হয়নি",
+    "urgentRowSub": "জরুরি সহায়তার নম্বরে কল করুন"
   },
   "ProgramsWeb": {
     "title": "আমার স্বাস্থ্য প্রোগ্রাম",
@@ -3209,7 +3210,8 @@
     "askPharmacist": "ফার্মাসিস্টকে জিজ্ঞেস করুন",
     "explainAnother": "অন্য কিছু বুঝিয়ে দিন",
     "untitledReport": "মেডিকেল রিপোর্ট",
-    "reportsUnavailable": "আপনার রিপোর্ট এখন লোড করা যায়নি। কিছুক্ষণ পরে আবার চেষ্টা করুন।"
+    "reportsUnavailable": "আপনার রিপোর্ট এখন লোড করা যায়নি। কিছুক্ষণ পরে আবার চেষ্টা করুন।",
+    "historyTitle": "আপনার আগের প্রশ্নগুলো"
   },
   "MonthlyReportWeb": {
     "title": "আপনার মাসিক রিপোর্ট",

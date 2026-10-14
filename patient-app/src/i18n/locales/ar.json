@@ -3187,5 +3187,6 @@
   "address.editFailed": "تعذّر حفظ التعديل. حاول مرة أخرى.",
   "modules.unavailable.title": "هذه الخدمة غير متاحة الآن",
   "modules.unavailable.body": "أوقفنا هذه الخدمة مؤقتاً. يمكنك متابعة استخدام بقية الخدمات.",
-  "modules.unavailable.home": "العودة إلى الرئيسية"
+  "modules.unavailable.home": "العودة إلى الرئيسية",
+  "ai.history.title": "أسئلتك السابقة"
 }
