@@ -5,6 +5,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import InsuranceHubScreen from '../../../app/insurance';
 import InsuranceSubmitClaimRedirect from '../../../app/insurance/submit-claim';
 import { INSURANCE_TABS } from '../../components/insurance/InsuranceKit';
+import { BenefitsTab } from '../../components/insurance/InsuranceHubTabs';
 import { message } from '../../components/screen/ScreenKit';
 
 /**
@@ -66,5 +67,22 @@ describe('the insurance hub without claims', () => {
   it('the removed claim route opens the hub', async () => {
     await render(<InsuranceSubmitClaimRedirect />);
     expect(mockRedirect).toHaveBeenLastCalledWith('/insurance');
+  });
+});
+
+describe('the benefits tab (issues 823 and 826)', () => {
+  it('shows the request totals and the expiry the server sends, and no invented plan limit', async () => {
+    mockApiFetch.mockImplementation(async (path: string) => {
+      if (path === '/insurance/benefits-summary') {
+        return { has_policy: true, benefits: [{ key: 'manual_review', note_code: 'coverage_decided_by_provider' }], usage: { requests: 3, approved: 2, rejected: 1, insurer_covered: 280, patient_share: 20 }, annual_limit: null, expiry_date: '2027-01-01' };
+      }
+      return {};
+    });
+    await render(wrap(<BenefitsTab />));
+    expect(await screen.findByTestId('benefits-list')).toBeTruthy();
+    expect(screen.getByText(message('en', 'insurance.benefits.requestsTitle', { count: '3' }))).toBeTruthy();
+    expect(screen.getByText(k('insurance.benefits.insurerCovered'))).toBeTruthy();
+    expect(screen.getByText(k('insurance.noteCode.coverage_decided_by_provider'))).toBeTruthy();
+    expect(screen.queryByText(k('insurance.benefits.limit'))).toBeNull();
   });
 });

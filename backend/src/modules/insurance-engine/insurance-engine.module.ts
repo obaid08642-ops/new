@@ -305,7 +305,21 @@ export class InsuranceFlowService {
     const p = await this.patients.findOne({ user_id: user.id }, { _id: 0, insurance: 1 }).lean();
     const ins: any = (p as any)?.insurance || null;
     // company_id (new saves) OR provider (legacy saves) both count as a policy
-    return { has_policy: !!(ins && (ins.company_id || ins.provider || ins.policy_number)), policy: ins };
+    const has_policy = !!(ins && (ins.company_id || ins.provider || ins.policy_number));
+    if (!has_policy) return { has_policy, policy: ins };
+    // #838: the card shows the insurer's logo (a verified catalogue logo only), the membership number and the expiry,
+    // all as saved; nothing is invented when the patient did not enter it.
+    const company: any = ins.company_id
+      ? await this.companies.findOne({ id: { $eq: String(ins.company_id) } }, { _id: 0, logo_url: 1, logo_verified_at: 1, name_en: 1 }).lean()
+      : null;
+    const policy = {
+      ...ins,
+      company_logo_url: company?.logo_url && company?.logo_verified_at ? company.logo_url : null,
+      company_name_en: company?.name_en ?? null,
+      member_id: ins.member_id ?? null,
+      expiry_date: ins.expiry_date ?? null,
+    };
+    return { has_policy, policy };
   }
 
   /**
@@ -353,7 +367,33 @@ export class InsuranceFlowService {
       benefits: has_policy
         ? [{ key: 'manual_review', note_code: 'coverage_decided_by_provider', amounts_available: false }]
         : [],
+      // #823/#826: the patient's own insurance use (approval requests, not claims: decision 35 is relay-only), summed from their decided requests (never a made-up limit). There is
+      // no plan limit in the platform, so `annual_limit` is null rather than a fixed figure; `expiry_date` is the policy's.
+      usage: has_policy ? await this.usageTotals(user.id) : null,
+      annual_limit: null,
+      expiry_date: policy?.expiry_date ?? null,
     };
+  }
+
+  /** Totals of the patient's decided insurance requests: how many, what the insurer covered and what the patient paid. */
+  private async usageTotals(patientId: string) {
+    const rows: any[] = await this.requests.find(
+      { patient_id: patientId, state: { $in: ['APPROVED_FULL', 'APPROVED_PARTIAL', 'COPAY_PENDING', 'COPAY_PAID', 'REJECTED'] } },
+      { _id: 0, state: 1, price: 1, copay_amount: 1 },
+    ).limit(1000).lean();
+    let covered = 0;
+    let patientShare = 0;
+    let approved = 0;
+    for (const r of rows) {
+      if (r.state === 'REJECTED') continue;
+      approved += 1;
+      const price = Number(r.price) || 0;
+      const share = r.state === 'APPROVED_FULL' ? 0 : Math.min(price, Number(r.copay_amount) || 0);
+      covered += price - share;
+      patientShare += share;
+    }
+    const round = (n: number) => Math.round(n * 100) / 100;
+    return { requests: rows.length, approved, rejected: rows.length - approved, insurer_covered: round(covered), patient_share: round(patientShare), currency: 'SAR' };
   }
 
   private bookingModel(kind: string): { kind: string; model: Model<any> } {
@@ -443,9 +483,15 @@ export class InsuranceFlowService {
    */
   private presentRequest(req: any): any {
     if (!req || typeof req !== 'object') return req;
-    const code = req.insurer_approval_code;
-    if (typeof code === 'string' && code.trim()) return { ...req, approval_ref: code.trim() };
-    return req;
+    // older rows written by the provider-request path carry `approval_code`; it is read as the same number
+    const code = [req.insurer_approval_code, req.approval_ref, req.approval_code].find((v) => typeof v === 'string' && v.trim());
+    // #825: the insurer's share is the server's figure (price minus the patient's share), not a client computation
+    const price = Number(req.price);
+    const share = req.state === 'APPROVED_FULL' ? 0 : Number(req.copay_amount);
+    const insurer_share = Number.isFinite(price) && price > 0 && Number.isFinite(share) && ['APPROVED_FULL', 'APPROVED_PARTIAL', 'COPAY_PENDING', 'COPAY_PAID'].includes(req.state)
+      ? Math.round((price - Math.min(price, share)) * 100) / 100 : undefined;
+    const { approval_code: _legacy, ...rest } = req;
+    return { ...rest, ...(code ? { approval_ref: code.trim(), insurer_approval_code: code.trim() } : {}), ...(insurer_share !== undefined ? { insurer_share } : {}) };
   }
 
   async myRequests(user: any) {

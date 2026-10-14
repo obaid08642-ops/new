@@ -147,6 +147,11 @@ export default async function InsurancePage({ params, searchParams }: Props) {
         sub={summary.planClass ? t("planLine", { plan: summary.planClass }) : undefined}
         badge={summary.hasPolicy ? t("active") : t("none")}
         tone={summary.hasPolicy ? "good" : "plain"}
+        logoUrl={summary.logoUrl}
+        lines={[
+          summary.memberId ? t("memberLine", { id: summary.memberId }) : null,
+          summary.expiryDate && formatDate(locale, summary.expiryDate) ? t("expiryLine", { date: formatDate(locale, summary.expiryDate) as string }) : null,
+        ].filter((line): line is string => !!line)}
       />
       <ShortcutGrid
         label={t("shortcuts")}

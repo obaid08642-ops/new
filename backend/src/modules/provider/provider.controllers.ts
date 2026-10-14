@@ -316,7 +316,8 @@ export class ProviderRequestsController {
       provider_id: String(u?.id), booking_id: id, booking_kind: 'provider_request',
       service_type: preq.type || 'consultation', price, policy,
       copay_amount: patientShare, copay_percent: price > 0 ? Math.round((patientShare / price) * 10000) / 100 : 0,
-      approval_code: approvalCode || null, state,
+      // #830/#846: one approval number, under the names the insurance engine uses (never `approval_code`)
+      insurer_approval_code: approvalCode || null, approval_ref: approvalCode || null, state,
       decided_by: String(u?.id), decided_at: new Date(),
       ...(rejected ? { rejection_reason: String(reason).trim() } : {}),
       updatedAt: new Date(),

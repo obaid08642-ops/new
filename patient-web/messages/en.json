@@ -3574,7 +3574,9 @@
       "radiology": "Radiology center",
       "home_care": "Home care",
       "nursing": "Nursing"
-    }
+    },
+    "memberLine": "Member number: {id}",
+    "expiryLine": "Expires on {date}"
   },
   "LoyaltyHubWeb": {
     "title": "Nabd points",

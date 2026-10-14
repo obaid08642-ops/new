@@ -3574,7 +3574,9 @@
       "radiology": "रेडियोलॉजी केंद्र",
       "home_care": "घरेलू देखभाल",
       "nursing": "नर्सिंग"
-    }
+    },
+    "memberLine": "सदस्य संख्या: {id}",
+    "expiryLine": "समाप्ति: {date}"
   },
   "LoyaltyHubWeb": {
     "title": "नब्ज़ पॉइंट्स",

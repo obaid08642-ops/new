@@ -3574,7 +3574,9 @@
       "radiology": "ریڈیالوجی سینٹر",
       "home_care": "گھریلو نگہداشت",
       "nursing": "نرسنگ"
-    }
+    },
+    "memberLine": "رکنیت نمبر: {id}",
+    "expiryLine": "میعاد ختم: {date}"
   },
   "LoyaltyHubWeb": {
     "title": "نبض پوائنٹس",

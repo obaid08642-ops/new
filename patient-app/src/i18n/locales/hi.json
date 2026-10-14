@@ -3220,5 +3220,8 @@
   "care.nut.planNutritionist": "पोषण विशेषज्ञ से सलाह लें",
   "care.nut.planNotice": "यह योजना AI सहायक का सामान्य मार्गदर्शन है, चिकित्सा पर्चा नहीं। किसी बड़े बदलाव से पहले पोषण विशेषज्ञ से बात करें।",
   "care.nut.planDay": "दिन {n}",
-  "ai.history.title": "आपके पिछले सवाल"
+  "ai.history.title": "आपके पिछले सवाल",
+  "insurance.benefits.requestsTitle": "बीमा अनुरोध: {count}",
+  "insurance.benefits.insurerCovered": "बीमा कंपनी ने कवर किया",
+  "insurance.benefits.youPaid": "आपने भुगतान किया"
 }

@@ -3574,7 +3574,9 @@
       "radiology": "Sentro ng radyolohiya",
       "home_care": "Pangangalaga sa bahay",
       "nursing": "Pag-aalaga ng nars"
-    }
+    },
+    "memberLine": "Numero ng miyembro: {id}",
+    "expiryLine": "Mag-e-expire sa {date}"
   },
   "LoyaltyHubWeb": {
     "title": "Mga puntos ng Nabd",

@@ -3220,5 +3220,8 @@
   "care.nut.planNutritionist": "تابع مع أخصائي تغذية",
   "care.nut.planNotice": "هذه الخطة إرشادات عامة من المساعد الذكي وليست وصفة طبية. استشر أخصائي تغذية قبل أي تغيير كبير.",
   "care.nut.planDay": "اليوم {n}",
-  "ai.history.title": "أسئلتك السابقة"
+  "ai.history.title": "أسئلتك السابقة",
+  "insurance.benefits.requestsTitle": "طلبات التأمين: {count}",
+  "insurance.benefits.insurerCovered": "غطّته شركة التأمين",
+  "insurance.benefits.youPaid": "دفعتَه أنت"
 }
