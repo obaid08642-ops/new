@@ -1,2 +1,4 @@
-# 2026-10-14 build session, read-only: Cloudflare credential check (Global API Key + e-mail, or token) and zone state.
-cf:10-inspect
+# 2026-10-14 build session (reviewer approved): upload release main@8c8c08ac, READ-ONLY migrations dry-run (counts only), full Cloudflare read. No deploy, no apply.
+release:8c8c08ac4706278a127b6605fc8596f10e6f4f7c
+58-migrations-dryrun
+cf:11-inspect-full
