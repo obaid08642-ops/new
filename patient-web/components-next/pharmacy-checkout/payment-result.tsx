@@ -39,10 +39,11 @@ type Ids = { orderId?: string; transactionId?: string };
 /**
  * Ask the backend what happened, and only the backend. Two real reads, in this order:
  *   1. the order (`GET /patient/pharmacy/orders/:id`): `payment_status === "paid"` is the server's confirmation;
- *   2. the transaction (`POST /payments/verify/:txn`, through the bounded route): the backend asks the provider and records the answer.
+ *   2. the transaction: its stored status (`GET /payments/status/:ref`, read-only), or with `refresh` the explicit
+ *      `POST /payments/verify/:txn`, where the backend asks the provider and records the answer (issues 534 and 550).
  * A word in the address (`?status=paid`) is never read.
  */
-export async function checkPayment(ids: Ids, doFetch: typeof fetch = fetch): Promise<{ phase: Phase; ids: Ids }> {
+export async function checkPayment(ids: Ids, doFetch: typeof fetch = fetch, refresh = false): Promise<{ phase: Phase; ids: Ids }> {
   let { orderId, transactionId } = ids;
   if (!orderId && !transactionId) return { phase: { kind: "unknown" }, ids };
   let reached = false;
@@ -64,7 +65,9 @@ export async function checkPayment(ids: Ids, doFetch: typeof fetch = fetch): Pro
 
   if (transactionId) {
     try {
-      const response = await doFetch(`/api/payments/verify/${encodeURIComponent(transactionId)}`, { method: "POST", credentials: "same-origin", cache: "no-store" });
+      const response = refresh
+        ? await doFetch(`/api/payments/verify/${encodeURIComponent(transactionId)}`, { method: "POST", credentials: "same-origin", cache: "no-store" })
+        : await doFetch(`/api/payments/status/${encodeURIComponent(transactionId)}`, { credentials: "same-origin", cache: "no-store" });
       if (response.ok) {
         reached = true;
         const body: unknown = await response.json().catch(() => null);
@@ -136,7 +139,8 @@ export function PaymentResult({ locale, reference, transactionId, orderId }: Pro
     }
     const tick = async () => {
       checks += 1;
-      const result = await checkPayment(ids.current);
+      // the stored status on most checks; the provider is asked (verify) on the first one and then every fourth
+      const result = await checkPayment(ids.current, fetch, checks === 1 || checks % 4 === 0);
       if (!live) return;
       ids.current = result.ids;
       const settled = result.phase.kind !== "pending" && result.phase.kind !== "error";

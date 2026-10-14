@@ -13738,6 +13738,29 @@
         ]
       }
     },
+    "/api/v1/payments/status/{ref}": {
+      "get": {
+        "operationId": "PaymentsController_status",
+        "parameters": [
+          {
+            "name": "ref",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Payments"
+        ]
+      }
+    },
     "/api/v1/payments/booking/{type}/{id}": {
       "get": {
         "operationId": "PaymentsController_list",

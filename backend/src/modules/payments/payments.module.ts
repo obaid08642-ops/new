@@ -139,7 +139,10 @@ export class MoyasarAdapter implements PaymentGateway {
   }
   async createIntent(o: CreateIntentRequest) {
     const run = async (req: CreateIntentRequest) => {
-      const body = JSON.stringify({ amount: Math.round(req.amount * 100), currency: req.currency || 'SAR', description: req.description, callback_url: process.env.PAYMENT_RESULT_URL || `${process.env.PUBLIC_APP_URL || ''}/payments/result` });
+      const base = process.env.PAYMENT_RESULT_URL || `${process.env.PUBLIC_APP_URL || ''}/payments/result`;
+      // #550: the return address names our transaction (`?ref=`); the provider appends its own id and status after it.
+      const callback = req.return_ref ? `${base}${base.includes('?') ? '&' : '?'}ref=${encodeURIComponent(req.return_ref)}` : base;
+      const body = JSON.stringify({ amount: Math.round(req.amount * 100), currency: req.currency || 'SAR', description: req.description, callback_url: callback });
       const r = await externalFetch(`${this.base}/payments`, { method: 'POST', headers: this.headers(), body });
       const j: any = await r.json();
       if (!r.ok) throw new BadGatewayException(j.message || 'moyasar_intent_failed');
@@ -238,11 +241,28 @@ export class PaymentsService {
   private publicTxn(t: any) {
     if (!t) return t;
     const o = t.toObject ? t.toObject() : { ...t };
-    delete o.webhook_payload;
-    delete o.idempotency_key;
-    delete o._id;
-    delete o.__v;
-    return o;
+    // #553: an allow-list, not a deny-list: the provider's payload, charge id, the patient id and the idempotency key
+    // stay server-side. The provider's payment id (`gateway_intent_id`) is not a secret: the provider puts it in the
+    // return address anyway, and the result screen uses it. `client_secret` is kept only for Stripe Elements.
+    const out: Record<string, unknown> = {};
+    for (const k of ['id', 'booking_kind', 'booking_id', 'amount', 'currency', 'method', 'gateway', 'gateway_intent_id', 'status', 'checkout_url', 'paid_at', 'failure_reason', 'refunded_amount', 'createdAt', 'updatedAt']) {
+      if (o[k] !== undefined) out[k] = o[k];
+    }
+    if (o.gateway === 'stripe' && o.client_secret) out.client_secret = o.client_secret;
+    return out;
+  }
+
+  /**
+   * #533/#534/#550: the stored status of one payment, read-only (no provider call, no write, no event), for the
+   * patient who owns it. `ref` is our transaction id or the provider's payment id from the return address.
+   * Another patient's payment answers 404, like a missing one. `POST /payments/verify/:txn` stays the explicit refresh.
+   */
+  async paymentStatus(user: any, ref: string) {
+    const id = String(ref || '').trim();
+    if (!/^[A-Za-z0-9_-]{1,128}$/.test(id)) throw new NotFoundException('txn_not_found');
+    const t: any = await this.txns.findOne({ $or: [{ id: { $eq: id } }, { gateway_intent_id: { $eq: id } }, { gateway_charge_id: { $eq: id } }] }).lean();
+    if (!t || (t.patient_id !== user?.id && !['admin', 'super_admin'].includes(user?.role))) throw new NotFoundException('txn_not_found');
+    return this.publicTxn(t);
   }
 
   // ── Governed pharmacy orders (pharmacy_orders collection) ─────────────────
@@ -285,6 +305,8 @@ export class PaymentsService {
     if (!order) throw new NotFoundException('booking_not_found');
     if (order.patient_account_id !== user?.id && user?.role !== 'admin') throw new BadRequestException('not_authorized');
     if (!order.selected_offer_id || !order.pricing_snapshot?.hash) throw new BadRequestException('selected_quote_required');
+    // #553: a paid order advertises nothing more to pay.
+    if (order.payment_status === 'paid') throw new BadRequestException('booking_already_paid');
     const amount = this.pharmacyDueAmount(order);
     const configured = !!(process.env.MOYASAR_API_KEY || process.env.STRIPE_SECRET_KEY || process.env.TAP_API_KEY);
     const methods = configured
@@ -456,7 +478,7 @@ export class PaymentsService {
     }
     let intent: { intent_id: string; client_secret?: string; checkout_url?: string };
     try {
-      intent = await this.adapter.createIntent({ amount, currency: 'SAR', description: `Nabd ${kind} #${id.slice(0, 8)}`, metadata: { booking_id: id, kind } });
+      intent = await this.adapter.createIntent({ amount, currency: 'SAR', description: `Nabd ${kind} #${id.slice(0, 8)}`, metadata: { booking_id: id, kind }, return_ref: txn.id });
     } catch (error: any) {
       // Fail-closed gateway (no keys configured) must surface as 503, not 502:
       // mark the reservation failed and rethrow the original 503.
@@ -684,6 +706,7 @@ export class PaymentsController {
   @Post('capture/:txn') capture(@CurrentUser() u: any, @Param('txn') txn: string) { return this.svc.capturePayment(u, txn); }
   @Get('pharmacy/:orderId/capabilities') pharmacyCapabilities(@CurrentUser() u: any, @Param('orderId') orderId: string) { return this.svc.getPharmacyCapabilities(u, orderId); }
   @Get('consultation/:id/capabilities') consultationCapabilities(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.getConsultationCapabilities(u, id); }
+  @Get('status/:ref') status(@CurrentUser() u: any, @Param('ref') ref: string) { return this.svc.paymentStatus(u, ref); }
   @Get('booking/:type/:id') list(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string) { return this.svc.listForBooking(u, t, id); }
 }
 
