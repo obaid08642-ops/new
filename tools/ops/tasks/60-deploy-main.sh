@@ -16,7 +16,7 @@
 # Secret values are never printed. REHEARSE_FAIL_AT=<step> forces a failure; REHEARSE_MISSING_IMAGE=<service> treats
 # that service's running image as gone from the host, as patient-web's is in production (rehearsal only).
 set -u
-SHA=${OPS_RELEASE_SHA:-3ca66ab1291e6cc9be813b77ffb888a7443a8e5f}
+SHA=${OPS_RELEASE_SHA:-8c8c08ac4706278a127b6605fc8596f10e6f4f7c}
 S8=${SHA:0:8}
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
 B=${OPS_BACKUP_DIR:-/opt/nabdah/backups}
