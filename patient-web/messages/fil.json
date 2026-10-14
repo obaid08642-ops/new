@@ -1289,7 +1289,15 @@
     "rxHelp": "Hindi mo makita? I-upload ang reseta at hahanapin ito ng mga botika para sa iyo",
     "rxAction": "I-upload ang reseta",
     "price": "{value} SAR",
-    "rating": "Rating {value}"
+    "rating": "Rating {value}",
+    "kindMedicine": "Gamot",
+    "kindDoctor": "Doktor",
+    "kindSpecialty": "Espesyalidad",
+    "kindLab": "Pagsusuri sa lab",
+    "kindLabPackage": "Pakete ng test",
+    "kindRadiology": "Radyolohiya",
+    "kindNursing": "Pag-aalaga",
+    "kindArticle": "Artikulo"
   },
   "Support": {
     "title": "Suporta",

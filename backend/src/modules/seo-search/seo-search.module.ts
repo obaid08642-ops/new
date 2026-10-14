@@ -20,7 +20,7 @@ export function normalizeSearchText(input: string): string {
 }
 
 /** Common medical active ingredients and symptoms mapping across Arabic, English, and South Asian / regional languages */
-const MULTILINGUAL_SYNONYM_MAP: Array<{ canonical: string; variants: string[] }> = [
+export const MULTILINGUAL_SYNONYM_MAP: Array<{ canonical: string; variants: string[] }> = [
   {
     canonical: 'paracetamol',
     variants: [
@@ -36,7 +36,7 @@ const MULTILINGUAL_SYNONYM_MAP: Array<{ canonical: string; variants: string[] }>
     canonical: 'ibuprofen',
     variants: [
       'ibuprofen', 'brufen', 'advil', 'motrin',
-      'ايبوبروفين', 'بروفين', 'ادFilteredفيل',
+      'ايبوبروفين', 'بروفين', 'ادفيل',
       'آئیبوپروفین', 'بروفین', // Urdu
       'इबुप्रोफेन', 'ब्रुफेन', // Hindi
       'আইবুপ্রোফেন', // Bengali

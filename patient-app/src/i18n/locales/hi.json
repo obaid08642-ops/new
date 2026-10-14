@@ -3219,5 +3219,7 @@
   "care.nut.planFailed": "योजना अभी नहीं बन सकी। फिर से कोशिश करें।",
   "care.nut.planNutritionist": "पोषण विशेषज्ञ से सलाह लें",
   "care.nut.planNotice": "यह योजना AI सहायक का सामान्य मार्गदर्शन है, चिकित्सा पर्चा नहीं। किसी बड़े बदलाव से पहले पोषण विशेषज्ञ से बात करें।",
-  "care.nut.planDay": "दिन {n}"
+  "care.nut.planDay": "दिन {n}",
+  "search.kind.specialties": "विशेषज्ञताएं",
+  "search.kind.nursingServices": "नर्सिंग सेवाएं"
 }

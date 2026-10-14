@@ -1289,7 +1289,15 @@
     "rxHelp": "जो चाहिए वह नहीं मिला? पर्चा अपलोड करें, फार्मेसियाँ आपके लिए खोजेंगी",
     "rxAction": "पर्चा अपलोड करें",
     "price": "{value} SAR",
-    "rating": "रेटिंग {value}"
+    "rating": "रेटिंग {value}",
+    "kindMedicine": "दवा",
+    "kindDoctor": "डॉक्टर",
+    "kindSpecialty": "विशेषज्ञता",
+    "kindLab": "लैब टेस्ट",
+    "kindLabPackage": "टेस्ट पैकेज",
+    "kindRadiology": "रेडियोलॉजी",
+    "kindNursing": "नर्सिंग",
+    "kindArticle": "लेख"
   },
   "Support": {
     "title": "सहायता",

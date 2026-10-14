@@ -1289,7 +1289,15 @@
     "rxHelp": "Can’t find it? Upload your prescription and pharmacies will look for it",
     "rxAction": "Upload prescription",
     "price": "{value} SAR",
-    "rating": "Rating {value}"
+    "rating": "Rating {value}",
+    "kindMedicine": "Medicine",
+    "kindDoctor": "Doctor",
+    "kindSpecialty": "Specialty",
+    "kindLab": "Lab test",
+    "kindLabPackage": "Test package",
+    "kindRadiology": "Radiology",
+    "kindNursing": "Nursing",
+    "kindArticle": "Article"
   },
   "Support": {
     "title": "Support",

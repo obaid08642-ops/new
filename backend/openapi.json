@@ -2379,6 +2379,48 @@
         ]
       }
     },
+    "/api/v1/search": {
+      "get": {
+        "operationId": "SearchController_search",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Search"
+        ]
+      }
+    },
+    "/api/v1/search/suggest": {
+      "get": {
+        "operationId": "SearchController_suggest",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Search"
+        ]
+      }
+    },
+    "/api/v1/admin/search/reindex": {
+      "post": {
+        "operationId": "SearchAdminController_reindex",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "SearchAdmin"
+        ]
+      }
+    },
     "/api/v1/entity-graph/related/{type}/{id}": {
       "get": {
         "operationId": "EntityGraphController_getRelated",
