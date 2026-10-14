@@ -41,7 +41,7 @@
     "line": 146,
     "found": "[owner] board elements with no endpoint on the hub (no lab list, no cash flag, the cart is page based)",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision (issue #635)"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #635)"
   },
   {
     "batch": 3,
@@ -74,7 +74,7 @@
     "line": 56,
     "found": "[owner] the board's live map needs a collector position the tracking API does not send",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision (issue #638)"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #638)"
   },
   {
     "batch": 3,

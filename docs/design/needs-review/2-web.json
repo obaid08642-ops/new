@@ -74,7 +74,7 @@
     "line": 81,
     "found": "[owner] Search, sort, visit type, Nearest and Available now are drawn, and since issue 404 (approved 2026-10-10) so are a specialty select (?specialty=, the slug filter) and an insurance / cash-only segmented filter (?payment=, accepts_insurance); the board's specialty rail is drawn as a select.",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md)"
   },
   {
     "batch": 2,
@@ -107,7 +107,7 @@
     "line": 40,
     "found": "[owner] The video call, waiting room and room screens were only seen in their error and not-ready states here (no media backend in the check); the connected layout is not verified.",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision (issue #407)"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #407)"
   },
   {
     "batch": 2,
@@ -129,7 +129,7 @@
     "line": 63,
     "found": "[owner] Approved 2026-10-10: Doctors in {city}",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md)"
   },
   {
     "batch": 2,
@@ -140,7 +140,7 @@
     "line": 76,
     "found": "[owner] The server has accepts_insurance only: 'Cash only' means doctors who do NOT accept insurance (accepts_insurance=false), not 'any doctor, paid in cash'. A patient who pays cash can still book any doctor from the unfiltered list. (backend: backend/src/modules/care/care.controller.ts:54)",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md)"
   },
   {
     "batch": 2,
@@ -151,6 +151,6 @@
     "line": 16,
     "found": "[owner] The thread page lists message activity only (type and time, never the text: the privacy rule of the page), so after the composer sends, the patient sees the new activity row but not what was written or what the doctor replied.",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md)"
   }
 ]
