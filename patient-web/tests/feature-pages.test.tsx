@@ -156,3 +156,13 @@ describe("feature pages", () => {
     }
   });
 });
+
+describe("AI nutrition plan parser (owner decision 2026-10-05)", () => {
+  it("reads the days and meals, and is null when nothing can be shown", async () => {
+    const { parseNutritionPlan } = await import("@/lib/nutrition/plan");
+    expect(parseNutritionPlan({ id: "p1", created_at: "2026-10-14T00:00:00Z", days: [{ day: 2, meals: ["Eggs", { title: "Dinner", description: "Fish" }] }] }))
+      .toEqual({ id: "p1", createdAt: "2026-10-14T00:00:00Z", days: [{ day: 2, meals: ["Eggs", "Dinner: Fish"] }] });
+    expect(parseNutritionPlan({ id: "p1", days: [] })).toBeNull();
+    expect(parseNutritionPlan(null)).toBeNull();
+  });
+});

@@ -3209,5 +3209,15 @@
   "emergency.shareAddContacts": "أضف جهات اتصال الطوارئ",
   "emergency.shareSent": "تم إرسال موقعك إلى {n} من جهات الاتصال في التطبيق.",
   "emergency.shareSms": "أرسل رسالة نصية إلى {name}",
-  "emergency.shareContact": "جهة الاتصال"
+  "emergency.shareContact": "جهة الاتصال",
+  "care.nut.tabPlan": "الخطة",
+  "care.nut.planEmpty": "أنشئ خطة من ملفك الغذائي (الطول والوزن والهدف والحساسية).",
+  "care.nut.planGenerate": "أنشئ خطتي",
+  "care.nut.planRegenerate": "أنشئ خطة جديدة",
+  "care.nut.planNeedsProfile": "أكمل طولك ووزنك في تبويب الهدف أولاً.",
+  "care.nut.planQuota": "وصلت إلى الحد اليومي للمساعد الذكي. حاول غداً.",
+  "care.nut.planFailed": "تعذر إنشاء الخطة الآن. حاول مرة أخرى.",
+  "care.nut.planNutritionist": "تابع مع أخصائي تغذية",
+  "care.nut.planNotice": "هذه الخطة إرشادات عامة من المساعد الذكي وليست وصفة طبية. استشر أخصائي تغذية قبل أي تغيير كبير.",
+  "care.nut.planDay": "اليوم {n}"
 }
