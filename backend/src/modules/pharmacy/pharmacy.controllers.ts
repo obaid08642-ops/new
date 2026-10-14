@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Headers, ForbiddenException, ServiceUnavailableException, Optional, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Header, Headers, ForbiddenException, ServiceUnavailableException, Optional, BadRequestException } from '@nestjs/common';
 import { CurrentUser, JwtAuthGuard, Roles, Public } from '../../common/auth.guard';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -173,6 +173,38 @@ export class AdminPharmacyController {
     catch (e: any) { if (String(e?.message || '').includes('order_not_splittable')) return this.broadcast.fallbackSplit(id); throw e; }
   }
   // Master spec: admin audit trail for provider unit-price overrides on offers.
+  // P13-R3: CSV export of the same filtered history (the JSON list below stays).
+  @Get('price-overrides/export')
+  @Header('Content-Type', 'text/csv; charset=utf-8')
+  @Header('Content-Disposition', 'attachment; filename="price-overrides.csv"')
+  async priceOverridesExport(@Query() q: any): Promise<string> {
+    const col = (this.allocs as any).orders.db.collection('pharmacy_price_override_audit');
+    const filter: any = {};
+    if (q?.order_id) filter.order_id = String(q.order_id);
+    if (q?.offer_id) filter.offer_id = String(q.offer_id);
+    if (q?.pharmacy_account_id) filter.pharmacy_account_id = String(q.pharmacy_account_id);
+    if (q?.sku) filter.sku = String(q.sku);
+    if (q?.from || q?.to) {
+      filter.changed_at = {};
+      if (q.from) filter.changed_at.$gte = new Date(String(q.from));
+      if (q.to) filter.changed_at.$lte = new Date(String(q.to));
+    }
+    const limit = Math.min(5000, Math.max(1, Number(q?.limit) || 5000));
+    const rows: any[] = await col.find(filter).sort({ changed_at: -1 }).limit(limit).toArray();
+    const header = 'id,order_id,offer_id,offer_version,pharmacy_account_id,order_item_id,sku,name_ar,name_en,catalog_price,override_price,currency,reason,changed_by,changed_at';
+    const cell = (v: any): string => {
+      if (v === null || v === undefined) return '';
+      const s = v instanceof Date ? v.toISOString() : String(v);
+      return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const lines = rows.map((r: any) => [
+      r.id, r.order_id, r.offer_id, r.offer_version, r.pharmacy_account_id,
+      r.order_item_id, r.sku, r.name_ar, r.name_en, r.catalog_price,
+      r.override_price, r.currency, r.reason, r.changed_by,
+      r.changed_at instanceof Date ? r.changed_at.toISOString() : r.changed_at,
+    ].map(cell).join(','));
+    return [header, ...lines].join('\n');
+  }
   @Get('price-overrides') async priceOverrides(@Query() q: any) {
     const col = (this.allocs as any).orders.db.collection('pharmacy_price_override_audit');
     const filter: any = {};
