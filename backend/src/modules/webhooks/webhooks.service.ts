@@ -1,9 +1,11 @@
 import { Injectable, Logger, BadRequestException, Optional } from '@nestjs/common';
 import { PharmacyPaymentEvidenceService } from '../pharmacy/services/pharmacy-payment-evidence.service';
+import { PaymentsService } from '../payments/payments.module';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import * as crypto from 'crypto';
 import { WebhookReceiver } from 'livekit-server-sdk';
 import { RedisService } from '../redis/redis.service';
+import { isMoyasarWebhookAuthenticated } from '../../common/moyasar-webhook-auth';
 
 const isProd = () => process.env.NODE_ENV === 'production';
 
@@ -27,27 +29,8 @@ export class WebhooksService {
     private eventEmitter: EventEmitter2,
     private readonly redis: RedisService,
     @Optional() private readonly paymentEvidence?: PharmacyPaymentEvidenceService,
+    @Optional() private readonly payments?: PaymentsService,
   ) {}
-
-  /**
-   * E5-F1: webhook verification is FAIL-CLOSED in production.
-   * A missing secret or missing signature can no longer silently pass.
-   * In non-production (dev/test) a missing secret still skips verification
-   * so local development does not need gateway credentials.
-   */
-  verifyMoyasar(signature: string | undefined, rawBody: string): boolean {
-    const secret = process.env.MOYASAR_WEBHOOK_SECRET;
-    if (!secret) {
-      if (isProd()) {
-        this.logger.error('MOYASAR_WEBHOOK_SECRET is not set — rejecting webhook (fail-closed)');
-        return false;
-      }
-      return true;
-    }
-    if (!signature) return false;
-    const digest = crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
-    return timingSafeEq(signature, digest);
-  }
 
   /** PayTabs signs the raw JSON body with HMAC-SHA256 using the server key. */
   verifyPayTabs(signature: string | undefined, rawBody: string): boolean {
@@ -82,8 +65,26 @@ export class WebhooksService {
   }
 
   async handleMoyasarWebhook(body: any, signature?: string, rawBody?: string) {
-    if (!this.verifyMoyasar(signature, rawBody ?? JSON.stringify(body))) {
+    const raw = rawBody ?? JSON.stringify(body);
+    // S-5: Moyasar documents no signature header — the body secret_token is the
+    // proof. The older HMAC path still works. Anything with neither is refused.
+    if (!isMoyasarWebhookAuthenticated(body, signature, raw)) {
       throw new BadRequestException('Invalid signature');
+    }
+
+    // A native Moyasar payment body (type/data/secret_token) settles the
+    // canonical transaction: every Moyasar receiver must agree on "paid".
+    // The older internal shape (event/data, no secret_token) keeps the
+    // evidence-writer path below, unchanged.
+    const native = body && typeof body.type === 'string' && body.type.startsWith('payment_') && body.data?.id;
+    if (native && this.payments) {
+      const dedupId = body.data.id;
+      if (await this.isReplay('moyasar:payment', dedupId)) {
+        return { status: 'success', event: body.type, deduplicated: true };
+      }
+      await this.payments.handleWebhook('moyasar', body, signature, raw);
+      await this.markReplay('moyasar:payment', dedupId);
+      return { status: 'success', event: body.type };
     }
 
     const event = body.event; // e.g. 'payment.paid', 'payment.failed'

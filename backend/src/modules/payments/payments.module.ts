@@ -1,4 +1,4 @@
-import { Module, Injectable, Controller, Post, Get, Body, Param, Logger, BadRequestException, BadGatewayException, NotFoundException, ServiceUnavailableException, UseGuards, UseInterceptors, Req, HttpCode, Headers, Optional } from '@nestjs/common';
+import { Module, Injectable, Controller, Post, Get, Body, Param, Logger, BadRequestException, BadGatewayException, ForbiddenException, NotFoundException, ServiceUnavailableException, UseGuards, UseInterceptors, Req, HttpCode, Headers, Optional } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -23,6 +23,7 @@ import * as crypto from 'crypto';
 import { Request } from 'express';
 import { UserRole } from '../../common/enums';
 import { moyasarBase } from '../../common/moyasar-base';
+import { isMoyasarWebhookAuthenticated } from '../../common/moyasar-webhook-auth';
 import {
   CreateIntentRequest,
   PaymentGateway,
@@ -229,8 +230,27 @@ export class PaymentsService {
 
   private assertTransactionVerifier(user: any, transaction: any) {
     if (!user?.id || (transaction.patient_id !== user.id && !['admin', 'system'].includes(user.role))) {
-      throw new BadRequestException('not_authorized');
+      // S-7: another patient's payment is none of this caller's business — 403,
+      // never a 400 that tells them the record exists and is merely off-limits.
+      throw new ForbiddenException('not_authorized');
     }
+  }
+
+  /**
+   * S-5: a gateway "paid" settles only when the gateway's own record carries
+   * the amount AND currency the server asked for. A "paid" for less is not a
+   * payment — it is recorded as failed so it can never confirm the booking.
+   */
+  private gatewayAmountMatches(t: any, raw: any): boolean {
+    const expectedHalalas = Math.round(Number(t.amount || 0) * 100);
+    const expectedCurrency = String(t.currency || 'SAR').toUpperCase();
+    if (!Number.isFinite(expectedHalalas) || expectedHalalas <= 0) return false;
+    if (String(raw?.currency || '').toUpperCase() !== expectedCurrency) return false;
+    const rawAmount = Number(raw?.amount);
+    if (!Number.isFinite(rawAmount)) return false;
+    // Moyasar and Stripe report minor units (halalas/cents); Tap reports major units.
+    const actualHalalas = this.adapter.name === 'tap' ? Math.round(rawAmount * 100) : Math.round(rawAmount);
+    return actualHalalas === expectedHalalas;
   }
 
   /**
@@ -511,9 +531,15 @@ export class PaymentsService {
     // drives booking confirmation, wallet and ledger listeners.
     if (t.status === 'paid') return this.publicTxn(t);
     const result = await this.adapter.verify(t.gateway_intent_id);
-    t.status = result.status;
+    const settled = result.status === 'paid' && this.gatewayAmountMatches(t, result.raw);
+    if (result.status === 'paid' && !settled) {
+      t.status = 'failed';
+      t.failure_reason = 'gateway_amount_mismatch';
+    } else {
+      t.status = result.status;
+    }
     if (result.charge_id) t.gateway_charge_id = result.charge_id;
-    if (result.status === 'paid') {
+    if (settled) {
       t.paid_at = new Date();
       if (!(t.booking_kind === 'pharmacy' && await this.finalizeGovernedPharmacyPaid(t))) {
       await this.modelFor(t.booking_kind).updateOne({ id: { $eq: t.booking_id } }, { $set: { payment_status: 'paid', transaction_id: t.id, paid_at: t.paid_at } });
@@ -534,8 +560,8 @@ export class PaymentsService {
       this.realtime.emitToUser(t.patient_id, 'payment.updated', { transaction_id: t.id, status: 'paid', booking_id: t.booking_id });
       // E1 S15: a second PAID payment for the same booking is a double charge — alert admins
       await this.fraud.detectDuplicatePayments(t.booking_id).catch(() => null);
-    } else if (result.status === 'failed') {
-      t.failure_reason = (result.raw as any)?.last_payment_error?.message || 'gateway_failure';
+    } else if (t.status === 'failed') {
+      t.failure_reason = t.failure_reason || (result.raw as any)?.last_payment_error?.message || 'gateway_failure';
       this.events.emit('payment.failed', {
         kind: t.booking_kind,
         id: t.booking_id,
@@ -656,11 +682,19 @@ export class PaymentsService {
   }
 
   async handleWebhook(provider: string, payload: any, signature?: string, rawBody?: string) {
-    if (!this.verifyWebhookSignature(provider, signature, rawBody ?? JSON.stringify(payload))) {
+    const raw = rawBody ?? JSON.stringify(payload);
+    // S-5: Moyasar documents no signature header — its body secret_token is the
+    // proof. The older HMAC path still works; anything with neither is refused.
+    const authenticated = provider === 'moyasar'
+      ? isMoyasarWebhookAuthenticated(payload, signature, raw)
+      : this.verifyWebhookSignature(provider, signature, raw);
+    if (!authenticated) {
       throw new BadRequestException('invalid_webhook_signature');
     }
-    // Look up by gateway_intent_id or gateway_charge_id present in payload
-    const intentId = payload.data?.object?.id || payload.id || payload.payment_intent;
+    // Look up by gateway_intent_id or gateway_charge_id present in payload.
+    // Moyasar's native body nests the payment id in data.id (payload.id is the
+    // event id); the Stripe shape nests it in data.object.id.
+    const intentId = payload.data?.id || payload.data?.object?.id || payload.id || payload.payment_intent;
     if (!intentId) return { ok: false, reason: 'no_intent_id' };
     const t = await this.txns.findOne({ gateway_intent_id: { $eq: intentId } });
     if (!t) return { ok: false, reason: 'no_match' };

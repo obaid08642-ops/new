@@ -23,28 +23,28 @@ const BACKEND_LANGS = ['ar', 'en', 'ur'] as const;
 
 describe('13.R5 error catalog', () => {
   describe('translateMongoError emits codes, not English words', () => {
-    it('maps a CastError to 404 with the not_found code', () => {
+    it('maps a CastError to 404 with the NOT_FOUND code', () => {
       const ex = translateMongoError({ name: 'CastError' })!;
       expect(ex.getStatus()).toBe(HttpStatus.NOT_FOUND);
-      expect(ex.getResponse()).toMatchObject({ code: 'not_found' });
+      expect(ex.getResponse()).toMatchObject({ code: 'NOT_FOUND' });
     });
 
     it('maps a BSONError (direct new ObjectId(bad)) to the same 404 code', () => {
       const ex = translateMongoError({ name: 'BSONError' })!;
       expect(ex.getStatus()).toBe(HttpStatus.NOT_FOUND);
-      expect(ex.getResponse()).toMatchObject({ code: 'not_found' });
+      expect(ex.getResponse()).toMatchObject({ code: 'NOT_FOUND' });
     });
 
-    it('maps a mongoose ValidationError to 400 with the bad_request code', () => {
+    it('maps a mongoose ValidationError to 400 with the BAD_REQUEST code', () => {
       const ex = translateMongoError({ name: 'ValidationError' })!;
       expect(ex.getStatus()).toBe(HttpStatus.BAD_REQUEST);
-      expect(ex.getResponse()).toMatchObject({ code: 'bad_request' });
+      expect(ex.getResponse()).toMatchObject({ code: 'BAD_REQUEST' });
     });
 
-    it('maps a duplicate-key error to 409 with the conflict code', () => {
+    it('maps a duplicate-key error to 409 with the CONFLICT code', () => {
       const ex = translateMongoError({ name: 'MongoServerError', code: 11000 })!;
       expect(ex.getStatus()).toBe(HttpStatus.CONFLICT);
-      expect(ex.getResponse()).toMatchObject({ code: 'conflict' });
+      expect(ex.getResponse()).toMatchObject({ code: 'CONFLICT' });
     });
 
     it('never leaks a raw English status word into the response body', () => {
@@ -72,15 +72,15 @@ describe('13.R5 error catalog', () => {
 
   describe('platformErrorBody', () => {
     it('returns the status, the code, and the localized message', () => {
-      const ar = platformErrorBody('not_found', 'ar');
-      expect(ar).toMatchObject({ statusCode: HttpStatus.NOT_FOUND, code: 'not_found' });
+      const ar = platformErrorBody('NOT_FOUND', 'ar');
+      expect(ar).toMatchObject({ statusCode: HttpStatus.NOT_FOUND, code: 'NOT_FOUND' });
       expect(ar.message.length).toBeGreaterThan(0);
     });
 
     it('honours every backend language with a genuinely different string', () => {
       const seen = new Set<string>();
       for (const lang of BACKEND_LANGS) {
-        const body = platformErrorBody('conflict', lang);
+        const body = platformErrorBody('CONFLICT', lang);
         expect(body.message).toBeTruthy();
         seen.add(body.message);
       }
@@ -88,14 +88,14 @@ describe('13.R5 error catalog', () => {
     });
 
     it('falls back to English for an unsupported language instead of dropping the key', () => {
-      const body = platformErrorBody('conflict', 'tl' as any);
-      expect(body.message).toBe(platformErrorBody('conflict', 'en').message);
+      const body = platformErrorBody('CONFLICT', 'tl' as any);
+      expect(body.message).toBe(platformErrorBody('CONFLICT', 'en').message);
       expect(body.message).toBeTruthy();
     });
 
     it('keeps the code authoritative even when a message is missing', () => {
-      const body = platformErrorBody('not_found', 'ar', { forceMissing: true });
-      expect(body.code).toBe('not_found');
+      const body = platformErrorBody('NOT_FOUND', 'ar', { forceMissing: true });
+      expect(body.code).toBe('NOT_FOUND');
       expect(body.message).toBeTruthy();
     });
   });
@@ -120,13 +120,13 @@ describe('13.R5 error catalog', () => {
     });
 
     it('recognises its own codes and rejects unknown ones', () => {
-      expect(isPlatformErrorCode('conflict')).toBe(true);
+      expect(isPlatformErrorCode('CONFLICT')).toBe(true);
       expect(isPlatformErrorCode('DUPLICATE_TRANSACTION')).toBe(false);
     });
 
-    it('maps an unmapped 4xx/5xx to internal_error rather than leaking the status', () => {
-      expect(errorCodeForStatus(418)).toBe('internal_error');
-      expect(errorCodeForStatus(500)).toBe('internal_error');
+    it('maps an unmapped 4xx/5xx to INTERNAL_ERROR rather than leaking the status', () => {
+      expect(errorCodeForStatus(418)).toBe('INTERNAL_ERROR');
+      expect(errorCodeForStatus(500)).toBe('INTERNAL_ERROR');
     });
   });
 });

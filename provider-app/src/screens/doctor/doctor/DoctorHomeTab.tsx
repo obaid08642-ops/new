@@ -91,6 +91,8 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
     return sound ? () => { sound.remove(); } : undefined;
   }, [sound]);
 
+  // the queue reader is defined below; the socket effect reaches the latest one through this ref
+  const fetchQueueRef = useRef<() => void>(() => {});
   useEffect(() => {
     let socketInstance: any = null;
     let presence: any = null;
@@ -106,6 +108,9 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
           auth: { token, client: 'provider-app' },
         });
         socketInstance.on('connect', () => socketInstance?.emit('joinProviderRoom', user.id));
+        // P14.21: an urgent request emitted while the socket was down is not replayed; after a reconnect the queue is read
+        // again from the server, so nothing that arrived in the gap is missed.
+        socketInstance.io.on('reconnect', () => fetchQueueRef.current());
         presence = setInterval(() => { try { socketInstance?.connected && socketInstance.emit('presence:heartbeat'); } catch {} }, 20000);
         socketInstance.on('incoming_urgent_request', (payload: any) => {
           setRequests(prev => [payload, ...prev]);
@@ -150,6 +155,7 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
 	 }
  }, [AR]);
 
+ fetchQueueRef.current = () => { void fetchQueue(); };
  useEffect(() => { fetchQueue(); }, [fetchQueue]);
 
  const onRefresh = async () => { setRefreshing(true); await fetchQueue(); setRefreshing(false); };
