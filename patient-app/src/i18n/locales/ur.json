@@ -3210,5 +3210,15 @@
   "emergency.shareSent": "آپ کا مقام ایپ میں {n} رابطوں کو بھیج دیا گیا۔",
   "emergency.shareSms": "{name} کو ٹیکسٹ پیغام بھیجیں",
   "emergency.shareContact": "آپ کا رابطہ",
+  "care.nut.tabPlan": "منصوبہ",
+  "care.nut.planEmpty": "اپنے غذائی پروفائل (قد، وزن، ہدف اور الرجی) سے منصوبہ بنائیں۔",
+  "care.nut.planGenerate": "میرا منصوبہ بنائیں",
+  "care.nut.planRegenerate": "نیا منصوبہ بنائیں",
+  "care.nut.planNeedsProfile": "پہلے ہدف کے ٹیب میں اپنا قد اور وزن درج کریں۔",
+  "care.nut.planQuota": "آپ آج کی AI حد تک پہنچ گئے ہیں۔ کل دوبارہ کوشش کریں۔",
+  "care.nut.planFailed": "منصوبہ ابھی نہیں بن سکا۔ دوبارہ کوشش کریں۔",
+  "care.nut.planNutritionist": "ماہرِ غذائیت سے رجوع کریں",
+  "care.nut.planNotice": "یہ منصوبہ AI اسسٹنٹ کی عمومی رہنمائی ہے، طبی نسخہ نہیں۔ کسی بڑی تبدیلی سے پہلے ماہرِ غذائیت سے بات کریں۔",
+  "care.nut.planDay": "دن {n}",
   "ai.history.title": "آپ کے پچھلے سوالات"
 }

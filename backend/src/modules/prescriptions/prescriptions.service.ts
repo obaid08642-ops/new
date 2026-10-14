@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ConflictException, ForbiddenException, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -206,6 +206,23 @@ export class PrescriptionsService {
     });
     this.events.emit(EVENTS.PRESCRIPTION_CREATED, { prescription_id: rx.id, patient_id: rx.patient_id });
     return rx.toObject();
+  }
+
+  /**
+   * D-32 (gap G1): the patient deletes a prescription they uploaded, and its photo goes with it. Only their own upload
+   * that no live pharmacy order still uses; a doctor's prescription is never deleted by the patient.
+   */
+  async deleteByPatient(patient: any, id: string) {
+    const rx: any = await this.model.findOne({ id: { $eq: String(id) }, patient_id: { $eq: String(patient?.id || '') } });
+    if (!rx) throw new NotFoundException('prescription_not_found');
+    if (rx.state !== PrescriptionState.UPLOADED_BY_PATIENT || rx.doctor_id) throw new ForbiddenException('only_own_uploads_can_be_deleted');
+    const finished = ['cancelled', 'canceled', 'completed', 'delivered', 'expired', 'rejected', 'refunded', 'closed'];
+    const inUse = await this.appointments.db.collection('pharmacy_orders').countDocuments({
+      prescription_id: { $eq: rx.id }, status: { $nin: finished },
+    });
+    if (inUse > 0) throw new ConflictException('prescription_attached_to_open_order');
+    await this.model.deleteOne({ id: { $eq: rx.id }, patient_id: { $eq: rx.patient_id } });
+    return { deleted: true, id: rx.id };
   }
 
   async transition(id: string, to: string, by: any) {

@@ -101,6 +101,8 @@ const diagnosticsMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp
   { method: "PATCH", route: new RegExp(`^/orders/${orderId}/items/[^/]{1,128}/opt-in-cash$`, "i") },
   { method: "POST", route: new RegExp("^/family/chat/messages$", "i") },
   { method: "POST", route: new RegExp("^/nutrition/profile$", "i") },
+  // AI nutrition plan (owner decision 2026-10-05): generated from the patient's own profile.
+  { method: "POST", route: new RegExp("^/nutrition/plan/generate$", "i") },
   { method: "POST", route: new RegExp("^/maternity/profile$", "i") },
   { method: "POST", route: new RegExp("^/support/chat$", "i") },
   { method: "POST", route: new RegExp(`^/support/requests/[^/]+/reply$`, "i") },

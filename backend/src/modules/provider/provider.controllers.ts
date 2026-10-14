@@ -100,11 +100,13 @@ export class ProviderProfileController {
   @Get('bank-account') getBank(@CurrentUser() u: any) { return this.svc.getBank(u); }
   @Public() @Get('banks') banks() { return this.svc.banks_list(); }
 
+  // D-32: the provider app's own photo route had no access declaration, so the write guard answered 403 to every doctor.
+  @Roles(...PROVIDER_ROLES, 'provider')
   @Post('profile/image/upload')
   async uploadProfileImage(@CurrentUser() user: any, @Body() body: UploadProfileImageDto) {
     return this.processor.enqueueJob({
       owner_id: user.id,
-      owner_type: user.role === 'nurse' ? 'nurse' : 'doctor',
+      owner_type: user.role === 'nurse' || user.provider_type === 'nurse' ? 'nurse' : 'doctor',
       data_base64: body.data_base64,
       mime: body.mime,
       original_name: body.original_name,

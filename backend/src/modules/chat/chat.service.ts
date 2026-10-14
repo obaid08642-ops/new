@@ -1,4 +1,5 @@
 import { Injectable, ForbiddenException, BadRequestException, NotFoundException, ServiceUnavailableException, Logger } from '@nestjs/common';
+import { MEDIA_RELEASE } from '../media/media-cleanup.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { EventBusService } from '../events/event-bus.service';
@@ -455,7 +456,12 @@ export class ChatService {
     msg.is_deleted = true;
     msg.deleted_at = new Date();
     msg.body = '';
+    // D-32: the message's attachments (`media_ids`) lose their stored files and rows.
+    const mediaIds = Array.isArray((msg as any).media_ids) ? ((msg as any).media_ids as unknown[]).filter((v): v is string => typeof v === 'string') : [];
     await msg.save();
+    if (mediaIds.length) {
+      try { this.events.emit(MEDIA_RELEASE, { ids: mediaIds, owner_id: userId }); } catch { /* cleanup is best effort */ }
+    }
   }
 
   async addReaction(msgId: string, userId: string, emoji: string): Promise<ChatMessage> {

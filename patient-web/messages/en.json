@@ -3112,7 +3112,18 @@
     "mealName": "Meal name",
     "mealCalories": "Calories (kcal)",
     "saveMeal": "Save meal",
-    "mealNotice": "Your meals are saved to your profile and your daily summary updates automatically."
+    "mealNotice": "Your meals are saved to your profile and your daily summary updates automatically.",
+    "tabPlan": "Plan",
+    "planEmptyTitle": "No nutrition plan yet",
+    "planEmptyBody": "Create a plan from your nutrition profile (height, weight, goal and allergies).",
+    "planGenerate": "Create my plan",
+    "planRegenerate": "Create a new plan",
+    "planNeedsProfile": "Add your height and weight in the Target tab first.",
+    "planQuota": "You have reached today's AI limit. Try again tomorrow.",
+    "planFailed": "The plan could not be created right now. Try again.",
+    "planNutritionist": "Follow up with a nutritionist",
+    "planNotice": "This plan is general guidance from the AI assistant, not a medical prescription. Talk to a nutritionist before any big change.",
+    "planDay": "Day {n}"
   },
   "MentalWeb": {
     "title": "Mental health",

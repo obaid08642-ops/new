@@ -13,6 +13,9 @@ import { MealLogRepository } from "./repositories/meallog.repository";
 import { NutritionProfileRepository } from "./repositories/nutritionprofile.repository";
 import { WaterLogRepository } from "./repositories/waterlog.repository";
 import { NutritionFoodsController } from './nutrition-compat.controller';
+import { NutritionPlanService } from './nutrition-plan.service';
+import { AiModule } from '../ai/ai.module';
+import { AiUserQuotaGuard } from '../ai/ai-user-quota.guard';
 
 @Module({
   imports: [
@@ -22,9 +25,10 @@ import { NutritionFoodsController } from './nutrition-compat.controller';
       { name: 'WaterLog', schema: WaterLogSchema },
       { name: 'ExerciseLog', schema: ExerciseLogSchema },
     ]),
+    AiModule,
   ],
   controllers: [NutritionController, NutritionFoodsController],
-  providers: [NutritionService, { provide: 'ExerciseLogRepository', useClass: ExerciseLogRepository }, { provide: 'MealLogRepository', useClass: MealLogRepository }, { provide: 'NutritionProfileRepository', useClass: NutritionProfileRepository }, { provide: 'WaterLogRepository', useClass: WaterLogRepository }],
+  providers: [NutritionService, NutritionPlanService, AiUserQuotaGuard, { provide: 'ExerciseLogRepository', useClass: ExerciseLogRepository }, { provide: 'MealLogRepository', useClass: MealLogRepository }, { provide: 'NutritionProfileRepository', useClass: NutritionProfileRepository }, { provide: 'WaterLogRepository', useClass: WaterLogRepository }],
   exports: [NutritionService],
 })
 export class NutritionModule {}
