@@ -52,6 +52,7 @@ and sets every line to `fixed #PR` or `not-a-problem: owner decided … `.
 | 26 | "Consult a doctor" from an Rx item opens the mapped specialty only when the admin fills the category → specialty mapping. | rx-rules-app#4, rx-rules-web#6 | **The fix session proposes the mapping; the owner approves it in admin.** |
 | 27 | Chat thread: show the text of the patient's own messages and the doctor's replies inside the thread (not in list previews). | 2-web#13 | **Yes.** |
 | 28 | "Cash only" doctor filter means "does not accept insurance". | 2-web#12 | **Replace it with Insurance / Self-pay** (D-30). |
+| 29 | Admin roles: today every admin holds the whole admin permission set (role `admin`; custom roles only add permissions), so a "restricted" admin cannot exist and 128 admin write routes are role-only (no permission named). Should custom roles become restrictive (an admin gets only the permissions of their roles)? | fix session, PR fix/admin-guards (security sweep) | **Yes, before staff other than the owner get admin accounts**: make custom roles restrictive and name a permission on every admin write route in one PR; until then the panel already hides every control whose backend permission the role lacks. |
 
 ## C. Business and legal (owner action, not code)
 
