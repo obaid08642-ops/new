@@ -52,7 +52,7 @@
     "line": 20,
     "found": "Removed 2026-10-10 (owner decision): [client] fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/care/facilities\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty (backend: backend/src/modules/care/care.controller.ts:90)",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "not-a-problem: the public /facilities page was removed from the admin app 2026-10-10 (owner decision)"
   },
   {
     "batch": "admin",
@@ -74,7 +74,7 @@
     "line": 20,
     "found": "Removed 2026-10-10 (owner decision): [client] fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/home-care/services\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty (backend: backend/src/modules/home-care/home-care-compat.module.ts:48)",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "not-a-problem: the public /home-care-services page was removed from the admin app 2026-10-10 (owner decision)"
   },
   {
     "batch": "admin",
@@ -107,7 +107,7 @@
     "line": 20,
     "found": "Removed 2026-10-10 (owner decision): [client] fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/labs/services\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty (backend: backend/src/modules/labs/labs.controller.ts:12)",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "not-a-problem: the public /lab-services page was removed from the admin app 2026-10-10 (owner decision)"
   },
   {
     "batch": "admin",
