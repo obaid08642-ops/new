@@ -1,3 +1,4 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-export declare function handler(internalPort: number): (req: IncomingMessage, res: ServerResponse) => void;
+export declare const EDGE_STAMP_HEADER: string;
+export declare function handler(internalPort: number, options?: { edgeToken?: string }): (req: IncomingMessage, res: ServerResponse) => void;
 export declare function pickEncoding(acceptEncoding: string | string[] | undefined): "br" | "gzip" | null;

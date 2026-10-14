@@ -7,6 +7,7 @@
     "file": "patient-web/app/[locale]/features/[feature]/page.tsx",
     "line": 67,
     "found": "[client] The seven public feature pages (SEO, owner 2026-10-12) have no board: they are built on the public landing kit (LandingPage, LandingSection, CardGrid/EntityRow, the new FaqList, Notice, ActionLinks) with tokens only and need a board review by the design session.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
   }
 ]

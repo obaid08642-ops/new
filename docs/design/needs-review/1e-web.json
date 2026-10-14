@@ -7,7 +7,8 @@
     "file": "",
     "line": 0,
     "found": "[backend] Reads the legacy orders collection only: a pharmacy order (pharmacy_orders) always 404s. The app's deep link orders/:id/tracking and any other client of it need the pharmacy order instead.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1255 (issue #373)"
   },
   {
     "batch": 1,
@@ -17,7 +18,8 @@
     "file": "",
     "line": 0,
     "found": "[backend] A pharmacy order carries no courier location or vehicle (only courier name, phone and the eta the pharmacy typed); the board's map is not drawn.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "not-a-problem: Decision (reviewer, as delegated by the owner on 2026-10-14): no live courier map. (issue #374)"
   },
   {
     "batch": 1,
@@ -27,7 +29,8 @@
     "file": "",
     "line": 0,
     "found": "[backend] Fixed on design/backend-fields: the order detail carries pharmacy_name_ar / pharmacy_name_en (pharmacy-order.service.ts:147-150); the tracking summary row names the pharmacy by page language.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
   },
   {
     "batch": 1,
@@ -37,7 +40,8 @@
     "file": "",
     "line": 0,
     "found": "[backend] Fixed on design/backend-fields: the unused BFF route app/api/orders/[orderId]/reorder was removed (the web reorders through the cart).",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
   },
   {
     "batch": 1,
@@ -47,7 +51,8 @@
     "file": "",
     "line": 0,
     "found": "[backend] Order items carry no rx flag and no price. Lines are marked as needing a prescription when the order has a prescription_id, so checkout asks again; a line-level flag would be exact.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1315 (issue #377)"
   },
   {
     "batch": 1,
@@ -57,7 +62,8 @@
     "file": "",
     "line": 0,
     "found": "[owner] The board lists any service (home lab test); the app merges appointments, labs, radiology, nursing, claims and returns. The web page lists pharmacy orders only: the owner decides whether the web order centre is unified (needs a unified endpoint or six reads).",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "fixed #1285 (issue #378)"
   },
   {
     "batch": 1,
@@ -67,7 +73,8 @@
     "file": "",
     "line": 0,
     "found": "[client] No web screen links here (the cart's address card and checkout go to /profile/addresses); the page is reachable by address only. Link it from the address card's Change, or retire it.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1223 #1245 #1254 (issue #379)"
   },
   {
     "batch": 1,
@@ -77,7 +84,8 @@
     "file": "",
     "line": 0,
     "found": "[backend] Answers 200 with null for an unknown id and has no ownership error; the client treats only a returned address with is_default true as saved.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1223 (issue #380)"
   },
   {
     "batch": 1,
@@ -87,7 +95,8 @@
     "file": "",
     "line": 0,
     "found": "[backend] GET /patient/pharmacy/orders returns raw documents without governed_state; list actions are chosen by status and the order router reads the detail.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1315 (issue #381)"
   },
   {
     "batch": 1,
@@ -97,6 +106,7 @@
     "file": "patient-web/components-next/orders/center-rows.ts",
     "line": 79,
     "found": "[client] The app's order center also lists insurance claims and pharmacy returns; the web list has the five services of issue 378 only (claims and returns have their own pages). Needs an owner decision to merge them.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
   }
 ]

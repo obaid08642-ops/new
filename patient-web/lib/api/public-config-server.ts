@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { patientApiUrl } from "@/lib/api/upstream";
 import { parseDisabled, type DisabledModules, NONE_DISABLED } from "@/lib/modules";
+import { publicReadSignal } from "@/lib/api/public-timeout";
 
 export type HomeSectionItem = { id?: string; title_ar?: string; title_en?: string; image_url?: string; deep_link?: string };
 export type HomeSection = { id?: string; title_ar?: string; title_en?: string; enabled?: boolean; position?: number; items?: HomeSectionItem[] };
@@ -42,7 +43,7 @@ const PUBLIC_REVALIDATE_SECONDS = 60;
 
 async function readPublic(path: string, revalidate: number = PUBLIC_REVALIDATE_SECONDS): Promise<PublicRead> {
   try {
-    const res = await fetch(patientApiUrl(path), { headers: { Accept: "application/json" }, next: { revalidate } });
+    const res = await fetch(patientApiUrl(path), { headers: { Accept: "application/json" }, next: { revalidate }, signal: publicReadSignal() });
     if (res.status >= 500) return { data: null, failed: true };
     if (!res.ok) return { data: null, failed: false };
     return { data: await res.json().catch(() => null), failed: false };
