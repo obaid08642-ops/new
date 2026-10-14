@@ -25,6 +25,11 @@ export class MedicinesController {
     @Query('limit') limit?: string,
     @Query('cursor') cursor?: string,
     @Headers('authorization') auth?: string,
+    @Query('forms') forms?: string,
+    @Query('brands') brands?: string,
+    @Query('rx_only') rxOnly?: string,
+    @Query('min_price') minPrice?: string,
+    @Query('max_price') maxPrice?: string,
   ) {
     // Query text reaches regexes and filters: drop control characters (MongoDB rejects a NUL in a
     // regex) and cap the length, so a malformed query is a normal search, never a 500.
@@ -33,12 +38,22 @@ export class MedicinesController {
     sort = clean(sort); pharmacyId = clean(pharmacyId); cursor = cursor === undefined ? undefined : (clean(cursor) ?? '');
     const term = search || q; // 'q' is a legacy alias used by older clients
     const userId = this.optionalUserId(auth);
+    // #450/#472: the filters and orders the pharmacy screens send are applied by the server (forms, brands,
+    // prescription-only, price range; price and newest orders). The ranked paths below keep the default order.
+    const list = (v?: string) => (clean(v) || '').split(',').map((x) => x.trim()).filter(Boolean).slice(0, 20);
+    const price = (v?: string) => { const n = Number(clean(v)); return Number.isFinite(n) && n >= 0 ? n : undefined; };
+    const filters = { forms: list(forms), brands: list(brands), rx_only: rxOnly === '1' || rxOnly === 'true', min_price: price(minPrice), max_price: price(maxPrice) };
+    const ordered = sort === 'price_asc' || sort === 'price_desc' || sort === 'newest';
+    if (ordered || filters.forms.length || filters.brands.length || filters.rx_only || filters.min_price !== undefined || filters.max_price !== undefined) {
+      return this.svc.filtered(term, category, filters, ordered ? sort! : 'relevant', page === undefined ? undefined : queryInt(page, 1), queryInt(limit, 30));
+    }
     // Cursor mode (O(1) deep browsing) takes precedence when ?cursor= is present
     if (cursor !== undefined) {
       return this.svc.cursorPage(term, category, cursor || undefined, queryInt(limit, 30));
     }
     if (page !== undefined) {
-      return this.svc.paginate(term, category, queryInt(page, 1), queryInt(limit, 30), true, sort || 'smart_ranking', pharmacyId);
+      // A public list: only the governed (approved, published) catalogue, as in list() below.
+      return this.svc.paginate(term, category, queryInt(page, 1), queryInt(limit, 30), false, sort || 'smart_ranking', pharmacyId);
     }
     return this.svc.list(term, category, false, limit === undefined ? undefined : queryInt(limit, 30), userId, sort || 'smart_ranking', pharmacyId);
   }

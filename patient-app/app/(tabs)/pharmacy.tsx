@@ -125,6 +125,21 @@ export default function PharmacyHub() {
   const [term, setTerm] = useState('');
   const [reloadKey, setReloadKey] = useState(0);
   const [lastOrder, setLastOrder] = useState<{ id: string; count: number; at: string } | null>(null);
+  /** #451: the catalogue's own categories (GET /medicines/categories); a chip whose category has no item is not drawn. */
+  const [catalogCats, setCatalogCats] = useState<Set<string> | null>(null);
+  useEffect(() => {
+    let stale = false;
+    apiFetch<Array<{ slug?: string; count?: number }>>('/medicines/categories')
+      .then((rows) => {
+        if (!stale && Array.isArray(rows)) setCatalogCats(new Set(rows.filter((r) => (r.count ?? 0) > 0).map((r) => String(r.slug))));
+      })
+      .catch(() => {
+        /* the chips stay as they are */
+      });
+    return () => {
+      stale = true;
+    };
+  }, []);
 
   // the search words are sent to the server once typing pauses
   useEffect(() => {
@@ -305,7 +320,7 @@ export default function PharmacyHub() {
       <View style={{ marginHorizontal: -16 }}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingHorizontal: 16 }}>
           <Chip label={k('pharmacy.hub.filter')} startIcon="sliders" count={activeFilterCount > 0 ? activeFilterCount : undefined} selected={activeFilterCount > 0} onPress={() => setFilterOpen(true)} theme={theme} />
-          {PHARMACY_CATEGORIES.map((cat) => (
+          {PHARMACY_CATEGORIES.filter((cat) => cat.id === 'all' || !catalogCats || catalogCats.has(cat.dbName)).map((cat) => (
             <Chip key={cat.id} label={k(cat.labelKey)} selected={activeCat === cat.id} onPress={() => setActiveCat(cat.id)} theme={theme} />
           ))}
         </ScrollView>

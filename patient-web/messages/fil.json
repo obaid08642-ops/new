@@ -2067,7 +2067,12 @@
       "high_potassium": "Maaaring tumaas nang sobra ang potassium. Kailangan ng regular na blood test.",
       "severe_low_blood_pressure": "Matinding pagbaba ng presyon ng dugo. Huwag kailanman pagsabayin ang mga ito.",
       "rhabdomyolysis": "Panganib ng pinsala sa kalamnan (rhabdomyolysis). Tanungin ang iyong doktor tungkol sa ibang antibiotic."
-    }
+    },
+    "sortLabel": "Pagkakasunod",
+    "sortPopular": "Pinakasikat",
+    "sortPriceAsc": "Presyo: mababa pataas",
+    "sortPriceDesc": "Presyo: mataas pababa",
+    "sortNewest": "Pinakabago"
   },
   "PharmacyOffers": {
     "backToOrder": "Bumalik sa order",

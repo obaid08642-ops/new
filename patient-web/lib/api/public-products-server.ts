@@ -166,13 +166,15 @@ export async function getPublicCategoryProducts(
   category: string | undefined,
   sub: string | undefined,
   page: number,
-  q?: string
+  q?: string,
+  sort?: "popular" | "price_asc" | "price_desc" | "newest"
 ): Promise<CategoryItems | null> {
   if (!isLocale(locale)) return null;
   const catParam = category && category.trim() ? category : "all";
   const params = new URLSearchParams({ category: catParam, page: String(page) });
   if (sub) params.set("sub", sub);
   if (q && q.trim()) params.set("q", q.trim());
+  if (sort && sort !== "popular") params.set("sort", sort);
   const data = await getJson<CategoryItems>(`/public/categories/${locale}/items?${params.toString()}`);
   if (!data) return null;
   return {

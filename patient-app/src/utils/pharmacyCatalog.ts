@@ -123,33 +123,15 @@ export function countFilters(f: HubFilters): number {
   return (f.category && f.category !== 'all' ? 1 : 0) + list(f.forms) + list(f.brands) + (f.rx === '1' ? 1 : 0) + (f.minPrice || f.maxPrice ? 1 : 0);
 }
 
-const CATEGORY_ALIASES: Record<string, string[]> = {
-  medications: ['أدوية وعلاجات', 'medications', 'أدوية ومسكنات'],
-  'hair-care': ['عناية بالشعر', 'hair-care'],
-  cosmetics: ['مكياج وإكسسوارات', 'cosmetics'],
-  skincare: ['العناية بالبشرة', 'skincare'],
-  baby: ['الأم والطفل', 'عناية بالطفل', 'baby'],
-  vitamins: ['فيتامينات ومكملات', 'فيتامينات', 'vitamins'],
-  'personal-care': ['عناية شخصية', 'personal-care'],
-};
-
 /**
- * The hub's own pass over what the server returned (unchanged from the screen it replaces): category, search words,
- * "prescription only", price range, forms, brands and the sort the filter screen asked for.
+ * The server applies the category, the search words (with Arabic normalisation and synonyms), forms, brands,
+ * "prescription only", the price range and the order (#450, #451, #472). This pass only re-applies the plain filters
+ * to a cached answer shown offline; it never filters by category or words, which the server matches more broadly.
  */
 export function filterMeds(rows: Med[], q: { activeCat: string; search: string; filters: HubFilters }): Med[] {
-  const { activeCat, search, filters } = q;
-  const cat = filters.category || activeCat;
-  const needle = search.toLowerCase();
+  const { filters } = q;
   return rows
     .filter((m) => {
-      const matchCat =
-        cat === 'all' || m.cat === cat || m.slug === cat || m.category === cat || (CATEGORY_ALIASES[cat] ?? []).includes(String(m.category));
-      const matchSearch =
-        !search ||
-        String(m.name ?? '').toLowerCase().includes(needle) ||
-        String(m.name_ar ?? '').includes(search) ||
-        String(m.activeIngredient ?? '').toLowerCase().includes(needle);
       const matchRx = filters.rx === '1' ? needsRx(m) : true;
       const price = Number(m.price ?? m.p ?? 0);
       const matchMin = filters.minPrice ? price >= parseFloat(filters.minPrice) : true;
@@ -162,7 +144,7 @@ export function filterMeds(rows: Med[], q: { activeCat: string; search: string; 
       const matchBrands = brands.length
         ? brands.some((b) => String(m.brand ?? '').includes(b) || String(m.manufacturer ?? '').includes(b) || String(m.name_ar ?? '').includes(b)) || (!m.brand && !m.manufacturer)
         : true;
-      return matchCat && matchSearch && matchRx && matchMin && matchMax && matchForms && matchBrands;
+      return matchRx && matchMin && matchMax && matchForms && matchBrands;
     })
     .sort((a, b) => {
       const pa = Number(a.price ?? a.p ?? 0);
