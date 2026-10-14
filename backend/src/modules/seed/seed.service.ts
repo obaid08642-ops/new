@@ -43,7 +43,6 @@ export class SeedService implements OnModuleInit {
       () => this.seedSystemConfig(),
       () => this.seedMedicines(),
       () => this.seedLabs(),
-      () => this.seedFacilities(),
       () => this.seedFulfillmentPolicies(),
     ]) {
       try {
@@ -57,6 +56,9 @@ export class SeedService implements OnModuleInit {
     if (testSeedEnabled) {
       for (const step of [
         () => this.seedPatient(),
+        // Real hospital names with stock photos, insurer lists and hours: test data only, never on a
+        // production boot (owner: no invented content; Q103).
+        () => this.seedFacilities(),
         () => this.seedPharmacies(),
         () => this.seedDoctors(),
         () => this.seedExtraProviders(),

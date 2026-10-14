@@ -175,6 +175,10 @@ export class MedicinesService {
     // regex), regex metacharacters escaped (an input like "+" made the pattern invalid: 500,
     // and raw patterns are a ReDoS vector), length capped.
     if (typeof search === 'string') search = search.replace(/[\u0000-\u001F\u007F-\u009F]/g, ' ').trim().slice(0, 100);
+    // Fuzz gate (15.6): same NUL-byte hardening for the category filter — an
+    // exact-match on a NUL-containing string makes MongoDB throw (500).
+    // Garbage sanitizes to empty/undefined and matches nothing (200 []).
+    if (typeof category === 'string') category = category.replace(/[\u0000-\u001F\u007F-\u009F]/g, '').trim().slice(0, 100) || undefined;
     if (search) {
       const esc = (v: string) => v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const lit = esc(search);
@@ -455,6 +459,7 @@ export class MedicinesService {
     pharmacyId?: string,
   ) {
     const cap = clampPageInt(maxItems || 500, 1, 500);
+    if (typeof category === 'string') category = category.replace(/[\u0000-\u001F\u007F-\u009F]/g, '').trim().slice(0, 100) || undefined;
     const cacheKey = `med:list:governed-v2:${search || ''}:${category || ''}:${includeUnverified}:${cap}:${sort}:${pharmacyId || 'global'}`;
     const cached = await this.redis.getJson<any[]>(cacheKey);
     if (cached) return cached;
@@ -546,6 +551,7 @@ export class MedicinesService {
   ) {
     const safeLimit = clampPageInt(limit, 30, 100);
     const safePage = clampPageInt(page, 1);
+    if (typeof category === 'string') category = category.replace(/[\u0000-\u001F\u007F-\u009F]/g, '').trim().slice(0, 100) || undefined;
     const cacheKey = `med:page:governed-v2:${search || ''}:${category || ''}:${includeUnverified}:${safePage}:${safeLimit}:${sort}:${pharmacyId || 'global'}`;
     const cached = await this.redis.getJson<any>(cacheKey);
     if (cached) return cached;
