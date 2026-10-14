@@ -33,7 +33,7 @@ describe("patient proxy allowlist — routes with a query string", () => {
     expect(isAllowedPatientApiTarget("/search", `?q=${encodeURIComponent("😀".repeat(120))}&locale=en&limit=10`, "GET")).toBe(true);
     expect(isAllowedPatientApiTarget("/search", `?q=${"a".repeat(1441)}&locale=en&limit=10`, "GET")).toBe(false);
     expect(isAllowedPatientApiTarget("/search", "?q=a&admin=1", "GET")).toBe(false);
-    expect(isAllowedPatientApiTarget("/search", "?q=a&locale=zz&limit=10", "GET")).toBe(false);
+    expect(isAllowedPatientApiTarget("/search", "?q=a&locale=../x&limit=10", "GET")).toBe(false);
     expect(isAllowedPatientApiTarget("/home/search", "?q=a", "GET")).toBe(false);
   });
   it("keeps plain paths working as before", () => {
