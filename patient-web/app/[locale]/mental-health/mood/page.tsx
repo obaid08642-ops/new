@@ -2,6 +2,10 @@ import type { ReactNode } from "react";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { parseMoodHistory } from "@/lib/api/mood";
+
+/** The server sends a mood code from a fixed list (MoodValue); the page translates it, never shows it raw. */
+const MOOD_CODES = ["great", "good", "okay", "bad", "terrible"] as const;
+const isMoodCode = (value?: string): value is (typeof MOOD_CODES)[number] => MOOD_CODES.some((code) => code === value);
 import { getPatientMoodHistory } from "@/lib/api/mood-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { formatDate } from "@/lib/format-date";
@@ -53,7 +57,7 @@ export default async function MoodJournalPage({ params }: Props) {
             <RecordRow
               icon="heart"
               tone="pink"
-              title={entry.mood || t("moodUnavailable")}
+              title={isMoodCode(entry.mood) ? t(`moodValue.${entry.mood}`) : t("moodUnavailable")}
               sub={[
                 entry.energy !== undefined ? t("energy", { value: number.format(entry.energy) }) : null,
                 entry.stress !== undefined ? t("stress", { value: number.format(entry.stress) }) : null,

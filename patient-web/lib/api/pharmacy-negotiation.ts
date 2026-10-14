@@ -3,7 +3,7 @@
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const uuid = (value: unknown): string | undefined => (typeof value === "string" && UUID.test(value) ? value : undefined);
 export type PatientPharmacyThread = { id: string; orderId?: string; orderItemId?: string; status?: string; resolution?: string };
-export type PatientPharmacyMessage = { id: string; text?: string; senderRole?: string; createdAt?: string; substitute?: { sku?: string; name?: string; price?: number; notes?: string } };
+export type PatientPharmacyMessage = { id: string; text?: string; senderRole?: string; systemCode?: string; createdAt?: string; substitute?: { sku?: string; name?: string; price?: number; notes?: string } };
 
 function record(value: unknown): Record<string, unknown> | null { return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null; }
 function string(recordValue: Record<string, unknown> | null, keys: string[]) { for (const key of keys) if (typeof recordValue?.[key] === "string" && recordValue[key].trim()) return recordValue[key] as string; return undefined; }
@@ -16,7 +16,7 @@ export function extractPatientPharmacyThreads(value: unknown): PatientPharmacyTh
 
 export function extractPatientPharmacyMessages(value: unknown): PatientPharmacyMessage[] {
   const root = record(value); const source = Array.isArray(root?.messages) ? root.messages : Array.isArray(root?.data) ? root.data : [];
-  return source.flatMap((candidate) => { const item = record(candidate); const id = uuid(string(item, ["id"])); const substitute = record(item?.substitute_offer); return id ? [{ id, text: string(item, ["text"]), senderRole: string(item, ["sender_role", "senderRole"]), createdAt: string(item, ["createdAt", "created_at"]), substitute: substitute ? { sku: string(substitute, ["sku"]), name: string(substitute, ["name"]), price: number(substitute, ["price"]), notes: string(substitute, ["notes"])} : undefined }] : []; });
+  return source.flatMap((candidate) => { const item = record(candidate); const id = uuid(string(item, ["id"])); const substitute = record(item?.substitute_offer); return id ? [{ id, text: string(item, ["text"]), senderRole: string(item, ["sender_role", "senderRole"]), systemCode: string(item, ["system_code"]), createdAt: string(item, ["createdAt", "created_at"]), substitute: substitute ? { sku: string(substitute, ["sku"]), name: string(substitute, ["name"]), price: number(substitute, ["price"]), notes: string(substitute, ["notes"])} : undefined }] : []; });
 }
 
 /**

@@ -7,12 +7,13 @@ import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 
 const uid = (u: any) => u?.id || u?._id || u?.user_id;
 
-const INTERACTION_RULES: Array<{ a: string[]; b: string[]; severity: string; note_ar: string }> = [
-  { a: ['warfarin', 'وارفارين'], b: ['aspirin', 'أسبرين', 'ibuprofen', 'ايبوبروفين'], severity: 'high', note_ar: 'زيادة خطر النزيف — راجع الطبيب فوراً' },
-  { a: ['metformin', 'ميتفورمين'], b: ['alcohol', 'كحول'], severity: 'moderate', note_ar: 'خطر الحماض اللبني — تجنب الكحول' },
-  { a: ['lisinopril', 'ليزينوبريل'], b: ['potassium', 'بوتاسيوم'], severity: 'moderate', note_ar: 'ارتفاع البوتاسيوم — مراقبة دورية' },
-  { a: ['sildenafil', 'سيلدينافيل'], b: ['nitroglycerin', 'نيتروجليسرين'], severity: 'high', note_ar: 'هبوط حاد في الضغط — ممنوع الدمج' },
-  { a: ['simvastatin', 'سيمفاستاتين'], b: ['clarithromycin', 'كلاريثرومايسين'], severity: 'high', note_ar: 'خطر انحلال الربيدات — بدّل المضاد الحيوي' },
+// `code` is what the patient apps translate (six languages); note_ar stays for older readers.
+const INTERACTION_RULES: Array<{ a: string[]; b: string[]; severity: string; code: string; note_ar: string }> = [
+  { a: ['warfarin', 'وارفارين'], b: ['aspirin', 'أسبرين', 'ibuprofen', 'ايبوبروفين'], severity: 'high', code: 'bleeding_risk', note_ar: 'زيادة خطر النزيف — راجع الطبيب فوراً' },
+  { a: ['metformin', 'ميتفورمين'], b: ['alcohol', 'كحول'], severity: 'moderate', code: 'lactic_acidosis', note_ar: 'خطر الحماض اللبني — تجنب الكحول' },
+  { a: ['lisinopril', 'ليزينوبريل'], b: ['potassium', 'بوتاسيوم'], severity: 'moderate', code: 'high_potassium', note_ar: 'ارتفاع البوتاسيوم — مراقبة دورية' },
+  { a: ['sildenafil', 'سيلدينافيل'], b: ['nitroglycerin', 'نيتروجليسرين'], severity: 'high', code: 'severe_low_blood_pressure', note_ar: 'هبوط حاد في الضغط — ممنوع الدمج' },
+  { a: ['simvastatin', 'سيمفاستاتين'], b: ['clarithromycin', 'كلاريثرومايسين'], severity: 'high', code: 'rhabdomyolysis', note_ar: 'خطر انحلال الربيدات — بدّل المضاد الحيوي' },
 ];
 
 @Controller('ai')
@@ -40,7 +41,7 @@ export class AiInteractionsController {
     for (const rule of INTERACTION_RULES) {
       const hasA = all.some((d) => rule.a.some((k) => d.includes(k)));
       const hasB = all.some((d) => rule.b.some((k) => d.includes(k)));
-      if (hasA && hasB) hits.push({ severity: rule.severity, note_ar: rule.note_ar });
+      if (hasA && hasB) hits.push({ severity: rule.severity, code: rule.code, note_ar: rule.note_ar });
     }
     return { checked: all.length, interactions: hits, safe: hits.filter((h) => h.severity === 'high').length === 0 };
   }

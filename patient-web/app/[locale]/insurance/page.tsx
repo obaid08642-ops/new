@@ -7,6 +7,10 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { formatDate } from "@/lib/format-date";
 import { parseBenefits, parseProviders, parseRequestRows, isRequestState, requestTone, tabOf, type InsuranceTab } from "@/lib/insurance/view";
+
+/** GET /providers sends the provider type as a code (ProviderType); the page translates it, never shows it raw. */
+const PROVIDER_TYPES = ["doctor", "pharmacy", "hospital", "clinic", "lab", "radiology", "home_care", "nursing"] as const;
+const isProviderType = (value?: string): value is (typeof PROVIDER_TYPES)[number] => PROVIDER_TYPES.some((type) => type === value);
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { Notice } from "@/components-next/consult/consult-parts";
@@ -93,7 +97,7 @@ export default async function InsurancePage({ params, searchParams }: Props) {
     const benefits = res && res.status >= 200 && res.status < 300 ? parseBenefits(res.body) : null;
     content = benefits === null ? unavailable : benefits.length === 0 ? empty(t("benefitsEmpty")) : (
       <RowsList label={t("tabBenefits")}>
-        {benefits.map((row) => <InsuranceRow key={row.key} locale={locale} title={t("benefitTitle")} sub={row.note} />)}
+        {benefits.map((row) => <InsuranceRow key={row.key} locale={locale} title={t("benefitTitle")} sub={row.noteCode ? t(`noteCode.${row.noteCode}`) : undefined} />)}
       </RowsList>
     );
   } else {
@@ -129,7 +133,7 @@ export default async function InsurancePage({ params, searchParams }: Props) {
         </form>
         {providers === null ? unavailable : providers.length === 0 ? empty(t("networkEmpty")) : (
           <RowsList label={t("tabNetwork")}>
-            {providers.map((provider) => <InsuranceRow key={provider.id} locale={locale} title={provider.name} sub={provider.type} />)}
+            {providers.map((provider) => <InsuranceRow key={provider.id} locale={locale} title={provider.name} sub={isProviderType(provider.type) ? t(`providerType.${provider.type}`) : undefined} />)}
           </RowsList>
         )}
       </>
