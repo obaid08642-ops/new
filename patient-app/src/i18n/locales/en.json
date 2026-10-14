@@ -3221,6 +3221,8 @@
   "care.nut.planNotice": "This plan is general guidance from the AI assistant, not a medical prescription. Talk to a nutritionist before any big change.",
   "care.nut.planDay": "Day {n}",
   "ai.history.title": "Your earlier questions",
+  "search.kind.specialties": "Specialties",
+  "search.kind.nursingServices": "Nursing services",
   "insurance.benefits.requestsTitle": "Insurance requests: {count}",
   "insurance.benefits.insurerCovered": "Covered by insurer",
   "insurance.benefits.youPaid": "You paid"

@@ -67,12 +67,3 @@ export function parseTriageHistory(payload: unknown): PastTriage[] {
   return out.reverse();
 }
 
-/** The text of an analysis answer (POST /api/ai/analyze-report); null when it has none. */
-export function analysisSummary(payload: unknown): string | null {
-  const root = record(payload);
-  const nested = record(root?.data);
-  for (const candidate of [root?.summary, root?.result, nested?.summary]) {
-    if (typeof candidate === "string" && candidate.trim()) return candidate;
-  }
-  return null;
-}

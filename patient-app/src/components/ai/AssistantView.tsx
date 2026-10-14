@@ -20,7 +20,7 @@ import { AI_HOME, AnswerCard, CheckRow, MyBubble } from './AssistantKit';
  *    anything else the "book a consultation" button, which opens the doctor list on the server's `specialty` when it names one.
  *    No diagnosis, no treatment, no doses. Earlier questions come from GET /ai/triage/history.
  *  - prescription: the photo of a prescription or leaflet, POST /ai/ocr-translate { image_base64, target_lang }.
- *  - report: the server refuses automated report interpretation (POST /ai/analyze-report answers "unavailable"), so the mode
+ *  - report: there is no automated report interpretation (a report is explained by a doctor), so the mode
  *    sends no request and points to the reports and to a consultation.
  */
 

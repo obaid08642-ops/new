@@ -1,7 +1,7 @@
 # ═══════════════════════════════════════════════════════════════════
 # Nabdah Plus — PRODUCTION stack (nabd.plus)
 # Services: backend(NestJS) fastapi admin-web(Next.js) mongodb redis
-#           livekit coturn nginx certbot
+#           meilisearch livekit coturn nginx certbot
 # All stateful data in named volumes. All services auto-restart.
 # ═══════════════════════════════════════════════════════════════════
 name: nabdah-prod
@@ -55,6 +55,27 @@ services:
       start_period: 5s
     logging: *logopts
 
+  # ── Meilisearch (D-29 search engine; ~300 MB RAM; mirror of the MongoDB search_index) ──
+  meilisearch:
+    image: getmeili/meilisearch:v1.10
+    container_name: nabdah-meilisearch
+    restart: unless-stopped
+    environment:
+      MEILI_ENV: production
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+      MEILI_NO_ANALYTICS: "true"
+      MEILI_MAX_INDEXING_MEMORY: 256Mb
+    volumes:
+      - meili_data:/meili_data
+    networks: [internal]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:7700/health"]
+      interval: 15s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    logging: *logopts
+
   # ── NestJS Backend (API + Socket.IO + BullMQ workers + crons in-process) ──
   backend:
     build:
@@ -74,6 +95,9 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: "6379"
       REDIS_PASSWORD: ${REDIS_PASSWORD}
+      # Search answers from MongoDB while Meilisearch is down or not configured (no hard dependency).
+      MEILI_URL: http://meilisearch:7700
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
     depends_on:
       mongodb: { condition: service_healthy }
       redis: { condition: service_healthy }
@@ -239,6 +263,7 @@ services:
 volumes:
   mongo_data:
   redis_data:
+  meili_data:
   nginx_cache:
 
 networks:

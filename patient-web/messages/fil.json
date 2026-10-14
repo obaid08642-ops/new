@@ -1289,7 +1289,15 @@
     "rxHelp": "Hindi mo makita? I-upload ang reseta at hahanapin ito ng mga botika para sa iyo",
     "rxAction": "I-upload ang reseta",
     "price": "{value} SAR",
-    "rating": "Rating {value}"
+    "rating": "Rating {value}",
+    "kindMedicine": "Gamot",
+    "kindDoctor": "Doktor",
+    "kindSpecialty": "Espesyalidad",
+    "kindLab": "Pagsusuri sa lab",
+    "kindLabPackage": "Pakete ng test",
+    "kindRadiology": "Radyolohiya",
+    "kindNursing": "Pag-aalaga",
+    "kindArticle": "Artikulo"
   },
   "Support": {
     "title": "Suporta",
@@ -1477,7 +1485,11 @@
     "resultTitle": "Resulta ng pagsusuri",
     "error": "Hindi nakumpleto ang pagsusuri. Subukan muli.",
     "disclaimer": "Ang pagsusuring ito ay impormasyon lamang at hindi kapalit ng payong medikal.",
-    "empty": "Wala pang available na medical report."
+    "empty": "Wala pang available na medical report.",
+    "unavailableTitle": "Ipaliwanag ang aking ulat",
+    "unavailableBody": "Hindi available ang awtomatikong paliwanag ng mga medical report. Buksan ang iyong mga report o ibahagi sa doktor para ipaliwanag.",
+    "openReports": "Aking mga report",
+    "shareReport": "Ibahagi ang report sa doktor"
   },
   "Payments": {
     "successTitle": "Matagumpay ang pagbabayad",
