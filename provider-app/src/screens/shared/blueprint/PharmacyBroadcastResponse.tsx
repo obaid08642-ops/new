@@ -29,6 +29,9 @@ export function PharmacyBroadcastResponse({ onBack, broadcast }: { onBack: () =>
   const [loadingCatalog, setLoadingCatalog] = useState(false);
   const [busy, setBusy] = useState(false);
   const [providerNote, setProviderNote] = useState('');
+  /** #507: the pharmacy's own preparation estimate (minutes); empty sends none. */
+  const [prepMinutes, setPrepMinutes] = useState('');
+  const prepBody = () => { const n = Number(prepMinutes); return Number.isInteger(n) && n >= 5 && n <= 240 ? { preparation_minutes: n } : {}; };
   // Per-line re-search (name or barcode) over the pharmacy's own inventory.
   const [terms, setTerms] = useState<Record<string, string>>({});
   const [searching, setSearching] = useState<string | null>(null);
@@ -93,7 +96,7 @@ export function PharmacyBroadcastResponse({ onBack, broadcast }: { onBack: () =>
     if (!orderId) return;
     setBusy(true);
     try {
-      const response = await client.post(`/provider/pharmacy/broadcasts/${orderId}/offers/preview`, { items: offerItems() });
+      const response = await client.post(`/provider/pharmacy/broadcasts/${orderId}/offers/preview`, { items: offerItems(), ...prepBody() });
       setQuote(response.data);
       show(AR ? 'تم احتساب المعاينة من الخادم' : 'Server quote preview calculated', 'success');
     } catch (error: any) {
@@ -109,7 +112,7 @@ export function PharmacyBroadcastResponse({ onBack, broadcast }: { onBack: () =>
     }
     setBusy(true);
     try {
-      const draft = await client.post(`/provider/pharmacy/broadcasts/${orderId}/offers/draft`, { items: offerItems(), ...(providerNote.trim() ? { provider_note: providerNote.trim().slice(0, 500) } : {}) });
+      const draft = await client.post(`/provider/pharmacy/broadcasts/${orderId}/offers/draft`, { items: offerItems(), ...prepBody(), ...(providerNote.trim() ? { provider_note: providerNote.trim().slice(0, 500) } : {}) });
       setQuote({ ...quote, draft: draft.data });
       show(AR ? 'حُفظت مسودة العرض؛ السعر والمخزون حددهما الخادم' : 'Offer draft saved; price and stock came from the server.', 'success');
     } catch (error: any) {
@@ -169,6 +172,7 @@ export function PharmacyBroadcastResponse({ onBack, broadcast }: { onBack: () =>
           </NCard>;
         })}
         <NCard><Text style={{ color: theme.text, fontWeight: FW.bold }}>{AR ? 'التسليم' : 'Fulfillment'}</Text>{quote ? <Text style={{ color: theme.textSub }}>{AR ? `رسوم التوصيل في المعاينة: ${quote.totals?.delivery_fee ?? 0} ر.س (يحددها الخادم)` : `Delivery fee in the preview: ${quote.totals?.delivery_fee ?? 0} SAR (set by the server)`}</Text> : <Text style={{ color: theme.textSub }}>{AR ? 'تظهر رسوم التوصيل بعد المعاينة الخادمية؛ لا يُقبل خيار أو رسوم أو ETA من الواجهة.' : 'The delivery fee appears after the server preview; the interface cannot set an option, fee, or ETA.'}</Text>}</NCard>
+        <NCard><NInput label={AR ? 'وقت التجهيز بالدقائق (اختياري، 5 إلى 240)' : 'Preparation time in minutes (optional, 5-240)'} value={prepMinutes} kbType="number-pad" onChange={(v: string) => { setPrepMinutes(v.replace(/[^0-9]/g, '').slice(0, 3)); setQuote(null); }} /></NCard>
         <NCard><NInput label={AR ? 'ملاحظة للمريض (اختياري)' : 'Note for patient (optional)'} value={providerNote} onChange={(v: string) => setProviderNote(v.slice(0, 500))} multi multiline lines={2} maxLen={500} /></NCard>
         {quote && <NCard><Text style={{ color: theme.text, fontWeight: FW.bold }}>{AR ? 'معاينة خادمية' : 'Server quote preview'}</Text><Text style={{ color: theme.text }}>{AR ? `الإجمالي: ${quote.totals?.total ?? '—'} ${quote.totals?.currency ?? ''}` : `Total: ${quote.totals?.total ?? '—'} ${quote.totals?.currency ?? ''}`}</Text><Text style={{ color: theme.textSub }}>{AR ? `صالحة للمسودة لمدة ${quote.quote_ttl_seconds ?? 600} ثانية` : `Draft quote TTL: ${quote.quote_ttl_seconds ?? 600} seconds`}</Text><Text style={{ color: theme.textSub }}>{quote.fulfillment?.policy_status === 'unavailable_read_only' ? (AR ? 'سياسة التسليم غير متاحة للقراءة فقط.' : 'Delivery policy unavailable (read-only).') : ''}</Text></NCard>}
         <NBtn label={busy ? (AR ? 'جارٍ المعالجة…' : 'Working…') : (AR ? 'معاينة خادمية' : 'Server quote preview')} disabled={busy} onPress={preview} />

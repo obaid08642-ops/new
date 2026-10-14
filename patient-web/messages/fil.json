@@ -1782,7 +1782,8 @@
     "waysLabel": "Mga paraan ng pag-order gamit ang reseta",
     "viaPhoto": "Kunan",
     "viaUpload": "I-upload",
-    "viaType": "I-type ang pangalan"
+    "viaType": "I-type ang pangalan",
+    "errorBusy": "Masyadong maraming subok sa maikling oras. Maghintay ng isang minuto, saka subukan muli."
   },
   "HubSeo": {
     "privacy": {
@@ -2263,7 +2264,8 @@
       "network": "Hindi maabot ang serbisyo. Suriin ang koneksyon at subukan muli.",
       "generic": "Hindi makumpleto ang aksyon. Walang nagbago.",
       "alreadyPaid": "Bayad na ang order na ito."
-    }
+    },
+    "lastFromYou": "Ikaw: {text}"
   },
   "PharmacyCheckout": {
     "title": "Pag-checkout",

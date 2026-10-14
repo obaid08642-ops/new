@@ -95,6 +95,8 @@ export async function NegotiationListScreen({ locale, orderId }: { locale: Local
           <ul className={styles.rows} aria-label={t("negotiationTitle")}>
             {threads.map((thread) => {
               const item = thread.orderItemId ? names.get(thread.orderItemId) : undefined;
+              // the pharmacy's name in the page's language; the other language only when that is all it has
+              const pharmacy = (locale === "ar" ? thread.pharmacyNameAr ?? thread.pharmacyNameEn : thread.pharmacyNameEn ?? thread.pharmacyNameAr) ?? null;
               const status = thread.status === "open" || thread.status === "closed" || thread.status === "archived" ? thread.status : null;
               const resolution = thread.resolution === "accepted" || thread.resolution === "rejected" || thread.resolution === "removed" || thread.resolution === "timeout" ? thread.resolution : null;
               return (
@@ -103,6 +105,8 @@ export async function NegotiationListScreen({ locale, orderId }: { locale: Local
                     <FIcon icon="chat-circle-text" tone={OFFER_TONES.pharmacy} size={48} />
                     <span className={styles.rowBody}>
                       <span className={styles.rowName}>{item ? t("conversationFor", { name: item }) : t("threadTitle")}</span>
+                      {pharmacy ? <span className={styles.rowSub} dir="auto">{pharmacy}</span> : null}
+                      {thread.lastText ? <span className={styles.rowSub} dir="auto">{thread.lastFrom === "patient" ? t("lastFromYou", { text: thread.lastText }) : thread.lastText}</span> : null}
                       <span className={styles.chips}>
                         {status ? <StatusChip label={t(`thread.${status}`)} tone={status === "open" ? OFFER_TONES.good : OFFER_TONES.info} /> : null}
                         {resolution ? <StatusChip label={t(`resolution.${resolution}`)} tone={OFFER_TONES.info} /> : null}

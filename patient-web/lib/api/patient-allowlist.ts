@@ -31,7 +31,6 @@ const patientReadRoutes = [
   new RegExp("^/support/chat$", "i"),
   new RegExp(`^/orders/${orderId}/tracking$`, "i"),
   new RegExp("^/cart$"),
-  new RegExp("^/cart/checkout$"),
   new RegExp("^/cart/prescription$"),
   new RegExp("^/nursing/visits$"),
   new RegExp(`^/nursing/visits/${orderId}$`, "i"),

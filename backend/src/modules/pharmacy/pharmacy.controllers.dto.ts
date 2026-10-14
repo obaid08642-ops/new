@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, Max, MaxLength, Min, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsInt, IsNumber, IsObject, IsOptional, IsString, Max, MaxLength, Min, ValidateNested } from 'class-validator';
 import { AllocationItemAction } from './schemas/pharmacy.schema';
 import { Type } from 'class-transformer';
 
@@ -103,6 +103,15 @@ export class UpdateDto {
   @IsOptional()
   @IsString()
   patient_notes?: string;
+
+  /** #544: a draft keeps its fulfilment and address up to date instead of a second draft being created. */
+  @IsOptional()
+  @IsIn(['delivery', 'pickup'])
+  fulfillment?: 'delivery' | 'pickup';
+
+  @IsOptional()
+  @IsString()
+  delivery_address_id?: string;
 
 }
 
@@ -350,6 +359,13 @@ export class PreviewOfferDto {
   @IsNumber()
   eta_minutes?: number;
 
+  /** #507: the pharmacy's own preparation estimate in minutes (shown to the patient as given; nothing is computed). */
+  @IsOptional()
+  @IsInt()
+  @Min(5)
+  @Max(240)
+  preparation_minutes?: number;
+
   @IsOptional()
   @IsString()
   provider_note?: string;
@@ -369,6 +385,13 @@ export class DraftOfferDto {
   @IsOptional()
   @IsNumber()
   eta_minutes?: number;
+
+  /** #507: the pharmacy's own preparation estimate in minutes (shown to the patient as given; nothing is computed). */
+  @IsOptional()
+  @IsInt()
+  @Min(5)
+  @Max(240)
+  preparation_minutes?: number;
 
   @IsOptional()
   @IsString()
