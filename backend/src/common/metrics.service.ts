@@ -120,15 +120,19 @@ export class MetricsService {
     declare('nabd_http_p99_ms', 'gauge', 'p99 latency in ms.');
 
     for (const [route, stat] of this.routes) {
-      const labels = `{route="${escapeLabel(route)}"}`;
+      // Built rather than spliced: the route is escaped once, and the label set
+      // is assembled whole, so there is no way to emit an unbalanced brace.
+      const routeLabel = escapeLabel(route);
+      const labels = `{route="${routeLabel}"}`;
+      const bucketLabels = (le: string) => `{route="${routeLabel}",le="${le}"}`;
       lines.push(`nabd_http_requests_total${labels} ${stat.count}`);
       lines.push(`nabd_http_errors_total${labels} ${stat.errors}`);
       lines.push(`nabd_http_duration_ms_sum${labels} ${stat.totalMs}`);
       lines.push(`nabd_http_duration_ms_max${labels} ${stat.maxMs}`);
       for (let i = 0; i < LATENCY_BUCKETS.length; i += 1) {
-        lines.push(`nabd_http_duration_ms_bucket${labels.replace('}', `,le="${LATENCY_BUCKETS[i]}"}`)} ${stat.buckets[i]}`);
+        lines.push(`nabd_http_duration_ms_bucket${bucketLabels(String(LATENCY_BUCKETS[i]))} ${stat.buckets[i]}`);
       }
-      lines.push(`nabd_http_duration_ms_bucket${labels.replace('}', ',le="+Inf"}')} ${stat.count}`);
+      lines.push(`nabd_http_duration_ms_bucket${bucketLabels('+Inf')} ${stat.count}`);
       lines.push(`nabd_http_p50_ms${labels} ${this.percentile(stat, 50)}`);
       lines.push(`nabd_http_p95_ms${labels} ${this.percentile(stat, 95)}`);
       lines.push(`nabd_http_p99_ms${labels} ${this.percentile(stat, 99)}`);
