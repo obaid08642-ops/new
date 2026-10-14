@@ -3187,5 +3187,12 @@
   "address.editFailed": "Hindi nai-save ang mga pagbabago. Subukan muli.",
   "modules.unavailable.title": "Hindi available ang serbisyong ito ngayon",
   "modules.unavailable.body": "Pansamantala naming inihinto ang serbisyong ito. Magagamit mo pa rin ang iba pang bahagi ng app.",
-  "modules.unavailable.home": "Bumalik sa Home"
+  "modules.unavailable.home": "Bumalik sa Home",
+  "nur.hub.noMatch": "Walang serbisyong tugma sa hinanap mo",
+  "nur.live.steps": "Mga hakbang ng pagbisita",
+  "nur.step.CONFIRMED": "Kumpirmado ang pagbisita",
+  "nur.step.IN_TRANSIT": "Papunta na ang nars",
+  "nur.step.ARRIVED": "Dumating na ang nars",
+  "nur.step.CARE_IN_PROGRESS": "Isinasagawa ang pag-aalaga",
+  "nur.step.COMPLETED": "Tapos na ang pagbisita"
 }

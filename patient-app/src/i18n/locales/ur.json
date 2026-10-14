@@ -3187,5 +3187,12 @@
   "address.editFailed": "تبدیلیاں محفوظ نہیں ہو سکیں۔ دوبارہ کوشش کریں۔",
   "modules.unavailable.title": "یہ سروس ابھی دستیاب نہیں ہے",
   "modules.unavailable.body": "ہم نے یہ سروس عارضی طور پر روک دی ہے۔ آپ باقی ایپ استعمال کرتے رہ سکتے ہیں۔",
-  "modules.unavailable.home": "ہوم پر واپس جائیں"
+  "modules.unavailable.home": "ہوم پر واپس جائیں",
+  "nur.hub.noMatch": "آپ کی تلاش سے کوئی سروس نہیں ملتی",
+  "nur.live.steps": "وزٹ کے مراحل",
+  "nur.step.CONFIRMED": "وزٹ کی تصدیق ہو گئی",
+  "nur.step.IN_TRANSIT": "نرس راستے میں ہے",
+  "nur.step.ARRIVED": "نرس پہنچ گئی",
+  "nur.step.CARE_IN_PROGRESS": "دیکھ بھال جاری ہے",
+  "nur.step.COMPLETED": "وزٹ مکمل ہو گئی"
 }

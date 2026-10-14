@@ -3187,5 +3187,12 @@
   "address.editFailed": "We could not save the changes. Try again.",
   "modules.unavailable.title": "This service is unavailable right now",
   "modules.unavailable.body": "We have paused this service for the moment. You can keep using the rest of the app.",
-  "modules.unavailable.home": "Back to Home"
+  "modules.unavailable.home": "Back to Home",
+  "nur.hub.noMatch": "No service matches your search",
+  "nur.live.steps": "Visit steps",
+  "nur.step.CONFIRMED": "Visit confirmed",
+  "nur.step.IN_TRANSIT": "Nurse on the way",
+  "nur.step.ARRIVED": "Nurse arrived",
+  "nur.step.CARE_IN_PROGRESS": "Care in progress",
+  "nur.step.COMPLETED": "Visit completed"
 }

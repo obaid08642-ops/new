@@ -3187,5 +3187,12 @@
   "address.editFailed": "تعذّر حفظ التعديل. حاول مرة أخرى.",
   "modules.unavailable.title": "هذه الخدمة غير متاحة الآن",
   "modules.unavailable.body": "أوقفنا هذه الخدمة مؤقتاً. يمكنك متابعة استخدام بقية الخدمات.",
-  "modules.unavailable.home": "العودة إلى الرئيسية"
+  "modules.unavailable.home": "العودة إلى الرئيسية",
+  "nur.hub.noMatch": "لا توجد خدمة تطابق بحثك",
+  "nur.live.steps": "مراحل الزيارة",
+  "nur.step.CONFIRMED": "تم تأكيد الزيارة",
+  "nur.step.IN_TRANSIT": "الممرض في الطريق",
+  "nur.step.ARRIVED": "وصل الممرض",
+  "nur.step.CARE_IN_PROGRESS": "الرعاية جارية",
+  "nur.step.COMPLETED": "اكتملت الزيارة"
 }

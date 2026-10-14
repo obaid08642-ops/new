@@ -3,15 +3,14 @@ import { Pressable, Text, View } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
 
 import { Button, Radio } from '../../../packages/ui-native/src';
-import { ConsultScreen, Gate, InfoRow, ResultHero, Section, Sheet, type GateStatus } from '../../src/components/consult/ConsultKit';
-import { DayStrip, DoctorHead, SlotGrid, useDays, type SlotItem } from '../../src/components/consult/ConsultBooking';
+import { ConsultScreen, Gate, InfoRow, ResultHero, Section, Sheet, useConsultFormat, type GateStatus } from '../../src/components/consult/ConsultKit';
+import { DayStrip, DoctorHead, SlotGrid, slotsEmptyKey, useDays } from '../../src/components/consult/ConsultBooking';
 import { AmountLine, Block, PlaceRow } from '../../src/components/diagnostics/DiagKit';
 import { Notice } from '../../src/components/pharmacy/OfferKit';
 import { Glyph } from '../../src/components/pharmacy/PharmacyKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 import { apiFetch } from '../../src/utils/api';
-import { dateLocaleFor } from '../../src/utils/dates';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { paymentIntentHeaders } from '../../src/utils/payment-idempotency';
@@ -20,8 +19,8 @@ import { formatAddressLine, resolveEffectiveAddress } from '../../src/utils/sele
 type Rec = Record<string, unknown>;
 const str = (v: unknown): string => (typeof v === 'string' || typeof v === 'number' ? String(v) : '');
 
-// 24h canonical slots; the label is formatted for the language (Intl)
-const TIMES = ['08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00'];
+/** One time of the nurse's home-visit schedule (GET /home-care/providers/:id/slots): `start` is the ISO instant. */
+interface Slot { start: string; available?: boolean }
 const DAY_COUNTS = Array.from({ length: 20 }, (_, i) => i + 1);
 
 /**
@@ -30,9 +29,8 @@ const DAY_COUNTS = Array.from({ length: 20 }, (_, i) => i + 1);
  * insurance request and the payment hand-off are exactly what they were; only the look changed.
  */
 export default function NursingMegaProfile() {
-  const { theme, t, c, k, lang, num, money, flow: textFlow } = useScreenUi();
+  const { theme, t, c, k, num, money, flow: textFlow } = useScreenUi();
   const { nurseId, flow, serviceId } = useLocalSearchParams<{ nurseId?: string; flow?: string; serviceId?: string }>();
-  const locale = dateLocaleFor(lang);
   const days = useDays(30);
 
   const [nurse, setNurse] = useState<Rec | null>(null);
@@ -44,7 +42,12 @@ export default function NursingMegaProfile() {
   // (never a second booking), and the patient is never sent to tracking while it is unpaid.
   const [unpaidBookingId, setUnpaidBookingId] = useState<string | null>(null);
   const [dayIndex, setDayIndex] = useState(0);
-  const [selectedTime, setSelectedTime] = useState(TIMES[0]);
+  // #642: the times are the nurse's own free slots for the chosen day; the id is the slot's ISO start.
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [slotList, setSlotList] = useState<Slot[]>([]);
+  const [slotsReason, setSlotsReason] = useState<string | null>(null);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+  const { clock } = useConsultFormat();
   const [daysCount, setDaysCount] = useState(1);
   const [frequencyOpen, setFrequencyOpen] = useState(false);
   const [transportMode, setTransportMode] = useState<'patient' | 'nurse'>('nurse');
@@ -88,12 +91,35 @@ export default function NursingMegaProfile() {
     void load();
   }, [load]);
 
-  const slots: SlotItem[] = TIMES.map((id) => {
-    const [h, m] = id.split(':').map(Number);
-    const d = new Date();
-    d.setHours(h, m, 0, 0);
-    return { id, label: new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit', numberingSystem: 'latn' }).format(d), available: true };
-  });
+  useEffect(() => {
+    if (!nurseId || !selectedDate) return;
+    let active = true;
+    setLoadingSlots(true);
+    setSelectedTime(null);
+    setSlotList([]);
+    setSlotsReason(null);
+    apiFetch<{ slots?: Slot[]; reason?: string }>(`/home-care/providers/${encodeURIComponent(String(nurseId))}/slots?date=${selectedDate}`)
+      .then((res) => {
+        if (!active) return;
+        const list = Array.isArray(res?.slots) ? res.slots.filter((x) => typeof x?.start === 'string') : [];
+        setSlotList(list);
+        // the first free time is chosen, as the fixed list chose its first time before
+        setSelectedTime(list.find((x) => x.available !== false)?.start ?? null);
+        setSlotsReason(res?.reason || null);
+      })
+      .catch((err) => {
+        logError('nursing:nurse-profile:slots', err);
+        if (active) setSlotsReason('error');
+      })
+      .finally(() => {
+        if (active) setLoadingSlots(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [nurseId, selectedDate]);
+
+  const slots = slotList.map((x) => ({ id: x.start, label: clock(x.start), available: x.available !== false }));
 
   // Financial calculation: the real price only; the backend recomputes the total from the service record
   const basePrice = Number(nurse?.price);
@@ -160,12 +186,9 @@ export default function NursingMegaProfile() {
     }
     setProcessing(true);
     try {
-      // selectedDate = YYYY-MM-DD, selectedTime = "08:00": a real ISO timestamp
-      const timeMatch = (selectedTime || '').match(/(\d{1,2}):(\d{2})/);
-      const hours = timeMatch ? parseInt(timeMatch[1], 10) : 9;
-      const minutes = timeMatch ? parseInt(timeMatch[2], 10) : 0;
-      const scheduled = new Date(`${selectedDate}T00:00:00`);
-      scheduled.setHours(hours, minutes, 0, 0);
+      // selectedTime is the chosen slot's ISO start from the nurse's schedule
+      if (!selectedTime) return;
+      const scheduled = new Date(selectedTime);
       const payload = {
         provider_id: nurseId,
         service_id: serviceId || undefined,
@@ -251,7 +274,7 @@ export default function NursingMegaProfile() {
 
         <Section title={k('nur.book.when')}>
           <DayStrip days={days} value={dayIndex} onChange={setDayIndex} label={k('nur.book.day')} />
-          <SlotGrid slots={slots} value={selectedTime} onChange={setSelectedTime} loading={false} emptyText="" />
+          <SlotGrid slots={slots} value={selectedTime} onChange={setSelectedTime} loading={loadingSlots} emptyText={k(slotsEmptyKey(slotsReason))} />
           <Pressable accessibilityRole="button" accessibilityLabel={`${k('nur.book.frequency')}: ${daysCount === 1 ? k('nur.book.once') : k('nur.book.everyDay', { n: num(daysCount) })}`} onPress={() => setFrequencyOpen(true)} style={({ pressed }) => ({ minHeight: 56, borderRadius: 18, paddingHorizontal: 16, paddingVertical: 8, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, justifyContent: 'center', gap: 2, opacity: pressed ? 0.85 : 1 })}>
             <Text style={{ ...scale(t, 'tag', 'regular'), color: c.text.secondary, ...textFlow }}>{k('nur.book.frequency')}</Text>
             <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, ...textFlow }}>{daysCount === 1 ? k('nur.book.once') : k('nur.book.everyDay', { n: num(daysCount) })}</Text>

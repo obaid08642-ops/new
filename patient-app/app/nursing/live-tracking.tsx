@@ -3,8 +3,8 @@ import { Linking, StyleSheet, Text, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { Button } from '../../../packages/ui-native/src';
-import { CARE_TONE, ConsultScreen, Gate, InfoRow, ResultHero, goBack, type GateStatus } from '../../src/components/consult/ConsultKit';
-import { Block, PersonRow, TrackHead } from '../../src/components/diagnostics/DiagKit';
+import { CARE_TONE, ConsultScreen, Gate, InfoRow, ResultHero, goBack, useConsultFormat, type GateStatus } from '../../src/components/consult/ConsultKit';
+import { Block, PersonRow, Timeline, TrackHead, type TimelineStep } from '../../src/components/diagnostics/DiagKit';
 import MapView, { Marker, PROVIDER_DEFAULT } from '../../src/components/MapPrimitives';
 import { Glyph } from '../../src/components/pharmacy/PharmacyKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
@@ -16,6 +16,9 @@ type Rec = Record<string, unknown>;
 const str = (v: unknown): string => (typeof v === 'string' || typeof v === 'number' ? String(v) : '');
 const num = (v: unknown): number | null => (v !== undefined && v !== null && v !== '' && Number.isFinite(Number(v)) ? Number(v) : null);
 
+/** The visit's steps in order (#647); the server's `steps` say which were reached and when. */
+const STEPS = ['CONFIRMED', 'IN_TRANSIT', 'ARRIVED', 'CARE_IN_PROGRESS', 'COMPLETED'] as const;
+
 /**
  * Where the nurse is (board OrderTracking): the live map with the nurse and the destination, the minutes to arrival, who it
  * is with the call button, and once the visit is done the clinical report. Polls the tracking every 15 seconds (as before).
@@ -23,6 +26,7 @@ const num = (v: unknown): number | null => (v !== undefined && v !== null && v !
  */
 export default function NursingLiveTracking() {
   const { theme, t, c, k, num: fmtNum } = useScreenUi();
+  const { clock } = useConsultFormat();
   const { type, bookingId } = useLocalSearchParams<{ type?: string; bookingId?: string }>();
   const [tracking, setTracking] = useState<Rec | null>(null);
   const [eta, setEta] = useState<number | null>(null);
@@ -108,6 +112,18 @@ export default function NursingLiveTracking() {
   const vitals = (tracking?.vitals ?? null) as Rec | null;
   const hasReport = Boolean(tracking?.vitals || tracking?.notes);
   const dash = '—';
+  // The timeline: a step is done once the server recorded it, the visit's current state is current, the rest are to come.
+  const reached = new Map<string, string>();
+  for (const entry of Array.isArray(tracking?.steps) ? (tracking?.steps as Rec[]) : []) {
+    if (typeof entry?.status === 'string' && typeof entry?.at === 'string') reached.set(entry.status, entry.at);
+  }
+  const currentIndex = STEPS.indexOf(String(tracking?.status ?? '') as (typeof STEPS)[number]);
+  const steps: TimelineStep[] = reached.size === 0 ? [] : STEPS.map((key, i) => ({
+    key,
+    title: k(`nur.step.${key}`),
+    time: reached.has(key) ? clock(String(reached.get(key))) : undefined,
+    state: i === currentIndex ? 'current' : reached.has(key) || (currentIndex >= 0 && i < currentIndex) ? 'done' : 'todo',
+  }));
 
   const onAction = () => {
     if (nurseComing) {
@@ -178,6 +194,12 @@ export default function NursingLiveTracking() {
             onAction={onAction}
           />
         </Block>
+        {steps.length > 0 ? (
+          <Block gap={12}>
+            <Text accessibilityRole="header" style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary }}>{k('nur.live.steps')}</Text>
+            <Timeline steps={steps} />
+          </Block>
+        ) : null}
       </Gate>
     </ConsultScreen>
   );
