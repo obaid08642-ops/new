@@ -1477,7 +1477,11 @@
     "resultTitle": "Analysis result",
     "error": "Could not complete the analysis. Please try again.",
     "disclaimer": "This analysis is informational and not a substitute for medical advice.",
-    "empty": "No medical reports available yet."
+    "empty": "No medical reports available yet.",
+    "unavailableTitle": "Explain my report",
+    "unavailableBody": "Automatic explanation of medical reports is not available. Open your reports or share them with a doctor who will explain them.",
+    "openReports": "My reports",
+    "shareReport": "Share a report with the doctor"
   },
   "Payments": {
     "successTitle": "Payment successful",

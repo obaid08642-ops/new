@@ -1477,7 +1477,11 @@
     "resultTitle": "Resulta ng pagsusuri",
     "error": "Hindi nakumpleto ang pagsusuri. Subukan muli.",
     "disclaimer": "Ang pagsusuring ito ay impormasyon lamang at hindi kapalit ng payong medikal.",
-    "empty": "Wala pang available na medical report."
+    "empty": "Wala pang available na medical report.",
+    "unavailableTitle": "Ipaliwanag ang aking ulat",
+    "unavailableBody": "Hindi available ang awtomatikong paliwanag ng mga medical report. Buksan ang iyong mga report o ibahagi sa doktor para ipaliwanag.",
+    "openReports": "Aking mga report",
+    "shareReport": "Ibahagi ang report sa doktor"
   },
   "Payments": {
     "successTitle": "Matagumpay ang pagbabayad",
