@@ -74,7 +74,7 @@
     "line": 72,
     "found": "[owner] Today shows the latest reading of each vital (summary endpoint), not only readings taken today. Confirm that is what Today means.",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision (issue #679)"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #679)"
   },
   {
     "batch": 5,

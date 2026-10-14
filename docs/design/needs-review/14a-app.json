@@ -19,7 +19,7 @@
     "line": 320,
     "found": "[owner] The camera and microphone switch belongs to the calls decision; the button only opens the existing waiting room.",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision (issue #800)"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #800)"
   },
   {
     "batch": 14,
