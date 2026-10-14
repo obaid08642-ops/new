@@ -40,7 +40,10 @@ describe('RefundExecutor original payment behavior (LJ-05, 7A-A2)', () => {
           ? { findOne: jest.fn().mockResolvedValue(null) }
           : name === 'orders'
             ? { findOne: jest.fn().mockResolvedValue({ payment_method: 'card', payment_status: 'paid' }) }
-            : {}),
+            // No insurance request is linked to this order (copay lookup finds none).
+            : name === 'insuranceservicerequests'
+              ? { find: jest.fn(() => ({ limit: () => ({ toArray: async () => [] }) })) }
+              : {}),
     };
     const executor = new RefundExecutor(conn as any, { exists: jest.fn().mockResolvedValue(null) } as any, {} as any, { emit: jest.fn() } as any);
 
