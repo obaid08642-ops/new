@@ -1,9 +1,8 @@
 # Cloudflare rules (P14.1, P14.6, P14.9, P14.19)
 
 These rules mirror what nginx already enforces at the origin (`deploy/nginx`), so the edge stops abuse before it
-reaches the server. **Not applied yet: BLOCKED**, because there is no Cloudflare API token in the repo or CI. The owner
-applies them in the dashboard (Security → WAF; Caching → Cache Rules), or adds a token scoped to *Zone WAF Edit* and
-*Cache Rules Edit* as a CI secret, so they can be applied and diffed from here.
+reaches the server. What is applied today is in `docs/deploy/CLOUDFLARE_STATE.md`; the `server-ops` workflow can
+read and change the zone (`tools/ops/cf/`, credential in CI secrets since 2026-10-14).
 
 Expressions use the Cloudflare Rules language. The cookie names are the web session cookies
 (`patient-web/lib/security/csp.ts`: `nabd_access`, `nabd_refresh`).
@@ -21,6 +20,11 @@ The origin decides what is cacheable (default `private, no-store`, P14.7). These
 signed-in traffic. Purge by `Cache-Tag` comes from the purge bus (P14.8) once the token exists.
 
 ## Rate limiting (P14.6)
+
+**Free plan: one rate-limiting rule.** The zone keeps that one rule on the auth and OTP endpoints (R1, applied as
+"RL: auth credential endpoints only", 10 requests per 10 s, see `CLOUDFLARE_STATE.md` §G). **R2, R3 and R4 are
+enforced at the origin by nginx** (`limit_req` zones `search`, `checkout`, `api` in `deploy/nginx/nginx.conf`), not at
+the edge. Moving them to the edge needs a paid plan: an owner decision, not needed now.
 
 Same numbers as the nginx zones (`deploy/nginx/nginx.conf`), counted per IP at the edge:
 
