@@ -59,13 +59,18 @@ export default async function LabDetailPage({ params }: Props) {
   const name = pickText(locale, lab.name_ar ?? lab.name, lab.name_en ?? lab.name) ?? lab.name;
   const image = allowedImageUrl(lab.image);
   const place = [lab.city, lab.address].filter(Boolean).join(" · ");
+  const decimal = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
+  const whole = new Intl.NumberFormat(locale);
   const actions: LinkAction[] = lab.phone ? [{ href: `tel:${lab.phone}`, label: w("callLab"), variant: "outline", external: true }] : [];
 
   return (
     <ConsultPage locale={locale} title={name} backHref={backHref}>
       {image ? <div className={styles.coverBox}><CatalogImage src={image} alt={name} sizes="(max-width: 720px) 100vw, 720px" className={styles.photoImage} priority /></div> : null}
       <Hero icon={LAB.icon} tone={LAB.tone} title={name} sub={place || undefined}>
-        <TagRow tags={lab.home_visit ? [{ label: t("homeVisitSupported"), tone: LAB.tone }] : []} />
+        <TagRow tags={[
+          ...(lab.rating !== undefined && lab.rating_count > 0 ? [{ label: t("ratingLine", { rating: decimal.format(lab.rating), count: whole.format(lab.rating_count) }), tone: LAB.tone }] : []),
+          ...(lab.home_visit ? [{ label: t("homeVisitSupported"), tone: LAB.tone }] : []),
+        ]} />
       </Hero>
       {lab.description ? <SectionCard id="lab-about" title={t("aboutTitle")}><p className={styles.flowNote}>{lab.description}</p></SectionCard> : <Notice>{t("defaultAbout")}</Notice>}
       <ActionLinks actions={actions} />

@@ -1465,7 +1465,9 @@
     "doctorUnavailableBody": "اس وقت ڈاکٹر کی معلومات لوڈ نہیں ہو سکیں۔ دوبارہ کوشش کریں یا کوئی اور ڈاکٹر منتخب کریں۔",
     "backToDoctors": "ڈاکٹروں کی فہرست پر واپس",
     "bookingFailed": "بکنگ مکمل نہیں ہو سکی۔ وقت اور ادائیگی کا طریقہ جانچیں۔",
-    "fee": "مشاورت کی فیس"
+    "fee": "مشاورت کی فیس",
+    "duration": "وزٹ کا دورانیہ",
+    "durationValue": "{n} منٹ"
   },
   "AiHealthReport": {
     "title": "آپ کی اے آئی ہیلتھ رپورٹ",
@@ -1679,7 +1681,8 @@
     "aboutTitle": "About Laboratory",
     "defaultAbout": "A certified medical laboratory equipped with modern diagnostics.",
     "servicesTitle": "Available Tests",
-    "price": "{value} ر.س"
+    "price": "{value} ر.س",
+    "ratingLine": "ریٹنگ 5 میں سے {rating} · ریٹنگز کی تعداد {count}"
   },
   "NurseDetail": {
     "title": "Nurse Profile",

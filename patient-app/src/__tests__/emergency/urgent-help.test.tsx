@@ -82,7 +82,7 @@ describe('UrgentHelpView', () => {
   });
 });
 
-describe('send my location to my family (decision 14, #665)', () => {
+describe('send my location to my family (decision 14, issue 665)', () => {
   const answer = (share: unknown) => mockApi.mockImplementation(async (path: string) => (path === '/emergency/share-location' ? share : { phone: null }));
 
   it('posts the device position and says how many contacts got it, with an SMS link for the others', async () => {
