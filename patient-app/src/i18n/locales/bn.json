@@ -3220,5 +3220,7 @@
   "care.nut.planNutritionist": "পুষ্টিবিদের সাথে পরামর্শ করুন",
   "care.nut.planNotice": "এই পরিকল্পনা AI সহকারীর সাধারণ নির্দেশনা, চিকিৎসা ব্যবস্থাপত্র নয়। বড় কোনো পরিবর্তনের আগে পুষ্টিবিদের সাথে কথা বলুন।",
   "care.nut.planDay": "দিন {n}",
-  "ai.history.title": "আপনার আগের প্রশ্নগুলো"
+  "ai.history.title": "আপনার আগের প্রশ্নগুলো",
+  "search.kind.specialties": "বিশেষজ্ঞতা",
+  "search.kind.nursingServices": "নার্সিং সেবা"
 }

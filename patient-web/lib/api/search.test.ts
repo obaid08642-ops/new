@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { extractSearchResults, intentRedirect, MAX_QUERY_CHARS, truncateQuery } from "./search";
+import { extractGroupedResults, extractSearchResults, intentRedirect, MAX_QUERY_CHARS, truncateQuery } from "./search";
 
 describe("search results guard", () => {
   it("keeps a row whose price or rating the API sent as null, and drops rows without an id or name", () => {
@@ -61,5 +61,28 @@ describe("intentRedirect: a confident intent for a query that found nothing", ()
     expect(intentRedirect({ canonical_path: "/en/doctors", confidence: "0.9" }, "en")).toBeNull();
     expect(intentRedirect(null, "en")).toBeNull();
     expect(intentRedirect([], "en")).toBeNull();
+  });
+});
+
+describe("grouped search (D-29)", () => {
+  it("maps each group's items to rows with the page's kind, link id and price", () => {
+    const rows = extractGroupedResults({
+      query: "x", engine: "mongo", groups: [
+        { type: "medicine", items: [{ id: "m1", type: "medicine", name: "Panadol", price: 12, requires_prescription: false }] },
+        { type: "doctor", items: [{ id: "d1", type: "doctor", name: "Dr S", specialty: "cardiology", price: null }] },
+        { type: "specialty", items: [{ id: "spec-cardiology", type: "specialty", name: "Cardiology", code: "cardiology" }] },
+        { type: "article", items: [{ id: "a-uuid", type: "article", name: "Fever", slug: "fever-in-kids" }] },
+        { type: "unknown", items: [{ id: "u", type: "unknown", name: "?" }] },
+      ],
+    });
+    expect(rows.map((r) => [r.typeEn, r.id])).toEqual([["Medicine", "m1"], ["Doctor", "d1"], ["Specialty", "cardiology"], ["Article", "fever-in-kids"]]);
+    expect(rows[0].price).toBe("12");
+    expect(rows[1]).toMatchObject({ sub: "cardiology", price: undefined });
+  });
+
+  it("returns no rows for anything that is not a grouped answer", () => {
+    expect(extractGroupedResults(null)).toEqual([]);
+    expect(extractGroupedResults([])).toEqual([]);
+    expect(extractGroupedResults({ groups: [null, { items: "x" }] })).toEqual([]);
   });
 });

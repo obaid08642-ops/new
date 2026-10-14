@@ -79,7 +79,8 @@ const patientReadRoutes = [
   new RegExp(`^/chat/threads/${threadId}/messages\\?limit=50$`, "i"),
   new RegExp(`^/chat/threads/${threadId}/permissions$`, "i"),
   // The proxy tests the percent-encoded query: a 120-character query is at most 1440 encoded characters (12 per astral character).
-  new RegExp("^/home/search\\?q=[^&]{1,1440}$", "i"),
+  // D-29 grouped home search: the query, the page's locale and a small page size, nothing else.
+  new RegExp("^/search\\?q=[^&]{1,1440}&locale=[a-z]{2,3}&limit=\\d{1,2}$", "i"),
   new RegExp("^/support/faqs$", "i"),
   new RegExp("^/support/requests/mine$", "i"),
   new RegExp(`^/support/requests/${orderId}$`, "i"),
@@ -183,7 +184,7 @@ export function isAllowedPatientApiRequest(path: string, method: string) {
 }
 
 // The proxy receives the path and the query separately. Most entries are bare paths (any query passes through);
-// a few pin an exact query (`/home/search?q=…`, `/pharmacy/chat/threads?order_id=<uuid>`), so the target is also
+// a few pin an exact query (`/search?q=…&locale=…&limit=…`, `/pharmacy/chat/threads?order_id=<uuid>`), so the target is also
 // checked with its query, otherwise those entries can never match.
 export function isAllowedPatientApiTarget(path: string, search: string, method: string) {
   return isAllowedPatientApiRequest(path, method) || (search !== "" && isAllowedPatientApiRequest(`${path}${search}`, method));

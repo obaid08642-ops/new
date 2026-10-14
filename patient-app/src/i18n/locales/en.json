@@ -3220,5 +3220,7 @@
   "care.nut.planNutritionist": "Follow up with a nutritionist",
   "care.nut.planNotice": "This plan is general guidance from the AI assistant, not a medical prescription. Talk to a nutritionist before any big change.",
   "care.nut.planDay": "Day {n}",
-  "ai.history.title": "Your earlier questions"
+  "ai.history.title": "Your earlier questions",
+  "search.kind.specialties": "Specialties",
+  "search.kind.nursingServices": "Nursing services"
 }

@@ -3220,5 +3220,7 @@
   "care.nut.planNutritionist": "Kumonsulta sa isang nutritionist",
   "care.nut.planNotice": "Ang planong ito ay pangkalahatang gabay mula sa AI assistant, hindi reseta ng doktor. Kausapin muna ang isang nutritionist bago ang malaking pagbabago.",
   "care.nut.planDay": "Araw {n}",
-  "ai.history.title": "Mga dati mong tanong"
+  "ai.history.title": "Mga dati mong tanong",
+  "search.kind.specialties": "Mga espesyalidad",
+  "search.kind.nursingServices": "Mga serbisyo ng pag-aalaga"
 }

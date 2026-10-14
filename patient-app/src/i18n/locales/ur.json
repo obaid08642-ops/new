@@ -3220,5 +3220,7 @@
   "care.nut.planNutritionist": "ماہرِ غذائیت سے رجوع کریں",
   "care.nut.planNotice": "یہ منصوبہ AI اسسٹنٹ کی عمومی رہنمائی ہے، طبی نسخہ نہیں۔ کسی بڑی تبدیلی سے پہلے ماہرِ غذائیت سے بات کریں۔",
   "care.nut.planDay": "دن {n}",
-  "ai.history.title": "آپ کے پچھلے سوالات"
+  "ai.history.title": "آپ کے پچھلے سوالات",
+  "search.kind.specialties": "شعبے",
+  "search.kind.nursingServices": "نرسنگ خدمات"
 }

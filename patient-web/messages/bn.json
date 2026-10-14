@@ -1289,7 +1289,15 @@
     "rxHelp": "যা খুঁজছেন পাননি? প্রেসক্রিপশন আপলোড করুন, ফার্মেসিগুলো আপনার জন্য খুঁজবে",
     "rxAction": "প্রেসক্রিপশন আপলোড",
     "price": "{value} SAR",
-    "rating": "রেটিং {value}"
+    "rating": "রেটিং {value}",
+    "kindMedicine": "ওষুধ",
+    "kindDoctor": "ডাক্তার",
+    "kindSpecialty": "বিশেষজ্ঞতা",
+    "kindLab": "ল্যাব টেস্ট",
+    "kindLabPackage": "টেস্ট প্যাকেজ",
+    "kindRadiology": "রেডিওলজি",
+    "kindNursing": "নার্সিং",
+    "kindArticle": "নিবন্ধ"
   },
   "Support": {
     "title": "সহায়তা",

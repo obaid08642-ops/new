@@ -1289,7 +1289,15 @@
     "rxHelp": "جو چاہیے وہ نہیں ملا؟ نسخہ اپ لوڈ کریں، فارمیسیاں آپ کے لیے تلاش کریں گی",
     "rxAction": "نسخہ اپ لوڈ کریں",
     "price": "{value} ر.س",
-    "rating": "ریٹنگ {value}"
+    "rating": "ریٹنگ {value}",
+    "kindMedicine": "دوا",
+    "kindDoctor": "ڈاکٹر",
+    "kindSpecialty": "شعبہ",
+    "kindLab": "لیب ٹیسٹ",
+    "kindLabPackage": "ٹیسٹ پیکج",
+    "kindRadiology": "ریڈیالوجی",
+    "kindNursing": "نرسنگ",
+    "kindArticle": "مضمون"
   },
   "Support": {
     "title": "معاونت",
