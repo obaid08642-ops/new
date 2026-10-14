@@ -128,3 +128,116 @@ jobs:
           set +e
           sudo docker ps -a
           for c in nabdah-backend nabdah-livekit nabdah-nginx; do echo "== $c"; sudo docker logs --tail 30 $c 2>&1 | grep -v -i secret; done
+
+  deploy-main:
+    # tools/ops/tasks/60-deploy-main.sh on a copy of the production layout: an "old" stack (stub images under the
+    # names production runs, real MongoDB rs0 with a keyfile, Redis, LiveKit, nginx with main's config and
+    # self-signed certs), then the real release images built from main by tools/ops/release/build-release.sh.
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      SHA: 3ca66ab1291e6cc9be813b77ffb888a7443a8e5f
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the release from main (same script the server-ops workflow runs)
+        run: |
+          set -euo pipefail
+          git clone -q --filter=blob:none https://github.com/${{ github.repository }}.git rel-src
+          git -C rel-src checkout -q "$SHA"
+          bash tools/ops/release/build-release.sh rel-src rel-out
+          S8=${SHA:0:8}; echo "S8=$S8" >> $GITHUB_ENV
+          sudo mkdir -p /opt/nabdah/releases/$S8 && sudo cp rel-out/* /opt/nabdah/releases/$S8/
+          # the task must load the images itself
+          docker rmi nabdah-prod-backend:$S8 nabdah-prod-admin-web:$S8 nabdah-patient-web:$S8 >/dev/null
+      - name: Build the server copy at /opt/nabdah (old stack)
+        run: |
+          set -euo pipefail
+          D=/opt/nabdah/deploy
+          sudo mkdir -p /opt/nabdah/backups && sudo cp -r rel-src/deploy $D
+          sudo rm -f $D/nginx/conf.d/staging.conf                       # disabled on the server since 2026-10-04
+          # old compose: the server's shape before this deploy (no worker, no meilisearch; fastapi/coturn/certbot not started)
+          sudo python3 - <<'PY'
+          import yaml
+          p='/opt/nabdah/deploy/docker-compose.production.yml'
+          c=yaml.safe_load(open(p))
+          for s in ('worker','meilisearch'): c['services'].pop(s)
+          c['volumes'].pop('meili_data')
+          open(p,'w').write('# rehearsal: the old compose file\n'+yaml.safe_dump(c, sort_keys=False))
+          PY
+          echo '# rehearsal: the old nginx.conf' | sudo tee -a $D/nginx/nginx.conf >/dev/null
+          sudo openssl rand -base64 756 | sudo tee $D/mongo/mongo-keyfile >/dev/null
+          sudo chown 999:999 $D/mongo/mongo-keyfile && sudo chmod 400 $D/mongo/mongo-keyfile
+          for h in api.nabd.plus admin.nabd.plus provider.nabd.plus live.nabd.plus nabd.plus mcp.nabd.plus; do
+            sudo mkdir -p $D/certs/live/live/$h
+            sudo openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj /CN=$h -keyout $D/certs/live/live/$h/privkey.pem -out $D/certs/live/live/$h/fullchain.pem 2>/dev/null
+          done
+          sudo tee $D/livekit/livekit.yaml >/dev/null <<'EOF'
+          port: 7880
+          rtc: { tcp_port: 7881, port_range_start: 50000, port_range_end: 50100, use_external_ip: false }
+          keys: { rehearsal_key: rehearsal_secret_rehearsal_secret_0123456789 }
+          EOF
+          sudo sed -i 's/^          //' $D/livekit/livekit.yaml
+          sudo tee $D/.env.production >/dev/null <<EOF
+          NODE_ENV=production
+          MONGO_ROOT_USER=rehearsal_root
+          MONGO_ROOT_PASSWORD=$(openssl rand -hex 16)
+          REDIS_PASSWORD=$(openssl rand -hex 16)
+          JWT_SECRET=$(openssl rand -hex 32)
+          DB_NAME=nabd_nestjs
+          ALLOWED_ORIGINS=https://nabd.plus,https://www.nabd.plus,https://admin.nabd.plus
+          LIVEKIT_API_KEY=rehearsal_key
+          LIVEKIT_API_SECRET=rehearsal_secret_rehearsal_secret_0123456789
+          LIVEKIT_URL=wss://live.nabd.plus
+          FCM_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nAAAA\n-----END PRIVATE KEY-----\n"
+          EOF
+          sudo sed -i 's/^          //' $D/.env.production && sudo chmod 600 $D/.env.production
+          docker build -q -t nabdah-prod-backend:latest tools/ops/rehearsal/old-stub
+          docker tag nabdah-prod-backend:latest nabdah-prod-admin-web:latest
+          docker tag nabdah-prod-backend:latest nabdah-patient-web:v50
+          C="sudo docker compose -f $D/docker-compose.production.yml --project-directory $D --env-file $D/.env.production"
+          $C up -d --no-build mongodb redis
+          for i in $(seq 1 30); do sudo docker exec nabdah-mongodb sh -c 'mongosh --quiet -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --eval "try{rs.status().ok}catch(e){rs.initiate({_id:\"rs0\",members:[{_id:0,host:\"mongodb:27017\"}]}).ok}"' 2>/dev/null | grep -q 1 && break; sleep 3; done
+          # test data only (throwaway CI database): enough bytes for the task's backup-size check
+          sudo docker exec nabdah-mongodb sh -c 'mongosh --quiet -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin nabd_nestjs --eval "sleep(3000); const a=[]; for(let i=0;i<8000;i++) a.push({rehearsal:true, blob: Array.from({length:40},()=>Math.random().toString(36)).join(\"\")}); db.rehearsal_fill.insertMany(a); print(db.rehearsal_fill.countDocuments())"'
+          sudo dd if=/dev/urandom of=/opt/nabdah/backups/nabd_nabd_nestjs_20261013-030001.gz bs=1M count=2 status=none
+          $C up -d --no-build --no-deps backend admin-web patient-web livekit
+          $C up -d --no-build --no-deps nginx
+          for c in nabdah-mongodb nabdah-redis nabdah-backend nabdah-nginx; do for i in $(seq 1 40); do [ "$(sudo docker inspect -f '{{.State.Health.Status}}' $c)" = healthy ] && break; sleep 3; done; echo "$c $(sudo docker inspect -f '{{.State.Health.Status}}' $c)"; done
+          test "$(curl -sk -o /dev/null -w '%{http_code}' -H 'Host: api.nabd.plus' https://127.0.0.1/api/v1/health/liveness)" = 200
+          test "$(curl -sk -o /dev/null -w '%{http_code}' -H 'Host: nabd.plus' https://127.0.0.1/ar)" = 200
+          sudo sha256sum $D/nginx/nginx.conf $D/docker-compose.production.yml $D/.env.production | sudo tee /opt/nabdah/old.sums >/dev/null
+          echo "old stack up: api 200, site 200"
+      - name: "Scenario 1: forced failure after backend/worker start -> full rollback"
+        run: |
+          set +e
+          REHEARSE_FAIL_AT=backend bash tools/ops/tasks/60-deploy-main.sh 2>&1 | tee out.txt; rc=${PIPESTATUS[0]}
+          bash tools/ops/rehearsal/check-rollback.sh out.txt $rc backend
+      - name: "Scenario 2: forced failure at the final checks -> full rollback"
+        run: |
+          set +e
+          REHEARSE_FAIL_AT=checks bash tools/ops/tasks/60-deploy-main.sh 2>&1 | tee out.txt; rc=${PIPESTATUS[0]}
+          bash tools/ops/rehearsal/check-rollback.sh out.txt $rc checks
+      - name: "Scenario 3: real deploy"
+        run: |
+          set +e
+          D=/opt/nabdah/deploy
+          bash tools/ops/tasks/60-deploy-main.sh 2>&1 | tee out.txt; rc=${PIPESTATUS[0]}
+          echo "exit=$rc"; test $rc = 0 || exit 1
+          grep -q 'deploy: DONE main@' out.txt || exit 1
+          for s in backend worker admin-web patient-web; do sudo docker inspect -f '{{.Config.Image}}' nabdah-$s | grep -q ":$S8$" || { echo "$s not on the release"; exit 1; }; done
+          for n in METRICS_SCRAPE_TOKEN MEILI_MASTER_KEY; do sudo grep -qE "^$n=.{32,}" $D/.env.production && echo "env: $n present" || exit 1; done
+          sudo grep -q 'BEGIN PRIVATE KEY' $D/.env.production && echo "env: multi-line value intact" || exit 1
+          ! sudo grep -q 'rehearsal: the old nginx.conf' $D/nginx/nginx.conf && echo "nginx.conf: main's" || exit 1
+          ! grep -E 'METRICS_SCRAPE_TOKEN=|MEILI_MASTER_KEY=|JWT_SECRET=' out.txt || { echo "a secret was printed"; exit 1; }
+          curl -sk -H 'Host: api.nabd.plus' https://127.0.0.1/api/v1/health/readiness; echo
+      - name: "Scenario 4: the same release again (idempotent)"
+        run: |
+          set +e
+          bash tools/ops/tasks/60-deploy-main.sh 2>&1 | tee out.txt; rc=${PIPESTATUS[0]}
+          echo "exit=$rc"; test $rc = 0 && grep -q 'env names added: none' out.txt && echo "second run: nothing added, deploy ok" || exit 1
+      - name: Logs on failure
+        if: failure()
+        run: |
+          set +e
+          sudo docker ps -a
+          for c in nabdah-backend nabdah-worker nabdah-patient-web nabdah-admin-web nabdah-nginx nabdah-meilisearch nabdah-mongodb; do echo "== $c"; sudo docker logs --tail 40 $c 2>&1 | grep -viE 'secret|password|token'; done

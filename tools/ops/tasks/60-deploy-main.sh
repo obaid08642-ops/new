@@ -1,0 +1,168 @@
+#!/bin/bash
+# ops-detach: runs detached on the server (see server-inspect.yml); the workflow polls its log.
+# Deploy of main to production (build brief 2026-10-14 §5.3). Rehearsed in .github/workflows/ops-rehearsal.yml
+# (job deploy-main: forced failure -> rollback, then the real deploy, then a second run on the same release).
+# The images are built on the GitHub runner (tools/ops/release/build-release.sh) and copied to
+# /opt/nabdah/releases/<sha8>/ by the server-ops workflow before this task runs; nothing is built on this host.
+#   0. pre-checks: release files and checksums, running stack healthy, nginx -t, disk
+#   1. MongoDB backup (mongodump, gzip) checked against the last nightly size
+#   2. rollback point: running images tagged rollback-<ts>; the deploy files and .env.production saved
+#   3. docker load the release images
+#   4. deploy files from main (compose, nginx); env: METRICS_SCRAPE_TOKEN (new), MEILI_MASTER_KEY (if missing)
+#   5. up: meilisearch, backend + worker, admin-web + patient-web, nginx (no other service is touched)
+#   6. checks: health, readiness background_worker=up, site/admin/API 200, metrics 404 without token,
+#      cache MISS->HIT on a public answer and BYPASS with Authorization
+# Any failure in 3-6: files, env and images back, worker and meilisearch removed, old stack verified; exit 1.
+# Secret values are never printed. REHEARSE_FAIL_AT=<step> forces a failure (rehearsal only).
+set -u
+SHA=${OPS_RELEASE_SHA:-3ca66ab1291e6cc9be813b77ffb888a7443a8e5f}
+S8=${SHA:0:8}
+D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
+B=${OPS_BACKUP_DIR:-/opt/nabdah/backups}
+REL=${OPS_RELEASE_DIR:-/opt/nabdah/releases}/$S8
+TS=$(date -u +%Y%m%dT%H%M%SZ)
+DK="sudo -n docker"
+ENVF=$D/.env.production
+FAIL_AT=${REHEARSE_FAIL_AT:-}
+NEW="docker-compose.production.yml docker-compose.release.yml nginx/nginx.conf nginx/conf.d/nabd.plus.conf nginx/conf.d/nabd-web.conf nginx/snippets/api-microcache.conf"
+APP_SERVICES="backend admin-web patient-web"
+COMPOSE_OLD="$DK compose -f $D/docker-compose.production.yml --project-directory $D --env-file $ENVF"
+COMPOSE="$DK compose -f $D/docker-compose.production.yml -f $D/docker-compose.release.yml --project-directory $D --env-file $ENVF"
+H_API='Host: api.nabd.plus'
+echo "## deploy-main ${S8}"
+
+health() { $DK inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$1" 2>/dev/null; }
+wait_healthy() { local s; for i in $(seq 1 "$2"); do s=$(health "$1"); [ "$s" = healthy ] && return 0; sleep 5; done; echo "deploy: $1 health=$s"; return 1; }
+code() { curl -sk -o /dev/null -w '%{http_code}' --max-time 10 -H "$1" "https://127.0.0.1$2"; }
+wait_code() { local c; for i in $(seq 1 "$4"); do c=$(code "$1" "$2"); [ "$c" = "$3" ] && return 0; sleep 5; done; echo "deploy: $2 ($1) answered $c, wanted $3"; return 1; }
+forced() { [ "$FAIL_AT" = "$1" ] && echo "deploy: (rehearsal) forced failure at $1" && return 0; return 1; }
+nginx_ok() { $DK exec nabdah-nginx nginx -t >/dev/null 2>&1; }
+
+# ---------------------------------------------------------------- 0. pre-checks
+[ -f "$REL/SHA256SUMS" ] && (cd "$REL" && sha256sum -c --quiet SHA256SUMS) || { echo "deploy: ABORT release $S8 missing or checksum mismatch"; exit 1; }
+[ "$(cat "$REL/SHA")" = "$SHA" ] || { echo "deploy: ABORT release SHA differs from the pinned SHA"; exit 1; }
+for c in nabdah-backend nabdah-mongodb nabdah-redis nabdah-nginx; do [ "$(health $c)" = healthy ] || { echo "deploy: ABORT $c not healthy before starting"; exit 1; }; done
+nginx_ok || { echo "deploy: ABORT nginx -t fails before starting"; exit 1; }
+FREE=$(df -Pk / | awk 'NR==2{print int($4/1048576)}')
+[ "$FREE" -ge 4 ] || { echo "deploy: ABORT only ${FREE} GB free on /"; exit 1; }
+wait_code "$H_API" /api/v1/health/liveness 200 3 || { echo "deploy: ABORT api not 200 before starting"; exit 1; }
+echo "deploy: pre-checks ok (release $S8 verified, stack healthy, ${FREE} GB free)"
+
+# ---------------------------------------------------------------- 1. MongoDB backup
+sudo -n mkdir -p $B
+DUMP=$B/pre-deploy-$S8-$TS.gz
+$DK exec nabdah-mongodb sh -c 'mongodump --quiet -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --gzip --archive=/tmp/pre-deploy.gz' \
+  && $DK cp nabdah-mongodb:/tmp/pre-deploy.gz "$DUMP" >/dev/null 2>&1
+$DK exec nabdah-mongodb rm -f /tmp/pre-deploy.gz
+sudo -n chmod 600 "$DUMP" 2>/dev/null
+SZ=$(sudo -n stat -c %s "$DUMP" 2>/dev/null || echo 0)
+LAST=$(sudo -n sh -c "ls -t $B/nabd_*.gz 2>/dev/null | head -1")
+LASTSZ=$([ -n "$LAST" ] && sudo -n stat -c %s "$LAST" || echo 0)
+# a full dump is at least half the last nightly (the nightly holds the app database only)
+[ "$SZ" -gt 1048576 ] && [ "$SZ" -ge $((LASTSZ / 2)) ] || { echo "deploy: ABORT backup too small ($SZ bytes; last nightly $LASTSZ)"; exit 1; }
+gunzip -t <(sudo -n cat "$DUMP") 2>/dev/null || { echo "deploy: ABORT backup is not a valid gzip"; exit 1; }
+echo "deploy: backup ok ($(basename $DUMP), $((SZ / 1048576)) MB; last nightly $((LASTSZ / 1048576)) MB)"
+
+# ---------------------------------------------------------------- 2. rollback point
+declare -A OLDIMG OLDREF
+for s in $APP_SERVICES; do
+  OLDIMG[$s]=$($DK inspect -f '{{.Image}}' nabdah-$s)
+  OLDREF[$s]=$($DK inspect -f '{{.Config.Image}}' nabdah-$s)
+  $DK tag "${OLDIMG[$s]}" "nabdah-$s:rollback-$TS"
+done
+SNAP=$B/deploy-files-pre-$S8-$TS.tgz
+sudo -n tar -czf "$SNAP" -C $D --ignore-failed-read $NEW .env.production 2>/dev/null
+sudo -n chmod 600 "$SNAP"
+sudo -n tar -tzf "$SNAP" | grep -qx '.env.production' || { echo "deploy: ABORT snapshot of the deploy files failed"; exit 1; }
+# files that did not exist before (removed again on rollback)
+ABSENT=""; for f in $NEW; do sudo -n test -e "$D/$f" || ABSENT="$ABSENT $f"; done
+echo "deploy: rollback point: images tagged rollback-$TS (${OLDREF[backend]}, ${OLDREF[admin-web]}, ${OLDREF[patient-web]}); files saved"
+
+rollback() {
+  echo "deploy: FAILED at '$1', rolling back"
+  sudo -n tar -xzf "$SNAP" -C $D
+  for f in $ABSENT; do sudo -n rm -f "$D/$f"; done
+  for s in $APP_SERVICES; do $DK tag "${OLDIMG[$s]}" "${OLDREF[$s]}"; done
+  $DK rm -f nabdah-worker nabdah-meilisearch >/dev/null 2>&1
+  $COMPOSE_OLD up -d --no-build --no-deps --force-recreate $APP_SERVICES nginx >/dev/null 2>&1
+  local ok=1
+  wait_healthy nabdah-backend 48 || ok=0
+  for s in $APP_SERVICES; do [ "$($DK inspect -f '{{.Image}}' nabdah-$s)" = "${OLDIMG[$s]}" ] || { echo "deploy: $s is not on its old image"; ok=0; }; done
+  nginx_ok && $DK exec nabdah-nginx nginx -s reload >/dev/null 2>&1 || ok=0
+  wait_code "$H_API" /api/v1/health/liveness 200 12 || ok=0
+  wait_code 'Host: nabd.plus' /ar 200 12 || ok=0
+  [ $ok = 1 ] && echo "deploy: rollback complete, old images and files back, api and site 200" || echo "deploy: ROLLBACK INCOMPLETE - needs attention"
+  echo "deploy: backup kept at $(basename $DUMP)"
+  exit 1
+}
+
+# ---------------------------------------------------------------- 3. load images
+gunzip -c "$REL/images.tar.gz" | $DK load -q >/dev/null 2>&1 || rollback "docker load"
+for i in nabdah-prod-backend nabdah-prod-admin-web nabdah-patient-web; do $DK image inspect "$i:$S8" >/dev/null 2>&1 || rollback "image $i:$S8 not loaded"; done
+echo "deploy: release images loaded"
+
+# ---------------------------------------------------------------- 4. files and env
+W=$(mktemp -d); tar -xzf "$REL/deploy.tgz" -C $W || rollback "unpack deploy.tgz"
+for f in $NEW; do
+  [ "$f" = docker-compose.release.yml ] && continue
+  [ -f "$W/deploy/$f" ] || { rm -rf $W; rollback "main has no deploy/$f"; }
+  sudo -n mkdir -p "$(dirname "$D/$f")"
+  sudo -n sh -c "cat '$W/deploy/$f' > '$D/$f'"
+done
+rm -rf $W
+sudo -n tee $D/docker-compose.release.yml >/dev/null <<EOF
+# Written by tools/ops/tasks/60-deploy-main.sh: the release images built on the runner from main@$S8.
+services:
+  backend: { image: "nabdah-prod-backend:$S8", pull_policy: never }
+  worker: { image: "nabdah-prod-backend:$S8", pull_policy: never }
+  admin-web: { image: "nabdah-prod-admin-web:$S8", pull_policy: never }
+  patient-web: { image: "nabdah-patient-web:$S8", pull_policy: never }
+EOF
+TE=$(mktemp); sudo -n cat $ENVF > $TE; ADDED=""
+grep -qE '^METRICS_SCRAPE_TOKEN=.{32,}' $TE || { sed -i '/^METRICS_SCRAPE_TOKEN=/d' $TE; echo "METRICS_SCRAPE_TOKEN=$(openssl rand -hex 32)" >> $TE; ADDED="$ADDED METRICS_SCRAPE_TOKEN"; }
+grep -qE '^MEILI_MASTER_KEY=[0-9a-f]{32,}' $TE || { sed -i '/^MEILI_MASTER_KEY=/d' $TE; echo "MEILI_MASTER_KEY=$(openssl rand -hex 32)" >> $TE; ADDED="$ADDED MEILI_MASTER_KEY"; }
+OLDN=$(sudo -n grep -cE '^[A-Z_][A-Z0-9_]*=' $ENVF); NEWN=$(grep -cE '^[A-Z_][A-Z0-9_]*=' $TE)
+ADDN=$(echo $ADDED | wc -w)
+[ "$NEWN" = $((OLDN + ADDN)) ] || { rm -f $TE; rollback "env rewrite check (names $OLDN -> $NEWN, added $ADDN)"; }
+sudo -n sh -c "cat $TE > $ENVF"; rm -f $TE
+echo "deploy: files from main written ($NEW); env names added:${ADDED:- none}"
+$COMPOSE config -q >/dev/null 2>&1 || rollback "compose config invalid"
+
+# ---------------------------------------------------------------- 5. up (named services only, no dependency restarts)
+$COMPOSE up -d --no-build --no-deps meilisearch >/dev/null 2>&1 || rollback "meilisearch up"
+wait_healthy nabdah-meilisearch 24 || rollback "meilisearch health"
+$COMPOSE up -d --no-build --no-deps backend worker >/dev/null 2>&1 || rollback "backend/worker up"
+forced backend && rollback "backend (forced)"
+wait_healthy nabdah-backend 48 || rollback "backend health"
+wait_healthy nabdah-worker 48 || rollback "worker health"
+$COMPOSE up -d --no-build --no-deps admin-web patient-web >/dev/null 2>&1 || rollback "admin-web/patient-web up"
+wait_healthy nabdah-admin-web 36 || rollback "admin-web health"
+$COMPOSE up -d --no-build --no-deps nginx >/dev/null 2>&1 || rollback "nginx up"
+wait_healthy nabdah-nginx 24 || rollback "nginx health"
+nginx_ok || rollback "nginx -t"
+for s in backend worker admin-web patient-web; do
+  img=$($DK inspect -f '{{.Config.Image}}' nabdah-$s); case $img in *:$S8) ;; *) rollback "$s runs $img, not the release";; esac
+done
+echo "deploy: meilisearch, backend, worker, admin-web, patient-web, nginx up on $S8"
+
+# ---------------------------------------------------------------- 6. checks
+forced checks && rollback "checks (forced)"
+wait_code "$H_API" /api/v1/health/liveness 200 24 || rollback "api liveness"
+R=""; for i in $(seq 1 24); do R=$(curl -sk --max-time 10 -H "$H_API" https://127.0.0.1/api/v1/health/readiness); echo "$R" | grep -q '"background_worker":"up"' && break; sleep 5; done
+echo "$R" | grep -q '"status":"ok"' && echo "$R" | grep -q '"background_worker":"up"' || rollback "readiness: $(echo "$R" | head -c 200)"
+echo "deploy: readiness ok, background_worker up"
+wait_code 'Host: nabd.plus' /ar 200 24 || rollback "site /ar"
+wait_code 'Host: admin.nabd.plus' / 200 12 || rollback "admin /"
+M=$(code "$H_API" /api/v1/observability/metrics); [ "$M" = 404 ] || rollback "metrics without token answered $M (wanted 404)"
+echo "deploy: site 200, admin 200, api 200, metrics 404 without token"
+C=/api/v1/catalogs/specialties
+x() { curl -sk -o /dev/null -D - --max-time 10 -H "$H_API" "$@" "https://127.0.0.1$C?deploy=$TS" | tr -d '\r' | awk -F': ' 'tolower($1)=="x-cache-status"{print $2}'; }
+C1=$(x); C2=$(x); C3=$(x -H 'Authorization: Bearer deploy-check')
+echo "deploy: X-Cache-Status on $C: first=${C1:-none} second=${C2:-none} with Authorization=${C3:-none}"
+[ "$C3" = HIT ] && rollback "an answer with Authorization was served from the cache"
+[ "$C1" = MISS ] && [ "$C2" = HIT ] && [ "$C3" = BYPASS ] && echo "deploy: cache MISS -> HIT, BYPASS with Authorization" \
+  || echo "deploy: WARNING cache statuses not as expected (not rolled back: no answer was shared across callers)"
+
+echo "$SHA $TS" | sudo -n tee $D/RELEASE >/dev/null
+echo "deploy: DONE main@$S8 live; rollback images nabdah-*:rollback-$TS; backup $(basename $DUMP)"
+echo "## deploy-main done"
