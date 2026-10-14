@@ -245,6 +245,10 @@ jobs:
           bash tools/ops/tasks/60-deploy-main.sh 2>&1 | tee out.txt; rc=${PIPESTATUS[0]}
           echo "exit=$rc"; test $rc = 0 || exit 1
           grep -q 'deploy: DONE main@' out.txt || exit 1
+          test "$(grep -cE '^migrate: 20[0-9-]+[a-z-]+ exit=0$' out.txt)" = 4 && echo "4 migrations applied, exit=0" || exit 1
+          ! grep -qE 'link-provider-accounts|unify-provider-passwords|strip-facility-ratings|archive-ambulance|end-purchase-challenges' out.txt && echo "held migrations not run" || exit 1
+          N=$(sudo docker exec nabdah-mongodb sh -c 'mongosh --quiet -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin nabd_nestjs --eval "print(db.nursing_catalog.countDocuments())"')
+          echo "nursing_catalog rows after the apply: $N"; test "$N" -gt 0 || exit 1
           for s in backend worker admin-web patient-web; do sudo docker inspect -f '{{.Config.Image}}' nabdah-$s | grep -q ":$S8$" || { echo "$s not on the release"; exit 1; }; done
           for n in METRICS_SCRAPE_TOKEN MEILI_MASTER_KEY; do sudo grep -qE "^$n=.{32,}" $D/.env.production && echo "env: $n present" || exit 1; done
           sudo grep -q 'BEGIN PRIVATE KEY' $D/.env.production && echo "env: multi-line value intact" || exit 1
@@ -258,6 +262,9 @@ jobs:
           set +e
           bash tools/ops/tasks/60-deploy-main.sh 2>&1 | tee out.txt; rc=${PIPESTATUS[0]}
           echo "exit=$rc"; test $rc = 0 && grep -q 'env names added: none' out.txt && echo "second run: nothing added, deploy ok" || exit 1
+          test "$(grep -cE '^migrate: 20[0-9-]+[a-z-]+ exit=0$' out.txt)" = 4 && echo "migrations re-run cleanly (idempotent)" || exit 1
+          N2=$(sudo docker exec nabdah-mongodb sh -c 'mongosh --quiet -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin nabd_nestjs --eval "print(db.nursing_catalog.countDocuments())"')
+          echo "nursing_catalog rows after the second run: $N2"
       - name: Logs on failure
         if: failure()
         run: |

@@ -8,6 +8,8 @@
 #   1. MongoDB backup (mongodump, gzip) checked against the last nightly size
 #   2. rollback point: running images tagged rollback-<ts>; the deploy files and .env.production saved
 #   3. docker load the release images
+#   3b. apply four insert-only migrations (catalog-json-to-db, feature-flags-collection, sync-profile-type-geo,
+#       backfill-provider-geopoint), counts only; the others stay held (reviewer decision 2026-10-14)
 #   4. deploy files from main (compose, nginx); env: METRICS_SCRAPE_TOKEN (new), MEILI_MASTER_KEY (if missing)
 #   5. up: meilisearch, backend + worker, admin-web + patient-web, nginx (no other service is touched)
 #   6. checks: health, readiness background_worker=up, site/admin/API 200, metrics 404 without token,
@@ -108,6 +110,35 @@ rollback() {
 gunzip -c "$REL/images.tar.gz" | $DK load -q >/dev/null 2>&1 || rollback "docker load"
 for i in nabdah-prod-backend nabdah-prod-admin-web nabdah-patient-web; do $DK image inspect "$i:$S8" >/dev/null 2>&1 || rollback "image $i:$S8 not loaded"; done
 echo "deploy: release images loaded"
+
+# ---------------------------------------------------------------- 3b. migrations (reviewer decision 2026-10-14)
+# Only these four, all insert-only and idempotent; the rest of the dry-run list is held for a later run. They run
+# after the backup and before any new container starts, in the release's migrations image on the internal network.
+# Credentials only in a mode-600 env file that is removed; output is counts, with e-mails and numbers masked.
+# A failure rolls the deploy back; rows already inserted stay (insert-only, and the old code does not read them).
+MIGRATIONS="2026-09-catalog-json-to-db 2026-10-feature-flags-collection 2026-09-sync-profile-type-geo 2026-10-backfill-provider-geopoint"
+$DK image inspect nabdah-migrations:$S8 >/dev/null 2>&1 || rollback "image nabdah-migrations:$S8 not loaded"
+MNET=$($DK inspect nabdah-mongodb -f '{{range $k,$v := .NetworkSettings.Networks}}{{$k}} {{end}}' | awk '{print $1}')
+MDB=$(sudo -n grep -E '^DB_NAME=' $ENVF | cut -d= -f2); MDB=${MDB:-nabd_nestjs}
+MEF=$(mktemp); chmod 600 $MEF
+U=$($DK exec nabdah-mongodb printenv MONGO_INITDB_ROOT_USERNAME); P=$($DK exec nabdah-mongodb printenv MONGO_INITDB_ROOT_PASSWORD)
+urlenc() { python3 -c 'import sys,urllib.parse;print(urllib.parse.quote(sys.argv[1],safe=""),end="")' "$1"; }
+printf 'MONGODB_URI=mongodb://%s:%s@mongodb:27017/?authSource=admin&directConnection=true\nMONGO_URL=mongodb://%s:%s@mongodb:27017/?authSource=admin&directConnection=true\nDB_NAME=%s\n' \
+  "$(urlenc "$U")" "$(urlenc "$P")" "$(urlenc "$U")" "$(urlenc "$P")" "$MDB" > $MEF
+unset U P
+mmask() { sed -E 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/<email>/g; s/\+?[0-9][0-9 ()-]{8,}[0-9]/<number>/g' | grep -viE 'password|secret|token|npm notice' | cut -c1-300; }
+for m in $MIGRATIONS; do
+  echo "migrate: $m --apply"
+  timeout 600 $DK run --rm --network "$MNET" --env-file $MEF --memory 768m nabdah-migrations:$S8 \
+    npx ts-node --transpile-only "scripts/migrations/$m.ts" --apply > $MEF.out 2>&1
+  rc=$?
+  mmask < $MEF.out | tail -30 | sed 's/^/migrate:   /'
+  echo "migrate: $m exit=$rc"
+  [ $rc = 0 ] || { rm -f $MEF $MEF.out; rollback "migration $m"; }
+done
+rm -f $MEF $MEF.out
+echo "deploy: migrations applied: $MIGRATIONS (database $MDB)"
+forced migrations && rollback "migrations (forced)"
 
 # ---------------------------------------------------------------- 4. files and env
 W=$(mktemp -d); tar -xzf "$REL/deploy.tgz" -C $W || rollback "unpack deploy.tgz"
