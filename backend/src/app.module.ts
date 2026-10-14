@@ -31,6 +31,7 @@ import { validateEnvironment } from './config/env.validation';
 import { MongooseModule } from '@nestjs/mongoose';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { RedisThrottlerStorage } from './modules/redis/throttler-redis.storage';
 import { backgroundImports, backgroundProviders } from './common/process-role';
 import { WorkerHeartbeatService } from './common/worker-heartbeat.service';
 import { BullModule } from '@nestjs/bullmq';
@@ -198,7 +199,18 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     EventEmitterModule.forRoot({ wildcard: true, maxListeners: 50 }),
     // P14.26: cron jobs run only in the worker role (or `all`), never once per API cluster worker
     ...backgroundImports(),
-    ThrottlerModule.forRoot([{ ttl: 60_000, limit: process.env.THROTTLER_LIMIT ? parseInt(process.env.THROTTLER_LIMIT, 10) : 200 }]),
+    ThrottlerModule.forRootAsync({
+      inject: [RedisThrottlerStorage],
+      useFactory: (storage: RedisThrottlerStorage) => ({
+        storage,
+        throttlers: [
+          {
+            ttl: 60_000,
+            limit: process.env.THROTTLER_LIMIT ? parseInt(process.env.THROTTLER_LIMIT, 10) : 200,
+          },
+        ],
+      }),
+    }),
     ObservabilityModule,
     I18nCoreModule,
     AuthModule,

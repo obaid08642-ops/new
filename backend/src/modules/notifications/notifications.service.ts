@@ -435,12 +435,15 @@ export class NotificationsService {
   }
 
   async markRead(id: string, user: any) {
-    const result: any = await this.model.updateOne(
+    // S-7: the ownership filter and the write are one atomic operation. The
+    // repository's updateOne returns the document (not a write result), so the
+    // only honest "did it match" signal is whether a document came back.
+    const updated: any = await this.model.findOneAndUpdate(
       { id, $or: [{ user_id: user.id }, { role: user.role }, { role: 'all' }] },
       { $addToSet: { read_by: user.id } },
+      { new: true },
     );
-    const matched = result?.matchedCount ?? result?.nMatched;
-    if (matched === 0) throw new NotFoundException('notification_not_found');
+    if (!updated) throw new NotFoundException('notification_not_found');
     return { ok: true };
   }
 

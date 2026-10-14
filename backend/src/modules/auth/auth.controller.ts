@@ -152,6 +152,7 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle({ default: { limit: 5, ttl: 60000 } }) // S-6 password-reset ceiling
   @Post('password/reset')
   patientResetPassword(@Body() dto: PatientResetPasswordDto) {
     return this.auth.resetPatientPassword(dto.reset_token, dto.new_password);
@@ -366,7 +367,7 @@ export class AuthController {
   }
 
   @Public()
-  @Throttle({ default: { limit: 20, ttl: 60000 } })
+  @Throttle({ default: { limit: 10, ttl: 60000 } }) // S-6 sign-in ceiling
   @Post('social-login')
   socialLogin(@Body() body: SocialLoginDto, @Req() req: Request) {
     return this.auth.socialLogin(body, guestMergeToken(req));
