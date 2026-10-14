@@ -52,7 +52,7 @@ export default function LabComparison() {
       await addItem({
         id: String(id),
         name: `${testName} - ${lab.name}`,
-        price: basePrice,
+        price: lab.price ?? basePrice,
         kind: 'lab',
         provider: lab.name,
         lockedProviderId: lab.id,
@@ -103,7 +103,7 @@ export default function LabComparison() {
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <View style={{ flex: 1, minWidth: 0 }}>
-              {basePrice > 0 ? <Price amount={basePrice} size="h4" /> : <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{k('diag.compare.priceAtBooking')}</Text>}
+              {(lab.price ?? basePrice) > 0 ? <Price amount={lab.price ?? basePrice} size="h4" /> : <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{k('diag.compare.priceAtBooking')}</Text>}
               <Text style={{ ...scale(t, 'tag', 'regular'), color: c.text.secondary, ...flow }}>{k('diag.compare.availability')}</Text>
             </View>
             <Button theme={theme} size="md" label={k('diag.compare.book')} disabled={adding} onPress={() => void handleBook(lab)} />

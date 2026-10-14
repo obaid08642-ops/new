@@ -107,6 +107,8 @@ export interface LabProvider {
   lat: number | null;
   lng: number | null;
   homeVisit: boolean;
+  /** The lab's own total for the requested tests (GET /labs/compatible-providers `price`); null when it sent none. */
+  price: number | null;
 }
 
 /** A lab or radiology centre of `/providers`, `/labs/compatible-providers` or `/radiology/compatible-providers`. */
@@ -126,6 +128,7 @@ export function normalizeProvider(raw: unknown): LabProvider | null {
     lat: asNumber(r.lat),
     lng: asNumber(r.lng),
     homeVisit: Boolean(r.homeVisitAvailable ?? r.providesHome ?? r.home_visit_enabled),
+    price: (() => { const n = asNumber(r.price); return n !== null && n > 0 ? n : null; })(),
   };
 }
 

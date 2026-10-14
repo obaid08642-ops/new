@@ -1671,7 +1671,8 @@
     "aboutTitle": "About Laboratory",
     "defaultAbout": "A certified medical laboratory equipped with modern diagnostics.",
     "servicesTitle": "Available Tests",
-    "price": "{value} ر.س"
+    "price": "{value} ر.س",
+    "ratingLine": "ریٹنگ 5 میں سے {rating} · ریٹنگز کی تعداد {count}"
   },
   "NurseDetail": {
     "title": "Nurse Profile",

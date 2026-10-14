@@ -1671,7 +1671,8 @@
     "aboutTitle": "About Laboratory",
     "defaultAbout": "A certified medical laboratory equipped with modern diagnostics.",
     "servicesTitle": "Available Tests",
-    "price": "{value} SAR"
+    "price": "{value} SAR",
+    "ratingLine": "Marka {rating} sa 5 · bilang ng marka {count}"
   },
   "NurseDetail": {
     "title": "Nurse Profile",

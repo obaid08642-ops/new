@@ -1671,7 +1671,8 @@
     "aboutTitle": "عن المختبر",
     "defaultAbout": "مختبر طبي مجهز بأحدث الأجهزة والتقنيات لتقديم نتائج دقيقة.",
     "servicesTitle": "التحاليل المتوفرة",
-    "price": "{value} ر.س"
+    "price": "{value} ر.س",
+    "ratingLine": "التقييم {rating} من 5 · عدد التقييمات {count}"
   },
   "NurseDetail": {
     "title": "ملف الممرض/ة",
