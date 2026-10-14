@@ -112,3 +112,18 @@ export function postJsonWithProgress(
     request.send(JSON.stringify(body));
   });
 }
+
+/**
+ * #881: the same OCR lines for the assistant, each with the catalogue product the server matched (`slug`, a plain slug only)
+ * so its leaflet page can be linked. Kept apart from `ocrItems`, whose lines are posted as they are to the upload endpoint.
+ */
+export function ocrItemsWithLeaflet(payload: unknown): Array<RxItem & { slug: string | null }> {
+  const root = row(payload);
+  const list = Array.isArray(root?.items) ? root.items : [];
+  return list.slice(0, 50).flatMap((entry) => {
+    const [line] = ocrItems({ items: [entry] });
+    if (!line) return [];
+    const slug = row(entry)?.slug;
+    return [{ ...line, slug: typeof slug === "string" && /^[\p{L}\p{N}-]{1,160}$/u.test(slug) ? slug : null }];
+  });
+}

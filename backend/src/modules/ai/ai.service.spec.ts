@@ -67,3 +67,18 @@ describe('AiService safe guided triage and skin self-check contract', () => {
     await expect(service.analyzeReportForPatient()).rejects.toBeInstanceOf(BadRequestException);
   });
 });
+
+describe('AiService.prescriptionOcr catalogue link (#881)', () => {
+  it('adds the matched public medicine id and slug to each line, null when nothing matches', async () => {
+    const findOne = jest.fn(async (q: any) => (q.$or[0].name_en.test('Panadol 500') && q.$or[0].name_en.source.startsWith('^Panadol') ? { id: 'med-1', slug: 'panadol-500' } : null));
+    const conn = { collection: jest.fn(() => ({ findOne })) };
+    const service: any = new AiService(conn as any, { generate: jest.fn() } as any);
+    service.ocrTranslate = jest.fn(async () => ({ items: [{ raw_name_string: 'Panadol 500', requested_quantity: 2 }, { raw_name_string: 'Unknown pill' }] }));
+    const out = await service.prescriptionOcr('aGVsbG8=');
+    expect(out.items).toEqual([
+      { raw_name_string: 'Panadol 500', requested_quantity: 2, medicine_id: 'med-1', slug: 'panadol-500' },
+      { raw_name_string: 'Unknown pill', medicine_id: null, slug: null },
+    ]);
+    expect(findOne.mock.calls[0][0]).toEqual(expect.objectContaining({ public_eligibility: true, medical_review_status: 'approved' }));
+  });
+});
