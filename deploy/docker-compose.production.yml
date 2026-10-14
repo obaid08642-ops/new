@@ -91,6 +91,7 @@ services:
       PORT: "8002"
       # P14.26: HTTP and sockets only; cron jobs, queue consumers and the search sync run in `worker` below
       PROCESS_ROLE: api
+      HTTP_COMPRESSION: edge   # P14.25: nginx gzips (gzip_proxied any); the API does not compress twice
       MONGO_URL: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
       DB_NAME: ${DB_NAME:-nabd_nestjs}
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379

@@ -338,7 +338,9 @@ export class SeoSearchService {
   async publicProductSearch(q: string, locale = 'ar', limit = 20, page = 1) {
     const db = productLocaleToDb(locale);
     const term = normalizeSearchText(q || '');
-    const perPage = Math.min(Math.max(limit, 1), 50);
+    // A search is capped at 50. The plain catalogue listing (no term) pages up to 1000, like the 5000-URL sitemap
+    // pages: /llms-full asks for 1000 per page and stopped after the first 50 products when this was 50 for both.
+    const perPage = Math.min(Math.max(Number.isFinite(limit) ? limit : 20, 1), term ? 50 : 1000);
     const filter: any = { ...this.publicProductFilter() };
     if (term) {
       const terms = expandMultilingualSearchTerms(q || '').slice(0, 6);

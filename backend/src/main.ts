@@ -32,6 +32,7 @@ const os = require('node:os');
 const mongoSanitize = require('express-mongo-sanitize');
 import { SentryExceptionFilter } from './common/sentry.filter';
 import { processRole } from './common/process-role';
+import { listLimitMiddleware } from './common/list-limit.middleware';
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
 import { WinstonModule } from 'nest-winston';
@@ -123,6 +124,8 @@ async function bootstrap() {
   } else {
     const trustProxyHops = Number.parseInt(process.env.TRUST_PROXY_HOPS || '2', 10);
     app.getHttpAdapter().getInstance().set('trust proxy', Number.isFinite(trustProxyHops) ? trustProxyHops : 2);
+    // P14.25: no list endpoint can be asked for an unbounded page
+    app.use(listLimitMiddleware);
     app.use((req: any, _res: any, next: any) => {
       if (req.body && typeof req.body === 'object') {
         mongoSanitize.sanitize(req.body, { replaceWith: '_' });
@@ -160,7 +163,9 @@ async function bootstrap() {
     contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false,
   }));
-  app.use(compression());
+  // P14.25: behind nginx (gzip on, gzip_proxied any) compression belongs at the edge, not on the API's event loop;
+  // HTTP_COMPRESSION=edge (production compose) turns it off here. Without a proxy (dev) Node still compresses.
+  if (process.env.HTTP_COMPRESSION !== 'edge') app.use(compression());
   app.use(cookieParser());
   // P14.13: Socket.IO across processes and nodes through Redis (skipped in unit/boot tests, which run without one).
   const ioAdapter = new ConfiguredIoAdapter(app, allowedOrigins);
