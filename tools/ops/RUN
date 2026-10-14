@@ -1,5 +1,3 @@
-# 2026-10-14 build session, read-only: cause of today's outage, how production is deployed, state vs main, Cloudflare token check.
-55-inspect-outage
-12-inspect-deploy
-50-inspect-scale
-cf:10-inspect
+# 2026-10-14 build session, read-only: who powered the host off (incident follow-up) and the facts the deploy of main needs.
+56-inspect-shutdown
+57-deploy-preflight
