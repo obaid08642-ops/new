@@ -46,6 +46,8 @@ describe('LabsService', () => {
 
   beforeEach(async () => {
     mockLabService = createMockModel();
+    // The labs' own prices (provider_capabilities_lab); none set here, so bookings keep the catalog price.
+    (mockLabService as any).db = { collection: jest.fn(() => ({ find: jest.fn(() => ({ toArray: jest.fn().mockResolvedValue([]) })) })) };
     mockLabBooking = createMockModel();
     mockLabSample = createMockModel();
     mockProviderProfile = createMockModel();

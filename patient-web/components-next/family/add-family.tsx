@@ -60,6 +60,8 @@ export function InviteTab() {
   );
 }
 
+const JOIN_ERRORS = ["invalid_invite_code", "invite_expired", "already_member"] as const;
+
 /** Join: the invite code and the relation (POST /api/family/join, as before), then the family hub. */
 export function JoinTab({ locale, initialCode }: { locale: string; initialCode?: string }) {
   const t = useTranslations("FamilyWeb");
@@ -80,7 +82,13 @@ export function JoinTab({ locale, initialCode }: { locale: string; initialCode?:
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ invite_code: code.trim(), relation: relation.trim() }),
       });
-      if (!res.ok) { setError(t("joinFailed")); return; }
+      if (!res.ok) {
+        // The backend answers a code for the causes the patient can act on; anything else stays the generic line.
+        const body = (await res.json().catch(() => null)) as { message?: unknown } | null;
+        const cause = JOIN_ERRORS.find((known) => known === body?.message);
+        setError(cause ? t(`joinError.${cause}`) : t("joinFailed"));
+        return;
+      }
       router.push(`/${locale}/family`);
       router.refresh();
     } catch {

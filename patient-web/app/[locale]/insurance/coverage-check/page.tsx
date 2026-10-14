@@ -61,7 +61,7 @@ export default async function InsuranceCoverageCheckPage({ params, searchParams 
         <section className={rx.card} aria-label={t("coverage.result")} role="status">
           <StatusBadge tone={result.eligible ? "good" : "bad"}>{result.eligible ? t("coverage.eligible") : t("coverage.notEligible")}</StatusBadge>
           {result.serviceType ? <p className={rx.lead}>{t("coverage.forService", { service: (SERVICES as readonly string[]).includes(result.serviceType) ? t(`coverage.svc.${result.serviceType as (typeof SERVICES)[number]}`) : result.serviceType })}</p> : null}
-          {result.note ? <p className={rx.lead}>{result.note}</p> : null}
+          {result.noteCode ? <p className={rx.lead}>{t(`noteCode.${result.noteCode}`)}</p> : null}
         </section>
       ) : null}
     </ConsultPage>

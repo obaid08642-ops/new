@@ -42,22 +42,26 @@ export function parseRequestExtras(payload: unknown): { price?: number; bookingI
   return { price: num(rec?.price) ?? num(rec?.total_amount), bookingId: bookingId && UUID.test(bookingId) ? bookingId : undefined };
 }
 
-export type BenefitRow = { key: string; note?: string };
+export type BenefitRow = { key: string; noteCode?: NoteCode };
 
-/** GET /insurance/benefits-summary: `{ has_policy, policy, benefits: [{ key, note_ar }] }`. */
+/** The server sends a note code (never shown as server text); the page translates it. */
+export type NoteCode = "coverage_decided_by_provider" | "no_policy_on_file";
+const noteCodeOf = (value: unknown): NoteCode | undefined => (value === "coverage_decided_by_provider" || value === "no_policy_on_file" ? value : undefined);
+
+/** GET /insurance/benefits-summary: `{ has_policy, policy, benefits: [{ key, note_code }] }`. */
 export function parseBenefits(payload: unknown): BenefitRow[] | null {
   const root = asRecord(payload);
   if (!root || !Array.isArray(root.benefits)) return null;
-  return root.benefits.map(asRecord).filter((row): row is Rec => !!row).map((row, index) => ({ key: text(row.key) ?? String(index), note: text(row.note_ar) ?? text(row.note) }));
+  return root.benefits.map(asRecord).filter((row): row is Rec => !!row).map((row, index) => ({ key: text(row.key) ?? String(index), noteCode: noteCodeOf(row.note_code) }));
 }
 
-export type CoverageResult = { eligible: boolean; serviceType?: string; note?: string };
+export type CoverageResult = { eligible: boolean; serviceType?: string; noteCode?: NoteCode };
 
-/** GET /insurance/coverage-check: `{ eligible, policy, service_type, note_ar }`. */
+/** GET /insurance/coverage-check: `{ eligible, policy, service_type, note_code }`. */
 export function parseCoverage(payload: unknown): CoverageResult | null {
   const root = asRecord(payload);
   if (!root || typeof root.eligible !== "boolean") return null;
-  return { eligible: root.eligible, serviceType: text(root.service_type), note: text(root.note_ar) ?? text(root.note) };
+  return { eligible: root.eligible, serviceType: text(root.service_type), noteCode: noteCodeOf(root.note_code) };
 }
 
 export type ProviderRow = { id: string; name: string; type?: string };

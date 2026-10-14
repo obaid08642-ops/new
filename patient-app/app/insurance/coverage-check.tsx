@@ -7,6 +7,9 @@ import { InfoRow, ResultHero, Section } from '../../src/components/consult/Consu
 import { Notice, Panel, Pill } from '../../src/components/health/HealthKit';
 import { InsuranceScreen } from '../../src/components/insurance/InsuranceKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
+
+/** The server's note is a code (decision 35: nothing is checked with an insurer); the app translates it. */
+const NOTE_CODES = new Set(['coverage_decided_by_provider', 'no_policy_on_file']);
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
 
@@ -24,7 +27,7 @@ interface CoverageResult {
   company_name_ar?: string;
   class?: string;
   reason?: string;
-  note_ar?: string;
+  note_code?: string;
 }
 
 /**
@@ -76,7 +79,7 @@ function CoverageCheck() {
           icon={covered ? 'check-circle' : 'warning'}
           tone={covered ? 'success' : 'danger'}
           title={covered ? k('insurance.coverage.covered', { service: k(`insurance.coverage.type.${serviceType}`) }) : k('insurance.coverage.notCovered')}
-          body={[sub, covered ? '' : result.reason, result.note_ar].filter(Boolean).join('\n')}
+          body={[sub, covered ? '' : result.reason, NOTE_CODES.has(String(result.note_code)) ? k(`insurance.noteCode.${result.note_code}`) : ''].filter(Boolean).join('\n')}
         />
         {covered && (copayPct !== null || copayFlat !== null) ? (
           <Section title={k('insurance.coverage.copayTitle')}>
