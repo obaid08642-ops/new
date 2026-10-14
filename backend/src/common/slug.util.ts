@@ -51,7 +51,9 @@ export function parseSlugSuffix(slug: string): string | null {
 /** Escapes special regular expression characters to prevent ReDoS / injection. */
 export function escapeRegex(input: string): string {
   if (!input) return '';
-  return String(input).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  // A line or paragraph separator (U+2028/U+2029) is written as `\u2028` in a RegExp's source, which MongoDB's
+  // PCRE2 refuses (500, fuzz 15.6): it matches any one character instead (`[\s\S]`, valid in both engines).
+  return String(input).replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/[\u2028\u2029]/g, '[\\s\\S]');
 }
 
 /** decodeURIComponent that never throws: a malformed escape (a lone `%`) keeps the raw text
