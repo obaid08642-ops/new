@@ -65,14 +65,28 @@ export class AuditService {
    * swallowed — but it is logged, because a trail that silently stops is worse
    * than no trail.
    */
-  async write(entry: AuditEntry) {
+  /** Writers in this process take turns (see write()); the tail of that queue. */
+  private writeQueue: Promise<void> = Promise.resolve();
+
+  async write(entry: AuditEntry): Promise<void> {
+    // Writers in one process take turns instead of racing for the chain head: with N concurrent writers each
+    // compare-and-set round has one winner, so the last one needed N rounds and an event was dropped once N passed
+    // the retry cap (CI: 25 writers, 24 rows). The compare-and-set below still handles other processes and nodes.
+    const turn = this.writeQueue.then(() => this.writeChained(entry));
+    this.writeQueue = turn.catch(() => undefined);
+    return turn;
+  }
+
+  private async writeChained(entry: AuditEntry) {
     try {
       // The chain head (last sequence + its hash) lives in one counter document and is advanced
       // with a compare-and-set, so two concurrent writers can never both link to the same
       // predecessor (reading "the latest row" instead let them, and the chain then looked
       // tampered with when nothing was). A lost race simply retries on the new head.
       const heads = (this.logs as any).db.collection('audit_sequence');
-      for (let attempt = 0; attempt < 20; attempt++) {
+      for (let attempt = 0; attempt < 100; attempt++) {
+        // another process won the head: back off a little (jittered, growing) before reading it again
+        if (attempt) await new Promise((r) => setTimeout(r, Math.min(50, attempt * 2) * Math.random()));
         const head: any = (await heads.findOne({ _id: 'global' })) || { value: 0, head_hash: null };
         const sequence = Number(head.value || 0) + 1;
         const prev_hash = (head.head_hash as string) || null;
