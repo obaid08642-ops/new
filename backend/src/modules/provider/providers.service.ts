@@ -349,7 +349,7 @@ export class ProvidersService {
   /** Map providers: ACTIVE only, must have real stored coordinates. */
   async mapProviders(type?: string, lat?: number, lng?: number, radiusKm?: number) {
     const q: any = { ...this.publicDiscoveryFilter(), 'location.lat': { $exists: true, $ne: null }, 'location.lng': { $exists: true, $ne: null } };
-    if (type) q.type = type;
+    if (type) q.type = { $eq: String(type) };
     const rows = await this.providerModel.find(q, { _id: 0, __v: 0, password_hash: 0 }).limit(300).lean();
     const hav = (la1: number, ln1: number, la2: number, ln2: number) => {
       const R = 6371, dLa = (la2 - la1) * Math.PI / 180, dLn = (ln2 - ln1) * Math.PI / 180;
@@ -362,6 +362,9 @@ export class ProvidersService {
       const item: any = {
         id: o.id || o.user_id, type: o.type, name_ar: o.name_ar, name_en: o.name_en,
         city: o.city, district: o.district, rating: o.rating ?? null,
+        // #766: one shape for the map: the rating count and the insurers the profile lists ride with the rating.
+        rating_count: Number.isFinite(Number(o.rating_count)) ? Number(o.rating_count) : 0,
+        accepted_insurance: Array.isArray(o.accepted_insurance) ? o.accepted_insurance.filter((x: unknown) => typeof x === 'string') : [],
         lat: loc.lat, lng: loc.lng,
         distance_km: (lat != null && lng != null && isFinite(lat) && isFinite(lng))
           ? Math.round(hav(lat, lng, loc.lat, loc.lng) * 10) / 10 : null,

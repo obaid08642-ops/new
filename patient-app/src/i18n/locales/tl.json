@@ -3202,5 +3202,13 @@
   "nur.step.ARRIVED": "Dumating na ang nars",
   "nur.step.CARE_IN_PROGRESS": "Isinasagawa ang pag-aalaga",
   "nur.step.COMPLETED": "Tapos na ang pagbisita",
+  "emergency.share": "Ipadala ang lokasyon ko sa pamilya ko",
+  "emergency.sharePermission": "Payagan ang access sa lokasyon para maipadala ito sa pamilya mo.",
+  "emergency.shareError": "Hindi maipadala ang lokasyon mo ngayon. Subukan muli.",
+  "emergency.shareNoContacts": "Wala ka pang emergency contact.",
+  "emergency.shareAddContacts": "Magdagdag ng emergency contact",
+  "emergency.shareSent": "Naipadala ang lokasyon mo sa {n} contact sa app.",
+  "emergency.shareSms": "Mag-text kay {name}",
+  "emergency.shareContact": "ang contact mo",
   "ai.history.title": "Mga dati mong tanong"
 }

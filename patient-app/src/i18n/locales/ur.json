@@ -3202,5 +3202,13 @@
   "nur.step.ARRIVED": "نرس پہنچ گئی",
   "nur.step.CARE_IN_PROGRESS": "دیکھ بھال جاری ہے",
   "nur.step.COMPLETED": "وزٹ مکمل ہو گئی",
+  "emergency.share": "میرا مقام میرے گھر والوں کو بھیجیں",
+  "emergency.sharePermission": "اپنا مقام گھر والوں کو بھیجنے کے لیے مقام تک رسائی کی اجازت دیں۔",
+  "emergency.shareError": "آپ کا مقام ابھی نہیں بھیجا جا سکا۔ دوبارہ کوشش کریں۔",
+  "emergency.shareNoContacts": "ابھی آپ کے کوئی ہنگامی رابطے نہیں ہیں۔",
+  "emergency.shareAddContacts": "ہنگامی رابطے شامل کریں",
+  "emergency.shareSent": "آپ کا مقام ایپ میں {n} رابطوں کو بھیج دیا گیا۔",
+  "emergency.shareSms": "{name} کو ٹیکسٹ پیغام بھیجیں",
+  "emergency.shareContact": "آپ کا رابطہ",
   "ai.history.title": "آپ کے پچھلے سوالات"
 }
