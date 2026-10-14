@@ -23,6 +23,16 @@ const PUBLIC_PATTERNS: RegExp[] = [/^\/c\/[^/]+(?:\/[^/]+)*$/, /^\/p\/[^/]+$/, /
 /** Public for a visitor without a session, per-user for a signed-in patient. */
 const SIGNED_OUT_ONLY = new Set(["/diagnostics"]);
 
+/**
+ * True for a route whose full prefetch depends on the session (F82-3: the caller then asks the session identity, in
+ * the browser; the static HTML never carries it). Every other route's answer does not depend on `signedIn`.
+ */
+export function dependsOnSession(href: string): boolean {
+  if (!href.startsWith("/") || href.startsWith("//")) return false;
+  const path = href.split(/[?#]/)[0].replace(LOCALE_PREFIX, "").replace(/(.)\/$/, "$1");
+  return SIGNED_OUT_ONLY.has(path);
+}
+
 export function isFullPrefetchRoute(href: string, opts: { signedIn?: boolean } = {}): boolean {
   if (!href.startsWith("/") || href.startsWith("//")) return false;
   const path = href.split(/[?#]/)[0].replace(LOCALE_PREFIX, "").replace(/(.)\/$/, "$1");

@@ -1,3 +1,6 @@
+"use client";
+// Browser-only: every importer is a client screen (its fetches go to the patient proxy with the session cookie).
+
 import { parseDeliveryAddresses, toBroadcastAddress, type DeliveryAddress } from "./delivery-address";
 // no zod here: this module is in the client bundle of every sending screen, and zod probes for `eval`, which the page's CSP reports as a violation
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;

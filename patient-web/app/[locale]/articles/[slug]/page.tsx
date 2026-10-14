@@ -7,6 +7,8 @@ import { isLocale, locales } from "@/lib/i18n";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getPublicArticle } from "@/lib/api/articles-server";
+import { isOutage } from "@/lib/api/outage";
+import { PublicDataUnavailableError } from "@/lib/api/public-unavailable";
 import { articleSlug, parseArticle } from "@/lib/api/articles";
 import { formatDate } from "@/lib/format-date";
 import { CiteThis } from "@/components-next/cite-this";
@@ -19,6 +21,14 @@ import { ARTICLE_TONE, CategoryPill, articleExcerpt, articleTitle } from "@/comp
 import styles from "@/components-next/articles/articles.module.css";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
+
+// F82-3: static/ISR. An article is public data only: the same HTML for everyone, generated on the first request for a slug,
+// kept for ARTICLES_REVALIDATE_SECONDS (lib/api/articles-server.ts: the same window as the read) and regenerated in the
+// background. A failed read throws, so Next keeps the last good copy (stale-if-error, issue 302).
+export const revalidate = 600;
+export function generateStaticParams() {
+  return [];
+}
 
 /** The language the article's text is shown in: articles are written in Arabic and/or English. */
 function contentLanguage(locale: string, article: { titleAr?: string; titleEn?: string }) {
@@ -71,6 +81,7 @@ export default async function ArticlePage({ params }: Props) {
   const back = `/${locale}/articles`;
   const response = await getPublicArticle(slug);
   if (response?.status === 404) notFound();
+  if (isOutage(response)) throw new PublicDataUnavailableError("article");
   if (!response || !response.ok) {
     return (
       <ConsultPage locale={locale} title={t("title")} backHref={back}>

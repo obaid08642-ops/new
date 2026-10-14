@@ -4,6 +4,7 @@ import { randomBytes } from "node:crypto";
 
 export const CSP_NONCE_PLACEHOLDER = "nabdCspNoncePlaceholder0000";
 export const CSP_INJECT_HEADER = "x-nabd-csp-inject";
+export const UNAVAILABLE_FALLBACK_HEADER = "x-nabd-unavailable";
 
 export function freshNonce() {
   return randomBytes(18).toString("base64");
@@ -17,6 +18,11 @@ export function policyWithNonce(policy, nonce) {
 // An opening <script …> or <style …> tag (case-insensitive), up to its closing ">".
 const OPEN_TAG = /<(script|style)(?=[\s>/])([^>]*)>/gi;
 
+// A <link ... as="script"> (a preload of a script): under script-src with a nonce and 'strict-dynamic' the browser refuses it
+// without one. Next stamps these itself while it renders a request, but a page prerendered at build time (the unavailable
+// page) was rendered with no policy to read, so they are stamped here.
+const SCRIPT_PRELOAD = /<link(?=[\s/>])([^>]*\sas\s*=\s*["']?script[^>]*)>/gi;
+
 /**
  * Puts the nonce on the page: Next writes the placeholder it read from the proxy's policy on the tags it renders,
  * so every placeholder becomes the nonce, then every <script>/<style> opening tag that still has none gets one.
@@ -24,7 +30,8 @@ const OPEN_TAG = /<(script|style)(?=[\s>/])([^>]*)>/gi;
 export function stampTags(html, nonce) {
   return html
     .split(CSP_NONCE_PLACEHOLDER).join(nonce)
-    .replace(OPEN_TAG, (tag, name, attrs) => (/\snonce\s*=/i.test(attrs) ? tag : `<${name} nonce="${nonce}"${attrs}>`));
+    .replace(OPEN_TAG, (tag, name, attrs) => (/\snonce\s*=/i.test(attrs) ? tag : `<${name} nonce="${nonce}"${attrs}>`))
+    .replace(SCRIPT_PRELOAD, (tag, attrs) => (/\snonce\s*=/i.test(attrs) ? tag : `<link nonce="${nonce}"${attrs}>`));
 }
 
 /**

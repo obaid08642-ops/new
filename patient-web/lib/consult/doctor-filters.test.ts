@@ -1,8 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 import { doctorQuery } from "@/lib/api/doctors";
 import {
-  AVAILABLE_WITHIN_MINUTES, effectiveType, filterApiParams, filterPageParams, parseDoctorFilters, resolveNearbyPlace, savedAddressCity, serverOrdersList,
+  AVAILABLE_WITHIN_MINUTES, effectiveType, filterApiParams, filterPageParams, parseDoctorFilters, serverOrdersList,
 } from "./doctor-filters";
+import { resolveNearbyPlace, savedAddressCity } from "./doctor-filters-browser";
 
 const coords = { kind: "coords", lat: 24.7136, lng: 46.6753 } as const;
 

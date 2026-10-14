@@ -34,7 +34,8 @@ vi.mock("@/lib/api/articles-server", () => ({
   getPatientArticleBookmarks: server.bookmarks,
 }));
 
-import ArticlesPage from "@/app/[locale]/articles/page";
+// a request with a query (?q=, ?category=, ?tab=) is answered by the dynamic twin (F82-3), which renders the same view
+import ArticlesPage from "@/app/[locale]/q/articles/page";
 import ArticlePage from "@/app/[locale]/articles/[slug]/page";
 import BookmarksRedirect from "@/app/[locale]/articles/bookmarks/page";
 import CommunityRedirect from "@/app/[locale]/community/page";

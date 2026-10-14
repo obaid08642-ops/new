@@ -2,7 +2,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { cdnImage, getPublicAlternatives, getPublicProduct, type PublicProduct } from "@/lib/api/public-products-server";
+import { cdnImage, getPublicAlternatives, readPublicProduct, type PublicProduct } from "@/lib/api/public-products-server";
+import { PublicDataUnavailableError } from "@/lib/api/public-unavailable";
 import { JsonLd } from "@/components-next/json-ld";
 import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl, siteOrigin } from "@/lib/seo";
@@ -27,6 +28,16 @@ import styles from "@/components-next/pharmacy/product-detail.module.css";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
+// F82-3: static/ISR. The page is made of public data only (no cookie, no header, no search parameter): the same HTML for
+// everyone, generated on the first request for a slug, kept for the window of the product read (lib/api/public-products-server.ts,
+// one hour) and regenerated in the background. A product that does not exist is a 404; a failed read throws, so Next keeps the
+// last good copy (stale-if-error, #302) instead of caching a not-found or an error. What the visitor can do (the buy bar, the
+// cart) lives in client components that read the device's own cart, so nothing here depends on who is looking.
+export const revalidate = 3600;
+export function generateStaticParams() {
+  return [];
+}
+
 function hreflangMap(product: PublicProduct) {
   return Object.fromEntries([
     ...locales.map((l) => {
@@ -40,7 +51,9 @@ function hreflangMap(product: PublicProduct) {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
   if (!isLocale(locale)) return {};
-  const product = await getPublicProduct(locale, slug);
+  const read = await readPublicProduct(locale, slug);
+  if (read.failed) throw new PublicDataUnavailableError("product");
+  const product = read.data;
   if (!product) return { robots: { index: false, follow: false } };
   const name = product.name || product.official_name || "Product";
   const canonical = localizedUrl(locale, `/p/${encodeURIComponent(product.slug)}`);
@@ -79,7 +92,10 @@ export default async function PublicProductPage({ params }: Props) {
   const shared = await getTranslations("Shared");
   const medicines = await getTranslations("Medicines");
   const seo = await getTranslations("SeoAnswer");
-  const fetchedProduct = await getPublicProduct(locale, slug);
+  const read = await readPublicProduct(locale, slug);
+  // a failed read (no answer, or a 5xx) throws, so Next keeps the last good copy of this page (stale-if-error, #302)
+  if (read.failed) throw new PublicDataUnavailableError("product");
+  const fetchedProduct = read.data;
   if (!fetchedProduct) notFound();
   const product: PublicProduct = fetchedProduct;
   const name = product.name || product.official_name || t("products");

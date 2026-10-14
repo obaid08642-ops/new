@@ -98,7 +98,8 @@ export function AppointmentCard({
 /** The four sections of the tab bar: their pages are fetched once the page is idle; the other tiles on touch or hover. */
 const MAIN_SERVICES = new Set<ServiceName>(["consult", "pharmacy", "lab", "nursing"]);
 
-export function ServiceGrid({ locale, t, signedIn = false, disabled = NONE_DISABLED }: { locale: Locale; t: T; signedIn?: boolean; disabled?: DisabledModules }) {
+/** `signedIn` is given by a per-request page (the dashboard); the static Home leaves it out and each link asks the session identity itself (F82-3). */
+export function ServiceGrid({ locale, t, signedIn, disabled = NONE_DISABLED }: { locale: Locale; t: T; signedIn?: boolean; disabled?: DisabledModules }) {
   const base = `/${locale}`;
   const all: Array<{ name: ServiceName; label: string; href: string }> = [
     { name: "consult", label: t("svcConsult"), href: `${base}/consultations/doctors` },
