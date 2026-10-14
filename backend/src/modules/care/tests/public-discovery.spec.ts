@@ -88,7 +88,7 @@ describe('CareService public discovery contract', () => {
   });
 
   it('escapes user search metacharacters and reports exact total only when it is exact', async () => {
-    providers.find.mockReturnValue({ sort: jest.fn(() => ({ limit: jest.fn().mockResolvedValue([]) })) });
+    providers.find.mockReturnValue({ sort: jest.fn(() => ({ maxTimeMS: jest.fn(() => ({ limit: jest.fn().mockResolvedValue([]) })) })) });
 
     const result = await service.listDoctors({ q: '.*', page: 2, limit: 5 });
 

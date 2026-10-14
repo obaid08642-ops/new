@@ -782,6 +782,11 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'err.unauthorized': { ar: 'انتهت الجلسة، يرجى تسجيل الدخول مجدداً', en: 'Session expired, please login again', ur: 'سیشن ختم' },
   'err.forbidden': { ar: 'لا تملك صلاحية لهذا الإجراء', en: 'You do not have permission', ur: 'اجازت نہیں' },
   'err.not_found': { ar: 'العنصر غير موجود', en: 'Item not found', ur: 'موجود نہیں' },
+  // 13.R5: generic catalog copy for the platform error codes raised by the exception
+  // filter. Added here (not inline in code) so ar/en/ur ship together and cannot drift.
+  'err.bad_request': { ar: 'الطلب غير صالح', en: 'The request is not valid', ur: 'درخواست درست نہیں' },
+  'err.conflict': { ar: 'هذه البيانات موجودة مسبقاً', en: 'That record already exists', ur: 'یہ ریکارڈ پہلے سے موجود ہے' },
+  'err.internal_error': { ar: 'حدث خطأ غير متوقع. حاول مرة أخرى', en: 'Something went wrong. Please try again', ur: 'کچھ گڑبڑ ہو گئی۔ دوبارہ کوشش کریں' },
 
   // ============ Common action labels ============
   'act.confirm': { ar: 'تأكيد', en: 'Confirm', ur: 'تصدیق' },

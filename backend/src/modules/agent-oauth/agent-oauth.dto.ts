@@ -120,3 +120,12 @@ export class AdminUpdateAgentClientDto {
   @IsBoolean()
   blocked: boolean;
 }
+
+/** AC-6: filters for GET /admin/agent-activity (all optional). */
+export class AgentActivityQueryDto {
+  @IsOptional() @IsString() @MaxLength(200) client_id?: string;
+  @IsOptional() @IsString() @MaxLength(200) patient_id?: string;
+  @IsOptional() @IsString() @MaxLength(120) tool?: string;
+  @IsOptional() @IsString() @MaxLength(10) limit?: string;
+  @IsOptional() @IsString() @MaxLength(10) page?: string;
+}

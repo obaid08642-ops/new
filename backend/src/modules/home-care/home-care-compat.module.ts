@@ -132,6 +132,10 @@ export class HomeCareCompatController {
     if (u?.role !== 'patient') throw new ForbiddenException('patient_only');
     if (!body?.service_id) throw new BadRequestException('service_id is required');
     if (!body?.scheduled_at) throw new BadRequestException('scheduled_at is required');
+    // D-25: a home visit is paid by card or insurance, never cash (same rule as POST /nursing/bookings).
+    if (String(body.payment_method || '').trim().toLowerCase() === 'cash') {
+      throw new BadRequestException('payment_method_cash_not_allowed_for_home_visit');
+    }
     const svc: any = await this.services.findOne({ id: { $eq: body.service_id }, active: true }).lean();
     if (!svc) throw new NotFoundException('service not found');
     const address = body.address_id ? await this.savedAddress(u.id, body.address_id) : body.address;

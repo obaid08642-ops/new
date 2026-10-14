@@ -128,7 +128,7 @@ export class CareService {
     const offset = (page - 1) * limit;
     const total = await this.providerModel.countDocuments(q);
 
-    const raw = await this.providerModel.find(q, { _id: 0, __v: 0 }).sort(sort).limit(needDistance ? 200 : (offset + limit + (opts.available_today ? 100 : 0)));
+    const raw = await this.providerModel.find(q, { _id: 0, __v: 0 }).sort(sort).maxTimeMS(5000).limit(needDistance ? 200 : (offset + limit + (opts.available_today ? 100 : 0)));
     let docs: any[] = raw as any;
 
     if (needDistance && opts.lat != null && opts.lng != null) {
@@ -207,7 +207,7 @@ export class CareService {
     // No capped batch: every mode-matching public doctor is scanned, otherwise
     // doctors created later (or lower-rated) would never be found. The mode
     // filter keeps the set small; the window scan is per-day, not per-doctor-history.
-    const candidates: any[] = await this.providerModel.find(q, { _id: 0, __v: 0 }).sort({ rating: -1 }).limit(2000);
+    const candidates: any[] = await this.providerModel.find(q, { _id: 0, __v: 0 }).sort({ rating: -1 }).maxTimeMS(5000).limit(2000); // 14.15
     for (const dRaw of candidates) {
       const d: any = dRaw?.toObject ? dRaw.toObject() : dRaw;
       const ids = [d.account_id, d.user_id, d.id].filter(Boolean).map(String);

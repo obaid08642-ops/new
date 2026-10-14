@@ -7,6 +7,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Medicine, MedicineDocument } from '../../schemas/medicine.schema';
 import { EVENTS } from '../../common/events';
 import { clampPageInt } from '../../common/safe-query';
+import { PurgeBus } from '../../common/purge-bus';
+import { connectionFlagSource, isKilled } from '../../common/killswitches/killswitches.helper';
 import { MedicineRepository } from "./repositories/medicine.repository";
 import { RedisService } from '../redis/redis.service';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
@@ -32,6 +34,7 @@ export class MedicinesService {
     @Optional() private readonly seoPipeline?: AutoEntitySeoPipelineService,
     @Optional() private readonly rankingService?: ProductRankingService,
     @Optional() private readonly manualBoosts?: ManualBoostsService,
+    @Optional() private readonly purgeBus?: PurgeBus,
   ) {}
 
   /** R77: labeled sponsored flags from the governed manual layer (order untouched). */
@@ -142,7 +145,7 @@ export class MedicinesService {
     const rows: any[] = await this.model.find(
       { ...this.publicCatalogFilter(), category: normalizedCategory },
       MedicinesService.CARD_PROJECTION,
-    ).sort({ name_ar: 1, id: 1 }).limit(500);
+    ).sort({ name_ar: 1, id: 1 }).maxTimeMS(5000).limit(500); // 14.15: bound worst-case latency
     return rows.map((row: any) => {
       const raw = row?.toObject ? row.toObject() : row;
       const localized = localizeMedicineStructured(raw, dbLocale);
@@ -236,7 +239,9 @@ export class MedicinesService {
         'رعاية منزلية': 'الرعاية الصحية المنزلية والأجهزة الطبية',
         'الرعاية الصحية المنزلية والأجهزة الطبية': 'الرعاية الصحية المنزلية والأجهزة الطبية',
       };
-      const resolved = CANONICAL_MAP[category.toLowerCase()] || CANONICAL_MAP[category] || category;
+      // Own keys only: a query value like "__proto__" must not resolve to Object.prototype (500).
+      const own = (k: string) => (Object.prototype.hasOwnProperty.call(CANONICAL_MAP, k) ? CANONICAL_MAP[k] : undefined);
+      const resolved = own(category.toLowerCase()) || own(category) || category;
       const cleanTerm = resolved.replace(/^ال/, '').trim();
       const escaped = cleanTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       if (q.$or) {
@@ -254,13 +259,28 @@ export class MedicinesService {
   private trackSearch(term: string | undefined, resultsCount: number, userId?: string) {
     const t = (term || '').trim();
     if (!t || t.length < 2) return;
-    this.conn.collection('search_queries').insertOne({
-      term: t,
-      term_lc: t.toLowerCase(),
-      user_id: userId || null,
-      results_count: resultsCount,
-      createdAt: new Date(),
-    }).catch(() => { /* analytics must never slow search */ });
+    // Kill switch (analytics ingestion): accept-and-drop. Search results are
+    // unaffected; only the search_queries write is skipped. The flag read stays
+    // async/off-path so search latency never depends on it.
+    this.analyticsIngestAllowed().then((ok) => {
+      if (!ok) return;
+      this.conn.collection('search_queries').insertOne({
+        term: t,
+        term_lc: t.toLowerCase(),
+        user_id: userId || null,
+        results_count: resultsCount,
+        createdAt: new Date(),
+      }).catch(() => { /* analytics must never slow search */ });
+    }).catch(() => { /* analytics must never break search */ });
+  }
+
+  /** False only when analytics ingestion is explicitly killed (fail-open). */
+  private async analyticsIngestAllowed(): Promise<boolean> {
+    try {
+      return !(await isKilled('analyticsIngestion', connectionFlagSource(this.conn)));
+    } catch {
+      return true;
+    }
   }
 
   /**
@@ -270,6 +290,11 @@ export class MedicinesService {
   async didYouMean(term: string) {
     const t = (term || '').trim().toLowerCase();
     if (t.length < 3) return { suggestion: null };
+    // Kill switch (search suggestions): direct matches only, no suggestion
+    // expansion and no suggester (pool) reads.
+    if (await isKilled('searchSuggestions', connectionFlagSource(this.conn))) {
+      return { suggestion: null, alternatives: [], query: term };
+    }
 
     const lev = (a: string, b: string): number => {
       const m = a.length, n = b.length;
@@ -760,6 +785,24 @@ export class MedicinesService {
         if (keys.length) await client.del(...keys);
       }
     } catch { /* cache invalidation is best-effort */ }
+    this.schedulePurge();
+  }
+
+  private purgeTimer: NodeJS.Timeout | null = null;
+
+  /**
+   * 14.8: every catalogue write (price, availability, image, approval, import) ends in
+   * invalidateCache, so the edge purge (Cloudflare tag + Next revalidateTag) starts here.
+   * Writes in one burst (a CSV import, a bulk approve) share one purge 500 ms later, well
+   * inside the 5 s budget. A purge failure is logged and never fails the write.
+   */
+  private schedulePurge(): void {
+    if (!this.purgeBus || this.purgeTimer) return;
+    this.purgeTimer = setTimeout(() => {
+      this.purgeTimer = null;
+      this.purgeBus!.purge(['medicines']).catch((e: any) => this.logger.error(`purge medicines failed: ${e?.message || e}`));
+    }, 500);
+    this.purgeTimer.unref?.();
   }
 
   // ── Pre-computed Aggregations Cron Jobs (Task 2.5) ─────────────────

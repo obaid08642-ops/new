@@ -26,6 +26,11 @@ export class MedicinesController {
     @Query('cursor') cursor?: string,
     @Headers('authorization') auth?: string,
   ) {
+    // Query text reaches regexes and filters: drop control characters (MongoDB rejects a NUL in a
+    // regex) and cap the length, so a malformed query is a normal search, never a 500.
+    const clean = (v?: string) => (typeof v === 'string' ? v.replace(/[\u0000-\u001F\u007F-\u009F]/g, '').trim().slice(0, 200) : undefined);
+    search = clean(search) as string; q = clean(q) as string; category = clean(category) as string;
+    sort = clean(sort); pharmacyId = clean(pharmacyId); cursor = cursor === undefined ? undefined : (clean(cursor) ?? '');
     const term = search || q; // 'q' is a legacy alias used by older clients
     const userId = this.optionalUserId(auth);
     // Cursor mode (O(1) deep browsing) takes precedence when ?cursor= is present

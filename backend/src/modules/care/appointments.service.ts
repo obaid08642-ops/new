@@ -12,6 +12,7 @@ import { SlotLocksService } from '../slot-locks/slot-locks.module';
 import { AppointmentRepository } from "./repositories/appointment.repository";
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
 import { hasEffectiveRole } from '../../common/auth.guard';
+import { DEFAULT_REFUND_POLICY } from '../refund-policy/refund-policy.defaults';
 
 /** Platform fee schedule (SAR). Move to DB/config when admin dashboard supports it. */
 const PLATFORM_FEES = {
@@ -429,6 +430,14 @@ export class AppointmentsService {
     
     // No queue or wait-time source exists: nothing is invented here (the waiting room shows the wait only when sent).
 
+    // D-26: every booking the patient reads says what a cancel right now would refund.
+    if (user?.role === UserRole.PATIENT || user?.id === appt.patient_id) {
+      const { refundPercentage } = await this.calculateRefund(appt, user);
+      obj.cancellation = {
+        refund_now: { percent: refundPercentage, amount: Math.round((Number(appt.total_price || 0) * refundPercentage) / 100) },
+      };
+    }
+
     return obj;
   }
 
@@ -464,7 +473,7 @@ export class AppointmentsService {
     if (!appt) throw new NotFoundException();
     await this.assertAppointmentAccess(appt, user);
 
-    const { refundPercentage, refundDestination, penaltyAmount } = this.calculateRefund(appt, user, reason, isNoShow);
+    const { refundPercentage, refundDestination, penaltyAmount } = await this.calculateRefund(appt, user, reason, isNoShow);
 
     appt.cancellation_reason = reason || '';
     appt.refund_percentage = refundPercentage;
@@ -494,29 +503,41 @@ export class AppointmentsService {
     const appt = await this.apptModel.findOne({ id });
     if (!appt) throw new NotFoundException();
     await this.assertAppointmentAccess(appt, user);
-    const { refundPercentage, refundDestination, penaltyAmount } = this.calculateRefund(appt, user);
+    const { refundPercentage, refundDestination, penaltyAmount } = await this.calculateRefund(appt, user);
     const estimatedAmount = Math.round((Number(appt.total_price || 0) * refundPercentage) / 100);
     return { refund_percentage: refundPercentage, refund_destination: refundDestination, penalty_amount: penaltyAmount, estimated_amount: estimatedAmount };
   }
 
+  private async getRefundPolicy(): Promise<any> {
+    if (!this.connection || typeof (this.connection as any).collection !== 'function') {
+      return DEFAULT_REFUND_POLICY;
+    }
+    const doc: any = await this.connection.collection('system_configs').findOne({ key: 'refund_policy' }, { projection: { _id: 0, value: 1 } });
+    return doc?.value || DEFAULT_REFUND_POLICY;
+  }
+
   // Cancellation & Refund Rules (shared by cancel and previewRefund)
-  private calculateRefund(appt: any, user: any, reason?: string, isNoShow = false): { refundPercentage: number; refundDestination: string; penaltyAmount: number } {
+  private async calculateRefund(appt: any, user: any, reason?: string, isNoShow = false): Promise<{ refundPercentage: number; refundDestination: string; penaltyAmount: number }> {
     let refundPercentage = 0;
     let penaltyAmount = 0;
     let refundDestination = 'source';
 
-    const now = new Date();
+    const policy = await this.getRefundPolicy();
+    const consultationPolicy = policy.consultation || DEFAULT_REFUND_POLICY.consultation;
+
     const slotStart = new Date(appt.slot_start);
-    const hoursUntilAppointment = (slotStart.getTime() - now.getTime()) / (1000 * 60 * 60);
+    const hoursUntilAppointment = (slotStart.getTime() - Date.now()) / (1000 * 60 * 60);
 
     if (isNoShow || reason === 'no_show') {
-      refundPercentage = 0; // Patient No-Show: 0% refund
+      refundPercentage = consultationPolicy.patient_no_show_percent ?? 0;
     } else if (user.role === UserRole.PATIENT || user.id === appt.patient_id) {
-      if (hoursUntilAppointment > 24) {
+      if (hoursUntilAppointment >= (consultationPolicy.full_refund_min_hours ?? 2)) {
         refundPercentage = 100;
         refundDestination = 'source';
       } else {
-        refundPercentage = 50;
+        refundPercentage = consultationPolicy.late_refund_percent ?? 50;
+        // B-11 legacy read model: late patient cancels read 'wallet'; the money
+        // itself always goes back through the gateway (never a wallet credit).
         refundDestination = 'wallet';
       }
     } else if (hasEffectiveRole(user, UserRole.DOCTOR) || user.id === appt.doctor_user_id) {
@@ -642,6 +663,34 @@ export class AppointmentsService {
     }
     if ([APPT_STATES.CANCELLED, APPT_STATES.COMPLETED, APPT_STATES.RESCHEDULED].includes(appt.status)) {
       throw new BadRequestException('cannot_reschedule');
+    }
+    // D-26: one free reschedule, only while the current slot is far enough out.
+    const policy = await this.getRefundPolicy();
+    const freeReschedules = Number(policy?.consultation?.free_reschedules ?? 1);
+    const minHours = Number(policy?.consultation?.free_reschedule_min_hours ?? 2);
+    const hoursToSlot = (new Date(appt.slot_start).getTime() - Date.now()) / (1000 * 60 * 60);
+    if (!(hoursToSlot >= minHours)) {
+      throw new BadRequestException('reschedule_too_late_for_free_reschedule');
+    }
+    let priorReschedules = 0;
+    try {
+      let cursor: any = typeof appt?.toObject === 'function' ? appt.toObject() : appt;
+      const seen = new Set<string>([String(cursor?.id)]);
+      for (let i = 0; i < 10; i++) {
+        const prevId = cursor?.rescheduled_from_id;
+        if (typeof prevId !== 'string' || !prevId || seen.has(prevId)) break;
+        seen.add(prevId);
+        priorReschedules++;
+        const q: any = this.apptModel.findOne({ id: prevId }, { _id: 0, id: 1, rescheduled_from_id: 1 });
+        const prev: any = q && typeof q.lean === 'function' ? await q.lean() : await q;
+        if (!prev) break;
+        cursor = typeof prev?.toObject === 'function' ? prev.toObject() : prev;
+      }
+    } catch {
+      priorReschedules = 0;
+    }
+    if (priorReschedules >= freeReschedules) {
+      throw new BadRequestException('no_free_reschedules_left');
     }
     const newStart = new Date(body.slot_start);
     if (isNaN(newStart.getTime()) || newStart.getTime() < Date.now() + 5 * 60_000) {

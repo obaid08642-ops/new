@@ -308,6 +308,17 @@ export class PharmacyOrderService {
       return { ...it, ...(unitPrice !== undefined ? { unit_price: unitPrice } : {}) };
     });
 
+    // D-26: what a cancel right now would refund — before dispatch the full
+    // total including the delivery fee, once out for delivery minus the fee.
+    // Governed orders carry their prices in pricing_snapshot (same fallback as cancel()).
+    const cancelTotal = Math.round(Number(order.totals?.total ?? order.pricing_snapshot?.totals?.total ?? 0) * 100) / 100;
+    const cancelFee = Math.round(Number(order.totals?.delivery_fee ?? order.pricing_snapshot?.totals?.delivery_fee ?? 0) * 100) / 100;
+    const cancelAfterDispatch = String(order.status).toLowerCase() === 'out_for_delivery';
+    const cancelRefundNow = {
+      percent: 100,
+      amount: cancelAfterDispatch ? Math.max(0, Math.round((cancelTotal - cancelFee) * 100) / 100) : cancelTotal,
+    };
+
     return {
       ...order,
       effective_status: effectiveStatus,
@@ -318,6 +329,7 @@ export class PharmacyOrderService {
       courier_name: courierName,
       courier_phone: courierPhone,
       search: searchState,
+      cancellation: { refund_now: cancelRefundNow },
       ...view,
     };
   }
@@ -535,12 +547,57 @@ export class PharmacyOrderService {
     if (!order.quote_accepted_at) throw new BadRequestException('final_quote_acceptance_required');
     if (String(order.payment_method || '').toLowerCase() === 'insurance') throw new BadRequestException('insurance_orders_follow_insurance_decision_flow');
     if (['cancelled', 'expired'].includes(String(order.status))) throw new BadRequestException('order_not_actionable');
+    await this.assertCodAllowed(order, user.id);
     const now = new Date();
     await this.orders.updateOne({ id: order.id }, {
       $set: { payment_method: 'cod', cod_registered_at: now, cod_idempotency_key: idempotencyKey, status: PharmacyOrderState.COD_DUE_ON_DELIVERY },
       $push: { timeline: { ts: now, event: 'cod_registered', by: user.id, meta: { amount: order.pricing_snapshot?.totals?.total } } },
     } as any);
     return { ok: true, idempotent: false, status: PharmacyOrderState.COD_DUE_ON_DELIVERY };
+  }
+
+  /**
+   * D-25 (owner decision 25): cash on delivery only when ALL hold, otherwise 400 with a `cod_*` code
+   * and the order is left unchanged:
+   *  - no prescription item (an attachment, a prescription_id, or a catalogue Rx line);
+   *  - no insurance;
+   *  - the order total is not above the admin cap (`GET /payment-rules`; no cap set = no COD);
+   *  - the patient has at least one delivered/completed pharmacy order;
+   *  - the selected pharmacy has not switched cash on delivery off for itself.
+   */
+  private async assertCodAllowed(order: any, patientId: string) {
+    const db = this.conn;
+    const items: any[] = Array.isArray(order.items) ? order.items : [];
+    const hasAttachment = (Array.isArray(order.prescription_attachments) && order.prescription_attachments.length > 0) || !!order.prescription_id;
+    let rxLine = items.some((i) => i?.requires_prescription === true);
+    if (!rxLine && !hasAttachment) {
+      const ids = items.map((i) => i?.medicine_id).filter((v) => typeof v === 'string');
+      const skus = items.map((i) => i?.matched_sku).filter((v) => v !== undefined && v !== null && v !== '').map(String);
+      const or: any[] = [];
+      if (ids.length) or.push({ id: { $in: ids } });
+      if (skus.length) or.push({ sku: { $in: [...skus, ...skus.filter((x) => /^\d+$/.test(x)).map(Number)] } });
+      if (or.length) rxLine = !!(await db.collection('medicines').findOne({ $or: or, requires_prescription: true }, { projection: { _id: 1 } }));
+    }
+    if (hasAttachment || rxLine) throw new BadRequestException('cod_not_allowed_prescription');
+    if (String(order.coverage_mode || '').toLowerCase() === 'insurance' || order.insurance_decision) throw new BadRequestException('cod_not_allowed_insurance');
+    const rules: any = await db.collection('system_configs').findOne({ key: 'payment_rules' });
+    const cap = Number(rules?.value?.pharmacy_cod_max_sar);
+    const total = Number(order.pricing_snapshot?.totals?.total ?? order.totals?.total ?? 0);
+    if (!(cap > 0) || !(total > 0) || total > cap) throw new BadRequestException('cod_over_limit');
+    const returning = await db.collection('pharmacy_orders').findOne(
+      { patient_account_id: patientId, status: { $in: [PharmacyOrderState.DELIVERED, PharmacyOrderState.COMPLETED] } },
+      { projection: { _id: 1 } },
+    );
+    if (!returning) throw new BadRequestException('cod_first_order_not_allowed');
+    let pharmacyId: string | undefined = order.pharmacy_account_id;
+    if (!pharmacyId && order.selected_offer_id) {
+      const offer: any = await db.collection('pharmacy_offers').findOne({ id: order.selected_offer_id }, { projection: { pharmacy_account_id: 1 } });
+      pharmacyId = offer?.pharmacy_account_id;
+    }
+    if (pharmacyId) {
+      const settings: any = await db.collection('provider_settings').findOne({ provider_id: pharmacyId }, { projection: { cod_enabled: 1 } });
+      if (settings?.cod_enabled === false) throw new BadRequestException('cod_disabled_by_pharmacy');
+    }
   }
 
   /**
@@ -704,6 +761,9 @@ export class PharmacyOrderService {
       kind: 'pharmacy', entity_id: order.id, from_domain: order.status, to_domain: PharmacyOrderState.CANCELLED,
       actor_account_id: actor.id, actor_role: actor.role, patient_account_id: order.patient_account_id, reason,
       mutate: async () => {
+        const priorStatus = String(order.status);
+        const refundTotal = Math.round(Number(order.totals?.total ?? order.pricing_snapshot?.totals?.total ?? 0) * 100) / 100;
+        const refundDeliveryFee = Math.round(Number(order.totals?.delivery_fee ?? order.pricing_snapshot?.totals?.delivery_fee ?? 0) * 100) / 100;
         order.status = PharmacyOrderState.CANCELLED;
         order.cancellation_reason = reason;
         order.timeline.push({ ts: new Date(), event: `cancelled_by_${actor.role}`, by: actor.id, meta: { reason } });
@@ -720,6 +780,9 @@ export class PharmacyOrderService {
           }
         }
         this.bus.emit({ type: 'pharmacy.allocations_released', entity_type: 'order', entity_id: id, actor_account_id: actor.id, actor_role: actor.role, patient_account_id: order.patient_account_id, reason_code: reason, meta: { released_allocations: openAllocs.length } }).catch(() => null);
+        // D-26: fan out for the refund listener (before dispatch: full total;
+        // once out for delivery: total minus the delivery fee).
+        this.bus.emit({ type: 'pharmacy.order.cancelled', entity_type: 'order', entity_id: id, actor_account_id: actor.id, actor_role: actor.role, patient_account_id: order.patient_account_id, reason_code: reason, meta: { prior_status: priorStatus, total: refundTotal, delivery_fee: refundDeliveryFee } }).catch(() => null);
         return { ok: true };
       },
     });

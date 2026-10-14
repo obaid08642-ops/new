@@ -826,6 +826,88 @@ export class AppointmentRefundListener {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// NursingRefundListener — consumes homecare.booking_cancelled (D-26).
+// Patient cancels before the nurse is on the way: 100%. Once IN_TRANSIT:
+// 100% minus the admin trip fee. Never throws: a failed consumer must not
+// break the cancellation that already persisted.
+// ═══════════════════════════════════════════════════════════════════════════
+@Injectable()
+export class NursingRefundListener {
+  private readonly logger = new Logger('NursingRefundListener');
+  constructor(
+    @InjectConnection() private readonly conn: Connection,
+    private readonly refundExec: RefundExecutor,
+  ) {}
+
+  @OnEvent('homecare.booking_cancelled')
+  async onNursingCancelled(e: any) {
+    try {
+      const bookingId = String(e?.booking_id || '');
+      const patientId = String(e?.patient_id || '');
+      if (!bookingId || !patientId) return;
+      const policyDoc: any = await this.conn.collection('system_configs').findOne({ key: 'refund_policy' }).catch(() => null);
+      const tripFee = Number(policyDoc?.value?.home_visit?.trip_fee_sar ?? 40);
+      const total = Math.round(Number(e?.total || 0) * 100) / 100;
+      if (!(total > 0)) return;
+      const afterTransit = String(e?.prior_state || '').toUpperCase() === 'IN_TRANSIT';
+      const amount = afterTransit ? Math.max(0, Math.round((total - tripFee) * 100) / 100) : total;
+      if (!(amount > 0)) return;
+      await this.refundExec.execute({
+        refund_id: `nursing-cancel-${bookingId}`,
+        booking_kind: 'nursing',
+        booking_id: bookingId,
+        patient_id: patientId,
+        amount,
+        reason: afterTransit ? 'nursing_cancel_after_transit' : 'nursing_cancel_before_transit',
+        actor_id: 'system',
+      });
+    } catch (err: any) {
+      this.logger.error(`nursing refund consumer failed: ${err?.message} (booking ${e?.booking_id})`);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PharmacyRefundListener — consumes pharmacy.order.cancelled (D-26).
+// Cancel before dispatch: 100% including the delivery fee. Once the order is
+// out for delivery: 100% minus the delivery fee. Never throws.
+// ═══════════════════════════════════════════════════════════════════════════
+@Injectable()
+export class PharmacyRefundListener {
+  private readonly logger = new Logger('PharmacyRefundListener');
+  constructor(
+    @InjectConnection() private readonly conn: Connection,
+    private readonly refundExec: RefundExecutor,
+  ) {}
+
+  @OnEvent('pharmacy.order.cancelled')
+  async onPharmacyOrderCancelled(e: any) {
+    try {
+      const orderId = String(e?.entity_id || e?.order_id || '');
+      const patientId = String(e?.patient_account_id || '');
+      if (!orderId || !patientId) return;
+      const total = Math.round(Number(e?.meta?.total || 0) * 100) / 100;
+      if (!(total > 0)) return;
+      const dispatched = String(e?.meta?.prior_status || '').toLowerCase() === 'out_for_delivery';
+      const fee = Math.round(Number(e?.meta?.delivery_fee || 0) * 100) / 100;
+      const amount = dispatched ? Math.max(0, Math.round((total - fee) * 100) / 100) : total;
+      if (!(amount > 0)) return;
+      await this.refundExec.execute({
+        refund_id: `pharmacy-cancel-${orderId}`,
+        booking_kind: 'pharmacy',
+        booking_id: orderId,
+        patient_id: patientId,
+        amount,
+        reason: dispatched ? 'pharmacy_cancel_after_dispatch' : 'pharmacy_cancel_before_dispatch',
+        actor_id: 'system',
+      });
+    } catch (err: any) {
+      this.logger.error(`pharmacy refund consumer failed: ${err?.message} (order ${e?.entity_id || e?.order_id})`);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // ReportsService — daily/weekly/monthly financial aggregation (EPIC S16)
 // ═══════════════════════════════════════════════════════════════════════════
 @Injectable()
@@ -1139,7 +1221,7 @@ export class AdminFinanceEngineController {
 @Global()
 @Module({
   controllers: [FinanceEngineController, AdminFinanceEngineController],
-  providers: [LedgerService, CommissionResolver, CouponService, LoyaltyRedeemService, FraudService, RefundExecutor, CancellationPolicy, ReportsService, ApprovalService, AppointmentRefundListener],
+  providers: [LedgerService, CommissionResolver, CouponService, LoyaltyRedeemService, FraudService, RefundExecutor, CancellationPolicy, ReportsService, ApprovalService, AppointmentRefundListener, NursingRefundListener, PharmacyRefundListener],
   exports: [LedgerService, CommissionResolver, CouponService, LoyaltyRedeemService, FraudService, RefundExecutor, CancellationPolicy, ReportsService, ApprovalService],
 })
 export class FinanceEngineModule {}

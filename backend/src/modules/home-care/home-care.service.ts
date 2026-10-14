@@ -137,10 +137,15 @@ export class HomeCareSvc {
       kind: 'nursing', entity_id: b.id, from_domain: b.state, to_domain: 'CANCELLED',
       actor_account_id: user.id, actor_role: user.role, patient_account_id: b.patient_id, reason: 'user_cancelled',
       mutate: async () => {
+        const priorState = String(b.state);
+        const total = Number((b as any).total ?? (b as any).total_price ?? 0);
         b.state_history.push({ from: b.state, to: 'CANCELLED', by_user_id: user.id, at: new Date() });
         b.state = 'CANCELLED' as any;
         await b.save();
-        this.events.emit('homecare.booking_cancelled', { booking_id: b.id });
+        this.events.emit('homecare.booking_cancelled', {
+          booking_id: b.id, patient_id: b.patient_id, prior_state: priorState,
+          total, payment_method: (b as any).payment_method,
+        });
         return b.toObject();
       },
     });

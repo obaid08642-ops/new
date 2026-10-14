@@ -33,6 +33,7 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import { BullModule } from '@nestjs/bullmq';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { LoadSheddingGuard } from './common/load-shedding.guard';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { OrdersModule } from './modules/orders/orders.module';
@@ -48,6 +49,7 @@ import { SeedModule } from './modules/seed/seed.module';
 import { CareModule } from './modules/care/care.module';
 import { LabsModule } from './modules/labs/labs.module';
 import { HomeCareModule } from './modules/home-care/home-care.module';
+import { RefundPolicyModule } from './modules/refund-policy/refund-policy.module';
 import { HealthModule } from './modules/health/health.module';
 import { MedicalProgramsModule } from './modules/medical-programs/medical-programs.module';
 import { SupportModule } from './modules/support/support.module';
@@ -260,6 +262,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     ReturnsModule,
     BansModule,
     HomeCareModule,
+    RefundPolicyModule,
     BillingModule,
     ArticlesModule,
     InsuranceEngineModule,
@@ -276,6 +279,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     { provide: APP_GUARD, useClass: WriteGuard },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: AdminGateGuard },
+    { provide: APP_GUARD, useClass: LoadSheddingGuard },
     { provide: APP_GUARD, useClass: StepUpGuard },
     StepUpService,
     { provide: APP_INTERCEPTOR, useClass: AuditLogInterceptor },

@@ -6,6 +6,7 @@ import { AdaptiveConcurrencyInterceptor } from './adaptive-concurrency.intercept
 import { CacheControlInterceptor } from './cache-control.interceptor';
 import { PasswordSecurityService } from './password-security.service';
 import { OtpAbuseGuard } from './otp-abuse.service';
+import { PurgeBus } from './purge-bus';
 
 @Global()
 @Module({
@@ -17,6 +18,7 @@ import { OtpAbuseGuard } from './otp-abuse.service';
     CacheControlInterceptor,
     PasswordSecurityService,
     OtpAbuseGuard,
+    PurgeBus,
   ],
   exports: [
     LruCacheService,
@@ -26,6 +28,7 @@ import { OtpAbuseGuard } from './otp-abuse.service';
     CacheControlInterceptor,
     PasswordSecurityService,
     OtpAbuseGuard,
+    PurgeBus,
   ],
 })
 export class CommonModule {}

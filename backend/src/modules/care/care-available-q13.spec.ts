@@ -6,7 +6,7 @@ const MIN = 60_000;
 
 const svcWith = (docs: any[], opts: any = {}) => {
   const providerModel: any = {
-    find: () => ({ sort: () => ({ limit: async () => docs }) }),
+    find: () => ({ sort: () => ({ maxTimeMS: () => ({ limit: async () => docs }) }) }),
     countDocuments: async () => docs.length,
     db: {
       collection: (name: string) => {
