@@ -168,9 +168,9 @@ R=""; for i in $(seq 1 24); do R=$(curl -sk --max-time 10 -H "$H_API" https://12
 echo "$R" | grep -q '"status":"ok"' && echo "$R" | grep -q '"background_worker":"up"' || rollback "readiness: $(echo "$R" | head -c 200)"
 echo "deploy: readiness ok, background_worker up"
 wait_code 'Host: nabd.plus' /ar 200 24 || rollback "site /ar"
-wait_code 'Host: admin.nabd.plus' / 200 12 || rollback "admin /"
+wait_code 'Host: admin.nabd.plus' /login 200 12 || rollback "admin /login"   # / sends a signed-out visitor to /login (307)
 M=$(code "$H_API" /api/v1/observability/metrics); [ "$M" = 404 ] || rollback "metrics without token answered $M (wanted 404)"
-echo "deploy: site 200, admin 200, api 200, metrics 404 without token"
+echo "deploy: site 200, admin /login 200, api 200, metrics 404 without token"
 C=/api/v1/catalogs/specialties
 x() { curl -sk -o /dev/null -D - --max-time 10 -H "$H_API" "$@" "https://127.0.0.1$C?deploy=$TS" | tr -d '\r' | awk -F': ' 'tolower($1)=="x-cache-status"{print $2}'; }
 C1=$(x); C2=$(x); C3=$(x -H 'Authorization: Bearer deploy-check')
