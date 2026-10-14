@@ -194,7 +194,10 @@ export class AdminPharmacyController {
     const header = 'id,order_id,offer_id,offer_version,pharmacy_account_id,order_item_id,sku,name_ar,name_en,catalog_price,override_price,currency,reason,changed_by,changed_at';
     const cell = (v: any): string => {
       if (v === null || v === undefined) return '';
-      const s = v instanceof Date ? v.toISOString() : String(v);
+      let s = v instanceof Date ? v.toISOString() : String(v);
+      // CSV injection: a pharmacist-typed text starting with = + - @ (or a tab / CR) would run as a formula when the
+      // admin opens the file in a spreadsheet; prefix it with ' so it stays text. Numbers are written as numbers.
+      if (typeof v !== 'number' && /^[=+\-@\t\r]/.test(s)) s = `'${s}`;
       return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
     };
     const lines = rows.map((r: any) => [

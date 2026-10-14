@@ -45,4 +45,16 @@ describe('P13-R3 price-overrides CSV export', () => {
     const csv: any = await (ctl as any).priceOverridesExport({});
     expect(String(csv).split('\n')).toHaveLength(1);
   });
+
+  it('neutralises spreadsheet formulas in text cells (CSV injection) and keeps numbers', async () => {
+    const { ctl } = setup([
+      { id: 'ov-2', reason: '=HYPERLINK("http://x.test","click")', name_en: '+cmd', name_ar: '@SUM(A1)', sku: '-1', catalog_price: -5, override_price: 7 },
+    ]);
+    const row = String(await (ctl as any).priceOverridesExport({})).split('\n')[1];
+    expect(row).toContain(`"'=HYPERLINK(""http://x.test"",""click"")"`);
+    expect(row).toContain("'+cmd");
+    expect(row).toContain("'@SUM(A1)");
+    expect(row).toContain(",'-1,");
+    expect(row).toContain(',-5,7,');
+  });
 });
