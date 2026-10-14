@@ -1675,10 +1675,15 @@ export class MedicinesService {
 
   /** Admin: direct edit of any catalog item (search → edit → save, no request needed). */
   /** Admin catalog browser: paginated, searchable, incl. soft-deleted filter. */
-  async adminListCatalog(opts: { q?: string; category?: string; page?: number; limit?: number; includeDeleted?: boolean }) {
+  async adminListCatalog(opts: { q?: string; category?: string; page?: number; limit?: number; includeDeleted?: boolean; status?: string }) {
     const page = clampPageInt(opts.page, 1);
     const limit = clampPageInt(opts.limit, 25, 100);
     const filter: any = {};
+    // B-4 (#947): items-to-review queue — the catalog manager filters by
+    // medical review status. Allowlisted: exact match, never a regex.
+    if (opts.status && ['pending', 'approved', 'rejected', 'suspended'].includes(opts.status)) {
+      filter.medical_review_status = opts.status;
+    }
     // AuditPlugin auto-hides deleted docs unless the query pins is_deleted:true —
     // so includeDeleted needs two parallel queries (active + deleted) merged.
     if (opts.category) filter.category = opts.category;
@@ -1843,6 +1848,20 @@ export class MedicinesService {
     await this.model.updateOne({ id: medicineId }, { $set: { ...clean, ...extra, ...governanceReset, updatedAt: new Date() } });
     if (clean.price !== undefined && Number(clean.price) !== Number(med.price || 0)) {
       await this.priceHistory.insertOne({ id: `mph_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`, medicine_id: medicineId, before_price: Number(med.price || 0), after_price: Number(clean.price), reason: String(patch.reason).trim(), changed_by: adminId, createdAt: new Date() });
+    }
+    // B-4 (#945): the change log covers every edited field, not just the
+    // price. One row per changed field (price/sfda keep their legacy shapes
+    // above); the price-history read already returns every row per medicine.
+    {
+      const afterAll: any = { ...clean, ...extra };
+      const reason = String(patch?.reason || patch?.sfda_price_reason || '').trim() || null;
+      for (const field of Object.keys(afterAll)) {
+        if (field === 'price' || field === 'sfda_price' || field === 'sfda_price_reason') continue;
+        const prev = med[field] ?? null;
+        const next = afterAll[field];
+        if (JSON.stringify(prev) === JSON.stringify(next)) continue;
+        await this.priceHistory.insertOne({ id: `mch_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`, medicine_id: medicineId, field, before: prev, after: next, reason, changed_by: adminId, createdAt: new Date() });
+      }
     }
     // D-12: the catalogue price ceiling is an operational field (no re-review) with its own source and
     // date; every change is audit-logged with the old and new value.

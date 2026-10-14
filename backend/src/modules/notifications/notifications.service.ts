@@ -715,6 +715,14 @@ export class NotificationsService {
     if (p.provider_id) await this.create({ user_id: p.provider_id, title_key: 'notif.provider_changes_requested.title', body_key: 'notif.provider_changes_requested.body', type: NotificationType.INFO, priority: NotificationPriority.HIGH });
     if (p.provider_id) await this.providerDecisionBell(p.provider_id, 'provider_changes_requested');
   }
+  // B-4 (#940): per-document licence decisions reach the provider too.
+  @OnEvent('provider.document_reviewed')
+  async onProviderDocumentReviewed(p: any) {
+    if (!p.provider_id) return;
+    const key = p.decision === 'approve' ? 'provider_document_approved' : 'provider_document_rejected';
+    await this.create({ user_id: p.provider_id, title_key: `notif.${key}.title`, body_key: `notif.${key}.body`, params: { doc_type: p.doc_type || '' }, type: NotificationType.INFO, priority: NotificationPriority.HIGH });
+    await this.providerDecisionBell(p.provider_id, key);
+  }
   @OnEvent('emergency.resolved')
   async onEmergencyResolved(p: any) {
     if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.emergency_resolved.title', body_key: 'notif.emergency_resolved.body', type: NotificationType.INFO });
