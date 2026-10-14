@@ -1,0 +1,20 @@
+name: nginx-cache
+# P14.11: the API micro-cache (deploy/nginx/snippets/api-microcache.conf + the skip map in deploy/nginx/nginx.conf)
+# runs in nginx:1.27 in front of a counting stub: no stampede on the backend, and no shared answer for a caller
+# with Authorization or a cookie.
+on:
+  pull_request:
+    paths: ['deploy/nginx/**', 'tools/perf/nginx-microcache/**', '.github/workflows/nginx-cache.yml']
+  push:
+    branches: [main]
+    paths: ['deploy/nginx/**', 'tools/perf/nginx-microcache/**', '.github/workflows/nginx-cache.yml']
+permissions:
+  contents: read
+jobs:
+  microcache:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Micro-cache check
+        run: bash tools/perf/nginx-microcache/run.sh
