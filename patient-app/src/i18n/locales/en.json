@@ -3194,5 +3194,13 @@
   "pharmacy.scan.ix.severe_low_blood_pressure": "Severe drop in blood pressure. Never take these together.",
   "pharmacy.scan.ix.rhabdomyolysis": "Risk of muscle damage (rhabdomyolysis). Ask your doctor about a different antibiotic.",
   "insurance.noteCode.coverage_decided_by_provider": "The provider decides the final coverage when it reviews your request.",
-  "insurance.noteCode.no_policy_on_file": "There is no insurance policy on your file. Add one first."
+  "insurance.noteCode.no_policy_on_file": "There is no insurance policy on your file. Add one first.",
+  "emergency.share": "Send my location to my family",
+  "emergency.sharePermission": "Allow location access to send your location to your family.",
+  "emergency.shareError": "Your location could not be sent right now. Try again.",
+  "emergency.shareNoContacts": "You have no emergency contacts yet.",
+  "emergency.shareAddContacts": "Add emergency contacts",
+  "emergency.shareSent": "Your location was sent to {n} contacts in the app.",
+  "emergency.shareSms": "Send a text to {name}",
+  "emergency.shareContact": "your contact"
 }

@@ -112,6 +112,8 @@ const diagnosticsMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp
 const healthMutationRoutes: Array<{ method: "POST" | "DELETE"; route: RegExp }> = [
   { method: "POST", route: new RegExp("^/health/sleep$") },
   { method: "POST", route: new RegExp("^/health/emergency-contacts$") },
+  // Owner decision 14: "send my location to my family" (POST /emergency/share-location, the patient's own contacts, #665).
+  { method: "POST", route: new RegExp("^/emergency/share-location$") },
   { method: "DELETE", route: new RegExp("^/health/emergency-contacts/[A-Za-z0-9_-]{1,128}$") },
   { method: "POST", route: new RegExp("^/articles/bookmarks/[A-Za-z0-9_-]{1,160}/toggle$") },
 ];

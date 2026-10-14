@@ -3,7 +3,7 @@ import { Linking } from 'react-native';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { UrgentHelpView } from '../../components/emergency/UrgentHelpView';
+import { UrgentHelpView, parseShareResult } from '../../components/emergency/UrgentHelpView';
 import { message } from '../../components/screen/ScreenKit';
 import { parseUrgentHelp } from '../../utils/urgent-help';
 import EmergencySos from '../../../app/emergency/sos';
@@ -27,6 +27,12 @@ jest.mock('expo-router', () => ({
 }));
 jest.mock('react-native-localize', () => ({ getLocales: () => [], findBestLanguageTag: () => undefined }));
 jest.mock('expo-image-picker', () => ({}));
+const mockPermission = jest.fn();
+jest.mock('expo-location', () => ({
+  Accuracy: { Balanced: 3 },
+  requestForegroundPermissionsAsync: () => mockPermission(),
+  getCurrentPositionAsync: async () => ({ coords: { latitude: 24.7, longitude: 46.6 } }),
+}));
 jest.mock('../../context/AppContext', () => ({ useApp: () => ({ isDark: false, lang: 'en', isRTL: false }) }));
 jest.mock('../../utils/logger', () => ({ logError: jest.fn() }));
 jest.mock('../../utils/isOffline', () => ({ isOffline: jest.fn(async () => false) }));
@@ -73,6 +79,41 @@ describe('UrgentHelpView', () => {
     expect(await screen.findByTestId('urgent-help-unavailable')).toBeTruthy();
     expect(screen.getByText(k('emergency.unavailable'))).toBeTruthy();
     expect(screen.queryByTestId('urgent-help-call')).toBeNull();
+  });
+});
+
+describe('send my location to my family (decision 14, #665)', () => {
+  const answer = (share: unknown) => mockApi.mockImplementation(async (path: string) => (path === '/emergency/share-location' ? share : { phone: null }));
+
+  it('posts the device position and says how many contacts got it, with an SMS link for the others', async () => {
+    mockPermission.mockResolvedValue({ status: 'granted' });
+    answer({ notified: 2, sms_links: [{ name: 'Test contact', phone: '0500000000', href: 'sms:0500000000?body=x' }] });
+    await render(wrap(<UrgentHelpView />));
+    await act(async () => {
+      fireEvent.press(await screen.findByTestId('urgent-help-share'));
+    });
+    expect(mockApi).toHaveBeenCalledWith('/emergency/share-location', { method: 'POST', body: JSON.stringify({ lat: 24.7, lng: 46.6 }) });
+    expect(await screen.findByTestId('urgent-help-share-sent')).toBeTruthy();
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('urgent-help-sms-0'));
+    });
+    expect(Linking.openURL).toHaveBeenCalledWith('sms:0500000000?body=x');
+  });
+
+  it('sends nothing without the location permission', async () => {
+    mockPermission.mockResolvedValue({ status: 'denied' });
+    answer({ notified: 0, sms_links: [] });
+    await render(wrap(<UrgentHelpView />));
+    await act(async () => {
+      fireEvent.press(await screen.findByTestId('urgent-help-share'));
+    });
+    expect(await screen.findByTestId('urgent-help-share-permission')).toBeTruthy();
+    expect(mockApi).not.toHaveBeenCalledWith('/emergency/share-location', expect.anything());
+  });
+
+  it('reads only sms: links from the answer', () => {
+    expect(parseShareResult({ notified: 1, sms_links: [{ name: 'A', href: 'javascript:x' }, { name: 'B', href: 'sms:1' }] })).toEqual({ notified: 1, sms: [{ name: 'B', href: 'sms:1' }] });
+    expect(parseShareResult(null)).toBeNull();
   });
 });
 

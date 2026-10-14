@@ -43,6 +43,11 @@ export class MedicalProgramsService {
       nextSessionDate: d.next_session?.date || null,
       nextSessionTime: d.next_session?.time || null,
       nextSessionTitle: d.next_session?.title || null,
+      // #855: the same date and time as one local date-time ("YYYY-MM-DDTHH:mm:00", or the date alone) the app formats
+      // for the reader's language; null when the stored values are not a date.
+      nextSessionAt: /^\d{4}-\d{2}-\d{2}$/.test(String(d.next_session?.date || ''))
+        ? (/^([01]\d|2[0-3]):[0-5]\d$/.test(String(d.next_session?.time || '')) ? `${d.next_session.date}T${d.next_session.time}:00` : String(d.next_session.date))
+        : null,
       milestoneReward: d.milestone_reward?.label || null,
       rewardDesc: d.milestone_reward?.description || null,
       sessionsList: d.sessions || [],

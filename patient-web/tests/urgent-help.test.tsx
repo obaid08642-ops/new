@@ -108,3 +108,17 @@ describe("the removed SOS routes and calls", () => {
     expect(isAllowedPatientApiRequest("/emergency/tracking", "GET")).toBe(false);
   });
 });
+
+describe("send my location to my family (decision 14, #665)", () => {
+  it("reads only sms: links and the count from POST /emergency/share-location", async () => {
+    const { parseShareResult } = await import("@/components-next/emergency/share-location");
+    expect(parseShareResult({ notified: 2, sms_links: [{ name: "A", href: "javascript:x" }, { name: "B", href: "sms:1?body=x" }] })).toEqual({ notified: 2, sms: [{ name: "B", href: "sms:1?body=x" }] });
+    expect(parseShareResult("nope")).toBeNull();
+  });
+  it("lets the proxy post the patient's own location share and nothing else on /emergency", async () => {
+    const { isAllowedPatientApiTarget } = await import("@/lib/api/patient-allowlist");
+    expect(isAllowedPatientApiTarget("/emergency/share-location", "", "POST")).toBe(true);
+    expect(isAllowedPatientApiTarget("/emergency/trigger", "", "POST")).toBe(false);
+    expect(isAllowedPatientApiTarget("/emergency/share-location", "", "GET")).toBe(false);
+  });
+});

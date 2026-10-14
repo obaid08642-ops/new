@@ -3194,5 +3194,13 @@
   "pharmacy.scan.ix.severe_low_blood_pressure": "بلڈ پریشر بہت گر سکتا ہے۔ انہیں کبھی ایک ساتھ نہ لیں۔",
   "pharmacy.scan.ix.rhabdomyolysis": "پٹھوں کو نقصان (رابڈومائیولائسس) کا خطرہ۔ اپنے ڈاکٹر سے کسی دوسری اینٹی بائیوٹک کے بارے میں پوچھیں۔",
   "insurance.noteCode.coverage_decided_by_provider": "حتمی کوریج کا فیصلہ سروس فراہم کنندہ آپ کی درخواست کا جائزہ لیتے وقت کرتا ہے۔",
-  "insurance.noteCode.no_policy_on_file": "آپ کی فائل میں کوئی انشورنس پالیسی نہیں ہے۔ پہلے ایک شامل کریں۔"
+  "insurance.noteCode.no_policy_on_file": "آپ کی فائل میں کوئی انشورنس پالیسی نہیں ہے۔ پہلے ایک شامل کریں۔",
+  "emergency.share": "میرا مقام میرے گھر والوں کو بھیجیں",
+  "emergency.sharePermission": "اپنا مقام گھر والوں کو بھیجنے کے لیے مقام تک رسائی کی اجازت دیں۔",
+  "emergency.shareError": "آپ کا مقام ابھی نہیں بھیجا جا سکا۔ دوبارہ کوشش کریں۔",
+  "emergency.shareNoContacts": "ابھی آپ کے کوئی ہنگامی رابطے نہیں ہیں۔",
+  "emergency.shareAddContacts": "ہنگامی رابطے شامل کریں",
+  "emergency.shareSent": "آپ کا مقام ایپ میں {n} رابطوں کو بھیج دیا گیا۔",
+  "emergency.shareSms": "{name} کو ٹیکسٹ پیغام بھیجیں",
+  "emergency.shareContact": "آپ کا رابطہ"
 }
