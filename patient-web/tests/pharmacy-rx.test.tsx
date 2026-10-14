@@ -295,6 +295,13 @@ describe("the prescription photo", () => {
     expect(ocrItems(null)).toEqual([]);
   });
 
+  it("links the catalogue product the server matched, for the assistant only (#881)", async () => {
+    const { ocrItemsWithLeaflet } = await import("@/lib/pharmacy/rx-upload");
+    expect(ocrItemsWithLeaflet({ items: [{ raw_name_string: "Panadol 500", requested_quantity: 2, slug: "panadol-500" }, { raw_name_string: "X", slug: "../admin" }] }))
+      .toEqual([{ name: "Panadol 500", quantity: 2, slug: "panadol-500" }, { name: "X", quantity: 1, slug: null }]);
+    expect(ocrItems({ items: [{ raw_name_string: "Panadol 500", slug: "panadol-500" }] })).toEqual([{ name: "Panadol 500", quantity: 1 }]);
+  });
+
   it("takes the saved prescription's id from the upload's answer", () => {
     expect(uploadedPrescriptionId({ id: ID })).toBe(ID);
     expect(uploadedPrescriptionId({ data: { id: ID } })).toBe(ID);

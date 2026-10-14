@@ -3229,7 +3229,8 @@
     "askPharmacist": "فارماسسٹ سے پوچھیں",
     "explainAnother": "کچھ اور سمجھائیں",
     "untitledReport": "طبی رپورٹ",
-    "reportsUnavailable": "آپ کی رپورٹس ابھی لوڈ نہیں ہو سکیں۔ کچھ دیر بعد دوبارہ کوشش کریں۔"
+    "reportsUnavailable": "آپ کی رپورٹس ابھی لوڈ نہیں ہو سکیں۔ کچھ دیر بعد دوبارہ کوشش کریں۔",
+    "leafletLink": "معلوماتی پرچہ پڑھیں"
   },
   "MonthlyReportWeb": {
     "title": "آپ کی ماہانہ رپورٹ",

@@ -3229,7 +3229,8 @@
     "askPharmacist": "फार्मासिस्ट से पूछें",
     "explainAnother": "कुछ और समझाएं",
     "untitledReport": "मेडिकल रिपोर्ट",
-    "reportsUnavailable": "आपकी रिपोर्ट अभी लोड नहीं हो सकीं। थोड़ी देर बाद फिर कोशिश करें।"
+    "reportsUnavailable": "आपकी रिपोर्ट अभी लोड नहीं हो सकीं। थोड़ी देर बाद फिर कोशिश करें।",
+    "leafletLink": "दवा की जानकारी पढ़ें"
   },
   "MonthlyReportWeb": {
     "title": "आपकी मासिक रिपोर्ट",

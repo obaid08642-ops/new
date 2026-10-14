@@ -3229,7 +3229,8 @@
     "askPharmacist": "اسأل الصيدلي",
     "explainAnother": "اشرح شيئاً آخر",
     "untitledReport": "تقرير طبي",
-    "reportsUnavailable": "تعذر تحميل تقاريرك الآن. أعد المحاولة بعد قليل."
+    "reportsUnavailable": "تعذر تحميل تقاريرك الآن. أعد المحاولة بعد قليل.",
+    "leafletLink": "اقرأ النشرة"
   },
   "MonthlyReportWeb": {
     "title": "تقريرك الشهري",
