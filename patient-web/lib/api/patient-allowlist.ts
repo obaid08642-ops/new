@@ -16,7 +16,6 @@ const patientReadRoutes = [
   new RegExp("^/labs/services$", "i"),
   new RegExp("^/home-care/bookings/my$", "i"),
   new RegExp("^/home-care/bookings/[A-Za-z0-9-]{1,64}$", "i"),
-  new RegExp("^/emergency/tracking$", "i"),
   new RegExp("^/family/chat/messages$", "i"),
   new RegExp(`^/offers/${orderId}$`, "i"),
   new RegExp(`^/promotions/offers/${orderId}/providers$`, "i"),
@@ -32,7 +31,6 @@ const patientReadRoutes = [
   new RegExp("^/support/chat$", "i"),
   new RegExp(`^/orders/${orderId}/tracking$`, "i"),
   new RegExp("^/cart$"),
-  new RegExp("^/cart/checkout$"),
   new RegExp("^/cart/prescription$"),
   new RegExp("^/nursing/visits$"),
   new RegExp(`^/nursing/visits/${orderId}$`, "i"),
@@ -59,7 +57,6 @@ const patientReadRoutes = [
   new RegExp("^/family/calendar$"),
   new RegExp("^/insurance/my-policy$"),
   new RegExp("^/insurance/benefits-summary$"),
-  new RegExp("^/insurance/claims$"),
   new RegExp(`^/payments/pharmacy/${orderId}/capabilities$`, "i"),
   new RegExp(`^/pharmacy/chat/threads\\?order_id=${orderId}$`, "i"),
   new RegExp(`^/pharmacy/chat/threads/${threadId}/messages$`, "i"),
@@ -67,6 +64,8 @@ const patientReadRoutes = [
   new RegExp("^/mental-health/breathing$"),
   new RegExp("^/mental-health/mood\\?days=30$"),
   new RegExp("^/mental-health/meditation$"),
+  // The assistant lists the patient's own earlier triage questions (GET /ai/triage/history, issues 873/882).
+  new RegExp("^/ai/triage/history\\?limit=\\d{1,3}$"),
   new RegExp("^/users/me/privacy-settings$"),
   new RegExp("^/users/me/security-settings$"),
   new RegExp("^/users/me/storage$"),
@@ -79,7 +78,8 @@ const patientReadRoutes = [
   new RegExp(`^/chat/threads/${threadId}/messages\\?limit=50$`, "i"),
   new RegExp(`^/chat/threads/${threadId}/permissions$`, "i"),
   // The proxy tests the percent-encoded query: a 120-character query is at most 1440 encoded characters (12 per astral character).
-  new RegExp("^/home/search\\?q=[^&]{1,1440}$", "i"),
+  // D-29 grouped home search: the query, the page's locale and a small page size, nothing else.
+  new RegExp("^/search\\?q=[^&]{1,1440}&locale=[a-z]{2,3}&limit=\\d{1,2}$", "i"),
   new RegExp("^/support/faqs$", "i"),
   new RegExp("^/support/requests/mine$", "i"),
   new RegExp(`^/support/requests/${orderId}$`, "i"),
@@ -87,7 +87,6 @@ const patientReadRoutes = [
   new RegExp("^/loyalty/account$", "i"),
   new RegExp("^/loyalty/transactions(\\?page=\\d+)?$", "i"),
   new RegExp("^/loyalty/rewards$", "i"),
-  new RegExp("^/emergency/my/active$", "i"),
   new RegExp(`^/labs/bookings/${orderId}$`, "i"),
   new RegExp(`^/labs/bookings/${orderId}/tracking$`, "i"),
   // A1: the patient wallet is gone — these backend routes no longer exist.
@@ -102,6 +101,8 @@ const diagnosticsMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp
   { method: "PATCH", route: new RegExp(`^/orders/${orderId}/items/[^/]{1,128}/opt-in-cash$`, "i") },
   { method: "POST", route: new RegExp("^/family/chat/messages$", "i") },
   { method: "POST", route: new RegExp("^/nutrition/profile$", "i") },
+  // AI nutrition plan (owner decision 2026-10-05): generated from the patient's own profile.
+  { method: "POST", route: new RegExp("^/nutrition/plan/generate$", "i") },
   { method: "POST", route: new RegExp("^/maternity/profile$", "i") },
   { method: "POST", route: new RegExp("^/support/chat$", "i") },
   { method: "POST", route: new RegExp(`^/support/requests/[^/]+/reply$`, "i") },
@@ -115,6 +116,8 @@ const diagnosticsMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp
 const healthMutationRoutes: Array<{ method: "POST" | "DELETE"; route: RegExp }> = [
   { method: "POST", route: new RegExp("^/health/sleep$") },
   { method: "POST", route: new RegExp("^/health/emergency-contacts$") },
+  // Owner decision 14: "send my location to my family" (POST /emergency/share-location, the patient's own contacts, #665).
+  { method: "POST", route: new RegExp("^/emergency/share-location$") },
   { method: "DELETE", route: new RegExp("^/health/emergency-contacts/[A-Za-z0-9_-]{1,128}$") },
   { method: "POST", route: new RegExp("^/articles/bookmarks/[A-Za-z0-9_-]{1,160}/toggle$") },
 ];
@@ -135,14 +138,14 @@ const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }>
   { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/insurance-rejection/cancel$`, "i") },
   { method: "POST", route: new RegExp(`^/payments/intent/pharmacy/${orderId}$`, "i") },
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/messages$`, "i") },
+  // issue 806: the doctor thread composer sends one text message (backend chat.module POST /chat/threads/:id/messages)
+  { method: "POST", route: new RegExp(`^/chat/threads/${threadId}/messages$`, "i") },
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/accept-substitute/[A-Za-z0-9_-]{1,128}$`, "i") },
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/reject$`, "i") },
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/remove-item$`, "i") },
   { method: "POST", route: new RegExp("^/support/requests$", "i") },
   { method: "POST", route: new RegExp("^/loyalty/rewards/[A-Za-z0-9-]{1,64}/claim$", "i") },
   { method: "POST", route: new RegExp("^/health/reminders$", "i") },
-  { method: "POST", route: new RegExp("^/emergency/trigger$", "i") },
-  { method: "POST", route: new RegExp("^/emergency/[A-Za-z0-9-]{1,64}/cancel$", "i") },
   { method: "POST", route: new RegExp("^/ai/triage$", "i") },
   { method: "POST", route: new RegExp("^/loyalty/challenges/[A-Za-z0-9-]{1,64}/join$", "i") },
   { method: "POST", route: new RegExp("^/referrals/apply$", "i") },
@@ -180,7 +183,7 @@ export function isAllowedPatientApiRequest(path: string, method: string) {
 }
 
 // The proxy receives the path and the query separately. Most entries are bare paths (any query passes through);
-// a few pin an exact query (`/home/search?q=…`, `/pharmacy/chat/threads?order_id=<uuid>`), so the target is also
+// a few pin an exact query (`/search?q=…&locale=…&limit=…`, `/pharmacy/chat/threads?order_id=<uuid>`), so the target is also
 // checked with its query, otherwise those entries can never match.
 export function isAllowedPatientApiTarget(path: string, search: string, method: string) {
   return isAllowedPatientApiRequest(path, method) || (search !== "" && isAllowedPatientApiRequest(`${path}${search}`, method));

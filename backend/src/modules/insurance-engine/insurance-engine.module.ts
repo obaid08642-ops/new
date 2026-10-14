@@ -21,7 +21,7 @@ import { StepUp } from '../../common/step-up.guard';
 import { JwtAuthGuard, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
 import { InsuranceCompanySchema, InsuranceCompanyDocument } from '../../schemas/insurance.schema';
 import { PatientProfileSchema } from '../../schemas/patient-profile.schema';
-import { FraudService } from '../finance-engine/finance-engine.module';
+import { FraudService, RefundExecutor } from '../finance-engine/finance-engine.module';
 import { TransactionSchema } from '../../schemas/transaction.schema';
 import { OrderSchema } from '../../schemas/order.schema';
 import { LabBookingSchema } from '../../schemas/lab.schema';
@@ -36,10 +36,40 @@ import { Permission, RequirePermissions } from '../../common/permissions';
 // Schemas
 // ============================================================================
 
+/**
+ * Batch 7 insurance, chunk oc/E-ins-2 (#835). The request states the engine **actually writes**,
+ * published so the clients build their enum from the server instead of guessing.
+ *
+ * Measured against `push()` call sites: these 7 and no others. Two further values are declared
+ * on the schema for forward compatibility but nothing writes them, so they are listed
+ * separately rather than advertised as live:
+ *  - `APPROVED_PARTIAL` - a partial decision goes straight to `COPAY_PENDING`;
+ *  - `EXPIRED`         - declared only.
+ *
+ * patient-web's parser (`lib/api/insurance-request.ts:4`) lists `SELF_PAY_PENDING` and
+ * `SELF_PAY_PAID`, which the engine never produces, and omits `APPEAL_PENDING`, which it does -
+ * so an appealed request renders "Unable to load insurance". That parser is the design
+ * session's; this list is what it should be built from.
+ */
+export const INSURANCE_REQUEST_STATES = [
+  'PENDING_PROVIDER_REVIEW',
+  'APPROVED_FULL',
+  'COPAY_PENDING',
+  'COPAY_PAID',
+  'REJECTED',
+  'APPEAL_PENDING',
+  'CANCELLED',
+] as const;
+
+/** Declared on the schema but never written. See the note above. */
+export const INSURANCE_REQUEST_RESERVED_STATES = ['APPROVED_PARTIAL', 'EXPIRED'] as const;
+
+
 @Schema({ timestamps: true })
 export class InsuranceServiceRequest {
   // Written by the services but previously undeclared: strict mode silently dropped it (tools/audit/schemadrift.js).
   @Prop() insurer_approval_code?: string;
+  @Prop() approval_ref?: string;
   @Prop({ required: true, unique: true, default: () => uuid() }) id: string;
   @Prop({ required: true, index: true }) patient_id: string;
   @Prop() patient_name?: string;
@@ -275,7 +305,95 @@ export class InsuranceFlowService {
     const p = await this.patients.findOne({ user_id: user.id }, { _id: 0, insurance: 1 }).lean();
     const ins: any = (p as any)?.insurance || null;
     // company_id (new saves) OR provider (legacy saves) both count as a policy
-    return { has_policy: !!(ins && (ins.company_id || ins.provider || ins.policy_number)), policy: ins };
+    const has_policy = !!(ins && (ins.company_id || ins.provider || ins.policy_number));
+    if (!has_policy) return { has_policy, policy: ins };
+    // #838: the card shows the insurer's logo (a verified catalogue logo only), the membership number and the expiry,
+    // all as saved; nothing is invented when the patient did not enter it.
+    const company: any = ins.company_id
+      ? await this.companies.findOne({ id: { $eq: String(ins.company_id) } }, { _id: 0, logo_url: 1, logo_verified_at: 1, name_en: 1 }).lean()
+      : null;
+    const policy = {
+      ...ins,
+      company_logo_url: company?.logo_url && company?.logo_verified_at ? company.logo_url : null,
+      company_name_en: company?.name_en ?? null,
+      member_id: ins.member_id ?? null,
+      expiry_date: ins.expiry_date ?? null,
+    };
+    return { has_policy, policy };
+  }
+
+  /**
+   * Batch 7 insurance, chunk oc/E-ins-1 (#829, #845, #837).
+   *
+   * Relay-only (decision 35 / D-37): this reads the **saved policy** and nothing else. It does
+   * not ask an insurer anything, so the answer must not read like a live check.
+   *
+   *  - `note_code` replaces the hard-coded Arabic `note_ar` sentence (queue §2 step 5: send a
+   *    code, let the client translate it). `note_ar` is left for the two patient-web readers
+   *    that call it today (`lib/insurance/view.ts:51,60`); the design session switches them to
+   *    `note_code` and the Arabic field can then go.
+   *  - `has_policy` is the neutral name for what `eligible` always meant ("a policy is on
+   *    file"). `eligible` is kept because the clients read it; the two always agree.
+   *  - `live_check: false` says out loud that nothing was checked with an insurer, and no
+   *    `nphies_*` field is returned.
+   */
+  async coverageCheckAnswer(user: any, query: any) {
+    const { has_policy, policy } = await this.myPolicy(user);
+    return {
+      eligible: has_policy,
+      has_policy,
+      policy,
+      service_type: query?.service_type || 'consultation',
+      live_check: false,
+      note_code: has_policy ? 'coverage_decided_by_provider' : 'no_policy_on_file',
+      note_ar: has_policy
+        ? 'التغطية النهائية يحددها مزود الخدمة عند مراجعة الطلب'
+        : 'لا توجد وثيقة تأمين في ملفك — أضفها أولًا',
+    };
+  }
+
+  /**
+   * Batch 7 insurance, chunk oc/E-ins-1 (#836).
+   *
+   * Benefits rows carry a stable `key` the client translates. There is no benefit amount,
+   * limit or usage anywhere in the platform, so none is invented here: until the owner
+   * supplies real plan limits this row is only the "who decides coverage" notice.
+   */
+  async benefitsAnswer(user: any) {
+    const { has_policy, policy } = await this.myPolicy(user);
+    return {
+      has_policy,
+      policy,
+      benefits: has_policy
+        ? [{ key: 'manual_review', note_code: 'coverage_decided_by_provider', amounts_available: false }]
+        : [],
+      // #823/#826: the patient's own insurance use (approval requests, not claims: decision 35 is relay-only), summed from their decided requests (never a made-up limit). There is
+      // no plan limit in the platform, so `annual_limit` is null rather than a fixed figure; `expiry_date` is the policy's.
+      usage: has_policy ? await this.usageTotals(user.id) : null,
+      annual_limit: null,
+      expiry_date: policy?.expiry_date ?? null,
+    };
+  }
+
+  /** Totals of the patient's decided insurance requests: how many, what the insurer covered and what the patient paid. */
+  private async usageTotals(patientId: string) {
+    const rows: any[] = await this.requests.find(
+      { patient_id: patientId, state: { $in: ['APPROVED_FULL', 'APPROVED_PARTIAL', 'COPAY_PENDING', 'COPAY_PAID', 'REJECTED'] } },
+      { _id: 0, state: 1, price: 1, copay_amount: 1 },
+    ).limit(1000).lean();
+    let covered = 0;
+    let patientShare = 0;
+    let approved = 0;
+    for (const r of rows) {
+      if (r.state === 'REJECTED') continue;
+      approved += 1;
+      const price = Number(r.price) || 0;
+      const share = r.state === 'APPROVED_FULL' ? 0 : Math.min(price, Number(r.copay_amount) || 0);
+      covered += price - share;
+      patientShare += share;
+    }
+    const round = (n: number) => Math.round(n * 100) / 100;
+    return { requests: rows.length, approved, rejected: rows.length - approved, insurer_covered: round(covered), patient_share: round(patientShare), currency: 'SAR' };
   }
 
   private bookingModel(kind: string): { kind: string; model: Model<any> } {
@@ -354,8 +472,31 @@ export class InsuranceFlowService {
     return req.toObject();
   }
 
+  /**
+   * Batch 7 insurance, chunk oc/E-ins-2 (#830 / #846): one approval number on the read side.
+   *
+   * D-37 already unified the write - `decide()` stores exactly one field, `insurer_approval_code`.
+   * Both clients read `approval_code ?? insurer_approval_code`, and `approval_code` is never
+   * written, so the read always fell through to the same field anyway. The D-37 canonical name
+   * `approval_ref` is now mirrored from that one stored value, so the two names can never
+   * disagree and a future client change can collapse to a single name.
+   */
+  private presentRequest(req: any): any {
+    if (!req || typeof req !== 'object') return req;
+    // older rows written by the provider-request path carry `approval_code`; it is read as the same number
+    const code = [req.insurer_approval_code, req.approval_ref, req.approval_code].find((v) => typeof v === 'string' && v.trim());
+    // #825: the insurer's share is the server's figure (price minus the patient's share), not a client computation
+    const price = Number(req.price);
+    const share = req.state === 'APPROVED_FULL' ? 0 : Number(req.copay_amount);
+    const insurer_share = Number.isFinite(price) && price > 0 && Number.isFinite(share) && ['APPROVED_FULL', 'APPROVED_PARTIAL', 'COPAY_PENDING', 'COPAY_PAID'].includes(req.state)
+      ? Math.round((price - Math.min(price, share)) * 100) / 100 : undefined;
+    const { approval_code: _legacy, ...rest } = req;
+    return { ...rest, ...(code ? { approval_ref: code.trim(), insurer_approval_code: code.trim() } : {}), ...(insurer_share !== undefined ? { insurer_share } : {}) };
+  }
+
   async myRequests(user: any) {
-    return this.requests.find({ patient_id: user.id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean();
+    const rows = await this.requests.find({ patient_id: user.id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean();
+    return (rows as any[]).map((r) => this.presentRequest(r));
   }
 
   async providerQueue(user: any, state?: string) {
@@ -384,7 +525,7 @@ export class InsuranceFlowService {
     const req = await this.requests.findOne({ id: { $eq: id } }, { _id: 0, __v: 0 }).lean();
     if (!req) throw new NotFoundException('request not found');
     if ((req as any).patient_id !== user.id && (req as any).provider_id !== user.id && user.role !== 'admin') throw new ForbiddenException();
-    return req;
+    return this.presentRequest(req);
   }
 
     /** Doctor gatekeeper for consultation insurance (provider-app sheet):
@@ -421,9 +562,9 @@ export class InsuranceFlowService {
     }
     if (copay > 0) {
       const pct = Math.min(99, Math.max(1, Math.round((copay / Math.max(1, Number(req.price) || 1)) * 100)));
-      return this.decide(user, req.id, { decision: 'approve_partial', copay_percent: pct });
+      return this.decide(user, req.id, { decision: 'approve_partial', copay_percent: pct, approval_ref: code });
     }
-    return this.decide(user, req.id, { decision: 'approve_full' });
+    return this.decide(user, req.id, { decision: 'approve_full', approval_ref: code });
   }
 
   /** LJ-03: one decision entry point for a provider on any service booking
@@ -457,18 +598,20 @@ export class InsuranceFlowService {
     if (req.state !== 'PENDING_PROVIDER_REVIEW') return req.toObject();
 
     const decision = String(body?.decision || body?.status || '').trim().toLowerCase();
-    const code = typeof body?.approval_code === 'string' ? body.approval_code.trim() : '';
+    // D-37: the insurer's approval number entered by the provider (approval_ref; approval_code and
+    // decision_reference are the older names some provider screens send). decide() requires it to approve.
+    const code = [body?.approval_ref, body?.approval_code, body?.decision_reference].find((v) => typeof v === 'string' && v.trim())?.trim() || '';
     if (code) await this.requests.updateOne({ id: req.id }, { $set: { insurer_approval_code: code } });
-    if (['approved', 'approve_full', 'full', 'approved_full'].includes(decision)) return this.decide(user, req.id, { decision: 'approve_full' });
+    if (['approved', 'approve_full', 'full', 'approved_full'].includes(decision)) return this.decide(user, req.id, { decision: 'approve_full', approval_ref: code });
     if (['partial', 'partial_approval', 'approve_partial'].includes(decision)) {
       const pct = Number(body?.copay_percent);
       const copay = Number(body?.copay ?? body?.totalCopay ?? 0) || 0;
-      if (pct > 0) return this.decide(user, req.id, { decision: 'approve_partial', copay_percent: pct });
+      if (pct > 0) return this.decide(user, req.id, { decision: 'approve_partial', copay_percent: pct, approval_ref: code });
       if (copay > 0) {
         const computed = Math.min(99, Math.max(1, Math.round((copay / Math.max(1, Number(req.price) || 1)) * 100)));
-        return this.decide(user, req.id, { decision: 'approve_partial', copay_percent: computed });
+        return this.decide(user, req.id, { decision: 'approve_partial', copay_percent: computed, approval_ref: code });
       }
-      return this.decide(user, req.id, { decision: 'approve_full' });
+      return this.decide(user, req.id, { decision: 'approve_full', approval_ref: code });
     }
     if (['rejected', 'reject'].includes(decision)) {
       const reason = String(body?.reason || body?.rejectReason || code || '').trim();
@@ -479,21 +622,36 @@ export class InsuranceFlowService {
   }
 
   /** Provider manual decision (BR-2.4): full | partial(copay_percent) | reject(reason). */
-  async decide(user: any, id: string, body: any) {    const req = await this.requests.findOne({ id: { $eq: id } });
+  async decide(user: any, id: string, body: any) {
+    const req = await this.requests.findOne({ id: { $eq: id } });
     if (!req) throw new NotFoundException('request not found');
     if (req.provider_id !== user.id && user.role !== 'admin') throw new ForbiddenException();
     if (req.state !== 'PENDING_PROVIDER_REVIEW') throw new BadRequestException(`request already decided (${req.state})`);
 
     const decision = body?.decision;
     if (decision === 'approve_full') {
+      const approvalRef = typeof body?.approval_ref === 'string' ? body.approval_ref.trim() : '';
+      if (!approvalRef) throw new BadRequestException('approval_ref is required for approve_full');
       this.push(req, 'APPROVED_FULL', user.id);
       req.copay_percent = 0; req.copay_amount = 0;
+      req.approval_ref = approvalRef;
     } else if (decision === 'approve_partial') {
+      const approvalRef = typeof body?.approval_ref === 'string' ? body.approval_ref.trim() : '';
+      if (!approvalRef) throw new BadRequestException('approval_ref is required for approve_partial');
       const pct = Number(body?.copay_percent);
-      if (!pct || pct <= 0 || pct >= 100) throw new BadRequestException('copay_percent must be between 1 and 99');
-      this.push(req, 'COPAY_PENDING', user.id, `patient copay ${pct}%`);
-      req.copay_percent = pct;
-      req.copay_amount = Math.round(req.price * (pct / 100) * 100) / 100;
+      const copayAmount = Number(body?.copay_amount);
+      if ((!pct || pct <= 0 || pct >= 100) && (!copayAmount || copayAmount <= 0)) {
+        throw new BadRequestException('copay_percent (1-99) or copay_amount (>0) is required for approve_partial');
+      }
+      this.push(req, 'COPAY_PENDING', user.id, `patient copay ${pct || copayAmount}%`);
+      if (pct && pct > 0 && pct < 100) {
+        req.copay_percent = pct;
+        req.copay_amount = Math.round(req.price * (pct / 100) * 100) / 100;
+      } else if (copayAmount && copayAmount > 0) {
+        req.copay_amount = Math.round(copayAmount * 100) / 100;
+        req.copay_percent = Math.min(99, Math.max(1, Math.round((req.copay_amount / Math.max(1, req.price)) * 100)));
+      }
+      req.approval_ref = approvalRef;
     } else if (decision === 'reject') {
       if (!body?.reason?.trim()) throw new BadRequestException('rejection reason is required');
       this.push(req, 'REJECTED', user.id, body.reason.trim());
@@ -698,21 +856,15 @@ export class InsuranceFlowController {
   @Post('save-policy') savePolicy(@CurrentUser() u: any, @Body() b: SavePolicyDto) { return this.svc.savePolicy(u, b); }
   @Get('my-policy') myPolicy(@CurrentUser() u: any) { return this.svc.myPolicy(u); }
 
+  // #829/#845/#837: renamed body, same route (the clients call `coverage-check`). The answer is
+  // the saved policy only and says so with `live_check` and `note_code`.
   @Get('coverage-check') async coverageCheck(@CurrentUser() u: any, @Query() q: any) {
-    const { has_policy, policy } = await this.svc.myPolicy(u);
-    return {
-      eligible: has_policy,
-      policy,
-      service_type: q?.service_type || 'consultation',
-      note_ar: has_policy
-        ? 'التغطية النهائية يحددها مزود الخدمة عند مراجعة الطلب'
-        : 'لا توجد وثيقة تأمين في ملفك — أضفها أولًا',
-    };
+    return this.svc.coverageCheckAnswer(u, q);
   }
 
+  // #836: rows carry a translatable key instead of one hard-coded Arabic sentence.
   @Get('benefits-summary') async benefits(@CurrentUser() u: any) {
-    const { has_policy, policy } = await this.svc.myPolicy(u);
-    return { has_policy, policy, benefits: has_policy ? [{ key: 'manual_review', note_ar: 'تخضع الموافقة لمراجعة مزود الخدمة لوثيقتك' }] : [] };
+    return this.svc.benefitsAnswer(u);
   }
 
   @SelfService()
@@ -785,6 +937,7 @@ export class RefundService {
     private events: EventEmitter2,
     private readonly fraud: FraudService,
     @Optional() @InjectConnection() private readonly conn?: Connection,
+    @Optional() private readonly refundExec?: RefundExecutor,
   ) {}
 
   policyFor(scheduledAt?: Date) {
@@ -847,16 +1000,42 @@ export class RefundService {
   }
 
   adminQueue() {
-    return this.refunds.find({ state: 'REQUESTED' }, { _id: 0, __v: 0 }).sort({ createdAt: 1 }).limit(100).lean();
+    return this.refunds.find({ state: { $in: ['REQUESTED', 'FAILED'] } }, { _id: 0, __v: 0 }).sort({ createdAt: 1 }).limit(100).lean();
   }
 
   async decide(user: any, id: string, approve: boolean, note?: string) {
     const r = await this.refunds.findOne({ id: { $eq: id } });
     if (!r) throw new NotFoundException('refund not found');
-    if (r.state !== 'REQUESTED') throw new BadRequestException(`already ${r.state}`);
+    // FAILED can be approved again: the executor is idempotent per refund id, so a retry never pays twice.
+    const retry = approve && r.state === 'FAILED';
+    if (r.state !== 'REQUESTED' && !retry) throw new BadRequestException(`already ${r.state}`);
     r.state = approve ? 'APPROVED' : 'REJECTED';
-    r.history.push({ state: r.state, at: new Date(), by: user.id, note });
+    r.history.push({ state: r.state, at: new Date(), by: user.id, note: retry ? `retry: ${note || ''}`.trim() : note });
     await r.save();
+
+    // Approval moves the money (B-4). Success is EXECUTED; a gateway/ledger error is FAILED (shown to
+    // the admin, approvable again), never a silent "approved" with no refund behind it.
+    if (approve && this.refundExec) {
+      try {
+        const exec = await this.refundExec.execute({
+          refund_id: r.id,
+          booking_kind: r.booking_kind,
+          booking_id: r.booking_id,
+          patient_id: r.patient_id,
+          amount: r.refund_amount,
+          reason: `admin_refund_approved: ${note || 'no_reason'}`.slice(0, 180),
+          actor_id: user.id,
+        });
+        r.state = 'EXECUTED';
+        r.executed_at = new Date();
+        r.history.push({ state: 'EXECUTED', at: r.executed_at, by: user.id, note: exec?.gateway_refund_id ? `gateway ${exec.gateway_refund_id}` : exec?.method });
+      } catch (err: any) {
+        r.state = 'FAILED';
+        r.history.push({ state: 'FAILED', at: new Date(), by: user.id, note: String(err?.message || 'execution_failed').slice(0, 200) });
+      }
+      await r.save();
+    }
+
     return r.toObject();
   }
 }

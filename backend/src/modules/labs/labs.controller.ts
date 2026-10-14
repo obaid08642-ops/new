@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Put, Delete, Body, Param, Query, UseGuards, ServiceUnavailableException } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Put, Delete, Param, Query, UseGuards, ServiceUnavailableException, BadRequestException, Body } from '@nestjs/common';
 import { LabsService } from './labs.service';
 import { Public, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
@@ -12,21 +12,25 @@ export class LabsController {
 
   @Public() @Get('services')
   services(
-    @Query('category') cat?: string, 
-    @Query('search') q?: string, 
+    @Query('category') cat?: string,
+    @Query('search') q?: string,
     @Query('home_only') ho?: string,
     @Query('home_visit') hv?: string,
     @Query('highest_rated') hr?: string,
     @Query('nearest') nr?: string,
-    @Query('lowest_price') lp?: string
+    @Query('lowest_price') lp?: string,
+    @Query('lat') lat?: string,
+    @Query('lng') lng?: string
   ) {
-    return this.svc.list({ 
-      category: cat, 
-      search: q, 
+    return this.svc.list({
+      category: cat,
+      search: q,
       home_only: ho === '1' || hv === 'true' || hv === '1',
       highest_rated: hr === 'true' || hr === '1',
       nearest: nr === 'true' || nr === '1',
-      lowest_price: lp === 'true' || lp === '1'
+      lowest_price: lp === 'true' || lp === '1',
+      lat: lat !== undefined && Number.isFinite(Number(lat)) ? Number(lat) : undefined,
+      lng: lng !== undefined && Number.isFinite(Number(lng)) ? Number(lng) : undefined
     });
   }
 
@@ -230,9 +234,40 @@ export class LabsController {
     return this.svc.getById(id);
   }
 
+  @Public() @Get('carousel')
+  carousel(@Query('category') category?: string, @Query('limit') limit?: string) {
+    return this.svc.getCarousel(category, parseInt(limit || '20', 10));
+  }
+
+  @Public() @Get('price-comparison')
+  priceComparison(@Query('serviceId') serviceId: string) {
+    if (typeof serviceId !== 'string' || !serviceId) throw new BadRequestException('serviceId required');
+    return this.svc.priceComparison(serviceId);
+  }
+
   @Public() @Get('compatible-providers')
   compatibleProviders(@Query('testIds') testIds?: string) {
     const ids = testIds ? testIds.split(',') : [];
     return this.svc.compatibleProviders(ids);
+  }
+
+  @Public() @Get('providers/:providerAccountId/slots')
+  providerSlots(
+    @Param('providerAccountId') providerAccountId: string,
+    @Query('date') date: string,
+    @Query('duration') duration?: string
+  ) {
+    const dur = duration ? parseInt(duration, 10) : 30;
+    if (!Number.isInteger(dur) || dur < 10 || dur > 120) {
+      throw new BadRequestException('duration must be an integer between 10 and 120 minutes');
+    }
+    return this.svc.slotsForProvider(providerAccountId, date, dur);
+  }
+
+  // #639: the public page of one approved lab (the id the compatible-providers list gives: its account id), with its
+  // rating count and the tests it prices. Declared last so every fixed one-segment route above wins.
+  @Public() @Get(':id')
+  publicLab(@Param('id') id: string) {
+    return this.svc.publicLab(id);
   }
 }

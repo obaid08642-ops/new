@@ -18,7 +18,7 @@ describe('MedicalProgramsService', () => {
   it('lists active programs mapped to the mobile contract', async () => {
     const svc = new MedicalProgramsService(model() as any);
     const res = await svc.listActive({ id: 'patient-1' });
-    expect(res[0]).toEqual(expect.objectContaining({ id: 'diabetes', completedSessions: 1, totalSessions: 6, nextSessionDate: '2026-09-01' }));
+    expect(res[0]).toEqual(expect.objectContaining({ id: 'diabetes', completedSessions: 1, totalSessions: 6, nextSessionDate: '2026-09-01', nextSessionAt: '2026-09-01T09:00:00' }));
   });
 
   it('rejects complete-session without identity or params', async () => {

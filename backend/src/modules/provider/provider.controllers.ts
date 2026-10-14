@@ -3,7 +3,7 @@ import { isProviderRole } from '../../common/enums';
 import { Controller, Post, Get, Patch, Delete, Body, Param, Query, Req, Inject } from '@nestjs/common';
 import { ServiceUnavailableException } from '@nestjs/common';
 import { DisableDto, EndConsultationDto, IssueSickLeaveDto, IssueMedicalReportDto, SetAvailDto, PreviewAdHocDto, DispatchDto, WithdrawAliasDto, UploadProfileImageDto, ReplaceImageDto, AssignStaffDto } from './provider.controllers.dto';
-import { RegisterDto, LoginDto, RefreshDto, LogoutDto, SendOtpDto, VerifyEmailDto, ForgotDto, VerifyResetCodeDto, ResetDto, AddPhoneDto, UploadDocDto, UploadDocDto2, UpsertBankDto, SubmitDeltaDto, SubmitDeltaDto2, InviteDto, AcceptDto, UpdateDto2, RejectDeltaDto, RejectDeltaDto2, ApproveDto, RejectDto, NeedsChangesDto, SuspendDto, ReactivateDto, AcceptDto2, RejectDto2, StartDto, CompleteDto, CancelDto, UpsertPharmaDto, UpsertLabDto, UpsertLabDto2, UpsertRadDto, UpsertRadDto2, UpsertDocDto, UpsertDocDto2, UpsertHcDto, UpsertHcDto2, UpsertDto, UpsertDto2 } from './provider.controllers.generated.dto';
+import { RegisterDto, LoginDto, RefreshDto, LogoutDto, SendOtpDto, VerifyEmailDto, ForgotDto, VerifyResetCodeDto, ResetDto, AddPhoneDto, UploadDocDto, UploadDocDto2, UpsertBankDto, SubmitDeltaDto, SubmitDeltaDto2, InviteDto, AcceptDto, UpdateDto2, RejectDeltaDto, RejectDeltaDto2, ApproveDto, RejectDto, NeedsChangesDto, SuspendDto, ReactivateDto, ReviewDocumentDto, AcceptDto2, RejectDto2, StartDto, CompleteDto, CancelDto, UpsertPharmaDto, UpsertLabDto, UpsertLabDto2, UpsertRadDto, UpsertRadDto2, UpsertDocDto, UpsertDocDto2, UpsertHcDto, UpsertHcDto2, UpsertDto, UpsertDto2 } from './provider.controllers.generated.dto';
 import { LedgerService } from '../finance-engine/finance-engine.module';
 import { ChangePasswordDto, UpdateProfileDto, InsuranceCopayDto, SeedUnassignedDto } from './provider.patch.dto';
 import { ProviderAuthService } from './services/provider-auth.service';
@@ -100,11 +100,13 @@ export class ProviderProfileController {
   @Get('bank-account') getBank(@CurrentUser() u: any) { return this.svc.getBank(u); }
   @Public() @Get('banks') banks() { return this.svc.banks_list(); }
 
+  // D-32: the provider app's own photo route had no access declaration, so the write guard answered 403 to every doctor.
+  @Roles(...PROVIDER_ROLES, 'provider')
   @Post('profile/image/upload')
   async uploadProfileImage(@CurrentUser() user: any, @Body() body: UploadProfileImageDto) {
     return this.processor.enqueueJob({
       owner_id: user.id,
-      owner_type: user.role === 'nurse' ? 'nurse' : 'doctor',
+      owner_type: user.role === 'nurse' || user.provider_type === 'nurse' ? 'nurse' : 'doctor',
       data_base64: body.data_base64,
       mime: body.mime,
       original_name: body.original_name,
@@ -163,6 +165,12 @@ export class ProviderAdminController {
   @Post(':id/reject') reject(@CurrentUser() u: any, @Param('id') id: string, @Body() body: RejectDto) { return this.svc.reject(u, id, body); }
   @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/approve-bank') approveBank(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.approveBank(u, id); }
+  // B-4 (#940): licence review per document — each licence file is decided
+  // on its own instead of bulk-approving everything with the account.
+  @RequirePermissions(Permission.FACILITY_EDIT)
+  @Post(':id/documents/:docId/approve') approveDocument(@CurrentUser() u: any, @Param('id') id: string, @Param('docId') docId: string, @Body() body: ReviewDocumentDto) { return this.svc.reviewDocument(u, id, docId, 'approve', body?.note || body?.reason); }
+  @RequirePermissions(Permission.FACILITY_EDIT)
+  @Post(':id/documents/:docId/reject') rejectDocument(@CurrentUser() u: any, @Param('id') id: string, @Param('docId') docId: string, @Body() body: ReviewDocumentDto) { return this.svc.reviewDocument(u, id, docId, 'reject', body?.reason || body?.note); }
 
   @Post(':id/reprocess-image')
   async reprocessImage(@Param('id') id: string) {
@@ -308,7 +316,8 @@ export class ProviderRequestsController {
       provider_id: String(u?.id), booking_id: id, booking_kind: 'provider_request',
       service_type: preq.type || 'consultation', price, policy,
       copay_amount: patientShare, copay_percent: price > 0 ? Math.round((patientShare / price) * 10000) / 100 : 0,
-      approval_code: approvalCode || null, state,
+      // #830/#846: one approval number, under the names the insurance engine uses (never `approval_code`)
+      insurer_approval_code: approvalCode || null, approval_ref: approvalCode || null, state,
       decided_by: String(u?.id), decided_at: new Date(),
       ...(rejected ? { rejection_reason: String(reason).trim() } : {}),
       updatedAt: new Date(),

@@ -15,7 +15,7 @@ import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { parseOrderId } from "@/lib/api/orders";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { getDirection, type Locale } from "@/lib/i18n";
-import { canCancelOrder, dialable, isMoving, orderNumber, trackingSteps } from "@/lib/pharmacy/order-view";
+import { canCancelOrder, dialable, isMoving, orderNumber, pharmacyDisplayName, trackingSteps } from "@/lib/pharmacy/order-view";
 import { readOrderDetail } from "./read-orders";
 import { TrackingRefresh } from "./tracking-refresh";
 import { TrackingTimeline } from "./tracking-timeline";
@@ -56,6 +56,7 @@ export async function TrackingScreen({ locale, orderId }: { locale: Locale; orde
   const started = steps.some((step) => step.state !== "upcoming");
   const eta = moving && detail.courier?.eta ? detail.courier.eta : undefined;
   const phone = dialable(detail.courier?.phone);
+  const pharmacyName = pharmacyDisplayName(detail.pharmacyName, locale);
   const summary = [detail.lines.length > 0 ? orders("itemsCount", { count: detail.lines.length }) : undefined, detail.totals ? formatMoney(locale, detail.totals.total, detail.totals.currency) : undefined]
     .filter((part): part is string => Boolean(part));
   // an order whose offer was just selected is not yet in fulfilment: its next step (final price, payment, insurance) is
@@ -108,9 +109,9 @@ export async function TrackingScreen({ locale, orderId }: { locale: Locale; orde
         <Link className={styles.summaryLink} href={orderHref}>
           <FIcon icon="storefront" tone={PHARMACY_TONE} size={40} />
           <span className={styles.summaryText}>
-            <span className={rx.rowTitle}>{orders("detailTitle")}</span>
+            <span className={rx.rowTitle} data-testid="tracking-pharmacy-name">{pharmacyName ?? orders("detailTitle")}</span>
             <span className={rx.rowSub}>
-              {new Intl.ListFormat(locale, { type: "unit", style: "narrow" }).format(summary)}
+              {new Intl.ListFormat(locale, { type: "unit", style: "narrow" }).format(pharmacyName ? [orders("detailTitle"), ...summary] : summary)}
             </span>
           </span>
           <span className={styles.summaryEnd}><Icon name={caret} size={18} tone="secondary" /></span>

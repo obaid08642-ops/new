@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { authCookieNames, setSessionCookies } from "@/lib/auth/cookies";
+import { authCookieNames, setSessionCookies, setSessionHint } from "@/lib/auth/cookies";
 import { refreshSession } from "@/lib/auth/refresh-session";
 import { callPatientApi } from "@/lib/api/upstream";
 
@@ -19,7 +19,12 @@ export async function GET() {
   let rotated: Awaited<ReturnType<typeof refreshSession>> = null;
   if (!token) {
     rotated = await refreshSession();
-    if (!rotated) return NextResponse.json({ authenticated: false }, { headers });
+    if (!rotated) {
+      // nobody is signed in: remember the answer in the readable hint so the browser does not ask again on every page
+      const anonymous = NextResponse.json({ authenticated: false }, { headers });
+      setSessionHint(anonymous, { kind: "anonymous" });
+      return anonymous;
+    }
     token = rotated.tokens.accessToken;
   }
   let upstream = await callPatientApi("/auth/me", { method: "GET" }, token);

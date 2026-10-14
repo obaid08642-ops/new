@@ -237,7 +237,7 @@ const DOCTOR_WIZARD: WizardConfig<DoctorRegData> = {
     signatoryRoleHint: { ar: 'مثل: مالك، مدير عام', en: 'e.g., Owner, General Manager' },
     declaration: {
       ar: 'بالتوقيع أدناه، أقر بأن جميع البيانات المدخلة صحيحة وأتحمل مسؤوليتها القانونية، وأوافق على شروط نبض بلس لاستخدام المنصة.',
-      en: 'By signing below, I acknowledge that all provided data is correct, and I agree to Nabdah Plus terms of use.',
+      en: 'By signing below, I acknowledge that all provided data is correct, and I agree to Nabd+ terms of use.',
     },
     signatureTitle: { ar: 'التوقيع', en: 'Signature' },
     submitLabel: { ar: 'تأكيد وإرسال الطلب للإدارة', en: 'Submit for Admin Approval' },

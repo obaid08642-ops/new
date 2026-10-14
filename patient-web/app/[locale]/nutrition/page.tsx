@@ -12,18 +12,22 @@ import { CareHero, RecordRow } from "@/components-next/care/care-kit";
 import { HealthTabs, RowsCard, SectionHead, VitalTile } from "@/components-next/health/health-kit";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { NutritionBodyTargetClient } from "@/components-next/nutrition-body-target-client";
+import { NutritionPlanGenerate } from "@/components-next/nutrition-plan-generate";
+import { Notice } from "@/components-next/consult/consult-parts";
+import { parseNutritionPlan } from "@/lib/nutrition/plan";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import styles from "@/components-next/health/health.module.css";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string | string[] }> };
 
-/** The Plan tab is not here: GET /nutrition/plan does not exist yet (Needs review), so there is nothing to show and nothing is invented. */
-const TABS = ["today", "target"] as const;
+const TABS = ["today", "plan", "target"] as const;
 const NUTRITION = SERVICE_ICONS.nutrition;
 const MEAL_TYPES = ["breakfast", "lunch", "dinner", "snack"];
 
 /**
- * Nutrition (canvas/CareHub; merge map 2, section 8): tabs `?tab=today|target`. Today is the day's summary
+ * Nutrition (canvas/CareHub; merge map 2, section 8): tabs `?tab=today|plan|target`. Plan is the AI nutrition plan (owner decision
+ * 2026-10-05): GET /nutrition/plan (204 when none), "generate my plan" (POST /nutrition/plan/generate from the profile) and "follow
+ * up with a nutritionist" (the doctor list on the nutrition specialty). Today is the day's summary
  * (GET /nutrition/daily-summary: calories against the target, water) and the meals of the day (GET /nutrition/meals), with "Log a meal"
  * (the form stays its own screen). Target is the body-target form (GET and POST /nutrition/profile), absorbing the old body-target page.
  */
@@ -42,6 +46,7 @@ export default async function NutritionPage({ params, searchParams }: Props) {
     <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/dashboard`}>
       <HealthTabs label={t("tabsLabel")} base={base} active={tab} options={[
         { value: "today", label: t("tabToday") },
+        { value: "plan", label: t("tabPlan") },
         { value: "target", label: t("tabTarget") },
       ]} />
       {body}
@@ -49,6 +54,46 @@ export default async function NutritionPage({ params, searchParams }: Props) {
   );
 
   if (tab === "target") return frame(<NutritionBodyTargetClient locale={locale} />);
+
+  if (tab === "plan") {
+    let planRes: Response;
+    try {
+      planRes = await callPatientApi("/nutrition/plan", {}, token);
+    } catch {
+      return frame(<ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
+    }
+    if (planRes.status === 401) redirect(`/${locale}/login`);
+    if (!planRes.ok && planRes.status !== 204) return frame(<ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
+    const plan = planRes.status === 204 ? null : parseNutritionPlan(await planRes.json().catch(() => null));
+    const nutritionist = <ButtonLink href={`/${locale}/consultations/doctors?specialty=nutrition`} label={t("planNutritionist")} variant="outline" />;
+    if (!plan) {
+      return frame(
+        <>
+          <ConsultState kind="empty" icon={NUTRITION.icon} tone={NUTRITION.tone} title={t("planEmptyTitle")} body={t("planEmptyBody")} />
+          <NutritionPlanGenerate />
+          {nutritionist}
+        </>,
+      );
+    }
+    const number = new Intl.NumberFormat(locale);
+    return frame(
+      <>
+        <Notice>{t("planNotice")}</Notice>
+        {plan.days.map((day) => (
+          <section key={day.day} aria-labelledby={`plan-day-${day.day}`}>
+            <SectionHead id={`plan-day-${day.day}`} title={t("planDay", { n: number.format(day.day) })} />
+            <RowsCard label={t("planDay", { n: number.format(day.day) })}>
+              {day.meals.map((meal, index) => (
+                <li key={index}><RecordRow icon="bowl-food" tone={NUTRITION.tone} title={meal} sub={[]} /></li>
+              ))}
+            </RowsCard>
+          </section>
+        ))}
+        {nutritionist}
+        <NutritionPlanGenerate again />
+      </>,
+    );
+  }
 
   // The patient's day in Saudi time, not UTC (needs-review issue 868): en-CA formats as YYYY-MM-DD.
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Riyadh" }).format(new Date());

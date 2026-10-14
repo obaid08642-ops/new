@@ -9,12 +9,12 @@ import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
 import { Notice } from "@/components-next/consult/consult-parts";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import { newIdempotencyKey } from "@/lib/pharmacy/broadcast";
-import { MAX_RX_FILE_BYTES, checkRxFile, ocrItems, prepareRxImage, type RxItem } from "@/lib/pharmacy/rx-upload";
+import { MAX_RX_FILE_BYTES, checkRxFile, ocrItemsWithLeaflet, prepareRxImage, type RxItem } from "@/lib/pharmacy/rx-upload";
 import { AnswerCard } from "./assistant-kit";
 import styles from "./assistant.module.css";
 
 type Failure = "type" | "size" | "read" | "unreadable" | "ocr";
-type Phase = { kind: "idle" } | { kind: "preparing" } | { kind: "reading" } | { kind: "failed"; reason: Failure } | { kind: "answered"; items: RxItem[] };
+type Phase = { kind: "idle" } | { kind: "preparing" } | { kind: "reading" } | { kind: "failed"; reason: Failure } | { kind: "answered"; items: Array<RxItem & { slug: string | null }> };
 
 /**
  * Mode 2, "explain my prescription / medicine": the photo goes to POST /api/patient/ai/prescription-ocr (the call the old
@@ -57,7 +57,7 @@ export function PrescriptionClient() {
         body: JSON.stringify({ image_base64: prepared }),
       });
       if (!response.ok) return setPhase({ kind: "failed", reason: "ocr" });
-      const items = ocrItems(await response.json().catch(() => null));
+      const items = ocrItemsWithLeaflet(await response.json().catch(() => null));
       setPhase(items.length > 0 ? { kind: "answered", items } : { kind: "failed", reason: "unreadable" });
     } catch {
       setPhase({ kind: "failed", reason: "ocr" });
@@ -123,6 +123,7 @@ export function PrescriptionClient() {
               <li key={`${item.name}-${index}`} className={styles.medicine}>
                 <span className={styles.medicineName} dir="auto">{item.name}</span>
                 <span className={styles.medicineQty}>{rxText("quantityValue", { qty: number.format(item.quantity) })}</span>
+                {item.slug ? <ButtonLink href={`/${locale}/p/${encodeURIComponent(item.slug)}`} label={t("leafletLink")} variant="ghost" size="sm" /> : null}
               </li>
             ))}
           </ul>

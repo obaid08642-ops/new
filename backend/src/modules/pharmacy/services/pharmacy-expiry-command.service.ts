@@ -4,6 +4,7 @@ import { Connection, Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { PharmacyOrderState } from '../schemas/pharmacy.schema';
 import { PharmacyBroadcastService } from './pharmacy-broadcast.service';
+import { PharmacyNotificationService } from './pharmacy-notification.service';
 
 const LEASE_MS = 60_000;
 const DEFAULT_LIMIT = 50;
@@ -35,6 +36,7 @@ export class PharmacyExpiryCommandService {
     @InjectModel('PharmacyBroadcast') private readonly broadcasts: Model<any>,
     @InjectModel('PharmacyOrder') private readonly orders: Model<any>,
     private readonly broadcastService: PharmacyBroadcastService,
+    private readonly pharmacyNotif: PharmacyNotificationService,
   ) {}
 
   private limit(value?: number) {
@@ -120,6 +122,11 @@ export class PharmacyExpiryCommandService {
         { id: claimed.order_id, $or: [{ selected_offer_id: { $exists: false } }, { selected_offer_id: null }] },
         { $set: { status: PharmacyOrderState.MANUAL_REVIEW }, $push: { timeline: { ts: now, event: 'broadcast_expired_manual_review', meta: { broadcast_id: claimed.id, reason } } } }, { session },
       );
+      // D-13: the patient is told that no pharmacy answered (the order stays in manual_review for ops).
+      const order: any = await this.orders.findOne({ id: claimed.order_id }).lean();
+      if (order?.patient_account_id) {
+        await this.pharmacyNotif.notifyPatientOrderAutoCancelled(order.patient_account_id, claimed.order_id);
+      }
       await this.upsertOutbox({
         type: 'pharmacy.broadcast.closed', aggregate_id: claimed.order_id,
         idempotency_key: `pharmacy-broadcast-closed:${claimed.id}:${claimed.current_round}`,

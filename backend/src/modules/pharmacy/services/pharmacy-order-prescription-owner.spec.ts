@@ -9,7 +9,10 @@ describe('PharmacyOrderService prescription references', () => {
     const conn: any = {
       collection: (name: string) => name === 'prescriptions'
         ? { find: (q: any) => ({ toArray: async () => (q.patient_id.$eq === 'patient-1' ? q.id.$in.filter((i: string) => (own.rx || []).includes(i)).map((id: string) => ({ id })) : []) }) }
-        : { countDocuments: async (q: any) => (q.owner_account_id.$eq === 'patient-1' ? q.id.$in.filter((i: string) => (own.files || []).includes(i)).length : 0) },
+        : {
+          countDocuments: async (q: any) => (q.owner_account_id.$eq === 'patient-1' ? q.id.$in.filter((i: string) => (own.files || []).includes(i)).length : 0),
+          find: (q: any) => ({ toArray: async () => (q.owner_account_id.$eq === 'patient-1' ? q.id.$in.filter((i: string) => (own.files || []).includes(i)).map((id: string) => ({ id, mime: id.endsWith('.pdf') ? 'application/pdf' : 'image/jpeg' })) : []) }),
+        },
     };
     const service = new PharmacyOrderService(orders, {} as any, {} as any, {} as any, {} as any, { emit: jest.fn() } as any, { announceCreated: jest.fn().mockResolvedValue(undefined) } as any, conn);
     return { service, created };
@@ -33,6 +36,17 @@ describe('PharmacyOrderService prescription references', () => {
     const { service, created } = make({ rx: ['rx-own'], files: ['file-own'] });
     await service.create(patient, { ...item, prescription_id: 'rx-own', prescription_attachments: ['rx-own', 'file-own'] });
     expect(created).toHaveLength(1);
+    expect(created[0].prescription_id).toBe('rx-own');
+  });
+
+  it('A-0: stores the files as { type, uri } through the access-checked storage route', async () => {
+    const { service, created } = make({ rx: ['rx-own'], files: ['file-own', 'scan.pdf'] });
+    await service.create(patient, { ...item, prescription_attachments: ['rx-own', 'file-own', 'scan.pdf', { type: 'image', uri: 'https://evil.example/x.jpg' }] });
+    expect(created[0].prescription_attachments).toEqual([
+      { type: 'image', uri: '/api/v1/storage/file-own' },
+      { type: 'pdf', uri: '/api/v1/storage/scan.pdf' },
+    ]);
+    // the prescription id in the list becomes the order's prescription when none was sent
     expect(created[0].prescription_id).toBe('rx-own');
   });
 });

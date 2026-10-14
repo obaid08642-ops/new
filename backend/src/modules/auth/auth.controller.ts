@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, Header, Headers, Logger, Optional, Param, Post, UseGuards, Req, Res, BadRequestException } from '@nestjs/common';
-import { AuthLoginDto, AuthVerify2faDto, RefreshDto, RecordConsentDto, SendOtpDto, VerifyOtpDto, ResetPasswordDto, SocialLoginDto, HeartbeatDto} from './auth.dto';
+import { Body, Controller, Delete, Get, Header, Headers, Logger, Optional, Param, Post, Put, UseGuards, Req, Res, BadRequestException } from '@nestjs/common';
+import { AuthLoginDto, AuthVerify2faDto, RefreshDto, RecordConsentDto, SendOtpDto, VerifyOtpDto, ResetPasswordDto, SocialLoginDto, HeartbeatDto, LinkAccountDto, ConfirmAccountLinkDto, CheckoutContactDto, GuestCleanupDto, GuestCapabilitiesDto } from './auth.dto';
 import { PresenceService } from '../presence/presence.service';
 import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
@@ -28,8 +28,28 @@ function clientIp(req: Request): string | undefined {
   const xff = (req.headers['x-forwarded-for'] as string) || '';
   return (xff.split(',')[0] || req.ip || '').trim() || undefined;
 }
+
+/**
+ * 21.2 — PROOF that the caller is the guest whose data it wants merged.
+ *
+ * Not an id: a guest account id is visible to the pharmacy, in logs and in
+ * screenshots, so accepting one would let anybody who ever saw it claim that
+ * guest's cart and orders. The guest's OWN access token is sent instead and is
+ * verified with the JwtService; its `sub` must be a live guest and its jti is
+ * burned for the merge.
+ */
+function guestMergeToken(req: Request): string | undefined {
+  const raw = req.headers['x-guest-token'];
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  const trimmed = String(value ?? '').trim();
+  return trimmed ? trimmed.slice(0, 4096) : undefined;
+}
 import { AuthService } from './auth.service';
-import { JwtAuthGuard, Public, CurrentUser, SelfService } from '../../common/auth.guard';
+import { AccountLinkingService } from './account-linking.service';
+import { CheckoutContactService } from './checkout-contact.service';
+import { GuestCapability, GuestPermissionMatrixService } from './permission-matrix.service';
+import { GuestLifecycleService } from './guest-lifecycle.service';
+import { JwtAuthGuard, Public, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
 import { IsString, IsOptional, MinLength } from 'class-validator';
 import { UserRole } from '../../common/enums';
 
@@ -87,14 +107,23 @@ class ConvertGuestDto {
 @UseGuards(JwtAuthGuard)
 export class AuthController {
   private readonly log = new Logger(AuthController.name);
-  constructor(private auth: AuthService, @Optional() private presence?: PresenceService) {}
+  constructor(
+    private auth: AuthService,
+    @Optional() private presence?: PresenceService,
+    @Optional() private linking?: AccountLinkingService,
+    @Optional() private checkoutContact?: CheckoutContactService,
+    @Optional() private guestMatrix?: GuestPermissionMatrixService,
+    @Optional() private guestLifecycle?: GuestLifecycleService,
+  ) {}
 
   /** Patient-web bridge: opaque request response prevents account enumeration. */
   @Public()
   @Throttle({ default: { limit: 3, ttl: 600000 } })
   @Post('otp/request')
-  patientOtpRequest(@Body() dto: PatientOtpRequestDto) {
-    return this.auth.requestPatientOtp(dto.identifier);
+  patientOtpRequest(@Body() dto: PatientOtpRequestDto, @Req() req: Request) {
+    // 16.3: the caller's address bounds how many distinct numbers one caller
+    // may target, which is what stops SMS-pumping fan-out.
+    return this.auth.requestPatientOtp(dto.identifier, clientIp(req));
   }
 
   /** Issues an opaque, single-use, 60-second exchange token; never a session token. */
@@ -109,7 +138,7 @@ export class AuthController {
   @Public()
   @Post('session/exchange')
   async patientSessionExchange(@Body() dto: PatientSessionExchangeDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const tokens = await this.auth.exchangePatientSession(dto.exchange_token);
+    const tokens = await this.auth.exchangePatientSession(dto.exchange_token, guestMergeToken(req));
     res.cookie(PATIENT_ACCESS_COOKIE, tokens.access_token, PATIENT_SESSION_COOKIE_OPTS(req, PATIENT_ACCESS_COOKIE_MAX_AGE));
     res.cookie(PATIENT_REFRESH_COOKIE, tokens.refresh_token, PATIENT_SESSION_COOKIE_OPTS(req, PATIENT_REFRESH_COOKIE_MAX_AGE));
     return { authenticated: true };
@@ -131,7 +160,7 @@ export class AuthController {
   @Public()
   @Throttle({ default: { limit: 10, ttl: 60000 } }) // E5-F4 anti brute-force
   @Post('register')
-  register(@Body() dto: RegisterDto) {
+  register(@Body() dto: RegisterDto, @Req() req: Request) {
     const isPatientContract = dto.name !== undefined || dto.identifier !== undefined || dto.locale !== undefined || dto.consents !== undefined;
     if (isPatientContract) {
       return this.auth.registerPatientContract({
@@ -143,7 +172,7 @@ export class AuthController {
       });
     }
     if (!dto.full_name) throw new BadRequestException('full_name_required');
-    return this.auth.register(dto as Required<Pick<RegisterDto, 'full_name' | 'password'>> & RegisterDto);
+    return this.auth.register(dto as Required<Pick<RegisterDto, 'full_name' | 'password'>> & RegisterDto, guestMergeToken(req));
   }
 
   @Public()
@@ -156,7 +185,7 @@ export class AuthController {
       deviceToken: (req as any).cookies?.[DEVICE_COOKIE],
       ua: req.headers['user-agent'],
       ip: clientIp(req),
-    });
+    }, guestMergeToken(req));
     if (result && result.device_token) {
       res.cookie(DEVICE_COOKIE, result.device_token, DEVICE_COOKIE_OPTS(req));
     }
@@ -264,6 +293,24 @@ export class AuthController {
     return this.auth.logoutAllDevices(user.id);
   }
 
+  /**
+   * 21.7 — sign out of this device: the refresh sessions bound to it are revoked
+   * and its push token is removed, so a shared phone stops receiving this
+   * account's notifications.
+   */
+  @Post('logout-device')
+  @UseGuards(JwtAuthGuard)
+  async logoutDevice(@CurrentUser() user: any, @Headers('x-device-id') deviceId?: string) {
+    return this.auth.logoutDevice(user.id, deviceId);
+  }
+
+  /** 21.7 — the signed-in devices the user can revoke. */
+  @Get('sessions')
+  @UseGuards(JwtAuthGuard)
+  async sessions(@CurrentUser() user: any) {
+    return { devices: await this.auth.listSessions(user.id) };
+  }
+
   @Post('consent')
   @UseGuards(JwtAuthGuard)
   async recordConsent(@CurrentUser() user: any, @Body() body: RecordConsentDto) {
@@ -291,10 +338,10 @@ export class AuthController {
   @Header('Deprecation', 'true')
   @Throttle({ default: { limit: 5, ttl: 60000 } }) // E5-F4 SMS-bombing guard
   @Post('send-otp')
-  sendOtp(@Body() body: SendOtpDto) {
+  sendOtp(@Body() body: SendOtpDto, @Req() req: Request) {
     this.log.warn('deprecated auth alias called: send-otp (canonical: otp/request)');
     const id = body.identifier || body.email || body.phone || '';
-    return this.auth.sendOtp(id, body.purpose);
+    return this.auth.sendOtp(id, body.purpose, clientIp(req));
   }
 
   @Public()
@@ -321,7 +368,75 @@ export class AuthController {
   @Public()
   @Throttle({ default: { limit: 20, ttl: 60000 } })
   @Post('social-login')
-  socialLogin(@Body() body: SocialLoginDto) {
-    return this.auth.socialLogin(body);
+  socialLogin(@Body() body: SocialLoginDto, @Req() req: Request) {
+    return this.auth.socialLogin(body, guestMergeToken(req));
+  }
+
+  // ── Phase 21: accounts, guests and verification ──
+
+  /**
+   * 21.6 — offer to link this account to another that uses the same address.
+   * The proof is minted by the backend: an emailed code for `email`, or a
+   * provider session that `socialLogin` verifies for google/apple. The request
+   * body carries no proof and never receives the code.
+   */
+  @Post('link-account')
+  linkAccount(@CurrentUser('id') accountId: string, @Body() dto: LinkAccountDto) {
+    return this.linking.requestLink(accountId, dto.target_account_id, dto.method, dto.provider_email);
+  }
+
+  /** 21.6 — confirm with the code the backend emailed to the address. */
+  @Post('confirm-account-link')
+  async confirmAccountLink(@CurrentUser('id') accountId: string, @Body() dto: ConfirmAccountLinkDto) {
+    await this.linking.confirmLink(dto.linked_account_id, accountId, { kind: 'email_code', code: dto.code });
+    return { linked: true, linked_account_id: dto.linked_account_id };
+  }
+
+  /** 21.6 — the accounts this one is linked to. */
+  @Get('linked-accounts')
+  linkedAccounts(@CurrentUser('id') accountId: string) {
+    return this.linking.getLinkedAccounts(accountId);
+  }
+
+  /**
+   * 21.5 — one contact phone field and an address, saved to the profile at
+   * checkout. The response shows the phone formatted back for confirmation.
+   */
+  @Post('checkout-contact')
+  storeCheckoutContact(@CurrentUser('id') accountId: string, @Body() dto: CheckoutContactDto) {
+    return this.checkoutContact.storeCheckoutContact(accountId, {
+      phone: dto.phone,
+      address: dto.address,
+      label: dto.label,
+    });
+  }
+
+  /** 21.5 — the cash-on-delivery limits that apply to this account right now. */
+  @Get('checkout-contact/cash-limits')
+  cashLimits(@CurrentUser('id') accountId: string) {
+    return this.checkoutContact.cashOnDeliveryLimits(accountId);
+  }
+
+  /** 21.3 — what a guest may do, as the server sees it right now. */
+  @Get('guest/capabilities')
+  async guestCapabilities() {
+    return { capabilities: await this.guestMatrix.matrix() };
+  }
+
+  /** 21.3 — the admin edits the matrix; it applies on the next request, no deploy. */
+  @Roles(UserRole.ADMIN)
+  @Put('admin/guest/capabilities')
+  setGuestCapabilities(@CurrentUser('id') adminId: string, @Body() dto: GuestCapabilitiesDto) {
+    return this.guestMatrix.setCapabilities(dto.capabilities as Record<GuestCapability, boolean>, adminId);
+  }
+
+  /**
+   * 21.8 — admin-only guest cleanup. It used to be a public POST, which let
+   * anyone trigger the deletion of guest rows.
+   */
+  @Roles(UserRole.ADMIN)
+  @Post('guest/cleanup')
+  async cleanupGuests(@Body() dto: GuestCleanupDto) {
+    return this.guestLifecycle.purgeInactiveGuests();
   }
 }

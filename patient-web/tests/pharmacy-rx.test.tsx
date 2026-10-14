@@ -79,6 +79,12 @@ describe("the cart screen (canvas/Cart)", () => {
     expect(html).not.toContain("style=");
   });
 
+  it("draws the online-only chip only on the line that carries the flag", () => {
+    cart.value = { ...cart.value, items: [item({ onlineOnly: true }), item({ id: "m2", name: "Amoxicillin", qty: 1 })], itemCount: 3 };
+    const html = renderToStaticMarkup(<CartScreen locale="en" signedIn={false} />);
+    expect(html.match(/Online only/g)).toHaveLength(1);
+  });
+
   it("names the quantity controls per item, and the minus at 1 says it removes", () => {
     cart.value = { ...cart.value, items: [item({ qty: 1 }), item({ id: "m2", name: "Amoxicillin", qty: 3 })], itemCount: 4 };
     const html = renderToStaticMarkup(<CartScreen locale="en" signedIn={false} />);
@@ -287,6 +293,13 @@ describe("the prescription photo", () => {
     expect(items).toEqual([{ name: "Panadol 500", quantity: 2 }, { name: "Augmentin", quantity: 1 }, { name: "Lots", quantity: 100 }]);
     expect(ocrItems({})).toEqual([]);
     expect(ocrItems(null)).toEqual([]);
+  });
+
+  it("links the catalogue product the server matched, for the assistant only (#881)", async () => {
+    const { ocrItemsWithLeaflet } = await import("@/lib/pharmacy/rx-upload");
+    expect(ocrItemsWithLeaflet({ items: [{ raw_name_string: "Panadol 500", requested_quantity: 2, slug: "panadol-500" }, { raw_name_string: "X", slug: "../admin" }] }))
+      .toEqual([{ name: "Panadol 500", quantity: 2, slug: "panadol-500" }, { name: "X", quantity: 1, slug: null }]);
+    expect(ocrItems({ items: [{ raw_name_string: "Panadol 500", slug: "panadol-500" }] })).toEqual([{ name: "Panadol 500", quantity: 1 }]);
   });
 
   it("takes the saved prescription's id from the upload's answer", () => {

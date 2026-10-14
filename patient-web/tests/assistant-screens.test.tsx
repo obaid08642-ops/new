@@ -42,7 +42,7 @@ import SkinRedirect from "@/app/[locale]/ai/skin-analysis/page";
 import ChatDoctorRedirect from "@/app/[locale]/ai/chat-doctor/page";
 import VoiceRedirect from "@/app/[locale]/voice/page";
 import { AnswerCard, AskedBubble } from "@/components-next/assistant/assistant-kit";
-import { analysisSummary, parseMode, RED_FLAGS, triageCareLevel, triageRequestBody } from "@/lib/ai/assistant";
+import { parseMode, parseTriageHistory, RED_FLAGS, triageCareLevel, triageRequestBody, triageSpecialty } from "@/lib/ai/assistant";
 import { isAllowedPatientApiRequest } from "@/lib/api/patient-allowlist";
 
 const params = Promise.resolve({ locale: "en" });
@@ -81,11 +81,19 @@ describe("the assistant's pure parts", () => {
     expect(triageCareLevel(null)).toBeNull();
   });
 
-  it("reads the analysis text from the fields the endpoint answers with", () => {
-    expect(analysisSummary({ summary: "A" })).toBe("A");
-    expect(analysisSummary({ result: "B" })).toBe("B");
-    expect(analysisSummary({ data: { summary: "C" } })).toBe("C");
-    expect(analysisSummary({ summary: "  " })).toBeNull();
+  it("reads the specialty slug the server names and the history oldest first (issues 879, 882)", () => {
+    expect(triageSpecialty({ care_level: "consultation", specialty: "dermatology" })).toBe("dermatology");
+    expect(triageSpecialty({ specialty: null })).toBeNull();
+    expect(triageSpecialty({ specialty: "../admin" })).toBeNull();
+    expect(parseTriageHistory([
+      { symptoms: "rash", care_level: "consultation", specialty: "dermatology" },
+      { symptoms: "", care_level: "consultation" },
+      { symptoms: "chest pain", care_level: "emergency", specialty: null },
+    ])).toEqual([
+      { asked: "chest pain", level: "emergency", specialty: null },
+      { asked: "rash", level: "consultation", specialty: "dermatology" },
+    ]);
+    expect(parseTriageHistory({ error: "x" })).toEqual([]);
   });
 
   it("allows the triage and OCR calls and no longer the skin analysis", () => {
@@ -132,27 +140,12 @@ describe("the assistant screen", () => {
     expect(out).toContain('type="file"');
   });
 
-  it("the report mode lists the person's reports from GET /medical-reports/mine", async () => {
-    server.api.mockResolvedValue(json({ data: [{ id: "r1", title: "Blood count", created_at: "2026-09-01T08:00:00Z" }, { id: "r2", report_type: "ECG" }, { nope: true }] }));
+  it("the report mode sends no request: it says reports are explained by a doctor and links to the reports and sharing (issues 874, 886)", async () => {
     const out = await html(AssistantPage({ params, searchParams: Promise.resolve({ mode: "report" }) }));
-    expect(server.api).toHaveBeenCalledWith("/medical-reports/mine?limit=100", {}, "server-only-token");
-    expect(out).toContain("Blood count");
-    expect(out).toContain("ECG");
-    expect(out.match(/type="checkbox"/g)).toHaveLength(2);
-  });
-
-  it("says in place when the reports cannot load, and sends a lapsed session to sign-in", async () => {
-    server.api.mockResolvedValue(json({}, 500));
-    const out = await html(AssistantPage({ params, searchParams: Promise.resolve({ mode: "report" }) }));
-    expect(out).toContain("could not be loaded");
-    server.api.mockResolvedValue(json({}, 401));
-    expect(await redirectOf(() => AssistantPage({ params, searchParams: Promise.resolve({ mode: "report" }) }))).toBe("/en/login");
-  });
-
-  it("an empty list says so instead of showing a button that cannot work", async () => {
-    server.api.mockResolvedValue(json([]));
-    const out = await html(AssistantPage({ params, searchParams: Promise.resolve({ mode: "report" }) }));
-    expect(out).toContain("No medical reports available yet.");
+    expect(server.api).not.toHaveBeenCalled();
+    expect(out).toContain("Automatic explanation of medical reports is not available");
+    expect(out).toContain("/en/health/records?tab=reports");
+    expect(out).toContain("/en/consultations/share-report");
     expect(out).not.toContain('type="checkbox"');
   });
 });

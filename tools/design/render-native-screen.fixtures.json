@@ -3342,38 +3342,6 @@
       "usedAmount": 500
     }
   ],
-  "/insurance/claims": [
-    {
-      "id": "test-c1",
-      "service": "استشارة (بيانات تجريبية)",
-      "provider": "مزود تجريبي",
-      "date": "2026-09-20T10:00:00.000Z",
-      "amount": 300,
-      "covered": 240,
-      "patient": 60,
-      "status": "approved"
-    },
-    {
-      "id": "test-c2",
-      "service": "تحاليل (بيانات تجريبية)",
-      "provider": "مختبر تجريبي",
-      "date": "2026-09-10T10:00:00.000Z",
-      "amount": 150,
-      "covered": 0,
-      "patient": 150,
-      "status": "rejected",
-      "rejectionReason": "سبب تجريبي"
-    }
-  ],
-  "/refunds/my": [
-    {
-      "id": "test-r1",
-      "reason": "استرداد تجريبي",
-      "refund_amount": 120,
-      "state": "REQUESTED",
-      "createdAt": "2026-09-25T10:00:00.000Z"
-    }
-  ],
   "/providers?insurance_company=TEST&insurance_network=NET&insurance_class=A": [
     {
       "id": "test-p1",

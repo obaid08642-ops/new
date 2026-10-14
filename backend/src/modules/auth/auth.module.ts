@@ -24,6 +24,11 @@ import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-p
 import { JwtAuthGuard } from '../../common/auth.guard';
 import { PatientProfileRepository } from "./repositories/patientprofile.repository";
 import { UserRepository } from "./repositories/user.repository";
+import { GuestService } from './guest.service';
+import { GuestLifecycleService } from './guest-lifecycle.service';
+import { AccountLinkingService } from './account-linking.service';
+import { CheckoutContactService } from './checkout-contact.service';
+import { GuestCapabilityGuard, GuestPermissionMatrixService } from './permission-matrix.service';
 
 @Global()
 @Module({
@@ -51,7 +56,7 @@ import { UserRepository } from "./repositories/user.repository";
     ]),
   ],
   controllers: [AuthController, PasskeyController, AdminDevicesController, AdminRecoveryController, StepUpController],
-  providers: [AuthService, PasskeyService, DeviceTrustService, AdminDeviceService, AdminSessionService, AdminRecoveryService, StepUpService, StepUpGuard, JwtAuthGuard, { provide: 'PatientProfileRepository', useClass: PatientProfileRepository }, { provide: 'UserRepository', useClass: UserRepository }],
-  exports: [AuthService, JwtModule, JwtAuthGuard, MongooseModule, DeviceTrustService, AdminSessionService],
+  providers: [AuthService, PasskeyService, DeviceTrustService, AdminDeviceService, AdminSessionService, AdminRecoveryService, StepUpService, StepUpGuard, JwtAuthGuard, GuestService, GuestLifecycleService, AccountLinkingService, CheckoutContactService, GuestPermissionMatrixService, GuestCapabilityGuard, { provide: 'PatientProfileRepository', useClass: PatientProfileRepository }, { provide: 'UserRepository', useClass: UserRepository }],
+  exports: [AuthService, JwtModule, JwtAuthGuard, MongooseModule, DeviceTrustService, AdminSessionService, GuestService, GuestLifecycleService, AccountLinkingService, CheckoutContactService, GuestPermissionMatrixService, GuestCapabilityGuard],
 })
 export class AuthModule {}

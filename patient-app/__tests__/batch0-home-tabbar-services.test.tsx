@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as TestRenderer from 'react-test-renderer';
@@ -8,7 +8,7 @@ import { MAIN_TABS } from '../../packages/ui/components/fixtures';
 import { BottomTabBar } from '../../packages/ui-native/src';
 import { MAIN_TAB_ITEMS, activeMainTab } from '../src/components/navigation/MainTabBar';
 import { HOME_SERVICES, HOME_TOOLS } from '../src/features/home/homeItems';
-import { MAIN_SERVICES, MORE_SERVICES, SERVICE_GROUPS } from '../src/features/services/catalog';
+import { MAIN_SERVICES, MORE_SERVICES } from '../src/features/services/catalog';
 import { autoTranslate } from '../src/i18n';
 import type { LangCode } from '../src/context/AppContext';
 
@@ -75,10 +75,9 @@ describe('Home and Services links', () => {
     ...HOME_TOOLS.map((item) => item.route),
     ...MAIN_SERVICES.map((item) => item.route),
     ...MORE_SERVICES.map((item) => item.route),
-    ...SERVICE_GROUPS.flatMap((group) => group.items.map((item) => item.route)),
     '/ai',
     '/ai-assistant',
-    '/services',
+    '/(tabs)/services',
     '/orders',
     '/search',
     '/profile',
@@ -90,6 +89,20 @@ describe('Home and Services links', () => {
 
   it.each([...new Set(routes)])('%s is a screen of the app', (route) => {
     expect(routeExists(route)).toBe(true);
+  });
+});
+
+describe('All services opens the Services tab (owner 2026-10-10, issue 409)', () => {
+  it('the 23-row guide screen is gone, so /services is the tab (the group name is not part of the URL) and old links still open it', () => {
+    expect(existsSync(join(APP, 'services', 'index.tsx'))).toBe(false);
+    expect(existsSync(join(APP, 'services.tsx'))).toBe(false);
+    expect(existsSync(join(APP, '(tabs)', 'services.tsx'))).toBe(true);
+  });
+
+  it('the Home all-services row pushes the tab, and nothing in the app links to the removed screen', () => {
+    const home = readFileSync(join(APP, '(tabs)', 'index.tsx'), 'utf8');
+    expect(home).toMatch(/<AllServicesRow onPress=\{\(\) => router\.push\('\/\(tabs\)\/services'\)\} \/>/);
+    expect(home).not.toMatch(/push\('\/services'\)/);
   });
 });
 
@@ -119,7 +132,6 @@ describe('labels in six languages', () => {
     ...HOME_TOOLS.map((item) => item.label),
     ...MAIN_SERVICES.flatMap((item) => [item.title, item.badge ?? 'جديد']),
     ...MORE_SERVICES.flatMap((item) => [item.title, item.desc]),
-    ...SERVICE_GROUPS.flatMap((group) => [group.title, ...group.items.flatMap((item) => [item.title, item.desc])]),
   ];
 
   it.each([...new Set(labels)])('%s', (label) => {

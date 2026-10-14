@@ -6,7 +6,8 @@ import { cdnImage, getPublicAlternatives, getPublicProduct, type PublicProduct }
 import { JsonLd } from "@/components-next/json-ld";
 import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl, siteOrigin } from "@/lib/seo";
-import { howToJsonLd, speakable } from "@/lib/seo/json-ld";
+import { howToJsonLd } from "@/lib/seo/json-ld";
+import { DirectAnswer, speakableSpec } from "@/components-next/seo/direct-answer";
 import { CiteThis } from "@/components-next/cite-this";
 import { CoreShell } from "@/components-next/core/core-shell";
 import { StickyFooter } from "@/components-next/ui-generated/shells/StickyFooter";
@@ -18,7 +19,7 @@ import { ChipLink } from "@/components-next/pharmacy/chip-link";
 import { BuyActions, BuyBar, BuyProvider } from "@/components-next/pharmacy/product-buy";
 import { ProductGallery } from "@/components-next/pharmacy/product-gallery";
 import { ProductGrid, type GridProduct } from "@/components-next/pharmacy/product-grid";
-import { discountPercent } from "@/lib/discount";
+import { promoOldPrice, promoPercent } from "@/lib/discount";
 import { formatNumber, formatPrice } from "@/lib/format-price";
 import { ProductSections, type DetailGroup, type DetailSection } from "@/components-next/pharmacy/product-sections";
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
@@ -60,6 +61,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+/** schema.org DrugStrength from a catalogue strength like "500 mg" (nothing when it does not parse). */
+function drugStrength(strength?: string | null) {
+  const m = (strength || "").trim().match(/^(\d+(?:[.,]\d+)?)\s*([^\d\s].*)$/);
+  return m ? { "@type": "DrugStrength", strengthValue: Number(m[1].replace(",", ".")), strengthUnit: m[2].trim() } : undefined;
+}
+
 /** A long text field of the API as the lines it is written in (an empty field gives none, so no section is drawn). */
 const lines = (value?: string | null) => (value || "").split(/\n+/).map((line) => line.trim()).filter(Boolean);
 
@@ -71,6 +78,7 @@ export default async function PublicProductPage({ params }: Props) {
   const b = await getTranslations("PharmacyBrowse");
   const shared = await getTranslations("Shared");
   const medicines = await getTranslations("Medicines");
+  const seo = await getTranslations("SeoAnswer");
   const fetchedProduct = await getPublicProduct(locale, slug);
   if (!fetchedProduct) notFound();
   const product: PublicProduct = fetchedProduct;
@@ -83,7 +91,7 @@ export default async function PublicProductPage({ params }: Props) {
     ? `/${locale}/c/${encodeURIComponent(product.category)}${product.sub_category ? `/${encodeURIComponent(product.sub_category)}` : ""}`
     : null;
 
-  const howTo = howToJsonLd(product);
+  const howTo = howToJsonLd(product, seo("howToTitle", { name }));
   const jsonLd: Array<Record<string, unknown>> = [
     {
       "@context": "https://schema.org",
@@ -109,7 +117,7 @@ export default async function PublicProductPage({ params }: Props) {
       inLanguage: locale,
       isAccessibleForFree: true,
       isFamilyFriendly: true,
-      speakable: speakable,
+      speakable: speakableSpec,
       offers: {
         "@type": "Offer",
         price: product.price,
@@ -125,23 +133,22 @@ export default async function PublicProductPage({ params }: Props) {
         // Needs-review #471: no shipping rate, return policy or price expiry is published until the backend provides them.
       },
     },
+    // schema.org Drug (MedicalDrug is not a schema.org type): only properties Drug defines, from catalogue fields.
     {
       "@context": "https://schema.org",
-      "@type": "MedicalDrug",
+      "@type": "Drug",
       name,
       alternateName: product.official_name !== name ? product.official_name : undefined,
       activeIngredient: product.active_ingredient || undefined,
       dosageForm: product.form || undefined,
-      strength: product.strength || undefined,
+      availableStrength: drugStrength(product.strength),
       prescriptionStatus: product.is_rx ? "https://schema.org/PrescriptionOnly" : "https://schema.org/OTC",
-      contraindication: product.warnings?.join(" ") || undefined,
-      adverseOutcome: product.side_effects?.join(" ") || undefined,
-      indication: product.indications?.join(" ") || undefined,
-      dosageInstructions: product.dosage_instructions || undefined,
-      storageConditions: product.storage_conditions || undefined,
+      warning: product.warnings?.length ? product.warnings.join(" ") : undefined,
+      indication: product.indications?.length ? product.indications.map((text) => ({ "@type": "MedicalIndication", name: text })) : undefined,
+      manufacturer: product.manufacturer ? { "@type": "Organization", name: product.manufacturer } : undefined,
       url: canonical,
       image: images[0],
-      speakable: speakable,
+      inLanguage: locale,
     },
     {
       "@context": "https://schema.org",
@@ -159,9 +166,9 @@ export default async function PublicProductPage({ params }: Props) {
       mainEntity: [
         ...(product.indications?.length ? [{ "@type": "Question", name: `${t("indications")} — ${name}`, acceptedAnswer: { "@type": "Answer", text: product.indications.join(" ") } }] : []),
         ...(product.warnings?.length ? [{ "@type": "Question", name: `${t("warnings")} — ${name}`, acceptedAnswer: { "@type": "Answer", text: product.warnings.join(" ") } }] : []),
-        ...(product.side_effects?.length ? [{ "@type": "Question", name: `الآثار الجانبية — ${name}`, acceptedAnswer: { "@type": "Answer", text: product.side_effects.join(" ") } }] : []),
-        ...(product.storage_conditions ? [{ "@type": "Question", name: `التخزين — ${name}`, acceptedAnswer: { "@type": "Answer", text: product.storage_conditions } }] : []),
-        ...(product.dosage_instructions ? [{ "@type": "Question", name: `الجرعة — ${name}`, acceptedAnswer: { "@type": "Answer", text: product.dosage_instructions } }] : []),
+        ...(product.side_effects?.length ? [{ "@type": "Question", name: `${t("sideEffects")} — ${name}`, acceptedAnswer: { "@type": "Answer", text: product.side_effects.join(" ") } }] : []),
+        ...(product.storage_conditions ? [{ "@type": "Question", name: `${t("storage")} — ${name}`, acceptedAnswer: { "@type": "Answer", text: product.storage_conditions } }] : []),
+        ...(product.dosage_instructions ? [{ "@type": "Question", name: `${t("dosage")} — ${name}`, acceptedAnswer: { "@type": "Answer", text: product.dosage_instructions } }] : []),
       ],
     }] : []),
     ...(howTo ? [howTo] : []),
@@ -171,8 +178,9 @@ export default async function PublicProductPage({ params }: Props) {
   const hasPrice = product.price > 0;
   const discontinued = product.availability_status === "discontinued";
   const canBuy = hasPrice && !discontinued;
-  // Decision 10: no discount on prescription-only items.
-  const percent = product.is_rx ? 0 : discountPercent(product.price, product.old_price);
+  // Decision 10: no discount, crossed-out price or promo badge on prescription-only items (canShowPromo, via promoPercent).
+  const percent = promoPercent(product, product.price, product.old_price);
+  const crossedPrice = promoOldPrice(product, product.price, product.old_price);
   const money = formatPrice(locale, product.price);
 
   const alternatives: GridProduct[] = (await getPublicAlternatives(locale, product)).map((alt) => ({
@@ -286,6 +294,13 @@ export default async function PublicProductPage({ params }: Props) {
 
               <div className={styles.names}>
                 <h1 className={styles.title}>{name}</h1>
+                <DirectAnswer sentences={[
+                  product.active_ingredient ? seo("productIngredient", { name, ingredient: product.active_ingredient }) : null,
+                  product.form ? seo("productForm", { form: product.form }) : null,
+                  product.strength ? seo("productStrength", { strength: product.strength }) : null,
+                  product.is_rx ? seo("productRx") : seo("productOtc"),
+                  hasPrice ? seo("productPrice", { price: money.text }) : null,
+                ]} />
                 {names.map((n) => <div key={n} className={styles.altName} dir="auto">{n}</div>)}
                 {ingredient ? <div className={styles.maker}>{ingredient}</div> : null}
                 {maker ? <div className={styles.maker}>{maker}</div> : null}
@@ -297,8 +312,8 @@ export default async function PublicProductPage({ params }: Props) {
                     <div className={styles.priceRow}>
                       <strong className={styles.price}>{money.amount}</strong>
                       <span className={styles.currency}>{money.currency}</span>
-                      {!product.is_rx && product.old_price && product.old_price > product.price ? (
-                        <s className={styles.oldPrice}>{formatPrice(locale, product.old_price).text}</s>
+                      {crossedPrice ? (
+                        <s className={styles.oldPrice}>{formatPrice(locale, crossedPrice).text}</s>
                       ) : null}
                     </div>
                     <div className={styles.priceNote}>{[b("taxIncluded"), product.package_size].filter(Boolean).join(" · ")}</div>

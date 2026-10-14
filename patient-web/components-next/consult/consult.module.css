@@ -70,8 +70,12 @@ a.rowCard:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--
 .grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--nabd-space-sm); }
 
 /* ---- the search field and the segmented controls of the lists (canvas/Consult) ---- */
-.search { display: flex; gap: 8px; align-items: stretch; }
+.search { display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch; }
+.searchSelect { flex: 1 1 100%; order: 3; }
+.searchSelect select { flex: 1; min-inline-size: 0; min-block-size: 44px; border: 0; background: transparent; color: var(--nabd-color-text-primary); font: inherit; font-size: var(--nabd-font-size-body); outline: 0; }
 .search > :first-child { flex: 1; min-inline-size: 0; }
+.activeFilter { display: flex; flex-wrap: wrap; align-items: center; gap: var(--nabd-space-sm); }
+.activeFilterClear { display: inline-flex; align-items: center; min-block-size: 44px; font-size: var(--nabd-font-size-control); font-weight: 600; color: var(--nabd-color-text-link); }
 .searchField {
   display: flex; align-items: center; gap: 10px; min-block-size: 52px; padding-inline: 16px; box-sizing: border-box; min-inline-size: 0;
   background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-2xl);
@@ -86,6 +90,19 @@ a.rowCard:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--
 }
 .segLinks > a[aria-current="page"] { background: var(--nabd-color-bg-surface); font-weight: 700; box-shadow: var(--nabd-shadow-card); }
 .segLinks > a:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+
+/* ---- doctors: the quick filters (Nearest, Available now); the chosen one takes the ink action look ---- */
+.quick { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.quickChip {
+  display: inline-flex; align-items: center; justify-content: center; min-block-size: 44px; min-inline-size: 44px; padding-inline: 16px; box-sizing: border-box;
+  border-radius: var(--nabd-radius-lg); border: 1px solid var(--nabd-color-border-strong); background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary);
+  font: inherit; font-size: var(--nabd-font-size-segment); font-weight: 500; text-decoration: none; cursor: pointer; overflow-wrap: anywhere; text-align: center;
+}
+.quickChip[aria-pressed="true"], .quickChip[aria-current="true"] { background: var(--nabd-color-action-selected-bg); color: var(--nabd-color-action-selected-fg); border-color: var(--nabd-color-action-selected-bg); font-weight: 700; }
+.quickChip:disabled { opacity: 0.5; cursor: not-allowed; }
+.quickChip:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.quickNote { margin: 8px 0 0; font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.quickNote:empty { display: none; }
 
 /* ---- forms: a labelled field, a native control with the shared control look ---- */
 .field { display: flex; flex-direction: column; gap: 6px; min-inline-size: 0; }

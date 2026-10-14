@@ -1,4 +1,5 @@
 import { Injectable, ForbiddenException, BadRequestException, NotFoundException, ServiceUnavailableException, Logger } from '@nestjs/common';
+import { MEDIA_RELEASE } from '../media/media-cleanup.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { EventBusService } from '../events/event-bus.service';
@@ -302,9 +303,14 @@ export class ChatService {
     const mediaIds = await this.validateChatMediaIds(threadId, senderId, body?.media_ids);
     if (body?.attachment_url) throw new BadRequestException('attachment_url_not_supported_use_media_ids');
 
-    // Deduplication check
-    if (body.client_message_id) {
-      const existing = await this.msgs.findOne({ client_message_id: { $eq: body.client_message_id }, thread_id: { $eq: threadId }, sender_id: { $eq: senderId } });
+    // Deduplication check. The filter is kept for the rapid-tap loser below,
+    // so the row it re-reads is scoped to the same sender — a duplicate key
+    // raised by ANOTHER sender's message must never be handed to this caller.
+    const dedupFilter = body.client_message_id
+      ? { client_message_id: { $eq: body.client_message_id }, thread_id: { $eq: threadId }, sender_id: { $eq: senderId } }
+      : null;
+    if (dedupFilter) {
+      const existing = await this.msgs.findOne(dedupFilter);
       if (existing) {
         return existing.toObject();
       }
@@ -312,24 +318,39 @@ export class ChatService {
 
     if (!body?.body?.trim() && mediaIds.length === 0) throw new BadRequestException('empty_message');
 
-    const msg = await this.msgs.create({
-      thread_id: threadId,
-      sender_id: senderId,
-      sender_role: senderRole,
-      body: body.body?.trim() || '',
-      type: body.type || (mediaIds.length ? 'file' : 'text'),
-      media_ids: mediaIds,
-      attachment_url: undefined,
-      attachment_mime: body.attachment_mime,
-      attachment_name: body.attachment_name,
-      attachment_size: body.attachment_size,
-      duration_seconds: body.duration_seconds,
-      reply_to_id: body.reply_to_id,
-      forwarded_from_id: body.forwarded_from_id,
-      client_message_id: body.client_message_id,
-      read_by: [senderId],
-      delivered_to: [senderId],
-    });
+    let msg: ChatMessageDocument;
+    try {
+      msg = await this.msgs.create({
+        thread_id: threadId,
+        sender_id: senderId,
+        sender_role: senderRole,
+        body: body.body?.trim() || '',
+        type: body.type || (mediaIds.length ? 'file' : 'text'),
+        media_ids: mediaIds,
+        attachment_url: undefined,
+        attachment_mime: body.attachment_mime,
+        attachment_name: body.attachment_name,
+        attachment_size: body.attachment_size,
+        duration_seconds: body.duration_seconds,
+        reply_to_id: body.reply_to_id,
+        forwarded_from_id: body.forwarded_from_id,
+        client_message_id: body.client_message_id,
+        read_by: [senderId],
+        delivered_to: [senderId],
+      });
+    } catch (e: any) {
+      // 15.2 rapid tap: the findOne-then-insert above is check-then-act, so two
+      // taps whose reads overlap both miss it. The unique sparse index on
+      // client_message_id lets exactly one insert win, and the loser's E11000
+      // is not a failure the patient should see — the message exists. Re-read
+      // it with the same sender-scoped filter and return the winner; anything
+      // else (or a duplicate belonging to a different sender) is rethrown.
+      if (dedupFilter && (e?.code === 11000 || /duplicate key/i.test(String(e?.message || '')))) {
+        const winner = await this.msgs.findOne(dedupFilter);
+        if (winner) return winner.toObject();
+      }
+      throw e;
+    }
 
     // Update thread metadata
     const unread: Record<string, number> = {};
@@ -435,7 +456,12 @@ export class ChatService {
     msg.is_deleted = true;
     msg.deleted_at = new Date();
     msg.body = '';
+    // D-32: the message's attachments (`media_ids`) lose their stored files and rows.
+    const mediaIds = Array.isArray((msg as any).media_ids) ? ((msg as any).media_ids as unknown[]).filter((v): v is string => typeof v === 'string') : [];
     await msg.save();
+    if (mediaIds.length) {
+      try { this.events.emit(MEDIA_RELEASE, { ids: mediaIds, owner_id: userId }); } catch { /* cleanup is best effort */ }
+    }
   }
 
   async addReaction(msgId: string, userId: string, emoji: string): Promise<ChatMessage> {

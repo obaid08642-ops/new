@@ -118,5 +118,15 @@
     "line": 29,
     "found": "[owner] the server also publishes a half-refund tier (half_hours, half_refund_percent) that the app terms do not mention; only full_hours and late_fee_percent are written.",
     "suspect": "Owner decision."
+  },
+  {
+    "batch": 12,
+    "app": "patient-web",
+    "screen": "/map",
+    "element": "Hospital card link",
+    "file": "patient-web/lib/map/book-href.ts",
+    "line": 10,
+    "found": "[backend] GET /providers/map ids are provider-profile ids; /facility/[id] reads the facilities collection (entity-graph getRelatedFacility). The link works only where the two ids are the same; the old /consultations/clinics/[id] link made the same assumption. The map answer carries no facility slug. (backend: backend/src/modules/provider/providers.service.ts:361)",
+    "suspect": "Backend gap: reviewer session."
   }
 ]

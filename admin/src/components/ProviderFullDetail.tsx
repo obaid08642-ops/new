@@ -165,6 +165,31 @@ export default function ProviderFullDetail({ detail, accountId }: { detail: any;
   const docs: any[] = detail?.documents || [];
   const cid = accountId || acc.id || ob.account_id;
 
+  // B-4: each licence document is decided on its own (approve, or reject with a reason).
+  const [docStatus, setDocStatus] = useState<Record<string, { status: string; note?: string }>>({});
+  const [docBusy, setDocBusy] = useState<string | null>(null);
+  const reviewDoc = async (docId: string, decision: 'approve' | 'reject') => {
+    if (!cid) return;
+    let reason = '';
+    if (decision === 'reject') {
+      reason = (window.prompt('سبب رفض المستند (يظهر للمزود):') || '').trim();
+      if (reason.length < 5) { alert('اكتب سبباً واضحاً (5 أحرف على الأقل).'); return; }
+    }
+    setDocBusy(docId);
+    try {
+      const res = await fetchWithAdminGuard(`/api/admin/admin/providers/${cid}/documents/${docId}/${decision}`, {
+        method: 'POST', body: JSON.stringify(decision === 'reject' ? { reason } : {}),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { alert('تعذر حفظ القرار: ' + (data?.message || res.status)); return; }
+      setDocStatus((prev) => ({ ...prev, [docId]: { status: data?.review_status || (decision === 'approve' ? 'approved' : 'rejected'), note: reason || undefined } }));
+    } catch {
+      alert('تعذر الاتصال بالخادم.');
+    } finally {
+      setDocBusy(null);
+    }
+  };
+
   const [contractMeta, setContractMeta] = useState<any | null>(null);
   const [contractBusy, setContractBusy] = useState(false);
 
@@ -488,10 +513,18 @@ export default function ProviderFullDetail({ detail, accountId }: { detail: any;
                   {doc.doc_number && <p className="text-xs text-gray-500 font-mono">{doc.doc_number}</p>}
                   {doc.issuer && <p className="text-xs text-gray-400">الجهة: {doc.issuer}</p>}
                   {doc.expiry_date && <p className="text-xs text-gray-400">ينتهي: {String(doc.expiry_date).slice(0, 10)}</p>}
-                  {doc.reviewer_note && <p className="text-xs text-amber-600">ملاحظة المراجع: {doc.reviewer_note}</p>}
+                  {(docStatus[doc.id]?.note || doc.reviewer_note) && <p className="text-xs text-amber-600">ملاحظة المراجع: {docStatus[doc.id]?.note || doc.reviewer_note}</p>}
                 </div>
                 <StorageFileLink id={doc.storage_object_id} label="عرض المستند" />
-                <ReviewBadge status={doc.review_status} />
+                <ReviewBadge status={docStatus[doc.id]?.status || doc.review_status} />
+                {['pending', 'under_review', 'needs_replacement'].includes(String(docStatus[doc.id]?.status || doc.review_status)) && (
+                  <div className="flex gap-2">
+                    <button type="button" disabled={docBusy === doc.id} onClick={() => reviewDoc(doc.id, 'approve')}
+                      className="px-3 py-1 rounded-md text-xs font-bold bg-emerald-600 text-white disabled:opacity-50">قبول</button>
+                    <button type="button" disabled={docBusy === doc.id} onClick={() => reviewDoc(doc.id, 'reject')}
+                      className="px-3 py-1 rounded-md text-xs font-bold border border-red-300 text-red-700 disabled:opacity-50">رفض</button>
+                  </div>
+                )}
               </div>
             ))}
           </div>

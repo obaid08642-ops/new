@@ -18,7 +18,7 @@ describe('patient-owned controller contracts', () => {
 
   it('rejects nutrition records without a verified patient and preserves the authenticated owner', () => {
     const service = { getDailySummary: jest.fn(), logWater: jest.fn() };
-    const controller = new NutritionController(service as any);
+    const controller = new NutritionController(service as any, {} as any);
 
     expect(() => controller.getDailySummary(missingUserRequest, undefined)).toThrow(UnauthorizedException);
     controller.logWater(patientRequest, { amount_ml: 250 });

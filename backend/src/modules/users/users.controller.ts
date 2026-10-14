@@ -94,8 +94,8 @@ export class UsersController {
   }
 
   @Get('me/sessions')
-  getSessions(@CurrentUser('id') id: string) {
-    return this.users.getSessions(id);
+  getSessions(@CurrentUser() user: any) {
+    return this.users.getSessions(user?.id, user?.dev);
   }
 
   // --- PDPL (Phase 10): data-subject rights ---

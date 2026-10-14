@@ -1,5 +1,6 @@
 import { JsonLd } from "@/components-next/json-ld";
-import { hospital, medicalClinic, breadcrumbList } from "@/lib/seo/structured-data";
+import { hospital, medicalClinic, breadcrumbList, medicalWebPage } from "@/lib/seo/structured-data";
+import { DirectAnswer } from "@/components-next/seo/direct-answer";
 import type { Metadata } from "next";
 import { localizedUrl } from "@/lib/seo";
 import { isLocale, locales, type Locale } from "@/lib/i18n";
@@ -24,7 +25,7 @@ type FacilityAnswer = {
     phone?: string | null;
     accepted_insurance?: string[] | null;
   } | null;
-  relationships?: { departments?: string[] | null } | null;
+  relationships?: { departments?: string[] | null; doctors?: Array<{ id?: string }> | null } | null;
 };
 
 function getFacility(slug: string) {
@@ -51,12 +52,21 @@ export default async function FacilityCanonicalPage({ params }: Props) {
   const data = await getFacility(slug);
   if (!data?.entity) notFound();
   const t = await getTranslations("PublicLanding");
+  const seo = await getTranslations("SeoAnswer");
   const fac = data.entity;
   const departments = data.relationships?.departments ?? [];
   const insurance = fac.accepted_insurance ?? [];
   const name = pickText(locale, fac.name_ar ?? undefined, fac.name_en ?? undefined) ?? "";
   const schemaBuilder = fac.type === "hospital" ? hospital : medicalClinic;
   const place = [fac.city, fac.district].filter(Boolean).join(" - ");
+  const KINDS = { hospital: "kindHospital", clinic: "kindClinic", medical_center: "kindMedicalCenter", polyclinic: "kindPolyclinic" } as const;
+  const kind = seo(KINDS[fac.type as keyof typeof KINDS] ?? "kindFacility");
+  const doctorCount = data.relationships?.doctors?.length ?? 0;
+  // AEO: what and where the facility is, from its own record only.
+  const directAnswer = [
+    fac.city ? seo("facilityWho", { name, kind, city: fac.city }) : seo("facilityWhoNoCity", { name, kind }),
+    doctorCount > 0 ? seo("facilityDoctors", { count: doctorCount }) : null,
+  ];
   const facts: FactRow[] = [
     ...(place ? [{ label: t("facility.location"), value: place, icon: "map-pin" as const, tone: CONSULT.tone }] : []),
     ...(fac.phone ? [{ label: t("facility.phone"), value: <span dir="ltr">{fac.phone}</span> }] : []),
@@ -65,7 +75,8 @@ export default async function FacilityCanonicalPage({ params }: Props) {
   return (
     <LandingPage locale={locale} title={name} backHref={`/${locale}/consultations`}>
       {/* // i18n-ok: structured data is kept exactly as published (SEO); the breadcrumb points at /consultations, /consultations/clinics has no list page (needs-review issue 793) */}
-      <JsonLd data={[schemaBuilder({ name, path: `/facility/${slug}`, locale: locale as Locale, city: fac.city, district: fac.district }), breadcrumbList([{ name: "Nabd Plus", locale: locale as Locale, path: "/" }, { name: locale === "ar" ? "المراكز والمستشفيات" : "Hospitals & Clinics", locale: locale as Locale, path: "/consultations" }, { name, locale: locale as Locale, path: `/facility/${slug}` }])]} />
+      <DirectAnswer sentences={directAnswer} />
+      <JsonLd data={[medicalWebPage({ title: name, locale: locale as Locale, path: `/facility/${slug}`, speakable: true }), schemaBuilder({ name, path: `/facility/${slug}`, locale: locale as Locale, city: fac.city, district: fac.district }), breadcrumbList([{ name: "Nabd Plus", locale: locale as Locale, path: "/" }, { name: t("ld.crumbFacilities"), locale: locale as Locale, path: "/consultations" }, { name, locale: locale as Locale, path: `/facility/${slug}` }])]} />
 
       {facts.length ? (
         <SectionCard id="facility-facts">

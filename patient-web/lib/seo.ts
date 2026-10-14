@@ -14,9 +14,11 @@ export function escXml(s: string) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 }
 
-/** xhtml:link hreflang alternates for one path across all 6 locales (sitemaps). */
+/** xhtml:link hreflang alternates for one path across all 6 locales, plus x-default → Arabic
+ *  (the site default), as every page declares in its own <link>s (sitemaps). */
 export function hreflangLinks(path: string) {
-  return locales.map((l) => `<xhtml:link rel="alternate" hreflang="${l}" href="${escXml(localizedUrl(l, path))}" />`).join("");
+  return locales.map((l) => `<xhtml:link rel="alternate" hreflang="${l}" href="${escXml(localizedUrl(l, path))}" />`).join("")
+    + `<xhtml:link rel="alternate" hreflang="x-default" href="${escXml(localizedUrl("ar", path))}" />`;
 }
 
 /** hreflang for entities whose slug differs per locale (products): each alternate is that locale's

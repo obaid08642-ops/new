@@ -59,8 +59,8 @@
     "aiDesc": "Instant AI-powered symptom checker and triage",
     "mapTitle": "Facility Map Explorer",
     "mapDesc": "Discover nearby clinics, hospitals and pharmacies",
-    "emergencyTitle": "Emergency & SOS",
-    "emergencyDesc": "Instant emergency assistance and ambulance request",
+    "emergencyTitle": "Urgent help",
+    "emergencyDesc": "If you need help right away, call the urgent-help number set up for Nabd Plus.",
     "trustLicensed": "Certified & Licensed",
     "trustLicensedSub": "Verified healthcare practitioners",
     "trustGenuine": "100% Genuine Medicines",
@@ -94,7 +94,7 @@
     "svcMaternity": "Maternity",
     "svcMap": "Map",
     "svcHealth": "My health",
-    "svcEmergency": "Emergency",
+    "svcEmergency": "Urgent help",
     "aiTitle": "Smart medical assistant",
     "aiSub": "Describe your symptoms and get first guidance",
     "aiStart": "Start chat",
@@ -220,12 +220,12 @@
       "details": "Details"
     },
     "emptyTitle": "No orders yet",
-    "emptyBody": "Orders you send to pharmacies appear here.",
+    "emptyBody": "Your pharmacy, consultation, lab, radiology and nursing orders appear here.",
     "browse": "Browse medicines",
     "emptyCurrentTitle": "No current orders",
-    "emptyCurrentBody": "An order that is waiting for pharmacies or on its way appears here.",
+    "emptyCurrentBody": "An order that is waiting or on its way appears here.",
     "emptyPreviousTitle": "No previous orders",
-    "emptyPreviousBody": "Delivered and cancelled orders appear here.",
+    "emptyPreviousBody": "Finished and cancelled orders appear here.",
     "listErrorTitle": "Your orders could not be loaded",
     "unavailableTitle": "The order could not be loaded",
     "unavailableBody": "Check your connection and try again.",
@@ -239,7 +239,15 @@
     "pickupTitle": "Pickup",
     "pickupNote": "You collect this order from the pharmacy.",
     "priceTitle": "Price",
-    "total": "Total"
+    "total": "Total",
+    "kind": {
+      "consultation": "Consultation",
+      "labs": "Lab test",
+      "radiology": "Radiology scan",
+      "nursing": "Nursing visit"
+    },
+    "statusUnavailable": "Status unavailable",
+    "partialNote": "Some orders could not be loaded. The rest are shown below; try again in a moment."
   },
   "Cart": {
     "eyebrow": "Private cart",
@@ -273,6 +281,7 @@
     "remove": "Remove {name} from the cart",
     "removed": "{name} was removed from the cart",
     "needsRx": "Needs a prescription",
+    "onlineOnly": "Online only",
     "rxBannerTitle": "An item needs a prescription",
     "rxBannerBody": "Upload the prescription before sending the request",
     "rxBannerAction": "Upload",
@@ -686,7 +695,9 @@
     "emergencyPhone": "Mobile number",
     "emergencyRequired": "Enter the name and mobile number.",
     "emergencySaveError": "The contact could not be saved. Try again.",
-    "emergencySave": "Save"
+    "emergencySave": "Save",
+    "nextAppointment": "Your next appointment",
+    "nextAppointmentUnavailable": "Your next appointment could not be loaded right now."
   },
   "Prescriptions": {
     "title": "Prescriptions",
@@ -932,6 +943,20 @@
       "closed": "Read-only",
       "hoursLeft": "{count} h left",
       "minutesLeft": "{count} min left"
+    },
+    "composerTitle": "Message to the doctor",
+    "composerLabel": "Write your message",
+    "composerPlaceholder": "Write a message to the doctor",
+    "send": "Send",
+    "sending": "Sending…",
+    "sent": "Your message was sent.",
+    "sendRetry": "Try again",
+    "sendErrors": {
+      "invalid": "Write a message of up to 2000 characters.",
+      "signedOut": "Your session ended. Sign in and send again.",
+      "forbidden": "Messages can’t be sent in this conversation right now.",
+      "network": "Couldn’t connect. Your message hasn’t been sent yet; try again.",
+      "generic": "The message couldn’t be sent. Try again."
     }
   },
   "Sleep": {
@@ -1109,7 +1134,22 @@
     "connectionFailed": "Connection unavailable. Try again.",
     "confirmedTitle": "Your appointment is booked",
     "confirmedBody": "Appointment time: {slot}",
-    "bookAnother": "Book another slot"
+    "bookAnother": "Book another slot",
+    "quick": "Quick filters",
+    "nearest": "Nearest",
+    "availableNow": "Available now",
+    "nearestOnline": "\"Nearest\" applies to clinic and home visits only, not online consultations.",
+    "locating": "Finding your location…",
+    "nearestNoPlace": "Sorting by distance is not possible. Allow location access or save an address with a city.",
+    "nearestCity": "Doctors in {city}",
+    "visitType": "Consultation type",
+    "verifiedDoctor": "Verified doctor",
+    "licenseNumber": "Licence no. {number}",
+    "specialtyLabel": "Specialty",
+    "allSpecialties": "All specialties",
+    "paymentLabel": "Payment",
+    "payment_insurance": "Accepts insurance",
+    "payment_cash": "Cash only"
   },
   "LabsServices": {
     "eyebrow": "Laboratory care",
@@ -1213,7 +1253,8 @@
     "inStock": "In stock",
     "outOfStock": "Out of stock",
     "unavailableTitle": "Wishlist unavailable",
-    "unavailableBody": "Please try again later."
+    "unavailableBody": "Please try again later.",
+    "needsRx": "Needs a prescription"
   },
   "Search": {
     "title": "Search",
@@ -1248,7 +1289,15 @@
     "rxHelp": "Can’t find it? Upload your prescription and pharmacies will look for it",
     "rxAction": "Upload prescription",
     "price": "{value} SAR",
-    "rating": "Rating {value}"
+    "rating": "Rating {value}",
+    "kindMedicine": "Medicine",
+    "kindDoctor": "Doctor",
+    "kindSpecialty": "Specialty",
+    "kindLab": "Lab test",
+    "kindLabPackage": "Test package",
+    "kindRadiology": "Radiology",
+    "kindNursing": "Nursing",
+    "kindArticle": "Article"
   },
   "Support": {
     "title": "Support",
@@ -1277,15 +1326,20 @@
     }
   },
   "Emergency": {
-    "title": "Emergency",
-    "subtitle": "Press the SOS button only in critical situations. The response team is notified immediately.",
-    "trigger": "Send SOS emergency call",
-    "triggering": "Sending…",
-    "activeLabel": "SOS is active — the response team is on the way",
-    "cancel": "Cancel SOS",
-    "cancelling": "Cancelling…",
-    "error": "Could not complete the action right now",
-    "state": "State"
+    "title": "Urgent help",
+    "intro": "If you need help right away, call the urgent-help number set up for Nabd Plus.",
+    "call": "Call {number}",
+    "unavailable": "No urgent-help number has been set up yet, so there is nothing to call from here. If you are in danger, contact your local emergency services.",
+    "note": "Nabd Plus is not an emergency service and cannot send help to your location.",
+    "loadError": "The urgent-help number could not be loaded right now.",
+    "share": "Send my location to my family",
+    "sharePermission": "Allow location access to send your location to your family.",
+    "shareError": "Your location could not be sent right now. Try again.",
+    "shareNoContacts": "You have no emergency contacts yet.",
+    "shareAddContacts": "Add emergency contacts",
+    "shareSent": "Your location was sent to {n} contacts in the app.",
+    "shareSms": "Send a text to {name}",
+    "shareContact": "your contact"
   },
   "Returns": {
     "title": "Return requests",
@@ -1357,7 +1411,13 @@
     "empty": "No addresses yet",
     "listLabel": "Address list",
     "unnamed": "Unnamed address",
-    "default": "Default"
+    "default": "Default",
+    "edit": "Edit",
+    "editTitle": "Edit address",
+    "cancel": "Cancel",
+    "removeConfirmTitle": "Confirm removing the address",
+    "removeConfirm": "Remove the address “{name}”? This can’t be undone.",
+    "removeConfirmYes": "Yes, remove"
   },
   "ShareReport": {
     "title": "Share Reports",
@@ -1413,7 +1473,9 @@
     "doctorUnavailableBody": "We could not load this doctor right now. Try again or choose another doctor.",
     "backToDoctors": "Back to doctors",
     "bookingFailed": "Booking failed. Check the slot and the payment method.",
-    "fee": "Consultation fee"
+    "fee": "Consultation fee",
+    "duration": "Visit length",
+    "durationValue": "{n} min"
   },
   "AiHealthReport": {
     "title": "Your AI Health Report",
@@ -1423,7 +1485,11 @@
     "resultTitle": "Analysis result",
     "error": "Could not complete the analysis. Please try again.",
     "disclaimer": "This analysis is informational and not a substitute for medical advice.",
-    "empty": "No medical reports available yet."
+    "empty": "No medical reports available yet.",
+    "unavailableTitle": "Explain my report",
+    "unavailableBody": "Automatic explanation of medical reports is not available. Open your reports or share them with a doctor who will explain them.",
+    "openReports": "My reports",
+    "shareReport": "Share a report with the doctor"
   },
   "Payments": {
     "successTitle": "Payment successful",
@@ -1461,7 +1527,11 @@
     "manufacturer": "Manufacturer",
     "emptyBody": "Select at least two medicines from the catalog to compare.",
     "browse": "Browse medicines",
-    "back": "Medicines"
+    "back": "Medicines",
+    "requires_prescription": "Prescription required",
+    "online_exclusive": "Online only",
+    "yes": "Yes",
+    "no": "No"
   },
   "PharmacyRequest": {
     "title": "Request a medicine by name",
@@ -1494,7 +1564,8 @@
     "viewProduct": "View the product",
     "another": "Look up another barcode",
     "requestByName": "Request it by name",
-    "errorLookup": "The barcode lookup failed. Try again."
+    "errorLookup": "The barcode lookup failed. Try again.",
+    "onlineOnly": "Online only"
   },
   "PharmacyChat": {
     "title": "Pharmacy negotiation",
@@ -1529,7 +1600,18 @@
     "back": "My appointments",
     "emptyBody": "No past calls yet.",
     "findDoctor": "Find a doctor",
-    "unknownDoctor": "Doctor"
+    "unknownDoctor": "Doctor",
+    "unavailableTitle": "We can't load your calls right now",
+    "unavailableBody": "Check your connection and try again.",
+    "videoCall": "Video call",
+    "voiceCall": "Voice call",
+    "status": {
+      "ended": "Call completed",
+      "rejected": "Declined",
+      "missed": "Missed call",
+      "active": "Call in progress",
+      "pending": "Pending call"
+    }
   },
   "PostCallRating": {
     "title": "Rate your consultation",
@@ -1611,7 +1693,8 @@
     "aboutTitle": "About Laboratory",
     "defaultAbout": "A certified medical laboratory equipped with modern diagnostics.",
     "servicesTitle": "Available Tests",
-    "price": "{value} SAR"
+    "price": "{value} SAR",
+    "ratingLine": "Rated {rating} of 5 · {count} ratings"
   },
   "NurseDetail": {
     "title": "Nurse Profile",
@@ -1699,7 +1782,8 @@
     "waysLabel": "Ways to order with a prescription",
     "viaPhoto": "Photograph",
     "viaUpload": "Upload",
-    "viaType": "Type names"
+    "viaType": "Type names",
+    "errorBusy": "Too many attempts in a short time. Wait a minute, then try again."
   },
   "HubSeo": {
     "privacy": {
@@ -1989,7 +2073,19 @@
     "ixSeverityLow": "Low risk",
     "citeTitle": "Cite this information",
     "citeCopy": "Copy citation",
-    "citeCopied": "Copied"
+    "citeCopied": "Copied",
+    "ixNote": {
+      "bleeding_risk": "Higher risk of bleeding. See your doctor right away.",
+      "lactic_acidosis": "Risk of lactic acidosis. Avoid alcohol.",
+      "high_potassium": "Potassium can rise too high. Regular blood tests are needed.",
+      "severe_low_blood_pressure": "Severe drop in blood pressure. Never take these together.",
+      "rhabdomyolysis": "Risk of muscle damage (rhabdomyolysis). Ask your doctor about a different antibiotic."
+    },
+    "sortLabel": "Sort",
+    "sortPopular": "Most popular",
+    "sortPriceAsc": "Price: low to high",
+    "sortPriceDesc": "Price: high to low",
+    "sortNewest": "Newest"
   },
   "PharmacyOffers": {
     "backToOrder": "Back to the order",
@@ -2168,7 +2264,8 @@
       "network": "The service could not be reached. Check your connection and try again.",
       "generic": "The action could not be completed. Nothing was changed.",
       "alreadyPaid": "This order is already paid."
-    }
+    },
+    "lastFromYou": "You: {text}"
   },
   "PharmacyCheckout": {
     "title": "Checkout",
@@ -2362,7 +2459,7 @@
     "summaryPrescription": "Prescription",
     "summaryRecommendations": "Recommendations",
     "summaryFollowUp": "Follow-up recommended within {days} days",
-    "summaryFollowUpBody": "Book the follow-up now at a discounted rate inside the window.",
+    "summaryFollowUpBody": "Book the follow-up now, inside this window.",
     "actionBookFollowUp": "Book follow-up",
     "actionOrderMedicines": "Order medicines from pharmacy",
     "actionBookTests": "Book tests",
@@ -2538,6 +2635,7 @@
     "inviteCode": "Invite code",
     "inviteCopy": "Copy code",
     "inviteCopied": "Copied",
+    "inviteCopyFailed": "Could not copy. Select the code and copy it by hand.",
     "inviteFailed": "Couldn't create the invite. Try again.",
     "joinCodeHint": "Paste the code here",
     "joinRelation": "Relation (optional)",
@@ -2562,7 +2660,12 @@
     "chatNoGroupTitle": "You are not in a family group yet",
     "chatNoGroupBody": "Create a family group or join with an invite to start chatting.",
     "chatJoin": "Join with a code",
-    "emergencyCount": "{count} contacts"
+    "emergencyCount": "{count} contacts",
+    "joinError": {
+      "invalid_invite_code": "This invite code is not valid. Check it, or ask for a new one.",
+      "invite_expired": "This invite code has expired. Ask the family owner for a new one.",
+      "already_member": "You are already a member of this family."
+    }
   },
   "DiagWeb": {
     "retry": "Try again",
@@ -3028,7 +3131,18 @@
     "mealName": "Meal name",
     "mealCalories": "Calories (kcal)",
     "saveMeal": "Save meal",
-    "mealNotice": "Your meals are saved to your profile and your daily summary updates automatically."
+    "mealNotice": "Your meals are saved to your profile and your daily summary updates automatically.",
+    "tabPlan": "Plan",
+    "planEmptyTitle": "No nutrition plan yet",
+    "planEmptyBody": "Create a plan from your nutrition profile (height, weight, goal and allergies).",
+    "planGenerate": "Create my plan",
+    "planRegenerate": "Create a new plan",
+    "planNeedsProfile": "Add your height and weight in the Target tab first.",
+    "planQuota": "You have reached today's AI limit. Try again tomorrow.",
+    "planFailed": "The plan could not be created right now. Try again.",
+    "planNutritionist": "Follow up with a nutritionist",
+    "planNotice": "This plan is general guidance from the AI assistant, not a medical prescription. Talk to a nutritionist before any big change.",
+    "planDay": "Day {n}"
   },
   "MentalWeb": {
     "title": "Mental health",
@@ -3074,7 +3188,15 @@
     "meditationUnavailable": "Type not available",
     "durationMinutes": "Duration: {value} min",
     "completed": "Completed",
-    "notCompleted": "Not completed"
+    "notCompleted": "Not completed",
+    "moodValue": {
+      "great": "Great",
+      "good": "Good",
+      "okay": "Okay",
+      "bad": "Not good",
+      "terrible": "Very bad"
+    },
+    "urgentRowSub": "Call the urgent-help number"
   },
   "ProgramsWeb": {
     "title": "My health programs",
@@ -3148,7 +3270,9 @@
     "askPharmacist": "Ask the pharmacist",
     "explainAnother": "Explain something else",
     "untitledReport": "Medical report",
-    "reportsUnavailable": "Your reports could not be loaded now. Try again in a moment."
+    "reportsUnavailable": "Your reports could not be loaded now. Try again in a moment.",
+    "leafletLink": "Read the leaflet",
+    "historyTitle": "Your earlier questions"
   },
   "MonthlyReportWeb": {
     "title": "Your monthly report",
@@ -3242,7 +3366,7 @@
       "insurance": "Insurance: {list}"
     },
     "pharmacies": {
-      "title": "Verified Pharmacies in {city}",
+      "title": "Pharmacies in {city}",
       "intro": "Pharmacies and medical centres listed in {city}.",
       "notice": "Your medicine order is sent to nearby pharmacies, and they answer with offers.",
       "list": "Pharmacies and medical centres",
@@ -3259,6 +3383,7 @@
       "privacy": "Privacy policy",
       "version": "Version {version} · Effective {date}",
       "versionOnly": "Version {version}",
+      "currentVersion": "This is the current version of the text. It will be replaced by the legally approved version before launch.",
       "back": "Back"
     },
     "provider": {
@@ -3280,12 +3405,12 @@
         "description": "Verified {specialty} doctors in {neighborhood}, {city}. Book consultations via Nabd Plus."
       },
       "homeNursing": {
-        "title": "Home Nursing Services in {city} | Licensed Care 24/7",
-        "description": "Verified and licensed home nursing care in {city}. Senior care, post-op, and daily assistance via Nabd Plus."
+        "title": "Home Nursing Services in {city} | Nabd Plus",
+        "description": "Book home nursing care in {city}: senior care, post-op care and daily assistance via Nabd Plus."
       },
       "labs": {
         "title": "{test} Lab Test in {city} | Home Sample Collection",
-        "description": "Book verified {test} lab test in {city} with home collection and fast results via Nabd Plus."
+        "description": "Book a {test} lab test in {city} with home sample collection via Nabd Plus."
       },
       "labsEmpty": {
         "title": "{test} in {city} — Be first provider | Nabd",
@@ -3293,7 +3418,7 @@
       },
       "radiology": {
         "title": "{service} Radiology in {city} | Diagnostic Imaging Centers",
-        "description": "Book verified {service} imaging appointments in {city} with accredited medical centers via Nabd Plus."
+        "description": "Book {service} imaging appointments in {city} at imaging centres on Nabd Plus."
       },
       "radiologyEmpty": {
         "title": "{service} in {city} — Be first center | Nabd",
@@ -3304,8 +3429,8 @@
         "description": "Verified {service} healthcare services in {city}. In-clinic and home care via Nabd Plus."
       },
       "pharmacies": {
-        "title": "Verified Pharmacies in {city} | Fast Medicine Delivery",
-        "description": "Find prescription and OTC medicines in {city} with instant geo-broadcast delivery via Nabd Plus."
+        "title": "Pharmacies in {city} | Order Medicines and Compare Offers",
+        "description": "Send your prescription or medicine order to pharmacies in {city} and compare their offers on Nabd Plus."
       },
       "pharmaciesEmpty": {
         "title": "Pharmacies in {city} — Be first partner | Nabd",
@@ -3319,6 +3444,19 @@
         "description": "{name} in {city}. Specialized healthcare services, accepted insurances, and verified physicians.",
         "country": "Saudi Arabia"
       }
+    },
+    "ld": {
+      "labTest": "{test} lab test in {city}",
+      "radiology": "{service} imaging in {city}",
+      "homeNursing": "Home nursing and medical visit services in {city}",
+      "crumbDiagnostics": "Diagnostics",
+      "crumbRadiology": "Radiology",
+      "crumbHomeCare": "Home care",
+      "crumbServices": "Services",
+      "crumbPharmacy": "Pharmacy",
+      "crumbFacilities": "Hospitals and clinics",
+      "crumbHealthGuide": "Health guide",
+      "crumbDoctors": "Doctors"
     }
   },
   "InsuranceWeb": {
@@ -3329,13 +3467,10 @@
     "tabs": "Insurance sections",
     "tabPolicy": "Policy",
     "tabBenefits": "Benefits",
-    "tabClaims": "Claims",
-    "tabRefunds": "Refunds",
     "tabNetwork": "Network",
     "shortcuts": "Insurance shortcuts",
     "addPolicy": "Add policy",
     "changePolicy": "Change policy",
-    "submitClaim": "Submit a claim",
     "coverageCheck": "What my policy covers",
     "noPolicyTitle": "No policy recorded",
     "planLine": "Class {plan}",
@@ -3358,17 +3493,6 @@
     "disclaimer": "Nabd+ does not contact your insurer. The facility requests the approval from your insurer in its own systems and records the decision here. You pay only your co-pay.",
     "benefitsEmpty": "No benefits to show.",
     "benefitTitle": "Insurance benefit",
-    "claimsEmpty": "No claims yet.",
-    "claimServiceUnknown": "Insurance service",
-    "claimStatus": {
-      "approved": "Approved",
-      "reimbursed": "Reimbursed",
-      "pending": "Pending",
-      "rejected": "Rejected",
-      "unknown": "Status unavailable"
-    },
-    "refundsEmpty": "No refunds.",
-    "refundTitle": "Refund",
     "networkNoPolicy": "No saved policy. Add your policy first to see network providers.",
     "networkSearch": "Search by provider name",
     "networkEmpty": "No network providers to show.",
@@ -3386,27 +3510,6 @@
       "submit": "Save policy",
       "invalid": "Select a company and enter a valid policy number (at least 3 characters).",
       "failed": "Could not save the policy."
-    },
-    "claim": {
-      "title": "Submit a claim",
-      "lead": "Pick a paid booking to claim.",
-      "booking": "Paid booking",
-      "loading": "Loading…",
-      "none": "No paid bookings are eligible for a claim.",
-      "placeholder": "Pick…",
-      "note": "Note (optional)",
-      "submit": "Submit claim",
-      "pick": "Pick a paid booking to claim.",
-      "failed": "Could not submit the claim.",
-      "done": "Claim submitted.",
-      "viewClaims": "View claims",
-      "kind": {
-        "consultation": "Medical consultation",
-        "pharmacy": "Medicines",
-        "lab": "Lab tests",
-        "radiology": "Radiology",
-        "nursing": "Home nursing"
-      }
     },
     "coverage": {
       "title": "What my policy covers",
@@ -3471,7 +3574,23 @@
       "acceptRetry": "Self-pay could not be recorded. Try again.",
       "payFailed": "Secure online payment could not start. No payment was confirmed.",
       "payRetry": "Online payment could not start. No payment was confirmed."
-    }
+    },
+    "noteCode": {
+      "coverage_decided_by_provider": "The provider decides the final coverage when it reviews your request.",
+      "no_policy_on_file": "There is no insurance policy on your file. Add one first."
+    },
+    "providerType": {
+      "doctor": "Doctor",
+      "pharmacy": "Pharmacy",
+      "hospital": "Hospital",
+      "clinic": "Clinic",
+      "lab": "Laboratory",
+      "radiology": "Radiology center",
+      "home_care": "Home care",
+      "nursing": "Nursing"
+    },
+    "memberLine": "Member number: {id}",
+    "expiryLine": "Expires on {date}"
   },
   "LoyaltyHubWeb": {
     "title": "Nabd points",
@@ -3562,7 +3681,11 @@
     "noProviders": "No providers are available for this offer right now",
     "errorTitle": "Offers could not be loaded",
     "empty": "Check back soon, new offers are added all the time.",
-    "error": "Check your connection and try again."
+    "error": "Check your connection and try again.",
+    "share": "Share offer",
+    "shareDone": "Shared.",
+    "shareCopied": "Link copied.",
+    "shareFailed": "Couldn’t share. Copy the link from the address bar."
   },
   "SettingsWeb": {
     "hubTitle": "Settings",
@@ -3681,7 +3804,6 @@
     "aboutRules": "Cancellation and refunds",
     "aboutRulesUnavailable": "The cancellation and refund policy could not be loaded right now.",
     "ruleCancelFull": "An appointment can be cancelled up to {hours} hours before its time for a full refund.",
-    "ruleCancelLate": "Cancelling less than {hours} hours before costs {fee}% of the booking.",
     "ruleRefundDays": "Refunds arrive within {min} to {max} business days.",
     "ruleReturnDays": "Unused products can be returned within {days} days of receipt."
   },
@@ -3771,5 +3893,198 @@
     "message": "Type your message",
     "attach": "Attach an image",
     "send": "Send"
+  },
+  "Modules": {
+    "unavailableTitle": "This service is unavailable right now",
+    "unavailableBody": "We have paused this service for the moment. You can keep using the rest of the site.",
+    "unavailableHome": "Back to Home"
+  },
+  "FeaturePages": {
+    "common": {
+      "pointsTitle": "What you can do",
+      "faqTitle": "Questions and answers",
+      "signInNote": "This feature is in your Nabd Plus account. Sign in to use it. This page describes the feature and is not medical advice."
+    },
+    "medicationReminders": {
+      "title": "Medication reminders",
+      "metaTitle": "Medication reminders and today's doses",
+      "metaDescription": "Save reminders for your medicines with a dose and times, and see today's doses and refill dates in your Nabd Plus account.",
+      "answer": "Medication reminders on Nabd Plus keep the medicines you take, each with its dose, frequency and times. Sign in, open Medications and choose Add reminder. The Today tab then shows which doses are taken, still to take, skipped or missed.",
+      "p1Title": "Your reminders",
+      "p1Body": "Add, edit or delete a reminder with the medicine name, the dose, the frequency (daily, weekly or as needed) and one or more times.",
+      "p2Title": "Today's doses",
+      "p2Body": "See each dose of the day and whether it was taken, skipped or missed.",
+      "p3Title": "Refills and chronic medicines",
+      "p3Body": "See the refill dates of your medicines and the chronic medicines recorded in your profile.",
+      "q1": "Will I get a notification when a dose is due?",
+      "a1": "Yes, in the Nabd Plus mobile app: it schedules a notification on your phone at each saved time, and you can mark the dose as taken from it. The website shows your reminders and doses but does not send these notifications.",
+      "q2": "Does Nabd Plus tell me which medicine or dose to take?",
+      "a2": "No. You enter the medicine and the dose yourself. Ask your doctor or pharmacist before changing how you take a medicine.",
+      "q3": "Where do I find my reminders?",
+      "a3": "After you sign in, open Medications. Its tabs show today's doses, all reminders, refills and chronic medicines.",
+      "cta": "Open my medications"
+    },
+    "pregnancy": {
+      "title": "Pregnancy tracking",
+      "metaTitle": "Pregnancy week tracker and cycle estimate",
+      "metaDescription": "Follow your pregnancy week by week, see your logged baby kicks and contractions, record baby growth and see a cycle estimate on Nabd Plus.",
+      "answer": "Pregnancy tracking on Nabd Plus, in the Maternity section, shows your pregnancy week, trimester and due date from the details you enter. Sign in, open Maternity and set up your profile for pregnancy or cycle tracking to start.",
+      "p1Title": "Pregnancy week",
+      "p1Body": "Your week of pregnancy, the trimester and the due date, with the baby kicks and contractions you logged.",
+      "p2Title": "Baby growth",
+      "p2Body": "Your baby's weight, height and head size, entry by entry, month by month.",
+      "p3Title": "Cycle estimate",
+      "p3Body": "An estimated ovulation day, fertile window and next period, calculated from your last period and cycle length.",
+      "q1": "Is the due date exact?",
+      "a1": "No. The dates and weeks shown are estimates based on your entries and do not replace your doctor.",
+      "q2": "Can I use the cycle estimate as contraception?",
+      "a2": "No. The estimate is calculated from your last period and your cycle length. It is for awareness only and is not contraception.",
+      "q3": "Can I book an obstetrician or a scan?",
+      "a3": "Yes. From Maternity you can book an obstetrics consultation with a specialist, or book an ultrasound or another scan near you.",
+      "cta": "Open Maternity"
+    },
+    "mentalHealth": {
+      "title": "Mental health and wellbeing",
+      "metaTitle": "Mood journal and therapist booking",
+      "metaDescription": "Keep a mood journal and book a psychiatry consultation in your Nabd Plus account.",
+      "answer": "Mental health on Nabd Plus brings together a mood journal and booking with psychiatry doctors. Sign in and open Mental health to see a summary of what you recorded yourself; it is not a diagnosis.",
+      "p1Title": "Mood journal",
+      "p1Body": "Record your mood, energy and stress, and see your entries from the last 30 days.",
+      "p2Title": "Book a therapist",
+      "p2Body": "Find psychiatry doctors in consultations and book a visit.",
+      "q1": "Does Nabd Plus diagnose or score my mental health?",
+      "a1": "No. The figures describe only what you recorded. They are not a diagnosis, a risk score or a treatment recommendation.",
+      "q2": "What should I do if I need urgent help?",
+      "a2": "Nabd Plus is not an emergency service. If you need help right away, open Urgent help in your account: it calls the urgent-help number set up for Nabd Plus. If you are in danger, contact your local emergency services.",
+      "q3": "How do I book a therapist?",
+      "a3": "Open Mental health and choose Book a therapist. It lists psychiatry doctors in consultations, where you choose a doctor and a time.",
+      "cta": "Open Mental health",
+      "urgentCta": "Urgent help"
+    },
+    "nutrition": {
+      "title": "Nutrition tracking",
+      "metaTitle": "Meal log, calories and water tracking",
+      "metaDescription": "Log your meals, follow today's calories and water against your own daily targets and set your nutrition goal in your Nabd Plus account.",
+      "answer": "Nutrition on Nabd Plus lets you log your meals and see today's calories and water against daily targets you set yourself. Sign in, open Nutrition, set your goal and targets in the Target tab, then use Log a meal for each meal.",
+      "p1Title": "Today",
+      "p1Body": "Today's calories against your target, your water, and the meals you logged today.",
+      "p2Title": "Log a meal",
+      "p2Body": "Save a meal with its type (breakfast, lunch, dinner or snack), its name and its calories.",
+      "p3Title": "Your target",
+      "p3Body": "Set your goal, activity level, height, weight, daily calories and water, and any dietary restrictions or allergies.",
+      "q1": "Where do the calorie figures come from?",
+      "a1": "From the calories you enter for each meal. Your daily summary adds them up and compares them with the daily target you set.",
+      "q2": "Can I record allergies and dietary restrictions?",
+      "a2": "Yes. Add them in the Target tab, together with your goal and your daily targets.",
+      "q3": "Is this dietary advice?",
+      "a3": "No. Nutrition shows what you recorded. Ask your doctor before changing your diet.",
+      "cta": "Open Nutrition"
+    },
+    "family": {
+      "title": "Family health",
+      "metaTitle": "Family group, shared health files and calendar",
+      "metaDescription": "Create a family group on Nabd Plus, choose what each member can see, follow a shared calendar of appointments and chat with your family.",
+      "answer": "Family on Nabd Plus lets you create a family group, invite relatives or join a group with a code, and choose what each member can see. Sign in and open Family to add a member, answer requests, see the family calendar and use the family chat.",
+      "p1Title": "Members and permissions",
+      "p1Body": "Each member has a health file. You choose whether a member can view vitals, medications, reports and appointments.",
+      "p2Title": "Family calendar",
+      "p2Body": "Everyone's appointments and medicines in one calendar.",
+      "p3Title": "Family chat",
+      "p3Body": "Messages with your family group.",
+      "q1": "Who can see my health information?",
+      "a1": "Only the members you allow. For each member you choose whether they can view your vitals, medications, reports and appointments, and you approve or reject their requests.",
+      "q2": "How does a relative join my family group?",
+      "a2": "Use Add member in Family to invite them, or they can choose Join with a code.",
+      "q3": "Where do I add emergency contacts?",
+      "a3": "In Family, open Emergency contacts. They are kept in your health profile.",
+      "cta": "Open Family"
+    },
+    "loyalty": {
+      "title": "Nabd points",
+      "metaTitle": "Nabd points: rewards, challenges and referrals",
+      "metaDescription": "Earn Nabd points, redeem them for rewards, join health challenges and invite friends with your referral code in your Nabd Plus account.",
+      "answer": "Nabd points is the Nabd Plus loyalty program. Sign in and open Nabd points to see your balance and tier, redeem points for rewards, join health challenges and share your referral code.",
+      "p1Title": "Rewards",
+      "p1Body": "Redeem your points for the rewards on offer. Some rewards give you a coupon code.",
+      "p2Title": "Health challenges",
+      "p2Body": "Join health challenges and earn points when you complete them.",
+      "p3Title": "Invite friends",
+      "p3Body": "Share your referral code. When your friend signs up and completes a first booking, points are added for both of you.",
+      "q1": "How do I earn points?",
+      "a1": "Your account lists the ways to earn points. You also earn points from health challenges and when a friend you invited completes a first booking.",
+      "q2": "Who can apply a referral code?",
+      "a2": "A new account, before its first completed booking.",
+      "q3": "Do prescription medicines earn points?",
+      "a3": "No. Medicines that need a prescription are not included in any offers, discounts or loyalty points.",
+      "cta": "Open Nabd points"
+    },
+    "onlineConsultations": {
+      "title": "Online video consultations",
+      "metaTitle": "Online doctor consultations by video",
+      "metaDescription": "Book a video consultation with a doctor on Nabd Plus, join the call from your appointment and message the doctor about your booking.",
+      "answer": "Online consultations on Nabd Plus are video visits with a doctor that you book in advance. Choose a doctor who offers video consultations, pick a time and pay online; at the appointment time, join the call from your appointment page.",
+      "p1Title": "Choose a doctor",
+      "p1Body": "Filter doctors by specialty and by video consultation, then pick a time that suits you.",
+      "p2Title": "Video call",
+      "p2Body": "Join the call from your appointment. You can turn your camera and microphone on or off.",
+      "p3Title": "Chat about your booking",
+      "p3Body": "Message the doctor in the chat of your booking. There is no free chat outside a booking.",
+      "q1": "How do I pay for an online consultation?",
+      "a1": "Online consultations are paid electronically, in advance, when you book.",
+      "q2": "Can I get a prescription?",
+      "a2": "If the doctor writes a prescription, it appears on your appointment page. Whether a prescription is needed is the doctor's decision alone.",
+      "q3": "Is an online consultation for emergencies?",
+      "a3": "No. Nabd Plus is not for emergencies. In an emergency, call 997.",
+      "cta": "Find a video doctor"
+    }
+  },
+  "AgentConsent": {
+    "metaTitle": "Connect an AI assistant",
+    "title": "Connect {client} to Nabd Plus",
+    "intro": "{client} is asking to use your Nabd Plus account.",
+    "scopesTitle": "It will be able to:",
+    "scopeRead": "See your own orders and bookings",
+    "scopeOrder": "Send pharmacy requests for non-prescription items",
+    "scopeBook": "Hold consultation, lab and nursing appointments for you",
+    "confirmNote": "The assistant only prepares. You always confirm and pay on Nabd Plus. Prescription items always need your prescription.",
+    "revokeNote": "You can disconnect it at any time in Settings.",
+    "approve": "Allow",
+    "deny": "Don't allow",
+    "errorTitle": "This request can't continue",
+    "errorBody": "The link from the assistant is not valid or has expired. Go back to the assistant and start again."
+  },
+  "SeoAnswer": {
+    "productIngredient": "{name} contains the active ingredient {ingredient}.",
+    "productForm": "Dosage form: {form}.",
+    "productStrength": "Strength: {strength}.",
+    "productRx": "It is a prescription medicine: on Nabd Plus it is ordered with your prescription.",
+    "productOtc": "It does not need a prescription.",
+    "productPrice": "Reference price on Nabd Plus: {price}.",
+    "doctorWho": "{name} is a {specialty} doctor on Nabd Plus.",
+    "doctorFacility": "Practises at {facility}.",
+    "doctorCity": "City: {city}.",
+    "doctorModes": "Consultation types: {modes}.",
+    "modeClinic": "clinic visit",
+    "modeVideo": "video",
+    "modeHome": "home visit",
+    "doctorBook": "You book and pay for the consultation on Nabd Plus.",
+    "facilityWho": "{name} is a {kind} in {city}.",
+    "facilityWhoNoCity": "{name} is a {kind}.",
+    "kindHospital": "hospital",
+    "kindClinic": "clinic",
+    "kindMedicalCenter": "medical center",
+    "kindPolyclinic": "polyclinic",
+    "kindFacility": "healthcare facility",
+    "facilityDoctors": "{count, plural, one {# doctor practises} other {# doctors practise}} here on Nabd Plus.",
+    "pharmacyWho": "{name} is a pharmacy in {city} on Nabd Plus.",
+    "pharmacyWhoNoCity": "{name} is a pharmacy on Nabd Plus.",
+    "pharmacyHow": "Send your medicine request on Nabd Plus: pharmacies reply with offers and you choose one.",
+    "radiologyWho": "{name} is a radiology service you can book on Nabd Plus.",
+    "homeCareWho": "{name} is a home nursing service you can book on Nabd Plus.",
+    "labWho": "{test} in {city}: book the test on Nabd Plus at a lab or with home sample collection where the lab offers it.",
+    "faqRx": "Does {name} need a prescription?",
+    "faqIngredient": "What is the active ingredient of {name}?",
+    "faqPrice": "How much is {name} on Nabd Plus?",
+    "howToTitle": "How to use {name}"
   }
 }

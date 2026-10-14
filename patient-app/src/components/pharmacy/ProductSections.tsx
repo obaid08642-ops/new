@@ -134,6 +134,7 @@ export function MiniProduct({
   currency,
   uri,
   badge,
+  note,
   onPress,
   onAdd,
   addLabel,
@@ -144,6 +145,8 @@ export function MiniProduct({
   currency?: string;
   uri?: string | null;
   badge?: { label: string; tone: 'success' | 'neutral' };
+  /** The prescription / online-only note under the name (undefined when neither applies). */
+  note?: string;
   onPress: () => void;
   onAdd?: () => void;
   addLabel?: string;
@@ -158,6 +161,7 @@ export function MiniProduct({
         </View>
         <Text numberOfLines={2} style={{ ...scale(t, 'small', 'medium'), lineHeight: 19, color: c.text.primary, ...flow }}>{name}</Text>
         {meta ? <Text numberOfLines={1} style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{meta}</Text> : null}
+        {note ? <Text style={{ ...scale(t, 'tag', 'bold'), color: c.status.warning.fg, ...flow }}>{note}</Text> : null}
       </Pressable>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
         {price ? (

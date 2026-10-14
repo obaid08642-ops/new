@@ -14,13 +14,14 @@ import type { ServiceTone } from '../../../../packages/ui-native/src';
 
 /**
  * Mental health (board CareHub, merge map section 8): the hub with the links to the mood journal and to consultations,
- * and the mood journal. GET/POST /mental-health/mood. The hub has no urgent-help button because the public system
- * config carries no number for it (never a number written in the app), and no self-assessment, crisis screen or
- * breathing and meditation content: those are removed or not available in the app.
+ * and the mood journal. GET/POST /mental-health/mood. The urgent-help row opens the emergency screen, which reads the
+ * number from the public system config (never a number written here). No self-assessment, crisis screen or breathing
+ * and meditation content: those are removed or not available in the app.
  */
 
 export const MENTAL_HUB = '/mental-health/hub' as Href;
 const MOOD_JOURNAL = '/mental-health/mood-journal' as Href;
+const URGENT_HELP = '/emergency' as Href;
 // Mental-health consultation opens the doctor search on psychiatry (needs-review issue 857), as the services catalogue does.
 const CONSULTATIONS = '/search?view=doctors&specialty=psychiatry' as Href;
 
@@ -31,7 +32,8 @@ export function MentalHealthHubView() {
       <Notice tone="info" text={k('care.mh.wellbeingNotice')} />
       <Panel>
         <Row icon="brain" tone="violet" title={k('care.mh.moodJournal')} subtitle={k('care.mh.moodPrompt')} onPress={() => router.push(MOOD_JOURNAL)} testID="mental-mood" />
-        <Row icon="stethoscope" tone="blue" title={k('care.mh.consultation')} subtitle={k('care.mh.consultationBody')} onPress={() => router.push(CONSULTATIONS)} last testID="mental-consult" />
+        <Row icon="stethoscope" tone="blue" title={k('care.mh.consultation')} subtitle={k('care.mh.consultationBody')} onPress={() => router.push(CONSULTATIONS)} testID="mental-consult" />
+        <Row icon="ambulance" tone={CORAL_TONE} title={k('emergency.title')} subtitle={k('emergency.serviceDesc')} onPress={() => router.push(URGENT_HELP)} last testID="mental-urgent" />
       </Panel>
       <Notice tone="warning" text={k('care.mh.noDiagnosis')} />
     </CareScreen>

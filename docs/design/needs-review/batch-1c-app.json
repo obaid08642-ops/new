@@ -97,7 +97,7 @@
     "file": "backend/src/modules/pharmacy/services/pharmacy-order.service.ts",
     "line": 276,
     "found": "The order detail carries the chosen allocation (pharmacy_account_id, items, totals) but no pharmacy name, so the final-quote screen cannot say which pharmacy the price is from; it draws the lines and totals only.",
-    "suspect": "Backend should include the chosen pharmacy's display name in the order detail."
+    "suspect": "Fixed on design/backend-fields: the order detail carries pharmacy_name_ar / pharmacy_name_en (pharmacy-order.service.ts:147-150); the final-quote card names the pharmacy by language. (was: Backend should include the chosen pharmacy's display name in the order detail.)"
   },
   {
     "batch": 1,

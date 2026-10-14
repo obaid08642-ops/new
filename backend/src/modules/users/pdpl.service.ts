@@ -76,6 +76,17 @@ export class PdplService {
     { collection: 'refreshsessions', fields: ['user_id'] },
   ];
 
+  /** D-32: owned collections the list above missed (their names differ in the schemas). */
+  private static readonly OWNED_EXTRA: Array<{ collection: string; fields: string[] }> = [
+    { collection: 'patient_profiles', fields: ['user_id', 'patient_id', 'account_id'] },
+    { collection: 'orders', fields: ['patient_id', 'patient_account_id', 'user_id'] },
+    { collection: 'invoices', fields: ['patient_id', 'patient_account_id', 'user_id'] },
+    { collection: 'einvoices', fields: ['patient_id', 'patient_account_id', 'user_id', 'buyer_id'] },
+    { collection: 'moyasar_payments', fields: ['patient_id', 'patient_account_id', 'user_id'] },
+    { collection: 'wallet_transactions', fields: ['owner_id', 'patient_id', 'user_id'] },
+    { collection: 'returnrequests', fields: ['patient_id', 'patient_account_id', 'user_id'] },
+  ];
+
   /** Never leaves the server, even in an export. */
   private static readonly REDACT = new Set([
     'password_hash', 'passwordHash', 'otp_code', 'otp', 'token', 'refresh_token',
@@ -183,25 +194,44 @@ export class PdplService {
     const deleted: Record<string, number> = {};
     const anonymised: Record<string, number> = {};
 
-    // Legal-record collections: keep the row, strip the person.
-    const ANONYMISE = new Set([
-      'transactions', 'invoices', 'billing', 'refund_requests', 'return_requests',
-      'claimssubmissions', 'auditlogs', 'orders', 'pharmacy_orders',
+    // D-32 (owner instruction 2026-10-08, decisions 22 and 32): the person goes, the records stay.
+    //  - medical records (bookings, prescriptions, results, reports) are KEPT with their clinical content and lose
+    //    every identity field;
+    //  - legal and financial records (payments, invoices, wallet, orders) are KEPT with their amounts, lose the
+    //    identity fields and no longer point at the account;
+    //  - purely personal data (profile, addresses, notifications, sessions, chats...) is DELETED.
+    const KEEP_MEDICAL = new Set([
+      'appointments', 'labbookings', 'radiologybookings', 'homecarebookings', 'nursingbookings', 'prescriptions',
+      'labresults', 'medicalreports', 'healthrecords', 'vitals', 'allergies', 'medications', 'medicalprofiles',
+      'claims', 'insurance_requests', 'reviews',
     ]);
+    const KEEP_FINANCIAL = new Set([
+      'transactions', 'invoices', 'einvoices', 'moyasar_payments', 'wallet_transactions', 'billing', 'refund_requests',
+      'return_requests', 'returnrequests', 'claimssubmissions', 'auditlogs', 'orders', 'pharmacy_orders',
+    ]);
+    const IDENTITY_UNSET: Record<string, ''> = {};
+    for (const f of [
+      'patient_phone', 'patient_email', 'patient_national_id', 'customer_name', 'customer_email', 'customer_phone',
+      'buyer_name', 'buyer_phone', 'buyer_email', 'full_name', 'phone', 'email', 'national_id', 'address',
+      'patient_address', 'contact', 'delivery_address.street', 'delivery_address.phone', 'delivery_address.building',
+      'delivery_address.line1', 'delivery_address.line2', 'delivery_address.address', 'delivery_address.formatted_address',
+      'delivery_address.lat', 'delivery_address.lng', 'delivery_address.name', 'visit_location.address',
+      'patient_location.address',
+    ]) IDENTITY_UNSET[f] = '';
 
-    for (const { collection, fields } of this.OWNED) {
+    const owned = [...this.OWNED, ...PdplService.OWNED_EXTRA];
+    for (const { collection, fields } of owned) {
       if (!present.has(collection)) continue;
       const filter = { $or: fields.map((f) => ({ [f]: { $eq: String(userId) } })) } as any;
-      if (ANONYMISE.has(collection)) {
-        const res = await this.conn.collection(collection).updateMany(filter, {
-          $set: { patient_name: 'deleted', patient_phone: null, patient_email: null },
-          $unset: { patient_id: '', user_id: '' },
-        } as any).catch(() => null);
-        if (res?.modifiedCount) anonymised[collection] = res.modifiedCount;
+      if (KEEP_MEDICAL.has(collection) || KEEP_FINANCIAL.has(collection)) {
+        const update: any = { $set: { patient_name: 'deleted', identity_erased_at: new Date() }, $unset: { ...IDENTITY_UNSET } };
+        if (KEEP_FINANCIAL.has(collection)) Object.assign(update.$unset, { patient_id: '', user_id: '', patient_account_id: '' });
+        const res = await this.conn.collection(collection).updateMany(filter, update).catch(() => null);
+        if (res?.modifiedCount) anonymised[collection] = (anonymised[collection] || 0) + res.modifiedCount;
         continue;
       }
       const res = await this.conn.collection(collection).deleteMany(filter).catch(() => null);
-      if (res?.deletedCount) deleted[collection] = res.deletedCount;
+      if (res?.deletedCount) deleted[collection] = (deleted[collection] || 0) + res.deletedCount;
     }
 
     // Sessions and tokens must die immediately, not in 30 days.

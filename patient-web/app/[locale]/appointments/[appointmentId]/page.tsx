@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { extractAppointmentDetail, parseAppointmentId } from "@/lib/api/appointments";
+import { extractAppointmentDetail, parseAppointmentId, specialtyFor } from "@/lib/api/appointments";
 import { getPatientAppointment } from "@/lib/api/appointments-server";
 import { callPatientApi } from "@/lib/api/upstream";
 import { requirePatientAccess } from "@/lib/auth/session";
@@ -100,11 +100,12 @@ export default async function AppointmentDetailPage({ params }: Props) {
     { label: t("status"), value: statusLabel, icon: "check-circle", tone: statusTone(appointment.status) },
   ];
   if (appointment.slotStart) rows.push({ label: t("scheduled"), value: <LocalTimeLine iso={appointment.slotStart} locale={locale} />, icon: "calendar-dots", tone: SERVICE_ICONS.health.tone });
-  if (appointment.specialty) rows.push({ label: t("specialty"), value: appointment.specialty, icon: "stethoscope", tone: "blue" });
+  const specialty = specialtyFor(appointment, locale);
+  if (specialty) rows.push({ label: t("specialty"), value: specialty, icon: "stethoscope", tone: "blue" });
 
   return (
     <ConsultPage locale={locale} title={appointment.doctorName || serviceLabel} backHref={back}>
-      <Hero icon={visual?.icon} tone={visual?.tone} title={appointment.doctorName || serviceLabel} sub={appointment.specialty}>
+      <Hero icon={visual?.icon} tone={visual?.tone} title={appointment.doctorName || serviceLabel} sub={specialty}>
         <span className={styles.chips}>
           {mode && visual ? <StatusChip label={serviceLabel} tone={visual.tone} /> : null}
           <StatusChip label={statusLabel} tone={statusTone(appointment.status)} />

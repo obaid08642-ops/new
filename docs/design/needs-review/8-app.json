@@ -35,8 +35,8 @@
     "screen": "/emergency",
     "element": "view=crisis still renders the crisis contacts view",
     "file": "patient-app/app/emergency/index.tsx",
-    "line": 5,
-    "found": "[client] FIXED: the crisis view is gone, /emergency now redirects to /emergency/sos (index.tsx:5); the remaining SOS screens go with the removal PR (#1089/#1090)",
+    "line": 6,
+    "found": "[client] FIXED: the crisis view is gone; /emergency is the one urgent-help screen (tel button, number from GET /mental-health/urgent-help) and /emergency/sos, /sos-active and /tracking redirect to it (decision 14)",
     "suspect": "Client-side: later batch."
   },
   {

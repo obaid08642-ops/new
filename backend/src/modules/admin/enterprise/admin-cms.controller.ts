@@ -1,4 +1,5 @@
-import { BadRequestException, Body, Controller, Get, NotFoundException, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, NotFoundException, Optional, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { JwtAuthGuard, Roles, CurrentUser } from '../../../common/auth.guard';
@@ -26,6 +27,7 @@ export class AdminCmsController {
   constructor(
     @InjectConnection() private readonly conn: Connection,
     private readonly audit: AdminAuditService,
+    @Optional() private readonly events?: EventEmitter2,
   ) {}
 
   @Get('articles')
@@ -82,6 +84,7 @@ export class AdminCmsController {
         after: { title_ar: $set.title_ar },
       });
     }
+    this.events?.emit('article.changed', { id });
     return this.conn.collection('articles').findOne({ id }, { projection: { _id: 0 } });
   }
 
@@ -101,6 +104,7 @@ export class AdminCmsController {
       action: 'cms_article_publish', actor: me, target_type: 'article', target_id: id,
       reason, before: { status: before.status }, after: { status: 'PUBLISHED' },
     });
+    this.events?.emit('article.changed', { id });
     return { ok: true, id, status: 'PUBLISHED' };
   }
 
@@ -136,6 +140,7 @@ export class AdminCmsController {
       before: { status: 'PUBLISHED' }, after: { status: 'DRAFT' },
     });
     void b;
+    this.events?.emit('article.changed', { id });
     return { ok: true, id, status: 'DRAFT' };
   }
 }

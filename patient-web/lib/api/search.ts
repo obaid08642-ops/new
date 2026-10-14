@@ -69,6 +69,44 @@ export function extractSearchResults(payload: unknown, locale: string): SearchRe
   });
 }
 
+/** D-29: the search API's item types and the page's kind (the key of its row style and label). */
+const KIND_OF_TYPE: Record<string, string> = {
+  medicine: "Medicine",
+  doctor: "Doctor",
+  specialty: "Specialty",
+  lab_test: "Lab",
+  lab_package: "LabPackage",
+  radiology: "Radiology",
+  nursing: "Nursing",
+  article: "Article",
+};
+
+/**
+ * Rows of the grouped home search (`GET /search?q=&locale=` → `{ groups: [{ type, items }] }`). The name is
+ * already the one for the page's locale (the API picks it); `type` is the page's kind, translated by the page.
+ * A doctor's `sub` is the specialty slug; an article links by its slug, a specialty by its code.
+ */
+export function extractGroupedResults(payload: unknown): SearchResult[] {
+  const groups = payload && typeof payload === "object" && Array.isArray((payload as { groups?: unknown }).groups)
+    ? (payload as { groups: unknown[] }).groups : [];
+  return groups.flatMap((group) => {
+    const items = group && typeof group === "object" && Array.isArray((group as { items?: unknown }).items) ? (group as { items: unknown[] }).items : [];
+    return items.flatMap((value) => {
+      if (typeof value !== "object" || value === null || Array.isArray(value)) return [];
+      const row = value as Record<string, unknown>;
+      const kind = typeof row.type === "string" ? KIND_OF_TYPE[row.type] : undefined;
+      const slug = required(row.slug);
+      const code = required(row.code);
+      const id = kind === "Article" ? slug : kind === "Specialty" ? code : required(row.id);
+      const name = required(row.name);
+      if (!kind || id === null || name === null) return [];
+      const price = typeof row.price === "number" && Number.isFinite(row.price) && row.price > 0 ? String(row.price) : undefined;
+      const sub = kind === "Doctor" ? required(row.specialty) ?? undefined : undefined;
+      return [{ id, type: kind, typeEn: kind, name, nameEn: undefined, sub, subEn: undefined, rate: undefined, price }];
+    });
+  });
+}
+
 /** The longest query the page sends, in characters (not encoded bytes: an Arabic letter is 6 characters once percent-encoded). */
 export const MAX_QUERY_CHARS = 120;
 

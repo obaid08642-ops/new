@@ -8,6 +8,7 @@ import { PHARMACY_TONE } from '../../src/components/pharmacy/PharmacyKit';
 import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { pharmacyPolicyLines, usePublicPolicy } from '../../src/components/account/PolicyText';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { NotificationAsk } from '../../src/components/NotificationAsk';
 import { apiFetch, newIdempotencyKey } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
@@ -314,6 +315,7 @@ export default function BroadcastStatusScreen() {
         ) : open.length === 0 ? (
           <View style={{ gap: 12 }}>
             <Text style={{ ...scale(t, 'caption'), lineHeight: 24, color: c.text.secondary, textAlign: 'center' }}>{k('pharmacy.offers.waitingBody')}</Text>
+            <NotificationAsk bodyKey="notifAsk.offers" />
             <Button label={k('pharmacy.offers.refresh')} variant="secondary" size="md" fullWidth loading={refreshing} onPress={() => void load('manual')} theme={theme} />
           </View>
         ) : (

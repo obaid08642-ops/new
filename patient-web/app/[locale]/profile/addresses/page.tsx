@@ -62,7 +62,7 @@ export default async function AddressesPage({ params, searchParams }: Props) {
   return (
     <ConsultPage locale={locale} title={t("title")} backHref={back}>
       <SectionCard id="saved" title={t("listLabel")}>
-        {addresses.length === 0 ? <p className={`${forms.body} ${forms.muted}`}>{t("empty")}</p> : <AddressList addresses={addresses} />}
+        {addresses.length === 0 ? <p className={`${forms.body} ${forms.muted}`}>{t("empty")}</p> : <AddressList addresses={addresses} locale={locale} />}
       </SectionCard>
       <SectionCard id="add"><AddAddressForm locale={locale} /></SectionCard>
     </ConsultPage>

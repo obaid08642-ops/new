@@ -18,8 +18,18 @@ import styles from "@/components-next/pharmacy/pharmacy.module.css";
 
 type Props = {
   params: Promise<{ locale: string; category?: string[] }>;
-  searchParams: Promise<{ page?: string; q?: string }>;
+  searchParams: Promise<{ page?: string; q?: string; sort?: string }>;
 };
+
+/** #816: the orders the catalogue API accepts; anything else is the default popularity order. */
+const SORTS = [
+  { id: "popular", label: "sortPopular" }, // i18n-ok: label is a PharmacyBrowse message key
+  { id: "price_asc", label: "sortPriceAsc" }, // i18n-ok: label is a PharmacyBrowse message key
+  { id: "price_desc", label: "sortPriceDesc" }, // i18n-ok: label is a PharmacyBrowse message key
+  { id: "newest", label: "sortNewest" }, // i18n-ok: label is a PharmacyBrowse message key
+] as const;
+type Sort = (typeof SORTS)[number]["id"];
+const parseSort = (raw?: string): Sort => (SORTS.find((s) => s.id === raw)?.id ?? "popular");
 
 function parsePage(raw?: string) {
   const n = Number(raw || "1");
@@ -70,18 +80,19 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const sParams = await searchParams;
   const page = parsePage(sParams.page);
   const q = (sParams.q || "").trim();
+  const sort = parseSort(sParams.sort);
   const [main, sub] = decoded;
 
   const [tree, data] = await Promise.all([
     getPublicCategories(typedLocale),
-    getPublicCategoryProducts(typedLocale, main || "all", sub, page, q),
+    getPublicCategoryProducts(typedLocale, main || "all", sub, page, q, sort),
   ]);
 
   const isAll = !main || main === "all" || main === "الكل";
   const heading = q ? t("resultsFor", { query: q }) : isAll ? t("allTitle") : (sub || main);
   const totalProducts = data?.total ?? 0;
   const pages = Math.max(Math.ceil(totalProducts / (data?.limit || 24)), 1);
-  const qParam = q ? `&q=${encodeURIComponent(q)}` : "";
+  const qParam = `${q ? `&q=${encodeURIComponent(q)}` : ""}${sort !== "popular" ? `&sort=${sort}` : ""}`;
   const basePath = isAll
     ? `/${locale}/c`
     : `/${locale}/c/${encodeURIComponent(main)}${sub ? `/${encodeURIComponent(sub)}` : ""}`;
@@ -193,6 +204,14 @@ export default async function CategoryPage({ params, searchParams }: Props) {
             {subs.map(([name, count]) => (
               <ChipLink key={name} href={`/${locale}/c/${encodeURIComponent(activeCategory.name)}/${encodeURIComponent(name)}`} label={name} count={count} selected={sub === name} />
             ))}
+          </nav>
+        ) : null}
+        {totalProducts > 1 ? (
+          <nav aria-label={t("sortLabel")} className={styles.chips}>
+            {SORTS.map((o) => {
+              const query = [q ? `q=${encodeURIComponent(q)}` : "", o.id !== "popular" ? `sort=${o.id}` : ""].filter(Boolean).join("&");
+              return <ChipLink key={o.id} href={query ? `${basePath}?${query}` : basePath} label={t(o.label)} selected={sort === o.id} />;
+            })}
           </nav>
         ) : null}
         {totalProducts > 0 ? <p className={styles.phoneCount}>{t("productsCount", { count: totalProducts })}</p> : null}

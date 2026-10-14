@@ -9,6 +9,7 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { Logger } from '@nestjs/common';
 import { CurrentUser, Public, JwtAuthGuard, SelfService } from '../../common/auth.guard';
 import { UploadDto, UploadSuggestionImageDto } from './storage.dto';
+import { Purpose, UploadSecurityService } from './upload-security.service';
 
 export enum StorageBackend { BASE64 = 'base64', S3 = 's3', CLOUDINARY = 'cloudinary', SUPABASE = 'supabase' }
 
@@ -129,7 +130,10 @@ export class StorageService {
    * document flows (KYC, images) keep working in dev/staging without object storage.
    */
   private adapter: StorageAdapter = S3R2Adapter.configured() ? new S3R2Adapter() : new Base64Adapter();
-  constructor(@InjectModel('StorageObject') private readonly model: Model<StorageObject>) {
+  constructor(
+    @InjectModel('StorageObject') private readonly model: Model<StorageObject>,
+    private readonly uploadSecurity: UploadSecurityService,
+  ) {
     if (!S3R2Adapter.configured()) {
       // eslint-disable-next-line no-console
       console.warn('S3 storage not configured (S3_BUCKET/S3_ENDPOINT/keys) — falling back to inline base64 storage');
@@ -171,12 +175,19 @@ export class StorageService {
         return;
       }
 
-      // R2 asset? → DeleteObjectCommand
+      // R2 asset? → DeleteObjectCommand. The saved URL is either the public CDN URL or a presigned URL on the
+      // storage endpoint (D-32: the admin page saves what /storage/:id/signed-url returned); the query string
+      // and fragment are not part of the key. Only objects of our own bucket are ever deleted.
       if (!S3R2Adapter.configured()) return;
-      const publicBase = process.env.S3_PUBLIC_BASE_URL || `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}`;
-      if (!url.startsWith(`${publicBase}/`)) return; // not our object — ignore
-      const key = url.slice(publicBase.length + 1);
-      if (!key) return;
+      const clean = String(url).split('#')[0].split('?')[0];
+      const bases = [process.env.S3_PUBLIC_BASE_URL, `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}`]
+        .filter((b): b is string => typeof b === 'string' && b.length > 0)
+        .map((b) => b.replace(/\/+$/, ''));
+      const base = bases.find((b) => clean.startsWith(`${b}/`));
+      if (!base) return; // not our object — ignore
+      let key = clean.slice(base.length + 1);
+      try { key = decodeURIComponent(key); } catch { /* keep as is */ }
+      if (!key || key.includes('..')) return;
       const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
       const client = new (require('@aws-sdk/client-s3').S3Client)({
         region: process.env.S3_REGION || 'auto',
@@ -195,25 +206,65 @@ export class StorageService {
     }
   }
 
+  /**
+   * D-32: storage objects replaced by newer ones. Each old row is marked deleted (its inline base64 dropped) and its
+   * stored object removed, except when a new row holds the same key (an overwrite already replaced the content, and
+   * deleting it would remove the new file).
+   */
+  async retire(oldIds: string[], newIds: string[] = []): Promise<number> {
+    const ids = [...new Set(oldIds.filter((id) => typeof id === 'string' && id && !newIds.includes(id)))];
+    if (!ids.length) return 0;
+    const keep = new Set(
+      (await this.model.find({ id: { $in: newIds.filter((id) => typeof id === 'string' && id) } }, { external_key: 1 }).lean())
+        .map((r: any) => r.external_key).filter(Boolean),
+    );
+    const rows: any[] = await this.model.find({ id: { $in: ids }, deleted: { $ne: true } }).lean();
+    for (const o of rows) {
+      if (o.external_key && !keep.has(o.external_key)) {
+        try {
+          if (o.backend === 'cloudinary' && this.cloudinaryConfigured()) {
+            const cloudinary = require('cloudinary').v2;
+            cloudinary.config({ cloud_name: process.env.CLOUDINARY_CLOUD_NAME, api_key: process.env.CLOUDINARY_API_KEY, api_secret: process.env.CLOUDINARY_API_SECRET });
+            await cloudinary.uploader.destroy(o.external_key, { type: 'authenticated', resource_type: 'image' }).catch(() => null);
+          } else {
+            await this.adapter.delete(o);
+          }
+        } catch (e: any) {
+          this.logger.warn(`retire: object ${o.external_key} not deleted: ${e?.message}`);
+        }
+      }
+      await this.model.updateOne({ id: o.id }, { $set: { deleted: true }, $unset: { data_base64: '' } });
+    }
+    return rows.length;
+  }
+
   /** Upload a file. Returns { id }.
    *  target='cloudinary' routes provider/user content (profile images, clinic
    *  galleries, KYC documents) to Cloudinary; the default stays R2 so the
    *  medicine catalogue is never affected. */
-  async upload(input: { owner_account_id: string; owner_kind?: string; mime: string; data_base64: string; original_name?: string; visibility?: 'private' | 'public_read'; customKey?: string; target?: 'r2' | 'cloudinary' }) {
+  async upload(input: { owner_account_id: string; owner_kind?: string; mime: string; data_base64: string; original_name?: string; visibility?: 'private' | 'public_read'; customKey?: string; target?: 'r2' | 'cloudinary'; purpose?: Purpose }) {
     if (!ALLOWED_MIME.has(input.mime)) throw new BadRequestException('unsupported mime: ' + input.mime);
-    const approxBytes = Math.floor((input.data_base64?.length || 0) * 0.75);
-    if (approxBytes > MAX_BYTES) throw new BadRequestException('file exceeds 8MB limit');
+    // 16.5: the type comes from the bytes, the name is random and EXIF/GPS never survives.
+    const inspected = await this.uploadSecurity.inspect({
+      purpose: input.purpose || 'lab_report',
+      declared_mime: input.mime,
+      data_base64: input.data_base64,
+      original_name: input.original_name,
+    });
+    const dataBase64 = inspected.bytes.toString('base64');
+    const approxBytes = inspected.size_bytes;
+    if (approxBytes > MAX_BYTES) throw new BadRequestException('file exceeds the hard size limit');
     if (input.target === 'cloudinary') {
       if (!this.cloudinaryConfigured()) throw new BadRequestException('CLOUDINARY_NOT_CONFIGURED');
-      return this.uploadCloudinary(input);
+      return this.uploadCloudinary({ ...input, data_base64: dataBase64 });
     }
     // Authenticated uploads have no client-selectable public visibility. A
     // separate reviewed publication workflow is required for catalogue media.
     if (!S3R2Adapter.configured()) throw new ServiceUnavailableException('PRIVATE_OBJECT_STORAGE_REQUIRED');
-    const checksum = crypto.createHash('sha256').update(input.data_base64).digest('hex');
+    const checksum = crypto.createHash('sha256').update(inspected.bytes).digest('hex');
     let adapterRes;
     try {
-      adapterRes = await this.adapter.put({ mime: input.mime, data_base64: input.data_base64, original_name: input.original_name || 'file', customKey: input.customKey });
+      adapterRes = await this.adapter.put({ mime: input.mime, data_base64: dataBase64, original_name: inspected.random_name, customKey: input.customKey });
     } catch (e: any) {
       this.logger.error(`S3/R2 put failed (${e.message}) — private upload refused`);
       throw new ServiceUnavailableException('PRIVATE_OBJECT_STORAGE_UNAVAILABLE');
@@ -221,7 +272,7 @@ export class StorageService {
     const obj = await this.model.create({
       backend: adapterRes.backend,
       mime: input.mime,
-      original_name: input.original_name || 'file',
+      original_name: inspected.random_name,
       size_bytes: approxBytes,
       checksum_sha256: checksum,
       data_base64: adapterRes.data_base64,
@@ -234,11 +285,31 @@ export class StorageService {
     return { id: obj.id, mime: obj.mime, size_bytes: obj.size_bytes, url: `/api/v1/storage/${obj.id}` };
   }
 
+  /**
+   * A-0: a pharmacy may open a patient's prescription file only when that file is attached to a
+   * pharmacy order of the same patient AND the pharmacy was notified about that order (broadcast
+   * recipient) or holds an allocation of it. Every other pharmacy keeps getting 403.
+   */
+  private async orderPharmacyMayRead(o: any, requester: { id: string; role?: string }): Promise<boolean> {
+    if (!requester?.id || !o?.id || !o?.owner_account_id) return false;
+    const db: any = (this.model as any).db;
+    if (!db?.collection) return false;
+    const uri = `/api/v1/storage/${encodeURIComponent(o.id)}`;
+    const orders: any[] = await db.collection('pharmacy_orders')
+      .find({ patient_account_id: { $eq: String(o.owner_account_id) }, 'prescription_attachments.uri': { $eq: uri } }, { projection: { _id: 0, id: 1 } })
+      .limit(50).toArray();
+    const orderIds = orders.map((r) => r.id).filter((v) => typeof v === 'string');
+    if (!orderIds.length) return false;
+    const who = { order_id: { $in: orderIds }, pharmacy_account_id: { $eq: String(requester.id) } };
+    if (await db.collection('pharmacy_broadcast_recipients').findOne(who, { projection: { _id: 1 } })) return true;
+    return !!(await db.collection('pharmacy_allocations').findOne(who, { projection: { _id: 1 } }));
+  }
+
   /** Fetch object — enforces owner_account_id privacy unless visibility=public_read. */
   async read(id: string, requester: { id: string; role?: string }) {
     const o = await this.model.findOne({ id, deleted: false });
     if (!o) throw new NotFoundException();
-    if (!canRead(o, requester)) throw new ForbiddenException();
+    if (!canRead(o, requester) && !(await this.orderPharmacyMayRead(o, requester))) throw new ForbiddenException();
     const data = await this.adapter.get(o);
     if (o.visibility !== 'public_read') delete (data as any).external_url;
     return { id: o.id, mime: o.mime, original_name: o.original_name, size_bytes: o.size_bytes, ...data };
@@ -249,7 +320,7 @@ export class StorageService {
   async signedUrl(id: string, requester: { id: string; role?: string }) {
     const o: any = await this.model.findOne({ id, deleted: false });
     if (!o) throw new NotFoundException();
-    if (!canRead(o, requester)) throw new ForbiddenException();
+    if (!canRead(o, requester) && !(await this.orderPharmacyMayRead(o, requester))) throw new ForbiddenException();
 
     // Cloudinary-hosted: build signed delivery URL
     if (o.backend === 'cloudinary' && o.external_key) {
@@ -428,7 +499,7 @@ export class StorageController {
 @Module({
   imports: [MongooseModule.forFeature([{ name: 'StorageObject', schema: StorageObjectSchema }])],
   controllers: [StorageController],
-  providers: [StorageService],
-  exports: [StorageService, MongooseModule],
+  providers: [StorageService, UploadSecurityService],
+  exports: [StorageService, UploadSecurityService, MongooseModule],
 })
 export class StorageModule {}

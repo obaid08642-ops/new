@@ -32,14 +32,22 @@ describe("pharmacy browse building blocks", () => {
   });
 
   it("the product grid draws design-system cards as links to the product page, without a style attribute", () => {
-    const html = renderToStaticMarkup(<ProductGrid locale="ar" items={[item(), item({ id: "p2", slug: "a b", oldPrice: 40, rx: true })]} />);
+    const html = renderToStaticMarkup(<ProductGrid locale="ar" items={[item(), item({ id: "p2", slug: "a b", oldPrice: 40 }), item({ id: "p3", slug: "rx-one", oldPrice: 40, rx: true })]} />);
     expect(html).toContain('href="/ar/p/paracetamol-500"');
     expect(html).toContain('href="/ar/p/a%20b"');
-    expect((html.match(/class="nabd-product-card"/g) || []).length).toBe(2);
+    expect((html.match(/class="nabd-product-card"/g) || []).length).toBe(3);
     expect(html).not.toContain("style=");
     expect(html).toContain("discount:39"); // 24.50 against 40: only the card with an old price above its price
     expect((html.match(/discount:/g) || []).length).toBe(1);
     expect(html).toContain("rxRequired");
+  });
+
+  it("decision 10: a prescription card shows no discount or cheaper badge even when the answer carries an old price", () => {
+    const html = renderToStaticMarkup(<ProductGrid locale="en" items={[item({ oldPrice: 40, rx: true, badge: "cheaper" })]} />);
+    expect(html).toContain("rxRequired");
+    expect(html).not.toContain("discount:");
+    expect(html).not.toContain("nabd-product-card__discount");
+    expect(html).not.toContain("cheaper");
   });
 
   it("a product with no price says so and cannot be added: no invented 0.00", () => {

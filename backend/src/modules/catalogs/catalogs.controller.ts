@@ -4,6 +4,7 @@ import { Connection } from 'mongoose';
 import { Public, JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
+import { PublicCache } from '../../common/public-cache.decorator';
 import { CATALOG_COLLECTIONS } from './catalog-collections';
 import { IsBoolean, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
@@ -40,7 +41,10 @@ const CATALOGS = ['insurance', 'labs', 'radiology', 'nursing', 'specialties', 'm
 export class CatalogsController {
   constructor(@InjectConnection() private readonly conn: Connection) {}
 
+  // 14.7: reference catalogues are anonymous and identical for every caller (both languages in one
+  // body), so they keep the Redis/edge cache they had before the per-route policy.
   @Public()
+  @PublicCache(300, ['catalogs'])
   @Get(':type')
   async getCatalog(@Param('type') type: string) {
     if (!CATALOGS.includes(type as any)) throw new NotFoundException('catalog_not_found');

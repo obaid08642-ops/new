@@ -8,6 +8,7 @@ import { getDirection, isLocale } from "@/lib/i18n";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { Notice, RowCard } from "@/components-next/consult/consult-parts";
+import { ShareButton } from "@/components-next/share-button";
 import { RecordRow } from "@/components-next/care/care-kit";
 import { RowsCard, SectionHead } from "@/components-next/health/health-kit";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
@@ -104,6 +105,7 @@ export default async function OfferDetailPage({ params }: Props) {
           </span>
         ) : null}
         {endDate ? <p className={styles.fieldHint}>{t("validUntil", { date: endDate })}</p> : startDate ? <p className={styles.fieldHint}>{t("startsOn", { date: startDate })}</p> : null}
+        <ShareButton title={title} />
       </section>
       {inclusions.length > 0 ? (
         <>

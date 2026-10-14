@@ -1,3 +1,4 @@
+import { escapeRegex } from '../../common/slug.util';
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException, Logger, Inject, Optional } from '@nestjs/common';
 import { Model, Connection } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -11,6 +12,7 @@ import { SlotLocksService } from '../slot-locks/slot-locks.module';
 import { AppointmentRepository } from "./repositories/appointment.repository";
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
 import { hasEffectiveRole } from '../../common/auth.guard';
+import { DEFAULT_REFUND_POLICY } from '../refund-policy/refund-policy.defaults';
 
 /** Platform fee schedule (SAR). Move to DB/config when admin dashboard supports it. */
 const PLATFORM_FEES = {
@@ -57,6 +59,69 @@ export class AppointmentsService {
   }
 
   /** ===== Create ===== */
+
+  /**
+   * 660: resolve a prescription line to its catalogue medicine id by exact name
+   * (any stored language). Null when the line names no catalogue item.
+   */
+  private async resolvePrescriptionMedicineId(name: unknown): Promise<string | null> {
+    const needle = String(name || '').trim();
+    if (!needle) return null;
+    try {
+      const col = (this.connection as any)?.collection?.('medicines') ?? (this.connection as any)?.db?.collection?.('medicines');
+      if (!col) return null;
+      // One exact (case-insensitive) name lookup, never a scan of the whole ~21k catalogue in memory.
+      const exact = new RegExp(`^${escapeRegex(needle)}$`, 'i');
+      const or = ['name_ar', 'name_en', 'translations.ur.name', 'translations.hi.name', 'translations.bn.name', 'translations.tl.name', 'translations.fil.name']
+        .map((field) => ({ [field]: exact }));
+      const hit: any = await col.findOne({ $or: or }, { projection: { _id: 0, id: 1 } });
+      return hit?.id || null;
+    } catch {
+      return null;
+    }
+  }
+
+  /** 661/683: the consultation outcome's lab + radiology referrals, if the doctor issued any. */
+  private async outcomeReferrals(appt: any): Promise<{ lab_tests: string[]; radiology_scans: string[] } | null> {
+    try {
+      const col = (this.connection as any)?.collection?.('encounterreferrals') ?? (this.connection as any)?.db?.collection?.('encounterreferrals');
+      if (!col || !appt?._id) return null;
+      const ref: any = await col.findOne({ appointment_id: appt._id });
+      if (!ref) return null;
+      return { lab_tests: ref.requested_lab_tests || [], radiology_scans: ref.requested_radiology_scans || [] };
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * D-38: the first online (video) consultation needs the current telehealth_consent.
+   * Throws telehealth_consent_required when the patient has not accepted it. When the
+   * deployment configures no such policy (or the connection double has no collections),
+   * booking proceeds as before.
+   */
+  private async assertTelehealthConsent(patientId: string): Promise<void> {
+    let policies: any = null;
+    let acceptances: any = null;
+    try {
+      policies = (this.connection as any)?.collection?.('legal_policies')
+        ?? (this.connection as any)?.db?.collection?.('legal_policies');
+      acceptances = (this.connection as any)?.collection?.('legal_acceptances')
+        ?? (this.connection as any)?.db?.collection?.('legal_acceptances');
+    } catch {
+      return;
+    }
+    if (!policies || !acceptances) return;
+    const policy: any = await policies.findOne({ key: 'telehealth_consent' });
+    if (!policy || policy.requires_acceptance === false) return;
+    const accepted: any = await acceptances.findOne({
+      user_id: patientId,
+      policy_key: 'telehealth_consent',
+      version: policy.version,
+    });
+    if (!accepted) throw new BadRequestException('telehealth_consent_required');
+  }
+
   async create(user: any, body: {
     doctor_id: string;
     service_type: ServiceType;
@@ -70,6 +135,7 @@ export class AppointmentsService {
     insurance_member_id?: string;
     for_member_id?: string; // family booking on behalf of a member
     slot_lock_id?: string; // optional 10-min hold from POST /slot-locks/reserve (consumed on success, released on failure)
+    follow_up_of?: string; // follow-up appointment link to original appointment (same patient and doctor)
   }) {
     if (!body?.doctor_id || !body?.service_type || !body?.slot_start) {
       throw new BadRequestException('doctor_id, service_type, slot_start required');
@@ -97,6 +163,11 @@ export class AppointmentsService {
     if (!doctor) throw new NotFoundException('doctor_not_found');
     if (!doctor.consultation_modes?.includes(body.service_type)) {
       throw new BadRequestException(`doctor does not support service_type=${body.service_type}`);
+    }
+    // D-38: the first online (video) consultation needs telehealth_consent. Skipped when
+    // the deployment configures no such policy, so unit doubles without collections keep working.
+    if (body.service_type === 'video') {
+      await this.assertTelehealthConsent(patientId);
     }
     const slotStart = new Date(body.slot_start);
     if (isNaN(slotStart.getTime()) || slotStart.getTime() < Date.now() + 5 * 60_000) {
@@ -168,6 +239,19 @@ export class AppointmentsService {
         throw new BadRequestException('NO_INSURANCE_POLICY');
       }
     }
+
+    // Follow-up appointment: validate that the original appointment exists,
+    // belongs to the same patient and doctor, and is in a completed state.
+    let followUpOf: string | undefined;
+    if (body.follow_up_of) {
+      const original = await this.apptModel.findOne({ id: body.follow_up_of });
+      if (!original) throw new NotFoundException('original_appointment_not_found');
+      if (original.patient_id !== patientId) throw new ForbiddenException('follow_up_patient_mismatch');
+      if (original.doctor_id !== doctor.id) throw new ForbiddenException('follow_up_doctor_mismatch');
+      if (original.status !== APPT_STATES.COMPLETED) throw new BadRequestException('original_appointment_not_completed');
+      followUpOf = original.id;
+    }
+
     try {
       const appt = await this.apptModel.create({
         patient_id: patientId,
@@ -190,6 +274,7 @@ export class AppointmentsService {
         payment_method: pm,
         insurance_provider: body.insurance_provider,
         insurance_member_id: body.insurance_member_id,
+        follow_up_of: followUpOf,
         state_history: [
           { state: APPT_STATES.PENDING, at: new Date(), by_user_id: user.id, by_role: user.role || UserRole.PATIENT, note: 'created' },
         ],
@@ -298,6 +383,30 @@ export class AppointmentsService {
 
     const obj: any = appt.toObject();
     
+    // B-1: follow-up linkage, both directions. `follow_up_of` is stored at
+    // booking time (same patient + doctor, original completed — validated in
+    // create); the original also lists its follow-ups so clients can render
+    // the "follow-up link to the original appointment" (#802 app, #807 web).
+    // Follow-ups share this appointment's patient and doctor by construction,
+    // so no additional access check is needed beyond the one above.
+    // Enrichment only: a lookup failure must never break the core read.
+    let followUps: any[] = [];
+    try {
+      const children: any[] = await this.apptModel
+        .find({ follow_up_of: obj.id }, { _id: 0, __v: 0 })
+        .sort({ slot_start: 1 })
+        .lean();
+      followUps = (children || []).map((c: any) => ({
+        id: c.id,
+        slot_start: c.slot_start,
+        status: c.status,
+        service_type: c.service_type,
+      }));
+    } catch {
+      followUps = [];
+    }
+    obj.follow_ups = followUps;
+    
     // Q-16: video appointments carry what the call screen needs (room route).
     if (obj.service_type === 'video') {
       const joinable = [APPT_STATES.CONFIRMED, APPT_STATES.CHECKED_IN, APPT_STATES.IN_PROGRESS].includes(obj.status);
@@ -320,6 +429,14 @@ export class AppointmentsService {
 
     
     // No queue or wait-time source exists: nothing is invented here (the waiting room shows the wait only when sent).
+
+    // D-26: every booking the patient reads says what a cancel right now would refund.
+    if (user?.role === UserRole.PATIENT || user?.id === appt.patient_id) {
+      const { refundPercentage } = await this.calculateRefund(appt, user);
+      obj.cancellation = {
+        refund_now: { percent: refundPercentage, amount: Math.round((Number(appt.total_price || 0) * refundPercentage) / 100) },
+      };
+    }
 
     return obj;
   }
@@ -356,34 +473,7 @@ export class AppointmentsService {
     if (!appt) throw new NotFoundException();
     await this.assertAppointmentAccess(appt, user);
 
-    // Cancellation & Refund Rules
-    let refundPercentage = 0;
-    let penaltyAmount = 0;
-    let refundDestination = 'source';
-
-    const now = new Date();
-    const slotStart = new Date(appt.slot_start);
-    const hoursUntilAppointment = (slotStart.getTime() - now.getTime()) / (1000 * 60 * 60);
-
-    if (isNoShow || reason === 'no_show') {
-      refundPercentage = 0; // Patient No-Show: 0% refund
-    } else if (user.role === UserRole.PATIENT || user.id === appt.patient_id) {
-      if (hoursUntilAppointment > 24) {
-        refundPercentage = 100;
-        refundDestination = 'source';
-      } else {
-        refundPercentage = 50;
-        refundDestination = 'wallet';
-      }
-    } else if (hasEffectiveRole(user, UserRole.DOCTOR) || user.id === appt.doctor_user_id) {
-      refundPercentage = 100;
-      refundDestination = 'source';
-      penaltyAmount = 50; // 50 SAR penalty applied to Doctor's wallet
-    } else if (hasEffectiveRole(user, UserRole.HOSPITAL) || hasEffectiveRole(user, UserRole.ADMIN)) {
-      // provider-side cancellation by the facility (or admin): the patient is refunded in full
-      refundPercentage = 100;
-      refundDestination = 'source';
-    }
+    const { refundPercentage, refundDestination, penaltyAmount } = await this.calculateRefund(appt, user, reason, isNoShow);
 
     appt.cancellation_reason = reason || '';
     appt.refund_percentage = refundPercentage;
@@ -403,6 +493,63 @@ export class AppointmentsService {
     });
 
     return this.transition(id, APPT_STATES.CANCELLED, user, reason);
+  }
+
+  /**
+   * Preview the refund that would be issued if the caller cancelled now (same rules as cancel).
+   * Does NOT modify the appointment.
+   */
+  async previewRefund(id: string, user: any): Promise<{ refund_percentage: number; refund_destination: string; penalty_amount: number; estimated_amount: number }> {
+    const appt = await this.apptModel.findOne({ id });
+    if (!appt) throw new NotFoundException();
+    await this.assertAppointmentAccess(appt, user);
+    const { refundPercentage, refundDestination, penaltyAmount } = await this.calculateRefund(appt, user);
+    const estimatedAmount = Math.round((Number(appt.total_price || 0) * refundPercentage) / 100);
+    return { refund_percentage: refundPercentage, refund_destination: refundDestination, penalty_amount: penaltyAmount, estimated_amount: estimatedAmount };
+  }
+
+  private async getRefundPolicy(): Promise<any> {
+    if (!this.connection || typeof (this.connection as any).collection !== 'function') {
+      return DEFAULT_REFUND_POLICY;
+    }
+    const doc: any = await this.connection.collection('system_configs').findOne({ key: 'refund_policy' }, { projection: { _id: 0, value: 1 } });
+    return doc?.value || DEFAULT_REFUND_POLICY;
+  }
+
+  // Cancellation & Refund Rules (shared by cancel and previewRefund)
+  private async calculateRefund(appt: any, user: any, reason?: string, isNoShow = false): Promise<{ refundPercentage: number; refundDestination: string; penaltyAmount: number }> {
+    let refundPercentage = 0;
+    let penaltyAmount = 0;
+    let refundDestination = 'source';
+
+    const policy = await this.getRefundPolicy();
+    const consultationPolicy = policy.consultation || DEFAULT_REFUND_POLICY.consultation;
+
+    const slotStart = new Date(appt.slot_start);
+    const hoursUntilAppointment = (slotStart.getTime() - Date.now()) / (1000 * 60 * 60);
+
+    if (isNoShow || reason === 'no_show') {
+      refundPercentage = consultationPolicy.patient_no_show_percent ?? 0;
+    } else if (user.role === UserRole.PATIENT || user.id === appt.patient_id) {
+      if (hoursUntilAppointment >= (consultationPolicy.full_refund_min_hours ?? 2)) {
+        refundPercentage = 100;
+        refundDestination = 'source';
+      } else {
+        refundPercentage = consultationPolicy.late_refund_percent ?? 50;
+        // B-11 legacy read model: late patient cancels read 'wallet'; the money
+        // itself always goes back through the gateway (never a wallet credit).
+        refundDestination = 'wallet';
+      }
+    } else if (hasEffectiveRole(user, UserRole.DOCTOR) || user.id === appt.doctor_user_id) {
+      refundPercentage = 100;
+      refundDestination = 'source';
+      penaltyAmount = 50; // 50 SAR penalty applied to Doctor's wallet
+    } else if (hasEffectiveRole(user, UserRole.HOSPITAL) || hasEffectiveRole(user, UserRole.ADMIN)) {
+      // provider-side cancellation by the facility (or admin): the patient is refunded in full
+      refundPercentage = 100;
+      refundDestination = 'source';
+    }
+    return { refundPercentage, refundDestination, penaltyAmount };
   }
 
   async confirm(id: string, user: any) {
@@ -444,9 +591,15 @@ export class AppointmentsService {
     if (!appt) throw new NotFoundException();
     await this.assertAppointmentAccess(appt, user);
     if (body && (body.diagnosis || body.notes || body.recommendations || (Array.isArray(body.prescription) && body.prescription.length))) {
+      // 660: keep the catalogue id per line (sent by the doctor app, else resolved by name).
+      const lines: any[] = [];
+      for (const line of (Array.isArray(body.prescription) ? body.prescription : [])) {
+        const name = line?.name;
+        lines.push({ ...line, medicine_id: line?.medicine_id || await this.resolvePrescriptionMedicineId(name) });
+      }
       appt.summary = {
         diagnosis: body.diagnosis, notes: body.notes, recommendations: body.recommendations,
-        prescription: Array.isArray(body.prescription) ? body.prescription : [],
+        prescription: lines,
         follow_up_recommended: !!body.follow_up_recommended,
         follow_up_window_days: body.follow_up_window_days != null ? Number(body.follow_up_window_days) : undefined,
         written_at: new Date(),
@@ -493,7 +646,13 @@ export class AppointmentsService {
     if (!appt.summary || !(appt.summary.diagnosis || appt.summary.notes || (appt.summary.prescription || []).length)) {
       throw new NotFoundException('summary not available yet');
     }
-    return { doctor_id: appt.doctor_id, ...appt.summary };
+    // 660: backfill catalogue ids for legacy lines; 661/683: attach outcome referrals.
+    const prescription: any[] = [];
+    for (const line of appt.summary.prescription || []) {
+      prescription.push({ ...line, medicine_id: line?.medicine_id || await this.resolvePrescriptionMedicineId(line?.name) });
+    }
+    const referrals = await this.outcomeReferrals(appt);
+    return { doctor_id: appt.doctor_id, ...appt.summary, prescription, ...(referrals ? { referrals } : {}) };
   }
 
   async reschedule(id: string, user: any, body: { slot_start: string }) {
@@ -504,6 +663,34 @@ export class AppointmentsService {
     }
     if ([APPT_STATES.CANCELLED, APPT_STATES.COMPLETED, APPT_STATES.RESCHEDULED].includes(appt.status)) {
       throw new BadRequestException('cannot_reschedule');
+    }
+    // D-26: one free reschedule, only while the current slot is far enough out.
+    const policy = await this.getRefundPolicy();
+    const freeReschedules = Number(policy?.consultation?.free_reschedules ?? 1);
+    const minHours = Number(policy?.consultation?.free_reschedule_min_hours ?? 2);
+    const hoursToSlot = (new Date(appt.slot_start).getTime() - Date.now()) / (1000 * 60 * 60);
+    if (!(hoursToSlot >= minHours)) {
+      throw new BadRequestException('reschedule_too_late_for_free_reschedule');
+    }
+    let priorReschedules = 0;
+    try {
+      let cursor: any = typeof appt?.toObject === 'function' ? appt.toObject() : appt;
+      const seen = new Set<string>([String(cursor?.id)]);
+      for (let i = 0; i < 10; i++) {
+        const prevId = cursor?.rescheduled_from_id;
+        if (typeof prevId !== 'string' || !prevId || seen.has(prevId)) break;
+        seen.add(prevId);
+        priorReschedules++;
+        const q: any = this.apptModel.findOne({ id: prevId }, { _id: 0, id: 1, rescheduled_from_id: 1 });
+        const prev: any = q && typeof q.lean === 'function' ? await q.lean() : await q;
+        if (!prev) break;
+        cursor = typeof prev?.toObject === 'function' ? prev.toObject() : prev;
+      }
+    } catch {
+      priorReschedules = 0;
+    }
+    if (priorReschedules >= freeReschedules) {
+      throw new BadRequestException('no_free_reschedules_left');
     }
     const newStart = new Date(body.slot_start);
     if (isNaN(newStart.getTime()) || newStart.getTime() < Date.now() + 5 * 60_000) {

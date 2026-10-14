@@ -9,18 +9,21 @@ import { useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { CareBar, ltr, CareHero, CareScreen, FormCard, PrimaryAction, localDateKey, numberOrUndefined, LIME_TONE } from './CareKit';
+import { parseNutritionPlan } from '../../utils/nutrition-plan';
 
 /**
  * Nutrition (board CareHub, merge map section 5): one hub with the tabs Today (calories, macros, water, meals) and Target
  * (the profile form) in `?tab=`, and the log-meal form. GET /nutrition/daily-summary?date, GET /nutrition/meals?date,
- * POST /nutrition/water, GET/POST /nutrition/profile, POST /nutrition/meals. The Plan tab waits for an endpoint
- * (GET /nutrition/plan does not exist) and is not drawn.
+ * POST /nutrition/water, GET/POST /nutrition/profile, POST /nutrition/meals. The Plan tab is the AI nutrition plan (owner
+ * decision 2026-10-05): GET /nutrition/plan, POST /nutrition/plan/generate from the profile, and "follow up with a
+ * nutritionist" (the doctor search on the nutrition specialty).
  */
 
 export const NUTRITION_HUB = '/nutrition/hub' as Href;
 export const NUTRITION_LOG_MEAL = '/nutrition/log-meal' as Href;
 
-const TABS = ['today', 'target'] as const;
+const TABS = ['today', 'plan', 'target'] as const;
+const NUTRITIONISTS = '/search?view=doctors&specialty=nutrition' as Href;
 type Tab = (typeof TABS)[number];
 const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack'] as const;
 type MealType = (typeof MEAL_TYPES)[number];
@@ -62,9 +65,63 @@ export function NutritionHubView() {
   const [tab, setTab] = useTab<Tab>(TABS, 'today');
   return (
     <CareScreen title={k('care.nut.title')} testID="nutrition-hub">
-      <HealthTabs testID="nutrition-tabs" tabs={[{ key: 'today', label: k('care.nut.tabToday') }, { key: 'target', label: k('care.nut.tabTarget') }]} value={tab} onChange={setTab} />
-      {tab === 'today' ? <TodayTab onSetTarget={() => setTab('target')} /> : <TargetTab onSaved={() => setTab('today')} />}
+      <HealthTabs testID="nutrition-tabs" tabs={[{ key: 'today', label: k('care.nut.tabToday') }, { key: 'plan', label: k('care.nut.tabPlan') }, { key: 'target', label: k('care.nut.tabTarget') }]} value={tab} onChange={setTab} />
+      {tab === 'today' ? <TodayTab onSetTarget={() => setTab('target')} /> : tab === 'plan' ? <PlanTab onSetTarget={() => setTab('target')} /> : <TargetTab onSaved={() => setTab('today')} />}
     </CareScreen>
+  );
+}
+
+function PlanTab({ onSetTarget }: { onSetTarget: () => void }) {
+  const { k, num } = useScreenUi();
+  const remote = useRemote(async () => parseNutritionPlan(await apiFetch('/nutrition/plan')), [], 'nutrition:plan');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<'profile' | 'quota' | 'failed' | null>(null);
+  const plan = remote.data;
+
+  const generate = async () => {
+    if (busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const created = parseNutritionPlan(await apiFetch('/nutrition/plan/generate', { method: 'POST', body: '{}' }));
+      if (created) remote.setData(created);
+      else setError('failed');
+    } catch (e) {
+      const code = String((e as { message?: unknown } | null)?.message ?? '');
+      if (!code.includes('nutrition_profile_required')) logError('nutrition:plan:generate', e);
+      setError(code.includes('nutrition_profile_required') ? 'profile' : code.includes('ai_quota_exceeded') ? 'quota' : 'failed');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Gate status={remote.status} onRetry={() => void remote.reload()}>
+      {plan ? (
+        <>
+          <Notice tone="info" text={k('care.nut.planNotice')} testID="nutrition-plan-notice" />
+          {plan.days.map((day) => (
+            <Panel key={day.day} testID={`nutrition-plan-day-${day.day}`}>
+              {day.meals.map((meal, index) => (
+                <Row key={index} icon="bowl-food" tone={LIME_TONE} title={meal} caption={index === 0 ? k('care.nut.planDay', { n: num(day.day) }) : undefined} last={index === day.meals.length - 1} />
+              ))}
+            </Panel>
+          ))}
+        </>
+      ) : (
+        <Notice tone="info" text={k('care.nut.planEmpty')} testID="nutrition-plan-empty" />
+      )}
+      {error === 'profile' ? (
+        <>
+          <Notice tone="warning" text={k('care.nut.planNeedsProfile')} testID="nutrition-plan-needs-profile" />
+          <PrimaryAction label={k('care.nut.tabTarget')} variant="outline" onPress={onSetTarget} />
+        </>
+      ) : null}
+      {error === 'quota' ? <Notice tone="warning" text={k('care.nut.planQuota')} /> : null}
+      {error === 'failed' ? <Notice tone="danger" text={k('care.nut.planFailed')} testID="nutrition-plan-failed" /> : null}
+      <PrimaryAction label={plan ? k('care.nut.planRegenerate') : k('care.nut.planGenerate')} variant={plan ? 'outline' : 'primary'} loading={busy} onPress={() => void generate()} testID="nutrition-plan-generate" />
+      <PrimaryAction label={k('care.nut.planNutritionist')} variant="outline" onPress={() => router.push(NUTRITIONISTS)} testID="nutrition-plan-nutritionist" />
+    </Gate>
   );
 }
 

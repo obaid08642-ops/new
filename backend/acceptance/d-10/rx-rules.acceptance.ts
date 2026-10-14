@@ -13,7 +13,9 @@
 //      its name (name_ar / name_en, trimmed, case-insensitive).
 //   2. An order with an Rx line and no prescription is refused (HTTP 400, code containing
 //      "prescription_required") no later than submit; it never starts a broadcast.
-//      A prescription is either an attached image/pdf (`prescription_attachments[].uri`) or a
+//      A prescription is either an attached image/pdf (the id of the patient's own uploaded file; the
+//      server stores it as `prescription_attachments[].uri`; a client-made { type, uri } object does not
+//      count — reviewer update 2026-10-11 for A-0) or a
 //      `prescription_id` of the SAME patient's prescription (another patient's or an unknown id
 //      does not count).
 //   3. An order with a `controlled` line is always refused (HTTP 400, code containing "controlled"),
@@ -39,7 +41,9 @@ const OTC = { id: 'med-otc', sku: 1001, name_ar: 'بنادول ٥٠٠', name_en:
 const RX = { id: 'med-rx', sku: 1002, name_ar: 'أوجمنتين ١ جم', name_en: 'Augmentin 1g' };
 const CTL = { id: 'med-ctl', sku: 1003, name_ar: 'ترامادول ٥٠', name_en: 'Tramadol 50' };
 const PHARM = 'pharm-acc-1';
-const image = [{ type: 'image', uri: 'https://files.example/rx-photo.jpg' }];
+// The patients' own uploaded prescription photos (storage ids, as the app sends them).
+const imageP1 = ['file-rx-pat-1'];
+const imageP2 = ['file-rx-pat-2'];
 const address = { label: 'home', city: 'Jeddah', district: 'Al Rawdah', street: 'Street 1', lat: 21.5433, lng: 39.1728 };
 
 describe('D-10: prescription-only rules on the server', () => {
@@ -62,6 +66,9 @@ describe('D-10: prescription-only rules on the server', () => {
     return !!answer && answer.status === 400 && JSON.stringify(answer.body).includes(code)
       && !r.broadcast && !['broadcasting', 'ready_for_split'].includes(String(r.order?.status));
   };
+  /** A foreign or unknown reference is refused: 400 prescription_required, or 404 since needs-review #494. */
+  const refusedOrNotFound = (r: Awaited<ReturnType<typeof place>>) =>
+    refused(r, 'prescription_required') || (r.create.status === 404 && !r.id && !r.broadcast);
   const accepted = (r: Awaited<ReturnType<typeof place>>) =>
     r.create.status < 300 && !!r.submit && r.submit.status < 300 && !!r.broadcast;
 
@@ -75,6 +82,10 @@ describe('D-10: prescription-only rules on the server', () => {
         { ...pub, ...CTL, price: 40, requires_prescription: true, controlled: true },
       ]);
       await db.collection('system_configs').insertOne({ key: 'pharmacy_broadcast_stages', value: [{ stage: 1, radius_km: 3, timeout_seconds: 300 }, { stage: 2, radius_km: 7, timeout_seconds: 300 }] });
+      await db.collection('storage_objects').insertMany(['pat-1', 'pat-2'].map((pid) => ({
+        id: `file-rx-${pid}`, backend: 'base64', mime: 'image/jpeg', original_name: 'rx.jpg', size_bytes: 1, data_base64: 'eA==',
+        owner_account_id: pid, owner_kind: 'patient', visibility: 'private', deleted: false,
+      })));
       await db.collection('prescriptions').insertMany([
         { id: 'rx-p1', patient_id: 'pat-1', state: 'UPLOADED_BY_PATIENT', upload_image: 'https://files.example/p1.jpg', items: [{ medicine_id: RX.id, medicine_name_en: RX.name_en, quantity: 1 }], createdAt: new Date() },
         { id: 'rx-p2', patient_id: 'pat-2', state: 'UPLOADED_BY_PATIENT', upload_image: 'https://files.example/p2.jpg', items: [{ medicine_id: RX.id, medicine_name_en: RX.name_en, quantity: 1 }], createdAt: new Date() },
@@ -123,16 +134,19 @@ describe('D-10: prescription-only rules on the server', () => {
 
   describe('what counts as a prescription', () => {
     it('an attached prescription photo -> accepted', async () => {
-      expect(accepted(await place(p1, [{ medicine_id: RX.id, qty: 1 }], { prescription_attachments: image }))).toBe(true);
+      expect(accepted(await place(p1, [{ medicine_id: RX.id, qty: 1 }], { prescription_attachments: imageP1 }))).toBe(true);
     });
     it('the patient\'s own prescription_id -> accepted', async () => {
       expect(accepted(await place(p1, [{ medicine_id: RX.id, qty: 1 }], { prescription_id: 'rx-p1' }))).toBe(true);
     });
     it('another patient\'s prescription_id -> refused', async () => {
-      expect(refused(await place(p1, [{ medicine_id: RX.id, qty: 1 }], { prescription_id: 'rx-p2' }), 'prescription_required')).toBe(true);
+      expect(refusedOrNotFound(await place(p1, [{ medicine_id: RX.id, qty: 1 }], { prescription_id: 'rx-p2' }))).toBe(true);
     });
     it('an unknown prescription_id -> refused', async () => {
-      expect(refused(await place(p1, [{ medicine_id: RX.id, qty: 1 }], { prescription_id: 'rx-none' }), 'prescription_required')).toBe(true);
+      expect(refusedOrNotFound(await place(p1, [{ medicine_id: RX.id, qty: 1 }], { prescription_id: 'rx-none' }))).toBe(true);
+    });
+    it('a client-made { type, uri } object is not a file -> refused (A-0)', async () => {
+      expect(refused(await place(p1, [{ medicine_id: RX.id, qty: 1 }], { prescription_attachments: [{ type: 'image', uri: 'https://files.example/rx-photo.jpg' }] }), 'prescription_required')).toBe(true);
     });
     it('an attachment without a file (no uri) does not count -> refused', async () => {
       expect(refused(await place(p1, [{ medicine_id: RX.id, qty: 1 }], { prescription_attachments: [{ type: 'image' }] }), 'prescription_required')).toBe(true);
@@ -144,10 +158,10 @@ describe('D-10: prescription-only rules on the server', () => {
       expect(refused(await place(p2, [{ medicine_id: CTL.id, qty: 1 }]), 'controlled')).toBe(true);
     });
     it('controlled line WITH a prescription photo -> still refused', async () => {
-      expect(refused(await place(p2, [{ medicine_id: CTL.id, qty: 1 }], { prescription_attachments: image }), 'controlled')).toBe(true);
+      expect(refused(await place(p2, [{ medicine_id: CTL.id, qty: 1 }], { prescription_attachments: imageP2 }), 'controlled')).toBe(true);
     });
     it('controlled line by name, mixed with OTC -> the whole order is refused', async () => {
-      expect(refused(await place(p2, [{ medicine_id: OTC.id, qty: 1 }, { name_en: CTL.name_en, qty: 1 }], { prescription_attachments: image }), 'controlled')).toBe(true);
+      expect(refused(await place(p2, [{ medicine_id: OTC.id, qty: 1 }, { name_en: CTL.name_en, qty: 1 }], { prescription_attachments: imageP2 }), 'controlled')).toBe(true);
     });
   });
 
@@ -155,7 +169,7 @@ describe('D-10: prescription-only rules on the server', () => {
     let orderId = '';
     let lines: any[] = [];
     beforeAll(async () => {
-      const r = await place(p2, [{ medicine_id: OTC.id, sku: String(OTC.sku), qty: 1 }, { medicine_id: RX.id, sku: String(RX.sku), qty: 1 }], { prescription_attachments: image });
+      const r = await place(p2, [{ medicine_id: OTC.id, sku: String(OTC.sku), qty: 1 }, { medicine_id: RX.id, sku: String(RX.sku), qty: 1 }], { prescription_attachments: imageP2 });
       expect(accepted(r)).toBe(true);
       orderId = r.id;
       await stack.db.collection('pharmacy_broadcasts').updateOne({ order_id: orderId }, { $addToSet: { notified_pharmacies: PHARM }, $set: { lock_state: 'open' } });
@@ -190,7 +204,7 @@ describe('D-10: prescription-only rules on the server', () => {
     let rxOrder = '';
     let otcOrder = '';
     beforeAll(async () => {
-      const a = await place(p1, [{ medicine_id: RX.id, qty: 1 }], { prescription_attachments: image });
+      const a = await place(p1, [{ medicine_id: RX.id, qty: 1 }], { prescription_attachments: imageP1 });
       const b = await place(p1, [{ medicine_id: OTC.id, qty: 2 }]);
       expect(accepted(a) && accepted(b)).toBe(true);
       rxOrder = a.id; otcOrder = b.id;

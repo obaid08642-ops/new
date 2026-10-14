@@ -1783,7 +1783,6 @@ function SettingsScreen({ onBack, onNavigate }: any) {
   const [minOrder, setMinOrder] = useState('50');
   const [deliveryFee, setDeliveryFee] = useState('15');
   const [acceptsInsurance, setAcceptsInsurance] = useState(true);
-  const [acceptsInstallments, setAcceptsInstallments] = useState(false);
   const [trackInventory, setTrackInventory] = useState(false);
 
   useEffect(() => {
@@ -1797,7 +1796,7 @@ function SettingsScreen({ onBack, onNavigate }: any) {
     setLoading(true);
     try {
       await client.post('/provider/settings/delta', { 
-        newData: { deliveryRadius, minOrder, deliveryFee, acceptsInsurance, acceptsInstallments } 
+        newData: { deliveryRadius, minOrder, deliveryFee, acceptsInsurance } 
       });
       show(AR ? 'بانتظار موافقة الإدارة على التعديلات' : 'Pending admin approval for changes', 'success');
       onBack();
@@ -1822,7 +1821,6 @@ function SettingsScreen({ onBack, onNavigate }: any) {
         <NBtn label={AR ? 'طلبات التأمين الواردة (قرار يدوي)' : 'Inbound Insurance Requests'} variant="outline" icon="shield" onPress={() => onNavigate && onNavigate('insurance_decisions')} />
         <NCard style={{ gap: SP.md }}>
           <NToggle label={AR ? 'قبول شركات التأمين' : 'Accept Insurance'} value={acceptsInsurance} onChange={setAcceptsInsurance} />
-          <NToggle label={AR ? 'قبول الدفع بالتقسيط (تابي/تمارا)' : 'Accept Installments (Tabby/Tamara)'} value={acceptsInstallments} onChange={setAcceptsInstallments} />
           <NToggle label={AR ? 'تتبع أرصدة المخزون (اختياري)' : 'Track inventory balances (optional)'} value={trackInventory} onChange={async (v: boolean) => {
             setTrackInventory(v);
             try {

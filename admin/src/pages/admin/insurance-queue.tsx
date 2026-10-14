@@ -1,14 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import Head from 'next/head';
 import { apiFetch } from '../../utils/api';
-import EmptyIcon from '../../components/EmptyIcon';
 import { dateLocale } from '../../utils/dates';
 import { DataTable } from '@/components/DataTable';
 
 /**
- * M5: insurance supervision (BR-2) + refunds queue (BR: الاسترداد).
+ * M5: insurance supervision (BR-2). Refunds are decided only on the order page and the returns page (owner decision #952).
  * - GET /admin/insurance/stats · GET /admin/insurance/requests?state=
- * - GET /admin/finance/refunds/queue · POST /admin/finance/refunds/:id/decide
  */
 const STATE_AR: Record<string, { ar: string; cls: string }> = {
   PENDING_PROVIDER_REVIEW: { ar: 'بانتظار المزود', cls: 'bg-amber-100 text-amber-700' },
@@ -19,29 +17,23 @@ const STATE_AR: Record<string, { ar: string; cls: string }> = {
 };
 
 export default function InsuranceQueuePage() {
-  const [tab, setTab] = useState<'requests' | 'refunds'>('requests');
   const [stats, setStats] = useState<any>(null);
   const [requests, setRequests] = useState<any[]>([]);
-  const [refunds, setRefunds] = useState<any[]>([]);
   const [stateFilter, setStateFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [decidingId, setDecidingId] = useState<string | null>(null);
-  const [decideNote, setDecideNote] = useState('');
   const [selectedReq, setSelectedReq] = useState<any | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [s, r, f] = await Promise.all([
+      const [s, r] = await Promise.all([
         apiFetch('/api/admin/admin/insurance/stats').catch(() => null),
         apiFetch(`/api/admin/admin/insurance/requests${stateFilter ? `?state=${stateFilter}` : ''}`).catch(() => []),
-        apiFetch('/api/admin/admin/finance/refunds/queue').catch(() => []),
       ]);
       setStats(s);
       setRequests(Array.isArray(r) ? r : r?.data || []);
-      setRefunds(Array.isArray(f) ? f : f?.data || []);
     } catch (e: any) {
       setError(e?.message || 'تعذر تحميل البيانات');
     } finally {
@@ -51,19 +43,6 @@ export default function InsuranceQueuePage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const decideRefund = async (id: string, approve: boolean) => {
-    // #972/#973: a refund decision is final; ask once before sending it.
-    if (!window.confirm(approve ? 'اعتماد هذا الاسترداد؟ سيُعاد المبلغ للمريض.' : 'رفض هذا الاسترداد؟')) return;
-    try {
-      await apiFetch(`/api/admin/admin/finance/refunds/${id}/decide`, {
-        method: 'POST',
-        body: JSON.stringify({ approve, note: decideNote || undefined }),
-      });
-      setDecidingId(null);
-      setDecideNote('');
-      load();
-    } catch (e: any) { alert(e?.message || 'فشل القرار'); }
-  };
 
   const statCard = (key: string, label: string, cls: string) => (
     <button
@@ -78,7 +57,7 @@ export default function InsuranceQueuePage() {
 
   return (
     <>
-      <Head><title>التأمين والمستردات | نبض</title></Head>
+      <Head><title>التأمين | نبض</title></Head>
         <div className="p-8 space-y-6">
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -91,18 +70,6 @@ export default function InsuranceQueuePage() {
 
           {/* Tabs */}
           <div className="flex gap-2 border-b border-slate-200">
-            {([
-              { k: 'requests', label: `طلبات التأمين (${stats?.total ?? requests.length})` },
-              { k: 'refunds', label: `طابور المستردات (${refunds.length})` },
-            ] as const).map((t) => (
-              <button
-                key={t.k}
-                onClick={() => setTab(t.k)}
-                className={`px-5 py-3 text-sm font-bold rounded-t-lg transition-colors ${tab === t.k ? 'bg-white border border-b-white border-slate-200 text-teal-700 -mb-px' : 'text-slate-500 hover:text-slate-700'}`}
-              >
-                {t.label}
-              </button>
-            ))}
             <div className="flex-1" />
             <button onClick={load} className="px-4 py-2 mb-1 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm">تحديث </button>
           </div>
@@ -111,7 +78,7 @@ export default function InsuranceQueuePage() {
             <div className="p-12 text-center text-slate-500">جاري التحميل…</div>
           ) : error ? (
             <div className="bg-red-50 border border-red-200 rounded-2xl p-8 text-center text-red-700 font-bold">{error}</div>
-          ) : tab === 'requests' ? (
+          ) : (
             requests.length === 0 ? (
               <div className="bg-white rounded-2xl p-12 text-center border border-slate-200 text-slate-500">لا توجد طلبات تأمين {stateFilter && 'بهذه الحالة'}</div>
             ) : (
@@ -136,45 +103,6 @@ export default function InsuranceQueuePage() {
                     { key: 'date', header: 'التاريخ', className: 'text-xs text-slate-500', render: (r) => new Date(r.createdAt).toLocaleDateString(dateLocale()) },
                   ]}
                 />
-              </div>
-            )
-          ) : (
-            refunds.length === 0 ? (
-              <div className="bg-white rounded-2xl p-12 text-center border border-slate-200">
-                <EmptyIcon name="document" size={44} color="#0D9488" className="mb-3 mx-auto" />
-                <h3 className="text-lg font-bold text-slate-800">طابور المستردات فارغ</h3>
-                <p className="text-slate-500 text-sm mt-1">طلبات الاسترداد الجديدة من المرضى ستظهر هنا للاعتماد.</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {refunds.map((f) => (
-                  <div key={f.id} className="bg-white rounded-2xl border border-slate-200 p-6">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="space-y-1">
-                        <div className="font-bold text-slate-900">حجز {f.booking_kind || ''} · {String(f.booking_id).slice(0, 12)}</div>
-                        <div className="text-sm text-slate-600">{f.policy_note_ar}</div>
-                        {f.reason && <div className="text-xs text-slate-500">سبب المريض: {f.reason}</div>}
-                        <div className="text-xs text-slate-400">{new Date(f.createdAt).toLocaleString(dateLocale())}</div>
-                      </div>
-                      <div className="text-left">
-                        <div className="text-sm text-slate-500">دفع {f.amount_paid} ر.س</div>
-                        <div className="text-xl font-black text-emerald-600">يُسترد {f.refund_amount} ر.س ({f.refund_percent}%)</div>
-                      </div>
-                    </div>
-                    {decidingId === f.id ? (
-                      <div className="mt-4 space-y-2 border-t border-slate-100 pt-4">
-                        <input value={decideNote} onChange={(e) => setDecideNote(e.target.value)} placeholder="ملاحظة (اختياري)" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
-                        <div className="flex gap-2">
-                          <button onClick={() => decideRefund(f.id, true)} className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-bold">اعتماد الاسترداد</button>
-                          <button onClick={() => decideRefund(f.id, false)} className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-bold">رفض</button>
-                          <button onClick={() => { setDecidingId(null); setDecideNote(''); }} className="px-4 py-2 bg-slate-200 rounded-lg text-sm">تراجع</button>
-                        </div>
-                      </div>
-                    ) : (
-                      <button onClick={() => setDecidingId(f.id)} className="mt-4 px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-bold">اتخاذ القرار</button>
-                    )}
-                  </div>
-                ))}
               </div>
             )
           )}

@@ -101,6 +101,28 @@ describe("the health hub", () => {
   });
 });
 
+describe("the health hub: next appointment (issue 678)", () => {
+  const APPT = "0a1b2c3d-1111-4222-8333-444455556666";
+  it("shows the same upcoming appointment the home page shows, with its link, time and status", async () => {
+    backend({ "/health/vitals/summary": [], "/home/upcoming-appointment": { id: APPT, doctor_name: "Dr Test", scheduled_at: "2026-10-12T09:30:00.000Z", status: "confirmed", patient_id: "private-patient" } });
+    const html = render(await HealthPage(page()));
+    expect(server.api).toHaveBeenCalledWith("/home/upcoming-appointment", {}, TOKEN);
+    expect(html).toContain("Dr Test");
+    expect(html).toContain("Your next appointment");
+    expect(html).toContain(`href="/en/appointments/${APPT}"`);
+    expect(html).toContain("2026-10-12T09:30:00.000Z");
+    expect(html).not.toContain("private-patient");
+  });
+  it("shows nothing when there is none, and says so in place when it could not be loaded", async () => {
+    backend({ "/health/vitals/summary": [], "/home/upcoming-appointment": json({}, 404) });
+    const none = render(await HealthPage(page()));
+    expect(none).not.toContain("Your next appointment");
+    expect(none).not.toContain("next appointment could not be loaded");
+    backend({ "/health/vitals/summary": [] });
+    expect(render(await HealthPage(page()))).toContain("next appointment could not be loaded");
+  });
+});
+
 describe("vitals: three tabs and a sheet", () => {
   it("history lists the saved readings, and ?add=1 opens the add-reading sheet on load", async () => {
     backend({ "/health/vitals": [{ id: "r1", key: "bp", value: "120/80", unit: "mmHg", measured_at: "2026-08-20T10:00:00.000Z" }] });
@@ -306,7 +328,7 @@ describe("the shared pieces", () => {
     expect(pickTab(["b"], ["a", "b"] as const, "a")).toBe("b");
     expect(isFlag("1")).toBe(true);
     expect(isFlag("0")).toBe(false);
-    const doses = todayDoses([{ id: "1", medicineName: "A", times: ["20:00", "08:00"], todayDoses: [], dose: undefined, frequency: undefined }]);
+    const doses = todayDoses([{ id: "1", medicineName: "A", times: ["20:00", "08:00"], todayDoses: [], dose: undefined, frequency: undefined, chronic: false }]);
     expect(doses.map((dose) => `${dose.timeKey}:${dose.status}`)).toEqual(["08:00:pending", "20:00:pending"]);
     expect(profileItems([{ id: "1", name: "A" }, { name: "no id" }, { id: "3" }])).toEqual([{ id: "1", name: "A" }]);
     expect(familyContacts({ data: [{ user_id: "u", display_name: "Omar", phone: "+966507654321" }, { phone: "x" }] })).toEqual([{ id: "u", name: "Omar", relation: undefined, maskedPhone: "•••••••••4321" }]);
@@ -322,5 +344,17 @@ describe("the shared pieces", () => {
     expect(css).not.toMatch(/\b(left|right|margin-left|margin-right|padding-left|padding-right)\s*:/);
     expect(css).toContain("a.tile:focus-visible");
     expect(css).toContain(".iconButton:focus-visible");
+  });
+});
+
+describe("reminder summaries keep the chronic flag (issue 676)", () => {
+  it("reads chronic from GET /health/reminders so an edit does not clear it", async () => {
+    const { extractMedicationReminderSummaries } = await import("@/lib/api/reminders");
+    const [chronic, plain] = extractMedicationReminderSummaries([
+      { id: "8f2c1a0e-1d3b-4c5a-9e7f-0a1b2c3d4e5f", medicine_name_en: "Metformin", times: ["08:00"], chronic: true },
+      { id: "9a3d2b1f-2e4c-4d6b-8f80-1b2c3d4e5f60", medicine_name_en: "Vitamin D", times: ["09:00"] },
+    ]);
+    expect(chronic?.chronic).toBe(true);
+    expect(plain?.chronic).toBe(false);
   });
 });

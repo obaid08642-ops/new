@@ -1,5 +1,5 @@
 import { HttpStatus } from '@nestjs/common';
-import { translateMongoError } from './sentry.filter';
+import { translateMongoError, sentryUserContext } from './sentry.filter';
 import { idFilter, isObjectIdString } from './id.utils';
 import { Types } from 'mongoose';
 
@@ -33,5 +33,38 @@ describe('P3.2 id-consistency helpers', () => {
     expect(idFilter('usr_123')).toEqual({ id: { $eq: 'usr_123' } });
     expect(isObjectIdString('not-an-id')).toBe(false);
     expect(isObjectIdString('abcdefghijkl')).toBe(false);
+  });
+});
+
+/**
+ * Phase 13, task 13.R5: Sentry is a third-party processor. It must never receive the patient's
+ * e-mail address or real name, only the account id.
+ */
+describe('13.R5 Sentry user context carries no patient contact data', () => {
+  it('sends the id only, dropping email and name', () => {
+    expect(sentryUserContext({ id: 'usr_1', email: 'sara@example.com', name: 'سارة' }))
+      .toEqual({ id: 'usr_1' });
+  });
+
+  it('never leaks the e-mail even when it is the only other field', () => {
+    const ctx = sentryUserContext({ id: 'usr_2', email: 'sara@example.com' });
+    expect(JSON.stringify(ctx)).not.toMatch(/sara@example\.com/);
+    expect(Object.keys(ctx)).toEqual(['id']);
+  });
+
+  it('never leaks the patient name as a username', () => {
+    const ctx = sentryUserContext({ id: 'usr_3', name: 'سارة الحربي' });
+    expect(Object.keys(ctx)).toEqual(['id']);
+    expect(ctx).not.toHaveProperty('username');
+  });
+
+  it('falls back to account_id when only that is present', () => {
+    expect(sentryUserContext({ account_id: 'acc_9' })).toEqual({ id: 'acc_9' });
+  });
+
+  it('survives a user with no identifiers instead of throwing', () => {
+    expect(sentryUserContext({})).toEqual({ id: '' });
+    expect(sentryUserContext(null)).toEqual({ id: '' });
+    expect(sentryUserContext(undefined)).toEqual({ id: '' });
   });
 });

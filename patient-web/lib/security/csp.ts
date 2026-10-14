@@ -30,6 +30,8 @@ export function contentSecurityPolicy(nonce: string, isDevelopment = process.env
     "form-action 'self'",
     "frame-ancestors 'none'",
     "img-src 'self' data: https:",
+    // issue 777: the map page embeds an OpenStreetMap view (https://www.openstreetmap.org/export/embed.html), whose tiles load from *.tile.openstreetmap.org
+    "frame-src 'self' https://www.openstreetmap.org",
     `style-src 'self' 'nonce-${nonce}'${isDevelopment ? " 'unsafe-inline'" : ""}`,
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDevelopment ? " 'unsafe-eval'" : ""}`,
     "connect-src 'self' https://api.nabd.plus wss://live.nabd.plus https://cdn.nabd.plus",

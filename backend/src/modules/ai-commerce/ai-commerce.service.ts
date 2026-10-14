@@ -1,4 +1,5 @@
 import { Injectable, BadRequestException, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import { escapeRegex } from '../../common/slug.util';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { randomBytes } from 'crypto';
@@ -59,9 +60,9 @@ export class AiCommerceService {
     }
     if (query.search) {
       filter.$or = [
-        { name_ar: { $regex: query.search, $options: 'i' } },
-        { name_en: { $regex: query.search, $options: 'i' } },
-        { slug: { $regex: query.search, $options: 'i' } },
+        { name_ar: { $regex: escapeRegex(String(query.search)), $options: 'i' } },
+        { name_en: { $regex: escapeRegex(String(query.search)), $options: 'i' } },
+        { slug: { $regex: escapeRegex(String(query.search)), $options: 'i' } },
       ];
     }
 
@@ -126,10 +127,10 @@ export class AiCommerceService {
 
     const docFilter: Record<string, any> = { is_active: { $ne: false } };
     if (query.specialty) docFilter.specialty = query.specialty;
-    if (query.city) docFilter.city = { $regex: query.city, $options: 'i' };
+    if (query.city) docFilter.city = { $regex: escapeRegex(String(query.city)), $options: 'i' };
 
     const facFilter: Record<string, any> = { is_active: { $ne: false } };
-    if (query.city) facFilter.city = { $regex: query.city, $options: 'i' };
+    if (query.city) facFilter.city = { $regex: escapeRegex(String(query.city)), $options: 'i' };
 
     const [doctors, facilities] = await Promise.all([
       docCol.find(docFilter).limit(20).toArray(),

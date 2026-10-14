@@ -2,6 +2,13 @@
 
 > **2026-10-09: the active task list is `docs/review/OPENCODE_PLAN_2026-10-09.md` (sessions OC-A, OC-B, OC-C, OC-D). Read it first; it overrides this file where they differ.**
 
+> **Owner, 2026-10-14 (newest; overrides everything below where they differ):**
+> - **OC-B, OC-C and OC-F are closed for OpenCode.** The lead reviewer finishes their remaining work: the open issues of §5 and §6, D-29, D-36, F8 (pending catalogue revisions, #294/#300) and the remaining Phase 14 items. Do not push `oc/B-*`, `oc/C-*` or `oc/P14-*` branches.
+> - **The open issues of OC-A (§4)** are also verified, fixed and closed by the lead reviewer. OC-A keeps only **D-30** (insurance first) once its spec is on `main`.
+> - **D-32** (file replacement removes the old object; account erasure) goes to the lead reviewer.
+> - **OC-D** (Phase 20, then D-28, D-33, D-34, D-35) and **OC-E** (Phases 19, 13, 18) are unchanged.
+> - **Never commit `backend/package-lock.json` changes that drop entries** (`gaxios`, `gcp-metadata`, `node-fetch`, `google-logging-utils`): that breaks `npm ci` in CI. `oc/D-17` and `oc/AC-6` did this and were not merged.
+
 Read this file and `AGENTS.md` at the start of every OpenCode session. This file is the task list; `AGENTS.md` holds the rules. If they disagree, this file's **Git rules** win (they are newer, owner 2026-10-06).
 
 ## Where your instructions come from (owner, 2026-10-06)
@@ -163,3 +170,32 @@ The phase 13–22 work on `fix/audit-2026-09` is audited by the OpenCode session
 **This session (Queue A/C) does not touch `fix/audit-2026-09` or `oc/phase-audit`.**
 
 The PRs already open into the fix branch (#294/#300, #299, #311) stay as they are; the reviewer handles them.
+
+## Owner, 2026-10-12: phases split over three sessions, and agent commerce
+
+The phases left from §7 of `OPENCODE_PLAN_2026-10-09.md` are split so they run in parallel. The rules of §7 are unchanged: port from `main`, one phase per PR, never edit acceptance tests.
+
+| Session | Phases, in order | Notes |
+|---|---|---|
+| **OC-D** | 16.3 fix (OTP number normalisation, budget last; no failing `npm audit` gate before the fastify fix; real ZAP gate), then **23** audit trail, then **20** observability | Audit and observability touch the same logging code, so they stay in one session. |
+| **OC-E** (new) | **19** compliance, then **13** owner requirements, then **18** languages | 18 touches many files, so it goes last. |
+| **OC-F** (new) | **15** resilience, then **14** performance | 14 goes last; it touches hot paths the other sessions are porting. **Phase 14 must also port the kill switches (14.4/14.18 helper, the six seeded flags and their consumers, P15.fix `3e2db704`) and then add `j_killswitches` back to `tools/live/run_gate.sh` JOURNEYS; that journey has been waiting on it since the P15 review.** |
+
+- Phase 17: the UI parts go to the design session as needs-review entries; the backend parts go to OC-E after 18.
+- Phase 22 still waits for the owner.
+- A session never starts a phase listed for another session.
+
+**Agent commerce (`AGENT_COMMERCE_SPEC_2026-10-12.md`)**
+- AC-1 (OAuth) is merged (#1327), and the acceptance tests are in `backend/acceptance/ac-agent/` (#1326).
+- **OC-G** (new, owner 2026-10-12) builds AC-2 to AC-6, one PR per item, in order:
+
+| Item | What | Branch | Done when |
+|---|---|---|---|
+| AC-2 | MCP Streamable HTTP transport | `oc/AC-2` | ac-agent case 4 passes |
+| AC-3 | Authenticated tools | `oc/AC-3` | ac-agent cases 5 to 10 pass |
+| AC-4 | Deep links | `oc/AC-4` | |
+| AC-5 | Discovery contract test | `oc/AC-5` | ac-agent case 11 passes |
+| AC-6 | Safety | `oc/AC-6` | |
+
+- OC-G edits only `backend/src/modules/mcp`, `backend/src/modules/agent-oauth`, `patient-web/app/.well-known`, `llms*.txt` and new agent modules.
+- For anything else (pharmacy, booking or payment services), it calls the existing services and never copies their logic.

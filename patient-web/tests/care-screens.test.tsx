@@ -141,7 +141,7 @@ describe("the maternity hub", () => {
 });
 
 describe("the nutrition hub", () => {
-  it("today: the calories ring against the target, the water and the meals; no Plan tab; no private field", async () => {
+  it("today: the calories ring against the target, the water and the meals; the Plan tab; no private field", async () => {
     backend({
       "/nutrition/daily-summary": { data: { calories: 800, target_calories: 2000, water_ml: 500, patient_id: "private-patient" } },
       "/nutrition/meals": [{ id: "m1", name: "Oats", calories: 300, meal_type: "breakfast" }],
@@ -152,14 +152,26 @@ describe("the nutrition hub", () => {
     expect(html).toContain("Breakfast");
     expect(html).toContain("/en/nutrition/log-meal");
     expect(html).toContain("/en/nutrition?tab=target");
-    expect(html).not.toContain("tab=plan");
+    expect(html).toContain("/en/nutrition?tab=plan");
     expect(html).not.toContain("private-patient");
   });
 
-  it("target tab holds the body-target form; an unknown or plan tab opens Today", async () => {
+  it("target tab holds the body-target form; an unknown tab opens Today", async () => {
     backend({ "/nutrition/daily-summary": {}, "/nutrition/meals": [] });
-    expect(render(await NutritionPage(page({ tab: "plan" })))).toContain("No meals logged today.");
+    expect(render(await NutritionPage(page({ tab: "nonsense" })))).toContain("No meals logged today.");
     expect(render(await NutritionPage(page({ tab: "target" })))).toContain("Loading");
+  });
+
+  it("plan tab (owner decision 2026-10-05): the saved AI plan with the nutritionist link, or the way to create one", async () => {
+    backend({ "/nutrition/plan": { id: "p1", source: "ai", days: [{ day: 1, meals: ["Oats and fruit"] }], notice: "x", book_nutritionist: { specialty: "nutrition" } } });
+    const html = render(await NutritionPage(page({ tab: "plan" })));
+    expect(html).toContain("Oats and fruit");
+    expect(html).toContain("Day 1");
+    expect(html).toContain("/en/consultations/doctors?specialty=nutrition");
+    backend({ "/nutrition/plan": new Response(null, { status: 204 }) });
+    const empty = render(await NutritionPage(page({ tab: "plan" })));
+    expect(empty).toContain("No nutrition plan yet");
+    expect(empty).toContain("/en/consultations/doctors?specialty=nutrition");
   });
 
   it("the summary down: the error state", async () => {
@@ -188,8 +200,8 @@ describe("mental health", () => {
   });
 
   it("the mood journal lists the entries; the relax screen reads only the open tab", async () => {
-    backend({ "/mental-health/mood": [{ id: "e1", mood: "calm", energy_level: 4, logged_at: "2026-10-01T10:00:00.000Z" }], "/mental-health/breathing": [{ id: "b1", technique: "box", rounds: 4, duration_seconds: 120 }], "/mental-health/meditation": [{ id: "d1", type: "body scan", duration_minutes: 10, completed: true }] });
-    expect(render(await MoodPage({ params }))).toContain("calm");
+    backend({ "/mental-health/mood": [{ id: "e1", mood: "good", energy_level: 4, logged_at: "2026-10-01T10:00:00.000Z" }], "/mental-health/breathing": [{ id: "b1", technique: "box", rounds: 4, duration_seconds: 120 }], "/mental-health/meditation": [{ id: "d1", type: "body scan", duration_minutes: 10, completed: true }] });
+    expect(render(await MoodPage({ params }))).toContain(">Good<");
     const breathing = render(await RelaxPage(page()));
     expect(breathing).toContain("box");
     expect(server.api).not.toHaveBeenCalledWith("/mental-health/meditation", {}, TOKEN);
