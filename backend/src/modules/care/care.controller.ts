@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { CareService } from './care.service';
 import { CurrentUser, JwtAuthGuard, Public } from '../../common/auth.guard';
 import { queryInt, queryNumber } from '../../common/safe-query';
@@ -47,6 +47,11 @@ export class CareController {
     @Query('limit') limit?: string,
     @CurrentUser() user?: any,
   ) {
+    // Q-13: a value that is not a number is refused, not silently ignored (queryNumber returns undefined).
+    const availableWithin = available_within !== undefined ? queryNumber(available_within) : undefined;
+    if (available_within !== undefined && availableWithin === undefined) {
+      throw new BadRequestException('available_within must be a positive whole number of minutes');
+    }
     return this.svc.listDoctors({
       specialty, service_type: service_type ?? (type === 'home_visit' ? 'home' : type as any) ?? undefined,
       nearest_type: type,
@@ -57,7 +62,7 @@ export class CareController {
       lng: lng === undefined ? undefined : queryNumber(lng),
       sort,
       available_type: type,
-      available_within: available_within !== undefined ? queryNumber(available_within) : undefined,
+      available_within: availableWithin,
       page: queryInt(page, 1),
       limit: queryInt(limit, 20),
       user,
