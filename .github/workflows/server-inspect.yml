@@ -80,6 +80,7 @@ jobs:
         if: ${{ !cancelled() }}
         env:
           CF: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CFE: ${{ secrets.CLOUDFLARE_EMAIL }}   # set when CF holds a Global API Key (tools/ops/cf/_auth.sh)
           Z: ${{ secrets.CLOUDFLARE_ZONE_ID }}
         run: |
           set +e
@@ -102,10 +103,12 @@ jobs:
         if: ${{ !cancelled() }}
         env:
           CF: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CFE: ${{ secrets.CLOUDFLARE_EMAIL }}
           Z: ${{ secrets.CLOUDFLARE_ZONE_ID }}
         run: |
           grep -qE '^\s*cf-purge-api\s*$' tools/ops/RUN || { echo "skipped"; exit 0; }
-          curl -s -X POST -H "Authorization: Bearer $CF" -H 'Content-Type: application/json' \
+          . tools/ops/cf/_auth.sh
+          cf_curl -X POST -H 'Content-Type: application/json' \
             "https://api.cloudflare.com/client/v4/zones/$Z/purge_cache" --data '{"hosts":["api.nabd.plus"]}' \
             | jq -r '"cf-purge: success=\(.success) errors=\(.errors|map(.message)|join("; "))"'
       - name: Cleanup key

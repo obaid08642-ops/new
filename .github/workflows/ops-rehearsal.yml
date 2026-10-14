@@ -212,6 +212,20 @@ jobs:
           test "$(curl -sk -o /dev/null -w '%{http_code}' -H 'Host: api.nabd.plus' -X POST https://127.0.0.1/api/v1/auth/social-login)" = 403 && echo "Q107 hotfix answers 403"
           sudo sha256sum $D/nginx/nginx.conf $D/nginx/conf.d/nabd.plus.conf $D/docker-compose.production.yml $D/.env.production | sudo tee /opt/nabdah/old.sums >/dev/null
           echo "old stack up: api 200, site 200"
+      - name: "Migrations dry-run (tasks/58): runs every script, writes nothing, prints no credential"
+        run: |
+          set +e
+          H='bash tools/ops/rehearsal/db-fingerprint.sh'
+          BEFORE=$($H)
+          bash tools/ops/tasks/58-migrations-dryrun.sh 2>&1 | tee out.txt; rc=${PIPESTATUS[0]}
+          AFTER=$($H)
+          echo "exit=$rc"; test $rc = 0 || exit 1
+          n=$(grep -c '(dry-run)$' out.txt); echo "scripts run: $n"; test "$n" -ge 20 || exit 1
+          grep -q '## migrations-dryrun done' out.txt || exit 1
+          [ -n "$BEFORE" ] && [ "$BEFORE" = "$AFTER" ] && echo "database unchanged (dbHash and collection list identical)" || { echo "DATABASE CHANGED"; echo "$BEFORE"; echo "$AFTER"; exit 1; }
+          for n in MONGO_ROOT_PASSWORD REDIS_PASSWORD JWT_SECRET; do v=$(sudo grep "^$n=" /opt/nabdah/deploy/.env.production | cut -d= -f2-); ! grep -qF "$v" out.txt || { echo "$n printed"; exit 1; }; done
+          echo "no credential in the output"
+          ! ls /tmp/tmp.* 2>/dev/null | xargs -r sudo grep -l MONGODB_URI 2>/dev/null | grep . && echo "env file removed" || exit 1
       - name: "Scenario 1: forced failure after backend/worker start -> full rollback"
         run: |
           set +e

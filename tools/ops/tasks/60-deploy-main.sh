@@ -72,7 +72,7 @@ for s in $APP_SERVICES; do
   # preflight 2026-10-14: the running patient-web's image was deleted from the host (the container still runs it);
   # without an image there is nothing to roll back to, so the running container is committed as the rollback image
   if [ "${REHEARSE_MISSING_IMAGE:-}" = "$s" ] || ! $DK image inspect "${OLDIMG[$s]}" >/dev/null 2>&1; then
-    $DK commit -q nabdah-$s "nabdah-$s:rollback-$TS" >/dev/null 2>&1 || { echo "deploy: ABORT cannot keep a rollback image of $s"; exit 1; }
+    $DK commit nabdah-$s "nabdah-$s:rollback-$TS" >/dev/null 2>&1 || { echo "deploy: ABORT cannot keep a rollback image of $s"; exit 1; }
     OLDIMG[$s]=$($DK image inspect -f '{{.Id}}' "nabdah-$s:rollback-$TS")
     echo "deploy: $s ran an image no longer on the host; its container was committed as the rollback image"
   fi
