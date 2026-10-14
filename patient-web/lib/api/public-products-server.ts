@@ -1,5 +1,6 @@
 import { patientApiUrl } from "@/lib/api/upstream";
 import { isLocale, type Locale } from "@/lib/i18n";
+import { publicReadSignal } from "@/lib/api/public-timeout";
 
 const slugSchema = /^[\p{L}\p{N}_-]{1,180}$/u;
 
@@ -124,6 +125,7 @@ async function readJson<T>(path: string, revalidate = 3600): Promise<PublicRead<
       headers: { Accept: "application/json" },
       // 14.8: tagged so a catalogue change revalidates product pages at once (POST /api/revalidate).
       next: { revalidate, tags: ["medicines"] },
+      signal: publicReadSignal(),
     } as RequestInit);
     if (res.status >= 500) return { data: null, failed: true };
     if (!res.ok) return { data: null, failed: false };
