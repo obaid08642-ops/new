@@ -1457,7 +1457,9 @@
     "doctorUnavailableBody": "Hindi ma-load ang doktor ngayon. Subukan muli o pumili ng ibang doktor.",
     "backToDoctors": "Bumalik sa mga doktor",
     "bookingFailed": "Hindi natapos ang booking. Suriin ang oras at paraan ng pagbabayad.",
-    "fee": "Bayad sa konsultasyon"
+    "fee": "Bayad sa konsultasyon",
+    "duration": "Haba ng pagbisita",
+    "durationValue": "{n} minuto"
   },
   "AiHealthReport": {
     "title": "Ang Iyong AI Health Report",
