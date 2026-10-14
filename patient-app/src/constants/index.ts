@@ -1,5 +1,5 @@
 export const APP_NAME = 'نبض بلس';
-export const APP_NAME_EN = 'Nabdah Plus';
+export const APP_NAME_EN = 'Nabd+';
 export const APP_VERSION = '1.0.0';
 
 // M1-ENV: fixed wrong default (was missing the /api prefix → pointed at non-existent /v1)
@@ -11,12 +11,15 @@ export const CDN_URL = process.env.EXPO_PUBLIC_CDN_URL ?? 'https://cdn.nabd.plus
 export const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY ?? '';
 
 export const STORAGE_KEYS = {
-  AUTH_TOKEN: '@nabdah_auth_token',
-  REFRESH_TOKEN: '@nabdah_refresh_token',
-  USER_DATA: '@nabdah_user_data',
+  // expo-secure-store keys may only contain [A-Za-z0-9._-]; '@' made every native save throw (Q71).
+  AUTH_TOKEN: 'nabdah_auth_token',
+  REFRESH_TOKEN: 'nabdah_refresh_token',
+  USER_DATA: 'nabdah_user_data',
   THEME: '@nabdah_theme',
   LANGUAGE: '@nabdah_language',
   ONBOARDING_DONE: '@nabdah_onboarding_done',
+  // First-launch intro (language step, then the slides): set once when the user finishes or skips; the suffix is the version.
+  INTRO_DONE: '@nabdah_intro_done_v1',
   CART: '@nabdah_cart',
   SAVED_ADDRESSES: '@nabdah_addresses',
   HEALTH_PROFILE: '@nabdah_health_profile',
@@ -84,9 +87,3 @@ export const FAMILY_RELATIONS = [
   { id: 'grandmother', nameAr: 'جدة', icon: 'user' },
 ];
 
-export const EMERGENCY_NUMBERS = {
-  ambulance: '997',
-  police: '999',
-  fire: '998',
-  civilDefense: '911',
-};

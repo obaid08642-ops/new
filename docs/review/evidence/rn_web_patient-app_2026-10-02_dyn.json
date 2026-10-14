@@ -1,0 +1,590 @@
+{
+ "app": "patient-app",
+ "build": "react-native-web export (not native)",
+ "routes": [
+  {
+   "route": "articles/[slug]",
+   "url": "/articles/we591f03",
+   "landed": "/articles/we591f03",
+   "status": "TESTED",
+   "time_to_ready_ms": 3305,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰒗",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3571
+    },
+    {
+     "label": "󰃃",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/articles/bookmarks/we591f03/toggle",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1546
+    },
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3567
+    }
+   ]
+  },
+  {
+   "route": "consultations/book/[id]",
+   "url": "/consultations/book/262d226e-ffed-41a5-b8e3-d4af2b8d4aa3",
+   "landed": "/consultations/book/262d226e-ffed-41a5-b8e3-d4af2b8d4aa3",
+   "status": "TESTED",
+   "time_to_ready_ms": 2579,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3586
+    },
+    {
+     "label": "󰋡",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3542
+    },
+    {
+     "label": "󰕧",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 492
+    },
+    {
+     "label": "󰋜",
+     "result": "UI_CHANGE",
+     "response_ms": 795
+    },
+    {
+     "label": "اليوم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3553
+    },
+    {
+     "label": "غداً",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 797
+    },
+    {
+     "label": "الأحد",
+     "result": "UI_CHANGE",
+     "response_ms": 787
+    },
+    {
+     "label": "الاثنين",
+     "result": "UI_CHANGE",
+     "response_ms": 808
+    },
+    {
+     "label": "الثلاثاء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 812
+    },
+    {
+     "label": "الأربعاء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 798
+    },
+    {
+     "label": "الخميس",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 797
+    },
+    {
+     "label": "?",
+     "result": "NO_EFFECT",
+     "disabled": true,
+     "response_ms": 3543
+    }
+   ]
+  },
+  {
+   "route": "consultations/clinic/[id]",
+   "url": "/consultations/clinic/king-faisal-specialist",
+   "landed": "/consultations/clinic/king-faisal-specialist",
+   "status": "TESTED",
+   "time_to_ready_ms": 2568,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /care/facilities/king-faisal-specialist"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "consultations/doctor/[id]",
+   "url": "/consultations/doctor/262d226e-ffed-41a5-b8e3-d4af2b8d4aa3",
+   "landed": "/consultations/doctor/262d226e-ffed-41a5-b8e3-d4af2b8d4aa3",
+   "status": "TESTED",
+   "time_to_ready_ms": 3203,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "arrow_forward",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3583
+    },
+    {
+     "label": "favorite_border",
+     "result": "UI_CHANGE",
+     "response_ms": 465
+    },
+    {
+     "label": "share",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3573
+    },
+    {
+     "label": "meeting_room",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3555
+    },
+    {
+     "label": "videocam",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 801
+    },
+    {
+     "label": "home",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 469
+    },
+    {
+     "label": "اليوم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3570
+    },
+    {
+     "label": "غداً",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 801
+    },
+    {
+     "label": "الأحد",
+     "result": "UI_CHANGE",
+     "response_ms": 806
+    },
+    {
+     "label": "الاثنين",
+     "result": "UI_CHANGE",
+     "response_ms": 491
+    },
+    {
+     "label": "الثلاثاء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 484
+    },
+    {
+     "label": "الأربعاء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 830
+    },
+    {
+     "label": "الخميس",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 495
+    },
+    {
+     "label": "الجمعة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 806
+    },
+    {
+     "label": "السبت",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 834
+    },
+    {
+     "label": "هل يمكن إلغاء أو تعديل الموعد؟",
+     "result": "NAVIGATE",
+     "to": "/consultations/book/262d226e-ffed-41a5-b8e3-d4af2b8d4aa3?visit_type=home",
+     "response_ms": 1327
+    },
+    {
+     "label": "ما طرق الدفع المتاحة؟",
+     "result": "NAVIGATE",
+     "to": "/consultations/book/262d226e-ffed-41a5-b8e3-d4af2b8d4aa3?visit_type=clinic",
+     "response_ms": 1349
+    },
+    {
+     "label": "احجز موعداً",
+     "result": "NAVIGATE",
+     "to": "/consultations/book/262d226e-ffed-41a5-b8e3-d4af2b8d4aa3?visit_type=clinic",
+     "response_ms": 1343
+    }
+   ]
+  },
+  {
+   "route": "diagnostics/lab/[id]",
+   "url": "/diagnostics/lab/21295a61-f112-4d2d-b8ef-e1a5c2fae2bb",
+   "landed": "/diagnostics/lab/21295a61-f112-4d2d-b8ef-e1a5c2fae2bb",
+   "status": "TESTED",
+   "time_to_ready_ms": 2588,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3649
+    },
+    {
+     "label": "󰇐",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3651
+    },
+    {
+     "label": "󰸊",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/test-detail?id=2f227444-b928-40ee-8308-8cc8cc3ac9fb&labId=21295a61-f112-4d2d-b8ef-e1a5c2fae2bb",
+     "response_ms": 2000
+    },
+    {
+     "label": "󰄒",
+     "result": "UI_CHANGE",
+     "response_ms": 2046
+    }
+   ]
+  },
+  {
+   "route": "diagnostics/order/[id]",
+   "url": "/diagnostics/order/5d0415d1-e596-4f22-829c-88ab660363e0",
+   "landed": "/diagnostics/order/5d0415d1-e596-4f22-829c-88ab660363e0",
+   "status": "TESTED",
+   "time_to_ready_ms": 2579,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /labs/bookings/5d0415d1-e596-4f22-829c-88ab660363e0",
+     "404 GET /radiology/bookings/5d0415d1-e596-4f22-829c-88ab660363e0"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "إعادة المحاولة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 2498
+    }
+   ]
+  },
+  {
+   "route": "doctor/[slug]",
+   "url": "/doctor/msuwl-doctor-262d22",
+   "landed": "/consultations/doctor/262d226e-ffed-41a5-b8e3-d4af2b8d4aa3",
+   "status": "TESTED",
+   "time_to_ready_ms": 3242,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "arrow_forward",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 5047
+    },
+    {
+     "label": "favorite_border",
+     "result": "UI_CHANGE",
+     "response_ms": 1437
+    },
+    {
+     "label": "share",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 5065
+    },
+    {
+     "label": "meeting_room",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 4587
+    },
+    {
+     "label": "videocam",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 4570
+    },
+    {
+     "label": "home",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 4566
+    },
+    {
+     "label": "اليوم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 4573
+    },
+    {
+     "label": "غداً",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 4588
+    },
+    {
+     "label": "الأحد",
+     "result": "UI_CHANGE",
+     "response_ms": 1555
+    },
+    {
+     "label": "الاثنين",
+     "result": "UI_CHANGE",
+     "response_ms": 2004
+    },
+    {
+     "label": "الثلاثاء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 5051
+    },
+    {
+     "label": "الأربعاء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 4581
+    },
+    {
+     "label": "الخميس",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 4583
+    },
+    {
+     "label": "الجمعة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 4574
+    },
+    {
+     "label": "السبت",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 4581
+    },
+    {
+     "label": "هل يمكن إلغاء أو تعديل الموعد؟",
+     "result": "NAVIGATE",
+     "to": "/consultations/book/262d226e-ffed-41a5-b8e3-d4af2b8d4aa3?visit_type=home",
+     "response_ms": 2326
+    },
+    {
+     "label": "ما طرق الدفع المتاحة؟",
+     "result": "NAVIGATE",
+     "to": "/consultations/book/262d226e-ffed-41a5-b8e3-d4af2b8d4aa3?visit_type=clinic",
+     "response_ms": 2456
+    },
+    {
+     "label": "احجز موعداً",
+     "result": "NAVIGATE",
+     "to": "/consultations/book/262d226e-ffed-41a5-b8e3-d4af2b8d4aa3?visit_type=clinic",
+     "response_ms": 2439
+    }
+   ]
+  },
+  {
+   "route": "facility/[slug]",
+   "url": "/facility/king-faisal-specialist",
+   "landed": "/consultations/clinic/king-faisal-specialist",
+   "status": "TESTED",
+   "time_to_ready_ms": 3171,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /care/facilities/king-faisal-specialist"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "s/[type]/[slug]",
+   "url": "/s/doctor/msuwl-doctor-262d22",
+   "landed": "/consultations/doctor/262d226e-ffed-41a5-b8e3-d4af2b8d4aa3",
+   "status": "TESTED",
+   "time_to_ready_ms": 3789,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "arrow_forward",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 5052
+    },
+    {
+     "label": "favorite_border",
+     "result": "UI_CHANGE",
+     "response_ms": 1449
+    },
+    {
+     "label": "share",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 5050
+    },
+    {
+     "label": "meeting_room",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 4575
+    },
+    {
+     "label": "videocam",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 4600
+    },
+    {
+     "label": "home",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 4593
+    },
+    {
+     "label": "اليوم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 4576
+    },
+    {
+     "label": "غداً",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 4580
+    },
+    {
+     "label": "الأحد",
+     "result": "UI_CHANGE",
+     "response_ms": 1572
+    },
+    {
+     "label": "الاثنين",
+     "result": "UI_CHANGE",
+     "response_ms": 2006
+    },
+    {
+     "label": "الثلاثاء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 5045
+    },
+    {
+     "label": "الأربعاء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 4752
+    },
+    {
+     "label": "الخميس",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 4590
+    },
+    {
+     "label": "الجمعة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 4599
+    },
+    {
+     "label": "السبت",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 4604
+    },
+    {
+     "label": "هل يمكن إلغاء أو تعديل الموعد؟",
+     "result": "NAVIGATE",
+     "to": "/consultations/book/262d226e-ffed-41a5-b8e3-d4af2b8d4aa3?visit_type=home",
+     "response_ms": 2332
+    },
+    {
+     "label": "ما طرق الدفع المتاحة؟",
+     "result": "NAVIGATE",
+     "to": "/consultations/book/262d226e-ffed-41a5-b8e3-d4af2b8d4aa3?visit_type=clinic",
+     "response_ms": 2482
+    },
+    {
+     "label": "احجز موعداً",
+     "result": "NAVIGATE",
+     "to": "/consultations/book/262d226e-ffed-41a5-b8e3-d4af2b8d4aa3?visit_type=clinic",
+     "response_ms": 2360
+    }
+   ]
+  }
+ ]
+}

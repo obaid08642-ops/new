@@ -36,7 +36,21 @@ const FIXES: Record<string, string> = {
   science: 'flask',
   document: 'file-document',
   'arrow-back-ios': 'arrow-left',
+  // Not MCI glyphs: rendered as a "?" box (home pharmacy card, broadcast status, search, sleep, loyalty).
+  pharmacy: 'mortar-pestle-plus',
+  'forgot-password': 'lock-question',
+  filter_list: 'filter-variant',
+  activity: 'pulse',
+  nights_stay: 'weather-night',
+  workspace_premium: 'medal',
+  search_off: 'magnify-close',
 };
+
+/** The MaterialCommunityIcons glyph a name renders with (before RTL mirroring). Exported for the glyph test. */
+export function resolveIconName(name: string): string {
+  const finalName = FIXES[name] || STATIC_MAP[name] || name.replace(/_/g, '-');
+  return FIXES[finalName] || finalName;
+}
 
 export type IconName = string;
 
@@ -71,8 +85,7 @@ export function Icon({ name, color, size = 24, style }: any) {
     return <Ionicons name={baseName as any} size={size} color={resolvedColor} style={style} />;
   }
 
-  let finalName = FIXES[baseName] || STATIC_MAP[baseName] || baseName.replace(/_/g, '-');
-  finalName = FIXES[finalName] || finalName;
+  const finalName = resolveIconName(baseName);
 
   return <MaterialCommunityIcons name={finalName as any} size={size} color={resolvedColor} style={style} />;
 }

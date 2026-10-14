@@ -1,3 +1,4 @@
+import { PROVIDER_ROLES } from '../../common/enums';
 import { Controller, Post, Get, Param, Body, Query, Req, UseGuards } from '@nestjs/common';
 import { Roles, SelfService, Public, JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
@@ -10,6 +11,7 @@ export class LiveKitController {
 
   // ===== NABD PROVIDER BLUEPRINT: PHASE 2 (TELEHEALTH & VIRTUAL ROOM) =====
 
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('provider/waiting-room')
   getWaitingRoom(@CurrentUser() u: any) {
     return this.svc.getProviderWaitingRoom(u.id);

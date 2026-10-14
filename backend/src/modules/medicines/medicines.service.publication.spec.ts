@@ -8,14 +8,14 @@ describe('MedicinesService catalog governance', () => {
     };
     const events = { emit: jest.fn() };
     const redis = { getClient: jest.fn().mockReturnValue(null) };
-    const collection = { insertOne: jest.fn().mockResolvedValue({}) };
+    const collection = { insertOne: jest.fn().mockResolvedValue({}), findOne: jest.fn().mockResolvedValue(null) };
     const conn = { collection: jest.fn().mockReturnValue(collection) };
     const publication = { refresh: jest.fn().mockResolvedValue({}) };
     const service = new MedicinesService(model as any, events as any, redis as any, conn as any, publication as any);
     return { service, model };
   };
 
-  it('withdraws a public medicine after direct content editing', async () => {
+  it('F8: a content edit to a public medicine by an editor without catalog.approve waits as a pending revision', async () => {
     const { service, model } = createService({
       id: 'med-1', name_ar: 'دواء', description_ar: 'قبل', images: [],
       public_eligibility: true, indexing_eligibility: true, medical_review_status: 'approved',
@@ -23,16 +23,10 @@ describe('MedicinesService catalog governance', () => {
 
     const result = await service.adminUpdateCatalog('med-1', { description_ar: 'بعد' }, 'admin-1');
 
-    expect(result).toEqual(expect.objectContaining({ ok: true, requires_reapproval: true }));
+    expect(result).toEqual(expect.objectContaining({ ok: true, requires_reapproval: true, pending_revision: true }));
     expect(model.updateOne).toHaveBeenCalledWith(
       { id: 'med-1' },
-      expect.objectContaining({
-        $set: expect.objectContaining({
-          description_ar: 'بعد', verified: false, public_eligibility: false,
-          indexing_eligibility: false, medical_review_status: 'pending',
-          provenance: 'admin_direct_edit_pending_review',
-        }),
-      }),
+      { $set: { pending_revision: expect.objectContaining({ changes: { description_ar: 'بعد' } }), updatedAt: expect.any(Date) } },
     );
   });
 

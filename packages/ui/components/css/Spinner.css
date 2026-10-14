@@ -1,0 +1,7 @@
+/* Spinner (components/Spinner.tsx). The size is the SVG's width/height attributes. */
+.nabd-spinner { display: block; flex-shrink: 0; }
+.nabd-spinner__arc {
+  transform-origin: center;
+  animation: nabd-spin var(--nabd-motion-duration-skeleton) linear infinite;
+}
+@keyframes nabd-spin { to { transform: rotate(360deg); } }

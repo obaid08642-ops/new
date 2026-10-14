@@ -1,0 +1,33 @@
+  PASS  race-a: send-otp (email, register)
+  PASS  race-a: OTP email delivered
+  PASS  race-a: verify-otp
+  PASS  race-a: register returns token + user
+  PASS  race-b: send-otp (email, register)
+  PASS  race-b: OTP email delivered
+  PASS  race-b: verify-otp
+  PASS  race-b: register returns token + user
+  PASS  7 buffer-safe free clinic slots found (2026-10-04)
+
+=== concurrency A: two patients reserve the same slot at the same instant
+  PASS  exactly one lock is granted
+  PASS  the other gets a clear conflict (4xx)
+
+=== concurrency B: both book that slot at the same instant (only one holds the lock)
+  PASS  exactly one appointment for the slot
+  FAIL  the lock holder is the one who got it  ->  409 / 201
+
+=== concurrency C: one patient double-submits one booking (same idempotency key, 6 at once)
+  PASS  every success returns the same appointment id
+  PASS  the patient holds exactly one appointment at that time
+  PASS  no 5xx under the burst
+
+=== concurrency D: one patient books 4 different slots at once (different keys)
+  PASS  each distinct slot is booked once, none refused as a conflict
+  PASS  four distinct appointments
+
+=== Q37: a slot listed as available right after a booking is bookable
+  PASS  book a slot
+  PASS  the next slot is either not listed as available or bookable
+
+##### 19/20 steps passed, 1 failed
+  FAIL [concurrency B: both book that slot at the same instant (only one holds the lock)] the lock holder is the one who got it: 409 / 201

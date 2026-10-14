@@ -1,99 +1,22 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { CurrentUser, JwtAuthGuard, SelfService } from '../../common/auth.guard';
 import { EmergencyService } from './emergency.service';
-import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
-import { UserRole } from '../../common/enums';
-import { ServiceUnavailableException } from '@nestjs/common';
-import { TriggerDto, TrackDto, ResolveDto, ClaimDto, AssignDto, Escalate997Dto} from './emergency.dto';
+import { ShareLocationDto } from './emergency.dto';
 
+/**
+ * Owner decision 14 (answer O-2): no ambulance request, dispatch or tracking from our side. The emergency
+ * button dials 997 on the device; the one server action left is sharing the patient's location with their
+ * own emergency contacts.
+ */
 @Controller('emergency')
 @UseGuards(JwtAuthGuard)
 export class EmergencyController {
-  constructor(private svc: EmergencyService) {}
+  constructor(private readonly svc: EmergencyService) {}
 
+  /** POST /api/v1/emergency/share-location { lat, lng } */
   @SelfService()
-  @Post('trigger')
-  trigger(@Body() body: TriggerDto, @CurrentUser() user: any) {
-    return this.svc.trigger(user, body);
-  }
-
-  // M1-31: patients poll their own active SOS — no admin role required
-  @Get('my/active')
-  myActive(@CurrentUser() user: any) {
-    return this.svc.myActive(user.id);
-  }
-
-  /** Patient cancels their own active SOS */
-  @SelfService()
-  @Post(':id/cancel')
-  cancel(@Param('id') id: string, @CurrentUser() user: any) {
-    return this.svc.cancelOwn(id, user.id);
-  }
-
-  /** Driver/ambulance: open SOS pool + my assigned missions */
-  @Get('driver/missions')
-  driverMissions(@CurrentUser() user: any) {
-    return this.svc.driverMissions(user.id);
-  }
-
-  /** Driver/ambulance: self-assign an open SOS (first-come-first-served) */
-  @Roles(UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
-  @Post(':id/claim')
-  claim(@Param('id') id: string, @Body() body: ClaimDto, @CurrentUser() user: any) {
-    return this.svc.claim(id, user.id, body?.vehicle_id);
-  }
-
-  /** Patient: live tracking of own active SOS (real unit GPS + computed ETA) */
-  @Get('tracking')
-  tracking(@CurrentUser() user: any) {
-    return this.svc.tracking(user.id);
-  }
-
-  /** Driver who claimed: push unit GPS position (ownership enforced) */
-  @Roles(UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
-  @Post(':id/track')
-  track(@Param('id') id: string, @Body() body: TrackDto, @CurrentUser() user: any) {
-    return this.svc.updateUnitLocation(id, user.id, body);
-  }
-
-  @Get('active')
-  @Roles(UserRole.ADMIN)
-  active() {
-    return this.svc.active();
-  }
-
-  @Get(':id')
-  @Roles(UserRole.ADMIN)
-  one(@Param('id') id: string) {
-    return this.svc.getById(id);
-  }
-
-  @Roles(UserRole.ADMIN)
-  @Post(':id/assign')
-  @Roles(UserRole.ADMIN)
-  assign(@Param('id') id: string, @Body() body: AssignDto, @CurrentUser() user: any) {
-    return this.svc.assign(id, body.hospital_id, user);
-  }
-
-  /** P6.x-5: escalate an open SOS to 997. */
-  @Roles(UserRole.ADMIN)
-  @Post(':id/escalate-997')
-  @Roles(UserRole.ADMIN)
-  escalate997(@Param('id') id: string, @Body() body: Escalate997Dto, @CurrentUser() user: any) {
-    return this.svc.escalate997(id, user, body?.notes);
-  }
-
-  /** Admin/dispatcher: (re)run the internal smart-dispatch engine for an open SOS */
-  @Roles(UserRole.ADMIN)
-  @Post(':id/auto-dispatch')
-  @Roles(UserRole.ADMIN)
-  autoDispatch(@Param('id') id: string, @CurrentUser() user: any) {
-    return this.svc.autoDispatch(id, user);
-  }
-
-  @Roles(UserRole.ADMIN)
-  @Post(':id/resolve')
-  @Roles(UserRole.ADMIN)
-  resolve(@Param('id') id: string, @CurrentUser() user: any, @Body() body: ResolveDto) {
-    return this.svc.resolve(id, user, body?.notes);
+  @Post('share-location')
+  shareLocation(@Body() body: ShareLocationDto, @CurrentUser() user: any) {
+    return this.svc.shareLocation(user, body);
   }
 }

@@ -1,5 +1,8 @@
 import React, { useRef } from 'react';
-import { View, Text, Modal, TouchableOpacity, StyleSheet, Platform, SafeAreaView, Alert } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, StyleSheet, Platform, Alert } from 'react-native';
+// DEVICE_STANDARD §5: the safe-area-context SafeAreaView (iOS and Android), never react-native's iOS-only one.
+// A Modal is its own native root, so it gets its own provider to measure the insets.
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import SignatureScreen from 'react-native-signature-canvas';
 import { useTheme, useLang } from '../context';
 import { FS, FW, R, SP } from '../constants';
@@ -32,6 +35,7 @@ export const SignatureCanvasModal = ({ visible, onClose, onOK }: SignatureCanvas
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
+      <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: SP.lg }}>
           <View style={{ width: '100%', height: 400, backgroundColor: theme.surface, borderRadius: R.xl, overflow: 'hidden', paddingBottom: SP.xl }}>
@@ -84,6 +88,7 @@ export const SignatureCanvasModal = ({ visible, onClose, onOK }: SignatureCanvas
           </View>
         </View>
       </SafeAreaView>
+      </SafeAreaProvider>
     </Modal>
   );
 };

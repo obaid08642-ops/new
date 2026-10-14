@@ -16,6 +16,7 @@ describe("medicine response guards", () => {
     expect(parseMedicineId(medicineId).success).toBe(true);
     expect(parseMedicineId("aB_12-").success).toBe(true);
     expect(parseMedicineId("../unsafe").success).toBe(false);
+    expect(parseMedicineId("compare").success).toBe(false);
     expect(parseMedicineId("invalid/id").success).toBe(false);
     expect(extractMedicineDetail({ id: "invalid/id" })).toBeNull();
   });

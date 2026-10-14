@@ -25,9 +25,10 @@ export class UpdateProfileDto {
   @IsString()
   prev_period_date?: string;
 
+  // The app and the website send a boolean and the service requires one (R51: @IsString rejected every cycle setup).
   @IsOptional()
-  @IsString()
-  is_regular?: string;
+  @IsBoolean()
+  is_regular?: boolean;
 
 
 }

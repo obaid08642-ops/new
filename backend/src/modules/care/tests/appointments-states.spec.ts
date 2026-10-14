@@ -110,8 +110,9 @@ describe('AppointmentsService state machine', () => {
       expect(events.emit).toHaveBeenCalledWith('appointment.refund.calculated', expect.objectContaining({ refund_percentage: 100 }));
     });
 
-    it('patient cancels <24h before → 50% refund to wallet', async () => {
-      const appt = apptIn(APPT_STATES.CONFIRMED, { slot_start: new Date(Date.now() + 5 * 3600000) });
+    // D-26 (owner): the full-refund window is 2 h (was 24 h), so "late" is now inside 2 h.
+    it('patient cancels <2h before → 50% refund to wallet', async () => {
+      const appt = apptIn(APPT_STATES.CONFIRMED, { slot_start: new Date(Date.now() + 1 * 3600000) });
       apptModel.findOne.mockResolvedValue(appt);
       const res = await service.cancel('appt-1', { id: 'pat-1', role: 'patient' });
       expect(res.refund_percentage).toBe(50);

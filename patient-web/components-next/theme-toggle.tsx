@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Monitor, Moon, Sun } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { THEME_STORAGE_KEY, isTheme, type Theme } from "@/app/theme";
 
 type Props = { label: string };
@@ -21,6 +22,8 @@ const NEXT: Record<Theme, Theme> = { light: "dark", dark: "light" };
  * choice survives an OS change.
  */
 export function ThemeToggle({ label }: Props) {
+  const t = useTranslations("NotificationSettings");
+  const names = { light: t("appearanceLight"), system: t("appearanceAuto"), dark: t("appearanceDark") } as const;
   const [theme, setTheme] = useState<Theme | "system">("system");
   const [mounted, setMounted] = useState(false);
 
@@ -73,16 +76,6 @@ export function ThemeToggle({ label }: Props) {
     [apply],
   );
 
-  // Before hydration there is no way to know what the user chose, so rendering
-  // the "current" icon would flash the wrong glyph. Render the neutral one.
-  const icon = !mounted || theme === "system" ? (
-    <Monitor size={16} aria-hidden="true" />
-  ) : theme === "dark" ? (
-    <Moon size={16} aria-hidden="true" />
-  ) : (
-    <Sun size={16} aria-hidden="true" />
-  );
-
   return (
     <div className="theme-toggle" role="group" aria-label={label}>
       {(["light", "system", "dark"] as const).map((option) => {
@@ -103,13 +96,10 @@ export function ThemeToggle({ label }: Props) {
             ) : (
               <Monitor size={14} aria-hidden="true" />
             )}
-            <span className="sr-only">{option}</span>
+            <span className="sr-only">{names[option]}</span>
           </button>
         );
       })}
-      <span className="sr-only" aria-live="polite">
-        {icon ? "" : ""}
-      </span>
     </div>
   );
 }

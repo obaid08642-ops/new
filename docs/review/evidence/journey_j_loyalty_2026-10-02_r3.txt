@@ -1,0 +1,146 @@
+
+=== admin: login with email 2FA (admin panel)
+  PASS  credentials -> 202 requires_2fa
+  PASS  2FA code emailed to the admin
+  PASS  verify-2fa -> session
+  PASS  session cookie set (httpOnly)
+  PASS  BFF call with the session (dashboard: command-center)
+  PASS  wrong admin password rejected (401, or 429 once the login throttle trips)
+  PASS  admin device enrolled for the gate run (C2)
+
+=== onboarding: doctor registers in the provider app
+  PASS  start
+  PASS  wizard sign-in
+  PASS  upload national_id.jpg
+  PASS  upload medical_license.jpg
+  PASS  upload professional_cv.pdf
+  PASS  upload iban_letter.jpg
+  PASS  step2 as sent by DoctorRegistration.tsx:349
+  PASS  step3 as sent by DoctorRegistration.tsx:1022
+  PASS  step2 as sent by DoctorRegistration.tsx:1095
+  PASS  step2 as sent by DoctorRegistration.tsx:1119
+  PASS  upload signature.png
+  PASS  email verified
+  PASS  submit for review
+
+=== onboarding: admin reviews the doctor
+  PASS  pending list (provider-moderation) shows the new provider
+  PASS  provider detail opens
+  PASS  approve with commissions
+  PASS  no longer pending
+
+=== onboarding: approved doctor signs in
+  PASS  provider login
+
+=== consultation: doctor opens clinic hours (admin approves)
+  PASS  doctor submits clinic hours
+  PASS  admin sees the pending schedule change
+  PASS  admin approves the None change
+  PASS  admin approves the settings change
+  PASS  admin approves the slots change
+  PASS  the hours are live on the doctor schedule
+  PASS  loyal: send-otp (email, register)
+  PASS  loyal: OTP email delivered
+  PASS  loyal: verify-otp
+  PASS  loyal: register returns token + user
+
+=== consultation: patient finds the doctor and a slot
+  PASS  specialties load
+  PASS  doctor search lists the approved doctor
+  PASS  doctor profile opens
+  PASS  the doctor has free clinic slots tomorrow
+
+=== consultation: patient books and pays by card
+  PASS  slot held (10 min lock)
+  PASS  appointment created
+  PASS  the same slot cannot be booked twice
+  PASS  card is offered for this consultation
+  PASS  checkout link is https
+  PASS  payment verified
+  PASS  booking-status shows it paid
+
+=== consultation: the doctor runs the visit
+  PASS  the appointment reaches the doctor (incoming or already confirmed)
+  PASS  appointment check-in
+  PASS  appointment start
+  PASS  doctor writes a prescription during the visit
+  PASS  doctor finishes the visit with the summary
+
+=== consultation: the patient after the visit
+  PASS  appointment COMPLETED
+  PASS  visit summary opens
+  PASS  prescription-from-doctor lists the prescription
+  PASS  add to reminders creates the reminder
+  PASS  the reminder shows in my reminders
+  PASS  patient rates the doctor
+
+=== doctor screens: every tab loads
+  PASS  GET /provider/profile
+  PASS  GET /provider/profile/availability
+  PASS  GET /provider/jobs/queue?status=incoming&kind=consultation
+  PASS  GET /provider/jobs/queue?status=active&kind=consultation
+  PASS  GET /provider/jobs/queue?status=active
+  PASS  GET /calls/provider/waiting-room
+  PASS  GET /provider/schedule-slots
+  PASS  GET /provider/capabilities/doctor-sessions
+  PASS  GET /provider/settings/pricing
+  PASS  GET /provider/wallet
+  PASS  GET /provider/wallet/transactions
+  PASS  GET /provider/notifications
+  PASS  GET /provider/kyc/documents
+  PASS  GET /provider/referrals/mine
+  PASS  GET /provider/reports/inbound
+  PASS  GET /provider/ops/doctor/templates
+  PASS  GET /provider/ops/doctor/diagnoses
+  PASS  GET /provider/ops/doctor/leave
+  PASS  GET /provider/ops/doctor/blacklist
+  PASS  GET /provider/stats/today
+  PASS  GET /provider/stats/period?period=week
+  PASS  GET /provider/directory
+  PASS  GET /hospital/invitations/inbox
+  PASS  GET /provider/dashboard/stats
+  PASS  GET /provider/crm
+
+=== consultation: admin orders console
+  PASS  console lists it with status and amount
+  PASS  friend: send-otp (email, register)
+  PASS  friend: OTP email delivered
+  PASS  friend: verify-otp
+  PASS  friend: register returns token + user
+
+=== loyalty: screens load
+  PASS  GET /loyalty/account
+  PASS  GET /loyalty/config
+  PASS  GET /loyalty/rewards
+  PASS  GET /loyalty/challenges
+  PASS  GET /loyalty/leaderboard?limit=50
+  PASS  GET /loyalty/transactions?page=1
+  PASS  GET /referrals/my
+  PASS  GET /users/me/wishlist
+
+=== loyalty: admin builds the catalogue (LJ-08)
+  FAIL  admin creates an affordable reward  ->  403 {"message": "step_up_required", "error": "Forbidden", "statusCode": 403}
+  FAIL  admin creates an expensive reward  ->  403 {"message": "step_up_required", "error": "Forbidden", "statusCode": 403}
+  FAIL  admin creates a live challenge  ->  403 {"message": "step_up_required", "error": "Forbidden", "statusCode": 403}
+  FAIL  admin updates the points config  ->  403 {"message": "step_up_required", "error": "Forbidden", "statusCode": 403}
+
+=== loyalty: points from the completed consultation and its review
+  PASS  points were awarded for the completed visit and the review
+  PASS  history shows booking_completed and review_submitted
+
+=== loyalty: rewards
+  PASS  reward catalogue
+
+=== wishlist: add then list with real prices (LJ-08)
+
+=== referrals: a friend applies the patient code
+  PASS  patient has a referral code
+  PASS  friend applies it
+  PASS  applying twice is refused
+  PASS  own code is refused
+
+##### 102/106 steps passed, 4 failed
+  FAIL [loyalty: admin builds the catalogue (LJ-08)] admin creates an affordable reward: 403 {"message": "step_up_required", "error": "Forbidden", "statusCode": 403}
+  FAIL [loyalty: admin builds the catalogue (LJ-08)] admin creates an expensive reward: 403 {"message": "step_up_required", "error": "Forbidden", "statusCode": 403}
+  FAIL [loyalty: admin builds the catalogue (LJ-08)] admin creates a live challenge: 403 {"message": "step_up_required", "error": "Forbidden", "statusCode": 403}
+  FAIL [loyalty: admin builds the catalogue (LJ-08)] admin updates the points config: 403 {"message": "step_up_required", "error": "Forbidden", "statusCode": 403}

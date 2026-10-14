@@ -1,10 +1,11 @@
+import { PROVIDER_ROLES } from '../../common/enums';
 import { Body, Controller, Get, Param, Patch, Post, Put, Query, UseGuards, BadRequestException, UseInterceptors } from '@nestjs/common';
 import { NabdExtensionsService } from './nabd-extensions.service';
 import { PharmacyOfferService } from '../pharmacy/services/pharmacy-offer.service';
 import { JwtAuthGuard, CurrentUser, Public, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
-import { CreditWalletDto, DebitWalletDto, RespondToBroadcastDto, ClaimReferralDto, UpdateFlagDto, EnrollProgramDto, CompleteSessionDto, MatchPharmacyDto, MatchNurseDto, VerifyNurseAttendanceDto, VerifyBarcodeDto, VerifyLabResultsDto, EnrollCorporateDto, CreateAdBidDto} from './nabd-extensions.dto';
+import { RespondToBroadcastDto, ClaimReferralDto, UpdateFlagDto, EnrollProgramDto, CompleteSessionDto, MatchPharmacyDto, MatchNurseDto, VerifyNurseAttendanceDto, VerifyBarcodeDto, VerifyLabResultsDto, EnrollCorporateDto, CreateAdBidDto} from './nabd-extensions.dto';
 
 @Controller()
 @UseGuards(JwtAuthGuard)
@@ -25,56 +26,6 @@ export class NabdExtensionsController {
       return this.svc.logActivity('notifications.read_all', user.id);
     }
     return this.svc.logActivity('notifications.read', user.id, undefined, { notificationId: id });
-  }
-
-  @Get('wallet/balance')
-  async getWalletBalance(@CurrentUser() user: any) {
-    const balance = await this.svc.getWalletBalance(user.id, user.role !== UserRole.PATIENT ? 'provider' : 'patient');
-    return { balance };
-  }
-
-  @Roles(UserRole.ADMIN)
-  @Post('wallet/credit')
-  async creditWallet(@CurrentUser() user: any, @Body() body: CreditWalletDto) {
-    const ownerType = (user.role !== UserRole.PATIENT ? 'provider' : 'patient') as 'patient' | 'provider';
-    const res = await this.svc.processWalletTransaction({
-      ownerId: user.id,
-      ownerType,
-      amount: body.amount,
-      type: 'credit',
-      referenceType: body.referenceType || 'booking',
-      referenceId: body.referenceId || 'manual',
-      description: body.description || 'Manual Wallet Credit',
-    });
-    await this.svc.auditAdminWalletAdjustment(user, {
-      ownerId: user.id, ownerType,
-      amount: body.amount, type: 'credit',
-      referenceType: body.referenceType, referenceId: body.referenceId,
-      description: body.description,
-    });
-    return res;
-  }
-
-  @Roles(UserRole.ADMIN)
-  @Post('wallet/debit')
-  async debitWallet(@CurrentUser() user: any, @Body() body: DebitWalletDto) {
-    const ownerType = (user.role !== UserRole.PATIENT ? 'provider' : 'patient') as 'patient' | 'provider';
-    const res = await this.svc.processWalletTransaction({
-      ownerId: user.id,
-      ownerType,
-      amount: body.amount,
-      type: 'debit',
-      referenceType: body.referenceType || 'booking',
-      referenceId: body.referenceId || 'manual',
-      description: body.description || 'Manual Wallet Debit',
-    });
-    await this.svc.auditAdminWalletAdjustment(user, {
-      ownerId: user.id, ownerType,
-      amount: body.amount, type: 'debit',
-      referenceType: body.referenceType, referenceId: body.referenceId,
-      description: body.description,
-    });
-    return res;
   }
 
   @SelfService()
@@ -197,6 +148,7 @@ export class NabdExtensionsController {
     });
   }
 
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('pharmacy/inventory/expiry')
   async getExpiringInventory(@CurrentUser() provider: any) {
     return this.svc.getExpiringInventory(provider.id);

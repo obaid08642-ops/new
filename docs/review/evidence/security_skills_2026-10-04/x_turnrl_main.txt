@@ -1,0 +1,6 @@
+[main] guest (no account, no call) GET /calls/ice/credentials -> 200 ttl=86400 user=1791203749:499ed165-7730-443f-ae56-5e7f56bb18b7
+[main]   credential == HMAC-SHA1("change_this_secret", username): True
+[main] POST /auth/login wrong password x30: {401: 5, 429: 25}
+[main] POST /auth/verify-otp wrong code x30: {400: 3, 429: 27}
+[main] POST /auth/guest x30: {429: 30}
+[main] POST /auth/login wrong pw, rotating X-Forwarded-For x30: {401: 30}

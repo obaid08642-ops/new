@@ -1,53 +1,12 @@
 import { notFound } from "next/navigation";
-import { getTranslations, setRequestLocale } from "next-intl/server";
-import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { Camera, ShieldCheck } from "lucide-react";
-import { ScanPrescriptionForm } from "@/components-next/scan-prescription-form";
-import styles from "./scan.module.css";
+import { redirectKeepingQuery } from "@/lib/redirect-keep-query";
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-export default async function ScanPrescriptionPage({ params }: Props) {
+/** Merged into the one "order with a prescription" screen (second pass, section 11): this is its photo way in. The query is kept. */
+export default async function ScanPrescriptionPage({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  setRequestLocale(locale);
-  await requirePatientAccess(locale);
-
-  const t = await getTranslations("ScanPrescription");
-
-  return (
-    <main className={`main ${styles.page}`}>
-      <section className={styles.card}>
-        <div className={styles.cardHead}>
-          <span className={styles.iconWrap}>
-            <Camera size={26} aria-hidden="true" />
-          </span>
-          <div>
-            <p className={styles.eyebrow}>
-              <ShieldCheck size={15} aria-hidden="true" />
-              {t("eyebrow")}
-            </p>
-            <h1>{t("title")}</h1>
-          </div>
-        </div>
-        <p className={styles.description}>{t("description")}</p>
-
-        <ScanPrescriptionForm
-          locale={locale}
-          labels={{
-            title: t("title"),
-            description: t("description"),
-            uploadLabel: t("uploadLabel"),
-            scanBtn: t("scanBtn"),
-            submitting: t("submitting"),
-            extracting: t("extracting"),
-            saving: t("saving"),
-            success: t("success"),
-            error: t("error"),
-          }}
-        />
-      </section>
-    </main>
-  );
+  redirectKeepingQuery(`/${locale}/pharmacy/rx-order`, await searchParams, { via: "photo" });
 }

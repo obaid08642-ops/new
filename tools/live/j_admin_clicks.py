@@ -171,18 +171,17 @@ def main():
         step('reports click flow', False, str(e)[:300])
 
     # ---- medicines catalog-manager: create -> listed -> delete ----
-    journey('admin clicks: catalog-manager medicines (create/delete)')
+    # R9 (4ce3e81): the catalog-manager medicines tab was removed; medicines-catalog.tsx is the single editor.
+    journey('admin clicks: medicines-catalog (create/delete)')
     try:
-        page.goto(f'{ADMIN_WEB}/admin/catalog-manager', wait_until='load', timeout=45000)
+        page.goto(f'{ADMIN_WEB}/admin/medicines-catalog', wait_until='load', timeout=45000)
         page.wait_for_timeout(1500)
-        meds = page.locator('button', has_text='الأدوية')
-        if meds.count():
-            meds.first.click()
-            page.wait_for_timeout(1000)
-        page.click('button:has-text("دواء جديد")')
+        page.click('button:has-text("إضافة صنف جديد")')
         page.wait_for_timeout(500)
-        page.fill('input[placeholder="الاسم (عربي)"]', f'دواء {U}')
-        page.fill('input[placeholder="السعر"]', '17')
+        # the form's labels are not bound to their inputs (no htmlFor), so take the input next to each label
+        field = lambda label: page.locator(f'xpath=//label[normalize-space()="{label}"]/following-sibling::input[1]')
+        field('الاسم بالعربية *').fill(f'دواء {U}')
+        field('السعر (ر.س)').fill('17')
         page.click('button:has-text("حفظ")')
         page.wait_for_timeout(2000)
         listed = f'دواء {U}' in page.content()

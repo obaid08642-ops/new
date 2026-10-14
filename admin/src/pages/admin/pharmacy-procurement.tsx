@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import Head from 'next/head';
 import { apiFetch } from '../../utils/api';
 import { dateLocale } from '../../utils/dates';
+import { DataTable, type LooseRow } from '@/components/DataTable';
 
 /**
  * Pharmacy → warehouse procurement (B2B):
@@ -139,60 +140,48 @@ export default function PharmacyProcurementPage() {
 
                   {isOpen && (
                     <div className="border-t border-slate-100 p-4 space-y-4">
-                      <table className="w-full text-right text-sm">
-                        <thead className="text-xs text-slate-500 bg-slate-50">
-                          <tr>
-                            <th className="p-2">الصنف</th>
-                            <th className="p-2">المجموعة</th>
-                            <th className="p-2">الكمية</th>
-                            <th className="p-2">سعر الوحدة (ر.س)</th>
-                            <th className="p-2">الخصم %</th>
-                            <th className="p-2">الإجمالي بعد الخصم</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                          {items.map((it: any, i: number) => (
-                            <tr key={i}>
-                              <td className="p-2 font-bold">{it.raw_name_string || it.name}</td>
-                              <td className="p-2">{it.category_group === 'non_medical' ? 'غير دوائية' : 'أدوية'}</td>
-                              <td className="p-2">
-                                <input
-                                  value={itemQties[i] ?? String(it.requested_quantity || it.quantity || 1)}
-                                  onChange={e => setItemQties(prev => ({ ...prev, [i]: e.target.value.replace(/\D/g, '') }))}
-                                  className="border rounded px-2 py-1 w-20"
-                                  dir="ltr"
-                                  placeholder="1"
-                                />
-                              </td>
-                              <td className="p-2">
-                                <input
-                                  value={itemPrices[i] || ''}
-                                  onChange={e => setItemPrices(prev => ({ ...prev, [i]: e.target.value.replace(/[^\d.]/g, '') }))}
-                                  className="border rounded px-2 py-1 w-28"
-                                  dir="ltr"
-                                  placeholder="0.00"
-                                />
-                              </td>
-                              <td className="p-2">
-                                <input
-                                  value={itemDiscounts[i] || ''}
-                                  onChange={e => {
-                                    const v = e.target.value.replace(/[^\d.]/g, '');
-                                    const num = Math.min(100, parseFloat(v || '0') || 0);
-                                    setItemDiscounts(prev => ({ ...prev, [i]: String(num) }));
-                                  }}
-                                  className="border rounded px-2 py-1 w-20"
-                                  dir="ltr"
-                                  placeholder="0"
-                                />
-                              </td>
-                              <td className="p-2 font-bold" dir="ltr">
-                                {lineTotal(it, i).toFixed(2)}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                      <DataTable
+                        bare
+                        dense
+                        rows={items.map((it: LooseRow, i: number) => ({ it, i })) as { it: LooseRow; i: number }[]}
+                        getRowKey={({ i }) => String(i)}
+                        columns={[
+                          { key: 'name', header: 'الصنف', className: 'font-bold', render: ({ it }) => it.raw_name_string || it.name },
+                          { key: 'group', header: 'المجموعة', render: ({ it }) => (it.category_group === 'non_medical' ? 'غير دوائية' : 'أدوية') },
+                          { key: 'qty', header: 'الكمية', render: ({ it, i }) => (
+                            <input
+                              value={itemQties[i] ?? String(it.requested_quantity || it.quantity || 1)}
+                              onChange={e => setItemQties(prev => ({ ...prev, [i]: e.target.value.replace(/\D/g, '') }))}
+                              className="border rounded px-2 py-1 w-20"
+                              dir="ltr"
+                              placeholder="1"
+                            />
+                          ) },
+                          { key: 'price', header: 'سعر الوحدة (ر.س)', render: ({ i }) => (
+                            <input
+                              value={itemPrices[i] || ''}
+                              onChange={e => setItemPrices(prev => ({ ...prev, [i]: e.target.value.replace(/[^\d.]/g, '') }))}
+                              className="border rounded px-2 py-1 w-28"
+                              dir="ltr"
+                              placeholder="0.00"
+                            />
+                          ) },
+                          { key: 'discount', header: 'الخصم %', render: ({ i }) => (
+                            <input
+                              value={itemDiscounts[i] || ''}
+                              onChange={e => {
+                                const v = e.target.value.replace(/[^\d.]/g, '');
+                                const num = Math.min(100, parseFloat(v || '0') || 0);
+                                setItemDiscounts(prev => ({ ...prev, [i]: String(num) }));
+                              }}
+                              className="border rounded px-2 py-1 w-20"
+                              dir="ltr"
+                              placeholder="0"
+                            />
+                          ) },
+                          { key: 'total', header: 'الإجمالي بعد الخصم', className: 'font-bold', render: ({ it, i }) => <span dir="ltr">{lineTotal(it, i).toFixed(2)}</span> },
+                        ]}
+                      />
 
                       {r.status === 'PENDING_ADMIN_REVIEW' && (
                         <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-50 rounded-lg p-3">

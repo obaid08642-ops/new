@@ -24,16 +24,9 @@ describe('MentalHealthService patient-owned safe wellbeing contract', () => {
       find: jest.fn(() => query([])),
       ...overrides.breathingModel,
     };
-    const crisisModel = {
-      create: jest.fn(async (payload) => ({ ...payload, toObject: () => payload })),
-      find: jest.fn(() => query([])),
-      findOneAndDelete: jest.fn(),
-      ...overrides.crisisModel,
-    };
     return {
-      service: new MentalHealthService(moodModel as any, meditationModel as any, breathingModel as any, crisisModel as any),
+      service: new MentalHealthService(moodModel as any, meditationModel as any, breathingModel as any),
       moodModel,
-      crisisModel,
     };
   };
 
@@ -76,21 +69,5 @@ describe('MentalHealthService patient-owned safe wellbeing contract', () => {
       avg_stress: null,
       avg_sleep: null,
     });
-  });
-
-  it('rejects malformed personal crisis contact input without a persistence attempt', async () => {
-    const { service, crisisModel } = makeService();
-    await expect(service.addCrisisContact('patient-1', { contact_name: 'صديق', phone: 12345 as any } as any)).rejects.toBeInstanceOf(BadRequestException);
-    expect(crisisModel.create).not.toHaveBeenCalled();
-  });
-
-  it('returns only patient-owned crisis contacts and never appends hard-coded regional hotline data', async () => {
-    const { service, crisisModel } = makeService({
-      crisisModel: { find: jest.fn(() => query([{ patient_id: 'patient-1', phone: '0500000000' }])) },
-    });
-    await expect(service.getCrisisContacts('patient-1')).resolves.toEqual({
-      user_contacts: [{ patient_id: 'patient-1', phone: '0500000000' }],
-    });
-    expect(crisisModel.find).toHaveBeenCalledWith({ patient_id: 'patient-1' });
   });
 });

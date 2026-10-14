@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Order tracking</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Readex Pro',sans-serif}
+a{color:#C8202F}
+@keyframes ndRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes ndDraw{from{stroke-dashoffset:100}to{stroke-dashoffset:0}}
+@keyframes ndPulse{0%{transform:scale(.6);opacity:.5}100%{transform:scale(1.8);opacity:0}}
+@keyframes ndBeat{0%,100%{transform:scale(1)}12%{transform:scale(1.3)}24%{transform:scale(1)}36%{transform:scale(1.15)}60%{transform:scale(1)}}
+@keyframes ndMove{0%{transform:translateX(0)}100%{transform:translateX(-60px)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+<div dir="rtl" style="width: 390px; height: 1120px; box-sizing: border-box; position: relative; overflow: hidden; background: #F5F5F7; color: #0B1B2B; font-family: 'Readex Pro', sans-serif">
+<div style="padding: 54px 16px 40px; display: flex; flex-direction: column; gap: 16px">
+
+<div style="display: flex; align-items: center; gap: 10px"><button aria-label="رجوع" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid rgba(11,27,43,0.08); background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0; flex-shrink: 0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0B1B2B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button><h1 style="margin: 0; flex-grow: 1; text-align: center; font-size: 19px; font-weight: 700">تتبع الطلب</h1><button aria-label="المساعدة" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid rgba(11,27,43,0.08); background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0; position: relative; flex-shrink: 0"><svg width="20" height="20" viewBox="0 0 256 256" aria-hidden="true" style="flex-shrink: 0"><path d="M232,128v80a40,40,0,0,1-40,40H136a8,8,0,0,1,0-16h56a24,24,0,0,0,24-24H192a24,24,0,0,1-24-24V144a24,24,0,0,1,24-24h23.65A88,88,0,0,0,66,65.54,87.29,87.29,0,0,0,40.36,120H64a24,24,0,0,1,24,24v40a24,24,0,0,1-24,24H48a24,24,0,0,1-24-24V128A104.11,104.11,0,0,1,201.89,54.66,103.41,103.41,0,0,1,232,128Z" fill="#0B1B2B"></path></svg></button></div>
+<div style="height: 220px; border-radius: 28px; background: #E9EEF3; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center">
+<span style="font-size: 12px; color: #6E6E73">[الخريطة الحية]</span>
+<div style="position: absolute; top: 90px; right: 150px; animation: ndMove 6s ease-in-out infinite alternate"><dc-import name="FIcon" icon="moped" tone="coral" chip="solid" size="44" hint-size="44px,44px"></dc-import></div>
+</div>
+<div style="border-radius: 24px; background: #FFFFFF; border: 1px solid rgba(11,27,43,0.06); box-shadow: 0 6px 18px rgba(11,27,43,0.05); padding: 16px; display: flex; flex-direction: column; gap: 14px; "><div style="display: flex; align-items: center; gap: 12px"><div style="display: flex; flex-direction: column; gap: 2px; flex-grow: 1"><span style="font-size: 12.5px; color: #6E6E73">الوصول المتوقع</span><span style="font-size: 26px; font-weight: 700">[الوقت]</span></div><span style="height: 24px; padding: 0 9px; border-radius: 12px; background: #F0F0F3; color: #3C4651; font-size: 11.5px; font-weight: 600; display: inline-flex; align-items: center; white-space: nowrap">طلب #[الرقم]</span></div><div style="display: flex; gap: 12px; min-height: 56px">
+<div style="display: flex; flex-direction: column; align-items: center; width: 24px">
+<span style="width: 16px; height: 16px; border-radius: 12px; background: #D42A38; border: 0; box-shadow: none; box-sizing: border-box; flex-shrink: 0; display: flex; align-items: center; justify-content: center"><svg width="12" height="12" viewBox="0 0 256 256" aria-hidden="true" style="flex-shrink: 0"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm45.66,85.66-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35a8,8,0,0,1,11.32,11.32Z" fill="#FFFFFF"></path></svg></span>
+<span style="flex-grow: 1; width: 2px; background: #D42A38; margin: 4px 0"></span></div>
+<div style="display: flex; flex-direction: column; gap: 2px; padding-top: 0"><span style="font-size: 15px; font-weight: 500; color: #0B1B2B">تم قبول الطلب</span><span style="font-size: 12px; color: #6E6E73">[الوقت]</span></div></div><div style="display: flex; gap: 12px; min-height: 56px">
+<div style="display: flex; flex-direction: column; align-items: center; width: 24px">
+<span style="width: 16px; height: 16px; border-radius: 12px; background: #D42A38; border: 0; box-shadow: none; box-sizing: border-box; flex-shrink: 0; display: flex; align-items: center; justify-content: center"><svg width="12" height="12" viewBox="0 0 256 256" aria-hidden="true" style="flex-shrink: 0"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm45.66,85.66-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35a8,8,0,0,1,11.32,11.32Z" fill="#FFFFFF"></path></svg></span>
+<span style="flex-grow: 1; width: 2px; background: #D42A38; margin: 4px 0"></span></div>
+<div style="display: flex; flex-direction: column; gap: 2px; padding-top: 0"><span style="font-size: 15px; font-weight: 500; color: #0B1B2B">جارٍ التجهيز</span><span style="font-size: 12px; color: #6E6E73">[الوقت]</span></div></div><div style="display: flex; gap: 12px; min-height: 56px">
+<div style="display: flex; flex-direction: column; align-items: center; width: 24px">
+<span style="width: 22px; height: 22px; border-radius: 12px; background: #D42A38; border: 0; box-shadow: 0 0 0 6px rgba(212,42,56,0.15); box-sizing: border-box; flex-shrink: 0; display: flex; align-items: center; justify-content: center"></span>
+<span style="flex-grow: 1; width: 2px; background: #E5E5EA; margin: 4px 0"></span></div>
+<div style="display: flex; flex-direction: column; gap: 2px; padding-top: 0"><span style="font-size: 15px; font-weight: 700; color: #0B1B2B">في الطريق إليك</span><span style="font-size: 12px; color: #6E6E73">الآن</span></div></div><div style="display: flex; gap: 12px; min-height: 30px">
+<div style="display: flex; flex-direction: column; align-items: center; width: 24px">
+<span style="width: 16px; height: 16px; border-radius: 12px; background: #FFFFFF; border: 2px solid #D8D8DE; box-shadow: none; box-sizing: border-box; flex-shrink: 0; display: flex; align-items: center; justify-content: center"></span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px; padding-top: 0"><span style="font-size: 15px; font-weight: 500; color: #6E6E73">تم التوصيل</span><span style="font-size: 12px; color: #6E6E73"></span></div></div></div>
+<div style="border-radius: 24px; background: #FFFFFF; border: 1px solid rgba(11,27,43,0.06); box-shadow: 0 6px 18px rgba(11,27,43,0.05); padding: 14px; display: flex; flex-direction: column; gap: 12px; "><div style="display: flex; align-items: center; gap: 12px"><div style="width: 48px; height: 48px; border-radius: 24px; background: #F2F3F5; flex-shrink: 0"></div><div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 700">[اسم المندوب]</span><span style="font-size: 12.5px; color: #6E6E73">[المركبة]</span></div><button aria-label="مراسلة" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid rgba(11,27,43,0.08); background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0; position: relative; flex-shrink: 0"><svg width="20" height="20" viewBox="0 0 256 256" aria-hidden="true" style="flex-shrink: 0"><path d="M128,24A104,104,0,0,0,36.18,176.88L24.83,210.93a16,16,0,0,0,20.24,20.24l34.05-11.35A104,104,0,1,0,128,24Zm32,128H96a8,8,0,0,1,0-16h64a8,8,0,0,1,0,16Zm0-32H96a8,8,0,0,1,0-16h64a8,8,0,0,1,0,16Z" fill="#0B1B2B"></path></svg></button></div></div>
+<div style="border-radius: 24px; background: #FFFFFF; border: 1px solid rgba(11,27,43,0.06); box-shadow: 0 6px 18px rgba(11,27,43,0.05); overflow: hidden"><a href="#" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; text-decoration: none; color: #0B1B2B; "><dc-import name="FIcon" icon="storefront" tone="coral" chip="soft" size="40" hint-size="40px,40px"></dc-import><div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 600">[اسم الصيدلية]</span><span style="font-size: 12.5px; color: #6E6E73">[عدد] أصناف · [المبلغ] ر.س</span></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9A9AA0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M15 6l-6 6 6 6"></path></svg></a></div>
+
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1120}}'>
+class Component extends DCLogic {
+constructor(props) { super(props); this.state = {}; }
+renderVals() {
+const s = this.state;
+const mkSeg = (labels, key) => labels.map((l, k) => ({ l, on: (this.state[key] || 0) === k, bg: (this.state[key] || 0) === k ? '#FFFFFF' : 'transparent', shadow: (this.state[key] || 0) === k ? '0 2px 6px rgba(11,27,43,0.10)' : 'none', w: (this.state[key] || 0) === k ? 700 : 500, pick: () => this.setState({ [key]: k }) }));
+return {};
+}
+}
+</script>
+</body>
+</html>

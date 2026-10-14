@@ -36,6 +36,11 @@ const colors = {
     "dark": "#0E1F31",
     "DEFAULT": "#E8E8ED"
   },
+  "bg-media": {
+    "light": "#F2F3F5",
+    "dark": "#1A3148",
+    "DEFAULT": "#F2F3F5"
+  },
   "bg-inverse": {
     "light": "#0B1B2B",
     "dark": "#12263A",
@@ -85,7 +90,12 @@ const colors = {
   "text-onInverseSecondary": "#9AA4B2",
   "text-link": {
     "light": "#C8202F",
-    "dark": "#D7FF00",
+    "dark": "#FF8A91",
+    "DEFAULT": "#C8202F"
+  },
+  "text-price": {
+    "light": "#C8202F",
+    "dark": "#FF8A91",
     "DEFAULT": "#C8202F"
   },
   "text-onAccent": "#0B1B2B",
@@ -105,6 +115,17 @@ const colors = {
     "DEFAULT": "#FFFFFF"
   },
   "icon-favorite": "#D42A38",
+  "icon-onSolid": "#FFFFFF",
+  "icon-ratingStar": {
+    "light": "#A65A00",
+    "dark": "#FFD166",
+    "DEFAULT": "#A65A00"
+  },
+  "icon-ratingStarOnBrand": {
+    "light": "#FFD166",
+    "dark": "#0B1B2B",
+    "DEFAULT": "#FFD166"
+  },
   "action-primary-bg": {
     "light": "#D42A38",
     "dark": "#FF6B73",
@@ -115,6 +136,19 @@ const colors = {
     "dark": "#0B1B2B",
     "DEFAULT": "#FFFFFF"
   },
+  "action-primary-gradient-from": {
+    "light": "#E62337",
+    "dark": "#FF6B73",
+    "DEFAULT": "#E62337"
+  },
+  "action-primary-gradient-to": {
+    "light": "#D42A38",
+    "dark": "#FF6B73",
+    "DEFAULT": "#D42A38"
+  },
+  "action-fab-from": "#FF5A63",
+  "action-fab-to": "#D42A38",
+  "action-fab-fg": "#FFFFFF",
   "action-secondary-bg": {
     "light": "#FFFFFF",
     "dark": "#1A3148",
@@ -209,86 +243,285 @@ const colors = {
     "dark": "#12263A",
     "DEFAULT": "#F5F5F7"
   },
+  "service-coral-fg": {
+    "light": "#CE2936",
+    "dark": "#FF8A91",
+    "DEFAULT": "#CE2936"
+  },
+  "service-coral-bg": {
+    "light": "#FFE8EA",
+    "dark": "rgba(255,107,115,0.16)",
+    "DEFAULT": "#FFE8EA"
+  },
+  "service-coral-solid-from": "#FF5C65",
+  "service-coral-solid-to": "#E8384A",
+  "service-blue-fg": {
+    "light": "#2D4FD6",
+    "dark": "#9DB0FF",
+    "DEFAULT": "#2D4FD6"
+  },
+  "service-blue-bg": {
+    "light": "#E7ECFF",
+    "dark": "rgba(110,139,255,0.16)",
+    "DEFAULT": "#E7ECFF"
+  },
+  "service-blue-solid-from": "#5B7CFF",
+  "service-blue-solid-to": "#3A56D4",
+  "service-mint-fg": {
+    "light": "#0E7C5E",
+    "dark": "#6FE0BC",
+    "DEFAULT": "#0E7C5E"
+  },
+  "service-mint-bg": {
+    "light": "#E1F6EE",
+    "dark": "rgba(79,210,168,0.15)",
+    "DEFAULT": "#E1F6EE"
+  },
+  "service-mint-solid-from": "#27A67F",
+  "service-mint-solid-to": "#16956F",
+  "service-violet-fg": {
+    "light": "#6A3FD1",
+    "dark": "#C2AEFF",
+    "DEFAULT": "#6A3FD1"
+  },
+  "service-violet-bg": {
+    "light": "#EFEAFF",
+    "dark": "rgba(156,125,255,0.16)",
+    "DEFAULT": "#EFEAFF"
+  },
+  "service-violet-solid-from": "#9C7DFF",
+  "service-violet-solid-to": "#7A52E0",
+  "service-amber-fg": {
+    "light": "#A65A00",
+    "dark": "#FFC56E",
+    "DEFAULT": "#A65A00"
+  },
+  "service-amber-bg": {
+    "light": "#FFF1DB",
+    "dark": "rgba(255,181,71,0.15)",
+    "DEFAULT": "#FFF1DB"
+  },
+  "service-amber-solid-from": "#D68000",
+  "service-amber-solid-to": "#D38200",
+  "service-pink-fg": {
+    "light": "#C2296E",
+    "dark": "#FF9CC6",
+    "DEFAULT": "#C2296E"
+  },
+  "service-pink-bg": {
+    "light": "#FFE7F1",
+    "dark": "rgba(255,128,180,0.15)",
+    "DEFAULT": "#FFE7F1"
+  },
+  "service-pink-solid-from": "#F4609A",
+  "service-pink-solid-to": "#D63B80",
+  "service-lime-fg": {
+    "light": "#4A7A00",
+    "dark": "#C2EA6B",
+    "DEFAULT": "#4A7A00"
+  },
+  "service-lime-bg": {
+    "light": "#EDF8D6",
+    "dark": "rgba(168,217,74,0.15)",
+    "DEFAULT": "#EDF8D6"
+  },
+  "service-lime-solid-from": "#71A230",
+  "service-lime-solid-to": "#5E9A00",
+  "service-peach-fg": {
+    "light": "#B74B1C",
+    "dark": "#FFAE8A",
+    "DEFAULT": "#B74B1C"
+  },
+  "service-peach-bg": {
+    "light": "#FFEDE3",
+    "dark": "rgba(255,156,114,0.15)",
+    "DEFAULT": "#FFEDE3"
+  },
+  "service-peach-solid-from": "#FF6021",
+  "service-peach-solid-to": "#E0632C",
+  "service-teal-fg": {
+    "light": "#0A778C",
+    "dark": "#6FD6E8",
+    "DEFAULT": "#0A778C"
+  },
+  "service-teal-bg": {
+    "light": "#E0F5F8",
+    "dark": "rgba(35,181,206,0.15)",
+    "DEFAULT": "#E0F5F8"
+  },
+  "service-teal-solid-from": "#1FA2B8",
+  "service-teal-solid-to": "#0E97AE",
+  "service-ink-fg": {
+    "light": "#0B1B2B",
+    "dark": "#F5F5F7",
+    "DEFAULT": "#0B1B2B"
+  },
+  "service-ink-bg": {
+    "light": "#EDEFF2",
+    "dark": "rgba(255,255,255,0.10)",
+    "DEFAULT": "#EDEFF2"
+  },
+  "service-ink-solid-from": "#0B1B2B",
+  "service-ink-solid-to": "#1A3148",
   "service-pharmacy-bg": {
-    "light": "#FFE3E5",
-    "dark": "rgba(255,107,115,0.14)",
-    "DEFAULT": "#FFE3E5"
+    "light": "#FFE8EA",
+    "dark": "rgba(255,107,115,0.16)",
+    "DEFAULT": "#FFE8EA"
   },
   "service-pharmacy-glyph": {
-    "light": "#B81E2B",
+    "light": "#CE2936",
     "dark": "#FF8A91",
-    "DEFAULT": "#B81E2B"
+    "DEFAULT": "#CE2936"
   },
   "service-consult-bg": {
-    "light": "#E3E9FF",
+    "light": "#E7ECFF",
     "dark": "rgba(110,139,255,0.16)",
-    "DEFAULT": "#E3E9FF"
+    "DEFAULT": "#E7ECFF"
   },
   "service-consult-glyph": {
-    "light": "#3A56D4",
+    "light": "#2D4FD6",
     "dark": "#9DB0FF",
-    "DEFAULT": "#3A56D4"
+    "DEFAULT": "#2D4FD6"
   },
   "service-lab-bg": {
-    "light": "#DDF4EC",
-    "dark": "rgba(111,224,184,0.14)",
-    "DEFAULT": "#DDF4EC"
+    "light": "#E1F6EE",
+    "dark": "rgba(79,210,168,0.15)",
+    "DEFAULT": "#E1F6EE"
   },
   "service-lab-glyph": {
-    "light": "#1F7A5C",
-    "dark": "#6FE0B8",
-    "DEFAULT": "#1F7A5C"
+    "light": "#0E7C5E",
+    "dark": "#6FE0BC",
+    "DEFAULT": "#0E7C5E"
   },
   "service-radiology-bg": {
-    "light": "#F0E8FF",
-    "dark": "rgba(195,168,255,0.16)",
-    "DEFAULT": "#F0E8FF"
+    "light": "#EFEAFF",
+    "dark": "rgba(156,125,255,0.16)",
+    "DEFAULT": "#EFEAFF"
   },
   "service-radiology-glyph": {
-    "light": "#5A31A8",
-    "dark": "#C3A8FF",
-    "DEFAULT": "#5A31A8"
+    "light": "#6A3FD1",
+    "dark": "#C2AEFF",
+    "DEFAULT": "#6A3FD1"
   },
   "service-nursing-bg": {
-    "light": "#FFF1CC",
-    "dark": "rgba(255,209,102,0.14)",
-    "DEFAULT": "#FFF1CC"
+    "light": "#E0F5F8",
+    "dark": "rgba(35,181,206,0.15)",
+    "DEFAULT": "#E0F5F8"
   },
   "service-nursing-glyph": {
-    "light": "#8A5A00",
-    "dark": "#FFD166",
-    "DEFAULT": "#8A5A00"
+    "light": "#0A778C",
+    "dark": "#6FD6E8",
+    "DEFAULT": "#0A778C"
   },
   "service-mind-bg": {
-    "light": "#FCE7F3",
-    "dark": "rgba(244,184,228,0.16)",
-    "DEFAULT": "#FCE7F3"
+    "light": "#EFEAFF",
+    "dark": "rgba(156,125,255,0.16)",
+    "DEFAULT": "#EFEAFF"
   },
   "service-mind-glyph": {
-    "light": "#9B2C6B",
-    "dark": "#F4B8E4",
-    "DEFAULT": "#9B2C6B"
+    "light": "#6A3FD1",
+    "dark": "#C2AEFF",
+    "DEFAULT": "#6A3FD1"
   },
   "service-nutrition-bg": {
-    "light": "#EDF7DC",
-    "dark": "rgba(142,220,94,0.16)",
-    "DEFAULT": "#EDF7DC"
+    "light": "#EDF8D6",
+    "dark": "rgba(168,217,74,0.15)",
+    "DEFAULT": "#EDF8D6"
   },
   "service-nutrition-glyph": {
-    "light": "#3F6B12",
-    "dark": "#8EDC5E",
-    "DEFAULT": "#3F6B12"
+    "light": "#4A7A00",
+    "dark": "#C2EA6B",
+    "DEFAULT": "#4A7A00"
   },
   "service-family-bg": {
-    "light": "#FFE9DE",
-    "dark": "rgba(255,179,138,0.16)",
-    "DEFAULT": "#FFE9DE"
+    "light": "#FFEDE3",
+    "dark": "rgba(255,156,114,0.15)",
+    "DEFAULT": "#FFEDE3"
   },
   "service-family-glyph": {
-    "light": "#A6501E",
-    "dark": "#FFB38A",
-    "DEFAULT": "#A6501E"
+    "light": "#B74B1C",
+    "dark": "#FFAE8A",
+    "DEFAULT": "#B74B1C"
   },
+  "service-maternity-bg": {
+    "light": "#FFE7F1",
+    "dark": "rgba(255,128,180,0.15)",
+    "DEFAULT": "#FFE7F1"
+  },
+  "service-maternity-glyph": {
+    "light": "#C2296E",
+    "dark": "#FF9CC6",
+    "DEFAULT": "#C2296E"
+  },
+  "service-map-bg": {
+    "light": "#FFF1DB",
+    "dark": "rgba(255,181,71,0.15)",
+    "DEFAULT": "#FFF1DB"
+  },
+  "service-map-glyph": {
+    "light": "#A65A00",
+    "dark": "#FFC56E",
+    "DEFAULT": "#A65A00"
+  },
+  "service-health-bg": {
+    "light": "#FFE8EA",
+    "dark": "rgba(255,107,115,0.16)",
+    "DEFAULT": "#FFE8EA"
+  },
+  "service-health-glyph": {
+    "light": "#CE2936",
+    "dark": "#FF8A91",
+    "DEFAULT": "#CE2936"
+  },
+  "service-emergency-bg": {
+    "light": "#FFEDE3",
+    "dark": "rgba(255,156,114,0.15)",
+    "DEFAULT": "#FFEDE3"
+  },
+  "service-emergency-glyph": {
+    "light": "#B74B1C",
+    "dark": "#FFAE8A",
+    "DEFAULT": "#B74B1C"
+  },
+  "service-insurance-bg": {
+    "light": "#E7ECFF",
+    "dark": "rgba(110,139,255,0.16)",
+    "DEFAULT": "#E7ECFF"
+  },
+  "service-insurance-glyph": {
+    "light": "#2D4FD6",
+    "dark": "#9DB0FF",
+    "DEFAULT": "#2D4FD6"
+  },
+  "service-points-bg": {
+    "light": "#FFF1DB",
+    "dark": "rgba(255,181,71,0.15)",
+    "DEFAULT": "#FFF1DB"
+  },
+  "service-points-glyph": {
+    "light": "#A65A00",
+    "dark": "#FFC56E",
+    "DEFAULT": "#A65A00"
+  },
+  "presence-online": "#1F9D6E",
+  "control-segmentedTrack": {
+    "light": "#EAEAEF",
+    "dark": "#1A3148",
+    "DEFAULT": "#EAEAEF"
+  },
+  "control-switchOn": "#1F9D6E",
+  "control-switchKnob": "#FFFFFF",
+  "control-radioOff": {
+    "light": "#C7C7CC",
+    "dark": "rgba(255,255,255,0.28)",
+    "DEFAULT": "#C7C7CC"
+  },
+  "avatar-bg": {
+    "light": "#FFE3E5",
+    "dark": "#1A3148",
+    "DEFAULT": "#FFE3E5"
+  },
+  "avatar-ring": "#FF4B55",
   "glass-bg": {
     "light": "rgba(255,255,255,0.78)",
     "dark": "rgba(18,38,58,0.72)",
@@ -358,7 +591,13 @@ const boxShadow = {
   "raised": "0 16px 40px rgba(11,27,43,0.08)",
   "avatar": "0 8px 20px rgba(11,27,43,0.10)",
   "pin": "0 6px 12px rgba(212,42,56,0.35)",
-  "glass": "0 8px 32px rgba(11,27,43,0.10)"
+  "glass": "0 8px 32px rgba(11,27,43,0.10)",
+  "tabBar": "0 18px 40px rgba(11,27,43,0.14)",
+  "fab": "0 12px 26px rgba(212,42,56,0.38)",
+  "button": "0 10px 22px rgba(212,42,56,0.28), inset 0 1px 0 rgba(255,255,255,0.25)",
+  "segmented": "0 2px 6px rgba(11,27,43,0.10)",
+  "knob": "0 2px 6px rgba(0,0,0,0.18)",
+  "feature": "0 10px 28px rgba(11,27,43,0.07)"
 };
 
 const fontFamily = {

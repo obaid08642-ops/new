@@ -1,0 +1,1513 @@
+{
+ "app": "patient-app",
+ "build": "react-native-web export (not native)",
+ "routes": [
+  {
+   "route": "nursing/live-tracking",
+   "url": "/nursing/live-tracking",
+   "landed": "/nursing/live-tracking",
+   "status": "TESTED",
+   "time_to_ready_ms": 2111,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "nursing/nurse-profile",
+   "url": "/nursing/nurse-profile",
+   "landed": "/nursing/nurse-profile",
+   "status": "TESTED",
+   "time_to_ready_ms": 15371,
+   "ready": false,
+   "not_ready_reason": "0 request(s) in flight, 1 loading, stable=27",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /home-care/providers/undefined"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "nursing/service-details",
+   "url": "/nursing/service-details",
+   "landed": "/nursing/service-details",
+   "status": "TESTED",
+   "time_to_ready_ms": 2032,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3613
+    },
+    {
+     "label": "󰑐",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 787
+    }
+   ]
+  },
+  {
+   "route": "nursing/service-info",
+   "url": "/nursing/service-info",
+   "landed": "/nursing/service-info",
+   "status": "TESTED",
+   "time_to_ready_ms": 2619,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /home-care/services/undefined"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3625
+    }
+   ]
+  },
+  {
+   "route": "nursing/visits",
+   "url": "/nursing/visits",
+   "landed": "/nursing/visits",
+   "status": "TESTED",
+   "time_to_ready_ms": 2604,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3580
+    },
+    {
+     "label": "󰑐",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 788
+    }
+   ]
+  },
+  {
+   "route": "nutrition/ai-meal-planner",
+   "url": "/nutrition/ai-meal-planner",
+   "landed": "/nutrition/daily-tracker",
+   "status": "TESTED",
+   "time_to_ready_ms": 2573,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰐕",
+     "result": "NAVIGATE",
+     "to": "/nutrition/log-meal",
+     "response_ms": 1357
+    },
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3611
+    },
+    {
+     "label": "+250 ml",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/water",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 3148
+    },
+    {
+     "label": "+500 ml",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/water",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 2945
+    },
+    {
+     "label": "أضف وجبة",
+     "result": "NAVIGATE",
+     "to": "/nutrition/log-meal",
+     "response_ms": 1337
+    }
+   ]
+  },
+  {
+   "route": "nutrition/ai-plan-builder",
+   "url": "/nutrition/ai-plan-builder",
+   "landed": "/nutrition/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 2616,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3583
+    },
+    {
+     "label": "إعداد أهداف التغذية",
+     "result": "NAVIGATE",
+     "to": "/nutrition/body-target",
+     "response_ms": 1295
+    },
+    {
+     "label": "اليوم",
+     "result": "NAVIGATE",
+     "to": "/nutrition/daily-tracker",
+     "response_ms": 1337
+    },
+    {
+     "label": "أضف وجبة",
+     "result": "NAVIGATE",
+     "to": "/nutrition/log-meal",
+     "response_ms": 1333
+    },
+    {
+     "label": "المتابعة اليومية",
+     "result": "NAVIGATE",
+     "to": "/nutrition/daily-tracker",
+     "response_ms": 1313
+    }
+   ]
+  },
+  {
+   "route": "nutrition/body-composition",
+   "url": "/nutrition/body-composition",
+   "landed": "/nutrition/body-target",
+   "status": "TESTED",
+   "time_to_ready_ms": 1958,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 7,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3598
+    },
+    {
+     "label": "خفض الوزن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3581
+    },
+    {
+     "label": "المحافظة على الوزن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3565
+    },
+    {
+     "label": "زيادة الكتلة العضلية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3573
+    },
+    {
+     "label": "نمط صحي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3571
+    },
+    {
+     "label": "قليل الحركة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3572
+    },
+    {
+     "label": "خفيف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3596
+    },
+    {
+     "label": "متوسط",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3567
+    },
+    {
+     "label": "نشط",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3575
+    },
+    {
+     "label": "نشط جداً",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3571
+    },
+    {
+     "label": "󰗠",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/nutrition/profile",
+     "tokens_sent": 2,
+     "tokens_stored": 0,
+     "response_ms": 1832
+    }
+   ]
+  },
+  {
+   "route": "nutrition/body-target",
+   "url": "/nutrition/body-target",
+   "landed": "/nutrition/body-target",
+   "status": "TESTED",
+   "time_to_ready_ms": 2606,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 7,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3579
+    },
+    {
+     "label": "خفض الوزن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3560
+    },
+    {
+     "label": "المحافظة على الوزن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3554
+    },
+    {
+     "label": "زيادة الكتلة العضلية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3574
+    },
+    {
+     "label": "نمط صحي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3567
+    },
+    {
+     "label": "قليل الحركة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3568
+    },
+    {
+     "label": "خفيف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3565
+    },
+    {
+     "label": "متوسط",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3554
+    },
+    {
+     "label": "نشط",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3579
+    },
+    {
+     "label": "نشط جداً",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3568
+    },
+    {
+     "label": "󰗠",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/nutrition/profile",
+     "tokens_sent": 2,
+     "tokens_stored": 0,
+     "response_ms": 1747
+    }
+   ]
+  },
+  {
+   "route": "nutrition/calorie-analyzer",
+   "url": "/nutrition/calorie-analyzer",
+   "landed": "/nutrition/log-meal",
+   "status": "TESTED",
+   "time_to_ready_ms": 2026,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 6,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3586
+    },
+    {
+     "label": "الإفطار",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3565
+    },
+    {
+     "label": "الغداء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3555
+    },
+    {
+     "label": "العشاء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3568
+    },
+    {
+     "label": "وجبة خفيفة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3585
+    },
+    {
+     "label": "󰗠",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/meals",
+     "tokens_sent": 1,
+     "tokens_stored": 1,
+     "response_ms": 2997
+    }
+   ]
+  },
+  {
+   "route": "nutrition/daily-tracker",
+   "url": "/nutrition/daily-tracker",
+   "landed": "/nutrition/daily-tracker",
+   "status": "TESTED",
+   "time_to_ready_ms": 2604,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰐕",
+     "result": "NAVIGATE",
+     "to": "/nutrition/log-meal",
+     "response_ms": 1335
+    },
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3578
+    },
+    {
+     "label": "+250 ml",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/water",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 3060
+    },
+    {
+     "label": "+500 ml",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/water",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 2933
+    },
+    {
+     "label": "أضف وجبة",
+     "result": "NAVIGATE",
+     "to": "/nutrition/log-meal",
+     "response_ms": 1318
+    }
+   ]
+  },
+  {
+   "route": "nutrition/exercise-plan",
+   "url": "/nutrition/exercise-plan",
+   "landed": "/nutrition/daily-tracker",
+   "status": "TESTED",
+   "time_to_ready_ms": 1958,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰐕",
+     "result": "NAVIGATE",
+     "to": "/nutrition/log-meal",
+     "response_ms": 1339
+    },
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3584
+    },
+    {
+     "label": "+250 ml",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/water",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 2899
+    },
+    {
+     "label": "+500 ml",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/water",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 2879
+    },
+    {
+     "label": "أضف وجبة",
+     "result": "NAVIGATE",
+     "to": "/nutrition/log-meal",
+     "response_ms": 1319
+    }
+   ]
+  },
+  {
+   "route": "nutrition/food-scanner",
+   "url": "/nutrition/food-scanner",
+   "landed": "/nutrition/log-meal",
+   "status": "TESTED",
+   "time_to_ready_ms": 1951,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 6,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3579
+    },
+    {
+     "label": "الإفطار",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3568
+    },
+    {
+     "label": "الغداء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3596
+    },
+    {
+     "label": "العشاء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3582
+    },
+    {
+     "label": "وجبة خفيفة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3595
+    },
+    {
+     "label": "󰗠",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/meals",
+     "tokens_sent": 1,
+     "tokens_stored": 1,
+     "response_ms": 3092
+    }
+   ]
+  },
+  {
+   "route": "nutrition/hub",
+   "url": "/nutrition/hub",
+   "landed": "/nutrition/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 3309,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3616
+    },
+    {
+     "label": "إعداد أهداف التغذية",
+     "result": "NAVIGATE",
+     "to": "/nutrition/body-target",
+     "response_ms": 1296
+    },
+    {
+     "label": "اليوم",
+     "result": "NAVIGATE",
+     "to": "/nutrition/daily-tracker",
+     "response_ms": 1327
+    },
+    {
+     "label": "أضف وجبة",
+     "result": "NAVIGATE",
+     "to": "/nutrition/log-meal",
+     "response_ms": 1338
+    },
+    {
+     "label": "المتابعة اليومية",
+     "result": "NAVIGATE",
+     "to": "/nutrition/daily-tracker",
+     "response_ms": 1334
+    }
+   ]
+  },
+  {
+   "route": "nutrition/index",
+   "url": "/nutrition",
+   "landed": "/nutrition/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 1955,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3592
+    },
+    {
+     "label": "إعداد أهداف التغذية",
+     "result": "NAVIGATE",
+     "to": "/nutrition/body-target",
+     "response_ms": 1303
+    },
+    {
+     "label": "اليوم",
+     "result": "NAVIGATE",
+     "to": "/nutrition/daily-tracker",
+     "response_ms": 1330
+    },
+    {
+     "label": "أضف وجبة",
+     "result": "NAVIGATE",
+     "to": "/nutrition/log-meal",
+     "response_ms": 1343
+    },
+    {
+     "label": "المتابعة اليومية",
+     "result": "NAVIGATE",
+     "to": "/nutrition/daily-tracker",
+     "response_ms": 1316
+    }
+   ]
+  },
+  {
+   "route": "nutrition/log-meal",
+   "url": "/nutrition/log-meal",
+   "landed": "/nutrition/log-meal",
+   "status": "TESTED",
+   "time_to_ready_ms": 1973,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 6,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3591
+    },
+    {
+     "label": "الإفطار",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3602
+    },
+    {
+     "label": "الغداء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3563
+    },
+    {
+     "label": "العشاء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3560
+    },
+    {
+     "label": "وجبة خفيفة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3546
+    },
+    {
+     "label": "󰗠",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/meals",
+     "tokens_sent": 1,
+     "tokens_stored": 1,
+     "response_ms": 2912
+    }
+   ]
+  },
+  {
+   "route": "nutrition/nutrition-plan",
+   "url": "/nutrition/nutrition-plan",
+   "landed": "/nutrition/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 2598,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3563
+    },
+    {
+     "label": "إعداد أهداف التغذية",
+     "result": "NAVIGATE",
+     "to": "/nutrition/body-target",
+     "response_ms": 1306
+    },
+    {
+     "label": "اليوم",
+     "result": "NAVIGATE",
+     "to": "/nutrition/daily-tracker",
+     "response_ms": 1326
+    },
+    {
+     "label": "أضف وجبة",
+     "result": "NAVIGATE",
+     "to": "/nutrition/log-meal",
+     "response_ms": 1333
+    },
+    {
+     "label": "المتابعة اليومية",
+     "result": "NAVIGATE",
+     "to": "/nutrition/daily-tracker",
+     "response_ms": 1332
+    }
+   ]
+  },
+  {
+   "route": "nutrition/water-tracker",
+   "url": "/nutrition/water-tracker",
+   "landed": "/nutrition/daily-tracker",
+   "status": "TESTED",
+   "time_to_ready_ms": 3173,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰐕",
+     "result": "NAVIGATE",
+     "to": "/nutrition/log-meal",
+     "response_ms": 1336
+    },
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3592
+    },
+    {
+     "label": "+250 ml",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/water",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 2570
+    },
+    {
+     "label": "+500 ml",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/water",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 2963
+    },
+    {
+     "label": "أضف وجبة",
+     "result": "NAVIGATE",
+     "to": "/nutrition/log-meal",
+     "response_ms": 1304
+    }
+   ]
+  },
+  {
+   "route": "offers/[id]",
+   "status": "NOT_TESTED_DYNAMIC"
+  },
+  {
+   "route": "offers/index",
+   "url": "/offers",
+   "landed": "/offers",
+   "status": "TESTED",
+   "time_to_ready_ms": 2587,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3596
+    }
+   ]
+  },
+  {
+   "route": "orders/index",
+   "url": "/orders",
+   "landed": "/orders",
+   "status": "TESTED",
+   "time_to_ready_ms": 1988,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3634
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3548
+    },
+    {
+     "label": "معلقة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3571
+    },
+    {
+     "label": "مكتملة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3548
+    },
+    {
+     "label": "ملغية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3547
+    },
+    {
+     "label": "أطباء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3549
+    },
+    {
+     "label": "أدوية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3555
+    },
+    {
+     "label": "تحاليل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3558
+    },
+    {
+     "label": "أشعة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3614
+    },
+    {
+     "label": "تمريض",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3576
+    },
+    {
+     "label": "إسعاف",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "تأمين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3560
+    },
+    {
+     "label": "مرتجعات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3556
+    }
+   ]
+  },
+  {
+   "route": "p/[slug]",
+   "status": "NOT_TESTED_DYNAMIC"
+  },
+  {
+   "route": "payments/failed",
+   "url": "/payments/failed",
+   "landed": "/payments/result?status=failed",
+   "status": "TESTED",
+   "time_to_ready_ms": 1344,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰑐",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3580
+    },
+    {
+     "label": "إلغاء والعودة",
+     "result": "NAVIGATE",
+     "to": "/",
+     "response_ms": 820
+    }
+   ]
+  },
+  {
+   "route": "payments/processing",
+   "url": "/payments/processing",
+   "landed": "/payments/result",
+   "status": "TESTED",
+   "time_to_ready_ms": 1344,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "payments/result",
+   "url": "/payments/result",
+   "landed": "/payments/result",
+   "status": "TESTED",
+   "time_to_ready_ms": 1332,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "payments/success",
+   "url": "/payments/success",
+   "landed": "/payments/result?status=success",
+   "status": "TESTED",
+   "time_to_ready_ms": 1952,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰒗",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3559
+    },
+    {
+     "label": "العودة للرئيسية",
+     "result": "NAVIGATE",
+     "to": "/",
+     "response_ms": 834
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/barcode-scanner",
+   "url": "/pharmacy/barcode-scanner",
+   "landed": "/pharmacy/barcode-scanner",
+   "status": "TESTED",
+   "time_to_ready_ms": 1339,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3593
+    },
+    {
+     "label": "?",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3551
+    },
+    {
+     "label": "لم أجد الدواء؟ أضفه يدوياً",
+     "result": "NAVIGATE",
+     "to": "/pharmacy/request",
+     "response_ms": 788
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/broadcast-status",
+   "url": "/pharmacy/broadcast-status",
+   "landed": "/pharmacy/broadcast-status",
+   "status": "TESTED",
+   "time_to_ready_ms": 1948,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3557
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/cart",
+   "url": "/pharmacy/cart",
+   "landed": "/pharmacy/cart",
+   "status": "TESTED",
+   "time_to_ready_ms": 1323,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تصفح الأدوية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3564
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/checkout",
+   "url": "/pharmacy/checkout",
+   "landed": "/pharmacy/checkout",
+   "status": "TESTED",
+   "time_to_ready_ms": 2545,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "arrow_forward",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3554
+    },
+    {
+     "label": "توصيل للمنزل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3553
+    },
+    {
+     "label": "استلام من الصيدلية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3552
+    },
+    {
+     "label": "تغيير الموقع",
+     "result": "NAVIGATE",
+     "to": "/shared/location-picker",
+     "response_ms": 831
+    },
+    {
+     "label": "بث الطلب وطلب العروض",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3563
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/custom-item",
+   "url": "/pharmacy/custom-item",
+   "landed": "/pharmacy/request",
+   "status": "TESTED",
+   "time_to_ready_ms": 2013,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "arrow_forward",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3574
+    },
+    {
+     "label": "تغيير الموقع",
+     "result": "NAVIGATE",
+     "to": "/shared/location-picker",
+     "response_ms": 818
+    },
+    {
+     "label": "بث الطلب وطلب عروض",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/drug-not-found",
+   "url": "/pharmacy/drug-not-found",
+   "landed": "/pharmacy/request",
+   "status": "TESTED",
+   "time_to_ready_ms": 3176,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "arrow_forward",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3589
+    },
+    {
+     "label": "تغيير الموقع",
+     "result": "NAVIGATE",
+     "to": "/shared/location-picker",
+     "response_ms": 473
+    },
+    {
+     "label": "بث الطلب وطلب عروض",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/filters",
+   "url": "/pharmacy/filters",
+   "landed": "/pharmacy/filters",
+   "status": "TESTED",
+   "time_to_ready_ms": 2000,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 3,
+   "elements": [
+    {
+     "label": "󰅖",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3578
+    },
+    {
+     "label": "إعادة تعيين",
+     "result": "UI_CHANGE",
+     "response_ms": 427
+    },
+    {
+     "label": "󰓎",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3555
+    },
+    {
+     "label": "󰔵",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3579
+    },
+    {
+     "label": "󰔳",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3580
+    },
+    {
+     "label": "󰙴",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3544
+    },
+    {
+     "label": "󰀻",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3549
+    },
+    {
+     "label": "󰈙",
+     "result": "UI_CHANGE",
+     "response_ms": 439
+    },
+    {
+     "label": "󰐂",
+     "result": "UI_CHANGE",
+     "response_ms": 432
+    },
+    {
+     "label": "󰘮",
+     "result": "NAVIGATE",
+     "to": "/pharmacy?filter_category=all&filter_forms=%D8%A3%D9%82%D8%B1%D8%A7%D8%B5&filter_brands=&filter_rx=1&filter_min_price=&filter_max_price=&filter_sort=newest",
+     "response_ms": 826
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/final-quote",
+   "url": "/pharmacy/final-quote",
+   "landed": "/pharmacy/final-quote",
+   "status": "TESTED",
+   "time_to_ready_ms": 1365,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "arrow_forward",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3572
+    },
+    {
+     "label": "حالة الطلب",
+     "result": "NAVIGATE",
+     "to": "/pharmacy/order-tracking",
+     "response_ms": 458
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/insurance-decision",
+   "url": "/pharmacy/insurance-decision",
+   "landed": "/pharmacy/insurance-decision",
+   "status": "TESTED",
+   "time_to_ready_ms": 1971,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "arrow_forward",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3562
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/manual-order",
+   "url": "/pharmacy/manual-order",
+   "landed": "/pharmacy/request",
+   "status": "TESTED",
+   "time_to_ready_ms": 2548,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "arrow_forward",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3565
+    },
+    {
+     "label": "تغيير الموقع",
+     "result": "NAVIGATE",
+     "to": "/shared/location-picker",
+     "response_ms": 837
+    },
+    {
+     "label": "بث الطلب وطلب عروض",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/medicine-compare",
+   "url": "/pharmacy/medicine-compare",
+   "landed": "/pharmacy/medicine-compare",
+   "status": "TESTED",
+   "time_to_ready_ms": 1940,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /medicines/compare"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3572
+    },
+    {
+     "label": "󰑐",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 773
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/order-confirm",
+   "url": "/pharmacy/order-confirm",
+   "landed": "/pharmacy/order-confirm",
+   "status": "TESTED",
+   "time_to_ready_ms": 1335,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "pharmacy/order-history",
+   "url": "/pharmacy/order-history",
+   "landed": "/pharmacy/order-history",
+   "status": "TESTED",
+   "time_to_ready_ms": 1927,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "arrow_forward",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3560
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/order-tracking",
+   "url": "/pharmacy/order-tracking",
+   "landed": "/pharmacy/order-tracking",
+   "status": "TESTED",
+   "time_to_ready_ms": 1376,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "home",
+     "result": "NAVIGATE",
+     "to": "/pharmacy",
+     "response_ms": 862
+    },
+    {
+     "label": "chat",
+     "result": "NAVIGATE",
+     "to": "/pharmacy/pharmacist-chat",
+     "response_ms": 462
+    },
+    {
+     "label": "تحديث حالة الطلب يدوياً",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3558
+    }
+   ]
+  }
+ ]
+}

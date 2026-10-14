@@ -13,13 +13,14 @@ function jsonRequest(path: string, body: unknown, headers?: HeadersInit) { retur
 
 describe("patient OTP BFF routes", () => {
   it("forwards a valid request and rejects malformed identifiers", async () => {
-    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ ok: true, expires_in: 300 }), { status: 201 }));
+    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ otp_sent: true, channel: "email", expires_in: 300 }), { status: 201 }));
     const response = await requestOtp(jsonRequest("/api/auth/otp/request", { identifier: "patient@example.com" }));
-    expect(response.status).toBe(201); expect(state.callPatientApi).toHaveBeenCalledWith("/auth/otp/request", expect.objectContaining({ method: "POST" }));
+    expect(response.status).toBe(201);
+    expect(await response.json()).toEqual({ ok: true, expires_in: 300 }); expect(state.callPatientApi).toHaveBeenCalledWith("/auth/otp/request", expect.objectContaining({ method: "POST" }));
     expect((await requestOtp(jsonRequest("/api/auth/otp/request", { identifier: "x" }))).status).toBe(400);
   });
   it("sanitizes a successful OTP request response and never returns token-shaped fields", async () => {
-    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ ok: true, expires_in: 60, exchange_token: "must-not-leak" }), { status: 201 }));
+    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ otp_sent: true, expires_in: 60, exchange_token: "must-not-leak" }), { status: 201 }));
     const response = await requestOtp(jsonRequest("/api/auth/otp/request", { identifier: "patient@example.com" }));
     expect(response.status).toBe(502);
     expect(await response.json()).toEqual({ message: "unexpected_otp_response" });
@@ -68,6 +69,25 @@ describe("patient OTP BFF routes", () => {
     state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ registered: true, access_token: "must-not-leak" }), { status: 201 }));
     expect((await register(jsonRequest("/api/auth/register", { name: "Patient Example", identifier: "patient@example.com", password: "StrongPass123!", locale: "en", consents: [{ policy_id: "terms", version: "v1" }, { policy_id: "privacy", version: "v1" }] }))).status).toBe(502);
     expect((await register(jsonRequest("/api/auth/register", { name: "P", identifier: "bad", password: "short", locale: "en", consents: [] }))).status).toBe(400);
+  });
+  it("passes an upstream throttle or channel failure through with its status", async () => {
+    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ statusCode: 429 }), { status: 429 }));
+    expect((await requestOtp(jsonRequest("/api/auth/otp/request", { identifier: "patient@example.com" }))).status).toBe(429);
+    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ code: "otp_channel_unavailable" }), { status: 503 }));
+    expect((await requestOtp(jsonRequest("/api/auth/otp/request", { identifier: "+966509999999" }))).status).toBe(503);
+  });
+  it("remembers where the code went in a short-lived httpOnly cookie, not in a URL", async () => {
+    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ registered: true }), { status: 201 }));
+    const response = await register(jsonRequest("/api/auth/register", { name: "Patient Example", identifier: "patient@example.com", password: "StrongPass123!", locale: "en", consents: [{ policy_id: "terms", version: "v1" }, { policy_id: "privacy", version: "v1" }] }));
+    expect(response.status).toBe(201);
+    const cookie = response.headers.get("set-cookie") ?? "";
+    expect(cookie).toContain("nabd_otp_identifier=patient%40example.com");
+    expect(cookie).toContain("HttpOnly");
+    expect(cookie).toContain("Max-Age=900");
+    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ code: "identifier_already_registered" }), { status: 409 }));
+    const conflict = await register(jsonRequest("/api/auth/register", { name: "Patient Example", identifier: "patient@example.com", password: "StrongPass123!", locale: "en", consents: [{ policy_id: "terms", version: "v1" }, { policy_id: "privacy", version: "v1" }] }));
+    expect(conflict.status).toBe(409);
+    expect(conflict.headers.get("set-cookie")).toBeNull();
   });
   it("requires the one-time exchange cookie", async () => {
     expect((await exchangeSession(new Request("https://web.test/api/auth/session/exchange", { method: "POST" }))).status).toBe(400);

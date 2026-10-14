@@ -1,0 +1,40 @@
+# Live gate, local stack, backend built at 1b12107-equivalent tip, before 0ecba09 (reviewer, 2026-10-04)
+j_accounts: ##### 42/42 steps passed, 0 failed
+j_onboarding: ##### 143/149 steps passed, 6 failed
+  FAIL [onboarding: admin reviews the home_care] approve with commissions: 400 {"code": "INVALID_INPUT", "message": "required_documents_missing: commercial_registration, facility_license, iban_letter"}
+  FAIL [onboarding: admin reviews the home_care] no longer pending: 200 {"items": [{"_id": "6ac24c89dac20e02c7a78c62", "id": "08535203-1beb-4425-8c80-744f1af24546", "user_id": "08535203-1beb-4425-8c80-744f1af24546", "email": "home_care118472413bdd7@nabd.test",
+  FAIL [onboarding: admin reviews the hospital] approve with commissions: 400 {"code": "INVALID_INPUT", "message": "required_documents_missing: commercial_registration, facility_license, vat_certificate, iban_letter"}
+  FAIL [onboarding: admin reviews the hospital] no longer pending: 200 {"items": [{"_id": "6ac24c8bdac20e02c7a78cc6", "id": "7d469eaa-f187-4d34-8def-e2fae3e8adc1", "user_id": "7d469eaa-f187-4d34-8def-e2fae3e8adc1", "email": "hospital118474104e90e@nabd.test", "
+  FAIL [onboarding: admin reviews the ambulance] approve with commissions: 400 {"code": "INVALID_INPUT", "message": "required_documents_missing: commercial_registration, facility_license, iban_letter"}
+  FAIL [onboarding: admin reviews the ambulance] no longer pending: 200 {"items": [{"_id": "6ac24c8cdac20e02c7a78d26", "id": "847e21da-61d4-4185-8323-0a1a955ed022", "user_id": "847e21da-61d4-4185-8323-0a1a955ed022", "email": "ambulance118475733353d@nabd.test",
+j_pharmacy: ##### 138/144 steps passed, 6 failed
+  FAIL [pharmacy order: pharmacy fulfils and delivers] pharmacy: delivered with cash collected: 409 {"code": "DUPLICATE_TRANSACTION", "message": "Conflict"} (expected_total=53)
+  FAIL [pharmacy order: everyone sees the final state] patient sees it delivered: OUT_FOR_DELIVERY
+  FAIL [pharmacy order: everyone sees the final state] patient rates the pharmacy (reviews screen): 403 {"code": "INSUFFICIENT_PERMISSION", "message": "rating_allowed_after_delivered"}
+  FAIL [pharmacy screens: every tab loads after a delivered order] settlement statement includes the order: 200 {"rows": [], "totals": {"total": 0, "commission": 0, "vat": 0, "net": 0}, "transfers": [], "generated_at": "2026-10-04T12:55:44.847Z"}
+  FAIL [admin orders console: list + detail of the delivered order] row carries status, patient and amount the table shows: {'payment_method': 'cod', 'id': '6a989df0-5351-4a2e-b3d1-8b91b7813ba8', 'state': 'out_for_delivery', 'created_at': '2026-10-04T12:55:44.
+  FAIL [admin orders console: list + detail of the delivered order] cancelling a delivered order is refused: 201 {"ok": true, "id": "6a989df0-5351-4a2e-b3d1-8b91b7813ba8", "previous_state": "out_for_delivery", "state": "cancelled"}
+j_lab: ##### 149/150 steps passed, 1 failed
+  FAIL [insurance: patient adds a policy (add-policy.tsx)] coverage-check answers for the policy: 200 {"covered": false, "reason": "Provider/Facility does not accept patient's insurance network (تأمين insa3dc7 - net2f74f)", "copay_percent": 100, "copay_fl
+j_radiology: ##### 121/122 steps passed, 1 failed
+  FAIL [insurance: patient adds a policy (add-policy.tsx)] coverage-check answers for the policy: 200 {"covered": false, "reason": "Provider/Facility does not accept patient's insurance network (تأمين ins7c63d - net81b89)", "copay_percent": 100, "copay_fl
+j_nursing: ##### 36/41 steps passed, 5 failed
+  FAIL [onboarding: admin reviews the home_care] approve with commissions: 400 {"code": "INVALID_INPUT", "message": "required_documents_missing: commercial_registration, facility_license, iban_letter"}
+  FAIL [onboarding: admin reviews the home_care] no longer pending: 200 {"items": [{"_id": "6ac24d43dac20e02c7a79d99", "id": "fcd5411d-0ea9-42d2-8342-6f9175c7c329", "user_id": "fcd5411d-0ea9-42d2-8342-6f9175c7c329", "email": "home_care1185859007cc3@nabd.test",
+  FAIL [nursing: patient finds a nurse for a service] service-details lists the approved nurse offering it: 200 []
+  FAIL [nursing: patient finds a nurse for a service] nurse profile shows name and the service price: 404 {"code": "UNKNOWN_ERROR", "message": "provider not found"}
+  FAIL [nursing: patient books and pays by card] booking created, assigned to the chosen nurse: 400 {"code": "INVALID_INPUT", "message": "provider_id_required"}
+j_consultation: ##### 114/115 steps passed, 1 failed
+  FAIL [insurance: patient adds a policy (add-policy.tsx)] coverage-check answers for the policy: 200 {"covered": false, "reason": "Provider/Facility does not accept patient's insurance network (تأمين ins74424 - net63393)", "copay_percent": 100, "copay_fl
+j_ambulance: no summary (crashed)
+j_facility: no summary (crashed)
+j_support: ##### 32/32 steps passed, 0 failed
+j_loyalty: ##### 102/106 steps passed, 4 failed
+  FAIL [loyalty: admin builds the catalogue (LJ-08)] admin creates an affordable reward: 403 {"code": "INSUFFICIENT_PERMISSION", "message": "step_up_required"}
+  FAIL [loyalty: admin builds the catalogue (LJ-08)] admin creates an expensive reward: 403 {"code": "INSUFFICIENT_PERMISSION", "message": "step_up_required"}
+  FAIL [loyalty: admin builds the catalogue (LJ-08)] admin creates a live challenge: 403 {"code": "INSUFFICIENT_PERMISSION", "message": "step_up_required"}
+  FAIL [loyalty: admin builds the catalogue (LJ-08)] admin updates the points config: 403 {"code": "INSUFFICIENT_PERMISSION", "message": "step_up_required"}
+j_payments: ##### 42/42 steps passed, 0 failed
+j_admin_clicks: ##### 0/1 steps passed, 1 failed
+  FAIL [admin clicks: login through the browser (2FA)] admin clicks: python playwright not installed
+exit 1

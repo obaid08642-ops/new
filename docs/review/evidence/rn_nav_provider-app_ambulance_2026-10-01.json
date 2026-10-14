@@ -1,0 +1,274 @@
+{
+ "provider_type": "ambulance",
+ "login_via_ui": true,
+ "states": [
+  {
+   "path": [],
+   "heading": " مركز مهام الإسعاف | نداءات مفتوحة (0) | لا نداءات حالياً | ابقَ م",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "أسطول الإسعاف",
+     "result": "NAVIGATE",
+     "to": "→ |  أسطول الإسعاف | المركبات تخدم بعد اعتما"
+    },
+    {
+     "label": "طلبات التأمين الواردة",
+     "result": "NAVIGATE",
+     "to": "→ | طلبات التأمين | مراجعة يدوية قبل تقديم ا"
+    },
+    {
+     "label": "الملف ونطاق التغطية",
+     "result": "NAVIGATE",
+     "to": "→ | الملف ونطاق التغطية | هاتف التواصل | مدن ا"
+    },
+    {
+     "label": "التوفر الفوري",
+     "result": "NAVIGATE",
+     "to": "→ | التوفر الفوري | متاح فورياً للنداءات | 🟢 | م"
+    },
+    {
+     "label": "سجل المهام المكتملة",
+     "result": "NAVIGATE",
+     "to": "→ |  سجل المهام | لا مهام مكتملة بعد | مهامك ا"
+    }
+   ]
+  },
+  {
+   "path": [
+    "أسطول الإسعاف"
+   ],
+   "heading": "→ |  أسطول الإسعاف | المركبات تخدم بعد اعتماد الإدارة | كل مركبة ج",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": " مركز مهام الإسعاف | نداءات مفتوحة (0) | لا "
+    },
+    {
+     "label": "إضافة مركبة",
+     "result": "NAVIGATE",
+     "to": "→ |  أسطول الإسعاف | المركبات تخدم بعد اعتما"
+    }
+   ]
+  },
+  {
+   "path": [
+    "طلبات التأمين الواردة"
+   ],
+   "heading": "→ | طلبات التأمين | مراجعة يدوية قبل تقديم الخدمة | shield | لا توجد",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": " مركز مهام الإسعاف | نداءات مفتوحة (0) | لا "
+    }
+   ]
+  },
+  {
+   "path": [
+    "الملف ونطاق التغطية"
+   ],
+   "heading": "→ | الملف ونطاق التغطية | هاتف التواصل | مدن التغطية (افصل بفاصلة)",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": " مركز مهام الإسعاف | نداءات مفتوحة (0) | لا "
+    },
+    {
+     "label": "هاتف التواصل",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "مدن التغطية (افصل بفاصلة)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "حفظ الملف",
+     "result": "WRITE",
+     "status": 400,
+     "method": "PATCH",
+     "url": "/provider/profile",
+     "tokens_sent": 0,
+     "tokens_stored": 0
+    }
+   ]
+  },
+  {
+   "path": [
+    "التوفر الفوري"
+   ],
+   "heading": "→ | التوفر الفوري | متاح فورياً للنداءات | 🟢 | مهلة الاستجابة (دقائق",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": " مركز مهام الإسعاف | نداءات مفتوحة (0) | لا "
+    },
+    {
+     "label": "متاح فورياً للنداءات",
+     "result": "NAVIGATE",
+     "to": "→ | التوفر الفوري | متاح فورياً للنداءات | ⚪ | م"
+    },
+    {
+     "label": "مهلة الاستجابة (دقائق)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "حفظ التوفر",
+     "result": "WRITE",
+     "status": 200,
+     "method": "PATCH",
+     "url": "/provider/profile/availability",
+     "tokens_sent": 0,
+     "tokens_stored": 0
+    }
+   ]
+  },
+  {
+   "path": [
+    "سجل المهام المكتملة"
+   ],
+   "heading": "→ |  سجل المهام | لا مهام مكتملة بعد | مهامك المنتهية وملخصاتها تظ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": " مركز مهام الإسعاف | نداءات مفتوحة (0) | لا "
+    }
+   ]
+  },
+  {
+   "path": [
+    "أسطول الإسعاف",
+    "إضافة مركبة"
+   ],
+   "heading": "→ |  أسطول الإسعاف | المركبات تخدم بعد اعتماد الإدارة | كل مركبة ج",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 7,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": " مركز مهام الإسعاف | نداءات مفتوحة (0) | لا "
+    },
+    {
+     "label": "رقم اللوحة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الموديل",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "سنة الصنع",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "عدد المسعفين",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "مدينة التمركز",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "التجهيزات (افصل بفاصلة)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #7)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "حفظ",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "إلغاء",
+     "result": "NAVIGATE",
+     "to": "→ |  أسطول الإسعاف | المركبات تخدم بعد اعتما"
+    }
+   ]
+  },
+  {
+   "path": [
+    "التوفر الفوري",
+    "متاح فورياً للنداءات"
+   ],
+   "heading": "→ | التوفر الفوري | متاح فورياً للنداءات | ⚪ | مهلة الاستجابة (دقائق",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": " مركز مهام الإسعاف | نداءات مفتوحة (0) | لا "
+    },
+    {
+     "label": "متاح فورياً للنداءات",
+     "result": "NAVIGATE",
+     "to": "→ | التوفر الفوري | متاح فورياً للنداءات | 🟢 | م"
+    },
+    {
+     "label": "مهلة الاستجابة (دقائق)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "حفظ التوفر",
+     "result": "WRITE",
+     "status": 200,
+     "method": "PATCH",
+     "url": "/provider/profile/availability",
+     "tokens_sent": 0,
+     "tokens_stored": 0
+    }
+   ]
+  }
+ ],
+ "unvisited_states": 0
+}

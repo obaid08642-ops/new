@@ -172,7 +172,7 @@ def book_variant(pat, doctor, service_type, payment, provider=None):
         rid = r.get('id')
         step(f'matrix {service_type}+{payment}: insurance request opened', r.ok and rid, r)
         if rid and provider is not None:
-            d = provider.post(f'/insurance/requests/{rid}/decide', {'decision': 'approve_partial', 'copay_percent': 20})
+            d = provider.post(f'/insurance/requests/{rid}/decide', {'decision': 'approve_partial', 'copay_percent': 20, 'approval_ref': f'APR-{rid[:8]}'})
             step(f'matrix {service_type}+{payment}: provider decides partial', d.ok, d)
             import time as _time
             state = None

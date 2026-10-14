@@ -1,0 +1,1835 @@
+{
+ "app": "patient-app",
+ "build": "react-native-web export (not native)",
+ "routes": [
+  {
+   "route": "health/smart-reminders",
+   "url": "/health/smart-reminders",
+   "landed": "/health/medication-reminder-list",
+   "status": "TESTED",
+   "time_to_ready_ms": 2724,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰐕",
+     "result": "NAVIGATE",
+     "to": "/health/medication-reminder-add",
+     "response_ms": 1377
+    },
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3590
+    }
+   ]
+  },
+  {
+   "route": "health/trends",
+   "url": "/health/trends",
+   "landed": "/health/trends",
+   "status": "TESTED",
+   "time_to_ready_ms": 2621,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3621
+    }
+   ]
+  },
+  {
+   "route": "health/vitals",
+   "url": "/health/vitals",
+   "landed": "/health/vitals",
+   "status": "TESTED",
+   "time_to_ready_ms": 2666,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3582
+    },
+    {
+     "label": "󰐕",
+     "result": "NAVIGATE",
+     "to": "/health/vitals-log",
+     "response_ms": 804
+    },
+    {
+     "label": "الأمراض والحساسية",
+     "result": "NAVIGATE",
+     "to": "/health/conditions-allergies",
+     "response_ms": 831
+    }
+   ]
+  },
+  {
+   "route": "health/vitals-log",
+   "url": "/health/vitals-log",
+   "landed": "/health/vitals-log",
+   "status": "TESTED",
+   "time_to_ready_ms": 1999,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰐕",
+     "result": "UI_CHANGE",
+     "response_ms": 472
+    },
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3586
+    },
+    {
+     "label": "ضغط الدم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3617
+    },
+    {
+     "label": "سكر الدم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3561
+    },
+    {
+     "label": "نبض القلب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3579
+    },
+    {
+     "label": "الوزن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3618
+    },
+    {
+     "label": "درجة الحرارة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3554
+    },
+    {
+     "label": "أكسجين الدم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3562
+    },
+    {
+     "label": "إضافة قراءة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3582
+    }
+   ]
+  },
+  {
+   "route": "health/wearables",
+   "url": "/health/wearables",
+   "landed": "/health/wearables",
+   "status": "TESTED",
+   "time_to_ready_ms": 1372,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "index",
+   "url": "/",
+   "landed": "/",
+   "status": "TESTED",
+   "time_to_ready_ms": 1377,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "insurance/add-policy",
+   "url": "/insurance/add-policy",
+   "landed": "/insurance/add-policy",
+   "status": "TESTED",
+   "time_to_ready_ms": 2588,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 4,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3609
+    },
+    {
+     "label": "مسح بطاقة التأمين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3553
+    },
+    {
+     "label": "name_en-21851",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3580
+    },
+    {
+     "label": "Tawuniya",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3621
+    },
+    {
+     "label": "MedGulf",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3558
+    },
+    {
+     "label": "SAICO",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3574
+    },
+    {
+     "label": "Al Rajhi Takaful",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3563
+    },
+    {
+     "label": "Walaa",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3554
+    },
+    {
+     "label": "Allianz Saudi",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3575
+    },
+    {
+     "label": "AXA Gulf",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3560
+    },
+    {
+     "label": "CIG",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3576
+    },
+    {
+     "label": "Malath",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3583
+    },
+    {
+     "label": "Salama",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3562
+    },
+    {
+     "label": "Gulf Union",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3611
+    },
+    {
+     "label": "Arabian Shield",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3599
+    },
+    {
+     "label": "AlSagr",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3570
+    },
+    {
+     "label": "Amana",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3576
+    },
+    {
+     "label": "Cigna",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3611
+    },
+    {
+     "label": "GlobeMed",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3589
+    },
+    {
+     "label": "NextCare",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3588
+    },
+    {
+     "label": "Mediviza",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3604
+    },
+    {
+     "label": "MedNet",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3568
+    },
+    {
+     "label": "Buruj",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3712
+    },
+    {
+     "label": "ACIG",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3651
+    },
+    {
+     "label": "Enaya",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3573
+    },
+    {
+     "label": "UCA",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3578
+    },
+    {
+     "label": "AlAhli Takaful",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3578
+    },
+    {
+     "label": "Chubb",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3576
+    },
+    {
+     "label": "Aljazira Takaful",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3632
+    },
+    {
+     "label": "SABB Takaful",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3587
+    },
+    {
+     "label": "Al Alamiya",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3625
+    },
+    {
+     "label": "Al-Etihad",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3575
+    },
+    {
+     "label": "name_en-451",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3628
+    },
+    {
+     "label": "name_en-1302",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3574
+    },
+    {
+     "label": "U0BE49F03",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3610
+    },
+    {
+     "label": "Insure ins7cffe",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3599
+    },
+    {
+     "label": "Insure ins7d1f7",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3713
+    },
+    {
+     "label": "Insure ins45133",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3591
+    },
+    {
+     "label": "Insure inscaa65",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3600
+    },
+    {
+     "label": "U03F01C03",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3604
+    },
+    {
+     "label": "Insure ins43554",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3576
+    },
+    {
+     "label": "(time budget reached)",
+     "result": "NOT_TESTED"
+    }
+   ]
+  },
+  {
+   "route": "insurance/approval-pending",
+   "url": "/insurance/approval-pending",
+   "landed": "/insurance/approval-pending",
+   "status": "TESTED",
+   "time_to_ready_ms": 15501,
+   "ready": false,
+   "not_ready_reason": "0 request(s) in flight, 1 loading, stable=24",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰑐",
+     "result": "NAVIGATE",
+     "to": "/insurance/hub?tab=claims",
+     "response_ms": 514
+    }
+   ]
+  },
+  {
+   "route": "insurance/benefits-summary",
+   "url": "/insurance/benefits-summary",
+   "landed": "/insurance/coverage-check?view=benefits",
+   "status": "TESTED",
+   "time_to_ready_ms": 1337,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /insurance/benefits-summary"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3599
+    }
+   ]
+  },
+  {
+   "route": "insurance/copay",
+   "url": "/insurance/copay",
+   "landed": "/insurance/copay",
+   "status": "TESTED",
+   "time_to_ready_ms": 1962,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تأكيد الدفع",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3580
+    }
+   ]
+  },
+  {
+   "route": "insurance/coverage-check",
+   "url": "/insurance/coverage-check",
+   "landed": "/insurance/coverage-check",
+   "status": "TESTED",
+   "time_to_ready_ms": 1941,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3579
+    },
+    {
+     "label": "استشارة طبيب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3599
+    },
+    {
+     "label": "تحاليل مخبرية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3574
+    },
+    {
+     "label": "أشعة وتشخيص",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3574
+    },
+    {
+     "label": "تمريض منزلي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3561
+    }
+   ]
+  },
+  {
+   "route": "insurance/hub",
+   "url": "/insurance/hub",
+   "landed": "/insurance/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 2591,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰐕",
+     "result": "NAVIGATE",
+     "to": "/insurance/add-policy",
+     "response_ms": 836
+    },
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3583
+    },
+    {
+     "label": "الوثائق",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3549
+    },
+    {
+     "label": "المطالبات",
+     "result": "UI_CHANGE",
+     "response_ms": 450
+    },
+    {
+     "label": "الاسترداد",
+     "result": "UI_CHANGE",
+     "response_ms": 485
+    },
+    {
+     "label": "󰍉",
+     "result": "NAVIGATE",
+     "to": "/insurance/coverage-check",
+     "response_ms": 460
+    },
+    {
+     "label": "󰈙",
+     "result": "NAVIGATE",
+     "to": "/insurance/submit-claim",
+     "response_ms": 896
+    },
+    {
+     "label": "󰋡",
+     "result": "NAVIGATE",
+     "to": "/insurance/network-providers",
+     "response_ms": 857
+    },
+    {
+     "label": "󰖄",
+     "result": "NAVIGATE",
+     "to": "/insurance/coverage-check?view=benefits",
+     "response_ms": 487
+    },
+    {
+     "label": "تفاصيل",
+     "result": "NAVIGATE",
+     "to": "/insurance/add-policy",
+     "response_ms": 864
+    },
+    {
+     "label": "+ إضافة",
+     "result": "NAVIGATE",
+     "to": "/insurance/add-policy",
+     "response_ms": 946
+    },
+    {
+     "label": "عرض الكل",
+     "result": "NAVIGATE",
+     "to": "/insurance/hub?tab=claims",
+     "response_ms": 487
+    }
+   ]
+  },
+  {
+   "route": "insurance/index",
+   "url": "/insurance",
+   "landed": "/insurance/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 1960,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰐕",
+     "result": "NAVIGATE",
+     "to": "/insurance/add-policy",
+     "response_ms": 822
+    },
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3586
+    },
+    {
+     "label": "الوثائق",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3584
+    },
+    {
+     "label": "المطالبات",
+     "result": "UI_CHANGE",
+     "response_ms": 449
+    },
+    {
+     "label": "الاسترداد",
+     "result": "UI_CHANGE",
+     "response_ms": 790
+    },
+    {
+     "label": "󰍉",
+     "result": "NAVIGATE",
+     "to": "/insurance/coverage-check",
+     "response_ms": 459
+    },
+    {
+     "label": "󰈙",
+     "result": "NAVIGATE",
+     "to": "/insurance/submit-claim",
+     "response_ms": 839
+    },
+    {
+     "label": "󰋡",
+     "result": "NAVIGATE",
+     "to": "/insurance/network-providers",
+     "response_ms": 825
+    },
+    {
+     "label": "󰖄",
+     "result": "NAVIGATE",
+     "to": "/insurance/coverage-check?view=benefits",
+     "response_ms": 537
+    },
+    {
+     "label": "تفاصيل",
+     "result": "NAVIGATE",
+     "to": "/insurance/add-policy",
+     "response_ms": 822
+    },
+    {
+     "label": "+ إضافة",
+     "result": "NAVIGATE",
+     "to": "/insurance/add-policy",
+     "response_ms": 828
+    },
+    {
+     "label": "عرض الكل",
+     "result": "NAVIGATE",
+     "to": "/insurance/hub?tab=claims",
+     "response_ms": 497
+    }
+   ]
+  },
+  {
+   "route": "insurance/network-providers",
+   "url": "/insurance/network-providers",
+   "landed": "/insurance/network-providers",
+   "status": "TESTED",
+   "time_to_ready_ms": 1943,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3569
+    },
+    {
+     "label": "󰀻",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3554
+    },
+    {
+     "label": "󰩂",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3578
+    },
+    {
+     "label": "󰋡",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3566
+    },
+    {
+     "label": "󰐂",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3606
+    },
+    {
+     "label": "󰙔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3614
+    },
+    {
+     "label": "إضافة بوليصة",
+     "result": "NAVIGATE",
+     "to": "/insurance/add-policy",
+     "response_ms": 888
+    }
+   ]
+  },
+  {
+   "route": "insurance/payment-split",
+   "url": "/insurance/payment-split",
+   "landed": "/insurance/payment-split",
+   "status": "TESTED",
+   "time_to_ready_ms": 1376,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3641
+    },
+    {
+     "label": "تحديث القرار",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3626
+    }
+   ]
+  },
+  {
+   "route": "insurance/policy-detail",
+   "url": "/insurance/policy-detail",
+   "landed": "/insurance/policy-detail",
+   "status": "TESTED",
+   "time_to_ready_ms": 2622,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3594
+    },
+    {
+     "label": "إضافة بوليصة",
+     "result": "NAVIGATE",
+     "to": "/insurance/add-policy",
+     "response_ms": 786
+    },
+    {
+     "label": "󰍉",
+     "result": "NAVIGATE",
+     "to": "/insurance/coverage-check",
+     "response_ms": 599
+    }
+   ]
+  },
+  {
+   "route": "insurance/submit-claim",
+   "url": "/insurance/submit-claim",
+   "landed": "/insurance/submit-claim",
+   "status": "TESTED",
+   "time_to_ready_ms": 2568,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3579
+    },
+    {
+     "label": "󰄀",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3583
+    },
+    {
+     "label": "تقديم المطالبة",
+     "result": "NO_EFFECT",
+     "disabled": true,
+     "response_ms": 3607
+    }
+   ]
+  },
+  {
+   "route": "loyalty/challenges",
+   "url": "/loyalty/challenges",
+   "landed": "/loyalty/challenges",
+   "status": "TESTED",
+   "time_to_ready_ms": 2674,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3605
+    },
+    {
+     "label": "󰑐",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 787
+    }
+   ]
+  },
+  {
+   "route": "loyalty/hub",
+   "url": "/loyalty/hub",
+   "landed": "/loyalty/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 3808,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰋼",
+     "result": "NAVIGATE",
+     "to": "/loyalty/leaderboard",
+     "response_ms": 870
+    },
+    {
+     "label": "󰹄",
+     "result": "NAVIGATE",
+     "to": "/loyalty/rewards",
+     "response_ms": 1385
+    },
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3628
+    },
+    {
+     "label": "اكسب نقاطاً",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3559
+    },
+    {
+     "label": "استبدال",
+     "result": "UI_CHANGE",
+     "response_ms": 455
+    },
+    {
+     "label": "السجل",
+     "result": "UI_CHANGE",
+     "response_ms": 470
+    }
+   ]
+  },
+  {
+   "route": "loyalty/leaderboard",
+   "url": "/loyalty/leaderboard",
+   "landed": "/loyalty/leaderboard",
+   "status": "TESTED",
+   "time_to_ready_ms": 2613,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3577
+    }
+   ]
+  },
+  {
+   "route": "loyalty/referrals",
+   "url": "/loyalty/referrals",
+   "landed": "/loyalty/referrals",
+   "status": "TESTED",
+   "time_to_ready_ms": 1956,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3583
+    },
+    {
+     "label": "󰋼",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3582
+    },
+    {
+     "label": "󰆏",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3571
+    },
+    {
+     "label": "󰒗",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3572
+    },
+    {
+     "label": "󰗠",
+     "result": "WRITE",
+     "status": 404,
+     "method": "POST",
+     "url": "/referrals/apply",
+     "tokens_sent": 1,
+     "tokens_stored": 0,
+     "response_ms": 1913
+    }
+   ]
+  },
+  {
+   "route": "loyalty/rewards",
+   "url": "/loyalty/rewards",
+   "landed": "/loyalty/rewards",
+   "status": "TESTED",
+   "time_to_ready_ms": 2551,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3594
+    },
+    {
+     "label": "󰑐",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1309
+    }
+   ]
+  },
+  {
+   "route": "map/index",
+   "url": "/map",
+   "landed": "/map",
+   "status": "TESTED",
+   "time_to_ready_ms": 1980,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "maternity/baby-development",
+   "url": "/maternity/baby-development",
+   "landed": "/maternity/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 2648,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3603
+    },
+    {
+     "label": "ابدئي الإعداد",
+     "result": "NAVIGATE",
+     "to": "/maternity/maternity-setup",
+     "response_ms": 1323
+    }
+   ]
+  },
+  {
+   "route": "maternity/baby-growth",
+   "url": "/maternity/baby-growth",
+   "landed": "/maternity/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 2601,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3607
+    },
+    {
+     "label": "ابدئي الإعداد",
+     "result": "NAVIGATE",
+     "to": "/maternity/maternity-setup",
+     "response_ms": 1307
+    }
+   ]
+  },
+  {
+   "route": "maternity/hub",
+   "url": "/maternity/hub",
+   "landed": "/maternity/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 2625,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3577
+    },
+    {
+     "label": "ابدئي الإعداد",
+     "result": "NAVIGATE",
+     "to": "/maternity/maternity-setup",
+     "response_ms": 1314
+    }
+   ]
+  },
+  {
+   "route": "maternity/maternity-setup",
+   "url": "/maternity/maternity-setup",
+   "landed": "/maternity/maternity-setup",
+   "status": "TESTED",
+   "time_to_ready_ms": 2692,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3608
+    },
+    {
+     "label": "متابعة الدورة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3565
+    },
+    {
+     "label": "متابعة الحمل",
+     "result": "UI_CHANGE",
+     "response_ms": 448
+    },
+    {
+     "label": "الدورة منتظمة",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الدورة غير منتظمة",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "󰗠",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/maternity/profile",
+     "tokens_sent": 1,
+     "tokens_stored": 0,
+     "response_ms": 2658
+    }
+   ]
+  },
+  {
+   "route": "maternity/ovulation-tracker",
+   "url": "/maternity/ovulation-tracker",
+   "landed": "/maternity/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 2728,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3645
+    },
+    {
+     "label": "ابدئي الإعداد",
+     "result": "NAVIGATE",
+     "to": "/maternity/maternity-setup",
+     "response_ms": 1318
+    }
+   ]
+  },
+  {
+   "route": "maternity/pregnancy-tracker",
+   "url": "/maternity/pregnancy-tracker",
+   "landed": "/maternity/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 2606,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3629
+    },
+    {
+     "label": "ابدئي الإعداد",
+     "result": "NAVIGATE",
+     "to": "/maternity/maternity-setup",
+     "response_ms": 1359
+    }
+   ]
+  },
+  {
+   "route": "medicine/[slug]",
+   "status": "NOT_TESTED_DYNAMIC"
+  },
+  {
+   "route": "mental-health/breathing",
+   "url": "/mental-health/breathing",
+   "landed": "/mental-health/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 1423,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3635
+    },
+    {
+     "label": "󰏫",
+     "result": "NAVIGATE",
+     "to": "/mental-health/mood-journal",
+     "response_ms": 529
+    },
+    {
+     "label": "󰩂",
+     "result": "NAVIGATE",
+     "to": "/consultations",
+     "response_ms": 1096
+    },
+    {
+     "label": "󰏲",
+     "result": "NAVIGATE",
+     "to": "/emergency?view=crisis",
+     "response_ms": 557
+    }
+   ]
+  },
+  {
+   "route": "mental-health/crisis-support",
+   "url": "/mental-health/crisis-support",
+   "landed": "/emergency?view=crisis",
+   "status": "TESTED",
+   "time_to_ready_ms": 2587,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3601
+    },
+    {
+     "label": "󰏲",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3628
+    },
+    {
+     "label": "󰩂",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3563
+    },
+    {
+     "label": "󰐕",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3544
+    }
+   ]
+  },
+  {
+   "route": "mental-health/hub",
+   "url": "/mental-health/hub",
+   "landed": "/mental-health/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 2055,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3594
+    },
+    {
+     "label": "󰏫",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3569
+    },
+    {
+     "label": "󰩂",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3575
+    },
+    {
+     "label": "󰏲",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3643
+    }
+   ]
+  },
+  {
+   "route": "mental-health/index",
+   "url": "/mental-health",
+   "landed": "/mental-health/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 1438,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3605
+    },
+    {
+     "label": "󰏫",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3602
+    },
+    {
+     "label": "󰩂",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3599
+    },
+    {
+     "label": "󰏲",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3640
+    }
+   ]
+  },
+  {
+   "route": "mental-health/meditation",
+   "url": "/mental-health/meditation",
+   "landed": "/mental-health/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 1380,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3584
+    },
+    {
+     "label": "󰏫",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3565
+    },
+    {
+     "label": "󰩂",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3581
+    },
+    {
+     "label": "󰏲",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3575
+    }
+   ]
+  },
+  {
+   "route": "mental-health/mood-journal",
+   "url": "/mental-health/mood-journal",
+   "landed": "/mental-health/mood-journal",
+   "status": "TESTED",
+   "time_to_ready_ms": 2584,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3587
+    },
+    {
+     "label": "󰚜",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3573
+    },
+    {
+     "label": "󰇵",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3568
+    },
+    {
+     "label": "󰇶",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3568
+    },
+    {
+     "label": "󰇸",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3564
+    },
+    {
+     "label": "󰽍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3568
+    },
+    {
+     "label": "1",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3570
+    },
+    {
+     "label": "2",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3551
+    },
+    {
+     "label": "3",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3598
+    },
+    {
+     "label": "4",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3575
+    },
+    {
+     "label": "5",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3569
+    },
+    {
+     "label": "هادئ",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3537
+    },
+    {
+     "label": "متعب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3565
+    },
+    {
+     "label": "متوتر",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3550
+    },
+    {
+     "label": "متواصل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3544
+    },
+    {
+     "label": "مرتاح",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3608
+    },
+    {
+     "label": "مثقل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3582
+    },
+    {
+     "label": "حفظ التسجيل",
+     "result": "NO_EFFECT",
+     "disabled": true,
+     "response_ms": 3543
+    }
+   ]
+  },
+  {
+   "route": "mental-health/self-assessment",
+   "url": "/mental-health/self-assessment",
+   "landed": "/mental-health/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 1965,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3624
+    },
+    {
+     "label": "󰏫",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3553
+    },
+    {
+     "label": "󰩂",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3537
+    },
+    {
+     "label": "󰏲",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3549
+    }
+   ]
+  },
+  {
+   "route": "mental-health/therapist-match",
+   "url": "/mental-health/therapist-match",
+   "landed": "/consultations",
+   "status": "TESTED",
+   "time_to_ready_ms": 1935,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "tune",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3576
+    },
+    {
+     "label": "meeting_room",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3547
+    },
+    {
+     "label": "videocam",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3662
+    },
+    {
+     "label": "home",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3574
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3612
+    },
+    {
+     "label": "كاش",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3591
+    },
+    {
+     "label": "تأمين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3545
+    },
+    {
+     "label": "عرض الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3565
+    },
+    {
+     "label": "apps",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3581
+    },
+    {
+     "label": "medical_services",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3560
+    },
+    {
+     "label": "prescriptions",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3544
+    },
+    {
+     "label": "stethoscope",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3568
+    },
+    {
+     "label": "science",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3556
+    },
+    {
+     "label": "healing",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3563
+    },
+    {
+     "label": "ابدأ الآن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3581
+    }
+   ]
+  },
+  {
+   "route": "notifications/index",
+   "url": "/notifications",
+   "landed": "/notifications",
+   "status": "TESTED",
+   "time_to_ready_ms": 2602,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3565
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3551
+    },
+    {
+     "label": "󰒓",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3545
+    },
+    {
+     "label": "󰩂",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3565
+    },
+    {
+     "label": "󰹄",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3568
+    }
+   ]
+  },
+  {
+   "route": "nursing/insurance-status",
+   "url": "/nursing/insurance-status",
+   "landed": "/nursing/insurance-status",
+   "status": "TESTED",
+   "time_to_ready_ms": 2597,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3589
+    },
+    {
+     "label": "تحديث",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3587
+    },
+    {
+     "label": "إعادة المحاولة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3557
+    }
+   ]
+  }
+ ]
+}

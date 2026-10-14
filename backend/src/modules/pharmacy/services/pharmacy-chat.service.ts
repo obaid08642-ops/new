@@ -58,7 +58,40 @@ export class PharmacyChatService {
     else if (user.role === 'provider') q.pharmacy_account_id = user.id;
     else throw new ForbiddenException();
     if (order_id) q.order_id = order_id;
-    return this.threads.find(q).sort({ updatedAt: -1 }).lean();
+    const threads: any[] = await this.threads.find(q).sort({ updatedAt: -1 }).lean();
+    return this.withSummaries(threads);
+  }
+
+  /**
+   * #525: each conversation says who it is with (the pharmacy's public name) and what was said last (a short preview of
+   * the newest visible message and who sent it), so the list is readable without opening every thread.
+   */
+  private async withSummaries(threads: any[]): Promise<any[]> {
+    if (!threads.length) return threads;
+    const pharmacyIds = [...new Set(threads.map((t) => t.pharmacy_account_id).filter(Boolean).map(String))];
+    const names = new Map<string, { ar: string | null; en: string | null }>();
+    const db: any = (this.threads as any).db;
+    if (db && pharmacyIds.length) {
+      const rows: any[] = await db.collection('provider_profiles')
+        .find({ $or: [{ user_id: { $in: pharmacyIds } }, { account_id: { $in: pharmacyIds } }] } as any, { projection: { _id: 0, user_id: 1, account_id: 1, display_name_ar: 1, display_name_en: 1, name_ar: 1, name_en: 1 } })
+        .toArray().catch(() => []);
+      for (const p of rows) {
+        const name = { ar: p.display_name_ar || p.name_ar || null, en: p.display_name_en || p.name_en || null };
+        for (const key of [p.user_id, p.account_id].filter(Boolean)) names.set(String(key), name);
+      }
+    }
+    return Promise.all(threads.map(async (t) => {
+      const last: any = await this.messages.findOne({ thread_id: t.id, blocked: { $ne: true } }, undefined, { sort: { createdAt: -1 } }).lean();
+      const name = names.get(String(t.pharmacy_account_id));
+      return {
+        ...t,
+        pharmacy_name_ar: name?.ar ?? null,
+        pharmacy_name_en: name?.en ?? null,
+        last_message: last
+          ? { text: typeof last.text === 'string' ? last.text.slice(0, 120) : null, from: last.sender_role ?? null, has_image: !!last.image_uri, has_offer: !!last.substitute_offer, at: last.createdAt ?? null }
+          : null,
+      };
+    }));
   }
 
   async listMessages(user: any, thread_id: string): Promise<any> {
@@ -127,7 +160,7 @@ export class PharmacyChatService {
     t.status = 'closed';
     t.resolution = 'accepted';
     await t.save();
-    await this.messages.create({ id: uuidv4(), thread_id, sender_account_id: 'system', sender_role: 'system', text: `البديل مقبول من المريض.` });
+    await this.messages.create({ id: uuidv4(), thread_id, sender_account_id: 'system', sender_role: 'system', system_code: 'substitute_accepted', text: `البديل مقبول من المريض.` });
     await this.bus.emit({ type: 'substitute.accepted', entity_type: 'chat', entity_id: t.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: t.patient_account_id, pharmacy_account_id: t.pharmacy_account_id, meta: { order_id: t.order_id, order_item_id: t.order_item_id, message_id: msg.id } });
     return { ok: true };
   }
@@ -150,7 +183,7 @@ export class PharmacyChatService {
         await order.save();
       }
     }
-    await this.messages.create({ id: uuidv4(), thread_id, sender_account_id: 'system', sender_role: 'system', text: action === 'rejected' ? `المريض رفض البديل.` : `تم حذف الصنف من الطلب.` });
+    await this.messages.create({ id: uuidv4(), thread_id, sender_account_id: 'system', sender_role: 'system', system_code: action === 'rejected' ? 'substitute_rejected' : 'item_removed', text: action === 'rejected' ? `المريض رفض البديل.` : `تم حذف الصنف من الطلب.` });
     await this.bus.emit({ type: action === 'rejected' ? 'substitute.rejected' : 'substitute.item_removed', entity_type: 'chat', entity_id: t.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: t.patient_account_id, pharmacy_account_id: t.pharmacy_account_id, meta: { order_id: t.order_id, order_item_id: t.order_item_id } });
     return { ok: true };
   }

@@ -1,0 +1,2 @@
+[fix] patient POST /workflow/match {kind:consultation} -> 201 rows 1
+    {'iban': None, 'bank_account_name': None, 'commission_rate': None}

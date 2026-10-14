@@ -24,6 +24,13 @@ import { BusinessRulesService } from '../business-rules/business-rules.module';
 import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
 import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
 
+import { nearestFirst } from '../provider/services/nearest-first';
+
+/** Public card for a provider in carousels and price lists: no contact or account details. */
+function publicProvider(p: any) {
+  return { id: p.account_id, name_ar: p.name_ar ?? null, name_en: p.name_en ?? null, logo: p.logo ?? null, rating: p.rating_count > 0 ? p.rating_avg : null, rating_count: p.rating_count || 0 };
+}
+
 @Injectable()
 export class LabsService {
   constructor(
@@ -40,7 +47,7 @@ export class LabsService {
     @Optional() private readonly insurance?: InsuranceFlowService,
   ) {}
 
-  async list(opts: { category?: string; search?: string; home_only?: boolean; packages_only?: boolean; highest_rated?: boolean; nearest?: boolean; lowest_price?: boolean }) {
+  async list(opts: { category?: string; search?: string; home_only?: boolean; packages_only?: boolean; highest_rated?: boolean; nearest?: boolean; lowest_price?: boolean; lat?: number; lng?: number }) {
     const q: any = { active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' };
     if (opts.category) q.category = opts.category;
     if (opts.home_only) q.home_visit_supported = true;
@@ -56,10 +63,27 @@ export class LabsService {
     if (opts.highest_rated) sortObj = { rating: -1, popularity: -1 };
     else if (opts.lowest_price) sortObj = { price: 1, popularity: -1 };
 
+    // #623: "nearest" orders tests by the closest approved lab that runs them (same compatibility rule as
+    // compatibleProviders: the lab's test_categories hold the test id or its category). Without a valid
+    // location the normal order is kept.
+    if (opts.nearest && Number.isFinite(opts.lat) && Number.isFinite(opts.lng)) {
+      const here = { lat: opts.lat as number, lng: opts.lng as number };
+      const labs: any[] = await this.providerProfiles.find({
+        type: { $in: ['lab', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
+        'geo.lat': { $type: 'number' }, 'geo.lng': { $type: 'number' },
+      }, { projection: { _id: 0, geo: 1, test_categories: 1 } }).lean();
+      const services: any[] = await this.svcModel.find(q, { _id: 0, __v: 0 }).lean();
+      return nearestFirst(services, labs, here, (svc, lab) => {
+        const runs: unknown[] = Array.isArray(lab.test_categories) ? lab.test_categories : [];
+        return runs.includes(svc.id) || (!!svc.category && runs.includes(svc.category));
+      }).slice(0, 120);
+    }
+
     if (!this.redis?.getWithSWR) return this.svcModel.find(q, { _id: 0, __v: 0 }).sort(sortObj).limit(120);
     const cacheKey = `cache:lab-services:public:v1:${JSON.stringify(opts)}`;
     return this.redis.getWithSWR(cacheKey, 900, async () => this.svcModel.find(q, { _id: 0, __v: 0 }).sort(sortObj).limit(120));
   }
+
 
   async categoryCounts() {
     const agg = await this.svcModel.aggregate([
@@ -80,7 +104,7 @@ export class LabsService {
   async compatibleProviders(testIds: string[]) {
     const ids = [...new Set((testIds || []).filter(Boolean))];
     if (!ids.length) return [];
-    const services = await this.svcModel.find({ id: { $in: ids }, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, category: 1 });
+    const services = await this.svcModel.find({ id: { $in: ids }, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, id: 1, category: 1, short_code: 1, name_ar: 1, price: 1 });
     if (services.length !== ids.length) return [];
     const categories = [...new Set(services.map((service: any) => service.category).filter(Boolean))];
     const profiles = await this.providerProfiles.find({
@@ -93,14 +117,127 @@ export class LabsService {
       // older profiles may hold category names. Either must cover every requested test.
       $or: [{ test_categories: { $all: ids } }, ...(categories.length ? [{ test_categories: { $all: categories } }] : [])],
     }, { _id: 0, account_id: 1, id: 1, name_ar: 1, name_en: 1, home_visit_supported: 1, rating_avg: 1, rating_count: 1, logo: 1 }).limit(50).lean();
-    return profiles.map((profile: any) => ({
-      id: profile.account_id,
-      facility_id: profile.id,
-      name: profile.name_ar || profile.name_en,
-      homeVisitAvailable: Boolean(profile.home_visit_supported),
-      rating: profile.rating_count > 0 ? profile.rating_avg : null,
-      logo: profile.logo || null,
-    }));
+    const prices = await this.labPrices(profiles.map((p: any) => p.account_id), services as any[]);
+    return profiles.map((profile: any) => {
+      const own = prices.get(profile.account_id);
+      // #631: the lab's own total for the requested tests (its capability prices, a missing one at the catalog price);
+      // null only when neither the lab nor the catalog has a price for some test.
+      const total = (services as any[]).reduce<number | null>((sum, svc: any) => {
+        const price = own?.get(svc.id) ?? (typeof svc.price === 'number' && svc.price > 0 ? svc.price : null);
+        return sum === null || price === null ? null : sum + price;
+      }, 0);
+      return {
+        id: profile.account_id,
+        facility_id: profile.id,
+        name: profile.name_ar || profile.name_en,
+        homeVisitAvailable: Boolean(profile.home_visit_supported),
+        rating: profile.rating_count > 0 ? profile.rating_avg : null,
+        rating_count: profile.rating_count || 0,
+        price: total,
+        currency: 'SAR',
+        logo: profile.logo || null,
+      };
+    });
+  }
+
+  /** The public profile of an approved lab by account id (GET /labs/:id); its priced tests from its capabilities. */
+  async publicLab(id: string) {
+    if (typeof id !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(id)) throw new NotFoundException('lab_not_found');
+    const p: any = await this.providerProfiles.findOne({
+      account_id: { $eq: id }, type: { $in: ['lab', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
+    }, { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, description_ar: 1, description_en: 1, address: 1, home_visit_supported: 1, rating_avg: 1, rating_count: 1 }).lean();
+    if (!p) throw new NotFoundException('lab_not_found');
+    const items: any[] = await this.svcModel.db.collection('provider_capabilities_lab').find(
+      { provider_account_id: { $eq: id }, available: true, price: { $gt: 0 } },
+      { projection: { _id: 0, code: 1, name_ar: 1, name_en: 1, price: 1 } },
+    ).limit(100).toArray();
+    return {
+      data: {
+        id: p.account_id,
+        name_ar: p.name_ar ?? null,
+        name_en: p.name_en ?? null,
+        city: typeof p.address?.city === 'string' ? p.address.city : null,
+        address: [p.address?.district, p.address?.street].filter((x: unknown) => typeof x === 'string' && x).join(' ') || null,
+        image: p.logo ?? null,
+        description: p.description_ar || p.description_en || null,
+        home_visit: Boolean(p.home_visit_supported),
+        rating: p.rating_count > 0 ? p.rating_avg : null,
+        rating_count: p.rating_count || 0,
+        services: items.map((i) => ({ id: i.code, name_ar: i.name_ar ?? null, name_en: i.name_en ?? null, price: i.price })),
+      },
+    };
+  }
+
+  /**
+   * Each lab's own price per catalog test, from the lab's capabilities (provider_capabilities_lab: code = the test id or
+   * short code, or the same Arabic name; available and priced). Map: lab account id -> test id -> price.
+   */
+  private async labPrices(accountIds: string[], services: any[]): Promise<Map<string, Map<string, number>>> {
+    const out = new Map<string, Map<string, number>>();
+    const ids = [...new Set(accountIds.filter((id) => typeof id === 'string' && id))];
+    if (!ids.length || !services.length) return out;
+    const codes = [...new Set(services.flatMap((svc) => [svc.id, svc.short_code]).filter((c) => typeof c === 'string' && c))];
+    const names = [...new Set(services.map((svc) => svc.name_ar).filter((n) => typeof n === 'string' && n))];
+    const items: any[] = await this.svcModel.db.collection('provider_capabilities_lab').find({
+      provider_account_id: { $in: ids }, available: true, price: { $gt: 0 },
+      $or: [{ code: { $in: codes } }, ...(names.length ? [{ name_ar: { $in: names } }] : [])],
+    }, { projection: { _id: 0, provider_account_id: 1, code: 1, name_ar: 1, price: 1 } }).toArray();
+    for (const item of items) {
+      const svc = services.find((s) => item.code === s.id || (s.short_code && item.code === s.short_code) || (s.name_ar && item.name_ar === s.name_ar));
+      if (!svc || typeof item.price !== 'number') continue;
+      const lab = out.get(item.provider_account_id) ?? new Map<string, number>();
+      lab.set(svc.id, item.price);
+      out.set(item.provider_account_id, lab);
+    }
+    return out;
+  }
+
+  // #624 carousel: popular approved tests, each with the approved labs that run it (the lab's
+  // test_categories hold the test id or its category, the rule compatibleProviders uses).
+  async getCarousel(category?: string, limit = 20) {
+    const lim = Math.min(Math.max(Number.isFinite(limit) ? limit : 20, 1), 50);
+    const q: any = { active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved', is_package: { $ne: true },
+      $and: [{ category: { $ne: 'imaging' } }, { sample_type: { $ne: 'imaging' } }] };
+    if (category) q.category = String(category);
+    const services: any[] = await this.svcModel.find(q, { _id: 0, id: 1, name_ar: 1, name_en: 1, category: 1, price: 1, short_code: 1, image_url: 1 })
+      .sort({ popularity: -1, name_ar: 1 }).limit(lim).lean();
+    const labs: any[] = await this.providerProfiles.find({
+      type: { $in: ['lab', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved', account_id: { $exists: true, $ne: null },
+    }, { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, rating_avg: 1, rating_count: 1, test_categories: 1 }).lean();
+    return services.map((svc) => {
+      const runs = labs.filter((p) => {
+        const cats: unknown[] = Array.isArray(p.test_categories) ? p.test_categories : [];
+        return cats.includes(svc.id) || (!!svc.category && cats.includes(svc.category));
+      }).sort((a, b) => (b.rating_count > 0 ? b.rating_avg : 0) - (a.rating_count > 0 ? a.rating_avg : 0));
+      return { ...svc, providers_count: runs.length, providers: runs.slice(0, 5).map(publicProvider) };
+    });
+  }
+
+  // #631 price comparison: each approved lab's own price for this test from its capabilities
+  // catalog (provider_capabilities_lab: code = the test's short code, or the same Arabic name,
+  // the rule ServiceCapabilityService uses). Labs with no priced entry are not listed.
+  async priceComparison(serviceId: string) {
+    const svc: any = await this.svcModel.findOne({ id: { $eq: String(serviceId) }, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, id: 1, name_ar: 1, name_en: 1, short_code: 1, price: 1 }).lean();
+    if (!svc) throw new NotFoundException('service_not_found');
+    const codes = [svc.id, svc.short_code].filter(Boolean);
+    const items: any[] = await this.svcModel.db.collection('provider_capabilities_lab').find({
+      available: true, $or: [{ code: { $in: codes } }, ...(svc.name_ar ? [{ name_ar: svc.name_ar }] : [])],
+    }, { projection: { _id: 0, provider_account_id: 1, price: 1, currency: 1, home_collection_supported: 1, turnaround_hours: 1, insurance_covered: 1 } }).toArray();
+    return { service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, catalog_price: svc.price ?? null, offers: await this.priceOffers(items, ['lab', 'hospital']) };
+  }
+
+  private async priceOffers(items: any[], types: string[]) {
+    const priced = items.filter((i) => typeof i.price === 'number' && i.price > 0);
+    if (!priced.length) return [];
+    const profiles: any[] = await this.providerProfiles.find({
+      account_id: { $in: [...new Set(priced.map((i) => i.provider_account_id))] }, type: { $in: types },
+      status: 'active', public_eligibility: true, medical_review_status: 'approved',
+    }, { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, rating_avg: 1, rating_count: 1 }).lean();
+    const byId = new Map(profiles.map((p) => [p.account_id, p]));
+    return priced.filter((i) => byId.has(i.provider_account_id)).map((i) => ({
+      provider: publicProvider(byId.get(i.provider_account_id)), price: i.price, currency: i.currency || 'SAR',
+      home_collection_supported: !!i.home_collection_supported, turnaround_hours: i.turnaround_hours ?? null, insurance_covered: !!i.insurance_covered,
+    })).sort((a, b) => a.price - b.price);
   }
 
   async book(user: any, data: any) {
@@ -151,7 +288,9 @@ export class LabsService {
       // Default max-per-slot=1 unless provider schedule says more; soft cap at 3 for safety
       if (overlapping >= 3) throw new BadRequestException('slot_taken');
     }
-    const items = services.map((s: any) => ({ service_id: s.id, name_ar: s.name_ar, name_en: s.name_en, price: s.price, sample_type: s.sample_type, fasting_required: s.fasting_required }));
+    // #631: the chosen lab's own price per test when it set one (the price the comparison showed), else the catalog price.
+    const own = data.provider_account_id ? (await this.labPrices([String(data.provider_account_id)], services as any[])).get(String(data.provider_account_id)) : undefined;
+    const items = services.map((s: any) => ({ service_id: s.id, name_ar: s.name_ar, name_en: s.name_en, price: own?.get(s.id) ?? s.price, sample_type: s.sample_type, fasting_required: s.fasting_required }));
     // S4 duplicate-booking prevention: a retried/double-tapped submit by the same patient
     // for the same service set within 3 minutes returns the ORIGINAL booking (idempotent)
     // instead of creating a second one.
@@ -229,7 +368,7 @@ export class LabsService {
   /** LJ-03: the lab decision is a decision on the insurance request engine, not a
    * free-form status string. The booking mirrors the engine's server-computed
    * decision so the existing patient screen keeps working. */
-  async updateInsuranceApproval(id: string, payload: { status?: string; totalCopay?: number; items?: any[]; reason?: string }, user: any) {
+  async updateInsuranceApproval(id: string, payload: { status?: string; totalCopay?: number; items?: any[]; reason?: string; approval_ref?: string }, user: any) {
     if (!getEffectiveRoles(user).some(role => ['admin', 'lab', 'hospital'].includes(role))) throw new ForbiddenException();
     const b = await this.bkgModel.findOne({ id: { $eq: id } });
     if (!b) throw new NotFoundException();
@@ -247,6 +386,7 @@ export class LabsService {
       const rejected = items.find((it: any) => it?.isCovered === false || it?.rejectReason);
       request = await this.insurance.providerDecideBooking(user, 'lab', id, {
         decision: rawStatus,
+        approval_ref: payload.approval_ref,
         totalCopay: payload.totalCopay,
         copay: payload.totalCopay,
         reason: payload.reason || rejected?.rejectReason,
@@ -790,4 +930,84 @@ export class LabsService {
     this.events.emit('lab.booking_reassigned', { booking_id: b.id, patient_id: b.patient_id, previous_technician_id: prevTech });
     return b.toObject();
   }
+
+
+
+  async slotsForProvider(providerAccountId: string, dateStr: string, duration_minutes = 30) {
+    // Validate duration: must be integer between 10 and 120
+    const duration = parseInt(String(duration_minutes), 10);
+    if (!Number.isInteger(duration) || duration < 10 || duration > 120) {
+      throw new BadRequestException('duration must be an integer between 10 and 120 minutes');
+    }
+
+    const profile = await this.providerProfiles.findOne({
+      account_id: providerAccountId,
+      type: { $in: ['lab', 'hospital'] },
+      status: 'active',
+      public_eligibility: true,
+      medical_review_status: 'approved',
+    }).lean();
+    if (!profile) throw new NotFoundException('provider_not_found');
+    if (!profile.schedule_lab || !profile.schedule_lab.length) {
+      return { date: dateStr, slots: [], reason: 'no_schedule' };
+    }
+
+    const date = new Date(dateStr + 'T00:00:00Z');
+    if (isNaN(date.getTime())) return { date: dateStr, slots: [], reason: 'invalid_date' };
+
+    const dow = date.getUTCDay();
+    const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+    const fullDays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+    const dayMatches = (d: any) => {
+      const v = String(d ?? '').toLowerCase();
+      return v === 'all' || v === String(dow) || v === dayKeys[dow] || v === fullDays[dow];
+    };
+
+    const windows = (profile.schedule_lab || []).filter((w) => w && !w.closed && dayMatches(w.day)).flatMap((w) => [
+      ...(w.open && w.close ? [{ open: w.open, close: w.close }] : []),
+      ...(w.open_evening && w.close_evening ? [{ open: w.open_evening, close: w.close_evening }] : []),
+    ]);
+
+    if (!windows.length) return { date: dateStr, slots: [], reason: 'closed' };
+
+    const baseDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+    const slots: { id: string; start: string; end: string; label: string; available: boolean }[] = [];
+    const seen = new Set<string>();
+    const now = Date.now();
+
+    for (const w of windows) {
+      const [oh, om] = w.open.split(':').map(Number);
+      const [ch, cm] = w.close.split(':').map(Number);
+      const openTs = new Date(baseDate.getTime() + oh * 3600_000 + om * 60_000);
+      let closeTs = new Date(baseDate.getTime() + ch * 3600_000 + cm * 60_000);
+      if (closeTs.getTime() <= openTs.getTime()) closeTs = new Date(closeTs.getTime() + 24 * 3600_000);
+      for (let t = openTs.getTime(); t + duration * 60_000 <= closeTs.getTime(); t += duration * 60_000) {
+        const start = new Date(t);
+        const end = new Date(t + duration * 60_000);
+        if (start.getTime() < now + 15 * 60_000) continue;
+        const slotId = start.toISOString();
+        if (seen.has(slotId)) continue;
+        seen.add(slotId);
+        slots.push({ id: slotId, start: slotId, end: end.toISOString(), label: slotId.substring(11, 16), available: true });
+      }
+    }
+    slots.sort((x, y) => x.start.localeCompare(y.start));
+    if (slots.length === 0) return { date: dateStr, slots: [], reason: 'no_slots' };
+
+    // Mark booked slots as unavailable
+    const startOfDay = new Date(baseDate.getTime());
+    const endOfDay = new Date(baseDate.getTime() + 24 * 3600_000);
+    const booked = await this.bkgModel.find({
+      provider_account_id: providerAccountId,
+      scheduled_at: { $gte: startOfDay, $lt: endOfDay },
+      state: { $nin: ['CANCELLED', 'REPORTED'] },
+    }).select({ scheduled_at: 1 }).lean();
+    const bookedSet = new Set(booked.map((b: any) => new Date(b.scheduled_at).toISOString()));
+    for (const s of slots) {
+      if (bookedSet.has(s.start)) s.available = false;
+    }
+    return { date: dateStr, slots };
+  }
+
 }

@@ -18,6 +18,7 @@ if [ ! -f "$ENV_FILE" ]; then
   gen() { openssl rand -hex 24; }
   sed -i "s|__MONGO_ROOT_PASSWORD__|$(gen)|"          "$ENV_FILE"
   sed -i "s|__REDIS_PASSWORD__|$(gen)|"               "$ENV_FILE"
+  sed -i "s|__MEILI_MASTER_KEY__|$(gen)$(gen)|"       "$ENV_FILE"
   sed -i "s|__JWT_SECRET__|$(gen)$(gen)|"             "$ENV_FILE"
   sed -i "s|__COTURN_SECRET__|$(gen)|"                "$ENV_FILE"
   sed -i "s|__LIVEKIT_API_KEY__|nabd_$(openssl rand -hex 6)|" "$ENV_FILE"
@@ -33,6 +34,8 @@ if [ ! -f "$ENV_FILE" ]; then
   chmod 600 "$ENV_FILE"
   echo "⚠️  Edit $ENV_FILE to fill third-party keys (Firebase/Resend/R2/…), then re-run."
 fi
+# D-29: an env file made before the search engine existed gets its key once.
+grep -q '^MEILI_MASTER_KEY=[0-9a-f]\{32,\}' "$ENV_FILE" || { sed -i '/^MEILI_MASTER_KEY=/d' "$ENV_FILE"; echo "MEILI_MASTER_KEY=$(openssl rand -hex 32)" >> "$ENV_FILE"; }
 set -a; source "$ENV_FILE"; set +a
 
 echo "═══ [2/7] Inject public IP + bootstrap certs + payment placeholders ═══"

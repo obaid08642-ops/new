@@ -22,6 +22,8 @@ export class ReturnRequest extends Document {
   @Prop() resolved_by?: string;
   @Prop() resolved_at?: Date;
   @Prop() admin_note?: string;
+  /** P7: the pharmacy's view on the return (agree or dispute, with a note). The admin still decides the refund. */
+  @Prop({ type: Object }) pharmacy_response?: { agree: boolean; note?: string; at: Date; by: string };
 }
 
 export const ReturnRequestSchema = SchemaFactory.createForClass(ReturnRequest);

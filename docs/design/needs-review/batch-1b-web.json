@@ -1,0 +1,132 @@
+[
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/cart",
+    "element": "Which cart the Cart screen shows: browser cart (localStorage) vs server cart (GET /cart) - answers entry 2 of batch-1a-web",
+    "file": "patient-web/components-next/pharmacy/cart-screen.tsx",
+    "line": 51,
+    "found": "The product pages (1a) fill the browser cart and checkout-flow.tsx (slice 1d) reads it, so /cart shows it as THE cart ('saved in this browser, on this device') and is open to guests (handoff: login only at checkout). A signed-in patient also gets GET /cart as a separate section 'Saved in your account', never summed in. The server cart has no writer: POST /cart/items has a BFF route (app/api/cart/items) and tests but no caller on the web or in the app; POST /cart/checkout is a cash-only direct order that refuses Rx items and prescription media (cart.module.ts checkoutContract) and bypasses the broadcast/offers flow; GET /cart creates an empty cart document on every first read (ensureCart).",
+    "suspect": "Decision for the owner/reviewer: if the web cart should follow the patient across devices, the server cart needs price re-validation at read time (browser prices are catalogue prices captured when the item was added and can be stale), Rx handling and a checkout that goes through the offers. Until then the two carts stay separate and the screen says which is which. /cart/checkout (1d) currently shows the browser cart AND the server cart's pharmacy lines on the same page (client-checkout-section.tsx and pharmacy-broadcast-submit.tsx), which can send two different requests."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/cart",
+    "element": "Board element 'use your points' toggle and 'points discount' line (canvas/Cart)",
+    "file": "backend/src/modules/pharmacy/pharmacy.controllers.dto.ts",
+    "line": 32,
+    "found": "Handoff: loyalty points cover up to 10% of an order. The pharmacy order endpoints take no points field (CreateDto has items, delivery_address, patient_notes, prescription_attachments, prescription_id, manual_request, payment_method, fulfillment, payment_mode, insurance_policy_id, delivery_address_id) and the offer/quote services never mention points. A toggle here would change nothing, so it is not drawn, and no balance or discount is shown.",
+    "suspect": "Backend gap: points redemption on a pharmacy order (a request field, a server-computed discount capped at 10% in the final quote). Then the toggle and the 'points discount' line come back, with the balance from GET /loyalty/account."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/pharmacy/rx-order",
+    "element": "Order from a prescription: the link to /cart/checkout?prescriptionId= (old behaviour) and the screen's own broadcast",
+    "file": "patient-web/app/[locale]/cart/checkout/page.tsx",
+    "line": 38,
+    "found": "The old rx-order page, the old scan page and the app's rx-order all hand the patient to checkout with ?prescriptionId=, but the web checkout ignores that parameter and builds its order only from the browser cart, so an order from a prescription ended in 'cart is empty'. This slice's rx-order now sends the request itself (POST /patient/pharmacy/orders with prescription_id, prescription_attachments and one line per named medicine, qty 1, then /submit) and goes to /pharmacy/broadcast-status.",
+    "suspect": "Slice 1d (CheckoutV2) should decide whether a prescription order belongs in checkout (and then read prescriptionId) or stays with rx-order. The patient-app rx-order (patient-app/app/pharmacy/rx-order.tsx) still navigates to /pharmacy/checkout?prescriptionId= and should be checked by the app slice."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/pharmacy/rx-order",
+    "element": "Prescription id attached to a pharmacy order is not checked for ownership",
+    "file": "backend/src/modules/pharmacy/services/pharmacy-order.service.ts",
+    "line": 67,
+    "found": "PharmacyOrderService.create stores body.prescription_id and body.prescription_attachments exactly as sent; there is no lookup that the prescription belongs to the patient (GET /prescriptions/:id does check: foreign ids answer 404). A patient who knows another prescription's id could attach it to their own order, and the pharmacy would then see a prescription that is not theirs.",
+    "suspect": "Backend: on create, resolve prescription_id (and each prescription_attachments id) with the same participant check as getByIdForUser and reject others."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/pharmacy/rx-order",
+    "element": "Prescription lines have no quantity",
+    "file": "backend/src/modules/prescriptions/prescriptions.service.ts",
+    "line": 340,
+    "found": "The patient view (toPatientWebDto) carries name, dose, frequency and duration but not the quantity (items[].quantity exists on the document). An order from a prescription therefore sends qty 1 per medicine and says nothing about quantity; the pharmacy confirms it. GET /cart/prescription does carry qty (defaulting to 1 when the document has none).",
+    "suspect": "Add quantity (and pack/form when the item has them) to the patient view so the order lines and the detail screen can show what was prescribed; then rx-order sends the real quantity."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/prescriptions",
+    "element": "List endpoints return whole prescription documents (photo, diagnosis, notes)",
+    "file": "backend/src/modules/prescriptions/prescriptions.service.ts",
+    "line": 324,
+    "found": "GET /prescriptions/mine and /active return up to 100 raw documents each (projection only drops _id and __v): upload_image (the full base64 photo of every uploaded prescription), diagnosis, notes, patient_id and the like. The web reduces them on the server to id, state, date and names, so none reaches a page, but the transfer can be megabytes per list view and the same payload goes to any client that calls the endpoint. The detail endpoint already has a bounded DTO. The list also has no doctor name (only doctor_id), so the 'From <doctor>' title is drawn only when a record carries one (the detail has it).",
+    "suspect": "Backend: a list DTO like toPatientWebDto (id, status, issued_at, item names, doctor display name, no photo, diagnosis or notes); the photo behind its own authorised download."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/pharmacy/scan-prescription",
+    "element": "OCR items are dropped by the upload endpoint (also in the patient app)",
+    "file": "backend/src/modules/prescriptions/prescriptions.service.ts",
+    "line": 164,
+    "found": "POST /ai/prescription-ocr answers {items:[{medicine_id, raw_name_string, requested_quantity, notes}]} (ai.service.ts ocrTranslate) but uploadByPatient reads name_ar / medicine_name_ar / name / name_en and quantity, and skips a line with no name. An OCR line sent as it came is silently dropped and the prescription is saved with no medicines. The web now maps raw_name_string/requested_quantity to name/quantity before saving. patient-app/app/pharmacy/scan-prescription.tsx (process, line 20) still posts ocr.items unchanged, so on the app every OCR'd prescription is saved empty.",
+    "suspect": "Backend should read raw_name_string and requested_quantity too (one place, both clients fixed); the app slice 1b should map them until then."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/pharmacy/scan-prescription",
+    "element": "Board attachments row (several photos) and the board's 'use my insurance' switch",
+    "file": "backend/src/modules/prescriptions/prescriptions.dto.ts",
+    "line": 61,
+    "found": "UploadDto has one upload_image string, so the 'add a photo' tile of canvas/RxUpload is not drawn (one photo per prescription, said on the screen). The board's insurance switch ('use my insurance, [company], the pharmacy asks for approval') has no field at this step: insurance is chosen on the order (CreateDto payment_mode / insurance_policy_id) or at the offer, and the upload saves only the prescription. Neither control is drawn: a dead switch is not shipped. The patient's optional note is sent as UploadDto.notes, the same field a doctor's prescription uses for clinical notes.",
+    "suspect": "Owner: where the insurance choice belongs (the board puts it on the upload screen; the backend takes it on the order, so it would move to rx-order or checkout). Backend: several images per prescription, and a separate patient_note so it is not mixed with the doctor's notes."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/pharmacy/barcode",
+    "element": "No camera scan on the web; typed barcodes only",
+    "file": "patient-web/components-next/pharmacy/barcode-screen.tsx",
+    "line": 33,
+    "found": "The app scans with the camera; the web page only ever had a typed field, while its text said 'point the camera at the barcode'. The new screen does not promise a scan. A browser scan would need the BarcodeDetector API (Chromium only) or a decoding library (JS budget); not added here.",
+    "suspect": "Owner decision: add a camera scan with BarcodeDetector where it exists (feature-detected, typed entry stays), or accept typed entry on the web."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/pharmacy/barcode",
+    "element": "Barcode lookup falls back to an unescaped regex on user text",
+    "file": "backend/src/modules/medicines/medicines.service.ts",
+    "line": 834,
+    "found": "GET /medicines/by-barcode/:code is public. When no catalogue barcode matches, byBarcode runs name_en and active_ingredient $regex queries built straight from the typed code (c) with no escaping: a pattern like (a+)+$ is a ReDoS probe on a public endpoint, and any typed text 'matches' by name, so a wrong code can return an unrelated medicine as source 'fuzzy'. The screen labels a fuzzy result 'Closest match' instead of 'found'.",
+    "suspect": "Backend: escape the text (or drop the fuzzy fallback for barcode-shaped input), cap the length, and rate-limit the public route."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/pharmacy/request",
+    "element": "Dedicated BFF route app/api/patient/pharmacy/orders/route.ts",
+    "file": "patient-web/app/api/patient/pharmacy/orders/route.ts",
+    "line": 6,
+    "found": "The old request form was the only caller of this handler besides slice 1d's pharmacy-broadcast-submit.tsx. It takes the first cookie of nabd_access / nabd_refresh / nabd_device that is set (so it can forward the refresh token or the device id as a bearer token) and cannot refresh an expired session, unlike the catch-all /api/patient proxy that checkout-flow.tsx and this slice's screens use (/api/patient/patient/pharmacy/orders is on the allowlist). It also sends no idempotency header unless the caller does.",
+    "suspect": "Slice 1d: move pharmacy-broadcast-submit.tsx to the proxy path and delete this route."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/pharmacy/chat",
+    "element": "No board for the pharmacist chat; its system lines are Arabic-only server text",
+    "file": "backend/src/modules/pharmacy/services/pharmacy-chat.service.ts",
+    "line": 153,
+    "found": "Owner decision for screens without a board (keep the current layout, apply tokens, font and shared components) is applied: a conversation, the pharmacy's substitute offers and a message box, built from Button, Input, Chip, Skeleton and the state components. The backend writes its own system messages in Arabic ('البديل مقبول من المريض.', 'المريض رفض البديل.', 'تم حذف الصنف من الطلب.'), which cannot be translated; the screen does not draw system lines and shows how the thread ended from thread.resolution (accepted, rejected, removed) in the page's language. Image messages (image_uri) are not drawn. Previously the screen offered accept/reject/remove on every substitute even in a closed thread (thread_closed).",
+    "suspect": "Owner: a board (or the closest board component) for this chat. Backend: system messages as codes (resolution + params) instead of Arabic text."
+  },
+  {
+    "batch": 1,
+    "app": "patient-web",
+    "screen": "/pharmacy/scan-prescription",
+    "element": "OCR throttle and generic failures",
+    "file": "backend/src/modules/ai/ai.controller.ts",
+    "line": 93,
+    "found": "POST /ai/prescription-ocr is limited to 15 per minute and answers 502 ai_upstream_error for any provider failure, including a missing key (the local test backend has none, so the OCR step cannot succeed here and only its failure state was exercised). The screen cannot tell 'rate limited' from 'provider down' apart from the status code; both show 'could not be analysed, try again in a moment'. The success path (mapped items, upload with progress) is covered by unit tests with mocked responses, not by a real OCR.",
+    "suspect": "Reviewer: run the upload once against a backend with the OCR key; consider a distinct code for the throttle (429 with retry-after)."
+  }
+]

@@ -1,0 +1,6282 @@
+{
+ "generated": "2026-10-02T21:44:27",
+ "commit": "214c1c5",
+ "totals": {
+  "provider-app": {
+   "FAILED": 18,
+   "PARTIAL": 109,
+   "PASSED": 72,
+   "BLOCKED": 3
+  },
+  "patient-app": {
+   "PARTIAL": 187,
+   "NOT_TESTED": 5,
+   "FAILED": 40,
+   "PASSED": 9,
+   "BLOCKED": 3
+  },
+  "patient-web": {
+   "PASSED": 102,
+   "NOT_TESTED": 6,
+   "PARTIAL": 139,
+   "FAILED": 17,
+   "BLOCKED": 6
+  },
+  "admin": {
+   "PARTIAL": 41,
+   "PASSED": 13,
+   "FAILED": 9,
+   "NOT_TESTED": 2
+  }
+ },
+ "rows": [
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "MainTabs",
+   "status": "FAILED",
+   "detail": "7 state(s); 1 failing control(s): الموقع ونطاق التغط=JS_ERROR",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "appointment_detail",
+   "status": "PARTIAL",
+   "detail": "4 state(s); 7/30 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "consultation",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "prescription",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 4/8 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "sick_leave",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 13/14 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "medical_report",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 8/9 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "referral",
+   "status": "PARTIAL",
+   "detail": "2 state(s); 16/20 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "request_test",
+   "status": "PARTIAL",
+   "detail": "4 state(s); 3/100 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "patient_file",
+   "status": "PARTIAL",
+   "detail": "2 state(s); 8/21 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "withdrawal_workflow",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 16/17 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "revenue_insights",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "availability_engine",
+   "status": "PARTIAL",
+   "detail": "3 state(s); 10/75 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "service_management",
+   "status": "PARTIAL",
+   "detail": "2 state(s); 5/11 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "promotions",
+   "status": "PARTIAL",
+   "detail": "2 state(s); 6/11 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "create_promo",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 5/7 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "web_config",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 3/6 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "subscriptions_ads",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 2/5 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "affiliate",
+   "status": "PASSED",
+   "detail": "1 state(s); 2 controls verified",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "reputation",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "crm",
+   "status": "PASSED",
+   "detail": "1 state(s); 2 controls verified",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "ai_copilot",
+   "status": "PASSED",
+   "detail": "1 state(s); 3 controls verified",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "outbound_referral",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 24/25 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "sos_dispatch",
+   "status": "FAILED",
+   "detail": "1 state(s); render: 403 GET /emergency/active",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "gps_router",
+   "status": "PASSED",
+   "detail": "1 state(s); 2 controls verified",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "profile_edit",
+   "status": "FAILED",
+   "detail": "2 state(s); render: 404 GET /provider/profile/image/status; 404 GET /provider/profile/image/status",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "insurance_config",
+   "status": "PASSED",
+   "detail": "1 state(s); 2 controls verified",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "insurance_requests",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "certificates_config",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 9/10 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "media_config",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 1/2 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "virtual_waiting_room",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 1/2 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "pre_visit_chat",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 1/2 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "medical_jobs",
+   "status": "PARTIAL",
+   "detail": "4 state(s); 16/30 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "drug_index",
+   "status": "PARTIAL",
+   "detail": "9 state(s); 6/69 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "facility_invitations",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "location_config",
+   "status": "BLOCKED",
+   "detail": "needs a real record id (crashes when opened without one)",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "inbound_reports",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "doctor",
+   "item": "video_call",
+   "status": "PARTIAL",
+   "detail": "1 state(s); no controls exercised",
+   "evidence": "rn_nav2_provider-app_doctor_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "MainTabs",
+   "status": "PARTIAL",
+   "detail": "6 state(s); 25/115 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "subaccounts",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 5/12 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "add_subaccount",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 11/13 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "departments",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "shifts",
+   "status": "PARTIAL",
+   "detail": "2 state(s); 13/19 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "resources",
+   "status": "PARTIAL",
+   "detail": "2 state(s); 9/15 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "leave_requests",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "unified_sched",
+   "status": "PARTIAL",
+   "detail": "2 state(s); 2/3 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "beds",
+   "status": "FAILED",
+   "detail": "4 state(s); 2 failing control(s): إدارة الأسرّة=WRITE, تأكيد الحجز وتسكين=WRITE",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "qr_checkin",
+   "status": "PARTIAL",
+   "detail": "3 state(s); 5/15 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "insurance_hub",
+   "status": "PARTIAL",
+   "detail": "2 state(s); 10/11 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "financial",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 3/4 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "internal_chat",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "audit_logs",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "announcements",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 1/2 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "patient_tracker",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "prescription",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 4/8 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "discharge_summary",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 3/4 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "attendance",
+   "status": "PASSED",
+   "detail": "2 state(s); 2 controls verified",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "surgery_sched",
+   "status": "PARTIAL",
+   "detail": "2 state(s); 7/12 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "credentialing",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "hospital_dispatch",
+   "status": "FAILED",
+   "detail": "1 state(s); render: 403 GET /home-care/bookings/nursing/all",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "facility_info",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 24/25 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "auto_reports",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "notifications",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "support",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 2/4 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "security",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 4/6 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "order_detail",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 1/3 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "wallet",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 1/2 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "promotions",
+   "status": "PASSED",
+   "detail": "1 state(s); 3 controls verified",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "create_promo",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 5/7 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "web_config",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 3/6 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "subscriptions_ads",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 2/5 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "affiliate",
+   "status": "PASSED",
+   "detail": "1 state(s); 2 controls verified",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "reputation",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "crm",
+   "status": "PASSED",
+   "detail": "1 state(s); 2 controls verified",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "revenue_insights",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "sos_dispatch",
+   "status": "FAILED",
+   "detail": "1 state(s); render: 403 GET /emergency/active",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "ambulance_fleet",
+   "status": "PARTIAL",
+   "detail": "2 state(s); 7/12 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "gps_router",
+   "status": "PASSED",
+   "detail": "1 state(s); 2 controls verified",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "medical_jobs",
+   "status": "PARTIAL",
+   "detail": "5 state(s); 68/99 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "drug_index",
+   "status": "PARTIAL",
+   "detail": "9 state(s); 7/102 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "insurance_requests",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "insurance_config",
+   "status": "PARTIAL",
+   "detail": "7 state(s); 48/175 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "certificates_config",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 2/3 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "hospital",
+   "item": "media_config",
+   "status": "FAILED",
+   "detail": "1 state(s); render: 404 GET /storage/%D9%82%D9%8A%D9%85%D8%A9/signed-url",
+   "evidence": "rn_nav2_provider-app_hospital_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "MainTabs",
+   "status": "PARTIAL",
+   "detail": "9 state(s); 19/88 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "order_detail",
+   "status": "FAILED",
+   "detail": "2 state(s); 1 failing control(s): Confirm Direct Ord=WRITE",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "sample_tracking",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 5/6 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "result_review",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 7/10 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "bundles",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "add_test",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 9/10 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "home_collection",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "qr_label",
+   "status": "PASSED",
+   "detail": "1 state(s); 2 controls verified",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "wallet",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 1/2 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "chat",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 1/2 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "tat_tracker",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "insurance",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "promotions",
+   "status": "PASSED",
+   "detail": "1 state(s); 3 controls verified",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "create_promo",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 5/7 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "web_config",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 3/6 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "reputation",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "crm",
+   "status": "FAILED",
+   "detail": "3 state(s); render: 404 GET /provider/crm/cdb5917d-5c7b-40ce-a004-79f3c42790d1",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "revenue_insights",
+   "status": "PARTIAL",
+   "detail": "2 state(s); 6/7 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "lab_scanner",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 1/2 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "medical_jobs",
+   "status": "PARTIAL",
+   "detail": "5 state(s); 66/99 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "drug_index",
+   "status": "PARTIAL",
+   "detail": "9 state(s); 7/102 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "insurance_config",
+   "status": "PARTIAL",
+   "detail": "7 state(s); 50/175 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "certificates_config",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 2/3 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "media_config",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 1/2 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "test_menu",
+   "status": "PASSED",
+   "detail": "1 state(s); 3 controls verified",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "home_service",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "insurance_requests",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "working_hours",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 6/11 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "password",
+   "status": "PARTIAL",
+   "detail": "3 state(s); 28/31 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "2fa",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 4/6 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "lab",
+   "item": "devices",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 4/6 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_lab_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "MainTabs",
+   "status": "PARTIAL",
+   "detail": "9 state(s); 16/82 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "order_detail",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "checklist",
+   "status": "PASSED",
+   "detail": "2 state(s); 14 controls verified",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "checkin",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 1/2 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "care_plan",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 2/4 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "progress",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 6/8 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "visit_report",
+   "status": "PARTIAL",
+   "detail": "2 state(s); 6/8 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "supplies",
+   "status": "FAILED",
+   "detail": "SLOW: 1 loading indicator(s) visible",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "nursing_services",
+   "status": "PARTIAL",
+   "detail": "2 state(s); 27/33 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "nursing_pricing",
+   "status": "PARTIAL",
+   "detail": "8 state(s); 14/62 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "nursing_coverage",
+   "status": "FAILED",
+   "detail": "1 state(s); 1 failing control(s): Verify Current GPS=WRITE",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "promotions",
+   "status": "PASSED",
+   "detail": "1 state(s); 3 controls verified",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "create_promo",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 5/7 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "web_config",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 3/6 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "subscriptions_ads",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 2/5 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "affiliate",
+   "status": "PASSED",
+   "detail": "1 state(s); 2 controls verified",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "reputation",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "crm",
+   "status": "PASSED",
+   "detail": "1 state(s); 2 controls verified",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "revenue_insights",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "sos_dispatch",
+   "status": "FAILED",
+   "detail": "1 state(s); render: 403 GET /emergency/active",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "gps_router",
+   "status": "PASSED",
+   "detail": "1 state(s); 2 controls verified",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "nurse_visit",
+   "status": "PASSED",
+   "detail": "1 state(s); 2 controls verified",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "nurse_checklist",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "profile_edit",
+   "status": "FAILED",
+   "detail": "2 state(s); render: 404 GET /provider/profile/image/status; 404 GET /provider/profile/image/status",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "medical_jobs",
+   "status": "PARTIAL",
+   "detail": "5 state(s); 66/99 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "drug_index",
+   "status": "PARTIAL",
+   "detail": "9 state(s); 8/102 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "insurance_config",
+   "status": "PARTIAL",
+   "detail": "7 state(s); 48/175 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "certificates_config",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 2/3 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "media_config",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 1/2 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "wallet",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 1/2 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "chat",
+   "status": "PARTIAL",
+   "detail": "2 state(s); 20/21 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "insurance_requests",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "working_hours",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 5/7 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "notifications",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "password",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 4/6 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "2fa",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 4/6 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "home_care",
+   "item": "devices",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 4/6 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_home_care_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "MainTabs",
+   "status": "FAILED",
+   "detail": "9 state(s); 1 failing control(s): إرسال الطلب=WRITE",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "shortage",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 2/4 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "b2b_supply",
+   "status": "FAILED",
+   "detail": "5 state(s); 1 failing control(s): Submit Order=WRITE",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "scanner",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 1/2 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "wallet",
+   "status": "PASSED",
+   "detail": "1 state(s); 2 controls verified",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "withdrawal_workflow",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 16/17 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "order_history",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "returns_rma",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "delivery_track",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "pharmacy_chat",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "qr_menu",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "reviews",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "chronic",
+   "status": "FAILED",
+   "detail": "1 state(s); render: 503 GET /pharmacy/orders/refills",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "promotions",
+   "status": "PASSED",
+   "detail": "1 state(s); 3 controls verified",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "create_promo",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 5/7 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "web_config",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 3/6 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "subscriptions_ads",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 2/5 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "affiliate",
+   "status": "PASSED",
+   "detail": "1 state(s); 2 controls verified",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "reputation",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "crm",
+   "status": "PASSED",
+   "detail": "1 state(s); 2 controls verified",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "revenue_insights",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "pharmacy_broadcast",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "expiry_monitor",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "medical_jobs",
+   "status": "PARTIAL",
+   "detail": "5 state(s); 66/99 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "drug_index",
+   "status": "PARTIAL",
+   "detail": "9 state(s); 7/94 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "insurance_config",
+   "status": "PARTIAL",
+   "detail": "7 state(s); 42/150 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "certificates_config",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 2/3 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "media_config",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 1/2 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "pharmacy_info",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "insurance_requests",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "insurance_decisions",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "product_catalog",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 3/4 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "working_hours",
+   "status": "PARTIAL",
+   "detail": "2 state(s); 6/20 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "notifications",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "pharmacy",
+   "item": "support",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 2/4 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_pharmacy_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "radiology",
+   "item": "MainTabs",
+   "status": "FAILED",
+   "detail": "6 state(s); 1 failing control(s): حفظ وإرسال للمراجع=WRITE",
+   "evidence": "rn_nav2_provider-app_radiology_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "radiology",
+   "item": "order_detail",
+   "status": "BLOCKED",
+   "detail": "needs a real record id (crashes when opened without one)",
+   "evidence": "rn_nav2_provider-app_radiology_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "radiology",
+   "item": "reporting",
+   "status": "BLOCKED",
+   "detail": "needs a real record id (crashes when opened without one)",
+   "evidence": "rn_nav2_provider-app_radiology_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "radiology",
+   "item": "insurance_requests",
+   "status": "PARTIAL",
+   "detail": "2 state(s); 19/20 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_radiology_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "radiology",
+   "item": "home_visit",
+   "status": "PASSED",
+   "detail": "1 state(s); 2 controls verified",
+   "evidence": "rn_nav2_provider-app_radiology_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "radiology",
+   "item": "wallet",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 1/2 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_radiology_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "radiology",
+   "item": "drug_index",
+   "status": "PARTIAL",
+   "detail": "9 state(s); 7/90 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_radiology_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "ambulance",
+   "item": "home",
+   "status": "PASSED",
+   "detail": "1 state(s); 5 controls verified",
+   "evidence": "rn_nav2_provider-app_ambulance_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "ambulance",
+   "item": "mission",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_ambulance_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "ambulance",
+   "item": "handover",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 2/4 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_ambulance_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "ambulance",
+   "item": "complete",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 8/10 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_ambulance_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "ambulance",
+   "item": "history",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_ambulance_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "ambulance",
+   "item": "fleet",
+   "status": "PARTIAL",
+   "detail": "2 state(s); 7/12 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_ambulance_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "ambulance",
+   "item": "insurance_requests",
+   "status": "PASSED",
+   "detail": "1 state(s); 1 controls verified",
+   "evidence": "rn_nav2_provider-app_ambulance_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "ambulance",
+   "item": "profile",
+   "status": "FAILED",
+   "detail": "1 state(s); 1 failing control(s): حفظ الملف=WRITE",
+   "evidence": "rn_nav2_provider-app_ambulance_2026-10-02.json"
+  },
+  {
+   "app": "provider-app",
+   "group": "ambulance",
+   "item": "availability",
+   "status": "PARTIAL",
+   "detail": "1 state(s); 1/4 control(s) without verified effect",
+   "evidence": "rn_nav2_provider-app_ambulance_2026-10-02.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/ai-assistant",
+   "status": "PARTIAL",
+   "detail": "4/5 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/room/[id]",
+   "status": "NOT_TESTED",
+   "detail": "dynamic route: needs a real record id",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/shared/location-picker",
+   "status": "PARTIAL",
+   "detail": "3/5 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/community/post-detail",
+   "status": "PARTIAL",
+   "detail": "5/5 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/community/hub",
+   "status": "PARTIAL",
+   "detail": "6/7 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/ai/symptom-checker",
+   "status": "PARTIAL",
+   "detail": "1/10 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/ai/triage",
+   "status": "PARTIAL",
+   "detail": "1/10 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/ai/symptom-timeline",
+   "status": "PARTIAL",
+   "detail": "1/10 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/ai/chat-doctor",
+   "status": "PARTIAL",
+   "detail": "1/10 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/ai/monthly-report",
+   "status": "PARTIAL",
+   "detail": "1/4 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/ai/prescription-translator",
+   "status": "PARTIAL",
+   "detail": "3/3 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/ai/skin-analysis",
+   "status": "PARTIAL",
+   "detail": "6/14 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/programs/active",
+   "status": "PARTIAL",
+   "detail": "2/3 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/mental-health/therapist-match",
+   "status": "PARTIAL",
+   "detail": "15/15 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/mental-health/self-assessment",
+   "status": "PARTIAL",
+   "detail": "4/4 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/mental-health/breathing",
+   "status": "PARTIAL",
+   "detail": "1/4 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/mental-health/meditation",
+   "status": "PARTIAL",
+   "detail": "4/4 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/mental-health/hub",
+   "status": "PARTIAL",
+   "detail": "4/4 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/mental-health/crisis-support",
+   "status": "PARTIAL",
+   "detail": "4/4 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/mental-health",
+   "status": "PARTIAL",
+   "detail": "4/4 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/mental-health/mood-journal",
+   "status": "PARTIAL",
+   "detail": "18/18 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/doctor/[slug]",
+   "status": "PARTIAL",
+   "detail": "12/18 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/wearables/hub",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/maternity/baby-development",
+   "status": "PARTIAL",
+   "detail": "1/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/maternity/baby-growth",
+   "status": "PARTIAL",
+   "detail": "1/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/maternity/pregnancy-tracker",
+   "status": "PARTIAL",
+   "detail": "1/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/maternity/maternity-setup",
+   "status": "FAILED",
+   "detail": "3 failing control(s): الدورة منتظمة=TAP_FAILED, الدورة غير منتظمة=TAP_FAILED, 󰗠=WRITE",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/maternity/ovulation-tracker",
+   "status": "PARTIAL",
+   "detail": "1/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/maternity/hub",
+   "status": "PARTIAL",
+   "detail": "1/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/appointments",
+   "status": "FAILED",
+   "detail": "1 failing control(s): Mag-book ng appoin=TAP_FAILED",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/specialty-select",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/doctor-search",
+   "status": "PARTIAL",
+   "detail": "4/4 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/prescription-from-doctor",
+   "status": "PARTIAL",
+   "detail": "3/3 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/incoming-call",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/home-visit-tracking",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/booking-confirm",
+   "status": "FAILED",
+   "detail": "2 failing control(s): 󰄖=TAP_FAILED, 󰗠=TAP_FAILED",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/summary",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/clinic-confirm",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/waiting-room",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/booking-status",
+   "status": "FAILED",
+   "detail": "2 failing control(s): 󰄖=TAP_FAILED, 󰗠=TAP_FAILED",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/call-history",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/virtual-waiting-room",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/doctor-profile",
+   "status": "PARTIAL",
+   "detail": "4/4 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/chat-with-doctor",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/clinic-location",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/share-report",
+   "status": "PARTIAL",
+   "detail": "1/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/appointment-detail",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/booking-success",
+   "status": "FAILED",
+   "detail": "2 failing control(s): 󰄖=TAP_FAILED, 󰗠=TAP_FAILED",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/cancel-reschedule",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/video-call",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/booking-pending",
+   "status": "FAILED",
+   "detail": "2 failing control(s): 󰄖=TAP_FAILED, 󰗠=TAP_FAILED",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/follow-up",
+   "status": "PARTIAL",
+   "detail": "3/3 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/post-call-rating",
+   "status": "PARTIAL",
+   "detail": "6/8 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/doctor/[id]",
+   "status": "PARTIAL",
+   "detail": "12/18 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/book/[id]",
+   "status": "PARTIAL",
+   "detail": "9/12 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/clinic/[id]",
+   "status": "BLOCKED",
+   "detail": "no facility in the QA DB passes the public filter (public_eligibility) — 404 GET /care/facilities/king-faisal-specialist",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations/offer/[id]",
+   "status": "NOT_TESTED",
+   "detail": "dynamic route: needs a real record id",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/services",
+   "status": "PARTIAL",
+   "detail": "1/23 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/permissions",
+   "status": "PASSED",
+   "detail": "6 controls verified",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/language",
+   "status": "PARTIAL",
+   "detail": "1/7 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/delivery/address-select",
+   "status": "PARTIAL",
+   "detail": "2/4 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/orders",
+   "status": "PARTIAL",
+   "detail": "12/13 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/medicine/[slug]",
+   "status": "NOT_TESTED",
+   "detail": "dynamic route: needs a real record id",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/facility/[slug]",
+   "status": "BLOCKED",
+   "detail": "no facility in the QA DB passes the public filter (public_eligibility) — 404 GET /care/facilities/king-faisal-specialist",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/voice",
+   "status": "PARTIAL",
+   "detail": "1/6 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/articles/[slug]",
+   "status": "PARTIAL",
+   "detail": "2/3 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/articles/bookmarks",
+   "status": "PARTIAL",
+   "detail": "1/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/articles",
+   "status": "PARTIAL",
+   "detail": "1/6 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/profile/addresses",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/profile/insurance",
+   "status": "PARTIAL",
+   "detail": "1/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/profile",
+   "status": "PARTIAL",
+   "detail": "1/13 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/insurance/payment-split",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/insurance/policy-detail",
+   "status": "PARTIAL",
+   "detail": "1/3 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/insurance/coverage-check",
+   "status": "PARTIAL",
+   "detail": "5/5 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/insurance/submit-claim",
+   "status": "PARTIAL",
+   "detail": "3/3 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/insurance/benefits-summary",
+   "status": "FAILED",
+   "detail": "render: 404 GET /insurance/benefits-summary",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/insurance/approval-pending",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/insurance/hub",
+   "status": "PARTIAL",
+   "detail": "2/12 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/insurance/add-policy",
+   "status": "PARTIAL",
+   "detail": "42/42 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/insurance/copay",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/insurance/network-providers",
+   "status": "PARTIAL",
+   "detail": "6/7 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/insurance",
+   "status": "PARTIAL",
+   "detail": "2/12 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/offers/[id]",
+   "status": "NOT_TESTED",
+   "detail": "dynamic route: needs a real record id",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/offers",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/emergency/sos-active",
+   "status": "PARTIAL",
+   "detail": "4/4 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/emergency/tracking",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/emergency/sos",
+   "status": "PARTIAL",
+   "detail": "7/7 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/emergency",
+   "status": "PARTIAL",
+   "detail": "7/7 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/reviews",
+   "status": "PARTIAL",
+   "detail": "1/3 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/search",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/loyalty/leaderboard",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/loyalty/rewards",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/loyalty/challenges",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/loyalty/hub",
+   "status": "PARTIAL",
+   "detail": "2/6 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/loyalty/referrals",
+   "status": "FAILED",
+   "detail": "1 failing control(s): 󰗠=WRITE",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/forgot-password",
+   "status": "PARTIAL",
+   "detail": "2/3 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/register",
+   "status": "PARTIAL",
+   "detail": "4/8 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/welcome",
+   "status": "FAILED",
+   "detail": "2 failing control(s): تسجيل دخول=TAP_FAILED, المتابعة كضيف (بدو=TAP_FAILED",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/otp",
+   "status": "FAILED",
+   "detail": "1 failing control(s): تأكيد الرمز=WRITE",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/login",
+   "status": "PARTIAL",
+   "detail": "3/9 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/reset-password",
+   "status": "PARTIAL",
+   "detail": "2/3 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/terms",
+   "status": "PARTIAL",
+   "detail": "1/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/provider-info",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/privacy",
+   "status": "PARTIAL",
+   "detail": "1/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/notifications",
+   "status": "PARTIAL",
+   "detail": "5/5 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/settings/support-chat",
+   "status": "PARTIAL",
+   "detail": "3/8 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/settings/language",
+   "status": "FAILED",
+   "detail": "1 failing control(s): اردو=TAP_FAILED",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/settings/notifications-settings",
+   "status": "FAILED",
+   "detail": "8 failing control(s): (icon #1)=WRITE, (icon #2)=WRITE, (icon #3)=WRITE",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/settings/help",
+   "status": "FAILED",
+   "detail": "1 failing control(s): 󰋼=TAP_FAILED",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/settings/terms",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/settings/data",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/settings/feedback",
+   "status": "FAILED",
+   "detail": "1 failing control(s): 󰕒=WRITE",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/settings/security",
+   "status": "PARTIAL",
+   "detail": "2/5 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/settings/about",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/settings/privacy",
+   "status": "PARTIAL",
+   "detail": "2/8 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/settings",
+   "status": "PARTIAL",
+   "detail": "3/6 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/settings/notifications",
+   "status": "FAILED",
+   "detail": "8 failing control(s): (icon #1)=WRITE, (icon #2)=WRITE, (icon #3)=WRITE",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/p/[slug]",
+   "status": "NOT_TESTED",
+   "detail": "dynamic route: needs a real record id",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/returns/detail",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/returns/new-request",
+   "status": "PARTIAL",
+   "detail": "1/6 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/returns/hub",
+   "status": "PARTIAL",
+   "detail": "6/7 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health/add-family-member",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health/reports",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health/chronic-medications",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health/prescriptions",
+   "status": "PARTIAL",
+   "detail": "3/3 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health/health-id",
+   "status": "PARTIAL",
+   "detail": "4/4 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health/trends",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health/conditions-allergies",
+   "status": "PARTIAL",
+   "detail": "3/3 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health/medications",
+   "status": "PARTIAL",
+   "detail": "7/7 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health/family-chat",
+   "status": "FAILED",
+   "detail": "render: 403 GET /family/chat/messages",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health/edit-profile",
+   "status": "PARTIAL",
+   "detail": "18/18 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health/family-hub",
+   "status": "FAILED",
+   "detail": "render: 404 GET /family/my-group",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health/actionable-order",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health/family-member-detail",
+   "status": "FAILED",
+   "detail": "render: 404 GET /family/member-records/",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health/sleep-score",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health/wearables",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health/smart-reminders",
+   "status": "PARTIAL",
+   "detail": "1/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health/family-calendar",
+   "status": "FAILED",
+   "detail": "render: 404 GET /family/calendar",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health/medication-reminder-list",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health/vitals-log",
+   "status": "PARTIAL",
+   "detail": "8/9 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health/chronic-disease",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health/reminders",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health/sleep-tracker",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health/refills",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health/emergency-contacts",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health/medication-reminder-add",
+   "status": "PARTIAL",
+   "detail": "16/16 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health/vitals",
+   "status": "PARTIAL",
+   "detail": "1/3 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/drug-scanner",
+   "status": "PARTIAL",
+   "detail": "8/10 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/map",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/support/ticket",
+   "status": "PARTIAL",
+   "detail": "1/3 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/support/chat",
+   "status": "PARTIAL",
+   "detail": "3/8 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/s/[type]/[slug]",
+   "status": "PARTIAL",
+   "detail": "12/18 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/family/permissions",
+   "status": "FAILED",
+   "detail": "render: 404 GET /family/my-group",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/family/permission-request",
+   "status": "FAILED",
+   "detail": "render: No group found",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/family/scan",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/family/member-health",
+   "status": "FAILED",
+   "detail": "render: 404 GET /family/member-records/",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/family/calendar",
+   "status": "FAILED",
+   "detail": "render: 404 GET /family/calendar",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/family/shared-calendar",
+   "status": "FAILED",
+   "detail": "render: 404 GET /family/calendar",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/family/join",
+   "status": "PARTIAL",
+   "detail": "9/9 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/family/chat",
+   "status": "FAILED",
+   "detail": "render: 403 GET /family/chat/messages",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/family/emergency-contacts",
+   "status": "PARTIAL",
+   "detail": "3/3 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/family/invite",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/family",
+   "status": "FAILED",
+   "detail": "render: 404 GET /family/my-group",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/payments/failed",
+   "status": "PARTIAL",
+   "detail": "1/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/payments/result",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/payments/success",
+   "status": "PARTIAL",
+   "detail": "1/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/payments/processing",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/nursing/insurance-status",
+   "status": "PARTIAL",
+   "detail": "3/3 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/nursing/live-tracking",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/nursing/visits",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/nursing/service-details",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/nursing/service-info",
+   "status": "FAILED",
+   "detail": "render: 404 GET /home-care/services/undefined",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/nursing/nurse-profile",
+   "status": "FAILED",
+   "detail": "render: 404 GET /home-care/providers/undefined",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/reports/timeline",
+   "status": "PARTIAL",
+   "detail": "6/7 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/reports/ai-analysis",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/reports/passport",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/reports/hub",
+   "status": "PARTIAL",
+   "detail": "5/5 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/reports/view-report",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/pharmacy/insurance-decision",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/pharmacy/checkout",
+   "status": "PARTIAL",
+   "detail": "4/5 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/pharmacy/order-history",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/pharmacy/cart",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/pharmacy/waiting-for-pharmacy",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/pharmacy/filters",
+   "status": "PARTIAL",
+   "detail": "6/10 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/pharmacy/manual-order",
+   "status": "FAILED",
+   "detail": "1 failing control(s): بث الطلب وطلب عروض=TAP_FAILED",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/pharmacy/order-confirm",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/pharmacy/order-tracking",
+   "status": "PARTIAL",
+   "detail": "1/3 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/pharmacy/payment",
+   "status": "PARTIAL",
+   "detail": "1/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/pharmacy/barcode-scanner",
+   "status": "PARTIAL",
+   "detail": "2/3 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/pharmacy/medicine-compare",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/pharmacy/custom-item",
+   "status": "FAILED",
+   "detail": "1 failing control(s): بث الطلب وطلب عروض=TAP_FAILED",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/pharmacy/wishlist",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/pharmacy/scan-prescription",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/pharmacy/pharmacist-chat",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/pharmacy/rx-order",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/pharmacy/drug-not-found",
+   "status": "FAILED",
+   "detail": "1 failing control(s): بث الطلب وطلب عروض=TAP_FAILED",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/pharmacy/product-search",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/pharmacy/reorder",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/pharmacy/broadcast-status",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/pharmacy/request",
+   "status": "FAILED",
+   "detail": "1 failing control(s): بث الطلب وطلب عروض=TAP_FAILED",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/pharmacy/product-detail",
+   "status": "FAILED",
+   "detail": "render: 404 GET /medicines/undefined/details",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/pharmacy/final-quote",
+   "status": "PARTIAL",
+   "detail": "1/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/diagnostics/orders",
+   "status": "PARTIAL",
+   "detail": "3/3 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/diagnostics/checkout",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/diagnostics/insurance-approval",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/diagnostics/sample-tracking",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/diagnostics/cart",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/diagnostics/booking-confirm",
+   "status": "FAILED",
+   "detail": "2 failing control(s): 󰅙=TAP_FAILED, اختيار=TAP_FAILED",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/diagnostics/package-detail",
+   "status": "FAILED",
+   "detail": "render: 404 GET /labs/packages/undefined",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/diagnostics/lab-comparison",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/diagnostics/search",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/diagnostics/insurance-upload",
+   "status": "PARTIAL",
+   "detail": "1/3 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/diagnostics/my-results",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/diagnostics/upload-rx",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/diagnostics/booking-success",
+   "status": "PARTIAL",
+   "detail": "3/3 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/diagnostics/results-history",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/diagnostics/book-sample",
+   "status": "PARTIAL",
+   "detail": "1/2 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/diagnostics/technician-tracking",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/diagnostics/test-detail",
+   "status": "FAILED",
+   "detail": "render: 404 GET /labs/services/undefined",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/diagnostics/packages",
+   "status": "FAILED",
+   "detail": "1 failing control(s): =TAP_FAILED",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/diagnostics/lab/[id]",
+   "status": "PARTIAL",
+   "detail": "2/4 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/diagnostics/order/[id]",
+   "status": "BLOCKED",
+   "detail": "the app test account has no lab/radiology booking; another patient's booking correctly answers 404 (ownership) — 404 GET /labs/bookings/5d0415d1-e596-4f22-829c-88ab660363e0",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/diagnostics",
+   "status": "FAILED",
+   "detail": "2 failing control(s): 󰅙=TAP_FAILED, Piliin=TAP_FAILED",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/health",
+   "status": "PASSED",
+   "detail": "17 controls verified",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/nursing",
+   "status": "PARTIAL",
+   "detail": "2/9 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/services",
+   "status": "PARTIAL",
+   "detail": "1/23 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/pharmacy",
+   "status": "PASSED",
+   "detail": "5 controls verified",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/consultations",
+   "status": "PARTIAL",
+   "detail": "14/15 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/nutrition/body-composition",
+   "status": "FAILED",
+   "detail": "1 failing control(s): 󰗠=WRITE",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/nutrition/ai-plan-builder",
+   "status": "PARTIAL",
+   "detail": "1/5 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/nutrition/exercise-plan",
+   "status": "PARTIAL",
+   "detail": "1/5 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/nutrition/daily-tracker",
+   "status": "PARTIAL",
+   "detail": "1/5 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/nutrition/log-meal",
+   "status": "PARTIAL",
+   "detail": "5/6 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/nutrition/nutrition-plan",
+   "status": "PARTIAL",
+   "detail": "1/5 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/nutrition/ai-meal-planner",
+   "status": "PARTIAL",
+   "detail": "1/5 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/nutrition/hub",
+   "status": "PARTIAL",
+   "detail": "1/5 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/nutrition/calorie-analyzer",
+   "status": "PARTIAL",
+   "detail": "5/6 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/nutrition/body-target",
+   "status": "FAILED",
+   "detail": "1 failing control(s): 󰗠=WRITE",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/nutrition",
+   "status": "PARTIAL",
+   "detail": "1/5 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/nutrition/water-tracker",
+   "status": "PARTIAL",
+   "detail": "1/5 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-app",
+   "group": "",
+   "item": "/nutrition/food-scanner",
+   "status": "PARTIAL",
+   "detail": "5/6 control(s) without verified effect",
+   "evidence": "rn_web_patient-app_2026-10-02_recheck_pa7.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]",
+   "status": "PASSED",
+   "detail": "14 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/room/[id]",
+   "status": "NOT_TESTED",
+   "detail": "dynamic route: needs a real record id",
+   "evidence": ""
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/provider-info",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/community",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/community/[postId]",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/ai",
+   "status": "PARTIAL",
+   "detail": "4/8 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/ai/chat-doctor",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/ai/skin-analysis",
+   "status": "FAILED",
+   "detail": "1 failing control(s): تحليل=WRITE",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/ai/symptom-checker",
+   "status": "PARTIAL",
+   "detail": "4/8 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/ai/report",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/ai/prescription-translator",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/ai/symptom-timeline",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/ai/monthly-report",
+   "status": "PASSED",
+   "detail": "3 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/ai/triage",
+   "status": "PARTIAL",
+   "detail": "4/8 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/home-care",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/home-care/providers",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/home-care/services",
+   "status": "PASSED",
+   "detail": "25 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/home-care/services/[serviceId]",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/programs",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/programs/active",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/mental-health",
+   "status": "PASSED",
+   "detail": "4 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/mental-health/breathing",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/mental-health/mood",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/mental-health/self-assessment",
+   "status": "PASSED",
+   "detail": "4 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/mental-health/therapist-match",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/mental-health/meditation",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/mental-health/crisis-contacts",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/doctor",
+   "status": "PASSED",
+   "detail": "6 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/doctor/[slug]",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/doctor/[slug]/[city]",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/reminders",
+   "status": "PARTIAL",
+   "detail": "1/4 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/reminders/add",
+   "status": "FAILED",
+   "detail": "1 failing control(s): حفظ التذكير=WRITE",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/forgot-password",
+   "status": "FAILED",
+   "detail": "1 failing control(s): إرسال التعليمات=WRITE",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/prescriptions",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/prescriptions/[prescriptionId]",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/maternity",
+   "status": "PASSED",
+   "detail": "5 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/maternity/ovulation",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/maternity/tracker",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/maternity/baby-development",
+   "status": "PASSED",
+   "detail": "5 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/maternity/maternity-setup",
+   "status": "FAILED",
+   "detail": "1 failing control(s): حفظ الملف=WRITE",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/maternity/baby-growth",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/radiology",
+   "status": "PARTIAL",
+   "detail": "3/30 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/radiology/[serviceSlug]/[citySlug]",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/doctors",
+   "status": "PASSED",
+   "detail": "6 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/doctors/[specialty]/[city]",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/doctors/[specialty]/[city]/[neighborhood]",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/consultations",
+   "status": "PASSED",
+   "detail": "6 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/consultations/video-call",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/consultations/book/[doctorId]",
+   "status": "PARTIAL",
+   "detail": "9/15 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/consultations/doctors",
+   "status": "PASSED",
+   "detail": "6 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/consultations/doctors/[doctorId]",
+   "status": "PASSED",
+   "detail": "4 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/consultations/waiting-room",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/consultations/follow-up",
+   "status": "PASSED",
+   "detail": "4 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/consultations/specialties",
+   "status": "PASSED",
+   "detail": "27 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/consultations/offers/[offerId]",
+   "status": "NOT_TESTED",
+   "detail": "dynamic route: needs a real record id",
+   "evidence": ""
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/consultations/prescription",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/consultations/chat",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/consultations/home-visit-tracking",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/consultations/clinics/[clinicId]",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/consultations/share-report",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/consultations/clinic-location",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/consultations/booking-status",
+   "status": "BLOCKED",
+   "detail": "harvested appointment id no longer resolves; re-run with an own appointment (/ar/consultations/booking-status?appointmentId=8839f097-fef9)",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/consultations/cancel-reschedule",
+   "status": "PASSED",
+   "detail": "3 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/consultations/virtual-waiting-room",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/consultations/doctor-profile",
+   "status": "PASSED",
+   "detail": "6 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/consultations/post-call-rating",
+   "status": "FAILED",
+   "detail": "1 failing control(s): إرسال التقييم=WRITE",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/consultations/clinic-confirm",
+   "status": "PASSED",
+   "detail": "3 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/consultations/appointments",
+   "status": "PASSED",
+   "detail": "6 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/consultations/call-history",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/services",
+   "status": "PASSED",
+   "detail": "6 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/services/[serviceSlug]/[citySlug]",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/delivery/address-select",
+   "status": "PASSED",
+   "detail": "3 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/orders",
+   "status": "PASSED",
+   "detail": "5 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/orders/[orderId]",
+   "status": "FAILED",
+   "detail": "1 failing control(s): إعادة الطلب=WRITE",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/orders/[orderId]/offers",
+   "status": "PASSED",
+   "detail": "3 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/orders/[orderId]/offers/negotiation",
+   "status": "PARTIAL",
+   "detail": "1/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/orders/[orderId]/offers/negotiation/[threadId]",
+   "status": "NOT_TESTED",
+   "detail": "dynamic route: needs a real record id",
+   "evidence": ""
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/orders/[orderId]/tracking",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/medicine",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/medicine/[slug]",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/facility/[slug]",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/voice",
+   "status": "PASSED",
+   "detail": "8 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/articles",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/articles/[slug]",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/articles/bookmarks",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/profile",
+   "status": "PASSED",
+   "detail": "12 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/profile/edit",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/profile/insurance",
+   "status": "FAILED",
+   "detail": "F2 cascade (insurance endpoints removed) (/ar/profile/insurance)",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/profile/addresses",
+   "status": "PASSED",
+   "detail": "3 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/insurance",
+   "status": "FAILED",
+   "detail": "F2: my-policy / benefits-summary 404 → notFound() (/ar/insurance)",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/insurance/coverage-check",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/insurance/policy-detail",
+   "status": "FAILED",
+   "detail": "F2 cascade: insurance section 404/unavailable without the removed endpoints (/ar/insurance/policy-detail)",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/insurance/network-providers",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/insurance/copay",
+   "status": "FAILED",
+   "detail": "F2 cascade: insurance section 404/unavailable without the removed endpoints (/ar/insurance/copay)",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/insurance/benefits",
+   "status": "FAILED",
+   "detail": "F2 cascade: insurance section 404/unavailable without the removed endpoints (/ar/insurance/benefits)",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/insurance/refunds",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/insurance/claims",
+   "status": "FAILED",
+   "detail": "F2 cascade: insurance section 404/unavailable without the removed endpoints (/ar/insurance/claims)",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/insurance/approval-pending",
+   "status": "FAILED",
+   "detail": "F2 cascade: insurance section 404/unavailable without the removed endpoints (/ar/insurance/approval-pending)",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/insurance/requests/[requestId]",
+   "status": "NOT_TESTED",
+   "detail": "dynamic route: needs a real record id",
+   "evidence": ""
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/insurance/payment-split",
+   "status": "FAILED",
+   "detail": "F2 cascade: insurance section 404/unavailable without the removed endpoints (/ar/insurance/payment-split)",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/insurance/add-policy",
+   "status": "PARTIAL",
+   "detail": "1/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/insurance/submit-claim",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/offers",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/offers/[offerId]",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/emergency",
+   "status": "PARTIAL",
+   "detail": "2/3 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/emergency/sos-active",
+   "status": "PARTIAL",
+   "detail": "3/3 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/emergency/sos",
+   "status": "PARTIAL",
+   "detail": "8/8 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/emergency/tracking",
+   "status": "PARTIAL",
+   "detail": "3/3 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/reviews",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/search",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/register",
+   "status": "PARTIAL",
+   "detail": "6/6 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/loyalty",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/loyalty/referrals",
+   "status": "PARTIAL",
+   "detail": "4/4 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/loyalty/rewards",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/loyalty/challenges",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/loyalty/leaderboard",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/chat",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/chat/[threadId]",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/notifications",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/notifications/settings",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/condition/[slug]",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/settings",
+   "status": "PARTIAL",
+   "detail": "6/6 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/settings/feedback",
+   "status": "PARTIAL",
+   "detail": "9/9 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/settings/notifications",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/settings/data",
+   "status": "PARTIAL",
+   "detail": "3/3 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/settings/help",
+   "status": "PARTIAL",
+   "detail": "7/7 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/settings/privacy",
+   "status": "PARTIAL",
+   "detail": "4/5 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/settings/about",
+   "status": "PARTIAL",
+   "detail": "3/3 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/settings/language",
+   "status": "PARTIAL",
+   "detail": "1/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/settings/security",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/pharmacies",
+   "status": "PARTIAL",
+   "detail": "10/10 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/pharmacies/[citySlug]",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/p",
+   "status": "PARTIAL",
+   "detail": "10/10 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/p/[slug]",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/c/[[...category]]",
+   "status": "PARTIAL",
+   "detail": "2/10 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/otp",
+   "status": "PASSED",
+   "detail": "3 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/returns",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/returns/[returnId]",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/returns/new-request",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/cart",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/cart/prescription",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/cart/checkout",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/health",
+   "status": "PARTIAL",
+   "detail": "12/12 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/health/add-family-member",
+   "status": "PARTIAL",
+   "detail": "3/3 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/health/wearables",
+   "status": "BLOCKED",
+   "detail": "feature flag NEXT_PUBLIC_WEARABLES_ENABLED off (by design) (/ar/health/wearables)",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/health/conditions-allergies",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/health/health-id",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/health/chronic-diseases",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/health/trends",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/health/vitals",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/health/vitals/log",
+   "status": "PARTIAL",
+   "detail": "8/8 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/health/chronic-medications",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/health/timeline",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/health/refills",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/health/sleep",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/health/emergency-contacts",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/health/smart-reminders",
+   "status": "PARTIAL",
+   "detail": "4/4 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/health/reports",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/health/medications",
+   "status": "PARTIAL",
+   "detail": "4/4 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/health/actionable-order",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/health/score",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/drug-scanner",
+   "status": "PARTIAL",
+   "detail": "2/3 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/map",
+   "status": "PARTIAL",
+   "detail": "6/6 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/terms",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/support",
+   "status": "PARTIAL",
+   "detail": "3/3 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/support/chat",
+   "status": "PARTIAL",
+   "detail": "7/8 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/support/ticket",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/s",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/login",
+   "status": "PARTIAL",
+   "detail": "6/6 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/family",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/family/permissions",
+   "status": "BLOCKED",
+   "detail": "the QA patient has no family group (API 404 No family group found) (/ar/family/permissions)",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/family/permission-requests",
+   "status": "BLOCKED",
+   "detail": "the QA patient has no family group (/ar/family/permission-requests)",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/family/chat",
+   "status": "FAILED",
+   "detail": "render: 403 GET /api/patient/family/chat/messages",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/family/emergency-contacts",
+   "status": "PARTIAL",
+   "detail": "3/3 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/family/[memberRef]",
+   "status": "NOT_TESTED",
+   "detail": "dynamic route: needs a real record id",
+   "evidence": ""
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/family/scan",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/family/invite",
+   "status": "PARTIAL",
+   "detail": "3/3 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/family/calendar",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/family/join",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/home-nursing",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/home-nursing/[citySlug]",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/payments",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/payments/processing",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/payments/failed",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/payments/success",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/payments/result",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/labs",
+   "status": "PARTIAL",
+   "detail": "30/30 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/labs/[testSlug]/[citySlug]",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/nursing",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/nursing/catalog",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/nursing/service-info",
+   "status": "PARTIAL",
+   "detail": "30/30 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/nursing/booking",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/nursing/insurance-status",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/nursing/nurses/[nurseId]",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/nursing/visits",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/nursing/visits/[visitId]",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/welcome",
+   "status": "PARTIAL",
+   "detail": "9/9 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/onboarding",
+   "status": "PARTIAL",
+   "detail": "5/6 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/onboarding/permissions",
+   "status": "PARTIAL",
+   "detail": "3/3 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/onboarding/language",
+   "status": "PARTIAL",
+   "detail": "1/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/reports",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/reports/timeline",
+   "status": "PARTIAL",
+   "detail": "6/6 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/reports/ai-analysis",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/reports/[reportId]",
+   "status": "NOT_TESTED",
+   "detail": "dynamic route: needs a real record id",
+   "evidence": ""
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/reports/passport",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/privacy",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/appointments",
+   "status": "PARTIAL",
+   "detail": "6/6 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/appointments/[appointmentId]",
+   "status": "PASSED",
+   "detail": "5 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/appointments/[appointmentId]/summary",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/password-reset",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/pharmacy",
+   "status": "PARTIAL",
+   "detail": "10/10 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/pharmacy/[slug]",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/pharmacy/reorder",
+   "status": "FAILED",
+   "detail": "1 failing control(s): إنشاء طلب جديد وطل=WRITE",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/pharmacy/request",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/pharmacy/manual-order",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/pharmacy/scan-prescription",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/pharmacy/insurance-decision",
+   "status": "PARTIAL",
+   "detail": "renders; capabilities answer 400 copay_acceptance_required before the copay decision (correct gating) — 400 GET /api/patient/payments/pharmacy/6f7a5a65-3c01-4f86-a2",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/pharmacy/order-confirm",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/pharmacy/chat",
+   "status": "PASSED",
+   "detail": "3 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/pharmacy/payment",
+   "status": "PARTIAL",
+   "detail": "renders; capabilities answer 400 final_quote_acceptance_required for the only payable-state order in the QA data (correct gating) — 400 GET /api/payments/pharmacy/6e317348-1c49-4828-ae70-f3a08",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/pharmacy/barcode",
+   "status": "PARTIAL",
+   "detail": "3/3 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/pharmacy/filters",
+   "status": "PARTIAL",
+   "detail": "14/15 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/pharmacy/rx-order",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/pharmacy/custom-item",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/pharmacy/interactions",
+   "status": "PARTIAL",
+   "detail": "2/3 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/pharmacy/waiting-for-pharmacy",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/pharmacy/drug-not-found",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/pharmacy/final-quote",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/pharmacy/broadcast-status",
+   "status": "BLOCKED",
+   "detail": "crawled with a broadcast id; the page expects the order id in requestId (test input) — 404 GET /api/patient/patient/pharmacy/orders/6a108fa3-258f-4",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/medicine-catalog",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/dashboard",
+   "status": "PARTIAL",
+   "detail": "26/26 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/wishlist",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/medicines",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/medicines/compare",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/medicines/[medicineId]",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/diagnostics",
+   "status": "PARTIAL",
+   "detail": "23/23 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/diagnostics/technician-tracking",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/diagnostics/packages",
+   "status": "PARTIAL",
+   "detail": "16/16 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/diagnostics/packages/[packageId]",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/diagnostics/radiology",
+   "status": "PARTIAL",
+   "detail": "30/30 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/diagnostics/radiology/[serviceId]",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/diagnostics/booking-success",
+   "status": "PASSED",
+   "detail": "3 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/diagnostics/insurance-upload",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/diagnostics/test-detail",
+   "status": "FAILED",
+   "detail": "renders its not-found state (/ar/diagnostics/test-detail)",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/diagnostics/lab-comparison",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/diagnostics/upload-rx",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/diagnostics/search",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/diagnostics/checkout",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/diagnostics/results",
+   "status": "PARTIAL",
+   "detail": "8/8 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/diagnostics/cart",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/diagnostics/book-sample",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/diagnostics/[domain]/[bookingId]",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/diagnostics/labs",
+   "status": "PARTIAL",
+   "detail": "30/30 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/diagnostics/labs/book",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/diagnostics/labs/[labId]",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/diagnostics/bookings",
+   "status": "PARTIAL",
+   "detail": "3/3 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/diagnostics/sample-tracking",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/diagnostics/insurance-approval",
+   "status": "BLOCKED",
+   "detail": "crawled with a pharmacy order id; the page expects a lab booking id (test input) — 404 GET /api/patient/labs/bookings/6f7a5a65-3c01-4f86-a2b6-4",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/nutrition",
+   "status": "PARTIAL",
+   "detail": "4/4 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/nutrition/ai-plan-builder",
+   "status": "PARTIAL",
+   "detail": "4/4 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/nutrition/exercise-plan",
+   "status": "PARTIAL",
+   "detail": "3/3 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/nutrition/food-scanner",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/nutrition/calorie-analyzer",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/nutrition/body-composition",
+   "status": "PARTIAL",
+   "detail": "11/11 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/nutrition/body-target",
+   "status": "PARTIAL",
+   "detail": "11/11 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/nutrition/plan",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/nutrition/log-meal",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/nutrition/daily-tracker",
+   "status": "PARTIAL",
+   "detail": "3/3 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/nutrition/water-tracker",
+   "status": "PARTIAL",
+   "detail": "3/3 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "patient-web",
+   "group": "",
+   "item": "/[locale]/nutrition/ai-meal-planner",
+   "status": "PARTIAL",
+   "detail": "3/3 control(s) without verified effect",
+   "evidence": "web_crawl_2026-10-02_flow2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/login",
+   "status": "PARTIAL",
+   "detail": "1/2 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/index",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/nursing-portal",
+   "status": "PARTIAL",
+   "detail": "1/2 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/search-intelligence",
+   "status": "PARTIAL",
+   "detail": "1/2 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/crm",
+   "status": "PARTIAL",
+   "detail": "1/3 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/catalog-manager",
+   "status": "PARTIAL",
+   "detail": "2/5 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/analytics",
+   "status": "PARTIAL",
+   "detail": "1/5 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/command-center",
+   "status": "PASSED",
+   "detail": "16 controls verified",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/shortage-reports",
+   "status": "PARTIAL",
+   "detail": "1/4 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/gdpr",
+   "status": "FAILED",
+   "detail": "1 failing control(s): إنشاء الطلب=WRITE",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/reports",
+   "status": "PARTIAL",
+   "detail": "3/18 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/rbac",
+   "status": "PARTIAL",
+   "detail": "30/30 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/financial-ledger",
+   "status": "FAILED",
+   "detail": "render: 400 GET /api/admin/admin/finance/commissions",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/payouts",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/theme-control",
+   "status": "FAILED",
+   "detail": "1 failing control(s): حفظ وتطبيق على كل =WRITE",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/insurance-queue",
+   "status": "PARTIAL",
+   "detail": "2/8 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/support-tickets",
+   "status": "PARTIAL",
+   "detail": "3/10 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/sos-monitor",
+   "status": "PARTIAL",
+   "detail": "2/5 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/price-override-audit",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/search",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/loyalty-config",
+   "status": "FAILED",
+   "detail": "3 failing control(s): حفظ الإعدادات=WRITE, إضافة=WRITE, إضافة تحدٍ=WRITE",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/live-chat-console",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/pharmacy-procurement",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/system-ops",
+   "status": "PARTIAL",
+   "detail": "3/6 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/locations",
+   "status": "FAILED",
+   "detail": "1 failing control(s): إضافة=WRITE",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/users-management",
+   "status": "FAILED",
+   "detail": "1 failing control(s): عرض الملف=TAP_FAILED",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/content-growth",
+   "status": "PARTIAL",
+   "detail": "2/6 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/audit-logs",
+   "status": "PARTIAL",
+   "detail": "1/4 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/medicines-catalog",
+   "status": "FAILED",
+   "detail": "1 failing control(s): اعتماد=TAP_FAILED",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/scheduled-reports",
+   "status": "FAILED",
+   "detail": "1 failing control(s): إضافة الجدولة=WRITE",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/order-detail",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/appointments-oversight",
+   "status": "PARTIAL",
+   "detail": "2/2 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/ambulance-fleet",
+   "status": "PARTIAL",
+   "detail": "2/3 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/provider-audits",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/catalog-governance",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/dashboard",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/config-portal",
+   "status": "PARTIAL",
+   "detail": "2/6 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/fraud-monitoring",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/impersonation",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/finance-suite",
+   "status": "PARTIAL",
+   "detail": "1/3 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/provider-moderation",
+   "status": "PARTIAL",
+   "detail": "1/2 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/commissions",
+   "status": "PARTIAL",
+   "detail": "1/2 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/legal-policies",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/security",
+   "status": "PARTIAL",
+   "detail": "1/2 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/notification-center",
+   "status": "PARTIAL",
+   "detail": "5/8 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/analytics-suite",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/community-moderation",
+   "status": "PARTIAL",
+   "detail": "1/1 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/broadcast-monitor",
+   "status": "PASSED",
+   "detail": "1 controls verified",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/ai-control",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/insurance-companies",
+   "status": "PASSED",
+   "detail": "4 controls verified",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/disputes",
+   "status": "PARTIAL",
+   "detail": "1/3 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/health-dashboard",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/image-suggestions",
+   "status": "PARTIAL",
+   "detail": "1/4 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/segments",
+   "status": "FAILED",
+   "detail": "2 failing control(s): معاينة الجمهور=WRITE, حفظ وتدقيق=WRITE",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/home-curation",
+   "status": "PASSED",
+   "detail": "2 controls verified",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/returns",
+   "status": "PARTIAL",
+   "detail": "2/3 control(s) without verified effect",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/orders",
+   "status": "PASSED",
+   "detail": "3 controls verified",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/admin/orders/[kind]/[id]",
+   "status": "NOT_TESTED",
+   "detail": "dynamic route: needs a real record id",
+   "evidence": ""
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/doctors",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/articles",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/lab-services",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/home-care-services",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/facilities",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/s/[type]/[slug]",
+   "status": "NOT_TESTED",
+   "detail": "dynamic route: needs a real record id",
+   "evidence": ""
+  },
+  {
+   "app": "admin",
+   "group": "",
+   "item": "/medicines",
+   "status": "PARTIAL",
+   "detail": "no controls exercised",
+   "evidence": "admin_crawl_2026-10-02_v2.json"
+  }
+ ]
+}

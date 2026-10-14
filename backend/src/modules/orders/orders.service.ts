@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { escapeRegex } from '../../common/slug.util';
 // Use the CommonJS runtime export directly; namespace imports can be non-constructable in production bundles.
 const PDFDocument = require('pdfkit');
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, Inject, ServiceUnavailableException, Optional } from '@nestjs/common';
@@ -76,7 +77,7 @@ export class OrdersService {
     if (!inputItems || inputItems.length === 0) throw new BadRequestException('Empty cart');
     // A1: the patient wallet is gone — wallet/wallet_split can no longer pay.
     if (['wallet', 'wallet_split'].includes(String(data.payment_method))) {
-      throw new BadRequestException('wallet_payment_removed');
+      throw new BadRequestException('payment_method_not_supported');
     }
     if (!data.delivery_address?.lat || !data.delivery_address?.lng) {
       throw new BadRequestException('Delivery location (lat/lng) required for dispatch');
@@ -365,7 +366,7 @@ export class OrdersService {
   async listAll(state?: OrderState, search?: string) {
     const q: any = {};
     if (state) q.state = state;
-    if (search) q.$or = [{ id: search }, { patient_phone: { $regex: search, $options: 'i' } }];
+    if (search) q.$or = [{ id: search }, { patient_phone: { $regex: escapeRegex(String(search)), $options: 'i' } }];
     const query = this.orderModel.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(500);
     return typeof (query as any)?.lean === 'function' ? (query as any).lean() : query;
   }
@@ -567,7 +568,7 @@ export class OrdersService {
       }
 
       // Footer
-      doc.fontSize(10).fillColor('#999999').text('Generated securely by Nabdah Systems.', 50, 750, { align: 'center' });
+      doc.fontSize(10).fillColor('#999999').text('Generated securely by Nabd+.', 50, 750, { align: 'center' });
         doc.end();
       } catch (error) {
         reject(error);
@@ -752,10 +753,19 @@ export class OrdersService {
   }
 
   async getTracking(id: string, user: any) {
+    // Try regular orders first (repository returns a Mongoose query).
     const qOrder = this.orderModel.findOne({ id });
-    const order = typeof (qOrder as any)?.lean === 'function' ? await (qOrder as any).lean() : await qOrder;
+    let order: any = typeof (qOrder as any)?.lean === 'function' ? await (qOrder as any).lean() : await qOrder;
+    // Fallback to pharmacy_orders (native collection: no lean, different owner fields).
+    if (!order) {
+      order = await this.conn.collection('pharmacy_orders').findOne({ id });
+    }
     if (!order) throw new NotFoundException();
-    const isOwner = order.patient_id === user?.id || order.pharmacy_id === user?.id;
+    const ownerId = user?.id;
+    const isOwner =
+      order.patient_id === ownerId ||
+      order.patient_account_id === ownerId ||
+      order.pharmacy_id === ownerId;
     if (!isOwner && !['admin', 'super_admin'].includes(user?.role)) {
       throw new ForbiddenException();
     }
@@ -774,15 +784,31 @@ export class OrdersService {
       }
     }
 
+    // Pharmacy orders shape their own fields (status, embedded delivery); map them
+    // onto the tracking view instead of returning nulls.
+    if (!delivery && order.delivery && typeof order.delivery === 'object') {
+      const d = order.delivery;
+      delivery = {
+        state: order.status,
+        eta_minutes: null,
+        driver_id: null,
+        courier_name: d.courier_name ?? null,
+        courier_phone: d.courier_phone ?? null,
+        courier_eta: d.courier_eta ?? null,
+        dispatched_at: d.dispatched_at ?? null,
+        delivered_at: d.delivered_at ?? null,
+      };
+    }
+
     const pharmacy = order.pharmacy_id
       ? await this.conn.collection('provider_profiles').findOne({ id: order.pharmacy_id }, { projection: { name_ar: 1, name_en: 1 } })
       : null;
     return {
       order_id: order.id,
-      state: order.state,
+      state: order.state ?? order.status ?? null,
       updated_at: order.updatedAt,
-      delivery_mode: order.delivery_mode || 'DELIVERY',
-      total: order.total,
+      delivery_mode: order.delivery_mode || order.fulfillment || 'DELIVERY',
+      total: order.total ?? order.totals?.total ?? null,
       pharmacy_name: pharmacy?.name_ar || pharmacy?.name_en || null,
       delivery,
     };

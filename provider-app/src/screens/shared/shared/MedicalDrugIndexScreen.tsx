@@ -264,7 +264,9 @@ export function MedicalDrugIndexScreen({ onBack }: { onBack: () => void }) {
      );
    };
 
-  const ctx: any = { theme, AR, show, insets, onBack, search, setSearch, selectedCat, setSelectedCat, selectedDrug, setSelectedDrug, drugDetail, setDrugDetail, detailLoading, setDetailLoading, drugs, categories, loading, scrollY, suggestOpen, setSuggestOpen, suggestTab, setSuggestTab, suggestForm, setSuggestForm, suggestNote, setSuggestNote, suggestImg, setSuggestImg, suggestBusy, setSuggestBusy, openSuggest, pickSuggestImage, submitSuggestFields, submitSuggestImage, headerHeight, headerOpacity };
+  const ctx: any = { theme, AR, show, insets, onBack, search, setSearch, selectedCat, setSelectedCat, selectedDrug, setSelectedDrug, drugDetail, setDrugDetail, detailLoading, setDetailLoading, drugs, categories, loading, scrollY, suggestOpen, setSuggestOpen, suggestTab, setSuggestTab, suggestForm, setSuggestForm, suggestNote, setSuggestNote, suggestImg, setSuggestImg, suggestBusy, setSuggestBusy, openSuggest, pickSuggestImage, submitSuggestFields, submitSuggestImage, headerHeight, headerOpacity,
+    // DrugIndexDetail renders the suggest-change form from these (lost in the P9 split: the form crashed).
+    SUGGEST_FIELD_DEFS };
   if (selectedDrug) { return <DrugIndexDetail ctx={ctx} />; }
 
 

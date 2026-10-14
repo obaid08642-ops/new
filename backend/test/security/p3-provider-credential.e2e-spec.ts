@@ -25,6 +25,7 @@ import { ImpersonationSessionService } from '../../src/common/impersonation-sess
 import { AuthController } from '../../src/modules/auth/auth.controller';
 import { AuthService } from '../../src/modules/auth/auth.service';
 import { UsersController } from '../../src/modules/users/users.controller';
+import { PdplService } from '../../src/modules/users/pdpl.service';
 import { UsersService } from '../../src/modules/users/users.service';
 import { RedisService } from '../../src/modules/redis/redis.service';
 import { ProviderAuthController } from '../../src/modules/provider/provider.controllers';
@@ -57,6 +58,8 @@ describe('P3.0b single credential: provider login uses users.password_hash', () 
       providers: [
         AuthService,
         UsersService,
+        // UsersController also serves the PDPL endpoints (P10.1); not exercised here.
+        { provide: PdplService, useValue: {} },
         ProviderAuthService,
         { provide: 'UserRepository', useValue: repo('users') },
         { provide: 'PatientProfileRepository', useValue: repo('patient_profiles') },

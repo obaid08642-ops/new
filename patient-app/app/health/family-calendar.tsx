@@ -1,6 +1,8 @@
-// @ts-nocheck
-// Redirects to the new family shared calendar
-import { Redirect } from "expo-router";
+import React from 'react';
+
+import { RedirectKeepingParams } from '../../src/components/health/RedirectKeepingParams';
+
+/** Old route (merge map, Batch 6, row C): one shared calendar. */
 export default function FamilyCalendarRedirect() {
-  return <Redirect href="/family/shared-calendar" />;
+  return <RedirectKeepingParams to="/family/calendar" />;
 }

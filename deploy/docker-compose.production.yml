@@ -1,7 +1,7 @@
 # ═══════════════════════════════════════════════════════════════════
 # Nabdah Plus — PRODUCTION stack (nabd.plus)
 # Services: backend(NestJS) fastapi admin-web(Next.js) mongodb redis
-#           livekit coturn nginx certbot
+#           meilisearch livekit coturn nginx certbot
 # All stateful data in named volumes. All services auto-restart.
 # ═══════════════════════════════════════════════════════════════════
 name: nabdah-prod
@@ -55,6 +55,27 @@ services:
       start_period: 5s
     logging: *logopts
 
+  # ── Meilisearch (D-29 search engine; ~300 MB RAM; mirror of the MongoDB search_index) ──
+  meilisearch:
+    image: getmeili/meilisearch:v1.10
+    container_name: nabdah-meilisearch
+    restart: unless-stopped
+    environment:
+      MEILI_ENV: production
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+      MEILI_NO_ANALYTICS: "true"
+      MEILI_MAX_INDEXING_MEMORY: 256Mb
+    volumes:
+      - meili_data:/meili_data
+    networks: [internal]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:7700/health"]
+      interval: 15s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    logging: *logopts
+
   # ── NestJS Backend (API + Socket.IO + BullMQ workers + crons in-process) ──
   backend:
     build:
@@ -66,6 +87,53 @@ services:
     env_file: .env.production
     environment:
       NODE_ENV: production
+      CLUSTER_MODE: "false"   # ops 2026-10-04: cluster mode crashed the deployed build; one process also saves RAM
+      PORT: "8002"
+      # P14.26: HTTP and sockets only; cron jobs, queue consumers and the search sync run in `worker` below
+      PROCESS_ROLE: api
+      HTTP_COMPRESSION: edge   # P14.25: nginx gzips (gzip_proxied any); the API does not compress twice
+      MONGO_URL: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
+      DB_NAME: ${DB_NAME:-nabd_nestjs}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      # Search answers from MongoDB while Meilisearch is down or not configured (no hard dependency).
+      MEILI_URL: http://meilisearch:7700
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+    depends_on:
+      mongodb: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    networks: [internal, web]
+    healthcheck:
+      test:
+      - CMD
+      - node
+      - -e
+      - 'fetch("http://127.0.0.1:8002/api/v1/health/liveness").then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))'
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    logging: *logopts
+
+  # ── Background worker (P14.26) ────────────────────────────────────
+  # Same image as the backend in the worker role: cron jobs, BullMQ consumers (notifications, push) and the search
+  # sync run here once, never inside the API process. Not on the web network: nginx never routes to it. Emits reach
+  # sockets on the API through the Socket.IO Redis adapter (P14.13). Scale with more replicas only for queue
+  # consumers; cron jobs would then run once per replica.
+  worker:
+    build:
+      context: ../nabdah-backend
+      dockerfile: ../deploy/docker/Dockerfile.backend
+      network: host
+    container_name: nabdah-worker
+    restart: unless-stopped
+    env_file: .env.production
+    environment:
+      NODE_ENV: production
+      CLUSTER_MODE: "false"
+      PROCESS_ROLE: worker
       PORT: "8002"
       MONGO_URL: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
       DB_NAME: ${DB_NAME:-nabd_nestjs}
@@ -73,10 +141,12 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: "6379"
       REDIS_PASSWORD: ${REDIS_PASSWORD}
+      MEILI_URL: http://meilisearch:7700
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
     depends_on:
       mongodb: { condition: service_healthy }
       redis: { condition: service_healthy }
-    networks: [internal, web]
+    networks: [internal]
     healthcheck:
       test:
       - CMD
@@ -193,6 +263,7 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/snippets:/etc/nginx/snippets:ro
       - ./certs/live:/etc/letsencrypt:ro
       - ./certs/webroot:/var/www/certbot
       - ./docker/provider-landing:/usr/share/nginx/provider:ro
@@ -238,6 +309,7 @@ services:
 volumes:
   mongo_data:
   redis_data:
+  meili_data:
   nginx_cache:
 
 networks:

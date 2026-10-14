@@ -24,6 +24,8 @@ export interface CreateIntentRequest {
   currency: string;
   description: string;
   metadata: Record<string, unknown>;
+  /** Our transaction id, added to the provider's return address as `?ref=` so the result screen names our payment (#550). */
+  return_ref?: string;
 }
 
 export interface CreateIntentResult {

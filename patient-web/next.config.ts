@@ -2,15 +2,14 @@ import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 import { withSentryConfig } from "@sentry/nextjs";
 import { contentSecurityPolicy } from "./csp";
+import { IMAGE_HOSTS } from "./lib/image-hosts";
 
 const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
   images: {
-    remotePatterns: [
-      { protocol: "https", hostname: "cdn.nabd.plus", pathname: "/**" },
-      { protocol: "https", hostname: "res.cloudinary.com", pathname: "/**" },
-    ],
+    // The same hosts lib/image-hosts.ts lets the page render; any other host would make next/image throw.
+    remotePatterns: IMAGE_HOSTS.map((hostname) => ({ protocol: "https" as const, hostname, pathname: "/**" })),
     formats: ["image/avif", "image/webp"],
   },
   outputFileTracingIncludes: {
@@ -28,12 +27,38 @@ const nextConfig: NextConfig = {
       { source: "/:locale/nursing", destination: "/:locale/nursing/catalog", permanent: false },
       { source: "/:locale/nursing/booking", destination: "/:locale/nursing/catalog", permanent: false },
       { source: "/:locale/home-nursing", destination: "/:locale/nursing/catalog", permanent: false },
-      { source: "/:locale/medicine", destination: "/:locale/medicines", permanent: false },
+      { source: "/:locale/medicine", destination: "/:locale/c", permanent: true },
       { source: "/:locale/pharmacies", destination: "/:locale/c", permanent: false },
-      { source: "/:locale/services", destination: "/:locale/consultations", permanent: false },
+      { source: "/:locale/services", destination: "/:locale", permanent: false },
       { source: "/:locale/p", destination: "/:locale/c", permanent: false },
       { source: "/:locale/s", destination: "/:locale/search", permanent: false },
       { source: "/:locale/payments", destination: "/:locale/cart/checkout", permanent: false },
+      // Batch 5 (merge map, section 1): the old health screens are tabs and sections of the new ones. The source query is forwarded,
+      // so a stale link keeps its `type` filter and an edit link its `edit` id; the screens read no health data from the URL.
+      { source: "/:locale/health/score", destination: "/:locale/health", permanent: false },
+      { source: "/:locale/health/vitals/log", destination: "/:locale/health/vitals?tab=today&add=1", permanent: false },
+      { source: "/:locale/health/trends", destination: "/:locale/health/vitals?tab=trends", permanent: false },
+      { source: "/:locale/health/refills", destination: "/:locale/health/medications?tab=refills", permanent: false },
+      { source: "/:locale/health/chronic-medications", destination: "/:locale/health/medications?tab=chronic", permanent: false },
+      { source: "/:locale/reminders", destination: "/:locale/health/medications?tab=all", permanent: false },
+      { source: "/:locale/reminders/add", destination: "/:locale/health/medications?tab=all&add=1", permanent: false },
+      { source: "/:locale/health/conditions-allergies", destination: "/:locale/health/profile#conditions", permanent: false },
+      { source: "/:locale/health/chronic-diseases", destination: "/:locale/health/profile#chronic", permanent: false },
+      { source: "/:locale/health/emergency-contacts", destination: "/:locale/health/profile#emergency", permanent: false },
+      { source: "/:locale/family/emergency-contacts", destination: "/:locale/health/profile#emergency", permanent: false },
+      { source: "/:locale/health/reports", destination: "/:locale/health/records?tab=reports", permanent: false },
+      { source: "/:locale/reports", destination: "/:locale/health/records?tab=reports", permanent: false },
+      { source: "/:locale/health/timeline", destination: "/:locale/health/records?tab=timeline", permanent: false },
+      { source: "/:locale/reports/timeline", destination: "/:locale/health/records?tab=timeline", permanent: false },
+      // Batch 6 (merge map, section 2): the family screens. `/family` is the hub (members, group, Requests), the member screen holds the
+      // member's records and permissions, and invite, join and scan are the tabs of `/family/add`. The source query is forwarded,
+      // so a stale join link keeps its `code`.
+      { source: "/:locale/family/permissions", destination: "/:locale/family", permanent: false },
+      { source: "/:locale/family/permission-requests", destination: "/:locale/family#requests", permanent: false },
+      { source: "/:locale/family/invite", destination: "/:locale/family/add?tab=invite", permanent: false },
+      { source: "/:locale/family/join", destination: "/:locale/family/add?tab=join", permanent: false },
+      { source: "/:locale/family/scan", destination: "/:locale/family/add?tab=scan", permanent: false },
+      { source: "/:locale/health/add-family-member", destination: "/:locale/family/add?tab=invite", permanent: false },
     ];
   },
   async headers() {
@@ -52,7 +77,12 @@ const nextConfig: NextConfig = {
   }
 };
 
-const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
+// F82-1: the catalogues are compiled at build time, so the browser does not ship the ICU message
+// parser (about 12 KB gz) and does not parse a message on first use.
+const withNextIntl = createNextIntlPlugin({
+  requestConfig: "./i18n/request.ts",
+  experimental: { messages: { path: "./messages", format: "json", locales: "infer", precompile: true } },
+});
 export default withSentryConfig(withNextIntl(nextConfig), {
   silent: true,
   disableLogger: true,

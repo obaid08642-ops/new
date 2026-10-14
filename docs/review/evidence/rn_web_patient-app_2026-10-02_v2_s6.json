@@ -1,0 +1,191 @@
+{
+ "app": "patient-app",
+ "build": "react-native-web export (not native)",
+ "routes": [
+  {
+   "route": "support/chat",
+   "url": "/support/chat",
+   "landed": "/support/chat",
+   "status": "TESTED",
+   "time_to_ready_ms": 2724,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3602
+    },
+    {
+     "label": "إلغاء حجز",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/support/chat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1966
+    },
+    {
+     "label": "مشكلة في طلب",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/support/chat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 2467
+    },
+    {
+     "label": "استرداد المبلغ",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/support/chat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 2427
+    },
+    {
+     "label": "سؤال عن التأمين",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/support/chat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 2565
+    },
+    {
+     "label": "شكوى",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/support/chat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 2290
+    },
+    {
+     "label": "󰒊",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3634
+    },
+    {
+     "label": "󰏢",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3657
+    }
+   ]
+  },
+  {
+   "route": "support/ticket",
+   "url": "/support/ticket",
+   "landed": "/support/ticket",
+   "status": "TESTED",
+   "time_to_ready_ms": 2632,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "+ جديد",
+     "result": "NAVIGATE",
+     "to": "/support/chat",
+     "response_ms": 872
+    },
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3693
+    },
+    {
+     "label": "آخر تحديث: —",
+     "result": "NAVIGATE",
+     "to": "/support/chat",
+     "response_ms": 850
+    }
+   ]
+  },
+  {
+   "route": "voice/index",
+   "url": "/voice",
+   "landed": "/voice",
+   "status": "TESTED",
+   "time_to_ready_ms": 1968,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "󰁔",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3665
+    },
+    {
+     "label": "󰃭",
+     "result": "NAVIGATE",
+     "to": "/search?view=doctors",
+     "response_ms": 912
+    },
+    {
+     "label": "󰐂",
+     "result": "NAVIGATE",
+     "to": "/pharmacy",
+     "response_ms": 1011
+    },
+    {
+     "label": "󰂓",
+     "result": "NAVIGATE",
+     "to": "/diagnostics",
+     "response_ms": 6969
+    },
+    {
+     "label": "󰈙",
+     "result": "NAVIGATE",
+     "to": "/consultations/appointments",
+     "response_ms": 520
+    },
+    {
+     "label": "󰀯",
+     "result": "NAVIGATE",
+     "to": "/emergency/sos",
+     "response_ms": 2099
+    }
+   ]
+  },
+  {
+   "route": "wearables/hub",
+   "url": "/wearables/hub",
+   "landed": "/wearables/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 2092,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  }
+ ]
+}

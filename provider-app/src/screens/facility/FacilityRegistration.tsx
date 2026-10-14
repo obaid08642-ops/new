@@ -1,34 +1,23 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
-import {
-  View, Text, TouchableOpacity, ScrollView, StyleSheet,
-  Switch, Dimensions, Alert, Image, Modal, TextInput
-} from 'react-native';
+import { startOnboardingAccount, apiMessage, useStepSaver } from '../registration/kit';
+import type { StepProps } from '../registration/kit';
+import { DocBtn, NoticeSection, useDocumentPicker } from '../registration/WizardParts';
+import type { NoticeText } from '../registration/WizardParts';
+import { RegistrationWizard } from '../registration/RegistrationWizard';
+import type { RegistrationProps, WizardConfig } from '../registration/RegistrationWizard';
+import React, { useState, useRef } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, Switch, Dimensions, Image, Modal, TextInput } from 'react-native';
 import { useTheme, useLang, useToast } from '../../context';
-import {
-  NBtn, NInput, NPhoneInput, NPassStrength,
-  NCheckbox, NHeader, NScroll, NSheet, NCard, WizardSection,
-  NSearch, NDropdown
-} from '../../components/ui';
+import { NBtn, NInput, NPhoneInput, NPassStrength, NCheckbox, NCard, NDropdown } from '../../components/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Validate } from '../../security/Security';
-import { SP, R, FS, FW, DEGREES, RAD_SCANS , LANGS } from '../../constants';
-
+import { SP, R, FS, FW, DEGREES, LANGS } from '../../constants';
 import { I } from '../../components/icons';
-import { RegistrationSuccess } from '../shared/SharedScreens';
-import { ContractModal } from '../../components/ContractModal';
-import { OtpModal } from '../../components/OtpModal';
-import { sendEmailOtp, verifyEmailOtp } from '../../api/otp';
-import { SuccessScreen } from '../../components/SuccessScreen';
-import { SignatureCanvasModal } from '../../components/SignatureCanvasModal';
 import { LocationPickerModal } from '../../components/LocationPickerModal';
 import { GeoPicker } from '../../components/GeoPicker';
 import * as ImagePicker from 'expo-image-picker';
-import * as DocumentPicker from 'expo-document-picker';
-import { ProviderApi, sanitizeWizardData } from '../../api/provider';
+import { ProviderApi } from '../../api/provider';
 import { useInsuranceCatalog, useServicesCatalog, useSpecialtiesCatalog } from '../../api/catalogs';
-
-import SignatureCanvas from 'react-native-signature-canvas';
-import { tokens } from '../../theme/tokens';
+import { tokens, withAlpha } from '../../theme/tokens';
 
 const { width: W } = Dimensions.get('window');
 
@@ -77,82 +66,81 @@ const INIT: FacilityRegData = {
   region: '', city: '', district: '', fullAddress: '', location: {lat: 0, lng: 0}, subProviders: [], cashOnly: false, acceptedInsurance: [], hasInsuranceCoordinator: false, signatureData: '', signerName: '', signerRole: '', termsAgreed: false, loading: false
 };
 
-export function FacilityRegistration({ onBack, onDone }: { onBack: () => void; onDone: () => void }) {
-  const [step, setStep] = useState(1);
-  const [data, setData] = useState<FacilityRegData>(INIT);
-  const [submitted, setSubmitted] = useState(false);
-  const TOTAL = 4;
-  const [showSuccess, setShowSuccess] = useState(false);
+const NOTICE: NoticeText = {
+  titleAr: 'هام جداً', titleEn: 'IMPORTANT',
+  p1Ar: 'البيانات التي قمت بإدخالها، وأي حسابات فرعية (أطباء، مختبرات) قمت بإضافتها، لن تكون مرئية لجمهور المرضى فور التسجيل.',
+  p1En: 'The data and sub-accounts you entered will NOT be visible to patients immediately.',
+  p2Ar: 'كذلك في المستقبل، عند تعديل الأسعار، المواعيد، أو إضافة أقسام جديدة من الإعدادات، يجب أن تمر أولاً عبر (الأدمن) للمراجعة والموافقة لضمان الجودة.',
+  p2En: 'In the future, any changes to prices, schedules, or new departments must pass through Admin Approval first.',
+};
+const FacilityNotice = (p: StepProps<FacilityRegData>) => <NoticeSection<FacilityRegData> text={NOTICE} submitRef={p.submitRef} />;
 
-  const update = useCallback((patch: Partial<FacilityRegData>) => setData(prev => ({ ...prev, ...patch })), []);
-  const next = () => { if (step < TOTAL) setStep(s => s + 1); };
-  const back = () => { if (step === 1) onBack(); else setStep(s => s - 1); };
-
-  const screens: Record<number, React.ReactElement> = {
-    1: <MergedFacilityStep step={step} onBack={back} onNext={next} data={data} update={update}
-         titleAr="الحساب والتراخيص والموقع" titleEn="Account, Legal & Location"
-         subAr="بيانات الدخول والمعلومات القانونية ثم الموقع الجغرافي" subEn="Login details, legal info, then geographic location"
-         sections={[
-           { comp: Step1Basic, titleAr: 'المعلومات الأساسية', titleEn: 'Basic Info' },
-           { comp: Step2Legal, titleAr: 'المعلومات القانونية', titleEn: 'Legal Info' },
-           { comp: Step3Location, titleAr: 'الموقع الجغرافي', titleEn: 'Location' },
-         ]} />,
-    2: <Step4SubProviders data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    3: <MergedFacilityStep step={step} onBack={back} onNext={next} data={data} update={update}
-         titleAr="التأمين والموافقات" titleEn="Insurance & Approvals"
-         subAr="شركات التأمين المقبولة ونظام الموافقات" subEn="Accepted insurance and approval system"
-         sections={[
-           { comp: Step5Insurance, titleAr: 'التأمين', titleEn: 'Insurance' },
-           { comp: Step6AdminWarning, titleAr: 'نظام الموافقات', titleEn: 'Approval System' },
-         ]} />,
-    4: <Step7Signature data={data} update={update} onDone={onDone} onBack={back} step={step} total={TOTAL} />,
-  };
+function ProcessingOverlay({ visible }: { visible: boolean }) {
+  const { theme } = useTheme();
   return (
-    <>
-      {screens[step] ?? null}
-      <Modal visible={data.loading} transparent animationType="fade">
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
-          <View style={{ padding: 20, backgroundColor: '#FFF', borderRadius: 12, alignItems: 'center' }}>
-            <Text style={{ marginTop: 10, fontSize: 16 }}>جاري معالجة البيانات...</Text>
-          </View>
+    <Modal visible={visible} transparent animationType="fade">
+      <View style={{ flex: 1, backgroundColor: withAlpha(theme.text, 0.5), justifyContent: 'center', alignItems: 'center' }}>
+        <View style={{ padding: 20, backgroundColor: theme.surface, borderRadius: 12, alignItems: 'center' }}>
+          <Text style={{ marginTop: 10, fontSize: 16, color: theme.text }}>جاري معالجة البيانات...</Text>
         </View>
-      </Modal>
-    </>
+      </View>
+    </Modal>
   );
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-function MergedFacilityStep({ titleAr, titleEn, subAr, subEn, step, onBack, onNext, data, update, sections }: any) {
-  const { lang } = useLang(); const AR = lang === 'ar';
-  const refs = useRef<any[]>([]);
-  const [busy, setBusy] = useState(false);
-  const go = async () => {
-    if (busy) return; setBusy(true);
-    try {
-      for (let i = 0; i < sections.length; i++) {
-        const ok = await refs.current[i]?.();
-        if (ok === false) return; // child already surfaced the validation error
-      }
-      onNext();
-    } finally { setBusy(false); }
-  };
-  return (
-    <NScroll>
-      <NHeader title={AR ? titleAr : titleEn} sub={AR ? subAr : subEn} step={step} total={4} onBack={onBack} />
-      {sections.map((s: any, idx: number) => {
-        const Comp = s.comp;
-        return (
-          <WizardSection key={idx} title={AR ? s.titleAr : s.titleEn}>
-            <Comp bare submitRef={(fn: any) => { refs.current[idx] = fn; }} data={data} update={update} onNext={() => {}} onBack={onBack} step={step} total={4} />
-          </WizardSection>
-        );
-      })}
-      <NBtn label={AR ? 'متابعة' : 'Next'} onPress={go} loading={busy} style={{ marginTop: SP.sm }} />
-    </NScroll>
-  );
+const FACILITY_WIZARD: WizardConfig<FacilityRegData> = {
+  init: INIT,
+  pages: [
+    {
+      titleAr: 'الحساب والتراخيص والموقع', titleEn: 'Account, Legal & Location', subAr: 'بيانات الدخول والمعلومات القانونية ثم الموقع الجغرافي', subEn: 'Login details, legal info, then geographic location',
+      sections: [
+        { comp: Step1Basic, titleAr: 'المعلومات الأساسية', titleEn: 'Basic Info' },
+        { comp: Step2Legal, titleAr: 'المعلومات القانونية', titleEn: 'Legal Info' },
+        { comp: Step3Location, titleAr: 'الموقع الجغرافي', titleEn: 'Location' },
+      ],
+    },
+    {
+      titleAr: 'مزودي الخدمة التابعين', titleEn: 'Sub-Providers', subAr: 'إضافة أقسام وأطباء المستشفى', subEn: 'Add your doctors & departments',
+      sections: [{ comp: Step4SubProviders, titleAr: '', titleEn: '' }],
+    },
+    {
+      titleAr: 'التأمين والموافقات', titleEn: 'Insurance & Approvals', subAr: 'شركات التأمين المقبولة ونظام الموافقات', subEn: 'Accepted insurance and approval system',
+      sections: [
+        { comp: Step5Insurance, titleAr: 'التأمين', titleEn: 'Insurance' },
+        { comp: FacilityNotice, titleAr: 'نظام الموافقات', titleEn: 'Approval System' },
+      ],
+    },
+  ],
+  review: {
+    providerType: 'facility',
+    headerAr: 'مراجعة وتوقيع العقد', headerEn: 'Review & Sign Contract',
+    signatoryRoleHint: { ar: 'مثال: المالك، المدير العام', en: 'e.g. Owner, General Manager' },
+    signatureTitle: { ar: 'توقيع الممثل النظامي للمنشأة', en: 'Legal Representative Signature' },
+    submitLabel: { ar: 'اعتماد وإرسال الطلب', en: 'Submit Application' },
+    contractPricing: (d) => d.subProviders.flatMap((sp: any) => {
+          const arr = [];
+          if (sp.type === 'doctor') {
+            if (sp.clinicEnabled) arr.push({ labelAr: `${sp.nameAr} - عيادة`, labelEn: `${sp.nameEn || sp.nameAr} - Clinic`, price: sp.priceClinic || 0 });
+            if (sp.onlineEnabled) arr.push({ labelAr: `${sp.nameAr} - أونلاين`, labelEn: `${sp.nameEn || sp.nameAr} - Online`, price: sp.priceOnline || 0 });
+            if (sp.homeEnabled) arr.push({ labelAr: `${sp.nameAr} - زيارة منزلية`, labelEn: `${sp.nameEn || sp.nameAr} - Home Visit`, price: sp.priceHome || 0 });
+          } else {
+            if (sp.homeEnabled) arr.push({ labelAr: `${sp.nameAr} - زيارة منزلية`, labelEn: `${sp.nameEn || sp.nameAr} - Home Visit`, price: sp.priceHome || 0 });
+          }
+          return arr;
+        }),
+    // Everything the facility sends (sub-provider rosters, documents, location) was already sent by its earlier steps.
+    run: async () => {},
+    coords: (d) => ({ lat: d.location?.lat || 0, lng: d.location?.lng || 0 }),
+  },
+  // The facility steps raise `loading` in their data while they save.
+  overlay: (d) => <ProcessingOverlay visible={!!d.loading} />,
+};
+
+export function FacilityRegistration(props: RegistrationProps<FacilityRegData>) {
+  return <RegistrationWizard config={FACILITY_WIZARD} {...props} />;
 }
 
-function Step1Basic({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
+function Step1Basic({ data, update, submitRef }: StepProps<FacilityRegData>) {
   const { show } = useToast();
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
   const [errs, setErrs] = useState<Record<string, string>>({});
@@ -184,36 +172,25 @@ function Step1Basic({ data, update, onNext, onBack, step, total, bare = false, s
   const handleNext = async (): Promise<boolean> => {
     if (!validate()) return false;
 
+    update({ loading: true });
     try {
-      update({ loading: true });
-      await ProviderApi.start({
+      const r = await startOnboardingAccount({
         phone: data.managerPhone,
         password: data.password,
         full_name: data.managerName,
         email: data.managerEmail,
         type: data.facilityType,
-      });
-      try {
-        await ProviderApi.onboardingLogin(data.managerEmail, data.password, data.facilityType);
-      } catch (e) {
-        await ProviderApi.onboardingLogin(data.managerEmail, data.password, data.facilityType);
-      }
-      if (!bare) onNext();
-      return true;
-    } catch (e: any) {
-      show(Array.isArray(e.response?.data?.message) ? e.response?.data?.message[0] : (e.response?.data?.message || e.message || 'Error occurred'), 'error');
-      return false;
+      }, data.facilityType);
+      if (!r.ok) show(r.message || 'Error occurred', 'error');
+      return r.ok;
     } finally {
       update({ loading: false });
     }
   };
-  useEffect(() => {
-    if (!submitRef) return;
-    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
-  });
+  useStepSaver(submitRef, handleNext);
 
-  const body = (
-    <>
+  return (
+    <View>
       
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.lg }}>
         {FACILITY_TYPES.map(t => (
@@ -247,96 +224,28 @@ function Step1Basic({ data, update, onNext, onBack, step, total, bare = false, s
           );
         })}
       </View>
-    </>
+    </View>
   );
-  if (bare) return <View>{body}</View>;
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'بيانات المستشفى/المستوصف' : 'Facility Info'} step={step} total={total} onBack={onBack} />
-      {body}
-      <NBtn label={AR ? 'متابعة' : 'Next'} onPress={handleNext} style={{ marginTop: SP.xl }} />
-    </NScroll>
-  );
-
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function Step2Legal({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
+function Step2Legal({ data, update, submitRef }: StepProps<FacilityRegData>) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   
-  const pickDocument = (field: string) => {
-    Alert.alert(
-      AR ? 'إرفاق مستند' : 'Attach Document',
-      AR ? 'اختر طريقة الرفع' : 'Choose upload method',
-      [
-        {
-          text: AR ? 'الكاميرا' : 'Camera',
-          onPress: async () => {
-            const { status } = await ImagePicker.requestCameraPermissionsAsync();
-            if (status !== 'granted') {
-              show(AR ? 'صلاحية الكاميرا مطلوبة' : 'Camera permission required', 'error');
-              return;
-            }
-            let result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.8 });
-            if (!result.canceled) {
-              update({ [field]: result.assets[0].uri });
-              show(AR ? 'تم إرفاق المستند' : 'Document attached', 'success');
-            }
-          }
-        },
-        {
-          text: AR ? 'معرض الصور' : 'Photo Gallery',
-          onPress: async () => {
-            let result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
-            if (!result.canceled) {
-              update({ [field]: result.assets[0].uri });
-              show(AR ? 'تم إرفاق المستند' : 'Document attached', 'success');
-            }
-          }
-        },
-        {
-          text: AR ? 'ملفات / PDF' : 'Files / PDF',
-          onPress: async () => {
-            let result = await DocumentPicker.getDocumentAsync({ type: '*/*', copyToCacheDirectory: true });
-            if (!result.canceled && result.assets && result.assets.length > 0) {
-              update({ [field]: result.assets[0].uri });
-              show(AR ? 'تم إرفاق المستند' : 'Document attached', 'success');
-            }
-          }
-        },
-        {
-          text: AR ? 'إلغاء' : 'Cancel',
-          style: 'cancel'
-        }
-      ]
-    );
-  };
+  const pick = useDocumentPicker<FacilityRegData>(update);
 
-  const DocBtn = ({ label, field }: any) => (
-    <TouchableOpacity onPress={() => pickDocument(field)} style={{ padding: SP.lg, borderWidth: 2, borderStyle: 'dashed', borderColor: data[field] ? theme.success : theme.border, backgroundColor: data[field] ? theme.successBg : theme.surface2, borderRadius: R.lg, marginBottom: SP.md, alignItems: 'center' }}>
-      <I name={data[field] ? 'checkCircle' : 'upload'} size={24} color={data[field] ? theme.success : theme.primary} />
-      <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: data[field] ? theme.success : theme.text, marginTop: SP.sm }}>{label}</Text>
-    </TouchableOpacity>
-  );
+  const handleNext = () => true;
+  useStepSaver(submitRef, handleNext);
 
-    const handleNext = () => {
-    if (!bare) onNext();
-    return true;
-  };
-  useEffect(() => {
-    if (!submitRef) return;
-    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
-  });
-
-const body = (
-    <>
+return (
+    <View>
       <NInput label={AR ? 'رقم السجل التجاري' : 'CR Number'} value={data.crNumber} onChange={v=>update({crNumber:v})} kbType="numeric" required />
       <NInput label={AR ? 'رقم ترخيص وزارة الصحة' : 'MOH License'} value={data.mohLicense} onChange={v=>update({mohLicense:v})} kbType="numeric" required />
       
       <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.md, marginBottom: SP.sm, textAlign: AR?'right':'left' }}>{AR ? 'المرفقات' : 'Attachments'}</Text>
-      <DocBtn label={AR ? 'شهادة السجل التجاري' : 'CR Document'} field="crDocUri" />
-      <DocBtn label={AR ? 'ترخيص وزارة الصحة' : 'MOH Document'} field="mohDocUri" />
-      <DocBtn label={AR ? 'شعار المستشفى (Logo)' : 'Facility Logo'} field="facilityLogoUri" />
+      <DocBtn label={AR ? 'شهادة السجل التجاري' : 'CR Document'} done={!!data.crDocUri} onPress={() => pick('crDocUri')} />
+      <DocBtn label={AR ? 'ترخيص وزارة الصحة' : 'MOH Document'} done={!!data.mohDocUri} onPress={() => pick('mohDocUri')} />
+      <DocBtn label={AR ? 'شعار المستشفى (Logo)' : 'Facility Logo'} done={!!data.facilityLogoUri} onPress={() => pick('facilityLogoUri')} />
       
       <View style={{ marginTop: SP.md }}>
         <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
@@ -355,29 +264,19 @@ const body = (
           {(data.facilityImagesUris||[]).map((uri: string, i: number) => (
             <View key={i} style={{ width: 80, height: 80, borderRadius: R.md, overflow: 'hidden' }}>
               <Image source={{ uri }} style={{ width: '100%', height: '100%' }} />
-              <TouchableOpacity onPress={() => update({ facilityImagesUris: data.facilityImagesUris.filter((_:any, idx:number) => idx !== i) })} style={{ position: 'absolute', top: 4, right: 4, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 12, padding: 2 }}>
-                <I name="close" size={16} color="#fff" />
+              <TouchableOpacity onPress={() => update({ facilityImagesUris: data.facilityImagesUris.filter((_:any, idx:number) => idx !== i) })} style={{ position: 'absolute', top: 4, right: 4, backgroundColor: withAlpha(theme.text, 0.5), borderRadius: 12, padding: 2 }}>
+                <I name="close" size={16} color={theme.textInv} />
               </TouchableOpacity>
             </View>
           ))}
         </ScrollView>
       </View>
-      
-    </>
+    </View>
   );
-  if (bare) return <View>{body}</View>;
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'التراخيص' : 'Licenses'} step={step} total={total} onBack={onBack} />
-      {body}
-      <NBtn label={AR ? 'متابعة' : 'Next'} onPress={handleNext} style={{ marginTop: SP.lg }} />
-    </NScroll>
-  );
-
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function Step3Location({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
+function Step3Location({ data, update, submitRef, uploads }: StepProps<FacilityRegData>) {
   const { show } = useToast();
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
   const [showLocModal, setShowLocModal] = useState(false);
@@ -411,12 +310,7 @@ function Step3Location({ data, update, onNext, onBack, step, total, bare = false
       
       if (data.facilityImagesUris && data.facilityImagesUris.length > 0) {
         for (let i = 0; i < data.facilityImagesUris.length; i++) {
-          const uri = data.facilityImagesUris[i];
-          if (!uri.startsWith('http')) {
-            images.push(await ProviderApi.uploadFile(uri, 'image/jpeg', `facility_${i}.jpg`));
-          } else {
-            images.push(uri);
-          }
+          images.push(await uploads.file(data.facilityImagesUris[i], `facility_${i}`));
         }
       }
 
@@ -434,7 +328,6 @@ function Step3Location({ data, update, onNext, onBack, step, total, bare = false
         logo: logoUrl || undefined,
         languages: data.languages,
       });
-      if (!bare) onNext();
       return true;
     } catch (e: any) {
       show(Array.isArray(e.response?.data?.message) ? e.response?.data?.message[0] : (e.response?.data?.message || e.message || 'Error occurred'), 'error');
@@ -443,13 +336,10 @@ function Step3Location({ data, update, onNext, onBack, step, total, bare = false
       update({ loading: false });
     }
   };
-  useEffect(() => {
-    if (!submitRef) return;
-    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
-  });
+  useStepSaver(submitRef, handleNext);
 
-  const body = (
-    <>
+  return (
+    <View>
       
       <Text style={{ fontSize: FS.sm, fontWeight: FW.semi, marginBottom: SP.xs, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{AR ? 'المنطقة / المدينة / الحي' : 'Region / City / District'}<Text style={{ color: theme.danger }}> *</Text></Text>
       <GeoPicker value={{ region: (data as any).region, city: data.city, district: (data as any).district }} onChange={v=>update({ region: v.region, city: v.city, district: v.district } as any)} locale={lang} />
@@ -476,22 +366,13 @@ function Step3Location({ data, update, onNext, onBack, step, total, bare = false
         {errs.loc && <Text style={{ fontSize: FS.xs, color: theme.danger, marginBottom: SP.sm }}>{errs.loc}</Text>}
         <LocationPickerModal visible={showLocModal} onClose={() => setShowLocModal(false)} onSelectLocation={(l) => update({ location: l })} initialLocation={data.location.lat ? data.location : undefined} />
       </NCard>
-
-    </>
+    </View>
   );
-  if (bare) return <View>{body}</View>;
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'الموقع الجغرافي' : 'Geographic Location'} step={step} total={total} onBack={onBack} />
-      {body}
-      <NBtn label={AR ? 'متابعة' : 'Next'} onPress={handleNext} style={{ marginTop: SP.lg }} />
-    </NScroll>
-  );
-
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function Step4SubProviders({ data, update, onNext, onBack, step, total }: any) {
+function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegData>) {
+  useStepSaver(submitRef, () => true);
  const labCatalog = useServicesCatalog('lab');
  const radCatalog = useServicesCatalog('radiology');
  const nursingCatalog = useServicesCatalog('nursing');
@@ -514,7 +395,7 @@ function Step4SubProviders({ data, update, onNext, onBack, step, total }: any) {
     doctor: { ar: 'طبيب', en: 'Doctor', color: tokens.success },
     lab: { ar: 'مختبر', en: 'Laboratory', color: tokens.purple },
     pharmacy: { ar: 'صيدلية', en: 'Pharmacy', color: tokens.warning },
-    radiology: { ar: 'أشعة', en: 'Radiology', color: '#03A9F4' },
+    radiology: { ar: 'أشعة', en: 'Radiology', color: tokens.mintDeep },
     nursing: { ar: 'تمريض', en: 'Nursing', color: tokens.pink }
   };
 
@@ -560,11 +441,8 @@ function Step4SubProviders({ data, update, onNext, onBack, step, total }: any) {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <View style={{ padding: SP.xl, paddingBottom: 0 }}>
-        <NHeader title={AR ? 'مزودي الخدمة التابعين' : 'Sub-Providers'} sub={AR ? 'إضافة أقسام وأطباء المستشفى' : 'Add your doctors & departments'} step={step} total={total} onBack={onBack} />
-      </View>
-      <ScrollView style={{ flex: 1, paddingHorizontal: SP.xl }} keyboardShouldPersistTaps="handled">
+    <View>
+      <View>
         <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginBottom: SP.lg, lineHeight: 22 }}>
           {AR ? 'هنا يمكنك إضافة أطباء وصيدليات ومختبرات تابعة لمنشأتك. كل مزود تضيفه سيتم إنشاء حساب فرعي (Sub-account) مستقل له لإدارته.' : 'Add doctors, pharmacies, and labs under your facility. Each will get an independent sub-account.'}
         </Text>
@@ -598,8 +476,7 @@ function Step4SubProviders({ data, update, onNext, onBack, step, total }: any) {
           </View>
         )}
 
-        <NBtn label={AR ? 'متابعة' : 'Next'} onPress={onNext} style={{ marginTop: SP.xl, marginBottom: 50 }} />
-      </ScrollView>
+      </View>
 
       {/* Sub-Provider Modal with SafeAreaView */}
       <Modal visible={!!modalType} animationType="slide" presentationStyle="fullScreen">
@@ -902,8 +779,8 @@ function Step4SubProviders({ data, update, onNext, onBack, step, total }: any) {
                 {(tempSub.clinicImagesUris||[]).map((uri: string, i: number) => (
                   <View key={i} style={{ width: 80, height: 80, borderRadius: R.md, overflow: 'hidden' }}>
                     <Image source={{ uri }} style={{ width: '100%', height: '100%' }} />
-                    <TouchableOpacity onPress={() => setTempSub({ ...tempSub, clinicImagesUris: tempSub.clinicImagesUris.filter((_:any, idx:number) => idx !== i) })} style={{ position: 'absolute', top: 4, right: 4, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 12, padding: 2 }}>
-                      <I name="close" size={16} color="#fff" />
+                    <TouchableOpacity onPress={() => setTempSub({ ...tempSub, clinicImagesUris: tempSub.clinicImagesUris.filter((_:any, idx:number) => idx !== i) })} style={{ position: 'absolute', top: 4, right: 4, backgroundColor: withAlpha(theme.text, 0.5), borderRadius: 12, padding: 2 }}>
+                      <I name="close" size={16} color={theme.textInv} />
                     </TouchableOpacity>
                   </View>
                 ))}
@@ -919,9 +796,9 @@ function Step4SubProviders({ data, update, onNext, onBack, step, total }: any) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function Step5Insurance({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
+function Step5Insurance({ data, update, submitRef, uploads }: StepProps<FacilityRegData>) {
  const insuranceCatalog = useInsuranceCatalog();
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const handleNext = async (): Promise<boolean> => {
     try {
       update({ loading: true });
@@ -935,12 +812,7 @@ function Step5Insurance({ data, update, onNext, onBack, step, total, bare = fals
         const uploadedImages: string[] = [];
         if (sp.clinicImagesUris && sp.clinicImagesUris.length > 0) {
           for (let i = 0; i < sp.clinicImagesUris.length; i++) {
-            const uri = sp.clinicImagesUris[i];
-            if (!uri.startsWith('http')) {
-              uploadedImages.push(await ProviderApi.uploadFile(uri, 'image/jpeg', `${sp.type}_${i}.jpg`));
-            } else {
-              uploadedImages.push(uri);
-            }
+            uploadedImages.push(await uploads.file(sp.clinicImagesUris[i], `${sp.type}_${i}`));
           }
         }
         return { sp, wh, uploadedImages };
@@ -1028,20 +900,15 @@ function Step5Insurance({ data, update, onNext, onBack, step, total, bare = fals
         insurance_plans: Object.fromEntries((data.acceptedInsurance || []).filter((i: any) => Array.isArray(i.plans) && i.plans.length).map((i: any) => [i.companyId, i.plans])),
         has_insurance_coordinator: data.hasInsuranceCoordinator,
       });
-      if (!bare) onNext();
       return true;
     } catch (e: any) {
-      const { show } = require('../../context');
-      show?.(e.message, 'error');
+      show(apiMessage(e), 'error');
       return false;
     } finally {
       update({ loading: false });
     }
   };
-  useEffect(() => {
-    if (!submitRef) return;
-    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
-  });
+  useStepSaver(submitRef, handleNext);
 
   const toggleCompany = (coId: string) => {
     const current = data.acceptedInsurance || [];
@@ -1067,8 +934,8 @@ function Step5Insurance({ data, update, onNext, onBack, step, total, bare = fals
     update({ acceptedInsurance: updated });
   };
 
-  const body = (
-    <>
+  return (
+    <View>
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: theme.surface2, padding: SP.lg, borderRadius: R.md, marginBottom: SP.lg }}>
         <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{AR ? 'الدفع نقداً فقط (لا نقبل التأمين)' : 'Cash Only (No Insurance)'}</Text>
         <Switch value={data.cashOnly} onValueChange={v=>update({cashOnly:v})} />
@@ -1091,7 +958,7 @@ function Step5Insurance({ data, update, onNext, onBack, step, total, bare = fals
                 <TouchableOpacity onPress={() => toggleCompany(co.id)} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Text style={{ fontSize: FS.md, color: theme.text, fontWeight: FW.bold }}>{AR ? co.ar : co.en}</Text>
                   <View style={{ width: 22, height: 22, borderRadius: R.sm, borderWidth: 2, borderColor: isAccepted ? theme.primary : theme.border, backgroundColor: isAccepted ? theme.primary : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
-                    {isAccepted && <I name="check" size={12} color="#FFF" />}
+                    {isAccepted && <I name="check" size={12} color={theme.textInv} />}
                   </View>
                 </TouchableOpacity>
 
@@ -1115,34 +982,18 @@ function Step5Insurance({ data, update, onNext, onBack, step, total, bare = fals
           })}
         </View>
       )}
-
-    </>
+    </View>
   );
-  if (bare) return <View>{body}</View>;
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'التأمين الأساسي للمستشفى' : 'Facility Insurance'} step={step} total={total} onBack={onBack} />
-      {body}
-      <NBtn label={AR ? 'متابعة' : 'Next'} onPress={handleNext} style={{ marginTop: SP.xl }} />
-    </NScroll>
-  );
-
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function Step6AdminWarning({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
+function Step6AdminWarning({ data, update, submitRef }: StepProps<FacilityRegData>) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
-    const handleNext = () => {
-    if (!bare) onNext();
-    return true;
-  };
-  useEffect(() => {
-    if (!submitRef) return;
-    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
-  });
+  const handleNext = () => true;
+  useStepSaver(submitRef, handleNext);
 
-const body = (
-    <>
+return (
+    <View>
       
       <View style={{ backgroundColor: theme.dangerBg, padding: SP.xl, borderRadius: R.lg, borderWidth: 1, borderColor: theme.danger, marginTop: SP.lg }}>
         <View style={{ alignSelf: 'center', marginBottom: SP.md }}><I name="info" size={40} color={theme.danger} /></View>
@@ -1156,154 +1007,7 @@ const body = (
           {AR ? 'كذلك في المستقبل، عند تعديل الأسعار، المواعيد، أو إضافة أقسام جديدة من الإعدادات، يجب أن تمر أولاً عبر (الأدمن) للمراجعة والموافقة لضمان الجودة.' : 'In the future, any changes to prices, schedules, or new departments must pass through Admin Approval first.'}
         </Text>
       </View>
-
-    </>
-  );
-  if (bare) return <View>{body}</View>;
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'نظام الموافقات' : 'Approval System'} step={step} total={total} onBack={onBack} />
-      {body}
-      <NBtn label={AR ? 'قرأت وأوافق' : 'I Understand & Agree'} onPress={handleNext} style={{ marginTop: SP.xl }} />
-    </NScroll>
-  );
-
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-function Step7Signature({ data, update, onDone, onBack, step, total }: any) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
-  const sigRef = useRef<any>(null);
-  const [submitted, setSubmitted] = useState(false);
-  const [showOtp, setShowOtp] = useState(false);
-  const [showSigModal, setShowSigModal] = useState(false);
-  const [showContract, setShowContract] = useState(false);
-
-  const handleVerifyOtp = async (code: string) => verifyEmailOtp(data.managerEmail || data.email, code);
-
-  const finishSubmit = async () => {
-    try {
-      update({ loading: true });
-      const sigUrl = await ProviderApi.uploadSignature(data.signatureData);
-      
-      await ProviderApi.step2({
-        iban: data.iban,
-        bank_account_name: data.accountHolderName,
-      });
-
-      await ProviderApi.submit({
-        signer_name: data.signerName,
-        signer_role: data.signerRole,
-        signature_url: sigUrl,
-        lat: data.location?.lat || 0,
-        lng: data.location?.lng || 0,
-        full_data: sanitizeWizardData(data)
-      });
-
-      show(AR ? 'تم إرسال طلب المستشفى وملحقاته بنجاح!' : 'Facility Registration Submitted!', 'success');
-      setSubmitted(true);
-    } catch (e: any) {
-      show(Array.isArray(e.response?.data?.message) ? e.response?.data?.message[0] : (e.response?.data?.message || e.message || 'Error occurred'), 'error');
-    } finally {
-      update({ loading: false });
-    }
-  };
-
-  const submit = () => {
-    if (!data.signatureData) return show(AR ? 'الرجاء التوقيع أولاً' : 'Please sign first', 'error');
-    // Send the REAL email OTP via the backend mailer before opening the modal
-    sendEmailOtp(data.managerEmail || data.email)
-      .then(() => show(AR ? 'تم إرسال رمز التحقق إلى بريدك الإلكتروني' : 'Verification code sent to your email', 'success'))
-      .catch(() => show(AR ? 'تعذر إرسال الرمز — تحقق من البريد أو أعد المحاولة' : 'Could not send the code — check the email or retry', 'error'));
-    setShowOtp(true);
-  };
-
-  const clearSig = () => {
-    sigRef.current?.clearSignature();
-
-    update({ signatureData: '', signerName: '', signerRole: '', termsAgreed: false });
-  };
-
-  if (submitted) {
-    return <RegistrationSuccess onDone={onDone} email={data.email} providerType="facility" />;
-  }
-
-  return (
-    <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <View style={{ padding: SP.xl, paddingBottom: 0 }}>
-        <NHeader title={AR ? 'مراجعة وتوقيع العقد' : 'Review & Sign Contract'} step={step} total={total} onBack={onBack} />
-      </View>
-      
-      <ScrollView style={{ flex: 1, paddingHorizontal: SP.xl }} keyboardShouldPersistTaps="handled">
-          <TouchableOpacity style={{ backgroundColor: theme.surface, padding: SP.md, borderRadius: 8, borderWidth: 1, borderColor: theme.primary, alignItems: 'center', marginBottom: SP.lg }} onPress={() => setShowContract(true)}>
-            <Text style={{ color: theme.primary, fontWeight: 'bold', fontSize: FS.md }}>{AR ? 'الاطلاع على العقد' : 'View Contract'}</Text>
-          </TouchableOpacity>
-
-<Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm, marginTop: SP.xl }}>{AR ? 'اسم الموقّع' : 'Signatory Name'}</Text>
-<NInput value={data.signerName} onChange={v => update({ signerName: v })} placeholder={AR ? 'الاسم الثلاثي' : 'Full Name'} />
-
-<Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm, marginTop: SP.md }}>{AR ? 'صفة الموقّع / المسمى الوظيفي' : 'Signatory Role'}</Text>
-<NInput value={data.signerRole} onChange={v => update({ signerRole: v })} placeholder={AR ? 'مثال: المالك، المدير العام' : 'e.g. Owner, General Manager'} />
-
-<Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm, marginTop: SP.xl }}>
-  {AR ? 'توقيع الممثل النظامي للمنشأة' : 'Legal Representative Signature'}
-</Text>
-        
-          {/* Bank Info */}
-          <View style={{ marginBottom: SP.lg }}>
-            <Text style={{ fontSize: FS.md, fontWeight: 'bold', color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>
-              {AR ? 'الحساب البنكي' : 'Bank Account'}
-            </Text>
-            <NInput
-              label={AR ? 'اسم صاحب الحساب' : 'Account Holder Name'}
-              value={data.accountHolderName}
-              onChange={v => update({ accountHolderName: v })}
-              placeholder={AR ? 'اسم مطابق للهوية/السجل التجاري' : 'Name matching ID/CR'}
-            />
-            <NInput
-              label={AR ? 'رقم الآيبان IBAN' : 'Bank IBAN'}
-              value={data.iban}
-              onChange={v => update({ iban: v.toUpperCase().replace(/\s/g, '') })}
-              placeholder="SA0000000000000000000000"
-              maxLen={24}
-            />
-            <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
-              {AR ? 'ملاحظة: سيتم تحويل مستحقاتك إلى هذا الحساب.' : 'Note: Your earnings will be transferred to this account.'}
-            </Text>
-          </View>
-
-        <View style={{ marginBottom: 20, gap: 10 }}>
-          {data.signatureData ? (
-             <View style={{ alignItems: 'center', marginVertical: 10 }}>
-               <Image source={{ uri: data.signatureData }} style={{ width: 200, height: 100, resizeMode: 'contain', backgroundColor: '#fff' }} />
-               <TouchableOpacity onPress={() => setShowSigModal(true)} style={{ marginTop: 8 }}><Text style={{ color: theme.primary }}>{AR ? 'إعادة التوقيع' : 'Re-sign'}</Text></TouchableOpacity>
-             </View>
-          ) : (
-            <TouchableOpacity onPress={() => setShowSigModal(true)} style={{ padding: 15, borderWidth: 1, borderColor: theme.primary, borderRadius: 8, alignItems: 'center', borderStyle: 'dashed', marginVertical: 10 }}>
-              <Text style={{ color: theme.primary, fontWeight: 'bold' }}>{AR ? 'اضغط للتوقيع' : 'Tap to Sign'}</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-
-        <NBtn label={AR ? 'اعتماد وإرسال الطلب' : 'Submit Application'} onPress={submit} style={{ marginTop: SP.sm, marginBottom: 50, backgroundColor: theme.success }} />
-      </ScrollView>
-      <ContractModal 
-        visible={showContract} 
-        onClose={() => setShowContract(false)} 
-        pricingDetails={data.subProviders.flatMap((sp: any) => {
-          const arr = [];
-          if (sp.type === 'doctor') {
-            if (sp.clinicEnabled) arr.push({ labelAr: `${sp.name} - عيادة`, labelEn: `${sp.name} - Clinic`, price: sp.priceClinic || 0 });
-            if (sp.onlineEnabled) arr.push({ labelAr: `${sp.name} - أونلاين`, labelEn: `${sp.name} - Online`, price: sp.priceOnline || 0 });
-            if (sp.homeEnabled) arr.push({ labelAr: `${sp.name} - زيارة منزلية`, labelEn: `${sp.name} - Home Visit`, price: sp.priceHome || 0 });
-          } else {
-            if (sp.homeEnabled) arr.push({ labelAr: `${sp.name} - زيارة منزلية`, labelEn: `${sp.name} - Home Visit`, price: sp.priceHome || 0 });
-          }
-          return arr;
-        })}
-      />
-      <SignatureCanvasModal visible={showSigModal} onClose={() => setShowSigModal(false)} onOK={(sig) => update({ signatureData: sig })} />
-      <OtpModal visible={showOtp} onClose={() => setShowOtp(false)} target={data.managerEmail || data.email} onVerify={async (code) => { const ok = await handleVerifyOtp(code); if(ok) { setShowOtp(false); finishSubmit(); return true; } return false; }} onResend={() => sendEmailOtp(data.managerEmail || data.email).then(() => show(AR ? 'أُعيد إرسال الرمز' : 'Code resent', 'success')).catch(() => show(AR ? 'تعذر الإرسال — انتظر قليلاً' : 'Could not resend — wait a moment', 'error'))} />
     </View>
   );
 }
+

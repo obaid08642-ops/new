@@ -1,0 +1,13 @@
+# main-fix branch 05d65c6 gate + boot baseline on unmodified main b097d39
+tsc 0
+build 0
+unit 0
+boot 1
+dtolint 0
+dtocheck 0
+[chunked-jest] done: 10/10 chunks passed
+boot on 05d65c6:
+Test Suites: 3 failed, 12 passed, 15 total
+Tests:       20 failed, 45 passed, 65 total
+boot on unmodified main b097d39: Test Suites: 3 failed, 12 passed, 15 total / Tests: 20 failed, 45 passed, 65 total
+Nest can't resolve dependencies of the UsersController (UsersService, ?). Please make sure that the argument PdplService at index [1] is available in the RootTestModule module.

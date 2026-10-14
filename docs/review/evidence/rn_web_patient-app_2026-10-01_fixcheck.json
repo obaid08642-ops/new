@@ -1,0 +1,628 @@
+[
+ {
+  "route": "(tabs)/health",
+  "url": "/health",
+  "landed": "/health",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰗶",
+    "result": "NAVIGATE",
+    "to": "/health/vitals"
+   },
+   {
+    "label": "󰐂",
+    "result": "NAVIGATE",
+    "to": "/health/medications"
+   },
+   {
+    "label": "󰈙",
+    "result": "NAVIGATE",
+    "to": "/health/reports"
+   },
+   {
+    "label": "󰡉",
+    "result": "NAVIGATE",
+    "to": "/health/family-hub"
+   },
+   {
+    "label": "󰭹",
+    "result": "NAVIGATE",
+    "to": "/family/chat"
+   },
+   {
+    "label": "󰂚",
+    "result": "NAVIGATE",
+    "to": "/health/medication-reminder-list"
+   },
+   {
+    "label": "󰔸",
+    "result": "NAVIGATE",
+    "to": "/loyalty/hub"
+   },
+   {
+    "label": "عرض الكل",
+    "result": "NAVIGATE",
+    "to": "/health/vitals"
+   },
+   {
+    "label": "home",
+    "result": "NAVIGATE",
+    "to": "/"
+   },
+   {
+    "label": "prescriptions",
+    "result": "NAVIGATE",
+    "to": "/pharmacy"
+   },
+   {
+    "label": "stethoscope",
+    "result": "NAVIGATE",
+    "to": "/consultations"
+   },
+   {
+    "label": "science",
+    "result": "NAVIGATE",
+    "to": "/diagnostics"
+   },
+   {
+    "label": "healing",
+    "result": "NAVIGATE",
+    "to": "/nursing"
+   }
+  ]
+ },
+ {
+  "route": "(tabs)/services",
+  "url": "/services",
+  "landed": "/services",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰓙",
+    "result": "NAVIGATE",
+    "to": "/consultations"
+   },
+   {
+    "label": "󰂓",
+    "result": "NAVIGATE",
+    "to": "/diagnostics"
+   },
+   {
+    "label": "󱓆",
+    "result": "NAVIGATE",
+    "to": "/diagnostics"
+   },
+   {
+    "label": "󰴡",
+    "result": "NAVIGATE",
+    "to": "/nursing"
+   },
+   {
+    "label": "󰀯",
+    "result": "NAVIGATE",
+    "to": "/emergency/sos"
+   },
+   {
+    "label": "󰐂",
+    "result": "NAVIGATE",
+    "to": "/pharmacy"
+   },
+   {
+    "label": "󰗶",
+    "result": "NAVIGATE",
+    "to": "/health"
+   },
+   {
+    "label": "󰂚",
+    "result": "NAVIGATE",
+    "to": "/health/medication-reminder-list"
+   },
+   {
+    "label": "󰈙",
+    "result": "NAVIGATE",
+    "to": "/reports/view-report"
+   },
+   {
+    "label": "󰚩",
+    "result": "NAVIGATE",
+    "to": "/ai/triage"
+   },
+   {
+    "label": "󰗊",
+    "result": "NAVIGATE",
+    "to": "/ai/prescription-translator"
+   },
+   {
+    "label": "󰄪",
+    "result": "NAVIGATE",
+    "to": "/ai/monthly-report"
+   },
+   {
+    "label": "󰉛",
+    "result": "NAVIGATE",
+    "to": "/nutrition/hub"
+   },
+   {
+    "label": "󰗏",
+    "result": "NAVIGATE",
+    "to": "/maternity/hub"
+   },
+   {
+    "label": "󰧑",
+    "result": "NAVIGATE",
+    "to": "/mental-health/hub"
+   },
+   {
+    "label": "󰡉",
+    "result": "NAVIGATE",
+    "to": "/community/hub"
+   },
+   {
+    "label": "󰠧",
+    "result": "NAVIGATE",
+    "to": "/health/family-hub"
+   },
+   {
+    "label": "󰠤",
+    "result": "NAVIGATE",
+    "to": "/orders"
+   },
+   {
+    "label": "󰒘",
+    "result": "NAVIGATE",
+    "to": "/insurance/hub"
+   },
+   {
+    "label": "󰹄",
+    "result": "NAVIGATE",
+    "to": "/loyalty/hub"
+   },
+   {
+    "label": "󰓹",
+    "result": "NAVIGATE",
+    "to": "/offers"
+   },
+   {
+    "label": "󰍍",
+    "result": "NAVIGATE",
+    "to": "/map"
+   }
+  ]
+ },
+ {
+  "route": "ai-assistant",
+  "url": "/ai-assistant",
+  "landed": "/ai-assistant",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 1,
+  "elements": []
+ },
+ {
+  "route": "consultations/chat-with-doctor",
+  "url": "/consultations/chat-with-doctor",
+  "landed": "/consultations/chat-with-doctor",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "arrow_forward",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "consultations/share-report",
+  "url": "/consultations/share-report",
+  "landed": "/consultations/share-report",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "diagnostics/orders",
+  "url": "/diagnostics/orders",
+  "landed": "/diagnostics/orders",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "󰁍",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "قيد التنفيذ",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "النتائج السابقة",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "family/calendar",
+  "url": "/family/calendar",
+  "landed": "/family/calendar",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": [
+    "404 GET /family/calendar",
+    "404 GET /family/members"
+   ]
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "family/permission-request",
+  "url": "/family/permission-request",
+  "landed": "/family/permission-request",
+  "status": "TESTED",
+  "render": {
+   "js": [
+    "No group found"
+   ],
+   "bad_reads": [
+    "404 GET /family/permissions/pending"
+   ]
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "family/permissions",
+  "url": "/family/permissions",
+  "landed": "/family/permissions",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": [
+    "404 GET /family/my-group"
+   ]
+  },
+  "inputs_filled": 9,
+  "elements": []
+ },
+ {
+  "route": "family/shared-calendar",
+  "url": "/family/shared-calendar",
+  "landed": "/family/calendar",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": [
+    "404 GET /family/calendar",
+    "404 GET /family/members"
+   ]
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "health/family-calendar",
+  "url": "/health/family-calendar",
+  "landed": "/family/calendar",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": [
+    "404 GET /family/calendar",
+    "404 GET /family/members"
+   ]
+  },
+  "inputs_filled": 0,
+  "elements": []
+ },
+ {
+  "route": "insurance/hub",
+  "url": "/insurance/hub",
+  "landed": "/insurance/hub",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "الوثائق",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "المطالبات",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "الاسترداد",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "󰍉",
+    "result": "NAVIGATE",
+    "to": "/insurance/coverage-check"
+   },
+   {
+    "label": "󰈙",
+    "result": "NAVIGATE",
+    "to": "/insurance/submit-claim"
+   },
+   {
+    "label": "󰋡",
+    "result": "NAVIGATE",
+    "to": "/insurance/network-providers"
+   },
+   {
+    "label": "󰖄",
+    "result": "NAVIGATE",
+    "to": "/insurance/coverage-check?view=benefits"
+   },
+   {
+    "label": "تفاصيل",
+    "result": "NAVIGATE",
+    "to": "/insurance/add-policy"
+   },
+   {
+    "label": "+ إضافة",
+    "result": "NAVIGATE",
+    "to": "/insurance/add-policy"
+   },
+   {
+    "label": "عرض الكل",
+    "result": "NAVIGATE",
+    "to": "/insurance/hub?tab=claims"
+   }
+  ]
+ },
+ {
+  "route": "insurance/index",
+  "url": "/insurance",
+  "landed": "/insurance/hub",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "الوثائق",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "المطالبات",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "الاسترداد",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "󰍉",
+    "result": "NAVIGATE",
+    "to": "/insurance/coverage-check"
+   },
+   {
+    "label": "󰈙",
+    "result": "NAVIGATE",
+    "to": "/insurance/submit-claim"
+   },
+   {
+    "label": "󰋡",
+    "result": "NAVIGATE",
+    "to": "/insurance/network-providers"
+   },
+   {
+    "label": "󰖄",
+    "result": "NAVIGATE",
+    "to": "/insurance/coverage-check?view=benefits"
+   },
+   {
+    "label": "تفاصيل",
+    "result": "NAVIGATE",
+    "to": "/insurance/add-policy"
+   },
+   {
+    "label": "+ إضافة",
+    "result": "NAVIGATE",
+    "to": "/insurance/add-policy"
+   },
+   {
+    "label": "عرض الكل",
+    "result": "NAVIGATE",
+    "to": "/insurance/hub?tab=claims"
+   }
+  ]
+ },
+ {
+  "route": "loyalty/hub",
+  "url": "/loyalty/hub",
+  "landed": "/loyalty/hub",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "اكسب نقاطاً",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "استبدال",
+    "result": "UI_CHANGE"
+   },
+   {
+    "label": "السجل",
+    "result": "UI_CHANGE"
+   }
+  ]
+ },
+ {
+  "route": "nutrition/body-composition",
+  "url": "/nutrition/body-composition",
+  "landed": "/nutrition/body-target",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 7,
+  "elements": [
+   {
+    "label": "خفض الوزن",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "المحافظة على الوزن",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "زيادة الكتلة العضلية",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "نمط صحي",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "قليل الحركة",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "خفيف",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "متوسط",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "نشط",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "نشط جداً",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "nutrition/body-target",
+  "url": "/nutrition/body-target",
+  "landed": "/nutrition/body-target",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 7,
+  "elements": [
+   {
+    "label": "خفض الوزن",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "المحافظة على الوزن",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "زيادة الكتلة العضلية",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "نمط صحي",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "قليل الحركة",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "خفيف",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "متوسط",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "نشط",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "نشط جداً",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "reports/hub",
+  "url": "/reports/hub",
+  "landed": "/reports/hub",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": [
+   {
+    "label": "الكل",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "󰂓",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "?",
+    "result": "NO_EFFECT"
+   },
+   {
+    "label": "󰈙",
+    "result": "NO_EFFECT"
+   }
+  ]
+ },
+ {
+  "route": "wearables/hub",
+  "url": "/wearables/hub",
+  "landed": "/wearables/hub",
+  "status": "TESTED",
+  "render": {
+   "js": [],
+   "bad_reads": []
+  },
+  "inputs_filled": 0,
+  "elements": []
+ }
+]

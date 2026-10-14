@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseFamilyChatGate } from "../components-next/family-chat-client";
+import { parseFamilyChatGate } from "../components-next/family/family-chat";
 
 describe("parseFamilyChatGate (LJ-10)", () => {
   it("treats a 403/not_active_family_member reply as the create-or-join state", () => {

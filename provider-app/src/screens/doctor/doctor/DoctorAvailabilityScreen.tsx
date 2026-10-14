@@ -26,16 +26,15 @@ import { DoctorUrgentRequests } from '../components/DoctorUrgentRequests';
 import { DoctorQueueList } from '../components/DoctorQueueList';
 import { FacilityInvitationsScreen } from '../FacilityInvitationsScreen';
 import {
- PromotionsDashboard, CreateCampaignScreen, ProfileWebConfig,
+ PromotionsDashboard, CreateCampaignScreen, 
  SubscriptionsAdsScreen, AffiliatePortal, ReputationHub,
  LiveOrderAlarmModal, CrmHub, RevenueInsights, AiMedicalCopilot,
- SmartOutboundReferralNetwork, SosDispatchScreen, GpsRouterScreen
+ SmartOutboundReferralNetwork
 } from '../../shared/BlueprintScreens';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { tokens } from '../../../theme/tokens';
 import { DoctorServiceSlotsCard } from './StatisticsScreen';
 
-import { DoctorProfileEditScreen } from './DoctorProfileEditScreen';
 export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () => void; onNavigate?: (s: string, p?: any) => void }) { const { theme } = useTheme();
  const { lang } = useLang();
  const { show } = useToast();
@@ -213,7 +212,9 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
  };
 
 
-  const ctx: any = { theme, AR, exceptions, showAddException, setShowAddException, exStart, setExStart, exEnd, setExEnd, handleAddException, handleDeleteException };
+  const ctx: any = { theme, AR, exceptions, showAddException, setShowAddException, exStart, setExStart, exEnd, setExEnd, handleAddException, handleDeleteException,
+    // the exception form edits its date and type (lost in the P9 split: typing or choosing a type crashed)
+    exDate, setExDate, exType, setExType };
  return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
  <NHeader title={AR ? ' جدول المواعيد والتوفر' : ' Availability Settings'} onBack={onBack} />

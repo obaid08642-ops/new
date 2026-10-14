@@ -1,12 +1,6 @@
-import { Redirect, useLocalSearchParams } from "expo-router";
+import { Redirect } from 'expo-router';
 
-/** @deprecated unified screen (Phase 2) — deep-link-safe redirect with params passthrough. */
-export default function UnifiedRedirect() {
-  const params = useLocalSearchParams();
-  const q = Object.entries(params as Record<string, unknown>)
-    .filter(([k]) => k !== "view")
-    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
-    .join("&");
-  const sep = "/emergency?view=crisis".includes("?") ? "&" : "?";
-  return <Redirect href={`/emergency?view=crisis${q ? `${sep}${q}` : ""}`} />;
+/** Removed feature (owner decision 8, 2026-10-06): no in-app crisis handling. The old route opens the mental-health hub. */
+export default function CrisisSupportRedirect() {
+  return <Redirect href="/mental-health/hub" />;
 }

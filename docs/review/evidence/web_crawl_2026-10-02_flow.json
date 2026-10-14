@@ -1,0 +1,711 @@
+{
+ "app": "website",
+ "signed_in": true,
+ "pages": [
+  {
+   "route": "/[locale]/consultations/booking-status",
+   "url": "/ar/consultations/booking-status?appointmentId=8839f097-fef9-4049-aa0c-c3014c040",
+   "landed": "/ar/consultations/booking-status?appointmentId=8839f097-fef9-4049-aa0c-c3014c040",
+   "time_to_ready_ms": 941,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "not_found": "404"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى البداية",
+     "result": "NAVIGATE",
+     "to": "/ar",
+     "response_ms": 1366
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/diagnostics/insurance-upload",
+   "url": "/ar/diagnostics/insurance-upload?bookingId=4c16aebd-38b3-49ec-a9e2-212efb6c8c85",
+   "landed": "/ar/diagnostics/insurance-upload?bookingId=4c16aebd-38b3-49ec-a9e2-212efb6c8c85",
+   "time_to_ready_ms": 654,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "حجوزاتي",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/bookings",
+     "response_ms": 585
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/diagnostics/labs/book",
+   "url": "/ar/diagnostics/labs/book?serviceId=058ecddc-b305-4170-80bc-a1d19ca01256",
+   "landed": "/ar/diagnostics/labs/book?serviceId=058ecddc-b305-4170-80bc-a1d19ca01256",
+   "time_to_ready_ms": 930,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "العودة إلى الفحوصات",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/labs",
+     "response_ms": 859
+    },
+    {
+     "label": "تأكيد الحجز",
+     "result": "UI_CHANGE",
+     "response_ms": 457
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "/[locale]/consultations/video-call",
+   "url": "/ar/consultations/video-call?appointmentId=ad8c0290-3f38-4e4f-adae-2a7350343bdf",
+   "landed": "/ar/consultations/video-call?appointmentId=ad8c0290-3f38-4e4f-adae-2a7350343bdf",
+   "time_to_ready_ms": 1030,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تفاصيل الموعد",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments/ad8c0290-3f38-4e4f-adae-2a7350343bdf",
+     "response_ms": 1401
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/consultations/waiting-room",
+   "url": "/ar/consultations/waiting-room?appointmentId=ad8c0290-3f38-4e4f-adae-2a7350343bdf",
+   "landed": "/ar/consultations/virtual-waiting-room?appointmentId=ad8c0290-3f38-4e4f-adae-2a7350343bdf",
+   "time_to_ready_ms": 1493,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الموعد",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments/ad8c0290-3f38-4e4f-adae-2a7350343bdf",
+     "response_ms": 1435
+    },
+    {
+     "label": "انضمام الآن",
+     "result": "UI_CHANGE",
+     "response_ms": 798
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "/[locale]/consultations/follow-up",
+   "url": "/ar/consultations/follow-up?appointmentId=a63fc30a-d882-4949-8180-6a20c2cc7057",
+   "landed": "/ar/consultations/follow-up?appointmentId=a63fc30a-d882-4949-8180-6a20c2cc7057",
+   "time_to_ready_ms": 865,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الموعد",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments/a63fc30a-d882-4949-8180-6a20c2cc7057",
+     "response_ms": 1312
+    },
+    {
+     "label": "طلب صرف من الصيدلية",
+     "result": "NAVIGATE",
+     "to": "/ar/c",
+     "response_ms": 2010
+    },
+    {
+     "label": "محادثة الطبيب",
+     "result": "NAVIGATE",
+     "to": "/ar/chat",
+     "response_ms": 1424
+    },
+    {
+     "label": "حجز موعد متابعة",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/book/f5520594-3647-4969-882d-e3d0bbb5608c",
+     "response_ms": 896
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 4
+   }
+  },
+  {
+   "route": "/[locale]/consultations/home-visit-tracking",
+   "url": "/ar/consultations/home-visit-tracking?appointmentId=ad8c0290-3f38-4e4f-adae-2a7350343bdf",
+   "landed": "/ar/consultations/home-visit-tracking?appointmentId=ad8c0290-3f38-4e4f-adae-2a7350343bdf",
+   "time_to_ready_ms": 939,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تفاصيل الموعد",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments/ad8c0290-3f38-4e4f-adae-2a7350343bdf",
+     "response_ms": 1437
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/consultations/clinic-location",
+   "url": "/ar/consultations/clinic-location?appointmentId=ad8c0290-3f38-4e4f-adae-2a7350343bdf",
+   "landed": "/ar/consultations/clinic-confirm?view=location&appointmentId=ad8c0290-3f38-4e4f-adae-2a7350343bdf",
+   "time_to_ready_ms": 10688,
+   "ready": true,
+   "not_ready_reason": "stuck >10s: /ar/map?_rsc=y6n_QgT7HKaYie-h",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الموعد",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments/ad8c0290-3f38-4e4f-adae-2a7350343bdf",
+     "response_ms": 1352
+    },
+    {
+     "label": "محادثة",
+     "result": "NAVIGATE",
+     "to": "/ar/chat",
+     "response_ms": 1398
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2
+   }
+  },
+  {
+   "route": "/[locale]/consultations/cancel-reschedule",
+   "url": "/ar/consultations/cancel-reschedule?appointmentId=ad8c0290-3f38-4e4f-adae-2a7350343bdf",
+   "landed": "/ar/consultations/cancel-reschedule?appointmentId=ad8c0290-3f38-4e4f-adae-2a7350343bdf",
+   "time_to_ready_ms": 882,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الموعد",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments/ad8c0290-3f38-4e4f-adae-2a7350343bdf",
+     "response_ms": 1401
+    },
+    {
+     "label": "تأكيد الموعد الجديد",
+     "result": "UI_CHANGE",
+     "response_ms": 424
+    },
+    {
+     "label": "إلغاء الموعد",
+     "result": "UI_CHANGE",
+     "response_ms": 438
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 2
+   }
+  },
+  {
+   "route": "/[locale]/consultations/virtual-waiting-room",
+   "url": "/ar/consultations/virtual-waiting-room?appointmentId=ad8c0290-3f38-4e4f-adae-2a7350343bdf",
+   "landed": "/ar/consultations/virtual-waiting-room?appointmentId=ad8c0290-3f38-4e4f-adae-2a7350343bdf",
+   "time_to_ready_ms": 871,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الموعد",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments/ad8c0290-3f38-4e4f-adae-2a7350343bdf",
+     "response_ms": 1392
+    },
+    {
+     "label": "انضمام الآن",
+     "result": "UI_CHANGE",
+     "response_ms": 796
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "/[locale]/consultations/clinic-confirm",
+   "url": "/ar/consultations/clinic-confirm?appointmentId=ad8c0290-3f38-4e4f-adae-2a7350343bdf",
+   "landed": "/ar/consultations/clinic-confirm?appointmentId=ad8c0290-3f38-4e4f-adae-2a7350343bdf",
+   "time_to_ready_ms": 572,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الموعد",
+     "result": "NAVIGATE",
+     "to": "/ar/appointments/ad8c0290-3f38-4e4f-adae-2a7350343bdf",
+     "response_ms": 1403
+    },
+    {
+     "label": "محادثة",
+     "result": "NAVIGATE",
+     "to": "/ar/chat",
+     "response_ms": 1401
+    },
+    {
+     "label": "إلغاء / إعادة جدولة الموعد",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/cancel-reschedule?appointmentId=ad8c0290-3f38-4e4f-adae-2a7350",
+     "response_ms": 544
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 3
+   }
+  },
+  {
+   "route": "/[locale]/pharmacy/reorder",
+   "url": "/ar/pharmacy/reorder?orderId=ddff8606-7567-4d6b-9625-615d28dbc245",
+   "landed": "/ar/pharmacy/reorder?orderId=ddff8606-7567-4d6b-9625-615d28dbc245",
+   "time_to_ready_ms": 1381,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الطلب",
+     "result": "NAVIGATE",
+     "to": "/ar/orders/ddff8606-7567-4d6b-9625-615d28dbc245",
+     "response_ms": 1415
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 419
+    },
+    {
+     "label": "−",
+     "result": "UI_CHANGE",
+     "response_ms": 427
+    },
+    {
+     "label": "+",
+     "result": "UI_CHANGE",
+     "response_ms": 421
+    },
+    {
+     "label": "(icon #4)",
+     "result": "UI_CHANGE",
+     "response_ms": 436
+    },
+    {
+     "label": "تحديث يدوياً",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3547
+    },
+    {
+     "label": "إنشاء طلب جديد وطلب عروض",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/api/patient/patient/pharmacy/orders",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 563
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 4,
+    "NO_EFFECT": 1,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "/[locale]/pharmacy/insurance-decision",
+   "url": "/ar/pharmacy/insurance-decision?orderId=6f7a5a65-3c01-4f86-a2b6-4e2c17a2fa27",
+   "landed": "/ar/pharmacy/insurance-decision?orderId=6f7a5a65-3c01-4f86-a2b6-4e2c17a2fa27",
+   "time_to_ready_ms": 1392,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "400 GET /api/patient/payments/pharmacy/6f7a5a65-3c01-4f86-a2b6-4e2c17a2fa27/capabilities"
+    ]
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الطلب",
+     "result": "NAVIGATE",
+     "to": "/ar/orders/6f7a5a65-3c01-4f86-a2b6-4e2c17a2fa27",
+     "response_ms": 1409
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/pharmacy/chat",
+   "url": "/ar/pharmacy/chat?orderId=6e317348-1c49-4828-ae70-f3a08f8d23c1",
+   "landed": "/ar/pharmacy/chat?orderId=6e317348-1c49-4828-ae70-f3a08f8d23c1",
+   "time_to_ready_ms": 1390,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /api/patient/pharmacy/chat/threads"
+    ]
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الطلب",
+     "result": "NAVIGATE",
+     "to": "/ar/orders/6e317348-1c49-4828-ae70-f3a08f8d23c1",
+     "response_ms": 1402
+    },
+    {
+     "label": "إرسال",
+     "result": "DISABLED"
+    },
+    {
+     "label": "رجوع للطلب",
+     "result": "NAVIGATE",
+     "to": "/ar/orders/6e317348-1c49-4828-ae70-f3a08f8d23c1",
+     "response_ms": 1338
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2,
+    "DISABLED": 1
+   }
+  },
+  {
+   "route": "/[locale]/pharmacy/payment",
+   "url": "/ar/pharmacy/payment?orderId=6e317348-1c49-4828-ae70-f3a08f8d23c1",
+   "landed": "/ar/pharmacy/payment?orderId=6e317348-1c49-4828-ae70-f3a08f8d23c1",
+   "time_to_ready_ms": 1398,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "400 GET /api/payments/pharmacy/6e317348-1c49-4828-ae70-f3a08f8d23c1/capabilities"
+    ]
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الطلب",
+     "result": "NAVIGATE",
+     "to": "/ar/orders/6e317348-1c49-4828-ae70-f3a08f8d23c1",
+     "response_ms": 1390
+    },
+    {
+     "label": "رجوع للطلب",
+     "result": "NAVIGATE",
+     "to": "/ar/orders/6e317348-1c49-4828-ae70-f3a08f8d23c1",
+     "response_ms": 1394
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2
+   }
+  },
+  {
+   "route": "/[locale]/pharmacy/waiting-for-pharmacy",
+   "url": "/ar/pharmacy/waiting-for-pharmacy?orderId=50ea5470-3875-457b-9ab8-ad30bf72463d",
+   "landed": "/ar/pharmacy/waiting-for-pharmacy?orderId=50ea5470-3875-457b-9ab8-ad30bf72463d",
+   "time_to_ready_ms": 952,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الطلب",
+     "result": "NAVIGATE",
+     "to": "/ar/orders/50ea5470-3875-457b-9ab8-ad30bf72463d",
+     "response_ms": 1410
+    },
+    {
+     "label": "تحديث حالة البث يدوياً",
+     "result": "SKIPPED_DESTRUCTIVE"
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "SKIPPED_DESTRUCTIVE": 1
+   }
+  },
+  {
+   "route": "/[locale]/pharmacy/final-quote",
+   "url": "/ar/pharmacy/final-quote?orderId=50ea5470-3875-457b-9ab8-ad30bf72463d",
+   "landed": "/ar/pharmacy/final-quote?orderId=50ea5470-3875-457b-9ab8-ad30bf72463d",
+   "time_to_ready_ms": 1369,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الطلب",
+     "result": "NAVIGATE",
+     "to": "/ar/orders/50ea5470-3875-457b-9ab8-ad30bf72463d",
+     "response_ms": 1406
+    },
+    {
+     "label": "حالة الطلب",
+     "result": "NAVIGATE",
+     "to": "/ar/orders/50ea5470-3875-457b-9ab8-ad30bf72463d/tracking",
+     "response_ms": 1419
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2
+   }
+  },
+  {
+   "route": "/[locale]/pharmacy/broadcast-status",
+   "url": "/ar/pharmacy/broadcast-status?requestId=6a108fa3-258f-42ae-bbe4-50ae32e851b7&orderId=50ea5470-3875-457b-9ab8-ad30bf72463d",
+   "landed": "/ar/pharmacy/broadcast-status?requestId=6a108fa3-258f-42ae-bbe4-50ae32e851b7&orderId=50ea5470-3875-457b-9ab8-ad30bf72463d",
+   "time_to_ready_ms": 1528,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /api/patient/patient/pharmacy/orders/6a108fa3-258f-42ae-bbe4-50ae32e851b7/offers"
+    ]
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الطلب",
+     "result": "NAVIGATE",
+     "to": "/ar/orders/6a108fa3-258f-42ae-bbe4-50ae32e851b7",
+     "response_ms": 1416
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/diagnostics/technician-tracking",
+   "url": "/ar/diagnostics/technician-tracking?bookingId=5d0415d1-e596-4f22-829c-88ab660363e0",
+   "landed": "/ar/diagnostics/technician-tracking?bookingId=5d0415d1-e596-4f22-829c-88ab660363e0",
+   "time_to_ready_ms": 1491,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "حجوزاتي",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/bookings",
+     "response_ms": 598
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/diagnostics/booking-success",
+   "url": "/ar/diagnostics/booking-success?bookingId=5d0415d1-e596-4f22-829c-88ab660363e0",
+   "landed": "/ar/diagnostics/booking-success?bookingId=5d0415d1-e596-4f22-829c-88ab660363e0",
+   "time_to_ready_ms": 870,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تفاصيل الحجز",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/labs/5d0415d1-e596-4f22-829c-88ab660363e0",
+     "response_ms": 561
+    },
+    {
+     "label": "حجوزاتي",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/bookings",
+     "response_ms": 565
+    },
+    {
+     "label": "العودة إلى الفحوصات",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics",
+     "response_ms": 912
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 3
+   }
+  },
+  {
+   "route": "/[locale]/diagnostics/sample-tracking",
+   "url": "/ar/diagnostics/sample-tracking?bookingId=5d0415d1-e596-4f22-829c-88ab660363e0",
+   "landed": "/ar/diagnostics/sample-tracking?bookingId=5d0415d1-e596-4f22-829c-88ab660363e0",
+   "time_to_ready_ms": 1525,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "حجوزاتي",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/bookings",
+     "response_ms": 596
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/diagnostics/insurance-approval",
+   "url": "/ar/diagnostics/insurance-approval?orderId=6f7a5a65-3c01-4f86-a2b6-4e2c17a2fa27",
+   "landed": "/ar/diagnostics/insurance-approval?orderId=6f7a5a65-3c01-4f86-a2b6-4e2c17a2fa27",
+   "time_to_ready_ms": 1448,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /api/patient/labs/bookings/6f7a5a65-3c01-4f86-a2b6-4e2c17a2fa27"
+    ]
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "حجوزاتي",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/bookings",
+     "response_ms": 568
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  }
+ ]
+}

@@ -11,7 +11,6 @@ rtc:
   use_external_ip: true
 
 keys:
-  nabd_8b99567485c4: 1569325068a1d2c71bcabe6489f93ed2ae3a4beed045a346d0d46b3cee5dc18c21db6d22f49f41b40227a56bcbd25486
   ${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}
 
 # Embedded TURN disabled — our dedicated coturn container handles STUN/TURN

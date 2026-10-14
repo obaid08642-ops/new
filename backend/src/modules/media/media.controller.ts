@@ -2,11 +2,13 @@ import { Controller, Get, Post, Delete, Body, Param, UseGuards, UseInterceptors,
 import { FileInterceptor } from '@nestjs/platform-express';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
-import { JwtAuthGuard, Roles, CurrentUser, SelfService } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { MediaService } from './media.service';
 import { UploadMediaDto, PresignedUrlDto } from './media.dto';
 import { MediaAsset, MediaAssetDocument, MEDIA_PURPOSES, MediaPurpose } from './media.schema';
+import { CONSULTATION_FOLLOWUP_HOURS_DEFAULT } from '../chat/followup-window';
+import { MediaCleanupService } from './media-cleanup.service';
 
 @Controller('media')
 @SelfService()
@@ -16,6 +18,7 @@ export class MediaController {
     private readonly mediaService: MediaService,
     @InjectModel(MediaAsset.name) private readonly assets: Model<MediaAssetDocument>,
     @InjectConnection() private readonly connection: Connection,
+    private readonly cleanup: MediaCleanupService,
   ) {}
 
   @Post('upload')
@@ -139,7 +142,7 @@ export class MediaController {
         if (appt.status === 'COMPLETED') {
           const SystemConfigModel = this.connection.model('SystemConfig');
           const sysConfig = await SystemConfigModel.findOne({ key: 'system_config' });
-          const followupHours = sysConfig?.value?.consultation_followup_hours ?? 24;
+          const followupHours = sysConfig?.value?.consultation_followup_hours ?? CONSULTATION_FOLLOWUP_HOURS_DEFAULT;
 
           const endedAt = appt.completed_at || appt.updatedAt || new Date();
           const elapsedHours = (Date.now() - new Date(endedAt).getTime()) / (1000 * 60 * 60);
@@ -157,18 +160,27 @@ export class MediaController {
   }
 
   /**
-   * P1 security hardening (2026-08-20): previously any authenticated user —
-   * including patients — could delete ANY object in the R2 bucket by key.
-   * Deletion is now restricted to platform admins only.
+   * D-32: DELETE /media/<id> — the owner (or an admin) deletes a file by the id the upload returned; DELETE /media/<key>
+   * stays admin-only (P1 2026-08-20: no one else may delete an object by key). Either way the R2 object AND its
+   * `media_assets` row are removed.
    */
   @Delete('*key')
-  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
-  async deleteFile(@Param('key') key: string | string[]) {
+  async deleteFile(@CurrentUser() user: any, @Param('key') key: string | string[]) {
     const keyStr = Array.isArray(key) ? key.join('/') : key;
     if (!keyStr) {
       throw new BadRequestException('key is required');
     }
+    const isAdmin = user?.role === UserRole.ADMIN || user?.role === UserRole.SUPER_ADMIN;
+    const asset: any = /^[0-9a-f-]{36}$/i.test(keyStr) ? await this.assets.findOne({ id: { $eq: keyStr } }).lean() : null;
+    if (asset) {
+      if (!isAdmin && asset.owner_id !== user?.id) throw new ForbiddenException('not_owner');
+      await this.mediaService.deleteFile(asset.key);
+      await this.assets.deleteOne({ id: { $eq: asset.id } });
+      return { success: true };
+    }
+    if (!isAdmin) throw new ForbiddenException('Insufficient role');
     await this.mediaService.deleteFile(keyStr);
+    await this.assets.deleteOne({ key: { $eq: keyStr } });
     return { success: true };
   }
 }

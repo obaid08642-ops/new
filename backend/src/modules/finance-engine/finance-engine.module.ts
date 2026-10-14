@@ -1,3 +1,5 @@
+import { copayRefundable, findCopayTransaction } from '../../common/copay-transaction';
+import { ModuleRef } from '@nestjs/core';
 /**
  * EPIC 1 — FINANCE & MARKETPLACE ENGINE
  * Enterprise-grade financial core for the Nabd marketplace:
@@ -20,6 +22,7 @@
 import {
   Module, Global, Injectable, Controller, Post, Get, Put, Body, Param, Query,
   UseGuards, BadRequestException, NotFoundException, ForbiddenException, Logger,
+  Optional,
 } from '@nestjs/common';
 import { ValidateCouponDto, LoyaltyQuoteDto, SetCommissionRuleDto, ResolveCommissionDto, RequestApprovalDto, DecideApprovalDto } from './finance-engine.dto';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -525,6 +528,7 @@ export class RefundExecutor {
     private readonly ledger: LedgerService,
     private readonly fraud: FraudService,
     private readonly events: EventEmitter2,
+    @Optional() private readonly moduleRef?: ModuleRef,
   ) {}
 
   private moyasarKey(): string {
@@ -555,7 +559,7 @@ export class RefundExecutor {
     reason: string;
     actor_id: string;
   }): Promise<{ ok: boolean; method: string; gateway_refund_id?: string; provider_debited?: number }> {
-    const amount = round2(opts.amount);
+    let amount = round2(opts.amount);
     if (!(amount > 0)) throw new BadRequestException('refund amount must be positive');
 
     // Idempotency: a completed execution for this refund_id is a no-op
@@ -567,7 +571,7 @@ export class RefundExecutor {
       { booking_id: opts.booking_id, status: { $in: ['paid', 'refunded'] } } as any,
       { sort: { createdAt: -1 } } as any,
     );
-    const paidTransaction: any = await this.conn.collection('transactions').findOne({
+    let paidTransaction: any = await this.conn.collection('transactions').findOne({
       booking_kind: opts.booking_kind, booking_id: opts.booking_id, status: 'paid',
     } as any);
     const bookingCollections: Record<string, string> = {
@@ -587,6 +591,16 @@ export class RefundExecutor {
       const owner = String(booking.patient_id || booking.patient_account_id || booking.user_id || '');
       if (owner && owner !== String(opts.patient_id)) throw new ForbiddenException('refund_patient_mismatch');
     }
+    // Q96: an insured booking's copay is paid on its insurance request (booking_kind
+    // 'insurance'), never on the booking: refund that card payment, capped at it.
+    let viaCopay = false;
+    if (!paidTransaction && !paidPayment && booking) {
+      paidTransaction = await findCopayTransaction(this.conn as never, booking, opts.booking_id);
+      viaCopay = !!paidTransaction;
+    }
+    // The patient paid only the copay: a refund of the booking's price returns at most what is left of it.
+    if (viaCopay) amount = Math.min(amount, round2(copayRefundable(paidTransaction)));
+    if (!(amount > 0)) throw new BadRequestException('refund_exceeds_paid: nothing left to refund');
     const originalMethod = String(paidTransaction?.method || booking?.payment_method || '').toLowerCase();
     const bookingState = String(booking?.status || '').toLowerCase();
     const cashLike = originalMethod === 'cash' || originalMethod === 'cod' || originalMethod === 'cash_on_delivery';
@@ -653,6 +667,18 @@ export class RefundExecutor {
         { _id: paidPayment._id } as any,
         { $set: { refunded_amount: newRefunded, status: newRefunded >= Number(paidPayment.amount || 0) - 0.001 ? 'refunded' : 'paid', refunded_at: new Date() } },
       );
+    }
+    // 1b) A card payment kept in `transactions` (the current checkout, copays included) goes back
+    // to the card through the gateway; before this it only got a ledger row.
+    else if (cardPaidTx && !cashLike) {
+      // Loaded here, not at the top: payments.module imports this file, so a static import is a cycle
+      // that leaves PaymentsService's own dependencies undefined at boot.
+      const { PaymentsService } = await import('../payments/payments.module');
+      const payments: any = this.moduleRef?.get(PaymentsService, { strict: false });
+      if (!payments) throw new BadRequestException('payment_gateway_not_configured');
+      const r = await payments.refundTransactionAsSystem(String(paidTransaction.id), amount, opts.reason);
+      method = 'gateway';
+      gatewayRefundId = r?.gateway_refund_id;
     }
     // 2) Cash: the money never entered the platform — record the refund in the
     // ledger only. No patient wallet is created, credited, or read here.
@@ -821,6 +847,88 @@ export class AppointmentRefundListener {
       }
     } catch (err: any) {
       this.logger.error(`appointment refund consumer failed: ${err?.message} (appointment ${e?.appointment_id})`);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// NursingRefundListener — consumes homecare.booking_cancelled (D-26).
+// Patient cancels before the nurse is on the way: 100%. Once IN_TRANSIT:
+// 100% minus the admin trip fee. Never throws: a failed consumer must not
+// break the cancellation that already persisted.
+// ═══════════════════════════════════════════════════════════════════════════
+@Injectable()
+export class NursingRefundListener {
+  private readonly logger = new Logger('NursingRefundListener');
+  constructor(
+    @InjectConnection() private readonly conn: Connection,
+    private readonly refundExec: RefundExecutor,
+  ) {}
+
+  @OnEvent('homecare.booking_cancelled')
+  async onNursingCancelled(e: any) {
+    try {
+      const bookingId = String(e?.booking_id || '');
+      const patientId = String(e?.patient_id || '');
+      if (!bookingId || !patientId) return;
+      const policyDoc: any = await this.conn.collection('system_configs').findOne({ key: 'refund_policy' }).catch(() => null);
+      const tripFee = Number(policyDoc?.value?.home_visit?.trip_fee_sar ?? 40);
+      const total = Math.round(Number(e?.total || 0) * 100) / 100;
+      if (!(total > 0)) return;
+      const afterTransit = String(e?.prior_state || '').toUpperCase() === 'IN_TRANSIT';
+      const amount = afterTransit ? Math.max(0, Math.round((total - tripFee) * 100) / 100) : total;
+      if (!(amount > 0)) return;
+      await this.refundExec.execute({
+        refund_id: `nursing-cancel-${bookingId}`,
+        booking_kind: 'nursing',
+        booking_id: bookingId,
+        patient_id: patientId,
+        amount,
+        reason: afterTransit ? 'nursing_cancel_after_transit' : 'nursing_cancel_before_transit',
+        actor_id: 'system',
+      });
+    } catch (err: any) {
+      this.logger.error(`nursing refund consumer failed: ${err?.message} (booking ${e?.booking_id})`);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PharmacyRefundListener — consumes pharmacy.order.cancelled (D-26).
+// Cancel before dispatch: 100% including the delivery fee. Once the order is
+// out for delivery: 100% minus the delivery fee. Never throws.
+// ═══════════════════════════════════════════════════════════════════════════
+@Injectable()
+export class PharmacyRefundListener {
+  private readonly logger = new Logger('PharmacyRefundListener');
+  constructor(
+    @InjectConnection() private readonly conn: Connection,
+    private readonly refundExec: RefundExecutor,
+  ) {}
+
+  @OnEvent('pharmacy.order.cancelled')
+  async onPharmacyOrderCancelled(e: any) {
+    try {
+      const orderId = String(e?.entity_id || e?.order_id || '');
+      const patientId = String(e?.patient_account_id || '');
+      if (!orderId || !patientId) return;
+      const total = Math.round(Number(e?.meta?.total || 0) * 100) / 100;
+      if (!(total > 0)) return;
+      const dispatched = String(e?.meta?.prior_status || '').toLowerCase() === 'out_for_delivery';
+      const fee = Math.round(Number(e?.meta?.delivery_fee || 0) * 100) / 100;
+      const amount = dispatched ? Math.max(0, Math.round((total - fee) * 100) / 100) : total;
+      if (!(amount > 0)) return;
+      await this.refundExec.execute({
+        refund_id: `pharmacy-cancel-${orderId}`,
+        booking_kind: 'pharmacy',
+        booking_id: orderId,
+        patient_id: patientId,
+        amount,
+        reason: dispatched ? 'pharmacy_cancel_after_dispatch' : 'pharmacy_cancel_before_dispatch',
+        actor_id: 'system',
+      });
+    } catch (err: any) {
+      this.logger.error(`pharmacy refund consumer failed: ${err?.message} (order ${e?.entity_id || e?.order_id})`);
     }
   }
 }
@@ -1139,7 +1247,7 @@ export class AdminFinanceEngineController {
 @Global()
 @Module({
   controllers: [FinanceEngineController, AdminFinanceEngineController],
-  providers: [LedgerService, CommissionResolver, CouponService, LoyaltyRedeemService, FraudService, RefundExecutor, CancellationPolicy, ReportsService, ApprovalService, AppointmentRefundListener],
+  providers: [LedgerService, CommissionResolver, CouponService, LoyaltyRedeemService, FraudService, RefundExecutor, CancellationPolicy, ReportsService, ApprovalService, AppointmentRefundListener, NursingRefundListener, PharmacyRefundListener],
   exports: [LedgerService, CommissionResolver, CouponService, LoyaltyRedeemService, FraudService, RefundExecutor, CancellationPolicy, ReportsService, ApprovalService],
 })
 export class FinanceEngineModule {}

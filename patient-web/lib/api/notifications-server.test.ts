@@ -9,7 +9,7 @@ describe("notifications server boundary", () => {
   it("uses the notifications list path and server token", async () => {
     const response = new Response(null, { status: 200 });
     callPatientApi.mockResolvedValue(response);
-    await getPatientNotifications("server-token");
-    expect(callPatientApi).toHaveBeenCalledWith("/notifications", {}, "server-token");
+    await getPatientNotifications("server-token", "ur");
+    expect(callPatientApi).toHaveBeenCalledWith("/notifications?lang=ur", {}, "server-token");
   });
 });

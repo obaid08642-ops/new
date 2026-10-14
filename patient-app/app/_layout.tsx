@@ -15,6 +15,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { I18nManager } from 'react-native';
 import { store } from '../src/store';
 import { AppProvider, useApp } from '../src/context/AppContext';
+import { useUrduFont } from '../src/theme/useUrduFont';
 import { SocketProvider } from '../src/context/SocketContext';
 import { CartProvider } from '../src/context/CartContext';
 import { DiagnosticsCartProvider } from '../src/context/DiagnosticsCartContext';
@@ -22,6 +23,7 @@ import { ConsultationsProvider } from '../src/context/ConsultationsContext';
 import NotificationHandler from '../src/components/NotificationHandler';
 import OfflineBanner from '../src/components/OfflineBanner';
 import AppGate from '../src/components/AppGate';
+import { ModuleRouteGate, ModulesProvider } from '../src/context/ModulesContext';
 import { initSentry } from '../src/utils/sentry';
 import { SyncManager } from '../src/data/sync/SyncManager';
 import { BackgroundSynchronizer } from '../src/data/sync/BackgroundSynchronizer';
@@ -37,6 +39,12 @@ SplashScreen.preventAutoHideAsync();
 function ThemedStatusBar() {
   const { isDark } = useApp();
   return <StatusBar style={isDark ? 'light' : 'dark'} />;
+}
+
+// Urdu only (#394): loads Noto Nastaliq Urdu in the background; renders nothing, never blocks start.
+function UrduFontLoader() {
+  useUrduFont();
+  return null;
 }
 
 function RootLayout() {
@@ -81,6 +89,7 @@ function RootLayout() {
   return (
     <Provider store={store}>
       <AppProvider>
+        <ModulesProvider>
           <SocketProvider>
             <GestureHandlerRootView style={{ flex: 1 }}>
               <SafeAreaProvider>
@@ -88,9 +97,11 @@ function RootLayout() {
                   <DiagnosticsCartProvider>
                     <ConsultationsProvider>
                       <ThemedStatusBar />
+                      <UrduFontLoader />
                       <NotificationHandler />
                       <OfflineBanner />
                       <AppGate>
+                      <ModuleRouteGate>
                       <Stack 
                         screenOptions={{ headerShown: false, animation: 'fade_from_bottom', animationDuration: 250 }}
                       >
@@ -102,6 +113,7 @@ function RootLayout() {
                         <Stack.Screen name="ai-assistant" />
                         <Stack.Screen name="shared/location-picker" options={{ presentation: 'modal' }} />
                       </Stack>
+                      </ModuleRouteGate>
                       </AppGate>
                     </ConsultationsProvider>
                   </DiagnosticsCartProvider>
@@ -109,6 +121,7 @@ function RootLayout() {
               </SafeAreaProvider>
             </GestureHandlerRootView>
           </SocketProvider>
+        </ModulesProvider>
         </AppProvider>
     </Provider>
   );

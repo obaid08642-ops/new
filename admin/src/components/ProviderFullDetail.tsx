@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
+import { DataTable, type LooseRow } from '@/components/DataTable';
 
 const DAY_AR: Record<string, string> = {
   SUN: 'الأحد', MON: 'الاثنين', TUE: 'الثلاثاء', WED: 'الأربعاء',
@@ -139,6 +140,23 @@ function genericValue(v: any): string {
   return String(v);
 }
 
+function HoursTable({ rows }: { rows: LooseRow[] }) {
+  return (
+    <DataTable
+      dense
+      className="rounded-lg shadow-none"
+      rows={rows.map((h, i) => ({ h, i }))}
+      getRowKey={({ i }) => String(i)}
+      columns={[
+        { key: 'day', header: 'اليوم', className: 'font-bold text-gray-700', render: ({ h }) => DAY_AR[String(h.day || '').toUpperCase()] || h.day },
+        { key: 'am', header: 'الفترة الصباحية', className: 'font-mono text-gray-600', render: ({ h }) => <span dir="ltr">{h.closed ? '—' : `${h.open || ''} - ${h.close || ''}`}</span> },
+        { key: 'pm', header: 'الفترة المسائية', className: 'font-mono text-gray-600', render: ({ h }) => <span dir="ltr">{!h.closed && (h.open_evening || h.close_evening) ? `${h.open_evening || ''} - ${h.close_evening || ''}` : '—'}</span> },
+        { key: 'state', header: 'الحالة', render: ({ h }) => (h.closed ? <span className="text-red-500 text-xs font-bold">مغلق</span> : <span className="text-green-600 text-xs font-bold">مفتوح</span>) },
+      ]}
+    />
+  );
+}
+
 export default function ProviderFullDetail({ detail, accountId }: { detail: any; accountId?: string }) {
   const ob: any = detail?.onboarding || {};
   const prof: any = detail?.profile || {};
@@ -146,6 +164,31 @@ export default function ProviderFullDetail({ detail, accountId }: { detail: any;
   const bank: any = detail?.bank || {};
   const docs: any[] = detail?.documents || [];
   const cid = accountId || acc.id || ob.account_id;
+
+  // B-4: each licence document is decided on its own (approve, or reject with a reason).
+  const [docStatus, setDocStatus] = useState<Record<string, { status: string; note?: string }>>({});
+  const [docBusy, setDocBusy] = useState<string | null>(null);
+  const reviewDoc = async (docId: string, decision: 'approve' | 'reject') => {
+    if (!cid) return;
+    let reason = '';
+    if (decision === 'reject') {
+      reason = (window.prompt('سبب رفض المستند (يظهر للمزود):') || '').trim();
+      if (reason.length < 5) { alert('اكتب سبباً واضحاً (5 أحرف على الأقل).'); return; }
+    }
+    setDocBusy(docId);
+    try {
+      const res = await fetchWithAdminGuard(`/api/admin/admin/providers/${cid}/documents/${docId}/${decision}`, {
+        method: 'POST', body: JSON.stringify(decision === 'reject' ? { reason } : {}),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { alert('تعذر حفظ القرار: ' + (data?.message || res.status)); return; }
+      setDocStatus((prev) => ({ ...prev, [docId]: { status: data?.review_status || (decision === 'approve' ? 'approved' : 'rejected'), note: reason || undefined } }));
+    } catch {
+      alert('تعذر الاتصال بالخادم.');
+    } finally {
+      setDocBusy(null);
+    }
+  };
 
   const [contractMeta, setContractMeta] = useState<any | null>(null);
   const [contractBusy, setContractBusy] = useState(false);
@@ -330,26 +373,7 @@ export default function ProviderFullDetail({ detail, accountId }: { detail: any;
           {hours.length > 0 && (
             <Section title="مواعيد العمل — العيادة / المنشأة" tone="teal">
               <div className="overflow-x-auto">
-                <table className="min-w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
-                  <thead className="bg-slate-50 text-slate-600">
-                    <tr>
-                      <th className="px-3 py-2 text-right font-bold">اليوم</th>
-                      <th className="px-3 py-2 text-right font-bold">الفترة الصباحية</th>
-                      <th className="px-3 py-2 text-right font-bold">الفترة المسائية</th>
-                      <th className="px-3 py-2 text-right font-bold">الحالة</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {hours.map((h: any, i: number) => (
-                      <tr key={i}>
-                        <td className="px-3 py-2 font-bold text-gray-700">{DAY_AR[String(h.day || '').toUpperCase()] || h.day}</td>
-                        <td className="px-3 py-2 font-mono text-gray-600" dir="ltr">{h.closed ? '—' : `${h.open || ''} - ${h.close || ''}`}</td>
-                        <td className="px-3 py-2 font-mono text-gray-600" dir="ltr">{!h.closed && (h.open_evening || h.close_evening) ? `${h.open_evening || ''} - ${h.close_evening || ''}` : '—'}</td>
-                        <td className="px-3 py-2">{h.closed ? <span className="text-red-500 text-xs font-bold">مغلق</span> : <span className="text-green-600 text-xs font-bold">مفتوح</span>}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <HoursTable rows={hours} />
               </div>
             </Section>
           )}
@@ -360,26 +384,7 @@ export default function ProviderFullDetail({ detail, accountId }: { detail: any;
             return (
               <Section key={key} title={title as string} tone="teal">
                 <div className="overflow-x-auto">
-                  <table className="min-w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
-                    <thead className="bg-slate-50 text-slate-600">
-                      <tr>
-                        <th className="px-3 py-2 text-right font-bold">اليوم</th>
-                        <th className="px-3 py-2 text-right font-bold">الفترة الصباحية</th>
-                        <th className="px-3 py-2 text-right font-bold">الفترة المسائية</th>
-                        <th className="px-3 py-2 text-right font-bold">الحالة</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {rows.map((h: any, i: number) => (
-                        <tr key={i}>
-                          <td className="px-3 py-2 font-bold text-gray-700">{DAY_AR[String(h.day || '').toUpperCase()] || h.day}</td>
-                          <td className="px-3 py-2 font-mono text-gray-600" dir="ltr">{h.closed ? '—' : `${h.open || ''} - ${h.close || ''}`}</td>
-                          <td className="px-3 py-2 font-mono text-gray-600" dir="ltr">{!h.closed && (h.open_evening || h.close_evening) ? `${h.open_evening || ''} - ${h.close_evening || ''}` : '—'}</td>
-                          <td className="px-3 py-2">{h.closed ? <span className="text-red-500 text-xs font-bold">مغلق</span> : <span className="text-green-600 text-xs font-bold">مفتوح</span>}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <HoursTable rows={rows} />
                 </div>
               </Section>
             );
@@ -508,10 +513,18 @@ export default function ProviderFullDetail({ detail, accountId }: { detail: any;
                   {doc.doc_number && <p className="text-xs text-gray-500 font-mono">{doc.doc_number}</p>}
                   {doc.issuer && <p className="text-xs text-gray-400">الجهة: {doc.issuer}</p>}
                   {doc.expiry_date && <p className="text-xs text-gray-400">ينتهي: {String(doc.expiry_date).slice(0, 10)}</p>}
-                  {doc.reviewer_note && <p className="text-xs text-amber-600">ملاحظة المراجع: {doc.reviewer_note}</p>}
+                  {(docStatus[doc.id]?.note || doc.reviewer_note) && <p className="text-xs text-amber-600">ملاحظة المراجع: {docStatus[doc.id]?.note || doc.reviewer_note}</p>}
                 </div>
                 <StorageFileLink id={doc.storage_object_id} label="عرض المستند" />
-                <ReviewBadge status={doc.review_status} />
+                <ReviewBadge status={docStatus[doc.id]?.status || doc.review_status} />
+                {['pending', 'under_review', 'needs_replacement'].includes(String(docStatus[doc.id]?.status || doc.review_status)) && (
+                  <div className="flex gap-2">
+                    <button type="button" disabled={docBusy === doc.id} onClick={() => reviewDoc(doc.id, 'approve')}
+                      className="px-3 py-1 rounded-md text-xs font-bold bg-emerald-600 text-white disabled:opacity-50">قبول</button>
+                    <button type="button" disabled={docBusy === doc.id} onClick={() => reviewDoc(doc.id, 'reject')}
+                      className="px-3 py-1 rounded-md text-xs font-bold border border-red-300 text-red-700 disabled:opacity-50">رفض</button>
+                  </div>
+                )}
               </div>
             ))}
           </div>

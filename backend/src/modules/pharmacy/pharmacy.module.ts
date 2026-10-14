@@ -1,3 +1,4 @@
+import { PaymentsModule } from '../payments/payments.module';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AiModule } from '../ai/ai.module';
@@ -32,8 +33,7 @@ import {
   ProviderInventoryExtController, AdminPharmacyController, AdminPharmacySeedController,
     ProviderBroadcastController, AdminBroadcastController, AdminFulfillmentPolicyController, AdminPharmacyInsuranceController,
     PharmacyChatController, AdminPharmacyChatController,
-  ProviderShortageController, AdminShortageController, PatientShortageController,
-} from './pharmacy.controllers';
+  ProviderShortageController, AdminShortageController, PatientShortageController, PaymentRulesController } from './pharmacy.controllers';
 import { PharmacyOrdersProviderService } from './services/pharmacy-orders-provider.service';
 import { PharmacyOfferService } from './services/pharmacy-offer.service';
 import { PharmacyInsuranceDecisionService } from './services/pharmacy-insurance-decision.service';
@@ -82,6 +82,8 @@ import { B2BVoiceController } from './pharmacy-b2b-voice.controller';
     AiModule,
     // P5.3: merged from PharmacyOpsModule (pharmacy_ops/ → pharmacy/)
     OrdersModule,
+    // Q104: the card-payment retry opens a real checkout through PaymentsService.
+    PaymentsModule,
     MongooseModule.forFeature([
       { name: 'PharmacyOrder', schema: PharmacyOrderSchema },
       { name: 'PharmacyAllocation', schema: PharmacyAllocationSchema },
@@ -145,6 +147,7 @@ import { B2BVoiceController } from './pharmacy-b2b-voice.controller';
     { provide: "SystemConfigRepository", useClass: SystemConfigRepository }
   ],
   controllers: [
+    PaymentRulesController,
     PatientPharmacyController,
     ProviderPharmacyController,
     ProviderInventoryExtController,

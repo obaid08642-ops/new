@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { apiFetch } from '../../utils/api';
+import { useCan } from '@/components/AdminGuard';
 
 /**
  * Catalog Manager — الأدمن يضيف/يعدل/يحذف أصناف كتالوج الخدمات:
@@ -9,7 +10,7 @@ import { apiFetch } from '../../utils/api';
  * Fields per catalog mirror the backend DTOs (labs.dto / radiology.dto / home-care.dto): an unknown field is a 400.
  */
 
-type TabKey = 'labs' | 'packages' | 'radiology' | 'nursing' | 'specialties' | 'medicines' | 'insurance';
+type TabKey = 'labs' | 'packages' | 'radiology' | 'nursing' | 'specialties' | 'insurance';
 
 type Field = { key: string; label: string; type: 'text' | 'number' | 'textarea' | 'checkbox' };
 const F = {
@@ -35,19 +36,26 @@ const F = {
   active: { key: 'active', label: 'مفعّل', type: 'checkbox' },
 } satisfies Record<string, Field>;
 
-const TABS: { key: TabKey; label: string; adminBase: string; fields: Field[]; filter?: (i: any) => boolean }[] = [
-  { key: 'labs', label: 'التحاليل', adminBase: '/labs/admin/catalog', filter: (i) => !i.is_package,
+/** The reference specialties list: its own inline form (name only, no review flow). */
+const SPECIALTIES_BASE = '/catalogs/admin/specialties';
+
+/**
+ * `adminBase` lists the tab. `crudBase` is set only for the tabs drawn by the shared table and edit form
+ * (labs, packages, radiology, nursing): their backend serves PUT/DELETE /:id, POST /:id/approve and
+ * POST /bulk-approve. Specialties and insurance have their own panels and endpoints.
+ */
+const TABS: { key: TabKey; label: string; adminBase: string; crudBase?: string; fields: Field[]; filter?: (i: any) => boolean }[] = [
+  { key: 'labs', label: 'التحاليل', adminBase: '/labs/admin/catalog', crudBase: '/labs/admin/catalog', filter: (i) => !i.is_package,
     fields: [F.name_ar, F.name_en, F.short_code, F.category, F.sample_type, F.price, F.old_price, F.turnaround_hours, F.popularity, F.fasting_required, F.home_visit_supported, F.active, F.description_ar, F.description_en] },
-  { key: 'packages', label: 'الباقات', adminBase: '/labs/admin/catalog', filter: (i) => !!i.is_package,
+  { key: 'packages', label: 'الباقات', adminBase: '/labs/admin/catalog', crudBase: '/labs/admin/catalog', filter: (i) => !!i.is_package,
     fields: [F.name_ar, F.name_en, F.short_code, F.category, F.price, F.old_price, F.turnaround_hours, F.popularity, F.home_visit_supported, F.active, F.description_ar, F.description_en] },
-  { key: 'radiology', label: 'الأشعة', adminBase: '/radiology/admin/catalog',
+  { key: 'radiology', label: 'الأشعة', adminBase: '/radiology/admin/catalog', crudBase: '/radiology/admin/catalog',
     fields: [F.name_ar, F.name_en, F.short_code, F.modality, F.body_part, F.price, F.old_price, F.turnaround_hours, F.popularity, F.contrast_required, F.fasting_required, F.home_visit_supported, F.image_url, F.icon, F.active, F.description_ar, F.description_en] },
-  { key: 'nursing', label: 'التمريض المنزلي', adminBase: '/nursing/admin/catalog',
+  { key: 'nursing', label: 'التمريض المنزلي', adminBase: '/nursing/admin/catalog', crudBase: '/nursing/admin/catalog',
     fields: [F.name_ar, F.name_en, F.category, F.price, F.duration, F.popularity, F.image_url, F.icon, F.active, F.description_ar, F.description_en] },
   // P6.x-2: reference specialties have their own inline form (name only, no review flow).
-  { key: 'specialties', label: 'التخصصات', adminBase: '/catalogs/admin/specialties', fields: [] },
-  // R6-6: medicines + insurance live in this page (custom panels below).
-  { key: 'medicines', label: 'الأدوية', adminBase: '/medicines/admin/catalog', fields: [] },
+  { key: 'specialties', label: 'التخصصات', adminBase: SPECIALTIES_BASE, fields: [] },
+  // R6-6: insurance lives in this page (custom panel below). Medicines are edited only in /admin/medicines-catalog.
   { key: 'insurance', label: 'التأمين والشبكات', adminBase: '/insurance/companies', fields: [] },
 ];
 
@@ -60,6 +68,9 @@ const REVIEW: Record<string, { label: string; color: string; bg: string }> = {
 };
 
 export default function CatalogManagerPage() {
+  // #907: a read-only catalogue role sees the catalogue without the write buttons (the server would answer 403).
+  const canEdit = useCan('catalog.update');
+  const canCreate = useCan('catalog.create');
   const [tab, setTab] = useState<TabKey>('labs');
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -88,7 +99,7 @@ export default function CatalogManagerPage() {
 
   const onSearch = (v: string) => setSearch(v);
 
-  useEffect(() => { setSearch(''); if (tab !== 'medicines' && tab !== 'insurance') void load(); }, [tab]);
+  useEffect(() => { setSearch(''); if (tab !== 'insurance') void load(); }, [tab]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -114,9 +125,9 @@ export default function CatalogManagerPage() {
       if (tab === 'nursing' && !body.duration) body.duration = 'hour';
       if (tab === 'packages') body.is_package = true;
       if (isNew) {
-        await apiFetch(tabCfg.adminBase, { method: 'POST', body: JSON.stringify(body) });
+        await apiFetch(`${tabCfg.crudBase}`, { method: 'POST', body: JSON.stringify(body) });
       } else {
-        await apiFetch(`${tabCfg.adminBase}/${editing.id}`, { method: 'PUT', body: JSON.stringify(body) });
+        await apiFetch(`${tabCfg.crudBase}/${editing.id}`, { method: 'PUT', body: JSON.stringify(body) });
       }
       setMsg(isNew ? 'تمت الإضافة بنجاح' : 'تم الحفظ بنجاح');
       setEditing(null);
@@ -131,7 +142,7 @@ export default function CatalogManagerPage() {
   const remove = async (item: any) => {
     if (!confirm(`حذف "${item.name_ar}"؟`)) return;
     try {
-      await apiFetch(`${tabCfg.adminBase}/${item.id}`, { method: 'DELETE' });
+      await apiFetch(`${tabCfg.crudBase}/${item.id}`, { method: 'DELETE' });
       setMsg('تم الحذف');
       await load();
     } catch (e: any) {
@@ -141,8 +152,9 @@ export default function CatalogManagerPage() {
 
   // P6.0: medical-review decision — approve surfaces the item publicly.
   const decide = async (id: string, approve: boolean) => {
+    if (!confirm(approve ? 'اعتماد هذا الصنف وإظهاره للمرضى؟' : 'رفض هذا الصنف؟')) return;
     try {
-      await apiFetch(`${tabCfg.adminBase}/${id}/approve`, { method: 'POST', body: JSON.stringify({ approve }) });
+      await apiFetch(`${tabCfg.crudBase}/${id}/approve`, { method: 'POST', body: JSON.stringify({ approve }) });
       setMsg(approve ? 'تم الاعتماد — ظهر الصنف للمرضى' : 'تم الرفض');
       await load();
     } catch (e: any) {
@@ -152,9 +164,10 @@ export default function CatalogManagerPage() {
 
   const bulkDecide = async (approve: boolean) => {
     if (selected.size === 0) return;
+    if (!confirm(approve ? `اعتماد ${selected.size} صنف وإظهارها للمرضى؟` : `رفض ${selected.size} صنف؟`)) return;
     setDeciding(true);
     try {
-      const r: any = await apiFetch(`${tabCfg.adminBase}/bulk-approve`, {
+      const r: any = await apiFetch(`${tabCfg.crudBase}/bulk-approve`, {
         method: 'POST', body: JSON.stringify({ ids: [...selected], approve }),
       });
       const failed = (r?.results || []).filter((x: any) => !x.ok).length;
@@ -184,7 +197,7 @@ export default function CatalogManagerPage() {
   const saveSpecialty = async () => {
     if (!specNameAr.trim()) return;
     try {
-      await apiFetch(tabCfg.adminBase, { method: 'POST', body: JSON.stringify({ name_ar: specNameAr.trim(), name_en: specNameEn.trim() || undefined }) });
+      await apiFetch('/catalogs/admin/specialties', { method: 'POST', body: JSON.stringify({ name_ar: specNameAr.trim(), name_en: specNameEn.trim() || undefined }) });
       setSpecNameAr(''); setSpecNameEn('');
       setMsg('تم حفظ التخصص');
       await load();
@@ -196,14 +209,14 @@ export default function CatalogManagerPage() {
   const removeSpecialty = async (code: string) => {
     if (!confirm('تعطيل هذا التخصص؟')) return;
     try {
-      await apiFetch(`${tabCfg.adminBase}/${encodeURIComponent(code)}`, { method: 'DELETE' });
+      await apiFetch(`/catalogs/admin/specialties/${encodeURIComponent(code)}`, { method: 'DELETE' });
       await load();
     } catch (e: any) {
       setMsg(`فشل التعطيل: ${e.message}`);
     }
   };
 
-  const isCustomTab = tab === 'medicines' || tab === 'insurance';
+  const isCustomTab = tab === 'insurance';
 
   return (
     <div dir="rtl" style={{ padding: 24, maxWidth: 1200, margin: '0 auto', fontFamily: 'Cairo, sans-serif' }}>
@@ -219,7 +232,7 @@ export default function CatalogManagerPage() {
           </button>
         ))}
         <div style={{ flex: 1 }} />
-        {tab !== 'specialties' && !isCustomTab && (
+        {tab !== 'specialties' && !isCustomTab && canCreate && (
         <button onClick={() => setEditing({ active: true, medical_review_status: 'pending', ...(tab === 'nursing' ? { duration: 'hour', category: 'nursing' } : {}), ...(tab === 'radiology' ? { modality: '', body_part: '' } : {}) })} style={{ padding: '8px 18px', borderRadius: 12, border: 'none', cursor: 'pointer', fontWeight: 700, background: '#0F172A', color: '#fff' }}>
           + إضافة صنف جديد
         </button>
@@ -234,7 +247,7 @@ export default function CatalogManagerPage() {
 
       {msg && <div style={{ padding: 12, borderRadius: 12, background: '#F0FDF4', color: '#166534', marginBottom: 12, fontWeight: 600 }}>{msg}</div>}
       {loading && <p>جارٍ التحميل…</p>}
-      {tab === 'medicines' ? <MedicinesPanel /> : tab === 'insurance' ? <InsurancePanel /> : null}
+      {tab === 'insurance' ? <InsurancePanel /> : null}
       {tab === 'specialties' ? (
         <div className="rounded-2xl border bg-white p-6 shadow-sm">
           <h2 className="text-xl font-bold mb-1">التخصصات المرجعية</h2>
@@ -242,13 +255,13 @@ export default function CatalogManagerPage() {
           <div className="flex gap-2 flex-wrap mb-4">
             <input value={specNameAr} onChange={(e) => setSpecNameAr(e.target.value)} placeholder="الاسم (عربي)" className="border rounded px-3 py-2 text-sm flex-1 min-w-[200px]" />
             <input value={specNameEn} onChange={(e) => setSpecNameEn(e.target.value)} placeholder="Name (en)" dir="ltr" className="border rounded px-3 py-2 text-sm flex-1 min-w-[200px]" />
-            <button onClick={() => void saveSpecialty()} className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-bold">حفظ التخصص</button>
+            {canCreate ? <button onClick={() => void saveSpecialty()} className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-bold">حفظ التخصص</button> : null}
           </div>
           <div className="divide-y">
             {filtered.map((item: any) => (
               <div key={item.code || item.id} className="py-2 flex items-center justify-between gap-3">
                 <div><strong>{item.name_ar}</strong> <span className="text-xs text-slate-500" dir="ltr">{item.name_en} · {item.code}</span></div>
-                <button onClick={() => void removeSpecialty(item.code || item.id)} className="text-red-600 text-xs font-bold border border-red-200 rounded px-3 py-1">تعطيل</button>
+                {canEdit ? <button onClick={() => void removeSpecialty(item.code || item.id)} className="text-red-600 text-xs font-bold border border-red-200 rounded px-3 py-1">تعطيل</button> : null}
               </div>
             ))}
             {filtered.length === 0 && <p className="text-slate-400 text-sm py-4 text-center">لا توجد تخصصات.</p>}
@@ -257,7 +270,7 @@ export default function CatalogManagerPage() {
       ) : isCustomTab ? null : (
       <>
 
-      {selected.size > 0 && (
+      {canEdit && selected.size > 0 && (
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12, padding: 10, borderRadius: 12, background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
           <span style={{ fontSize: 13, fontWeight: 700, color: '#1E40AF' }}>محدد: {selected.size}</span>
           <button onClick={() => void bulkDecide(true)} disabled={deciding} style={{ padding: '6px 14px', borderRadius: 10, border: 'none', background: '#16A34A', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>اعتماد المحدد</button>
@@ -277,12 +290,12 @@ export default function CatalogManagerPage() {
               <div style={{ fontSize: 13, fontWeight: 700, color: '#23B5CE', marginTop: 4 }}>{item.price} ر.س</div>
               {(() => { const r = REVIEW[item.medical_review_status || 'pending'] || REVIEW.pending; return <span style={{ display: 'inline-block', marginTop: 6, padding: '2px 8px', borderRadius: 8, fontSize: 11, fontWeight: 700, color: r.color, background: r.bg }}>{r.label}</span>; })()}
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {canEdit ? <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <button onClick={() => void decide(item.id, true)} style={{ padding: '6px 12px', borderRadius: 10, border: 'none', background: '#16A34A', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>اعتماد</button>
               <button onClick={() => void decide(item.id, false)} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #FED7AA', background: '#FFFBEB', color: '#B45309', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>رفض</button>
               <button onClick={() => setEditing({ ...item })} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #CBD5E1', background: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>تعديل</button>
               <button onClick={() => remove(item)} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #FECACA', background: '#FEF2F2', color: '#B91C1C', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>حذف</button>
-            </div>
+            </div> : null}
           </div>
         ))}
       </div>
@@ -292,7 +305,7 @@ export default function CatalogManagerPage() {
       {editing && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}
           onClick={() => setEditing(null)}>
-          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(640px, 92vw)', maxHeight: '86vh', overflowY: 'auto' }}
+          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(640px, 92%)', maxHeight: '86dvh', overflowY: 'auto' }}
             onClick={(e) => e.stopPropagation()}>
             <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 16 }}>{editing.id ? 'تعديل الصنف' : 'إضافة صنف جديد'} — {tabCfg.label}</h2>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -324,187 +337,6 @@ export default function CatalogManagerPage() {
               <button onClick={save} disabled={saving} style={{ padding: '10px 20px', borderRadius: 12, border: 'none', background: '#23B5CE', color: '#fff', cursor: 'pointer', fontWeight: 700 }}>
                 {saving ? 'جارٍ الحفظ…' : 'حفظ'}
               </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ── R6-6: medicines tab (same page) ───────────────────────────────────
- * List + create/edit (core fields) + image upload + price history +
- * bulk CSV import + approve, on the medicines admin endpoints. */
-function MedicinesPanel() {
-  const [items, setItems] = useState<any[]>([]);
-  const [q, setQ] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [msg, setMsg] = useState('');
-  const [form, setForm] = useState<any | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [history, setHistory] = useState<Record<string, any[]>>({});
-  const [csvBusy, setCsvBusy] = useState(false);
-  const [imgBusy, setImgBusy] = useState(false);
-
-  const load = async () => {
-    setLoading(true);
-    try {
-      const res: any = await apiFetch(`/medicines/admin/catalog?page=1&limit=25${q.trim() ? `&q=${encodeURIComponent(q.trim())}` : ''}`);
-      setItems(res?.data || []);
-    } catch (e: any) {
-      setMsg(`فشل التحميل: ${e.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-  useEffect(() => { const t = setTimeout(load, 300); return () => clearTimeout(t); }, [q]);
-
-  const uploadImage = async (file: File): Promise<string> => {
-    const dataBase64 = await new Promise<string>((resolve, reject) => {
-      const r = new FileReader();
-      r.onload = () => resolve(String(r.result).split(',')[1]);
-      r.onerror = reject;
-      r.readAsDataURL(file);
-    });
-    const up: any = await apiFetch('/storage/upload', {
-      method: 'POST',
-      body: JSON.stringify({ data_base64: dataBase64, mime: file.type || 'image/jpeg', original_name: file.name || 'medicine.jpg', visibility: 'public_read' }),
-    });
-    const signed: any = await apiFetch(`/storage/${up.id}/signed-url`);
-    return signed.url;
-  };
-
-  const save = async () => {
-    if (!form) return;
-    if (!form.name_ar?.trim()) { setMsg('الاسم العربي مطلوب'); return; }
-    if (form.id) {
-      const original = items.find((x: any) => x.id === form.id);
-      if (original && Number(original.price || 0) !== Number(form.price || 0) && String(form.reason || '').trim().length < 5) {
-        setMsg('سبب تغيير السعر مطلوب (5 أحرف على الأقل)');
-        return;
-      }
-    } else if (String(form.reason || '').trim() === '') {
-      form.reason = 'إنشاء صنف جديد عبر إدارة الكتالوج';
-    }
-    setSaving(true);
-    try {
-      const payload: any = {
-        name_ar: form.name_ar, name_en: form.name_en || undefined, generic_name: form.generic_name || undefined,
-        category: form.category || undefined, price: Number(form.price) || 0,
-        requires_prescription: !!form.requires_prescription, image: form.image || undefined,
-        reason: form.reason,
-      };
-      if (form.id) await apiFetch(`/medicines/admin/catalog/${form.id}`, { method: 'PATCH', body: JSON.stringify(payload) });
-      else await apiFetch('/medicines/admin/catalog', { method: 'POST', body: JSON.stringify(payload) });
-      setForm(null);
-      setMsg('تم الحفظ بنجاح');
-      await load();
-    } catch (e: any) {
-      setMsg(`فشل الحفظ: ${e.message}`);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const toggleActive = async (m: any) => {
-    try {
-      await apiFetch(`/medicines/admin/catalog/${m.id}/delete`, { method: 'POST', body: JSON.stringify({ restore: m.deleted === true }) });
-      await load();
-    } catch (e: any) {
-      setMsg(`فشل التغيير: ${e.message}`);
-    }
-  };
-
-  const decide = async (id: string, approve: boolean) => {
-    try {
-      await apiFetch(`/medicines/admin/catalog/${id}/approve`, { method: 'POST', body: JSON.stringify({ approve }) });
-      setMsg(approve ? 'تم الاعتماد' : 'تم الرفض');
-      await load();
-    } catch (e: any) {
-      setMsg(`فشل القرار: ${e.message}`);
-    }
-  };
-
-  const showHistory = async (id: string) => {
-    try {
-      const res: any = await apiFetch(`/medicines/admin/catalog/${encodeURIComponent(id)}/price-history?page=1&limit=20`);
-      setHistory((prev) => ({ ...prev, [id]: res?.data || [] }));
-    } catch (e: any) {
-      setMsg(`فشل سجل الأسعار: ${e.message}`);
-    }
-  };
-
-  const uploadCsv = async (file: File) => {
-    setCsvBusy(true);
-    try {
-      const body = new FormData();
-      body.append('file', file);
-      const res: any = await apiFetch('/api/admin/bulk-upload', { method: 'POST', body });
-      setMsg(`استيراد CSV: استلام ${res?.received || 0} — جديد ${res?.inserted || 0} — محدّث ${res?.updated || 0}`);
-      await load();
-    } catch (e: any) {
-      setMsg(`فشل الاستيراد: ${e.message}`);
-    } finally {
-      setCsvBusy(false);
-    }
-  };
-
-  const set = (k: string, v: any) => setForm((f: any) => ({ ...f, [k]: v }));
-  const fld: React.CSSProperties = { width: '100%', padding: 10, borderRadius: 10, border: '1px solid #E2E8F0', fontFamily: 'inherit' };
-
-  return (
-    <div>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="بحث…" style={{ flex: 1, minWidth: 200, padding: '10px 14px', borderRadius: 12, border: '1px solid #E2E8F0', fontFamily: 'inherit' }} />
-        <button onClick={() => setForm({ name_ar: '', requires_prescription: false, reason: '' })} style={{ padding: '8px 18px', borderRadius: 12, border: 'none', background: '#0F172A', color: '#fff', cursor: 'pointer', fontWeight: 700 }}>+ دواء جديد</button>
-        <label style={{ padding: '8px 18px', borderRadius: 12, border: '1px solid #CBD5E1', background: '#fff', cursor: 'pointer', fontWeight: 700 }}>
-          {csvBusy ? 'جارٍ الاستيراد…' : 'استيراد CSV'}
-          <input type="file" accept=".csv" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void uploadCsv(f); e.target.value = ''; }} />
-        </label>
-      </div>
-      {msg && <div style={{ padding: 12, borderRadius: 12, background: '#F0FDF4', color: '#166534', marginBottom: 12, fontWeight: 600 }}>{msg}</div>}
-      {loading && <p>جارٍ التحميل…</p>}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 12 }}>
-        {items.map((m: any) => (
-          <div key={m.id} style={{ border: '1px solid #E2E8F0', borderRadius: 16, padding: 14, background: '#fff', opacity: m.deleted ? 0.55 : 1 }}>
-            <div style={{ fontWeight: 800 }}>{m.name_ar} <span style={{ fontWeight: 400, color: '#64748B' }}>{m.name_en}</span></div>
-            <div style={{ fontSize: 12, color: '#64748B' }}>{m.category || ''} · {m.price} ر.س{m.requires_prescription ? ' · وصفة' : ''}</div>
-            <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
-              <button onClick={() => setForm({ ...m, reason: '' })} style={btn}>تعديل</button>
-              <button onClick={() => void decide(m.id, true)} style={btnOk}>اعتماد</button>
-              <button onClick={() => void toggleActive(m)} style={btn}>{m.deleted ? 'استرجاع' : 'تعطيل'}</button>
-              <button onClick={() => void showHistory(m.id)} style={btn}>السجل السعري</button>
-            </div>
-            {history[m.id] && (
-              <ul style={{ marginTop: 8, fontSize: 12, color: '#475569' }}>
-                {history[m.id].map((h: any, i: number) => (
-                  <li key={i}>{h.before_price} ← {h.after_price} ر.س · {h.reason || ''} · {h.changed_by || ''}</li>
-                ))}
-                {history[m.id].length === 0 && <li>لا يوجد سجل.</li>}
-              </ul>
-            )}
-          </div>
-        ))}
-      </div>
-      {form && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }} onClick={() => setForm(null)}>
-          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(560px, 92vw)', maxHeight: '86vh', overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
-            <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 12 }}>{form.id ? 'تعديل دواء' : 'دواء جديد'}</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              <input value={form.name_ar || ''} onChange={(e) => set('name_ar', e.target.value)} placeholder="الاسم (عربي)" style={fld} />
-              <input value={form.name_en || ''} onChange={(e) => set('name_en', e.target.value)} placeholder="Name (en)" style={fld} />
-              <input value={form.generic_name || ''} onChange={(e) => set('generic_name', e.target.value)} placeholder="المادة الفعالة" style={fld} />
-              <input value={form.category || ''} onChange={(e) => set('category', e.target.value)} placeholder="الفئة" style={fld} />
-              <input type="number" value={form.price ?? ''} onChange={(e) => set('price', e.target.value)} placeholder="السعر" style={fld} />
-              <input value={form.reason || ''} onChange={(e) => set('reason', e.target.value)} placeholder="سبب الإنشاء/التغيير" style={fld} />
-              <label style={{ fontSize: 13 }}><input type="checkbox" checked={!!form.requires_prescription} onChange={(e) => set('requires_prescription', e.target.checked)} /> يتطلب وصفة</label>
-              <label style={{ fontSize: 13 }}>صورة: <input type="file" accept="image/*" onChange={async (e) => { const f = e.target.files?.[0]; if (!f) return; setImgBusy(true); try { set('image', await uploadImage(f)); } catch (err: any) { setMsg(`فشل الرفع: ${err.message}`); } finally { setImgBusy(false); } }} /></label>
-            </div>
-            {imgBusy && <p>جارٍ رفع الصورة…</p>}
-            {form.image && <img src={form.image} alt="" style={{ width: 72, height: 72, borderRadius: 12, objectFit: 'cover', marginTop: 10 }} />}
-            <div style={{ display: 'flex', gap: 10, marginTop: 16, justifyContent: 'flex-end' }}>
-              <button onClick={() => setForm(null)} style={btn}>إلغاء</button>
-              <button onClick={save} disabled={saving} style={btnOk}>{saving ? 'جارٍ الحفظ…' : 'حفظ'}</button>
             </div>
           </div>
         </div>
@@ -611,7 +443,7 @@ function InsurancePanel() {
       </div>
       {form && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }} onClick={() => setForm(null)}>
-          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(480px, 92vw)' }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(480px, 92%)', maxHeight: '90dvh', overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
             <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 12 }}>{form.id || form._id ? 'تعديل شركة' : 'شركة جديدة'}</h2>
             <input value={form.name_ar || ''} onChange={(e) => setForm({ ...form, name_ar: e.target.value })} placeholder="الاسم (عربي)" style={{ width: '100%', padding: 10, borderRadius: 10, border: '1px solid #E2E8F0', marginBottom: 8, fontFamily: 'inherit' }} />
             <input value={form.name_en || ''} onChange={(e) => setForm({ ...form, name_en: e.target.value })} placeholder="Name (en)" style={{ width: '100%', padding: 10, borderRadius: 10, border: '1px solid #E2E8F0', marginBottom: 8, fontFamily: 'inherit' }} />
@@ -625,7 +457,7 @@ function InsurancePanel() {
       )}
       {netForm && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }} onClick={() => setNetForm(null)}>
-          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(480px, 92vw)' }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ background: '#fff', borderRadius: 20, padding: 24, width: 'min(480px, 92%)', maxHeight: '90dvh', overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
             <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 12 }}>شبكة/فئة جديدة</h2>
             <select value={netForm.companyId} onChange={(e) => setNetForm({ ...netForm, companyId: e.target.value })} style={{ width: '100%', padding: 10, borderRadius: 10, border: '1px solid #E2E8F0', marginBottom: 8, fontFamily: 'inherit' }}>
               <option value="">— الشركة —</option>

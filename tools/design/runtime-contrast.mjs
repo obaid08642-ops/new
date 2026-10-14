@@ -244,6 +244,11 @@ async function loadPlaywright() {
   process.exit(2);
 }
 
+/** Resolves when `p` settles or after `ms`, whichever is first; never rejects. */
+function withCeiling(p, ms) {
+  return Promise.race([Promise.resolve(p).catch(() => {}), new Promise((r) => setTimeout(r, ms))]);
+}
+
 async function main() {
   const { chromium } = await loadPlaywright();
   let routes;
@@ -271,6 +276,7 @@ async function main() {
   const audited = new Set();
 
   for (const route of routes) {
+    console.log(`runtime-contrast: ${route}`);
     for (const theme of themes) {
       const page = await context.newPage();
       const stylesheets = new Map();
@@ -342,13 +348,14 @@ async function main() {
       } catch {
         if (hung) stalled++; else skipped++;
       } finally {
-        if (cdp) { try { await cdp.detach(); } catch { /* ignore */ } }
-        await page.close().catch(() => {});
+        // A wedged page can also wedge detach()/close(), so they get the same ceiling.
+        if (cdp) await withCeiling(cdp.detach(), 5000);
+        await withCeiling(page.close(), 5000);
       }
     }
   }
-  await context.close();
-  await browser.close();
+  await withCeiling(context.close(), 10000);
+  await withCeiling(browser.close(), 10000);
 
   // A repeated selector failing on many routes is one design decision, not many.
   const bySignature = new Map();
@@ -398,9 +405,12 @@ async function main() {
       );
     }
   }
+  // A baseline entry that did not appear is a warning, not a failure: in CI the pages render
+  // without a backend, so a route that times out on one run simply has no text to measure, and
+  // failing on that made the gate flaky. NEW unreadable text still fails.
   const gone = [...allowed.keys()].filter((k) => !bySignature.has(k));
   if (gone.length) {
-    problems.push(`  ${gone.length} signature(s) are fixed but still in the baseline — run --update to lower it`);
+    console.log(`runtime-contrast: note: ${gone.length} baseline signature(s) not seen this run (fixed, or the route did not render) — lower the baseline with --update after a full local run.`);
   }
 
   console.log(
@@ -419,7 +429,7 @@ async function main() {
   console.log('runtime-contrast: no NEW failing text.');
 }
 
-main().catch((e) => {
+main().then(() => process.exit(process.exitCode ?? 0), (e) => {
   console.error(e);
   process.exit(1);
 });

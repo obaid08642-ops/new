@@ -1,0 +1,455 @@
+{
+ "app": "admin",
+ "pages": [
+  {
+   "route": "/login",
+   "status": 200,
+   "landed": "/login",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/index",
+   "status": 404,
+   "landed": "/index",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/nursing-portal",
+   "status": 200,
+   "landed": "/admin/nursing-portal",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/search-intelligence",
+   "status": 200,
+   "landed": "/admin/search-intelligence",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/crm",
+   "status": 200,
+   "landed": "/admin/crm",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/catalog-manager",
+   "status": 200,
+   "landed": "/admin/catalog-manager",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/analytics",
+   "status": 200,
+   "landed": "/admin/analytics",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/command-center",
+   "status": 200,
+   "landed": "/admin/command-center",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/shortage-reports",
+   "status": 200,
+   "landed": "/admin/shortage-reports",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/gdpr",
+   "status": 200,
+   "landed": "/admin/gdpr",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/reports",
+   "status": 200,
+   "landed": "/admin/reports",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/rbac",
+   "status": 200,
+   "landed": "/admin/rbac",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/financial-ledger",
+   "status": 200,
+   "landed": "/admin/financial-ledger",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/payouts",
+   "status": 200,
+   "landed": "/admin/payouts",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/theme-control",
+   "status": 200,
+   "landed": "/admin/theme-control",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/insurance-queue",
+   "status": 200,
+   "landed": "/admin/insurance-queue",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/support-tickets",
+   "status": 200,
+   "landed": "/admin/support-tickets",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/sos-monitor",
+   "status": 200,
+   "landed": "/admin/sos-monitor",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/price-override-audit",
+   "status": 200,
+   "landed": "/admin/price-override-audit",
+   "crash_text": [
+    "Application error",
+    "client-side exception"
+   ],
+   "errors": [
+    "console: TypeError: Cannot read properties of undefined (reading 'toFixed')\n    at http://127.0.0.1:3001/_next/static/chunks/26ig5n_j84gye.js:1:25885\n    at Array.map (<anonymous>)\n    at http://127.0.0.1:3001",
+    "console: A client-side exception has occurred, see here for more info: https://nextjs.org/docs/messages/client-side-exception-occurred"
+   ]
+  },
+  {
+   "route": "/admin/search",
+   "status": 200,
+   "landed": "/admin/search",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/loyalty-config",
+   "status": 200,
+   "landed": "/admin/loyalty-config",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/live-chat-console",
+   "status": 200,
+   "landed": "/admin/live-chat-console",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/pharmacy-procurement",
+   "status": 200,
+   "landed": "/admin/pharmacy-procurement",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/system-ops",
+   "status": 200,
+   "landed": "/admin/system-ops",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/locations",
+   "status": 200,
+   "landed": "/admin/locations",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/users-management",
+   "status": 200,
+   "landed": "/admin/users-management",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/content-growth",
+   "status": 200,
+   "landed": "/admin/content-growth",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/audit-logs",
+   "status": 200,
+   "landed": "/admin/audit-logs",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/medicines-catalog",
+   "status": 200,
+   "landed": "/admin/medicines-catalog",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/scheduled-reports",
+   "status": 200,
+   "landed": "/admin/scheduled-reports",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/order-detail",
+   "status": 200,
+   "landed": "/admin/order-detail",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/appointments-oversight",
+   "status": 200,
+   "landed": "/admin/appointments-oversight",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/ambulance-fleet",
+   "status": 200,
+   "landed": "/admin/ambulance-fleet",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/provider-audits",
+   "status": 200,
+   "landed": "/admin/provider-audits",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/catalog-governance",
+   "status": 200,
+   "landed": "/admin/catalog-governance",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/dashboard",
+   "status": 200,
+   "landed": "/admin/dashboard",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/config-portal",
+   "status": 200,
+   "landed": "/admin/config-portal",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/fraud-monitoring",
+   "status": 200,
+   "landed": "/admin/fraud-monitoring",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/impersonation",
+   "status": 200,
+   "landed": "/admin/impersonation",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/finance-suite",
+   "status": 200,
+   "landed": "/admin/finance-suite",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/provider-moderation",
+   "status": 200,
+   "landed": "/admin/provider-moderation",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/commissions",
+   "status": 200,
+   "landed": "/admin/commissions",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/legal-policies",
+   "status": 200,
+   "landed": "/admin/legal-policies",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/security",
+   "status": 200,
+   "landed": "/admin/security",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/notification-center",
+   "status": 200,
+   "landed": "/admin/notification-center",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/analytics-suite",
+   "status": 200,
+   "landed": "/admin/analytics-suite",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/community-moderation",
+   "status": 200,
+   "landed": "/admin/community-moderation",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/broadcast-monitor",
+   "status": 200,
+   "landed": "/admin/broadcast-monitor",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/ai-control",
+   "status": 200,
+   "landed": "/admin/ai-control",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/insurance-companies",
+   "status": 200,
+   "landed": "/admin/insurance-companies",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/disputes",
+   "status": 200,
+   "landed": "/admin/disputes",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/health-dashboard",
+   "status": 200,
+   "landed": "/admin/health-dashboard",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/image-suggestions",
+   "status": 200,
+   "landed": "/admin/image-suggestions",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/segments",
+   "status": 200,
+   "landed": "/admin/segments",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/home-curation",
+   "status": 200,
+   "landed": "/admin/home-curation",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/returns",
+   "status": 200,
+   "landed": "/admin/returns",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/admin/orders",
+   "status": 200,
+   "landed": "/admin/orders",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/doctors",
+   "status": 200,
+   "landed": "/doctors",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/articles",
+   "status": 200,
+   "landed": "/articles",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/lab-services",
+   "status": 200,
+   "landed": "/lab-services",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/home-care-services",
+   "status": 200,
+   "landed": "/home-care-services",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/facilities",
+   "status": 200,
+   "landed": "/facilities",
+   "crash_text": [],
+   "errors": []
+  },
+  {
+   "route": "/medicines",
+   "status": 200,
+   "landed": "/medicines",
+   "crash_text": [],
+   "errors": []
+  }
+ ],
+ "crashed": [
+  "/admin/price-override-audit"
+ ]
+}

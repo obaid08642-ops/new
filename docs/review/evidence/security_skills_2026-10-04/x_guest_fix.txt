@@ -1,0 +1,3 @@
+[fix] victim id=eabaf679-3add-41a1-8aa6-fbcf7329c364 phone=+966516604243
+[fix] POST /auth/guest {phone} -> 201 user.id=1aac83b3-1947-4c8b-8d48-cde01fff1942 is_guest=True token=yes
+[fix] GET /auth/me with that token -> 200 id=1aac83b3-1947-4c8b-8d48-cde01fff1942 email=None

@@ -8,9 +8,13 @@ const state = vi.hoisted(() => ({
   requirePatientAccess: vi.fn(),
 }));
 
-vi.mock("next/navigation", () => ({ notFound: vi.fn(), redirect: vi.fn() }));
+vi.mock("next/navigation", () => ({ notFound: vi.fn(), redirect: vi.fn(), permanentRedirect: vi.fn(), useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
+vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+// the shell is a client frame (router, intl hooks, language and theme controls); this test is about the data boundary
+vi.mock("@/components-next/core/core-shell", () => ({ CoreShell: ({ children }: { children: unknown }) => children }));
+vi.mock("@/components-next/core/core-states", () => ({ RetryErrorState: () => null }));
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
-vi.mock("@/lib/i18n", () => ({ isLocale: () => true }));
+vi.mock("@/lib/i18n", () => ({ isLocale: () => true, getDirection: () => "ltr" }));
 vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: state.requirePatientAccess }));
 vi.mock("@/lib/api/medicines-server", () => ({ getPatientMedicines: state.getPatientMedicines }));
 vi.mock("@/lib/api/public-medicines-server", () => ({ getPublicMedicine: state.getPublicMedicine, getPublicMedicines: state.getPublicMedicines }));
@@ -29,16 +33,14 @@ describe("medicines SSR boundary", () => {
     state.requirePatientAccess.mockReset().mockResolvedValue(serverToken);
   });
 
-  it("renders bounded catalog results through the server boundary without embedding the token", async () => {
-    state.getPublicMedicines.mockResolvedValue(new Response(JSON.stringify([{ id: medicineId, name_en: "Catalog medicine", active_ingredient: "Ingredient", price: 99 }]), { status: 200 }));
+  it("permanently redirects the old medicines list to the canonical catalogue, keeping the category, search words and page", async () => {
+    const { permanentRedirect } = await import("next/navigation");
 
-    const html = renderToStaticMarkup(await MedicinesPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ q: "catalog", page: "1" }) }));
+    await MedicinesPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ q: "catalog", page: "2", category: "vitamins", sort: "trending" }) });
 
-    expect(state.getPublicMedicines).toHaveBeenCalledWith({ q: "catalog", page: 1 });
+    expect(permanentRedirect).toHaveBeenCalledWith("/en/c/vitamins?q=catalog&page=2");
     expect(state.requirePatientAccess).not.toHaveBeenCalled();
-    expect(html).not.toContain(serverToken);
-    expect(html).not.toContain("99");
-    expect(html).toContain(`/en/medicines/${medicineId}`);
+    expect(state.getPublicMedicines).not.toHaveBeenCalled();
   });
 
   it("redirects the legacy medicine detail URL to the canonical v14 product page without a patient session", async () => {

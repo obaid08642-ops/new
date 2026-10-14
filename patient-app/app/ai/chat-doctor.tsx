@@ -1,6 +1,8 @@
-import { Redirect } from 'expo-router';
+import React from 'react';
 
-/** Free-form AI medical chat is unavailable; users are routed to the safer structured triage flow. */
-export default function ChatDoctorRedirect() {
-  return <Redirect href="/ai/triage" />;
+import { RedirectKeepingParams } from '../../src/components/health/RedirectKeepingParams';
+
+/** Old route (decision 24, Batch 9): the free doctor chat is gone; a doctor chat lives inside a booking, so this opens the bookings list. */
+export default function AppAiChatDoctorRedirect() {
+  return <RedirectKeepingParams to="/consultations/appointments" />;
 }

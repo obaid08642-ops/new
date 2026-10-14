@@ -4,12 +4,14 @@
  */
 import { SeoController } from './seo.controller';
 import { CreateDto, UpdateDto } from './articles.dto';
+import { DoctorArticlesController, DoctorArticlesService, RejectDoctorArticleDto } from './doctor-articles.controller';
 import {
   Body, Controller, Delete, Get, Injectable, Module,
-  NotFoundException, Param, Patch, Post, Query, Req, UseGuards,
+  NotFoundException, Optional, Param, Patch, Post, Query, Req, UseGuards,
 } from '@nestjs/common';
 import { InjectConnection, InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { v4 as uuidv4 } from 'uuid';
 import { JwtAuthGuard, Public, Roles, CurrentUser, SelfService } from '../../common/auth.guard';
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
@@ -27,7 +29,16 @@ const ARTICLE_UPDATE_FIELDS = [
 
 @Injectable()
 export class ArticlesService {
-  constructor(@InjectModel(Article.name) private model: Model<any>) {}
+  constructor(
+    @InjectModel(Article.name) private model: Model<any>,
+    @Optional() private readonly events?: EventEmitter2,
+  ) {}
+
+  /** SEO: every article change pings its six localized URLs (SeoIndexingListener). */
+  private changed<T>(id: string | undefined, result: T): T {
+    if (id) this.events?.emit('article.changed', { id });
+    return result;
+  }
 
   list(query: any) {
     const { category, q, limit = '20', page = '1' } = query;
@@ -63,7 +74,7 @@ export class ArticlesService {
 
   async create(body: any) {
     const slug = buildSlug(body.title_ar || body.title_en || 'article', require('crypto').randomUUID());
-    return this.model.create({
+    const doc: any = await this.model.create({
       title_ar: body.title_ar,
       title_en: body.title_en,
       excerpt_ar: body.excerpt_ar,
@@ -80,6 +91,7 @@ export class ArticlesService {
       slug,
       status: 'DRAFT',
     });
+    return this.changed(doc?.id, doc);
   }
 
   update(id: string, body: any) {
@@ -87,25 +99,51 @@ export class ArticlesService {
     const patch = Object.fromEntries(
       Object.entries(body || {}).filter(([key, value]) => ARTICLE_UPDATE_FIELDS.includes(key) && value !== undefined),
     );
-    return this.model.findOneAndUpdate({ id: { $eq: id } }, { $set: patch }, { new: true });
+    return this.model.findOneAndUpdate({ id: { $eq: id } }, { $set: patch }, { new: true }).then((r) => this.changed(id, r));
   }
 
   publish(id: string) {
-    return this.model.findOneAndUpdate({ id }, { $set: { status: 'PUBLISHED', published_at: new Date() } }, { new: true });
+    return this.model.findOneAndUpdate({ id }, { $set: { status: 'PUBLISHED', published_at: new Date() } }, { new: true }).then((r) => this.changed(id, r));
   }
 
   unpublish(id: string) {
-    return this.model.findOneAndUpdate({ id }, { $set: { status: 'DRAFT' } }, { new: true });
+    return this.model.findOneAndUpdate({ id }, { $set: { status: 'DRAFT' } }, { new: true }).then((r) => this.changed(id, r));
   }
 
   remove(id: string) {
-    return this.model.findOneAndUpdate({ id }, { $set: { is_deleted: true } }, { new: true });
+    return this.model.findOneAndUpdate({ id }, { $set: { is_deleted: true } }, { new: true }).then((r) => this.changed(id, r));
   }
 
-  adminList() {
-    return this.model.find({ is_deleted: { $ne: true } }, { _id: 0, __v: 0, body_ar: 0, body_en: 0 }).sort({ createdAt: -1 }).limit(200).lean();
+  /** Admin list; `status` (e.g. IN_REVIEW for doctor articles waiting for review) narrows it. */
+  async adminList(status?: string) {
+    const filter: any = { is_deleted: { $ne: true } };
+    if (typeof status === 'string' && ADMIN_STATUSES.includes(status)) filter.status = { $eq: status };
+    const rows = await this.model.find(filter, { _id: 0, __v: 0, body_ar: 0, body_en: 0 }).sort({ createdAt: -1 }).limit(200).lean();
+    return this.withDoctorNames(rows as any[]);
+  }
+
+  /** Adds author.doctor_name (the public profile name) next to author.doctor_id for the admin review. */
+  private async withDoctorNames<T extends { author?: { doctor_id?: unknown } }>(rows: T[]): Promise<T[]> {
+    const ids = [...new Set(rows.map((r) => r?.author?.doctor_id).filter((v): v is string => typeof v === 'string' && v !== ''))];
+    if (!ids.length) return rows;
+    const profiles: any[] = await this.model.db.collection('provider_profiles')
+      .find({ id: { $in: ids } }, { projection: { _id: 0, id: 1, name_ar: 1, name_en: 1 } }).toArray();
+    const names = new Map(profiles.map((p) => [p.id, p.name_ar || p.name_en || null]));
+    return rows.map((r) => {
+      const id = r?.author?.doctor_id;
+      return typeof id === 'string' && names.get(id) ? { ...r, author: { ...r.author, doctor_name: names.get(id) } } : r;
+    });
+  }
+
+  /** One article with its full text, so the admin reads a doctor's article before approving it. */
+  async adminOne(id: string) {
+    const doc = await this.model.findOne({ id: { $eq: String(id) }, is_deleted: { $ne: true } }, { _id: 0, __v: 0 }).lean();
+    if (!doc) throw new NotFoundException('article_not_found');
+    return (await this.withDoctorNames([doc as any]))[0];
   }
 }
+
+const ADMIN_STATUSES = ['DRAFT', 'IN_REVIEW', 'PUBLISHED', 'REJECTED'];
 
 // ── Public endpoints (crawlable content) ───────────────────────────────────
 @Controller('articles')
@@ -122,14 +160,23 @@ export class ArticlesPublicController {
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
 export class ArticlesAdminController {
-  constructor(private svc: ArticlesService) {}
+  constructor(private svc: ArticlesService, private doctorSvc: DoctorArticlesService) {}
 
-  @Get() list() { return this.svc.adminList(); }
+  @Get() list(@Query('status') status?: string) { return this.svc.adminList(status); }
+  @Get(':id') one(@Param('id') id: string) { return this.svc.adminOne(id); }
   @Post() create(@Body() body: CreateDto) { return this.svc.create(body); }
   @Patch(':id') update(@Param('id') id: string, @Body() body: UpdateDto) { return this.svc.update(id, body); }
   @Post(':id/publish') publish(@Param('id') id: string) { return this.svc.publish(id); }
   @Post(':id/unpublish') unpublish(@Param('id') id: string) { return this.svc.unpublish(id); }
   @Delete(':id') remove(@Param('id') id: string) { return this.svc.remove(id); }
+
+  /** D-1: approve a doctor-submitted article (re-checks prescription brands first). */
+  @Post(':id/approve') approve(@Param('id') id: string) { return this.doctorSvc.approve(id); }
+
+  /** D-1: reject a doctor-submitted article with a reason. */
+  @Post(':id/reject') reject(@Param('id') id: string, @Body() body: RejectDoctorArticleDto) {
+    return this.doctorSvc.reject(id, body?.reason);
+  }
 }
 
 // ── Contract bookmarks (authenticated, owner-scoped and idempotent) ────────
@@ -206,8 +253,8 @@ export class ArticleBookmarksController {
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: Article.name, schema: ArticleSchema }])],
-  controllers: [ArticlesPublicController, ArticlesAdminController, SeoController, ArticleBookmarkContractController, ArticleBookmarksController],
-  providers: [ArticlesService],
+  controllers: [ArticlesPublicController, ArticlesAdminController, DoctorArticlesController, SeoController, ArticleBookmarkContractController, ArticleBookmarksController],
+  providers: [ArticlesService, DoctorArticlesService],
   exports: [ArticlesService],
 })
 export class ArticlesModule {}

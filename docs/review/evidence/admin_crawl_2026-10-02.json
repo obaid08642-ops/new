@@ -1,0 +1,2565 @@
+{
+ "app": "admin",
+ "signed_in": true,
+ "pages": [
+  {
+   "route": "/login",
+   "url": "/login",
+   "landed": "/login",
+   "time_to_ready_ms": 511,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "تسجيل الدخول",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 437
+    },
+    {
+     "label": "نسيت كلمة المرور؟",
+     "result": "UI_CHANGE",
+     "response_ms": 454
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "/index",
+   "url": "/index",
+   "landed": "/index",
+   "time_to_ready_ms": 429,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/admin/nursing-portal",
+   "url": "/admin/nursing-portal",
+   "landed": "/admin/nursing-portal",
+   "time_to_ready_ms": 1994,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "إعادة تعيين",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "إلغاء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 509
+    }
+   ],
+   "summary": {
+    "SKIPPED_DESTRUCTIVE": 1,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/admin/search-intelligence",
+   "url": "/admin/search-intelligence",
+   "landed": "/admin/search-intelligence",
+   "time_to_ready_ms": 1363,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "تحديث البيانات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 800
+    },
+    {
+     "label": "تحليل النية",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/api/admin/search/intent",
+     "tokens_sent": 1,
+     "tokens_stored": 1,
+     "response_ms": 869
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "/admin/crm",
+   "url": "/admin/crm",
+   "landed": "/admin/crm",
+   "time_to_ready_ms": 1356,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "بحث",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 815
+    },
+    {
+     "label": "السابق",
+     "result": "TAP_FAILED",
+     "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"main "
+    },
+    {
+     "label": "التالي",
+     "result": "TAP_FAILED",
+     "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"main "
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1,
+    "TAP_FAILED": 2
+   }
+  },
+  {
+   "route": "/admin/catalog-manager",
+   "url": "/admin/catalog-manager",
+   "landed": "/admin/catalog-manager",
+   "time_to_ready_ms": 1403,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "التحاليل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 415
+    },
+    {
+     "label": "الباقات",
+     "result": "UI_CHANGE",
+     "response_ms": 827
+    },
+    {
+     "label": "الأشعة",
+     "result": "UI_CHANGE",
+     "response_ms": 957
+    },
+    {
+     "label": "التمريض المنزلي",
+     "result": "UI_CHANGE",
+     "response_ms": 916
+    },
+    {
+     "label": "(time budget reached)",
+     "result": "NOT_TESTED"
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1,
+    "UI_CHANGE": 3,
+    "NOT_TESTED": 1
+   }
+  },
+  {
+   "route": "/admin/analytics",
+   "url": "/admin/analytics",
+   "landed": "/admin/analytics",
+   "time_to_ready_ms": 1719,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "أكثر الأدوية بحثاً",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 436
+    },
+    {
+     "label": "أكثر الأدوية طلباً",
+     "result": "UI_CHANGE",
+     "response_ms": 773
+    },
+    {
+     "label": "أكثر الأطباء مواعيداً",
+     "result": "UI_CHANGE",
+     "response_ms": 800
+    },
+    {
+     "label": "أكثر الصيدليات",
+     "result": "UI_CHANGE",
+     "response_ms": 784
+    },
+    {
+     "label": "أكثر الخدمات استخداماً",
+     "result": "UI_CHANGE",
+     "response_ms": 805
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1,
+    "UI_CHANGE": 4
+   }
+  },
+  {
+   "route": "/admin/command-center",
+   "url": "/admin/command-center",
+   "landed": "/admin/command-center",
+   "time_to_ready_ms": 1435,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تحديث فوري",
+     "result": "UI_CHANGE",
+     "response_ms": 808
+    },
+    {
+     "label": "طلبات نشطة",
+     "result": "NAVIGATE",
+     "to": "/admin/orders",
+     "response_ms": 836
+    },
+    {
+     "label": "تحاليل نشطة",
+     "result": "NAVIGATE",
+     "to": "/admin/orders?kind=lab",
+     "response_ms": 1325
+    },
+    {
+     "label": "أشعة نشطة",
+     "result": "NAVIGATE",
+     "to": "/admin/orders?kind=radiology",
+     "response_ms": 1323
+    },
+    {
+     "label": "تمريض نشط",
+     "result": "NAVIGATE",
+     "to": "/admin/orders?kind=nursing",
+     "response_ms": 1333
+    },
+    {
+     "label": "مواعيد اليوم",
+     "result": "NAVIGATE",
+     "to": "/admin/orders?kind=consultation",
+     "response_ms": 1394
+    },
+    {
+     "label": "حالات SOS مفتوحة",
+     "result": "NAVIGATE",
+     "to": "/admin/sos-monitor",
+     "response_ms": 823
+    },
+    {
+     "label": "تذاكر دعم مفتوحة",
+     "result": "NAVIGATE",
+     "to": "/admin/support-tickets",
+     "response_ms": 1293
+    },
+    {
+     "label": "إيراد 24 ساعة (ر.س)",
+     "result": "NAVIGATE",
+     "to": "/admin/finance-suite",
+     "response_ms": 845
+    },
+    {
+     "label": "دفعات 24 ساعة",
+     "result": "NAVIGATE",
+     "to": "/admin/finance-suite",
+     "response_ms": 845
+    },
+    {
+     "label": "تجاوزات SLA",
+     "result": "NAVIGATE",
+     "to": "/admin/orders?status=sla_breached",
+     "response_ms": 828
+    },
+    {
+     "label": "فتح",
+     "result": "NAVIGATE",
+     "to": "/admin/orders",
+     "response_ms": 1297
+    },
+    {
+     "label": "إدارة دورة الطلبات",
+     "result": "NAVIGATE",
+     "to": "/admin/orders",
+     "response_ms": 1364
+    },
+    {
+     "label": "التسوية والدفعات",
+     "result": "NAVIGATE",
+     "to": "/admin/finance-suite",
+     "response_ms": 1311
+    },
+    {
+     "label": "الطوابير والتشغيل",
+     "result": "NAVIGATE",
+     "to": "/admin/system-ops",
+     "response_ms": 1910
+    },
+    {
+     "label": "النزاعات المالية",
+     "result": "NAVIGATE",
+     "to": "/admin/disputes",
+     "response_ms": 1308
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 1,
+    "NAVIGATE": 15
+   }
+  },
+  {
+   "route": "/admin/shortage-reports",
+   "url": "/admin/shortage-reports",
+   "landed": "/admin/shortage-reports",
+   "time_to_ready_ms": 1340,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "قيد الانتظار",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 415
+    },
+    {
+     "label": "معتمدة",
+     "result": "UI_CHANGE",
+     "response_ms": 412
+    },
+    {
+     "label": "مرفوضة",
+     "result": "UI_CHANGE",
+     "response_ms": 784
+    },
+    {
+     "label": "الكل",
+     "result": "UI_CHANGE",
+     "response_ms": 890
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1,
+    "UI_CHANGE": 3
+   }
+  },
+  {
+   "route": "/admin/gdpr",
+   "url": "/admin/gdpr",
+   "landed": "/admin/gdpr",
+   "time_to_ready_ms": 1363,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "إنشاء الطلب",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/api/admin/admin/gdpr/requests",
+     "tokens_sent": 1,
+     "tokens_stored": 1,
+     "response_ms": 1291
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 429
+    },
+    {
+     "label": "requested (2)",
+     "result": "CRAWLER_TARGET_MISSING"
+    },
+    {
+     "label": "بدء المعالجة",
+     "result": "WRITE",
+     "status": 404,
+     "method": "POST",
+     "url": "/api/admin/admin/gdpr/requests/gdpr_mur546hs1qbm/start",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 776
+    },
+    {
+     "label": "السابق",
+     "result": "TAP_FAILED",
+     "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"main "
+    },
+    {
+     "label": "التالي",
+     "result": "TAP_FAILED",
+     "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"main "
+    }
+   ],
+   "summary": {
+    "WRITE": 2,
+    "NO_EFFECT": 1,
+    "CRAWLER_TARGET_MISSING": 1,
+    "TAP_FAILED": 2
+   }
+  },
+  {
+   "route": "/admin/reports",
+   "url": "/admin/reports",
+   "landed": "/admin/reports",
+   "time_to_ready_ms": 910,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "تصدير CSV",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 464
+    },
+    {
+     "label": "تصدير XLSX",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 508
+    },
+    {
+     "label": "الإيرادات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 415
+    },
+    {
+     "label": "الطلبات",
+     "result": "UI_CHANGE",
+     "response_ms": 545
+    },
+    {
+     "label": "الحجوزات",
+     "result": "UI_CHANGE",
+     "response_ms": 781
+    },
+    {
+     "label": "المزودون",
+     "result": "UI_CHANGE",
+     "response_ms": 791
+    },
+    {
+     "label": "المرضى",
+     "result": "UI_CHANGE",
+     "response_ms": 779
+    },
+    {
+     "label": "المالية",
+     "result": "UI_CHANGE",
+     "response_ms": 845
+    },
+    {
+     "label": "التأمين",
+     "result": "UI_CHANGE",
+     "response_ms": 777
+    },
+    {
+     "label": "المدفوعات",
+     "result": "UI_CHANGE",
+     "response_ms": 794
+    },
+    {
+     "label": "الاسترداد",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "السحوبات",
+     "result": "UI_CHANGE",
+     "response_ms": 792
+    },
+    {
+     "label": "الولاء",
+     "result": "UI_CHANGE",
+     "response_ms": 781
+    },
+    {
+     "label": "النزاعات",
+     "result": "UI_CHANGE",
+     "response_ms": 776
+    },
+    {
+     "label": "سجل الإدارة",
+     "result": "UI_CHANGE",
+     "response_ms": 810
+    },
+    {
+     "label": "الدفتر",
+     "result": "UI_CHANGE",
+     "response_ms": 422
+    },
+    {
+     "label": "زمن التحاليل",
+     "result": "UI_CHANGE",
+     "response_ms": 784
+    },
+    {
+     "label": "تحديث",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 772
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 4,
+    "UI_CHANGE": 13,
+    "SKIPPED_DESTRUCTIVE": 1
+   }
+  },
+  {
+   "route": "/admin/rbac",
+   "url": "/admin/rbac",
+   "landed": "/admin/rbac",
+   "time_to_ready_ms": 1373,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 414
+    },
+    {
+     "label": "(icon #2)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 423
+    },
+    {
+     "label": "(icon #3)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    },
+    {
+     "label": "(icon #4)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 423
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 459
+    },
+    {
+     "label": "(icon #6)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    },
+    {
+     "label": "(icon #7)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 430
+    },
+    {
+     "label": "(icon #8)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 425
+    },
+    {
+     "label": "(icon #9)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    },
+    {
+     "label": "(icon #10)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 438
+    },
+    {
+     "label": "(icon #11)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 426
+    },
+    {
+     "label": "(icon #12)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 443
+    },
+    {
+     "label": "(icon #13)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 426
+    },
+    {
+     "label": "(icon #14)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    },
+    {
+     "label": "(icon #15)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    },
+    {
+     "label": "(icon #16)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 421
+    },
+    {
+     "label": "(icon #17)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 454
+    },
+    {
+     "label": "(icon #18)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    },
+    {
+     "label": "(icon #19)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 446
+    },
+    {
+     "label": "(icon #20)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 435
+    },
+    {
+     "label": "(icon #21)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 447
+    },
+    {
+     "label": "(icon #22)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 425
+    },
+    {
+     "label": "(icon #23)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 429
+    },
+    {
+     "label": "(icon #24)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 427
+    },
+    {
+     "label": "(icon #25)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 415
+    },
+    {
+     "label": "(icon #26)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 453
+    },
+    {
+     "label": "(icon #27)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    },
+    {
+     "label": "(icon #28)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    },
+    {
+     "label": "(icon #29)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 441
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 30
+   }
+  },
+  {
+   "route": "/admin/financial-ledger",
+   "url": "/admin/financial-ledger",
+   "landed": "/admin/financial-ledger",
+   "time_to_ready_ms": 2605,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "400 GET /api/admin/admin/finance/commissions"
+    ]
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "السجل المالي والمدفوعات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 414
+    },
+    {
+     "label": "تسعير المستودعات (B2B Warehouse)",
+     "result": "UI_CHANGE",
+     "response_ms": 465
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "/admin/payouts",
+   "url": "/admin/payouts",
+   "landed": "/admin/payouts",
+   "time_to_ready_ms": 1323,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تحديث الطلبات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 773
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/admin/theme-control",
+   "url": "/admin/theme-control",
+   "landed": "/admin/theme-control",
+   "time_to_ready_ms": 837,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 4,
+   "elements": [
+    {
+     "label": "حفظ وتطبيق على كل الشاشات",
+     "result": "WRITE",
+     "status": 403,
+     "method": "POST",
+     "url": "/api/admin/theme",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 468
+    },
+    {
+     "label": "إعادة الافتراضي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 422
+    }
+   ],
+   "summary": {
+    "WRITE": 1,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/admin/insurance-queue",
+   "url": "/admin/insurance-queue",
+   "landed": "/admin/insurance-queue",
+   "time_to_ready_ms": 1363,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "بانتظار قرار المزود",
+     "result": "UI_CHANGE",
+     "response_ms": 787
+    },
+    {
+     "label": "بانتظار دفع المريض",
+     "result": "UI_CHANGE",
+     "response_ms": 780
+    },
+    {
+     "label": "مدفوع — جاهز للخدمة",
+     "result": "UI_CHANGE",
+     "response_ms": 796
+    },
+    {
+     "label": "قبول كلي",
+     "result": "UI_CHANGE",
+     "response_ms": 769
+    },
+    {
+     "label": "مرفوض",
+     "result": "UI_CHANGE",
+     "response_ms": 766
+    },
+    {
+     "label": "طلبات التأمين (6)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 426
+    },
+    {
+     "label": "طابور المستردات (0)",
+     "result": "UI_CHANGE",
+     "response_ms": 416
+    },
+    {
+     "label": "تحديث",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 788
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 6,
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/admin/support-tickets",
+   "url": "/admin/support-tickets",
+   "landed": "/admin/support-tickets",
+   "time_to_ready_ms": 1317,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    },
+    {
+     "label": "مفتوحة",
+     "result": "UI_CHANGE",
+     "response_ms": 792
+    },
+    {
+     "label": "قيد المعالجة",
+     "result": "UI_CHANGE",
+     "response_ms": 1301
+    },
+    {
+     "label": "محلولة",
+     "result": "UI_CHANGE",
+     "response_ms": 788
+    },
+    {
+     "label": "مغلقة",
+     "result": "UI_CHANGE",
+     "response_ms": 775
+    },
+    {
+     "label": "تحديث",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 776
+    },
+    {
+     "label": "بدء المعالجة",
+     "result": "WRITE",
+     "status": 200,
+     "method": "PATCH",
+     "url": "/api/admin/support/admin/requests/308e77fe-2247-4294-b8c9-cb413cd930ad",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1294
+    },
+    {
+     "label": "حلّها",
+     "result": "WRITE",
+     "status": 200,
+     "method": "PATCH",
+     "url": "/api/admin/support/admin/requests/308e77fe-2247-4294-b8c9-cb413cd930ad",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1277
+    },
+    {
+     "label": "المحادثة والرد",
+     "result": "UI_CHANGE",
+     "response_ms": 440
+    },
+    {
+     "label": "إغلاق",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 435
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 3,
+    "UI_CHANGE": 5,
+    "WRITE": 2
+   }
+  },
+  {
+   "route": "/admin/sos-monitor",
+   "url": "/admin/sos-monitor",
+   "landed": "/admin/sos-monitor",
+   "time_to_ready_ms": 1334,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 3,
+   "elements": [
+    {
+     "label": "تحديث الآن",
+     "result": "UI_CHANGE",
+     "response_ms": 777
+    },
+    {
+     "label": "فتح موقع المريض على الخريطة (24.7136, 46.6753)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 551
+    },
+    {
+     "label": "إسناد مستشفى",
+     "result": "BLOCKED_DESTRUCTIVE",
+     "request": "POST http://127.0.0.1:3001/api/admin/emergency/93bd10ca-ca80-4a64-9ce5-6b268a5158bc/assign",
+     "response_ms": 806
+    },
+    {
+     "label": "تصعيد إلى 997 (الهلال الأحمر)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1935
+    },
+    {
+     "label": "إنهاء الحالة (تمت المعالجة)",
+     "result": "UI_CHANGE",
+     "response_ms": 1976
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 2,
+    "NO_EFFECT": 2,
+    "BLOCKED_DESTRUCTIVE": 1
+   }
+  },
+  {
+   "route": "/admin/price-override-audit",
+   "url": "/admin/price-override-audit",
+   "landed": "/admin/price-override-audit",
+   "time_to_ready_ms": 1926,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/admin/search",
+   "url": "/admin/search",
+   "landed": "/admin/search",
+   "time_to_ready_ms": 483,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "بحث",
+     "result": "UI_CHANGE",
+     "response_ms": 2394
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "/admin/loyalty-config",
+   "url": "/admin/loyalty-config",
+   "landed": "/admin/loyalty-config",
+   "time_to_ready_ms": 1497,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 28,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 2228
+    },
+    {
+     "label": "حفظ الإعدادات",
+     "result": "WRITE",
+     "status": 403,
+     "method": "PUT",
+     "url": "/api/admin/admin/loyalty/config",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 2356
+    },
+    {
+     "label": "إضافة",
+     "result": "WRITE",
+     "status": 403,
+     "method": "POST",
+     "url": "/api/admin/admin/loyalty/rewards",
+     "tokens_sent": 2,
+     "tokens_stored": 0,
+     "response_ms": 2724
+    },
+    {
+     "label": "إضافة تحدٍ",
+     "result": "WRITE",
+     "status": 403,
+     "method": "POST",
+     "url": "/api/admin/admin/loyalty/challenges",
+     "tokens_sent": 3,
+     "tokens_stored": 0,
+     "response_ms": 1947
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1,
+    "WRITE": 3
+   }
+  },
+  {
+   "route": "/admin/live-chat-console",
+   "url": "/admin/live-chat-console",
+   "landed": "/admin/live-chat-console",
+   "time_to_ready_ms": 1311,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/admin/pharmacy-procurement",
+   "url": "/admin/pharmacy-procurement",
+   "landed": "/admin/pharmacy-procurement",
+   "time_to_ready_ms": 1307,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تحديث",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 2346
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/admin/system-ops",
+   "url": "/admin/system-ops",
+   "landed": "/admin/system-ops",
+   "time_to_ready_ms": 1937,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الطوابير",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1430
+    },
+    {
+     "label": "الترجمات",
+     "result": "UI_CHANGE",
+     "response_ms": 2078
+    },
+    {
+     "label": "SEO",
+     "result": "UI_CHANGE",
+     "response_ms": 2213
+    },
+    {
+     "label": "Feature Flags",
+     "result": "UI_CHANGE",
+     "response_ms": 1462
+    },
+    {
+     "label": "إعادة المحاولات الفاشلة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 2431
+    },
+    {
+     "label": "إعادة المحاولة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1993
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 3,
+    "UI_CHANGE": 3
+   }
+  },
+  {
+   "route": "/admin/locations",
+   "url": "/admin/locations",
+   "landed": "/admin/locations",
+   "time_to_ready_ms": 1358,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 5,
+   "elements": [
+    {
+     "label": "إضافة",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/api/admin/admin/locations",
+     "tokens_sent": 4,
+     "tokens_stored": 0,
+     "response_ms": 1833
+    }
+   ],
+   "summary": {
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "/admin/users-management",
+   "url": "/admin/users-management",
+   "landed": "/admin/users-management",
+   "time_to_ready_ms": 2060,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "عرض الملف",
+     "result": "TAP_FAILED",
+     "error": "Locator.get_attribute: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locato"
+    },
+    {
+     "label": "تعليق / إيقاف",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "حذف نهائي",
+     "result": "SKIPPED_DESTRUCTIVE"
+    }
+   ],
+   "summary": {
+    "TAP_FAILED": 1,
+    "SKIPPED_DESTRUCTIVE": 2
+   }
+  },
+  {
+   "route": "/admin/content-growth",
+   "url": "/admin/content-growth",
+   "landed": "/admin/content-growth",
+   "time_to_ready_ms": 1333,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 8,
+   "elements": [
+    {
+     "label": "المقالات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1798
+    },
+    {
+     "label": "الكوبونات والعروض",
+     "result": "UI_CHANGE",
+     "response_ms": 2059
+    },
+    {
+     "label": "حملات Push وA/B",
+     "result": "UI_CHANGE",
+     "response_ms": 1921
+    },
+    {
+     "label": "الأسئلة الشائعة",
+     "result": "UI_CHANGE",
+     "response_ms": 2240
+    },
+    {
+     "label": "سحب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1868
+    },
+    {
+     "label": "حفظ وتدقيق",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/api/admin/admin/cms/art_mur5aq1jk6a1/publish",
+     "tokens_sent": 7,
+     "tokens_stored": 6,
+     "response_ms": 3513
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2,
+    "UI_CHANGE": 3,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "/admin/audit-logs",
+   "url": "/admin/audit-logs",
+   "landed": "/admin/audit-logs",
+   "time_to_ready_ms": 1361,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 6,
+   "elements": [
+    {
+     "label": "تحديث",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 2394
+    },
+    {
+     "label": "تصدير CSV (الصفحة الحالية)",
+     "result": "TAP_FAILED",
+     "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"main "
+    },
+    {
+     "label": "السابق",
+     "result": "TAP_FAILED",
+     "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"main "
+    },
+    {
+     "label": "التالي",
+     "result": "TAP_FAILED",
+     "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"main "
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1,
+    "TAP_FAILED": 3
+   }
+  },
+  {
+   "route": "/admin/medicines-catalog",
+   "url": "/admin/medicines-catalog",
+   "landed": "/admin/medicines-catalog",
+   "time_to_ready_ms": 1931,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "الكتالوج",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 2106
+    },
+    {
+     "label": "طلبات التغيير",
+     "result": "UI_CHANGE",
+     "response_ms": 1973
+    },
+    {
+     "label": "التقارير",
+     "result": "UI_CHANGE",
+     "response_ms": 1920
+    },
+    {
+     "label": "(icon #3)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3013
+    },
+    {
+     "label": "+ إضافة صنف جديد",
+     "result": "UI_CHANGE",
+     "response_ms": 2398
+    },
+    {
+     "label": "تفعيل شعار النقص",
+     "result": "TAP_FAILED",
+     "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"main "
+    },
+    {
+     "label": "تعديل",
+     "result": "TAP_FAILED",
+     "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"main "
+    },
+    {
+     "label": "اعتماد",
+     "result": "TAP_FAILED",
+     "error": "Locator.get_attribute: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locato"
+    },
+    {
+     "label": "حذف",
+     "result": "SKIPPED_DESTRUCTIVE"
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2,
+    "UI_CHANGE": 3,
+    "TAP_FAILED": 3,
+    "SKIPPED_DESTRUCTIVE": 1
+   }
+  },
+  {
+   "route": "/admin/scheduled-reports",
+   "url": "/admin/scheduled-reports",
+   "landed": "/admin/scheduled-reports",
+   "time_to_ready_ms": 1301,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "إضافة الجدولة",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/api/admin/admin/scheduled-reports",
+     "tokens_sent": 1,
+     "tokens_stored": 0,
+     "response_ms": 2383
+    }
+   ],
+   "summary": {
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "/admin/order-detail",
+   "url": "/admin/order-detail",
+   "landed": "/admin/order-detail",
+   "time_to_ready_ms": 455,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→ عودة لمركز القيادة",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/api/admin/auth/heartbeat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 3827
+    }
+   ],
+   "summary": {
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "/admin/appointments-oversight",
+   "url": "/admin/appointments-oversight",
+   "landed": "/admin/appointments-oversight",
+   "time_to_ready_ms": 1306,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تحديث",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 2288
+    },
+    {
+     "label": "إلغاء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1591
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "/admin/ambulance-fleet",
+   "url": "/admin/ambulance-fleet",
+   "landed": "/admin/ambulance-fleet",
+   "time_to_ready_ms": 1308,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "بانتظار المراجعة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1650
+    },
+    {
+     "label": "معتمدة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1961
+    },
+    {
+     "label": "مرفوضة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1996
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 3
+   }
+  },
+  {
+   "route": "/admin/provider-audits",
+   "url": "/admin/provider-audits",
+   "landed": "/admin/provider-audits",
+   "time_to_ready_ms": 1294,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "اعتماد التعديل وتطبيقه",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/api/admin/admin/providers/provider-deltas/410cdb20-ecce-4f62-a8c8-760add873dbe/approve",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 2440
+    },
+    {
+     "label": "رفض التعديل",
+     "result": "SKIPPED_DESTRUCTIVE"
+    }
+   ],
+   "summary": {
+    "WRITE": 1,
+    "SKIPPED_DESTRUCTIVE": 1
+   }
+  },
+  {
+   "route": "/admin/catalog-governance",
+   "url": "/admin/catalog-governance",
+   "landed": "/admin/catalog-governance",
+   "time_to_ready_ms": 552,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "الكتالوج والنواقص",
+     "result": "UI_CHANGE",
+     "response_ms": 1906
+    },
+    {
+     "label": "تدقيق تجاوز الأسعار (0)",
+     "result": "UI_CHANGE",
+     "response_ms": 2284
+    },
+    {
+     "label": "السعر والتاريخ",
+     "result": "TAP_FAILED",
+     "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"main "
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 2,
+    "TAP_FAILED": 1
+   }
+  },
+  {
+   "route": "/admin/dashboard",
+   "url": "/admin/dashboard",
+   "landed": "/admin/dashboard",
+   "time_to_ready_ms": 2551,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تفاصيل",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/api/admin/auth/heartbeat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 3311
+    },
+    {
+     "label": "1",
+     "result": "UI_CHANGE",
+     "response_ms": 1893
+    }
+   ],
+   "summary": {
+    "WRITE": 1,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "/admin/config-portal",
+   "url": "/admin/config-portal",
+   "landed": "/admin/config-portal",
+   "time_to_ready_ms": 1302,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 3,
+   "elements": [
+    {
+     "label": "تعديلات الـ SLA",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1973
+    },
+    {
+     "label": "مفتاح الإيقاف الطارئ",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "التسعير والذروة",
+     "result": "UI_CHANGE",
+     "response_ms": 1987
+    },
+    {
+     "label": "إصدارات التطبيقات",
+     "result": "UI_CHANGE",
+     "response_ms": 2020
+    },
+    {
+     "label": "مُفعّل",
+     "result": "WRITE",
+     "status": 200,
+     "method": "PUT",
+     "url": "/api/admin/admin/pharmacy/fulfillment-policies/cod",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1925
+    },
+    {
+     "label": "حفظ التعديلات (Override Globally)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 2070
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2,
+    "SKIPPED_DESTRUCTIVE": 1,
+    "UI_CHANGE": 2,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "/admin/fraud-monitoring",
+   "url": "/admin/fraud-monitoring",
+   "landed": "/admin/fraud-monitoring",
+   "time_to_ready_ms": 2556,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "السابق",
+     "result": "TAP_FAILED",
+     "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"main "
+    },
+    {
+     "label": "التالي",
+     "result": "TAP_FAILED",
+     "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"main "
+    }
+   ],
+   "summary": {
+    "TAP_FAILED": 2
+   }
+  },
+  {
+   "route": "/admin/impersonation",
+   "url": "/admin/impersonation",
+   "landed": "/admin/impersonation",
+   "time_to_ready_ms": 431,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/admin/finance-suite",
+   "url": "/admin/finance-suite",
+   "landed": "/admin/finance-suite",
+   "time_to_ready_ms": 1298,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 6,
+   "elements": [
+    {
+     "label": "تحديث",
+     "result": "UI_CHANGE",
+     "response_ms": 2685
+    },
+    {
+     "label": "حفظ وتدقيق الإعدادات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1976
+    },
+    {
+     "label": "عرض الكشف",
+     "result": "UI_CHANGE",
+     "response_ms": 2388
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 2,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/admin/provider-moderation",
+   "url": "/admin/provider-moderation",
+   "landed": "/admin/provider-moderation",
+   "time_to_ready_ms": 1311,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "توثيق التسجيل (Onboarding)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 2126
+    },
+    {
+     "label": "تعديلات الحسابات (Delta Mutations)",
+     "result": "UI_CHANGE",
+     "response_ms": 2001
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "/admin/commissions",
+   "url": "/admin/commissions",
+   "landed": "/admin/commissions",
+   "time_to_ready_ms": 1308,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "400 GET /api/admin/admin/finance/commissions"
+    ]
+   },
+   "status": "TESTED",
+   "inputs_filled": 5,
+   "elements": [
+    {
+     "label": "تحديث",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 2348
+    },
+    {
+     "label": "حفظ القاعدة",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/api/admin/admin/finance-engine/commission-rules",
+     "tokens_sent": 2,
+     "tokens_stored": 2,
+     "response_ms": 2499
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "/admin/legal-policies",
+   "url": "/admin/legal-policies",
+   "landed": "/admin/legal-policies",
+   "time_to_ready_ms": 1300,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "400 GET /api/admin/admin/finance/commissions"
+    ]
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تحرير المحتوى (يرفع الإصدار)",
+     "result": "UI_CHANGE",
+     "response_ms": 2400
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "/admin/security",
+   "url": "/admin/security",
+   "landed": "/admin/security",
+   "time_to_ready_ms": 2585,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "🔐 تسجيل بمفتاح أمان",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/api/admin/auth/passkey/enroll/options",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 2057
+    },
+    {
+     "label": "تفعيل القفل على هذا المتصفح",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 2268
+    }
+   ],
+   "summary": {
+    "WRITE": 1,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/admin/notification-center",
+   "url": "/admin/notification-center",
+   "landed": "/admin/notification-center",
+   "time_to_ready_ms": 1335,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 17,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1654
+    },
+    {
+     "label": "إرسال الآن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1942
+    },
+    {
+     "label": "تشغيل إعادة الاستهداف يدوياً",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/api/admin/admin/notification-center/retarget/run",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 2003
+    },
+    {
+     "label": "حفظ القالب",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/api/admin/notifications/admin/templates",
+     "tokens_sent": 13,
+     "tokens_stored": 13,
+     "response_ms": 2886
+    },
+    {
+     "label": "معاينة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1706
+    },
+    {
+     "label": "إرسال تجريبي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 2018
+    },
+    {
+     "label": "السابق",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1973
+    },
+    {
+     "label": "التالي",
+     "result": "UI_CHANGE",
+     "response_ms": 2331
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 5,
+    "WRITE": 2,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "/admin/analytics-suite",
+   "url": "/admin/analytics-suite",
+   "landed": "/admin/analytics-suite",
+   "time_to_ready_ms": 1308,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "تحديث",
+     "result": "UI_CHANGE",
+     "response_ms": 2638
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "/admin/community-moderation",
+   "url": "/admin/community-moderation",
+   "landed": "/admin/community-moderation",
+   "time_to_ready_ms": 1303,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تحديث",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 2462
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/admin/broadcast-monitor",
+   "url": "/admin/broadcast-monitor",
+   "landed": "/admin/broadcast-monitor",
+   "time_to_ready_ms": 1312,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تحديث",
+     "result": "UI_CHANGE",
+     "response_ms": 2399
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "/admin/ai-control",
+   "url": "/admin/ai-control",
+   "landed": "/admin/ai-control",
+   "time_to_ready_ms": 1301,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تلقائي (Fallback + Round Robin)",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/api/admin/ai/admin/gateway/mode",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 2382
+    },
+    {
+     "label": "تعطيل",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "تفعيل",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/api/admin/ai/admin/gateway/provider/replicate",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 2507
+    }
+   ],
+   "summary": {
+    "WRITE": 2,
+    "SKIPPED_DESTRUCTIVE": 1
+   }
+  },
+  {
+   "route": "/admin/insurance-companies",
+   "url": "/admin/insurance-companies",
+   "landed": "/admin/insurance-companies",
+   "time_to_ready_ms": 1338,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "+ إضافة شركة",
+     "result": "UI_CHANGE",
+     "response_ms": 1784
+    },
+    {
+     "label": "◂",
+     "result": "UI_CHANGE",
+     "response_ms": 2405
+    },
+    {
+     "label": "تعديل",
+     "result": "UI_CHANGE",
+     "response_ms": 1474
+    },
+    {
+     "label": "تعطيل",
+     "result": "SKIPPED_DESTRUCTIVE"
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 3,
+    "SKIPPED_DESTRUCTIVE": 1
+   }
+  },
+  {
+   "route": "/admin/disputes",
+   "url": "/admin/disputes",
+   "landed": "/admin/disputes",
+   "time_to_ready_ms": 1302,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "تحديث",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 2454
+    },
+    {
+     "label": "السابق",
+     "result": "TAP_FAILED",
+     "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"main "
+    },
+    {
+     "label": "التالي",
+     "result": "TAP_FAILED",
+     "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"main "
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1,
+    "TAP_FAILED": 2
+   }
+  },
+  {
+   "route": "/admin/health-dashboard",
+   "url": "/admin/health-dashboard",
+   "landed": "/admin/health-dashboard",
+   "time_to_ready_ms": 1301,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/admin/image-suggestions",
+   "url": "/admin/image-suggestions",
+   "landed": "/admin/image-suggestions",
+   "time_to_ready_ms": 1328,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "قيد الانتظار",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1629
+    },
+    {
+     "label": "معتمدة",
+     "result": "UI_CHANGE",
+     "response_ms": 1988
+    },
+    {
+     "label": "مرفوضة",
+     "result": "UI_CHANGE",
+     "response_ms": 1988
+    },
+    {
+     "label": "الكل",
+     "result": "UI_CHANGE",
+     "response_ms": 2074
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 1,
+    "UI_CHANGE": 3
+   }
+  },
+  {
+   "route": "/admin/segments",
+   "url": "/admin/segments",
+   "landed": "/admin/segments",
+   "time_to_ready_ms": 1914,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 5,
+   "elements": [
+    {
+     "label": "حذف القاعدة",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "إضافة قاعدة",
+     "result": "UI_CHANGE",
+     "response_ms": 2423
+    },
+    {
+     "label": "معاينة الجمهور",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/api/admin/admin/segments/preview",
+     "tokens_sent": 2,
+     "tokens_stored": 0,
+     "response_ms": 2595
+    },
+    {
+     "label": "حفظ وتدقيق",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/api/admin/admin/segments",
+     "tokens_sent": 5,
+     "tokens_stored": 0,
+     "response_ms": 2709
+    }
+   ],
+   "summary": {
+    "SKIPPED_DESTRUCTIVE": 1,
+    "UI_CHANGE": 1,
+    "WRITE": 2
+   }
+  },
+  {
+   "route": "/admin/home-curation",
+   "url": "/admin/home-curation",
+   "landed": "/admin/home-curation",
+   "time_to_ready_ms": 806,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "إضافة قسم",
+     "result": "UI_CHANGE",
+     "response_ms": 1552
+    },
+    {
+     "label": "حفظ الترتيب وتدقيقه",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/api/admin/admin/governance-controls/home-curation",
+     "tokens_sent": 1,
+     "tokens_stored": 1,
+     "response_ms": 2436
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 1,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "/admin/returns",
+   "url": "/admin/returns",
+   "landed": "/admin/returns",
+   "time_to_ready_ms": 1317,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "قيد المراجعة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 2090
+    },
+    {
+     "label": "مكتمل",
+     "result": "UI_CHANGE",
+     "response_ms": 2360
+    },
+    {
+     "label": "مرفوض",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 2161
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "/admin/orders",
+   "url": "/admin/orders",
+   "landed": "/admin/orders",
+   "time_to_ready_ms": 1358,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 4,
+   "elements": [
+    {
+     "label": "تصدير CSV",
+     "result": "NAVIGATE",
+     "to": "/api/admin/orders/export?status=W3C31602&q=W3C31601&from=2027-01-15&to=2027-01-1",
+     "response_ms": 1893
+    },
+    {
+     "label": "السابق",
+     "result": "TAP_FAILED",
+     "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"main "
+    },
+    {
+     "label": "التالي",
+     "result": "TAP_FAILED",
+     "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"main "
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "TAP_FAILED": 2
+   }
+  },
+  {
+   "route": "/doctors",
+   "url": "/doctors",
+   "landed": "/doctors",
+   "time_to_ready_ms": 422,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/articles",
+   "url": "/articles",
+   "landed": "/articles",
+   "time_to_ready_ms": 424,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/lab-services",
+   "url": "/lab-services",
+   "landed": "/lab-services",
+   "time_to_ready_ms": 424,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/home-care-services",
+   "url": "/home-care-services",
+   "landed": "/home-care-services",
+   "time_to_ready_ms": 422,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/facilities",
+   "url": "/facilities",
+   "landed": "/facilities",
+   "time_to_ready_ms": 428,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/medicines",
+   "url": "/medicines",
+   "landed": "/medicines",
+   "time_to_ready_ms": 430,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [],
+   "summary": {}
+  }
+ ]
+}

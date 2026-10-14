@@ -4,10 +4,11 @@ import { MedicinesController, PublicCatalogController } from './medicines.contro
 import { MedicinesService } from './medicines.service';
 import { Medicine, MedicineSchema } from '../../schemas/medicine.schema';
 import { MedicineRepository } from "./repositories/medicine.repository";
+import { RxConsultController } from './rx-consult.controller';
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: Medicine.name, schema: MedicineSchema }])],
-  controllers: [MedicinesController, PublicCatalogController],
+  controllers: [MedicinesController, PublicCatalogController, RxConsultController],
   providers: [MedicinesService, { provide: 'MedicineRepository', useClass: MedicineRepository }],
   exports: [MedicinesService],
 })

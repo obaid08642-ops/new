@@ -58,7 +58,7 @@ export function VectorCatHairCare({ size = 36 }: IconProps) {
           <Stop offset="1" stopColor="#9333EA" />
         </LinearGradient>
       </Defs>
-      <Rect x="8" y="8" width="48" height="48" rx="16" fill="#FCE7F3" />
+      <Rect x="8" y="8" width="48" height="48" rx="16" fill="#FFE7F1" />
       <Rect x="24" y="24" width="16" height="26" rx="6" fill="url(#cat_hair_bg)" />
       <Rect x="28" y="16" width="8" height="8" rx="2" fill="#9333EA" />
       <Path d="M30 16V12H34V16" stroke="#EC4899" strokeWidth="2" strokeLinecap="round" />

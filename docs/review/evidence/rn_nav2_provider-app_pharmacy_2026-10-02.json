@@ -1,0 +1,4351 @@
+{
+ "provider_type": "pharmacy",
+ "login_via_ui": true,
+ "build": "rn-web E2E export (not native)",
+ "perf": {
+  "app_boot_to_ready_ms": 549,
+  "login_to_dashboard_ready_ms": 965,
+  "dashboard_ready": true,
+  "dashboard_not_ready_reason": ""
+ },
+ "screens": [
+  {
+   "route": "MainTabs",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 396,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "الرادار المباشر |  غير متصل | moon | أنت غير متصل | قم بتفعيل الاتصا"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/provider/ops/availability/toggle-instant",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 819
+    },
+    {
+     "label": "الطلبات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 462
+    },
+    {
+     "label": "النواقص",
+     "result": "UI_CHANGE",
+     "response_ms": 840
+    },
+    {
+     "label": "التوصيل",
+     "result": "UI_CHANGE",
+     "response_ms": 891
+    },
+    {
+     "label": "الإعدادات",
+     "result": "UI_CHANGE",
+     "response_ms": 869
+    }
+   ],
+   "summary": {
+    "WRITE": 1,
+    "NO_EFFECT": 1,
+    "UI_CHANGE": 3
+   }
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "النواقص"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 787,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | المستودع والإمداد | طلب توريد (B2B) | المرتجعات (Returns) | الطل"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "→",
+     "result": "UI_CHANGE",
+     "response_ms": 473
+    },
+    {
+     "label": "طلب توريد (B2B)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 456
+    },
+    {
+     "label": "المرتجعات (Returns)",
+     "result": "UI_CHANGE",
+     "response_ms": 826
+    },
+    {
+     "label": "كتابة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 460
+    },
+    {
+     "label": "صوت",
+     "result": "UI_CHANGE",
+     "response_ms": 470
+    },
+    {
+     "label": "تصوير الرف",
+     "result": "UI_CHANGE",
+     "response_ms": 454
+    },
+    {
+     "label": "إرسال الطلب",
+     "result": "WRITE",
+     "status": 503,
+     "method": "POST",
+     "url": "/pharmacy/procurement/analyze-file",
+     "tokens_sent": 1,
+     "tokens_stored": 0,
+     "response_ms": 836
+    },
+    {
+     "label": "الطلبات",
+     "result": "UI_CHANGE",
+     "response_ms": 470
+    },
+    {
+     "label": "النواقص",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 492
+    },
+    {
+     "label": "التوصيل",
+     "result": "UI_CHANGE",
+     "response_ms": 488
+    },
+    {
+     "label": "الإعدادات",
+     "result": "UI_CHANGE",
+     "response_ms": 835
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 7,
+    "NO_EFFECT": 3,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "التوصيل"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 1126,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | التوصيل والتسليم | moon | لا توجد طلبات | ستظهر الطلبات المختارة"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "UI_CHANGE",
+     "response_ms": 445
+    },
+    {
+     "label": "الطلبات",
+     "result": "UI_CHANGE",
+     "response_ms": 451
+    },
+    {
+     "label": "النواقص",
+     "result": "UI_CHANGE",
+     "response_ms": 456
+    },
+    {
+     "label": "التوصيل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 437
+    },
+    {
+     "label": "الإعدادات",
+     "result": "UI_CHANGE",
+     "response_ms": 819
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 4,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "الإعدادات"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 1136,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | إعدادات الصيدلية | خيارات التوصيل | نطاق التوصيل (كم) | الحد الأ"
+   },
+   "status": "TESTED",
+   "inputs_filled": 9,
+   "elements": [
+    {
+     "label": "→",
+     "result": "UI_CHANGE",
+     "response_ms": 522
+    },
+    {
+     "label": "نطاق التوصيل (كم)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 534
+    },
+    {
+     "label": "الحد الأدنى للطلب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 587
+    },
+    {
+     "label": "رسوم التوصيل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 544
+    },
+    {
+     "label": "طلبات التأمين الواردة (قرار يدوي)",
+     "result": "NAVIGATE",
+     "to": "insurance_decisions",
+     "response_ms": 908
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 437
+    },
+    {
+     "label": "(icon #6)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 444
+    },
+    {
+     "label": "(icon #7)",
+     "result": "WRITE",
+     "status": 200,
+     "method": "PUT",
+     "url": "/provider/pharmacy/inventory-tracking",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 435
+    },
+    {
+     "label": "(icon #8)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 441
+    },
+    {
+     "label": "(icon #9)",
+     "result": "UI_CHANGE",
+     "response_ms": 449
+    },
+    {
+     "label": "(icon #10)",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: الإعدادات"
+    },
+    {
+     "label": "حفظ إعدادات الصيدلية",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: الإعدادات"
+    },
+    {
+     "label": "الطلبات",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: الإعدادات"
+    },
+    {
+     "label": "النواقص",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: الإعدادات"
+    },
+    {
+     "label": "التوصيل",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: الإعدادات"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: الإعدادات"
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 2,
+    "NO_EFFECT": 6,
+    "NAVIGATE": 1,
+    "WRITE": 1,
+    "CRAWLER_TARGET_MISSING": 6
+   }
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "النواقص",
+    "المرتجعات (Returns)"
+   ],
+   "reached_by": "TAP_PATH",
+   "status": "CRAWLER_TARGET_MISSING",
+   "reason": "control not found: النواقص",
+   "screenshot": "/tmp/nav2_pharmacy_MainTabs_ui.png",
+   "controls_now": [
+    "(icon #0)",
+    "Orders Hub",
+    "B2B Procurement",
+    "Dispatch",
+    "Settings"
+   ],
+   "route_now": {
+    "name": "MainTabs",
+    "params": null
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "النواقص",
+    "صوت"
+   ],
+   "reached_by": "TAP_PATH",
+   "status": "CRAWLER_TARGET_MISSING",
+   "reason": "control not found: النواقص",
+   "screenshot": "/tmp/nav2_pharmacy_MainTabs_ui.png",
+   "controls_now": [
+    "(icon #0)",
+    "Orders Hub",
+    "B2B Procurement",
+    "Dispatch",
+    "Settings"
+   ],
+   "route_now": {
+    "name": "MainTabs",
+    "params": null
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "النواقص",
+    "تصوير الرف"
+   ],
+   "reached_by": "TAP_PATH",
+   "status": "CRAWLER_TARGET_MISSING",
+   "reason": "control not found: النواقص",
+   "screenshot": "/tmp/nav2_pharmacy_MainTabs_ui.png",
+   "controls_now": [
+    "(icon #0)",
+    "Orders Hub",
+    "B2B Procurement",
+    "Dispatch",
+    "Settings"
+   ],
+   "route_now": {
+    "name": "MainTabs",
+    "params": null
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "النواقص",
+    "التوصيل"
+   ],
+   "reached_by": "TAP_PATH",
+   "status": "CRAWLER_TARGET_MISSING",
+   "reason": "control not found: النواقص",
+   "screenshot": "/tmp/nav2_pharmacy_MainTabs_ui.png",
+   "controls_now": [
+    "(icon #0)",
+    "Orders Hub",
+    "B2B Procurement",
+    "Dispatch",
+    "Settings"
+   ],
+   "route_now": {
+    "name": "MainTabs",
+    "params": null
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "النواقص",
+    "الإعدادات"
+   ],
+   "reached_by": "TAP_PATH",
+   "status": "CRAWLER_TARGET_MISSING",
+   "reason": "control not found: النواقص",
+   "screenshot": "/tmp/nav2_pharmacy_MainTabs_ui.png",
+   "controls_now": [
+    "(icon #0)",
+    "Orders Hub",
+    "B2B Procurement",
+    "Dispatch",
+    "Settings"
+   ],
+   "route_now": {
+    "name": "MainTabs",
+    "params": null
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
+  },
+  {
+   "route": "insurance_decisions",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 751,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Insurance Decisions — Pharmacy | Record the insurer response"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 473
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "shortage",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 394,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Drug Shortage Report | Send Shortage Report"
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 530
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 450
+    },
+    {
+     "label": "(icon #2)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    },
+    {
+     "label": "Send Shortage Report",
+     "result": "UI_CHANGE",
+     "response_ms": 477
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 2,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "b2b_supply",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 396,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Warehouse & Procurement | Order Supply (B2B) | Returns Manager"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "shortage",
+     "response_ms": 468
+    },
+    {
+     "label": "Order Supply (B2B)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 502
+    },
+    {
+     "label": "Returns Manager",
+     "result": "UI_CHANGE",
+     "response_ms": 833
+    },
+    {
+     "label": "Text",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 469
+    },
+    {
+     "label": "Voice",
+     "result": "UI_CHANGE",
+     "response_ms": 447
+    },
+    {
+     "label": "OCR",
+     "result": "UI_CHANGE",
+     "response_ms": 486
+    },
+    {
+     "label": "Submit Order",
+     "result": "WRITE",
+     "status": 503,
+     "method": "POST",
+     "url": "/pharmacy/procurement/analyze-file",
+     "tokens_sent": 1,
+     "tokens_stored": 0,
+     "response_ms": 864
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 2,
+    "UI_CHANGE": 3,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "b2b_supply",
+   "ui_path": [
+    "Returns Manager"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 1677,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Warehouse & Procurement | Order Supply (B2B) | Returns Manager"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 463
+    },
+    {
+     "label": "Order Supply (B2B)",
+     "result": "UI_CHANGE",
+     "response_ms": 465
+    },
+    {
+     "label": "Returns Manager",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 442
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 1,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "b2b_supply",
+   "ui_path": [
+    "Voice"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 800,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Warehouse & Procurement | Order Supply (B2B) | Returns Manager"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 467
+    },
+    {
+     "label": "Order Supply (B2B)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 467
+    },
+    {
+     "label": "Returns Manager",
+     "result": "UI_CHANGE",
+     "response_ms": 844
+    },
+    {
+     "label": "Text",
+     "result": "UI_CHANGE",
+     "response_ms": 456
+    },
+    {
+     "label": "Voice",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 476
+    },
+    {
+     "label": "OCR",
+     "result": "UI_CHANGE",
+     "response_ms": 478
+    },
+    {
+     "label": "Start Recording",
+     "result": "UI_CHANGE",
+     "response_ms": 479
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 2,
+    "UI_CHANGE": 4
+   }
+  },
+  {
+   "route": "b2b_supply",
+   "ui_path": [
+    "OCR"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 789,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Warehouse & Procurement | Order Supply (B2B) | Returns Manager"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 454
+    },
+    {
+     "label": "Order Supply (B2B)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 439
+    },
+    {
+     "label": "Returns Manager",
+     "result": "UI_CHANGE",
+     "response_ms": 839
+    },
+    {
+     "label": "Text",
+     "result": "UI_CHANGE",
+     "response_ms": 454
+    },
+    {
+     "label": "Voice",
+     "result": "UI_CHANGE",
+     "response_ms": 530
+    },
+    {
+     "label": "OCR",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 449
+    },
+    {
+     "label": "Pick shelf/invoice photo & analyze",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 473
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 3,
+    "UI_CHANGE": 3
+   }
+  },
+  {
+   "route": "b2b_supply",
+   "ui_path": [
+    "Voice",
+    "Start Recording"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 1210,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Warehouse & Procurement | Order Supply (B2B) | Returns Manager"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 483
+    },
+    {
+     "label": "Order Supply (B2B)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 451
+    },
+    {
+     "label": "Returns Manager",
+     "result": "UI_CHANGE",
+     "response_ms": 838
+    },
+    {
+     "label": "Text",
+     "result": "UI_CHANGE",
+     "response_ms": 470
+    },
+    {
+     "label": "Voice",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 519
+    },
+    {
+     "label": "OCR",
+     "result": "UI_CHANGE",
+     "response_ms": 474
+    },
+    {
+     "label": "Cancel",
+     "result": "UI_CHANGE",
+     "response_ms": 453
+    },
+    {
+     "label": "Send Audio",
+     "result": "UI_CHANGE",
+     "response_ms": 530
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 2,
+    "UI_CHANGE": 5
+   }
+  },
+  {
+   "route": "scanner",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 392,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Barcode Scanner | camera | Camera permission required | Camera p"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "b2b_supply",
+     "response_ms": 450
+    },
+    {
+     "label": "Grant permission",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 454
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "wallet",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 1272,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Wallet & Revenue | Available Balance | 0 SAR | Request Withdrawa"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "scanner",
+     "response_ms": 467
+    },
+    {
+     "label": "Request Withdrawal",
+     "result": "NAVIGATE",
+     "to": "withdrawal_workflow",
+     "response_ms": 1341
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2
+   }
+  },
+  {
+   "route": "withdrawal_workflow",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 402,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Withdraw Funds | Available for withdrawal: 0.00 SAR | BANK ACC"
+   },
+   "status": "TESTED",
+   "inputs_filled": 3,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "wallet",
+     "response_ms": 519
+    },
+    {
+     "label": "Al Rajhi Bank",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 560
+    },
+    {
+     "label": "Saudi National Bank (SNB)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 503
+    },
+    {
+     "label": "Riyad Bank",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 590
+    },
+    {
+     "label": "SAB (Saudi Awwal Bank)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 491
+    },
+    {
+     "label": "Alinma Bank",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 513
+    },
+    {
+     "label": "Banque Saudi Fransi (BSF)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 495
+    },
+    {
+     "label": "Bank AlJazira",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 513
+    },
+    {
+     "label": "Arab National Bank (ANB)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 501
+    },
+    {
+     "label": "Bank AlBilad",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 550
+    },
+    {
+     "label": "Emirates NBD",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 524
+    },
+    {
+     "label": "Gulf International Bank",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 511
+    },
+    {
+     "label": "NBK",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 483
+    },
+    {
+     "label": "Other",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 554
+    },
+    {
+     "label": "Account holder name (as registered) *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 499
+    },
+    {
+     "label": "IBAN *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 491
+    },
+    {
+     "label": "Withdrawal Amount (min 100 SAR) *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 506
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 16
+   }
+  },
+  {
+   "route": "order_history",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 738,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Order History | No completed orders yet."
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "withdrawal_workflow",
+     "response_ms": 448
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "returns_rma",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 738,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Returns Management | No returns | No patient has filed a retur"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "withdrawal_workflow",
+     "response_ms": 448
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "delivery_track",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 748,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Live Delivery Tracking | No delivery currently in progress"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "withdrawal_workflow",
+     "response_ms": 478
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "pharmacy_chat",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 737,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Order chat | chat | No chat for this order yet | Chat opens afte"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "withdrawal_workflow",
+     "response_ms": 453
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "qr_menu",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 394,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Pharmacy QR Catalog | Scan to view pharmacy catalog | Branch o"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "withdrawal_workflow",
+     "response_ms": 442
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "reviews",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 401,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Reviews & Ratings | — | No reviews yet"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "withdrawal_workflow",
+     "response_ms": 449
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "chronic",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 740,
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "503 GET /pharmacy/orders/refills"
+    ],
+    "heading": "← | Chronic Disease Care Program | Monthly Auto-Refill Program | 0"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "withdrawal_workflow",
+     "response_ms": 467
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "promotions",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 737,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "Promotions Center | ACTIVE PROMOTIONS | No promotions available | "
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "withdrawal_workflow",
+     "response_ms": 462
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NAVIGATE",
+     "to": "create_promo",
+     "response_ms": 489
+    },
+    {
+     "label": "Create New Promotion",
+     "result": "NAVIGATE",
+     "to": "create_promo",
+     "response_ms": 491
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 3
+   }
+  },
+  {
+   "route": "create_promo",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 393,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Create Campaign | Campaign Title * | Original Price | ريال | Disco"
+   },
+   "status": "TESTED",
+   "inputs_filled": 5,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "promotions",
+     "response_ms": 535
+    },
+    {
+     "label": "Campaign Title *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 520
+    },
+    {
+     "label": "Original Price",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 462
+    },
+    {
+     "label": "Discounted Price",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 453
+    },
+    {
+     "label": "Start Date",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 448
+    },
+    {
+     "label": "End Date",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 474
+    },
+    {
+     "label": "Submit for Approval",
+     "result": "UI_CHANGE",
+     "response_ms": 455
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 5,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "web_config",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 740,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Public Mini-Website | Active Public Website | Allow patients t"
+   },
+   "status": "TESTED",
+   "inputs_filled": 3,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "create_promo",
+     "response_ms": 479
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 460
+    },
+    {
+     "label": "Doctor/Clinic Bio",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 444
+    },
+    {
+     "label": "Social Media Link",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 466
+    },
+    {
+     "label": "Share",
+     "result": "UI_CHANGE",
+     "response_ms": 450
+    },
+    {
+     "label": "Save Settings",
+     "result": "WRITE",
+     "status": 200,
+     "method": "PATCH",
+     "url": "/provider/profile",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 833
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 3,
+    "UI_CHANGE": 1,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "subscriptions_ads",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 396,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Subscriptions & Ads Purchases | Current Plan: — | PURCHASE FEA"
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 466
+    },
+    {
+     "label": "Ad Budget (SAR)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 512
+    },
+    {
+     "label": "Ad Duration (Days)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 454
+    },
+    {
+     "label": "Pay & Launch Ad",
+     "result": "UI_CHANGE",
+     "response_ms": 472
+    },
+    {
+     "label": "B2B Affiliate Portal",
+     "result": "NAVIGATE",
+     "to": "affiliate",
+     "response_ms": 820
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2,
+    "NO_EFFECT": 2,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "affiliate",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 393,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Affiliate Portal | Invite a provider & earn referral rewards"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "subscriptions_ads",
+     "response_ms": 447
+    },
+    {
+     "label": "Share Code",
+     "result": "UI_CHANGE",
+     "response_ms": 464
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "reputation",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 759,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Reputation & Ratings | star | No reviews yet | Patient reviews w"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "affiliate",
+     "response_ms": 450
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "crm",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 740,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | CRM & Revenue Intelligence | 0 | CRM Patients | 0 | VIP | QUICK CUST"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "affiliate",
+     "response_ms": 435
+    },
+    {
+     "label": "Revenue Insights",
+     "result": "NAVIGATE",
+     "to": "revenue_insights",
+     "response_ms": 834
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2
+   }
+  },
+  {
+   "route": "revenue_insights",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 399,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Revenue Insights | Net earnings this month | ٠ SAR | TOP EARNING"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "crm",
+     "response_ms": 443
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "pharmacy_broadcast",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 395,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Pharmacy offer | document | No authorized broadcast | Return to "
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "crm",
+     "response_ms": 442
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "expiry_monitor",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 747,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Inventory Expiry Monitor | calendar | No expiring items"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "crm",
+     "response_ms": 457
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "medical_jobs",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 746,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "Medical Jobs | Browse | Post Ad | Inbox"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "crm",
+     "response_ms": 444
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 494
+    },
+    {
+     "label": "Browse",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 479
+    },
+    {
+     "label": "Post Ad",
+     "result": "UI_CHANGE",
+     "response_ms": 484
+    },
+    {
+     "label": "Inbox",
+     "result": "UI_CHANGE",
+     "response_ms": 844
+    },
+    {
+     "label": "(icon #5)",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: (icon #5)"
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 3,
+    "NO_EFFECT": 1,
+    "CRAWLER_TARGET_MISSING": 1
+   }
+  },
+  {
+   "route": "medical_jobs",
+   "ui_path": [
+    "(icon #1)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 1135,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "Medical Jobs | Browse | Post Ad | Inbox | Advanced Filters | Professio"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "UI_CHANGE",
+     "response_ms": 452
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 451
+    },
+    {
+     "label": "Browse",
+     "result": "UI_CHANGE",
+     "response_ms": 517
+    },
+    {
+     "label": "Post Ad",
+     "result": "UI_CHANGE",
+     "response_ms": 527
+    },
+    {
+     "label": "Inbox",
+     "result": "UI_CHANGE",
+     "response_ms": 520
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 458
+    },
+    {
+     "label": "(icon #6)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 653
+    },
+    {
+     "label": "Doctor",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 513
+    },
+    {
+     "label": "Pharmacist",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 488
+    },
+    {
+     "label": "Nurse",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 527
+    },
+    {
+     "label": "Lab",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 500
+    },
+    {
+     "label": "Radiology",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 546
+    },
+    {
+     "label": "الرياض",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 604
+    },
+    {
+     "label": "جدة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 560
+    },
+    {
+     "label": "الدمام",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 510
+    },
+    {
+     "label": "مكة المكرمة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 491
+    },
+    {
+     "label": "المدينة المنورة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 519
+    },
+    {
+     "label": "Apply Filter",
+     "result": "UI_CHANGE",
+     "response_ms": 581
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 6,
+    "NO_EFFECT": 12
+   }
+  },
+  {
+   "route": "medical_jobs",
+   "ui_path": [
+    "Post Ad"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 1134,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "Medical Jobs | Browse | Post Ad | Inbox | Employer | (Looking for staf"
+   },
+   "status": "TESTED",
+   "inputs_filled": 7,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 438
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 486
+    },
+    {
+     "label": "Browse",
+     "result": "UI_CHANGE",
+     "response_ms": 541
+    },
+    {
+     "label": "Post Ad",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 548
+    },
+    {
+     "label": "Inbox",
+     "result": "UI_CHANGE",
+     "response_ms": 917
+    },
+    {
+     "label": "Employer",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 577
+    },
+    {
+     "label": "Job Seeker",
+     "result": "UI_CHANGE",
+     "response_ms": 561
+    },
+    {
+     "label": "Job Title *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 633
+    },
+    {
+     "label": "Facility Name",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 527
+    },
+    {
+     "label": "Doctor",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 572
+    },
+    {
+     "label": "Nurse",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 565
+    },
+    {
+     "label": "Pharmacist",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 767
+    },
+    {
+     "label": "Lab",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 540
+    },
+    {
+     "label": "Radiology",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 615
+    },
+    {
+     "label": "طبيب عام",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 591
+    },
+    {
+     "label": "مقيم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 562
+    },
+    {
+     "label": "أخصائي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 591
+    },
+    {
+     "label": "أخصائي أول",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 551
+    },
+    {
+     "label": "استشاري",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 607
+    },
+    {
+     "label": "غير مصنف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 553
+    },
+    {
+     "label": "City *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 632
+    },
+    {
+     "label": "Nationality",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 575
+    },
+    {
+     "label": "Experience",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 682
+    },
+    {
+     "label": "Full Time",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 556
+    },
+    {
+     "label": "Part Time",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 545
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 4,
+    "NO_EFFECT": 20
+   }
+  },
+  {
+   "route": "medical_jobs",
+   "ui_path": [
+    "Post Ad",
+    "(icon #1)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 1535,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "Medical Jobs | Browse | Post Ad | Inbox | Employer | (Looking for staf"
+   },
+   "status": "TESTED",
+   "inputs_filled": 7,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "UI_CHANGE",
+     "response_ms": 477
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 456
+    },
+    {
+     "label": "Browse",
+     "result": "UI_CHANGE",
+     "response_ms": 635
+    },
+    {
+     "label": "Post Ad",
+     "result": "UI_CHANGE",
+     "response_ms": 708
+    },
+    {
+     "label": "Inbox",
+     "result": "UI_CHANGE",
+     "response_ms": 752
+    },
+    {
+     "label": "Employer",
+     "result": "UI_CHANGE",
+     "response_ms": 661
+    },
+    {
+     "label": "Job Seeker",
+     "result": "UI_CHANGE",
+     "response_ms": 710
+    },
+    {
+     "label": "Job Title *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 737
+    },
+    {
+     "label": "Facility Name",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 681
+    },
+    {
+     "label": "Doctor",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 573
+    },
+    {
+     "label": "Nurse",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 648
+    },
+    {
+     "label": "Pharmacist",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 614
+    },
+    {
+     "label": "Lab",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 663
+    },
+    {
+     "label": "Radiology",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 643
+    },
+    {
+     "label": "طبيب عام",
+     "result": "UI_CHANGE",
+     "response_ms": 713
+    },
+    {
+     "label": "مقيم",
+     "result": "UI_CHANGE",
+     "response_ms": 674
+    },
+    {
+     "label": "أخصائي",
+     "result": "UI_CHANGE",
+     "response_ms": 687
+    },
+    {
+     "label": "أخصائي أول",
+     "result": "UI_CHANGE",
+     "response_ms": 694
+    },
+    {
+     "label": "استشاري",
+     "result": "UI_CHANGE",
+     "response_ms": 647
+    },
+    {
+     "label": "غير مصنف",
+     "result": "UI_CHANGE",
+     "response_ms": 711
+    },
+    {
+     "label": "City *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 662
+    },
+    {
+     "label": "Nationality",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 674
+    },
+    {
+     "label": "Experience",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 651
+    },
+    {
+     "label": "Full Time",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 639
+    },
+    {
+     "label": "Part Time",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 607
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 13,
+    "NO_EFFECT": 12
+   }
+  },
+  {
+   "route": "medical_jobs",
+   "ui_path": [
+    "Post Ad",
+    "Job Seeker"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 1521,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "Medical Jobs | Browse | Post Ad | Inbox | Employer | (Looking for staf"
+   },
+   "status": "TESTED",
+   "inputs_filled": 8,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 438
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 474
+    },
+    {
+     "label": "Browse",
+     "result": "UI_CHANGE",
+     "response_ms": 593
+    },
+    {
+     "label": "Post Ad",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 576
+    },
+    {
+     "label": "Inbox",
+     "result": "UI_CHANGE",
+     "response_ms": 922
+    },
+    {
+     "label": "Employer",
+     "result": "UI_CHANGE",
+     "response_ms": 572
+    },
+    {
+     "label": "Job Seeker",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 565
+    },
+    {
+     "label": "Desired Title *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 518
+    },
+    {
+     "label": "Current Facility",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 628
+    },
+    {
+     "label": "Doctor",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 585
+    },
+    {
+     "label": "Nurse",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 549
+    },
+    {
+     "label": "Pharmacist",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 550
+    },
+    {
+     "label": "Lab",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 539
+    },
+    {
+     "label": "Radiology",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 587
+    },
+    {
+     "label": "طبيب عام",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 564
+    },
+    {
+     "label": "مقيم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 563
+    },
+    {
+     "label": "أخصائي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 560
+    },
+    {
+     "label": "أخصائي أول",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 548
+    },
+    {
+     "label": "استشاري",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 584
+    },
+    {
+     "label": "غير مصنف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 561
+    },
+    {
+     "label": "City *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 563
+    },
+    {
+     "label": "Nationality",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 597
+    },
+    {
+     "label": "Experience",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 556
+    },
+    {
+     "label": "Full Time",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 551
+    },
+    {
+     "label": "Part Time",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 596
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 4,
+    "NO_EFFECT": 20
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 1865,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "Medical Drug Index | All | pain (10) | UE3C96A10 (2) | UC15A2210 (1)"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "medical_jobs",
+     "response_ms": 456
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 452
+    },
+    {
+     "label": "All",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 520
+    },
+    {
+     "label": "pain (10)",
+     "result": "UI_CHANGE",
+     "response_ms": 2019
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "UI_CHANGE",
+     "response_ms": 2073
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 2029
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 2034
+    },
+    {
+     "label": "UC15A2205",
+     "result": "UI_CHANGE",
+     "response_ms": 884
+    },
+    {
+     "label": "UE3C96A05",
+     "result": "UI_CHANGE",
+     "response_ms": 892
+    },
+    {
+     "label": "name_en-20701",
+     "result": "UI_CHANGE",
+     "response_ms": 939
+    },
+    {
+     "label": "Panadol Extra 500mg 0019c8",
+     "result": "UI_CHANGE",
+     "response_ms": 893
+    },
+    {
+     "label": "Panadol Extra 500mg 18f732",
+     "result": "UI_CHANGE",
+     "response_ms": 886
+    },
+    {
+     "label": "Panadol Extra 500mg 730a68",
+     "result": "UI_CHANGE",
+     "response_ms": 917
+    },
+    {
+     "label": "Panadol Extra 500mg 81b23b",
+     "result": "UI_CHANGE",
+     "response_ms": 913
+    },
+    {
+     "label": "Panadol Extra 500mg a33d6a",
+     "result": "UI_CHANGE",
+     "response_ms": 669
+    },
+    {
+     "label": "Vitamin C 1000mg 2dfd4a",
+     "result": "UI_CHANGE",
+     "response_ms": 879
+    },
+    {
+     "label": "Vitamin C 1000mg 5e0bd1",
+     "result": "UI_CHANGE",
+     "response_ms": 900
+    },
+    {
+     "label": "Vitamin C 1000mg 874ed2",
+     "result": "UI_CHANGE",
+     "response_ms": 974
+    },
+    {
+     "label": "Vitamin C 1000mg bca0db",
+     "result": "UI_CHANGE",
+     "response_ms": 876
+    },
+    {
+     "label": "Vitamin C 1000mg fc3790",
+     "result": "UI_CHANGE",
+     "response_ms": 887
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 2,
+    "UI_CHANGE": 17
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "pain (10)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 3717,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "Medical Drug Index | All | pain (10) | UE3C96A10 (2) | UC15A2210 (1)"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 449
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1890
+    },
+    {
+     "label": "All",
+     "result": "UI_CHANGE",
+     "response_ms": 1965
+    },
+    {
+     "label": "pain (10)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 547
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "UI_CHANGE",
+     "response_ms": 1994
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 2010
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1978
+    },
+    {
+     "label": "Panadol Extra 500mg 0019c8",
+     "result": "UI_CHANGE",
+     "response_ms": 862
+    },
+    {
+     "label": "Panadol Extra 500mg 18f732",
+     "result": "UI_CHANGE",
+     "response_ms": 879
+    },
+    {
+     "label": "Panadol Extra 500mg 730a68",
+     "result": "UI_CHANGE",
+     "response_ms": 860
+    },
+    {
+     "label": "Panadol Extra 500mg 81b23b",
+     "result": "UI_CHANGE",
+     "response_ms": 892
+    },
+    {
+     "label": "Panadol Extra 500mg a33d6a",
+     "result": "UI_CHANGE",
+     "response_ms": 873
+    },
+    {
+     "label": "Vitamin C 1000mg 2dfd4a",
+     "result": "UI_CHANGE",
+     "response_ms": 867
+    },
+    {
+     "label": "Vitamin C 1000mg 5e0bd1",
+     "result": "UI_CHANGE",
+     "response_ms": 865
+    },
+    {
+     "label": "Vitamin C 1000mg 874ed2",
+     "result": "UI_CHANGE",
+     "response_ms": 868
+    },
+    {
+     "label": "Vitamin C 1000mg bca0db",
+     "result": "UI_CHANGE",
+     "response_ms": 1169
+    },
+    {
+     "label": "Vitamin C 1000mg fc3790",
+     "result": "UI_CHANGE",
+     "response_ms": 988
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 15,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "UE3C96A10 (2)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 3743,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "Medical Drug Index | All | pain (10) | UE3C96A10 (2) | UC15A2210 (1)"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 463
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1927
+    },
+    {
+     "label": "All",
+     "result": "UI_CHANGE",
+     "response_ms": 2059
+    },
+    {
+     "label": "pain (10)",
+     "result": "UI_CHANGE",
+     "response_ms": 1917
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 466
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1940
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1930
+    },
+    {
+     "label": "UE3C96A05",
+     "result": "UI_CHANGE",
+     "response_ms": 856
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 6,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "UC15A2210 (1)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 3756,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "Medical Drug Index | All | pain (10) | UE3C96A10 (2) | UC15A2210 (1)"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 429
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1903
+    },
+    {
+     "label": "All",
+     "result": "UI_CHANGE",
+     "response_ms": 1986
+    },
+    {
+     "label": "pain (10)",
+     "result": "UI_CHANGE",
+     "response_ms": 1917
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "UI_CHANGE",
+     "response_ms": 1976
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 440
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1921
+    },
+    {
+     "label": "UC15A2205",
+     "result": "UI_CHANGE",
+     "response_ms": 834
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 6,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "category-20703 (1)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 3746,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "Medical Drug Index | All | pain (10) | UE3C96A10 (2) | UC15A2210 (1)"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 508
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1919
+    },
+    {
+     "label": "All",
+     "result": "UI_CHANGE",
+     "response_ms": 1961
+    },
+    {
+     "label": "pain (10)",
+     "result": "UI_CHANGE",
+     "response_ms": 1959
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "UI_CHANGE",
+     "response_ms": 1944
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "UI_CHANGE",
+     "response_ms": 1931
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 466
+    },
+    {
+     "label": "name_en-20701",
+     "result": "UI_CHANGE",
+     "response_ms": 850
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 6,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "UC15A2205"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 2656,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "Full Drug Profile | UC15A2205 | UC15A2208 | 0 SAR | Rx required | Acti"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "UI_CHANGE",
+     "response_ms": 801
+    },
+    {
+     "label": "Description",
+     "result": "UI_CHANGE",
+     "response_ms": 474
+    },
+    {
+     "label": "Indications",
+     "result": "UI_CHANGE",
+     "response_ms": 480
+    },
+    {
+     "label": "Dosage & Usage",
+     "result": "UI_CHANGE",
+     "response_ms": 461
+    },
+    {
+     "label": "Usage Instructions",
+     "result": "UI_CHANGE",
+     "response_ms": 463
+    },
+    {
+     "label": "Warnings",
+     "result": "UI_CHANGE",
+     "response_ms": 456
+    },
+    {
+     "label": "Contraindications",
+     "result": "UI_CHANGE",
+     "response_ms": 477
+    },
+    {
+     "label": "Side Effects",
+     "result": "UI_CHANGE",
+     "response_ms": 468
+    },
+    {
+     "label": "Suggest an edit for this drug",
+     "result": "UI_CHANGE",
+     "response_ms": 539
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 9
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "UE3C96A05"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 2645,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "Full Drug Profile | UE3C96A05 | UE3C96A08 | 0 SAR | Rx required | Acti"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "UI_CHANGE",
+     "response_ms": 821
+    },
+    {
+     "label": "Description",
+     "result": "UI_CHANGE",
+     "response_ms": 488
+    },
+    {
+     "label": "Indications",
+     "result": "UI_CHANGE",
+     "response_ms": 480
+    },
+    {
+     "label": "Dosage & Usage",
+     "result": "UI_CHANGE",
+     "response_ms": 474
+    },
+    {
+     "label": "Usage Instructions",
+     "result": "UI_CHANGE",
+     "response_ms": 483
+    },
+    {
+     "label": "Warnings",
+     "result": "UI_CHANGE",
+     "response_ms": 469
+    },
+    {
+     "label": "Contraindications",
+     "result": "UI_CHANGE",
+     "response_ms": 467
+    },
+    {
+     "label": "Side Effects",
+     "result": "UI_CHANGE",
+     "response_ms": 481
+    },
+    {
+     "label": "UE3C96A05",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 506
+    },
+    {
+     "label": "Suggest an edit for this drug",
+     "result": "UI_CHANGE",
+     "response_ms": 516
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 9,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "name_en-20701"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 2614,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "Full Drug Profile | name_en-20701 | 804 SAR | Rx required | Generic "
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "UI_CHANGE",
+     "response_ms": 796
+    },
+    {
+     "label": "Suggest an edit for this drug",
+     "result": "UI_CHANGE",
+     "response_ms": 489
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 2
+   }
+  },
+  {
+   "route": "drug_index",
+   "ui_path": [
+    "Panadol Extra 500mg 0019c8"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 2608,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "Full Drug Profile | Panadol Extra 500mg 0019c8 | GSK | 12.5 SAR | Ac"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "UI_CHANGE",
+     "response_ms": 814
+    },
+    {
+     "label": "Description",
+     "result": "UI_CHANGE",
+     "response_ms": 511
+    },
+    {
+     "label": "Indications",
+     "result": "UI_CHANGE",
+     "response_ms": 519
+    },
+    {
+     "label": "Panadol Extra 500mg 730a68",
+     "result": "UI_CHANGE",
+     "response_ms": 867
+    },
+    {
+     "label": "Vitamin C 1000mg bca0db",
+     "result": "UI_CHANGE",
+     "response_ms": 891
+    },
+    {
+     "label": "Panadol Extra 500mg a33d6a",
+     "result": "UI_CHANGE",
+     "response_ms": 548
+    },
+    {
+     "label": "Vitamin C 1000mg fc3790",
+     "result": "UI_CHANGE",
+     "response_ms": 922
+    },
+    {
+     "label": "Panadol Extra 500mg 18f732",
+     "result": "UI_CHANGE",
+     "response_ms": 870
+    },
+    {
+     "label": "Vitamin C 1000mg 2dfd4a",
+     "result": "UI_CHANGE",
+     "response_ms": 848
+    },
+    {
+     "label": "Panadol Extra 500mg 81b23b",
+     "result": "UI_CHANGE",
+     "response_ms": 864
+    },
+    {
+     "label": "Vitamin C 1000mg 874ed2",
+     "result": "UI_CHANGE",
+     "response_ms": 863
+    },
+    {
+     "label": "Suggest an edit for this drug",
+     "result": "UI_CHANGE",
+     "response_ms": 620
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 12
+   }
+  },
+  {
+   "route": "insurance_config",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 1871,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Health Insurance | Select which insurance providers you acce"
+   },
+   "status": "TESTED",
+   "inputs_filled": 25,
+   "elements": [
+    {
+     "label": "←",
+     "result": "UI_CHANGE",
+     "response_ms": 1327
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 517
+    },
+    {
+     "label": "(icon #2)",
+     "result": "UI_CHANGE",
+     "response_ms": 495
+    },
+    {
+     "label": "(icon #3)",
+     "result": "UI_CHANGE",
+     "response_ms": 479
+    },
+    {
+     "label": "(icon #4)",
+     "result": "UI_CHANGE",
+     "response_ms": 492
+    },
+    {
+     "label": "(icon #5)",
+     "result": "UI_CHANGE",
+     "response_ms": 489
+    },
+    {
+     "label": "(icon #6)",
+     "result": "UI_CHANGE",
+     "response_ms": 530
+    },
+    {
+     "label": "(icon #7)",
+     "result": "UI_CHANGE",
+     "response_ms": 481
+    },
+    {
+     "label": "(icon #8)",
+     "result": "UI_CHANGE",
+     "response_ms": 488
+    },
+    {
+     "label": "(icon #9)",
+     "result": "UI_CHANGE",
+     "response_ms": 510
+    },
+    {
+     "label": "(icon #10)",
+     "result": "UI_CHANGE",
+     "response_ms": 498
+    },
+    {
+     "label": "(icon #11)",
+     "result": "UI_CHANGE",
+     "response_ms": 476
+    },
+    {
+     "label": "(icon #12)",
+     "result": "UI_CHANGE",
+     "response_ms": 511
+    },
+    {
+     "label": "(icon #13)",
+     "result": "UI_CHANGE",
+     "response_ms": 526
+    },
+    {
+     "label": "(icon #14)",
+     "result": "UI_CHANGE",
+     "response_ms": 479
+    },
+    {
+     "label": "(icon #15)",
+     "result": "UI_CHANGE",
+     "response_ms": 503
+    },
+    {
+     "label": "(icon #16)",
+     "result": "UI_CHANGE",
+     "response_ms": 486
+    },
+    {
+     "label": "(icon #17)",
+     "result": "UI_CHANGE",
+     "response_ms": 500
+    },
+    {
+     "label": "(icon #18)",
+     "result": "UI_CHANGE",
+     "response_ms": 546
+    },
+    {
+     "label": "(icon #19)",
+     "result": "UI_CHANGE",
+     "response_ms": 520
+    },
+    {
+     "label": "(icon #20)",
+     "result": "UI_CHANGE",
+     "response_ms": 550
+    },
+    {
+     "label": "(icon #21)",
+     "result": "UI_CHANGE",
+     "response_ms": 482
+    },
+    {
+     "label": "(icon #22)",
+     "result": "UI_CHANGE",
+     "response_ms": 584
+    },
+    {
+     "label": "(icon #23)",
+     "result": "UI_CHANGE",
+     "response_ms": 478
+    },
+    {
+     "label": "(icon #24)",
+     "result": "UI_CHANGE",
+     "response_ms": 503
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 25
+   }
+  },
+  {
+   "route": "insurance_config",
+   "ui_path": [
+    "←"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 2246,
+   "status": "NOT_REACHABLE",
+   "reason": "navigation ended on MainTabs",
+   "screenshot": "/tmp/nav2_pharmacy_insurance_config_nav.png",
+   "controls_now": [
+    "(icon #0)",
+    "Orders Hub",
+    "B2B Procurement",
+    "Dispatch",
+    "Settings"
+   ],
+   "route_now": {
+    "name": "MainTabs",
+    "params": null
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
+  },
+  {
+   "route": "insurance_config",
+   "ui_path": [
+    "(icon #1)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 2262,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Health Insurance | Select which insurance providers you acce"
+   },
+   "status": "TESTED",
+   "inputs_filled": 25,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 966
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 472
+    },
+    {
+     "label": "Copay %",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1113
+    },
+    {
+     "label": "فئة VIP",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1013
+    },
+    {
+     "label": "الفئة الذهبية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1018
+    },
+    {
+     "label": "الفئة الفضية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 967
+    },
+    {
+     "label": "الفئة البرونزية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1007
+    },
+    {
+     "label": "(icon #7)",
+     "result": "UI_CHANGE",
+     "response_ms": 449
+    },
+    {
+     "label": "(icon #8)",
+     "result": "UI_CHANGE",
+     "response_ms": 453
+    },
+    {
+     "label": "(icon #9)",
+     "result": "UI_CHANGE",
+     "response_ms": 467
+    },
+    {
+     "label": "(icon #10)",
+     "result": "UI_CHANGE",
+     "response_ms": 466
+    },
+    {
+     "label": "(icon #11)",
+     "result": "UI_CHANGE",
+     "response_ms": 460
+    },
+    {
+     "label": "(icon #12)",
+     "result": "UI_CHANGE",
+     "response_ms": 472
+    },
+    {
+     "label": "(icon #13)",
+     "result": "UI_CHANGE",
+     "response_ms": 493
+    },
+    {
+     "label": "(icon #14)",
+     "result": "UI_CHANGE",
+     "response_ms": 461
+    },
+    {
+     "label": "(icon #15)",
+     "result": "UI_CHANGE",
+     "response_ms": 518
+    },
+    {
+     "label": "(icon #16)",
+     "result": "UI_CHANGE",
+     "response_ms": 473
+    },
+    {
+     "label": "(icon #17)",
+     "result": "UI_CHANGE",
+     "response_ms": 478
+    },
+    {
+     "label": "(icon #18)",
+     "result": "UI_CHANGE",
+     "response_ms": 488
+    },
+    {
+     "label": "(icon #19)",
+     "result": "UI_CHANGE",
+     "response_ms": 479
+    },
+    {
+     "label": "(icon #20)",
+     "result": "UI_CHANGE",
+     "response_ms": 466
+    },
+    {
+     "label": "(icon #21)",
+     "result": "UI_CHANGE",
+     "response_ms": 452
+    },
+    {
+     "label": "(icon #22)",
+     "result": "UI_CHANGE",
+     "response_ms": 464
+    },
+    {
+     "label": "(icon #23)",
+     "result": "UI_CHANGE",
+     "response_ms": 513
+    },
+    {
+     "label": "(icon #24)",
+     "result": "UI_CHANGE",
+     "response_ms": 511
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 19,
+    "NO_EFFECT": 5
+   }
+  },
+  {
+   "route": "insurance_config",
+   "ui_path": [
+    "(icon #2)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 2272,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Health Insurance | Select which insurance providers you acce"
+   },
+   "status": "TESTED",
+   "inputs_filled": 25,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 907
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 482
+    },
+    {
+     "label": "(icon #2)",
+     "result": "UI_CHANGE",
+     "response_ms": 458
+    },
+    {
+     "label": "Copay %",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1016
+    },
+    {
+     "label": "VIP",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 987
+    },
+    {
+     "label": "ذهبية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1022
+    },
+    {
+     "label": "فضية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1106
+    },
+    {
+     "label": "(icon #7)",
+     "result": "UI_CHANGE",
+     "response_ms": 475
+    },
+    {
+     "label": "(icon #8)",
+     "result": "UI_CHANGE",
+     "response_ms": 474
+    },
+    {
+     "label": "(icon #9)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 459
+    },
+    {
+     "label": "(icon #10)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 455
+    },
+    {
+     "label": "(icon #11)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 470
+    },
+    {
+     "label": "(icon #12)",
+     "result": "UI_CHANGE",
+     "response_ms": 501
+    },
+    {
+     "label": "(icon #13)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 452
+    },
+    {
+     "label": "(icon #14)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 474
+    },
+    {
+     "label": "(icon #15)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 444
+    },
+    {
+     "label": "(icon #16)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 443
+    },
+    {
+     "label": "(icon #17)",
+     "result": "UI_CHANGE",
+     "response_ms": 451
+    },
+    {
+     "label": "(icon #18)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 448
+    },
+    {
+     "label": "(icon #19)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 461
+    },
+    {
+     "label": "(icon #20)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 449
+    },
+    {
+     "label": "(icon #21)",
+     "result": "UI_CHANGE",
+     "response_ms": 465
+    },
+    {
+     "label": "(icon #22)",
+     "result": "UI_CHANGE",
+     "response_ms": 460
+    },
+    {
+     "label": "(icon #23)",
+     "result": "UI_CHANGE",
+     "response_ms": 450
+    },
+    {
+     "label": "(icon #24)",
+     "result": "UI_CHANGE",
+     "response_ms": 448
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 10,
+    "NO_EFFECT": 14
+   }
+  },
+  {
+   "route": "insurance_config",
+   "ui_path": [
+    "(icon #3)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 2276,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Health Insurance | Select which insurance providers you acce"
+   },
+   "status": "TESTED",
+   "inputs_filled": 25,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 957
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 458
+    },
+    {
+     "label": "(icon #2)",
+     "result": "UI_CHANGE",
+     "response_ms": 471
+    },
+    {
+     "label": "(icon #3)",
+     "result": "UI_CHANGE",
+     "response_ms": 466
+    },
+    {
+     "label": "Copay %",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1033
+    },
+    {
+     "label": "فئة A",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 973
+    },
+    {
+     "label": "فئة B",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1030
+    },
+    {
+     "label": "فئة C",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 946
+    },
+    {
+     "label": "(icon #8)",
+     "result": "UI_CHANGE",
+     "response_ms": 453
+    },
+    {
+     "label": "(icon #9)",
+     "result": "UI_CHANGE",
+     "response_ms": 487
+    },
+    {
+     "label": "(icon #10)",
+     "result": "UI_CHANGE",
+     "response_ms": 479
+    },
+    {
+     "label": "(icon #11)",
+     "result": "UI_CHANGE",
+     "response_ms": 474
+    },
+    {
+     "label": "(icon #12)",
+     "result": "UI_CHANGE",
+     "response_ms": 457
+    },
+    {
+     "label": "(icon #13)",
+     "result": "UI_CHANGE",
+     "response_ms": 467
+    },
+    {
+     "label": "(icon #14)",
+     "result": "UI_CHANGE",
+     "response_ms": 516
+    },
+    {
+     "label": "(icon #15)",
+     "result": "UI_CHANGE",
+     "response_ms": 501
+    },
+    {
+     "label": "(icon #16)",
+     "result": "UI_CHANGE",
+     "response_ms": 480
+    },
+    {
+     "label": "(icon #17)",
+     "result": "UI_CHANGE",
+     "response_ms": 454
+    },
+    {
+     "label": "(icon #18)",
+     "result": "UI_CHANGE",
+     "response_ms": 483
+    },
+    {
+     "label": "(icon #19)",
+     "result": "UI_CHANGE",
+     "response_ms": 471
+    },
+    {
+     "label": "(icon #20)",
+     "result": "UI_CHANGE",
+     "response_ms": 468
+    },
+    {
+     "label": "(icon #21)",
+     "result": "UI_CHANGE",
+     "response_ms": 476
+    },
+    {
+     "label": "(icon #22)",
+     "result": "UI_CHANGE",
+     "response_ms": 483
+    },
+    {
+     "label": "(icon #23)",
+     "result": "UI_CHANGE",
+     "response_ms": 478
+    },
+    {
+     "label": "(icon #24)",
+     "result": "UI_CHANGE",
+     "response_ms": 459
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 20,
+    "NO_EFFECT": 4
+   }
+  },
+  {
+   "route": "insurance_config",
+   "ui_path": [
+    "(icon #4)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 2273,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Health Insurance | Select which insurance providers you acce"
+   },
+   "status": "TESTED",
+   "inputs_filled": 25,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 1011
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 483
+    },
+    {
+     "label": "(icon #2)",
+     "result": "UI_CHANGE",
+     "response_ms": 467
+    },
+    {
+     "label": "(icon #3)",
+     "result": "UI_CHANGE",
+     "response_ms": 451
+    },
+    {
+     "label": "(icon #4)",
+     "result": "UI_CHANGE",
+     "response_ms": 457
+    },
+    {
+     "label": "Copay %",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1006
+    },
+    {
+     "label": "ذهبية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1040
+    },
+    {
+     "label": "فضية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 954
+    },
+    {
+     "label": "(icon #8)",
+     "result": "UI_CHANGE",
+     "response_ms": 451
+    },
+    {
+     "label": "(icon #9)",
+     "result": "UI_CHANGE",
+     "response_ms": 482
+    },
+    {
+     "label": "(icon #10)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 453
+    },
+    {
+     "label": "(icon #11)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 466
+    },
+    {
+     "label": "(icon #12)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 456
+    },
+    {
+     "label": "(icon #13)",
+     "result": "UI_CHANGE",
+     "response_ms": 453
+    },
+    {
+     "label": "(icon #14)",
+     "result": "UI_CHANGE",
+     "response_ms": 476
+    },
+    {
+     "label": "(icon #15)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 442
+    },
+    {
+     "label": "(icon #16)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 453
+    },
+    {
+     "label": "(icon #17)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 450
+    },
+    {
+     "label": "(icon #18)",
+     "result": "UI_CHANGE",
+     "response_ms": 476
+    },
+    {
+     "label": "(icon #19)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 447
+    },
+    {
+     "label": "(icon #20)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 445
+    },
+    {
+     "label": "(icon #21)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 457
+    },
+    {
+     "label": "(icon #22)",
+     "result": "UI_CHANGE",
+     "response_ms": 463
+    },
+    {
+     "label": "(icon #23)",
+     "result": "UI_CHANGE",
+     "response_ms": 460
+    },
+    {
+     "label": "(icon #24)",
+     "result": "UI_CHANGE",
+     "response_ms": 463
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 12,
+    "NO_EFFECT": 12
+   }
+  },
+  {
+   "route": "insurance_config",
+   "ui_path": [
+    "(icon #7)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 2259,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Health Insurance | Select which insurance providers you acce"
+   },
+   "status": "TESTED",
+   "inputs_filled": 25,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 1001
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 456
+    },
+    {
+     "label": "(icon #2)",
+     "result": "UI_CHANGE",
+     "response_ms": 448
+    },
+    {
+     "label": "(icon #3)",
+     "result": "UI_CHANGE",
+     "response_ms": 455
+    },
+    {
+     "label": "(icon #4)",
+     "result": "UI_CHANGE",
+     "response_ms": 456
+    },
+    {
+     "label": "(icon #5)",
+     "result": "UI_CHANGE",
+     "response_ms": 465
+    },
+    {
+     "label": "(icon #6)",
+     "result": "UI_CHANGE",
+     "response_ms": 458
+    },
+    {
+     "label": "(icon #7)",
+     "result": "UI_CHANGE",
+     "response_ms": 444
+    },
+    {
+     "label": "Copay %",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 933
+    },
+    {
+     "label": "شاملة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1039
+    },
+    {
+     "label": "أساسية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 967
+    },
+    {
+     "label": "(icon #11)",
+     "result": "UI_CHANGE",
+     "response_ms": 448
+    },
+    {
+     "label": "(icon #12)",
+     "result": "UI_CHANGE",
+     "response_ms": 448
+    },
+    {
+     "label": "(icon #13)",
+     "result": "UI_CHANGE",
+     "response_ms": 466
+    },
+    {
+     "label": "(icon #14)",
+     "result": "UI_CHANGE",
+     "response_ms": 465
+    },
+    {
+     "label": "(icon #15)",
+     "result": "UI_CHANGE",
+     "response_ms": 482
+    },
+    {
+     "label": "(icon #16)",
+     "result": "UI_CHANGE",
+     "response_ms": 488
+    },
+    {
+     "label": "(icon #17)",
+     "result": "UI_CHANGE",
+     "response_ms": 478
+    },
+    {
+     "label": "(icon #18)",
+     "result": "UI_CHANGE",
+     "response_ms": 466
+    },
+    {
+     "label": "(icon #19)",
+     "result": "UI_CHANGE",
+     "response_ms": 454
+    },
+    {
+     "label": "(icon #20)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 436
+    },
+    {
+     "label": "(icon #21)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 453
+    },
+    {
+     "label": "(icon #22)",
+     "result": "UI_CHANGE",
+     "response_ms": 465
+    },
+    {
+     "label": "(icon #23)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 441
+    },
+    {
+     "label": "(icon #24)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 450
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 17,
+    "NO_EFFECT": 7
+   }
+  },
+  {
+   "route": "certificates_config",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 738,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Qualifications | Official documents linked to your professio"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "insurance_config",
+     "response_ms": 478
+    },
+    {
+     "label": "Upload Document",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 463
+    },
+    {
+     "label": "Upload New Certificate",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 447
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "media_config",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 394,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Photos & Media | Photos displayed on your public profile for"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "certificates_config",
+     "response_ms": 441
+    },
+    {
+     "label": "Add Photo",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 446
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "pharmacy_info",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 392,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Pharmacy QR Catalog | Scan to view pharmacy catalog | Branch o"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "media_config",
+     "response_ms": 449
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "insurance_requests",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 740,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Insurance Requests | Manual review before service | shield | No "
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "media_config",
+     "response_ms": 451
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "product_catalog",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 736,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Active Inventory | Add a medicine from the catalog | Search | No"
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "media_config",
+     "response_ms": 491
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 453
+    },
+    {
+     "label": "(icon #2)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 428
+    },
+    {
+     "label": "Search",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 448
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 3
+   }
+  },
+  {
+   "route": "working_hours",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 740,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Working Hours Management | Sunday | Closed | Monday | Closed | Tuesd"
+   },
+   "status": "TESTED",
+   "inputs_filled": 7,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "product_catalog",
+     "response_ms": 492
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 454
+    },
+    {
+     "label": "(icon #2)",
+     "result": "UI_CHANGE",
+     "response_ms": 453
+    },
+    {
+     "label": "(icon #3)",
+     "result": "UI_CHANGE",
+     "response_ms": 459
+    },
+    {
+     "label": "(icon #4)",
+     "result": "UI_CHANGE",
+     "response_ms": 460
+    },
+    {
+     "label": "(icon #5)",
+     "result": "UI_CHANGE",
+     "response_ms": 460
+    },
+    {
+     "label": "(icon #6)",
+     "result": "UI_CHANGE",
+     "response_ms": 459
+    },
+    {
+     "label": "(icon #7)",
+     "result": "UI_CHANGE",
+     "response_ms": 475
+    },
+    {
+     "label": "Save Working Hours",
+     "result": "WRITE",
+     "status": 200,
+     "method": "PUT",
+     "url": "/provider/working-hours",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 873
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 7,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "working_hours",
+   "ui_path": [
+    "(icon #1)"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 1145,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Working Hours Management | Sunday | 08:00 - 22:00 | From (HH:MM)"
+   },
+   "status": "TESTED",
+   "inputs_filled": 9,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 587
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 428
+    },
+    {
+     "label": "From (HH:MM)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 498
+    },
+    {
+     "label": "To (HH:MM)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 502
+    },
+    {
+     "label": "(icon #4)",
+     "result": "UI_CHANGE",
+     "response_ms": 438
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 418
+    },
+    {
+     "label": "(icon #6)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 448
+    },
+    {
+     "label": "(icon #7)",
+     "result": "UI_CHANGE",
+     "response_ms": 459
+    },
+    {
+     "label": "(icon #8)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 439
+    },
+    {
+     "label": "(icon #9)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 456
+    },
+    {
+     "label": "Save Working Hours",
+     "result": "WRITE",
+     "status": 200,
+     "method": "PUT",
+     "url": "/provider/working-hours",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 872
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 3,
+    "NO_EFFECT": 6,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "notifications",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 1252,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Notifications Center | No notifications yet"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "working_hours",
+     "response_ms": 439
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "support",
+   "ui_path": [],
+   "reached_by": "DIRECT",
+   "params": null,
+   "time_to_ready_ms": 393,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Technical Support | Create New Support Ticket | Submit Ticket | "
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "working_hours",
+     "response_ms": 476
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 444
+    },
+    {
+     "label": "(icon #2)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 424
+    },
+    {
+     "label": "Submit Ticket",
+     "result": "UI_CHANGE",
+     "response_ms": 460
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 2,
+    "UI_CHANGE": 1
+   }
+  }
+ ],
+ "registered": [
+  "MainTabs",
+  "shortage",
+  "b2b_supply",
+  "scanner",
+  "wallet",
+  "withdrawal_workflow",
+  "order_history",
+  "returns_rma",
+  "delivery_track",
+  "pharmacy_chat",
+  "qr_menu",
+  "reviews",
+  "chronic",
+  "promotions",
+  "create_promo",
+  "web_config",
+  "subscriptions_ads",
+  "affiliate",
+  "reputation",
+  "crm",
+  "revenue_insights",
+  "pharmacy_broadcast",
+  "expiry_monitor",
+  "medical_jobs",
+  "drug_index",
+  "insurance_config",
+  "certificates_config",
+  "media_config",
+  "pharmacy_info",
+  "insurance_requests",
+  "insurance_decisions",
+  "product_catalog",
+  "working_hours",
+  "notifications",
+  "support"
+ ],
+ "reloads": 291,
+ "coverage": {
+  "registered": 35,
+  "tested_routes": 35,
+  "states_tested": 60,
+  "by_status": {
+   "CRAWLER_TARGET_MISSING": 5,
+   "NOT_REACHABLE": 1,
+   "TESTED": 60
+  },
+  "routes_tested": [
+   "MainTabs",
+   "affiliate",
+   "b2b_supply",
+   "certificates_config",
+   "chronic",
+   "create_promo",
+   "crm",
+   "delivery_track",
+   "drug_index",
+   "expiry_monitor",
+   "insurance_config",
+   "insurance_decisions",
+   "insurance_requests",
+   "media_config",
+   "medical_jobs",
+   "notifications",
+   "order_history",
+   "pharmacy_broadcast",
+   "pharmacy_chat",
+   "pharmacy_info",
+   "product_catalog",
+   "promotions",
+   "qr_menu",
+   "reputation",
+   "returns_rma",
+   "revenue_insights",
+   "reviews",
+   "scanner",
+   "shortage",
+   "subscriptions_ads",
+   "support",
+   "wallet",
+   "web_config",
+   "withdrawal_workflow",
+   "working_hours"
+  ],
+  "not_visited": []
+ }
+}

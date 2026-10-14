@@ -13,7 +13,7 @@ def live_env_hold_zero(admin):
     # so the payout flow can complete in one run (production keeps the delay
     # and the 100 SAR minimum).
     journey('payouts: live env releases the escrow hold')
-    r = admin.put('/admin/admin/finance/commissions', {'settlement': {'delay_days': {'default': 0}},
+    r = admin.put('/admin/admin/legal/commissions-policy', {'settlement': {'delay_days': {'default': 0}},
                                                        'payout_schedule': {'minimum_payout_sar': 0}})
     step('settlement hold set to 0 for the live env', r.ok, r)
 
@@ -78,7 +78,7 @@ def legal_and_commissions(admin):
     step('the public policy shows the new text', r.ok and text in str(r.body), r)
     r = admin.get('/legal/policies')
     step('policies list includes it', r.ok and 'privacy' in str(r.body), r)
-    r = admin.get('/admin/admin/finance/commissions')
+    r = admin.get('/admin/admin/legal/commissions-policy')
     step('commissions load', r.ok, r)
     cur = r.body if isinstance(r.body, dict) else {}
     st = dict((cur.get('service_types') or {}))
@@ -86,13 +86,13 @@ def legal_and_commissions(admin):
     old = ph.get('percent')
     ph['percent'] = 11
     st['pharmacy'] = ph
-    r = admin.put('/admin/admin/finance/commissions', {'service_types': st})
+    r = admin.put('/admin/admin/legal/commissions-policy', {'service_types': st})
     step('admin changes the pharmacy commission', r.ok, r)
-    r = admin.get('/admin/admin/finance/commissions')
+    r = admin.get('/admin/admin/legal/commissions-policy')
     step('the change is saved', r.ok and ((r.get('service_types') or {}).get('pharmacy') or {}).get('percent') == 11, r)
     if old is not None:
         st['pharmacy']['percent'] = old
-        admin.put('/admin/admin/finance/commissions', {'service_types': st})
+        admin.put('/admin/admin/legal/commissions-policy', {'service_types': st})
     r = admin.get('/admin/admin/finance/ledger/summary')
     step('ledger summary loads', r.ok, r)
 

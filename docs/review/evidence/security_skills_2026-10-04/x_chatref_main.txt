@@ -1,0 +1,7 @@
+[main] chat: stranger A -> direct thread to unrelated B: 403 {'message': 'direct_chat_requires_existing_relationship', 'error': 'Forbidden', 'statusCode': 403}
+[main] chat: stranger A -> group thread with B: 201 id=b8c0386c-ddbb-4d79-b080-085996a2eae8
+[main] chat: A sends message: 201
+[main] chat: thread appears in B inbox: 200 True
+[main] refund: A requests refund for booking-of-A-192398e0: 201 patient_id=192398e0-8c9f-4b93-8b73-891165773e7c
+[main] refund: B requests same booking id: 201 -> returns patient_id=192398e0-8c9f-4b93-8b73-891165773e7c reason='synthetic A reason (private)' amount_paid=250
+[main] refund: B files for a booking that does not exist: 201 refund_percent=100 refund_amount=99999

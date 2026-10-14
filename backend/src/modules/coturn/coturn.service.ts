@@ -22,7 +22,9 @@ export class CoturnService {
 
   constructor() {
     this.coturnHost = process.env.COTURN_HOST || 'turn.example.com';
-    this.coturnSecret = process.env.COTURN_SECRET || 'change_this_secret';
+    // No fallback: a default secret is public (it is in this repo), so anyone could
+    // mint valid TURN credentials offline. Without COTURN_SECRET, TURN is unconfigured.
+    this.coturnSecret = process.env.COTURN_SECRET || '';
     this.stunPort = parseInt(process.env.COTURN_STUN_PORT || '3478', 10);
     this.turnPort = parseInt(process.env.COTURN_TURN_PORT || '3478', 10);
     // TURN realm — must match the `realm=` directive in turnserver.conf
@@ -46,7 +48,7 @@ export class CoturnService {
 
   /** True only when a real TURN host is configured (never the placeholder). */
   isConfigured(): boolean {
-    return !!process.env.COTURN_HOST || !!process.env.TURN_URLS;
+    return (!!process.env.COTURN_HOST || !!process.env.TURN_URLS) && !!this.coturnSecret;
   }
 
   /**

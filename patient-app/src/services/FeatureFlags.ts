@@ -27,7 +27,6 @@ export type FlagKey =
   | 'video_consultations'
   | 'prescription_renewal'
   | 'health_monitoring'
-  | 'emergency_sos'
   // F20: smartwatch pairing (HealthKit/Health Connect) — off until real integration
   | 'wearables_enabled'
   // Development
@@ -74,7 +73,6 @@ const STATIC_DEFAULTS: Record<FlagKey, boolean> = {
   video_consultations:   true,
   prescription_renewal:  false,
   health_monitoring:     true,
-  emergency_sos:         true,
   wearables_enabled:    false,   // F20: no HealthKit/Health Connect yet
   debug_overlay:         false,
   analytics_verbose:     false,

@@ -7,7 +7,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import {
  View, Text, TouchableOpacity, ScrollView, StyleSheet,
- Animated, StatusBar, Dimensions, KeyboardAvoidingView,
+ Animated, StatusBar, useWindowDimensions, KeyboardAvoidingView,
  Platform, Vibration, Alert, Modal, ActivityIndicator, TextInput
 } from 'react-native';
 import { useTheme, useLang, useAuth, useToast } from '../../context';
@@ -21,7 +21,6 @@ import { SP, R, FS, FW, PROVIDER_TYPES, LIMITS, API_BASE } from '../../constants
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { tokens } from '../../theme/tokens';
 
-const { width: W, height: H } = Dimensions.get('window');
 
 // ══════════════════════════════════════════════════════════
 // SPLASH SCREEN
@@ -578,6 +577,7 @@ export function ForgotPasswordScreen({
  const { login } = useAuth();
  const AR = lang === 'ar';
  const insets = useSafeAreaInsets();
+ const { width: W } = useWindowDimensions();
 
  const [step, setStep] = useState<1 | 2 | 3>(1);
  const [target, setTarget] = useState('');

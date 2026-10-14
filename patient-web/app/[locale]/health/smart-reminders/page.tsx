@@ -4,10 +4,10 @@ import { isLocale } from "@/lib/i18n";
 
 type Props = { params: Promise<{ locale: string }> };
 
-/** Parity with app health/smart-reminders: canonical list is medication reminders. */
+/** Parity with app health/smart-reminders: the reminders are the "All reminders" tab of the medications screen. */
 export default async function HealthSmartRemindersPage({ params }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
-  redirect(`/${locale}/reminders`);
+  redirect(`/${locale}/health/medications?tab=all`);
 }

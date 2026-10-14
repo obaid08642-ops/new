@@ -1,0 +1,618 @@
+{
+ "provider_type": "doctor",
+ "login_via_ui": true,
+ "states": [
+  {
+   "path": [],
+   "heading": "الرئيسية | 0 | مواعيد اليوم | 0 | طلبات جديدة | طلبات جديدة | عرض الكل | ل",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "عرض الكل",
+     "result": "NAVIGATE",
+     "to": " المواعيد | يوم | أسبوع | قائمة | الكل | فيديو | عيا"
+    },
+    {
+     "label": "الجميع",
+     "result": "NAVIGATE",
+     "to": " المواعيد | يوم | أسبوع | قائمة | الكل | فيديو | عيا"
+    },
+    {
+     "label": "الوظائف الطبية",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "دليل الأدوية",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "التقارير الطبية الواردة (نتائج الأشعة وا",
+     "result": "NAVIGATE",
+     "to": "→ | التقارير الطبية الواردة | folder | لا توجد"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "المواعيد",
+     "result": "NAVIGATE",
+     "to": " المواعيد | يوم | أسبوع | قائمة | الكل | فيديو | عيا"
+    },
+    {
+     "label": "المحادثات",
+     "result": "NAVIGATE",
+     "to": "المحادثات | الرئيسية | المواعيد | المحادثات | ال"
+    },
+    {
+     "label": "المحفظة",
+     "result": "NAVIGATE",
+     "to": "المحفظة والإيرادات | wallet | 0 SAR | الرصيد ا"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | دعوات المنشآت (0) | ‹ | المظهر وال"
+    }
+   ]
+  },
+  {
+   "path": [
+    "عرض الكل"
+   ],
+   "heading": " المواعيد | يوم | أسبوع | قائمة | الكل | فيديو | عيادة | منزلية | calendar | ل",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "→ | غرفة الانتظار الافتراضية | video | لا يوجد"
+    },
+    {
+     "label": "يوم",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "أسبوع",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "قائمة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "فيديو",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "عيادة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "منزلية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NAVIGATE",
+     "to": "الرئيسية | 0 | مواعيد اليوم | 0 | طلبات جديدة | طل"
+    },
+    {
+     "label": "المواعيد",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "المحادثات",
+     "result": "NAVIGATE",
+     "to": "المحادثات | الرئيسية | المواعيد | المحادثات | ال"
+    },
+    {
+     "label": "المحفظة",
+     "result": "NAVIGATE",
+     "to": "المحفظة والإيرادات | wallet | 0 SAR | الرصيد ا"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | دعوات المنشآت (0) | ‹ | المظهر وال"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الوظائف الطبية"
+   ],
+   "heading": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | الوارد (ATS)",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "الرئيسية | 0 | مواعيد اليوم | 0 | طلبات جديدة | طل"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "تصفح الوظائف",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "إضافة إعلان",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "الوارد (ATS)",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "(icon #5)",
+     "result": "TAP_FAILED",
+     "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+    }
+   ]
+  },
+  {
+   "path": [
+    "دليل الأدوية"
+   ],
+   "heading": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A10 (2) | category-2070",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "الرئيسية | 0 | مواعيد اليوم | 0 | طلبات جديدة | طل"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "pain (8)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UE3C96A04",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "name_ar-20700",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 18f732",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 730a68",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 81b23b",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ a33d6a",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 2dfd4a",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 874ed2",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ bca0db",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ fc3790",
+     "result": "JS_ERROR",
+     "error": "Cannot read properties of undefined (reading 'map')"
+    }
+   ]
+  },
+  {
+   "path": [
+    "التقارير الطبية الواردة (نتائج الأشعة وا"
+   ],
+   "heading": "→ | التقارير الطبية الواردة | folder | لا توجد تقارير | لا توجد نتائ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "الرئيسية | 0 | مواعيد اليوم | 0 | طلبات جديدة | طل"
+    }
+   ]
+  },
+  {
+   "path": [
+    "المحادثات"
+   ],
+   "heading": "المحادثات | الرئيسية | المواعيد | المحادثات | المحفظة | الإعدادات",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "الرئيسية | 0 | مواعيد اليوم | 0 | طلبات جديدة | طل"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NAVIGATE",
+     "to": "الرئيسية | 0 | مواعيد اليوم | 0 | طلبات جديدة | طل"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NAVIGATE",
+     "to": "الرئيسية | 0 | مواعيد اليوم | 0 | طلبات جديدة | طل"
+    },
+    {
+     "label": "المواعيد",
+     "result": "NAVIGATE",
+     "to": " المواعيد | يوم | أسبوع | قائمة | الكل | فيديو | عيا"
+    },
+    {
+     "label": "المحادثات",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "المحفظة",
+     "result": "NAVIGATE",
+     "to": "المحفظة والإيرادات | wallet | 0 SAR | الرصيد ا"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | دعوات المنشآت (0) | ‹ | المظهر وال"
+    }
+   ]
+  },
+  {
+   "path": [
+    "المحفظة"
+   ],
+   "heading": "المحفظة والإيرادات | wallet | 0 SAR | الرصيد المتاح للسحب | shield | 0",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "طلب سحب رصيد",
+     "result": "NAVIGATE",
+     "to": "→ | سحب الأموال | الرصيد المتاح للسحب: 0.00 "
+    },
+    {
+     "label": "التقارير والإحصائيات",
+     "result": "NAVIGATE",
+     "to": "→ | تفاصيل الإيرادات والتحليلات | صافي أرباح"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NAVIGATE",
+     "to": "الرئيسية | 0 | مواعيد اليوم | 0 | طلبات جديدة | طل"
+    },
+    {
+     "label": "المواعيد",
+     "result": "NAVIGATE",
+     "to": " المواعيد | يوم | أسبوع | قائمة | الكل | فيديو | عيا"
+    },
+    {
+     "label": "المحادثات",
+     "result": "NAVIGATE",
+     "to": "المحادثات | الرئيسية | المواعيد | المحادثات | ال"
+    },
+    {
+     "label": "المحفظة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": "الإعدادات | دعوات المنشآت (0) | ‹ | المظهر وال"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الإعدادات"
+   ],
+   "heading": "الإعدادات | دعوات المنشآت (0) | ‹ | المظهر واللغة | الوضع النهاري | ال",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 10,
+   "elements": [
+    {
+     "label": "دعوات المنشآت (0)",
+     "result": "NAVIGATE",
+     "to": "→ | دعوات المنشآت | لا توجد دعوات حالياً"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "EN",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "(icon #3)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #4)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #6)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #7)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #8)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "حفظ التعديلات",
+     "result": "WRITE",
+     "status": 200,
+     "method": "PUT",
+     "url": "/provider/settings/pricing",
+     "tokens_sent": 0,
+     "tokens_stored": 0
+    },
+    {
+     "label": "تعديل الملف الشخصي",
+     "result": "NAVIGATE",
+     "to": "→ | تعديل الملف الشخصي | V |  لتحسين مظهر البر"
+    },
+    {
+     "label": "الموقع ونطاق التغطية",
+     "result": "JS_ERROR",
+     "error": "(0 , r(...).codegenNativeComponent) is not a function"
+    },
+    {
+     "label": "مواعيد العمل (Scheduler)",
+     "result": "NAVIGATE",
+     "to": "→ |  جدول المواعيد والتوفر | ️ إجازة مؤقتة ("
+    },
+    {
+     "label": "شركات التأمين",
+     "result": "NAVIGATE",
+     "to": "→ | التأمين الصحي | حدد شركات التأمين المقبو"
+    },
+    {
+     "label": "طلبات التأمين الواردة",
+     "result": "NAVIGATE",
+     "to": "→ | طلبات التأمين | مراجعة يدوية قبل تقديم ا"
+    },
+    {
+     "label": "(icon #15)",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "(icon #16)",
+     "result": "NAVIGATE",
+     "to": "Settings | Facility Invitations (0) | › | APPE"
+    },
+    {
+     "label": "(icon #17)",
+     "result": "TAP_FAILED",
+     "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+    },
+    {
+     "label": "تسجيل الخروج",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "TAP_FAILED",
+     "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+    },
+    {
+     "label": "المواعيد",
+     "result": "TAP_FAILED",
+     "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+    },
+    {
+     "label": "المحادثات",
+     "result": "TAP_FAILED",
+     "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiti"
+    }
+   ]
+  },
+  {
+   "path": [
+    "عرض الكل",
+    "(icon #0)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الوظائف الطبية",
+    "(icon #1)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الوظائف الطبية",
+    "إضافة إعلان"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "دليل الأدوية",
+    "pain (8)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "دليل الأدوية",
+    "UE3C96A10 (2)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "دليل الأدوية",
+    "category-20703 (1)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "المحفظة",
+    "طلب سحب رصيد"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "المحفظة",
+    "التقارير والإحصائيات"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "دعوات المنشآت (0)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "تعديل الملف الشخصي"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "مواعيد العمل (Scheduler)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "شركات التأمين"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "طلبات التأمين الواردة"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  },
+  {
+   "path": [
+    "الإعدادات",
+    "(icon #16)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "Locator.scroll_into_view_if_needed: Timeout 1500ms exceeded.\nCall log:\n  - waiting for locator(\"[tab"
+  }
+ ],
+ "unvisited_states": 0
+}

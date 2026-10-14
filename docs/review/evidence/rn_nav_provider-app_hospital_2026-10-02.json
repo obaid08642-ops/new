@@ -1,0 +1,2880 @@
+{
+ "provider_type": "hospital",
+ "login_via_ui": true,
+ "states": [
+  {
+   "path": [],
+   "heading": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | مواعيد اليوم | bed | 0/84 | أ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "→ |  تسجيل دخول المرضى QR | مسح QR | يدوي | السج"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NAVIGATE",
+     "to": "→ | مركز الإشعارات والتنبيهات | لا توجد إشعا"
+    },
+    {
+     "label": "توسيع",
+     "result": "NAVIGATE",
+     "to": "→ | لوحة توجيه التمريض والممرضين | لا توجد ط"
+    },
+    {
+     "label": "◈",
+     "result": "NAVIGATE",
+     "to": "→ |  التقارير المالية الموحدة | أسبوع | شهر | سن"
+    },
+    {
+     "label": "إدارة",
+     "result": "NAVIGATE",
+     "to": "→ |  إدارة الكوادر | + | الكل | طبيب | منسق تأمين | "
+    },
+    {
+     "label": "طلبات",
+     "result": "NAVIGATE",
+     "to": "→ | إدارة الإجازات والأعذار | لا توجد طلبات "
+    },
+    {
+     "label": "الأقسام",
+     "result": "NAVIGATE",
+     "to": "→ |  إدارة الأقسام | 0 | الأقسام | 0 | نشطة | 0 | الكو"
+    },
+    {
+     "label": "جدول",
+     "result": "NAVIGATE",
+     "to": "→ |  جدول غرف العمليات | 3 | غرف | 0 | عمليات مجدو"
+    },
+    {
+     "label": "مطالبات",
+     "result": "NAVIGATE",
+     "to": "→ |  مطالبات التأمين | 0.0K | ر | مقبولة هذا الش"
+    },
+    {
+     "label": "الحضور",
+     "result": "NAVIGATE",
+     "to": "→ |  الحضور والانصراف | 0 | حاضر | 0 | غائب | users | "
+    },
+    {
+     "label": "التوثيق",
+     "result": "NAVIGATE",
+     "to": "→ |  التوثيق المهني | تتبع تراخيص SCFHS، شها"
+    },
+    {
+     "label": "تتبع",
+     "result": "NAVIGATE",
+     "to": "→ | تتبع المرضى (Patient Tracker) | مراقبة ح"
+    },
+    {
+     "label": "لوحة",
+     "result": "NAVIGATE",
+     "to": "→ | لوحة توجيه التمريض والممرضين | لا توجد ط"
+    },
+    {
+     "label": "التواصل",
+     "result": "NAVIGATE",
+     "to": "→ | التواصل الداخلي | قنوات التواصل المباشر"
+    },
+    {
+     "label": "سجل",
+     "result": "NAVIGATE",
+     "to": "→ | سجل التدقيق (Audit Logs) | تتبع وتوثيق ك"
+    },
+    {
+     "label": "التعاميم",
+     "result": "NAVIGATE",
+     "to": "→ | التعاميم والإعلانات | إرسال تعميم جديد | ن"
+    },
+    {
+     "label": "التفاصيل",
+     "result": "NAVIGATE",
+     "to": "→ |  إدارة الأسرّة | bed | 84 | الإجمالي | user | 0 | "
+    },
+    {
+     "label": "الكل",
+     "result": "NAVIGATE",
+     "to": "→ | التقويم الموحد (Unified Calendar) | عرض "
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NAVIGATE",
+     "to": "الطلبات | طلبات جديدة (0) | مؤكدة | الإشعارات "
+    },
+    {
+     "label": "الوظائف",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "الأدوية",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    }
+   ]
+  },
+  {
+   "path": [
+    "(icon #0)"
+   ],
+   "heading": "→ |  تسجيل دخول المرضى QR | مسح QR | يدوي | السجل | وجّه الكاميرا نحو ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    },
+    {
+     "label": "مسح QR",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "يدوي",
+     "result": "NAVIGATE",
+     "to": "→ |  تسجيل دخول المرضى QR | مسح QR | يدوي | السج"
+    },
+    {
+     "label": "السجل",
+     "result": "NAVIGATE",
+     "to": "→ |  تسجيل دخول المرضى QR | مسح QR | يدوي | السج"
+    },
+    {
+     "label": "تفعيل الكاميرا",
+     "result": "UI_CHANGE"
+    }
+   ]
+  },
+  {
+   "path": [
+    "(icon #1)"
+   ],
+   "heading": "→ | مركز الإشعارات والتنبيهات | لا توجد إشعارات بعد",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    }
+   ]
+  },
+  {
+   "path": [
+    "توسيع"
+   ],
+   "heading": "→ | لوحة توجيه التمريض والممرضين | لا توجد طلبات رعاية منزلية حا",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "403 GET /home-care/bookings/nursing/all"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    }
+   ]
+  },
+  {
+   "path": [
+    "◈"
+   ],
+   "heading": "→ |  التقارير المالية الموحدة | أسبوع | شهر | سنة | إجمالي الإيرادات | ٠",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    },
+    {
+     "label": "أسبوع",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "شهر",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "سنة",
+     "result": "NO_EFFECT"
+    }
+   ]
+  },
+  {
+   "path": [
+    "إدارة"
+   ],
+   "heading": "→ |  إدارة الكوادر | + | الكل | طبيب | منسق تأمين | استقبال | users | 0 | إجما",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    },
+    {
+     "label": "+",
+     "result": "NAVIGATE",
+     "to": "→ | دعوة مزود خدمة | أدخل رقم جوال المزود أو"
+    },
+    {
+     "label": "(icon #2)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "طبيب",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "منسق تأمين",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "استقبال",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "+ طبيب",
+     "result": "NAVIGATE",
+     "to": "→ | دعوة مزود خدمة | أدخل رقم جوال المزود أو"
+    },
+    {
+     "label": "+ منسق تأمين",
+     "result": "NAVIGATE",
+     "to": "→ | دعوة مزود خدمة | أدخل رقم جوال المزود أو"
+    },
+    {
+     "label": "+ استقبال",
+     "result": "NAVIGATE",
+     "to": "→ | دعوة مزود خدمة | أدخل رقم جوال المزود أو"
+    },
+    {
+     "label": "+ ممرض/ممرضة",
+     "result": "NAVIGATE",
+     "to": "→ | دعوة مزود خدمة | أدخل رقم جوال المزود أو"
+    },
+    {
+     "label": "+ محلل مختبر",
+     "result": "NAVIGATE",
+     "to": "→ | دعوة مزود خدمة | أدخل رقم جوال المزود أو"
+    }
+   ]
+  },
+  {
+   "path": [
+    "طلبات"
+   ],
+   "heading": "→ | إدارة الإجازات والأعذار | لا توجد طلبات إجازة",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الأقسام"
+   ],
+   "heading": "→ |  إدارة الأقسام | 0 | الأقسام | 0 | نشطة | 0 | الكوادر | لا توجد أقسام بع",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    }
+   ]
+  },
+  {
+   "path": [
+    "جدول"
+   ],
+   "heading": "→ |  جدول غرف العمليات | 3 | غرف | 0 | عمليات مجدولة | OR-1 | فارغة | لا توج",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    },
+    {
+     "label": "+ جدولة عملية",
+     "result": "NAVIGATE",
+     "to": "→ |  جدول غرف العمليات | 3 | غرف | 0 | عمليات مجدو"
+    },
+    {
+     "label": "+ جدولة عملية جديدة",
+     "result": "NAVIGATE",
+     "to": "→ |  جدول غرف العمليات | 3 | غرف | 0 | عمليات مجدو"
+    }
+   ]
+  },
+  {
+   "path": [
+    "مطالبات"
+   ],
+   "heading": "→ |  مطالبات التأمين | 0.0K | ر | مقبولة هذا الشهر | 0.0K | ر | قيد الانتظ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "انتظار",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "مقبولة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "مرفوضة",
+     "result": "NO_EFFECT"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الحضور"
+   ],
+   "heading": "→ |  الحضور والانصراف | 0 | حاضر | 0 | غائب | users | 0 | الإجمالي | سجّل حضور",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    },
+    {
+     "label": "تسجيل حضوري الآن",
+     "result": "NAVIGATE",
+     "to": "→ |  الحضور والانصراف | 0 | حاضر | 0 | غائب | users | "
+    }
+   ]
+  },
+  {
+   "path": [
+    "التوثيق"
+   ],
+   "heading": "→ |  التوثيق المهني | تتبع تراخيص SCFHS، شهادات المؤهلات، تأمين ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    }
+   ]
+  },
+  {
+   "path": [
+    "تتبع"
+   ],
+   "heading": "→ | تتبع المرضى (Patient Tracker) | مراقبة حية للمرضى المنومين و",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    }
+   ]
+  },
+  {
+   "path": [
+    "التواصل"
+   ],
+   "heading": "→ | التواصل الداخلي | قنوات التواصل المباشر",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    }
+   ]
+  },
+  {
+   "path": [
+    "سجل"
+   ],
+   "heading": "→ | سجل التدقيق (Audit Logs) | تتبع وتوثيق كافة التعديلات والإجر",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    }
+   ]
+  },
+  {
+   "path": [
+    "التعاميم"
+   ],
+   "heading": "→ | التعاميم والإعلانات | إرسال تعميم جديد | نشر التعميم | التعاميم ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    },
+    {
+     "label": "نشر التعميم",
+     "result": "NO_EFFECT"
+    }
+   ]
+  },
+  {
+   "path": [
+    "التفاصيل"
+   ],
+   "heading": "→ |  إدارة الأسرّة | bed | 84 | الإجمالي | user | 0 | مشغول | online | 84 | متاح",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    },
+    {
+     "label": "+ إضافة جناح",
+     "result": "NAVIGATE",
+     "to": "→ |  إدارة الأسرّة | bed | 84 | الإجمالي | user | 0 | "
+    },
+    {
+     "label": "إدارة الأسرّة",
+     "result": "NAVIGATE",
+     "to": "→ |  إدارة الأسرّة | bed | 84 | الإجمالي | user | 0 | "
+    }
+   ]
+  },
+  {
+   "path": [
+    "الكل"
+   ],
+   "heading": "→ | التقويم الموحد (Unified Calendar) | عرض جميع المواعيد المتقا",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الطلبات"
+   ],
+   "heading": "الطلبات | طلبات جديدة (0) | مؤكدة | الإشعارات (0) | document | لا توجد",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "طلبات جديدة (0)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "مؤكدة",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "الإشعارات (0)",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الوظائف",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "الأدوية",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": " إعدادات المنشأة | مستشفى نبضة الطبي | مستشف"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الوظائف"
+   ],
+   "heading": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | الوارد (ATS) | الرئيسي",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "تصفح الوظائف",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "إضافة إعلان",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "الوارد (ATS)",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NAVIGATE",
+     "to": "الطلبات | طلبات جديدة (0) | مؤكدة | الإشعارات "
+    },
+    {
+     "label": "الوظائف",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الأدوية",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": " إعدادات المنشأة | مستشفى نبضة الطبي | مستشف"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الأدوية"
+   ],
+   "heading": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A10 (2) | category-2070",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "pain (8)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NAVIGATE",
+     "to": "الطلبات | طلبات جديدة (0) | مؤكدة | الإشعارات "
+    },
+    {
+     "label": "الوظائف",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "الأدوية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": " إعدادات المنشأة | مستشفى نبضة الطبي | مستشف"
+    }
+   ]
+  },
+  {
+   "path": [
+    "(icon #0)",
+    "يدوي"
+   ],
+   "heading": "→ |  تسجيل دخول المرضى QR | مسح QR | يدوي | السجل | رقم الموعد أو هوية",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    },
+    {
+     "label": "مسح QR",
+     "result": "NAVIGATE",
+     "to": "→ |  تسجيل دخول المرضى QR | مسح QR | يدوي | السج"
+    },
+    {
+     "label": "يدوي",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "السجل",
+     "result": "NAVIGATE",
+     "to": "→ |  تسجيل دخول المرضى QR | مسح QR | يدوي | السج"
+    },
+    {
+     "label": "رقم الموعد أو هوية المريض",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "تأكيد الوصول",
+     "result": "WRITE",
+     "status": 404,
+     "method": "PATCH",
+     "url": "/care/appointments/V28C1501/check-in",
+     "tokens_sent": 0,
+     "tokens_stored": 0
+    }
+   ]
+  },
+  {
+   "path": [
+    "(icon #0)",
+    "السجل"
+   ],
+   "heading": "→ |  تسجيل دخول المرضى QR | مسح QR | يدوي | السجل | سجل تسجيل الدخول ا",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    },
+    {
+     "label": "مسح QR",
+     "result": "NAVIGATE",
+     "to": "→ |  تسجيل دخول المرضى QR | مسح QR | يدوي | السج"
+    },
+    {
+     "label": "يدوي",
+     "result": "NAVIGATE",
+     "to": "→ |  تسجيل دخول المرضى QR | مسح QR | يدوي | السج"
+    },
+    {
+     "label": "السجل",
+     "result": "NO_EFFECT"
+    }
+   ]
+  },
+  {
+   "path": [
+    "إدارة",
+    "+"
+   ],
+   "heading": "→ | دعوة مزود خدمة | أدخل رقم جوال المزود أو رقم تعريفه (Nabdah ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 11,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "→ |  إدارة الكوادر | + | الكل | طبيب | منسق تأمين | "
+    },
+    {
+     "label": "رقم الجوال أو Nabdah ID",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #2)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #3)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #4)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #6)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #7)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #8)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #9)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #10)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #11)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "إرسال الدعوة",
+     "result": "UI_CHANGE"
+    }
+   ]
+  },
+  {
+   "path": [
+    "جدول",
+    "+ جدولة عملية"
+   ],
+   "heading": "→ |  جدول غرف العمليات | 3 | غرف | 0 | عمليات مجدولة | OR-1 | فارغة | لا توج",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 4,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "→ |  جدول غرف العمليات | 3 | غرف | 0 | عمليات مجدو"
+    },
+    {
+     "label": "+ جدولة عملية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "+ جدولة عملية جديدة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "معرف المريض (Patient ID) *",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "معرف الجراح الرئيسي *",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "التاريخ والوقت (YYYY-MM-DD HH:MM) *",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "المدة بالدقائق *",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "تأكيد وحجز الغرفة",
+     "result": "UI_CHANGE"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الحضور",
+    "تسجيل حضوري الآن"
+   ],
+   "heading": "→ |  الحضور والانصراف | 0 | حاضر | 0 | غائب | users | 0 | الإجمالي | سجّل حضور",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    }
+   ]
+  },
+  {
+   "path": [
+    "التفاصيل",
+    "+ إضافة جناح"
+   ],
+   "heading": "→ |  إدارة الأسرّة | bed | 84 | الإجمالي | user | 0 | مشغول | online | 84 | متاح",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "→ |  إدارة الأسرّة | bed | 84 | الإجمالي | user | 0 | "
+    },
+    {
+     "label": "+ إضافة جناح",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "إدارة الأسرّة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #4)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "اسم الجناح *",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "عدد الأسرّة *",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "إنشاء الجناح",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/facility/beds/wards",
+     "tokens_sent": 1,
+     "tokens_stored": 1
+    }
+   ]
+  },
+  {
+   "path": [
+    "التفاصيل",
+    "إدارة الأسرّة"
+   ],
+   "heading": "→ |  إدارة الأسرّة | bed | 126 | الإجمالي | user | 0 | مشغول | online | 126 | مت",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "→ |  إدارة الأسرّة | bed | 126 | الإجمالي | user | 0"
+    },
+    {
+     "label": "+ إضافة جناح",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "إدارة الأسرّة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "إدخل",
+     "result": "NAVIGATE",
+     "to": "→ |  إدارة الأسرّة | bed | 126 | الإجمالي | user | 0"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الطلبات",
+    "الإعدادات"
+   ],
+   "heading": " إعدادات المنشأة | مستشفى نبضة الطبي | مستشفى |  حساب نشط | إدارة ال",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "معلومات المنشأة",
+     "result": "NAVIGATE",
+     "to": "→ | ملف المنشأة | — | التفاصيل العامة | الوصف (ع"
+    },
+    {
+     "label": "الأقسام والخدمات",
+     "result": "NAVIGATE",
+     "to": "→ |  إدارة الأقسام | 0 | الأقسام | 0 | نشطة | 0 | الكو"
+    },
+    {
+     "label": "الأسعار والتعريفات",
+     "result": "NAVIGATE",
+     "to": " إعدادات المنشأة | مستشفى نبضة الطبي | مستشف"
+    },
+    {
+     "label": "إعدادات التأمين",
+     "result": "NAVIGATE",
+     "to": "→ | التأمين الصحي | حدد شركات التأمين المقبو"
+    },
+    {
+     "label": "طلبات التأمين الواردة",
+     "result": "NAVIGATE",
+     "to": "→ | طلبات التأمين | مراجعة يدوية قبل تقديم ا"
+    },
+    {
+     "label": "الرخص والمستندات الرسمية",
+     "result": "NAVIGATE",
+     "to": "→ | الشهادات والمؤهلات | المستندات الرسمية ا"
+    },
+    {
+     "label": "الصور والوسائط",
+     "result": "NAVIGATE",
+     "to": "→ | الصور والوسائط | الصور المعروضة في صفحتك"
+    },
+    {
+     "label": "إدارة الحسابات الفرعية",
+     "result": "NAVIGATE",
+     "to": "→ |  إدارة الكوادر | + | الكل | طبيب | منسق تأمين | "
+    },
+    {
+     "label": "المواعيد والجداول",
+     "result": "NAVIGATE",
+     "to": "→ |  إدارة المناوبات | اليوم | الأسبوع | مناوبات"
+    },
+    {
+     "label": "إدارة الأسرّة",
+     "result": "NAVIGATE",
+     "to": "→ |  إدارة الأسرّة | bed | 126 | الإجمالي | user | 0"
+    },
+    {
+     "label": "نظام QR Check-in",
+     "result": "NAVIGATE",
+     "to": "→ |  تسجيل دخول المرضى QR | مسح QR | يدوي | السج"
+    },
+    {
+     "label": "مركز العروض الترويجية",
+     "result": "NAVIGATE",
+     "to": "مركز العروض الترويجية | العروض النشطة والم"
+    },
+    {
+     "label": "إعدادات الصفحة العامة",
+     "result": "NAVIGATE",
+     "to": "→ | موقع مزود الخدمة العام | تفعيل الصفحة ال"
+    },
+    {
+     "label": "الاشتراكات والإعلانات",
+     "result": "NAVIGATE",
+     "to": "→ | الاشتراكات والترويج المدفوع | الباقة الح"
+    },
+    {
+     "label": "مستوى السمعة والتقييمات",
+     "result": "NAVIGATE",
+     "to": "→ | لوحة السمعة والتقييمات | star | لا توجد تق"
+    },
+    {
+     "label": "إدارة العملاء والأرباح",
+     "result": "NAVIGATE",
+     "to": "→ | ذكاء الأعمال وإدارة العملاء | 0 | مرضى مسج"
+    },
+    {
+     "label": "مراقبة الطوارئ وسيارات الإسعاف",
+     "result": "NAVIGATE",
+     "to": "→ | منصة الاستغاثة والطوارئ | هل تواجه حالة "
+    },
+    {
+     "label": "أسطول إسعاف المنشأة",
+     "result": "NAVIGATE",
+     "to": "→ |  أسطول الإسعاف | المركبات تخدم بعد اعتما"
+    },
+    {
+     "label": "(icon #18)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "اللغة: العربية",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "الإشعارات",
+     "result": "NAVIGATE",
+     "to": "→ | مركز الإشعارات والتنبيهات | لا توجد إشعا"
+    },
+    {
+     "label": "التقارير التلقائية",
+     "result": "NAVIGATE",
+     "to": "→ | تفاصيل الإيرادات والتحليلات | صافي أرباح"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الوظائف",
+    "(icon #1)"
+   ],
+   "heading": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | الوارد (ATS) | الرئيسي",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "تصفح الوظائف",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "إضافة إعلان",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "الوارد (ATS)",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الوظائف",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الأدوية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #11)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "طبيب",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "صيدلي",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "تمريض",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "مختبر",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "أشعة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الرياض",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "جدة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الدمام",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "مكة المكرمة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "المدينة المنورة",
+     "result": "NO_EFFECT"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الوظائف",
+    "إضافة إعلان"
+   ],
+   "heading": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | الوارد (ATS) | أنا صاح",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 7,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "تصفح الوظائف",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "إضافة إعلان",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الوارد (ATS)",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "أنا صاحب عمل",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "أنا باحث عن عمل",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "المسمى الوظيفي المطلوب *",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "اسم المنشأة أو المستشفى (اختياري)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "طبيب",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "تمريض",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "صيدلي",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "مختبر",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "أشعة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "طبيب عام",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "مقيم",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "أخصائي",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "أخصائي أول",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "استشاري",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "غير مصنف",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "المدينة *",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الجنسية المطلوبة",
+     "result": "NO_EFFECT"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الأدوية",
+    "pain (8)"
+   ],
+   "heading": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A10 (2) | UC15A2210 (1)",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "الكل",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "pain (8)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 18f732",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 730a68",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ 81b23b",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ a33d6a",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | بنادول اكسترا 500 م"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 2dfd4a",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 874ed2",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ bca0db",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ fc3790",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | فيتامين سي 1000 ملغ"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NAVIGATE",
+     "to": "الطلبات | طلبات جديدة (0) | مؤكدة | الإشعارات "
+    },
+    {
+     "label": "الوظائف",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "الأدوية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": " إعدادات المنشأة | مستشفى نبضة الطبي | مستشف"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الأدوية",
+    "UE3C96A10 (2)"
+   ],
+   "heading": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A10 (2) | category-2070",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "الكل",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "pain (8)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UE3C96A04",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | UE3C96A04 | UE3C96A08"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NAVIGATE",
+     "to": "الطلبات | طلبات جديدة (0) | مؤكدة | الإشعارات "
+    },
+    {
+     "label": "الوظائف",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "الأدوية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": " إعدادات المنشأة | مستشفى نبضة الطبي | مستشف"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الأدوية",
+    "category-20703 (1)"
+   ],
+   "heading": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A10 (2) | category-2070",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "الكل",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "pain (8)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "UE3C96A10 (2)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "category-20703 (1)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "UC15A2210 (1)",
+     "result": "NAVIGATE",
+     "to": "دليل الأدوية الطبي | الكل | pain (8) | UE3C96A"
+    },
+    {
+     "label": "name_ar-20700",
+     "result": "NAVIGATE",
+     "to": "الملف الدوائي الكامل | name_ar-20700 | 804 ر"
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    },
+    {
+     "label": "الطلبات",
+     "result": "NAVIGATE",
+     "to": "الطلبات | طلبات جديدة (0) | مؤكدة | الإشعارات "
+    },
+    {
+     "label": "الوظائف",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "الأدوية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الإعدادات",
+     "result": "NAVIGATE",
+     "to": " إعدادات المنشأة | مستشفى نبضة الطبي | مستشف"
+    }
+   ]
+  },
+  {
+   "path": [
+    "التفاصيل",
+    "إدارة الأسرّة",
+    "→"
+   ],
+   "heading": "→ |  إدارة الأسرّة | bed | 126 | الإجمالي | user | 0 | مشغول | online | 126 | مت",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    },
+    {
+     "label": "+ إضافة جناح",
+     "result": "NAVIGATE",
+     "to": "→ |  إدارة الأسرّة | bed | 126 | الإجمالي | user | 0"
+    },
+    {
+     "label": "إدارة الأسرّة",
+     "result": "NAVIGATE",
+     "to": "→ |  إدارة الأسرّة | bed | 126 | الإجمالي | user | 0"
+    }
+   ]
+  },
+  {
+   "path": [
+    "التفاصيل",
+    "إدارة الأسرّة",
+    "إدخل"
+   ],
+   "heading": "→ |  إدارة الأسرّة | bed | 126 | الإجمالي | user | 0 | مشغول | online | 126 | مت",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "→ |  إدارة الأسرّة | bed | 126 | الإجمالي | user | 0"
+    },
+    {
+     "label": "+ إضافة جناح",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "إدارة الأسرّة",
+     "result": "WRITE",
+     "status": 404,
+     "method": "POST",
+     "url": "/facility/beds/admission",
+     "tokens_sent": 1,
+     "tokens_stored": 0
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "إدخل",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #48)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "معرف المريض (Patient ID) *",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "تأكيد الحجز وتسكين المريض",
+     "result": "WRITE",
+     "status": 404,
+     "method": "POST",
+     "url": "/facility/beds/admission",
+     "tokens_sent": 1,
+     "tokens_stored": 0
+    }
+   ]
+  },
+  {
+   "path": [
+    "الطلبات",
+    "الإعدادات",
+    "معلومات المنشأة"
+   ],
+   "heading": "→ | ملف المنشأة | — | التفاصيل العامة | الوصف (عربي) | الوصف (إنجليزي)",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 4,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": " إعدادات المنشأة | مستشفى نبضة الطبي | مستشف"
+    },
+    {
+     "label": "الوصف (عربي)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الوصف (إنجليزي)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الموقع الإلكتروني",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "رقم الواتساب",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "قلب وأوعية دموية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "جلدية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "طب أطفال",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "نساء وولادة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "عظام",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "أعصاب",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "طب نفسي",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "أسنان",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "عيون",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "أنف وأذن وحنجرة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "باطنية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "طب أسرة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "مسالك بولية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "جهاز هضمي",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "غدد صماء وسكري",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "صدرية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "كلى",
+     "result": "NO_EFFECT"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الطلبات",
+    "الإعدادات",
+    "الأسعار والتعريفات"
+   ],
+   "heading": " إعدادات المنشأة | مستشفى نبضة الطبي | مستشفى |  حساب نشط | إدارة ال",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 7,
+   "elements": [
+    {
+     "label": "معلومات المنشأة",
+     "result": "NAVIGATE",
+     "to": " إعدادات المنشأة | مستشفى نبضة الطبي | مستشف"
+    },
+    {
+     "label": "الأقسام والخدمات",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الأسعار والتعريفات",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "إعدادات التأمين",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "طلبات التأمين الواردة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الرخص والمستندات الرسمية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الصور والوسائط",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "إدارة الحسابات الفرعية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "المواعيد والجداول",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "إدارة الأسرّة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "نظام QR Check-in",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "مركز العروض الترويجية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "إعدادات الصفحة العامة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الاشتراكات والإعلانات",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "مستوى السمعة والتقييمات",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "إدارة العملاء والأرباح",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "مراقبة الطوارئ وسيارات الإسعاف",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "أسطول إسعاف المنشأة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "(icon #18)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "اللغة: العربية",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "الإشعارات",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "التقارير التلقائية",
+     "result": "NO_EFFECT"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الطلبات",
+    "الإعدادات",
+    "إعدادات التأمين"
+   ],
+   "heading": "→ | التأمين الصحي | حدد شركات التأمين المقبولة لديك ونسب التحمل ",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 25,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": " إعدادات المنشأة | مستشفى نبضة الطبي | مستشف"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NAVIGATE",
+     "to": "→ | التأمين الصحي | حدد شركات التأمين المقبو"
+    },
+    {
+     "label": "(icon #2)",
+     "result": "NAVIGATE",
+     "to": "→ | التأمين الصحي | حدد شركات التأمين المقبو"
+    },
+    {
+     "label": "(icon #3)",
+     "result": "NAVIGATE",
+     "to": "→ | التأمين الصحي | حدد شركات التأمين المقبو"
+    },
+    {
+     "label": "(icon #4)",
+     "result": "NAVIGATE",
+     "to": "→ | التأمين الصحي | حدد شركات التأمين المقبو"
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NAVIGATE",
+     "to": "→ | التأمين الصحي | حدد شركات التأمين المقبو"
+    },
+    {
+     "label": "(icon #6)",
+     "result": "NAVIGATE",
+     "to": "→ | التأمين الصحي | حدد شركات التأمين المقبو"
+    },
+    {
+     "label": "(icon #7)",
+     "result": "NAVIGATE",
+     "to": "→ | التأمين الصحي | حدد شركات التأمين المقبو"
+    },
+    {
+     "label": "(icon #8)",
+     "result": "NAVIGATE",
+     "to": "→ | التأمين الصحي | حدد شركات التأمين المقبو"
+    },
+    {
+     "label": "(icon #9)",
+     "result": "NAVIGATE",
+     "to": "→ | التأمين الصحي | حدد شركات التأمين المقبو"
+    },
+    {
+     "label": "(icon #10)",
+     "result": "NAVIGATE",
+     "to": "→ | التأمين الصحي | حدد شركات التأمين المقبو"
+    },
+    {
+     "label": "(icon #11)",
+     "result": "NAVIGATE",
+     "to": "→ | التأمين الصحي | حدد شركات التأمين المقبو"
+    },
+    {
+     "label": "(icon #12)",
+     "result": "NAVIGATE",
+     "to": "→ | التأمين الصحي | حدد شركات التأمين المقبو"
+    },
+    {
+     "label": "(icon #13)",
+     "result": "NAVIGATE",
+     "to": "→ | التأمين الصحي | حدد شركات التأمين المقبو"
+    },
+    {
+     "label": "(icon #14)",
+     "result": "NAVIGATE",
+     "to": "→ | التأمين الصحي | حدد شركات التأمين المقبو"
+    },
+    {
+     "label": "(icon #15)",
+     "result": "NAVIGATE",
+     "to": "→ | التأمين الصحي | حدد شركات التأمين المقبو"
+    },
+    {
+     "label": "(icon #16)",
+     "result": "NAVIGATE",
+     "to": "→ | التأمين الصحي | حدد شركات التأمين المقبو"
+    },
+    {
+     "label": "(time budget reached)",
+     "result": "NOT_TESTED"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الطلبات",
+    "الإعدادات",
+    "طلبات التأمين الواردة"
+   ],
+   "heading": "→ | طلبات التأمين | مراجعة يدوية قبل تقديم الخدمة | shield | لا توجد",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": " إعدادات المنشأة | مستشفى نبضة الطبي | مستشف"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الطلبات",
+    "الإعدادات",
+    "الرخص والمستندات الرسمية"
+   ],
+   "heading": "→ | الشهادات والمؤهلات | المستندات الرسمية المرتبطة بملفك المهني",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": " إعدادات المنشأة | مستشفى نبضة الطبي | مستشف"
+    },
+    {
+     "label": "رفع المستند",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "رفع وثيقة أو شهادة جديدة",
+     "result": "NO_EFFECT"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الطلبات",
+    "الإعدادات",
+    "الصور والوسائط"
+   ],
+   "heading": "→ | الصور والوسائط | الصور المعروضة في صفحتك العامة للمرضى (العي",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /storage/%D9%82%D9%8A%D9%85%D8%A9/signed-url"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": " إعدادات المنشأة | مستشفى نبضة الطبي | مستشف"
+    },
+    {
+     "label": "إضافة صورة",
+     "result": "NO_EFFECT"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الطلبات",
+    "الإعدادات",
+    "المواعيد والجداول"
+   ],
+   "heading": "→ |  إدارة المناوبات | اليوم | الأسبوع | مناوبات اليوم | calendar | لا ت",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": " إعدادات المنشأة | مستشفى نبضة الطبي | مستشف"
+    },
+    {
+     "label": "اليوم",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الأسبوع",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "+ إضافة مناوبة",
+     "result": "NAVIGATE",
+     "to": "→ |  إدارة المناوبات | اليوم | الأسبوع | مناوبات"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الطلبات",
+    "الإعدادات",
+    "مركز العروض الترويجية"
+   ],
+   "heading": "مركز العروض الترويجية | العروض النشطة والمستمرة | لا توجد عروض ت",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": " إعدادات المنشأة | مستشفى نبضة الطبي | مستشف"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NAVIGATE",
+     "to": "→ | إنشاء حملة ترويجية | عنوان الحملة * | السع"
+    },
+    {
+     "label": "إنشاء عرض جديد",
+     "result": "NAVIGATE",
+     "to": "→ | إنشاء حملة ترويجية | عنوان الحملة * | السع"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الطلبات",
+    "الإعدادات",
+    "إعدادات الصفحة العامة"
+   ],
+   "heading": "→ | موقع مزود الخدمة العام | تفعيل الصفحة العامة للمريض | تمكين حج",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 3,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": " إعدادات المنشأة | مستشفى نبضة الطبي | مستشف"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "النبذة التعريفية",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "حسابات التواصل الاجتماعي",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "مشاركة",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "حفظ التعديلات",
+     "result": "WRITE",
+     "status": 200,
+     "method": "PATCH",
+     "url": "/provider/profile",
+     "tokens_sent": 0,
+     "tokens_stored": 0
+    }
+   ]
+  },
+  {
+   "path": [
+    "الطلبات",
+    "الإعدادات",
+    "الاشتراكات والإعلانات"
+   ],
+   "heading": "→ | الاشتراكات والترويج المدفوع | الباقة الحالية: — | شراء إعلانات",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": " إعدادات المنشأة | مستشفى نبضة الطبي | مستشف"
+    },
+    {
+     "label": "الميزانية الإجمالية (ريال)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "مدة الإعلان (أيام)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "تأكيد ودفع رسوم الإعلان",
+     "result": "UI_CHANGE"
+    },
+    {
+     "label": "برنامج المسوقين والشركاء (Affiliate)",
+     "result": "NAVIGATE",
+     "to": "→ | بوابة التسويق بالعمولة | ادعُ مقدم خدمة "
+    }
+   ]
+  },
+  {
+   "path": [
+    "الطلبات",
+    "الإعدادات",
+    "مستوى السمعة والتقييمات"
+   ],
+   "heading": "→ | لوحة السمعة والتقييمات | star | لا توجد تقييمات بعد | ستظهر تقيي",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": " إعدادات المنشأة | مستشفى نبضة الطبي | مستشف"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الطلبات",
+    "الإعدادات",
+    "إدارة العملاء والأرباح"
+   ],
+   "heading": "→ | ذكاء الأعمال وإدارة العملاء | 0 | مرضى مسجلون | 0 | VIP | روستر المت",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": " إعدادات المنشأة | مستشفى نبضة الطبي | مستشف"
+    },
+    {
+     "label": "تفاصيل الإيرادات والتقارير",
+     "result": "NAVIGATE",
+     "to": "→ | تفاصيل الإيرادات والتحليلات | صافي أرباح"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الطلبات",
+    "الإعدادات",
+    "مراقبة الطوارئ وسيارات الإسعاف"
+   ],
+   "heading": "→ | منصة الاستغاثة والطوارئ | هل تواجه حالة طوارئ؟ | إرسال نداء اس",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "403 GET /emergency/active"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": " إعدادات المنشأة | مستشفى نبضة الطبي | مستشف"
+    },
+    {
+     "label": "إرسال نداء استغاثة (SOS)",
+     "result": "NO_EFFECT"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الطلبات",
+    "الإعدادات",
+    "أسطول إسعاف المنشأة"
+   ],
+   "heading": "→ |  أسطول الإسعاف | المركبات تخدم بعد اعتماد الإدارة | كل مركبة ج",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": " إعدادات المنشأة | مستشفى نبضة الطبي | مستشف"
+    },
+    {
+     "label": "إضافة مركبة",
+     "result": "NAVIGATE",
+     "to": "→ |  أسطول الإسعاف | المركبات تخدم بعد اعتما"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الطلبات",
+    "الإعدادات",
+    "التقارير التلقائية"
+   ],
+   "heading": "→ | تفاصيل الإيرادات والتحليلات | صافي أرباح الشهر الحالي | ٠ ريال",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": " إعدادات المنشأة | مستشفى نبضة الطبي | مستشف"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الوظائف",
+    "إضافة إعلان",
+    "(icon #1)"
+   ],
+   "heading": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | الوارد (ATS) | أنا صاح",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 7,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "تصفح الوظائف",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "إضافة إعلان",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "الوارد (ATS)",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "أنا صاحب عمل",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "أنا باحث عن عمل",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "المسمى الوظيفي المطلوب *",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "اسم المنشأة أو المستشفى (اختياري)",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "طبيب",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "تمريض",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "صيدلي",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "مختبر",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "أشعة",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "طبيب عام",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "مقيم",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "أخصائي",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "أخصائي أول",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "استشاري",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "غير مصنف",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "المدينة *",
+     "result": "NO_EFFECT"
+    },
+    {
+     "label": "الجنسية المطلوبة",
+     "result": "NO_EFFECT"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الوظائف",
+    "إضافة إعلان",
+    "أنا باحث عن عمل"
+   ],
+   "heading": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | الوارد (ATS) | أنا صاح",
+   "status": "TESTED",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 8,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NAVIGATE",
+     "to": "مرحباً، | مستشفى نبضة الطبي | calendar | 0 | موا"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "تصفح الوظائف",
+     "result": "NAVIGATE",
+     "to": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | "
+    },
+    {
+     "label": "إضافة إعلان",
+     "result": "TAP_FAILED",
+     "error": "element not found: الوظائف"
+    },
+    {
+     "label": "الوارد (ATS)",
+     "result": "TAP_FAILED",
+     "error": "element not found: الوظائف"
+    },
+    {
+     "label": "أنا صاحب عمل",
+     "result": "TAP_FAILED",
+     "error": "element not found: الوظائف"
+    },
+    {
+     "label": "أنا باحث عن عمل",
+     "result": "TAP_FAILED",
+     "error": "element not found: الوظائف"
+    },
+    {
+     "label": "الوظيفة التي تبحث عنها *",
+     "result": "TAP_FAILED",
+     "error": "element not found: الوظائف"
+    },
+    {
+     "label": "جهة العمل الحالية (اختياري)",
+     "result": "TAP_FAILED",
+     "error": "element not found: الوظائف"
+    },
+    {
+     "label": "طبيب",
+     "result": "TAP_FAILED",
+     "error": "element not found: الوظائف"
+    },
+    {
+     "label": "تمريض",
+     "result": "TAP_FAILED",
+     "error": "element not found: الوظائف"
+    },
+    {
+     "label": "صيدلي",
+     "result": "TAP_FAILED",
+     "error": "element not found: الوظائف"
+    },
+    {
+     "label": "مختبر",
+     "result": "TAP_FAILED",
+     "error": "element not found: الوظائف"
+    },
+    {
+     "label": "أشعة",
+     "result": "TAP_FAILED",
+     "error": "element not found: الوظائف"
+    },
+    {
+     "label": "طبيب عام",
+     "result": "TAP_FAILED",
+     "error": "element not found: الوظائف"
+    },
+    {
+     "label": "مقيم",
+     "result": "TAP_FAILED",
+     "error": "element not found: الوظائف"
+    },
+    {
+     "label": "أخصائي",
+     "result": "TAP_FAILED",
+     "error": "element not found: الوظائف"
+    },
+    {
+     "label": "(time budget reached)",
+     "result": "NOT_TESTED"
+    }
+   ]
+  },
+  {
+   "path": [
+    "الأدوية",
+    "pain (8)",
+    "(icon #1)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "pain (8)",
+    "UE3C96A10 (2)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "pain (8)",
+    "UC15A2210 (1)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "pain (8)",
+    "category-20703 (1)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "pain (8)",
+    "بنادول اكسترا 500 ملغ 18f732"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "pain (8)",
+    "بنادول اكسترا 500 ملغ 730a68"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "pain (8)",
+    "بنادول اكسترا 500 ملغ 81b23b"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "pain (8)",
+    "بنادول اكسترا 500 ملغ a33d6a"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "pain (8)",
+    "فيتامين سي 1000 ملغ 2dfd4a"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "pain (8)",
+    "فيتامين سي 1000 ملغ 874ed2"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "pain (8)",
+    "فيتامين سي 1000 ملغ bca0db"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "pain (8)",
+    "فيتامين سي 1000 ملغ fc3790"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "UE3C96A10 (2)",
+    "pain (8)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "UE3C96A10 (2)",
+    "UC15A2210 (1)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "UE3C96A10 (2)",
+    "UE3C96A04"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "category-20703 (1)",
+    "(icon #1)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "الأدوية",
+    "category-20703 (1)",
+    "name_ar-20700"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الأدوية"
+  },
+  {
+   "path": [
+    "التفاصيل",
+    "إدارة الأسرّة",
+    "→",
+    "+ إضافة جناح"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: التفاصيل"
+  },
+  {
+   "path": [
+    "التفاصيل",
+    "إدارة الأسرّة",
+    "→",
+    "إدارة الأسرّة"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: التفاصيل"
+  },
+  {
+   "path": [
+    "الطلبات",
+    "الإعدادات",
+    "إعدادات التأمين",
+    "(icon #1)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الطلبات"
+  },
+  {
+   "path": [
+    "الطلبات",
+    "الإعدادات",
+    "المواعيد والجداول",
+    "+ إضافة مناوبة"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الطلبات"
+  },
+  {
+   "path": [
+    "الطلبات",
+    "الإعدادات",
+    "مركز العروض الترويجية",
+    "(icon #1)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الطلبات"
+  },
+  {
+   "path": [
+    "الطلبات",
+    "الإعدادات",
+    "الاشتراكات والإعلانات",
+    "برنامج المسوقين والشركاء (Affiliate)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الطلبات"
+  },
+  {
+   "path": [
+    "الطلبات",
+    "الإعدادات",
+    "أسطول إسعاف المنشأة",
+    "إضافة مركبة"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الطلبات"
+  },
+  {
+   "path": [
+    "الوظائف",
+    "إضافة إعلان",
+    "أنا باحث عن عمل",
+    "(icon #1)"
+   ],
+   "status": "REPLAY_FAILED",
+   "error": "element not found: الوظائف"
+  }
+ ],
+ "unvisited_states": 0
+}

@@ -1,155 +1,56 @@
-// @ts-nocheck
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  StatusBar,
-  ActivityIndicator,
-} from "react-native";
-import { router } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useApp } from "../../src/context/AppContext";
-import { Icon } from "../../src/components/Icon";
-import { AppText, Card, Input, IconButton } from "../../src/components/ui";
-import { apiFetch } from "../../src/utils/api";
-import { pickLocalized } from '../../src/utils/localize';
+import React, { useCallback, useEffect, useState } from 'react';
+import { router, type Href } from 'expo-router';
 
-export default function DiagSearchScreen() {
-  const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
-  const [q, setQ] = useState("");
-  const [tests, setTests] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [loadError, setLoadError] = useState(false);
+import { Search } from '../../../packages/ui-native/src';
+import { ConsultList } from '../../src/components/consult/ConsultKit';
+import { ListCard, TestRow, diagLook, goBackDiag } from '../../src/components/diagnostics/DiagKit';
+import { useScreenUi } from '../../src/components/screen/ScreenKit';
+import { apiFetch } from '../../src/utils/api';
+import { isOffline } from '../../src/utils/isOffline';
+import { logError } from '../../src/utils/logger';
+import { normalizeLabList, type CatalogItem } from '../../src/utils/labMappers';
 
-  useEffect(() => {
-    (async () => {
-      try {
-        setLoading(true);
-        const res = await apiFetch("/labs/services");
-        if (res && Array.isArray(res?.data) && res?.data.length > 0) {
-          setTests(
-            res?.data.map((t: any) => ({
-              id: t._id || t.id,
-              name: pickLocalized(t.name_ar, t.name),
-              price: t.price || t.base_price || 0,
-              category: pickLocalized(t.category_ar, t.category) || "",
-            })),
-          );
-        }
-      } catch {
-        // No static fallback: an empty list with an honest error banner.
-        setLoadError(true);
-      } finally {
-        setLoading(false);
-      }
-    })();
+/** Search of the lab tests: the field, and a row per test that opens its page (board Search). */
+export default function DiagnosticsSearch() {
+  const { theme, k } = useScreenUi();
+  const [q, setQ] = useState('');
+  const [tests, setTests] = useState<CatalogItem[]>([]);
+  const [status, setStatus] = useState<'loading' | 'error' | 'offline' | 'ready'>('loading');
+
+  const load = useCallback(async () => {
+    setStatus('loading');
+    try {
+      setTests(normalizeLabList(await apiFetch<unknown>('/labs/services')));
+      setStatus('ready');
+    } catch (err) {
+      logError('diagnostics:search', err);
+      setStatus((await isOffline()) ? 'offline' : 'error');
+    }
   }, []);
 
-  const filtered = q ? tests.filter((t) => t.name.includes(q)) : tests;
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const needle = q.trim().toLowerCase();
+  const shown = needle ? tests.filter((t) => t.name.toLowerCase().includes(needle)) : tests;
 
   return (
-    <View style={[st.c, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
-      <View
-        style={[
-          st.hdr,
-          {
-            paddingTop: insets.top + 8,
-            backgroundColor: colors.surface,
-            borderBottomColor: colors.borderLight,
-          },
-        ]}
-      >
-        <View style={{ flex: 1 }}>
-          <Input
-            value={q}
-            onChangeText={setQ}
-            placeholder="ابحث عن تحليل..."
-            icon="search"
-            autoFocus
-          />
-        </View>
-        <IconButton icon="back" onPress={() => router.back()} />
-      </View>
-
-      {loading ? (
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
-      ) : (
-        <ScrollView
-          contentContainerStyle={{ padding: 16, gap: 10, paddingBottom: 100 }}
-        >
-          {filtered.length === 0 ? (
-            <View style={{ alignItems: "center", paddingTop: 40 }}>
-              <Icon name="science" size={48} color={colors.textTertiary} />
-              <AppText variant="h5" style={{ marginTop: 12 }}>
-                {loadError ? "تعذر تحميل التحاليل" : "لا توجد نتائج"}
-              </AppText>
-              {loadError ? (
-                <AppText variant="bodySM" color={colors.textSecondary} style={{ marginTop: 6 }}>
-                  تحقق من الاتصال واسحب للتحديث بالرجوع وإعادة الفتح
-                </AppText>
-              ) : null}
-            </View>
-          ) : (
-            filtered.map((t) => (
-              <Card
-                key={t.id}
-                onPress={() =>
-                  router.push({
-                    pathname: "/diagnostics/test-detail",
-                    params: { testId: t.id },
-                  })
-                }
-                style={{
-                  flexDirection: "row-reverse",
-                  alignItems: "center",
-                  gap: 12,
-                }}
-              >
-                <View style={[st.icon, { backgroundColor: "#7A6BEA18" }]}>
-                  <Icon name="science" size={22} color="#7A6BEA" />
-                </View>
-                <View style={{ flex: 1, alignItems: "flex-end" }}>
-                  <AppText variant="h6">{t.name}</AppText>
-                  {t.category ? (
-                    <AppText variant="caption" color={colors.textTertiary}>
-                      {t.category}
-                    </AppText>
-                  ) : null}
-                </View>
-                <AppText variant="h5" color={colors.primary}>
-                  {t.price} ر.س
-                </AppText>
-              </Card>
-            ))
-          )}
-        </ScrollView>
+    <ConsultList
+      testID="diagnostics-search"
+      title={k('diag.search.title')}
+      onBack={goBackDiag}
+      top={<Search theme={theme} variant="page" value={q} onChange={setQ} onClear={() => setQ('')} clearLabel={k('diag.clear')} placeholder={k('diag.search.placeholder')} label={k('diag.search.placeholder')} />}
+      data={shown}
+      status={status}
+      onRetry={() => void load()}
+      keyExtractor={(t) => t.id}
+      empty={{ icon: 'magnifying-glass', title: k('diag.search.empty') }}
+      renderItem={(t) => (
+        <ListCard>
+          <TestRow name={t.name} icon={diagLook(t.category)} price={t.price} last onPress={() => router.push(`/diagnostics/test-detail?id=${t.id}` as Href)} />
+        </ListCard>
       )}
-    </View>
+    />
   );
 }
-
-const st = StyleSheet.create({
-  c: { flex: 1 },
-  hdr: {
-    flexDirection: "row-reverse",
-    alignItems: "center",
-    gap: 10,
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-  },
-  icon: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

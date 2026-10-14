@@ -27,10 +27,10 @@ import { DoctorUrgentRequests } from '../components/DoctorUrgentRequests';
 import { DoctorQueueList } from '../components/DoctorQueueList';
 import { FacilityInvitationsScreen } from '../FacilityInvitationsScreen';
 import {
- PromotionsDashboard, CreateCampaignScreen, ProfileWebConfig,
+ PromotionsDashboard, CreateCampaignScreen, 
  SubscriptionsAdsScreen, AffiliatePortal, ReputationHub,
  LiveOrderAlarmModal, CrmHub, RevenueInsights, AiMedicalCopilot,
- SmartOutboundReferralNetwork, SosDispatchScreen, GpsRouterScreen
+ SmartOutboundReferralNetwork
 } from '../../shared/BlueprintScreens';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { tokens } from '../../../theme/tokens';
@@ -42,12 +42,11 @@ import { MedicalReportScreen } from './MedicalReportScreen';
 import { ReferralScreen } from './ReferralScreen';
 import { DoctorAvailabilityScreen } from './DoctorAvailabilityScreen';
 import { DoctorServiceManagementScreen } from './DoctorServiceManagementScreen';
-import { CertificatesConfigScreen, PreVisitChatScreen, InboundMedicalReportsScreen } from './CertificatesConfigScreen';
-import { DoctorLocationScreen } from './DoctorLocationScreen';
-import { DoctorWalletTab } from './DoctorWalletTab';
+import { CertificatesConfigScreen } from '../../shared/SharedScreens';
+import { PreVisitChatScreen } from './PreVisitChatScreen';
+import { InboundMedicalReportsScreen } from './InboundMedicalReportsScreen';
 import { DoctorSettingsTab } from './DoctorSettingsTab';
 import { PatientFileScreen } from './PatientFileScreen';
-import { DoctorProfileEditScreen } from './DoctorProfileEditScreen';
 
 // ══════════════════════════════════════════════════════════════════════════════
 // HOME TAB
@@ -133,7 +132,9 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
   })));
 
  const resToday = await client.get('/provider/jobs/queue?status=active');
- setTodayApts((resToday.data || []).map((x: any) => ({
+ // Needs-review issue 1150: "Today's schedule" keeps only today's visits (and active ones with no time yet).
+ const todayKey = new Date().toDateString();
+ setTodayApts((resToday.data || []).filter((x: any) => !x.scheduled_at || new Date(x.scheduled_at).toDateString() === todayKey).map((x: any) => ({
  id: x.id, patient: x.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient'),
      type: x.service_type || 'video', time: x.scheduled_at ? new Date(x.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (AR ? 'غير محدد' : 'Unscheduled'),
      status: x.status || 'confirmed', price: x.total ?? x.price ?? 0, insurance: x.insurance_provider || 'Cash',
@@ -276,7 +277,7 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
  )}
 
  <View style={{ marginTop: SP.lg }}>
- <NSecHeader title={AR ? 'منصات نبض بلس' : 'Nabdah Modules'} />
+ <NSecHeader title={AR ? 'منصات نبض بلس' : 'Nabd+ Modules'} />
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, flexWrap: 'wrap' }}>
    <TouchableOpacity 
      onPress={() => onNavigate('medical_jobs')}

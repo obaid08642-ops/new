@@ -7,7 +7,7 @@
  * this file wholesale — 12.A4 loads the href for the ACTIVE locale only via
  * `fontHrefFor()`, so a Hindi page never downloads Nastaliq.
  */
-@import url("https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;700&family=Noto+Sans+Arabic:wght@300;400;500;700&family=Noto+Nastaliq+Urdu:wght@300;400;500;700&family=Noto+Sans+Devanagari:wght@300;400;500;700&family=Noto+Sans+Bengali:wght@300;400;500;700&display=swap");
+/* patient-web: fonts are self-hosted (app/fonts.ts); the Google Fonts preview @import is removed by tools/design/sync-token-css.mjs. */
 
 :root {
   --nabd-font-sans: 'Readex Pro', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans Bengali', 'Noto Nastaliq Urdu', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -51,4 +51,40 @@
   --nabd-font-size-micro: 11.5px;
   --nabd-line-height-micro: 1.3;
   --nabd-font-weight-micro: 500;
+  --nabd-font-size-tag: 11px;
+  --nabd-line-height-tag: 1.4;
+  --nabd-font-weight-tag: 500;
+  --nabd-font-size-meta: 12px;
+  --nabd-line-height-meta: 1.4;
+  --nabd-font-weight-meta: 500;
+  --nabd-font-size-small: 13.5px;
+  --nabd-line-height-small: 1.4;
+  --nabd-font-weight-small: 500;
+  --nabd-font-size-control: 14px;
+  --nabd-line-height-control: 1.4;
+  --nabd-font-weight-control: 500;
+  --nabd-font-size-segment: 14.5px;
+  --nabd-line-height-segment: 1.4;
+  --nabd-font-weight-segment: 500;
+  --nabd-font-size-row: 15.5px;
+  --nabd-line-height-row: 1.4;
+  --nabd-font-weight-row: 500;
+  --nabd-font-size-input: 16px;
+  --nabd-line-height-input: 1.4;
+  --nabd-font-weight-input: 500;
+  --nabd-font-size-stat: 22px;
+  --nabd-line-height-stat: 1.4;
+  --nabd-font-weight-stat: 500;
+  --nabd-font-size-avatar: 23px;
+  --nabd-line-height-avatar: 1.4;
+  --nabd-font-weight-avatar: 500;
+  --nabd-font-size-auth-title: 28px;
+  --nabd-line-height-auth-title: 1.4;
+  --nabd-font-weight-auth-title: 500;
+  --nabd-font-size-hero-title: 34px;
+  --nabd-line-height-hero-title: 1.4;
+  --nabd-font-weight-hero-title: 500;
+  --nabd-font-size-auth-title-lg: 36px;
+  --nabd-line-height-auth-title-lg: 1.4;
+  --nabd-font-weight-auth-title-lg: 500;
 }

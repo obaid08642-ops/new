@@ -1,0 +1,22 @@
+[
+  {
+    "batch": "AC-1",
+    "app": "patient-web",
+    "screen": "/oauth/authorize",
+    "element": "AI assistant consent page",
+    "file": "patient-web/app/[locale]/oauth/authorize/page.tsx",
+    "line": 54,
+    "found": "[client] Functional consent page (client name, scopes, 'you confirm and pay on Nabd Plus', allow / don't allow) built on the auth layout with translations in six languages; it has no board yet. Data: GET /api/v1/oauth/authorize (backend/src/modules/agent-oauth/agent-oauth.controller.ts).",
+    "suspect": "Design session: build it from a board (AGENT_COMMERCE_SPEC_2026-10-12 AC-1)."
+  },
+  {
+    "batch": "AC-1",
+    "app": "patient-web + patient-app",
+    "screen": "Settings > Connected AI apps",
+    "element": "List and disconnect connected AI assistants",
+    "file": "backend/src/modules/agent-oauth/agent-oauth.controller.ts",
+    "line": 100,
+    "found": "[client] No screen yet. Backend is ready: GET /api/v1/patient/agent-connections (client_id, client_name, logo_uri, scopes, connected_at) and DELETE /api/v1/patient/agent-connections/:clientId (ends that client's tokens at once).",
+    "suspect": "Design session: add the settings row and screen on web and app (AGENT_COMMERCE_SPEC_2026-10-12 AC-1)."
+  }
+]

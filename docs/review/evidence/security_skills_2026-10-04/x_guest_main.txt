@@ -1,0 +1,3 @@
+[main] victim id=79c29efc-a214-489c-8645-faee049d3b84 phone=+966516305792
+[main] POST /auth/guest {phone} -> 201 user.id=79c29efc-a214-489c-8645-faee049d3b84 is_guest=False token=yes
+[main] GET /auth/me with that token -> 200 id=79c29efc-a214-489c-8645-faee049d3b84 email=victim1163057922c5b@nabd.test

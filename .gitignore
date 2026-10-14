@@ -1,5 +1,7 @@
 # Dependencies
 node_modules/
+# also the symlinks worktrees use (a symlink is a file, "node_modules/" does not match it)
+node_modules
 .pnpm-store/
 
 # Build artifacts
@@ -46,3 +48,12 @@ patient-web/public/openapi.json
 
 # Rendered coturn config holds the live TURN secret (deploy/scripts/render-coturn-config.sh)
 deploy/coturn/turnserver.rendered.conf
+
+# Phase 16.1 — no environment file enters the repository, in any app or package.
+# The examples are templates, so they stay committable.
+.env
+.env.*
+!.env.example
+!**/.env.example
+!.env.*.example
+!**/.env.*.example

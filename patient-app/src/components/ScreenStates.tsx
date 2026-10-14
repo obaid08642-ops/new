@@ -3,6 +3,7 @@ import { View, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { useApp } from '../context/AppContext';
 import { Icon, IconName } from './Icon';
 import { AppText } from './ui';
+import { useScreenUi } from './home/homeKit';
 
 /**
  * M1-05 — Unified screen states (Loading / Empty / Error).
@@ -39,6 +40,7 @@ export function ScreenState({
   children,
 }: ScreenStateProps) {
   const { colors } = useApp() as any;
+  const { c } = useScreenUi();
 
   if (loading) {
     return <LoadingSkeleton />;
@@ -57,9 +59,9 @@ export function ScreenState({
           {error}
         </AppText>
         {onRetry && (
-          <TouchableOpacity style={[styles.retryBtn, { backgroundColor: colors.p }]} onPress={onRetry}>
-            <Icon name="refresh" size={18} color="#fff" />
-            <AppText variant="buttonMD" color="#fff">إعادة المحاولة</AppText>
+          <TouchableOpacity style={[styles.retryBtn, { backgroundColor: c.action.primary.bg }]} onPress={onRetry}>
+            <Icon name="refresh" size={18} color={c.text.onBrand} />
+            <AppText variant="buttonMD" color={c.text.onBrand}>إعادة المحاولة</AppText>
           </TouchableOpacity>
         )}
       </View>
@@ -81,9 +83,9 @@ export function ScreenState({
           </AppText>
         )}
         {onRetry && (
-          <TouchableOpacity style={[styles.retryBtn, { backgroundColor: colors.p }]} onPress={onRetry}>
-            <Icon name="refresh" size={18} color="#fff" />
-            <AppText variant="buttonMD" color="#fff">تحديث</AppText>
+          <TouchableOpacity style={[styles.retryBtn, { backgroundColor: c.action.primary.bg }]} onPress={onRetry}>
+            <Icon name="refresh" size={18} color={c.text.onBrand} />
+            <AppText variant="buttonMD" color={c.text.onBrand}>تحديث</AppText>
           </TouchableOpacity>
         )}
       </View>

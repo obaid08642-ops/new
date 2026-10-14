@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Doctor profile — full detail</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Readex Pro',sans-serif}
+a{color:#C8202F}
+</style>
+</helmet>
+<div dir="rtl" style="width: 390px; height: 2700px; box-sizing: border-box; position: relative; overflow: hidden; background: #F5F5F7; color: #0B1B2B; font-family: 'Readex Pro', sans-serif">
+
+<div style="padding: 54px 16px 0; display: flex; justify-content: space-between; align-items: center">
+<button aria-label="رجوع" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #E5E5EA; background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0B1B2B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button>
+<div style="display: flex; gap: 8px">
+<button aria-label="مشاركة" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #E5E5EA; background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B1B2B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3 M7 8l5-5 5 5 M5 13v7h14v-7"></path></svg></button>
+<button aria-label="أضف للمفضلة" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #E5E5EA; background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D42A38" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"></path></svg></button>
+</div>
+</div>
+<div style="margin: 14px 16px 0; position: relative; border-radius: 32px; background: #FFFFFF; box-shadow: 0 8px 24px rgba(11,27,43,0.06); padding: 24px 20px 20px; display: flex; flex-direction: column; align-items: center; gap: 8px">
+<div style="width: 168px; height: 168px; border-radius: 52px; padding: 5px; box-sizing: border-box; background: linear-gradient(160deg, #FFFFFF 0%, #E9EDF5 100%); box-shadow: 0 14px 34px rgba(11,27,43,0.14); position: relative; margin-bottom: 6px">
+<div style="width: 100%; height: 100%; border-radius: 47px; background: linear-gradient(180deg, #EEF3FF 0%, #DCE5FF 100%); overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: flex-end">
+<dc-import name="PIcon" look="bare" icon="doctor" size="{{avatar}}" hint-size="120px,120px"></dc-import>
+</div>
+<div style="position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); height: 28px; padding: 0 12px; border-radius: 14px; background: #FFFFFF; box-shadow: 0 4px 12px rgba(11,27,43,0.12); display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; white-space: nowrap"><span style="width: 8px; height: 8px; border-radius: 4px; background: #1F9D6E"></span>متاح الآن</div>
+</div>
+<div style="display: flex; align-items: center; gap: 6px">
+<h1 style="margin: 0; font-size: 21px; font-weight: 700">د. [اسم الطبيب]</h1>
+<svg width="20" height="20" viewBox="0 0 24 24" aria-label="موثّق"><path d="M12 2l2.4 1.8 3-.2.9 2.9 2.5 1.7-1 2.8 1 2.8-2.5 1.7-.9 2.9-3-.2L12 22l-2.4-1.8-3 .2-.9-2.9-2.5-1.7 1-2.8-1-2.8 2.5-1.7.9-2.9 3 .2z" fill="#3A56D4"></path><path d="M8.5 12.2l2.3 2.3 4.7-4.7" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</div>
+<div style="font-size: 14px; color: #6E6E73">[التخصص] · [اسم العيادة]</div>
+<div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center">
+<sc-for list="{{tags}}" as="t" hint-placeholder-count="3">
+<span style="height: 26px; padding: 0 10px; border-radius: 13px; background: #F5F5F7; font-size: 12px; display: inline-flex; align-items: center">{{t}}</span>
+</sc-for>
+</div>
+<div style="width: 100%; display: flex; gap: 8px; margin-top: 6px">
+<sc-for list="{{stats}}" as="s" hint-placeholder-count="3">
+<div style="flex-grow: 1; flex-basis: 0; border-radius: 18px; background: {{s.bg}}; padding: 12px 6px; display: flex; flex-direction: column; align-items: center; gap: 2px">
+<div style="font-size: 17px; font-weight: 700; color: {{s.fg}}">{{s.v}}</div>
+<div style="font-size: 11.5px; color: #6E6E73">{{s.l}}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="padding: 20px 16px 0; display: flex; flex-direction: column; gap: 22px">
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 17px; font-weight: 700">نوع الاستشارة</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+<sc-for list="{{modes}}" as="m" hint-placeholder-count="4">
+<button aria-pressed="{{m.on}}" onClick="{{m.pick}}" style="border-radius: 22px; border: {{m.border}}; background: #FFFFFF; padding: 14px 8px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; font-family: inherit; color: #0B1B2B; text-align: start">
+<div style="width: 42px; height: 42px; border-radius: 14px; background: {{m.tint}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{m.fg}}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{m.d}}"></path></svg>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 2px">
+<span style="font-size: 14px; font-weight: 500">{{m.label}}</span>
+<span style="font-size: 13px; font-weight: 700">{{m.fee}}</span>
+</div>
+</button>
+</sc-for>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: baseline">
+<div style="font-size: 17px; font-weight: 700">المواعيد المتاحة</div>
+<span style="font-size: 12.5px; color: #6E6E73">مدة الموعد [N] دقيقة</span>
+</div>
+<div style="display: flex; gap: 8px">
+<sc-for list="{{days}}" as="d" hint-placeholder-count="5">
+<button aria-pressed="{{d.on}}" onClick="{{d.pick}}" style="flex-grow: 1; flex-basis: 0; height: 64px; border-radius: 18px; border: {{d.border}}; background: {{d.bg}}; color: {{d.fg}}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-family: inherit; padding: 0">
+<span style="font-size: 11.5px; opacity: 0.8">{{d.n}}</span><span style="font-size: 17px; font-weight: 700">{{d.d}}</span>
+</button>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{slots}}" as="s" hint-placeholder-count="8">
+<button aria-pressed="{{s.on}}" aria-disabled="{{s.off}}" onClick="{{s.pick}}" style="height: 44px; border-radius: 14px; border: {{s.border}}; background: {{s.bg}}; color: {{s.fg}}; font-family: inherit; font-size: 14px; font-weight: 500; text-decoration: {{s.strike}}">{{s.t}}</button>
+</sc-for>
+</div>
+</div>
+
+<div style="border-radius: 22px; background: #FFFFFF; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 16px; font-weight: 700">نبذة عن الطبيب</div>
+<div style="font-size: 14px; line-height: 1.8; color: #3C4651">[النبذة كما كتبها الطبيب — تُعرض أول ٤ أسطر ثم «اقرأ المزيد»]</div>
+<a href="#" style="font-size: 13px; text-decoration: none">اقرأ المزيد</a>
+<div style="height: 1px; background: #EFEFF2"></div>
+<sc-for list="{{info}}" as="r" hint-placeholder-count="4">
+<div style="display: flex; align-items: center; gap: 10px; min-height: 30px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{r.d}}"></path></svg>
+<span style="font-size: 13px; color: #6E6E73; min-width: 92px">{{r.l}}</span>
+<span style="font-size: 14px; font-weight: 500">{{r.v}}</span>
+</div>
+</sc-for>
+</div>
+
+<div style="border-radius: 22px; background: #FFFFFF; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F7A5C" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9c-4.5-1-8-4-8-9V6z M9 12l2 2 4-4"></path></svg>يقبل التأمين</div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<span style="height: 30px; padding: 0 12px; border-radius: 15px; background: #F5F5F7; font-size: 12.5px; display: inline-flex; align-items: center">[شركة تأمين]</span>
+<span style="height: 30px; padding: 0 12px; border-radius: 15px; background: #F5F5F7; font-size: 12.5px; display: inline-flex; align-items: center">[شركة تأمين]</span>
+<span style="height: 30px; padding: 0 12px; border-radius: 15px; background: #F5F5F7; font-size: 12.5px; display: inline-flex; align-items: center">+[العدد]</span>
+</div>
+<div style="font-size: 12.5px; color: #6E6E73">العيادة تطلب الموافقة من شركة التأمين، وأنت تدفع نسبة التحمل فقط</div>
+</div>
+
+<div style="border-radius: 22px; background: #FFFFFF; overflow: hidden">
+<div style="display: flex; gap: 4px; height: 120px">
+<div style="flex-grow: 2; background: #EEF3FF; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #6E6E73">[صورة العيادة]</div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px">
+<div style="flex-grow: 1; background: #F3EEFF; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #6E6E73">[صورة]</div>
+<div style="flex-grow: 1; background: #0B1B2B; color: #F5F5F7; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700">+[N]</div>
+</div>
+</div>
+<div style="padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<div style="font-size: 14.5px; font-weight: 500">[اسم العيادة]</div>
+<div style="font-size: 12.5px; color: #6E6E73">[العنوان]، [المدينة] · حوالي [المسافة] كم</div>
+</div>
+<a href="#" style="height: 40px; padding: 0 14px; border-radius: 14px; background: #F5F5F7; color: #0B1B2B; font-size: 13px; font-weight: 500; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0B1B2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l18-8-8 18-2-8z"></path></svg>الاتجاهات</a>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: baseline">
+<div style="font-size: 17px; font-weight: 700">تقييمات المرضى</div>
+<a href="#" style="font-size: 13px; text-decoration: none">كل التقييمات ([العدد])</a>
+</div>
+<div style="border-radius: 22px; background: #FFFFFF; padding: 16px; display: flex; gap: 16px; align-items: center">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 76px">
+<div style="font-size: 32px; font-weight: 700">[N.N]</div>
+<div style="font-size: 12px; color: #6E6E73">من [العدد] تقييم</div>
+</div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 6px">
+<sc-for list="{{bars}}" as="b" hint-placeholder-count="5">
+<div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #6E6E73">
+<span style="width: 10px">{{b.n}}</span>
+<div style="flex-grow: 1; height: 6px; border-radius: 3px; background: #F0F0F3; overflow: hidden"><div style="width: {{b.w}}; height: 6px; border-radius: 3px; background: #E0A100"></div></div>
+</div>
+</sc-for>
+</div>
+</div>
+<sc-for list="{{reviews}}" as="r" hint-placeholder-count="2">
+<div style="border-radius: 22px; background: #FFFFFF; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<div style="font-size: 13.5px; font-weight: 500">[اسم المريض مختصر]</div>
+<div style="font-size: 12px; color: #6E6E73">[التاريخ] · [نوع الاستشارة]</div>
+</div>
+<div style="display: flex; gap: 2px" aria-label="[N] من 5">
+<sc-for list="{{stars}}" as="st" hint-placeholder-count="5">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="#E0A100" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"></path></svg>
+</sc-for>
+</div>
+<div style="font-size: 13.5px; line-height: 1.7; color: #3C4651">[تعليق المريض الحقيقي — من زيارة مكتملة فقط]</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 16px 34px; background: rgba(255,255,255,0.82); backdrop-filter: blur(24px); border-top: 1px solid rgba(11,27,43,0.06); display: flex; gap: 10px">
+<button aria-label="محادثة" style="width: 56px; height: 56px; border-radius: 18px; border: 1.5px solid #0B1B2B; background: transparent; display: flex; align-items: center; justify-content: center; padding: 0; flex-shrink: 0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0B1B2B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"></path></svg></button>
+<button style="flex-grow: 1; height: 56px; border-radius: 18px; border: 0; background: linear-gradient(180deg, #DE3644 0%, #D42A38 100%); box-shadow: 0 10px 22px rgba(212,42,56,0.30), inset 0 1px 0 rgba(255,255,255,0.25); color: #FFFFFF; font-family: inherit; font-size: 16px; font-weight: 700; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0">
+<span>{{cta}}</span><span style="font-size: 12px; font-weight: 400; opacity: 0.9">{{ctaSub}}</span>
+</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":2700}}'>
+class Component extends DCLogic {
+constructor(props) { super(props); this.state = { mode: 0, day: 0, slot: 2 }; }
+renderVals() {
+const s = this.state;
+const stats = [
+{ v: '[N] سنة', l: 'الخبرة', bg: '#E3E9FF', fg: '#3A56D4' },
+{ v: '[N.N]', l: '[N] تقييم', bg: '#FFF1CC', fg: '#8A5A00' },
+{ v: '[N]', l: 'استشارة مكتملة', bg: '#DDF4EC', fg: '#1F7A5C' },
+];
+const md = [
+['في العيادة', '[رسوم العيادة] ر.س', 'M4 21V8l8-5 8 5v13 M10 21v-5h4v5 M12 8v4 M10 10h4', '#DDF4EC', '#1F7A5C'],
+['مكالمة', '[رسوم الاستشارة] ر.س', 'M3 7h12v10H3z M15 10l6-3v10l-6-3', '#E3E9FF', '#3A56D4'],
+['زيارة منزلية', '[رسوم الزيارة] ر.س', 'M3 11.5L12 4l9 7.5 M5 10v10h14V10', '#FFF1CC', '#8A5A00'],
+];
+const modes = md.map((m, k) => ({ label: m[0], fee: m[1], d: m[2], tint: m[3], fg: m[4], on: s.mode === k, border: s.mode === k ? '2px solid #0B1B2B' : '1px solid rgba(11,27,43,0.06)', pick: () => this.setState({ mode: k }) }));
+const dd = [['اليوم', '١٢'], ['غدًا', '١٣'], ['الأربعاء', '١٤'], ['الخميس', '١٥'], ['السبت', '١٧']];
+const days = dd.map((x, k) => ({ n: x[0], d: x[1], on: s.day === k, bg: s.day === k ? '#0B1B2B' : '#FFFFFF', fg: s.day === k ? '#F5F5F7' : '#0B1B2B', border: s.day === k ? '0' : '1px solid rgba(11,27,43,0.06)', pick: () => this.setState({ day: k, slot: -1 }) }));
+const tt = [['٩:٠٠ ص', 0], ['٩:٣٠ ص', 1], ['١٠:٠٠ ص', 0], ['١١:٣٠ ص', 0], ['٤:٠٠ م', 0], ['٤:٣٠ م', 1], ['٦:٠٠ م', 0], ['٧:٣٠ م', 0]];
+const slots = tt.map((x, k) => ({ t: x[0], off: x[1] === 1, on: s.slot === k, bg: s.slot === k ? '#FFE3E5' : (x[1] ? '#F0F0F3' : '#FFFFFF'), fg: x[1] ? '#9A9AA0' : '#0B1B2B', strike: x[1] ? 'line-through' : 'none', border: s.slot === k ? '2px solid #D42A38' : '1px solid rgba(11,27,43,0.06)', pick: () => { if (!x[1]) this.setState({ slot: k }); } }));
+const info = [
+{ l: 'اللغات', v: '[العربية، الإنجليزية]', d: 'M4 5h8 M8 3v2 M6 5c0 4 3 7 6 8 M10 5c0 4-3 7-6 8 M13 21l4-10 4 10 M14.5 17.5h5' },
+{ l: 'الجنس', v: '[ذكر / أنثى]', d: 'M12 12a4 4 0 1 0 0-8a4 4 0 0 0 0 8z M4 21c1-4 4-6 8-6s7 2 8 6' },
+{ l: 'رقم الترخيص', v: '[رقم هيئة التخصصات]', d: 'M4 5h16v14H4z M8 10h5 M8 14h8' },
+{ l: 'المؤهلات', v: '[الشهادات]', d: 'M3 9l9-5 9 5-9 5z M7 11v5c3 2 7 2 10 0v-5' },
+];
+const bars = [['5', '72%'], ['4', '18%'], ['3', '6%'], ['2', '2%'], ['1', '2%']].map(b => ({ n: b[0], w: b[1] }));
+const sel = s.slot >= 0 ? (dd[s.day][0] + ' ' + tt[s.slot][0]) : 'اختر موعدًا';
+return { stats, modes, days, slots, info, bars, tags: ['[وسم ١]', '[وسم ٢]', '[وسم ٣]'], reviews: [0, 1], stars: [0, 1, 2, 3, 4],
+ cta: 'احجز ' + md[s.mode][0], ctaSub: sel + ' · ' + md[s.mode][1], avatar: 120 };
+}
+}
+</script>
+</body>
+</html>

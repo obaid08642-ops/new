@@ -1,0 +1,33 @@
+# Live gate, local stack, backend built at 194503f (reviewer, 2026-10-04)
+j_accounts: ##### 42/42 steps passed, 0 failed
+j_onboarding: ##### 143/149 steps passed, 6 failed
+  FAIL [onboarding: admin reviews the home_care] approve with commissions: 400 {"code": "INVALID_INPUT", "message": "required_documents_missing: commercial_registration, facility_license, iban_letter"}
+  FAIL [onboarding: admin reviews the home_care] no longer pending: 200 {"items": [{"_id": "6ac251f62cfb03e586e6ca95", "id": "04c098ed-4a54-4d24-91a1-e66ac62b8c2c", "user_id": "04c098ed-4a54-4d24-91a1-e66ac62b8c2c", "email": "home_care1198614427e9a@nabd.test",
+  FAIL [onboarding: admin reviews the hospital] approve with commissions: 400 {"code": "INVALID_INPUT", "message": "required_documents_missing: commercial_registration, facility_license, vat_certificate, iban_letter"}
+  FAIL [onboarding: admin reviews the hospital] no longer pending: 200 {"items": [{"_id": "6ac251f82cfb03e586e6caf9", "id": "24983ab9-97fd-4cb6-9374-eb9f45874898", "user_id": "24983ab9-97fd-4cb6-9374-eb9f45874898", "email": "hospital119863117ecc2@nabd.test", "
+  FAIL [onboarding: admin reviews the ambulance] approve with commissions: 400 {"code": "INVALID_INPUT", "message": "required_documents_missing: commercial_registration, facility_license, iban_letter"}
+  FAIL [onboarding: admin reviews the ambulance] no longer pending: 200 {"items": [{"_id": "6ac251f92cfb03e586e6cb5d", "id": "460e2668-0cd1-4244-9d4a-53626c8bcd8e", "user_id": "460e2668-0cd1-4244-9d4a-53626c8bcd8e", "email": "ambulance1198647068fed@nabd.test",
+j_pharmacy: ##### 144/144 steps passed, 0 failed
+j_lab: ##### 149/150 steps passed, 1 failed
+  FAIL [insurance: patient adds a policy (add-policy.tsx)] coverage-check answers for the policy: 200 {"covered": false, "reason": "Provider/Facility does not accept patient's insurance network (تأمين ins4853e - netf45e2)", "copay_percent": 100, "copay_fl
+j_radiology: ##### 121/122 steps passed, 1 failed
+  FAIL [insurance: patient adds a policy (add-policy.tsx)] coverage-check answers for the policy: 200 {"covered": false, "reason": "Provider/Facility does not accept patient's insurance network (تأمين insed3df - net17787)", "copay_percent": 100, "copay_fl
+j_nursing: ##### 36/41 steps passed, 5 failed
+  FAIL [onboarding: admin reviews the home_care] approve with commissions: 400 {"code": "INVALID_INPUT", "message": "required_documents_missing: commercial_registration, facility_license, iban_letter"}
+  FAIL [onboarding: admin reviews the home_care] no longer pending: 200 {"items": [{"_id": "6ac252b02cfb03e586e6dc11", "id": "40e4e5b9-8a93-4bf5-a789-3e2ce0be54b9", "user_id": "40e4e5b9-8a93-4bf5-a789-3e2ce0be54b9", "email": "home_care1199740074a12@nabd.test",
+  FAIL [nursing: patient finds a nurse for a service] service-details lists the approved nurse offering it: 200 []
+  FAIL [nursing: patient finds a nurse for a service] nurse profile shows name and the service price: 404 {"code": "UNKNOWN_ERROR", "message": "provider not found"}
+  FAIL [nursing: patient books and pays by card] booking created, assigned to the chosen nurse: 400 {"code": "INVALID_INPUT", "message": "provider_id_required"}
+j_consultation: ##### 114/115 steps passed, 1 failed
+  FAIL [insurance: patient adds a policy (add-policy.tsx)] coverage-check answers for the policy: 200 {"covered": false, "reason": "Provider/Facility does not accept patient's insurance network (تأمين ins8b763 - net18837)", "copay_percent": 100, "copay_fl
+j_ambulance: no summary (crashed)
+j_facility: no summary (crashed)
+j_support: ##### 32/32 steps passed, 0 failed
+j_loyalty: ##### 102/106 steps passed, 4 failed
+  FAIL [loyalty: admin builds the catalogue (LJ-08)] admin creates an affordable reward: 403 {"code": "INSUFFICIENT_PERMISSION", "message": "step_up_required"}
+  FAIL [loyalty: admin builds the catalogue (LJ-08)] admin creates an expensive reward: 403 {"code": "INSUFFICIENT_PERMISSION", "message": "step_up_required"}
+  FAIL [loyalty: admin builds the catalogue (LJ-08)] admin creates a live challenge: 403 {"code": "INSUFFICIENT_PERMISSION", "message": "step_up_required"}
+  FAIL [loyalty: admin builds the catalogue (LJ-08)] admin updates the points config: 403 {"code": "INSUFFICIENT_PERMISSION", "message": "step_up_required"}
+j_payments: ##### 42/42 steps passed, 0 failed
+j_admin_clicks: ##### 0/1 steps passed, 1 failed
+  FAIL [admin clicks: login through the browser (2FA)] admin clicks: python playwright not installed

@@ -1,0 +1,2 @@
+# Tasks for .github/workflows/server-inspect.yml (server-ops), run in order. Empty = nothing runs.
+# Every task must pass .github/workflows/ops-rehearsal.yml before it is listed here.

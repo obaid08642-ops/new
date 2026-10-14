@@ -54,9 +54,15 @@ describe("premium Nabd brand assets", () => {
     expect(layout).toContain('from "@/components-next/nabd-mark"');
     expect(layout).not.toContain("PulseShieldMark");
 
+    // The dashboard draws the mark through the shared home shell and hero (components-next/home).
     const page = readFileSync(resolve(process.cwd(), "app/[locale]/dashboard/page.tsx"), "utf8");
-    expect(page).toContain('from "@/components-next/nabd-mark"');
+    expect(page).toContain('from "@/components-next/home/home-shell"');
     expect(page).not.toContain("PulseShieldMark");
+    for (const file of ["home-shell.tsx", "home-parts.tsx"]) {
+      const source = readFileSync(resolve(process.cwd(), "components-next/home", file), "utf8");
+      expect(source).toContain('from "@/components-next/nabd-mark"');
+      expect(source).not.toContain("PulseShieldMark");
+    }
   });
 
   it("renders a reusable vector glyph for each permitted vital key", () => {

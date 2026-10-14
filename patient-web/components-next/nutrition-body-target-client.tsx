@@ -2,7 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LoaderCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components-next/ui-generated/components/Button";
+import { Spinner } from "@/components-next/ui-generated/components/Spinner";
+import { ChoiceGroup, TextField } from "@/components-next/care/care-fields";
+import { SectionCard } from "@/components-next/consult/consult-parts";
+import forms from "@/components-next/consult/consult.module.css";
 
 const GOALS = ["weight_loss", "maintain", "muscle_gain", "healthy"] as const;
 const ACTIVITIES = ["sedentary", "light", "moderate", "active", "very_active"] as const;
@@ -17,8 +22,12 @@ const EMPTY: Profile = {
   calorieTarget: "", waterTarget: "", restrictions: "", allergies: "", bmi: null,
 };
 
+/**
+ * The Target tab of the nutrition hub (the old body-target page): GET and POST /api/patient/nutrition/profile with the same
+ * payload as before. The goal and the activity are chips, the numbers are checked before sending.
+ */
 export function NutritionBodyTargetClient({ locale }: { locale: string }) {
-  const ar = locale === "ar";
+  const t = useTranslations("NutritionWeb");
   const router = useRouter();
   const [form, setForm] = useState<Profile>(EMPTY);
   const [loading, setLoading] = useState(true);
@@ -48,7 +57,7 @@ export function NutritionBodyTargetClient({ locale }: { locale: string }) {
             bmi: typeof r.bmi === "number" ? r.bmi : null,
           });
         }
-      } catch { /* keep empty form */ }
+      } catch { /* keep the empty form */ }
       finally { setLoading(false); }
     })();
   }, []);
@@ -60,10 +69,11 @@ export function NutritionBodyTargetClient({ locale }: { locale: string }) {
   async function save() {
     const nums = [form.height, form.weight, form.targetWeight, form.calorieTarget, form.waterTarget];
     if (!nums.every((v) => v.trim() !== "" && Number.isFinite(Number(v)))) {
-      setError(ar ? "أكمل الطول والوزن والأهداف بأرقام صحيحة" : "Complete height, weight and targets with valid numbers");
+      setError(t("targetInvalid"));
       return;
     }
-    setSaving(true); setError(null);
+    setSaving(true);
+    setError(null);
     try {
       const list = (v: string) => v.split(",").map((s) => s.trim()).filter(Boolean);
       const res = await fetch("/api/patient/nutrition/profile", {
@@ -82,47 +92,41 @@ export function NutritionBodyTargetClient({ locale }: { locale: string }) {
         }),
         credentials: "same-origin",
       });
-      if (!res.ok) { setError(ar ? "تعذر حفظ الأهداف" : "Could not save targets"); return; }
+      if (!res.ok) {
+        setError(t("targetFailed"));
+        return;
+      }
       router.replace(`/${locale}/nutrition`);
-    } catch { setError(ar ? "تعذر الاتصال" : "Connection unavailable"); }
-    finally { setSaving(false); }
+    } catch {
+      setError(t("connectionFailed"));
+    } finally {
+      setSaving(false);
+    }
   }
 
-  if (loading) return <p role="status"><LoaderCircle size={18} aria-hidden="true" /> {ar ? "جارٍ التحميل…" : "Loading…"}</p>;
+  if (loading) return <p role="status" className={forms.body}><Spinner size={20} /> {t("loading")}</p>;
   return (
-    <div>
-      {error ? <p role="alert">{error}</p> : null}
-      <section aria-label={ar ? "الهدف والنشاط" : "Goal & activity"}>
-        <h2>{ar ? "هدفك" : "Your goal"}</h2>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }} role="radiogroup" aria-label={ar ? "الهدف" : "Goal"}>
-          {GOALS.map((g) => (
-            <button key={g} type="button" role="radio" aria-checked={form.goal === g} onClick={() => set("goal", g)}>{g}</button>
-          ))}
-        </div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }} role="radiogroup" aria-label={ar ? "النشاط" : "Activity"}>
-          {ACTIVITIES.map((a) => (
-            <button key={a} type="button" role="radio" aria-checked={form.activity === a} onClick={() => set("activity", a)}>{a}</button>
-          ))}
-        </div>
-      </section>
-      <section aria-label={ar ? "الجسم" : "Body"}>
-        <h2>{ar ? "الجسم" : "Body"}</h2>
-        <label>{ar ? "الطول (سم)" : "Height (cm)"} <input inputMode="decimal" value={form.height} onChange={(e) => set("height", e.target.value)} /></label>{" "}
-        <label>{ar ? "الوزن (كجم)" : "Weight (kg)"} <input inputMode="decimal" value={form.weight} onChange={(e) => set("weight", e.target.value)} /></label>{" "}
-        <label>{ar ? "الوزن المستهدف (كجم)" : "Target weight (kg)"} <input inputMode="decimal" value={form.targetWeight} onChange={(e) => set("targetWeight", e.target.value)} /></label>
-        {form.bmi !== null ? <p>BMI: {form.bmi}</p> : null}
-      </section>
-      <section aria-label={ar ? "الملخص اليومي" : "Daily summary"}>
-        <h2>{ar ? "الملخص اليومي" : "Daily summary"}</h2>
-        <label>{ar ? "السعرات اليومية" : "Daily calories"} <input inputMode="numeric" value={form.calorieTarget} onChange={(e) => set("calorieTarget", e.target.value)} /></label>{" "}
-        <label>{ar ? "الماء اليومي (مل)" : "Daily water (ml)"} <input inputMode="numeric" value={form.waterTarget} onChange={(e) => set("waterTarget", e.target.value)} /></label>
-      </section>
-      <section aria-label={ar ? "الإعداد" : "Setup"}>
-        <h2>{ar ? "الإعداد" : "Setup"}</h2>
-        <label>{ar ? "قيود غذائية (افصل بفاصلة)" : "Dietary restrictions (comma separated)"} <input value={form.restrictions} onChange={(e) => set("restrictions", e.target.value)} /></label>{" "}
-        <label>{ar ? "حساسية (افصل بفاصلة)" : "Allergies (comma separated)"} <input value={form.allergies} onChange={(e) => set("allergies", e.target.value)} /></label>
-      </section>
-      <button type="button" onClick={save} disabled={saving}>{ar ? "حفظ الأهداف" : "Save targets"}</button>
-    </div>
+    <form className={forms.stack} noValidate onSubmit={(event) => { event.preventDefault(); void save(); }}>
+      <SectionCard id="goal" title={t("goalSection")}>
+        <ChoiceGroup label={t("goal")} value={form.goal} onChange={(value) => set("goal", value)} options={GOALS.map((value) => ({ value, label: t(`goalOption.${value}`) }))} />
+        <ChoiceGroup label={t("activity")} value={form.activity} onChange={(value) => set("activity", value)} options={ACTIVITIES.map((value) => ({ value, label: t(`activityOption.${value}`) }))} />
+      </SectionCard>
+      <SectionCard id="body" title={t("bodySection")}>
+        <TextField label={t("height")} inputMode="decimal" value={form.height} onChange={(value) => set("height", value)} />
+        <TextField label={t("weight")} inputMode="decimal" value={form.weight} onChange={(value) => set("weight", value)} />
+        <TextField label={t("targetWeight")} inputMode="decimal" value={form.targetWeight} onChange={(value) => set("targetWeight", value)} />
+        {form.bmi !== null ? <p className={forms.body}>{t("bmi", { value: new Intl.NumberFormat(locale).format(form.bmi) })}</p> : null}
+      </SectionCard>
+      <SectionCard id="daily" title={t("dailySection")}>
+        <TextField label={t("dailyCalories")} inputMode="numeric" value={form.calorieTarget} onChange={(value) => set("calorieTarget", value)} />
+        <TextField label={t("dailyWater")} inputMode="numeric" value={form.waterTarget} onChange={(value) => set("waterTarget", value)} />
+      </SectionCard>
+      <SectionCard id="setup" title={t("setupSection")}>
+        <TextField label={t("restrictions")} value={form.restrictions} onChange={(value) => set("restrictions", value)} />
+        <TextField label={t("allergies")} value={form.allergies} onChange={(value) => set("allergies", value)} />
+      </SectionCard>
+      {error ? <p className={forms.error} role="alert">{error}</p> : null}
+      <Button type="submit" label={t("saveTarget")} loading={saving} fullWidth />
+    </form>
   );
 }

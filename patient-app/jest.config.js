@@ -22,6 +22,9 @@ module.exports = {
     '^react-native$': '<rootDir>/node_modules/react-native',
     '^react-native/(.*)$': '<rootDir>/node_modules/react-native/$1',
     '^react-native-svg$': '<rootDir>/node_modules/react-native-svg',
+    // Same rule for the safe-area context: the shells (packages/ui-native/src/shells) and the
+    // app must share one provider, or the shells read the default zero insets.
+    '^react-native-safe-area-context$': '<rootDir>/node_modules/react-native-safe-area-context',
   },
   // packages/ui-native is a source-only workspace with no install of its own, so
   // its `import 'react'` / babel-runtime helpers cannot be found by walking up

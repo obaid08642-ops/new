@@ -5,6 +5,7 @@ import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import { router } from 'expo-router';
 import { HttpClient } from '@/services/HttpClient';
+import { tokens } from '../../../packages/design-tokens/dist/ts/tokens';
 
 export interface PushNotificationState {
   expoPushToken?: Notifications.ExpoPushToken;
@@ -32,7 +33,7 @@ Notifications.setNotificationHandler({
  */
 export function translateBackendRoute(route: string): { pathname: string; params?: Record<string, string> } | null {
   if (!route) return null;
-  const clean = String(route).split('?')[0];
+  const [clean] = String(route).split('?');
 
   let m = clean.match(/^\/orders\/([^/]+)\/tracking$/) || clean.match(/^\/orders\/([^/]+)$/);
   if (m) return { pathname: '/pharmacy/order-tracking', params: { orderId: m[1] } };
@@ -59,18 +60,31 @@ export function translateBackendRoute(route: string): { pathname: string; params
   m = clean.match(/^\/radiology\/booking\/view\/([^/]+)$/);
   if (m) return { pathname: '/diagnostics/order/[id]', params: { id: m[1] } };
 
-  m = clean.match(/^\/health\/results\/(.+)$/) || clean.match(/^\/health\/reports\/(.+)$/);
-  if (m) return { pathname: '/reports/view-report', params: { reportId: m[1] } };
+  // the report screen reads `id` (app/reports/view-report.tsx), also for the "report ready" route /reports/:id
+  m = clean.match(/^\/health\/results\/(.+)$/) || clean.match(/^\/health\/reports\/(.+)$/) || clean.match(/^\/reports\/([^/]+)$/);
+  if (m) return { pathname: '/reports/view-report', params: { id: m[1] } };
+
+  // Community is removed (owner decision 1): an old community notification opens the articles
+  if (clean === '/community' || clean.startsWith('/community/')) return { pathname: '/articles' };
 
   // Routes that already exist verbatim in the app
   if (clean === '/consultations/appointments') return { pathname: clean };
   if (clean === '/diagnostics/results-history') return { pathname: clean };
+  // The family hub is /family (merge map, Batch 6); the backend still sends the old hub route and the permission request route
+  if (clean === '/health/family-hub' || clean === '/family/permission-request') return { pathname: '/family' };
   // Verbatim app routes used by backend notification action.route (EPIC4/EPIC5 listeners)
   const VERBATIM_ROUTES = new Set([
-    '/insurance/hub', '/returns/hub',
+    '/insurance', '/insurance/hub', '/returns/hub',
     '/loyalty/hub', '/loyalty/referrals', '/loyalty/challenges',
-    '/health/family-hub', '/ai/symptom-timeline', '/emergency/tracking',
+    '/family', '/emergency',
   ]);
+  // The symptom timeline is the conversation of the assistant (merge map section 4, Batch 9)
+  if (clean === '/ai/symptom-timeline') return { pathname: '/ai', params: { mode: 'symptoms' } };
+  // The loyalty hub keeps rewards, challenges and invites as tabs (merge map section 7, Batch 11); the leaderboard is removed
+  if (clean === '/loyalty/referrals') return { pathname: '/loyalty/hub', params: { tab: 'invite' } };
+  if (clean === '/loyalty/challenges') return { pathname: '/loyalty/hub', params: { tab: 'challenges' } };
+  if (clean === '/loyalty/rewards') return { pathname: '/loyalty/hub', params: { tab: 'rewards' } };
+  if (clean === '/loyalty/leaderboard') return { pathname: '/loyalty/hub' };
   if (VERBATIM_ROUTES.has(clean)) return { pathname: clean };
 
   return null;
@@ -95,7 +109,9 @@ export function routeFromNotificationData(data: any): void {
     // 2) Type-based fallbacks (event-driven notifications) — real app routes only
     switch (data.type) {
       case 'chat':
-        router.push({ pathname: '/consultations/chat-with-doctor', params: { doctorId: data.senderId, doctorName: data.senderName } } as any);
+        // Decision 24: the doctor thread belongs to a booking; without one the bookings list opens.
+        if (data.appointmentId || data.bookingId) router.push({ pathname: '/consultations/chat-with-doctor', params: { doctorId: data.senderId, doctorName: data.senderName, appointmentId: data.appointmentId || data.bookingId } } as any);
+        else router.push('/consultations/appointments' as any);
         break;
       case 'call':
       case 'call_missed':
@@ -134,10 +150,10 @@ export function routeFromNotificationData(data: any): void {
         router.push('/returns/hub' as any);
         break;
       case 'insurance':
-        router.push('/insurance/hub' as any);
+        router.push('/insurance' as any);
         break;
       case 'family':
-        router.push('/health/family-hub' as any);
+        router.push('/family' as any);
         break;
       case 'wallet':
       case 'topup':
@@ -145,7 +161,7 @@ export function routeFromNotificationData(data: any): void {
         break;
       case 'medication':
       case 'medication_reminder':
-        router.push('/health/medication-reminder-list' as any);
+        router.push('/health/medications?tab=reminders' as any);
         break;
       case 'loyalty':
       case 'promotion':
@@ -155,7 +171,7 @@ export function routeFromNotificationData(data: any): void {
       case 'sos':
       case 'ambulance':
       case 'emergency':
-        router.push('/emergency/tracking' as any);
+        router.push('/emergency' as any);
         break;
       default: {
         // action payload embedded as JSON string (NotificationsService contract)
@@ -203,7 +219,7 @@ export const usePushNotifications = (): PushNotificationState => {
         name: 'default',
         importance: Notifications.AndroidImportance.MAX,
         vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF231F7C',
+        lightColor: tokens('light').color.action.primary.bg, // the notification LED is the action colour (token)
       });
       await Notifications.setNotificationChannelAsync('calls', {
         name: 'Calls',

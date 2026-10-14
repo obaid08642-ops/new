@@ -391,6 +391,19 @@ export class SuspendDto {
 
 }
 
+export class ReviewDocumentDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  note?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  reason?: string;
+
+}
+
 export class ReactivateDto {
   @IsOptional()
   @IsString()

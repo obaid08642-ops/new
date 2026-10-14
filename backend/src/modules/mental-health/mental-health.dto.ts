@@ -1,4 +1,7 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, Matches } from 'class-validator';
+
+/** A dialable phone number: optional +, 7–20 digits, spaces or dashes allowed between digits. */
+export const DIALABLE_PHONE = /^\+?\d[\d\s-]{5,18}\d$/;
 import { MeditationType, BreathingTechnique } from '../../schemas/mental-health.schema';
 import { MoodValue } from '../../schemas/mental-health.schema';
 
@@ -51,20 +54,10 @@ export class LogBreathingDto {
 
 }
 
-export class AddCrisisContactDto {
+/** D-8: the "Need urgent help?" number the admin sets; it must be dialable. */
+export class UrgentHelpDto {
   @IsDefined()
   @IsString()
-  contact_name: string;
-
-  @IsDefined()
-  @IsString()
+  @Matches(DIALABLE_PHONE, { message: 'phone_invalid' })
   phone: string;
-
-  @IsOptional()
-  @IsString()
-  relationship?: string;
-
-  @IsOptional()
-  @IsBoolean()
-  is_professional?: boolean;
 }

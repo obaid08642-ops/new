@@ -125,41 +125,6 @@ export class EscalateDto {
 
 }
 
-export class HandoverDto {
-  @IsDefined()
-  @IsString()
-  hospital_provider_account_id: string;
-
-  @IsOptional()
-  @IsString()
-  notes?: string;
-}
-
-/** Ambulance mission vitals as entered on the completion form (free text: "120/80", "88"). */
-export class AmbulanceVitalsDto {
-  @IsOptional() @IsString() @MaxLength(20) bp?: string;
-  @IsOptional() @IsString() @MaxLength(20) hr?: string;
-  @IsOptional() @IsString() @MaxLength(20) spo2?: string;
-}
-
-export class CompleteDto {
-  // provider-app AmbulanceDashboard sends { bp, hr, spo2 }; the service stores it as an object.
-  @IsOptional()
-  @IsObject()
-  @ValidateNested()
-  @Type(() => AmbulanceVitalsDto)
-  vitals?: AmbulanceVitalsDto;
-
-  @IsOptional()
-  @IsString()
-  summary: string;
-
-  @IsOptional()
-  @IsString()
-  outcome: string;
-
-}
-
 export class PutPricingDto {
   @IsOptional()
   @IsObject()

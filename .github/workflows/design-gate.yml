@@ -1,0 +1,23 @@
+name: design-gate
+on:
+  pull_request:
+    paths:
+      - 'patient-web/**'
+      - 'patient-app/**'
+
+jobs:
+  impeccable-detector:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Impeccable detector
+        continue-on-error: true
+        run: |
+          # The detector exits 2 when it finds issues; bash -e would stop the step before printing.
+          npx --yes impeccable@4.1.0 detect --json patient-web/ > det.json 2>&1 || true
+          cat det.json
+
+      # Draft only: this job is informational and does NOT block the merge.
+      # To make it a required check, remove `continue-on-error: true` and add
+      # a step that exits non-zero when a P0 finding is present.

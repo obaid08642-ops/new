@@ -1,147 +1,86 @@
-// @ts-nocheck
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, StatusBar, TextInput, ScrollView, ActivityIndicator, Alert } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useApp } from '../../src/context/AppContext';
-import { resolveColor, darkColors, lightColors } from '../../src/theme/colors';
-import { apiFetch } from '../../src/utils/api';
-import { LocalizedText } from '../../src/components/LocalizedText';
-import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
-import { ScreenState } from '../../src/components/ScreenStates';
+import { Pressable, Text, View } from 'react-native';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
 
-const RATING_LABELS = ['', 'سيئ', 'مقبول', 'جيد', 'ممتاز', 'رائع جداً'];
-const TAGS = ['ممتاز', 'سريع', 'احترافي', 'نظيف', 'متعاون', 'أنصح به'];
+import { Button, Chip, Input } from '../../../packages/ui-native/src';
+import { ConsultScreen } from '../../src/components/consult/ConsultKit';
+import { Glyph } from '../../src/components/pharmacy/PharmacyKit';
+import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { apiFetch } from '../../src/utils/api';
+
+/**
+ * Rate the consultation — board Consult's form language. Stars, an optional comment and the aspects the patient liked go
+ * to POST /patient-ux/review for the appointment, as before; the aspects are stored with their Arabic words, the way the
+ * server has always received them.
+ */
+
+const TAGS = [
+  { id: 'excellent', stored: 'ممتاز' }, // i18n-ok: the aspect as stored on the server, not shown to the user
+  { id: 'fast', stored: 'سريع' }, // i18n-ok: stored value
+  { id: 'professional', stored: 'احترافي' }, // i18n-ok: stored value
+  { id: 'clean', stored: 'نظيف' }, // i18n-ok: stored value
+  { id: 'helpful', stored: 'متعاون' }, // i18n-ok: stored value
+  { id: 'recommend', stored: 'أنصح به' }, // i18n-ok: stored value
+] as const;
 
 export default function PostCallRatingScreen() {
   const { appointmentId } = useLocalSearchParams();
-  const insets = useSafeAreaInsets();
-  const { isDark, lang } = useApp() as any;
-  const colors = isDark ? darkColors : lightColors;
-  const isRTL = lang === 'ar' || lang === 'ur';
+  const { theme, t, c, k } = useScreenUi();
 
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
-  const [activeTags, setActiveTags] = useState<string[]>([]);
+  const [active, setActive] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const toggleTag = (t: string) => {
-    if (activeTags.includes(t)) {
-      setActiveTags(activeTags.filter(x => x !== t));
-    } else {
-      setActiveTags([...activeTags, t]);
-    }
-  };
+  const toggle = (id: string) => setActive((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
+  const home = () => router.replace('/(tabs)/consultations' as Href);
 
   const submit = async () => {
     if (rating === 0) return;
     setLoading(true);
     try {
       if (appointmentId) {
-        // E2: real endpoint (was non-existent POST /care/appointments/rating with a swallowed catch)
         await apiFetch('/patient-ux/review', {
           method: 'POST',
-          body: JSON.stringify({ booking_kind: 'appointment', booking_id: String(appointmentId), rating, comment, aspects: activeTags })
+          body: JSON.stringify({ booking_kind: 'appointment', booking_id: String(appointmentId), rating, comment, aspects: TAGS.filter((x) => active.includes(x.id)).map((x) => x.stored) }),
         });
       }
       setLoading(false);
-      router.replace('/(tabs)/consultations');
-    } catch (e: any) {
+      home();
+    } catch (e) {
       setLoading(false);
-      setError(e?.message || 'تعذر إرسال التقييم');
-      showLocalizedAlert('تعذر إرسال التقييم', e?.message || 'حاول مرة أخرى لاحقاً.');
+      showLocalizedAlert(k('consult.rate.failed'), (e instanceof Error && e.message) || k('consult.confirm.tryLater'));
     }
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.bg } ]}>
-      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
-      
-      <View style={[styles.header, { paddingTop: insets.top + 10, borderBottomColor: colors.bd } ]}>
-        <TouchableOpacity onPress={() => router.replace('/(tabs)/consultations')} style={{ width: 40, height: 40, justifyContent: 'center' }}>
-          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.n, fontSize: 24 }}>close</LocalizedText>
-        </TouchableOpacity>
-        <LocalizedText style={{ fontSize: 16, fontWeight: '800', color: colors.n }}>التقييم</LocalizedText>
-        <View style={{ width: 40 }}/>
+    <ConsultScreen
+      title={k('consult.rate.title')}
+      onBack={home}
+      footer={<Button label={k('consult.rate.submit')} size="lg" fullWidth disabled={rating === 0 || loading} loading={loading} onPress={() => void submit()} theme={theme} testID="rate-submit" />}
+      testID="post-call-rating-screen"
+    >
+      <View style={{ alignItems: 'center', gap: 8, paddingTop: 16 }}>
+        <Text accessibilityRole="header" style={{ ...scale(t, 'h2'), color: c.text.primary, textAlign: 'center' }}>{k('consult.rate.question')}</Text>
+        <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('consult.rate.help')}</Text>
+        <View accessibilityRole="radiogroup" accessibilityLabel={k('consult.rate.title')} style={{ flexDirection: 'row', gap: 6, marginTop: 12 }}>
+          {[1, 2, 3, 4, 5].map((n) => (
+            <Pressable key={n} accessibilityRole="radio" accessibilityState={{ selected: n === rating }} accessibilityLabel={k(`consult.rate.star${n}`)} onPress={() => setRating(n)} style={{ width: 52, height: 52, alignItems: 'center', justifyContent: 'center' }}>
+              <Glyph name="star" size={40} color={n <= rating ? c.icon.ratingStar : c.border.strong} />
+            </Pressable>
+          ))}
+        </View>
+        <Text accessibilityLiveRegion="polite" style={{ ...scale(t, 'small', 'bold'), color: c.text.secondary, minHeight: 22 }}>{rating > 0 ? k(`consult.rate.star${rating}`) : ''}</Text>
       </View>
 
-      <ScreenState loading={loading} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={submit}>
-      <ScrollView contentContainerStyle={{ padding: 16 }}>
-        <View style={{ alignItems: 'center', paddingVertical: 20 }}>
-          <View  style={styles.iconCircle}  >
-            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 40, color: resolveColor('var(--p)') }}>thumb_up</LocalizedText>
-          </View>
-          
-          <LocalizedText style={{ fontSize: 20, fontWeight: '900', color: colors.n, marginBottom: 6 }}>كيف كانت تجربتك؟</LocalizedText>
-          <LocalizedText style={{ fontSize: 12, color: colors.t2, marginBottom: 24 }}>تقييمك يساعدنا على تحسين خدماتنا</LocalizedText>
-          
-          <View style={styles.starsRow}>
-            {[1, 2, 3, 4, 5].map(n => (
-              <TouchableOpacity key={n} onPress={() => setRating(n)} activeOpacity={0.7}>
-                <LocalizedText style={{ 
-                  fontFamily: 'MaterialSymbolsRounded', 
-                  fontSize: 42, 
-                  color: n <= rating ? resolveColor('var(--am)') : colors.bd,
-                  transform: [{ scale: n <= rating ? 1.1 : 1 }]
-                }}>
-                  {n <= rating ? 'star' : 'star'}
-                </LocalizedText>
-              </TouchableOpacity>
-            ))}
-          </View>
-          <LocalizedText style={{ fontSize: 13, fontWeight: '700', color: resolveColor('var(--am)'), height: 20, marginBottom: 24 }}>
-            {RATING_LABELS[rating]}
-          </LocalizedText>
-        </View>
+      <Input label={k('consult.rate.comment')} placeholder={k('consult.rate.commentPlaceholder')} value={comment} onChange={setComment} multiline rows={4} theme={theme} testID="rate-comment" />
 
-        <View style={{ marginTop: 0 }}>
-          <LocalizedText style={{ fontSize: 13, fontWeight: '700', color: colors.n, marginBottom: 10, textAlign: isRTL ? 'right' : 'left' }}>أضف تعليقاً (اختياري)</LocalizedText>
-          <TextInput
-            style={[styles.input, { backgroundColor: colors.bg, color: colors.n, textAlign: isRTL ? 'right' : 'left' }]}
-            placeholder="اكتب رأيك في الخدمة..."
-            placeholderTextColor={colors.t3}
-            value={comment}
-            onChangeText={setComment}
-            multiline
-          />
-        </View>
-
-        <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 8, marginTop: 14 }}>
-          {TAGS.map(t => {
-            const active = activeTags.includes(t);
-            return (
-              <TouchableOpacity 
-                key={t} 
-                onPress={() => toggleTag(t)}
-                style={[
-                  styles.chip, 
-                  active ? { backgroundColor: resolveColor('var(--ps)'), borderColor: resolveColor('var(--p)') } : { backgroundColor: colors.s, borderColor: colors.bd }]} >
-                <LocalizedText style={{ fontSize: 11, fontWeight: '600', color: active ? resolveColor('var(--pt)') : colors.t2 }}>{t}</LocalizedText>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        <TouchableOpacity 
-          style={[styles.btn, { backgroundColor: colors.n, opacity: rating > 0 ? 1 : 0.5 }]} 
-          onPress={submit}
-          disabled={rating === 0 || loading}
-        >
-          {loading ? <ActivityIndicator color={colors.bg} /> : <LocalizedText style={{ fontSize: 14, fontWeight: '800', color: colors.bg }}>إرسال التقييم</LocalizedText>}
-        </TouchableOpacity>
-      </ScrollView>
-      </ScreenState>
-    </View>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+        {TAGS.map((tag) => (
+          <Chip key={tag.id} label={k(`consult.rate.tag.${tag.id}`)} selected={active.includes(tag.id)} onPress={() => toggle(tag.id)} theme={theme} />
+        ))}
+      </View>
+    </ConsultScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1 },
-  iconCircle: { width: 96, height: 96, borderRadius: 48, alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
-  starsRow: { flexDirection: 'row', justifyContent: 'center', gap: 10, marginBottom: 8 },
-  input: { borderRadius: 14, padding: 14, minHeight: 80, fontSize: 12, textAlignVertical: 'top' },
-  chip: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 50, borderWidth: 1.5 },
-  btn: { width: '100%', marginTop: 30, padding: 15, borderRadius: 16, alignItems: 'center', justifyContent: 'center', shadowColor: '#141A2A', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.2, shadowRadius: 24, elevation: 8 }
-});

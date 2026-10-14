@@ -1,0 +1,13 @@
+/* "Cite this information" (product and article pages). Tokens only, no inline styles (the CSP refuses them). */
+.cite {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 16px; margin-block-start: var(--nabd-space-sm);
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-subtle); border-radius: var(--nabd-radius-xl);
+}
+.title { margin: 0; font-size: var(--nabd-font-size-body); font-weight: 700; }
+.text { margin: 0; font-size: var(--nabd-font-size-caption); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.copy {
+  min-block-size: 44px; padding-inline: 16px; border-radius: var(--nabd-radius-md); cursor: pointer;
+  border: 1px solid var(--nabd-color-border-strong); background: var(--nabd-color-action-secondary-bg); color: var(--nabd-color-action-secondary-fg);
+  font-family: inherit; font-size: var(--nabd-font-size-control); font-weight: 600;
+}
+.copy:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }

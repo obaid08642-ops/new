@@ -1,0 +1,5 @@
+[agent] guest (no account, no call) GET /calls/ice/credentials -> 429 ttl=None user=None
+[agent] POST /auth/login wrong password x30: {429: 30}
+[agent] POST /auth/verify-otp wrong code x30: {429: 30}
+[agent] POST /auth/guest x30: {429: 30}
+[agent] POST /auth/login wrong pw, rotating X-Forwarded-For x30: {401: 30}

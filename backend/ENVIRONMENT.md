@@ -77,6 +77,7 @@
 |---|---|
 | `S3_ENDPOINT` / `S3_REGION` / `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` / `S3_BUCKET` / `S3_PUBLIC_BASE_URL` ⚠️ | تخزين S3-متوافق للملفات الطبية |
 | `CLOUDFLARE_R2_ACCOUNT_ID` / `CLOUDFLARE_R2_ACCESS_KEY_ID` / `CLOUDFLARE_R2_SECRET_ACCESS_KEY` / `CLOUDFLARE_R2_BUCKET_NAME` / `CLOUDFLARE_R2_PUBLIC_URL` ⚠️ | بديل Cloudflare R2 |
+| `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ZONE_ID` / `NEXT_REVALIDATE_URL` / `NEXT_REVALIDATE_SECRET` ⚠️ | الحذف الفوري للنسخ المخزنة (14.8): أي تعديل في كتالوج الأدوية يمسح Cloudflare بالـ Cache-Tag ويعيد تحميل صفحات المنتج في Next. لو ناقصة يتسجّل خطأ مع كل تعديل |
 
 ## 8) مفاتيح الميزات (Feature Flags — افتراضياً مفعّلة)
 

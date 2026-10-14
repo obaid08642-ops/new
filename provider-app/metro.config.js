@@ -23,4 +23,15 @@ config.resolver.disableHierarchicalLookup = true;
 config.resolver.sourceExts = [...config.resolver.sourceExts, 'mjs', 'cjs'];
 config.resolver.assetExts = [...config.resolver.assetExts, 'ttf', 'wav', 'mp3'];
 
+// Audit-only (tools/live/rnweb): browser test builds keep the session in localStorage, because
+// expo-secure-store has no web implementation. Inactive unless NABD_WEB_TEST=1.
+if (process.env.NABD_WEB_TEST === '1') {
+  const shim = path.resolve(__dirname, '../tools/live/rnweb/secure-store-web.js');
+  const upstream = config.resolver.resolveRequest;
+  config.resolver.resolveRequest = (ctx, name, platform) => {
+    if (platform === 'web' && name === 'expo-secure-store') return { type: 'sourceFile', filePath: shim };
+    return upstream ? upstream(ctx, name, platform) : ctx.resolveRequest(ctx, name, platform);
+  };
+}
+
 module.exports = config;

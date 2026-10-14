@@ -1,6 +1,8 @@
-import { Redirect } from 'expo-router';
+import React from 'react';
 
-/** The legacy timeline expected diagnostic urgency and reasoning fields that the guided-triage contract no longer exposes. */
-export default function SymptomTimelineRedirect() {
-  return <Redirect href="/ai/triage" />;
+import { RedirectKeepingParams } from '../../src/components/health/RedirectKeepingParams';
+
+/** Old route (merge map section 4, Batch 9): the symptom timeline is the conversation of the assistant. */
+export default function AppAiSymptomTimelineRedirect() {
+  return <RedirectKeepingParams to="/ai" params={{ mode: 'symptoms' }} />;
 }

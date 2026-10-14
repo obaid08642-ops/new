@@ -111,7 +111,10 @@ export class PharmacyBroadcastService {
         name_en: item.name_en || null,
         qty_requested: Number(item.qty || 0),
         matched_sku: item.matched_sku || null,
+        // Needs-review issue 541: the patient's line note reaches the pharmacy that prices it.
+        notes: typeof item.notes === 'string' && item.notes.trim() ? item.notes : null,
       })),
+      patient_notes: typeof order?.patient_notes === 'string' && order.patient_notes.trim() ? order.patient_notes : null,
     };
   }
 
@@ -427,7 +430,17 @@ export class PharmacyBroadcastService {
     const orders = await this.orders.find({ id: { $in: bcs.map(b => b.order_id) } }).lean();
     const ordersMap = new Map(orders.map(o => [o.id, o]));
     const viewer = await this.viewerProfile(user.id);
-    return Promise.all(bcs.map((broadcast) => this.providerBroadcastDto(broadcast, ordersMap.get(broadcast.order_id), viewer)));
+    // Needs-review issue 1134: say whether this pharmacy already has a draft or sent offer, so the radar
+    // does not keep showing "Create offer" for an order it already answered.
+    const mine: any[] = await (this.profiles as any).db.collection('pharmacy_offers')
+      .find({ order_id: { $in: bcs.map((b) => b.order_id) }, pharmacy_account_id: { $eq: user.id }, status: { $in: ['draft', 'submitted'] } }, { projection: { _id: 0, order_id: 1, status: 1 } })
+      .toArray();
+    const myOffer = new Map<string, string>();
+    for (const o of mine) if (myOffer.get(o.order_id) !== 'submitted') myOffer.set(o.order_id, o.status);
+    return Promise.all(bcs.map(async (broadcast) => ({
+      ...(await this.providerBroadcastDto(broadcast, ordersMap.get(broadcast.order_id), viewer)),
+      my_offer_status: myOffer.get(broadcast.order_id) ?? null,
+    })));
   }
 
   async detail(user: any, broadcast_id: string): Promise<any> {

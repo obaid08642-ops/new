@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Pharmacy hub</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Readex Pro',sans-serif}
+a{color:#C8202F}
+@keyframes ndRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes ndDraw{from{stroke-dashoffset:100}to{stroke-dashoffset:0}}
+@keyframes ndPulse{0%{transform:scale(.6);opacity:.5}100%{transform:scale(1.8);opacity:0}}
+@keyframes ndBeat{0%,100%{transform:scale(1)}12%{transform:scale(1.3)}24%{transform:scale(1)}36%{transform:scale(1.15)}60%{transform:scale(1)}}
+@keyframes ndMove{0%{transform:translateX(0)}100%{transform:translateX(-60px)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+<div dir="rtl" style="width: 390px; height: 1420px; box-sizing: border-box; position: relative; overflow: hidden; background: #F5F5F7; color: #0B1B2B; font-family: 'Readex Pro', sans-serif">
+<div style="padding: 54px 16px 140px; display: flex; flex-direction: column; gap: 16px">
+
+<div style="animation: ndRise 420ms cubic-bezier(.22,1,.36,1) 0ms both"><div style="display: flex; align-items: center; gap: 10px"><h1 style="margin: 0; flex-grow: 1; font-size: 26px; font-weight: 700; letter-spacing: -0.3px">الصيدلية</h1><button aria-label="طلباتي" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid rgba(11,27,43,0.08); background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0; position: relative; flex-shrink: 0"><svg width="20" height="20" viewBox="0 0 256 256" aria-hidden="true" style="flex-shrink: 0"><path d="M216,40H40A16,16,0,0,0,24,56V208a8,8,0,0,0,11.58,7.15L64,200.94l28.42,14.21a8,8,0,0,0,7.16,0L128,200.94l28.42,14.21a8,8,0,0,0,7.16,0L192,200.94l28.42,14.21A8,8,0,0,0,232,208V56A16,16,0,0,0,216,40ZM176,144H80a8,8,0,0,1,0-16h96a8,8,0,0,1,0,16Zm0-32H80a8,8,0,0,1,0-16h96a8,8,0,0,1,0,16Z" fill="#0B1B2B"></path></svg></button><button aria-label="السلة" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid rgba(11,27,43,0.08); background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0; position: relative; flex-shrink: 0"><svg width="20" height="20" viewBox="0 0 256 256" aria-hidden="true" style="flex-shrink: 0"><path d="M223.68,66.15,135.68,18a15.88,15.88,0,0,0-15.36,0l-88,48.17a16,16,0,0,0-8.32,14v95.64a16,16,0,0,0,8.32,14l88,48.17a15.88,15.88,0,0,0,15.36,0l88-48.17a16,16,0,0,0,8.32-14V80.18A16,16,0,0,0,223.68,66.15ZM128,32l80.35,44L178.57,92.29l-80.35-44Zm0,88L47.65,76,81.56,57.43l80.35,44Zm88,55.85h0l-80,43.79V133.83l32-17.51V152a8,8,0,0,0,16,0V107.56l32-17.51v85.76Z" fill="#0B1B2B"></path></svg><span style="position: absolute; top: -3px; left: -3px; min-width: 18px; height: 18px; border-radius: 9px; background: #D42A38; color: #FFFFFF; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; padding: 0 4px; box-sizing: border-box">[N]</span></button></div></div>
+<div style="display: flex; gap: 8px; animation: ndRise 420ms cubic-bezier(.22,1,.36,1) 50ms both">
+<label style="flex-grow: 1; height: 52px; border-radius: 18px; background: #FFFFFF; border: 1px solid rgba(11,27,43,0.08); display: flex; align-items: center; gap: 10px; padding: 0 14px">
+<svg width="20" height="20" viewBox="0 0 256 256" aria-hidden="true" style="flex-shrink: 0"><path d="M168,112a56,56,0,1,1-56-56A56,56,0,0,1,168,112Zm61.66,117.66a8,8,0,0,1-11.32,0l-50.06-50.07a88,88,0,1,1,11.32-11.31l50.06,50.06A8,8,0,0,1,229.66,229.66ZM112,184a72,72,0,1,0-72-72A72.08,72.08,0,0,0,112,184Z" fill="#6E6E73"></path></svg><input placeholder="ابحث بالاسم أو المادة الفعالة…" style="flex-grow: 1; min-width: 0; border: 0; background: transparent; font-family: inherit; font-size: 15px; outline: none">
+<button aria-label="مسح الباركود" style="width: 36px; height: 36px; border: 0; background: transparent; padding: 0; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 256 256" aria-hidden="true" style="flex-shrink: 0"><path d="M224,40H32a8,8,0,0,0-8,8V208a8,8,0,0,0,8,8H224a8,8,0,0,0,8-8V48A8,8,0,0,0,224,40ZM40,64a8,8,0,0,1,8-8H80a8,8,0,0,1,0,16H56V96a8,8,0,0,1-16,0ZM80,200H48a8,8,0,0,1-8-8V160a8,8,0,0,1,16,0v24H80a8,8,0,0,1,0,16Zm24-48a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm32,0a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm24,8a8,8,0,0,1-8-8V104a8,8,0,0,1,16,0v48A8,8,0,0,1,160,160Zm56,32a8,8,0,0,1-8,8H176a8,8,0,0,1,0-16h24V160a8,8,0,0,1,16,0Zm0-96a8,8,0,0,1-16,0V72H176a8,8,0,0,1,0-16h32a8,8,0,0,1,8,8Z" fill="#0B1B2B"></path></svg></button>
+</label>
+<button aria-label="تصوير الروشتة" style="width: 52px; height: 52px; border-radius: 18px; border: 0; background: #0B1B2B; display: flex; align-items: center; justify-content: center; padding: 0"><svg width="22" height="22" viewBox="0 0 256 256" aria-hidden="true" style="flex-shrink: 0"><path d="M208,56H180.28L166.65,35.56A8,8,0,0,0,160,32H96a8,8,0,0,0-6.65,3.56L75.71,56H48A24,24,0,0,0,24,80V192a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V80A24,24,0,0,0,208,56Zm-44,76a36,36,0,1,1-36-36A36,36,0,0,1,164,132Z" fill="#FFFFFF"></path></svg></button>
+</div>
+<a href="#" style="border-radius: 26px; background: linear-gradient(160deg, #FFFFFF 0%, #FFEEF0 100%); border: 1px solid rgba(212,42,56,0.10); padding: 16px; display: flex; align-items: center; gap: 14px; text-decoration: none; color: #0B1B2B; animation: ndRise 420ms cubic-bezier(.22,1,.36,1) 100ms both">
+<dc-import name="FIcon" icon="prescription" tone="coral" chip="solid" size="56" hint-size="56px,56px"></dc-import>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px"><span style="font-size: 16.5px; font-weight: 700">ارفع الروشتة</span><span style="font-size: 12.5px; color: #6E6E73; line-height: 1.6">صوّرها، والصيدليات القريبة تجهّز أدويتك وتتنافس على السعر</span></div>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9A9AA0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M15 6l-6 6 6 6"></path></svg></a>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; animation: ndRise 420ms cubic-bezier(.22,1,.36,1) 150ms both">
+<sc-for list="{{quick}}" as="q" hint-placeholder-count="4">
+<a href="#" style="height: 96px; border-radius: 20px; background: #FFFFFF; border: 1px solid rgba(11,27,43,0.06); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-decoration: none; color: #0B1B2B">
+<dc-import name="FIcon" icon="{{q.i}}" tone="{{q.t}}" chip="soft" size="42" hint-size="42px,42px"></dc-import>
+<span style="font-size: 11.5px; font-weight: 600; text-align: center; line-height: 1.3">{{q.l}}</span></a>
+</sc-for>
+</div>
+<a href="#" style="border-radius: 22px; background: #FFFFFF; border: 1px solid rgba(11,27,43,0.06); padding: 12px 14px; display: flex; align-items: center; gap: 12px; text-decoration: none; color: #0B1B2B">
+<dc-import name="FIcon" icon="clock-counter-clockwise" tone="teal" chip="soft" size="44" hint-size="44px,44px"></dc-import>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 700">أعد طلبك السابق</span><span style="font-size: 12px; color: #6E6E73">[آخر طلب: عدد الأصناف · التاريخ]</span></div>
+<span style="height: 36px; padding: 0 14px; border-radius: 12px; background: #0B1B2B; color: #FFFFFF; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center">اطلب</span></a>
+<div style="display: flex; gap: 8px; margin: 0 -16px; padding: 0 16px; overflow: hidden">
+<sc-for list="{{cats}}" as="c" hint-placeholder-count="5">
+<button onClick="{{c.pick}}" style="height: 40px; padding: 0 16px; border-radius: 20px; border: {{c.border}}; background: {{c.bg}}; color: {{c.fg}}; font-family: inherit; font-size: 13.5px; font-weight: 600; white-space: nowrap; flex-shrink: 0">{{c.l}}</button>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<sc-for list="{{prods}}" as="p" hint-placeholder-count="4">
+<a href="#" style="border-radius: 24px; background: #FFFFFF; border: 1px solid rgba(11,27,43,0.06); box-shadow: 0 6px 18px rgba(11,27,43,0.05); padding: 10px; display: flex; flex-direction: column; gap: 8px; text-decoration: none; color: #0B1B2B; animation: ndRise 420ms cubic-bezier(.22,1,.36,1) {{p.d}} both">
+<div style="height: 132px; border-radius: 18px; background: #F2F3F5; position: relative; display: flex; align-items: center; justify-content: center"><span style="font-size: 11px; color: #6E6E73">[صورة المنتج]</span>
+<sc-if value="{{p.sale}}" hint-placeholder-val="{{true}}"><span style="position: absolute; top: 8px; right: 8px; height: 22px; padding: 0 8px; border-radius: 11px; background: #D42A38; color: #FFFFFF; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center">خصم [٪]</span></sc-if></div>
+<span style="font-size: 14px; font-weight: 600; line-height: 1.4">[اسم المنتج] [التركيز]</span>
+<span style="font-size: 12px; color: #6E6E73">[الشركة] · [العبوة]</span>
+<div style="display: flex; justify-content: space-between; align-items: center"><div style="display: flex; flex-direction: column"><span style="font-size: 16px; font-weight: 700">[السعر] <span style="font-size: 11px; font-weight: 400">ر.س</span></span>
+<sc-if value="{{p.rx}}" hint-placeholder-val="{{false}}"><span style="font-size: 11px; color: #8A4B00; font-weight: 600">يحتاج وصفة</span></sc-if></div>
+<button aria-label="أضف للسلة" style="width: 40px; height: 40px; border-radius: 14px; border: 0; background: #0B1B2B; display: flex; align-items: center; justify-content: center; padding: 0"><svg width="18" height="18" viewBox="0 0 256 256" aria-hidden="true" style="flex-shrink: 0"><path d="M208,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM184,136H136v48a8,8,0,0,1-16,0V136H72a8,8,0,0,1,0-16h48V72a8,8,0,0,1,16,0v48h48a8,8,0,0,1,0,16Z" fill="#FFFFFF"></path></svg></button></div>
+</a>
+</sc-for>
+</div>
+
+</div>
+<nav aria-label="التنقل الرئيسي" style="position: absolute; left: 14px; right: 14px; bottom: 28px; height: 68px; border-radius: 34px; background: rgba(255,255,255,0.86); border: 1px solid rgba(11,27,43,0.08); backdrop-filter: blur(24px); box-shadow: 0 18px 40px rgba(11,27,43,0.14); display: flex; align-items: center; justify-content: space-between; padding: 0 8px"><a href="#" aria-label="الرئيسية" style="width: 52px; height: 52px; display: flex; align-items: center; justify-content: center"><svg width="24" height="24" viewBox="0 0 256 256" aria-hidden="true" style="flex-shrink: 0"><path d="M224,120v96a8,8,0,0,1-8,8H160a8,8,0,0,1-8-8V164a4,4,0,0,0-4-4H108a4,4,0,0,0-4,4v52a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V120a16,16,0,0,1,4.69-11.31l80-80a16,16,0,0,1,22.62,0l80,80A16,16,0,0,1,224,120Z" fill="#6E6E73"></path></svg></a><a href="#" aria-current="page" style="height: 52px; padding: 0 18px; border-radius: 26px; background: #0B1B2B; color: #FFFFFF; display: flex; align-items: center; gap: 8px; text-decoration: none; font-size: 13.5px; font-weight: 600"><svg width="22" height="22" viewBox="0 0 256 256" aria-hidden="true" style="flex-shrink: 0"><path d="M216.43,39.6a53.27,53.27,0,0,0-75.33,0L39.6,141.09a53.26,53.26,0,0,0,75.32,75.31L216.43,114.91A53.32,53.32,0,0,0,216.43,39.6Zm-11.32,64-50.75,50.74-52.69-52.68,50.75-50.75a37.26,37.26,0,0,1,52.69,52.69ZM189.68,82.34a8,8,0,0,1,0,11.32l-24,24a8,8,0,1,1-11.31-11.32l24-24A8,8,0,0,1,189.68,82.34Z" fill="#FFFFFF"></path></svg>الصيدلية</a><a href="#" aria-label="الاستشارات" style="display: flex; align-items: center; justify-content: center; text-decoration: none"><span style="width: 66px; height: 66px; border-radius: 33px; margin-top: -34px; background: linear-gradient(180deg, #FF5A63 0%, #D42A38 100%); border: 5px solid #F5F5F7; box-shadow: 0 12px 26px rgba(212,42,56,0.38); display: flex; align-items: center; justify-content: center; box-sizing: border-box"><svg width="28" height="28" viewBox="0 0 256 256" aria-hidden="true" style="flex-shrink: 0"><path d="M240,160a32,32,0,1,0-39.93,31,8,8,0,0,0-.07,1,32,32,0,0,1-32,32H144a32,32,0,0,1-32-32V151.48c31.47-4,56-31.47,56-64.31V40a8,8,0,0,0-8-8H136a8,8,0,0,0,0,16h16V87.17c0,26.58-21.25,48.49-47.36,48.83A48,48,0,0,1,56,88V48H72a8,8,0,0,0,0-16H48a8,8,0,0,0-8,8V88a64,64,0,0,0,56,63.49V192a48.05,48.05,0,0,0,48,48h24a48.05,48.05,0,0,0,48-48,8,8,0,0,0-.07-1A32,32,0,0,0,240,160Zm-32,8a8,8,0,1,1,8-8A8,8,0,0,1,208,168Z" fill="#FFFFFF"></path></svg></span></a><a href="#" aria-label="التحاليل" style="width: 52px; height: 52px; display: flex; align-items: center; justify-content: center"><svg width="24" height="24" viewBox="0 0 256 256" aria-hidden="true" style="flex-shrink: 0"><path d="M237.66,86.34l-60-60a8,8,0,0,0-11.32,0L37.11,155.57a44.77,44.77,0,0,0,63.32,63.32L212.32,107l22.21-7.4a8,8,0,0,0,3.13-13.25Zm-32.19,6.07a8,8,0,0,0-3.13,1.93l-39.57,39.57c-8.47,2.9-21.75,4-39.07-5-10.6-5.54-20.18-8-28.56-8.73L172,43.31,217.19,88.5Z" fill="#6E6E73"></path></svg></a><a href="#" aria-label="التمريض" style="width: 52px; height: 52px; display: flex; align-items: center; justify-content: center"><svg width="24" height="24" viewBox="0 0 256 256" aria-hidden="true" style="flex-shrink: 0"><path d="M216,56H176V48a24,24,0,0,0-24-24H104A24,24,0,0,0,80,48v8H40A16,16,0,0,0,24,72V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V72A16,16,0,0,0,216,56Zm-64,88H136v16a8,8,0,0,1-16,0V144H104a8,8,0,0,1,0-16h16V112a8,8,0,0,1,16,0v16h16a8,8,0,0,1,0,16Zm8-88H96V48a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8Z" fill="#6E6E73"></path></svg></a></nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1420}}'>
+class Component extends DCLogic {
+constructor(props) { super(props); this.state = {}; }
+renderVals() {
+const s = this.state;
+const mkSeg = (labels, key) => labels.map((l, k) => ({ l, on: (this.state[key] || 0) === k, bg: (this.state[key] || 0) === k ? '#FFFFFF' : 'transparent', shadow: (this.state[key] || 0) === k ? '0 2px 6px rgba(11,27,43,0.10)' : 'none', w: (this.state[key] || 0) === k ? 700 : 500, pick: () => this.setState({ [key]: k }) }));
+const quick = [['استشارة صيدلي','chat-circle-text','mint'],['قارن البدائل','arrows-left-right','teal'],['المفضلة','heart','coral'],['التذكيرات','bell','violet']].map(x => ({ l: x[0], i: x[1], t: x[2] }));
+const cats = ['الكل','[فئة ١]','[فئة ٢]','[فئة ٣]','[فئة ٤]'].map((l, k) => ({ l, bg: (s.cat||0) === k ? '#0B1B2B' : '#FFFFFF', fg: (s.cat||0) === k ? '#FFFFFF' : '#0B1B2B', border: (s.cat||0) === k ? '0' : '1px solid rgba(11,27,43,0.08)', pick: () => this.setState({ cat: k }) }));
+const prods = [0,1,2,3].map(k => ({ sale: k === 0 || k === 3, rx: k === 2, d: (200 + k * 50) + 'ms' }));
+return { quick, cats, prods };
+}
+}
+</script>
+</body>
+</html>

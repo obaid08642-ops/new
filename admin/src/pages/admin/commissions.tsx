@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import Head from 'next/head';
 import { apiFetch } from '../../utils/api';
+import { DataTable, type LooseRow } from '@/components/DataTable';
 
 /**
  * M5: platform commissions + ledger summary.
@@ -115,25 +116,20 @@ export default function CommissionsPage() {
                 {(summary?.by_service || []).length === 0 ? (
                   <div className="p-12 text-center text-slate-500">لا قيود مستحقة بعد — تُسجل تلقائيًا عند اكتمال المدفوعات.</div>
                 ) : (
-                  <table className="w-full text-right text-sm">
-                    <thead>
-                      <tr className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600">
-                        <th className="p-3">نوع الخدمة</th><th className="p-3">عدد العمليات</th>
-                        <th className="p-3">إجمالي القيمة</th><th className="p-3">النسبة</th><th className="p-3">عمولة المنصة</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {summary.by_service.map((r: any) => (
-                        <tr key={r._id} className="hover:bg-slate-50">
-                          <td className="p-3 font-medium">{SERVICE_AR[r._id] || r._id || 'أخرى'}</td>
-                          <td className="p-3">{r.count}</td>
-                          <td className="p-3">{Math.round(r.gross * 100) / 100} ر.س</td>
-                          <td className="p-3"><span className="px-2 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold">{RATE_AR[r._id] || '—'}</span></td>
-                          <td className="p-3 font-bold text-emerald-600">{Math.round(r.commission * 100) / 100} ر.س</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <DataTable
+                    bare
+                    dense
+                    rows={summary.by_service as LooseRow[]}
+                    getRowKey={(r: LooseRow) => String(r._id)}
+                    rowClassName={() => 'hover:bg-slate-50'}
+                    columns={[
+                      { key: 'svc', header: 'نوع الخدمة', className: 'font-medium', render: (r: LooseRow) => SERVICE_AR[r._id] || r._id || 'أخرى' },
+                      { key: 'count', header: 'عدد العمليات', render: (r: LooseRow) => r.count },
+                      { key: 'gross', header: 'إجمالي القيمة', render: (r: LooseRow) => `${Math.round(r.gross * 100) / 100} ر.س` },
+                      { key: 'rate', header: 'النسبة', render: (r: LooseRow) => <span className="px-2 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold">{RATE_AR[r._id] || '—'}</span> },
+                      { key: 'comm', header: 'عمولة المنصة', className: 'font-bold text-emerald-600', render: (r: LooseRow) => `${Math.round(r.commission * 100) / 100} ر.س` },
+                    ]}
+                  />
                 )}
               </div>
 
@@ -146,24 +142,21 @@ export default function CommissionsPage() {
                   <div className="p-8 text-center text-slate-400 text-sm">السجل التفصيلي فارغ.</div>
                 ) : (
                   <div className="max-h-96 overflow-y-auto">
-                    <table className="w-full text-right text-xs">
-                      <thead className="sticky top-0 bg-slate-50">
-                        <tr className="border-b border-slate-200 font-bold text-slate-600">
-                          <th className="p-3">المعرف</th><th className="p-3">المزود</th><th className="p-3">المبلغ</th><th className="p-3">العمولة</th><th className="p-3">الحالة</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {legacy.map((c: any, i: number) => (
-                          <tr key={c._id || c.id || i} className="hover:bg-slate-50">
-                            <td className="p-3 font-mono">{String(c._id || c.id || '').slice(0, 10)}</td>
-                            <td className="p-3 font-mono">{String(c.providerId || c.provider_id || '').slice(0, 10)}</td>
-                            <td className="p-3">{c.amount ?? c.gross_amount ?? '—'}</td>
-                            <td className="p-3 text-emerald-600 font-bold">{c.commission ?? c.commission_amount ?? '—'}</td>
-                            <td className="p-3">{c.status || c.state || '—'}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                    <DataTable
+                      bare
+                      dense
+                      className="text-xs"
+                      rows={legacy.map((c: LooseRow, i: number) => ({ c, i })) as { c: LooseRow; i: number }[]}
+                      getRowKey={({ c, i }) => String(c._id || c.id || i)}
+                      rowClassName={() => 'hover:bg-slate-50'}
+                      columns={[
+                        { key: 'id', header: 'المعرف', className: 'font-mono', render: ({ c }) => String(c._id || c.id || '').slice(0, 10) },
+                        { key: 'provider', header: 'المزود', className: 'font-mono', render: ({ c }) => String(c.providerId || c.provider_id || '').slice(0, 10) },
+                        { key: 'amount', header: 'المبلغ', render: ({ c }) => c.amount ?? c.gross_amount ?? '—' },
+                        { key: 'comm', header: 'العمولة', className: 'text-emerald-600 font-bold', render: ({ c }) => c.commission ?? c.commission_amount ?? '—' },
+                        { key: 'status', header: 'الحالة', render: ({ c }) => c.status || c.state || '—' },
+                      ]}
+                    />
                   </div>
                 )}
               </div>
@@ -197,14 +190,19 @@ export default function CommissionsPage() {
             <button onClick={saveRule} className="mt-4 px-5 py-2 bg-teal-600 text-white rounded-lg text-sm font-bold">حفظ القاعدة</button>
             {ruleMsg && <p className="mt-2 text-sm font-bold">{ruleMsg}</p>}
             {history.length > 0 && (
-              <table className="w-full text-sm mt-4">
-                <thead className="bg-gray-50"><tr><th className="p-2 text-right">النطاق</th><th className="p-2 text-right">المعرّف</th><th className="p-2 text-right">النسبة</th><th className="p-2 text-right">السريان</th></tr></thead>
-                <tbody>
-                  {history.slice(0, 20).map((h: any, i: number) => (
-                    <tr key={i} className="border-t"><td className="p-2">{h.scope}</td><td className="p-2 font-mono text-xs" dir="ltr">{h.scope_id || h.service_type || '—'}</td><td className="p-2">{h.percent ?? h.commission}%</td><td className="p-2 text-xs">{h.effective_from ? String(h.effective_from).slice(0, 10) : '…'} → {h.effective_to ? String(h.effective_to).slice(0, 10) : '…'}</td></tr>
-                  ))}
-                </tbody>
-              </table>
+              <DataTable
+                bare
+                dense
+                className="mt-4"
+                rows={history.slice(0, 20).map((h: LooseRow, i: number) => ({ h, i })) as { h: LooseRow; i: number }[]}
+                getRowKey={({ i }) => String(i)}
+                columns={[
+                  { key: 'scope', header: 'النطاق', render: ({ h }) => h.scope },
+                  { key: 'id', header: 'المعرّف', className: 'font-mono text-xs', render: ({ h }) => <span dir="ltr">{h.scope_id || h.service_type || '—'}</span> },
+                  { key: 'pct', header: 'النسبة', render: ({ h }) => `${h.percent ?? h.commission}%` },
+                  { key: 'eff', header: 'السريان', className: 'text-xs', render: ({ h }) => <>{h.effective_from ? String(h.effective_from).slice(0, 10) : '…'} → {h.effective_to ? String(h.effective_to).slice(0, 10) : '…'}</> },
+                ]}
+              />
             )}
           </div>
             </>

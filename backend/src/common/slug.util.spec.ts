@@ -29,3 +29,13 @@ describe('slug.util', () => {
     });
   });
 });
+
+describe('escapeRegex and MongoDB (fuzz 15.6)', () => {
+  it('never leaves a line or paragraph separator, which a RegExp source writes as \\u2028 and PCRE2 refuses', () => {
+    const { escapeRegex } = require('./slug.util');
+    const re = new RegExp(escapeRegex('a b c.d'), 'i');
+    expect(re.source).not.toMatch(/\\u202[89]/);
+    expect(re.test('a b c.d')).toBe(true);
+    expect(re.test('axbxcxd')).toBe(false);
+  });
+});

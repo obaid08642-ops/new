@@ -1,0 +1,55 @@
+{
+ "app": "website",
+ "signed_in": true,
+ "pages": [
+  {
+   "route": "/[locale]/maternity/baby-development",
+   "url": "/ar/maternity/baby-development",
+   "landed": "/ar/maternity",
+   "time_to_ready_ms": 10699,
+   "ready": true,
+   "not_ready_reason": "stuck >10s: /ar/support?_rsc=ns2t9HW4xc4MSDdY",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "لوحة التحكم",
+     "result": "NAVIGATE",
+     "to": "/ar/dashboard",
+     "response_ms": 1519
+    },
+    {
+     "label": "عرض الأحداث",
+     "result": "NAVIGATE",
+     "to": "/ar/maternity/tracker",
+     "response_ms": 563
+    },
+    {
+     "label": "سجل متابعة الأعراض والحركة",
+     "result": "NAVIGATE",
+     "to": "/ar/maternity/tracker",
+     "response_ms": 542
+    },
+    {
+     "label": "حجز استشارة نساء وتوليد",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors",
+     "response_ms": 1417
+    },
+    {
+     "label": "فحص السونار والأشعة",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology",
+     "response_ms": 1426
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 5
+   }
+  }
+ ]
+}

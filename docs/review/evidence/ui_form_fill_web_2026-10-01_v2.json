@@ -1,0 +1,774 @@
+[
+ {
+  "page": "/ar/ai",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "مثال: صداع مستمر منذ يومين مع غثيان…"
+  ]
+ },
+ {
+  "page": "/ar/ai/chat-doctor",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "اكتب أعراضك هنا..."
+  ]
+ },
+ {
+  "page": "/ar/ai/skin-analysis",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "صف الأعراض بإيجاز...",
+   "أقر بأن النتيجة استرشادية ولا تغني عن تش"
+  ]
+ },
+ {
+  "page": "/ar/ai/symptom-checker",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "مثال: صداع مستمر منذ يومين مع غثيان…"
+  ]
+ },
+ {
+  "page": "/ar/ai/symptom-timeline",
+  "form": "(inline)",
+  "save": "حفظ في الجدول الزمني",
+  "status": "SAVED",
+  "message_shown": [
+   "تعذر حفظ الأعراض. حاول مرة أخرى."
+  ],
+  "requests": [
+   {
+    "method": "POST",
+    "url": "/api/patient/ai/triage",
+    "status": 200,
+    "body": "{\"symptoms\":\"UDB472001\",\"red_flags\":[]}"
+   }
+  ],
+  "fields": {
+   "مثال: صداع مستمر منذ يومين مع حمى خفيفة...": "STORED"
+  }
+ },
+ {
+  "page": "/ar/ai/triage",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "مثال: صداع مستمر منذ يومين مع غثيان…"
+  ]
+ },
+ {
+  "page": "/ar/articles",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "ابحث في المقالات"
+  ]
+ },
+ {
+  "page": "/ar/consultations",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "ابحث بالاسم أو التخصص..."
+  ]
+ },
+ {
+  "page": "/ar/consultations/doctor-profile",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "ابحث بالاسم أو التخصص..."
+  ]
+ },
+ {
+  "page": "/ar/consultations/doctors",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "ابحث بالاسم أو التخصص..."
+  ]
+ },
+ {
+  "page": "/ar/consultations/post-call-rating",
+  "form": "(inline)",
+  "status": "TOOL_ERROR",
+  "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"body\").get_by_role(\"button\", name=\"إرسال التقييم\", exact=True).first\n    - locator re"
+ },
+ {
+  "page": "/ar/consultations/specialties",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "ابحث عن تخصص..."
+  ]
+ },
+ {
+  "page": "/ar/diagnostics",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "ابحث عن تحليل، باقة، أو فحص دم..."
+  ]
+ },
+ {
+  "page": "/ar/diagnostics/labs",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "ابحث عن تحليل أو تصنيف",
+   "home"
+  ]
+ },
+ {
+  "page": "/ar/diagnostics/packages",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "ابحث عن باقة",
+   "category"
+  ]
+ },
+ {
+  "page": "/ar/diagnostics/radiology",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "ابحث عن الخدمة أو موضع الجسم",
+   "موضع الجسم",
+   "home_visit",
+   "highest_rated",
+   "lowest_price"
+  ]
+ },
+ {
+  "page": "/ar/doctor",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "ابحث بالاسم أو التخصص..."
+  ]
+ },
+ {
+  "page": "/ar/doctors",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "ابحث بالاسم أو التخصص..."
+  ]
+ },
+ {
+  "page": "/ar/drug-scanner",
+  "form": "(inline)",
+  "save": "إضافة",
+  "status": "NO_REQUEST",
+  "message_shown": [],
+  "requests": [],
+  "fields": {
+   "اسم الدواء": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/ar/drug-scanner",
+  "form": "إضافة",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "اسم الدواء"
+  ]
+ },
+ {
+  "page": "/ar/family/chat",
+  "form": "(inline)",
+  "save": "إرسال",
+  "status": "SAVED",
+  "message_shown": [],
+  "requests": [
+   {
+    "method": "POST",
+    "url": "/api/patient/family/chat/messages",
+    "status": 201,
+    "body": "{\"text\":\"U4A8A2C01\"}"
+   }
+  ],
+  "fields": {
+   "اكتب رسالة…": "STORED"
+  }
+ },
+ {
+  "page": "/ar/family/join",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "الصق الكود هنا",
+   "مثال: أخ، أم"
+  ]
+ },
+ {
+  "page": "/ar/family/permissions",
+  "form": "(inline)",
+  "save": "حفظ",
+  "status": "REJECTED(400)",
+  "message_shown": [
+   "Owner permissions cannot be modified"
+  ],
+  "requests": [
+   {
+    "method": "PATCH",
+    "url": "/api/family/members/38c7dd97-b6ea-4199-bda9-2c8413d39b7e/permissions",
+    "status": 400,
+    "body": "{\"permissions\":[\"*\",\"vitals\",\"meds\",\"reports\",\"appointments\"]}"
+   }
+  ],
+  "fields": {}
+ },
+ {
+  "page": "/ar/family/scan",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "الصق الرمز أو رابطه هنا"
+  ]
+ },
+ {
+  "page": "/ar/forgot-password",
+  "form": "(inline)",
+  "save": "إرسال التعليمات",
+  "status": "NO_REQUEST",
+  "message_shown": [
+   "تم طلب التعليمات. تحقق من وسيلة التواصل المسجلة."
+  ],
+  "requests": [],
+  "fields": {
+   "البريد الإلكتروني أو رقم الجوال": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/ar/health/conditions-allergies",
+  "form": "(inline)",
+  "save": "إضافة",
+  "status": "SAVED",
+  "message_shown": [],
+  "requests": [
+   {
+    "method": "POST",
+    "url": "/api/medical-profile/chronic-diseases",
+    "status": 200,
+    "body": "{\"name\":\"UE33FAB01\"}"
+   }
+  ],
+  "fields": {
+   "الاسم": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/ar/health/conditions-allergies",
+  "form": "إضافة",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "الاسم",
+   "الاسم",
+   "الاسم",
+   "الاسم"
+  ]
+ },
+ {
+  "page": "/ar/health/vitals/log",
+  "form": "(inline)",
+  "save": "حفظ القراءة",
+  "status": "REJECTED(400)",
+  "message_shown": [
+   "physiologically valid blood pressure required"
+  ],
+  "requests": [
+   {
+    "method": "POST",
+    "url": "/api/health/vitals",
+    "status": 400,
+    "body": "{\"type\":\"bp\",\"unit\":\"mmHg\",\"systolic\":41,\"diastolic\":42}"
+   }
+  ],
+  "fields": {}
+ },
+ {
+  "page": "/ar/home-care/services",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "ابحث عن خدمة..."
+  ]
+ },
+ {
+  "page": "/ar/insurance/add-policy",
+  "form": "(inline)",
+  "save": "حفظ الوثيقة",
+  "status": "SAVED",
+  "message_shown": [],
+  "requests": [
+   {
+    "method": "POST",
+    "url": "/api/insurance/policy",
+    "status": 200,
+    "body": "{\"company_id\":\"7324feec-612d-4140-97b7-93cc1c8cb4d9\",\"policy_number\":\"UC4BA9C02\",\"member_id\":\"UC4BA9C03\",\"member_name\":\"UC4BA9C04\",\"expiry_date\":\"UC4BA9C05\"}"
+   }
+  ],
+  "fields": {
+   "مثال: POL-123456": "STORED",
+   "رقم العضوية (اختياري)": "STORED",
+   "اسم العضو (اختياري)": "STORED",
+   "YYYY-MM-DD": "STORED"
+  }
+ },
+ {
+  "page": "/ar/insurance/coverage-check",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "نوع الخدمة: consultation / pharmacy / lab"
+  ]
+ },
+ {
+  "page": "/ar/insurance/network-providers",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "ابحث باسم المزود"
+  ]
+ },
+ {
+  "page": "/ar/insurance/submit-claim",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "ملاحظة (اختياري)"
+  ]
+ },
+ {
+  "page": "/ar/labs",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "ابحث عن تحليل أو تصنيف",
+   "home"
+  ]
+ },
+ {
+  "page": "/ar/login",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "البريد الإلكتروني أو رقم الجوال"
+  ]
+ },
+ {
+  "page": "/ar/loyalty/referrals",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "أدخل كود الإحالة"
+  ]
+ },
+ {
+  "page": "/ar/map",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "ابحث باسم المركز أو التخصص..."
+  ]
+ },
+ {
+  "page": "/ar/maternity/maternity-setup",
+  "form": "(inline)",
+  "save": "حفظ الملف",
+  "status": "NO_REQUEST",
+  "message_shown": [
+   "تعذر حفظ الملف"
+  ],
+  "requests": [],
+  "fields": {
+   "2026-01-01": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/ar/medicine",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "q"
+  ]
+ },
+ {
+  "page": "/ar/medicine-catalog",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "q"
+  ]
+ },
+ {
+  "page": "/ar/medicines",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "q"
+  ]
+ },
+ {
+  "page": "/ar/nursing/service-info",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "ابحث عن خدمة..."
+  ]
+ },
+ {
+  "page": "/ar/nutrition/body-composition",
+  "form": "(inline)",
+  "save": "حفظ الأهداف",
+  "status": "NO_REQUEST",
+  "message_shown": [
+   "تعذر حفظ الأهداف"
+  ],
+  "requests": [],
+  "fields": {
+   "قيود غذائية (افصل بفاصلة)": "NOT_SENT",
+   "حساسية (افصل بفاصلة)": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/ar/nutrition/body-target",
+  "form": "(inline)",
+  "save": "حفظ الأهداف",
+  "status": "NO_REQUEST",
+  "message_shown": [
+   "تعذر حفظ الأهداف"
+  ],
+  "requests": [],
+  "fields": {
+   "قيود غذائية (افصل بفاصلة)": "NOT_SENT",
+   "حساسية (افصل بفاصلة)": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/ar/nutrition/calorie-analyzer",
+  "form": "(inline)",
+  "save": "حفظ الوجبة",
+  "status": "SAVED",
+  "message_shown": [],
+  "requests": [
+   {
+    "method": "POST",
+    "url": "/api/nutrition/meals",
+    "status": 200,
+    "body": "{\"name\":\"UF7931502\",\"calories\":43,\"meal_type\":\"lunch\"}"
+   }
+  ],
+  "fields": {
+   "اسم الوجبة": "STORED"
+  }
+ },
+ {
+  "page": "/ar/nutrition/food-scanner",
+  "form": "(inline)",
+  "save": "حفظ الوجبة",
+  "status": "SAVED",
+  "message_shown": [
+   "التغذية"
+  ],
+  "requests": [
+   {
+    "method": "POST",
+    "url": "/api/nutrition/meals",
+    "status": 200,
+    "body": "{\"name\":\"U26811E02\",\"calories\":43,\"meal_type\":\"lunch\"}"
+   }
+  ],
+  "fields": {
+   "اسم الوجبة": "STORED"
+  }
+ },
+ {
+  "page": "/ar/nutrition/log-meal",
+  "form": "(inline)",
+  "save": "حفظ الوجبة",
+  "status": "SAVED",
+  "message_shown": [],
+  "requests": [
+   {
+    "method": "POST",
+    "url": "/api/nutrition/meals",
+    "status": 200,
+    "body": "{\"name\":\"UFA2AB302\",\"calories\":43,\"meal_type\":\"lunch\"}"
+   }
+  ],
+  "fields": {
+   "اسم الوجبة": "STORED"
+  }
+ },
+ {
+  "page": "/ar/password-reset",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "رمز الاستعادة"
+  ]
+ },
+ {
+  "page": "/ar/pharmacy/barcode",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "6281234567890"
+  ]
+ },
+ {
+  "page": "/ar/pharmacy/custom-item",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "مثال: كونجستال أقراص",
+   "التركيز أو الشكل أو ملاحظة"
+  ]
+ },
+ {
+  "page": "/ar/pharmacy/drug-not-found",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "مثال: كونجستال أقراص",
+   "التركيز أو الشكل أو ملاحظة"
+  ]
+ },
+ {
+  "page": "/ar/pharmacy/filters",
+  "form": "(inline)",
+  "status": "TOOL_ERROR",
+  "error": "Locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"body\").get_by_role(\"button\", name=\"الأحدث إضافةً\", exact=True).first\n"
+ },
+ {
+  "page": "/ar/pharmacy/interactions",
+  "form": "(inline)",
+  "save": "إضافة",
+  "status": "NO_REQUEST",
+  "message_shown": [],
+  "requests": [],
+  "fields": {
+   "اسم الدواء": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/ar/pharmacy/interactions",
+  "form": "إضافة",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "اسم الدواء"
+  ]
+ },
+ {
+  "page": "/ar/pharmacy/manual-order",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "مثال: كونجستال أقراص",
+   "التركيز أو الشكل أو ملاحظة"
+  ]
+ },
+ {
+  "page": "/ar/pharmacy/request",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "مثال: كونجستال أقراص",
+   "التركيز أو الشكل أو ملاحظة"
+  ]
+ },
+ {
+  "page": "/ar/profile/addresses",
+  "form": "(inline)",
+  "save": "حفظ العنوان",
+  "status": "NO_REQUEST",
+  "message_shown": [
+   "تعذر الحفظ، حاول مجددًا"
+  ],
+  "requests": [],
+  "fields": {
+   "اسم العنوان": "NOT_SENT",
+   "العنوان (سطر 1)": "NOT_SENT",
+   "العنوان (سطر 2)": "NOT_SENT",
+   "ملاحظات": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/ar/profile/edit",
+  "form": "(inline)",
+  "save": "حفظ",
+  "status": "SAVED",
+  "message_shown": [
+   "ملفي الصحي"
+  ],
+  "requests": [
+   {
+    "method": "PATCH",
+    "url": "/api/medical-profile",
+    "status": 200,
+    "body": "{\"height_cm\":41,\"weight_kg\":42,\"blood_type\":\"U5C374C0\"}"
+   }
+  ],
+  "fields": {
+   "O+": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/ar/radiology",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "ابحث عن الخدمة أو موضع الجسم",
+   "موضع الجسم",
+   "home_visit",
+   "highest_rated",
+   "lowest_price"
+  ]
+ },
+ {
+  "page": "/ar/register",
+  "form": "(inline)",
+  "save": "إنشاء الحساب",
+  "status": "NO_REQUEST",
+  "message_shown": [],
+  "requests": [],
+  "fields": {
+   "الاسم الكامل": "NOT_SENT",
+   "البريد الإلكتروني أو رقم الهاتف": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/ar/register",
+  "form": "إنشاء الحساب",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "الاسم الكامل",
+   "البريد الإلكتروني أو رقم الهاتف"
+  ]
+ },
+ {
+  "page": "/ar/reminders/add",
+  "form": "(inline)",
+  "save": "حفظ التذكير",
+  "status": "REJECTED(400)",
+  "message_shown": [
+   "invalid_reminder_payload"
+  ],
+  "requests": [
+   {
+    "method": "POST",
+    "url": "/api/health/reminders",
+    "status": 400,
+    "body": "{\"medicine_name_ar\":\"UA0ADED01\",\"time_zone\":\"UTC\",\"dose\":\"UA0ADED02\",\"times\":[\"UA0ADED03\"],\"frequency\":\"weekly\",\"chronic\":true}"
+   }
+  ],
+  "fields": {
+   "اسم الدواء": "SENT_NOT_STORED",
+   "مثال: قرص واحد": "SENT_NOT_STORED",
+   "08:00, 20:00": "SENT_NOT_STORED"
+  }
+ },
+ {
+  "page": "/ar/returns/new-request",
+  "form": "(inline)",
+  "save": "إرسال طلب الإرجاع",
+  "status": "REJECTED(404)",
+  "message_shown": [
+   "completed_booking_not_found"
+  ],
+  "requests": [
+   {
+    "method": "POST",
+    "url": "/api/returns",
+    "status": 404,
+    "body": "{\"serviceType\":\"diagnostics\",\"reason\":\"U1E817B02\",\"orderId\":\"U1E817B03\",\"details\":\"U1E817B04\",\"refundMethod\":\"original\",\"amount\":120}"
+   }
+  ],
+  "fields": {
+   "السبب": "SENT_NOT_STORED",
+   "رقم الطلب (اختياري)": "SENT_NOT_STORED",
+   "تفاصيل (اختياري)": "SENT_NOT_STORED"
+  }
+ },
+ {
+  "page": "/ar/services",
+  "form": "(inline)",
+  "status": "NO_SAVE_BUTTON",
+  "fields": [
+   "ابحث بالاسم أو التخصص..."
+  ]
+ },
+ {
+  "page": "/ar/settings/feedback",
+  "form": "(inline)",
+  "save": "إرسال",
+  "status": "SAVED",
+  "message_shown": [
+   "وصل اقتراحك للإدارة وسيُطبَّق بعد الاعتماد. شكراً لك."
+  ],
+  "requests": [
+   {
+    "method": "POST",
+    "url": "/api/support/feedback",
+    "status": 200,
+    "body": "{\"rating\":0,\"type\":\"مشكلة\",\"message\":\"UD732AF02\"}"
+   }
+  ],
+  "fields": {
+   "رسالتك": "SENT_NOT_STORED"
+  }
+ },
+ {
+  "page": "/ar/support",
+  "form": "(inline)",
+  "save": "إرسال الطلب",
+  "status": "NO_REQUEST",
+  "message_shown": [
+   "تم إرسال طلبك بنجاح"
+  ],
+  "requests": [],
+  "fields": {
+   "موضوع الطلب": "NOT_SENT",
+   "اشرح مشكلتك بالتفصيل…": "NOT_SENT"
+  }
+ },
+ {
+  "page": "/ar/support/chat",
+  "form": "(inline)",
+  "save": "إرسال",
+  "status": "SAVED",
+  "message_shown": [
+   "متاح الآن • ردّ خلال دقيقة"
+  ],
+  "requests": [
+   {
+    "method": "POST",
+    "url": "/api/patient/support/chat",
+    "status": 201,
+    "body": "{\"message\":\"UBB343901\"}"
+   }
+  ],
+  "fields": {
+   "اكتب رسالتك...": "STORED"
+  }
+ },
+ {
+  "page": "/ar/welcome",
+  "form": "إنشاء حساب",
+  "save": "إنشاء الحساب",
+  "status": "NO_REQUEST",
+  "message_shown": [],
+  "requests": [],
+  "fields": {
+   "الاسم الكامل": "NOT_SENT",
+   "البريد الإلكتروني أو رقم الهاتف": "NOT_SENT"
+  }
+ }
+]

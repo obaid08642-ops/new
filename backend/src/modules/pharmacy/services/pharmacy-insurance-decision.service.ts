@@ -178,7 +178,10 @@ export class PharmacyInsuranceDecisionService {
         throw new BadRequestException('self_pay_acceptance_not_applicable');
       }
       const now = new Date();
-      const acceptance = { kind: acceptanceKind, payment_method: String(paymentMethodChosen || 'card').toLowerCase(), idempotency_key: idempotencyKey, accepted_at: now };
+      // #538: the payment method is chosen on the payment step (the intent decides it); the acceptance records only
+      // what was accepted, so no stored-and-unused method can disagree with the real payment.
+      void paymentMethodChosen;
+      const acceptance = { kind: acceptanceKind, idempotency_key: idempotencyKey, accepted_at: now };
       // Self-pay converts the order to a plain online-paid order for the full quote.
       const set: any = { 'insurance_decision.patient_acceptance': acceptance };
       if (acceptanceKind === 'self-pay') {

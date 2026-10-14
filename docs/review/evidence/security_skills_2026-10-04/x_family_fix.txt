@@ -1,0 +1,4 @@
+[fix] A sets blood type + allergy: 200 201
+[fix] B creates own family group: 201
+[fix] A and B share no group; B GET /family/member-health/<A id>:
+    404 {'message': 'Member not found in your family group', 'error': 'Not Found', 'statusCode': 404}

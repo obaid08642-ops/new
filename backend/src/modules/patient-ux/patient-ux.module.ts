@@ -10,6 +10,9 @@ import { RadiologyBookingSchema } from '../../schemas/radiology.schema';
 import { HomeCareBookingSchema } from '../../schemas/home-care.schema';
 import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema';
 import { JwtAuthGuard, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
+
+/** 765: review aspect codes — the only aspect values ever stored. */
+export const ASPECT_CODES = ['accuracy', 'clarity', 'care', 'speed'];
 import { UserRole } from '../../common/enums';
 import { EventsModule } from '../events/events.module';
 import { EventBusService } from '../events/event-bus.service';
@@ -75,11 +78,15 @@ export class PatientUxService {
     const provider_id = b.provider;
     if (!provider_id) throw new BadRequestException('no_provider');
 
+    // 765: aspects are stored as known codes only; free-form sentences are dropped.
+    const aspects = Array.isArray(body.aspects)
+      ? [...new Set(body.aspects.filter((a: any) => ASPECT_CODES.includes(a)))]
+      : [];
     const status = body.rating < 3 ? 'pending_review' : 'approved';
 
     const review: any = await this.reviews.findOneAndUpdate(
       { booking_kind: { $eq: body.booking_kind }, booking_id: { $eq: body.booking_id } },
-      { $set: { provider_id, patient_id: user.id, booking_kind: body.booking_kind, booking_id: body.booking_id, rating: body.rating, comment: body.comment, aspects: body.aspects, status } },
+      { $set: { provider_id, patient_id: user.id, booking_kind: body.booking_kind, booking_id: body.booking_id, rating: body.rating, comment: body.comment, aspects, status } },
       { upsert: true, new: true }
     );
     // loyalty: one award per booking review (awardPoints is idempotent on the ref)

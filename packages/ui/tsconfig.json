@@ -23,6 +23,8 @@
     "icons/**/*.tsx",
     "components/**/*.ts",
     "components/**/*.tsx",
+    "shells/**/*.ts",
+    "shells/**/*.tsx",
     "*.ts"
   ]
 }

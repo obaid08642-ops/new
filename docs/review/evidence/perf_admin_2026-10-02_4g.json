@@ -1,0 +1,22 @@
+{
+ "app": "admin",
+ "throttle": "4g",
+ "runs": 1,
+ "note": "Chromium on the review container; not a phone",
+ "routes": {
+  "/login": {
+   "ttfb_ms": 11,
+   "dcl_ms": 1370,
+   "load_ms": 1380,
+   "requests": 15,
+   "transfer_kb": 143,
+   "js_kb": 131,
+   "fcp_ms": 696,
+   "lcp_ms": 696,
+   "long_tasks_ms": 307,
+   "api_calls": 0,
+   "api_max_ms": 0,
+   "api_errors": 0
+  }
+ }
+}

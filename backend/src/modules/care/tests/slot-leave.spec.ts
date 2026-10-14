@@ -2,6 +2,9 @@ import { SlotService } from '../slot.service';
 
 const chain = (rows: any) => ({ select: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(rows) }) });
 
+// A day well in the future: a fixed date turns into "today" (past slots dropped) and then into the past.
+const DAY = new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10);
+
 describe('SlotService leave linkage (R12)', () => {
   const doctor: any = {
     id: 'd1',
@@ -15,7 +18,7 @@ describe('SlotService leave linkage (R12)', () => {
     const appt = { find: jest.fn().mockReturnValue(chain([])) };
     const leaves = { findOne: jest.fn().mockReturnValue(chain({ id: 'lv1' })) };
     const svc = new SlotService(appt as any, leaves as any);
-    const out: any = await svc.slotsForDate(doctor, '2026-10-05', 'clinic');
+    const out: any = await svc.slotsForDate(doctor, DAY, 'clinic');
     expect(out.slots).toEqual([]);
     expect(out.reason).toBe('on_leave');
     expect(leaves.findOne).toHaveBeenCalledWith(
@@ -27,7 +30,7 @@ describe('SlotService leave linkage (R12)', () => {
     const appt = { find: jest.fn().mockReturnValue(chain([])) };
     const leaves = { findOne: jest.fn().mockReturnValue(chain(null)) };
     const svc = new SlotService(appt as any, leaves as any);
-    const out: any = await svc.slotsForDate(doctor, '2026-10-05', 'clinic');
+    const out: any = await svc.slotsForDate(doctor, DAY, 'clinic');
     expect(out.reason).not.toBe('on_leave');
     expect(out.slots.length).toBeGreaterThan(0);
   });

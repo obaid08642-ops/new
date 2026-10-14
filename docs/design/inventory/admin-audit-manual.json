@@ -1,0 +1,79 @@
+[
+  {
+    "route": "/admin/medicines-catalog",
+    "element": "Controlled flag (quick edit)",
+    "kind": "backend",
+    "status": "not wired",
+    "src": "hidden: the backend does not accept `controlled`",
+    "note": "Owner decision 10 needs `controlled` editable by admin, but it is not in MedicinesService.EDITABLE_FIELDS nor in AdminUpdateCatalogDto, so a PATCH would drop it. The control is not drawn in the quick edit or the full form; add it to the whitelist and the DTO, then show it behind the same confirmation as price and prescription.",
+    "file": "admin/src/components/MedicineQuickEdit.tsx",
+    "line": 135,
+    "backend": "backend/src/modules/medicines/medicines.service.ts:1439"
+  },
+  {
+    "route": "/admin/medicines-catalog",
+    "element": "Add item from the items-to-review queue",
+    "kind": "backend",
+    "status": "not wired",
+    "src": "hidden: no endpoint",
+    "note": "Decision 12 queue (pharmacy lines with no catalogue match, price not verified) does not exist: no sfda_price fields, GET /medicines/admin/pending-review answers 410 Gone, and there is no create-from-line action. Not built; the existing queues (change requests, shortage reports, image suggestions, medical review) are in the approvals list.",
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 318,
+    "backend": "backend/src/modules/medicines/medicines.controller.ts:413"
+  },
+  {
+    "route": "/admin/medicines-catalog",
+    "element": "Change log for prescription flag and availability",
+    "kind": "backend",
+    "status": "not wired",
+    "src": "price history only",
+    "note": "Only price changes write a history row (medicine price history, shown in the quick edit); a prescription-flag or availability change goes to the generic audit log with no reason, so 'who made this Rx' has no per-item view. An edit of a published item also resets it to pending medical review (the confirm dialog says so).",
+    "file": "admin/src/components/MedicineQuickEdit.tsx",
+    "line": 145,
+    "backend": "backend/src/modules/medicines/medicines.service.ts:1761"
+  },
+  {
+    "route": "/admin/system-ops",
+    "element": "Feature switch effect",
+    "kind": "backend",
+    "status": "not wired",
+    "src": "POST feature flag (write path exists)",
+    "note": "The switch writes and audits (reason required), but backend code reads only `sms_enabled` (sms.service.ts) and ConfigService hands the flags to clients; there is no per-module list and no kill-switch UI/route. Flipping any other flag changes nothing until a module checks it.",
+    "file": "admin/src/pages/admin/system-ops.tsx",
+    "line": 54,
+    "backend": "backend/src/modules/sms/sms.service.ts:28"
+  },
+  {
+    "route": "/admin/today",
+    "element": "Urgent alerts: inbox, push, alert rules",
+    "kind": "backend",
+    "status": "not wired",
+    "src": "GET /admin/ops/alerts + tiles (no inbox)",
+    "note": "The screen shows what the existing endpoints can say (SLA breaches, stuck orders, failed payments). There is no admin notification inbox or bell, no push to the admin's phone (devices are enrolled for security only) and no rule for what is urgent, so nothing reaches an admin who has the screen closed. SOS is left out on purpose (ambulance removal, decision 14).",
+    "file": "admin/src/pages/admin/today.tsx",
+    "line": 101,
+    "backend": "backend/src/modules/ops/ops.controller.ts:39"
+  },
+  {
+    "route": "/admin/today",
+    "element": "Problem orders filter on the orders list",
+    "kind": "backend",
+    "status": "not wired",
+    "src": "GET /admin/ops/alerts (stuck orders, max 50 per kind)",
+    "note": "The orders list has no stuck / failed-payment / SLA-breach / refund-pending filter, so this screen lists only the stuck orders from ops/alerts (5 kinds, 30 minute threshold) and links each to its order page; failed payments link to finance because transactions carry a booking_kind that is not always an order kind.",
+    "file": "admin/src/pages/admin/today.tsx",
+    "line": 144,
+    "backend": "backend/src/modules/admin/enterprise/admin-orders.controller.ts:20"
+  },
+  {
+    "route": "/admin/approvals",
+    "element": "One approvals endpoint with counts",
+    "kind": "backend",
+    "status": "not wired",
+    "src": "9 list endpoints counted by the client",
+    "note": "No endpoint returns all pending approvals with counts, so the page asks nine existing list endpoints (providers, provider edits, withdrawals, refunds, returns, medicine change requests, shortage reports, image suggestions, catalogue medical review) and shows each count or a retry. The maker-checker lists GET /admin/finance-engine/approvals and GET /approval-workflow/requests/pending are not included (no page uses them yet).",
+    "file": "admin/src/pages/admin/approvals.tsx",
+    "line": 18,
+    "backend": "backend/src/modules/finance-engine/finance-engine.module.ts:1058"
+  }
+]

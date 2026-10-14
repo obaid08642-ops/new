@@ -33,6 +33,25 @@ export function parseSessions(payload: unknown): SessionSummary[] {
   return list.flatMap((item) => { const parsed = sessionSchema.safeParse(item); if (!parsed.success) return []; return [{ device: parsed.data.device, expiresInSeconds: parsed.data.expires_in_seconds }]; });
 }
 
+export type OwnSession = SessionSummary & { id?: string };
+
+/**
+ * The patient's own sessions WITH the id each one is ended by (DELETE /users/me/sessions/:jti), for the security screen's
+ * "end session". `parseSessions` stays the id-free reader; the id leaves the server only here, for the signed-in patient's own
+ * sessions.
+ */
+export function parseOwnSessions(payload: unknown): OwnSession[] {
+  const root = payload && typeof payload === "object" && !Array.isArray(payload) ? payload as Record<string, unknown> : null;
+  const list = Array.isArray(payload) ? payload : Array.isArray(root?.data) ? root.data : Array.isArray(root?.sessions) ? root.sessions : [];
+  return list.flatMap((item) => {
+    const parsed = sessionSchema.safeParse(item);
+    if (!parsed.success) return [];
+    const raw = item && typeof item === "object" ? (item as { id?: unknown }).id : undefined;
+    const id = typeof raw === "string" && /^[A-Za-z0-9_-]{1,128}$/.test(raw) ? raw : undefined;
+    return [{ id, device: parsed.data.device, expiresInSeconds: parsed.data.expires_in_seconds }];
+  });
+}
+
 export function parseStorageSummary(payload: unknown): StorageSummary {
   const parsed = storageSchema.safeParse(record(payload));
   if (!parsed.success) return { items: [] };

@@ -1,0 +1,72 @@
+[
+  {
+    "batch": 4,
+    "app": "patient-web",
+    "screen": "/nursing/nurses/[nurseId]",
+    "element": "Public nurse profile",
+    "file": "patient-web/app/[locale]/nursing/nurses/[nurseId]/page.tsx",
+    "line": 90,
+    "found": "[backend] GET /nursing/nurses/:param answers 401 without a token, so a visitor sees the unavailable state; and no screen links to this page (the providers list rows are not links; the ids may differ).",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 4,
+    "app": "patient-web",
+    "screen": "/nursing/catalog",
+    "element": "service-booking-modal.tsx",
+    "file": "patient-web/components-next/service-booking-modal.tsx",
+    "line": 33,
+    "found": "[client] The fake confirmation (timer, random reference, insurance estimate) is gone from the catalogue; the component is still in the repo and only components-next/diagnostics-hub-client.tsx (not imported by any page) uses it. Delete both.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 4,
+    "app": "patient-web",
+    "screen": "/nursing/catalog",
+    "element": "Row link needs a session",
+    "file": "patient-web/app/[locale]/nursing/catalog/page.tsx",
+    "line": 68,
+    "found": "[owner] The catalogue is public but the service page it links to asks for sign-in; a visitor is sent to the login page.",
+    "suspect": "Owner decision."
+  },
+  {
+    "batch": 4,
+    "app": "patient-web",
+    "screen": "/nursing/visits",
+    "element": "Token read",
+    "file": "patient-web/app/[locale]/nursing/visits/page.tsx",
+    "line": 25,
+    "found": "[client] Reads the auth cookie itself and shows the empty state when there is none, instead of redirecting to login like the other screens.",
+    "suspect": "Client-side: later batch."
+  },
+  {
+    "batch": 4,
+    "app": "patient-web",
+    "screen": "/nursing/visits/[visitId]",
+    "element": "Status vocabulary",
+    "file": "patient-web/app/[locale]/nursing/visits/[visitId]/page.tsx",
+    "line": 38,
+    "found": "[backend] The page knows REQUESTED to COMPLETED; the app and the insurance flow use NEW_REQUEST, IN_PROGRESS, WAITING_COPAY: the timeline shows no current step for those.",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 4,
+    "app": "patient-web",
+    "screen": "/nursing/nurses/[nurseId]",
+    "element": "Booking form",
+    "file": "patient-web/components-next/nursing-booking-form.tsx",
+    "line": 111,
+    "found": "[backend] Posts no address coordinates and offers fixed daily times (09:00 to 17:00), not the nurse's availability; a card payment gets no payment intent after the booking (the app starts one).",
+    "suspect": "Backend gap: reviewer session."
+  },
+  {
+    "batch": 4,
+    "app": "patient-web",
+    "screen": "/home-care",
+    "element": "Duration text",
+    "file": "patient-web/app/[locale]/home-care/page.tsx",
+    "line": 58,
+    "found": "[backend] booking.duration and service.duration are drawn as the server wrote them ('1 hour'), in English, in every language.",
+    "suspect": "Backend gap: reviewer session."
+  }
+]

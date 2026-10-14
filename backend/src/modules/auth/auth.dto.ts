@@ -1,4 +1,4 @@
-import { IsArray, IsDefined, IsIn, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsDefined, IsEmail, IsIn, IsInt, IsObject, IsOptional, IsString, Max, MaxLength, Min, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import type {
   AuthenticationExtensionsClientOutputs,
@@ -207,8 +207,9 @@ export class ResetPasswordDto {
 }
 export class SocialLoginDto {
   @IsDefined()
-  @IsIn(["x", "google", "apple", "snapchat"])
-  provider: "x" | "google" | "apple" | "snapchat";
+  // Q107: only providers whose tokens the backend can verify.
+  @IsIn(["google", "apple"])
+  provider: "google" | "apple";
 
   @IsDefined()
   @IsString()
@@ -258,4 +259,77 @@ export class HeartbeatDto {
   @IsOptional()
   @IsString()
   client?: string;
+}
+
+/* ------------------------------------------------------------------ *
+ * Phase 21 — accounts, guests and verification
+ *
+ * The shape rules are here; the VALUE rules live where they can be strict
+ * about it: the phone is validated with libphonenumber (CheckoutContactService)
+ * and the linking code is generated and checked by AccountLinkingService, so the
+ * DTO never has to accept a half-valid string.
+ * ------------------------------------------------------------------ */
+
+/** 21.6 — offer to link two accounts that share a proven identity. */
+export class LinkAccountDto {
+  /** The account to link to; the caller proves it at confirm time. */
+  @IsDefined()
+  @IsString()
+  target_account_id: string;
+
+  @IsDefined()
+  @IsIn(['email', 'google', 'apple'])
+  method: 'email' | 'google' | 'apple';
+
+  /** The address the provider (or the emailed code) says belongs to both. */
+  @IsDefined()
+  @IsEmail()
+  provider_email: string;
+}
+
+/** 21.6 — confirm a pending link with the code the backend emailed. */
+export class ConfirmAccountLinkDto {
+  @IsDefined()
+  @IsString()
+  linked_account_id: string;
+
+  @IsDefined()
+  @IsString()
+  @MaxLength(16)
+  code: string;
+}
+
+/** 21.5 — one contact phone field and an optional address at checkout. */
+export class CheckoutContactDto {
+  @IsDefined()
+  @IsString()
+  @MaxLength(32)
+  phone: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(400)
+  address?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  label?: string;
+}
+
+/** 21.8 — the admin's manual guest cleanup. */
+export class GuestCleanupDto {
+  /** Optional explicit cutoff; the service default (12 months) is used otherwise. */
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(3650)
+  retention_days?: number;
+}
+
+/** 21.3 — the admin edits the guest permission matrix without a deploy. */
+export class GuestCapabilitiesDto {
+  @IsDefined()
+  @IsObject()
+  capabilities: Record<string, boolean>;
 }

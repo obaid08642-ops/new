@@ -1,36 +1,12 @@
-import { NextResponse } from "next/server";
-import { locales } from "@/lib/i18n";
-import { localizedUrl } from "@/lib/seo";
+import { sitemapRoute, listItems, localizedSitemap, sitemapFeed } from "@/lib/sitemap";
 
-export const revalidate = 21600;
+// Dynamic: the feeds are cached in the Next data cache instead (a build without the backend must not fail).
+export const dynamic = "force-dynamic";
 
-function esc(s: string) {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
-export async function GET() {
-  const backendUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus";
-  let facilities: Array<{ slug: string; lastmod?: string }> = [];
-  try {
-    const res = await fetch(`${backendUrl}/api/v1/public/sitemaps/facilities/ar`, {
-      next: { revalidate: 21600 },
-      headers: { "User-Agent": "NabdPlus-Sitemap-Renderer/1.0" },
-    });
-    if (res.ok) {
-      const data = await res.json();
-      facilities = data?.urls || [];
-    }
-  } catch {
-    facilities = [];
-  }
-
-  const urls = locales.flatMap((locale) =>
-    facilities.map((f) => {
-      const loc = localizedUrl(locale, `/facility/${encodeURIComponent(f.slug)}`);
-      return `  <url><loc>${esc(loc)}</loc>${f.lastmod ? `<lastmod>${f.lastmod}</lastmod>` : ""}<changefreq>weekly</changefreq><priority>0.8</priority></url>`;
-    }),
-  );
-
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join("\n")}\n</urlset>`;
-  return new NextResponse(xml, { headers: { "Content-Type": "application/xml; charset=utf-8" } });
+/** Public hospitals and clinics: /{locale}/facility/{slug}, six locales + x-default. */
+export function GET() {
+  return sitemapRoute(async () => {
+    const rows = listItems<{ slug: string; lastmod?: string }>(await sitemapFeed("/public/sitemaps/facilities/ar"));
+    return localizedSitemap(rows.filter((f) => f.slug).map((f) => ({ path: `/facility/${encodeURIComponent(f.slug)}`, lastmod: f.lastmod, changefreq: "monthly", priority: "0.7" })));
+  });
 }

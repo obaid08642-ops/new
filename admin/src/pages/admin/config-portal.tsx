@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
+import { DataTable } from '@/components/DataTable';
 
 export default function ConfigPortal() {
-  const [activeTab, setActiveTab] = useState<'sla' | 'maintenance' | 'pricing' | 'apps'>('sla');
+  const [activeTab, setActiveTab] = useState<'sla' | 'maintenance' | 'pricing' | 'apps' | 'urgent' | 'rxconsult'>('sla');
 
   // SLA State
   const [consultationDuration, setConsultationDuration] = useState(15);
@@ -25,6 +26,44 @@ export default function ConfigPortal() {
 
   const setApp = (app: string, patch: Record<string, unknown>) => {
     setAppVersions((p) => ({ ...p, [app]: { ...(p[app] || {}), ...patch } }));
+  };
+
+  // D-8 (owner decision 8): the one "Need urgent help?" number the apps dial. Never hard-coded.
+  const [urgentPhone, setUrgentPhone] = useState('');
+  const [urgentMsg, setUrgentMsg] = useState('');
+  const loadUrgentHelp = async () => {
+    try {
+      const res = await fetchWithAdminGuard('/api/admin/mental-health/urgent-help');
+      if (!res.ok) return;
+      const data = await res.json();
+      setUrgentPhone(typeof data?.phone === 'string' ? data.phone : '');
+    } catch { /* optional */ }
+  };
+  const saveUrgentHelp = async () => {
+    setUrgentMsg('');
+    try {
+      const res = await fetchWithAdminGuard('/api/admin/admin/mental-health/urgent-help', { method: 'PUT', body: JSON.stringify({ phone: urgentPhone.trim() }) });
+      setUrgentMsg(res.ok ? 'تم حفظ رقم المساعدة العاجلة' : res.status === 400 ? 'الرقم غير صالح: أرقام فقط، ويمكن أن يبدأ بـ +' : 'فشل الحفظ');
+    } catch { setUrgentMsg('فشل الحفظ'); }
+  };
+
+  // D-10 (owner decision 10): which specialty "استشر طبيب" opens for a prescription-only item, per category.
+  type RxConsult = { map: Record<string, string>; default: string | null; categories: { key: string; count: number }[]; specialties: { slug: string; name_ar: string }[] };
+  const [rxConsult, setRxConsult] = useState<RxConsult | null>(null);
+  const [rxConsultMsg, setRxConsultMsg] = useState('');
+  const loadRxConsult = async () => {
+    try {
+      const res = await fetchWithAdminGuard('/api/admin/admin/pharmacy/rx-consult-specialties');
+      if (res.ok) setRxConsult(await res.json());
+    } catch { /* optional */ }
+  };
+  const saveRxConsult = async () => {
+    if (!rxConsult) return;
+    setRxConsultMsg('');
+    try {
+      const res = await fetchWithAdminGuard('/api/admin/admin/pharmacy/rx-consult-specialties', { method: 'PUT', body: JSON.stringify({ map: rxConsult.map, default: rxConsult.default }) });
+      setRxConsultMsg(res.ok ? 'تم حفظ ربط التخصصات' : 'فشل الحفظ');
+    } catch { setRxConsultMsg('فشل الحفظ'); }
   };
 
   const saveAppVersions = async () => {
@@ -212,6 +251,18 @@ export default function ConfigPortal() {
         >
           إصدارات التطبيقات
         </button>
+        <button
+          className={`py-3 px-6 font-medium text-lg ${activeTab === 'urgent' ? 'border-b-2 border-teal-500 text-teal-600' : 'text-gray-500'}`}
+          onClick={() => { setActiveTab('urgent'); void loadUrgentHelp(); }}
+        >
+          رقم المساعدة العاجلة
+        </button>
+        <button
+          className={`py-3 px-6 font-medium text-lg ${activeTab === 'rxconsult' ? 'border-b-2 border-teal-500 text-teal-600' : 'text-gray-500'}`}
+          onClick={() => { setActiveTab('rxconsult'); void loadRxConsult(); }}
+        >
+          استشر طبيب (أدوية الوصفة)
+        </button>
       </div>
 
       {/* Content */}
@@ -268,38 +319,8 @@ export default function ConfigPortal() {
         {activeTab === 'maintenance' && (
           <div className="space-y-6">
             <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-              <h2 className="text-2xl font-bold text-red-700 mb-2 flex items-center gap-2">
-                 THE HIGH-PRIORITY SYSTEM MAINTENANCE KILL-SWITCH
-              </h2>
-              <p className="text-red-600 font-medium mb-4">
-                تفعيل هذا المفتاح سيضخ `FORCE_SYSTEM_MAINTENANCE: true` في الـ Redis Core Cache Cluster فوراً.
-                سيقوم باعتراض الـ API Gateway ويفصل جميع المستخدمين (503 Service Unavailable) ويعرض شاشة التحديث الجذري الطارئ.
-              </p>
-
               {systemStatus === 'online' ? (
-                <div className="space-y-4 bg-white p-6 rounded border border-red-100">
-                  <div className="flex items-start gap-3">
-                    <input type="checkbox" id="lock1" checked={killSwitchChecked1} onChange={(e) => setKillSwitchChecked1(e.target.checked)} className="mt-1 w-5 h-5 text-red-600 rounded" />
-                    <label htmlFor="lock1" className="text-gray-800 font-medium cursor-pointer">
-                      أقر بأنني على علم تام بأن هذا الإجراء سيوقف كافة العمليات الطبية والتجارية الحية.
-                    </label>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <input type="checkbox" id="lock2" checked={killSwitchChecked2} onChange={(e) => setKillSwitchChecked2(e.target.checked)} className="mt-1 w-5 h-5 text-red-600 rounded" />
-                    <label htmlFor="lock2" className="text-gray-800 font-medium cursor-pointer">
-                      تأكيد مستوى الأمان المزدوج: الإقفال وبدء وضع الصيانة.
-                    </label>
-                  </div>
-
-                  <button
-                    disabled
-                    title="مفتاح الصيانة غير مفعّل خادمياً: يتطلب Redis dispatch + اعتماد ثنائي + تحقق استرداد"
-                    className="w-full mt-4 bg-slate-300 text-slate-500 font-bold py-4 rounded-lg uppercase tracking-widest text-lg cursor-not-allowed"
-                  >
-                    Trigger System Kill-Switch (معطّل — يتطلب إعداد الخادم)
-                  </button>
-                  <p className="text-xs text-slate-500">زر الصيانة الطارئة معطّل عمداً: الخادم يرفض أي حالة صيانة شاملة بلا Redis dispatch وتدقيق غير قابل للتغيير. لا يُفعَّل إلا بعد تنفيذ ذلك خادمياً.</p>
-                </div>
+                <p className="text-slate-600 font-medium">إيقاف خدمة بعينها يتم من صفحة «مفاتيح الخدمات» (للمشرف الأعلى فقط).</p>
               ) : (
                 <div className="bg-white p-6 rounded border border-green-200 text-center">
                   <h3 className="text-xl font-bold text-gray-800 mb-4">النظام حالياً في وضع الإيقاف الطارئ.</h3>
@@ -369,6 +390,55 @@ export default function ConfigPortal() {
               ))}
               <button onClick={() => void saveAppVersions()} className="mt-2 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg">حفظ الإصدارات</button>
               {appsMsg && <p className="mt-2 text-sm font-bold">{appsMsg}</p>}
+            </div>
+          </div>
+        )}
+        {activeTab === 'urgent' && (
+          <div className="space-y-4">
+            <div className="bg-white p-6 rounded border border-gray-200">
+              <h2 className="text-xl font-bold mb-1">رقم &laquo;تحتاج مساعدة عاجلة؟&raquo; في الصحة النفسية</h2>
+              <p className="text-sm text-gray-500 mb-4">الرقم الرسمي الذي يفتحه زر المساعدة العاجلة في التطبيقات. لا يظهر الزر حتى يُحفظ رقم.</p>
+              <label className="text-sm block max-w-sm">رقم الهاتف
+                <input value={urgentPhone} onChange={(e) => setUrgentPhone(e.target.value)} dir="ltr" inputMode="tel" className="mt-1 w-full border rounded p-2" />
+              </label>
+              <button onClick={() => void saveUrgentHelp()} className="mt-4 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg">حفظ الرقم</button>
+              {urgentMsg && <p className="mt-2 text-sm font-bold">{urgentMsg}</p>}
+            </div>
+          </div>
+        )}
+        {activeTab === 'rxconsult' && (
+          <div className="space-y-4">
+            <div className="bg-white p-6 rounded border border-gray-200">
+              <h2 className="text-xl font-bold mb-1">تخصص زر &laquo;استشر طبيب&raquo; لأدوية الوصفة</h2>
+              <p className="text-sm text-gray-500 mb-4">لكل فئة من أدوية الوصفة اختر التخصص الذي تُفتح عليه الاستشارات. الفئات بلا اختيار تستخدم التخصص الافتراضي، وإن لم يُحدَّد تُفتح الاستشارات بلا تصفية.</p>
+              {!rxConsult ? <p className="text-sm">جارٍ التحميل…</p> : (
+                <>
+                  <label className="text-sm block max-w-sm mb-4">التخصص الافتراضي
+                    <select value={rxConsult.default || ''} onChange={(e) => setRxConsult({ ...rxConsult, default: e.target.value || null })} className="mt-1 w-full border rounded p-2">
+                      <option value="">بدون تصفية</option>
+                      {rxConsult.specialties.map((sp) => <option key={sp.slug} value={sp.slug}>{sp.name_ar}</option>)}
+                    </select>
+                  </label>
+                  <DataTable
+                    bare
+                    dense
+                    rows={rxConsult.categories}
+                    getRowKey={(c) => c.key}
+                    columns={[
+                      { key: 'key', header: 'الفئة', render: (c) => c.key },
+                      { key: 'count', header: 'عدد الأدوية', render: (c) => c.count },
+                      { key: 'spec', header: 'التخصص', render: (c) => (
+                        <select value={rxConsult.map[c.key] || ''} onChange={(e) => setRxConsult({ ...rxConsult, map: { ...rxConsult.map, [c.key]: e.target.value } })} className="border rounded p-1">
+                          <option value="">الافتراضي</option>
+                          {rxConsult.specialties.map((sp) => <option key={sp.slug} value={sp.slug}>{sp.name_ar}</option>)}
+                        </select>
+                      ) },
+                    ]}
+                  />
+                  <button onClick={() => void saveRxConsult()} className="mt-4 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg">حفظ الربط</button>
+                  {rxConsultMsg && <p className="mt-2 text-sm font-bold">{rxConsultMsg}</p>}
+                </>
+              )}
             </div>
           </div>
         )}

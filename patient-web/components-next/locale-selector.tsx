@@ -2,12 +2,16 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { Globe, ChevronDown, Check } from "lucide-react";
 import { localeLabels, locales, type Locale } from "@/lib/i18n";
+import { pathInLocale } from "@/lib/locale-path";
 import styles from "./locale-selector.module.css";
 
 export function LocaleSelector({ current, label }: { current: Locale; label: string }) {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname() || `/${current}`;
+  const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -45,13 +49,22 @@ export function LocaleSelector({ current, label }: { current: Locale; label: str
           return (
             <Link
               key={locale}
-              href={`/${locale}`}
+              href={pathInLocale(pathname, locale)}
               hrefLang={locale}
               lang={locale}
               className={`${styles.option} ${isActive ? styles.activeOption : ""}`}
               aria-current={isActive ? "page" : undefined}
               role="menuitem"
-              onClick={() => setIsOpen(false)}
+              onClick={(event) => {
+                setIsOpen(false);
+                // The query string and hash only exist in the browser: keep them (?q= on /search) by navigating
+                // there ourselves; without them the plain link is enough.
+                const suffix = `${window.location.search}${window.location.hash}`;
+                if (suffix && !event.metaKey && !event.ctrlKey && !event.shiftKey && event.button === 0) {
+                  event.preventDefault();
+                  router.push(`${pathInLocale(pathname, locale)}${suffix}`);
+                }
+              }}
             >
               <span>{localeLabels[locale]}</span>
               {isActive && <span className={styles.checkIcon} aria-hidden="true"><Check size={14} /></span>}

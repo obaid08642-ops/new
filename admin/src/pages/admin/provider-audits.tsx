@@ -25,6 +25,7 @@ export default function ProviderAuditsPage() {
   };
 
   const handleApprove = async (id: string) => {
+    if (!window.confirm('اعتماد هذه التعديلات وتحديث ملف مقدم الخدمة؟')) return;
     setProcessingId(id);
     try {
       await apiFetch(`/api/admin/admin/providers/provider-deltas/${id}/approve`, { method: 'POST' });

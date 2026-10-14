@@ -1,0 +1,3 @@
+[agent] POST /media/presigned {filename: report.pdf, mimetype: text/html} -> 201 upload_url issued
+[agent] PUT html body to the presigned URL -> 200
+[agent] GET signed read URL -> 200 Content-Type: text/html body starts: b'<html><body><h1>synthetic page served fr'

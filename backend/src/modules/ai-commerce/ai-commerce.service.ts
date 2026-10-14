@@ -1,4 +1,5 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import { escapeRegex } from '../../common/slug.util';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { randomBytes } from 'crypto';
@@ -59,9 +60,9 @@ export class AiCommerceService {
     }
     if (query.search) {
       filter.$or = [
-        { name_ar: { $regex: query.search, $options: 'i' } },
-        { name_en: { $regex: query.search, $options: 'i' } },
-        { slug: { $regex: query.search, $options: 'i' } },
+        { name_ar: { $regex: escapeRegex(String(query.search)), $options: 'i' } },
+        { name_en: { $regex: escapeRegex(String(query.search)), $options: 'i' } },
+        { slug: { $regex: escapeRegex(String(query.search)), $options: 'i' } },
       ];
     }
 
@@ -126,10 +127,10 @@ export class AiCommerceService {
 
     const docFilter: Record<string, any> = { is_active: { $ne: false } };
     if (query.specialty) docFilter.specialty = query.specialty;
-    if (query.city) docFilter.city = { $regex: query.city, $options: 'i' };
+    if (query.city) docFilter.city = { $regex: escapeRegex(String(query.city)), $options: 'i' };
 
     const facFilter: Record<string, any> = { is_active: { $ne: false } };
-    if (query.city) facFilter.city = { $regex: query.city, $options: 'i' };
+    if (query.city) facFilter.city = { $regex: escapeRegex(String(query.city)), $options: 'i' };
 
     const [doctors, facilities] = await Promise.all([
       docCol.find(docFilter).limit(20).toArray(),
@@ -200,13 +201,19 @@ export class AiCommerceService {
       if (item.type === 'medicine') {
         // item.id is DTO-validated as a string; pin each branch with $eq so
         // query operators can never be injected into the filter.
+        // Only public, medically reviewed medicines can be sold here.
         const med = await medCol.findOne({
           $or: [{ id: { $eq: item.id } }, { slug: { $eq: item.id } }, { sku: Number(item.id) || -1 }],
+          is_deleted: { $ne: true },
+          public_eligibility: true,
+          medical_review_status: 'approved',
         });
         if (!med) throw new NotFoundException(`Medicine '${item.id}' not found`);
 
         const qty = Math.max(1, Number(item.quantity) || 1);
-        const unitPrice = Number(med.price) || 20.0;
+        // The record's own price; never an invented default.
+        const unitPrice = Number(med.price);
+        if (!Number.isFinite(unitPrice) || unitPrice <= 0) throw new UnprocessableEntityException(`price_unavailable: medicine '${item.id}'`);
         const lineTotal = Number((unitPrice * qty).toFixed(2));
         subtotal += lineTotal;
 
@@ -227,10 +234,16 @@ export class AiCommerceService {
       } else if (item.type === 'consultation') {
         const doc = await docCol.findOne({
           $or: [{ id: { $eq: item.id } }, { slug: { $eq: item.id } }],
+          type: 'doctor',
+          status: 'active',
+          public_eligibility: true,
+          medical_review_status: 'approved',
         });
         if (!doc) throw new NotFoundException(`Doctor '${item.id}' not found`);
 
-        const fee = 150.0;
+        // The doctor's own clinic consultation price; never a flat default.
+        const fee = Number(doc.price_clinic);
+        if (!Number.isFinite(fee) || fee <= 0) throw new UnprocessableEntityException(`price_unavailable: doctor '${item.id}'`);
         subtotal += fee;
 
         validatedItems.push({

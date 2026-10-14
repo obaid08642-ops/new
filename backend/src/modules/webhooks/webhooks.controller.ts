@@ -5,6 +5,12 @@ import { WebhooksService } from './webhooks.service';
 import { Request } from 'express';
 import { Public } from '../../common/auth.guard';
 
+/** A provider webhook always posts a JSON object; anything else is a malformed call (400), never a 500. */
+function requireObjectBody(body: unknown): Record<string, unknown> {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) throw new BadRequestException('invalid_webhook_body');
+  return body as Record<string, unknown>;
+}
+
 @UseGuards(JwtAuthGuard)
 @Controller('webhooks')
 @Public() // Public endpoint, authenticated via headers signature
@@ -17,6 +23,7 @@ export class WebhooksController {
     @Headers('moyasar-signature') signature: string,
     @Req() req: Request
   ) {
+    requireObjectBody(body);
     const rawBody = (req as any).rawBody || JSON.stringify(body);
     return this.service.handleMoyasarWebhook(body, signature, rawBody);
   }
@@ -27,6 +34,7 @@ export class WebhooksController {
     @Headers('signature') signature: string,
     @Req() req: Request
   ) {
+    requireObjectBody(body);
     const rawBody = (req as any).rawBody || JSON.stringify(body);
     return this.service.handlePayTabsWebhook(body, signature, rawBody);
   }
@@ -36,7 +44,7 @@ export class WebhooksController {
     @Body() body: Record<string, unknown>,
     @Headers('x-sms-token') token: string
   ) {
-    return this.service.handleSmsWebhook(body, token);
+    return this.service.handleSmsWebhook(requireObjectBody(body), token);
   }
 
   @Post('livekit')

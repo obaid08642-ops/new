@@ -26,10 +26,10 @@ import { DoctorUrgentRequests } from '../components/DoctorUrgentRequests';
 import { DoctorQueueList } from '../components/DoctorQueueList';
 import { FacilityInvitationsScreen } from '../FacilityInvitationsScreen';
 import {
- PromotionsDashboard, CreateCampaignScreen, ProfileWebConfig,
+ PromotionsDashboard, CreateCampaignScreen, 
  SubscriptionsAdsScreen, AffiliatePortal, ReputationHub,
  LiveOrderAlarmModal, CrmHub, RevenueInsights, AiMedicalCopilot,
- SmartOutboundReferralNetwork, SosDispatchScreen, GpsRouterScreen
+ SmartOutboundReferralNetwork
 } from '../../shared/BlueprintScreens';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { tokens } from '../../../theme/tokens';
@@ -41,13 +41,12 @@ import { MedicalReportScreen } from './MedicalReportScreen';
 import { ReferralScreen } from './ReferralScreen';
 import { DoctorAvailabilityScreen } from './DoctorAvailabilityScreen';
 import { DoctorServiceManagementScreen } from './DoctorServiceManagementScreen';
-import { CertificatesConfigScreen, PreVisitChatScreen, InboundMedicalReportsScreen } from './CertificatesConfigScreen';
-import { DoctorLocationScreen } from './DoctorLocationScreen';
+import { CertificatesConfigScreen } from '../../shared/SharedScreens';
+import { PreVisitChatScreen } from './PreVisitChatScreen';
+import { InboundMedicalReportsScreen } from './InboundMedicalReportsScreen';
 
-import { DoctorWalletTab } from './DoctorWalletTab';
 import { DoctorSettingsTab } from './DoctorSettingsTab';
 import { PatientFileScreen } from './PatientFileScreen';
-import { DoctorProfileEditScreen } from './DoctorProfileEditScreen';
 
 // ════
 // ══════════════════════════════════════════════════════════════════════════════
@@ -88,7 +87,16 @@ export function DoctorScheduleTab({ onNavigate }: { onNavigate: (s: string, p?: 
  });
  }, [AR]);
 
- const filtered = filter === 'all' ? apts : apts.filter(a => a.type === filter);
+ // Needs-review issue 1149: Day shows today's visits, Week the next 7 days, List everything.
+ const inView = (a: any) => {
+  if (view === 'list') return true;
+  const at = a.raw?.scheduled_at ? new Date(a.raw.scheduled_at) : null;
+  if (!at) return false;
+  const start = new Date(); start.setHours(0, 0, 0, 0);
+  const end = new Date(start); end.setDate(end.getDate() + (view === 'day' ? 1 : 7));
+  return at >= start && at < end;
+ };
+ const filtered = apts.filter(a => (filter === 'all' || a.type === filter) && inView(a));
 
  return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>

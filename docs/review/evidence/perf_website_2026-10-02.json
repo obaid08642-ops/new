@@ -1,0 +1,78 @@
+{
+ "app": "website",
+ "throttle": "none (local)",
+ "runs": 3,
+ "note": "Chromium on the review container; not a phone",
+ "routes": {
+  "/ar": {
+   "ttfb_ms": 47,
+   "dcl_ms": 227,
+   "load_ms": 314,
+   "requests": 70,
+   "transfer_kb": 363,
+   "js_kb": 188,
+   "fcp_ms": 272,
+   "lcp_ms": 272,
+   "long_tasks_ms": 0,
+   "api_calls": 0,
+   "api_max_ms": 0,
+   "api_errors": 0
+  },
+  "/ar/doctors": {
+   "ttfb_ms": 35,
+   "dcl_ms": 346,
+   "load_ms": 349,
+   "requests": 68,
+   "transfer_kb": 333,
+   "js_kb": 164,
+   "fcp_ms": 224,
+   "lcp_ms": 224,
+   "long_tasks_ms": 53,
+   "api_calls": 0,
+   "api_max_ms": 0,
+   "api_errors": 0
+  },
+  "/ar/articles": {
+   "ttfb_ms": 26,
+   "dcl_ms": 115,
+   "load_ms": 275,
+   "requests": 39,
+   "transfer_kb": 294,
+   "js_kb": 159,
+   "fcp_ms": 256,
+   "lcp_ms": 256,
+   "long_tasks_ms": 64,
+   "api_calls": 0,
+   "api_max_ms": 0,
+   "api_errors": 0
+  },
+  "/ar/consultations": {
+   "ttfb_ms": 67,
+   "dcl_ms": 309,
+   "load_ms": 310,
+   "requests": 73,
+   "transfer_kb": 340,
+   "js_kb": 164,
+   "fcp_ms": 248,
+   "lcp_ms": 248,
+   "long_tasks_ms": 0,
+   "api_calls": 0,
+   "api_max_ms": 0,
+   "api_errors": 0
+  },
+  "/ar/pharmacy": {
+   "ttfb_ms": 60,
+   "dcl_ms": 160,
+   "load_ms": 254,
+   "requests": 48,
+   "transfer_kb": 320,
+   "js_kb": 166,
+   "fcp_ms": 236,
+   "lcp_ms": 236,
+   "long_tasks_ms": 52,
+   "api_calls": 0,
+   "api_max_ms": 0,
+   "api_errors": 0
+  }
+ }
+}

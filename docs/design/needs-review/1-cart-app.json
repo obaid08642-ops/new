@@ -1,0 +1,12 @@
+[
+  {
+    "batch": 1,
+    "app": "patient-app",
+    "screen": "/pharmacy/cart",
+    "element": "Sign-out clearing",
+    "file": "",
+    "line": 0,
+    "found": "[client] The cart clears on the auth slice's logout and on a full store reset; a session that ends through offlineUnauthenticated keeps the last owner's cart until the next sign-in or sign-out.",
+    "suspect": "Client-side: later batch."
+  }
+]

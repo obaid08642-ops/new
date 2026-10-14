@@ -1,0 +1,1724 @@
+{
+ "app": "website",
+ "signed_in": true,
+ "pages": [
+  {
+   "route": "/[locale]",
+   "url": "/ar",
+   "landed": "/ar",
+   "time_to_ready_ms": 2506,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تسوق الصيدلية",
+     "result": "NAVIGATE",
+     "to": "/ar/c",
+     "response_ms": 1765
+    },
+    {
+     "label": "احجز استشارة طبيب",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors",
+     "response_ms": 1529
+    },
+    {
+     "label": "التأمين الطبي",
+     "result": "NAVIGATE",
+     "to": "/ar/insurance",
+     "response_ms": 1490
+    },
+    {
+     "label": "توصيل 30 دقيقة",
+     "result": "NAVIGATE",
+     "to": "/ar/c",
+     "response_ms": 1523
+    },
+    {
+     "label": "أطباء معتمدون",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors",
+     "response_ms": 1745
+    },
+    {
+     "label": "سحب منزلي ومراكز",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics",
+     "response_ms": 3145
+    },
+    {
+     "label": "زيارة فورية",
+     "result": "NAVIGATE",
+     "to": "/ar/nursing/catalog",
+     "response_ms": 1791
+    },
+    {
+     "label": "متابعة الحمل",
+     "result": "NAVIGATE",
+     "to": "/ar/maternity",
+     "response_ms": 1401
+    },
+    {
+     "label": "التغذية والحميات",
+     "result": "NAVIGATE",
+     "to": "/ar/nutrition",
+     "response_ms": 1458
+    },
+    {
+     "label": "الصحة النفسية",
+     "result": "NAVIGATE",
+     "to": "/ar/mental-health",
+     "response_ms": 1411
+    },
+    {
+     "label": "الرعاية المزمنة",
+     "result": "NAVIGATE",
+     "to": "/ar/health/chronic-medications",
+     "response_ms": 1430
+    },
+    {
+     "label": "عرض جميع الأطباء",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors",
+     "response_ms": 1442
+    },
+    {
+     "label": "مسؤول doctor",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors/edfe236d-4e17-40ec-9905-f0caa0c8ba86",
+     "response_ms": 1415
+    },
+    {
+     "label": "VCD75701",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors/5872b442-374a-4bb9-8a7d-3ecf11824978",
+     "response_ms": 1350
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 14
+   }
+  },
+  {
+   "route": "/[locale]/provider-info",
+   "url": "/ar/provider-info",
+   "landed": "/ar/provider-info",
+   "time_to_ready_ms": 517,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الاستمرار كمريض",
+     "result": "NAVIGATE",
+     "to": "/ar/login",
+     "response_ms": 1392
+    },
+    {
+     "label": "تواصل للتسجيل كمقدم خدمة",
+     "result": "NAVIGATE",
+     "to": "/ar/support",
+     "response_ms": 1339
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2
+   }
+  },
+  {
+   "route": "/[locale]/community",
+   "url": "/ar/community",
+   "landed": "/ar/community",
+   "time_to_ready_ms": 504,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "title-14950",
+     "result": "NAVIGATE",
+     "to": "/ar/community/9a9c115a-22d9-4946-b9ac-78b1d6d39f0f",
+     "response_ms": 523
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/ai",
+   "url": "/ar/ai",
+   "landed": "/ar/ai",
+   "time_to_ready_ms": 910,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "صداع مستمر منذ يومين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3565
+    },
+    {
+     "label": "حمى وسعال جاف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3571
+    },
+    {
+     "label": "ألم في المعدة وغثيان",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3630
+    },
+    {
+     "label": "طفح جلدي وحكة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3555
+    },
+    {
+     "label": "تحليل الأعراض",
+     "result": "WRITE",
+     "status": 200,
+     "method": "POST",
+     "url": "/api/patient/ai/triage",
+     "tokens_sent": 1,
+     "tokens_stored": 1,
+     "response_ms": 1286
+    },
+    {
+     "label": "تحليل البشرة",
+     "result": "NAVIGATE",
+     "to": "/ar/ai/skin-analysis",
+     "response_ms": 733
+    },
+    {
+     "label": "مترجم الوصفات",
+     "result": "NAVIGATE",
+     "to": "/ar/ai/prescription-translator",
+     "response_ms": 555
+    },
+    {
+     "label": "تقريري",
+     "result": "NAVIGATE",
+     "to": "/ar/ai/report",
+     "response_ms": 543
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 4,
+    "WRITE": 1,
+    "NAVIGATE": 3
+   }
+  },
+  {
+   "route": "/[locale]/ai/chat-doctor",
+   "url": "/ar/ai/chat-doctor",
+   "landed": "/ar/ai/chat-doctor",
+   "time_to_ready_ms": 867,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "إرسال",
+     "result": "WRITE",
+     "status": 200,
+     "method": "POST",
+     "url": "/api/patient/ai/triage",
+     "tokens_sent": 1,
+     "tokens_stored": 1,
+     "response_ms": 801
+    }
+   ],
+   "summary": {
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "/[locale]/ai/skin-analysis",
+   "url": "/ar/ai/skin-analysis",
+   "landed": "/ar/ai/skin-analysis",
+   "time_to_ready_ms": 839,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "face",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3565
+    },
+    {
+     "label": "scalp",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3525
+    },
+    {
+     "label": "hands",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3549
+    },
+    {
+     "label": "body",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3545
+    },
+    {
+     "label": "redness",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3539
+    },
+    {
+     "label": "itching",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3546
+    },
+    {
+     "label": "dryness",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3545
+    },
+    {
+     "label": "rash",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3541
+    },
+    {
+     "label": "swelling",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3541
+    },
+    {
+     "label": "none",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3542
+    },
+    {
+     "label": "(icon #10)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3573
+    },
+    {
+     "label": "تحليل",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/api/patient/ai/skin-analysis",
+     "tokens_sent": 1,
+     "tokens_stored": 0,
+     "response_ms": 778
+    },
+    {
+     "label": "الفرز الطبي",
+     "result": "NAVIGATE",
+     "to": "/ar/ai/triage",
+     "response_ms": 636
+    },
+    {
+     "label": "مترجم الوصفات",
+     "result": "NAVIGATE",
+     "to": "/ar/ai/prescription-translator",
+     "response_ms": 570
+    },
+    {
+     "label": "← العودة للمساعد الذكي",
+     "result": "NAVIGATE",
+     "to": "/ar/ai",
+     "response_ms": 572
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 11,
+    "WRITE": 1,
+    "NAVIGATE": 3
+   }
+  },
+  {
+   "route": "/[locale]/ai/symptom-checker",
+   "url": "/ar/ai/symptom-checker",
+   "landed": "/ar/ai/symptom-checker",
+   "time_to_ready_ms": 834,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "صداع مستمر منذ يومين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3580
+    },
+    {
+     "label": "حمى وسعال جاف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3576
+    },
+    {
+     "label": "ألم في المعدة وغثيان",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3561
+    },
+    {
+     "label": "طفح جلدي وحكة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3523
+    },
+    {
+     "label": "تحليل الأعراض",
+     "result": "WRITE",
+     "status": 200,
+     "method": "POST",
+     "url": "/api/patient/ai/triage",
+     "tokens_sent": 1,
+     "tokens_stored": 1,
+     "response_ms": 771
+    },
+    {
+     "label": "الفرز الطبي",
+     "result": "NAVIGATE",
+     "to": "/ar/ai/triage",
+     "response_ms": 559
+    },
+    {
+     "label": "تقريري",
+     "result": "NAVIGATE",
+     "to": "/ar/ai/report",
+     "response_ms": 562
+    },
+    {
+     "label": "تقريري الشهري",
+     "result": "NAVIGATE",
+     "to": "/ar/ai/monthly-report",
+     "response_ms": 577
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 4,
+    "WRITE": 1,
+    "NAVIGATE": 3
+   }
+  },
+  {
+   "route": "/[locale]/ai/report",
+   "url": "/ar/ai/report",
+   "landed": "/ar/ai/report",
+   "time_to_ready_ms": 880,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تحليل",
+     "result": "DISABLED"
+    }
+   ],
+   "summary": {
+    "DISABLED": 1
+   }
+  },
+  {
+   "route": "/[locale]/ai/prescription-translator",
+   "url": "/ar/ai/prescription-translator",
+   "landed": "/ar/ai/prescription-translator",
+   "time_to_ready_ms": 857,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "← العودة",
+     "result": "NAVIGATE",
+     "to": "/ar/ai",
+     "response_ms": 535
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/ai/symptom-timeline",
+   "url": "/ar/ai/symptom-timeline",
+   "landed": "/ar/ai/symptom-timeline",
+   "time_to_ready_ms": 928,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "حفظ في الجدول الزمني",
+     "result": "WRITE",
+     "status": 200,
+     "method": "POST",
+     "url": "/api/patient/ai/triage",
+     "tokens_sent": 1,
+     "tokens_stored": 1,
+     "response_ms": 794
+    }
+   ],
+   "summary": {
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "/[locale]/ai/monthly-report",
+   "url": "/ar/ai/monthly-report",
+   "landed": "/ar/ai/monthly-report",
+   "time_to_ready_ms": 531,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تسجيل قياس الآن",
+     "result": "NAVIGATE",
+     "to": "/ar/health/vitals/log",
+     "response_ms": 1396
+    },
+    {
+     "label": "عرض المؤشرات التاريخية",
+     "result": "NAVIGATE",
+     "to": "/ar/health/trends",
+     "response_ms": 1387
+    },
+    {
+     "label": "احجز متابعة مع الطبيب",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors",
+     "response_ms": 1410
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 3
+   }
+  },
+  {
+   "route": "/[locale]/ai/triage",
+   "url": "/ar/ai/triage",
+   "landed": "/ar/ai/triage",
+   "time_to_ready_ms": 900,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "صداع مستمر منذ يومين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3547
+    },
+    {
+     "label": "حمى وسعال جاف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3545
+    },
+    {
+     "label": "ألم في المعدة وغثيان",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3519
+    },
+    {
+     "label": "طفح جلدي وحكة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3602
+    },
+    {
+     "label": "تحليل الأعراض",
+     "result": "WRITE",
+     "status": 200,
+     "method": "POST",
+     "url": "/api/patient/ai/triage",
+     "tokens_sent": 1,
+     "tokens_stored": 1,
+     "response_ms": 777
+    },
+    {
+     "label": "تحليل البشرة",
+     "result": "NAVIGATE",
+     "to": "/ar/ai/skin-analysis",
+     "response_ms": 552
+    },
+    {
+     "label": "مترجم الوصفات",
+     "result": "NAVIGATE",
+     "to": "/ar/ai/prescription-translator",
+     "response_ms": 565
+    },
+    {
+     "label": "تقريري",
+     "result": "NAVIGATE",
+     "to": "/ar/ai/report",
+     "response_ms": 539
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 4,
+    "WRITE": 1,
+    "NAVIGATE": 3
+   }
+  },
+  {
+   "route": "/[locale]/home-care",
+   "url": "/ar/home-care",
+   "landed": "/ar/home-care",
+   "time_to_ready_ms": 496,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تصفح خدمات الرعاية المنزلية",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services",
+     "response_ms": 994
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/home-care/providers",
+   "url": "/ar/home-care/providers",
+   "landed": "/ar/home-care/providers",
+   "time_to_ready_ms": 1365,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/[locale]/home-care/services",
+   "url": "/ar/home-care/services",
+   "landed": "/ar/home-care/services",
+   "time_to_ready_ms": 884,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "قياس العلامات الحيوية",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/57449b18-7b24-4c4c-a8b2-d5ffdb0c6cba",
+     "response_ms": 534
+    },
+    {
+     "label": "سحب دم للتحاليل",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/b325ba16-18fd-48e0-86e9-8e48009b9463",
+     "response_ms": 546
+    },
+    {
+     "label": "الحقن الطبية والمضادات",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/f6d068bb-80a3-4bd2-aee6-0bbe00a4a094",
+     "response_ms": 600
+    },
+    {
+     "label": "تركيب محلول وريدي",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/fc8c01ef-fb3a-42f3-b8c5-b5488f60913a",
+     "response_ms": 573
+    },
+    {
+     "label": "العناية بالجروح العميقة والسكري",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/b671d64b-c7e3-46a1-8c3e-f490b441b51f",
+     "response_ms": 535
+    },
+    {
+     "label": "العناية بالقسطرة البولية",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/b2d14d83-202c-4e79-a823-eceb9966a35c",
+     "response_ms": 537
+    },
+    {
+     "label": "العناية بفتحة القصبة الهوائية",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/dd90d27e-7296-4f3e-9f11-6dcba4997bd7",
+     "response_ms": 556
+    },
+    {
+     "label": "جلسات أكسجين منزلي",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/521b93a3-37d8-4657-be7e-df34a41ba2a0",
+     "response_ms": 554
+    },
+    {
+     "label": "رعاية ما بعد العمليات الجراحية",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/d760e096-5bac-4026-9a0d-823afd9bce56",
+     "response_ms": 629
+    },
+    {
+     "label": "مرافقة ورعاية كبار السن",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/9bffdf35-abdf-4f1a-85a8-5d565d485d60",
+     "response_ms": 612
+    },
+    {
+     "label": "العناية بالأم وحديثي الولادة",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/9b5327c9-6fbd-47df-a457-3a66c9008394",
+     "response_ms": 1044
+    },
+    {
+     "label": "العناية المركزة بالمنزل (ICU)",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/4cd6847d-a810-4318-beb0-bdbe1e76b03d",
+     "response_ms": 594
+    },
+    {
+     "label": "غسيل كلى منزلي",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/dialysis_home",
+     "response_ms": 542
+    },
+    {
+     "label": "علاج النطق والتخاطب",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/speech_therapy",
+     "response_ms": 586
+    },
+    {
+     "label": "استشارة الرضاعة الطبيعية",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/lactation",
+     "response_ms": 620
+    },
+    {
+     "label": "حقنة عضلية بالمنزل",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/intramuscular_injection",
+     "response_ms": 929
+    },
+    {
+     "label": "حقنة وريدية / تركيب كانولا",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/intravenous_injection_cannula",
+     "response_ms": 615
+    },
+    {
+     "label": "محاليل وريدية وفيتامينات بالمنزل",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/iv_drip_fluids_vitamins",
+     "response_ms": 895
+    },
+    {
+     "label": "جرعات مضاد حيوي وريدي",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/antibiotic_iv_course",
+     "response_ms": 603
+    },
+    {
+     "label": "تغيير على الجروح",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/wound_dressing",
+     "response_ms": 826
+    },
+    {
+     "label": "العناية بقرح الفراش",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/bedsore_care",
+     "response_ms": 619
+    },
+    {
+     "label": "العناية بالقدم السكرية",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/diabetic_foot_care",
+     "response_ms": 1020
+    },
+    {
+     "label": "إزالة الغرز الجراحية",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/suture_removal",
+     "response_ms": 604
+    },
+    {
+     "label": "تركيب / تغيير قسطرة بولية",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/urinary_catheterization",
+     "response_ms": 637
+    },
+    {
+     "label": "العناية بأنبوب التغذية (NG)",
+     "result": "NAVIGATE",
+     "to": "/ar/home-care/services/feeding_tube_care",
+     "response_ms": 590
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 25
+   }
+  },
+  {
+   "route": "/[locale]/programs",
+   "url": "/ar/programs",
+   "landed": "/ar/programs",
+   "time_to_ready_ms": 539,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/[locale]/programs/active",
+   "url": "/ar/programs/active",
+   "landed": "/ar/programs/active",
+   "time_to_ready_ms": 894,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "البرامج",
+     "result": "NAVIGATE",
+     "to": "/ar/programs",
+     "response_ms": 547
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/mental-health",
+   "url": "/ar/mental-health",
+   "landed": "/ar/mental-health",
+   "time_to_ready_ms": 990,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "سجل التنفس",
+     "result": "NAVIGATE",
+     "to": "/ar/mental-health/breathing",
+     "response_ms": 563
+    },
+    {
+     "label": "سجل المزاج",
+     "result": "NAVIGATE",
+     "to": "/ar/mental-health/mood",
+     "response_ms": 544
+    },
+    {
+     "label": "سجل التأمل",
+     "result": "NAVIGATE",
+     "to": "/ar/mental-health/meditation",
+     "response_ms": 1038
+    },
+    {
+     "label": "جهات اتصال الأزمات",
+     "result": "NAVIGATE",
+     "to": "/ar/mental-health/crisis-contacts",
+     "response_ms": 567
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 4
+   }
+  },
+  {
+   "route": "/[locale]/mental-health/breathing",
+   "url": "/ar/mental-health/breathing",
+   "landed": "/ar/mental-health/breathing",
+   "time_to_ready_ms": 577,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى الصحة النفسية",
+     "result": "NAVIGATE",
+     "to": "/ar/mental-health",
+     "response_ms": 890
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/mental-health/mood",
+   "url": "/ar/mental-health/mood",
+   "landed": "/ar/mental-health/mood",
+   "time_to_ready_ms": 881,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى الصحة النفسية",
+     "result": "NAVIGATE",
+     "to": "/ar/mental-health",
+     "response_ms": 566
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/mental-health/self-assessment",
+   "url": "/ar/mental-health/self-assessment",
+   "landed": "/ar/mental-health/self-assessment",
+   "time_to_ready_ms": 909,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الصحة النفسية",
+     "result": "NAVIGATE",
+     "to": "/ar/mental-health",
+     "response_ms": 561
+    },
+    {
+     "label": "يوميات المزاج",
+     "result": "NAVIGATE",
+     "to": "/ar/mental-health/mood",
+     "response_ms": 550
+    },
+    {
+     "label": "حجز استشارة نفسية",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors",
+     "response_ms": 1331
+    },
+    {
+     "label": "جهات الدعم العاجل",
+     "result": "NAVIGATE",
+     "to": "/ar/mental-health/crisis-contacts",
+     "response_ms": 597
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 4
+   }
+  },
+  {
+   "route": "/[locale]/mental-health/therapist-match",
+   "url": "/ar/mental-health/therapist-match",
+   "landed": "/ar/mental-health/therapist-match",
+   "time_to_ready_ms": 954,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الصحة النفسية",
+     "result": "NAVIGATE",
+     "to": "/ar/mental-health",
+     "response_ms": 573
+    },
+    {
+     "label": "تصفح الأطباء النفسيين",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors",
+     "response_ms": 1472
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2
+   }
+  },
+  {
+   "route": "/[locale]/mental-health/meditation",
+   "url": "/ar/mental-health/meditation",
+   "landed": "/ar/mental-health/meditation",
+   "time_to_ready_ms": 909,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى الصحة النفسية",
+     "result": "NAVIGATE",
+     "to": "/ar/mental-health",
+     "response_ms": 580
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/mental-health/crisis-contacts",
+   "url": "/ar/mental-health/crisis-contacts",
+   "landed": "/ar/mental-health/crisis-contacts",
+   "time_to_ready_ms": 891,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العودة إلى الصحة النفسية",
+     "result": "NAVIGATE",
+     "to": "/ar/mental-health",
+     "response_ms": 580
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/doctor",
+   "url": "/ar/doctor",
+   "landed": "/ar/consultations/doctors",
+   "time_to_ready_ms": 871,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "بحث",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors?q=WB741D01",
+     "response_ms": 1629
+    },
+    {
+     "label": "الأعلى تقييمًا",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors?sort=rating",
+     "response_ms": 784
+    },
+    {
+     "label": "الأقل سعرًا",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors?sort=price",
+     "response_ms": 1037
+    },
+    {
+     "label": "الأقل انتظارًا",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors?sort=wait",
+     "response_ms": 846
+    },
+    {
+     "label": "مسؤول doctor",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors/edfe236d-4e17-40ec-9905-f0caa0c8ba86",
+     "response_ms": 664
+    },
+    {
+     "label": "VCD75701",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors/5872b442-374a-4bb9-8a7d-3ecf11824978",
+     "response_ms": 758
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 6
+   }
+  },
+  {
+   "route": "/[locale]/reminders",
+   "url": "/ar/reminders",
+   "landed": "/ar/reminders",
+   "time_to_ready_ms": 906,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "✓",
+     "result": "WRITE",
+     "status": 200,
+     "method": "POST",
+     "url": "/api/health/reminders/aa3324d7-f7dc-4ffa-8c14-738de745a050/log",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 932
+    },
+    {
+     "label": "✎",
+     "result": "NAVIGATE",
+     "to": "/ar/reminders/add?edit=3bfd481e-4b21-4513-9379-03667487e523",
+     "response_ms": 600
+    },
+    {
+     "label": "×",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3601
+    },
+    {
+     "label": "تذكير جديد",
+     "result": "NAVIGATE",
+     "to": "/ar/reminders/add",
+     "response_ms": 601
+    }
+   ],
+   "summary": {
+    "WRITE": 1,
+    "NAVIGATE": 2,
+    "NO_EFFECT": 1
+   }
+  },
+  {
+   "route": "/[locale]/reminders/add",
+   "url": "/ar/reminders/add",
+   "landed": "/ar/reminders/add",
+   "time_to_ready_ms": 946,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 3,
+   "elements": [
+    {
+     "label": "التذكيرات",
+     "result": "NAVIGATE",
+     "to": "/ar/reminders",
+     "response_ms": 558
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3643
+    },
+    {
+     "label": "حفظ التذكير",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/api/health/reminders",
+     "tokens_sent": 3,
+     "tokens_stored": 0,
+     "response_ms": 1296
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 1,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "/[locale]/forgot-password",
+   "url": "/ar/forgot-password",
+   "landed": "/ar/forgot-password",
+   "time_to_ready_ms": 971,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "العودة إلى الدخول",
+     "result": "NAVIGATE",
+     "to": "/ar/login",
+     "response_ms": 684
+    },
+    {
+     "label": "إرسال التعليمات",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/api/auth/password/forgot",
+     "tokens_sent": 1,
+     "tokens_stored": 0,
+     "response_ms": 824
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "/[locale]/prescriptions",
+   "url": "/ar/prescriptions",
+   "landed": "/ar/prescriptions",
+   "time_to_ready_ms": 578,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [],
+   "summary": {}
+  },
+  {
+   "route": "/[locale]/maternity",
+   "url": "/ar/maternity",
+   "landed": "/ar/maternity",
+   "time_to_ready_ms": 891,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "لوحة التحكم",
+     "result": "NAVIGATE",
+     "to": "/ar/dashboard",
+     "response_ms": 1350
+    },
+    {
+     "label": "عرض الأحداث",
+     "result": "NAVIGATE",
+     "to": "/ar/maternity/tracker",
+     "response_ms": 542
+    },
+    {
+     "label": "سجل متابعة الأعراض والحركة",
+     "result": "NAVIGATE",
+     "to": "/ar/maternity/tracker",
+     "response_ms": 575
+    },
+    {
+     "label": "حجز استشارة نساء وتوليد",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors",
+     "response_ms": 1388
+    },
+    {
+     "label": "فحص السونار والأشعة",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology",
+     "response_ms": 1411
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 5
+   }
+  },
+  {
+   "route": "/[locale]/maternity/ovulation",
+   "url": "/ar/maternity/ovulation",
+   "landed": "/ar/maternity/ovulation",
+   "time_to_ready_ms": 893,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الأمومة",
+     "result": "NAVIGATE",
+     "to": "/ar/maternity",
+     "response_ms": 552
+    },
+    {
+     "label": "فتح المتتبع الكامل",
+     "result": "NAVIGATE",
+     "to": "/ar/maternity/tracker",
+     "response_ms": 913
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2
+   }
+  },
+  {
+   "route": "/[locale]/maternity/tracker",
+   "url": "/ar/maternity/tracker",
+   "landed": "/ar/maternity/tracker",
+   "time_to_ready_ms": 1485,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "NAVIGATE",
+     "to": "/ar/maternity",
+     "response_ms": 791
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "/[locale]/maternity/baby-development",
+   "url": "/ar/maternity/baby-development",
+   "landed": "/ar/maternity",
+   "time_to_ready_ms": 15441,
+   "ready": false,
+   "not_ready_reason": "1 in flight, 0 loading, stable=24",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "لوحة التحكم",
+     "result": "NAVIGATE",
+     "to": "/ar/dashboard",
+     "response_ms": 8677,
+     "slow": "1 in flight, 0 loading, stable=14"
+    },
+    {
+     "label": "عرض الأحداث",
+     "result": "NAVIGATE",
+     "to": "/ar/maternity/tracker",
+     "response_ms": 8662,
+     "slow": "4 in flight, 0 loading, stable=16"
+    },
+    {
+     "label": "سجل متابعة الأعراض والحركة",
+     "result": "NAVIGATE",
+     "to": "/ar/maternity/tracker",
+     "response_ms": 8682,
+     "slow": "4 in flight, 0 loading, stable=16"
+    },
+    {
+     "label": "حجز استشارة نساء وتوليد",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors",
+     "response_ms": 8078,
+     "slow": "6 in flight, 0 loading, stable=13"
+    },
+    {
+     "label": "فحص السونار والأشعة",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology",
+     "response_ms": 8139,
+     "slow": "9 in flight, 0 loading, stable=13"
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 5
+   }
+  },
+  {
+   "route": "/[locale]/maternity/maternity-setup",
+   "url": "/ar/maternity/maternity-setup",
+   "landed": "/ar/maternity/maternity-setup",
+   "time_to_ready_ms": 15486,
+   "ready": false,
+   "not_ready_reason": "9 in flight, 0 loading, stable=27",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "الأمومة",
+     "result": "NAVIGATE",
+     "to": "/ar/maternity",
+     "response_ms": 8749,
+     "slow": "9 in flight, 0 loading, stable=16"
+    },
+    {
+     "label": "تتبع الدورة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 11731,
+     "slow": "9 in flight, 0 loading, stable=16"
+    },
+    {
+     "label": "متابعة الحمل",
+     "result": "UI_CHANGE",
+     "response_ms": 8601,
+     "slow": "9 in flight, 0 loading, stable=16"
+    },
+    {
+     "label": "منتظمة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 11750,
+     "slow": "9 in flight, 0 loading, stable=16"
+    },
+    {
+     "label": "غير منتظمة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 11687,
+     "slow": "9 in flight, 0 loading, stable=16"
+    },
+    {
+     "label": "حفظ الملف",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/api/patient/maternity/profile",
+     "tokens_sent": 1,
+     "tokens_stored": 0,
+     "response_ms": 8685,
+     "slow": "9 in flight, 0 loading, stable=16"
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 3,
+    "UI_CHANGE": 1,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "/[locale]/maternity/baby-growth",
+   "url": "/ar/maternity/baby-growth",
+   "landed": "/ar/maternity/baby-growth",
+   "time_to_ready_ms": 15438,
+   "ready": false,
+   "not_ready_reason": "9 in flight, 0 loading, stable=27",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "الأمومة",
+     "result": "NAVIGATE",
+     "to": "/ar/maternity",
+     "response_ms": 9043,
+     "slow": "9 in flight, 0 loading, stable=16"
+    },
+    {
+     "label": "فتح المتتبع الكامل",
+     "result": "NAVIGATE",
+     "to": "/ar/maternity/tracker",
+     "response_ms": 8930,
+     "slow": "9 in flight, 0 loading, stable=16"
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2
+   }
+  },
+  {
+   "route": "/[locale]/radiology",
+   "url": "/ar/radiology",
+   "landed": "/ar/diagnostics/radiology",
+   "time_to_ready_ms": 15348,
+   "ready": false,
+   "not_ready_reason": "9 in flight, 0 loading, stable=26",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 11709,
+     "slow": "9 in flight, 0 loading, stable=16"
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 11736,
+     "slow": "9 in flight, 0 loading, stable=16"
+    },
+    {
+     "label": "(icon #2)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 11723,
+     "slow": "9 in flight, 0 loading, stable=16"
+    },
+    {
+     "label": "تطبيق الفلاتر",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology?search=WB741D01&modality=&body_part=WB741D02&home_visi",
+     "response_ms": 8127,
+     "slow": "9 in flight, 0 loading, stable=14"
+    },
+    {
+     "label": "أشعة سينية - صدر",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec503f8f8d68cde114d00",
+     "response_ms": 8725,
+     "slow": "9 in flight, 0 loading, stable=16"
+    },
+    {
+     "label": "سونار بطن وحوض",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec503f8f8d68cde114d0c",
+     "response_ms": 8743,
+     "slow": "9 in flight, 0 loading, stable=16"
+    },
+    {
+     "label": "سونار حمل",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec503f8f8d68cde114d15",
+     "response_ms": 8688,
+     "slow": "9 in flight, 0 loading, stable=16"
+    },
+    {
+     "label": "موجات صوتية - حمل",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec502f8f8d68cde114aa4",
+     "response_ms": 8723,
+     "slow": "9 in flight, 0 loading, stable=16"
+    },
+    {
+     "label": "موجات صوتية - بطن",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec502f8f8d68cde114a93",
+     "response_ms": 8742,
+     "slow": "9 in flight, 0 loading, stable=16"
+    },
+    {
+     "label": "أشعة سينية - عمود فقري",
+     "result": "NAVIGATE",
+     "to": "/ar/diagnostics/radiology/6abec504f8f8d68cde114d1b",
+     "response_ms": 9032,
+     "slow": "9 in flight, 0 loading, stable=16"
+    },
+    {
+     "label": "(time budget reached)",
+     "result": "NOT_TESTED"
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 3,
+    "NAVIGATE": 7,
+    "NOT_TESTED": 1
+   }
+  },
+  {
+   "route": "/[locale]/doctors",
+   "url": "/ar/doctors",
+   "landed": "/ar/consultations/doctors",
+   "time_to_ready_ms": 15426,
+   "ready": false,
+   "not_ready_reason": "9 in flight, 0 loading, stable=26",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "بحث",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors?q=WB741D01",
+     "response_ms": 8734,
+     "slow": "9 in flight, 0 loading, stable=8"
+    },
+    {
+     "label": "الأعلى تقييمًا",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors?sort=rating",
+     "response_ms": 8997,
+     "slow": "9 in flight, 0 loading, stable=16"
+    },
+    {
+     "label": "الأقل سعرًا",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors?sort=price",
+     "response_ms": 8925,
+     "slow": "9 in flight, 0 loading, stable=16"
+    },
+    {
+     "label": "الأقل انتظارًا",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors?sort=wait",
+     "response_ms": 8972,
+     "slow": "9 in flight, 0 loading, stable=16"
+    },
+    {
+     "label": "مسؤول doctor",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors/edfe236d-4e17-40ec-9905-f0caa0c8ba86",
+     "response_ms": 8740,
+     "slow": "9 in flight, 0 loading, stable=16"
+    },
+    {
+     "label": "VCD75701",
+     "result": "NAVIGATE",
+     "to": "/ar/consultations/doctors/5872b442-374a-4bb9-8a7d-3ecf11824978",
+     "response_ms": 8725,
+     "slow": "9 in flight, 0 loading, stable=16"
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 6
+   }
+  }
+ ]
+}

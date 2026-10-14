@@ -16,7 +16,8 @@
 import * as React from "react";
 import "./nabd-mark.css";
 
-export type NabdMarkVariant = "brand" | "onBrand" | "ink";
+/** `text`: the bowl in the page text colour and the coral dot — the boards' auth and header mark. */
+export type NabdMarkVariant = "brand" | "onBrand" | "ink" | "text";
 
 export interface NabdMarkProps {
   /** Pixel size of the square box. The mark keeps its proportions inside it. */
@@ -31,15 +32,17 @@ export interface NabdMarkProps {
 }
 
 const STROKE: Record<NabdMarkVariant, string> = {
-  brand: "var(--nabd-color-brand-coral, #FF4B55)",
-  onBrand: "var(--nabd-color-text-onBrand, #FFFFFF)",
-  ink: "var(--nabd-color-text-onInverse, #F5F5F7)",
+  brand: "var(--nabd-color-brand-coral)",
+  onBrand: "var(--nabd-color-text-onBrand)",
+  ink: "var(--nabd-color-text-onInverse)",
+  text: "var(--nabd-color-text-primary)",
 };
 
 const DOT: Record<NabdMarkVariant, string> = {
-  brand: "var(--nabd-color-brand-coral, #FF4B55)",
-  onBrand: "var(--nabd-color-text-onBrand, #FFFFFF)",
-  ink: "var(--nabd-color-brand-coral, #FF6B73)",
+  brand: "var(--nabd-color-brand-coral)",
+  onBrand: "var(--nabd-color-text-onBrand)",
+  ink: "var(--nabd-color-brand-coral)",
+  text: "var(--nabd-color-brand-coral)",
 };
 
 export function NabdMark({
