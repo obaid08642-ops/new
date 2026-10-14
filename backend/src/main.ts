@@ -159,7 +159,12 @@ async function bootstrap() {
   }));
   app.use(compression());
   app.use(cookieParser());
-  app.useWebSocketAdapter(new ConfiguredIoAdapter(app, allowedOrigins));
+  // P14.13: Socket.IO across processes and nodes through Redis (skipped in unit/boot tests, which run without one).
+  const ioAdapter = new ConfiguredIoAdapter(app, allowedOrigins);
+  if (process.env.NODE_ENV !== 'test' || process.env.SOCKET_REDIS_ADAPTER === 'on') {
+    await ioAdapter.connectToRedis(process.env.REDIS_URL || (process.env.REDIS_HOST ? `redis://${process.env.REDIS_PASSWORD ? `:${encodeURIComponent(process.env.REDIS_PASSWORD)}@` : ''}${process.env.REDIS_HOST}:${process.env.REDIS_PORT || 6379}` : undefined));
+  }
+  app.useWebSocketAdapter(ioAdapter);
   app.useGlobalFilters(new SentryExceptionFilter(app.getHttpAdapter()));
 
   app.use(require('express').json({
