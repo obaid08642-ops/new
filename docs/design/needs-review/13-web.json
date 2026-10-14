@@ -7,7 +7,8 @@
     "file": "patient-web/app/[locale]/labs/[testSlug]/[citySlug]/page.tsx",
     "line": 26,
     "found": "[backend] Lists every facility of the city (explore has no facility-type or test filter), so a lab page can show a clinic and the test in the URL is not used; same for /pharmacies/[citySlug]. (backend: backend/src/modules/entity-graph/entity-graph.service.ts:265)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #786 (issue #785)"
   },
   {
     "batch": 13,
@@ -17,7 +18,8 @@
     "file": "patient-web/app/[locale]/pharmacies/[citySlug]/page.tsx",
     "line": 28,
     "found": "[backend] Explore returns every facility type of the city, so non-pharmacies can be listed as pharmacies. (backend: backend/src/modules/entity-graph/entity-graph.service.ts:265)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1298 (issue #786)"
   },
   {
     "batch": 13,
@@ -27,7 +29,8 @@
     "file": "patient-web/app/[locale]/radiology/[serviceSlug]/[citySlug]/page.tsx",
     "line": 28,
     "found": "[backend] The radiology catalogue has no city or centre, so the page lists services matching the search text and the city is only in the URL and the title.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1331 #1337 (issue #787)"
   },
   {
     "batch": 13,
@@ -37,7 +40,8 @@
     "file": "patient-web/app/[locale]/home-nursing/[citySlug]/page.tsx",
     "line": 40,
     "found": "[client] When no service looks like nursing, the first five services of the city are shown as home nursing.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1219 (issue #788)"
   },
   {
     "batch": 13,
@@ -47,7 +51,8 @@
     "file": "patient-web/app/[locale]/doctors/[specialty]/[city]/page.tsx",
     "line": 110,
     "found": "[backend] Explore sends a rating but no review count, and the design-system card draws a rating only with a count; add reviews_count to the explore doctors to show it. (backend: backend/src/modules/entity-graph/entity-graph.service.ts:292)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1298 (issue #789)"
   },
   {
     "batch": 13,
@@ -57,7 +62,8 @@
     "file": "patient-web/app/[locale]/doctors/[specialty]/[city]/[neighborhood]/page.tsx",
     "line": 39,
     "found": "[client] The page filters the facilities by district or address, and shows the whole city when none match while the page says they are near the neighbourhood; the explore call ignores the district. (backend: backend/src/modules/entity-graph/entity-graph.controller.ts:19)",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1247 #1254 (issue #790)"
   },
   {
     "batch": 13,
@@ -67,7 +73,8 @@
     "file": "patient-web/app/[locale]/services/[serviceSlug]/[citySlug]/page.tsx",
     "line": 131,
     "found": "[client] Goes to /services, which redirects to the home page; there is no services list page to open.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "open (issue #791)"
   },
   {
     "batch": 13,
@@ -77,7 +84,8 @@
     "file": "patient-web/app/[locale]/labs/[testSlug]/[citySlug]/page.tsx",
     "line": 125,
     "found": "[client] Goes to /consultations/doctors (the doctors list), not to /provider-info; kept as it was.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "open (issue #792)"
   },
   {
     "batch": 13,
@@ -87,7 +95,8 @@
     "file": "patient-web/app/[locale]/facility/[slug]/page.tsx",
     "line": 75,
     "found": "[client] The structured data lists /consultations/clinics, a route that has no list page (404); left as published (SEO scope).",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1219 (issue #793)"
   },
   {
     "batch": 13,
@@ -97,7 +106,8 @@
     "file": "patient-web/app/[locale]/pharmacies/[citySlug]/page.tsx",
     "line": 94,
     "found": "[owner] 'Verified pharmacies', 'licensed 24/7' nursing and 'accredited' texts stay in titles, meta and JSON-LD (SEO scope, same text in Arabic and English) though no field verifies them; owner to confirm or reword.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "fixed #1285 (issue #794)"
   },
   {
     "batch": 13,
@@ -107,7 +117,8 @@
     "file": "patient-web/app/[locale]/home-nursing/[citySlug]/page.tsx",
     "line": 119,
     "found": "[owner] The structured-data descriptions are English text written in code (kept exactly, marked i18n-ok); moving them into the message files would change the published SEO text.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "fixed #1285 (issue #795)"
   },
   {
     "batch": 13,
@@ -117,7 +128,8 @@
     "file": "patient-web/lib/api/legal-policy.ts",
     "line": 13,
     "found": "[backend] The legal service has Arabic and English only; the Urdu, Hindi, Bengali and Filipino pages show the English policy (marked lang=en, ltr).",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1320 #1322 (issue #796)"
   },
   {
     "batch": 13,
@@ -127,7 +139,8 @@
     "file": "patient-web/app/[locale]/medicine-catalog/page.tsx",
     "line": 11,
     "found": "[owner] Resolved by issue 797: the page is now a permanentRedirect to /c (q and page kept), so the old intro and the dynamic query read are gone; the canonical /c page keeps its own text.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md)"
   },
   {
     "batch": 13,
@@ -137,6 +150,7 @@
     "file": "patient-web/lib/legal/embedded.ts",
     "line": 15,
     "found": "[owner] The embedded copy (issue 755/783) is built from docs/legal, which are drafts with [placeholders] until a Saudi lawyer approves them, so it stays off today. After approval: update docs/legal, run node patient-web/scripts/embed-legal-policies.mjs, commit the generated file. Only Arabic exists; every other language would show the Arabic text.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "owner-decision"
   }
 ]

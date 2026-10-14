@@ -1,6 +1,6 @@
 # Cloudflare state — nabd.plus
 
-Last updated: 2026-10-03. Zone plan: Free. Registrar: Spaceship. Nameservers: pedro/walk.ns.cloudflare.com.
+Last updated: 2026-10-14 (read-only check, build session). Zone plan: Free. Registrar: Spaceship. Nameservers: pedro/walk.ns.cloudflare.com.
 Context: REVIEW_P7R_TO_P12.md (X0), docs/audit/02_AGENT_EXECUTION_PLAN.md (16.13, 7C-C10, 14.9).
 No secrets, tokens or personal emails belong in this file (public repo).
 
@@ -63,7 +63,9 @@ Bot Fight Mode: off. JS detections: off. Security level: medium (skipped for the
 `/healthz` on `app`/`mcp` stays public (returns `{"status":"ok"}` only).
 
 ### F. Managed rules
-Cloudflare Managed Free Ruleset deployed (phase `http_request_firewall_managed`).
+Free zones run the **Cloudflare Free Managed Ruleset** by default. The zone has **no** entrypoint ruleset in the
+`http_request_firewall_managed` phase (the API answers "could not find entrypoint ruleset", 2026-10-14): that only
+means the managed rules were never customised (no overrides, no OWASP set, which needs Pro). Nothing to apply.
 
 ### G. Rate limiting — phase `http_ratelimit` (Free: 1 rule, 10 s window, path-only)
 | Name | Expression | Limit | Action |
@@ -83,6 +85,18 @@ Login method: Cloudflare one-time PIN. Session 24 h.
 
 ### I. DNSSEC
 Active; DS record present at the registrar (DoH `AD=true`). No action needed.
+
+## API access (2026-10-14)
+The `server-ops` workflow reads the zone with the secrets `CLOUDFLARE_API_TOKEN` (now a **Global API Key**) and
+`CLOUDFLARE_EMAIL`; `tools/ops/cf/_auth.sh` sends `X-Auth-Email` + `X-Auth-Key` when the e-mail is set, otherwise
+`Authorization: Bearer`. `cf:10-inspect` (run 38624849484) answered `success: true`, zone `active`, plan Free;
+DNS, settings, WAF custom rules, the rate-limit rule and the cache rules match sections A–G above.
+
+**Next change, after the deploy of main (reviewer decision 2026-10-14):** replace the blanket "Bypass: API +
+_next/data" cache rule with "respect origin Cache-Control on `api.nabd.plus`", keeping the bypass for any request with
+`Authorization` or the session cookies. Only after production is verified to send `private, no-store` on private
+answers (including `/api/v1/radiology/reports/mine`) and the `@PublicCache` header on public catalogs; then verify
+MISS → HIT on a public catalog and never HIT on an authenticated request.
 
 ## Pending (not doable from Cloudflare API with the current token)
 

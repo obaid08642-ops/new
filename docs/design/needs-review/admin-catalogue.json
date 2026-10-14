@@ -7,7 +7,8 @@
     "file": "admin/src/pages/admin/catalog-governance.tsx",
     "line": 79,
     "found": "Removed 2026-10-10 (owner decision): [backend] 3 call(s): Page requires \"catalog.read\" but PATCH /medicines/admin/catalog/:param requires catalog.update + catalog.price.write; an admin role with the page permission onl (backend: backend/src/modules/medicines/medicines.controller.ts:235)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
   },
   {
     "batch": "admin",
@@ -17,7 +18,8 @@
     "file": "admin/src/pages/admin/catalog-manager.tsx",
     "line": 271,
     "found": "[client] Sensitive action (POST \u0001crudBase\u0001/bulk-approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1216 (issue #888)"
   },
   {
     "batch": "admin",
@@ -27,7 +29,8 @@
     "file": "admin/src/pages/admin/catalog-manager.tsx",
     "line": 272,
     "found": "[client] Sensitive action (POST \u0001crudBase\u0001/bulk-approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1216 (issue #889)"
   },
   {
     "batch": "admin",
@@ -37,7 +40,8 @@
     "file": "admin/src/pages/admin/catalog-manager.tsx",
     "line": 289,
     "found": "[client] Sensitive action (POST \u0001crudBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1216 (issue #892)"
   },
   {
     "batch": "admin",
@@ -47,7 +51,8 @@
     "file": "admin/src/pages/admin/catalog-manager.tsx",
     "line": 290,
     "found": "[client] Sensitive action (POST \u0001crudBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1216 (issue #891)"
   },
   {
     "batch": "admin",
@@ -57,7 +62,8 @@
     "file": "admin/src/pages/admin/catalog-manager.tsx",
     "line": 482,
     "found": "Removed 2026-10-10 (owner decision): [client] Sensitive action (POST \u0001crudBase\u0001/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1216 (issue #890)"
   },
   {
     "batch": "admin",
@@ -67,7 +73,8 @@
     "file": "admin/src/pages/admin/catalog-manager.tsx",
     "line": 483,
     "found": "Removed 2026-10-10 (owner decision): [client] Sensitive action (POST /medicines/admin/catalog/:param/delete) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1216 (issue #893)"
   },
   {
     "batch": "admin",
@@ -77,7 +84,8 @@
     "file": "admin/src/pages/admin/catalog-manager.tsx",
     "line": 609,
     "found": "Removed 2026-10-10 (owner decision): [client] Sensitive action (POST /medicines/admin/catalog/:param/delete) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1216 (issue #894)"
   },
   {
     "batch": "admin",
@@ -87,7 +95,8 @@
     "file": "admin/src/pages/admin/catalog-manager.tsx",
     "line": 87,
     "found": "[backend] 3 call(s) hit backend routes with no role/permission guard (GET /insurance/companies; POST /storage/upload; GET /storage/:param/signed-url): any signed-in user passes JwtAuthGuard. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:695)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "not-a-problem: Not a hole: GET /insurance/companies is the public insurer list, and the storage calls are owner-scoped inside the storage module (admin and, after #1206, super (issue #906)"
   },
   {
     "batch": "admin",
@@ -97,7 +106,8 @@
     "file": "admin/src/pages/admin/catalog-manager.tsx",
     "line": 153,
     "found": "[backend] 6 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /labs/admin/catalog/:param/approve; POST /radiology/admin/catalog/:param/approve; POST /nursing/admin/catalog/:param/approve; …): every admin role, including a custom restricted one, can run them. (backend: backend/src/modules/labs/labs.controller.ts:198)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1215 (issue #908)"
   },
   {
     "batch": "admin",
@@ -107,7 +117,8 @@
     "file": "admin/src/pages/admin/catalog-manager.tsx",
     "line": 405,
     "found": "[backend] 4 call(s): Page requires \"catalog.read\" but PATCH /medicines/admin/catalog/:param requires catalog.update + catalog.price.write; an admin role with the page permission onl (backend: backend/src/modules/medicines/medicines.controller.ts:235)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "not-a-problem: Checked: by design, not a problem. (issue #887)"
   },
   {
     "batch": "admin",
@@ -117,7 +128,8 @@
     "file": "admin/src/components/ProviderFullDetail.tsx",
     "line": 19,
     "found": "[backend] 3 call(s) hit backend routes with no role/permission guard (GET /api/admin/storage/:param/signed-url; GET /api/admin/storage/:param; GET /api/admin/provider-onboarding/admin/contracts/:param): any signed-in user passes JwtAuthGuard. (backend: backend/src/modules/storage/storage.module.ts:386)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1215 (issue #909)"
   },
   {
     "batch": "admin",
@@ -127,7 +139,8 @@
     "file": "admin/src/pages/admin/image-suggestions.tsx",
     "line": 1,
     "found": "[client] Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1216 (issue #910)"
   },
   {
     "batch": "admin",
@@ -137,7 +150,8 @@
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
     "line": 442,
     "found": "[client] Sensitive action (POST /medicines/admin/catalog/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1229 (issue #911)"
   },
   {
     "batch": "admin",
@@ -147,7 +161,8 @@
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
     "line": 444,
     "found": "[client] Sensitive action (POST /medicines/admin/catalog/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1229 (issue #912)"
   },
   {
     "batch": "admin",
@@ -157,7 +172,8 @@
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
     "line": 143,
     "found": "[backend] POST /medicines/lookup-barcode is @Public (no auth at all) but the admin page uses it for a write. (backend: backend/src/modules/medicines/medicines.controller.ts:56)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
   },
   {
     "batch": "admin",
@@ -167,7 +183,8 @@
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
     "line": 50,
     "found": "[backend] 2 call(s) hit backend routes with no role/permission guard (POST /storage/upload; GET /storage/:param/signed-url): any signed-in user passes JwtAuthGuard. (backend: backend/src/modules/storage/storage.module.ts:362)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "not-a-problem: Not a hole: /storage/upload and /storage/:id/signed-url check ownership inside the storage module (a user only reads their own files; (issue #913)"
   },
   {
     "batch": "admin",
@@ -177,7 +194,8 @@
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
     "line": 192,
     "found": "[backend] 5 call(s): Page requires \"catalog.read\" but POST /medicines/admin/catalog requires catalog.create; an admin role with the page permission only gets a 403 on this call. | P (backend: backend/src/modules/medicines/medicines.controller.ts:261)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "not-a-problem: Checked: by design, not a problem. (issue #914)"
   },
   {
     "batch": "admin",
@@ -187,7 +205,8 @@
     "file": "admin/src/components/MedicineQuickEdit.tsx",
     "line": 135,
     "found": "[backend] Owner decision 10 needs `controlled` editable by admin, but it is not in MedicinesService.EDITABLE_FIELDS nor in AdminUpdateCatalogDto, so a PATCH would drop it. The control is not drawn in the quick edit or the full form; add it to the whitelist and the DTO, then show it behind the same confirmation as price and prescription. (backend: backend/src/modules/medicines/medicines.service.ts:1439)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
   },
   {
     "batch": "admin",
@@ -197,7 +216,8 @@
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
     "line": 318,
     "found": "[backend] Decision 12 queue (pharmacy lines with no catalogue match, price not verified) does not exist: no sfda_price fields, GET /medicines/admin/pending-review answers 410 Gone, and there is no create-from-line action. Not built; the existing queues (change requests, shortage reports, image suggestions, medical review) are in the approvals list. (backend: backend/src/modules/medicines/medicines.controller.ts:413)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
   },
   {
     "batch": "admin",
@@ -207,7 +227,8 @@
     "file": "admin/src/components/MedicineQuickEdit.tsx",
     "line": 145,
     "found": "[backend] Only price changes write a history row (medicine price history, shown in the quick edit); a prescription-flag or availability change goes to the generic audit log with no reason, so 'who made this Rx' has no per-item view. An edit of a published item also resets it to pending medical review (the confirm dialog says so). (backend: backend/src/modules/medicines/medicines.service.ts:1761)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
   },
   {
     "batch": "admin",
@@ -217,7 +238,8 @@
     "file": "admin/src/pages/admin/shortage-reports.tsx",
     "line": 42,
     "found": "[backend] 2 call(s): Page requires \"catalog.read\" but POST /medicines/admin/shortage-reports/:param/:param requires catalog.shortage.decide; an admin role with the page permission o (backend: backend/src/modules/medicines/medicines.controller.ts:139)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "not-a-problem: Checked: by design, not a problem. (issue #915)"
   },
   {
     "batch": "admin",
@@ -227,6 +249,7 @@
     "file": "admin/src/pages/admin/shortage-reports.tsx",
     "line": 1,
     "found": "[client] Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1229 (issue #916)"
   }
 ]

@@ -7,7 +7,8 @@
     "file": "patient-web/components-next/insurance/insurance-request-view.tsx",
     "line": 118,
     "found": "[owner] the old page offered cash (with a made-up payments/processing ref) after a decline; owner decision 25 forbids cash for online consultations, so the merged page has only accept self-pay and the secure options. Confirm.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #833)"
   },
   {
     "batch": 7,
@@ -17,7 +18,8 @@
     "file": "patient-web/components-next/insurance/insurance-request-view.tsx",
     "line": 87,
     "found": "[client] the old approval wait computed the insurer share and co-pay from a ?amount= URL param and copay_percent; not rebuilt: the page shows only the server's price/copay_amount/self_pay_amount. If /insurance/requests/:id does not return price, the total row is simply absent.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "not-a-problem: Not a problem: the page shows only the server's price/co-pay/self-pay; (issue #834)"
   },
   {
     "batch": 7,
@@ -27,7 +29,8 @@
     "file": "patient-web/app/[locale]/insurance/requests/[requestId]/page.tsx",
     "line": 39,
     "found": "[backend] parseInsuranceRequest accepts only 8 states; the old approval wait also read PENDING/APPROVED/CONFIRMED/DECLINED. A request in any other state shows 'Unable to load insurance'. Confirm the backend states.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1353 (issue #835)"
   },
   {
     "batch": 7,
@@ -37,7 +40,8 @@
     "file": "patient-web/app/[locale]/insurance/page.tsx",
     "line": 92,
     "found": "[backend] GET /insurance/benefits-summary returns a single manual_review row with note_ar (Arabic text), shown as the server wrote it in every language; no amounts, limits or usage exist to show. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:711)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1387 (issue #836)"
   },
   {
     "batch": 7,
@@ -47,7 +51,8 @@
     "file": "patient-web/app/[locale]/insurance/coverage-check/page.tsx",
     "line": 64,
     "found": "[backend] GET /insurance/coverage-check returns note_ar (Arabic text) and no coverage percentage or amount; shown as the server wrote it. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:699)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1387 (issue #837)"
   },
   {
     "batch": 7,
@@ -57,7 +62,8 @@
     "file": "patient-web/components-next/insurance/insurance-kit.tsx",
     "line": 24,
     "found": "[backend] the board's card shows them; the policy summary the web parses has only company_name and plan_class, so they are not drawn (never invented).",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1353 (issue #838)"
   },
   {
     "batch": 7,
@@ -67,7 +73,8 @@
     "file": "patient-web/app/[locale]/insurance/claims/page.tsx",
     "line": 7,
     "found": "[client] Removed 2026-10-10 (decision 35): the Claims tab and parseClaims are gone; the route redirects to the hub.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
   },
   {
     "batch": 7,
@@ -77,7 +84,8 @@
     "file": "patient-web/app/[locale]/insurance/refunds/page.tsx",
     "line": 7,
     "found": "[backend] Removed 2026-10-10 (decision 35): the Refunds tab is gone; the route redirects to the hub. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:867)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
   },
   {
     "batch": 7,
@@ -87,7 +95,8 @@
     "file": "patient-web/app/[locale]/insurance/page.tsx",
     "line": 132,
     "found": "[backend] GET /providers type is shown as the server sent it (not translated).",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1387 (issue #841)"
   },
   {
     "batch": 7,
@@ -97,7 +106,8 @@
     "file": "patient-web/app/[locale]/insurance/submit-claim/page.tsx",
     "line": 7,
     "found": "[client] Removed 2026-10-10 (decision 35): the claim form is gone; the route redirects to the hub.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
   },
   {
     "batch": 7,
@@ -107,7 +117,8 @@
     "file": "patient-web/components-next/insurance/add-policy-form.tsx",
     "line": 45,
     "found": "[owner] the brief says the OCR extract stays; the web form never had one (typed fields only). Decide whether web needs it.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #843)"
   },
   {
     "batch": 7,
@@ -117,7 +128,8 @@
     "file": "patient-web/components-next/booking-flow.tsx",
     "line": 147,
     "found": "[client] the redirects of approval-pending/copay/payment-split drop ?amount= and ?approvalCode= on purpose (amounts come from the server); the booking flow now links to the request page directly.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "not-a-problem: Not a problem: the note records that the redirects drop client amounts on purpose (amounts come from the server) and the booking flow links to the request page; (issue #844)"
   },
   {
     "batch": 7,
@@ -127,7 +139,8 @@
     "file": "patient-web/app/[locale]/insurance/coverage-check/page.tsx",
     "line": 34,
     "found": "[backend] Decision 35 item 6 / queue D-37: GET /insurance/coverage-check reads the saved policy only (eligible comes back as a flag); page text now says so; rename the endpoint and field. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:699)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1353 (issue #845)"
   },
   {
     "batch": 7,
@@ -137,7 +150,8 @@
     "file": "patient-web/lib/api/insurance-request.ts",
     "line": 7,
     "found": "[backend] Insurance engine writes insurer_approval_code, the provider-app controller writes approval_code; the page reads both. The strict state enum also lacks APPROVED_PARTIAL, EXPIRED and APPEAL_PENDING of the schema. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:40)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #830 (issue #846)"
   },
   {
     "batch": 7,
@@ -147,7 +161,8 @@
     "file": "patient-web/app/[locale]/insurance/submit-claim/page.tsx",
     "line": 7,
     "found": "[owner] Removed 2026-10-10 (decision 35): the claim form and the Claims tab are removed (owner decision 35).",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md)"
   },
   {
     "batch": 7,
@@ -157,6 +172,7 @@
     "file": "patient-web/messages/en.json",
     "line": 407,
     "found": "[client] Batch 14 text, not changed here: NursingWeb.insuranceTitle, DiagWeb.insuranceSub, DiagWeb.insuranceHintLink, Diagnostics.insuranceNoticeSub, PharmacyCheckout.insuranceBody, PharmacyOffers.insurancePending, Doctors.payInsuranceNote.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "open (issue #848)"
   }
 ]

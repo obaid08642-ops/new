@@ -7,7 +7,8 @@
     "file": "patient-app/src/components/account/AboutView.tsx",
     "line": 52,
     "found": "[backend] The published documents have Arabic and English text only (title_ar/title_en, content_ar/content_en); the other four languages read the English one.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1320 #1322 #1397 (issue #753)"
   },
   {
     "batch": 12,
@@ -17,7 +18,8 @@
     "file": "patient-app/src/components/account/PolicyText.tsx",
     "line": 28,
     "found": "[backend] Decision 26: /system-config/public sends numbers only; the sentences are templates in the locale files filled with those numbers, not server text.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "closed-unverified (issue #754: closed with no linked PR)"
   },
   {
     "batch": 12,
@@ -27,7 +29,8 @@
     "file": "patient-app/app/(auth)/terms.tsx",
     "line": 1,
     "found": "[owner] They are (auth) screens of Batch 13 and the register screen links to them before sign-in; left untouched. Redirect to /settings/about?tab=legal once the owner confirms the pre-sign-in case.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #755)"
   },
   {
     "batch": 12,
@@ -37,7 +40,8 @@
     "file": "patient-app/src/components/account/PrivacyView.tsx",
     "line": 71,
     "found": "[owner] The old 'copy in 24 hours' and 'transfer to another platform (FHIR)' actions had no handler and no endpoint; hidden. Decide if they are wanted.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #756)"
   },
   {
     "batch": 12,
@@ -47,7 +51,8 @@
     "file": "patient-app/src/components/account/PrivacyView.tsx",
     "line": 149,
     "found": "[backend] The app signs out with POST /auth/logout after DELETE /users/me, only to drop tokens; the reviewer should confirm the server revokes sessions itself. (backend: backend/src/modules/users/users.controller.ts)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1227 (issue #757)"
   },
   {
     "batch": 12,
@@ -57,7 +62,8 @@
     "file": "patient-app/src/components/account/HelpView.tsx",
     "line": 113,
     "found": "[client] The old form sent a 1-5 number and an Arabic type; the DTO takes rating positive|neutral|negative and a category. The stars are mapped (4-5 positive, 3 neutral, 1-2 negative); the reviewer should confirm that mapping. (backend: backend/src/modules/support/support.dto.ts:67)",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "not-a-problem: Not a problem: the 5-star to positive/neutral/negative mapping (4-5 / 3 / 1-2) matches the DTO enum; (issue #758)"
   },
   {
     "batch": 12,
@@ -67,7 +73,8 @@
     "file": "patient-app/src/components/account/SupportViews.tsx",
     "line": 136,
     "found": "[backend] The status text and its colour came from the server in one language; the app shows the text and ignores the colour. A status code would let the app translate it.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1322 (issue #759)"
   },
   {
     "batch": 12,
@@ -77,7 +84,8 @@
     "file": "patient-app/src/components/account/SupportViews.tsx",
     "line": 50,
     "found": "[backend] POST /support/chat answers { reply } at once (a bot-like reply); there is no agent thread or read state to draw.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1307 (issue #760)"
   },
   {
     "batch": 12,
@@ -87,7 +95,8 @@
     "file": "patient-app/src/components/account/ReturnsViews.tsx",
     "line": 259,
     "found": "[backend] The reason is the sentence in the patient's language, stored as sent; a code list would let the hub translate it.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1320 #1322 (issue #761)"
   },
   {
     "batch": 12,
@@ -97,7 +106,8 @@
     "file": "patient-app/src/components/account/ReturnsViews.tsx",
     "line": 110,
     "found": "[backend] The old '24-48 hours' line is hidden: the returns answer has no expected-time field.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1320 #1322 (issue #762)"
   },
   {
     "batch": 12,
@@ -107,7 +117,8 @@
     "file": "patient-app/src/components/account/AccountView.tsx",
     "line": 113,
     "found": "[owner] The Account board has the row but no screen or endpoint exists; not drawn.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #763)"
   },
   {
     "batch": 12,
@@ -117,7 +128,8 @@
     "file": "patient-app/src/hooks/useGuestGuard.tsx",
     "line": 50,
     "found": "[client] useGuestGuard.requireAuth shows an alert with Arabic text written in the hook (outside this batch's screens).",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1220 (issue #764)"
   },
   {
     "batch": 12,
@@ -127,7 +139,8 @@
     "file": "patient-app/src/components/account/ReviewView.tsx",
     "line": 51,
     "found": "[backend] aspects is free-form; old reviews hold Arabic sentences as keys, new ones hold codes.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1337 (issue #765)"
   },
   {
     "batch": 12,
@@ -137,7 +150,8 @@
     "file": "patient-app/src/components/account/ProvidersMapView.tsx",
     "line": 108,
     "found": "[backend] Fields are read under several names (lat/latitude/location.lat, name_ar/name, ...) and the type filter is local; the answer should have one shape.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1393 (issue #766)"
   },
   {
     "batch": 12,
@@ -147,7 +161,8 @@
     "file": "patient-app/src/components/account/ProvidersMapView.tsx",
     "line": 205,
     "found": "[owner] Owner approved on 2026-10-10 (item 767): a hospital now opens its facility page (/consultations/clinic/[id]). A nurse kind still opens the nursing tab.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "fixed #1284 #1285 (issue #767)"
   },
   {
     "batch": 12,
@@ -157,7 +172,8 @@
     "file": "patient-app/src/components/account/LocationPickerView.tsx",
     "line": 81,
     "found": "[client] The old screen shadowed the import with its own state setter, so a saved or confirmed address was never kept; fixed here by using the util.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "not-a-problem: Not a problem: the note records the fix made in that batch (the address setter shadowing); (issue #768)"
   },
   {
     "batch": 12,
@@ -167,6 +183,7 @@
     "file": "patient-app/src/components/account/AddressBookView.tsx",
     "line": 105,
     "found": "[owner] Owner approved on 2026-10-10 (item 769): edit and delete are added (PATCH and DELETE /users/me/addresses/:id). Old note: the book could add (map) and set the default only; there was no edit or delete in the old screen or the board.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "fixed #1284 #1285 (issue #769)"
   }
 ]

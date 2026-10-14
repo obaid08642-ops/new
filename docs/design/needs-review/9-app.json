@@ -7,7 +7,8 @@
     "file": "patient-app/src/components/ai/AssistantView.tsx",
     "line": 131,
     "found": "[backend] POST /ai/triage answers care_level only (no specialty), so the button opens the consultations tab unfiltered; decision 7 asks for the list filtered by specialty.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1389 (issue #871)"
   },
   {
     "batch": 9,
@@ -17,7 +18,8 @@
     "file": "patient-app/src/components/ai/AssistantView.tsx",
     "line": 124,
     "found": "[backend] The public admin config has no urgent-help number field, so the button is hidden for care_level emergency (the old hard-coded tel:911 was removed); same item as Batch 8.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1389 (issue #872)"
   },
   {
     "batch": 9,
@@ -27,7 +29,8 @@
     "file": "patient-app/src/components/ai/AssistantView.tsx",
     "line": 64,
     "found": "[backend] No endpoint returns past triage answers; the symptom timeline old screen read none, so the conversation is the answers of this visit only.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1389 (issue #873)"
   },
   {
     "batch": 9,
@@ -37,7 +40,8 @@
     "file": "patient-app/src/components/ai/AssistantView.tsx",
     "line": 240,
     "found": "[backend] POST /ai/analyze-report always answers report_ai_analysis_unavailable, so the report mode sends nothing and points to the reports and a consultation. (backend: backend/src/modules/ai/ai.service.ts:357)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1402 (issue #874)"
   },
   {
     "batch": 9,
@@ -47,7 +51,8 @@
     "file": "patient-app/app/voice/index.tsx",
     "line": 8,
     "found": "[owner] The old voice screen had no speech capture (shortcut list only), so the assistant has no mic; speech input needs an owner decision and a module.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #875)"
   },
   {
     "batch": 9,
@@ -57,7 +62,8 @@
     "file": "patient-app/src/components/ai/AssistantView.tsx",
     "line": 218,
     "found": "[owner] The pharmacist chat is bound to an order; opened from the assistant it shows its no-order state. Needs a decision on where this button should lead.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "fixed #1307 (issue #876)"
   },
   {
     "batch": 9,
@@ -67,7 +73,8 @@
     "file": "patient-app/src/components/ai/AssistantView.tsx",
     "line": 148,
     "found": "[client] target_lang is always 'ar' (as the old screen), whatever the app language; the answer fields are the server's.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1310 (issue #877)"
   },
   {
     "batch": 9,
@@ -77,6 +84,7 @@
     "file": "patient-app/src/features/home/homeItems.ts",
     "line": 18,
     "found": "[owner] The Home AI tools row lost the skin analysis and virtual doctor entries (decisions 4 and 24); confirm the row of three is what the board should show.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #878)"
   }
 ]

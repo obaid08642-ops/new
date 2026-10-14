@@ -7,7 +7,8 @@
     "file": "backend/src/modules/pharmacy/pharmacy.controllers.ts",
     "line": 272,
     "found": "In PharmacyChatController the four POST routes (threads/:id/messages, accept-substitute/:msgId, reject, remove-item) carry @Roles(UserRole.PHARMACY, UserRole.ADMIN). A signed-in patient gets 403 \"Insufficient role\" on every one of them (checked against the local backend with the seeded patient token). The service methods acceptSubstitute and rejectOrRemove are written for the patient (t.patient_account_id === user.id).",
-    "suspect": "The role guard on those four routes should allow PATIENT (postMessage serves both sides, accept/reject/remove are patient-only). The web screen keeps its buttons and shows the server's answer (\"Your account cannot take this action here. Nothing was changed.\"); nothing is faked. Needs the backend decision before the negotiation flow can work end to end."
+    "suspect": "The role guard on those four routes should allow PATIENT (postMessage serves both sides, accept/reject/remove are patient-only). The web screen keeps its buttons and shows the server's answer (\"Your account cannot take this action here. Nothing was changed.\"); nothing is faked. Needs the backend decision before the negotiation flow can work end to end.",
+    "review_status": "fixed #1222 (issue #517)"
   },
   {
     "batch": 1,
@@ -17,7 +18,8 @@
     "file": "backend/src/modules/pharmacy/services/pharmacy-order.service.ts",
     "line": 116,
     "found": "governedView() sets governed_state only after an offer is selected (OFFER_SELECTED, FINAL_QUOTE_READY, FINAL_QUOTE_ACCEPTED, COD_REGISTERED, INSURANCE_*, CONFIRMED) or once fulfilment starts. Before a selection it is null. The clients branch on OFFERS_READY / ORDER_BROADCASTING / NEGOTIATION_REQUIRED / CO_PAY_PENDING, which nothing in backend/ produces (grep), so those branches never ran.",
-    "suspect": "Either the backend should send a governed state for the broadcast and negotiation phases or the clients should read order.status (broadcasting, awaiting_full_acceptance, negotiating_substitutes, offer_selection_pending, waiting_copay). This slice reads order.status and the offers list for those phases and keeps the governed state for the post-selection steps. patient-web/app/[locale]/pharmacy/order-confirm/page.tsx (slice 1d) still maps the dead states."
+    "suspect": "Either the backend should send a governed state for the broadcast and negotiation phases or the clients should read order.status (broadcasting, awaiting_full_acceptance, negotiating_substitutes, offer_selection_pending, waiting_copay). This slice reads order.status and the offers list for those phases and keeps the governed state for the post-selection steps. patient-web/app/[locale]/pharmacy/order-confirm/page.tsx (slice 1d) still maps the dead states.",
+    "review_status": "fixed #1255 (issue #518)"
   },
   {
     "batch": 1,
@@ -27,7 +29,8 @@
     "file": "backend/src/modules/pharmacy/services/pharmacy-offer.service.ts",
     "line": 298,
     "found": "patientDtoAsync sends constants for every offer: insurance_ready: true, cod_allowed: true and approx_delivery { eta_minutes: 60, label: \"Approximately within 1 hour\" }. None of them comes from the pharmacy or the order.",
-    "suspect": "Fixed on design/backend-fields: the offer flags come from the profile (insurance_ready true only when known; cod_allowed false; no arrival estimate: pharmacy-offer.service.ts:330-352). The app no longer treats an unknown insurance_ready as ready; the web offer card names the pharmacy from pharmacy_name_ar / pharmacy_name_en. (was: The arrival estimate is a made-up number and is NOT drawn on the web (the board's \"arrives within [time]\" is left out). The two flags are drawn as sent (they decide whether the insurance choice is offered; selection with insurance is still validated by the backend, e.g. prescription_required_for_insurance_orders), but they say nothing about the pharmacy. They should come from the pharmacy's profile or be removed.)"
+    "suspect": "Fixed on design/backend-fields: the offer flags come from the profile (insurance_ready true only when known; cod_allowed false; no arrival estimate: pharmacy-offer.service.ts:330-352). The app no longer treats an unknown insurance_ready as ready; the web offer card names the pharmacy from pharmacy_name_ar / pharmacy_name_en. (was: The arrival estimate is a made-up number and is NOT drawn on the web (the board's \"arrives within [time]\" is left out). The two flags are drawn as sent (they decide whether the insurance choice is offered; selection with insurance is still validated by the backend, e.g. prescription_required_for_insurance_orders), but they say nothing about the pharmacy. They should come from the pharmacy's profile or be removed.)",
+    "review_status": "fixed #1255 #1262 (issue #519)"
   },
   {
     "batch": 1,
@@ -37,7 +40,8 @@
     "file": "backend/src/modules/pharmacy/services/pharmacy-offer.service.ts",
     "line": 258,
     "found": "listForPatient returns only offers with status submitted and quote_expires_at in the future. A selected, expired or withdrawn offer is not listed at all, so the patient API cannot say \"this offer expired\" or \"this one was declined\": the offer simply disappears, and after a selection the list is empty.",
-    "suspect": "The web draws the selected quote from the order's own snapshot (selected_offer_snapshot) and shows an \"expired\" state only from the server's expires_at against the viewer's clock (it disables the button, the server still decides). A real declined / expired state needs the API to list those offers with their status."
+    "suspect": "The web draws the selected quote from the order's own snapshot (selected_offer_snapshot) and shows an \"expired\" state only from the server's expires_at against the viewer's clock (it disables the button, the server still decides). A real declined / expired state needs the API to list those offers with their status.",
+    "review_status": "fixed #1317 (issue #520)"
   },
   {
     "batch": 1,
@@ -47,7 +51,8 @@
     "file": "backend/src/modules/pharmacy/services/pharmacy-order.service.ts",
     "line": 146,
     "found": "governedView() reads order.pending_final_quote_snapshot but nothing in backend/ ever writes it, so FINAL_QUOTE_READY cannot happen and the \"pharmacy sends a revised final price\" step promised by the negotiation screens has no backend. acceptFinalQuote also validates against pricing_snapshot.hash, not the pending one.",
-    "suspect": "Accepting a substitute or removing an item records a decision but the price never changes. The web screens say exactly that (\"the pharmacy will send a revised final price\") and draw whatever the server snapshot holds. The revision flow needs the backend."
+    "suspect": "Accepting a substitute or removing an item records a decision but the price never changes. The web screens say exactly that (\"the pharmacy will send a revised final price\") and draw whatever the server snapshot holds. The revision flow needs the backend.",
+    "review_status": "fixed #1318 #513 (issue #521)"
   },
   {
     "batch": 1,
@@ -57,7 +62,8 @@
     "file": "backend/src/modules/pharmacy/services/pharmacy-chat.service.ts",
     "line": 130,
     "found": "The service stores the system messages as Arabic text (البديل مقبول من المريض. / المريض رفض البديل. / تم حذف الصنف من الطلب.). Every other language shows them in Arabic. The web draws message text as sent.",
-    "suspect": "System messages should carry a code (accepted / rejected / removed) that the clients translate, like thread.resolution which the web already translates."
+    "suspect": "System messages should carry a code (accepted / rejected / removed) that the clients translate, like thread.resolution which the web already translates.",
+    "review_status": "fixed #1387 (issue #522)"
   },
   {
     "batch": 1,
@@ -67,7 +73,8 @@
     "file": "backend/src/modules/pharmacy/services/pharmacy-order.service.ts",
     "line": 156,
     "found": "insurance_decision_summary has decision, co_pay_amount, insurer_share and currency but not insurance_decision.patient_acceptance. After the patient accepts a co-pay the order stays INSURANCE_DECISION_READY with the same buttons, and a second press is refused with insurance_acceptance_already_recorded. The governed state also never becomes CO_PAY_PENDING / WAITING_COPAY for the client (order.status does).",
-    "suspect": "Expose the acceptance (kind, payment_method, accepted_at) in the summary so the screen can say \"accepted\" after a reload. The web shows \"Your decision was already recorded\" for the refusal and, in the same session, \"Your share is accepted\"; it cannot show it after a reload."
+    "suspect": "Expose the acceptance (kind, payment_method, accepted_at) in the summary so the screen can say \"accepted\" after a reload. The web shows \"Your decision was already recorded\" for the refusal and, in the same session, \"Your share is accepted\"; it cannot show it after a reload.",
+    "review_status": "fixed #1403 (issue #523)"
   },
   {
     "batch": 1,
@@ -77,7 +84,8 @@
     "file": "backend/src/modules/pharmacy/services/pharmacy-broadcast.service.ts",
     "line": 86,
     "found": "The broadcast round and radius (current_round, current_radius_km) are in the provider's broadcast DTO only; the patient's order detail and offers read carry no radius, round or number of pharmacies asked.",
-    "suspect": "The web draws the offers count (from the offers list) but not the radius or the bar. Expose current_round / current_radius_km in the patient order detail to draw them."
+    "suspect": "The web draws the offers count (from the offers list) but not the radius or the bar. Expose current_round / current_radius_km in the patient order detail to draw them.",
+    "review_status": "fixed #1317 #510 (issue #524)"
   },
   {
     "batch": 1,
@@ -87,7 +95,8 @@
     "file": "backend/src/modules/pharmacy/services/pharmacy-chat.service.ts",
     "line": 53,
     "found": "listThreads returns the raw thread rows (id, order_id, order_item_id, pharmacy_account_id, status, resolution, last_message_at): no pharmacy name and no last message. The web names the conversation by the order item (looked up in the order's items).",
-    "suspect": "A pharmacy name and a last-message preview would let the list say who wrote."
+    "suspect": "A pharmacy name and a last-message preview would let the list say who wrote.",
+    "review_status": "fixed #1404 (issue #525)"
   },
   {
     "batch": 1,
@@ -97,7 +106,8 @@
     "file": "backend/src/modules/pharmacy/services/pharmacy-offer.service.ts",
     "line": 335,
     "found": "selectByPatient and acceptByPatient use mongoose session.withTransaction. The local test backend runs on a standalone mongod, so POST /patient/pharmacy/orders/:id/submit (broadcast start) already answers 500 \"Transaction numbers are only allowed on a replica set member or mongos\", and the provider test accounts created by POST /admin/pharmacy/seed cannot sign in (\"provider_account_unlinked ... run 2026-09-unify-provider-passwords\"). So no real offer can be produced on this database, and the real select / accept calls could not be exercised.",
-    "suspect": "Test infrastructure: run the test backend on a single-node replica set and run the provider-password migration to see real offers. This slice was checked with a TEST stand-in kept outside the repo (shapes copied field for field from the services); every screenshot of it is labelled test data. Real selection, acceptance, COD and payment results were NOT verified against the real backend."
+    "suspect": "Test infrastructure: run the test backend on a single-node replica set and run the provider-password migration to see real offers. This slice was checked with a TEST stand-in kept outside the repo (shapes copied field for field from the services); every screenshot of it is labelled test data. Real selection, acceptance, COD and payment results were NOT verified against the real backend.",
+    "review_status": "not-a-problem: Not a code defect: transactions need a replica set, which production uses; (issue #526)"
   },
   {
     "batch": 1,
@@ -107,7 +117,8 @@
     "file": "patient-web/components-next/pharmacy-offers/offer-list.tsx",
     "line": 49,
     "found": "Two things are derived in the browser from server values: the chip marks the lowest totals.total among offers that fill every line (only with 2 or more offers), and the countdown / expired state compares expires_at with the viewer's clock.",
-    "suspect": "A skewed device clock can show an offer as expired early or late (the button is only disabled, the server still decides). The chip is a comparison of server numbers, not a saving; the owner may prefer to drop it or to have the server say which offer is the lowest."
+    "suspect": "A skewed device clock can show an offer as expired early or late (the button is only disabled, the server still decides). The chip is a comparison of server numbers, not a saving; the owner may prefer to drop it or to have the server say which offer is the lowest.",
+    "review_status": "not-a-problem: Not a problem: both derived values (cheapest-complete chip, countdown against expires_at) are display-only and the server re-checks on select/accept; (issue #527)"
   },
   {
     "batch": 1,
@@ -117,7 +128,8 @@
     "file": "patient-web/components-next/pharmacy-offers/quote-section.tsx",
     "line": 88,
     "found": "The old link went to /orders/:id/tracking?pay=1; nothing reads pay=1 (grep). The payment route is /pharmacy/payment?orderId= (slice 1d). Nothing else in the web links to /pharmacy/payment, and order-confirm (1d) routes FINAL_QUOTE_ACCEPTED back to final-quote.",
-    "suspect": "The link now goes to /pharmacy/payment?orderId=. Slice 1d owns that page; check the hand-off (final-quote -> payment -> payments/result) when the slices are merged."
+    "suspect": "The link now goes to /pharmacy/payment?orderId=. Slice 1d owns that page; check the hand-off (final-quote -> payment -> payments/result) when the slices are merged.",
+    "review_status": "not-a-problem: Not a problem: the note records that the dead ?pay=1 link was replaced by /pharmacy/payment?orderId= and that final-quote routes to it; (issue #528)"
   },
   {
     "batch": 1,
@@ -127,6 +139,7 @@
     "file": "patient-web/components-next/ui-generated/icons/fill.ts",
     "line": 1,
     "found": "The glyph is on the board (FIcon.dc.html, used by PharmacyOffers) and in packages/ui/icons/fill.ts, but the web mirror carries only the glyphs the web names. Using it made tools/design/sync-ui-components.mjs add it to the generated mirror (about 0.4 KB).",
-    "suspect": "Generated file: regenerate with sync-ui-components.mjs when merging with other slices that also add glyphs."
+    "suspect": "Generated file: regenerate with sync-ui-components.mjs when merging with other slices that also add glyphs.",
+    "review_status": "open (issue #529)"
   }
 ]

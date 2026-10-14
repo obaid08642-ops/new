@@ -7,7 +7,8 @@
     "file": "patient-app/app/pharmacy/product-detail.tsx",
     "line": 414,
     "found": "[backend] The alternatives rows of /medicines/:id/details are projected without online_exclusive, so an alternative never shows the online-only note. (backend: backend/src/modules/medicines/medicines.service.ts:930)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
   },
   {
     "batch": 14,
@@ -17,7 +18,8 @@
     "file": "patient-app/app/pharmacy/wishlist.tsx",
     "line": 40,
     "found": "[backend] GET /users/me/wishlist sends requires_prescription but not online_exclusive. (backend: backend/src/modules/users/users.service.ts:50)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
   },
   {
     "batch": 14,
@@ -27,7 +29,8 @@
     "file": "patient-app/src/utils/searchResults.ts",
     "line": 10,
     "found": "[backend] GET /home/search medicine rows carry id, names, price only: no requires_prescription or online_exclusive, so the result row cannot show either badge. (backend: backend/src/modules/home/home.service.ts:203)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
   },
   {
     "batch": 14,
@@ -37,7 +40,8 @@
     "file": "patient-app/app/pharmacy/cart.tsx",
     "line": 41,
     "found": "[owner] Fixed on design/rx-rules: stored on the line when added. The wishlist, the home search rows and the alternatives rows do not send online_exclusive (backend lines above), so lines added from them carry no flag.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "open"
   },
   {
     "batch": 14,
@@ -47,7 +51,8 @@
     "file": "patient-app/app/pharmacy/cart.tsx",
     "line": 80,
     "found": "[owner] Consult a doctor opens the mapped specialty only when the admin has filled system_configs rx_consult_specialties (category to specialty); until then the answer is null and the full specialty list opens. (backend: backend/src/modules/medicines/rx-consult.controller.ts:44)",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md)"
   },
   {
     "batch": 14,
@@ -57,6 +62,7 @@
     "file": "patient-app/src/components/ui.tsx",
     "line": 223,
     "found": "[client] src/components/ui.tsx ProductCard is imported nowhere (the hub uses the ui-native card) and holds \"يتطلب وصفة\" and raw colours: delete it.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
   }
 ]

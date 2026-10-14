@@ -7,7 +7,8 @@
     "file": "patient-web/app/[locale]/health/sleep/page.tsx",
     "line": 60,
     "found": "[client] Fixed on design/oc-patient-other-1: the sleep page has the form (hours, score) that posts to /api/patient/health/sleep (allowlisted) like the app.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
   },
   {
     "batch": 5,
@@ -17,7 +18,8 @@
     "file": "patient-web/app/[locale]/health/profile/page.tsx",
     "line": 136,
     "found": "[client] Fixed on design/oc-patient-other-1: my contacts can be added (POST) and removed (DELETE) on the web through the /api/patient proxy (allowlisted), the same calls as the app.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
   },
   {
     "batch": 5,
@@ -27,7 +29,8 @@
     "file": "patient-web/app/[locale]/health/records/page.tsx",
     "line": 61,
     "found": "[backend] GET /health/reports and GET /medical-reports/mine both list the patient's reports with different fields; only the second (it has a detail page) is drawn. Confirm they are the same records.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #662 (issue #675)"
   },
   {
     "batch": 5,
@@ -37,7 +40,8 @@
     "file": "patient-web/app/[locale]/health/medications/page.tsx",
     "line": 66,
     "found": "[backend] The reminder list has no `chronic` flag, so editing sends chronic=false (as the old form did). The list should return it.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1393 (issue #676)"
   },
   {
     "batch": 5,
@@ -47,7 +51,8 @@
     "file": "patient-web/app/[locale]/health/page.tsx",
     "line": 88,
     "found": "[backend] GET /health/score returns a raw English status and component keys (sleep, activity); drawn as sent, no translation key exists.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1290 (issue #677)"
   },
   {
     "batch": 5,
@@ -57,7 +62,8 @@
     "file": "patient-web/app/[locale]/health/page.tsx",
     "line": 123,
     "found": "[owner] The map says the hub keeps the next appointment, but the web hub never read one; not added (new call).",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "fixed #1285 (issue #678)"
   },
   {
     "batch": 5,
@@ -67,7 +73,8 @@
     "file": "patient-web/app/[locale]/health/vitals/page.tsx",
     "line": 72,
     "found": "[owner] Today shows the latest reading of each vital (summary endpoint), not only readings taken today. Confirm that is what Today means.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #679)"
   },
   {
     "batch": 5,
@@ -77,7 +84,8 @@
     "file": "patient-web/app/[locale]/prescriptions/[prescriptionId]/page.tsx",
     "line": 97,
     "found": "[backend] Prescription items have no catalogue product id, so the local cart cannot be filled; the button opens the existing Rx order flow (/pharmacy/rx-order) and is relabelled. The Rx-to-cart link needs a medicine id on the items.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1290 (issue #680)"
   },
   {
     "batch": 5,
@@ -87,7 +95,8 @@
     "file": "patient-web/app/[locale]/ai/monthly-report/page.tsx",
     "line": 98,
     "found": "[client] Links to /health/vitals/log and /health/trends still work through the redirects; not edited here because the file is Batch 9 and carries old literal strings (the touched-file rule would force its rebuild).",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1224 (issue #681)"
   },
   {
     "batch": 5,
@@ -97,7 +106,8 @@
     "file": "patient-web/lib/api/vitals-server.ts",
     "line": 16,
     "found": "[client] getPatientReports and parseReports (lib/api/reports*.ts, vitals-server.ts) have no screen left; kept with their tests for the reviewer to delete.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "open (issue #682)"
   },
   {
     "batch": 5,
@@ -107,6 +117,7 @@
     "file": "patient-web/components-next/prescription-client.tsx",
     "line": 107,
     "found": "[backend] The active prescription carries medicines only, so there is nothing to book into diagnostics; no action drawn.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1313 #1314 (issue #683)"
   }
 ]
