@@ -7,7 +7,8 @@
     "file": "",
     "line": 0,
     "found": "[backend] Fixed on design/backend-fields: GET /patient/pharmacy/orders/:id now carries pharmacy_name_ar / pharmacy_name_en (pharmacy-order.service.ts:147-150); the tracking card names the pharmacy by language and hides the line when absent.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
   },
   {
     "batch": 1,
@@ -17,7 +18,8 @@
     "file": "",
     "line": 0,
     "found": "[backend] No courier position, vehicle or photo in the order; delivery has courier_name, courier_phone, courier_eta, dispatched_at only. The board's map and vehicle line are not drawn.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "not-a-problem: Decision (reviewer, as delegated by the owner on 2026-10-14): no live courier map. (issue #367)"
   },
   {
     "batch": 1,
@@ -27,7 +29,8 @@
     "file": "",
     "line": 0,
     "found": "[backend] Fixed on design/backend-fields: legacy rows open the tracking screen, which falls back to GET /orders/:id/tracking (orders.service.ts getTracking) for an id the governed endpoint does not know.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
   },
   {
     "batch": 1,
@@ -37,7 +40,8 @@
     "file": "",
     "line": 0,
     "found": "[backend] total_price / price (appointments), total (labs, radiology), total_price (nursing) are used when positive; no currency field is sent, so SAR is assumed as in the rest of the app.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "not-a-problem: Not a problem: the note records that SAR is assumed because no currency field is sent, consistent with the rest of the app (all prices are SAR). (issue #369)"
   },
   {
     "batch": 1,
@@ -47,7 +51,8 @@
     "file": "",
     "line": 0,
     "found": "[owner] Owner approved the service filter on 2026-10-10 (item 371): chips per kind, All by default, client-side. The board shows no chips; add them to the board.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "owner-decision"
   },
   {
     "batch": 1,
@@ -57,6 +62,7 @@
     "file": "",
     "line": 0,
     "found": "[owner] Owner approved on 2026-10-10 (item 372): the earlier prescription_id and delivery or pickup now carry over. The prescription record has no validity field (backend/src/schemas/prescription.schema.ts:41), so it is carried whenever the order had one and the server only checks ownership; a validity field is needed for the \"still valid\" rule (waits for OC).",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "owner-decision"
   }
 ]

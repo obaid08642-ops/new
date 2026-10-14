@@ -7,7 +7,8 @@
     "file": "admin/src/pages/admin/insurance-queue.tsx",
     "line": 166,
     "found": "Removed 2026-10-10 (owner decision): [client] Sensitive action (POST /api/admin/admin/finance/refunds/:param/decide) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
   },
   {
     "batch": "admin",
@@ -17,7 +18,8 @@
     "file": "admin/src/pages/admin/insurance-queue.tsx",
     "line": 167,
     "found": "Removed 2026-10-10 (owner decision): [client] Sensitive action (POST /api/admin/admin/finance/refunds/:param/decide) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
   },
   {
     "batch": "admin",
@@ -27,7 +29,8 @@
     "file": "admin/src/pages/admin/insurance-queue.tsx",
     "line": 56,
     "found": "Removed 2026-10-10 (owner decision): [backend] 1 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/finance/refunds/:param/decide): every admin role, including a custom restricted one, can run them. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:887)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
   },
   {
     "batch": "admin",
@@ -37,7 +40,8 @@
     "file": "admin/src/pages/admin/provider-audits.tsx",
     "line": 115,
     "found": "[client] Sensitive action (POST /api/admin/admin/providers/provider-deltas/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1216 (issue #975)"
   },
   {
     "batch": "admin",
@@ -47,7 +51,8 @@
     "file": "admin/src/pages/admin/provider-audits.tsx",
     "line": 30,
     "found": "[backend] 2 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/providers/provider-deltas/:param/approve; POST /api/admin/admin/providers/provider-deltas/:param/reject): every admin role, including a custom restricted one, can run them. (backend: backend/src/modules/provider/provider.controllers.ts:154)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1215 (issue #976)"
   },
   {
     "batch": "admin",
@@ -57,7 +62,8 @@
     "file": "admin/src/pages/admin/provider-moderation.tsx",
     "line": 392,
     "found": "[client] Sensitive action (POST /api/admin/admin/providers/:param/suspend) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "not-a-problem: Checked: not a problem. (issue #977)"
   },
   {
     "batch": "admin",
@@ -67,7 +73,8 @@
     "file": "admin/src/pages/admin/provider-moderation.tsx",
     "line": 117,
     "found": "[backend] 5 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/providers/:param/approve; POST /api/admin/admin/providers/:param/reactivate; POST /api/admin/admin/providers/:param/suspend; …): every admin role, including a custom restricted one, can run them. (backend: backend/src/modules/provider/provider.controllers.ts:157)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1215 (issue #978)"
   },
   {
     "batch": "admin",
@@ -77,6 +84,7 @@
     "file": "admin/src/components/ProviderFullDetail.tsx",
     "line": 19,
     "found": "[backend] 3 call(s) hit backend routes with no role/permission guard (GET /api/admin/storage/:param/signed-url; GET /api/admin/storage/:param; GET /api/admin/provider-onboarding/admin/contracts/:param): any signed-in user passes JwtAuthGuard. (backend: backend/src/modules/storage/storage.module.ts:386)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1215 (issue #979)"
   }
 ]

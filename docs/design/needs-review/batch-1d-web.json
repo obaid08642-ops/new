@@ -7,7 +7,8 @@
     "file": "backend/src/modules/payments/payments.module.ts",
     "line": 95,
     "found": "PaymentsController has no read of a payment status (the web BFF app/api/payments/status/[ref] proxies a 404); callback_url is PAYMENT_RESULT_URL with nothing added, so the return has only the provider's id. Web asks the order (payment_status) and POST /payments/verify/:txn, and finds the payment through a sessionStorage pointer left when the patient was handed to the provider.",
-    "suspect": "Add a read-only owner-checked GET /payments/status/:ref and put the transaction id in callback_url (?ref=). verify re-emits payment.completed on every paid call, so polling it is not free; GET /moyasar/payments/sync/:id checks no owner (moyasar.module.ts:443) and returns null for PaymentsService intents."
+    "suspect": "Add a read-only owner-checked GET /payments/status/:ref and put the transaction id in callback_url (?ref=). verify re-emits payment.completed on every paid call, so polling it is not free; GET /moyasar/payments/sync/:id checks no owner (moyasar.module.ts:443) and returns null for PaymentsService intents.",
+    "review_status": "fixed #1401 (issue #550)"
   },
   {
     "batch": 1,
@@ -17,7 +18,8 @@
     "file": "backend/src/modules/payments/payments.module.ts",
     "line": 154,
     "found": "No gateway key on the local backend (intent answers 503) and no Mongo replica set (selection / insurance acceptance fail). Hosted checkout, return and webhook were checked only against a TEST stand-in outside the repo (payloads copied from the services).",
-    "suspect": "Run once against the provider sandbox and a replica-set mongod."
+    "suspect": "Run once against the provider sandbox and a replica-set mongod.",
+    "review_status": "open (issue #551)"
   },
   {
     "batch": 1,
@@ -27,7 +29,8 @@
     "file": "backend/src/modules/payments/payments.module.ts",
     "line": 201,
     "found": "pharmacyDueAmount throws copay_acceptance_required / insurance_rejected_acceptance_required before acceptance; patient-app insurance-decision.tsx line 16 waits for capabilities, so it cannot accept. The backend reads only the acceptance kind.",
-    "suspect": "App slice: draw the buttons from the decision and pick the method on the payment step, as web now does."
+    "suspect": "App slice: draw the buttons from the decision and pick the method on the payment step, as web now does.",
+    "review_status": "fixed #1403 (issue #552)"
   },
   {
     "batch": 1,
@@ -37,7 +40,8 @@
     "file": "backend/src/modules/payments/payments.module.ts",
     "line": 390,
     "found": "intent returns client_secret, gateway_intent_id, patient_id; verify returns webhook_payload (raw provider answer). Web strips them in bounded BFF routes; the app receives all of it. getPharmacyCapabilities (line 580) still answers amount and methods for a paid order.",
-    "suspect": "A patient DTO for the transaction; booking_already_paid from capabilities."
+    "suspect": "A patient DTO for the transaction; booking_already_paid from capabilities.",
+    "review_status": "fixed #1401 (issue #553)"
   },
   {
     "batch": 1,
@@ -47,7 +51,8 @@
     "file": "backend/src/modules/cart/cart.module.ts",
     "line": 176,
     "found": "No web or app screen writes the server cart; POST /cart/checkout makes a legacy cash order. Checkout sends the browser cart only; /cart lists the server lines apart. GET/POST /cart/checkout and app/api/cart/checkout are dead weight.",
-    "suspect": "Retire the server cart for pharmacy or write product adds to it."
+    "suspect": "Retire the server cart for pharmacy or write product adds to it.",
+    "review_status": "fixed #1404 (issue #554)"
   },
   {
     "batch": 1,
@@ -57,7 +62,8 @@
     "file": "backend/src/modules/pharmacy/services/pharmacy-order.service.ts",
     "line": 72,
     "found": "Selection reads coverage_mode from the select call; offers carry insurance_ready true for all. The checkout choice is a hint and says so; no policy number or identity is sent.",
-    "suspect": "Use payment_mode at selection or drop it."
+    "suspect": "Use payment_mode at selection or drop it.",
+    "review_status": "not-a-problem: Not a problem: the note says the checkout coverage choice is a hint and the screen says so; (issue #555)"
   },
   {
     "batch": 1,
@@ -67,7 +73,8 @@
     "file": "patient-web/lib/auth/session.ts",
     "line": 5,
     "found": "requirePatientAccess redirects to /login with no 'continue to'; after sign-in the patient lands on the default page (the cart is kept).",
-    "suspect": "Validated same-origin return path in the shared sign-in (Batch 0)."
+    "suspect": "Validated same-origin return path in the shared sign-in (Batch 0).",
+    "review_status": "fixed #1221 (issue #556)"
   },
   {
     "batch": 1,
@@ -77,7 +84,8 @@
     "file": "backend/src/modules/pharmacy/services/pharmacy-order.service.ts",
     "line": 126,
     "found": "The order carries no pharmacy name before fulfilment, no tax breakdown, no points redemption; the arrival estimate is a constant (1c).",
-    "suspect": "Backend/owner."
+    "suspect": "Backend/owner.",
+    "review_status": "not-a-problem: Decision (reviewer, as delegated by the owner on 2026-10-14) on the board rows that have no data: - **Points discount:** not offered on pharmacy broadcast order (issue #557)"
   },
   {
     "batch": 1,
@@ -87,7 +95,8 @@
     "file": "patient-web/app/[locale]/pharmacy/order-confirm/page.tsx",
     "line": 1,
     "found": "No pharmacy equivalent; the route stays a router. The Success board (lime on ink, promises minutes and points) is not used.",
-    "suspect": "Owner: confirm no pharmacy confirmation page, or provide a board."
+    "suspect": "Owner: confirm no pharmacy confirmation page, or provide a board.",
+    "review_status": "not-a-problem: Not a problem: the route stays a router; (issue #558)"
   },
   {
     "batch": 1,
@@ -97,6 +106,7 @@
     "file": "patient-web/app/api/payments/status/[ref]/route.ts",
     "line": 1,
     "found": "Both have no caller (pharmacy-draft.ts only its own test, not deleted: not this slice's test). The result screen verifies any transaction by id but 'Track / Try again' lead to pharmacy routes; other payments (other batches) leave no pointer.",
-    "suspect": "Delete pharmacy-draft.ts with its test; route by verify's bookingKind once the callback carries the transaction id."
+    "suspect": "Delete pharmacy-draft.ts with its test; route by verify's bookingKind once the callback carries the transaction id.",
+    "review_status": "open (issue #559)"
   }
 ]

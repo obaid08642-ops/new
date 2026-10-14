@@ -7,7 +7,8 @@
     "file": "",
     "line": 0,
     "found": "[client] GET /api/auth/session does not refresh an expired access token, so it can say 'anonymous' for a patient whose refresh token still works; the cart treats anonymous as 'change nothing' and only a sign-out clears it.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1245 #1254 (issue #362)"
   },
   {
     "batch": 1,
@@ -17,7 +18,8 @@
     "file": "",
     "line": 0,
     "found": "[owner] The CartProvider is in the locale layout and asks GET /api/auth/session once per page load for every visitor; the F82 static/ISR work Resolved by issue 363: the answer now comes from the readable nabd_session_hint cookie (patient id and guest flag, no token) set next to the session cookies, so a signed-in or already-asked visitor makes no request; only a browser with no hint asks once, and the answer is stored in the hint.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "fixed #1285 (issue #363)"
   },
   {
     "batch": 1,
@@ -27,7 +29,8 @@
     "file": "",
     "line": 0,
     "found": "[owner] A signed-in cart still reads the saved address (read-only, not a cart call); confirm that 'opening the cart makes no call' excludes the address card, or drop it from the cart. Confirmed by issue 364: the address card stays (use-delivery-address.ts, cart-screen.tsx:131).",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "closed-unverified (issue #364: closed with no linked PR)"
   },
   {
     "batch": 1,
@@ -37,6 +40,7 @@
     "file": "",
     "line": 0,
     "found": "[client] components-next/header-cart-badge.tsx has an English aria-label literal (already in the literal baseline); fix in the batch that owns the header.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1223 (issue #365)"
   }
 ]

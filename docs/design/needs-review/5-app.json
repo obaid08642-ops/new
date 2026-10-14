@@ -7,7 +7,8 @@
     "file": "patient-app/src/components/health/VitalsView.tsx",
     "line": 133,
     "found": "[client] Removed: the filter changed nothing (the call has no range) and the AI summary was fixed text. Add a range to GET /health/trends if the owner wants the filter back.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "not-a-problem: Not a problem: the no-op filter and fixed AI text were removed; (issue #655)"
   },
   {
     "batch": 5,
@@ -17,7 +18,8 @@
     "file": "patient-app/src/components/health/VitalsView.tsx",
     "line": 163,
     "found": "[backend] /health/trends trend and insight, /health/score message, components and recommendations arrive in Arabic only: not translated by the app.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1290 (issue #656)"
   },
   {
     "batch": 5,
@@ -27,7 +29,8 @@
     "file": "patient-app/src/components/health/RecordsView.tsx",
     "line": 172,
     "found": "[backend] The old button was an alert with no file; hasFile has no download endpoint. Removed.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "not-a-problem: Not a problem: the fake download button was removed; (issue #657)"
   },
   {
     "batch": 5,
@@ -37,7 +40,8 @@
     "file": "patient-app/src/components/health/RecordsView.tsx",
     "line": 141,
     "found": "[backend] GET /health/prescriptions returns medicines as plain strings (no medicine ids): the card's Order opens the pharmacy tab, the cart cannot be filled from it.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1290 (issue #658)"
   },
   {
     "batch": 5,
@@ -47,7 +51,8 @@
     "file": "patient-app/app/consultations/prescription-from-doctor.tsx",
     "line": 98,
     "found": "[backend] 'اطلب الأدوية دي' fills the local cart with the catalogue medicines of the prescription (rx lines) and opens it; no existing field links the prescription to that order, so the prescription is not counted as uploaded.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1304 (issue #659)"
   },
   {
     "batch": 5,
@@ -57,7 +62,8 @@
     "file": "patient-app/app/consultations/summary.tsx",
     "line": 122,
     "found": "[backend] GET /care/appointments/:id/summary lines have no medicine_id, so the button is not drawn there; 'to pharmacy' opens the prescription screen which has it.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1313 #1314 (issue #660)"
   },
   {
     "batch": 5,
@@ -67,7 +73,8 @@
     "file": "patient-app/app/consultations/prescription-from-doctor.tsx",
     "line": 113,
     "found": "[backend] Labs open /diagnostics/search (existing); no radiology list in the prescription data, so no radiology book action.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1313 #1314 (issue #661)"
   },
   {
     "batch": 5,
@@ -77,7 +84,8 @@
     "file": "patient-app/src/components/health/RecordsView.tsx",
     "line": 54,
     "found": "[backend] GET /medical-reports/mine and GET /health/reports both list reports; both are drawn (second under 'from providers'). Confirm they are one concept.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1290 (issue #662)"
   },
   {
     "batch": 5,
@@ -87,7 +95,8 @@
     "file": "patient-app/app/health/health-id.tsx",
     "line": 6,
     "found": "[owner] The old Health ID put the national id in its QR; it now redirects to /reports/passport (token QR). Confirm.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "owner-decision (issue #663)"
   },
   {
     "batch": 5,
@@ -97,7 +106,8 @@
     "file": "patient-app/src/components/health/ProfileView.tsx",
     "line": 196,
     "found": "[client] Removed from the conditions tab: same data as Vitals > History. Details of GET /health/chronic-diseases stay as follow-up cards.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "not-a-problem: Not a problem: the duplicate conditions data was removed on purpose (same data as Vitals > History); (issue #664)"
   },
   {
     "batch": 5,
@@ -107,7 +117,8 @@
     "file": "patient-app/src/components/health/ProfileView.tsx",
     "line": 313,
     "found": "[client] FIXED on design/sos-removal: the SOS is removed (decision 14) and the family note now only says these are the people to call in an emergency.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
   },
   {
     "batch": 5,
@@ -117,7 +128,8 @@
     "file": "patient-app/app/wearables/hub.tsx",
     "line": 7,
     "found": "[owner] Manual vitals entry duplicated the Add reading sheet and nothing linked to it: redirected to /health/vitals.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "owner-decision (issue #666)"
   },
   {
     "batch": 5,
@@ -127,7 +139,8 @@
     "file": "patient-app/app/health/wearables.tsx",
     "line": 64,
     "found": "[backend] POST /wearables/devices registers a device by name with no real pairing; kept behind wearables_enabled.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1313 #1314 (issue #667)"
   },
   {
     "batch": 5,
@@ -137,7 +150,8 @@
     "file": "patient-app/app/(tabs)/health.tsx",
     "line": 35,
     "found": "[client] GET /nutrition/daily-summary was only read to patch a label that did not exist: dropped.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "not-a-problem: Not a problem: the unused nutrition read was dropped; (issue #668)"
   },
   {
     "batch": 5,
@@ -147,7 +161,8 @@
     "file": "patient-app/src/components/health/SleepView.tsx",
     "line": 120,
     "found": "[owner] Four educational tips are static text (translated): confirm they stay.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "owner-decision (issue #669)"
   },
   {
     "batch": 5,
@@ -157,7 +172,8 @@
     "file": "patient-app/app/profile/index.tsx",
     "line": 19,
     "found": "[client] app/profile/index.tsx, app/map/index.tsx, app/ai/monthly-report.tsx and app/ai/prescription-translator.tsx still push the old health routes (the redirects open the right tab). Not edited: each carries literal-string debt the gate counts; fix in their batches.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1224 (issue #670)"
   },
   {
     "batch": 5,
@@ -167,7 +183,8 @@
     "file": "patient-app/src/components/health/HealthKit.tsx",
     "line": 137,
     "found": "[client] A phone number beginning with + shows the sign at the end in Arabic rows; wrap numbers in an LTR run in the shared Row.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1220 (issue #671)"
   },
   {
     "batch": 5,
@@ -177,6 +194,7 @@
     "file": "patient-app/app/(tabs)/health.tsx",
     "line": 181,
     "found": "[client] The hub still opens /health/family-hub and /family/chat; Batch 6 retargets them to the merged family routes.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1224 (issue #672)"
   }
 ]
