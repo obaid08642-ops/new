@@ -238,6 +238,28 @@ def main():
     except Exception as e:
         step('permissions click flow', False, str(e)[:300])
 
+    # ---- finance suite: one commission config, one route each (fix session, money) ----
+    journey('admin clicks: finance suite commissions (the config the checkout charges, page renders)')
+    try:
+        if admin:
+            today = time.strftime('%Y-%m-%d')
+            r = admin.get(f'/admin/finance/commissions?from={today}&to={today}')
+            cu = r.get('config_used') or {}
+            pct = cu.get('percents') or {}
+            step('GET /admin/finance/commissions is the finance-suite report (config_used.percents per service)', r.ok and isinstance(pct, dict) and 'pharmacy' in pct, r)
+            cf = admin.get('/finance/commission-for?service_type=pharmacy')
+            step('report percent for pharmacy equals the percent the checkout charges', cf.ok and pct.get('pharmacy') == cf.get('percent'), f'report {pct.get("pharmacy")} vs charged {cf.get("percent")}')
+            step('report VAT is the KSA 15% the checkout applies', cu.get('vat_percent') == 15, cu.get('vat_percent'))
+            rec = admin.get('/admin/finance/commissions/records')
+            step('commission records keep their own route (commissions and ledger pages)', rec.ok and isinstance(rec.get('data'), list), rec)
+        page.goto(f'{ADMIN_WEB}/admin/finance-suite', wait_until='load', timeout=45000)
+        page.wait_for_selector('h2:has-text("العمولات وVAT")', timeout=30000)
+        step('finance-suite renders the commissions card', True, '')
+        shown = page.locator('button:has-text("حفظ وتدقيق الإعدادات")').count()
+        step('finance-suite hides the commission settings form from a role without finance.config.edit', shown == 0, f'{shown} save button(s) shown')
+    except Exception as e:
+        step('finance suite flow', False, str(e)[:300])
+
     browser.close()
     pw.stop()
 

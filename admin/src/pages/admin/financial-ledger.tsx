@@ -62,7 +62,7 @@ export default function FinancialLedger() {
         }
 
         // Fetch Commissions
-        const commRes = await fetchWithAdminGuard(`/api/admin/admin/finance/commissions`);
+        const commRes = await fetchWithAdminGuard(`/api/admin/admin/finance/commissions/records`);
         if (commRes.ok) {
           const data = await commRes.json();
           setCommissions(data.data || []);
