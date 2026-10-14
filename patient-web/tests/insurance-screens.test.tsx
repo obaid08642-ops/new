@@ -109,10 +109,11 @@ describe("the insurance hub", () => {
     expect(html).toContain("This part could not load right now");
   });
 
-  it("shows the benefits note as the server wrote it, and an old ?tab=claims or ?tab=refunds link shows the policy tab without reading claims or refunds", async () => {
-    backend({ "/insurance/my-policy": policy, "/insurance/benefits-summary": { has_policy: true, policy: {}, benefits: [{ key: "manual_review", note_ar: "تخضع الموافقة لمراجعة مزود الخدمة" }] } });
+  it("shows the benefits note translated from its code (never the Arabic server sentence), and an old ?tab=claims or ?tab=refunds link shows the policy tab without reading claims or refunds", async () => {
+    backend({ "/insurance/my-policy": policy, "/insurance/benefits-summary": { has_policy: true, policy: {}, benefits: [{ key: "manual_review", note_code: "coverage_decided_by_provider", note_ar: "تخضع الموافقة لمراجعة مزود الخدمة" }] } });
     const benefits = render(await InsurancePage(hub({ tab: "benefits" })));
-    expect(benefits).toContain("تخضع الموافقة لمراجعة مزود الخدمة");
+    expect(benefits).toContain("The provider decides the final coverage when it reviews your request.");
+    expect(benefits).not.toContain("تخضع الموافقة لمراجعة مزود الخدمة");
     backend({ "/insurance/my-policy": policy, "/insurance/requests/my": requests });
     for (const tab of ["claims", "refunds"]) {
       const html = render(await InsurancePage(hub({ tab })));
@@ -209,10 +210,11 @@ describe("the coverage check", () => {
     expect(first).toContain("What my policy covers");
     expect(first).toContain("Based on the policy details saved on your account");
     expect(first).toContain("not a check with your insurer");
-    backend({ "/insurance/coverage-check?service_type=lab": { eligible: true, policy: {}, service_type: "lab", note_ar: "التغطية النهائية يحددها مزود الخدمة" } });
+    backend({ "/insurance/coverage-check?service_type=lab": { eligible: true, policy: {}, service_type: "lab", note_code: "coverage_decided_by_provider", note_ar: "التغطية النهائية يحددها مزود الخدمة" } });
     const html = await run({ service_type: "lab" });
     expect(html).toContain("Listed as covered on your saved policy");
-    expect(html).toContain("التغطية النهائية يحددها مزود الخدمة");
+    expect(html).toContain("The provider decides the final coverage when it reviews your request.");
+    expect(html).not.toContain("التغطية النهائية يحددها مزود الخدمة");
   });
 });
 
@@ -246,9 +248,10 @@ describe("old routes (merge map 2, section 6)", () => {
 describe("what the screens read", () => {
   it("parses only what the server sent", () => {
     expect(parseRequestRows({ data: [{ id: "not-a-uuid", state: "X" }, { id: ID, state: "REJECTED" }] }).map((row) => row.id)).toEqual([ID]);
-    expect(parseBenefits({ benefits: [{ key: "k" }] })).toEqual([{ key: "k", note: undefined }]);
+    expect(parseBenefits({ benefits: [{ key: "k" }] })).toEqual([{ key: "k", noteCode: undefined }]);
+    expect(parseBenefits({ benefits: [{ key: "k", note_code: "no_policy_on_file" }] })).toEqual([{ key: "k", noteCode: "no_policy_on_file" }]);
     expect(parseBenefits({})).toBeNull();
-    expect(parseCoverage({ eligible: false })).toEqual({ eligible: false, serviceType: undefined, note: undefined });
+    expect(parseCoverage({ eligible: false })).toEqual({ eligible: false, serviceType: undefined, noteCode: undefined });
     expect(parseCoverage({ eligible: "yes" })).toBeNull();
     expect(requestTone("REJECTED")).toBe("bad");
   });

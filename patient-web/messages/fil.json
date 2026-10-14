@@ -2049,7 +2049,14 @@
     "ixSeverityLow": "Mababang panganib",
     "citeTitle": "Banggitin ang impormasyong ito",
     "citeCopy": "Kopyahin ang sipi",
-    "citeCopied": "Nakopya"
+    "citeCopied": "Nakopya",
+    "ixNote": {
+      "bleeding_risk": "Mas mataas ang panganib ng pagdurugo. Magpatingin agad sa doktor.",
+      "lactic_acidosis": "Panganib ng lactic acidosis. Iwasan ang alak.",
+      "high_potassium": "Maaaring tumaas nang sobra ang potassium. Kailangan ng regular na blood test.",
+      "severe_low_blood_pressure": "Matinding pagbaba ng presyon ng dugo. Huwag kailanman pagsabayin ang mga ito.",
+      "rhabdomyolysis": "Panganib ng pinsala sa kalamnan (rhabdomyolysis). Tanungin ang iyong doktor tungkol sa ibang antibiotic."
+    }
   },
   "PharmacyOffers": {
     "backToOrder": "Bumalik sa order",
@@ -2623,7 +2630,12 @@
     "chatNoGroupTitle": "Wala ka pa sa grupo ng pamilya",
     "chatNoGroupBody": "Gumawa ng grupo ng pamilya o sumali gamit ang imbitasyon para makapag-chat.",
     "chatJoin": "Sumali gamit ang code",
-    "emergencyCount": "{count} contact"
+    "emergencyCount": "{count} contact",
+    "joinError": {
+      "invalid_invite_code": "Hindi wasto ang invite code na ito. Suriin ito o humingi ng bago.",
+      "invite_expired": "Expired na ang invite code na ito. Humingi ng bago sa may-ari ng pamilya.",
+      "already_member": "Miyembro ka na ng pamilyang ito."
+    }
   },
   "DiagWeb": {
     "retry": "Subukan muli",
@@ -3135,7 +3147,14 @@
     "meditationUnavailable": "Hindi available ang uri",
     "durationMinutes": "Tagal: {value} min",
     "completed": "Tapos na",
-    "notCompleted": "Hindi natapos"
+    "notCompleted": "Hindi natapos",
+    "moodValue": {
+      "great": "Napakabuti",
+      "good": "Mabuti",
+      "okay": "Ayos lang",
+      "bad": "Hindi mabuti",
+      "terrible": "Napakasama"
+    }
   },
   "ProgramsWeb": {
     "title": "Aking mga health program",
@@ -3511,6 +3530,20 @@
       "acceptRetry": "Hindi naitala ang self-pay. Subukan muli.",
       "payFailed": "Hindi nasimulan ang ligtas na online na pagbabayad. Walang nakumpirmang bayad.",
       "payRetry": "Hindi nasimulan ang online na pagbabayad. Walang nakumpirmang bayad."
+    },
+    "noteCode": {
+      "coverage_decided_by_provider": "Ang provider ang magpapasya sa huling coverage kapag sinuri nito ang iyong request.",
+      "no_policy_on_file": "Walang insurance policy sa iyong file. Magdagdag muna ng isa."
+    },
+    "providerType": {
+      "doctor": "Doktor",
+      "pharmacy": "Botika",
+      "hospital": "Ospital",
+      "clinic": "Klinika",
+      "lab": "Laboratoryo",
+      "radiology": "Sentro ng radyolohiya",
+      "home_care": "Pangangalaga sa bahay",
+      "nursing": "Pag-aalaga ng nars"
     }
   },
   "LoyaltyHubWeb": {

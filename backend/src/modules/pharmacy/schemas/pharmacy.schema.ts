@@ -462,6 +462,8 @@ export class PharmacyChatMessage extends Document {
   @Prop({ required: true }) sender_account_id: string;
   @Prop({ required: true, enum: ['patient', 'pharmacy', 'system'] }) sender_role: string;
   @Prop() text?: string;
+  /** System lines carry a code the patient apps translate (the Arabic text stays for the pharmacy app). */
+  @Prop() system_code?: 'substitute_accepted' | 'substitute_rejected' | 'item_removed';
   @Prop() image_uri?: string;
   @Prop({ type: Object }) substitute_offer?: { sku?: string; name?: string; active_ingredient?: string; brand?: string; dosage?: string; form?: string; image_uri?: string; price?: number; notes?: string };
   @Prop({ default: false }) blocked: boolean;

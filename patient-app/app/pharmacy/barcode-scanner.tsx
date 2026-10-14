@@ -27,7 +27,8 @@ const FRAME = 250;
 const CORNER = 40;
 
 type Found = { code: string; med: Med };
-type IxHit = { severity?: string; note_ar?: string; note?: string };
+type IxHit = { severity?: string; code?: string; note_ar?: string; note?: string };
+const IX_NOTES = new Set(['bleeding_risk', 'lactic_acidosis', 'high_potassium', 'severe_low_blood_pressure', 'rhabdomyolysis']);
 type IxResult = { checked?: number; safe?: boolean; interactions?: IxHit[] };
 
 /** The three levels the checker states; any other word from the server is not drawn as a label. */
@@ -219,7 +220,8 @@ export default function BarcodeScannerScreen() {
             <Text accessibilityRole="header" style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>{ix.result.safe ? k('pharmacy.scan.ixSafe') : k('pharmacy.scan.ixAttention')}</Text>
             {(ix.result.interactions || []).map((h, i) => {
               const level = ixLevel(h.severity);
-              const note = lang === 'ar' ? h.note_ar || h.note : h.note;
+              // The note is translated from its code; the Arabic server sentence is never shown in another language.
+              const note = h.code && IX_NOTES.has(h.code) ? k(`pharmacy.scan.ix.${h.code}`) : lang === 'ar' ? h.note_ar || h.note : h.note;
               return (
                 <View key={`${h.severity}-${i}`} style={{ gap: 4 }}>
                   {level ? <Pill label={k(level.key)} tone={level.tone} /> : null}
