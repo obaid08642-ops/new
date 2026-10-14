@@ -231,7 +231,7 @@ export class ProviderAdminService {
    */
   async reviewDocument(user: any, accountId: string, docId: string, decision: 'approve' | 'reject', note?: string) {
     this.assertAdmin(user);
-    const doc: any = await this.docs.findOne({ id: docId, account_id: accountId });
+    const doc: any = await this.docs.findOne({ id: { $eq: String(docId) }, account_id: { $eq: String(accountId) } });
     if (!doc) throw new NotFoundException('provider_document_not_found');
     const pending = [DocumentReviewStatus.PENDING, DocumentReviewStatus.UNDER_REVIEW, DocumentReviewStatus.NEEDS_REPLACEMENT];
     if (!pending.includes(doc.review_status)) {

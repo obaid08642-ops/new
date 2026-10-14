@@ -31,7 +31,7 @@ describe('ProviderAdminService.reviewDocument', () => {
 
     const out: any = await service.reviewDocument(admin, 'prov-1', 'doc-1', 'approve', 'looks good');
 
-    expect(docs.findOne).toHaveBeenCalledWith({ id: 'doc-1', account_id: 'prov-1' });
+    expect(docs.findOne).toHaveBeenCalledWith({ id: { $eq: 'doc-1' }, account_id: { $eq: 'prov-1' } });
     expect(doc.review_status).toBe(DocumentReviewStatus.APPROVED);
     expect(doc.reviewer_id).toBe('adm-1');
     expect(doc.save).toHaveBeenCalled();
