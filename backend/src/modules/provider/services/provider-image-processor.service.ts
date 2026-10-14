@@ -42,15 +42,18 @@ export class ProviderImageProcessorService {
     // 3. Clear any existing pending/processing jobs for this owner to ensure single profile photo constraint
     await this.jobModel.updateMany(
       { owner_id: input.owner_id, status: { $in: ['pending', 'processing'] } },
-      { $set: { status: 'failed', error: 'Superseded by new upload' } }
+      // D-32: a superseded upload is never processed, so its raw image is not kept either.
+      { $set: { status: 'failed', error: 'Superseded by new upload' }, $unset: { data_base64: '' } }
     );
 
     // 4. Upsert Profile Image Metadata
     const originalUrl = `doctors/original/${input.owner_id}.webp`;
 
-    let meta = await this.metadataModel.findOne({ owner_id: input.owner_id });
+    // D-32: the first photo of a provider had no metadata row; `create` returns a promise, so it was awaited here
+    // (calling .save() on the promise answered 500 and no photo could ever be set).
+    const meta = await this.metadataModel.findOne({ owner_id: input.owner_id });
     if (!meta) {
-      meta = this.metadataModel.create({
+      await this.metadataModel.create({
         owner_id: input.owner_id,
         owner_type: input.owner_type,
         originalImageUrl: originalUrl,
@@ -61,8 +64,8 @@ export class ProviderImageProcessorService {
       meta.processingStatus = 'pending';
       meta.processingProvider = 'local-webp-processor';
       meta.error = undefined;
+      await meta.save();
     }
-    await meta.save();
 
     // 5. Create Queue Job
     const job = await this.jobModel.create({
@@ -249,7 +252,9 @@ export class ProviderImageProcessorService {
     const mediumUrl = mediumUpload.id;
     const thumbnailUrl = smallUpload.id;
 
-    // Step 5: Update Metadata in MongoDB
+    // Step 5: Update Metadata in MongoDB. D-32: the previous photo's storage rows are retired once the new ones exist.
+    const previous: any = await this.metadataModel.findOne({ owner_id: job.owner_id }).lean();
+    const previousIds = previous ? [previous.originalImageUrl, previous.processedImageUrl, previous.mediumImageUrl, previous.thumbnailImageUrl].filter((v: unknown): v is string => typeof v === 'string') : [];
     await this.metadataModel.updateOne(
       { owner_id: job.owner_id },
       {
@@ -275,6 +280,9 @@ export class ProviderImageProcessorService {
     job.status = 'completed';
     job.processedAt = new Date();
     await job.save();
+    // D-32: the raw upload is not kept once processed, and the replaced photo's objects and rows go.
+    await this.jobModel.updateOne({ _id: job._id }, { $unset: { data_base64: '' } });
+    await this.storage.retire(previousIds, [originalUrl, processedUrl, mediumUrl, thumbnailUrl]);
 
     // Step 7: Create audit log on Success
     await this.auditLogModel.create({

@@ -175,12 +175,19 @@ export class StorageService {
         return;
       }
 
-      // R2 asset? → DeleteObjectCommand
+      // R2 asset? → DeleteObjectCommand. The saved URL is either the public CDN URL or a presigned URL on the
+      // storage endpoint (D-32: the admin page saves what /storage/:id/signed-url returned); the query string
+      // and fragment are not part of the key. Only objects of our own bucket are ever deleted.
       if (!S3R2Adapter.configured()) return;
-      const publicBase = process.env.S3_PUBLIC_BASE_URL || `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}`;
-      if (!url.startsWith(`${publicBase}/`)) return; // not our object — ignore
-      const key = url.slice(publicBase.length + 1);
-      if (!key) return;
+      const clean = String(url).split('#')[0].split('?')[0];
+      const bases = [process.env.S3_PUBLIC_BASE_URL, `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}`]
+        .filter((b): b is string => typeof b === 'string' && b.length > 0)
+        .map((b) => b.replace(/\/+$/, ''));
+      const base = bases.find((b) => clean.startsWith(`${b}/`));
+      if (!base) return; // not our object — ignore
+      let key = clean.slice(base.length + 1);
+      try { key = decodeURIComponent(key); } catch { /* keep as is */ }
+      if (!key || key.includes('..')) return;
       const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
       const client = new (require('@aws-sdk/client-s3').S3Client)({
         region: process.env.S3_REGION || 'auto',
@@ -197,6 +204,38 @@ export class StorageService {
     } catch (e: any) {
       this.logger.warn(`storage.delete_by_url failed: ${e.message}`);
     }
+  }
+
+  /**
+   * D-32: storage objects replaced by newer ones. Each old row is marked deleted (its inline base64 dropped) and its
+   * stored object removed, except when a new row holds the same key (an overwrite already replaced the content, and
+   * deleting it would remove the new file).
+   */
+  async retire(oldIds: string[], newIds: string[] = []): Promise<number> {
+    const ids = [...new Set(oldIds.filter((id) => typeof id === 'string' && id && !newIds.includes(id)))];
+    if (!ids.length) return 0;
+    const keep = new Set(
+      (await this.model.find({ id: { $in: newIds.filter((id) => typeof id === 'string' && id) } }, { external_key: 1 }).lean())
+        .map((r: any) => r.external_key).filter(Boolean),
+    );
+    const rows: any[] = await this.model.find({ id: { $in: ids }, deleted: { $ne: true } }).lean();
+    for (const o of rows) {
+      if (o.external_key && !keep.has(o.external_key)) {
+        try {
+          if (o.backend === 'cloudinary' && this.cloudinaryConfigured()) {
+            const cloudinary = require('cloudinary').v2;
+            cloudinary.config({ cloud_name: process.env.CLOUDINARY_CLOUD_NAME, api_key: process.env.CLOUDINARY_API_KEY, api_secret: process.env.CLOUDINARY_API_SECRET });
+            await cloudinary.uploader.destroy(o.external_key, { type: 'authenticated', resource_type: 'image' }).catch(() => null);
+          } else {
+            await this.adapter.delete(o);
+          }
+        } catch (e: any) {
+          this.logger.warn(`retire: object ${o.external_key} not deleted: ${e?.message}`);
+        }
+      }
+      await this.model.updateOne({ id: o.id }, { $set: { deleted: true }, $unset: { data_base64: '' } });
+    }
+    return rows.length;
   }
 
   /** Upload a file. Returns { id }.

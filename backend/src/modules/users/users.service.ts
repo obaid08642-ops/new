@@ -1,4 +1,5 @@
 import { Injectable, Optional, NotFoundException, ForbiddenException, UnauthorizedException, BadRequestException, Inject } from '@nestjs/common';
+import { MEDIA_RELEASE, mediaRefId } from '../media/media-cleanup.service';
 import { escapeRegex } from '../../common/slug.util';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { JwtService } from '@nestjs/jwt';
@@ -198,7 +199,14 @@ export class UsersService {
       if (k.startsWith('$') || k.includes('.')) continue;
       if (UsersService.PATIENT_PROFILE_EDITABLE.has(k)) mapped[k] = v;
     }
-    return this.patientRepository.updateOne({ user_id }, { $set: mapped }, { upsert: true, new: true, projection: { _id: 0, __v: 0 } });
+    // D-32: a replaced avatar (`media:<id>`) loses its stored file once the new one is saved.
+    const previous: any = 'avatar_url' in mapped ? await this.patientRepository.findOne({ user_id }, { avatar_url: 1 }) : null;
+    const saved = await this.patientRepository.updateOne({ user_id }, { $set: mapped }, { upsert: true, new: true, projection: { _id: 0, __v: 0 } });
+    const oldId = mediaRefId(previous?.avatar_url);
+    if (oldId && previous?.avatar_url !== mapped.avatar_url) {
+      try { this.events?.emit(MEDIA_RELEASE, { ids: [oldId], owner_id: user_id }); } catch { /* cleanup is best effort */ }
+    }
+    return saved;
   }
 
 

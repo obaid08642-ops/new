@@ -1,5 +1,7 @@
 import { MediaService } from '../media/media.service';
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Inject, Optional } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { MEDIA_RELEASE, mediaRefId } from '../media/media-cleanup.service';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException, ConflictException, Inject, Optional } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection, Types } from 'mongoose';
 import { ReturnRequest } from '../../schemas/returns.schema';
@@ -39,7 +41,24 @@ export class ReturnsService {
     private readonly refundExec: RefundExecutor,
     @InjectConnection() private readonly conn: Connection,
     @Optional() private readonly media?: MediaService,
+    @Optional() private readonly events?: EventEmitter2,
   ) {}
+
+  /**
+   * D-32 (gap G2): the patient withdraws a return that no one has decided yet; its evidence files (`media:<id>`) lose
+   * their stored objects and rows, and the request is removed. A decided return stays (it is the refund record).
+   */
+  async withdraw(id: string, patientId: string) {
+    const ret: any = await this.returnModel.findOne({ id: { $eq: String(id) }, patient_id: { $eq: String(patientId) } } as any);
+    if (!ret) throw new NotFoundException('return_not_found');
+    if (ret.status !== 'processing') throw new ConflictException('return_already_decided');
+    const ids = (Array.isArray(ret.attached_docs) ? ret.attached_docs : []).map(mediaRefId).filter((v: string | null): v is string => !!v);
+    await this.returnModel.deleteOne({ id: { $eq: ret.id }, patient_id: { $eq: String(patientId) } } as any);
+    if (ids.length) {
+      try { this.events?.emit(MEDIA_RELEASE, { ids, owner_id: String(patientId) }); } catch { /* cleanup is best effort */ }
+    }
+    return { withdrawn: true, id: ret.id };
+  }
 
   /**
    * R7-2: photo evidence is stored as `media:<assetId>` (owned by the patient), never as a
