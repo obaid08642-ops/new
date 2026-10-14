@@ -10,13 +10,13 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---|---:|---:|---:|---:|---:|---:|
 | Patient app and web | 434 | 130 | 232 | 60 | 1 | 11 |
 | Other | 28 | 21 | 7 | 0 | 0 | 0 |
-| Admin | 93 | 16 | 52 | 25 | 0 | 0 |
+| Admin | 96 | 16 | 55 | 25 | 0 | 0 |
 | Admin journeys | 20 | 4 | 16 | 0 | 0 | 0 |
 | Final pass | 8 | 8 | 0 | 0 | 0 | 0 |
 | Patient journeys | 86 | 41 | 44 | 1 | 0 | 0 |
 | Provider app | 30 | 8 | 21 | 1 | 0 | 0 |
 | Provider journeys | 34 | 25 | 9 | 0 | 0 | 0 |
-| **Total** | **733** | **253** | **381** | **87** | **1** | **11** |
+| **Total** | **736** | **253** | **384** | **87** | **1** | **11** |
 
 ## By tag
 
@@ -24,9 +24,9 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---|---:|---:|---:|---:|---:|---:|
 | client | 167 | 63 | 79 | 25 | 0 | 0 |
 | owner | 100 | 67 | 24 | 6 | 1 | 2 |
-| backend | 229 | 42 | 158 | 25 | 0 | 4 |
+| backend | 232 | 42 | 161 | 25 | 0 | 4 |
 | untagged | 237 | 81 | 120 | 31 | 0 | 5 |
-| **Total** | **733** | **253** | **381** | **87** | **1** | **11** |
+| **Total** | **736** | **253** | **384** | **87** | **1** | **11** |
 
 ## By file
 
@@ -67,7 +67,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `ac-1-agent-oauth.json` | 2 | 2 | 0 | 0 | 0 | 0 |
 | `admin-catalogue.json` | 23 | 3 | 14 | 6 | 0 | 0 |
 | `admin-customers-growth.json` | 14 | 1 | 8 | 5 | 0 | 0 |
-| `admin-finance.json` | 6 | 0 | 5 | 1 | 0 | 0 |
+| `admin-finance.json` | 9 | 0 | 8 | 1 | 0 | 0 |
 | `admin-journeys.json` | 20 | 4 | 16 | 0 | 0 | 0 |
 | `admin-ops-monitoring.json` | 16 | 3 | 9 | 4 | 0 | 0 |
 | `admin-providers.json` | 8 | 0 | 5 | 3 | 0 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 7 | 0 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 12 | 5 | 7 | 0 | 0 | 0 |
-| **Total** | **733** | **253** | **381** | **87** | **1** | **11** |
+| **Total** | **736** | **253** | **384** | **87** | **1** | **11** |
 
 ## Owner decisions (1)
 

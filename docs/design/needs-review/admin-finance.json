@@ -74,7 +74,7 @@
     "line": 55,
     "found": "[backend] GET /admin/finance/commissions was declared three times (legal.module, web-core finance.controller, enterprise admin-finance.controller). Nest served the legal one ({service_types,...}), so the page read config_used.source of undefined and crashed; the commissions and ledger pages read {data} and showed nothing. Found by the fix session (live click test).",
     "suspect": "Duplicate routes: one route per shape.",
-    "review_status": "open"
+    "review_status": "fixed #1430"
   },
   {
     "batch": "admin",
@@ -85,7 +85,7 @@
     "line": 206,
     "found": "[backend] The form wrote finance_config.rates / vat_rate, which only this report read; the settlement (provider-ops creditEarning, pharmacy allocation) charges service_types.<type>.percent and tax.vat_percent. Editing the form changed the report, not the money. Found by the fix session.",
     "suspect": "Two schemas in one config document.",
-    "review_status": "open"
+    "review_status": "fixed #1430"
   },
   {
     "batch": "admin",
@@ -96,6 +96,6 @@
     "line": 35,
     "found": "[backend] readVatRate read tax.vat_percent ?? vat_rate and divided by 100, so a config written by the old finance-suite form (vat_rate 0.15, no tax) gave a VAT of 0.15%. Found by the fix session.",
     "suspect": "Fraction read as a percent.",
-    "review_status": "open"
+    "review_status": "fixed #1430"
   }
 ]
