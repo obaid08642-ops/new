@@ -71,7 +71,7 @@ export class LegalService {
 
   async upsertPolicy(adminId: string, key: string, patch: any) {
     const existing: any = await this.policies.findOne({ key });
-    const { change_note, ...fields } = patch;
+    const { change_note, major, ...fields } = patch;
     if (!existing) {
       // A new policy must have real content (users may be asked to accept it) and a slug key.
       if (!/^[a-z0-9][a-z0-9_-]{1,63}$/.test(String(key || ''))) throw new BadRequestException('policy_key_invalid');
@@ -92,8 +92,10 @@ export class LegalService {
       await this.policies.insertOne(doc as any);
       return { created: true, version: doc.version };
     }
+    // D-36: an edit is a minor version (no new acceptance); `major: true` publishes the next major version, which
+    // every user it applies to must accept again.
     const [maj, min] = String(existing.version || '1.0').split('.').map(Number);
-    const newVersion = `${maj}.${(min || 0) + 1}`;
+    const newVersion = major === true ? `${(maj || 1) + 1}.0` : `${maj || 1}.${(min || 0) + 1}`;
     await this.policies.updateOne({ key }, {
       $set: { ...fields, version: newVersion, last_updated: new Date() },
       $push: { change_log: { version: newVersion, date: new Date(), note: change_note || 'update', by: adminId } } as any,
@@ -130,7 +132,9 @@ export class LegalService {
   async pendingAcceptances(user: any): Promise<any[]> {
     const applicable = await this.policies.find({ requires_acceptance: true }, { projection: { key: 1, version: 1, title_ar: 1, title_en: 1, applies_to: 1 } }).toArray();
     const accepted = await this.acceptances.find({ user_id: user.id }, { projection: { policy_key: 1, version: 1 } }).toArray();
-    const accMap = new Map(accepted.map((a: any) => [`${a.policy_key}:${a.version}`, true]));
+    // D-36: an acceptance holds for every minor version of the same major version; a new major asks again.
+    const majorOf = (v: unknown) => String(v ?? '1.0').split('.')[0];
+    const accMap = new Map(accepted.map((a: any) => [`${a.policy_key}:${majorOf(a.version)}`, true]));
     // D-38: a caller is only asked for their own side's texts ('patient' vs 'provider') plus shared ones.
     const role = String(user?.role || '');
     const side = role === UserRole.PATIENT ? 'patient'
@@ -139,7 +143,7 @@ export class LegalService {
       const list = Array.isArray(p?.applies_to) && p.applies_to.length ? p.applies_to : ['all'];
       return list.includes('all') || (side !== null && list.includes(side));
     };
-    return applicable.filter((p: any) => !accMap.has(`${p.key}:${p.version}`) && applies(p));
+    return applicable.filter((p: any) => !accMap.has(`${p.key}:${majorOf(p.version)}`) && applies(p));
   }
 
   async getCommissions() {

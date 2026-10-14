@@ -10,6 +10,8 @@ export class UpdateLegalPolicyDto {
   @IsOptional() @IsBoolean() requires_acceptance?: boolean;
   @IsOptional() @IsArray() @IsString({ each: true }) applies_to?: string[];
   @IsOptional() @IsString() change_note?: string;
+  /** D-36: a substantive change publishes a new MAJOR version, which every user must accept again. */
+  @IsOptional() @IsBoolean() major?: boolean;
 }
 
 export class UpdateCommissionsDto {
