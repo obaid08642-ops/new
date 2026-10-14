@@ -48,8 +48,15 @@ export class MedicalProfileService {
   }
 
   async removeItem(user: any, list: string, itemId: string) {
-    const p = await this.getOrCreate(user);
-    (p as any)[list] = ((p as any)[list] || []).filter((x: any) => x.id !== itemId);
+    // S-7: deleting from your own profile is fine, but a delete that names an
+    // item you do not have must answer 404 — never 200. A 200 here would let
+    // one patient probe another patient's item ids, and auto-creating the
+    // caller's profile as a side effect of a delete is wrong on its own.
+    const p = await this.model.findOne({ patient_id: user.id });
+    if (!p) throw new NotFoundException('medical_profile_not_found');
+    const items = ((p as any)[list] || []) as any[];
+    if (!items.some((x: any) => x.id === itemId)) throw new NotFoundException('medical_profile_item_not_found');
+    (p as any)[list] = items.filter((x: any) => x.id !== itemId);
     p.last_updated_at = new Date();
     p.last_updated_by_id = user.id;
     await p.save();

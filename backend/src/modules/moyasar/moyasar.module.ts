@@ -18,6 +18,7 @@ import {
   Query,
   Res,
   UseInterceptors,
+  Optional,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { RefundDto, CreateMoyasarPaymentDto } from './moyasar.dto';
@@ -29,6 +30,8 @@ import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import * as crypto from 'crypto';
 import { moyasarBase } from '../../common/moyasar-base';
+import { isMoyasarWebhookAuthenticated } from '../../common/moyasar-webhook-auth';
+import { PaymentsModule, PaymentsService } from '../payments/payments.module';
 
 // ── Schemas ──────────────────────────────────────────────────────────────────
 
@@ -76,6 +79,7 @@ export class MoyasarService {
     private readonly paymentModel: Model<MoyasarPaymentDocument>,
     @InjectConnection() private readonly conn: Connection,
     private readonly events: EventEmitter2,
+    @Optional() private readonly payments?: PaymentsService,
   ) {
     this.apiKey = process.env.MOYASAR_API_KEY || process.env.MOYASAR_SECRET_KEY || process.env.MOYASAR_SECRET || '';
     if (!this.apiKey) {
@@ -358,11 +362,23 @@ export class MoyasarService {
   }
 
   /** Process an inbound Moyasar webhook event */
-  async handleWebhook(payload: any): Promise<{ ok: boolean }> {
+  async handleWebhook(payload: any, signature?: string, rawBody?: string): Promise<{ ok: boolean }> {
+    // S-5: Moyasar documents no signature header — the body secret_token is the
+    // proof. The older HMAC path still works. Anything with neither is refused.
+    const raw = rawBody ?? JSON.stringify(payload);
+    if (!isMoyasarWebhookAuthenticated(payload, signature, raw)) {
+      throw new BadRequestException('invalid_signature');
+    }
     // Moyasar sends the payment object directly as the webhook body
     const moyasarId: string | undefined = payload?.id ?? payload?.data?.id;
     if (moyasarId) {
       await this.syncPaymentStatus(moyasarId);
+    }
+    // S-5: this legacy receiver and the canonical /payments/webhook/moyasar must
+    // agree on what "paid" means, so a valid webhook settles the canonical
+    // transaction here too (amount and currency re-checked from the gateway).
+    if (this.payments) {
+      await this.payments.handleWebhook('moyasar', payload, signature, raw);
     }
     return { ok: true };
   }
@@ -485,16 +501,13 @@ export class MoyasarController {
     return this.svc.refundPayment(id, body.amount);
   }
 
-  /** Moyasar webhook receiver (public — authenticated via HMAC signature, E5-F1 fail-closed) */
+  /** Moyasar webhook receiver (public — body secret_token or HMAC signature, fail-closed) */
   @Public()
   @Post('webhook')
   @HttpCode(200)
   webhook(@Body() body: Record<string, unknown>, @Headers('x-moyasar-signature') signature: string, @Req() req: any) {
     const rawBody = req?.rawBody || JSON.stringify(body);
-    if (!this.svc.verifyWebhookSignature(rawBody, signature)) {
-      throw new BadRequestException('invalid_signature');
-    }
-    return this.svc.handleWebhook(body);
+    return this.svc.handleWebhook(body, signature, rawBody);
   }
 
   /**
@@ -529,6 +542,7 @@ export class MoyasarController {
     MongooseModule.forFeature([
       { name: MoyasarPayment.name, schema: MoyasarPaymentSchema },
     ]),
+    PaymentsModule,
   ],
   controllers: [MoyasarController],
   providers: [MoyasarService],
