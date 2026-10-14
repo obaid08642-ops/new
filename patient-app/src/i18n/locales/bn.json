@@ -3194,5 +3194,12 @@
   "pharmacy.scan.ix.severe_low_blood_pressure": "রক্তচাপ মারাত্মকভাবে কমে যেতে পারে। এগুলো কখনো একসাথে খাবেন না।",
   "pharmacy.scan.ix.rhabdomyolysis": "পেশির ক্ষতির (র্যাবডোমায়োলাইসিস) ঝুঁকি। অন্য অ্যান্টিবায়োটিকের বিষয়ে আপনার ডাক্তারকে জিজ্ঞেস করুন।",
   "insurance.noteCode.coverage_decided_by_provider": "আপনার অনুরোধ পর্যালোচনার সময় সেবা প্রদানকারী চূড়ান্ত কভারেজ ঠিক করে।",
-  "insurance.noteCode.no_policy_on_file": "আপনার ফাইলে কোনো বিমা পলিসি নেই। আগে একটি যোগ করুন।"
+  "insurance.noteCode.no_policy_on_file": "আপনার ফাইলে কোনো বিমা পলিসি নেই। আগে একটি যোগ করুন।",
+  "nur.hub.noMatch": "আপনার খোঁজের সাথে কোনো সেবা মেলেনি",
+  "nur.live.steps": "ভিজিটের ধাপ",
+  "nur.step.CONFIRMED": "ভিজিট নিশ্চিত হয়েছে",
+  "nur.step.IN_TRANSIT": "নার্স পথে আছেন",
+  "nur.step.ARRIVED": "নার্স পৌঁছেছেন",
+  "nur.step.CARE_IN_PROGRESS": "সেবা চলছে",
+  "nur.step.COMPLETED": "ভিজিট সম্পন্ন হয়েছে"
 }

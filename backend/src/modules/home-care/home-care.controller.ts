@@ -212,6 +212,10 @@ export class NursingController {
       // Clinical report — present only after the visit report was submitted
       vitals: (b as any).vitals && Object.keys((b as any).vitals).length ? (b as any).vitals : null,
       notes: (b as any).clinical_notes || null,
+      // #647: the visit's steps as recorded (state_history), oldest first, for the tracking timeline.
+      steps: (Array.isArray(b.state_history) ? b.state_history : [])
+        .map((entry: any) => ({ status: entry?.to || null, at: entry?.at ? new Date(entry.at).toISOString() : null }))
+        .filter((entry: any) => entry.status && entry.at),
     };
   }
 

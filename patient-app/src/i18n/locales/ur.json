@@ -3194,5 +3194,12 @@
   "pharmacy.scan.ix.severe_low_blood_pressure": "بلڈ پریشر بہت گر سکتا ہے۔ انہیں کبھی ایک ساتھ نہ لیں۔",
   "pharmacy.scan.ix.rhabdomyolysis": "پٹھوں کو نقصان (رابڈومائیولائسس) کا خطرہ۔ اپنے ڈاکٹر سے کسی دوسری اینٹی بائیوٹک کے بارے میں پوچھیں۔",
   "insurance.noteCode.coverage_decided_by_provider": "حتمی کوریج کا فیصلہ سروس فراہم کنندہ آپ کی درخواست کا جائزہ لیتے وقت کرتا ہے۔",
-  "insurance.noteCode.no_policy_on_file": "آپ کی فائل میں کوئی انشورنس پالیسی نہیں ہے۔ پہلے ایک شامل کریں۔"
+  "insurance.noteCode.no_policy_on_file": "آپ کی فائل میں کوئی انشورنس پالیسی نہیں ہے۔ پہلے ایک شامل کریں۔",
+  "nur.hub.noMatch": "آپ کی تلاش سے کوئی سروس نہیں ملتی",
+  "nur.live.steps": "وزٹ کے مراحل",
+  "nur.step.CONFIRMED": "وزٹ کی تصدیق ہو گئی",
+  "nur.step.IN_TRANSIT": "نرس راستے میں ہے",
+  "nur.step.ARRIVED": "نرس پہنچ گئی",
+  "nur.step.CARE_IN_PROGRESS": "دیکھ بھال جاری ہے",
+  "nur.step.COMPLETED": "وزٹ مکمل ہو گئی"
 }
