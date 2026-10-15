@@ -5,7 +5,7 @@ import { adminFetch, adminMutation, apiErrorMessage, toQuery } from '@/lib/admin
 import { useCan } from '@/components/AdminGuard';
 
 /**
- * #1235: urgent-alert inbox and rules. The backend evaluator (admin/urgent-alerts) applies these rules every five
+ * issue 1235: urgent-alert inbox and rules. The backend evaluator (admin/urgent-alerts) applies these rules every five
  * minutes to the same queries as the today screen and stores each finding once, so an admin who had the screen
  * closed still finds it here (and by e-mail when the rule says so). Endpoints: GET /admin/urgent-alerts,
  * POST /admin/urgent-alerts/:id/read, POST /admin/urgent-alerts/read-all, GET|PUT /admin/urgent-alerts/rules,

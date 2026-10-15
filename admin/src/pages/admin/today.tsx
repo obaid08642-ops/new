@@ -100,7 +100,7 @@ export default function TodayPage() {
         <article className="rounded-2xl border border-rose-200 bg-white p-4 shadow-sm md:p-6" aria-labelledby="today-urgent">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 id="today-urgent" className="text-lg font-bold">تنبيهات عاجلة</h2>
-            {/* #1235: the same findings are stored and e-mailed by rule while this screen is closed. */}
+            {/* issue 1235: the same findings are stored and e-mailed by rule while this screen is closed. */}
             <Link href="/admin/alerts" className="inline-flex min-h-11 items-center rounded border px-3 text-xs font-bold text-teal-700">صندوق التنبيهات والقواعد</Link>
           </div>
           {urgent.length ? (

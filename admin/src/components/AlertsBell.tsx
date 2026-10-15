@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { adminFetch } from '@/lib/admin-client';
 
 /**
- * #1235: the admin bell. Shows the signed-in admin's unread urgent alerts (GET /admin/urgent-alerts/unread-count,
+ * issue 1235: the admin bell. Shows the signed-in admin's unread urgent alerts (GET /admin/urgent-alerts/unread-count,
  * only the kinds their permissions cover) and opens the inbox. Refreshes every minute while the tab is visible,
  * on every page change and when the inbox marks alerts read (`nabd:alerts-read`).
  */

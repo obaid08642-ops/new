@@ -21,7 +21,7 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/dashboard', label: 'لوحة القياس الحية', permission: 'command.center.view' },
       // needs-review admin-ops-monitoring 3 and 13: both pages were reachable only by URL.
       { href: '/admin/today', label: 'اليوم', permission: 'command.center.view' },
-      // #1235: the urgent-alert inbox behind the bell.
+      // issue 1235: the urgent-alert inbox behind the bell.
       { href: '/admin/alerts', label: 'التنبيهات العاجلة', permission: 'command.center.view' },
       { href: '/admin/approvals', label: 'بانتظار موافقتي' },
       { href: '/admin/orders', label: 'دورة الطلبات', permission: 'order.read' },
