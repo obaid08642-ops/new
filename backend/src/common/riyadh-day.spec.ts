@@ -37,6 +37,7 @@ describe('Riyadh calendar days on a UTC server', () => {
     const before = await svc.getDailySummary('p-1', '2026-10-15');
     const ml = (s: any) => (typeof s.water === 'object' ? s.water.consumed_ml : s.water_ml);
     expect(ml(day)).toBe(350);
+    expect(day.date).toBe('2026-10-16');
     expect(ml(before)).toBe(0);
   });
 });

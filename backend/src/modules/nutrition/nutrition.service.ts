@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, Inject } from '@nestjs/common';
-import { riyadhDayRange } from '../../common/riyadh-clock';
+import { riyadhDayRange, riyadhParts } from '../../common/riyadh-clock';
 import { Model } from 'mongoose';
 import {
   NutritionProfile,
@@ -211,7 +211,7 @@ export class NutritionService {
     const totalExerciseMinutes = exercises.reduce((sum, e) => sum + (e.duration_minutes || 0), 0);
 
     return {
-      date: start.toISOString().split('T')[0],
+      date: riyadhParts(start).ymd,
       calories: {
         consumed: totalCalories,
         burned: totalCaloriesBurned,
@@ -240,13 +240,12 @@ export class NutritionService {
   /* ───────── Weekly Report ───────── */
 
   async getWeeklyReport(userId: string) {
-    const today = new Date();
+    // the last seven Riyadh days, today included
+    const todayStart = riyadhDayRange()!.start;
     const days: any[] = [];
 
     for (let i = 6; i >= 0; i--) {
-      const d = new Date(today);
-      d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().split('T')[0];
+      const dateStr = riyadhParts(new Date(todayStart.getTime() - i * 24 * 60 * 60 * 1000)).ymd;
       const summary = await this.getDailySummary(userId, dateStr);
       days.push(summary);
     }
