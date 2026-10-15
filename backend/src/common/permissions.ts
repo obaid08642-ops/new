@@ -266,10 +266,6 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     Permission.PRESCRIPTION_READ,
     Permission.USER_READ,
   ],
-  [UserRole.AMBULANCE]: [
-    Permission.APPOINTMENT_READ, Permission.APPOINTMENT_UPDATE,
-    Permission.USER_READ,
-  ],
   [UserRole.HOSPITAL_ADMIN]: [
     Permission.DOCTOR_CREATE, Permission.DOCTOR_EDIT, Permission.DOCTOR_READ,
     Permission.APPOINTMENT_READ, Permission.APPOINTMENT_UPDATE,

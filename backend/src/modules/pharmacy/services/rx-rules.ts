@@ -94,3 +94,37 @@ export async function enforceRxRules(conn: Connection, patientId: string, order:
     controlled: flags[i].controlled,
   }));
 }
+
+const compact = (v: unknown) => norm(v).replace(/\s+/g, '');
+const SUBSTITUTE_PROJECTION = { projection: { _id: 0, active_ingredient: 1, generic_name: 1, strength: 1, form: 1 } };
+
+/** The catalogue item behind a pharmacy inventory row: its `medicine_id`, else its sku (string or number). */
+async function inventoryMedicine(db: { collection(name: string): any }, inv: any): Promise<any | null> {
+  const or: any[] = [];
+  if (inv?.medicine_id) or.push({ id: String(inv.medicine_id) });
+  const sku = inv?.sku;
+  if (sku !== undefined && sku !== null && sku !== '') {
+    or.push({ id: String(sku) }, { sku: String(sku) });
+    if (/^\d+$/.test(String(sku))) or.push({ sku: Number(sku) });
+  }
+  return or.length ? db.collection('medicines').findOne({ $or: or, is_deleted: { $ne: true } }, SUBSTITUTE_PROJECTION) : null;
+}
+
+/**
+ * Issue 1440: a substitute for a prescription-only line stays inside the prescription: the same active ingredient,
+ * strength and form (a generic switch). The patient's consent does not replace the prescription. Both sides are read
+ * from the catalogue (D-10), never from what the pharmacy types; when either cannot be identified, it is refused.
+ */
+export async function assertSubstituteInsidePrescription(db: { collection(name: string): any }, line: any, substituteInventory: any): Promise<void> {
+  if (line?.requires_prescription !== true) return;
+  const original = line?.medicine_id
+    ? await db.collection('medicines').findOne({ id: String(line.medicine_id) }, SUBSTITUTE_PROJECTION)
+    : await inventoryMedicine(db, { sku: line?.matched_sku ?? line?.sku });
+  const substitute = substituteInventory ? await inventoryMedicine(db, substituteInventory) : null;
+  const key = (m: any) => [compact(m?.active_ingredient || m?.generic_name), compact(m?.strength), compact(m?.form)];
+  const a = key(original);
+  const b = key(substitute);
+  if (!original || !substitute || a.some((x) => !x) || a.join('|') !== b.join('|')) {
+    throw new BadRequestException({ code: 'substitute_outside_prescription', message: 'substitute_outside_prescription' });
+  }
+}

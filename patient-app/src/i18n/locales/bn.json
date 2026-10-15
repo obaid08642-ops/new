@@ -1261,7 +1261,7 @@
   "consult.call.connectionError": "সংযোগে ত্রুটি",
   "consult.call.backToConsult": "পরামর্শে ফিরে যান",
   "consult.call.preparing": "পরামর্শ কক্ষ প্রস্তুত হচ্ছে",
-  "health.tab.today": "আজ",
+  "health.tab.today": "সর্বশেষ",
   "health.tab.history": "ইতিহাস",
   "health.tab.trends": "প্রবণতা",
   "health.tab.doses": "আজকের ডোজ",

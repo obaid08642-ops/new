@@ -254,7 +254,6 @@ export class ProviderProfile {
   @Prop() home_collector_gender?: string;
   @Prop() home_duration?: number;
   @Prop({ type: [Object], default: undefined }) pharmacy_roster?: Record<string, unknown>[];
-  @Prop({ type: [Object], default: undefined }) ambulance_roster?: Record<string, unknown>[];
   @Prop() has_insurance_coordinator?: boolean;
   @Prop() vehicles_count?: number;
   @Prop({ type: [String], default: undefined }) vehicle_plates?: string[];
