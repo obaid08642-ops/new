@@ -7,6 +7,7 @@ import { PharmacyAllocationState, PharmacyOrderState } from '../schemas/pharmacy
 import { EventBusService } from '../../events/event-bus.service';
 import { BusinessRulesService } from '../../business-rules/business-rules.module';
 import { PharmacyNotificationService } from './pharmacy-notification.service';
+import { assertSubstituteInsidePrescription } from './rx-rules';
 
 const OFFER_TTL_MS = 10 * 60_000;
 const ACTIVE_PHARMACY_STATUSES = ['approved', 'active'];
@@ -142,6 +143,7 @@ export class PharmacyOfferService {
       const permitted = (inventoryItem.substitute_skus || []).includes(orderItem.matched_sku)
         || (!!inventoryItem.generic_name && inventoryItem.generic_name === orderItem.generic_name);
       if (!permitted) throw new BadRequestException('unapproved_substitute');
+      await assertSubstituteInsidePrescription(this.connection, orderItem, inventoryItem);
     } else if (orderItem.matched_sku && inventoryItem.sku !== orderItem.matched_sku) {
       throw new BadRequestException('inventory_item_does_not_match_order_item');
     }

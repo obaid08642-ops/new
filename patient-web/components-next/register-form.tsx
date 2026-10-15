@@ -92,9 +92,12 @@ export function RegisterForm({ locale }: { locale: Locale }) {
         setMessage(registerErrorMessage(t, response.status));
         return;
       }
+      // The account exists even when the code could not be sent (issue 434): the code page then says so and offers resend.
+      const result: unknown = await response.json().catch(() => null);
+      const sent = !(result && typeof result === "object" && (result as { otp_sent?: unknown }).otp_sent === false);
       setMessageOk(true);
       setMessage(t("success"));
-      router.push(`/${locale}/otp`);
+      router.push(`/${locale}/otp${sent ? "" : "?sent=0"}`);
     } catch {
       setMessageOk(false);
       setMessage(t("unavailable"));
