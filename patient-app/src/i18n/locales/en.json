@@ -3225,5 +3225,8 @@
   "ai.leaflet.side_effects": "Side effects",
   "ai.leaflet.warnings": "Warnings",
   "ai.leaflet.storage": "Storage",
-  "ai.leaflet.pregnancy": "Pregnancy and breastfeeding"
+  "ai.leaflet.pregnancy": "Pregnancy and breastfeeding",
+  "pharmacy.offers.unavailable": "No pharmacy is available right now",
+  "pharmacy.offers.unavailableBody": "No nearby pharmacy replied in time. Please try again later.",
+  "pharmacy.offers.searchRound": "Round {round}: searching pharmacies within {km} km"
 }

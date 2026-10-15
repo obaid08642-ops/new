@@ -3225,5 +3225,8 @@
   "ai.leaflet.side_effects": "दुष्प्रभाव",
   "ai.leaflet.warnings": "चेतावनियाँ",
   "ai.leaflet.storage": "भंडारण",
-  "ai.leaflet.pregnancy": "गर्भावस्था और स्तनपान"
+  "ai.leaflet.pregnancy": "गर्भावस्था और स्तनपान",
+  "pharmacy.offers.unavailable": "अभी कोई फ़ार्मेसी उपलब्ध नहीं है",
+  "pharmacy.offers.unavailableBody": "किसी नज़दीकी फ़ार्मेसी ने समय पर जवाब नहीं दिया। कृपया बाद में फिर कोशिश करें।",
+  "pharmacy.offers.searchRound": "राउंड {round}: {km} किमी के भीतर फ़ार्मेसी खोजी जा रही हैं"
 }
