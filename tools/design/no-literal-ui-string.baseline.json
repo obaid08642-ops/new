@@ -3,7 +3,6 @@
   "files": {
     "patient-app/app/(onboarding)/intro.tsx": 14,
     "patient-app/app/(onboarding)/language.tsx": 2,
-    "patient-app/app/(tabs)/services.tsx": 7,
     "patient-app/app/+not-found.tsx": 5,
     "patient-app/app/consultations/doctor-profile.tsx": 1,
     "patient-app/app/doctor/[slug].tsx": 3,
