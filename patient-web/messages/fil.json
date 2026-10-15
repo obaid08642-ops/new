@@ -3216,23 +3216,11 @@
     "example4": "Pantal at pangangati ng balat",
     "symptomsLabel": "Iyong mga sintomas",
     "symptomsPlaceholder": "Halimbawa: sakit ng ulo sa loob ng dalawang araw na may pagduduwal",
-    "flagsLegend": "May alinman ka ba sa mga senyales na ito? Piliin ang lahat ng naaangkop",
-    "flag": {
-      "chest_pain": "Pananakit ng dibdib",
-      "breathing_difficulty": "Hirap sa paghinga",
-      "fainting_or_unresponsive": "Pagkawala ng malay o hindi tumutugon",
-      "heavy_bleeding": "Matinding pagdurugo",
-      "new_confusion": "Biglaang pagkalito",
-      "severe_allergic_reaction": "Matinding allergic reaction",
-      "severe_injury": "Malubhang pinsala"
-    },
     "submit": "Alamin ang susunod na hakbang",
     "submitting": "Sinusuri…",
     "error": "Hindi makakuha ng gabay ngayon. Subukan muli mamaya.",
     "emergencyTitle": "Mga senyales na nangangailangan ng agarang tulong",
-    "emergencyBody": "Ang mga senyales na napili mo ay nangangailangang kontakin agad ang lokal na serbisyong pang-emerhensiya, huwag nang maghintay ng appointment.",
     "consultationTitle": "Iminumungkahi naming kumonsulta sa doktor",
-    "consultationBody": "Wala kang napiling senyales ng emerhensiya. Kung tumagal o lumala ang sintomas, mag-book ng konsultasyon sa doktor.",
     "bookConsultation": "Mag-book ng konsultasyon",
     "askAgain": "Magtanong ng iba",
     "disclaimer": "Pangkalahatang gabay ito, hindi diagnosis o paggamot. Sa emerhensiya, tumawag sa mga serbisyong pang-emerhensiya.",
@@ -3243,7 +3231,16 @@
     "untitledReport": "Ulat na medikal",
     "reportsUnavailable": "Hindi ma-load ang iyong mga ulat ngayon. Subukan muli mamaya.",
     "leafletLink": "Basahin ang leaflet",
-    "historyTitle": "Mga dati mong tanong"
+    "leafletTitle": "Tungkol sa gamot na ito, mula sa leaflet nito",
+    "outOfScopeTitle": "Ang kayang gawin ng assistant",
+    "leaflet": {
+      "indications": "Para saan ito ginagamit",
+      "how_to_use": "Paano ito gamitin",
+      "side_effects": "Mga side effect",
+      "warnings": "Mga babala",
+      "storage": "Pag-iimbak",
+      "pregnancy": "Pagbubuntis at pagpapasuso"
+    }
   },
   "MonthlyReportWeb": {
     "title": "Iyong buwanang ulat",

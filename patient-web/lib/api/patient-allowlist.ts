@@ -64,6 +64,7 @@ const patientReadRoutes = [
   new RegExp(`^/pharmacy/chat/threads/${threadId}/messages$`, "i"),
   new RegExp("^/mental-health/dashboard$"),
   new RegExp("^/mental-health/mood\\?days=30$"),
+  new RegExp("^/mental-health/meditation$"),
   // The assistant lists the patient's own earlier triage questions (GET /ai/triage/history, issues 873/882).
   new RegExp("^/ai/triage/history\\?limit=\\d{1,3}$"),
   new RegExp("^/users/me/privacy-settings$"),
@@ -153,7 +154,8 @@ const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }>
   { method: "POST", route: new RegExp("^/support/requests$", "i") },
   { method: "POST", route: new RegExp("^/loyalty/rewards/[A-Za-z0-9-]{1,64}/claim$", "i") },
   { method: "POST", route: new RegExp("^/health/reminders$", "i") },
-  { method: "POST", route: new RegExp("^/ai/triage$", "i") },
+  // decisions 7 and 15: the one assistant (backend ai.controller POST /ai/assistant)
+  { method: "POST", route: new RegExp("^/ai/assistant$", "i") },
   { method: "POST", route: new RegExp("^/loyalty/challenges/[A-Za-z0-9-]{1,64}/join$", "i") },
   { method: "POST", route: new RegExp("^/referrals/apply$", "i") },
   { method: "POST", route: new RegExp("^/loyalty/rewards/[A-Za-z0-9-]{1,64}/claim$", "i") },

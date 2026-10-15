@@ -9,8 +9,7 @@ describe("patient proxy allowlist — routes with a query string", () => {
     expect(isAllowedPatientApiTarget("/search", "?q=%D8%A8%D9%86%D8%A7%D8%AF%D9%88%D9%84&locale=ar&limit=10", "GET")).toBe(true);
     expect(isAllowedPatientApiTarget("/pharmacy/chat/threads", `?order_id=${order}`, "GET")).toBe(true);
     expect(isAllowedPatientApiTarget("/mental-health/mood", "?days=30", "GET")).toBe(true);
-    expect(isAllowedPatientApiTarget("/ai/triage/history", "?limit=20", "GET")).toBe(true);
-    expect(isAllowedPatientApiTarget("/ai/triage/history", "?limit=20&patient=x", "GET")).toBe(false);
+    expect(isAllowedPatientApiTarget("/ai/triage/history", "?limit=20", "GET")).toBe(false);
   });
   it("still refuses those paths without the pinned query, with another query, or with another method", () => {
     expect(isAllowedPatientApiTarget("/search", "", "GET")).toBe(false);
