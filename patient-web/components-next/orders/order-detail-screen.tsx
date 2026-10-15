@@ -35,11 +35,6 @@ export async function OrderDetailScreen({ locale, orderId }: { locale: Locale; o
   const t = await getTranslations({ locale, namespace: "Orders" });
   const offers = await getTranslations({ locale, namespace: "PharmacyOffers" });
   const routeState = await getTranslations({ locale, namespace: "RouteState" });
-  // journeys#8 (decision 26): the cancel confirmation says the refund rule, from the server's public config (as the offers page)
-  const settingsT = await getTranslations({ locale, namespace: "SettingsWeb" });
-  const configResponse = await callPatientApi("/system-config/public").catch(() => null);
-  const config = configResponse?.ok ? extractRecord(await configResponse.json().catch(() => null)) : null;
-  const cancelRules = pharmacyCancelRules(config, { prep: offers("cancelRulePrep"), refundDays: (min, max) => settingsT("ruleRefundDays", { min, max }), returnDays: (days) => settingsT("ruleReturnDays", { days }) });
   const token = await requirePatientAccess(locale);
   const ordersHref = `/${locale}/orders`;
   const frame = (children: React.ReactNode) => (
@@ -56,6 +51,9 @@ export async function OrderDetailScreen({ locale, orderId }: { locale: Locale; o
     return frame(<div className={rx.state}><RetryLinkErrorState title={t("unavailableTitle")} body={t("unavailableBody")} retryLabel={routeState("retry")} actionLabel={t("backToOrders")} actionHref={ordersHref} /></div>);
   }
   const { detail } = order;
+  // journeys#8 (decision 26): the cancel confirmation says the refund rule, from the server's public config (as the
+  // offers page). Read only for an order that can still be cancelled, after the order itself.
+  const cancelRules = canCancelOrder(detail.status) ? await orderCancelRules(locale, offers) : undefined;
   const action = orderAction(detail.status);
   const encoded = encodeURIComponent(orderId);
   const next = routeForOrder({ status: detail.status, governedState: detail.governedState, paymentStatus: detail.paymentStatus }, orderId, locale);
@@ -132,4 +130,12 @@ export async function OrderDetailScreen({ locale, orderId }: { locale: Locale; o
       </div>
     </>,
   );
+}
+
+/** The refund rule the cancel confirmation shows (decision 26), from GET /system-config/public. */
+async function orderCancelRules(locale: Locale, offers: Awaited<ReturnType<typeof getTranslations>>) {
+  const settingsT = await getTranslations({ locale, namespace: "SettingsWeb" });
+  const configResponse = await callPatientApi("/system-config/public").catch(() => null);
+  const config = configResponse?.ok ? extractRecord(await configResponse.json().catch(() => null)) : null;
+  return pharmacyCancelRules(config, { prep: offers("cancelRulePrep"), refundDays: (min, max) => settingsT("ruleRefundDays", { min, max }), returnDays: (days) => settingsT("ruleReturnDays", { days }) });
 }

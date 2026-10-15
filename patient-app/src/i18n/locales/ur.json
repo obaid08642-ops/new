@@ -3228,7 +3228,7 @@
   "insurance.benefits.youPaid": "آپ نے ادا کیا",
   "nur.terms.title": "منسوخی کی شرائط",
   "nur.terms.beforeOnTheWay": "نرس کے روانہ ہونے سے پہلے: مکمل رقم واپس۔",
-  "nur.terms.afterOnTheWay": "نرس کے روانہ ہونے کے بعد: مکمل رقم واپس، سفر کی فیس {fee} ریال کم کر کے۔",
+  "nur.terms.afterOnTheWay": "نرس کے روانہ ہونے کے بعد: مکمل رقم واپس، سفر کی فیس {fee} ر.س کم کر کے۔",
   "nur.terms.absent": "اگر نرس کے پہنچنے پر آپ موجود نہ ہوں: {percent}٪ واپس۔",
   "services.cat.laboratoryTests": "لیبارٹری ٹیسٹ",
   "services.cat.homeNursing": "ہوم نرسنگ",

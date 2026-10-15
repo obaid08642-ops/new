@@ -37,11 +37,6 @@ export async function TrackingScreen({ locale, orderId }: { locale: Locale; orde
   const orders = await getTranslations({ locale, namespace: "Orders" });
   const offers = await getTranslations({ locale, namespace: "PharmacyOffers" });
   const routeState = await getTranslations({ locale, namespace: "RouteState" });
-  // journeys#8 (decision 26): the cancel confirmation says the refund rule, from the server's public config
-  const settingsT = await getTranslations({ locale, namespace: "SettingsWeb" });
-  const configResponse = await callPatientApi("/system-config/public").catch(() => null);
-  const config = configResponse?.ok ? extractRecord(await configResponse.json().catch(() => null)) : null;
-  const cancelRules = pharmacyCancelRules(config, { prep: offers("cancelRulePrep"), refundDays: (min, max) => settingsT("ruleRefundDays", { min, max }), returnDays: (days) => settingsT("ruleReturnDays", { days }) });
   const token = await requirePatientAccess(locale);
   const orderHref = `/${locale}/orders/${encodeURIComponent(orderId)}`;
   const frame = (children: React.ReactNode) => (
@@ -58,6 +53,9 @@ export async function TrackingScreen({ locale, orderId }: { locale: Locale; orde
     return frame(<div className={rx.state}><RetryLinkErrorState title={orders("unavailableTitle")} body={orders("unavailableBody")} retryLabel={routeState("retry")} actionLabel={orders("backToOrders")} actionHref={`/${locale}/orders`} /></div>);
   }
   const { detail } = order;
+  // journeys#8 (decision 26): the cancel confirmation says the refund rule, from the server's public config (as the
+  // offers page). Read only for an order that can still be cancelled, after the order itself.
+  const cancelRules = canCancelOrder(detail.status) ? await orderCancelRules(locale, offers) : undefined;
   const status = (detail.status ?? "").toLowerCase();
   const steps = trackingSteps(detail);
   const moving = isMoving(detail.status);
@@ -129,4 +127,12 @@ export async function TrackingScreen({ locale, orderId }: { locale: Locale; orde
       {canCancelOrder(detail.status) ? <div className={styles.actions}><CancelOrder orderId={orderId} after="refresh" rules={cancelRules} /></div> : null}
     </>,
   );
+}
+
+/** The refund rule the cancel confirmation shows (decision 26), from GET /system-config/public. */
+async function orderCancelRules(locale: Locale, offers: Awaited<ReturnType<typeof getTranslations>>) {
+  const settingsT = await getTranslations({ locale, namespace: "SettingsWeb" });
+  const configResponse = await callPatientApi("/system-config/public").catch(() => null);
+  const config = configResponse?.ok ? extractRecord(await configResponse.json().catch(() => null)) : null;
+  return pharmacyCancelRules(config, { prep: offers("cancelRulePrep"), refundDays: (min, max) => settingsT("ruleRefundDays", { min, max }), returnDays: (days) => settingsT("ruleReturnDays", { days }) });
 }
