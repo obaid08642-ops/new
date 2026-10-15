@@ -84,7 +84,7 @@ export function PrescriptionClient({ locale, appointmentId }: { locale: string; 
   const meds = toMedicationViews(item);
   const orderable = meds.filter((m) => m.medicineId);
   const orderThese = () => {
-    for (const med of orderable) addItem({ id: String(med.medicineId), name: med.name, rx: true });
+    for (const med of orderable) addItem({ id: String(med.medicineId), name: med.name, rx: true, ...(item.id ? { prescriptionId: String(item.id) } : {}) });
     router.push(`/${locale}/cart`);
   };
   return (

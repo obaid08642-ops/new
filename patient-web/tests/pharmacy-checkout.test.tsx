@@ -532,6 +532,12 @@ describe("small readers", () => {
     expect(activePrescriptionId(null)).toBeNull();
   });
 
+  it("decision 18: the prescription the cart lines came from wins while it is active, never one that is not", () => {
+    const other = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
+    expect(activePrescriptionId([{ id: TXN }, { id: other }], other)).toBe(other);
+    expect(activePrescriptionId([{ id: TXN }], other)).toBe(TXN);
+  });
+
   it("the insurance row shows who insures the patient and the class, never a number", () => {
     expect(parseInsurancePolicy({ has_policy: true, policy: { company_name: "Bupa", plan_class: "A", policy_number: "9023", national_id: "1000000000" } })).toEqual({ company: "Bupa", planClass: "A" });
     expect(parseInsurancePolicy({ has_policy: false, policy: {} })).toBeNull();
