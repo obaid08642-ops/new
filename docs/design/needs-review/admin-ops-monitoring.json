@@ -173,6 +173,6 @@
     "line": 144,
     "found": "[backend] The orders list has no stuck / failed-payment / SLA-breach / refund-pending filter, so this screen lists only the stuck orders from ops/alerts (5 kinds, 30 minute threshold) and links each to its order page; failed payments link to finance because transactions carry a booking_kind that is not always an order kind. (backend: backend/src/modules/admin/enterprise/admin-orders.controller.ts:20)",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open (issue #1236)"
+    "review_status": "fixed #1461"
   }
 ]

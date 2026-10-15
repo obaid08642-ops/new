@@ -52,6 +52,9 @@ describe('AiCommerceService', () => {
     },
   ];
 
+  // The filters the feed sends to provider_profiles and facilities (13-web#6).
+  const feedFilters: Record<string, any> = {};
+
   const mockConnection = {
     collection: jest.fn().mockImplementation((name: string) => {
       if (name === 'medicines') {
@@ -77,11 +80,11 @@ describe('AiCommerceService', () => {
       }
       if (name === 'provider_profiles') {
         return {
-          find: jest.fn().mockReturnValue({
+          find: jest.fn().mockImplementation((f: any) => (feedFilters.doctor = f, {
             limit: jest.fn().mockReturnValue({
               toArray: jest.fn().mockResolvedValue(mockDoctors),
             }),
-          }),
+          })),
           findOne: jest.fn().mockImplementation(({ $or }) => {
             const scalar = (v: any) => (v && typeof v === 'object' && '$eq' in v ? v.$eq : v);
             const val = scalar($or[0]?.id) || scalar($or[1]?.slug);
@@ -92,11 +95,11 @@ describe('AiCommerceService', () => {
       }
       if (name === 'facilities') {
         return {
-          find: jest.fn().mockReturnValue({
+          find: jest.fn().mockImplementation((f: any) => (feedFilters.facility = f, {
             limit: jest.fn().mockReturnValue({
               toArray: jest.fn().mockResolvedValue(mockFacilities),
             }),
-          }),
+          })),
         };
       }
       if (name === 'ai_checkout_sessions') {
@@ -132,6 +135,18 @@ describe('AiCommerceService', () => {
       expect(feed.total_items).toBe(2);
       expect(feed.items[0]['@type']).toBe('MedicalBusiness');
       expect(feed.items[1]['@type']).toBe('Hospital');
+    });
+
+    it('lists only public, approved providers and invents no price or insurer (13-web#6)', async () => {
+      const feed = await service.getServiceFeed({ city: 'الرياض', locale: 'ar' });
+      expect(feedFilters.doctor).toMatchObject({ type: 'doctor', status: 'active', public_eligibility: true, medical_review_status: 'approved' });
+      expect(feedFilters.facility).toMatchObject({ is_active: true, public_eligibility: true, medical_review_status: 'approved' });
+      const [doctor, facility] = feed.items;
+      // The mock doctor has no clinic price: no price is shown.
+      expect(doctor.priceRange).toBeUndefined();
+      expect(doctor.acceptedInsurance).toEqual(['bupa', 'tawuniya']);
+      expect(doctor).toMatchObject({ kind: 'doctor', slug: 'dr-sara' });
+      expect(facility).toMatchObject({ kind: 'facility', slug: 'dallah-hospital', acceptedInsurance: ['bupa'] });
     });
   });
 
