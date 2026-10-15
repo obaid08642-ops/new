@@ -60,7 +60,11 @@ def run():
         step('refresh token rotates (accessToken + refreshToken)', r.ok and r.get('accessToken') and r.get('refreshToken') and r.get('refreshToken') != refresh, r)
         r2 = anon.post('/auth/refresh', {'refresh_token': refresh})
         step('the old refresh token is rejected after rotation', r2.status == 401, r2)
-        live = r.get('refreshToken')
+        # Replaying the rotated token revoked the whole token family (refreshToken reuse detection),
+        # so sign-out is checked on a fresh session.
+        r = anon.post('/auth/login', {'identifier': p['email'], 'password': p['password']})
+        live = (r.get('token') or {}).get('refreshToken') if isinstance(r.get('token'), dict) else None
+        step('a fresh sign-in returns a refresh token', live, r)
         if live:
             # patient-web /api/auth/logout and the app's sign-out send the refresh token (issue 440)
             r3 = anon.post('/auth/logout', {'refresh_token': live})
