@@ -447,6 +447,8 @@ export class PharmacyOfferService {
         unit_price: item.unit_price,
         currency: item.currency,
         alternative: item.action === 'substitute' ? (item.name_ar || item.name_en || item.sku || null) : null,
+        // journeys 75 (decision 12): the website reads these named lines, so they carry the price check too
+        price_status: item.above_catalogue_price === true ? 'above_catalogue' : item.price_check === 'not_verified' ? 'not_verified' : 'verified',
       })),
       pharmacy_name_ar: pharmacyNameAr,
       pharmacy_name_en: pharmacyNameEn,
