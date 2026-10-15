@@ -13,10 +13,10 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Admin | 97 | 8 | 56 | 33 | 0 | 0 |
 | Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
 | Final pass | 8 | 8 | 0 | 0 | 0 | 0 |
-| Patient journeys | 87 | 32 | 52 | 2 | 1 | 0 |
+| Patient journeys | 87 | 31 | 52 | 2 | 2 | 0 |
 | Provider app | 31 | 8 | 22 | 1 | 0 | 0 |
 | Provider journeys | 34 | 17 | 15 | 2 | 0 | 0 |
-| **Total** | **740** | **171** | **420** | **128** | **10** | **11** |
+| **Total** | **740** | **170** | **420** | **128** | **11** | **11** |
 
 ## By tag
 
@@ -25,8 +25,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | client | 169 | 50 | 90 | 28 | 1 | 0 |
 | owner | 100 | 18 | 34 | 42 | 4 | 2 |
 | backend | 233 | 35 | 168 | 26 | 0 | 4 |
-| untagged | 238 | 68 | 128 | 32 | 5 | 5 |
-| **Total** | **740** | **171** | **420** | **128** | **10** | **11** |
+| untagged | 238 | 67 | 128 | 32 | 6 | 5 |
+| **Total** | **740** | **170** | **420** | **128** | **11** | **11** |
 
 ## By file
 
@@ -86,7 +86,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1d-web.json` | 10 | 1 | 5 | 3 | 1 | 0 |
 | `final-pass-2.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `final-pass.json` | 4 | 4 | 0 | 0 | 0 | 0 |
-| `journeys.json` | 87 | 32 | 52 | 2 | 1 | 0 |
+| `journeys.json` | 87 | 31 | 52 | 2 | 2 | 0 |
 | `provider-admin-ish.json` | 3 | 1 | 2 | 0 | 0 | 0 |
 | `provider-doctor.json` | 6 | 1 | 5 | 0 | 0 | 0 |
 | `provider-facility.json` | 7 | 1 | 6 | 0 | 0 | 0 |
@@ -100,9 +100,9 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 7 | 0 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 6 | 7 | 0 | 0 | 0 |
-| **Total** | **740** | **171** | **420** | **128** | **10** | **11** |
+| **Total** | **740** | **170** | **420** | **128** | **11** | **11** |
 
-## Owner decisions (10)
+## Owner decisions (11)
 
 | # | Where | Screen / element | Question |
 |---:|---|---|---|
@@ -116,8 +116,9 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 8 | `batch-1d-app.json#18` `docs/design/canvas/Success.dc.html:1` | /payments/result Success board colours and confetti not drawn | The Success board is a dark full-bleed page with lime (#D7FF00) and confetti colours that are not tokens. |
 | 9 | `batch-1d-web.json#1` `backend/src/modules/payments/payments.module.ts:154` | /pharmacy/payment Payment provider not exercised | No gateway key on the local backend (intent answers 503) and no Mongo replica set (selection / insurance acceptance fail). Hosted checkout, return and webhook were checked only against a TEST stand-in outside the repo (… |
 | 10 | `journeys.json#22` `patient-app/app/pharmacy/cart.tsx:75` | 2 cart with Rx item | Web and app differ: the web cart goes straight to checkout and uses the "active" prescription, the app cart goes to rx-order to pick a prescription first. |
+| 11 | `journeys.json#34` `patient-web/app/[locale]/prescriptions/[prescriptionId]/page.tsx:97` | 3 prescription -> cart | Web "اطلب الأدوية دي" on the prescription page opens rx-order and broadcasts directly; decision 18 says it fills the cart (the app does). |
 
-## Open and unverified (182)
+## Open and unverified (181)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -234,7 +235,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `journeys.json#24` | untagged | open (issue #1033) | 2 insurance on offers | Insurance is only choosable per offer (coverage radio shown if insuranceReady) for the Rx and manual flows, contrary to decision 30 (choose first). |
 | `journeys.json#29` | untagged | open (issue #1038) | 3 booking (home visit) | Home visit asks the patient to type latitude and longitude as text; no saved-address / map picker (the app uses the address book). |
 | `journeys.json#33` | untagged | open (issue #1042) | 3 after the visit (summary) | "Order the medicines" on the summary goes to the pharmacy catalogue (/pharmacy), not "اطلب الأدوية دي" filling the cart (decision 18). |
-| `journeys.json#34` | untagged | open (issue #1043) | 3 prescription -> cart | Web "اطلب الأدوية دي" on the prescription page opens rx-order and broadcasts directly; decision 18 says it fills the cart (the app does). |
 | `journeys.json#37` | untagged | open (issue #1046) | 3 doctor chat | The web chat thread is an activity-only list (no text, no composer): "chat with doctor" buttons lead to a screen where nothing can be read or sent (decision 24 wants full messagin… |
 | `journeys.json#38` | untagged | open (issue #1047) | 3 doctor chat | The /chat thread list rows have no link, so threads cannot be opened; the page itself says threads cannot be opened. |
 | `journeys.json#39` | untagged | open (issue #1048) | 3 doctor chat | The /chat list is still reachable from the dashboard ("المحادثات") and used as the fallback of every chat redirect; decision 24 removes it. |
