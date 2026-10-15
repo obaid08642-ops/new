@@ -79,7 +79,7 @@ export function isVisible(source: SearchSource, raw: any): boolean {
   if (!raw || raw.is_deleted === true) return false;
   const approved = raw.public_eligibility === true && raw.medical_review_status === 'approved';
   switch (source) {
-    case 'medicines': return approved && raw.indexing_eligibility === true && raw.active !== false;
+    case 'medicines': return approved && raw.active !== false; // as sourceFilter: indexing is for crawlers only
     case 'provider_profiles': return raw.type === 'doctor' && raw.status === 'active' && approved;
     case 'specialties': return raw.active !== false;
     case 'lab_services': return approved && raw.active === true && !isImaging(raw);
