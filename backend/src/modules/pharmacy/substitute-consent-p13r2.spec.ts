@@ -139,11 +139,13 @@ describe('P13-R2 substitute requires patient consent', () => {
     };
     const allocs = { findOne: jest.fn(async () => alloc) };
     const bus = { emit: jest.fn(async () => null) };
-    const chat = new PharmacyChatService(threads as any, messages as any, orders as any, allocs as any, bus as any);
-    await chat.acceptSubstitute({ id: 'pat-1' } as any, 't-1', 'm-1');
+    // owner decision 30: the chat accept goes through the allocation's own accept (stock, prescription, paid price)
+    const allocation = makeAllocSvc(alloc);
+    const chat = new PharmacyChatService(threads as any, messages as any, orders as any, allocs as any, bus as any, allocation.svc);
+    await chat.acceptSubstitute({ id: 'pat-1', role: 'patient' } as any, 't-1', 'm-1');
     expect(alloc.items[0].substitute_status).toBe('accepted');
     expect(alloc.totals).toMatchObject({ subtotal: 30, total: 35 });
-    expect(orders.updateOne).toHaveBeenCalledWith(
+    expect(allocation.orders.updateOne).toHaveBeenCalledWith(
       expect.objectContaining({ id: 'o-1' }),
       expect.objectContaining({ $set: expect.objectContaining({ totals: expect.objectContaining({ total: 35 }) }) }),
     );

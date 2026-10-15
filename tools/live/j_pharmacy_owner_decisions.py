@@ -52,7 +52,8 @@ def order_chat(admin, pat, pharm):
         return None
     pharm.req('POST', '/provider/ops/availability/toggle-instant', None, idem=False)
     for m in (ordered, generic, weaker):
-        r = pharm.post('/provider/capabilities/pharmacy', {'sku': m['id'], 'name_ar': m['name_ar'], 'name_en': m['name_en'], 'price': 31,
+        # the generic substitute costs more than the ordered medicine (37 against 31): after payment it may not be taken
+        r = pharm.post('/provider/capabilities/pharmacy', {'sku': m['id'], 'name_ar': m['name_ar'], 'name_en': m['name_en'], 'price': 37 if m is generic else 31,
                                                           'stock': 20, 'available': True, 'substitute_skus': []})
         step(f"pharmacy lists {m['name_en']}", r.ok, r)
     r = admin.get('/admin/admin/providers/provider-deltas')
@@ -127,7 +128,43 @@ def order_chat(admin, pat, pharm):
     stranger = Client(__import__('j_accounts').app_signup(label='chat-stranger')['token'], 'patient')
     r = stranger.get(f'/pharmacy/chat/threads/{tid}/messages')
     step('another patient cannot read the chat', r.status == 403, r)
-    return {'oid': oid, 'tid': tid, 'msg': offer_msg, 'generic': generic, 'ordered': ordered}
+    return {'oid': oid, 'tid': tid, 'msg': offer_msg, 'generic': generic, 'ordered': ordered, 'pharm': pharm}
+
+
+def substitute_and_payment(pat, chat):
+    """Owner decision 30: accepting a chat substitute is the allocation's own accept, and a paid order keeps its price."""
+    from j_nursing import card_payment
+    oid, tid, msg = chat['oid'], chat['tid'], chat['msg']
+    journey('order chat: a substitute is taken only on the chosen offer, and never changes a paid order')
+    r = pat.post(f'/pharmacy/chat/threads/{tid}/accept-substitute/{msg["id"]}', {})
+    step('before the patient chooses an offer the accept is refused (substitute_needs_selected_offer)', r.status == 400 and 'substitute_needs_selected_offer' in str(r.body), r)
+    r = pat.get(f'/patient/pharmacy/orders/{oid}/offers')
+    offers = r.items()
+    step('the patient sees the pharmacy offer', r.ok and offers, r)
+    if not offers:
+        return
+    of = offers[0]
+    r = pat.post(f"/patient/pharmacy/orders/{oid}/offers/{of.get('id') or of.get('offer_id')}/select", {'coverage_mode': 'cash'}, headers={'Idempotency-Key': KEY('chat-offer')})
+    step('the patient chooses the offer', r.ok, r)
+    o = pat.get(f'/patient/pharmacy/orders/{oid}')
+    order = o.body.get('data', o.body) if isinstance(o.body, dict) else {}
+    if order.get('governed_state') == 'FINAL_QUOTE_READY' or order.get('selected_offer_hash'):
+        final = order.get('governed_state') == 'FINAL_QUOTE_READY'
+        r = pat.post(f'/patient/pharmacy/orders/{oid}/final-quote/accept', {'quote_hash': order.get('pending_final_quote_hash') if final else order.get('selected_offer_hash'),
+                                                                           'quote_revision': order.get('pending_final_quote_revision') if final else order.get('selected_offer_revision')},
+                     headers={'Idempotency-Key': KEY('chat-final-quote')})
+        step('the patient accepts the final quote', r.ok, r)
+    paid = card_payment(pat, 'pharmacy', oid)
+    step('the patient pays the order by card', bool(paid), paid)
+    total_before = ((pat.get(f'/patient/pharmacy/orders/{oid}').get('pricing_snapshot') or {}).get('totals') or {}).get('total')
+    r = pat.post(f'/pharmacy/chat/threads/{tid}/accept-substitute/{msg["id"]}', {})
+    step('after payment a substitute at another price is refused (substitute_price_after_payment)', r.status == 409 and 'substitute_price_after_payment' in str(r.body), r)
+    r = pat.post(f'/pharmacy/chat/threads/{tid}/remove-item', {})
+    step('and removing the line of a paid order is refused (item_removal_after_payment)', r.status == 409 and 'item_removal_after_payment' in str(r.body), r)
+    total_after = ((pat.get(f'/patient/pharmacy/orders/{oid}').get('pricing_snapshot') or {}).get('totals') or {}).get('total')
+    step('the paid total is unchanged', total_before is not None and total_before == total_after, f'{total_before} -> {total_after}')
+    r = pat.get(f'/pharmacy/chat/threads/{tid}/messages')
+    step('the chat stays open for the pharmacy to cancel or refund the line', r.ok and (r.get('thread') or {}).get('status') == 'open', r)
 
 
 def main():
@@ -175,10 +212,8 @@ def main():
             step('the substitute is on the patient chat page', True)
         except Exception as e:
             step('the substitute is on the patient chat page', False, str(e)[:300])
-        r = pat.post(f"/pharmacy/chat/threads/{chat['tid']}/accept-substitute/{chat['msg']['id']}", {})
-        step('the patient accepts the substitute', r.ok, r)
-        r = pat.get(f"/pharmacy/chat/threads/{chat['tid']}/messages")
-        step('the chat is closed as accepted', r.ok and (r.get('thread') or {}).get('resolution') == 'accepted', r)
+        if chat.get('msg'):
+            substitute_and_payment(pat, chat)
 
     journey('web: the product page has no "ask a pharmacist" entry (decision 40)')
     try:

@@ -37,7 +37,7 @@ describe('pharmacy order chat', () => {
     const orders = { findOne: jest.fn(() => lean(order)), db };
     const allocs = { findOne: jest.fn(() => lean(opts.alloc ?? null)) };
     const bus = { emit: jest.fn(async () => null) };
-    const svc = new PharmacyChatService(threads as any, messages as any, orders as any, allocs as any, bus as any);
+    const svc = new PharmacyChatService(threads as any, messages as any, orders as any, allocs as any, bus as any, {} as never);
     return { svc, threads, created, bus };
   }
 

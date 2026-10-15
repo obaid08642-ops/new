@@ -3,7 +3,7 @@
  * Content filter blocks phone numbers, URLs, external messenger refs.
  * Auto-close 12h after order delivered/completed.
  */
-import { Injectable, ForbiddenException, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException, BadRequestException, ConflictException, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { PharmacyChatThread, PharmacyChatMessage, PharmacyOrder, PharmacyOrderState, PharmacyAllocation, AllocationItemAction } from '../schemas/pharmacy.schema';
@@ -12,7 +12,7 @@ import { PharmacyChatThreadRepository } from "./repositories/pharmacychatthread.
 import { PharmacyChatMessageRepository } from "./repositories/pharmacychatmessage.repository";
 import { PharmacyOrderRepository } from "./repositories/pharmacyorder.repository";
 import { PharmacyAllocationRepository } from "./repositories/pharmacyallocation.repository";
-import { buildQuoteHash, recalcAllocationTotals } from './pharmacy-allocation.service';
+import { PharmacyAllocationService, buildQuoteHash, recalcAllocationTotals } from './pharmacy-allocation.service';
 import { assertSubstituteInsidePrescription } from './rx-rules';
 
 const BLOCK_PATTERNS: Array<{ name: string; re: RegExp }> = [
@@ -41,6 +41,7 @@ export class PharmacyChatService {
     @Inject('PharmacyOrderRepository') private orders: PharmacyOrderRepository,
     @Inject('PharmacyAllocationRepository') private allocs: PharmacyAllocationRepository,
     private bus: EventBusService,
+    private allocations: PharmacyAllocationService,
   ) {}
 
   async openOrGetThread(order_id: string, order_item_id: string, pharmacy_account_id: string): Promise<PharmacyChatThread> {
@@ -202,26 +203,8 @@ export class PharmacyChatService {
         : null;
       await assertSubstituteInsidePrescription(this.orders.db, line, subInv);
     }
-    // Find the pharmacy's allocation for this order and update the matching item
-    const alloc = await this.allocs.findOne({ order_id: t.order_id, pharmacy_account_id: t.pharmacy_account_id });
-    if (alloc) {
-      const item = alloc.items.find(i => i.order_item_id === t.order_item_id);
-      if (item) {
-        item.action = AllocationItemAction.SUBSTITUTE;
-        item.substitute_for_sku = item.sku;
-        item.sku = msg.substitute_offer.sku || item.sku;
-        item.name = msg.substitute_offer.name || item.name;
-        item.substitute_reason = msg.substitute_offer.notes || 'patient_accepted_in_chat';
-        item.unit_price = msg.substitute_offer.price || item.unit_price;
-        item.updated_at = new Date();
-        // P13-R2: the patient's accept is recorded and the order total updated.
-        item.substitute_status = 'accepted';
-        recalcAllocationTotals(alloc);
-        alloc.markModified('items');
-        await alloc.save();
-        await this.syncOrderTotals(t.order_id, alloc, new Date(), 'substitute_accepted');
-      }
-    }
+    // The allocation's own accept: availability, stock reservation, order totals, and no price change once paid.
+    await this.allocations.acceptChatSubstitute(user, t.order_id, t.pharmacy_account_id, t.order_item_id, { sku: msg.substitute_offer.sku, notes: msg.substitute_offer.notes });
     t.status = 'closed';
     t.resolution = 'accepted';
     await t.save();
@@ -235,6 +218,11 @@ export class PharmacyChatService {
     if (!t) throw new NotFoundException();
     if (t.patient_account_id !== user.id) throw new ForbiddenException();
     if (t.status !== 'open') throw new BadRequestException('thread_closed');
+    // A paid order keeps its lines: the paid amount is bound to the quote, so removing one here would neither refund it
+    // nor let the order be fulfilled. After payment the pharmacy cancels or refunds the line through its own flows.
+    if (action === 'removed' && await this.orders.db.collection('pharmacy_payment_evidence').findOne({ order_id: t.order_id, status: 'confirmed' })) {
+      throw new ConflictException('item_removal_after_payment');
+    }
     t.status = 'closed';
     t.resolution = action;
     await t.save();
