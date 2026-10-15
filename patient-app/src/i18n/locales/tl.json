@@ -3225,5 +3225,9 @@
   "search.kind.nursingServices": "Mga serbisyo ng pag-aalaga",
   "insurance.benefits.requestsTitle": "Mga kahilingan sa insurance: {count}",
   "insurance.benefits.insurerCovered": "Sinagot ng insurer",
-  "insurance.benefits.youPaid": "Binayaran mo"
+  "insurance.benefits.youPaid": "Binayaran mo",
+  "nur.terms.title": "Mga tuntunin sa pagkansela",
+  "nur.terms.beforeOnTheWay": "Bago umalis ang nars: buong refund.",
+  "nur.terms.afterOnTheWay": "Kapag papunta na ang nars: buong refund bawas ang {fee} SAR na bayad sa biyahe.",
+  "nur.terms.absent": "Kung wala ka pagdating ng nars: {percent}% ang ibabalik."
 }

@@ -3225,5 +3225,9 @@
   "search.kind.nursingServices": "خدمات تمريض",
   "insurance.benefits.requestsTitle": "طلبات التأمين: {count}",
   "insurance.benefits.insurerCovered": "غطّته شركة التأمين",
-  "insurance.benefits.youPaid": "دفعتَه أنت"
+  "insurance.benefits.youPaid": "دفعتَه أنت",
+  "nur.terms.title": "شروط الإلغاء",
+  "nur.terms.beforeOnTheWay": "قبل أن يكون الممرض في الطريق: استرداد كامل.",
+  "nur.terms.afterOnTheWay": "بعد أن يتحرك الممرض: استرداد كامل ناقص رسوم المشوار {fee} ر.س.",
+  "nur.terms.absent": "إذا لم تكن موجودًا عند وصول الممرض: يُسترد {percent}٪."
 }

@@ -3225,5 +3225,9 @@
   "search.kind.nursingServices": "नर्सिंग सेवाएं",
   "insurance.benefits.requestsTitle": "बीमा अनुरोध: {count}",
   "insurance.benefits.insurerCovered": "बीमा कंपनी ने कवर किया",
-  "insurance.benefits.youPaid": "आपने भुगतान किया"
+  "insurance.benefits.youPaid": "आपने भुगतान किया",
+  "nur.terms.title": "रद्द करने की शर्तें",
+  "nur.terms.beforeOnTheWay": "नर्स के रास्ते में होने से पहले: पूरा रिफंड।",
+  "nur.terms.afterOnTheWay": "नर्स के निकलने के बाद: पूरा रिफंड, {fee} रियाल यात्रा शुल्क घटाकर।",
+  "nur.terms.absent": "नर्स के पहुँचने पर आप मौजूद न हों तो: {percent}% वापस।"
 }

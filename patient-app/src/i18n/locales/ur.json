@@ -3225,5 +3225,9 @@
   "search.kind.nursingServices": "نرسنگ خدمات",
   "insurance.benefits.requestsTitle": "انشورنس درخواستیں: {count}",
   "insurance.benefits.insurerCovered": "انشورنس کمپنی نے ادا کیا",
-  "insurance.benefits.youPaid": "آپ نے ادا کیا"
+  "insurance.benefits.youPaid": "آپ نے ادا کیا",
+  "nur.terms.title": "منسوخی کی شرائط",
+  "nur.terms.beforeOnTheWay": "نرس کے روانہ ہونے سے پہلے: مکمل رقم واپس۔",
+  "nur.terms.afterOnTheWay": "نرس کے روانہ ہونے کے بعد: مکمل رقم واپس، سفر کی فیس {fee} ریال کم کر کے۔",
+  "nur.terms.absent": "اگر نرس کے پہنچنے پر آپ موجود نہ ہوں: {percent}٪ واپس۔"
 }

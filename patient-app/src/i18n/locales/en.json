@@ -3225,5 +3225,9 @@
   "search.kind.nursingServices": "Nursing services",
   "insurance.benefits.requestsTitle": "Insurance requests: {count}",
   "insurance.benefits.insurerCovered": "Covered by insurer",
-  "insurance.benefits.youPaid": "You paid"
+  "insurance.benefits.youPaid": "You paid",
+  "nur.terms.title": "Cancellation terms",
+  "nur.terms.beforeOnTheWay": "Before the nurse is on the way: full refund.",
+  "nur.terms.afterOnTheWay": "Once the nurse is on the way: full refund minus the {fee} SAR trip fee.",
+  "nur.terms.absent": "If you are not there when the nurse arrives: {percent}% is refunded."
 }

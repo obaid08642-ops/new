@@ -114,6 +114,11 @@ def main():
     except Exception as e:
         step('web offers', False, str(e)[:300])
 
+    journey('journeys 66 (decision 26): the home-visit terms the app shows before payment')
+    r = Client(None, 'anon').get('/refund-policy')
+    hv = (r.body or {}).get('home_visit') if isinstance(r.body, dict) else {}
+    step('the public refund policy has the trip fee and the absent rule (nurse-profile reads them)', r.ok and isinstance((hv or {}).get('trip_fee_sar'), (int, float)) and (hv or {}).get('patient_absent_percent') is not None, r)
+
     journey('journeys 8 (decision 26): the order page says the refund rule before cancelling')
     try:
         cfg = Client(None, 'anon').get('/system-config/public')
