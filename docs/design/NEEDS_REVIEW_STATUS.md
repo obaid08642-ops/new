@@ -10,23 +10,23 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---|---:|---:|---:|---:|---:|---:|
 | Patient app and web | 434 | 117 | 245 | 60 | 1 | 11 |
 | Other | 28 | 21 | 7 | 0 | 0 | 0 |
-| Admin | 93 | 30 | 45 | 18 | 0 | 0 |
-| Admin journeys | 20 | 4 | 16 | 0 | 0 | 0 |
+| Admin | 93 | 22 | 45 | 26 | 0 | 0 |
+| Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
 | Final pass | 8 | 8 | 0 | 0 | 0 | 0 |
 | Patient journeys | 86 | 41 | 44 | 1 | 0 | 0 |
 | Provider app | 31 | 9 | 21 | 1 | 0 | 0 |
 | Provider journeys | 34 | 22 | 12 | 0 | 0 | 0 |
-| **Total** | **734** | **252** | **390** | **80** | **1** | **11** |
+| **Total** | **734** | **242** | **390** | **90** | **1** | **11** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | client | 168 | 67 | 82 | 19 | 0 | 0 |
-| owner | 100 | 64 | 27 | 6 | 1 | 2 |
+| owner | 100 | 54 | 27 | 16 | 1 | 2 |
 | backend | 229 | 40 | 161 | 24 | 0 | 4 |
 | untagged | 237 | 81 | 120 | 31 | 0 | 5 |
-| **Total** | **734** | **252** | **390** | **80** | **1** | **11** |
+| **Total** | **734** | **242** | **390** | **90** | **1** | **11** |
 
 ## By file
 
@@ -66,12 +66,12 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `9-web.json` | 8 | 1 | 7 | 0 | 0 | 0 |
 | `ac-1-agent-oauth.json` | 2 | 2 | 0 | 0 | 0 | 0 |
 | `admin-catalogue.json` | 23 | 5 | 13 | 5 | 0 | 0 |
-| `admin-customers-growth.json` | 14 | 1 | 8 | 5 | 0 | 0 |
+| `admin-customers-growth.json` | 14 | 0 | 8 | 6 | 0 | 0 |
 | `admin-finance.json` | 6 | 0 | 5 | 1 | 0 | 0 |
-| `admin-journeys.json` | 20 | 4 | 16 | 0 | 0 | 0 |
+| `admin-journeys.json` | 20 | 2 | 16 | 2 | 0 | 0 |
 | `admin-ops-monitoring.json` | 16 | 9 | 4 | 3 | 0 | 0 |
 | `admin-providers.json` | 8 | 3 | 4 | 1 | 0 | 0 |
-| `admin-public-directories.json` | 14 | 10 | 4 | 0 | 0 | 0 |
+| `admin-public-directories.json` | 14 | 3 | 4 | 7 | 0 | 0 |
 | `admin-system.json` | 12 | 2 | 7 | 3 | 0 | 0 |
 | `batch-0-app.json` | 13 | 5 | 7 | 0 | 0 | 1 |
 | `batch-0-runtime.json` | 8 | 6 | 1 | 1 | 0 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 7 | 0 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 12 | 5 | 7 | 0 | 0 | 0 |
-| **Total** | **734** | **252** | **390** | **80** | **1** | **11** |
+| **Total** | **734** | **242** | **390** | **90** | **1** | **11** |
 
 ## Owner decisions (1)
 
@@ -108,7 +108,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---:|---|---|---|
 | 1 | `13-web.json#13` `patient-web/lib/legal/embedded.ts:15` | /terms Embedded fallback text | [owner] The embedded copy (issue 755/783) is built from docs/legal, which are drafts with [placeholders] until a Saudi lawyer approves them, so it stays off today. After approval: update docs/legal, run node patient-web… |
 
-## Open and unverified (263)
+## Open and unverified (253)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -202,10 +202,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `admin-catalogue.json#18` | backend | open | /admin/medicines-catalog Controlled flag (quick edit) | [backend] Owner decision 10 needs `controlled` editable by admin, but it is not in MedicinesService.EDITABLE_FIELDS nor in AdminUpdateCatalogDto, so a PATCH would drop it. The con… |
 | `admin-catalogue.json#19` | backend | open | /admin/medicines-catalog Add item from the items-to-review queue | [backend] Decision 12 queue (pharmacy lines with no catalogue match, price not verified) does not exist: no sfda_price fields, GET /medicines/admin/pending-review answers 410 Gone… |
 | `admin-catalogue.json#20` | backend | open | /admin/medicines-catalog Change log for prescription flag and availability | [backend] Only price changes write a history row (medicine price history, shown in the quick edit); a prescription-flag or availability change goes to the generic audit log with n… |
-| `admin-customers-growth.json#1` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /admin/community-moderation Removed feature | [owner] Owner decision item 1 (2026-10-06) removes community user posts completely; this moderation page goes with them. |
-| `admin-journeys.json#12` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /admin/catalog-governance Journey 2 / Three overlapping medicine editors | Removed 2026-10-10 (owner decision): [owner] Medicines can be edited from medicines-catalog (full form), catalog-manager (tab 'medicines', broken methods) and catalog-governance (… |
 | `admin-journeys.json#14` | client | open | /admin/orders/[kind]/[id] Journey 3 / Refund action is labelled 'to wallet' but… | Fixed (the refund label now reads "استرداد إلى وسيلة الدفع الأصلية"; the compensation label was corrected the same way 2026-10-10, owner decision #952): [client] The refund action… |
-| `admin-journeys.json#15` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /admin/returns Journey 3 / Four refund paths, two with no admin screen | Removed 2026-10-10 (owner decision): [owner] Refunds can start in: admin returns (approve executes the refund, returns.service.ts:380), the refund queue on insurance-queue (decide… |
 | `admin-journeys.json#18` | client | open (issue #955) | /admin/config-portal Journey 4 / Emergency maintenance switch is disabled and t… | [client] The 'Trigger System Kill-Switch' button is permanently disabled ('requires server set-up'), although the handler at line 183 and PUT /admin/governance/trigger-emergency-m… |
 | `admin-ops-monitoring.json#1` | client | open | /admin/approvals API GET (unresolved) | [client] Endpoint is UNRESOLVED (path is not a literal the tool can resolve): the call fails or hits nothing. |
 | `admin-ops-monitoring.json#2` | client | open | /admin/approvals Guard G-PAGE-NOPERM (1) | [client] Page has no client permission (AdminGuard ROUTE_PERMISSIONS) but 1 call(s) need permissions the backend checks (GET /medicines/admin/shortage-reports); any admin sees the… |
@@ -219,16 +216,9 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `admin-providers.json#0` | client | open | /admin/insurance-queue اعتماد الاسترداد | Removed 2026-10-10 (owner decision): [client] Sensitive action (POST /api/admin/admin/finance/refunds/:param/decide) runs on one tap with no confirm/prompt in the handler (a confi… |
 | `admin-providers.json#1` | client | open | /admin/insurance-queue رفض | Removed 2026-10-10 (owner decision): [client] Sensitive action (POST /api/admin/admin/finance/refunds/:param/decide) runs on one tap with no confirm/prompt in the handler (a confi… |
 | `admin-providers.json#2` | backend | open | /admin/insurance-queue Guard G-ROLE-ONLY-WRITE (1) | Removed 2026-10-10 (owner decision): [backend] 1 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/finance/refunds/:param/decide): eve… |
-| `admin-public-directories.json#3` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /doctors Public page inside admin | Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether publ… |
 | `admin-public-directories.json#4` | client | open | /facilities API GET /care/facilities | Removed 2026-10-10 (owner decision): [client] fetchDirectory() runs inside getServerSideProps with a RELATIVE url ("/care/facilities"); Node fetch throws on a relative URL and the… |
-| `admin-public-directories.json#5` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /facilities Public page inside admin | Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether publ… |
 | `admin-public-directories.json#6` | client | open | /home-care-services API GET /home-care/services | Removed 2026-10-10 (owner decision): [client] fetchDirectory() runs inside getServerSideProps with a RELATIVE url ("/home-care/services"); Node fetch throws on a relative URL and … |
-| `admin-public-directories.json#7` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /home-care-services Public page inside admin | Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether publ… |
-| `admin-public-directories.json#8` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | / Public page inside admin | Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether publ… |
 | `admin-public-directories.json#9` | client | open | /lab-services API GET /labs/services | Removed 2026-10-10 (owner decision): [client] fetchDirectory() runs inside getServerSideProps with a RELATIVE url ("/labs/services"); Node fetch throws on a relative URL and the c… |
-| `admin-public-directories.json#10` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /lab-services Public page inside admin | Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether publ… |
-| `admin-public-directories.json#12` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /medicines Public page inside admin | Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether publ… |
-| `admin-public-directories.json#13` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /s/[type]/[slug] Public page inside admin | Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether publ… |
 | `admin-system.json#1` | client | open (issue #995) | /admin/config-portal Trigger System Kill-Switch (معطّل — يتطلب إعداد الخادم) | [client] Button is disabled with no handler. |
 | `admin-system.json#10` | backend | open | /admin/system-ops Feature switch effect | [backend] The switch writes and audits (reason required), but backend code reads only `sms_enabled` (sms.service.ts) and ConfigService hands the flags to clients; there is no per-… |
 | `batch-0-app.json#2` | untagged | open (issue #410) | /login Two api helpers and three base-URL resolutions | login.tsx, welcome.tsx and useSocialLogin.ts use utils/api.ts (axios HttpClient, base EXPO_PUBLIC_API_URL + /api/v1 else https://api.nabd.plus/api/v1: src/services/HttpClient.ts:5… |
