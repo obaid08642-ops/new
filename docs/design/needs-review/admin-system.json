@@ -130,5 +130,16 @@
     "found": "[backend] 4 call(s): POST /api/admin/auth/public/:param uses raw fetch() instead of adminFetch/adminMutation, so no x-admin-csrf header is sent and the BFF will answer 403 csrf_vali (backend: admin/src/pages/api/admin/auth/public/[action].ts)",
     "suspect": "Backend gap: reviewer session.",
     "review_status": "not-a-problem: Checked: not a problem. (issue #1008)"
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/authority",
+    "element": "POST /admin/authority/users/:id/impersonate",
+    "file": "backend/src/modules/admin/authority/admin-authority.module.ts",
+    "line": 259,
+    "found": "[backend] Minted a full access token for any user (super_admin included) for any admin, with no user.impersonate permission, case, expiry or audit of its use; the force-* overrides named no permission (role-only writes).",
+    "suspect": "Backend gap: security (fix session).",
+    "review_status": "fixed #1450"
   }
 ]

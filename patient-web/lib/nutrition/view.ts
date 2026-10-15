@@ -11,10 +11,14 @@ const finite = (value: unknown): number | null => {
 export function parseNutritionSummary(payload: unknown): NutritionSummary {
   const root = rec(payload);
   const data = rec(root?.data) ?? root;
+  // GET /nutrition/daily-summary (nutrition.service getDailySummary) answers calories { consumed, target } and water
+  // { consumed_ml, target_ml }; reading them as plain numbers showed 0 calories, no target and 0 ml whatever was logged.
+  const calories = rec(data?.calories);
+  const water = rec(data?.water);
   return {
-    calories: finite(data?.calories) ?? finite(data?.total_calories) ?? 0,
-    target: finite(data?.target_calories) ?? finite(data?.calorie_target),
-    waterMl: finite(data?.water_ml) ?? finite(data?.water) ?? 0,
+    calories: finite(calories?.consumed) ?? finite(data?.calories) ?? finite(data?.total_calories) ?? 0,
+    target: finite(calories?.target) ?? finite(data?.target_calories) ?? finite(data?.calorie_target),
+    waterMl: finite(water?.consumed_ml) ?? finite(data?.water_ml) ?? finite(data?.water) ?? 0,
   };
 }
 
