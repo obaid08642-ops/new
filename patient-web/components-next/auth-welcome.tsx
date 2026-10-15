@@ -6,6 +6,7 @@ import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import { NabdMark } from "@/components-next/nabd-mark";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { getStableDeviceId } from "@/lib/auth/device-id";
@@ -55,6 +56,8 @@ export function AuthWelcome({ locale }: { locale: Locale }) {
       <button type="button" className={styles.guestLink} onClick={doGuest} disabled={guestBusy}>
         {t("guest")}<Icon name={rtl ? "caret-left" : "caret-right"} size={16} tone="currentColor" />
       </button>
+      {/* issue 436: the intro slides and the language step are reached from here (the web has no first launch) */}
+      <Link className={styles.guestLink} href={`/${locale}/onboarding`}>{t("howItWorks")}</Link>
     </div>
   </div>;
 }

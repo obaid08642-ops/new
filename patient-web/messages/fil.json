@@ -1899,7 +1899,8 @@
     "tagline": "Mas malapit ang pangangalaga",
     "guest": "Magpatuloy bilang bisita",
     "register": "Gumawa ng account",
-    "login": "Mag-log in"
+    "login": "Mag-log in",
+    "howItWorks": "Paano gumagana ang Nabd Plus"
   },
   "AuthFrame": {
     "back": "Bumalik",

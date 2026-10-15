@@ -1899,7 +1899,8 @@
     "tagline": "Your complete healthcare",
     "guest": "Continue as guest",
     "register": "Create account",
-    "login": "Log in"
+    "login": "Log in",
+    "howItWorks": "How Nabd Plus works"
   },
   "AuthFrame": {
     "back": "Back",

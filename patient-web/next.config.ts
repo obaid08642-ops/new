@@ -73,7 +73,8 @@ const nextConfig: NextConfig = {
       { key: "X-Frame-Options", value: "DENY" },
       { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
       { key: "Permissions-Policy", value: "camera=(self), microphone=(self), geolocation=(self), payment=(self)" },
-      { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+      // issue 430: Google sign-in's popup must be able to answer the page (Google Identity Services needs same-origin-allow-popups)
+      { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
       { key: "Cross-Origin-Resource-Policy", value: "same-site" },
       { key: "X-DNS-Prefetch-Control", value: "off" },
       // F68: the web clients had no CSP at all.
