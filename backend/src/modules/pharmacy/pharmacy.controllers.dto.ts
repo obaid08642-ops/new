@@ -335,6 +335,13 @@ export class OfferItemDto {
   @IsString()
   substitute_inventory_item_id?: string;
 
+  /** provider-journeys 1: a national catalogue item (search row with source "catalogue") when the line is priced from the
+   *  catalogue; the server adds it to the pharmacy's inventory. For a substitute it is the substitute item. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  medicine_id?: string;
+
   @IsOptional()
   @IsNumber()
   unit_price_override?: number;
