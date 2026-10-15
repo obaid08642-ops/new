@@ -77,8 +77,13 @@ def main():
         listed = pat.get(f"/home-care/providers?type={svc['id']}")
         order = [n.get('id') for n in (listed.body if isinstance(listed.body, list) else listed.items())]
         step('the nurses offering the service are listed, this nurse among them', nurses.count() == len(order) and nurse_id in order, f'{nurses.count()} button(s), {len(order)} from the server')
-        if nurse_id in order:
-            nurses.nth(order.index(nurse_id)).click()
+        # by the nurse's own account id (the button's value): earlier journeys of the gate register other nurses, often
+        # under the same test name, and the list order is the server's, not this journey's
+        mine = sec('nurse').locator(f'button[value="{nurse_id}"]')
+        step('this nurse has her own button', mine.count() == 1, f'{mine.count()} button(s)')
+        if mine.count():
+            mine.first.click()
+            page.wait_for_selector(f'section[aria-labelledby="home-care-nurse"] button[value="{nurse_id}"][aria-pressed="true"]', timeout=15000)
         sec('day').locator('button').nth(1).click()
         sec('time').locator('button').first.wait_for(timeout=30000)
         step('tomorrow shows the nurse\'s free times', sec('time').locator('button').count() > 0, sec('time').inner_text()[:200])
