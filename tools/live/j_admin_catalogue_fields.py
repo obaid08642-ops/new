@@ -10,6 +10,7 @@ final-pass#2/#3), through the real API.
   - final-pass#3: the admin's public directory pages were removed (f0232ca7d); the six directories are public API data.
 Stack: backend :8002, admin BFF :3001, smtp_sink :2525.
 """
+import datetime
 import uuid
 
 from lib import Client, WebClient, journey, step
@@ -137,7 +138,7 @@ def provider_recruitment(admin, p):
     step('a published job exists', r.ok and jid, r)
     prov = Client(p['token'], 'provider')
     cv = j_onboarding.upload(prov, 'cv.png')
-    r = prov.post('/recruitment/candidate/profile', {'cv_url': cv, 'scfhs_license_number': f'SCFHS-{tag}'})
+    r = prov.post('/recruitment/candidate/profile', {'cv_url': cv, 'scfhs_license_number': f'SCFHS-{tag}', 'scfhs_license_expiry': (datetime.date.today() + datetime.timedelta(days=365)).isoformat()})
     step('provider completes the candidate profile (MedicalJobsApplicant.tsx)', r.ok, r)
     r = prov.post(f'/recruitment/jobs/{jid}/apply', {'cover_letter': 'الخبرة: 4 سنوات'})
     step('provider applies (MedicalJobsScreen handleApply)', r.ok, r)
