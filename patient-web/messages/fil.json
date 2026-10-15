@@ -4205,5 +4205,9 @@
     "pointCamera": "Itutok ang camera sa code",
     "viewfinder": "Tanaw ng camera",
     "cameraFailed": "Hindi mabuksan ang camera. Payagan ito, o i-type ang code."
+  },
+  "Network": {
+    "offline": "Offline ka. Ipinapakita ng pahinang ito ang huling naka-save na kopya.",
+    "offlineLastUpdated": "Offline ka. Ipinapakita ng pahinang ito ang huling naka-save na kopya. Huling pagbabago: {time}"
   }
 }
