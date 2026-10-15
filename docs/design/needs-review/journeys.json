@@ -447,7 +447,7 @@
     "kind": "dead-end",
     "file": "patient-web/app/[locale]/diagnostics/labs/book/page.tsx",
     "line": 38,
-    "review_status": "open (issue #1058)"
+    "review_status": "fixed #1470"
   },
   {
     "scenario": 5,
@@ -456,7 +456,7 @@
     "kind": "duplicate",
     "file": "patient-web/app/[locale]/diagnostics/packages/[packageId]/page.tsx",
     "line": 82,
-    "review_status": "open (issue #1059)"
+    "review_status": "fixed #1470"
   },
   {
     "scenario": 5,
@@ -492,7 +492,7 @@
     "kind": "missing-step",
     "file": "patient-web/app/[locale]/diagnostics/bookings/[domain]/[bookingId]/page.tsx",
     "line": 66,
-    "review_status": "open (issue #1063)"
+    "review_status": "fixed #1470"
   },
   {
     "scenario": 5,
@@ -537,7 +537,7 @@
     "kind": "wrong-state",
     "file": "patient-app/app/diagnostics/upload-rx.tsx",
     "line": 6,
-    "review_status": "open (issue #1068)"
+    "review_status": "fixed #1470"
   },
   {
     "scenario": 6,

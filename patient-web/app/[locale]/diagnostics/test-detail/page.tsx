@@ -45,7 +45,8 @@ export default async function DiagnosticsTestDetailPage({ params, searchParams }
     <ConsultPage locale={locale} title={name || t("testTitle")} backHref={`/${locale}/diagnostics/search`}>
       <Hero icon={LAB.icon} tone={LAB.tone} title={name} sub={category} />
       {rows.length > 0 ? <SectionCard id="test-facts" title={t("testFacts")}><Facts rows={rows} label={t("testFacts")} /></SectionCard> : null}
-      <ActionLinks actions={[{ href: `/${locale}/diagnostics/labs/book?serviceId=${encodeURIComponent(testId)}`, label: t("bookTest") }, { href: addHref, label: t("addToOrderCta"), variant: "outline" }]} />
+      {/* journeys#50: one booking path, the cart (the lab is chosen there), as the app. */}
+      <ActionLinks actions={[{ href: addHref, label: t("addToOrderCta") }]} />
     </ConsultPage>
   );
 }

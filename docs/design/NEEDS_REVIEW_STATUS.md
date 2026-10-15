@@ -8,15 +8,15 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| Patient app and web | 434 | 81 | 253 | 88 | 1 | 11 |
+| Patient app and web | 434 | 82 | 252 | 88 | 1 | 11 |
 | Other | 29 | 22 | 7 | 0 | 0 | 0 |
 | Admin | 97 | 8 | 56 | 33 | 0 | 0 |
 | Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
 | Final pass | 8 | 8 | 0 | 0 | 0 | 0 |
-| Patient journeys | 87 | 33 | 52 | 2 | 0 | 0 |
+| Patient journeys | 87 | 29 | 56 | 2 | 0 | 0 |
 | Provider app | 31 | 8 | 22 | 1 | 0 | 0 |
 | Provider journeys | 34 | 17 | 15 | 2 | 0 | 0 |
-| **Total** | **740** | **179** | **421** | **128** | **1** | **11** |
+| **Total** | **740** | **176** | **424** | **128** | **1** | **11** |
 
 ## By tag
 
@@ -25,8 +25,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | client | 169 | 51 | 90 | 28 | 0 | 0 |
 | owner | 100 | 21 | 34 | 42 | 1 | 2 |
 | backend | 233 | 35 | 168 | 26 | 0 | 4 |
-| untagged | 238 | 72 | 129 | 32 | 0 | 5 |
-| **Total** | **740** | **179** | **421** | **128** | **1** | **11** |
+| untagged | 238 | 69 | 132 | 32 | 0 | 5 |
+| **Total** | **740** | **176** | **424** | **128** | **1** | **11** |
 
 ## By file
 
@@ -75,7 +75,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `admin-system.json` | 12 | 2 | 7 | 3 | 0 | 0 |
 | `batch-0-app.json` | 13 | 5 | 7 | 0 | 0 | 1 |
 | `batch-0-runtime.json` | 8 | 6 | 1 | 1 | 0 | 0 |
-| `batch-0-web.json` | 19 | 9 | 8 | 1 | 0 | 1 |
+| `batch-0-web.json` | 19 | 10 | 7 | 1 | 0 | 1 |
 | `batch-1a-app.json` | 19 | 3 | 4 | 11 | 0 | 1 |
 | `batch-1a-web.json` | 12 | 4 | 6 | 2 | 0 | 0 |
 | `batch-1b-app.json` | 12 | 4 | 5 | 2 | 0 | 1 |
@@ -86,7 +86,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1d-web.json` | 10 | 2 | 5 | 3 | 0 | 0 |
 | `final-pass-2.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `final-pass.json` | 4 | 4 | 0 | 0 | 0 | 0 |
-| `journeys.json` | 87 | 33 | 52 | 2 | 0 | 0 |
+| `journeys.json` | 87 | 29 | 56 | 2 | 0 | 0 |
 | `provider-admin-ish.json` | 3 | 1 | 2 | 0 | 0 | 0 |
 | `provider-doctor.json` | 6 | 1 | 5 | 0 | 0 | 0 |
 | `provider-facility.json` | 7 | 1 | 6 | 0 | 0 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 7 | 0 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 6 | 7 | 0 | 0 | 0 |
-| **Total** | **740** | **179** | **421** | **128** | **1** | **11** |
+| **Total** | **740** | **176** | **424** | **128** | **1** | **11** |
 
 ## Owner decisions (1)
 
@@ -108,7 +108,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---:|---|---|---|
 | 1 | `13-web.json#13` `patient-web/lib/legal/embedded.ts:15` | /terms Embedded fallback text | [owner] The embedded copy (issue 755/783) is built from docs/legal, which are drafts with [placeholders] until a Saudi lawyer approves them, so it stays off today. After approval: update docs/legal, run node patient-web… |
 
-## Open and unverified (190)
+## Open and unverified (187)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -192,6 +192,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-0-web.json#8` | untagged | open (issue #437) | /onboarding Slides, buttons and labels | FIXED in batch-0-fixes: slide titles and bodies, the carousel, language and permission steps and the frame's back label and hero text are in messages (Onboarding, AuthFrame; six l… |
 | `batch-0-web.json#9` | untagged | open (issue #438) | /onboarding/permissions Allow buttons (Location, Notifications) | Location only calls getCurrentPosition and discards the result; Notifications calls Notification.requestPermission() and stops. ServiceWorkerRegister (which would subscribe) is im… |
 | `batch-0-web.json#10` | untagged | open (issue #439) | / Hero search form (also on /dashboard) and the JSON-LD SearchAction | FIXED in batch-0-fixes: /search now reads ?q=, starts with it in the field and runs it. STILL OPEN: the page requires a session (requirePatientAccess) and the public Home's search… |
+| `batch-0-web.json#11` | untagged | open (issue #440) | /dashboard Sign-out (missing on all home-shell and core-shell screens) | FIXED in batch-0-fixes: a sign-out button is in the signed-in Home and core shells (wide top bars; on a phone the Home top bar has it, and the core screens are one tap from Home).… |
 | `batch-0-web.json#12` | untagged | closed-unverified (issue #441: closed with no linked PR) | /search Section links of the frame (CoreShell) vs HomeShell | FIXED in batch-0-fixes: both frames take the four section links from components-next/shell-links.ts (Pharmacy to /c, Consultations to /consultations/doctors, Labs and radiology to… |
 | `batch-0-web.json#16` | untagged | open (issue #445) | /notifications/settings The 9 switches (6 categories, 3 channels) | Toggles PATCH {categories\|channels:{key:bool}} and are stored on the patient profile document (notification_settings). Delivery reads notification_settings from the users collect… |
 | `batch-1a-app.json#7` | owner | open (issue #455) | /pharmacy/product-detail Delivery / pickup choice with "within [time]" (hidden) | The board draws a delivery or pickup segmented control with expected times. The cart item (src/context/CartContext.tsx) carries no delivery mode and the pharmacy draft is built la… |
@@ -242,11 +243,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `journeys.json#44` | untagged | open (issue #1053) | 4 cancel | Cancelling from the appointment page gives no refund amount or method afterwards, only a refresh. |
 | `journeys.json#46` | untagged | open (issue #1055) | 4 pay card | After a consultation card payment the shared /payments/result has no order id, so "paid" offers only "my orders" (the pharmacy orders list), not the appointment. |
 | `journeys.json#48` | untagged | open (issue #1057) | 4 appointment page | A finished appointment links to the generic /prescriptions list, not to that visit's prescription or to "اطلب الأدوية دي"; no chat entry or follow-up from the appointment page. |
-| `journeys.json#49` | untagged | open (issue #1058) | 5 book home lab | Booking a lab test from the lab list ends at "no lab available" with only a back button (no compatible lab in seed, but also no alternative such as the lab list or the cart). |
-| `journeys.json#50` | untagged | open (issue #1059) | 5 book home lab | Two booking entries: "book this package" -> /diagnostics/labs/book and "add to my order" -> /diagnostics/cart (cart -> checkout). |
-| `journeys.json#54` | untagged | open (issue #1063) | 5 result | The web lab booking page shows a "report ready" tag but no way to open or download the report (the app opens it via /reports/view-report). |
 | `journeys.json#57` | untagged | open (issue #1066) | 5 result | There is no "ناقش النتيجة مع طبيب" button (decision 19) in the web or app result screens, and no notification target for it. |
-| `journeys.json#59` | untagged | open (issue #1068) | 5 upload Rx for labs | The app lab "upload prescription" route redirects to the PHARMACY prescription scan, which then offers to order medicines. |
 | `journeys.json#60` | untagged | open (issue #1069) | 6 service detail | The web home-nursing service page says "read-only, no booking is created from this page" and has no booking button; /nursing/booking redirects to the catalogue. Home nursing canno… |
 | `journeys.json#63` | untagged | open (issue #1072) | 6 catalog | Two parallel web trees for nursing (/nursing/* and /home-care/*); the dashboard "تمريض" goes to /nursing/catalog but its detail links go to /home-care/services/:id. |
 | `journeys.json#66` | untagged | open (issue #1075) | 6 booking | No cancellation/trip-fee text before payment for nursing (decision 26). |
