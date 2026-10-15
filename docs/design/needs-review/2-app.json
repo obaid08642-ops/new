@@ -41,7 +41,7 @@
     "line": 71,
     "found": "[backend] Fixed on design/backend-fields: the step \"Doctor on the way\" follows EN_ROUTE / ARRIVED (Q-15); there is still no doctor position, so no map is drawn.",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open (issue #385)"
+    "review_status": "fixed #1518 (issue #385)"
   },
   {
     "batch": 2,
