@@ -147,6 +147,7 @@ import { Public, Roles } from '../../common/auth.guard';
 import { PublicCache } from '../../common/public-cache.decorator';
 import { UserRole } from '../../common/enums';
 import { AutoEntitySeoPipelineService, PipelineEntityType } from '../events/auto-entity-seo-pipeline.service';
+import { PUBLIC_MEDICINE, PUBLIC_TYPED_PROVIDER } from '../entity-graph/entity-graph.service';
 import { resolveMedicinePublicDto, productLocaleToDb, PUBLIC_CATALOG_LOCALES } from '../medicines/med-i18n';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 // P5.3: merged from SeoModule (seo/ → seo-search/)
@@ -879,7 +880,9 @@ export class SeoSearchService {
    * and the structure is AI-ranking ready (score breakdown exposed).
    */
   async medicineRecommendations(id: string, limit = 12): Promise<any> {
-    const med: any = await this.conn.collection(CATALOG_COLLECTIONS.medicines).findOne({ id, is_deleted: { $ne: true } }, { projection: { _id: 0 } });
+    // P13-R8: internal links only from real, governed edges — the root and
+    // every candidate must pass the same public rule as the entity pages.
+    const med: any = await this.conn.collection(CATALOG_COLLECTIONS.medicines).findOne({ id, ...PUBLIC_MEDICINE }, { projection: { _id: 0 } });
     if (!med) return { strategy: 'none', items: [] };
     const card = { _id: 0, id: 1, name_ar: 1, name_en: 1, price: 1, old_price: 1, image: 1, manufacturer: 1, brand: 1, requires_prescription: 1, form: 1, strength: 1, active_ingredient: 1, category: 1, sub_category: 1, usage_count: 1, availability_status: 1 };
 
@@ -896,25 +899,25 @@ export class SeoSearchService {
     const queries: Array<Promise<any>> = [];
     // 1) Same active ingredient (strongest)
     if (med.active_ingredient) {
-      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ active_ingredient: med.active_ingredient, is_deleted: { $ne: true } } as any, { projection: card } as any).limit(20).toArray()
+      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ active_ingredient: med.active_ingredient, ...PUBLIC_MEDICINE } as any, { projection: card } as any).limit(20).toArray()
         .then(rows => rows.forEach(r => add(r, 50, 'نفس المادة الفعالة'))));
     }
     // 2) Same strength/dosage (within ingredient match)
     if (med.active_ingredient && med.strength) {
-      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ active_ingredient: med.active_ingredient, strength: med.strength, is_deleted: { $ne: true } } as any, { projection: card } as any).limit(10).toArray()
+      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ active_ingredient: med.active_ingredient, strength: med.strength, ...PUBLIC_MEDICINE } as any, { projection: card } as any).limit(10).toArray()
         .then(rows => rows.forEach(r => add(r, 15, 'نفس التركيز'))));
     }
     // 3) Same category + sub_category (usage similarity)
-    queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ category: med.category, sub_category: med.sub_category, is_deleted: { $ne: true } } as any, { projection: card } as any).limit(20).toArray()
+    queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ category: med.category, sub_category: med.sub_category, ...PUBLIC_MEDICINE } as any, { projection: card } as any).limit(20).toArray()
       .then(rows => rows.forEach(r => add(r, med.active_ingredient ? 10 : 30, 'نفس الفئة والاستخدام'))));
     // 4) Same brand/manufacturer
     const brand = med.brand || med.manufacturer;
     if (brand) {
-      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ $or: [{ brand }, { manufacturer: brand }], is_deleted: { $ne: true } } as any, { projection: card } as any).limit(15).toArray()
+      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ $or: [{ brand }, { manufacturer: brand }], ...PUBLIC_MEDICINE } as any, { projection: card } as any).limit(15).toArray()
         .then(rows => rows.forEach(r => add(r, 8, 'نفس البراند'))));
     }
     // 5) Popularity boost (usage_count percentile)
-    queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ category: med.category, is_deleted: { $ne: true } } as any, { projection: card } as any).sort({ usage_count: -1 }).limit(10).toArray()
+    queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ category: med.category, ...PUBLIC_MEDICINE } as any, { projection: card } as any).sort({ usage_count: -1 }).limit(10).toArray()
       .then(rows => rows.forEach(r => add(r, Math.min(12, (r.usage_count || 0) / 10), 'الأكثر رواجاً'))));
     await Promise.all(queries);
 
@@ -930,15 +933,17 @@ export class SeoSearchService {
   }
 
   async doctorRecommendations(id: string, limit = 10): Promise<any> {
-    const doc: any = await this.conn.collection('provider_profiles').findOne({ id, provider_type: 'doctor' } as any, { projection: { _id: 0 } });
+    // P13-R8: internal links only from real, governed edges — same public
+    // rule as the doctor pages (suspended or unreviewed doctors link nowhere).
+    const doc: any = await this.conn.collection('provider_profiles').findOne({ id, provider_type: 'doctor', ...PUBLIC_TYPED_PROVIDER } as any, { projection: { _id: 0 } });
     if (!doc) return { same_specialty: [], nearby: [] };
     const card = { _id: 0, id: 1, name: 1, full_name: 1, specialty: 1, photo_url: 1, rating: 1, city: 1, consultation_price: 1 };
     const [sameSpecialty, nearby] = await Promise.all([
       doc.specialty
-        ? this.conn.collection('provider_profiles').find({ provider_type: 'doctor', specialty: doc.specialty, id: { $ne: id } } as any, { projection: card } as any).sort({ rating: -1 }).limit(limit).toArray()
+        ? this.conn.collection('provider_profiles').find({ provider_type: 'doctor', specialty: doc.specialty, id: { $ne: id }, ...PUBLIC_TYPED_PROVIDER } as any, { projection: card } as any).sort({ rating: -1 }).limit(limit).toArray()
         : Promise.resolve([]),
       doc.city
-        ? this.conn.collection('provider_profiles').find({ provider_type: 'doctor', city: doc.city, id: { $ne: id } } as any, { projection: card } as any).sort({ rating: -1 }).limit(limit).toArray()
+        ? this.conn.collection('provider_profiles').find({ provider_type: 'doctor', city: doc.city, id: { $ne: id }, ...PUBLIC_TYPED_PROVIDER } as any, { projection: card } as any).sort({ rating: -1 }).limit(limit).toArray()
         : Promise.resolve([]),
     ]);
     return { same_specialty: sameSpecialty, nearby, ranking: 'specialty>nearby>rating (AI-rank ready)' };
