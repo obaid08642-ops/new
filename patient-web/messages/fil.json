@@ -702,7 +702,7 @@
     "partUnavailable": "Hindi ma-load ang bahaging ito.",
     "unitsRemaining": "{count, plural, one {# yunit ang natitira} other {# yunit ang natitira}}",
     "vitalsTitle": "Mga vital sign",
-    "vitalsToday": "Ngayon",
+    "vitalsToday": "Pinakabago",
     "vitalsHistory": "Kasaysayan",
     "vitalsTrends": "Mga trend",
     "noReading": "Wala pang reading",
@@ -912,9 +912,9 @@
   "ChatDetail": {
     "eyebrow": "Pribadong conversation",
     "thread": "Conversation",
-    "messagesTitle": "Aktibidad ng messages",
+    "messagesTitle": "Mga mensahe",
     "back": "Bumalik sa chats",
-    "bodyHidden": "Hindi pa makikita rito ang teksto ng mensahe, mga kalahok, reaksyon at attachment.",
+    "bodyHidden": "Hindi makikita rito ang mga pangalan ng kalahok, reaksyon at attachment.",
     "attachmentHidden": "May attachment ang mensaheng ito.",
     "deleted": "Deleted message",
     "timeUnavailable": "Hindi available ang oras",
@@ -1509,6 +1509,7 @@
     "checkingBody": "Tinatanong namin ang payment provider at ang parmasya tungkol sa resulta. Ilang segundo lang ito.",
     "checkAgain": "Suriin muli",
     "trackOrder": "Subaybayan ang order",
+    "openBooking": "Tingnan ang booking",
     "stalledTitle": "Naghihintay pa sa provider",
     "stalledBody": "Wala pa kaming natatanggap na pinal na sagot. Walang kumpirmado hangga't hindi sumasagot ang provider. Suriin muli, o tingnan ang mga order mo.",
     "refundedTitle": "Naibalik ang bayad na ito",
@@ -1859,6 +1860,7 @@
     "invalid": "Maglagay ng 6-digit code.",
     "failed": "Hindi ma-verify ang code.",
     "missing": "Magsimula sa sign in o paggawa ng account at padadalhan ka namin ng code.",
+    "notSent": "Nagawa na ang account mo, pero hindi naipadala ang code. Pindutin ang “Ipadala muli”.",
     "back": "Bumalik",
     "wrong": "Mali ang code. Suriin ito at subukan muli.",
     "expired": "Nag-expire na ang code. Humiling ng bago.",
@@ -2676,6 +2678,8 @@
     "locationHome": "Pagbisita sa bahay",
     "locationFacility": "Sa pasilidad",
     "trackSample": "Subaybayan ang sample",
+    "openReport": "Buksan ang ulat",
+    "openReportN": "Buksan ang ulat {n}",
     "uploadInsurance": "Mag-upload ng dokumento ng insurance",
     "bookingDetails": "Mga detalye ng booking",
     "sampleSteps": "Mga hakbang ng sample",
@@ -2717,13 +2721,9 @@
     "backToCart": "Bumalik sa cart",
     "callLab": "Tawagan ang lab",
     "testTitle": "Pagsusuri",
-    "bookTitle": "Mag-book ng test",
-    "noProviderTitle": "Walang available na lab",
     "noProviderBody": "Walang lab na makakagawa ng test na ito ngayon.",
-    "backToTests": "Bumalik sa mga test",
     "tagHome": "Sample sa bahay",
     "tagFasting": "Walang kain",
-    "bookPackage": "I-book ang package na ito",
     "addToOrderCta": "Idagdag sa aking order",
     "details": "Mga detalye",
     "hubTitle": "Lab at radiology",
@@ -2784,7 +2784,6 @@
     "searchErrorTitle": "Hindi ma-load ang mga test",
     "searchErrorBody": "Subukan muli pagkatapos ng ilang sandali.",
     "testFacts": "Mga detalye ng test",
-    "bookTest": "I-book ang test na ito",
     "cartEmptyTitle": "Walang laman ang iyong cart",
     "cartEmptyBody": "Magdagdag ng mga test bago mag-book.",
     "browseTests": "Tingnan ang mga test",
@@ -2877,15 +2876,6 @@
     "collectorTip1": "Ihanda ang iyong ID at ang request ng test",
     "collectorTip2": "Sundin ang pag-aayuno na kailangan ng test",
     "collectorTip3": "Sabihin sa kukuha ng sample ang anumang gamot na iniinom mo",
-    "errHomeInsuranceDoc": "Ang pagbisita sa bahay na may insurance ay nangangailangan ng request ng doktor o paunang approval",
-    "errSlotTaken": "Hindi na available ang oras na iyon",
-    "errBooking": "Hindi nagawa ang booking. Subukan muli.",
-    "bookWhere": "Saan?",
-    "bookHomeUnavailable": "Hindi available ang sample sa bahay para sa test na ito.",
-    "bookWhen": "Petsa at oras",
-    "bookDocLabel": "Link sa request o approval ng doktor (kung kailangan)",
-    "bookSaving": "Nagbu-book…",
-    "bookConfirm": "Kumpirmahin ang booking",
     "status_pending": "Naghihintay ng kumpirmasyon",
     "status_insurance": "Naghihintay ng insurance",
     "status_confirmed": "Kumpirmado",
@@ -3156,15 +3146,10 @@
     "avgMood": "Karaniwang mood",
     "avgEnergy": "Karaniwang enerhiya",
     "avgStress": "Karaniwang stress",
-    "meditationSessions": "Mga session ng meditasyon",
-    "meditationMinutes": "Oras ng meditasyon",
-    "minutes": "minuto",
     "notAvailable": "Hindi available",
     "careTitle": "Ang magagawa mo",
     "moodRow": "Talaarawan ng mood",
     "moodRowSub": "Ang iyong mood, enerhiya at stress sa nakaraang 30 araw",
-    "relaxRow": "Pagpapahinga",
-    "relaxRowSub": "Mga session ng paghinga at meditasyon",
     "therapistRow": "Mag-book ng therapist",
     "therapistRowSub": "Mga doktor ng psychiatry sa konsultasyon",
     "notice": "Inilalarawan ng mga bilang na ito ang iyong naitala. Hindi ito diagnosis, risk score o rekomendasyon sa gamutan.",
@@ -3178,20 +3163,6 @@
     "energy": "Enerhiya: {value}",
     "stress": "Antas ng stress: {value}",
     "sleepHours": "Oras ng tulog: {value}",
-    "relaxTitle": "Pagpapahinga",
-    "tabBreathing": "Paghinga",
-    "tabMeditation": "Meditasyon",
-    "relaxUnavailableTitle": "Hindi ma-load ang mga session",
-    "breathingEmpty": "Wala pang naitalang session ng paghinga.",
-    "techniqueUnavailable": "Hindi available ang pamamaraan",
-    "rounds": "Mga round: {value}",
-    "durationSeconds": "Tagal: {value} s",
-    "relaxNotice": "Ipinapakita rito ang iyong mga naitalang session. Hindi available sa web ang pagsisimula ng bagong session.",
-    "meditationEmpty": "Wala pang naitalang session ng meditasyon.",
-    "meditationUnavailable": "Hindi available ang uri",
-    "durationMinutes": "Tagal: {value} min",
-    "completed": "Tapos na",
-    "notCompleted": "Hindi natapos",
     "moodValue": {
       "great": "Napakabuti",
       "good": "Mabuti",
@@ -4089,6 +4060,75 @@
     "faqIngredient": "Ano ang aktibong sangkap ng {name}?",
     "faqPrice": "Magkano ang {name} sa Nabd Plus?",
     "howToTitle": "Paano gamitin ang {name}"
+  },
+  "LogForms": {
+    "saveError": "Hindi ma-save. Nananatili ang tinype mo; subukan ulit.",
+    "saved": "Na-save.",
+    "water": {
+      "title": "Itala ang tubig",
+      "amount_ml": "Dami (ml)",
+      "save": "Idagdag ang tubig",
+      "bad": {
+        "amount_ml": "Maglagay ng dami mula 50 hanggang 3000 ml."
+      }
+    },
+    "mood": {
+      "title": "Itala ang iyong mood",
+      "mood": "Kumusta ang mood mo ngayon?",
+      "option": {
+        "great": "Napakabuti",
+        "good": "Mabuti",
+        "okay": "Ayos lang",
+        "bad": "Mahirap",
+        "terrible": "Napakahirap"
+      },
+      "energy_level": "Enerhiya (1-5, opsyonal)",
+      "stress_level": "Stress (1-5, opsyonal)",
+      "sleep_hours": "Oras ng tulog (opsyonal)",
+      "notes": "Maikling tala (opsyonal)",
+      "save": "I-save ang mood",
+      "bad": {
+        "mood": "Piliin muna ang mood mo.",
+        "energy_level": "Ang enerhiya ay numero mula 1 hanggang 5.",
+        "stress_level": "Ang stress ay numero mula 1 hanggang 5.",
+        "sleep_hours": "Ang oras ng tulog ay mula 0 hanggang 24.",
+        "notes": "Masyadong mahaba ang tala."
+      }
+    },
+    "kicks": {
+      "title": "Itala ang sipa ng baby",
+      "count": "Bilang ng sipa",
+      "duration_seconds": "Sa loob ng ilang minuto",
+      "save": "I-save ang mga sipa",
+      "bad": {
+        "count": "Maglagay ng buong numero mula 1 hanggang 200.",
+        "duration_seconds": "Ilagay ang oras sa minuto, 1 hanggang 240."
+      }
+    },
+    "contractions": {
+      "title": "Itala ang contraction",
+      "interval_seconds": "Minuto mula sa huli",
+      "duration_seconds": "Gaano katagal (segundo)",
+      "save": "I-save ang contraction",
+      "bad": {
+        "interval_seconds": "Maglagay ng minuto mula 1 hanggang 120.",
+        "duration_seconds": "Maglagay ng segundo mula 5 hanggang 300."
+      }
+    },
+    "growth": {
+      "title": "Itala ang paglaki ng baby",
+      "month": "Edad sa buwan",
+      "weight_kg": "Timbang (kg, opsyonal)",
+      "height_cm": "Haba (cm, opsyonal)",
+      "head_circ_cm": "Sukat ng ulo (cm, opsyonal)",
+      "save": "I-save ang sukat",
+      "bad": {
+        "month": "Ang edad ay buong numero ng buwan, 0 hanggang 60.",
+        "weight_kg": "Ang timbang ay mula 0.3 hanggang 40 kg.",
+        "height_cm": "Ang haba ay mula 20 hanggang 150 cm.",
+        "head_circ_cm": "Ang sukat ng ulo ay mula 20 hanggang 60 cm."
+      }
+    }
   },
   "LabResult": {
     "title": "Resulta ng lab",
