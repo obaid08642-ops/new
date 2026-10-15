@@ -199,7 +199,7 @@ def main():
         step('the cart says the prices come with the offers', 'الأسعار تأتي مع عروض الصيدليات' in note, note)
         step('the cart request button goes to rx-order, not to checkout', page.locator('a[href="/ar/pharmacy/rx-order"]').count() > 0
              and page.locator('a[href="/ar/cart/checkout"]').count() == 0, 'button target')
-        page.locator('a[href="/ar/pharmacy/rx-order"]').first.click()
+        page.locator('a[href="/ar/pharmacy/rx-order"]:visible').first.click()
         page.wait_for_url('**/ar/pharmacy/rx-order**', timeout=30000)
         step('the patient lands on rx-order to pick the prescription', '/ar/pharmacy/rx-order' in page.url, page.url)
         page.goto(f'{WEB}/ar/cart/checkout', wait_until='load', timeout=60000)
