@@ -14,6 +14,14 @@ export class UpdateAiProviderDto {
   @IsOptional() @IsString() vision_model?: string;
   @IsOptional() @IsNumber() daily_quota?: number;
   @IsOptional() @IsNumber() priority?: number;
+  @IsOptional() @IsNumber() requests_per_minute?: number;
+  @IsOptional() @IsNumber() requests_per_day?: number;
+  @IsOptional() @IsNumber() tokens_per_day?: number;
+}
+
+// P13-R21: probe a candidate provider key without storing it.
+export class TestAiProviderKeyDto {
+  @IsDefined() @IsString() api_key!: string;
 }
 
 export class TriageDto {
