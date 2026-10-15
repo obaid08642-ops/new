@@ -71,7 +71,6 @@ echo "$R" | ok || fail "token create: $(echo "$R" | errs)"
 KID=$(echo "$R" | jq -r '.result.id'); TV=$(echo "$R" | jq -r '.result.value'); unset R
 [ -n "$KID" ] && [ -n "$TV" ] && [ "$KID" != null ] && [ "$TV" != null ] || fail "token create returned no id/value"
 SEC=$(printf '%s' "$TV" | sha256sum | cut -d' ' -f1); unset TV
-[ -n "${GITHUB_ACTIONS:-}" ] && { echo "::add-mask::$SEC"; echo "::add-mask::$KID"; }
 echo "r2: key made: one token, item read/write on $BUCKET only"
 
 # ---------------------------------------------------------------- 4. to the server, on stdin only
