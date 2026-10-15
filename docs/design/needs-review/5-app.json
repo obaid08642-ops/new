@@ -162,7 +162,7 @@
     "line": 120,
     "found": "[owner] Four educational tips are static text (translated): confirm they stay.",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision (decision B8: a doctor reviews the four sleep tips (SleepView.tsx:120) before launch) (issue #669)"
+    "review_status": "open (decided 2026-10-15, reviewer for the owner: remove the hard-coded tips; show the published articles tagged sleep from the content API, or nothing when there are none)"
   },
   {
     "batch": 5,
