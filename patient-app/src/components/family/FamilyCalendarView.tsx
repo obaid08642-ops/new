@@ -6,11 +6,12 @@ import { CARE_TONE, Gate, useConsultFormat } from '../consult/ConsultKit';
 import { HealthTabs, Panel, Row, SheetForm, rowsOf, useRemote } from '../health/HealthKit';
 import { Glyph } from '../pharmacy/PharmacyKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
+import { DateTimeField } from '../screen/DateTimeField';
 import { showLocalizedAlert } from '../LocalizedAlert';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { buildFamilyCalendarPayload, parseFamilyCalendarEvents, type FamilyCalendarEventType } from '../../utils/family-calendar-contract';
-import { CORAL_TONE, FamilyScreen, type FamilyMember } from './FamilyKit';
+import { CORAL_TONE, FamilyScreen, NoFamilyState, isNoFamily, type FamilyMember } from './FamilyKit';
 
 /**
  * The shared family calendar (merge map row C, `/family/calendar`): the events of the group and the form to add one.
@@ -33,8 +34,14 @@ export function FamilyCalendarView() {
   const { k, theme, t, c, flow } = useScreenUi();
   const fmt = useConsultFormat();
   const data = useRemote(async () => {
-    const [calendar, members] = await Promise.all([apiFetch('/family/calendar'), apiFetch('/family/members')]);
-    return { events: parseFamilyCalendarEvents(calendar) as unknown as CalendarEvent[], members: rowsOf<FamilyMember>(members) };
+    try {
+      const [calendar, members] = await Promise.all([apiFetch('/family/calendar'), apiFetch('/family/members')]);
+      return { noGroup: false, events: parseFamilyCalendarEvents(calendar) as unknown as CalendarEvent[], members: rowsOf<FamilyMember>(members) };
+    } catch (e) {
+      // issue 693: no family group yet is an answer, not a failure
+      if (isNoFamily(e)) return { noGroup: true, events: [] as CalendarEvent[], members: [] as FamilyMember[] };
+      throw e;
+    }
   }, [], 'family:calendar');
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState('');
@@ -100,9 +107,10 @@ export function FamilyCalendarView() {
   return (
     <FamilyScreen
       title={k('family.calendar.title')}
-      actions={[{ key: 'add', label: k('family.calendar.add'), icon: <Glyph name="plus" size={20} color={c.icon.primary} />, onPress: openForm }]}
+      actions={data.data?.noGroup ? undefined : [{ key: 'add', label: k('family.calendar.add'), icon: <Glyph name="plus" size={20} color={c.icon.primary} />, onPress: openForm }]}
       testID="family-calendar"
     >
+      {data.data?.noGroup ? <NoFamilyState /> : (
       <Gate status={data.status} onRetry={() => void data.reload()}>
         {events.length === 0 ? (
           <EmptyState icon="calendar-dots" tone={CORAL_TONE} title={k('family.calendar.emptyTitle')} body={k('family.calendar.emptyBody')} actionLabel={k('family.calendar.add')} onAction={openForm} theme={theme} />
@@ -131,10 +139,11 @@ export function FamilyCalendarView() {
           </Panel>
         )}
       </Gate>
+      )}
 
       <SheetForm open={open} title={k('family.calendar.newTitle')} onClose={() => setOpen(false)} onSave={() => void submit()} saving={saving} error={error} saveLabel={k('family.calendar.save')} testID="event-sheet">
         <Input label={k('family.calendar.eventTitle')} value={title} onChange={setTitle} theme={theme} />
-        <Input label={k('family.calendar.eventDate')} hint={k('family.calendar.dateHint')} value={eventDate} onChange={setEventDate} theme={theme} />
+        <DateTimeField label={k('family.calendar.eventDate')} hint={k('family.calendar.dateHint')} value={eventDate ? new Date(eventDate) : null} onChange={(d) => setEventDate(d.toISOString())} testID="event-date" />
         <Text style={{ ...scale(t, 'meta', 'medium'), color: c.text.secondary, ...flow }}>{k('family.calendar.member')}</Text>
         <HealthTabs tabs={members.map((m) => ({ key: m.user_id, label: m.display_name || m.user_id }))} value={memberId ?? ''} onChange={setMemberId} testID="event-members" />
         <Text style={{ ...scale(t, 'meta', 'medium'), color: c.text.secondary, ...flow }}>{k('family.calendar.eventType')}</Text>

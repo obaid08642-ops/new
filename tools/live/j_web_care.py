@@ -7,7 +7,7 @@
 import os
 import uuid
 
-from lib import Client, journey, step
+from lib import Client, journey, step, web_login
 
 WEB = os.environ.get('NABD_WEB_JOURNEYS_URL', 'http://127.0.0.1:3100')
 
@@ -79,7 +79,7 @@ def main():
         return step('web care', False, f'patient-web not running at {WEB}: {e}')
 
     journey('web care: sign in on the website (login form calls /api/auth/login)')
-    r = ctx.request.post(f'{WEB}/api/auth/login', data={'identifier': acct['email'], 'password': acct['password']})
+    r = web_login(ctx, WEB, acct['email'], acct['password'])
     step('patient signs in on the website', r.ok, f'{r.status} {r.text()[:200]}')
 
     journey('web care: the doctor thread shows the message texts (owner decision B27)')

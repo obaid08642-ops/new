@@ -5,7 +5,8 @@ export type DiagnosticDomain = typeof diagnosticDomains[number];
 
 const bookingIdSchema = z.string().uuid();
 
-export type DiagnosticTrackingStep = { title: string; time?: string; done: boolean; icon?: string };
+/** One state the booking went through (decision B8: the steps are the booking's real timeline, named by the page). */
+export type DiagnosticTrackingStep = { state: string; at?: string };
 export type DiagnosticTracking = { eta?: number; distance?: number; techName?: string; steps: DiagnosticTrackingStep[] };
 
 export type DiagnosticBooking = {
@@ -89,14 +90,14 @@ export function extractDiagnosticBooking(payload: unknown) {
 export function extractDiagnosticTracking(payload: unknown): DiagnosticTracking {
   const root = asRecord(payload);
   const source = asRecord(root?.data) ?? root;
-  const rawSteps = Array.isArray(source?.steps) ? source.steps : [];
+  const rawSteps = Array.isArray(source?.timeline) ? source.timeline : [];
   return {
     eta: typeof source?.eta === "number" ? source.eta : undefined,
     distance: typeof source?.distance === "number" ? source.distance : undefined,
-    techName: text(source ?? {}, ["techName", "technician_name"]),
+    techName: text(source ?? {}, ["techName"]),
     steps: rawSteps.flatMap((step) => {
-      const item = asRecord(step); const title = text(item ?? {}, ["title", "state"]);
-      return title ? [{ title, time: text(item ?? {}, ["time", "at"]), done: item?.done === true, icon: text(item ?? {}, ["icon"]) }] : [];
+      const item = asRecord(step); const state = text(item ?? {}, ["state"]);
+      return state ? [{ state, at: text(item ?? {}, ["at"]) }] : [];
     }),
   };
 }

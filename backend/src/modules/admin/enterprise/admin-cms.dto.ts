@@ -1,4 +1,4 @@
-import { IsArray, IsDateString, IsDefined, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDateString, IsDefined, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class UpsertDto {
   @IsOptional()
@@ -61,6 +61,13 @@ export class UpsertDto {
   @IsOptional()
   @IsString()
   slug?: string;
+
+  // Issues #849 / #861: the pregnancy week (1-42) the article belongs to ("Read this week"); null clears it.
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(42)
+  pregnancy_week?: number | null;
 
   @IsOptional()
   @IsString()

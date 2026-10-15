@@ -44,9 +44,19 @@ interface EnvConfig {
   enableAnalytics: boolean;
 }
 
+/**
+ * Issue 410: the one API base rule for every client of the app (the fetch client src/utils/api.ts, the axios client
+ * src/services/HttpClient.ts behind utils/api.ts, and src/constants). EXPO_PUBLIC_API_BASE_URL is the full base; the older
+ * EXPO_PUBLIC_API_URL (the host alone) is still honoured, with /api/v1 added, so a build with either variable sends every
+ * call to the same host; with neither, the environment's default below.
+ */
+const API_BASE_FROM_ENV: string | undefined =
+  process.env.EXPO_PUBLIC_API_BASE_URL
+  ?? (process.env.EXPO_PUBLIC_API_URL ? `${process.env.EXPO_PUBLIC_API_URL.replace(/\/$/, '')}/api/v1` : undefined);
+
 const ENV_CONFIGS: Record<AppEnvironment, EnvConfig> = {
   development: {
-    apiBaseUrl:         process.env.EXPO_PUBLIC_API_BASE_URL    ?? 'http://localhost:8002/api/v1',
+    apiBaseUrl:         API_BASE_FROM_ENV                       ?? 'http://localhost:8002/api/v1',
     fastapiBaseUrl:     process.env.EXPO_PUBLIC_FASTAPI_BASE_URL ?? 'http://localhost:8000/api',
     socketUrl:          process.env.EXPO_PUBLIC_SOCKET_URL      ?? 'ws://localhost:8002',
     cdnUrl:             process.env.EXPO_PUBLIC_CDN_URL         ?? 'http://localhost:8002/media',
@@ -56,7 +66,7 @@ const ENV_CONFIGS: Record<AppEnvironment, EnvConfig> = {
     enableAnalytics:    false,
   },
   staging: {
-    apiBaseUrl:         process.env.EXPO_PUBLIC_API_BASE_URL    ?? 'https://staging-api.nabdahplus.com/api/v1',
+    apiBaseUrl:         API_BASE_FROM_ENV                       ?? 'https://staging-api.nabdahplus.com/api/v1',
     fastapiBaseUrl:     process.env.EXPO_PUBLIC_FASTAPI_BASE_URL ?? 'https://staging-fastapi.nabdahplus.com/api',
     socketUrl:          process.env.EXPO_PUBLIC_SOCKET_URL      ?? 'wss://staging-socket.nabdahplus.com',
     cdnUrl:             process.env.EXPO_PUBLIC_CDN_URL         ?? 'https://staging-cdn.nabdahplus.com',
@@ -66,7 +76,7 @@ const ENV_CONFIGS: Record<AppEnvironment, EnvConfig> = {
     enableAnalytics:    false,
   },
   production: {
-    apiBaseUrl:         process.env.EXPO_PUBLIC_API_BASE_URL    ?? 'https://api.nabd.plus/api/v1',
+    apiBaseUrl:         API_BASE_FROM_ENV                       ?? 'https://api.nabd.plus/api/v1',
     fastapiBaseUrl:     process.env.EXPO_PUBLIC_FASTAPI_BASE_URL ?? 'https://api.nabd.plus/api/v1',
     socketUrl:          process.env.EXPO_PUBLIC_SOCKET_URL      ?? 'https://api.nabd.plus',
     cdnUrl:             process.env.EXPO_PUBLIC_CDN_URL         ?? 'https://cdn.nabd.plus',

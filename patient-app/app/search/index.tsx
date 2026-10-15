@@ -21,6 +21,7 @@ import {
   fromGrouped,
   iconFor,
   routeFor,
+  rowNote,
   type ResultBlock,
   type SearchResult,
 } from '../../src/utils/searchResults';
@@ -75,11 +76,13 @@ function Highlight({ text, term, style }: { text: string; term: string; style: o
 }
 
 function ResultRow({ r, term, last, size, onOpen }: { r: SearchResult; term: string; last: boolean; size: 'media' | 'bare' | 'chip'; onOpen: (r: SearchResult) => void }) {
-  const { theme, t, c, lang, flow, tr } = useScreenUi();
+  const { theme, t, c, lang, flow, tr, k } = useScreenUi();
   const { icon, tone } = iconFor(r.type);
   const name = pick(lang, r.name, r.nameEn);
   const sub = pick(lang, r.sub, r.subEn);
   const price = priceOf(lang, r);
+  // "Needs a prescription" / "online only", as on the product card (rx-rules-app #2).
+  const note = rowNote(r, { rx: k('pharmacy.needsRx'), online: k('pharmacy.product.exclusive') });
   const priceLine = price ? (
     <Text style={{ ...scale(t, 'bodyStrong'), color: c.text.primary }}>
       {price} <Text style={{ ...scale(t, 'tag', 'regular') }}>{tr('ر.س')}</Text>
@@ -88,7 +91,7 @@ function ResultRow({ r, term, last, size, onOpen }: { r: SearchResult; term: str
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={[name, sub, price ? `${price} ${tr('ر.س')}` : ''].filter(Boolean).join('. ')}
+      accessibilityLabel={[name, sub, note, price ? `${price} ${tr('ر.س')}` : ''].filter(Boolean).join('. ')}
       onPress={() => onOpen(r)}
       style={({ pressed }) => ({
         flexDirection: 'row',
@@ -116,6 +119,7 @@ function ResultRow({ r, term, last, size, onOpen }: { r: SearchResult; term: str
       <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
         <Highlight text={name} term={term} style={{ ...scale(t, 'segment', 'medium'), color: c.text.primary, ...flow }} />
         {sub ? <Text numberOfLines={2} style={{ ...scale(t, 'label', 'regular'), color: c.text.secondary, ...flow }}>{sub}</Text> : null}
+        {note ? <Text style={{ ...scale(t, 'tag', 'bold'), color: c.status.warning.fg, ...flow }}>{note}</Text> : null}
         {size === 'media' ? priceLine : null}
       </View>
       {size !== 'media' ? priceLine : null}

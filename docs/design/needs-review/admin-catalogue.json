@@ -206,7 +206,7 @@
     "line": 135,
     "found": "[backend] Owner decision 10 needs `controlled` editable by admin, but it is not in MedicinesService.EDITABLE_FIELDS nor in AdminUpdateCatalogDto, so a PATCH would drop it. The control is not drawn in the quick edit or the full form; add it to the whitelist and the DTO, then show it behind the same confirmation as price and prescription. (backend: backend/src/modules/medicines/medicines.service.ts:1439)",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open"
+    "review_status": "fixed #1505"
   },
   {
     "batch": "admin",
@@ -217,7 +217,7 @@
     "line": 318,
     "found": "[backend] Decision 12 queue (pharmacy lines with no catalogue match, price not verified) does not exist: no sfda_price fields, GET /medicines/admin/pending-review answers 410 Gone, and there is no create-from-line action. Not built; the existing queues (change requests, shortage reports, image suggestions, medical review) are in the approvals list. (backend: backend/src/modules/medicines/medicines.controller.ts:413)",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open"
+    "review_status": "fixed #1505"
   },
   {
     "batch": "admin",
@@ -228,7 +228,7 @@
     "line": 145,
     "found": "[backend] Only price changes write a history row (medicine price history, shown in the quick edit); a prescription-flag or availability change goes to the generic audit log with no reason, so 'who made this Rx' has no per-item view. An edit of a published item also resets it to pending medical review (the confirm dialog says so). (backend: backend/src/modules/medicines/medicines.service.ts:1761)",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open"
+    "review_status": "fixed #1505"
   },
   {
     "batch": "admin",

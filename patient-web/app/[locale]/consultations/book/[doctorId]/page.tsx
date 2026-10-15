@@ -8,6 +8,8 @@ import { localizedUrl } from "@/lib/seo";
 import { JsonLd } from "@/components-next/json-ld";
 import { physician } from "@/lib/seo/structured-data";
 import { BookingFlow } from "@/components-next/booking-flow";
+import { getPatientAddresses } from "@/lib/api/addresses-server";
+import { formatAddressLine, hasLocation, parseDeliveryAddresses } from "@/lib/pharmacy/delivery-address";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { policyLines } from "@/components-next/consult/policy-lines";
@@ -52,12 +54,18 @@ export default async function BookConsultationPage({ params }: Props) {
   const c = await getTranslations("ConsultWeb");
   const policy = { title: c("policyTitle"), lines: policyLines(c, await getCancellationPolicy(token)) };
   const name = doctorDisplayName(doctor, locale) || t("doctorUnavailable");
+  // journeys#29: a home visit goes to one of the patient's saved addresses that has a map location (the app's address book)
+  const addressRes = await getPatientAddresses(token);
+  const located = addressRes.ok ? parseDeliveryAddresses(await addressRes.json().catch(() => null)).filter(hasLocation) : [];
+  located.sort((x, y) => Number(y.isDefault) - Number(x.isDefault));
+  const homeAddresses = located.map((a) => ({ id: a.id, label: [a.label, formatAddressLine(a, locale)].filter(Boolean).join(" · ") || a.id, line: formatAddressLine(a, locale) || a.label || "", lat: a.lat, lng: a.lng }));
   return (
     <BookingFlow
       doctorId={doctorId}
       locale={locale}
       doctor={doctor}
       policy={policy}
+      homeAddresses={homeAddresses}
       top={<JsonLd data={physician({ name, locale, path: `/consultations/doctors/${encodeURIComponent(doctorId)}`, specialty: doctor?.specialty })} />}
     />
   );
