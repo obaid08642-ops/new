@@ -7,7 +7,7 @@ import { isOffline } from '../../utils/isOffline';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { ChatThread, type ChatMessage } from './ChatThread';
-import { FAMILY_HUB } from './FamilyKit';
+import { FAMILY_HUB, FamilyScreen, NoFamilyState, isNoFamily } from './FamilyKit';
 
 /**
  * The family chat (merge map row D, `/family/chat`, decision 3: no call button): GET /family/chat/messages (polled every
@@ -21,6 +21,7 @@ export function FamilyChatView() {
   const { k } = useScreenUi();
   const fmt = useConsultFormat();
   const [status, setStatus] = useState<GateStatus>('loading');
+  const [noGroup, setNoGroup] = useState(false);
   const [rows, setRows] = useState<Row[]>([]);
   const [myId, setMyId] = useState<string | null>(null);
   const [count, setCount] = useState<number | null>(null);
@@ -34,6 +35,8 @@ export function FamilyChatView() {
       setRows(rowsOf<Row>(await apiFetch('/family/chat/messages')));
       setStatus('ready');
     } catch (e) {
+      // issue 693: no family group yet (403 not_active_family_member) is an answer, not a failure
+      if (isNoFamily(e)) { setNoGroup(true); setStatus('ready'); return; }
       logError('family:chat', e);
       // A failed background poll keeps what is on screen; a failed first load shows the state.
       if (!silent) setStatus((await isOffline()) ? 'offline' : 'error');
@@ -60,9 +63,10 @@ export function FamilyChatView() {
 
   // New messages arrive while the screen is open.
   useEffect(() => {
+    if (noGroup) return undefined;
     const timer = setInterval(() => void load(true), 5000);
     return () => clearInterval(timer);
-  }, [load]);
+  }, [load, noGroup]);
 
   const send = async () => {
     const text = draft.trim();
@@ -85,6 +89,10 @@ export function FamilyChatView() {
     const mine = myId !== null && r.sender_id === myId;
     return { id: r.id, text: r.text ?? '', sender: mine ? undefined : r.sender_name || k('family.chat.member'), time: fmt.clock(r.created_at), mine };
   });
+
+  if (noGroup) {
+    return <FamilyScreen title={k('family.chat.title')} testID="family-chat"><NoFamilyState /></FamilyScreen>;
+  }
 
   return (
     <ChatThread

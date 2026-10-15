@@ -4124,6 +4124,13 @@
       }
     }
   },
+  "CameraScan": {
+    "start": "I-scan gamit ang camera",
+    "stop": "Itigil ang camera",
+    "pointCamera": "Itutok ang camera sa code",
+    "viewfinder": "Tanaw ng camera",
+    "cameraFailed": "Hindi mabuksan ang camera. Payagan ito, o i-type ang code."
+  },
   "LabResult": {
     "title": "Resulta ng lab",
     "error": "Hindi ma-load ang resulta",

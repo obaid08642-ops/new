@@ -8,6 +8,7 @@ import { HealthTabs, MetricGrid, MetricTile, Notice, Panel, Pill, Row, bodyOf, r
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { showLocalizedAlert } from '../LocalizedAlert';
 import { apiFetch } from '../../utils/api';
+import { setBookingFor, type BookingFor } from '../../utils/bookingFor';
 import { logError } from '../../utils/logger';
 import { pickLocalized } from '../../utils/localize';
 import { FAMILY_HUB, FamilyScreen, PermissionList, loadFamily } from './FamilyKit';
@@ -52,12 +53,12 @@ export function FamilyMemberView() {
         </View>
       </View>
       <HealthTabs tabs={[{ key: 'health', label: k('family.member.tabHealth') }, { key: 'permissions', label: k('family.member.tabPermissions') }]} value={tab} onChange={setTab} testID="member-tabs" />
-      {tab === 'health' ? <HealthTab status={records.status} data={records.data} reload={() => void records.reload()} /> : <PermissionsTab id={id} name={name} />}
+      {tab === 'health' ? <HealthTab status={records.status} data={records.data} reload={() => void records.reload()} member={{ id, name }} /> : <PermissionsTab id={id} name={name} />}
     </FamilyScreen>
   );
 }
 
-function HealthTab({ status, data, reload }: { status: React.ComponentProps<typeof Gate>['status']; data: MemberRecords | null; reload: () => void }) {
+function HealthTab({ status, data, reload, member }: { status: React.ComponentProps<typeof Gate>['status']; data: MemberRecords | null; reload: () => void; member: BookingFor }) {
   const { k, theme } = useScreenUi();
   const fmt = useConsultFormat();
   const readings = Array.isArray(data?.vitals) ? data!.vitals! : [];
@@ -98,7 +99,8 @@ function HealthTab({ status, data, reload }: { status: React.ComponentProps<type
       ) : null}
       <View style={{ gap: 10 }}>
         <Button label={k('family.member.chat')} variant="outline" fullWidth onPress={() => router.push('/family/chat' as Href)} theme={theme} testID="member-chat" />
-        <Button label={k('family.member.book')} fullWidth onPress={() => router.push('/(tabs)/consultations' as Href)} theme={theme} testID="member-book" />
+        {/* issue 684: the booking is made for this member (for_member_id), the server checks the family and the booking permission */}
+        <Button label={k('family.member.book')} fullWidth onPress={() => { setBookingFor(member); router.push('/(tabs)/consultations' as Href); }} theme={theme} testID="member-book" />
       </View>
     </Gate>
   );

@@ -4,6 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import BookAppointmentScreen from '../../../app/consultations/book/[id]';
 import BookingConfirmScreen from '../../components/BookingConfirmForm';
+import { getBookingFor, setBookingFor } from '../../utils/bookingFor';
 import { message } from '../../components/screen/ScreenKit';
 
 /**
@@ -122,6 +123,26 @@ describe('confirm the booking', () => {
     const body = JSON.parse(posts()[1][1].body);
     expect(body).toMatchObject({ doctor_id: 'doc-1', service_type: 'clinic', payment_method: 'card', slot_lock_id: 'lock-1' });
     expect(mockRouter.replace).toHaveBeenCalledWith({ pathname: '/consultations/booking-status', params: expect.objectContaining({ appointmentId: 'appt-1', payment_pending: 'true' }) });
+  });
+
+  it('issue 684: a booking started from a family member is sent for that member, said on screen, and cleared after', async () => {
+    setBookingFor({ id: 'member-1', name: 'Test Member' });
+    answer(
+      { '/care/doctors/doc-1': doctor, '/payments/consultation/appt-1/capabilities': { methods: [{ id: 'card' }] } },
+      (path) => {
+        if (path === '/slot-locks/reserve') return { id: 'lock-1' };
+        if (path === '/care/appointments') return { id: 'appt-1' };
+        if (path.startsWith('/payments/intent/consultation/')) return { checkout_url: 'https://pay.example.test/c/1' };
+        return {};
+      },
+    );
+    await render(wrap(<BookingConfirmScreen />));
+    await screen.findByText('Test Doctor');
+    expect(screen.getByText(k('consult.confirm.bookingFor', { name: 'Test Member' }))).toBeTruthy();
+    await tap(screen.getByTestId('booking-confirm-submit'));
+    await waitFor(() => expect(Linking.openURL).toHaveBeenCalled());
+    expect(JSON.parse(posts()[1][1].body)).toMatchObject({ for_member_id: 'member-1' });
+    expect(getBookingFor()).toBeNull();
   });
 
   it('says so, and creates nothing, when the slot was taken', async () => {

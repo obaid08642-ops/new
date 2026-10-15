@@ -4124,6 +4124,13 @@
       }
     }
   },
+  "CameraScan": {
+    "start": "Scan with the camera",
+    "stop": "Stop the camera",
+    "pointCamera": "Point the camera at the code",
+    "viewfinder": "Camera view",
+    "cameraFailed": "The camera could not be opened. Allow it, or type the code."
+  },
   "LabResult": {
     "title": "Lab result",
     "error": "The result could not be loaded",

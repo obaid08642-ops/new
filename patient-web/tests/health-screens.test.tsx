@@ -286,7 +286,7 @@ describe("detail screens and redirects", () => {
   it("every old route is a redirect to a tab or a section of the new screens", async () => {
     const config = (await import("../next.config")).default;
     const redirects = await (config as unknown as { redirects: () => Promise<Array<{ source: string; destination: string }>> }).redirects();
-    const to = (source: string) => redirects.find((entry) => entry.source === `/:locale${source}`)?.destination;
+    const to = (source: string) => redirects.find((entry) => entry.source.replace(/^\/:locale\([^)]*\)/, "/:locale") === `/:locale${source}`)?.destination;
     expect(to("/health/score")).toBe("/:locale/health");
     expect(to("/health/vitals/log")).toBe("/:locale/health/vitals?tab=today&add=1");
     expect(to("/health/trends")).toBe("/:locale/health/vitals?tab=trends");
