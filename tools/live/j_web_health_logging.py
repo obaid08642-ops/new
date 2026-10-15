@@ -30,13 +30,21 @@ def main():
     def submit(form_label, fills, choice=None):
         form = page.get_by_role('form', name=form_label)
         form.wait_for(timeout=30000)
+        page.wait_for_load_state('networkidle')
         if choice:
-            form.get_by_role('button', name=choice).click()
+            # the choice is a client button: click until the page (hydrated) marks it pressed
+            btn = form.get_by_role('button', name=choice, exact=True)
+            for _ in range(10):
+                btn.click()
+                if btn.get_attribute('aria-pressed') == 'true':
+                    break
+                page.wait_for_timeout(500)
         for label, value in fills:
             form.get_by_label(label).fill(value)
         form.locator('button[type="submit"]').click()
-        form.get_by_role('status').wait_for(timeout=30000)
-        return form.get_by_role('status').inner_text()
+        done = form.locator('[role="status"], [role="alert"]').first
+        done.wait_for(timeout=30000)
+        return done.inner_text()
 
     try:
         page.goto(f'{WEB}/ar', wait_until='load', timeout=60000)
