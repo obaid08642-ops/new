@@ -5,6 +5,8 @@
     the item to the pharmacy's inventory at the catalogue's reference price and the offered quantity, and the offer is
     built from it. An unknown catalogue item is refused.
   - The patient receives the offer with both lines priced.
+  - provider-journeys 4: an allocation with an unavailable line is confirmed in two steps (partially confirmed, then
+    confirmed with the available lines) and goes on to preparation; it used to stop at partially_confirmed.
 """
 import urllib.parse
 import uuid
@@ -82,6 +84,38 @@ def main():
     got = next((o for o in offers if o.get('id') == offer['id']), offers[0] if offers else {})
     priced = [l for l in (got.get('items') or []) if l.get('action') == 'available' and float(l.get('unit_price') or 0) > 0]
     step('the patient receives the offer with both lines priced', len(priced) == 2, got.get('items'))
+
+    journey('provider-journeys 4: one line unavailable, the pharmacy still reaches preparation')
+    from j_nursing import card_payment
+    k = KEY('partial')
+    draft['items'] = [{'raw_name': m['name_ar'], 'qty': 1, 'sku': m['id'], 'intake_source': 'cart'} for m in meds]
+    oid = pat.post('/patient/pharmacy/orders', draft, headers={'Idempotency-Key': k}).get('id')
+    pat.post(f'/patient/pharmacy/orders/{oid}/submit', {}, headers={'Idempotency-Key': k + '-submit'})
+    b = next((x for x in pharm.get('/provider/pharmacy/broadcasts').items() if x.get('order_id') == oid), None)
+    lines = {str(i.get('matched_sku')): i for i in ((b or {}).get('items') or [])}
+    items = [{'order_item_id': str(lines.get(meds[0]['id'], {}).get('order_item_id')), 'availability': 'available', 'qty_offered': 1},
+             {'order_item_id': str(lines.get(meds[1]['id'], {}).get('order_item_id')), 'availability': 'unavailable'}]
+    r = pharm.post(f'/provider/pharmacy/broadcasts/{oid}/offers/draft', {'items': items})
+    offer_id = r.get('id')
+    pharm.post(f'/provider/pharmacy/broadcasts/{oid}/offers/{offer_id}/submit', {})
+    r = pat.post(f'/patient/pharmacy/orders/{oid}/offers/{offer_id}/select', {'coverage_mode': 'cash'}, headers={'Idempotency-Key': KEY('sel')})
+    step('the patient picks the offer with one line unavailable', r.ok, r)
+    o = pat.get(f'/patient/pharmacy/orders/{oid}')
+    order = o.body.get('data', o.body) if isinstance(o.body, dict) else {}
+    if order.get('governed_state') == 'FINAL_QUOTE_READY':
+        pat.post(f'/patient/pharmacy/orders/{oid}/final-quote/accept', {'quote_hash': order.get('pending_final_quote_hash'), 'quote_revision': order.get('pending_final_quote_revision')}, headers={'Idempotency-Key': KEY('fq')})
+    card_payment(pat, 'pharmacy', oid)
+    alloc = next((a for a in pharm.get('/provider/pharmacy/allocations').items() if a.get('order_id') == oid), None)
+    step('the order is allocated to the pharmacy', alloc, oid)
+    if not alloc:
+        return
+    aid = alloc['id']
+    r = pharm.post(f'/provider/pharmacy/allocations/{aid}/confirm', {})
+    step('the first confirm marks it partially confirmed', r.ok and r.get('status') == 'partially_confirmed', r)
+    r = pharm.post(f'/provider/pharmacy/allocations/{aid}/confirm', {})
+    step('confirming again goes ahead with the available line', r.ok and r.get('status') == 'confirmed', r)
+    r = pharm.post(f'/provider/pharmacy/allocations/{aid}/preparing', {})
+    step('and the pharmacy prepares it', r.ok and r.get('status') == 'preparing', r)
 
 
 if __name__ == '__main__':
