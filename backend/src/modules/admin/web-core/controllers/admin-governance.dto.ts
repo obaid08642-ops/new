@@ -1,11 +1,13 @@
-import { IsBoolean, IsDefined, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsDefined, IsString, MinLength } from 'class-validator';
 
 export class TriggerEmergencyMaintenanceDto {
   @IsDefined()
   @IsBoolean()
   forceMaintenanceState: boolean;
 
-  @IsOptional()
+  // Issues 955 / 995: the reason is mandatory and audited.
+  @IsDefined()
   @IsString()
-  reason?: string;
+  @MinLength(5)
+  reason!: string;
 }

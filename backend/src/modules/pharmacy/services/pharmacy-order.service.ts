@@ -1,4 +1,5 @@
-import { Injectable, ForbiddenException, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException, BadRequestException, Inject, Optional } from '@nestjs/common';
+import { KillSwitchesService } from '../../kill-switches/kill-switches.service';
 import { Connection, Model } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
 import { enforceRxRules } from './rx-rules';
@@ -30,6 +31,7 @@ export class PharmacyOrderService {
     private bus: EventBusService,
     private engine: WorkflowEngineService,
     @InjectConnection() private readonly conn: Connection,
+    @Optional() private readonly killSwitches?: KillSwitchesService,
   ) {}
 
   /**
@@ -729,6 +731,8 @@ export class PharmacyOrderService {
   /** Patient submits the draft → triggers Smart Split. */
   async submit(user: any, id: string): Promise<any> {
     assertPatient(user);
+    // Issue 955: the admin kill switch stops sending orders to pharmacies; the order stays a draft, nothing changes.
+    await this.killSwitches?.assertOn('pharmacy_broadcast');
     const order = await this.orders.findOne({ id });
     if (!order) throw new NotFoundException('order_not_found');
     if (order.patient_account_id !== user.id) throw new ForbiddenException('not_yours');

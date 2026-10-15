@@ -91,6 +91,8 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/system-ops', label: 'تشغيل النظام', permission: 'ops.queues.manage' },
       // D-16 / #953 (owner 2026-10-10): module switches are super-admin only: the new permission modules.manage (the reviewer adds it on the backend route).
       { href: '/admin/module-switches', label: 'مفاتيح الخدمات', permission: 'modules.manage' },
+      // Issues 955 / 995: emergency maintenance + kill switches; the backend routes require modules.manage too.
+      { href: '/admin/kill-switches', label: 'مفاتيح الطوارئ', permission: 'modules.manage' },
       { href: '/admin/notification-center', label: 'مركز الإشعارات والحملات', permission: 'ops.queues.manage' },
       // #994: AI controls were reachable only by URL.
       { href: '/admin/ai-control', label: 'التحكم في الذكاء الاصطناعي', permission: 'ops.queues.manage' },
@@ -173,6 +175,7 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/notification-center': 'ops.queues.manage',
   '/admin/system-ops': 'ops.queues.manage',
   '/admin/module-switches': 'modules.manage',
+  '/admin/kill-switches': 'modules.manage',
   '/admin/config-portal': 'ops.queues.manage',
   '/admin/ai-control': 'ops.queues.manage',
   '/admin/audit-logs': 'data.export',

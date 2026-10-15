@@ -13,6 +13,8 @@ import { AppointmentRepository } from "./repositories/appointment.repository";
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
 import { hasEffectiveRole } from '../../common/auth.guard';
 import { DEFAULT_REFUND_POLICY } from '../refund-policy/refund-policy.defaults';
+import { KillSwitchesService } from '../kill-switches/kill-switches.service';
+import { isOnlineConsultation } from '../chat/consultation-window';
 
 /** Platform fee schedule (SAR). Move to DB/config when admin dashboard supports it. */
 const PLATFORM_FEES = {
@@ -39,6 +41,7 @@ export class AppointmentsService {
     private engine: WorkflowEngineService,
     private insurance: InsuranceFlowService,
     @Optional() private locks?: SlotLocksService,
+    @Optional() private readonly killSwitches?: KillSwitchesService,
   ) {}
 
   /**
@@ -140,6 +143,8 @@ export class AppointmentsService {
     if (!body?.doctor_id || !body?.service_type || !body?.slot_start) {
       throw new BadRequestException('doctor_id, service_type, slot_start required');
     }
+    // Issue 955: the admin kill switch for remote consultations refuses new video/voice bookings before anything is held.
+    if (isOnlineConsultation({ service_type: body.service_type })) await this.killSwitches?.assertOn('online_consultations');
     // On-behalf family booking: patient becomes the member, booker is audited
     let patientId: string = user.id;
     let bookedBy: string | undefined;
