@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 import { withSentryConfig } from "@sentry/nextjs";
 import { contentSecurityPolicy } from "./csp";
+import { localeOnlyRedirects } from "./lib/routing/locale-redirects";
 import { IMAGE_HOSTS } from "./lib/image-hosts";
 import { queryTwinRewrites, unavailablePageRewrite } from "./lib/security/query-twin";
 
@@ -20,7 +21,7 @@ const nextConfig: NextConfig = {
 
   allowedDevOrigins: ["127.0.0.1", "3000-ikwbywe2u081i4meqv02p-09e989e4.sg1.manus.computer"],
   async redirects() {
-    return [
+    return localeOnlyRedirects([
       { source: "/:locale/doctors", destination: "/:locale/consultations/doctors", permanent: false },
       { source: "/:locale/doctor", destination: "/:locale/consultations/doctors", permanent: false },
       { source: "/:locale/labs", destination: "/:locale/diagnostics/labs", permanent: false },
@@ -31,6 +32,8 @@ const nextConfig: NextConfig = {
       { source: "/:locale/medicine", destination: "/:locale/c", permanent: true },
       { source: "/:locale/pharmacies", destination: "/:locale/c", permanent: false },
       { source: "/:locale/services", destination: "/:locale", permanent: false },
+      // owner decision 32 (issue 436): the web has no onboarding; old links open the home page
+      { source: "/:locale/onboarding/:path*", destination: "/:locale", permanent: false },
       { source: "/:locale/p", destination: "/:locale/c", permanent: false },
       { source: "/:locale/s", destination: "/:locale/search", permanent: false },
       { source: "/:locale/payments", destination: "/:locale/cart/checkout", permanent: false },
@@ -60,7 +63,7 @@ const nextConfig: NextConfig = {
       { source: "/:locale/family/join", destination: "/:locale/family/add?tab=join", permanent: false },
       { source: "/:locale/family/scan", destination: "/:locale/family/add?tab=scan", permanent: false },
       { source: "/:locale/health/add-family-member", destination: "/:locale/family/add?tab=invite", permanent: false },
-    ];
+    ]);
   },
   // F82-3: internal rewrites (the address does not change). They run after the proxy has classified and stamped the request by
   // its original path. See lib/security/query-twin.ts for why they are config rewrites and not rewrites made in proxy.ts.
@@ -73,7 +76,8 @@ const nextConfig: NextConfig = {
       { key: "X-Frame-Options", value: "DENY" },
       { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
       { key: "Permissions-Policy", value: "camera=(self), microphone=(self), geolocation=(self), payment=(self)" },
-      { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+      // issue 430: Google sign-in's popup must be able to answer the page (Google Identity Services needs same-origin-allow-popups)
+      { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
       { key: "Cross-Origin-Resource-Policy", value: "same-site" },
       { key: "X-DNS-Prefetch-Control", value: "off" },
       // F68: the web clients had no CSP at all.

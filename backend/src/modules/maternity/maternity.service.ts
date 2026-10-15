@@ -35,11 +35,6 @@ export class MaternityService {
     return profile;
   }
 
-  getContent() {
-    // Clinical educational content is delivered only when curated and localised by a reviewed content workflow.
-    return { pregnant_links: [], planning_links: [], weekly_tips: [], planning_tips: [] };
-  }
-
   async getProfile(userId: string): Promise<any> {
     const profile = await this.model.findOne({ patient_id: userId });
     if (!profile) return { patient_id: userId, profile_ready: false, tracking_mode: null };

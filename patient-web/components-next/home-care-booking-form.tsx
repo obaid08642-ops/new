@@ -149,7 +149,7 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
       <SectionCard id="home-care-nurse" title={t("chooseNurse")}>
         <div className={styles.slots} role="group" aria-label={t("chooseNurse")}>
           {nurses.map((nurse) => (
-            <button key={nurse.id} type="button" className={styles.choice} aria-pressed={nurse.id === nurseId} onClick={() => setNurseId(nurse.id)}>
+            <button key={nurse.id} type="button" value={nurse.id} className={styles.choice} aria-pressed={nurse.id === nurseId} onClick={() => setNurseId(nurse.id)}>
               {nurse.name}{nurse.detail ? ` · ${nurse.detail}` : ""}
             </button>
           ))}

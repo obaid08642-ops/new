@@ -8,7 +8,7 @@
     "line": 509,
     "found": "[client] mock-name (mock-scan): openSampleForResults = async () => {",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "not-a-problem: openSampleForResults (LabDashboard.tsx:509) is real: it reads /labs/samples, moves the sample to analyzing and opens result review"
   },
   {
     "batch": "provider",
@@ -19,7 +19,7 @@
     "line": 1617,
     "found": "[client] dummy-value (mock-scan): Test Name (English)",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "not-a-problem: 'Test Name (English)' (LabDashboard.tsx:1628) is the add-test form's field label, not a value"
   },
   {
     "batch": "provider",
@@ -30,7 +30,7 @@
     "line": 1618,
     "found": "[client] dummy-value (mock-scan): Test Name (Arabic)",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "not-a-problem: 'Test Name (Arabic)' (LabDashboard.tsx:1629) is the add-test form's field label, not a value"
   },
   {
     "batch": "provider",

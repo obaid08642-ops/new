@@ -23,6 +23,8 @@ import { OFFER_TONES } from "./tones";
 import styles from "./offers.module.css";
 
 const CLOSED = ["COMPLETED", "CANCELLED", "DELIVERED"];
+/** The governed states while pharmacies are still answering (backend pharmacy-order.service detail): no offer is chosen yet. */
+const SEARCHING_STATES = ["ORDER_BROADCASTING", "OFFERS_READY"];
 /** Once the order is past payment the page only says where it stands and links to tracking. */
 const FULFILMENT_STATES = ["CONFIRMED", "IN_FULFILLMENT", "OUT_FOR_DELIVERY", "DELIVERED", "COMPLETED", "CANCELLED"];
 
@@ -68,10 +70,13 @@ export async function OffersScreen({ locale, orderId, variant }: Props) {
   const offers = extractPatientPharmacyOffers(await offersResponse.json().catch(() => null));
   const progress = extractPatientPharmacyOrderProgress(await orderResponse.json().catch(() => null)) ?? {};
   const state = progress.governedState ?? "";
-  const selected = state !== "" && !FULFILMENT_STATES.includes(state);
+  // decision 13 (issue 332): never an endless wait. The search ended with no pharmacy (AUTO_CANCELLED) is said as such.
+  const unavailable = progress.search?.state === "no_pharmacy_available" || state === "AUTO_CANCELLED";
+  const expanding = progress.search?.state === "expanding" ? progress.search : null;
+  const selected = !unavailable && state !== "" && !SEARCHING_STATES.includes(state) && !FULFILMENT_STATES.includes(state);
   const past = FULFILMENT_STATES.includes(state);
   const closed = CLOSED.includes(state) || CLOSED.includes((progress.status ?? "").toUpperCase());
-  const browsing = !selected && !past && !closed;
+  const browsing = !unavailable && !selected && !past && !closed;
   const negotiating = progress.status === "negotiating_substitutes" || state === "NEGOTIATION_REQUIRED";
 
   const views: OfferView[] = offers.map((offer) => ({
@@ -89,7 +94,7 @@ export async function OffersScreen({ locale, orderId, variant }: Props) {
     codAllowed: offer.codAllowed,
     distanceKm: offer.approxDistanceKm,
     note: offer.providerNote,
-    lines: offer.lines.map((line) => ({ id: line.id, name: line.name, quantity: line.offeredQuantity && line.offeredQuantity > 0 ? line.offeredQuantity : undefined, unitPrice: line.unitPrice, available: line.available, alternative: line.alternative })),
+    lines: offer.lines.map((line) => ({ id: line.id, name: line.name, quantity: line.offeredQuantity && line.offeredQuantity > 0 ? line.offeredQuantity : undefined, unitPrice: line.unitPrice, available: line.available, alternative: line.alternative, priceStatus: line.priceStatus })),
   }));
 
   return (
@@ -108,10 +113,19 @@ export async function OffersScreen({ locale, orderId, variant }: Props) {
             <div className={styles.heroText}>
               <h2 className={styles.heroTitle}>{views.length ? t("heroTitleOffers") : t("heroTitleWaiting")}</h2>
               <p className={styles.heroSub}>{views.length ? t("heroCount", { count: views.length }) : t("heroNone")}</p>
+              {expanding?.radiusKm ? <p className={styles.heroSub} role="status">{t("searchRound", { round: expanding.round ?? 1, km: new Intl.NumberFormat(locale).format(expanding.radiusKm) })}</p> : null}
             </div>
           </div>
         ) : null}
 
+        {unavailable ? (
+          <div className={styles.state}>
+            <EmptyState icon="storefront" tone={OFFER_TONES.pharmacy} title={t("unavailableTitle")} body={t("unavailableBody")} />
+            <Link href={`/${locale}/pharmacy`} className={`nabd-button nabd-button--primary nabd-button--lg nabd-button--full ${styles.linkButton}`}>
+              <span className="nabd-button__label">{t("unavailableAction")}</span>
+            </Link>
+          </div>
+        ) : null}
         {browsing ? <OffersLiveRefresh active={views.length === 0} /> : null}
         {browsing && !views.length ? (
           <>
