@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { adminFetch } from '@/lib/admin-client';
+import { useCan } from '@/components/AdminGuard';
 
 /**
  * One list of everything that waits for an admin decision. There is no backend endpoint that returns "all pending
@@ -10,15 +11,16 @@ import { adminFetch } from '@/lib/admin-client';
  */
 
 type Count = number | null;
-type Row = { key: string; label: string; hint: string; href: string; count: () => Promise<Count> };
+/** `permission`: what the row's list endpoint requires on the backend; a role without it does not see the row (no 403 inside the page). */
+type Row = { key: string; label: string; hint: string; href: string; permission?: string; count: () => Promise<Count> };
 
 const asList = (r: unknown): unknown[] => (Array.isArray(r) ? r : Array.isArray((r as { data?: unknown[] } | null)?.data) ? (r as { data: unknown[] }).data : []);
 const pendingReview = (list: unknown[]) => list.filter((i) => ((i as { medical_review_status?: string }).medical_review_status || 'pending') === 'pending').length;
 
 const ROWS: Row[] = [
-  { key: 'providers', label: 'مزودون جدد', hint: 'اعتماد أو رفض أو طلب تعديل', href: '/admin/provider-moderation',
+  { key: 'providers', label: 'مزودون جدد', hint: 'اعتماد أو رفض أو طلب تعديل', href: '/admin/provider-moderation', permission: 'facility.edit',
     count: async () => { const r = await adminFetch<{ items?: unknown[]; total?: number }>('/api/admin/admin/providers?status=pending&limit=100'); return r.total ?? (r.items || []).length; } },
-  { key: 'deltas', label: 'تعديلات ملفات المزودين', hint: 'تعديلات بانتظار الاعتماد', href: '/admin/provider-moderation',
+  { key: 'deltas', label: 'تعديلات ملفات المزودين', hint: 'تعديلات بانتظار الاعتماد', href: '/admin/provider-moderation', permission: 'facility.edit',
     count: async () => asList(await adminFetch('/api/admin/admin/providers/provider-deltas')).length },
   { key: 'withdrawals', label: 'طلبات سحب المزودين', hint: 'تنفيذ التحويل أو الرفض', href: '/admin/payouts',
     count: async () => asList(await adminFetch('/api/admin/admin/finance/withdrawals/pending')).length },
@@ -26,18 +28,24 @@ const ROWS: Row[] = [
     count: async () => asList(await adminFetch('/api/admin/admin/returns?status=processing')).length },
   { key: 'changes', label: 'اقتراحات تعديل الأدوية', hint: 'تعديل حقول أو صنف جديد أو صورة', href: '/admin/medicines-catalog',
     count: async () => (await adminFetch<{ total?: number }>('/medicines/admin/change-requests?status=pending&page=1&limit=1')).total ?? 0 },
-  { key: 'shortage', label: 'بلاغات نقص الأدوية', hint: 'اعتماد شارة النقص', href: '/admin/shortage-reports',
+  { key: 'shortage', label: 'بلاغات نقص الأدوية', hint: 'اعتماد شارة النقص', href: '/admin/shortage-reports', permission: 'catalog.read',
     count: async () => (await adminFetch<{ total?: number }>('/medicines/admin/shortage-reports?status=pending&page=1&limit=1')).total ?? 0 },
   { key: 'images', label: 'اقتراحات صور الأدوية', hint: 'اعتماد أو رفض الصورة', href: '/admin/image-suggestions',
     count: async () => (await adminFetch<{ total?: number }>('/medicines/admin/image-suggestions?status=pending&page=1&limit=1')).total ?? 0 },
   { key: 'catalog', label: 'مراجعة طبية للكتالوج', hint: 'تحاليل وأشعة وتمريض', href: '/admin/catalog-manager',
     count: async () => {
-      const lists = await Promise.all(['/labs/admin/catalog', '/radiology/admin/catalog', '/nursing/admin/catalog'].map((p) => adminFetch<unknown>(p)));
+      const lists = await Promise.all([adminFetch<unknown>('/labs/admin/catalog'), adminFetch<unknown>('/radiology/admin/catalog'), adminFetch<unknown>('/nursing/admin/catalog')]);
       return lists.reduce<number>((sum, l) => sum + pendingReview(asList(l)), 0);
     } },
 ];
 
 export default function ApprovalsPage() {
+  const canFacility = useCan('facility.edit');
+  const canCatalog = useCan('catalog.read');
+  const allowed = useMemo(() => {
+    const granted: Record<string, boolean> = { 'facility.edit': canFacility, 'catalog.read': canCatalog };
+    return ROWS.filter((row) => !row.permission || granted[row.permission]);
+  }, [canFacility, canCatalog]);
   const [counts, setCounts] = useState<Record<string, Count | undefined>>({});
   const [failed, setFailed] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
@@ -50,17 +58,17 @@ export default function ApprovalsPage() {
 
   const loadAll = useCallback(() => {
     setLoading(true);
-    return Promise.all(ROWS.map((row) => loadRow(row))).then(() => setLoading(false));
-  }, [loadRow]);
+    return Promise.all(allowed.map((row) => loadRow(row))).then(() => setLoading(false));
+  }, [loadRow, allowed]);
 
   useEffect(() => {
     let live = true;
-    Promise.all(ROWS.map((row) => loadRow(row))).then(() => { if (live) setLoading(false); });
+    Promise.all(allowed.map((row) => loadRow(row))).then(() => { if (live) setLoading(false); });
     return () => { live = false; };
-  }, [loadRow]);
+  }, [loadRow, allowed]);
 
-  const total = ROWS.reduce((sum, row) => sum + (counts[row.key] || 0), 0);
-  const sorted = [...ROWS].sort((a, b) => (counts[b.key] || 0) - (counts[a.key] || 0));
+  const total = allowed.reduce((sum, row) => sum + (counts[row.key] || 0), 0);
+  const sorted = [...allowed].sort((a, b) => (counts[b.key] || 0) - (counts[a.key] || 0));
 
   return (
     <>
