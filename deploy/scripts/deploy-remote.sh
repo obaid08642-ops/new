@@ -30,7 +30,7 @@ $SSH "sudo bash /opt/nabdah/deploy/setup-server.sh"
 echo "═══ [3/4] master deploy ═══"
 $SSH "cd /opt/nabdah/deploy && sudo bash scripts/deploy.sh"
 
-echo "═══ [4/4] install backup cron ═══"
-$SSH '(sudo crontab -l 2>/dev/null | grep -v nabdah; echo "0 3 * * * /opt/nabdah/deploy/scripts/backup.sh >> /var/log/nabdah-backup.log 2>&1") | sudo crontab -'
+echo "═══ [4/4] install backup cron (D-33: backup daily, catalogue weekly, restore drill monthly) ═══"
+$SSH 'sudo install -m 644 /opt/nabdah/deploy/cron/nabd-backups /etc/cron.d/nabd-backups && (sudo crontab -l 2>/dev/null | grep -v "scripts/backup.sh") | sudo crontab -'
 
 echo "✅ REMOTE DEPLOY FINISHED"

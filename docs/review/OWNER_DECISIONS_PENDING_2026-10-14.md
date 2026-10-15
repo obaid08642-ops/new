@@ -70,3 +70,16 @@ and sets every line to `fixed #PR` or `not-a-problem: owner decided … `.
 |---:|---|---|---|
 | 29 | Admin roles: today every admin holds the whole admin permission set (role `admin`; custom roles only add permissions), so a "restricted" admin cannot exist and 128 admin write routes are role-only (no permission named). Should custom roles become restrictive (an admin gets only the permissions of their roles)? | fix session, PR fix/admin-guards (security sweep) | **Yes, before staff other than the owner get admin accounts**: make custom roles restrictive and name a permission on every admin write route in one PR; until then the panel already hides every control whose backend permission the role lacks. |
 | 30 | Pharmacy order chat (substitute negotiation): the patient app and web have the screens and the four actions, and the provider app has an "Order chat" button on the order card (PharmacyDashboard.tsx:1050) that reads and writes an existing thread, but no route opens a thread (openOrGetThread has no caller), so both sides always show an empty chat. Substitutes already travel in the offer lines (the patient decides by choosing the offer, P13-R2). The hub tile "Pharmacist consult" and the product page "Ask a pharmacist" open it with no order. | batch-1b-app#0, #1 (issues 479, 480) | **Build it for orders only** (as decision 24 does for doctors): the pharmacy opens a thread on an order line from its existing Order chat (and may attach a substitute from its inventory, checked against the prescription), the patient answers in the existing screens; remove the two entry points that open it with no order. If you prefer no chat at all, the fix session removes the screens, the routes and the entry points instead. |
+
+## E. Decided 2026-10-15 (the owner asked the reviewer to decide and approve)
+
+- **Medical fixed texts (B8: issues 628, 629, 669).** No fixed medical text in the apps.
+  - Lab and radiology preparation comes per test from the catalogue: a new `preparation` field in six languages,
+    edited by admin and the lab, shown on sample tracking. A test without one shows only "the lab will confirm any
+    preparation with you".
+  - The sample-tracking steps come from the booking's real status timeline.
+  - The collector tips on the redirected technician screen are removed.
+  - The four sleep tips are replaced by published articles tagged sleep (content API), or nothing when there are none.
+  - Owner of the work: the fix session (lines set back to `open` with this decision).
+- **Legal texts (terms, privacy).** Stays an owner action: a Saudi lawyer approves `docs/legal` before launch. Until
+  then the embedded fallback stays off. This is a launch blocker and cannot be decided in code.
