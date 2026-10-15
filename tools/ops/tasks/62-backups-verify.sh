@@ -29,7 +29,9 @@ if ! $DK exec nabdah-backend sh -c '[ "${#BACKUP_REPORT_TOKEN}" -ge 32 ]' 2>/dev
   $DK exec nabdah-backend sh -c '[ "${#BACKUP_REPORT_TOKEN}" -ge 32 ]' || { echo "backups: ABORT backend still has no BACKUP_REPORT_TOKEN"; exit 1; }
   echo "backups: backend recreated to read BACKUP_REPORT_TOKEN"
 fi
-C=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 -X POST -H 'Content-Type: application/json' --data '{}' "${URL%/}/api/v1/ops/backup-runs")
+# a valid body without the token: validation passes, so only the missing token can refuse it
+C=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 -X POST -H 'Content-Type: application/json' \
+  --data "{\"kind\":\"local\",\"ok\":true,\"finished_at\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" "${URL%/}/api/v1/ops/backup-runs")
 [ "$C" = 401 ] || { echo "backups: ABORT POST /api/v1/ops/backup-runs without the token answered $C, wanted 401 (D-34 not running?)"; exit 1; }
 echo "backups: backend has the report token; the endpoint refuses a run without it (401)"
 
