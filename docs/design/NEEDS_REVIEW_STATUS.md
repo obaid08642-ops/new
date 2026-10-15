@@ -10,13 +10,13 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---|---:|---:|---:|---:|---:|---:|
 | Patient app and web | 434 | 52 | 287 | 92 | 3 | 0 |
 | Other | 29 | 16 | 12 | 1 | 0 | 0 |
-| Admin | 99 | 7 | 59 | 33 | 0 | 0 |
+| Admin | 99 | 6 | 60 | 33 | 0 | 0 |
 | Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
 | Final pass | 8 | 6 | 0 | 2 | 0 | 0 |
 | Patient journeys | 87 | 20 | 65 | 2 | 0 | 0 |
 | Provider app | 31 | 7 | 23 | 1 | 0 | 0 |
 | Provider journeys | 34 | 9 | 22 | 2 | 1 | 0 |
-| **Total** | **742** | **119** | **484** | **135** | **4** | **0** |
+| **Total** | **742** | **118** | **485** | **135** | **4** | **0** |
 
 ## By tag
 
@@ -24,9 +24,9 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---|---:|---:|---:|---:|---:|---:|
 | client | 169 | 33 | 104 | 31 | 1 | 0 |
 | owner | 100 | 17 | 39 | 42 | 2 | 0 |
-| backend | 235 | 29 | 177 | 29 | 0 | 0 |
+| backend | 235 | 28 | 178 | 29 | 0 | 0 |
 | untagged | 238 | 40 | 164 | 33 | 1 | 0 |
-| **Total** | **742** | **119** | **484** | **135** | **4** | **0** |
+| **Total** | **742** | **118** | **485** | **135** | **4** | **0** |
 
 ## By file
 
@@ -69,7 +69,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `admin-customers-growth.json` | 14 | 0 | 8 | 6 | 0 | 0 |
 | `admin-finance.json` | 10 | 0 | 9 | 1 | 0 | 0 |
 | `admin-journeys.json` | 20 | 2 | 16 | 2 | 0 | 0 |
-| `admin-ops-monitoring.json` | 16 | 2 | 10 | 4 | 0 | 0 |
+| `admin-ops-monitoring.json` | 16 | 1 | 11 | 4 | 0 | 0 |
 | `admin-providers.json` | 8 | 0 | 5 | 3 | 0 | 0 |
 | `admin-public-directories.json` | 14 | 0 | 4 | 10 | 0 | 0 |
 | `admin-system.json` | 13 | 2 | 8 | 3 | 0 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 6 | 1 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 1 | 11 | 1 | 0 | 0 |
-| **Total** | **742** | **119** | **484** | **135** | **4** | **0** |
+| **Total** | **742** | **118** | **485** | **135** | **4** | **0** |
 
 ## Owner decisions (4)
 
@@ -111,7 +111,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 3 | `batch-1b-app.json#1` `patient-app/app/(tabs)/pharmacy.tsx:63` | /pharmacy/pharmacist-chat Hub tile 'Pharmacist consult' and product page 'Ask a… | The screen is the substitute-negotiation chat of one order (GET /pharmacy/chat/threads?order_id=); a thread exists only when a pharmacy proposes a substitute for an order line. The hub (pharmacy.tsx:63) and the product … |
 | 4 | `provider-journeys.json#5` `provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:538` | PharmacyDashboard hand over / delivery | [client] The prescription dispensing path is a "disabled" notice and the old order detail and broadcast screens are defined but never rendered (dead code). |
 
-## Open and unverified (119)
+## Open and unverified (118)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -151,7 +151,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `admin-journeys.json#14` | client | open | /admin/orders/[kind]/[id] Journey 3 / Refund action is labelled 'to wallet' but… | Fixed (the refund label now reads "استرداد إلى وسيلة الدفع الأصلية"; the compensation label was corrected the same way 2026-10-10, owner decision #952): [client] The refund action… |
 | `admin-journeys.json#18` | client | open (issue #955) | /admin/config-portal Journey 4 / Emergency maintenance switch is disabled and t… | [client] The 'Trigger System Kill-Switch' button is permanently disabled ('requires server set-up'), although the handler at line 183 and PUT /admin/governance/trigger-emergency-m… |
 | `admin-ops-monitoring.json#4` | backend | open | /admin/approvals One approvals endpoint with counts | [backend] No endpoint returns all pending approvals with counts, so the page asks nine existing list endpoints (providers, provider edits, withdrawals, refunds, returns, medicine … |
-| `admin-ops-monitoring.json#14` | backend | open (issue #1235) | /admin/today Urgent alerts: inbox, push, alert rules | [backend] The screen shows what the existing endpoints can say (SLA breaches, stuck orders, failed payments). There is no admin notification inbox or bell, no push to the admin's … |
 | `admin-system.json#1` | client | open (issue #995) | /admin/config-portal Trigger System Kill-Switch (معطّل — يتطلب إعداد الخادم) | [client] Button is disabled with no handler. |
 | `admin-system.json#10` | backend | open | /admin/system-ops Feature switch effect | [backend] The switch writes and audits (reason required), but backend code reads only `sms_enabled` (sms.service.ts) and ConfigService hands the flags to clients; there is no per-… |
 | `batch-0-app.json#2` | untagged | open (issue #410) | /login Two api helpers and three base-URL resolutions | login.tsx, welcome.tsx and useSocialLogin.ts use utils/api.ts (axios HttpClient, base EXPO_PUBLIC_API_URL + /api/v1 else https://api.nabd.plus/api/v1: src/services/HttpClient.ts:5… |
