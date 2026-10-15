@@ -19,7 +19,7 @@
     "line": 37,
     "found": "[client] Endpoint is UNRESOLVED (path is not a literal the tool can resolve): the call fails or hits nothing.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "fixed #1426"
   },
   {
     "batch": "admin",
@@ -30,7 +30,7 @@
     "line": 32,
     "found": "[client] Page has no client permission (AdminGuard ROUTE_PERMISSIONS) but 1 call(s) need permissions the backend checks (GET /medicines/admin/shortage-reports); any admin sees the page and gets 403s inside it. (backend: backend/src/modules/medicines/medicines.controller.ts:131)",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "fixed #1426"
   },
   {
     "batch": "admin",
@@ -41,7 +41,7 @@
     "line": 1,
     "found": "[client] Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "fixed #1426"
   },
   {
     "batch": "admin",
@@ -129,7 +129,7 @@
     "line": 21,
     "found": "[client] client permission \"users.view\" is not in backend Permission enum: the page/nav link is hidden or locked for every role.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open (issue #1232)"
+    "review_status": "not-a-problem: fixed earlier on main, the /admin/search nav item requires user.read, which is in the Permission enum (issue #1232)"
   },
   {
     "batch": "admin",
@@ -140,7 +140,7 @@
     "line": 49,
     "found": "[client] Page has no client permission (AdminGuard ROUTE_PERMISSIONS) but 1 call(s) need permissions the backend checks (GET /api/admin/admin/command-center-v2); any admin sees the page and gets 403s inside it. (backend: backend/src/modules/admin/enterprise/command-center-v2.controller.ts:70)",
     "suspect": "Client-side: later batch.",
-    "review_status": "open (issue #1233)"
+    "review_status": "fixed #1426 (issue #1233)"
   },
   {
     "batch": "admin",
@@ -151,7 +151,7 @@
     "line": 1,
     "found": "[client] Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open (issue #1234)"
+    "review_status": "fixed #1426 (issue #1234)"
   },
   {
     "batch": "admin",

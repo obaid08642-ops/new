@@ -56,14 +56,13 @@ export function FacilitySettingsScreen({ onLogout, onNavigate }: { onLogout: () 
  const [wardDaily, setWardDaily] = useState('500');
  const [surgPrice, setSurgPrice] = useState('3000');
  const [erFee, setErFee] = useState('250');
- const [ambFee, setAmbFee] = useState('150');
  const [savingPrices, setSavingPrices] = useState(false);
 
  const handleSavePrices = async () => {
  setSavingPrices(true);
  try {
    await client.post('/provider/settings/delta', { 
-     newData: { icuDaily, icuHourly, wardDaily, surgPrice, erFee, ambFee } 
+     newData: { icuDaily, icuHourly, wardDaily, surgPrice, erFee } 
    });
    setSavingPrices(false);
    setShowPricing(false);
@@ -192,7 +191,7 @@ return (
  <NPriceInput label={AR ? 'سعر سرير التنويم بالأجنحة (يومي)' : 'Ward Inpatient Rate (Daily - SAR)'} value={wardDaily} onChange={setWardDaily} />
  <NPriceInput label={AR ? 'تكلفة فتح غرف العمليات للعملية' : 'Surgery Room Starting Price (SAR)'} value={surgPrice} onChange={setSurgPrice} />
  <NPriceInput label={AR ? 'رسوم الطوارئ' : 'Emergency Fee (SAR)'} value={erFee} onChange={setErFee} />
- <NPriceInput label={AR ? 'رسوم الإسعاف' : 'Ambulance Fee (SAR)'} value={ambFee} onChange={setAmbFee} />
+ {/* owner decision B23 / decision 14: no ambulance service, so no ambulance fee */}
  
  <NBtn label={AR ? ' حفظ التعريفات' : ' Save Tariffs'} loading={savingPrices} onPress={handleSavePrices} style={{ marginTop: SP.md }} />
  </ScrollView>

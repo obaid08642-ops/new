@@ -8,7 +8,7 @@
     "line": 166,
     "found": "Removed 2026-10-10 (owner decision): [client] Sensitive action (POST /api/admin/admin/finance/refunds/:param/decide) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "not-a-problem: the refund decision was removed from /admin/insurance-queue 2026-10-10 (owner decision 952); the page calls no refund route"
   },
   {
     "batch": "admin",
@@ -19,7 +19,7 @@
     "line": 167,
     "found": "Removed 2026-10-10 (owner decision): [client] Sensitive action (POST /api/admin/admin/finance/refunds/:param/decide) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "not-a-problem: the refund decision was removed from /admin/insurance-queue 2026-10-10 (owner decision 952); the page calls no refund route"
   },
   {
     "batch": "admin",
@@ -30,7 +30,7 @@
     "line": 56,
     "found": "Removed 2026-10-10 (owner decision): [backend] 1 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/finance/refunds/:param/decide): every admin role, including a custom restricted one, can run them. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:887)",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open"
+    "review_status": "fixed #1426: POST /admin/finance/refunds/:id/decide names order.refund (admin-sensitive-write-permissions spec); the insurance queue no longer calls it"
   },
   {
     "batch": "admin",

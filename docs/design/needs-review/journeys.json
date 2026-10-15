@@ -33,7 +33,7 @@
     "kind": "duplicate",
     "file": "patient-web/components-next/pharmacy-offers/waiting-actions.tsx",
     "line": 18,
-    "review_status": "open"
+    "review_status": "fixed #1254 (verified on main: waiting-actions.tsx:22 and the shared cancel-order.tsx)"
   },
   {
     "scenario": 1,
@@ -51,7 +51,7 @@
     "kind": "wrong-state",
     "file": "patient-web/components-next/pharmacy-offers/offer-list.tsx",
     "line": 104,
-    "review_status": "open"
+    "review_status": "fixed #1254 (verified on main: tracking-screen.tsx:92 Continue to the next step)"
   },
   {
     "scenario": 1,
@@ -105,7 +105,7 @@
     "kind": "duplicate",
     "file": "patient-web/components-next/home/home-parts.tsx",
     "line": 162,
-    "review_status": "open (issue #1020)"
+    "review_status": "fixed before this session (verified on main: medicines/page.tsx and medicine-catalog/page.tsx permanently redirect to /c) (issue #1020)"
   },
   {
     "scenario": 1,
