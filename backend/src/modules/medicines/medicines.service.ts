@@ -128,6 +128,62 @@ export class MedicinesService {
     return clean.split('').join('.{0,2}'); // MongoDB-PCRE safe (no \p classes)
   }
 
+  /**
+   * P13-R7: deterministic Arabic↔Latin query transliteration (recall booster,
+   * ranking still decides order). Latin brands typed on any layout also match
+   * their Arabic spelling and vice versa — beyond the static synonym list.
+   * Arabic omits short vowels, so the Arabic→Latin variant is a consonant
+   * skeleton joined by `[aeiou]*` (matches marham, mirham, …). Both variants
+   * are built from fixed alphabets only, so they carry no user metacharacters
+   * and are ReDoS-safe (linear: literals separated by a vowel class).
+   * Devanagari/Bengali-script transliteration is follow-up (see PR body).
+   */
+  private static readonly LATIN_TO_ARABIC: Array<[string, string]> = [
+    ['sh', 'ش'], ['th', 'ث'], ['kh', 'خ'], ['dh', 'ذ'], ['gh', 'غ'], ['ch', 'تش'],
+    ['a', 'ا'], ['b', 'ب'], ['c', 'س'], ['d', 'د'], ['e', 'ي'], ['f', 'ف'],
+    ['g', 'ج'], ['h', 'ه'], ['i', 'ي'], ['j', 'ج'], ['k', 'ك'], ['l', 'ل'],
+    ['m', 'م'], ['n', 'ن'], ['o', 'و'], ['p', 'ب'], ['q', 'ك'], ['r', 'ر'],
+    ['s', 'س'], ['t', 'ت'], ['u', 'و'], ['v', 'ف'], ['w', 'و'], ['x', 'كس'],
+    ['y', 'ي'], ['z', 'ز'],
+  ];
+
+  private static readonly ARABIC_TO_LATIN: Array<[string, string]> = [
+    ['ش', 'sh'], ['ث', 'th'], ['خ', 'kh'], ['ذ', 'dh'], ['غ', 'gh'],
+    ['ا', 'a'], ['ب', 'b'], ['ت', 't'], ['ج', 'j'], ['ح', 'h'],
+    ['د', 'd'], ['ر', 'r'], ['ز', 'z'], ['س', 's'], ['ص', 's'],
+    ['ض', 'd'], ['ط', 't'], ['ظ', 'z'], ['ع', 'a'], ['ف', 'f'],
+    ['ق', 'q'], ['ك', 'k'], ['ل', 'l'], ['م', 'm'], ['ن', 'n'],
+    ['ه', 'h'], ['و', 'o'], ['ي', 'i'], ['ى', 'a'], ['ة', 'a'],
+    ['ء', 'a'], ['ؤ', 'o'], ['ئ', 'e'], ['أ', 'a'], ['إ', 'a'], ['آ', 'a'],
+  ];
+
+  private applyTranslitMap(s: string, map: Array<[string, string]>): string {
+    let out = s;
+    for (const [from, to] of map) out = out.split(from).join(to);
+    return out;
+  }
+
+  /** Query variants from script transliteration (at most one per direction). */
+  transliterateQuery(term: string): Array<{ text: string; pattern?: string }> {
+    const out: Array<{ text: string; pattern?: string }> = [];
+    const lower = (term || '').toLowerCase().trim();
+    if (lower.length < 3) return out;
+    const hasArabic = /[؀-ۿ]/.test(lower);
+    const hasLatin = /[a-z]/.test(lower);
+    if (hasLatin && !hasArabic) {
+      const ar = this.applyTranslitMap(lower, MedicinesService.LATIN_TO_ARABIC);
+      if (ar && ar !== lower && /[؀-ۿ]/.test(ar)) out.push({ text: ar });
+    }
+    if (hasArabic) {
+      const skeleton = this.applyTranslitMap(lower, MedicinesService.ARABIC_TO_LATIN).replace(/[^a-z]/g, '');
+      if (skeleton && skeleton.length >= 3 && skeleton !== lower) {
+        // Vowel-tolerant: short vowels are unwritten in Arabic.
+        out.push({ text: skeleton, pattern: skeleton.split('').join('[aeiou]*') });
+      }
+    }
+    return out.slice(0, 2);
+  }
+
   /** Public catalog gate. Missing governance metadata is intentionally hidden. */
   private publicCatalogFilter() {
     return {
@@ -203,6 +259,27 @@ export class MedicinesService {
       }
       for (const syn of this.expandSynonyms(search).slice(0, 4)) {
         if (syn !== search) ors.push({ name_en: { $regex: esc(syn), $options: 'i' } }, { name_ar: { $regex: esc(syn), $options: 'i' } }, { search_text: { $regex: esc(this.normalizeSearchText(syn)), $options: 'i' } });
+      }
+      // P13-R7: script transliteration recall. `text` variants are escaped
+      // like synonyms; `pattern` variants are built from fixed alphabets only
+      // (letters + [aeiou]*), so they are used raw and stay ReDoS-safe.
+      const seen = new Set(ors.map((o: any) => JSON.stringify(o)));
+      for (const tr of this.transliterateQuery(search)) {
+        if (!tr.text || tr.text === search || tr.text === norm) continue;
+        if (tr.pattern) {
+          const conds = [
+            { name_en: { $regex: tr.pattern, $options: 'i' } },
+            { name_ar: { $regex: tr.pattern, $options: 'i' } },
+          ];
+          for (const c of conds) { const k = JSON.stringify(c); if (!seen.has(k)) { seen.add(k); ors.push(c); } }
+        } else {
+          const conds = [
+            { name_en: { $regex: esc(tr.text), $options: 'i' } },
+            { name_ar: { $regex: esc(tr.text), $options: 'i' } },
+            { search_text: { $regex: esc(this.normalizeSearchText(tr.text)), $options: 'i' } },
+          ];
+          for (const c of conds) { const k = JSON.stringify(c); if (!seen.has(k)) { seen.add(k); ors.push(c); } }
+        }
       }
       q.$or = ors;
     }
