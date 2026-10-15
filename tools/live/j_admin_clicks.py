@@ -60,7 +60,17 @@ def main():
     try:
         page.locator('form input:not([type])').first.fill(EMAIL)
         page.fill('input[type="password"]', os.environ.get('NABD_ADMIN_PASSWORD', 'Adm1n!Live-Pass'))
-        page.click('button[type="submit"]')
+        # The admin login allows 10 a minute per IP; the journeys before this one sign in too. A 429 is waited out
+        # once, as lib.Client does (NABD_LIVE_WAIT_429), instead of reading it as a changed form.
+        with page.expect_response(lambda r: r.request.method == 'POST' and 'login' in r.url, timeout=20000) as sent:
+            page.click('button[type="submit"]')
+        if sent.value.status == 429 and os.environ.get('NABD_LIVE_WAIT_429', '1') == '1':
+            time.sleep(min(int(sent.value.headers.get('retry-after') or 61), 90))
+            t0 = time.time()
+            with page.expect_response(lambda r: r.request.method == 'POST' and 'login' in r.url, timeout=20000) as sent:
+                page.click('button[type="submit"]')
+        if sent.value.status >= 400:
+            raise RuntimeError(f'login answered {sent.value.status}')
         page.wait_for_selector('input[inputmode="numeric"]', timeout=20000)
         code = mail_code(EMAIL, t0)
         if not code:
