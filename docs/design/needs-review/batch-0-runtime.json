@@ -19,7 +19,7 @@
     "line": 0,
     "found": "Runtime check (error scenario): the settings page showed the notifications list's title 'تعذر تحميل الإشعارات'. Fixed: it now uses NotificationSettings.unavailableTitle in all six locales.",
     "suspect": "None left; listed so the reviewer knows the copy key was added.",
-    "review_status": "open (issue #422)"
+    "review_status": "fixed (verified on main: the settings page uses NotificationSettings.unavailableTitle, app/[locale]/settings/notifications/page.tsx:36)"
   },
   {
     "batch": 0,

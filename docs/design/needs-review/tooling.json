@@ -96,7 +96,7 @@
     "line": 16,
     "found": "The text says weekly educational content linked to the maternity profile is shown here, but the page renders only that sentence and a link to the tracker; there is no fetch. The sibling /maternity/baby-development redirects to the hub with the comment \"curated content pending clinical review\". The backend's GET /maternity/content returns `weekly_tips: []` by design (maternity.service.ts getContent) and no client calls it.",
     "suspect": "The screen promises content that does not exist yet. Owner decision D says week content comes from the backend: this is blocked on the clinically reviewed content, not on the client. Until then the copy should not claim it.",
-    "review_status": "open (issue #568)"
+    "review_status": "fixed (verified on main: /maternity/baby-growth redirects to the hub's Baby tab, which shows the growth logs; no weekly-content claim is left)"
   },
   {
     "batch": 8,
@@ -107,7 +107,7 @@
     "line": 28,
     "found": "The page shows no estimate, window or date; it has a sentence about how the estimate is computed and a link to /maternity/tracker, whose only call is GET /maternity/profile.",
     "suspect": "Copy describes a feature the page does not have. Either show the estimate from the profile (last period, cycle length) with the estimate badge, or point to the tracker without the claim.",
-    "review_status": "open (issue #569)"
+    "review_status": "fixed (verified on main: /maternity/ovulation redirects to the hub's Ovulation tab, which shows the estimated ovulation day, fertile window and next period from the profile with an Estimate badge, app/[locale]/maternity/page.tsx:188-211)"
   },
   {
     "batch": 12,

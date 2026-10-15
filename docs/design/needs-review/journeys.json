@@ -303,7 +303,7 @@
     "kind": "wrong-state",
     "file": "patient-web/app/[locale]/appointments/[appointmentId]/summary/page.tsx",
     "line": 46,
-    "review_status": "open (issue #1042)"
+    "review_status": "fixed (verified on main: the summary is a section of the appointment page, whose prescription section has 'order these medicines' filling the cart, app/[locale]/appointments/[appointmentId]/page.tsx:163, components-next/prescription-client.tsx:86)"
   },
   {
     "scenario": 3,
@@ -312,7 +312,7 @@
     "kind": "wrong-state",
     "file": "patient-web/app/[locale]/prescriptions/[prescriptionId]/page.tsx",
     "line": 97,
-    "review_status": "open (issue #1043)"
+    "review_status": "fixed (verified on main: the prescription's 'order these medicines' fills the cart with the catalogue lines, components-next/prescription-client.tsx:86-87; only a prescription without catalogue ids goes to rx-order)"
   },
   {
     "scenario": 3,
@@ -438,7 +438,7 @@
     "kind": "missing-step",
     "file": "patient-web/app/[locale]/appointments/[appointmentId]/page.tsx",
     "line": 89,
-    "review_status": "open (issue #1057)"
+    "review_status": "fixed (verified on main: a finished appointment shows that visit's prescription with 'order these medicines', the follow-up button and the doctor chat, app/[locale]/appointments/[appointmentId]/page.tsx:136,157,163)"
   },
   {
     "scenario": 5,
