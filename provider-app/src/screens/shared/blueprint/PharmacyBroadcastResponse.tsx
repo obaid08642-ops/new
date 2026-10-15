@@ -141,7 +141,7 @@ export function PharmacyBroadcastResponse({ onBack, broadcast }: { onBack: () =>
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <NHeader title={AR ? 'مؤلف عرض صيدلية' : 'Pharmacy offer composer'} onBack={onBack} />
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: SP.xxl, gap: SP.md }}>
-        <NCard><Text style={{ color: theme.text, fontWeight: FW.bold }}>{AR ? `بث #${orderId.slice(-6)}` : `Broadcast #${orderId.slice(-6)}`}</Text><Text style={{ color: theme.textSub, marginTop: SP.xs }}>{AR ? 'اختر فقط عناصر من كتالوج الصيدلية. لا تُدخل الأسعار أو رسوم التوصيل أو وقت الوصول يدوياً.' : 'Bind only pharmacy catalog items. Prices, delivery fees, and ETA are never entered here.'}</Text></NCard>
+        <NCard><Text style={{ color: theme.text, fontWeight: FW.bold }}>{AR ? `بث #${orderId.slice(-6)}` : `Broadcast #${orderId.slice(-6)}`}</Text><Text style={{ color: theme.textSub, marginTop: SP.xs }}>{AR ? 'اختر عناصر من كتالوج الصيدلية. يمكنك إدخال سعر الوحدة بنفسك بحدٍّ أقصى السعر المسجل (SFDA)، ويُسجَّل كل سعر تُدخله. لا تُدخل رسوم التوصيل أو وقت الوصول هنا.' : 'Bind pharmacy catalog items. You may enter your own unit price up to the registered (SFDA) price; every price you enter is logged. Delivery fees and ETA are not entered here.'}</Text></NCard>
         {attachments.length > 0 && <NCard><Text style={{ color: theme.text, fontWeight: FW.bold }}>{AR ? 'مرفقات الوصفة' : 'Prescription attachments'}</Text>{attachments.map((a: any, i: number) => (
           <TouchableOpacity key={i} onPress={() => a?.uri && Linking.openURL(a.uri)}>
             <Text style={{ color: theme.primary }}>{a?.type === 'pdf' ? '📄' : '🖼️'} {AR ? 'فتح المرفق' : 'Open attachment'} {i + 1}</Text>

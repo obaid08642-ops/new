@@ -39,8 +39,7 @@ export class PharmacyNotificationService {
     }).catch(() => null);
   }
 
-  async notifyPatientItemUnavailable(alloc: PharmacyAllocation, item: any) {
-    const order = await this.lookupOrderId(alloc.order_id);
+  async notifyPatientItemUnavailable(alloc: PharmacyAllocation, item: any) {    const order = await this.lookupOrderId(alloc.order_id);
     if (!order) return;
     await this.notif.create({
       user_id: order.patient_account_id,
@@ -50,6 +49,34 @@ export class PharmacyNotificationService {
       type: NotificationType.ALERT,
       priority: NotificationPriority.NORMAL,
       action: { type: 'open_pharmacy_order', order_id: order.id },
+    }).catch(() => null);
+  }
+
+  // P13-R2: substitute proposals and decisions (patient decision, never automatic).
+  async notifyPatientSubstituteProposed(alloc: PharmacyAllocation, item: any) {
+    const order = await this.lookupOrderId(alloc.order_id);
+    if (!order) return;
+    const p = item?.substitute_proposal || {};
+    await this.notif.create({
+      user_id: order.patient_account_id,
+      title_key: 'pharmacy.substitute_proposed.title',
+      body_key: 'pharmacy.substitute_proposed.body',
+      params: { order_id: order.id, item_name: item.name || item.sku, substitute_name: p.name || p.sku },
+      type: NotificationType.ALERT,
+      priority: NotificationPriority.HIGH,
+      action: { type: 'open_pharmacy_order', order_id: order.id },
+    }).catch(() => null);
+  }
+
+  async notifyPharmacySubstituteDecided(alloc: PharmacyAllocation, item: any, decision: 'accepted' | 'rejected') {
+    await this.notif.create({
+      user_id: alloc.pharmacy_account_id,
+      title_key: 'pharmacy.substitute_decided.title',
+      body_key: 'pharmacy.substitute_decided.body',
+      params: { order_id: alloc.order_id, item_name: item.name || item.sku, decision },
+      type: NotificationType.INFO,
+      priority: NotificationPriority.NORMAL,
+      action: { type: 'open_pharmacy_allocation', allocation_id: alloc.id },
     }).catch(() => null);
   }
 
