@@ -102,7 +102,7 @@
     "element": "hand over / delivery",
     "found": "[client] The prescription dispensing path is a \"disabled\" notice and the old order detail and broadcast screens are defined but never rendered (dead code).",
     "suspect": "dead end",
-    "review_status": "fixed #1474"
+    "review_status": "owner-decision (question 41 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2) (issue #1146)"
   },
   {
     "scenario": 1,

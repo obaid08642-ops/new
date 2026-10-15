@@ -1149,6 +1149,140 @@ function SmartBarcodeScannerScreen({ onBack }: any) {
 
 type LowStockAlert = { id: string; inventory_item_id: string; sku: string; name: string; current_stock: number; threshold: number; status: 'open' | 'acknowledged' | 'restocked' };
 
+// provider-journeys 5: this quick-offer screen is not rendered (the offer composer is shared/blueprint/PharmacyBroadcastResponse).
+// It stays because provider-app.contracts.test.js pins its offer calls to this file; removing it is an owner decision
+// (docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md, question 41).
+function BroadcastOrderScreen({ onBack }: any) {
+  const { theme } = useTheme();
+  const { lang } = useLang();
+  const { show } = useToast();
+  const AR = lang === 'ar';
+  const [items, setItems] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+  const [actingId, setActingId] = useState<string | null>(null);
+  const [partialOrderId, setPartialOrderId] = useState<string | null>(null);
+  const [partialAvailability, setPartialAvailability] = useState<Record<string, 'yes' | 'no'>>({});
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await client.get('/provider/pharmacy/broadcasts');
+      const data = Array.isArray(res.data) ? res.data : (res.data?.items || []);
+      setItems(data);
+    } catch (e: any) {
+      setItems([]);
+      show(e?.message || (AR ? 'تعذر تحميل الطلبات الحالية' : 'Could not load live orders'), 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [AR, show]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const submitOffer = async (orderId: string, medicines: any[], availability: Record<string, 'yes' | 'no'> = {}) => {
+    if (!orderId) return;
+    const offerItems = medicines.map((item: any) => {
+      const itemId = String(item.id || item.order_item_id || '');
+      return {
+        order_item_id: itemId,
+        availability: availability[`${orderId}:${itemId}`] === 'no' ? 'unavailable' : 'available',
+        qty_offered: Number(item.qty_requested ?? item.qty ?? item.quantity ?? 1),
+        inventory_item_id: item.matched_inventory_id || item.inventory_item_id || undefined,
+      };
+    }).filter((item: any) => item.order_item_id);
+    if (offerItems.length !== medicines.length) {
+      show(AR ? 'بيانات بنود الطلب غير مكتملة؛ لا يمكن إنشاء عرض.' : 'Order item identifiers are incomplete; an offer cannot be created.', 'error');
+      return;
+    }
+    setActingId(orderId);
+    try {
+      const draft = await client.post(`/provider/pharmacy/broadcasts/${orderId}/offers/draft`, { items: offerItems });
+      const offerId = draft.data?.id;
+      if (!offerId) throw new Error('offer_draft_id_missing');
+      await client.post(`/provider/pharmacy/broadcasts/${orderId}/offers/${offerId}/submit`);
+      show(AR ? 'أُرسل العرض للمريض للاختيار؛ لم يُخصص الطلب بعد.' : 'Offer sent to the patient for selection; the order is not assigned yet.', 'success');
+      setPartialOrderId(null);
+      setPartialAvailability({});
+      await load();
+    } catch (e: any) {
+      show(e?.response?.data?.message || e?.message || (AR ? 'تعذر إرسال العرض' : 'Could not submit offer'), 'error');
+    } finally {
+      setActingId(null);
+    }
+  };
+  const reject = async (orderId: string) => {
+    if (!orderId) return;
+    setActingId(orderId);
+    try {
+      await client.post(`/provider/pharmacy/broadcasts/${orderId}/reject`, { reason: 'provider_declined' });
+      show(AR ? 'تم تسجيل رفض الطلب' : 'Order rejection recorded', 'info');
+      await load();
+    } catch (e: any) {
+      show(e?.response?.data?.message || e?.message || (AR ? 'تعذر رفض الطلب' : 'Could not reject order'), 'error');
+    } finally {
+      setActingId(null);
+    }
+  };
+  const submitPartial = async (orderId: string, medicines: any[]) => submitOffer(orderId, medicines, partialAvailability);
+
+  return (
+    <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <NHeader title={AR ? 'طلبات البث المباشر الفورية' : 'Live Broadcast Orders'} onBack={onBack} />
+      <NScroll pad>
+        {loading ? <ActivityIndicator color={theme.primary} /> : items.length === 0 ? (
+          <NEmpty title={AR ? 'لا توجد طلبات بث حالياً' : 'No live broadcast orders'} sub={AR ? 'ستظهر هنا الطلبات التي يوجهها النظام إلى صيدليتك.' : 'Orders routed to your pharmacy will appear here.'} />
+        ) : items.map((order: any) => {
+          const id = String(order.id || order.order_id || '');
+          const orderId = String(order.order_id || order.order?.id || '');
+          const medicines = order.items || order.order?.items || order.medicines || [];
+          return (
+            <NCard key={id} style={{ marginBottom: SP.sm, borderLeftWidth: 4, borderLeftColor: theme.primary }}>
+              <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{order.tracking_id || order.order_number || id}</Text>
+                <NBadge label={AR ? 'بث حي' : 'Live Broadcast'} variant="warning" />
+              </View>
+              <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
+                {medicines.map((item: any) => item.name_ar || item.name_en || item.name || item.sku).filter(Boolean).join(', ') || (AR ? 'تفاصيل الدواء غير متاحة' : 'Medicine details unavailable')}
+              </Text>
+              {!orderId ? (
+                <NEmpty title={AR ? 'بيانات الطلب غير مكتملة' : 'Order data is incomplete'} sub={AR ? 'لا يمكن تنفيذ قرار قبل استلام معرف الطلب من الخادم.' : 'A server order identifier is required before taking an action.'} icon="alertTriangle" />
+              ) : (
+                <>
+                  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.xs, marginTop: SP.sm }}>
+                    <NBtn label={AR ? 'قبول كامل' : 'Accept all'} size="sm" loading={actingId === orderId} onPress={() => submitOffer(orderId, medicines)} style={{ flex: 1 }} />
+                    <NBtn label={AR ? 'عرض جزئي' : 'Partial offer'} size="sm" variant="outline" disabled={actingId === orderId} onPress={() => { setPartialOrderId(orderId); setPartialAvailability({}); }} style={{ flex: 1 }} />
+                    <NBtn label={AR ? 'رفض' : 'Reject'} size="sm" variant="danger" disabled={actingId === orderId} onPress={() => reject(orderId)} style={{ flex: 1 }} />
+                  </View>
+                  {partialOrderId === orderId && (
+                    <View style={{ marginTop: SP.md, gap: SP.sm }}>
+                      <Text style={{ color: theme.text, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>{AR ? 'حدد البنود المتوفرة في المخزون' : 'Select the items available in your inventory'}</Text>
+                      {medicines.map((medicine: any) => {
+                        const itemId = String(medicine.id || medicine.order_item_id || '');
+                        const availabilityKey = `${orderId}:${itemId}`;
+                        const available = partialAvailability[availabilityKey] === 'yes';
+                        return (
+                          <View key={itemId || medicine.sku} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', gap: SP.sm }}>
+                            <Text style={{ flex: 1, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{medicine.name_ar || medicine.name_en || medicine.name || medicine.sku || '—'}</Text>
+                            <NBtn label={available ? (AR ? 'متوفر' : 'Available') : (AR ? 'غير متوفر' : 'Unavailable')} size="sm" variant={available ? 'primary' : 'outline'} onPress={() => setPartialAvailability((previous) => ({ ...previous, [availabilityKey]: available ? 'no' : 'yes' }))} />
+                          </View>
+                        );
+                      })}
+                      <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm }}>
+                        <NBtn label={AR ? 'إرسال العرض الجزئي' : 'Submit partial offer'} loading={actingId === orderId} onPress={() => submitPartial(orderId, medicines)} style={{ flex: 1 }} />
+                        <NBtn label={AR ? 'إلغاء' : 'Cancel'} variant="outline" onPress={() => { setPartialOrderId(null); setPartialAvailability({}); }} style={{ flex: 1 }} />
+                      </View>
+                    </View>
+                  )}
+                </>
+              )}
+              <NBtn label={AR ? 'تحديث' : 'Refresh'} size="sm" variant="outline" onPress={load} style={{ marginTop: SP.sm }} />
+            </NCard>
+          );
+        })}
+      </NScroll>
+    </View>
+  );
+}
+
 function ActiveInventoryScreen({ onBack, onNavigate }: { onBack: () => void; onNavigate?: (s: string, p?: any) => void }) {
   const { theme } = useTheme();
   const { lang } = useLang();
