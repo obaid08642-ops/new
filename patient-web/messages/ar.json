@@ -2278,15 +2278,12 @@
       "alreadyPaid": "تم دفع هذا الطلب بالفعل."
     },
     "lastFromYou": "أنت: {text}",
-<<<<<<< HEAD
     "priceNotVerified": "السعر غير متحقق منه مقابل سعر الكتالوج؛ تراجعه الإدارة.",
-    "priceAboveCatalogue": "السعر أعلى من سعر الكتالوج؛ أُبلغت الإدارة."
-=======
+    "priceAboveCatalogue": "السعر أعلى من سعر الكتالوج؛ أُبلغت الإدارة.",
     "unavailableTitle": "لا توجد صيدلية متاحة الآن",
     "unavailableBody": "لم تردّ أي صيدلية قريبة في الوقت المحدد. حاول مرة أخرى لاحقًا.",
     "unavailableAction": "العودة إلى الصيدلية",
     "searchRound": "الجولة {round}: نبحث في الصيدليات ضمن {km} كم"
->>>>>>> origin/fix/offers-waiting
   },
   "PharmacyCheckout": {
     "title": "إتمام الطلب",

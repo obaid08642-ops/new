@@ -2278,15 +2278,12 @@
       "alreadyPaid": "اس آرڈر کی ادائیگی ہو چکی ہے۔"
     },
     "lastFromYou": "آپ: {text}",
-<<<<<<< HEAD
     "priceNotVerified": "قیمت کیٹلاگ کی قیمت سے تصدیق شدہ نہیں؛ ایڈمن اس کا جائزہ لیتا ہے۔",
-    "priceAboveCatalogue": "قیمت کیٹلاگ کی قیمت سے زیادہ ہے؛ ایڈمن کو بتا دیا گیا۔"
-=======
+    "priceAboveCatalogue": "قیمت کیٹلاگ کی قیمت سے زیادہ ہے؛ ایڈمن کو بتا دیا گیا۔",
     "unavailableTitle": "اس وقت کوئی فارمیسی دستیاب نہیں",
     "unavailableBody": "کسی قریبی فارمیسی نے وقت پر جواب نہیں دیا۔ براہ کرم بعد میں دوبارہ کوشش کریں۔",
     "unavailableAction": "فارمیسی پر واپس جائیں",
     "searchRound": "راؤنڈ {round}: {km} کلومیٹر کے اندر فارمیسیاں تلاش ہو رہی ہیں"
->>>>>>> origin/fix/offers-waiting
   },
   "PharmacyCheckout": {
     "title": "چیک آؤٹ",
