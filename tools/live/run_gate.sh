@@ -43,6 +43,10 @@ export NABD_ADMIN_GATE_TOKEN="${NABD_ADMIN_GATE_TOKEN:-$ADMIN_GATE_TOKEN}"
 export NABD_ADMIN_DEVICE="${NABD_ADMIN_DEVICE:-live-gate-owner-macbook-01}"
 # one admin 2FA login per gate run (the login endpoint is rate limited per IP)
 export LIVE_ADMIN_SESSION="$(mktemp)"; rm -f "$LIVE_ADMIN_SESSION"
+# j_throttled_network drives patient-web in a real browser too (3G, 1% loss, offline banner). It reads NABD_PATIENT_WEB
+# (default :3000, where nothing runs in the gate), so its browser half always skipped: point it at the site the gate
+# serves for the j_web_* journeys (live-gate.yml, start-web.sh PATIENT_WEB_PORT=3100).
+export NABD_PATIENT_WEB="${NABD_PATIENT_WEB:-${NABD_WEB_JOURNEYS_URL:-http://127.0.0.1:3100}}"
 python3 gate_p1.py || fail=1
 for j in "${JOURNEYS[@]}"; do
   ensure_backend || fail=1
