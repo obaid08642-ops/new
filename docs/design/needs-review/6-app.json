@@ -8,7 +8,7 @@
     "line": 101,
     "found": "[owner] Opens the consultations tab without the member: booking for a member is not wired (the booking flow takes no member); the permission 'booking' exists but nothing uses it.",
     "suspect": "Owner decision.",
-    "review_status": "fixed #1490"
+    "review_status": "fixed #1523 (issue #684)"
   },
   {
     "batch": 6,
@@ -52,7 +52,7 @@
     "line": 137,
     "found": "[client] Event date is typed as ISO text; a date and time picker in the shared kit would replace it (feature, not done here).",
     "suspect": "Client-side: later batch.",
-    "review_status": "fixed #1495 (issue #688)"
+    "review_status": "fixed #1523 (issue #688)"
   },
   {
     "batch": 6,
@@ -107,6 +107,6 @@
     "line": 36,
     "found": "[client] Runtime check: the seeded patient has no group, so GET /family/calendar answers 404 and GET /family/chat/messages 403 (not_active_family_member); both screens show the generic failure instead of 'join or create a family first'. Same as before the rebuild; the group-present screens were checked on render fixtures only.",
     "suspect": "Client-side: later batch.",
-    "review_status": "fixed #1495 (issue #693)"
+    "review_status": "fixed #1523 (issue #693)"
   }
 ]
