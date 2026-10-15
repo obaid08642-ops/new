@@ -98,14 +98,27 @@ export class PharmacyOrderService {
     // Manual free-text request (web manual form): a named item the pharmacy
     // matches during broadcast, same as a typed unknown item.
     const manual = body.manual_request && typeof body.manual_request === 'object' ? body.manual_request : null;
+    // Journeys 74 (decision 12): the quantity and a photo of the box. The photo must be the patient's own uploaded image;
+    // the pharmacies asked about this order may open it (StorageService.orderPharmacyMayRead).
+    const manualQty = Number.isInteger(manual?.qty) && manual.qty >= 1 && manual.qty <= 99 ? manual.qty : 1;
+    let manualPhotoUri: string | undefined;
+    if (manual && typeof manual.photo_id === 'string' && manual.photo_id.trim()) {
+      const photo: any = await this.conn.collection('storage_objects').findOne(
+        { id: { $eq: manual.photo_id.trim() }, owner_account_id: { $eq: user.id }, deleted: { $ne: true } },
+        { projection: { _id: 0, id: 1, mime: 1 } },
+      );
+      if (!photo || !String(photo.mime || '').toLowerCase().startsWith('image/')) throw new BadRequestException('manual_photo_invalid');
+      manualPhotoUri = `/api/v1/storage/${encodeURIComponent(photo.id)}`;
+    }
     if (!items.length && manual && String(manual.name || '').trim()) {
       items.push({
         id: uuidv4(),
         raw_name: sanitize(manual.name),
-        qty: 1,
+        qty: manualQty,
         match_status: OrderItemMatchStatus.MANUAL,
         intake_source: 'manual',
         notes: typeof manual.details === 'string' ? sanitize(manual.details).slice(0, 500) : undefined,
+        ...(manualPhotoUri ? { photo_uri: manualPhotoUri } : {}),
       });
     }
     if (!items.length && !body.prescription_id) throw new BadRequestException('items_required');
@@ -122,7 +135,7 @@ export class PharmacyOrderService {
       delivery_address: normalizedAddress,
       patient_notes: body.patient_notes,
       prescription_id: typeof body.prescription_id === 'string' ? body.prescription_id : attachments.prescriptionId,
-      manual_request: manual ? { name: sanitize(manual.name).slice(0, 200), details: typeof manual.details === 'string' ? sanitize(manual.details).slice(0, 500) : null } : undefined,
+      manual_request: manual ? { name: sanitize(manual.name).slice(0, 200), details: typeof manual.details === 'string' ? sanitize(manual.details).slice(0, 500) : null, qty: manualQty, ...(manualPhotoUri ? { photo_uri: manualPhotoUri } : {}) } : undefined,
       payment_method: typeof body.payment_method === 'string' ? body.payment_method : 'cash',
       // F73: draft fulfillment + payment mode (validated by DTO enums).
       fulfillment: body.fulfillment === 'pickup' ? 'pickup' : 'delivery',

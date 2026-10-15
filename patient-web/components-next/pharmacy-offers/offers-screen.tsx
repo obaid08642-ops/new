@@ -89,7 +89,7 @@ export async function OffersScreen({ locale, orderId, variant }: Props) {
     codAllowed: offer.codAllowed,
     distanceKm: offer.approxDistanceKm,
     note: offer.providerNote,
-    lines: offer.lines.map((line) => ({ id: line.id, name: line.name, quantity: line.offeredQuantity && line.offeredQuantity > 0 ? line.offeredQuantity : undefined, unitPrice: line.unitPrice, available: line.available, alternative: line.alternative })),
+    lines: offer.lines.map((line) => ({ id: line.id, name: line.name, quantity: line.offeredQuantity && line.offeredQuantity > 0 ? line.offeredQuantity : undefined, unitPrice: line.unitPrice, available: line.available, alternative: line.alternative, priceStatus: line.priceStatus })),
   }));
 
   return (

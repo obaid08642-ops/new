@@ -18,6 +18,23 @@ import { I, IBg } from '../../../components/icons';
 import { SP, R, FS, FW, C } from '../../../constants';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+/**
+ * A patient's private file on an order (a prescription attachment, the photo of a box): the API path is not a URL the
+ * phone can open, so it asks for the 5-minute signed link (GET /storage/:id/signed-url; the server checks this pharmacy
+ * was asked about the order) and opens that.
+ */
+async function openPrivateFile(uri: unknown): Promise<boolean> {
+  const id = typeof uri === 'string' ? decodeURIComponent(uri.split('/storage/')[1] || '') : '';
+  if (!id) return false;
+  try {
+    const r = await client.get(`/storage/${encodeURIComponent(id)}/signed-url`);
+    const url = r.data?.url;
+    if (typeof url !== 'string' || !url) return false;
+    await Linking.openURL(url);
+    return true;
+  } catch { return false; }
+}
+
 export function PharmacyBroadcastResponse({ onBack, broadcast }: { onBack: () => void; broadcast?: any }) {
   const { theme } = useTheme();
   const { lang } = useLang();
@@ -143,7 +160,7 @@ export function PharmacyBroadcastResponse({ onBack, broadcast }: { onBack: () =>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: SP.xxl, gap: SP.md }}>
         <NCard><Text style={{ color: theme.text, fontWeight: FW.bold }}>{AR ? `بث #${orderId.slice(-6)}` : `Broadcast #${orderId.slice(-6)}`}</Text><Text style={{ color: theme.textSub, marginTop: SP.xs }}>{AR ? 'اختر عناصر من كتالوج الصيدلية. يمكنك إدخال سعر الوحدة بنفسك بحدٍّ أقصى السعر المسجل (SFDA)، ويُسجَّل كل سعر تُدخله. لا تُدخل رسوم التوصيل أو وقت الوصول هنا.' : 'Bind pharmacy catalog items. You may enter your own unit price up to the registered (SFDA) price; every price you enter is logged. Delivery fees and ETA are not entered here.'}</Text></NCard>
         {attachments.length > 0 && <NCard><Text style={{ color: theme.text, fontWeight: FW.bold }}>{AR ? 'مرفقات الوصفة' : 'Prescription attachments'}</Text>{attachments.map((a: any, i: number) => (
-          <TouchableOpacity key={i} onPress={() => a?.uri && Linking.openURL(a.uri)}>
+          <TouchableOpacity key={i} onPress={() => { void openPrivateFile(a?.uri).then((ok) => { if (!ok) show(AR ? 'تعذر فتح المرفق' : 'Could not open the attachment', 'error'); }); }}>
             <Text style={{ color: theme.primary }}>{a?.type === 'pdf' ? '📄' : '🖼️'} {AR ? 'فتح المرفق' : 'Open attachment'} {i + 1}</Text>
           </TouchableOpacity>
         ))}</NCard>}
@@ -153,6 +170,11 @@ export function PharmacyBroadcastResponse({ onBack, broadcast }: { onBack: () =>
           const options = catalog[item.order_item_id] || [];
           return <NCard key={item.order_item_id} style={{ gap: SP.sm }}>
             <Text style={{ color: theme.text, fontWeight: FW.bold }}>{item.qty_requested}× {item.name_ar || item.name_en || item.matched_sku}</Text>
+            {item.photo_uri ? (
+              <TouchableOpacity accessibilityRole="link" onPress={() => { void openPrivateFile(item.photo_uri).then((ok) => { if (!ok) show(AR ? 'تعذر فتح الصورة' : 'Could not open the photo', 'error'); }); }}>
+                <Text style={{ color: theme.primary }}>{AR ? 'صورة العلبة من المريض' : "Patient's photo of the box"}</Text>
+              </TouchableOpacity>
+            ) : null}
             <View style={{ flexDirection: 'row', gap: SP.xs, flexWrap: 'wrap' }}>
               {(['available', 'substitute', 'unavailable'] as const).map((availability) => <NBtn key={availability} label={availability === 'available' ? (AR ? 'متوفر' : 'Available') : availability === 'substitute' ? (AR ? 'بديل' : 'Substitute') : (AR ? 'غير متوفر' : 'Unavailable')} variant={selected.availability === availability ? 'primary' : 'outline'} onPress={() => { setChoices(prev => ({ ...prev, [item.order_item_id]: { ...prev[item.order_item_id], availability } })); setQuote(null); }} />)}
             </View>

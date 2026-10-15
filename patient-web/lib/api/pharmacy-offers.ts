@@ -13,6 +13,8 @@ export type PatientPharmacyOfferLine = {
   unitPrice?: number;
   available?: boolean;
   alternative?: string;
+  /** Journeys 75 (decision 12): the server's check of the line's price against the catalogue price. */
+  priceStatus?: "verified" | "not_verified" | "above_catalogue";
 };
 
 export type PatientPharmacyOffer = {
@@ -122,6 +124,7 @@ function parseLine(value: unknown): PatientPharmacyOfferLine | undefined {
     unitPrice: numberValue(source, ["unit_price", "unitPrice"]),
     available: booleanValue(source, ["available"]),
     alternative: stringValue(source, ["alternative"]),
+    priceStatus: ((v) => (v === "verified" || v === "not_verified" || v === "above_catalogue" ? v : undefined))(stringValue(source, ["price_status"])),
   };
 }
 
