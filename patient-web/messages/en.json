@@ -3248,23 +3248,11 @@
     "example4": "Skin rash and itching",
     "symptomsLabel": "Your symptoms",
     "symptomsPlaceholder": "For example: a headache for two days with nausea",
-    "flagsLegend": "Do you have any of these signs? Pick all that apply",
-    "flag": {
-      "chest_pain": "Chest pain",
-      "breathing_difficulty": "Trouble breathing",
-      "fainting_or_unresponsive": "Fainting or not responding",
-      "heavy_bleeding": "Heavy bleeding",
-      "new_confusion": "Sudden confusion",
-      "severe_allergic_reaction": "Severe allergic reaction",
-      "severe_injury": "Serious injury"
-    },
     "submit": "Find the next step",
     "submitting": "Checking…",
     "error": "We could not get guidance right now. Try again in a moment.",
     "emergencyTitle": "Signs that need urgent help",
-    "emergencyBody": "The signs you picked call for contacting your local emergency services now, not waiting for an appointment.",
     "consultationTitle": "We suggest seeing a doctor",
-    "consultationBody": "You did not pick any emergency signs. If the symptoms last or get worse, book a consultation with a doctor.",
     "bookConsultation": "Book a consultation",
     "askAgain": "Ask something else",
     "disclaimer": "This is general guidance, not a diagnosis or a treatment. In an emergency, call the emergency services.",
@@ -3275,7 +3263,16 @@
     "untitledReport": "Medical report",
     "reportsUnavailable": "Your reports could not be loaded now. Try again in a moment.",
     "leafletLink": "Read the leaflet",
-    "historyTitle": "Your earlier questions"
+    "leafletTitle": "About this medicine, from its leaflet",
+    "outOfScopeTitle": "What the assistant can do",
+    "leaflet": {
+      "indications": "What it is used for",
+      "how_to_use": "How to use it",
+      "side_effects": "Side effects",
+      "warnings": "Warnings",
+      "storage": "Storage",
+      "pregnancy": "Pregnancy and breastfeeding"
+    }
   },
   "MonthlyReportWeb": {
     "title": "Your monthly report",

@@ -3248,23 +3248,11 @@
     "example4": "طفح جلدي وحكة",
     "symptomsLabel": "أعراضك",
     "symptomsPlaceholder": "مثال: صداع مستمر منذ يومين مع غثيان",
-    "flagsLegend": "هل عندك واحدة من هذه العلامات؟ اختر كل ما ينطبق",
-    "flag": {
-      "chest_pain": "ألم في الصدر",
-      "breathing_difficulty": "صعوبة في التنفس",
-      "fainting_or_unresponsive": "إغماء أو عدم استجابة",
-      "heavy_bleeding": "نزيف شديد",
-      "new_confusion": "ارتباك مفاجئ",
-      "severe_allergic_reaction": "حساسية شديدة",
-      "severe_injury": "إصابة بليغة"
-    },
     "submit": "اعرف الخطوة التالية",
     "submitting": "جارٍ التحليل…",
     "error": "تعذر الحصول على إرشاد الآن. حاول مرة أخرى بعد قليل.",
     "emergencyTitle": "علامات تحتاج مساعدة عاجلة",
-    "emergencyBody": "العلامات التي اخترتها تستدعي الاتصال بخدمات الطوارئ المحلية الآن، وليس انتظار موعد.",
     "consultationTitle": "ننصحك باستشارة طبيب",
-    "consultationBody": "لم تختر علامات طارئة. إذا استمرت الأعراض أو ازدادت سوءاً فاحجز استشارة مع طبيب.",
     "bookConsultation": "احجز استشارة",
     "askAgain": "سؤال جديد",
     "disclaimer": "هذا إرشاد عام وليس تشخيصاً ولا وصفة علاج. عند الطوارئ اتصل بالإسعاف.",
@@ -3275,7 +3263,16 @@
     "untitledReport": "تقرير طبي",
     "reportsUnavailable": "تعذر تحميل تقاريرك الآن. أعد المحاولة بعد قليل.",
     "leafletLink": "اقرأ النشرة",
-    "historyTitle": "أسئلتك السابقة"
+    "leafletTitle": "معلومات الدواء من نشرته",
+    "outOfScopeTitle": "ما يستطيع المساعد فعله",
+    "leaflet": {
+      "indications": "دواعي الاستعمال",
+      "how_to_use": "طريقة الاستعمال",
+      "side_effects": "الأعراض الجانبية",
+      "warnings": "تحذيرات",
+      "storage": "طريقة الحفظ",
+      "pregnancy": "الحمل والرضاعة"
+    }
   },
   "MonthlyReportWeb": {
     "title": "تقريرك الشهري",
