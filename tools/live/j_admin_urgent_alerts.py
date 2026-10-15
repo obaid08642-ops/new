@@ -42,6 +42,10 @@ def failed_payment():
     from j_chaos import payable_lab_booking
     from j_nursing import fake_pay
     pat = Client(app_signup(label='urgent-alerts')['token'], 'urgent-alerts')
+    if not pat.get('/labs/services').items():
+        # run on its own (not after j_lab in the gate): the admin publishes the lab tests first, as j_lab does
+        import j_admin, j_lab
+        j_lab.admin_publishes_tests(j_admin.login()[0])
     bid, why = payable_lab_booking(pat)
     step('patient lab booking to pay for', bool(bid), why)
     if not bid:
