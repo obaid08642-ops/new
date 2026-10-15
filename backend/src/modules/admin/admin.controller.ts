@@ -27,7 +27,6 @@ export class AdminController {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     @InjectModel(ProviderDelta.name) private readonly deltaModel: Model<any>,
     @InjectModel('Appointment') private readonly appointmentModel: Model<any>,
-    @InjectModel('EmergencyRequest') private readonly emergencyModel: Model<any>,
     @InjectConnection() private readonly connection: Connection,
     @Optional() private readonly events?: EventEmitter2,
   ) {}
@@ -136,8 +135,8 @@ export class AdminController {
 
   /**
    * User 360° profile — everything that happened on this account:
-   * identity/status, registered devices, request history (appointments,
-   * SOS), provider profile-change audit (deltas). All live DB reads.
+   * identity/status, registered devices, request history (appointments),
+   * provider profile-change audit (deltas). All live DB reads.
    */
   @Get('users/:userId/overview')
   async userOverview(@Param('userId') userId: string, @Query('days') daysQ?: string): Promise<any> {
@@ -163,7 +162,7 @@ export class AdminController {
     const providerAccountId = providerProfile?.account_id || null;
 
     const apptScope = periodFilter(isProvider ? { $or: [asPatient, asProvider] } : asPatient);
-    const [apptCount, apptByStatus, recentAppts, sosCount, recentSos, deltas, providerRequests, providerReqByStatus, family] = await Promise.all([
+    const [apptCount, apptByStatus, recentAppts, deltas, providerRequests, providerReqByStatus, family] = await Promise.all([
       this.appointmentModel.countDocuments(apptScope),
       this.appointmentModel.aggregate([
         { $match: apptScope },
@@ -173,10 +172,6 @@ export class AdminController {
         .find(apptScope,
           { id: 1, type: 1, status: 1, state: 1, slot_start: 1, createdAt: 1, price: 1, fee: 1 })
         .sort({ createdAt: -1 }).limit(20).lean(),
-      this.emergencyModel.countDocuments({ patient_id: user.id }),
-      this.emergencyModel
-        .find({ patient_id: user.id }, { id: 1, state: 1, location: 1, createdAt: 1 })
-        .sort({ createdAt: -1 }).limit(10).lean(),
       this.deltaModel
         .find({ providerId: user._id })
         .sort({ createdAt: -1 }).limit(10).lean(),
@@ -217,9 +212,7 @@ export class AdminController {
         period_days: days,
         appointments_total: apptCount,
         appointments_by_status: Object.fromEntries((apptByStatus as any[]).map((r) => [String(r._id || 'unknown'), r.n])),
-        sos_total: sosCount,
         recent_appointments: recentAppts,
-        recent_sos: recentSos,
         provider_requests_total: (providerRequests as any[]).length,
         provider_requests_by_status: Object.fromEntries((providerReqByStatus as any[]).map((r) => [String(r._id || 'unknown'), r.n])),
         recent_provider_requests: providerRequests,

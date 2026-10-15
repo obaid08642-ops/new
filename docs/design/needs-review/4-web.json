@@ -19,7 +19,7 @@
     "line": 33,
     "found": "[client] The fake confirmation (timer, random reference, insurance estimate) is gone from the catalogue; the component is still in the repo and only components-next/diagnostics-hub-client.tsx (not imported by any page) uses it. Delete both.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open (issue #649)"
+    "review_status": "fixed #1478"
   },
   {
     "batch": 4,

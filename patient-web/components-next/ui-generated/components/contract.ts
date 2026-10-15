@@ -390,6 +390,8 @@ export interface ProductCardProps extends StateProps, A11yProps {
   discountLabel?: string;
   /** e.g. "يحتاج وصفة". */
   rxLabel?: string;
+  /** e.g. "أونلاين فقط" (decision 11: the product is sold through Nabd Plus only). */
+  onlineLabel?: string;
   /** REQUIRED: the add button has no visible text. */
   addLabel: string;
 }

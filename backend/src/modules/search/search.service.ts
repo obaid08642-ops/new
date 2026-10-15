@@ -36,6 +36,7 @@ export interface SearchItem {
   specialty?: string | null;
   code?: string | null;
   requires_prescription: boolean;
+  online_exclusive: boolean;
 }
 
 @Injectable()
@@ -269,6 +270,7 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
       specialty: doc.specialty ?? null,
       code: doc.code ?? null,
       requires_prescription: doc.requires_prescription === true,
+      online_exclusive: doc.online_exclusive === true,
     };
   }
 }

@@ -10,8 +10,8 @@
  *                     server). The server orders by the earliest free slot and does not combine it with a distance
  *                     order, so with both chosen the position is not sent (the city filter still is).
  *
- * Both controls are behind EXPO_PUBLIC_CONSULT_NEARBY_FILTERS=1 (set in eas.json for preview and production). With
- * the flag off, or with neither filter active, the path is exactly `/providers?type=doctor`.
+ * Both controls are always on (decision 20, issue 339). With neither filter active the path is exactly
+ * `/providers?type=doctor`.
  */
 
 export type NearbyMode = 'clinic' | 'home' | 'online';
@@ -21,9 +21,6 @@ export const DOCTORS_PATH = '/providers?type=doctor';
 export const CARE_DOCTORS_PATH = '/care/doctors';
 /** "Available now" means a doctor with a free slot within this many minutes. */
 export const AVAILABLE_WITHIN_MINUTES = 15;
-
-/** Read at call time (not at import) so a test or a build can set it; only the exact value `1` turns the controls on. */
-export const nearbyFiltersEnabled = (): boolean => process.env.EXPO_PUBLIC_CONSULT_NEARBY_FILTERS === '1';
 
 /** "Nearest" is for a doctor the patient goes to, or who comes to the patient: never an online consultation. */
 export const nearestApplies = (mode: NearbyMode): boolean => mode !== 'online';
@@ -35,11 +32,9 @@ export const careType = (mode: NearbyMode): 'clinic' | 'video' | 'home_visit' =>
 
 /**
  * The hub's doctor request. `place` is what "Nearest" needs (null: the patient's place is not known, so nothing is
- * sent for it). With the flag off, or with neither filter active, the path is the plain one.
+ * sent for it). With neither filter active the path is the plain one.
  */
-export function buildDoctorsPath(opts: { enabled?: boolean; mode: NearbyMode; nearest: boolean; availableNow: boolean; place: NearbyPlace | null }): string {
-  const enabled = opts.enabled ?? nearbyFiltersEnabled();
-  if (!enabled) return DOCTORS_PATH;
+export function buildDoctorsPath(opts: { mode: NearbyMode; nearest: boolean; availableNow: boolean; place: NearbyPlace | null }): string {
   const nearest = opts.nearest && nearestApplies(opts.mode) && opts.place !== null;
   if (!nearest && !opts.availableNow) return DOCTORS_PATH;
   const parts: string[] = [`type=${careType(opts.mode)}`];

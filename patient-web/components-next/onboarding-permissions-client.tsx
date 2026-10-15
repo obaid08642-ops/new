@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
+import { enableWebPush } from "@/lib/web-push";
 import { LinkButton } from "./link-button";
 import styles from "./auth/auth.module.css";
 
@@ -25,11 +26,11 @@ export function OnboardingPermissionsClient({ locale }: { locale: string }) {
     } catch { setLocation("denied"); }
   }
 
+  // batch-0-web#9: allowing notifications subscribes this browser to the patient's pushes (lib/web-push.ts).
   async function askNotif() {
     try {
-      if (!("Notification" in window)) { setNotif("unsupported"); return; }
-      const result = await Notification.requestPermission();
-      setNotif(result === "granted" ? "granted" : "denied");
+      const result = await enableWebPush();
+      setNotif(result === "subscribed" ? "granted" : result === "unsupported" ? "unsupported" : "denied");
     } catch { setNotif("denied"); }
   }
 

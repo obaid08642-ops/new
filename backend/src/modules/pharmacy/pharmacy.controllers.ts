@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Header, Headers, ForbiddenException, ServiceUnavailableException, Optional, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Header, Headers, ForbiddenException, ServiceUnavailableException, Optional, BadRequestException, NotFoundException } from '@nestjs/common';
 import { CurrentUser, JwtAuthGuard, Roles, Public } from '../../common/auth.guard';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -18,7 +18,7 @@ import { PharmacyOfferService } from './services/pharmacy-offer.service';
 import { PharmacyInsuranceDecisionService } from './services/pharmacy-insurance-decision.service';
 import { PharmacyExpiryCommandService } from './services/pharmacy-expiry-command.service';
 import { PaymentsService } from '../payments/payments.module';
-import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsuranceDto, SelectOfferDto, AcceptFinalQuoteDto, RegisterCodDto, AcceptInsuranceDto, ItemActionDto, OutDto, DeliveredDto, InsuranceDecisionDto, CancelDto3, SetTrackingDto, RestockDto, SampleOrderDto, PreviewOfferDto, DraftOfferDto, RejectDto, PostDto, ReportDto, CreateDto2, MarkShortageDto, RejectDto5, SetCodPolicyDto, PaymentRulesDto, PharmacyCodSettingDto } from './pharmacy.controllers.dto';
+import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsuranceDto, SelectOfferDto, AcceptFinalQuoteDto, RegisterCodDto, AcceptInsuranceDto, ItemActionDto, OutDto, DeliveredDto, InsuranceDecisionDto, CancelDto3, SetTrackingDto, RestockDto, SampleOrderDto, PreviewOfferDto, DraftOfferDto, RejectDto, PostDto, ReportDto, CreateDto2, MarkShortageDto, RejectDto5, SetCodPolicyDto, PaymentRulesDto, PharmacyCodSettingDto, ResolvePriceReviewDto } from './pharmacy.controllers.dto';
 
 // =========================================================================
 //  PATIENT ENDPOINTS (/api/v2/patient/pharmacy/*)
@@ -155,7 +155,8 @@ export class ProviderPharmacyController {
 @UseGuards(JwtAuthGuard)
 export class ProviderInventoryExtController {
   constructor(private svc: PharmacyInventoryExtService) {}
-  @Get('search') search(@CurrentUser() u: any, @Query('q') q?: string, @Query('barcode') bc?: string) { return this.svc.search(u, q, bc); }
+  // provider-journeys 1: include_catalogue=1 (the offer composer) adds the national catalogue items not in the inventory yet
+  @Get('search') search(@CurrentUser() u: any, @Query('q') q?: string, @Query('barcode') bc?: string, @Query('include_catalogue') cat?: string) { return this.svc.search(u, q, bc, cat === '1' || cat === 'true'); }
   @Post(':id/restock') restock(@CurrentUser() u: any, @Param('id') id: string, @Body() b: RestockDto) { return this.svc.restock(u, id, Number(b?.qty) || 0); }
   @Get('low-stock-alerts') alerts(@CurrentUser() u: any) { return this.svc.listLowStockAlerts(u); }
   @Post('low-stock-alerts/:id/ack') ack(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.acknowledgeAlert(u, id); }
@@ -250,6 +251,28 @@ export class AdminPharmacyController {
       col.countDocuments(filter),
     ]);
     return { items, total, page, limit };
+  }
+
+  /**
+   * D-12 (issue 331): the admin closes an open review once the catalogue price was updated (PATCH
+   * /medicines/admin/catalog/:id { sfda_price }, audit-logged there) or the offered price was confirmed;
+   * who, when, how and the note stay on the row, and the admin notice for the offer is marked read.
+   */
+  @Post('price-review/:id/resolve') async resolvePriceReview(@CurrentUser() u: any, @Param('id') id: string, @Body() body: ResolvePriceReviewDto) {
+    const col = this.conn.collection('pharmacy_price_reviews');
+    const now = new Date();
+    const res: any = await col.findOneAndUpdate(
+      { id: { $eq: String(id) }, status: 'open' },
+      { $set: { status: 'closed', resolution: body.resolution, resolution_note: body.note?.trim() || null, resolved_by: u?.id ?? null, resolved_at: now, updatedAt: now } },
+      { returnDocument: 'after', projection: { _id: 0 } },
+    );
+    const row = res?.value ?? res;
+    if (!row?.id) {
+      const exists = await col.countDocuments({ id: { $eq: String(id) } });
+      throw exists ? new BadRequestException('price_review_already_closed') : new NotFoundException('price_review_not_found');
+    }
+    await this.conn.collection('notifications').updateMany({ role: 'admin', type: 'pharmacy_price_review', 'body.review_id': row.id }, { $set: { read: true, read_at: now } });
+    return row;
   }
   @Post('expire-stale-allocations') expireStale() { return this.allocs.expireStale(); }
 }

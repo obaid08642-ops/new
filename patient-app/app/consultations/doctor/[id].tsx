@@ -10,6 +10,7 @@ import { step as scale, tint, useScreenUi } from '../../../src/components/screen
 import { apiFetch } from '../../../src/utils/api';
 import { isOffline } from '../../../src/utils/isOffline';
 import { logError } from '../../../src/utils/logger';
+import { apiMediaUri } from '../../../src/utils/mediaUri';
 import { pickLocalized } from '../../../src/utils/localize';
 
 /**
@@ -186,7 +187,7 @@ export default function DoctorProfile() {
   };
 
   const name = pickLocalized(doc?.name_ar, doc?.name_en) || doc?.n || '';
-  const photo = doc?.img || doc?.photo_url;
+  const photo = apiMediaUri(doc?.img || doc?.photo_url);
   const facilityName = pickLocalized(doc?.facility?.name_ar, doc?.hospital);
   const place = [[doc?.district, doc?.city].filter(Boolean).join('، '), doc?.address].filter(Boolean).join(' · ');
   const bio = doc?.bio || doc?.biography || '';
@@ -302,7 +303,7 @@ export default function DoctorProfile() {
             ) : null}
 
             {[
-              { key: 'clinic', title: k('consult.doc.clinicPhotos'), urls: doc.clinic_images ?? doc.clinicPhotos, w: 180 },
+              { key: 'clinic', title: k('consult.doc.clinicPhotos'), urls: (doc.clinic_images ?? doc.clinicPhotos ?? []).map((u) => apiMediaUri(u)).filter((u): u is string => Boolean(u)), w: 180 },
               { key: 'facility', title: k('consult.doc.facilityPhotos'), urls: doc.facility_images, w: 200 },
             ]
               .filter((g) => Array.isArray(g.urls) && g.urls.length > 0)
