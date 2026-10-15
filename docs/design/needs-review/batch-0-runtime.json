@@ -85,6 +85,6 @@
     "line": 226,
     "found": "The import rule (P12.C2) and its baseline exist on fix/audit-2026-09 only; main has neither. patient-app AuthKit no longer imports @expo/vector-icons (BrandMark in packages/ui-native), and running the rule from fix/audit against this branch reports AuthKit as clean and `--update` removes its baseline line (226) and its `exceptions` entry (230).",
     "suspect": "When fix/audit-2026-09 reaches main, run `node tools/design/import-rule.mjs --update`; it lowers the baseline from 224 to 223 files and drops the exception. I did not copy the rule onto this branch, to avoid an add/add conflict with the reviewer's copy.",
-    "review_status": "open (issue #428)"
+    "review_status": "not-a-problem: the import rule (P12.C2) and its baseline live on fix/audit-2026-09 and arrive with it; nothing to change on main (issue #428)"
   }
 ]
