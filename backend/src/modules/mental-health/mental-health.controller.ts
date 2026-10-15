@@ -2,7 +2,7 @@ import { JwtAuthGuard, SelfService } from '../../common/auth.guard';
 import { Body, Controller, Get, Post, Query, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { MentalHealthService } from './mental-health.service';
-import { LogMeditationDto, LogBreathingDto, LogMoodDto } from './mental-health.dto';
+import { LogMoodDto } from './mental-health.dto';
 
 @ApiTags('Mental Health – الصحة النفسية')
 @UseGuards(JwtAuthGuard)
@@ -40,36 +40,6 @@ export class MentalHealthController {
   @ApiOperation({ summary: 'Get descriptive mood statistics without clinical interpretation / إحصاءات وصفية للمزاج دون تفسير سريري' })
   getMoodStats(@Req() req: any) {
     return this.mentalHealthService.getMoodStats(this.patientId(req));
-  }
-
-  @Post('meditation')
-  @ApiOperation({ summary: 'Log an optional mindfulness practice / تسجيل ممارسة يقظة ذهنية اختيارية' })
-  logMeditation(@Req() req: any, @Body() body: LogMeditationDto) {
-    return this.mentalHealthService.logMeditation(this.patientId(req), body);
-  }
-
-  @Get('meditation')
-  @ApiOperation({ summary: 'Get mindfulness practice history / سجل ممارسات اليقظة الذهنية' })
-  getMeditationHistory(@Req() req: any) {
-    return this.mentalHealthService.getMeditationHistory(this.patientId(req));
-  }
-
-  @Get('meditation/stats')
-  @ApiOperation({ summary: 'Get optional practice totals / إجماليات الممارسة الاختيارية' })
-  getMeditationStats(@Req() req: any) {
-    return this.mentalHealthService.getMeditationStats(this.patientId(req));
-  }
-
-  @Post('breathing')
-  @ApiOperation({ summary: 'Log a breathing practice / تسجيل ممارسة تنفّس' })
-  logBreathing(@Req() req: any, @Body() body: LogBreathingDto) {
-    return this.mentalHealthService.logBreathing(this.patientId(req), body);
-  }
-
-  @Get('breathing')
-  @ApiOperation({ summary: 'Get breathing practice history / سجل ممارسات التنفس' })
-  getBreathingHistory(@Req() req: any) {
-    return this.mentalHealthService.getBreathingHistory(this.patientId(req));
   }
 
   /**

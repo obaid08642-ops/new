@@ -184,7 +184,7 @@
     "line": 51,
     "found": "getWishlist() sets available = !!med, where med is the row found in the medicines collection by id (no public-catalogue filter, no stock). The chip \"متوفر / غير متوفر\" therefore means \"still in the collection\", not \"in stock\".",
     "suspect": "Rename the field or compute it from the public catalogue and pharmacies_count.",
-    "review_status": "closed-unverified (issue #464: closed with no linked PR)"
+    "review_status": "fixed e54fc010 (verified on main: backend/src/modules/users/users.service.ts:53-55 available = public, approved, not deleted) (issue #464)"
   },
   {
     "batch": 1,

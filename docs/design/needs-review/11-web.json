@@ -8,7 +8,7 @@
     "line": 121,
     "found": "[backend] the Challenges tab shows what GET /loyalty/challenges sends and filters nothing; a challenge that asks for buying medicines must be removed by the server (decision 9)",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "closed-unverified (issue #749: closed with no linked PR)"
+    "review_status": "not-a-problem: removed by decision 9, the web tab reads the same filtered GET /loyalty/challenges (loyalty.service.ts:346-348, PR #1280) (issue #749)"
   },
   {
     "batch": 11,

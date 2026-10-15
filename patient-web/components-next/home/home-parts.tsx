@@ -170,7 +170,6 @@ const MORE: Array<{ key: string; href: string; icon: FillIconName; tone: Service
   { key: "reminders", href: "health/medications?tab=all", icon: "clock-counter-clockwise", tone: "violet" },
   { key: "prescriptions", href: "prescriptions", icon: "prescription", tone: TONE.rx },
   { key: "family", href: "family", icon: "users-three", tone: "peach" },
-  { key: "chat", href: "chat", icon: "chat-circle-text", tone: "blue" },
   { key: "notifications", href: "notifications", icon: "bell", tone: "amber" },
   { key: "search", href: "search", icon: "magnifying-glass", tone: "blue" },
   { key: "offers", href: "offers", icon: "gift", tone: "pink" },

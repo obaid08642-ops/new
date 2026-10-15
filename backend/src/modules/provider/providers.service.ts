@@ -46,7 +46,7 @@ const PUBLIC_PROVIDER_HIDDEN = [
   'license_documents', 'documents', 'kyc', 'kyc_documents', 'signature_url', 'signer_name', 'signer_role',
   'tax_number', 'commission_rate', 'commission_cash_pct', 'commission_insurance_pct', 'approved_by', 'rejected_reason',
   'provenance', 'registration_steps', 'onboarding_step', 'user_id', 'account_id', 'email', 'password', 'password_hash',
-  'pharmacy_roster', 'ambulance_roster', 'vehicle_plates', 'tech_officer_scfhs',
+  'pharmacy_roster', 'vehicle_plates', 'tech_officer_scfhs',
 ] as const;
 
 @Injectable()
