@@ -104,6 +104,10 @@ const diagnosticsMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp
   // AI nutrition plan (owner decision 2026-10-05): generated from the patient's own profile.
   { method: "POST", route: new RegExp("^/nutrition/plan/generate$", "i") },
   { method: "POST", route: new RegExp("^/maternity/profile$", "i") },
+  // components-next/health/quick-log-form (issues 862, 864, 869): the logs the app writes
+  { method: "POST", route: new RegExp("^/nutrition/water$", "i") },
+  { method: "POST", route: new RegExp("^/mental-health/mood$", "i") },
+  { method: "POST", route: new RegExp("^/maternity/(kicks|contractions|infant-growth)$", "i") },
   { method: "POST", route: new RegExp("^/support/chat$", "i") },
   { method: "POST", route: new RegExp(`^/support/requests/[^/]+/reply$`, "i") },
   { method: "POST", route: new RegExp("^/medical/programs/complete-session$", "i") },

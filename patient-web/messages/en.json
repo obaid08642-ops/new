@@ -4089,5 +4089,74 @@
     "faqIngredient": "What is the active ingredient of {name}?",
     "faqPrice": "How much is {name} on Nabd Plus?",
     "howToTitle": "How to use {name}"
+  },
+  "LogForms": {
+    "saveError": "Could not save. What you typed is kept; try again.",
+    "saved": "Saved.",
+    "water": {
+      "title": "Log water",
+      "amount_ml": "Amount (ml)",
+      "save": "Add water",
+      "bad": {
+        "amount_ml": "Enter an amount between 50 and 3000 ml."
+      }
+    },
+    "mood": {
+      "title": "Log your mood",
+      "mood": "How is your mood right now?",
+      "option": {
+        "great": "Great",
+        "good": "Good",
+        "okay": "Okay",
+        "bad": "Difficult",
+        "terrible": "Very difficult"
+      },
+      "energy_level": "Energy (1-10, optional)",
+      "stress_level": "Stress (1-10, optional)",
+      "sleep_hours": "Hours of sleep (optional)",
+      "notes": "Short note (optional)",
+      "save": "Save mood",
+      "bad": {
+        "mood": "Choose your mood first.",
+        "energy_level": "Energy is a number from 1 to 10.",
+        "stress_level": "Stress is a number from 1 to 10.",
+        "sleep_hours": "Hours of sleep are between 0 and 24.",
+        "notes": "The note is too long."
+      }
+    },
+    "kicks": {
+      "title": "Log baby kicks",
+      "count": "Number of kicks",
+      "duration_seconds": "Over how many minutes",
+      "save": "Save kicks",
+      "bad": {
+        "count": "Enter a whole number from 1 to 200.",
+        "duration_seconds": "Enter the time in minutes, 1 to 240."
+      }
+    },
+    "contractions": {
+      "title": "Log a contraction",
+      "interval_seconds": "Minutes since the last one",
+      "duration_seconds": "How long it lasted (seconds)",
+      "save": "Save contraction",
+      "bad": {
+        "interval_seconds": "Enter minutes from 1 to 120.",
+        "duration_seconds": "Enter seconds from 5 to 300."
+      }
+    },
+    "growth": {
+      "title": "Log baby growth",
+      "month": "Age in months",
+      "weight_kg": "Weight (kg, optional)",
+      "height_cm": "Length (cm, optional)",
+      "head_circ_cm": "Head size (cm, optional)",
+      "save": "Save measurement",
+      "bad": {
+        "month": "Age is a whole number of months, 0 to 60.",
+        "weight_kg": "Weight is between 0.3 and 40 kg.",
+        "height_cm": "Length is between 20 and 150 cm.",
+        "head_circ_cm": "Head size is between 20 and 60 cm."
+      }
+    }
   }
 }
