@@ -108,20 +108,22 @@ echo "deploy: rollback point: images tagged rollback-$TS (${OLDREF[backend]}, ${
 rollback() {
   echo "deploy: FAILED at '$1', rolling back"
   # what the new containers said before they are replaced (into the encrypted report only; masked)
+  # every evidence command is capped at 20 s: production run 38672346219 hung here on `docker logs` of the old
+  # patient-web container (its image is gone from the host) until the workflow stopped polling, before the rollback ran
   for c in nabdah-patient-web nabdah-nginx nabdah-backend; do
     echo "evidence: -- $c"
-    $DK logs --tail 25 $c 2>&1 | sed -E 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/<email>/g; s/\+?[0-9][0-9 ()-]{8,}[0-9]/<number>/g' \
+    timeout 20 $DK logs --tail 25 $c 2>&1 | sed -E 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/<email>/g; s/\+?[0-9][0-9 ()-]{8,}[0-9]/<number>/g' \
       | grep -viE 'password|secret|token|authorization|cookie' | cut -c1-300 | sed 's/^/evidence:   /'
   done
   echo "evidence: -- GET /ar (Host: nabd.plus) headers"; curl -sk -o /dev/null -D - --max-time 10 -H 'Host: nabd.plus' https://127.0.0.1/ar | tr -d '\r' | grep -iE '^(HTTP|location|x-|cache-control|content-type|content-security)' | cut -c1-120 | sed 's/^/evidence:   /'
   echo "evidence: -- who answers: names as nginx resolves them, the containers' real addresses and start times"
-  $DK exec nabdah-nginx getent hosts patient-web admin-web backend 2>&1 | sed 's/^/evidence:   nginx sees /'
+  timeout 20 $DK exec nabdah-nginx getent hosts patient-web admin-web backend 2>&1 | sed 's/^/evidence:   nginx sees /'
   for c in nabdah-patient-web nabdah-admin-web nabdah-backend nabdah-nginx; do
-    echo "evidence:   $c $($DK inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}} {{end}}started={{.State.StartedAt}} image={{.Config.Image}}' $c 2>&1)"
+    echo "evidence:   $c $(timeout 20 $DK inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}} {{end}}started={{.State.StartedAt}} image={{.Config.Image}}' $c 2>&1)"
   done
-  echo "evidence:   patient-web itself: /ar -> $($DK exec nabdah-patient-web wget -q -S -O /dev/null http://127.0.0.1:3000/ar 2>&1 | grep -m1 'HTTP/' | tr -d '\r')"
-  echo "evidence:   from nginx: patient-web:3000/ar -> $($DK exec nabdah-nginx wget -q -S -O /dev/null http://patient-web:3000/ar 2>&1 | grep -m1 'HTTP/' | tr -d '\r')"
-  echo "evidence:   from nginx: admin-web:3000/ar -> $($DK exec nabdah-nginx wget -q -S -O /dev/null http://admin-web:3000/ar 2>&1 | grep -m1 'HTTP/' | tr -d '\r')"
+  echo "evidence:   patient-web itself: /ar -> $(timeout 20 $DK exec nabdah-patient-web wget -q -S -O /dev/null http://127.0.0.1:3000/ar 2>&1 | grep -m1 'HTTP/' | tr -d '\r')"
+  echo "evidence:   from nginx: patient-web:3000/ar -> $(timeout 20 $DK exec nabdah-nginx wget -q -S -O /dev/null http://patient-web:3000/ar 2>&1 | grep -m1 'HTTP/' | tr -d '\r')"
+  echo "evidence:   from nginx: admin-web:3000/ar -> $(timeout 20 $DK exec nabdah-nginx wget -q -S -O /dev/null http://admin-web:3000/ar 2>&1 | grep -m1 'HTTP/' | tr -d '\r')"
   sudo -n tar -xzf "$SNAP" -C $D
   for f in $ABSENT; do sudo -n rm -f "$D/$f"; done
   for s in $APP_SERVICES; do $DK tag "${OLDIMG[$s]}" "${OLDREF[$s]}"; done

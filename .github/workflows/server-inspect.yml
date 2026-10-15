@@ -13,7 +13,7 @@ jobs:
   ops:
     runs-on: ubuntu-latest
     environment: production
-    timeout-minutes: 90
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
       - name: SSH setup
@@ -89,7 +89,7 @@ jobs:
               SSH="ssh -p $PORT -o BatchMode=yes -o ServerAliveInterval=15 -o ConnectTimeout=20 -o StrictHostKeyChecking=yes -i $HOME/.ssh/id_deploy $U@$H"
               scp -q -P "$PORT" -o BatchMode=yes -o StrictHostKeyChecking=yes -i ~/.ssh/id_deploy "$f" "$U@$H:ops-$t.sh"
               $SSH "rm -f ops-$t.log; setsid nohup sh -c 'bash ops-$t.sh; echo ops-exit=\$?' > ops-$t.log 2>&1 < /dev/null &"
-              for i in $(seq 1 240); do sleep 15; $SSH "grep -q '^ops-exit=' ops-$t.log" 2>/dev/null && break; done
+              for i in $(seq 1 480); do sleep 15; $SSH "grep -q '^ops-exit=' ops-$t.log" 2>/dev/null && break; done
               $SSH "cat ops-$t.log" >> report.txt 2>&1
             else
               timeout 420 ssh -p "$PORT" -o BatchMode=yes -o ServerAliveInterval=15 -o ConnectTimeout=20 -o StrictHostKeyChecking=yes -i ~/.ssh/id_deploy "$U@$H" 'bash -s' < "$f" >> report.txt 2>&1
@@ -98,6 +98,9 @@ jobs:
           done
           # public log: only the short status lines of mutating tasks
           grep -E '^(x0|cleanup|deploy|rotate|backups):' report.txt | sed -E 's/[0-9]{1,3}(\.[0-9]{1,3}){3}/<ip>/g' || true
+          # migrations: names, exit codes and the JSON count lines only; an error line keeps its class, never its values
+          grep -E '^migrate: ' report.txt | grep -E '^migrate: [0-9a-z-]+ (--apply|exit=[0-9]+)$|^migrate:   \{.*\}$|^migrate:   [A-Za-z]*Error' \
+            | sed -E 's/dup key: \{.*$/dup key: <value>/; s/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/<email>/g' | cut -c1-200 || true
           echo "report lines: $(wc -l < report.txt)"
       - name: Cloudflare tasks (RUN lines "cf:<name>" -> tools/ops/cf/<name>.sh, output into the encrypted report)
         if: ${{ !cancelled() }}

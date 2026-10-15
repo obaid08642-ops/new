@@ -136,8 +136,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 75
     env:
-      SHA: 0579c8ccc1a690e0dd498871b8b9fce8a0d5fcdf   # main after #1443 (nginx resolve), #1446 (disk alert), #1447 (D-33); the production run pins the same SHA
-      OPS_RELEASE_SHA: 0579c8ccc1a690e0dd498871b8b9fce8a0d5fcdf
+      SHA: 074617003300ad68cf6e76ecde96bfc7ff1ee0f0   # PR #1457 head (catalog migration fix) on main after #1443/#1446/#1447; switched to the merge commit once merged
+      OPS_RELEASE_SHA: 074617003300ad68cf6e76ecde96bfc7ff1ee0f0
     steps:
       - uses: actions/checkout@v4
       - name: Build the release from main (same script the server-ops workflow runs)
@@ -203,6 +203,14 @@ jobs:
           for i in $(seq 1 30); do sudo docker exec nabdah-mongodb sh -c 'mongosh --quiet -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --eval "try{rs.status().ok}catch(e){rs.initiate({_id:\"rs0\",members:[{_id:0,host:\"mongodb:27017\"}]}).ok}"' 2>/dev/null | grep -q 1 && break; sleep 3; done
           # test data only (throwaway CI database): enough bytes for the task's backup-size check
           sudo docker exec nabdah-mongodb sh -c 'mongosh --quiet -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin nabd_nestjs --eval "sleep(3000); const a=[]; for(let i=0;i<8000;i++) a.push({rehearsal:true, blob: Array.from({length:40},()=>Math.random().toString(36)).join(\"\")}); db.rehearsal_fill.insertMany(a); print(db.rehearsal_fill.countDocuments())"'
+          # test data shaped like production's catalogs (the E11000 of run 38672346219) and a 21,000-medicine catalogue
+          python3 tools/ops/rehearsal/seed-prod-shape.py rel-src seed
+          for c in labservices radiologyservices nursing_catalog medicines; do
+            sudo docker exec -i nabdah-mongodb sh -c 'mongoimport --quiet -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --db nabd_nestjs --collection '$c < seed/$c.ndjson
+          done
+          sudo docker exec nabdah-mongodb sh -c 'mongosh --quiet -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin nabd_nestjs --eval "
+            for (const c of [\"labservices\", \"radiologyservices\", \"nursing_catalog\", \"medicines\"]) db.getCollection(c).createIndex({id: 1}, {unique: true});
+            print(\"seeded: labservices=\" + db.labservices.countDocuments() + \" radiologyservices=\" + db.radiologyservices.countDocuments() + \" medicines=\" + db.medicines.countDocuments())"'
           sudo dd if=/dev/urandom of=/opt/nabdah/backups/nabd_nabd_nestjs_20261013-030001.gz bs=1M count=2 status=none
           $C up -d --no-build --no-deps backend admin-web patient-web livekit
           $C up -d --no-build --no-deps nginx
@@ -234,6 +242,19 @@ jobs:
           grep -q 'patient-web ran an image no longer on the host' out.txt && echo "patient-web container committed as its rollback image" || exit 1
           grep -q 'commit of patient-web failed (forced in rehearsal); exporting its filesystem instead' out.txt && echo "export fallback used for the rollback image" || exit 1
           bash tools/ops/rehearsal/check-rollback.sh out.txt $rc backend
+      - name: "Read-only check after a rollback (tasks/63, as run on production after run 38672346219)"
+        run: |
+          set +e
+          TS=$(grep -oE 'rollback-[0-9]{8}T[0-9]{6}Z' out.txt | head -1 | cut -d- -f2)
+          echo "rollback point $TS"
+          OPS_ROLLBACK_TS=$TS OPS_PRE_SHA=$S8 bash tools/ops/tasks/63-inspect-rollback.sh 2>&1 | tee o63.txt; rc=${PIPESTATUS[0]}
+          test $rc = 0 || exit 1
+          for s in backend admin-web patient-web; do grep -q "x0: $s runs its rollback-$TS image" o63.txt || { echo "$s not on its rollback image"; exit 1; }; done
+          ! grep -qE 'DIFFERS|nginx -t FAILS|exists but did not' o63.txt && echo "files back as before" || exit 1
+          grep -q 'x0: https://api.nabd.plus/api/v1/health/liveness -> 200' o63.txt && grep -q 'x0: https://nabd.plus/ar -> 200' o63.txt || exit 1
+          grep -q 'x0: seed labs.json vs labservices' o63.txt && grep -q 'x0: db labservices total=' o63.txt || exit 1
+          for n in MONGO_ROOT_PASSWORD REDIS_PASSWORD JWT_SECRET; do v=$(sudo grep "^$n=" /opt/nabdah/deploy/.env.production | cut -d= -f2-); ! grep -qF "$v" o63.txt || { echo "$n printed"; exit 1; }; done
+          echo "read-only check ok, no secret printed"
       - name: "Scenario 2: forced failure at the final checks -> full rollback"
         run: |
           set +e
@@ -250,8 +271,9 @@ jobs:
           sudo cp $D/certs/live/live/api.nabd.plus/fullchain.pem /usr/local/share/ca-certificates/rehearsal-api.crt && sudo update-ca-certificates >/dev/null
           # the runner ships aws v2: hide it so the task's own install path runs, as on the server (no aws there)
           sudo mv /usr/local/bin/aws /usr/local/bin/aws-ci
-          python3 -m pip install -q --user 'moto[server]==5.2.3'
-          (~/.local/bin/moto_server -H 127.0.0.1 -p 9000 > moto.log 2>&1 &)
+          # own venv: a --user install mixes with the runner's system pyOpenSSL and moto fails to import (run 38678258962)
+          python3 -m venv /tmp/motoenv && /tmp/motoenv/bin/pip install -q 'moto[server]==5.2.3'
+          (/tmp/motoenv/bin/moto_server -H 127.0.0.1 -p 9000 > moto.log 2>&1 &)
           for i in $(seq 1 30); do curl -s -o /dev/null http://127.0.0.1:9000 && break; sleep 1; done
           AWS_ACCESS_KEY_ID=x AWS_SECRET_ACCESS_KEY=x aws-ci --endpoint-url http://127.0.0.1:9000 --region us-east-1 s3 mb s3://nabd-plus-backups
           # the old schedule the task must replace
@@ -288,6 +310,8 @@ jobs:
           echo "exit=$rc"; test $rc = 0 || exit 1
           grep -q 'deploy: DONE main@' out.txt || exit 1
           test "$(grep -cE '^migrate: 20[0-9-]+[a-z-]+ exit=0$' out.txt)" = 4 && echo "4 migrations applied, exit=0" || exit 1
+          grep -E '^migrate:   \{"dry_run":false,"conflicts":0,' out.txt && echo "catalog migration on production-shaped data: no conflict" || exit 1
+          ! grep -q E11000 out.txt || exit 1
           ! grep -qE 'link-provider-accounts|unify-provider-passwords|strip-facility-ratings|archive-ambulance|end-purchase-challenges' out.txt && echo "held migrations not run" || exit 1
           N=$(sudo docker exec nabdah-mongodb sh -c 'mongosh --quiet -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin nabd_nestjs --eval "print(db.nursing_catalog.countDocuments())"')
           echo "nursing_catalog rows after the apply: $N"; test "$N" -gt 0 || exit 1
