@@ -31,7 +31,7 @@ describe('ProviderCompatController facility tariffs', () => {
       pendingSettingChange: jest.fn().mockResolvedValue(pending),
       requestSettingChange: jest.fn().mockResolvedValue({ ok: true, pending_review: true }),
     };
-    return { svc, controller: new ProviderCompatController(svc) };
+    return { svc, controller: new ProviderCompatController(svc, {} as never) }; // the tariff routes do not touch the ledger
   }
 
   it('reads the approved tariffs and the pending change', async () => {
