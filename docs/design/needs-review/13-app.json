@@ -19,7 +19,7 @@
     "line": 66,
     "found": "[owner] The hard-coded ar/en fallback text was removed (the policy must come from the legal service); with the service down the screen shows the failure state with retry, also before sign-in. Owner to confirm, or to supply a bundled approved text.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #783)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision B1), main already complies: LegalKit.tsx:62-91 loads the text and shows retry, also before sign-in (issue #783)"
   },
   {
     "batch": 13,

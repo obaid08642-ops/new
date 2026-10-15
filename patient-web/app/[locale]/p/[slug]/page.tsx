@@ -64,7 +64,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: name,
     description,
     alternates: { canonical, languages: hreflangMap(product) },
-    robots: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
+    // An item published on the site but not (yet) cleared for search engines is shown to patients with noindex.
+    robots: product.indexable === false ? { index: false, follow: true } : { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
     openGraph: {
       title: name, description, url: canonical, type: "website", siteName: "Nabd Plus",
       locale: locale === "ar" ? "ar_SA" : locale,
@@ -210,6 +211,7 @@ export default async function PublicProductPage({ params }: Props) {
     strength: alt.strength,
     packageSize: alt.package_size,
     rx: alt.is_rx,
+    onlineOnly: alt.online_exclusive === true,
     // "cheaper" is computed here, from the two real prices (spec A, "Alternatives")
     badge: alt.price > 0 && hasPrice && alt.price < product.price ? b("cheaper") : undefined,
   }));
@@ -256,6 +258,7 @@ export default async function PublicProductPage({ params }: Props) {
         name,
         price: product.price,
         rx: product.is_rx,
+        onlineOnly: product.online_exclusive === true,
         image: images[0] || null,
         slug: product.slug,
         activeIngredient: product.active_ingredient,
@@ -301,6 +304,7 @@ export default async function PublicProductPage({ params }: Props) {
               <div className={styles.chipsRow}>
                 <StatusChip label={product.is_rx ? t("rxRequired") : t("otc")} tone={product.is_rx ? "amber" : "mint"} />
                 <StatusChip label={product.available ? t("available") : discontinued ? t("unavailable") : t("limited")} tone={product.available ? "mint" : "amber"} />
+                {product.online_exclusive === true ? <StatusChip label={t("onlineOnly")} tone="mint" /> : null}
               </div>
               {product.category && categoryPath ? (
                 <div className={styles.catChips}>

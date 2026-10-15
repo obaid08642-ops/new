@@ -19,7 +19,7 @@
     "line": 112,
     "found": "[client] Fixed on design/oc-patient-other-1: the article page has a Save / Remove from saved button (status from GET /articles/bookmarks/:slug/status, change by POST .../toggle through the /api/patient proxy); a signed-out reader gets a sign-in link.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "fixed before this session (verified on main: components-next/articles/save-article-button.tsx on the article page)"
   },
   {
     "batch": 10,

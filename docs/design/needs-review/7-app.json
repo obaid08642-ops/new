@@ -8,7 +8,7 @@
     "line": 32,
     "found": "[owner] Removed 2026-10-10 (decision 35): the Refunds tab of the insurance hub is gone on app and web (order and return refunds stay in Orders and Returns).",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision A, decision 35), main already complies: no refunds or claims tab in InsuranceHubTabs.tsx"
   },
   {
     "batch": 7,
@@ -30,7 +30,7 @@
     "line": 184,
     "found": "[owner] Old approval-pending offered pay cash to /payments/processing with no params; removed per decision 25.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #821)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision A, decision 25), main already complies: InsuranceRequestView.tsx offers no cash after a decline (issue #821)"
   },
   {
     "batch": 7,
@@ -107,7 +107,7 @@
     "line": 6,
     "found": "[client] Removed 2026-10-10 (decision 35): the claim form and its receipt upload are gone; the route redirects to the hub.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "not-a-problem: removed 2026-10-10 (decision 35, insurance is relay-only); submit-claim.tsx redirects to the insurance hub"
   },
   {
     "batch": 7,
@@ -140,7 +140,7 @@
     "line": 29,
     "found": "[owner] Removed 2026-10-10 (decision 35): the claims and refunds tabs and the claim form are removed (owner decision 35, insurance is relay-only and view-only).",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision A, decision 35), main already complies: no claims tab; submit-claim redirects to the hub"
   },
   {
     "batch": 7,

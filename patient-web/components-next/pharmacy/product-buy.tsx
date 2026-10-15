@@ -21,7 +21,7 @@ export type BuyProduct = {
   activeIngredient: string | null;
   form: string | null;
   strength: string | null;
-  /** `online_exclusive`, when the source of the product knows it (the public product answer does not send it). */
+  /** `online_exclusive`, when the source of the product knows it (the public product answer sends it since the fix session). */
   onlineOnly?: boolean;
 };
 

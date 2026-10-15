@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { adminFetch, adminMutation, apiErrorMessage } from '@/lib/admin-client';
 import { DataTable } from '@/components/DataTable';
+import { useCan } from '@/components/AdminGuard';
 
 type Detail = { kind: string; kind_label_ar?: string; order: Record<string, any>; timeline: Array<{ at?: string; from?: string; to?: string; note?: string; by_user_id?: string }>; payments: Array<Record<string, any>>; financials: { gross_paid: number; refunded_total: number; refundable_max: number }; refunds: Array<{ amount: number; description?: string; createdAt?: string }> };
 type Action = 'cancel' | 'refund' | 'compensate' | 'reassign' | 'sla-extend' | 'note';
@@ -11,6 +12,16 @@ type Action = 'cancel' | 'refund' | 'compensate' | 'reassign' | 'sla-extend' | '
 const labels: Record<Action, string> = { cancel: 'إلغاء الطلب', refund: 'استرداد إلى وسيلة الدفع الأصلية', compensate: 'تعويض إلى وسيلة الدفع الأصلية', reassign: 'إعادة إسناد مزوّد', 'sla-extend': 'تمديد SLA', note: 'إضافة ملاحظة داخلية' };
 
 export default function OrderDetailPage() {
+  // Each action names the permission its backend route requires (admin-orders.controller); only those the role
+  // holds are offered.
+  const allowed: Record<Action, boolean> = {
+    cancel: useCan('order.cancel'),
+    refund: useCan('order.refund'),
+    compensate: useCan('order.compensate'),
+    reassign: useCan('order.reassign'),
+    'sla-extend': useCan('order.sla.extend'),
+    note: useCan('order.note.add'),
+  };
   const router = useRouter();
   const kind = typeof router.query.kind === 'string' ? router.query.kind : '';
   const id = typeof router.query.id === 'string' ? router.query.id : '';
@@ -70,7 +81,7 @@ export default function OrderDetailPage() {
     { key: 'ref', header: 'المرجع', className: 'font-mono text-xs', render: ({ payment }) => payment.id || payment.payment_id || '—' },
   ]}
 /></div></article></div>
-      <aside className="rounded-2xl border bg-white p-6 shadow-sm"><h2 className="text-xl font-bold">إجراءات محمية</h2><p className="mt-1 text-xs text-slate-500">كل إجراء يتطلب صلاحية، تأكيداً، وسبباً ويُسجل في audit.</p><div className="mt-4 grid gap-2">{(Object.keys(labels) as Action[]).map((item) => <button key={item} onClick={() => open(item)} className="rounded-lg border px-3 py-2 text-right text-sm font-medium hover:bg-slate-50">{labels[item]}</button>)}</div></aside></div>}
+      <aside className="rounded-2xl border bg-white p-6 shadow-sm"><h2 className="text-xl font-bold">إجراءات محمية</h2><p className="mt-1 text-xs text-slate-500">كل إجراء يتطلب صلاحية، تأكيداً، وسبباً ويُسجل في audit.</p><div className="mt-4 grid gap-2">{(Object.keys(labels) as Action[]).filter((item) => allowed[item]).map((item) => <button key={item} onClick={() => open(item)} className="rounded-lg border px-3 py-2 text-right text-sm font-medium hover:bg-slate-50">{labels[item]}</button>)}</div></aside></div>}
     {action ? <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4"><div className="w-full max-w-lg rounded-2xl bg-white p-6"><h2 className="text-xl font-bold">{labels[action]}</h2><div className="mt-4 space-y-4">{action === 'refund' ? <label className="block text-sm">مبلغ جزئي اختياري (اتركه فارغاً لاسترداد كامل)<input type="number" min="0.01" max={detail?.financials.refundable_max} step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label> : null}{action === 'compensate' ? <label className="block text-sm">مبلغ التعويض<input type="number" min="0.01" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label> : null}{action === 'reassign' ? <label className="block text-sm">معرّف المزوّد الجديد<input value={providerId} onChange={(e) => setProviderId(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label> : null}{action === 'sla-extend' ? <label className="block text-sm">ساعات التمديد (1–72)<input type="number" min="1" max="72" value={hours} onChange={(e) => setHours(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label> : null}{action === 'note' ? <label className="block text-sm">الملاحظة الداخلية<textarea value={note} onChange={(e) => setNote(e.target.value)} className="mt-1 min-h-24 w-full rounded-lg border p-2"/></label> : <label className="block text-sm">سبب الإجراء<textarea value={reason} onChange={(e) => setReason(e.target.value)} className="mt-1 min-h-24 w-full rounded-lg border p-2"/></label>}<div className="flex justify-end gap-2"><button onClick={() => setAction(null)} className="rounded border px-4 py-2">إلغاء</button><button disabled={submitting} onClick={() => void submit()} className="rounded bg-teal-700 px-4 py-2 font-bold text-white disabled:opacity-50">{submitting ? 'جارٍ التنفيذ…' : 'تأكيد وتدقيق'}</button></div></div></div></div> : null}
   </section></>;
 }

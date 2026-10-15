@@ -41,7 +41,7 @@
     "line": 206,
     "found": "[owner] Opens the test search (lab-comparison needs a test); confirm that is the intended entry.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #625)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision B6), main already complies: (tabs)/diagnostics.tsx:208 Compare opens the test search (issue #625)"
   },
   {
     "batch": 3,
@@ -74,7 +74,7 @@
     "line": 90,
     "found": "[owner] Static medical text and a fixed step list, not from the booking; confirm the wording.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #628)"
+    "review_status": "open (decided 2026-10-15, reviewer for the owner: the steps come from the booking's real status timeline, and the preparation text per test from the catalogue `preparation` field; no fixed medical text)"
   },
   {
     "batch": 3,
@@ -85,7 +85,7 @@
     "line": 4,
     "found": "[owner] [screen is now a redirect; kept so issue indices stay stable] Static text; the old third tip (samples sent in cold containers) was dropped as an unverified claim.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #629)"
+    "review_status": "open (decided 2026-10-15, reviewer for the owner: the screen is a redirect; remove the static tips and the diag.tech.tips keys)"
   },
   {
     "batch": 3,
@@ -96,7 +96,7 @@
     "line": 54,
     "found": "[client] Fixed on design/oc-patient-other-1: the cart is now kept on the device per signed-in patient (AsyncStorage key @nabd_diag_cart:v1:<user id>), restored on the next start and removed when the cart is emptied or the patient signs out.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "fixed before this session (verified on main: DiagnosticsCartContext.tsx:47 keeps the cart per patient on the device)"
   },
   {
     "batch": 3,

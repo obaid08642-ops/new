@@ -63,3 +63,22 @@ and sets every line to `fixed #PR` or `not-a-problem: owner decided … `.
 | 341 (decision 22) | PDPL inventory, consent, retention, access log | `docs/architecture/DATA_MAP.md` plus D-34's access log; a lawyer reviews. |
 | 342 (decision 23) | Licensing (CR, MOH telehealth or partner model, SDAIA) | With the lawyer; Nafath and Wasfaty wait for it. |
 | legal texts (13-web#13) | Policies are drafts with placeholders | The lawyer approves `docs/legal`, then the bundled copy is generated. |
+
+## D. New questions from the fix session (2026-10-14, open)
+
+| # | Question | Where | Recommendation |
+|---:|---|---|---|
+| 29 | Admin roles: today every admin holds the whole admin permission set (role `admin`; custom roles only add permissions), so a "restricted" admin cannot exist and 128 admin write routes are role-only (no permission named). Should custom roles become restrictive (an admin gets only the permissions of their roles)? | fix session, PR fix/admin-guards (security sweep) | **Yes, before staff other than the owner get admin accounts**: make custom roles restrictive and name a permission on every admin write route in one PR; until then the panel already hides every control whose backend permission the role lacks. |
+
+## E. Decided 2026-10-15 (the owner asked the reviewer to decide and approve)
+
+- **Medical fixed texts (B8: issues 628, 629, 669).** No fixed medical text in the apps.
+  - Lab and radiology preparation comes per test from the catalogue: a new `preparation` field in six languages,
+    edited by admin and the lab, shown on sample tracking. A test without one shows only "the lab will confirm any
+    preparation with you".
+  - The sample-tracking steps come from the booking's real status timeline.
+  - The collector tips on the redirected technician screen are removed.
+  - The four sleep tips are replaced by published articles tagged sleep (content API), or nothing when there are none.
+  - Owner of the work: the fix session (lines set back to `open` with this decision).
+- **Legal texts (terms, privacy).** Stays an owner action: a Saudi lawyer approves `docs/legal` before launch. Until
+  then the embedded fallback stays off. This is a launch blocker and cannot be decided in code.

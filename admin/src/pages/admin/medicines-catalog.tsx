@@ -85,6 +85,15 @@ export default function MedicinesCatalogPage() {
   const [scanOpen, setScanOpen] = useState(false);
   const [scanNote, setScanNote] = useState('');
   const canImport = useCan('catalog.import');
+  // Each control names the permission its backend route requires (medicines.controller): a role that lacks it
+  // does not see the control instead of getting a 403 after the tap.
+  const canCreate = useCan('catalog.create');
+  const canUpdate = useCan('catalog.update');
+  const canPrice = useCan('catalog.price.write');
+  const canEditItem = canUpdate && canPrice; // PATCH /medicines/admin/catalog/:id requires both
+  const canApprove = useCan('catalog.approve');
+  const canDelete = useCan('catalog.delete_restore');
+  const canShortage = useCan('catalog.shortage.decide');
   const [importNote, setImportNote] = useState('');
   const [formConfirm, setFormConfirm] = useState<{ changes: SensitiveChange[]; published: boolean; run: () => Promise<void> } | null>(null);
 
@@ -349,7 +358,7 @@ export default function MedicinesCatalogPage() {
                     onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; void importCsv(f); }} />
                 </label>
               )}
-              <button onClick={openCreate} className="bg-teal-600 hover:bg-teal-700 text-white font-bold px-5 py-2 rounded-lg ms-auto">+ إضافة صنف جديد</button>
+              {canCreate ? <button onClick={openCreate} className="bg-teal-600 hover:bg-teal-700 text-white font-bold px-5 py-2 rounded-lg ms-auto">+ إضافة صنف جديد</button> : null}
             </div>
 
             {importNote && <p role="status" className="text-sm text-emerald-700">{importNote}</p>}
@@ -460,6 +469,7 @@ export default function MedicinesCatalogPage() {
                     { key: 'price', header: 'السعر', className: 'font-bold', render: (m: LooseRow) => <span dir="ltr">{m.price ?? '—'}</span> },
                     { key: 'badge', header: 'الشعار', render: (m: LooseRow) => {
                       const flagged = m.availability_status === 'admin_flagged_shortage' || m.availability_status === 'availability_may_be_limited';
+                      if (!canShortage) return <span className="text-xs text-slate-500">{flagged ? 'قد يكون غير متوفر' : '—'}</span>;
                       return (
                         <button onClick={() => toggleBadge(m)} disabled={busy === m.id}
                           className={`text-xs font-bold px-2 py-1 rounded-full border ${flagged ? 'bg-amber-100 text-amber-700 border-amber-300' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
@@ -471,9 +481,9 @@ export default function MedicinesCatalogPage() {
                       const deleted = !!m.is_deleted;
                       return (
                         <div className="flex gap-2">
-                          <button onClick={() => setQuickItem(m)} className="text-teal-700 font-bold text-xs">تعديل سريع</button>
-                          <button onClick={() => openEdit(m)} className="text-teal-700 font-bold text-xs">تعديل</button>
-                          {m.pending_revision ? (
+                          {canEditItem ? <button onClick={() => setQuickItem(m)} className="text-teal-700 font-bold text-xs">تعديل سريع</button> : null}
+                          {canEditItem ? <button onClick={() => openEdit(m)} className="text-teal-700 font-bold text-xs">تعديل</button> : null}
+                          {!canApprove ? null : m.pending_revision ? (
                             // F8: an editor's change waits here; patients still see the approved version.
                             <>
                               <button onClick={() => alert(`تعديل بانتظار الاعتماد:\n${Object.entries(m.pending_revision.changes || {}).map(([k, v]) => `${k}: ${typeof v === 'object' ? JSON.stringify(v) : String(v)}`).join('\n')}`)} className="text-amber-700 font-bold text-xs">تعديل بانتظار الاعتماد</button>
@@ -485,7 +495,7 @@ export default function MedicinesCatalogPage() {
                           ) : (
                             <button onClick={() => decideItem(m, true)} disabled={busy === m.id} className="text-green-700 font-bold text-xs">اعتماد</button>
                           )}
-                          {deleted ? (
+                          {!canDelete ? null : deleted ? (
                             <button onClick={() => softDelete(m, true)} disabled={busy === m.id} className="text-green-700 font-bold text-xs">استرجاع</button>
                           ) : (
                             <button onClick={() => softDelete(m)} disabled={busy === m.id} className="text-red-600 font-bold text-xs">حذف</button>
@@ -577,7 +587,7 @@ export default function MedicinesCatalogPage() {
                         ) : null}
                         {r.note && <div className="text-sm text-slate-600 mt-1">ملاحظة: {r.note}</div>}
                       </div>
-                      {reqStatus === 'pending' && (
+                      {canUpdate && reqStatus === 'pending' && (
                         <div className="flex gap-2 items-start">
                           <button onClick={() => decideRequest(r, 'approve')} disabled={busy === (r.id || r._id)} className="bg-emerald-600 text-white font-bold px-4 py-1.5 rounded-lg text-sm disabled:opacity-50">اعتماد</button>
                           <button onClick={() => decideRequest(r, 'reject')} disabled={busy === (r.id || r._id)} className="bg-red-100 text-red-700 font-bold px-4 py-1.5 rounded-lg text-sm disabled:opacity-50">رفض</button>
