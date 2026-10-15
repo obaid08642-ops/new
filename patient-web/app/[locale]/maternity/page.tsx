@@ -19,6 +19,7 @@ import { ARTICLE_TONE } from "@/components-next/articles/article-kit";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import rx from "@/components-next/pharmacy/rx.module.css";
+import { QuickLogForm } from "@/components-next/health/quick-log-form";
 import styles from "@/components-next/health/health.module.css";
 import care from "@/components-next/care/care.module.css";
 
@@ -123,6 +124,11 @@ function PregnancyTab({ t, profile, number, date, locale, content, caret }: TabP
         <CareHero tone={MATERNITY.tone} icon={MATERNITY.icon} label={t("tabPregnancy")} title={t("tabPregnancy")} lines={[t("dueOn", { date: due })]} />
       ) : null}
       {profile.week !== null ? <WeekContent t={t} locale={locale} content={content} number={number} caret={caret} /> : null}
+      {/* issue 862: kicks and contractions are logged on the website too (POST /maternity/kicks, /maternity/contractions) */}
+      <SectionHead id="log-kicks" title={t("kicksTitle")} />
+      <QuickLogForm kind="kicks" />
+      <SectionHead id="log-contractions" title={t("contractionsTitle")} />
+      <QuickLogForm kind="contractions" />
       {profile.kicks.length ? (
         <>
           <SectionHead id="kicks" title={t("kicksTitle")} />
@@ -210,11 +216,14 @@ function WeekContent({ t, locale, content, number, caret }: { t: Tr; locale: str
 }
 
 function BabyTab({ t, profile, number, date }: TabProps) {
+  // issue 862: the baby's growth is logged on the website too (POST /maternity/infant-growth)
+  const form = <QuickLogForm kind="growth" />;
   if (profile.growth.length === 0) {
-    return <ConsultState kind="empty" icon="chart-line-up" tone="mint" title={t("growthTitle")} body={t("growthEmpty")} />;
+    return <>{form}<ConsultState kind="empty" icon="chart-line-up" tone="mint" title={t("growthTitle")} body={t("growthEmpty")} /></>;
   }
   return (
     <>
+      {form}
       <SectionHead id="growth" title={t("growthTitle")} />
       <RowsCard label={t("growthTitle")}>
         {profile.growth.map((entry) => (

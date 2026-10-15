@@ -303,7 +303,7 @@
     "kind": "wrong-state",
     "file": "patient-web/app/[locale]/appointments/[appointmentId]/summary/page.tsx",
     "line": 46,
-    "review_status": "open (issue #1042)"
+    "review_status": "fixed faa59e605 (verified on main: the summary redirects to the appointment page, appointments/[appointmentId]/summary/page.tsx:13, where \"order these medicines\" fills the cart, prescription-client.tsx:84-89) (issue #1042)"
   },
   {
     "scenario": 3,
@@ -339,7 +339,7 @@
     "kind": "dead-end",
     "file": "patient-web/app/[locale]/chat/[threadId]/page.tsx",
     "line": 57,
-    "review_status": "open (issue #1046)"
+    "review_status": "fixed #1455 (the thread shows message texts, B27; the composer is there once the visit is finished, decision 24; j_web_care checks both) (issue #1046)"
   },
   {
     "scenario": 3,
@@ -348,7 +348,7 @@
     "kind": "dead-end",
     "file": "patient-web/app/[locale]/chat/page.tsx",
     "line": 43,
-    "review_status": "open (issue #1047)"
+    "review_status": "fixed #1458"
   },
   {
     "scenario": 3,
@@ -357,7 +357,7 @@
     "kind": "other",
     "file": "patient-web/app/[locale]/consultations/chat/page.tsx",
     "line": 22,
-    "review_status": "open (issue #1048)"
+    "review_status": "fixed #1458"
   },
   {
     "scenario": 3,
@@ -375,7 +375,7 @@
     "kind": "missing-field",
     "file": "patient-app/app/consultations/chat-with-doctor.tsx",
     "line": 161,
-    "review_status": "open (issue #1050)"
+    "review_status": "fixed 276c859b9 (verified on main: app chat-with-doctor.tsx has voice notes :66-67, image and file attachments :234, the 997 line :377-382 and the follow-up banner and booking) (issue #1050)"
   },
   {
     "scenario": 4,
@@ -420,7 +420,7 @@
     "kind": "wrong-state",
     "file": "patient-web/components-next/pharmacy-checkout/payment-result.tsx",
     "line": 173,
-    "review_status": "open (issue #1055)"
+    "review_status": "fixed #1467"
   },
   {
     "scenario": 4,
@@ -438,7 +438,7 @@
     "kind": "missing-step",
     "file": "patient-web/app/[locale]/appointments/[appointmentId]/page.tsx",
     "line": 89,
-    "review_status": "open (issue #1057)"
+    "review_status": "fixed faa59e605 (verified on main: the appointment page has the visit's prescription with ordering :163-164, the doctor chat :136 and follow-up booking :157) (issue #1057)"
   },
   {
     "scenario": 5,
@@ -447,7 +447,7 @@
     "kind": "dead-end",
     "file": "patient-web/app/[locale]/diagnostics/labs/book/page.tsx",
     "line": 38,
-    "review_status": "open (issue #1058)"
+    "review_status": "fixed #1470"
   },
   {
     "scenario": 5,
@@ -456,7 +456,7 @@
     "kind": "duplicate",
     "file": "patient-web/app/[locale]/diagnostics/packages/[packageId]/page.tsx",
     "line": 82,
-    "review_status": "open (issue #1059)"
+    "review_status": "fixed #1470"
   },
   {
     "scenario": 5,
@@ -492,7 +492,7 @@
     "kind": "missing-step",
     "file": "patient-web/app/[locale]/diagnostics/bookings/[domain]/[bookingId]/page.tsx",
     "line": 66,
-    "review_status": "open (issue #1063)"
+    "review_status": "fixed #1470"
   },
   {
     "scenario": 5,
@@ -537,7 +537,7 @@
     "kind": "wrong-state",
     "file": "patient-app/app/diagnostics/upload-rx.tsx",
     "line": 6,
-    "review_status": "open (issue #1068)"
+    "review_status": "fixed #1470"
   },
   {
     "scenario": 6,
@@ -708,7 +708,7 @@
     "kind": "other",
     "file": "patient-web/components-next/pharmacy-checkout/payment-result.tsx",
     "line": 175,
-    "review_status": "open (issue #1087)"
+    "review_status": "fixed #1467"
   },
   {
     "scenario": 10,
@@ -753,7 +753,7 @@
     "kind": "other",
     "file": "patient-web/components-next/home/home-parts.tsx",
     "line": 170,
-    "review_status": "open (issue #1092)"
+    "review_status": "fixed #1458"
   },
   {
     "scenario": 10,

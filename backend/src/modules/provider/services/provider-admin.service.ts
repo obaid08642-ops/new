@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { Injectable, BadRequestException, NotFoundException, ForbiddenException, Inject } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, ForbiddenException, Inject, Optional } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Model } from 'mongoose';
 import { ProviderAccount, ProviderProfile, ProviderDocument, ProviderBankAccount, ProviderAuditLog, DocumentReviewStatus, BankReviewStatus } from '../schemas';
@@ -11,6 +11,7 @@ import { ProviderDocumentRepository } from "./repositories/providerdocument.repo
 import { ProviderBankAccountRepository } from "./repositories/providerbankaccount.repository";
 import { ProviderAuditLogRepository } from "./repositories/providerauditlog.repository";
 import { AutoEntitySeoPipelineService } from '../../events/auto-entity-seo-pipeline.service';
+import { CatalogPublicationService } from '../../events/catalog-publication.service';
 
 @Injectable()
 export class ProviderAdminService {
@@ -22,6 +23,7 @@ export class ProviderAdminService {
     @Inject('ProviderAuditLogRepository') private audit: ProviderAuditLogRepository,
     private seoPipeline: AutoEntitySeoPipelineService,
     private events: EventEmitter2,
+    @Optional() private publication?: CatalogPublicationService,
   ) {}
 
 
@@ -276,6 +278,28 @@ export class ProviderAdminService {
     return a.toObject();
   }
 
+  /**
+   * P13-R6: every status change propagates to search, sitemap, SEO pages,
+   * cache and MCP. The SEO pipeline rebuilds the public projection (suspend
+   * removes, reactivate restores); the catalog publication refreshes the
+   * shared discovery projection and invalidates its caches. Both are
+   * best-effort here — the flags above are already persisted.
+   */
+  private async refreshDiscovery(accountId: string, userId: string, action: 'deactivate' | 'reactivate') {
+    const prof: any = await this.accounts.model.db.collection('provider_profiles').findOne({ account_id: accountId });
+    if (!prof) return;
+    const pType = (prof.type || 'doctor') as any;
+    const entityId = prof.id || String(prof._id);
+    await this.seoPipeline.processEntity({
+      entityType: pType, entityId, actorId: userId, action,
+    }).catch(() => {});
+    await this.publication?.refresh({
+      entityType: 'provider', entityId, actorId: userId, actorRole: 'admin',
+      reason: action === 'deactivate' ? 'provider_suspended' : 'provider_reactivated',
+      idempotencyKey: `catalog-publication:provider:${entityId}:${action}:${Date.now()}`,
+    }).catch(() => {});
+  }
+
   async suspend(user: any, id: string, body: any) {
     this.assertAdmin(user);
     const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();
@@ -299,6 +323,8 @@ export class ProviderAdminService {
         action: 'deactivate',
       }).catch(() => {});
     }
+    // P13-R6: the shared discovery projection follows the flags above.
+    await this.refreshDiscovery(id, user.id, 'deactivate');
 
     return a.toObject();
   }
@@ -325,6 +351,9 @@ export class ProviderAdminService {
       { $set: { status: 'active', public_eligibility: true, indexing_eligibility: true, medical_review_status: 'approved' } },
     );
     await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_reactivated', after: { reason: body?.reason } });
+    // P13-R6: restore discovery the same way suspend removes it — SEO
+    // reactivate plus the shared projection refresh (was missing entirely).
+    await this.refreshDiscovery(id, user.id, 'reactivate');
     return a.toObject();
   }
 

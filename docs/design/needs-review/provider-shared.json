@@ -19,7 +19,7 @@
     "line": 17,
     "found": "[client] The QR catalog screen draws a fixed QR icon and text; there is no QR value, catalog link or request behind it.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open (issue #1198)"
+    "review_status": "fixed #1460"
   },
   {
     "batch": "provider",

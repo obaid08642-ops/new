@@ -62,10 +62,12 @@ describe("patient OTP BFF routes", () => {
   });
   it("validates registration input, strips confirm_password, and rejects token-shaped success", async () => {
     process.env.NABD_TERMS_POLICY_ID = "terms"; process.env.NABD_TERMS_POLICY_VERSION = "v1"; process.env.NABD_PRIVACY_POLICY_ID = "privacy"; process.env.NABD_PRIVACY_POLICY_VERSION = "v1";
+    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify([]), { status: 200 })); // GET /legal/policies: none configured
     state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ registered: true }), { status: 201 }));
     const response = await register(jsonRequest("/api/auth/register", { name: "Patient Example", identifier: "Patient@Example.com", password: "StrongPass123!", locale: "en", consents: [{ policy_id: "terms", version: "v1" }, { policy_id: "privacy", version: "v1" }] }));
     expect(response.status).toBe(201);
     expect(state.callPatientApi).toHaveBeenCalledWith("/auth/register", expect.objectContaining({ body: expect.not.stringContaining("confirm_password") }));
+    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify([]), { status: 200 })); // GET /legal/policies: none configured
     state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ registered: true, access_token: "must-not-leak" }), { status: 201 }));
     expect((await register(jsonRequest("/api/auth/register", { name: "Patient Example", identifier: "patient@example.com", password: "StrongPass123!", locale: "en", consents: [{ policy_id: "terms", version: "v1" }, { policy_id: "privacy", version: "v1" }] }))).status).toBe(502);
     expect((await register(jsonRequest("/api/auth/register", { name: "P", identifier: "bad", password: "short", locale: "en", consents: [] }))).status).toBe(400);
@@ -77,6 +79,7 @@ describe("patient OTP BFF routes", () => {
     expect((await requestOtp(jsonRequest("/api/auth/otp/request", { identifier: "+966509999999" }))).status).toBe(503);
   });
   it("remembers where the code went in a short-lived httpOnly cookie, not in a URL", async () => {
+    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify([]), { status: 200 })); // GET /legal/policies: none configured
     state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ registered: true }), { status: 201 }));
     const response = await register(jsonRequest("/api/auth/register", { name: "Patient Example", identifier: "patient@example.com", password: "StrongPass123!", locale: "en", consents: [{ policy_id: "terms", version: "v1" }, { policy_id: "privacy", version: "v1" }] }));
     expect(response.status).toBe(201);
@@ -84,6 +87,7 @@ describe("patient OTP BFF routes", () => {
     expect(cookie).toContain("nabd_otp_identifier=patient%40example.com");
     expect(cookie).toContain("HttpOnly");
     expect(cookie).toContain("Max-Age=900");
+    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify([]), { status: 200 })); // GET /legal/policies: none configured
     state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ code: "identifier_already_registered" }), { status: 409 }));
     const conflict = await register(jsonRequest("/api/auth/register", { name: "Patient Example", identifier: "patient@example.com", password: "StrongPass123!", locale: "en", consents: [{ policy_id: "terms", version: "v1" }, { policy_id: "privacy", version: "v1" }] }));
     expect(conflict.status).toBe(409);
