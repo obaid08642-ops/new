@@ -411,7 +411,9 @@ export class PaymentsService {
       { id: order.id },
       { $set: set },
     );
-    this.events.emit('moyasar.payment.paid', {
+    // Awaited: the fulfilment gate reads this evidence, so verify answers only once it is written. A listener error is
+    // logged and never fails the payment, which is already recorded above.
+    await this.events.emitAsync('moyasar.payment.paid', {
       id: String(t.gateway_charge_id || t.gateway_intent_id || t.id),
       event_id: `txn_${t.id}`,
       amount_halalas: Math.round(Number(t.amount) * 100),
@@ -423,7 +425,7 @@ export class PaymentsService {
         quote_snapshot_hash: String(order.pricing_snapshot?.hash || ''),
         payer_account_id: order.patient_account_id,
       },
-    });
+    }).catch((e: any) => this.logger.error(`pharmacy payment evidence not written order=${order.id} txn=${t.id}: ${e?.message}`));
     return true;
   }
 

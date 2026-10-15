@@ -14,7 +14,7 @@ const svcWith = (order: any) => {
   };
   const txns: any = { db: { collection: () => coll } };
   const svc = new (PaymentsService as any)(
-    txns, {}, {}, {}, {}, {}, {}, {}, {}, { emit: () => undefined }, { emitToUser: () => undefined }, {}, undefined,
+    txns, {}, {}, {}, {}, {}, {}, {}, {}, { emit: () => undefined, emitAsync: async () => [] }, { emitToUser: () => undefined }, {}, undefined,
   );
   return { svc, writes };
 };
