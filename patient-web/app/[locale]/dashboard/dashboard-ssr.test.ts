@@ -31,7 +31,9 @@ describe("dashboard SSR boundary", () => {
     const html = await renderPage("en");
 
     expect(html).not.toContain(state.accessToken);
-    for (const href of ["/en/orders", "/en/appointments", "/en/health", "/en/health/medications?tab=all", "/en/diagnostics", "/en/home-care", "/en/family", "/en/chat", "/en/notifications", "/en/prescriptions", "/en/medicines", "/en/profile"]) expect(html).toContain(href);
+    for (const href of ["/en/orders", "/en/appointments", "/en/health", "/en/health/medications?tab=all", "/en/diagnostics", "/en/home-care", "/en/family", "/en/notifications", "/en/prescriptions", "/en/medicines", "/en/profile"]) expect(html).toContain(href);
+    // decision 24 (issues 1047, 1048, 1092): no dashboard row to the removed chat list
+    expect(html).not.toContain('href="/en/chat"');
     expect(html).toContain('aria-labelledby="patient-dashboard-title"');
   });
 
