@@ -30,7 +30,8 @@ import { ConfigModule } from '@nestjs/config';
 import { validateEnvironment } from './config/env.validation';
 import { MongooseModule } from '@nestjs/mongoose';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { RateLimitAuditGuard } from './modules/admin/ops-security/rate-limit-audit.guard'; // D-34: 429s counted for the ops page
 import { RedisThrottlerStorage } from './modules/redis/throttler-redis.storage';
 import { backgroundImports, backgroundProviders } from './common/process-role';
 import { WorkerHeartbeatService } from './common/worker-heartbeat.service';
@@ -296,7 +297,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     ...backgroundProviders([WorkerHeartbeatService]),
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: WriteGuard },
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_GUARD, useClass: RateLimitAuditGuard },
     { provide: APP_GUARD, useClass: AdminGateGuard },
     { provide: APP_GUARD, useClass: LoadSheddingGuard },
     { provide: APP_GUARD, useClass: StepUpGuard },
