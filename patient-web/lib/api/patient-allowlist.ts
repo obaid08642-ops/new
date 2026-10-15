@@ -16,6 +16,8 @@ const patientReadRoutes = [
   new RegExp("^/labs/services$", "i"),
   new RegExp("^/home-care/bookings/my$", "i"),
   new RegExp("^/home-care/bookings/[A-Za-z0-9-]{1,64}$", "i"),
+  // components-next/home-care-booking-form: the chosen nurse's free times for one day (journeys#60).
+  new RegExp("^/home-care/providers/[A-Za-z0-9-]{1,64}/slots\\?date=\\d{4}-\\d{2}-\\d{2}$", "i"),
   new RegExp("^/family/chat/messages$", "i"),
   new RegExp(`^/offers/${orderId}$`, "i"),
   new RegExp(`^/promotions/offers/${orderId}/providers$`, "i"),
