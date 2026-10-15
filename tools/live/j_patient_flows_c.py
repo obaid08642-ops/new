@@ -99,10 +99,9 @@ def main():
         journey('journeys#23: order the prescription for pickup')
         if rx_id:
             page.goto(f'{WEB}/ar/pharmacy/rx-order?prescriptionId={rx_id}', wait_until='load', timeout=60000)
-            pick = page.get_by_role('radio', name='استلام', exact=True)
-            if pick.count() == 0:
-                pick = page.get_by_role('button', name='استلام', exact=True)
             page.wait_for_function("() => { const b = [...document.querySelectorAll('button')].find((x) => x.textContent.includes('اطلب عروض الصيدليات')); return !!b && Object.keys(b).some((k) => k.startsWith('__react')); }", timeout=30000)
+            # the delivery/pickup choice is a radio group (Segmented); it renders once the prescription has loaded
+            pick = page.get_by_role('radio', name='استلام', exact=True)
             pick.first.click(timeout=30000)
             page.get_by_role('button', name='اطلب عروض الصيدليات').last.click(timeout=30000)
             page.wait_for_url('**/broadcast-status**', timeout=60000)
