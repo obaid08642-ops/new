@@ -253,6 +253,16 @@ def run(pat, doctor, admin):
     r = admin.get('/admin/admin/orders?kind=consultation&limit=25')
     row = next((x for x in r.items() if x.get('id') == aid), None)
     step('console lists it with status and amount', r.ok and row and str(row.get('status')).upper() == 'COMPLETED' and row.get('amount', 0) > 0, row or r.status)
+
+    # Fix session (money): the patient pays only through Moyasar and refunds have one path (owner decision 952), so
+    # no admin route marks a booking paid or refunded by hand.
+    journey('consultation: no manual payment status or fake refund')
+    r = admin.post('/admin/admin/override/payment', {'kind': 'consultation', 'id': aid, 'payment_status': 'refunded', 'reason': 'live gate probe: manual refund'})
+    step('admin cannot mark the booking "refunded" without a refund', not r.ok, r)
+    r = pat.get(f'/care/appointments/{aid}')
+    step('the booking is still paid (no refund was made)', str(r.get('payment_status')).lower() != 'refunded', r.get('payment_status'))
+    r = pat.post('/patient-ux/refund', {'booking_kind': 'consultation', 'booking_id': aid, 'reason': 'live gate probe'})
+    step('the side refund queue (no money moves) is closed', not r.ok, r)
     return aid
 
 
