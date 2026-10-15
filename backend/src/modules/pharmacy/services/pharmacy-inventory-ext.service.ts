@@ -23,6 +23,9 @@ export class PharmacyInventoryExtService {
 
   async search(user: any, q?: string, barcode?: string, includeCatalogue = false) {
     assertProvider(user);
+    // query values are strings; anything else (barcode[$ne]=...) never reaches the filter
+    q = typeof q === 'string' ? q : undefined;
+    barcode = typeof barcode === 'string' ? barcode : undefined;
     const filter: any = { provider_account_id: user.id };
     if (barcode) filter.barcode = barcode;
     if (q && q.length >= 2) {
