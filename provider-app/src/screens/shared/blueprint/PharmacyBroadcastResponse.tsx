@@ -175,6 +175,19 @@ export function PharmacyBroadcastResponse({ onBack, broadcast }: { onBack: () =>
         <NCard><NInput label={AR ? 'وقت التجهيز بالدقائق (اختياري، 5 إلى 240)' : 'Preparation time in minutes (optional, 5-240)'} value={prepMinutes} kbType="number-pad" onChange={(v: string) => { setPrepMinutes(v.replace(/[^0-9]/g, '').slice(0, 3)); setQuote(null); }} /></NCard>
         <NCard><NInput label={AR ? 'ملاحظة للمريض (اختياري)' : 'Note for patient (optional)'} value={providerNote} onChange={(v: string) => setProviderNote(v.slice(0, 500))} multi multiline lines={2} maxLen={500} /></NCard>
         {quote && <NCard><Text style={{ color: theme.text, fontWeight: FW.bold }}>{AR ? 'معاينة خادمية' : 'Server quote preview'}</Text><Text style={{ color: theme.text }}>{AR ? `الإجمالي: ${quote.totals?.total ?? '—'} ${quote.totals?.currency ?? ''}` : `Total: ${quote.totals?.total ?? '—'} ${quote.totals?.currency ?? ''}`}</Text><Text style={{ color: theme.textSub }}>{AR ? `صالحة للمسودة لمدة ${quote.quote_ttl_seconds ?? 600} ثانية` : `Draft quote TTL: ${quote.quote_ttl_seconds ?? 600} seconds`}</Text><Text style={{ color: theme.textSub }}>{quote.fulfillment?.policy_status === 'unavailable_read_only' ? (AR ? 'سياسة التسليم غير متاحة للقراءة فقط.' : 'Delivery policy unavailable (read-only).') : ''}</Text></NCard>}
+        {/* decision 12 (issue 331, revised 2026-10-10): a line above the catalogue (SFDA) price is accepted and flagged; the pharmacist is warned per line and the admin reviews it */}
+        {(() => {
+          const flagged = (Array.isArray(quote?.draft?.items) ? quote.draft.items : []).filter((i: any) => i?.above_catalogue_price === true || i?.price_check === 'not_verified');
+          if (!flagged.length) return null;
+          return <NCard style={{ borderColor: theme.warn }}>
+            <Text style={{ color: theme.text, fontWeight: FW.bold }}>{AR ? 'تنبيه أسعار' : 'Price notice'}</Text>
+            {flagged.map((i: any) => <Text key={String(i.order_item_id)} style={{ color: theme.textSub, marginTop: SP.xs }}>
+              {i.above_catalogue_price === true
+                ? (AR ? `${i.name_ar || i.sku || ''}: سعرك ${i.unit_price} ر.س أعلى من سعر الكتالوج ${i.catalogue_price} ر.س. أسعار الأدوية جبرية؛ تأكد أن السعر الرسمي تغيّر. أُبلغت الإدارة للمراجعة.` : `${i.name_ar || i.sku || ''}: your price ${i.unit_price} SAR is above the catalogue price ${i.catalogue_price} SAR. Medicine prices are regulated; make sure the official price changed. The admin was told and will review it.`)
+                : (AR ? `${i.name_ar || i.sku || ''}: الصنف غير مطابق لكتالوج نبض بلس، فلم يُتحقق من سعره.` : `${i.name_ar || i.sku || ''}: this item is not in the Nabd Plus catalogue, so its price was not checked.`)}
+            </Text>)}
+          </NCard>;
+        })()}
         <NBtn label={busy ? (AR ? 'جارٍ المعالجة…' : 'Working…') : (AR ? 'معاينة خادمية' : 'Server quote preview')} disabled={busy} onPress={preview} />
         <NBtn label={AR ? 'حفظ المسودة' : 'Save draft'} variant="secondary" disabled={busy || !quote} onPress={saveDraft} />
         <NBtn label={AR ? 'إرسال العرض للاختيار' : 'Submit for patient selection'} disabled={busy || !quote?.draft?.id} onPress={submit} />
