@@ -140,7 +140,7 @@
     "line": 49,
     "found": "FIXED in batch-0-fixes: both frames take the four section links from components-next/shell-links.ts (Pharmacy to /c, Consultations to /consultations/doctors, Labs and radiology to /diagnostics, Nursing to /nursing/catalog) and the HomeWeb labels, so a section opens the same page everywhere.",
     "suspect": "Please confirm these four are the canonical targets (the Home board's). The core shell used /pharmacy (redirects to /c), /diagnostics/labs and /home-care before.",
-    "review_status": "closed-unverified (issue #441: closed with no linked PR)"
+    "review_status": "fixed a74b10b54 (verified on main: patient-web/components-next/shell-links.ts:9-17 used by core-shell.tsx:18,66 and home-shell.tsx:11) (issue #441)"
   },
   {
     "batch": 0,

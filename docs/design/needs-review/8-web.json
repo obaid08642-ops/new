@@ -19,7 +19,7 @@
     "line": 63,
     "found": "[backend] GET/POST/DELETE /mental-health/crisis-contacts still exist (the app emergency screen uses them); remove them with the app screen under decision 8. The web proxy no longer allows the GET. (backend: backend/src/modules/mental-health/mental-health.controller.ts:77)",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "closed-unverified (issue #859: closed with no linked PR)"
+    "review_status": "not-a-problem: removed by decision 8, no crisis-contacts route left (backend/src/modules/mental-health/mental-health.controller.ts:76-78, 664a55ef1, PR #725) (issue #859)"
   },
   {
     "batch": 8,
