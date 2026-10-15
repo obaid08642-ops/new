@@ -160,6 +160,14 @@ describe('order state', () => {
     expect(offerPhase(order({ status: 'delivered' }))).toBe('selected');
   });
 
+  it('decision 13: the server\'s search state; "no pharmacy available" ends the wait', () => {
+    expect(order({ search: { state: 'expanding', round: 2, radius_km: 5, ends_at: 'x' } })?.search).toEqual({ state: 'expanding', round: 2, radiusKm: 5 });
+    expect(offerPhase(order({ search: { state: 'expanding', round: 2, radius_km: 5 } }))).toBe('searching');
+    expect(offerPhase(order({ status: 'manual_review', search: { state: 'no_pharmacy_available' }, governed_state: 'AUTO_CANCELLED' }))).toBe('unavailable');
+    expect(offerPhase(order({ status: 'manual_review', governed_state: 'AUTO_CANCELLED' }))).toBe('unavailable');
+    expect(offerPhase(order({ status: 'manual_review', search: { state: 'no_pharmacy_available' }, selected_offer_id: 'o1' }))).toBe('selected');
+  });
+
   it('reads the order from a bare object or { data }', () => {
     expect(parseOrder({ data: { status: 'draft' } })?.status).toBe('draft');
     expect(parseOrder({})).toBeNull();

@@ -259,6 +259,9 @@ export default function BroadcastStatusScreen() {
   if (phase === 'selected') {
     return state(<EmptyState icon="check-circle" tone="mint" title={k('pharmacy.offers.alreadyChosen')} body={k('pharmacy.offers.alreadyChosenBody')} actionLabel={k('pharmacy.offers.continueOrder')} onAction={() => router.replace({ pathname: postSelectionRoute(order), params: { orderId } } as Href)} theme={theme} />);
   }
+  if (phase === 'unavailable') {
+    return state(<EmptyState icon="storefront" tone={PHARMACY_TONE} title={k('pharmacy.offers.unavailable')} body={k('pharmacy.offers.unavailableBody')} actionLabel={k('pharmacy.offers.backToPharmacy')} onAction={() => router.replace('/(tabs)/pharmacy' as Href)} theme={theme} />);
+  }
   if (phase === 'draft') {
     return state(<EmptyState icon="receipt" tone={PHARMACY_TONE} title={k('pharmacy.offers.notSent')} body={k('pharmacy.offers.notSentBody')} actionLabel={k('pharmacy.offers.myOrders')} onAction={() => router.replace('/orders' as Href)} theme={theme} />);
   }
@@ -303,7 +306,7 @@ export default function BroadcastStatusScreen() {
         {ended ? null : (
           <OfferHero
             title={k('pharmacy.offers.searching')}
-            line={open.length > 0 ? k('pharmacy.offers.received', { n: num(open.length) }) : k('pharmacy.offers.none')}
+            line={open.length > 0 ? k('pharmacy.offers.received', { n: num(open.length) }) : order?.search?.state === 'expanding' && order.search.radiusKm !== null ? k('pharmacy.offers.searchRound', { round: num(order.search.round ?? 1), km: num(order.search.radiusKm) }) : k('pharmacy.offers.none')}
           />
         )}
 

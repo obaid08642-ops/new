@@ -24,7 +24,7 @@
     "kind": "missing-state",
     "file": "patient-web/components-next/pharmacy-offers/offers-screen.tsx",
     "line": 98,
-    "review_status": "open (issue #1011)"
+    "review_status": "fixed #1487"
   },
   {
     "scenario": 1,

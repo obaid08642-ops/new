@@ -3225,5 +3225,8 @@
   "ai.leaflet.side_effects": "مضر اثرات",
   "ai.leaflet.warnings": "انتباہات",
   "ai.leaflet.storage": "محفوظ رکھنے کا طریقہ",
-  "ai.leaflet.pregnancy": "حمل اور دودھ پلانا"
+  "ai.leaflet.pregnancy": "حمل اور دودھ پلانا",
+  "pharmacy.offers.unavailable": "اس وقت کوئی فارمیسی دستیاب نہیں",
+  "pharmacy.offers.unavailableBody": "کسی قریبی فارمیسی نے وقت پر جواب نہیں دیا۔ براہ کرم بعد میں دوبارہ کوشش کریں۔",
+  "pharmacy.offers.searchRound": "راؤنڈ {round}: {km} کلومیٹر کے اندر فارمیسیاں تلاش ہو رہی ہیں"
 }
