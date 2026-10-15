@@ -3808,7 +3808,16 @@
     "aboutRulesUnavailable": "The cancellation and refund policy could not be loaded right now.",
     "ruleCancelFull": "An appointment can be cancelled up to {hours} hours before its time for a full refund.",
     "ruleRefundDays": "Refunds arrive within {min} to {max} business days.",
-    "ruleReturnDays": "Unused products can be returned within {days} days of receipt."
+    "ruleReturnDays": "Unused products can be returned within {days} days of receipt.",
+    "connectedAppsTitle": "Connected AI apps",
+    "connectedAppsEmptyTitle": "No connected apps",
+    "connectedAppsEmpty": "You have not connected any AI assistant to your account.",
+    "connectedAppsNote": "A connected assistant can ask, not pay: you confirm and pay every order or booking on Nabd Plus.",
+    "connectedSince": "Connected since {date}",
+    "disconnectApp": "Disconnect",
+    "disconnectFailed": "Could not disconnect. Please try again.",
+    "rowConnectedApps": "Connected AI apps",
+    "rowConnectedAppsSub": "Assistants you allowed into your account"
   },
   "AccountWeb": {
     "profileTitle": "My account",

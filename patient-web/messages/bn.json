@@ -3808,7 +3808,16 @@
     "aboutRulesUnavailable": "এখন বাতিলকরণ ও ফেরত নীতি লোড করা যায়নি।",
     "ruleCancelFull": "অ্যাপয়েন্টমেন্টের {hours} ঘণ্টা আগে পর্যন্ত বাতিল করলে পুরো টাকা ফেরত পাওয়া যায়।",
     "ruleRefundDays": "ফেরত {min} থেকে {max} কর্মদিবসের মধ্যে পৌঁছায়।",
-    "ruleReturnDays": "ব্যবহার না করা পণ্য পাওয়ার {days} দিনের মধ্যে ফেরত দেওয়া যায়।"
+    "ruleReturnDays": "ব্যবহার না করা পণ্য পাওয়ার {days} দিনের মধ্যে ফেরত দেওয়া যায়।",
+    "connectedAppsTitle": "সংযুক্ত AI অ্যাপ",
+    "connectedAppsEmptyTitle": "কোনো সংযুক্ত অ্যাপ নেই",
+    "connectedAppsEmpty": "আপনি আপনার অ্যাকাউন্টে কোনো AI সহকারী সংযুক্ত করেননি।",
+    "connectedAppsNote": "সংযুক্ত সহকারী অনুরোধ করতে পারে, পরিশোধ নয়: প্রতিটি অর্ডার বা বুকিং আপনি Nabd Plus অ্যাপে নিশ্চিত ও পরিশোধ করেন।",
+    "connectedSince": "{date} থেকে সংযুক্ত",
+    "disconnectApp": "সংযোগ বিচ্ছিন্ন করুন",
+    "disconnectFailed": "সংযোগ বিচ্ছিন্ন করা যায়নি। আবার চেষ্টা করুন।",
+    "rowConnectedApps": "সংযুক্ত AI অ্যাপ",
+    "rowConnectedAppsSub": "যেসব সহকারীকে আপনি অ্যাকাউন্টে অনুমতি দিয়েছেন"
   },
   "AccountWeb": {
     "profileTitle": "আমার অ্যাকাউন্ট",

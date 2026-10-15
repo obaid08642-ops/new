@@ -3808,7 +3808,16 @@
     "aboutRulesUnavailable": "تعذر تحميل سياسة الإلغاء والاسترداد الآن.",
     "ruleCancelFull": "يمكن إلغاء الموعد قبل {hours} ساعة من وقته مع استرداد كامل المبلغ.",
     "ruleRefundDays": "يصل الاسترداد خلال {min} إلى {max} أيام عمل.",
-    "ruleReturnDays": "يمكن إرجاع المنتجات غير المستخدمة خلال {days} أيام من الاستلام."
+    "ruleReturnDays": "يمكن إرجاع المنتجات غير المستخدمة خلال {days} أيام من الاستلام.",
+    "connectedAppsTitle": "التطبيقات الذكية المتصلة",
+    "connectedAppsEmptyTitle": "لا تطبيقات متصلة",
+    "connectedAppsEmpty": "لم تربط أي مساعد ذكي بحسابك.",
+    "connectedAppsNote": "المساعد المتصل يطلب ولا يدفع: كل طلب أو حجز تؤكده وتدفعه أنت على نبض بلس.",
+    "connectedSince": "متصل منذ {date}",
+    "disconnectApp": "قطع الاتصال",
+    "disconnectFailed": "تعذر قطع الاتصال. حاول مرة أخرى.",
+    "rowConnectedApps": "التطبيقات الذكية المتصلة",
+    "rowConnectedAppsSub": "المساعدات التي سمحت لها بحسابك"
   },
   "AccountWeb": {
     "profileTitle": "حسابي",
