@@ -21,9 +21,22 @@ ADMIN_GATE_TOKEN = (os.environ.get('NABD_ADMIN_GATE_TOKEN')
                     or 'live-gate-token')
 
 
-def enroll_admin_device(admin):
-    """Enroll the gate run's device id for the admin user (C2). Idempotent."""
+def enroll_admin_device(admin, email=None):
+    """Enroll the gate run's device id for the admin user (C2). Idempotent.
+
+    D-35: enrollment is a flow, not a single call. A fresh (first) device gets
+    a 202 pending request plus an e-mailed code; confirming with that code
+    enrols it (no approval exists yet for the first device). An
+    already-enrolled device answers already_enrolled.
+    """
+    t0 = time.time()
     r = admin.post('/admin/devices/enroll', {'device_id': ADMIN_DEVICE_ID, 'name': 'gate-run-owner-macbook'})
+    if r.status == 202 and r.get('status') == 'pending_approval' and email:
+        code = mail_code(email, t0)
+        step('enrollment code emailed to the admin (D-35)', bool(code), 'no mail')
+        rc = admin.post(f"/admin/devices/requests/{r.get('request_id')}/confirm", {'code': code or ''})
+        step('new admin device confirmed with the e-mailed code (D-35)', rc.ok, rc)
+        return rc.ok
     step('admin device enrolled for the gate run (C2)', r.ok, r)
     return r.ok
 RESULTS = []  # {journey, step, ok, detail}

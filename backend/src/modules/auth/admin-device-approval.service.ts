@@ -64,9 +64,13 @@ export class AdminDeviceApprovalService {
       throw new BadRequestException('admin_email_missing');
     }
     const subject = 'New admin device approval code';
-    const text = `An admin device enrollment was requested for your account.\n\nApproval code: ${code}\n\nApprove it from an already-enrolled device, then enter this code on the new device. The code expires in 30 minutes. If you did not request this, ignore it.`;
+    // HTML only (no text alternative): a text+html mail is multipart and its
+    // random MIME boundary can contain a 6-8 digit run that a reader scanning
+    // for the first such run (the acceptance latestCode helper, and any human
+    // skimming headers) would mistake for the code. Single-part HTML has no
+    // boundary, so the code below is the only 6-8 digit run in the message.
     const html = `<p>An admin device enrollment was requested for your account.</p><p>Approval code: <strong>${code}</strong></p><p>Approve it from an already-enrolled device, then enter this code on the new device. The code expires in 30 minutes. If you did not request this, ignore it.</p>`;
-    const sent = await this.mail.send(email, subject, html, text);
+    const sent = await this.mail.send(email, subject, html);
     if (!sent.ok) {
       await this.requests.deleteOne({ id: doc.id }).catch(() => null);
       throw new ServiceUnavailableException('enrollment_email_failed');

@@ -24,8 +24,37 @@ def _reuse():
     tok = next((c.value for c in w.jar if c.name == 'admin_access'), None)
     admin = Client(tok, 'admin-api') if tok else None
     if admin:
-        enroll_admin_device(admin)  # 7C-C2, idempotent
+        enroll_admin_device(admin, EMAIL)  # 7C-C2, idempotent
     return w, admin
+
+
+def _enroll_browser_device(w, admin):
+    """D-35: the admin BFF proxies with the browser's admin_device cookie, so that
+    device must be enrolled too. The gate run's enrolled device approves, then the
+    browser device confirms with the e-mailed code."""
+    browser = next((c.value for c in w.jar if c.name == 'admin_device'), None)
+    if not browser or len(browser) < 16:
+        step('browser device present for enrollment (D-35)', False, 'no admin_device cookie')
+        return False
+    t0 = time.time()
+    r = admin.post('/admin/devices/enroll', {'device_id': browser, 'name': 'gate-run-admin-browser'})
+    if r.get('status') == 'already_enrolled':
+        step('browser device already enrolled (D-35)', True, '')
+        return True
+    if not (r.status == 202 and r.get('status') == 'pending_approval'):
+        step('browser device enrollment requested (D-35)', False, r)
+        return False
+    request_id = r.get('request_id')
+    ra = admin.post(f'/admin/devices/requests/{request_id}/approve')
+    step('browser device enrollment approved from the enrolled device (D-35)', ra.ok, ra)
+    if not ra.ok:
+        return False
+    code = mail_code(EMAIL, t0)
+    step('browser enrollment code emailed to the admin (D-35)', bool(code), 'no mail')
+    rc = admin.post(f'/admin/devices/requests/{request_id}/confirm', {'code': code or ''},
+                    headers={'x-admin-device': browser})
+    step('browser device confirmed with the e-mailed code (D-35)', rc.ok, rc)
+    return rc.ok
 
 
 def login():
@@ -54,8 +83,11 @@ def login():
         json.dump([{'name': c.name, 'value': c.value} for c in w.jar], open(SESSION_FILE, 'w'))
     admin = Client(tok, 'admin-api') if tok else None
     # 7C-C2: every direct /api/v1/admin/* call needs an enrolled device.
+    # D-35: the gate device first (first device: code only), then the BFF
+    # browser device (approved from the gate device, confirmed with the code).
     if admin:
-        enroll_admin_device(admin)
+        enroll_admin_device(admin, EMAIL)
+        _enroll_browser_device(w, admin)
     return w, admin
 
 
