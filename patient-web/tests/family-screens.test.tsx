@@ -176,7 +176,7 @@ describe("the old routes and the readers", () => {
   it("every old family route is a redirect to the merged screen", async () => {
     const config = (await import("../next.config")).default;
     const redirects = await (config as unknown as { redirects: () => Promise<Array<{ source: string; destination: string }>> }).redirects();
-    const to = (source: string) => redirects.find((entry) => entry.source === `/:locale${source}`)?.destination;
+    const to = (source: string) => redirects.find((entry) => entry.source.replace(/^\/:locale\([^)]*\)/, "/:locale") === `/:locale${source}`)?.destination;
     expect(to("/family/permissions")).toBe("/:locale/family");
     expect(to("/family/permission-requests")).toBe("/:locale/family#requests");
     expect(to("/family/invite")).toBe("/:locale/family/add?tab=invite");

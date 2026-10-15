@@ -96,7 +96,7 @@
     "line": 33,
     "found": "The app scans with the camera; the web page only ever had a typed field, while its text said 'point the camera at the barcode'. The new screen does not promise a scan. A browser scan would need the BarcodeDetector API (Chromium only) or a decoding library (JS budget); not added here.",
     "suspect": "Owner decision: add a camera scan with BarcodeDetector where it exists (feature-detected, typed entry stays), or accept typed entry on the web.",
-    "review_status": "open (issue #499)"
+    "review_status": "fixed #1495 (issue #499)"
   },
   {
     "batch": 1,
