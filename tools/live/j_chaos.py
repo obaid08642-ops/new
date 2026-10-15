@@ -144,8 +144,9 @@ def payable_lab_booking(pat):
     admin, _ = j_admin.login()
     lab = register_type('lab')
     admin_review(admin, lab)
-    provider_after_approval(lab)
-    lab_id = lab.get('account_id') or lab.get('id')
+    tok = provider_after_approval(lab)
+    # register_type returns no id: read the approved lab's own account, as j_lab does
+    lab_id = Client(tok).get('/provider/me').get('account', 'id') if tok else None
     r = pat.get('/labs/services')
     services = r.items() if r.ok else []
     if not services or not lab_id:
