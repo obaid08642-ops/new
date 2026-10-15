@@ -89,6 +89,8 @@ const patientReadRoutes = [
   new RegExp("^/loyalty/rewards$", "i"),
   new RegExp(`^/labs/bookings/${orderId}$`, "i"),
   new RegExp(`^/labs/bookings/${orderId}/tracking$`, "i"),
+  // journeys#54: the report file of the patient's own lab booking (the backend checks the booking is theirs).
+  new RegExp(`^/labs/bookings/${orderId}/reports/${orderId}$`, "i"),
   // A1: the patient wallet is gone — these backend routes no longer exist.
 ];
 
