@@ -5,7 +5,6 @@ import { AdminController } from './admin.controller';
 import { User, UserSchema } from '../../schemas/user.schema';
 import { ProviderDelta, ProviderDeltaSchema } from '../provider/schemas/provider-delta.schema';
 import { AppointmentSchema } from '../../schemas/appointment.schema';
-import { EmergencyRequestSchema } from '../../schemas/emergency.schema';
 // P5.3: merged from AdminAuthorityModule (authority/ → admin/)
 import { AdminAuthorityController } from './authority/admin-authority.module';
 import { AdminAuthorityService } from './authority/admin-authority.module';
@@ -96,7 +95,6 @@ import { OpsSecurityModule } from './ops-security/ops-security.module';
       { name: User.name, schema: UserSchema },
       { name: ProviderDelta.name, schema: ProviderDeltaSchema },
       { name: 'Appointment', schema: AppointmentSchema },
-      { name: 'EmergencyRequest', schema: EmergencyRequestSchema },
       // P5.3: merged from AdminAuthorityModule
       { name: 'Order', schema: OrderSchema },
       { name: 'LabBooking', schema: LabBookingSchema },

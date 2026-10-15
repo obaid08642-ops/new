@@ -5,7 +5,7 @@ import { adminFetch, apiErrorMessage } from '@/lib/admin-client';
 import { DataTable } from '@/components/DataTable';
 import { useCan } from '@/components/AdminGuard';
 
-type Snapshot = { ts: string; tiles: { orders_active: number; labs_active: number; radiology_active: number; nursing_active: number; appointments_today: number; sos_open: number; tickets_open: number; revenue_24h_sar: number; payments_24h: number; sla_breach_total: number } };
+type Snapshot = { ts: string; tiles: { orders_active: number; labs_active: number; radiology_active: number; nursing_active: number; appointments_today: number; tickets_open: number; revenue_24h_sar: number; payments_24h: number; sla_breach_total: number } };
 type Online = { total: number; by_platform: Record<string, number>; by_role: Record<string, number>; sample?: { user_id: string; platform?: string; role?: string; full_name?: string | null; contact?: string | null; last_seen?: number }[] };
 type OpsOverview = { today?: { total_requests?: number; success?: number; client_errors?: number; server_errors?: number; success_rate?: number | null } };
 type DomainMetrics = { pharmacy?: { fill_rate_pct?: number | null; ordered?: number; filled?: number; samples?: number; avg_quote_seconds?: number | null }; consultations?: { no_show?: number; total?: number; no_show_rate_pct?: number }; nursing?: { by_state?: Record<string, number> } };

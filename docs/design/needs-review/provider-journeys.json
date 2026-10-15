@@ -418,7 +418,7 @@
     "element": "ambulance removal (decision 14)",
     "found": "[backend] The app no longer has the ambulance provider type, dashboard, SOS dispatch, GPS router or fleet screens. These backend modules still exist and are for the reviewer to remove or keep: EmergencyModule (emergency.controller.ts: /emergency/trigger, /active, /:id/claim, /:id/track; ambulance-fleet.controller.ts: /provider/ambulance/fleet) and DriversModule (drivers.controller.ts). Also the `ambulance` user/provider role values and the admin app pages that use them.",
     "suspect": "dead end",
-    "review_status": "open"
+    "review_status": "fixed #1482 (issue #333)"
   },
   {
     "scenario": 4,

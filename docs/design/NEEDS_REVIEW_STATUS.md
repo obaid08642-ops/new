@@ -13,9 +13,9 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Admin | 99 | 7 | 59 | 33 | 0 | 0 |
 | Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
 | Final pass | 8 | 6 | 0 | 2 | 0 | 0 |
-| Patient journeys | 87 | 19 | 66 | 2 | 0 | 0 |
+| Patient journeys | 87 | 20 | 65 | 2 | 0 | 0 |
 | Provider app | 31 | 7 | 23 | 1 | 0 | 0 |
-| Provider journeys | 34 | 9 | 22 | 2 | 1 | 0 |
+| Provider journeys | 34 | 8 | 23 | 2 | 1 | 0 |
 | **Total** | **742** | **118** | **485** | **135** | **4** | **0** |
 
 ## By tag
@@ -24,8 +24,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---|---:|---:|---:|---:|---:|---:|
 | client | 169 | 33 | 104 | 31 | 1 | 0 |
 | owner | 100 | 17 | 39 | 42 | 2 | 0 |
-| backend | 235 | 29 | 177 | 29 | 0 | 0 |
-| untagged | 238 | 39 | 165 | 33 | 1 | 0 |
+| backend | 235 | 28 | 178 | 29 | 0 | 0 |
+| untagged | 238 | 40 | 164 | 33 | 1 | 0 |
 | **Total** | **742** | **118** | **485** | **135** | **4** | **0** |
 
 ## By file
@@ -86,11 +86,11 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1d-web.json` | 10 | 1 | 6 | 3 | 0 | 0 |
 | `final-pass-2.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `final-pass.json` | 4 | 2 | 0 | 2 | 0 | 0 |
-| `journeys.json` | 87 | 19 | 66 | 2 | 0 | 0 |
+| `journeys.json` | 87 | 20 | 65 | 2 | 0 | 0 |
 | `provider-admin-ish.json` | 3 | 1 | 2 | 0 | 0 | 0 |
 | `provider-doctor.json` | 6 | 1 | 5 | 0 | 0 | 0 |
 | `provider-facility.json` | 7 | 1 | 6 | 0 | 0 | 0 |
-| `provider-journeys.json` | 34 | 9 | 22 | 2 | 1 | 0 |
+| `provider-journeys.json` | 34 | 8 | 23 | 2 | 1 | 0 |
 | `provider-lab.json` | 4 | 3 | 1 | 0 | 0 | 0 |
 | `provider-nursing.json` | 2 | 0 | 2 | 0 | 0 | 0 |
 | `provider-pharmacy.json` | 2 | 0 | 1 | 1 | 0 | 0 |
@@ -195,6 +195,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `journeys.json#34` | untagged | open (issue #1043) | 3 prescription -> cart | Web "اطلب الأدوية دي" on the prescription page opens rx-order and broadcasts directly; decision 18 says it fills the cart (the app does). |
 | `journeys.json#42` | untagged | open (issue #1051) | 4 cancel (list "edit") | Two cancel UIs on web: the appointment page (cancel with a reason) and /consultations/cancel-reschedule (reached from the list "edit" button) which also has cancel and reschedule. |
 | `journeys.json#44` | untagged | open (issue #1053) | 4 cancel | Cancelling from the appointment page gives no refund amount or method afterwards, only a refresh. |
+| `journeys.json#57` | untagged | open (issue #1066) | 5 result | There is no "ناقش النتيجة مع طبيب" button (decision 19) in the web or app result screens, and no notification target for it. |
 | `journeys.json#60` | untagged | open (issue #1069) | 6 service detail | The web home-nursing service page says "read-only, no booking is created from this page" and has no booking button; /nursing/booking redirects to the catalogue. Home nursing canno… |
 | `journeys.json#63` | untagged | open (issue #1072) | 6 catalog | Two parallel web trees for nursing (/nursing/* and /home-care/*); the dashboard "تمريض" goes to /nursing/catalog but its detail links go to /home-care/services/:id. |
 | `journeys.json#66` | untagged | open (issue #1075) | 6 booking | No cancellation/trip-fee text before payment for nursing (decision 26). |
@@ -212,7 +213,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `provider-journeys.json#19` | client | open (issue #1181) | WithdrawalWorkflow withdrawal request | [client] The 100 SAR minimum is hard-coded in the screen; the server reads the minimum from finance_config. |
 | `provider-journeys.json#20` | backend | open | WithdrawalWorkflow withdrawal request | [backend] The one-open-request check counts only PENDING_ADMIN_APPROVAL and APPROVED_FOR_PAYOUT; a request in AWAITING_SECOND_APPROVAL holds locked funds but does not block a new … |
 | `provider-journeys.json#22` | client | open | PharmacyDashboard prepare | [client] Insurance decision is a header shield icon on Orders and a row in More (opens the queue); an insurance order card has no inline decision button because the allocation lis… |
-| `provider-journeys.json#23` | backend | open | emergency.module ambulance removal (decision 14) | [backend] The app no longer has the ambulance provider type, dashboard, SOS dispatch, GPS router or fleet screens. These backend modules still exist and are for the reviewer to re… |
 | `provider-journeys.json#28` | backend | open | LabRegistration + Add Custom Test (Requires Approval) (hidden) | [backend] The wizard had "+ Add Custom Test (Requires Approval)" in the lab and radiology test menus; it only showed a toast and sent nothing. It is hidden now (M9). To bring it b… |
 | `provider-journeys.json#33` | backend | open | NursingFieldOps result upload | [backend] With result files the visit is completed through POST /home-care/bookings/:id/visit-report (the only route that stores attachments); that handler sends no `patient.notif… |
 | `provider-lab.json#0` | client | open | LabOrderDetail mock-name: openSampleForResults = async () => { | [client] mock-name (mock-scan): openSampleForResults = async () => { |
