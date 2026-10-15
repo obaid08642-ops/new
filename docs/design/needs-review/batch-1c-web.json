@@ -140,6 +140,6 @@
     "line": 1,
     "found": "The glyph is on the board (FIcon.dc.html, used by PharmacyOffers) and in packages/ui/icons/fill.ts, but the web mirror carries only the glyphs the web names. Using it made tools/design/sync-ui-components.mjs add it to the generated mirror (about 0.4 KB).",
     "suspect": "Generated file: regenerate with sync-ui-components.mjs when merging with other slices that also add glyphs.",
-    "review_status": "open (issue #529)"
+    "review_status": "not-a-problem: the filled icon storefront is in the mirror (patient-web/components-next/ui-generated/icons/fill.ts) (issue #529)"
   }
 ]

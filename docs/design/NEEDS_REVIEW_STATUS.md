@@ -8,7 +8,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| Patient app and web | 434 | 82 | 252 | 88 | 1 | 11 |
+| Patient app and web | 434 | 73 | 253 | 95 | 2 | 11 |
 | Other | 29 | 22 | 7 | 0 | 0 | 0 |
 | Admin | 97 | 8 | 56 | 33 | 0 | 0 |
 | Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
@@ -16,7 +16,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Patient journeys | 87 | 33 | 52 | 2 | 0 | 0 |
 | Provider app | 31 | 8 | 22 | 1 | 0 | 0 |
 | Provider journeys | 34 | 17 | 15 | 2 | 0 | 0 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| **Total** | **740** | **171** | **421** | **135** | **2** | **11** |
 
 ## By tag
 
@@ -25,8 +25,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | client | 169 | 51 | 90 | 28 | 0 | 0 |
 | owner | 100 | 21 | 34 | 42 | 1 | 2 |
 | backend | 233 | 35 | 168 | 26 | 0 | 4 |
-| untagged | 238 | 73 | 128 | 32 | 0 | 5 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| untagged | 238 | 64 | 129 | 39 | 1 | 5 |
+| **Total** | **740** | **171** | **421** | **135** | **2** | **11** |
 
 ## By file
 
@@ -77,11 +77,11 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-0-runtime.json` | 8 | 6 | 1 | 1 | 0 | 0 |
 | `batch-0-web.json` | 19 | 10 | 7 | 1 | 0 | 1 |
 | `batch-1a-app.json` | 19 | 3 | 4 | 11 | 0 | 1 |
-| `batch-1a-web.json` | 12 | 4 | 6 | 2 | 0 | 0 |
-| `batch-1b-app.json` | 12 | 4 | 5 | 2 | 0 | 1 |
-| `batch-1b-web.json` | 13 | 3 | 6 | 4 | 0 | 0 |
+| `batch-1a-web.json` | 12 | 0 | 7 | 5 | 0 | 0 |
+| `batch-1b-app.json` | 12 | 2 | 5 | 4 | 0 | 1 |
+| `batch-1b-web.json` | 13 | 1 | 6 | 5 | 1 | 0 |
 | `batch-1c-app.json` | 12 | 0 | 10 | 1 | 0 | 1 |
-| `batch-1c-web.json` | 13 | 1 | 9 | 3 | 0 | 0 |
+| `batch-1c-web.json` | 13 | 0 | 9 | 4 | 0 | 0 |
 | `batch-1d-app.json` | 20 | 2 | 11 | 7 | 0 | 0 |
 | `batch-1d-web.json` | 10 | 2 | 5 | 3 | 0 | 0 |
 | `final-pass-2.json` | 4 | 4 | 0 | 0 | 0 | 0 |
@@ -100,15 +100,16 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 7 | 0 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 6 | 7 | 0 | 0 | 0 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| **Total** | **740** | **171** | **421** | **135** | **2** | **11** |
 
-## Owner decisions (1)
+## Owner decisions (2)
 
 | # | Where | Screen / element | Question |
 |---:|---|---|---|
 | 1 | `13-web.json#13` `patient-web/lib/legal/embedded.ts:15` | /terms Embedded fallback text | [owner] The embedded copy (issue 755/783) is built from docs/legal, which are drafts with [placeholders] until a Saudi lawyer approves them, so it stays off today. After approval: update docs/legal, run node patient-web… |
+| 2 | `batch-1b-web.json#2` `patient-web/app/[locale]/cart/checkout/page.tsx:38` | /pharmacy/rx-order Order from a prescription: the link to /cart/checkout?prescr… | The old rx-order page, the old scan page and the app's rx-order all hand the patient to checkout with ?prescriptionId=, but the web checkout ignores that parameter and builds its order only from the browser cart, so an … |
 
-## Open and unverified (191)
+## Open and unverified (182)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -199,20 +200,11 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1a-app.json#8` | untagged | open (issue #456) | /pharmacy/product-detail Insurance row (hidden) | SPEC §A shows it only when the patient's insurer is in covered_by_insurance[] (company ids). The screen has no call for the patient's insurer and no id-to-name lookup for the row'… |
 | `batch-1a-app.json#16` | untagged | closed-unverified (issue #464: closed with no linked PR) | /pharmacy/wishlist Availability chip | getWishlist() sets available = !!med, where med is the row found in the medicines collection by id (no public-catalogue filter, no stock). The chip "متوفر / غير متوفر" therefore m… |
 | `batch-1a-app.json#18` | untagged | open (issue #466) | /pharmacy Six-language strings | 177 pharmacy.* keys were added to patient-app/src/i18n/locales/{ar,en,ur,hi,bn,tl}.json. The English, Urdu, Hindi, Bengali and Filipino text was written by the design session (and… |
-| `batch-1a-web.json#0` | untagged | open (issue #467) | /c/[[...category]] Whole public catalogue: category chips, product grid, produc… | On the seeded local backend (NODE_ENV=test) GET /public/categories/:locale answers {categories: []} and GET /public/categories/:locale/items answers total 0, so /ar/c shows the re… |
-| `batch-1a-web.json#8` | untagged | open (issue #475) | /medicines/compare Compare table entry point | The page needs ?ids=a,b (up to 4) and reads each with an unauthenticated GET /medicines/:id; nothing on the web links to it with ids (the app compares through POST /medicines/comp… |
-| `batch-1a-web.json#10` | untagged | open (issue #477) | /p/[slug] Missing product: status and robots | Production build against the seeded backend: GET /ar/p/test-missing answers HTTP 200 with <meta name="robots" content="index, follow"> although the page calls notFound() (the upst… |
-| `batch-1a-web.json#11` | untagged | open (issue #478) | /medicines/compare Extra upstream call on every render | Production build: a plain GET /ar/medicines/compare makes the server call GET /api/v1/public/product-by-id/ar/compare (404), i.e. the legacy [medicineId] route's metadata resolver… |
 | `batch-1b-app.json#0` | untagged | closed-unverified (issue #479: closed with no linked PR) | /pharmacy/pharmacist-chat Send a message, accept the substitute, reject it, ask… | Runtime probe on the seeded backend (2026-10-06): POST /pharmacy/chat/threads/:id/messages, /accept-substitute/:msgId, /reject and /remove-item answer 403 {"message":"Insufficient… |
 | `batch-1b-app.json#1` | owner | open (issue #480) | /pharmacy/pharmacist-chat Hub tile 'Pharmacist consult' and product page 'Ask a… | The screen is the substitute-negotiation chat of one order (GET /pharmacy/chat/threads?order_id=); a thread exists only when a pharmacy proposes a substitute for an order line. Th… |
 | `batch-1b-app.json#2` | owner | open (issue #481) | /pharmacy/cart Price per line, 'Total', 'Delivery', points toggle, 'Deliver to'… | The board Cart draws a unit price per line, an estimated total in the footer, a totals card (subtotal, delivery, points discount), a 'use your points' switch and a delivery addres… |
-| `batch-1b-app.json#3` | untagged | open (issue #482) | /pharmacy/rx-order Checkout reads the prescription instead of the cart lines, a… | checkout.tsx:17 reads `prescriptionUrl` from useCart(), but CartContext has no such field (it belongs to DiagnosticsCartContext), so it is always undefined; line 21 `orderItems = … |
-| `batch-1b-app.json#6` | untagged | open (issue #485) | /pharmacy/scan-prescription Each OCR line without a medicine id is added to the… | POST /prescriptions/upload calls medicines.createManualEntry for every line the OCR could not match (is_manual_entry) with the patient's own text; the app sends the OCR result as … |
-| `batch-1b-web.json#2` | untagged | open (issue #493) | /pharmacy/rx-order Order from a prescription: the link to /cart/checkout?prescr… | The old rx-order page, the old scan page and the app's rx-order all hand the patient to checkout with ?prescriptionId=, but the web checkout ignores that parameter and builds its … |
 | `batch-1b-web.json#8` | owner | open (issue #499) | /pharmacy/barcode No camera scan on the web; typed barcodes only | The app scans with the camera; the web page only ever had a typed field, while its text said 'point the camera at the barcode'. The new screen does not promise a scan. A browser s… |
-| `batch-1b-web.json#10` | untagged | open (issue #501) | /pharmacy/request Dedicated BFF route app/api/patient/pharmacy/orders/route.ts | The old request form was the only caller of this handler besides slice 1d's pharmacy-broadcast-submit.tsx. It takes the first cookie of nabd_access / nabd_refresh / nabd_device th… |
 | `batch-1c-app.json#1` | untagged | closed-unverified (issue #506: closed with no linked PR) | /pharmacy/broadcast-status Delivery time ('يصل خلال') of an offer | patientDtoAsync sends approx_delivery { eta_minutes: 60, label_ar: 'خلال ساعة تقريباً', label_en: 'Approximately within 1 hour' } for every offer: a constant, not a pharmacy or ro… |
-| `batch-1c-web.json#12` | untagged | open (issue #529) | /orders/[orderId]/offers Filled icon `storefront` (hero and offer tile) | The glyph is on the board (FIcon.dc.html, used by PharmacyOffers) and in packages/ui/icons/fill.ts, but the web mirror carries only the glyphs the web names. Using it made tools/d… |
 | `batch-1d-app.json#7` | untagged | open (issue #537) | /payments/result Callers in other batches reach the result with nothing to veri… | approval-pending.tsx:103,177 push /payments/processing with no params; the result screen now says it cannot confirm (old screen spun forever). copay, diagnostics and nursing pass … |
 | `batch-1d-app.json#18` | untagged | open (issue #548) | /payments/result Success board colours and confetti not drawn | The Success board is a dark full-bleed page with lime (#D7FF00) and confetti colours that are not tokens. |
 | `batch-1d-web.json#1` | untagged | open (issue #551) | /pharmacy/payment Payment provider not exercised | No gateway key on the local backend (intent answers 503) and no Mongo replica set (selection / insurance acceptance fail). Hosted checkout, return and webhook were checked only ag… |

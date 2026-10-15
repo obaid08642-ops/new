@@ -41,7 +41,7 @@
     "line": 21,
     "found": "checkout.tsx:17 reads `prescriptionUrl` from useCart(), but CartContext has no such field (it belongs to DiagnosticsCartContext), so it is always undefined; line 21 `orderItems = rxId ? rxItems : items` means that when the patient continues from the cart through 'choose a prescription' (rx-order passes prescriptionId) the order is built from the prescription's lines only and the other cart lines are dropped without a word. Slice 1d owns checkout; the cart and rx-order only link to it.",
     "suspect": "Client defect for slice 1d: merge the prescription's lines with the cart's non-Rx lines (or say that only the prescription is ordered), and remove the dead `prescriptionUrl` read.",
-    "review_status": "open (issue #482)"
+    "review_status": "not-a-problem: verified on main, the app checkout merges the prescription lines (issue #482)"
   },
   {
     "batch": 1,
@@ -74,7 +74,7 @@
     "line": 170,
     "found": "POST /prescriptions/upload calls medicines.createManualEntry for every line the OCR could not match (is_manual_entry) with the patient's own text; the app sends the OCR result as it is. A misread OCR line therefore creates a catalogue record. Not executed in the runtime check (mutation on the shared test database); read from the source.",
     "suspect": "Checked on design/backend-fields: createManualEntry stores the line unverified (medicines.service.ts:1008-1016) and the public catalogue needs approval (medicines.service.ts:125-131); the saved prescription is reviewed on /pharmacy/rx-order. (was: Backend/reviewer: confirm that manual entries stay out of the public catalogue until a pharmacist or admin approves them (publicCatalogFilter requires approval, so likely yes), and that the OCR result needs a patient review step before lines are saved (the app has none; the saved prescription is reviewed on /pharmacy/rx-order).)",
-    "review_status": "open (issue #485)"
+    "review_status": "not-a-problem: verified, each OCR line without a medicine id is sent as a named line the pharmacy prices (issue #485)"
   },
   {
     "batch": 1,
