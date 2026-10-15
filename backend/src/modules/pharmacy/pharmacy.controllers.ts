@@ -155,7 +155,8 @@ export class ProviderPharmacyController {
 @UseGuards(JwtAuthGuard)
 export class ProviderInventoryExtController {
   constructor(private svc: PharmacyInventoryExtService) {}
-  @Get('search') search(@CurrentUser() u: any, @Query('q') q?: string, @Query('barcode') bc?: string) { return this.svc.search(u, q, bc); }
+  // provider-journeys 1: include_catalogue=1 (the offer composer) adds the national catalogue items not in the inventory yet
+  @Get('search') search(@CurrentUser() u: any, @Query('q') q?: string, @Query('barcode') bc?: string, @Query('include_catalogue') cat?: string) { return this.svc.search(u, q, bc, cat === '1' || cat === 'true'); }
   @Post(':id/restock') restock(@CurrentUser() u: any, @Param('id') id: string, @Body() b: RestockDto) { return this.svc.restock(u, id, Number(b?.qty) || 0); }
   @Get('low-stock-alerts') alerts(@CurrentUser() u: any) { return this.svc.listLowStockAlerts(u); }
   @Post('low-stock-alerts/:id/ack') ack(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.acknowledgeAlert(u, id); }
