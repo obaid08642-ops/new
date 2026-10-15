@@ -38,7 +38,6 @@ export const CLIENT_NAMESPACES = [
   "Notifications",
   "NursingWeb",
   "NutritionWeb",
-  "Onboarding",
   "OrderReorder",
   "OrderTracking",
   "Orders",
