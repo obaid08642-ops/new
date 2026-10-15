@@ -271,7 +271,12 @@ describe("where an order belongs, from the states the backend really produces", 
     expect(to({ governedState: "IN_FULFILLMENT" })).toBe(`/en/orders/${ORDER}/tracking`);
   });
 
-  it("before a selection the server sends no governed state: the order's status decides (OFFERS_READY never comes)", () => {
+  it("before a selection the order detail says ORDER_BROADCASTING / OFFERS_READY (Q-3): the patient is still choosing", () => {
+    expect(to({ governedState: "OFFERS_READY", status: "broadcasting" })).toBe(`/en/pharmacy/broadcast-status?orderId=${ORDER}`);
+    expect(to({ governedState: "ORDER_BROADCASTING", status: "broadcasting" })).toBe(`/en/pharmacy/broadcast-status?orderId=${ORDER}`);
+  });
+
+  it("without a governed state the order's status decides", () => {
     expect(to({ status: "broadcasting" })).toBe(`/en/pharmacy/broadcast-status?orderId=${ORDER}`);
     expect(to({ status: "offer_selection_pending" })).toBe(`/en/pharmacy/broadcast-status?orderId=${ORDER}`);
     expect(to({ status: "negotiating_substitutes" })).toBe(`/en/pharmacy/broadcast-status?orderId=${ORDER}`);
