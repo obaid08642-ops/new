@@ -62,9 +62,9 @@ def main():
         href = link.get_attribute('href') or ''
         step('the product page links to compare it with its alternative', a in href and b in href, href)
         page.goto(f'{WEB}{href}', wait_until='load', timeout=60000)
-        table = page.locator('table')
+        table = page.locator('table').first
         table.wait_for(timeout=30000)
-        text = table.inner_text()
+        text = ' '.join(t.inner_text() for t in page.locator('table').all())
         step('the compare table has both medicines', f'كومبارول {tag} 500' in text and f'كومبارول {tag} 250' in text, text[:300])
         step('and the catalogue fields (strength 500mg / 250mg)', '500mg' in text and '250mg' in text, text[:300])
 
