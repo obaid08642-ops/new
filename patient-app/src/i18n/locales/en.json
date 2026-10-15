@@ -3225,5 +3225,8 @@
   "search.kind.nursingServices": "Nursing services",
   "insurance.benefits.requestsTitle": "Insurance requests: {count}",
   "insurance.benefits.insurerCovered": "Covered by insurer",
-  "insurance.benefits.youPaid": "You paid"
+  "insurance.benefits.youPaid": "You paid",
+  "pharmacy.offers.unavailable": "No pharmacy is available right now",
+  "pharmacy.offers.unavailableBody": "No nearby pharmacy replied in time. Please try again later.",
+  "pharmacy.offers.searchRound": "Round {round}: searching pharmacies within {km} km"
 }

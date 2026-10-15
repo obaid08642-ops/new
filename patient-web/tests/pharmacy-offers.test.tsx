@@ -86,6 +86,15 @@ describe("OfferList", () => {
   });
 });
 
+describe("decision 13: the search state the server sends", () => {
+  it("reads the widening search and the end with no pharmacy", () => {
+    expect(extractPatientPharmacyOrderProgress({ status: "broadcasting", search: { state: "expanding", round: 2, radius_km: 5, ends_at: "2026-10-15T10:00:00Z" } })?.search)
+      .toEqual({ state: "expanding", round: 2, radiusKm: 5, endsAt: "2026-10-15T10:00:00Z" });
+    expect(extractPatientPharmacyOrderProgress({ status: "manual_review", search: { state: "no_pharmacy_available" } })?.search).toEqual({ state: "no_pharmacy_available" });
+    expect(extractPatientPharmacyOrderProgress({ status: "broadcasting" })?.search).toBeUndefined();
+  });
+});
+
 describe("QuoteSection", () => {
   const base = { selected_offer_snapshot: { totals: { subtotal: 46.5, delivery_fee: 5, total: 51.5, currency: "SAR" }, hash: HASH }, selected_offer_hash: HASH, selected_offer_revision: 2 };
   const draw = async (order: Record<string, unknown>, screen: "offers" | "final" = "final") =>

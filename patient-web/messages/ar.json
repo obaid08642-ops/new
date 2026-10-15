@@ -2268,7 +2268,11 @@
       "generic": "تعذر تنفيذ الإجراء. لم يتغير شيء.",
       "alreadyPaid": "تم دفع هذا الطلب بالفعل."
     },
-    "lastFromYou": "أنت: {text}"
+    "lastFromYou": "أنت: {text}",
+    "unavailableTitle": "لا توجد صيدلية متاحة الآن",
+    "unavailableBody": "لم تردّ أي صيدلية قريبة في الوقت المحدد. حاول مرة أخرى لاحقًا.",
+    "unavailableAction": "العودة إلى الصيدلية",
+    "searchRound": "الجولة {round}: نبحث في الصيدليات ضمن {km} كم"
   },
   "PharmacyCheckout": {
     "title": "إتمام الطلب",

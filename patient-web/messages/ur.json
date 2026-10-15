@@ -2268,7 +2268,11 @@
       "generic": "عمل مکمل نہیں ہو سکا۔ کچھ تبدیل نہیں ہوا۔",
       "alreadyPaid": "اس آرڈر کی ادائیگی ہو چکی ہے۔"
     },
-    "lastFromYou": "آپ: {text}"
+    "lastFromYou": "آپ: {text}",
+    "unavailableTitle": "اس وقت کوئی فارمیسی دستیاب نہیں",
+    "unavailableBody": "کسی قریبی فارمیسی نے وقت پر جواب نہیں دیا۔ براہ کرم بعد میں دوبارہ کوشش کریں۔",
+    "unavailableAction": "فارمیسی پر واپس جائیں",
+    "searchRound": "راؤنڈ {round}: {km} کلومیٹر کے اندر فارمیسیاں تلاش ہو رہی ہیں"
   },
   "PharmacyCheckout": {
     "title": "چیک آؤٹ",

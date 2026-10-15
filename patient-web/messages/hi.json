@@ -2268,7 +2268,11 @@
       "generic": "कार्य पूरा नहीं हो सका। कुछ नहीं बदला।",
       "alreadyPaid": "इस ऑर्डर का भुगतान हो चुका है।"
     },
-    "lastFromYou": "आप: {text}"
+    "lastFromYou": "आप: {text}",
+    "unavailableTitle": "अभी कोई फ़ार्मेसी उपलब्ध नहीं है",
+    "unavailableBody": "किसी नज़दीकी फ़ार्मेसी ने समय पर जवाब नहीं दिया। कृपया बाद में फिर कोशिश करें।",
+    "unavailableAction": "फ़ार्मेसी पर वापस जाएँ",
+    "searchRound": "राउंड {round}: {km} किमी के भीतर फ़ार्मेसी खोजी जा रही हैं"
   },
   "PharmacyCheckout": {
     "title": "चेकआउट",

@@ -2268,7 +2268,11 @@
       "generic": "Hindi makumpleto ang aksyon. Walang nagbago.",
       "alreadyPaid": "Bayad na ang order na ito."
     },
-    "lastFromYou": "Ikaw: {text}"
+    "lastFromYou": "Ikaw: {text}",
+    "unavailableTitle": "Walang available na botika ngayon",
+    "unavailableBody": "Walang malapit na botikang sumagot sa takdang oras. Subukan ulit mamaya.",
+    "unavailableAction": "Bumalik sa botika",
+    "searchRound": "Round {round}: naghahanap ng botika sa loob ng {km} km"
   },
   "PharmacyCheckout": {
     "title": "Pag-checkout",

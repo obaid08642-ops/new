@@ -3225,5 +3225,8 @@
   "search.kind.nursingServices": "नर्सिंग सेवाएं",
   "insurance.benefits.requestsTitle": "बीमा अनुरोध: {count}",
   "insurance.benefits.insurerCovered": "बीमा कंपनी ने कवर किया",
-  "insurance.benefits.youPaid": "आपने भुगतान किया"
+  "insurance.benefits.youPaid": "आपने भुगतान किया",
+  "pharmacy.offers.unavailable": "अभी कोई फ़ार्मेसी उपलब्ध नहीं है",
+  "pharmacy.offers.unavailableBody": "किसी नज़दीकी फ़ार्मेसी ने समय पर जवाब नहीं दिया। कृपया बाद में फिर कोशिश करें।",
+  "pharmacy.offers.searchRound": "राउंड {round}: {km} किमी के भीतर फ़ार्मेसी खोजी जा रही हैं"
 }

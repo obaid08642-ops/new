@@ -3225,5 +3225,8 @@
   "search.kind.nursingServices": "Mga serbisyo ng pag-aalaga",
   "insurance.benefits.requestsTitle": "Mga kahilingan sa insurance: {count}",
   "insurance.benefits.insurerCovered": "Sinagot ng insurer",
-  "insurance.benefits.youPaid": "Binayaran mo"
+  "insurance.benefits.youPaid": "Binayaran mo",
+  "pharmacy.offers.unavailable": "Walang available na botika ngayon",
+  "pharmacy.offers.unavailableBody": "Walang malapit na botikang sumagot sa takdang oras. Subukan ulit mamaya.",
+  "pharmacy.offers.searchRound": "Round {round}: naghahanap ng botika sa loob ng {km} km"
 }

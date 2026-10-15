@@ -3225,5 +3225,8 @@
   "search.kind.nursingServices": "نرسنگ خدمات",
   "insurance.benefits.requestsTitle": "انشورنس درخواستیں: {count}",
   "insurance.benefits.insurerCovered": "انشورنس کمپنی نے ادا کیا",
-  "insurance.benefits.youPaid": "آپ نے ادا کیا"
+  "insurance.benefits.youPaid": "آپ نے ادا کیا",
+  "pharmacy.offers.unavailable": "اس وقت کوئی فارمیسی دستیاب نہیں",
+  "pharmacy.offers.unavailableBody": "کسی قریبی فارمیسی نے وقت پر جواب نہیں دیا۔ براہ کرم بعد میں دوبارہ کوشش کریں۔",
+  "pharmacy.offers.searchRound": "راؤنڈ {round}: {km} کلومیٹر کے اندر فارمیسیاں تلاش ہو رہی ہیں"
 }
