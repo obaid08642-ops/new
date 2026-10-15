@@ -8,7 +8,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| Patient app and web | 434 | 82 | 252 | 88 | 1 | 11 |
+| Patient app and web | 434 | 81 | 253 | 88 | 1 | 11 |
 | Other | 29 | 22 | 7 | 0 | 0 | 0 |
 | Admin | 97 | 8 | 56 | 33 | 0 | 0 |
 | Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
@@ -16,17 +16,17 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Patient journeys | 87 | 33 | 52 | 2 | 0 | 0 |
 | Provider app | 31 | 8 | 22 | 1 | 0 | 0 |
 | Provider journeys | 34 | 17 | 15 | 2 | 0 | 0 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| **Total** | **740** | **179** | **421** | **128** | **1** | **11** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | client | 169 | 51 | 90 | 28 | 0 | 0 |
-| owner | 100 | 21 | 34 | 42 | 1 | 2 |
+| owner | 100 | 20 | 35 | 42 | 1 | 2 |
 | backend | 233 | 35 | 168 | 26 | 0 | 4 |
 | untagged | 238 | 73 | 128 | 32 | 0 | 5 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| **Total** | **740** | **179** | **421** | **128** | **1** | **11** |
 
 ## By file
 
@@ -56,7 +56,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `4-web.json` | 7 | 1 | 6 | 0 | 0 | 0 |
 | `5-app.json` | 18 | 2 | 10 | 6 | 0 | 0 |
 | `5-web.json` | 11 | 2 | 9 | 0 | 0 | 0 |
-| `6-app.json` | 10 | 3 | 3 | 4 | 0 | 0 |
+| `6-app.json` | 10 | 2 | 4 | 4 | 0 | 0 |
 | `6-web.json` | 8 | 1 | 5 | 2 | 0 | 0 |
 | `7-app.json` | 14 | 2 | 5 | 7 | 0 | 0 |
 | `7-web.json` | 16 | 1 | 7 | 8 | 0 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 7 | 0 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 6 | 7 | 0 | 0 | 0 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| **Total** | **740** | **179** | **421** | **128** | **1** | **11** |
 
 ## Owner decisions (1)
 
@@ -108,7 +108,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---:|---|---|---|
 | 1 | `13-web.json#13` `patient-web/lib/legal/embedded.ts:15` | /terms Embedded fallback text | [owner] The embedded copy (issue 755/783) is built from docs/legal, which are drafts with [placeholders] until a Saudi lawyer approves them, so it stays off today. After approval: update docs/legal, run node patient-web… |
 
-## Open and unverified (191)
+## Open and unverified (190)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -145,7 +145,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `5-app.json#14` | owner | open (decided 2026-10-15, reviewer for the owner: remove th… | /health/sleep-score Static sleep tips | [owner] Four educational tips are static text (translated): confirm they stay. |
 | `5-web.json#6` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /health/vitals Today tab | [owner] Today shows the latest reading of each vital (summary endpoint), not only readings taken today. Confirm that is what Today means. |
 | `5-web.json#9` | client | open (issue #682) | /health Dead API helpers | [client] getPatientReports and parseReports (lib/api/reports*.ts, vitals-server.ts) have no screen left; kept with their tests for the reviewer to delete. |
-| `6-app.json#0` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /family/member-health Book on their behalf | [owner] Opens the consultations tab without the member: booking for a member is not wired (the booking flow takes no member); the permission 'booking' exists but nothing uses it. |
 | `6-app.json#4` | client | open (issue #688) | /family/calendar Date field | [client] Event date is typed as ISO text; a date and time picker in the shared kit would replace it (feature, not done here). |
 | `6-app.json#9` | client | open (issue #693) | /family/calendar Person with no family group | [client] Runtime check: the seeded patient has no group, so GET /family/calendar answers 404 and GET /family/chat/messages 403 (not_active_family_member); both screens show the ge… |
 | `6-web.json#0` | client | open (issue #694) | /family/add Scan QR tab | [client] The web has no camera scanner (the code or link is pasted), as before; the app scans. Not added: it is a feature, and the camera permission handling stays as it was. |
