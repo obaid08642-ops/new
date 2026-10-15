@@ -170,6 +170,7 @@ export async function DoctorsView({ params, searchParams }: Props) {
                   price={doctor.price}
                   bookLabel={c("book")}
                   verifiedLabel={doctor.verified ? t("verifiedDoctor") : undefined}
+                  photoSrc={doctor.photo}
                 />
               </li>
             );

@@ -1150,7 +1150,10 @@
     "allSpecialties": "सभी विशेषज्ञताएं",
     "paymentLabel": "भुगतान",
     "payment_insurance": "बीमा स्वीकार",
-    "payment_cash": "केवल नकद"
+    "payment_cash": "केवल नकद",
+    "doctorPhotoAlt": "{name} की तस्वीर",
+    "clinicPhotosTitle": "क्लिनिक की तस्वीरें",
+    "clinicPhotoAlt": "क्लिनिक की तस्वीर {n}"
   },
   "LabsServices": {
     "eyebrow": "प्रयोगशाला देखभाल",

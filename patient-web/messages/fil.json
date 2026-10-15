@@ -1150,7 +1150,10 @@
     "allSpecialties": "Lahat ng espesyalidad",
     "paymentLabel": "Bayad",
     "payment_insurance": "Tumatanggap ng insurance",
-    "payment_cash": "Cash lang"
+    "payment_cash": "Cash lang",
+    "doctorPhotoAlt": "Larawan ni {name}",
+    "clinicPhotosTitle": "Mga larawan ng klinika",
+    "clinicPhotoAlt": "Larawan ng klinika {n}"
   },
   "LabsServices": {
     "eyebrow": "Pangangalaga sa laboratoryo",

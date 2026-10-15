@@ -1150,7 +1150,10 @@
     "allSpecialties": "All specialties",
     "paymentLabel": "Payment",
     "payment_insurance": "Accepts insurance",
-    "payment_cash": "Cash only"
+    "payment_cash": "Cash only",
+    "doctorPhotoAlt": "Photo of {name}",
+    "clinicPhotosTitle": "Clinic photos",
+    "clinicPhotoAlt": "Clinic photo {n}"
   },
   "LabsServices": {
     "eyebrow": "Laboratory care",

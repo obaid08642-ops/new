@@ -21,13 +21,15 @@ export type DoctorListCardProps = {
   bookLabel: string;
   /** The verified seal's accessible name; given only for an admin-approved, licence-verified doctor. */
   verifiedLabel?: string;
+  /** The doctor's own photo (2-web#3); the card draws its initials frame without one. */
+  photoSrc?: string;
 };
 
 /**
  * One doctor as canvas/Consult draws it (the shared DoctorCard): the whole card is the link to the doctor's page. The
  * next free time is written in the reader's own time zone once the page is on screen, as the order dates are.
  */
-export function DoctorListCard({ locale, href, name, grade, specialty, place, modes, rating, nextSlotIso, price, bookLabel, verifiedLabel }: DoctorListCardProps) {
+export function DoctorListCard({ locale, href, name, grade, specialty, place, modes, rating, nextSlotIso, price, bookLabel, verifiedLabel, photoSrc }: DoctorListCardProps) {
   const [nextSlot, setNextSlot] = useState<string | undefined>(undefined);
   useEffect(() => {
     if (!nextSlotIso) { setNextSlot(undefined); return; }
@@ -49,6 +51,7 @@ export function DoctorListCard({ locale, href, name, grade, specialty, place, mo
       currency={money?.currency}
       bookLabel={bookLabel}
       verifiedLabel={verifiedLabel}
+      photoSrc={photoSrc}
     />
   );
 }

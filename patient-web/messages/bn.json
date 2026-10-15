@@ -1150,7 +1150,10 @@
     "allSpecialties": "সব বিশেষত্ব",
     "paymentLabel": "পেমেন্ট",
     "payment_insurance": "বিমা গ্রহণ করে",
-    "payment_cash": "শুধু নগদ"
+    "payment_cash": "শুধু নগদ",
+    "doctorPhotoAlt": "{name}-এর ছবি",
+    "clinicPhotosTitle": "ক্লিনিকের ছবি",
+    "clinicPhotoAlt": "ক্লিনিকের ছবি {n}"
   },
   "LabsServices": {
     "eyebrow": "ল্যাবরেটরি কেয়ার",

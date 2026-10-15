@@ -1150,7 +1150,10 @@
     "allSpecialties": "تمام تخصصات",
     "paymentLabel": "ادائیگی",
     "payment_insurance": "انشورنس قبول",
-    "payment_cash": "صرف نقد"
+    "payment_cash": "صرف نقد",
+    "doctorPhotoAlt": "{name} کی تصویر",
+    "clinicPhotosTitle": "کلینک کی تصاویر",
+    "clinicPhotoAlt": "کلینک کی تصویر {n}"
   },
   "LabsServices": {
     "eyebrow": "لیبارٹری کیئر",

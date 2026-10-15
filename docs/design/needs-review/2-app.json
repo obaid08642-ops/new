@@ -151,7 +151,7 @@
     "line": 256,
     "found": "[backend] Fixed on design/backend-fields: the verified badge (verified, care.service.ts:497), the SCFHS number and the public rating / reviews_count are drawn; the rating-distribution bars and clinic photos with distance stay undrawn (no field). Backend: care.service.ts:399 rebuilds clinicPhotos from clinic_images, which toPublicDoctor does not copy, so the detail always sends an empty clinicPhotos.",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open"
+    "review_status": "fixed #1503 (issue #395)"
   },
   {
     "batch": 2,
