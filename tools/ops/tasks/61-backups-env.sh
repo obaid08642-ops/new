@@ -13,7 +13,7 @@
 # The 30-day expiry is set on the bucket by the r2 step (Cloudflare API with the Global API Key): the server's key can
 # only read and write objects in the bucket, not change its settings. Values are never printed, names only.
 set -u
-SHA=${OPS_RELEASE_SHA:-0579c8ccc1a690e0dd498871b8b9fce8a0d5fcdf}
+SHA=${OPS_RELEASE_SHA:-ce53c57f79e7a59fac0aae8ed905cbceaf262cdd}
 S8=${SHA:0:8}
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
 B=${OPS_BACKUP_DIR:-/opt/nabdah/backups}

@@ -136,8 +136,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 75
     env:
-      SHA: 074617003300ad68cf6e76ecde96bfc7ff1ee0f0   # PR #1457 head (catalog migration fix) on main after #1443/#1446/#1447; switched to the merge commit once merged
-      OPS_RELEASE_SHA: 074617003300ad68cf6e76ecde96bfc7ff1ee0f0
+      SHA: ce53c57f79e7a59fac0aae8ed905cbceaf262cdd   # main after #1443 (nginx resolve), #1446 (disk alert), #1447 (D-33), #1457 (catalog migration fix); the production run pins the same SHA
+      OPS_RELEASE_SHA: ce53c57f79e7a59fac0aae8ed905cbceaf262cdd
     steps:
       - uses: actions/checkout@v4
       - name: Build the release from main (same script the server-ops workflow runs)
