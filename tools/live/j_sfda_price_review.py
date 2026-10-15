@@ -24,6 +24,9 @@ def main():
     step('admin sets the catalogue (SFDA) price', r.ok, r)
 
     journey('decision 12: an offer line above the catalogue price is accepted and flagged')
+    # provider-app context toggleOnline(): the pharmacy is online and ready for orders
+    r = pharm.req('POST', '/provider/ops/availability/toggle-instant', None, idem=False)
+    step('the pharmacy goes online', r.ok and r.get('instant_available') is True, r)
     pat = Client(j_accounts.app_signup(label='sfda-buyer')['token'], 'patient')
     addr = j_pharmacy.patient_address(pat)
     key = f'sfda-{uuid.uuid4().hex[:12]}'
