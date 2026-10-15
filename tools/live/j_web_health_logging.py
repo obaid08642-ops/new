@@ -30,7 +30,8 @@ def main():
     def submit(form_label, fills, choice=None):
         form = page.get_by_role('form', name=form_label)
         form.wait_for(timeout=30000)
-        page.wait_for_load_state('networkidle')
+        # the form is interactive once React has hydrated it (its DOM node carries React's fiber key)
+        page.wait_for_function("(name) => { const f = [...document.querySelectorAll('form')].find((x) => x.getAttribute('aria-label') === name); return !!f && Object.keys(f).some((k) => k.startsWith('__react')); }", arg=form_label, timeout=30000)
         if choice:
             # the choice is a client button: click until the page (hydrated) marks it pressed
             btn = form.get_by_role('button', name=choice, exact=True)
