@@ -121,7 +121,7 @@ export class LabResultsService {
     const bookingFilter: any = { 'reports.id': id };
     if (user.role !== 'admin') bookingFilter.patient_id = user.id;
     const booking: any = await this.conn.collection('labbookings').findOne(bookingFilter, {
-      projection: { _id: 0, id: 1, patient_id: 1, state: 1, reports: 1 },
+      projection: { _id: 0, id: 1, patient_id: 1, state: 1, reports: 1, items: 1, provider_name: 1 },
     });
     const report = booking?.reports?.find((entry: any) => entry?.id === id);
     if (!booking || !report) throw new NotFoundException();
@@ -135,6 +135,13 @@ export class LabResultsService {
       url: report.url,
       notes: report.notes,
       uploaded_at: report.uploaded_at,
+      reported_at: report.uploaded_at,
+      // decision 19: the values the lab entered (labs.service uploadReport), the booked tests' names and the lab's name
+      entries: Array.isArray(report.entries) ? report.entries : [],
+      critical: report.critical === true,
+      service_name_ar: (booking.items || []).map((i: any) => i?.name_ar).filter(Boolean).join(' + ') || undefined,
+      service_name_en: (booking.items || []).map((i: any) => i?.name_en).filter(Boolean).join(' + ') || undefined,
+      reported_by_name: booking.provider_name || undefined,
       state: booking.state,
       source: 'lab_booking',
     };

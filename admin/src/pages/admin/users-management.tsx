@@ -381,10 +381,6 @@ export default function UsersManagementPage() {
                       <p className="text-2xl font-black text-slate-800">{userOverview.activity?.appointments_total ?? 0}</p>
                       <p className="text-xs text-slate-500 font-bold">المواعيد ({activityDays ? `${activityDays} يوم` : 'كل الفترات'})</p>
                     </div>
-                    <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-center">
-                      <p className="text-2xl font-black text-slate-800">{userOverview.activity?.sos_total ?? 0}</p>
-                      <p className="text-xs text-slate-500 font-bold">بلاغات طوارئ</p>
-                    </div>
                     {providerFile && (
                       <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-center">
                         <p className="text-2xl font-black text-slate-800">{userOverview.activity?.provider_requests_total ?? 0}</p>

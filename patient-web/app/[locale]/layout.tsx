@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { OfflineSupport } from "@/components-next/offline-support";
 import Link from "next/link";
 import "../globals.css";
 import { THEME_COLOR } from "../design-tokens/theme-color";
@@ -19,7 +20,6 @@ import { WebMcpLoader } from "@/components-next/web-mcp-loader";
 import { pickClientMessages } from "@/lib/i18n/client-messages";
 import { ThemeToggle } from "@/components-next/theme-toggle";
 import { THEME_INIT_SCRIPT } from "@/app/theme";
-import { ServiceWorkerRegister } from "@/components-next/service-worker-register";
 import { ModuleRouteGate, ModulesProvider } from "@/components-next/modules/modules-provider";
 import { getDisabledModules } from "@/lib/api/public-config-server";
 import { isPathHidden } from "@/lib/modules";
@@ -114,6 +114,7 @@ export default async function LocaleLayout({ children, params }: Props) {
       <body>
         <NextIntlClientProvider messages={messages}>
           <WebMcpLoader locale={typedLocale} />
+          <OfflineSupport />
           <div className={`shell ${fontVariables}`} lang={typedLocale} dir={getDirection(typedLocale)}>
             {/*
               12.A3 — the theme has to be known before the first pixel, or every
