@@ -6,6 +6,7 @@ import { isLocale, locales, type Locale } from "@/lib/i18n";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { readPublicEntity } from "@/lib/api/public-read";
+import { patientApiUrl } from "@/lib/api/upstream";
 import { readSegment, type ExploreResult } from "@/lib/api/entity-explore";
 import { CardGrid, LandingEmpty, LandingPage, LandingSection, Notice, ServiceCard } from "@/components-next/landing/landing-kit";
 import { pickText } from "@/components-next/diagnostics/diag-parts";
@@ -13,12 +14,11 @@ import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 
 type Props = { params: Promise<{ locale: string; citySlug: string }> };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus";
 const PHARMACY = SERVICE_ICONS.pharmacy;
 
 async function fetchPharmaciesData(citySlug: string) {
   const json = await readPublicEntity<ExploreResult>(
-    `${API_BASE}/api/v1/entity-graph/explore?city=${encodeURIComponent(citySlug)}`,
+    patientApiUrl(`/entity-graph/explore?city=${encodeURIComponent(readSegment(citySlug))}`),
     3600,
   );
   if (!json) return null;
@@ -113,7 +113,7 @@ export default async function PharmaciesCityPage({ params }: Props) {
       <Notice>{t("pharmacies.notice")}</Notice>
 
       {!hasFacilities ? (
-        <LandingEmpty icon={PHARMACY.icon} tone={PHARMACY.tone} title={t("pharmacies.emptyTitle", { city: decCity })} body={t("pharmacies.emptyBody", { city: decCity })} actionLabel={t("pharmacies.register")} actionHref={`/${locale}/consultations/doctors`} />
+        <LandingEmpty icon={PHARMACY.icon} tone={PHARMACY.tone} title={t("pharmacies.emptyTitle", { city: decCity })} body={t("pharmacies.emptyBody", { city: decCity })} actionLabel={t("pharmacies.register")} actionHref={`/${locale}/provider-info`} />
       ) : (
         <LandingSection id="pharmacies" title={t("pharmacies.list")}>
           <CardGrid label={t("pharmacies.list")}>
