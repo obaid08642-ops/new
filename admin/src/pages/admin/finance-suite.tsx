@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { adminFetch, adminMutation, apiErrorMessage, toQuery } from '@/lib/admin-client';
 import { DataTable } from '@/components/DataTable';
+import { useCan } from '@/components/AdminGuard';
 
 type Revenue = { granularity: string; range: { from: string; to: string }; series: Array<Record<string, string | number>>; mom: Array<{ vertical: string; current: number; previous: number; delta_pct: number | null }>; refunds: { gateway_refunded: number; wallet_credits_issued: number }; totals: Record<string, number> };
 type Commissions = { config_used: { rates: Record<string, number>; vat_rate: number; source: string }; by_vertical: Record<string, { gross: number; commission: number; vat: number; net_to_provider: number; count: number }>; totals: { gross: number; commission: number; vat: number; net_to_provider: number; count: number } };
@@ -15,6 +16,10 @@ const monthAgo = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10)
 const colors = ['#0f766e', '#0284c7', '#7c3aed', '#d97706', '#db2777', '#475569'];
 
 export default function FinanceSuitePage() {
+  // The commission settings need finance.config.edit and payout decisions finance.payout.approve (backend
+  // admin-finance.controller); a role with finance.read only reads the page without controls that answer 403.
+  const canConfig = useCan('finance.config.edit');
+  const canPayout = useCan('finance.payout.approve');
   const [from, setFrom] = useState(monthAgo); const [to, setTo] = useState(today); const [granularity, setGranularity] = useState('day');
   const [revenue, setRevenue] = useState<Revenue | null>(null); const [commissions, setCommissions] = useState<Commissions | null>(null); const [reconciliation, setReconciliation] = useState<Reconciliation | null>(null); const [payouts, setPayouts] = useState<Payouts | null>(null);
   const [providerId, setProviderId] = useState(''); const [statement, setStatement] = useState<ProviderStatement | null>(null); const [reason, setReason] = useState(''); const [loading, setLoading] = useState(true); const [error, setError] = useState(''); const [saving, setSaving] = useState(false);
@@ -56,7 +61,7 @@ export default function FinanceSuitePage() {
     { key: 'vat', header: 'VAT', render: ([, row]) => row.vat },
     { key: 'net', header: 'صافي المزود', render: ([, row]) => row.net_to_provider },
   ]}
-/></div><form onSubmit={saveConfig} className="mt-5 grid gap-3 rounded-xl bg-amber-50 p-4 md:grid-cols-2"><label className="text-sm">نسب العمولات (JSON)<textarea value={ratesText} onChange={(e) => setRatesText(e.target.value)} className="mt-1 min-h-28 w-full rounded border p-2 font-mono text-xs"/></label><div className="space-y-3"><label className="block text-sm">نسبة VAT<input value={vatRate} onChange={(e) => setVatRate(e.target.value)} type="number" min="0" max="0.5" step="0.001" className="mt-1 w-full rounded border p-2"/></label><label className="block text-sm">سبب التغيير<textarea value={reason} onChange={(e) => setReason(e.target.value)} minLength={10} className="mt-1 min-h-20 w-full rounded border p-2"/></label><button disabled={saving} className="rounded bg-amber-700 px-4 py-2 font-bold text-white disabled:opacity-50">حفظ وتدقيق الإعدادات</button></div></form></article>
+/></div>{canConfig ? <form onSubmit={saveConfig} className="mt-5 grid gap-3 rounded-xl bg-amber-50 p-4 md:grid-cols-2"><label className="text-sm">نسب العمولات (JSON)<textarea value={ratesText} onChange={(e) => setRatesText(e.target.value)} className="mt-1 min-h-28 w-full rounded border p-2 font-mono text-xs"/></label><div className="space-y-3"><label className="block text-sm">نسبة VAT<input value={vatRate} onChange={(e) => setVatRate(e.target.value)} type="number" min="0" max="0.5" step="0.001" className="mt-1 w-full rounded border p-2"/></label><label className="block text-sm">سبب التغيير<textarea value={reason} onChange={(e) => setReason(e.target.value)} minLength={10} className="mt-1 min-h-20 w-full rounded border p-2"/></label><button disabled={saving} className="rounded bg-amber-700 px-4 py-2 font-bold text-white disabled:opacity-50">حفظ وتدقيق الإعدادات</button></div></form> : null}</article>
     <article className="rounded-2xl border bg-white p-6 shadow-sm"><h2 className="text-xl font-bold">تسوية Moyasar مقابل المنصة</h2><div className="mt-4 grid gap-3 md:grid-cols-3"><div className="rounded-lg bg-slate-50 p-3">Moyasar: <strong>{reconciliation?.gateway_total_sar ?? 0} ر.س</strong></div><div className="rounded-lg bg-slate-50 p-3">المنصة: <strong>{reconciliation?.platform_total_sar ?? 0} ر.س</strong></div><div className={`rounded-lg p-3 ${reconciliation?.variance_sar ? 'bg-rose-50 text-rose-800' : 'bg-teal-50 text-teal-800'}`}>الفرق: <strong>{reconciliation?.variance_sar ?? 0} ر.س</strong></div></div><p className="mt-3 text-xs text-slate-500">{reconciliation?.note}</p></article>
     <article className="rounded-2xl border bg-white p-6 shadow-sm"><h2 className="text-xl font-bold">دفعات المزودين</h2><p className="mt-1 text-xs text-slate-500">حد الاعتماد الثنائي: {payouts?.dual_approval_threshold_sar ?? '—'} ر.س. لا يسمح backend بالاعتماد الذاتي أو اعتمادين من نفس المدير.</p><div className="mt-4 overflow-x-auto"><DataTable
   bare
@@ -70,7 +75,7 @@ export default function FinanceSuitePage() {
     { key: 'amount', header: 'المبلغ', render: (row) => `${row.amount ?? '—'} ر.س` },
     { key: 'state', header: 'الحالة', render: (row) => `${row.state || '—'} ${row.approved_stage_one_name ? `· ${row.approved_stage_one_name}` : ''}` },
     { key: 'actions', header: 'الإجراء', actions: true, render: (row) => (
-      <div className="flex gap-2"><button disabled={saving} onClick={() => void payoutDecision(row, 'approve')} className="rounded bg-teal-700 px-2 py-1 text-xs text-white">اعتماد</button><button disabled={saving} onClick={() => void payoutDecision(row, 'reject')} className="rounded border px-2 py-1 text-xs">رفض</button></div>
+      canPayout ? <div className="flex gap-2"><button disabled={saving} onClick={() => void payoutDecision(row, 'approve')} className="rounded bg-teal-700 px-2 py-1 text-xs text-white">اعتماد</button><button disabled={saving} onClick={() => void payoutDecision(row, 'reject')} className="rounded border px-2 py-1 text-xs">رفض</button></div> : null
     ) },
   ]}
 /></div></article>

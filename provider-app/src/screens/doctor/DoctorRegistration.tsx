@@ -239,6 +239,8 @@ const DOCTOR_WIZARD: WizardConfig<DoctorRegData> = {
       ar: 'بالتوقيع أدناه، أقر بأن جميع البيانات المدخلة صحيحة وأتحمل مسؤوليتها القانونية، وأوافق على شروط نبض بلس لاستخدام المنصة.',
       en: 'By signing below, I acknowledge that all provided data is correct, and I agree to Nabd+ terms of use.',
     },
+    // owner decision B25 (2026-10-14): all six provider types accept the terms before submitting
+    agree: { ar: 'أوافق على شروط وأحكام نبض بلس وسياسة الخصوصية، وأقر بصحة البيانات.', en: 'I agree to Nabd+ Terms & Conditions and Privacy Policy, and confirm all data is accurate.' },
     signatureTitle: { ar: 'التوقيع', en: 'Signature' },
     submitLabel: { ar: 'تأكيد وإرسال الطلب للإدارة', en: 'Submit for Admin Approval' },
     contractPricing: (d) => [
