@@ -30,7 +30,7 @@
     "line": 295,
     "found": "[client] Button \"{t.titleAr} {t.drugs.length}\" shows a success message without sending a request.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "fixed #1504"
   },
   {
     "batch": "provider",

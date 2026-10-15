@@ -27,6 +27,19 @@ export class ManualRequestDto {
   @IsOptional()
   @IsString()
   details?: string;
+
+  /** Journeys 74 (decision 12): how many boxes the patient wants. */
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(99)
+  qty?: number;
+
+  /** Journeys 74: a photo of the box (an image the patient uploaded through POST /storage/upload). */
+  @IsOptional()
+  @IsString()
+  @MaxLength(128)
+  photo_id?: string;
 }
 
 export class CreateDto {

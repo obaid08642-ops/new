@@ -11,47 +11,41 @@ One line per merged PR: date, PR, lines closed, counts left (`NEEDS_REVIEW_STATU
 | 2026-10-15 | #1434-#1439 verified on main (patient, journeys, owner A items) | 71 lines verified; issue 1020 | 265 / 11 |
 | 2026-10-15 | #1498 batch: #1448 #1450 #1451 #1452 #1453 #1455 #1456 #1458 #1460 #1461 #1462 #1465 #1466 #1467 #1469 #1470 #1474 #1482 (first part) #1494 | see each PR | 119 / 0 |
 
-## Open PRs waiting for review (2026-10-15, after #1498)
+## Open PRs waiting for review (2026-10-15, after batches #1498, b and c #1519)
 
-Each has red on `main` and green on the branch in its body; main is merged into each, lines are set to `fixed #PR` in the PR.
-Every open branch carries the live-gate login-throttle fix (#1502), so a sign-in 429 no longer fails `live`.
+Each has red on `main` and green on the branch in its body. `main` was merged into each once; the needs-review lines are
+set to `fixed #PR` in the PR.
 
 | PR | What | Lines / issues |
 |---|---|---|
-| #1464 | provider payouts: one balance, server minimum, open second approval | provider-journeys 18-20 |
-| #1468 | owner questions 31-42 (docs) | question 40 is the same item as 30; batch-1b-web 2 was verified fixed on main |
-| #1471 | B8 part 1: no fixed medical text | 3-app 6, 7; 5-app 14 |
-| #1472 | Rx and online-only flags in every medicine list | rx-rules-app 0-3, 5 |
-| #1473 | web notifications: switches honoured, web push | batch-0-web 9, 16; issues 438, 445 |
-| #1476 | web: one cancel/reschedule page, one payment step | journeys 7, 42 |
-| #1477 | decision leftovers | issues 327, 329, 330, 337, 339 |
-| #1478 | web home nursing booking | journeys 60, 63; tooling 0; 3-web 2; 4-web 1 |
-| #1480 | lab result push opens the result | issue 338 |
-| #1481 | one AI assistant endpoint | issue 326 |
-| #1482 | ambulance leftovers: dead emergency data paths, retired role kept readable | issue 333; provider-journeys 23 |
-| #1484 | app co-pay through capabilities and intent | issues 820, 832, 848 |
-| #1485 | SFDA price review | issue 331 |
-| #1486 | open lines verified on main | issues 1042, 1043, 1057, 422, 568, 569 |
-| #1487 | offers wait never endless | issues 332, 1011 |
-| #1489 | password reset by link; notification routes; one API base URL | issues 435, 416, 410, 411 |
-| #1490, #1495, #1496 | family: book for a member; invite/scan/join; caregiver medicines | 684; 693, 688, 694, 499; journeys 67, 68 |
-| #1491 | public search; Google popup; onboarding | issues 439, 430, 436, 437 |
-| #1493 | provider proposals reach an admin page | provider-journeys 28; 1169 |
-| #1499 | pharmacy prices order lines from the national catalogue (CodeQL: string-only query values) | provider-journeys 1, 4 |
-| #1500 | compare a medicine with its alternatives | batch-1a-web 8 and checked lines |
-| #1501 | lines checked on main | 2-app 0, batch-0-runtime 7, final-pass-2 0-3, admin-ops-monitoring 4, admin-journeys 14 |
-| #1502 | live gate waits out the login throttle | tooling |
-| #1503 | doctor photos reach patients | 2-web 3, 2-app 13; issues 401, 395 |
-| #1504 | provider side: role guards, template use, tariffs | provider-admin-ish 2, provider-shared 2, provider-doctor 2, provider-facility 6, provider-journeys 33 |
-| #1505 | admin catalogue: controlled flag, flag history, price review queue; provider jobs inbox | admin-catalogue 18-20; final-pass 2, 3; provider-lab 0-2 checked |
+| #1486 | open lines verified on main | journeys 33, 48; B0 422; maternity 568, 569 (journeys 34 stays owner question 39, as on main) |
+| #1487 | offers wait never endless (live fixed: the journey wrote to an empty-named DB in CI) | issues 332, 1011 |
+| #1491 | public search; Google popup; onboarding | issues 439, 430, 437 (436 stays owner question 32) |
+| #1504 | provider side: role guards, template use, tariffs | provider lines 2, 2, 2, 6, journeys 33 |
+| #1505 | admin catalogue (price reviews close through main's `/resolve` only) | admin-catalogue 18-20; final-pass 2, 3; provider-lab 0-2 |
+| #1508 | Rx and online-only facts in every web list | rx-rules-web 1-6, app 4 |
+| #1511 | a cancellation says what comes back; home visit to a saved address | journeys 44, 29 |
+| #1512 | manual pharmacy request, unchecked price, refund rule | journeys 74, 75, 8, 66; issue 420 |
+| #1513 | nearest free doctor, hospital pages, nursing Rx flag, article text | 2-app 10, 2-web 10, 12-web 12, 4-app 3, 10-web 2, 5-web 9 |
+| #1514 | pregnancy week catalogue | 8-app 0, 8-web 3 |
+| #1515 | web perf: byte budgets pass | issue 426 (427 = owner question 43) |
+| #1516 | prescription pickup; connected AI assistants | journeys 23; ac-1-agent-oauth 1 |
+| #1517 | admin urgent alerts; payable-booking helper fixed (rapid tap / killed payment really run) | issue 1235 |
+| #1518 | home visit: doctor sets off (EN_ROUTE mapped) and shares position | issue 385 |
+| #1520 | pharmacy insurance decision inline; insurance queue was always empty | provider-journeys 22 |
+| #1521 | kill switches enforced, real emergency maintenance, flags with an effect | issues 955, 995; admin-system 10 |
+| #1522 | web video call proven connected (LiveKit 1.10.1 in the gate) | issue 407 |
+| #1523 | family combined (replaces #1490, #1495, #1496) | 684, 694, 693, 688; journeys 67, 68 |
+| #1524 | app lists with real rows; My appointments draws time and specialty | issue 424 |
+| #1526 | web offline banner; throttled-network browser half runs and measures | tooling 12 |
+| #1468 | owner questions 31-44 (docs) | 43: LCP; 44: pages without boards |
 
 ## Next
 
-- Live runs queued (q77-q82), PR when green: pregnancy weeks (8-app 0, 8-web 3), web offline (journeys 77),
-  rx rules fields, web call (2-web 9 / 407), ambulance leftovers (#1482), patient flows (journeys 23 pickup,
-  ac-1-agent-oauth 1), web journeys (44, 29), manual request (74, 75, 8, 66), urgent alerts (1235),
-  doctor home position (2-app 3 / 385), consult filters (2-app 10, 2-web 10, 12-web 12, 4-app 3, 10-web 2, 5-web 9).
-- Lighthouse red on main and every PR: fix in progress on `fix/web-perf-budgets`.
-- Left for their own sessions: D-30 (journeys 9, 24, insurance part of 23; provider-journeys 22), Phase 14 (955, 995).
-- Queue rule: a queue waits on the previous one by PID; a worktree needs its own node_modules (`cp -al`), or B builds
-  nothing and the journey runs against the previous backend.
+- Left open for OC-A (D-30, insurance first): 2-web 12, 3-app 0, 3-web 3, journeys 9, 24, batch-1a-app 8.
+- Waiting for the owner (#1468): questions 30-44.
+- 40 `route:claude-fix` issues already fixed on main were closed with the evidence (PR or commit).
+- Production note for the build session: the website's livekit-client (2.22) signals on /rtc/v1; the LiveKit server
+  behind wss://live.nabd.plus must serve it (1.10.1 does; 1.8.4 falls back and re-connects every ~15 s).
+- Merging main into a branch: the `run_gate.sh` list keeps main's order with the branch's journeys appended; needs-review
+  files merge line by line (an owner-decision on main stays); `admin/tsconfig.tsbuildinfo` stays as on main.

@@ -256,18 +256,19 @@ def main():
         page.wait_for_selector('h1', timeout=30000)
         page.wait_for_timeout(1500)
         has_api = page.evaluate("'BarcodeDetector' in window")
-        cam = page.locator('[data-testid="barcode-camera"]').count()
+        # the shared camera scanner (components-next/scan/camera-scanner.tsx) draws its button only with BarcodeDetector
+        cam = page.get_by_role('button', name='امسح بالكاميرا').count()
         step('without the API there is no camera button, the typed field stays', (cam == 0 or has_api) and page.locator('input').count() > 0, f'api={has_api} camera={cam}')
         ctx2 = browser.new_context(locale='ar-SA', viewport={'width': 390, 'height': 844}, permissions=['camera'])
         ctx2.add_init_script(STUB)
         web_login(ctx2, WEB, acct['email'], acct['password'])
         p2 = ctx2.new_page()
         p2.goto(f'{WEB}/ar/pharmacy/barcode', wait_until='load', timeout=60000)
-        p2.wait_for_selector('[data-testid="barcode-camera"]', timeout=30000)
+        p2.get_by_role('button', name='امسح بالكاميرا').first.wait_for(timeout=30000)
         step('with BarcodeDetector the camera button is shown', True)
         step('the typed field is still there', p2.locator('input').count() > 0, 'no input')
         with p2.expect_request(lambda req: f'/medicines/by-barcode/{STUB_CODE}' in req.url, timeout=30000):
-            p2.locator('[data-testid="barcode-camera"] button').first.click()
+            p2.get_by_role('button', name='امسح بالكاميرا').first.click()
         step('the scanned code goes through the same lookup as a typed one', True)
         ctx2.close()
     except Exception as e:

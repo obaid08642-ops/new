@@ -9,6 +9,7 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { ApiSecurityModule } from './modules/api-security/api-security.module';
 import { DeviceTrustModule } from './modules/device-trust/device-trust.module';
 import { SeoSearchModule } from './modules/seo-search/seo-search.module';
+import { DeferredLinksModule } from './modules/deferred-links/deferred-links.module';
 import { LocationModule } from './modules/location/location.module';
 import { SearchIntentModule } from './modules/search-intent/search-intent.module';
 import { SearchModule } from './modules/search/search.controller';
@@ -160,6 +161,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     ApiSecurityModule,
     DeviceTrustModule,
     SeoSearchModule,
+    DeferredLinksModule,
     LocationModule,
     SearchIntentModule,
     SearchModule,

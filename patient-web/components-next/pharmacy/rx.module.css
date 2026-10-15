@@ -122,9 +122,6 @@
 /* ---- barcode lookup ---- */
 .lookup { display: flex; gap: 8px; align-items: flex-end; }
 .lookup > :first-child { flex: 1; min-inline-size: 0; }
-/* decision 36: the camera scan, only where the browser has BarcodeDetector */
-.scan { display: flex; flex-direction: column; gap: 8px; }
-.scanVideo { display: block; inline-size: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-surface); }
 .result { display: flex; flex-direction: column; gap: 12px; }
 .resultHead { display: flex; align-items: center; gap: 12px; min-inline-size: 0; }
 .price { font-size: var(--nabd-font-size-h4); font-weight: 700; }
@@ -157,3 +154,6 @@
 @media (prefers-reduced-motion: reduce) {
   .progressBar { transition: none; }
 }
+/* journeys#23: the delivery / pickup choice on "order this prescription" */
+.fulfil { display: flex; flex-direction: column; gap: var(--nabd-space-sm); min-inline-size: 0; }
+.fulfilTitle { margin: 0; color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-h4); font-weight: 700; }

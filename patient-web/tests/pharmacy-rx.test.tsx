@@ -246,6 +246,9 @@ describe("sending a request to the pharmacies", () => {
     const rx = buildBroadcastBody({ kind: "prescription", prescriptionId: ID, names: ["Metformin"] }, located);
     expect(rx).toMatchObject({ items: [{ raw_name: "Metformin", qty: 1, intake_source: "prescription" }], prescription_id: ID, prescription_attachments: [ID] });
     for (const body of [manual, rx]) expect(JSON.stringify(body)).not.toMatch(/price|total|card/i);
+    // journeys#23: a prescription order can be picked up at the pharmacy (delivery stays the default)
+    expect(rx).toMatchObject({ fulfillment: "delivery" });
+    expect(buildBroadcastBody({ kind: "prescription", prescriptionId: ID, names: ["Metformin"], fulfillment: "pickup" }, located)).toMatchObject({ fulfillment: "pickup" });
   });
 
   it("creates then submits with idempotency keys, and returns the order id", async () => {

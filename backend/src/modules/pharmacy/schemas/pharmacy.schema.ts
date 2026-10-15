@@ -150,6 +150,8 @@ export class PharmacyOrder extends Document {
     substituted_from?: string;
     intake_source?: 'ocr' | 'voice' | 'text' | 'manual';
     notes?: string;
+    /** Journeys 74: the patient's photo of the box (manual request). */
+    photo_uri?: string;
   }>;
 
   @Prop({ type: Object }) delivery_address?: {
@@ -158,7 +160,7 @@ export class PharmacyOrder extends Document {
   };
   @Prop() patient_notes?: string;
   @Prop() prescription_id?: string;
-  @Prop({ type: Object }) manual_request?: { name?: string; details?: string | null };
+  @Prop({ type: Object }) manual_request?: { name?: string; details?: string | null; qty?: number; photo_uri?: string };
   /** F73: draft fulfillment + payment mode. */
   @Prop({ type: String, enum: ['delivery', 'pickup'], default: 'delivery' }) fulfillment?: 'delivery' | 'pickup';
   @Prop({ type: String, enum: ['cash', 'insurance'], default: 'cash' }) payment_mode?: 'cash' | 'insurance';

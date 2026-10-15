@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { CoreShell } from "@/components-next/core/core-shell";
 import { DrugInteractionChecker } from "@/components-next/drug-interaction-checker";
 import { Button } from "@/components-next/ui-generated/components/Button";
+import { CameraScanner, PACK_FORMATS } from "@/components-next/scan/camera-scanner";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { Input } from "@/components-next/ui-generated/components/Inputs";
@@ -23,24 +24,10 @@ type Outcome =
   | { kind: "missing"; code: string }
   | { kind: "failed"; reason: "lookup" | "session" };
 
-/** The part of the browser's Barcode Detection API this screen uses (not in the TypeScript DOM library yet). */
-type DetectedBarcode = { rawValue: string };
-type BarcodeDetectorLike = { detect(source: HTMLVideoElement): Promise<DetectedBarcode[]> };
-type BarcodeDetectorCtor = new (options?: { formats?: string[] }) => BarcodeDetectorLike;
-const RETAIL_FORMATS = ["ean_13", "ean_8", "upc_a", "upc_e", "code_128", "code_39", "itf"];
-
-function barcodeDetector(): BarcodeDetectorCtor | null {
-  if (typeof window === "undefined" || !navigator.mediaDevices?.getUserMedia) return null;
-  const ctor = (window as unknown as { BarcodeDetector?: BarcodeDetectorCtor }).BarcodeDetector;
-  return typeof ctor === "function" ? ctor : null;
-}
-
 /**
- * Scan a medicine (second pass, section 3: the old barcode and drug-interaction pages in one screen). Find a medicine by
- * the barcode on its package. Owner decision 36 (issue 499): where the browser has the BarcodeDetector API (Chrome,
- * Android) the camera reads the barcode, feature-detected and with no decoding library; the typed field stays everywhere,
- * and a scanned code goes through the same lookup as a typed one. An exact match is shown as found; a name match on the
- * text is shown as the closest match, never as a recognised barcode.
+ * Scan a medicine (second pass, section 3: the old barcode and drug-interaction pages in one screen). Find a medicine by the barcode on its package (the app's barcode scanner, typed in: the web has no camera scan, so this
+ * screen does not promise one). An exact match is shown as found; a name match on the typed text is shown as the closest
+ * match, never as a recognised barcode.
  */
 export function BarcodeScreen({ locale }: { locale: Locale }) {
   const t = useTranslations("PharmacyBarcode");
@@ -50,68 +37,19 @@ export function BarcodeScreen({ locale }: { locale: Locale }) {
   const [outcome, setOutcome] = useState<Outcome>({ kind: "idle" });
   const looking = outcome.kind === "looking";
   const clean = cleanBarcode(code);
-  const [canScan, setCanScan] = useState(false);
-  const [scanning, setScanning] = useState(false);
-  const [cameraFailed, setCameraFailed] = useState(false);
-  const video = useRef<HTMLVideoElement | null>(null);
-  const stream = useRef<MediaStream | null>(null);
-  const timer = useRef<number | null>(null);
 
-  // the server render and a browser without the API draw no camera button
-  useEffect(() => setCanScan(barcodeDetector() !== null), []);
-
-  const stopCamera = useCallback(() => {
-    if (timer.current !== null) window.clearTimeout(timer.current);
-    timer.current = null;
-    stream.current?.getTracks().forEach((track) => track.stop());
-    stream.current = null;
-    setScanning(false);
-  }, []);
-  useEffect(() => stopCamera, [stopCamera]);
-
-  async function lookup(value: string = clean) {
-    if (!value || looking) return;
+  async function lookup(scanned?: string) {
+    const clean = cleanBarcode(scanned ?? code);
+    if (!clean || looking) return;
     setOutcome({ kind: "looking" });
     try {
-      const response = await fetch(`/api/patient/medicines/by-barcode/${encodeURIComponent(value)}`, { cache: "no-store", credentials: "same-origin" });
+      const response = await fetch(`/api/patient/medicines/by-barcode/${encodeURIComponent(clean)}`, { cache: "no-store", credentials: "same-origin" });
       if (response.status === 401) return setOutcome({ kind: "failed", reason: "session" });
       if (!response.ok) return setOutcome({ kind: "failed", reason: "lookup" });
       const match = parseBarcodeLookup(await response.json().catch(() => null), locale);
-      setOutcome(match ? { kind: "found", match, code: value } : { kind: "missing", code: value });
+      setOutcome(match ? { kind: "found", match, code: clean } : { kind: "missing", code: clean });
     } catch {
       setOutcome({ kind: "failed", reason: "lookup" });
-    }
-  }
-
-  async function startCamera() {
-    const Detector = barcodeDetector();
-    if (!Detector || scanning) return;
-    setCameraFailed(false);
-    try {
-      stream.current = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
-      setScanning(true);
-      const detector = new Detector({ formats: RETAIL_FORMATS });
-      const tick = async () => {
-        const el = video.current;
-        if (!stream.current) return;
-        if (el && el.srcObject !== stream.current) {
-          el.srcObject = stream.current;
-          await el.play().catch(() => undefined);
-        }
-        const found = el && el.readyState >= 2 ? await detector.detect(el).catch(() => []) : [];
-        const value = cleanBarcode(found[0]?.rawValue ?? "");
-        if (value) {
-          stopCamera();
-          setCode(value);
-          void lookup(value);
-          return;
-        }
-        timer.current = window.setTimeout(() => void tick(), 250);
-      };
-      void tick();
-    } catch {
-      stopCamera();
-      setCameraFailed(true);
     }
   }
 
@@ -139,24 +77,11 @@ export function BarcodeScreen({ locale }: { locale: Locale }) {
             void lookup();
           }}
         >
+          {/* issue 499: the camera reads the pack's barcode where the browser can; typing it stays */}
+          <CameraScanner formats={PACK_FORMATS} onResult={(scanned) => { setCode(scanned.slice(0, 64)); void lookup(scanned.slice(0, 64)); }} />
           <Input label={t("codeLabel")} placeholder={t("codePlaceholder")} value={code} disabled={looking} onChange={(value) => setCode(value.slice(0, 64))} />
           <Button label={looking ? t("looking") : t("lookup")} type="submit" size="lg" disabled={!clean} loading={looking} />
         </form>
-
-        {canScan ? (
-          <section className={rx.scan} aria-label={t("scanTitle")} data-testid="barcode-camera">
-            {scanning ? (
-              <>
-                <video ref={video} className={rx.scanVideo} muted playsInline aria-label={t("scanVideo")} />
-                <p className={rx.note} role="status">{t("scanHint")}</p>
-                <Button label={t("scanStop")} variant="outline" size="lg" fullWidth onClick={stopCamera} />
-              </>
-            ) : (
-              <Button label={t("scanStart")} variant="outline" size="lg" fullWidth disabled={looking} onClick={() => void startCamera()} />
-            )}
-            {cameraFailed ? <p className={rx.error} role="alert">{t("scanFailed")}</p> : null}
-          </section>
-        ) : null}
 
         {outcome.kind === "failed" ? (
           <div className={rx.error} role="alert">
