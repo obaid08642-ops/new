@@ -539,3 +539,9 @@ export class PaymentRulesDto {
 export class PharmacyCodSettingDto {
   @IsBoolean() enabled: boolean;
 }
+
+/** D-12 (issue 331): the admin closes a price review: the catalogue price was updated, or the offered price was confirmed. */
+export class ResolvePriceReviewDto {
+  @IsIn(['catalogue_updated', 'price_confirmed']) resolution: 'catalogue_updated' | 'price_confirmed';
+  @IsOptional() @IsString() @MaxLength(500) note?: string;
+}
