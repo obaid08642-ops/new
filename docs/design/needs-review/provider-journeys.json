@@ -329,7 +329,7 @@
     "element": "balance",
     "found": "[backend] The wallet figure is earned minus payouts, clamped at 0, over only the latest 200 rows and counting pending (escrow) earnings; the withdrawal check uses the real ledger (cleared minus payouts, debits, locked), so the wallet can show more than can be withdrawn.",
     "suspect": "broken",
-    "review_status": "open (issue #1179)"
+    "review_status": "fixed #1464"
   },
   {
     "scenario": 5,
@@ -347,7 +347,7 @@
     "element": "withdrawal request",
     "found": "[client] The 100 SAR minimum is hard-coded in the screen; the server reads the minimum from finance_config.",
     "suspect": "works",
-    "review_status": "open (issue #1181)"
+    "review_status": "fixed #1464"
   },
   {
     "scenario": 5,
@@ -365,7 +365,7 @@
     "element": "withdrawal request",
     "found": "[backend] The one-open-request check counts only PENDING_ADMIN_APPROVAL and APPROVED_FOR_PAYOUT; a request in AWAITING_SECOND_APPROVAL holds locked funds but does not block a new request, so the client (which mirrors the server) cannot show it as pending.",
     "suspect": "broken",
-    "review_status": "open"
+    "review_status": "fixed #1464"
   },
   {
     "scenario": 1,
