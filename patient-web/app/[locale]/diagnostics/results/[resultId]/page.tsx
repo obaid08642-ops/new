@@ -66,7 +66,7 @@ export default async function LabResultPage({ params }: Props) {
         <span className={styles.body}>
           {value}
           {low && high ? <span className={styles.muted}>{` · ${t("range", { low, high })}`}</span> : text(e.range) ? <span className={styles.muted}>{` · ${t("rangeText", { range: text(e.range) as string })}`}</span> : null}
-          {flag && flag !== "normal" ? <> <StatusChip label={t(`flag_${flag}`)} tone={flag === "critical" ? "coral" : DIAG_TONES.warn} /></> : null}
+          {flag && flag !== "normal" ? <> <StatusChip label={t(`flag_${flag}`)} tone={flag === "critical" ? DIAG_TONES.critical : DIAG_TONES.warn} /></> : null}
         </span>
       ),
     };
@@ -84,7 +84,7 @@ export default async function LabResultPage({ params }: Props) {
   return (
     <ConsultPage locale={locale} title={t("title")} backHref={back}>
       <Hero icon="test-tube" tone={DIAG_TONES.lab} title={name} sub={issued ?? undefined}>
-        {row.critical === true ? <StatusChip label={t("critical")} tone="coral" /> : null}
+        {row.critical === true ? <StatusChip label={t("critical")} tone={DIAG_TONES.critical} /> : null}
       </Hero>
       {rows.length > 0 ? (
         <SectionCard id="lab-result-values" title={t("values")}>
