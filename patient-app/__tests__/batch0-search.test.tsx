@@ -198,6 +198,26 @@ describe('search result rules', () => {
   });
 });
 
+describe('medicine rows carry the catalogue flags (rx-rules-app #2)', () => {
+  it('a prescription or online-only medicine shows the same note as the product card; other rows show none', async () => {
+    (apiFetch as jest.Mock).mockResolvedValue({ query: 'x', engine: 'mongo', groups: [
+      { type: 'medicine', items: [
+        item('medicine', 'rx1', 'أموكسيسيلين', 30, { requires_prescription: true }),
+        item('medicine', 'on1', 'فيتامين د', 40, { online_exclusive: true }),
+        item('medicine', 'otc1', 'باراسيتامول', 12),
+      ] },
+      { type: 'doctor', items: [item('doctor', 'd1', 'د. سارة', 200, { requires_prescription: true })] },
+    ] });
+    await render(ui);
+    await type('دواء');
+    await waitFor(() => expect(screen.getByLabelText('أموكسيسيلين. يحتاج وصفة. 30 ر.س')).toBeTruthy(), { timeout: 3000 });
+    expect(screen.getByLabelText('فيتامين د. أونلاين فقط. 40 ر.س')).toBeTruthy();
+    expect(screen.getByLabelText('باراسيتامول. 12 ر.س')).toBeTruthy();
+    const rows = fromGrouped({ groups: [{ type: 'doctor', items: [item('doctor', 'd1', 'د. سارة', 200, { requires_prescription: true })] }] });
+    expect(rows[0].requires_prescription).toBeUndefined();
+  });
+});
+
 describe('grouped answer (D-29)', () => {
   it('maps the API types to the page kinds, opens a specialty by its code and an article by its slug, and drops unknown rows', () => {
     const rows = fromGrouped({ groups: [

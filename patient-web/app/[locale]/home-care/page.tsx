@@ -37,13 +37,13 @@ export default async function HomeCarePage({ params }: Props) {
   return frame(
     <>
       <RowList label={t("hubLinks")}>
-        <li><RowCard href={`/${locale}/home-care/services`} icon={NURSING.icon} tone={NURSING.tone} title={t("browseServices")} sub={t("browseServicesSub")} caret={caret} /></li>
+        <li><RowCard href={`/${locale}/nursing/catalog`} icon={NURSING.icon} tone={NURSING.tone} title={t("browseServices")} sub={t("browseServicesSub")} caret={caret} /></li>
         <li><RowCard href={`/${locale}/home-care/providers`} icon="user-circle" tone={NURSING.tone} title={t("providersLink")} sub={t("providersLinkSub")} caret={caret} /></li>
         <li><RowCard href={`/${locale}/nursing/visits`} icon="clock-counter-clockwise" tone={NURSING.tone} title={t("visitsLink")} sub={t("visitsLinkSub")} caret={caret} /></li>
       </RowList>
       <SectionHead id="home-care-bookings" title={t("bookingsTitle")} />
       {bookings.length === 0 ? (
-        <ConsultState kind="empty" icon={NURSING.icon} tone={NURSING.tone} title={t("bookingsEmpty")} actionLabel={t("browseServices")} actionHref={`/${locale}/home-care/services`} />
+        <ConsultState kind="empty" icon={NURSING.icon} tone={NURSING.tone} title={t("bookingsEmpty")} actionLabel={t("browseServices")} actionHref={`/${locale}/nursing/catalog`} />
       ) : (
         <RowList label={t("bookingsTitle")}>
           {bookings.map((booking) => {

@@ -31,7 +31,9 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { v4 as uuid } from 'uuid';
 import { JwtAuthGuard, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { Permission, RequirePermissions } from '../../common/permissions';
 import { moyasarBase } from '../../common/moyasar-base';
+import { settlementDelayDefault } from '../../common/commission-defaults';
 
 export const LEDGER_TYPES = [
   'provider_earning', 'provider_debit', 'payout', 'refund', 'commission',
@@ -149,7 +151,7 @@ export class LedgerService {
 
   async settlementDelayDays(serviceType?: string): Promise<number> {
     const cfg: any = await this.conn.collection('finance_config').findOne({ key: 'commissions' } as any);
-    return cfg?.settlement?.delay_days?.[serviceType || 'default'] ?? cfg?.settlement?.delay_days?.default ?? DEFAULTS.settlement_delay_days;
+    return cfg?.settlement?.delay_days?.[serviceType || 'default'] ?? cfg?.settlement?.delay_days?.default ?? settlementDelayDefault();
   }
 }
 
@@ -1168,11 +1170,13 @@ export class AdminFinanceEngineController {
     return this.approvals.listPending();
   }
 
+  @RequirePermissions(Permission.FINANCE_PAYOUT_APPROVE)
   @Post('approvals/request')
   requestApproval(@CurrentUser() u: any, @Body() b: RequestApprovalDto) {
     return this.approvals.request(b?.type, b?.payload || {}, u.id, b?.reason);
   }
 
+  @RequirePermissions(Permission.FINANCE_PAYOUT_APPROVE)
   @Post('approvals/:id/decide')
   async decideApproval(@CurrentUser() u: any, @Param('id') id: string, @Body() b: DecideApprovalDto) {
     const executors: Record<string, (payload: any) => Promise<any>> = {
@@ -1201,6 +1205,7 @@ export class AdminFinanceEngineController {
   }
 
   /** Execute an APPROVED refund request (S4/S14). Large amounts need maker-checker. */
+  @RequirePermissions(Permission.ORDER_REFUND)
   @Post('refunds/:id/execute')
   async executeRefund(@CurrentUser() u: any, @Param('id') id: string) {
     const req: any = await this.conn.collection('refundrequests').findOne({ id } as any);

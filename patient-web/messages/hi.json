@@ -702,7 +702,7 @@
     "partUnavailable": "यह हिस्सा लोड नहीं हो सका।",
     "unitsRemaining": "{count, plural, one {# इकाई बाकी} other {# इकाइयाँ बाकी}}",
     "vitalsTitle": "महत्वपूर्ण संकेत",
-    "vitalsToday": "आज",
+    "vitalsToday": "नवीनतम",
     "vitalsHistory": "इतिहास",
     "vitalsTrends": "रुझान",
     "noReading": "अभी कोई रीडिंग नहीं",
@@ -912,9 +912,9 @@
   "ChatDetail": {
     "eyebrow": "निजी बातचीत",
     "thread": "बातचीत",
-    "messagesTitle": "संदेश गतिविधि",
+    "messagesTitle": "संदेश",
     "back": "चैट पर वापस",
-    "bodyHidden": "संदेशों का टेक्स्ट, प्रतिभागी, प्रतिक्रियाएँ और अटैचमेंट अभी यहाँ नहीं दिखते।",
+    "bodyHidden": "यहाँ प्रतिभागियों के नाम, प्रतिक्रियाएँ और अटैचमेंट नहीं दिखते।",
     "attachmentHidden": "इस संदेश में एक अटैचमेंट है।",
     "deleted": "हटाया गया संदेश",
     "timeUnavailable": "समय उपलब्ध नहीं",
@@ -1150,7 +1150,10 @@
     "allSpecialties": "सभी विशेषज्ञताएं",
     "paymentLabel": "भुगतान",
     "payment_insurance": "बीमा स्वीकार",
-    "payment_cash": "केवल नकद"
+    "payment_cash": "केवल नकद",
+    "doctorPhotoAlt": "{name} की तस्वीर",
+    "clinicPhotosTitle": "क्लिनिक की तस्वीरें",
+    "clinicPhotoAlt": "क्लिनिक की तस्वीर {n}"
   },
   "LabsServices": {
     "eyebrow": "प्रयोगशाला देखभाल",
@@ -1509,6 +1512,7 @@
     "checkingBody": "हम भुगतान प्रदाता और फ़ार्मेसी से नतीजा पूछ रहे हैं। इसमें कुछ सेकंड लगते हैं।",
     "checkAgain": "फिर जाँचें",
     "trackOrder": "ऑर्डर ट्रैक करें",
+    "openBooking": "बुकिंग देखें",
     "stalledTitle": "अभी प्रदाता का इंतज़ार है",
     "stalledBody": "हमें अभी अंतिम जवाब नहीं मिला। प्रदाता के जवाब तक कुछ भी पुष्ट नहीं है। फिर जाँचें, या अपने ऑर्डर देखें।",
     "refundedTitle": "यह भुगतान वापस कर दिया गया",
@@ -1525,7 +1529,6 @@
     "attribute": "विशेषता",
     "active_ingredient": "सक्रिय घटक",
     "price": "कीमत",
-    "dosage_form": "खुराक रूप",
     "manufacturer": "निर्माता",
     "emptyBody": "तुलना के लिए कैटलॉग से कम से कम दो दवाएं चुनें।",
     "browse": "दवाएं देखें",
@@ -1533,7 +1536,9 @@
     "requires_prescription": "नुस्खा आवश्यक",
     "online_exclusive": "केवल ऑनलाइन",
     "yes": "हाँ",
-    "no": "नहीं"
+    "no": "नहीं",
+    "form": "खुराक रूप",
+    "strength": "शक्ति"
   },
   "PharmacyRequest": {
     "title": "दवा का नाम बताकर मँगवाएँ",
@@ -1859,6 +1864,7 @@
     "invalid": "6 अंकों का कोड दर्ज करें।",
     "failed": "कोड सत्यापित नहीं हो सका।",
     "missing": "साइन इन या खाता बनाने से शुरू करें, हम आपको कोड भेजेंगे।",
+    "notSent": "आपका खाता बन गया, लेकिन कोड नहीं भेजा जा सका। «फिर से भेजें» दबाएँ।",
     "back": "वापस",
     "wrong": "यह कोड सही नहीं है। इसे जांचकर फिर कोशिश करें।",
     "expired": "इस कोड की अवधि समाप्त हो गई। नया कोड मंगाएं।",
@@ -2088,7 +2094,8 @@
     "sortPriceAsc": "कीमत: कम से ज़्यादा",
     "sortPriceDesc": "कीमत: ज़्यादा से कम",
     "sortNewest": "सबसे नया",
-    "askPharmacies": "पास की फ़ार्मेसियों से माँगें"
+    "askPharmacies": "पास की फ़ार्मेसियों से माँगें",
+    "compareAlternatives": "विकल्पों से तुलना करें"
   },
   "PharmacyOffers": {
     "backToOrder": "ऑर्डर पर वापस",
@@ -2154,15 +2161,12 @@
     "orderStatusLink": "ऑर्डर की स्थिति",
     "trackOrder": "ऑर्डर ट्रैक करें",
     "continuePayment": "भुगतान पर जाएँ",
-    "showMethods": "भुगतान का तरीका चुनें",
     "methodCard": "बैंक कार्ड",
     "methodApplePay": "Apple Pay",
     "methodGooglePay": "Google Pay",
-    "paymentUnavailable": "इस ऑर्डर के लिए अभी ऑनलाइन भुगतान का कोई तरीका उपलब्ध नहीं है।",
     "redirecting": "आपको सुरक्षित भुगतान पेज पर ले जाया जा रहा है…",
     "noRedirect": "भुगतान का यह तरीका अभी वेब पर उपलब्ध नहीं है। कोई और तरीका चुनें।",
     "paymentError": "भुगतान शुरू नहीं हो सका। कोई भुगतान दर्ज नहीं हुआ।",
-    "loadingMethods": "भुगतान के तरीके लोड हो रहे हैं…",
     "insurancePending": "फ़ार्मेसी ने बीमा कंपनी से मंज़ूरी माँगी है। फ़ैसले से पहले आपको कुछ भी नहीं देना है।",
     "insuranceCovered": "बीमा इस ऑर्डर को पूरी तरह कवर करता है। कोई रकम देय नहीं है।",
     "insuranceDecisionTitle": "हर चीज़ के लिए बीमा का फ़ैसला",
@@ -2680,6 +2684,8 @@
     "locationHome": "घर पर विज़िट",
     "locationFacility": "केंद्र पर",
     "trackSample": "सैंपल ट्रैक करें",
+    "openReport": "रिपोर्ट खोलें",
+    "openReportN": "रिपोर्ट {n} खोलें",
     "uploadInsurance": "बीमा दस्तावेज़ अपलोड करें",
     "bookingDetails": "बुकिंग का विवरण",
     "sampleSteps": "सैंपल के चरण",
@@ -2721,13 +2727,9 @@
     "backToCart": "टोकरी पर वापस",
     "callLab": "लैब को कॉल करें",
     "testTitle": "टेस्ट",
-    "bookTitle": "टेस्ट बुक करें",
-    "noProviderTitle": "कोई लैब उपलब्ध नहीं",
     "noProviderBody": "अभी कोई लैब यह टेस्ट नहीं कर रही।",
-    "backToTests": "टेस्ट पर वापस",
     "tagHome": "घर पर सैंपल",
     "tagFasting": "खाली पेट",
-    "bookPackage": "यह पैकेज बुक करें",
     "addToOrderCta": "मेरे ऑर्डर में जोड़ें",
     "details": "विवरण",
     "hubTitle": "लैब और रेडियोलॉजी",
@@ -2788,7 +2790,6 @@
     "searchErrorTitle": "टेस्ट लोड नहीं हो सके",
     "searchErrorBody": "थोड़ी देर बाद फिर कोशिश करें।",
     "testFacts": "टेस्ट का विवरण",
-    "bookTest": "यह टेस्ट बुक करें",
     "cartEmptyTitle": "आपकी टोकरी खाली है",
     "cartEmptyBody": "बुकिंग से पहले टेस्ट जोड़ें।",
     "browseTests": "टेस्ट देखें",
@@ -2868,7 +2869,6 @@
     "trackingInProgress": "जारी है",
     "trackingScheduled": "तय समय: {when}",
     "trackingBeforeTitle": "सैंपल से पहले",
-    "trackingBeforeBody": "जब तक डॉक्टर कुछ और न कहें, सैंपल से 8 से 12 घंटे पहले कुछ न खाएँ।",
     "trackingStepsTitle": "चरण",
     "trackingNoSteps": "अभी तक ट्रैकिंग की कोई अपडेट नहीं है। लैब जब चरण दर्ज करेगी तो वे यहाँ दिखेंगे।",
     "searchTests": "टेस्ट खोजें…",
@@ -2877,19 +2877,6 @@
     "searchResults": "खोज के नतीजे",
     "collectorLabel": "सैंपल लेने वाला",
     "collectorCall": "सैंपल लेने वाले को कॉल करें",
-    "collectorTipsTitle": "जब सैंपल लेने वाला आए",
-    "collectorTip1": "अपनी पहचान और टेस्ट का अनुरोध तैयार रखें",
-    "collectorTip2": "टेस्ट के लिए ज़रूरी खाली पेट रहने का पालन करें",
-    "collectorTip3": "जो दवाएँ लेते हैं, वे सैंपल लेने वाले को बताएँ",
-    "errHomeInsuranceDoc": "बीमा के साथ घर पर विज़िट के लिए डॉक्टर का अनुरोध या पूर्व-मंज़ूरी चाहिए",
-    "errSlotTaken": "यह समय अब उपलब्ध नहीं है",
-    "errBooking": "बुकिंग नहीं बन सकी। फिर कोशिश करें।",
-    "bookWhere": "कहाँ?",
-    "bookHomeUnavailable": "इस टेस्ट के लिए घर पर सैंपल उपलब्ध नहीं है।",
-    "bookWhen": "तारीख़ और समय",
-    "bookDocLabel": "डॉक्टर के अनुरोध या मंज़ूरी का लिंक (ज़रूरत हो तो)",
-    "bookSaving": "बुकिंग हो रही है…",
-    "bookConfirm": "बुकिंग की पुष्टि करें",
     "status_pending": "पुष्टि का इंतज़ार",
     "status_insurance": "बीमा का इंतज़ार",
     "status_confirmed": "पुष्टि हो गई",
@@ -2898,10 +2885,7 @@
     "status_processing": "जारी है",
     "status_report": "रिपोर्ट तैयार है",
     "status_cancelled": "रद्द",
-    "bookingNotSentTitle": "कोई बुकिंग नहीं हुई",
-    "bookingNotSentBody": "यह विंडो अभी बुकिंग नहीं भेजती, इसलिए कोई अपॉइंटमेंट नहीं बना और कोई भुगतान नहीं लिया गया। विज़िट बुक करने के लिए नर्सिंग पेज खोलें।",
-    "bookingNotSentCta": "नर्सिंग पेज पर जाएँ",
-    "bookingNotSentClose": "बंद करें"
+    "trackingPrepAsk": "लैब आपके साथ किसी भी ज़रूरी तैयारी की पुष्टि करेगी।"
   },
   "NursingWeb": {
     "hubTitle": "घरेलू देखभाल",
@@ -2913,13 +2897,11 @@
     "browseCatalog": "नर्सिंग सेवाएँ देखें",
     "statusLabel": "स्थिति",
     "pulse": "नाड़ी",
-    "formService": "सेवा",
     "formTime": "समय",
     "formAddress": "पता",
     "formAddAddress": "पहले एक पता जोड़ें",
     "formNotes": "टिप्पणियाँ (वैकल्पिक)",
     "formBooking": "बुकिंग हो रही है…",
-    "formSelectService": "सेवा चुनें",
     "formSelectTime": "दिन और समय चुनें",
     "formPast": "वह समय बीत चुका है। बाद का समय चुनें",
     "formFailed": "बुकिंग नहीं बन सकी",
@@ -2981,7 +2963,6 @@
     "insurance": "बीमा उपलब्ध",
     "priceLabel": "कीमत",
     "durationLabel": "अवधि",
-    "bookingNotice": "सेवा विवरण यहाँ केवल पढ़ने के लिए हैं। इस पृष्ठ से बुकिंग नहीं बनाई जाती।",
     "back": "सेवाओं पर वापस",
     "serviceUnavailableTitle": "सेवाएँ लोड नहीं हो सकीं",
     "serviceUnavailableBody": "कृपया बाद में फिर से कोशिश करें।",
@@ -3001,13 +2982,19 @@
     "step_NURSE_ARRIVED": "नर्स पहुँची",
     "step_CARE_IN_PROGRESS": "देखभाल जारी",
     "step_COMPLETED": "विज़िट पूर्ण",
-    "nurseTitle": "नर्स की प्रोफ़ाइल",
-    "nurseUnavailableTitle": "प्रोफ़ाइल अभी उपलब्ध नहीं है",
-    "nurseUnavailableBody": "नर्स की प्रोफ़ाइल का विवरण लोड नहीं हो सका।",
-    "experienceLabel": "कार्य का अनुभव",
-    "ratingLabel": "मरीज़ों की रेटिंग",
-    "nurseServicesTitle": "उपलब्ध नर्सिंग सेवाएँ",
-    "requestNurse": "नर्सिंग विज़िट का अनुरोध करें"
+    "bookCta": "यह सेवा बुक करें",
+    "bookTitle": "घर पर विज़िट बुक करें",
+    "chooseNurse": "नर्स चुनें",
+    "noNurses": "अभी कोई नर्स यह सेवा नहीं देती। बाद में फिर कोशिश करें।",
+    "today": "आज",
+    "loadingSlots": "खाली समय लोड हो रहे हैं…",
+    "noSlots": "इस दिन कोई खाली समय नहीं है। कोई और दिन चुनें।",
+    "slotsFailed": "समय लोड नहीं हो सके। फिर कोशिश करें।",
+    "slotTaken": "यह समय अब खाली नहीं है। कोई और समय चुनें।",
+    "addressNeedsLocation": "नक्शे पर स्थान वाला सहेजा गया पता चुनें, या नया जोड़ें।",
+    "payTitle": "भुगतान",
+    "payNow": "अभी कार्ड से भुगतान करें",
+    "payFailed": "आपकी बुकिंग सहेजी गई है, लेकिन भुगतान पेज नहीं खुल सका। फिर कोशिश करें।"
   },
   "MaternityWeb": {
     "title": "मातृत्व",
@@ -3160,15 +3147,10 @@
     "avgMood": "औसत मूड",
     "avgEnergy": "औसत ऊर्जा",
     "avgStress": "औसत तनाव",
-    "meditationSessions": "ध्यान सत्र",
-    "meditationMinutes": "ध्यान का समय",
-    "minutes": "मिनट",
     "notAvailable": "उपलब्ध नहीं",
     "careTitle": "आप क्या कर सकते हैं",
     "moodRow": "मूड डायरी",
     "moodRowSub": "पिछले 30 दिनों का मूड, ऊर्जा और तनाव",
-    "relaxRow": "आराम",
-    "relaxRowSub": "श्वास और ध्यान सत्र",
     "therapistRow": "थेरेपिस्ट से अपॉइंटमेंट लें",
     "therapistRowSub": "परामर्श में मनोचिकित्सा डॉक्टर",
     "notice": "ये आँकड़े आपके दर्ज किए गए का विवरण हैं, निदान, जोखिम स्कोर या उपचार की सिफ़ारिश नहीं।",
@@ -3182,20 +3164,6 @@
     "energy": "ऊर्जा: {value}",
     "stress": "तनाव: {value}",
     "sleepHours": "नींद के घंटे: {value}",
-    "relaxTitle": "आराम",
-    "tabBreathing": "श्वास",
-    "tabMeditation": "ध्यान",
-    "relaxUnavailableTitle": "सत्र लोड नहीं हो सके",
-    "breathingEmpty": "अभी कोई श्वास सत्र दर्ज नहीं।",
-    "techniqueUnavailable": "तकनीक उपलब्ध नहीं",
-    "rounds": "राउंड: {value}",
-    "durationSeconds": "अवधि: {value} सेकंड",
-    "relaxNotice": "यहाँ आपके दर्ज किए सत्र दिखते हैं। वेब पर नया सत्र शुरू करना उपलब्ध नहीं।",
-    "meditationEmpty": "अभी कोई ध्यान सत्र दर्ज नहीं।",
-    "meditationUnavailable": "प्रकार उपलब्ध नहीं",
-    "durationMinutes": "अवधि: {value} मिनट",
-    "completed": "पूरा हुआ",
-    "notCompleted": "पूरा नहीं हुआ",
     "moodValue": {
       "great": "बहुत अच्छा",
       "good": "अच्छा",
@@ -3252,23 +3220,11 @@
     "example4": "त्वचा पर चकत्ते और खुजली",
     "symptomsLabel": "आपके लक्षण",
     "symptomsPlaceholder": "उदाहरण: दो दिन से सिरदर्द और मितली",
-    "flagsLegend": "क्या इनमें से कोई संकेत है? जो लागू हों वे चुनें",
-    "flag": {
-      "chest_pain": "सीने में दर्द",
-      "breathing_difficulty": "सांस लेने में तकलीफ",
-      "fainting_or_unresponsive": "बेहोशी या प्रतिक्रिया न देना",
-      "heavy_bleeding": "भारी रक्तस्राव",
-      "new_confusion": "अचानक भ्रम",
-      "severe_allergic_reaction": "गंभीर एलर्जी प्रतिक्रिया",
-      "severe_injury": "गंभीर चोट"
-    },
     "submit": "अगला कदम जानें",
     "submitting": "जांच हो रही है…",
     "error": "अभी मार्गदर्शन नहीं मिल सका। थोड़ी देर बाद फिर कोशिश करें।",
     "emergencyTitle": "ऐसे संकेत जिनमें तुरंत मदद चाहिए",
-    "emergencyBody": "आपके चुने संकेतों के लिए अभी स्थानीय आपातकालीन सेवाओं से संपर्क करें, अपॉइंटमेंट का इंतज़ार न करें।",
     "consultationTitle": "हम डॉक्टर से मिलने की सलाह देते हैं",
-    "consultationBody": "आपने कोई आपातकालीन संकेत नहीं चुना। लक्षण बने रहें या बढ़ें तो डॉक्टर से परामर्श बुक करें।",
     "bookConsultation": "परामर्श बुक करें",
     "askAgain": "नया सवाल पूछें",
     "disclaimer": "यह सामान्य मार्गदर्शन है, निदान या इलाज नहीं। आपात स्थिति में आपातकालीन सेवाओं को कॉल करें।",
@@ -3279,7 +3235,16 @@
     "untitledReport": "मेडिकल रिपोर्ट",
     "reportsUnavailable": "आपकी रिपोर्ट अभी लोड नहीं हो सकीं। थोड़ी देर बाद फिर कोशिश करें।",
     "leafletLink": "दवा की जानकारी पढ़ें",
-    "historyTitle": "आपके पिछले सवाल"
+    "leafletTitle": "इस दवा के बारे में, इसके पर्चे से",
+    "outOfScopeTitle": "सहायक क्या कर सकता है",
+    "leaflet": {
+      "indications": "किस लिए उपयोग होती है",
+      "how_to_use": "उपयोग का तरीका",
+      "side_effects": "दुष्प्रभाव",
+      "warnings": "चेतावनियाँ",
+      "storage": "भंडारण",
+      "pregnancy": "गर्भावस्था और स्तनपान"
+    }
   },
   "MonthlyReportWeb": {
     "title": "आपकी मासिक रिपोर्ट",
@@ -4093,5 +4058,99 @@
     "faqIngredient": "{name} का सक्रिय तत्व क्या है?",
     "faqPrice": "नब्ज़ प्लस पर {name} की कीमत क्या है?",
     "howToTitle": "{name} का उपयोग कैसे करें"
+  },
+  "LogForms": {
+    "saveError": "सहेजा नहीं जा सका। आपने जो लिखा वह सुरक्षित है, फिर कोशिश करें।",
+    "saved": "सहेज लिया गया।",
+    "water": {
+      "title": "पानी दर्ज करें",
+      "amount_ml": "मात्रा (मि.ली.)",
+      "save": "पानी जोड़ें",
+      "bad": {
+        "amount_ml": "50 से 3000 मि.ली. के बीच मात्रा दर्ज करें।"
+      }
+    },
+    "mood": {
+      "title": "अपना मूड दर्ज करें",
+      "mood": "अभी आपका मूड कैसा है?",
+      "option": {
+        "great": "बहुत अच्छा",
+        "good": "अच्छा",
+        "okay": "ठीक",
+        "bad": "कठिन",
+        "terrible": "बहुत कठिन"
+      },
+      "energy_level": "ऊर्जा (1-5, वैकल्पिक)",
+      "stress_level": "तनाव (1-5, वैकल्पिक)",
+      "sleep_hours": "नींद के घंटे (वैकल्पिक)",
+      "notes": "छोटा नोट (वैकल्पिक)",
+      "save": "मूड सहेजें",
+      "bad": {
+        "mood": "पहले अपना मूड चुनें।",
+        "energy_level": "ऊर्जा 1 से 5 तक की संख्या है।",
+        "stress_level": "तनाव 1 से 5 तक की संख्या है।",
+        "sleep_hours": "नींद के घंटे 0 से 24 के बीच हैं।",
+        "notes": "नोट बहुत लंबा है।"
+      }
+    },
+    "kicks": {
+      "title": "शिशु की हलचल दर्ज करें",
+      "count": "हलचल की संख्या",
+      "duration_seconds": "कितने मिनट में",
+      "save": "हलचल सहेजें",
+      "bad": {
+        "count": "1 से 200 तक पूर्ण संख्या दर्ज करें।",
+        "duration_seconds": "समय मिनटों में दर्ज करें, 1 से 240।"
+      }
+    },
+    "contractions": {
+      "title": "संकुचन दर्ज करें",
+      "interval_seconds": "पिछले से अब तक मिनट",
+      "duration_seconds": "कितनी देर रहा (सेकंड)",
+      "save": "संकुचन सहेजें",
+      "bad": {
+        "interval_seconds": "1 से 120 मिनट दर्ज करें।",
+        "duration_seconds": "5 से 300 सेकंड दर्ज करें।"
+      }
+    },
+    "growth": {
+      "title": "शिशु की बढ़त दर्ज करें",
+      "month": "आयु (महीने)",
+      "weight_kg": "वज़न (कि.ग्रा., वैकल्पिक)",
+      "height_cm": "लंबाई (से.मी., वैकल्पिक)",
+      "head_circ_cm": "सिर की परिधि (से.मी., वैकल्पिक)",
+      "save": "माप सहेजें",
+      "bad": {
+        "month": "आयु 0 से 60 महीनों की पूर्ण संख्या है।",
+        "weight_kg": "वज़न 0.3 से 40 कि.ग्रा. के बीच है।",
+        "height_cm": "लंबाई 20 से 150 से.मी. के बीच है।",
+        "head_circ_cm": "सिर की परिधि 20 से 60 से.मी. के बीच है।"
+      }
+    }
+  },
+  "LabResult": {
+    "title": "लैब परिणाम",
+    "error": "परिणाम लोड नहीं हो सका",
+    "errorBody": "थोड़ी देर बाद फिर कोशिश करें।",
+    "retry": "फिर कोशिश करें",
+    "critical": "महत्वपूर्ण — फ़ॉलो-अप ज़रूरी",
+    "values": "मान",
+    "range": "सामान्य सीमा {low} – {high}",
+    "flag_high": "अधिक",
+    "flag_low": "कम",
+    "flag_critical": "गंभीर",
+    "findings": "निष्कर्ष",
+    "impression": "मूल्यांकन",
+    "recommendations": "सिफ़ारिशें",
+    "notes": "लैब नोट्स",
+    "openBooking": "रिपोर्ट फ़ाइल देखने के लिए बुकिंग खोलें",
+    "empty": "इस परिणाम में और विवरण नहीं है।",
+    "discuss": "परिणाम पर डॉक्टर से बात करें",
+    "rangeText": "सामान्य सीमा {range}"
+  },
+  "Offline": {
+    "title": "आप ऑफ़लाइन हैं",
+    "body": "कनेक्शन न होने से यह पेज नहीं खुल सका। आपकी कार्ट इसी डिवाइस पर सुरक्षित है; कनेक्शन लौटने पर अपना अनुरोध भेजें।",
+    "home": "शुरुआत पर लौटें"
   }
 }

@@ -8,7 +8,7 @@
     "line": 0,
     "found": "On the seeded local backend (NODE_ENV=test) GET /public/categories/:locale answers {categories: []} and GET /public/categories/:locale/items answers total 0, so /ar/c shows the real empty state and every /p/<slug> is the not-found page. The owner-approved PharmacySeedService added 2 test pharmacies and 7 inventory items, but the public product catalogue (collection `medicines`, v14 import) is still empty. Data-bound sections (product cards, gallery, details, alternatives) were therefore only looked at with TEST payloads injected in the browser/mock layer, kept out of the repo.",
     "suspect": "The v14 catalogue file is not available offline; the reviewer session has to import it on the seeded backend before the product, category and medicine screens can be checked against real rows (prices, images, long names, Rx and discount cases).",
-    "review_status": "open (issue #467)"
+    "review_status": "not-a-problem: the public catalogue lists real published rows on main (j_web_compare_catalogue passes this step on main, #1500) (issue #467)"
   },
   {
     "batch": 1,
@@ -96,7 +96,7 @@
     "line": 34,
     "found": "The page needs ?ids=a,b (up to 4) and reads each with an unauthenticated GET /medicines/:id; nothing on the web links to it with ids (the app compares through POST /medicines/compare), so patients only reach the empty state. The table reads name, active_ingredient, price, dosage_form, manufacturer from the raw medicine record.",
     "suspect": "Needs a way to pick medicines (a 'compare' action on cards) and to use POST /medicines/compare like the app; field names (dosage_form, price) are unverified against the public DTO.",
-    "review_status": "open (issue #475)"
+    "review_status": "fixed #1500 (issue #475)"
   },
   {
     "batch": 1,
@@ -118,7 +118,7 @@
     "line": 75,
     "found": "Production build against the seeded backend: GET /ar/p/test-missing answers HTTP 200 with <meta name=\"robots\" content=\"index, follow\"> although the page calls notFound() (the upstream answers 404). Same code as main (notFound at the same place), so this is not new in this batch.",
     "suspect": "A soft 404 that crawlers may index: the not-found response should be 404 or noindex. Probably the streamed response (headers sent before notFound) plus the root layout robots. To check on the F82-1 rendering change (static/ISR for public pages), which touches this route.",
-    "review_status": "open (issue #477)"
+    "review_status": "not-a-problem: a missing product page answers robots noindex on main (patient-web/app/[locale]/p/[slug]/page.tsx:57; journey step in #1500) (issue #477)"
   },
   {
     "batch": 1,
@@ -129,6 +129,6 @@
     "line": 13,
     "found": "Production build: a plain GET /ar/medicines/compare makes the server call GET /api/v1/public/product-by-id/ar/compare (404), i.e. the legacy [medicineId] route's metadata resolver runs with medicineId=\"compare\". The compare page itself renders (200, real empty state). The call is visible in the backend log twice per request.",
     "suspect": "The dynamic sibling route is evaluated for the static path; harmless to users but a wasted upstream call and log noise. Not found on the agent's dev run; needs a look at how Next 16 matches [medicineId] next to compare (parseMedicineId may accept the word compare).",
-    "review_status": "open (issue #478)"
+    "review_status": "fixed 5556035ca (verified on main: lib/api/medicines.ts:3-5 refuses \"compare\" as a medicine id, so no upstream call) (issue #478)"
   }
 ]

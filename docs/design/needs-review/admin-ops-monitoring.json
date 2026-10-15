@@ -52,7 +52,7 @@
     "line": 18,
     "found": "[backend] No endpoint returns all pending approvals with counts, so the page asks nine existing list endpoints (providers, provider edits, withdrawals, refunds, returns, medicine change requests, shortage reports, image suggestions, catalogue medical review) and shows each count or a retry. The maker-checker lists GET /admin/finance-engine/approvals and GET /approval-workflow/requests/pending are not included (no page uses them yet). (backend: backend/src/modules/finance-engine/finance-engine.module.ts:1058)",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open"
+    "review_status": "not-a-problem: the approvals page counts each queue from its own list with a retry per row; one endpoint would be an optimisation"
   },
   {
     "batch": "admin",
@@ -173,6 +173,6 @@
     "line": 144,
     "found": "[backend] The orders list has no stuck / failed-payment / SLA-breach / refund-pending filter, so this screen lists only the stuck orders from ops/alerts (5 kinds, 30 minute threshold) and links each to its order page; failed payments link to finance because transactions carry a booking_kind that is not always an order kind. (backend: backend/src/modules/admin/enterprise/admin-orders.controller.ts:20)",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open (issue #1236)"
+    "review_status": "fixed #1461"
   }
 ]

@@ -150,6 +150,24 @@ export default function ConfigPortal() {
     fetchSLA();
   }, []);
 
+  // Issue 1236: the orders console settings (when an in-flight order counts as stuck; the compensation cap), audited.
+  const [stuckMinutes, setStuckMinutes] = useState<number | ''>('');
+  const [compensationMax, setCompensationMax] = useState<number | ''>('');
+  const [ordersCfgMsg, setOrdersCfgMsg] = useState('');
+  useEffect(() => {
+    fetchWithAdminGuard('/api/admin/admin/config/orders-console-config').then((r) => r.ok ? r.json() : null).then((c) => {
+      if (c) { setStuckMinutes(Number(c.stuck_minutes) || ''); setCompensationMax(Number(c.compensation_max_sar) || ''); }
+    }).catch(() => setOrdersCfgMsg('تعذر تحميل إعدادات الطلبات'));
+  }, []);
+  const saveOrdersConfig = async () => {
+    setOrdersCfgMsg('');
+    const res = await fetchWithAdminGuard('/api/admin/admin/config/orders-console-config', {
+      method: 'PUT',
+      body: JSON.stringify({ stuck_minutes: Number(stuckMinutes), compensation_max_sar: Number(compensationMax), reason: 'orders console settings from config portal' }),
+    }).catch(() => null);
+    setOrdersCfgMsg(res?.ok ? 'تم الحفظ' : 'تعذر الحفظ: تحقق من القيم (الدقائق 1-1440)');
+  };
+
   const handleUpdateSLA = async () => {
     setIsSubmitting(true);
     try {
@@ -306,6 +324,22 @@ export default function ConfigPortal() {
                 className={`px-5 py-2 rounded-lg font-bold text-white disabled:opacity-50 ${codActive ? 'bg-teal-600' : 'bg-gray-400'}`}>
                 {codActive === null ? '…' : codActive ? 'مُفعّل' : 'موقوف'}
               </button>
+            </div>
+
+            <div className="mt-6 p-4 rounded-lg border border-gray-200 space-y-3">
+              <div className="font-medium text-gray-800">إعدادات متابعة الطلبات</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <label className="text-sm font-medium">الطلب عالق بعد (دقيقة)
+                  <input type="number" min={1} max={1440} value={stuckMinutes} onChange={(e) => setStuckMinutes(e.target.value === '' ? '' : Number(e.target.value))} className="mt-1 w-full border rounded p-2" />
+                </label>
+                <label className="text-sm font-medium">حد التعويض الودي (ريال)
+                  <input type="number" min={1} value={compensationMax} onChange={(e) => setCompensationMax(e.target.value === '' ? '' : Number(e.target.value))} className="mt-1 w-full border rounded p-2" />
+                </label>
+              </div>
+              <div className="flex items-center gap-3">
+                <button onClick={saveOrdersConfig} disabled={stuckMinutes === '' || compensationMax === ''} className="rounded-lg bg-teal-600 px-5 py-2 font-bold text-white disabled:opacity-50">حفظ إعدادات الطلبات</button>
+                {ordersCfgMsg ? <span className="text-sm text-gray-600">{ordersCfgMsg}</span> : null}
+              </div>
             </div>
 
             <div className="pt-6">

@@ -19,7 +19,7 @@
     "line": 154,
     "found": "No gateway key on the local backend (intent answers 503) and no Mongo replica set (selection / insurance acceptance fail). Hosted checkout, return and webhook were checked only against a TEST stand-in outside the repo (payloads copied from the services).",
     "suspect": "Run once against the provider sandbox and a replica-set mongod.",
-    "review_status": "open (issue #551)"
+    "review_status": "owner-decision (question 38 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2) (issue #551)"
   },
   {
     "batch": 1,
@@ -107,6 +107,6 @@
     "line": 1,
     "found": "Both have no caller (pharmacy-draft.ts only its own test, not deleted: not this slice's test). The result screen verifies any transaction by id but 'Track / Try again' lead to pharmacy routes; other payments (other batches) leave no pointer.",
     "suspect": "Delete pharmacy-draft.ts with its test; route by verify's bookingKind once the callback carries the transaction id.",
-    "review_status": "open (issue #559)"
+    "review_status": "fixed #1467"
   }
 ]

@@ -9,7 +9,7 @@ import { showLocalizedAlert } from '../../../src/components/LocalizedAlert';
 import { StatusPill } from '../../../src/components/orders/OrderKit';
 import { Notice, Money } from '../../../src/components/pharmacy/OfferKit';
 import { step as scale, useScreenUi } from '../../../src/components/screen/ScreenKit';
-import { apiFetch } from '../../../src/utils/api';
+import { apiFetch, downloadProtected } from '../../../src/utils/api';
 import { isOffline } from '../../../src/utils/isOffline';
 import { logError } from '../../../src/utils/logger';
 import { recordOf } from '../../../src/utils/labMappers';
@@ -105,10 +105,23 @@ export default function OrderDetails() {
     ]);
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     // Never open a raw report/CDN URL supplied in a booking payload. A report is viewed only by its
     // server-owned identifier through the protected report API.
     const reports = Array.isArray(order?.reports) ? (order?.reports as unknown[]) : [];
+    // journeys#54: a lab booking keeps its report file itself (GET /labs/bookings/:id/reports/:reportId);
+    // it is saved with the session and handed to the system viewer.
+    const labReport = kind === 'lab' ? rec(reports.find((r) => rec(r)?.has_file === true)) : null;
+    if (labReport && str(labReport.id)) {
+      const uri = await downloadProtected(`/labs/bookings/${encodeURIComponent(id)}/reports/${encodeURIComponent(str(labReport.id))}`, `lab-report-${str(labReport.id)}.pdf`);
+      if (uri) {
+        const { shareAsync } = await import('expo-sharing');
+        await shareAsync(uri, { mimeType: str(labReport.mime) || 'application/pdf', dialogTitle: k('diag.order.pdf') });
+        return;
+      }
+      showLocalizedAlert(k('diag.order.noReportTitle'), k('diag.order.noReportBody'));
+      return;
+    }
     const reportId = str(order?.report_id) || str(rec(order?.report)?.id) || str(rec(reports[0])?.id);
     if (reportId) {
       router.push({ pathname: '/reports/view-report', params: { id: reportId } } as unknown as Href);

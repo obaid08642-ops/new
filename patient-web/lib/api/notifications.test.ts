@@ -23,6 +23,9 @@ describe("webRouteForNotification", () => {
     expect(webRouteForNotification(`/reports/${id}`, "ur")).toBe(`/ur/reports/${id}`);
     expect(webRouteForNotification("/consultations/appointments", "hi")).toBe("/hi/appointments");
   });
+  it("decision 19: a lab \"result ready\" notification opens that lab result", () => {
+    expect(webRouteForNotification(`/health/results/${id}`, "ar")).toBe(`/ar/diagnostics/results/${id}`);
+  });
   it("returns null for app-only routes, other schemes and malformed ids", () => {
     for (const route of ["/provider/job/abc", "/tracking/lab/abc", "https://example.test/x", "//example.test", "/orders/../admin", `/orders/${id}/../../x`, "javascript:alert(1)", "", undefined]) {
       expect(webRouteForNotification(route, "en")).toBeNull();

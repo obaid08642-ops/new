@@ -154,6 +154,9 @@ textarea.control { resize: vertical; line-height: 1.6; overflow-wrap: anywhere; 
 
 /* ---- the doctor, clinic and specialty pages ---- */
 .profile { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.profilePhoto { inline-size: 88px; block-size: 88px; border-radius: 50%; object-fit: cover; background: var(--nabd-color-bg-sunken); }
+.gallery { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr)); gap: 8px; }
+.galleryImg { display: block; inline-size: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-sunken); }
 .profileName { display: inline-flex; align-items: center; gap: 6px; justify-content: center; flex-wrap: wrap; }
 .profileTitle { margin: 0; font-size: var(--nabd-font-size-h1); line-height: var(--nabd-font-size-h1-lineHeight); font-weight: 700; overflow-wrap: anywhere; }
 .stats { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 8px; inline-size: 100%; }
