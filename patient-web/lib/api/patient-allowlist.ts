@@ -128,6 +128,8 @@ const healthMutationRoutes: Array<{ method: "POST" | "DELETE"; route: RegExp }> 
   { method: "POST", route: new RegExp("^/emergency/share-location$") },
   { method: "DELETE", route: new RegExp("^/health/emergency-contacts/[A-Za-z0-9_-]{1,128}$") },
   { method: "POST", route: new RegExp("^/articles/bookmarks/[A-Za-z0-9_-]{1,160}/toggle$") },
+  // ac-1-agent-oauth#1: settings, disconnect a connected AI assistant (backend PatientAgentConnectionsController)
+  { method: "DELETE", route: new RegExp("^/patient/agent-connections/[A-Za-z0-9_.:-]{1,128}$") },
 ];
 
 const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }> = [

@@ -129,6 +129,9 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
   }, []);
 
   const [applications, setApplications] = useState<any[]>([]);
+  // A signed-in provider's own applications (as a candidate): GET /recruitment/applications/my. The device-bound
+  // GET /recruitment/guest/mine is for visitors without an account only (it needs device_id and answers 400 without).
+  const [myApplications, setMyApplications] = useState<any[]>([]);
   const [inboxLoading, setInboxLoading] = useState(false);
 
   useEffect(() => {
@@ -144,6 +147,12 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
     if (!user?.id) return;
     setInboxLoading(true);
     (async () => {
+      try {
+        const mine = await client.get('/recruitment/applications/my');
+        setMyApplications(Array.isArray(mine.data) ? mine.data : []);
+      } catch {
+        setMyApplications([]);
+      }
       try {
         const jobsRes = await client.get('/recruitment/jobs', { params: { facility_id: user.id } });
         const myJobs = Array.isArray(jobsRes.data) ? jobsRes.data : (jobsRes.data?.data || []);
@@ -171,7 +180,7 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
         setInboxLoading(false);
       }
     })();
-  }, [tab, user?.id]);
+  }, [tab, user?.id, guestId]);
 
   const filtered = jobs.filter(j =>
     (((AR ? j.title_ar : j.title_en) || '').toLowerCase().includes(search.toLowerCase()) || (j.facility || '').includes(search)) &&
@@ -291,7 +300,7 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
   };
 
 
-  const ctx: any = { theme, lang, AR, show, user, insets, onBack, onOpenChat, tab, setTab, postType, setPostType, search, setSearch, showFilters, setShowFilters, selectedJob, setSelectedJob, selectedApp, setSelectedApp, filterProf, setFilterProf, filterCity, setFilterCity, postTitle, setPostTitle, postProf, setPostProf, postClass, setPostClass, postContract, setPostContract, postNat, setPostNat, postExp, setPostExp, postDesc, setPostDesc, postContact, setPostContact, postPhone, setPostPhone, postCompany, setPostCompany, postSalary, setPostSalary, applyVisible, setApplyVisible, applyName, setApplyName, applyPhone, setApplyPhone, applyClass, setApplyClass, applyExp, setApplyExp, applyReady, setApplyReady, applyCV, setApplyCV, guestId, guestMine, isGuest, applyCvUrl, setApplyCvUrl, applyScfhs, setApplyScfhs, applyScfhsExp, setApplyScfhsExp, uploadingCV, setUploadingCV, jobs, loading, posting, postCity, setPostCity, applications, inboxLoading, filtered, handlePost, handleApply };
+  const ctx: any = { theme, lang, AR, show, user, insets, onBack, onOpenChat, tab, setTab, postType, setPostType, search, setSearch, showFilters, setShowFilters, selectedJob, setSelectedJob, selectedApp, setSelectedApp, filterProf, setFilterProf, filterCity, setFilterCity, postTitle, setPostTitle, postProf, setPostProf, postClass, setPostClass, postContract, setPostContract, postNat, setPostNat, postExp, setPostExp, postDesc, setPostDesc, postContact, setPostContact, postPhone, setPostPhone, postCompany, setPostCompany, postSalary, setPostSalary, applyVisible, setApplyVisible, applyName, setApplyName, applyPhone, setApplyPhone, applyClass, setApplyClass, applyExp, setApplyExp, applyReady, setApplyReady, applyCV, setApplyCV, guestId, guestMine, isGuest, applyCvUrl, setApplyCvUrl, applyScfhs, setApplyScfhs, applyScfhsExp, setApplyScfhsExp, uploadingCV, setUploadingCV, jobs, loading, posting, postCity, setPostCity, applications, myApplications, inboxLoading, filtered, handlePost, handleApply };
   if (selectedJob && !applyVisible) { return <MedicalJobsDetail ctx={ctx} />; }
   if (selectedJob && applyVisible) { return <MedicalJobsApplicant ctx={ctx} />; }
   if (selectedApp) { return <MedicalJobsApplicant ctx={ctx} />; }

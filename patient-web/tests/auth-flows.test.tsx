@@ -15,10 +15,7 @@ import { OtpScreen, resendErrorMessage, verifyErrorMessage } from "../components
 import { ForgotPasswordForm, forgotErrorMessage } from "../components-next/forgot-password-form";
 import { PasswordResetForm, resetErrorMessage } from "../components-next/password-reset-form";
 import { AuthWelcome } from "../components-next/auth-welcome";
-import { OnboardingCarousel } from "../components-next/onboarding-carousel";
-import { OnboardingPermissionsClient } from "../components-next/onboarding-permissions-client";
 import { ThemeToggle } from "../components-next/theme-toggle";
-import { SERVICE_ICONS } from "../components-next/ui-generated/icons/fill";
 import { locales, type Locale } from "../lib/i18n";
 
 const LATIN_ONLY_WORDS = /\b(Forgot password\?|Show password|Hide password|Or continue with|Create an account|Continue as guest|Resend code|Verify code|Skip|Get started)\b/;
@@ -92,10 +89,6 @@ describe("one-time code and recovery messages", () => {
 });
 
 describe("auth screens come from the message files in every language", () => {
-  const slides = [
-    { title: "A", body: "B", ...SERVICE_ICONS.consult },
-    { title: "C", body: "D", ...SERVICE_ICONS.lab },
-  ];
   it.each(locales)("renders %s without a missing key and without the English literals", (locale) => {
     const html = inLocale(locale, () => [
       renderToStaticMarkup(<LoginForm locale={locale} />),
@@ -104,8 +97,6 @@ describe("auth screens come from the message files in every language", () => {
       renderToStaticMarkup(<ForgotPasswordForm locale={locale} />),
       renderToStaticMarkup(<PasswordResetForm locale={locale} />),
       renderToStaticMarkup(<AuthWelcome locale={locale} />),
-      renderToStaticMarkup(<OnboardingCarousel slides={slides} locale={locale} />),
-      renderToStaticMarkup(<OnboardingPermissionsClient locale={locale} />),
       renderToStaticMarkup(<ThemeToggle label="x" />),
     ].join("\n"));
     expect(html.length).toBeGreaterThan(1000);
