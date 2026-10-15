@@ -19,7 +19,7 @@ import { prescriptionStateTone } from "@/components-next/pharmacy/rx-state";
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
 import rx from "@/components-next/pharmacy/rx.module.css";
 
-type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ prescriptionId?: string | string[]; id?: string | string[]; via?: string | string[] }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ prescriptionId?: string | string[]; id?: string | string[]; via?: string | string[]; name?: string | string[] }> };
 const idPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value) ?? "";
 
@@ -71,7 +71,8 @@ export default async function PharmacyRxOrderPage({ params, searchParams }: Prop
   const viaParam = first(query.via);
   const via: RxWay = viaParam === "upload" || viaParam === "type" ? viaParam : "photo";
   const ways = <RxWays locale={locale} via={via} />;
-  if (via === "type") return <RequestScreen locale={locale} before={ways} />;
+  // `name`: the term a search found nothing for (catalogue empty state, cart link), so the patient does not type it again.
+  if (via === "type") return <RequestScreen locale={locale} before={ways} initialName={first(query.name).trim().slice(0, 200)} />;
 
   // the patient's active prescriptions under the photo and upload ways; when they cannot be read the ways still work
   const response = await callPatientApi("/prescriptions/active", {}, token);

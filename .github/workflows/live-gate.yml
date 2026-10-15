@@ -76,6 +76,19 @@ jobs:
           ADMIN_GATE_TOKEN=live-gate-token ADMIN_BACKEND_URL=http://127.0.0.1:8002 NODE_ENV=production nohup npx next start -p 3001 -H 127.0.0.1 > /tmp/admin.log 2>&1 &
           for i in $(seq 1 60); do curl -s -o /dev/null http://127.0.0.1:3001/ && break; sleep 2; done
 
+      # Fix session: patient-web screens are proven in a real browser too (tools/live/j_web_*.py), so the gate
+      # builds the website against this backend and serves it on :3000 (tools/live/start-web.sh).
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.4.1
+
+      - name: Patient web
+        working-directory: patient-web
+        run: |
+          corepack enable && pnpm install --frozen-lockfile
+          NABD_API_BASE_URL=http://127.0.0.1:8002/api/v1 INTERNAL_API_BASE_URL=http://127.0.0.1:8002/api/v1 NEXT_PUBLIC_SITE_ORIGIN=http://localhost:3000 NEXT_TELEMETRY_DISABLED=1 pnpm run build
+          bash ../tools/live/start-web.sh patient-web
+
       - name: Journeys
         run: bash tools/live/run_gate.sh
 
