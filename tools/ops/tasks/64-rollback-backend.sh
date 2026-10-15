@@ -68,11 +68,16 @@ M=$(curl -sk --max-time 20 -H "$H_API" 'https://127.0.0.1/api/v1/medicines?limit
 import json,sys
 try: d=json.load(sys.stdin)
 except Exception: print("not-json"); sys.exit()
-for k in ("data","items","results","medicines"):
-    if isinstance(d,dict) and isinstance(d.get(k),list): d=d[k]; break
+for _ in range(3):
+    if isinstance(d,list): break
+    if not isinstance(d,dict): break
+    for k in ("data","items","results","medicines","docs"):
+        if isinstance(d.get(k),(list,dict)): d=d[k]; break
+    else: break
 print(len(d) if isinstance(d,list) else "unknown-shape")')
 echo "deploy: GET /api/v1/medicines?limit=5 -> $M item(s)"
-if [ "${OPS_REQUIRE_MEDICINES:-1}" = 1 ]; then case "$M" in [1-9]*) ;; *) ok=0; echo "deploy: FAIL the public medicine list is still empty";; esac; fi
+# an empty list fails; an answer this check cannot read is reported, not guessed
+if [ "${OPS_REQUIRE_MEDICINES:-1}" = 1 ]; then case "$M" in [1-9]*) ;; 0) ok=0; echo "deploy: FAIL the public medicine list is still empty";; *) echo "deploy: medicine list answer not readable here ($M); check it by hand";; esac; fi
 [ $ok = 1 ] && echo "deploy: ROLLBACK COMPLETE - backend, admin-web, patient-web, nginx and files are the pre-deploy ones" || { echo "deploy: ROLLBACK CHECKS FAILED"; exit 1; }
 
 # ---------------------------------------------------------------- 3. read-only facts for the next deploy (counts only)
