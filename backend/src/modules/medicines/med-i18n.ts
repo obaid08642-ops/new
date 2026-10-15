@@ -302,6 +302,10 @@ export function resolveMedicinePublicDto(raw: Record<string, any>, productLocale
     discount_percent: discount, has_discount: discount > 0,
     currency: 'SAR',
     is_rx: raw?.requires_prescription === true || raw?.is_rx === true,
+    // Decision 11: the "online only" badge on the public product page and the online-only note on cart lines.
+    online_exclusive: raw?.online_exclusive === true,
+    // Published items are shown on the site; only indexable ones go to search engines (the page says noindex otherwise).
+    indexable: raw?.indexing_eligibility === true,
     available_online: raw?.available_online !== false,
     availability_status: raw?.availability_status || 'none',
     available: raw?.availability_status === 'none' || !raw?.availability_status,

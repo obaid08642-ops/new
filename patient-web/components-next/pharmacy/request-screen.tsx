@@ -24,13 +24,13 @@ const DETAILS_MAX = 500;
  * and submitted (POST /patient/pharmacy/orders with `manual_request` and the saved address, then /submit), so it really
  * reaches the pharmacies; before this rebuild the web only created a draft that nobody was ever asked about.
  */
-export function RequestScreen({ locale, before }: { locale: Locale; before?: ReactNode }) {
+export function RequestScreen({ locale, before, initialName = "" }: { locale: Locale; before?: ReactNode; initialName?: string }) {
   const t = useTranslations("PharmacyRequest");
   const rxT = useTranslations("RxUpload");
   const flow = useTranslations("PharmacyFlow");
   const router = useRouter();
   const address = useDeliveryAddress(true);
-  const [name, setName] = useState("");
+  const [name, setName] = useState(initialName);
   const [details, setDetails] = useState("");
   const [sending, setSending] = useState(false);
   const [failure, setFailure] = useState<"session" | "send" | null>(null);

@@ -293,7 +293,8 @@
     "finalPriceFromOffer": "Shown with each offer",
     "flowNote": "We send your request to nearby pharmacies and their offers come back to you. You choose the best one, then you pay.",
     "requestOffers": "Request pharmacy offers",
-    "summaryLabel": "Order summary"
+    "summaryLabel": "Order summary",
+    "manualRequest": "Can't find your medicine? Add a manual request"
   },
   "PharmacyFlow": {
     "sessionEnded": "Your session has ended. Sign in again to continue.",
@@ -1383,7 +1384,8 @@
     "emptyCategory": "No published products in this category yet.",
     "allCategories": "All categories",
     "loadMore": "Load more",
-    "page": "Page {page}"
+    "page": "Page {page}",
+    "onlineOnly": "Online only"
   },
   "Wallet": {
     "wallet": "Wallet",
@@ -2085,7 +2087,8 @@
     "sortPopular": "Most popular",
     "sortPriceAsc": "Price: low to high",
     "sortPriceDesc": "Price: high to low",
-    "sortNewest": "Newest"
+    "sortNewest": "Newest",
+    "askPharmacies": "Ask nearby pharmacies for it"
   },
   "PharmacyOffers": {
     "backToOrder": "Back to the order",
