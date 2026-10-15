@@ -41,16 +41,25 @@ Each has red on `main` and green on the branch in its body; lines are set to `fi
 | #1477 | decision leftovers: online-only card, Rx note, the cart's prescription, nearby filters, crisis strings | issues 327, 329, 330, 337, 339 |
 | #1478 | web home nursing booking; nurses' hours give slots (root cause); one nursing list | journeys 60, 63; tooling 0; 3-web 2; 4-web 1 |
 | #1480 | lab result push opens the result, with "discuss with a doctor" | issue 338 |
+| #1481 | one AI assistant endpoint on web and app | issue 326 |
+| #1482 | ambulance role and roster removed | issue 333 |
+| #1484 | app co-pay through capabilities and intent | issues 820, 832, 848 |
+| #1485 | SFDA price review: check runs for catalogue items, admin page, per-line warning | issue 331 |
+| #1486 | open lines verified on main (journeys 33, 34, 48; tooling 8, 9) | issues 1042, 1043, 1057, 422, 568, 569 |
+| #1487 | offers wait never endless; a broadcasting order is not "selected" | issues 332, 1011; journeys 2 |
+| #1489 | password reset by link (30 min, phone-only reached); notification routes; one API base URL | issues 435, 416, 410, 411 |
+| #1490 | book and pay a consultation for a family member (builds on fix/family-client) | issue 684 |
+| #1491 | public search (approved medicines found); Google popup; onboarding reachable | issues 439, 430, 436, 437 |
 
 Decision epics verified on main and closed with evidence: #322, #324, #325, #335, #336.
 
 ## Next
 
-- In red/green now (worktrees `ow`, `ai`, `amb`, `sfda`): offers waiting never endless (issue 332, includes a fix: a
-  broadcasting order was drawn as "selected"); one AI assistant endpoint on web and app (326); ambulance role removed (333);
-  SFDA price review page and per-line warning (331). Open each PR when its green run passes.
-- Then: B8 part 2 (six-language preparation editors), journeys 77 (offline page, after #1473), provider-journeys 28, and the
-  route:claude-fix issues still open (list in the session notes: maternity/mood/water b8, insurance b7, family b6, b0 login
-  and notifications, admin 1235, journeys 1011-1086).
-- Disk: the session allowance filled once (Mongo stopped). Old queue databases and finished worktrees were removed; keep
-  removing `.next`/`dist` of worktrees whose PRs are open.
+- Branches in red/green, PR when green: `fix/family-client` (693, 688, 694, 499), `fix/web-health-logging` (862, 864, 869;
+  mood scale 1-5 fix), `fix/provider-proposals` (admin page for /approval-workflow requests; provider-journeys 28; 1169),
+  `fix/web-journeys-b` (journeys 44, 29), `fix/family-meds` (journeys 67, 68; builds on fix/family-client).
+- Closed with evidence (fixed on main): 1137, 1139, 1161, 1163.
+- Left for their own sessions: journeys 9, 24 and the insurance part of 23 (decision 30, D-30 session).
+- Then: journeys 22, 23, 41, 66, 74, 75, 77 (after #1473), 8; provider-journeys 1, 4, 22; b1 items; B8 part 2; 1235.
+- Queue rule: a queue waits on the previous one by PID (`ps aux | grep "bash -x queueN"`), never `pgrep -f` on a pattern
+  that matches the shell itself.
