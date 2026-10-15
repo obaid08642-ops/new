@@ -260,6 +260,25 @@ def main():
     except Exception as e:
         step('finance suite flow', False, str(e)[:300])
 
+    # ---- authority overrides: no ungoverned impersonation, every override names a permission (fix session) ----
+    journey('admin authority: no ungoverned impersonation token')
+    try:
+        from j_accounts import app_signup
+        from lib import Client
+        acct = app_signup(label='authority-target')
+        me = Client(acct.get('token'), 'patient').get('/auth/me')
+        target = ((me.body.get('data') or me.body) or {}).get('id') if isinstance(me.body, dict) else None
+        step('target patient id resolves', bool(target), me)
+        if admin and target:
+            r = admin.post(f'/admin/authority/users/{target}/impersonate', {})
+            tok = r.get('access_token')
+            step('legacy /admin/authority/users/:id/impersonate mints no token (governed sessions only)', not r.ok and not tok, r)
+            if tok:
+                who = Client(tok, 'patient').get('/auth/me')
+                step('(the minted token acts as the target user)', False, who)
+    except Exception as e:
+        step('authority impersonation flow', False, str(e)[:300])
+
     browser.close()
     pw.stop()
 
