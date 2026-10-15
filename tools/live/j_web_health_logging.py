@@ -43,9 +43,9 @@ def main():
         for label, value in fills:
             form.get_by_label(label).fill(value)
         form.locator('button[type="submit"]').click()
-        done = form.locator('[role="status"], [role="alert"]').first
-        done.wait_for(timeout=30000)
-        return done.inner_text()
+        # the saved page refreshes its lists, so read the message as soon as it shows (it may be drawn again)
+        handle = page.wait_for_function("(name) => { const f = [...document.querySelectorAll('form')].find((x) => x.getAttribute('aria-label') === name); const m = f && f.querySelector('[role=status], [role=alert]'); return m ? m.textContent : null; }", arg=form_label, timeout=30000)
+        return handle.json_value()
 
     try:
         page.goto(f'{WEB}/ar', wait_until='load', timeout=60000)
