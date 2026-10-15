@@ -117,7 +117,12 @@ def main():
         if link is not None and link.count():
             link.first.click()
             page.wait_for_url(f'**/ar/articles/{slug}', timeout=30000)
-            step('the link opens the article', page.locator(f'text={title}').count() > 0, page.url)
+            try:
+                page.get_by_text(title).first.wait_for(timeout=30000)
+                opened = True
+            except Exception:
+                opened = False
+            step('the link opens the article', opened, f"{page.url} {page.locator('main').first.inner_text()[:300] if page.locator('main').count() else ''}")
     except Exception as e:
         step('web maternity week', False, str(e)[:300])
     finally:
