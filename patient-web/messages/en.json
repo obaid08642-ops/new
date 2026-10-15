@@ -4089,5 +4089,25 @@
     "faqIngredient": "What is the active ingredient of {name}?",
     "faqPrice": "How much is {name} on Nabd Plus?",
     "howToTitle": "How to use {name}"
+  },
+  "LabResult": {
+    "title": "Lab result",
+    "error": "The result could not be loaded",
+    "errorBody": "Try again in a moment.",
+    "retry": "Try again",
+    "critical": "Important — needs follow-up",
+    "values": "Values",
+    "range": "Normal range {low} – {high}",
+    "flag_high": "High",
+    "flag_low": "Low",
+    "flag_critical": "Critical",
+    "findings": "Findings",
+    "impression": "Impression",
+    "recommendations": "Recommendations",
+    "notes": "Lab notes",
+    "openBooking": "Open the booking to see the report file",
+    "empty": "This result has no further details.",
+    "discuss": "Discuss the result with a doctor",
+    "rangeText": "Normal range {range}"
   }
 }

@@ -900,12 +900,16 @@ export class NotificationsService {
     if (!p.patient_id) return;
     await this.create({
       user_id: p.patient_id,
-      title_key: 'notif.lab_result_ready.title',
-      body_key: 'notif.lab_result_ready.body',
-      params: { tracking_id: p.tracking_id, result_id: p.result_id },
+      title_key: p.critical ? 'notif.lab_result_critical.title' : 'notif.lab_result_ready.title',
+      body_key: p.critical ? 'notif.lab_result_critical.body' : 'notif.lab_result_ready.body',
+      params: { tracking_id: p.tracking_id, result_id: p.report_id },
       type: NotificationType.INFO,
-      priority: NotificationPriority.HIGH,
-      action: { route: `/labs/bookings/${p.booking_id}` },
+      priority: p.critical ? NotificationPriority.CRITICAL : NotificationPriority.HIGH,
+      // decision 19 (issue 338): the push opens this result (GET /lab-results/:id resolves a report uploaded on the
+      // booking too) and offers "discuss with a doctor", as lab.result_ready does
+      action: p.report_id
+        ? { route: `/health/results/${p.report_id}`, payload: { result_id: p.report_id, booking_id: p.booking_id, discuss: { route: '/consultations/book' } }, discuss: { route: '/consultations/book' } }
+        : { route: `/labs/bookings/${p.booking_id}` },
     });
   }
 

@@ -3225,5 +3225,20 @@
   "search.kind.nursingServices": "Mga serbisyo ng pag-aalaga",
   "insurance.benefits.requestsTitle": "Mga kahilingan sa insurance: {count}",
   "insurance.benefits.insurerCovered": "Sinagot ng insurer",
-  "insurance.benefits.youPaid": "Binayaran mo"
+  "insurance.benefits.youPaid": "Binayaran mo",
+  "diag.result.title": "Resulta ng lab",
+  "diag.result.error": "Hindi ma-load ang resulta",
+  "diag.result.by": "Inilabas ni",
+  "diag.result.values": "Mga halaga",
+  "diag.result.range": "Normal na saklaw {low} – {high}",
+  "diag.result.flag.normal": "Nasa normal",
+  "diag.result.flag.high": "Mataas",
+  "diag.result.flag.low": "Mababa",
+  "diag.result.flag.critical": "Kritikal",
+  "diag.result.findings": "Mga natuklasan",
+  "diag.result.impression": "Impresyon",
+  "diag.result.notes": "Mga tala ng lab",
+  "diag.result.openBooking": "Buksan ang booking para makita ang report file",
+  "diag.result.discuss": "Pag-usapan ang resulta kasama ang doktor",
+  "diag.result.rangeText": "Normal na saklaw {range}"
 }

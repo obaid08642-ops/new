@@ -4089,5 +4089,25 @@
     "faqIngredient": "ما المادة الفعالة في {name}؟",
     "faqPrice": "كم سعر {name} في نبض بلس؟",
     "howToTitle": "طريقة استخدام {name}"
+  },
+  "LabResult": {
+    "title": "نتيجة التحليل",
+    "error": "تعذّر تحميل النتيجة",
+    "errorBody": "حاول مرة أخرى بعد قليل.",
+    "retry": "إعادة المحاولة",
+    "critical": "مهم — يحتاج متابعة",
+    "values": "القيم",
+    "range": "المعدل الطبيعي {low} – {high}",
+    "flag_high": "مرتفع",
+    "flag_low": "منخفض",
+    "flag_critical": "حرج",
+    "findings": "الملاحظات",
+    "impression": "الانطباع",
+    "recommendations": "التوصيات",
+    "notes": "ملاحظات المختبر",
+    "openBooking": "افتح الطلب لعرض ملف التقرير",
+    "empty": "لا توجد تفاصيل أخرى في هذه النتيجة.",
+    "discuss": "ناقش النتيجة مع طبيب",
+    "rangeText": "المعدل الطبيعي {range}"
   }
 }

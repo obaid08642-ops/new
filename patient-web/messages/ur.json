@@ -4089,5 +4089,25 @@
     "faqIngredient": "{name} کا فعال جزو کیا ہے؟",
     "faqPrice": "نبض پلس پر {name} کی قیمت کیا ہے؟",
     "howToTitle": "{name} استعمال کرنے کا طریقہ"
+  },
+  "LabResult": {
+    "title": "لیب کا نتیجہ",
+    "error": "نتیجہ لوڈ نہیں ہو سکا",
+    "errorBody": "تھوڑی دیر بعد دوبارہ کوشش کریں۔",
+    "retry": "دوبارہ کوشش کریں",
+    "critical": "اہم — فالو اپ درکار",
+    "values": "اقدار",
+    "range": "نارمل حد {low} – {high}",
+    "flag_high": "زیادہ",
+    "flag_low": "کم",
+    "flag_critical": "نازک",
+    "findings": "نتائج",
+    "impression": "تاثر",
+    "recommendations": "سفارشات",
+    "notes": "لیب کے نوٹس",
+    "openBooking": "رپورٹ فائل دیکھنے کے لیے بکنگ کھولیں",
+    "empty": "اس نتیجے میں مزید تفصیل نہیں۔",
+    "discuss": "نتیجے پر ڈاکٹر سے بات کریں",
+    "rangeText": "نارمل حد {range}"
   }
 }

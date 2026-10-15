@@ -3225,5 +3225,20 @@
   "search.kind.nursingServices": "Nursing services",
   "insurance.benefits.requestsTitle": "Insurance requests: {count}",
   "insurance.benefits.insurerCovered": "Covered by insurer",
-  "insurance.benefits.youPaid": "You paid"
+  "insurance.benefits.youPaid": "You paid",
+  "diag.result.title": "Lab result",
+  "diag.result.error": "The result could not be loaded",
+  "diag.result.by": "Issued by",
+  "diag.result.values": "Values",
+  "diag.result.range": "Normal range {low} – {high}",
+  "diag.result.flag.normal": "Normal",
+  "diag.result.flag.high": "High",
+  "diag.result.flag.low": "Low",
+  "diag.result.flag.critical": "Critical",
+  "diag.result.findings": "Findings",
+  "diag.result.impression": "Impression",
+  "diag.result.notes": "Lab notes",
+  "diag.result.openBooking": "Open the booking to see the report file",
+  "diag.result.discuss": "Discuss the result with a doctor",
+  "diag.result.rangeText": "Normal range {range}"
 }

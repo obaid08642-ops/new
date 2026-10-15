@@ -3225,5 +3225,20 @@
   "search.kind.nursingServices": "خدمات تمريض",
   "insurance.benefits.requestsTitle": "طلبات التأمين: {count}",
   "insurance.benefits.insurerCovered": "غطّته شركة التأمين",
-  "insurance.benefits.youPaid": "دفعتَه أنت"
+  "insurance.benefits.youPaid": "دفعتَه أنت",
+  "diag.result.title": "نتيجة التحليل",
+  "diag.result.error": "تعذّر تحميل النتيجة",
+  "diag.result.by": "أصدرها",
+  "diag.result.values": "القيم",
+  "diag.result.range": "المعدل الطبيعي {low} – {high}",
+  "diag.result.flag.normal": "طبيعي",
+  "diag.result.flag.high": "مرتفع",
+  "diag.result.flag.low": "منخفض",
+  "diag.result.flag.critical": "حرج",
+  "diag.result.findings": "الملاحظات",
+  "diag.result.impression": "الانطباع",
+  "diag.result.notes": "ملاحظات المختبر",
+  "diag.result.openBooking": "افتح الطلب لعرض ملف التقرير",
+  "diag.result.discuss": "ناقش النتيجة مع طبيب",
+  "diag.result.rangeText": "المعدل الطبيعي {range}"
 }

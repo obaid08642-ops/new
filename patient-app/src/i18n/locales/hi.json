@@ -3225,5 +3225,20 @@
   "search.kind.nursingServices": "नर्सिंग सेवाएं",
   "insurance.benefits.requestsTitle": "बीमा अनुरोध: {count}",
   "insurance.benefits.insurerCovered": "बीमा कंपनी ने कवर किया",
-  "insurance.benefits.youPaid": "आपने भुगतान किया"
+  "insurance.benefits.youPaid": "आपने भुगतान किया",
+  "diag.result.title": "लैब परिणाम",
+  "diag.result.error": "परिणाम लोड नहीं हो सका",
+  "diag.result.by": "जारीकर्ता",
+  "diag.result.values": "मान",
+  "diag.result.range": "सामान्य सीमा {low} – {high}",
+  "diag.result.flag.normal": "सामान्य",
+  "diag.result.flag.high": "अधिक",
+  "diag.result.flag.low": "कम",
+  "diag.result.flag.critical": "गंभीर",
+  "diag.result.findings": "निष्कर्ष",
+  "diag.result.impression": "मूल्यांकन",
+  "diag.result.notes": "लैब नोट्स",
+  "diag.result.openBooking": "रिपोर्ट फ़ाइल देखने के लिए बुकिंग खोलें",
+  "diag.result.discuss": "परिणाम पर डॉक्टर से बात करें",
+  "diag.result.rangeText": "सामान्य सीमा {range}"
 }
