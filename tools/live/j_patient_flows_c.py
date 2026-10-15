@@ -85,16 +85,20 @@ def main():
         step('the patient signs in on the website', r.ok, r.status)
 
         journey('ac-1-agent-oauth#1: the website lists and disconnects it')
-        page.goto(f'{WEB}/ar/settings/connected-apps', wait_until='load', timeout=60000)
-        row = page.get_by_text(name)
-        row.first.wait_for(timeout=30000)
-        main_text = page.locator('main').first.inner_text()
-        step('the connected assistant is listed with what it may do', 'عرض طلباتك وحجوزاتك الخاصة' in main_text, main_text[:300])
-        page.wait_for_function("() => { const b = [...document.querySelectorAll('button')].find((x) => x.textContent.includes('قطع الاتصال')); return !!b && Object.keys(b).some((k) => k.startsWith('__react')); }", timeout=30000)
-        page.get_by_role('button', name='قطع الاتصال').first.click()
-        page.get_by_text('لا تطبيقات متصلة').first.wait_for(timeout=30000)
-        rows = pat.get('/patient/agent-connections')
-        step('disconnecting it ends the connection on the server', not any(x.get('client_id') == client_id for x in (rows.body if isinstance(rows.body, list) else rows.items())), rows)
+        # each part has its own try, so a failure here does not hide the pickup check below
+        try:
+            page.goto(f'{WEB}/ar/settings/connected-apps', wait_until='load', timeout=60000)
+            row = page.get_by_text(name)
+            row.first.wait_for(timeout=30000)
+            main_text = page.locator('main').first.inner_text()
+            step('the connected assistant is listed with what it may do', 'عرض طلباتك وحجوزاتك الخاصة' in main_text, main_text[:300])
+            page.wait_for_function("() => { const b = [...document.querySelectorAll('button')].find((x) => x.textContent.includes('قطع الاتصال')); return !!b && Object.keys(b).some((k) => k.startsWith('__react')); }", timeout=30000)
+            page.get_by_role('button', name='قطع الاتصال').first.click()
+            page.get_by_text('لا تطبيقات متصلة').first.wait_for(timeout=30000)
+            rows = pat.get('/patient/agent-connections')
+            step('disconnecting it ends the connection on the server', not any(x.get('client_id') == client_id for x in (rows.body if isinstance(rows.body, list) else rows.items())), rows)
+        except Exception as e:
+            step('ac-1-agent-oauth#1 web flow', False, str(e)[:300])
 
         journey('journeys#23: order the prescription for pickup')
         if rx_id:
