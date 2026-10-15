@@ -7,6 +7,31 @@ EMAIL, PASSWORD = 'admin@nabd.test', 'Adm1n!Live-Pass'
 
 
 SESSION_FILE = os.environ.get('LIVE_ADMIN_SESSION')  # run_gate.sh: reuse one admin session across journeys
+DEVICE_FILE = os.environ.get('LIVE_ADMIN_DEVICE_FILE', '/tmp/nabd-admin-device-id')
+
+
+def _load_browser_device(w):
+    """D-35: one browser identity per gate run. A fresh jar would mint a fresh
+    device id on every login and the 2-device limit would refuse the third one,
+    so the enrolled device id is reused across this run's logins."""
+    import http.cookiejar
+    try:
+        with open(DEVICE_FILE) as f:
+            dev = f.read().strip()
+    except OSError:
+        return
+    if len(dev) >= 16:
+        w.jar.set_cookie(http.cookiejar.Cookie(0, 'admin_device', dev, None, False, '127.0.0.1', False, False, '/', True, False, None, False, None, None, {}))
+
+
+def _save_browser_device(w):
+    dev = next((c.value for c in w.jar if c.name == 'admin_device'), None)
+    if dev and len(dev) >= 16:
+        try:
+            with open(DEVICE_FILE, 'w') as f:
+                f.write(dev)
+        except OSError:
+            pass
 
 
 def _reuse():
@@ -63,6 +88,7 @@ def login():
         return reused
     journey('admin: login with email 2FA (admin panel)')
     w = AdminWeb(ADMIN_WEB, 'admin')
+    _load_browser_device(w)
     t0 = time.time()
     r = w.post('/api/admin/auth/login', {'identifier': EMAIL, 'password': PASSWORD})
     step('credentials -> 202 requires_2fa', r.status == 202 and r.get('requires_2fa'), r)
@@ -71,23 +97,25 @@ def login():
     r = w.post('/api/admin/auth/verify-2fa', {'identifier': EMAIL, 'code': code})
     step('verify-2fa -> session', r.ok, r)
     step('session cookie set (httpOnly)', any(c.name for c in w.jar), [c.name for c in w.jar])
-    # BFF 1:1 → /api/v1/admin/command-center (the dashboard's aggregated snapshot).
-    r = w.get('/admin/admin/command-center')
-    step('BFF call with the session (dashboard: command-center)', r.ok, r)
-    bad = AdminWeb(ADMIN_WEB).post('/api/admin/auth/login', {'identifier': EMAIL, 'password': 'wrong'})
-    step('wrong admin password rejected (401, or 429 once the login throttle trips)', bad.status in (400, 401, 429), bad)
     # Direct API token for admin steps that the journeys need (same user, same 2FA)
     tok = next((c.value for c in w.jar if c.name in ('admin_access',) or ('token' in c.name.lower() and 'refresh' not in c.name.lower())), None)
     if SESSION_FILE:
         import json
         json.dump([{'name': c.name, 'value': c.value} for c in w.jar], open(SESSION_FILE, 'w'))
     admin = Client(tok, 'admin-api') if tok else None
-    # 7C-C2: every direct /api/v1/admin/* call needs an enrolled device.
-    # D-35: the gate device first (first device: code only), then the BFF
-    # browser device (approved from the gate device, confirmed with the code).
+    # D-35: enroll both devices BEFORE asserting anything that needs them. The
+    # BFF proxies with the browser device, so the gate device (first device:
+    # code only) and then the browser device (approved from the gate device,
+    # confirmed with the code) must be enrolled before the dashboard is read.
     if admin:
         enroll_admin_device(admin, EMAIL)
         _enroll_browser_device(w, admin)
+        _save_browser_device(w)
+    # BFF 1:1 → /api/v1/admin/command-center (the dashboard's aggregated snapshot).
+    r = w.get('/admin/admin/command-center')
+    step('BFF call with the session (dashboard: command-center)', r.ok, r)
+    bad = AdminWeb(ADMIN_WEB).post('/api/admin/auth/login', {'identifier': EMAIL, 'password': 'wrong'})
+    step('wrong admin password rejected (401, or 429 once the login throttle trips)', bad.status in (400, 401, 429), bad)
     return w, admin
 
 
