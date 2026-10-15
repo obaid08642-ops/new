@@ -125,11 +125,13 @@ export class AiCommerceService {
       this.connection.collection('facilities'),
     ];
 
-    const docFilter: Record<string, any> = { is_active: { $ne: false } };
-    if (query.specialty) docFilter.specialty = query.specialty;
+    // Only providers the public pages show (entity-graph PUBLIC_DOCTOR / PUBLIC_FACILITY): an unreviewed,
+    // suspended or hidden provider is never listed (13-web#6, issue 791).
+    const docFilter: Record<string, any> = { type: 'doctor', status: 'active', public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
+    if (query.specialty) docFilter.specialty = { $eq: String(query.specialty) };
     if (query.city) docFilter.city = { $regex: escapeRegex(String(query.city)), $options: 'i' };
 
-    const facFilter: Record<string, any> = { is_active: { $ne: false } };
+    const facFilter: Record<string, any> = { is_active: true, public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
     if (query.city) facFilter.city = { $regex: escapeRegex(String(query.city)), $options: 'i' };
 
     const [doctors, facilities] = await Promise.all([
@@ -138,36 +140,45 @@ export class AiCommerceService {
     ]);
 
     const formattedServices: any[] = [];
+    const insurance = (v: unknown) => (Array.isArray(v) ? v.filter((x) => typeof x === 'string' && x) : []);
 
     for (const doc of doctors) {
+      const slug = doc.slug || doc.id;
+      // The price and the insurers are the doctor's own; none is invented when the profile has none.
+      const price = typeof doc.price_clinic === 'number' && doc.price_clinic > 0 ? doc.price_clinic : undefined;
       formattedServices.push({
         '@context': 'https://schema.org',
         '@type': 'MedicalBusiness',
         serviceType: 'Doctor Consultation',
+        kind: 'doctor',
         id: doc.id,
+        slug,
         name: locale === 'en' ? (doc.name_en || doc.name_ar) : (doc.name_ar || doc.name_en),
         specialty: doc.specialty,
         city: doc.city,
-        priceRange: '150 SAR',
-        acceptedInsurance: doc.accepted_insurance || ['bupa', 'tawuniya', 'medgulf'],
-        url: `https://nabd.plus/${locale}/doctor/${doc.slug || doc.id}`,
-        deepLink: `nabdplus://doctor/${doc.slug || doc.id}`,
+        ...(price !== undefined ? { priceRange: `${price} SAR`, price_sar: price } : {}),
+        acceptedInsurance: insurance(doc.accepted_insurance),
+        url: `https://nabd.plus/${locale}/doctor/${slug}`,
+        deepLink: `nabdplus://doctor/${slug}`,
       });
     }
 
     for (const fac of facilities) {
+      const slug = fac.slug || fac.id;
       formattedServices.push({
         '@context': 'https://schema.org',
         '@type': 'Hospital',
         serviceType: 'Healthcare Facility',
+        kind: 'facility',
         id: fac.id,
+        slug,
         name: locale === 'en' ? (fac.name_en || fac.name_ar) : (fac.name_ar || fac.name_en),
         facilityType: fac.type,
         city: fac.city,
         district: fac.district,
-        acceptedInsurance: fac.accepted_insurance || [],
-        url: `https://nabd.plus/${locale}/facility/${fac.slug || fac.id}`,
-        deepLink: `nabdplus://facility/${fac.slug || fac.id}`,
+        acceptedInsurance: insurance(fac.accepted_insurance),
+        url: `https://nabd.plus/${locale}/facility/${slug}`,
+        deepLink: `nabdplus://facility/${slug}`,
       });
     }
 

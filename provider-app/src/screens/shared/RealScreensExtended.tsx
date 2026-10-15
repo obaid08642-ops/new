@@ -1,26 +1,53 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Linking } from 'react-native';
-import { useTheme, useLang, useToast } from '../../context';
+import { View, Text, StyleSheet, ActivityIndicator, Linking, Share } from 'react-native';
+import QRCode from 'react-native-qrcode-svg';
+import { useTheme, useLang, useToast, useAuth } from '../../context';
 import { NHeader, NCard, NBtn, NInput, NBadge, NScroll, NEmpty, NSecHeader } from '../../components/ui';
 import { I } from '../../components/icons';
-import { SP, FS, FW } from '../../constants';
+import { SP, FS, FW, publicPageUrl } from '../../constants';
 import client from '../../api/client';
 
 // 1. PHARMACY QR MENU SCREEN
+// The QR is the pharmacy's public page on the website (its catalogue and request button), read from its own profile
+// slug (GET /provider/profile); issue 1198. A pharmacy without a public page yet is told so instead of a dummy code.
 export function PharmacyQRMenuScreen({ onBack }: { onBack: () => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const { user } = useAuth(); const AR = lang === 'ar';
+  const [url, setUrl] = useState<string | null>(null);
+  const [state, setState] = useState<'loading' | 'ready' | 'none' | 'error'>('loading');
+  useEffect(() => {
+    let alive = true;
+    client.get('/provider/profile').then((res: any) => {
+      if (!alive) return;
+      const p = res?.data?.data || res?.data || {};
+      const u = publicPageUrl(user?.role || 'pharmacy', p.slug || null, lang);
+      setUrl(u); setState(u ? 'ready' : 'none');
+    }).catch(() => { if (alive) setState('error'); });
+    return () => { alive = false; };
+  }, [lang, user?.role]);
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <NHeader title={AR ? 'كتالوج المنتجات ورمز QR' : 'Pharmacy QR Catalog'} onBack={onBack} />
       <NScroll pad>
         <NCard style={{ width: '100%', alignItems: 'center', padding: SP.xl, marginBottom: SP.md }}>
-          <View style={{ marginBottom: SP.md }}><I name="qr" size={64} color={theme.primary} /></View>
-          <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text, textAlign: 'center' }}>
-            {AR ? 'امسح الرمز للتصفح المباشر لكتالوج الصيدلية' : 'Scan to view pharmacy catalog'}
-          </Text>
-          <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 4, textAlign: 'center' }}>
-            {AR ? 'رمز المطبوعات والشاشات الخارجية بالفرع' : 'Branch outdoor & printable catalog code'}
-          </Text>
+          {state === 'loading' && <ActivityIndicator color={theme.primary} />}
+          {state === 'ready' && url && (
+            <>
+              <View testID="pharmacy-public-qr" style={{ padding: SP.md, backgroundColor: theme.card, marginBottom: SP.md }}>
+                <QRCode value={url} size={200} color={theme.text} backgroundColor={theme.card} />
+              </View>
+              <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text, textAlign: 'center' }}>
+                {AR ? 'امسح الرمز للتصفح المباشر لكتالوج الصيدلية' : 'Scan to view pharmacy catalog'}
+              </Text>
+              <Text selectable style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 4, textAlign: 'center' }}>{url}</Text>
+              <NBtn label={AR ? 'مشاركة الرابط' : 'Share link'} variant="outline" style={{ marginTop: SP.md }}
+                onPress={async () => { try { await Share.share({ message: url }); } catch { show(AR ? 'تعذر المشاركة' : 'Could not share', 'error'); } }} />
+            </>
+          )}
+          {state === 'none' && (
+            <NEmpty icon="qr" title={AR ? 'لا توجد صفحة عامة بعد' : 'No public page yet'}
+              subtitle={AR ? 'تظهر صفحة الصيدلية ورمزها بعد اعتماد ملفها ونشره' : 'The page and its code appear once the profile is approved and published'} />
+          )}
+          {state === 'error' && <Text style={{ color: theme.textSub }}>{AR ? 'تعذر تحميل بيانات الصيدلية' : 'Could not load the pharmacy profile'}</Text>}
         </NCard>
       </NScroll>
     </View>
@@ -81,72 +108,6 @@ export function ChronicDiseaseProgramScreen({ onBack }: { onBack: () => void }) 
             </Text>
           </NCard>
         ))}
-      </NScroll>
-    </View>
-  );
-}
-
-// 3. DELIVERY TRACKING SCREEN
-export function DeliveryTrackingScreen({ order, onBack }: { order?: any; onBack: () => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
-  const [delivery, setDelivery] = useState<any>(order || null);
-  const [loading, setLoading] = useState(!order);
-
-  useEffect(() => {
-    if (order) return;
-    // No order passed — load the current out-for-delivery allocation
-    client.get('/provider/pharmacy/allocations', { params: { status: 'out_for_delivery' } })
-      .then((res: any) => {
-        const rows = Array.isArray(res.data) ? res.data : [];
-        setDelivery(rows[0] || null);
-      })
-      .catch(() => setDelivery(null))
-      .finally(() => setLoading(false));
-  }, [order]);
-
-  const courierName = delivery?.delivery?.courier_name || delivery?.driver_name || '';
-  const courierPhone = delivery?.delivery?.courier_phone || delivery?.driver_phone || '';
-  const ref = String(delivery?.order_id || delivery?.id || '').slice(0, 8);
-
-  return (
-    <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'تتبع مندوب التوصيل المباشر' : 'Live Delivery Tracking'} onBack={onBack} />
-      <NScroll pad>
-        {loading ? (
-          <ActivityIndicator color={theme.primary} style={{ marginTop: SP.xl }} />
-        ) : !delivery ? (
-          <NCard style={{ padding: SP.lg, alignItems: 'center' }}>
-            <Text style={{ color: theme.textSub, textAlign: 'center' }}>
-              {AR ? 'لا توجد شحنة قيد التوصيل حالياً' : 'No delivery currently in progress'}
-            </Text>
-          </NCard>
-        ) : (
-          <>
-            <NCard style={{ marginBottom: SP.md, height: 180, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.surface }}>
-              <I name="map" size={48} color={theme.textSub} />
-              <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.xs }}>
-                {AR ? 'خريطة التتبع المباشر GPS' : 'Live GPS Delivery Map'}
-              </Text>
-              <Text style={{ fontSize: FS.xs, color: theme.textSub }}>
-                {courierName
-                  ? (AR ? `المندوب: ${courierName} (في الطريق للمريض)` : `Driver: ${courierName} (En route to patient)`)
-                  : (AR ? 'لم تُسجل بيانات المندوب بعد' : 'Driver details not recorded yet')}
-              </Text>
-            </NCard>
-
-            <NCard>
-              <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-                 {AR?'تفاصيل شحنة الطلب':'Shipment Details'}
-              </Text>
-              <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
-                {(AR ? 'الرقم المرجعي: ' : 'Ref: ') + (ref || '—')}
-              </Text>
-              {!!courierPhone && (
-                <NBtn label={AR?'الاتصال بمندوب التوصيل':'Call Driver'} onPress={() => Linking.openURL(`tel:${courierPhone}`)} style={{ marginTop: SP.md }} />
-              )}
-            </NCard>
-          </>
-        )}
       </NScroll>
     </View>
   );

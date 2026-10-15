@@ -16,7 +16,7 @@ const monthAgo = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10)
 const colors = ['#0f766e', '#0284c7', '#7c3aed', '#d97706', '#db2777', '#475569'];
 
 /** Arabic names of the commission service types (finance_config service_types keys). */
-const SERVICE_LABELS: Record<string, string> = { pharmacy: 'الصيدلية', doctor: 'الاستشارات', lab: 'المختبر', radiology: 'الأشعة', nursing: 'التمريض المنزلي', ambulance: 'الإسعاف' };
+const SERVICE_LABELS: Record<string, string> = { pharmacy: 'الصيدلية', doctor: 'الاستشارات', lab: 'المختبر', radiology: 'الأشعة', nursing: 'التمريض المنزلي' };
 
 export default function FinanceSuitePage() {
   // The commission settings need finance.config.edit and payout decisions finance.payout.approve (backend

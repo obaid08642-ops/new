@@ -59,6 +59,20 @@ def pharmacy_prices_items(pharm, admin, meds):
     step('items are live in the pharmacy inventory (with id, price, stock)', len(live) == len(meds) and all(x.get('id') and x.get('price') and x.get('stock') for x in live), live)
 
 
+def public_page(pharm):
+    # provider-app PharmacyQRMenuScreen and the profile editor's "Public page": https://nabd.plus/<locale>/pharmacy/<slug>
+    # from the pharmacy's own profile slug; the website page reads /entity-graph/related/pharmacy/<slug> (issue 1198)
+    journey('pharmacy public page: the QR link opens the pharmacy on the website')
+    prof = pharm.get('/provider/profile')
+    p = prof.body.get('data', prof.body) if isinstance(prof.body, dict) else {}
+    slug = p.get('slug')
+    step('the approved pharmacy has a public slug in its profile', prof.ok and bool(slug), prof)
+    if slug:
+        r = Client().get(f'/entity-graph/related/pharmacy/{urllib.parse.quote(str(slug))}')
+        ent = (r.body.get('entity') if isinstance(r.body, dict) else None) or {}
+        step('the website resolves that slug to this pharmacy', r.ok and bool(ent.get('name_ar') or ent.get('name_en')), r)
+
+
 def run(pat, pharm, admin=None, meds=None):
     journey('pharmacy order: pharmacy goes online')
     # provider-app context toggleOnline(): raw fetch, no idempotency key
@@ -425,6 +439,7 @@ if __name__ == '__main__':
     meds = admin_adds_medicines(admin)
     ph = Client(p['token'], 'pharmacy')
     pharmacy_prices_items(ph, admin, meds)
+    public_page(ph)
     pc = Client(pat['token'], 'patient')
     run(pc, ph, admin, meds)
     matrix_pharmacy(pc, ph, meds, patient_address(pc), admin)

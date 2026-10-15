@@ -1,14 +1,11 @@
-import { notFound } from "next/navigation";
-import { setRequestLocale } from "next-intl/server";
+import { notFound, redirect } from "next/navigation";
 import { isLocale } from "@/lib/i18n";
-import { redirectKeepingQuery } from "@/lib/redirect-keep-query";
 
-type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
+type Props = { params: Promise<{ locale: string }> };
 
-/** Breathing is a tab of the Relax screen (merge map section 5). */
-export default async function Page({ params, searchParams }: Props) {
+/** Owner decision B18 (2026-10-14): the breathing and meditation screens are removed; the address opens the mental health hub. */
+export default async function Page({ params }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  setRequestLocale(locale);
-  redirectKeepingQuery(`/${locale}/mental-health/relax`, await searchParams, {"tab": "breathing"});
+  redirect(`/${locale}/mental-health`);
 }

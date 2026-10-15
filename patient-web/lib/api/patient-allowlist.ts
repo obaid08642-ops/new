@@ -61,9 +61,7 @@ const patientReadRoutes = [
   new RegExp(`^/pharmacy/chat/threads\\?order_id=${orderId}$`, "i"),
   new RegExp(`^/pharmacy/chat/threads/${threadId}/messages$`, "i"),
   new RegExp("^/mental-health/dashboard$"),
-  new RegExp("^/mental-health/breathing$"),
   new RegExp("^/mental-health/mood\\?days=30$"),
-  new RegExp("^/mental-health/meditation$"),
   // The assistant lists the patient's own earlier triage questions (GET /ai/triage/history, issues 873/882).
   new RegExp("^/ai/triage/history\\?limit=\\d{1,3}$"),
   new RegExp("^/users/me/privacy-settings$"),
@@ -89,6 +87,8 @@ const patientReadRoutes = [
   new RegExp("^/loyalty/rewards$", "i"),
   new RegExp(`^/labs/bookings/${orderId}$`, "i"),
   new RegExp(`^/labs/bookings/${orderId}/tracking$`, "i"),
+  // journeys#54: the report file of the patient's own lab booking (the backend checks the booking is theirs).
+  new RegExp(`^/labs/bookings/${orderId}/reports/${orderId}$`, "i"),
   // A1: the patient wallet is gone — these backend routes no longer exist.
 ];
 

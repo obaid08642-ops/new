@@ -205,10 +205,6 @@ export class Step3Dto {
   @IsBoolean()
   accepts_insurance?: boolean;
 
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  ambulance_roster?: string[];
 
   @IsOptional()
   @IsString()
