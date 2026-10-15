@@ -16,6 +16,10 @@ import { pick } from '../../common/sanitize';
  * id/_id/is_deleted/governance flags excluded. */
 /** The languages a test's preparation text can be written in (decision B8); the app shows the one for its language. */
 export const PREPARATION_LANGS = ['ar', 'en', 'ur', 'hi', 'bn', 'tl'] as const;
+/** A booking's report as listed to the clients: no file content (the file is served on its own route). */
+export function reportSummary(r: any) {
+  return { id: r?.id, name: r?.name, mime: r?.mime, uploaded_at: r?.uploaded_at, notes: r?.notes, has_file: typeof r?.base64 === 'string' && r.base64.length > 0 };
+}
 
 export const LAB_CATALOG_FIELDS = [
   'name_ar', 'name_en', 'short_code', 'description_ar', 'description_en', 'category', 'sample_type', 'price', 'old_price', 'fasting_required', 'fasting_hours', 'home_visit_supported', 'facility_visit_supported', 'turnaround_hours', 'preparation_ar', 'preparation_en', 'is_package', 'included_services', 'popularity', 'active', 'unavailable', 'medical_referral_required',
@@ -491,10 +495,24 @@ export class LabsService {
   }
 
   async getBooking(id: string, user: any) {
-    const b = await this.bkgModel.findOne({ id }, { _id: 0, __v: 0 });
+    const b = await this.bkgModel.findOne({ id }, { _id: 0, __v: 0 }).lean();
     if (!b) throw new NotFoundException();
     if (b.patient_id !== user.id && user.role !== 'admin') throw new NotFoundException();
-    return b;
+    // A report is listed by id and name only; its file is GET bookings/:id/reports/:reportId (journeys#54), so the
+    // booking (polled every 15 s by the tracking screens) no longer carries every PDF as base64.
+    return { ...b, reports: (Array.isArray(b.reports) ? b.reports : []).map(reportSummary) };
+  }
+
+  /** The file of one report of a booking, for the patient, the assigned lab or an admin. */
+  async reportFile(id: string, reportId: string, user: any): Promise<{ name: string; mime: string; data: Buffer }> {
+    const b: any = await this.bkgModel.findOne({ id }, { _id: 0, patient_id: 1, provider_account_id: 1, assigned_provider_id: 1, reports: 1 }).lean();
+    if (!b) throw new NotFoundException();
+    try { this.assertPatientOrAssignedProvider(user, b); } catch { throw new NotFoundException(); }
+    const report = (Array.isArray(b.reports) ? b.reports : []).find((r: any) => r?.id === reportId);
+    if (!report) throw new NotFoundException('report_not_found');
+    if (typeof report.base64 !== 'string' || !report.base64) throw new NotFoundException('report_file_unavailable');
+    const mime = ['application/pdf', 'image/png', 'image/jpeg', 'image/webp'].includes(report.mime) ? report.mime : 'application/pdf';
+    return { name: String(report.name || `report-${reportId}.pdf`), mime, data: Buffer.from(report.base64, 'base64') };
   }
 
   async cancel(id: string, user: any) {

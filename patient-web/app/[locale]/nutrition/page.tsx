@@ -13,6 +13,7 @@ import { HealthTabs, RowsCard, SectionHead, VitalTile } from "@/components-next/
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { NutritionBodyTargetClient } from "@/components-next/nutrition-body-target-client";
 import { NutritionPlanGenerate } from "@/components-next/nutrition-plan-generate";
+import { QuickLogForm } from "@/components-next/health/quick-log-form";
 import { Notice } from "@/components-next/consult/consult-parts";
 import { parseNutritionPlan } from "@/lib/nutrition/plan";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
@@ -137,6 +138,8 @@ export default async function NutritionPage({ params, searchParams }: Props) {
         <li><VitalTile label={t("calories")} value={number.format(summary.calories)} unit={t("kcal")} icon="bowl-food" tone={NUTRITION.tone} /></li>
         <li><VitalTile label={t("water")} value={number.format(summary.waterMl)} unit={t("ml")} icon="drop" tone="blue" /></li>
       </ul>
+      <SectionHead id="log-water" title={t("water")} />
+      <QuickLogForm kind="water" />
       <SectionHead id="meals" title={t("meals")} />
       {meals === null ? (
         <ConsultState kind="error" title={t("mealsUnavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />

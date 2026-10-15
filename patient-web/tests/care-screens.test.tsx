@@ -189,29 +189,25 @@ describe("the nutrition hub", () => {
 describe("mental health", () => {
   const dashboard = { mood: { total_entries: 4, avg_mood: 3.5, avg_energy: 3, avg_stress: 2, avg_sleep: 7 }, meditation: { total_sessions: 2, completed_sessions: 1, total_minutes: 20 } };
 
-  it("the hub: the summary, the three ways in, and no self-assessment, crisis contacts or hard-coded number", async () => {
+  it("the hub: the summary, the ways in, no Relax row (owner decision B18), and no self-assessment, crisis contacts or hard-coded number", async () => {
     backend({ "/mental-health/dashboard": dashboard });
     const html = render(await MentalHealthPage({ params }));
     expect(html).toContain("Mood entries");
     expect(html).toContain("/en/mental-health/mood");
-    expect(html).toContain("/en/mental-health/relax");
+    expect(html).not.toContain("/en/mental-health/relax");
     expect(html).toContain("/en/consultations/doctors?specialty=psychiatry");
     expect(html).not.toMatch(/self-assessment|crisis|tel:/i);
   });
 
-  it("the mood journal lists the entries; the relax screen reads only the open tab", async () => {
-    backend({ "/mental-health/mood": [{ id: "e1", mood: "good", energy_level: 4, logged_at: "2026-10-01T10:00:00.000Z" }], "/mental-health/breathing": [{ id: "b1", technique: "box", rounds: 4, duration_seconds: 120 }], "/mental-health/meditation": [{ id: "d1", type: "body scan", duration_minutes: 10, completed: true }] });
+  it("the mood journal lists the entries", async () => {
+    backend({ "/mental-health/mood": [{ id: "e1", mood: "good", energy_level: 4, logged_at: "2026-10-01T10:00:00.000Z" }] });
     expect(render(await MoodPage({ params }))).toContain(">Good<");
-    const breathing = render(await RelaxPage(page()));
-    expect(breathing).toContain("box");
-    expect(server.api).not.toHaveBeenCalledWith("/mental-health/meditation", {}, TOKEN);
-    const meditation = render(await RelaxPage(page({ tab: "meditation" })));
-    expect(meditation).toContain("body scan");
-    expect(meditation).toContain("Completed");
   });
 
   it("the removed screens and the old tabs redirect", async () => {
-    expect(await redirectOf(async () => BreathingRedirect(page()))).toBe("redirect:/en/mental-health/relax?tab=breathing");
+    // owner decision B18: Relax (breathing, meditation) is removed; its addresses open the hub
+    expect(await redirectOf(async () => RelaxPage(page()))).toBe("redirect:/en/mental-health");
+    expect(await redirectOf(async () => BreathingRedirect(page()))).toBe("redirect:/en/mental-health");
     expect(await redirectOf(async () => CrisisRedirect(page()))).toBe("redirect:/en/mental-health");
     expect(await redirectOf(async () => SelfAssessmentRedirect(page()))).toBe("redirect:/en/mental-health");
     expect(await redirectOf(async () => TherapistRedirect(page()))).toBe("redirect:/en/consultations/doctors?specialty=psychiatry");

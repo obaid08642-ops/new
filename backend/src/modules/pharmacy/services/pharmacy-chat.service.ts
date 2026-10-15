@@ -13,6 +13,7 @@ import { PharmacyChatMessageRepository } from "./repositories/pharmacychatmessag
 import { PharmacyOrderRepository } from "./repositories/pharmacyorder.repository";
 import { PharmacyAllocationRepository } from "./repositories/pharmacyallocation.repository";
 import { buildQuoteHash, recalcAllocationTotals } from './pharmacy-allocation.service';
+import { assertSubstituteInsidePrescription } from './rx-rules';
 
 const BLOCK_PATTERNS: Array<{ name: string; re: RegExp }> = [
   { name: 'phone_e164', re: /(\+?\d{1,3}[-.\s]?)?(\(?\d{2,4}\)?[-.\s]?){2,4}\d{2,4}/g },
@@ -142,6 +143,14 @@ export class PharmacyChatService {
     if (t.status !== 'open') throw new BadRequestException('thread_closed');
     const msg = await this.messages.findOne({ id: message_id, thread_id }).lean();
     if (!msg || !msg.substitute_offer) throw new BadRequestException('no_substitute_offer');
+    // Issue 1440: a prescription line's substitute is the pharmacy's own inventory item inside the prescription.
+    const order: any = await this.orders.findOne({ id: t.order_id });
+    const line = order?.items?.find((i: any) => i.id === t.order_item_id);
+    if (line?.requires_prescription === true) {
+      const subSku = msg.substitute_offer.sku;
+      const subInv = subSku ? await this.orders.db.collection('provider_capabilities_pharmacy').findOne({ provider_account_id: t.pharmacy_account_id, sku: String(subSku) }) : null;
+      await assertSubstituteInsidePrescription(this.orders.db, line, subInv);
+    }
     // Find the pharmacy's allocation for this order and update the matching item
     const alloc = await this.allocs.findOne({ order_id: t.order_id, pharmacy_account_id: t.pharmacy_account_id });
     if (alloc) {
