@@ -15,7 +15,7 @@ import { Permission, RequirePermissions } from '../../common/permissions';
 /** Provider roles an admin may create accounts for (never staff/admin roles). */
 const PROVIDER_CREATABLE_ROLES = [
   UserRole.DOCTOR, UserRole.PHARMACY, UserRole.HOSPITAL, UserRole.LAB,
-  UserRole.RADIOLOGY, UserRole.NURSING, UserRole.HOME_CARE, UserRole.AMBULANCE,
+  UserRole.RADIOLOGY, UserRole.NURSING, UserRole.HOME_CARE,
   UserRole.PHYSIOTHERAPIST,
 ];
 

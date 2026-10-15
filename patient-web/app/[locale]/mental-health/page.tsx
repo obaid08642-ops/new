@@ -18,7 +18,7 @@ const MIND = SERVICE_ICONS.mind;
 
 /**
  * Mental health hub (canvas/CareHub; merge map section 5): the self-reported summary (GET /mental-health/dashboard) and the way into
- * the mood journal, Relax (breathing and meditation) and therapist booking (the doctor list filtered to psychiatry).
+ * the mood journal and therapist booking (the doctor list filtered to psychiatry).
  * Owner decision 8: no self-assessment, no scoring, no in-app crisis handling. The one urgent-help row opens the emergency page,
  * which reads the number from the admin config (GET /system-config/public); no number is ever written in the code.
  */
@@ -61,12 +61,9 @@ export default async function MentalHealthPage({ params }: Props) {
         <li><VitalTile label={t("avgMood")} value={stat(data.mood.avgMood)} icon="sparkle" tone="amber" /></li>
         <li><VitalTile label={t("avgEnergy")} value={stat(data.mood.avgEnergy)} icon="star" tone="mint" /></li>
         <li><VitalTile label={t("avgStress")} value={stat(data.mood.avgStress)} icon="heartbeat" tone="peach" /></li>
-        <li><VitalTile label={t("meditationSessions")} value={number.format(data.meditation.totalSessions)} icon="brain" tone="violet" /></li>
-        <li><VitalTile label={t("meditationMinutes")} value={number.format(data.meditation.totalMinutes)} unit={t("minutes")} icon="moon" tone="blue" /></li>
       </ul>
       <SectionHead id="care" title={t("careTitle")} />
       <RowCard href={`/${locale}/mental-health/mood`} icon="heart" tone="pink" title={t("moodRow")} sub={t("moodRowSub")} caret={arrow} />
-      <RowCard href={`/${locale}/mental-health/relax`} icon="brain" tone="violet" title={t("relaxRow")} sub={t("relaxRowSub")} caret={arrow} />
       <RowCard href={`/${locale}/consultations/doctors?specialty=psychiatry`} icon="stethoscope" tone="blue" title={t("therapistRow")} sub={t("therapistRowSub")} caret={arrow} />
       <RowCard href={`/${locale}/emergency`} icon={SERVICE_ICONS.emergency.icon} tone={SERVICE_ICONS.emergency.tone} title={em("title")} sub={t("urgentRowSub")} caret={arrow} />
       <Notice>{t("notice")}</Notice>

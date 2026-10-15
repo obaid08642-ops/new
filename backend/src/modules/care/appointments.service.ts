@@ -377,7 +377,22 @@ export class AppointmentsService {
         q.patient_id = user.id;
     }
     if (status) q.status = status;
-    return this.apptModel.find(q, { _id: 0, __v: 0 }).sort({ slot_start: -1 }).limit(200);
+    const rows: any[] = await this.apptModel.find(q, { _id: 0, __v: 0 }).sort({ slot_start: -1 }).limit(200).lean();
+    // needs-review 2-web#7: the list carries the doctor's name and the specialty in every locale, like the detail
+    // (one lookup for all the doctors of the page), so the appointments list can say who and what.
+    const ids = [...new Set(rows.map((r) => r.doctor_id).filter(Boolean))];
+    const doctors: any[] = ids.length
+      ? await this.providerModel.find({ id: { $in: ids }, type: ProviderType.DOCTOR }, { id: 1, name_ar: 1, name: 1, specialty_ar: 1, specialty: 1, _id: 0 }).lean()
+      : [];
+    const byId = new Map(doctors.map((d) => [d.id, d]));
+    return rows.map((r) => {
+      const doctor: any = byId.get(r.doctor_id);
+      if (!doctor) return r;
+      const slug = doctor.specialty || doctor.specialty_ar;
+      const entry = SPECIALTY_MASTER.find((x) => x.slug === slug);
+      const specialtyAr = (entry?.name_ar || doctor.specialty_ar || doctor.specialty) ?? null;
+      return { ...r, doctor_name: doctor.name_ar || doctor.name || null, specialty_id: slug || null, specialty_ar: specialtyAr, specialty_name_ar: entry?.name_ar ?? specialtyAr, specialty_name_en: entry?.name_en ?? null };
+    });
   }
 
   async one(user: any, id: string) {
