@@ -505,7 +505,7 @@
     "element": "+ Add Custom Test (Requires Approval) (hidden)",
     "found": "[backend] The wizard had \"+ Add Custom Test (Requires Approval)\" in the lab and radiology test menus; it only showed a toast and sent nothing. It is hidden now (M9). To bring it back the backend needs an endpoint where a provider proposes a catalogue test or scan for admin approval.",
     "suspect": "missing",
-    "review_status": "open"
+    "review_status": "fixed #1493"
   },
   {
     "scenario": 4,
