@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Text, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
@@ -11,14 +11,14 @@ import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { pickLocalized } from '../../utils/localize';
 import { i18nManager } from '../../i18n/LanguageManager';
-import { AI_HOME, AnswerCard, CheckRow, MyBubble } from './AssistantKit';
+import { AI_HOME, AnswerCard, MyBubble } from './AssistantKit';
 
 /**
  * The one assistant (merge map section 4, owner decision 7): three modes in the route (`?mode=symptoms|prescription|report`).
- *  - symptoms: POST /ai/triage { symptoms, red_flags } (the old triage screen and the old assistant chat). The answer is the
- *    server's `care_level`: emergency shows the urgent-help block first (the emergency screen, number from the admin config),
- *    anything else the "book a consultation" button, which opens the doctor list on the server's `specialty` when it names one.
- *    No diagnosis, no treatment, no doses. Earlier questions come from GET /ai/triage/history.
+ *  - symptoms: POST /ai/assistant { message, locale } (decision 15, the one assistant). The server answers in the language and
+ *    decides the kind: a red flag shows the urgent-help block first (the emergency screen, number from the admin config); a
+ *    symptom names the specialty and "book a consultation" opens the doctor list on it; a medicine of our catalogue shows its
+ *    leaflet and "ask the pharmacist". Every answer carries the server's disclaimer. No diagnosis, no medicine to take, no dose.
  *  - prescription: the photo of a prescription or leaflet, POST /ai/ocr-translate { image_base64, target_lang }.
  *  - report: there is no automated report interpretation (a report is explained by a doctor), so the mode
  *    sends no request and points to the reports and to a consultation.
@@ -26,11 +26,6 @@ import { AI_HOME, AnswerCard, CheckRow, MyBubble } from './AssistantKit';
 
 const MODES = ['symptoms', 'prescription', 'report'] as const;
 type Mode = (typeof MODES)[number];
-
-const FLAGS = [
-  ['chest_pain', 'flagChest'], ['breathing_difficulty', 'flagBreathing'], ['fainting_or_unresponsive', 'flagFainting'], ['heavy_bleeding', 'flagBleeding'],
-  ['new_confusion', 'flagConfusion'], ['severe_allergic_reaction', 'flagAllergy'], ['severe_injury', 'flagInjury'], ['none', 'flagNone'],
-] as const;
 
 const BOOK = '/(tabs)/consultations' as Href;
 const URGENT_HELP = '/emergency' as Href;
@@ -56,55 +51,60 @@ export function AssistantView() {
   );
 }
 
-interface Triage { care_level?: string; specialty?: string | null; symptoms?: string; createdAt?: string }
-interface Turn { id: string; symptoms: string; care_level: string; specialty: string | null }
+type Kind = 'red_flag' | 'specialty' | 'leaflet' | 'out_of_scope';
+const LEAFLET_PARTS = ['indications', 'how_to_use', 'side_effects', 'warnings', 'storage', 'pregnancy'] as const;
+/** The answer of POST /ai/assistant as the server wrote it (decision 15); null when the payload is not an answer. */
+interface Answer { kind: Kind; text: string; disclaimer: string; specialty: string | null; urgent: boolean; bookable: boolean; askPharmacist: boolean; leaflet: Array<{ part: string; lines: string[] }> }
+interface Turn { id: string; asked: string; answer: Answer }
 
-const toTurn = (data: Triage | null | undefined, symptoms: string, id: string): Turn => ({
-  id,
-  symptoms,
-  care_level: String(data?.care_level ?? ''),
-  specialty: typeof data?.specialty === 'string' && data.specialty ? data.specialty : null,
-});
+export function parseAnswer(payload: unknown): Answer | null {
+  const root = payload && typeof payload === 'object' ? (payload as Record<string, unknown>) : null;
+  const src = (root?.data && typeof root.data === 'object' ? root.data : root) as Record<string, unknown> | null;
+  const kind = src?.kind;
+  if (kind !== 'red_flag' && kind !== 'specialty' && kind !== 'leaflet' && kind !== 'out_of_scope') return null;
+  const text = typeof src?.text === 'string' ? src.text.trim() : '';
+  const disclaimer = typeof src?.disclaimer === 'string' ? src.disclaimer.trim() : '';
+  if (!text || !disclaimer) return null;
+  const actions = (Array.isArray(src?.actions) ? src.actions : []).filter((a): a is Record<string, unknown> => Boolean(a) && typeof a === 'object');
+  const book = actions.find((a) => a.type === 'book_consultation');
+  const specialty = typeof book?.specialty === 'string' && /^[a-z][a-z_]{1,39}$/.test(book.specialty) ? book.specialty : null;
+  const leafletSrc = src?.leaflet && typeof src.leaflet === 'object' ? (src.leaflet as Record<string, unknown>) : {};
+  const leaflet = LEAFLET_PARTS.flatMap((part) => {
+    const v = leafletSrc[part];
+    const lines = (Array.isArray(v) ? v : [v]).filter((l): l is string => typeof l === 'string' && l.trim().length > 0).map((l) => l.trim());
+    return lines.length ? [{ part, lines }] : [];
+  });
+  return {
+    kind, text, disclaimer, specialty, leaflet,
+    urgent: kind === 'red_flag' || actions.some((a) => a.type === 'emergency_call'),
+    bookable: Boolean(book) || kind === 'red_flag' || kind === 'out_of_scope',
+    askPharmacist: actions.some((a) => a.type === 'ask_pharmacist'),
+  };
+}
+
+/** The assistant's languages (backend AssistantDto); the app's Filipino is `tl`. */
+const assistantLocale = (lang: string) => (lang === 'tl' ? 'fil' : ['ar', 'en', 'ur', 'hi', 'bn', 'fil'].includes(lang) ? lang : 'ar');
 
 function SymptomsMode() {
   const { k } = useScreenUi();
   const [text, setText] = useState('');
-  const [flags, setFlags] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [turns, setTurns] = useState<Turn[]>([]);
-  const [past, setPast] = useState<Turn[]>([]);
-
-  useEffect(() => {
-    let live = true;
-    apiFetch('/ai/triage/history?limit=20')
-      .then((rows) => {
-        if (!live || !Array.isArray(rows)) return;
-        setPast((rows as Triage[]).filter((r) => typeof r?.symptoms === 'string').reverse().map((r, i) => toTurn(r, String(r.symptoms), `past-${i}`)));
-      })
-      .catch((e) => logError('ai:triage:history', e));
-    return () => { live = false; };
-  }, []);
-
-  const toggle = (value: string) =>
-    setFlags((current) => {
-      if (value === 'none') return current.includes('none') ? [] : ['none'];
-      const rest = current.filter((f) => f !== 'none');
-      return rest.includes(value) ? rest.filter((f) => f !== value) : [...rest, value];
-    });
 
   const send = async () => {
-    const symptoms = text.trim();
-    if (!symptoms) { setError(k('ai.symptoms.required')); return; }
+    const asked = text.trim();
+    if (!asked) { setError(k('ai.symptoms.required')); return; }
     setBusy(true);
     setError(null);
     try {
-      const data = (await apiFetch('/ai/triage', { method: 'POST', body: JSON.stringify({ symptoms, red_flags: flags.length ? flags : ['none'] }) })) as Triage;
-      setTurns((current) => [...current, toTurn(data, symptoms, String(Date.now()))]);
+      const data = await apiFetch('/ai/assistant', { method: 'POST', body: JSON.stringify({ message: asked.slice(0, 1000), locale: assistantLocale(i18nManager.currentLanguage) }) });
+      const answer = parseAnswer(data);
+      if (!answer) throw new Error('assistant_empty');
+      setTurns((current) => [...current, { id: String(Date.now()), asked, answer }]);
       setText('');
-      setFlags([]);
     } catch (e) {
-      logError('ai:triage', e);
+      logError('ai:assistant', e);
       setError(k('ai.symptoms.error'));
     } finally {
       setBusy(false);
@@ -114,33 +114,14 @@ function SymptomsMode() {
   return (
     <>
       <Notice text={k('ai.symptoms.notice')} />
-      {past.length ? (
-        <Section title={k('ai.history.title')}>
-          <View style={{ gap: 10 }} testID="assistant-history">
-            {past.map((turn) => (
-              <View key={turn.id} style={{ gap: 10 }} testID={`assistant-turn-${turn.id}`}>
-                <MyBubble text={turn.symptoms} />
-                <TriageAnswer careLevel={turn.care_level} specialty={turn.specialty} />
-              </View>
-            ))}
-          </View>
-        </Section>
-      ) : null}
       {turns.map((turn) => (
         <View key={turn.id} style={{ gap: 10 }} testID={`assistant-turn-${turn.id}`}>
-          <MyBubble text={turn.symptoms} />
-          <TriageAnswer careLevel={turn.care_level} specialty={turn.specialty} />
+          <MyBubble text={turn.asked} />
+          <AssistantAnswer answer={turn.answer} />
         </View>
       ))}
       <Section title={k('ai.symptoms.question')}>
         <Input value={text} onChange={setText} placeholder={k('ai.symptoms.placeholder')} multiline rows={4} testID="assistant-symptoms" />
-      </Section>
-      <Section title={k('ai.symptoms.flags')}>
-        <View style={{ gap: 8 }}>
-          {FLAGS.map(([value, key]) => (
-            <CheckRow key={value} label={k(`ai.${key}`)} checked={flags.includes(value)} onPress={() => toggle(value)} testID={`assistant-flag-${value}`} />
-          ))}
-        </View>
       </Section>
       {error ? <Notice tone="danger" text={error} testID="assistant-error" /> : null}
       <SendButton label={k('ai.symptoms.send')} busy={busy} onPress={() => void send()} />
@@ -153,18 +134,25 @@ function SendButton({ label, busy, onPress }: { label: string; busy: boolean; on
   return <Button label={label} size="lg" fullWidth loading={busy} onPress={onPress} theme={theme} testID="assistant-send" />;
 }
 
-/** The server's answer to a triage: a red flag first (urgent help), otherwise the way into a consultation. */
-function TriageAnswer({ careLevel, specialty }: { careLevel: string; specialty: string | null }) {
+/** One answer of the assistant: urgent help first for a red flag; the doctor list on the named specialty; the leaflet and the pharmacist. */
+function AssistantAnswer({ answer }: { answer: Answer }) {
   const { k, t, c, flow } = useScreenUi();
-  const emergency = careLevel === 'emergency';
+  const title = answer.urgent ? 'ai.emergencyTitle' : answer.kind === 'leaflet' ? 'ai.leafletTitle' : answer.kind === 'out_of_scope' ? 'ai.outOfScopeTitle' : 'ai.consultationTitle';
   return (
-    <AnswerCard disclaimer={k('ai.disclaimer')} testID={emergency ? 'assistant-emergency' : 'assistant-answer'}>
+    <AnswerCard disclaimer={answer.disclaimer} testID={answer.urgent ? 'assistant-emergency' : 'assistant-answer'}>
       <View style={{ gap: 6 }}>
-        <Text accessibilityRole="header" style={{ ...scale(t, 'h3'), color: emergency ? c.status.danger.fg : c.text.primary, ...flow }}>{k(emergency ? 'ai.emergencyTitle' : 'ai.consultationTitle')}</Text>
-        <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{k(emergency ? 'ai.emergencyBody' : 'ai.consultationBody')}</Text>
+        <Text accessibilityRole="header" style={{ ...scale(t, 'h3'), color: answer.urgent ? c.status.danger.fg : c.text.primary, ...flow }}>{k(title)}</Text>
+        <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{answer.text}</Text>
       </View>
-      {emergency ? <CardAction label={k('emergency.title')} onPress={() => router.push(URGENT_HELP)} testID="assistant-urgent" /> : null}
-      <CardAction label={k('ai.bookConsultation')} tone={emergency ? 'outline' : 'primary'} onPress={() => router.push(doctorsFor(specialty))} testID="assistant-book" />
+      {answer.leaflet.map((section) => (
+        <View key={section.part} style={{ gap: 4 }}>
+          <Text style={{ ...scale(t, 'meta', 'bold'), color: c.text.secondary, ...flow }}>{k(`ai.leaflet.${section.part}`)}</Text>
+          {section.lines.map((line, i) => <Text key={i} style={{ ...scale(t, 'small', 'regular'), color: c.text.primary, ...flow }}>{`• ${line}`}</Text>)}
+        </View>
+      ))}
+      {answer.urgent ? <CardAction label={k('emergency.title')} onPress={() => router.push(URGENT_HELP)} testID="assistant-urgent" /> : null}
+      {answer.askPharmacist ? <CardAction label={k('ai.rx.askPharmacist')} onPress={() => router.push('/pharmacy/rx-order?via=type' as Href)} testID="assistant-pharmacist" /> : null}
+      {answer.bookable ? <CardAction label={k('ai.bookConsultation')} tone={answer.urgent || answer.askPharmacist ? 'outline' : 'primary'} onPress={() => router.push(doctorsFor(answer.specialty))} testID="assistant-book" /> : null}
     </AnswerCard>
   );
 }

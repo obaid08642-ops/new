@@ -203,8 +203,8 @@ class WebClient(Client):
         except urllib.error.HTTPError as e:
             raw, status, hdrs = e.read(), e.code, dict(e.headers)
         if status == 429 and not getattr(self, '_retrying', False) and os.environ.get('NABD_LIVE_WAIT_429', '1') == '1':
-            # Same as Client.req: the admin login is limited to 10 a minute per IP, and the journeys sign the admin in
-            # several times in a row. Wait out the window instead of faking IPs.
+            # Same as Client.req: the BFF's sign-in reaches the per-IP login throttle (every journey signs in from this
+            # one machine); wait the window out once instead of failing the journey.
             self._retrying = True
             try:
                 time.sleep(62)
@@ -239,3 +239,15 @@ class AdminWeb(WebClient):
         elif not path.startswith('/api/') and not path.startswith('http'):
             path = '/api/admin' + path
         return super().req(method, path, body, h, idem)
+
+
+def web_login(ctx, base, identifier, password, path='/api/auth/login'):
+    """A browser sign-in through a website's BFF (a Playwright request context, so the cookies land in the browser).
+    Like Client.req, a 429 from the per-IP login throttle (every journey signs in from this one machine) is waited out
+    once instead of failing the journey."""
+    url = base.rstrip('/') + path
+    r = ctx.request.post(url, data={'identifier': identifier, 'password': password})
+    if r.status == 429 and os.environ.get('NABD_LIVE_WAIT_429', '1') == '1':
+        time.sleep(62)
+        r = ctx.request.post(url, data={'identifier': identifier, 'password': password})
+    return r

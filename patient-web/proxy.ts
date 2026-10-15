@@ -12,6 +12,8 @@ const LOCALE = "(?:ar|en|ur|hi|bn|fil)";
 // F82-3: the translated page that answers when a public page failed with no cached copy (app/[locale]/unavailable). It is
 // static, so it takes the stamping path like a public page; it is never indexed and never stored.
 const UNAVAILABLE_PAGE = new RegExp(`^\\/${LOCALE}\\/unavailable\\/?$`);
+// journeys#77: the static offline page the service worker keeps (app/[locale]/offline), stamped like the unavailable page.
+const OFFLINE_PAGE = new RegExp(`^\\/${LOCALE}\\/offline\\/?$`);
 
 const LEGACY_MEDICINE = new RegExp(`^\\/(${LOCALE})\\/medicines\\/([A-Za-z0-9_-]{1,64})\\/?$`);
 const API_BASE = (process.env.NABD_API_BASE_URL || "https://api.nabd.plus/api/v1").replace(/\/$/, "");
@@ -73,7 +75,7 @@ export async function proxy(request: NextRequest) {
   const publicPage = isPublicIndexable(pathname);
   const withSession = hasSessionCookie(request.headers.get("cookie"));
   if (edgeNonceEnabled()) {
-    if (publicPage || UNAVAILABLE_PAGE.test(pathname)) {
+    if (publicPage || UNAVAILABLE_PAGE.test(pathname) || OFFLINE_PAGE.test(pathname)) {
       return stampedResponse(handleI18nRouting(request), { noStore: withSession || !publicPage, noIndex: !publicPage });
     }
   }

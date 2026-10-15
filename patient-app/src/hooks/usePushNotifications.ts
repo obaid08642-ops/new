@@ -61,7 +61,11 @@ export function translateBackendRoute(route: string): { pathname: string; params
   if (m) return { pathname: '/diagnostics/order/[id]', params: { id: m[1] } };
 
   // the report screen reads `id` (app/reports/view-report.tsx), also for the "report ready" route /reports/:id
-  m = clean.match(/^\/health\/results\/(.+)$/) || clean.match(/^\/health\/reports\/(.+)$/) || clean.match(/^\/reports\/([^/]+)$/);
+  // decision 19 (issue 338): "result ready" opens that lab result (GET /lab-results/:id), not a medical report
+  m = clean.match(/^\/health\/results\/([^/]+)$/);
+  if (m) return { pathname: '/diagnostics/lab-result', params: { id: m[1] } };
+
+  m = clean.match(/^\/health\/reports\/(.+)$/) || clean.match(/^\/reports\/([^/]+)$/);
   if (m) return { pathname: '/reports/view-report', params: { id: m[1] } };
 
   // Community is removed (owner decision 1): an old community notification opens the articles
@@ -86,6 +90,18 @@ export function translateBackendRoute(route: string): { pathname: string; params
   if (clean === '/loyalty/rewards') return { pathname: '/loyalty/hub', params: { tab: 'rewards' } };
   if (clean === '/loyalty/leaderboard') return { pathname: '/loyalty/hub' };
   if (VERBATIM_ROUTES.has(clean)) return { pathname: clean };
+  // 416: the engagement nudges open the item (medicine, doctor, lab test) or the service's hub
+  m = clean.match(/^\/pharmacy\/product\/([^/]+)$/);
+  if (m) return { pathname: '/pharmacy/product-detail', params: { id: decodeURIComponent(m[1]) } };
+  m = clean.match(/^\/doctors\/([^/]+)$/);
+  if (m) return { pathname: '/consultations/doctor/[id]', params: { id: decodeURIComponent(m[1]) } };
+  m = clean.match(/^\/labs\/tests\/([^/]+)$/);
+  if (m) return { pathname: '/diagnostics/test-detail', params: { id: decodeURIComponent(m[1]) } };
+  const HUBS: Record<string, string> = {
+    '/pharmacy': '/(tabs)/pharmacy', '/consultations': '/(tabs)/consultations', '/diagnostics': '/(tabs)/diagnostics',
+    '/nursing': '/(tabs)/nursing', '/maternity': '/maternity/hub', '/mental-health': '/mental-health/hub', '/nutrition': '/nutrition/hub',
+  };
+  if (HUBS[clean]) return { pathname: HUBS[clean] };
 
   return null;
 }

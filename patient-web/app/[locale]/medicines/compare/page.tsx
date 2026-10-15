@@ -28,11 +28,14 @@ export default async function MedicineComparePage({ params, searchParams }: Prop
   const t = await getTranslations("MedicineCompare");
   const list = ids.split(",").map((s) => s.trim()).filter((s) => /^[A-Za-z0-9_-]{1,64}$/.test(s)).slice(0, 4);
 
-  // بيانات حقيقية فقط من كتالوج الأدوية — لا مقارنة مُختلقة
-  const items: Array<Record<string, unknown>> = [];
-  for (const id of list) {
-    const res = await callPatientApi(`/medicines/${encodeURIComponent(id)}?locale=${locale}`, { cache: "no-store" } as RequestInit);
-    if (res.ok) { const d = await res.json().catch(() => null); const m = d?.data ?? d; if (m && typeof m === "object") items.push(m as Record<string, unknown>); }
+  // Real catalogue rows only, in one call as the app does (POST /medicines/compare, public; only published medicines),
+  // kept in the order of the link
+  let items: Array<Record<string, unknown>> = [];
+  if (list.length >= 2) {
+    const res = await callPatientApi("/medicines/compare", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ids: list }), cache: "no-store" } as RequestInit);
+    const d = res.ok ? await res.json().catch(() => null) : null;
+    const rows = (Array.isArray(d) ? d : Array.isArray(d?.data) ? d.data : []) as Array<Record<string, unknown>>;
+    items = list.map((id) => rows.find((m) => m && m.id === id)).filter((m): m is Record<string, unknown> => Boolean(m));
   }
 
   const value = (m: Record<string, unknown>, field: string) => {
@@ -42,7 +45,8 @@ export default async function MedicineComparePage({ params, searchParams }: Prop
     return field === "price" && typeof v === "number" ? formatPrice(locale, v).text : String(v);
   };
   // a row that no medicine has data for is not drawn
-  const fields = (["active_ingredient", "price", "dosage_form", "manufacturer", "requires_prescription", "online_exclusive"] as const).filter((f) => items.some((m) => value(m, f) !== null));
+  // the catalogue's own field names (medicine.schema: form, strength), not the old guesses (dosage_form)
+  const fields = (["active_ingredient", "price", "form", "strength", "manufacturer", "requires_prescription", "online_exclusive"] as const).filter((f) => items.some((m) => value(m, f) !== null));
   const back = `/${locale}/c`;
   const caret = getDirection(locale) === "rtl" ? "caret-right" : "caret-left";
 
@@ -67,7 +71,7 @@ export default async function MedicineComparePage({ params, searchParams }: Prop
               <thead>
                 <tr>
                   <th scope="col">{t("attribute")}</th>
-                  {items.map((m, i) => <th scope="col" key={i}>{String(m.name ?? m.title ?? `#${i + 1}`)}</th>)}
+                  {items.map((m, i) => <th scope="col" key={i}>{String((locale === "ar" || locale === "ur" ? m.name_ar ?? m.name_en : m.name_en ?? m.name_ar) ?? `#${i + 1}`)}</th>)}
                 </tr>
               </thead>
               <tbody>

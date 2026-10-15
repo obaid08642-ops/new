@@ -41,9 +41,11 @@ export class ArticlesService {
   }
 
   list(query: any) {
-    const { category, q, limit = '20', page = '1' } = query;
+    const { category, q, tag, limit = '20', page = '1' } = query;
     const filter: any = { status: 'PUBLISHED', is_deleted: { $ne: true } };
     if (category) filter.category = category;
+    // ?tag=sleep: the articles carrying that tag (the sleep screen's advice, decision B8). Compared as a plain string.
+    if (typeof tag === 'string' && tag) filter.tags = { $eq: tag };
     if (q) {
       const re = new RegExp(escapeRegex(String(q)), 'i');
       filter.$or = [{ title_ar: re }, { title_en: re }, { tags: q }];

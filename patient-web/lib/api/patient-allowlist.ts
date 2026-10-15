@@ -16,6 +16,8 @@ const patientReadRoutes = [
   new RegExp("^/labs/services$", "i"),
   new RegExp("^/home-care/bookings/my$", "i"),
   new RegExp("^/home-care/bookings/[A-Za-z0-9-]{1,64}$", "i"),
+  // components-next/home-care-booking-form: the chosen nurse's free times for one day (journeys#60).
+  new RegExp("^/home-care/providers/[A-Za-z0-9-]{1,64}/slots\\?date=\\d{4}-\\d{2}-\\d{2}$", "i"),
   new RegExp("^/family/chat/messages$", "i"),
   new RegExp(`^/offers/${orderId}$`, "i"),
   new RegExp(`^/promotions/offers/${orderId}/providers$`, "i"),
@@ -62,6 +64,7 @@ const patientReadRoutes = [
   new RegExp(`^/pharmacy/chat/threads/${threadId}/messages$`, "i"),
   new RegExp("^/mental-health/dashboard$"),
   new RegExp("^/mental-health/mood\\?days=30$"),
+  new RegExp("^/mental-health/meditation$"),
   // The assistant lists the patient's own earlier triage questions (GET /ai/triage/history, issues 873/882).
   new RegExp("^/ai/triage/history\\?limit=\\d{1,3}$"),
   new RegExp("^/users/me/privacy-settings$"),
@@ -87,6 +90,7 @@ const patientReadRoutes = [
   new RegExp("^/loyalty/rewards$", "i"),
   new RegExp(`^/labs/bookings/${orderId}$`, "i"),
   new RegExp(`^/labs/bookings/${orderId}/tracking$`, "i"),
+  new RegExp("^/push/web/vapid-key$"),
   // journeys#54: the report file of the patient's own lab booking (the backend checks the booking is theirs).
   new RegExp(`^/labs/bookings/${orderId}/reports/${orderId}$`, "i"),
   // A1: the patient wallet is gone — these backend routes no longer exist.
@@ -150,7 +154,8 @@ const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }>
   { method: "POST", route: new RegExp("^/support/requests$", "i") },
   { method: "POST", route: new RegExp("^/loyalty/rewards/[A-Za-z0-9-]{1,64}/claim$", "i") },
   { method: "POST", route: new RegExp("^/health/reminders$", "i") },
-  { method: "POST", route: new RegExp("^/ai/triage$", "i") },
+  // decisions 7 and 15: the one assistant (backend ai.controller POST /ai/assistant)
+  { method: "POST", route: new RegExp("^/ai/assistant$", "i") },
   { method: "POST", route: new RegExp("^/loyalty/challenges/[A-Za-z0-9-]{1,64}/join$", "i") },
   { method: "POST", route: new RegExp("^/referrals/apply$", "i") },
   { method: "POST", route: new RegExp("^/loyalty/rewards/[A-Za-z0-9-]{1,64}/claim$", "i") },
@@ -175,6 +180,9 @@ const addressMutationRoutes: Array<{ method: "POST" | "DELETE" | "PATCH"; route:
 const notificationMutationRoutes: Array<{ method: "POST"; route: RegExp }> = [
   { method: "POST", route: new RegExp(`^/notifications/${orderId}/read$`, "i") },
   { method: "POST", route: new RegExp("^/notifications/read-all$") },
+  // batch-0-web#9: this browser's web push subscription (lib/web-push.ts).
+  { method: "POST", route: new RegExp("^/push/web/subscribe$") },
+  { method: "POST", route: new RegExp("^/push/web/unsubscribe$") },
 ];
 
 export function isAllowedPatientApiRequest(path: string, method: string) {
