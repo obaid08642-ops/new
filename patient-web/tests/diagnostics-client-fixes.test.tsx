@@ -40,16 +40,9 @@ describe("sample tracking steps (decision B8: the booking's real timeline)", () 
   });
 });
 
-describe("service booking modal (still used by nursing/catalog)", () => {
-  const source = code("components-next/service-booking-modal.tsx");
-
-  it("never shows a confirmation: no timer, no random reference and no success text (it calls no booking endpoint)", () => {
-    expect(source).not.toContain("setTimeout");
-    expect(source).not.toContain("Math.random");
-    expect(source).not.toContain("confirmedData");
-    expect(source).not.toContain("fetch(");
-    expect(source).not.toContain("Booking Confirmed");
-    expect(source).toContain('t("bookingNotSentTitle")');
+describe("service booking modal", () => {
+  it("is gone: home nursing is booked on /home-care/services/[serviceId]/book (issues 560, 634, 649)", () => {
+    expect(existsSync(resolve(process.cwd(), "components-next/service-booking-modal.tsx"))).toBe(false);
   });
 });
 
