@@ -177,6 +177,33 @@ export type CatalogueSort = (typeof CATALOGUE_SORTS)[number];
 const SITE = process.env.API_PUBLIC_URL?.replace('/api/v1', '') || 'https://api.nabd.plus';
 const SITE_NAME = 'نبض';
 
+/** P13-R16: long-standing default site FAQ (fallback when the faqs collection is empty). */
+export const SITE_FAQ_DEFAULTS = [
+  { '@type': 'Question', name: 'هل الطلب يحتاج وصفة طبية؟', acceptedAnswer: { '@type': 'Answer', text: 'الأدوية المميزة بشارة RX فقط تتطلب رفع روشتة قبل إتمام الدفع.' } },
+  { '@type': 'Question', name: 'هل يمكن الطلب كضيف؟', acceptedAnswer: { '@type': 'Answer', text: 'نعم — التصفح والبحث والطلب والحجز متاحة للضيوف، والتأمين والعائلة يتطلبان حساباً.' } },
+  { '@type': 'Question', name: 'كيف تصل الصور والمنتجات؟', acceptedAnswer: { '@type': 'Answer', text: 'صور المنتجات تُقدَّم عبر CDN عالمي، والمنتجات من كتالوج 21,000+ صنف موثق.' } },
+  { '@type': 'Question', name: 'ماذا يعني "قد يكون غير متوفر"؟', acceptedAnswer: { '@type': 'Answer', text: 'شارة تحذيرية تظهر بعد اعتماد الإدارة لبلاغ نقص من الصيدليات — المنتج يبقى قابلاً للطلب.' } },
+];
+
+/**
+ * P13-R16: "Cite this" block for medical/drug pages — plain text plus BibTeX
+ * carrying the URL, the author and the access timestamp. BibTeX-unsafe
+ * characters are stripped so the entry always parses.
+ */
+export function buildCitation(input: { title: string; author: string; url: string; date?: Date | string }): { text: string; bibtex: string } {
+  const title = String(input?.title || '').trim() || 'Untitled';
+  const author = String(input?.author || '').trim() || SITE_NAME;
+  const url = String(input?.url || '').trim();
+  const at = input?.date ? new Date(input.date) : new Date();
+  const stamp = Number.isNaN(at.getTime()) ? new Date() : at;
+  const accessed = stamp.toISOString().slice(0, 10);
+  const text = `${author}. ${title}. ${SITE_NAME}. ${url} (accessed ${accessed}).`;
+  const safe = (s: string) => String(s).replace(/[{}"\\]/g, '').slice(0, 300);
+  const key = `nabdplus-${accessed.replace(/-/g, '')}-${Math.abs([...title].reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 7) % 10000)}`;
+  const bibtex = `@online{${key},\n  title = {${safe(title)}},\n  author = {${safe(author)}},\n  url = {${safe(url)}},\n  urldate = {${accessed}}\n}`;
+  return { text, bibtex };
+}
+
 function slugify(s: string): string {
   return (s || '').trim().replace(/[\s_]+/g, '-').replace(/[^\p{L}\p{N}-]/gu, '').replace(/-+/g, '-').replace(/^-|-$/g, '').toLowerCase().slice(0, 80);
 }
@@ -203,6 +230,10 @@ export class SeoSearchService {
     return n;
   }
 
+  /**
+   * P13-R16: "Cite this" block for medical/drug pages (plain text + BibTeX
+   * with URL, author and access timestamp). Pure and exported for tests.
+   */
   async metadata(type: string, id: string): Promise<any> {
     const entity = await this.loadEntity(type, id);
     if (!entity) return null;
@@ -211,10 +242,17 @@ export class SeoSearchService {
     const canonical = `${SITE}/s/${type}/${slug}`;
     const description = base.description.slice(0, 155);
     const image = base.image || `${SITE}/og-default.png`;
+    const author = type === 'medicine'
+      ? entity.manufacturer || SITE_NAME
+      : type === 'article'
+        ? entity.author_name || SITE_NAME
+        : entity.name || entity.full_name || SITE_NAME;
+    const stamp = entity.updatedAt || entity.published_at || entity.last_reviewed || new Date();
     return {
       type, id: entity.id, slug, canonical_url: canonical,
       page_title: `${base.title} | ${SITE_NAME}`,
       meta_description: description,
+      citation: buildCitation({ title: base.title, author: String(author), url: canonical, date: stamp }),
       og: {
         'og:title': base.title, 'og:description': description, 'og:url': canonical,
         'og:image': image, 'og:type': base.ogType, 'og:site_name': SITE_NAME, 'og:locale': 'ar_SA',
@@ -225,6 +263,31 @@ export class SeoSearchService {
       robots: 'index,follow',
       sitemap_entry: { loc: canonical, changefreq: base.changefreq, priority: base.priority },
     };
+  }
+
+  /**
+   * P13-R16: site FAQPage driven by the admin-managed faqs collection, with
+   * the long-standing default copy as fallback when the collection is empty.
+   */
+  async siteFaqJsonLd(): Promise<any> {
+    try {
+      const rows: any[] = await this.conn.collection('faqs')
+        .find({ active: { $ne: false } })
+        .sort({ sort: 1 })
+        .limit(20)
+        .toArray();
+      const items = (rows || [])
+        .filter((r: any) => r?.question_ar && r?.answer_ar)
+        .map((r: any) => ({
+          '@type': 'Question',
+          name: String(r.question_ar),
+          acceptedAnswer: { '@type': 'Answer', text: String(r.answer_ar) },
+        }));
+      if (items.length > 0) {
+        return { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: items };
+      }
+    } catch { /* fall through to defaults */ }
+    return { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: SITE_FAQ_DEFAULTS };
   }
 
   private async loadEntity(type: string, id: string): Promise<any> {
@@ -251,13 +314,22 @@ export class SeoSearchService {
       case 'medicine': {
         const title = e.name_ar || e.name_en || 'منتج';
         const desc = [e.description_ar, e.active_ingredient ? `المادة الفعالة: ${e.active_ingredient}` : null, e.manufacturer ? `من ${e.manufacturer}` : null].filter(Boolean).join(' — ') || `${title} — متوفر في صيدلية ${SITE_NAME}`;
+        // P13-R16: the commerce node is unchanged; the Drug node carries the
+        // medical semantics (validators accept @graph with both types).
+        const product = (url: string, img: string) => ({
+          '@context': 'https://schema.org', '@type': 'Product', name: title, description: desc, image: img, url,
+          brand: e.manufacturer ? { '@type': 'Brand', name: e.manufacturer } : undefined,
+          offers: e.price ? { '@type': 'Offer', price: e.price, priceCurrency: 'SAR', availability: e.availability_status === 'none' || !e.availability_status ? 'https://schema.org/InStock' : 'https://schema.org/LimitedAvailability' } : undefined,
+        });
+        const drug = (url: string) => ({
+          '@context': 'https://schema.org', '@type': 'Drug', name: title, description: desc, url,
+          ...(e.active_ingredient ? { activeIngredient: e.active_ingredient } : {}),
+          ...(e.manufacturer ? { manufacturer: { '@type': 'Organization', name: e.manufacturer } } : {}),
+          ...(e.dosage_form || e.form ? { dosageForm: e.dosage_form || e.form } : {}),
+        });
         return {
           title, description: desc, image: e.image ? this.cdn(e.image) : null, ogType: 'product', changefreq: 'weekly', priority: 0.8,
-          jsonLd: (url: string, img: string) => ({
-            '@context': 'https://schema.org', '@type': 'Product', name: title, description: desc, image: img, url,
-            brand: e.manufacturer ? { '@type': 'Brand', name: e.manufacturer } : undefined,
-            offers: e.price ? { '@type': 'Offer', price: e.price, priceCurrency: 'SAR', availability: e.availability_status === 'none' || !e.availability_status ? 'https://schema.org/InStock' : 'https://schema.org/LimitedAvailability' } : undefined,
-          }),
+          jsonLd: (url: string, img: string) => ({ '@context': 'https://schema.org', '@graph': [product(url, img), drug(url)] }),
           breadcrumbs: (url: string) => this.crumbs(url, [['الرئيسية', SITE], ['الصيدلية', `${SITE}/pharmacy`], [e.category || 'منتجات', null], [title, url]]),
         };
       }
@@ -995,15 +1067,9 @@ export class SeoSearchController {
   @Public()
   @Get('seo/site/faq')
   faqSchema(): any {
-    return {
-      '@context': 'https://schema.org', '@type': 'FAQPage',
-      mainEntity: [
-        { '@type': 'Question', name: 'هل الطلب يحتاج وصفة طبية؟', acceptedAnswer: { '@type': 'Answer', text: 'الأدوية المميزة بشارة RX فقط تتطلب رفع روشتة قبل إتمام الدفع.' } },
-        { '@type': 'Question', name: 'هل يمكن الطلب كضيف؟', acceptedAnswer: { '@type': 'Answer', text: 'نعم — التصفح والبحث والطلب والحجز متاحة للضيوف، والتأمين والعائلة يتطلبان حساباً.' } },
-        { '@type': 'Question', name: 'كيف تصل الصور والمنتجات؟', acceptedAnswer: { '@type': 'Answer', text: 'صور المنتجات تُقدَّم عبر CDN عالمي، والمنتجات من كتالوج 21,000+ صنف موثق.' } },
-        { '@type': 'Question', name: 'ماذا يعني "قد يكون غير متوفر"؟', acceptedAnswer: { '@type': 'Answer', text: 'شارة تحذيرية تظهر بعد اعتماد الإدارة لبلاغ نقص من الصيدليات — المنتج يبقى قابلاً للطلب.' } },
-      ],
-    };
+    // P13-R16: collection-driven via the service; the previous hardcoded copy
+    // stays the fallback inside siteFaqJsonLd, so this route never 500s.
+    return this.svc.siteFaqJsonLd();
   }
 
   @Public()
