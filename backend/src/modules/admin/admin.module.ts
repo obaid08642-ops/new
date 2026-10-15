@@ -51,7 +51,6 @@ import { B2BRequest, B2BRequestSchema } from '../../schemas/b2b-request.schema';
 import {
   AdminGovernanceService,
   AdminGovernanceController as GovernanceAdminController,
-  KillSwitchesController,
   CommissionsController,
 } from './governance/admin-governance.module';
 import { B2BController } from './governance/b2b.controller';
@@ -148,7 +147,6 @@ import { OpsSecurityModule } from './ops-security/ops-security.module';
     AdminCommandCenterV2Controller,
     // P5.3: merged from AdminGovernanceModule
     GovernanceAdminController,
-    KillSwitchesController,
     CommissionsController,
     B2BController,
     SystemConfigController,

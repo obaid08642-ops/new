@@ -5,6 +5,7 @@ import * as bcrypt from 'bcryptjs';
 import { createPublicKey, KeyObject } from 'crypto';
 import * as nodemailer from 'nodemailer';
 import { Optional } from '@nestjs/common';
+import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { PushService } from '../push/push.module';
 import { escapeHtml, MailService } from '../mail/mail.module';
 import { SmsService } from '../sms/sms.service';
@@ -61,6 +62,8 @@ export class AuthService {
     @Optional() private passwordSecurity?: PasswordSecurityService,
     // 16.3: SMS pumping — per-IP fan-out, country allow-list, daily budget.
     @Optional() private otpAbuse?: OtpAbuseGuard,
+    // Issue 955: the admin "new registrations" kill switch.
+    @Optional() private killSwitches?: KillSwitchesService,
   ) {}
 
   /**
@@ -643,6 +646,7 @@ export class AuthService {
     locale: string;
     consents: Array<{ policy_id: string; version: string }>;
   }) {
+    await this.killSwitches?.assertOn('new_registrations');
     AuthService.assertString(data?.name, 'name');
     AuthService.assertString(data?.identifier, 'identifier');
     AuthService.assertString(data?.password, 'password');
@@ -712,6 +716,8 @@ export class AuthService {
   }
 
   async register(data: { full_name: string; phone?: string; password: string; email?: string; role?: UserRole }, guestToken?: string) {
+    // Refused before the verified OTP is consumed, so the same code works once registrations are back on.
+    await this.killSwitches?.assertOn('new_registrations');
     if (data.email !== undefined) AuthService.assertString(data.email, 'email');
     if (data.phone !== undefined) AuthService.assertString(data.phone, 'phone');
     AuthService.assertString(data.password, 'password');
@@ -1342,6 +1348,8 @@ export class AuthService {
     // A banned or deactivated account never gets a token this way either.
     if (u && u.active === false) throw new ForbiddenException('account_disabled');
     if (!u) {
+      // A first social sign-in creates an account: refused while new registrations are off.
+      await this.killSwitches?.assertOn('new_registrations');
       u = await this.userModel.create({
         full_name: name,
         email: email,
