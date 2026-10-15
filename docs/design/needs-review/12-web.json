@@ -19,7 +19,7 @@
     "line": 89,
     "found": "[owner] the board has a 'saved cards' row; there is no web screen or endpoint for it, not drawn.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #771)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision B3), main already complies: profile/page.tsx has no saved-cards row (issue #771)"
   },
   {
     "batch": 12,

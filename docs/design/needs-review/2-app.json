@@ -140,7 +140,7 @@
     "line": 122,
     "found": "[owner] Readex Pro has no Urdu glyphs, so Urdu falls back to a system font and mixes two typefaces in one line (seen at 390 in ur on every consultation screen); Approved 2026-10-10 and fixed on design/app-owner-ui: Noto Nastaliq Urdu for ur only.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #394)"
+    "review_status": "fixed before this session (verified on main: src/theme/useUrduFont.ts (Noto Nastaliq Urdu)) (issue #394)"
   },
   {
     "batch": 2,
@@ -184,6 +184,6 @@
     "line": 366,
     "found": "[owner] Approved 2026-10-10: Doctors in {city}",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md)"
+    "review_status": "fixed before this session (verified on main: consult.hub.nearestCity \"Doctors in {city}\")"
   }
 ]
