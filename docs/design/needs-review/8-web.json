@@ -41,7 +41,7 @@
     "line": 102,
     "found": "[backend] GET /maternity/content returns empty lists (weekly_tips, links) and there is no fetal-week endpoint; the board's 'Read this week' list and fetal size line are not drawn, no image is bundled (owner decision D). (backend: backend/src/modules/maternity/maternity.service.ts:38)",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open (issue #861)"
+    "review_status": "fixed #1514"
   },
   {
     "batch": 8,
