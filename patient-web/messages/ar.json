@@ -652,7 +652,7 @@
     "partUnavailable": "تعذّر تحميل هذا الجزء.",
     "unitsRemaining": "{count, plural, zero {لا وحدات متبقية} one {وحدة واحدة متبقية} two {وحدتان متبقيتان} few {# وحدات متبقية} many {# وحدة متبقية} other {# وحدة متبقية}}",
     "vitalsTitle": "المؤشرات",
-    "vitalsToday": "اليوم",
+    "vitalsToday": "الأحدث",
     "vitalsHistory": "السجل",
     "vitalsTrends": "الاتجاهات",
     "noReading": "لا توجد قراءة بعد",
@@ -912,9 +912,9 @@
   "ChatDetail": {
     "eyebrow": "محادثة خاصة",
     "thread": "محادثة",
-    "messagesTitle": "نشاط الرسائل",
+    "messagesTitle": "الرسائل",
     "back": "العودة إلى المحادثات",
-    "bodyHidden": "لا تظهر هنا بعد نصوص الرسائل أو المشاركون أو التفاعلات أو المرفقات.",
+    "bodyHidden": "لا تظهر هنا أسماء المشاركين أو التفاعلات أو المرفقات.",
     "attachmentHidden": "تحتوي هذه الرسالة على مرفق.",
     "deleted": "رسالة محذوفة",
     "timeUnavailable": "التوقيت غير متاح",
@@ -1509,6 +1509,7 @@
     "checkingBody": "نسأل مزوّد الدفع والصيدلية عن النتيجة. يستغرق ذلك بضع ثوانٍ.",
     "checkAgain": "تحقق مرة أخرى",
     "trackOrder": "تتبع الطلب",
+    "openBooking": "عرض الحجز",
     "stalledTitle": "ما زلنا بانتظار مزوّد الدفع",
     "stalledBody": "لم نتلقَّ ردًا نهائيًا بعد. لا يُؤكَّد شيء قبل أن يرد المزوّد. تحقق مرة أخرى أو تابع طلباتك.",
     "refundedTitle": "تم استرداد هذه الدفعة",
@@ -1859,6 +1860,7 @@
     "invalid": "أدخل رمزاً من 6 أرقام.",
     "failed": "تعذر التحقق من الرمز. لم يتم تسجيل الدخول.",
     "missing": "ابدأ من شاشة تسجيل الدخول أو إنشاء الحساب لنرسل إليك الرمز.",
+    "notSent": "تم إنشاء حسابك، لكن تعذّر إرسال الرمز. اضغط «إعادة الإرسال».",
     "back": "العودة",
     "wrong": "الرمز غير صحيح. تحقق منه وحاول مرة أخرى.",
     "expired": "انتهت صلاحية الرمز. اطلب رمزًا جديدًا.",
@@ -2676,6 +2678,8 @@
     "locationHome": "زيارة منزلية",
     "locationFacility": "في المنشأة",
     "trackSample": "تتبع العينة",
+    "openReport": "افتح التقرير",
+    "openReportN": "افتح التقرير {n}",
     "uploadInsurance": "رفع مستند التأمين",
     "bookingDetails": "تفاصيل الحجز",
     "sampleSteps": "مراحل العينة",
@@ -2717,13 +2721,9 @@
     "backToCart": "العودة إلى السلة",
     "callLab": "اتصل بالمختبر",
     "testTitle": "التحليل",
-    "bookTitle": "احجز تحليلًا",
-    "noProviderTitle": "لا يوجد مختبر متاح",
     "noProviderBody": "لا يوجد مختبر يجري هذا التحليل الآن.",
-    "backToTests": "العودة إلى التحاليل",
     "tagHome": "عينة منزلية",
     "tagFasting": "صيام",
-    "bookPackage": "احجز هذه الباقة",
     "addToOrderCta": "أضف إلى طلبي",
     "details": "التفاصيل",
     "hubTitle": "المختبرات والأشعة",
@@ -2784,7 +2784,6 @@
     "searchErrorTitle": "تعذر تحميل التحاليل",
     "searchErrorBody": "حاول مرة أخرى بعد قليل.",
     "testFacts": "تفاصيل التحليل",
-    "bookTest": "احجز هذا التحليل",
     "cartEmptyTitle": "السلة فارغة",
     "cartEmptyBody": "أضف تحاليل قبل الحجز.",
     "browseTests": "تصفح التحاليل",
@@ -2877,15 +2876,6 @@
     "collectorTip1": "جهّز الهوية وطلب التحليل",
     "collectorTip2": "التزم بالصيام الذي يتطلبه التحليل",
     "collectorTip3": "أخبر الأخصائي بأي أدوية تتناولها",
-    "errHomeInsuranceDoc": "الزيارة المنزلية بالتأمين تتطلب طلب طبيب أو موافقة مسبقة",
-    "errSlotTaken": "هذا الموعد لم يعد متاحًا",
-    "errBooking": "تعذر إنشاء الحجز. حاول مرة أخرى.",
-    "bookWhere": "أين؟",
-    "bookHomeUnavailable": "السحب المنزلي غير متاح لهذا التحليل.",
-    "bookWhen": "التاريخ والوقت",
-    "bookDocLabel": "رابط طلب الطبيب أو الموافقة (عند الحاجة)",
-    "bookSaving": "جارٍ الحجز…",
-    "bookConfirm": "تأكيد الحجز",
     "status_pending": "بانتظار التأكيد",
     "status_insurance": "بانتظار التأمين",
     "status_confirmed": "مؤكد",
@@ -3156,15 +3146,10 @@
     "avgMood": "متوسط المزاج",
     "avgEnergy": "متوسط الطاقة",
     "avgStress": "متوسط التوتر",
-    "meditationSessions": "جلسات التأمل",
-    "meditationMinutes": "دقائق التأمل",
-    "minutes": "دقيقة",
     "notAvailable": "غير متاح",
     "careTitle": "ما تحتاجه الآن",
     "moodRow": "يوميات المزاج",
     "moodRowSub": "مزاجك وطاقتك وتوترك في آخر 30 يومًا",
-    "relaxRow": "الاسترخاء",
-    "relaxRowSub": "جلسات التنفس والتأمل",
     "therapistRow": "احجز مع معالج نفسي",
     "therapistRowSub": "أطباء الطب النفسي في الاستشارات",
     "notice": "هذه الأرقام وصفية لما سجّلته أنت، وليست تشخيصًا ولا درجة خطورة ولا توصية علاجية.",
@@ -3178,20 +3163,6 @@
     "energy": "الطاقة: {value}",
     "stress": "التوتر: {value}",
     "sleepHours": "ساعات النوم: {value}",
-    "relaxTitle": "الاسترخاء",
-    "tabBreathing": "التنفس",
-    "tabMeditation": "التأمل",
-    "relaxUnavailableTitle": "تعذر تحميل الجلسات",
-    "breathingEmpty": "لا توجد جلسات تنفس مسجّلة بعد.",
-    "techniqueUnavailable": "الأسلوب غير متاح",
-    "rounds": "الجولات: {value}",
-    "durationSeconds": "المدة: {value} ثانية",
-    "relaxNotice": "تظهر هنا جلساتك المسجّلة. بدء جلسة جديدة غير متاح على الويب.",
-    "meditationEmpty": "لا توجد جلسات تأمل مسجّلة بعد.",
-    "meditationUnavailable": "النوع غير متاح",
-    "durationMinutes": "المدة: {value} دقيقة",
-    "completed": "مكتملة",
-    "notCompleted": "غير مكتملة",
     "moodValue": {
       "great": "ممتاز",
       "good": "جيد",
@@ -4098,5 +4069,74 @@
     "faqIngredient": "ما المادة الفعالة في {name}؟",
     "faqPrice": "كم سعر {name} في نبض بلس؟",
     "howToTitle": "طريقة استخدام {name}"
+  },
+  "LogForms": {
+    "saveError": "تعذّر الحفظ. ما كتبته لم يُفقد، حاول مرة أخرى.",
+    "saved": "تم الحفظ.",
+    "water": {
+      "title": "سجّل الماء",
+      "amount_ml": "الكمية (مل)",
+      "save": "أضف الماء",
+      "bad": {
+        "amount_ml": "أدخل كمية بين 50 و3000 مل."
+      }
+    },
+    "mood": {
+      "title": "سجّل مزاجك",
+      "mood": "كيف مزاجك الآن؟",
+      "option": {
+        "great": "رائع",
+        "good": "جيد",
+        "okay": "عادي",
+        "bad": "صعب",
+        "terrible": "صعب جدًا"
+      },
+      "energy_level": "الطاقة (1-5، اختياري)",
+      "stress_level": "الضغط (1-5، اختياري)",
+      "sleep_hours": "ساعات النوم (اختياري)",
+      "notes": "ملاحظة قصيرة (اختياري)",
+      "save": "احفظ المزاج",
+      "bad": {
+        "mood": "اختر مزاجك أولًا.",
+        "energy_level": "الطاقة رقم من 1 إلى 5.",
+        "stress_level": "الضغط رقم من 1 إلى 5.",
+        "sleep_hours": "ساعات النوم بين 0 و24.",
+        "notes": "الملاحظة طويلة جدًا."
+      }
+    },
+    "kicks": {
+      "title": "سجّل حركات الجنين",
+      "count": "عدد الحركات",
+      "duration_seconds": "خلال كم دقيقة",
+      "save": "احفظ الحركات",
+      "bad": {
+        "count": "أدخل عددًا صحيحًا من 1 إلى 200.",
+        "duration_seconds": "أدخل المدة بالدقائق من 1 إلى 240."
+      }
+    },
+    "contractions": {
+      "title": "سجّل انقباضًا",
+      "interval_seconds": "الدقائق منذ الانقباض السابق",
+      "duration_seconds": "مدته بالثواني",
+      "save": "احفظ الانقباض",
+      "bad": {
+        "interval_seconds": "أدخل الدقائق من 1 إلى 120.",
+        "duration_seconds": "أدخل الثواني من 5 إلى 300."
+      }
+    },
+    "growth": {
+      "title": "سجّل نمو الطفل",
+      "month": "العمر بالأشهر",
+      "weight_kg": "الوزن (كجم، اختياري)",
+      "height_cm": "الطول (سم، اختياري)",
+      "head_circ_cm": "محيط الرأس (سم، اختياري)",
+      "save": "احفظ القياس",
+      "bad": {
+        "month": "العمر بالأشهر رقم صحيح من 0 إلى 60.",
+        "weight_kg": "الوزن بين 0.3 و40 كجم.",
+        "height_cm": "الطول بين 20 و150 سم.",
+        "head_circ_cm": "محيط الرأس بين 20 و60 سم."
+      }
+    }
   }
 }

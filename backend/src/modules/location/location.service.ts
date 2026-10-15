@@ -12,6 +12,19 @@ export interface ResolvedLocation {
   matched_alias?: string;
 }
 
+/** P13-R11: one row of a verified official extract (superset-compatible with SeedLocation). */
+export interface ImportLocationRow {
+  code: string;
+  name_ar: string;
+  name_en: string;
+  type: string;
+  parent_code?: string | null;
+  aliases?: string[];
+  coordinates?: { lat: number; lng: number };
+  coverage?: { pharmacy_delivery: boolean; home_healthcare: boolean; lab_collection: boolean };
+  is_active?: boolean;
+}
+
 @Injectable()
 export class LocationService implements OnModuleInit {
   private readonly logger = new Logger(LocationService.name);
@@ -65,19 +78,96 @@ export class LocationService implements OnModuleInit {
   }
 
   /**
-   * Bulk ingest or update location records (pipeline ready for external full datasets).
+   * P13-R11: validated import pipeline for verified official extracts.
+   * Every row is checked before anything is written: code shape, known type
+   * (the fixed country root is never importable), non-empty names, sane
+   * aliases, coordinates for city/district/sub_area, and a parent that exists
+   * (in the DB or earlier in the same batch) with the matching parent type.
+   * Accepted rows upsert without overwriting admin edits ($setOnInsert) and
+   * are stamped with the extract source; rejected rows are reported, never
+   * partially written. Re-importing the same extract is idempotent.
    */
-  async importLocations(locations: SeedLocation[]): Promise<{ imported: number }> {
-    let count = 0;
-    for (const loc of locations) {
+  /** Row of a verified official extract (DTO-validated at the controller). */
+  async importLocations(
+    locations: ImportLocationRow[],
+    source = 'admin',
+  ): Promise<{ imported: number; rejected: Array<{ code: string; reason: string }>; source: string }> {
+    const TYPE_RANK: Record<string, number> = { region: 0, city: 1, district: 2, sub_area: 3 };
+    const EXPECTED_PARENT: Record<string, string> = { city: 'region', district: 'city', sub_area: 'district' };
+    const now = new Date();
+    const rejected: Array<{ code: string; reason: string }> = [];
+    let imported = 0;
+    const known = new Map<string, string>();
+    const rows = Array.isArray(locations) ? [...locations] : [];
+    rows.sort((a, b) => (TYPE_RANK[String(a?.type)] ?? 99) - (TYPE_RANK[String(b?.type)] ?? 99));
+
+    const fail = (loc: any, reason: string) => {
+      rejected.push({ code: String(loc?.code ?? ''), reason });
+    };
+
+    for (const loc of rows) {
+      const code = String((loc as any)?.code ?? '');
+      const type = String((loc as any)?.type ?? '');
+      if (!/^[a-z0-9-]{1,80}$/.test(code)) { fail(loc, 'invalid_code'); continue; }
+      if (type === 'country') { fail(loc, 'country_not_importable'); continue; }
+      if (!(type in TYPE_RANK)) { fail(loc, 'invalid_type'); continue; }
+      const nameAr = String((loc as any)?.name_ar ?? '').trim();
+      const nameEn = String((loc as any)?.name_en ?? '').trim();
+      if (!nameAr || !nameEn || nameAr.length > 200 || nameEn.length > 200) { fail(loc, 'name_required'); continue; }
+      const aliases = (loc as any)?.aliases;
+      if (aliases !== undefined && (!Array.isArray(aliases) || aliases.length > 20 ||
+          aliases.some((a: any) => typeof a !== 'string' || !a.trim() || a.length > 80))) {
+        fail(loc, 'invalid_aliases'); continue;
+      }
+      const coords = (loc as any)?.coordinates;
+      const validCoords = coords !== undefined && coords !== null &&
+        Number.isFinite(Number(coords.lat)) && Number(coords.lat) >= -90 && Number(coords.lat) <= 90 &&
+        Number.isFinite(Number(coords.lng)) && Number(coords.lng) >= -180 && Number(coords.lng) <= 180;
+      if (type !== 'region' && !validCoords) { fail(loc, 'coordinates_required'); continue; }
+      if (coords !== undefined && coords !== null && !validCoords) { fail(loc, 'invalid_coordinates'); continue; }
+
+      // Parent linkage: region hangs under the fixed country root; every
+      // other row needs a parent of the matching type, from the DB or from
+      // rows already accepted in this same batch.
+      let parentCode: string | null = null;
+      if (type === 'region') {
+        const given = (loc as any)?.parent_code;
+        if (given !== undefined && given !== null && String(given) !== 'sa') { fail(loc, 'region_parent_must_be_country'); continue; }
+        parentCode = 'sa';
+      } else {
+        parentCode = String((loc as any)?.parent_code ?? '');
+        if (!parentCode) { fail(loc, 'parent_required'); continue; }
+        const expected = EXPECTED_PARENT[type];
+        const batchParent = known.get(parentCode);
+        if (batchParent === expected) {
+          // accepted earlier in this batch — linkage holds.
+        } else if (batchParent !== undefined) {
+          fail(loc, 'parent_wrong_type'); continue;
+        } else {
+          const parent = await this.locationModel.findOne({ code: parentCode }).lean();
+          if (!parent) { fail(loc, 'parent_not_found'); continue; }
+          if (String((parent as any).type) !== expected) { fail(loc, 'parent_wrong_type'); continue; }
+        }
+      }
+
       await this.locationModel.updateOne(
-        { code: loc.code },
-        { $setOnInsert: loc },
+        { code },
+        {
+          $setOnInsert: {
+            code, name_ar: nameAr, name_en: nameEn, type,
+            parent_code: parentCode,
+            aliases: Array.isArray(aliases) ? aliases : [],
+            ...(validCoords ? { coordinates: { lat: Number(coords.lat), lng: Number(coords.lng) } } : {}),
+            is_active: true,
+          },
+          $set: { source, source_verified_at: now },
+        },
         { upsert: true },
       );
-      count++;
+      known.set(code, type);
+      imported++;
     }
-    return { imported: count };
+    return { imported, rejected, source };
   }
 
   /**
