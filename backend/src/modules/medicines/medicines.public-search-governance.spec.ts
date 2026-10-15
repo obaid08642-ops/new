@@ -18,6 +18,8 @@ import { AssistantService } from '../ai/assistant.service';
 import { HomeService } from '../home/home.service';
 import { CartService, UnifiedCartSchema } from '../cart/cart.module';
 import { AgentToolsService } from '../mcp/agent-tools.service';
+import { ProviderDrugIndexController } from '../provider/provider-drug-index.controller';
+import { ROLES_KEY, getEffectiveRoles, normalizeEffectiveRole, roleSatisfies } from '../../common/auth.guard';
 import { PromotionCampaign, PromotionCampaignSchema } from '../../schemas/promotion-campaign.schema';
 
 jest.setTimeout(120_000);
@@ -185,5 +187,30 @@ describe('other modules: public and patient reads never return a medicine in med
     const tools = new AgentToolsService(...([null, null, null, null, null, null, null, null, null, conn] as unknown as ConstructorParameters<typeof AgentToolsService>));
     await expect((tools as any).createPharmacyRequest({ id: 'patient-1', role: 'patient' }, { items: [{ medicine_id: PENDING_2.id, qty: 1 }] }))
       .rejects.toThrow(`medicine_not_found:${PENDING_2.id}`);
+  });
+});
+
+describe('provider drug index (GET /drugs): the full catalogue is for providers and admins only', () => {
+  // The same decision as JwtAuthGuard: @Roles from getAllAndOverride(handler, class); no roles lets any signed-in
+  // user through, otherwise one required role must be satisfied by the user's effective roles (else 403).
+  const allowed = (user: Record<string, unknown>, method: keyof ProviderDrugIndexController) => {
+    const roles: string[] | undefined = Reflect.getMetadata(ROLES_KEY, ProviderDrugIndexController.prototype[method])
+      ?? Reflect.getMetadata(ROLES_KEY, ProviderDrugIndexController);
+    if (!roles || !roles.length) return true;
+    return roles.some((r) => roleSatisfies(normalizeEffectiveRole(String(r)), getEffectiveRoles(user)));
+  };
+
+  it('a patient is refused on every route', () => {
+    for (const m of ['list', 'categories', 'one'] as const) expect(allowed({ role: 'patient' }, m)).toBe(false);
+  });
+
+  it('a pharmacy, a doctor (provider token) and an admin are allowed, and the pharmacy still lists items in review', async () => {
+    for (const m of ['list', 'categories', 'one'] as const) {
+      expect(allowed({ role: 'pharmacy' }, m)).toBe(true);
+      expect(allowed({ role: 'provider', provider_type: 'doctor' }, m)).toBe(true);
+      expect(allowed({ role: 'admin' }, m)).toBe(true);
+    }
+    const drugs = new ProviderDrugIndexController(conn);
+    expect(ids((await drugs.list('Quarantinol')).data)).toContain(PENDING_2.id);
   });
 });
