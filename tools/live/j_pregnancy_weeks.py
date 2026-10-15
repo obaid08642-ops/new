@@ -10,7 +10,7 @@ import datetime
 import os
 import uuid
 
-from lib import Client, journey, step
+from lib import Client, journey, step, web_login
 
 WEB = os.environ.get('NABD_WEB_JOURNEYS_URL', 'http://127.0.0.1:3100')
 WEEK = 12
@@ -106,7 +106,7 @@ def main():
         return step('web maternity week', False, f'no chromium: {e}')
     ctx = browser.new_context(locale='ar-SA', viewport={'width': 390, 'height': 844})
     try:
-        r = ctx.request.post(f'{WEB}/api/auth/login', data={'identifier': p['email'], 'password': p['password']})
+        r = web_login(ctx, WEB, p['email'], p['password'])
         step('patient signs in on the website', r.ok, f'{r.status}')
         page = ctx.new_page()
         page.goto(f'{WEB}/ar/maternity?tab=pregnancy', wait_until='load', timeout=60000)
