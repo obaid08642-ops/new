@@ -74,7 +74,7 @@
     "line": 7,
     "found": "[client] Removed 2026-10-10 (decision 35): the Claims tab and parseClaims are gone; the route redirects to the hub.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "not-a-problem: removed 2026-10-10 (decision 35); insurance/claims redirects to the insurance hub"
   },
   {
     "batch": 7,
@@ -85,7 +85,7 @@
     "line": 7,
     "found": "[backend] Removed 2026-10-10 (decision 35): the Refunds tab is gone; the route redirects to the hub. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:867)",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open"
+    "review_status": "not-a-problem: removed 2026-10-10 (decision 35); insurance/refunds redirects to the insurance hub"
   },
   {
     "batch": 7,
@@ -107,7 +107,7 @@
     "line": 7,
     "found": "[client] Removed 2026-10-10 (decision 35): the claim form is gone; the route redirects to the hub.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "not-a-problem: removed 2026-10-10 (decision 35); insurance/submit-claim redirects to the insurance hub"
   },
   {
     "batch": 7,
