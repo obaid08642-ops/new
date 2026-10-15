@@ -282,7 +282,8 @@
       "consultation": "Konsultasyon",
       "labs": "Pagsusuri sa laboratoryo",
       "radiology": "Radyolohiya (scan)",
-      "nursing": "Pagbisita ng nars"
+      "nursing": "Pagbisita ng nars",
+      "returns": "Kahilingan sa pagbabalik"
     },
     "statusUnavailable": "Hindi available ang status",
     "partialNote": "May mga order na hindi ma-load. Nasa ibaba ang iba; subukan muli sa ilang sandali."
