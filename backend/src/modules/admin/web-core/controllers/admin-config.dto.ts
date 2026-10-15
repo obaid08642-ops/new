@@ -1,4 +1,4 @@
-import { IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsDefined, IsIn, IsInt, IsNumber, IsObject, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
 
 export class SlaDto {
   @IsDefined()
@@ -30,6 +30,25 @@ export class AppVersionsDto {
   @IsOptional()
   @IsObject()
   apps?: Record<string, { min_version?: string; latest_version?: string; maintenance?: boolean; message_ar?: string; message_en?: string }>;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  reason?: string;
+}
+
+/** Orders console settings: the goodwill compensation cap and when an in-flight order counts as stuck (issue 1236). */
+export class OrdersConsoleConfigDto {
+  @IsOptional()
+  @IsNumber()
+  @Min(0.01)
+  compensation_max_sar?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(1440)
+  stuck_minutes?: number;
 
   @IsOptional()
   @IsString()
