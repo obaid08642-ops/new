@@ -6,6 +6,7 @@ import { isLocale, locales, type Locale } from "@/lib/i18n";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { readPublicEntity } from "@/lib/api/public-read";
+import { patientApiUrl } from "@/lib/api/upstream";
 import { readSegment, type ExploreResult } from "@/lib/api/entity-explore";
 import { findCatalogItem } from "@/lib/api/catalog-lookup";
 import { DirectAnswer } from "@/components-next/seo/direct-answer";
@@ -14,14 +15,13 @@ import { LAB, pickText } from "@/components-next/diagnostics/diag-parts";
 
 type Props = { params: Promise<{ locale: string; testSlug: string; citySlug: string }> };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus";
 
 async function fetchLabTestData(testSlug: string, citySlug: string, locale: string) {
   // Only a real, reviewed lab test has a page; its name comes from the catalogue.
   const test = await findCatalogItem("lab", testSlug);
   if (!test) return null;
   const json = await readPublicEntity<ExploreResult>(
-    `${API_BASE}/api/v1/entity-graph/explore?city=${encodeURIComponent(citySlug)}`,
+    patientApiUrl(`/entity-graph/explore?city=${encodeURIComponent(citySlug)}`),
     3600,
   );
   if (!json) return null;
@@ -125,7 +125,7 @@ export default async function LabTestCityPage({ params }: Props) {
 
       <DirectAnswer sentences={[seo("labWho", { test: decTest, city: decCity })]} />
       {!hasFacilities ? (
-        <LandingEmpty icon={LAB.icon} tone={LAB.tone} title={t("labs.emptyTitle", vars)} body={t("labs.emptyBody", vars)} actionLabel={t("labs.register")} actionHref={`/${locale}/consultations/doctors`} />
+        <LandingEmpty icon={LAB.icon} tone={LAB.tone} title={t("labs.emptyTitle", vars)} body={t("labs.emptyBody", vars)} actionLabel={t("labs.register")} actionHref={`/${locale}/provider-info`} />
       ) : (
         <LandingSection id="partners" title={t("labs.partners")}>
           <CardGrid label={t("labs.partners")}>
