@@ -118,7 +118,7 @@
     "line": 44,
     "found": "FIXED in batch-0-fixes: /search now reads ?q=, starts with it in the field and runs it. STILL OPEN: the page requires a session (requirePatientAccess) and the public Home's search box and the JSON-LD SearchAction send to it.",
     "suspect": "LEFT, product decision: a signed-out visitor who types in the Home search box is sent to /login and the text is lost. Make the first search public, or return to /search?q=... after sign-in (needs a validated return-to).",
-    "review_status": "open (issue #439)"
+    "review_status": "fixed f672b9f29 (verified on main: requirePatientAccess redirects to /login?next=<path+query>, lib/auth/session.ts:9-10, login-form.tsx:52 returns to /search?q=) (issue #439)"
   },
   {
     "batch": 0,

@@ -41,7 +41,7 @@
     "line": 21,
     "found": "checkout.tsx:17 reads `prescriptionUrl` from useCart(), but CartContext has no such field (it belongs to DiagnosticsCartContext), so it is always undefined; line 21 `orderItems = rxId ? rxItems : items` means that when the patient continues from the cart through 'choose a prescription' (rx-order passes prescriptionId) the order is built from the prescription's lines only and the other cart lines are dropped without a word. Slice 1d owns checkout; the cart and rx-order only link to it.",
     "suspect": "Client defect for slice 1d: merge the prescription's lines with the cart's non-Rx lines (or say that only the prescription is ordered), and remove the dead `prescriptionUrl` read.",
-    "review_status": "open (issue #482)"
+    "review_status": "fixed 731ecad38 (verified on main: app/pharmacy/checkout.tsx:96 merges the prescription lines with the cart lines via checkoutLines, pharmacyCheckout.ts:51-63) (issue #482)"
   },
   {
     "batch": 1,

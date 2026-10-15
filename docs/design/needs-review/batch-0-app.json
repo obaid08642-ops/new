@@ -41,7 +41,7 @@
     "line": 88,
     "found": "useSocialLogin runs Google.useAuthRequest with clientId, iosClientId and androidClientId set to '' when the env vars are missing (lines 88-92), and AuthSession.useAuthRequest for X and Snapchat with clientId '' (lines 107-114), at render on both Welcome and Login. The hook's comment expects the button to show 'not available' when pressed.",
     "suspect": "Unverified: needs a run of the native app without the EXPO_PUBLIC_GOOGLE_*, X and Snapchat client ids (expo-auth-session's Google provider may throw on an empty client id while rendering, on Welcome and Login). This session cannot run the native app.",
-    "review_status": "open (issue #411)"
+    "review_status": "fixed (verified on main: expo-auth-session throws only on an undefined client id, node_modules/expo-auth-session/build/providers/ProviderUtils.js:7, the hook passes ''; a press with no id shows \"unavailable\", src/hooks/useSocialLogin.ts:178-179) (issue #411)"
   },
   {
     "batch": 0,
