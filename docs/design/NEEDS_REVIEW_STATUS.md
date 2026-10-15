@@ -9,24 +9,24 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | Patient app and web | 434 | 49 | 290 | 92 | 3 | 0 |
-| Other | 29 | 16 | 12 | 1 | 0 | 0 |
+| Other | 29 | 9 | 19 | 1 | 0 | 0 |
 | Admin | 99 | 7 | 59 | 33 | 0 | 0 |
 | Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
 | Final pass | 8 | 6 | 0 | 2 | 0 | 0 |
 | Patient journeys | 87 | 20 | 65 | 2 | 0 | 0 |
 | Provider app | 31 | 7 | 23 | 1 | 0 | 0 |
 | Provider journeys | 34 | 9 | 22 | 2 | 1 | 0 |
-| **Total** | **742** | **116** | **487** | **135** | **4** | **0** |
+| **Total** | **742** | **109** | **494** | **135** | **4** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | client | 169 | 33 | 104 | 31 | 1 | 0 |
-| owner | 100 | 17 | 39 | 42 | 2 | 0 |
-| backend | 235 | 29 | 177 | 29 | 0 | 0 |
+| owner | 100 | 14 | 42 | 42 | 2 | 0 |
+| backend | 235 | 25 | 181 | 29 | 0 | 0 |
 | untagged | 238 | 37 | 167 | 33 | 1 | 0 |
-| **Total** | **742** | **116** | **487** | **135** | **4** | **0** |
+| **Total** | **742** | **109** | **494** | **135** | **4** | **0** |
 
 ## By file
 
@@ -96,11 +96,11 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `provider-pharmacy.json` | 2 | 0 | 1 | 1 | 0 | 0 |
 | `provider-radiology.json` | 1 | 0 | 1 | 0 | 0 | 0 |
 | `provider-shared.json` | 6 | 1 | 5 | 0 | 0 | 0 |
-| `rx-rules-app.json` | 6 | 6 | 0 | 0 | 0 | 0 |
-| `rx-rules-web.json` | 7 | 6 | 1 | 0 | 0 | 0 |
+| `rx-rules-app.json` | 6 | 5 | 1 | 0 | 0 | 0 |
+| `rx-rules-web.json` | 7 | 0 | 7 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 1 | 11 | 1 | 0 | 0 |
-| **Total** | **742** | **116** | **487** | **135** | **4** | **0** |
+| **Total** | **742** | **109** | **494** | **135** | **4** | **0** |
 
 ## Owner decisions (4)
 
@@ -111,7 +111,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 3 | `batch-1b-app.json#1` `patient-app/app/(tabs)/pharmacy.tsx:63` | /pharmacy/pharmacist-chat Hub tile 'Pharmacist consult' and product page 'Ask a… | The screen is the substitute-negotiation chat of one order (GET /pharmacy/chat/threads?order_id=); a thread exists only when a pharmacy proposes a substitute for an order line. The hub (pharmacy.tsx:63) and the product … |
 | 4 | `provider-journeys.json#5` `provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:538` | PharmacyDashboard hand over / delivery | [client] The prescription dispensing path is a "disabled" notice and the old order detail and broadcast screens are defined but never rendered (dead code). |
 
-## Open and unverified (116)
+## Open and unverified (109)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -221,13 +221,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-app.json#1` | backend | open | /pharmacy/wishlist Online-only note on a wishlist row | [backend] GET /users/me/wishlist sends requires_prescription but not online_exclusive. (backend: backend/src/modules/users/users.service.ts:50) |
 | `rx-rules-app.json#2` | backend | open | /search Needs-a-prescription and online-only on a medicine result | [backend] GET /home/search medicine rows carry id, names, price only: no requires_prescription or online_exclusive, so the result row cannot show either badge. (backend: backend/s… |
 | `rx-rules-app.json#3` | owner | open | /pharmacy/cart Online-only note on a cart line | [owner] Fixed on design/rx-rules: stored on the line when added. The wishlist, the home search rows and the alternatives rows do not send online_exclusive (backend lines above), s… |
-| `rx-rules-app.json#4` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /pharmacy/cart Suggested specialty needs the admin mapping | [owner] Consult a doctor opens the mapped specialty only when the admin has filled system_configs rx_consult_specialties (category to specialty); until then the answer is null and… |
 | `rx-rules-app.json#5` | client | open | /pharmacy Unused legacy ProductCard with hard-coded text and colours | [client] src/components/ui.tsx ProductCard is imported nowhere (the hub uses the ui-native card) and holds "يتطلب وصفة" and raw colours: delete it. |
-| `rx-rules-web.json#1` | backend | open | /c/[[...category]] Online-only note on a card and in search results | [backend] The public card answers (category items and product search) send is_rx but no online_exclusive; add it next to is_rx in the card DTOs. (backend: backend/src/modules/seo-… |
-| `rx-rules-web.json#2` | backend | open | /c/[[...category]] Old price and discount sent for a prescription item | [backend] The public product DTO sends old_price, discount_percent and has_discount for an Rx item (the admin catalogue lists withhold them); the client hides them with canShowPro… |
-| `rx-rules-web.json#3` | backend | open | /wishlist Online-only chip on a wishlist row | [backend] GET /users/me/wishlist sends requires_prescription but not online_exclusive. (backend: backend/src/modules/users/users.service.ts:50) |
-| `rx-rules-web.json#4` | backend | open | /search Needs-a-prescription and online-only on a medicine result | [backend] GET /home/search medicine rows carry id, names, price only: no requires_prescription or online_exclusive. (backend: backend/src/modules/home/home.service.ts:203) |
-| `rx-rules-web.json#5` | owner | open | /cart Online-only note on a cart line | [owner] Fixed on design/rx-rules: stored on the line when added. Web add paths that cannot know it: the public product page, the product cards and the reorder picker (their answer… |
-| `rx-rules-web.json#6` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /cart Suggested specialty needs the admin mapping | [owner] Consult a doctor opens the mapped specialty only when the admin has filled system_configs rx_consult_specialties (category to specialty); until then the answer is null and… |
 | `seo-feature-pages.json#0` | client | open | /features/[feature] Feature page layout | [client] The seven public feature pages (SEO, owner 2026-10-12) have no board: they are built on the public landing kit (LandingPage, LandingSection, CardGrid/EntityRow, the new F… |
 | `tooling.json#12` | client | open | / (throttled network) tools/live/j_throttled_network.py browser half | [client] The browser half of j_throttled_network has always skipped in CI (live-gate.yml did not serve patient-web). Run against a served patient-web (fix session, local), 5 of 61… |
