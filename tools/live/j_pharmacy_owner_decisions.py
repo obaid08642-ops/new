@@ -134,7 +134,7 @@ def main():
     import j_admin, j_accounts, j_onboarding
     journey('pharmacy owner decisions: setup')
     try:
-        _, admin = j_admin.login()
+        admin, _ = j_admin.login()
     except Exception as e:
         return step('admin api session', False, str(e)[:200])
     p = j_onboarding.register_pharmacy()
