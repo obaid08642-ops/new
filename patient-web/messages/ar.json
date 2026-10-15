@@ -3073,7 +3073,13 @@
     "setupFailed": "تعذر حفظ الملف.",
     "connectionFailed": "تعذر الاتصال. حاولي مرة أخرى.",
     "setupNotice": "التتبع للتوعية ولا يغني عن استشارة الطبيب، وليس وسيلة لمنع الحمل.",
-    "saveProfile": "حفظ الملف"
+    "saveProfile": "حفظ الملف",
+    "weekTitle": "طفلك هذا الأسبوع",
+    "weekImageAlt": "طفلك في الأسبوع {week}",
+    "weekEmpty": "محتوى هذا الأسبوع غير متوفر بعد.",
+    "weekUnavailable": "تعذر تحميل محتوى هذا الأسبوع.",
+    "readThisWeek": "اقرأ هذا الأسبوع",
+    "readEmpty": "لا توجد مقالات لهذا الأسبوع بعد."
   },
   "NutritionWeb": {
     "title": "التغذية",

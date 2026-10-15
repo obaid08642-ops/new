@@ -3073,7 +3073,13 @@
     "setupFailed": "Hindi ma-save ang profile.",
     "connectionFailed": "Hindi makakonekta. Pakisubukan muli.",
     "setupNotice": "Pang-edukasyon lamang ang pagsubaybay. Hindi ito kapalit ng payong medikal at hindi contraception.",
-    "saveProfile": "I-save ang profile"
+    "saveProfile": "I-save ang profile",
+    "weekTitle": "Ang iyong sanggol ngayong linggo",
+    "weekImageAlt": "Ang iyong sanggol sa linggo {week}",
+    "weekEmpty": "Wala pang nilalaman para sa linggong ito.",
+    "weekUnavailable": "Hindi ma-load ang nilalaman ng linggong ito.",
+    "readThisWeek": "Basahin ngayong linggo",
+    "readEmpty": "Wala pang artikulo para sa linggong ito."
   },
   "NutritionWeb": {
     "title": "Nutrisyon",
