@@ -112,7 +112,7 @@ export class LegalEnterpriseController {
   @UseGuards(JwtAuthGuard)
   getMatrix(@CurrentUser() user: any) { return this.svc.getProviderInsurance(user.id); }
 
-  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
   @Put('provider/insurance-matrix')
   @UseGuards(JwtAuthGuard)
   setMatrix(@CurrentUser() user: any, @Body() body: SetMatrixDto) {

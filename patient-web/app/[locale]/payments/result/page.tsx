@@ -37,6 +37,7 @@ export default async function PaymentResultPage({ params, searchParams }: Props)
       locale={locale}
       reference={reference}
       transactionId={UUID.test(ref) ? ref : undefined}
+      gatewayRef={REFERENCE.test(gatewayId) ? gatewayId : undefined}
       orderId={UUID.test(orderId) ? orderId : undefined}
     />
   );

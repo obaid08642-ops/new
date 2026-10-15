@@ -9,7 +9,7 @@ import { HomeCareBooking, NursingBookingState, HomeCareService, NurseProvider } 
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { HomeCareSvc } from './home-care.service';
 import { UserRole } from '../../common/enums';
-import { CreateNoteDto, CreateBookingDto, ArriveAtPatientDto, TriggerEmergencyDto, CompleteVisitDto} from './home-care.dto';
+import { CreateNoteDto, CreateBookingDto, ArriveAtPatientDto, TriggerEmergencyDto, CompleteVisitDto, VisitPositionDto } from './home-care.dto';
 import { CreateHomeCareCatalogDto, UpdateHomeCareCatalogDto, ApproveCatalogDto, BulkApproveCatalogDto } from './home-care.dto';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
@@ -240,12 +240,8 @@ export class NursingController {
     throw new ServiceUnavailableException('legacy_nursing_visit_response_disabled_pending_governed_payment_coverage_capacity_command');
   }
 
-  /**
-   * Tell the patient about a visit step. 'patient.notify' has no listener, so the patient heard nothing;
-   * this is the same event POST /home-care/bookings/:id/visit-report sends (NotificationsService.onHomecareState
-   * -> notif.homecare_<state>), so both ways of finishing a visit notify the patient alike.
-   */
-  private notifyPatientOfState(b: any) {
+  /** Each visit step reaches the patient through the home-nursing notifications (NotificationsService onHomecareState). */
+  private notifyPatientState(b: any) {
     this.events.emit('homecare.booking_state_changed', { booking_id: b.id, patient_id: b.patient_id, state: b.state, provider_id: b.provider_id });
   }
 
@@ -262,9 +258,26 @@ export class NursingController {
     b.state_history.push({ from: NursingBookingState.CONFIRMED, to: b.state, at: new Date() });
     await b.save();
 
-    this.notifyPatientOfState(b);
+    // Emitting live GPS sync event for Patient App (Pillar 7.1)
+    this.notifyPatientState(b);
     
     return { success: true, state: b.state };
+  }
+
+  /**
+   * provider-journeys#25: the live position during the trip, in the same visit family as transit/arrive (the field
+   * screen used the older /home-care/bookings/:id/gps). Stored where the patient's tracking reads it (gps_tracking).
+   */
+  @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
+  @Post('visits/:id/position')
+  async updatePosition(@Param('id') id: string, @Body() body: VisitPositionDto, @CurrentUser() user: any) {
+    const b: any = await this.findVisit(id);
+    this.assertProviderMutation(b, user);
+    if (![NursingBookingState.IN_TRANSIT, NursingBookingState.ARRIVED].includes(b.state)) throw new BadRequestException('visit_not_in_transit');
+    b.gps_tracking = { ...(b.gps_tracking || {}), current_lat: body.lat, current_lng: body.lng, last_updated: new Date() };
+    b.markModified('gps_tracking');
+    await b.save();
+    return { ok: true };
   }
 
   @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
@@ -302,7 +315,7 @@ export class NursingController {
     b.state_history.push({ from: NursingBookingState.IN_TRANSIT, to: b.state, at: new Date() });
     await b.save();
 
-    this.notifyPatientOfState(b);
+    this.notifyPatientState(b);
 
     return { success: true, state: b.state };
   }
@@ -320,6 +333,7 @@ export class NursingController {
     b.markModified('timers');
     b.state_history.push({ from, to: b.state, at: new Date() });
     await b.save();
+    this.notifyPatientState(b);
 
     return { success: true, state: b.state };
   }
@@ -341,6 +355,7 @@ export class NursingController {
     b.state = NursingBookingState.NO_SHOW;
     b.state_history.push({ from: NursingBookingState.ARRIVED, to: b.state, at: new Date() });
     await b.save();
+    this.notifyPatientState(b);
 
     return { success: true, state: b.state };
   }
@@ -358,7 +373,7 @@ export class NursingController {
     b.state_history.push({ from, to: NursingBookingState.ESCALATED_EMERGENCY, at: new Date() });
     await b.save();
 
-    this.events.emit('patient.notify', { patientId: b.patient_id, type: 'nursing_emergency', message: 'تم إيقاف الخدمة لدواعٍ طبية - ستتم مراجعة الاسترداد مالياً', metadata: { bookingId: b.id, refund_status: 'pending_finance_review' } });
+    this.notifyPatientState(b);
 
     return { success: true, state: b.state };
   }
@@ -371,6 +386,8 @@ export class NursingController {
     if (b.state !== NursingBookingState.CARE_IN_PROGRESS) throw new BadRequestException('Invalid state transition');
     const from = b.state;
     const { vitals, clinical_notes, recommendations, signature_base64 } = body;
+    // provider-journeys#13: the patient's signature closes the visit (the field screen requires it; so does the server).
+    if (!(typeof signature_base64 === 'string' && signature_base64.trim())) throw new BadRequestException('patient_signature_required');
     
     b.state = NursingBookingState.COMPLETED;
     b.timers.completed_at = new Date();
@@ -382,10 +399,10 @@ export class NursingController {
     b.state_history.push({ from, to: b.state, at: new Date() });
     await b.save();
 
-    this.notifyPatientOfState(b);
+    this.notifyPatientState(b);
     
     if (b.referring_doctor_id) {
-       this.events.emit('doctor.notify', { doctorId: b.referring_doctor_id, type: 'nursing_report', message: 'اكتملت خطة التمريض المنزلي', metadata: { bookingId: b.id }});
+       this.events.emit('homecare.report_for_doctor', { booking_id: b.id, doctor_id: b.referring_doctor_id });
     }
 
     return { success: true, state: b.state };

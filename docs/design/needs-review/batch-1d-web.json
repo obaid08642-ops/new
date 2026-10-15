@@ -107,6 +107,6 @@
     "line": 1,
     "found": "Both have no caller (pharmacy-draft.ts only its own test, not deleted: not this slice's test). The result screen verifies any transaction by id but 'Track / Try again' lead to pharmacy routes; other payments (other batches) leave no pointer.",
     "suspect": "Delete pharmacy-draft.ts with its test; route by verify's bookingKind once the callback carries the transaction id.",
-    "review_status": "open (issue #559)"
+    "review_status": "fixed #1467"
   }
 ]
