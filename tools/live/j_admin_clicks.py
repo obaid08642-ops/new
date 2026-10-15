@@ -60,7 +60,13 @@ def main():
     try:
         page.locator('form input:not([type])').first.fill(EMAIL)
         page.fill('input[type="password"]', os.environ.get('NABD_ADMIN_PASSWORD', 'Adm1n!Live-Pass'))
-        page.click('button[type="submit"]')
+        with page.expect_response(lambda res: '/api/admin/auth/login' in res.url, timeout=30000) as sent:
+            page.click('button[type="submit"]')
+        if sent.value.status == 429 and os.environ.get('NABD_LIVE_WAIT_429', '1') == '1':
+            # the per-IP login throttle (every journey signs in from this machine): wait the window out once, as lib does
+            time.sleep(62)
+            t0 = time.time()
+            page.click('button[type="submit"]')
         page.wait_for_selector('input[inputmode="numeric"]', timeout=20000)
         code = mail_code(EMAIL, t0)
         if not code:
