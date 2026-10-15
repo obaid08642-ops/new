@@ -369,9 +369,11 @@ def drill_livekit_down():
     video_calls = features.get('video_calls')
     step('/config is reachable and carries the video_calls flag (F37 input)', cfg.ok and isinstance(features, dict), cfg)
     if video_calls:
-        skip('livekit down', 'LiveKit is configured here; the down-drill needs it absent')
-        return
-    step('calls are not advertised while LiveKit is down (video_calls=false)', video_calls is False, features)
+        # The gate runs a real LiveKit since decision 4 (tools/live/start-livekit.sh, j_web_call): calls are advertised,
+        # so only the "absent" half of F37 is unprovable here; the fast failure and the server-side degrade below still run.
+        skip('calls are not advertised while LiveKit is absent', 'LiveKit is configured here (tools/live/start-livekit.sh)')
+    else:
+        step('calls are not advertised while LiveKit is down (video_calls=false)', video_calls is False, features)
     t0 = time.time()
     try:
         r = pat.post('/calls/initiate', {'callee_id': 'nobody', 'call_type': 'video'})

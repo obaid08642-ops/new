@@ -8,25 +8,25 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| Patient app and web | 434 | 15 | 311 | 97 | 11 | 0 |
+| Patient app and web | 434 | 14 | 312 | 97 | 11 | 0 |
 | Other | 29 | 9 | 19 | 1 | 0 | 0 |
-| Admin | 99 | 1 | 64 | 34 | 0 | 0 |
-| Admin journeys | 20 | 0 | 18 | 2 | 0 | 0 |
+| Admin | 99 | 3 | 62 | 34 | 0 | 0 |
+| Admin journeys | 20 | 1 | 17 | 2 | 0 | 0 |
 | Final pass | 8 | 0 | 2 | 6 | 0 | 0 |
 | Patient journeys | 87 | 2 | 81 | 2 | 2 | 0 |
 | Provider app | 31 | 0 | 27 | 4 | 0 | 0 |
 | Provider journeys | 34 | 1 | 30 | 2 | 1 | 0 |
-| **Total** | **742** | **28** | **552** | **148** | **14** | **0** |
+| **Total** | **742** | **30** | **550** | **148** | **14** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| client | 169 | 6 | 121 | 39 | 3 | 0 |
-| owner | 100 | 8 | 45 | 42 | 5 | 0 |
-| backend | 235 | 9 | 196 | 30 | 0 | 0 |
+| client | 169 | 8 | 119 | 39 | 3 | 0 |
+| owner | 100 | 7 | 46 | 42 | 5 | 0 |
+| backend | 235 | 10 | 195 | 30 | 0 | 0 |
 | untagged | 238 | 5 | 190 | 37 | 6 | 0 |
-| **Total** | **742** | **28** | **552** | **148** | **14** | **0** |
+| **Total** | **742** | **30** | **550** | **148** | **14** | **0** |
 
 ## By file
 
@@ -49,7 +49,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `1e-app.json` | 6 | 0 | 4 | 2 | 0 | 0 |
 | `1e-web.json` | 10 | 0 | 8 | 1 | 1 | 0 |
 | `2-app.json` | 17 | 2 | 11 | 4 | 0 | 0 |
-| `2-web.json` | 14 | 3 | 9 | 2 | 0 | 0 |
+| `2-web.json` | 14 | 2 | 10 | 2 | 0 | 0 |
 | `3-app.json` | 10 | 1 | 8 | 1 | 0 | 0 |
 | `3-web.json` | 8 | 1 | 6 | 1 | 0 | 0 |
 | `4-app.json` | 8 | 1 | 5 | 1 | 1 | 0 |
@@ -68,11 +68,11 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `admin-catalogue.json` | 24 | 0 | 18 | 6 | 0 | 0 |
 | `admin-customers-growth.json` | 14 | 0 | 8 | 6 | 0 | 0 |
 | `admin-finance.json` | 10 | 0 | 9 | 1 | 0 | 0 |
-| `admin-journeys.json` | 20 | 0 | 18 | 2 | 0 | 0 |
+| `admin-journeys.json` | 20 | 1 | 17 | 2 | 0 | 0 |
 | `admin-ops-monitoring.json` | 16 | 1 | 10 | 5 | 0 | 0 |
 | `admin-providers.json` | 8 | 0 | 5 | 3 | 0 | 0 |
 | `admin-public-directories.json` | 14 | 0 | 4 | 10 | 0 | 0 |
-| `admin-system.json` | 13 | 0 | 10 | 3 | 0 | 0 |
+| `admin-system.json` | 13 | 2 | 8 | 3 | 0 | 0 |
 | `batch-0-app.json` | 13 | 0 | 13 | 0 | 0 | 0 |
 | `batch-0-runtime.json` | 8 | 2 | 4 | 2 | 0 | 0 |
 | `batch-0-web.json` | 19 | 0 | 18 | 1 | 0 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 6 | 1 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 0 | 12 | 1 | 0 | 0 |
-| **Total** | **742** | **28** | **552** | **148** | **14** | **0** |
+| **Total** | **742** | **30** | **550** | **148** | **14** | **0** |
 
 ## Owner decisions (14)
 
@@ -121,7 +121,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 13 | `journeys.json#34` `patient-web/app/[locale]/prescriptions/[prescriptionId]/page.tsx:97` | 3 prescription -> cart | Web "اطلب الأدوية دي" on the prescription page opens rx-order and broadcasts directly; decision 18 says it fills the cart (the app does). |
 | 14 | `provider-journeys.json#5` `provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:538` | PharmacyDashboard hand over / delivery | [client] The prescription dispensing path is a "disabled" notice and the old order detail and broadcast screens are defined but never rendered (dead code). |
 
-## Open and unverified (28)
+## Open and unverified (30)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -130,7 +130,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `14b-app.json#4` | owner | open (decided 2026-10-15, reviewer for the owner: preparati… | /diagnostics/sample-tracking Static preparation and visit tips (items 628 / 629) | [owner] needs medical review before launch: diag.track.prep (fasting 8 to 12 hours) and diag.tech.tips are fixed texts for every package; owner approved them on condition of a med… |
 | `2-app.json#3` | backend | open (issue #385) | /consultations/home-visit-tracking Doctor on the way, map | [backend] Fixed on design/backend-fields: the step "Doctor on the way" follows EN_ROUTE / ARRIVED (Q-15); there is still no doctor position, so no map is drawn. |
 | `2-app.json#10` | backend | open | /consultations Nearest and Available now filters | [backend] Done on the client: the filters call GET /care/doctors (Q-12/Q-13). Backend limits: sort=distance with only a city needs the signed-in user's city (the client sends city… |
-| `2-web.json#9` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /consultations/virtual-waiting-room Connected call screens | [owner] The video call, waiting room and room screens were only seen in their error and not-ready states here (no media backend in the check); the connected layout is not verified. |
 | `2-web.json#10` | backend | open | /consultations/doctors Nearest with Available now | [backend] GET /care/doctors orders available_within results by next slot and ignores sort=distance, so with both on the position is not sent (the city filter still is); a combined… |
 | `2-web.json#12` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /consultations/doctors Cash-only filter | [owner] The server has accepts_insurance only: 'Cash only' means doctors who do NOT accept insurance (accepts_insurance=false), not 'any doctor, paid in cash'. A patient who pays … |
 | `3-app.json#0` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /diagnostics Payment filter (cash / insurance) drawn on ServiceHub | [owner] The board has it; no field says which test or lab takes insurance, so it is not drawn. |
@@ -138,7 +137,10 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `4-app.json#3` | client | open (issue #643) | /nursing/service-details Injection policy check | [client] Decided by service ids and Arabic words in the title; a title in another language skips the prescription dialog. |
 | `5-web.json#9` | client | open (issue #682) | /health Dead API helpers | [client] getPatientReports and parseReports (lib/api/reports*.ts, vitals-server.ts) have no screen left; kept with their tests for the reviewer to delete. |
 | `ac-1-agent-oauth.json#0` | client | open | /oauth/authorize AI assistant consent page | [client] Functional consent page (client name, scopes, 'you confirm and pay on Nabd Plus', allow / don't allow) built on the auth layout with translations in six languages; it has… |
+| `admin-journeys.json#18` | client | open (issue #955) | /admin/config-portal Journey 4 / Emergency maintenance switch is disabled and t… | [client] The 'Trigger System Kill-Switch' button is permanently disabled ('requires server set-up'), although the handler at line 183 and PUT /admin/governance/trigger-emergency-m… |
 | `admin-ops-monitoring.json#14` | backend | open (issue #1235) | /admin/today Urgent alerts: inbox, push, alert rules | [backend] The screen shows what the existing endpoints can say (SLA breaches, stuck orders, failed payments). There is no admin notification inbox or bell, no push to the admin's … |
+| `admin-system.json#1` | client | open (issue #995) | /admin/config-portal Trigger System Kill-Switch (معطّل — يتطلب إعداد الخادم) | [client] Button is disabled with no handler. |
+| `admin-system.json#10` | backend | open | /admin/system-ops Feature switch effect | [backend] The switch writes and audits (reason required), but backend code reads only `sms_enabled` (sms.service.ts) and ConfigService hands the flags to clients; there is no per-… |
 | `batch-0-runtime.json#5` | untagged | open (issue #426) | all routes Shared JS still over the 170 KB gz budget after the #286 trim | Measured with Lighthouse (median of 3, production build, seeded backend), script transfer on /ar/pharmacy and /ar/consultations/doctors went from 224 to about 177 KB and on /ar fr… |
 | `batch-0-runtime.json#6` | untagged | open (issue #427) | all routes Largest-contentful-paint stays above 2.5 s (F82) | Lighthouse on the production build (median of 3): LCP 3.0-3.2 s on /ar and /ar/consultations/doctors, 4.3 s on /ar/pharmacy, against 2.5 s. The shared-JS trim did not move it (mai… |
 | `batch-1a-app.json#8` | untagged | open (issue #456) | /pharmacy/product-detail Insurance row (hidden) | SPEC §A shows it only when the patient's insurer is in covered_by_insurance[] (company ids). The screen has no call for the patient's insurer and no id-to-name lookup for the row'… |
