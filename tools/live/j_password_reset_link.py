@@ -4,7 +4,7 @@
     filled in, the new password signs in and the link works only once.
   - A paid consultation's "payment received" notification opens the booking (/tracking/consultation/<id>), not /wallet/hub,
     which no app has.
-  Stack: backend :8002, patient-web :3100 (the page check is skipped when the website is not running).
+  Stack: backend :8002, patient-web :3100.
 """
 import os
 import re
@@ -37,7 +37,7 @@ def main():
         html = urllib.request.urlopen(f'{WEB}/ar/password-reset?token={link.group(1)}', timeout=60).read().decode('utf8')
         step('the reset page opens with the token filled in', f'value="{token}"' in html, html[:200])
     except OSError as e:
-        print(f'  (website not running, page check skipped: {e})')
+        step('the reset page opens with the token filled in', False, f'website not reachable: {e}')
     time.sleep(65)
     new_pw = 'Reset-' + acct['password'][-6:] + 'q9!'
     r = anon.post('/auth/password/reset', {'reset_token': token, 'new_password': new_pw})
