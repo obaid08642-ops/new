@@ -49,7 +49,7 @@
     "element": "send offer",
     "found": "[owner] A custom unit price field is accepted (admin audit endpoint exists) while the same screen says prices are never entered by hand; confirm with decision 12 (price ceiling) that provider override is intended.",
     "suspect": "works",
-    "review_status": "owner-decision (issue #1138)"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #1138)"
   },
   {
     "scenario": 1,
@@ -189,7 +189,7 @@
     "element": "prescription",
     "found": "[owner] The client never calls POST /prescriptions/:id/send and offers no pharmacy to send to (the \"Pharmacy on Nabd Plus\" row has no handler); with decision 18 (patient orders the medicines) confirm that create alone is the intended end of the doctor's part.",
     "suspect": "missing step",
-    "review_status": "owner-decision (issue #1155)"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #1155)"
   },
   {
     "scenario": 2,
@@ -471,7 +471,7 @@
     "element": "facility ambulance fee setting",
     "found": "[owner] Facility settings still has an \"Ambulance Fee (SAR)\" field saved through settings/delta although the ambulance system is removed (decision 14); remove the field with the backend setting or keep it by an owner decision.",
     "suspect": "broken",
-    "review_status": "owner-decision"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md)"
   },
   {
     "scenario": 3,
@@ -488,7 +488,7 @@
     "element": "radiology home visit tracking removed",
     "found": "[owner] The radiology order button \"Home visit (GPS tracking)\" and its route home_visit are removed because they opened the emergency GPS router (POST /emergency/:id/track), which decision 14 removes. If radiology home visits are wanted, they need their own tracking route and screen.",
     "suspect": "dead end",
-    "review_status": "owner-decision"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md)"
   },
   {
     "scenario": 4,
@@ -556,7 +556,7 @@
     "element": "terms agreement",
     "found": "[owner] Doctor and facility registration have no terms checkbox (doctor shows a declaration text above the signature, facility shows nothing); pharmacy, lab, radiology and nursing require the checkbox. Decide whether all six need the same agreement.",
     "suspect": "missing",
-    "review_status": "owner-decision"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md)"
   },
   {
     "scenario": 4,

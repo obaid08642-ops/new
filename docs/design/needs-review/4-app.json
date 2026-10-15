@@ -74,7 +74,7 @@
     "line": 105,
     "found": "[owner] Goes back or to the home tab; the old screen always went to the home tab. Kept the old target as the fallback.",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision (issue #646)"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #646)"
   },
   {
     "batch": 4,

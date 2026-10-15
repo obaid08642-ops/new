@@ -52,7 +52,7 @@
     "line": 8,
     "found": "[owner] The old voice screen had no speech capture (shortcut list only), so the assistant has no mic; speech input needs an owner decision and a module.",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision (issue #875)"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #875)"
   },
   {
     "batch": 9,
@@ -85,6 +85,6 @@
     "line": 18,
     "found": "[owner] The Home AI tools row lost the skin analysis and virtual doctor entries (decisions 4 and 24); confirm the row of three is what the board should show.",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision (issue #878)"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #878)"
   }
 ]

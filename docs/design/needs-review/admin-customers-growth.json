@@ -19,7 +19,7 @@
     "line": 1,
     "found": "[owner] Owner decision item 1 (2026-10-06) removes community user posts completely; this moderation page goes with them.",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision (issue #918)"
+    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #918)"
   },
   {
     "batch": "admin",
