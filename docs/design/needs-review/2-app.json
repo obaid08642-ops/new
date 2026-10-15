@@ -8,7 +8,7 @@
     "line": 24,
     "found": "[client] GET /care/appointments is made inside ConsultationsContext, so the inventory lists no call for this route; the context also maps the list once for the whole app.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open (issue #382)"
+    "review_status": "not-a-problem: GET /care/appointments is made once in ConsultationsContext (patient-app/src/context/ConsultationsContext.tsx:24), read by every screen (issue #382)"
   },
   {
     "batch": 2,

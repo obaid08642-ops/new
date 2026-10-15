@@ -8,25 +8,25 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| Patient app and web | 434 | 82 | 252 | 88 | 1 | 11 |
+| Patient app and web | 434 | 80 | 252 | 90 | 1 | 11 |
 | Other | 29 | 22 | 7 | 0 | 0 | 0 |
-| Admin | 97 | 8 | 56 | 33 | 0 | 0 |
-| Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
-| Final pass | 8 | 8 | 0 | 0 | 0 | 0 |
+| Admin | 97 | 7 | 56 | 34 | 0 | 0 |
+| Admin journeys | 20 | 1 | 17 | 2 | 0 | 0 |
+| Final pass | 8 | 4 | 0 | 4 | 0 | 0 |
 | Patient journeys | 87 | 33 | 52 | 2 | 0 | 0 |
 | Provider app | 31 | 8 | 22 | 1 | 0 | 0 |
 | Provider journeys | 34 | 17 | 15 | 2 | 0 | 0 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| **Total** | **740** | **172** | **421** | **135** | **1** | **11** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| client | 169 | 51 | 90 | 28 | 0 | 0 |
+| client | 169 | 45 | 91 | 33 | 0 | 0 |
 | owner | 100 | 21 | 34 | 42 | 1 | 2 |
-| backend | 233 | 35 | 168 | 26 | 0 | 4 |
-| untagged | 238 | 73 | 128 | 32 | 0 | 5 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| backend | 233 | 34 | 168 | 27 | 0 | 4 |
+| untagged | 238 | 72 | 128 | 33 | 0 | 5 |
+| **Total** | **740** | **172** | **421** | **135** | **1** | **11** |
 
 ## By file
 
@@ -48,7 +48,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `14b-web.json` | 4 | 0 | 3 | 1 | 0 | 0 |
 | `1e-app.json` | 6 | 0 | 4 | 2 | 0 | 0 |
 | `1e-web.json` | 10 | 1 | 8 | 1 | 0 | 0 |
-| `2-app.json` | 17 | 4 | 10 | 3 | 0 | 0 |
+| `2-app.json` | 17 | 3 | 10 | 4 | 0 | 0 |
 | `2-web.json` | 14 | 6 | 6 | 2 | 0 | 0 |
 | `3-app.json` | 10 | 3 | 6 | 1 | 0 | 0 |
 | `3-web.json` | 8 | 2 | 5 | 1 | 0 | 0 |
@@ -68,13 +68,13 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `admin-catalogue.json` | 24 | 3 | 15 | 6 | 0 | 0 |
 | `admin-customers-growth.json` | 14 | 0 | 8 | 6 | 0 | 0 |
 | `admin-finance.json` | 9 | 0 | 8 | 1 | 0 | 0 |
-| `admin-journeys.json` | 20 | 2 | 16 | 2 | 0 | 0 |
-| `admin-ops-monitoring.json` | 16 | 3 | 9 | 4 | 0 | 0 |
+| `admin-journeys.json` | 20 | 1 | 17 | 2 | 0 | 0 |
+| `admin-ops-monitoring.json` | 16 | 2 | 9 | 5 | 0 | 0 |
 | `admin-providers.json` | 8 | 0 | 5 | 3 | 0 | 0 |
 | `admin-public-directories.json` | 14 | 0 | 4 | 10 | 0 | 0 |
 | `admin-system.json` | 12 | 2 | 7 | 3 | 0 | 0 |
 | `batch-0-app.json` | 13 | 5 | 7 | 0 | 0 | 1 |
-| `batch-0-runtime.json` | 8 | 6 | 1 | 1 | 0 | 0 |
+| `batch-0-runtime.json` | 8 | 5 | 1 | 2 | 0 | 0 |
 | `batch-0-web.json` | 19 | 10 | 7 | 1 | 0 | 1 |
 | `batch-1a-app.json` | 19 | 3 | 4 | 11 | 0 | 1 |
 | `batch-1a-web.json` | 12 | 4 | 6 | 2 | 0 | 0 |
@@ -84,7 +84,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1c-web.json` | 13 | 1 | 9 | 3 | 0 | 0 |
 | `batch-1d-app.json` | 20 | 2 | 11 | 7 | 0 | 0 |
 | `batch-1d-web.json` | 10 | 2 | 5 | 3 | 0 | 0 |
-| `final-pass-2.json` | 4 | 4 | 0 | 0 | 0 | 0 |
+| `final-pass-2.json` | 4 | 0 | 0 | 4 | 0 | 0 |
 | `final-pass.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `journeys.json` | 87 | 33 | 52 | 2 | 0 | 0 |
 | `provider-admin-ish.json` | 3 | 1 | 2 | 0 | 0 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 7 | 0 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 6 | 7 | 0 | 0 | 0 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| **Total** | **740** | **172** | **421** | **135** | **1** | **11** |
 
 ## Owner decisions (1)
 
@@ -108,7 +108,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---:|---|---|---|
 | 1 | `13-web.json#13` `patient-web/lib/legal/embedded.ts:15` | /terms Embedded fallback text | [owner] The embedded copy (issue 755/783) is built from docs/legal, which are drafts with [placeholders] until a Saudi lawyer approves them, so it stays off today. After approval: update docs/legal, run node patient-web… |
 
-## Open and unverified (191)
+## Open and unverified (183)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -123,7 +123,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `14a-app.json#5` | owner | closed-unverified (issue #804: closed with no linked PR) | /consultations/cancel-reschedule Cancel and refund text (decision 26) | [owner] The consultation cancel screen already reads cancellation_policy from /system-config/public and no screen has a hard-coded 12/24 h copy; nothing to remove. |
 | `14b-app.json#4` | owner | open (decided 2026-10-15, reviewer for the owner: preparati… | /diagnostics/sample-tracking Static preparation and visit tips (items 628 / 629) | [owner] needs medical review before launch: diag.track.prep (fasting 8 to 12 hours) and diag.tech.tips are fixed texts for every package; owner approved them on condition of a med… |
 | `1e-web.json#9` | client | open | /orders Insurance claims and returns | [client] The app's order center also lists insurance claims and pharmacy returns; the web list has the five services of issue 378 only (claims and returns have their own pages). N… |
-| `2-app.json#0` | client | open (issue #382) | /consultations/appointments List call | [client] GET /care/appointments is made inside ConsultationsContext, so the inventory lists no call for this route; the context also maps the list once for the whole app. |
 | `2-app.json#3` | backend | open (issue #385) | /consultations/home-visit-tracking Doctor on the way, map | [backend] Fixed on design/backend-fields: the step "Doctor on the way" follows EN_ROUTE / ARRIVED (Q-15); there is still no doctor position, so no map is drawn. |
 | `2-app.json#10` | backend | open | /consultations Nearest and Available now filters | [backend] Done on the client: the filters call GET /care/doctors (Q-12/Q-13). Backend limits: sort=distance with only a city needs the signed-in user's city (the client sends city… |
 | `2-app.json#13` | backend | open | /consultations/doctor/[id] Board elements without data | [backend] Fixed on design/backend-fields: the verified badge (verified, care.service.ts:497), the SCFHS number and the public rating / reviews_count are drawn; the rating-distribu… |
@@ -165,9 +164,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `admin-catalogue.json#18` | backend | open | /admin/medicines-catalog Controlled flag (quick edit) | [backend] Owner decision 10 needs `controlled` editable by admin, but it is not in MedicinesService.EDITABLE_FIELDS nor in AdminUpdateCatalogDto, so a PATCH would drop it. The con… |
 | `admin-catalogue.json#19` | backend | open | /admin/medicines-catalog Add item from the items-to-review queue | [backend] Decision 12 queue (pharmacy lines with no catalogue match, price not verified) does not exist: no sfda_price fields, GET /medicines/admin/pending-review answers 410 Gone… |
 | `admin-catalogue.json#20` | backend | open | /admin/medicines-catalog Change log for prescription flag and availability | [backend] Only price changes write a history row (medicine price history, shown in the quick edit); a prescription-flag or availability change goes to the generic audit log with n… |
-| `admin-journeys.json#14` | client | open | /admin/orders/[kind]/[id] Journey 3 / Refund action is labelled 'to wallet' but… | Fixed (the refund label now reads "استرداد إلى وسيلة الدفع الأصلية"; the compensation label was corrected the same way 2026-10-10, owner decision #952): [client] The refund action… |
 | `admin-journeys.json#18` | client | open (issue #955) | /admin/config-portal Journey 4 / Emergency maintenance switch is disabled and t… | [client] The 'Trigger System Kill-Switch' button is permanently disabled ('requires server set-up'), although the handler at line 183 and PUT /admin/governance/trigger-emergency-m… |
-| `admin-ops-monitoring.json#4` | backend | open | /admin/approvals One approvals endpoint with counts | [backend] No endpoint returns all pending approvals with counts, so the page asks nine existing list endpoints (providers, provider edits, withdrawals, refunds, returns, medicine … |
 | `admin-ops-monitoring.json#14` | backend | open (issue #1235) | /admin/today Urgent alerts: inbox, push, alert rules | [backend] The screen shows what the existing endpoints can say (SLA breaches, stuck orders, failed payments). There is no admin notification inbox or bell, no push to the admin's … |
 | `admin-ops-monitoring.json#15` | backend | open (issue #1236) | /admin/today Problem orders filter on the orders list | [backend] The orders list has no stuck / failed-payment / SLA-breach / refund-pending filter, so this screen lists only the stuck orders from ops/alerts (5 kinds, 30 minute thresh… |
 | `admin-system.json#1` | client | open (issue #995) | /admin/config-portal Trigger System Kill-Switch (معطّل — يتطلب إعداد الخادم) | [client] Button is disabled with no handler. |
@@ -183,7 +180,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-0-runtime.json#3` | untagged | open (issue #424) | /notifications Populated states not exercised | The seeded patient has no notifications, reminders, mood entries or appointments, so the runtime check only shows these lists in their empty state (all 2xx). The populated renderi… |
 | `batch-0-runtime.json#5` | untagged | open (issue #426) | all routes Shared JS still over the 170 KB gz budget after the #286 trim | Measured with Lighthouse (median of 3, production build, seeded backend), script transfer on /ar/pharmacy and /ar/consultations/doctors went from 224 to about 177 KB and on /ar fr… |
 | `batch-0-runtime.json#6` | untagged | open (issue #427) | all routes Largest-contentful-paint stays above 2.5 s (F82) | Lighthouse on the production build (median of 3): LCP 3.0-3.2 s on /ar and /ar/consultations/doctors, 4.3 s on /ar/pharmacy, against 2.5 s. The shared-JS trim did not move it (mai… |
-| `batch-0-runtime.json#7` | untagged | open (issue #428) | tooling tools/design/import-rule.baseline.json is not on main | The import rule (P12.C2) and its baseline exist on fix/audit-2026-09 only; main has neither. patient-app AuthKit no longer imports @expo/vector-icons (BrandMark in packages/ui-nat… |
 | `batch-0-web.json#1` | untagged | open (issue #430) | /login Google button (rendered only when NEXT_PUBLIC_GOOGLE_CLIENT_ID is set) | FIXED in batch-0-fixes: the busy state now clears when the popup is closed or fails to open (error_callback) and when the Google script fails to load; a press before the script ha… |
 | `batch-0-web.json#3` | untagged | open (issue #432) | /register Consent policy ids and versions sent on registration | policy_id/version come from NEXT_PUBLIC_TERMS_POLICY_ID/_VERSION and NEXT_PUBLIC_PRIVACY_POLICY_ID/_VERSION with defaults 'terms'/'v1' and 'privacy'/'v1' (lines 18-23, 45-48). The… |
 | `batch-0-web.json#5` | untagged | open (issue #434) | /register Submit error messages (account may already exist) | FIXED on the client in batch-0-fixes: 409 now says "already registered, sign in", 429 says to wait, every 5xx says registration could not be completed and that the account may alr… |
@@ -217,10 +213,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1d-app.json#18` | untagged | open (issue #548) | /payments/result Success board colours and confetti not drawn | The Success board is a dark full-bleed page with lime (#D7FF00) and confetti colours that are not tokens. |
 | `batch-1d-web.json#1` | untagged | open (issue #551) | /pharmacy/payment Payment provider not exercised | No gateway key on the local backend (intent answers 503) and no Mongo replica set (selection / insurance acceptance fail). Hosted checkout, return and webhook were checked only ag… |
 | `batch-1d-web.json#9` | untagged | open (issue #559) | /payments/result Unused: app/api/payments/status/[ref], lib/api/pharmacy-draft.… | Both have no caller (pharmacy-draft.ts only its own test, not deleted: not this slice's test). The result screen verifies any transaction by id but 'Track / Try again' lead to pha… |
-| `final-pass-2.json#0` | client | open | /admin/approvals approvals list call | [client] The path is built from a variable, so the inventory cannot check it (UNRESOLVED x1). |
-| `final-pass-2.json#1` | client | open | API catalogs service catalogue by type | [client] client.get(SVC_ENDPOINT[type]) is built from a map, so the call is not resolved by the inventory (1 site). |
-| `final-pass-2.json#2` | client | open | order list, generic data sources apiFetch(path) and RemoteDataSource.get/post | [client] 4 call sites forward a variable path (also core/data/HttpRemoteDataSource.ts:80, data/repositories/sources/RemoteDataSource.ts:38 and :47); the runtime check passed for t… |
-| `final-pass-2.json#3` | client | open | docs/design/needs-review/*.json stale lines | [client] 50 older lines have no file or point to files deleted by the SOS removal, the cart/orders merges and the admin directory removal (the first two lines of this file are the… |
 | `final-pass.json#0` | client | open | /emergency/sos, /emergency/sos-active, /emergency/tracking SOS trigger, active … | [client] The screens call POST /emergency/trigger, GET /emergency/my/active, GET /emergency/tracking and POST /emergency/:id/cancel, and the backend no longer serves them (404 at … |
 | `final-pass.json#1` | client | open | /emergency, /emergency/sos, /emergency/sos-active, /emergency/tracking SOS trig… | [client] Same as the app: /api/patient/emergency/trigger, /emergency/my/active, /emergency/tracking and /emergency/:id/cancel have no backend route any more (NO_ROUTE x5 in the in… |
 | `final-pass.json#2` | client | open | MedicalJobsScreen guest applications list | [client] GET /recruitment/guest/mine answers 400 with the patient session and with none (runtime check, provider area 'shared'); the screen sends only device_id, so the call fails… |
