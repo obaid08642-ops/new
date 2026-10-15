@@ -96,6 +96,16 @@ rollback() {
     $DK logs --tail 25 $c 2>&1 | sed -E 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/<email>/g; s/\+?[0-9][0-9 ()-]{8,}[0-9]/<number>/g' \
       | grep -viE 'password|secret|token|authorization|cookie' | cut -c1-300 | sed 's/^/evidence:   /'
   done
+  echo "evidence: -- /ar body title (via nginx)"; curl -sk --max-time 10 -H 'Host: nabd.plus' https://127.0.0.1/ar | grep -oE '<title>[^<]*|<h1[^>]*>[^<]*' | head -3 | sed 's/^/evidence:   /'
+  for u in http://127.0.0.1:3000/ar http://127.0.0.1:3001/ar http://127.0.0.1:3001/en http://127.0.0.1:3001/ar/articles; do
+    echo "evidence: -- inside patient-web: $u"
+    $DK exec nabdah-patient-web sh -c "wget -S -O /tmp/b.html --header 'Host: nabd.plus' '$u' 2>&1 | grep -E 'HTTP/|x-nextjs|x-matched|cache' | head -6; grep -oE '<title>[^<]*|<h1[^>]*>[^<]*' /tmp/b.html | head -2; wc -c < /tmp/b.html" 2>&1 | sed 's/^/evidence:   /'
+  done
+  echo "evidence: -- patient-web env (names and safe values)"; $DK exec nabdah-patient-web sh -c 'env | grep -E "^(HOSTNAME|PORT|NODE_ENV|NABD_API_BASE_URL|NEXT_PUBLIC_SITE_ORIGIN|NEXT_PUBLIC_API_URL|NABD_EDGE)="' 2>&1 | sed 's/^/evidence:   /'
+  echo "evidence: -- patient-web files"; $DK exec nabdah-patient-web sh -c 'ls /app; ls /app/.next | head -20; ls /app/.next/server/app 2>/dev/null | head -20' 2>&1 | sed 's/^/evidence:   /'
+  for a in /api/v1/modules /api/v1/config /api/v1/content/home "/api/v1/care/doctors?limit=6"; do
+    echo "evidence: -- backend $a from patient-web"; $DK exec nabdah-patient-web sh -c "wget -S -O- 'http://backend:8002$a' 2>&1 | grep -E 'HTTP/' | head -2; wget -q -O- 'http://backend:8002$a' 2>/dev/null | head -c 300; echo" 2>&1 | sed 's/^/evidence:   /'
+  done
   echo "evidence: -- GET /ar (Host: nabd.plus) headers"; curl -sk -o /dev/null -D - --max-time 10 -H 'Host: nabd.plus' https://127.0.0.1/ar | tr -d '\r' | grep -iE '^(HTTP|location|x-|cache-control|content-type|content-security)' | cut -c1-120 | sed 's/^/evidence:   /'
   echo "evidence: -- who answers: names as nginx resolves them, the containers' real addresses and start times"
   $DK exec nabdah-nginx getent hosts patient-web admin-web backend 2>&1 | sed 's/^/evidence:   nginx sees /'
