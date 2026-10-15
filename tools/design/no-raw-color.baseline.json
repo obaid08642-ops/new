@@ -2,8 +2,8 @@
   "note": "Hard-coded colours that predate the design system. Recorded once with --init. 12.A11 rebuilds the screens on tokens and each rebuilt file drops out. --update only ever LOWERS a count; it cannot raise one.",
   "totals": {
     "patient-web": 517,
-    "patient-app": 349,
-    "provider-app": 238,
+    "patient-app": 342,
+    "provider-app": 237,
     "admin": 167
   },
   "files": {
@@ -48,7 +48,6 @@
     "patient-app/src/design-system/components/Button.tsx": 6,
     "patient-app/src/design-system/components/Toast.tsx": 4,
     "patient-app/src/design-system/tokens.ts": 2,
-    "patient-app/src/features/medical-orders/ActionableOrderScreen.tsx": 7,
     "patient-app/src/guided-tour/ui/SpotlightRenderer.tsx": 7,
     "patient-app/src/navigation/guards/AdminGuard.tsx": 2,
     "patient-app/src/navigation/guards/AuthGuard.tsx": 1,
@@ -101,7 +100,7 @@
     "provider-app/src/screens/lab/LabQcActions.tsx": 1,
     "provider-app/src/screens/lab/LabRegistration.tsx": 3,
     "provider-app/src/screens/nursing/NursingDashboard.tsx": 5,
-    "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx": 11,
+    "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx": 10,
     "provider-app/src/screens/radiology/RadiologyDashboard.tsx": 7,
     "provider-app/src/utils/PushNotifications.ts": 1,
     "provider-app/src/utils/notifications.ts": 2,
