@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
 import { DataTable } from '@/components/DataTable';
+import { useCan } from '@/components/AdminGuard';
 
 interface CommissionRow {
   id: string;
@@ -33,6 +34,8 @@ interface FinanceSummary {
 }
 
 export default function FinancialLedger() {
+  // Executing a withdrawal needs finance.payout.approve (finance.controller); finance.read alone only reads.
+  const canPayout = useCan('finance.payout.approve');
   const [activeTab, setActiveTab] = useState<'ledger' | 'warehouse'>('ledger');
 
   const [commissions, setCommissions] = useState<CommissionRow[]>([]);
@@ -241,11 +244,11 @@ export default function FinancialLedger() {
                       <p className="text-lg font-bold text-purple-700 mt-2">{w.amount} SAR</p>
                     </div>
                     <div>
-                      {w.status === 'pending' ? (
+                      {w.status === 'pending' ? (canPayout ? (
                         <button onClick={() => handleExecutePayout(w.id)} className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded shadow transition">
                           Execute Payout
                         </button>
-                      ) : (
+                      ) : null) : (
                         <span className="bg-green-100 text-green-800 px-4 py-2 rounded font-bold">Completed (Moyasar API)</span>
                       )}
                     </div>

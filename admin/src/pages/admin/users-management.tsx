@@ -3,6 +3,7 @@ import { apiFetch } from '../../utils/api';
 import ProviderFullDetail from '../../components/ProviderFullDetail';
 import { GeoPicker } from "../../components/GeoPicker";
 import { DataTable, type LooseRow } from '@/components/DataTable';
+import { useCan } from '@/components/AdminGuard';
 
 const ROLE_LABELS: Record<string, string> = {
   patient: 'مريض',
@@ -33,6 +34,11 @@ const ROLE_FILTERS = [
 ];
 
 export default function UsersManagementPage() {
+  // Suspend/reactivate need user.edit, permanent deletion user.edit + gdpr.manage, and the provider file and its
+  // moderation actions facility.edit (admin.controller / provider admin controller). Controls a role cannot use are hidden.
+  const canEditUser = useCan('user.edit');
+  const canErase = useCan('gdpr.manage') && canEditUser;
+  const canFacility = useCan('facility.edit');
   const [users, setUsers] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -61,7 +67,7 @@ export default function UsersManagementPage() {
       const ov = await apiFetch(`/api/admin/admin/users/${id}/overview?days=${days}`).catch(() => null);
       setUserOverview(ov);
       const role = String(u.role || '').toLowerCase();
-      if (role && role !== 'patient' && role !== 'guest' && role !== 'admin' && role !== 'super_admin') {
+      if (canFacility && role && role !== 'patient' && role !== 'guest' && role !== 'admin' && role !== 'super_admin') {
         // Provider account — pull the COMPLETE registration file (same record
         // the moderation screen reviews: every entered field + contract).
         const pf = await apiFetch(`/api/admin/admin/providers/by-user/${id}`).catch(() => null);
@@ -132,7 +138,7 @@ export default function UsersManagementPage() {
       // users unban alone leaves the account suspended. Resolve the account
       // by user id and reactivate it through the provider endpoint too.
       const PROVIDER_ROLES = ['doctor', 'pharmacy', 'lab', 'radiology', 'nurse', 'nursing', 'home_care', 'hospital', 'ambulance', 'pharmacist'];
-      if (PROVIDER_ROLES.includes(String(u.role || '').toLowerCase())) {
+      if (canFacility && PROVIDER_ROLES.includes(String(u.role || '').toLowerCase())) {
         try {
           const file = await apiFetch(`/api/admin/admin/providers/by-user/${id}`);
           const accountId = file?.account?.id;
@@ -293,7 +299,7 @@ export default function UsersManagementPage() {
                     >
                       عرض الملف
                     </button>
-                    {suspended ? (
+                    {!canEditUser ? null : suspended ? (
                       <button
                         onClick={() => handleReactivate(u)}
                         disabled={actionBusy === id}
@@ -310,13 +316,15 @@ export default function UsersManagementPage() {
                         تعليق / إيقاف
                       </button>
                     )}
-                    <button
-                      onClick={() => handleDelete(u)}
-                      disabled={actionBusy === id}
-                      className="text-red-600 hover:text-red-900 font-bold disabled:opacity-50"
-                    >
-                      حذف نهائي
-                    </button>
+                    {canErase ? (
+                      <button
+                        onClick={() => handleDelete(u)}
+                        disabled={actionBusy === id}
+                        className="text-red-600 hover:text-red-900 font-bold disabled:opacity-50"
+                      >
+                        حذف نهائي
+                      </button>
+                    ) : null}
                   </div>
                 );
               } },

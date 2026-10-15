@@ -55,8 +55,9 @@ export class AdminSecurityController {
     );
   }
 
+  // Every admin reads their own session (the panel boots from it); it needs no permission beyond the admin role,
+  // otherwise a role without user.read could not open any page.
   @Get('session')
-  @RequirePermissions(Permission.USER_READ)
   async session(@CurrentUser() me: any) {
     const dbUser: any = await this.conn.collection('users').findOne(
       { id: me.id },

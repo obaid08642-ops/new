@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { apiFetch } from '../../utils/api';
 import { StorageImage } from '../../components/ProviderFullDetail';
 import { dateLocale } from '../../utils/dates';
+import { useCan } from '../../components/AdminGuard';
 
 const TABS = [
   { key: 'pending', label: 'قيد الانتظار' },
@@ -17,6 +18,8 @@ export default function ImageSuggestionsPage() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState<string | null>(null);
+  // Approve/reject need catalog.update on the backend; a read-only role sees the queue only.
+  const canDecide = useCan('catalog.update');
 
   const load = async () => {
     setLoading(true);
@@ -103,7 +106,7 @@ export default function ImageSuggestionsPage() {
               <div className="text-xs text-gray-400 mb-3">{s.createdAt ? new Date(s.createdAt).toLocaleString(dateLocale()) : ''}</div>
               <div className="flex items-center justify-between">
                 {badge(s.status)}
-                {s.status === 'pending' && (
+                {canDecide && s.status === 'pending' && (
                   <div className="flex gap-2">
                     <button onClick={() => act(s.id, 'approve')} disabled={acting === s.id}
                       className="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700 disabled:opacity-50">

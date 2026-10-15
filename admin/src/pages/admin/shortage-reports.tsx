@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { apiFetch } from '../../utils/api';
 import { dateLocale } from '../../utils/dates';
 import { DataTable, type LooseRow } from '@/components/DataTable';
+import { useCan } from '@/components/AdminGuard';
 
 const TABS = [
   { key: 'pending', label: 'قيد الانتظار' },
@@ -11,6 +12,8 @@ const TABS = [
 ];
 
 export default function ShortageReportsPage() {
+  // Approve/reject and clearing the badge need catalog.shortage.decide; catalog.read alone only reads the queue.
+  const canDecide = useCan('catalog.shortage.decide');
   const [tab, setTab] = useState('pending');
   const [reports, setReports] = useState<any[]>([]);
   const [counts, setCounts] = useState<any>({});
@@ -113,7 +116,7 @@ export default function ShortageReportsPage() {
               { key: 'status', header: 'الحالة', render: (r: LooseRow) => badge(r.status) },
               { key: 'actions', header: 'إجراءات', actions: true, render: (r: LooseRow) => (
                 <div className="flex gap-2 flex-wrap">
-                  {r.status === 'pending' && (
+                  {canDecide && r.status === 'pending' && (
                     <>
                       <button
                         onClick={() => act(r.id, 'approve')}
@@ -131,7 +134,7 @@ export default function ShortageReportsPage() {
                       </button>
                     </>
                   )}
-                  {r.status === 'approved' && r.medicine_id && (
+                  {canDecide && r.status === 'approved' && r.medicine_id && (
                     <button
                       onClick={() => clearBadge(r.medicine_id)}
                       className="bg-amber-100 text-amber-800 px-3 py-1 rounded text-xs hover:bg-amber-200"

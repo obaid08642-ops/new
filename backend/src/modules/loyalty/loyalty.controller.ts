@@ -1,6 +1,7 @@
 import { StepUp } from '../../common/step-up.guard';
 import { JwtAuthGuard, SelfService, Roles, CurrentUser } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { Permission, RequirePermissions } from '../../common/permissions';
 import { UseGuards } from '@nestjs/common';
 import {
   Controller, Get, Post, Put, Patch, Delete, Body, Query, Param, Req,
@@ -61,9 +62,13 @@ export class LoyaltyController {
   }
 }
 
-/** LJ-08: admin catalogue + config, so rewards and challenges are never empty. */
+/**
+ * LJ-08: admin catalogue + config, so rewards and challenges are never empty. coupons.manage is the permission of the
+ * admin loyalty page (AdminGuard ROUTE_PERMISSIONS), so the page and every route here name the same permission.
+ */
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
+@RequirePermissions(Permission.COUPONS_MANAGE)
 @Controller('admin/loyalty')
 export class AdminLoyaltyController {
   constructor(private readonly loyaltyService: LoyaltyService) {}
@@ -84,6 +89,8 @@ export class AdminLoyaltyController {
   @StepUp()
   @Delete('challenges/:id') deleteChallenge(@Param('id') id: string) { return this.loyaltyService.adminDeleteChallenge(id); }
 
+  /** The admin page reads the config here, not from the patient route /loyalty/config. */
+  @Get('config') config() { return this.loyaltyService.getConfig(); }
   @StepUp()
   @Put('config') updateConfig(@CurrentUser() u: any, @Body() body: any) { return this.loyaltyService.adminUpdateConfig(body, u); }
 }
