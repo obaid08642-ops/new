@@ -14,6 +14,7 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { CareHero, RecordRow } from "@/components-next/care/care-kit";
 import { RowsCard } from "@/components-next/health/health-kit";
+import { QuickLogForm } from "@/components-next/health/quick-log-form";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -45,12 +46,14 @@ export default async function MoodJournalPage({ params }: Props) {
   if (!response.ok) return frame(<ConsultState kind="error" title={t("moodUnavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
 
   const entries = parseMoodHistory(await response.json().catch(() => null));
-  if (entries.length === 0) return frame(<ConsultState kind="empty" icon="heart" tone="pink" title={t("moodTitle")} body={t("moodEmpty")} />);
+  // issue 864: the mood is logged on the website too (POST /mental-health/mood, as the app)
+  if (entries.length === 0) return frame(<><QuickLogForm kind="mood" /><ConsultState kind="empty" icon="heart" tone="pink" title={t("moodTitle")} body={t("moodEmpty")} /></>);
   const number = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
 
   return frame(
     <>
       <CareHero tone="pink" icon="heart" label={t("moodTitle")} title={t("moodTitle")} lines={[t("moodNotice")]} />
+      <QuickLogForm kind="mood" />
       <RowsCard label={t("moodTitle")}>
         {entries.map((entry) => (
           <li key={entry.id}>

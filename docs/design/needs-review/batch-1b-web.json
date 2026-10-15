@@ -30,7 +30,7 @@
     "line": 38,
     "found": "The old rx-order page, the old scan page and the app's rx-order all hand the patient to checkout with ?prescriptionId=, but the web checkout ignores that parameter and builds its order only from the browser cart, so an order from a prescription ended in 'cart is empty'. This slice's rx-order now sends the request itself (POST /patient/pharmacy/orders with prescription_id, prescription_attachments and one line per named medicine, qty 1, then /submit) and goes to /pharmacy/broadcast-status.",
     "suspect": "Slice 1d (CheckoutV2) should decide whether a prescription order belongs in checkout (and then read prescriptionId) or stays with rx-order. The patient-app rx-order (patient-app/app/pharmacy/rx-order.tsx) still navigates to /pharmacy/checkout?prescriptionId= and should be checked by the app slice.",
-    "review_status": "owner-decision (question 39 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2) (issue #493)"
+    "review_status": "fixed (verified on main: no link sends ?prescriptionId to cart checkout; web prescription links open /pharmacy/rx-order, rx-upload-screen.tsx:112, which broadcasts itself, broadcast.ts:105) (issue #493)"
   },
   {
     "batch": 1,
@@ -118,7 +118,7 @@
     "line": 6,
     "found": "The old request form was the only caller of this handler besides slice 1d's pharmacy-broadcast-submit.tsx. It takes the first cookie of nabd_access / nabd_refresh / nabd_device that is set (so it can forward the refresh token or the device id as a bearer token) and cannot refresh an expired session, unlike the catch-all /api/patient proxy that checkout-flow.tsx and this slice's screens use (/api/patient/patient/pharmacy/orders is on the allowlist). It also sends no idempotency header unless the caller does.",
     "suspect": "Slice 1d: move pharmacy-broadcast-submit.tsx to the proxy path and delete this route.",
-    "review_status": "not-a-problem: the legacy BFF route app/api/patient/pharmacy is gone on main (issue #501)"
+    "review_status": "fixed a57584d17 (verified on main: the dedicated route is deleted; broadcasts go through the proxy, lib/pharmacy/broadcast.ts:105) (issue #501)"
   },
   {
     "batch": 1,
