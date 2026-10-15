@@ -88,8 +88,16 @@ def main():
     r = other_pharm.get(f'/storage/{sid}')
     step('a pharmacy not asked cannot', r.status == 403, r.status)
 
-    journey('journeys 75: an unmatched price is "not verified" for the patient')
-    items = [{'order_item_id': str(item.get('order_item_id')), 'availability': 'available', 'qty_offered': 3, 'unit_price_override': 20, 'price_override_reason': 'لا يوجد في الكتالوج'}]
+    journey('journeys 75: a price the server cannot check is "not verified" for the patient')
+    # the pharmacy's own item, not in the catalogue (provider-app inventory, approved by the admin): its price has nothing
+    # to be checked against
+    sku = f'custom-{uuid.uuid4().hex[:8]}'
+    pharm.post('/provider/capabilities/pharmacy', {'sku': sku, 'name_ar': name, 'name_en': 'Custom item', 'price': 20, 'stock': 10, 'available': True})
+    for d in [d for d in admin.get('/admin/admin/providers/provider-deltas').items() if d.get('target') == 'capability' and d.get('status') == 'pending']:
+        admin.post(f"/admin/admin/providers/provider-deltas/{d['id']}/approve", {'reason': 'صنف الصيدلية'})
+    inv = next((x for x in (pharm.get('/provider/capabilities/pharmacy').body or []) if isinstance(x, dict) and x.get('sku') == sku), {})
+    step('the pharmacy has its own item for the line', inv.get('id'), inv)
+    items = [{'order_item_id': str(item.get('order_item_id')), 'availability': 'available', 'qty_offered': 3, 'inventory_item_id': inv.get('id')}]
     r = pharm.post(f'/provider/pharmacy/broadcasts/{oid}/offers/draft', {'items': items})
     offer = r.body.get('data', r.body) if isinstance(r.body, dict) else {}
     step('the pharmacy prices the unmatched line', r.ok and offer.get('id'), r)
