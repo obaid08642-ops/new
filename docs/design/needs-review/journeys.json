@@ -303,7 +303,7 @@
     "kind": "wrong-state",
     "file": "patient-web/app/[locale]/appointments/[appointmentId]/summary/page.tsx",
     "line": 46,
-    "review_status": "open (issue #1042)"
+    "review_status": "fixed faa59e605 (verified on main: the summary redirects to the appointment page, appointments/[appointmentId]/summary/page.tsx:13, where \"order these medicines\" fills the cart, prescription-client.tsx:84-89) (issue #1042)"
   },
   {
     "scenario": 3,
@@ -375,7 +375,7 @@
     "kind": "missing-field",
     "file": "patient-app/app/consultations/chat-with-doctor.tsx",
     "line": 161,
-    "review_status": "open (issue #1050)"
+    "review_status": "fixed 276c859b9 (verified on main: app chat-with-doctor.tsx has voice notes :66-67, image and file attachments :234, the 997 line :377-382 and the follow-up banner and booking) (issue #1050)"
   },
   {
     "scenario": 4,
@@ -438,7 +438,7 @@
     "kind": "missing-step",
     "file": "patient-web/app/[locale]/appointments/[appointmentId]/page.tsx",
     "line": 89,
-    "review_status": "open (issue #1057)"
+    "review_status": "fixed faa59e605 (verified on main: the appointment page has the visit's prescription with ordering :163-164, the doctor chat :136 and follow-up booking :157) (issue #1057)"
   },
   {
     "scenario": 5,
