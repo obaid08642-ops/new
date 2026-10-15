@@ -79,7 +79,7 @@ for s in $APP_SERVICES; do
     # container's filesystem and import it with the image settings that matter (command, entrypoint, workdir, user,
     # port, PATH/NODE_ENV); compose supplies the rest of the environment, so no secret is baked into the image.
     if [ "${REHEARSE_COMMIT_FAIL:-}" = "$s" ] || ! CERR=$($DK commit nabdah-$s "nabdah-$s:rollback-$TS" 2>&1 >/dev/null); then
-      echo "deploy: commit of $s failed ($(echo "${CERR:-forced in rehearsal}" | tr '\n' ' ' | cut -c1-160)); exporting its filesystem instead"
+      echo "deploy: commit of $s failed ($(echo "${CERR:-forced in rehearsal}" | tr '\n' ' ' | sed 's/ *$//' | cut -c1-160)); exporting its filesystem instead"
       CH=()
       J=$($DK inspect -f '{{json .Config.Entrypoint}}' nabdah-$s); [ "$J" != null ] && [ "$J" != '[]' ] && CH+=(--change "ENTRYPOINT $J")
       J=$($DK inspect -f '{{json .Config.Cmd}}' nabdah-$s); [ "$J" != null ] && [ "$J" != '[]' ] && CH+=(--change "CMD $J")
