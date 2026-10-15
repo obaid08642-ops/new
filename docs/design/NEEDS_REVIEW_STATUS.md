@@ -13,10 +13,10 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Admin | 97 | 8 | 56 | 33 | 0 | 0 |
 | Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
 | Final pass | 8 | 8 | 0 | 0 | 0 | 0 |
-| Patient journeys | 87 | 33 | 52 | 2 | 0 | 0 |
+| Patient journeys | 87 | 31 | 54 | 2 | 0 | 0 |
 | Provider app | 31 | 8 | 22 | 1 | 0 | 0 |
 | Provider journeys | 34 | 17 | 15 | 2 | 0 | 0 |
-| **Total** | **740** | **176** | **424** | **128** | **1** | **11** |
+| **Total** | **740** | **174** | **426** | **128** | **1** | **11** |
 
 ## By tag
 
@@ -25,8 +25,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | client | 169 | 48 | 93 | 28 | 0 | 0 |
 | owner | 100 | 20 | 35 | 42 | 1 | 2 |
 | backend | 233 | 35 | 168 | 26 | 0 | 4 |
-| untagged | 238 | 73 | 128 | 32 | 0 | 5 |
-| **Total** | **740** | **176** | **424** | **128** | **1** | **11** |
+| untagged | 238 | 71 | 130 | 32 | 0 | 5 |
+| **Total** | **740** | **174** | **426** | **128** | **1** | **11** |
 
 ## By file
 
@@ -86,7 +86,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1d-web.json` | 10 | 2 | 5 | 3 | 0 | 0 |
 | `final-pass-2.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `final-pass.json` | 4 | 4 | 0 | 0 | 0 | 0 |
-| `journeys.json` | 87 | 33 | 52 | 2 | 0 | 0 |
+| `journeys.json` | 87 | 31 | 54 | 2 | 0 | 0 |
 | `provider-admin-ish.json` | 3 | 1 | 2 | 0 | 0 | 0 |
 | `provider-doctor.json` | 6 | 1 | 5 | 0 | 0 | 0 |
 | `provider-facility.json` | 7 | 1 | 6 | 0 | 0 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 7 | 0 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 6 | 7 | 0 | 0 | 0 |
-| **Total** | **740** | **176** | **424** | **128** | **1** | **11** |
+| **Total** | **740** | **174** | **426** | **128** | **1** | **11** |
 
 ## Owner decisions (1)
 
@@ -108,7 +108,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---:|---|---|---|
 | 1 | `13-web.json#13` `patient-web/lib/legal/embedded.ts:15` | /terms Embedded fallback text | [owner] The embedded copy (issue 755/783) is built from docs/legal, which are drafts with [placeholders] until a Saudi lawyer approves them, so it stays off today. After approval: update docs/legal, run node patient-web… |
 
-## Open and unverified (187)
+## Open and unverified (185)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -247,8 +247,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `journeys.json#60` | untagged | open (issue #1069) | 6 service detail | The web home-nursing service page says "read-only, no booking is created from this page" and has no booking button; /nursing/booking redirects to the catalogue. Home nursing canno… |
 | `journeys.json#63` | untagged | open (issue #1072) | 6 catalog | Two parallel web trees for nursing (/nursing/* and /home-care/*); the dashboard "تمريض" goes to /nursing/catalog but its detail links go to /home-care/services/:id. |
 | `journeys.json#66` | untagged | open (issue #1075) | 6 booking | No cancellation/trip-fee text before payment for nursing (decision 26). |
-| `journeys.json#67` | untagged | open (issue #1076) | 7 create reminder | The reminder form has no "for whom" field and times are typed as comma-separated text; a family member's reminder cannot be created or edited. |
-| `journeys.json#68` | untagged | open (issue #1077) | 7 family member | The member page shows the member's medicines read-only, no doses taken/missed and no alert. |
 | `journeys.json#74` | untagged | open (issue #1083) | 8 manual request | The request form has no photo of the box and no quantity (decision 12 mentions text, box photo and prescription requests). |
 | `journeys.json#75` | untagged | open (issue #1084) | 8 price review | Offers for a manual request show no "price not verified" state (decision 12) and no way to counter or reject a price except the substitute negotiation. |
 | `journeys.json#77` | untagged | open (issue #1086) | 9 connection loss | Offline, tapping "request offers" in the cart ends on the browser's own error page; the service worker has no fetch handler or offline page. |
