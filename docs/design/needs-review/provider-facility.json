@@ -64,5 +64,16 @@
     "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider/provider-facility.controller.ts:81)",
     "suspect": "Backend gap: reviewer session.",
     "review_status": "fixed #1206 (issue #1129)"
+  },
+  {
+    "batch": "provider",
+    "app": "provider-app",
+    "screen": "FacilitySettingsScreen",
+    "element": "Pricing & Tariffs sheet",
+    "file": "provider-app/src/screens/facility/facility/FacilitySettingsScreen.tsx",
+    "line": 54,
+    "found": "[client] The tariffs form starts from fixed numbers (ICU daily and hourly, ward, surgery room, emergency fee) instead of the facility's saved tariffs; saving the sheet sends them as the facility's prices (POST /provider/settings/delta). Found by the fix session.",
+    "suspect": "Invented starting prices: read the saved tariffs first.",
+    "review_status": "open"
   }
 ]

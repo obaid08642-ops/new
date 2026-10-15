@@ -84,9 +84,9 @@ interface Case {
 const noop = () => {};
 const CASES: Case[] = [
   { name: 'pharmacy', render: () => <PharmacyRegistration onBack={noop} onDone={noop} initialData={pharmacyFixture} />, pages: 3, agree: 'I agree to terms & conditions.', submit: 'Submit Pharmacy Application' },
-  { name: 'doctor', render: () => <DoctorRegistration onBack={noop} onDone={noop} initialData={doctorFixture} />, pages: 3, submit: 'Submit for Admin Approval' },
-  { name: 'doctor-unified', render: () => <DoctorRegistration onBack={noop} onDone={noop} initialData={doctorUnifiedFixture} />, pages: 3, submit: 'Submit for Admin Approval' },
-  { name: 'facility', render: () => <FacilityRegistration onBack={noop} onDone={noop} initialData={facilityFixture} />, pages: 3, submit: 'Submit Application' },
+  { name: 'doctor', render: () => <DoctorRegistration onBack={noop} onDone={noop} initialData={doctorFixture} />, pages: 3, agree: 'I agree to Nabd+ Terms & Conditions and Privacy Policy, and confirm all data is accurate.', submit: 'Submit for Admin Approval' },
+  { name: 'doctor-unified', render: () => <DoctorRegistration onBack={noop} onDone={noop} initialData={doctorUnifiedFixture} />, pages: 3, agree: 'I agree to Nabd+ Terms & Conditions and Privacy Policy, and confirm all data is accurate.', submit: 'Submit for Admin Approval' },
+  { name: 'facility', render: () => <FacilityRegistration onBack={noop} onDone={noop} initialData={facilityFixture} />, pages: 3, agree: 'I agree to Nabd+ Terms & Conditions and Privacy Policy, and confirm all data is accurate.', submit: 'Submit Application' },
   { name: 'nursing-individual', render: () => <NursingRegistration onBack={noop} onDone={noop} initialData={nursingIndividualFixture} />, pages: 3, agree: 'I agree to Nabd+ Terms & Privacy Policy.', submit: 'Submit Application' },
   { name: 'nursing-company', render: () => <NursingRegistration onBack={noop} onDone={noop} initialData={nursingCompanyFixture} />, pages: 3, agree: 'I agree to Nabd+ Terms & Privacy Policy.', submit: 'Submit Application' },
   { name: 'lab', render: () => <LabRegistration providerType="lab" onBack={noop} onDone={noop} initialData={labFixture} />, pages: 3, agree: 'I agree to Nabd+ Terms & Conditions and Privacy Policy, and confirm all data is accurate.', submit: 'Submit Center Application' },
