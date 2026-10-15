@@ -81,6 +81,17 @@ export class JwtAuthGuard implements CanActivate {
     @Optional() private adminIdle?: AdminSessionService,
   ) {}
 
+  /** D-34: count requests refused by a security guard. Observes only — never throws. */
+  private async auditBlocked(userId: unknown, path: string, message: string): Promise<void> {
+    try {
+      await (this.connection?.collection?.('security_events') as any)?.insertOne?.({
+        type: 'blocked_request', at: new Date(), user_id: userId ?? null, path, message,
+      });
+    } catch {
+      // Observability must never break auth on DB hiccups.
+    }
+  }
+
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(PUBLIC_KEY, [ctx.getHandler(), ctx.getClass()]);
     const req = ctx.switchToHttp().getRequest<Request & { user?: any; impersonator?: any; impersonationSession?: any; auditInfo?: any }>();
@@ -168,7 +179,11 @@ export class JwtAuthGuard implements CanActivate {
       if (isAdminRole && !isPublic) {
         // C3: an admin token is only honoured when it came through the admin gate (the BFF),
         // on EVERY path, not just /api/v1/admin/* (96 admin routes live elsewhere).
-        if (!adminGateSatisfied(req.headers as any)) throw new ForbiddenException('admin_gate_required');
+        if (!adminGateSatisfied(req.headers as any)) {
+          // D-34: count requests refused by a security guard (blocked_requests on the ops page).
+          await this.auditBlocked(payload?.id || payload?.sub, path, 'admin_gate_required').catch(() => undefined);
+          throw new ForbiddenException('admin_gate_required');
+        }
       }
       if (isAdminRole && !isDeviceEndpoint && !isPublic) {
         const uid = payload?.id || payload?.sub;
@@ -178,7 +193,11 @@ export class JwtAuthGuard implements CanActivate {
           const dev = devId.length >= 16 && await this.connection.collection('admin_devices').findOne(
             { user_id: uid, device_hash: createHash('sha256').update(devId).digest('hex'), revoked: { $ne: true } },
           ).catch(() => null);
-          if (!dev) throw new ForbiddenException('device_not_enrolled');
+          if (!dev) {
+            // D-34: count requests refused by a security guard (blocked_requests on the ops page).
+            await this.auditBlocked(uid, path, 'device_not_enrolled').catch(() => undefined);
+            throw new ForbiddenException('device_not_enrolled');
+          }
           // C5: sliding 15-minute idle window for admin sessions.
           if (this.adminIdle) {
             if (await this.adminIdle.isIdleExpired(uid)) {

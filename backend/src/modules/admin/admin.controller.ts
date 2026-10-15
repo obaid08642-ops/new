@@ -422,6 +422,7 @@ export class AdminController {
    * documents, and stays INVISIBLE to patients until admin approval
    * (verified=true via /admin/approve/:userId or the moderation page).
    */
+  @RequirePermissions(Permission.FACILITY_CREATE)
   @Post('providers/create')
   async createProvider(@CurrentUser() by: any, @Body() body: CreateProviderDto) {
     const role = body?.role as UserRole;
@@ -517,6 +518,8 @@ export class AdminController {
    * Irreversible — the admin UI requires an explicit typed confirmation.
    */
   @StepUp()
+  // Irreversible erasure of an account and its records: user.edit (like ban/unban) and gdpr.manage (erasure).
+  @RequirePermissions(Permission.USER_EDIT, Permission.GDPR_MANAGE)
   @Delete('users/:userId')
   async deleteUser(@Param('userId') userId: string, @CurrentUser() by?: any) {
     // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
@@ -576,6 +579,7 @@ export class AdminController {
    * suspended owners still publicly visible. Dry-run by default.
    */
   @StepUp()
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post('users/cleanup-orphans')
   async cleanupOrphans(@Body() body: CleanupOrphansDto) {
     const dryRun = body?.dry_run !== false;
@@ -602,6 +606,7 @@ export class AdminController {
    * Manually approve a Doctor or Pharmacy (ensures 'verified: boolean' blocks booking until Admin approves).
    */
   @StepUp()
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post('approve/:userId')
   async approveProvider(@Param('userId') userId: string, @CurrentUser() by?: any) {
     // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
@@ -619,6 +624,7 @@ export class AdminController {
   }
 
   @StepUp()
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post('suspend/:userId')
   async suspendProvider(@Param('userId') userId: string, @CurrentUser() by?: any) {
     // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).

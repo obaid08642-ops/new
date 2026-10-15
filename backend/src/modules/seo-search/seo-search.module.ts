@@ -289,8 +289,19 @@ export class SeoSearchService {
     }
   }
 
+  /**
+   * On-site visibility (product page, catalogue, search, alternatives): published = public_eligibility and an approved
+   * medical review, as medicine-publication-report.ts defines it. indexing_eligibility only decides sitemaps, IndexNow
+   * and llms.txt (indexableProductFilter); requiring it here hid every medicine the admin approved (approve() leaves it
+   * false), so an item added in the admin never reached patients. A page that is not indexable says noindex.
+   */
   private publicProductFilter() {
-    return { is_deleted: { $ne: true }, public_eligibility: true, indexing_eligibility: true, medical_review_status: 'approved' } as any;
+    return { is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' } as any;
+  }
+
+  /** Search-engine surfaces (sitemaps, product count for them): published and indexing_eligibility. */
+  private indexableProductFilter() {
+    return { ...this.publicProductFilter(), indexing_eligibility: true } as any;
   }
 
   /** Strict per-locale public product DTO by slug (v14 catalog URLs /{lang}/p/{slug}). */
@@ -382,7 +393,7 @@ export class SeoSearchService {
           form: dto.form, strength: dto.strength, package_size: dto.package_size,
           active_ingredient: dto.active_ingredient, manufacturer: dto.manufacturer,
           price: dto.price, old_price: dto.old_price, currency: dto.currency,
-          is_rx: dto.is_rx, available: dto.available, image: dto.image,
+          is_rx: dto.is_rx, online_exclusive: dto.online_exclusive, available: dto.available, image: dto.image,
           url: `${process.env.WEB_PUBLIC_URL || 'https://nabd.plus'}/${locale}/p/${encodeURIComponent(String(dto.slug))}`,
         };
       }),
@@ -400,7 +411,7 @@ export class SeoSearchService {
     const slugProjection: Record<string, 1> = {};
     for (const l of PUBLIC_CATALOG_LOCALES) slugProjection[`translations.${productLocaleToDb(l)}.slug`] = 1;
     const rows = await this.conn.collection(CATALOG_COLLECTIONS.medicines)
-      .find(this.publicProductFilter(), { projection: { _id: 0, slug: 1, updatedAt: 1, ...slugProjection } } as any)
+      .find(this.indexableProductFilter(), { projection: { _id: 0, slug: 1, updatedAt: 1, ...slugProjection } } as any)
       .sort({ id: 1 })
       .skip((page - 1) * perPage)
       .limit(perPage)
@@ -427,7 +438,7 @@ export class SeoSearchService {
   }
 
   async publicProductCount(): Promise<number> {
-    return this.conn.collection(CATALOG_COLLECTIONS.medicines).countDocuments(this.publicProductFilter());
+    return this.conn.collection(CATALOG_COLLECTIONS.medicines).countDocuments(this.indexableProductFilter());
   }
 
   /** DB-vs-sitemap reconciliation snapshot for admin (§52/§72). */
@@ -667,7 +678,7 @@ export class SeoSearchService {
     if (sort === 'price_asc' || sort === 'price_desc') filter.price = { $gt: 0 };
 
     const cursor = this.conn.collection(CATALOG_COLLECTIONS.medicines)
-      .find(filter, { projection: { _id: 0, id: 1, sku: 1, slug: 1, name_ar: 1, name_en: 1, price: 1, old_price: 1, image_1: 1, image: 1, images: 1, form: 1, strength: 1, package_size: 1, category: 1, sub_category: 1, active_ingredient: 1, requires_prescription: 1, availability_status: 1, usage_count: 1, translations: 1 } } as any)
+      .find(filter, { projection: { _id: 0, id: 1, sku: 1, slug: 1, name_ar: 1, name_en: 1, price: 1, old_price: 1, image_1: 1, image: 1, images: 1, form: 1, strength: 1, package_size: 1, category: 1, sub_category: 1, active_ingredient: 1, requires_prescription: 1, online_exclusive: 1, availability_status: 1, usage_count: 1, translations: 1 } } as any)
       .sort(sortClause)
       .skip((Math.max(page, 1) - 1) * perPage)
       .limit(perPage);
@@ -677,7 +688,7 @@ export class SeoSearchService {
       return {
         sku: dto.sku, id: dto.id, slug: dto.slug, name: dto.name, form: dto.form, strength: dto.strength,
         package_size: dto.package_size, price: dto.price, old_price: dto.old_price, currency: dto.currency,
-        is_rx: dto.is_rx, available: dto.available, image: dto.image,
+        is_rx: dto.is_rx, online_exclusive: dto.online_exclusive, available: dto.available, image: dto.image,
       };
     });
     // Page-1 popularity boost, SCOPED to the requested category by construction:
@@ -694,7 +705,7 @@ export class SeoSearchService {
       try {
         const toDto = (m: any) => {
           const dto = resolveMedicinePublicDto(m, locale);
-          return { sku: dto.sku, id: dto.id, slug: dto.slug, name: dto.name, form: dto.form, strength: dto.strength, package_size: dto.package_size, price: dto.price, old_price: dto.old_price, currency: dto.currency, is_rx: dto.is_rx, available: dto.available, image: dto.image };
+          return { sku: dto.sku, id: dto.id, slug: dto.slug, name: dto.name, form: dto.form, strength: dto.strength, package_size: dto.package_size, price: dto.price, old_price: dto.old_price, currency: dto.currency, is_rx: dto.is_rx, online_exclusive: dto.online_exclusive, available: dto.available, image: dto.image };
         };
         const isAll = !resolvedCat || resolvedCat === 'all' || resolvedCat === 'الكل';
         if (isAll) {

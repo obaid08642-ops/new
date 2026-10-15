@@ -172,6 +172,9 @@ export function CartScreen({ locale, signedIn }: { locale: Locale; signedIn: boo
             </ul>
           </section>
 
+          {/* The app cart's "can't find your medicine?" way in: ask the pharmacies for it by name (journeys scenario 8, issue 1081). */}
+          <p className={rx.note}><Link className={rx.bannerAction} href={`/${locale}/pharmacy/request`}>{t("manualRequest")}</Link></p>
+
           {hasRxItems ? (
             <div className={rx.banner}>
               <FIcon icon="prescription" tone="amber" size={40} />

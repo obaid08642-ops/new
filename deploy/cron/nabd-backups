@@ -1,0 +1,6 @@
+# /etc/cron.d/nabd-backups — D-33 (owner decision 33). Server time is UTC.
+# Replaces the old root crontab line "0 3 * * * /opt/nabdah/deploy/scripts/backup.sh" (remove it when installing this).
+# m  h  dom mon dow user command
+0  3  *   *   *   root /opt/nabdah/deploy/scripts/backup.sh >> /var/log/nabd-backups.log 2>&1
+40 3  *   *   0   root /opt/nabdah/deploy/scripts/catalogue-export.sh >> /var/log/nabd-backups.log 2>&1
+10 4  2   *   *   root /opt/nabdah/deploy/scripts/restore-drill.sh >> /var/log/nabd-backups.log 2>&1

@@ -36,6 +36,10 @@ export type PublicProduct = {
   has_discount: boolean;
   currency: string;
   is_rx: boolean;
+  /** Decision 11: sold online only ("أونلاين فقط" badge); absent on answers from before the field was sent. */
+  online_exclusive?: boolean;
+  /** Approved for search engines (indexing_eligibility); a published item that is not stays on the site with noindex. */
+  indexable?: boolean;
   available_online: boolean;
   availability_status: string;
   available: boolean;
@@ -57,6 +61,7 @@ export type PublicProductCard = {
   old_price: number | null;
   currency: string;
   is_rx: boolean;
+  online_exclusive?: boolean;
   available: boolean;
   image: string | null;
   images?: string[];

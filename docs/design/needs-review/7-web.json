@@ -8,7 +8,7 @@
     "line": 118,
     "found": "[owner] the old page offered cash (with a made-up payments/processing ref) after a decline; owner decision 25 forbids cash for online consultations, so the merged page has only accept self-pay and the secure options. Confirm.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #833)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision A, decision 25), main already complies: insurance-request-view.tsx offers no cash after a decline (issue #833)"
   },
   {
     "batch": 7,
@@ -74,7 +74,7 @@
     "line": 7,
     "found": "[client] Removed 2026-10-10 (decision 35): the Claims tab and parseClaims are gone; the route redirects to the hub.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "not-a-problem: removed 2026-10-10 (decision 35); insurance/claims redirects to the insurance hub"
   },
   {
     "batch": 7,
@@ -85,7 +85,7 @@
     "line": 7,
     "found": "[backend] Removed 2026-10-10 (decision 35): the Refunds tab is gone; the route redirects to the hub. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:867)",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open"
+    "review_status": "not-a-problem: removed 2026-10-10 (decision 35); insurance/refunds redirects to the insurance hub"
   },
   {
     "batch": 7,
@@ -107,7 +107,7 @@
     "line": 7,
     "found": "[client] Removed 2026-10-10 (decision 35): the claim form is gone; the route redirects to the hub.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "not-a-problem: removed 2026-10-10 (decision 35); insurance/submit-claim redirects to the insurance hub"
   },
   {
     "batch": 7,
@@ -118,7 +118,7 @@
     "line": 45,
     "found": "[owner] the brief says the OCR extract stays; the web form never had one (typed fields only). Decide whether web needs it.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #843)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision B17), main already complies: add-policy-form.tsx has typed fields only, no OCR (issue #843)"
   },
   {
     "batch": 7,
@@ -162,7 +162,7 @@
     "line": 7,
     "found": "[owner] Removed 2026-10-10 (decision 35): the claim form and the Claims tab are removed (owner decision 35).",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision A, decision 35), main already complies: insurance/submit-claim redirects to the hub"
   },
   {
     "batch": 7,
