@@ -8,15 +8,15 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| Patient app and web | 434 | 82 | 252 | 88 | 1 | 11 |
+| Patient app and web | 434 | 79 | 255 | 88 | 1 | 11 |
 | Other | 29 | 22 | 7 | 0 | 0 | 0 |
-| Admin | 97 | 7 | 57 | 33 | 0 | 0 |
+| Admin | 97 | 8 | 56 | 33 | 0 | 0 |
 | Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
 | Final pass | 8 | 8 | 0 | 0 | 0 | 0 |
 | Patient journeys | 87 | 33 | 52 | 2 | 0 | 0 |
 | Provider app | 31 | 8 | 22 | 1 | 0 | 0 |
 | Provider journeys | 34 | 17 | 15 | 2 | 0 | 0 |
-| **Total** | **740** | **179** | **421** | **128** | **1** | **11** |
+| **Total** | **740** | **177** | **423** | **128** | **1** | **11** |
 
 ## By tag
 
@@ -24,9 +24,9 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---|---:|---:|---:|---:|---:|---:|
 | client | 169 | 51 | 90 | 28 | 0 | 0 |
 | owner | 100 | 21 | 34 | 42 | 1 | 2 |
-| backend | 233 | 34 | 169 | 26 | 0 | 4 |
-| untagged | 238 | 73 | 128 | 32 | 0 | 5 |
-| **Total** | **740** | **179** | **421** | **128** | **1** | **11** |
+| backend | 233 | 35 | 168 | 26 | 0 | 4 |
+| untagged | 238 | 70 | 131 | 32 | 0 | 5 |
+| **Total** | **740** | **177** | **423** | **128** | **1** | **11** |
 
 ## By file
 
@@ -69,13 +69,13 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `admin-customers-growth.json` | 14 | 0 | 8 | 6 | 0 | 0 |
 | `admin-finance.json` | 9 | 0 | 8 | 1 | 0 | 0 |
 | `admin-journeys.json` | 20 | 2 | 16 | 2 | 0 | 0 |
-| `admin-ops-monitoring.json` | 16 | 2 | 10 | 4 | 0 | 0 |
+| `admin-ops-monitoring.json` | 16 | 3 | 9 | 4 | 0 | 0 |
 | `admin-providers.json` | 8 | 0 | 5 | 3 | 0 | 0 |
 | `admin-public-directories.json` | 14 | 0 | 4 | 10 | 0 | 0 |
 | `admin-system.json` | 12 | 2 | 7 | 3 | 0 | 0 |
-| `batch-0-app.json` | 13 | 5 | 7 | 0 | 0 | 1 |
+| `batch-0-app.json` | 13 | 4 | 8 | 0 | 0 | 1 |
 | `batch-0-runtime.json` | 8 | 6 | 1 | 1 | 0 | 0 |
-| `batch-0-web.json` | 19 | 10 | 7 | 1 | 0 | 1 |
+| `batch-0-web.json` | 19 | 8 | 9 | 1 | 0 | 1 |
 | `batch-1a-app.json` | 19 | 3 | 4 | 11 | 0 | 1 |
 | `batch-1a-web.json` | 12 | 4 | 6 | 2 | 0 | 0 |
 | `batch-1b-app.json` | 12 | 4 | 5 | 2 | 0 | 1 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 7 | 0 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 6 | 7 | 0 | 0 | 0 |
-| **Total** | **740** | **179** | **421** | **128** | **1** | **11** |
+| **Total** | **740** | **177** | **423** | **128** | **1** | **11** |
 
 ## Owner decisions (1)
 
@@ -108,7 +108,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---:|---|---|---|
 | 1 | `13-web.json#13` `patient-web/lib/legal/embedded.ts:15` | /terms Embedded fallback text | [owner] The embedded copy (issue 755/783) is built from docs/legal, which are drafts with [placeholders] until a Saudi lawyer approves them, so it stays off today. After approval: update docs/legal, run node patient-web… |
 
-## Open and unverified (190)
+## Open and unverified (188)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -169,12 +169,12 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `admin-journeys.json#18` | client | open (issue #955) | /admin/config-portal Journey 4 / Emergency maintenance switch is disabled and t… | [client] The 'Trigger System Kill-Switch' button is permanently disabled ('requires server set-up'), although the handler at line 183 and PUT /admin/governance/trigger-emergency-m… |
 | `admin-ops-monitoring.json#4` | backend | open | /admin/approvals One approvals endpoint with counts | [backend] No endpoint returns all pending approvals with counts, so the page asks nine existing list endpoints (providers, provider edits, withdrawals, refunds, returns, medicine … |
 | `admin-ops-monitoring.json#14` | backend | open (issue #1235) | /admin/today Urgent alerts: inbox, push, alert rules | [backend] The screen shows what the existing endpoints can say (SLA breaches, stuck orders, failed payments). There is no admin notification inbox or bell, no push to the admin's … |
+| `admin-ops-monitoring.json#15` | backend | open (issue #1236) | /admin/today Problem orders filter on the orders list | [backend] The orders list has no stuck / failed-payment / SLA-breach / refund-pending filter, so this screen lists only the stuck orders from ops/alerts (5 kinds, 30 minute thresh… |
 | `admin-system.json#1` | client | open (issue #995) | /admin/config-portal Trigger System Kill-Switch (معطّل — يتطلب إعداد الخادم) | [client] Button is disabled with no handler. |
 | `admin-system.json#10` | backend | open | /admin/system-ops Feature switch effect | [backend] The switch writes and audits (reason required), but backend code reads only `sms_enabled` (sms.service.ts) and ConfigService hands the flags to clients; there is no per-… |
 | `batch-0-app.json#2` | untagged | open (issue #410) | /login Two api helpers and three base-URL resolutions | login.tsx, welcome.tsx and useSocialLogin.ts use utils/api.ts (axios HttpClient, base EXPO_PUBLIC_API_URL + /api/v1 else https://api.nabd.plus/api/v1: src/services/HttpClient.ts:5… |
 | `batch-0-app.json#3` | untagged | open (issue #411) | /login Social buttons (Google, X, Snapchat): request hooks with empty client ids | useSocialLogin runs Google.useAuthRequest with clientId, iosClientId and androidClientId set to '' when the env vars are missing (lines 88-92), and AuthSession.useAuthRequest for … |
 | `batch-0-app.json#4` | untagged | closed-unverified (issue #412: closed with no linked PR) | /login POST /auth/social-login: the backend does not verify the Apple, X and Sn… | The app sends {provider, token} (Apple: the identity token; X and Snapchat: an opaque OAuth access token; Google: an access token). backend/src/modules/auth/auth.service.ts social… |
-| `batch-0-app.json#5` | untagged | open (issue #413) | /register Submit: duplicate email or phone found only after the OTP step | POST /auth/send-otp {email, purpose:'register'} sends a code to any email, registered or not (backend auth.service.ts:956-967 ignores the existing account when purpose is 'registe… |
 | `batch-0-app.json#8` | untagged | open (issue #416) | /notifications Row tap: routes the app cannot translate do nothing | openNotif pushes only when translateBackendRoute(n.route) returns a target (src/hooks/usePushNotifications.ts:33-77); otherwise the row is marked read and nothing happens (no inbo… |
 | `batch-0-app.json#12` | owner | open (issue #420) | /services Services catalogue and Home items: labels held in data files | catalog.ts and src/features/home/homeItems.ts (and notificationsFeed constants before this pass) keep Arabic phrases as titles and descriptions, translated through the old Arabic-… |
 | `batch-0-runtime.json#0` | untagged | open (issue #421) | /services Direct visits to /consultations/doctors: inline style attributes | /services no longer lands here (batch-0-fixes: it goes to Home), but the page itself, reached by its own URL or from Home's doctor links, still puts raw legacy colours (#FDFDFC, #… |
@@ -184,8 +184,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-0-runtime.json#6` | untagged | open (issue #427) | all routes Largest-contentful-paint stays above 2.5 s (F82) | Lighthouse on the production build (median of 3): LCP 3.0-3.2 s on /ar and /ar/consultations/doctors, 4.3 s on /ar/pharmacy, against 2.5 s. The shared-JS trim did not move it (mai… |
 | `batch-0-runtime.json#7` | untagged | open (issue #428) | tooling tools/design/import-rule.baseline.json is not on main | The import rule (P12.C2) and its baseline exist on fix/audit-2026-09 only; main has neither. patient-app AuthKit no longer imports @expo/vector-icons (BrandMark in packages/ui-nat… |
 | `batch-0-web.json#1` | untagged | open (issue #430) | /login Google button (rendered only when NEXT_PUBLIC_GOOGLE_CLIENT_ID is set) | FIXED in batch-0-fixes: the busy state now clears when the popup is closed or fails to open (error_callback) and when the Google script fails to load; a press before the script ha… |
-| `batch-0-web.json#3` | untagged | open (issue #432) | /register Consent policy ids and versions sent on registration | policy_id/version come from NEXT_PUBLIC_TERMS_POLICY_ID/_VERSION and NEXT_PUBLIC_PRIVACY_POLICY_ID/_VERSION with defaults 'terms'/'v1' and 'privacy'/'v1' (lines 18-23, 45-48). The… |
-| `batch-0-web.json#5` | untagged | open (issue #434) | /register Submit error messages (account may already exist) | FIXED on the client in batch-0-fixes: 409 now says "already registered, sign in", 429 says to wait, every 5xx says registration could not be completed and that the account may alr… |
 | `batch-0-web.json#6` | untagged | open (issue #435) | /forgot-password Submit → success message | FIXED on the client in batch-0-fixes: the success message now links to /password-reset ("I have the code"), a throttled request says so, and the reset page takes the token in a pl… |
 | `batch-0-web.json#7` | untagged | open (issue #436) | /onboarding Whole screen (entry and outcome) | No link in the web points to /onboarding (grep over app, components-next, lib); /welcome is reached only from the login back button and the onboarding screens; finishing onboardin… |
 | `batch-0-web.json#8` | untagged | open (issue #437) | /onboarding Slides, buttons and labels | FIXED in batch-0-fixes: slide titles and bodies, the carousel, language and permission steps and the frame's back label and hero text are in messages (Onboarding, AuthFrame; six l… |

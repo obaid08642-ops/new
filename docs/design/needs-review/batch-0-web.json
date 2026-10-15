@@ -41,7 +41,7 @@
     "line": 18,
     "found": "policy_id/version come from NEXT_PUBLIC_TERMS_POLICY_ID/_VERSION and NEXT_PUBLIC_PRIVACY_POLICY_ID/_VERSION with defaults 'terms'/'v1' and 'privacy'/'v1' (lines 18-23, 45-48). The BFF getRequiredConsents() (app/api/auth/register/route.ts:16-29) reads NABD_* env with the same defaults and only checks they are non-empty (always true); the backend only asserts strings (backend auth.service.ts:445-458).",
     "suspect": "LEFT, backend question: the backend only asserts that policy_id and version are strings (auth.service.ts:445-458) and there is no endpoint or setting that lists the CURRENT policy ids and versions. The client keeps sending terms/v1 and privacy/v1 (env overridable). Needs a current-policies source (an endpoint, or a server-side version the BFF reads) and a BFF or backend comparison.",
-    "review_status": "open (issue #432)"
+    "review_status": "fixed #1462"
   },
   {
     "batch": 0,
@@ -63,7 +63,7 @@
     "line": 78,
     "found": "FIXED on the client in batch-0-fixes: 409 now says \"already registered, sign in\", 429 says to wait, every 5xx says registration could not be completed and that the account may already exist (it never says \"no account was created\"). STILL OPEN in the backend: registerPatientContract creates the user and profile and then requests the OTP (auth.service.ts:473-481), which can fail with 503 otp_channel_unavailable or 429 and is reported as a registration failure.",
     "suspect": "LEFT, backend change: return registered:true with otp_sent:false when only the code could not be sent (or make create + send atomic). The client can then say \"account created, request a new code\" instead of the generic \"may already exist\".",
-    "review_status": "open (issue #434)"
+    "review_status": "fixed #1462"
   },
   {
     "batch": 0,
