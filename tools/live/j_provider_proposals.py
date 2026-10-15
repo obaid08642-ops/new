@@ -31,7 +31,7 @@ def main():
     rows = r.body if isinstance(r.body, list) else r.items()
     mine = [x for x in rows if x.get('id') in (test_req, reject_req)]
     step('the admin review list has both proposals with who proposed them', r.ok and len(mine) == 2 and all(x.get('submitter_name') for x in mine), str(mine)[:400])
-    r = admin.post(f'/approval-workflow/requests/{test_req}/decide', {'decision': 'approved'})
+    r = admin.post(f'/approval-workflow/requests/{test_req}/decide', {'decision': 'approved', 'edit_data': {'category': 'blood'}})  # the category the admin picks on service-proposals
     test_id = r.get('entity_id')
     step('the admin approves the test', r.ok and r.get('status') == 'approved' and test_id, r)
     r = admin.post(f'/approval-workflow/requests/{reject_req}/decide', {'decision': 'rejected', 'notes': 'اسم غير واضح'})

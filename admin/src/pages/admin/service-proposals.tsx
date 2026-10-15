@@ -38,6 +38,12 @@ function show(value: unknown): string {
   return String(value ?? '');
 }
 
+/** A new lab test or bundle without a category cannot be stored (the catalogue requires one). */
+function needsCategory(p: Proposal): boolean {
+  const d = p.change_data || {};
+  return p.entity_type === 'service' && !p.entity_id && ['lab', 'laboratory'].includes(String(d.type || '').toLowerCase()) && !d.category;
+}
+
 function title(p: Proposal): string {
   const d = p.change_data || {};
   const kind = p.entity_type === 'service' ? (d.is_package ? 'حزمة' : SERVICE[String(d.type || '').toLowerCase()] || KIND.service) : KIND[p.entity_type];
@@ -50,6 +56,9 @@ export default function ServiceProposalsPage() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [notes, setNotes] = useState<Record<string, string>>({});
+  // A new lab test needs its catalogue category (the patient lists group by it); the admin picks it when approving.
+  const [categories, setCategories] = useState<string[]>([]);
+  const [category, setCategory] = useState<Record<string, string>>({});
 
   const load = useCallback(async () => {
     setError(null);
@@ -62,14 +71,21 @@ export default function ServiceProposalsPage() {
   }, []);
 
   useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    adminFetch<Array<{ slug?: string }>>('/labs/categories')
+      .then((list) => setCategories((Array.isArray(list) ? list : []).map((c) => String(c.slug || '')).filter(Boolean)))
+      .catch(() => setCategories([]));
+  }, []);
 
   async function decide(p: Proposal, decision: 'approved' | 'rejected') {
     const note = (notes[p.id] || '').trim();
     if (decision === 'rejected' && !note) { setError('اكتب سبب الرفض ليصل إلى المزود'); return; }
+    const chosen = (category[p.id] || '').trim();
+    if (decision === 'approved' && needsCategory(p) && !chosen) { setError('اختر فئة التحليل قبل الاعتماد'); return; }
     setBusy(p.id);
     setError(null);
     try {
-      await adminFetch(`/approval-workflow/requests/${encodeURIComponent(p.id)}/decide`, { method: 'POST', body: JSON.stringify(note ? { decision, notes: note } : { decision }) });
+      await adminFetch(`/approval-workflow/requests/${encodeURIComponent(p.id)}/decide`, { method: 'POST', body: JSON.stringify({ decision, ...(note ? { notes: note } : {}), ...(decision === 'approved' && chosen ? { edit_data: { category: chosen } } : {}) }) });
       setRows((list) => (list || []).filter((r) => r.id !== p.id));
     } catch {
       setError('تعذر حفظ القرار');
@@ -90,6 +106,7 @@ export default function ServiceProposalsPage() {
           <button onClick={() => void load()} className="rounded-lg border bg-white px-4 py-2 text-sm font-bold">تحديث</button>
         </header>
         {error ? <p role="alert" className="rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700">{error}</p> : null}
+        <datalist id="lab-categories">{categories.map((c) => <option key={c} value={c} />)}</datalist>
         {rows === null ? <p className="text-sm text-slate-500">جارٍ التحميل…</p> : rows.length === 0 ? (
           <p className="rounded-2xl border bg-white p-6 text-center text-sm text-slate-500">لا اقتراحات بانتظار قرار.</p>
         ) : (
@@ -105,6 +122,12 @@ export default function ServiceProposalsPage() {
                     <div key={k} className="flex gap-2"><dt className="text-slate-500">{FIELD[k] || k}:</dt><dd className="font-medium">{show(v)}</dd></div>
                   ))}
                 </dl>
+                {needsCategory(p) ? (
+                  <label className="flex flex-wrap items-center gap-2 text-sm">
+                    <span className="text-slate-500">فئة التحليل:</span>
+                    <input list="lab-categories" value={category[p.id] || ''} maxLength={60} onChange={(e) => setCategory((c) => ({ ...c, [p.id]: e.target.value }))} className="min-h-11 rounded-lg border px-3" />
+                  </label>
+                ) : null}
                 <div className="flex flex-wrap items-center gap-2">
                   <input aria-label="سبب الرفض أو ملاحظة" placeholder="سبب الرفض أو ملاحظة" value={notes[p.id] || ''} maxLength={500}
                     onChange={(e) => setNotes((n) => ({ ...n, [p.id]: e.target.value }))} className="min-h-11 min-w-0 flex-1 rounded-lg border px-3 text-sm" />
