@@ -1150,7 +1150,10 @@
     "allSpecialties": "सभी विशेषज्ञताएं",
     "paymentLabel": "भुगतान",
     "payment_insurance": "बीमा स्वीकार",
-    "payment_cash": "केवल नकद"
+    "payment_cash": "केवल नकद",
+    "doctorPhotoAlt": "{name} की तस्वीर",
+    "clinicPhotosTitle": "क्लिनिक की तस्वीरें",
+    "clinicPhotoAlt": "क्लिनिक की तस्वीर {n}"
   },
   "LabsServices": {
     "eyebrow": "प्रयोगशाला देखभाल",
@@ -1526,7 +1529,6 @@
     "attribute": "विशेषता",
     "active_ingredient": "सक्रिय घटक",
     "price": "कीमत",
-    "dosage_form": "खुराक रूप",
     "manufacturer": "निर्माता",
     "emptyBody": "तुलना के लिए कैटलॉग से कम से कम दो दवाएं चुनें।",
     "browse": "दवाएं देखें",
@@ -1534,7 +1536,9 @@
     "requires_prescription": "नुस्खा आवश्यक",
     "online_exclusive": "केवल ऑनलाइन",
     "yes": "हाँ",
-    "no": "नहीं"
+    "no": "नहीं",
+    "form": "खुराक रूप",
+    "strength": "शक्ति"
   },
   "PharmacyRequest": {
     "title": "दवा का नाम बताकर मँगवाएँ",
@@ -2091,7 +2095,8 @@
     "sortPriceAsc": "कीमत: कम से ज़्यादा",
     "sortPriceDesc": "कीमत: ज़्यादा से कम",
     "sortNewest": "सबसे नया",
-    "askPharmacies": "पास की फ़ार्मेसियों से माँगें"
+    "askPharmacies": "पास की फ़ार्मेसियों से माँगें",
+    "compareAlternatives": "विकल्पों से तुलना करें"
   },
   "PharmacyOffers": {
     "backToOrder": "ऑर्डर पर वापस",
@@ -2157,15 +2162,12 @@
     "orderStatusLink": "ऑर्डर की स्थिति",
     "trackOrder": "ऑर्डर ट्रैक करें",
     "continuePayment": "भुगतान पर जाएँ",
-    "showMethods": "भुगतान का तरीका चुनें",
     "methodCard": "बैंक कार्ड",
     "methodApplePay": "Apple Pay",
     "methodGooglePay": "Google Pay",
-    "paymentUnavailable": "इस ऑर्डर के लिए अभी ऑनलाइन भुगतान का कोई तरीका उपलब्ध नहीं है।",
     "redirecting": "आपको सुरक्षित भुगतान पेज पर ले जाया जा रहा है…",
     "noRedirect": "भुगतान का यह तरीका अभी वेब पर उपलब्ध नहीं है। कोई और तरीका चुनें।",
     "paymentError": "भुगतान शुरू नहीं हो सका। कोई भुगतान दर्ज नहीं हुआ।",
-    "loadingMethods": "भुगतान के तरीके लोड हो रहे हैं…",
     "insurancePending": "फ़ार्मेसी ने बीमा कंपनी से मंज़ूरी माँगी है। फ़ैसले से पहले आपको कुछ भी नहीं देना है।",
     "insuranceCovered": "बीमा इस ऑर्डर को पूरी तरह कवर करता है। कोई रकम देय नहीं है।",
     "insuranceDecisionTitle": "हर चीज़ के लिए बीमा का फ़ैसला",
@@ -2864,7 +2866,6 @@
     "trackingInProgress": "जारी है",
     "trackingScheduled": "तय समय: {when}",
     "trackingBeforeTitle": "सैंपल से पहले",
-    "trackingBeforeBody": "जब तक डॉक्टर कुछ और न कहें, सैंपल से 8 से 12 घंटे पहले कुछ न खाएँ।",
     "trackingStepsTitle": "चरण",
     "trackingNoSteps": "अभी तक ट्रैकिंग की कोई अपडेट नहीं है। लैब जब चरण दर्ज करेगी तो वे यहाँ दिखेंगे।",
     "searchTests": "टेस्ट खोजें…",
@@ -2873,10 +2874,6 @@
     "searchResults": "खोज के नतीजे",
     "collectorLabel": "सैंपल लेने वाला",
     "collectorCall": "सैंपल लेने वाले को कॉल करें",
-    "collectorTipsTitle": "जब सैंपल लेने वाला आए",
-    "collectorTip1": "अपनी पहचान और टेस्ट का अनुरोध तैयार रखें",
-    "collectorTip2": "टेस्ट के लिए ज़रूरी खाली पेट रहने का पालन करें",
-    "collectorTip3": "जो दवाएँ लेते हैं, वे सैंपल लेने वाले को बताएँ",
     "status_pending": "पुष्टि का इंतज़ार",
     "status_insurance": "बीमा का इंतज़ार",
     "status_confirmed": "पुष्टि हो गई",
@@ -2885,10 +2882,7 @@
     "status_processing": "जारी है",
     "status_report": "रिपोर्ट तैयार है",
     "status_cancelled": "रद्द",
-    "bookingNotSentTitle": "कोई बुकिंग नहीं हुई",
-    "bookingNotSentBody": "यह विंडो अभी बुकिंग नहीं भेजती, इसलिए कोई अपॉइंटमेंट नहीं बना और कोई भुगतान नहीं लिया गया। विज़िट बुक करने के लिए नर्सिंग पेज खोलें।",
-    "bookingNotSentCta": "नर्सिंग पेज पर जाएँ",
-    "bookingNotSentClose": "बंद करें"
+    "trackingPrepAsk": "लैब आपके साथ किसी भी ज़रूरी तैयारी की पुष्टि करेगी।"
   },
   "NursingWeb": {
     "hubTitle": "घरेलू देखभाल",
@@ -2900,13 +2894,11 @@
     "browseCatalog": "नर्सिंग सेवाएँ देखें",
     "statusLabel": "स्थिति",
     "pulse": "नाड़ी",
-    "formService": "सेवा",
     "formTime": "समय",
     "formAddress": "पता",
     "formAddAddress": "पहले एक पता जोड़ें",
     "formNotes": "टिप्पणियाँ (वैकल्पिक)",
     "formBooking": "बुकिंग हो रही है…",
-    "formSelectService": "सेवा चुनें",
     "formSelectTime": "दिन और समय चुनें",
     "formPast": "वह समय बीत चुका है। बाद का समय चुनें",
     "formFailed": "बुकिंग नहीं बन सकी",
@@ -2968,7 +2960,6 @@
     "insurance": "बीमा उपलब्ध",
     "priceLabel": "कीमत",
     "durationLabel": "अवधि",
-    "bookingNotice": "सेवा विवरण यहाँ केवल पढ़ने के लिए हैं। इस पृष्ठ से बुकिंग नहीं बनाई जाती।",
     "back": "सेवाओं पर वापस",
     "serviceUnavailableTitle": "सेवाएँ लोड नहीं हो सकीं",
     "serviceUnavailableBody": "कृपया बाद में फिर से कोशिश करें।",
@@ -2988,13 +2979,19 @@
     "step_NURSE_ARRIVED": "नर्स पहुँची",
     "step_CARE_IN_PROGRESS": "देखभाल जारी",
     "step_COMPLETED": "विज़िट पूर्ण",
-    "nurseTitle": "नर्स की प्रोफ़ाइल",
-    "nurseUnavailableTitle": "प्रोफ़ाइल अभी उपलब्ध नहीं है",
-    "nurseUnavailableBody": "नर्स की प्रोफ़ाइल का विवरण लोड नहीं हो सका।",
-    "experienceLabel": "कार्य का अनुभव",
-    "ratingLabel": "मरीज़ों की रेटिंग",
-    "nurseServicesTitle": "उपलब्ध नर्सिंग सेवाएँ",
-    "requestNurse": "नर्सिंग विज़िट का अनुरोध करें"
+    "bookCta": "यह सेवा बुक करें",
+    "bookTitle": "घर पर विज़िट बुक करें",
+    "chooseNurse": "नर्स चुनें",
+    "noNurses": "अभी कोई नर्स यह सेवा नहीं देती। बाद में फिर कोशिश करें।",
+    "today": "आज",
+    "loadingSlots": "खाली समय लोड हो रहे हैं…",
+    "noSlots": "इस दिन कोई खाली समय नहीं है। कोई और दिन चुनें।",
+    "slotsFailed": "समय लोड नहीं हो सके। फिर कोशिश करें।",
+    "slotTaken": "यह समय अब खाली नहीं है। कोई और समय चुनें।",
+    "addressNeedsLocation": "नक्शे पर स्थान वाला सहेजा गया पता चुनें, या नया जोड़ें।",
+    "payTitle": "भुगतान",
+    "payNow": "अभी कार्ड से भुगतान करें",
+    "payFailed": "आपकी बुकिंग सहेजी गई है, लेकिन भुगतान पेज नहीं खुल सका। फिर कोशिश करें।"
   },
   "MaternityWeb": {
     "title": "मातृत्व",
@@ -3220,23 +3217,11 @@
     "example4": "त्वचा पर चकत्ते और खुजली",
     "symptomsLabel": "आपके लक्षण",
     "symptomsPlaceholder": "उदाहरण: दो दिन से सिरदर्द और मितली",
-    "flagsLegend": "क्या इनमें से कोई संकेत है? जो लागू हों वे चुनें",
-    "flag": {
-      "chest_pain": "सीने में दर्द",
-      "breathing_difficulty": "सांस लेने में तकलीफ",
-      "fainting_or_unresponsive": "बेहोशी या प्रतिक्रिया न देना",
-      "heavy_bleeding": "भारी रक्तस्राव",
-      "new_confusion": "अचानक भ्रम",
-      "severe_allergic_reaction": "गंभीर एलर्जी प्रतिक्रिया",
-      "severe_injury": "गंभीर चोट"
-    },
     "submit": "अगला कदम जानें",
     "submitting": "जांच हो रही है…",
     "error": "अभी मार्गदर्शन नहीं मिल सका। थोड़ी देर बाद फिर कोशिश करें।",
     "emergencyTitle": "ऐसे संकेत जिनमें तुरंत मदद चाहिए",
-    "emergencyBody": "आपके चुने संकेतों के लिए अभी स्थानीय आपातकालीन सेवाओं से संपर्क करें, अपॉइंटमेंट का इंतज़ार न करें।",
     "consultationTitle": "हम डॉक्टर से मिलने की सलाह देते हैं",
-    "consultationBody": "आपने कोई आपातकालीन संकेत नहीं चुना। लक्षण बने रहें या बढ़ें तो डॉक्टर से परामर्श बुक करें।",
     "bookConsultation": "परामर्श बुक करें",
     "askAgain": "नया सवाल पूछें",
     "disclaimer": "यह सामान्य मार्गदर्शन है, निदान या इलाज नहीं। आपात स्थिति में आपातकालीन सेवाओं को कॉल करें।",
@@ -3247,7 +3232,16 @@
     "untitledReport": "मेडिकल रिपोर्ट",
     "reportsUnavailable": "आपकी रिपोर्ट अभी लोड नहीं हो सकीं। थोड़ी देर बाद फिर कोशिश करें।",
     "leafletLink": "दवा की जानकारी पढ़ें",
-    "historyTitle": "आपके पिछले सवाल"
+    "leafletTitle": "इस दवा के बारे में, इसके पर्चे से",
+    "outOfScopeTitle": "सहायक क्या कर सकता है",
+    "leaflet": {
+      "indications": "किस लिए उपयोग होती है",
+      "how_to_use": "उपयोग का तरीका",
+      "side_effects": "दुष्प्रभाव",
+      "warnings": "चेतावनियाँ",
+      "storage": "भंडारण",
+      "pregnancy": "गर्भावस्था और स्तनपान"
+    }
   },
   "MonthlyReportWeb": {
     "title": "आपकी मासिक रिपोर्ट",
@@ -4130,5 +4124,30 @@
         "head_circ_cm": "सिर की परिधि 20 से 60 से.मी. के बीच है।"
       }
     }
+  },
+  "LabResult": {
+    "title": "लैब परिणाम",
+    "error": "परिणाम लोड नहीं हो सका",
+    "errorBody": "थोड़ी देर बाद फिर कोशिश करें।",
+    "retry": "फिर कोशिश करें",
+    "critical": "महत्वपूर्ण — फ़ॉलो-अप ज़रूरी",
+    "values": "मान",
+    "range": "सामान्य सीमा {low} – {high}",
+    "flag_high": "अधिक",
+    "flag_low": "कम",
+    "flag_critical": "गंभीर",
+    "findings": "निष्कर्ष",
+    "impression": "मूल्यांकन",
+    "recommendations": "सिफ़ारिशें",
+    "notes": "लैब नोट्स",
+    "openBooking": "रिपोर्ट फ़ाइल देखने के लिए बुकिंग खोलें",
+    "empty": "इस परिणाम में और विवरण नहीं है।",
+    "discuss": "परिणाम पर डॉक्टर से बात करें",
+    "rangeText": "सामान्य सीमा {range}"
+  },
+  "Offline": {
+    "title": "आप ऑफ़लाइन हैं",
+    "body": "कनेक्शन न होने से यह पेज नहीं खुल सका। आपकी कार्ट इसी डिवाइस पर सुरक्षित है; कनेक्शन लौटने पर अपना अनुरोध भेजें।",
+    "home": "शुरुआत पर लौटें"
   }
 }

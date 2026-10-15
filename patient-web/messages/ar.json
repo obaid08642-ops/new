@@ -1150,7 +1150,10 @@
     "allSpecialties": "كل التخصصات",
     "paymentLabel": "الدفع",
     "payment_insurance": "يقبل التأمين",
-    "payment_cash": "كاش فقط"
+    "payment_cash": "كاش فقط",
+    "doctorPhotoAlt": "صورة {name}",
+    "clinicPhotosTitle": "صور العيادة",
+    "clinicPhotoAlt": "صورة العيادة {n}"
   },
   "LabsServices": {
     "eyebrow": "الرعاية المخبرية",
@@ -1526,7 +1529,6 @@
     "attribute": "السمة",
     "active_ingredient": "المادة الفعالة",
     "price": "السعر",
-    "dosage_form": "الشكل الدوائي",
     "manufacturer": "الشركة المصنعة",
     "emptyBody": "اختر دواءين على الأقل من الكتالوج للمقارنة بينهما.",
     "browse": "تصفح الأدوية",
@@ -1534,7 +1536,9 @@
     "requires_prescription": "يتطلب وصفة",
     "online_exclusive": "أونلاين فقط",
     "yes": "نعم",
-    "no": "لا"
+    "no": "لا",
+    "form": "الشكل الدوائي",
+    "strength": "التركيز"
   },
   "PharmacyRequest": {
     "title": "اطلب دواءً بالاسم",
@@ -2091,7 +2095,8 @@
     "sortPriceAsc": "السعر: من الأقل",
     "sortPriceDesc": "السعر: من الأعلى",
     "sortNewest": "الأحدث",
-    "askPharmacies": "اطلبه من الصيدليات القريبة"
+    "askPharmacies": "اطلبه من الصيدليات القريبة",
+    "compareAlternatives": "قارن بالبدائل"
   },
   "PharmacyOffers": {
     "backToOrder": "العودة إلى الطلب",
@@ -2157,15 +2162,12 @@
     "orderStatusLink": "حالة الطلب",
     "trackOrder": "تتبع الطلب",
     "continuePayment": "متابعة إلى الدفع",
-    "showMethods": "اختيار طريقة الدفع",
     "methodCard": "بطاقة بنكية",
     "methodApplePay": "Apple Pay",
     "methodGooglePay": "Google Pay",
-    "paymentUnavailable": "لا توجد طريقة دفع إلكتروني متاحة لهذا الطلب الآن.",
     "redirecting": "ننقلك إلى صفحة الدفع الآمنة…",
     "noRedirect": "طريقة الدفع هذه غير متاحة على الويب بعد. اختر طريقة أخرى.",
     "paymentError": "تعذر بدء الدفع. لم تُسجَّل أي دفعة.",
-    "loadingMethods": "جارٍ تحميل طرق الدفع…",
     "insurancePending": "طلبت الصيدلية الموافقة من شركة التأمين. لا يستحق عليك أي مبلغ قبل صدور القرار.",
     "insuranceCovered": "التأمين يغطي هذا الطلب بالكامل. لا يوجد مبلغ مستحق.",
     "insuranceDecisionTitle": "قرار التأمين لكل صنف",
@@ -2864,7 +2866,6 @@
     "trackingInProgress": "قيد المتابعة",
     "trackingScheduled": "الموعد المحدد: {when}",
     "trackingBeforeTitle": "قبل سحب العينة",
-    "trackingBeforeBody": "الصيام من 8 إلى 12 ساعة قبل السحب ما لم يخبرك الطبيب بغير ذلك.",
     "trackingStepsTitle": "المراحل",
     "trackingNoSteps": "لا توجد تحديثات تتبع بعد. تظهر الخطوات هنا حين يسجلها المختبر.",
     "searchTests": "ابحث عن تحليل…",
@@ -2873,10 +2874,6 @@
     "searchResults": "نتائج البحث",
     "collectorLabel": "أخصائي السحب",
     "collectorCall": "اتصل بالأخصائي",
-    "collectorTipsTitle": "عند وصول الأخصائي",
-    "collectorTip1": "جهّز الهوية وطلب التحليل",
-    "collectorTip2": "التزم بالصيام الذي يتطلبه التحليل",
-    "collectorTip3": "أخبر الأخصائي بأي أدوية تتناولها",
     "status_pending": "بانتظار التأكيد",
     "status_insurance": "بانتظار التأمين",
     "status_confirmed": "مؤكد",
@@ -2885,10 +2882,7 @@
     "status_processing": "قيد التنفيذ",
     "status_report": "التقرير جاهز",
     "status_cancelled": "ملغي",
-    "bookingNotSentTitle": "لم يتم أي حجز",
-    "bookingNotSentBody": "هذه النافذة لا ترسل الحجز بعد، لذلك لم يُنشأ أي موعد ولم يُسحب أي مبلغ. افتح صفحة التمريض لحجز زيارة.",
-    "bookingNotSentCta": "إلى صفحة التمريض",
-    "bookingNotSentClose": "إغلاق"
+    "trackingPrepAsk": "سيؤكد لك المختبر أي تحضير مطلوب قبل التحليل."
   },
   "NursingWeb": {
     "hubTitle": "الرعاية المنزلية",
@@ -2900,13 +2894,11 @@
     "browseCatalog": "استعرض خدمات التمريض",
     "statusLabel": "الحالة",
     "pulse": "النبض",
-    "formService": "الخدمة",
     "formTime": "الوقت",
     "formAddress": "العنوان",
     "formAddAddress": "أضف عنواناً أولاً",
     "formNotes": "ملاحظات (اختياري)",
     "formBooking": "جارٍ الحجز…",
-    "formSelectService": "اختر الخدمة",
     "formSelectTime": "اختر اليوم والوقت",
     "formPast": "الموعد في الماضي — اختر وقتاً لاحقاً",
     "formFailed": "تعذر إنشاء الحجز",
@@ -2968,7 +2960,6 @@
     "insurance": "يقبل التأمين",
     "priceLabel": "السعر",
     "durationLabel": "المدة",
-    "bookingNotice": "تفاصيل الخدمة معروضة للقراءة فقط. لا يتم إنشاء حجز من هذه الصفحة.",
     "back": "العودة إلى الخدمات",
     "serviceUnavailableTitle": "تعذر تحميل الخدمات",
     "serviceUnavailableBody": "يرجى المحاولة مرة أخرى لاحقًا.",
@@ -2988,13 +2979,19 @@
     "step_NURSE_ARRIVED": "وصل الممرض",
     "step_CARE_IN_PROGRESS": "الرعاية جارية",
     "step_COMPLETED": "اكتملت الزيارة",
-    "nurseTitle": "ملف الممرض/ة",
-    "nurseUnavailableTitle": "الملف غير متاح حالياً",
-    "nurseUnavailableBody": "تعذر تحميل بيانات الممرض.",
-    "experienceLabel": "الخبرة الميدانية",
-    "ratingLabel": "تقييم المرضى",
-    "nurseServicesTitle": "الخدمات التمريضية المتاحة",
-    "requestNurse": "طلب زيارة تمريض"
+    "bookCta": "احجز الخدمة",
+    "bookTitle": "حجز زيارة منزلية",
+    "chooseNurse": "اختر الممرض",
+    "noNurses": "لا يوجد ممرض يقدّم هذه الخدمة حاليًا. حاول لاحقًا.",
+    "today": "اليوم",
+    "loadingSlots": "جارٍ تحميل الأوقات المتاحة…",
+    "noSlots": "لا توجد أوقات متاحة في هذا اليوم. اختر يومًا آخر.",
+    "slotsFailed": "تعذّر تحميل الأوقات. حاول مرة أخرى.",
+    "slotTaken": "هذا الوقت لم يعد متاحًا. اختر وقتًا آخر.",
+    "addressNeedsLocation": "اختر عنوانًا محفوظًا له موقع على الخريطة، أو أضف واحدًا.",
+    "payTitle": "الدفع",
+    "payNow": "ادفع الآن بالبطاقة",
+    "payFailed": "الحجز محفوظ، لكن تعذّر فتح صفحة الدفع. حاول مرة أخرى."
   },
   "MaternityWeb": {
     "title": "الأمومة",
@@ -3220,23 +3217,11 @@
     "example4": "طفح جلدي وحكة",
     "symptomsLabel": "أعراضك",
     "symptomsPlaceholder": "مثال: صداع مستمر منذ يومين مع غثيان",
-    "flagsLegend": "هل عندك واحدة من هذه العلامات؟ اختر كل ما ينطبق",
-    "flag": {
-      "chest_pain": "ألم في الصدر",
-      "breathing_difficulty": "صعوبة في التنفس",
-      "fainting_or_unresponsive": "إغماء أو عدم استجابة",
-      "heavy_bleeding": "نزيف شديد",
-      "new_confusion": "ارتباك مفاجئ",
-      "severe_allergic_reaction": "حساسية شديدة",
-      "severe_injury": "إصابة بليغة"
-    },
     "submit": "اعرف الخطوة التالية",
     "submitting": "جارٍ التحليل…",
     "error": "تعذر الحصول على إرشاد الآن. حاول مرة أخرى بعد قليل.",
     "emergencyTitle": "علامات تحتاج مساعدة عاجلة",
-    "emergencyBody": "العلامات التي اخترتها تستدعي الاتصال بخدمات الطوارئ المحلية الآن، وليس انتظار موعد.",
     "consultationTitle": "ننصحك باستشارة طبيب",
-    "consultationBody": "لم تختر علامات طارئة. إذا استمرت الأعراض أو ازدادت سوءاً فاحجز استشارة مع طبيب.",
     "bookConsultation": "احجز استشارة",
     "askAgain": "سؤال جديد",
     "disclaimer": "هذا إرشاد عام وليس تشخيصاً ولا وصفة علاج. عند الطوارئ اتصل بالإسعاف.",
@@ -3247,7 +3232,16 @@
     "untitledReport": "تقرير طبي",
     "reportsUnavailable": "تعذر تحميل تقاريرك الآن. أعد المحاولة بعد قليل.",
     "leafletLink": "اقرأ النشرة",
-    "historyTitle": "أسئلتك السابقة"
+    "leafletTitle": "معلومات الدواء من نشرته",
+    "outOfScopeTitle": "ما يستطيع المساعد فعله",
+    "leaflet": {
+      "indications": "دواعي الاستعمال",
+      "how_to_use": "طريقة الاستعمال",
+      "side_effects": "الأعراض الجانبية",
+      "warnings": "تحذيرات",
+      "storage": "طريقة الحفظ",
+      "pregnancy": "الحمل والرضاعة"
+    }
   },
   "MonthlyReportWeb": {
     "title": "تقريرك الشهري",
@@ -4130,5 +4124,30 @@
         "head_circ_cm": "محيط الرأس بين 20 و60 سم."
       }
     }
+  },
+  "LabResult": {
+    "title": "نتيجة التحليل",
+    "error": "تعذّر تحميل النتيجة",
+    "errorBody": "حاول مرة أخرى بعد قليل.",
+    "retry": "إعادة المحاولة",
+    "critical": "مهم — يحتاج متابعة",
+    "values": "القيم",
+    "range": "المعدل الطبيعي {low} – {high}",
+    "flag_high": "مرتفع",
+    "flag_low": "منخفض",
+    "flag_critical": "حرج",
+    "findings": "الملاحظات",
+    "impression": "الانطباع",
+    "recommendations": "التوصيات",
+    "notes": "ملاحظات المختبر",
+    "openBooking": "افتح الطلب لعرض ملف التقرير",
+    "empty": "لا توجد تفاصيل أخرى في هذه النتيجة.",
+    "discuss": "ناقش النتيجة مع طبيب",
+    "rangeText": "المعدل الطبيعي {range}"
+  },
+  "Offline": {
+    "title": "أنت غير متصل",
+    "body": "تعذر فتح الصفحة لعدم وجود اتصال. سلتك محفوظة على هذا الجهاز؛ أرسل طلبك عند عودة الاتصال.",
+    "home": "العودة إلى البداية"
   }
 }

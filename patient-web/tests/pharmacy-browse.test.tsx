@@ -50,9 +50,9 @@ describe("pharmacy browse building blocks", () => {
     expect(html).not.toContain("cheaper");
   });
 
-  it("decision 11: a card from an online-only answer says so; other cards do not", () => {
-    const html = renderToStaticMarkup(<ProductGrid locale="en" items={[item({ id: "on", onlineOnly: true }), item({ id: "off", slug: "plain" })]} />);
-    expect((html.match(/nabd-product-card__note">onlineOnly</g) || []).length).toBe(1);
+  it("decision 11: an online-only card says so; other cards do not", () => {
+    expect(renderToStaticMarkup(<ProductGrid locale="en" items={[item({ onlineOnly: true })]} />)).toContain("nabd-product-card__online");
+    expect(renderToStaticMarkup(<ProductGrid locale="en" items={[item()]} />)).not.toContain("nabd-product-card__online");
   });
 
   it("a product with no price says so and cannot be added: no invented 0.00", () => {

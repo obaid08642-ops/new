@@ -23,7 +23,7 @@ export class AdminCommandCenterV2Controller {
     const dayAgo = new Date(now - 86_400_000);
     const count = (col: string, q: any = {}) => db.collection(col).countDocuments(q).catch(() => 0);
 
-    const [activeOrders, activeLabs, activeRads, activeNursing, apptsToday, openSos,
+    const [activeOrders, activeLabs, activeRads, activeNursing, apptsToday,
       unreadTickets, payments24hAgg] = await Promise.all([
       Promise.all([
         count('orders', { state: { $nin: ['CANCELLED', 'DELIVERED', 'REJECTED'] } }),
@@ -34,7 +34,6 @@ export class AdminCommandCenterV2Controller {
       count('radiologybookings', { state: { $nin: ['CANCELLED', 'REPORT_PUBLISHED'] } }),
       count('homecarebookings', { state: { $nin: ['CANCELLED', 'COMPLETED', 'DONE', 'REJECTED'] } }),
       count('appointments', { slot_start: { $gte: new Date(new Date().setHours(0, 0, 0, 0)), $lt: new Date(new Date().setHours(24, 0, 0, 0)) }, status: { $nin: ['CANCELLED'] } }),
-      count('emergency_requests', { state: { $nin: ['RESOLVED', 'CANCELLED', 'CLOSED'] } }),
       count('supportrequests', { status: { $in: ['OPEN', 'IN_PROGRESS'] } }),
       db.collection('moyasar_payments').aggregate([
         { $match: { status: { $in: ['paid', 'confirmed', 'succeeded'] }, createdAt: { $gte: dayAgo } } },
@@ -58,7 +57,6 @@ export class AdminCommandCenterV2Controller {
         radiology_active: activeRads,
         nursing_active: activeNursing,
         appointments_today: apptsToday,
-        sos_open: openSos,
         tickets_open: unreadTickets,
         revenue_24h_sar: Math.round(Number(payments24hAgg.total || 0) * 100) / 100,
         payments_24h: Number(payments24hAgg.n || 0),

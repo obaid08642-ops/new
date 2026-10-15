@@ -116,6 +116,16 @@ describe("QuoteSection", () => {
     expect(await draw({ ...accepted, coverage_mode: "cash", accepted_quote_snapshot: { cod_allowed: false, totals: { total: 51.5 } } })).not.toContain("codRegister");
   });
 
+  it("FINAL_QUOTE_ACCEPTED: both screens send the patient to the one payment page, with no second set of method buttons (journeys#7)", async () => {
+    const accepted = { governed_state: "FINAL_QUOTE_ACCEPTED", ...base, coverage_mode: "cash", accepted_quote_snapshot: { cod_allowed: false, totals: { total: 51.5 } } };
+    for (const screen of ["offers", "final"] as const) {
+      const html = await draw(accepted, screen);
+      expect(html, screen).toContain(`/en/pharmacy/payment?orderId=${ORDER}`);
+      expect(html, screen).toContain("continuePayment");
+      expect(html, screen).not.toContain("showMethods");
+    }
+  });
+
   it("COD_REGISTERED says it is a commitment and links to tracking, with no payment control", async () => {
     const html = await draw({ governed_state: "COD_REGISTERED", ...base });
     expect(html).toContain("codRegistered");
