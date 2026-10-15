@@ -63,7 +63,7 @@ def main():
         journey('decision 13: every round ends with no offer')
         for _ in range(6):
             end_round_now(oid)
-            r = admin.post('/admin/pharmacy/broadcasts/expire-due', {})
+            r = admin.post('/admin/admin/pharmacy/broadcasts/expire-due', {})
             order = pat.get(f'/patient/pharmacy/orders/{oid}')
             if (order.get('search') or {}).get('state') == 'no_pharmacy_available':
                 break

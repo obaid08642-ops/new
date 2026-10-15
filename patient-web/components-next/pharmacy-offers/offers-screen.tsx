@@ -23,6 +23,8 @@ import { OFFER_TONES } from "./tones";
 import styles from "./offers.module.css";
 
 const CLOSED = ["COMPLETED", "CANCELLED", "DELIVERED"];
+/** The governed states while pharmacies are still answering (backend pharmacy-order.service detail): no offer is chosen yet. */
+const SEARCHING_STATES = ["ORDER_BROADCASTING", "OFFERS_READY"];
 /** Once the order is past payment the page only says where it stands and links to tracking. */
 const FULFILMENT_STATES = ["CONFIRMED", "IN_FULFILLMENT", "OUT_FOR_DELIVERY", "DELIVERED", "COMPLETED", "CANCELLED"];
 
@@ -71,7 +73,7 @@ export async function OffersScreen({ locale, orderId, variant }: Props) {
   // decision 13 (issue 332): never an endless wait. The search ended with no pharmacy (AUTO_CANCELLED) is said as such.
   const unavailable = progress.search?.state === "no_pharmacy_available" || state === "AUTO_CANCELLED";
   const expanding = progress.search?.state === "expanding" ? progress.search : null;
-  const selected = !unavailable && state !== "" && !FULFILMENT_STATES.includes(state);
+  const selected = !unavailable && state !== "" && !SEARCHING_STATES.includes(state) && !FULFILMENT_STATES.includes(state);
   const past = FULFILMENT_STATES.includes(state);
   const closed = CLOSED.includes(state) || CLOSED.includes((progress.status ?? "").toUpperCase());
   const browsing = !unavailable && !selected && !past && !closed;
