@@ -44,10 +44,18 @@ def main():
 
         journey('journeys#44: the cancellation says what comes back')
         page.goto(f'{WEB}/ar/consultations/cancel-reschedule?appointmentId={aid}', wait_until='load', timeout=60000)
+        # wait until the page is interactive (a click before hydration does nothing)
+        page.wait_for_function("() => { const b = [...document.querySelectorAll('button')].find((x) => x.textContent.includes('إلغاء الموعد')); return !!b && Object.keys(b).some((k) => k.startsWith('__react')); }", timeout=30000)
         page.get_by_role('button', name='إلغاء الموعد').first.click(timeout=30000)
-        page.get_by_role('button', name='تأكيد الإلغاء').click(timeout=30000)
+        with page.expect_response(lambda res: '/cancel' in res.url and res.request.method == 'POST', timeout=30000) as resp:
+            page.get_by_role('button', name='تأكيد الإلغاء').click(timeout=30000)
+        res = resp.value
+        step('the website\'s cancel route answers with the refund', res.ok and isinstance((res.json() or {}).get('refund'), dict), f'{res.status} {res.text()[:300]}')
         status = page.get_by_text('أُلغي الموعد').first
-        status.wait_for(timeout=30000)
+        try:
+            status.wait_for(timeout=30000)
+        except Exception:
+            return step('the page says the appointment is cancelled', False, page.locator('main').first.inner_text()[:400])
         text = status.inner_text()
         a = pat.get(f'/care/appointments/{aid}')
         pct = a.get('refund_percentage')
