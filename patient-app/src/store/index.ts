@@ -25,7 +25,7 @@ import { container } from '../core/di/Container';
 import { EventBus } from '../core/events/EventBus';
 
 // Initial statically imported core slices
-import authReducer from './slices/authSlice';
+import authReducer, { logout } from './slices/authSlice';
 import themeReducer from './slices/themeSlice';
 import cartReducer from './slices/cartSlice';
 import appointmentsReducer from './slices/appointmentsSlice';
@@ -100,6 +100,18 @@ try {
 
 // 7. Enable automatic refetching for RTK Query on focus/reconnect
 setupListeners(store.dispatch);
+
+// 7.5 Sign-out ends the session on the server too (issue 440): the refresh token held before the logout reducer
+// cleared it is revoked, so a copied token stops working. A failure never blocks the local sign-out.
+listenerMiddleware.startListening({
+  actionCreator: logout,
+  effect: async (_action, api) => {
+    const refresh = (api.getOriginalState() as { auth?: { refreshToken?: string | null } }).auth?.refreshToken;
+    if (!refresh) return;
+    const { apiFetch } = await import('../utils/api');
+    await apiFetch('/auth/logout', { method: 'POST', body: JSON.stringify({ refresh_token: refresh }) }).catch(() => undefined);
+  },
+});
 
 // 8. Extract standard types
 export type RootState = ReturnType<typeof rootReducer>;

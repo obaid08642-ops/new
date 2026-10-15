@@ -54,7 +54,9 @@ export default async function DiagnosticDetailPage({ params }: Props) {
   const current = steps.findIndex((step) => !step.done);
   const actions: LinkAction[] = domain === "labs"
     ? [
-        { href: `/${locale}/diagnostics/sample-tracking?bookingId=${encodeURIComponent(booking.id)}`, label: w("trackSample") },
+        // journeys#54: the report itself, as a file the browser opens (patient BFF -> GET labs/bookings/:id/reports/:reportId).
+        ...(booking.reportIds ?? []).map((rid, i, all) => ({ href: `/api/patient/labs/bookings/${encodeURIComponent(booking.id)}/reports/${encodeURIComponent(rid)}`, label: all.length > 1 ? w("openReportN", { n: i + 1 }) : w("openReport"), variant: "primary", external: true } as LinkAction)),
+        { href: `/${locale}/diagnostics/sample-tracking?bookingId=${encodeURIComponent(booking.id)}`, label: w("trackSample"), ...((booking.reportIds ?? []).length ? { variant: "outline" as const } : {}) },
         { href: `/${locale}/diagnostics/insurance-approval?orderId=${encodeURIComponent(booking.id)}`, label: w("uploadInsurance"), variant: "outline" },
       ]
     : [];

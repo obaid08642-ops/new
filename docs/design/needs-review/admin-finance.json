@@ -97,5 +97,16 @@
     "found": "[backend] readVatRate read tax.vat_percent ?? vat_rate and divided by 100, so a config written by the old finance-suite form (vat_rate 0.15, no tax) gave a VAT of 0.15%. Found by the fix session.",
     "suspect": "Fraction read as a percent.",
     "review_status": "fixed #1430"
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/orders",
+    "element": "POST /admin/override/payment, POST /patient-ux/refund, POST /admin/refunds/:id/decide",
+    "file": "backend/src/modules/patient-ux/patient-ux.module.ts",
+    "line": 324,
+    "found": "[backend] An admin could set a booking's payment_status to paid or refunded by hand (no money moved), and a second refund queue's approve marked a booking refunded without executing a refund.",
+    "suspect": "Backend gap: money (fix session).",
+    "review_status": "fixed #1453"
   }
 ]
