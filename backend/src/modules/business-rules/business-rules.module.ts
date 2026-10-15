@@ -30,8 +30,12 @@ export type RuleContext = {
 export async function readVatRate(db: { collection: (name: string) => any }): Promise<number> {
   try {
     const cfg: any = await db.collection('finance_config').findOne({ key: 'commissions' });
-    const v = Number(cfg?.tax?.vat_percent ?? cfg?.vat_rate);
-    if (Number.isFinite(v) && v >= 0 && v <= 100) return v / 100;
+    // tax.vat_percent is a percent (15); vat_rate, written by the old finance-suite form, is a fraction (0.15).
+    // Reading vat_rate as a percent charged 0.15% VAT whenever tax.vat_percent was absent.
+    const pct = Number(cfg?.tax?.vat_percent);
+    if (cfg?.tax?.vat_percent !== undefined && Number.isFinite(pct) && pct >= 0 && pct <= 100) return pct / 100;
+    const frac = Number(cfg?.vat_rate);
+    if (cfg?.vat_rate !== undefined && Number.isFinite(frac) && frac >= 0 && frac <= 1) return frac;
   } catch { /* default stands */ }
   return 0.15;
 }
@@ -104,7 +108,7 @@ export class BusinessRulesService {
   async pricing() { await this.loadPricing(); return this.getPricing(); }
 
   /** B4: VAT and commission percents come from the admin-edited finance_config
-   * commissions doc (PUT /api/v1/admin/finance/commissions); code defaults
+   * commissions doc (POST /api/v1/admin/finance/commissions/config, the finance suite); code defaults
    * stand only when no config exists. */
   async financeConfig(): Promise<any> {
     try {

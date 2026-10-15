@@ -1,7 +1,7 @@
 {
  "backend": {
-  "adminRoutes": 332,
-  "uncalled": 184,
+  "adminRoutes": 331,
+  "uncalled": 179,
   "noGuard": [],
   "public": []
  },
@@ -504,7 +504,7 @@
   {
    "m": "GET",
    "p": "/business-rules/config/pricing",
-   "src": "backend/src/modules/business-rules/business-rules.module.ts:296",
+   "src": "backend/src/modules/business-rules/business-rules.module.ts:300",
    "guards": {
     "public": false,
     "roles": [
@@ -517,7 +517,7 @@
   {
    "m": "POST",
    "p": "/business-rules/config/surge",
-   "src": "backend/src/modules/business-rules/business-rules.module.ts:291",
+   "src": "backend/src/modules/business-rules/business-rules.module.ts:295",
    "guards": {
     "public": false,
     "roles": [
@@ -530,7 +530,7 @@
   {
    "m": "POST",
    "p": "/business-rules/config/fees",
-   "src": "backend/src/modules/business-rules/business-rules.module.ts:300",
+   "src": "backend/src/modules/business-rules/business-rules.module.ts:304",
    "guards": {
     "public": false,
     "roles": [
@@ -719,7 +719,7 @@
   {
    "m": "GET",
    "p": "/legal/policies",
-   "src": "backend/src/modules/legal/legal.module.ts:180",
+   "src": "backend/src/modules/legal/legal.module.ts:158",
    "guards": {
     "public": true,
     "roles": [],
@@ -730,7 +730,7 @@
   {
    "m": "GET",
    "p": "/legal/policy/:param",
-   "src": "backend/src/modules/legal/legal.module.ts:184",
+   "src": "backend/src/modules/legal/legal.module.ts:162",
    "guards": {
     "public": true,
     "roles": [],
@@ -747,39 +747,6 @@
     "roles": [
      "ADMIN"
     ],
-    "perms": [],
-    "useGuards": "JwtAuthGuard"
-   }
-  },
-  {
-   "m": "GET",
-   "p": "/loyalty/config",
-   "src": "backend/src/modules/loyalty/loyalty.controller.ts:16",
-   "guards": {
-    "public": false,
-    "roles": [],
-    "perms": [],
-    "useGuards": "JwtAuthGuard"
-   }
-  },
-  {
-   "m": "GET",
-   "p": "/loyalty/rewards",
-   "src": "backend/src/modules/loyalty/loyalty.controller.ts:46",
-   "guards": {
-    "public": false,
-    "roles": [],
-    "perms": [],
-    "useGuards": "JwtAuthGuard"
-   }
-  },
-  {
-   "m": "GET",
-   "p": "/loyalty/challenges",
-   "src": "backend/src/modules/loyalty/loyalty.controller.ts:34",
-   "guards": {
-    "public": false,
-    "roles": [],
     "perms": [],
     "useGuards": "JwtAuthGuard"
    }

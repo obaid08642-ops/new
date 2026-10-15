@@ -4,6 +4,7 @@ import { Connection } from 'mongoose';
 import { v4 as uuid } from 'uuid';
 import { validateReason, MIN_FINANCIAL_REASON_LENGTH, ReasonError } from '../../../common/rbac';
 import { AdminAuditService } from './audit.service';
+import { COMMISSION_SERVICE_TYPES, DEFAULT_COMMISSIONS } from '../../../common/commission-defaults';
 
 const PAID_STATUSES = ['paid', 'confirmed', 'succeeded'];
 const VERTICALS: Record<string, string[]> = {
@@ -13,6 +14,9 @@ const VERTICALS: Record<string, string[]> = {
   radiology: ['radiology-booking', 'radiology'],
   nursing: ['nursing', 'homecare', 'home_care'],
 };
+
+/** The service type (CommissionResolver key) charged for each reporting vertical. */
+const SERVICE_OF_VERTICAL: Record<string, string> = { consultation: 'doctor', pharmacy: 'pharmacy', lab: 'lab', radiology: 'radiology', nursing: 'nursing' };
 
 function verticalOf(bookingKind: unknown): string {
   const k = String(bookingKind || '').toLowerCase();
@@ -81,6 +85,15 @@ export class FinanceSuiteService {
     private readonly audit: AdminAuditService,
   ) {}
 
+  /** The commission config the money paths read; seeded with the defaults when none exists (same as the legal service). */
+  private async commissionConfig(): Promise<any> {
+    const col = this.conn.collection('finance_config');
+    const existing = await col.findOne({ key: 'commissions' });
+    if (existing) return existing;
+    await col.updateOne({ key: 'commissions' }, { $setOnInsert: { key: 'commissions', ...DEFAULT_COMMISSIONS, updatedAt: new Date() } }, { upsert: true });
+    return col.findOne({ key: 'commissions' });
+  }
+
   // ── Revenue ──────────────────────────────────────────────────
 
   async revenue(opts: { from: string; to: string; granularity: Granularity }) {
@@ -145,21 +158,25 @@ export class FinanceSuiteService {
     const from = new Date(opts.from);
     const to = new Date(opts.to);
     if (isNaN(from.getTime()) || isNaN(to.getTime())) throw new BadRequestException('invalid_date_range');
-    const cfg: any = await this.conn.collection('finance_config').findOne({ key: 'commissions' });
-    if (!cfg) throw new NotFoundException('finance_config_missing');
-
-    const rates: Record<string, number> = cfg.rates || {};
-    const vatRate = Number(cfg.vat_rate ?? 0.15);
+    const cfg: any = await this.commissionConfig();
+    // The same percent and VAT the settlement writes to the ledger (provider-ops creditEarning, pharmacy allocation):
+    // service_types.<type>.percent (default 10) and tax.vat_percent (default 15). The report used its own `rates`
+    // field before, which no payment read, so the screen and the money could disagree.
+    const percentOf = (t: string): number => Number(cfg?.service_types?.[t]?.percent ?? 10);
+    const percents: Record<string, number> = Object.fromEntries(COMMISSION_SERVICE_TYPES.map((t) => [t, percentOf(t)]));
+    const vatRate = Number(cfg?.tax?.vat_percent ?? 15) / 100;
+    const rateOf = async (vertical: string): Promise<number> => percentOf(SERVICE_OF_VERTICAL[vertical] || vertical) / 100;
     const payments = await this.conn.collection('moyasar_payments').find({
       status: { $in: PAID_STATUSES },
       $or: [{ paid_at: { $gte: from, $lte: to } }, { paid_at: null, createdAt: { $gte: from, $lte: to } }],
     }).project({ amount: 1, booking_kind: 1 }).toArray();
 
+    const rates: Record<string, number> = {};
     const byVertical: Record<string, { gross: number; commission: number; vat: number; net_to_provider: number; count: number }> = {};
     for (const p of payments as any[]) {
       const v = verticalOf(p.booking_kind);
       const gross = Number(p.amount || 0);
-      const rate = Number(rates[v] ?? rates.default ?? 0);
+      const rate = rates[v] ?? (rates[v] = await rateOf(v));
       const commission = Math.round(gross * rate * 100) / 100;
       const vat = Math.round(commission * vatRate * 100) / 100;
       const row = byVertical[v] || { gross: 0, commission: 0, vat: 0, net_to_provider: 0, count: 0 };
@@ -170,36 +187,49 @@ export class FinanceSuiteService {
     const totals = Object.values(byVertical).reduce((a: any, r: any) => ({
       gross: a.gross + r.gross, commission: a.commission + r.commission, vat: a.vat + r.vat, net_to_provider: a.net_to_provider + r.net_to_provider, count: a.count + r.count,
     }), { gross: 0, commission: 0, vat: 0, net_to_provider: 0, count: 0 });
+    for (const v of Object.keys(SERVICE_OF_VERTICAL)) if (rates[v] === undefined) rates[v] = await rateOf(v);
     return {
-      config_used: { rates, vat_rate: vatRate, source: 'finance_config:commissions' },
+      config_used: {
+        percents, vat_percent: Math.round(vatRate * 10000) / 100,
+        rates, vat_rate: vatRate, source: 'finance_config:commissions',
+      },
       by_vertical: Object.fromEntries(Object.entries(byVertical).map(([k, v]) => [k, round(v)])),
       totals: round(totals),
     };
   }
 
-  async upsertCommissionConfig(body: { rates?: Record<string, number>; vat_rate?: number }, admin: any, rawReason: unknown) {
+  /**
+   * Edit the commission percent of each service type and the VAT percent: the same fields CommissionResolver and
+   * readVatRate read, so a change here changes what the next order is charged (before, this wrote `rates`/`vat_rate`,
+   * which only this report read). Every change is audited and kept in commission_history.
+   */
+  async upsertCommissionConfig(body: { percents?: Record<string, number>; vat_percent?: number }, admin: any, rawReason: unknown) {
     const reason = validateReason(rawReason, MIN_FINANCIAL_REASON_LENGTH);
-    const before: any = await this.conn.collection('finance_config').findOne({ key: 'commissions' });
+    const before: any = await this.commissionConfig();
     const $set: any = { updatedAt: new Date(), updated_by: admin.id };
-    if (body?.rates && typeof body.rates === 'object') {
-      $set.rates = Object.fromEntries(Object.entries(body.rates).map(([k, v]) => {
-        const n = Number(v);
-        if (!Number.isFinite(n) || n < 0 || n > 0.9) throw new BadRequestException(`rate_out_of_range:${k}`);
-        return [k, n];
-      }));
+    const percents = body?.percents && typeof body.percents === 'object' ? body.percents : {};
+    for (const [k, v] of Object.entries(percents)) {
+      if (!COMMISSION_SERVICE_TYPES.includes(k)) throw new BadRequestException(`unknown_service_type:${k}`);
+      const n = Number(v);
+      if (!Number.isFinite(n) || n < 0 || n > 90) throw new BadRequestException(`percent_out_of_range:${k}`);
+      $set[`service_types.${k}.percent`] = n;
     }
-    if (body?.vat_rate !== undefined) {
-      const vr = Number(body.vat_rate);
-      if (!Number.isFinite(vr) || vr < 0 || vr > 0.5) throw new BadRequestException('vat_rate_out_of_range');
-      $set.vat_rate = vr;
+    if (body?.vat_percent !== undefined) {
+      const vp = Number(body.vat_percent);
+      if (!Number.isFinite(vp) || vp < 0 || vp > 50) throw new BadRequestException('vat_percent_out_of_range');
+      $set['tax.vat_percent'] = vp;
     }
-    await this.conn.collection('finance_config').updateOne({ key: 'commissions' }, { $set }, { upsert: true });
+    if (Object.keys($set).length === 2) throw new BadRequestException('nothing_to_update');
+    await this.conn.collection('finance_config').updateOne({ key: 'commissions' }, { $set });
+    const after: any = await this.conn.collection('finance_config').findOne({ key: 'commissions' }, { projection: { _id: 0 } });
+    const pick = (d: any) => ({ service_types: d?.service_types ?? null, tax: d?.tax ?? null });
     await this.audit.write({
       action: 'finance_config_update', actor: admin, target_type: 'finance_config', target_id: 'commissions',
-      reason, before: before ? { rates: before.rates, vat_rate: before.vat_rate } : null,
-      after: { rates: $set.rates, vat_rate: $set.vat_rate },
+      reason, before: pick(before), after: pick(after),
     });
-    const after: any = await this.conn.collection('finance_config').findOne({ key: 'commissions' }, { projection: { _id: 0 } });
+    await this.conn.collection('commission_history').insertOne({
+      before: pick(before), after: pick(after), effective_date: new Date(), changed_by: admin.id, reason, timestamp: new Date(),
+    });
     return after;
   }
 

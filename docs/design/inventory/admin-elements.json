@@ -1205,7 +1205,7 @@
    {
     "kind": "button",
     "label": "تحديث",
-    "src": "load; GET /api/admin/admin/finance/ledger/summary; GET /api/admin/admin/finance/commissions",
+    "src": "load; GET /api/admin/admin/finance/ledger/summary; GET /api/admin/admin/finance/commissions/records",
     "status": "ok",
     "mutation": false,
     "confirm": false,
@@ -2337,7 +2337,7 @@
     "src": "state from used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 37
+    "line": 40
    },
    {
     "kind": "input",
@@ -2345,7 +2345,7 @@
     "src": "state to used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 37
+    "line": 40
    },
    {
     "kind": "input",
@@ -2353,7 +2353,7 @@
     "src": "state granularity used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 37
+    "line": 40
    },
    {
     "kind": "button",
@@ -2363,33 +2363,33 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 37
+    "line": 40
    },
    {
     "kind": "form",
-    "label": "نسب العمولات (JSON) نسبة VAT سبب التغيير حفظ وتدقيق الإعدادا",
+    "label": "نسبة العمولة المطبقة على كل خدمة (%) نسبة VAT على العمولة (%",
     "src": "saveConfig; POST /api/admin/admin/finance/commissions/config; GET /api/admin/admin/finance/revenue; GET /api/admin/admin/finance/commissions",
     "status": "ok",
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 64
-   },
-   {
-    "kind": "input",
-    "label": "textarea",
-    "src": "state ratesText used by logic/request",
-    "status": "ok",
-    "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 64
+    "line": 67
    },
    {
     "kind": "input",
     "label": "number",
-    "src": "state vatRate used by logic/request",
+    "src": "state percents used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 64
+    "line": 67
+   },
+   {
+    "kind": "input",
+    "label": "number",
+    "src": "state vatPercent used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/finance-suite.tsx",
+    "line": 67
    },
    {
     "kind": "input",
@@ -2397,7 +2397,7 @@
     "src": "state reason used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 64
+    "line": 67
    },
    {
     "kind": "button",
@@ -2405,7 +2405,7 @@
     "src": "submits the enclosing form",
     "status": "ok",
     "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 64,
+    "line": 67,
     "submit": true
    },
    {
@@ -2416,7 +2416,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 78
+    "line": 81
    },
    {
     "kind": "button",
@@ -2426,7 +2426,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 78
+    "line": 81
    },
    {
     "kind": "form",
@@ -2436,7 +2436,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 82
+    "line": 85
    },
    {
     "kind": "input",
@@ -2444,7 +2444,7 @@
     "src": "state providerId used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 82
+    "line": 85
    },
    {
     "kind": "button",
@@ -2452,7 +2452,7 @@
     "src": "submits the enclosing form",
     "status": "ok",
     "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 82,
+    "line": 85,
     "submit": true
    },
    {
@@ -3717,22 +3717,6 @@
     "src": "state config used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 99
-   },
-   {
-    "kind": "input",
-    "label": "number",
-    "src": "state config used by logic/request",
-    "status": "ok",
-    "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 100
-   },
-   {
-    "kind": "input",
-    "label": "number",
-    "src": "state config used by logic/request",
-    "status": "ok",
-    "file": "admin/src/pages/admin/loyalty-config.tsx",
     "line": 101
    },
    {
@@ -3745,7 +3729,7 @@
    },
    {
     "kind": "input",
-    "label": "checkbox",
+    "label": "number",
     "src": "state config used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/loyalty-config.tsx",
@@ -3753,11 +3737,27 @@
    },
    {
     "kind": "input",
+    "label": "number",
+    "src": "state config used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 104
+   },
+   {
+    "kind": "input",
+    "label": "checkbox",
+    "src": "state config used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 105
+   },
+   {
+    "kind": "input",
     "label": "الافتراضي",
     "src": "state config used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 110
+    "line": 112
    },
    {
     "kind": "input",
@@ -3765,37 +3765,21 @@
     "src": "state config used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 123
+    "line": 125
    },
    {
     "kind": "button",
     "label": "حفظ الإعدادات",
-    "src": "saveConfig; PUT /admin/admin/loyalty/config; GET /loyalty/config; GET /admin/loyalty/rewards; GET /admin/loyalty/challenges",
+    "src": "saveConfig; PUT /admin/admin/loyalty/config; GET /admin/admin/loyalty/config; GET /admin/admin/loyalty/rewards; GET /admin/admin/loyalty/cha",
     "status": "ok",
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 130
+    "line": 132
    },
    {
     "kind": "input",
     "label": "الاسم بالعربية",
-    "src": "state rewardDraft used by logic/request",
-    "status": "ok",
-    "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 136
-   },
-   {
-    "kind": "input",
-    "label": "Name (EN)",
-    "src": "state rewardDraft used by logic/request",
-    "status": "ok",
-    "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 137
-   },
-   {
-    "kind": "input",
-    "label": "النقاط",
     "src": "state rewardDraft used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/loyalty-config.tsx",
@@ -3803,31 +3787,47 @@
    },
    {
     "kind": "input",
-    "label": "كوبون كاشباك شارة هدية",
+    "label": "Name (EN)",
     "src": "state rewardDraft used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/loyalty-config.tsx",
     "line": 139
    },
    {
+    "kind": "input",
+    "label": "النقاط",
+    "src": "state rewardDraft used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 140
+   },
+   {
+    "kind": "input",
+    "label": "كوبون كاشباك شارة هدية",
+    "src": "state rewardDraft used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 141
+   },
+   {
     "kind": "button",
     "label": "إضافة",
-    "src": "createReward; POST /admin/admin/loyalty/rewards; GET /loyalty/config; GET /admin/loyalty/rewards; GET /admin/loyalty/challenges",
+    "src": "createReward; POST /admin/admin/loyalty/rewards; GET /admin/admin/loyalty/config; GET /admin/admin/loyalty/rewards; GET /admin/admin/loyalty",
     "status": "ok",
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 142
+    "line": 144
    },
    {
     "kind": "button",
     "label": "مفعّلة معطّلة",
-    "src": "PATCH /admin/admin/loyalty/rewards/:param; GET /loyalty/config; GET /admin/loyalty/rewards; GET /admin/loyalty/challenges",
+    "src": "PATCH /admin/admin/loyalty/rewards/:param; GET /admin/admin/loyalty/config; GET /admin/admin/loyalty/rewards; GET /admin/admin/loyalty/chall",
     "status": "ok",
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 148
+    "line": 150
    },
    {
     "kind": "input",
@@ -3835,7 +3835,7 @@
     "src": "state challengeDraft used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 158
+    "line": 160
    },
    {
     "kind": "input",
@@ -3843,7 +3843,7 @@
     "src": "state challengeDraft used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 159
+    "line": 161
    },
    {
     "kind": "input",
@@ -3851,7 +3851,7 @@
     "src": "state challengeDraft used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 160
+    "line": 162
    },
    {
     "kind": "input",
@@ -3859,7 +3859,7 @@
     "src": "state challengeDraft used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 161
+    "line": 163
    },
    {
     "kind": "input",
@@ -3867,43 +3867,43 @@
     "src": "state challengeDraft used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 162
-   },
-   {
-    "kind": "input",
-    "label": "date",
-    "src": "state challengeDraft used by logic/request",
-    "status": "ok",
-    "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 163
-   },
-   {
-    "kind": "input",
-    "label": "date",
-    "src": "state challengeDraft used by logic/request",
-    "status": "ok",
-    "file": "admin/src/pages/admin/loyalty-config.tsx",
     "line": 164
    },
    {
-    "kind": "button",
-    "label": "إضافة تحدٍ",
-    "src": "createChallenge; POST /admin/admin/loyalty/challenges; GET /loyalty/config; GET /admin/loyalty/rewards; GET /admin/loyalty/challenges",
+    "kind": "input",
+    "label": "date",
+    "src": "state challengeDraft used by logic/request",
     "status": "ok",
-    "mutation": true,
-    "confirm": false,
     "file": "admin/src/pages/admin/loyalty-config.tsx",
     "line": 165
    },
    {
+    "kind": "input",
+    "label": "date",
+    "src": "state challengeDraft used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 166
+   },
+   {
     "kind": "button",
-    "label": "مفعّل معطّل",
-    "src": "PATCH /admin/admin/loyalty/challenges/:param; GET /loyalty/config; GET /admin/loyalty/rewards; GET /admin/loyalty/challenges",
+    "label": "إضافة تحدٍ",
+    "src": "createChallenge; POST /admin/admin/loyalty/challenges; GET /admin/admin/loyalty/config; GET /admin/admin/loyalty/rewards; GET /admin/admin/l",
     "status": "ok",
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 171
+    "line": 167
+   },
+   {
+    "kind": "button",
+    "label": "مفعّل معطّل",
+    "src": "PATCH /admin/admin/loyalty/challenges/:param; GET /admin/admin/loyalty/config; GET /admin/admin/loyalty/rewards; GET /admin/admin/loyalty/ch",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 173
    }
   ],
   "/admin/medicines-catalog": [

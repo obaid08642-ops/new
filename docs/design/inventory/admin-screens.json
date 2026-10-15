@@ -879,7 +879,7 @@
      "path": "/api/admin/admin/finance/withdrawals/pending",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:42",
+     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:45",
      "backendPath": "/admin/finance/withdrawals/pending",
      "file": "admin/src/pages/admin/approvals.tsx",
      "line": 26,
@@ -894,7 +894,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/admin/web-core/controllers/finance.controller.ts",
-     "routeLine": 42,
+     "routeLine": 45,
      "raw": false
     },
     {
@@ -2432,11 +2432,11 @@
     },
     {
      "method": "GET",
-     "path": "/api/admin/admin/finance/commissions",
+     "path": "/api/admin/admin/finance/commissions/records",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:29",
-     "backendPath": "/admin/finance/commissions",
+     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:38",
+     "backendPath": "/admin/finance/commissions/records",
      "file": "admin/src/pages/admin/commissions.tsx",
      "line": 62,
      "fn": "apiFetch",
@@ -2449,10 +2449,10 @@
       "perms": [
        "finance.read"
       ],
-      "useGuards": "JwtAuthGuard"
+      "useGuards": ""
      },
-     "routeFile": "backend/src/modules/admin/enterprise/admin-finance.controller.ts",
-     "routeLine": 29,
+     "routeFile": "backend/src/modules/admin/web-core/controllers/finance.controller.ts",
+     "routeLine": 38,
      "raw": false
     }
    ],
@@ -2616,7 +2616,7 @@
      "path": "/api/admin/business-rules/config/pricing",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/business-rules/business-rules.module.ts:296",
+     "backend": "backend/src/modules/business-rules/business-rules.module.ts:300",
      "backendPath": "/business-rules/config/pricing",
      "file": "admin/src/pages/admin/config-portal.tsx",
      "line": 86,
@@ -2631,7 +2631,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/business-rules/business-rules.module.ts",
-     "routeLine": 296,
+     "routeLine": 300,
      "raw": false
     },
     {
@@ -2639,7 +2639,7 @@
      "path": "/api/admin/business-rules/config/surge",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/business-rules/business-rules.module.ts:291",
+     "backend": "backend/src/modules/business-rules/business-rules.module.ts:295",
      "backendPath": "/business-rules/config/surge",
      "file": "admin/src/pages/admin/config-portal.tsx",
      "line": 104,
@@ -2654,7 +2654,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/business-rules/business-rules.module.ts",
-     "routeLine": 291,
+     "routeLine": 295,
      "raw": false
     },
     {
@@ -2662,7 +2662,7 @@
      "path": "/api/admin/business-rules/config/fees",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/business-rules/business-rules.module.ts:300",
+     "backend": "backend/src/modules/business-rules/business-rules.module.ts:304",
      "backendPath": "/business-rules/config/fees",
      "file": "admin/src/pages/admin/config-portal.tsx",
      "line": 107,
@@ -2677,7 +2677,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/business-rules/business-rules.module.ts",
-     "routeLine": 300,
+     "routeLine": 304,
      "raw": false
     },
     {
@@ -3640,7 +3640,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:18",
      "backendPath": "/admin/finance/revenue",
      "file": "admin/src/pages/admin/finance-suite.tsx",
-     "line": 28,
+     "line": 31,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -3665,7 +3665,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:29",
      "backendPath": "/admin/finance/commissions",
      "file": "admin/src/pages/admin/finance-suite.tsx",
-     "line": 28,
+     "line": 31,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -3690,7 +3690,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:41",
      "backendPath": "/admin/finance/reconciliation",
      "file": "admin/src/pages/admin/finance-suite.tsx",
-     "line": 28,
+     "line": 31,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -3715,7 +3715,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:47",
      "backendPath": "/admin/finance/payouts",
      "file": "admin/src/pages/admin/finance-suite.tsx",
-     "line": 28,
+     "line": 31,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -3740,7 +3740,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:35",
      "backendPath": "/admin/finance/commissions/config",
      "file": "admin/src/pages/admin/finance-suite.tsx",
-     "line": 32,
+     "line": 35,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -3765,7 +3765,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:53",
      "backendPath": "/admin/finance/payouts/:param/:param",
      "file": "admin/src/pages/admin/finance-suite.tsx",
-     "line": 33,
+     "line": 36,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -3790,7 +3790,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:65",
      "backendPath": "/admin/finance/providers/:param/statement",
      "file": "admin/src/pages/admin/finance-suite.tsx",
-     "line": 34,
+     "line": 37,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -3924,11 +3924,11 @@
     },
     {
      "method": "GET",
-     "path": "/api/admin/admin/finance/commissions",
+     "path": "/api/admin/admin/finance/commissions/records",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:29",
-     "backendPath": "/admin/finance/commissions",
+     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:38",
+     "backendPath": "/admin/finance/commissions/records",
      "file": "admin/src/pages/admin/financial-ledger.tsx",
      "line": 65,
      "fn": "fetchWithAdminGuard",
@@ -3941,10 +3941,10 @@
       "perms": [
        "finance.read"
       ],
-      "useGuards": "JwtAuthGuard"
+      "useGuards": ""
      },
-     "routeFile": "backend/src/modules/admin/enterprise/admin-finance.controller.ts",
-     "routeLine": 29,
+     "routeFile": "backend/src/modules/admin/web-core/controllers/finance.controller.ts",
+     "routeLine": 38,
      "raw": false
     },
     {
@@ -3952,7 +3952,7 @@
      "path": "/api/admin/admin/finance/withdrawals/pending",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:42",
+     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:45",
      "backendPath": "/admin/finance/withdrawals/pending",
      "file": "admin/src/pages/admin/financial-ledger.tsx",
      "line": 72,
@@ -3967,7 +3967,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/admin/web-core/controllers/finance.controller.ts",
-     "routeLine": 42,
+     "routeLine": 45,
      "raw": false
     },
     {
@@ -3998,7 +3998,7 @@
      "path": "/api/admin/admin/finance/withdrawals/:param/execute",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:76",
+     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:79",
      "backendPath": "/admin/finance/withdrawals/:param/execute",
      "file": "admin/src/pages/admin/financial-ledger.tsx",
      "line": 118,
@@ -4015,7 +4015,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/admin/web-core/controllers/finance.controller.ts",
-     "routeLine": 76,
+     "routeLine": 79,
      "raw": false
     },
     {
@@ -5101,7 +5101,7 @@
      "path": "/legal/policies",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:180",
+     "backend": "backend/src/modules/legal/legal.module.ts:158",
      "backendPath": "/legal/policies",
      "file": "admin/src/pages/admin/legal-policies.tsx",
      "line": 18,
@@ -5114,7 +5114,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/legal/legal.module.ts",
-     "routeLine": 180,
+     "routeLine": 158,
      "raw": false
     },
     {
@@ -5122,7 +5122,7 @@
      "path": "/legal/policy/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:184",
+     "backend": "backend/src/modules/legal/legal.module.ts:162",
      "backendPath": "/legal/policy/:param",
      "file": "admin/src/pages/admin/legal-policies.tsx",
      "line": 26,
@@ -5135,7 +5135,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/legal/legal.module.ts",
-     "routeLine": 184,
+     "routeLine": 162,
      "raw": false
     },
     {
@@ -5143,7 +5143,7 @@
      "path": "/legal/policy/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:184",
+     "backend": "backend/src/modules/legal/legal.module.ts:162",
      "backendPath": "/legal/policy/:param",
      "file": "admin/src/pages/admin/legal-policies.tsx",
      "line": 27,
@@ -5156,7 +5156,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/legal/legal.module.ts",
-     "routeLine": 184,
+     "routeLine": 162,
      "raw": false
     },
     {
@@ -5164,7 +5164,7 @@
      "path": "/api/admin/admin/legal/policy/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/legal/legal.module.ts:201",
+     "backend": "backend/src/modules/legal/legal.module.ts:179",
      "backendPath": "/admin/legal/policy/:param",
      "file": "admin/src/pages/admin/legal-policies.tsx",
      "line": 38,
@@ -5179,7 +5179,7 @@
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/legal/legal.module.ts",
-     "routeLine": 201,
+     "routeLine": 179,
      "raw": false
     }
    ],
@@ -5334,65 +5334,77 @@
    "calls": [
     {
      "method": "GET",
-     "path": "/loyalty/config",
+     "path": "/admin/admin/loyalty/config",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:16",
-     "backendPath": "/loyalty/config",
-     "file": "admin/src/pages/admin/loyalty-config.tsx",
-     "line": 22,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [],
-      "perms": [],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/loyalty/loyalty.controller.ts",
-     "routeLine": 16,
-     "raw": false
-    },
-    {
-     "method": "GET",
-     "path": "/admin/loyalty/rewards",
-     "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:46",
-     "backendPath": "/loyalty/rewards",
-     "file": "admin/src/pages/admin/loyalty-config.tsx",
-     "line": 23,
-     "fn": "apiFetch",
-     "via": null,
-     "guards": {
-      "public": false,
-      "roles": [],
-      "perms": [],
-      "useGuards": "JwtAuthGuard"
-     },
-     "routeFile": "backend/src/modules/loyalty/loyalty.controller.ts",
-     "routeLine": 46,
-     "raw": false
-    },
-    {
-     "method": "GET",
-     "path": "/admin/loyalty/challenges",
-     "target": "backend",
-     "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:34",
-     "backendPath": "/loyalty/challenges",
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:93",
+     "backendPath": "/admin/loyalty/config",
      "file": "admin/src/pages/admin/loyalty-config.tsx",
      "line": 24,
      "fn": "apiFetch",
      "via": null,
      "guards": {
       "public": false,
-      "roles": [],
-      "perms": [],
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "coupons.manage"
+      ],
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/loyalty/loyalty.controller.ts",
-     "routeLine": 34,
+     "routeLine": 93,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/admin/admin/loyalty/rewards",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:76",
+     "backendPath": "/admin/loyalty/rewards",
+     "file": "admin/src/pages/admin/loyalty-config.tsx",
+     "line": 25,
+     "fn": "apiFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "coupons.manage"
+      ],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/loyalty/loyalty.controller.ts",
+     "routeLine": 76,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/admin/admin/loyalty/challenges",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:84",
+     "backendPath": "/admin/loyalty/challenges",
+     "file": "admin/src/pages/admin/loyalty-config.tsx",
+     "line": 26,
+     "fn": "apiFetch",
+     "via": null,
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "coupons.manage"
+      ],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/loyalty/loyalty.controller.ts",
+     "routeLine": 84,
      "raw": false
     },
     {
@@ -5400,10 +5412,10 @@
      "path": "/admin/admin/loyalty/config",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:88",
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:95",
      "backendPath": "/admin/loyalty/config",
      "file": "admin/src/pages/admin/loyalty-config.tsx",
-     "line": 43,
+     "line": 45,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5411,11 +5423,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "coupons.manage"
+      ],
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/loyalty/loyalty.controller.ts",
-     "routeLine": 88,
+     "routeLine": 95,
      "raw": false
     },
     {
@@ -5423,10 +5437,10 @@
      "path": "/admin/admin/loyalty/rewards",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:73",
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:78",
      "backendPath": "/admin/loyalty/rewards",
      "file": "admin/src/pages/admin/loyalty-config.tsx",
-     "line": 63,
+     "line": 65,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5434,11 +5448,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "coupons.manage"
+      ],
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/loyalty/loyalty.controller.ts",
-     "routeLine": 73,
+     "routeLine": 78,
      "raw": false
     },
     {
@@ -5446,10 +5462,10 @@
      "path": "/admin/admin/loyalty/rewards/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:75",
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:80",
      "backendPath": "/admin/loyalty/rewards/:param",
      "file": "admin/src/pages/admin/loyalty-config.tsx",
-     "line": 71,
+     "line": 73,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5457,11 +5473,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "coupons.manage"
+      ],
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/loyalty/loyalty.controller.ts",
-     "routeLine": 75,
+     "routeLine": 80,
      "raw": false
     },
     {
@@ -5469,10 +5487,10 @@
      "path": "/admin/admin/loyalty/challenges",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:81",
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:86",
      "backendPath": "/admin/loyalty/challenges",
      "file": "admin/src/pages/admin/loyalty-config.tsx",
-     "line": 78,
+     "line": 80,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5480,11 +5498,13 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "coupons.manage"
+      ],
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/loyalty/loyalty.controller.ts",
-     "routeLine": 81,
+     "routeLine": 86,
      "raw": false
     },
     {
@@ -5492,10 +5512,10 @@
      "path": "/admin/admin/loyalty/challenges/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:83",
+     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:88",
      "backendPath": "/admin/loyalty/challenges/:param",
      "file": "admin/src/pages/admin/loyalty-config.tsx",
-     "line": 86,
+     "line": 88,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -5503,46 +5523,17 @@
       "roles": [
        "ADMIN"
       ],
-      "perms": [],
+      "perms": [
+       "coupons.manage"
+      ],
       "useGuards": "JwtAuthGuard"
      },
      "routeFile": "backend/src/modules/loyalty/loyalty.controller.ts",
-     "routeLine": 83,
+     "routeLine": 88,
      "raw": false
     }
    ],
-   "guardFindings": [
-    {
-     "code": "G-OPEN",
-     "note": "GET /loyalty/config has no @Roles, @RequirePermissions or @Public: JwtAuthGuard lets ANY signed-in user (patient/provider) through; and the path is outside /admin, so there is no network gate either.",
-     "severity": "medium",
-     "method": "GET",
-     "path": "/loyalty/config",
-     "file": "admin/src/pages/admin/loyalty-config.tsx",
-     "line": 22,
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:16"
-    },
-    {
-     "code": "G-OPEN",
-     "note": "GET /loyalty/rewards has no @Roles, @RequirePermissions or @Public: JwtAuthGuard lets ANY signed-in user (patient/provider) through; and the path is outside /admin, so there is no network gate either.",
-     "severity": "medium",
-     "method": "GET",
-     "path": "/admin/loyalty/rewards",
-     "file": "admin/src/pages/admin/loyalty-config.tsx",
-     "line": 23,
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:46"
-    },
-    {
-     "code": "G-OPEN",
-     "note": "GET /loyalty/challenges has no @Roles, @RequirePermissions or @Public: JwtAuthGuard lets ANY signed-in user (patient/provider) through; and the path is outside /admin, so there is no network gate either.",
-     "severity": "medium",
-     "method": "GET",
-     "path": "/admin/loyalty/challenges",
-     "file": "admin/src/pages/admin/loyalty-config.tsx",
-     "line": 24,
-     "backend": "backend/src/modules/loyalty/loyalty.controller.ts:34"
-    }
-   ],
+   "guardFindings": [],
    "orphan": false
   },
   {
@@ -6883,7 +6874,7 @@
      "path": "/api/admin/admin/finance/withdrawals/pending",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:42",
+     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:45",
      "backendPath": "/admin/finance/withdrawals/pending",
      "file": "admin/src/pages/admin/payouts.tsx",
      "line": 36,
@@ -6898,7 +6889,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/admin/web-core/controllers/finance.controller.ts",
-     "routeLine": 42,
+     "routeLine": 45,
      "raw": false
     },
     {
@@ -6906,7 +6897,7 @@
      "path": "/api/admin/admin/finance/withdrawals/:param/execute",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:76",
+     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:79",
      "backendPath": "/admin/finance/withdrawals/:param/execute",
      "file": "admin/src/pages/admin/payouts.tsx",
      "line": 50,
@@ -6923,7 +6914,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/admin/web-core/controllers/finance.controller.ts",
-     "routeLine": 76,
+     "routeLine": 79,
      "raw": false
     },
     {
@@ -6931,7 +6922,7 @@
      "path": "/api/admin/admin/finance/withdrawals/:param/reject",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:140",
+     "backend": "backend/src/modules/admin/web-core/controllers/finance.controller.ts:143",
      "backendPath": "/admin/finance/withdrawals/:param/reject",
      "file": "admin/src/pages/admin/payouts.tsx",
      "line": 64,
@@ -6948,7 +6939,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/admin/web-core/controllers/finance.controller.ts",
-     "routeLine": 140,
+     "routeLine": 143,
      "raw": false
     }
    ],
