@@ -8,7 +8,7 @@
 import os
 import uuid
 
-from lib import Client, journey, step
+from lib import Client, journey, step, web_login
 
 WEB = os.environ.get('NABD_WEB_JOURNEYS_URL', 'http://127.0.0.1:3100')
 
@@ -88,7 +88,7 @@ def main():
     try:
         journey('decision 19 on the web: the result page')
         page.goto(f'{WEB}/ar', wait_until='load', timeout=60000)
-        r = ctx.request.post(f'{WEB}/api/auth/login', data={'identifier': acct['email'], 'password': acct['password']})
+        r = web_login(ctx, WEB, acct['email'], acct['password'])
         step('patient signs in on the website', r.ok, f'{r.status}')
         page.goto(f'{WEB}/ar/diagnostics/results/{rid}', wait_until='load', timeout=60000)
         body = page.locator('body').inner_text()
