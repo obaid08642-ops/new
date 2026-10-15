@@ -7,6 +7,7 @@ import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
 import { LedgerService } from '../finance-engine/finance-engine.module';
 import { UserRole } from '../../common/enums';
 import { RequestDto } from './provider-payouts.dto';
+import { payoutMinimumDefault } from '../../common/commission-defaults';
 
 /** A request in any of these states holds locked funds, so a second one is refused until it is paid or rejected. */
 export const OPEN_WITHDRAWAL_STATES = ['PENDING_ADMIN_APPROVAL', 'AWAITING_SECOND_APPROVAL', 'APPROVED_FOR_PAYOUT'];
@@ -126,6 +127,6 @@ export class ProviderPayoutsController {
   }
 
   private async minimum(): Promise<number> {
-    return (await this.conn.collection('finance_config').findOne({ key: 'commissions' }))?.payout_schedule?.minimum_payout_sar ?? 100;
+    return (await this.conn.collection('finance_config').findOne({ key: 'commissions' }))?.payout_schedule?.minimum_payout_sar ?? payoutMinimumDefault();
   }
 }

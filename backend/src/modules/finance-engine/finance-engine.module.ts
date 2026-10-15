@@ -32,6 +32,7 @@ import { v4 as uuid } from 'uuid';
 import { JwtAuthGuard, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { moyasarBase } from '../../common/moyasar-base';
+import { settlementDelayDefault } from '../../common/commission-defaults';
 
 export const LEDGER_TYPES = [
   'provider_earning', 'provider_debit', 'payout', 'refund', 'commission',
@@ -149,7 +150,7 @@ export class LedgerService {
 
   async settlementDelayDays(serviceType?: string): Promise<number> {
     const cfg: any = await this.conn.collection('finance_config').findOne({ key: 'commissions' } as any);
-    return cfg?.settlement?.delay_days?.[serviceType || 'default'] ?? cfg?.settlement?.delay_days?.default ?? DEFAULTS.settlement_delay_days;
+    return cfg?.settlement?.delay_days?.[serviceType || 'default'] ?? cfg?.settlement?.delay_days?.default ?? settlementDelayDefault();
   }
 }
 

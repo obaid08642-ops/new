@@ -4,7 +4,7 @@
   - the wallet card and the withdrawal screen read one balance (the ledger the withdrawal check uses);
   - the withdrawal minimum is the server's (finance_config), returned with the balance;
   - a request waiting for the second admin approval is open: a second request is refused until it is paid or rejected.
-  The live stack takes both approvals for every payout (start-backend.sh PAYOUT_DUAL_APPROVAL_SAR=1).
+  The live stack takes both approvals for every payout, holds no escrow and has a 1 SAR minimum (start-backend.sh).
 """
 from lib import Client, journey, step
 import uuid
@@ -16,10 +16,7 @@ def run():
     import j_admin, j_accounts, j_concurrency
     from j_admin_ops import bank_setup
     admin, _ = j_admin.login()
-    journey('payouts: live env (no escrow hold, minimum 1 SAR in finance_config)')
-    r = admin.put('/admin/admin/legal/commissions-policy', {'settlement': {'delay_days': {'default': 0}},
-                                                           'payout_schedule': {'minimum_payout_sar': 1}})
-    step('admin sets the hold and the payout minimum', r.ok, r)
+    # The live env has no escrow hold and a 1 SAR minimum (start-backend.sh SETTLEMENT_DELAY_DAYS, PAYOUT_MINIMUM_SAR).
     pat = j_accounts.app_signup(label='payout-patient')
     if not j_concurrency.completed_consultation(Client(pat['token'], 'patient')):
         return step('a paid consultation the doctor finished', False, 'see the failed booking/visit step above')

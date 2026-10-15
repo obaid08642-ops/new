@@ -22,6 +22,7 @@ import { JwtAuthGuard, CurrentUser, Roles, hasEffectiveRole } from '../../common
 import { UserRole } from '../../common/enums';
 import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, PutPricingDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto } from './provider-ops.dto';
 import { LedgerService } from '../finance-engine/finance-engine.module';
+import { settlementDelayDefault } from '../../common/commission-defaults';
 
 /** Provider withdrawal requests (consumed by admin-web-core finance controller). */
 export const ProviderWithdrawalSchema = new Schema(
@@ -617,7 +618,7 @@ export class ProviderOpsService {
     const cfg: any = await this.conn.collection('finance_config').findOne({ key: 'commissions' });
     const pct = cfg?.service_types?.[serviceType]?.percent ?? 10;
     const vatPct = cfg?.tax?.vat_percent ?? 15;
-    const delayDays = cfg?.settlement?.delay_days?.[serviceType] ?? cfg?.settlement?.delay_days?.default ?? 3;
+    const delayDays = cfg?.settlement?.delay_days?.[serviceType] ?? cfg?.settlement?.delay_days?.default ?? settlementDelayDefault();
     const commission = Math.round(gross * pct) / 100;
     const vat = Math.round(commission * vatPct) / 100;
     const net = Math.round((gross - commission - vat) * 100) / 100;

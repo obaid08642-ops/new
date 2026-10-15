@@ -3,6 +3,18 @@
  * service and the admin finance suite, so both seed the same values that CommissionResolver and readVatRate read:
  * `service_types.<type>.percent` (commission charged) and `tax.vat_percent` (VAT on the commission).
  */
+/**
+ * Deployment defaults used until the admin sets a value (finance suite, commission settings): the escrow delay before a
+ * provider earning can be withdrawn and the smallest withdrawal. SETTLEMENT_DELAY_DAYS / PAYOUT_MINIMUM_SAR override.
+ */
+const envNumber = (name: string, fallback: number): number => {
+  const raw = process.env[name];
+  const n = raw === undefined || raw === '' ? NaN : Number(raw);
+  return Number.isFinite(n) && n >= 0 ? n : fallback;
+};
+export const settlementDelayDefault = (): number => envNumber('SETTLEMENT_DELAY_DAYS', 3);
+export const payoutMinimumDefault = (): number => envNumber('PAYOUT_MINIMUM_SAR', 100);
+
 export const DEFAULT_COMMISSIONS = {
   service_types: {
     pharmacy: { percent: 10, note: 'medicine orders' },
@@ -13,7 +25,7 @@ export const DEFAULT_COMMISSIONS = {
     ambulance: { percent: 10, note: 'emergency rides' },
   },
   provider_overrides: {} as Record<string, { percent: number; note?: string }>,
-  payout_schedule: { frequency: 'weekly', day: 'sunday', minimum_payout_sar: 100, processing_days: 3 },
+  payout_schedule: { frequency: 'weekly', day: 'sunday', minimum_payout_sar: payoutMinimumDefault(), processing_days: 3 },
   tax: { vat_percent: 15, note: 'KSA VAT applied on commission only' },
 };
 

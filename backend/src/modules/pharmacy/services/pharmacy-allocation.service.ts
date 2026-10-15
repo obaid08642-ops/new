@@ -11,6 +11,7 @@ import { PharmacyAllocationRepository } from "./repositories/pharmacyallocation.
 import { PharmacyOrderRepository } from "./repositories/pharmacyorder.repository";
 import { PharmacyInventoryItemRepository } from "./repositories/pharmacyinventoryitem.repository";
 import { isProviderRole } from '../../../common/enums';
+import { settlementDelayDefault } from '../../../common/commission-defaults';
 
 function assertProvider(u: any) { if (!u || !isProviderRole(u.role)) throw new ForbiddenException('provider_scope_required'); }
 function assertPatient(u: any) { if (!u || u.role !== 'patient') throw new ForbiddenException('patient_scope_required'); }
@@ -486,7 +487,7 @@ export class PharmacyAllocationService {
       });
       return;
     }
-    const delayDays = Number(cfg?.settlement?.delay_days?.pharmacy ?? cfg?.settlement?.delay_days?.default ?? 3);
+    const delayDays = Number(cfg?.settlement?.delay_days?.pharmacy ?? cfg?.settlement?.delay_days?.default ?? settlementDelayDefault());
     const net = Math.round((gross - commission - vat) * 100) / 100;
     await ledger.insertOne({
       id: `earn_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
