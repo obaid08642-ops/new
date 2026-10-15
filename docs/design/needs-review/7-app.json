@@ -107,7 +107,7 @@
     "line": 6,
     "found": "[client] Removed 2026-10-10 (decision 35): the claim form and its receipt upload are gone; the route redirects to the hub.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "not-a-problem: removed 2026-10-10 (decision 35, insurance is relay-only); submit-claim.tsx redirects to the insurance hub"
   },
   {
     "batch": 7,
