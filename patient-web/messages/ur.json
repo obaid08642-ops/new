@@ -1525,7 +1525,6 @@
     "attribute": "خصوصیت",
     "active_ingredient": "فعال جزو",
     "price": "قیمت",
-    "dosage_form": "شکل",
     "manufacturer": "صنعت کار",
     "emptyBody": "موازنے کے لیے کیٹلاگ سے کم از کم دو ادویات منتخب کریں۔",
     "browse": "ادویات دیکھیں",
@@ -1533,7 +1532,9 @@
     "requires_prescription": "نسخہ درکار ہے",
     "online_exclusive": "صرف آن لائن",
     "yes": "ہاں",
-    "no": "نہیں"
+    "no": "نہیں",
+    "form": "شکل",
+    "strength": "طاقت"
   },
   "PharmacyRequest": {
     "title": "دوا نام سے منگوائیں",
@@ -2088,7 +2089,8 @@
     "sortPriceAsc": "قیمت: کم سے زیادہ",
     "sortPriceDesc": "قیمت: زیادہ سے کم",
     "sortNewest": "نئی ترین",
-    "askPharmacies": "قریبی فارمیسیوں سے مانگیں"
+    "askPharmacies": "قریبی فارمیسیوں سے مانگیں",
+    "compareAlternatives": "متبادلات سے موازنہ کریں"
   },
   "PharmacyOffers": {
     "backToOrder": "آرڈر پر واپس",

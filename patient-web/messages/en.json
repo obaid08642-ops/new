@@ -1525,7 +1525,6 @@
     "attribute": "Attribute",
     "active_ingredient": "Active ingredient",
     "price": "Price",
-    "dosage_form": "Dosage form",
     "manufacturer": "Manufacturer",
     "emptyBody": "Select at least two medicines from the catalog to compare.",
     "browse": "Browse medicines",
@@ -1533,7 +1532,9 @@
     "requires_prescription": "Prescription required",
     "online_exclusive": "Online only",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "form": "Dosage form",
+    "strength": "Strength"
   },
   "PharmacyRequest": {
     "title": "Request a medicine by name",
@@ -2088,7 +2089,8 @@
     "sortPriceAsc": "Price: low to high",
     "sortPriceDesc": "Price: high to low",
     "sortNewest": "Newest",
-    "askPharmacies": "Ask nearby pharmacies for it"
+    "askPharmacies": "Ask nearby pharmacies for it",
+    "compareAlternatives": "Compare with alternatives"
   },
   "PharmacyOffers": {
     "backToOrder": "Back to the order",
