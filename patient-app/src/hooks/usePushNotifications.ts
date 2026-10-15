@@ -90,6 +90,18 @@ export function translateBackendRoute(route: string): { pathname: string; params
   if (clean === '/loyalty/rewards') return { pathname: '/loyalty/hub', params: { tab: 'rewards' } };
   if (clean === '/loyalty/leaderboard') return { pathname: '/loyalty/hub' };
   if (VERBATIM_ROUTES.has(clean)) return { pathname: clean };
+  // 416: the engagement nudges open the item (medicine, doctor, lab test) or the service's hub
+  m = clean.match(/^\/pharmacy\/product\/([^/]+)$/);
+  if (m) return { pathname: '/pharmacy/product-detail', params: { id: decodeURIComponent(m[1]) } };
+  m = clean.match(/^\/doctors\/([^/]+)$/);
+  if (m) return { pathname: '/consultations/doctor/[id]', params: { id: decodeURIComponent(m[1]) } };
+  m = clean.match(/^\/labs\/tests\/([^/]+)$/);
+  if (m) return { pathname: '/diagnostics/test-detail', params: { id: decodeURIComponent(m[1]) } };
+  const HUBS: Record<string, string> = {
+    '/pharmacy': '/(tabs)/pharmacy', '/consultations': '/(tabs)/consultations', '/diagnostics': '/(tabs)/diagnostics',
+    '/nursing': '/(tabs)/nursing', '/maternity': '/maternity/hub', '/mental-health': '/mental-health/hub', '/nutrition': '/nutrition/hub',
+  };
+  if (HUBS[clean]) return { pathname: HUBS[clean] };
 
   return null;
 }

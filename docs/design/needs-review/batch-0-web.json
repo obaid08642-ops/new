@@ -74,7 +74,7 @@
     "line": 17,
     "found": "FIXED on the client in batch-0-fixes: the success message now links to /password-reset (\"I have the code\"), a throttled request says so, and the reset page takes the token in a plain text field (no number pad). STILL OPEN in the backend: forgotPatientPassword e-mails \"Your Nabdah Plus password-reset token is <43-char token>. It expires in 60 seconds.\" (a plain token, no link, 60 s lifetime) and a phone-only account without an e-mail gets nothing while the answer is the same opaque \"requested\".",
     "suspect": "LEFT, backend: e-mail a link to /{locale}/password-reset?token=... (the web page can then read it), a lifetime longer than 60 s (PATIENT_EXCHANGE_TTL_SECONDS is shared with the sign-in exchange token), and a channel for phone-only accounts.",
-    "review_status": "open (issue #435)"
+    "review_status": "fixed #1489"
   },
   {
     "batch": 0,

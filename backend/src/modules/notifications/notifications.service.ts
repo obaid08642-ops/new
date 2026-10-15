@@ -1238,7 +1238,18 @@ export class NotificationsService {
       body_key: 'notif.payment_received.body',
       params: p.amount != null ? { amount: p.amount } : {},
       type: NotificationType.INFO,
-      action: { route: '/wallet/hub' },
+      // 416: the patient has no wallet; the row opens what was paid for (the apps translate these tracking routes).
+      action: paidForRoute(p.booking_kind || p.kind, p.booking_id || p.id),
     });
   }
+}
+
+/** The tracking route of what a payment paid for, or the notifications inbox when the kind has no screen of its own. */
+export function paidForRoute(kind: unknown, id: unknown): { route: string } {
+  const ref = typeof id === 'string' && id ? encodeURIComponent(id) : '';
+  const k = String(kind || '');
+  if (ref && k === 'pharmacy') return { route: `/orders/${ref}` };
+  if (ref && (k === 'consultation' || k === 'appointment' || k === 'doctor')) return { route: `/tracking/consultation/${ref}` };
+  if (ref && (k === 'lab' || k === 'radiology' || k === 'nursing')) return { route: `/tracking/${k}/${ref}` };
+  return { route: '/notifications' };
 }
