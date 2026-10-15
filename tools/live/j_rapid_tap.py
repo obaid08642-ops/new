@@ -62,11 +62,12 @@ def run():
             fake_pay(txn.get('gateway_intent_id'))
             v = pat.post(f"/payments/verify/{tid}", {})
             step('the single transaction pays once (status paid)', v.ok and v.get('status') == 'paid', v)
-            mine = pat.get('/moyasar/payments/me')
+            # the booking's own transactions (GET /payments/booking/:type/:id); /moyasar/payments/me lists the Moyasar
+            # module's records, which the intent flow does not write
+            mine = pat.get(f'/payments/booking/lab/{bid}')
             rows = mine.body if isinstance(mine.body, list) else mine.items()
-            paid = [x for x in rows if isinstance(x, dict)
-                    and str(x.get('booking_id') or x.get('bookingId') or '') == str(bid)
-                    and str(x.get('status') or '').lower() in ('paid', 'captured', 'success')]
+            paid = [x for x in rows if isinstance(x, dict) and str(x.get('status') or '').lower() in ('paid', 'captured', 'success')]
+            step('the booking lists its transactions', mine.ok and len(rows) >= 1, f'{mine.status} {len(rows)} rows')
             step('exactly one paid charge exists for the booking', len(paid) == 1, f'{len(paid)} paid rows')
 
     journey('rapid-tap book: 10 taps on "book" create exactly one appointment')
