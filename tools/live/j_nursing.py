@@ -106,6 +106,15 @@ def run(pat, nurse, admin=None):
     r = nurse.post(f'/nursing/visits/{bid}/complete', {'clinical_notes': 'تم إعطاء الحقنة ومتابعة العلامات الحيوية', 'signature_base64': 'data:image/png;base64,iVBORw0KGgo='})
     step('visit completed with the report', r.ok, r)
 
+    journey('nursing: each visit step reaches the patient as a notification')
+    # NursingFieldOps steps (/nursing/visits/:id/*) -> homecare.booking_state_changed -> NotificationsService onHomecareState.
+    r = pat.get('/notifications?lang=en')
+    rows = r.body if isinstance(r.body, list) else r.items()
+    mine = [n for n in rows if isinstance(n, dict) and ((n.get('action') or {}).get('route') if isinstance(n.get('action'), dict) else None) == f'/nursing/tracking/{bid}']
+    titles = {n.get('title') for n in mine}
+    for title, what in (('Nurse On The Way', 'on the way'), ('Nurse Arrived', 'arrived'), ('Visit Completed', 'visit completed')):
+        step(f'the patient is notified: {what}', r.ok and title in titles, sorted(t for t in titles if t))
+
     journey('nursing: the patient sees the finished visit')
     r = pat.get('/nursing/bookings/mine')
     b = next((x for x in r.items() if x.get('id') == bid), None) if not isinstance(r.body, list) else next((x for x in r.body if x.get('id') == bid), None)

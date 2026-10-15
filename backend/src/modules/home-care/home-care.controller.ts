@@ -240,6 +240,11 @@ export class NursingController {
     throw new ServiceUnavailableException('legacy_nursing_visit_response_disabled_pending_governed_payment_coverage_capacity_command');
   }
 
+  /** Each visit step reaches the patient through the home-nursing notifications (NotificationsService onHomecareState). */
+  private notifyPatientState(b: any) {
+    this.events.emit('homecare.booking_state_changed', { booking_id: b.id, patient_id: b.patient_id, state: b.state, provider_id: b.provider_id });
+  }
+
   @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Post('visits/:id/transit')
   async startTransit(@Param('id') id: string, @CurrentUser() user: any) {
@@ -254,7 +259,7 @@ export class NursingController {
     await b.save();
 
     // Emitting live GPS sync event for Patient App (Pillar 7.1)
-    this.events.emit('patient.notify', { patientId: b.patient_id, type: 'nursing_transit', message: 'الممرض في الطريق إليك', metadata: { bookingId: b.id } });
+    this.notifyPatientState(b);
     
     return { success: true, state: b.state };
   }
@@ -294,7 +299,7 @@ export class NursingController {
     b.state_history.push({ from: NursingBookingState.IN_TRANSIT, to: b.state, at: new Date() });
     await b.save();
 
-    this.events.emit('patient.notify', { patientId: b.patient_id, type: 'nursing_arrived', message: 'الممرض بالباب', metadata: { bookingId: b.id } });
+    this.notifyPatientState(b);
 
     return { success: true, state: b.state };
   }
@@ -312,6 +317,7 @@ export class NursingController {
     b.markModified('timers');
     b.state_history.push({ from, to: b.state, at: new Date() });
     await b.save();
+    this.notifyPatientState(b);
 
     return { success: true, state: b.state };
   }
@@ -333,6 +339,7 @@ export class NursingController {
     b.state = NursingBookingState.NO_SHOW;
     b.state_history.push({ from: NursingBookingState.ARRIVED, to: b.state, at: new Date() });
     await b.save();
+    this.notifyPatientState(b);
 
     return { success: true, state: b.state };
   }
@@ -350,7 +357,7 @@ export class NursingController {
     b.state_history.push({ from, to: NursingBookingState.ESCALATED_EMERGENCY, at: new Date() });
     await b.save();
 
-    this.events.emit('patient.notify', { patientId: b.patient_id, type: 'nursing_emergency', message: 'تم إيقاف الخدمة لدواعٍ طبية - ستتم مراجعة الاسترداد مالياً', metadata: { bookingId: b.id, refund_status: 'pending_finance_review' } });
+    this.notifyPatientState(b);
 
     return { success: true, state: b.state };
   }
@@ -374,10 +381,10 @@ export class NursingController {
     b.state_history.push({ from, to: b.state, at: new Date() });
     await b.save();
 
-    this.events.emit('patient.notify', { patientId: b.patient_id, type: 'nursing_completed', message: 'اكتملت الخدمة - فضلاً قيم الممرض', metadata: { bookingId: b.id } });
+    this.notifyPatientState(b);
     
     if (b.referring_doctor_id) {
-       this.events.emit('doctor.notify', { doctorId: b.referring_doctor_id, type: 'nursing_report', message: 'اكتملت خطة التمريض المنزلي', metadata: { bookingId: b.id }});
+       this.events.emit('homecare.report_for_doctor', { booking_id: b.id, doctor_id: b.referring_doctor_id });
     }
 
     return { success: true, state: b.state };
