@@ -173,6 +173,6 @@
     "line": 407,
     "found": "[client] Batch 14 text, not changed here: NursingWeb.insuranceTitle, DiagWeb.insuranceSub, DiagWeb.insuranceHintLink, Diagnostics.insuranceNoticeSub, PharmacyCheckout.insuranceBody, PharmacyOffers.insurancePending, Doctors.payInsuranceNote.",
     "suspect": "Client-side: later batch.",
-    "review_status": "fixed #1484 (verified on main)"
+    "review_status": "fixed e8d620fab (verified on main: patient-web messages NursingWeb.insuranceTitle, DiagWeb.insuranceSub, Diagnostics.insuranceNoticeSub, PharmacyCheckout.insuranceBody, PharmacyOffers.insurancePending, Doctors.payInsuranceNote say the provider asks the insurer) (issue #848)"
   }
 ]

@@ -151,6 +151,6 @@
     "line": 2337,
     "found": "[client] Batch 14 text, not changed here: nur.book.insFetched, nur.book.inReviewBody, nur.book.insNote, diag.upload.readFailed, pharmacy.ins.processingTitle, consult.confirm.insuranceReady (same keys on web: DiagWeb.insuranceSub, PharmacyCheckout.insuranceBody and others).",
     "suspect": "Client-side: later batch.",
-    "review_status": "fixed #1484 (verified on main)"
+    "review_status": "fixed a78e1c83a (verified on main: patient-app en.json nur.book.insFetched, inReviewBody, insNote, diag.upload.readFailed, pharmacy.ins.processingTitle, consult.confirm.insuranceReady describe relaying to the provider or insurer) (issue #832)"
   }
 ]

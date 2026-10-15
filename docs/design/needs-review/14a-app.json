@@ -63,6 +63,6 @@
     "line": 91,
     "found": "[owner] The consultation cancel screen already reads cancellation_policy from /system-config/public and no screen has a hard-coded 12/24 h copy; nothing to remove.",
     "suspect": "Owner decision.",
-    "review_status": "closed-unverified (issue #804: closed with no linked PR)"
+    "review_status": "fixed 488552e5e (verified on main: patient-app/app/consultations/cancel-reschedule.tsx:92,128-133 via readCancellationPolicy, no assumed hours) (issue #804)"
   }
 ]
