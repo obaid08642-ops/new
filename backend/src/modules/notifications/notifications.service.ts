@@ -817,15 +817,22 @@ export class NotificationsService {
     const key = ({
       PROVIDER_ASSIGNED: 'assigned', IN_TRANSIT: 'transit', ARRIVED: 'arrived',
       CARE_IN_PROGRESS: 'care', COMPLETED: 'completed', CANCELLED: 'cancelled', NO_SHOW: 'no_show',
+      ESCALATED_EMERGENCY: 'emergency',
     } as any)[p.state] || 'state';
     await this.create({
       user_id: p.patient_id,
       title_key: `notif.homecare_${key}.title`,
       body_key: `notif.homecare_${key}.body`,
       type: NotificationType.INFO,
-      priority: ['ARRIVED', 'COMPLETED', 'CANCELLED'].includes(p.state) ? NotificationPriority.HIGH : NotificationPriority.NORMAL,
+      priority: ['ARRIVED', 'COMPLETED', 'CANCELLED', 'ESCALATED_EMERGENCY'].includes(p.state) ? NotificationPriority.HIGH : NotificationPriority.NORMAL,
       action: { route: `/nursing/tracking/${p.booking_id}` },
     });
+  }
+  /** The referring doctor hears that the home-nursing visit report is ready (home-care.controller completeVisit). */
+  @OnEvent('homecare.report_for_doctor')
+  async onHomecareReportForDoctor(p: any) {
+    if (!p.doctor_id) return;
+    await this.create({ user_id: p.doctor_id, title_key: 'notif.homecare_report_doctor.title', body_key: 'notif.homecare_report_doctor.body', type: NotificationType.INFO });
   }
 
   // ============ RADIOLOGY Lifecycle ============
@@ -845,6 +852,21 @@ export class NotificationsService {
     const uid = await this.resolveUserId(p.patientId || p.patient_id);
     if (!uid) return;
     await this.create({ user_id: uid, title_key: 'notif.rad_booked.title', body_key: 'notif.rad_booked.body', type: NotificationType.INFO });
+  }
+  /** Preparation reminders before a confirmed scan (radiology-reminder.cron: 24, 12 and 2 hours before). */
+  @OnEvent('radiology.prep_reminder')
+  async onRadPrepReminder(p: any) {
+    if (![24, 12, 2].includes(p.hours)) return;
+    const uid = await this.resolveUserId(p.patient_id);
+    if (!uid) return;
+    await this.create({
+      user_id: uid,
+      title_key: 'notif.rad_reminder.title',
+      body_key: `notif.rad_reminder_${p.hours}h.body`,
+      type: NotificationType.APPOINTMENT,
+      priority: NotificationPriority.HIGH,
+      action: { route: `/diagnostics/results-history` },
+    });
   }
   @OnEvent('radiology.state_changed')
   async onRadState(p: any) {
