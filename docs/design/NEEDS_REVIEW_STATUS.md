@@ -8,23 +8,23 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| Patient app and web | 434 | 52 | 287 | 92 | 3 | 0 |
+| Patient app and web | 434 | 51 | 288 | 92 | 3 | 0 |
 | Other | 29 | 16 | 12 | 1 | 0 | 0 |
 | Admin | 99 | 7 | 59 | 33 | 0 | 0 |
 | Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
 | Final pass | 8 | 6 | 0 | 2 | 0 | 0 |
 | Patient journeys | 87 | 20 | 65 | 2 | 0 | 0 |
 | Provider app | 31 | 7 | 23 | 1 | 0 | 0 |
-| Provider journeys | 34 | 8 | 23 | 2 | 1 | 0 |
+| Provider journeys | 34 | 9 | 22 | 2 | 1 | 0 |
 | **Total** | **742** | **118** | **485** | **135** | **4** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| client | 169 | 33 | 104 | 31 | 1 | 0 |
+| client | 169 | 32 | 105 | 31 | 1 | 0 |
 | owner | 100 | 17 | 39 | 42 | 2 | 0 |
-| backend | 235 | 28 | 178 | 29 | 0 | 0 |
+| backend | 235 | 29 | 177 | 29 | 0 | 0 |
 | untagged | 238 | 40 | 164 | 33 | 1 | 0 |
 | **Total** | **742** | **118** | **485** | **135** | **4** | **0** |
 
@@ -58,7 +58,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `5-web.json` | 11 | 1 | 10 | 0 | 0 | 0 |
 | `6-app.json` | 10 | 3 | 3 | 4 | 0 | 0 |
 | `6-web.json` | 8 | 1 | 5 | 2 | 0 | 0 |
-| `7-app.json` | 14 | 1 | 6 | 7 | 0 | 0 |
+| `7-app.json` | 14 | 0 | 7 | 7 | 0 | 0 |
 | `7-web.json` | 16 | 0 | 8 | 8 | 0 | 0 |
 | `8-app.json` | 9 | 1 | 8 | 0 | 0 | 0 |
 | `8-web.json` | 13 | 1 | 11 | 1 | 0 | 0 |
@@ -90,7 +90,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `provider-admin-ish.json` | 3 | 1 | 2 | 0 | 0 | 0 |
 | `provider-doctor.json` | 6 | 1 | 5 | 0 | 0 | 0 |
 | `provider-facility.json` | 7 | 1 | 6 | 0 | 0 | 0 |
-| `provider-journeys.json` | 34 | 8 | 23 | 2 | 1 | 0 |
+| `provider-journeys.json` | 34 | 9 | 22 | 2 | 1 | 0 |
 | `provider-lab.json` | 4 | 3 | 1 | 0 | 0 | 0 |
 | `provider-nursing.json` | 2 | 0 | 2 | 0 | 0 | 0 |
 | `provider-pharmacy.json` | 2 | 0 | 1 | 1 | 0 | 0 |
@@ -140,7 +140,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `6-app.json#4` | client | open (issue #688) | /family/calendar Date field | [client] Event date is typed as ISO text; a date and time picker in the shared kit would replace it (feature, not done here). |
 | `6-app.json#9` | client | open (issue #693) | /family/calendar Person with no family group | [client] Runtime check: the seeded patient has no group, so GET /family/calendar answers 404 and GET /family/chat/messages 403 (not_active_family_member); both screens show the ge… |
 | `6-web.json#0` | client | open (issue #694) | /family/add Scan QR tab | [client] The web has no camera scanner (the code or link is pasted), as before; the app scans. Not added: it is a feature, and the camera permission handling stays as it was. |
-| `7-app.json#1` | client | open (issue #820) | /insurance/copay Co-pay screen not merged | [client] Picks the newest COPAY_PENDING from /requests/my and posts the intent with no method; the request page reads one id and asks capabilities. Different payment paths, so kep… |
 | `8-app.json#0` | backend | open (issue #849) | /maternity/hub Baby growth tab, fetal week content and weekly articles | [backend] the board draws them but the app reads no week or article endpoint; hidden until one exists (fetal images stay on the CDN) |
 | `8-web.json#3` | backend | open (issue #861) | /maternity Weekly articles and fetal-week size/image | [backend] GET /maternity/content returns empty lists (weekly_tips, links) and there is no fetal-week endpoint; the board's 'Read this week' list and fetal size line are not drawn,… |
 | `ac-1-agent-oauth.json#0` | client | open | /oauth/authorize AI assistant consent page | [client] Functional consent page (client name, scopes, 'you confirm and pay on Nabd Plus', allow / don't allow) built on the auth layout with translations in six languages; it has… |
@@ -213,6 +212,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `provider-journeys.json#19` | client | open (issue #1181) | WithdrawalWorkflow withdrawal request | [client] The 100 SAR minimum is hard-coded in the screen; the server reads the minimum from finance_config. |
 | `provider-journeys.json#20` | backend | open | WithdrawalWorkflow withdrawal request | [backend] The one-open-request check counts only PENDING_ADMIN_APPROVAL and APPROVED_FOR_PAYOUT; a request in AWAITING_SECOND_APPROVAL holds locked funds but does not block a new … |
 | `provider-journeys.json#22` | client | open | PharmacyDashboard prepare | [client] Insurance decision is a header shield icon on Orders and a row in More (opens the queue); an insurance order card has no inline decision button because the allocation lis… |
+| `provider-journeys.json#23` | backend | open | emergency.module ambulance removal (decision 14) | [backend] The app no longer has the ambulance provider type, dashboard, SOS dispatch, GPS router or fleet screens. These backend modules still exist and are for the reviewer to re… |
 | `provider-journeys.json#28` | backend | open | LabRegistration + Add Custom Test (Requires Approval) (hidden) | [backend] The wizard had "+ Add Custom Test (Requires Approval)" in the lab and radiology test menus; it only showed a toast and sent nothing. It is hidden now (M9). To bring it b… |
 | `provider-journeys.json#33` | backend | open | NursingFieldOps result upload | [backend] With result files the visit is completed through POST /home-care/bookings/:id/visit-report (the only route that stores attachments); that handler sends no `patient.notif… |
 | `provider-lab.json#0` | client | open | LabOrderDetail mock-name: openSampleForResults = async () => { | [client] mock-name (mock-scan): openSampleForResults = async () => { |

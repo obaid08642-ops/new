@@ -19,7 +19,7 @@
     "line": 37,
     "found": "[client] Picks the newest COPAY_PENDING from /requests/my and posts the intent with no method; the request page reads one id and asks capabilities. Different payment paths, so kept separate (map 2 rule).",
     "suspect": "Client-side: later batch.",
-    "review_status": "open (issue #820)"
+    "review_status": "fixed #1484"
   },
   {
     "batch": 7,
