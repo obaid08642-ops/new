@@ -283,7 +283,7 @@ jobs:
           sudo docker inspect -f '{{.Config.Image}}' nabdah-backend | grep -q ":$S8$" && echo "half state: backend on the release, worker leftover" || exit 1
           OPS_ROLLBACK_TS=$TS OPS_RELEASE_S8=$S8 OPS_REQUIRE_MEDICINES=0 bash tools/ops/tasks/64-rollback-backend.sh 2>&1 | tee o64.txt; rc=${PIPESTATUS[0]}
           echo "exit=$rc"; test $rc = 0 || exit 1
-          RB=$(sudo docker image inspect -f '{{.Id}}' nabdah-prod-backend:rollback-$TS)
+          RB=$(sudo docker image inspect -f '{{.Id}}' nabdah-backend:rollback-$TS)
           test "$(sudo docker inspect -f '{{.Image}}' nabdah-backend)" = "$RB" && echo "backend back on rollback-$TS" || exit 1
           ! sudo docker inspect nabdah-worker >/dev/null 2>&1 && echo "worker removed" || exit 1
           grep -q 'deploy: ROLLBACK COMPLETE' o64.txt && grep -q 'x0: collection' o64.txt || exit 1

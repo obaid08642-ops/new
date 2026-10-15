@@ -34,8 +34,8 @@ sudo -n test -e $D/docker-compose.release.yml && { echo "deploy: ABORT docker-co
 echo "deploy: deploy files and env are the pre-deploy ones ($(basename $SNAP))"
 
 # ---------------------------------------------------------------- 1. backend onto its rollback image
-RB=$($DK image inspect -f '{{.Id}}' nabdah-prod-backend:rollback-$TS 2>/dev/null)
-[ -n "$RB" ] || { echo "deploy: ABORT no image nabdah-prod-backend:rollback-$TS"; exit 1; }
+RB=$($DK image inspect -f '{{.Id}}' nabdah-backend:rollback-$TS 2>/dev/null)
+[ -n "$RB" ] || { echo "deploy: ABORT no image nabdah-backend:rollback-$TS"; exit 1; }
 # (the rendered config holds env values: it goes to python only, never to the output)
 REF=$($COMPOSE_OLD config --format json 2>/dev/null | python3 -c 'import json,sys; print(json.load(sys.stdin)["services"]["backend"].get("image",""))' 2>/dev/null)
 [ -n "$REF" ] || { echo "deploy: ABORT cannot read the backend image name from the old compose file"; exit 1; }
