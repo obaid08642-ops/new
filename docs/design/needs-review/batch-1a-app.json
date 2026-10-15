@@ -85,7 +85,7 @@
     "line": 0,
     "found": "The board draws a delivery or pickup segmented control with expected times. The cart item (src/context/CartContext.tsx) carries no delivery mode and the pharmacy draft is built later from the offers, and the medicine row has no delivery time. A control that changes nothing would be a dead control, so it is not drawn.",
     "suspect": "Owner decision: where delivery or pickup is chosen (here, in the cart or on the selected offer) and which field gives the times.",
-    "review_status": "open (issue #455)"
+    "review_status": "owner-decision (question 33 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2) (issue #455)"
   },
   {
     "batch": 1,
@@ -206,6 +206,6 @@
     "line": 0,
     "found": "177 pharmacy.* keys were added to patient-app/src/i18n/locales/{ar,en,ur,hi,bn,tl}.json. The English, Urdu, Hindi, Bengali and Filipino text was written by the design session (and, for reused phrases, taken from the phrase catalogue after correcting the entries that were wrong).",
     "suspect": "A native speaker should review the Urdu, Hindi, Bengali and Filipino text, especially the medical wording (precautions, contraindications, interactions).",
-    "review_status": "open (issue #466)"
+    "review_status": "owner-decision (question 34 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2) (issue #466)"
   }
 ]

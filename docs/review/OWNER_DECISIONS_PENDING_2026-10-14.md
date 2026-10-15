@@ -82,3 +82,20 @@ and sets every line to `fixed #PR` or `not-a-problem: owner decided … `.
   - Owner of the work: the fix session (lines set back to `open` with this decision).
 - **Legal texts (terms, privacy).** Stays an owner action: a Saudi lawyer approves `docs/legal` before launch. Until
   then the embedded fallback stays off. This is a launch blocker and cannot be decided in code.
+
+## D2. More questions from the fix session (2026-10-15, open)
+
+Found while sweeping the open needs-review lines. Each line is set to `owner-decision` with the question number; the fix
+session builds the answer once it is given.
+
+| # | Question | Where | Recommendation |
+|---:|---|---|---|
+| 31 | The app's order centre also lists insurance claims and pharmacy returns; the web order centre lists the five services only (claims and returns have their own pages). Merge them on the web too? | 1e-web#9 | **Yes, for parity**: two more kinds in the web order centre, read from the same backend lists, each row opening its existing page. |
+| 32 | The web onboarding (`/welcome`, `/onboarding`) is reached by no link and finishing it saves nothing. Keep it (shown once after sign-up, completion saved on the account) or remove it from the web? | batch-0-web#7 (issue 436) | **Remove it from the web**: the site opens on the home page; location and notifications are asked where they are used (web push is being wired by the fix session for batch-0-web#9). |
+| 33 | The product board draws a delivery/pickup switch with times on the product page, but the mode is only known once a pharmacy answers with an offer. | batch-1a-app#7 (issue 455) | **No switch on the product page**; delivery or pickup is chosen at checkout from the chosen offer (as today). |
+| 34 | The en, ur, hi, bn and fil pharmacy texts (177 keys) were written by the sessions, not by native speakers. | batch-1a-app#18 (issue 466) | **Owner action**: a native reviewer per language before launch; the keys stay as they are until then. |
+| 35 | The cart board draws unit prices, an estimated total, points and a delivery row; pharmacy prices exist only once pharmacies answer with offers. | batch-1b-app#2 (issue 481) | **Keep the cart without prices** (decision: pharmacies answer with offers); the cart says the prices come with the offers. |
+| 36 | The web barcode page has only a typed field; the app scans with the camera. | batch-1b-web#8 (issue 499) | **Use the browser's BarcodeDetector where it exists** (Chrome/Android), with the typed field everywhere; no extra decoding library. |
+| 37 | The Success board is a dark full-bleed page with lime (#D7FF00) and confetti colours, which are not tokens. | batch-1d-app#18 (issue 548) | **Tokens only** (identity rule A): the success screen uses the existing canvas, action and service tones, no lime and no confetti. |
+| 38 | Hosted checkout, return and webhook were checked only against a local stand-in: no Moyasar test keys in the environment. | batch-1d-web#1 (issue 551) | **Owner action**: put the Moyasar test keys in the CI secrets so one run per release pays in the sandbox end to end. |
+| 39 | Prescription items in the cart: the web cart goes straight to checkout with the "active" prescription; the app first opens rx-order to pick the prescription. Which is the one flow? | journeys#22 (issue 1031) | **The app's flow on both**: the patient picks the prescription in rx-order before checkout, so a line is never sent with the wrong prescription. |
