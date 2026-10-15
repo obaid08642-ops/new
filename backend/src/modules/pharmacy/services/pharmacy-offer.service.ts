@@ -186,13 +186,16 @@ export class PharmacyOfferService {
    * not a block. A line priced above it is accepted and flagged (the pharmacy is warned, the admin is
    * told); a line that maps to no catalogue item (cosmetics, local items, photo lines) is kept and
    * marked `not_verified`. Mapping: the inventory row's `medicine_id`, else its sku against the
-   * catalogue sku (stored as a number or a string).
+   * catalogue id (items added from the catalogue) or the catalogue sku (stored as a number or a string).
    */
   private async markCataloguePrice(line: any, inventoryItem: any) {
     const sku = inventoryItem.sku;
     const or: any[] = [];
     if (inventoryItem.medicine_id) or.push({ id: String(inventoryItem.medicine_id) });
     if (sku !== undefined && sku !== null && sku !== '') {
+      // provider-app ActiveInventoryScreen adds a catalogue item with sku = the catalogue medicine id (issue 331):
+      // without this match every such line was "not verified" and the ceiling never applied
+      or.push({ id: String(sku) });
       or.push({ sku: String(sku) });
       if (/^\d+$/.test(String(sku))) or.push({ sku: Number(sku) });
     }
