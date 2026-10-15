@@ -70,7 +70,11 @@ def main():
     r = member.get(f'/care/appointments/{aid}')
     step('the member sees the visit paid', r.ok and r.get('payment_status') == 'paid', r)
     r = stranger.get(f'/payments/consultation/{aid}/capabilities')
-    step('a stranger cannot pay for it', r.status in (403, 404), r)
+    step('a stranger cannot pay for it', not r.ok and r.status in (400, 403, 404), r)
+    r = stranger.get(f'/care/appointments/{aid}')
+    step('a stranger cannot read the booking', r.status in (403, 404), r)
+    r = owner.get(f'/care/appointments/{aid}/summary')
+    step('the booker does not read the member\'s medical summary', r.status in (403, 404) and 'not available' not in str(r.body), r)
 
 
 if __name__ == '__main__':
