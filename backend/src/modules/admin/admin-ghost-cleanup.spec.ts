@@ -18,7 +18,7 @@ const makeController = (collections: Record<string, any[]>) => {
     deleteOne: jest.fn(),
     db,
   };
-  const ctl = new AdminController(userModel, {} as any, {} as any, {} as any, {} as any, undefined);
+  const ctl = new AdminController(userModel, {} as any, {} as any, {} as any, undefined);
   return { ctl, cols, userModel };
 };
 

@@ -653,6 +653,38 @@ export class AppointmentsService {
     return { appointment_id: appt.id, room: `appt_${appt.id}`, joinable, status: appt.status };
   }
 
+  /**
+   * P13-R14: every consultation output links straight to booking/ordering.
+   * Targets use only verified routes (patient-app webLinkMap + patient-web
+   * pages): product `p/:slug`, `diagnostics`, `consultations/doctor/:id`,
+   * `consultations/book/:doctorId`. Issuing stays doctor-or-admin only (the
+   * controller role guard + ownership check are the per-role matrix: nurses,
+   * technicians and patients cannot issue outputs).
+   */
+  private async orderLinkForMedicine(medicineId: string | null): Promise<any> {
+    let slug: string | null = null;
+    if (medicineId) {
+      try {
+        const col = (this.connection as any)?.collection?.('medicines') ?? (this.connection as any)?.db?.collection?.('medicines');
+        const hit: any = col ? await col.findOne({ id: medicineId }, { projection: { _id: 0, slug: 1 } }) : null;
+        if (hit?.slug) slug = String(hit.slug);
+      } catch { slug = null; }
+    }
+    if (slug) {
+      const seg = encodeURIComponent(slug);
+      return {
+        action: { type: 'order_medicine', medicine_id: medicineId },
+        deep_link: `nabdplus://p/${seg}`,
+        web_path: `/ar/p/${seg}`,
+      };
+    }
+    return {
+      action: { type: 'order_medicine', medicine_id: medicineId },
+      deep_link: 'nabdplus://pharmacy',
+      web_path: '/ar/pharmacy',
+    };
+  }
+
   /** Patient (or the doctor/admin) reads the consultation summary. 404 → screen shows honest not-ready. */
   async getSummary(id: string, user: any) {
     const appt = await this.apptModel.findOne({ id });
@@ -664,10 +696,39 @@ export class AppointmentsService {
     // 660: backfill catalogue ids for legacy lines; 661/683: attach outcome referrals.
     const prescription: any[] = [];
     for (const line of appt.summary.prescription || []) {
-      prescription.push({ ...line, medicine_id: line?.medicine_id || await this.resolvePrescriptionMedicineId(line?.name) });
+      const medicineId = line?.medicine_id || await this.resolvePrescriptionMedicineId(line?.name);
+      prescription.push({ ...line, medicine_id: medicineId, ...(await this.orderLinkForMedicine(medicineId)) });
     }
     const referrals = await this.outcomeReferrals(appt);
-    return { doctor_id: appt.doctor_id, ...appt.summary, prescription, ...(referrals ? { referrals } : {}) };
+    const out: any = { doctor_id: appt.doctor_id, ...appt.summary, prescription };
+    if (referrals) {
+      out.referrals = referrals;
+      const actions: any = {};
+      if ((referrals.lab_tests || []).length > 0) {
+        actions.lab = {
+          action: { type: 'book_lab', tests: referrals.lab_tests },
+          deep_link: 'nabdplus://diagnostics',
+          web_path: '/ar/diagnostics',
+        };
+      }
+      if ((referrals.radiology_scans || []).length > 0) {
+        actions.radiology = {
+          action: { type: 'book_radiology', scans: referrals.radiology_scans },
+          deep_link: 'nabdplus://diagnostics?tab=radiology',
+          web_path: '/ar/diagnostics',
+        };
+      }
+      if (Object.keys(actions).length > 0) out.referral_actions = actions;
+    }
+    if (appt.summary.follow_up_recommended && appt.doctor_id) {
+      const seg = encodeURIComponent(String(appt.doctor_id));
+      out.follow_up_action = {
+        action: { type: 'book_followup', doctor_id: appt.doctor_id, window_days: appt.summary.follow_up_window_days ?? null },
+        deep_link: `nabdplus://consultations/doctor/${seg}`,
+        web_path: `/ar/consultations/book/${seg}`,
+      };
+    }
+    return out;
   }
 
   async reschedule(id: string, user: any, body: { slot_start: string }) {

@@ -32,7 +32,7 @@
     "element": "map lines to catalogue",
     "found": "[backend] The search only reads the pharmacy's own inventory rows (provider_account_id = caller), minimum 2 characters; a new pharmacy with empty inventory can answer every line only with \"unavailable\".",
     "suspect": "dead end",
-    "review_status": "open"
+    "review_status": "fixed #1499"
   },
   {
     "scenario": 1,
@@ -85,7 +85,7 @@
     "element": "prepare",
     "found": "[backend] A partially_confirmed allocation can only go to confirmed, rejected or cancelled; confirm() with an unavailable line tries partially_confirmed again and item changes are blocked once an offer is selected (selected_offer_immutable). The UI shows only \"Confirm\" for this state.",
     "suspect": "dead end",
-    "review_status": "open"
+    "review_status": "fixed #1499"
   },
   {
     "scenario": 1,
@@ -329,7 +329,7 @@
     "element": "balance",
     "found": "[backend] The wallet figure is earned minus payouts, clamped at 0, over only the latest 200 rows and counting pending (escrow) earnings; the withdrawal check uses the real ledger (cleared minus payouts, debits, locked), so the wallet can show more than can be withdrawn.",
     "suspect": "broken",
-    "review_status": "open (issue #1179)"
+    "review_status": "fixed #1464"
   },
   {
     "scenario": 5,
@@ -347,7 +347,7 @@
     "element": "withdrawal request",
     "found": "[client] The 100 SAR minimum is hard-coded in the screen; the server reads the minimum from finance_config.",
     "suspect": "works",
-    "review_status": "open (issue #1181)"
+    "review_status": "fixed #1464"
   },
   {
     "scenario": 5,
@@ -365,7 +365,7 @@
     "element": "withdrawal request",
     "found": "[backend] The one-open-request check counts only PENDING_ADMIN_APPROVAL and APPROVED_FOR_PAYOUT; a request in AWAITING_SECOND_APPROVAL holds locked funds but does not block a new request, so the client (which mirrors the server) cannot show it as pending.",
     "suspect": "broken",
-    "review_status": "open"
+    "review_status": "fixed #1464"
   },
   {
     "scenario": 1,
@@ -418,7 +418,7 @@
     "element": "ambulance removal (decision 14)",
     "found": "[backend] The app no longer has the ambulance provider type, dashboard, SOS dispatch, GPS router or fleet screens. These backend modules still exist and are for the reviewer to remove or keep: EmergencyModule (emergency.controller.ts: /emergency/trigger, /active, /:id/claim, /:id/track; ambulance-fleet.controller.ts: /provider/ambulance/fleet) and DriversModule (drivers.controller.ts). Also the `ambulance` user/provider role values and the admin app pages that use them.",
     "suspect": "dead end",
-    "review_status": "open"
+    "review_status": "fixed #1482 (issue #333)"
   },
   {
     "scenario": 4,
@@ -505,7 +505,7 @@
     "element": "+ Add Custom Test (Requires Approval) (hidden)",
     "found": "[backend] The wizard had \"+ Add Custom Test (Requires Approval)\" in the lab and radiology test menus; it only showed a toast and sent nothing. It is hidden now (M9). To bring it back the backend needs an endpoint where a provider proposes a catalogue test or scan for admin approval.",
     "suspect": "missing",
-    "review_status": "open"
+    "review_status": "fixed #1493"
   },
   {
     "scenario": 4,
