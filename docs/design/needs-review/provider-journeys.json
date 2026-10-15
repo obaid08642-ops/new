@@ -102,7 +102,7 @@
     "element": "hand over / delivery",
     "found": "[client] The prescription dispensing path is a \"disabled\" notice and the old order detail and broadcast screens are defined but never rendered (dead code).",
     "suspect": "dead end",
-    "review_status": "open (issue #1146)"
+    "review_status": "fixed #1474"
   },
   {
     "scenario": 1,
@@ -242,7 +242,7 @@
     "element": "done",
     "found": "[backend] visit-report with complete:true moves to COMPLETED from ARRIVED without the patient signature that /nursing/visits/:id/complete requires, so the two end-of-visit paths give different guarantees. The provider app no longer calls this route (N2: every entry point uses /nursing/visits/:id/*).",
     "suspect": "broken",
-    "review_status": "open"
+    "review_status": "fixed #1474"
   },
   {
     "scenario": 3,
@@ -382,7 +382,7 @@
     "element": "on the way",
     "found": "[client] DeliveryTrackingScreen (static 'Live GPS map' card, no tracking data) is no longer registered or reachable after the Orders merge (M6); On the way is a section of Orders. Delete the dead export in the cleanup pass.",
     "suspect": "placeholder",
-    "review_status": "open"
+    "review_status": "fixed #1474"
   },
   {
     "scenario": 1,
@@ -436,7 +436,7 @@
     "element": "needs_changes reason",
     "found": "[backend] The note an admin writes with \"request changes\" is kept only in the status history and on the flagged documents (reviewer_note); GET /provider-onboarding/progress returns the provider profile, which has no needs_changes or suspension reason. The status screen shows the profile reason when it exists, the flagged documents with their notes, and otherwise says that no written reason was recorded.",
     "suspect": "missing step",
-    "review_status": "open"
+    "review_status": "fixed #1474"
   },
   {
     "scenario": 3,
@@ -454,7 +454,7 @@
     "element": "live position while on the way",
     "found": "[backend] The single visit flow sends the live position during IN_TRANSIT with POST /home-care/bookings/:id/gps (the older booking family) because /nursing/visits/:id/* has no position route; arrival is still the geofenced /nursing/visits/:id/arrive. Backend should expose one position route in the nursing family.",
     "suspect": "works",
-    "review_status": "open"
+    "review_status": "fixed #1474"
   },
   {
     "scenario": 1,
@@ -522,7 +522,7 @@
     "element": "inline clinic map",
     "found": "[client] The doctor wizard has two map inputs that write `location` in different shapes: the picker in the services step writes {lat, lng}, the inline map on the insurance step writes {latitude, longitude}; step2 sends whichever was set last.",
     "suspect": "broken",
-    "review_status": "open"
+    "review_status": "fixed #1474"
   },
   {
     "scenario": 4,
@@ -539,7 +539,7 @@
     "element": "saving flag in data",
     "found": "[client] The facility steps keep their saving flag `loading` inside the registration data, so `loading: false` is part of `full_data` sent with the final submit. Kept as is in M9 so the payload stays identical; move the flag out of the data in a later change.",
     "suspect": "broken",
-    "review_status": "open"
+    "review_status": "fixed #1474"
   },
   {
     "scenario": 4,
@@ -573,7 +573,7 @@
     "element": "Bundle Builder",
     "found": "[client] The lab and radiology test menu has a \"Bundle Builder\" whose bundles are only part of `full_data`; neither step2 nor step3 sends them, so no bundle reaches the catalogue.",
     "suspect": "broken",
-    "review_status": "open"
+    "review_status": "fixed #1474"
   },
   {
     "scenario": 3,
