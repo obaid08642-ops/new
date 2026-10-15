@@ -13,10 +13,10 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Admin | 97 | 8 | 56 | 33 | 0 | 0 |
 | Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
 | Final pass | 8 | 8 | 0 | 0 | 0 | 0 |
-| Patient journeys | 87 | 33 | 52 | 2 | 0 | 0 |
+| Patient journeys | 87 | 32 | 53 | 2 | 0 | 0 |
 | Provider app | 31 | 8 | 22 | 1 | 0 | 0 |
 | Provider journeys | 34 | 17 | 15 | 2 | 0 | 0 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| **Total** | **740** | **179** | **421** | **128** | **1** | **11** |
 
 ## By tag
 
@@ -25,8 +25,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | client | 169 | 51 | 90 | 28 | 0 | 0 |
 | owner | 100 | 21 | 34 | 42 | 1 | 2 |
 | backend | 233 | 35 | 168 | 26 | 0 | 4 |
-| untagged | 238 | 73 | 128 | 32 | 0 | 5 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| untagged | 238 | 72 | 129 | 32 | 0 | 5 |
+| **Total** | **740** | **179** | **421** | **128** | **1** | **11** |
 
 ## By file
 
@@ -86,7 +86,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1d-web.json` | 10 | 2 | 5 | 3 | 0 | 0 |
 | `final-pass-2.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `final-pass.json` | 4 | 4 | 0 | 0 | 0 | 0 |
-| `journeys.json` | 87 | 33 | 52 | 2 | 0 | 0 |
+| `journeys.json` | 87 | 32 | 53 | 2 | 0 | 0 |
 | `provider-admin-ish.json` | 3 | 1 | 2 | 0 | 0 | 0 |
 | `provider-doctor.json` | 6 | 1 | 5 | 0 | 0 | 0 |
 | `provider-facility.json` | 7 | 1 | 6 | 0 | 0 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 7 | 0 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 6 | 7 | 0 | 0 | 0 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| **Total** | **740** | **179** | **421** | **128** | **1** | **11** |
 
 ## Owner decisions (1)
 
@@ -108,7 +108,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---:|---|---|---|
 | 1 | `13-web.json#13` `patient-web/lib/legal/embedded.ts:15` | /terms Embedded fallback text | [owner] The embedded copy (issue 755/783) is built from docs/legal, which are drafts with [placeholders] until a Saudi lawyer approves them, so it stays off today. After approval: update docs/legal, run node patient-web… |
 
-## Open and unverified (191)
+## Open and unverified (190)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -225,7 +225,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `final-pass.json#1` | client | open | /emergency, /emergency/sos, /emergency/sos-active, /emergency/tracking SOS trig… | [client] Same as the app: /api/patient/emergency/trigger, /emergency/my/active, /emergency/tracking and /emergency/:id/cancel have no backend route any more (NO_ROUTE x5 in the in… |
 | `final-pass.json#2` | client | open | MedicalJobsScreen guest applications list | [client] GET /recruitment/guest/mine answers 400 with the patient session and with none (runtime check, provider area 'shared'); the screen sends only device_id, so the call fails… |
 | `final-pass.json#3` | client | open | public directory pages (/articles, /doctors, /facilities, /home-care-services, … | [client] The server-side fetch uses a relative/BFF-less URL (`${base}/api/v1${endpoint}`), so the six directory pages render empty (NO_ROUTE x6 in the admin inventory); the pages … |
-| `journeys.json#2` | untagged | open (issue #1011) | 1 offers (no answer yet) | While no pharmacy has answered, the offers page only polls every 15 s with the sentence "an empty list does not mean the order was cancelled": no "expanding the search" step, no f… |
 | `journeys.json#7` | untagged | open (issue #1016) | 1 accept and pay | Two payment UIs for the same step: inline method buttons on the offers page (OnlinePaymentActions) and the separate /pharmacy/payment page. |
 | `journeys.json#8` | untagged | open | 1 order detail / tracking | Fixed on design/oc-journeys-1 (cancel button on order detail and tracking until the order is dispatched; the refund rule text of decision 26 waits for the OC-A policy D-26). No ca… |
 | `journeys.json#9` | untagged | open (issue #1018) | 1 checkout | Checkout offers "دفع مباشر" vs "عبر التأمين" as a toggle per order; decision 30 wants insurance or self-pay chosen at the start of the service and the app checkout has no insuranc… |
