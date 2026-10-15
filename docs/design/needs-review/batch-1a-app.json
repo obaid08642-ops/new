@@ -206,6 +206,6 @@
     "line": 0,
     "found": "177 pharmacy.* keys were added to patient-app/src/i18n/locales/{ar,en,ur,hi,bn,tl}.json. The English, Urdu, Hindi, Bengali and Filipino text was written by the design session (and, for reused phrases, taken from the phrase catalogue after correcting the entries that were wrong).",
     "suspect": "A native speaker should review the Urdu, Hindi, Bengali and Filipino text, especially the medical wording (precautions, contraindications, interactions).",
-    "review_status": "owner-decision (question 34 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2) (issue #466)"
+    "review_status": "owner-decision (owner action, decided 2026-10-15 question 34: native reviewer per language before launch) (issue #466)"
   }
 ]
