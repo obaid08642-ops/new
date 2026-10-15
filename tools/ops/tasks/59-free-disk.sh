@@ -14,7 +14,7 @@
 # Never touches docker volumes (database, redis, uploads), running containers, the deploy folder or its env file.
 # Prints sizes and paths only, never file contents or secret values. Lines start with "cleanup:" (public job log).
 set +e
-REL=8c8c08ac
+REL=0579c8cc   # the release of the next deploy (main after #1443, #1446, #1447)
 DK="sudo -n docker"
 B=/opt/nabdah/backups
 KEEP_REPOS='^(mongo|redis|nginx|getmeili/meilisearch|livekit/livekit-server|coturn/coturn|nabdah-migrations)$'

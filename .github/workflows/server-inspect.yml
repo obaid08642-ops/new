@@ -47,6 +47,29 @@ jobs:
           $SSH "mkdir -p /opt/nabdah/releases/$S8"
           scp -q -P "$PORT" -o BatchMode=yes -o StrictHostKeyChecking=yes -i ~/.ssh/id_deploy rel-out/images.tar.gz rel-out/deploy.tgz rel-out/SHA rel-out/SHA256SUMS "$U@$H:/opt/nabdah/releases/$S8/"
           $SSH "cd /opt/nabdah/releases/$S8 && sha256sum -c --quiet SHA256SUMS" && echo "deploy: release $S8 uploaded and verified on the server"
+      - name: R2 backup bucket (only when RUN lists r2-backup-bucket)
+        # D-33: the private bucket, its 30-day expiry and a key limited to it, made with the Global API Key
+        # (tools/ops/cf/20-r2-backup-bucket.sh). The key reaches the server only on ssh stdin, as a mode-600 file
+        # in the deploy user's home that tasks/61-backups-env.sh moves into .env.production and shreds.
+        if: ${{ !cancelled() }}
+        env:
+          CF: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CFE: ${{ secrets.CLOUDFLARE_EMAIL }}
+          Z: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          H: ${{ secrets.DEPLOY_HOST }}
+          U: ${{ secrets.DEPLOY_USER }}
+          PORT: ${{ secrets.DEPLOY_PORT }}
+        run: |
+          : > r2.txt
+          grep -qE '^\s*r2-backup-bucket\s*$' tools/ops/RUN || { echo "skipped"; exit 0; }
+          PORT=${PORT:-22}
+          SSH="ssh -p $PORT -o BatchMode=yes -o ConnectTimeout=20 -o StrictHostKeyChecking=yes -i $HOME/.ssh/id_deploy $U@$H"
+          export R2_HAS_KEY_CMD="$SSH \"sudo -n grep -qE '^BACKUP_S3_ACCESS_KEY_ID=.+' /opt/nabdah/deploy/.env.production\""
+          export R2_DELIVER_CMD="$SSH 'umask 077; cat > ops-r2-backup.env'"
+          set +e
+          timeout 300 bash tools/ops/cf/20-r2-backup-bucket.sh > r2.txt 2>&1; rc=$?
+          grep -E '^r2:' r2.txt || true
+          echo "   exit=$rc"
       - name: Run tasks
         env:
           H: ${{ secrets.DEPLOY_HOST }}
@@ -55,7 +78,7 @@ jobs:
         run: |
           set +e   # a failing task must never stop the report from being saved
           PORT=${PORT:-22}
-          : > report.txt
+          cat r2.txt > report.txt 2>/dev/null || : > report.txt
           for t in $(grep -vE '^\s*(#|$)' tools/ops/RUN); do
             f=tools/ops/tasks/$t.sh
             [ -f "$f" ] || continue
@@ -74,7 +97,7 @@ jobs:
             echo "   exit=$?"
           done
           # public log: only the short status lines of mutating tasks
-          grep -E '^(x0|cleanup|deploy|rotate):' report.txt | sed -E 's/[0-9]{1,3}(\.[0-9]{1,3}){3}/<ip>/g' || true
+          grep -E '^(x0|cleanup|deploy|rotate|backups):' report.txt | sed -E 's/[0-9]{1,3}(\.[0-9]{1,3}){3}/<ip>/g' || true
           echo "report lines: $(wc -l < report.txt)"
       - name: Cloudflare tasks (RUN lines "cf:<name>" -> tools/ops/cf/<name>.sh, output into the encrypted report)
         if: ${{ !cancelled() }}

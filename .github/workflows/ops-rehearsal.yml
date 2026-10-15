@@ -136,8 +136,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 75
     env:
-      SHA: 8c8c08ac4706278a127b6605fc8596f10e6f4f7c   # main after PR 1419; the production run pins the same SHA
-      OPS_RELEASE_SHA: 8c8c08ac4706278a127b6605fc8596f10e6f4f7c
+      SHA: 0579c8ccc1a690e0dd498871b8b9fce8a0d5fcdf   # main after #1443 (nginx resolve), #1446 (disk alert), #1447 (D-33); the production run pins the same SHA
+      OPS_RELEASE_SHA: 0579c8ccc1a690e0dd498871b8b9fce8a0d5fcdf
     steps:
       - uses: actions/checkout@v4
       - name: Build the release from main (same script the server-ops workflow runs)
@@ -173,7 +173,7 @@ jobs:
           sudo chown 999:999 $D/mongo/mongo-keyfile && sudo chmod 400 $D/mongo/mongo-keyfile
           for h in api.nabd.plus admin.nabd.plus provider.nabd.plus live.nabd.plus nabd.plus mcp.nabd.plus; do
             sudo mkdir -p $D/certs/live/live/$h
-            sudo openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj /CN=$h -keyout $D/certs/live/live/$h/privkey.pem -out $D/certs/live/live/$h/fullchain.pem 2>/dev/null
+            sudo openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj /CN=$h -addext "subjectAltName=DNS:$h" -keyout $D/certs/live/live/$h/privkey.pem -out $D/certs/live/live/$h/fullchain.pem 2>/dev/null
           done
           sudo tee $D/livekit/livekit.yaml >/dev/null <<'EOF'
           port: 7880
@@ -239,6 +239,47 @@ jobs:
           set +e
           REHEARSE_FAIL_AT=checks bash tools/ops/tasks/60-deploy-main.sh 2>&1 | tee out.txt; rc=${PIPESTATUS[0]}
           bash tools/ops/rehearsal/check-rollback.sh out.txt $rc checks
+      - name: "Backups 1: r2 step (Cloudflare stand-in) + 61-backups-env before the deploy"
+        # Cloudflare: tools/ops/rehearsal/cf-mock.py stands in for the API (bucket, lifecycle, token). R2: a moto S3 server
+        # on 127.0.0.1:9000; the key file's endpoint is pointed at it (rehearsal only). api.nabd.plus resolves to this
+        # host and the self-signed certificate is trusted, so backup.sh reports to the real backend like production.
+        run: |
+          set -euo pipefail
+          D=/opt/nabdah/deploy
+          echo "127.0.0.1 api.nabd.plus" | sudo tee -a /etc/hosts >/dev/null
+          sudo cp $D/certs/live/live/api.nabd.plus/fullchain.pem /usr/local/share/ca-certificates/rehearsal-api.crt && sudo update-ca-certificates >/dev/null
+          # the runner ships aws v2: hide it so the task's own install path runs, as on the server (no aws there)
+          sudo mv /usr/local/bin/aws /usr/local/bin/aws-ci
+          python3 -m pip install -q --user 'moto[server]==5.2.3'
+          (~/.local/bin/moto_server -H 127.0.0.1 -p 9000 > moto.log 2>&1 &)
+          for i in $(seq 1 30); do curl -s -o /dev/null http://127.0.0.1:9000 && break; sleep 1; done
+          AWS_ACCESS_KEY_ID=x AWS_SECRET_ACCESS_KEY=x aws-ci --endpoint-url http://127.0.0.1:9000 --region us-east-1 s3 mb s3://nabd-plus-backups
+          # the old schedule the task must replace
+          echo "0 3 * * * /opt/nabdah/deploy/scripts/backup.sh >> /var/log/nabdah-backup.log 2>&1" | sudo crontab -
+          (python3 tools/ops/rehearsal/cf-mock.py 18999 > cf-mock.log 2>&1 &); sleep 1
+          export CF=rehearsal-global-key CFE=owner@example.test Z=zone-rehearsal CF_API=http://127.0.0.1:18999/client/v4
+          export R2_HAS_KEY_CMD="sudo -n grep -qE '^BACKUP_S3_ACCESS_KEY_ID=.+' $D/.env.production"
+          export R2_DELIVER_CMD="umask 077; cat > $HOME/ops-r2-backup.env"
+          bash tools/ops/cf/20-r2-backup-bucket.sh | tee r2.txt
+          grep -q 'r2: key handed to the server' r2.txt
+          test "$(stat -c %a ~/ops-r2-backup.env)" = 600 && echo "key file mode 600" || exit 1
+          sed -i 's|^BACKUP_S3_ENDPOINT=.*|BACKUP_S3_ENDPOINT=http://127.0.0.1:9000|' ~/ops-r2-backup.env   # rehearsal: moto instead of R2
+          curl -s http://127.0.0.1:18999/_state | jq -e '.result | (.tokens|length)==1 and (.tokens[0].policies[0].resources|keys==["com.cloudflare.edge.r2.bucket.acc0000000000000000000000000rehe_default_nabd-plus-backups"]) and (.lifecycle["nabd-plus-backups"].rules[0].deleteObjectsTransition.condition.maxAge==2592000)' \
+            && echo "Cloudflare stand-in: one token limited to the bucket, 30-day lifecycle" || { echo "stand-in state wrong"; exit 1; }
+          set +e
+          bash tools/ops/tasks/61-backups-env.sh 2>&1 | tee out.txt; rc=${PIPESTATUS[0]}
+          echo "exit=$rc"; test $rc = 0 || exit 1
+          test ! -e ~/ops-r2-backup.env && echo "key file shredded" || exit 1
+          for n in BACKUP_S3_ENDPOINT BACKUP_S3_BUCKET BACKUP_S3_ACCESS_KEY_ID BACKUP_S3_SECRET_ACCESS_KEY BACKUP_REPORT_URL OPS_ALERT_EMAIL; do sudo grep -qE "^$n=.+" $D/.env.production || { echo "$n missing"; exit 1; }; done
+          sudo grep -qE '^BACKUP_REPORT_TOKEN=[A-Za-z0-9]{48}$' $D/.env.production && echo "env: BACKUP_REPORT_TOKEN 48 characters" || exit 1
+          sudo grep -q 'BEGIN PRIVATE KEY' $D/.env.production && test "$(sudo stat -c %a $D/.env.production)" = 600 && echo "env: multi-line value intact, mode 600" || exit 1
+          for n in BACKUP_REPORT_TOKEN BACKUP_S3_SECRET_ACCESS_KEY BACKUP_S3_ACCESS_KEY_ID; do v=$(sudo grep "^$n=" $D/.env.production | cut -d= -f2-); ! grep -qF "$v" out.txt r2.txt || { echo "$n printed"; exit 1; }; done
+          echo "no key or token printed"
+          /usr/local/bin/aws --version
+          sudo grep -q '^PATH=.*/usr/local/bin' /etc/cron.d/nabd-backups && sudo grep -q 'scripts/backup.sh' /etc/cron.d/nabd-backups && echo "cron.d installed with PATH" || exit 1
+          ! sudo crontab -l 2>/dev/null | grep -q 'scripts/backup.sh' && echo "old crontab line removed" || exit 1
+          for f in _backup-common backup catalogue-export restore-drill backup-bucket-lifecycle monitor; do cmp -s rel-src/deploy/scripts/$f.sh $D/scripts/$f.sh || { echo "$f.sh not main's"; exit 1; }; done
+          echo "D-33 scripts and monitor.sh are main's"
       - name: "Scenario 3: real deploy"
         run: |
           set +e
@@ -266,9 +307,31 @@ jobs:
           test "$(grep -cE '^migrate: 20[0-9-]+[a-z-]+ exit=0$' out.txt)" = 4 && echo "migrations re-run cleanly (idempotent)" || exit 1
           N2=$(sudo docker exec nabdah-mongodb sh -c 'mongosh --quiet -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin nabd_nestjs --eval "print(db.nursing_catalog.countDocuments())"')
           echo "nursing_catalog rows after the second run: $N2"
+      - name: "Backups 2: 62-backups-verify after the deploy (real backup, read back, report)"
+        run: |
+          set +e
+          D=/opt/nabdah/deploy
+          bash tools/ops/tasks/62-backups-verify.sh 2>&1 | tee out.txt; rc=${PIPESTATUS[0]}
+          echo "exit=$rc"; test $rc = 0 || exit 1
+          grep -q 'backups: read back from the private bucket: same sha256' out.txt || exit 1
+          grep -q 'backups: /ops/backup-runs recorded this run: local ok, offsite ok' out.txt || exit 1
+          grep -q 'refuses a run without it (401)' out.txt || exit 1
+          for n in BACKUP_REPORT_TOKEN BACKUP_S3_SECRET_ACCESS_KEY MONGO_ROOT_PASSWORD; do v=$(sudo grep "^$n=" $D/.env.production | cut -d= -f2-); ! grep -qF "$v" out.txt || { echo "$n printed"; exit 1; }; done
+          echo "no secret printed"
+          N=$(AWS_ACCESS_KEY_ID=x AWS_SECRET_ACCESS_KEY=x aws-ci --endpoint-url http://127.0.0.1:9000 --region us-east-1 s3 ls s3://nabd-plus-backups/mongodb/ | grep -c nabd_)
+          echo "objects in the bucket: $N"; test "$N" = 1 || exit 1
+      - name: "Backups 3: 61 and 62 again (idempotent)"
+        run: |
+          set +e
+          bash tools/ops/tasks/61-backups-env.sh 2>&1 | tee out.txt; test ${PIPESTATUS[0]} = 0 || exit 1
+          grep -q 'backups: env names set: none' out.txt && echo "second 61: env unchanged" || exit 1
+          bash tools/ops/tasks/62-backups-verify.sh 2>&1 | tee out.txt; test ${PIPESTATUS[0]} = 0 || exit 1
+          N=$(AWS_ACCESS_KEY_ID=x AWS_SECRET_ACCESS_KEY=x aws-ci --endpoint-url http://127.0.0.1:9000 --region us-east-1 s3 ls s3://nabd-plus-backups/mongodb/ | grep -c nabd_)
+          echo "objects in the bucket: $N"; test "$N" = 2 || exit 1
       - name: Logs on failure
         if: failure()
         run: |
           set +e
+          cat cf-mock.log moto.log 2>/dev/null | tail -40
           sudo docker ps -a
           for c in nabdah-backend nabdah-worker nabdah-patient-web nabdah-admin-web nabdah-nginx nabdah-meilisearch nabdah-mongodb; do echo "== $c"; sudo docker logs --tail 40 $c 2>&1 | grep -viE 'secret|password|token'; done
