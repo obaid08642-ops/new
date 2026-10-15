@@ -3,9 +3,6 @@
  * ║ NABDAH PLUS – PHASE 3 · PHARMACY DASHBOARD (ALL SCREENS) ║
  * ║ ║
  * ║ 01. PharmacyHomeTab — dashboard + live broadcast orders ║
- * ║ 02. BroadcastOrderScreen — accept/partial/reject + alternatives ║
- * ║ 03. OrderDetailScreen — full order details + item-level actions ║
- * ║ 04. PrescriptionProcessing — scan/photo rx → manual item entry ║
  * ║ 05. MedicationRefillsScreen — chronic meds auto-refill management ║
  * ║ 06. DrugPriceComparisonScreen— compare prices across pharmacies ║
  * ║ 07. InventoryManagement — stock levels + alerts + categories ║
@@ -14,7 +11,6 @@
  * ║ 10. ShortageReportScreen — report shortage → admin ║
  * ║ 11. B2BSupplyRequestScreen — Voice/OCR/Manual supplier orders ║
  * ║ 12. OrderHistoryScreen — all past orders + status + filter ║
- * ║ 13. DeliveryTrackingScreen — live delivery map + driver status ║
  * ║ 14. PharmacyQRMenuScreen — QR code for customer product catalog ║
  * ║ 15. ReviewsAndRatingsScreen — pharmacy reviews + auto-reply ║
  * ║ 16. PharmacyWalletScreen — earnings + withdrawal ║
@@ -414,24 +410,6 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab, onToggleOnline }: any) {
   );
 }
 
-function GovernanceUnavailableScreen({ onBack, titleAr, titleEn, bodyAr, bodyEn }: any) {
-  const { theme } = useTheme();
-  const { lang } = useLang();
-  const AR = lang === 'ar';
-  return (
-    <NScroll>
-      <NHeader title={AR ? (titleAr || 'الميزة غير متاحة') : (titleEn || 'Feature unavailable')} onBack={onBack} />
-      <NCard style={{ margin: SP.lg, borderColor: theme.border }}>
-        <Text style={{ color: theme.text, fontSize: FS.md, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>
-          {AR ? 'هذه الوظيفة غير متاحة حالياً' : 'This function is currently unavailable'}
-        </Text>
-        <Text style={{ color: theme.textSub, fontSize: FS.sm, lineHeight: 24, textAlign: AR ? 'right' : 'left' }}>
-          {AR ? (bodyAr || 'لا توجد عقدة خادمية مكتملة وآمنة لتشغيل هذه الوظيفة. لم يتم تنفيذ أي تغيير أو تسوية.') : (bodyEn || 'No complete, server-authoritative contract is approved for this function. No mutation or settlement was performed.')}
-        </Text>
-      </NCard>
-    </NScroll>
-  );
-}
 
 function PharmacyChatTab({ onBack }: any) {
   const { theme } = useTheme();
@@ -539,9 +517,6 @@ function PharmacyChatTab({ onBack }: any) {
       )}
     </View>
   );
-}
-function PrescriptionProcessing({ onBack }: any) {
-  return <GovernanceUnavailableScreen onBack={onBack} titleAr="صرف الوصفات الطبية" titleEn="Prescription dispensing" bodyAr="مسار الوصفة القديم متوقف. استخدم فقط العرض الخادمي المرتبط بالبث واختيار المريض؛ لا يتم عرض اسم المريض أو هاتفه أو بيانات الطلب الخام." bodyEn="The legacy prescription path is disabled. Only the server-authoritative broadcast/offer/patient-selection flow may be used; raw patient/order data is not exposed." />;
 }
 function B2BSupplyRequestScreen({ onBack }: any) {
   const { theme } = useTheme();
@@ -1102,154 +1077,6 @@ function DispatchWorkflowScreen({ onBack, onNavigate, initialSection = 'new' }: 
     </View>
   );
 }
-function OrderDetailScreen({ orderId, onBack }: any) {
-  const { theme } = useTheme();
-  const { lang } = useLang();
-  const { show } = useToast();
-  const AR = lang === 'ar';
-
-  const [basket, setBasket] = useState<{id:string, name:string, requestedQty:number, price:number, available:boolean, is_substitute:boolean, substituted_from?:string}[]>([]);
-  const [basketLoading, setBasketLoading] = useState(true);
-
-  useEffect(() => {
-    // Load the real allocation items for this order
-    client.get('/provider/pharmacy/allocations')
-      .then(res => {
-        const rows = Array.isArray(res.data) ? res.data : [];
-        const alloc = rows.find((a: any) => a.order_id === orderId) || rows[0];
-        const items = Array.isArray(alloc?.items) ? alloc.items : [];
-        setBasket(items.map((it: any) => ({
-          id: it.id || it.sku,
-          name: it.name || it.sku,
-          requestedQty: it.qty_requested ?? it.qty_offered ?? 1,
-          price: it.unit_price ?? 0,
-          available: it.action !== 'unavailable',
-          is_substitute: !!it.substitute_for_sku,
-          substituted_from: it.substitute_for_sku || undefined,
-        })));
-      })
-      .catch(() => setBasket([]))
-      .finally(() => setBasketLoading(false));
-  }, [orderId]);
-
-  const [insuranceStatus, setInsuranceStatus] = useState('PENDING'); // PENDING | APPROVED | REJECTED
-  const [copay, setCopay] = useState(0);
-  
-  // NPHIES Form State
-  const [showNPHIES, setShowNPHIES] = useState(false);
-  const [nphiesData, setNphiesData] = useState({ policyNo: '', authCode: '', copay: '' });
-
-  // Substitute Modal State
-  const [showSubModal, setShowSubModal] = useState(false);
-  const [subTargetId, setSubTargetId] = useState<string|null>(null);
-  const [subSearch, setSubSearch] = useState('');
-  const [subResults, setSubResults] = useState<any[]>([]);
-  const [subSearching, setSubSearching] = useState(false);
-
-  useEffect(() => {
-    if (!showSubModal) return;
-    setSubSearching(true);
-    const t = setTimeout(() => {
-      client.get('/provider/inventory/search', { params: { q: subSearch } })
-        .then(res => setSubResults(Array.isArray(res.data) ? res.data : []))
-        .catch(() => setSubResults([]))
-        .finally(() => setSubSearching(false));
-    }, 300);
-    return () => clearTimeout(t);
-  }, [subSearch, showSubModal]);
-
-  const toggleAvailability = () => {
-    show(AR ? 'لا يمكن تعديل السلة من هذه الشاشة. أنشئ عرضاً خادمياً من طلبات البث.' : 'Basket changes are not allowed here. Create a server quote from Broadcast Orders.', 'info');
-  };
-
-  const evaluateInsurance = () => {
-    show(AR ? 'قرار التأمين غير متاح من شاشة السلة القديمة. لا تُدخل مبالغ أو موافقات محلياً.' : 'Insurance decisions are unavailable in the legacy basket screen; no local amount or approval is accepted.', 'info');
-  };
-
-  const applySubstitute = () => {
-    setShowSubModal(false);
-    show(AR ? 'اقتراح البديل متاح فقط ضمن العرض الخادمي في طلبات البث.' : 'Substitutes are available only in the server quote flow from Broadcast Orders.', 'info');
-  };
-
-  const submitBasket = () => {
-    show(AR ? 'إرسال السلة القديمة معطل. يجب تقديم عرض مؤرخ، ثم يختاره المريض صراحةً.' : 'Legacy basket submission is disabled. Submit a versioned offer and wait for explicit patient selection.', 'info');
-  };
-
-  return (
-    <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'تفاصيل الطلب: ' + orderId : 'Order Detail: ' + orderId} onBack={onBack} />
-      <ScrollView contentContainerStyle={{ padding: 16 }}>
-        
-        <NCard style={{ marginBottom: 16, borderColor: theme.warn, borderWidth: 1 }}>
-          <Text style={{ fontWeight: 'bold', fontSize: 16, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
-            {AR ? 'هذه شاشة قراءة فقط' : 'This screen is read-only'}
-          </Text>
-          <Text style={{ color: theme.textSub, marginTop: 8, textAlign: AR ? 'right' : 'left' }}>
-            {AR ? 'لا يمكن اعتماد تأمين أو تعديل سلة هنا. أنشئ عرضاً مؤرخاً من طلبات البث؛ لا يبدأ التجهيز إلا بعد اختيار المريض ودفعه أو بوابة التأمين الخادمية.' : 'Insurance approval and basket edits are unavailable here. Create a versioned offer from Broadcast Orders; fulfilment starts only after patient selection and the server payment or insurance gate.'}
-          </Text>
-        </NCard>
-
-        {/* Basket Matrix */}
-        <Text style={{ fontWeight: 'bold', fontSize: 18, color: theme.text, marginBottom: 12, textAlign: AR ? 'right' : 'left' }}>
-          {AR ? 'مصفوفة السلة (Basket Matrix)' : 'Basket Matrix'}
-        </Text>
-        
-        {basketLoading ? (
-          <ActivityIndicator color={theme.primary} style={{ marginVertical: 24 }} />
-        ) : basket.length === 0 ? (
-          <Text style={{ color: theme.textSub, textAlign: 'center', marginVertical: 24 }}>
-            {AR ? 'لا توجد أصناف في هذا الطلب' : 'No items in this order'}
-          </Text>
-        ) : basket.map((item, idx) => (
-          <NCard key={item.id} style={{ marginBottom: 12, padding: 12, opacity: item.available ? 1 : 0.6 }}>
-            <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontWeight: 'bold', color: theme.text, textAlign: AR ? 'right' : 'left' }}>{item.name}</Text>
-                <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{item.requestedQty}x • {item.price} {AR ? 'ر.س' : 'SAR'}</Text>
-                {item.is_substitute && <Text style={{ color: theme.warn, fontSize: 12, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>{AR ? 'بديل عن: ' : 'Substitute for: '}{item.substituted_from}</Text>}
-              </View>
-              <Switch value={item.available} disabled onValueChange={toggleAvailability} trackColor={{ true: theme.success }} />
-            </View>
-            {!item.available && !item.is_substitute && <Text style={{ color: theme.textSub, marginTop: 8, textAlign: AR ? 'right' : 'left' }}>{AR ? 'تُقدَّم البدائل فقط ضمن العرض الخادمي.' : 'Substitutes are proposed only in the server quote flow.'}</Text>}
-          </NCard>
-        ))}
-
-      </ScrollView>
-
-      {/* Action Footer */}
-      <View style={{ padding: 16, backgroundColor: theme.surface, borderTopWidth: 1, borderTopColor: theme.border }}>
-        <NBtn label={AR ? 'استخدم طلبات البث لتقديم عرض' : 'Use Broadcast Orders to submit an offer'} onPress={submitBasket} variant="outline" />
-      </View>
-
-      {/* Substitute Bottom Sheet Modal */}
-      <Modal visible={showSubModal} animationType="slide" transparent>
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-          <View style={{ backgroundColor: theme.bg, padding: 24, borderTopLeftRadius: 24, borderTopRightRadius: 24, height: 500 }}>
-            <Text style={{ fontSize: 20, fontWeight: 'bold', color: theme.text, marginBottom: 16, textAlign: AR ? 'right' : 'left' }}>
-              {AR ? 'اقتراح بديل' : 'Suggest Substitute'}
-            </Text>
-            <NInput placeholder={AR ? 'ابحث في المخزون...' : 'Search inventory...'} value={subSearch} onChange={(v: string) => setSubSearch(v)} />
-            <ScrollView style={{ marginTop: 16 }}>
-              {subSearching ? (
-                <ActivityIndicator color={theme.primary} style={{ marginTop: 24 }} />
-              ) : subResults.length === 0 ? (
-                <Text style={{ color: theme.textSub, textAlign: 'center', marginTop: 24 }}>
-                  {AR ? 'لا توجد أصناف مطابقة في المخزون' : 'No matching inventory items'}
-                </Text>
-              ) : subResults.map((sub: any, i: number) => (
-                <TouchableOpacity key={sub.id || i} style={{ padding: 16, borderBottomWidth: 1, borderBottomColor: theme.border, flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between' }} onPress={applySubstitute}>
-                  <Text style={{ color: theme.text, fontWeight: 'bold' }}>{AR ? (sub.name_ar || sub.name_en || sub.sku) : (sub.name_en || sub.name_ar || sub.sku)}</Text>
-                  <Text style={{ color: theme.primary }}>{sub.price} {AR ? 'ر.س' : 'SAR'}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-            <NBtn label={AR ? 'إلغاء' : 'Cancel'} variant="outline" onPress={() => setShowSubModal(false)} style={{ marginTop: 16 }} />
-          </View>
-        </View>
-      </Modal>
-    </View>
-  );
-}
 
 // ══════════════════════════════════════════════════════════════════════════════
 // SMART BARCODE SCANNER
@@ -1319,6 +1146,12 @@ function SmartBarcodeScannerScreen({ onBack }: any) {
 }
 
 
+
+type LowStockAlert = { id: string; inventory_item_id: string; sku: string; name: string; current_stock: number; threshold: number; status: 'open' | 'acknowledged' | 'restocked' };
+
+// provider-journeys 5: this quick-offer screen is not rendered (the offer composer is shared/blueprint/PharmacyBroadcastResponse).
+// It stays because provider-app.contracts.test.js pins its offer calls to this file; removing it is an owner decision
+// (docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md, question 41).
 function BroadcastOrderScreen({ onBack }: any) {
   const { theme } = useTheme();
   const { lang } = useLang();
@@ -1449,11 +1282,6 @@ function BroadcastOrderScreen({ onBack }: any) {
     </View>
   );
 }
-
-// ══════════════════════════════════════════════════════════════════════════════
-// ACTIVE INVENTORY SCREEN (Module 8)
-// ══════════════════════════════════════════════════════════════════════════════
-type LowStockAlert = { id: string; inventory_item_id: string; sku: string; name: string; current_stock: number; threshold: number; status: 'open' | 'acknowledged' | 'restocked' };
 
 function ActiveInventoryScreen({ onBack, onNavigate }: { onBack: () => void; onNavigate?: (s: string, p?: any) => void }) {
   const { theme } = useTheme();

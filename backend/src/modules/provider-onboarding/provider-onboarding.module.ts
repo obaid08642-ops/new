@@ -430,7 +430,15 @@ export class ProviderOnboardingService {
   async getProgress(user: any) {
     const profile = await this.providerModel.findOne({ user_id: user.id }, { _id: 0, __v: 0 });
     if (!profile) return { started: false };
-    return { started: true, ...profile.toObject() };
+    // provider-journeys#24: the reviewer's written reason ("request changes", reject, suspend) lives on the moderation
+    // account's status history, not on the profile; the status screen shows it (accountStatus reasonFromProgress).
+    const account: any = await this.providerModel.db.collection('provider_accounts')
+      .findOne({ $or: [{ id: user.id }, { user_id: user.id }] }, { projection: { _id: 0, status: 1, status_history: 1 } })
+      .catch(() => null);
+    const reviewed = ['needs_changes', 'rejected', 'suspended'].includes(String(account?.status || ''));
+    const last = reviewed ? [...(account?.status_history || [])].reverse().find((h: any) => h?.to === account.status) : null;
+    const note = typeof last?.note === 'string' && last.note.trim() ? last.note.trim() : undefined;
+    return { started: true, ...profile.toObject(), ...(reviewed ? { review_status: account.status } : {}), ...(note ? { review_note: note, review_note_at: last.at } : {}) };
   }
 
   /**
