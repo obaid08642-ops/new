@@ -128,12 +128,15 @@ export class MedicinesService {
     return clean.split('').join('.{0,2}'); // MongoDB-PCRE safe (no \p classes)
   }
 
-  /** Public catalog gate. Missing governance metadata is intentionally hidden. */
+  /**
+   * Public catalog gate. Missing governance metadata is intentionally hidden. Same rule as the public product pages
+   * (seo.service publicQuery): approved and public. indexing_eligibility only decides crawling (sitemaps, IndexNow);
+   * requiring it here hid every medicine the admin approves (approve() sets it false) from the app and search.
+   */
   private publicCatalogFilter() {
     return {
       is_deleted: { $ne: true },
       public_eligibility: true,
-      indexing_eligibility: true,
       medical_review_status: 'approved',
     };
   }
@@ -146,7 +149,8 @@ export class MedicinesService {
     if (!/^[a-z0-9_-]{1,80}$/i.test(normalizedCategory)) throw new BadRequestException('invalid_catalog_category');
     const dbLocale: DbLang = locale === 'fil' ? 'tl' : locale as DbLang;
     const rows: any[] = await this.model.find(
-      { ...this.publicCatalogFilter(), category: normalizedCategory },
+      // The static shards are crawlable pages: they also need indexing_eligibility.
+      { ...this.publicCatalogFilter(), indexing_eligibility: true, category: normalizedCategory },
       MedicinesService.CARD_PROJECTION,
     ).sort({ name_ar: 1, id: 1 }).maxTimeMS(5000).limit(500); // 14.15: bound worst-case latency
     return rows.map((row: any) => {

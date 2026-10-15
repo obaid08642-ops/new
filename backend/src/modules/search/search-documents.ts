@@ -63,7 +63,8 @@ export interface SearchDocument {
 export function sourceFilter(source: SearchSource): Record<string, unknown> {
   const governed = { is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' };
   switch (source) {
-    case 'medicines': return { ...governed, indexing_eligibility: true, active: { $ne: false } };
+    // Approved and public, as the product pages; indexing_eligibility is only for crawlers (sitemaps, IndexNow).
+    case 'medicines': return { ...governed, active: { $ne: false } };
     case 'provider_profiles': return { type: 'doctor', status: 'active', public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
     case 'specialties': return { active: { $ne: false }, is_deleted: { $ne: true } };
     case 'lab_services':
