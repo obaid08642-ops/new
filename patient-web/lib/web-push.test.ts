@@ -4,12 +4,15 @@ import { disableWebPush, enableWebPush } from "./web-push";
 /** batch-0-web#9: turning push on subscribes this browser through the patient proxy; off removes it. Boundaries only. */
 const subscription = { endpoint: "https://push.example.test/abc", toJSON: () => ({ endpoint: "https://push.example.test/abc", keys: { p256dh: "p", auth: "a" } }), unsubscribe: vi.fn(async () => true) };
 
-function browser({ permission = "granted", key = "BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U" } = {}) {
+/** A VAPID public key has this shape (an uncompressed P-256 point, base64url): 0x04 then 64 bytes. Public, not a secret. */
+const SAMPLE_PUBLIC_KEY = Buffer.from([4, ...Array.from({ length: 64 }, (_, i) => i + 1)]).toString("base64url");
+
+function browser({ permission = "granted", key = SAMPLE_PUBLIC_KEY } = {}) {
   const registration = { pushManager: { getSubscription: vi.fn(async () => null), subscribe: vi.fn(async () => subscription) } };
   vi.stubGlobal("window", { PushManager: function PushManager() {}, Notification: {} });
   vi.stubGlobal("Notification", { permission, requestPermission: vi.fn(async () => permission) });
   vi.stubGlobal("navigator", { userAgent: "test", serviceWorker: { register: vi.fn(async () => registration), getRegistration: vi.fn(async () => ({ pushManager: { getSubscription: async () => subscription } })) } });
-  const fetchMock = vi.fn(async (url: string) => (url.endsWith("/vapid-key") ? new Response(JSON.stringify({ ok: true, public_key: key })) : new Response(JSON.stringify({ ok: true }))));
+  const fetchMock = vi.fn(async (url: string, _init?: RequestInit) => (url.endsWith("/vapid-key") ? new Response(JSON.stringify({ ok: true, public_key: key })) : new Response(JSON.stringify({ ok: true }))));
   vi.stubGlobal("fetch", fetchMock);
   return { registration, fetchMock };
 }
