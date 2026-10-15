@@ -51,15 +51,29 @@ Each has red on `main` and green on the branch in its body; lines are set to `fi
 | #1490 | book and pay a consultation for a family member (builds on fix/family-client) | issue 684 |
 | #1491 | public search (approved medicines found); Google popup; onboarding reachable | issues 439, 430, 436, 437 |
 
+| #1493 | provider proposals: admin review page, category, ownership | provider-journeys 28; issue 1169 |
+| #1494 | web logging: water, mood (1-5), kicks, contractions, baby growth | 8-web 4, 6, 11; issues 862, 864, 869 |
+| #1495 | family: invite QR, scan and join on the web (redirect caught /api/family/join), no-family state, date picker | 6-app 4, 9; 6-web 0; 1b-web 8 |
+| #1496 | family: caregiver writes the member's reminders, sees missed doses | journeys 67, 68 |
+| #1499 | pharmacy: new pharmacy prices lines from the national catalogue; partial allocation proof | provider-journeys 1, 4 |
+| #1500 | web compare from the product page; compare reads approved medicines | 1a-web 8 + 8 checked lines |
+
 Decision epics verified on main and closed with evidence: #322, #324, #325, #335, #336.
 
 ## Next
 
-- Branches in red/green, PR when green: `fix/family-client` (693, 688, 694, 499), `fix/web-health-logging` (862, 864, 869;
-  mood scale 1-5 fix), `fix/provider-proposals` (admin page for /approval-workflow requests; provider-journeys 28; 1169),
-  `fix/web-journeys-b` (journeys 44, 29), `fix/family-meds` (journeys 67, 68; builds on fix/family-client).
-- Closed with evidence (fixed on main): 1137, 1139, 1161, 1163.
-- Left for their own sessions: journeys 9, 24 and the insurance part of 23 (decision 30, D-30 session).
-- Then: journeys 22, 23, 41, 66, 74, 75, 77 (after #1473), 8; provider-journeys 1, 4, 22; b1 items; B8 part 2; 1235.
-- Queue rule: a queue waits on the previous one by PID (`ps aux | grep "bash -x queueN"`), never `pgrep -f` on a pattern
-  that matches the shell itself.
+- Live gate harness: `fix/live-login-throttle` (AdminWeb and browser sign-ins wait out the per-IP login throttle);
+  ported into the red PRs 1472, 1473, 1476, 1478, 1481, 1487, 1490 and the open branches.
+- Lighthouse is red on every web PR and on merged PRs (#1430, #1433, #1443): base failure (budgets on /ar, /ar/c,
+  /ar/consultations/doctors); the per-PR standing-down comment could not be posted from this session.
+- Branches in red/green, PR when green: `fix/web-journeys-b` (journeys 44, 29; refund fields kept on the appointment),
+  `fix/consult-rx-b2` (doctor photos 2-web#3, 2-app#13), `fix/web-manual-request` (journeys 74, 75, 8, 66; 420),
+  `fix/consult-filters-b` (2-app#10, 2-web#10, 12-web#12, 4-app#3, 10-web#2, 5-web#9), `fix/admin-catalogue-lab`,
+  `fix/rx-rules-fields`, `fix/patient-flows-c` (journeys 23 pickup, ac-1-agent-oauth#1), `fix/provider-side-b`,
+  `fix/admin-urgent-alerts` (1235), `fix/doctor-home-position` (2-app#3), `fix/pregnancy-weeks` (849, 861).
+- Owner questions added on #1468: 41 (provider-journeys 5, contract test pins a dead screen), 42 (nurse transport, 641).
+- For other sessions: journeys 9, 24, insurance part of 23, provider-journeys 22, 3-app 0, 3-web 3, 1a-app 8 (D-30);
+  admin kill switch / emergency maintenance 955, 995, admin-system 10 (Phase 14); seo-feature-pages 0 and
+  ac-1-agent-oauth 0 need a board (design session); journeys 77 and tooling 12 wait on #1473.
+- Queue rule: a queue waits on the previous one by PID (`ps aux | grep "bash -x queueN"`), never `pgrep -f`.
+  Free disk before it fills: the mongo container stopped when the disk was full (restart: `docker start mongo`).
