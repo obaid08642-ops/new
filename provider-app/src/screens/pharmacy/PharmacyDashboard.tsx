@@ -143,7 +143,7 @@ export function PharmacyDashboardNavigator({ onLogout }: { onLogout:()=>void }) 
      <Stack.Screen name="my_offers">{({ navigation }: any) => <PharmacyMyOffers onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="prescription_review">{({ navigation }: any) => <PharmacyPrescriptionReviewScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="returns_rma">{({ navigation }: any) => <ReturnsRMAScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
-    <Stack.Screen name="pharmacy_chat">{({ navigation, route }: any) => <PharmacyChatScreen onBack={() => navigation.goBack()} orderId={route.params?.param?.order_id || route.params?.param?.orderId} />}</Stack.Screen>
+    <Stack.Screen name="pharmacy_chat">{({ navigation, route }: any) => <PharmacyChatScreen onBack={() => navigation.goBack()} orderId={route.params?.param?.order_id || route.params?.param?.orderId} lines={route.params?.param?.lines} />}</Stack.Screen>
      <Stack.Screen name="qr_menu">{({ navigation }: any) => <PharmacyQRMenuScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="reviews">{({ navigation }: any) => <ReviewsAndRatingsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="chronic">{({ navigation }: any) => <ChronicDiseaseProgramScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -411,113 +411,6 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab, onToggleOnline }: any) {
 }
 
 
-function PharmacyChatTab({ onBack }: any) {
-  const { theme } = useTheme();
-  const { lang } = useLang();
-  const { show } = useToast();
-  const AR = lang === 'ar';
-  const [threads, setThreads] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [active, setActive] = useState<any | null>(null);
-  const [messages, setMessages] = useState<any[]>([]);
-  const [text, setText] = useState('');
-  const [sending, setSending] = useState(false);
-
-  const loadThreads = async () => {
-    try {
-      const res = await client.get('/pharmacy/chat/threads');
-      setThreads(Array.isArray(res.data) ? res.data : (res.data?.items || []));
-    } catch {
-      show(AR ? 'تعذر تحميل المحادثات' : 'Unable to load chats', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
-  useEffect(() => { loadThreads(); }, []);
-
-  const openThread = async (t: any) => {
-    setActive(t);
-    try {
-      const res = await client.get(`/pharmacy/chat/threads/${t.id}/messages`);
-      setMessages(Array.isArray(res.data) ? res.data : (res.data?.items || []));
-    } catch {
-      show(AR ? 'تعذر تحميل الرسائل' : 'Unable to load messages', 'error');
-    }
-  };
-
-  const send = async () => {
-    const body = text.trim();
-    if (!body || !active || sending) return;
-    setSending(true);
-    try {
-      await client.post(`/pharmacy/chat/threads/${active.id}/messages`, { text: body });
-      setText('');
-      await openThread(active);
-    } catch {
-      show(AR ? 'تعذر إرسال الرسالة' : 'Unable to send message', 'error');
-    } finally {
-      setSending(false);
-    }
-  };
-
-  if (active) {
-    return (
-      <View style={{ flex: 1, backgroundColor: theme.bg }}>
-        <NHeader title={AR ? `محادثة الطلب #${String(active.order_id || '').slice(-6)}` : `Order chat #${String(active.order_id || '').slice(-6)}`} onBack={() => setActive(null)} />
-        <FlatList
-          data={messages}
-          keyExtractor={(m: any, i: number) => String(m.id || i)}
-          contentContainerStyle={{ padding: 16, gap: 8 }}
-          renderItem={({ item: m }: any) => {
-            const mine = String(m.sender_role || m.sender || '').toLowerCase().includes('pharmacy') || String(m.sender_role || '').toLowerCase() === 'provider';
-            return (
-              <View style={{ alignSelf: mine ? 'flex-end' : 'flex-start', maxWidth: '80%', backgroundColor: mine ? theme.primary : theme.surface2, borderRadius: 12, padding: 10 }}>
-                <Text style={{ color: mine ? '#FFF' : theme.text, fontSize: 14 }}>{m.text || m.body}</Text>
-              </View>
-            );
-          }}
-          ListEmptyComponent={<NEmpty title={AR ? 'لا توجد رسائل بعد' : 'No messages yet'} />}
-        />
-        <View style={{ flexDirection: AR ? 'row-reverse' : 'row', padding: 12, gap: 8, borderTopWidth: 1, borderTopColor: theme.border }}>
-          <View style={{ flex: 1 }}>
-            <NInput placeholder={AR ? 'اكتب رسالة...' : 'Type a message...'} value={text} onChange={setText} />
-          </View>
-          <NBtn label={AR ? 'إرسال' : 'Send'} loading={sending} onPress={send} style={{ width: 90 }} full={false} />
-        </View>
-      </View>
-    );
-  }
-
-  return (
-    <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'المحادثات' : 'Chats'} onBack={onBack} />
-      {loading ? (
-        <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} />
-      ) : (
-        <FlatList
-          data={threads}
-          keyExtractor={(t: any, i: number) => String(t.id || i)}
-          contentContainerStyle={{ padding: 16 }}
-          renderItem={({ item: t }: any) => (
-            <TouchableOpacity onPress={() => openThread(t)}>
-              <NCard style={{ marginBottom: 10, padding: 14 }}>
-                <Text style={{ fontWeight: 'bold', color: theme.text, textAlign: AR ? 'right' : 'left' }}>
-                  {AR ? `محادثة الطلب #${String(t.order_id || '').slice(-6)}` : `Order chat #${String(t.order_id || '').slice(-6)}`}
-                </Text>
-                {!!t.last_message && (
-                  <Text numberOfLines={1} style={{ color: theme.textSub, fontSize: 12, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
-                    {t.last_message.text || t.last_message}
-                  </Text>
-                )}
-              </NCard>
-            </TouchableOpacity>
-          )}
-          ListEmptyComponent={<NEmpty title={AR ? 'لا توجد محادثات' : 'No chats'} sub={AR ? 'تظهر محادثات الطلبات هنا' : 'Order chats will appear here'} />}
-        />
-      )}
-    </View>
-  );
-}
 function B2BSupplyRequestScreen({ onBack }: any) {
   const { theme } = useTheme();
   const { lang } = useLang();
@@ -1022,7 +915,7 @@ function DispatchWorkflowScreen({ onBack, onNavigate, initialSection = 'new' }: 
             {['pending_review', 'partially_confirmed'].includes(String(a.status)) && (
               <NBtn label={AR ? 'تأكيد' : 'Confirm'} size="sm" loading={actionId === a.id} onPress={() => doAction(a.id, 'confirm')} />
             )}
-            <NBtn label={AR ? 'محادثة الطلب' : 'Order chat'} size="sm" variant="outline" onPress={() => onNavigate?.('pharmacy_chat', { order_id: a.order_id })} />
+            <NBtn label={AR ? 'محادثة الطلب' : 'Order chat'} size="sm" variant="outline" onPress={() => onNavigate?.('pharmacy_chat', { order_id: a.order_id, lines: (Array.isArray(a.items) ? a.items : []).map((it: any) => ({ order_item_id: it.order_item_id, name: it.name })) })} />
             {String(a.status) === 'confirmed' && (
               <NBtn label={AR ? 'بدء التجهيز' : 'Start preparing'} size="sm" loading={actionId === a.id} onPress={() => doAction(a.id, 'preparing')} />
             )}
@@ -1148,140 +1041,6 @@ function SmartBarcodeScannerScreen({ onBack }: any) {
 
 
 type LowStockAlert = { id: string; inventory_item_id: string; sku: string; name: string; current_stock: number; threshold: number; status: 'open' | 'acknowledged' | 'restocked' };
-
-// provider-journeys 5: this quick-offer screen is not rendered (the offer composer is shared/blueprint/PharmacyBroadcastResponse).
-// It stays because provider-app.contracts.test.js pins its offer calls to this file; removing it is an owner decision
-// (docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md, question 41).
-function BroadcastOrderScreen({ onBack }: any) {
-  const { theme } = useTheme();
-  const { lang } = useLang();
-  const { show } = useToast();
-  const AR = lang === 'ar';
-  const [items, setItems] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-  const [actingId, setActingId] = useState<string | null>(null);
-  const [partialOrderId, setPartialOrderId] = useState<string | null>(null);
-  const [partialAvailability, setPartialAvailability] = useState<Record<string, 'yes' | 'no'>>({});
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await client.get('/provider/pharmacy/broadcasts');
-      const data = Array.isArray(res.data) ? res.data : (res.data?.items || []);
-      setItems(data);
-    } catch (e: any) {
-      setItems([]);
-      show(e?.message || (AR ? 'تعذر تحميل الطلبات الحالية' : 'Could not load live orders'), 'error');
-    } finally {
-      setLoading(false);
-    }
-  }, [AR, show]);
-
-  useEffect(() => { load(); }, [load]);
-
-  const submitOffer = async (orderId: string, medicines: any[], availability: Record<string, 'yes' | 'no'> = {}) => {
-    if (!orderId) return;
-    const offerItems = medicines.map((item: any) => {
-      const itemId = String(item.id || item.order_item_id || '');
-      return {
-        order_item_id: itemId,
-        availability: availability[`${orderId}:${itemId}`] === 'no' ? 'unavailable' : 'available',
-        qty_offered: Number(item.qty_requested ?? item.qty ?? item.quantity ?? 1),
-        inventory_item_id: item.matched_inventory_id || item.inventory_item_id || undefined,
-      };
-    }).filter((item: any) => item.order_item_id);
-    if (offerItems.length !== medicines.length) {
-      show(AR ? 'بيانات بنود الطلب غير مكتملة؛ لا يمكن إنشاء عرض.' : 'Order item identifiers are incomplete; an offer cannot be created.', 'error');
-      return;
-    }
-    setActingId(orderId);
-    try {
-      const draft = await client.post(`/provider/pharmacy/broadcasts/${orderId}/offers/draft`, { items: offerItems });
-      const offerId = draft.data?.id;
-      if (!offerId) throw new Error('offer_draft_id_missing');
-      await client.post(`/provider/pharmacy/broadcasts/${orderId}/offers/${offerId}/submit`);
-      show(AR ? 'أُرسل العرض للمريض للاختيار؛ لم يُخصص الطلب بعد.' : 'Offer sent to the patient for selection; the order is not assigned yet.', 'success');
-      setPartialOrderId(null);
-      setPartialAvailability({});
-      await load();
-    } catch (e: any) {
-      show(e?.response?.data?.message || e?.message || (AR ? 'تعذر إرسال العرض' : 'Could not submit offer'), 'error');
-    } finally {
-      setActingId(null);
-    }
-  };
-  const reject = async (orderId: string) => {
-    if (!orderId) return;
-    setActingId(orderId);
-    try {
-      await client.post(`/provider/pharmacy/broadcasts/${orderId}/reject`, { reason: 'provider_declined' });
-      show(AR ? 'تم تسجيل رفض الطلب' : 'Order rejection recorded', 'info');
-      await load();
-    } catch (e: any) {
-      show(e?.response?.data?.message || e?.message || (AR ? 'تعذر رفض الطلب' : 'Could not reject order'), 'error');
-    } finally {
-      setActingId(null);
-    }
-  };
-  const submitPartial = async (orderId: string, medicines: any[]) => submitOffer(orderId, medicines, partialAvailability);
-
-  return (
-    <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'طلبات البث المباشر الفورية' : 'Live Broadcast Orders'} onBack={onBack} />
-      <NScroll pad>
-        {loading ? <ActivityIndicator color={theme.primary} /> : items.length === 0 ? (
-          <NEmpty title={AR ? 'لا توجد طلبات بث حالياً' : 'No live broadcast orders'} sub={AR ? 'ستظهر هنا الطلبات التي يوجهها النظام إلى صيدليتك.' : 'Orders routed to your pharmacy will appear here.'} />
-        ) : items.map((order: any) => {
-          const id = String(order.id || order.order_id || '');
-          const orderId = String(order.order_id || order.order?.id || '');
-          const medicines = order.items || order.order?.items || order.medicines || [];
-          return (
-            <NCard key={id} style={{ marginBottom: SP.sm, borderLeftWidth: 4, borderLeftColor: theme.primary }}>
-              <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{order.tracking_id || order.order_number || id}</Text>
-                <NBadge label={AR ? 'بث حي' : 'Live Broadcast'} variant="warning" />
-              </View>
-              <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
-                {medicines.map((item: any) => item.name_ar || item.name_en || item.name || item.sku).filter(Boolean).join(', ') || (AR ? 'تفاصيل الدواء غير متاحة' : 'Medicine details unavailable')}
-              </Text>
-              {!orderId ? (
-                <NEmpty title={AR ? 'بيانات الطلب غير مكتملة' : 'Order data is incomplete'} sub={AR ? 'لا يمكن تنفيذ قرار قبل استلام معرف الطلب من الخادم.' : 'A server order identifier is required before taking an action.'} icon="alertTriangle" />
-              ) : (
-                <>
-                  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.xs, marginTop: SP.sm }}>
-                    <NBtn label={AR ? 'قبول كامل' : 'Accept all'} size="sm" loading={actingId === orderId} onPress={() => submitOffer(orderId, medicines)} style={{ flex: 1 }} />
-                    <NBtn label={AR ? 'عرض جزئي' : 'Partial offer'} size="sm" variant="outline" disabled={actingId === orderId} onPress={() => { setPartialOrderId(orderId); setPartialAvailability({}); }} style={{ flex: 1 }} />
-                    <NBtn label={AR ? 'رفض' : 'Reject'} size="sm" variant="danger" disabled={actingId === orderId} onPress={() => reject(orderId)} style={{ flex: 1 }} />
-                  </View>
-                  {partialOrderId === orderId && (
-                    <View style={{ marginTop: SP.md, gap: SP.sm }}>
-                      <Text style={{ color: theme.text, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>{AR ? 'حدد البنود المتوفرة في المخزون' : 'Select the items available in your inventory'}</Text>
-                      {medicines.map((medicine: any) => {
-                        const itemId = String(medicine.id || medicine.order_item_id || '');
-                        const availabilityKey = `${orderId}:${itemId}`;
-                        const available = partialAvailability[availabilityKey] === 'yes';
-                        return (
-                          <View key={itemId || medicine.sku} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', gap: SP.sm }}>
-                            <Text style={{ flex: 1, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{medicine.name_ar || medicine.name_en || medicine.name || medicine.sku || '—'}</Text>
-                            <NBtn label={available ? (AR ? 'متوفر' : 'Available') : (AR ? 'غير متوفر' : 'Unavailable')} size="sm" variant={available ? 'primary' : 'outline'} onPress={() => setPartialAvailability((previous) => ({ ...previous, [availabilityKey]: available ? 'no' : 'yes' }))} />
-                          </View>
-                        );
-                      })}
-                      <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm }}>
-                        <NBtn label={AR ? 'إرسال العرض الجزئي' : 'Submit partial offer'} loading={actingId === orderId} onPress={() => submitPartial(orderId, medicines)} style={{ flex: 1 }} />
-                        <NBtn label={AR ? 'إلغاء' : 'Cancel'} variant="outline" onPress={() => { setPartialOrderId(null); setPartialAvailability({}); }} style={{ flex: 1 }} />
-                      </View>
-                    </View>
-                  )}
-                </>
-              )}
-              <NBtn label={AR ? 'تحديث' : 'Refresh'} size="sm" variant="outline" onPress={load} style={{ marginTop: SP.sm }} />
-            </NCard>
-          );
-        })}
-      </NScroll>
-    </View>
-  );
-}
 
 function ActiveInventoryScreen({ onBack, onNavigate }: { onBack: () => void; onNavigate?: (s: string, p?: any) => void }) {
   const { theme } = useTheme();
@@ -1535,71 +1294,198 @@ function ActiveInventoryScreen({ onBack, onNavigate }: { onBack: () => void; onN
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// PHARMACY CHAT SCREEN (Module 10)
+// PHARMACY ORDER CHAT (issues 479/480: the substitute negotiation of an order line)
+// The pharmacy opens the chat of one line of an order it holds (POST /pharmacy/chat/threads), writes to the patient and
+// may attach a substitute from its own inventory (GET /provider/inventory/search); the server checks the substitute
+// against the prescription (issue 1440) and the patient accepts, rejects or removes the line in the patient apps.
 // ══════════════════════════════════════════════════════════════════════════════
-function PharmacyChatScreen({ onBack, orderId }: any) {
+type ChatLine = { order_item_id: string; name?: string };
+const CHAT_ERRORS: Record<string, [string, string]> = {
+  substitute_outside_prescription: ['البديل خارج الوصفة: يجب أن يكون نفس المادة الفعالة والتركيز والشكل', 'Substitute outside the prescription: it must have the same active ingredient, strength and form'],
+  inventory_item_not_available: ['هذا الصنف غير متاح في مخزونك', 'This item is not available in your inventory'],
+  content_blocked: ['لا يُسمح بأرقام الهواتف أو الروابط أو التطبيقات الأخرى في المحادثة', 'Phone numbers, links and other apps are not allowed in the chat'],
+  thread_closed: ['أُغلقت هذه المحادثة', 'This chat is closed'],
+  order_closed: ['انتهى هذا الطلب', 'This order is finished'],
+  not_part_of_order: ['هذا الطلب ليس لصيدليتك', 'This order is not yours'],
+};
+const chatErrorCode = (e: any): string => {
+  const d = e?.response?.data;
+  const m = d?.message;
+  return String((m && typeof m === 'object' ? m.code : null) || d?.code || (typeof m === 'string' ? m : '') || '');
+};
+
+function PharmacyChatScreen({ onBack, orderId, lines }: { onBack: () => void; orderId?: string; lines?: ChatLine[] }) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
-  const [threadId, setThreadId] = useState<string | null>(null);
+  const [threads, setThreads] = useState<any[]>([]);
+  const [thread, setThread] = useState<any | null>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [msg, setMsg] = useState('');
   const [loading, setLoading] = useState(true);
-  const [sending, setSending] = useState(false);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [term, setTerm] = useState('');
+  const [results, setResults] = useState<any[] | null>(null);
+  const [picked, setPicked] = useState<any | null>(null);
+  const items: ChatLine[] = Array.isArray(lines) ? lines.filter((l) => l && l.order_item_id) : [];
 
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        const res = await client.get('/pharmacy/chat/threads', { params: orderId ? { order_id: orderId } : {} });
-        const list = Array.isArray(res.data) ? res.data : [];
-        const first = list[0];
-        if (alive && first?.id) {
-          setThreadId(first.id);
-          const m = await client.get(`/pharmacy/chat/threads/${first.id}/messages`).catch(() => null);
-          if (alive && m?.data) setMessages(Array.isArray(m.data.messages) ? m.data.messages : Array.isArray(m.data) ? m.data : []);
-        }
-      } catch {
-        if (alive) show(AR ? 'تعذر تحميل المحادثة' : 'Could not load chat', 'error');
-      } finally {
-        if (alive) setLoading(false);
-      }
-    })();
-    return () => { alive = false; };
-  }, [orderId]);
+  const fail = (e: any, ar: string, en: string) => {
+    const known = CHAT_ERRORS[chatErrorCode(e)];
+    show(known ? (AR ? known[0] : known[1]) : (AR ? ar : en), 'error');
+  };
 
-  async function send() {
-    const text = msg.trim();
-    if (!text || !threadId || sending) return;
-    setSending(true);
+  const loadThreads = useCallback(async () => {
+    if (!orderId) { setLoading(false); return; }
     try {
-      await client.post(`/pharmacy/chat/threads/${threadId}/messages`, { text });
-      setMessages((prev) => [...prev, { id: `t-${Date.now()}`, body: text, text, sender: 'pharmacy', createdAt: new Date().toISOString() }]);
-      setMsg('');
-    } catch {
-      show(AR ? 'تعذر إرسال الرسالة' : 'Could not send message', 'error');
+      const res = await client.get('/pharmacy/chat/threads', { params: { order_id: orderId } });
+      setThreads(Array.isArray(res.data) ? res.data : []);
+    } catch (e) {
+      fail(e, 'تعذر تحميل المحادثة', 'Could not load chat');
     } finally {
-      setSending(false);
+      setLoading(false);
     }
+  }, [orderId]);
+  useEffect(() => { void loadThreads(); }, [loadThreads]);
+
+  const readThread = async (id: string) => {
+    const res = await client.get(`/pharmacy/chat/threads/${id}/messages`);
+    setThread(res.data?.thread ?? null);
+    setMessages(Array.isArray(res.data?.messages) ? res.data.messages : []);
+  };
+
+  const openLine = async (line: ChatLine) => {
+    if (!orderId || busy) return;
+    setBusy(`open-${line.order_item_id}`);
+    try {
+      const res = await client.post('/pharmacy/chat/threads', { order_id: orderId, order_item_id: line.order_item_id });
+      if (res.data?.id) await readThread(res.data.id);
+      await loadThreads();
+    } catch (e) {
+      fail(e, 'تعذر فتح المحادثة', 'Could not open the chat');
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const search = async () => {
+    const q = term.trim();
+    if (q.length < 2) { show(AR ? 'اكتب حرفين على الأقل' : 'Type at least 2 letters', 'error'); return; }
+    setBusy('search');
+    try {
+      const res = await client.get('/provider/inventory/search', { params: { q } });
+      setResults((Array.isArray(res.data) ? res.data : []).filter((r: any) => r?.id && r.source !== 'catalogue' && Number(r.stock) > 0));
+    } catch (e) {
+      fail(e, 'تعذر البحث في المخزون', 'Inventory search failed');
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const send = async () => {
+    const text = msg.trim();
+    if ((!text && !picked) || !thread?.id || busy) return;
+    setBusy('send');
+    try {
+      await client.post(`/pharmacy/chat/threads/${thread.id}/messages`, {
+        ...(text ? { text } : {}),
+        ...(picked ? { substitute_offer: { inventory_item_id: picked.id } } : {}),
+      });
+      setMsg(''); setPicked(null); setResults(null); setTerm('');
+      await readThread(thread.id);
+    } catch (e) {
+      fail(e, 'تعذر إرسال الرسالة', 'Could not send message');
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const lineName = (id?: string) => items.find((l) => l.order_item_id === id)?.name || (AR ? 'صنف' : 'Item');
+  const outcome = (r?: string) => r === 'accepted' ? (AR ? 'قبل المريض البديل' : 'The patient accepted the substitute')
+    : r === 'rejected' ? (AR ? 'رفض المريض البديل' : 'The patient rejected the substitute')
+    : r === 'removed' ? (AR ? 'حذف المريض الصنف من الطلب' : 'The patient removed the item')
+    : (AR ? 'أُغلقت المحادثة' : 'The chat is closed');
+
+  if (thread) {
+    const open = thread.status === 'open';
+    return (
+      <View style={{ flex: 1, backgroundColor: theme.bg }}>
+        <NHeader title={(AR ? 'محادثة: ' : 'Chat: ') + lineName(thread.order_item_id)} onBack={() => { setThread(null); setPicked(null); setResults(null); }} />
+        <ScrollView contentContainerStyle={{ padding: SP.lg, gap: SP.sm }}>
+          {messages.length === 0 ? <NEmpty icon="chat" title={AR ? 'لا توجد رسائل بعد' : 'No messages yet'} sub={AR ? 'اكتب للمريض أو أرفق بديلاً من مخزونك' : 'Write to the patient or attach a substitute from your inventory'} /> : null}
+          {messages.map((m: any) => {
+            if (m.sender_role === 'system') {
+              const code = m.system_code === 'substitute_accepted' ? 'accepted' : m.system_code === 'substitute_rejected' ? 'rejected' : m.system_code === 'item_removed' ? 'removed' : '';
+              return <Text key={m.id} style={{ color: theme.textSub, fontSize: FS.xs, textAlign: 'center' }}>{outcome(code)}</Text>;
+            }
+            const mine = m.sender_role === 'pharmacy';
+            const fg = mine ? theme.textInv : theme.text;
+            const offer = m.substitute_offer;
+            return (
+              <View key={m.id} style={{ alignSelf: mine ? 'flex-end' : 'flex-start', backgroundColor: mine ? theme.primary : theme.surface2, borderRadius: R.md, padding: SP.md, maxWidth: '85%', gap: SP.xs }}>
+                {m.text ? <Text style={{ color: fg }}>{m.text}</Text> : null}
+                {offer ? (
+                  <Text style={{ color: fg, fontWeight: FW.bold }}>
+                    {(AR ? 'بديل: ' : 'Substitute: ') + ((AR ? offer.name : offer.name_en || offer.name) || offer.sku || '') + (offer.price ? ` · ${offer.price} ${AR ? 'ر.س' : 'SAR'}` : '')}
+                  </Text>
+                ) : null}
+              </View>
+            );
+          })}
+        </ScrollView>
+        {open ? (
+          <View style={{ padding: SP.md, gap: SP.sm, borderTopWidth: 1, borderTopColor: theme.border }}>
+            {picked ? (
+              <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm }}>
+                <Text style={{ flex: 1, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{(AR ? 'البديل المرفق: ' : 'Attached substitute: ') + (picked.name_ar || picked.name_en || picked.sku)}</Text>
+                <NBtn label={AR ? 'إزالة' : 'Remove'} size="sm" variant="outline" full={false} onPress={() => setPicked(null)} />
+              </View>
+            ) : results ? (
+              <View style={{ gap: SP.xs }}>
+                {results.length === 0 ? <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{AR ? 'لا يوجد صنف متاح بهذا الاسم في مخزونك' : 'No item with this name in your inventory'}</Text> : null}
+                {results.slice(0, 8).map((r: any) => (
+                  <TouchableOpacity key={r.id} accessibilityRole="button" onPress={() => { setPicked(r); setResults(null); }} style={{ padding: SP.sm, borderRadius: R.sm, borderWidth: 1, borderColor: theme.border, backgroundColor: theme.surface }}>
+                    <Text style={{ color: theme.text, textAlign: AR ? 'right' : 'left' }}>{(AR ? r.name_ar || r.name_en : r.name_en || r.name_ar) + (r.price ? ` · ${r.price} ${AR ? 'ر.س' : 'SAR'}` : '')}</Text>
+                  </TouchableOpacity>
+                ))}
+                <NBtn label={AR ? 'إغلاق' : 'Close'} size="sm" variant="outline" onPress={() => setResults(null)} />
+              </View>
+            ) : (
+              <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm }}>
+                <View style={{ flex: 1 }}><NInput placeholder={AR ? 'ابحث عن بديل في مخزونك' : 'Find a substitute in your inventory'} value={term} onChange={setTerm} /></View>
+                <NBtn label={AR ? 'بحث' : 'Search'} size="sm" variant="outline" full={false} loading={busy === 'search'} onPress={search} />
+              </View>
+            )}
+            <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm }}>
+              <View style={{ flex: 1 }}><NInput placeholder={AR ? 'اكتب رسالة…' : 'Type a message…'} value={msg} onChange={setMsg} /></View>
+              <NBtn label={AR ? 'إرسال' : 'Send'} full={false} loading={busy === 'send'} onPress={send} />
+            </View>
+          </View>
+        ) : (
+          <Text style={{ color: theme.textSub, textAlign: 'center', padding: SP.lg }}>{outcome(thread.resolution)}</Text>
+        )}
+      </View>
+    );
   }
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <NHeader title={AR ? 'محادثة الطلب' : 'Order chat'} onBack={onBack} />
-      {loading ? <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} /> : !threadId ? (
-        <NEmpty icon="chat" title={AR ? 'لا توجد محادثة لهذا الطلب بعد' : 'No chat for this order yet'} sub={AR ? 'تُفتح المحادثة بعد قبول العرض' : 'Chat opens after offer acceptance'} />
-      ) : (
-        <View style={{ flex: 1 }}>
-          <ScrollView contentContainerStyle={{ padding: SP.lg, gap: SP.sm }}>
-            {messages.map((m: any, i: number) => (
-              <View key={String(m.id || i)} style={{ alignSelf: m.sender === 'pharmacy' ? 'flex-end' : 'flex-start', backgroundColor: m.sender === 'pharmacy' ? theme.primary : theme.surface2, borderRadius: R.md, padding: SP.md, maxWidth: '85%' }}>
-                <Text style={{ color: m.sender === 'pharmacy' ? '#FFF' : theme.text }}>{m.body || m.text || ''}</Text>
-              </View>
-            ))}
-          </ScrollView>
-          <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, padding: SP.md }}>
-            <View style={{ flex: 1 }}><NInput placeholder={AR ? 'اكتب رسالة…' : 'Type a message…'} value={msg} onChange={setMsg} /></View>
-            <NBtn label={AR ? 'إرسال' : 'Send'} loading={sending} onPress={send} />
-          </View>
-        </View>
+      {loading ? <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} /> : (
+        <ScrollView contentContainerStyle={{ padding: SP.lg, gap: SP.sm }}>
+          <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
+            {AR ? 'اختر صنفاً لتكتب للمريض عنه أو لتقترح بديلاً من مخزونك. البديل لصنف بوصفة يجب أن يكون داخل الوصفة.' : 'Pick an item to write to the patient about it or to suggest a substitute from your inventory. A substitute for a prescription item must stay inside the prescription.'}
+          </Text>
+          {items.length === 0 && threads.length === 0 ? <NEmpty icon="chat" title={AR ? 'لا توجد أصناف في هذا الطلب' : 'No items in this order'} /> : null}
+          {items.map((line) => {
+            const t = threads.find((x: any) => x.order_item_id === line.order_item_id);
+            return (
+              <NCard key={line.order_item_id} style={{ padding: SP.md, gap: SP.sm }}>
+                <Text style={{ color: theme.text, fontWeight: FW.semi, textAlign: AR ? 'right' : 'left' }}>{line.name || (AR ? 'صنف' : 'Item')}</Text>
+                {t?.last_message?.text ? <Text numberOfLines={1} style={{ color: theme.textSub, fontSize: FS.xs, textAlign: AR ? 'right' : 'left' }}>{t.last_message.text}</Text> : null}
+                <NBtn label={t ? (t.status === 'open' ? (AR ? 'فتح المحادثة' : 'Open chat') : outcome(t.resolution)) : (AR ? 'بدء محادثة عن هذا الصنف' : 'Start a chat about this item')}
+                  size="sm" variant={t ? 'primary' : 'outline'} loading={busy === `open-${line.order_item_id}`} onPress={() => (t ? readThread(t.id).catch((e) => fail(e, 'تعذر تحميل المحادثة', 'Could not load chat')) : openLine(line))} />
+              </NCard>
+            );
+          })}
+        </ScrollView>
       )}
     </View>
   );

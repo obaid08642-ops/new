@@ -129,8 +129,9 @@ export function PharmacyBroadcastResponse({ onBack, broadcast }: { onBack: () =>
     }
     setBusy(true);
     try {
-      await client.post(`/provider/pharmacy/broadcasts/${orderId}/offers/${quote.draft.id}/submit`);
-      show(AR ? 'تم إرسال العرض للمريض للاختيار الصريح' : 'Offer submitted for explicit patient selection', 'success');
+      const offerId = quote.draft.id;
+      await client.post(`/provider/pharmacy/broadcasts/${orderId}/offers/${offerId}/submit`);
+      show(AR ? 'أُرسل العرض للمريض للاختيار؛ لم يُخصص الطلب بعد.' : 'Offer sent to the patient for selection; the order is not assigned yet.', 'success');
       onBack();
     } catch (error: any) {
       show(error?.response?.data?.message || (AR ? 'تعذر إرسال العرض' : 'Submitting offer failed'), 'error');

@@ -32,7 +32,7 @@ import { transactionIdOf, checkoutUrlOf } from "@/lib/api/pharmacy-payment";
 import { extractPatientPharmacyOrderProgress } from "@/lib/api/pharmacy-offers";
 import { isAllowedPatientApiRequest } from "@/lib/api/patient-allowlist";
 import { buildBroadcastBody, createBroadcastAttempt, type BroadcastRequest, type BroadcastResult } from "@/lib/pharmacy/broadcast";
-import { activePrescriptionId, parseInsurancePolicy } from "@/lib/pharmacy/checkout-support";
+import { parseInsurancePolicy } from "@/lib/pharmacy/checkout-support";
 import { routeForOrder } from "@/lib/pharmacy/order-route";
 import { forgetPayment, recallPayment, rememberPayment } from "@/lib/pharmacy/payment-return";
 import { capabilitiesFrom, needsCapabilities, outcomeOfTransactionStatus, paymentPageState, parseOrderPaymentView, parseVerification, type OrderPaymentView } from "@/lib/pharmacy/payment-state";
@@ -317,6 +317,11 @@ describe("sending the cart as a request", () => {
     expect(buildBroadcastBody({ kind: "cart", lines, paymentMode: "cash", fulfillment: "delivery", prescriptionId: TXN }, located)).toMatchObject({ prescription_id: TXN, prescription_attachments: [TXN], payment_mode: "cash" });
   });
 
+  it("decision 39: the picked prescription's medicines go first, with the cart's lines and prescription_id", () => {
+    const body = buildBroadcastBody({ kind: "cart", lines, paymentMode: "cash", fulfillment: "delivery", prescriptionId: TXN, rxNames: ["Metformin"] }, located);
+    expect(body).toMatchObject({ prescription_id: TXN, items: [{ raw_name: "Metformin", qty: 1, intake_source: "prescription" }, { raw_name: "Paracetamol 500", intake_source: "cart" }, { raw_name: "Vitamin C" }] });
+  });
+
   const request: BroadcastRequest = { kind: "cart", lines, paymentMode: "cash", fulfillment: "delivery" };
 
   it("one send at a time: a second press while one is in flight sends nothing", async () => {
@@ -400,6 +405,22 @@ describe("the checkout screen", () => {
     expect(html).not.toContain("style=");
     // nothing can be sent before the address and the prescription have been read
     expect(html).toMatch(/nabd-button[^"]*--disabled/);
+  });
+
+  it("decision 39: a cart with prescription medicines and no picked prescription points to rx-order; no active one is guessed", () => {
+    cart.value.items = [item({ id: "m2", name: "Amoxicillin", qty: 1, rx: true })];
+    cart.value.hasRxItems = true;
+    const html = render(<CheckoutScreen locale="en" />);
+    expect(html).toContain('href="/en/pharmacy/rx-order"');
+    expect(html).toContain("Choose a prescription");
+    expect(html).toMatch(/nabd-button[^"]*--disabled/);
+  });
+
+  it("decision 39: opened on a picked prescription it lists its medicines, even with an empty cart", () => {
+    const html = render(<CheckoutScreen locale="en" prescription={{ id: TXN, names: ["Metformin"] }} />);
+    expect(html).toContain("Metformin");
+    expect(html).toContain("Medicines from your prescription");
+    expect(html).not.toContain("Your cart is empty");
   });
 });
 
@@ -545,19 +566,6 @@ describe("what the browser may call", () => {
 });
 
 describe("small readers", () => {
-  it("the saved prescription is the first active one with a real id", () => {
-    expect(activePrescriptionId([{ id: "nope" }, { id: TXN }])).toBe(TXN);
-    expect(activePrescriptionId({ data: [{ id: TXN }] })).toBe(TXN);
-    expect(activePrescriptionId([])).toBeNull();
-    expect(activePrescriptionId(null)).toBeNull();
-  });
-
-  it("decision 18: the prescription the cart lines came from wins while it is active, never one that is not", () => {
-    const other = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
-    expect(activePrescriptionId([{ id: TXN }, { id: other }], other)).toBe(other);
-    expect(activePrescriptionId([{ id: TXN }], other)).toBe(TXN);
-  });
-
   it("the insurance row shows who insures the patient and the class, never a number", () => {
     expect(parseInsurancePolicy({ has_policy: true, policy: { company_name: "Bupa", plan_class: "A", policy_number: "9023", national_id: "1000000000" } })).toEqual({ company: "Bupa", planClass: "A" });
     expect(parseInsurancePolicy({ has_policy: false, policy: {} })).toBeNull();

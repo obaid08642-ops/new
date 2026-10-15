@@ -12,4 +12,7 @@ describe('PharmacyChatController roles', () => {
   it.each(['accept', 'reject', 'remove'] as const)('lets the patient %s a substitute', (m) => {
     expect(roles(m)).toEqual([UserRole.PATIENT]);
   });
+  it('lets only the pharmacy open a thread on an order line (issues 479/480)', () => {
+    expect(roles('open')).toEqual([UserRole.PHARMACY]);
+  });
 });
