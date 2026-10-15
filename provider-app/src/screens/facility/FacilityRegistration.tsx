@@ -115,6 +115,8 @@ const FACILITY_WIZARD: WizardConfig<FacilityRegData> = {
     providerType: 'facility',
     headerAr: 'مراجعة وتوقيع العقد', headerEn: 'Review & Sign Contract',
     signatoryRoleHint: { ar: 'مثال: المالك، المدير العام', en: 'e.g. Owner, General Manager' },
+    // owner decision B25 (2026-10-14): all six provider types accept the terms before submitting
+    agree: { ar: 'أوافق على شروط وأحكام نبض بلس وسياسة الخصوصية، وأقر بصحة البيانات.', en: 'I agree to Nabd+ Terms & Conditions and Privacy Policy, and confirm all data is accurate.' },
     signatureTitle: { ar: 'توقيع الممثل النظامي للمنشأة', en: 'Legal Representative Signature' },
     submitLabel: { ar: 'اعتماد وإرسال الطلب', en: 'Submit Application' },
     contractPricing: (d) => d.subProviders.flatMap((sp: any) => {

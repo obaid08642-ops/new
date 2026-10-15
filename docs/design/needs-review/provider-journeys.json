@@ -49,7 +49,7 @@
     "element": "send offer",
     "found": "[owner] A custom unit price field is accepted (admin audit endpoint exists) while the same screen says prices are never entered by hand; confirm with decision 12 (price ceiling) that provider override is intended.",
     "suspect": "works",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #1138)"
+    "review_status": "fixed #1431 (issue #1138)"
   },
   {
     "scenario": 1,
@@ -471,7 +471,7 @@
     "element": "facility ambulance fee setting",
     "found": "[owner] Facility settings still has an \"Ambulance Fee (SAR)\" field saved through settings/delta although the ambulance system is removed (decision 14); remove the field with the backend setting or keep it by an owner decision.",
     "suspect": "broken",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md)"
+    "review_status": "fixed #1431"
   },
   {
     "scenario": 3,
@@ -556,7 +556,7 @@
     "element": "terms agreement",
     "found": "[owner] Doctor and facility registration have no terms checkbox (doctor shows a declaration text above the signature, facility shows nothing); pharmacy, lab, radiology and nursing require the checkbox. Decide whether all six need the same agreement.",
     "suspect": "missing",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md)"
+    "review_status": "fixed #1431"
   },
   {
     "scenario": 4,
