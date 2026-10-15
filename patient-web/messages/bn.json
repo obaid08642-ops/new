@@ -748,7 +748,11 @@
     "emergencySaveError": "যোগাযোগ সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
     "emergencySave": "সংরক্ষণ করুন",
     "nextAppointment": "আপনার পরবর্তী অ্যাপয়েন্টমেন্ট",
-    "nextAppointmentUnavailable": "আপনার পরবর্তী অ্যাপয়েন্টমেন্ট এখন লোড করা যায়নি।"
+    "nextAppointmentUnavailable": "আপনার পরবর্তী অ্যাপয়েন্টমেন্ট এখন লোড করা যায়নি।",
+    "reminderFor": "এই রিমাইন্ডার কার জন্য?",
+    "reminderForMe": "আমার জন্য",
+    "reminderForName": "{name}-এর জন্য রিমাইন্ডার",
+    "reminderMemberFallback": "পরিবারের সদস্য"
   },
   "Prescriptions": {
     "title": "প্রেসক্রিপশন",
@@ -2676,7 +2680,12 @@
       "invalid_invite_code": "এই আমন্ত্রণ কোডটি সঠিক নয়। এটি যাচাই করুন বা নতুন কোড চান।",
       "invite_expired": "এই আমন্ত্রণ কোডের মেয়াদ শেষ। পরিবারের মালিকের কাছে নতুন কোড চান।",
       "already_member": "আপনি ইতিমধ্যে এই পরিবারের সদস্য।"
-    }
+    },
+    "medsWeek": "এই সপ্তাহে: {taken}টি নেওয়া হয়েছে, {missed}টি বাদ পড়েছে",
+    "medsLastMissed": "সর্বশেষ বাদ পড়া ডোজ:",
+    "medsEditReminder": "রিমাইন্ডার সম্পাদনা",
+    "medsAddReminder": "ওষুধের রিমাইন্ডার যোগ করুন",
+    "close": "বন্ধ করুন"
   },
   "DiagWeb": {
     "retry": "আবার চেষ্টা করুন",

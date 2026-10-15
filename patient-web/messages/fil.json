@@ -748,7 +748,11 @@
     "emergencySaveError": "Hindi na-save ang contact. Subukan muli.",
     "emergencySave": "I-save",
     "nextAppointment": "Ang iyong susunod na appointment",
-    "nextAppointmentUnavailable": "Hindi ma-load ngayon ang iyong susunod na appointment."
+    "nextAppointmentUnavailable": "Hindi ma-load ngayon ang iyong susunod na appointment.",
+    "reminderFor": "Para kanino ang paalalang ito?",
+    "reminderForMe": "Para sa akin",
+    "reminderForName": "Paalala para kay {name}",
+    "reminderMemberFallback": "Kapamilya"
   },
   "Prescriptions": {
     "title": "Mga reseta",
@@ -2676,7 +2680,12 @@
       "invalid_invite_code": "Hindi wasto ang invite code na ito. Suriin ito o humingi ng bago.",
       "invite_expired": "Expired na ang invite code na ito. Humingi ng bago sa may-ari ng pamilya.",
       "already_member": "Miyembro ka na ng pamilyang ito."
-    }
+    },
+    "medsWeek": "Ngayong linggo: {taken} ininom, {missed} nalaktawan",
+    "medsLastMissed": "Huling nalaktawang dosis:",
+    "medsEditReminder": "I-edit ang paalala",
+    "medsAddReminder": "Magdagdag ng paalala sa gamot",
+    "close": "Isara"
   },
   "DiagWeb": {
     "retry": "Subukan muli",

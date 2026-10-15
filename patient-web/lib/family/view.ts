@@ -67,9 +67,12 @@ export type MemberRecords = {
   gender?: string;
   birthDate?: string;
   bloodType?: string;
-  medicines: Array<{ id: string; nameAr?: string; nameEn?: string; doctor?: string; dose?: string }>;
+  /** `reminder` rows are the member's medicine reminders (editable by a caregiver); the others are prescriptions. */
+  medicines: Array<{ id: string; nameAr?: string; nameEn?: string; doctor?: string; dose?: string; reminder?: { times: string[]; frequency?: string; chronic: boolean; taken7: number; missed7: number; doses: Array<{ at: string; status: "taken" | "skipped" | "missed"; timeKey?: string }> } }>;
   appointments: Array<{ id: string; doctor?: string; at?: string }>;
   hasReports: boolean;
+  /** The viewer holds the medicines right for this member (the server sent the `meds` list). */
+  canSeeMeds: boolean;
 };
 
 /** GET /family/member-records/:id: what the member shared with the viewer (the lists are capped at 20, as before). */
@@ -77,12 +80,30 @@ export function parseMemberRecords(payload: unknown): MemberRecords {
   const root = record(payload) ?? {};
   const profile = record(root.profile);
   const rows = (value: unknown) => (Array.isArray(value) ? value.map(record).filter((row): row is Record<string, unknown> => row !== null) : []);
+  const reminderOf = (row: Record<string, unknown>) => {
+    if (!Array.isArray(row.times)) return undefined;
+    const doses = (Array.isArray(row.doses) ? row.doses : []).flatMap((d) => {
+      const dose = record(d);
+      const status = dose?.status;
+      const at = text(dose?.at);
+      return at && (status === "taken" || status === "skipped" || status === "missed") ? [{ at, status: status as "taken" | "skipped" | "missed", timeKey: text(dose?.time_key) }] : [];
+    });
+    return {
+      times: row.times.filter((x): x is string => typeof x === "string"),
+      frequency: text(row.frequency),
+      chronic: row.chronic === true,
+      taken7: typeof row.taken_7d === "number" ? row.taken_7d : 0,
+      missed7: typeof row.missed_7d === "number" ? row.missed_7d : 0,
+      doses,
+    };
+  };
   const medicines = [...rows(root.meds), ...rows(root.prescriptions)].slice(0, 20).map((row, index) => ({
     id: String(row.id ?? index),
     nameAr: text(row.medicine_name_ar),
     nameEn: text(row.medicine_name_en),
     doctor: text(row.doctor_name),
     dose: text(row.dose),
+    reminder: reminderOf(row),
   }));
   const appointments = rows(root.appointments).slice(0, 20).map((row, index) => ({
     id: String(row.id ?? index),
@@ -96,6 +117,7 @@ export function parseMemberRecords(payload: unknown): MemberRecords {
     medicines,
     appointments,
     hasReports: Boolean(root.reports),
+    canSeeMeds: Array.isArray(root.meds),
   };
 }
 
@@ -110,4 +132,16 @@ export function parseCalendarEvents(payload: unknown): CalendarEvent[] {
     if (!event) return [];
     return [{ id: String(event.id ?? index), title: text(event.title), member: text(event.member_name), at: text(event.event_date) }];
   });
+}
+
+/**
+ * Journeys 67: the family members the viewer may write medicine reminders for (GET /family/my-group `viewer`): everyone
+ * else in the group when the viewer owns it or holds the medicines permission, nobody otherwise.
+ */
+export function manageableMembers(groupPayload: unknown, members: Array<{ id: string; displayName?: string }>, fallbackName: string): Array<{ id: string; name: string }> {
+  const root = record(groupPayload);
+  const group = record(root?.data) ?? root;
+  const viewer = record(group?.viewer);
+  if (!viewer || viewer.can_manage_meds !== true || typeof viewer.user_id !== "string") return [];
+  return members.filter((m) => m.id !== viewer.user_id).map((m) => ({ id: m.id, name: m.displayName || fallbackName }));
 }

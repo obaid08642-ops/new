@@ -609,7 +609,7 @@
     "kind": "missing-field",
     "file": "patient-web/components-next/health/reminder-form.tsx",
     "line": 22,
-    "review_status": "open (issue #1076)"
+    "review_status": "fixed #1496 (issue #1076)"
   },
   {
     "scenario": 7,
@@ -618,7 +618,7 @@
     "kind": "missing-field",
     "file": "patient-web/app/[locale]/family/[memberRef]/page.tsx",
     "line": 98,
-    "review_status": "open (issue #1077)"
+    "review_status": "fixed #1496 (issue #1077)"
   },
   {
     "scenario": 7,
