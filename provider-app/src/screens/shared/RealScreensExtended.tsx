@@ -1,26 +1,53 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Linking } from 'react-native';
-import { useTheme, useLang, useToast } from '../../context';
+import { View, Text, StyleSheet, ActivityIndicator, Linking, Share } from 'react-native';
+import QRCode from 'react-native-qrcode-svg';
+import { useTheme, useLang, useToast, useAuth } from '../../context';
 import { NHeader, NCard, NBtn, NInput, NBadge, NScroll, NEmpty, NSecHeader } from '../../components/ui';
 import { I } from '../../components/icons';
-import { SP, FS, FW } from '../../constants';
+import { SP, FS, FW, publicPageUrl } from '../../constants';
 import client from '../../api/client';
 
 // 1. PHARMACY QR MENU SCREEN
+// The QR is the pharmacy's public page on the website (its catalogue and request button), read from its own profile
+// slug (GET /provider/profile); issue 1198. A pharmacy without a public page yet is told so instead of a dummy code.
 export function PharmacyQRMenuScreen({ onBack }: { onBack: () => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const { user } = useAuth(); const AR = lang === 'ar';
+  const [url, setUrl] = useState<string | null>(null);
+  const [state, setState] = useState<'loading' | 'ready' | 'none' | 'error'>('loading');
+  useEffect(() => {
+    let alive = true;
+    client.get('/provider/profile').then((res: any) => {
+      if (!alive) return;
+      const p = res?.data?.data || res?.data || {};
+      const u = publicPageUrl(user?.role || 'pharmacy', p.slug || null, lang);
+      setUrl(u); setState(u ? 'ready' : 'none');
+    }).catch(() => { if (alive) setState('error'); });
+    return () => { alive = false; };
+  }, [lang, user?.role]);
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <NHeader title={AR ? 'كتالوج المنتجات ورمز QR' : 'Pharmacy QR Catalog'} onBack={onBack} />
       <NScroll pad>
         <NCard style={{ width: '100%', alignItems: 'center', padding: SP.xl, marginBottom: SP.md }}>
-          <View style={{ marginBottom: SP.md }}><I name="qr" size={64} color={theme.primary} /></View>
-          <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text, textAlign: 'center' }}>
-            {AR ? 'امسح الرمز للتصفح المباشر لكتالوج الصيدلية' : 'Scan to view pharmacy catalog'}
-          </Text>
-          <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 4, textAlign: 'center' }}>
-            {AR ? 'رمز المطبوعات والشاشات الخارجية بالفرع' : 'Branch outdoor & printable catalog code'}
-          </Text>
+          {state === 'loading' && <ActivityIndicator color={theme.primary} />}
+          {state === 'ready' && url && (
+            <>
+              <View testID="pharmacy-public-qr" style={{ padding: SP.md, backgroundColor: theme.card, marginBottom: SP.md }}>
+                <QRCode value={url} size={200} color={theme.text} backgroundColor={theme.card} />
+              </View>
+              <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text, textAlign: 'center' }}>
+                {AR ? 'امسح الرمز للتصفح المباشر لكتالوج الصيدلية' : 'Scan to view pharmacy catalog'}
+              </Text>
+              <Text selectable style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 4, textAlign: 'center' }}>{url}</Text>
+              <NBtn label={AR ? 'مشاركة الرابط' : 'Share link'} variant="outline" style={{ marginTop: SP.md }}
+                onPress={async () => { try { await Share.share({ message: url }); } catch { show(AR ? 'تعذر المشاركة' : 'Could not share', 'error'); } }} />
+            </>
+          )}
+          {state === 'none' && (
+            <NEmpty icon="qr" title={AR ? 'لا توجد صفحة عامة بعد' : 'No public page yet'}
+              subtitle={AR ? 'تظهر صفحة الصيدلية ورمزها بعد اعتماد ملفها ونشره' : 'The page and its code appear once the profile is approved and published'} />
+          )}
+          {state === 'error' && <Text style={{ color: theme.textSub }}>{AR ? 'تعذر تحميل بيانات الصيدلية' : 'Could not load the pharmacy profile'}</Text>}
         </NCard>
       </NScroll>
     </View>
