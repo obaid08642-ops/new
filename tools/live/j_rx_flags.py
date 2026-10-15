@@ -21,8 +21,12 @@ def create(admin, tag, name, online, rx=False):
             'warnings_ar': [], 'warnings_en': [], 'side_effects_ar': [], 'side_effects_en': [], 'precautions_ar': [], 'precautions_en': [],
             'reason': 'إنشاء صنف جديد عبر واجهة الإدارة'}
     r = admin.post('/medicines/admin/catalog', body)
-    step(f'admin creates "{body["name_en"]}" (online only={online}, rx={rx})', r.ok and r.get('id'), r)
-    return r.get('id')
+    mid = r.get('id')
+    step(f'admin creates "{body["name_en"]}" (online only={online}, rx={rx})', r.ok and mid, r)
+    if mid:  # admin medicines-catalog.tsx approve: the item joins the public catalogue
+        r = admin.post(f'/medicines/admin/catalog/{mid}/approve', {'approve': True})
+        step(f'admin publishes "{body["name_en"]}"', r.ok, r)
+    return mid
 
 
 def run():
