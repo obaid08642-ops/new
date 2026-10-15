@@ -4147,5 +4147,10 @@
     "empty": "This result has no further details.",
     "discuss": "Discuss the result with a doctor",
     "rangeText": "Normal range {range}"
+  },
+  "Offline": {
+    "title": "You are offline",
+    "body": "This page could not open without a connection. Your cart is kept on this device; send your request when you are back online.",
+    "home": "Back to the start"
   }
 }

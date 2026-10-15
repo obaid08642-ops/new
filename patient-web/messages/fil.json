@@ -4147,5 +4147,10 @@
     "empty": "Wala nang ibang detalye ang resultang ito.",
     "discuss": "Pag-usapan ang resulta kasama ang doktor",
     "rangeText": "Normal na saklaw {range}"
+  },
+  "Offline": {
+    "title": "Offline ka",
+    "body": "Hindi mabuksan ang pahinang ito nang walang koneksyon. Nakatago ang iyong cart sa device na ito; ipadala ang iyong request kapag may koneksyon na ulit.",
+    "home": "Bumalik sa simula"
   }
 }

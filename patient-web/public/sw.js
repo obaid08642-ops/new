@@ -43,10 +43,53 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
+// journeys#77: the site's own offline page. Only that page (one per locale) and its stylesheets are cached; every
+// other request goes to the network as before, and a page is served from the cache only when its navigation fails.
+const OFFLINE_CACHE = 'nabd-offline-v1';
+const LOCALES = ['ar', 'en', 'ur', 'hi', 'bn', 'fil'];
+
+async function cacheOfflinePages() {
+  const cache = await caches.open(OFFLINE_CACHE);
+  for (const locale of LOCALES) {
+    const url = `/${locale}/offline`;
+    try {
+      const res = await fetch(url, { cache: 'reload' });
+      if (!res.ok) continue;
+      const html = await res.clone().text();
+      await cache.put(url, res);
+      const sheets = [...html.matchAll(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"/g)].map((m) => m[1]).filter((href) => href.startsWith('/'));
+      await Promise.all(sheets.map((href) => cache.add(href).catch(() => undefined)));
+    } catch {
+      // offline at install: the next install tries again
+    }
+  }
+}
+
 self.addEventListener('install', (event) => {
-  event.waitUntil(self.skipWaiting());
+  event.waitUntil(cacheOfflinePages().then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    caches.keys()
+      .then((keys) => Promise.all(keys.filter((key) => key.startsWith('nabd-offline-') && key !== OFFLINE_CACHE).map((key) => caches.delete(key))))
+      .then(() => self.clients.claim()),
+  );
+});
+
+self.addEventListener('fetch', (event) => {
+  const request = event.request;
+  if (request.method !== 'GET') return;
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+  if (request.mode === 'navigate') {
+    const first = url.pathname.split('/')[1];
+    const locale = LOCALES.includes(first) ? first : 'ar';
+    event.respondWith(fetch(request).catch(async () => (await caches.match(`/${locale}/offline`)) || Response.error()));
+    return;
+  }
+  // the offline page's own stylesheets, from the cache only when the network fails
+  if (request.destination === 'style') {
+    event.respondWith(fetch(request).catch(async () => (await caches.match(request)) || Response.error()));
+  }
 });

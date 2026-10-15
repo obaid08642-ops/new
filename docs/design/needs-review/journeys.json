@@ -699,7 +699,7 @@
     "kind": "missing-state",
     "file": "patient-web/public/sw.js",
     "line": 45,
-    "review_status": "open (issue #1086)"
+    "review_status": "fixed #1507 (issue #1086)"
   },
   {
     "scenario": 9,
