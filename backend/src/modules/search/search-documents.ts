@@ -63,7 +63,8 @@ export interface SearchDocument {
 export function sourceFilter(source: SearchSource): Record<string, unknown> {
   const governed = { is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' };
   switch (source) {
-    // Approved and public, as the product pages; indexing_eligibility is only for crawlers (sitemaps, IndexNow).
+    // 439: the site's own search shows every medicine approved for publication, as the pharmacy list does;
+    // indexing_eligibility is for search engines (sitemaps, IndexNow), not for the people on the site.
     case 'medicines': return { ...governed, active: { $ne: false } };
     case 'provider_profiles': return { type: 'doctor', status: 'active', public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
     case 'specialties': return { active: { $ne: false }, is_deleted: { $ne: true } };
@@ -79,7 +80,7 @@ export function isVisible(source: SearchSource, raw: any): boolean {
   if (!raw || raw.is_deleted === true) return false;
   const approved = raw.public_eligibility === true && raw.medical_review_status === 'approved';
   switch (source) {
-    case 'medicines': return approved && raw.active !== false; // as sourceFilter: indexing is for crawlers only
+    case 'medicines': return approved && raw.active !== false;
     case 'provider_profiles': return raw.type === 'doctor' && raw.status === 'active' && approved;
     case 'specialties': return raw.active !== false;
     case 'lab_services': return approved && raw.active === true && !isImaging(raw);
