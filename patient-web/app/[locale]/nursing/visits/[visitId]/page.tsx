@@ -9,9 +9,10 @@ import { NURSING, nursingStatus } from "@/components-next/nursing/nursing-parts"
 import { Timeline } from "@/components-next/ui-generated/components/Cards";
 import { minutesText } from "@/components-next/diagnostics/diag-parts";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
+import { NursingPayButton } from "@/components-next/nursing/nursing-pay";
 import styles from "@/components-next/nursing/nursing.module.css";
 
-type Props = { params: Promise<{ locale: string; visitId: string }> };
+type Props = { params: Promise<{ locale: string; visitId: string }>; searchParams: Promise<{ pay?: string }> };
 
 const STEPS = ["REQUESTED", "CONFIRMED", "NURSE_EN_ROUTE", "NURSE_ARRIVED", "CARE_IN_PROGRESS", "COMPLETED"] as const;
 /** Backend nursing states (NursingBookingState) → the timeline step they belong to (needs-review issue 652). */
@@ -25,8 +26,9 @@ const STEP_OF: Record<string, (typeof STEPS)[number]> = {
 const text = (v: unknown): string => (typeof v === "string" || typeof v === "number" ? String(v) : "");
 
 /** Where one nursing visit is (canvas/OrderTracking): the status and the minutes to arrival, the nurse, the steps and, once there, the clinical report. */
-export default async function NursingVisitTrackingPage({ params }: Props) {
+export default async function NursingVisitTrackingPage({ params, searchParams }: Props) {
   const { locale, visitId } = await params;
+  const { pay } = await searchParams;
   if (!isLocale(locale) || !/^[A-Za-z0-9_-]{1,128}$/.test(visitId)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("NursingWeb");
@@ -52,6 +54,8 @@ export default async function NursingVisitTrackingPage({ params }: Props) {
   const pulse = vitals?.pulse;
   const bp = vitals?.bp;
   const look = nursingStatus(status);
+  // journeys#60: a card visit that is not paid yet can be paid from here (the booking form lands here when the card page did not open).
+  const owesCard = visit?.payment_method === "card" && visit?.payment_status !== "paid" && !["CANCELLED", "COMPLETED"].includes(status);
   // N1: result files the nurse attached at the end of the visit ({storage_id, name, mime, at}); each opens through the signed-URL route.
   type VisitFile = { storage_id: string; name?: string; at?: string };
   const attachments: unknown[] = Array.isArray(visit?.attachments) ? visit.attachments : [];
@@ -82,6 +86,11 @@ export default async function NursingVisitTrackingPage({ params }: Props) {
         />
         {idx < 0 ? <Notice warn>{t("unknownStatus")}</Notice> : null}
       </SectionCard>
+      {owesCard ? (
+        <SectionCard id="visit-pay" title={t("payTitle")}>
+          <NursingPayButton bookingId={visitId} failedBefore={pay === "failed"} />
+        </SectionCard>
+      ) : null}
       {reportRows.length > 0 ? (
         <SectionCard id="visit-report" title={t("reportTitle")}>
           <Facts rows={reportRows} label={t("reportTitle")} />

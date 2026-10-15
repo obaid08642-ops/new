@@ -73,34 +73,31 @@ class AdminDashboardController extends AdminController {
   @Get('kpis')
   async kpis() {
     const day = new Date(Date.now() - 24 * 3600 * 1000);
-    const [patients, providers, pendingProviders, apptsToday, ordersToday, activeSos, pendingClaims] = await Promise.all([
+    const [patients, providers, pendingProviders, apptsToday, ordersToday, pendingClaims] = await Promise.all([
       this.conn.collection('users').countDocuments({ role: 'patient' } as any),
       this.conn.collection('provider_profiles').countDocuments({} as any),
       this.conn.collection('provider_profiles').countDocuments({ verification_status: { $nin: ['verified'] } } as any),
       this.conn.collection('appointments').countDocuments({ createdAt: { $gte: day } } as any),
       Promise.all(['orders', 'pharmacy_orders'].map((c) => this.conn.collection(c).countDocuments({ createdAt: { $gte: day } } as any)))
         .then((n) => n[0] + n[1]),
-      this.conn.collection('emergency_requests').countDocuments({ state: { $nin: ['RESOLVED', 'CANCELLED', 'CLOSED'] } } as any),
       this.conn.collection('insuranceservicerequests').countDocuments({ state: 'PENDING_PROVIDER_REVIEW' } as any),
     ]);
     return {
       patients, providers, pending_provider_approvals: pendingProviders,
       appointments_24h: apptsToday, orders_24h: ordersToday,
-      active_emergencies: activeSos, pending_insurance_claims: pendingClaims,
+      pending_insurance_claims: pendingClaims,
       generated_at: now(),
     };
   }
 
   @Get('alerts')
   async alerts() {
-    const [sos, shortages, pendingProviders, openComplaints] = await Promise.all([
-      this.conn.collection('emergency_requests').find({ state: { $nin: ['RESOLVED', 'CANCELLED', 'CLOSED'] } } as any).sort({ createdAt: -1 }).limit(10).toArray(),
+    const [shortages, pendingProviders, openComplaints] = await Promise.all([
       this.conn.collection('pharmacy_shortage_reports').find({ status: 'open' } as any).sort({ createdAt: -1 }).limit(10).toArray(),
       this.conn.collection('provider_profiles').find({ verification_status: { $nin: ['verified'] } } as any).sort({ createdAt: -1 }).limit(10).toArray(),
       this.conn.collection('complaints').find({ status: { $nin: ['resolved', 'closed'] } } as any).sort({ createdAt: -1 }).limit(10).toArray(),
     ]);
     const alerts: any[] = [];
-    for (const e of sos) alerts.push({ kind: 'emergency', severity: 'critical', id: e.id || String(e._id), title: 'بلاغ طوارئ نشط', created_at: e.createdAt });
     for (const s of shortages) alerts.push({ kind: 'shortage', severity: 'warning', id: String(s._id), title: `بلاغ نقص دواء: ${s.product_name || s.medicine_id || ''}`, created_at: s.createdAt });
     for (const p of pendingProviders) alerts.push({ kind: 'provider_approval', severity: 'info', id: p.id || String(p._id), title: `مزوّد بانتظار الاعتماد: ${p.name || p.facility_name || ''}`, created_at: p.createdAt });
     for (const c of openComplaints) alerts.push({ kind: 'complaint', severity: 'warning', id: c.id || String(c._id), title: c.subject || 'شكوى مفتوحة', created_at: c.createdAt });
@@ -110,16 +107,14 @@ class AdminDashboardController extends AdminController {
 
   @Get('live-feed')
   async liveFeed() {
-    const [orders, appts, sos] = await Promise.all([
+    const [orders, appts] = await Promise.all([
       Promise.all(['orders', 'pharmacy_orders'].map((c) => this.conn.collection(c).find({} as any).sort({ createdAt: -1 }).limit(10).toArray()))
         .then(([a, b]) => [...a, ...b]),
       this.conn.collection('appointments').find({} as any).sort({ createdAt: -1 }).limit(10).toArray(),
-      this.conn.collection('emergency_requests').find({} as any).sort({ createdAt: -1 }).limit(5).toArray(),
     ]);
     const feed: any[] = [];
     for (const o of orders) feed.push({ kind: 'order', id: o.id || String(o._id), label: `طلب صيدلية — ${o.status || o.state || ''}`, at: o.createdAt });
     for (const a of appts) feed.push({ kind: 'appointment', id: a.id || String(a._id), label: `موعد — ${a.status || ''}`, at: a.createdAt });
-    for (const e of sos) feed.push({ kind: 'emergency', id: e.id || String(e._id), label: `طوارئ — ${e.state || ''}`, at: e.createdAt });
     feed.sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
     return feed.slice(0, 25);
   }
@@ -1246,7 +1241,7 @@ class AdminAnalyticsController extends AdminController {
     const entity = String(body?.entity || 'orders');
     const allowed: Record<string, string> = {
       orders: 'orders', appointments: 'appointments', users: 'users',
-      insurance: 'insuranceservicerequests', emergencies: 'emergencyrequests',
+      insurance: 'insuranceservicerequests',
       // provider-less feature reports — every session reaches the admin console
       triage: 'ai_triage_sessions', assessments: 'self_assessments',
     };

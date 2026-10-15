@@ -162,7 +162,7 @@
     "line": 10,
     "found": "Fixed (the refund label now reads \"استرداد إلى وسيلة الدفع الأصلية\"; the compensation label was corrected the same way 2026-10-10, owner decision #952): [client] The refund action is labelled 'استرداد إلى المحفظة' (refund to wallet), but RefundExecutor refunds through Moyasar to the original payment method ('There is no patient-wallet branch anymore'), cash is a ledger record only. The action itself is sound: reason >=10 chars, amount <= refundable_max, confirm dialog, audit, payment status mirrored, patient notified. (backend: backend/src/modules/finance-engine/finance-engine.module.ts:538)",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "fixed #1229"
   },
   {
     "batch": "admin-journeys",

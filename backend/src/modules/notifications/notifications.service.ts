@@ -967,12 +967,16 @@ export class NotificationsService {
     if (!p.patient_id) return;
     await this.create({
       user_id: p.patient_id,
-      title_key: 'notif.lab_result_ready.title',
-      body_key: 'notif.lab_result_ready.body',
-      params: { tracking_id: p.tracking_id, result_id: p.result_id },
+      title_key: p.critical ? 'notif.lab_result_critical.title' : 'notif.lab_result_ready.title',
+      body_key: p.critical ? 'notif.lab_result_critical.body' : 'notif.lab_result_ready.body',
+      params: { tracking_id: p.tracking_id, result_id: p.report_id },
       type: NotificationType.INFO,
-      priority: NotificationPriority.HIGH,
-      action: { route: `/labs/bookings/${p.booking_id}` },
+      priority: p.critical ? NotificationPriority.CRITICAL : NotificationPriority.HIGH,
+      // decision 19 (issue 338): the push opens this result (GET /lab-results/:id resolves a report uploaded on the
+      // booking too) and offers "discuss with a doctor", as lab.result_ready does
+      action: p.report_id
+        ? { route: `/health/results/${p.report_id}`, payload: { result_id: p.report_id, booking_id: p.booking_id, discuss: { route: '/consultations/book' } }, discuss: { route: '/consultations/book' } }
+        : { route: `/labs/bookings/${p.booking_id}` },
     });
   }
 
@@ -1234,7 +1238,18 @@ export class NotificationsService {
       body_key: 'notif.payment_received.body',
       params: p.amount != null ? { amount: p.amount } : {},
       type: NotificationType.INFO,
-      action: { route: '/wallet/hub' },
+      // 416: the patient has no wallet; the row opens what was paid for (the apps translate these tracking routes).
+      action: paidForRoute(p.booking_kind || p.kind, p.booking_id || p.id),
     });
   }
+}
+
+/** The tracking route of what a payment paid for, or the notifications inbox when the kind has no screen of its own. */
+export function paidForRoute(kind: unknown, id: unknown): { route: string } {
+  const ref = typeof id === 'string' && id ? encodeURIComponent(id) : '';
+  const k = String(kind || '');
+  if (ref && k === 'pharmacy') return { route: `/orders/${ref}` };
+  if (ref && (k === 'consultation' || k === 'appointment' || k === 'doctor')) return { route: `/tracking/consultation/${ref}` };
+  if (ref && (k === 'lab' || k === 'radiology' || k === 'nursing')) return { route: `/tracking/${k}/${ref}` };
+  return { route: '/notifications' };
 }

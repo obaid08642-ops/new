@@ -46,7 +46,7 @@ export function PharmacyBroadcastResponse({ onBack, broadcast }: { onBack: () =>
     try {
       const rows = await Promise.all(items.map(async (item: any) => {
         const q = item.matched_sku || item.generic_name || item.name_ar || item.name_en || '';
-        const response = await client.get('/provider/inventory/search', { params: { q } });
+        const response = await client.get('/provider/inventory/search', { params: { q, include_catalogue: 1 } });
         return [item.order_item_id, Array.isArray(response.data) ? response.data : []] as const;
       }));
       setCatalog(Object.fromEntries(rows));
@@ -69,7 +69,7 @@ export function PharmacyBroadcastResponse({ onBack, broadcast }: { onBack: () =>
     }
     setSearching(lineId);
     try {
-      const response = await client.get('/provider/inventory/search', { params: isBarcode ? { barcode: term } : { q: term } });
+      const response = await client.get('/provider/inventory/search', { params: isBarcode ? { barcode: term, include_catalogue: 1 } : { q: term, include_catalogue: 1 } });
       setCatalog(prev => ({ ...prev, [lineId]: Array.isArray(response.data) ? response.data : [] }));
       setSearched(prev => ({ ...prev, [lineId]: true }));
     } catch {
@@ -88,6 +88,8 @@ export function PharmacyBroadcastResponse({ onBack, broadcast }: { onBack: () =>
       qty_offered: choice.qty_offered,
       inventory_item_id: choice.availability === 'available' ? choice.inventory_item_id : undefined,
       substitute_inventory_item_id: choice.availability === 'substitute' ? choice.inventory_item_id : undefined,
+      // provider-journeys 1: a catalogue item (not in the inventory yet); the server adds it to the inventory
+      ...(choice.availability !== 'unavailable' && choice.medicine_id ? { medicine_id: choice.medicine_id } : {}),
       ...(Number.isFinite(override) && override > 0 ? { unit_price_override: override } : {}),
     };
   });
@@ -162,12 +164,18 @@ export function PharmacyBroadcastResponse({ onBack, broadcast }: { onBack: () =>
               <NBtn label={AR ? 'بحث' : 'Search'} size="sm" variant="outline" loading={searching === item.order_item_id} onPress={() => searchLine(item.order_item_id)} />
               {options.length === 0 && !loadingCatalog && (
                 <Text style={{ color: theme.textSub, fontSize: FS.xs }}>
-                  {searched[item.order_item_id] ? (AR ? 'لا نتائج في مخزونك. جرّب اسماً آخر أو أضف الصنف من المخزون.' : 'No match in your inventory. Try another name or add the item in Inventory.') : (AR ? 'لا يوجد صنف مطابق في مخزونك. ابحث باسم آخر أو بالباركود.' : 'No matching item in your inventory. Search another name or a barcode.')}
+                  {searched[item.order_item_id] ? (AR ? 'لا نتائج في مخزونك ولا في الكتالوج الوطني. جرّب اسماً آخر أو الباركود.' : 'No match in your inventory or the national catalogue. Try another name or a barcode.') : (AR ? 'لا يوجد صنف مطابق في مخزونك أو الكتالوج. ابحث باسم آخر أو بالباركود.' : 'No matching item in your inventory or the catalogue. Search another name or a barcode.')}
                 </Text>
               )}
-              {options.map((stock: any) => <TouchableOpacity key={stock.id} onPress={() => { setChoices(prev => ({ ...prev, [item.order_item_id]: { availability: selected.availability, inventory_item_id: stock.id, qty_offered: Math.min(Number(item.qty_requested || 1), Number(stock.stock || 0)) } })); setQuote(null); }} style={{ padding: SP.sm, borderWidth: 1, borderRadius: R.md, borderColor: selected.inventory_item_id === stock.id ? theme.primary : theme.border }}><Text style={{ color: theme.text }}>{stock.name_ar || stock.name_en || stock.sku} · {AR ? 'المتاح' : 'Stock'}: {stock.stock}</Text></TouchableOpacity>)}
-              {selected.inventory_item_id && <NInput label={AR ? 'الكمية المقدمة' : 'Quantity offered'} value={String(selected.qty_offered || '')} kbType="number-pad" onChange={(value: string) => { const max = Number((options.find((stock: any) => stock.id === selected.inventory_item_id) || {}).stock || 0); const qty = Math.max(1, Math.min(Number(item.qty_requested || 1), max, Number(value || 0))); setChoices(prev => ({ ...prev, [item.order_item_id]: { ...prev[item.order_item_id], qty_offered: qty } })); setQuote(null); }} />}
-              {selected.inventory_item_id && <NInput label={AR ? 'سعر مخصص (اختياري)' : 'Custom price (optional)'} value={selected.unit_price_override ? String(selected.unit_price_override) : ''} kbType="number-pad" onChange={(value: string) => { setChoices(prev => ({ ...prev, [item.order_item_id]: { ...prev[item.order_item_id], unit_price_override: value } })); setQuote(null); }} />}
+              {options.map((stock: any) => {
+                // provider-journeys 1: a catalogue row has no inventory id yet (source "catalogue"); picking it sends its
+                // medicine_id and the server adds it to this pharmacy's inventory at the offered quantity.
+                const fromCatalogue = stock.source === 'catalogue';
+                const picked = fromCatalogue ? selected.medicine_id === stock.medicine_id : selected.inventory_item_id === stock.id;
+                return <TouchableOpacity key={fromCatalogue ? `cat-${stock.medicine_id}` : stock.id} onPress={() => { setChoices(prev => ({ ...prev, [item.order_item_id]: { availability: selected.availability, ...(fromCatalogue ? { medicine_id: stock.medicine_id } : { inventory_item_id: stock.id }), qty_offered: fromCatalogue ? Number(item.qty_requested || 1) : Math.min(Number(item.qty_requested || 1), Number(stock.stock || 0)) } })); setQuote(null); }} style={{ padding: SP.sm, borderWidth: 1, borderRadius: R.md, borderColor: picked ? theme.primary : theme.border }}><Text style={{ color: theme.text }}>{stock.name_ar || stock.name_en || stock.sku} · {fromCatalogue ? (AR ? `من الكتالوج الوطني${stock.price ? ` · ${stock.price} ر.س` : ''} · يُضاف لمخزونك` : `From the national catalogue${stock.price ? ` · ${stock.price} SAR` : ''} · added to your inventory`) : `${AR ? 'المتاح' : 'Stock'}: ${stock.stock}`}</Text></TouchableOpacity>;
+              })}
+              {(selected.inventory_item_id || selected.medicine_id) && <NInput label={AR ? 'الكمية المقدمة' : 'Quantity offered'} value={String(selected.qty_offered || '')} kbType="number-pad" onChange={(value: string) => { const row: any = options.find((stock: any) => (selected.medicine_id ? stock.medicine_id === selected.medicine_id && stock.source === 'catalogue' : stock.id === selected.inventory_item_id)) || {}; const max = row.source === 'catalogue' ? Number(item.qty_requested || 1) : Number(row.stock || 0); const qty = Math.max(1, Math.min(Number(item.qty_requested || 1), max, Number(value || 0))); setChoices(prev => ({ ...prev, [item.order_item_id]: { ...prev[item.order_item_id], qty_offered: qty } })); setQuote(null); }} />}
+              {(selected.inventory_item_id || selected.medicine_id) && <NInput label={AR ? 'سعر مخصص (اختياري)' : 'Custom price (optional)'} value={selected.unit_price_override ? String(selected.unit_price_override) : ''} kbType="number-pad" onChange={(value: string) => { setChoices(prev => ({ ...prev, [item.order_item_id]: { ...prev[item.order_item_id], unit_price_override: value } })); setQuote(null); }} />}
             </>}
           </NCard>;
         })}
@@ -175,6 +183,19 @@ export function PharmacyBroadcastResponse({ onBack, broadcast }: { onBack: () =>
         <NCard><NInput label={AR ? 'وقت التجهيز بالدقائق (اختياري، 5 إلى 240)' : 'Preparation time in minutes (optional, 5-240)'} value={prepMinutes} kbType="number-pad" onChange={(v: string) => { setPrepMinutes(v.replace(/[^0-9]/g, '').slice(0, 3)); setQuote(null); }} /></NCard>
         <NCard><NInput label={AR ? 'ملاحظة للمريض (اختياري)' : 'Note for patient (optional)'} value={providerNote} onChange={(v: string) => setProviderNote(v.slice(0, 500))} multi multiline lines={2} maxLen={500} /></NCard>
         {quote && <NCard><Text style={{ color: theme.text, fontWeight: FW.bold }}>{AR ? 'معاينة خادمية' : 'Server quote preview'}</Text><Text style={{ color: theme.text }}>{AR ? `الإجمالي: ${quote.totals?.total ?? '—'} ${quote.totals?.currency ?? ''}` : `Total: ${quote.totals?.total ?? '—'} ${quote.totals?.currency ?? ''}`}</Text><Text style={{ color: theme.textSub }}>{AR ? `صالحة للمسودة لمدة ${quote.quote_ttl_seconds ?? 600} ثانية` : `Draft quote TTL: ${quote.quote_ttl_seconds ?? 600} seconds`}</Text><Text style={{ color: theme.textSub }}>{quote.fulfillment?.policy_status === 'unavailable_read_only' ? (AR ? 'سياسة التسليم غير متاحة للقراءة فقط.' : 'Delivery policy unavailable (read-only).') : ''}</Text></NCard>}
+        {/* decision 12 (issue 331, revised 2026-10-10): a line above the catalogue (SFDA) price is accepted and flagged; the pharmacist is warned per line and the admin reviews it */}
+        {(() => {
+          const flagged = (Array.isArray(quote?.draft?.items) ? quote.draft.items : []).filter((i: any) => i?.above_catalogue_price === true || i?.price_check === 'not_verified');
+          if (!flagged.length) return null;
+          return <NCard style={{ borderColor: theme.warn }}>
+            <Text style={{ color: theme.text, fontWeight: FW.bold }}>{AR ? 'تنبيه أسعار' : 'Price notice'}</Text>
+            {flagged.map((i: any) => <Text key={String(i.order_item_id)} style={{ color: theme.textSub, marginTop: SP.xs }}>
+              {i.above_catalogue_price === true
+                ? (AR ? `${i.name_ar || i.sku || ''}: سعرك ${i.unit_price} ر.س أعلى من سعر الكتالوج ${i.catalogue_price} ر.س. أسعار الأدوية جبرية؛ تأكد أن السعر الرسمي تغيّر. أُبلغت الإدارة للمراجعة.` : `${i.name_ar || i.sku || ''}: your price ${i.unit_price} SAR is above the catalogue price ${i.catalogue_price} SAR. Medicine prices are regulated; make sure the official price changed. The admin was told and will review it.`)
+                : (AR ? `${i.name_ar || i.sku || ''}: الصنف غير مطابق لكتالوج نبض بلس، فلم يُتحقق من سعره.` : `${i.name_ar || i.sku || ''}: this item is not in the Nabd Plus catalogue, so its price was not checked.`)}
+            </Text>)}
+          </NCard>;
+        })()}
         <NBtn label={busy ? (AR ? 'جارٍ المعالجة…' : 'Working…') : (AR ? 'معاينة خادمية' : 'Server quote preview')} disabled={busy} onPress={preview} />
         <NBtn label={AR ? 'حفظ المسودة' : 'Save draft'} variant="secondary" disabled={busy || !quote} onPress={saveDraft} />
         <NBtn label={AR ? 'إرسال العرض للاختيار' : 'Submit for patient selection'} disabled={busy || !quote?.draft?.id} onPress={submit} />

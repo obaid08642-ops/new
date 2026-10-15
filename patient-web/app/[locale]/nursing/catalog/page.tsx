@@ -9,7 +9,7 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { RowCard } from "@/components-next/consult/consult-parts";
 import { Caret, NURSING, RowList, ServiceChips, serviceIcon } from "@/components-next/nursing/nursing-parts";
-import { money, pickText } from "@/components-next/diagnostics/diag-parts";
+import { SearchForm, money, pickText } from "@/components-next/diagnostics/diag-parts";
 import type { Metadata } from "next";
 
 /**
@@ -24,7 +24,7 @@ function localDuration(locale: string, value: number | undefined, raw: string | 
   return new Intl.NumberFormat(locale, { style: "unit", unit, unitDisplay: "long" }).format(amount);
 }
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
@@ -47,10 +47,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 /**
  * The public nursing catalogue (canvas/ServiceHub list): a row per service the server lists, each going to the service page.
  * It used to open a booking window that confirmed with a made-up reference and a made-up price; a booking is only a booking
- * when the booking call answered, so the service page (and, behind it, the nurse's page with its booking form) is the way in.
+ * when the booking call answered, so the service page and its booking page (/home-care/services/:id/book) are the way in.
  */
-export default async function NursingCatalogPage({ params }: Props) {
+export default async function NursingCatalogPage({ params, searchParams }: Props) {
   const { locale } = await params;
+  const { q = "" } = (await searchParams) ?? {};
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("NursingWeb");
@@ -62,15 +63,23 @@ export default async function NursingCatalogPage({ params }: Props) {
     }
   } catch {}
   const caret = <Caret rtl={getDirection(locale) === "rtl"} />;
+  // journeys#63: the one services list (the home care hub's "browse services" lands here too), with its search.
+  const query = q.trim().toLocaleLowerCase(locale);
+  const shown = query
+    ? items.filter((item) => [item.nameAr, item.nameEn, item.descriptionAr, item.descriptionEn].filter(Boolean).some((v) => v!.toLocaleLowerCase(locale).includes(query)))
+    : items;
 
   return (
     <ConsultPage locale={locale} title={t("catalogTitle")} backHref={`/${locale}/home-care`}>
       <StaleWhileRevalidate />
+      {items.length > 0 ? <SearchForm defaultValue={q} placeholder={t("searchPlaceholder")} label={t("searchLabel")} submitLabel={t("searchSubmit")} /> : null}
       {items.length === 0 ? (
         <ConsultState kind="empty" icon={NURSING.icon} tone={NURSING.tone} title={t("catalogEmptyTitle")} body={t("catalogEmptyBody")} />
+      ) : shown.length === 0 ? (
+        <ConsultState kind="empty" icon={NURSING.icon} tone={NURSING.tone} title={t("servicesEmpty")} body={t("noMatch")} />
       ) : (
         <RowList label={t("catalogTitle")}>
-          {items.map((item) => {
+          {shown.map((item) => {
             const name = pickText(locale, item.nameAr, item.nameEn) ?? "";
             const description = pickText(locale, item.descriptionAr, item.descriptionEn);
             const duration = localDuration(locale, item.durationValue, item.duration);
