@@ -34,10 +34,23 @@ Each has red on `main` and green on the branch in its body; lines are set to `fi
 | #1469 | public services feed: approved providers only, real price and insurers | 13-web 6, 7 |
 | #1470 | diagnostics: lab report opens, one booking path | journeys 49, 50, 54, 59 |
 | #1471 | B8 part 1: no fixed medical text | 3-app 6, 7; 5-app 14 |
+| #1472 | Rx and online-only flags in every medicine list | rx-rules-app 0-3, 5 |
+| #1473 | web notifications: switches honoured, web push | batch-0-web 9, 16; issues 438, 445 |
+| #1474 | provider app cleanup (dead screens, location, signature, review note) | provider-journeys 5, 13, 21, 24, 25, 29, 30, 32 |
+| #1476 | web: one cancel/reschedule page, one payment step | journeys 7, 42 |
+| #1477 | decision leftovers: online-only card, Rx note, the cart's prescription, nearby filters, crisis strings | issues 327, 329, 330, 337, 339 |
+| #1478 | web home nursing booking; nurses' hours give slots (root cause); one nursing list | journeys 60, 63; tooling 0; 3-web 2; 4-web 1 |
+| #1480 | lab result push opens the result, with "discuss with a doctor" | issue 338 |
+
+Decision epics verified on main and closed with evidence: #322, #324, #325, #335, #336.
 
 ## Next
 
-- In red/green now: Rx flags in every medicine list (and approved medicines visible in the app and search);
-  web notifications (switches honoured, web push, doctor-reply notice); provider app cleanup and wizard fixes.
-- Then: B8 part 2 (six-language preparation editors), the remaining journeys lines (cancel UIs, prescription to cart,
-  offline page), provider-journeys 28, and the route:claude-fix issues by priority.
+- In red/green now (worktrees `ow`, `ai`, `amb`, `sfda`): offers waiting never endless (issue 332, includes a fix: a
+  broadcasting order was drawn as "selected"); one AI assistant endpoint on web and app (326); ambulance role removed (333);
+  SFDA price review page and per-line warning (331). Open each PR when its green run passes.
+- Then: B8 part 2 (six-language preparation editors), journeys 77 (offline page, after #1473), provider-journeys 28, and the
+  route:claude-fix issues still open (list in the session notes: maternity/mood/water b8, insurance b7, family b6, b0 login
+  and notifications, admin 1235, journeys 1011-1086).
+- Disk: the session allowance filled once (Mongo stopped). Old queue databases and finished worktrees were removed; keep
+  removing `.next`/`dist` of worktrees whose PRs are open.
