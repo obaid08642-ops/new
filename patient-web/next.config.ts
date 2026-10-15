@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 import { withSentryConfig } from "@sentry/nextjs";
 import { contentSecurityPolicy } from "./csp";
+import { localeOnlyRedirects } from "./lib/routing/locale-redirects";
 import { IMAGE_HOSTS } from "./lib/image-hosts";
 import { queryTwinRewrites, unavailablePageRewrite } from "./lib/security/query-twin";
 
@@ -20,7 +21,7 @@ const nextConfig: NextConfig = {
 
   allowedDevOrigins: ["127.0.0.1", "3000-ikwbywe2u081i4meqv02p-09e989e4.sg1.manus.computer"],
   async redirects() {
-    return [
+    return localeOnlyRedirects([
       { source: "/:locale/doctors", destination: "/:locale/consultations/doctors", permanent: false },
       { source: "/:locale/doctor", destination: "/:locale/consultations/doctors", permanent: false },
       { source: "/:locale/labs", destination: "/:locale/diagnostics/labs", permanent: false },
@@ -60,7 +61,7 @@ const nextConfig: NextConfig = {
       { source: "/:locale/family/join", destination: "/:locale/family/add?tab=join", permanent: false },
       { source: "/:locale/family/scan", destination: "/:locale/family/add?tab=scan", permanent: false },
       { source: "/:locale/health/add-family-member", destination: "/:locale/family/add?tab=invite", permanent: false },
-    ];
+    ]);
   },
   // F82-3: internal rewrites (the address does not change). They run after the proxy has classified and stamped the request by
   // its original path. See lib/security/query-twin.ts for why they are config rewrites and not rewrites made in proxy.ts.
