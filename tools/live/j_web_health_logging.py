@@ -49,8 +49,16 @@ def main():
         step('the water form says it was saved', 'تم الحفظ' in msg, msg)
         today = datetime.date.today().isoformat()
         s = pat.get(f'/nutrition/daily-summary?date={today}')
-        water = s.get('water_ml') or s.get('waterMl') or s.get('water') or (s.get('totals') or {}).get('water_ml')
+        water = (s.get('water') or {}).get('consumed_ml') if isinstance(s.get('water'), dict) else s.get('water_ml')
         step('the day summary counts the 350 ml', s.ok and float(water or 0) >= 350, s)
+        page.goto(f'{WEB}/ar/nutrition', wait_until='load', timeout=60000)
+        tile = page.get_by_text('350').first
+        try:
+            tile.wait_for(timeout=20000)
+            shown = True
+        except Exception:
+            shown = False
+        step('the water tile on the page shows the 350 ml (it showed 0 before)', shown, page.locator('main').first.inner_text()[:300])
 
         journey('issue 864: a mood is logged on the website')
         page.goto(f'{WEB}/ar/mental-health/mood', wait_until='load', timeout=60000)
