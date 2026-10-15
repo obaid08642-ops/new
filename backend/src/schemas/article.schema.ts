@@ -17,6 +17,8 @@ export class Article {
   @Prop() body_en?: string;
   @Prop({ index: true }) category?: string; // صحة عامة · أمومة وطفولة · تغذية · أمراض مزمنة · صحة نفسية
   @Prop({ default: [] }) tags: string[];
+  // Issues #849 / #861: the pregnancy week (1-42) this article is read in; the maternity hub lists it under "Read this week".
+  @Prop({ index: true, min: 1, max: 42 }) pregnancy_week?: number;
   @Prop() cover_image?: string;
   @Prop() author_name?: string;
   @Prop() author_title?: string; // طبيب / أخصائي تغذية / ...

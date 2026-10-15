@@ -22,6 +22,14 @@ export enum UserRole {
 }
 
 /**
+ * Roles the platform no longer offers but that old `users` documents can still carry (decision 14 removed the
+ * ambulance provider type). They stay valid in the users schema so those documents still load and save; they
+ * grant nothing (no permissions, not self-registerable, not a UserRole) and the archive migration
+ * (scripts/migrations/2026-10-archive-ambulance.ts) deactivates the accounts.
+ */
+export const RETIRED_USER_ROLES = ['ambulance'] as const;
+
+/**
  * Roles that represent any service-provider-side account (individual practitioner
  * or facility staff). Provider apps authenticate with one of these roles — there is
  * no literal 'provider' value in UserRole, so provider-scope guards must test
@@ -119,17 +127,6 @@ export enum PrescriptionState {
   APPROVED = 'APPROVED',
   DISPENSED = 'DISPENSED',
   ARCHIVED = 'ARCHIVED',
-}
-
-export enum EmergencyState {
-  TRIGGERED = 'TRIGGERED',
-  LOCATION_CAPTURED = 'LOCATION_CAPTURED',
-  ADMIN_NOTIFIED = 'ADMIN_NOTIFIED',
-  NEAREST_PROVIDER_IDENTIFIED = 'NEAREST_PROVIDER_IDENTIFIED',
-  DISPATCH_INITIATED = 'DISPATCH_INITIATED',
-  RESOLVED = 'RESOLVED',
-  CANCELLED = 'CANCELLED',
-  CLOSED = 'CLOSED',
 }
 
 export enum MedicationDoseState {
@@ -282,17 +279,6 @@ export const ORDER_TRANSITIONS: Record<string, any[]> = {
   [OrderState.PENDING_INSURANCE]: [OrderState.APPROVED, OrderState.PARTIAL_APPROVAL, OrderState.REJECTED, OrderState.CANCELLED],
   [OrderState.APPROVED]: [OrderState.PREPARING, OrderState.READY_FOR_DISPATCH, OrderState.CANCELLED],
   [OrderState.PARTIAL_APPROVAL]: [OrderState.PREPARING, OrderState.READY_FOR_DISPATCH, OrderState.CANCELLED],
-};
-
-export const EMERGENCY_TRANSITIONS: Record<EmergencyState, EmergencyState[]> = {
-  [EmergencyState.TRIGGERED]: [EmergencyState.LOCATION_CAPTURED, EmergencyState.ADMIN_NOTIFIED, EmergencyState.CANCELLED],
-  [EmergencyState.LOCATION_CAPTURED]: [EmergencyState.ADMIN_NOTIFIED, EmergencyState.CANCELLED],
-  [EmergencyState.ADMIN_NOTIFIED]: [EmergencyState.NEAREST_PROVIDER_IDENTIFIED, EmergencyState.RESOLVED, EmergencyState.CANCELLED],
-  [EmergencyState.NEAREST_PROVIDER_IDENTIFIED]: [EmergencyState.DISPATCH_INITIATED, EmergencyState.RESOLVED, EmergencyState.CANCELLED],
-  [EmergencyState.DISPATCH_INITIATED]: [EmergencyState.RESOLVED, EmergencyState.CANCELLED],
-  [EmergencyState.RESOLVED]: [EmergencyState.CLOSED],
-  [EmergencyState.CANCELLED]: [EmergencyState.CLOSED],
-  [EmergencyState.CLOSED]: [],
 };
 
 /* ============================================================================

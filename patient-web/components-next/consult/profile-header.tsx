@@ -18,6 +18,8 @@ export function ProfileHeader({
   line,
   tags = [],
   stats = [],
+  photoSrc,
+  photoAlt,
   children,
 }: {
   icon?: FillIconName;
@@ -25,11 +27,14 @@ export function ProfileHeader({
   line?: string;
   tags?: string[];
   stats?: ProfileStat[];
+  /** A real photo (the doctor's own, 2-web#3) in place of the service icon; its alt text names the person. */
+  photoSrc?: string;
+  photoAlt?: string;
   children?: ReactNode;
 }) {
   return (
     <section className={`${rx.card} ${styles.profile}`}>
-      <FIcon icon={icon} tone={tone} size={88} />
+      {photoSrc ? <img src={photoSrc} alt={photoAlt ?? ""} className={styles.profilePhoto} width={88} height={88} /> : <FIcon icon={icon} tone={tone} size={88} />}
       {line ? <p className={styles.heroSub}>{line}</p> : null}
       {tags.length > 0 ? <div className={styles.chips}>{tags.map((tag) => <span key={tag} className={styles.tag}>{tag}</span>)}</div> : null}
       {stats.length > 0 ? (

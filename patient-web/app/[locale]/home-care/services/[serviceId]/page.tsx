@@ -12,10 +12,11 @@ import { getOptionalPatientAccessToken } from "@/lib/auth/session";
 import { isLocale, locales } from "@/lib/i18n";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
-import { Facts, Hero, Notice, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
+import { Facts, Hero, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
 import { NURSING, ServiceChips, serviceIcon } from "@/components-next/nursing/nursing-parts";
 import { money, pickText } from "@/components-next/diagnostics/diag-parts";
 import consult from "@/components-next/consult/consult.module.css";
+import { ButtonLink } from "@/components-next/pharmacy/button-link";
 
 type Props = { params: Promise<{ locale: string; serviceId: string }> };
 
@@ -57,7 +58,7 @@ export default async function HomeCareServicePage({ params }: Props) {
   // issue 650: the service page is public. A signed-in patient reads the service endpoint; everyone else (and a patient whose
   // session has ended) reads the service out of the public catalog. Signing in is asked for at booking, not here.
   if (!parseHomeCareServiceId(serviceId).success) notFound();
-  const back = `/${locale}/home-care/services`;
+  const back = `/${locale}/nursing/catalog`;
   const token = await getOptionalPatientAccessToken();
   let service: ReturnType<typeof extractHomeCareService> = null;
   let reachable = true;
@@ -108,7 +109,8 @@ export default async function HomeCareServicePage({ params }: Props) {
           <Facts rows={rows} label={t("serviceTitle")} />
         </SectionCard>
       ) : null}
-      <Notice>{t("bookingNotice")}</Notice>
+      {/* journeys#60 (issue 1069): the service is booked on the website too (the book page asks for sign-in) */}
+      <ButtonLink href={`/${locale}/home-care/services/${encodeURIComponent(serviceId)}/book`} label={t("bookCta")} fullWidth />
     </ConsultPage>
   );
 }

@@ -1,0 +1,3 @@
+.box { display: flex; flex-direction: column; gap: 10px; }
+.video { inline-size: 100%; max-block-size: 320px; border-radius: var(--nabd-radius-md); background: var(--nabd-color-bg-inverse); object-fit: cover; }
+.hint { font-size: var(--nabd-font-size-caption-size); color: var(--nabd-color-text-secondary); }

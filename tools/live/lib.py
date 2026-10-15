@@ -203,8 +203,8 @@ class WebClient(Client):
         except urllib.error.HTTPError as e:
             raw, status, hdrs = e.read(), e.code, dict(e.headers)
         if status == 429 and not getattr(self, '_retrying', False) and os.environ.get('NABD_LIVE_WAIT_429', '1') == '1':
-            # Same as Client.req: the admin login is limited to 10 a minute per IP, and the journeys sign the admin in
-            # several times in a row. Wait out the window instead of faking IPs.
+            # Same as Client.req: the BFF's sign-in reaches the per-IP login throttle (every journey signs in from this
+            # one machine); wait the window out once instead of failing the journey.
             self._retrying = True
             try:
                 time.sleep(62)
