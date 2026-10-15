@@ -204,7 +204,7 @@
     "kind": "other",
     "file": "patient-app/app/pharmacy/cart.tsx",
     "line": 75,
-    "review_status": "open (issue #1031)"
+    "review_status": "owner-decision (question 39 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2) (issue #1031)"
   },
   {
     "scenario": 2,
@@ -312,7 +312,7 @@
     "kind": "wrong-state",
     "file": "patient-web/app/[locale]/prescriptions/[prescriptionId]/page.tsx",
     "line": 97,
-    "review_status": "open (issue #1043)"
+    "review_status": "owner-decision (question 39 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2: one prescription order flow) (issue #1043)"
   },
   {
     "scenario": 3,

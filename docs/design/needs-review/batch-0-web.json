@@ -85,7 +85,7 @@
     "line": 11,
     "found": "No link in the web points to /onboarding (grep over app, components-next, lib); /welcome is reached only from the login back button and the onboarding screens; finishing onboarding stores nothing (no flag, no API call).",
     "suspect": "LEFT, needs a product decision (the 2026-10-05 owner decision is the app's launch behaviour: first launch shows Welcome, later launches open Home as guest). For the web: should a first visit to / redirect to /welcome (it would change the indexable public Home), should /onboarding be linked from /welcome, and is it acceptable that finishing onboarding stores nothing? Not wired.",
-    "review_status": "open (issue #436)"
+    "review_status": "owner-decision (question 32 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2) (issue #436)"
   },
   {
     "batch": 0,
