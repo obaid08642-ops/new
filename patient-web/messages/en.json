@@ -4089,5 +4089,10 @@
     "faqIngredient": "What is the active ingredient of {name}?",
     "faqPrice": "How much is {name} on Nabd Plus?",
     "howToTitle": "How to use {name}"
+  },
+  "Offline": {
+    "title": "You are offline",
+    "body": "This page could not open without a connection. Your cart is kept on this device; send your request when you are back online.",
+    "home": "Back to the start"
   }
 }
