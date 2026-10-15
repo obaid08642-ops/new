@@ -29,7 +29,7 @@ export type OfferView = {
   codAllowed?: boolean;
   distanceKm?: number;
   note?: string;
-  lines: Array<{ id: string; name: string; quantity?: number; unitPrice?: number; available?: boolean; alternative?: string }>;
+  lines: Array<{ id: string; name: string; quantity?: number; unitPrice?: number; available?: boolean; alternative?: string; priceStatus?: "verified" | "not_verified" | "above_catalogue" }>;
 };
 
 export type SortKey = "price" | "fast" | "near";
@@ -189,6 +189,9 @@ export function OfferList({ orderId, offers, after }: Props & { offers: OfferVie
                             {line.available === false ? t("lineUnavailable") : line.unitPrice !== undefined ? formatMoney(locale, line.unitPrice, offer.currency) : ""}
                           </span>
                           {line.alternative ? <span className={styles.lineSub}>{t("lineAlternative", { name: line.alternative })}</span> : null}
+                          {/* journeys 75 (decision 12): a price the server could not check, or above the catalogue price */}
+                          {line.available !== false && line.priceStatus === "not_verified" ? <span className={styles.lineSub} role="note">{t("priceNotVerified")}</span> : null}
+                          {line.available !== false && line.priceStatus === "above_catalogue" ? <span className={styles.lineSub} role="note">{t("priceAboveCatalogue")}</span> : null}
                         </li>
                       ))}
                     </ul>

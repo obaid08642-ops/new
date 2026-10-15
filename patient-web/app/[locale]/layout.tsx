@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { OfflineSupport } from "@/components-next/offline-support";
+import { OfflineBanner } from "@/components-next/network/offline-banner";
 import Link from "next/link";
 import "../globals.css";
 import { THEME_COLOR } from "../design-tokens/theme-color";
@@ -126,6 +127,10 @@ export default async function LocaleLayout({ children, params }: Props) {
               value; the CSP allows exactly this script by its hash (lib/security/csp.ts, THEME_SCRIPT_HASH).
             */}
             <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+            {/* P15.4: the offline banner with the time this page was made ("last updated"). For a static/ISR page this
+                render is the cached copy, so the time is that copy's, not the visit's. Early in the document so it is read
+                first; the banner itself is fixed at the bottom edge. */}
+            <OfflineBanner renderedAt={Date.now()} />
             <header className="topbar">
               <Link className="brand" href={`/${typedLocale}`}>
                 <span className="brand-mark">

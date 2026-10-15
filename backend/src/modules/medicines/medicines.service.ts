@@ -1393,23 +1393,37 @@ export class MedicinesService {
     return { ok: true };
   }
 
+  /** One per-item change-log row ({ field, before, after, reason, changed_by }) in the history the admin quick
+   *  edit reads (GET admin/catalog/:id/price-history); price keeps its own before_price/after_price rows. */
+  private async logFieldChange(medicineId: string, field: string, before: unknown, after: unknown, reason: string | null, adminId: string) {
+    await this.priceHistory.insertOne({ id: `mch_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`, medicine_id: medicineId, field, before, after, reason, changed_by: adminId, createdAt: new Date() });
+  }
+
   /** Admin: clear the badge when stock normalizes. */
   async clearShortageBadge(medicineId: string, adminId: string) {
+    const med: any = await this.model.findOne({ id: medicineId }, { _id: 0, availability_status: 1 });
     await this.model.updateOne(
       { id: medicineId },
       { $set: { availability_status: 'none', shortage_notes: null, updatedAt: new Date() } },
     );
+    const prevStatus = med?.availability_status || 'none';
+    if (med && prevStatus !== 'none') await this.logFieldChange(medicineId, 'availability_status', prevStatus, 'none', null, adminId);
     this.audit('medicine.shortage_badge_cleared', medicineId, adminId, 'admin', {});
     await this.invalidateCache();
     return { ok: true };
   }
 
   /** Admin: set availability explicitly — Available | May be unavailable | Discontinued (future) */
-  async setAvailability(medicineId: string, adminId: string, status: string) {
+  async setAvailability(medicineId: string, adminId: string, status: string, reason?: string) {
     const allowed = ['none', 'availability_may_be_limited', 'admin_flagged_shortage', 'discontinued'];
     if (!allowed.includes(status)) throw new BadRequestException(`status must be one of: ${allowed.join(', ')}`);
+    const med: any = await this.model.findOne({ id: medicineId }, { _id: 0, availability_status: 1 });
+    if (!med) throw new NotFoundException('الصنف غير موجود');
     await this.model.updateOne({ id: medicineId }, { $set: { availability_status: status, updatedAt: new Date() } });
-    this.audit('medicine.availability_changed', medicineId, adminId, 'admin', { status });
+    const prevStatus = med.availability_status || 'none';
+    const why = String(reason || '').trim() || null;
+    if (prevStatus !== status) await this.logFieldChange(medicineId, 'availability_status', prevStatus, status, why, adminId);
+    this.audit('medicine.availability_changed', medicineId, adminId, 'admin', { status, before: prevStatus, reason: why });
     await this.invalidateCache();
     return { ok: true, status };
   }
@@ -1654,6 +1668,15 @@ export class MedicinesService {
     'warnings_ar', 'warnings_en', 'side_effects_ar', 'side_effects_en',
     'precautions_ar', 'precautions_en', 'interactions', 'package_size', 'storage_conditions',
   ];
+
+  /** Decision 10 / needs-review admin-catalogue#20: the prescription and controlled flags are as sensitive as the
+   *  price, so changing either needs a typed reason (>= 5 chars) that the per-item change log keeps. */
+  static readonly REASON_REQUIRED_FLAGS = ['requires_prescription', 'controlled'] as const;
+
+  static assertFlagChangeReason(med: Record<string, unknown>, clean: Record<string, unknown>, patch: { reason?: unknown } | null | undefined) {
+    const changed = MedicinesService.REASON_REQUIRED_FLAGS.some((f) => clean[f] !== undefined && !!clean[f] !== !!med[f]);
+    if (changed && String(patch?.reason || '').trim().length < 5) throw new BadRequestException('flag_change_reason_required');
+  }
 
   static readonly CHANGE_TYPES = ['field_edit', 'image_remove', 'shortage_badge', 'duplicate_remove', 'new_item', 'other'];
 
@@ -1917,7 +1940,14 @@ export class MedicinesService {
       this.priceHistory.find({ medicine_id: medicineId }, { projection: { _id: 0 } }).sort({ createdAt: -1 }).skip((safePage - 1) * safeLimit).limit(safeLimit).toArray(),
       this.priceHistory.countDocuments({ medicine_id: medicineId }),
     ]);
-    return { data, total, page: safePage, pages: Math.ceil(total / safeLimit) };
+    // "Who changed it": the staff member's name next to the stored id.
+    const ids = [...new Set(data.map((r: any) => r.changed_by).filter((v: unknown): v is string => typeof v === 'string' && v.length > 0))];
+    const staff: any[] = ids.length
+      ? await this.conn.collection('users').find({ id: { $in: ids } }, { projection: { _id: 0, id: 1, full_name: 1, name: 1 } }).toArray()
+      : [];
+    const names = new Map(staff.map((u) => [u.id, u.full_name || u.name || null]));
+    const rows = data.map((r: any) => ({ ...r, changed_by_name: names.get(r.changed_by) ?? null }));
+    return { data: rows, total, page: safePage, pages: Math.ceil(total / safeLimit) };
   }
 
   async adminCatalogReports() {
@@ -1970,6 +2000,7 @@ export class MedicinesService {
     if (clean.price !== undefined && Number(clean.price) !== Number(med.price || 0) && String(patch?.reason || '').trim().length < 5) {
       throw new BadRequestException('price_change_reason_required');
     }
+    MedicinesService.assertFlagChangeReason(med, clean, patch);
     const prev = med.pending_revision && typeof med.pending_revision === 'object' ? med.pending_revision : null;
     const reason = String(patch?.reason || '').trim() || (prev?.changes as any)?.reason;
     const revision = {
@@ -2000,6 +2031,7 @@ export class MedicinesService {
       const priceReason = String(patch?.reason || '').trim();
       if (priceReason.length < 5) throw new BadRequestException('price_change_reason_required');
     }
+    MedicinesService.assertFlagChangeReason(med, clean, patch);
     if (patch?.availability_status !== undefined) {
       const allowed = ['none', 'availability_may_be_limited', 'admin_flagged_shortage', 'discontinued'];
       if (!allowed.includes(patch.availability_status)) throw new BadRequestException('invalid availability_status');
@@ -2043,7 +2075,9 @@ export class MedicinesService {
         const prev = med[field] ?? null;
         const next = afterAll[field];
         if (JSON.stringify(prev) === JSON.stringify(next)) continue;
-        await this.priceHistory.insertOne({ id: `mch_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`, medicine_id: medicineId, field, before: prev, after: next, reason, changed_by: adminId, createdAt: new Date() });
+        // An unset flag equals false: re-sending `false` for a never-set flag is not a change.
+        if (typeof next === 'boolean' && !!prev === next) continue;
+        await this.logFieldChange(medicineId, field, prev, next, reason, adminId);
       }
     }
     // D-12: the catalogue price ceiling is an operational field (no re-review) with its own source and

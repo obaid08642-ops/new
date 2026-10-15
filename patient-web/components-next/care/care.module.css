@@ -21,3 +21,16 @@
 .sessionDone { text-decoration: line-through; color: var(--nabd-color-text-secondary); }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .hint { margin: 0; font-size: var(--nabd-font-size-small); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+
+/* The pregnancy week entry (issues #849, #861): the CDN image beside the size line and the development text. */
+.week {
+  display: flex; flex-direction: row; align-items: flex-start; gap: 14px; padding: 14px; min-inline-size: 0; box-sizing: border-box;
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline);
+  border-radius: var(--nabd-radius-3xl); box-shadow: var(--nabd-shadow-card);
+}
+.weekMedia { position: relative; flex: none; inline-size: 96px; block-size: 96px; overflow: hidden; border-radius: var(--nabd-radius-2xl); background: var(--nabd-color-bg-sunken); }
+.weekMedia img { object-fit: cover; }
+.weekBody { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 6px; }
+.weekSize { margin: 0; font-size: var(--nabd-font-size-body-lg); font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
+.weekText { margin: 0; font-size: var(--nabd-font-size-label); line-height: 1.7; color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; white-space: pre-line; }
+.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }

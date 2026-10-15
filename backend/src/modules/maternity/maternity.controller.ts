@@ -23,11 +23,6 @@ export class MaternityController {
     return this.maternityService.getProfile(this.authenticatedPatientId(req));
   }
 
-  @Get('content')
-  getContent() {
-    return this.maternityService.getContent();
-  }
-
   /** POST /api/v1/maternity/profile — Set or update maternity/pregnancy profile variables */
   @Post('profile')
   updateProfile(@Req() req: any, @Body() body: UpdateProfileDto) {

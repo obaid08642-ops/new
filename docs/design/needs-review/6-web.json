@@ -8,7 +8,7 @@
     "line": 112,
     "found": "[client] The web has no camera scanner (the code or link is pasted), as before; the app scans. Not added: it is a feature, and the camera permission handling stays as it was.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open (issue #694)"
+    "review_status": "fixed #1523 (issue #694)"
   },
   {
     "batch": 6,
