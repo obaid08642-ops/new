@@ -15,8 +15,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Final pass | 8 | 8 | 0 | 0 | 0 | 0 |
 | Patient journeys | 87 | 33 | 52 | 2 | 0 | 0 |
 | Provider app | 31 | 8 | 22 | 1 | 0 | 0 |
-| Provider journeys | 34 | 17 | 15 | 2 | 0 | 0 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| Provider journeys | 34 | 16 | 16 | 2 | 0 | 0 |
+| **Total** | **740** | **179** | **421** | **128** | **1** | **11** |
 
 ## By tag
 
@@ -24,9 +24,9 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---|---:|---:|---:|---:|---:|---:|
 | client | 169 | 51 | 90 | 28 | 0 | 0 |
 | owner | 100 | 21 | 34 | 42 | 1 | 2 |
-| backend | 233 | 35 | 168 | 26 | 0 | 4 |
+| backend | 233 | 34 | 169 | 26 | 0 | 4 |
 | untagged | 238 | 73 | 128 | 32 | 0 | 5 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| **Total** | **740** | **179** | **421** | **128** | **1** | **11** |
 
 ## By file
 
@@ -90,7 +90,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `provider-admin-ish.json` | 3 | 1 | 2 | 0 | 0 | 0 |
 | `provider-doctor.json` | 6 | 1 | 5 | 0 | 0 | 0 |
 | `provider-facility.json` | 7 | 1 | 6 | 0 | 0 | 0 |
-| `provider-journeys.json` | 34 | 17 | 15 | 2 | 0 | 0 |
+| `provider-journeys.json` | 34 | 16 | 16 | 2 | 0 | 0 |
 | `provider-lab.json` | 4 | 3 | 1 | 0 | 0 | 0 |
 | `provider-nursing.json` | 2 | 0 | 2 | 0 | 0 | 0 |
 | `provider-pharmacy.json` | 2 | 0 | 1 | 1 | 0 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 7 | 0 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 6 | 7 | 0 | 0 | 0 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| **Total** | **740** | **179** | **421** | **128** | **1** | **11** |
 
 ## Owner decisions (1)
 
@@ -108,7 +108,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---:|---|---|---|
 | 1 | `13-web.json#13` `patient-web/lib/legal/embedded.ts:15` | /terms Embedded fallback text | [owner] The embedded copy (issue 755/783) is built from docs/legal, which are drafts with [placeholders] until a Saudi lawyer approves them, so it stays off today. After approval: update docs/legal, run node patient-web… |
 
-## Open and unverified (191)
+## Open and unverified (190)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -273,7 +273,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `provider-journeys.json#23` | backend | open | emergency.module ambulance removal (decision 14) | [backend] The app no longer has the ambulance provider type, dashboard, SOS dispatch, GPS router or fleet screens. These backend modules still exist and are for the reviewer to re… |
 | `provider-journeys.json#24` | backend | open | PendingDashboard needs_changes reason | [backend] The note an admin writes with "request changes" is kept only in the status history and on the flagged documents (reviewer_note); GET /provider-onboarding/progress return… |
 | `provider-journeys.json#25` | backend | open | NursingFieldOps live position while on the way | [backend] The single visit flow sends the live position during IN_TRANSIT with POST /home-care/bookings/:id/gps (the older booking family) because /nursing/visits/:id/* has no pos… |
-| `provider-journeys.json#28` | backend | open | LabRegistration + Add Custom Test (Requires Approval) (hidden) | [backend] The wizard had "+ Add Custom Test (Requires Approval)" in the lab and radiology test menus; it only showed a toast and sent nothing. It is hidden now (M9). To bring it b… |
 | `provider-journeys.json#29` | client | open | DoctorRegistration inline clinic map | [client] The doctor wizard has two map inputs that write `location` in different shapes: the picker in the services step writes {lat, lng}, the inline map on the insurance step wr… |
 | `provider-journeys.json#30` | client | open | FacilityRegistration saving flag in data | [client] The facility steps keep their saving flag `loading` inside the registration data, so `loading: false` is part of `full_data` sent with the final submit. Kept as is in M9 … |
 | `provider-journeys.json#32` | client | open | LabRegistration Bundle Builder | [client] The lab and radiology test menu has a "Bundle Builder" whose bundles are only part of `full_data`; neither step2 nor step3 sends them, so no bundle reaches the catalogue. |
