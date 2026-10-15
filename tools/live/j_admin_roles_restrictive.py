@@ -67,6 +67,8 @@ def run():
     step('outside the role: create a role (rbac.manage) -> 403', r.status == 403, r)
     r = api.post('/bans', {'type': 'device', 'value': uniq('livedev'), 'reason': REASON})
     step('outside the role: ban a user (user.edit) -> 403', r.status == 403, r)
+    r = api.post('/admin/finance/commissions/config', {'rates': {}, 'vat_rate': 0.15, 'reason': REASON})
+    step('outside the role: commission settings (finance.config.edit) -> 403', r.status == 403, r)
 
     journey('owner keeps every permission')
     r = owner.get('/admin/session')
