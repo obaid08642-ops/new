@@ -68,7 +68,7 @@ def main():
         if home.count() == 0:
             home = page.get_by_role('button', name='زيارة منزلية')
         home.first.click(timeout=30000)
-        section = page.locator('#book-home')
+        section = page.locator('section[aria-labelledby="book-home"]')  # SectionCard puts the id on its heading
         section.wait_for(timeout=30000)
         step('no latitude or longitude to type', section.locator('input').count() == 0, section.inner_text()[:300])
         select = section.locator('select')
