@@ -3227,5 +3227,6 @@
   "insurance.benefits.insurerCovered": "انشورنس کمپنی نے ادا کیا",
   "insurance.benefits.youPaid": "آپ نے ادا کیا",
   "consult.confirm.bookingFor": "یہ بکنگ {name} کے لیے ہے",
-  "consult.confirm.bookingForMe": "اپنے لیے بک کریں"
+  "consult.confirm.bookingForMe": "اپنے لیے بک کریں",
+  "common.chooseDateTime": "تاریخ اور وقت منتخب کریں"
 }

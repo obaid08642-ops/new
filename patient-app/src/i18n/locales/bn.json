@@ -3227,5 +3227,6 @@
   "insurance.benefits.insurerCovered": "বীমা কোম্পানি বহন করেছে",
   "insurance.benefits.youPaid": "আপনি দিয়েছেন",
   "consult.confirm.bookingFor": "এই বুকিং {name}-এর জন্য",
-  "consult.confirm.bookingForMe": "নিজের জন্য বুক করুন"
+  "consult.confirm.bookingForMe": "নিজের জন্য বুক করুন",
+  "common.chooseDateTime": "তারিখ ও সময় বেছে নিন"
 }

@@ -3227,5 +3227,6 @@
   "insurance.benefits.insurerCovered": "Covered by insurer",
   "insurance.benefits.youPaid": "You paid",
   "consult.confirm.bookingFor": "This booking is for {name}",
-  "consult.confirm.bookingForMe": "Book for myself"
+  "consult.confirm.bookingForMe": "Book for myself",
+  "common.chooseDateTime": "Choose the date and time"
 }

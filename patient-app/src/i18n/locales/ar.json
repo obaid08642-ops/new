@@ -3227,5 +3227,6 @@
   "insurance.benefits.insurerCovered": "غطّته شركة التأمين",
   "insurance.benefits.youPaid": "دفعتَه أنت",
   "consult.confirm.bookingFor": "هذا الحجز لـ {name}",
-  "consult.confirm.bookingForMe": "احجز لنفسي"
+  "consult.confirm.bookingForMe": "احجز لنفسي",
+  "common.chooseDateTime": "اختر التاريخ والوقت"
 }

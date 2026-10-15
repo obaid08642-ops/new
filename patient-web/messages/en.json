@@ -4089,5 +4089,12 @@
     "faqIngredient": "What is the active ingredient of {name}?",
     "faqPrice": "How much is {name} on Nabd Plus?",
     "howToTitle": "How to use {name}"
+  },
+  "CameraScan": {
+    "start": "Scan with the camera",
+    "stop": "Stop the camera",
+    "pointCamera": "Point the camera at the code",
+    "viewfinder": "Camera view",
+    "cameraFailed": "The camera could not be opened. Allow it, or type the code."
   }
 }

@@ -3227,5 +3227,6 @@
   "insurance.benefits.insurerCovered": "बीमा कंपनी ने कवर किया",
   "insurance.benefits.youPaid": "आपने भुगतान किया",
   "consult.confirm.bookingFor": "यह बुकिंग {name} के लिए है",
-  "consult.confirm.bookingForMe": "अपने लिए बुक करें"
+  "consult.confirm.bookingForMe": "अपने लिए बुक करें",
+  "common.chooseDateTime": "तारीख़ और समय चुनें"
 }
