@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Header, Headers, Logger, Optional, Param, Post, Put, UseGuards, Req, Res, BadRequestException } from '@nestjs/common';
-import { AuthLoginDto, AuthVerify2faDto, RefreshDto, RecordConsentDto, SendOtpDto, VerifyOtpDto, ResetPasswordDto, SocialLoginDto, HeartbeatDto, LinkAccountDto, ConfirmAccountLinkDto, CheckoutContactDto, GuestCleanupDto, GuestCapabilitiesDto } from './auth.dto';
+import { AuthLoginDto, AuthVerify2faDto, RefreshDto, LogoutDto, RecordConsentDto, SendOtpDto, VerifyOtpDto, ResetPasswordDto, SocialLoginDto, HeartbeatDto, LinkAccountDto, ConfirmAccountLinkDto, CheckoutContactDto, GuestCleanupDto, GuestCapabilitiesDto } from './auth.dto';
 import { PresenceService } from '../presence/presence.service';
 import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
@@ -322,15 +322,21 @@ export class AuthController {
     return { ok: true, message: 'consent_recorded' };
   }
 
+  /**
+   * Sign out: the refresh session of the token sent here is revoked, so a copied refresh token stops working (issue 440).
+   * Public: holding the refresh token is what proves the right to end its session, also once the access token expired.
+   */
+  @Public()
   @Post('logout')
-  logout(@Res({ passthrough: true }) res: Response) {
+  async logout(@Body() body: LogoutDto, @Res({ passthrough: true }) res: Response) {
     res.clearCookie('nabd_admin_token', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       path: '/'
     });
-    return { success: true };
+    const session_revoked = body?.refresh_token ? await this.auth.revokeRefreshSession(body.refresh_token) : false;
+    return { success: true, session_revoked };
   }
 
   // P5.4: legacy names — distinct generic-OTP flow (not aliases of otp/*);

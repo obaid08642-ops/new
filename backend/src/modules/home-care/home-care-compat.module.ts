@@ -209,7 +209,8 @@ export class HomeCareCompatController {
       // A job accepted in the provider app is CONFIRMED (IN_TRANSIT once the nurse sets off).
       ARRIVED: ['PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE', 'CONFIRMED', 'IN_TRANSIT'],
       CARE_IN_PROGRESS: ['ARRIVED'],
-      COMPLETED: ['CARE_IN_PROGRESS', 'ARRIVED'],
+      // provider-journeys#13: completion follows care, as /nursing/visits/:id/complete.
+      COMPLETED: ['CARE_IN_PROGRESS'],
       CANCELLED: ['NEW_REQUEST', 'PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE', 'ARRIVED', 'CARE_IN_PROGRESS'],
     };
     if (!this.isAdmin(u) && allowed[newState] && !allowed[newState].includes(String(b.state))) {
@@ -263,6 +264,8 @@ export class HomeCareCompatController {
 
   @SelfService()
   @Post('bookings/:id/visit-report') async visitReport(@CurrentUser() u: any, @Param('id') id: string, @Body() body: VisitReportDto) {
+    // provider-journeys#13: a visit is completed only with the patient's signature, on both end-of-visit paths.
+    if (body?.complete && !(typeof body?.signature === 'string' && body.signature.trim())) throw new BadRequestException('patient_signature_required');
     const attachments = body?.attachments?.length ? await this.shareVisitAttachments(u, id, body.attachments) : undefined;
     return this.transition(u, id, body?.complete ? 'COMPLETED' : 'CARE_IN_PROGRESS', {
       fields: {

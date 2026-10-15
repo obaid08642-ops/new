@@ -202,6 +202,15 @@ class WebClient(Client):
                 raw, status, hdrs = resp.read(), resp.status, dict(resp.headers)
         except urllib.error.HTTPError as e:
             raw, status, hdrs = e.read(), e.code, dict(e.headers)
+        if status == 429 and not getattr(self, '_retrying', False) and os.environ.get('NABD_LIVE_WAIT_429', '1') == '1':
+            # Same as Client.req: the admin login is limited to 10 a minute per IP, and the journeys sign the admin in
+            # several times in a row. Wait out the window instead of faking IPs.
+            self._retrying = True
+            try:
+                time.sleep(62)
+                return self.req(method, path, body, headers, idem)
+            finally:
+                self._retrying = False
         for c in self.jar:  # production cookies are Secure; the local run is plain http on localhost
             c.secure = False
         txt = raw.decode('utf8', 'replace')

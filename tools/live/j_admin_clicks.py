@@ -60,7 +60,17 @@ def main():
     try:
         page.locator('form input:not([type])').first.fill(EMAIL)
         page.fill('input[type="password"]', os.environ.get('NABD_ADMIN_PASSWORD', 'Adm1n!Live-Pass'))
-        page.click('button[type="submit"]')
+        # The admin login allows 10 a minute per IP; the journeys before this one sign in too. A 429 is waited out
+        # once, as lib.Client does (NABD_LIVE_WAIT_429), instead of reading it as a changed form.
+        with page.expect_response(lambda r: r.request.method == 'POST' and 'login' in r.url, timeout=20000) as sent:
+            page.click('button[type="submit"]')
+        if sent.value.status == 429 and os.environ.get('NABD_LIVE_WAIT_429', '1') == '1':
+            time.sleep(min(int(sent.value.headers.get('retry-after') or 61), 90))
+            t0 = time.time()
+            with page.expect_response(lambda r: r.request.method == 'POST' and 'login' in r.url, timeout=20000) as sent:
+                page.click('button[type="submit"]')
+        if sent.value.status >= 400:
+            raise RuntimeError(f'login answered {sent.value.status}')
         page.wait_for_selector('input[inputmode="numeric"]', timeout=20000)
         code = mail_code(EMAIL, t0)
         if not code:
@@ -259,6 +269,25 @@ def main():
         step('finance-suite hides the commission settings form from a role without finance.config.edit', shown == 0, f'{shown} save button(s) shown')
     except Exception as e:
         step('finance suite flow', False, str(e)[:300])
+
+    # ---- authority overrides: no ungoverned impersonation, every override names a permission (fix session) ----
+    journey('admin authority: no ungoverned impersonation token')
+    try:
+        from j_accounts import app_signup
+        from lib import Client
+        acct = app_signup(label='authority-target')
+        me = Client(acct.get('token'), 'patient').get('/auth/me')
+        target = ((me.body.get('data') or me.body) or {}).get('id') if isinstance(me.body, dict) else None
+        step('target patient id resolves', bool(target), me)
+        if admin and target:
+            r = admin.post(f'/admin/authority/users/{target}/impersonate', {})
+            tok = r.get('access_token')
+            step('legacy /admin/authority/users/:id/impersonate mints no token (governed sessions only)', not r.ok and not tok, r)
+            if tok:
+                who = Client(tok, 'patient').get('/auth/me')
+                step('(the minted token acts as the target user)', False, who)
+    except Exception as e:
+        step('authority impersonation flow', False, str(e)[:300])
 
     browser.close()
     pw.stop()
