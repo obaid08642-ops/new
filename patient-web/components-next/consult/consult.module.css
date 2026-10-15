@@ -184,6 +184,9 @@ textarea.control { resize: vertical; line-height: 1.6; overflow-wrap: anywhere; 
   background: var(--nabd-color-bg-sunken); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-3xl);
 }
 .stage video { inline-size: 100%; max-block-size: 60vh; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-inverse); }
+.tile { display: flex; flex-direction: column; gap: 6px; min-inline-size: 0; margin: 0; }
+.tileMedia { display: grid; gap: 8px; min-block-size: 160px; overflow: hidden; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-inverse); }
+.tileLabel { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
 .callState { display: flex; align-items: center; gap: 8px; margin: 0; font-size: var(--nabd-font-size-control); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
 .spin { animation: consult-spin 0.9s linear infinite; }
 @keyframes consult-spin { to { transform: rotate(360deg); } }
