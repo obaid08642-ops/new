@@ -193,6 +193,8 @@ jobs:
           LIVEKIT_API_SECRET=rehearsal_secret_rehearsal_secret_0123456789
           LIVEKIT_URL=wss://live.nabd.plus
           FCM_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nAAAA\n-----END PRIVATE KEY-----\n"
+          RESEND_API_KEY=re_rehearsal_$(openssl rand -hex 8)
+          MAIL_FROM=ops@nabd.example.test
           EOF
           sudo sed -i 's/^          //' $D/.env.production && sudo chmod 600 $D/.env.production
           docker build -q -t nabdah-prod-backend:latest tools/ops/rehearsal/old-stub
@@ -255,6 +257,13 @@ jobs:
           grep -q 'x0: seed labs.json vs labservices' o63.txt && grep -q 'x0: db labservices total=' o63.txt || exit 1
           for n in MONGO_ROOT_PASSWORD REDIS_PASSWORD JWT_SECRET; do v=$(sudo grep "^$n=" /opt/nabdah/deploy/.env.production | cut -d= -f2-); ! grep -qF "$v" o63.txt || { echo "$n printed"; exit 1; }; done
           echo "read-only check ok, no secret printed"
+          # an older deploy task still running (production: the run of 38672346219 may hang) -> 63 stops the run (99)
+          cp /bin/sleep /tmp/ops-60-deploy-main.sh && (/tmp/ops-60-deploy-main.sh 600 &) && sleep 1
+          OPS_ROLLBACK_TS=$TS OPS_PRE_SHA=$S8 bash tools/ops/tasks/63-inspect-rollback.sh > o63b.txt 2>&1; rc=$?
+          pkill -f /tmp/ops-60-deploy-main.sh; rm -f /tmp/ops-60-deploy-main.sh
+          grep -E 'x0: (deploy task processes|STOP)' o63b.txt
+          test $rc = 99 && grep -q 'x0: STOP an older deploy task' o63b.txt && echo "older deploy still running -> 63 exits 99 (the workflow stops the run)" || exit 1
+          grep -q 'x0: no older deploy task running; the run may continue' o63.txt || exit 1
       - name: "Scenario 2: forced failure at the final checks -> full rollback"
         run: |
           set +e
@@ -335,7 +344,7 @@ jobs:
         run: |
           set +e
           D=/opt/nabdah/deploy
-          bash tools/ops/tasks/62-backups-verify.sh 2>&1 | tee out.txt; rc=${PIPESTATUS[0]}
+          OPS_RESEND_URL=http://127.0.0.1:18999/emails bash tools/ops/tasks/62-backups-verify.sh 2>&1 | tee out.txt; rc=${PIPESTATUS[0]}
           echo "exit=$rc"; test $rc = 0 || exit 1
           grep -q 'backups: read back from the private bucket: same sha256' out.txt || exit 1
           grep -q 'backups: /ops/backup-runs recorded this run: local ok, offsite ok' out.txt || exit 1
@@ -344,12 +353,15 @@ jobs:
           echo "no secret printed"
           N=$(AWS_ACCESS_KEY_ID=x AWS_SECRET_ACCESS_KEY=x aws-ci --endpoint-url http://127.0.0.1:9000 --region us-east-1 s3 ls s3://nabd-plus-backups/mongodb/ | grep -c nabd_)
           echo "objects in the bucket: $N"; test "$N" = 1 || exit 1
+          grep -q 'backups: test mail sent to OPS_ALERT_EMAIL (HTTP 200)' out.txt || exit 1
+          curl -s http://127.0.0.1:18999/_mails | jq -e '.result | length == 1 and .[0].to_count == 1' && echo "Resend stand-in got one test mail" || exit 1
+          sudo grep -q '^OPS_ALERT_EMAIL=obaid08642@gmail.com$' $D/.env.production && ! grep -q 'obaid08642@gmail.com' out.txt && echo "OPS_ALERT_EMAIL set, address not printed" || exit 1
       - name: "Backups 3: 61 and 62 again (idempotent)"
         run: |
           set +e
           bash tools/ops/tasks/61-backups-env.sh 2>&1 | tee out.txt; test ${PIPESTATUS[0]} = 0 || exit 1
           grep -q 'backups: env names set: none' out.txt && echo "second 61: env unchanged" || exit 1
-          bash tools/ops/tasks/62-backups-verify.sh 2>&1 | tee out.txt; test ${PIPESTATUS[0]} = 0 || exit 1
+          OPS_RESEND_URL=http://127.0.0.1:18999/emails bash tools/ops/tasks/62-backups-verify.sh 2>&1 | tee out.txt; test ${PIPESTATUS[0]} = 0 || exit 1
           N=$(AWS_ACCESS_KEY_ID=x AWS_SECRET_ACCESS_KEY=x aws-ci --endpoint-url http://127.0.0.1:9000 --region us-east-1 s3 ls s3://nabd-plus-backups/mongodb/ | grep -c nabd_)
           echo "objects in the bucket: $N"; test "$N" = 2 || exit 1
       - name: Logs on failure

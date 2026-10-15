@@ -2,7 +2,8 @@
 # READ-ONLY (reviewer, 2026-10-15). After deploy run 38672346219: 60-deploy-main failed at the migration
 # 2026-09-catalog-json-to-db (E11000 on labservices.id_1) and the public log stopped at "evidence: -- nabdah-patient-web"
 # when the workflow stopped polling at 60 minutes. This checks, without changing anything:
-#   1. whether the detached deploy task is still running (and where its log ends)
+#   1. whether the detached deploy task is still running (and where its log ends); if it is, exit 99, which stops the
+#      whole server-ops run before the next task (reviewer, 2026-10-15)
 #   2. containers: health, image of each app service vs the rollback-<ts> tags, no worker/meilisearch
 #   3. deploy files and env NAMES vs the snapshot the deploy took; files that did not exist before are absent
 #   4. nginx -t, api and site answers
@@ -115,4 +116,9 @@ JS
 else
   echo "x0: $MIG not on the host; seed check skipped"
 fi
+if [ -n "$P" ]; then
+  echo "x0: STOP an older deploy task (60-deploy-main) is still running on the server: the run stops here, before 59 (exit 99)"
+  exit 99
+fi
+echo "x0: no older deploy task running; the run may continue"
 echo "## inspect-rollback done"

@@ -47,60 +47,57 @@ jobs:
           $SSH "mkdir -p /opt/nabdah/releases/$S8"
           scp -q -P "$PORT" -o BatchMode=yes -o StrictHostKeyChecking=yes -i ~/.ssh/id_deploy rel-out/images.tar.gz rel-out/deploy.tgz rel-out/SHA rel-out/SHA256SUMS "$U@$H:/opt/nabdah/releases/$S8/"
           $SSH "cd /opt/nabdah/releases/$S8 && sha256sum -c --quiet SHA256SUMS" && echo "deploy: release $S8 uploaded and verified on the server"
-      - name: R2 backup bucket (only when RUN lists r2-backup-bucket)
-        # D-33: the private bucket, its 30-day expiry and a key limited to it, made with the Global API Key
-        # (tools/ops/cf/20-r2-backup-bucket.sh). The key reaches the server only on ssh stdin, as a mode-600 file
-        # in the deploy user's home that tasks/61-backups-env.sh moves into .env.production and shreds.
-        if: ${{ !cancelled() }}
+      - name: Run tasks
+        # Lines of tools/ops/RUN run in their order. "r2-backup-bucket" (D-33) runs tools/ops/cf/20-r2-backup-bucket.sh
+        # here with the Global API Key: the private bucket, its 30-day expiry and a key limited to it; the key reaches
+        # the server only on ssh stdin, as a mode-600 file that tasks/61-backups-env.sh moves into .env.production.
+        # A task that exits 99 stops the run: nothing after it runs (63-inspect-rollback does this when an older
+        # deploy task is still running on the server).
         env:
+          H: ${{ secrets.DEPLOY_HOST }}
+          U: ${{ secrets.DEPLOY_USER }}
+          PORT: ${{ secrets.DEPLOY_PORT }}
           CF: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CFE: ${{ secrets.CLOUDFLARE_EMAIL }}
           Z: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-          H: ${{ secrets.DEPLOY_HOST }}
-          U: ${{ secrets.DEPLOY_USER }}
-          PORT: ${{ secrets.DEPLOY_PORT }}
-        run: |
-          : > r2.txt
-          grep -qE '^\s*r2-backup-bucket\s*$' tools/ops/RUN || { echo "skipped"; exit 0; }
-          PORT=${PORT:-22}
-          SSH="ssh -p $PORT -o BatchMode=yes -o ConnectTimeout=20 -o StrictHostKeyChecking=yes -i $HOME/.ssh/id_deploy $U@$H"
-          export R2_HAS_KEY_CMD="$SSH \"sudo -n grep -qE '^BACKUP_S3_ACCESS_KEY_ID=.+' /opt/nabdah/deploy/.env.production\""
-          export R2_DELIVER_CMD="$SSH 'umask 077; cat > ops-r2-backup.env'"
-          set +e
-          timeout 300 bash tools/ops/cf/20-r2-backup-bucket.sh > r2.txt 2>&1; rc=$?
-          grep -E '^r2:' r2.txt || true
-          echo "   exit=$rc"
-      - name: Run tasks
-        env:
-          H: ${{ secrets.DEPLOY_HOST }}
-          U: ${{ secrets.DEPLOY_USER }}
-          PORT: ${{ secrets.DEPLOY_PORT }}
         run: |
           set +e   # a failing task must never stop the report from being saved
           PORT=${PORT:-22}
-          cat r2.txt > report.txt 2>/dev/null || : > report.txt
+          : > report.txt
+          SSH="ssh -p $PORT -o BatchMode=yes -o ServerAliveInterval=15 -o ConnectTimeout=20 -o StrictHostKeyChecking=yes -i $HOME/.ssh/id_deploy $U@$H"
           for t in $(grep -vE '^\s*(#|$)' tools/ops/RUN); do
+            if [ "$t" = r2-backup-bucket ]; then
+              echo "== r2-backup-bucket" | tee -a report.txt
+              R2_HAS_KEY_CMD="$SSH \"sudo -n grep -qE '^BACKUP_S3_ACCESS_KEY_ID=.+' /opt/nabdah/deploy/.env.production\"" \
+              R2_DELIVER_CMD="$SSH 'umask 077; cat > ops-r2-backup.env'" \
+                timeout 300 bash tools/ops/cf/20-r2-backup-bucket.sh > r2.txt 2>&1; rc=$?
+              cat r2.txt >> report.txt; grep -E '^r2:' r2.txt; rm -f r2.txt
+              echo "   exit=$rc"
+              continue
+            fi
             f=tools/ops/tasks/$t.sh
             [ -f "$f" ] || continue
             echo "== task $t" | tee -a report.txt
             if grep -q '^# ops-detach' "$f"; then
               # long mutating tasks run detached on the server (setsid), so a dropped SSH session cannot stop them
               # half way; the log is polled until the task writes its exit line
-              SSH="ssh -p $PORT -o BatchMode=yes -o ServerAliveInterval=15 -o ConnectTimeout=20 -o StrictHostKeyChecking=yes -i $HOME/.ssh/id_deploy $U@$H"
               scp -q -P "$PORT" -o BatchMode=yes -o StrictHostKeyChecking=yes -i ~/.ssh/id_deploy "$f" "$U@$H:ops-$t.sh"
               $SSH "rm -f ops-$t.log; setsid nohup sh -c 'bash ops-$t.sh; echo ops-exit=\$?' > ops-$t.log 2>&1 < /dev/null &"
               for i in $(seq 1 480); do sleep 15; $SSH "grep -q '^ops-exit=' ops-$t.log" 2>/dev/null && break; done
               $SSH "cat ops-$t.log" >> report.txt 2>&1
+              rc=$($SSH "grep -m1 '^ops-exit=' ops-$t.log" 2>/dev/null | cut -d= -f2); rc=${rc:-still running after 120 min}
             else
               timeout 420 ssh -p "$PORT" -o BatchMode=yes -o ServerAliveInterval=15 -o ConnectTimeout=20 -o StrictHostKeyChecking=yes -i ~/.ssh/id_deploy "$U@$H" 'bash -s' < "$f" >> report.txt 2>&1
+              rc=$?
             fi
-            echo "   exit=$?"
+            echo "   exit=$rc"
+            if [ "$rc" = 99 ]; then echo "x0: run stopped by $t (exit 99); nothing after it ran" | tee -a report.txt; break; fi
           done
           # public log: only the short status lines of mutating tasks
           grep -E '^(x0|cleanup|deploy|rotate|backups):' report.txt | sed -E 's/[0-9]{1,3}(\.[0-9]{1,3}){3}/<ip>/g' || true
           # migrations: names, exit codes and the JSON count lines only; an error line keeps its class, never its values
           grep -E '^migrate: ' report.txt | grep -E '^migrate: [0-9a-z-]+ (--apply|exit=[0-9]+)$|^migrate:   \{.*\}$|^migrate:   [A-Za-z]*Error' \
-            | sed -E 's/dup key: \{.*$/dup key: <value>/; s/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/<email>/g' | cut -c1-200 || true
+            | sed -E 's/dup key: \{.*$/dup key: <value>/; s/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/<email>/g; s/\+?[0-9][0-9 ()-]{8,}[0-9]/<number>/g' | cut -c1-200 || true
           echo "report lines: $(wc -l < report.txt)"
       - name: Cloudflare tasks (RUN lines "cf:<name>" -> tools/ops/cf/<name>.sh, output into the encrypted report)
         if: ${{ !cancelled() }}

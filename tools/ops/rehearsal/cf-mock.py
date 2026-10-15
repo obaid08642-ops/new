@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Rehearsal stand-in for the Cloudflare API calls of tools/ops/cf/20-r2-backup-bucket.sh (no real account).
 Checks the Global API Key headers, keeps buckets, lifecycle and tokens in memory, and logs each call to stdout.
+Also stands in for Resend (POST /emails, list: GET /_mails).
 Usage: cf-mock.py <port>   (state dump: GET /_state)"""
 import json, sys, uuid
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -32,6 +33,12 @@ class H(BaseHTTPRequestHandler):
         if p == "/_state":
             return self.send(200, {"buckets": list(STATE["buckets"]), "lifecycle": STATE["lifecycle"],
                                    "tokens": [{"id": k, "name": v["name"], "policies": v["policies"]} for k, v in STATE["tokens"].items()]})
+        if p == "/emails" and method == "POST":  # Resend stand-in for 62's test mail
+            ok = self.headers.get("Authorization", "").startswith("Bearer ") and data and data.get("to") and data.get("from")
+            STATE.setdefault("mails", []).append({"subject": (data or {}).get("subject"), "to_count": len((data or {}).get("to") or [])})
+            return self.send(200 if ok else 422, {"id": "mail-rehearsal"}, ok=bool(ok))
+        if p == "/_mails":
+            return self.send(200, STATE.get("mails", []))
         if not (self.headers.get("X-Auth-Email") and self.headers.get("X-Auth-Key")):
             return self.send(403, ok=False, err="missing global key headers")
         parts = p.strip("/").split("/")

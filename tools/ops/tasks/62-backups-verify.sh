@@ -7,6 +7,7 @@
 #   3. the uploaded object is read back from the bucket with the backup key and its sha256 equals the local archive
 #   4. the backup key cannot read the public CDN bucket (S3_BUCKET)
 #   5. backup_runs holds this run's local and offsite reports, both ok
+#   6. one test mail to OPS_ALERT_EMAIL (Resend, like monitor.sh)
 # Prints names, sizes, hashes and counts only. Idempotent: each run adds one more dated backup.
 set -u
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
@@ -68,4 +69,19 @@ for k in local offsite; do
     || { echo "backups: FAIL no ok '$k' report in backup_runs"; exit 1; }
 done
 echo "backups: /ops/backup-runs recorded this run: local ok, offsite ok"
+# ---------------------------------------------------------------- 6. a test mail to OPS_ALERT_EMAIL (reviewer, 2026-10-15)
+# the same way monitor.sh sends its alerts (Resend, RESEND_API_KEY + MAIL_FROM); the address is not printed
+MAILURL=${OPS_RESEND_URL:-https://api.resend.com/emails}
+CODE=$(sudo -n bash -c '
+  set -a; source '"$ENVF"' 2>/dev/null; set +a
+  [ -n "${RESEND_API_KEY:-}" ] && [ -n "${MAIL_FROM:-}" ] && [ -n "${OPS_ALERT_EMAIL:-}" ] || { echo unset; exit 0; }
+  python3 -c "import json,sys; print(json.dumps({\"from\": sys.argv[1], \"to\": [sys.argv[2]], \"subject\": \"[nabd.plus] test: backups and alerts are set up\", \"text\": sys.argv[3]}))" \
+    "$MAIL_FROM" "$OPS_ALERT_EMAIL" "$(hostname) $(date -u +%FT%TZ): off-server backups (D-33) and the disk/service alerts are installed. This is a test; no action needed." \
+  | curl -s -o /dev/null -w "%{http_code}" --max-time 20 -X POST "$1" -H "Content-Type: application/json" \
+      -H @<(printf "Authorization: Bearer %s\n" "$RESEND_API_KEY") --data-binary @-' _ "$MAILURL")
+case "$CODE" in
+  20?) echo "backups: test mail sent to OPS_ALERT_EMAIL (HTTP $CODE)" ;;
+  unset) echo "backups: FAIL test mail not sent: RESEND_API_KEY, MAIL_FROM or OPS_ALERT_EMAIL missing in .env.production"; exit 1 ;;
+  *) echo "backups: FAIL test mail refused (HTTP $CODE)"; exit 1 ;;
+esac
 echo "## backups-verify done"
