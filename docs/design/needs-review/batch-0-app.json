@@ -41,7 +41,7 @@
     "line": 88,
     "found": "useSocialLogin runs Google.useAuthRequest with clientId, iosClientId and androidClientId set to '' when the env vars are missing (lines 88-92), and AuthSession.useAuthRequest for X and Snapchat with clientId '' (lines 107-114), at render on both Welcome and Login. The hook's comment expects the button to show 'not available' when pressed.",
     "suspect": "Unverified: needs a run of the native app without the EXPO_PUBLIC_GOOGLE_*, X and Snapchat client ids (expo-auth-session's Google provider may throw on an empty client id while rendering, on Welcome and Login). This session cannot run the native app.",
-    "review_status": "not-a-problem: checked in #1489: the real expo-auth-session check throws only for an undefined id; the hook passes '' and the press says not available (useSocialLogin.real-providers.test.ts)"
+    "review_status": "fixed (verified on main: expo-auth-session throws only on an undefined client id, node_modules/expo-auth-session/build/providers/ProviderUtils.js:7, the hook passes ''; a press with no id shows \"unavailable\", src/hooks/useSocialLogin.ts:178-179) (issue #411)"
   },
   {
     "batch": 0,
@@ -52,7 +52,7 @@
     "line": 69,
     "found": "The app sends {provider, token} (Apple: the identity token; X and Snapchat: an opaque OAuth access token; Google: an access token). backend/src/modules/auth/auth.service.ts socialLogin (1068-1117): Google is checked against Google's userinfo endpoint (verifyGoogleToken, 1119-1135); Apple only base64-decodes the middle part of the JWT, with no signature, issuer or audience check (1137-1151); X and Snapchat accept any string: a token that is not a three-part JWT, which is what the app sends, gives a made-up email x_user_<4 digits>@nabd.app or snapchat_user_<4 digits>@nabd.app (verifyXToken 1153-1167, verifySnapchatToken 1169-1185). The email is then used to find or create a user and a session token is returned, with no role check on the found user.",
     "suspect": "Apple sign-in can be forged with a hand-made JWT for any email (including an existing account); X and Snapchat sign-ins create a new throw-away account each time and are not tied to the provider account. Backend fix needed: verify Apple identity tokens against Apple's keys, verify X and Snapchat access tokens with their user endpoints, and refuse privileged roles on this route.",
-    "review_status": "closed-unverified (issue #412: closed with no linked PR)"
+    "review_status": "fixed #1448: Q107 d7dc620f2 verifies the Apple token (auth.service.ts:1397-1416) and refuses X and Snapchat (:1303); live proof tools/live/j_social_login.py (issue #412)"
   },
   {
     "batch": 0,
@@ -63,7 +63,7 @@
     "line": 46,
     "found": "POST /auth/send-otp {email, purpose:'register'} sends a code to any email, registered or not (backend auth.service.ts:956-967 ignores the existing account when purpose is 'register'). The duplicate is rejected by POST /auth/register ('Phone already registered' / 'Email already registered', auth.service.ts:492,496), after the user has entered the code, and the message is English (otp.tsx:164).",
     "suspect": "BACKEND: there is no register-only availability check (no endpoint exists: checked in backend/src, auth and users controllers). Either POST /auth/send-otp with purpose 'register' answers 409 for a registered email or phone, or a new check endpoint is added. Client side the duplicate is now at least shown in the app language ('This email is already registered. Log in instead.') when the registration is refused after the code.",
-    "review_status": "open (issue #413)"
+    "review_status": "fixed #1462"
   },
   {
     "batch": 0,

@@ -18,7 +18,6 @@ export class EmergencyRequest {
   @Prop({ type: String, enum: Object.values(EmergencyState), default: EmergencyState.TRIGGERED, index: true })
   state: EmergencyState;
   @Prop() assigned_hospital_id?: string;
-  @Prop() assigned_ambulance_id?: string;
   /** INTERNAL ONLY: owning provider account (hospital fleet vs independent) — never exposed to patients (S1) */
   @Prop() assigned_provider_id?: string;
   /** Patient-safe unit label (plate number) shown instead of internal ids */

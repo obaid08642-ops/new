@@ -22,12 +22,12 @@ describe("Labs Packages SSR", () => {
     expect(html).toContain("Wellness panel");
     expect(html).toContain('href="/en/diagnostics/packages/pkg-1"');
   });
-  it("renders package detail facts from the live endpoint and books through the real booking page", async () => {
+  it("renders package detail facts from the live endpoint and books through the cart (one booking path)", async () => {
     state.getPublicLabPackage.mockResolvedValue(new Response(JSON.stringify({ id: "pkg-1", name_en: "Wellness panel", is_package: true, price: 120, included_services: ["cbc", "tsh"], preparation_en: ["Bring your request"] }), { status: 200 }));
     const html = renderToStaticMarkup((await LabPackageDetailPage({ params: Promise.resolve({ locale: "en", packageId: "pkg-1" }) })) as never);
     expect(html).toContain("Wellness panel");
     expect(html).toContain("Bring your request");
-    expect(html).toContain("/en/diagnostics/labs/book?serviceId=pkg-1");
+    expect(html).not.toContain("/en/diagnostics/labs/book"); // journeys#50: one booking path, the cart
     expect(html).toContain("/en/diagnostics/cart?add=pkg-1&amp;name=Wellness%20panel&amp;price=120");
     expect(html).not.toContain("style=");
   });

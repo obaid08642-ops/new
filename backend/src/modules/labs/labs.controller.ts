@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Patch, Put, Delete, Param, Query, UseGuards, ServiceUnavailableException, BadRequestException, Body } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Put, Delete, Param, Query, UseGuards, ServiceUnavailableException, BadRequestException, Body, Res } from '@nestjs/common';
+import type { Response } from 'express';
 import { LabsService } from './labs.service';
 import { Public, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
@@ -52,6 +53,16 @@ export class LabsController {
 
   @Get('bookings/:id')
   oneBooking(@Param('id') id: string, @CurrentUser() user: any) { return this.svc.getBooking(id, user); }
+
+  /** The report file (PDF or image) of a booking: the patient's "open the report" on the app and the website. */
+  @Get('bookings/:id/reports/:reportId')
+  async reportFile(@Param('id') id: string, @Param('reportId') reportId: string, @CurrentUser() user: any, @Res() res: Response) {
+    const file = await this.svc.reportFile(id, reportId, user);
+    res.setHeader('Content-Type', file.mime);
+    res.setHeader('Content-Disposition', `inline; filename="${file.name.replace(/[^A-Za-z0-9._-]/g, '_')}"`);
+    res.setHeader('Cache-Control', 'private, no-store');
+    res.send(file.data);
+  }
 
   @SelfService()
   @Post('bookings/:id/cancel')

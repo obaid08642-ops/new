@@ -118,7 +118,7 @@
     "line": 313,
     "found": "[client] FIXED on design/sos-removal: the SOS is removed (decision 14) and the family note now only says these are the people to call in an emergency.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "not-a-problem: removed by decision 14, ProfileView.tsx:313-314 shows only the family note (c529711d0)"
   },
   {
     "batch": 5,

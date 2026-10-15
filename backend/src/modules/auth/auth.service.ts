@@ -192,6 +192,22 @@ export class AuthService {
     } catch { /* same contract as signToken: store failure never breaks the response */ }
   }
 
+  /** Issue 440: revoke the one refresh session a signed-out token belongs to. A token that does not verify revokes nothing. */
+  async revokeRefreshSession(refreshToken: string): Promise<boolean> {
+    let payload: any;
+    try {
+      payload = this.jwt.verify(refreshToken);
+    } catch {
+      return false;
+    }
+    if (payload?.type !== 'refresh' || !payload.jti) return false;
+    const client = (this.redisService as any).getClient?.();
+    if (!client) return false;
+    const removed = await client.del(`refresh:${payload.jti}`).catch(() => 0);
+    if (payload.sub) await client.srem(`refresh_user:${payload.sub}`, payload.jti).catch(() => 0);
+    return removed > 0;
+  }
+
   async logoutAllDevices(userId: string) {
     // Real revocation: kill every refresh session for this user
     await this.revokeAllUserSessions(userId).catch(() => {});
@@ -708,8 +724,13 @@ export class AuthService {
     await this.recordSignupAcceptances(user.id, consents);
     this.events.emit(EVENTS.USER_REGISTERED, { user_id: user.id, role: user.role });
 
-    // The response remains minimal; requestPatientOtp emits the opaque delivery DTO.
-    await this.requestPatientOtp(identifier);
+    // The response remains minimal; requestPatientOtp emits the opaque delivery DTO. The account exists now: a code
+    // that could not be sent (provider down, rate limit) is reported as such, never as a failed registration (issue 434).
+    try {
+      await this.requestPatientOtp(identifier);
+    } catch {
+      return { registered: true, otp_sent: false };
+    }
     return { registered: true };
   }
 
@@ -768,7 +789,7 @@ export class AuthService {
     const SELF_REGISTERABLE: string[] = [
       UserRole.PATIENT, UserRole.DOCTOR, UserRole.PHARMACY, UserRole.HOSPITAL,
       UserRole.LAB, UserRole.RADIOLOGY, UserRole.HOME_CARE, UserRole.NURSING,
-      UserRole.NURSE, UserRole.AMBULANCE, UserRole.PHYSIOTHERAPIST,
+      UserRole.NURSE, UserRole.PHYSIOTHERAPIST,
     ];
     const requestedRole = ((data.role as string) || UserRole.PATIENT) as UserRole;
     if (!SELF_REGISTERABLE.includes(requestedRole)) {
@@ -1204,6 +1225,11 @@ export class AuthService {
 
     const isEmail = normalized.includes('@');
     const existing = await this.userModel.findOne(isEmail ? { email: normalized } : { phone: normalized });
+    // Sign-up for an address that already has an account: say so now, not after the code step (issue 413). This
+    // reveals nothing new: /auth/register answers the same 409 for the same identifier.
+    if (existing && purpose === 'register') {
+      throw new ConflictException({ message: 'identifier_already_registered', code: 'identifier_already_registered', statusCode: HttpStatus.CONFLICT });
+    }
     if (!existing && purpose !== 'register') {
       // No account: same answer as a sent code, so this endpoint cannot be used to
       // test which emails/phones are registered. Nothing is stored or sent.

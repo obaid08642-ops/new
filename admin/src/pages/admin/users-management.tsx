@@ -16,7 +16,6 @@ const ROLE_LABELS: Record<string, string> = {
   facility: 'منشأة طبية',
   radiology: 'أشعة',
   nursing: 'تمريض',
-  ambulance: 'إسعاف',
   admin: 'أدمن',
   super_admin: 'أدمن رئيسي',
 };
@@ -30,7 +29,6 @@ const ROLE_FILTERS = [
   { value: 'hospital', label: 'المستشفيات / المنشآت' },
   { value: 'radiology', label: 'مراكز الأشعة' },
   { value: 'nursing', label: 'التمريض' },
-  { value: 'ambulance', label: 'الإسعاف' },
 ];
 
 export default function UsersManagementPage() {
@@ -137,7 +135,7 @@ export default function UsersManagementPage() {
       // F80: a provider user's live state lives in provider_accounts — the
       // users unban alone leaves the account suspended. Resolve the account
       // by user id and reactivate it through the provider endpoint too.
-      const PROVIDER_ROLES = ['doctor', 'pharmacy', 'lab', 'radiology', 'nurse', 'nursing', 'home_care', 'hospital', 'ambulance', 'pharmacist'];
+      const PROVIDER_ROLES = ['doctor', 'pharmacy', 'lab', 'radiology', 'nurse', 'nursing', 'home_care', 'hospital', 'pharmacist'];
       if (canFacility && PROVIDER_ROLES.includes(String(u.role || '').toLowerCase())) {
         try {
           const file = await apiFetch(`/api/admin/admin/providers/by-user/${id}`);
