@@ -31,14 +31,15 @@ export function resendErrorMessage(t: Translate, status: number): string {
 }
 
 /** The page reads where the code went from a server-set cookie (never from the URL) and hands it down. */
-export function OtpScreen({ locale, identifier = "" }: { locale: Locale; identifier?: string }) {
+export function OtpScreen({ locale, identifier = "", codeNotSent = false }: { locale: Locale; identifier?: string; codeNotSent?: boolean }) {
   const t = useTranslations("Otp");
   const router = useRouter();
   const [digits, setDigits] = useState(["", "", "", "", "", ""]);
-  const [seconds, setSeconds] = useState(300);
+  // The account was created but the first code was not sent: resend is open at once and the page says why.
+  const [seconds, setSeconds] = useState(codeNotSent ? 0 : 300);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(identifier ? null : t("missing"));
-  const [notice, setNotice] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(codeNotSent && identifier ? t("notSent") : null);
   const refs = useRef<Array<HTMLInputElement | null>>([]);
   // Latin digits through the locale formatter, to match the digits typed into the code cells.
   const plain = { useGrouping: false, numberingSystem: "latn" } as const;

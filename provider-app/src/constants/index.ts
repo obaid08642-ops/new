@@ -340,3 +340,13 @@ export const API_BASE = envApiUrl
   : process.env.EXPO_PUBLIC_LOCAL_DEV === '1'
     ? `http://${localIp}:8002/api/v1`
     : 'https://api.nabd.plus/api/v1';
+
+// The public website (patient-web): a provider's public page is /{locale}/{doctor|pharmacy|facility}/{slug} there.
+export const WEB_ORIGIN = (process.env.EXPO_PUBLIC_WEB_URL || 'https://nabd.plus').replace(/\/$/, '');
+const PUBLIC_PAGE: Record<string, string> = { doctor: 'doctor', pharmacy: 'pharmacy', hospital: 'facility', clinic: 'facility', facility: 'facility' };
+/** The provider's public page on the website, or null when the account type has none or the profile has no slug yet. */
+export function publicPageUrl(role: string | undefined, slug: string | null | undefined, lang: string): string | null {
+  const kind = role ? PUBLIC_PAGE[role] : undefined;
+  if (!kind || !slug) return null;
+  return `${WEB_ORIGIN}/${lang === 'ar' ? 'ar' : 'en'}/${kind}/${encodeURIComponent(slug)}`;
+}

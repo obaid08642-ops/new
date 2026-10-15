@@ -30,7 +30,7 @@
     "line": 31,
     "found": "[owner] the app never had breathing or meditation content in the hub (deferred for clinical review); GET/POST /mental-health/breathing and /meditation exist but only log history, so no Relax screen was invented",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #851)"
+    "review_status": "fixed #1455 (owner decision B18: no Relax screen; the routes redirect to the hub; backend endpoints removed) (issue #851)"
   },
   {
     "batch": 8,
