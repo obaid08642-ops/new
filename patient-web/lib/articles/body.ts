@@ -25,13 +25,23 @@ function decode(text: string): string {
   });
 }
 
+/** Applies one removal until nothing changes: a removal can join two pieces into a new match ("<scr<!---->ipt"). */
+function removeAll(text: string, pattern: RegExp, by: string): string {
+  let out = text;
+  for (let previous = ""; previous !== out; ) {
+    previous = out;
+    out = out.replace(pattern, by);
+  }
+  return out;
+}
+
 // inline tags (strong, em, a, span) take no space of their own, as in the browser: "<strong>x</strong>." reads "x."
 // Any "<" or ">" left after the tags are removed (a broken tag such as "<scr<b>ipt") is dropped too, before decoding.
-const plain = (fragment: string): string => decode(fragment.replace(/<[^>]*>?/g, "").replace(/[<>]/g, "")).replace(/\s+/g, " ").trim();
+const plain = (fragment: string): string => decode(removeAll(fragment, /<[^>]*>?/g, "").replace(/[<>]/g, "")).replace(/\s+/g, " ").trim();
 
 export function articleBlocks(html: unknown): ArticleBlock[] {
   if (typeof html !== "string" || !html.trim()) return [];
-  const source = html.slice(0, MAX_HTML).replace(COMMENT, "").replace(DROPPED, " ");
+  const source = removeAll(removeAll(html.slice(0, MAX_HTML), COMMENT, ""), DROPPED, " ");
   const blocks: ArticleBlock[] = [];
   let kind: ArticleBlock["kind"] = "p";
   let last = 0;

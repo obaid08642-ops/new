@@ -31,6 +31,11 @@ describe("article body (10-web#2)", () => {
     expect(articleBlocks("<p><scr<b>ipt>x</p>").every((b) => !b.text.includes("<") && !b.text.includes(">"))).toBe(true);
   });
 
+  it("a removal that joins two pieces into a new comment or script is removed too", () => {
+    expect(articleBlocks("<p>a<!-<!-- x -->- y -->b</p>")).toEqual([{ kind: "p", text: "ab" }]);
+    expect(articleBlocks("<p>a</p><scr<script></script>ipt>alert(1)</script><p>b</p>").every((b) => !/[<>]/.test(b.text))).toBe(true);
+  });
+
   it("chooses the body in the page language, with the other as the fallback", () => {
     const row = { slug: "a", body_ar: "<p>عربي</p>", body_en: "<p>English</p>" };
     expect(articleBodyHtml(row, "ar")).toBe("<p>عربي</p>");
