@@ -52,7 +52,7 @@ interface DoctorRegData {
   // Step 6 - Insurance & Location
   cashOnly: boolean; insuranceClinic?: boolean; insuranceVideo?: boolean; insuranceHome?: boolean; languages?: string[];
   acceptedInsurance: { companyId: string; plans: string[] }[];
-  region: string; city: string; district: string; location: any; /* {lat,lng} from the picker, {latitude,longitude} from the inline map: see needs-review */ address: string; clinicName: string;
+  region: string; city: string; district: string; location: { lat: number; lng: number }; /* {lat,lng} from the picker and the inline map */ address: string; clinicName: string;
   // Step 8 - Signature
   signatureData: string; signerName: string; signerRole: string;
 }
@@ -904,13 +904,23 @@ function Step6Insurance({ data, update, submitRef }: StepProps<DoctorRegData>) {
         <MapView
           style={{ flex: 1 }}
           initialRegion={{ latitude: 24.7136, longitude: 46.6753, latitudeDelta: 0.05, longitudeDelta: 0.05 }}
-          onPress={(e) => update({ location: e.nativeEvent.coordinate })}
+          onPress={(e) => update({ location: { lat: e.nativeEvent.coordinate.latitude, lng: e.nativeEvent.coordinate.longitude } })}
         >
-          {data.location && <Marker coordinate={data.location} />}
+          {/* one shape, {lat, lng}, from both map inputs (provider-journeys 29) */}
+          {data.location?.lat ? <Marker coordinate={{ latitude: data.location.lat, longitude: data.location.lng }} /> : null}
         </MapView>
         <TouchableOpacity 
           style={{ position: 'absolute', bottom: SP.md, right: SP.md, backgroundColor: theme.card, padding: SP.sm, borderRadius: R.full, elevation: 4, shadowColor: theme.text, shadowOpacity: 0.2, shadowRadius: 4, shadowOffset: {width:0, height:2} }}
-          onPress={() => update({ location: { latitude: 24.7136, longitude: 46.6753 } })} // Simulating My Location
+          onPress={() => { void (async () => {
+            // the device's real position (it was a fixed Riyadh point)
+            try {
+              const { requestForegroundPermissionsAsync, getCurrentPositionAsync } = await import('expo-location');
+              const perm = await requestForegroundPermissionsAsync();
+              if (perm.status !== 'granted') { show(AR ? 'صلاحية الموقع مطلوبة' : 'Location permission required', 'error'); return; }
+              const pos = await getCurrentPositionAsync({});
+              update({ location: { lat: pos.coords.latitude, lng: pos.coords.longitude } });
+            } catch { show(AR ? 'تعذر تحديد موقعك' : 'Could not get your location', 'error'); }
+          })(); }}
         >
           <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.primary }}>{AR ? 'موقعي الحالي' : 'My Location'}</Text>
         </TouchableOpacity>

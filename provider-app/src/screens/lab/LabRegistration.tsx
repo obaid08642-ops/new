@@ -7,7 +7,7 @@ import type { RegistrationProps, WizardConfig } from '../registration/Registrati
 import React, { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Alert, TextInput } from 'react-native';
 import { ProviderApi } from '../../api/provider';
-import { useInsuranceCatalog, useServicesCatalog } from '../../api/catalogs';
+import { getServicesCatalog, useInsuranceCatalog, useServicesCatalog } from '../../api/catalogs';
 import { useTheme, useLang, useToast } from '../../context';
 import { NBtn, NCard, NInput, NPhoneInput, NPassStrength, NToggle, NDivider, NPriceInput, NSearch } from '../../components/ui';
 import { I as Icon } from '../../components/icons';
@@ -181,6 +181,21 @@ async function sendDiagnostics(data: DiagnosticsRegData, uploads: Uploader): Pro
     logo,
     languages: data.languages,
   });
+
+  // provider-journeys 32: each bundle goes to the admin as a lab package proposal (its tests and price); approved, it is
+  // published and belongs to this lab. It used to stay inside full_data only.
+  if (!isRadiology && data.bundles.length) {
+    // the package lists its tests by name, as the catalogue's packages do (patients read included_services as text)
+    const names = new Map((await getServicesCatalog('lab')).map((t) => [t.id, t.en || t.ar]));
+    for (const b of data.bundles) {
+      const price = parseFloat(b.price);
+      if (!b.nameAr.trim() || !b.tests.length || !(price > 0)) continue;
+      await ProviderApi.proposeService({
+        type: 'lab', is_package: true, name_ar: b.nameAr.trim(), name_en: b.nameEn.trim() || b.nameAr.trim(),
+        price, included_services: b.tests.map((id) => names.get(id) || id),
+      });
+    }
+  }
 }
 
 const REQUIRED_DOCS: RequiredDoc<DiagnosticsRegData>[] = [
@@ -1069,6 +1084,7 @@ function LStep4({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
 
       <View style={{ height: SP.xl }} />
       
+      {data.centerType !== 'radiology' ? <>
       <NDivider label={AR ? 'إنشاء حزم مخفّضة (اختياري)' : 'Bundle Builder (Optional)'} />
       <NCard style={{ backgroundColor: theme.primaryLight, marginBottom: SP.xl, marginTop: SP.md }}>
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'flex-start', gap: SP.md }}>
@@ -1112,9 +1128,24 @@ function LStep4({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
           <NInput label={AR ? 'اسم الحزمة (عربي)' : 'Bundle Name (Ar)'} value={bundle.nameAr} onChange={v => update({ bundles: data.bundles.map(b => b.id === bundle.id ? { ...b, nameAr: v } : b) })} required />
           <NInput label={AR ? 'اسم الحزمة (إنجليزي)' : 'Bundle Name (En)'} value={bundle.nameEn} onChange={v => update({ bundles: data.bundles.map(b => b.id === bundle.id ? { ...b, nameEn: v } : b) })} required />
           
+          {/* provider-journeys 32: the tests the bundle includes, from the tests this lab enabled above */}
+          <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>{AR ? 'التحاليل في الحزمة' : 'Tests in the bundle'}</Text>
+          <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.xs, marginBottom: SP.md }}>
+            {labCatalog.filter(t => data.enabledTests.includes(t.id)).map(t => {
+              const on = bundle.tests.includes(t.id);
+              return (
+                <TouchableOpacity key={t.id} accessibilityRole="checkbox" accessibilityState={{ checked: on }}
+                  onPress={() => update({ bundles: data.bundles.map(b => b.id === bundle.id ? { ...b, tests: on ? b.tests.filter(x => x !== t.id) : [...b.tests, t.id] } : b) })}
+                  style={[st.dayChip, { borderColor: on ? theme.primary : theme.border, backgroundColor: on ? theme.primaryLight : theme.card }]}>
+                  <Text style={{ fontSize: FS.sm, color: on ? theme.primary : theme.text }}>{AR ? t.ar : t.en}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
           <NPriceInput label={AR ? 'سعر الحزمة النهائي' : 'Final Bundle Price'} value={bundle.price} onChange={v => update({ bundles: data.bundles.map(b => b.id === bundle.id ? { ...b, price: v } : b) })} required />
         </NCard>
       ))}
+      </> : null}
 
       <View style={{ height: SP.xl }} />
     </View>

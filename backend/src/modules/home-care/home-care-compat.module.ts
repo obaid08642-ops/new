@@ -263,8 +263,17 @@ export class HomeCareCompatController {
 
   @SelfService()
   @Post('bookings/:id/visit-report') async visitReport(@CurrentUser() u: any, @Param('id') id: string, @Body() body: VisitReportDto) {
+    // provider-journeys 13 and 33: completing here gives the guarantees of /nursing/visits/:id/complete: only from care in
+    // progress, and only with the patient's signature.
+    const signature = typeof body?.signature === 'string' ? body.signature.trim() : '';
+    let current: any = null;
+    if (body?.complete) {
+      current = await this.getBookingForAccess(u, id);
+      if (!this.isAdmin(u) && String(current.state) !== 'CARE_IN_PROGRESS') throw new BadRequestException('invalid_transition');
+      if (!signature) throw new BadRequestException('patient_signature_required');
+    }
     const attachments = body?.attachments?.length ? await this.shareVisitAttachments(u, id, body.attachments) : undefined;
-    return this.transition(u, id, body?.complete ? 'COMPLETED' : 'CARE_IN_PROGRESS', {
+    const result = await this.transition(u, id, body?.complete ? 'COMPLETED' : 'CARE_IN_PROGRESS', {
       fields: {
         ...(attachments ? { attachments } : {}),
         vitals: body?.vitals, clinical_notes: body?.clinical_notes,
@@ -276,6 +285,12 @@ export class HomeCareCompatController {
         ...(body?.complete ? { 'timers.completed_at': new Date() } : { 'timers.care_started_at': new Date() }),
       },
     });
+    // The patient is told through transition() (homecare.booking_state_changed -> notif.homecare_completed); the referring
+    // doctor gets the report notice the /nursing/visits/:id/complete route sends.
+    if (body?.complete && current?.referring_doctor_id) {
+      try { this.emitter?.emit('homecare.report_for_doctor', { booking_id: id, doctor_id: current.referring_doctor_id }); } catch { /* never undoes the completion */ }
+    }
+    return result;
   }
 
   // ---- Care Plans (nurse/doctor-authored task plans for a patient) ----

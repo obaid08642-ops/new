@@ -1,4 +1,4 @@
-import { ForbiddenException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { HomeCareCompatController } from './home-care-compat.module';
 
 /** N1: the nurse attaches result files to the visit report; only her own files, shared with that booking's patient. */
@@ -19,7 +19,7 @@ describe('HomeCareCompatController visit-report attachments (N1)', () => {
 
   it('stores the attachments on the visit and shares the files with the patient only', async () => {
     const { controller, booking, col } = make(['f1', 'f2']);
-    await controller.visitReport(nurse, 'visit-1', { complete: true, attachments: [{ storage_id: 'f1', name: 'CBC' }, { storage_id: 'f2' }] });
+    await controller.visitReport(nurse, 'visit-1', { complete: true, signature: 'data:image/png;base64,AAAA', attachments: [{ storage_id: 'f1', name: 'CBC' }, { storage_id: 'f2' }] });
     expect(col.find.mock.calls[0][0]).toEqual(expect.objectContaining({ owner_account_id: { $eq: 'nurse-1' } }));
     expect(col.updateMany).toHaveBeenCalledWith(expect.objectContaining({ owner_account_id: { $eq: 'nurse-1' } }), { $addToSet: { shared_with: 'patient-1' } });
     expect(booking.attachments.map((a: any) => [a.storage_id, a.name])).toEqual([['f1', 'CBC'], ['f2', 'f2.pdf']]);
@@ -29,7 +29,7 @@ describe('HomeCareCompatController visit-report attachments (N1)', () => {
 
   it("refuses a file the nurse did not upload and changes nothing", async () => {
     const { controller, booking, col } = make(['f1']);
-    await expect(controller.visitReport(nurse, 'visit-1', { complete: true, attachments: [{ storage_id: 'f1' }, { storage_id: 'someone-else' }] }))
+    await expect(controller.visitReport(nurse, 'visit-1', { complete: true, signature: 'data:image/png;base64,AAAA', attachments: [{ storage_id: 'f1' }, { storage_id: 'someone-else' }] }))
       .rejects.toBeInstanceOf(ForbiddenException);
     expect(col.updateMany).not.toHaveBeenCalled();
     expect(booking.save).not.toHaveBeenCalled();
@@ -46,5 +46,12 @@ describe('HomeCareCompatController visit-report attachments (N1)', () => {
     const { controller, booking } = make([]);
     await controller.visitReport(nurse, 'visit-1', { complete: true, signature: 'data:image/png;base64,AAAA' });
     expect(booking.patient_signature_base64).toBe('data:image/png;base64,AAAA');
+  });
+
+  it('provider-journeys 13: completing without the patient signature is refused and changes nothing', async () => {
+    const { controller, booking } = make(['f1']);
+    await expect(controller.visitReport(nurse, 'visit-1', { complete: true })).rejects.toBeInstanceOf(BadRequestException);
+    expect(booking.save).not.toHaveBeenCalled();
+    expect(booking.state).toBe('CARE_IN_PROGRESS');
   });
 });

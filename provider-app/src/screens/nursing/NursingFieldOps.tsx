@@ -150,7 +150,7 @@ export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { orde
 
   const state: string = String(visit?.state || visit?.status || '');
 
-  // Live position for the patient's map while on the way (state-free ping on the same booking).
+  // Live position for the patient's map while on the way, through the visit family (provider-journeys 25).
   useEffect(() => {
     if (state !== 'IN_TRANSIT' || !visitId) return;
     const timer = setInterval(async () => {
@@ -159,7 +159,7 @@ export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { orde
         const perm = await requestForegroundPermissionsAsync();
         if (perm.status !== 'granted') return;
         const pos = await getCurrentPositionAsync({});
-        await client.post(`/home-care/bookings/${visitId}/gps`, { lat: pos.coords.latitude, lng: pos.coords.longitude });
+        await client.post(`/nursing/visits/${visitId}/position`, { lat: pos.coords.latitude, lng: pos.coords.longitude });
       } catch { /* the next tick tries again */ }
     }, 5000);
     return () => clearInterval(timer);

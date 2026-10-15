@@ -11,6 +11,8 @@ export function sanitizeWizardData(data: any): any {
   const out: any = {};
   for (const [k, v] of Object.entries(data || {})) {
     if (/pass|secret|token|signatureData/i.test(k)) continue;
+    // UI-only state the steps keep in their data (the facility steps' saving flag) is not part of the application.
+    if (k === 'loading') continue;
     if (typeof v === 'string' && /^(file|content):\/\//.test(v)) continue;
     if (Array.isArray(v) && v.length > 0 && v.every((x) => typeof x === 'string' && /^(file|content):\/\//.test(x))) continue;
     out[k] = v;
@@ -19,6 +21,14 @@ export function sanitizeWizardData(data: any): any {
 }
 
 export const ProviderApi = {
+  /**
+   * provider-journeys 28/32: propose a new catalogue item (a lab test or bundle) for admin review
+   * (admin/service-proposals); once approved it is published and belongs to this provider.
+   */
+  async proposeService(change_data: Record<string, unknown>) {
+    const res = await client.post('/approval-workflow/requests', { entity_type: 'service', change_data });
+    return res.data;
+  },
   /** Step 1: Start onboarding flow. Creates user & provider profile. */
   async start(payload: { phone: string; password?: string; full_name?: string; email?: string; type: string }) {
     const res = await client.post('/provider-onboarding/start', payload);

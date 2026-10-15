@@ -430,7 +430,12 @@ export class ProviderOnboardingService {
   async getProgress(user: any) {
     const profile = await this.providerModel.findOne({ user_id: user.id }, { _id: 0, __v: 0 });
     if (!profile) return { started: false };
-    return { started: true, ...profile.toObject() };
+    // provider-journeys 24: the account's review state and the admin's note with it (needs changes, rejected, suspended),
+    // from the latest status change; the profile itself has no such reason.
+    const account: any = await this.providerModel.db.collection('provider_accounts').findOne({ $or: [{ id: user.id }, { user_id: user.id }] }, { projection: { _id: 0, status: 1, status_history: 1 } });
+    const last = Array.isArray(account?.status_history) ? account.status_history[account.status_history.length - 1] : null;
+    const reason = last && last.to === account?.status && last.by_role === 'admin' && typeof last.note === 'string' ? last.note.trim() : '';
+    return { started: true, ...profile.toObject(), account_status: account?.status ?? null, review_note: reason || undefined };
   }
 
   /**

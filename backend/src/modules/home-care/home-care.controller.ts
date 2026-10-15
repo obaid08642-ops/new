@@ -259,6 +259,20 @@ export class NursingController {
     return { success: true, state: b.state };
   }
 
+  /**
+   * provider-journeys 25: the nurse's live position while on the way, in the visit family (the older
+   * /home-care/bookings/:id/gps stays for old builds). Only the assigned nurse, only while in transit or arrived.
+   */
+  @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
+  @Post('visits/:id/position')
+  async updatePosition(@Param('id') id: string, @Body() body: ArriveAtPatientDto, @CurrentUser() user: any) {
+    const b: any = await this.findVisit(id);
+    this.assertProviderMutation(b, user);
+    if (![NursingBookingState.IN_TRANSIT, NursingBookingState.ARRIVED].includes(b.state)) throw new BadRequestException('Invalid state transition');
+    await this.bkgModel.updateOne({ id }, { $set: { 'gps_tracking.current_lat': body.lat, 'gps_tracking.current_lng': body.lng, 'gps_tracking.last_updated': new Date() } });
+    return { ok: true };
+  }
+
   @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Post('visits/:id/arrive')
   async arriveAtPatient(@Param('id') id: string, @Body() body: ArriveAtPatientDto, @CurrentUser() user: any) {
@@ -363,6 +377,8 @@ export class NursingController {
     if (b.state !== NursingBookingState.CARE_IN_PROGRESS) throw new BadRequestException('Invalid state transition');
     const from = b.state;
     const { vitals, clinical_notes, recommendations, signature_base64 } = body;
+    // The visit ends with the patient's signature, on this route and on the visit report (provider-journeys 13).
+    if (!this.isAdmin(user) && !String(signature_base64 || '').trim()) throw new BadRequestException('patient_signature_required');
     
     b.state = NursingBookingState.COMPLETED;
     b.timers.completed_at = new Date();
