@@ -2,14 +2,14 @@
   B27: the doctor's thread shows the text of the patient's own messages and the doctor's replies.
   B12: the vitals tab that shows the latest reading of each vital is called "Latest".
   B18: no Relax (breathing / meditation) screen: the hub has no row, the old addresses open the hub.
-  Stack: backend :8002, admin BFF :3001, patient-web :3000. A missing browser or patient-web is a FAIL.
+  Stack: backend :8002, admin BFF :3001, patient-web :3100 (PATIENT_WEB_PORT=3100 tools/live/start-web.sh). A missing browser or patient-web is a FAIL.
 """
 import os
 import uuid
 
 from lib import Client, journey, step
 
-WEB = os.environ.get('NABD_PATIENT_WEB', 'http://127.0.0.1:3000')
+WEB = os.environ.get('NABD_WEB_JOURNEYS_URL', 'http://127.0.0.1:3100')
 
 
 def booked_consultation_thread():
