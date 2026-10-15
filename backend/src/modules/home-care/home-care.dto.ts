@@ -68,6 +68,17 @@ export class CreateBookingDto {
   service_name_ar?: string;
 }
 
+/** provider-journeys#25: the nurse's live position while on the way (POST /nursing/visits/:id/position). */
+export class VisitPositionDto {
+  @IsDefined()
+  @IsNumber()
+  lat: number;
+
+  @IsDefined()
+  @IsNumber()
+  lng: number;
+}
+
 export class ArriveAtPatientDto {
   @IsDefined()
   @IsNumber()

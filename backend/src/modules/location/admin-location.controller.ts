@@ -4,7 +4,8 @@ import { Model } from 'mongoose';
 import { JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { Location, LocationDocument } from '../location/schemas/location.schema';
-import { CreateLocationDto, UpdateLocationDto } from './admin-location.dto';
+import { CreateLocationDto, ImportLocationsDto, UpdateLocationDto } from './admin-location.dto';
+import { LocationService } from './location.service';
 
 /**
  * Admin location governance: add / edit / deactivate cities and districts.
@@ -14,7 +15,10 @@ import { CreateLocationDto, UpdateLocationDto } from './admin-location.dto';
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
 export class AdminLocationController {
-  constructor(@InjectModel(Location.name) private readonly locations: Model<LocationDocument>) {}
+  constructor(
+    @InjectModel(Location.name) private readonly locations: Model<LocationDocument>,
+    private readonly geo: LocationService,
+  ) {}
 
   @Get()
   async list(@Query('type') type?: string, @Query('parent') parent?: string, @Query('q') q?: string, @Query('include_inactive') includeInactive?: string) {
@@ -35,6 +39,14 @@ export class AdminLocationController {
     if (parent_code && !(await this.locations.findOne({ code: { $eq: parent_code } }).lean())) throw new BadRequestException('parent_not_found');
     const doc = await this.locations.create({ code, name_ar, name_en, type, parent_code: parent_code || null, aliases: Array.isArray(aliases) ? aliases : [], is_active: true });
     return doc.toObject();
+  }
+
+  // P13-R11: bulk ingest of a verified official extract. Rows are validated
+  // one by one (unknown parents, wrong parent types, bad codes and missing
+  // coordinates are rejected and reported, never written).
+  @Post('import')
+  async import(@Body() body: ImportLocationsDto) {
+    return this.geo.importLocations(body?.locations || [], body?.source || 'admin');
   }
 
   @Put(':code')

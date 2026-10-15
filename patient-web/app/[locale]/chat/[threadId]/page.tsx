@@ -20,8 +20,8 @@ function asRecord(value: unknown): Record<string, unknown> | null {
 }
 
 /**
- * The doctor's thread of a booking (no board; decision 24): the activity of its messages (type and time), never their text, names
- * or attachments. It is reached from the booking (the appointment page, a notification about it), carries the emergency number,
+ * The doctor's thread of a booking (no board; decision 24): its messages (type and time) with the text of the patient's own
+ * messages and the doctor's replies (owner decision B27, 2026-10-14), never names, reactions or attachments. It is reached from the booking (the appointment page, a notification about it), carries the emergency number,
  * and when the server says the thread is closed (is_active false) it is read-only with the follow-up button. The screen never
  * counts a window itself.
  */
@@ -86,6 +86,7 @@ export default async function ChatThreadPage({ params }: Props) {
                 sub={message.createdAt ? undefined : t("timeUnavailable")}
                 extra={
                   <>
+                    {message.text ? <p className={styles.rowSub} dir="auto" data-testid="chat-message-text">{message.text}</p> : null}
                     {message.createdAt ? <LocalTimeLine iso={message.createdAt} locale={locale} className={styles.rowSub} /> : null}
                     {message.hasAttachment ? <span className={styles.rowSub}>{t("attachmentHidden")}</span> : null}
                   </>
