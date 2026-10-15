@@ -30,7 +30,7 @@
     "line": 0,
     "found": "[backend] Fixed on design/backend-fields: the order detail carries pharmacy_name_ar / pharmacy_name_en (pharmacy-order.service.ts:147-150); the tracking summary row names the pharmacy by page language.",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open"
+    "review_status": "fixed #1317 (verified on main: pharmacy_name_ar/en in the order detail; tracking-screen.tsx uses pharmacyDisplayName)"
   },
   {
     "batch": 1,
@@ -41,7 +41,7 @@
     "line": 0,
     "found": "[backend] Fixed on design/backend-fields: the unused BFF route app/api/orders/[orderId]/reorder was removed (the web reorders through the cart).",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open"
+    "review_status": "fixed before this session (verified on main: the unused BFF route app/api/orders/[orderId]/reorder is gone)"
   },
   {
     "batch": 1,

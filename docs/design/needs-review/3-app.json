@@ -96,7 +96,7 @@
     "line": 54,
     "found": "[client] Fixed on design/oc-patient-other-1: the cart is now kept on the device per signed-in patient (AsyncStorage key @nabd_diag_cart:v1:<user id>), restored on the next start and removed when the cart is emptied or the patient signs out.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "fixed before this session (verified on main: DiagnosticsCartContext.tsx:47 keeps the cart per patient on the device)"
   },
   {
     "batch": 3,

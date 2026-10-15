@@ -52,7 +52,7 @@
     "line": 100,
     "found": "[client] Fixed on design/oc-patient-other-1: the screen read consultation_type, which the appointment does not have (the field is service_type: clinic, video or home), so every appointment asked for clinic slots; it now reads service_type (and the list context too).",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "fixed before this session (verified on main: cancel-reschedule.tsx:101 reads service_type)"
   },
   {
     "batch": 2,
