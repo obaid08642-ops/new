@@ -1150,7 +1150,10 @@
     "allSpecialties": "All specialties",
     "paymentLabel": "Payment",
     "payment_insurance": "Accepts insurance",
-    "payment_cash": "Cash only"
+    "payment_cash": "Cash only",
+    "doctorPhotoAlt": "Photo of {name}",
+    "clinicPhotosTitle": "Clinic photos",
+    "clinicPhotoAlt": "Clinic photo {n}"
   },
   "LabsServices": {
     "eyebrow": "Laboratory care",
@@ -1526,7 +1529,6 @@
     "attribute": "Attribute",
     "active_ingredient": "Active ingredient",
     "price": "Price",
-    "dosage_form": "Dosage form",
     "manufacturer": "Manufacturer",
     "emptyBody": "Select at least two medicines from the catalog to compare.",
     "browse": "Browse medicines",
@@ -1534,7 +1536,9 @@
     "requires_prescription": "Prescription required",
     "online_exclusive": "Online only",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "form": "Dosage form",
+    "strength": "Strength"
   },
   "PharmacyRequest": {
     "title": "Request a medicine by name",
@@ -2090,7 +2094,8 @@
     "sortPriceAsc": "Price: low to high",
     "sortPriceDesc": "Price: high to low",
     "sortNewest": "Newest",
-    "askPharmacies": "Ask nearby pharmacies for it"
+    "askPharmacies": "Ask nearby pharmacies for it",
+    "compareAlternatives": "Compare with alternatives"
   },
   "PharmacyOffers": {
     "backToOrder": "Back to the order",
@@ -2156,15 +2161,12 @@
     "orderStatusLink": "Order status",
     "trackOrder": "Track the order",
     "continuePayment": "Continue to payment",
-    "showMethods": "Choose a payment method",
     "methodCard": "Bank card",
     "methodApplePay": "Apple Pay",
     "methodGooglePay": "Google Pay",
-    "paymentUnavailable": "No online payment method is available for this order right now.",
     "redirecting": "Taking you to the secure payment page…",
     "noRedirect": "This payment method is not available on the web yet. Choose another one.",
     "paymentError": "The payment could not be started. No payment was recorded.",
-    "loadingMethods": "Loading the payment methods…",
     "insurancePending": "The pharmacy has asked your insurer for approval. Nothing is due before the insurer's decision.",
     "insuranceCovered": "Insurance covers this order in full. Nothing is due.",
     "insuranceDecisionTitle": "Insurance decision for each item",
@@ -2867,7 +2869,6 @@
     "trackingInProgress": "In progress",
     "trackingScheduled": "Scheduled: {when}",
     "trackingBeforeTitle": "Before the sample",
-    "trackingBeforeBody": "Fast 8 to 12 hours before the sample unless your doctor says otherwise.",
     "trackingStepsTitle": "Steps",
     "trackingNoSteps": "No tracking updates yet. The steps appear here once the lab logs them.",
     "searchTests": "Search for a test…",
@@ -2876,10 +2877,6 @@
     "searchResults": "Search results",
     "collectorLabel": "Collector",
     "collectorCall": "Call the collector",
-    "collectorTipsTitle": "When the collector arrives",
-    "collectorTip1": "Have your ID and the test request ready",
-    "collectorTip2": "Keep to the fasting the test needs",
-    "collectorTip3": "Tell the collector about any medicines you take",
     "status_pending": "Waiting for confirmation",
     "status_insurance": "Waiting for insurance",
     "status_confirmed": "Confirmed",
@@ -2888,10 +2885,7 @@
     "status_processing": "In progress",
     "status_report": "Report ready",
     "status_cancelled": "Cancelled",
-    "bookingNotSentTitle": "Nothing was booked",
-    "bookingNotSentBody": "This window does not send a booking yet, so no appointment was made and no payment was taken. Open the nursing page to book a visit.",
-    "bookingNotSentCta": "Go to nursing",
-    "bookingNotSentClose": "Close"
+    "trackingPrepAsk": "The lab will confirm any preparation with you."
   },
   "NursingWeb": {
     "hubTitle": "Home care",
@@ -2903,13 +2897,11 @@
     "browseCatalog": "Browse nursing services",
     "statusLabel": "Status",
     "pulse": "Pulse",
-    "formService": "Service",
     "formTime": "Time",
     "formAddress": "Address",
     "formAddAddress": "Add an address first",
     "formNotes": "Notes (optional)",
     "formBooking": "Booking…",
-    "formSelectService": "Choose a service",
     "formSelectTime": "Choose a day and a time",
     "formPast": "That time has passed. Choose a later time",
     "formFailed": "The booking could not be created",
@@ -2971,7 +2963,6 @@
     "insurance": "Insurance available",
     "priceLabel": "Price",
     "durationLabel": "Duration",
-    "bookingNotice": "Service details are read-only here. No booking is created from this page.",
     "back": "Back to services",
     "serviceUnavailableTitle": "Unable to load services",
     "serviceUnavailableBody": "Please try again later.",
@@ -2991,13 +2982,19 @@
     "step_NURSE_ARRIVED": "Nurse arrived",
     "step_CARE_IN_PROGRESS": "Care in progress",
     "step_COMPLETED": "Visit completed",
-    "nurseTitle": "Nurse Profile",
-    "nurseUnavailableTitle": "Profile Currently Unavailable",
-    "nurseUnavailableBody": "Could not load nurse profile details.",
-    "experienceLabel": "Field Experience",
-    "ratingLabel": "Patient Rating",
-    "nurseServicesTitle": "Available Nursing Services",
-    "requestNurse": "Request Nursing Visit"
+    "bookCta": "Book this service",
+    "bookTitle": "Book a home visit",
+    "chooseNurse": "Choose a nurse",
+    "noNurses": "No nurse offers this service right now. Try again later.",
+    "today": "Today",
+    "loadingSlots": "Loading the free times…",
+    "noSlots": "No free times on this day. Choose another day.",
+    "slotsFailed": "The times could not be loaded. Try again.",
+    "slotTaken": "That time is no longer free. Choose another time.",
+    "addressNeedsLocation": "Choose a saved address that has a map location, or add one.",
+    "payTitle": "Payment",
+    "payNow": "Pay now by card",
+    "payFailed": "Your booking is saved, but the payment page could not be opened. Try again."
   },
   "MaternityWeb": {
     "title": "Maternity",
@@ -3223,23 +3220,11 @@
     "example4": "Skin rash and itching",
     "symptomsLabel": "Your symptoms",
     "symptomsPlaceholder": "For example: a headache for two days with nausea",
-    "flagsLegend": "Do you have any of these signs? Pick all that apply",
-    "flag": {
-      "chest_pain": "Chest pain",
-      "breathing_difficulty": "Trouble breathing",
-      "fainting_or_unresponsive": "Fainting or not responding",
-      "heavy_bleeding": "Heavy bleeding",
-      "new_confusion": "Sudden confusion",
-      "severe_allergic_reaction": "Severe allergic reaction",
-      "severe_injury": "Serious injury"
-    },
     "submit": "Find the next step",
     "submitting": "Checking…",
     "error": "We could not get guidance right now. Try again in a moment.",
     "emergencyTitle": "Signs that need urgent help",
-    "emergencyBody": "The signs you picked call for contacting your local emergency services now, not waiting for an appointment.",
     "consultationTitle": "We suggest seeing a doctor",
-    "consultationBody": "You did not pick any emergency signs. If the symptoms last or get worse, book a consultation with a doctor.",
     "bookConsultation": "Book a consultation",
     "askAgain": "Ask something else",
     "disclaimer": "This is general guidance, not a diagnosis or a treatment. In an emergency, call the emergency services.",
@@ -3250,7 +3235,16 @@
     "untitledReport": "Medical report",
     "reportsUnavailable": "Your reports could not be loaded now. Try again in a moment.",
     "leafletLink": "Read the leaflet",
-    "historyTitle": "Your earlier questions"
+    "leafletTitle": "About this medicine, from its leaflet",
+    "outOfScopeTitle": "What the assistant can do",
+    "leaflet": {
+      "indications": "What it is used for",
+      "how_to_use": "How to use it",
+      "side_effects": "Side effects",
+      "warnings": "Warnings",
+      "storage": "Storage",
+      "pregnancy": "Pregnancy and breastfeeding"
+    }
   },
   "MonthlyReportWeb": {
     "title": "Your monthly report",
@@ -4133,5 +4127,30 @@
         "head_circ_cm": "Head size is between 20 and 60 cm."
       }
     }
+  },
+  "LabResult": {
+    "title": "Lab result",
+    "error": "The result could not be loaded",
+    "errorBody": "Try again in a moment.",
+    "retry": "Try again",
+    "critical": "Important — needs follow-up",
+    "values": "Values",
+    "range": "Normal range {low} – {high}",
+    "flag_high": "High",
+    "flag_low": "Low",
+    "flag_critical": "Critical",
+    "findings": "Findings",
+    "impression": "Impression",
+    "recommendations": "Recommendations",
+    "notes": "Lab notes",
+    "openBooking": "Open the booking to see the report file",
+    "empty": "This result has no further details.",
+    "discuss": "Discuss the result with a doctor",
+    "rangeText": "Normal range {range}"
+  },
+  "Offline": {
+    "title": "You are offline",
+    "body": "This page could not open without a connection. Your cart is kept on this device; send your request when you are back online.",
+    "home": "Back to the start"
   }
 }

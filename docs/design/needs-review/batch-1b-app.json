@@ -30,7 +30,7 @@
     "line": 2,
     "found": "The board Cart draws a unit price per line, an estimated total in the footer, a totals card (subtotal, delivery, points discount), a 'use your points' switch and a delivery address row. CartContext is a local staging list that deliberately keeps no price (sanitizePharmacyCartItem drops it; 'no client price, payment choice, or cart persistence is used before a pharmacy offer is selected'): the pharmacies' offers set the price. The medicine row has a catalogue price, but showing it as an estimate would contradict the broadcast model and the file's own rule. Not drawn: prices, total, points, delivery. The address is chosen at the next step (checkout, slice 1d). The note under the list says that prices come from the offers.",
     "suspect": "Owner decision: whether the cart may show an indicative catalogue total (labelled as an estimate) and the points switch (no cart-level points endpoint was found; the 10% rule belongs to payment), or whether the board's price rows are replaced by the 'prices come from offers' note as built.",
-    "review_status": "open (issue #481)"
+    "review_status": "owner-decision (question 35 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2) (issue #481)"
   },
   {
     "batch": 1,
@@ -74,7 +74,7 @@
     "line": 170,
     "found": "POST /prescriptions/upload calls medicines.createManualEntry for every line the OCR could not match (is_manual_entry) with the patient's own text; the app sends the OCR result as it is. A misread OCR line therefore creates a catalogue record. Not executed in the runtime check (mutation on the shared test database); read from the source.",
     "suspect": "Checked on design/backend-fields: createManualEntry stores the line unverified (medicines.service.ts:1008-1016) and the public catalogue needs approval (medicines.service.ts:125-131); the saved prescription is reviewed on /pharmacy/rx-order. (was: Backend/reviewer: confirm that manual entries stay out of the public catalogue until a pharmacist or admin approves them (publicCatalogFilter requires approval, so likely yes), and that the OCR result needs a patient review step before lines are saved (the app has none; the saved prescription is reviewed on /pharmacy/rx-order).)",
-    "review_status": "open (issue #485)"
+    "review_status": "not-a-problem: verified, each OCR line without a medicine id is sent as a named line the pharmacy prices (issue #485)"
   },
   {
     "batch": 1,

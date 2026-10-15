@@ -4,93 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
-import { checkoutUrlOf, isTrustedCheckoutUrl, parsePatientPharmacyPaymentCapabilities, transactionIdOf, type PatientPharmacyOnlineMethod } from "@/lib/api/pharmacy-payment";
-import { rememberPayment } from "@/lib/pharmacy/payment-return";
-import { formatMoney } from "./format";
 import { usePharmacyAction } from "./use-pharmacy-action";
 import styles from "./offers.module.css";
 
 type Intent = "co-pay" | "self-pay";
-type Capabilities = { methods: PatientPharmacyOnlineMethod[]; amount: number; currency: string };
-
-const METHOD_KEY = { card: "methodCard", "apple-pay": "methodApplePay", "google-pay": "methodGooglePay" } as const satisfies Record<PatientPharmacyOnlineMethod, string>;
-
-/** The methods the server offers for this order and the amount it will charge: read, never guessed. */
-function useCapabilities(orderId: string) {
-  const [capabilities, setCapabilities] = useState<Capabilities | null>(null);
-  const [state, setState] = useState<"idle" | "loading" | "failed">("idle");
-  async function load() {
-    if (state === "loading") return;
-    setState("loading");
-    try {
-      const response = await fetch(`/api/patient/payments/pharmacy/${encodeURIComponent(orderId)}/capabilities`, { cache: "no-store", credentials: "same-origin" });
-      const parsed = response.ok ? parsePatientPharmacyPaymentCapabilities(await response.json().catch(() => null)) : null;
-      if (!parsed || parsed.methods.length === 0) { setState("failed"); return; }
-      setCapabilities({ methods: parsed.methods.map((method) => method.id), amount: parsed.amount, currency: parsed.currency });
-      setState("idle");
-    } catch {
-      setState("failed");
-    }
-  }
-  return { capabilities, loading: state === "loading", failed: state === "failed", load };
-}
-
-/** After the final price is accepted: pick an online method, then the server's own checkout page takes the payment. */
-export function OnlinePaymentActions({ orderId }: { orderId: string }) {
-  const t = useTranslations("PharmacyOffers");
-  const locale = useLocale();
-  const caps = useCapabilities(orderId);
-  const action = usePharmacyAction();
-  const [handoff, setHandoff] = useState<"going" | "none" | null>(null);
-
-  async function start(method: PatientPharmacyOnlineMethod) {
-    setHandoff(null);
-    // the bounded route: it hands the browser only the transaction, its status and the secure checkout address
-    const result = await action.run(`pay:${method}`, `/api/payments/pharmacy/${encodeURIComponent(orderId)}/intent`, { method });
-    if (!result) return;
-    if (!result.ok) return;
-    const checkoutUrl = checkoutUrlOf(result.data);
-    if (isTrustedCheckoutUrl(checkoutUrl)) {
-      // the provider sends the patient back with its own payment id only: remember which order and transaction this was
-      const transactionId = transactionIdOf(result.data);
-      if (transactionId) rememberPayment({ orderId, transactionId });
-      setHandoff("going");
-      window.location.assign(checkoutUrl);
-      return;
-    }
-    // The server answered but gave no secure checkout address: no payment was made, and none is claimed.
-    setHandoff("none");
-  }
-
-  return (
-    <div className={styles.panel}>
-      {caps.capabilities ? (
-        <>
-          <p className={styles.panelTitle}>{t("showMethods")} · {formatMoney(locale, caps.capabilities.amount, caps.capabilities.currency)}</p>
-          <div className={styles.actions}>
-            {caps.capabilities.methods.map((method) => (
-              <Button
-                key={method}
-                label={action.pending && action.activeId === `pay:${method}` ? t("processing") : t(METHOD_KEY[method])}
-                variant="secondary"
-                size="lg"
-                fullWidth
-                loading={action.pending && action.activeId === `pay:${method}`}
-                disabled={action.pending}
-                onClick={() => start(method)}
-              />
-            ))}
-          </div>
-        </>
-      ) : (
-        <Button label={caps.loading ? t("loadingMethods") : t("showMethods")} size="lg" fullWidth loading={caps.loading} onClick={caps.load} />
-      )}
-      {caps.failed ? <p className={styles.errorText} role="alert">{t("paymentUnavailable")}</p> : null}
-      {action.error ? <p className={styles.errorText} role="alert">{action.error === "generic" ? t("paymentError") : t(`errors.${action.error}`)}</p> : null}
-      {handoff ? <p className={handoff === "going" ? styles.okText : styles.errorText} role={handoff === "going" ? "status" : "alert"}>{handoff === "going" ? t("redirecting") : t("noRedirect")}</p> : null}
-    </div>
-  );
-}
 
 /**
  * The insurer's decision becomes the patient's only through these two explicit choices. Accepting needs no payment

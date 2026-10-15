@@ -32,6 +32,8 @@ const ROWS: Row[] = [
     count: async () => (await adminFetch<{ total?: number }>('/medicines/admin/shortage-reports?status=pending&page=1&limit=1')).total ?? 0 },
   { key: 'images', label: 'اقتراحات صور الأدوية', hint: 'اعتماد أو رفض الصورة', href: '/admin/image-suggestions',
     count: async () => (await adminFetch<{ total?: number }>('/medicines/admin/image-suggestions?status=pending&page=1&limit=1')).total ?? 0 },
+  { key: 'proposals', label: 'اقتراحات المزودين', hint: 'تحاليل وأشعة وحزم جديدة وتعديل الأسعار', href: '/admin/service-proposals', permission: 'catalog.read',
+    count: async () => asList(await adminFetch('/approval-workflow/requests/pending')).length },
   { key: 'catalog', label: 'مراجعة طبية للكتالوج', hint: 'تحاليل وأشعة وتمريض', href: '/admin/catalog-manager',
     count: async () => {
       const lists = await Promise.all([adminFetch<unknown>('/labs/admin/catalog'), adminFetch<unknown>('/radiology/admin/catalog'), adminFetch<unknown>('/nursing/admin/catalog')]);

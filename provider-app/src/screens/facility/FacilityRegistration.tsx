@@ -302,9 +302,11 @@ function Step3Location({ data, update, submitRef, uploads }: StepProps<FacilityR
       let mohUrl = data.mohDocUri;
       let logoUrl = data.facilityLogoUri;
       
-      if (crUrl && !crUrl.startsWith('http')) crUrl = await ProviderApi.uploadFile(crUrl, 'image/jpeg', 'cr.jpg');
-      if (mohUrl && !mohUrl.startsWith('http')) mohUrl = await ProviderApi.uploadFile(mohUrl, 'image/jpeg', 'moh.jpg');
-      if (logoUrl && !logoUrl.startsWith('http')) logoUrl = await ProviderApi.uploadFile(logoUrl, 'image/jpeg', 'logo.jpg');
+      // The shared uploader (issue 1169): the file's own type from its name (a PDF stays a PDF), and one upload per file
+      // even when the step is sent again after going back.
+      if (crUrl && !crUrl.startsWith('http')) crUrl = await uploads.file(crUrl, 'cr');
+      if (mohUrl && !mohUrl.startsWith('http')) mohUrl = await uploads.file(mohUrl, 'moh');
+      if (logoUrl && !logoUrl.startsWith('http')) logoUrl = await uploads.file(logoUrl, 'logo');
 
       const docs = [crUrl, mohUrl].filter(Boolean);
       // Logo goes to its OWN field — brand mark, not a gallery photo.

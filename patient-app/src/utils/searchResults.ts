@@ -19,6 +19,9 @@ export interface SearchResult {
   subEn?: string;
   price?: string | null;
   priceEn?: string | null;
+  /** Medicine rows: the catalogue's flags (rx-rules-app #2); the row shows the same note as the product card. */
+  requires_prescription?: boolean;
+  online_exclusive?: boolean;
 }
 
 /** The search API's item types → the page's kinds. */
@@ -53,9 +56,18 @@ export function fromGrouped(payload: unknown): SearchResult[] {
       const id = type === 'تخصص' ? text(row.code) : text(row.id);
       if (!type || !name || !id) return [];
       const price = typeof row.price === 'number' && Number.isFinite(row.price) && row.price > 0 ? String(row.price) : null;
-      return [{ id, slug: text(row.slug), type, name, nameEn: name, price, priceEn: price }];
+      const flags = type === 'دواء'
+        ? { requires_prescription: row.requires_prescription === true, online_exclusive: row.online_exclusive === true }
+        : {};
+      return [{ id, slug: text(row.slug), type, name, nameEn: name, price, priceEn: price, ...flags }];
     });
   });
+}
+
+/** The medicine row's note, the same words and order as the product card (pharmacyCatalog productNote). */
+export function rowNote(r: Pick<SearchResult, 'requires_prescription' | 'online_exclusive'>, labels: { rx: string; online: string }): string | undefined {
+  const parts = [r.requires_prescription === true ? labels.rx : '', r.online_exclusive === true ? labels.online : ''].filter(Boolean);
+  return parts.length ? parts.join(' · ') : undefined;
 }
 
 export const TYPE_ICON: Record<string, { icon: FillIconName; tone: ServiceTone }> = {

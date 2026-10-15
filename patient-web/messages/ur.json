@@ -1150,7 +1150,10 @@
     "allSpecialties": "تمام تخصصات",
     "paymentLabel": "ادائیگی",
     "payment_insurance": "انشورنس قبول",
-    "payment_cash": "صرف نقد"
+    "payment_cash": "صرف نقد",
+    "doctorPhotoAlt": "{name} کی تصویر",
+    "clinicPhotosTitle": "کلینک کی تصاویر",
+    "clinicPhotoAlt": "کلینک کی تصویر {n}"
   },
   "LabsServices": {
     "eyebrow": "لیبارٹری کیئر",
@@ -1526,7 +1529,6 @@
     "attribute": "خصوصیت",
     "active_ingredient": "فعال جزو",
     "price": "قیمت",
-    "dosage_form": "شکل",
     "manufacturer": "صنعت کار",
     "emptyBody": "موازنے کے لیے کیٹلاگ سے کم از کم دو ادویات منتخب کریں۔",
     "browse": "ادویات دیکھیں",
@@ -1534,7 +1536,9 @@
     "requires_prescription": "نسخہ درکار ہے",
     "online_exclusive": "صرف آن لائن",
     "yes": "ہاں",
-    "no": "نہیں"
+    "no": "نہیں",
+    "form": "شکل",
+    "strength": "طاقت"
   },
   "PharmacyRequest": {
     "title": "دوا نام سے منگوائیں",
@@ -2090,7 +2094,8 @@
     "sortPriceAsc": "قیمت: کم سے زیادہ",
     "sortPriceDesc": "قیمت: زیادہ سے کم",
     "sortNewest": "نئی ترین",
-    "askPharmacies": "قریبی فارمیسیوں سے مانگیں"
+    "askPharmacies": "قریبی فارمیسیوں سے مانگیں",
+    "compareAlternatives": "متبادلات سے موازنہ کریں"
   },
   "PharmacyOffers": {
     "backToOrder": "آرڈر پر واپس",
@@ -2156,15 +2161,12 @@
     "orderStatusLink": "آرڈر کی حالت",
     "trackOrder": "آرڈر ٹریک کریں",
     "continuePayment": "ادائیگی کی طرف جائیں",
-    "showMethods": "ادائیگی کا طریقہ منتخب کریں",
     "methodCard": "بینک کارڈ",
     "methodApplePay": "Apple Pay",
     "methodGooglePay": "Google Pay",
-    "paymentUnavailable": "اس آرڈر کے لیے فی الحال آن لائن ادائیگی کا کوئی طریقہ دستیاب نہیں۔",
     "redirecting": "آپ کو محفوظ ادائیگی کے صفحے پر لے جایا جا رہا ہے…",
     "noRedirect": "ادائیگی کا یہ طریقہ ابھی ویب پر دستیاب نہیں۔ کوئی اور طریقہ منتخب کریں۔",
     "paymentError": "ادائیگی شروع نہیں ہو سکی۔ کوئی ادائیگی درج نہیں ہوئی۔",
-    "loadingMethods": "ادائیگی کے طریقے لوڈ ہو رہے ہیں…",
     "insurancePending": "فارمیسی نے بیمہ کمپنی سے منظوری طلب کی ہے۔ فیصلے سے پہلے آپ پر کوئی رقم واجب نہیں۔",
     "insuranceCovered": "انشورنس اس آرڈر کو مکمل طور پر کور کرتی ہے۔ کوئی رقم واجب نہیں۔",
     "insuranceDecisionTitle": "ہر شے کے لیے انشورنس کا فیصلہ",
@@ -2867,7 +2869,6 @@
     "trackingInProgress": "جاری ہے",
     "trackingScheduled": "مقررہ وقت: {when}",
     "trackingBeforeTitle": "نمونہ لینے سے پہلے",
-    "trackingBeforeBody": "جب تک ڈاکٹر کچھ اور نہ کہے، نمونے سے 8 سے 12 گھنٹے پہلے کچھ نہ کھائیں۔",
     "trackingStepsTitle": "مراحل",
     "trackingNoSteps": "ابھی تک ٹریکنگ کی کوئی اپ ڈیٹ نہیں ہے۔ لیب جب مراحل درج کرے گی تو وہ یہاں نظر آئیں گے۔",
     "searchTests": "ٹیسٹ تلاش کریں…",
@@ -2876,10 +2877,6 @@
     "searchResults": "تلاش کے نتائج",
     "collectorLabel": "نمونہ لینے والا",
     "collectorCall": "نمونہ لینے والے کو کال کریں",
-    "collectorTipsTitle": "نمونہ لینے والے کے آنے پر",
-    "collectorTip1": "اپنا شناختی کارڈ اور ٹیسٹ کی درخواست تیار رکھیں",
-    "collectorTip2": "ٹیسٹ کے لیے درکار روزے / خالی پیٹ کی پابندی کریں",
-    "collectorTip3": "جو دوائیں لیتے ہیں وہ نمونہ لینے والے کو بتائیں",
     "status_pending": "تصدیق کا انتظار",
     "status_insurance": "انشورنس کا انتظار",
     "status_confirmed": "تصدیق شدہ",
@@ -2888,10 +2885,7 @@
     "status_processing": "جاری ہے",
     "status_report": "رپورٹ تیار ہے",
     "status_cancelled": "منسوخ",
-    "bookingNotSentTitle": "کوئی بکنگ نہیں ہوئی",
-    "bookingNotSentBody": "یہ ونڈو ابھی بکنگ نہیں بھیجتی، اس لیے کوئی ملاقات طے نہیں ہوئی اور کوئی ادائیگی نہیں لی گئی۔ وزٹ بک کرنے کے لیے نرسنگ کا صفحہ کھولیں۔",
-    "bookingNotSentCta": "نرسنگ کے صفحے پر جائیں",
-    "bookingNotSentClose": "بند کریں"
+    "trackingPrepAsk": "لیب آپ کے ساتھ کسی بھی ضروری تیاری کی تصدیق کرے گی۔"
   },
   "NursingWeb": {
     "hubTitle": "گھریلو نگہداشت",
@@ -2903,13 +2897,11 @@
     "browseCatalog": "نرسنگ خدمات دیکھیں",
     "statusLabel": "حالت",
     "pulse": "نبض",
-    "formService": "خدمت",
     "formTime": "وقت",
     "formAddress": "پتہ",
     "formAddAddress": "پہلے ایک پتہ شامل کریں",
     "formNotes": "نوٹس (اختیاری)",
     "formBooking": "بکنگ ہو رہی ہے…",
-    "formSelectService": "خدمت منتخب کریں",
     "formSelectTime": "دن اور وقت منتخب کریں",
     "formPast": "وہ وقت گزر چکا ہے۔ بعد کا وقت منتخب کریں",
     "formFailed": "بکنگ نہیں بن سکی",
@@ -2971,7 +2963,6 @@
     "insurance": "انشورنس دستیاب",
     "priceLabel": "قیمت",
     "durationLabel": "مدت",
-    "bookingNotice": "خدمت کی تفصیلات یہاں صرف مطالعے کے لیے ہیں۔ اس صفحے سے بکنگ نہیں بنتی۔",
     "back": "خدمات پر واپس",
     "serviceUnavailableTitle": "خدمات لوڈ نہیں ہو سکیں",
     "serviceUnavailableBody": "براہ کرم بعد میں دوبارہ کوشش کریں۔",
@@ -2991,13 +2982,19 @@
     "step_NURSE_ARRIVED": "نرس پہنچ گئی",
     "step_CARE_IN_PROGRESS": "نگہداشت جاری",
     "step_COMPLETED": "وزٹ مکمل",
-    "nurseTitle": "نرس کی پروفائل",
-    "nurseUnavailableTitle": "پروفائل فی الحال دستیاب نہیں",
-    "nurseUnavailableBody": "نرس کی پروفائل کی تفصیلات لوڈ نہیں ہو سکیں۔",
-    "experienceLabel": "کام کا تجربہ",
-    "ratingLabel": "مریضوں کی ریٹنگ",
-    "nurseServicesTitle": "دستیاب نرسنگ خدمات",
-    "requestNurse": "نرسنگ وزٹ کی درخواست کریں"
+    "bookCta": "یہ سروس بک کریں",
+    "bookTitle": "گھر پر وزٹ بک کریں",
+    "chooseNurse": "نرس منتخب کریں",
+    "noNurses": "اس وقت کوئی نرس یہ سروس فراہم نہیں کرتی۔ بعد میں دوبارہ کوشش کریں۔",
+    "today": "آج",
+    "loadingSlots": "دستیاب اوقات لوڈ ہو رہے ہیں…",
+    "noSlots": "اس دن کوئی وقت دستیاب نہیں۔ کوئی اور دن منتخب کریں۔",
+    "slotsFailed": "اوقات لوڈ نہیں ہو سکے۔ دوبارہ کوشش کریں۔",
+    "slotTaken": "یہ وقت اب دستیاب نہیں۔ کوئی اور وقت منتخب کریں۔",
+    "addressNeedsLocation": "نقشے پر مقام والا محفوظ پتہ منتخب کریں، یا نیا شامل کریں۔",
+    "payTitle": "ادائیگی",
+    "payNow": "ابھی کارڈ سے ادائیگی کریں",
+    "payFailed": "آپ کی بکنگ محفوظ ہے، لیکن ادائیگی کا صفحہ نہیں کھل سکا۔ دوبارہ کوشش کریں۔"
   },
   "MaternityWeb": {
     "title": "زچگی",
@@ -3223,23 +3220,11 @@
     "example4": "جلد پر دانے اور خارش",
     "symptomsLabel": "آپ کی علامات",
     "symptomsPlaceholder": "مثال: دو دن سے سر درد اور متلی",
-    "flagsLegend": "کیا آپ میں ان میں سے کوئی علامت ہے؟ جو لاگو ہوں وہ منتخب کریں",
-    "flag": {
-      "chest_pain": "سینے میں درد",
-      "breathing_difficulty": "سانس لینے میں دشواری",
-      "fainting_or_unresponsive": "بے ہوشی یا ردعمل نہ دینا",
-      "heavy_bleeding": "شدید خون بہنا",
-      "new_confusion": "اچانک الجھن",
-      "severe_allergic_reaction": "شدید الرجک ردعمل",
-      "severe_injury": "شدید چوٹ"
-    },
     "submit": "اگلا قدم معلوم کریں",
     "submitting": "جانچ ہو رہی ہے…",
     "error": "ابھی رہنمائی نہیں مل سکی۔ کچھ دیر بعد دوبارہ کوشش کریں۔",
     "emergencyTitle": "ایسی علامات جن کے لیے فوری مدد چاہیے",
-    "emergencyBody": "آپ کی منتخب کردہ علامات کے لیے ابھی مقامی ایمرجنسی سروسز سے رابطہ کریں، اپائنٹمنٹ کا انتظار نہ کریں۔",
     "consultationTitle": "ہم ڈاکٹر سے مشورے کی تجویز دیتے ہیں",
-    "consultationBody": "آپ نے کوئی ہنگامی علامت منتخب نہیں کی۔ علامات برقرار رہیں یا بڑھ جائیں تو ڈاکٹر سے مشورہ بک کریں۔",
     "bookConsultation": "مشورہ بک کریں",
     "askAgain": "نیا سوال پوچھیں",
     "disclaimer": "یہ عمومی رہنمائی ہے، تشخیص یا علاج نہیں۔ ہنگامی صورت میں ایمرجنسی سروسز کو کال کریں۔",
@@ -3250,7 +3235,16 @@
     "untitledReport": "طبی رپورٹ",
     "reportsUnavailable": "آپ کی رپورٹس ابھی لوڈ نہیں ہو سکیں۔ کچھ دیر بعد دوبارہ کوشش کریں۔",
     "leafletLink": "معلوماتی پرچہ پڑھیں",
-    "historyTitle": "آپ کے پچھلے سوالات"
+    "leafletTitle": "اس دوا کے بارے میں، اس کے پرچے سے",
+    "outOfScopeTitle": "اسسٹنٹ کیا کر سکتا ہے",
+    "leaflet": {
+      "indications": "استعمال کی وجوہات",
+      "how_to_use": "استعمال کا طریقہ",
+      "side_effects": "مضر اثرات",
+      "warnings": "انتباہات",
+      "storage": "محفوظ رکھنے کا طریقہ",
+      "pregnancy": "حمل اور دودھ پلانا"
+    }
   },
   "MonthlyReportWeb": {
     "title": "آپ کی ماہانہ رپورٹ",
@@ -4133,5 +4127,30 @@
         "head_circ_cm": "سر کا گھیر 20 سے 60 سینٹی میٹر کے درمیان ہے۔"
       }
     }
+  },
+  "LabResult": {
+    "title": "لیب کا نتیجہ",
+    "error": "نتیجہ لوڈ نہیں ہو سکا",
+    "errorBody": "تھوڑی دیر بعد دوبارہ کوشش کریں۔",
+    "retry": "دوبارہ کوشش کریں",
+    "critical": "اہم — فالو اپ درکار",
+    "values": "اقدار",
+    "range": "نارمل حد {low} – {high}",
+    "flag_high": "زیادہ",
+    "flag_low": "کم",
+    "flag_critical": "نازک",
+    "findings": "نتائج",
+    "impression": "تاثر",
+    "recommendations": "سفارشات",
+    "notes": "لیب کے نوٹس",
+    "openBooking": "رپورٹ فائل دیکھنے کے لیے بکنگ کھولیں",
+    "empty": "اس نتیجے میں مزید تفصیل نہیں۔",
+    "discuss": "نتیجے پر ڈاکٹر سے بات کریں",
+    "rangeText": "نارمل حد {range}"
+  },
+  "Offline": {
+    "title": "آپ آف لائن ہیں",
+    "body": "کنکشن نہ ہونے کی وجہ سے یہ صفحہ نہیں کھل سکا۔ آپ کی کارٹ اسی ڈیوائس پر محفوظ ہے؛ کنکشن واپس آنے پر اپنی درخواست بھیجیں۔",
+    "home": "شروع پر واپس جائیں"
   }
 }

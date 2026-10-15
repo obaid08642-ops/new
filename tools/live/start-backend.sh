@@ -32,6 +32,11 @@ export CORS_ORIGINS="$ALLOWED_ORIGINS"
 export DISABLE_RATE_LIMIT="${DISABLE_RATE_LIMIT:-true}" THROTTLER_LIMIT="${THROTTLER_LIMIT:-1000000}"
 # Same reason for the per-identifier OTP issue cap (the fixed admin account signs in on every journey run).
 export OTP_ISSUE_LIMIT="${OTP_ISSUE_LIMIT:-1000}"
+# Every payout takes both admin approvals in the live env, so the two-person path is exercised (j_payouts).
+export PAYOUT_DUAL_APPROVAL_SAR="${PAYOUT_DUAL_APPROVAL_SAR:-1}"
+# No escrow hold and a 1 SAR minimum in the live env, so a payout completes in one run (production keeps 3 days and
+# 100 SAR unless the super admin sets them in the finance suite).
+export SETTLEMENT_DELAY_DAYS="${SETTLEMENT_DELAY_DAYS:-0}" PAYOUT_MINIMUM_SAR="${PAYOUT_MINIMUM_SAR:-1}"
 # Card payments go to tools/live/fake_moyasar.py (:9100); /__pay/<id> plays the patient completing checkout.
 export MOYASAR_API_KEY="${MOYASAR_API_KEY:-sk_test_live_journeys}" MOYASAR_API_BASE="${MOYASAR_API_BASE:-http://127.0.0.1:9100/v1}"
 # 7C-C3: the backend network-gate check requires this header on /api/v1/admin/*.
