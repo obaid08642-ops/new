@@ -17,6 +17,8 @@ export type GridProduct = {
   price: number;
   oldPrice: number | null;
   image: string | null;
+  /** The card's rendition of `image` (productCardImageSrc, made by the server page); `image` itself goes to the cart. */
+  thumb?: string;
   form: string | null;
   strength: string | null;
   packageSize: string | null;
@@ -66,7 +68,7 @@ export function ProductGrid({
                 price={priced ? money.amount : t("priceUnavailable")}
                 currency={priced ? money.currency : undefined}
                 disabled={!priced}
-                imageSrc={item.image || undefined}
+                imageSrc={item.thumb || item.image || undefined}
                 discountLabel={(item.rx ? undefined : item.badge) || (percent > 0 ? product("discount", { percent: formatNumber(locale, percent) }) : undefined)}
                 rxLabel={item.rx ? product("rxRequired") : undefined}
                 addLabel={t("addToCart", { name: item.name })}

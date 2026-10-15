@@ -20,6 +20,7 @@ import { ChipLink } from "@/components-next/pharmacy/chip-link";
 import { BuyActions, BuyBar, BuyProvider } from "@/components-next/pharmacy/product-buy";
 import { ProductGallery } from "@/components-next/pharmacy/product-gallery";
 import { ProductGrid, type GridProduct } from "@/components-next/pharmacy/product-grid";
+import { productCardImageSrc } from "@/components-next/pharmacy/catalog-image";
 import { promoOldPrice, promoPercent } from "@/lib/discount";
 import { formatNumber, formatPrice } from "@/lib/format-price";
 import { ProductSections, type DetailGroup, type DetailSection } from "@/components-next/pharmacy/product-sections";
@@ -207,6 +208,7 @@ export default async function PublicProductPage({ params }: Props) {
     price: alt.price,
     oldPrice: alt.old_price,
     image: alt.image,
+    thumb: productCardImageSrc(alt.image),
     form: alt.form,
     strength: alt.strength,
     packageSize: alt.package_size,
