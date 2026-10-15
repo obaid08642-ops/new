@@ -112,13 +112,17 @@ def main():
         page.goto(f'{WEB}/ar/pharmacy/broadcast-status?orderId={oid}', wait_until='load', timeout=60000)
         note = page.get_by_text('السعر غير متحقق منه', exact=False).first
         try:
-            for d in page.locator('details').all():
-                d.evaluate('(el) => { el.open = true; }')
+            # the offer's lines are in its details: open them as the patient does, once the page is interactive
+            page.locator('details summary').first.wait_for(timeout=30000)
+            page.wait_for_function("() => { const s = document.querySelector('details summary'); return !!s && Object.keys(s.closest('li,article,section,div') || {}).length >= 0; }", timeout=10000)
+            for summary in page.locator('details summary').all():
+                summary.click()
             note.wait_for(timeout=30000)
             shown = True
         except Exception:
             shown = False
-        step('the offers page says the price is not verified', shown, page.locator('main').first.inner_text()[:300])
+        details = ' | '.join(d.inner_text()[:200] for d in page.locator('details').all())
+        step('the offers page says the price is not verified', shown, details or page.locator('main').first.inner_text()[:300])
     except Exception as e:
         step('web offers', False, str(e)[:300])
 
