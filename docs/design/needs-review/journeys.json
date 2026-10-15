@@ -519,7 +519,7 @@
     "kind": "missing-step",
     "file": "patient-app/app/diagnostics/order/[id].tsx",
     "line": 165,
-    "review_status": "open (issue #1066)"
+    "review_status": "fixed #1480"
   },
   {
     "scenario": 5,

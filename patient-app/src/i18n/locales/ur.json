@@ -3214,5 +3214,20 @@
   "search.kind.nursingServices": "نرسنگ خدمات",
   "insurance.benefits.requestsTitle": "انشورنس درخواستیں: {count}",
   "insurance.benefits.insurerCovered": "انشورنس کمپنی نے ادا کیا",
-  "insurance.benefits.youPaid": "آپ نے ادا کیا"
+  "insurance.benefits.youPaid": "آپ نے ادا کیا",
+  "diag.result.title": "لیب کا نتیجہ",
+  "diag.result.error": "نتیجہ لوڈ نہیں ہو سکا",
+  "diag.result.by": "جاری کنندہ",
+  "diag.result.values": "اقدار",
+  "diag.result.range": "نارمل حد {low} – {high}",
+  "diag.result.flag.normal": "نارمل",
+  "diag.result.flag.high": "زیادہ",
+  "diag.result.flag.low": "کم",
+  "diag.result.flag.critical": "نازک",
+  "diag.result.findings": "نتائج",
+  "diag.result.impression": "تاثر",
+  "diag.result.notes": "لیب کے نوٹس",
+  "diag.result.openBooking": "رپورٹ فائل دیکھنے کے لیے بکنگ کھولیں",
+  "diag.result.discuss": "نتیجے پر ڈاکٹر سے بات کریں",
+  "diag.result.rangeText": "نارمل حد {range}"
 }

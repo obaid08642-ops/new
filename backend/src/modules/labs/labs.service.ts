@@ -639,8 +639,18 @@ export class LabsService {
       mimeType = 'application/pdf';
     }
 
+    // Decision 19 (issue 338): the values the lab entered stay on the report, so the result the push opens shows them
+    // (GET /lab-results/:id), not only the generated PDF. Rows as provider-app LabDashboard sends them.
+    const entries = (Array.isArray(body.structuredData) ? body.structuredData : []).flatMap((raw: unknown) => {
+      const row = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : null;
+      const name = typeof row?.analyte === 'string' ? row.analyte.trim().slice(0, 200) : '';
+      if (!row || !name) return [];
+      const str = (v: unknown) => (typeof v === 'string' || typeof v === 'number' ? String(v).trim().slice(0, 100) : '');
+      return [{ name, value: str(row.value), unit: str(row.unit), range: str(row.range), ...(row.isCritical === true ? { flag: 'critical' } : {}) }];
+    });
     const report = {
       id: require('uuid').v4(),
+      ...(entries.length ? { entries, critical: entries.some((e) => e.flag === 'critical') } : {}),
       name: body.name || `report_${new Date().toISOString().slice(0,10)}.pdf`,
       mime: mimeType,
       base64: base64Data,
@@ -656,7 +666,7 @@ export class LabsService {
         b.state = LabBookingState.REPORTED;
       }
       await b.save();
-      this.events.emit('lab.report_uploaded', { booking_id: b.id, patient_id: b.patient_id, report_id: report.id, name: report.name });
+      this.events.emit('lab.report_uploaded', { booking_id: b.id, patient_id: b.patient_id, report_id: report.id, name: report.name, tracking_id: b.tracking_id, critical: report.critical === true });
       return b.toObject();
     };
     if (b.state === LabBookingState.REPORTED) return persist();

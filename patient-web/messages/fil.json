@@ -4122,5 +4122,25 @@
         "head_circ_cm": "Ang sukat ng ulo ay mula 20 hanggang 60 cm."
       }
     }
+  },
+  "LabResult": {
+    "title": "Resulta ng lab",
+    "error": "Hindi ma-load ang resulta",
+    "errorBody": "Subukan ulit mamaya.",
+    "retry": "Subukan ulit",
+    "critical": "Mahalaga — kailangan ng follow-up",
+    "values": "Mga halaga",
+    "range": "Normal na saklaw {low} – {high}",
+    "flag_high": "Mataas",
+    "flag_low": "Mababa",
+    "flag_critical": "Kritikal",
+    "findings": "Mga natuklasan",
+    "impression": "Impresyon",
+    "recommendations": "Mga rekomendasyon",
+    "notes": "Mga tala ng lab",
+    "openBooking": "Buksan ang booking para makita ang report file",
+    "empty": "Wala nang ibang detalye ang resultang ito.",
+    "discuss": "Pag-usapan ang resulta kasama ang doktor",
+    "rangeText": "Normal na saklaw {range}"
   }
 }

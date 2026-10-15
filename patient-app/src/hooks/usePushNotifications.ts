@@ -61,7 +61,11 @@ export function translateBackendRoute(route: string): { pathname: string; params
   if (m) return { pathname: '/diagnostics/order/[id]', params: { id: m[1] } };
 
   // the report screen reads `id` (app/reports/view-report.tsx), also for the "report ready" route /reports/:id
-  m = clean.match(/^\/health\/results\/(.+)$/) || clean.match(/^\/health\/reports\/(.+)$/) || clean.match(/^\/reports\/([^/]+)$/);
+  // decision 19 (issue 338): "result ready" opens that lab result (GET /lab-results/:id), not a medical report
+  m = clean.match(/^\/health\/results\/([^/]+)$/);
+  if (m) return { pathname: '/diagnostics/lab-result', params: { id: m[1] } };
+
+  m = clean.match(/^\/health\/reports\/(.+)$/) || clean.match(/^\/reports\/([^/]+)$/);
   if (m) return { pathname: '/reports/view-report', params: { id: m[1] } };
 
   // Community is removed (owner decision 1): an old community notification opens the articles

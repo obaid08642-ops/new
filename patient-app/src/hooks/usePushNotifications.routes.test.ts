@@ -13,8 +13,12 @@ const screenExists = (pathname: string) => {
 };
 
 describe('notification routes the backend writes, translated to screens that exist', () => {
-  it('result and report notifications pass the id the report screen reads (`id`, not `reportId`)', () => {
-    for (const route of ['/health/results/r1', '/health/reports/r1', '/reports/r1']) {
+  it('decision 19: a lab "result ready" notification opens that lab result', () => {
+    expect(translateBackendRoute('/health/results/r1')).toEqual({ pathname: '/diagnostics/lab-result', params: { id: 'r1' } });
+  });
+
+  it('report notifications pass the id the report screen reads (`id`, not `reportId`)', () => {
+    for (const route of ['/health/reports/r1', '/reports/r1']) {
       expect(translateBackendRoute(route)).toEqual({ pathname: '/reports/view-report', params: { id: 'r1' } });
     }
   });
