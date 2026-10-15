@@ -114,7 +114,7 @@ def main():
         try:
             # the offer's lines are in its details: open them as the patient does, once the page is interactive
             page.locator('details summary').first.wait_for(timeout=30000)
-            page.wait_for_function("() => { const s = document.querySelector('details summary'); return !!s && Object.keys(s.closest('li,article,section,div') || {}).length >= 0; }", timeout=10000)
+            page.wait_for_function("() => { const d = document.querySelector('details'); return !!d && Object.keys(d).some((k) => k.startsWith('__react')); }", timeout=30000)
             for summary in page.locator('details summary').all():
                 summary.click()
             note.wait_for(timeout=30000)
