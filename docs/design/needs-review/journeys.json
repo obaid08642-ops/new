@@ -78,7 +78,7 @@
     "kind": "missing-step",
     "file": "patient-web/components-next/orders/order-detail-screen.tsx",
     "line": 120,
-    "review_status": "open"
+    "review_status": "fixed #1512"
   },
   {
     "scenario": 1,
@@ -600,7 +600,7 @@
     "kind": "missing-state",
     "file": "patient-app/app/nursing/nurse-profile.tsx",
     "line": 141,
-    "review_status": "open (issue #1075)"
+    "review_status": "fixed #1512"
   },
   {
     "scenario": 7,
@@ -672,7 +672,7 @@
     "kind": "missing-field",
     "file": "patient-web/components-next/pharmacy/request-screen.tsx",
     "line": 47,
-    "review_status": "open (issue #1083)"
+    "review_status": "fixed #1512"
   },
   {
     "scenario": 8,
@@ -681,7 +681,7 @@
     "kind": "missing-state",
     "file": "patient-web/components-next/pharmacy-offers/offer-list.tsx",
     "line": 223,
-    "review_status": "open (issue #1084)"
+    "review_status": "fixed #1512"
   },
   {
     "scenario": 9,
