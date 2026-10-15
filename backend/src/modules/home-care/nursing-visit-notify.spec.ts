@@ -33,7 +33,7 @@ describe('nursing visit steps notify the patient', () => {
   it('completing the visit emits homecare.booking_state_changed (patient) and homecare.report_for_doctor', async () => {
     const b = visit('CARE_IN_PROGRESS');
     const { c, emitted } = controllerFor(b);
-    await c.completeVisit('bk-1', { clinical_notes: 'ok' }, { id: 'nurse' });
+    await c.completeVisit('bk-1', { clinical_notes: 'ok', signature_base64: 'data:image/png;base64,iVBORw0KGgo=' }, { id: 'nurse' });
     expect(emitted).toContainEqual(['homecare.booking_state_changed', expect.objectContaining({ booking_id: 'bk-1', patient_id: 'pat-1', state: 'COMPLETED' })]);
     expect(emitted).toContainEqual(['homecare.report_for_doctor', { booking_id: 'bk-1', doctor_id: 'doc-1' }]);
     expect(emitted.map(([n]) => n)).not.toContain('patient.notify');
