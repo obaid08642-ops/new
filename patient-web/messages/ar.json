@@ -1150,7 +1150,10 @@
     "allSpecialties": "كل التخصصات",
     "paymentLabel": "الدفع",
     "payment_insurance": "يقبل التأمين",
-    "payment_cash": "كاش فقط"
+    "payment_cash": "كاش فقط",
+    "doctorPhotoAlt": "صورة {name}",
+    "clinicPhotosTitle": "صور العيادة",
+    "clinicPhotoAlt": "صورة العيادة {n}"
   },
   "LabsServices": {
     "eyebrow": "الرعاية المخبرية",
