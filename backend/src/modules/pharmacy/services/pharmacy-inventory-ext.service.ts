@@ -1,4 +1,7 @@
-import { Injectable, ForbiddenException, NotFoundException, Inject } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException, Inject, Optional } from '@nestjs/common';
+import { InjectConnection } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
+import { CATALOGUE_PROJECTION, catalogueFilter, catalogueSearchRow, catalogueSku } from './catalogue-lines';
 import { escapeRegex } from '../../../common/slug.util';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -15,10 +18,14 @@ export class PharmacyInventoryExtService {
   constructor(
     @Inject('PharmacyInventoryItemRepository') private inv: PharmacyInventoryItemRepository,
     @Inject('PharmacyLowStockAlertRepository') private alerts: PharmacyLowStockAlertRepository,
+    @Optional() @InjectConnection() private readonly connection?: Connection,
   ) {}
 
-  async search(user: any, q?: string, barcode?: string) {
+  async search(user: any, q?: string, barcode?: string, includeCatalogue = false) {
     assertProvider(user);
+    // query values are strings; anything else (barcode[$ne]=...) never reaches the filter
+    q = typeof q === 'string' ? q : undefined;
+    barcode = typeof barcode === 'string' ? barcode : undefined;
     const filter: any = { provider_account_id: user.id };
     if (barcode) filter.barcode = barcode;
     if (q && q.length >= 2) {
@@ -29,7 +36,15 @@ export class PharmacyInventoryExtService {
         { generic_name: { $regex: escapeRegex(String(q)), $options: 'i' } },
       ];
     }
-    return this.inv.find(filter, { _id: 0, __v: 0 }).sort({ name_ar: 1 }).limit(50).lean();
+    const own: any[] = await this.inv.find(filter, { _id: 0, __v: 0 }).sort({ name_ar: 1 }).limit(50).lean();
+    // provider-journeys 1: the national catalogue items that match and are not in this pharmacy's inventory yet; the
+    // pharmacy can price an order line from one (the offer then adds it to its inventory).
+    const cf = includeCatalogue && this.connection ? catalogueFilter(q, barcode) : null;
+    if (!cf) return own.map((row) => ({ ...row, source: 'inventory' }));
+    const owned = new Set(own.map((row) => String(row.sku)));
+    const medicines: any[] = await this.connection!.collection('medicines').find(cf, { projection: CATALOGUE_PROJECTION }).limit(30).toArray();
+    const catalogue = medicines.filter((m) => !owned.has(catalogueSku(m))).slice(0, 20).map(catalogueSearchRow);
+    return [...own.map((row) => ({ ...row, source: 'inventory' })), ...catalogue];
   }
 
   async restock(user: any, id: string, qty: number) {

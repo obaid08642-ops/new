@@ -31,6 +31,9 @@ export class PharmacyInventoryItem extends Document {
   @Prop() coverage_notes?: string;
   @Prop() expiry_date?: Date;
   @Prop() notes?: string;
+  // provider-journeys 1: the national catalogue item this row was taken from (set when a pharmacy prices an order line
+  // straight from the catalogue), so the catalogue price check maps it.
+  @Prop() medicine_id?: string;
 }
 export const PharmacyInventoryItemSchema = SchemaFactory.createForClass(PharmacyInventoryItem);
 PharmacyInventoryItemSchema.index({ provider_account_id: 1, sku: 1 }, { unique: true });
