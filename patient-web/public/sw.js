@@ -21,7 +21,8 @@ self.addEventListener('push', (event) => {
     icon: '/icon-192.png',
     badge: '/icon-192.png',
     tag: data.tag || 'nabd',
-    data: { url: data.url || '/' },
+    // backend push.module deliverWebPush sends { title, body, data: { url, ... } }; url is the web page of the target.
+    data: { url: data.url || (data.data && data.data.url) || '/' },
     actions: data.actions || [],
   };
 
@@ -35,7 +36,7 @@ self.addEventListener('notificationclick', (event) => {
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       for (const client of clientList) {
-        if ('focus' in client) return client.focus();
+        if ('focus' in client && 'navigate' in client) return client.navigate(url).then((c) => (c || client).focus());
       }
       return clients.openWindow(url);
     })

@@ -89,6 +89,7 @@ const patientReadRoutes = [
   new RegExp("^/loyalty/rewards$", "i"),
   new RegExp(`^/labs/bookings/${orderId}$`, "i"),
   new RegExp(`^/labs/bookings/${orderId}/tracking$`, "i"),
+  new RegExp("^/push/web/vapid-key$"),
   // A1: the patient wallet is gone — these backend routes no longer exist.
 ];
 
@@ -171,6 +172,9 @@ const addressMutationRoutes: Array<{ method: "POST" | "DELETE" | "PATCH"; route:
 const notificationMutationRoutes: Array<{ method: "POST"; route: RegExp }> = [
   { method: "POST", route: new RegExp(`^/notifications/${orderId}/read$`, "i") },
   { method: "POST", route: new RegExp("^/notifications/read-all$") },
+  // batch-0-web#9: this browser's web push subscription (lib/web-push.ts).
+  { method: "POST", route: new RegExp("^/push/web/subscribe$") },
+  { method: "POST", route: new RegExp("^/push/web/unsubscribe$") },
 ];
 
 export function isAllowedPatientApiRequest(path: string, method: string) {

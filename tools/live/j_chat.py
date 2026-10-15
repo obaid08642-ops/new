@@ -33,6 +33,11 @@ def run(pat, doctor, other_doctor, aid, profile_id=None):
     step('doctor replies', r.ok, r)
     r = pat.get(f'/chat/threads/{tid}/messages')
     step('the patient sees the reply', r.ok and 'أحضر تحاليلك' in str(r.body), r)
+    # The patient is told the doctor wrote (notifications.service onChatMessageTargeted; the "chat" switch).
+    r = pat.get('/notifications?lang=en')
+    told = [n for n in rows(r) if isinstance(n, dict) and n.get('title') == 'New message from your doctor'
+            and ((n.get('action') or {}).get('route') if isinstance(n.get('action'), dict) else None) == f'/consultations/appointments/{aid}']
+    step('the patient is notified of the doctor\'s reply, linked to the appointment', r.ok and len(told) >= 1, f'{len(told)} matching')
     r = doctor.get('/chats/threads')
     step('the conversation is in the doctor chats inbox', r.ok and tid in str(r.body), r)
     r = other_doctor.get(f'/provider/chat/appointment/{aid}')
@@ -52,6 +57,12 @@ def run(pat, doctor, other_doctor, aid, profile_id=None):
     step('mark all read', r.ok, r)
     r = pat.post('/notifications/register-token', {'token': f'ExponentPushToken[{uuid.uuid4().hex[:22]}]', 'platform': 'ios'})
     step('push token registered', r.ok, r)
+    # patient-web lib/web-push.ts (through the patient proxy): the key, then this browser's subscription
+    r = pat.get('/push/web/vapid-key')
+    step('the website can read the web push key', r.ok and 'public_key' in (r.body or {}), r)
+    r = pat.post('/push/web/subscribe', {'endpoint': f'https://push.example.test/{uuid.uuid4()}', 'keys': {'p256dh': 'BPk', 'auth': 'au'}, 'user_agent': 'live-gate'},
+                 headers={'Idempotency-Key': str(uuid.uuid4())})
+    step('a browser subscription is saved', r.ok and r.get('ok') is True, r)
 
     journey('notifications: doctor bell')
     r = doctor.get('/provider/notifications')

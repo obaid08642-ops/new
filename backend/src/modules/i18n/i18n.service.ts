@@ -421,6 +421,8 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'notif.homecare_cancelled.body': { ar: 'أُلغي طلب التمريض — يمكنك إعادة الحجز', en: 'The nursing request was cancelled — you can rebook', ur: 'منسوخ' },
   'notif.homecare_no_show.title': { ar: 'تعذر الوصول إليك', en: 'Could Not Reach You', ur: 'رابطہ نہیں' },
   'notif.homecare_no_show.body': { ar: 'سُجلت الزيارة كعدم حضور — أعد الجدولة', en: 'The visit was marked no-show — please reschedule', ur: 'نو شو' },
+  'notif.chat_doctor.title': { ar: 'رسالة جديدة من طبيبك', en: 'New message from your doctor', ur: 'آپ کے ڈاکٹر کا نیا پیغام' },
+  'notif.chat_doctor.body': { ar: 'افتح موعدك لقراءة الرسالة والرد عليها', en: 'Open your appointment to read and reply', ur: 'پیغام پڑھنے اور جواب دینے کے لیے اپنی ملاقات کھولیں' },
   'notif.rad_booked.title': { ar: 'تم استلام طلب الأشعة', en: 'Radiology Request Received', ur: 'ریڈیولوجی درخواست' },
   'notif.rad_booked.body': { ar: 'بانتظار تأكيد المركز', en: 'Waiting for center confirmation', ur: 'تصدیق کا انتظار' },
   'notif.rad_ready.title': { ar: 'تقرير الأشعة جاهز', en: 'Radiology Report Ready', ur: 'رپورٹ تیار' },
