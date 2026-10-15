@@ -71,6 +71,7 @@ export function ProductGrid({
                 imageSrc={item.thumb || item.image || undefined}
                 discountLabel={(item.rx ? undefined : item.badge) || (percent > 0 ? product("discount", { percent: formatNumber(locale, percent) }) : undefined)}
                 rxLabel={item.rx ? product("rxRequired") : undefined}
+                onlineLabel={item.onlineOnly === true ? product("onlineOnly") : undefined}
                 addLabel={t("addToCart", { name: item.name })}
                 href={`/${locale}/p/${encodeURIComponent(item.slug)}`}
                 linkAs={Link}
@@ -87,7 +88,8 @@ export function ProductGrid({
                     strength: item.strength,
                     qty: 1,
                   });
-                  setAdded(t("addedToCart", { name: item.name }));
+                  // decision 10: an Rx item in the cart needs a prescription at checkout; the grid says so as the product page does
+                  setAdded(item.rx ? `${t("addedToCart", { name: item.name })} ${t("addedRxNote")}` : t("addedToCart", { name: item.name }));
                 }}
               />
             </li>

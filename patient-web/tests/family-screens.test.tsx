@@ -176,7 +176,7 @@ describe("the old routes and the readers", () => {
   it("every old family route is a redirect to the merged screen", async () => {
     const config = (await import("../next.config")).default;
     const redirects = await (config as unknown as { redirects: () => Promise<Array<{ source: string; destination: string }>> }).redirects();
-    const to = (source: string) => redirects.find((entry) => entry.source === `/:locale${source}`)?.destination;
+    const to = (source: string) => redirects.find((entry) => entry.source.replace(/^\/:locale\([^)]*\)/, "/:locale") === `/:locale${source}`)?.destination;
     expect(to("/family/permissions")).toBe("/:locale/family");
     expect(to("/family/permission-requests")).toBe("/:locale/family#requests");
     expect(to("/family/invite")).toBe("/:locale/family/add?tab=invite");
@@ -191,7 +191,7 @@ describe("the old routes and the readers", () => {
     expect(parsePermissionRequests(pending)).toEqual([{ id: "req-1", name: "Omar Ali", permissions: ["reports"] }]);
     expect(parsePermissionRequests({ data: [{ member_name: "no id" }] })).toEqual([]);
     expect(parseCalendarEvents({ events: [{ id: "e1", title: "T", event_date: "2026-09-01" }] })).toEqual([{ id: "e1", title: "T", member: undefined, at: "2026-09-01" }]);
-    expect(parseMemberRecords(null)).toEqual({ gender: undefined, birthDate: undefined, bloodType: undefined, medicines: [], appointments: [], hasReports: false });
+    expect(parseMemberRecords(null)).toEqual({ gender: undefined, birthDate: undefined, bloodType: undefined, medicines: [], canSeeMeds: false, appointments: [], hasReports: false });
   });
 
   it("the family screens carry no raw colour, inline style or call entry", () => {

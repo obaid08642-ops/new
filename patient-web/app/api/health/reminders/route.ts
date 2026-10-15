@@ -16,6 +16,8 @@ const schema = z.object({
   chronic: z.boolean().optional().default(false),
   instructions_ar: z.string().max(2000).optional().default(""),
   active: z.boolean().optional(),
+  // journeys 67: a family caregiver writes a member's reminder (the server checks the family right)
+  for_member_id: z.string().trim().min(1).max(128).optional(),
 }).refine((v) => Boolean(v.medicine_name_ar || v.medicine_name_en), { message: "medicine_name_required" });
 
 export async function POST(request: Request) {

@@ -107,6 +107,6 @@
     "line": 79,
     "found": "[client] The app's order center also lists insurance claims and pharmacy returns; the web list has the five services of issue 378 only (claims and returns have their own pages). Needs an owner decision to merge them.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "owner-decision (question 31 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2)"
   }
 ]

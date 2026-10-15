@@ -15,6 +15,8 @@
 export const CLIENT_NAMESPACES = [
   "CoreShell",
   "HomeWeb",
+  // the offline banner in the locale layout (P15.4)
+  "Network",
   "NotificationSettings",
   "RouteState",
   "Search",
@@ -43,6 +45,7 @@ export function pickClientMessages<T extends Record<string, unknown>>(messages: 
  * when a listed section has no layout that provides its list.
  */
 export const ROUTE_GROUP_NAMESPACES: Record<string, readonly string[]> = {
+  "home-care": ["NursingWeb"],
   ai: ["AiHealthReport", "AssistantWeb", "Emergency", "RxUpload"],
   appointments: ["ConsultClient"],
   articles: ["Articles", "PharmacyBrowse"],
@@ -52,7 +55,7 @@ export const ROUTE_GROUP_NAMESPACES: Record<string, readonly string[]> = {
   consultations: ["BookConsultation", "Doctors", "ShareReport", "SpecialtyNames"],
   diagnostics: ["DiagWeb"],
   emergency: ["Emergency"],
-  family: ["FamilyWeb"],
+  family: ["CameraScan", "FamilyWeb", "HealthWeb"],
   "forgot-password": ["ForgotPassword"],
   health: ["HealthWeb"],
   insurance: ["InsuranceWeb"],
@@ -65,13 +68,12 @@ export const ROUTE_GROUP_NAMESPACES: Record<string, readonly string[]> = {
   nursing: ["NursingWeb"],
   nutrition: ["LogForms", "NutritionWeb"],
   offers: ["OffersWeb"],
-  onboarding: ["Onboarding"],
   orders: ["OrderTracking", "Orders", "PharmacyOffers"],
   otp: ["Otp"],
   p: ["PharmacyBrowse", "PublicProduct"],
   "password-reset": ["PasswordReset"],
   payments: ["Payments"],
-  pharmacy: ["CartScreen", "OrderReorder", "PharmacyAddress", "PharmacyBarcode", "PharmacyBrowse", "PharmacyChat", "PharmacyCheckout", "PharmacyFlow", "PharmacyOffers", "PharmacyRequest", "Prescriptions", "RxUpload"],
+  pharmacy: ["CameraScan", "CartScreen", "OrderReorder", "PharmacyAddress", "PharmacyBarcode", "PharmacyBrowse", "PharmacyChat", "PharmacyCheckout", "PharmacyFlow", "PharmacyOffers", "PharmacyRequest", "Prescriptions", "RxUpload"],
   profile: ["AccountWeb", "Addresses", "DeliveryAddressSelect"],
   programs: ["ProgramsWeb"],
   q: ["Doctors", "PharmacyBrowse", "PublicProduct"],
@@ -79,7 +81,7 @@ export const ROUTE_GROUP_NAMESPACES: Record<string, readonly string[]> = {
   reports: ["HealthWeb"],
   returns: ["ReturnsWeb"],
   search: ["SpecialtyNames"],
-  settings: ["SettingsWeb"],
+  settings: ["AgentConsent", "SettingsWeb"],
   support: ["SupportChatWeb"],
   welcome: ["Welcome"],
 };

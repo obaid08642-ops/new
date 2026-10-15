@@ -41,7 +41,7 @@
     "line": 0,
     "found": "The seeded patient has no notifications, reminders, mood entries or appointments, so the runtime check only shows these lists in their empty state (all 2xx). The populated rendering with real rows was not verified at runtime.",
     "suspect": "The reviewer's seed should add at least one notification, reminder and appointment for the test patient so populated states can be checked.",
-    "review_status": "open (issue #424)"
+    "review_status": "fixed #1524 (issue #424)"
   },
   {
     "batch": 0,
@@ -85,6 +85,6 @@
     "line": 226,
     "found": "The import rule (P12.C2) and its baseline exist on fix/audit-2026-09 only; main has neither. patient-app AuthKit no longer imports @expo/vector-icons (BrandMark in packages/ui-native), and running the rule from fix/audit against this branch reports AuthKit as clean and `--update` removes its baseline line (226) and its `exceptions` entry (230).",
     "suspect": "When fix/audit-2026-09 reaches main, run `node tools/design/import-rule.mjs --update`; it lowers the baseline from 224 to 223 files and drops the exception. I did not copy the rule onto this branch, to avoid an add/add conflict with the reviewer's copy.",
-    "review_status": "open (issue #428)"
+    "review_status": "not-a-problem: the import rule (P12.C2) and its baseline live on fix/audit-2026-09 and arrive with it; nothing to change on main (issue #428)"
   }
 ]

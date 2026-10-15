@@ -1,4 +1,5 @@
-import { BadRequestException, Injectable, NotFoundException, Inject } from '@nestjs/common';
+import { StorageService } from '../storage/storage.module';
+import { BadRequestException, Injectable, NotFoundException, Inject, Optional } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
 import { User, UserDocument } from '../../schemas/user.schema';
@@ -39,6 +40,7 @@ export class CareService {
     @Inject('UserRepository') private userModel: UserRepository,
     @Inject('FacilityRepository') private facilityModel: FacilityRepository,
     private slots: SlotService,
+    @Optional() private readonly storage?: StorageService,
   ) {}
 
   /** ===== Specialties — merge master registry with live counts ===== */
@@ -396,8 +398,8 @@ export class CareService {
       date: r.createdAt || null,
     }));
 
-    // Real photos only (empty when the provider published none)
-    obj.clinicPhotos = Array.isArray(obj.clinic_images) ? obj.clinic_images : [];
+    // Real photos only (empty when the provider published none): toPublicDoctor already gives clinicPhotos as public
+    // addresses; the raw clinic_images (private file ids) are not part of the public model
 
     // Similar doctors — real fields only, no fabricated rating/price fallbacks
     const similar = await this.providerModel.find({ type: ProviderType.DOCTOR, ...PUBLIC_PROVIDER_FILTER, specialty: obj.specialty, id: { $ne: obj.id } }, { _id: 0, __v: 0 }).limit(3);
@@ -463,6 +465,21 @@ export class CareService {
   }
 
   /** Public discovery must return an allowlisted card/detail model, never raw provider records. */
+  /** A doctor's image as a public address: an http(s) URL as it is, a stored file through GET /care/doctors/:id/media/:mediaId. */
+  private publicMediaUrl(doctorId: string, media: string): string {
+    return /^https?:\/\//i.test(String(media)) ? media : `/api/v1/care/doctors/${encodeURIComponent(doctorId)}/media/${encodeURIComponent(media)}`;
+  }
+
+  /** The image behind a doctor's public media address, only for a public doctor and only one of that doctor's own images. */
+  async doctorMedia(id: string, mediaId: string) {
+    const doc: any = await this.providerModel.findOne({ id, type: ProviderType.DOCTOR, ...PUBLIC_PROVIDER_FILTER }, { _id: 0, profile_photo: 1, clinic_images: 1 }).lean();
+    const own = [doc?.profile_photo, ...(Array.isArray(doc?.clinic_images) ? doc.clinic_images : [])].filter(Boolean).map(String);
+    if (!doc || !own.includes(mediaId) || !this.storage) throw new NotFoundException('media_not_found');
+    const image = await this.storage.publicProfileImage(mediaId);
+    if (!image) throw new NotFoundException('media_not_found');
+    return image;
+  }
+
   private toPublicDoctor(raw: any, nextAvailableAt: string | null = null, distanceKm?: number) {
     const d = raw?.toObject ? raw.toObject() : raw;
     const publicDoctor: any = {
@@ -492,7 +509,10 @@ export class CareService {
       insurance_online: Boolean(d.insurance_online),
       insurance_home: Boolean(d.insurance_home),
       accepted_insurance: Array.isArray(d.accepted_insurance) ? d.accepted_insurance : [],
-      clinicPhotos: Array.isArray(d.clinic_images) ? d.clinic_images : [],
+      // 2-web#3 / 2-app#13: the photo and clinic photos as addresses anyone can open (a stored file goes through the public
+      // media route of this doctor; an http(s) address is kept as it is)
+      photo_url: d.profile_photo ? this.publicMediaUrl(d.id, d.profile_photo) : null,
+      clinicPhotos: (Array.isArray(d.clinic_images) ? d.clinic_images : []).map((m: string) => this.publicMediaUrl(d.id, m)),
       // Q-20 / D-17: verified only when the admin approved the doctor AND the licence was verified; plus the SCFHS number.
       verified: d.medical_review_status === 'approved' && d.license_verified === true,
       scfhs_license_no: d.scfhs_license_number || null,
