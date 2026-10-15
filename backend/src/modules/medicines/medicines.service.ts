@@ -184,12 +184,15 @@ export class MedicinesService {
     return out.slice(0, 2);
   }
 
-  /** Public catalog gate. Missing governance metadata is intentionally hidden. */
+  /**
+   * Public catalog gate. Missing governance metadata is intentionally hidden. Same rule as the public product pages
+   * (seo.service publicQuery): approved and public. indexing_eligibility only decides crawling (sitemaps, IndexNow);
+   * requiring it here hid every medicine the admin approves (approve() sets it false) from the app and search.
+   */
   private publicCatalogFilter() {
     return {
       is_deleted: { $ne: true },
       public_eligibility: true,
-      indexing_eligibility: true,
       medical_review_status: 'approved',
     };
   }
@@ -202,7 +205,8 @@ export class MedicinesService {
     if (!/^[a-z0-9_-]{1,80}$/i.test(normalizedCategory)) throw new BadRequestException('invalid_catalog_category');
     const dbLocale: DbLang = locale === 'fil' ? 'tl' : locale as DbLang;
     const rows: any[] = await this.model.find(
-      { ...this.publicCatalogFilter(), category: normalizedCategory },
+      // The static shards are crawlable pages: they also need indexing_eligibility.
+      { ...this.publicCatalogFilter(), indexing_eligibility: true, category: normalizedCategory },
       MedicinesService.CARD_PROJECTION,
     ).sort({ name_ar: 1, id: 1 }).maxTimeMS(5000).limit(500); // 14.15: bound worst-case latency
     return rows.map((row: any) => {
@@ -1105,7 +1109,7 @@ export class MedicinesService {
             { active_ingredient: med.active_ingredient, id: { $ne: id }, ...this.publicCatalogFilter() },
             // Needs-review issue 460: the alternative cards also need a picture, the pack and the name in every language.
             {
-              _id: 0, id: 1, name_ar: 1, name_en: 1, price: 1, manufacturer: 1, requires_prescription: 1,
+              _id: 0, id: 1, name_ar: 1, name_en: 1, price: 1, manufacturer: 1, requires_prescription: 1, online_exclusive: 1,
               image_1: 1, images: { $slice: 1 }, package_size: 1,
               ...Object.fromEntries((['ur', 'hi', 'bn', 'tl'] as const).map((lang) => [`translations.${lang}.name`, 1])),
             },
