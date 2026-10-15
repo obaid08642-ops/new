@@ -16,7 +16,7 @@ WEB = os.environ.get('NABD_WEB_JOURNEYS_URL', 'http://127.0.0.1:3100')
 
 def end_round_now(order_id):
     """TEST database only: the current round's end moves into the past, as if its minutes had passed."""
-    db = os.environ.get('DB_NAME', '')
+    db = os.environ.get('DB_NAME') or 'nabd_live'  # start-backend.sh's default: CI does not export DB_NAME
     past = (datetime.datetime.utcnow() - datetime.timedelta(minutes=1)).strftime('%Y-%m-%dT%H:%M:%SZ')
     js = f'db.getSiblingDB("{db}").pharmacy_broadcasts.updateOne({{order_id: "{order_id}"}}, {{$set: {{round_expires_at: new Date("{past}")}}}}).modifiedCount'
     out = subprocess.run(['docker', 'exec', 'mongo', 'mongosh', '--quiet', '--eval', js], capture_output=True, text=True, timeout=60)
