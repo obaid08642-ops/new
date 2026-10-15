@@ -34,11 +34,11 @@ export function PharmacyInsuranceQueueScreen({ onBack }: { onBack: () => void })
 
   const load = useCallback(async () => {
     try {
-      const [a, b] = await Promise.all([
-        client.get('/provider/pharmacy/allocations', { params: { status: 'PENDING_REVIEW' } }),
-        client.get('/provider/pharmacy/allocations', { params: { status: 'PARTIALLY_CONFIRMED' } }),
-      ]);
-      const allocs = [...(a.data || []), ...(b.data || [])];
+      // The list marks the rows that await this pharmacy's insurance decision (awaits_insurance_decision). The old
+      // status filters asked for 'PENDING_REVIEW' / 'PARTIALLY_CONFIRMED', but the stored states are lower case, so
+      // this queue was always empty.
+      const list = await client.get('/provider/pharmacy/allocations');
+      const allocs = (Array.isArray(list.data) ? list.data : []).filter((x: { awaits_insurance_decision?: boolean }) => x.awaits_insurance_decision === true);
       const details = await Promise.all(
         allocs.map((x: any) =>
           client.get(`/provider/pharmacy/allocations/${x.id}`)
