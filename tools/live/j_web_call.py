@@ -252,8 +252,9 @@ def main():
         tok = doctor.get(f'/unified-bookings/{aid}/call-token')
         step('doctor: the backend issues the booking call token (window open)', tok.ok and tok.get('provider') == 'livekit' and tok.get('token'), tok)
         page.goto(f'{WEB}/ar/consultations/virtual-waiting-room?appointmentId={aid}', wait_until='load', timeout=60000)
+        # while the page streams in, React briefly holds a hidden copy of the section; wait for the settled page
+        page.wait_for_function('() => document.querySelectorAll(\'section[aria-labelledby="call-token-title"]\').length === 1', timeout=30000)
         launcher = page.locator('section[aria-labelledby="call-token-title"]')
-        launcher.wait_for(timeout=30000)
         step('waiting room: the visit is joinable (the "join" card shows)', launcher.count() == 1, page.url)
         launcher.locator('button').first.click()
         page.wait_for_selector('section[aria-labelledby="call-token-title"] a[href*="/consultations/video-call?appointmentId="]', timeout=30000)
