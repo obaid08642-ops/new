@@ -189,6 +189,22 @@ export class AuthService {
     } catch { /* same contract as signToken: store failure never breaks the response */ }
   }
 
+  /** Issue 440: revoke the one refresh session a signed-out token belongs to. A token that does not verify revokes nothing. */
+  async revokeRefreshSession(refreshToken: string): Promise<boolean> {
+    let payload: any;
+    try {
+      payload = this.jwt.verify(refreshToken);
+    } catch {
+      return false;
+    }
+    if (payload?.type !== 'refresh' || !payload.jti) return false;
+    const client = (this.redisService as any).getClient?.();
+    if (!client) return false;
+    const removed = await client.del(`refresh:${payload.jti}`).catch(() => 0);
+    if (payload.sub) await client.srem(`refresh_user:${payload.sub}`, payload.jti).catch(() => 0);
+    return removed > 0;
+  }
+
   async logoutAllDevices(userId: string) {
     // Real revocation: kill every refresh session for this user
     await this.revokeAllUserSessions(userId).catch(() => {});

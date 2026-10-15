@@ -129,7 +129,7 @@
     "line": 277,
     "found": "FIXED in batch-0-fixes: a sign-out button is in the signed-in Home and core shells (wide top bars; on a phone the Home top bar has it, and the core screens are one tap from Home). STILL OPEN in the backend: POST /auth/logout (auth.controller.ts:277-286) only clears an admin cookie and does not revoke the refresh session; the web BFF clears its own cookies.",
     "suspect": "LEFT, backend change: revoke the patient refresh session on logout so a copied refresh token stops working.",
-    "review_status": "open (issue #440)"
+    "review_status": "fixed #1466"
   },
   {
     "batch": 0,
