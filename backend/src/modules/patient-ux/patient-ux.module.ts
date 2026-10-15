@@ -1,4 +1,4 @@
-import { Module, Injectable, Controller, Get, Post, Param, Body, UseGuards, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Module, Injectable, Controller, Get, Post, Param, Body, UseGuards, BadRequestException, NotFoundException, ForbiddenException, GoneException } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -14,9 +14,10 @@ import { JwtAuthGuard, CurrentUser, Roles, SelfService } from '../../common/auth
 /** 765: review aspect codes — the only aspect values ever stored. */
 export const ASPECT_CODES = ['accuracy', 'clarity', 'care', 'speed'];
 import { UserRole } from '../../common/enums';
+import { Permission, RequirePermissions } from '../../common/permissions';
 import { EventsModule } from '../events/events.module';
 import { EventBusService } from '../events/event-bus.service';
-import { RateDto, RefundDto, RebookDto, DecideDto, CancelDto, TransitionDto, MarkPaymentDto} from './patient-ux.dto';
+import { RateDto, RebookDto, CancelDto, TransitionDto } from './patient-ux.dto';
 
 /** Reviews + Refund Requests + Rebook */
 @Injectable()
@@ -175,7 +176,9 @@ export class PatientUxService {
 export class PatientUxController {
   constructor(private svc: PatientUxService) {}
   @Post('review') rate(@CurrentUser() u: any, @Body() b: RateDto) { return this.svc.rate(u, b); }
-  @Post('refund') refund(@CurrentUser() u: any, @Body() b: RefundDto) { return this.svc.requestRefund(u, b); }
+  // One refund path (owner decision 952): a refund is the cancellation of a booking (decision 26) or a return, both of
+  // which refund through Moyasar. This queue only set payment_status 'refunded' with no money moved; no client used it.
+  @Post('refund') refundDisabled(): never { throw new GoneException('refund_request_disabled_use_cancel_or_return'); }
   @Get('refund/mine') refunds(@CurrentUser() u: any) { return this.svc.myRefunds(u); }
   @Post('rebook') rebook(@CurrentUser() u: any, @Body() b: RebookDto) { return this.svc.rebook(u, b); }
 }
@@ -188,9 +191,8 @@ export class AdminRefundsController {
   constructor(private svc: PatientUxService) {}
   @Get() list() { return this.svc.adminListRefunds(); }
   @Get('pending') pending() { return this.svc.adminListRefunds('requested'); }
-  @Post(':id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() body: DecideDto) {
-    return this.svc.adminDecideRefund(u, id, body.decision, body.note, body.amount);
-  }
+  // Approving marked the booking 'refunded' without a Moyasar refund (one refund path, owner decision 952).
+  @Post(':id/decide') decideDisabled(): never { throw new GoneException('refund_decision_disabled_use_order_or_returns_page'); }
 }
 
 /**
@@ -303,19 +305,23 @@ export class AdminOverrideService {
 export class AdminOverrideController {
   constructor(private svc: AdminOverrideService) {}
   /** Force-cancel any order/booking. */
+  @RequirePermissions(Permission.ORDER_CANCEL)
   @Post('cancel') cancel(@CurrentUser() u: any, @Body() body: CancelDto) {
     if (!body?.reason) throw new BadRequestException('reason_required');
     return this.svc.forceCancel(u, body.kind, body.id, body.reason);
   }
   /** Force any order/booking to a specific state (e.g., COMPLETED, DELIVERED). */
+  @RequirePermissions(Permission.ORDER_REASSIGN)
   @Post('transition') transition(@CurrentUser() u: any, @Body() body: TransitionDto) {
     if (!body?.reason || !body?.state) throw new BadRequestException('reason_and_state_required');
     return this.svc.forceTransition(u, body.kind, body.id, body.state, body.reason);
   }
-  /** Manually mark a payment as paid / refunded / failed. */
-  @Post('payment') markPayment(@CurrentUser() u: any, @Body() body: MarkPaymentDto) {
-    if (!body?.reason || !body?.payment_status) throw new BadRequestException('reason_and_status_required');
-    return this.svc.markPayment(u, body.kind, body.id, body.payment_status, body.reason, body.amount);
+  /**
+   * Marked a booking paid, refunded or failed by hand: "paid" with no Moyasar payment, "refunded" with no refund.
+   * The patient pays only through Moyasar and refunds have one path (owner decision 952), so this is gone.
+   */
+  @Post('payment') markPaymentDisabled(): never {
+    throw new GoneException('manual_payment_status_disabled_moyasar_only');
   }
 }
 

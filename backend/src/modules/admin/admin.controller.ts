@@ -15,7 +15,7 @@ import { Permission, RequirePermissions } from '../../common/permissions';
 /** Provider roles an admin may create accounts for (never staff/admin roles). */
 const PROVIDER_CREATABLE_ROLES = [
   UserRole.DOCTOR, UserRole.PHARMACY, UserRole.HOSPITAL, UserRole.LAB,
-  UserRole.RADIOLOGY, UserRole.NURSING, UserRole.HOME_CARE, UserRole.AMBULANCE,
+  UserRole.RADIOLOGY, UserRole.NURSING, UserRole.HOME_CARE,
   UserRole.PHYSIOTHERAPIST,
 ];
 
@@ -27,7 +27,6 @@ export class AdminController {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     @InjectModel(ProviderDelta.name) private readonly deltaModel: Model<any>,
     @InjectModel('Appointment') private readonly appointmentModel: Model<any>,
-    @InjectModel('EmergencyRequest') private readonly emergencyModel: Model<any>,
     @InjectConnection() private readonly connection: Connection,
     @Optional() private readonly events?: EventEmitter2,
   ) {}
@@ -136,8 +135,8 @@ export class AdminController {
 
   /**
    * User 360° profile — everything that happened on this account:
-   * identity/status, registered devices, request history (appointments,
-   * SOS), provider profile-change audit (deltas). All live DB reads.
+   * identity/status, registered devices, request history (appointments),
+   * provider profile-change audit (deltas). All live DB reads.
    */
   @Get('users/:userId/overview')
   async userOverview(@Param('userId') userId: string, @Query('days') daysQ?: string): Promise<any> {
@@ -163,7 +162,7 @@ export class AdminController {
     const providerAccountId = providerProfile?.account_id || null;
 
     const apptScope = periodFilter(isProvider ? { $or: [asPatient, asProvider] } : asPatient);
-    const [apptCount, apptByStatus, recentAppts, sosCount, recentSos, deltas, providerRequests, providerReqByStatus, family] = await Promise.all([
+    const [apptCount, apptByStatus, recentAppts, deltas, providerRequests, providerReqByStatus, family] = await Promise.all([
       this.appointmentModel.countDocuments(apptScope),
       this.appointmentModel.aggregate([
         { $match: apptScope },
@@ -173,10 +172,6 @@ export class AdminController {
         .find(apptScope,
           { id: 1, type: 1, status: 1, state: 1, slot_start: 1, createdAt: 1, price: 1, fee: 1 })
         .sort({ createdAt: -1 }).limit(20).lean(),
-      this.emergencyModel.countDocuments({ patient_id: user.id }),
-      this.emergencyModel
-        .find({ patient_id: user.id }, { id: 1, state: 1, location: 1, createdAt: 1 })
-        .sort({ createdAt: -1 }).limit(10).lean(),
       this.deltaModel
         .find({ providerId: user._id })
         .sort({ createdAt: -1 }).limit(10).lean(),
@@ -217,9 +212,7 @@ export class AdminController {
         period_days: days,
         appointments_total: apptCount,
         appointments_by_status: Object.fromEntries((apptByStatus as any[]).map((r) => [String(r._id || 'unknown'), r.n])),
-        sos_total: sosCount,
         recent_appointments: recentAppts,
-        recent_sos: recentSos,
         provider_requests_total: (providerRequests as any[]).length,
         provider_requests_by_status: Object.fromEntries((providerReqByStatus as any[]).map((r) => [String(r._id || 'unknown'), r.n])),
         recent_provider_requests: providerRequests,
@@ -422,6 +415,7 @@ export class AdminController {
    * documents, and stays INVISIBLE to patients until admin approval
    * (verified=true via /admin/approve/:userId or the moderation page).
    */
+  @RequirePermissions(Permission.FACILITY_CREATE)
   @Post('providers/create')
   async createProvider(@CurrentUser() by: any, @Body() body: CreateProviderDto) {
     const role = body?.role as UserRole;
@@ -517,6 +511,8 @@ export class AdminController {
    * Irreversible — the admin UI requires an explicit typed confirmation.
    */
   @StepUp()
+  // Irreversible erasure of an account and its records: user.edit (like ban/unban) and gdpr.manage (erasure).
+  @RequirePermissions(Permission.USER_EDIT, Permission.GDPR_MANAGE)
   @Delete('users/:userId')
   async deleteUser(@Param('userId') userId: string, @CurrentUser() by?: any) {
     // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
@@ -576,6 +572,7 @@ export class AdminController {
    * suspended owners still publicly visible. Dry-run by default.
    */
   @StepUp()
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post('users/cleanup-orphans')
   async cleanupOrphans(@Body() body: CleanupOrphansDto) {
     const dryRun = body?.dry_run !== false;
@@ -602,6 +599,7 @@ export class AdminController {
    * Manually approve a Doctor or Pharmacy (ensures 'verified: boolean' blocks booking until Admin approves).
    */
   @StepUp()
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post('approve/:userId')
   async approveProvider(@Param('userId') userId: string, @CurrentUser() by?: any) {
     // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).
@@ -619,6 +617,7 @@ export class AdminController {
   }
 
   @StepUp()
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post('suspend/:userId')
   async suspendProvider(@Param('userId') userId: string, @CurrentUser() by?: any) {
     // Users are addressed by uuid `id`; fall back to legacy Mongo `_id` (never throws).

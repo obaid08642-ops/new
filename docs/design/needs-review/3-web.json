@@ -30,7 +30,7 @@
     "line": 26,
     "found": "[client] nursing/catalog's Book button now opens a window that says nothing was booked and links to /nursing (the old fake confirmation is gone); a real booking from the catalogue and the screen's own literals are Batch 4's",
     "suspect": "Client-side: later batch.",
-    "review_status": "open (issue #634)"
+    "review_status": "fixed e1b410c37 (verified on main: patient-web/app/[locale]/nursing/catalog/page.tsx:80 links each service to /home-care/services/:id and its booking; the modal is used by no page) (issue #634)"
   },
   {
     "batch": 3,
@@ -74,7 +74,7 @@
     "line": 56,
     "found": "[owner] the board's live map needs a collector position the tracking API does not send",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #638)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision B7), main already complies: technician-tracking redirects to sample-tracking, which shows the status steps and no map (issue #638)"
   },
   {
     "batch": 3,

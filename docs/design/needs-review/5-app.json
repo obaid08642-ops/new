@@ -96,7 +96,7 @@
     "line": 6,
     "found": "[owner] The old Health ID put the national id in its QR; it now redirects to /reports/passport (token QR). Confirm.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #663)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision B10), main already complies: health/health-id.tsx redirects to /reports/passport (token QR, never the national id) (issue #663)"
   },
   {
     "batch": 5,
@@ -118,7 +118,7 @@
     "line": 313,
     "found": "[client] FIXED on design/sos-removal: the SOS is removed (decision 14) and the family note now only says these are the people to call in an emergency.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "not-a-problem: removed by decision 14, ProfileView.tsx:313-314 shows only the family note (c529711d0)"
   },
   {
     "batch": 5,
@@ -129,7 +129,7 @@
     "line": 7,
     "found": "[owner] Manual vitals entry duplicated the Add reading sheet and nothing linked to it: redirected to /health/vitals.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #666)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision B11), main already complies: wearables/hub.tsx redirects to /health/vitals (issue #666)"
   },
   {
     "batch": 5,
@@ -162,7 +162,7 @@
     "line": 120,
     "found": "[owner] Four educational tips are static text (translated): confirm they stay.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #669)"
+    "review_status": "fixed #1471 (issue #669)"
   },
   {
     "batch": 5,

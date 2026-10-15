@@ -21,6 +21,8 @@ export type GridProduct = {
   strength: string | null;
   packageSize: string | null;
   rx: boolean;
+  /** `online_exclusive` from the answer (decision 11): kept on the cart line so the cart can say "online only". */
+  onlineOnly?: boolean;
   /** Shown on the card instead of the percentage, when the page has its own reason (a cheaper alternative). */
   badge?: string;
 };
@@ -67,6 +69,7 @@ export function ProductGrid({
                 imageSrc={item.image || undefined}
                 discountLabel={(item.rx ? undefined : item.badge) || (percent > 0 ? product("discount", { percent: formatNumber(locale, percent) }) : undefined)}
                 rxLabel={item.rx ? product("rxRequired") : undefined}
+                onlineLabel={item.onlineOnly === true ? product("onlineOnly") : undefined}
                 addLabel={t("addToCart", { name: item.name })}
                 href={`/${locale}/p/${encodeURIComponent(item.slug)}`}
                 linkAs={Link}
@@ -76,13 +79,15 @@ export function ProductGrid({
                     id: item.id,
                     name: item.name,
                     rx: item.rx,
+                    onlineOnly: item.onlineOnly === true ? true : undefined,
                     image: item.image,
                     slug: item.slug,
                     form: item.form,
                     strength: item.strength,
                     qty: 1,
                   });
-                  setAdded(t("addedToCart", { name: item.name }));
+                  // decision 10: an Rx item in the cart needs a prescription at checkout; the grid says so as the product page does
+                  setAdded(item.rx ? `${t("addedToCart", { name: item.name })} ${t("addedRxNote")}` : t("addedToCart", { name: item.name }));
                 }}
               />
             </li>

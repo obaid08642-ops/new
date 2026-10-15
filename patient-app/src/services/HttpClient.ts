@@ -1,11 +1,9 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
-// M1-ENV: backend URL is now environment-driven (dev/staging/prod) instead of hardcoded.
-// Set EXPO_PUBLIC_API_URL in .env — e.g. http://192.168.1.10:8002 for a local backend.
-export const RESOLVED_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL
-    ? `${process.env.EXPO_PUBLIC_API_URL.replace(/\/$/, '')}/api/v1`
-    : 'https://api.nabd.plus/api/v1';
+import { config } from '../core/config';
+
+// Issue 410: the same base URL as the fetch client (ConfigManager's single rule), never a second resolution here.
+export const RESOLVED_BASE_URL = config.apiBaseUrl;
 
 export const HttpClient = axios.create({
   baseURL: RESOLVED_BASE_URL,

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { apiFetch } from '../../utils/api';
 import { dateLocale } from '../../utils/dates';
 import { DataTable, type LooseRow } from '@/components/DataTable';
+import { useCan } from '@/components/AdminGuard';
 
 const SEGMENTS = [  { value: 'all', label: 'جميع المستخدمين' },
   { value: 'patients', label: 'المرضى فقط' },
@@ -12,11 +13,12 @@ const SEGMENTS = [  { value: 'all', label: 'جميع المستخدمين' },
   { value: 'role:radiology', label: 'مراكز الأشعة' },
   { value: 'role:nurse', label: 'التمريض' },
   { value: 'role:hospital', label: 'المستشفيات والعيادات' },
-  { value: 'role:ambulance', label: 'الإسعاف' },
   { value: 'role:driver', label: 'السائقون' },
 ];
 
 export default function NotificationCenterPage() {
+  // The e-mail usage card reads analytics-suite/email-usage, which needs analytics.read.
+  const canAnalytics = useCan('analytics.read');
   const [stats, setStats] = useState<any>(null);
   const [emailUsage, setEmailUsage] = useState<any>(null);
   const [segmentCounts, setSegmentCounts] = useState<any>(null);
@@ -92,7 +94,7 @@ export default function NotificationCenterPage() {
         apiFetch('/api/admin/admin/notification-center/stats/overview').catch(() => null),
         apiFetch('/api/admin/admin/notification-center/segments').catch(() => null),
         apiFetch(`/api/admin/admin/notification-center/campaigns?page=${page}&limit=15`).catch(() => ({ data: [] })),
-        apiFetch('/api/admin/admin/analytics-suite/email-usage').catch(() => null),
+        canAnalytics ? apiFetch('/api/admin/admin/analytics-suite/email-usage').catch(() => null) : Promise.resolve(null),
       ]);
       setStats(s);
       setEmailUsage(eu);

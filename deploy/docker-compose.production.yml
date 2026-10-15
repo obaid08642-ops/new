@@ -254,7 +254,7 @@ services:
 
   # ── Nginx reverse proxy (TLS termination + routing + caching) ─────
   nginx:
-    image: nginx:1.27-alpine
+    image: nginx:1.28.0-alpine   # pinned: upstream `resolve` (deploy/nginx/nginx.conf) needs >= 1.27.3
     container_name: nabdah-nginx
     restart: unless-stopped
     ports:

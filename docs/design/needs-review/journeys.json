@@ -33,7 +33,7 @@
     "kind": "duplicate",
     "file": "patient-web/components-next/pharmacy-offers/waiting-actions.tsx",
     "line": 18,
-    "review_status": "open"
+    "review_status": "fixed #1254 (verified on main: waiting-actions.tsx:22 and the shared cancel-order.tsx)"
   },
   {
     "scenario": 1,
@@ -51,7 +51,7 @@
     "kind": "wrong-state",
     "file": "patient-web/components-next/pharmacy-offers/offer-list.tsx",
     "line": 104,
-    "review_status": "open"
+    "review_status": "fixed #1254 (verified on main: tracking-screen.tsx:92 Continue to the next step)"
   },
   {
     "scenario": 1,
@@ -69,7 +69,7 @@
     "kind": "duplicate",
     "file": "patient-web/components-next/pharmacy-offers/quote-section.tsx",
     "line": 86,
-    "review_status": "open (issue #1016)"
+    "review_status": "fixed #1476"
   },
   {
     "scenario": 1,
@@ -105,7 +105,7 @@
     "kind": "duplicate",
     "file": "patient-web/components-next/home/home-parts.tsx",
     "line": 162,
-    "review_status": "open (issue #1020)"
+    "review_status": "fixed before this session (verified on main: medicines/page.tsx and medicine-catalog/page.tsx permanently redirect to /c) (issue #1020)"
   },
   {
     "scenario": 1,
@@ -132,7 +132,7 @@
     "kind": "missing-field",
     "file": "patient-app/app/pharmacy/product-detail.tsx",
     "line": 505,
-    "review_status": "open"
+    "review_status": "fixed #1433"
   },
   {
     "scenario": 1,
@@ -204,7 +204,7 @@
     "kind": "other",
     "file": "patient-app/app/pharmacy/cart.tsx",
     "line": 75,
-    "review_status": "open (issue #1031)"
+    "review_status": "owner-decision (question 39 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2) (issue #1031)"
   },
   {
     "scenario": 2,
@@ -231,7 +231,7 @@
     "kind": "missing-step",
     "file": "patient-web/components-next/pharmacy/cart-screen.tsx",
     "line": 173,
-    "review_status": "open (issue #1034)"
+    "review_status": "fixed before this session (verified on main: cart-screen.tsx RxConsultLink \"استشر طبيب\" on an Rx cart) (issue #1034)"
   },
   {
     "scenario": 3,
@@ -303,7 +303,7 @@
     "kind": "wrong-state",
     "file": "patient-web/app/[locale]/appointments/[appointmentId]/summary/page.tsx",
     "line": 46,
-    "review_status": "open (issue #1042)"
+    "review_status": "fixed faa59e605 (verified on main: the summary redirects to the appointment page, appointments/[appointmentId]/summary/page.tsx:13, where \"order these medicines\" fills the cart, prescription-client.tsx:84-89) (issue #1042)"
   },
   {
     "scenario": 3,
@@ -312,7 +312,7 @@
     "kind": "wrong-state",
     "file": "patient-web/app/[locale]/prescriptions/[prescriptionId]/page.tsx",
     "line": 97,
-    "review_status": "open (issue #1043)"
+    "review_status": "owner-decision (question 39 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2: one prescription order flow) (issue #1043)"
   },
   {
     "scenario": 3,
@@ -339,7 +339,7 @@
     "kind": "dead-end",
     "file": "patient-web/app/[locale]/chat/[threadId]/page.tsx",
     "line": 57,
-    "review_status": "open (issue #1046)"
+    "review_status": "fixed #1455 (the thread shows message texts, B27; the composer is there once the visit is finished, decision 24; j_web_care checks both) (issue #1046)"
   },
   {
     "scenario": 3,
@@ -348,7 +348,7 @@
     "kind": "dead-end",
     "file": "patient-web/app/[locale]/chat/page.tsx",
     "line": 43,
-    "review_status": "open (issue #1047)"
+    "review_status": "fixed #1458"
   },
   {
     "scenario": 3,
@@ -357,7 +357,7 @@
     "kind": "other",
     "file": "patient-web/app/[locale]/consultations/chat/page.tsx",
     "line": 22,
-    "review_status": "open (issue #1048)"
+    "review_status": "fixed #1458"
   },
   {
     "scenario": 3,
@@ -375,7 +375,7 @@
     "kind": "missing-field",
     "file": "patient-app/app/consultations/chat-with-doctor.tsx",
     "line": 161,
-    "review_status": "open (issue #1050)"
+    "review_status": "fixed 276c859b9 (verified on main: app chat-with-doctor.tsx has voice notes :66-67, image and file attachments :234, the 997 line :377-382 and the follow-up banner and booking) (issue #1050)"
   },
   {
     "scenario": 4,
@@ -384,7 +384,7 @@
     "kind": "duplicate",
     "file": "patient-web/app/[locale]/appointments/page.tsx",
     "line": 70,
-    "review_status": "open (issue #1051)"
+    "review_status": "fixed #1476"
   },
   {
     "scenario": 4,
@@ -420,7 +420,7 @@
     "kind": "wrong-state",
     "file": "patient-web/components-next/pharmacy-checkout/payment-result.tsx",
     "line": 173,
-    "review_status": "open (issue #1055)"
+    "review_status": "fixed #1467"
   },
   {
     "scenario": 4,
@@ -438,7 +438,7 @@
     "kind": "missing-step",
     "file": "patient-web/app/[locale]/appointments/[appointmentId]/page.tsx",
     "line": 89,
-    "review_status": "open (issue #1057)"
+    "review_status": "fixed faa59e605 (verified on main: the appointment page has the visit's prescription with ordering :163-164, the doctor chat :136 and follow-up booking :157) (issue #1057)"
   },
   {
     "scenario": 5,
@@ -447,7 +447,7 @@
     "kind": "dead-end",
     "file": "patient-web/app/[locale]/diagnostics/labs/book/page.tsx",
     "line": 38,
-    "review_status": "open (issue #1058)"
+    "review_status": "fixed #1470"
   },
   {
     "scenario": 5,
@@ -456,7 +456,7 @@
     "kind": "duplicate",
     "file": "patient-web/app/[locale]/diagnostics/packages/[packageId]/page.tsx",
     "line": 82,
-    "review_status": "open (issue #1059)"
+    "review_status": "fixed #1470"
   },
   {
     "scenario": 5,
@@ -492,7 +492,7 @@
     "kind": "missing-step",
     "file": "patient-web/app/[locale]/diagnostics/bookings/[domain]/[bookingId]/page.tsx",
     "line": 66,
-    "review_status": "open (issue #1063)"
+    "review_status": "fixed #1470"
   },
   {
     "scenario": 5,
@@ -519,7 +519,7 @@
     "kind": "missing-step",
     "file": "patient-app/app/diagnostics/order/[id].tsx",
     "line": 165,
-    "review_status": "open (issue #1066)"
+    "review_status": "fixed #1480"
   },
   {
     "scenario": 5,
@@ -537,7 +537,7 @@
     "kind": "wrong-state",
     "file": "patient-app/app/diagnostics/upload-rx.tsx",
     "line": 6,
-    "review_status": "open (issue #1068)"
+    "review_status": "fixed #1470"
   },
   {
     "scenario": 6,
@@ -546,7 +546,7 @@
     "kind": "dead-end",
     "file": "patient-web/app/[locale]/home-care/services/[serviceId]/page.tsx",
     "line": 38,
-    "review_status": "open (issue #1069)"
+    "review_status": "fixed #1478"
   },
   {
     "scenario": 6,
@@ -573,7 +573,7 @@
     "kind": "duplicate",
     "file": "patient-web/app/[locale]/nursing/catalog/page.tsx",
     "line": 68,
-    "review_status": "open (issue #1072)"
+    "review_status": "fixed #1478"
   },
   {
     "scenario": 6,
@@ -645,7 +645,7 @@
     "kind": "dead-end",
     "file": "patient-web/app/[locale]/c/[[...category]]/page.tsx",
     "line": 124,
-    "review_status": "open (issue #1080)"
+    "review_status": "fixed #1433 (issue #1080)"
   },
   {
     "scenario": 8,
@@ -654,7 +654,7 @@
     "kind": "missing-step",
     "file": "patient-web/components-next/pharmacy/cart-screen.tsx",
     "line": 93,
-    "review_status": "open (issue #1081)"
+    "review_status": "fixed #1433 (issue #1081)"
   },
   {
     "scenario": 8,
@@ -663,7 +663,7 @@
     "kind": "duplicate",
     "file": "patient-web/app/[locale]/pharmacy/custom-item/page.tsx",
     "line": 12,
-    "review_status": "open (issue #1082)"
+    "review_status": "not-a-problem: /pharmacy/custom-item, /manual-order and /drug-not-found are redirects to the one request form, kept so old links keep working (issue #1082)"
   },
   {
     "scenario": 8,
@@ -699,7 +699,7 @@
     "kind": "missing-state",
     "file": "patient-web/public/sw.js",
     "line": 45,
-    "review_status": "open (issue #1086)"
+    "review_status": "fixed #1507 (issue #1086)"
   },
   {
     "scenario": 9,
@@ -708,7 +708,7 @@
     "kind": "other",
     "file": "patient-web/components-next/pharmacy-checkout/payment-result.tsx",
     "line": 175,
-    "review_status": "open (issue #1087)"
+    "review_status": "fixed #1467"
   },
   {
     "scenario": 10,
@@ -753,7 +753,7 @@
     "kind": "other",
     "file": "patient-web/components-next/home/home-parts.tsx",
     "line": 170,
-    "review_status": "open (issue #1092)"
+    "review_status": "fixed #1458"
   },
   {
     "scenario": 10,
@@ -772,5 +772,14 @@
     "file": "patient-web/app/[locale]/emergency/sos-actions.tsx",
     "line": 78,
     "review_status": "fixed #1089 (issue #1094)"
+  },
+  {
+    "scenario": 1,
+    "step": "pharmacy confirms a card-paid order",
+    "problem": "/payments/verify answered paid before the pharmacy payment evidence was written (event not awaited), so a pharmacy confirming right after got payment_confirmation_required (CI live gate j_pharmacy on #1439).",
+    "kind": "backend",
+    "file": "backend/src/modules/payments/payments.module.ts",
+    "line": 416,
+    "review_status": "fixed #1441"
   }
 ]

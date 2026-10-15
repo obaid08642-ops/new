@@ -140,7 +140,7 @@
     "line": 78,
     "found": "Removed 2026-10-10 (owner decision): [owner] Medicines can be edited from medicines-catalog (full form), catalog-manager (tab 'medicines', broken methods) and catalog-governance (price only, reason always required). Same PATCH, three different validations and three nav entries; the mobile catalogue should be one screen. Merge map is the owner's call (decision 27).",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #949)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision A), main already complies: catalog-governance is gone; medicines are edited only in medicines-catalog (issue #949)"
   },
   {
     "batch": "admin-journeys",
@@ -162,7 +162,7 @@
     "line": 10,
     "found": "Fixed (the refund label now reads \"استرداد إلى وسيلة الدفع الأصلية\"; the compensation label was corrected the same way 2026-10-10, owner decision #952): [client] The refund action is labelled 'استرداد إلى المحفظة' (refund to wallet), but RefundExecutor refunds through Moyasar to the original payment method ('There is no patient-wallet branch anymore'), cash is a ledger record only. The action itself is sound: reason >=10 chars, amount <= refundable_max, confirm dialog, audit, payment status mirrored, patient notified. (backend: backend/src/modules/finance-engine/finance-engine.module.ts:538)",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "fixed #1229"
   },
   {
     "batch": "admin-journeys",
@@ -173,7 +173,7 @@
     "line": 52,
     "found": "Removed 2026-10-10 (owner decision): [owner] Refunds can start in: admin returns (approve executes the refund, returns.service.ts:380), the refund queue on insurance-queue (decide only), order console (execute at once), and unused routes with no UI: POST /admin/refunds/:id/decide (patient-ux), POST /payments/refund/:txn and POST /moyasar/payments/:id/refund. One refund journey and one status vocabulary are needed before the mobile approvals queue. (backend: backend/src/modules/patient-ux/patient-ux.module.ts:184, backend/src/modules/payments/payments.module.ts:596)",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #952)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision A, decision 952), main already complies: refunds only on the order and returns pages (issue #952)"
   },
   {
     "batch": "admin-journeys",

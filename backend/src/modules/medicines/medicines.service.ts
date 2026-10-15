@@ -16,7 +16,7 @@ import { RedisService } from '../redis/redis.service';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
 import { AutoEntitySeoPipelineService } from '../events/auto-entity-seo-pipeline.service';
 import { localizeMedicineStructured, DbLang, missingPublicMedicineTranslations, PUBLIC_CATALOG_LOCALES } from './med-i18n';
-import { ProductRankingService } from '../product-ranking/product-ranking.service';
+import { normalizeRankingSort, ProductRankingService } from '../product-ranking/product-ranking.service';
 import { ManualBoostsService } from '../product-ranking/manual-boosts.service';
 import { escapeRegex } from '../../common/slug.util';
 
@@ -128,12 +128,71 @@ export class MedicinesService {
     return clean.split('').join('.{0,2}'); // MongoDB-PCRE safe (no \p classes)
   }
 
-  /** Public catalog gate. Missing governance metadata is intentionally hidden. */
+  /**
+   * P13-R7: deterministic Arabic↔Latin query transliteration (recall booster,
+   * ranking still decides order). Latin brands typed on any layout also match
+   * their Arabic spelling and vice versa — beyond the static synonym list.
+   * Arabic omits short vowels, so the Arabic→Latin variant is a consonant
+   * skeleton joined by `[aeiou]*` (matches marham, mirham, …). Both variants
+   * are built from fixed alphabets only, so they carry no user metacharacters
+   * and are ReDoS-safe (linear: literals separated by a vowel class).
+   * Devanagari/Bengali-script transliteration is follow-up (see PR body).
+   */
+  private static readonly LATIN_TO_ARABIC: Array<[string, string]> = [
+    ['sh', 'ش'], ['th', 'ث'], ['kh', 'خ'], ['dh', 'ذ'], ['gh', 'غ'], ['ch', 'تش'],
+    ['a', 'ا'], ['b', 'ب'], ['c', 'س'], ['d', 'د'], ['e', 'ي'], ['f', 'ف'],
+    ['g', 'ج'], ['h', 'ه'], ['i', 'ي'], ['j', 'ج'], ['k', 'ك'], ['l', 'ل'],
+    ['m', 'م'], ['n', 'ن'], ['o', 'و'], ['p', 'ب'], ['q', 'ك'], ['r', 'ر'],
+    ['s', 'س'], ['t', 'ت'], ['u', 'و'], ['v', 'ف'], ['w', 'و'], ['x', 'كس'],
+    ['y', 'ي'], ['z', 'ز'],
+  ];
+
+  private static readonly ARABIC_TO_LATIN: Array<[string, string]> = [
+    ['ش', 'sh'], ['ث', 'th'], ['خ', 'kh'], ['ذ', 'dh'], ['غ', 'gh'],
+    ['ا', 'a'], ['ب', 'b'], ['ت', 't'], ['ج', 'j'], ['ح', 'h'],
+    ['د', 'd'], ['ر', 'r'], ['ز', 'z'], ['س', 's'], ['ص', 's'],
+    ['ض', 'd'], ['ط', 't'], ['ظ', 'z'], ['ع', 'a'], ['ف', 'f'],
+    ['ق', 'q'], ['ك', 'k'], ['ل', 'l'], ['م', 'm'], ['ن', 'n'],
+    ['ه', 'h'], ['و', 'o'], ['ي', 'i'], ['ى', 'a'], ['ة', 'a'],
+    ['ء', 'a'], ['ؤ', 'o'], ['ئ', 'e'], ['أ', 'a'], ['إ', 'a'], ['آ', 'a'],
+  ];
+
+  private applyTranslitMap(s: string, map: Array<[string, string]>): string {
+    let out = s;
+    for (const [from, to] of map) out = out.split(from).join(to);
+    return out;
+  }
+
+  /** Query variants from script transliteration (at most one per direction). */
+  transliterateQuery(term: string): Array<{ text: string; pattern?: string }> {
+    const out: Array<{ text: string; pattern?: string }> = [];
+    const lower = (term || '').toLowerCase().trim();
+    if (lower.length < 3) return out;
+    const hasArabic = /[؀-ۿ]/.test(lower);
+    const hasLatin = /[a-z]/.test(lower);
+    if (hasLatin && !hasArabic) {
+      const ar = this.applyTranslitMap(lower, MedicinesService.LATIN_TO_ARABIC);
+      if (ar && ar !== lower && /[؀-ۿ]/.test(ar)) out.push({ text: ar });
+    }
+    if (hasArabic) {
+      const skeleton = this.applyTranslitMap(lower, MedicinesService.ARABIC_TO_LATIN).replace(/[^a-z]/g, '');
+      if (skeleton && skeleton.length >= 3 && skeleton !== lower) {
+        // Vowel-tolerant: short vowels are unwritten in Arabic.
+        out.push({ text: skeleton, pattern: skeleton.split('').join('[aeiou]*') });
+      }
+    }
+    return out.slice(0, 2);
+  }
+
+  /**
+   * Public catalog gate. Missing governance metadata is intentionally hidden. Same rule as the public product pages
+   * (seo.service publicQuery): approved and public. indexing_eligibility only decides crawling (sitemaps, IndexNow);
+   * requiring it here hid every medicine the admin approves (approve() sets it false) from the app and search.
+   */
   private publicCatalogFilter() {
     return {
       is_deleted: { $ne: true },
       public_eligibility: true,
-      indexing_eligibility: true,
       medical_review_status: 'approved',
     };
   }
@@ -146,7 +205,8 @@ export class MedicinesService {
     if (!/^[a-z0-9_-]{1,80}$/i.test(normalizedCategory)) throw new BadRequestException('invalid_catalog_category');
     const dbLocale: DbLang = locale === 'fil' ? 'tl' : locale as DbLang;
     const rows: any[] = await this.model.find(
-      { ...this.publicCatalogFilter(), category: normalizedCategory },
+      // The static shards are crawlable pages: they also need indexing_eligibility.
+      { ...this.publicCatalogFilter(), indexing_eligibility: true, category: normalizedCategory },
       MedicinesService.CARD_PROJECTION,
     ).sort({ name_ar: 1, id: 1 }).maxTimeMS(5000).limit(500); // 14.15: bound worst-case latency
     return rows.map((row: any) => {
@@ -203,6 +263,27 @@ export class MedicinesService {
       }
       for (const syn of this.expandSynonyms(search).slice(0, 4)) {
         if (syn !== search) ors.push({ name_en: { $regex: esc(syn), $options: 'i' } }, { name_ar: { $regex: esc(syn), $options: 'i' } }, { search_text: { $regex: esc(this.normalizeSearchText(syn)), $options: 'i' } });
+      }
+      // P13-R7: script transliteration recall. `text` variants are escaped
+      // like synonyms; `pattern` variants are built from fixed alphabets only
+      // (letters + [aeiou]*), so they are used raw and stay ReDoS-safe.
+      const seen = new Set(ors.map((o: any) => JSON.stringify(o)));
+      for (const tr of this.transliterateQuery(search)) {
+        if (!tr.text || tr.text === search || tr.text === norm) continue;
+        if (tr.pattern) {
+          const conds = [
+            { name_en: { $regex: tr.pattern, $options: 'i' } },
+            { name_ar: { $regex: tr.pattern, $options: 'i' } },
+          ];
+          for (const c of conds) { const k = JSON.stringify(c); if (!seen.has(k)) { seen.add(k); ors.push(c); } }
+        } else {
+          const conds = [
+            { name_en: { $regex: esc(tr.text), $options: 'i' } },
+            { name_ar: { $regex: esc(tr.text), $options: 'i' } },
+            { search_text: { $regex: esc(this.normalizeSearchText(tr.text)), $options: 'i' } },
+          ];
+          for (const c of conds) { const k = JSON.stringify(c); if (!seen.has(k)) { seen.add(k); ors.push(c); } }
+        }
       }
       q.$or = ors;
     }
@@ -473,7 +554,8 @@ export class MedicinesService {
       const { drugIds } = await this.rankingService.getRankedDrugIds({
         pharmacyId,
         category: (category && category !== 'all') ? category : undefined,
-        sort: sort === 'trending' ? 'trending' : 'smart_ranking',
+        // P13-R9: every ranking mode is reachable from the storefront sort.
+        sort: normalizeRankingSort(sort),
         limit: cap,
       });
 
@@ -565,7 +647,8 @@ export class MedicinesService {
       const { drugIds, total } = await this.rankingService.getRankedDrugIds({
         pharmacyId,
         category: (category && category !== 'all') ? category : undefined,
-        sort: sort === 'trending' ? 'trending' : 'smart_ranking',
+        // P13-R9: every ranking mode is reachable from the storefront sort.
+        sort: normalizeRankingSort(sort),
         limit: safeLimit,
         offset,
       });
@@ -994,7 +1077,10 @@ export class MedicinesService {
 
   async compare(ids: string[]) {
     if (!ids || !ids.length) return [];
-    return this.model.find({ id: { $in: ids }, ...this.publicCatalogFilter() }, { _id: 0, __v: 0 }).lean();
+    // batch-1a-web#8: the medicines a public product page shows (published and approved), as the product page reads them;
+    // indexing_eligibility only decides search-engine indexing (approval sets it false); the public filter does not ask
+    // for it any more, so it is used as it is.
+    return this.model.find({ id: { $in: ids.slice(0, 4) }, ...this.publicCatalogFilter() }, { _id: 0, __v: 0 }).lean();
   }
 
   async getById(id: string) {
@@ -1026,7 +1112,7 @@ export class MedicinesService {
             { active_ingredient: med.active_ingredient, id: { $ne: id }, ...this.publicCatalogFilter() },
             // Needs-review issue 460: the alternative cards also need a picture, the pack and the name in every language.
             {
-              _id: 0, id: 1, name_ar: 1, name_en: 1, price: 1, manufacturer: 1, requires_prescription: 1,
+              _id: 0, id: 1, name_ar: 1, name_en: 1, price: 1, manufacturer: 1, requires_prescription: 1, online_exclusive: 1,
               image_1: 1, images: { $slice: 1 }, package_size: 1,
               ...Object.fromEntries((['ur', 'hi', 'bn', 'tl'] as const).map((lang) => [`translations.${lang}.name`, 1])),
             },

@@ -1,7 +1,7 @@
 {
  "backend": {
-  "adminRoutes": 320,
-  "uncalled": 173,
+  "adminRoutes": 331,
+  "uncalled": 179,
   "noGuard": [],
   "public": []
  },
@@ -72,9 +72,20 @@
    }
   },
   {
+   "m": "POST",
+   "p": "/auth/heartbeat",
+   "src": "backend/src/modules/auth/auth.controller.ts:261",
+   "guards": {
+    "public": false,
+    "roles": [],
+    "perms": [],
+    "useGuards": "JwtAuthGuard"
+   }
+  },
+  {
    "m": "GET",
    "p": "/medicines/admin/change-requests",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:216",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:238",
    "guards": {
     "public": false,
     "roles": [
@@ -87,7 +98,7 @@
   {
    "m": "GET",
    "p": "/medicines/admin/shortage-reports",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:131",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:153",
    "guards": {
     "public": false,
     "roles": [
@@ -102,7 +113,7 @@
   {
    "m": "GET",
    "p": "/medicines/admin/image-suggestions",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:179",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:201",
    "guards": {
     "public": false,
     "roles": [
@@ -115,7 +126,7 @@
   {
    "m": "GET",
    "p": "/labs/admin/catalog",
-   "src": "backend/src/modules/labs/labs.controller.ts:171",
+   "src": "backend/src/modules/labs/labs.controller.ts:175",
    "guards": {
     "public": false,
     "roles": [
@@ -128,7 +139,7 @@
   {
    "m": "GET",
    "p": "/radiology/admin/catalog",
-   "src": "backend/src/modules/radiology/radiology.controller.ts:190",
+   "src": "backend/src/modules/radiology/radiology.controller.ts:218",
    "guards": {
     "public": false,
     "roles": [
@@ -154,7 +165,7 @@
   {
    "m": "GET",
    "p": "/insurance/companies",
-   "src": "backend/src/modules/insurance-engine/insurance-engine.module.ts:696",
+   "src": "backend/src/modules/insurance-engine/insurance-engine.module.ts:854",
    "guards": {
     "public": false,
     "roles": [],
@@ -165,7 +176,7 @@
   {
    "m": "POST",
    "p": "/labs/admin/catalog",
-   "src": "backend/src/modules/labs/labs.controller.ts:175",
+   "src": "backend/src/modules/labs/labs.controller.ts:179",
    "guards": {
     "public": false,
     "roles": [
@@ -180,7 +191,7 @@
   {
    "m": "POST",
    "p": "/radiology/admin/catalog",
-   "src": "backend/src/modules/radiology/radiology.controller.ts:195",
+   "src": "backend/src/modules/radiology/radiology.controller.ts:223",
    "guards": {
     "public": false,
     "roles": [
@@ -210,7 +221,7 @@
   {
    "m": "PUT",
    "p": "/labs/admin/catalog/:param",
-   "src": "backend/src/modules/labs/labs.controller.ts:184",
+   "src": "backend/src/modules/labs/labs.controller.ts:188",
    "guards": {
     "public": false,
     "roles": [
@@ -225,7 +236,7 @@
   {
    "m": "PUT",
    "p": "/radiology/admin/catalog/:param",
-   "src": "backend/src/modules/radiology/radiology.controller.ts:203",
+   "src": "backend/src/modules/radiology/radiology.controller.ts:231",
    "guards": {
     "public": false,
     "roles": [
@@ -255,7 +266,7 @@
   {
    "m": "DELETE",
    "p": "/labs/admin/catalog/:param",
-   "src": "backend/src/modules/labs/labs.controller.ts:193",
+   "src": "backend/src/modules/labs/labs.controller.ts:197",
    "guards": {
     "public": false,
     "roles": [
@@ -270,7 +281,7 @@
   {
    "m": "DELETE",
    "p": "/radiology/admin/catalog/:param",
-   "src": "backend/src/modules/radiology/radiology.controller.ts:211",
+   "src": "backend/src/modules/radiology/radiology.controller.ts:239",
    "guards": {
     "public": false,
     "roles": [
@@ -300,7 +311,7 @@
   {
    "m": "POST",
    "p": "/labs/admin/catalog/:param/approve",
-   "src": "backend/src/modules/labs/labs.controller.ts:203",
+   "src": "backend/src/modules/labs/labs.controller.ts:207",
    "guards": {
     "public": false,
     "roles": [
@@ -315,7 +326,7 @@
   {
    "m": "POST",
    "p": "/radiology/admin/catalog/:param/approve",
-   "src": "backend/src/modules/radiology/radiology.controller.ts:220",
+   "src": "backend/src/modules/radiology/radiology.controller.ts:248",
    "guards": {
     "public": false,
     "roles": [
@@ -345,7 +356,7 @@
   {
    "m": "POST",
    "p": "/labs/admin/catalog/bulk-approve",
-   "src": "backend/src/modules/labs/labs.controller.ts:212",
+   "src": "backend/src/modules/labs/labs.controller.ts:216",
    "guards": {
     "public": false,
     "roles": [
@@ -360,7 +371,7 @@
   {
    "m": "POST",
    "p": "/radiology/admin/catalog/bulk-approve",
-   "src": "backend/src/modules/radiology/radiology.controller.ts:228",
+   "src": "backend/src/modules/radiology/radiology.controller.ts:256",
    "guards": {
     "public": false,
     "roles": [
@@ -390,7 +401,7 @@
   {
    "m": "POST",
    "p": "/catalogs/admin/specialties",
-   "src": "backend/src/modules/catalogs/catalogs.controller.ts:124",
+   "src": "backend/src/modules/catalogs/catalogs.controller.ts:128",
    "guards": {
     "public": false,
     "roles": [
@@ -403,7 +414,7 @@
   {
    "m": "DELETE",
    "p": "/catalogs/admin/specialties/:param",
-   "src": "backend/src/modules/catalogs/catalogs.controller.ts:145",
+   "src": "backend/src/modules/catalogs/catalogs.controller.ts:149",
    "guards": {
     "public": false,
     "roles": [
@@ -416,7 +427,7 @@
   {
    "m": "GET",
    "p": "/insurance/companies/all",
-   "src": "backend/src/modules/insurance/insurance.module.ts:556",
+   "src": "backend/src/modules/insurance/insurance.module.ts:551",
    "guards": {
     "public": false,
     "roles": [
@@ -430,7 +441,7 @@
   {
    "m": "PATCH",
    "p": "/insurance/companies/:param",
-   "src": "backend/src/modules/insurance/insurance.module.ts:571",
+   "src": "backend/src/modules/insurance/insurance.module.ts:566",
    "guards": {
     "public": false,
     "roles": [
@@ -443,7 +454,7 @@
   {
    "m": "POST",
    "p": "/insurance/companies",
-   "src": "backend/src/modules/insurance/insurance.module.ts:563",
+   "src": "backend/src/modules/insurance/insurance.module.ts:558",
    "guards": {
     "public": false,
     "roles": [
@@ -456,7 +467,7 @@
   {
    "m": "POST",
    "p": "/insurance/companies/:param/networks",
-   "src": "backend/src/modules/insurance/insurance.module.ts:610",
+   "src": "backend/src/modules/insurance/insurance.module.ts:605",
    "guards": {
     "public": false,
     "roles": [
@@ -469,23 +480,12 @@
   {
    "m": "DELETE",
    "p": "/insurance/companies/:param/networks/:param",
-   "src": "backend/src/modules/insurance/insurance.module.ts:597",
+   "src": "backend/src/modules/insurance/insurance.module.ts:592",
    "guards": {
     "public": false,
     "roles": [
      "ADMIN"
     ],
-    "perms": [],
-    "useGuards": "JwtAuthGuard"
-   }
-  },
-  {
-   "m": "POST",
-   "p": "/auth/heartbeat",
-   "src": "backend/src/modules/auth/auth.controller.ts:231",
-   "guards": {
-    "public": false,
-    "roles": [],
     "perms": [],
     "useGuards": "JwtAuthGuard"
    }
@@ -504,7 +504,7 @@
   {
    "m": "GET",
    "p": "/business-rules/config/pricing",
-   "src": "backend/src/modules/business-rules/business-rules.module.ts:296",
+   "src": "backend/src/modules/business-rules/business-rules.module.ts:300",
    "guards": {
     "public": false,
     "roles": [
@@ -517,7 +517,7 @@
   {
    "m": "POST",
    "p": "/business-rules/config/surge",
-   "src": "backend/src/modules/business-rules/business-rules.module.ts:291",
+   "src": "backend/src/modules/business-rules/business-rules.module.ts:295",
    "guards": {
     "public": false,
     "roles": [
@@ -530,7 +530,7 @@
   {
    "m": "POST",
    "p": "/business-rules/config/fees",
-   "src": "backend/src/modules/business-rules/business-rules.module.ts:300",
+   "src": "backend/src/modules/business-rules/business-rules.module.ts:304",
    "guards": {
     "public": false,
     "roles": [
@@ -621,7 +621,7 @@
   {
    "m": "POST",
    "p": "/medicines/admin/image-suggestions/:param/:param",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:187",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:209",
    "guards": {
     "public": false,
     "roles": [
@@ -636,7 +636,7 @@
   {
    "m": "GET",
    "p": "/storage/:param/signed-url",
-   "src": "backend/src/modules/storage/storage.module.ts:394",
+   "src": "backend/src/modules/storage/storage.module.ts:465",
    "guards": {
     "public": false,
     "roles": [],
@@ -647,7 +647,7 @@
   {
    "m": "GET",
    "p": "/storage/:param",
-   "src": "backend/src/modules/storage/storage.module.ts:384",
+   "src": "backend/src/modules/storage/storage.module.ts:455",
    "guards": {
     "public": false,
     "roles": [],
@@ -695,7 +695,7 @@
   {
    "m": "GET",
    "p": "/insurance/networks/:param/rules",
-   "src": "backend/src/modules/insurance/insurance.module.ts:617",
+   "src": "backend/src/modules/insurance/insurance.module.ts:612",
    "guards": {
     "public": true,
     "roles": [],
@@ -706,7 +706,7 @@
   {
    "m": "POST",
    "p": "/insurance/networks/:param/rules",
-   "src": "backend/src/modules/insurance/insurance.module.ts:623",
+   "src": "backend/src/modules/insurance/insurance.module.ts:618",
    "guards": {
     "public": false,
     "roles": [
@@ -719,7 +719,7 @@
   {
    "m": "GET",
    "p": "/legal/policies",
-   "src": "backend/src/modules/legal/legal.module.ts:173",
+   "src": "backend/src/modules/legal/legal.module.ts:158",
    "guards": {
     "public": true,
     "roles": [],
@@ -730,7 +730,7 @@
   {
    "m": "GET",
    "p": "/legal/policy/:param",
-   "src": "backend/src/modules/legal/legal.module.ts:177",
+   "src": "backend/src/modules/legal/legal.module.ts:162",
    "guards": {
     "public": true,
     "roles": [],
@@ -752,42 +752,9 @@
    }
   },
   {
-   "m": "GET",
-   "p": "/loyalty/config",
-   "src": "backend/src/modules/loyalty/loyalty.controller.ts:16",
-   "guards": {
-    "public": false,
-    "roles": [],
-    "perms": [],
-    "useGuards": "JwtAuthGuard"
-   }
-  },
-  {
-   "m": "GET",
-   "p": "/loyalty/rewards",
-   "src": "backend/src/modules/loyalty/loyalty.controller.ts:46",
-   "guards": {
-    "public": false,
-    "roles": [],
-    "perms": [],
-    "useGuards": "JwtAuthGuard"
-   }
-  },
-  {
-   "m": "GET",
-   "p": "/loyalty/challenges",
-   "src": "backend/src/modules/loyalty/loyalty.controller.ts:34",
-   "guards": {
-    "public": false,
-    "roles": [],
-    "perms": [],
-    "useGuards": "JwtAuthGuard"
-   }
-  },
-  {
    "m": "POST",
    "p": "/storage/upload",
-   "src": "backend/src/modules/storage/storage.module.ts:370",
+   "src": "backend/src/modules/storage/storage.module.ts:441",
    "guards": {
     "public": false,
     "roles": [],
@@ -798,7 +765,7 @@
   {
    "m": "GET",
    "p": "/medicines/admin/catalog",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:247",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:269",
    "guards": {
     "public": false,
     "roles": [
@@ -813,7 +780,7 @@
   {
    "m": "GET",
    "p": "/medicines/admin/reports",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:317",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:340",
    "guards": {
     "public": false,
     "roles": [
@@ -826,7 +793,7 @@
   {
    "m": "POST",
    "p": "/medicines/lookup-barcode",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:56",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:78",
    "guards": {
     "public": true,
     "roles": [
@@ -839,7 +806,7 @@
   {
    "m": "POST",
    "p": "/medicines/admin/catalog",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:265",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:288",
    "guards": {
     "public": false,
     "roles": [
@@ -854,7 +821,7 @@
   {
    "m": "PATCH",
    "p": "/medicines/admin/catalog/:param",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:239",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:261",
    "guards": {
     "public": false,
     "roles": [
@@ -870,7 +837,7 @@
   {
    "m": "POST",
    "p": "/medicines/admin/catalog/:param/delete",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:273",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:296",
    "guards": {
     "public": false,
     "roles": [
@@ -885,7 +852,7 @@
   {
    "m": "POST",
    "p": "/medicines/admin/import-csv",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:462",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:485",
    "guards": {
     "public": false,
     "roles": [
@@ -900,14 +867,14 @@
   {
    "m": "POST",
    "p": "/medicines/admin/catalog/:param/approve",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:281",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:304",
    "guards": {
     "public": false,
     "roles": [
      "ADMIN"
     ],
     "perms": [
-     "catalog.update"
+     "catalog.approve"
     ],
     "useGuards": "JwtAuthGuard"
    }
@@ -915,7 +882,7 @@
   {
    "m": "POST",
    "p": "/medicines/admin/catalog/:param/availability",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:163",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:185",
    "guards": {
     "public": false,
     "roles": [
@@ -930,7 +897,7 @@
   {
    "m": "POST",
    "p": "/medicines/admin/change-requests/:param/:param",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:224",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:246",
    "guards": {
     "public": false,
     "roles": [
@@ -945,7 +912,7 @@
   {
    "m": "GET",
    "p": "/medicines/admin/catalog/:param/price-history",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:309",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:332",
    "guards": {
     "public": false,
     "roles": [
@@ -1089,7 +1056,7 @@
   {
    "m": "GET",
    "p": "/auth/me",
-   "src": "backend/src/modules/auth/auth.controller.ts:211",
+   "src": "backend/src/modules/auth/auth.controller.ts:241",
    "guards": {
     "public": false,
     "roles": [],
@@ -1133,7 +1100,7 @@
   {
    "m": "POST",
    "p": "/medicines/admin/shortage-reports/:param/:param",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:139",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:161",
    "guards": {
     "public": false,
     "roles": [
@@ -1148,7 +1115,7 @@
   {
    "m": "POST",
    "p": "/medicines/admin/catalog/:param/clear-shortage-badge",
-   "src": "backend/src/modules/medicines/medicines.controller.ts:155",
+   "src": "backend/src/modules/medicines/medicines.controller.ts:177",
    "guards": {
     "public": false,
     "roles": [

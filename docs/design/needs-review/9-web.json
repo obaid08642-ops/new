@@ -52,7 +52,7 @@
     "line": 9,
     "found": "[owner] The old voice screen only matched keywords of a browser SpeechRecognition result to page links (no endpoint, no text capture); there is nothing to move, so no mic is drawn; the owner decides whether dictation is wanted.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #883)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision B19), main already complies: voice/page.tsx redirects to /ai; no speech capture (issue #883)"
   },
   {
     "batch": 9,

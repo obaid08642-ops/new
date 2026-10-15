@@ -8,7 +8,7 @@ import { MODE_LOOK, Section, Sheet, goBack, visitMode, specialtyLook, type Visit
 import { Glyph } from '../../../src/components/pharmacy/PharmacyKit';
 import { apiFetch } from '../../../src/utils/api';
 import { logError } from '../../../src/utils/logger';
-import { buildDoctorsPath, doctorRows, keepsServerOrder, nearbyFiltersEnabled, nearestApplies, resolveNearbyPlace, type NearbyPlace } from '../../../src/utils/consultNearby';
+import { buildDoctorsPath, doctorRows, keepsServerOrder, nearestApplies, resolveNearbyPlace, type NearbyPlace } from '../../../src/utils/consultNearby';
 import { deviceNearbyDeps } from '../../../src/utils/consultNearbyDevice';
 import { pickLocalized } from '../../../src/utils/localize';
 
@@ -124,14 +124,13 @@ export default function Consultations() {
   const [insuranceCompanies, setInsuranceCompanies] = useState<Named[]>([]);
   const [insuranceNetworks, setInsuranceNetworks] = useState<Named[]>([]);
   const [insuranceCatalogUnavailable, setInsuranceCatalogUnavailable] = useState(false);
-  // The two quick filters (behind EXPO_PUBLIC_CONSULT_NEARBY_FILTERS=1): what the patient asked for, and where "Nearest" measures from.
-  const nearbyOn = nearbyFiltersEnabled();
+  // The two quick filters: what the patient asked for, and where "Nearest" measures from.
   const [nearest, setNearest] = useState(false);
   const [availableNow, setAvailableNow] = useState(false);
   const [place, setPlace] = useState<NearbyPlace | null>(null);
   const [locating, setLocating] = useState(false);
   const [noPlace, setNoPlace] = useState(false);
-  const doctorsPath = buildDoctorsPath({ enabled: nearbyOn, mode: activeVt, nearest, availableNow, place });
+  const doctorsPath = buildDoctorsPath({ mode: activeVt, nearest, availableNow, place });
 
   const toggleNearest = async () => {
     if (nearest) {
@@ -350,23 +349,22 @@ export default function Consultations() {
           })}
         </View>
 
-        {nearbyOn ? (
-          <View style={{ gap: 8 }}>
-            <View accessibilityLabel={k('consult.hub.quick')} style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-              <Chip label={k('consult.hub.nearest')} selected={nearest && nearestApplies(activeVt)} loading={locating} disabled={!nearestApplies(activeVt)} onPress={() => void toggleNearest()} theme={theme} testID="hub-nearest" />
-              <Chip label={k('consult.hub.availableNow')} selected={availableNow} onPress={() => setAvailableNow((v) => !v)} theme={theme} testID="hub-available-now" />
-            </View>
-            {!nearestApplies(activeVt) ? (
-              <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.nearestOnline')}</Text>
-            ) : locating ? (
-              <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.locating')}</Text>
-            ) : noPlace && !nearest ? (
-              <Text accessibilityRole="alert" style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.nearestNoPlace')}</Text>
-            ) : nearest && place?.kind === 'city' ? (
-              <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.nearestCity', { city: place.city })}</Text>
-            ) : null}
+        {/* decision 20: "Nearest" and "Available now" are always on (no build flag) */}
+        <View style={{ gap: 8 }}>
+          <View accessibilityLabel={k('consult.hub.quick')} style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            <Chip label={k('consult.hub.nearest')} selected={nearest && nearestApplies(activeVt)} loading={locating} disabled={!nearestApplies(activeVt)} onPress={() => void toggleNearest()} theme={theme} testID="hub-nearest" />
+            <Chip label={k('consult.hub.availableNow')} selected={availableNow} onPress={() => setAvailableNow((v) => !v)} theme={theme} testID="hub-available-now" />
           </View>
-        ) : null}
+          {!nearestApplies(activeVt) ? (
+            <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.nearestOnline')}</Text>
+          ) : locating ? (
+            <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.locating')}</Text>
+          ) : noPlace && !nearest ? (
+            <Text accessibilityRole="alert" style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.nearestNoPlace')}</Text>
+          ) : nearest && place?.kind === 'city' ? (
+            <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.nearestCity', { city: place.city })}</Text>
+          ) : null}
+        </View>
 
         {/* Specialties — the real list from /care/specialties with live doctor counts */}
         {specialties.length > 0 ? (

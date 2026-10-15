@@ -159,7 +159,7 @@ export const CommissionRuleSchema = SchemaFactory.createForClass(CommissionRule)
 const DEFAULT_COMMISSIONS: Record<string, number> = {
   consultation: 0.15, video: 0.15, audio: 0.15, chat: 0.15,
   clinic: 0.12, home_visit: 0.18, nursing: 0.18, physiotherapy: 0.18,
-  pharmacy: 0.10, lab: 0.12, radiology: 0.12, ambulance: 0.15, default: 0.15,
+  pharmacy: 0.10, lab: 0.12, radiology: 0.12, default: 0.15,
 };
 
 @Injectable()
@@ -214,7 +214,7 @@ export class FinanceCoreService {
 // Quote (BR-1) — the server decides allowed payment methods, never the UI
 // ============================================================================
 
-const ONLINE_ONLY_CHANNELS = ['online', 'video', 'audio', 'chat', 'home', 'home_visit', 'delivery', 'nursing', 'physiotherapy', 'ambulance'];
+const ONLINE_ONLY_CHANNELS = ['online', 'video', 'audio', 'chat', 'home', 'home_visit', 'delivery', 'nursing', 'physiotherapy'];
 
 @Controller('bookings')
 @UseGuards(JwtAuthGuard)
@@ -887,9 +887,9 @@ export class InsuranceFlowController {
   // ---- provider ----
   @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('requests/provider/queue') providerQueue(@CurrentUser() u: any, @Query('state') state?: string) { return this.svc.providerQueue(u, state); }
-  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
   @Post('requests/:id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() b: DecideDto) { return this.svc.decide(u, id, b); }
-  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
   @Post('provider/jobs/consultation/:id/insurance') gatekeeper(@CurrentUser() u: any, @Param('id') id: string, @Body() b: GatekeeperDto) { return this.svc.gatekeeperDecision(u, id, b); }
 
   // ---- legacy aliases the patient app already calls ----
@@ -914,7 +914,7 @@ export class InsuranceAliasController {
     return this.svc.payCopay(u, b?.request_id || b?.id, b);
   }
 
-  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
   @Post('home-care/insurance/verify') verify(@CurrentUser() u: any) {
     return this.svc.myPolicy(u);
   }
@@ -1061,7 +1061,10 @@ export class AdminFinanceCoreController {
     private readonly refunds: RefundService,
     private readonly finance: FinanceCoreService,
   ) {}
+  // Platform money totals and the refund queue are finance reads: they name finance.read like the other finance pages.
+  @RequirePermissions(Permission.FINANCE_READ)
   @Get('ledger/summary') summary() { return this.finance.platformSummary(); }
+  @RequirePermissions(Permission.FINANCE_READ)
   @Get('refunds/queue') refundsQueue() { return this.refunds.adminQueue(); }
   @StepUp()
   @RequirePermissions(Permission.ORDER_REFUND)
@@ -1070,8 +1073,12 @@ export class AdminFinanceCoreController {
   }
 }
 
+// Admin reads of every patient's insurance requests: admin role and order.read (the insurance-queue page permission).
+// Before this the class had no @Roles, so any signed-in patient or provider who reached /admin passed JwtAuthGuard.
 @Controller('admin/insurance')
 @UseGuards(JwtAuthGuard)
+@Roles(UserRole.ADMIN)
+@RequirePermissions(Permission.ORDER_READ)
 export class AdminInsuranceController {
   constructor(private readonly svc: InsuranceFlowService) {}
   @Get('requests') all(@Query('state') state?: string) { return this.svc.adminAll(state); }

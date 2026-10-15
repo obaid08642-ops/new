@@ -5,7 +5,7 @@ import { DataTable, type LooseRow } from '@/components/DataTable';
 
 /**
  * M5: platform commissions + ledger summary.
- * GET /admin/finance/ledger/summary (M3 finance core) · GET /admin/finance/commissions (legacy ledger)
+ * GET /admin/finance/ledger/summary (M3 finance core) · GET /admin/finance/commissions/records (legacy ledger)
  * Rates (BR): استشارة 15% · صيدلية 10% · معمل/أشعة/عيادة 12% · منزلي/تمريض/طبيعي 18%
  */
 const SERVICE_AR: Record<string, string> = {
@@ -59,7 +59,7 @@ export default function CommissionsPage() {
     try {
       const [s, c] = await Promise.all([
         apiFetch('/api/admin/admin/finance/ledger/summary').catch(() => null),
-        apiFetch('/api/admin/admin/finance/commissions').catch(() => ({ data: [] })),
+        apiFetch('/api/admin/admin/finance/commissions/records').catch(() => ({ data: [] })),
       ]);
       setSummary(s);
       setLegacy(c?.data || []);

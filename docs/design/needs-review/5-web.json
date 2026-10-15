@@ -8,7 +8,7 @@
     "line": 60,
     "found": "[client] Fixed on design/oc-patient-other-1: the sleep page has the form (hours, score) that posts to /api/patient/health/sleep (allowlisted) like the app.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "fixed before this session (verified on main: health/sleep/page.tsx renders SleepAddForm (POST /health/sleep))"
   },
   {
     "batch": 5,
@@ -19,7 +19,7 @@
     "line": 136,
     "found": "[client] Fixed on design/oc-patient-other-1: my contacts can be added (POST) and removed (DELETE) on the web through the /api/patient proxy (allowlisted), the same calls as the app.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "fixed before this session (verified on main: components-next/health/emergency-contacts-editor.tsx adds and deletes contacts)"
   },
   {
     "batch": 5,
@@ -74,7 +74,7 @@
     "line": 72,
     "found": "[owner] Today shows the latest reading of each vital (summary endpoint), not only readings taken today. Confirm that is what Today means.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #679)"
+    "review_status": "fixed #1455 (owner decision B12: the tab is \"Latest\" on web and app) (issue #679)"
   },
   {
     "batch": 5,

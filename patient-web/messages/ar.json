@@ -281,7 +281,8 @@
     "finalPriceFromOffer": "يظهر مع كل عرض",
     "flowNote": "نرسل طلبك إلى الصيدليات القريبة وتصلك عروضها. تختار الأنسب ثم تدفع.",
     "requestOffers": "اطلب عروض الصيدليات",
-    "summaryLabel": "ملخص الطلب"
+    "summaryLabel": "ملخص الطلب",
+    "manualRequest": "لم تجد دواءك؟ أضف طلبًا يدويًا"
   },
   "PharmacyFlow": {
     "sessionEnded": "انتهت جلستك. سجّل الدخول مجددًا للمتابعة.",
@@ -651,7 +652,7 @@
     "partUnavailable": "تعذّر تحميل هذا الجزء.",
     "unitsRemaining": "{count, plural, zero {لا وحدات متبقية} one {وحدة واحدة متبقية} two {وحدتان متبقيتان} few {# وحدات متبقية} many {# وحدة متبقية} other {# وحدة متبقية}}",
     "vitalsTitle": "المؤشرات",
-    "vitalsToday": "اليوم",
+    "vitalsToday": "الأحدث",
     "vitalsHistory": "السجل",
     "vitalsTrends": "الاتجاهات",
     "noReading": "لا توجد قراءة بعد",
@@ -911,9 +912,9 @@
   "ChatDetail": {
     "eyebrow": "محادثة خاصة",
     "thread": "محادثة",
-    "messagesTitle": "نشاط الرسائل",
+    "messagesTitle": "الرسائل",
     "back": "العودة إلى المحادثات",
-    "bodyHidden": "لا تظهر هنا بعد نصوص الرسائل أو المشاركون أو التفاعلات أو المرفقات.",
+    "bodyHidden": "لا تظهر هنا أسماء المشاركين أو التفاعلات أو المرفقات.",
     "attachmentHidden": "تحتوي هذه الرسالة على مرفق.",
     "deleted": "رسالة محذوفة",
     "timeUnavailable": "التوقيت غير متاح",
@@ -1149,7 +1150,10 @@
     "allSpecialties": "كل التخصصات",
     "paymentLabel": "الدفع",
     "payment_insurance": "يقبل التأمين",
-    "payment_cash": "كاش فقط"
+    "payment_cash": "كاش فقط",
+    "doctorPhotoAlt": "صورة {name}",
+    "clinicPhotosTitle": "صور العيادة",
+    "clinicPhotoAlt": "صورة العيادة {n}"
   },
   "LabsServices": {
     "eyebrow": "الرعاية المخبرية",
@@ -1383,7 +1387,8 @@
     "emptyCategory": "لا توجد منتجات منشورة في هذه الفئة حالياً.",
     "allCategories": "كل الفئات",
     "loadMore": "عرض المزيد",
-    "page": "صفحة {page}"
+    "page": "صفحة {page}",
+    "onlineOnly": "أونلاين فقط"
   },
   "Wallet": {
     "wallet": "المحفظة",
@@ -1507,6 +1512,7 @@
     "checkingBody": "نسأل مزوّد الدفع والصيدلية عن النتيجة. يستغرق ذلك بضع ثوانٍ.",
     "checkAgain": "تحقق مرة أخرى",
     "trackOrder": "تتبع الطلب",
+    "openBooking": "عرض الحجز",
     "stalledTitle": "ما زلنا بانتظار مزوّد الدفع",
     "stalledBody": "لم نتلقَّ ردًا نهائيًا بعد. لا يُؤكَّد شيء قبل أن يرد المزوّد. تحقق مرة أخرى أو تابع طلباتك.",
     "refundedTitle": "تم استرداد هذه الدفعة",
@@ -1523,7 +1529,6 @@
     "attribute": "السمة",
     "active_ingredient": "المادة الفعالة",
     "price": "السعر",
-    "dosage_form": "الشكل الدوائي",
     "manufacturer": "الشركة المصنعة",
     "emptyBody": "اختر دواءين على الأقل من الكتالوج للمقارنة بينهما.",
     "browse": "تصفح الأدوية",
@@ -1531,7 +1536,9 @@
     "requires_prescription": "يتطلب وصفة",
     "online_exclusive": "أونلاين فقط",
     "yes": "نعم",
-    "no": "لا"
+    "no": "لا",
+    "form": "الشكل الدوائي",
+    "strength": "التركيز"
   },
   "PharmacyRequest": {
     "title": "اطلب دواءً بالاسم",
@@ -1857,6 +1864,7 @@
     "invalid": "أدخل رمزاً من 6 أرقام.",
     "failed": "تعذر التحقق من الرمز. لم يتم تسجيل الدخول.",
     "missing": "ابدأ من شاشة تسجيل الدخول أو إنشاء الحساب لنرسل إليك الرمز.",
+    "notSent": "تم إنشاء حسابك، لكن تعذّر إرسال الرمز. اضغط «إعادة الإرسال».",
     "back": "العودة",
     "wrong": "الرمز غير صحيح. تحقق منه وحاول مرة أخرى.",
     "expired": "انتهت صلاحية الرمز. اطلب رمزًا جديدًا.",
@@ -2085,7 +2093,9 @@
     "sortPopular": "الأكثر طلبًا",
     "sortPriceAsc": "السعر: من الأقل",
     "sortPriceDesc": "السعر: من الأعلى",
-    "sortNewest": "الأحدث"
+    "sortNewest": "الأحدث",
+    "askPharmacies": "اطلبه من الصيدليات القريبة",
+    "compareAlternatives": "قارن بالبدائل"
   },
   "PharmacyOffers": {
     "backToOrder": "العودة إلى الطلب",
@@ -2151,15 +2161,12 @@
     "orderStatusLink": "حالة الطلب",
     "trackOrder": "تتبع الطلب",
     "continuePayment": "متابعة إلى الدفع",
-    "showMethods": "اختيار طريقة الدفع",
     "methodCard": "بطاقة بنكية",
     "methodApplePay": "Apple Pay",
     "methodGooglePay": "Google Pay",
-    "paymentUnavailable": "لا توجد طريقة دفع إلكتروني متاحة لهذا الطلب الآن.",
     "redirecting": "ننقلك إلى صفحة الدفع الآمنة…",
     "noRedirect": "طريقة الدفع هذه غير متاحة على الويب بعد. اختر طريقة أخرى.",
     "paymentError": "تعذر بدء الدفع. لم تُسجَّل أي دفعة.",
-    "loadingMethods": "جارٍ تحميل طرق الدفع…",
     "insurancePending": "طلبت الصيدلية الموافقة من شركة التأمين. لا يستحق عليك أي مبلغ قبل صدور القرار.",
     "insuranceCovered": "التأمين يغطي هذا الطلب بالكامل. لا يوجد مبلغ مستحق.",
     "insuranceDecisionTitle": "قرار التأمين لكل صنف",
@@ -2673,6 +2680,8 @@
     "locationHome": "زيارة منزلية",
     "locationFacility": "في المنشأة",
     "trackSample": "تتبع العينة",
+    "openReport": "افتح التقرير",
+    "openReportN": "افتح التقرير {n}",
     "uploadInsurance": "رفع مستند التأمين",
     "bookingDetails": "تفاصيل الحجز",
     "sampleSteps": "مراحل العينة",
@@ -2714,13 +2723,9 @@
     "backToCart": "العودة إلى السلة",
     "callLab": "اتصل بالمختبر",
     "testTitle": "التحليل",
-    "bookTitle": "احجز تحليلًا",
-    "noProviderTitle": "لا يوجد مختبر متاح",
     "noProviderBody": "لا يوجد مختبر يجري هذا التحليل الآن.",
-    "backToTests": "العودة إلى التحاليل",
     "tagHome": "عينة منزلية",
     "tagFasting": "صيام",
-    "bookPackage": "احجز هذه الباقة",
     "addToOrderCta": "أضف إلى طلبي",
     "details": "التفاصيل",
     "hubTitle": "المختبرات والأشعة",
@@ -2781,7 +2786,6 @@
     "searchErrorTitle": "تعذر تحميل التحاليل",
     "searchErrorBody": "حاول مرة أخرى بعد قليل.",
     "testFacts": "تفاصيل التحليل",
-    "bookTest": "احجز هذا التحليل",
     "cartEmptyTitle": "السلة فارغة",
     "cartEmptyBody": "أضف تحاليل قبل الحجز.",
     "browseTests": "تصفح التحاليل",
@@ -2861,7 +2865,6 @@
     "trackingInProgress": "قيد المتابعة",
     "trackingScheduled": "الموعد المحدد: {when}",
     "trackingBeforeTitle": "قبل سحب العينة",
-    "trackingBeforeBody": "الصيام من 8 إلى 12 ساعة قبل السحب ما لم يخبرك الطبيب بغير ذلك.",
     "trackingStepsTitle": "المراحل",
     "trackingNoSteps": "لا توجد تحديثات تتبع بعد. تظهر الخطوات هنا حين يسجلها المختبر.",
     "searchTests": "ابحث عن تحليل…",
@@ -2870,19 +2873,6 @@
     "searchResults": "نتائج البحث",
     "collectorLabel": "أخصائي السحب",
     "collectorCall": "اتصل بالأخصائي",
-    "collectorTipsTitle": "عند وصول الأخصائي",
-    "collectorTip1": "جهّز الهوية وطلب التحليل",
-    "collectorTip2": "التزم بالصيام الذي يتطلبه التحليل",
-    "collectorTip3": "أخبر الأخصائي بأي أدوية تتناولها",
-    "errHomeInsuranceDoc": "الزيارة المنزلية بالتأمين تتطلب طلب طبيب أو موافقة مسبقة",
-    "errSlotTaken": "هذا الموعد لم يعد متاحًا",
-    "errBooking": "تعذر إنشاء الحجز. حاول مرة أخرى.",
-    "bookWhere": "أين؟",
-    "bookHomeUnavailable": "السحب المنزلي غير متاح لهذا التحليل.",
-    "bookWhen": "التاريخ والوقت",
-    "bookDocLabel": "رابط طلب الطبيب أو الموافقة (عند الحاجة)",
-    "bookSaving": "جارٍ الحجز…",
-    "bookConfirm": "تأكيد الحجز",
     "status_pending": "بانتظار التأكيد",
     "status_insurance": "بانتظار التأمين",
     "status_confirmed": "مؤكد",
@@ -2891,10 +2881,7 @@
     "status_processing": "قيد التنفيذ",
     "status_report": "التقرير جاهز",
     "status_cancelled": "ملغي",
-    "bookingNotSentTitle": "لم يتم أي حجز",
-    "bookingNotSentBody": "هذه النافذة لا ترسل الحجز بعد، لذلك لم يُنشأ أي موعد ولم يُسحب أي مبلغ. افتح صفحة التمريض لحجز زيارة.",
-    "bookingNotSentCta": "إلى صفحة التمريض",
-    "bookingNotSentClose": "إغلاق"
+    "trackingPrepAsk": "سيؤكد لك المختبر أي تحضير مطلوب قبل التحليل."
   },
   "NursingWeb": {
     "hubTitle": "الرعاية المنزلية",
@@ -2906,13 +2893,11 @@
     "browseCatalog": "استعرض خدمات التمريض",
     "statusLabel": "الحالة",
     "pulse": "النبض",
-    "formService": "الخدمة",
     "formTime": "الوقت",
     "formAddress": "العنوان",
     "formAddAddress": "أضف عنواناً أولاً",
     "formNotes": "ملاحظات (اختياري)",
     "formBooking": "جارٍ الحجز…",
-    "formSelectService": "اختر الخدمة",
     "formSelectTime": "اختر اليوم والوقت",
     "formPast": "الموعد في الماضي — اختر وقتاً لاحقاً",
     "formFailed": "تعذر إنشاء الحجز",
@@ -2974,7 +2959,6 @@
     "insurance": "يقبل التأمين",
     "priceLabel": "السعر",
     "durationLabel": "المدة",
-    "bookingNotice": "تفاصيل الخدمة معروضة للقراءة فقط. لا يتم إنشاء حجز من هذه الصفحة.",
     "back": "العودة إلى الخدمات",
     "serviceUnavailableTitle": "تعذر تحميل الخدمات",
     "serviceUnavailableBody": "يرجى المحاولة مرة أخرى لاحقًا.",
@@ -2994,13 +2978,19 @@
     "step_NURSE_ARRIVED": "وصل الممرض",
     "step_CARE_IN_PROGRESS": "الرعاية جارية",
     "step_COMPLETED": "اكتملت الزيارة",
-    "nurseTitle": "ملف الممرض/ة",
-    "nurseUnavailableTitle": "الملف غير متاح حالياً",
-    "nurseUnavailableBody": "تعذر تحميل بيانات الممرض.",
-    "experienceLabel": "الخبرة الميدانية",
-    "ratingLabel": "تقييم المرضى",
-    "nurseServicesTitle": "الخدمات التمريضية المتاحة",
-    "requestNurse": "طلب زيارة تمريض"
+    "bookCta": "احجز الخدمة",
+    "bookTitle": "حجز زيارة منزلية",
+    "chooseNurse": "اختر الممرض",
+    "noNurses": "لا يوجد ممرض يقدّم هذه الخدمة حاليًا. حاول لاحقًا.",
+    "today": "اليوم",
+    "loadingSlots": "جارٍ تحميل الأوقات المتاحة…",
+    "noSlots": "لا توجد أوقات متاحة في هذا اليوم. اختر يومًا آخر.",
+    "slotsFailed": "تعذّر تحميل الأوقات. حاول مرة أخرى.",
+    "slotTaken": "هذا الوقت لم يعد متاحًا. اختر وقتًا آخر.",
+    "addressNeedsLocation": "اختر عنوانًا محفوظًا له موقع على الخريطة، أو أضف واحدًا.",
+    "payTitle": "الدفع",
+    "payNow": "ادفع الآن بالبطاقة",
+    "payFailed": "الحجز محفوظ، لكن تعذّر فتح صفحة الدفع. حاول مرة أخرى."
   },
   "MaternityWeb": {
     "title": "الأمومة",
@@ -3153,15 +3143,10 @@
     "avgMood": "متوسط المزاج",
     "avgEnergy": "متوسط الطاقة",
     "avgStress": "متوسط التوتر",
-    "meditationSessions": "جلسات التأمل",
-    "meditationMinutes": "دقائق التأمل",
-    "minutes": "دقيقة",
     "notAvailable": "غير متاح",
     "careTitle": "ما تحتاجه الآن",
     "moodRow": "يوميات المزاج",
     "moodRowSub": "مزاجك وطاقتك وتوترك في آخر 30 يومًا",
-    "relaxRow": "الاسترخاء",
-    "relaxRowSub": "جلسات التنفس والتأمل",
     "therapistRow": "احجز مع معالج نفسي",
     "therapistRowSub": "أطباء الطب النفسي في الاستشارات",
     "notice": "هذه الأرقام وصفية لما سجّلته أنت، وليست تشخيصًا ولا درجة خطورة ولا توصية علاجية.",
@@ -3175,20 +3160,6 @@
     "energy": "الطاقة: {value}",
     "stress": "التوتر: {value}",
     "sleepHours": "ساعات النوم: {value}",
-    "relaxTitle": "الاسترخاء",
-    "tabBreathing": "التنفس",
-    "tabMeditation": "التأمل",
-    "relaxUnavailableTitle": "تعذر تحميل الجلسات",
-    "breathingEmpty": "لا توجد جلسات تنفس مسجّلة بعد.",
-    "techniqueUnavailable": "الأسلوب غير متاح",
-    "rounds": "الجولات: {value}",
-    "durationSeconds": "المدة: {value} ثانية",
-    "relaxNotice": "تظهر هنا جلساتك المسجّلة. بدء جلسة جديدة غير متاح على الويب.",
-    "meditationEmpty": "لا توجد جلسات تأمل مسجّلة بعد.",
-    "meditationUnavailable": "النوع غير متاح",
-    "durationMinutes": "المدة: {value} دقيقة",
-    "completed": "مكتملة",
-    "notCompleted": "غير مكتملة",
     "moodValue": {
       "great": "ممتاز",
       "good": "جيد",
@@ -3245,23 +3216,11 @@
     "example4": "طفح جلدي وحكة",
     "symptomsLabel": "أعراضك",
     "symptomsPlaceholder": "مثال: صداع مستمر منذ يومين مع غثيان",
-    "flagsLegend": "هل عندك واحدة من هذه العلامات؟ اختر كل ما ينطبق",
-    "flag": {
-      "chest_pain": "ألم في الصدر",
-      "breathing_difficulty": "صعوبة في التنفس",
-      "fainting_or_unresponsive": "إغماء أو عدم استجابة",
-      "heavy_bleeding": "نزيف شديد",
-      "new_confusion": "ارتباك مفاجئ",
-      "severe_allergic_reaction": "حساسية شديدة",
-      "severe_injury": "إصابة بليغة"
-    },
     "submit": "اعرف الخطوة التالية",
     "submitting": "جارٍ التحليل…",
     "error": "تعذر الحصول على إرشاد الآن. حاول مرة أخرى بعد قليل.",
     "emergencyTitle": "علامات تحتاج مساعدة عاجلة",
-    "emergencyBody": "العلامات التي اخترتها تستدعي الاتصال بخدمات الطوارئ المحلية الآن، وليس انتظار موعد.",
     "consultationTitle": "ننصحك باستشارة طبيب",
-    "consultationBody": "لم تختر علامات طارئة. إذا استمرت الأعراض أو ازدادت سوءاً فاحجز استشارة مع طبيب.",
     "bookConsultation": "احجز استشارة",
     "askAgain": "سؤال جديد",
     "disclaimer": "هذا إرشاد عام وليس تشخيصاً ولا وصفة علاج. عند الطوارئ اتصل بالإسعاف.",
@@ -3272,7 +3231,16 @@
     "untitledReport": "تقرير طبي",
     "reportsUnavailable": "تعذر تحميل تقاريرك الآن. أعد المحاولة بعد قليل.",
     "leafletLink": "اقرأ النشرة",
-    "historyTitle": "أسئلتك السابقة"
+    "leafletTitle": "معلومات الدواء من نشرته",
+    "outOfScopeTitle": "ما يستطيع المساعد فعله",
+    "leaflet": {
+      "indications": "دواعي الاستعمال",
+      "how_to_use": "طريقة الاستعمال",
+      "side_effects": "الأعراض الجانبية",
+      "warnings": "تحذيرات",
+      "storage": "طريقة الحفظ",
+      "pregnancy": "الحمل والرضاعة"
+    }
   },
   "MonthlyReportWeb": {
     "title": "تقريرك الشهري",
@@ -4086,5 +4054,99 @@
     "faqIngredient": "ما المادة الفعالة في {name}؟",
     "faqPrice": "كم سعر {name} في نبض بلس؟",
     "howToTitle": "طريقة استخدام {name}"
+  },
+  "LogForms": {
+    "saveError": "تعذّر الحفظ. ما كتبته لم يُفقد، حاول مرة أخرى.",
+    "saved": "تم الحفظ.",
+    "water": {
+      "title": "سجّل الماء",
+      "amount_ml": "الكمية (مل)",
+      "save": "أضف الماء",
+      "bad": {
+        "amount_ml": "أدخل كمية بين 50 و3000 مل."
+      }
+    },
+    "mood": {
+      "title": "سجّل مزاجك",
+      "mood": "كيف مزاجك الآن؟",
+      "option": {
+        "great": "رائع",
+        "good": "جيد",
+        "okay": "عادي",
+        "bad": "صعب",
+        "terrible": "صعب جدًا"
+      },
+      "energy_level": "الطاقة (1-5، اختياري)",
+      "stress_level": "الضغط (1-5، اختياري)",
+      "sleep_hours": "ساعات النوم (اختياري)",
+      "notes": "ملاحظة قصيرة (اختياري)",
+      "save": "احفظ المزاج",
+      "bad": {
+        "mood": "اختر مزاجك أولًا.",
+        "energy_level": "الطاقة رقم من 1 إلى 5.",
+        "stress_level": "الضغط رقم من 1 إلى 5.",
+        "sleep_hours": "ساعات النوم بين 0 و24.",
+        "notes": "الملاحظة طويلة جدًا."
+      }
+    },
+    "kicks": {
+      "title": "سجّل حركات الجنين",
+      "count": "عدد الحركات",
+      "duration_seconds": "خلال كم دقيقة",
+      "save": "احفظ الحركات",
+      "bad": {
+        "count": "أدخل عددًا صحيحًا من 1 إلى 200.",
+        "duration_seconds": "أدخل المدة بالدقائق من 1 إلى 240."
+      }
+    },
+    "contractions": {
+      "title": "سجّل انقباضًا",
+      "interval_seconds": "الدقائق منذ الانقباض السابق",
+      "duration_seconds": "مدته بالثواني",
+      "save": "احفظ الانقباض",
+      "bad": {
+        "interval_seconds": "أدخل الدقائق من 1 إلى 120.",
+        "duration_seconds": "أدخل الثواني من 5 إلى 300."
+      }
+    },
+    "growth": {
+      "title": "سجّل نمو الطفل",
+      "month": "العمر بالأشهر",
+      "weight_kg": "الوزن (كجم، اختياري)",
+      "height_cm": "الطول (سم، اختياري)",
+      "head_circ_cm": "محيط الرأس (سم، اختياري)",
+      "save": "احفظ القياس",
+      "bad": {
+        "month": "العمر بالأشهر رقم صحيح من 0 إلى 60.",
+        "weight_kg": "الوزن بين 0.3 و40 كجم.",
+        "height_cm": "الطول بين 20 و150 سم.",
+        "head_circ_cm": "محيط الرأس بين 20 و60 سم."
+      }
+    }
+  },
+  "LabResult": {
+    "title": "نتيجة التحليل",
+    "error": "تعذّر تحميل النتيجة",
+    "errorBody": "حاول مرة أخرى بعد قليل.",
+    "retry": "إعادة المحاولة",
+    "critical": "مهم — يحتاج متابعة",
+    "values": "القيم",
+    "range": "المعدل الطبيعي {low} – {high}",
+    "flag_high": "مرتفع",
+    "flag_low": "منخفض",
+    "flag_critical": "حرج",
+    "findings": "الملاحظات",
+    "impression": "الانطباع",
+    "recommendations": "التوصيات",
+    "notes": "ملاحظات المختبر",
+    "openBooking": "افتح الطلب لعرض ملف التقرير",
+    "empty": "لا توجد تفاصيل أخرى في هذه النتيجة.",
+    "discuss": "ناقش النتيجة مع طبيب",
+    "rangeText": "المعدل الطبيعي {range}"
+  },
+  "Offline": {
+    "title": "أنت غير متصل",
+    "body": "تعذر فتح الصفحة لعدم وجود اتصال. سلتك محفوظة على هذا الجهاز؛ أرسل طلبك عند عودة الاتصال.",
+    "home": "العودة إلى البداية"
   }
 }

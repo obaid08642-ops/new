@@ -27,6 +27,7 @@ import { GuestService } from './guest.service';
 import { AccountLinkingService } from './account-linking.service';
 import { PasswordSecurityService } from '../../common/password-security.service';
 import { OtpAbuseGuard } from '../../common/otp-abuse.service';
+import { I18nService, resolveLang } from '../i18n/i18n.service';
 
 @Injectable()
 export class AuthService {
@@ -40,6 +41,8 @@ export class AuthService {
   private readonly OTP_MAX_VERIFY_ATTEMPTS = 5;
   private readonly PATIENT_OTP_TTL_SECONDS = 5 * 60;
   private readonly PATIENT_EXCHANGE_TTL_SECONDS = 60;
+  /** A password-reset link is opened from a mailbox or a phone, often minutes later: 30 minutes, single use. */
+  private readonly PASSWORD_RESET_TTL_SECONDS = 30 * 60;
   private readonly PATIENT_OTP_LOCK_TTL_SECONDS = 15 * 60;
 
   constructor(
@@ -187,6 +190,22 @@ export class AuthService {
       const jti = (this.jwt.decode(refreshToken) as any)?.jti;
       if (jti) await this.storeRefreshSession(userId, jti, deviceId);
     } catch { /* same contract as signToken: store failure never breaks the response */ }
+  }
+
+  /** Issue 440: revoke the one refresh session a signed-out token belongs to. A token that does not verify revokes nothing. */
+  async revokeRefreshSession(refreshToken: string): Promise<boolean> {
+    let payload: any;
+    try {
+      payload = this.jwt.verify(refreshToken);
+    } catch {
+      return false;
+    }
+    if (payload?.type !== 'refresh' || !payload.jti) return false;
+    const client = (this.redisService as any).getClient?.();
+    if (!client) return false;
+    const removed = await client.del(`refresh:${payload.jti}`).catch(() => 0);
+    if (payload.sub) await client.srem(`refresh_user:${payload.sub}`, payload.jti).catch(() => 0);
+    return removed > 0;
   }
 
   async logoutAllDevices(userId: string) {
@@ -517,18 +536,38 @@ export class AuthService {
     const user = await this.userModel.findOne(normalized.includes('@') ? { email: normalized } : { phone: normalized });
     if (!user || user.active === false) return { requested: true };
     const resetToken = require('crypto').randomBytes(32).toString('base64url');
-    await this.redisService.setJson(this.passwordResetKey(resetToken), { user_id: user.id }, this.PATIENT_EXCHANGE_TTL_SECONDS);
-    try {
-      if (normalized.includes('@')) {
-        await this.mail?.send(normalized, 'Password reset', `Your Nabd+ password-reset token is ${resetToken}. It expires in 60 seconds.`);
-      } else if (user.email) {
-        // SMS retired: reset link goes by email (Resend→SES).
-        await this.mail?.send(user.email, 'Password reset', `Your Nabd+ password-reset token is ${resetToken}. It expires in 60 seconds.`);
-      }
-    } catch {
-      // Do not disclose account state or the raw token in the HTTP response.
-    }
+    await this.redisService.setJson(this.passwordResetKey(resetToken), { user_id: user.id }, this.PASSWORD_RESET_TTL_SECONDS);
+    await this.deliverPasswordReset(user, normalized.includes('@') ? normalized : user.email, resetToken);
     return { requested: true };
+  }
+
+  /**
+   * 435: the reset reaches the person as a link to the website's reset page (the page reads the token from the link), valid
+   * for 30 minutes, in their language. Email when there is one; a phone-only account gets it by SMS (when SMS is on) and on
+   * its signed-in devices by push. Every channel is best effort and the answer stays the same opaque `requested`.
+   */
+  private async deliverPasswordReset(user: any, email: string | undefined, resetToken: string) {
+    const webLocales = ['ar', 'en', 'ur', 'hi', 'bn', 'fil'];
+    const pref = String(user?.preferred_lang || '').toLowerCase().replace(/^tl$/, 'fil');
+    const locale = webLocales.includes(pref) ? pref : 'ar';
+    const site = (process.env.PUBLIC_SITE_ORIGIN || 'https://nabd.plus').replace(/\/$/, '');
+    const link = `${site}/${locale}/password-reset?token=${encodeURIComponent(resetToken)}`;
+    const minutes = Math.round(this.PASSWORD_RESET_TTL_SECONDS / 60);
+    const i18n = new I18nService();
+    const lang = resolveLang(pref);
+    const body = i18n.t('auth.passwordReset.body', lang, { minutes });
+    if (email) {
+      try {
+        await this.mail?.sendPasswordReset(email, i18n.t('auth.passwordReset.subject', lang), body, i18n.t('auth.passwordReset.action', lang), link, lang === 'en' ? 'ltr' : 'rtl');
+      } catch { /* do not disclose account state */ }
+      return;
+    }
+    if (user?.phone) {
+      try { await this.sms?.sendText(user.phone, `${body} ${link}`); } catch { /* best effort */ }
+    }
+    if (user?.id) {
+      try { await this.push?.sendTemplated(user.id, 'auth.passwordReset.subject', 'auth.passwordReset.body', { kind: 'password_reset', url: link }, { minutes }); } catch { /* best effort */ }
+    }
   }
 
   async resetPatientPassword(resetToken: string, newPassword: string) {
@@ -685,8 +724,13 @@ export class AuthService {
     await this.recordSignupAcceptances(user.id, consents);
     this.events.emit(EVENTS.USER_REGISTERED, { user_id: user.id, role: user.role });
 
-    // The response remains minimal; requestPatientOtp emits the opaque delivery DTO.
-    await this.requestPatientOtp(identifier);
+    // The response remains minimal; requestPatientOtp emits the opaque delivery DTO. The account exists now: a code
+    // that could not be sent (provider down, rate limit) is reported as such, never as a failed registration (issue 434).
+    try {
+      await this.requestPatientOtp(identifier);
+    } catch {
+      return { registered: true, otp_sent: false };
+    }
     return { registered: true };
   }
 
@@ -745,7 +789,7 @@ export class AuthService {
     const SELF_REGISTERABLE: string[] = [
       UserRole.PATIENT, UserRole.DOCTOR, UserRole.PHARMACY, UserRole.HOSPITAL,
       UserRole.LAB, UserRole.RADIOLOGY, UserRole.HOME_CARE, UserRole.NURSING,
-      UserRole.NURSE, UserRole.AMBULANCE, UserRole.PHYSIOTHERAPIST,
+      UserRole.NURSE, UserRole.PHYSIOTHERAPIST,
     ];
     const requestedRole = ((data.role as string) || UserRole.PATIENT) as UserRole;
     if (!SELF_REGISTERABLE.includes(requestedRole)) {
@@ -1182,6 +1226,11 @@ export class AuthService {
 
     const isEmail = normalized.includes('@');
     const existing = await this.userModel.findOne(isEmail ? { email: normalized } : { phone: normalized });
+    // Sign-up for an address that already has an account: say so now, not after the code step (issue 413). This
+    // reveals nothing new: /auth/register answers the same 409 for the same identifier.
+    if (existing && purpose === 'register') {
+      throw new ConflictException({ message: 'identifier_already_registered', code: 'identifier_already_registered', statusCode: HttpStatus.CONFLICT });
+    }
     if (!existing && purpose !== 'register') {
       // No account: same answer as a sent code, so this endpoint cannot be used to
       // test which emails/phones are registered. Nothing is stored or sent.

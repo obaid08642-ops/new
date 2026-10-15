@@ -262,6 +262,10 @@ export class PharmacyAllocation extends Document {
     unit_price?: number;
     substitute_for_sku?: string;
     substitute_reason?: string;
+    // P13-R2: a substitute is a patient decision, never automatic. The
+    // pharmacist stores a proposal; sku/price/totals change only on accept.
+    substitute_status?: 'proposed' | 'accepted' | 'rejected';
+    substitute_proposal?: { sku: string; name?: string; unit_price?: number; qty_offered?: number; reason?: string };
     notes?: string;
     updated_at?: Date;
   }>;

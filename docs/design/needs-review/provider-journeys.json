@@ -32,7 +32,7 @@
     "element": "map lines to catalogue",
     "found": "[backend] The search only reads the pharmacy's own inventory rows (provider_account_id = caller), minimum 2 characters; a new pharmacy with empty inventory can answer every line only with \"unavailable\".",
     "suspect": "dead end",
-    "review_status": "open"
+    "review_status": "fixed #1499"
   },
   {
     "scenario": 1,
@@ -67,7 +67,7 @@
     "element": "patient accepts",
     "found": "[backend] When the patient selects an offer the service only emits bus event pharmacy.offer.selected; nothing subscribes to it and notifyPharmacyNewAllocation is never called, so the pharmacy gets no push, socket or badge.",
     "suspect": "broken",
-    "review_status": "open"
+    "review_status": "fixed before this session (verified on main: pharmacy-offer.service.ts:574 notifies the chosen pharmacy; j_pharmacy step \"pharmacy notified that its offer was chosen\" passes in the live gate)"
   },
   {
     "scenario": 1,
@@ -85,7 +85,7 @@
     "element": "prepare",
     "found": "[backend] A partially_confirmed allocation can only go to confirmed, rejected or cancelled; confirm() with an unavailable line tries partially_confirmed again and item changes are blocked once an offer is selected (selected_offer_immutable). The UI shows only \"Confirm\" for this state.",
     "suspect": "dead end",
-    "review_status": "open"
+    "review_status": "fixed #1499"
   },
   {
     "scenario": 1,
@@ -102,7 +102,7 @@
     "element": "hand over / delivery",
     "found": "[client] The prescription dispensing path is a \"disabled\" notice and the old order detail and broadcast screens are defined but never rendered (dead code).",
     "suspect": "dead end",
-    "review_status": "open (issue #1146)"
+    "review_status": "owner-decision (question 41 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2) (issue #1146)"
   },
   {
     "scenario": 1,
@@ -120,7 +120,7 @@
     "element": "hand over / delivery",
     "found": "[client] Fixed on design/oc-provider: new Prescription review screen (PharmacyPrescriptionReview.tsx): both queues, verify, and an approved substitute for hand-typed lines. Before: No client call for the prescription queue, verify, substitute or manual-review routes (lines typed by a doctor are PENDING_REVIEW); the pharmacy cannot review a doctor prescription.",
     "suspect": "missing screen",
-    "review_status": "open"
+    "review_status": "fixed before this session (verified on main: PharmacyPrescriptionReview.tsx reached from PharmacyDashboard)"
   },
   {
     "scenario": 2,
@@ -171,7 +171,7 @@
     "element": "consultation",
     "found": "[client] Fixed on design/oc-provider: reschedule uses a date picker and a time picker (AppointmentDetailScreen.tsx). No endpoint lists free slots of an existing appointment. Before: Reschedule asks the doctor to type date and time as text (YYYY-MM-DD, HH:mm); no picker or slot list.",
     "suspect": "works",
-    "review_status": "open"
+    "review_status": "fixed before this session (verified on main: AppointmentDetailScreen.tsx:149 date and time pickers)"
   },
   {
     "scenario": 2,
@@ -189,7 +189,7 @@
     "element": "prescription",
     "found": "[owner] The client never calls POST /prescriptions/:id/send and offers no pharmacy to send to (the \"Pharmacy on Nabd Plus\" row has no handler); with decision 18 (patient orders the medicines) confirm that create alone is the intended end of the doctor's part.",
     "suspect": "missing step",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #1155)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision B22), main already complies: EPrescriptionScreen.tsx:255 ends at created; the send-to row is gone (issue #1155)"
   },
   {
     "scenario": 2,
@@ -242,7 +242,7 @@
     "element": "done",
     "found": "[backend] visit-report with complete:true moves to COMPLETED from ARRIVED without the patient signature that /nursing/visits/:id/complete requires, so the two end-of-visit paths give different guarantees. The provider app no longer calls this route (N2: every entry point uses /nursing/visits/:id/*).",
     "suspect": "broken",
-    "review_status": "open"
+    "review_status": "fixed #1474"
   },
   {
     "scenario": 3,
@@ -329,7 +329,7 @@
     "element": "balance",
     "found": "[backend] The wallet figure is earned minus payouts, clamped at 0, over only the latest 200 rows and counting pending (escrow) earnings; the withdrawal check uses the real ledger (cleared minus payouts, debits, locked), so the wallet can show more than can be withdrawn.",
     "suspect": "broken",
-    "review_status": "open (issue #1179)"
+    "review_status": "fixed #1464"
   },
   {
     "scenario": 5,
@@ -347,7 +347,7 @@
     "element": "withdrawal request",
     "found": "[client] The 100 SAR minimum is hard-coded in the screen; the server reads the minimum from finance_config.",
     "suspect": "works",
-    "review_status": "open (issue #1181)"
+    "review_status": "fixed #1464"
   },
   {
     "scenario": 5,
@@ -365,7 +365,7 @@
     "element": "withdrawal request",
     "found": "[backend] The one-open-request check counts only PENDING_ADMIN_APPROVAL and APPROVED_FOR_PAYOUT; a request in AWAITING_SECOND_APPROVAL holds locked funds but does not block a new request, so the client (which mirrors the server) cannot show it as pending.",
     "suspect": "broken",
-    "review_status": "open"
+    "review_status": "fixed #1464"
   },
   {
     "scenario": 1,
@@ -382,7 +382,7 @@
     "element": "on the way",
     "found": "[client] DeliveryTrackingScreen (static 'Live GPS map' card, no tracking data) is no longer registered or reachable after the Orders merge (M6); On the way is a section of Orders. Delete the dead export in the cleanup pass.",
     "suspect": "placeholder",
-    "review_status": "open"
+    "review_status": "fixed #1474"
   },
   {
     "scenario": 1,
@@ -418,7 +418,7 @@
     "element": "ambulance removal (decision 14)",
     "found": "[backend] The app no longer has the ambulance provider type, dashboard, SOS dispatch, GPS router or fleet screens. These backend modules still exist and are for the reviewer to remove or keep: EmergencyModule (emergency.controller.ts: /emergency/trigger, /active, /:id/claim, /:id/track; ambulance-fleet.controller.ts: /provider/ambulance/fleet) and DriversModule (drivers.controller.ts). Also the `ambulance` user/provider role values and the admin app pages that use them.",
     "suspect": "dead end",
-    "review_status": "open"
+    "review_status": "fixed #1482 (issue #333)"
   },
   {
     "scenario": 4,
@@ -436,7 +436,7 @@
     "element": "needs_changes reason",
     "found": "[backend] The note an admin writes with \"request changes\" is kept only in the status history and on the flagged documents (reviewer_note); GET /provider-onboarding/progress returns the provider profile, which has no needs_changes or suspension reason. The status screen shows the profile reason when it exists, the flagged documents with their notes, and otherwise says that no written reason was recorded.",
     "suspect": "missing step",
-    "review_status": "open"
+    "review_status": "fixed #1474"
   },
   {
     "scenario": 3,
@@ -454,7 +454,7 @@
     "element": "live position while on the way",
     "found": "[backend] The single visit flow sends the live position during IN_TRANSIT with POST /home-care/bookings/:id/gps (the older booking family) because /nursing/visits/:id/* has no position route; arrival is still the geofenced /nursing/visits/:id/arrive. Backend should expose one position route in the nursing family.",
     "suspect": "works",
-    "review_status": "open"
+    "review_status": "fixed #1474"
   },
   {
     "scenario": 1,
@@ -488,7 +488,7 @@
     "element": "radiology home visit tracking removed",
     "found": "[owner] The radiology order button \"Home visit (GPS tracking)\" and its route home_visit are removed because they opened the emergency GPS router (POST /emergency/:id/track), which decision 14 removes. If radiology home visits are wanted, they need their own tracking route and screen.",
     "suspect": "dead end",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision B24), main already complies: RadiologyDashboard.tsx has no home-visit or GPS order button"
   },
   {
     "scenario": 4,
@@ -505,7 +505,7 @@
     "element": "+ Add Custom Test (Requires Approval) (hidden)",
     "found": "[backend] The wizard had \"+ Add Custom Test (Requires Approval)\" in the lab and radiology test menus; it only showed a toast and sent nothing. It is hidden now (M9). To bring it back the backend needs an endpoint where a provider proposes a catalogue test or scan for admin approval.",
     "suspect": "missing",
-    "review_status": "open"
+    "review_status": "fixed #1493"
   },
   {
     "scenario": 4,
@@ -522,7 +522,7 @@
     "element": "inline clinic map",
     "found": "[client] The doctor wizard has two map inputs that write `location` in different shapes: the picker in the services step writes {lat, lng}, the inline map on the insurance step writes {latitude, longitude}; step2 sends whichever was set last.",
     "suspect": "broken",
-    "review_status": "open"
+    "review_status": "fixed #1474"
   },
   {
     "scenario": 4,
@@ -539,7 +539,7 @@
     "element": "saving flag in data",
     "found": "[client] The facility steps keep their saving flag `loading` inside the registration data, so `loading: false` is part of `full_data` sent with the final submit. Kept as is in M9 so the payload stays identical; move the flag out of the data in a later change.",
     "suspect": "broken",
-    "review_status": "open"
+    "review_status": "fixed #1474"
   },
   {
     "scenario": 4,
@@ -573,7 +573,7 @@
     "element": "Bundle Builder",
     "found": "[client] The lab and radiology test menu has a \"Bundle Builder\" whose bundles are only part of `full_data`; neither step2 nor step3 sends them, so no bundle reaches the catalogue.",
     "suspect": "broken",
-    "review_status": "open"
+    "review_status": "fixed #1474"
   },
   {
     "scenario": 3,

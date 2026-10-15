@@ -51,10 +51,13 @@ export default async function DiagnosticDetailPage({ params }: Props) {
     ...(booking.medicalReferralRequired !== undefined ? [{ label: t("referral"), value: booking.medicalReferralRequired ? t("yes") : t("no"), icon: "file-text", tone: DIAG_TONES.info } as FactRow] : []),
   ];
   const steps = tracking?.steps ?? [];
-  const current = steps.findIndex((step) => !step.done);
+  const last = steps.length - 1;
+  const FINAL = new Set(["REPORTED", "CANCELLED", "SAMPLE_REJECTED"]);
   const actions: LinkAction[] = domain === "labs"
     ? [
-        { href: `/${locale}/diagnostics/sample-tracking?bookingId=${encodeURIComponent(booking.id)}`, label: w("trackSample") },
+        // journeys#54: the report itself, as a file the browser opens (patient BFF -> GET labs/bookings/:id/reports/:reportId).
+        ...(booking.reportIds ?? []).map((rid, i, all) => ({ href: `/api/patient/labs/bookings/${encodeURIComponent(booking.id)}/reports/${encodeURIComponent(rid)}`, label: all.length > 1 ? w("openReportN", { n: i + 1 }) : w("openReport"), variant: "primary", external: true } as LinkAction)),
+        { href: `/${locale}/diagnostics/sample-tracking?bookingId=${encodeURIComponent(booking.id)}`, label: w("trackSample"), ...((booking.reportIds ?? []).length ? { variant: "outline" as const } : {}) },
         { href: `/${locale}/diagnostics/insurance-approval?orderId=${encodeURIComponent(booking.id)}`, label: w("uploadInsurance"), variant: "outline" },
       ]
     : [];
@@ -69,7 +72,10 @@ export default async function DiagnosticDetailPage({ params }: Props) {
         <SectionCard id="diag-steps" title={w("sampleSteps")}>
           <Timeline
             label={w("sampleSteps")}
-            steps={steps.map((step, i) => ({ id: `${i}`, label: step.title, time: step.time, state: step.done ? "done" : i === current ? "current" : "upcoming" }))}
+            steps={steps.map((step, i) => {
+              const key = diagStatus(step.state).key;
+              return { id: `${i}`, label: key === "unknown" ? t("statusUnavailable") : w(`status_${key}`), time: (step.at && formatWhen(locale, step.at)) || undefined, state: i < last || FINAL.has(step.state) ? "done" : "current" };
+            })}
           />
         </SectionCard>
       ) : null}

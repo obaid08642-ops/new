@@ -60,7 +60,17 @@ def main():
     try:
         page.locator('form input:not([type])').first.fill(EMAIL)
         page.fill('input[type="password"]', os.environ.get('NABD_ADMIN_PASSWORD', 'Adm1n!Live-Pass'))
-        page.click('button[type="submit"]')
+        # The admin login allows 10 a minute per IP; the journeys before this one sign in too. A 429 is waited out
+        # once, as lib.Client does (NABD_LIVE_WAIT_429), instead of reading it as a changed form.
+        with page.expect_response(lambda r: r.request.method == 'POST' and 'login' in r.url, timeout=20000) as sent:
+            page.click('button[type="submit"]')
+        if sent.value.status == 429 and os.environ.get('NABD_LIVE_WAIT_429', '1') == '1':
+            time.sleep(min(int(sent.value.headers.get('retry-after') or 61), 90))
+            t0 = time.time()
+            with page.expect_response(lambda r: r.request.method == 'POST' and 'login' in r.url, timeout=20000) as sent:
+                page.click('button[type="submit"]')
+        if sent.value.status >= 400:
+            raise RuntimeError(f'login answered {sent.value.status}')
         page.wait_for_selector('input[inputmode="numeric"]', timeout=20000)
         code = mail_code(EMAIL, t0)
         if not code:
@@ -196,6 +206,88 @@ def main():
                 step('medicine soft-deleted', rr.ok, rr)
     except Exception as e:
         step('medicines click flow', False, str(e)[:300])
+
+    # ---- permissions: page and backend name the same permission (needs-review admin guards, fix session) ----
+    journey('admin clicks: permissions (controls follow the backend permission; admin reads are admin-only)')
+    try:
+        # A patient who somehow carries the admin network-gate header must still be refused on admin reads.
+        from j_accounts import app_signup
+        from lib import Client, ADMIN_GATE_TOKEN
+        pat = app_signup(label='perm-patient')
+        patient = Client(pat.get('token'), 'patient')
+        r = patient.get('/admin/insurance/requests', headers={'x-admin-gate-token': ADMIN_GATE_TOKEN})
+        step('patient token is refused on GET /admin/insurance/requests (403)', r.status == 403, r)
+        r = patient.get('/admin/insurance/stats', headers={'x-admin-gate-token': ADMIN_GATE_TOKEN})
+        step('patient token is refused on GET /admin/insurance/stats (403)', r.status == 403, r)
+        # The live admin has role admin, which lacks finance.config.edit (super-admin only): the backend refuses the
+        # commission settings, so finance-suite must not offer the form (the page itself is checked once its
+        # duplicate GET /admin/finance/commissions route is fixed; see the fix-session log).
+        if admin:
+            rr = admin.post('/admin/finance/commissions/config', {'rates': {}, 'vat_rate': 0.15, 'reason': 'permission probe only'})
+            step('backend refuses commission settings to role admin (403)', rr.status == 403, rr)
+        page.goto(f'{ADMIN_WEB}/admin/orders', wait_until='load', timeout=45000)
+        page.wait_for_timeout(1500)
+        # /admin/today and /admin/approvals were reachable only by URL.
+        for href in ('/admin/today', '/admin/approvals'):
+            n = page.locator(f'nav a[href="{href}"], aside a[href="{href}"]').count()
+            step(f'navigation links to {href}', n > 0, f'{n} link(s)')
+        # The loyalty page listed the patient routes (active rewards only): a deactivated reward vanished and could
+        # not be turned back on. Create one, deactivate it, and it must still be listed.
+        if admin:
+            title = f'مكافأة {U}'
+            cr = admin.post('/admin/loyalty/rewards', {'title_ar': title, 'title_en': f'Reward {U}', 'points_required': 100, 'reward_type': 'badge'})
+            rid = cr.get('id')
+            step('admin creates a loyalty reward', cr.ok and rid, cr)
+            if rid:
+                off = admin.patch(f'/admin/loyalty/rewards/{rid}', {'active': False})
+                step('admin deactivates the reward', off.ok, off)
+                page.goto(f'{ADMIN_WEB}/admin/loyalty-config', wait_until='load', timeout=45000)
+                page.wait_for_timeout(2500)
+                step('loyalty page still lists the deactivated reward (admin route, not the patient one)', title in page.content(), 'missing from the page')
+                admin.delete(f'/admin/loyalty/rewards/{rid}')
+    except Exception as e:
+        step('permissions click flow', False, str(e)[:300])
+
+    # ---- finance suite: one commission config, one route each (fix session, money) ----
+    journey('admin clicks: finance suite commissions (the config the checkout charges, page renders)')
+    try:
+        if admin:
+            today = time.strftime('%Y-%m-%d')
+            r = admin.get(f'/admin/finance/commissions?from={today}&to={today}')
+            cu = r.get('config_used') or {}
+            pct = cu.get('percents') or {}
+            step('GET /admin/finance/commissions is the finance-suite report (config_used.percents per service)', r.ok and isinstance(pct, dict) and 'pharmacy' in pct, r)
+            cf = admin.get('/finance/commission-for?service_type=pharmacy')
+            step('report percent for pharmacy equals the percent the checkout charges', cf.ok and pct.get('pharmacy') == cf.get('percent'), f'report {pct.get("pharmacy")} vs charged {cf.get("percent")}')
+            step('report VAT is the KSA 15% the checkout applies', cu.get('vat_percent') == 15, cu.get('vat_percent'))
+            rec = admin.get('/admin/finance/commissions/records')
+            step('commission records keep their own route (commissions and ledger pages)', rec.ok and isinstance(rec.get('data'), list), rec)
+        page.goto(f'{ADMIN_WEB}/admin/finance-suite', wait_until='load', timeout=45000)
+        page.wait_for_selector('h2:has-text("العمولات وVAT")', timeout=30000)
+        step('finance-suite renders the commissions card', True, '')
+        shown = page.locator('button:has-text("حفظ وتدقيق الإعدادات")').count()
+        step('finance-suite hides the commission settings form from a role without finance.config.edit', shown == 0, f'{shown} save button(s) shown')
+    except Exception as e:
+        step('finance suite flow', False, str(e)[:300])
+
+    # ---- authority overrides: no ungoverned impersonation, every override names a permission (fix session) ----
+    journey('admin authority: no ungoverned impersonation token')
+    try:
+        from j_accounts import app_signup
+        from lib import Client
+        acct = app_signup(label='authority-target')
+        me = Client(acct.get('token'), 'patient').get('/auth/me')
+        target = ((me.body.get('data') or me.body) or {}).get('id') if isinstance(me.body, dict) else None
+        step('target patient id resolves', bool(target), me)
+        if admin and target:
+            r = admin.post(f'/admin/authority/users/{target}/impersonate', {})
+            tok = r.get('access_token')
+            step('legacy /admin/authority/users/:id/impersonate mints no token (governed sessions only)', not r.ok and not tok, r)
+            if tok:
+                who = Client(tok, 'patient').get('/auth/me')
+                step('(the minted token acts as the target user)', False, who)
+    except Exception as e:
+        step('authority impersonation flow', False, str(e)[:300])
 
     browser.close()
     pw.stop()

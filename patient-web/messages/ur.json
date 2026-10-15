@@ -331,7 +331,8 @@
     "finalPriceFromOffer": "ہر پیشکش کے ساتھ دکھائی جاتی ہے",
     "flowNote": "ہم آپ کی درخواست قریبی فارمیسیوں کو بھیجتے ہیں اور ان کی پیشکشیں آپ تک آتی ہیں۔ آپ بہترین چنتے ہیں، پھر ادائیگی کرتے ہیں۔",
     "requestOffers": "فارمیسیوں سے پیشکشیں منگوائیں",
-    "summaryLabel": "آرڈر کا خلاصہ"
+    "summaryLabel": "آرڈر کا خلاصہ",
+    "manualRequest": "دوا نہیں ملی؟ دستی درخواست شامل کریں"
   },
   "PharmacyFlow": {
     "sessionEnded": "آپ کا سیشن ختم ہو گیا۔ جاری رکھنے کے لیے دوبارہ سائن اِن کریں۔",
@@ -701,7 +702,7 @@
     "partUnavailable": "یہ حصہ لوڈ نہیں ہو سکا۔",
     "unitsRemaining": "{count, plural, one {# یونٹ باقی} other {# یونٹ باقی}}",
     "vitalsTitle": "اہم علامات",
-    "vitalsToday": "آج",
+    "vitalsToday": "تازہ ترین",
     "vitalsHistory": "ہسٹری",
     "vitalsTrends": "رجحانات",
     "noReading": "ابھی کوئی ریڈنگ نہیں",
@@ -911,9 +912,9 @@
   "ChatDetail": {
     "eyebrow": "نجی گفتگو",
     "thread": "گفتگو",
-    "messagesTitle": "پیغام کی سرگرمی",
+    "messagesTitle": "پیغامات",
     "back": "چیٹس پر واپس",
-    "bodyHidden": "پیغامات کا متن، شرکاء، ردعمل اور منسلکات ابھی یہاں نہیں دکھائے جاتے۔",
+    "bodyHidden": "یہاں شرکاء کے نام، ردعمل اور منسلکات نہیں دکھائے جاتے۔",
     "attachmentHidden": "اس پیغام میں ایک منسلکہ ہے۔",
     "deleted": "حذف شدہ پیغام",
     "timeUnavailable": "وقت دستیاب نہیں",
@@ -1149,7 +1150,10 @@
     "allSpecialties": "تمام تخصصات",
     "paymentLabel": "ادائیگی",
     "payment_insurance": "انشورنس قبول",
-    "payment_cash": "صرف نقد"
+    "payment_cash": "صرف نقد",
+    "doctorPhotoAlt": "{name} کی تصویر",
+    "clinicPhotosTitle": "کلینک کی تصاویر",
+    "clinicPhotoAlt": "کلینک کی تصویر {n}"
   },
   "LabsServices": {
     "eyebrow": "لیبارٹری کیئر",
@@ -1383,7 +1387,8 @@
     "emptyCategory": "اس زمرے میں فی الحال کوئی شائع شدہ مصنوعات نہیں۔",
     "allCategories": "تمام زمرے",
     "loadMore": "مزید دیکھیں",
-    "page": "صفحہ {page}"
+    "page": "صفحہ {page}",
+    "onlineOnly": "صرف آن لائن"
   },
   "Wallet": {
     "wallet": "والٹ",
@@ -1507,6 +1512,7 @@
     "checkingBody": "ہم ادائیگی فراہم کنندہ اور فارمیسی سے نتیجہ پوچھ رہے ہیں۔ اس میں چند سیکنڈ لگتے ہیں۔",
     "checkAgain": "دوبارہ جانچیں",
     "trackOrder": "آرڈر ٹریک کریں",
+    "openBooking": "بکنگ دیکھیں",
     "stalledTitle": "ابھی فراہم کنندہ کا انتظار ہے",
     "stalledBody": "ہمیں ابھی حتمی جواب نہیں ملا۔ فراہم کنندہ کے جواب تک کچھ بھی تصدیق شدہ نہیں۔ دوبارہ جانچیں، یا اپنے آرڈرز دیکھیں۔",
     "refundedTitle": "یہ ادائیگی واپس کر دی گئی",
@@ -1523,7 +1529,6 @@
     "attribute": "خصوصیت",
     "active_ingredient": "فعال جزو",
     "price": "قیمت",
-    "dosage_form": "شکل",
     "manufacturer": "صنعت کار",
     "emptyBody": "موازنے کے لیے کیٹلاگ سے کم از کم دو ادویات منتخب کریں۔",
     "browse": "ادویات دیکھیں",
@@ -1531,7 +1536,9 @@
     "requires_prescription": "نسخہ درکار ہے",
     "online_exclusive": "صرف آن لائن",
     "yes": "ہاں",
-    "no": "نہیں"
+    "no": "نہیں",
+    "form": "شکل",
+    "strength": "طاقت"
   },
   "PharmacyRequest": {
     "title": "دوا نام سے منگوائیں",
@@ -1857,6 +1864,7 @@
     "invalid": "6 ہندسوں کا کوڈ درج کریں۔",
     "failed": "کوڈ کی تصدیق نہیں ہو سکی۔",
     "missing": "سائن اِن یا اکاؤنٹ بنانے سے شروع کریں، ہم آپ کو کوڈ بھیجیں گے۔",
+    "notSent": "آپ کا اکاؤنٹ بن گیا، لیکن کوڈ نہیں بھیجا جا سکا۔ «دوبارہ بھیجیں» دبائیں۔",
     "back": "واپس",
     "wrong": "یہ کوڈ درست نہیں۔ اسے دیکھیں اور دوبارہ کوشش کریں۔",
     "expired": "اس کوڈ کی میعاد ختم ہو گئی۔ نیا کوڈ منگوائیں۔",
@@ -2085,7 +2093,9 @@
     "sortPopular": "سب سے زیادہ مقبول",
     "sortPriceAsc": "قیمت: کم سے زیادہ",
     "sortPriceDesc": "قیمت: زیادہ سے کم",
-    "sortNewest": "نئی ترین"
+    "sortNewest": "نئی ترین",
+    "askPharmacies": "قریبی فارمیسیوں سے مانگیں",
+    "compareAlternatives": "متبادلات سے موازنہ کریں"
   },
   "PharmacyOffers": {
     "backToOrder": "آرڈر پر واپس",
@@ -2151,15 +2161,12 @@
     "orderStatusLink": "آرڈر کی حالت",
     "trackOrder": "آرڈر ٹریک کریں",
     "continuePayment": "ادائیگی کی طرف جائیں",
-    "showMethods": "ادائیگی کا طریقہ منتخب کریں",
     "methodCard": "بینک کارڈ",
     "methodApplePay": "Apple Pay",
     "methodGooglePay": "Google Pay",
-    "paymentUnavailable": "اس آرڈر کے لیے فی الحال آن لائن ادائیگی کا کوئی طریقہ دستیاب نہیں۔",
     "redirecting": "آپ کو محفوظ ادائیگی کے صفحے پر لے جایا جا رہا ہے…",
     "noRedirect": "ادائیگی کا یہ طریقہ ابھی ویب پر دستیاب نہیں۔ کوئی اور طریقہ منتخب کریں۔",
     "paymentError": "ادائیگی شروع نہیں ہو سکی۔ کوئی ادائیگی درج نہیں ہوئی۔",
-    "loadingMethods": "ادائیگی کے طریقے لوڈ ہو رہے ہیں…",
     "insurancePending": "فارمیسی نے بیمہ کمپنی سے منظوری طلب کی ہے۔ فیصلے سے پہلے آپ پر کوئی رقم واجب نہیں۔",
     "insuranceCovered": "انشورنس اس آرڈر کو مکمل طور پر کور کرتی ہے۔ کوئی رقم واجب نہیں۔",
     "insuranceDecisionTitle": "ہر شے کے لیے انشورنس کا فیصلہ",
@@ -2673,6 +2680,8 @@
     "locationHome": "گھر پر وزٹ",
     "locationFacility": "مرکز میں",
     "trackSample": "نمونے کا پتا لگائیں",
+    "openReport": "رپورٹ کھولیں",
+    "openReportN": "رپورٹ {n} کھولیں",
     "uploadInsurance": "انشورنس دستاویز اپ لوڈ کریں",
     "bookingDetails": "بکنگ کی تفصیلات",
     "sampleSteps": "نمونے کے مراحل",
@@ -2714,13 +2723,9 @@
     "backToCart": "ٹوکری پر واپس",
     "callLab": "لیبارٹری کو کال کریں",
     "testTitle": "ٹیسٹ",
-    "bookTitle": "ٹیسٹ بک کریں",
-    "noProviderTitle": "کوئی لیبارٹری دستیاب نہیں",
     "noProviderBody": "اس وقت کوئی لیبارٹری یہ ٹیسٹ نہیں کر رہی۔",
-    "backToTests": "ٹیسٹ پر واپس",
     "tagHome": "گھر پر نمونہ",
     "tagFasting": "روزہ / خالی پیٹ",
-    "bookPackage": "یہ پیکیج بک کریں",
     "addToOrderCta": "میرے آرڈر میں شامل کریں",
     "details": "تفصیلات",
     "hubTitle": "لیبارٹری اور ریڈیالوجی",
@@ -2781,7 +2786,6 @@
     "searchErrorTitle": "ٹیسٹ لوڈ نہیں ہو سکے",
     "searchErrorBody": "تھوڑی دیر بعد دوبارہ کوشش کریں۔",
     "testFacts": "ٹیسٹ کی تفصیلات",
-    "bookTest": "یہ ٹیسٹ بک کریں",
     "cartEmptyTitle": "آپ کی ٹوکری خالی ہے",
     "cartEmptyBody": "بکنگ سے پہلے ٹیسٹ شامل کریں۔",
     "browseTests": "ٹیسٹ دیکھیں",
@@ -2861,7 +2865,6 @@
     "trackingInProgress": "جاری ہے",
     "trackingScheduled": "مقررہ وقت: {when}",
     "trackingBeforeTitle": "نمونہ لینے سے پہلے",
-    "trackingBeforeBody": "جب تک ڈاکٹر کچھ اور نہ کہے، نمونے سے 8 سے 12 گھنٹے پہلے کچھ نہ کھائیں۔",
     "trackingStepsTitle": "مراحل",
     "trackingNoSteps": "ابھی تک ٹریکنگ کی کوئی اپ ڈیٹ نہیں ہے۔ لیب جب مراحل درج کرے گی تو وہ یہاں نظر آئیں گے۔",
     "searchTests": "ٹیسٹ تلاش کریں…",
@@ -2870,19 +2873,6 @@
     "searchResults": "تلاش کے نتائج",
     "collectorLabel": "نمونہ لینے والا",
     "collectorCall": "نمونہ لینے والے کو کال کریں",
-    "collectorTipsTitle": "نمونہ لینے والے کے آنے پر",
-    "collectorTip1": "اپنا شناختی کارڈ اور ٹیسٹ کی درخواست تیار رکھیں",
-    "collectorTip2": "ٹیسٹ کے لیے درکار روزے / خالی پیٹ کی پابندی کریں",
-    "collectorTip3": "جو دوائیں لیتے ہیں وہ نمونہ لینے والے کو بتائیں",
-    "errHomeInsuranceDoc": "انشورنس کے ساتھ گھر پر وزٹ کے لیے ڈاکٹر کی درخواست یا پیشگی منظوری درکار ہے",
-    "errSlotTaken": "یہ وقت اب دستیاب نہیں",
-    "errBooking": "بکنگ نہیں بن سکی۔ دوبارہ کوشش کریں۔",
-    "bookWhere": "کہاں؟",
-    "bookHomeUnavailable": "اس ٹیسٹ کے لیے گھر پر نمونہ دستیاب نہیں۔",
-    "bookWhen": "تاریخ اور وقت",
-    "bookDocLabel": "ڈاکٹر کی درخواست یا منظوری کا لنک (ضرورت ہو تو)",
-    "bookSaving": "بکنگ ہو رہی ہے…",
-    "bookConfirm": "بکنگ کی تصدیق کریں",
     "status_pending": "تصدیق کا انتظار",
     "status_insurance": "انشورنس کا انتظار",
     "status_confirmed": "تصدیق شدہ",
@@ -2891,10 +2881,7 @@
     "status_processing": "جاری ہے",
     "status_report": "رپورٹ تیار ہے",
     "status_cancelled": "منسوخ",
-    "bookingNotSentTitle": "کوئی بکنگ نہیں ہوئی",
-    "bookingNotSentBody": "یہ ونڈو ابھی بکنگ نہیں بھیجتی، اس لیے کوئی ملاقات طے نہیں ہوئی اور کوئی ادائیگی نہیں لی گئی۔ وزٹ بک کرنے کے لیے نرسنگ کا صفحہ کھولیں۔",
-    "bookingNotSentCta": "نرسنگ کے صفحے پر جائیں",
-    "bookingNotSentClose": "بند کریں"
+    "trackingPrepAsk": "لیب آپ کے ساتھ کسی بھی ضروری تیاری کی تصدیق کرے گی۔"
   },
   "NursingWeb": {
     "hubTitle": "گھریلو نگہداشت",
@@ -2906,13 +2893,11 @@
     "browseCatalog": "نرسنگ خدمات دیکھیں",
     "statusLabel": "حالت",
     "pulse": "نبض",
-    "formService": "خدمت",
     "formTime": "وقت",
     "formAddress": "پتہ",
     "formAddAddress": "پہلے ایک پتہ شامل کریں",
     "formNotes": "نوٹس (اختیاری)",
     "formBooking": "بکنگ ہو رہی ہے…",
-    "formSelectService": "خدمت منتخب کریں",
     "formSelectTime": "دن اور وقت منتخب کریں",
     "formPast": "وہ وقت گزر چکا ہے۔ بعد کا وقت منتخب کریں",
     "formFailed": "بکنگ نہیں بن سکی",
@@ -2974,7 +2959,6 @@
     "insurance": "انشورنس دستیاب",
     "priceLabel": "قیمت",
     "durationLabel": "مدت",
-    "bookingNotice": "خدمت کی تفصیلات یہاں صرف مطالعے کے لیے ہیں۔ اس صفحے سے بکنگ نہیں بنتی۔",
     "back": "خدمات پر واپس",
     "serviceUnavailableTitle": "خدمات لوڈ نہیں ہو سکیں",
     "serviceUnavailableBody": "براہ کرم بعد میں دوبارہ کوشش کریں۔",
@@ -2994,13 +2978,19 @@
     "step_NURSE_ARRIVED": "نرس پہنچ گئی",
     "step_CARE_IN_PROGRESS": "نگہداشت جاری",
     "step_COMPLETED": "وزٹ مکمل",
-    "nurseTitle": "نرس کی پروفائل",
-    "nurseUnavailableTitle": "پروفائل فی الحال دستیاب نہیں",
-    "nurseUnavailableBody": "نرس کی پروفائل کی تفصیلات لوڈ نہیں ہو سکیں۔",
-    "experienceLabel": "کام کا تجربہ",
-    "ratingLabel": "مریضوں کی ریٹنگ",
-    "nurseServicesTitle": "دستیاب نرسنگ خدمات",
-    "requestNurse": "نرسنگ وزٹ کی درخواست کریں"
+    "bookCta": "یہ سروس بک کریں",
+    "bookTitle": "گھر پر وزٹ بک کریں",
+    "chooseNurse": "نرس منتخب کریں",
+    "noNurses": "اس وقت کوئی نرس یہ سروس فراہم نہیں کرتی۔ بعد میں دوبارہ کوشش کریں۔",
+    "today": "آج",
+    "loadingSlots": "دستیاب اوقات لوڈ ہو رہے ہیں…",
+    "noSlots": "اس دن کوئی وقت دستیاب نہیں۔ کوئی اور دن منتخب کریں۔",
+    "slotsFailed": "اوقات لوڈ نہیں ہو سکے۔ دوبارہ کوشش کریں۔",
+    "slotTaken": "یہ وقت اب دستیاب نہیں۔ کوئی اور وقت منتخب کریں۔",
+    "addressNeedsLocation": "نقشے پر مقام والا محفوظ پتہ منتخب کریں، یا نیا شامل کریں۔",
+    "payTitle": "ادائیگی",
+    "payNow": "ابھی کارڈ سے ادائیگی کریں",
+    "payFailed": "آپ کی بکنگ محفوظ ہے، لیکن ادائیگی کا صفحہ نہیں کھل سکا۔ دوبارہ کوشش کریں۔"
   },
   "MaternityWeb": {
     "title": "زچگی",
@@ -3153,15 +3143,10 @@
     "avgMood": "اوسط مزاج",
     "avgEnergy": "اوسط توانائی",
     "avgStress": "اوسط تناؤ",
-    "meditationSessions": "مراقبے کے سیشنز",
-    "meditationMinutes": "مراقبے کا وقت",
-    "minutes": "منٹ",
     "notAvailable": "دستیاب نہیں",
     "careTitle": "آپ کیا کر سکتے ہیں",
     "moodRow": "مزاج کی ڈائری",
     "moodRowSub": "پچھلے 30 دنوں کا مزاج، توانائی اور تناؤ",
-    "relaxRow": "سکون",
-    "relaxRowSub": "سانس اور مراقبے کے سیشنز",
     "therapistRow": "معالج سے وقت لیں",
     "therapistRowSub": "مشاورت میں ماہرِ نفسیات ڈاکٹر",
     "notice": "یہ اعداد آپ کے درج کردہ کی وضاحت ہیں، تشخیص، خطرے کا اسکور یا علاج کی سفارش نہیں۔",
@@ -3175,20 +3160,6 @@
     "energy": "توانائی: {value}",
     "stress": "تناؤ: {value}",
     "sleepHours": "نیند کے گھنٹے: {value}",
-    "relaxTitle": "سکون",
-    "tabBreathing": "سانس",
-    "tabMeditation": "مراقبہ",
-    "relaxUnavailableTitle": "سیشنز لوڈ نہیں ہو سکے",
-    "breathingEmpty": "ابھی سانس کا کوئی سیشن درج نہیں۔",
-    "techniqueUnavailable": "طریقہ دستیاب نہیں",
-    "rounds": "راؤنڈ: {value}",
-    "durationSeconds": "دورانیہ: {value} سیکنڈ",
-    "relaxNotice": "یہاں آپ کے درج شدہ سیشنز دکھائے جاتے ہیں۔ ویب پر نیا سیشن شروع کرنا دستیاب نہیں۔",
-    "meditationEmpty": "ابھی مراقبے کا کوئی سیشن درج نہیں۔",
-    "meditationUnavailable": "قسم دستیاب نہیں",
-    "durationMinutes": "دورانیہ: {value} منٹ",
-    "completed": "مکمل",
-    "notCompleted": "نامکمل",
     "moodValue": {
       "great": "بہت اچھا",
       "good": "اچھا",
@@ -3245,23 +3216,11 @@
     "example4": "جلد پر دانے اور خارش",
     "symptomsLabel": "آپ کی علامات",
     "symptomsPlaceholder": "مثال: دو دن سے سر درد اور متلی",
-    "flagsLegend": "کیا آپ میں ان میں سے کوئی علامت ہے؟ جو لاگو ہوں وہ منتخب کریں",
-    "flag": {
-      "chest_pain": "سینے میں درد",
-      "breathing_difficulty": "سانس لینے میں دشواری",
-      "fainting_or_unresponsive": "بے ہوشی یا ردعمل نہ دینا",
-      "heavy_bleeding": "شدید خون بہنا",
-      "new_confusion": "اچانک الجھن",
-      "severe_allergic_reaction": "شدید الرجک ردعمل",
-      "severe_injury": "شدید چوٹ"
-    },
     "submit": "اگلا قدم معلوم کریں",
     "submitting": "جانچ ہو رہی ہے…",
     "error": "ابھی رہنمائی نہیں مل سکی۔ کچھ دیر بعد دوبارہ کوشش کریں۔",
     "emergencyTitle": "ایسی علامات جن کے لیے فوری مدد چاہیے",
-    "emergencyBody": "آپ کی منتخب کردہ علامات کے لیے ابھی مقامی ایمرجنسی سروسز سے رابطہ کریں، اپائنٹمنٹ کا انتظار نہ کریں۔",
     "consultationTitle": "ہم ڈاکٹر سے مشورے کی تجویز دیتے ہیں",
-    "consultationBody": "آپ نے کوئی ہنگامی علامت منتخب نہیں کی۔ علامات برقرار رہیں یا بڑھ جائیں تو ڈاکٹر سے مشورہ بک کریں۔",
     "bookConsultation": "مشورہ بک کریں",
     "askAgain": "نیا سوال پوچھیں",
     "disclaimer": "یہ عمومی رہنمائی ہے، تشخیص یا علاج نہیں۔ ہنگامی صورت میں ایمرجنسی سروسز کو کال کریں۔",
@@ -3272,7 +3231,16 @@
     "untitledReport": "طبی رپورٹ",
     "reportsUnavailable": "آپ کی رپورٹس ابھی لوڈ نہیں ہو سکیں۔ کچھ دیر بعد دوبارہ کوشش کریں۔",
     "leafletLink": "معلوماتی پرچہ پڑھیں",
-    "historyTitle": "آپ کے پچھلے سوالات"
+    "leafletTitle": "اس دوا کے بارے میں، اس کے پرچے سے",
+    "outOfScopeTitle": "اسسٹنٹ کیا کر سکتا ہے",
+    "leaflet": {
+      "indications": "استعمال کی وجوہات",
+      "how_to_use": "استعمال کا طریقہ",
+      "side_effects": "مضر اثرات",
+      "warnings": "انتباہات",
+      "storage": "محفوظ رکھنے کا طریقہ",
+      "pregnancy": "حمل اور دودھ پلانا"
+    }
   },
   "MonthlyReportWeb": {
     "title": "آپ کی ماہانہ رپورٹ",
@@ -4086,5 +4054,99 @@
     "faqIngredient": "{name} کا فعال جزو کیا ہے؟",
     "faqPrice": "نبض پلس پر {name} کی قیمت کیا ہے؟",
     "howToTitle": "{name} استعمال کرنے کا طریقہ"
+  },
+  "LogForms": {
+    "saveError": "محفوظ نہیں ہو سکا۔ آپ کا لکھا ہوا برقرار ہے، دوبارہ کوشش کریں۔",
+    "saved": "محفوظ ہو گیا۔",
+    "water": {
+      "title": "پانی درج کریں",
+      "amount_ml": "مقدار (ملی لیٹر)",
+      "save": "پانی شامل کریں",
+      "bad": {
+        "amount_ml": "50 سے 3000 ملی لیٹر کے درمیان مقدار درج کریں۔"
+      }
+    },
+    "mood": {
+      "title": "اپنا موڈ درج کریں",
+      "mood": "اس وقت آپ کا موڈ کیسا ہے؟",
+      "option": {
+        "great": "بہت اچھا",
+        "good": "اچھا",
+        "okay": "ٹھیک",
+        "bad": "مشکل",
+        "terrible": "بہت مشکل"
+      },
+      "energy_level": "توانائی (1-5، اختیاری)",
+      "stress_level": "تناؤ (1-5، اختیاری)",
+      "sleep_hours": "نیند کے گھنٹے (اختیاری)",
+      "notes": "مختصر نوٹ (اختیاری)",
+      "save": "موڈ محفوظ کریں",
+      "bad": {
+        "mood": "پہلے اپنا موڈ منتخب کریں۔",
+        "energy_level": "توانائی 1 سے 5 تک کا عدد ہے۔",
+        "stress_level": "تناؤ 1 سے 5 تک کا عدد ہے۔",
+        "sleep_hours": "نیند کے گھنٹے 0 سے 24 کے درمیان ہیں۔",
+        "notes": "نوٹ بہت لمبا ہے۔"
+      }
+    },
+    "kicks": {
+      "title": "بچے کی حرکتیں درج کریں",
+      "count": "حرکتوں کی تعداد",
+      "duration_seconds": "کتنے منٹ میں",
+      "save": "حرکتیں محفوظ کریں",
+      "bad": {
+        "count": "1 سے 200 تک مکمل عدد درج کریں۔",
+        "duration_seconds": "وقت منٹوں میں درج کریں، 1 سے 240۔"
+      }
+    },
+    "contractions": {
+      "title": "سکڑاؤ درج کریں",
+      "interval_seconds": "پچھلے سے اب تک منٹ",
+      "duration_seconds": "کتنی دیر رہا (سیکنڈ)",
+      "save": "سکڑاؤ محفوظ کریں",
+      "bad": {
+        "interval_seconds": "1 سے 120 منٹ درج کریں۔",
+        "duration_seconds": "5 سے 300 سیکنڈ درج کریں۔"
+      }
+    },
+    "growth": {
+      "title": "بچے کی نشوونما درج کریں",
+      "month": "عمر (مہینے)",
+      "weight_kg": "وزن (کلو، اختیاری)",
+      "height_cm": "لمبائی (سینٹی میٹر، اختیاری)",
+      "head_circ_cm": "سر کا گھیر (سینٹی میٹر، اختیاری)",
+      "save": "پیمائش محفوظ کریں",
+      "bad": {
+        "month": "عمر 0 سے 60 مہینوں کا مکمل عدد ہے۔",
+        "weight_kg": "وزن 0.3 سے 40 کلو کے درمیان ہے۔",
+        "height_cm": "لمبائی 20 سے 150 سینٹی میٹر کے درمیان ہے۔",
+        "head_circ_cm": "سر کا گھیر 20 سے 60 سینٹی میٹر کے درمیان ہے۔"
+      }
+    }
+  },
+  "LabResult": {
+    "title": "لیب کا نتیجہ",
+    "error": "نتیجہ لوڈ نہیں ہو سکا",
+    "errorBody": "تھوڑی دیر بعد دوبارہ کوشش کریں۔",
+    "retry": "دوبارہ کوشش کریں",
+    "critical": "اہم — فالو اپ درکار",
+    "values": "اقدار",
+    "range": "نارمل حد {low} – {high}",
+    "flag_high": "زیادہ",
+    "flag_low": "کم",
+    "flag_critical": "نازک",
+    "findings": "نتائج",
+    "impression": "تاثر",
+    "recommendations": "سفارشات",
+    "notes": "لیب کے نوٹس",
+    "openBooking": "رپورٹ فائل دیکھنے کے لیے بکنگ کھولیں",
+    "empty": "اس نتیجے میں مزید تفصیل نہیں۔",
+    "discuss": "نتیجے پر ڈاکٹر سے بات کریں",
+    "rangeText": "نارمل حد {range}"
+  },
+  "Offline": {
+    "title": "آپ آف لائن ہیں",
+    "body": "کنکشن نہ ہونے کی وجہ سے یہ صفحہ نہیں کھل سکا۔ آپ کی کارٹ اسی ڈیوائس پر محفوظ ہے؛ کنکشن واپس آنے پر اپنی درخواست بھیجیں۔",
+    "home": "شروع پر واپس جائیں"
   }
 }

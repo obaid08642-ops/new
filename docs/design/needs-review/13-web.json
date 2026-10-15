@@ -74,7 +74,7 @@
     "line": 131,
     "found": "[client] Goes to /services, which redirects to the home page; there is no services list page to open.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open (issue #791)"
+    "review_status": "fixed #1469"
   },
   {
     "batch": 13,
@@ -85,7 +85,7 @@
     "line": 125,
     "found": "[client] Goes to /consultations/doctors (the doctors list), not to /provider-info; kept as it was.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open (issue #792)"
+    "review_status": "fixed #1469"
   },
   {
     "batch": 13,
@@ -140,7 +140,7 @@
     "line": 11,
     "found": "[owner] Resolved by issue 797: the page is now a permanentRedirect to /c (q and page kept), so the old intro and the dynamic query read are gone; the canonical /c page keeps its own text.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md)"
+    "review_status": "fixed before this session (verified on main: medicine-catalog/page.tsx:12 permanently redirects to /c)"
   },
   {
     "batch": 13,

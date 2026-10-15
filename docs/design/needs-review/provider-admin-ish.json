@@ -19,7 +19,7 @@
     "line": 35,
     "found": "[client] Fixed on design/oc-provider: now lists the active visits and opens the field-ops screen (was a stub).",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "fixed #1249 (verified on main: NurseVisitConsole.tsx lists the active visits)"
   },
   {
     "batch": "provider",

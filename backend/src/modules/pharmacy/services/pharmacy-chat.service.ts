@@ -12,6 +12,8 @@ import { PharmacyChatThreadRepository } from "./repositories/pharmacychatthread.
 import { PharmacyChatMessageRepository } from "./repositories/pharmacychatmessage.repository";
 import { PharmacyOrderRepository } from "./repositories/pharmacyorder.repository";
 import { PharmacyAllocationRepository } from "./repositories/pharmacyallocation.repository";
+import { buildQuoteHash, recalcAllocationTotals } from './pharmacy-allocation.service';
+import { assertSubstituteInsidePrescription } from './rx-rules';
 
 const BLOCK_PATTERNS: Array<{ name: string; re: RegExp }> = [
   { name: 'phone_e164', re: /(\+?\d{1,3}[-.\s]?)?(\(?\d{2,4}\)?[-.\s]?){2,4}\d{2,4}/g },
@@ -141,6 +143,14 @@ export class PharmacyChatService {
     if (t.status !== 'open') throw new BadRequestException('thread_closed');
     const msg = await this.messages.findOne({ id: message_id, thread_id }).lean();
     if (!msg || !msg.substitute_offer) throw new BadRequestException('no_substitute_offer');
+    // Issue 1440: a prescription line's substitute is the pharmacy's own inventory item inside the prescription.
+    const order: any = await this.orders.findOne({ id: t.order_id });
+    const line = order?.items?.find((i: any) => i.id === t.order_item_id);
+    if (line?.requires_prescription === true) {
+      const subSku = msg.substitute_offer.sku;
+      const subInv = subSku ? await this.orders.db.collection('provider_capabilities_pharmacy').findOne({ provider_account_id: t.pharmacy_account_id, sku: String(subSku) }) : null;
+      await assertSubstituteInsidePrescription(this.orders.db, line, subInv);
+    }
     // Find the pharmacy's allocation for this order and update the matching item
     const alloc = await this.allocs.findOne({ order_id: t.order_id, pharmacy_account_id: t.pharmacy_account_id });
     if (alloc) {
@@ -153,8 +163,12 @@ export class PharmacyChatService {
         item.substitute_reason = msg.substitute_offer.notes || 'patient_accepted_in_chat';
         item.unit_price = msg.substitute_offer.price || item.unit_price;
         item.updated_at = new Date();
+        // P13-R2: the patient's accept is recorded and the order total updated.
+        item.substitute_status = 'accepted';
+        recalcAllocationTotals(alloc);
         alloc.markModified('items');
         await alloc.save();
+        await this.syncOrderTotals(t.order_id, alloc, new Date(), 'substitute_accepted');
       }
     }
     t.status = 'closed';
@@ -173,6 +187,23 @@ export class PharmacyChatService {
     t.status = 'closed';
     t.resolution = action;
     await t.save();
+    // P13-R2: a decision in chat settles any pending allocation proposal for
+    // the same line, so fulfilment never waits on (or delivers past) it.
+    const alloc = await this.allocs.findOne({ order_id: t.order_id, pharmacy_account_id: t.pharmacy_account_id });
+    const aItem = alloc?.items?.find((i: any) => i.order_item_id === t.order_item_id);
+    if (alloc && aItem && aItem.substitute_status === 'proposed') {
+      aItem.substitute_status = 'rejected';
+      if (action === 'removed') {
+        aItem.action = AllocationItemAction.UNAVAILABLE;
+        aItem.qty_offered = 0;
+        aItem.inventory_id = undefined;
+      }
+      aItem.updated_at = new Date();
+      recalcAllocationTotals(alloc);
+      alloc.markModified('items');
+      await alloc.save();
+      await this.syncOrderTotals(t.order_id, alloc, new Date(), action === 'removed' ? 'item_removed_from_order' : 'substitute_rejected');
+    }
     if (action === 'removed') {
       // Remove item from order
       const order = await this.orders.findOne({ id: t.order_id });
@@ -186,6 +217,20 @@ export class PharmacyChatService {
     await this.messages.create({ id: uuidv4(), thread_id, sender_account_id: 'system', sender_role: 'system', system_code: action === 'rejected' ? 'substitute_rejected' : 'item_removed', text: action === 'rejected' ? `المريض رفض البديل.` : `تم حذف الصنف من الطلب.` });
     await this.bus.emit({ type: action === 'rejected' ? 'substitute.rejected' : 'substitute.item_removed', entity_type: 'chat', entity_id: t.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: t.patient_account_id, pharmacy_account_id: t.pharmacy_account_id, meta: { order_id: t.order_id, order_item_id: t.order_item_id } });
     return { ok: true };
+  }
+
+  /** P13-R2: keep the order's server-authoritative totals with the decided allocation. */
+  private async syncOrderTotals(orderId: string, alloc: any, now: Date, event: string) {
+    // Only bound allocations own a pricing snapshot (the fulfilment gate reads it).
+    if (!alloc?.offer_id) return;
+    const totals = { subtotal: alloc.totals.subtotal, delivery_fee: alloc.totals.delivery_fee || 0, total: alloc.totals.total, currency: alloc.totals.currency || 'SAR' };
+    await this.orders.updateOne({ id: orderId }, {
+      $set: {
+        totals,
+        pricing_snapshot: { offer_id: alloc.offer_id, offer_version: alloc.offer_version, totals, hash: buildQuoteHash(alloc.offer_id, alloc.offer_version, totals), captured_at: now },
+      },
+      $push: { timeline: { ts: now, event, meta: { allocation_id: alloc.id, totals } } },
+    });
   }
 
   /** Sweep closures (called by admin) — archive threads where order completed >12h ago. */

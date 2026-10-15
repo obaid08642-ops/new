@@ -64,5 +64,49 @@
     "found": "[backend] 2 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/finance/withdrawals/:param/execute; POST /api/admin/admin/finance/withdrawals/:param/reject): every admin role, including a custom restricted one, can run them. (backend: backend/src/modules/admin/web-core/controllers/finance.controller.ts:74)",
     "suspect": "Backend gap: reviewer session.",
     "review_status": "fixed #1215 (issue #936)"
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/finance-suite",
+    "element": "Whole page (commissions card)",
+    "file": "admin/src/pages/admin/finance-suite.tsx",
+    "line": 55,
+    "found": "[backend] GET /admin/finance/commissions was declared three times (legal.module, web-core finance.controller, enterprise admin-finance.controller). Nest served the legal one ({service_types,...}), so the page read config_used.source of undefined and crashed; the commissions and ledger pages read {data} and showed nothing. Found by the fix session (live click test).",
+    "suspect": "Duplicate routes: one route per shape.",
+    "review_status": "fixed #1430"
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/finance-suite",
+    "element": "Commission settings form",
+    "file": "backend/src/modules/admin/enterprise/finance-suite.service.ts",
+    "line": 206,
+    "found": "[backend] The form wrote finance_config.rates / vat_rate, which only this report read; the settlement (provider-ops creditEarning, pharmacy allocation) charges service_types.<type>.percent and tax.vat_percent. Editing the form changed the report, not the money. Found by the fix session.",
+    "suspect": "Two schemas in one config document.",
+    "review_status": "fixed #1430"
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/finance-suite",
+    "element": "VAT rate read by checkout (readVatRate)",
+    "file": "backend/src/modules/business-rules/business-rules.module.ts",
+    "line": 35,
+    "found": "[backend] readVatRate read tax.vat_percent ?? vat_rate and divided by 100, so a config written by the old finance-suite form (vat_rate 0.15, no tax) gave a VAT of 0.15%. Found by the fix session.",
+    "suspect": "Fraction read as a percent.",
+    "review_status": "fixed #1430"
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/orders",
+    "element": "POST /admin/override/payment, POST /patient-ux/refund, POST /admin/refunds/:id/decide",
+    "file": "backend/src/modules/patient-ux/patient-ux.module.ts",
+    "line": 324,
+    "found": "[backend] An admin could set a booking's payment_status to paid or refunded by hand (no money moved), and a second refund queue's approve marked a booking refunded without executing a refund.",
+    "suspect": "Backend gap: money (fix session).",
+    "review_status": "fixed #1453"
   }
 ]

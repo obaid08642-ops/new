@@ -8,7 +8,7 @@
     "line": 0,
     "found": "[backend] Fixed on design/backend-fields: GET /patient/pharmacy/orders/:id now carries pharmacy_name_ar / pharmacy_name_en (pharmacy-order.service.ts:147-150); the tracking card names the pharmacy by language and hides the line when absent.",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open"
+    "review_status": "fixed #1317 (verified on main: pharmacy-order.service.ts sends pharmacy_name_ar/en; order-tracking.tsx names the pharmacy)"
   },
   {
     "batch": 1,
@@ -30,7 +30,7 @@
     "line": 0,
     "found": "[backend] Fixed on design/backend-fields: legacy rows open the tracking screen, which falls back to GET /orders/:id/tracking (orders.service.ts getTracking) for an id the governed endpoint does not know.",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open"
+    "review_status": "fixed before this session (verified on main: order-tracking.tsx:56 falls back to GET /orders/:id/tracking for legacy ids)"
   },
   {
     "batch": 1,
@@ -52,7 +52,7 @@
     "line": 0,
     "found": "[owner] Owner approved the service filter on 2026-10-10 (item 371): chips per kind, All by default, client-side. The board shows no chips; add them to the board.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md)"
+    "review_status": "fixed before this session (verified on main: OrderList.tsx:63-103 kind chips)"
   },
   {
     "batch": 1,
@@ -63,6 +63,6 @@
     "line": 0,
     "found": "[owner] Owner approved on 2026-10-10 (item 372): the earlier prescription_id and delivery or pickup now carry over. The prescription record has no validity field (backend/src/schemas/prescription.schema.ts:41), so it is carried whenever the order had one and the server only checks ownership; a validity field is needed for the \"still valid\" rule (waits for OC).",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md)"
+    "review_status": "fixed before this session (verified on main: pharmacy/reorder.tsx:34 carries the prescription and fulfilment over)"
   }
 ]

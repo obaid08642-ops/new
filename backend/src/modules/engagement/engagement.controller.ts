@@ -147,6 +147,23 @@ export async function processNudge(
     title_key: title,
     body_key: body,
     type: NotificationType.INFO,
-    action: event.ref_id ? { route: `/${kind}/${event.ref_id}` } : undefined,
+    action: nudgeRoute(kind, event.ref_id),
   });
+}
+
+/**
+ * 416: the route a nudge opens, one the apps know (patient-app translateBackendRoute): the item itself when it has a page
+ * (a medicine, a doctor, a lab test), otherwise the service's hub.
+ */
+export function nudgeRoute(kind: string, refId?: string | null): { route: string } {
+  const ref = typeof refId === 'string' && refId ? encodeURIComponent(refId) : '';
+  if (ref && kind === 'medicine') return { route: `/pharmacy/product/${ref}` };
+  if (ref && kind === 'doctor') return { route: `/doctors/${ref}` };
+  if (ref && kind === 'lab_test') return { route: `/labs/tests/${ref}` };
+  const hubs: Record<string, string> = {
+    medicine: '/pharmacy', category: '/pharmacy', search_query: '/pharmacy', doctor: '/consultations', specialty: '/consultations',
+    lab_test: '/diagnostics', radiology: '/diagnostics', nursing: '/nursing', pregnancy: '/maternity', ovulation: '/maternity',
+    family: '/family', mental_health: '/mental-health', nutrition: '/nutrition',
+  };
+  return { route: hubs[kind] || '/notifications' };
 }
