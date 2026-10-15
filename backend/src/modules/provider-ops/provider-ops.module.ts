@@ -20,7 +20,7 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { randomUUID } from 'crypto';
 import { JwtAuthGuard, CurrentUser, Roles, hasEffectiveRole } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
-import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, PutPricingDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto } from './provider-ops.dto';
+import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, PutPricingDto, PutTariffsDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto } from './provider-ops.dto';
 
 /** Provider withdrawal requests (consumed by admin-web-core finance controller). */
 export const ProviderWithdrawalSchema = new Schema(
@@ -162,6 +162,21 @@ export class ProviderOpsService {
 
   async myTemplates(doctorId: string): Promise<any[]> {
     return this.conn.collection('prescription_templates').find({ doctor_id: doctorId }).sort({ usage_count: -1, createdAt: -1 }).limit(50).toArray();
+  }
+
+  /**
+   * The doctor applied a saved template to the prescription being written: count the use (the list is
+   * ordered by usage_count) and hand back the doctor's own template so the screen fills the form from it.
+   */
+  async useTemplate(doctorId: string, id: string): Promise<any> {
+    const now = new Date();
+    const doc = await this.conn.collection('prescription_templates').findOneAndUpdate(
+      { id: { $eq: id }, doctor_id: { $eq: doctorId } },
+      { $inc: { usage_count: 1 }, $set: { last_used_at: now } },
+      { returnDocument: 'after', projection: { _id: 0 } },
+    );
+    if (!doc) throw new NotFoundException('template not found');
+    return doc;
   }
 
   async deleteTemplate(doctorId: string, id: string) {
@@ -574,6 +589,15 @@ export class ProviderOpsService {
     return { ok: true, message: 'delta_submitted', pending_review: true, data: { id: delta.id, status: 'pending', target: 'settings' } };
   }
 
+  /** The newest change of one settings key that is still waiting for admin review (null when none). */
+  async pendingSettingChange(providerId: string, key: string): Promise<any> {
+    const d: any = await this.conn.collection('provider_deltas').findOne(
+      { provider_id: { $eq: providerId }, status: 'pending', target: 'settings', 'requested_changes.settings_key': { $eq: key } },
+      { sort: { createdAt: -1 }, projection: { _id: 0, id: 1, requested_changes: 1, createdAt: 1 } },
+    );
+    return d ? { id: d.id, value: d.requested_changes?.value ?? null, submitted_at: d.createdAt } : null;
+  }
+
   async endConsultation(user: any, body: any) {
     const appointmentId = body.appointment_id || body.id;
     if (!appointmentId) throw new BadRequestException('appointment_id required');
@@ -657,6 +681,7 @@ export class ProviderOpsController {
   // Doctor: leave/vacation
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
   @Post('doctor/leave') addLeave(@CurrentUser() u: any, @Body() b: AddLeaveDto) { return this.svc.addLeave(u.id, b); }
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('doctor/leave') leaves(@CurrentUser() u: any): Promise<any[]> { return this.svc.myLeaves(u.id); }
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
   @Delete('doctor/leave/:id') cancelLeave(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.cancelLeave(u.id, id); }
@@ -667,9 +692,12 @@ export class ProviderOpsController {
   @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('doctor/templates') templates(@CurrentUser() u: any): Promise<any[]> { return this.svc.myTemplates(u.id); }
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
+  @Post('doctor/templates/:id/use') useTemplate(@CurrentUser() u: any, @Param('id') id: string): Promise<any> { return this.svc.useTemplate(u.id, id); }
+  @Roles(UserRole.DOCTOR, UserRole.ADMIN)
   @Delete('doctor/templates/:id') delTemplate(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.deleteTemplate(u.id, id); }
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
   @Post('doctor/diagnoses') saveDx(@CurrentUser() u: any, @Body() b: SaveDxDto) { return this.svc.saveDiagnosis(u.id, b); }
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('doctor/diagnoses') diagnoses(@CurrentUser() u: any, @Query('search') s?: string): Promise<any[]> { return this.svc.myDiagnoses(u.id, s); }
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
   @Post('doctor/blacklist/:patientId') block(@CurrentUser() u: any, @Param('patientId') p: string, @Body() b: BlockDto) { return this.svc.blacklistPatient(u.id, p, b?.reason); }
@@ -677,6 +705,7 @@ export class ProviderOpsController {
   @Delete('doctor/blacklist/:patientId') unblock(@CurrentUser() u: any, @Param('patientId') p: string) { return this.svc.unblacklistPatient(u.id, p); }
   @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('doctor/blacklist') blacklist(@CurrentUser() u: any): Promise<any[]> { return this.svc.myBlacklist(u.id); }
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('doctor/patient-crm/:patientId') getCrm(@CurrentUser() u: any, @Param('patientId') p: string) { return this.svc.getPatientCrm(u.id, p); }
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
   @Put('doctor/patient-crm/:patientId') putCrm(@CurrentUser() u: any, @Param('patientId') p: string, @Body() b: PutCrmDto) { return this.svc.putPatientCrm(u.id, p, b || {}); }
@@ -746,6 +775,7 @@ export class ProviderCompatController {
   }
 
   /** Period stats for the Statistics screen: week | month | year. */
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('stats/period') async statsPeriod(@CurrentUser() u: any, @Query('period') period?: string): Promise<any> {
     const p = period === 'week' || period === 'year' ? period : 'month';
     return this.svc.statsPeriod(u.id, p);
@@ -759,6 +789,28 @@ export class ProviderCompatController {
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
   @Put('settings/pricing') async putPricing(@CurrentUser() u: any, @Body() b: PutPricingDto) {
     return this.svc.requestSettingChange(u.id, 'pricing', b?.pricing ?? b);
+  }
+
+  /**
+   * Facility tariffs (ICU daily/hourly, ward, surgery room, emergency fee). GET returns the approved
+   * tariffs (null when none were ever approved) and the change still waiting for admin review, so the
+   * screen starts from real values; PUT sends only the entered prices to admin review (same path as pricing).
+   */
+  @Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
+  @Get('settings/tariffs') async getTariffs(@CurrentUser() u: any): Promise<any> {
+    const [tariffs, pending] = await Promise.all([
+      this.svc.getProviderSetting(u.id, 'tariffs', null),
+      this.svc.pendingSettingChange(u.id, 'tariffs'),
+    ]);
+    return { tariffs, pending };
+  }
+  @Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
+  @Put('settings/tariffs') async putTariffs(@CurrentUser() u: any, @Body() b: PutTariffsDto) {
+    const keys: Array<keyof PutTariffsDto> = ['icu_daily', 'icu_hourly', 'ward_daily', 'surgery_room', 'emergency_fee'];
+    const entered: Partial<Record<keyof PutTariffsDto, number>> = {};
+    for (const k of keys) if (typeof b?.[k] === 'number') entered[k] = b[k];
+    if (!Object.keys(entered).length) throw new BadRequestException('at least one tariff is required');
+    return this.svc.requestSettingChange(u.id, 'tariffs', entered);
   }
 
   /** Reviews received by this provider */
@@ -783,6 +835,7 @@ export class ProviderCompatController {
   }
 
   /** Schedule settings (nursing/providers): shifts, maxVisits, emergencyReady */
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('schedule/settings') async getSched(@CurrentUser() u: any) {
     return this.svc.getProviderSetting(u.id, 'schedule_settings', null);
   }

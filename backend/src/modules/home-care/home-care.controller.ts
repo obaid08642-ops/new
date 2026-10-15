@@ -240,6 +240,15 @@ export class NursingController {
     throw new ServiceUnavailableException('legacy_nursing_visit_response_disabled_pending_governed_payment_coverage_capacity_command');
   }
 
+  /**
+   * Tell the patient about a visit step. 'patient.notify' has no listener, so the patient heard nothing;
+   * this is the same event POST /home-care/bookings/:id/visit-report sends (NotificationsService.onHomecareState
+   * -> notif.homecare_<state>), so both ways of finishing a visit notify the patient alike.
+   */
+  private notifyPatientOfState(b: any) {
+    this.events.emit('homecare.booking_state_changed', { booking_id: b.id, patient_id: b.patient_id, state: b.state, provider_id: b.provider_id });
+  }
+
   @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Post('visits/:id/transit')
   async startTransit(@Param('id') id: string, @CurrentUser() user: any) {
@@ -253,8 +262,7 @@ export class NursingController {
     b.state_history.push({ from: NursingBookingState.CONFIRMED, to: b.state, at: new Date() });
     await b.save();
 
-    // Emitting live GPS sync event for Patient App (Pillar 7.1)
-    this.events.emit('patient.notify', { patientId: b.patient_id, type: 'nursing_transit', message: 'الممرض في الطريق إليك', metadata: { bookingId: b.id } });
+    this.notifyPatientOfState(b);
     
     return { success: true, state: b.state };
   }
@@ -294,7 +302,7 @@ export class NursingController {
     b.state_history.push({ from: NursingBookingState.IN_TRANSIT, to: b.state, at: new Date() });
     await b.save();
 
-    this.events.emit('patient.notify', { patientId: b.patient_id, type: 'nursing_arrived', message: 'الممرض بالباب', metadata: { bookingId: b.id } });
+    this.notifyPatientOfState(b);
 
     return { success: true, state: b.state };
   }
@@ -374,7 +382,7 @@ export class NursingController {
     b.state_history.push({ from, to: b.state, at: new Date() });
     await b.save();
 
-    this.events.emit('patient.notify', { patientId: b.patient_id, type: 'nursing_completed', message: 'اكتملت الخدمة - فضلاً قيم الممرض', metadata: { bookingId: b.id } });
+    this.notifyPatientOfState(b);
     
     if (b.referring_doctor_id) {
        this.events.emit('doctor.notify', { doctorId: b.referring_doctor_id, type: 'nursing_report', message: 'اكتملت خطة التمريض المنزلي', metadata: { bookingId: b.id }});
