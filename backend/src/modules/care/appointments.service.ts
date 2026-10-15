@@ -1,4 +1,5 @@
 import { escapeRegex } from '../../common/slug.util';
+import { pickAttribution } from '../../common/attribution';
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException, Logger, Inject, Optional } from '@nestjs/common';
 import { Model, Connection } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -271,6 +272,8 @@ export class AppointmentsService {
         patient_notes: body.patient_notes,
         symptoms: body.symptoms || [],
         visit_location: body.visit_location,
+        // P17-17.5: campaign attribution for the campaign report.
+        attribution: pickAttribution(body) ?? undefined,
         payment_method: pm,
         insurance_provider: body.insurance_provider,
         insurance_member_id: body.insurance_member_id,

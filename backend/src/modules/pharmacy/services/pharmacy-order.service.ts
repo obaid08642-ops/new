@@ -8,6 +8,7 @@ import { SmartSplitService } from './smart-split.service';
 import { PharmacyNotificationService } from './pharmacy-notification.service';
 import { PharmacyBroadcastService } from './pharmacy-broadcast.service';
 import { EventBusService } from '../../events/event-bus.service';
+import { pickAttribution } from '../../../common/attribution';
 import { WorkflowEngineService } from '../../workflow-engine/workflow-engine.module';
 
 import { PharmacyAllocationState } from '../schemas/pharmacy.schema';
@@ -131,6 +132,8 @@ export class PharmacyOrderService {
       delivery_address_id: typeof body.delivery_address_id === 'string' ? body.delivery_address_id : undefined,
       prescription_attachments: attachments.files,
       totals: { subtotal: 0, delivery_fee: 0, total: 0, currency: 'SAR' },
+      // P17-17.5: campaign attribution for the campaign report.
+      attribution: pickAttribution(body) ?? undefined,
       timeline: [{ ts: new Date(), event: 'created' }],
     });
     await this.engine.announceCreated({ kind: 'pharmacy', entity_id: order.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { items: items.length, intake_source: 'broadcast' } });
