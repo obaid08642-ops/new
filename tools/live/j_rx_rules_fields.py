@@ -190,7 +190,7 @@ def web(pat, tag, online_name, oid, indexed_rx):
         page.goto(f'{WEB}/ar/c?q={urllib.parse.quote(f"rxrulesol-{tag}")}', wait_until='load', timeout=60000)
         card = page.locator('.nabd-product-card', has_text=online_name)
         card.first.wait_for(timeout=30000)
-        step('the online-only card shows "أونلاين فقط"', card.first.locator('.nabd-product-card__note', has_text=ONLINE_ONLY).count() == 1, card.first.inner_text()[:200])
+        step('the online-only card shows "أونلاين فقط"', card.first.locator('.nabd-product-card__online', has_text=ONLINE_ONLY).count() == 1, card.first.inner_text()[:200])
         card.first.locator('button.nabd-product-card__add').click()
         page.wait_for_timeout(800)
         page.goto(f'{WEB}/ar/cart', wait_until='load', timeout=60000)
