@@ -487,8 +487,8 @@ export class ProviderDashboardController {
   @Get('availability') getAvail(@CurrentUser() u: any) { return this.dash.getAvailability(u); }
   @SelfService()
   @Post('availability') setAvail(@CurrentUser() u: any, @Body() body: SetAvailDto) { return this.dash.setAvailability(u, body); }
-  // R71 / F17: demo data only in explicit test mode. Open in every environment, any provider (an ambulance
-  // included) could plant schedules that skip admin approval and pharmacy/lab/radiology/doctor capabilities.
+  // R71 / F17: demo data only in explicit test mode. Open in every environment, any provider
+  // could plant schedules that skip admin approval and pharmacy/lab/radiology/doctor capabilities.
   private assertTestSeedAllowed() {
     if (process.env.NODE_ENV !== 'test' || process.env.ALLOW_TEST_SEED !== 'true') {
       throw new ServiceUnavailableException('test_seed_disabled');

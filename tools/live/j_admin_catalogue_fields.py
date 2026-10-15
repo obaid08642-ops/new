@@ -64,7 +64,7 @@ def catalogue_fields(admin):
 
 
 def price_review_queue(admin):
-    """PriceReviewQueue.tsx: GET /admin/pharmacy/price-review (BFF /api/admin/admin/...), close."""
+    """PriceReviewQueue.tsx: GET /admin/pharmacy/price-review (BFF /api/admin/admin/...), close through .../resolve."""
     import j_onboarding, j_accounts, j_pharmacy
     p = j_onboarding.register_pharmacy()
     j_onboarding.admin_review(admin, p)
@@ -118,12 +118,12 @@ def price_review_queue(admin):
     step('the row names the pharmacy and carries the date', row.get('pharmacy_name_ar') and row.get('updatedAt'), row)
     step('a line that matches a catalogue item without a reference price says so (no "create" offered)',
          line and line.get('catalogue_item_id') in {m['id'] for m in meds}, line)
-    r = admin.post(f"/admin/admin/pharmacy/price-review/{row['id']}/close", {})
+    r = admin.post(f"/admin/admin/pharmacy/price-review/{row['id']}/resolve", {'resolution': 'price_confirmed'})
     step('admin closes the reviewed row', r.ok and r.get('status') == 'closed', r)
     r = admin.get(f'/admin/admin/pharmacy/price-review?order_id={oid}&status=closed')
     step('the row is listed under closed', r.ok and any(x.get('id') == row['id'] for x in rows_of(r)), r)
-    r = admin.post(f"/admin/admin/pharmacy/price-review/{row['id']}/close", {})
-    step('closing it again answers 404', r.status == 404, r)
+    r = admin.post(f"/admin/admin/pharmacy/price-review/{row['id']}/resolve", {'resolution': 'price_confirmed'})
+    step('closing it again is refused (already closed)', r.status == 400, r)
     return p
 
 

@@ -45,7 +45,7 @@ const medicine = (i, extra = {}) => ({ id: `med-${i}`, name_ar: `دواء تجر
 
 const FIXTURES = [
   [/\/admin\/session$/, () => ({ user: { id: 'a1', role: 'super_admin', full_name: 'مدير تجريبي' }, permissions: PERMISSIONS })],
-  [/\/command-center-v2$/, () => ({ ts: new Date().toISOString(), tiles: { orders_active: 12, labs_active: 3, radiology_active: 2, nursing_active: 1, appointments_today: 9, sos_open: 0, tickets_open: 4, revenue_24h_sar: 15230, payments_24h: 31, sla_breach_total: 2 } })],
+  [/\/command-center-v2$/, () => ({ ts: new Date().toISOString(), tiles: { orders_active: 12, labs_active: 3, radiology_active: 2, nursing_active: 1, appointments_today: 9, tickets_open: 4, revenue_24h_sar: 15230, payments_24h: 31, sla_breach_total: 2 } })],
   [/\/ops\/alerts$/, () => ({ stuck_minutes_threshold: 30, stuck_orders: [{ kind: 'pharmacy', id: 'ord-1', state: 'QUOTED' }, { kind: 'lab', id: 'lab-7', state: 'CONFIRMED' }], stuck_count: 2, failed_payments: [{ id: 'tx1', booking_kind: 'pharmacy', booking_id: 'ord-1', amount: 80, status: 'failed' }], failed_count: 1 })],
   [/\/ops\/overview$/, () => ({ today: { total_requests: 1200, success: 1180, client_errors: 15, server_errors: 5, success_rate: 98.3 } })],
   [/\/ops\/domain-metrics$/, () => ({ pharmacy: { fill_rate_pct: 87, ordered: 100, filled: 87 }, consultations: { no_show: 3, no_show_rate_pct: 4 }, nursing: { by_state: { NEW: 1 } } })],

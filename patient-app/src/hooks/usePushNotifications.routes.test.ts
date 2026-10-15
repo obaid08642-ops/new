@@ -13,8 +13,12 @@ const screenExists = (pathname: string) => {
 };
 
 describe('notification routes the backend writes, translated to screens that exist', () => {
-  it('result and report notifications pass the id the report screen reads (`id`, not `reportId`)', () => {
-    for (const route of ['/health/results/r1', '/health/reports/r1', '/reports/r1']) {
+  it('decision 19: a lab "result ready" notification opens that lab result', () => {
+    expect(translateBackendRoute('/health/results/r1')).toEqual({ pathname: '/diagnostics/lab-result', params: { id: 'r1' } });
+  });
+
+  it('report notifications pass the id the report screen reads (`id`, not `reportId`)', () => {
+    for (const route of ['/health/reports/r1', '/reports/r1']) {
       expect(translateBackendRoute(route)).toEqual({ pathname: '/reports/view-report', params: { id: 'r1' } });
     }
   });
@@ -42,8 +46,16 @@ describe('notification routes the backend writes, translated to screens that exi
     expect(translateBackendRoute('/offers-of-the-week/o1')).toBeNull();
   });
 
+  it('the nudge and payment routes the backend writes open the item or its hub (issue 416)', () => {
+    expect(translateBackendRoute('/pharmacy/product/m1')).toEqual({ pathname: '/pharmacy/product-detail', params: { id: 'm1' } });
+    expect(translateBackendRoute('/doctors/d1')).toEqual({ pathname: '/consultations/doctor/[id]', params: { id: 'd1' } });
+    expect(translateBackendRoute('/labs/tests/t1')).toEqual({ pathname: '/diagnostics/test-detail', params: { id: 't1' } });
+    expect(translateBackendRoute('/maternity')).toEqual({ pathname: '/maternity/hub' });
+    expect(translateBackendRoute('/tracking/lab/b1')).toEqual({ pathname: '/diagnostics/sample-tracking', params: { bookingId: 'b1' } });
+  });
+
   it('what it returns is a screen of the app', () => {
-    for (const route of ['/health/results/r1', '/reports/r1', '/community/post-detail?id=p1', '/family/permission-request', '/health/family-hub', '/orders/o1/tracking', '/consultations/appointments']) {
+    for (const route of ['/pharmacy/product/m1', '/doctors/d1', '/labs/tests/t1', '/pharmacy', '/consultations', '/diagnostics', '/nursing', '/maternity', '/mental-health', '/nutrition', '/family', '/tracking/consultation/a1', '/tracking/nursing/n1', '/tracking/radiology/r1', '/orders/o1', '/health/results/r1', '/reports/r1', '/community/post-detail?id=p1', '/family/permission-request', '/health/family-hub', '/orders/o1/tracking', '/consultations/appointments']) {
       const target = translateBackendRoute(route);
       expect(target).not.toBeNull();
       expect(screenExists(target!.pathname)).toBe(true);

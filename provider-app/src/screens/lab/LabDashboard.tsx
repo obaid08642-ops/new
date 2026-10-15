@@ -945,9 +945,16 @@ function AddCustomTest({ onBack }:{ onBack:()=>void }) {
  onPress={async()=>{
   setLoading(true);
   try {
+    // provider-journeys 28: a proposed test is a lab catalogue item the admin reviews (admin/service-proposals); the old
+    // body (entity_type 'lab_test', camelCase fields) was refused by the server.
+    const lo = Number(refLow), hi = Number(refHigh), hrs = Number(hours);
     await client.post('/approval-workflow/requests', {
-      entity_type: 'lab_test',
-      change_data: { nameAr, nameEn, price, hours, refLow, refHigh, unit, fasting }
+      entity_type: 'service',
+      change_data: {
+        type: 'lab', name_ar: nameAr.trim(), name_en: nameEn.trim() || nameAr.trim(), price: Number(price) || 0, fasting_required: !!fasting,
+        ...(Number.isFinite(hrs) && hrs > 0 ? { turnaround_hours: hrs } : {}),
+        ...(refLow.trim() && refHigh.trim() && Number.isFinite(lo) && Number.isFinite(hi) ? { reference_ranges: { min: lo, max: hi, unit: unit.trim() } } : {}),
+      },
     });
     show(AR?'تم الإرسال للمراجعة':'Submitted for review','success');
     onBack();
@@ -1513,12 +1520,9 @@ function LabTestMenuScreen({ onBack }: { onBack: () => void }) {
   const [newTitleAr, setNewTitleAr] = useState('');
   const [newTitleEn, setNewTitleEn] = useState('');
   const [newPrice, setNewPrice] = useState('');
-  const [newHomeFee, setNewHomeFee] = useState('');
 
   const [editingService, setEditingService] = useState<any | null>(null);
   const [editPrice, setEditPrice] = useState('');
-  const [editHomeFee, setEditHomeFee] = useState('');
-  const [editCovered, setEditCovered] = useState(false);
 
   useEffect(() => { fetchServices(); }, []);
 
@@ -1539,11 +1543,7 @@ function LabTestMenuScreen({ onBack }: { onBack: () => void }) {
       await client.post('/approval-workflow/requests', {
         entity_type: 'service',
         entity_id: editingService.id,
-        change_data: {
-          price: parseFloat(editPrice) || 0,
-          home_drawing_fee: parseFloat(editHomeFee) || 0,
-          insurance_covered: !!editCovered,
-        }
+        change_data: { price: parseFloat(editPrice) || 0 }
       });
       show(AR ? 'تم إرسال التعديلات للمراجعة' : 'Changes sent for review', 'success');
       setEditingService(null);
@@ -1565,13 +1565,11 @@ function LabTestMenuScreen({ onBack }: { onBack: () => void }) {
           name_ar: newTitleAr,
           name_en: newTitleEn,
           price: parseFloat(newPrice) || 0,
-          home_drawing_fee: parseFloat(newHomeFee) || 0,
-          available: true
         }
       });
       show(AR ? 'تم إرسال طلب الإضافة للمراجعة' : 'Add request sent for review', 'success');
       setShowAddSheet(false);
-      setNewTitleAr(''); setNewTitleEn(''); setNewPrice(''); setNewHomeFee('');
+      setNewTitleAr(''); setNewTitleEn(''); setNewPrice('');
     } catch (e) {
       show(AR ? 'فشل إرسال طلب الإضافة' : 'Failed to send add request', 'error');
     }
@@ -1603,8 +1601,6 @@ function LabTestMenuScreen({ onBack }: { onBack: () => void }) {
                 <NBtn label={AR ? 'تعديل السعر' : 'Edit Price'} size="xs" variant="outline" full={false} onPress={() => {
                   setEditingService(srv);
                   setEditPrice(String(srv.price || ''));
-                  setEditHomeFee(String(srv.home_drawing_fee || ''));
-                  setEditCovered(srv.insurance_covered === true);
                 }} />
               </View>
             </NCard>
@@ -1615,11 +1611,6 @@ function LabTestMenuScreen({ onBack }: { onBack: () => void }) {
       {/* Edit Sheet */}
       <NSheet visible={!!editingService} onClose={() => setEditingService(null)} title={AR ? 'تعديل السعر' : 'Edit Price'}>
         <NPriceInput label={AR ? 'السعر داخل المختبر' : 'Lab Price'} value={editPrice} onChange={setEditPrice} />
-        <NPriceInput label={AR ? 'رسوم السحب المنزلي (اختياري)' : 'Home Drawing Fee (Optional)'} value={editHomeFee} onChange={setEditHomeFee} />
-        <TouchableOpacity onPress={() => setEditCovered((v: boolean) => !v)} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 8, marginTop: SP.md }}>
-          <View style={{ width: 18, height: 18, borderRadius: 4, borderWidth: 2, borderColor: editCovered ? theme.success : theme.border, backgroundColor: editCovered ? theme.success : 'transparent' }} />
-          <Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? 'يُغطى بالتأمين' : 'Covered by insurance'}</Text>
-        </TouchableOpacity>
         <NBtn label={AR ? 'إرسال التعديل للمراجعة' : 'Send for Review'} onPress={handleSaveEdit} style={{ marginTop: SP.xl }} />
       </NSheet>
 
@@ -1628,7 +1619,6 @@ function LabTestMenuScreen({ onBack }: { onBack: () => void }) {
         <NInput label={AR ? 'اسم التحليل (إنجليزي)' : 'Test Name (English)'} value={newTitleEn} onChange={setNewTitleEn} />
         <NInput label={AR ? 'اسم التحليل (عربي)' : 'Test Name (Arabic)'} value={newTitleAr} onChange={setNewTitleAr} />
         <NPriceInput label={AR ? 'السعر داخل المختبر' : 'Lab Price'} value={newPrice} onChange={setNewPrice} />
-        <NPriceInput label={AR ? 'رسوم السحب المنزلي (اختياري)' : 'Home Drawing Fee (Optional)'} value={newHomeFee} onChange={setNewHomeFee} />
         <NBtn label={AR ? 'إرسال طلب الإضافة للمراجعة' : 'Send Add Request for Review'} onPress={handleAddService} style={{ marginTop: SP.xl }} />
       </NSheet>
     </View>

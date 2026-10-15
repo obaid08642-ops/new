@@ -199,7 +199,7 @@ export interface NativeProductCardProps extends ProductCardProps, Themed {
   image?: React.ReactNode;
 }
 
-export function ProductCard({ name, meta, price, currency, imageSrc, image, discountLabel, rxLabel, addLabel, onPress, onAdd, loading = false, disabled = false, testID, theme = 'light' }: NativeProductCardProps) {
+export function ProductCard({ name, meta, price, currency, imageSrc, image, discountLabel, rxLabel, onlineLabel, addLabel, onPress, onAdd, loading = false, disabled = false, testID, theme = 'light' }: NativeProductCardProps) {
   const t = tokens(theme);
   const c = t.color;
   const inert = disabled || loading;
@@ -231,6 +231,7 @@ export function ProductCard({ name, meta, price, currency, imageSrc, image, disc
             </Text>
           ) : null}
           {rxLabel ? <Text style={{ fontSize: 11, fontFamily: 'ReadexPro-700', color: c.status.warning.fg }}>{rxLabel}</Text> : null}
+          {onlineLabel ? <Text style={{ fontSize: 11, fontFamily: 'ReadexPro-700', color: c.service.mint.fg }}>{onlineLabel}</Text> : null}
         </View>
         <Pressable
           accessibilityRole="button"

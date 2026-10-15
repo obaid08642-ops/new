@@ -305,6 +305,13 @@ export class PushService implements OnModuleInit {
     }
   }
 
+  /** The browsers this user turned web push on in (patient-web settings); true when one received it. */
+  async sendWebToUser(userId: string, title: string, body: string, data: any = {}): Promise<boolean> {
+    const results = { sent: 0, failed: 0, errors: [] as string[] };
+    await this.deliverWebPush(userId, title, body, data, results);
+    return results.sent > 0;
+  }
+
   /** Client engagement events (received/opened/clicked) → campaign analytics */
   async trackEngagement(userId: string, body: { event: string; notification_id?: string; campaign_id?: string; data?: any }) {
     if (!['received', 'opened', 'clicked'].includes(body?.event)) return { ok: false };

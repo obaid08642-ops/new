@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { AdminPharmacyController } from '../pharmacy.controllers';
 
 // Decision 12 (needs-review admin-catalogue#19): the admin "items to review" queue lists offer lines with no catalogue
@@ -12,6 +12,8 @@ describe('AdminPharmacyController price-review queue', () => {
     ],
   };
   const updateOne = jest.fn();
+  const findOneAndUpdate = jest.fn();
+  const countDocuments = jest.fn(async () => 1);
   const make = () => {
     const conn: any = {
       collection: (name: string) => ({
@@ -23,14 +25,16 @@ describe('AdminPharmacyController price-review queue', () => {
             return [];
           },
         })),
-        countDocuments: jest.fn(async () => 1),
+        countDocuments,
         updateOne,
+        updateMany: jest.fn(async () => ({ modifiedCount: 1 })),
+        findOneAndUpdate,
       }),
     };
     return new AdminPharmacyController({} as any, {} as any, {} as any, {} as any, conn);
   };
 
-  beforeEach(() => updateOne.mockReset());
+  beforeEach(() => { updateOne.mockReset(); findOneAndUpdate.mockReset(); countDocuments.mockReset(); countDocuments.mockResolvedValue(1); });
 
   it('names the pharmacy and marks which not-verified lines match a catalogue item', async () => {
     const r = await make().priceReview({ reason: 'not_verified' });
@@ -39,15 +43,19 @@ describe('AdminPharmacyController price-review queue', () => {
     expect(r.items[0].lines.map((l: any) => l.catalogue_item_id)).toEqual([null, 'med-9']);
   });
 
-  it('closes an open review and records who closed it', async () => {
-    updateOne.mockResolvedValue({ matchedCount: 1 });
-    await expect(make().closePriceReview('rv1', 'adm-1')).resolves.toEqual({ ok: true, id: 'rv1', status: 'closed' });
-    expect(updateOne.mock.calls[0][0]).toEqual({ id: { $eq: 'rv1' }, status: 'open' });
-    expect(updateOne.mock.calls[0][1].$set).toEqual(expect.objectContaining({ status: 'closed', closed_by: 'adm-1' }));
+  // the queue closes a row through the one resolve route (D-12): who, when and how stay on the row
+  it('closes an open review and records who closed it and how', async () => {
+    findOneAndUpdate.mockResolvedValue({ id: 'rv1', status: 'closed', resolution: 'price_confirmed', resolved_by: 'adm-1' });
+    await expect(make().resolvePriceReview({ id: 'adm-1' }, 'rv1', { resolution: 'price_confirmed' })).resolves.toEqual(expect.objectContaining({ id: 'rv1', status: 'closed' }));
+    expect(findOneAndUpdate.mock.calls[0][0]).toEqual({ id: { $eq: 'rv1' }, status: 'open' });
+    expect(findOneAndUpdate.mock.calls[0][1].$set).toEqual(expect.objectContaining({ status: 'closed', resolution: 'price_confirmed', resolved_by: 'adm-1' }));
   });
 
-  it('answers 404 for an unknown or already closed review', async () => {
-    updateOne.mockResolvedValue({ matchedCount: 0 });
-    await expect(make().closePriceReview('nope', 'adm-1')).rejects.toThrow(NotFoundException);
+  it('answers 404 for an unknown review and 400 for one already closed', async () => {
+    findOneAndUpdate.mockResolvedValue(null);
+    countDocuments.mockResolvedValue(0);
+    await expect(make().resolvePriceReview({ id: 'adm-1' }, 'nope', { resolution: 'price_confirmed' })).rejects.toThrow(NotFoundException);
+    countDocuments.mockResolvedValue(1);
+    await expect(make().resolvePriceReview({ id: 'adm-1' }, 'rv1', { resolution: 'price_confirmed' })).rejects.toThrow(BadRequestException);
   });
 });

@@ -110,17 +110,43 @@ describe('sample tracking carries the technician block', () => {
     await render(wrap(<SampleTracking />));
     await screen.findByText('Test technician');
     expect(screen.getByLabelText(k('diag.order.call'))).toBeTruthy();
-    expect(screen.getByText(k('diag.tech.tipsTitle'))).toBeTruthy();
     expect(apiFetch).toHaveBeenCalledWith('/labs/bookings/b1');
     expect(apiFetch).toHaveBeenCalledWith('/labs/bookings/b1/tracking');
   });
 
   it('draws no technician block for a visit at the lab', async () => {
     mockParams.current = { bookingId: 'b2' };
-    answer({ steps: [{ title: 'Received', done: true }] }, { state: 'CONFIRMED', location_type: 'facility' });
+    answer({ timeline: [{ state: 'NEW_REQUEST', at: '2026-10-09T08:00:00Z' }] }, { state: 'NEW_REQUEST', location_type: 'facility' });
     await render(wrap(<SampleTracking />));
-    await screen.findByText('Received');
-    expect(screen.queryByText(k('diag.tech.tipsTitle'))).toBeNull();
+    await screen.findByText(k('diag.track.stages'));
+    expect(screen.queryByText(k('diag.tech.role'))).toBeNull();
+  });
+});
+
+describe('sample tracking has no fixed medical text (decision B8)', () => {
+  const answer = (tracking: Record<string, unknown>) =>
+    apiFetch.mockImplementation(async (path: string) => (path.endsWith('/tracking') ? tracking : { state: 'SAMPLE_COLLECTED', location_type: 'home', scheduled_at: '2026-10-09T10:00:00Z' }));
+
+  it('the steps are the states the booking went through, the last one current', async () => {
+    mockParams.current = { bookingId: 'b3' };
+    answer({ timeline: [{ state: 'NEW_REQUEST', at: '2026-10-09T08:00:00Z' }, { state: 'CONFIRMED', at: '2026-10-09T08:05:00Z' }, { state: 'SAMPLE_COLLECTED', at: '2026-10-09T10:20:00Z' }] });
+    await render(wrap(<SampleTracking />));
+    await screen.findByText(k('diag.track.stages'));
+    expect(screen.queryByText(/State changed/)).toBeNull();
+  });
+
+  it("shows each test's own preparation in the app language, else that the lab confirms it", async () => {
+    mockParams.current = { bookingId: 'b4' };
+    answer({ timeline: [], preparation: [{ service_id: 's1', name_ar: 'سكر صائم', name_en: 'Fasting glucose', texts: { ar: ['صيام 8 ساعات'], en: ['Fast for 8 hours'] } }] });
+    const view = await render(wrap(<SampleTracking />));
+    await screen.findByText('• Fast for 8 hours');
+    expect(screen.getByText('Fasting glucose')).toBeTruthy();
+    expect(screen.getByText(k('diag.track.prepTitle'))).toBeTruthy();
+    expect(screen.queryByText(k('diag.track.prepAsk'))).toBeNull();
+    mockParams.current = { bookingId: 'b5' };
+    answer({ timeline: [], preparation: [] });
+    await view.rerender(wrap(<SampleTracking />));
+    await screen.findByText(k('diag.track.prepAsk'));
   });
 });
 

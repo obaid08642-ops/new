@@ -50,6 +50,8 @@ export interface SearchDocument {
   specialty?: string | null;
   code?: string | null;
   requires_prescription: boolean;
+  /** Sold by Nabd Plus online only (rx-rules-app #2): the result row shows the same note as the product page. */
+  online_exclusive: boolean;
   /**
    * Popularity used for ranking. Always 0 for prescription-only items: decision 29 says they are never
    * promoted or boosted, so neither popularity nor sponsorship can lift them.
@@ -61,7 +63,8 @@ export interface SearchDocument {
 export function sourceFilter(source: SearchSource): Record<string, unknown> {
   const governed = { is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' };
   switch (source) {
-    case 'medicines': return { ...governed, indexing_eligibility: true, active: { $ne: false } };
+    // Approved and public, as the product pages; indexing_eligibility is only for crawlers (sitemaps, IndexNow).
+    case 'medicines': return { ...governed, active: { $ne: false } };
     case 'provider_profiles': return { type: 'doctor', status: 'active', public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
     case 'specialties': return { active: { $ne: false }, is_deleted: { $ne: true } };
     case 'lab_services':
@@ -76,7 +79,7 @@ export function isVisible(source: SearchSource, raw: any): boolean {
   if (!raw || raw.is_deleted === true) return false;
   const approved = raw.public_eligibility === true && raw.medical_review_status === 'approved';
   switch (source) {
-    case 'medicines': return approved && raw.indexing_eligibility === true && raw.active !== false;
+    case 'medicines': return approved && raw.active !== false; // as sourceFilter: indexing is for crawlers only
     case 'provider_profiles': return raw.type === 'doctor' && raw.status === 'active' && approved;
     case 'specialties': return raw.active !== false;
     case 'lab_services': return approved && raw.active === true && !isImaging(raw);
@@ -171,6 +174,7 @@ export function toSearchDocument(source: SearchSource, raw: any): SearchDocument
     specialty: str(raw?.specialty) || null,
     code: str(raw?.code) || str(raw?.short_code) || null,
     requires_prescription: rx,
+    online_exclusive: raw?.online_exclusive === true,
     boost: rx || !Number.isFinite(popularity) || popularity <= 0 ? 0 : Math.log10(1 + popularity),
   };
 }

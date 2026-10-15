@@ -5,7 +5,7 @@ import { dateLocale } from '../utils/dates';
 /**
  * Decision 12 queue: pharmacy offer lines with no catalogue match (`not_verified`) or priced above the catalogue
  * price (`price_above_catalogue`). Rows come from GET /admin/pharmacy/price-review (one row per offer, written by
- * PharmacyOfferService.reportPriceReview); "close" is POST /admin/pharmacy/price-review/:id/close. A line that matches
+ * PharmacyOfferService.reportPriceReview); "close" is POST /admin/pharmacy/price-review/:id/resolve (price_confirmed: the line was checked), the one route that closes a review. A line that matches
  * no catalogue item offers "create a catalogue item from this line" (the create form, prefilled).
  */
 
@@ -70,7 +70,7 @@ export function PriceReviewQueue({ onCreateFromLine, canCreate }: { onCreateFrom
     if (!confirm('إغلاق هذه المراجعة؟ تُفتح من جديد إذا عدّلت الصيدلية عرضها.')) return;
     setBusy(row.id);
     try {
-      await apiFetch(`${BASE}/${encodeURIComponent(row.id)}/close`, { method: 'POST', body: JSON.stringify({}) });
+      await apiFetch(`${BASE}/${encodeURIComponent(row.id)}/resolve`, { method: 'POST', body: JSON.stringify({ resolution: 'price_confirmed' }) });
       await load();
     } catch (e: unknown) {
       alert(`فشل الإغلاق: ${e instanceof Error ? e.message : ''}`);

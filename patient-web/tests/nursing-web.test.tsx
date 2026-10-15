@@ -20,7 +20,6 @@ vi.mock("@/lib/seo", () => ({ localizedUrl: () => "https://example.test/" }));
 vi.mock("@/lib/api/nursing-catalog-server", () => ({ getPublicNursingCatalog: state.catalog }));
 
 import NursingCatalogPage from "@/app/[locale]/nursing/catalog/page";
-import { NursingBookingForm, createNursingBooking } from "@/components-next/nursing-booking-form";
 import { nursingStatus, serviceIcon } from "@/components-next/nursing/nursing-parts";
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
@@ -73,37 +72,3 @@ describe("the nursing catalogue", () => {
   });
 });
 
-describe("the nurse booking form", () => {
-  const services = [{ id: "svc-1", name: "Wound care", price: 120 }];
-
-  it("draws labelled controls, the days and times, and no inline style", () => {
-    const out = html(<NursingBookingForm locale="en" services={services} addresses={[{ id: "a1", label: "Home" }]} />);
-    expect(out).toContain("Wound care");
-    expect(out).toContain("Home");
-    expect(out).toContain("Confirm booking");
-    expect(out).toContain('role="radiogroup"');
-    expect(out).not.toContain("style=");
-  });
-
-  it("asks for an address first when there is none and draws nothing without services", () => {
-    expect(html(<NursingBookingForm locale="en" services={services} addresses={[]} />)).toContain("/en/profile/addresses");
-    expect(html(<NursingBookingForm locale="en" services={[]} addresses={[]} />)).toBe("");
-  });
-
-  it("posts the booking once, with an idempotency key and the fields it always sent", async () => {
-    const send = vi.fn().mockResolvedValue(json({ data: { id: "b-1" } }, 201));
-    const result = await createNursingBooking({ serviceId: "svc-1", scheduledAt: "2026-10-08T09:00:00.000Z", addressId: "a1", notes: "  ring twice  ", method: "card" }, send as unknown as typeof fetch);
-    expect(result).toEqual({ ok: true, bookingId: "b-1" });
-    expect(send).toHaveBeenCalledTimes(1);
-    const [url, init] = send.mock.calls[0];
-    expect(url).toBe("/api/nursing/bookings");
-    expect(init.method).toBe("POST");
-    expect(init.headers["idempotency-key"]).toMatch(/^web-nursing-/);
-    expect(JSON.parse(init.body)).toEqual({ service_id: "svc-1", scheduled_at: "2026-10-08T09:00:00.000Z", address_id: "a1", notes: "ring twice", payment_method: "card" });
-  });
-
-  it("answers no booking when the server refused, and carries its message", async () => {
-    const send = vi.fn().mockResolvedValue(json({ message: "Slot taken" }, 409));
-    expect(await createNursingBooking({ serviceId: "svc-1", scheduledAt: "2026-10-08T09:00:00.000Z", method: "insurance" }, send as unknown as typeof fetch)).toEqual({ ok: false, message: "Slot taken" });
-  });
-});
