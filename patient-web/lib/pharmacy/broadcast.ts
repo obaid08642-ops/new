@@ -52,7 +52,7 @@ export type BroadcastRequest =
   /** A named medicine the catalogue does not have (backend `manual_request`). */
   | { kind: "manual"; name: string; details: string; qty?: number; photoId?: string }
   /** The medicines of a saved prescription (backend `prescription_id`); quantity is the pharmacy's to confirm. */
-  | { kind: "prescription"; prescriptionId: string; names: string[] }
+  | { kind: "prescription"; prescriptionId: string; names: string[]; fulfillment?: "delivery" | "pickup" }
   /**
    * The cart of this browser (checkout). `paymentMode` and `fulfillment` are the draft's own fields (`payment_mode`,
    * `fulfillment`): how the patient really pays is decided when an offer is selected, so no price, policy number or
@@ -87,6 +87,8 @@ export function buildBroadcastBody(request: BroadcastRequest, address: DeliveryA
   }
   return {
     ...base,
+    // journeys#23: delivered or picked up at the pharmacy, as the cart checkout asks
+    fulfillment: request.fulfillment === "pickup" ? "pickup" : "delivery",
     items: request.names.map((name) => ({ raw_name: name.slice(0, 240), qty: 1, intake_source: "prescription" })),
     prescription_id: request.prescriptionId,
     prescription_attachments: [request.prescriptionId],

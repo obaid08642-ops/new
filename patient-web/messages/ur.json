@@ -3797,7 +3797,16 @@
     "aboutRulesUnavailable": "اس وقت منسوخی اور رقم کی واپسی کی پالیسی لوڈ نہیں ہو سکی۔",
     "ruleCancelFull": "اپائنٹمنٹ کے وقت سے {hours} گھنٹے پہلے تک منسوخ کرنے پر پوری رقم واپس ملتی ہے۔",
     "ruleRefundDays": "رقم کی واپسی {min} سے {max} کام کے دنوں میں پہنچتی ہے۔",
-    "ruleReturnDays": "استعمال نہ ہوئی مصنوعات وصولی کے {days} دن کے اندر واپس کی جا سکتی ہیں۔"
+    "ruleReturnDays": "استعمال نہ ہوئی مصنوعات وصولی کے {days} دن کے اندر واپس کی جا سکتی ہیں۔",
+    "connectedAppsTitle": "منسلک AI ایپس",
+    "connectedAppsEmptyTitle": "کوئی منسلک ایپ نہیں",
+    "connectedAppsEmpty": "آپ نے اپنے اکاؤنٹ سے کوئی AI معاون منسلک نہیں کیا۔",
+    "connectedAppsNote": "منسلک معاون درخواست کر سکتا ہے، ادائیگی نہیں: ہر آرڈر یا بکنگ کی تصدیق اور ادائیگی آپ Nabd Plus پر کرتے ہیں۔",
+    "connectedSince": "{date} سے منسلک",
+    "disconnectApp": "رابطہ ختم کریں",
+    "disconnectFailed": "رابطہ ختم نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
+    "rowConnectedApps": "منسلک AI ایپس",
+    "rowConnectedAppsSub": "وہ معاون جنہیں آپ نے اپنے اکاؤنٹ تک رسائی دی"
   },
   "AccountWeb": {
     "profileTitle": "میرا اکاؤنٹ",

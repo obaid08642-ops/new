@@ -3797,7 +3797,16 @@
     "aboutRulesUnavailable": "अभी रद्दीकरण और रिफ़ंड नीति लोड नहीं हो सकी।",
     "ruleCancelFull": "अपॉइंटमेंट के समय से {hours} घंटे पहले तक रद्द करने पर पूरा रिफ़ंड मिलता है।",
     "ruleRefundDays": "रिफ़ंड {min} से {max} कार्यदिवसों में पहुँचता है।",
-    "ruleReturnDays": "अनुपयोगी उत्पाद प्राप्ति के {days} दिन के भीतर लौटाए जा सकते हैं।"
+    "ruleReturnDays": "अनुपयोगी उत्पाद प्राप्ति के {days} दिन के भीतर लौटाए जा सकते हैं।",
+    "connectedAppsTitle": "जुड़े हुए AI ऐप",
+    "connectedAppsEmptyTitle": "कोई जुड़ा ऐप नहीं",
+    "connectedAppsEmpty": "आपने अपने खाते से कोई AI सहायक नहीं जोड़ा है।",
+    "connectedAppsNote": "जुड़ा सहायक अनुरोध कर सकता है, भुगतान नहीं: हर ऑर्डर या बुकिंग की पुष्टि और भुगतान आप Nabd Plus पर करते हैं।",
+    "connectedSince": "{date} से जुड़ा",
+    "disconnectApp": "संपर्क हटाएँ",
+    "disconnectFailed": "संपर्क नहीं हटाया जा सका। फिर से कोशिश करें।",
+    "rowConnectedApps": "जुड़े हुए AI ऐप",
+    "rowConnectedAppsSub": "वे सहायक जिन्हें आपने अपने खाते की अनुमति दी"
   },
   "AccountWeb": {
     "profileTitle": "मेरा खाता",
