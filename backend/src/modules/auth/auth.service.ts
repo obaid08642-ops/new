@@ -924,7 +924,8 @@ export class AuthService {
     // passkey revokes the device — a token replayed without a live credential is
     // rejected by the guard even though the device id is enrolled.
     if (this.adminDevices && ctx?.deviceId) {
-      await this.adminDevices.enroll(u.id, ctx.deviceId, ctx.ua, ctx.deviceName, response?.id);
+      // D-35: auto-enrolment respects the limit of 2 active devices.
+      await this.adminDevices.autoEnroll(u.id, ctx.deviceId, ctx.ua, ctx.deviceName, response?.id);
     }
     if (this.deviceTrust) {
       const { token, device } = await this.deviceTrust.issue(u.id, ctx?.ua, ctx?.ip);

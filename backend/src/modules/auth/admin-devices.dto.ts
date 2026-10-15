@@ -15,3 +15,8 @@ export class SetLockDto {
   @IsBoolean()
   enabled?: boolean;
 }
+
+export class ConfirmDeviceDto {
+  @IsString()
+  code!: string;
+}
