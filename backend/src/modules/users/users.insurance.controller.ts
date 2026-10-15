@@ -74,6 +74,9 @@ export class UsersInsuranceController {
     if (![body.provider, body.provider_name, body.policy_number, body.member_id].some((v) => String(v || '').trim())) {
       throw new BadRequestException('insurance_details_required');
     }
+    if (body.provider && !body.class) {
+      throw new BadRequestException('insurance_class_required');
+    }
     const profile = await this.users.getPatientProfile(id);
     const updatedInsurance = {
       ...profile.insurance,
@@ -81,7 +84,7 @@ export class UsersInsuranceController {
       verified: false, // Must be verified by admin
     };
     await this.users.updatePatientProfile(id, { insurance: updatedInsurance });
-    // Do not reflect user-supplied policy/name fields in the write response.
-    return { success: true, verified: false };
+    // Return the saved insurance object
+    return updatedInsurance;
   }
 }
