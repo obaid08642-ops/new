@@ -41,10 +41,11 @@ export function contentSecurityPolicy(nonce: string, isDevelopment = process.env
     "frame-ancestors 'none'",
     "img-src 'self' data: https:",
     // issue 777: the map page embeds an OpenStreetMap view (https://www.openstreetmap.org/export/embed.html), whose tiles load from *.tile.openstreetmap.org
-    "frame-src 'self' https://www.openstreetmap.org",
-    `style-src 'self' 'nonce-${nonce}'${isDevelopment ? " 'unsafe-inline'" : ""}`,
+    // issue 430: Google sign-in (Google Identity Services) draws its popup and button from accounts.google.com/gsi/
+    "frame-src 'self' https://www.openstreetmap.org https://accounts.google.com/gsi/",
+    `style-src 'self' 'nonce-${nonce}' https://accounts.google.com/gsi/style${isDevelopment ? " 'unsafe-inline'" : ""}`,
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' '${THEME_SCRIPT_HASH}'${isDevelopment ? " 'unsafe-eval'" : ""}`,
-    "connect-src 'self' https://api.nabd.plus wss://live.nabd.plus https://cdn.nabd.plus",
+    "connect-src 'self' https://api.nabd.plus wss://live.nabd.plus https://cdn.nabd.plus https://accounts.google.com/gsi/",
     "font-src 'self' data:",
     "media-src 'self' https:",
     "object-src 'none'",

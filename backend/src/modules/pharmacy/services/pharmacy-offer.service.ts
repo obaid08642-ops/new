@@ -7,6 +7,7 @@ import { PharmacyAllocationState, PharmacyOrderState } from '../schemas/pharmacy
 import { EventBusService } from '../../events/event-bus.service';
 import { BusinessRulesService } from '../../business-rules/business-rules.module';
 import { PharmacyNotificationService } from './pharmacy-notification.service';
+import { CATALOGUE_PROJECTION, cataloguePrice, catalogueSku } from './catalogue-lines';
 import { assertSubstituteInsidePrescription } from './rx-rules';
 
 const OFFER_TTL_MS = 10 * 60_000;
@@ -18,6 +19,7 @@ type ProviderOfferItemInput = {
   qty_offered?: number;
   inventory_item_id?: string;
   substitute_inventory_item_id?: string;
+  medicine_id?: string;
   unit_price_override?: number;
   price_override_reason?: string;
 };
@@ -129,6 +131,9 @@ export class PharmacyOfferService {
       }).lean();
       inventoryId = own?.id;
     }
+    // provider-journeys 1: no inventory row for the line yet: price it from the national catalogue (the item the pharmacy
+    // picked, else the catalogue item the line already names), which adds it to the pharmacy's inventory.
+    if (!inventoryId) inventoryId = await this.adoptCatalogueItem(userId, orderItem, input);
     if (!inventoryId) throw new BadRequestException('inventory_item_id_required');
     const inventoryItem: any = await this.inventory.findOne({
       id: inventoryId,
@@ -184,17 +189,81 @@ export class PharmacyOfferService {
   }
 
   /**
+   * provider-journeys 1: a catalogue item becomes a row of the pharmacy's inventory when the pharmacy prices an order line
+   * with it (a new pharmacy has no inventory to answer from). The row takes the catalogue's names, sku and reference price
+   * (D-12: the SFDA price, else the catalogue price; the pharmacy's own price is the line's override and is flagged when it
+   * is above the reference) and the quantity offered as stock. An existing row for that item is made available with at
+   * least that stock. Returns the row id, or undefined when the line names no catalogue item.
+   */
+  private async adoptCatalogueItem(userId: string, orderItem: any, input: ProviderOfferItemInput): Promise<string | undefined> {
+    const or: any[] = [];
+    const pickedId = typeof input.medicine_id === 'string' && input.medicine_id.trim() ? input.medicine_id.trim() : null;
+    if (pickedId) or.push({ id: pickedId });
+    else if (input.availability === 'available') {
+      if (orderItem.medicine_id) or.push({ id: String(orderItem.medicine_id) });
+      const sku = orderItem.matched_sku;
+      // the cart sends the catalogue id as the line's sku; a retail sku is matched too
+      if (sku !== undefined && sku !== null && sku !== '') {
+        or.push({ id: String(sku) });
+        if (/^\d+$/.test(String(sku))) or.push({ sku: Number(sku) });
+      }
+    }
+    if (!or.length) return undefined;
+    const medicine: any = await this.connection.collection('medicines').findOne({ $or: or, is_deleted: { $ne: true } }, { projection: CATALOGUE_PROJECTION });
+    if (!medicine) {
+      if (pickedId) throw new BadRequestException('catalogue_item_not_found');
+      return undefined;
+    }
+    const override = Number(input.unit_price_override);
+    const price = cataloguePrice(medicine) ?? (Number.isFinite(override) && override > 0 ? Math.round(override * 100) / 100 : null);
+    if (price === null) throw new BadRequestException('price_required');
+    const qty = Math.max(1, Math.floor(Number(input.qty_offered) || Number(orderItem.qty) || 1));
+    const sku = catalogueSku(medicine);
+    const existing: any = await this.inventory.findOne({ provider_account_id: userId, sku }).lean();
+    if (existing) {
+      await this.inventory.updateOne({ id: existing.id, provider_account_id: userId }, {
+        // an expired row stays expired (the availability check below refuses it); nothing here dates it again
+        $set: { available: true, medicine_id: medicine.id },
+        $max: { stock: qty },
+      });
+      return existing.id;
+    }
+    const created: any = await this.inventory.create({
+      id: uuidv4(),
+      provider_account_id: userId,
+      sku,
+      medicine_id: medicine.id,
+      name_ar: medicine.name_ar || medicine.name_en || sku,
+      name_en: medicine.name_en,
+      barcode: medicine.barcode,
+      generic_name: medicine.generic_name || medicine.active_ingredient,
+      form: medicine.form,
+      dosage: medicine.strength,
+      pack_size: medicine.package_size,
+      stock: qty,
+      price,
+      currency: 'SAR',
+      available: true,
+      notes: 'added from the catalogue when pricing an order line',
+    });
+    return created.id;
+  }
+
+  /**
    * D-12 (owner decision 12, revised 2026-10-10): the catalogue price (`sfda_price`) is a reference,
    * not a block. A line priced above it is accepted and flagged (the pharmacy is warned, the admin is
    * told); a line that maps to no catalogue item (cosmetics, local items, photo lines) is kept and
    * marked `not_verified`. Mapping: the inventory row's `medicine_id`, else its sku against the
-   * catalogue sku (stored as a number or a string).
+   * catalogue id (items added from the catalogue) or the catalogue sku (stored as a number or a string).
    */
   private async markCataloguePrice(line: any, inventoryItem: any) {
     const sku = inventoryItem.sku;
     const or: any[] = [];
     if (inventoryItem.medicine_id) or.push({ id: String(inventoryItem.medicine_id) });
     if (sku !== undefined && sku !== null && sku !== '') {
+      // provider-app ActiveInventoryScreen adds a catalogue item with sku = the catalogue medicine id (issue 331):
+      // without this match every such line was "not verified" and the ceiling never applied
+      or.push({ id: String(sku) });
       or.push({ sku: String(sku) });
       if (/^\d+$/.test(String(sku))) or.push({ sku: Number(sku) });
     }
@@ -233,7 +302,7 @@ export class PharmacyOfferService {
         $set: {
           order_id: orderId, offer_version: offer.version, offer_status: offer.status, pharmacy_account_id: offer.pharmacy_account_id,
           lines: lines.map((i: any) => ({
-            order_item_id: i.order_item_id, medicine_id: i.medicine_id || null, sku: i.sku ?? null, name_ar: i.name_ar ?? null,
+            order_item_id: i.order_item_id, medicine_id: i.medicine_id || null, sku: i.sku ?? null, name_ar: i.name_ar ?? null, name_en: i.name_en ?? null,
             reason: i.above_catalogue_price ? 'price_above_catalogue' : 'not_verified',
             catalogue_price: i.catalogue_price ?? null, offered_price: i.unit_price ?? null,
           })),
@@ -449,6 +518,8 @@ export class PharmacyOfferService {
         unit_price: item.unit_price,
         currency: item.currency,
         alternative: item.action === 'substitute' ? (item.name_ar || item.name_en || item.sku || null) : null,
+        // journeys 75 (decision 12): the website reads these named lines, so they carry the price check too
+        price_status: item.above_catalogue_price === true ? 'above_catalogue' : item.price_check === 'not_verified' ? 'not_verified' : 'verified',
       })),
       pharmacy_name_ar: pharmacyNameAr,
       pharmacy_name_en: pharmacyNameEn,
@@ -594,7 +665,8 @@ export class PharmacyOfferService {
   private patientDto(offer: any) {
     return {
       id: offer.id, pharmacy_account_id: offer.pharmacy_account_id, version: offer.version,
-      items: offer.items.map((item: any) => ({ order_item_id: item.order_item_id, action: item.action, qty_requested: item.qty_requested, qty_offered: item.qty_offered, unit_price: item.unit_price, currency: item.currency, substitute: item.action === 'substitute' ? { sku: item.sku, name_ar: item.name_ar, name_en: item.name_en } : undefined })),
+      // journeys 75: each line names the medicine it prices (the website lists the lines by name and drops a nameless one)
+      items: offer.items.map((item: any) => ({ order_item_id: item.order_item_id, name_ar: item.name_ar ?? null, name_en: item.name_en ?? null, action: item.action, qty_requested: item.qty_requested, qty_offered: item.qty_offered, unit_price: item.unit_price, currency: item.currency, substitute: item.action === 'substitute' ? { sku: item.sku, name_ar: item.name_ar, name_en: item.name_en } : undefined, price_status: item.above_catalogue_price === true ? 'above_catalogue' : item.price_check === 'not_verified' ? 'not_verified' : 'verified' })),
       totals: offer.totals, quote_expires_at: offer.quote_expires_at,
       estimated_preparation_minutes: offer.estimated_preparation_minutes,
       fulfillment: offer.fulfillment || { policy_status: 'unavailable_read_only' },

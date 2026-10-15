@@ -24,7 +24,7 @@ import { buildSlug, slugify, escapeRegex } from '../../common/slug.util';
 const ARTICLE_UPDATE_FIELDS = [
   'title_ar', 'title_en', 'excerpt_ar', 'excerpt_en', 'body_ar', 'body_en',
   'category', 'tags', 'cover_image', 'author_name', 'author_title',
-  'seo_description_ar', 'seo_description_en',
+  'seo_description_ar', 'seo_description_en', 'pregnancy_week',
 ];
 
 @Injectable()
@@ -41,9 +41,11 @@ export class ArticlesService {
   }
 
   list(query: any) {
-    const { category, q, limit = '20', page = '1' } = query;
+    const { category, q, tag, limit = '20', page = '1' } = query;
     const filter: any = { status: 'PUBLISHED', is_deleted: { $ne: true } };
     if (category) filter.category = category;
+    // ?tag=sleep: the articles carrying that tag (the sleep screen's advice, decision B8). Compared as a plain string.
+    if (typeof tag === 'string' && tag) filter.tags = { $eq: tag };
     if (q) {
       const re = new RegExp(escapeRegex(String(q)), 'i');
       filter.$or = [{ title_ar: re }, { title_en: re }, { tags: q }];
@@ -88,6 +90,7 @@ export class ArticlesService {
       author_title: body.author_title,
       seo_description_ar: body.seo_description_ar,
       seo_description_en: body.seo_description_en,
+      pregnancy_week: body.pregnancy_week,
       slug,
       status: 'DRAFT',
     });

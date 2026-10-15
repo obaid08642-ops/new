@@ -209,7 +209,12 @@ export class HomeCareSvc {
       medical_review_status: 'approved',
     });
     if (!profile) throw new NotFoundException('provider_not_found');
-    if (!profile.schedule_home || !profile.schedule_home.length) {
+    // journeys#60: a nurse only works at the patient's home, so the hours given at registration (provider-app
+    // NursingRegistration sends them as working_hours) are the home-visit hours; schedule_home wins when it is set.
+    type HomeWindow = { day?: unknown; open?: string; close?: string; open_evening?: string; close_evening?: string; closed?: boolean };
+    const schedule: HomeWindow[] = Array.isArray(profile.schedule_home) && profile.schedule_home.length ? profile.schedule_home
+      : Array.isArray(profile.working_hours) ? profile.working_hours : [];
+    if (!schedule.length) {
       return { date: dateStr, slots: [], reason: 'no_schedule' };
     }
 
@@ -225,7 +230,7 @@ export class HomeCareSvc {
       return v === 'all' || v === String(dow) || v === dayKeys[dow] || v === fullDays[dow];
     };
 
-    const windows = (profile.schedule_home || []).filter((w) => w && !w.closed && dayMatches(w.day)).flatMap((w) => [
+    const windows = schedule.filter((w) => w && !w.closed && dayMatches(w.day)).flatMap((w) => [
       ...(w.open && w.close ? [{ open: w.open, close: w.close }] : []),
       ...(w.open_evening && w.close_evening ? [{ open: w.open_evening, close: w.close_evening }] : []),
     ]);

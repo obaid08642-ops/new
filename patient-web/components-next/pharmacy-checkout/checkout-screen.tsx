@@ -45,6 +45,7 @@ export function CheckoutScreen({ locale }: { locale: Locale }) {
   const { items, ready, clearCart, hasRxItems } = useCart();
   const active = ready && items.length > 0;
   const address = useDeliveryAddress(active);
+  const fromPrescription = items.find((item) => item.rx && item.prescriptionId)?.prescriptionId ?? null;
 
   const [fulfillment, setFulfillment] = useState<Fulfillment>("delivery");
   const [mode, setMode] = useState<PaymentMode>("cash");
@@ -64,14 +65,14 @@ export function CheckoutScreen({ locale }: { locale: Locale }) {
         if (!live) return;
         if (response.status === 401) return setPrescription({ status: "unauthenticated" });
         if (!response.ok) return setPrescription({ status: "error" });
-        const id = activePrescriptionId(await response.json().catch(() => null));
+        const id = activePrescriptionId(await response.json().catch(() => null), fromPrescription);
         setPrescription(id ? { status: "found", id } : { status: "missing" });
       })
       .catch(() => live && setPrescription({ status: "error" }));
     return () => {
       live = false;
     };
-  }, [active, hasRxItems]);
+  }, [active, hasRxItems, fromPrescription]);
 
   // the saved insurance, read once, only when the patient asks for the insurance path (asked again after a failed read)
   const policyAsked = useRef(false);

@@ -10,6 +10,8 @@ export class Transaction {
   @Prop({ required: true }) booking_kind: string; // pharmacy|lab|radiology|nursing|consultation
   @Prop({ required: true, index: true }) booking_id: string;
   @Prop({ required: true }) patient_id: string;
+  /** Issue 684: who paid, when a family member booked and pays for the patient (absent when the patient paid). */
+  @Prop() payer_id?: string;
   @Prop({ required: true }) amount: number;
   @Prop({ default: 'SAR' }) currency: string;
   @Prop({ enum: ['stripe', 'tap', 'moyasar'], default: 'moyasar' }) gateway: string;
