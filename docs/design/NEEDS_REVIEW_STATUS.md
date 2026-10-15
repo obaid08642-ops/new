@@ -8,25 +8,25 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| Patient app and web | 434 | 91 | 252 | 75 | 5 | 11 |
+| Patient app and web | 434 | 82 | 252 | 84 | 5 | 11 |
 | Other | 28 | 21 | 7 | 0 | 0 | 0 |
 | Admin | 93 | 22 | 45 | 26 | 0 | 0 |
 | Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
 | Final pass | 8 | 8 | 0 | 0 | 0 | 0 |
 | Patient journeys | 86 | 41 | 44 | 1 | 0 | 0 |
 | Provider app | 31 | 9 | 21 | 1 | 0 | 0 |
-| Provider journeys | 34 | 22 | 12 | 0 | 0 | 0 |
-| **Total** | **734** | **216** | **397** | **105** | **5** | **11** |
+| Provider journeys | 34 | 20 | 12 | 2 | 0 | 0 |
+| **Total** | **734** | **205** | **397** | **116** | **5** | **11** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | client | 168 | 67 | 82 | 19 | 0 | 0 |
-| owner | 100 | 28 | 34 | 31 | 5 | 2 |
+| owner | 100 | 17 | 34 | 42 | 5 | 2 |
 | backend | 229 | 40 | 161 | 24 | 0 | 4 |
 | untagged | 237 | 81 | 120 | 31 | 0 | 5 |
-| **Total** | **734** | **216** | **397** | **105** | **5** | **11** |
+| **Total** | **734** | **205** | **397** | **116** | **5** | **11** |
 
 ## By file
 
@@ -58,12 +58,12 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `5-web.json` | 11 | 2 | 9 | 0 | 0 | 0 |
 | `6-app.json` | 10 | 3 | 3 | 4 | 0 | 0 |
 | `6-web.json` | 8 | 1 | 5 | 2 | 0 | 0 |
-| `7-app.json` | 14 | 6 | 5 | 3 | 0 | 0 |
-| `7-web.json` | 16 | 7 | 7 | 2 | 0 | 0 |
+| `7-app.json` | 14 | 3 | 5 | 6 | 0 | 0 |
+| `7-web.json` | 16 | 4 | 7 | 5 | 0 | 0 |
 | `8-app.json` | 9 | 2 | 7 | 0 | 0 | 0 |
 | `8-web.json` | 13 | 5 | 7 | 0 | 0 | 1 |
-| `9-app.json` | 8 | 2 | 6 | 0 | 0 | 0 |
-| `9-web.json` | 8 | 1 | 7 | 0 | 0 | 0 |
+| `9-app.json` | 8 | 0 | 6 | 2 | 0 | 0 |
+| `9-web.json` | 8 | 0 | 7 | 1 | 0 | 0 |
 | `ac-1-agent-oauth.json` | 2 | 2 | 0 | 0 | 0 | 0 |
 | `admin-catalogue.json` | 23 | 5 | 13 | 5 | 0 | 0 |
 | `admin-customers-growth.json` | 14 | 0 | 8 | 6 | 0 | 0 |
@@ -90,7 +90,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `provider-admin-ish.json` | 3 | 2 | 1 | 0 | 0 | 0 |
 | `provider-doctor.json` | 6 | 1 | 5 | 0 | 0 | 0 |
 | `provider-facility.json` | 7 | 1 | 6 | 0 | 0 | 0 |
-| `provider-journeys.json` | 34 | 22 | 12 | 0 | 0 | 0 |
+| `provider-journeys.json` | 34 | 20 | 12 | 2 | 0 | 0 |
 | `provider-lab.json` | 4 | 3 | 1 | 0 | 0 | 0 |
 | `provider-nursing.json` | 2 | 0 | 2 | 0 | 0 | 0 |
 | `provider-pharmacy.json` | 2 | 0 | 1 | 1 | 0 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 7 | 0 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 12 | 5 | 7 | 0 | 0 | 0 |
-| **Total** | **734** | **216** | **397** | **105** | **5** | **11** |
+| **Total** | **734** | **205** | **397** | **116** | **5** | **11** |
 
 ## Owner decisions (5)
 
@@ -112,7 +112,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 4 | `3-app.json#7` `patient-app/app/diagnostics/technician-tracking.tsx:4` | /diagnostics/technician-tracking Tips | [owner] [screen is now a redirect; kept so issue indices stay stable] Static text; the old third tip (samples sent in cold containers) was dropped as an unverified claim. |
 | 5 | `5-app.json#14` `patient-app/src/components/health/SleepView.tsx:120` | /health/sleep-score Static sleep tips | [owner] Four educational tips are static text (translated): confirm they stay. |
 
-## Open and unverified (227)
+## Open and unverified (216)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -149,18 +149,12 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `6-app.json#4` | client | open (issue #688) | /family/calendar Date field | [client] Event date is typed as ISO text; a date and time picker in the shared kit would replace it (feature, not done here). |
 | `6-app.json#9` | client | open (issue #693) | /family/calendar Person with no family group | [client] Runtime check: the seeded patient has no group, so GET /family/calendar answers 404 and GET /family/chat/messages 403 (not_active_family_member); both screens show the ge… |
 | `6-web.json#0` | client | open (issue #694) | /family/add Scan QR tab | [client] The web has no camera scanner (the code or link is pasted), as before; the app scans. Not added: it is a feature, and the camera permission handling stays as it was. |
-| `7-app.json#0` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /insurance Refunds tab | [owner] Removed 2026-10-10 (decision 35): the Refunds tab of the insurance hub is gone on app and web (order and return refunds stay in Orders and Returns). |
 | `7-app.json#1` | client | open (issue #820) | /insurance/copay Co-pay screen not merged | [client] Picks the newest COPAY_PENDING from /requests/my and posts the intent with no method; the request page reads one id and asks capabilities. Different payment paths, so kep… |
-| `7-app.json#2` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /insurance/payment-split Cash payment button removed | [owner] Old approval-pending offered pay cash to /payments/processing with no params; removed per decision 25. |
 | `7-app.json#9` | client | open | /insurance/submit-claim Receipt upload | [client] Removed 2026-10-10 (decision 35): the claim form and its receipt upload are gone; the route redirects to the hub. |
-| `7-app.json#12` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /insurance Claims tab and Submit a claim: keep under decision 35? | [owner] Removed 2026-10-10 (decision 35): the claims and refunds tabs and the claim form are removed (owner decision 35, insurance is relay-only and view-only). |
 | `7-app.json#13` | client | open (issue #832) | /insurance Other batches still say Nabd+ checks or retrieves insurance automati… | [client] Batch 14 text, not changed here: nur.book.insFetched, nur.book.inReviewBody, nur.book.insNote, diag.upload.readFailed, pharmacy.ins.processingTitle, consult.confirm.insur… |
-| `7-web.json#0` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /insurance/requests/[requestId] Pay-cash link of the old approval wait | [owner] the old page offered cash (with a made-up payments/processing ref) after a decline; owner decision 25 forbids cash for online consultations, so the merged page has only ac… |
 | `7-web.json#6` | client | open | /insurance Claims with a status outside the four known are dropped | [client] Removed 2026-10-10 (decision 35): the Claims tab and parseClaims are gone; the route redirects to the hub. |
 | `7-web.json#7` | backend | open | /insurance Refund status shown raw | [backend] Removed 2026-10-10 (decision 35): the Refunds tab is gone; the route redirects to the hub. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:867) |
 | `7-web.json#9` | client | open | /insurance/submit-claim Claimable bookings are collected in the browser | [client] Removed 2026-10-10 (decision 35): the claim form is gone; the route redirects to the hub. |
-| `7-web.json#10` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /insurance/add-policy No policy-card OCR on web | [owner] the brief says the OCR extract stays; the web form never had one (typed fields only). Decide whether web needs it. |
-| `7-web.json#14` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /insurance/submit-claim Claim flow under decision 35? | [owner] Removed 2026-10-10 (decision 35): the claim form and the Claims tab are removed (owner decision 35). |
 | `7-web.json#15` | client | open (issue #848) | /insurance Other batches still say Nabd+ checks or retrieves insurance automati… | [client] Batch 14 text, not changed here: NursingWeb.insuranceTitle, DiagWeb.insuranceSub, DiagWeb.insuranceHintLink, Diagnostics.insuranceNoticeSub, PharmacyCheckout.insuranceBod… |
 | `8-app.json#0` | backend | open (issue #849) | /maternity/hub Baby growth tab, fetal week content and weekly articles | [backend] the board draws them but the app reads no week or article endpoint; hidden until one exists (fetal images stay on the CDN) |
 | `8-app.json#2` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /mental-health/hub Relax screen (breathing, meditation) | [owner] the app never had breathing or meditation content in the hub (deferred for clinical review); GET/POST /mental-health/breathing and /meditation exist but only log history, … |
@@ -170,9 +164,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `8-web.json#6` | client | open (issue #864) | /mental-health/mood Mood logging | [client] The web has no form to log a mood (POST /mental-health/mood exists; the old page was read-only); adding it is a feature. |
 | `8-web.json#8` | client | open (issue #866) | /mental-health/breathing Starting a breathing or meditation session | [client] The Relax screen lists recorded sessions only; starting a session needs the app (the old pages were history only; the app guides live in the hub). |
 | `8-web.json#11` | client | open (issue #869) | /nutrition Water logging | [client] Water is shown from the summary only; the app logs it through POST /nutrition/water, the web has no control for it (feature). |
-| `9-app.json#4` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /voice Mic button of the assistant | [owner] The old voice screen had no speech capture (shortcut list only), so the assistant has no mic; speech input needs an owner decision and a module. |
-| `9-app.json#7` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /ai/chat-doctor Virtual doctor entry | [owner] The Home AI tools row lost the skin analysis and virtual doctor entries (decisions 4 and 24); confirm the row of three is what the board should show. |
-| `9-web.json#4` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /voice Mic button on the assistant | [owner] The old voice screen only matched keywords of a browser SpeechRecognition result to page links (no endpoint, no text capture); there is nothing to move, so no mic is drawn… |
 | `ac-1-agent-oauth.json#0` | client | open | /oauth/authorize AI assistant consent page | [client] Functional consent page (client name, scopes, 'you confirm and pay on Nabd Plus', allow / don't allow) built on the auth layout with translations in six languages; it has… |
 | `ac-1-agent-oauth.json#1` | client | open | Settings > Connected AI apps List and disconnect connected AI assistants | [client] No screen yet. Backend is ready: GET /api/v1/patient/agent-connections (client_id, client_name, logo_uri, scopes, connected_at) and DELETE /api/v1/patient/agent-connectio… |
 | `admin-catalogue.json#0` | backend | open | /admin/catalog-governance Guard G-PERM-MISMATCH (3) | Removed 2026-10-10 (owner decision): [backend] 3 call(s): Page requires "catalog.read" but PATCH /medicines/admin/catalog/:param requires catalog.update + catalog.price.write; an … |
@@ -303,7 +294,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `provider-journeys.json#5` | client | open (issue #1146) | PharmacyDashboard hand over / delivery | [client] The prescription dispensing path is a "disabled" notice and the old order detail and broadcast screens are defined but never rendered (dead code). |
 | `provider-journeys.json#6` | client | open | PharmacyDashboard hand over / delivery | [client] Fixed on design/oc-provider: new Prescription review screen (PharmacyPrescriptionReview.tsx): both queues, verify, and an approved substitute for hand-typed lines. Before… |
 | `provider-journeys.json#9` | client | open | AppointmentDetailScreen consultation | [client] Fixed on design/oc-provider: reschedule uses a date picker and a time picker (AppointmentDetailScreen.tsx). No endpoint lists free slots of an existing appointment. Befor… |
-| `provider-journeys.json#10` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | EPrescriptionScreen prescription | [owner] The client never calls POST /prescriptions/:id/send and offers no pharmacy to send to (the "Pharmacy on Nabd Plus" row has no handler); with decision 18 (patient orders th… |
 | `provider-journeys.json#13` | backend | open | home-care-compat.module done | [backend] visit-report with complete:true moves to COMPLETED from ARRIVED without the patient signature that /nursing/visits/:id/complete requires, so the two end-of-visit paths g… |
 | `provider-journeys.json#18` | backend | open (issue #1179) | provider-ops.module balance | [backend] The wallet figure is earned minus payouts, clamped at 0, over only the latest 200 rows and counting pending (escrow) earnings; the withdrawal check uses the real ledger … |
 | `provider-journeys.json#19` | client | open (issue #1181) | WithdrawalWorkflow withdrawal request | [client] The 100 SAR minimum is hard-coded in the screen; the server reads the minimum from finance_config. |
@@ -313,7 +303,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `provider-journeys.json#23` | backend | open | emergency.module ambulance removal (decision 14) | [backend] The app no longer has the ambulance provider type, dashboard, SOS dispatch, GPS router or fleet screens. These backend modules still exist and are for the reviewer to re… |
 | `provider-journeys.json#24` | backend | open | PendingDashboard needs_changes reason | [backend] The note an admin writes with "request changes" is kept only in the status history and on the flagged documents (reviewer_note); GET /provider-onboarding/progress return… |
 | `provider-journeys.json#25` | backend | open | NursingFieldOps live position while on the way | [backend] The single visit flow sends the live position during IN_TRANSIT with POST /home-care/bookings/:id/gps (the older booking family) because /nursing/visits/:id/* has no pos… |
-| `provider-journeys.json#27` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | RadiologyDashboardNavigator radiology home visit tracking removed | [owner] The radiology order button "Home visit (GPS tracking)" and its route home_visit are removed because they opened the emergency GPS router (POST /emergency/:id/track), which… |
 | `provider-journeys.json#28` | backend | open | LabRegistration + Add Custom Test (Requires Approval) (hidden) | [backend] The wizard had "+ Add Custom Test (Requires Approval)" in the lab and radiology test menus; it only showed a toast and sent nothing. It is hidden now (M9). To bring it b… |
 | `provider-journeys.json#29` | client | open | DoctorRegistration inline clinic map | [client] The doctor wizard has two map inputs that write `location` in different shapes: the picker in the services step writes {lat, lng}, the inline map on the insurance step wr… |
 | `provider-journeys.json#30` | client | open | FacilityRegistration saving flag in data | [client] The facility steps keep their saving flag `loading` inside the registration data, so `loading: false` is part of `full_data` sent with the final submit. Kept as is in M9 … |
