@@ -98,14 +98,14 @@ function backendRouteMatchers(): Matcher[] {
   });
 }
 
-/** What deploy/nginx/conf.d/mcp.conf sends to the backend, as backend paths. */
+/** What deploy/nginx/conf.d/mcp.conf sends to the backend, as backend paths (`backend_pool` is the backend upstream in deploy/nginx/nginx.conf). */
 function mcpToBackend(path: string): string | null {
   const conf = readFileSync(join(WEB, "..", "deploy", "nginx", "conf.d", "mcp.conf"), "utf8");
   const exact = new Map<string, string>();
-  for (const m of conf.matchAll(/location = (\S+) \{\s*proxy_pass http:\/\/backend:8002(\S*);/g)) exact.set(m[1], m[2]);
+  for (const m of conf.matchAll(/location = (\S+) \{\s*proxy_pass http:\/\/(?:backend:8002|backend_pool)(\S*);/g)) exact.set(m[1], m[2]);
   if (exact.has(path)) return exact.get(path)!;
   if (path === "/healthz") return "/healthz";
-  const prefixes = [...conf.matchAll(/location (\/[^\s=~{]+) \{\s*proxy_pass http:\/\/backend:8002(\S*);/g)]
+  const prefixes = [...conf.matchAll(/location (\/[^\s=~{]+) \{\s*proxy_pass http:\/\/(?:backend:8002|backend_pool)(\S*);/g)]
     .map((m) => ({ prefix: m[1], target: m[2] }))
     .sort((a, b) => b.prefix.length - a.prefix.length);
   for (const { prefix, target } of prefixes) {
