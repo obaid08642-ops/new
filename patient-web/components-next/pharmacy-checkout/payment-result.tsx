@@ -34,7 +34,28 @@ type Phase =
   /** The backend could not be reached. */
   | { kind: "error" };
 
-type Ids = { orderId?: string; transactionId?: string };
+/** What the backend's transaction names: the booking it pays for. */
+type Booking = { kind: string; id: string };
+type Ids = { orderId?: string; transactionId?: string; gatewayRef?: string; booking?: Booking };
+
+/** The page of the booking a payment was for, where its own pay button and its status live (issues 1055 and 1087). */
+export function bookingHref(locale: string, booking: Booking | undefined): string | undefined {
+  if (!booking || !UUID.test(booking.id)) return undefined;
+  const id = encodeURIComponent(booking.id);
+  switch (booking.kind) {
+    case "pharmacy": return `/${locale}/orders/${id}/tracking`;
+    case "consultation": return `/${locale}/appointments/${id}`;
+    case "lab": return `/${locale}/diagnostics/bookings/labs/${id}`;
+    case "radiology": return `/${locale}/diagnostics/bookings/radiology/${id}`;
+    case "insurance": return `/${locale}/insurance/requests/${id}`;
+    case "diagnostics": return `/${locale}/diagnostics/bookings`;
+    default: return undefined;
+  }
+}
+
+const bookingOf = (record: Record<string, unknown>): Booking | undefined =>
+  typeof record.bookingKind === "string" && typeof record.bookingId === "string" && UUID.test(record.bookingId)
+    ? { kind: record.bookingKind, id: record.bookingId } : undefined;
 
 /**
  * Ask the backend what happened, and only the backend. Two real reads, in this order:
@@ -44,10 +65,29 @@ type Ids = { orderId?: string; transactionId?: string };
  * A word in the address (`?status=paid`) is never read.
  */
 export async function checkPayment(ids: Ids, doFetch: typeof fetch = fetch, refresh = false): Promise<{ phase: Phase; ids: Ids }> {
-  let { orderId, transactionId } = ids;
-  if (!orderId && !transactionId) return { phase: { kind: "unknown" }, ids };
+  let { orderId, transactionId, booking } = ids;
+  const { gatewayRef } = ids;
+  if (!orderId && !transactionId && !gatewayRef) return { phase: { kind: "unknown" }, ids };
   let reached = false;
   let closed = false;
+
+  // The provider sends the patient back with its own payment id only: the backend's stored status names our transaction
+  // and the booking it pays for (consultation, lab, radiology, insurance co-pay, diagnostics or a pharmacy order).
+  if (!transactionId && gatewayRef) {
+    try {
+      const response = await doFetch(`/api/payments/status/${encodeURIComponent(gatewayRef)}`, { credentials: "same-origin", cache: "no-store" });
+      if (response.ok) {
+        reached = true;
+        const body: unknown = await response.json().catch(() => null);
+        const record = body && typeof body === "object" ? (body as Record<string, unknown>) : {};
+        if (typeof record.transactionId === "string" && UUID.test(record.transactionId)) transactionId = record.transactionId;
+        booking = booking ?? bookingOf(record);
+        if (!orderId && booking?.kind === "pharmacy") orderId = booking.id;
+      }
+    } catch {
+      // the reads below decide
+    }
+  }
 
   if (orderId) {
     try {
@@ -73,13 +113,14 @@ export async function checkPayment(ids: Ids, doFetch: typeof fetch = fetch, refr
         const body: unknown = await response.json().catch(() => null);
         const verified = parseVerification(body);
         const record = body && typeof body === "object" ? (body as Record<string, unknown>) : {};
-        // the verified transaction names its order when the address did not
-        if (!orderId && record.bookingKind === "pharmacy" && typeof record.bookingId === "string" && UUID.test(record.bookingId)) orderId = record.bookingId;
+        // the verified transaction names its booking (and the pharmacy order) when the address did not
+        booking = booking ?? bookingOf(record);
+        if (!orderId && booking?.kind === "pharmacy") orderId = booking.id;
         if (verified) {
           const outcome: PaymentOutcome = verified.outcome;
-          if (outcome === "paid") return { phase: { kind: "paid" }, ids: { orderId, transactionId } };
-          if (outcome === "failed") return { phase: { kind: "failed" }, ids: { orderId, transactionId } };
-          if (outcome === "refunded") return { phase: { kind: "refunded" }, ids: { orderId, transactionId } };
+          if (outcome === "paid") return { phase: { kind: "paid" }, ids: { orderId, transactionId, gatewayRef, booking } };
+          if (outcome === "failed") return { phase: { kind: "failed" }, ids: { orderId, transactionId, gatewayRef, booking } };
+          if (outcome === "refunded") return { phase: { kind: "refunded" }, ids: { orderId, transactionId, gatewayRef, booking } };
         }
       }
     } catch {
@@ -87,7 +128,7 @@ export async function checkPayment(ids: Ids, doFetch: typeof fetch = fetch, refr
     }
   }
 
-  const next = { orderId, transactionId };
+  const next = { orderId, transactionId, gatewayRef, booking };
   if (!reached) return { phase: { kind: "error" }, ids: next };
   return { phase: closed ? { kind: "expired" } : { kind: "pending" }, ids: next };
 }
@@ -110,16 +151,18 @@ type Props = {
   reference?: string;
   /** Our own transaction reference, when the address carried one. */
   transactionId?: string;
+  /** The provider's payment id (`?id=`), which the backend resolves to our transaction and its booking. */
+  gatewayRef?: string;
   orderId?: string;
 };
 
 /** `/payments/result`: what the backend says about the payment the patient just made. Success appears only when it says "paid". */
-export function PaymentResult({ locale, reference, transactionId, orderId }: Props) {
+export function PaymentResult({ locale, reference, transactionId, gatewayRef, orderId }: Props) {
   const t = useTranslations("Payments");
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>({ kind: "checking" });
   const [round, setRound] = useState(0);
-  const ids = useRef<Ids>({ orderId, transactionId });
+  const ids = useRef<Ids>({ orderId, transactionId, gatewayRef });
 
   const recheck = useCallback(() => {
     setPhase({ kind: "checking" });
@@ -134,7 +177,7 @@ export function PaymentResult({ locale, reference, transactionId, orderId }: Pro
     if (round === 0 && (!ids.current.orderId || !ids.current.transactionId)) {
       const pointer = recallPayment();
       if (pointer && (!ids.current.orderId || ids.current.orderId === pointer.orderId)) {
-        ids.current = { orderId: ids.current.orderId ?? pointer.orderId, transactionId: ids.current.transactionId ?? pointer.transactionId };
+        ids.current = { ...ids.current, orderId: ids.current.orderId ?? pointer.orderId, transactionId: ids.current.transactionId ?? pointer.transactionId };
       }
     }
     const tick = async () => {
@@ -165,6 +208,7 @@ export function PaymentResult({ locale, reference, transactionId, orderId }: Pro
 
   const orders = `/${locale}/orders`;
   const known = ids.current.orderId;
+  const bookingPage = known ? undefined : bookingHref(locale, ids.current.booking);
   let content;
   if (phase.kind === "checking") {
     content = (
@@ -177,8 +221,10 @@ export function PaymentResult({ locale, reference, transactionId, orderId }: Pro
     const goOrders = { label: t("myOrders"), run: () => router.push(orders) };
     const primary =
       phase.kind === "paid" && known ? { label: t("trackOrder"), run: () => router.push(`/${locale}/orders/${encodeURIComponent(known)}/tracking`) }
+      : phase.kind === "paid" && bookingPage ? { label: t("openBooking"), run: () => router.push(bookingPage) }
       : phase.kind === "pending" || phase.kind === "stalled" || phase.kind === "error" ? { label: t("checkAgain"), run: recheck }
       : phase.kind === "failed" && known ? { label: t("retry"), run: () => router.push(`/${locale}/pharmacy/payment?orderId=${encodeURIComponent(known)}`) }
+      : phase.kind === "failed" && bookingPage ? { label: t("retry"), run: () => router.push(bookingPage) }
       : goOrders;
     const secondary = primary === goOrders ? undefined : goOrders;
     content = (

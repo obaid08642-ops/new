@@ -74,7 +74,7 @@
     "line": 131,
     "found": "[client] Goes to /services, which redirects to the home page; there is no services list page to open.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open (issue #791)"
+    "review_status": "fixed #1469"
   },
   {
     "batch": 13,
@@ -85,7 +85,7 @@
     "line": 125,
     "found": "[client] Goes to /consultations/doctors (the doctors list), not to /provider-info; kept as it was.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open (issue #792)"
+    "review_status": "fixed #1469"
   },
   {
     "batch": 13,
