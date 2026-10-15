@@ -8,7 +8,7 @@
     "line": 97,
     "found": "The submit handler makes no API call. A 900 ms setTimeout calls setConfirmedData with a reference built by Math.random (`LAB-/RAD-/NUR-` + 6 random digits) and, for a clinic visit with no address, the text \"مركز نبض الطبي - الرياض\". The confirmation screen then shows that reference, the slot, the price and the insurance split as a booked appointment.",
     "suspect": "A fake success: no booking exists on the backend, so a patient can believe a lab, radiology or nursing visit is booked when nothing was sent. The reference number and clinic address are invented. The booking endpoint for these services (and a slot lock) should be called, and the reference taken from its response.",
-    "review_status": "open (issue #560)"
+    "review_status": "fixed #1478"
   },
   {
     "batch": 3,

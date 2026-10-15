@@ -30,7 +30,7 @@
     "line": 26,
     "found": "[client] nursing/catalog's Book button now opens a window that says nothing was booked and links to /nursing (the old fake confirmation is gone); a real booking from the catalogue and the screen's own literals are Batch 4's",
     "suspect": "Client-side: later batch.",
-    "review_status": "open (issue #634)"
+    "review_status": "fixed #1478"
   },
   {
     "batch": 3,
