@@ -49,6 +49,8 @@ def main():
 
     def ask(text):
         page.goto(f'{WEB}/ar/ai?mode=symptoms', wait_until='load', timeout=60000)
+        # the settled page: while React streams it, the form is briefly in the document twice (one hidden copy)
+        page.wait_for_function("document.querySelectorAll('textarea').length === 1", timeout=30000)
         page.locator('textarea').fill(text)
         page.locator('form button[type="submit"]').click()
         page.locator('section[role="alert"], section[role="status"]').first.wait_for(timeout=60000)
