@@ -77,7 +77,8 @@ export function orderAction(status: string | undefined): OrderAction {
   return "continue";
 }
 
-export type OrderLine = { id: string; name: string; qty: number; sku?: string };
+/** `onlineOnly`: the catalogue's online_exclusive for the line (decision 11), kept on the cart line when ordered again. */
+export type OrderLine = { id: string; name: string; qty: number; sku?: string; onlineOnly?: boolean };
 
 export type PharmacyNames = { ar?: string; en?: string };
 
@@ -158,7 +159,7 @@ export function parseOrderDetail(payload: unknown, locale: string): OrderDetail 
       const name = item ? lineName(locale, item) : undefined;
       if (!item || !itemId || !name) return [];
       const qty = num(item.qty);
-      return [{ id: itemId, name, qty: qty !== undefined && qty >= 1 ? Math.min(99, Math.trunc(qty)) : 1, sku: text(item.matched_sku) ?? text(item.sku) }];
+      return [{ id: itemId, name, qty: qty !== undefined && qty >= 1 ? Math.min(99, Math.trunc(qty)) : 1, sku: text(item.matched_sku) ?? text(item.sku), ...(item.online_exclusive === true ? { onlineOnly: true } : {}) }];
     }),
     totals: price.total === undefined ? undefined : { subtotal: num(snapshotTotals?.subtotal), deliveryFee: num(snapshotTotals?.delivery_fee), total: price.total, currency: price.currency },
     address: address ? { label: text(address.label), street: text(address.street) ?? text(address.line1), district: text(address.district), city: text(address.city) } : undefined,
@@ -245,12 +246,13 @@ export function reorderLines(detail: Pick<OrderDetail, "lines">): ReorderLines {
  * The lines to put in the browser cart for what the patient ticked. The cart's id is the catalogue product (the order
  * line's `matched_sku`), the quantity is the patient's (1 to 99), and there is no price: the cart holds none,
  * the pharmacies send theirs again. When the earlier order used a prescription
- * the lines are marked as needing one, so checkout asks for it again.
+ * the lines are marked as needing one, so checkout asks for it again. A line the catalogue sells online only keeps
+ * that note (decision 11).
  */
 export function cartItemsFor(lines: CatalogueLine[], picks: Record<string, { on: boolean; qty: number }>, needsPrescription: boolean) {
   return lines.flatMap((line) => {
     const pick = picks[line.id];
     if (!pick?.on) return [];
-    return [{ id: line.sku, name: line.name, rx: needsPrescription, qty: Math.min(99, Math.max(1, Math.trunc(pick.qty) || 1)) }];
+    return [{ id: line.sku, name: line.name, rx: needsPrescription, ...(line.onlineOnly === true ? { onlineOnly: true } : {}), qty: Math.min(99, Math.max(1, Math.trunc(pick.qty) || 1)) }];
   });
 }
