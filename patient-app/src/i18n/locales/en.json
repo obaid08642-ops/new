@@ -3260,5 +3260,8 @@
   "services.cat.searchForAService": "Search for a service, doctor or medicine",
   "services.cat.primaryServices": "Primary services",
   "services.cat.additionalServices": "Additional services",
-  "services.cat.title": "Services"
+  "services.cat.title": "Services",
+  "pharmacy.offers.unavailable": "No pharmacy is available right now",
+  "pharmacy.offers.unavailableBody": "No nearby pharmacy replied in time. Please try again later.",
+  "pharmacy.offers.searchRound": "Round {round}: searching pharmacies within {km} km"
 }

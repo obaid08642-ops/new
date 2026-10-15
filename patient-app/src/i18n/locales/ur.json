@@ -3260,5 +3260,8 @@
   "services.cat.searchForAService": "خدمت، ڈاکٹر یا دوا تلاش کریں",
   "services.cat.primaryServices": "بنیادی خدمات",
   "services.cat.additionalServices": "اضافی خدمات",
-  "services.cat.title": "خدمات"
+  "services.cat.title": "خدمات",
+  "pharmacy.offers.unavailable": "اس وقت کوئی فارمیسی دستیاب نہیں",
+  "pharmacy.offers.unavailableBody": "کسی قریبی فارمیسی نے وقت پر جواب نہیں دیا۔ براہ کرم بعد میں دوبارہ کوشش کریں۔",
+  "pharmacy.offers.searchRound": "راؤنڈ {round}: {km} کلومیٹر کے اندر فارمیسیاں تلاش ہو رہی ہیں"
 }

@@ -3260,5 +3260,8 @@
   "services.cat.searchForAService": "सेवा, डॉक्टर या दवा खोजें",
   "services.cat.primaryServices": "मुख्य सेवाएं",
   "services.cat.additionalServices": "अतिरिक्त सेवाएँ",
-  "services.cat.title": "सेवाएं"
+  "services.cat.title": "सेवाएं",
+  "pharmacy.offers.unavailable": "अभी कोई फ़ार्मेसी उपलब्ध नहीं है",
+  "pharmacy.offers.unavailableBody": "किसी नज़दीकी फ़ार्मेसी ने समय पर जवाब नहीं दिया। कृपया बाद में फिर कोशिश करें।",
+  "pharmacy.offers.searchRound": "राउंड {round}: {km} किमी के भीतर फ़ार्मेसी खोजी जा रही हैं"
 }

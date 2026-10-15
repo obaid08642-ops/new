@@ -3260,5 +3260,8 @@
   "services.cat.searchForAService": "ابحث عن خدمة أو طبيب أو دواء",
   "services.cat.primaryServices": "الخدمات الرئيسية",
   "services.cat.additionalServices": "خدمات إضافية",
-  "services.cat.title": "الخدمات"
+  "services.cat.title": "الخدمات",
+  "pharmacy.offers.unavailable": "لا توجد صيدلية متاحة الآن",
+  "pharmacy.offers.unavailableBody": "لم تردّ أي صيدلية قريبة في الوقت المحدد. حاول مرة أخرى لاحقًا.",
+  "pharmacy.offers.searchRound": "الجولة {round}: نبحث في الصيدليات ضمن {km} كم"
 }

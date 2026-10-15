@@ -2278,8 +2278,15 @@
       "alreadyPaid": "इस ऑर्डर का भुगतान हो चुका है।"
     },
     "lastFromYou": "आप: {text}",
+<<<<<<< HEAD
     "priceNotVerified": "कीमत कैटलॉग मूल्य से सत्यापित नहीं; एडमिन इसकी समीक्षा करता है।",
     "priceAboveCatalogue": "कीमत कैटलॉग मूल्य से अधिक है; एडमिन को सूचित किया गया।"
+=======
+    "unavailableTitle": "अभी कोई फ़ार्मेसी उपलब्ध नहीं है",
+    "unavailableBody": "किसी नज़दीकी फ़ार्मेसी ने समय पर जवाब नहीं दिया। कृपया बाद में फिर कोशिश करें।",
+    "unavailableAction": "फ़ार्मेसी पर वापस जाएँ",
+    "searchRound": "राउंड {round}: {km} किमी के भीतर फ़ार्मेसी खोजी जा रही हैं"
+>>>>>>> origin/fix/offers-waiting
   },
   "PharmacyCheckout": {
     "title": "चेकआउट",

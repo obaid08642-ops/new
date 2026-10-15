@@ -3260,5 +3260,8 @@
   "services.cat.searchForAService": "Maghanap ng serbisyo, doktor o gamot",
   "services.cat.primaryServices": "Pangunahing serbisyo",
   "services.cat.additionalServices": "Karagdagang serbisyo",
-  "services.cat.title": "Mga Serbisyo"
+  "services.cat.title": "Mga Serbisyo",
+  "pharmacy.offers.unavailable": "Walang available na botika ngayon",
+  "pharmacy.offers.unavailableBody": "Walang malapit na botikang sumagot sa takdang oras. Subukan ulit mamaya.",
+  "pharmacy.offers.searchRound": "Round {round}: naghahanap ng botika sa loob ng {km} km"
 }

@@ -3260,5 +3260,8 @@
   "services.cat.searchForAService": "সেবা, ডাক্তার বা ওষুধ খুঁজুন",
   "services.cat.primaryServices": "প্রধান সেবা",
   "services.cat.additionalServices": "অতিরিক্ত পরিষেবা",
-  "services.cat.title": "সেবা"
+  "services.cat.title": "সেবা",
+  "pharmacy.offers.unavailable": "এই মুহূর্তে কোনো ফার্মেসি পাওয়া যাচ্ছে না",
+  "pharmacy.offers.unavailableBody": "কাছের কোনো ফার্মেসি সময়মতো উত্তর দেয়নি। পরে আবার চেষ্টা করুন।",
+  "pharmacy.offers.searchRound": "রাউন্ড {round}: {km} কিমির মধ্যে ফার্মেসি খোঁজা হচ্ছে"
 }

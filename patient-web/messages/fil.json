@@ -2278,8 +2278,15 @@
       "alreadyPaid": "Bayad na ang order na ito."
     },
     "lastFromYou": "Ikaw: {text}",
+<<<<<<< HEAD
     "priceNotVerified": "Hindi pa nasuri ang presyo laban sa presyo sa katalogo; sinusuri ito ng admin.",
     "priceAboveCatalogue": "Mas mataas ang presyo kaysa sa presyo sa katalogo; naabisuhan ang admin."
+=======
+    "unavailableTitle": "Walang available na botika ngayon",
+    "unavailableBody": "Walang malapit na botikang sumagot sa takdang oras. Subukan ulit mamaya.",
+    "unavailableAction": "Bumalik sa botika",
+    "searchRound": "Round {round}: naghahanap ng botika sa loob ng {km} km"
+>>>>>>> origin/fix/offers-waiting
   },
   "PharmacyCheckout": {
     "title": "Pag-checkout",

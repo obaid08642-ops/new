@@ -2278,8 +2278,15 @@
       "alreadyPaid": "This order is already paid."
     },
     "lastFromYou": "You: {text}",
+<<<<<<< HEAD
     "priceNotVerified": "Price not verified against the catalogue price; the admin reviews it.",
     "priceAboveCatalogue": "Price above the catalogue price; the admin was told."
+=======
+    "unavailableTitle": "No pharmacy is available right now",
+    "unavailableBody": "No nearby pharmacy replied in time. Please try again later.",
+    "unavailableAction": "Back to the pharmacy",
+    "searchRound": "Round {round}: searching pharmacies within {km} km"
+>>>>>>> origin/fix/offers-waiting
   },
   "PharmacyCheckout": {
     "title": "Checkout",
