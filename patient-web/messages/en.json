@@ -4233,5 +4233,9 @@
     "pointCamera": "Point the camera at the code",
     "viewfinder": "Camera view",
     "cameraFailed": "The camera could not be opened. Allow it, or type the code."
+  },
+  "Network": {
+    "offline": "You are offline. This page shows the last saved copy.",
+    "offlineLastUpdated": "You are offline. This page shows the last saved copy. Last updated: {time}"
   }
 }
