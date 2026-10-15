@@ -8,7 +8,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| Patient app and web | 434 | 82 | 252 | 88 | 1 | 11 |
+| Patient app and web | 434 | 80 | 254 | 88 | 1 | 11 |
 | Other | 29 | 22 | 7 | 0 | 0 | 0 |
 | Admin | 97 | 8 | 56 | 33 | 0 | 0 |
 | Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
@@ -16,7 +16,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Patient journeys | 87 | 33 | 52 | 2 | 0 | 0 |
 | Provider app | 31 | 8 | 22 | 1 | 0 | 0 |
 | Provider journeys | 34 | 17 | 15 | 2 | 0 | 0 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| **Total** | **740** | **178** | **422** | **128** | **1** | **11** |
 
 ## By tag
 
@@ -25,8 +25,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | client | 169 | 51 | 90 | 28 | 0 | 0 |
 | owner | 100 | 21 | 34 | 42 | 1 | 2 |
 | backend | 233 | 35 | 168 | 26 | 0 | 4 |
-| untagged | 238 | 73 | 128 | 32 | 0 | 5 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| untagged | 238 | 71 | 130 | 32 | 0 | 5 |
+| **Total** | **740** | **178** | **422** | **128** | **1** | **11** |
 
 ## By file
 
@@ -75,7 +75,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `admin-system.json` | 12 | 2 | 7 | 3 | 0 | 0 |
 | `batch-0-app.json` | 13 | 5 | 7 | 0 | 0 | 1 |
 | `batch-0-runtime.json` | 8 | 6 | 1 | 1 | 0 | 0 |
-| `batch-0-web.json` | 19 | 10 | 7 | 1 | 0 | 1 |
+| `batch-0-web.json` | 19 | 8 | 9 | 1 | 0 | 1 |
 | `batch-1a-app.json` | 19 | 3 | 4 | 11 | 0 | 1 |
 | `batch-1a-web.json` | 12 | 4 | 6 | 2 | 0 | 0 |
 | `batch-1b-app.json` | 12 | 4 | 5 | 2 | 0 | 1 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 7 | 0 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 6 | 7 | 0 | 0 | 0 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| **Total** | **740** | **178** | **422** | **128** | **1** | **11** |
 
 ## Owner decisions (1)
 
@@ -108,7 +108,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---:|---|---|---|
 | 1 | `13-web.json#13` `patient-web/lib/legal/embedded.ts:15` | /terms Embedded fallback text | [owner] The embedded copy (issue 755/783) is built from docs/legal, which are drafts with [placeholders] until a Saudi lawyer approves them, so it stays off today. After approval: update docs/legal, run node patient-web… |
 
-## Open and unverified (191)
+## Open and unverified (189)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -190,11 +190,9 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-0-web.json#6` | untagged | open (issue #435) | /forgot-password Submit → success message | FIXED on the client in batch-0-fixes: the success message now links to /password-reset ("I have the code"), a throttled request says so, and the reset page takes the token in a pl… |
 | `batch-0-web.json#7` | untagged | open (issue #436) | /onboarding Whole screen (entry and outcome) | No link in the web points to /onboarding (grep over app, components-next, lib); /welcome is reached only from the login back button and the onboarding screens; finishing onboardin… |
 | `batch-0-web.json#8` | untagged | open (issue #437) | /onboarding Slides, buttons and labels | FIXED in batch-0-fixes: slide titles and bodies, the carousel, language and permission steps and the frame's back label and hero text are in messages (Onboarding, AuthFrame; six l… |
-| `batch-0-web.json#9` | untagged | open (issue #438) | /onboarding/permissions Allow buttons (Location, Notifications) | Location only calls getCurrentPosition and discards the result; Notifications calls Notification.requestPermission() and stops. ServiceWorkerRegister (which would subscribe) is im… |
 | `batch-0-web.json#10` | untagged | open (issue #439) | / Hero search form (also on /dashboard) and the JSON-LD SearchAction | FIXED in batch-0-fixes: /search now reads ?q=, starts with it in the field and runs it. STILL OPEN: the page requires a session (requirePatientAccess) and the public Home's search… |
 | `batch-0-web.json#11` | untagged | open (issue #440) | /dashboard Sign-out (missing on all home-shell and core-shell screens) | FIXED in batch-0-fixes: a sign-out button is in the signed-in Home and core shells (wide top bars; on a phone the Home top bar has it, and the core screens are one tap from Home).… |
 | `batch-0-web.json#12` | untagged | closed-unverified (issue #441: closed with no linked PR) | /search Section links of the frame (CoreShell) vs HomeShell | FIXED in batch-0-fixes: both frames take the four section links from components-next/shell-links.ts (Pharmacy to /c, Consultations to /consultations/doctors, Labs and radiology to… |
-| `batch-0-web.json#16` | untagged | open (issue #445) | /notifications/settings The 9 switches (6 categories, 3 channels) | Toggles PATCH {categories\|channels:{key:bool}} and are stored on the patient profile document (notification_settings). Delivery reads notification_settings from the users collect… |
 | `batch-1a-app.json#7` | owner | open (issue #455) | /pharmacy/product-detail Delivery / pickup choice with "within [time]" (hidden) | The board draws a delivery or pickup segmented control with expected times. The cart item (src/context/CartContext.tsx) carries no delivery mode and the pharmacy draft is built la… |
 | `batch-1a-app.json#8` | untagged | open (issue #456) | /pharmacy/product-detail Insurance row (hidden) | SPEC §A shows it only when the patient's insurer is in covered_by_insurance[] (company ids). The screen has no call for the patient's insurer and no id-to-name lookup for the row'… |
 | `batch-1a-app.json#16` | untagged | closed-unverified (issue #464: closed with no linked PR) | /pharmacy/wishlist Availability chip | getWishlist() sets available = !!med, where med is the row found in the medicines collection by id (no public-catalogue filter, no stock). The chip "متوفر / غير متوفر" therefore m… |
