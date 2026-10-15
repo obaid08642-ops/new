@@ -8,7 +8,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| Patient app and web | 434 | 25 | 300 | 97 | 12 | 0 |
+| Patient app and web | 434 | 24 | 301 | 97 | 12 | 0 |
 | Other | 29 | 11 | 17 | 1 | 0 | 0 |
 | Admin | 99 | 6 | 59 | 34 | 0 | 0 |
 | Admin journeys | 20 | 1 | 17 | 2 | 0 | 0 |
@@ -16,17 +16,17 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Patient journeys | 87 | 12 | 71 | 2 | 2 | 0 |
 | Provider app | 31 | 7 | 23 | 1 | 0 | 0 |
 | Provider journeys | 34 | 2 | 29 | 2 | 1 | 0 |
-| **Total** | **742** | **66** | **516** | **145** | **15** | **0** |
+| **Total** | **742** | **65** | **517** | **145** | **15** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | client | 169 | 20 | 110 | 36 | 3 | 0 |
-| owner | 100 | 10 | 43 | 42 | 5 | 0 |
+| owner | 100 | 9 | 44 | 42 | 5 | 0 |
 | backend | 235 | 18 | 187 | 30 | 0 | 0 |
 | untagged | 238 | 18 | 176 | 37 | 7 | 0 |
-| **Total** | **742** | **66** | **516** | **145** | **15** | **0** |
+| **Total** | **742** | **65** | **517** | **145** | **15** | **0** |
 
 ## By file
 
@@ -49,7 +49,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `1e-app.json` | 6 | 0 | 4 | 2 | 0 | 0 |
 | `1e-web.json` | 10 | 0 | 8 | 1 | 1 | 0 |
 | `2-app.json` | 17 | 2 | 11 | 4 | 0 | 0 |
-| `2-web.json` | 14 | 3 | 9 | 2 | 0 | 0 |
+| `2-web.json` | 14 | 2 | 10 | 2 | 0 | 0 |
 | `3-app.json` | 10 | 1 | 8 | 1 | 0 | 0 |
 | `3-web.json` | 8 | 1 | 6 | 1 | 0 | 0 |
 | `4-app.json` | 8 | 1 | 5 | 1 | 1 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 6 | 1 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 1 | 11 | 1 | 0 | 0 |
-| **Total** | **742** | **66** | **516** | **145** | **15** | **0** |
+| **Total** | **742** | **65** | **517** | **145** | **15** | **0** |
 
 ## Owner decisions (15)
 
@@ -122,7 +122,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 14 | `journeys.json#34` `patient-web/app/[locale]/prescriptions/[prescriptionId]/page.tsx:97` | 3 prescription -> cart | Web "اطلب الأدوية دي" on the prescription page opens rx-order and broadcasts directly; decision 18 says it fills the cart (the app does). |
 | 15 | `provider-journeys.json#5` `provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:538` | PharmacyDashboard hand over / delivery | [client] The prescription dispensing path is a "disabled" notice and the old order detail and broadcast screens are defined but never rendered (dead code). |
 
-## Open and unverified (66)
+## Open and unverified (65)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -131,7 +131,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `14b-app.json#4` | owner | open (decided 2026-10-15, reviewer for the owner: preparati… | /diagnostics/sample-tracking Static preparation and visit tips (items 628 / 629) | [owner] needs medical review before launch: diag.track.prep (fasting 8 to 12 hours) and diag.tech.tips are fixed texts for every package; owner approved them on condition of a med… |
 | `2-app.json#3` | backend | open (issue #385) | /consultations/home-visit-tracking Doctor on the way, map | [backend] Fixed on design/backend-fields: the step "Doctor on the way" follows EN_ROUTE / ARRIVED (Q-15); there is still no doctor position, so no map is drawn. |
 | `2-app.json#10` | backend | open | /consultations Nearest and Available now filters | [backend] Done on the client: the filters call GET /care/doctors (Q-12/Q-13). Backend limits: sort=distance with only a city needs the signed-in user's city (the client sends city… |
-| `2-web.json#9` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /consultations/virtual-waiting-room Connected call screens | [owner] The video call, waiting room and room screens were only seen in their error and not-ready states here (no media backend in the check); the connected layout is not verified. |
 | `2-web.json#10` | backend | open | /consultations/doctors Nearest with Available now | [backend] GET /care/doctors orders available_within results by next slot and ignores sort=distance, so with both on the position is not sent (the city filter still is); a combined… |
 | `2-web.json#12` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /consultations/doctors Cash-only filter | [owner] The server has accepts_insurance only: 'Cash only' means doctors who do NOT accept insurance (accepts_insurance=false), not 'any doctor, paid in cash'. A patient who pays … |
 | `3-app.json#0` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /diagnostics Payment filter (cash / insurance) drawn on ServiceHub | [owner] The board has it; no field says which test or lab takes insurance, so it is not drawn. |

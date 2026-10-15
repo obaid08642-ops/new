@@ -107,7 +107,7 @@
     "line": 40,
     "found": "[owner] The video call, waiting room and room screens were only seen in their error and not-ready states here (no media backend in the check); the connected layout is not verified.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #407)"
+    "review_status": "fixed #1522 (issue #407)"
   },
   {
     "batch": 2,
