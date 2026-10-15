@@ -82,10 +82,10 @@
     "screen": "/pharmacy/product-detail",
     "element": "Delivery / pickup choice with \"within [time]\" (hidden)",
     "file": "patient-app/app/pharmacy/product-detail.tsx",
-    "line": 0,
+    "line": 57,
     "found": "The board draws a delivery or pickup segmented control with expected times. The cart item (src/context/CartContext.tsx) carries no delivery mode and the pharmacy draft is built later from the offers, and the medicine row has no delivery time. A control that changes nothing would be a dead control, so it is not drawn.",
     "suspect": "Owner decision: where delivery or pickup is chosen (here, in the cart or on the selected offer) and which field gives the times.",
-    "review_status": "owner-decision (question 33 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2) (issue #455)"
+    "review_status": "fixed #1533 (issue #455)"
   },
   {
     "batch": 1,
