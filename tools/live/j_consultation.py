@@ -14,6 +14,8 @@ DOCTOR_SCREEN_GETS = ['/provider/profile', '/provider/profile/availability', '/p
                       '/hospital/invitations/inbox', '/provider/dashboard/stats', '/provider/crm']
 
 
+LAST_TXN = {}
+
 def tomorrow():
     return datetime.date.today() + datetime.timedelta(days=1)
 
@@ -78,6 +80,8 @@ def book_paid(pat, doctor):
     step('card is offered for this consultation', r.ok and any(m.get('id') == 'card' for m in (r.get('methods') or [])), r)
     r = pat.post(f'/payments/intent/consultation/{aid}', {'method': 'card'}, headers={'Idempotency-Key': f'payment-consultation-{aid}-{uuid.uuid4()}'})
     txn = r.body.get('data', r.body) if isinstance(r.body, dict) else {}
+    global LAST_TXN
+    LAST_TXN = txn  # the web payment-result journey returns with this payment's gateway id
     step('checkout link is https', r.ok and str(txn.get('checkout_url', '')).startswith('https://'), r)
     if txn.get('gateway_intent_id'):
         fake_pay(txn['gateway_intent_id'])

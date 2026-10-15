@@ -1509,6 +1509,7 @@
     "checkingBody": "We are asking the payment provider and the pharmacy for the result. This takes a few seconds.",
     "checkAgain": "Check again",
     "trackOrder": "Track the order",
+    "openBooking": "View the booking",
     "stalledTitle": "Still waiting for the provider",
     "stalledBody": "We have not received a final answer yet. Nothing is confirmed until the provider answers. Check again, or follow your orders.",
     "refundedTitle": "This payment was refunded",
