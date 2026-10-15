@@ -1,4 +1,18 @@
-import { IsArray, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsOptional, IsString, IsUrl, MaxLength, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+
+// P13-R15: cited references on health content.
+export class ArticleReferenceDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  label?: string;
+
+  @IsOptional()
+  @IsString()
+  @IsUrl({ require_protocol: true })
+  url?: string;
+}
 
 export class CreateDto {
   @IsOptional()
@@ -55,6 +69,24 @@ export class CreateDto {
   @IsOptional()
   @IsString()
   seo_description_en?: string;
+
+  @IsOptional()
+  @IsString()
+  reviewer_name?: string;
+
+  @IsOptional()
+  @IsString()
+  reviewer_credentials?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ArticleReferenceDto)
+  references?: ArticleReferenceDto[];
+
+  @IsOptional()
+  @IsBoolean()
+  ai_generated?: boolean;
 
 }
 
