@@ -57,6 +57,10 @@ def main():
         step('patient signs in on the website', r.ok, f'{r.status}')
         journey('decision 13 on the web: while the search widens')
         page.goto(f'{WEB}/ar/pharmacy/broadcast-status?orderId={oid}', wait_until='load', timeout=60000)
+        try:  # the page streams its content after the shell
+            page.get_by_text('الجولة').first.wait_for(timeout=20000)
+        except Exception:
+            pass
         body = page.locator('body').inner_text()
         step('the offers page says the round and the radius', 'الجولة' in body and 'كم' in body, body[:300])
 
@@ -71,6 +75,10 @@ def main():
 
         journey('decision 13 on the web: the end is said, not an endless "reviewing"')
         page.goto(f'{WEB}/ar/pharmacy/broadcast-status?orderId={oid}', wait_until='load', timeout=60000)
+        try:
+            page.get_by_text('لا توجد صيدلية متاحة الآن').first.wait_for(timeout=20000)
+        except Exception:
+            pass
         body = page.locator('body').inner_text()
         step('the offers page says no pharmacy is available now', 'لا توجد صيدلية متاحة الآن' in body, body[:300])
         step('and offers the way back to the pharmacy', page.locator('a[href="/ar/pharmacy"]', has_text='العودة إلى الصيدلية').count() > 0, page.url)
