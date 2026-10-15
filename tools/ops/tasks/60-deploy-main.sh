@@ -123,8 +123,10 @@ MDB=$(sudo -n grep -E '^DB_NAME=' $ENVF | cut -d= -f2); MDB=${MDB:-nabd_nestjs}
 MEF=$(mktemp); chmod 600 $MEF
 U=$($DK exec nabdah-mongodb printenv MONGO_INITDB_ROOT_USERNAME); P=$($DK exec nabdah-mongodb printenv MONGO_INITDB_ROOT_PASSWORD)
 urlenc() { python3 -c 'import sys,urllib.parse;print(urllib.parse.quote(sys.argv[1],safe=""),end="")' "$1"; }
-printf 'MONGODB_URI=mongodb://%s:%s@mongodb:27017/?authSource=admin&directConnection=true\nMONGO_URL=mongodb://%s:%s@mongodb:27017/?authSource=admin&directConnection=true\nDB_NAME=%s\n' \
-  "$(urlenc "$U")" "$(urlenc "$P")" "$(urlenc "$U")" "$(urlenc "$P")" "$MDB" > $MEF
+# the database goes in the URI path: 2026-09-catalog-json-to-db reads the URI's database and ignores DB_NAME
+MURI="mongodb://$(urlenc "$U"):$(urlenc "$P")@mongodb:27017/$MDB?authSource=admin&directConnection=true"
+printf 'MONGODB_URI=%s\nMONGO_URL=%s\nDB_NAME=%s\n' "$MURI" "$MURI" "$MDB" > $MEF
+unset MURI
 unset U P
 mmask() { sed -E 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/<email>/g; s/\+?[0-9][0-9 ()-]{8,}[0-9]/<number>/g' | grep -viE 'password|secret|token|npm notice' | cut -c1-300; }
 for m in $MIGRATIONS; do

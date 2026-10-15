@@ -25,7 +25,10 @@ EF=$(mktemp); chmod 600 $EF
 U=$($DK exec nabdah-mongodb printenv MONGO_INITDB_ROOT_USERNAME); P=$($DK exec nabdah-mongodb printenv MONGO_INITDB_ROOT_PASSWORD)
 UE=$(node -e 'process.stdout.write(encodeURIComponent(process.argv[1]))' "$U" 2>/dev/null || python3 -c 'import sys,urllib.parse;print(urllib.parse.quote(sys.argv[1],safe=""),end="")' "$U")
 PE=$(node -e 'process.stdout.write(encodeURIComponent(process.argv[1]))' "$P" 2>/dev/null || python3 -c 'import sys,urllib.parse;print(urllib.parse.quote(sys.argv[1],safe=""),end="")' "$P")
-printf 'MONGODB_URI=mongodb://%s:%s@mongodb:27017/?authSource=admin&directConnection=true\nMONGO_URL=mongodb://%s:%s@mongodb:27017/?authSource=admin&directConnection=true\nDB_NAME=%s\n' "$UE" "$PE" "$UE" "$PE" "$DBN" > $EF
+# the database goes in the URI path: 2026-09-catalog-json-to-db reads the URI's database and ignores DB_NAME
+MURI="mongodb://$UE:$PE@mongodb:27017/$DBN?authSource=admin&directConnection=true"
+printf 'MONGODB_URI=%s\nMONGO_URL=%s\nDB_NAME=%s\n' "$MURI" "$MURI" "$DBN" > $EF
+unset MURI
 unset U P UE PE
 echo "migrations: database $DBN, network $NET, image $IMG"
 
