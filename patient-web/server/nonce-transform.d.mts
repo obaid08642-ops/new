@@ -5,3 +5,7 @@ export declare function freshNonce(): string;
 export declare function policyWithNonce(policy: string | null | undefined, nonce: string): string;
 export declare function stampTags(html: string, nonce: string): string;
 export declare function createStamper(nonce: string): { push(chunk: string): string; end(): string };
+export declare const THEME_COOKIE: string;
+export declare function themeFromCookie(cookieHeader: string | string[] | null | undefined): "light" | "dark" | null;
+export declare function stampTheme(html: string, theme: string | null): string;
+export declare function createThemeStamper(theme: string | null): { push(chunk: string): string; end(): string };
