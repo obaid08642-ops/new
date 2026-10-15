@@ -264,11 +264,11 @@ def main():
         web_login(ctx2, WEB, acct['email'], acct['password'])
         p2 = ctx2.new_page()
         p2.goto(f'{WEB}/ar/pharmacy/barcode', wait_until='load', timeout=60000)
-        p2.get_by_role('button', name='امسح بالكاميرا').first.wait_for(timeout=30000)
+        p2.locator('button:visible', has_text='امسح بالكاميرا').first.wait_for(timeout=30000)
         step('with BarcodeDetector the camera button is shown', True)
         step('the typed field is still there', p2.locator('input').count() > 0, 'no input')
         with p2.expect_request(lambda req: f'/medicines/by-barcode/{STUB_CODE}' in req.url, timeout=30000):
-            p2.get_by_role('button', name='امسح بالكاميرا').first.click()
+            p2.locator('button:visible', has_text='امسح بالكاميرا').first.click()
         step('the scanned code goes through the same lookup as a typed one', True)
         ctx2.close()
     except Exception as e:
