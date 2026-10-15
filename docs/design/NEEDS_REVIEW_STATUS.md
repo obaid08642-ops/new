@@ -9,24 +9,24 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | Patient app and web | 434 | 130 | 232 | 60 | 1 | 11 |
-| Other | 28 | 21 | 7 | 0 | 0 | 0 |
-| Admin | 93 | 30 | 45 | 18 | 0 | 0 |
+| Other | 29 | 22 | 7 | 0 | 0 | 0 |
+| Admin | 94 | 30 | 46 | 18 | 0 | 0 |
 | Admin journeys | 20 | 4 | 16 | 0 | 0 | 0 |
 | Final pass | 8 | 8 | 0 | 0 | 0 | 0 |
-| Patient journeys | 86 | 41 | 44 | 1 | 0 | 0 |
+| Patient journeys | 86 | 36 | 48 | 2 | 0 | 0 |
 | Provider app | 30 | 8 | 21 | 1 | 0 | 0 |
 | Provider journeys | 34 | 25 | 9 | 0 | 0 | 0 |
-| **Total** | **733** | **267** | **374** | **80** | **1** | **11** |
+| **Total** | **735** | **263** | **379** | **81** | **1** | **11** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| client | 167 | 74 | 74 | 19 | 0 | 0 |
+| client | 168 | 75 | 74 | 19 | 0 | 0 |
 | owner | 100 | 67 | 24 | 6 | 1 | 2 |
-| backend | 229 | 45 | 156 | 24 | 0 | 4 |
-| untagged | 237 | 81 | 120 | 31 | 0 | 5 |
-| **Total** | **733** | **267** | **374** | **80** | **1** | **11** |
+| backend | 230 | 45 | 157 | 24 | 0 | 4 |
+| untagged | 237 | 76 | 124 | 32 | 0 | 5 |
+| **Total** | **735** | **263** | **379** | **81** | **1** | **11** |
 
 ## By file
 
@@ -65,7 +65,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `9-app.json` | 8 | 2 | 6 | 0 | 0 | 0 |
 | `9-web.json` | 8 | 1 | 7 | 0 | 0 | 0 |
 | `ac-1-agent-oauth.json` | 2 | 2 | 0 | 0 | 0 | 0 |
-| `admin-catalogue.json` | 23 | 5 | 13 | 5 | 0 | 0 |
+| `admin-catalogue.json` | 24 | 5 | 14 | 5 | 0 | 0 |
 | `admin-customers-growth.json` | 14 | 1 | 8 | 5 | 0 | 0 |
 | `admin-finance.json` | 6 | 0 | 5 | 1 | 0 | 0 |
 | `admin-journeys.json` | 20 | 4 | 16 | 0 | 0 | 0 |
@@ -86,7 +86,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1d-web.json` | 10 | 2 | 5 | 3 | 0 | 0 |
 | `final-pass-2.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `final-pass.json` | 4 | 4 | 0 | 0 | 0 | 0 |
-| `journeys.json` | 86 | 41 | 44 | 1 | 0 | 0 |
+| `journeys.json` | 86 | 36 | 48 | 2 | 0 | 0 |
 | `provider-admin-ish.json` | 3 | 2 | 1 | 0 | 0 | 0 |
 | `provider-doctor.json` | 6 | 1 | 5 | 0 | 0 | 0 |
 | `provider-facility.json` | 6 | 0 | 6 | 0 | 0 | 0 |
@@ -99,8 +99,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-app.json` | 6 | 6 | 0 | 0 | 0 | 0 |
 | `rx-rules-web.json` | 7 | 7 | 0 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
-| `tooling.json` | 12 | 5 | 7 | 0 | 0 | 0 |
-| **Total** | **733** | **267** | **374** | **80** | **1** | **11** |
+| `tooling.json` | 13 | 6 | 7 | 0 | 0 | 0 |
+| **Total** | **735** | **263** | **379** | **81** | **1** | **11** |
 
 ## Owner decisions (1)
 
@@ -108,7 +108,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---:|---|---|---|
 | 1 | `13-web.json#13` `patient-web/lib/legal/embedded.ts:15` | /terms Embedded fallback text | [owner] The embedded copy (issue 755/783) is built from docs/legal, which are drafts with [placeholders] until a Saudi lawyer approves them, so it stays off today. After approval: update docs/legal, run node patient-web… |
 
-## Open and unverified (278)
+## Open and unverified (274)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -304,11 +304,9 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `journeys.json#8` | untagged | open | 1 order detail / tracking | Fixed on design/oc-journeys-1 (cancel button on order detail and tracking until the order is dispatched; the refund rule text of decision 26 waits for the OC-A policy D-26). No ca… |
 | `journeys.json#9` | untagged | open (issue #1018) | 1 checkout | Checkout offers "دفع مباشر" vs "عبر التأمين" as a toggle per order; decision 30 wants insurance or self-pay chosen at the start of the service and the app checkout has no insuranc… |
 | `journeys.json#11` | untagged | open (issue #1020) | 1 browse / product | Already fixed: /medicines and /medicine-catalog are permanent redirects to /c (catalogueHref). Three web catalogues: /c (canonical), /medicines (dashboard tile "الأدوية") and /med… |
-| `journeys.json#14` | untagged | open | 1 browse / product | Partly fixed on design/oc-journeys-1: the app badge now reads "أونلاين فقط" (six languages); the web badge waits for the public product answer to carry online_exclusive (backend/s… |
 | `journeys.json#22` | untagged | open (issue #1031) | 2 cart with Rx item | Web and app differ: the web cart goes straight to checkout and uses the "active" prescription, the app cart goes to rx-order to pick a prescription first. |
 | `journeys.json#23` | untagged | open (issue #1032) | 2 order from prescription | rx-order (web) has no pickup/delivery choice and no insurance choice (the cart checkout has both), and always creates the draft with payment_mode cash. |
 | `journeys.json#24` | untagged | open (issue #1033) | 2 insurance on offers | Insurance is only choosable per offer (coverage radio shown if insuranceReady) for the Rx and manual flows, contrary to decision 30 (choose first). |
-| `journeys.json#25` | untagged | open (issue #1034) | 3 consult from cart | No "استشر طبيب" button exists anywhere in web or app (decision 10); an Rx cart has no route to a consultation. |
 | `journeys.json#29` | untagged | open (issue #1038) | 3 booking (home visit) | Home visit asks the patient to type latitude and longitude as text; no saved-address / map picker (the app uses the address book). |
 | `journeys.json#33` | untagged | open (issue #1042) | 3 after the visit (summary) | "Order the medicines" on the summary goes to the pharmacy catalogue (/pharmacy), not "اطلب الأدوية دي" filling the cart (decision 18). |
 | `journeys.json#34` | untagged | open (issue #1043) | 3 prescription -> cart | Web "اطلب الأدوية دي" on the prescription page opens rx-order and broadcasts directly; decision 18 says it fills the cart (the app does). |
@@ -330,9 +328,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `journeys.json#66` | untagged | open (issue #1075) | 6 booking | No cancellation/trip-fee text before payment for nursing (decision 26). |
 | `journeys.json#67` | untagged | open (issue #1076) | 7 create reminder | The reminder form has no "for whom" field and times are typed as comma-separated text; a family member's reminder cannot be created or edited. |
 | `journeys.json#68` | untagged | open (issue #1077) | 7 family member | The member page shows the member's medicines read-only, no doses taken/missed and no alert. |
-| `journeys.json#71` | untagged | open (issue #1080) | 8 item not in catalogue | The empty catalogue/search state has no "ask the pharmacies for it" action; the manual request is reachable only from the app cart, the barcode screen, the reorder picker and fail… |
-| `journeys.json#72` | untagged | open (issue #1081) | 8 cart | The web cart has no "item not found, request it by name" link (the app cart has one). |
-| `journeys.json#73` | untagged | open (issue #1082) | 8 manual request | Three routes lead to the same form (/pharmacy/custom-item, /manual-order, /drug-not-found redirect to /pharmacy/request). |
 | `journeys.json#74` | untagged | open (issue #1083) | 8 manual request | The request form has no photo of the box and no quantity (decision 12 mentions text, box photo and prescription requests). |
 | `journeys.json#75` | untagged | open (issue #1084) | 8 price review | Offers for a manual request show no "price not verified" state (decision 12) and no way to counter or reject a price except the substitute negotiation. |
 | `journeys.json#77` | untagged | open (issue #1086) | 9 connection loss | Offline, tapping "request offers" in the cart ends on the browser's own error page; the service worker has no fetch handler or offline page. |
@@ -390,3 +385,4 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `tooling.json#7` | untagged | open (issue #567) | /health/actionable-order Prescription, lab and radiology order lists | No API call. The lists come from a JSON `payload` query string parsed on the server (parsePayload). Nothing in patient-web links to this route. The app screen (patient-app/app/hea… |
 | `tooling.json#8` | untagged | open (issue #568) | /maternity/baby-growth Weekly baby growth content | The text says weekly educational content linked to the maternity profile is shown here, but the page renders only that sentence and a link to the tracker; there is no fetch. The s… |
 | `tooling.json#9` | untagged | open (issue #569) | /maternity/ovulation Intro text ("estimates are computed locally ... labelled a… | The page shows no estimate, window or date; it has a sentence about how the estimate is computed and a link to /maternity/tracker, whose only call is GET /maternity/profile. |
+| `tooling.json#12` | client | open | / (throttled network) tools/live/j_throttled_network.py browser half | [client] The browser half of j_throttled_network has always skipped in CI (live-gate.yml did not serve patient-web). Run against a served patient-web (fix session, local), 5 of 61… |

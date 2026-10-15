@@ -261,6 +261,6 @@
     "line": 297,
     "found": "[backend] The public product page, catalogue, search and alternatives required indexing_eligibility = true, but approve() sets it to false and nothing sets it to true for a medicine, so a medicine the admin adds and approves never reaches patients (the live DB had 17 medicines and 0 public). medicine-publication-report.ts defines published as public_eligibility + approved review, with indexing only for sitemaps, IndexNow and llms.txt. Found by the fix session (live web journey).",
     "suspect": "Visibility filter mixed up with the search-engine filter.",
-    "review_status": "open"
+    "review_status": "fixed #1433"
   }
 ]
