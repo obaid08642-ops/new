@@ -315,6 +315,34 @@ export class StorageService {
     return { id: o.id, mime: o.mime, original_name: o.original_name, size_bytes: o.size_bytes, ...data };
   }
 
+  /**
+   * 2-web#3 / 2-app#13: an image of a PUBLIC profile (an approved doctor's photo or clinic photos). The caller (CareService)
+   * has already checked that the id is one of that profile's images; this returns the bytes (local base64 store) or a short
+   * link (public CDN, or a 5-minute presigned R2 link). Nothing else is ever served through it.
+   */
+  async publicProfileImage(id: string): Promise<{ mime: string; data?: Buffer; url?: string } | null> {
+    const o: any = await this.model.findOne({ id, deleted: false }).lean();
+    if (!o || !String(o.mime || '').startsWith('image/')) return null;
+    if (o.backend === StorageBackend.BASE64 && o.data_base64) return { mime: o.mime, data: Buffer.from(o.data_base64, 'base64') };
+    if (o.visibility === 'public_read' && o.external_url) return { mime: o.mime, url: o.external_url };
+    if (o.external_key && S3R2Adapter.configured()) {
+      try {
+        const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
+        const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+        const client = new S3Client({
+          region: process.env.S3_REGION || 'auto',
+          endpoint: process.env.S3_ENDPOINT,
+          credentials: { accessKeyId: process.env.S3_ACCESS_KEY_ID as string, secretAccessKey: process.env.S3_SECRET_ACCESS_KEY as string },
+          forcePathStyle: true,
+        });
+        return { mime: o.mime, url: await getSignedUrl(client, new GetObjectCommand({ Bucket: process.env.S3_BUCKET, Key: o.external_key }), { expiresIn: 300 }) };
+      } catch (e: any) {
+        this.logger.warn(`profile image presign failed: ${e.message}`);
+      }
+    }
+    return null;
+  }
+
   // ═══ Signed delivery URLs (private files) ═══════════════════════════════
   /** Time-limited URL for a private object: R2 presigned GET (5 min) or Cloudinary signed. */
   async signedUrl(id: string, requester: { id: string; role?: string }) {

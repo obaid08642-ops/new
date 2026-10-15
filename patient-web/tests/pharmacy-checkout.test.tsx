@@ -23,7 +23,7 @@ vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: async () => "server
 vi.mock("@/components-next/pharmacy-checkout/read-order", () => ({ readOrderPaymentView: server.order, readCapabilities: server.caps }));
 
 import { CheckoutScreen } from "@/components-next/pharmacy-checkout/checkout-screen";
-import { checkPayment, PaymentResult } from "@/components-next/pharmacy-checkout/payment-result";
+import { bookingHref, checkPayment, PaymentResult } from "@/components-next/pharmacy-checkout/payment-result";
 import { PayScreen } from "@/components-next/pharmacy-checkout/pay-screen";
 import { PaymentScreen } from "@/components-next/pharmacy-checkout/payment-screen";
 import { InsuranceDecision } from "@/components-next/pharmacy-offers/insurance-decision";
@@ -179,6 +179,26 @@ describe("the payment result is whatever the backend says, never the address", (
     const result = await checkPayment({ transactionId: TXN }, fetchImpl);
     expect(result.phase).toEqual({ kind: "paid" });
     expect(result.ids.orderId).toBe(ORDER);
+  });
+
+  it("a consultation paid by card comes back with the provider's id only: the backend names the transaction and the appointment (issues 1055, 1087)", async () => {
+    const APPT = "9b2f4c1e-3a5d-4e6f-8a7b-1c2d3e4f5a6b";
+    const fetchImpl = route({ verify: () => json(200, { transactionId: TXN, status: "paid", bookingKind: "consultation", bookingId: APPT }) });
+    const result = await checkPayment({ gatewayRef: "pay_7Hq2Zk91" }, fetchImpl);
+    expect(result.phase).toEqual({ kind: "paid" });
+    expect(result.ids.transactionId).toBe(TXN);
+    expect(result.ids.orderId).toBeUndefined();
+    expect(bookingHref("ar", result.ids.booking)).toBe(`/ar/appointments/${APPT}`);
+    expect(String((fetchImpl as unknown as { mock: { calls: unknown[][] } }).mock.calls[0][0])).toContain("/api/payments/status/pay_7Hq2Zk91");
+  });
+
+  it("every paid booking kind opens its own page", () => {
+    const ID = "9b2f4c1e-3a5d-4e6f-8a7b-1c2d3e4f5a6b";
+    expect(bookingHref("en", { kind: "lab", id: ID })).toBe(`/en/diagnostics/bookings/labs/${ID}`);
+    expect(bookingHref("en", { kind: "radiology", id: ID })).toBe(`/en/diagnostics/bookings/radiology/${ID}`);
+    expect(bookingHref("en", { kind: "insurance", id: ID })).toBe(`/en/insurance/requests/${ID}`);
+    expect(bookingHref("en", { kind: "pharmacy", id: ID })).toBe(`/en/orders/${ID}/tracking`);
+    expect(bookingHref("en", { kind: "consultation", id: "not-an-id" })).toBeUndefined();
   });
 
   it("nothing to ask about is 'unknown'; an unreachable backend is 'error', never a guess", async () => {
@@ -530,6 +550,12 @@ describe("small readers", () => {
     expect(activePrescriptionId({ data: [{ id: TXN }] })).toBe(TXN);
     expect(activePrescriptionId([])).toBeNull();
     expect(activePrescriptionId(null)).toBeNull();
+  });
+
+  it("decision 18: the prescription the cart lines came from wins while it is active, never one that is not", () => {
+    const other = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
+    expect(activePrescriptionId([{ id: TXN }, { id: other }], other)).toBe(other);
+    expect(activePrescriptionId([{ id: TXN }], other)).toBe(TXN);
   });
 
   it("the insurance row shows who insures the patient and the class, never a number", () => {

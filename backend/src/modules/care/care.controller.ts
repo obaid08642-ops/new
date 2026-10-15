@@ -1,4 +1,5 @@
-import { BadRequestException, Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Param, Query, Res, UseGuards } from '@nestjs/common';
+import type { Response } from 'express';
 import { CareService } from './care.service';
 import { CurrentUser, JwtAuthGuard, Public } from '../../common/auth.guard';
 import { queryInt, queryNumber } from '../../common/safe-query';
@@ -84,6 +85,22 @@ export class CareController {
   @Get('doctors/:id')
   doctor(@Param('id') id: string) {
     return this.svc.doctorById(id);
+  }
+
+  /**
+   * 2-web#3 / 2-app#13: a public doctor's photo or clinic photo (the addresses toPublicDoctor writes). Only that doctor's
+   * own images, only while the doctor is public; bytes from the local store, else a short redirect to the stored file.
+   */
+  @Public()
+  @Get('doctors/:id/media/:mediaId')
+  async doctorMedia(@Param('id') id: string, @Param('mediaId') mediaId: string, @Res() res: Response) {
+    const image = await this.svc.doctorMedia(id, mediaId);
+    res.setHeader('Cache-Control', 'public, max-age=300');
+    if (image.data) {
+      res.setHeader('Content-Type', image.mime);
+      return res.send(image.data);
+    }
+    return res.redirect(302, image.url as string);
   }
 
   @Public()

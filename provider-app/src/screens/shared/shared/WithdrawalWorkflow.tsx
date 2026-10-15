@@ -27,14 +27,14 @@ import { useInsuranceCatalog } from '../../../api/catalogs';
 import { SK, Vault } from '../../../security/Security';
 import { tokens, withAlpha } from '../../../theme/tokens';
 
-// Same two states the server treats as an open request (provider-payouts.controller.ts:78).
-const PENDING_STATES = ['PENDING_ADMIN_APPROVAL', 'APPROVED_FOR_PAYOUT'];
+// The states the server treats as an open request (OPEN_WITHDRAWAL_STATES, provider-payouts.controller.ts).
+const PENDING_STATES = ['PENDING_ADMIN_APPROVAL', 'AWAITING_SECOND_APPROVAL', 'APPROVED_FOR_PAYOUT'];
 
 export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [loading, setLoading] = useState(true);
   const [loadErr, setLoadErr] = useState(false);
-  const [balance, setBalance] = useState<{ available: number; pending: number; negative: boolean } | null>(null);
+  const [balance, setBalance] = useState<{ available: number; pending: number; negative: boolean; minimum: number | null } | null>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [bank, setBank] = useState<any | null>(null);
   const [banks, setBanks] = useState<any[]>([]);
@@ -55,7 +55,7 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
         client.get('/provider/payouts/mine'),
       ]);
       const b = balRes.data || {};
-      setBalance({ available: Number(b.available || 0), pending: Number(b.pending || 0), negative: !!b.negative });
+      setBalance({ available: Number(b.available || 0), pending: Number(b.pending || 0), negative: !!b.negative, minimum: Number.isFinite(Number(b.minimum_withdrawal)) ? Number(b.minimum_withdrawal) : null });
       const bk = bankRes.data || null;
       setBank(bk && bk.iban ? bk : null);
       if (bk?.iban) { setIban(String(bk.iban)); setBankCode(bk.bank_code || ''); setHolderName(bk.holder_name || ''); }
@@ -81,7 +81,7 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
   const bankApproved = bank?.review_status === 'approved';
   const awaitingBankApproval = !!bank && !bankApproved;
   const bankFormValid = !needsBankSetup || (!!bankCode && holderName.trim().length >= 3 && ibanValid);
-  const canSubmit = !!balance && !balance.negative && bankApproved && bankFormValid && !!amt && amt >= 100 && amt <= balance.available && !hasPending && !submitting;
+  const canSubmit = !!balance && !balance.negative && bankApproved && bankFormValid && balance.minimum !== null && !!amt && amt >= balance.minimum && amt <= balance.available && !hasPending && !submitting;
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
@@ -278,7 +278,7 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
         )}
 
         <NPriceInput
-          label={AR ? 'مبلغ السحب (100 ريال على الأقل)' : 'Withdrawal Amount (min 100 SAR)'}
+          label={balance?.minimum != null ? (AR ? `مبلغ السحب (${balance.minimum} ريال على الأقل)` : `Withdrawal Amount (min ${balance.minimum} SAR)`) : (AR ? 'مبلغ السحب' : 'Withdrawal Amount')}
           value={amount}
           onChange={setAmount}
           required

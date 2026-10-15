@@ -3,3 +3,5 @@
 d4cb6b03ed4bedd33f6161386f81afacb66667d7:backend/src/config/env.placeholders.spec.ts:generic-api-key:12
 # - empty STRIPE_SECRET_KEY= in the env example, matched across the next line
 d4cb6b03ed4bedd33f6161386f81afacb66667d7:deploy/.env.production.example:generic-api-key:54
+# - web push unit test: a sample VAPID public key (public by design, not a secret; replaced by a built value since)
+234c4df3accc3cef7a06c2616bb54aafbd18e0a8:patient-web/lib/web-push.test.ts:generic-api-key:7

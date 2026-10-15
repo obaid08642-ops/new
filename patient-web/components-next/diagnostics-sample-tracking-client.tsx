@@ -14,44 +14,65 @@ import consult from "@/components-next/consult/consult.module.css";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/diagnostics/diag.module.css";
 
-type Step = { title: string; time?: string; done?: boolean };
-type Tracking = { state?: string; eta?: number | null; techName?: string; techPhone?: string; scheduledAt?: string; steps: Step[] };
+type Step = { state: string; at?: string };
+type Prep = { key: string; name: string; lines: string[] };
+type Tracking = { state?: string; eta?: number | null; techName?: string; techPhone?: string; scheduledAt?: string; steps: Step[]; preparation: Prep[] };
 
-function parseTracking(payload: unknown): Tracking {
+/** The catalogue language a test's preparation is written in, for the site locale (fil is "tl" in the catalogue). */
+const PREP_LANG: Record<string, string> = { ar: "ar", en: "en", ur: "ur", hi: "hi", bn: "bn", fil: "tl" };
+
+/**
+ * GET /labs/bookings/:id/tracking (decision B8: no fixed medical text): `timeline` is the states the booking really went
+ * through, `preparation` each test's own catalogue text per language. Nothing is invented when either is missing.
+ */
+export function parseTracking(payload: unknown, locale: string): Tracking {
   const root = (payload && typeof payload === "object" ? payload : {}) as Record<string, unknown>;
   const t = (root.tracking && typeof root.tracking === "object" ? root.tracking : root) as Record<string, unknown>;
   const b = (root.booking && typeof root.booking === "object" ? root.booking : null) as Record<string, unknown> | null;
-  const stepsRaw = Array.isArray(t.steps) ? t.steps : [];
-  const steps: Step[] = stepsRaw.flatMap((s) => {
+  const steps: Step[] = (Array.isArray(t.timeline) ? t.timeline : []).flatMap((s) => {
     if (!s || typeof s !== "object") return [];
     const o = s as Record<string, unknown>;
-    const title = typeof o.title === "string" ? o.title : typeof o.title_ar === "string" ? o.title_ar : null;
-    if (!title) return [];
-    return [{ title, time: typeof o.time === "string" ? o.time : undefined, done: o.done === true }];
+    return typeof o.state === "string" && o.state ? [{ state: o.state, at: typeof o.at === "string" ? o.at : undefined }] : [];
   });
-  const techName = typeof t.techName === "string" ? t.techName : typeof t.tech_name === "string" ? t.tech_name : undefined;
-  const techPhone = typeof t.techPhone === "string" && t.techPhone.trim() ? t.techPhone : typeof t.tech_phone === "string" && t.tech_phone.trim() ? t.tech_phone : undefined;
+  const prepLang = PREP_LANG[locale] ?? "en";
+  const preparation: Prep[] = (Array.isArray(t.preparation) ? t.preparation : []).flatMap((p, i) => {
+    if (!p || typeof p !== "object") return [];
+    const o = p as Record<string, unknown>;
+    const texts = o.texts && typeof o.texts === "object" ? (o.texts as Record<string, unknown>)[prepLang] : null;
+    const lines = Array.isArray(texts) ? texts.filter((x): x is string => typeof x === "string" && x.trim().length > 0) : [];
+    const pick = (v: unknown) => (typeof v === "string" ? v : "");
+    const name = locale === "ar" ? pick(o.name_ar) || pick(o.name_en) : pick(o.name_en) || pick(o.name_ar);
+    return lines.length ? [{ key: pick(o.service_id) || String(i), name, lines }] : [];
+  });
+  const techName = typeof t.techName === "string" && t.techName.trim() ? t.techName : undefined;
+  const techPhone = typeof t.techPhone === "string" && t.techPhone.trim() ? t.techPhone : undefined;
   return {
     state: b && typeof b.state === "string" ? b.state : undefined,
-    eta: typeof t.eta === "number" ? t.eta : typeof t.eta_minutes === "number" ? t.eta_minutes : null,
+    eta: typeof t.eta === "number" ? t.eta : null,
     techName,
     techPhone,
     scheduledAt: b && typeof b.scheduled_at === "string" ? b.scheduled_at : undefined,
     steps,
+    preparation,
   };
 }
 
-/** The steps exactly as the server logged them; when it sent none, a plain "no tracking yet" line (no invented steps). */
-export function TrackingSteps({ steps }: { steps: Step[] }) {
+const FINAL_STATES = new Set(["REPORTED", "CANCELLED", "SAMPLE_REJECTED"]);
+
+/** The states the booking went through, named like the status chip, each with its time; the last one is current. */
+export function TrackingSteps({ steps, locale }: { steps: Step[]; locale: string }) {
   const t = useTranslations("DiagWeb");
-  const current = steps.findIndex((step) => !step.done);
+  const last = steps.length - 1;
   return (
     <section className={rx.card} aria-labelledby="trk-steps">
       <h2 id="trk-steps" className={consult.sectionTitle}>{t("trackingStepsTitle")}</h2>
       {steps.length > 0 ? (
         <Timeline
           label={t("trackingStepsTitle")}
-          steps={steps.map((step, i) => ({ id: `${i}`, label: step.title, time: step.time, state: step.done ? "done" : i === current ? "current" : "upcoming" }))}
+          steps={steps.map((step, i) => {
+            const key = diagStatus(step.state).key;
+            return { id: `${i}`, label: key === "unknown" ? t("trackingInProgress") : t(`status_${key}`), time: (step.at && formatWhen(locale, step.at)) || undefined, state: i < last || FINAL_STATES.has(step.state) ? "done" : "current" };
+          })}
         />
       ) : (
         <p className={styles.flowNote} role="status">{t("trackingNoSteps")}</p>
@@ -75,10 +96,10 @@ export function DiagnosticsSampleTrackingClient({ bookingId, locale }: { booking
       ]);
       const booking = bookingRes.ok ? await bookingRes.json().catch(() => null) : null;
       const trackingJson = trackingRes.ok ? await trackingRes.json().catch(() => null) : null;
-      setTracking(parseTracking({ booking, tracking: trackingJson }));
+      setTracking(parseTracking({ booking, tracking: trackingJson }, locale));
       setError(false);
     } catch { setError(true); }
-  }, [bookingId]);
+  }, [bookingId, locale]);
 
   useEffect(() => {
     stopped.current = false;
@@ -119,19 +140,24 @@ export function DiagnosticsSampleTrackingClient({ bookingId, locale }: { booking
               {tracking.techPhone ? <a className={styles.callLink} href={`tel:${tracking.techPhone}`}>{t("collectorCall")}</a> : null}
             </div>
           </section>
-          <section className={rx.card} aria-labelledby="tech-tips">
-            <h2 id="tech-tips" className={consult.sectionTitle}>{t("collectorTipsTitle")}</h2>
-            <BulletList items={[t("collectorTip1"), t("collectorTip2"), t("collectorTip3")]} />
-          </section>
         </>
       ) : null}
 
       <section className={rx.card} aria-labelledby="trk-before">
         <h2 id="trk-before" className={consult.sectionTitle}>{t("trackingBeforeTitle")}</h2>
-        <p className={styles.flowNote}>{t("trackingBeforeBody")}</p>
+        {tracking.preparation.length > 0 ? (
+          tracking.preparation.map((p) => (
+            <div key={p.key}>
+              {p.name ? <p className={consult.rowTitle}>{p.name}</p> : null}
+              <BulletList items={p.lines} />
+            </div>
+          ))
+        ) : (
+          <p className={styles.flowNote}>{t("trackingPrepAsk")}</p>
+        )}
       </section>
 
-      <TrackingSteps steps={tracking.steps} />
+      <TrackingSteps steps={tracking.steps} locale={locale} />
     </>
   );
 }

@@ -5,6 +5,7 @@ import { JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { RedisService } from '../redis/redis.service';
 import { connectionFlagSource, isKilled } from '../../common/killswitches/killswitches.helper';
+import { STUCK_STATES, stuckMinutes } from './stuck-orders';
 
 /**
  * Operations Center — one admin surface answering:
@@ -40,16 +41,9 @@ export class OpsController {
   /** B3: actionable alerts — stuck orders past the SLA threshold and failed payments. */
   @Get('alerts')
   async alerts() {
-    const cfg: any = await this.conn.collection('system_config').findOne({ key: 'system_config' } as any).catch(() => null);
-    const stuckMin = Number(cfg?.value?.ops_stuck_minutes ?? 30);
-    const cutoff = new Date(Date.now() - Math.max(1, stuckMin) * 60000);
-    const kinds = [
-      { kind: 'pharmacy', col: 'pharmacy_orders', field: 'status', states: ['NEW_REQUEST', 'QUOTED', 'ALLOCATED', 'CONFIRMED', 'ready_for_split'] },
-      { kind: 'lab', col: 'labbookings', field: 'state', states: ['NEW_REQUEST', 'PENDING_INSURANCE', 'WAITING_COPAY', 'CONFIRMED'] },
-      { kind: 'radiology', col: 'radiologybookings', field: 'state', states: ['NEW_REQUEST', 'PENDING_INSURANCE', 'WAITING_COPAY', 'CONFIRMED'] },
-      { kind: 'nursing', col: 'homecarebookings', field: 'state', states: ['NEW_REQUEST', 'PENDING_INSURANCE', 'CONFIRMED', 'ASSIGNED'] },
-      { kind: 'consultation', col: 'appointments', field: 'status', states: ['PENDING', 'CONFIRMED', 'CHECKED_IN'] },
-    ];
+    const stuckMin = await stuckMinutes(this.conn);
+    const cutoff = new Date(Date.now() - stuckMin * 60000);
+    const kinds = Object.entries(STUCK_STATES).map(([kind, k]) => ({ kind, col: k.collection, field: k.field, states: k.states }));
     const stuck: any[] = [];
     for (const k of kinds) {
       const rows: any[] = await this.conn.collection(k.col).find({
@@ -63,7 +57,7 @@ export class OpsController {
       { status: { $in: ['failed', 'cancelled'] } }, { projection: { _id: 0, id: 1, booking_kind: 1, booking_id: 1, amount: 1, status: 1, failure_reason: 1, createdAt: 1 } })
       .sort({ createdAt: -1 }).limit(50).toArray().catch(() => []);
     return {
-      stuck_minutes_threshold: Math.max(1, stuckMin),
+      stuck_minutes_threshold: stuckMin,
       stuck_orders: stuck, stuck_count: stuck.length,
       failed_payments: failedPayments, failed_count: failedPayments.length,
       generated_at: new Date(),
@@ -106,7 +100,7 @@ export class OpsController {
     // Request pipelines by status (all-time counts + today's creations + late)
     const sinceToday = new Date(`${day}T00:00:00.000Z`);
     const lateBefore = new Date(Date.now() - 24 * 3600 * 1000);
-    // field: the lifecycle field of that collection (bookings and emergencies use `state`).
+    // field: the lifecycle field of that collection (bookings use `state`).
     // "late" = older than 24h and not in a final state (open states differ per domain and casing).
     const FINAL = ['completed', 'COMPLETED', 'cancelled', 'CANCELLED', 'delivered', 'DELIVERED', 'rejected', 'REJECTED',
       'resolved', 'RESOLVED', 'REPORTED', 'REPORT_READY', 'refunded', 'REFUNDED', 'expired', 'EXPIRED', 'false_alarm'];
@@ -125,9 +119,8 @@ export class OpsController {
     };
     // Canonical collections only: the legacy `orders` / `pharmacyorders` names are empty since the
     // pharmacy flow moved to `pharmacy_orders`, which made the live board show 0 orders.
-    const [appointments, emergency, procurement, pharmacyOrders, labs, radiology, nursing] = await Promise.all([
+    const [appointments, procurement, pharmacyOrders, labs, radiology, nursing] = await Promise.all([
       group('appointments'),
-      group('emergency_requests', FINAL, 'state'),
       group('procurementrequests'),
       group('pharmacy_orders'),
       group('labbookings', FINAL, 'state'),
@@ -152,7 +145,7 @@ export class OpsController {
       },
       top_endpoints: topEndpoints,
       top_failing: topFailing,
-      pipelines: { orders: pharmacyOrders, pharmacy_orders: pharmacyOrders, appointments, emergency, procurement, labs, radiology, nursing },
+      pipelines: { orders: pharmacyOrders, pharmacy_orders: pharmacyOrders, appointments, procurement, labs, radiology, nursing },
       recent_activity: activity,
     };
   }
@@ -185,7 +178,6 @@ export class OpsController {
     const groups: Record<string, () => Promise<any[]>> = {
       orders: () => fetch('orders', 'orders', 'طلبات الصيدلية', ['pending', 'processing', 'created'], ['delivered', 'completed', 'DELIVERED'], ['cancelled', 'CANCELLED', 'failed']),
       appointments: () => fetch('appointments', 'appointments', 'المواعيد', ['PENDING', 'CONFIRMED', 'pending'], ['COMPLETED', 'completed'], ['CANCELLED', 'cancelled', 'NO_SHOW']),
-      emergency: () => fetch('emergency_requests', 'emergency', 'الطوارئ SOS', ['pending', 'dispatched', 'accepted'], ['completed', 'resolved', 'arrived'], ['cancelled', 'false_alarm']),
       procurement: () => fetch('procurementrequests', 'procurement', 'طلبات المستودعات', ['PENDING_ADMIN_REVIEW', 'QUOTATION_ISSUED'], ['COMPLETED', 'APPROVED_BY_PHARMACY'], ['CANCELLED']),
     };
     const keys = kind && groups[kind] ? [kind] : Object.keys(groups);

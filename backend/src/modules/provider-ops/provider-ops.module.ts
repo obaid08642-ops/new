@@ -9,8 +9,6 @@ import { escapeRegex } from '../../common/slug.util';
  *             critical values with doctor+patient notification, double verification.
  *  NURSING:   visit checklists (before/supplies/after), patient signature on
  *             completion, GPS track points, emergency escalation.
- *  AMBULANCE: ETA computation, live tracking points, hospital handover,
- *             completion report.
  *  FINANCE:   invoice PDF per order, wallet ledger transactions for providers.
  */
 import { Module, Injectable, Controller, Get, Post, Put, Delete, Body, Param, Query, Res, UseGuards, BadRequestException, ForbiddenException, NotFoundException, StreamableFile, Logger } from '@nestjs/common';
@@ -21,6 +19,8 @@ import { randomUUID } from 'crypto';
 import { JwtAuthGuard, CurrentUser, Roles, hasEffectiveRole } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, PutPricingDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto } from './provider-ops.dto';
+import { LedgerService } from '../finance-engine/finance-engine.module';
+import { settlementDelayDefault } from '../../common/commission-defaults';
 
 /** Provider withdrawal requests (consumed by admin-web-core finance controller). */
 export const ProviderWithdrawalSchema = new Schema(
@@ -384,7 +384,7 @@ export class ProviderOpsService {
   async toggleInstantAvailability(user: any): Promise<{ instant_available: boolean }> {
     const providerId = typeof user?.id === 'string' ? user.id.trim() : '';
     const providerType = user?.provider_type || user?.providerType;
-    const providerRoles = ['doctor', 'facility', 'hospital', 'pharmacy', 'pharmacist', 'lab', 'radiology', 'nursing', 'nurse', 'home_care', 'ambulance'];
+    const providerRoles = ['doctor', 'facility', 'hospital', 'pharmacy', 'pharmacist', 'lab', 'radiology', 'nursing', 'nurse', 'home_care'];
     if (!providerId) throw new BadRequestException('provider_id_required');
     if (!providerType && !providerRoles.includes(String(user?.role || '').toLowerCase())) {
       throw new ForbiddenException('provider_account_required');
@@ -616,7 +616,7 @@ export class ProviderOpsService {
     const cfg: any = await this.conn.collection('finance_config').findOne({ key: 'commissions' });
     const pct = cfg?.service_types?.[serviceType]?.percent ?? 10;
     const vatPct = cfg?.tax?.vat_percent ?? 15;
-    const delayDays = cfg?.settlement?.delay_days?.[serviceType] ?? cfg?.settlement?.delay_days?.default ?? 3;
+    const delayDays = cfg?.settlement?.delay_days?.[serviceType] ?? cfg?.settlement?.delay_days?.default ?? settlementDelayDefault();
     const commission = Math.round(gross * pct) / 100;
     const vat = Math.round(commission * vatPct) / 100;
     const net = Math.round((gross - commission - vat) * 100) / 100;
@@ -711,20 +711,23 @@ export class ProviderOpsController {
 @Controller('provider')
 @UseGuards(JwtAuthGuard)
 export class ProviderCompatController {
-  constructor(private readonly svc: ProviderOpsService) {}
+  constructor(private readonly svc: ProviderOpsService, private readonly ledger: LedgerService) {}
 
   /** Availability is explicit operational state, never a UI default. */
-  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
   @Post('ops/availability/toggle-instant')
   toggleInstantAvailability(@CurrentUser() u: any) {
     return this.svc.toggleInstantAvailability(u);
   }
 
-  /** Wallet summary — shape the app expects: { available, escrow, dues, earned } */
+  /**
+   * Wallet summary { available, escrow, dues, earned } from the same ledger the withdrawal check reads
+   * (LedgerService.providerBalance): available is never clamped, dues is what a negative balance owes the platform.
+   */
   @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('wallet') async wallet(@CurrentUser() u: any) {
-    const l = await this.svc.walletLedger(u.id, 500);
-    return { available: l.summary.balance, escrow: l.summary.pending, dues: l.summary.earned - l.summary.paid - l.summary.pending, earned: l.summary.earned };
+    const b = await this.ledger.providerBalance(u.id);
+    return { available: b.available, escrow: b.pending, dues: b.available < 0 ? -b.available : 0, earned: b.lifetime_earned };
   }
 
   @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
@@ -756,7 +759,7 @@ export class ProviderCompatController {
   @Get('settings/pricing') async getPricing(@CurrentUser() u: any) {
     return { pricing: await this.svc.getProviderSetting(u.id, 'pricing', null) };
   }
-  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
   @Put('settings/pricing') async putPricing(@CurrentUser() u: any, @Body() b: PutPricingDto) {
     return this.svc.requestSettingChange(u.id, 'pricing', b?.pricing ?? b);
   }
@@ -767,7 +770,7 @@ export class ProviderCompatController {
     return this.svc.providerReviews(u.id);
   }
 
-  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
   @Post('reviews/:id/reply') replyReview(@CurrentUser() u: any, @Param('id') id: string, @Body() b: ReplyReviewDto) {
     return this.svc.replyReview(u.id, id, b?.reply);
   }
@@ -777,7 +780,7 @@ export class ProviderCompatController {
   @Get('working-hours') async getHours(@CurrentUser() u: any) {
     return this.svc.getProviderSetting(u.id, 'working_hours', null);
   }
-  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
   @Put('working-hours') async putHours(@CurrentUser() u: any, @Body() b: PutHoursDto) {
     return this.svc.requestSettingChange(u.id, 'working_hours', b?.hours ?? b);
   }
@@ -786,13 +789,13 @@ export class ProviderCompatController {
   @Get('schedule/settings') async getSched(@CurrentUser() u: any) {
     return this.svc.getProviderSetting(u.id, 'schedule_settings', null);
   }
-  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
   @Post('schedule/settings') async postSched(@CurrentUser() u: any, @Body() b: ScheduleSettingsDto) {
     return this.svc.requestSettingChange(u.id, 'schedule_settings', b || {});
   }
 
   /** End a consultation: complete appointment + store notes/prescription */
-  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
   @Post('consultation/end') endConsultation(@CurrentUser() u: any, @Body() b: EndConsultationDto) {
     return this.svc.endConsultation(u, b || {});
   }

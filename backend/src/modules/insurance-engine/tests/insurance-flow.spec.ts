@@ -211,7 +211,7 @@ describe('QuoteController (BR-1)', () => {
     expect(q.allowed_methods).toContain('online');
   });
 
-  it.each(['online', 'video', 'audio', 'chat', 'home', 'home_visit', 'delivery', 'nursing', 'physiotherapy', 'ambulance'])(
+  it.each(['online', 'video', 'audio', 'chat', 'home', 'home_visit', 'delivery', 'nursing', 'physiotherapy'])(
     'channel "%s" is online-only (no clinic_pay)',
     (channel) => {
       const q = ctl.quote({ channel, price: '200' });

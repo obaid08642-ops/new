@@ -1,9 +1,8 @@
 import React from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import type { Href } from 'expo-router';
 
 import { ConsultScreen, goBack } from '../consult/ConsultKit';
-import { Glyph } from '../pharmacy/PharmacyKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 
 /**
@@ -48,22 +47,3 @@ export function AnswerCard({ children, disclaimer, testID }: { children: React.R
   );
 }
 
-/** A multi-select choice: 48 high, a box that fills with the check when chosen. */
-export function CheckRow({ label, checked, onPress, testID }: { label: string; checked: boolean; onPress: () => void; testID?: string }) {
-  const { t, c, flow } = useScreenUi();
-  return (
-    <Pressable
-      accessibilityRole="checkbox"
-      accessibilityState={{ checked }}
-      accessibilityLabel={label}
-      onPress={onPress}
-      testID={testID}
-      style={({ pressed }) => ({ minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 12, borderRadius: 14, borderWidth: checked ? 2 : 1, borderColor: checked ? c.border.strong : c.border.hairline, backgroundColor: checked ? c.bg.surface : 'transparent', opacity: pressed ? 0.85 : 1 })}
-    >
-      <View style={{ width: 22, height: 22, borderRadius: 6, alignItems: 'center', justifyContent: 'center', backgroundColor: checked ? c.action.selected.bg : 'transparent', borderWidth: checked ? 0 : 2, borderColor: c.border.strong }}>
-        {checked ? <Glyph name="check-circle" size={14} color={c.action.selected.fg} /> : null}
-      </View>
-      <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.primary, flex: 1, ...flow }}>{label}</Text>
-    </Pressable>
-  );
-}

@@ -14,10 +14,11 @@ const files = [
   "app/[locale]/home-care/services/[serviceId]/page.tsx",
   "app/[locale]/nursing/catalog/page.tsx",
   "app/[locale]/nursing/insurance-status/page.tsx",
-  "app/[locale]/nursing/nurses/[nurseId]/page.tsx",
+  "app/[locale]/home-care/services/[serviceId]/book/page.tsx",
   "app/[locale]/nursing/visits/page.tsx",
   "app/[locale]/nursing/visits/[visitId]/page.tsx",
-  "components-next/nursing-booking-form.tsx",
+  "components-next/home-care-booking-form.tsx",
+  "components-next/nursing/nursing-pay.tsx",
   "components-next/nursing/nursing-parts.tsx",
   "components-next/nursing/nursing.module.css",
 ];

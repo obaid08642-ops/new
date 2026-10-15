@@ -85,7 +85,7 @@
     "line": 103,
     "found": "approval-pending.tsx:103,177 push /payments/processing with no params; the result screen now says it cannot confirm (old screen spun forever). copay, diagnostics and nursing pass moyasarId/paymentUrl, still read.",
     "suspect": "Batch 7 (insurance): pass the transaction id from the intent call to the result screen.",
-    "review_status": "open (issue #537)"
+    "review_status": "fixed 731ecad38 (verified on main: every caller that reaches /payments/result passes our transaction id: diagnostics/checkout.tsx:126, nursing/nurse-profile.tsx:140, insurance/copay.tsx:57 via /payments/processing; readResultParams pharmacyCheckout.ts:380 reads it; consultation and the insurance request show the server's status on their own screens) (issue #537)"
   },
   {
     "batch": 1,
@@ -206,7 +206,7 @@
     "line": 1,
     "found": "The Success board is a dark full-bleed page with lime (#D7FF00) and confetti colours that are not tokens.",
     "suspect": "Owner: decide whether the celebratory page should be added as a token set.",
-    "review_status": "open (issue #548)"
+    "review_status": "owner-decision (question 37 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2) (issue #548)"
   },
   {
     "batch": 1,

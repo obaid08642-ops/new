@@ -21,12 +21,14 @@ import { ProviderProfileRepository } from "./repositories/providerprofile.reposi
 import { UserRepository } from "./repositories/user.repository";
 import { SlotLocksModule } from "../slot-locks/slot-locks.module";
 import { ConsultationsCompatController } from './care-compat.controller';
+import { StorageModule } from '../storage/storage.module';
 
 @Module({
   imports: [
     WorkflowEngineModule,
     InsuranceEngineModule,
     SlotLocksModule,
+    StorageModule,
     MongooseModule.forFeature([
       { name: ProviderProfile.name, schema: ProviderProfileSchema },
       { name: User.name, schema: UserSchema },

@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { UserRole } from '../common/enums';
+import { RETIRED_USER_ROLES, UserRole } from '../common/enums';
 import { v4 as uuid } from 'uuid';
 
 @Schema({ timestamps: true, collection: 'users' })
@@ -12,7 +12,7 @@ export class User {
   @Prop({ unique: true, sparse: true }) phone: string;
   @Prop({ unique: true, sparse: true }) email?: string;
   @Prop() password_hash?: string;
-  @Prop({ type: String, enum: Object.values(UserRole), default: UserRole.PATIENT }) role: UserRole;
+  @Prop({ type: String, enum: [...Object.values(UserRole), ...RETIRED_USER_ROLES], default: UserRole.PATIENT }) role: UserRole;
   @Prop({ default: true }) active: boolean;
   /** Restricted identity allowed to complete onboarding but not provider operations. */
   @Prop({ default: false, index: true }) onboarding_only?: boolean;

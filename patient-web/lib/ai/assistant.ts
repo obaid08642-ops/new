@@ -1,7 +1,7 @@
 /**
- * The AI assistant's pure parts (merge map section 4): which mode the URL asks for, the red flags the triage endpoint accepts
- * and how its answers are read. Nothing here decides a care level or writes an answer: the server's fields are shown, and a
- * payload without them is "no answer".
+ * The AI assistant's pure parts (merge map section 4, decisions 7 and 15): which mode the URL asks for, the request to the one
+ * assistant endpoint (POST /ai/assistant) and how its answer is read. Nothing here decides an answer: the server's kind, text,
+ * disclaimer and actions are shown, and a payload without them is "no answer".
  */
 
 export const ASSISTANT_MODES = ["symptoms", "prescription", "report"] as const;
@@ -13,57 +13,64 @@ export function parseMode(value: unknown): AssistantMode {
   return ASSISTANT_MODES.find((mode) => mode === first) ?? "symptoms";
 }
 
-/** The red flags POST /ai/triage accepts (the same list the mobile app offers); `none` is sent when nothing is ticked. */
-export const RED_FLAGS = [
-  "chest_pain",
-  "breathing_difficulty",
-  "fainting_or_unresponsive",
-  "heavy_bleeding",
-  "new_confusion",
-  "severe_allergic_reaction",
-  "severe_injury",
-] as const;
-export type RedFlag = (typeof RED_FLAGS)[number];
-
 export const MIN_SYMPTOMS_LENGTH = 3;
 
-export function triageRequestBody(symptoms: string, flags: readonly RedFlag[]): { symptoms: string; red_flags: string[] } {
-  return { symptoms: symptoms.trim(), red_flags: flags.length > 0 ? [...flags] : ["none"] };
+export const ASSISTANT_LOCALES = ["ar", "en", "ur", "hi", "bn", "fil"] as const;
+export type AssistantLocale = (typeof ASSISTANT_LOCALES)[number];
+
+/** POST /ai/assistant (decision 15): the trimmed question and the page's language (the server answers in it). */
+export function assistantRequestBody(message: string, locale: string): { message: string; locale: AssistantLocale } {
+  const lang = ASSISTANT_LOCALES.find((value) => value === locale) ?? "ar";
+  return { message: message.trim().slice(0, 1000), locale: lang };
 }
 
-export type CareLevel = "emergency" | "consultation";
+export type AssistantKind = "red_flag" | "specialty" | "leaflet" | "out_of_scope";
+export const LEAFLET_PARTS = ["indications", "how_to_use", "side_effects", "warnings", "storage", "pregnancy"] as const;
+export type LeafletPart = (typeof LEAFLET_PARTS)[number];
+
+/** The assistant's answer as the server wrote it: the kind, its text and disclaimer (in the asked language), the way on. */
+export type AssistantAnswer = {
+  kind: AssistantKind;
+  text: string;
+  disclaimer: string;
+  /** `book_consultation` names the specialty slug the doctor list is filtered on; null for the general list. */
+  specialty: string | null;
+  bookable: boolean;
+  urgent: boolean;
+  askPharmacist: boolean;
+  leaflet: Array<{ part: LeafletPart; lines: string[] }>;
+};
 
 function record(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
 }
 
-/** The triage answer's `care_level` (the server derives it from the ticked red flags); null when the answer has none. */
-export function triageCareLevel(payload: unknown): CareLevel | null {
+/** Null when the payload is not an answer (no kind, no text or no disclaimer): nothing is made up for it. */
+export function parseAssistantAnswer(payload: unknown): AssistantAnswer | null {
   const root = record(payload);
   const source = record(root?.data) ?? root;
-  const level = source?.care_level;
-  return level === "emergency" || level === "consultation" ? level : null;
+  const kind = source?.kind;
+  if (kind !== "red_flag" && kind !== "specialty" && kind !== "leaflet" && kind !== "out_of_scope") return null;
+  const text = typeof source?.text === "string" ? source.text.trim() : "";
+  const disclaimer = typeof source?.disclaimer === "string" ? source.disclaimer.trim() : "";
+  if (!text || !disclaimer) return null;
+  const actions = (Array.isArray(source?.actions) ? source.actions : []).flatMap((value) => { const action = record(value); return action ? [action] : []; });
+  const book = actions.find((action) => action.type === "book_consultation");
+  const slug = typeof book?.specialty === "string" && /^[a-z][a-z_]{1,39}$/.test(book.specialty) ? book.specialty : null;
+  const leafletRecord = record(source?.leaflet) ?? {};
+  const leaflet = LEAFLET_PARTS.flatMap((part) => {
+    const value = leafletRecord[part];
+    const lines = (Array.isArray(value) ? value : [value]).flatMap((line) => (typeof line === "string" && line.trim() ? [line.trim()] : []));
+    return lines.length ? [{ part, lines }] : [];
+  });
+  return {
+    kind,
+    text,
+    disclaimer,
+    specialty: slug,
+    bookable: Boolean(book) || kind === "red_flag" || kind === "out_of_scope",
+    urgent: kind === "red_flag" || actions.some((action) => action.type === "emergency_call"),
+    askPharmacist: actions.some((action) => action.type === "ask_pharmacist"),
+    leaflet,
+  };
 }
-
-/** The doctor specialty slug the triage answer names (keyword rules on the server), for `?specialty=`; null when none. */
-export function triageSpecialty(payload: unknown): string | null {
-  const root = record(payload);
-  const source = record(root?.data) ?? root;
-  const value = source?.specialty;
-  return typeof value === "string" && /^[a-z][a-z_]{1,39}$/.test(value) ? value : null;
-}
-
-export type PastTriage = { asked: string; level: CareLevel; specialty: string | null };
-
-/** GET /ai/triage/history (newest first) read oldest first; rows without the asked text or a care level are left out. */
-export function parseTriageHistory(payload: unknown): PastTriage[] {
-  const rows = Array.isArray(payload) ? payload : Array.isArray(record(payload)?.data) ? (record(payload)?.data as unknown[]) : [];
-  const out: PastTriage[] = [];
-  for (const row of rows) {
-    const asked = record(row)?.symptoms;
-    const level = triageCareLevel(row);
-    if (typeof asked === "string" && asked.trim() && level) out.push({ asked, level, specialty: triageSpecialty(row) });
-  }
-  return out.reverse();
-}
-
