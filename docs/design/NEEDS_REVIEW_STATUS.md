@@ -10,23 +10,23 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---|---:|---:|---:|---:|---:|---:|
 | Patient app and web | 434 | 78 | 252 | 88 | 5 | 11 |
 | Other | 28 | 21 | 7 | 0 | 0 | 0 |
-| Admin | 93 | 22 | 45 | 26 | 0 | 0 |
+| Admin | 93 | 8 | 52 | 33 | 0 | 0 |
 | Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
 | Final pass | 8 | 8 | 0 | 0 | 0 | 0 |
 | Patient journeys | 86 | 38 | 47 | 1 | 0 | 0 |
 | Provider app | 31 | 8 | 22 | 1 | 0 | 0 |
 | Provider journeys | 34 | 17 | 15 | 2 | 0 | 0 |
-| **Total** | **734** | **194** | **404** | **120** | **5** | **11** |
+| **Total** | **734** | **180** | **411** | **127** | **5** | **11** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| client | 168 | 61 | 85 | 22 | 0 | 0 |
+| client | 168 | 50 | 90 | 28 | 0 | 0 |
 | owner | 100 | 17 | 34 | 42 | 5 | 2 |
-| backend | 229 | 38 | 162 | 25 | 0 | 4 |
+| backend | 229 | 35 | 164 | 26 | 0 | 4 |
 | untagged | 237 | 78 | 123 | 31 | 0 | 5 |
-| **Total** | **734** | **194** | **404** | **120** | **5** | **11** |
+| **Total** | **734** | **180** | **411** | **127** | **5** | **11** |
 
 ## By file
 
@@ -65,13 +65,13 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `9-app.json` | 8 | 0 | 6 | 2 | 0 | 0 |
 | `9-web.json` | 8 | 0 | 7 | 1 | 0 | 0 |
 | `ac-1-agent-oauth.json` | 2 | 2 | 0 | 0 | 0 | 0 |
-| `admin-catalogue.json` | 23 | 5 | 13 | 5 | 0 | 0 |
+| `admin-catalogue.json` | 23 | 3 | 14 | 6 | 0 | 0 |
 | `admin-customers-growth.json` | 14 | 0 | 8 | 6 | 0 | 0 |
 | `admin-finance.json` | 6 | 0 | 5 | 1 | 0 | 0 |
 | `admin-journeys.json` | 20 | 2 | 16 | 2 | 0 | 0 |
-| `admin-ops-monitoring.json` | 16 | 9 | 4 | 3 | 0 | 0 |
-| `admin-providers.json` | 8 | 3 | 4 | 1 | 0 | 0 |
-| `admin-public-directories.json` | 14 | 3 | 4 | 7 | 0 | 0 |
+| `admin-ops-monitoring.json` | 16 | 3 | 9 | 4 | 0 | 0 |
+| `admin-providers.json` | 8 | 0 | 5 | 3 | 0 | 0 |
+| `admin-public-directories.json` | 14 | 0 | 4 | 10 | 0 | 0 |
 | `admin-system.json` | 12 | 2 | 7 | 3 | 0 | 0 |
 | `batch-0-app.json` | 13 | 5 | 7 | 0 | 0 | 1 |
 | `batch-0-runtime.json` | 8 | 6 | 1 | 1 | 0 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 7 | 0 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 12 | 5 | 7 | 0 | 0 | 0 |
-| **Total** | **734** | **194** | **404** | **120** | **5** | **11** |
+| **Total** | **734** | **180** | **411** | **127** | **5** | **11** |
 
 ## Owner decisions (5)
 
@@ -112,7 +112,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 4 | `3-app.json#7` `patient-app/app/diagnostics/technician-tracking.tsx:4` | /diagnostics/technician-tracking Tips | [owner] [screen is now a redirect; kept so issue indices stay stable] Static text; the old third tip (samples sent in cold containers) was dropped as an unverified claim. |
 | 5 | `5-app.json#14` `patient-app/src/components/health/SleepView.tsx:120` | /health/sleep-score Static sleep tips | [owner] Four educational tips are static text (translated): confirm they stay. |
 
-## Open and unverified (205)
+## Open and unverified (191)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -162,28 +162,14 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `8-web.json#11` | client | open (issue #869) | /nutrition Water logging | [client] Water is shown from the summary only; the app logs it through POST /nutrition/water, the web has no control for it (feature). |
 | `ac-1-agent-oauth.json#0` | client | open | /oauth/authorize AI assistant consent page | [client] Functional consent page (client name, scopes, 'you confirm and pay on Nabd Plus', allow / don't allow) built on the auth layout with translations in six languages; it has… |
 | `ac-1-agent-oauth.json#1` | client | open | Settings > Connected AI apps List and disconnect connected AI assistants | [client] No screen yet. Backend is ready: GET /api/v1/patient/agent-connections (client_id, client_name, logo_uri, scopes, connected_at) and DELETE /api/v1/patient/agent-connectio… |
-| `admin-catalogue.json#0` | backend | open | /admin/catalog-governance Guard G-PERM-MISMATCH (3) | Removed 2026-10-10 (owner decision): [backend] 3 call(s): Page requires "catalog.read" but PATCH /medicines/admin/catalog/:param requires catalog.update + catalog.price.write; an … |
-| `admin-catalogue.json#15` | backend | open | /admin/medicines-catalog Guard G-PUBLIC: POST /medicines/lookup-barcode | [backend] POST /medicines/lookup-barcode is @Public (no auth at all) but the admin page uses it for a write. (backend: backend/src/modules/medicines/medicines.controller.ts:56) |
 | `admin-catalogue.json#18` | backend | open | /admin/medicines-catalog Controlled flag (quick edit) | [backend] Owner decision 10 needs `controlled` editable by admin, but it is not in MedicinesService.EDITABLE_FIELDS nor in AdminUpdateCatalogDto, so a PATCH would drop it. The con… |
 | `admin-catalogue.json#19` | backend | open | /admin/medicines-catalog Add item from the items-to-review queue | [backend] Decision 12 queue (pharmacy lines with no catalogue match, price not verified) does not exist: no sfda_price fields, GET /medicines/admin/pending-review answers 410 Gone… |
 | `admin-catalogue.json#20` | backend | open | /admin/medicines-catalog Change log for prescription flag and availability | [backend] Only price changes write a history row (medicine price history, shown in the quick edit); a prescription-flag or availability change goes to the generic audit log with n… |
 | `admin-journeys.json#14` | client | open | /admin/orders/[kind]/[id] Journey 3 / Refund action is labelled 'to wallet' but… | Fixed (the refund label now reads "استرداد إلى وسيلة الدفع الأصلية"; the compensation label was corrected the same way 2026-10-10, owner decision #952): [client] The refund action… |
 | `admin-journeys.json#18` | client | open (issue #955) | /admin/config-portal Journey 4 / Emergency maintenance switch is disabled and t… | [client] The 'Trigger System Kill-Switch' button is permanently disabled ('requires server set-up'), although the handler at line 183 and PUT /admin/governance/trigger-emergency-m… |
-| `admin-ops-monitoring.json#1` | client | open | /admin/approvals API GET (unresolved) | [client] Endpoint is UNRESOLVED (path is not a literal the tool can resolve): the call fails or hits nothing. |
-| `admin-ops-monitoring.json#2` | client | open | /admin/approvals Guard G-PAGE-NOPERM (1) | [client] Page has no client permission (AdminGuard ROUTE_PERMISSIONS) but 1 call(s) need permissions the backend checks (GET /medicines/admin/shortage-reports); any admin sees the… |
-| `admin-ops-monitoring.json#3` | client | open | /admin/approvals No nav link | [client] Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page. |
 | `admin-ops-monitoring.json#4` | backend | open | /admin/approvals One approvals endpoint with counts | [backend] No endpoint returns all pending approvals with counts, so the page asks nine existing list endpoints (providers, provider edits, withdrawals, refunds, returns, medicine … |
-| `admin-ops-monitoring.json#11` | client | open (issue #1232) | /admin/search Permission G-VOCAB-FE | [client] client permission "users.view" is not in backend Permission enum: the page/nav link is hidden or locked for every role. |
-| `admin-ops-monitoring.json#12` | client | open (issue #1233) | /admin/today Guard G-PAGE-NOPERM (1) | [client] Page has no client permission (AdminGuard ROUTE_PERMISSIONS) but 1 call(s) need permissions the backend checks (GET /api/admin/admin/command-center-v2); any admin sees th… |
-| `admin-ops-monitoring.json#13` | client | open (issue #1234) | /admin/today No nav link | [client] Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page. |
 | `admin-ops-monitoring.json#14` | backend | open (issue #1235) | /admin/today Urgent alerts: inbox, push, alert rules | [backend] The screen shows what the existing endpoints can say (SLA breaches, stuck orders, failed payments). There is no admin notification inbox or bell, no push to the admin's … |
 | `admin-ops-monitoring.json#15` | backend | open (issue #1236) | /admin/today Problem orders filter on the orders list | [backend] The orders list has no stuck / failed-payment / SLA-breach / refund-pending filter, so this screen lists only the stuck orders from ops/alerts (5 kinds, 30 minute thresh… |
-| `admin-providers.json#0` | client | open | /admin/insurance-queue اعتماد الاسترداد | Removed 2026-10-10 (owner decision): [client] Sensitive action (POST /api/admin/admin/finance/refunds/:param/decide) runs on one tap with no confirm/prompt in the handler (a confi… |
-| `admin-providers.json#1` | client | open | /admin/insurance-queue رفض | Removed 2026-10-10 (owner decision): [client] Sensitive action (POST /api/admin/admin/finance/refunds/:param/decide) runs on one tap with no confirm/prompt in the handler (a confi… |
-| `admin-providers.json#2` | backend | open | /admin/insurance-queue Guard G-ROLE-ONLY-WRITE (1) | Removed 2026-10-10 (owner decision): [backend] 1 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/finance/refunds/:param/decide): eve… |
-| `admin-public-directories.json#4` | client | open | /facilities API GET /care/facilities | Removed 2026-10-10 (owner decision): [client] fetchDirectory() runs inside getServerSideProps with a RELATIVE url ("/care/facilities"); Node fetch throws on a relative URL and the… |
-| `admin-public-directories.json#6` | client | open | /home-care-services API GET /home-care/services | Removed 2026-10-10 (owner decision): [client] fetchDirectory() runs inside getServerSideProps with a RELATIVE url ("/home-care/services"); Node fetch throws on a relative URL and … |
-| `admin-public-directories.json#9` | client | open | /lab-services API GET /labs/services | Removed 2026-10-10 (owner decision): [client] fetchDirectory() runs inside getServerSideProps with a RELATIVE url ("/labs/services"); Node fetch throws on a relative URL and the c… |
 | `admin-system.json#1` | client | open (issue #995) | /admin/config-portal Trigger System Kill-Switch (معطّل — يتطلب إعداد الخادم) | [client] Button is disabled with no handler. |
 | `admin-system.json#10` | backend | open | /admin/system-ops Feature switch effect | [backend] The switch writes and audits (reason required), but backend code reads only `sms_enabled` (sms.service.ts) and ConfigService hands the flags to clients; there is no per-… |
 | `batch-0-app.json#2` | untagged | open (issue #410) | /login Two api helpers and three base-URL resolutions | login.tsx, welcome.tsx and useSocialLogin.ts use utils/api.ts (axios HttpClient, base EXPO_PUBLIC_API_URL + /api/v1 else https://api.nabd.plus/api/v1: src/services/HttpClient.ts:5… |

@@ -71,6 +71,8 @@ export default function CatalogManagerPage() {
   // #907: a read-only catalogue role sees the catalogue without the write buttons (the server would answer 403).
   const canEdit = useCan('catalog.update');
   const canCreate = useCan('catalog.create');
+  // DELETE /<base>/admin/catalog/:id needs catalog.delete_restore, not catalog.update.
+  const canDelete = useCan('catalog.delete_restore');
   const [tab, setTab] = useState<TabKey>('labs');
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -294,7 +296,7 @@ export default function CatalogManagerPage() {
               <button onClick={() => void decide(item.id, true)} style={{ padding: '6px 12px', borderRadius: 10, border: 'none', background: '#16A34A', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>اعتماد</button>
               <button onClick={() => void decide(item.id, false)} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #FED7AA', background: '#FFFBEB', color: '#B45309', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>رفض</button>
               <button onClick={() => setEditing({ ...item })} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #CBD5E1', background: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>تعديل</button>
-              <button onClick={() => remove(item)} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #FECACA', background: '#FEF2F2', color: '#B91C1C', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>حذف</button>
+              {canDelete ? <button onClick={() => remove(item)} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #FECACA', background: '#FEF2F2', color: '#B91C1C', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>حذف</button> : null}
             </div> : null}
           </div>
         ))}

@@ -63,3 +63,9 @@ and sets every line to `fixed #PR` or `not-a-problem: owner decided … `.
 | 341 (decision 22) | PDPL inventory, consent, retention, access log | `docs/architecture/DATA_MAP.md` plus D-34's access log; a lawyer reviews. |
 | 342 (decision 23) | Licensing (CR, MOH telehealth or partner model, SDAIA) | With the lawyer; Nafath and Wasfaty wait for it. |
 | legal texts (13-web#13) | Policies are drafts with placeholders | The lawyer approves `docs/legal`, then the bundled copy is generated. |
+
+## D. New questions from the fix session (2026-10-14, open)
+
+| # | Question | Where | Recommendation |
+|---:|---|---|---|
+| 29 | Admin roles: today every admin holds the whole admin permission set (role `admin`; custom roles only add permissions), so a "restricted" admin cannot exist and 128 admin write routes are role-only (no permission named). Should custom roles become restrictive (an admin gets only the permissions of their roles)? | fix session, PR fix/admin-guards (security sweep) | **Yes, before staff other than the owner get admin accounts**: make custom roles restrictive and name a permission on every admin write route in one PR; until then the panel already hides every control whose backend permission the role lacks. |

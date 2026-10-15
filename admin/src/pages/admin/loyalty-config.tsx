@@ -19,9 +19,11 @@ export default function LoyaltyConfigPage() {
     setLoading(true); setError('');
     try {
       const [cfg, rw, ch] = await Promise.all([
-        apiFetch<any>('/loyalty/config'),
-        apiFetch<any>('/admin/loyalty/rewards').catch(() => []),
-        apiFetch<any>('/admin/loyalty/challenges').catch(() => []),
+        // Admin routes (all rewards and challenges, active or not): '/admin/loyalty/...' resolved to the patient
+        // routes, which list only active items, so a deactivated reward vanished and could not be turned back on.
+        apiFetch<any>('/admin/admin/loyalty/config'),
+        apiFetch<any>('/admin/admin/loyalty/rewards').catch(() => []),
+        apiFetch<any>('/admin/admin/loyalty/challenges').catch(() => []),
       ]);
       setConfig({
         points_per_order: cfg?.points_per_order ?? 10, referral_points: cfg?.referral_points ?? 50,
