@@ -49,6 +49,8 @@ def main():
         return step('web home nursing', False, f'no chromium: {e}')
     ctx = browser.new_context(locale='ar-SA', viewport={'width': 390, 'height': 844})
     page = ctx.new_page()
+    _slots_seen = []
+    page.on('response', lambda resp: _slots_seen.append(f'{resp.status} {resp.url[-60:]}') if '/slots' in resp.url else None)
     try:
         page.goto(f'{WEB}/ar', wait_until='load', timeout=60000)
         r = web_login(ctx, WEB, acct['email'], acct['password'])
@@ -96,7 +98,8 @@ def main():
                 timeout=30000)
         except Exception:
             pass  # the step below reports what the section shows
-        step('tomorrow shows the nurse\'s free times', sec('time').locator('button').count() > 0, sec('time').inner_text()[:200])
+        _days = page.evaluate("() => [...document.querySelectorAll('section[aria-labelledby=\"home-care-day\"] button')].map(b => (b.getAttribute('aria-pressed')||'') + ':' + b.innerText.replace(/\\s+/g,' '))")
+        step('tomorrow shows the nurse\'s free times', sec('time').locator('button').count() > 0, sec('time').inner_text().replace('\n', ' | ')[:200] + ' || days=' + str(_days)[:300] + ' || slots=' + str(_slots_seen)[-600:])
         sec('time').locator('button').first.click()
         step('the saved located address is offered', 'الملك فهد' in sec('address').inner_text(), sec('address').inner_text()[:200])
         with page.expect_request(lambda req: 'fake-moyasar' in req.url, timeout=30000) as went:
