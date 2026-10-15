@@ -189,7 +189,7 @@
     "element": "prescription",
     "found": "[owner] The client never calls POST /prescriptions/:id/send and offers no pharmacy to send to (the \"Pharmacy on Nabd Plus\" row has no handler); with decision 18 (patient orders the medicines) confirm that create alone is the intended end of the doctor's part.",
     "suspect": "missing step",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #1155)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision B22), main already complies: EPrescriptionScreen.tsx:255 ends at created; the send-to row is gone (issue #1155)"
   },
   {
     "scenario": 2,
@@ -488,7 +488,7 @@
     "element": "radiology home visit tracking removed",
     "found": "[owner] The radiology order button \"Home visit (GPS tracking)\" and its route home_visit are removed because they opened the emergency GPS router (POST /emergency/:id/track), which decision 14 removes. If radiology home visits are wanted, they need their own tracking route and screen.",
     "suspect": "dead end",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision B24), main already complies: RadiologyDashboard.tsx has no home-visit or GPS order button"
   },
   {
     "scenario": 4,
