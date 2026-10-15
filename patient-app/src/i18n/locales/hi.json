@@ -3225,5 +3225,7 @@
   "search.kind.nursingServices": "नर्सिंग सेवाएं",
   "insurance.benefits.requestsTitle": "बीमा अनुरोध: {count}",
   "insurance.benefits.insurerCovered": "बीमा कंपनी ने कवर किया",
-  "insurance.benefits.youPaid": "आपने भुगतान किया"
+  "insurance.benefits.youPaid": "आपने भुगतान किया",
+  "consult.confirm.bookingFor": "यह बुकिंग {name} के लिए है",
+  "consult.confirm.bookingForMe": "अपने लिए बुक करें"
 }

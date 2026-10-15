@@ -3225,5 +3225,7 @@
   "search.kind.nursingServices": "خدمات تمريض",
   "insurance.benefits.requestsTitle": "طلبات التأمين: {count}",
   "insurance.benefits.insurerCovered": "غطّته شركة التأمين",
-  "insurance.benefits.youPaid": "دفعتَه أنت"
+  "insurance.benefits.youPaid": "دفعتَه أنت",
+  "consult.confirm.bookingFor": "هذا الحجز لـ {name}",
+  "consult.confirm.bookingForMe": "احجز لنفسي"
 }

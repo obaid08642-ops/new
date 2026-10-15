@@ -3225,5 +3225,7 @@
   "search.kind.nursingServices": "Nursing services",
   "insurance.benefits.requestsTitle": "Insurance requests: {count}",
   "insurance.benefits.insurerCovered": "Covered by insurer",
-  "insurance.benefits.youPaid": "You paid"
+  "insurance.benefits.youPaid": "You paid",
+  "consult.confirm.bookingFor": "This booking is for {name}",
+  "consult.confirm.bookingForMe": "Book for myself"
 }
