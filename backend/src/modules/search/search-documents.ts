@@ -50,6 +50,8 @@ export interface SearchDocument {
   specialty?: string | null;
   code?: string | null;
   requires_prescription: boolean;
+  /** Decision 11: a medicine sold online only (the result row says so). */
+  online_exclusive: boolean;
   /**
    * Popularity used for ranking. Always 0 for prescription-only items: decision 29 says they are never
    * promoted or boosted, so neither popularity nor sponsorship can lift them.
@@ -171,6 +173,7 @@ export function toSearchDocument(source: SearchSource, raw: any): SearchDocument
     specialty: str(raw?.specialty) || null,
     code: str(raw?.code) || str(raw?.short_code) || null,
     requires_prescription: rx,
+    online_exclusive: raw?.online_exclusive === true,
     boost: rx || !Number.isFinite(popularity) || popularity <= 0 ? 0 : Math.log10(1 + popularity),
   };
 }

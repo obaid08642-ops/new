@@ -50,6 +50,8 @@ export class UsersService {
         price: Number(med?.price ?? item.price ?? 0),
         image: med?.image || item.image,
         requires_prescription: med?.requires_prescription ?? item.requires_prescription ?? false,
+        // Decision 11: the row says "online only" (and the cart line added from it keeps it).
+        online_exclusive: (med ? med.online_exclusive : item.online_exclusive) === true,
         // #464: "available" means the item is still in the public catalogue (approved, published, not withdrawn
         // or discontinued); a row that only remains in the collection is not available to order.
         available: !!med && med.is_deleted !== true && med.public_eligibility === true && med.medical_review_status === 'approved'
@@ -76,6 +78,7 @@ export class UsersService {
         price: Number(medicine?.price ?? 0),
         image: medicine?.image,
         requires_prescription: medicine?.requires_prescription ?? false,
+        online_exclusive: medicine?.online_exclusive === true,
         added_at: new Date(),
       });
       if (this.rankingEvents) {

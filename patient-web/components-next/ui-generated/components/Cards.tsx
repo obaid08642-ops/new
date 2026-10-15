@@ -161,6 +161,8 @@ export interface WebProductCardProps extends ProductCardProps {
   linkAs?: React.ElementType;
   /** The first cards of a list are the page's largest paint: load their image early. Others are lazy. */
   imagePriority?: boolean;
+  /** A short fact under the price from the API, e.g. "online only" (`online_exclusive`). */
+  noteLabel?: string;
   onAdd?: () => void;
 }
 
@@ -172,6 +174,7 @@ export function ProductCard({
   imageSrc,
   discountLabel,
   rxLabel,
+  noteLabel,
   addLabel,
   href,
   linkAs,
@@ -222,6 +225,7 @@ export function ProductCard({
             {currency ? <span className="nabd-product-card__currency"> {currency}</span> : null}
           </span>
           {rxLabel ? <span className="nabd-product-card__rx">{rxLabel}</span> : null}
+          {noteLabel ? <span className="nabd-product-card__note">{noteLabel}</span> : null}
         </div>
         <button
           type="button"

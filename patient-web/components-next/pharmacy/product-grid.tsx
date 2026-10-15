@@ -69,6 +69,7 @@ export function ProductGrid({
                 imageSrc={item.image || undefined}
                 discountLabel={(item.rx ? undefined : item.badge) || (percent > 0 ? product("discount", { percent: formatNumber(locale, percent) }) : undefined)}
                 rxLabel={item.rx ? product("rxRequired") : undefined}
+                noteLabel={item.onlineOnly === true ? product("onlineOnly") : undefined}
                 addLabel={t("addToCart", { name: item.name })}
                 href={`/${locale}/p/${encodeURIComponent(item.slug)}`}
                 linkAs={Link}
