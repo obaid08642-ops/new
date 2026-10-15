@@ -63,8 +63,9 @@ def run():
     # A city with no pharmacy: the empty page shows the provider button (same button on labs and radiology).
     empty = web.get('/ar/pharmacies/' + urllib.parse.quote('مدينة-بلا-صيدليات'))
     body = empty.body if empty.status == 200 and isinstance(empty.body, str) else ''
+    # LinkEmptyState draws a button that opens its actionHref (the prop is in the page's server payload).
     step('the empty pharmacies city page offers "Register as a provider" -> /provider-info',
-         'href="/ar/provider-info"' in body and 'href="/ar/consultations/doctors"' not in body, empty)
+         'actionHref\\":\\"/ar/provider-info' in body and 'actionHref\\":\\"/ar/consultations/doctors' not in body, empty)
     step('/provider-info opens', web.get('/ar/provider-info').status == 200, None)
 
 

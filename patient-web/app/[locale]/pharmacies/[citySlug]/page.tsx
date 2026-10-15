@@ -18,7 +18,7 @@ const PHARMACY = SERVICE_ICONS.pharmacy;
 
 async function fetchPharmaciesData(citySlug: string) {
   const json = await readPublicEntity<ExploreResult>(
-    patientApiUrl(`/entity-graph/explore?city=${encodeURIComponent(citySlug)}`),
+    patientApiUrl(`/entity-graph/explore?city=${encodeURIComponent(readSegment(citySlug))}`),
     3600,
   );
   if (!json) return null;

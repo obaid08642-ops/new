@@ -21,7 +21,7 @@ async function fetchLabTestData(testSlug: string, citySlug: string, locale: stri
   const test = await findCatalogItem("lab", testSlug);
   if (!test) return null;
   const json = await readPublicEntity<ExploreResult>(
-    patientApiUrl(`/entity-graph/explore?city=${encodeURIComponent(citySlug)}`),
+    patientApiUrl(`/entity-graph/explore?city=${encodeURIComponent(readSegment(citySlug))}`),
     3600,
   );
   if (!json) return null;

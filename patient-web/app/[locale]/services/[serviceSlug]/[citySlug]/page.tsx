@@ -18,7 +18,7 @@ type CatalogService = { kind?: "doctor" | "facility"; id?: string; slug?: string
 
 async function fetchServiceData(serviceSlug: string, citySlug: string) {
   const json = await readPublicEntity<{ items?: CatalogService[]; city?: string }>(
-    patientApiUrl(`/public/ai-catalog/services?city=${encodeURIComponent(citySlug)}`),
+    patientApiUrl(`/public/ai-catalog/services?city=${encodeURIComponent(readSegment(citySlug))}`),
     3600,
   );
   if (!json) return null;
