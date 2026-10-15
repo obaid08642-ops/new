@@ -94,3 +94,9 @@ export class JoinWaitlistDto {
   @IsString()
   date: string;
 }
+
+/** 2-app#3: the doctor's position while on the way to a home visit. */
+export class DoctorPositionDto {
+  @IsNumber() @Min(-90) @Max(90) lat: number;
+  @IsNumber() @Min(-180) @Max(180) lng: number;
+}

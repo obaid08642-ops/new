@@ -3225,5 +3225,9 @@
   "search.kind.nursingServices": "خدمات تمريض",
   "insurance.benefits.requestsTitle": "طلبات التأمين: {count}",
   "insurance.benefits.insurerCovered": "غطّته شركة التأمين",
-  "insurance.benefits.youPaid": "دفعتَه أنت"
+  "insurance.benefits.youPaid": "دفعتَه أنت",
+  "consult.track.mapLabel": "موقع الطبيب على الخريطة",
+  "consult.track.pinDoctor": "الطبيب",
+  "consult.track.pinHome": "موقع الزيارة",
+  "consult.track.positionAt": "آخر موقع للطبيب الساعة {time}"
 }

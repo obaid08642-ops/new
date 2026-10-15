@@ -382,6 +382,8 @@ export class AppointmentsService {
     await this.assertAppointmentAccess(appt, user);
 
     const obj: any = appt.toObject();
+    // 2-app#3: the doctor's position is shared only while the doctor is on the way
+    if (String(obj.status) !== APPT_STATES.EN_ROUTE) delete obj.doctor_position;
     
     // B-1: follow-up linkage, both directions. `follow_up_of` is stored at
     // booking time (same patient + doctor, original completed — validated in
@@ -570,6 +572,21 @@ export class AppointmentsService {
   }
 
   /** Q-15: provider arrived — home visits only. Emits appointment.arrived. */
+  /**
+   * 2-app#3: the doctor's live position while on the way to a home visit (the provider app sends it every half minute or
+   * so). Only the appointment's own doctor, only for a home visit in EN_ROUTE; the patient reads it on the appointment.
+   */
+  async updatePosition(id: string, user: any, lat: number, lng: number) {
+    const appt = await this.apptModel.findOne({ id });
+    if (!appt) throw new NotFoundException();
+    if (!(await this.isDoctorOwner(appt, user)) && user?.role !== UserRole.ADMIN) throw new ForbiddenException();
+    if (appt.service_type !== 'home' || appt.status !== APPT_STATES.EN_ROUTE) throw new BadRequestException('position_only_while_en_route');
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) throw new BadRequestException('invalid_position');
+    const at = new Date();
+    await this.apptModel.updateOne({ id }, { $set: { doctor_position: { lat, lng, at } } });
+    return { ok: true, at };
+  }
+
   async arrive(id: string, user: any) {
     const appt = await this.apptModel.findOne({ id });
     if (!appt) throw new NotFoundException();

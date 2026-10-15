@@ -3225,5 +3225,9 @@
   "search.kind.nursingServices": "Nursing services",
   "insurance.benefits.requestsTitle": "Insurance requests: {count}",
   "insurance.benefits.insurerCovered": "Covered by insurer",
-  "insurance.benefits.youPaid": "You paid"
+  "insurance.benefits.youPaid": "You paid",
+  "consult.track.mapLabel": "The doctor on the map",
+  "consult.track.pinDoctor": "Doctor",
+  "consult.track.pinHome": "Visit address",
+  "consult.track.positionAt": "Doctor's last position at {time}"
 }

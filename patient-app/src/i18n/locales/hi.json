@@ -3225,5 +3225,9 @@
   "search.kind.nursingServices": "नर्सिंग सेवाएं",
   "insurance.benefits.requestsTitle": "बीमा अनुरोध: {count}",
   "insurance.benefits.insurerCovered": "बीमा कंपनी ने कवर किया",
-  "insurance.benefits.youPaid": "आपने भुगतान किया"
+  "insurance.benefits.youPaid": "आपने भुगतान किया",
+  "consult.track.mapLabel": "नक्शे पर डॉक्टर",
+  "consult.track.pinDoctor": "डॉक्टर",
+  "consult.track.pinHome": "मुलाक़ात का पता",
+  "consult.track.positionAt": "डॉक्टर की आख़िरी स्थिति {time} पर"
 }

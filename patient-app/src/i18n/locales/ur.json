@@ -3225,5 +3225,9 @@
   "search.kind.nursingServices": "نرسنگ خدمات",
   "insurance.benefits.requestsTitle": "انشورنس درخواستیں: {count}",
   "insurance.benefits.insurerCovered": "انشورنس کمپنی نے ادا کیا",
-  "insurance.benefits.youPaid": "آپ نے ادا کیا"
+  "insurance.benefits.youPaid": "آپ نے ادا کیا",
+  "consult.track.mapLabel": "نقشے پر ڈاکٹر",
+  "consult.track.pinDoctor": "ڈاکٹر",
+  "consult.track.pinHome": "ملاقات کا پتہ",
+  "consult.track.positionAt": "ڈاکٹر کا آخری مقام {time} بجے"
 }
