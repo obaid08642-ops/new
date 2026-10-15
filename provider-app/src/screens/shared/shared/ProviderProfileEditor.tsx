@@ -4,7 +4,7 @@ import client from '../../../api/client';
 import { useTheme, useLang, useAuth, useToast } from '../../../context';
 import { NBtn, NCard, NInput, NHeader, NAvatar, NToggle, NSecHeader, NProfileImageUploader } from '../../../components/ui';
 import { I, IBg } from '../../../components/icons';
-import { SP, R, FS, FW } from '../../../constants';
+import { SP, R, FS, FW, publicPageUrl } from '../../../constants';
 
 // One profile editor for every provider role. Same record, same calls for all:
 //   GET /provider/profile, PATCH /provider/profile (and the image calls inside NProfileImageUploader).
@@ -170,7 +170,7 @@ export function ProviderProfileEditor({ role, onBack, initialSection }: { role: 
   const title = role === 'nursing' ? (AR ? 'معلومات الحساب' : 'Account Info')
     : sections.length === 1 ? (AR ? 'موقع مزود الخدمة العام' : 'Public Mini-Website')
     : (AR ? 'تعديل الملف الشخصي' : 'Edit Profile');
-  const publicUrl = slug ? `https://nabdah.plus/provider/${slug}` : null;
+  const publicUrl = publicPageUrl(user?.role, slug, lang);
   const row = AR ? 'row-reverse' : 'row';
 
   const profileSection = (

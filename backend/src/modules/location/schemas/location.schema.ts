@@ -58,6 +58,14 @@ export class Location {
 
   @Prop({ type: Boolean, default: true, index: true })
   is_active: boolean;
+
+  // P13-R11: which verified official extract last provided this row (never
+  // invented data: rows without a source come only from the central seed).
+  @Prop({ type: String, default: null })
+  source?: string | null;
+
+  @Prop({ type: Date, default: null })
+  source_verified_at?: Date | null;
 }
 
 export const LocationSchema = SchemaFactory.createForClass(Location);
