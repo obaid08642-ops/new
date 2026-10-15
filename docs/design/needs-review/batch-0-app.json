@@ -30,7 +30,7 @@
     "line": 1,
     "found": "login.tsx, welcome.tsx and useSocialLogin.ts use utils/api.ts (axios HttpClient, base EXPO_PUBLIC_API_URL + /api/v1 else https://api.nabd.plus/api/v1: src/services/HttpClient.ts:5-8). register, otp, forgot-password, reset-password, Home, search and notifications use src/utils/api.ts (fetch, base config.apiBaseUrl from ConfigManager: EXPO_PUBLIC_API_BASE_URL else a per-environment default, localhost:8002 in dev: src/core/config/ConfigManager.ts:49-70). src/constants/index.ts:12-13 defines a third rule. Only src/utils/api.ts adds Idempotency-Key and its 401 handling differs.",
     "suspect": "Left on purpose: one HTTP client would change every call of 100+ screens. Decision/work needed: make src/utils/api.ts (fetch) and utils/api.ts (axios) one client with one base URL rule (EXPO_PUBLIC_API_URL vs EXPO_PUBLIC_API_BASE_URL vs ConfigManager). Until then a build with only one of the two variables set sends sign-in and the guest session to a different host than the rest. Fixed here: a 401 from a sign-in endpoint (send-otp, verify-otp, reset-password, register...) no longer deletes the stored session in the fetch client, like skipAuth does in the axios one.",
-    "review_status": "open (issue #410)"
+    "review_status": "fixed #1489"
   },
   {
     "batch": 0,
@@ -41,7 +41,7 @@
     "line": 88,
     "found": "useSocialLogin runs Google.useAuthRequest with clientId, iosClientId and androidClientId set to '' when the env vars are missing (lines 88-92), and AuthSession.useAuthRequest for X and Snapchat with clientId '' (lines 107-114), at render on both Welcome and Login. The hook's comment expects the button to show 'not available' when pressed.",
     "suspect": "Unverified: needs a run of the native app without the EXPO_PUBLIC_GOOGLE_*, X and Snapchat client ids (expo-auth-session's Google provider may throw on an empty client id while rendering, on Welcome and Login). This session cannot run the native app.",
-    "review_status": "open (issue #411)"
+    "review_status": "not-a-problem: checked in #1489: the real expo-auth-session check throws only for an undefined id; the hook passes '' and the press says not available (useSocialLogin.real-providers.test.ts)"
   },
   {
     "batch": 0,
@@ -96,7 +96,7 @@
     "line": 152,
     "found": "openNotif pushes only when translateBackendRoute(n.route) returns a target (src/hooks/usePushNotifications.ts:33-77); otherwise the row is marked read and nothing happens (no inbox fallback, unlike routeFromNotificationData). Routes the backend writes that the translator returns null for: /wallet/hub (backend/src/modules/notifications/notifications.service.ts:1093,1120), /family/permission-request (956), /reports/:id for 'report ready' (667), /community/post-detail?id=... (1046; the query is stripped and the path is not in the verbatim list), and the engagement nudges' generic /${kind}/${ref_id} (backend/src/modules/engagement/engagement.controller.ts:135). Two of those targets have an app file (family/permission-request, community/post-detail); /wallet/hub and /reports/:id have none (route check over app/).",
     "suspect": "Fixed: /health/results|reports/:id and /reports/:id -> view-report with `id`; /community/post-detail?id=... -> post-detail with its id; /family/permission-request opens its screen. LEFT: /wallet/hub (backend notifications.service.ts:1093,1120) has no screen and the handoff says no wallet or stored balance: the backend should stop writing wallet routes (or write /notifications); and the engagement nudges' generic /${kind}/${ref_id} (engagement.controller.ts:135) needs the backend to emit app-known routes. Until then those rows only mark read.",
-    "review_status": "open (issue #416)"
+    "review_status": "fixed #1489"
   },
   {
     "batch": 0,
