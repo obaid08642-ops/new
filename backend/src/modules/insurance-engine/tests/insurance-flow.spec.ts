@@ -29,7 +29,7 @@ describe('InsuranceFlowService', () => {
     requests = { findOne: jest.fn(), create: jest.fn(async (data) => makeDoc(data)) };
     transactions = { findOne: jest.fn() };
     orders = { findOne: jest.fn() };
-    service = new InsuranceFlowService(requests, {} as any, {} as any, events, transactions, orders, {} as any, {} as any, {} as any, {} as any);
+    service = new InsuranceFlowService(requests, {} as any, {} as any, {} as any, events, transactions, orders, {} as any, {} as any, {} as any, {} as any);
     jest.clearAllMocks();
   });
 
