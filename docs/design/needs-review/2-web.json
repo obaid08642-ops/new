@@ -85,7 +85,7 @@
     "line": 83,
     "found": "[backend] Fixed on design/backend-fields: the specialty follows the page language (specialty_name_ar / specialty_name_en, Q-19). Backend: the list GET /care/appointments (appointments.service.ts listMine) is not enriched, so the row has no doctor_name or specialty yet; the detail has both.",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open"
+    "review_status": "fixed #1455 (the appointments list carries doctor_name and the specialty, appointments.service.ts listMine) (issue #405)"
   },
   {
     "batch": 2,
@@ -151,6 +151,6 @@
     "line": 16,
     "found": "[owner] The thread page lists message activity only (type and time, never the text: the privacy rule of the page), so after the composer sends, the patient sees the new activity row but not what was written or what the doctor replied.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md)"
+    "review_status": "fixed #1455 (owner decision B27: the thread shows the text of the patient's messages and the doctor's replies, lib/api/chat.ts)"
   }
 ]

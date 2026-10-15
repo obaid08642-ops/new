@@ -141,6 +141,13 @@ export class RefreshDto {
   @IsString()
   refresh_token: string;
 }
+
+/** Issue 440: the refresh token of the session being signed out, so the backend revokes it. */
+export class LogoutDto {
+  @IsOptional()
+  @IsString()
+  refresh_token?: string;
+}
 export class RecordConsentDto {
   @IsDefined()
   @IsString()
