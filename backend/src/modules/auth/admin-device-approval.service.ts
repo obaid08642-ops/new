@@ -5,6 +5,9 @@ import { createHash, randomBytes, randomInt, timingSafeEqual } from 'crypto';
 import { AdminDeviceService, MAX_ACTIVE_ADMIN_DEVICES } from './admin-device.service';
 import { MailService } from '../mail/mail.module';
 
+/** D-35 reviewer: after this many wrong codes the enrollment request is cancelled. */
+export const MAX_CONFIRM_ATTEMPTS = 5;
+
 /**
  * D-35 — admin on two devices. Enrolling a new device never happens by asking:
  * the new device requests, an already-enrolled device approves, and the new
@@ -53,6 +56,7 @@ export class AdminDeviceApprovalService {
       code_hash: this.hashCode(code),
       approved: false,
       approved_at: null,
+      failed_attempts: 0,
       created_at: new Date(),
       expires_at: new Date(Date.now() + 30 * 60_000),
     };
@@ -124,6 +128,14 @@ export class AdminDeviceApprovalService {
       throw new ConflictException('approval_required');
     }
     if (!code || !this.codesEqual(this.hashCode(String(code)), String(req.code_hash))) {
+      // D-35 reviewer: a 6-digit code must not be brute-forceable without a
+      // limit. After 5 wrong codes the request is cancelled.
+      const failures = (Number(req.failed_attempts) || 0) + 1;
+      if (failures >= MAX_CONFIRM_ATTEMPTS) {
+        await this.requests.deleteOne({ id: req.id }).catch(() => null);
+        throw new ForbiddenException('too_many_attempts');
+      }
+      await this.requests.updateOne({ id: req.id }, { $set: { failed_attempts: failures } }).catch(() => null);
       throw new BadRequestException('invalid_code');
     }
     // Every path that enrols respects the limit of 2.
