@@ -8,7 +8,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| Patient app and web | 434 | 82 | 252 | 88 | 1 | 11 |
+| Patient app and web | 434 | 79 | 255 | 88 | 1 | 11 |
 | Other | 29 | 22 | 7 | 0 | 0 | 0 |
 | Admin | 97 | 8 | 56 | 33 | 0 | 0 |
 | Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
@@ -16,17 +16,17 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Patient journeys | 87 | 33 | 52 | 2 | 0 | 0 |
 | Provider app | 31 | 8 | 22 | 1 | 0 | 0 |
 | Provider journeys | 34 | 17 | 15 | 2 | 0 | 0 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| **Total** | **740** | **177** | **423** | **128** | **1** | **11** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| client | 169 | 51 | 90 | 28 | 0 | 0 |
+| client | 169 | 48 | 93 | 28 | 0 | 0 |
 | owner | 100 | 21 | 34 | 42 | 1 | 2 |
 | backend | 233 | 35 | 168 | 26 | 0 | 4 |
 | untagged | 238 | 73 | 128 | 32 | 0 | 5 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| **Total** | **740** | **177** | **423** | **128** | **1** | **11** |
 
 ## By file
 
@@ -61,7 +61,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `7-app.json` | 14 | 2 | 5 | 7 | 0 | 0 |
 | `7-web.json` | 16 | 1 | 7 | 8 | 0 | 0 |
 | `8-app.json` | 9 | 2 | 7 | 0 | 0 | 0 |
-| `8-web.json` | 13 | 5 | 7 | 0 | 0 | 1 |
+| `8-web.json` | 13 | 2 | 10 | 0 | 0 | 1 |
 | `9-app.json` | 8 | 0 | 6 | 2 | 0 | 0 |
 | `9-web.json` | 8 | 0 | 7 | 1 | 0 | 0 |
 | `ac-1-agent-oauth.json` | 2 | 2 | 0 | 0 | 0 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 7 | 0 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 6 | 7 | 0 | 0 | 0 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| **Total** | **740** | **177** | **423** | **128** | **1** | **11** |
 
 ## Owner decisions (1)
 
@@ -108,7 +108,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---:|---|---|---|
 | 1 | `13-web.json#13` `patient-web/lib/legal/embedded.ts:15` | /terms Embedded fallback text | [owner] The embedded copy (issue 755/783) is built from docs/legal, which are drafts with [placeholders] until a Saudi lawyer approves them, so it stays off today. After approval: update docs/legal, run node patient-web… |
 
-## Open and unverified (191)
+## Open and unverified (188)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -156,10 +156,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `8-app.json#2` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /mental-health/hub Relax screen (breathing, meditation) | [owner] the app never had breathing or meditation content in the hub (deferred for clinical review); GET/POST /mental-health/breathing and /meditation exist but only log history, … |
 | `8-web.json#1` | backend | closed-unverified (issue #859: closed with no linked PR) | /mental-health/crisis-contacts Crisis contacts endpoints | [backend] GET/POST/DELETE /mental-health/crisis-contacts still exist (the app emergency screen uses them); remove them with the app screen under decision 8. The web proxy no longe… |
 | `8-web.json#3` | backend | open (issue #861) | /maternity Weekly articles and fetal-week size/image | [backend] GET /maternity/content returns empty lists (weekly_tips, links) and there is no fetal-week endpoint; the board's 'Read this week' list and fetal size line are not drawn,… |
-| `8-web.json#4` | client | open (issue #862) | /maternity Logging kicks, contractions and baby growth | [client] The web can only read these logs (POST /maternity/kicks, /contractions, /infant-growth exist and the old pages could not log either); adding forms is a feature. |
-| `8-web.json#6` | client | open (issue #864) | /mental-health/mood Mood logging | [client] The web has no form to log a mood (POST /mental-health/mood exists; the old page was read-only); adding it is a feature. |
 | `8-web.json#8` | client | open (issue #866) | /mental-health/breathing Starting a breathing or meditation session | [client] The Relax screen lists recorded sessions only; starting a session needs the app (the old pages were history only; the app guides live in the hub). |
-| `8-web.json#11` | client | open (issue #869) | /nutrition Water logging | [client] Water is shown from the summary only; the app logs it through POST /nutrition/water, the web has no control for it (feature). |
 | `ac-1-agent-oauth.json#0` | client | open | /oauth/authorize AI assistant consent page | [client] Functional consent page (client name, scopes, 'you confirm and pay on Nabd Plus', allow / don't allow) built on the auth layout with translations in six languages; it has… |
 | `ac-1-agent-oauth.json#1` | client | open | Settings > Connected AI apps List and disconnect connected AI assistants | [client] No screen yet. Backend is ready: GET /api/v1/patient/agent-connections (client_id, client_name, logo_uri, scopes, connected_at) and DELETE /api/v1/patient/agent-connectio… |
 | `admin-catalogue.json#18` | backend | open | /admin/medicines-catalog Controlled flag (quick edit) | [backend] Owner decision 10 needs `controlled` editable by admin, but it is not in MedicinesService.EDITABLE_FIELDS nor in AdminUpdateCatalogDto, so a PATCH would drop it. The con… |
