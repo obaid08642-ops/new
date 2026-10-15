@@ -772,5 +772,14 @@
     "file": "patient-web/app/[locale]/emergency/sos-actions.tsx",
     "line": 78,
     "review_status": "fixed #1089 (issue #1094)"
+  },
+  {
+    "scenario": 1,
+    "step": "pharmacy confirms a card-paid order",
+    "problem": "/payments/verify answered paid before the pharmacy payment evidence was written (event not awaited), so a pharmacy confirming right after got payment_confirmation_required (CI live gate j_pharmacy on #1439).",
+    "kind": "backend",
+    "file": "backend/src/modules/payments/payments.module.ts",
+    "line": 416,
+    "review_status": "fixed #1441"
   }
 ]

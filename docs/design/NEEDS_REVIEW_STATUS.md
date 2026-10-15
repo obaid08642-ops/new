@@ -13,10 +13,10 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Admin | 93 | 30 | 45 | 18 | 0 | 0 |
 | Admin journeys | 20 | 4 | 16 | 0 | 0 | 0 |
 | Final pass | 8 | 8 | 0 | 0 | 0 | 0 |
-| Patient journeys | 86 | 41 | 44 | 1 | 0 | 0 |
+| Patient journeys | 87 | 41 | 45 | 1 | 0 | 0 |
 | Provider app | 31 | 9 | 21 | 1 | 0 | 0 |
 | Provider journeys | 34 | 22 | 12 | 0 | 0 | 0 |
-| **Total** | **734** | **265** | **377** | **80** | **1** | **11** |
+| **Total** | **735** | **265** | **378** | **80** | **1** | **11** |
 
 ## By tag
 
@@ -25,8 +25,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | client | 168 | 75 | 74 | 19 | 0 | 0 |
 | owner | 100 | 64 | 27 | 6 | 1 | 2 |
 | backend | 229 | 45 | 156 | 24 | 0 | 4 |
-| untagged | 237 | 81 | 120 | 31 | 0 | 5 |
-| **Total** | **734** | **265** | **377** | **80** | **1** | **11** |
+| untagged | 238 | 81 | 121 | 31 | 0 | 5 |
+| **Total** | **735** | **265** | **378** | **80** | **1** | **11** |
 
 ## By file
 
@@ -86,7 +86,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1d-web.json` | 10 | 2 | 5 | 3 | 0 | 0 |
 | `final-pass-2.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `final-pass.json` | 4 | 4 | 0 | 0 | 0 | 0 |
-| `journeys.json` | 86 | 41 | 44 | 1 | 0 | 0 |
+| `journeys.json` | 87 | 41 | 45 | 1 | 0 | 0 |
 | `provider-admin-ish.json` | 3 | 2 | 1 | 0 | 0 | 0 |
 | `provider-doctor.json` | 6 | 1 | 5 | 0 | 0 | 0 |
 | `provider-facility.json` | 7 | 1 | 6 | 0 | 0 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 7 | 0 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 12 | 5 | 7 | 0 | 0 | 0 |
-| **Total** | **734** | **265** | **377** | **80** | **1** | **11** |
+| **Total** | **735** | **265** | **378** | **80** | **1** | **11** |
 
 ## Owner decisions (1)
 
