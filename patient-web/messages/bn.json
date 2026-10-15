@@ -2272,7 +2272,11 @@
       "generic": "কাজটি সম্পন্ন করা যায়নি। কিছু বদলায়নি।",
       "alreadyPaid": "এই অর্ডারের পরিশোধ হয়ে গেছে।"
     },
-    "lastFromYou": "আপনি: {text}"
+    "lastFromYou": "আপনি: {text}",
+    "unavailableTitle": "এই মুহূর্তে কোনো ফার্মেসি পাওয়া যাচ্ছে না",
+    "unavailableBody": "কাছের কোনো ফার্মেসি সময়মতো উত্তর দেয়নি। পরে আবার চেষ্টা করুন।",
+    "unavailableAction": "ফার্মেসিতে ফিরে যান",
+    "searchRound": "রাউন্ড {round}: {km} কিমির মধ্যে ফার্মেসি খোঁজা হচ্ছে"
   },
   "PharmacyCheckout": {
     "title": "চেকআউট",

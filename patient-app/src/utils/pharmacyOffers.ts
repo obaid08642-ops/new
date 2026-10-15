@@ -169,8 +169,12 @@ export function secondsLeft(offer: OfferView, now: number): number | null {
   return offer.expiresAt === null ? null : Math.max(0, Math.ceil((offer.expiresAt - now) / 1000));
 }
 
+/** Decision 13 (issue 332): the server's search for a pharmacy: still widening (round, radius), or over with none. */
+export type SearchState = { state: 'expanding'; round: number | null; radiusKm: number | null } | { state: 'no_pharmacy_available' };
+
 export interface OrderState {
   status: string;
+  search: SearchState | null;
   governedState: string | null;
   selectedOfferId: string | null;
   selectedAllocationId: string | null;
@@ -185,8 +189,13 @@ export function parseOrder(response: unknown): OrderState | null {
   const o = raw as Record<string, unknown>;
   const status = text(o.status);
   if (!status) return null;
+  const sr = o.search && typeof o.search === 'object' ? (o.search as Record<string, unknown>) : null;
+  const finite = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
+  const search: SearchState | null = sr?.state === 'no_pharmacy_available' ? { state: 'no_pharmacy_available' }
+    : sr?.state === 'expanding' ? { state: 'expanding', round: finite(sr.round), radiusKm: finite(sr.radius_km) } : null;
   return {
     status,
+    search,
     governedState: governedStep(o.governed_state),
     selectedOfferId: text(o.selected_offer_id),
     selectedAllocationId: text(o.selected_allocation_id),
@@ -197,7 +206,7 @@ export function parseOrder(response: unknown): OrderState | null {
 }
 
 /** Where the order is, as far as the offers screen is concerned. */
-export type OfferPhase = 'searching' | 'selected' | 'cancelled' | 'review' | 'draft';
+export type OfferPhase = 'searching' | 'selected' | 'cancelled' | 'review' | 'draft' | 'unavailable';
 
 // the order states after the patient chose an offer (backend PharmacyOrderState)
 const AFTER_SELECTION = new Set(['cash_card_payment_pending', 'cod_due_on_delivery', 'insurance_decision_pending', 'waiting_copay', 'confirmed', 'in_fulfillment', 'out_for_delivery', 'delivered', 'completed']);
@@ -206,6 +215,8 @@ const AFTER_SELECTION = new Set(['cash_card_payment_pending', 'cod_due_on_delive
 export function offerPhase(order: OrderState | null): OfferPhase {
   if (!order) return 'searching';
   if (order.status === 'cancelled') return 'cancelled';
+  // decision 13: the search ended with no pharmacy (the server says so; governed AUTO_CANCELLED)
+  if (!order.selectedOfferId && (order.search?.state === 'no_pharmacy_available' || order.governedState === 'AUTO_CANCELLED')) return 'unavailable';
   if (order.selectedOfferId || AFTER_SELECTION.has(order.status)) return 'selected';
   if (order.status === 'draft') return 'draft';
   if (order.status === 'manual_review') return 'review';

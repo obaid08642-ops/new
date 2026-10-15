@@ -2272,7 +2272,11 @@
       "generic": "The action could not be completed. Nothing was changed.",
       "alreadyPaid": "This order is already paid."
     },
-    "lastFromYou": "You: {text}"
+    "lastFromYou": "You: {text}",
+    "unavailableTitle": "No pharmacy is available right now",
+    "unavailableBody": "No nearby pharmacy replied in time. Please try again later.",
+    "unavailableAction": "Back to the pharmacy",
+    "searchRound": "Round {round}: searching pharmacies within {km} km"
   },
   "PharmacyCheckout": {
     "title": "Checkout",
