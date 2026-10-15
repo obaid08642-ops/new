@@ -8,7 +8,10 @@ export type ArticleBlock = { kind: "h2" | "h3" | "p" | "li"; text: string };
 
 const MAX_HTML = 200_000;
 const MAX_BLOCKS = 400;
-const DROPPED = /<\s*(script|style|iframe|object|embed|template|noscript|svg|math)\b[\s\S]*?<\s*\/\s*\1\s*>/gi;
+// the end tag as browsers read it: attributes and spaces are allowed ("</script foo>")
+const DROPPED = /<\s*(script|style|iframe|object|embed|template|noscript|svg|math)\b[\s\S]*?<\s*\/\s*\1\b[^>]*>/gi;
+// a comment also ends at "--!>"
+const COMMENT = /<!--[\s\S]*?--!?>/g;
 const BLOCK_TAG = /<\s*(\/?)\s*(h[1-6]|p|li|br|div|ul|ol|blockquote|section|article|tr)\b[^>]*>/gi;
 const NAMED: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " " };
 
@@ -23,11 +26,12 @@ function decode(text: string): string {
 }
 
 // inline tags (strong, em, a, span) take no space of their own, as in the browser: "<strong>x</strong>." reads "x."
-const plain = (fragment: string): string => decode(fragment.replace(/<[^>]*>?/g, "")).replace(/\s+/g, " ").trim();
+// Any "<" or ">" left after the tags are removed (a broken tag such as "<scr<b>ipt") is dropped too, before decoding.
+const plain = (fragment: string): string => decode(fragment.replace(/<[^>]*>?/g, "").replace(/[<>]/g, "")).replace(/\s+/g, " ").trim();
 
 export function articleBlocks(html: unknown): ArticleBlock[] {
   if (typeof html !== "string" || !html.trim()) return [];
-  const source = html.slice(0, MAX_HTML).replace(/<!--[\s\S]*?-->/g, "").replace(DROPPED, " ");
+  const source = html.slice(0, MAX_HTML).replace(COMMENT, "").replace(DROPPED, " ");
   const blocks: ArticleBlock[] = [];
   let kind: ArticleBlock["kind"] = "p";
   let last = 0;
