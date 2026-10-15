@@ -19,7 +19,7 @@
     "line": 175,
     "found": "[owner] The board draws a permission level per member and a group permissions row; the backend has only a flat list of 9 permissions per member, so the count is shown and the row is left out.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #685)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision B14), main already complies: FamilyHubView.tsx:169 per-member grant count, no full/managed/view chips (issue #685)"
   },
   {
     "batch": 6,
@@ -96,7 +96,7 @@
     "line": 189,
     "found": "[owner] Kept as a row (board draws it); it redirects to the medical profile Emergency tab (Batch 5).",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #692)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision B15), main already complies: family/emergency-contacts.tsx opens /health/profile?tab=emergency (issue #692)"
   },
   {
     "batch": 6,
