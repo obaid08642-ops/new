@@ -398,8 +398,8 @@ export class CareService {
       date: r.createdAt || null,
     }));
 
-    // Real photos only (empty when the provider published none)
-    obj.clinicPhotos = Array.isArray(obj.clinic_images) ? obj.clinic_images : [];
+    // Real photos only (empty when the provider published none): toPublicDoctor already gives clinicPhotos as public
+    // addresses; the raw clinic_images (private file ids) are not part of the public model
 
     // Similar doctors — real fields only, no fabricated rating/price fallbacks
     const similar = await this.providerModel.find({ type: ProviderType.DOCTOR, ...PUBLIC_PROVIDER_FILTER, specialty: obj.specialty, id: { $ne: obj.id } }, { _id: 0, __v: 0 }).limit(3);

@@ -42,7 +42,9 @@ def main():
     step('the registration keeps the photo and the clinic photo', r.ok, r)
     j_onboarding.admin_review(admin, d)
     j_onboarding.provider_after_approval(d)
+    doctor = Client(d['token'], 'doctor')  # the session after approval (the wizard's ends there)
     did = doctor.get('/provider-onboarding/my-profile').get('id')
+    step('the approved doctor has a public profile id', did, did)
 
     journey('2-web#3 / 2-app#13: patients get addresses they can open')
     anon = Client(None, 'anon')
