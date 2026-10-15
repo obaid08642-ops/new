@@ -13,6 +13,7 @@ import { UserRole } from '../../common/enums';
 import { SystemEvent, SystemEventSchema } from '../events/system-event.schema';
 import { OnEvent, EventEmitter2 } from '@nestjs/event-emitter';
 import { Injectable as Inj } from '@nestjs/common';
+import { ReconciliationService } from './reconciliation.service';
 
 @Schema({ collection: 'event_dlq', timestamps: true })
 export class EventDlq extends Document {
@@ -136,10 +137,18 @@ export class EventReliabilityService {
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
 export class EventReliabilityController {
-  constructor(private svc: EventReliabilityService) {}
+  constructor(private svc: EventReliabilityService, private recon: ReconciliationService) {}
   @Get('status') status() { return this.svc.status(); }
   @Post('retry-failed') retry() { return this.svc.retryFailed(); }
   @Post('replay/:eventId') replay(@Param('eventId') id: string) { return this.svc.replayOne(id); }
+  // P13-R13: failed-propagation list + reconciliation reports.
+  @Get('failed') failed(@Query('limit') limit?: string, @Query('status') status?: string): Promise<any> {
+    return this.recon.failedList({ limit: limit === undefined ? undefined : Number(limit), status });
+  }
+  @Post('reconciliation/run') runRecon(@Query('limit') limit?: string) {
+    return this.recon.reconcile({ limit: limit === undefined ? undefined : Number(limit) });
+  }
+  @Get('reconciliation/latest') latestRecon() { return this.recon.latest(); }
 }
 
 @Module({
@@ -149,7 +158,7 @@ export class EventReliabilityController {
     { name: 'EventDelivery', schema: EventDeliverySchema },
   ])],
   controllers: [EventReliabilityController],
-  providers: [EventReliabilityService],
-  exports: [EventReliabilityService],
+  providers: [EventReliabilityService, ReconciliationService],
+  exports: [EventReliabilityService, ReconciliationService],
 })
 export class EventReliabilityModule {}

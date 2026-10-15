@@ -20,6 +20,8 @@ export type DiagnosticBooking = {
   testNameEn?: string;
   medicalReferralRequired?: boolean;
   hasReport?: boolean;
+  /** Lab reports the booking holds a file for, opened through GET labs/bookings/:id/reports/:reportId (journeys#54). */
+  reportIds?: string[];
 };
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -56,6 +58,11 @@ function bookingFrom(value: unknown): DiagnosticBooking | null {
     testNameEn: text(asRecord(Array.isArray(record.items) ? record.items[0] : null) ?? {}, ["name_en"]),
     medicalReferralRequired: typeof record.medical_referral_required === "boolean" ? record.medical_referral_required : undefined,
     hasReport: (Array.isArray(record.reports) && record.reports.length > 0) || (typeof record.signed_report_pdf_url === "string" && record.signed_report_pdf_url.trim().length > 0),
+    reportIds: (Array.isArray(record.reports) ? record.reports : []).flatMap((r) => {
+      const report = asRecord(r);
+      const rid = bookingIdSchema.safeParse(report?.id);
+      return rid.success && report?.has_file === true ? [rid.data] : [];
+    }),
   };
 }
 

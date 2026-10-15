@@ -129,6 +129,6 @@
     "line": 13,
     "found": "Production build: a plain GET /ar/medicines/compare makes the server call GET /api/v1/public/product-by-id/ar/compare (404), i.e. the legacy [medicineId] route's metadata resolver runs with medicineId=\"compare\". The compare page itself renders (200, real empty state). The call is visible in the backend log twice per request.",
     "suspect": "The dynamic sibling route is evaluated for the static path; harmless to users but a wasted upstream call and log noise. Not found on the agent's dev run; needs a look at how Next 16 matches [medicineId] next to compare (parseMedicineId may accept the word compare).",
-    "review_status": "open (issue #478)"
+    "review_status": "fixed 5556035ca (verified on main: lib/api/medicines.ts:3-5 refuses \"compare\" as a medicine id, so no upstream call) (issue #478)"
   }
 ]

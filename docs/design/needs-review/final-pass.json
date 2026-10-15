@@ -8,7 +8,7 @@
     "line": 61,
     "found": "[client] The screens call POST /emergency/trigger, GET /emergency/my/active, GET /emergency/tracking and POST /emergency/:id/cancel, and the backend no longer serves them (404 at runtime and NO_ROUTE in the inventory; decision 14). Also sos-active.tsx:46, tracking.tsx:33.",
     "suspect": "Client-side: remove with the patient SOS removal PR (#852 #1088-#1090 #1094); the single Emergency screen needs the urgent-help number config.",
-    "review_status": "open"
+    "review_status": "not-a-problem: removed by decision 14, patient-app emergency/sos, sos-active and tracking redirect to /emergency (c529711d0)"
   },
   {
     "batch": "final",
@@ -19,7 +19,7 @@
     "line": 30,
     "found": "[client] Same as the app: /api/patient/emergency/trigger, /emergency/my/active, /emergency/tracking and /emergency/:id/cancel have no backend route any more (NO_ROUTE x5 in the inventory; also emergency/page.tsx:30, sos-actions.tsx:47, components-next/emergency-sos-active-client.tsx:36, emergency-tracking-client.tsx:46).",
     "suspect": "Client-side: remove with the patient SOS removal PR.",
-    "review_status": "open"
+    "review_status": "not-a-problem: removed by decision 14, sos-actions.tsx deleted and the web SOS pages redirect to urgent help (c529711d0)"
   },
   {
     "batch": "final",

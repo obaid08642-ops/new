@@ -8,7 +8,7 @@
     "line": 46,
     "found": "/services no longer lands here (batch-0-fixes: it goes to Home), but the page itself, reached by its own URL or from Home's doctor links, still puts raw legacy colours (#FDFDFC, #E8EDEE, #1E332E) and layout in `style={{…}}` attributes (page.tsx:46-50 and on), which the nonce CSP refuses (22 'style-src-attr' violations per load): it renders without that styling in production.",
     "suspect": "Needs the same class-based rebuild as the Batch 0 pages (zero inline styles, token colours). Not in Batch 0's file list, so left for the batch that owns Consultations; reported here because /services lands on it.",
-    "review_status": "open (issue #421)"
+    "review_status": "fixed 1106b0687 (verified on main: patient-web/app/[locale]/consultations/doctors/page.tsx has no inline style after the Batch 2 rebuild) (issue #421)"
   },
   {
     "batch": 0,
@@ -19,7 +19,7 @@
     "line": 0,
     "found": "Runtime check (error scenario): the settings page showed the notifications list's title 'تعذر تحميل الإشعارات'. Fixed: it now uses NotificationSettings.unavailableTitle in all six locales.",
     "suspect": "None left; listed so the reviewer knows the copy key was added.",
-    "review_status": "open (issue #422)"
+    "review_status": "fixed (verified on main: settings/notifications/page.tsx:30,36 uses NotificationSettings.unavailableTitle, present in all six message files) (issue #422)"
   },
   {
     "batch": 0,

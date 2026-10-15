@@ -57,7 +57,6 @@ interface DiagnosticsRegData {
   enabledScans: string[];
   scanPrices: Record<string, string>;
   // Step 5
-  bundles: { id: string; nameAr: string; nameEn: string; tests: string[]; price: string; discount: string }[];
   // Step 6
   workDays: string[]; 
   shiftType: 'morning' | 'evening' | 'both'; 
@@ -84,7 +83,6 @@ const INIT: DiagnosticsRegData = {
   hasHomeSvc: false, homeRadius: 0, homeCollectorCount: '', homeCollectionFee: '', targetGenders: 'both', homeCollectorGender: 'both',
   enabledTests: [], testPrices: {}, testHomeAvail: {}, testTurnaround: {}, testInsuranceCov: {}, scanInsuranceCov: {},
   enabledScans: [], scanPrices: {},
-  bundles: [],
   workDays: [],
   shiftType: 'morning', openTime: '', closeTime: '', eveningOpenTime: '', eveningCloseTime: '',
   homeWorkDays: [],
@@ -1069,61 +1067,14 @@ function LStep4({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
 
       <View style={{ height: SP.xl }} />
       
-      <NDivider label={AR ? 'إنشاء حزم مخفّضة (اختياري)' : 'Bundle Builder (Optional)'} />
-      <NCard style={{ backgroundColor: theme.primaryLight, marginBottom: SP.xl, marginTop: SP.md }}>
-        <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'flex-start', gap: SP.md }}>
-          <Icon name="trending_up" size={18} color={theme.primary} />
-          <Text style={{ flex: 1, fontSize: FS.sm, color: theme.primary, lineHeight: 20, textAlign: AR ? 'right' : 'left' }}>
-            {AR
-              ? 'الحزم المخفّضة تزيد متوسط قيمة الطلب بنسبة 35% وتجذب المرضى الباحثين عن الفحوصات الشاملة.'
-              : 'Discounted bundles increase average order value by 35% and attract patients seeking comprehensive checkups.'}
-          </Text>
-        </View>
-      </NCard>
-      
-      <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.lg }}>
-        <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>
-          {AR ? 'باقات العروض:' : 'Offers & Bundles:'}
-        </Text>
-        <TouchableOpacity onPress={() => {
-          const bundles = [...data.bundles, {
-            id: Date.now().toString(),
-            nameAr: '', nameEn: '', tests: [], price: '', discount: '20',
-          }];
-          update({ bundles });
-        }}>
-          <Text style={{ color: theme.primary, fontWeight: FW.bold }}>{AR ? '+ إضافة حزمة' : '+ Add Bundle'}</Text>
-        </TouchableOpacity>
-      </View>
-      
-      {data.bundles.map(bundle => (
-        <NCard key={bundle.id} style={{ marginBottom: SP.lg }} accent={theme.primary}>
-          <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: SP.md }}>
-            <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>
-              {bundle.nameAr || (AR ? 'حزمة جديدة' : 'New Bundle')}
-            </Text>
-            <TouchableOpacity onPress={() => {
-              update({ bundles: data.bundles.filter(b => b.id !== bundle.id) });
-            }}>
-              <Icon name="close" size={16} color={theme.danger} />
-            </TouchableOpacity>
-          </View>
-          
-          <NInput label={AR ? 'اسم الحزمة (عربي)' : 'Bundle Name (Ar)'} value={bundle.nameAr} onChange={v => update({ bundles: data.bundles.map(b => b.id === bundle.id ? { ...b, nameAr: v } : b) })} required />
-          <NInput label={AR ? 'اسم الحزمة (إنجليزي)' : 'Bundle Name (En)'} value={bundle.nameEn} onChange={v => update({ bundles: data.bundles.map(b => b.id === bundle.id ? { ...b, nameEn: v } : b) })} required />
-          
-          <NPriceInput label={AR ? 'سعر الحزمة النهائي' : 'Final Bundle Price'} value={bundle.price} onChange={v => update({ bundles: data.bundles.map(b => b.id === bundle.id ? { ...b, price: v } : b) })} required />
-        </NCard>
-      ))}
+      {/* provider-journeys#32: the bundle builder is hidden, like the custom test (M9): no route takes a lab's own
+          package for admin approval, so a bundle would reach nothing (it only rode along in full_data). */}
 
       <View style={{ height: SP.xl }} />
     </View>
   );
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// STEP 5 — BUNDLE BUILDER
-// ══════════════════════════════════════════════════════════════════════════════
 // STEP 6 — SCHEDULE + INSURANCE
 // ══════════════════════════════════════════════════════════════════════════════
 function LStep6({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
