@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { OfflineSupport } from "@/components-next/offline-support";
 import Link from "next/link";
 import "../globals.css";
 import { THEME_COLOR } from "../design-tokens/theme-color";
@@ -113,6 +114,7 @@ export default async function LocaleLayout({ children, params }: Props) {
       <body>
         <NextIntlClientProvider messages={messages}>
           <WebMcpLoader locale={typedLocale} />
+          <OfflineSupport />
           <div className={`shell ${fontVariables}`} lang={typedLocale} dir={getDirection(typedLocale)}>
             {/*
               12.A3 — the theme has to be known before the first pixel, or every
