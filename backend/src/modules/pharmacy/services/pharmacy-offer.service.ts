@@ -592,7 +592,8 @@ export class PharmacyOfferService {
   private patientDto(offer: any) {
     return {
       id: offer.id, pharmacy_account_id: offer.pharmacy_account_id, version: offer.version,
-      items: offer.items.map((item: any) => ({ order_item_id: item.order_item_id, action: item.action, qty_requested: item.qty_requested, qty_offered: item.qty_offered, unit_price: item.unit_price, currency: item.currency, substitute: item.action === 'substitute' ? { sku: item.sku, name_ar: item.name_ar, name_en: item.name_en } : undefined, price_status: item.above_catalogue_price === true ? 'above_catalogue' : item.price_check === 'not_verified' ? 'not_verified' : 'verified' })),
+      // journeys 75: each line names the medicine it prices (the website lists the lines by name and drops a nameless one)
+      items: offer.items.map((item: any) => ({ order_item_id: item.order_item_id, name_ar: item.name_ar ?? null, name_en: item.name_en ?? null, action: item.action, qty_requested: item.qty_requested, qty_offered: item.qty_offered, unit_price: item.unit_price, currency: item.currency, substitute: item.action === 'substitute' ? { sku: item.sku, name_ar: item.name_ar, name_en: item.name_en } : undefined, price_status: item.above_catalogue_price === true ? 'above_catalogue' : item.price_check === 'not_verified' ? 'not_verified' : 'verified' })),
       totals: offer.totals, quote_expires_at: offer.quote_expires_at,
       estimated_preparation_minutes: offer.estimated_preparation_minutes,
       fulfillment: offer.fulfillment || { policy_status: 'unavailable_read_only' },
