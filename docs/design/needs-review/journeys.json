@@ -69,7 +69,7 @@
     "kind": "duplicate",
     "file": "patient-web/components-next/pharmacy-offers/quote-section.tsx",
     "line": 86,
-    "review_status": "open (issue #1016)"
+    "review_status": "fixed #1476"
   },
   {
     "scenario": 1,
@@ -384,7 +384,7 @@
     "kind": "duplicate",
     "file": "patient-web/app/[locale]/appointments/page.tsx",
     "line": 70,
-    "review_status": "open (issue #1051)"
+    "review_status": "fixed #1476"
   },
   {
     "scenario": 4,
