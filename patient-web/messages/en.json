@@ -1859,6 +1859,7 @@
     "invalid": "Enter a 6-digit code.",
     "failed": "The code could not be verified. You are not signed in.",
     "missing": "Start from sign in or create an account and we will send you a code.",
+    "notSent": "Your account was created, but the code could not be sent. Tap “Resend”.",
     "back": "Back",
     "wrong": "That code isn't right. Check it and try again.",
     "expired": "That code has expired. Request a new one.",

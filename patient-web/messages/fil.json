@@ -1859,6 +1859,7 @@
     "invalid": "Maglagay ng 6-digit code.",
     "failed": "Hindi ma-verify ang code.",
     "missing": "Magsimula sa sign in o paggawa ng account at padadalhan ka namin ng code.",
+    "notSent": "Nagawa na ang account mo, pero hindi naipadala ang code. Pindutin ang “Ipadala muli”.",
     "back": "Bumalik",
     "wrong": "Mali ang code. Suriin ito at subukan muli.",
     "expired": "Nag-expire na ang code. Humiling ng bago.",
