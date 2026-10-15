@@ -19,7 +19,7 @@ import os
 import time
 import urllib.request
 
-from lib import Client, journey, step
+from lib import Client, journey, step, web_login
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 WEB = os.environ.get('NABD_WEB_JOURNEYS_URL', 'http://127.0.0.1:3100')
@@ -188,7 +188,7 @@ def main():
     ctx = browser.new_context(locale='ar-SA', viewport={'width': 390, 'height': 844}, permissions=['camera', 'microphone'])
     page = ctx.new_page()
     try:
-        r = ctx.request.post(f'{WEB}/api/auth/login', data={'identifier': s['acct']['email'], 'password': s['acct']['password']})
+        r = web_login(ctx, WEB, s['acct']['email'], s['acct']['password'])
         step('the patient signs in on the website', r.ok, f'{r.status} {r.text()[:200]}')
         doc_ctx, doc_page = doctor_page(browser)
         step("the doctor's page loads livekit-client", doc_page.evaluate('() => typeof window.LivekitClient?.Room') == 'function', '')
