@@ -12,7 +12,7 @@ import os
 import tempfile
 import uuid
 
-from lib import Client, journey, step
+from lib import Client, journey, step, web_login
 
 WEB = os.environ.get('NABD_WEB_JOURNEYS_URL', 'http://127.0.0.1:3100')
 # a 1x1 PNG: a real image the server stores (TEST data)
@@ -51,7 +51,7 @@ def main():
     oid = None
     try:
         page.goto(f'{WEB}/ar', wait_until='load', timeout=60000)
-        r = ctx.request.post(f'{WEB}/api/auth/login', data={'identifier': acct['email'], 'password': acct['password']})
+        r = web_login(ctx, WEB, acct['email'], acct['password'])
         step('the patient signs in on the website', r.ok, f'{r.status}')
         page.goto(f'{WEB}/ar/pharmacy/request', wait_until='load', timeout=60000)
         page.get_by_label('اسم الدواء', exact=False).first.fill(name)
