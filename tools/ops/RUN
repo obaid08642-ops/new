@@ -1,3 +1,8 @@
-# 2026-10-15 reviewer: second try. Last run: cleanup freed 2 -> 5.7 GB and the backup was taken (328 MB), then the deploy stopped before any change: `docker commit` of patient-web failed (its image is gone from the host). The deploy now falls back to export+import for that rollback image (rehearsed: scenario 1 forces it and rolls back to it). Then deploy main@8c8c08ac.
+# 2026-10-15 reviewer: deploy main@ce53c57f (nginx resolve #1443, disk alert #1446, D-33 backups #1447, catalogue migration fix #1457). Build session rehearsal 38721153506 green on 41294fcf. 63 stops the run if an older deploy still runs; then free disk, upload release, R2 bucket + key, backups env + cron + monitor, deploy, verify a real backup to R2 and send one test alert mail.
+63-inspect-rollback
 59-free-disk
+release:ce53c57f79e7a59fac0aae8ed905cbceaf262cdd
+r2-backup-bucket
+61-backups-env
 60-deploy-main
+62-backups-verify
