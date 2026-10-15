@@ -173,6 +173,13 @@ def main():
         loaded = True
     except Exception as e:
         loaded = str(e)[:150]
+    if loaded is True:
+        # The load event can fire while the streamed page still shows its loading card (owner question 43): the
+        # page is usable once its content has arrived, which on 3G is a moment later.
+        try:
+            page.wait_for_function('() => document.body && document.body.innerText.trim().length > 200', timeout=30000)
+        except Exception:
+            pass
     elapsed = time.time() - t0
     body = page.evaluate('() => document.body ? document.body.innerText.slice(0, 4000) : ""')
     step('the page loads on 3G (slow, not blank)', loaded is True and len(body.strip()) > 200,
