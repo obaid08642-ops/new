@@ -3769,7 +3769,16 @@
     "aboutRulesUnavailable": "Hindi ma-load ngayon ang patakaran sa pagkansela at refund.",
     "ruleCancelFull": "Maaaring kanselahin ang appointment hanggang {hours} oras bago ito para sa buong refund.",
     "ruleRefundDays": "Darating ang refund sa loob ng {min} hanggang {max} araw ng trabaho.",
-    "ruleReturnDays": "Maaaring ibalik ang mga hindi nagamit na produkto sa loob ng {days} araw mula sa pagtanggap."
+    "ruleReturnDays": "Maaaring ibalik ang mga hindi nagamit na produkto sa loob ng {days} araw mula sa pagtanggap.",
+    "connectedAppsTitle": "Mga nakakonektang AI app",
+    "connectedAppsEmptyTitle": "Walang nakakonektang app",
+    "connectedAppsEmpty": "Wala ka pang ikinonektang AI assistant sa iyong account.",
+    "connectedAppsNote": "Ang nakakonektang assistant ay maaaring humiling, hindi magbayad: ikaw ang nagkukumpirma at nagbabayad ng bawat order o booking sa Nabd Plus.",
+    "connectedSince": "Nakakonekta mula {date}",
+    "disconnectApp": "Idiskonekta",
+    "disconnectFailed": "Hindi maidiskonekta. Pakisubukang muli.",
+    "rowConnectedApps": "Mga nakakonektang AI app",
+    "rowConnectedAppsSub": "Mga assistant na pinayagan mo sa iyong account"
   },
   "AccountWeb": {
     "profileTitle": "Aking account",

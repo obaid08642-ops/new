@@ -63,6 +63,7 @@ export const CLIENT_NAMESPACES = [
   "RxUpload",
   "Search",
   "SettingsWeb",
+  "AgentConsent",
   "ShareReport",
   "Shared",
   "SpecialtyNames",
