@@ -19,7 +19,7 @@
     "line": 63,
     "found": "The screen is the substitute-negotiation chat of one order (GET /pharmacy/chat/threads?order_id=); a thread exists only when a pharmacy proposes a substitute for an order line. The hub (pharmacy.tsx:63) and the product page (product-detail.tsx:686) open it without an orderId, so a patient who wants to ask a pharmacist a question always lands on 'Open the chat from an order'. The backend has no general pharmacist-consultation endpoint (no thread without an order). The screen now says this honestly and points to the orders list instead of an endless empty chat.",
     "suspect": "Owner decision: either remove the two entry points, or add a pharmacist-consultation chat on the backend (a thread not tied to an order). Both entry points are slice 1a files, so they were not changed here.",
-    "review_status": "open (issue #480)"
+    "review_status": "owner-decision (question 40 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2) (issue #480)"
   },
   {
     "batch": 1,
