@@ -41,7 +41,7 @@
     "line": 206,
     "found": "[owner] Opens the test search (lab-comparison needs a test); confirm that is the intended entry.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #625)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision B6), main already complies: (tabs)/diagnostics.tsx:208 Compare opens the test search (issue #625)"
   },
   {
     "batch": 3,
@@ -74,7 +74,7 @@
     "line": 90,
     "found": "[owner] Static medical text and a fixed step list, not from the booking; confirm the wording.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #628)"
+    "review_status": "owner-decision (decision B8: a doctor reviews the fixed preparation steps before launch (sample-tracking.tsx:90)) (issue #628)"
   },
   {
     "batch": 3,
@@ -85,7 +85,7 @@
     "line": 4,
     "found": "[owner] [screen is now a redirect; kept so issue indices stay stable] Static text; the old third tip (samples sent in cold containers) was dropped as an unverified claim.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #629)"
+    "review_status": "owner-decision (decision B8: a doctor reviews the collector tips (diag.tech.tips) before launch) (issue #629)"
   },
   {
     "batch": 3,
