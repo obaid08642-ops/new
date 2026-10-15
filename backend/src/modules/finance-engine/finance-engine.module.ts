@@ -55,6 +55,8 @@ const DEFAULTS = {
   payment_velocity_failed_1h: 5,
   coupon_abuse_failed_1h: 10,
 };
+/** Read-only view of the finance defaults for other modules (admin urgent-alert rule defaults). */
+export const FINANCE_DEFAULTS: Readonly<typeof DEFAULTS> = DEFAULTS;
 
 const round2 = (n: number) => Math.round((Number(n) || 0) * 100) / 100;
 

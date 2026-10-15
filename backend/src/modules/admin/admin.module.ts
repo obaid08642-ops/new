@@ -79,6 +79,8 @@ import { SystemConfigExtended, SystemConfigExtendedSchema } from './web-core/sch
 import { WithdrawalRequest, WithdrawalRequestSchema } from './web-core/schemas/withdrawal-request.schema';
 import { AuditIngestController } from './admin-audit-ingest.controller';
 import { OpsSecurityModule } from './ops-security/ops-security.module';
+import { AdminUrgentAlertsController } from './alerts/admin-urgent-alerts.controller';
+import { AdminUrgentAlertsService } from './alerts/admin-urgent-alerts.service';
 
 @Module({
   imports: [
@@ -159,7 +161,9 @@ import { OpsSecurityModule } from './ops-security/ops-security.module';
     AdminConfigController,
     WebCoreGovernanceController,
     AdminExtendedOperationsController,
-    AuditIngestController
+    AuditIngestController,
+    // #1235: urgent admin alerts (bell + inbox + rules)
+    AdminUrgentAlertsController,
 ],
   providers: [
     // P5.3: merged from AdminAuthorityModule
@@ -176,6 +180,7 @@ import { OpsSecurityModule } from './ops-security/ops-security.module';
     AdminGovernanceService,
     // P5.3: merged from AdminNotificationCenterModule
     AdminNotificationCenterService,
+    AdminUrgentAlertsService,
   ],
   exports: [
     AdminAuthorityService,
