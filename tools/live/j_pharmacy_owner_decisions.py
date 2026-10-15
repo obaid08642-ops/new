@@ -208,8 +208,10 @@ def main():
         page.wait_for_selector('[data-testid="checkout-rx-choose"]', timeout=30000)
         step('the checkout of an Rx cart without a picked prescription points to rx-order (no "active" one guessed)',
              page.locator('[data-testid="checkout-rx-choose"] a[href="/ar/pharmacy/rx-order"]').count() > 0, 'no choose link')
-        r = page.goto(f'{WEB}/ar/cart/checkout?prescriptionId={uuid.uuid4()}', wait_until='load', timeout=60000)
-        step('the checkout on a prescription that is not the patient\'s is not found', r is not None and r.status == 404, r and r.status)
+        # a streamed page answers 200 with the not-found screen, so the screen is what is checked
+        page.goto(f'{WEB}/ar/cart/checkout?prescriptionId={uuid.uuid4()}', wait_until='load', timeout=60000)
+        page.wait_for_selector('text=الصفحة غير متاحة', timeout=30000)
+        step('the checkout on a prescription that is not the patient\'s is not found (never another prescription)', True)
     except Exception as e:
         step('web cart flow', False, str(e)[:300])
 
