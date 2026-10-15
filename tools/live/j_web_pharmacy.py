@@ -1,6 +1,6 @@
 """Journey (patient-web in a real browser): pharmacy browse -> product -> cart, and the ways to ask the pharmacies for an
 item the catalogue does not have (journeys.json scenario 1 and 8, decisions 11 and 12).
-  Stack: backend :8002, admin BFF :3001 (for the admin API session), patient-web :3000 (tools/live/start-web.sh).
+  Stack: backend :8002, admin BFF :3001 (for the admin API session), patient-web :3100 (PATIENT_WEB_PORT=3100 tools/live/start-web.sh).
   A missing browser or a missing patient-web is a FAIL, never a PASS.
 """
 import os
@@ -10,7 +10,8 @@ import uuid
 
 from lib import Client, journey, step
 
-WEB = os.environ.get('NABD_PATIENT_WEB', 'http://127.0.0.1:3000')
+# The gate serves the website for the j_web_* journeys on :3100 (live-gate.yml, start-web.sh PATIENT_WEB_PORT).
+WEB = os.environ.get('NABD_WEB_JOURNEYS_URL', 'http://127.0.0.1:3100')
 anon = Client()
 
 
