@@ -4134,5 +4134,9 @@
     "title": "Offline ka",
     "body": "Hindi mabuksan ang pahinang ito nang walang koneksyon. Nakatago ang iyong cart sa device na ito; ipadala ang iyong request kapag may koneksyon na ulit.",
     "home": "Bumalik sa simula"
+  },
+  "Network": {
+    "offline": "Offline ka. Ipinapakita ng pahinang ito ang huling naka-save na kopya.",
+    "offlineLastUpdated": "Offline ka. Ipinapakita ng pahinang ito ang huling naka-save na kopya. Huling pagbabago: {time}"
   }
 }
