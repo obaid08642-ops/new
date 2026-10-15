@@ -1526,7 +1526,6 @@
     "attribute": "السمة",
     "active_ingredient": "المادة الفعالة",
     "price": "السعر",
-    "dosage_form": "الشكل الدوائي",
     "manufacturer": "الشركة المصنعة",
     "emptyBody": "اختر دواءين على الأقل من الكتالوج للمقارنة بينهما.",
     "browse": "تصفح الأدوية",
@@ -1534,7 +1533,9 @@
     "requires_prescription": "يتطلب وصفة",
     "online_exclusive": "أونلاين فقط",
     "yes": "نعم",
-    "no": "لا"
+    "no": "لا",
+    "form": "الشكل الدوائي",
+    "strength": "التركيز"
   },
   "PharmacyRequest": {
     "title": "اطلب دواءً بالاسم",
@@ -2090,7 +2091,8 @@
     "sortPriceAsc": "السعر: من الأقل",
     "sortPriceDesc": "السعر: من الأعلى",
     "sortNewest": "الأحدث",
-    "askPharmacies": "اطلبه من الصيدليات القريبة"
+    "askPharmacies": "اطلبه من الصيدليات القريبة",
+    "compareAlternatives": "قارن بالبدائل"
   },
   "PharmacyOffers": {
     "backToOrder": "العودة إلى الطلب",

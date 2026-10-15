@@ -1526,7 +1526,6 @@
     "attribute": "বৈশিষ্ট্য",
     "active_ingredient": "সক্রিয় উপাদান",
     "price": "মূল্য",
-    "dosage_form": "ডোজ ফর্ম",
     "manufacturer": "প্রস্তুতকারক",
     "emptyBody": "তুলনা করতে ক্যাটালগ থেকে কমপক্ষে দুটি ওষুধ নির্বাচন করুন।",
     "browse": "ওষুধ দেখুন",
@@ -1534,7 +1533,9 @@
     "requires_prescription": "প্রেসক্রিপশন প্রয়োজন",
     "online_exclusive": "শুধু অনলাইনে",
     "yes": "হ্যাঁ",
-    "no": "না"
+    "no": "না",
+    "form": "ডোজ ফর্ম",
+    "strength": "শক্তিমাত্রা"
   },
   "PharmacyRequest": {
     "title": "নাম দিয়ে ওষুধ চান",
@@ -2090,7 +2091,8 @@
     "sortPriceAsc": "দাম: কম থেকে বেশি",
     "sortPriceDesc": "দাম: বেশি থেকে কম",
     "sortNewest": "নতুনতম",
-    "askPharmacies": "কাছের ফার্মেসিগুলোর কাছে চান"
+    "askPharmacies": "কাছের ফার্মেসিগুলোর কাছে চান",
+    "compareAlternatives": "বিকল্পগুলোর সাথে তুলনা করুন"
   },
   "PharmacyOffers": {
     "backToOrder": "অর্ডারে ফিরুন",

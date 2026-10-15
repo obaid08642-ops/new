@@ -1526,7 +1526,6 @@
     "attribute": "Katangian",
     "active_ingredient": "Aktibong sangkap",
     "price": "Presyo",
-    "dosage_form": "Anyo ng dosis",
     "manufacturer": "Tagagawa",
     "emptyBody": "Pumili ng dalawa o higit pang gamot mula sa katalogo.",
     "browse": "Mag-browse",
@@ -1534,7 +1533,9 @@
     "requires_prescription": "Kailangan ng reseta",
     "online_exclusive": "Online lang",
     "yes": "Oo",
-    "no": "Hindi"
+    "no": "Hindi",
+    "form": "Anyo ng dosis",
+    "strength": "Lakas"
   },
   "PharmacyRequest": {
     "title": "Humingi ng gamot sa pangalan",
@@ -2090,7 +2091,8 @@
     "sortPriceAsc": "Presyo: mababa pataas",
     "sortPriceDesc": "Presyo: mataas pababa",
     "sortNewest": "Pinakabago",
-    "askPharmacies": "Hilingin sa mga kalapit na botika"
+    "askPharmacies": "Hilingin sa mga kalapit na botika",
+    "compareAlternatives": "Ihambing sa mga alternatibo"
   },
   "PharmacyOffers": {
     "backToOrder": "Bumalik sa order",

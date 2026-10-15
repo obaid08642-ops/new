@@ -1526,7 +1526,6 @@
     "attribute": "विशेषता",
     "active_ingredient": "सक्रिय घटक",
     "price": "कीमत",
-    "dosage_form": "खुराक रूप",
     "manufacturer": "निर्माता",
     "emptyBody": "तुलना के लिए कैटलॉग से कम से कम दो दवाएं चुनें।",
     "browse": "दवाएं देखें",
@@ -1534,7 +1533,9 @@
     "requires_prescription": "नुस्खा आवश्यक",
     "online_exclusive": "केवल ऑनलाइन",
     "yes": "हाँ",
-    "no": "नहीं"
+    "no": "नहीं",
+    "form": "खुराक रूप",
+    "strength": "शक्ति"
   },
   "PharmacyRequest": {
     "title": "दवा का नाम बताकर मँगवाएँ",
@@ -2090,7 +2091,8 @@
     "sortPriceAsc": "कीमत: कम से ज़्यादा",
     "sortPriceDesc": "कीमत: ज़्यादा से कम",
     "sortNewest": "सबसे नया",
-    "askPharmacies": "पास की फ़ार्मेसियों से माँगें"
+    "askPharmacies": "पास की फ़ार्मेसियों से माँगें",
+    "compareAlternatives": "विकल्पों से तुलना करें"
   },
   "PharmacyOffers": {
     "backToOrder": "ऑर्डर पर वापस",
