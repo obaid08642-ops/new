@@ -16,7 +16,7 @@ import { RedisService } from '../redis/redis.service';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
 import { AutoEntitySeoPipelineService } from '../events/auto-entity-seo-pipeline.service';
 import { localizeMedicineStructured, DbLang, missingPublicMedicineTranslations, PUBLIC_CATALOG_LOCALES } from './med-i18n';
-import { ProductRankingService } from '../product-ranking/product-ranking.service';
+import { normalizeRankingSort, ProductRankingService } from '../product-ranking/product-ranking.service';
 import { ManualBoostsService } from '../product-ranking/manual-boosts.service';
 import { escapeRegex } from '../../common/slug.util';
 
@@ -550,7 +550,8 @@ export class MedicinesService {
       const { drugIds } = await this.rankingService.getRankedDrugIds({
         pharmacyId,
         category: (category && category !== 'all') ? category : undefined,
-        sort: sort === 'trending' ? 'trending' : 'smart_ranking',
+        // P13-R9: every ranking mode is reachable from the storefront sort.
+        sort: normalizeRankingSort(sort),
         limit: cap,
       });
 
@@ -642,7 +643,8 @@ export class MedicinesService {
       const { drugIds, total } = await this.rankingService.getRankedDrugIds({
         pharmacyId,
         category: (category && category !== 'all') ? category : undefined,
-        sort: sort === 'trending' ? 'trending' : 'smart_ranking',
+        // P13-R9: every ranking mode is reachable from the storefront sort.
+        sort: normalizeRankingSort(sort),
         limit: safeLimit,
         offset,
       });

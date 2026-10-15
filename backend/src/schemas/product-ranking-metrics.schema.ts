@@ -45,6 +45,10 @@ export class ProductRankingMetrics {
   @Prop({ default: 0, index: true })
   trending_score!: number;
 
+  // P13-R9 "popular recently": 24h-half-life velocity (see ProductRankingService).
+  @Prop({ default: 0, index: true })
+  recent_score!: number;
+
   @Prop({ default: 'in_stock', index: true })
   availability_status!: string; // 'in_stock' | 'low_stock' | 'out_of_stock' | 'discontinued'
 
@@ -62,3 +66,7 @@ ProductRankingMetricsSchema.index({ drug_id: 1, pharmacy_id: 1 }, { unique: true
 ProductRankingMetricsSchema.index({ pharmacy_id: 1, composite_score: -1 });
 ProductRankingMetricsSchema.index({ pharmacy_id: 1, category: 1, composite_score: -1 });
 ProductRankingMetricsSchema.index({ pharmacy_id: 1, trending_score: -1 });
+ProductRankingMetricsSchema.index({ pharmacy_id: 1, recent_score: -1 });
+ProductRankingMetricsSchema.index({ pharmacy_id: 1, searches_count: -1 });
+ProductRankingMetricsSchema.index({ pharmacy_id: 1, cart_adds_count: -1 });
+ProductRankingMetricsSchema.index({ pharmacy_id: 1, conversion_rate: -1 });
