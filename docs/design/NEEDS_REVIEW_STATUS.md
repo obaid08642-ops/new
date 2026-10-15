@@ -8,7 +8,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| Patient app and web | 434 | 82 | 252 | 88 | 1 | 11 |
+| Patient app and web | 434 | 78 | 256 | 88 | 1 | 11 |
 | Other | 29 | 22 | 7 | 0 | 0 | 0 |
 | Admin | 97 | 8 | 56 | 33 | 0 | 0 |
 | Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
@@ -16,17 +16,17 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Patient journeys | 87 | 33 | 52 | 2 | 0 | 0 |
 | Provider app | 31 | 8 | 22 | 1 | 0 | 0 |
 | Provider journeys | 34 | 17 | 15 | 2 | 0 | 0 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| **Total** | **740** | **176** | **424** | **128** | **1** | **11** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| client | 169 | 51 | 90 | 28 | 0 | 0 |
-| owner | 100 | 21 | 34 | 42 | 1 | 2 |
+| client | 169 | 48 | 93 | 28 | 0 | 0 |
+| owner | 100 | 20 | 35 | 42 | 1 | 2 |
 | backend | 233 | 35 | 168 | 26 | 0 | 4 |
 | untagged | 238 | 73 | 128 | 32 | 0 | 5 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| **Total** | **740** | **176** | **424** | **128** | **1** | **11** |
 
 ## By file
 
@@ -56,8 +56,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `4-web.json` | 7 | 1 | 6 | 0 | 0 | 0 |
 | `5-app.json` | 18 | 2 | 10 | 6 | 0 | 0 |
 | `5-web.json` | 11 | 2 | 9 | 0 | 0 | 0 |
-| `6-app.json` | 10 | 3 | 3 | 4 | 0 | 0 |
-| `6-web.json` | 8 | 1 | 5 | 2 | 0 | 0 |
+| `6-app.json` | 10 | 1 | 5 | 4 | 0 | 0 |
+| `6-web.json` | 8 | 0 | 6 | 2 | 0 | 0 |
 | `7-app.json` | 14 | 2 | 5 | 7 | 0 | 0 |
 | `7-web.json` | 16 | 1 | 7 | 8 | 0 | 0 |
 | `8-app.json` | 9 | 2 | 7 | 0 | 0 | 0 |
@@ -79,7 +79,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1a-app.json` | 19 | 3 | 4 | 11 | 0 | 1 |
 | `batch-1a-web.json` | 12 | 4 | 6 | 2 | 0 | 0 |
 | `batch-1b-app.json` | 12 | 4 | 5 | 2 | 0 | 1 |
-| `batch-1b-web.json` | 13 | 3 | 6 | 4 | 0 | 0 |
+| `batch-1b-web.json` | 13 | 2 | 7 | 4 | 0 | 0 |
 | `batch-1c-app.json` | 12 | 0 | 10 | 1 | 0 | 1 |
 | `batch-1c-web.json` | 13 | 1 | 9 | 3 | 0 | 0 |
 | `batch-1d-app.json` | 20 | 2 | 11 | 7 | 0 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 7 | 0 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 6 | 7 | 0 | 0 | 0 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| **Total** | **740** | **176** | **424** | **128** | **1** | **11** |
 
 ## Owner decisions (1)
 
@@ -108,7 +108,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---:|---|---|---|
 | 1 | `13-web.json#13` `patient-web/lib/legal/embedded.ts:15` | /terms Embedded fallback text | [owner] The embedded copy (issue 755/783) is built from docs/legal, which are drafts with [placeholders] until a Saudi lawyer approves them, so it stays off today. After approval: update docs/legal, run node patient-web… |
 
-## Open and unverified (191)
+## Open and unverified (187)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -146,9 +146,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `5-web.json#6` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /health/vitals Today tab | [owner] Today shows the latest reading of each vital (summary endpoint), not only readings taken today. Confirm that is what Today means. |
 | `5-web.json#9` | client | open (issue #682) | /health Dead API helpers | [client] getPatientReports and parseReports (lib/api/reports*.ts, vitals-server.ts) have no screen left; kept with their tests for the reviewer to delete. |
 | `6-app.json#0` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /family/member-health Book on their behalf | [owner] Opens the consultations tab without the member: booking for a member is not wired (the booking flow takes no member); the permission 'booking' exists but nothing uses it. |
-| `6-app.json#4` | client | open (issue #688) | /family/calendar Date field | [client] Event date is typed as ISO text; a date and time picker in the shared kit would replace it (feature, not done here). |
-| `6-app.json#9` | client | open (issue #693) | /family/calendar Person with no family group | [client] Runtime check: the seeded patient has no group, so GET /family/calendar answers 404 and GET /family/chat/messages 403 (not_active_family_member); both screens show the ge… |
-| `6-web.json#0` | client | open (issue #694) | /family/add Scan QR tab | [client] The web has no camera scanner (the code or link is pasted), as before; the app scans. Not added: it is a feature, and the camera permission handling stays as it was. |
 | `7-app.json#1` | client | open (issue #820) | /insurance/copay Co-pay screen not merged | [client] Picks the newest COPAY_PENDING from /requests/my and posts the intent with no method; the request page reads one id and asks capabilities. Different payment paths, so kep… |
 | `7-app.json#13` | client | open (issue #832) | /insurance Other batches still say Nabd+ checks or retrieves insurance automati… | [client] Batch 14 text, not changed here: nur.book.insFetched, nur.book.inReviewBody, nur.book.insNote, diag.upload.readFailed, pharmacy.ins.processingTitle, consult.confirm.insur… |
 | `7-web.json#15` | client | open (issue #848) | /insurance Other batches still say Nabd+ checks or retrieves insurance automati… | [client] Batch 14 text, not changed here: NursingWeb.insuranceTitle, DiagWeb.insuranceSub, DiagWeb.insuranceHintLink, Diagnostics.insuranceNoticeSub, PharmacyCheckout.insuranceBod… |
@@ -209,7 +206,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1b-app.json#3` | untagged | open (issue #482) | /pharmacy/rx-order Checkout reads the prescription instead of the cart lines, a… | checkout.tsx:17 reads `prescriptionUrl` from useCart(), but CartContext has no such field (it belongs to DiagnosticsCartContext), so it is always undefined; line 21 `orderItems = … |
 | `batch-1b-app.json#6` | untagged | open (issue #485) | /pharmacy/scan-prescription Each OCR line without a medicine id is added to the… | POST /prescriptions/upload calls medicines.createManualEntry for every line the OCR could not match (is_manual_entry) with the patient's own text; the app sends the OCR result as … |
 | `batch-1b-web.json#2` | untagged | open (issue #493) | /pharmacy/rx-order Order from a prescription: the link to /cart/checkout?prescr… | The old rx-order page, the old scan page and the app's rx-order all hand the patient to checkout with ?prescriptionId=, but the web checkout ignores that parameter and builds its … |
-| `batch-1b-web.json#8` | owner | open (issue #499) | /pharmacy/barcode No camera scan on the web; typed barcodes only | The app scans with the camera; the web page only ever had a typed field, while its text said 'point the camera at the barcode'. The new screen does not promise a scan. A browser s… |
 | `batch-1b-web.json#10` | untagged | open (issue #501) | /pharmacy/request Dedicated BFF route app/api/patient/pharmacy/orders/route.ts | The old request form was the only caller of this handler besides slice 1d's pharmacy-broadcast-submit.tsx. It takes the first cookie of nabd_access / nabd_refresh / nabd_device th… |
 | `batch-1c-app.json#1` | untagged | closed-unverified (issue #506: closed with no linked PR) | /pharmacy/broadcast-status Delivery time ('يصل خلال') of an offer | patientDtoAsync sends approx_delivery { eta_minutes: 60, label_ar: 'خلال ساعة تقريباً', label_en: 'Approximately within 1 hour' } for every offer: a constant, not a pharmacy or ro… |
 | `batch-1c-web.json#12` | untagged | open (issue #529) | /orders/[orderId]/offers Filled icon `storefront` (hero and offer tile) | The glyph is on the board (FIcon.dc.html, used by PharmacyOffers) and in packages/ui/icons/fill.ts, but the web mirror carries only the glyphs the web names. Using it made tools/d… |

@@ -9,7 +9,7 @@
 """
 import os
 
-from lib import Client, journey, step
+from lib import Client, journey, step, web_login
 
 WEB = os.environ.get('NABD_WEB_JOURNEYS_URL', 'http://127.0.0.1:3100')
 
@@ -54,7 +54,7 @@ def main():
     try:
         journey('issue 694 on the web: the camera reads the invite QR and the person joins')
         page.goto(f'{WEB}/ar', wait_until='load', timeout=60000)
-        r = ctx.request.post(f'{WEB}/api/auth/login', data={'identifier': joiner_acct['email'], 'password': joiner_acct['password']})
+        r = web_login(ctx, WEB, joiner_acct['email'], joiner_acct['password'])
         step('the joiner signs in on the website', r.ok, f'{r.status}')
         page.goto(f'{WEB}/ar/family/add?tab=scan', wait_until='load', timeout=60000)
         page.get_by_role('button', name='امسح بالكاميرا').click(timeout=30000)
@@ -62,6 +62,8 @@ def main():
         step('the scan opens the join form with the code', f'code={code}' in page.url, page.url)
         field = page.locator('form input').first
         step('the code is filled in', field.input_value() == code, field.input_value())
+        # submit only once React has hydrated the form (a click before that is a plain HTML submit that sends nothing)
+        page.wait_for_function("() => { const f = document.querySelector('form'); return !!f && Object.keys(f).some((k) => k.startsWith('__react')); }", timeout=30000)
         page.locator('form button[type="submit"]').click()
         # the join form leaves the add page once the server has answered; poll the server for the result
         r = None
@@ -70,7 +72,8 @@ def main():
             if r.ok:
                 break
             page.wait_for_timeout(1000)
-        step('the joiner is now in the family', r is not None and r.ok, r)
+        alert = page.locator('[role="alert"]')
+        step('the joiner is now in the family', r is not None and r.ok, f"{r} / page says: {alert.first.inner_text() if alert.count() else ''}")
     except Exception as e:
         step('web scan flow', False, str(e)[:300])
     finally:
