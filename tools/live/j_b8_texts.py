@@ -32,11 +32,11 @@ def sleep_check(admin):
     tag = uuid.uuid4().hex[:6]
     ids = {}
     for name, tags in (('sleep', ['sleep']), ('heart', ['heart'])):
-        r = admin.post('/admin/articles', {'title_ar': f'مقال {name} {tag}', 'title_en': f'Article {name} {tag}', 'body_ar': 'نص', 'body_en': 'Text',
+        r = admin.post('/admin/admin/articles', {'title_ar': f'مقال {name} {tag}', 'title_en': f'Article {name} {tag}', 'body_ar': 'نص', 'body_en': 'Text',
                                            'category': 'wellness', 'tags': tags})
         ids[name] = r.get('id')
         step(f'admin writes the {name} article', r.ok and ids[name], r)
-        r = admin.post(f'/admin/articles/{ids[name]}/publish', {})
+        r = admin.post(f'/admin/admin/articles/{ids[name]}/publish', {})
         step(f'admin publishes the {name} article', r.ok, r)
     r = Client().get('/articles?tag=sleep&limit=50')
     rows = r.body if isinstance(r.body, list) else r.items()
