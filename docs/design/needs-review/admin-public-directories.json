@@ -41,7 +41,7 @@
     "line": 1,
     "found": "Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #983)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision A), main already complies: admin/src/pages/doctors is gone (issue #983)"
   },
   {
     "batch": "admin",
@@ -52,7 +52,7 @@
     "line": 20,
     "found": "Removed 2026-10-10 (owner decision): [client] fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/care/facilities\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty (backend: backend/src/modules/care/care.controller.ts:90)",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "not-a-problem: the public /facilities page was removed from the admin app 2026-10-10 (owner decision)"
   },
   {
     "batch": "admin",
@@ -63,7 +63,7 @@
     "line": 1,
     "found": "Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #985)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision A), main already complies: admin/src/pages/facilities is gone (issue #985)"
   },
   {
     "batch": "admin",
@@ -74,7 +74,7 @@
     "line": 20,
     "found": "Removed 2026-10-10 (owner decision): [client] fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/home-care/services\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty (backend: backend/src/modules/home-care/home-care-compat.module.ts:48)",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "not-a-problem: the public /home-care-services page was removed from the admin app 2026-10-10 (owner decision)"
   },
   {
     "batch": "admin",
@@ -85,7 +85,7 @@
     "line": 1,
     "found": "Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #987)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision A), main already complies: admin/src/pages/home-care-services is gone (issue #987)"
   },
   {
     "batch": "admin",
@@ -96,7 +96,7 @@
     "line": 1,
     "found": "Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #988)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision A), main already complies: admin/src/pages/index.tsx is gone (issue #988)"
   },
   {
     "batch": "admin",
@@ -107,7 +107,7 @@
     "line": 20,
     "found": "Removed 2026-10-10 (owner decision): [client] fetchDirectory() runs inside getServerSideProps with a RELATIVE url (\"/labs/services\"); Node fetch throws on a relative URL and the catch returns [], so the page always renders empty (backend: backend/src/modules/labs/labs.controller.ts:12)",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "not-a-problem: the public /lab-services page was removed from the admin app 2026-10-10 (owner decision)"
   },
   {
     "batch": "admin",
@@ -118,7 +118,7 @@
     "line": 1,
     "found": "Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #990)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision A), main already complies: admin/src/pages/lab-services is gone (issue #990)"
   },
   {
     "batch": "admin",
@@ -140,7 +140,7 @@
     "line": 1,
     "found": "Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #992)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision A), main already complies: admin/src/pages/medicines is gone (issue #992)"
   },
   {
     "batch": "admin",
@@ -151,6 +151,6 @@
     "line": 1,
     "found": "Removed 2026-10-10 (owner decision): [owner] Public site page hosted in the admin app (no admin guard: proxy.ts only forces login under /admin). Owner/reviewer decide whether public pages belong in patient-web instead.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #993)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision A), main already complies: admin/src/pages/s is gone (issue #993)"
   }
 ]

@@ -8,7 +8,7 @@
     "line": 79,
     "found": "Removed 2026-10-10 (owner decision): [backend] 3 call(s): Page requires \"catalog.read\" but PATCH /medicines/admin/catalog/:param requires catalog.update + catalog.price.write; an admin role with the page permission onl (backend: backend/src/modules/medicines/medicines.controller.ts:235)",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open"
+    "review_status": "fixed #1426"
   },
   {
     "batch": "admin",
@@ -173,7 +173,7 @@
     "line": 143,
     "found": "[backend] POST /medicines/lookup-barcode is @Public (no auth at all) but the admin page uses it for a write. (backend: backend/src/modules/medicines/medicines.controller.ts:56)",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open"
+    "review_status": "not-a-problem: POST /medicines/lookup-barcode is a read (the code travels in the body), public on purpose for the patient barcode scan; nothing is written"
   },
   {
     "batch": "admin",

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
 import { DataTable, type LooseRow } from '@/components/DataTable';
+import { useCan } from '@/components/AdminGuard';
 
 const DAY_AR: Record<string, string> = {
   SUN: 'الأحد', MON: 'الاثنين', TUE: 'الثلاثاء', WED: 'الأربعاء',
@@ -168,6 +169,8 @@ export default function ProviderFullDetail({ detail, accountId }: { detail: any;
   // B-4: each licence document is decided on its own (approve, or reject with a reason).
   const [docStatus, setDocStatus] = useState<Record<string, { status: string; note?: string }>>({});
   const [docBusy, setDocBusy] = useState<string | null>(null);
+  // Document decisions need facility.edit (provider admin controller).
+  const canReviewDocs = useCan('facility.edit');
   const reviewDoc = async (docId: string, decision: 'approve' | 'reject') => {
     if (!cid) return;
     let reason = '';
@@ -517,7 +520,7 @@ export default function ProviderFullDetail({ detail, accountId }: { detail: any;
                 </div>
                 <StorageFileLink id={doc.storage_object_id} label="عرض المستند" />
                 <ReviewBadge status={docStatus[doc.id]?.status || doc.review_status} />
-                {['pending', 'under_review', 'needs_replacement'].includes(String(docStatus[doc.id]?.status || doc.review_status)) && (
+                {canReviewDocs && ['pending', 'under_review', 'needs_replacement'].includes(String(docStatus[doc.id]?.status || doc.review_status)) && (
                   <div className="flex gap-2">
                     <button type="button" disabled={docBusy === doc.id} onClick={() => reviewDoc(doc.id, 'approve')}
                       className="px-3 py-1 rounded-md text-xs font-bold bg-emerald-600 text-white disabled:opacity-50">قبول</button>

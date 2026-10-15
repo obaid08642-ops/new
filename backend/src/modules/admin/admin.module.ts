@@ -79,11 +79,13 @@ import { Provider, ProviderSchema } from './web-core/schemas/provider.schema';
 import { SystemConfigExtended, SystemConfigExtendedSchema } from './web-core/schemas/system-config-extended.schema';
 import { WithdrawalRequest, WithdrawalRequestSchema } from './web-core/schemas/withdrawal-request.schema';
 import { AuditIngestController } from './admin-audit-ingest.controller';
+import { OpsSecurityModule } from './ops-security/ops-security.module';
 
 @Module({
   imports: [
     ImpersonationSecurityModule,
     MailModule,
+    OpsSecurityModule,
     SeoSearchModule,
     PresenceModule,
     BullModule.registerQueue({ name: 'notifications-delivery' }),

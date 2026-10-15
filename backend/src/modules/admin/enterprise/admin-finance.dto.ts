@@ -5,13 +5,14 @@ export class UpdateConfigDto {
   @IsString()
   reason?: string;
 
+  // free-form: { <service type>: percent 0-90 }; keys and ranges are checked in FinanceSuiteService.upsertCommissionConfig
   @IsOptional()
   @IsObject()
-  rates?: Record<string, number>;
+  percents?: Record<string, number>;
 
   @IsOptional()
   @IsNumber()
-  vat_rate?: number;
+  vat_percent?: number;
 }
 
 export class ApprovePayoutDto {
