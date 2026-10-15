@@ -91,7 +91,7 @@ export class OpsController {
     // Request pipelines by status (all-time counts + today's creations + late)
     const sinceToday = new Date(`${day}T00:00:00.000Z`);
     const lateBefore = new Date(Date.now() - 24 * 3600 * 1000);
-    // field: the lifecycle field of that collection (bookings and emergencies use `state`).
+    // field: the lifecycle field of that collection (bookings use `state`).
     // "late" = older than 24h and not in a final state (open states differ per domain and casing).
     const FINAL = ['completed', 'COMPLETED', 'cancelled', 'CANCELLED', 'delivered', 'DELIVERED', 'rejected', 'REJECTED',
       'resolved', 'RESOLVED', 'REPORTED', 'REPORT_READY', 'refunded', 'REFUNDED', 'expired', 'EXPIRED', 'false_alarm'];
@@ -110,9 +110,8 @@ export class OpsController {
     };
     // Canonical collections only: the legacy `orders` / `pharmacyorders` names are empty since the
     // pharmacy flow moved to `pharmacy_orders`, which made the live board show 0 orders.
-    const [appointments, emergency, procurement, pharmacyOrders, labs, radiology, nursing] = await Promise.all([
+    const [appointments, procurement, pharmacyOrders, labs, radiology, nursing] = await Promise.all([
       group('appointments'),
-      group('emergency_requests', FINAL, 'state'),
       group('procurementrequests'),
       group('pharmacy_orders'),
       group('labbookings', FINAL, 'state'),
@@ -137,7 +136,7 @@ export class OpsController {
       },
       top_endpoints: topEndpoints,
       top_failing: topFailing,
-      pipelines: { orders: pharmacyOrders, pharmacy_orders: pharmacyOrders, appointments, emergency, procurement, labs, radiology, nursing },
+      pipelines: { orders: pharmacyOrders, pharmacy_orders: pharmacyOrders, appointments, procurement, labs, radiology, nursing },
       recent_activity: activity,
     };
   }
@@ -170,7 +169,6 @@ export class OpsController {
     const groups: Record<string, () => Promise<any[]>> = {
       orders: () => fetch('orders', 'orders', 'طلبات الصيدلية', ['pending', 'processing', 'created'], ['delivered', 'completed', 'DELIVERED'], ['cancelled', 'CANCELLED', 'failed']),
       appointments: () => fetch('appointments', 'appointments', 'المواعيد', ['PENDING', 'CONFIRMED', 'pending'], ['COMPLETED', 'completed'], ['CANCELLED', 'cancelled', 'NO_SHOW']),
-      emergency: () => fetch('emergency_requests', 'emergency', 'الطوارئ SOS', ['pending', 'dispatched', 'accepted'], ['completed', 'resolved', 'arrived'], ['cancelled', 'false_alarm']),
       procurement: () => fetch('procurementrequests', 'procurement', 'طلبات المستودعات', ['PENDING_ADMIN_REVIEW', 'QUOTATION_ISSUED'], ['COMPLETED', 'APPROVED_BY_PHARMACY'], ['CANCELLED']),
     };
     const keys = kind && groups[kind] ? [kind] : Object.keys(groups);

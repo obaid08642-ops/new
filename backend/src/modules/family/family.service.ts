@@ -51,6 +51,20 @@ function canonicalPermissions(permissions: string[]): string[] {
   return out;
 }
 
+/** Journeys 68: a member's doses of the last seven days, newest first, with the taken and missed counts. */
+export function doseWeek(log: unknown, now = Date.now()): { doses: Array<{ at: string; status: string; time_key?: string }>; taken_7d: number; missed_7d: number } {
+  const since = now - 7 * 24 * 60 * 60 * 1000;
+  const doses = (Array.isArray(log) ? log : [])
+    .map((e: any) => ({ at: new Date(e?.at), status: String(e?.status || ''), time_key: typeof e?.time_key === 'string' ? e.time_key : undefined }))
+    .filter((e) => !Number.isNaN(e.at.getTime()) && e.at.getTime() >= since && ['taken', 'skipped', 'missed'].includes(e.status))
+    .sort((a, b) => b.at.getTime() - a.at.getTime());
+  return {
+    doses: doses.slice(0, 30).map((e) => ({ at: e.at.toISOString(), status: e.status, ...(e.time_key ? { time_key: e.time_key } : {}) })),
+    taken_7d: doses.filter((e) => e.status === 'taken').length,
+    missed_7d: doses.filter((e) => e.status === 'missed').length,
+  };
+}
+
 @Injectable()
 export class FamilyService {
   constructor(
@@ -101,9 +115,15 @@ export class FamilyService {
   }
 
   async getMyGroup(userId: string) {
-    const group = await this.findGroupByOwnerOrMember(userId);
+    const group: any = await this.findGroupByOwnerOrMember(userId);
     if (!group) throw new NotFoundException('No family group found');
-    return group;
+    // journeys 67: what the viewer may do for the others (the website's "for whom" on a new reminder reads it)
+    const plain = typeof group.toObject === 'function' ? group.toObject() : group;
+    const mine = (plain.members || []).find((m: any) => m.user_id === userId);
+    const isOwner = plain.owner_id === userId;
+    const permissions: string[] = isOwner ? ['*'] : (Array.isArray(mine?.permissions) ? mine.permissions : []);
+    const manageMeds = isOwner || permissions.some((p) => p === '*' || p === 'meds' || p === 'view_health');
+    return { ...plain, viewer: { user_id: userId, is_owner: isOwner, can_manage_meds: manageMeds } };
   }
 
   async generateInvite(userId: string) {
@@ -250,8 +270,11 @@ export class FamilyService {
     if (can('meds')) {
       jobs.push(Promise.all([
         this.connection.db.collection('medicationreminders')
-          .find({ patient_id: targetMemberId, active: true }, { projection: { _id: 0, id: 1, medicine_name_ar: 1, medicine_name_en: 1, dose: 1, frequency: 1, times: 1 } })
-          .sort({ createdAt: -1 }).limit(30).toArray().catch(() => []),
+          .find({ patient_id: targetMemberId, active: true }, { projection: { _id: 0, id: 1, medicine_name_ar: 1, medicine_name_en: 1, dose: 1, frequency: 1, times: 1, chronic: 1, log: 1 } })
+          .sort({ createdAt: -1 }).limit(30).toArray()
+          // journeys 68: the doses of the last seven days (taken, skipped, missed) instead of the full log
+          .then((rows: any[]) => rows.map(({ log, ...r }) => ({ ...r, ...doseWeek(log) })))
+          .catch(() => []),
         this.connection.db.collection('prescriptions')
           .find({ patient_id: targetMemberId, state: { $nin: ['DISPENSED', 'ARCHIVED'] } }, { projection: { _id: 0, id: 1, items: 1, state: 1, createdAt: 1, doctor_name: 1 } })
           .sort({ createdAt: -1 }).limit(30).toArray().catch(() => []),

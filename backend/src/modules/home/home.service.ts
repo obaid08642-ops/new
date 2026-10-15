@@ -203,6 +203,8 @@ export class HomeService {
         ic: 'pill', c: '#FF4B55', cs: '#FFEBEC',
         price: m.price != null ? String(m.price) : null,
         priceEn: m.price != null ? String(m.price) : null,
+        requires_prescription: m.requires_prescription === true,
+        online_exclusive: m.online_exclusive === true,
       });
     }
 

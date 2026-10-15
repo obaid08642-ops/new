@@ -86,7 +86,16 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
   return (
     <ConsultPage locale={locale} title={name} backHref={`/${locale}/consultations/doctors`}>
       <JsonLd data={[physician({ name, path: `/consultations/doctors/${doctor.id}`, locale, specialty: doctor.specialty ?? null }), breadcrumbList([{ name: t("title"), locale, path: "/consultations/doctors" }, { name, locale, path: `/consultations/doctors/${doctor.id}` }])]} />
-      <ProfileHeader line={[doctor.degree, specialtyLabel(names, doctor.specialty)].filter(Boolean).join(" · ") || undefined} tags={tags} stats={stats} />
+      <ProfileHeader photoSrc={doctor.photo} photoAlt={doctor.photo ? t("doctorPhotoAlt", { name }) : undefined} line={[doctor.degree, specialtyLabel(names, doctor.specialty)].filter(Boolean).join(" · ") || undefined} tags={tags} stats={stats} />
+      {doctor.clinicPhotos?.length ? (
+        <SectionCard id="clinic-photos-title" title={t("clinicPhotosTitle")}>
+          <ul className={styles.gallery}>
+            {doctor.clinicPhotos.map((src, index) => (
+              <li key={src}><img src={src} alt={t("clinicPhotoAlt", { n: index + 1 })} className={styles.galleryImg} loading="lazy" /></li>
+            ))}
+          </ul>
+        </SectionCard>
+      ) : null}
       <SectionCard id="slots-title" title={t("slotsTitle")}>
         <LinkSegmented
           label={t("serviceTypeLabel")}

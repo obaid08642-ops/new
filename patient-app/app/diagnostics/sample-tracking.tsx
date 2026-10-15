@@ -15,12 +15,17 @@ import { recordOf } from '../../src/utils/labMappers';
 type Rec = Record<string, unknown>;
 const str = (v: unknown): string => (typeof v === 'string' || typeof v === 'number' ? String(v) : '');
 
-// What a sample goes through when the server sent no steps of its own: the first is done (the order was received), the second when a technician is assigned.
-const DEFAULT_STEPS = ['diag.track.step1', 'diag.track.step2', 'diag.track.step3', 'diag.track.step4', 'diag.track.step5', 'diag.track.step6'];
+/** The catalogue language a test's preparation is written in, for the app language (tl is Filipino's catalogue code). */
+const PREP_LANG: Record<string, string> = { ar: 'ar', en: 'en', ur: 'ur', hi: 'hi', bn: 'bn', fil: 'tl', tl: 'tl' };
+const FINAL_STATES = new Set(['REPORTED', 'CANCELLED', 'SAMPLE_REJECTED']);
 
-/** Tracking of a lab sample (board OrderTracking): the status, the time, the technician block (arrival, who, call, tips) for a home collection, the preparation note and the steps. Also the old technician-tracking screen. Refreshes every 15 seconds. */
+/**
+ * Tracking of a lab sample (board OrderTracking): the status, the time, the technician block (arrival, who, call) for a
+ * home collection, each test's preparation from the catalogue and the booking's real status timeline (decision B8:
+ * no fixed medical text). Also the old technician-tracking screen. Refreshes every 15 seconds.
+ */
 export default function SampleTrackingScreen() {
-  const { t, c, k, num, flow } = useScreenUi();
+  const { t, c, k, num, flow, lang } = useScreenUi();
   const fmt = useConsultFormat();
   const { bookingId } = useLocalSearchParams<{ bookingId?: string }>();
   const [status, setStatus] = useState<GateStatus>('loading');
@@ -60,15 +65,27 @@ export default function SampleTrackingScreen() {
     };
   }, [bookingId, fetchTracking]);
 
-  const serverSteps = Array.isArray(tracking?.steps) ? (tracking?.steps as unknown[]) : null;
-  const raw: Array<{ key: string; title: string; time: string; done: boolean }> = serverSteps
-    ? serverSteps.map((s, i) => {
-        const r = (s && typeof s === 'object' ? s : {}) as Rec;
-        return { key: String(i), title: str(r.title), time: str(r.time), done: Boolean(r.done) };
-      })
-    : DEFAULT_STEPS.map((key, i) => ({ key, title: k(key), time: '', done: i === 0 || (i === 1 && Boolean(tracking?.techName)) }));
-  const firstTodo = raw.findIndex((s) => !s.done);
-  const steps: TimelineStep[] = raw.map((s, i) => ({ key: s.key, title: s.title, time: s.time || undefined, state: s.done ? 'done' : i === firstTodo ? 'current' : 'todo' }));
+  // The steps are the states the booking really went through, named like the status pill, with their time.
+  const timeline = (Array.isArray(tracking?.timeline) ? (tracking?.timeline as unknown[]) : []).flatMap((s, i) => {
+    const r = (s && typeof s === 'object' ? s : {}) as Rec;
+    return str(r.state) ? [{ key: `${i}-${str(r.state)}`, state: str(r.state), at: str(r.at) }] : [];
+  });
+  const lastIndex = timeline.length - 1;
+  const steps: TimelineStep[] = timeline.map((s, i) => ({
+    key: s.key,
+    title: k(diagStatus('lab', s.state).key),
+    time: s.at ? fmt.dateTime(s.at) : undefined,
+    state: i < lastIndex || FINAL_STATES.has(s.state) ? 'done' : 'current',
+  }));
+  // Each test's own preparation, in the app language; none written -> the lab confirms it with the patient.
+  const prepLang = PREP_LANG[lang] ?? 'en';
+  const preparation = (Array.isArray(tracking?.preparation) ? (tracking?.preparation as unknown[]) : []).flatMap((p) => {
+    const r = (p && typeof p === 'object' ? p : {}) as Rec;
+    const texts = r.texts && typeof r.texts === 'object' ? (r.texts as Record<string, unknown>)[prepLang] : null;
+    const lines = Array.isArray(texts) ? texts.filter((x): x is string => typeof x === 'string' && x.trim().length > 0) : [];
+    const name = str(lang === 'ar' ? r.name_ar || r.name_en : r.name_en || r.name_ar);
+    return lines.length ? [{ key: str(r.service_id) || name, name, lines }] : [];
+  });
   const st = diagStatus('lab', booking?.state);
   const eta = tracking?.eta !== undefined && tracking?.eta !== null && tracking?.eta !== '' ? Number(tracking.eta) : null;
   const techName = str(tracking?.techName);
@@ -98,17 +115,29 @@ export default function SampleTrackingScreen() {
                 <PersonRow icon="user-circle" tone={CARE_TONE} title={techName} line={k('diag.tech.role')} actionIcon={phone ? 'headset' : undefined} actionLabel={k('diag.order.call')} onAction={() => void Linking.openURL(`tel:${phone}`)} />
               ) : null}
             </Block>
-            <Block gap={8}>
-              <Text accessibilityRole="header" style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{k('diag.tech.tipsTitle')}</Text>
-              <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, ...flow }}>{k('diag.tech.tips')}</Text>
-            </Block>
           </>
         ) : null}
-        <Notice tone="info" text={k('diag.track.prep')} />
-        <Block gap={14}>
-          <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>{k('diag.track.stages')}</Text>
-          <Timeline steps={steps} />
-        </Block>
+        {preparation.length ? (
+          <Block gap={8}>
+            <Text accessibilityRole="header" style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{k('diag.track.prepTitle')}</Text>
+            {preparation.map((p) => (
+              <View key={p.key} style={{ gap: 4 }}>
+                {p.name ? <Text style={{ ...scale(t, 'small', 'medium'), color: c.text.primary, ...flow }}>{p.name}</Text> : null}
+                {p.lines.map((line, i) => (
+                  <Text key={i} style={{ ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, ...flow }}>{`• ${line}`}</Text>
+                ))}
+              </View>
+            ))}
+          </Block>
+        ) : (
+          <Notice tone="info" text={k('diag.track.prepAsk')} />
+        )}
+        {steps.length ? (
+          <Block gap={14}>
+            <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>{k('diag.track.stages')}</Text>
+            <Timeline steps={steps} />
+          </Block>
+        ) : null}
       </Gate>
     </ConsultScreen>
   );

@@ -4,7 +4,6 @@ import { buildFinalQuoteAcceptanceRequest } from "@/lib/api/pharmacy-actions";
 import { quoteToAccept, type PatientPharmacyOrderProgress, type PatientPharmacyQuote } from "@/lib/api/pharmacy-offers";
 import { pharmacyDisplayName } from "@/lib/pharmacy/order-view";
 import { formatMoney } from "./format";
-import { OnlinePaymentActions } from "./payment-actions";
 import { QuoteActions } from "./quote-actions";
 import styles from "./offers.module.css";
 
@@ -33,7 +32,7 @@ type Props = {
   locale: string;
   orderId: string;
   progress: PatientPharmacyOrderProgress;
-  /** `offers` is the order's offers page (it also draws the online payment methods); `final` is the final-price screen. */
+  /** `offers` is the order's offers page; `final` is the final-price screen. Both send the patient to the one payment page. */
   screen: "offers" | "final";
 };
 
@@ -85,12 +84,11 @@ export async function QuoteSection({ locale, orderId, progress, screen }: Props)
           <QuoteActions orderId={orderId} canAccept={false} canRegisterCod afterCod={screen === "final" ? "tracking" : "refresh"} />
         </section>
       ) : null}
+      {/* journeys#7: one payment step (the Nabd Plus payment page, which states the amount and the methods). */}
       {state === "FINAL_QUOTE_ACCEPTED" ? (
-        screen === "offers" ? <OnlinePaymentActions orderId={orderId} /> : (
-          <Link href={`/${locale}/pharmacy/payment?orderId=${encodeURIComponent(orderId)}`} className={`nabd-button nabd-button--primary nabd-button--lg nabd-button--full ${styles.linkButton}`}>
-            <span className="nabd-button__label">{t("continuePayment")}</span>
-          </Link>
-        )
+        <Link href={`/${locale}/pharmacy/payment?orderId=${encodeURIComponent(orderId)}`} className={`nabd-button nabd-button--primary nabd-button--lg nabd-button--full ${styles.linkButton}`}>
+          <span className="nabd-button__label">{t("continuePayment")}</span>
+        </Link>
       ) : null}
       {state === "COD_REGISTERED" ? (
         <Link href={trackingHref} className={`nabd-button nabd-button--primary nabd-button--lg nabd-button--full ${styles.linkButton}`}>

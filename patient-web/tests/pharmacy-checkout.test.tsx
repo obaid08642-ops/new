@@ -291,7 +291,12 @@ describe("where an order belongs, from the states the backend really produces", 
     expect(to({ governedState: "IN_FULFILLMENT" })).toBe(`/en/orders/${ORDER}/tracking`);
   });
 
-  it("before a selection the server sends no governed state: the order's status decides (OFFERS_READY never comes)", () => {
+  it("before a selection the order detail says ORDER_BROADCASTING / OFFERS_READY (Q-3): the patient is still choosing", () => {
+    expect(to({ governedState: "OFFERS_READY", status: "broadcasting" })).toBe(`/en/pharmacy/broadcast-status?orderId=${ORDER}`);
+    expect(to({ governedState: "ORDER_BROADCASTING", status: "broadcasting" })).toBe(`/en/pharmacy/broadcast-status?orderId=${ORDER}`);
+  });
+
+  it("without a governed state the order's status decides", () => {
     expect(to({ status: "broadcasting" })).toBe(`/en/pharmacy/broadcast-status?orderId=${ORDER}`);
     expect(to({ status: "offer_selection_pending" })).toBe(`/en/pharmacy/broadcast-status?orderId=${ORDER}`);
     expect(to({ status: "negotiating_substitutes" })).toBe(`/en/pharmacy/broadcast-status?orderId=${ORDER}`);
@@ -550,6 +555,12 @@ describe("small readers", () => {
     expect(activePrescriptionId({ data: [{ id: TXN }] })).toBe(TXN);
     expect(activePrescriptionId([])).toBeNull();
     expect(activePrescriptionId(null)).toBeNull();
+  });
+
+  it("decision 18: the prescription the cart lines came from wins while it is active, never one that is not", () => {
+    const other = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
+    expect(activePrescriptionId([{ id: TXN }, { id: other }], other)).toBe(other);
+    expect(activePrescriptionId([{ id: TXN }], other)).toBe(TXN);
   });
 
   it("the insurance row shows who insures the patient and the class, never a number", () => {

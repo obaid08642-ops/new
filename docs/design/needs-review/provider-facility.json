@@ -74,6 +74,6 @@
     "line": 54,
     "found": "[client] The tariffs form starts from fixed numbers (ICU daily and hourly, ward, surgery room, emergency fee) instead of the facility's saved tariffs; saving the sheet sends them as the facility's prices (POST /provider/settings/delta). Found by the fix session.",
     "suspect": "Invented starting prices: read the saved tariffs first.",
-    "review_status": "open"
+    "review_status": "fixed #1504"
   }
 ]
