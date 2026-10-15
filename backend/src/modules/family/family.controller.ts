@@ -30,10 +30,15 @@ export class FamilyController {
     return this.familyService.getMyGroup(this.authenticatedUserId(req));
   }
 
-  /** Contract invitation never exposes invite_code in the HTTP response. */
+  /**
+   * With a channel (sms/email) the invite is sent there and the code is not in the answer. Without one (issue 694: the apps'
+   * "invite code" tab and its QR), the group owner gets the group's own code, valid 24 hours (generateInvite: owner only).
+   */
   @Post('invite')
   invite(@Req() req: any, @Body() body: InviteDto) {
-    return this.familyService.sendInvite(this.authenticatedUserId(req), body?.channel, body?.target);
+    const userId = this.authenticatedUserId(req);
+    if (!body?.channel) return this.familyService.generateInvite(userId);
+    return this.familyService.sendInvite(userId, body.channel, body.target as string);
   }
 
   @Post('join')

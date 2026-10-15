@@ -341,9 +341,14 @@ export class AppointmentsService {
     return !!linked;
   }
 
-  private async assertAppointmentAccess(appt: any, user: any): Promise<void> {
+  /**
+   * `booker`: the family member who booked and paid for someone else (684) may also read the booking, preview its
+   * refund and cancel it; never join the call, read the medical summary or move its state.
+   */
+  private async assertAppointmentAccess(appt: any, user: any, opts: { booker?: boolean } = {}): Promise<void> {
     if (user?.role === UserRole.ADMIN || user?.role === UserRole.SUPER_ADMIN) return;
     if (appt.patient_id === user?.id) return;
+    if (opts.booker && appt.booked_by_user_id && appt.booked_by_user_id === user?.id) return;
     if (await this.isDoctorOwner(appt, user)) return;
     if (await this.isFacilityOwner(appt, user)) return;
     throw new ForbiddenException();
@@ -394,7 +399,7 @@ export class AppointmentsService {
     const appt = await this.apptModel.findOne({ id }, { _id: 0, __v: 0 });
     if (!appt) throw new NotFoundException();
     // Authorization: patient owner OR the doctor's provider identity OR admin.
-    await this.assertAppointmentAccess(appt, user);
+    await this.assertAppointmentAccess(appt, user, { booker: true });
 
     const obj: any = appt.toObject();
     
@@ -486,7 +491,7 @@ export class AppointmentsService {
   async cancel(id: string, user: any, reason?: string, isNoShow: boolean = false) {
     const appt = await this.apptModel.findOne({ id });
     if (!appt) throw new NotFoundException();
-    await this.assertAppointmentAccess(appt, user);
+    await this.assertAppointmentAccess(appt, user, { booker: true });
 
     const { refundPercentage, refundDestination, penaltyAmount } = await this.calculateRefund(appt, user, reason, isNoShow);
 
@@ -517,7 +522,7 @@ export class AppointmentsService {
   async previewRefund(id: string, user: any): Promise<{ refund_percentage: number; refund_destination: string; penalty_amount: number; estimated_amount: number }> {
     const appt = await this.apptModel.findOne({ id });
     if (!appt) throw new NotFoundException();
-    await this.assertAppointmentAccess(appt, user);
+    await this.assertAppointmentAccess(appt, user, { booker: true });
     const { refundPercentage, refundDestination, penaltyAmount } = await this.calculateRefund(appt, user);
     const estimatedAmount = Math.round((Number(appt.total_price || 0) * refundPercentage) / 100);
     return { refund_percentage: refundPercentage, refund_destination: refundDestination, penalty_amount: penaltyAmount, estimated_amount: estimatedAmount };
