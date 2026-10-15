@@ -3068,7 +3068,13 @@
     "setupFailed": "The profile could not be saved.",
     "connectionFailed": "Could not connect. Please try again.",
     "setupNotice": "Tracking is educational. It does not replace medical advice and is not contraception.",
-    "saveProfile": "Save profile"
+    "saveProfile": "Save profile",
+    "weekTitle": "Your baby this week",
+    "weekImageAlt": "Your baby at week {week}",
+    "weekEmpty": "This week's content isn't available yet.",
+    "weekUnavailable": "This week's content could not be loaded.",
+    "readThisWeek": "Read this week",
+    "readEmpty": "No articles for this week yet."
   },
   "NutritionWeb": {
     "title": "Nutrition",
