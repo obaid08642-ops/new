@@ -15,7 +15,9 @@ The doctor is not a website user, so the doctor's side is a minimal page that ru
 (patient-web/node_modules) with the token the backend issues to the doctor.
 """
 import datetime
+import http.server
 import os
+import threading
 import time
 import urllib.request
 
@@ -26,7 +28,7 @@ WEB = os.environ.get('NABD_WEB_JOURNEYS_URL', 'http://127.0.0.1:3100')
 LIVEKIT_WS = os.environ.get('NABD_LIVEKIT_URL') or f"ws://127.0.0.1:{os.environ.get('LIVEKIT_PORT', '7880')}"
 LIVEKIT_HTTP = LIVEKIT_WS.replace('wss://', 'https://').replace('ws://', 'http://')
 LIVEKIT_UMD = os.path.join(ROOT, 'patient-web', 'node_modules', 'livekit-client', 'dist', 'livekit-client.umd.js')
-DOCTOR_PAGE = 'http://127.0.0.1:7999/doctor-call'   # served by the browser route below, never by a server
+DOCTOR_PAGE = 'http://127.0.0.1:7999/doctor-call'   # an empty page served by doctor_page_server()
 MEDIA_FLAGS = ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream']
 QUARTER = datetime.timedelta(minutes=15)
 
@@ -129,9 +131,29 @@ PATIENT_TRACK_MUTED = """([source, muted]) => {
 PLAYING = """(sel) => [...document.querySelectorAll(sel)].some((v) => v.srcObject && v.srcObject.getVideoTracks().length > 0 && v.videoWidth > 0)"""
 
 
+class _DoctorPage(http.server.BaseHTTPRequestHandler):
+    def log_message(self, *args):
+        pass
+
+    def do_GET(self):
+        body = b'<!doctype html><meta charset="utf-8"><title>doctor</title>'
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/html; charset=utf-8')
+        self.send_header('Content-Length', str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+
+def doctor_page_server():
+    """A real loopback server for the doctor's page. A page fulfilled by a browser route lives in the 'unknown' address
+    space, and Chromium's local-network checks then refuse its requests to the loopback LiveKit."""
+    srv = http.server.ThreadingHTTPServer(('127.0.0.1', 7999), _DoctorPage)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    return srv
+
+
 def doctor_page(browser):
     ctx = browser.new_context(permissions=['camera', 'microphone'])
-    ctx.route(DOCTOR_PAGE, lambda route: route.fulfill(status=200, content_type='text/html', body='<!doctype html><meta charset="utf-8"><title>doctor</title>'))
     page = ctx.new_page()
     page.goto(DOCTOR_PAGE)
     page.add_script_tag(path=LIVEKIT_UMD)
@@ -187,13 +209,14 @@ def main():
         return step('web call', False, f'no chromium: {e}')
     ctx = browser.new_context(locale='ar-SA', viewport={'width': 390, 'height': 844}, permissions=['camera', 'microphone'])
     page = ctx.new_page()
+    doc_srv = doctor_page_server()
     try:
         r = web_login(ctx, WEB, s['acct']['email'], s['acct']['password'])
         step('the patient signs in on the website', r.ok, f'{r.status} {r.text()[:200]}')
         doc_ctx, doc_page = doctor_page(browser)
         step("the doctor's page loads livekit-client", doc_page.evaluate('() => typeof window.LivekitClient?.Room') == 'function', '')
     except Exception as e:
-        browser.close(); pw.stop()
+        browser.close(); pw.stop(); doc_srv.shutdown()
         return step('web call', False, f'patient-web not running at {WEB}, or no livekit-client build: {e}')
 
     journey('web call 1: the doctor calls from the provider app, the patient answers in the website call room')
@@ -245,6 +268,7 @@ def main():
     doc_ctx.close()
     browser.close()
     pw.stop()
+    doc_srv.shutdown()
 
 
 if __name__ == '__main__':

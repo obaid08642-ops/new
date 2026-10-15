@@ -8,8 +8,10 @@
 #   LIVEKIT_CACHE_DIR  cache directory (default: ${XDG_CACHE_HOME:-~/.cache}/nabd-livekit/<version>)
 #   LIVEKIT_TARBALL    use this already-downloaded release tarball instead of downloading (checked the same way)
 set -euo pipefail
-VERSION="1.8.4"
-SHA256="b660f4a72fe493e7c2a27861c403fba3d8c8fec4ce5e223515b26850c24d2dae"   # livekit_1.8.4_linux_amd64.tar.gz
+VERSION="1.10.1"
+SHA256="e0305fb755667cbbcc352c3be12f8eff8da3a8a843b4fc711b5151e284f545f9"   # livekit_1.10.1_linux_amd64.tar.gz
+# 1.10 serves the /rtc/v1 signal path that livekit-client 2.22 uses by default (one peer connection). 1.8.4 answered
+# 404 there: the client fell back to the old path and then re-connected every ~15 s ("unsupported datachannel").
 URL="https://github.com/livekit/livekit/releases/download/v${VERSION}/livekit_${VERSION}_linux_amd64.tar.gz"
 PORT="${LIVEKIT_PORT:-7880}"
 LOG="${LIVEKIT_LOG:-/tmp/livekit.log}"
