@@ -8,7 +8,7 @@
     "line": 273,
     "found": "Runtime probe on the seeded backend (2026-10-06): POST /pharmacy/chat/threads/:id/messages, /accept-substitute/:msgId, /reject and /remove-item answer 403 {\"message\":\"Insufficient role\"} for the seeded patient and for a guest, even for a thread id that does not exist (the role guard runs first). The four routes carry @Roles(UserRole.PHARMACY, UserRole.ADMIN), while PharmacyChatService.postMessage / acceptSubstitute / rejectOrRemove check patient ownership (`t.patient_account_id !== user.id`) and are written for the patient. The app screen calls all four as the patient, so every patient action in the substitute negotiation fails. The screen shows the translated 'could not record your decision, the price and the payment did not change' notice; nothing is faked.",
     "suspect": "The role decorators on the patient actions are wrong (or a patient route is missing): the patient needs to post messages and accept, reject or remove. Backend fix for the reviewer; the app calls will work unchanged once the guard allows the patient.",
-    "review_status": "owner-decision (question 30): the patient's four actions are allowed (pharmacy.controllers.ts:352-360, #1222), but no route opens a negotiation thread (openOrGetThread has no caller) and the provider app has no chat (issue #479, reopened)"
+    "review_status": "owner-decision (question 30): the patient's four actions are allowed (pharmacy.controllers.ts:352-360, #1222), but no route opens a negotiation thread (openOrGetThread has no caller), so the patient's and the provider app's chat screens (PharmacyDashboard.tsx:1050) stay empty (issue #479, reopened)"
   },
   {
     "batch": 1,
