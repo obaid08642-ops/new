@@ -144,7 +144,8 @@ async function main() {
     report.insurance = { json: items.length, companies: c.t, networks: { existing: nexist, inserted: nins, would_insert: nwould } };
   }
   const conflicts = ['labs', 'radiology', 'nursing'].reduce((n, k) => n + report[k].conflict, 0) + report.insurance.companies.conflict;
-  console.log(JSON.stringify({ dry_run: DRY, conflicts, ...report }, null, 2));
+  // one line: the deploy log keeps the last lines of the output and its public log shows one-line JSON counts
+  console.log(JSON.stringify({ dry_run: DRY, conflicts, ...report }));
   await mongoose.disconnect();
 }
 

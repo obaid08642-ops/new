@@ -31,8 +31,8 @@ function run(...args: string[]) {
     encoding: 'utf8',
   });
   const out = `${r.stdout}${r.stderr}`;
-  const json = out.slice(out.indexOf('{\n'));
-  return { status: r.status, out, report: JSON.parse(json.slice(0, json.lastIndexOf('}') + 1)) };
+  const line = out.split('\n').find((l) => l.startsWith('{"dry_run"'));
+  return { status: r.status, out, report: line ? JSON.parse(line) : null };
 }
 
 const withoutCodes = labs.find((x) => x.id && !x.short_code)!; // the item production failed on
