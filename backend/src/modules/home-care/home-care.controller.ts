@@ -9,7 +9,7 @@ import { HomeCareBooking, NursingBookingState, HomeCareService, NurseProvider } 
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { HomeCareSvc } from './home-care.service';
 import { UserRole } from '../../common/enums';
-import { CreateNoteDto, CreateBookingDto, ArriveAtPatientDto, TriggerEmergencyDto, CompleteVisitDto} from './home-care.dto';
+import { CreateNoteDto, CreateBookingDto, ArriveAtPatientDto, TriggerEmergencyDto, CompleteVisitDto, VisitPositionDto } from './home-care.dto';
 import { CreateHomeCareCatalogDto, UpdateHomeCareCatalogDto, ApproveCatalogDto, BulkApproveCatalogDto } from './home-care.dto';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
@@ -264,6 +264,22 @@ export class NursingController {
     return { success: true, state: b.state };
   }
 
+  /**
+   * provider-journeys#25: the live position during the trip, in the same visit family as transit/arrive (the field
+   * screen used the older /home-care/bookings/:id/gps). Stored where the patient's tracking reads it (gps_tracking).
+   */
+  @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
+  @Post('visits/:id/position')
+  async updatePosition(@Param('id') id: string, @Body() body: VisitPositionDto, @CurrentUser() user: any) {
+    const b: any = await this.findVisit(id);
+    this.assertProviderMutation(b, user);
+    if (![NursingBookingState.IN_TRANSIT, NursingBookingState.ARRIVED].includes(b.state)) throw new BadRequestException('visit_not_in_transit');
+    b.gps_tracking = { ...(b.gps_tracking || {}), current_lat: body.lat, current_lng: body.lng, last_updated: new Date() };
+    b.markModified('gps_tracking');
+    await b.save();
+    return { ok: true };
+  }
+
   @Roles(UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Post('visits/:id/arrive')
   async arriveAtPatient(@Param('id') id: string, @Body() body: ArriveAtPatientDto, @CurrentUser() user: any) {
@@ -370,6 +386,8 @@ export class NursingController {
     if (b.state !== NursingBookingState.CARE_IN_PROGRESS) throw new BadRequestException('Invalid state transition');
     const from = b.state;
     const { vitals, clinical_notes, recommendations, signature_base64 } = body;
+    // provider-journeys#13: the patient's signature closes the visit (the field screen requires it; so does the server).
+    if (!(typeof signature_base64 === 'string' && signature_base64.trim())) throw new BadRequestException('patient_signature_required');
     
     b.state = NursingBookingState.COMPLETED;
     b.timers.completed_at = new Date();

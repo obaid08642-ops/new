@@ -13,7 +13,6 @@ const SEGMENTS = [  { value: 'all', label: 'جميع المستخدمين' },
   { value: 'role:radiology', label: 'مراكز الأشعة' },
   { value: 'role:nurse', label: 'التمريض' },
   { value: 'role:hospital', label: 'المستشفيات والعيادات' },
-  { value: 'role:ambulance', label: 'الإسعاف' },
   { value: 'role:driver', label: 'السائقون' },
 ];
 

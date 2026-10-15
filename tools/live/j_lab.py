@@ -113,6 +113,14 @@ def run(pat, lab, other_lab=None, admin=None):
     r = pat.get(f'/labs/bookings/{bid}')
     b = r.body.get('data', r.body) if isinstance(r.body, dict) else {}
     step('booking is REPORTED with a report attached', r.ok and b.get('state') == 'REPORTED' and len(b.get('reports') or []) == 1, b.get('state'))
+    rep = (b.get('reports') or [{}])[0] if isinstance(b, dict) else {}
+    step('the booking lists the report by id without its file (no base64 in the booking)', rep.get('id') and rep.get('has_file') is True and 'base64' not in rep, rep)
+    # app order detail "PDF" and the website booking page "Open the report" (journeys#54)
+    r = pat.get(f"/labs/bookings/{bid}/reports/{rep.get('id')}")
+    step('the patient opens the report file (a PDF)', r.ok and 'pdf' in (r.headers.get('Content-Type') or r.headers.get('content-type') or '') and str(r.body).startswith('%PDF'), f"{r.status} {r.headers.get('Content-Type')}")
+    if other_lab:
+        r = other_lab.get(f"/labs/bookings/{bid}/reports/{rep.get('id')}")
+        step('another lab cannot open the report', r.status == 404, r.status)
     r = pat.get('/labs/bookings/mine')
     step('my results lists it', r.ok and bid in str(r.body), r.status)
     r = pat.post('/patient-ux/review', {'booking_kind': 'lab', 'booking_id': bid, 'rating': 5, 'comment': 'نتائج سريعة', 'aspects': {}, 'anonymous': False})

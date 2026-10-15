@@ -159,7 +159,7 @@ export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { orde
         const perm = await requestForegroundPermissionsAsync();
         if (perm.status !== 'granted') return;
         const pos = await getCurrentPositionAsync({});
-        await client.post(`/home-care/bookings/${visitId}/gps`, { lat: pos.coords.latitude, lng: pos.coords.longitude });
+        await client.post(`/nursing/visits/${visitId}/position`, { lat: pos.coords.latitude, lng: pos.coords.longitude });
       } catch { /* the next tick tries again */ }
     }, 5000);
     return () => clearInterval(timer);
