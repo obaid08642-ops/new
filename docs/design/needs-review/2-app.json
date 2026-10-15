@@ -118,7 +118,7 @@
     "line": 356,
     "found": "[backend] Done on the client: the filters call GET /care/doctors (Q-12/Q-13). Backend limits: sort=distance with only a city needs the signed-in user's city (the client sends city as a filter instead), and available_within does not combine with a distance order (the order is by next slot).",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open"
+    "review_status": "fixed #1513"
   },
   {
     "batch": 2,

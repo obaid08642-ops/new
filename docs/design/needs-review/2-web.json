@@ -118,7 +118,7 @@
     "line": 72,
     "found": "[backend] GET /care/doctors orders available_within results by next slot and ignores sort=distance, so with both on the position is not sent (the city filter still is); a combined 'nearest free doctor' needs the server to accept both. (backend: backend/src/modules/care/care.service.ts:115)",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open"
+    "review_status": "fixed #1513"
   },
   {
     "batch": 2,

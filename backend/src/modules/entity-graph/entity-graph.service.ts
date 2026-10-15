@@ -273,7 +273,33 @@ export class EntityGraphService implements OnModuleInit {
     });
 
     if (!facility) {
-      throw new NotFoundException(`Facility '${identifier}' not found`);
+      // 12-web#12: a hospital or clinic registered through the provider app is a provider profile, not a seeded facility;
+      // the map links it by its profile id, so its page is answered from the public profile (same entity shape).
+      const profile: any = await this.connection.collection('provider_profiles').findOne({
+        ...PUBLIC_TYPED_PROVIDER, type: { $in: ['hospital', 'clinic'] }, $or: [{ id: identifier }, { slug: identifier }],
+      });
+      if (!profile) throw new NotFoundException(`Facility '${identifier}' not found`);
+      const doctors = await this.connection.collection('provider_profiles')
+        .find({ ...PUBLIC_DOCTOR, facility_id: profile.id })
+        .project({ id: 1, slug: 1, name_ar: 1, name_en: 1, specialty: 1, rating: 1 })
+        .limit(10)
+        .toArray();
+      return {
+        entity_type: 'facility',
+        entity_id: identifier,
+        entity: {
+          id: profile.id,
+          slug: profile.slug,
+          name_ar: profile.display_name_ar || profile.name_ar,
+          name_en: profile.display_name_en || profile.name_en,
+          type: profile.type,
+          city: profile.city,
+          district: profile.district,
+          phone: null, // a provider profile publishes no phone number
+          accepted_insurance: Array.isArray(profile.accepted_insurance) ? profile.accepted_insurance : [],
+        },
+        relationships: { doctors, departments: Array.isArray(profile.departments) ? profile.departments : [] },
+      };
     }
 
     // Find doctors practicing at this facility

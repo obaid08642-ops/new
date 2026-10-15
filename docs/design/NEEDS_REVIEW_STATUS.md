@@ -8,25 +8,25 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| Patient app and web | 434 | 15 | 310 | 97 | 12 | 0 |
-| Other | 29 | 2 | 26 | 1 | 0 | 0 |
+| Patient app and web | 434 | 9 | 317 | 97 | 11 | 0 |
+| Other | 29 | 9 | 19 | 1 | 0 | 0 |
 | Admin | 99 | 3 | 62 | 34 | 0 | 0 |
 | Admin journeys | 20 | 1 | 17 | 2 | 0 | 0 |
 | Final pass | 8 | 0 | 2 | 6 | 0 | 0 |
 | Patient journeys | 87 | 2 | 81 | 2 | 2 | 0 |
 | Provider app | 31 | 0 | 27 | 4 | 0 | 0 |
 | Provider journeys | 34 | 1 | 30 | 2 | 1 | 0 |
-| **Total** | **742** | **24** | **555** | **148** | **15** | **0** |
+| **Total** | **742** | **25** | **555** | **148** | **14** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| client | 169 | 8 | 119 | 39 | 3 | 0 |
-| owner | 100 | 5 | 48 | 42 | 5 | 0 |
-| backend | 235 | 6 | 199 | 30 | 0 | 0 |
-| untagged | 238 | 5 | 189 | 37 | 7 | 0 |
-| **Total** | **742** | **24** | **555** | **148** | **15** | **0** |
+| client | 169 | 5 | 122 | 39 | 3 | 0 |
+| owner | 100 | 8 | 45 | 42 | 5 | 0 |
+| backend | 235 | 7 | 198 | 30 | 0 | 0 |
+| untagged | 238 | 5 | 190 | 37 | 6 | 0 |
+| **Total** | **742** | **25** | **555** | **148** | **14** | **0** |
 
 ## By file
 
@@ -35,11 +35,11 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `1-cart-app.json` | 1 | 0 | 1 | 0 | 0 | 0 |
 | `1-cart-web.json` | 4 | 0 | 4 | 0 | 0 | 0 |
 | `10-app.json` | 3 | 0 | 3 | 0 | 0 | 0 |
-| `10-web.json` | 4 | 1 | 3 | 0 | 0 | 0 |
+| `10-web.json` | 4 | 0 | 4 | 0 | 0 | 0 |
 | `11-app.json` | 5 | 0 | 3 | 2 | 0 | 0 |
 | `11-web.json` | 4 | 0 | 3 | 1 | 0 | 0 |
 | `12-app.json` | 17 | 0 | 12 | 5 | 0 | 0 |
-| `12-web.json` | 13 | 1 | 10 | 2 | 0 | 0 |
+| `12-web.json` | 13 | 0 | 11 | 2 | 0 | 0 |
 | `13-app.json` | 3 | 0 | 1 | 2 | 0 | 0 |
 | `13-web.json` | 14 | 0 | 13 | 0 | 1 | 0 |
 | `14a-app.json` | 6 | 0 | 5 | 1 | 0 | 0 |
@@ -48,14 +48,14 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `14b-web.json` | 4 | 0 | 3 | 1 | 0 | 0 |
 | `1e-app.json` | 6 | 0 | 4 | 2 | 0 | 0 |
 | `1e-web.json` | 10 | 0 | 8 | 1 | 1 | 0 |
-| `2-app.json` | 17 | 2 | 11 | 4 | 0 | 0 |
-| `2-web.json` | 14 | 3 | 9 | 2 | 0 | 0 |
+| `2-app.json` | 17 | 1 | 12 | 4 | 0 | 0 |
+| `2-web.json` | 14 | 2 | 10 | 2 | 0 | 0 |
 | `3-app.json` | 10 | 1 | 8 | 1 | 0 | 0 |
 | `3-web.json` | 8 | 1 | 6 | 1 | 0 | 0 |
-| `4-app.json` | 8 | 1 | 5 | 1 | 1 | 0 |
+| `4-app.json` | 8 | 0 | 6 | 1 | 1 | 0 |
 | `4-web.json` | 7 | 0 | 7 | 0 | 0 | 0 |
 | `5-app.json` | 18 | 0 | 11 | 7 | 0 | 0 |
-| `5-web.json` | 11 | 1 | 10 | 0 | 0 | 0 |
+| `5-web.json` | 11 | 0 | 11 | 0 | 0 | 0 |
 | `6-app.json` | 10 | 0 | 6 | 4 | 0 | 0 |
 | `6-web.json` | 8 | 0 | 6 | 2 | 0 | 0 |
 | `7-app.json` | 14 | 0 | 7 | 7 | 0 | 0 |
@@ -75,7 +75,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `admin-system.json` | 13 | 2 | 8 | 3 | 0 | 0 |
 | `batch-0-app.json` | 13 | 0 | 13 | 0 | 0 | 0 |
 | `batch-0-runtime.json` | 8 | 2 | 4 | 2 | 0 | 0 |
-| `batch-0-web.json` | 19 | 0 | 17 | 1 | 1 | 0 |
+| `batch-0-web.json` | 19 | 0 | 18 | 1 | 0 | 0 |
 | `batch-1a-app.json` | 19 | 1 | 5 | 11 | 2 | 0 |
 | `batch-1a-web.json` | 12 | 0 | 8 | 4 | 0 | 0 |
 | `batch-1b-app.json` | 12 | 0 | 6 | 3 | 3 | 0 |
@@ -96,48 +96,41 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `provider-pharmacy.json` | 2 | 0 | 1 | 1 | 0 | 0 |
 | `provider-radiology.json` | 1 | 0 | 1 | 0 | 0 | 0 |
 | `provider-shared.json` | 6 | 0 | 6 | 0 | 0 | 0 |
-| `rx-rules-app.json` | 6 | 0 | 6 | 0 | 0 | 0 |
-| `rx-rules-web.json` | 7 | 0 | 7 | 0 | 0 | 0 |
+| `rx-rules-app.json` | 6 | 1 | 5 | 0 | 0 | 0 |
+| `rx-rules-web.json` | 7 | 6 | 1 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 0 | 12 | 1 | 0 | 0 |
-| **Total** | **742** | **24** | **555** | **148** | **15** | **0** |
+| **Total** | **742** | **25** | **555** | **148** | **14** | **0** |
 
-## Owner decisions (15)
+## Owner decisions (14)
 
 | # | Where | Screen / element | Question |
 |---:|---|---|---|
 | 1 | `13-web.json#13` `patient-web/lib/legal/embedded.ts:15` | /terms Embedded fallback text | [owner] The embedded copy (issue 755/783) is built from docs/legal, which are drafts with [placeholders] until a Saudi lawyer approves them, so it stays off today. After approval: update docs/legal, run node patient-web… |
 | 2 | `1e-web.json#9` `patient-web/components-next/orders/center-rows.ts:79` | /orders Insurance claims and returns | [client] The app's order center also lists insurance claims and pharmacy returns; the web list has the five services of issue 378 only (claims and returns have their own pages). Needs an owner decision to merge them. |
 | 3 | `4-app.json#1` `patient-app/app/nursing/nurse-profile.tsx:247` | /nursing/nurse-profile Transport choice | [client] The choice is not part of the POST /nursing/bookings payload; it only changes the tracking wording. The invented '(0 SAR)' price on the second option was removed. |
-| 4 | `batch-0-web.json#7` `patient-web/next.config.ts:35` | /onboarding Whole screen (entry and outcome) | No link in the web points to /onboarding (grep over app, components-next, lib); /welcome is reached only from the login back button and the onboarding screens; finishing onboarding stores nothing (no flag, no API call). |
-| 5 | `batch-1a-app.json#7` `patient-app/app/pharmacy/product-detail.tsx:0` | /pharmacy/product-detail Delivery / pickup choice with "within [time]" (hidden) | The board draws a delivery or pickup segmented control with expected times. The cart item (src/context/CartContext.tsx) carries no delivery mode and the pharmacy draft is built later from the offers, and the medicine ro… |
-| 6 | `batch-1a-app.json#18` `patient-app/src/i18n/locales/en.json:0` | /pharmacy Six-language strings | 177 pharmacy.* keys were added to patient-app/src/i18n/locales/{ar,en,ur,hi,bn,tl}.json. The English, Urdu, Hindi, Bengali and Filipino text was written by the design session (and, for reused phrases, taken from the phr… |
-| 7 | `batch-1b-app.json#0` `backend/src/modules/pharmacy/pharmacy.controllers.ts:273` | /pharmacy/pharmacist-chat Send a message, accept the substitute, reject it, ask… | Runtime probe on the seeded backend (2026-10-06): POST /pharmacy/chat/threads/:id/messages, /accept-substitute/:msgId, /reject and /remove-item answer 403 {"message":"Insufficient role"} for the seeded patient and for a… |
-| 8 | `batch-1b-app.json#1` `patient-app/app/(tabs)/pharmacy.tsx:63` | /pharmacy/pharmacist-chat Hub tile 'Pharmacist consult' and product page 'Ask a… | The screen is the substitute-negotiation chat of one order (GET /pharmacy/chat/threads?order_id=); a thread exists only when a pharmacy proposes a substitute for an order line. The hub (pharmacy.tsx:63) and the product … |
-| 9 | `batch-1b-app.json#2` `patient-app/src/context/CartContext.tsx:2` | /pharmacy/cart Price per line, 'Total', 'Delivery', points toggle, 'Deliver to'… | The board Cart draws a unit price per line, an estimated total in the footer, a totals card (subtotal, delivery, points discount), a 'use your points' switch and a delivery address row. CartContext is a local staging li… |
-| 10 | `batch-1b-web.json#8` `patient-web/components-next/pharmacy/barcode-screen.tsx:33` | /pharmacy/barcode No camera scan on the web; typed barcodes only | The app scans with the camera; the web page only ever had a typed field, while its text said 'point the camera at the barcode'. The new screen does not promise a scan. A browser scan would need the BarcodeDetector API (… |
-| 11 | `batch-1d-app.json#18` `docs/design/canvas/Success.dc.html:1` | /payments/result Success board colours and confetti not drawn | The Success board is a dark full-bleed page with lime (#D7FF00) and confetti colours that are not tokens. |
-| 12 | `batch-1d-web.json#1` `backend/src/modules/payments/payments.module.ts:154` | /pharmacy/payment Payment provider not exercised | No gateway key on the local backend (intent answers 503) and no Mongo replica set (selection / insurance acceptance fail). Hosted checkout, return and webhook were checked only against a TEST stand-in outside the repo (… |
-| 13 | `journeys.json#22` `patient-app/app/pharmacy/cart.tsx:75` | 2 cart with Rx item | Web and app differ: the web cart goes straight to checkout and uses the "active" prescription, the app cart goes to rx-order to pick a prescription first. |
-| 14 | `journeys.json#34` `patient-web/app/[locale]/prescriptions/[prescriptionId]/page.tsx:97` | 3 prescription -> cart | Web "اطلب الأدوية دي" on the prescription page opens rx-order and broadcasts directly; decision 18 says it fills the cart (the app does). |
-| 15 | `provider-journeys.json#5` `provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:538` | PharmacyDashboard hand over / delivery | [client] The prescription dispensing path is a "disabled" notice and the old order detail and broadcast screens are defined but never rendered (dead code). |
+| 4 | `batch-1a-app.json#7` `patient-app/app/pharmacy/product-detail.tsx:0` | /pharmacy/product-detail Delivery / pickup choice with "within [time]" (hidden) | The board draws a delivery or pickup segmented control with expected times. The cart item (src/context/CartContext.tsx) carries no delivery mode and the pharmacy draft is built later from the offers, and the medicine ro… |
+| 5 | `batch-1a-app.json#18` `patient-app/src/i18n/locales/en.json:0` | /pharmacy Six-language strings | 177 pharmacy.* keys were added to patient-app/src/i18n/locales/{ar,en,ur,hi,bn,tl}.json. The English, Urdu, Hindi, Bengali and Filipino text was written by the design session (and, for reused phrases, taken from the phr… |
+| 6 | `batch-1b-app.json#0` `backend/src/modules/pharmacy/pharmacy.controllers.ts:273` | /pharmacy/pharmacist-chat Send a message, accept the substitute, reject it, ask… | Runtime probe on the seeded backend (2026-10-06): POST /pharmacy/chat/threads/:id/messages, /accept-substitute/:msgId, /reject and /remove-item answer 403 {"message":"Insufficient role"} for the seeded patient and for a… |
+| 7 | `batch-1b-app.json#1` `patient-app/app/(tabs)/pharmacy.tsx:63` | /pharmacy/pharmacist-chat Hub tile 'Pharmacist consult' and product page 'Ask a… | The screen is the substitute-negotiation chat of one order (GET /pharmacy/chat/threads?order_id=); a thread exists only when a pharmacy proposes a substitute for an order line. The hub (pharmacy.tsx:63) and the product … |
+| 8 | `batch-1b-app.json#2` `patient-app/src/context/CartContext.tsx:2` | /pharmacy/cart Price per line, 'Total', 'Delivery', points toggle, 'Deliver to'… | The board Cart draws a unit price per line, an estimated total in the footer, a totals card (subtotal, delivery, points discount), a 'use your points' switch and a delivery address row. CartContext is a local staging li… |
+| 9 | `batch-1b-web.json#8` `patient-web/components-next/pharmacy/barcode-screen.tsx:33` | /pharmacy/barcode No camera scan on the web; typed barcodes only | The app scans with the camera; the web page only ever had a typed field, while its text said 'point the camera at the barcode'. The new screen does not promise a scan. A browser scan would need the BarcodeDetector API (… |
+| 10 | `batch-1d-app.json#18` `docs/design/canvas/Success.dc.html:1` | /payments/result Success board colours and confetti not drawn | The Success board is a dark full-bleed page with lime (#D7FF00) and confetti colours that are not tokens. |
+| 11 | `batch-1d-web.json#1` `backend/src/modules/payments/payments.module.ts:154` | /pharmacy/payment Payment provider not exercised | No gateway key on the local backend (intent answers 503) and no Mongo replica set (selection / insurance acceptance fail). Hosted checkout, return and webhook were checked only against a TEST stand-in outside the repo (… |
+| 12 | `journeys.json#22` `patient-app/app/pharmacy/cart.tsx:75` | 2 cart with Rx item | Web and app differ: the web cart goes straight to checkout and uses the "active" prescription, the app cart goes to rx-order to pick a prescription first. |
+| 13 | `journeys.json#34` `patient-web/app/[locale]/prescriptions/[prescriptionId]/page.tsx:97` | 3 prescription -> cart | Web "اطلب الأدوية دي" on the prescription page opens rx-order and broadcasts directly; decision 18 says it fills the cart (the app does). |
+| 14 | `provider-journeys.json#5` `provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:538` | PharmacyDashboard hand over / delivery | [client] The prescription dispensing path is a "disabled" notice and the old order detail and broadcast screens are defined but never rendered (dead code). |
 
-## Open and unverified (24)
+## Open and unverified (25)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
-| `10-web.json#2` | client | open (issue #742) | /articles/[slug] Article body | [client] The page shows the summary and a notice that the full text is not available here; the body is HTML and the parser drops it on purpose. Decide how to show it safely (sanit… |
-| `12-web.json#12` | backend | open | /map Hospital card link | [backend] GET /providers/map ids are provider-profile ids; /facility/[id] reads the facilities collection (entity-graph getRelatedFacility). The link works only where the two ids … |
 | `14b-app.json#4` | owner | open (decided 2026-10-15, reviewer for the owner: preparati… | /diagnostics/sample-tracking Static preparation and visit tips (items 628 / 629) | [owner] needs medical review before launch: diag.track.prep (fasting 8 to 12 hours) and diag.tech.tips are fixed texts for every package; owner approved them on condition of a med… |
 | `2-app.json#3` | backend | open (issue #385) | /consultations/home-visit-tracking Doctor on the way, map | [backend] Fixed on design/backend-fields: the step "Doctor on the way" follows EN_ROUTE / ARRIVED (Q-15); there is still no doctor position, so no map is drawn. |
-| `2-app.json#10` | backend | open | /consultations Nearest and Available now filters | [backend] Done on the client: the filters call GET /care/doctors (Q-12/Q-13). Backend limits: sort=distance with only a city needs the signed-in user's city (the client sends city… |
 | `2-web.json#9` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /consultations/virtual-waiting-room Connected call screens | [owner] The video call, waiting room and room screens were only seen in their error and not-ready states here (no media backend in the check); the connected layout is not verified. |
-| `2-web.json#10` | backend | open | /consultations/doctors Nearest with Available now | [backend] GET /care/doctors orders available_within results by next slot and ignores sort=distance, so with both on the position is not sent (the city filter still is); a combined… |
 | `2-web.json#12` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /consultations/doctors Cash-only filter | [owner] The server has accepts_insurance only: 'Cash only' means doctors who do NOT accept insurance (accepts_insurance=false), not 'any doctor, paid in cash'. A patient who pays … |
 | `3-app.json#0` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /diagnostics Payment filter (cash / insurance) drawn on ServiceHub | [owner] The board has it; no field says which test or lab takes insurance, so it is not drawn. |
 | `3-web.json#3` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /diagnostics labs carousel, cash filter, add toggle | [owner] board elements with no endpoint on the hub (no lab list, no cash flag, the cart is page based) |
-| `4-app.json#3` | client | open (issue #643) | /nursing/service-details Injection policy check | [client] Decided by service ids and Arabic words in the title; a title in another language skips the prescription dialog. |
-| `5-web.json#9` | client | open (issue #682) | /health Dead API helpers | [client] getPatientReports and parseReports (lib/api/reports*.ts, vitals-server.ts) have no screen left; kept with their tests for the reviewer to delete. |
 | `ac-1-agent-oauth.json#0` | client | open | /oauth/authorize AI assistant consent page | [client] Functional consent page (client name, scopes, 'you confirm and pay on Nabd Plus', allow / don't allow) built on the auth layout with translations in six languages; it has… |
 | `admin-journeys.json#18` | client | open (issue #955) | /admin/config-portal Journey 4 / Emergency maintenance switch is disabled and t… | [client] The 'Trigger System Kill-Switch' button is permanently disabled ('requires server set-up'), although the handler at line 183 and PUT /admin/governance/trigger-emergency-m… |
 | `admin-ops-monitoring.json#14` | backend | open (issue #1235) | /admin/today Urgent alerts: inbox, push, alert rules | [backend] The screen shows what the existing endpoints can say (SLA breaches, stuck orders, failed payments). There is no admin notification inbox or bell, no push to the admin's … |
@@ -149,4 +142,11 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `journeys.json#9` | untagged | open (issue #1018) | 1 checkout | Checkout offers "دفع مباشر" vs "عبر التأمين" as a toggle per order; decision 30 wants insurance or self-pay chosen at the start of the service and the app checkout has no insuranc… |
 | `journeys.json#24` | untagged | open (issue #1033) | 2 insurance on offers | Insurance is only choosable per offer (coverage radio shown if insuranceReady) for the Rx and manual flows, contrary to decision 30 (choose first). |
 | `provider-journeys.json#22` | client | open | PharmacyDashboard prepare | [client] Insurance decision is a header shield icon on Orders and a row in More (opens the queue); an insurance order card has no inline decision button because the allocation lis… |
+| `rx-rules-app.json#4` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /pharmacy/cart Suggested specialty needs the admin mapping | [owner] Consult a doctor opens the mapped specialty only when the admin has filled system_configs rx_consult_specialties (category to specialty); until then the answer is null and… |
+| `rx-rules-web.json#1` | backend | open | /c/[[...category]] Online-only note on a card and in search results | [backend] The public card answers (category items and product search) send is_rx but no online_exclusive; add it next to is_rx in the card DTOs. (backend: backend/src/modules/seo-… |
+| `rx-rules-web.json#2` | backend | open | /c/[[...category]] Old price and discount sent for a prescription item | [backend] The public product DTO sends old_price, discount_percent and has_discount for an Rx item (the admin catalogue lists withhold them); the client hides them with canShowPro… |
+| `rx-rules-web.json#3` | backend | open | /wishlist Online-only chip on a wishlist row | [backend] GET /users/me/wishlist sends requires_prescription but not online_exclusive. (backend: backend/src/modules/users/users.service.ts:50) |
+| `rx-rules-web.json#4` | backend | open | /search Needs-a-prescription and online-only on a medicine result | [backend] GET /home/search medicine rows carry id, names, price only: no requires_prescription or online_exclusive. (backend: backend/src/modules/home/home.service.ts:203) |
+| `rx-rules-web.json#5` | owner | open | /cart Online-only note on a cart line | [owner] Fixed on design/rx-rules: stored on the line when added. Web add paths that cannot know it: the public product page, the product cards and the reorder picker (their answer… |
+| `rx-rules-web.json#6` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /cart Suggested specialty needs the admin mapping | [owner] Consult a doctor opens the mapped specialty only when the admin has filled system_configs rx_consult_specialties (category to specialty); until then the answer is null and… |
 | `seo-feature-pages.json#0` | client | open | /features/[feature] Feature page layout | [client] The seven public feature pages (SEO, owner 2026-10-12) have no board: they are built on the public landing kit (LandingPage, LandingSection, CardGrid/EntityRow, the new F… |
