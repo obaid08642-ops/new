@@ -296,7 +296,8 @@ export class StorageService {
     if (!db?.collection) return false;
     const uri = `/api/v1/storage/${encodeURIComponent(o.id)}`;
     const orders: any[] = await db.collection('pharmacy_orders')
-      .find({ patient_account_id: { $eq: String(o.owner_account_id) }, 'prescription_attachments.uri': { $eq: uri } }, { projection: { _id: 0, id: 1 } })
+      // a prescription file, or the photo of the box on a manual request (journeys 74)
+      .find({ patient_account_id: { $eq: String(o.owner_account_id) }, $or: [{ 'prescription_attachments.uri': { $eq: uri } }, { 'items.photo_uri': { $eq: uri } }] }, { projection: { _id: 0, id: 1 } })
       .limit(50).toArray();
     const orderIds = orders.map((r) => r.id).filter((v) => typeof v === 'string');
     if (!orderIds.length) return false;

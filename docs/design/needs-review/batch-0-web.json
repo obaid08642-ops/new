@@ -81,8 +81,8 @@
     "app": "patient-web",
     "screen": "/onboarding",
     "element": "Whole screen (entry and outcome)",
-    "file": "patient-web/app/[locale]/onboarding/page.tsx",
-    "line": 11,
+    "file": "patient-web/next.config.ts",
+    "line": 35,
     "found": "No link in the web points to /onboarding (grep over app, components-next, lib); /welcome is reached only from the login back button and the onboarding screens; finishing onboarding stores nothing (no flag, no API call).",
     "suspect": "LEFT, needs a product decision (the 2026-10-05 owner decision is the app's launch behaviour: first launch shows Welcome, later launches open Home as guest). For the web: should a first visit to / redirect to /welcome (it would change the indexable public Home), should /onboarding be linked from /welcome, and is it acceptable that finishing onboarding stores nothing? Not wired.",
     "review_status": "owner-decision (question 32 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2) (issue #436)"
@@ -92,8 +92,8 @@
     "app": "patient-web",
     "screen": "/onboarding",
     "element": "Slides, buttons and labels",
-    "file": "patient-web/app/[locale]/onboarding/page.tsx",
-    "line": 17,
+    "file": "patient-web/next.config.ts",
+    "line": 35,
     "found": "FIXED in batch-0-fixes: slide titles and bodies, the carousel, language and permission steps and the frame's back label and hero text are in messages (Onboarding, AuthFrame; six languages). STILL OPEN: slide 2 (\"Book in minutes\") uses the lab icon and slide 3 (\"Track your health\") the pharmacy icon (app/[locale]/onboarding/page.tsx).",
     "suspect": "LEFT: check the icon and text pairing of slides 2 and 3 against the board; there is no onboarding board in the repo to compare with here.",
     "review_status": "fixed #1491"

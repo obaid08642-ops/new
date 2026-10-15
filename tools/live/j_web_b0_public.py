@@ -3,7 +3,8 @@
     instead of the login page losing the text.
   - The page headers let Google sign-in open its popup (Cross-Origin-Opener-Policy same-origin-allow-popups, and the
     policy names accounts.google.com/gsi/).
-  - /welcome links to the intro slides (/onboarding).
+  - Owner decision 32 (issues 436, 437): the web has no onboarding. /onboarding (and its language and permissions steps)
+    opens the home page, and /welcome links to none of them.
   Stack: backend :8002, patient-web :3100.
 """
 import os
@@ -59,10 +60,13 @@ def main():
         csp = headers.get('content-security-policy', '')
         step('the policy lets Google sign-in load (accounts.google.com/gsi/)', 'https://accounts.google.com/gsi/' in csp, csp[:300])
 
-        journey('issue 436: the intro slides are reachable')
+        journey('owner decision 32 (issues 436, 437): the web has no onboarding')
+        for path in ('/ar/onboarding', '/ar/onboarding/language', '/ar/onboarding/permissions'):
+            page.goto(f'{WEB}{path}', wait_until='load', timeout=60000)
+            step(f'{path} opens the home page', page.url.rstrip('/') == f'{WEB}/ar', page.url)
         page.goto(f'{WEB}/ar/welcome', wait_until='load', timeout=60000)
-        link = page.locator('a[href="/ar/onboarding"]')
-        step('Welcome links to the intro slides', link.count() == 1, f'{link.count()} link(s)')
+        link = page.locator('a[href^="/ar/onboarding"]')
+        step('Welcome links to no onboarding page', link.count() == 0, f'{link.count()} link(s)')
     except Exception as e:
         step('web public flow', False, str(e)[:300])
     finally:

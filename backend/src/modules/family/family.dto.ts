@@ -1,4 +1,4 @@
-import { IsArray, IsDateString, IsDefined, IsIn, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDateString, IsDefined, IsIn, IsOptional, IsString, MaxLength, ValidateIf } from 'class-validator';
 
 export class AddEventDto {
   @IsOptional()
@@ -50,14 +50,16 @@ export class CreateDto {
   @IsString()
   name: string;
 }
+/** POST /family/invite: with a channel and a target the code is sent there; without, the owner gets the code to show (QR). */
 export class InviteDto {
-  @IsDefined()
+  @IsOptional()
   @IsIn(["sms", "email"])
-  channel: string;
+  channel?: string;
 
-  @IsDefined()
+  @ValidateIf((o: InviteDto) => o.channel !== undefined)
   @IsString()
-  target: string;
+  @MaxLength(254)
+  target?: string;
 }
 export class JoinDto {
   @IsDefined()
