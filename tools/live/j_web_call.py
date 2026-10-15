@@ -72,7 +72,7 @@ def setup():
     journey('web call: setup')
     step('the local LiveKit answers (tools/live/start-livekit.sh)', livekit_up(), LIVEKIT_HTTP)
     try:
-        _, admin = j_admin.login()
+        admin, _ = j_admin.login()   # the admin web (BFF) session: every admin path below is the panel's /admin/admin/...
     except Exception as e:
         step('admin api session', False, str(e)[:200])
         return None
