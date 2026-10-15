@@ -3225,5 +3225,6 @@
   "search.kind.nursingServices": "নার্সিং সেবা",
   "insurance.benefits.requestsTitle": "বীমা অনুরোধ: {count}",
   "insurance.benefits.insurerCovered": "বীমা কোম্পানি বহন করেছে",
-  "insurance.benefits.youPaid": "আপনি দিয়েছেন"
+  "insurance.benefits.youPaid": "আপনি দিয়েছেন",
+  "common.chooseDateTime": "তারিখ ও সময় বেছে নিন"
 }
