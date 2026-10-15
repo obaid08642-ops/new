@@ -20,7 +20,9 @@ import { runsBackgroundWork } from '../../common/process-role';
 export const SEARCH_INDEX = 'search_index';
 const META = 'search_index_meta';
 /** Bump when the document shape changes: the index is rebuilt at the next boot. */
-const INDEX_VERSION = 2;
+// 2: approved medicines no longer need the search-engine flag (439), so existing indexes rebuild once.
+// 3: medicine documents carry online_exclusive (rx-rules-web#4), so existing indexes rebuild once more.
+const INDEX_VERSION = 3;
 const BATCH = 500;
 
 export interface SearchItem {

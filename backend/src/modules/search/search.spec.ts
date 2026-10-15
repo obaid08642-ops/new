@@ -38,6 +38,13 @@ describe('D-29 search documents', () => {
     expect(sourceFilter('lab_services')).toMatchObject({ active: true, medical_review_status: 'approved' });
   });
 
+  it('439: a medicine approved for publication is found on the site even when it is not indexed by search engines', () => {
+    const published = { id: 'm', name_en: 'M', public_eligibility: true, medical_review_status: 'approved', indexing_eligibility: false };
+    expect(isVisible('medicines', published)).toBe(true);
+    expect(toSearchDocument('medicines', published)).not.toBeNull();
+    expect(sourceFilter('medicines')).not.toHaveProperty('indexing_eligibility');
+  });
+
   it('a name match ranks above an ingredient match; typos match within a word', () => {
     const name = { name_text: 'panadol', text: 'panadol | paracetamol' };
     const ingredient = { name_text: 'adol', text: 'adol | panadol extra' };

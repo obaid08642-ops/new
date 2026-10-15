@@ -15,9 +15,9 @@ export default async function OnboardingPage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: "Onboarding" });
   const s = SERVICE_ICONS;
   const slides: OnboardingSlide[] = [
-    { title: t("slide1Title"), body: t("slide1Body"), ...s.consult },
-    { title: t("slide2Title"), body: t("slide2Body"), ...s.lab },
-    { title: t("slide3Title"), body: t("slide3Body"), ...s.pharmacy },
+    { title: t("slide1Title"), body: t("slide1Body"), ...s.nursing },
+    { title: t("slide2Title"), body: t("slide2Body"), ...s.consult },
+    { title: t("slide3Title"), body: t("slide3Body"), ...s.health },
   ];
   return <AuthLayout locale={locale} showMark={false}><OnboardingCarousel slides={slides} locale={locale} /></AuthLayout>;
 }
