@@ -143,6 +143,10 @@ export async function CategoryView({ params, searchParams }: Props) {
     content = (
       <div className={styles.state}>
         <EmptyState icon="pill" tone={PHARMACY_TONE} title={t("emptyTitle")} body={t("emptyBody")} />
+        {/* Not in the catalogue: ask the nearby pharmacies for it by name (decision 12; journeys scenario 8, issue 1080). */}
+        <Link href={`/${locale}/pharmacy/request${q ? `?name=${encodeURIComponent(q.slice(0, 200))}` : ""}`} className={`nabd-button nabd-button--secondary nabd-button--lg nabd-button--full ${styles.linkButton}`}>
+          <span className="nabd-button__label">{t("askPharmacies")}</span>
+        </Link>
         {isAll && !q ? null : (
           <Link href={`/${locale}/c`} className={`nabd-button nabd-button--primary nabd-button--lg nabd-button--full ${styles.linkButton}`}>
             <span className="nabd-button__label">{t("browseAll")}</span>
@@ -167,6 +171,7 @@ export async function CategoryView({ params, searchParams }: Props) {
             strength: it.strength,
             packageSize: it.package_size,
             rx: it.is_rx,
+            onlineOnly: it.online_exclusive === true,
           }))}
         />
         {pages > 1 ? (

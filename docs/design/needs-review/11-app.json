@@ -41,7 +41,7 @@
     "line": 370,
     "found": "[client] Fixed on design/clipboard (owner decision 5, 2026-10-10): expo-clipboard approved; Copy sends the referral code, Copied or an error notice shows, Share stays. Was: the old button used react-native Clipboard, which RN 0.86 no longer has",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "fixed #1279 (verified on main: LoyaltyHub.tsx:329 copies through useCopy / expo-clipboard)"
   },
   {
     "batch": 11,

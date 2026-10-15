@@ -20,7 +20,7 @@ export interface CartItem {
   form?: string | null;
   strength?: string | null;
   slug?: string | null;
-  /** The product's `online_exclusive`, stored when the line is added by a source that knows it (absent on older lines and on the public product pages, whose answers do not carry it). */
+  /** The product's `online_exclusive`, stored when the line is added by a source that knows it (absent on older lines and on lines added before the public product answer carried it). */
   onlineOnly?: boolean;
 }
 

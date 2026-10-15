@@ -251,5 +251,16 @@
     "found": "[client] Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
     "suspect": "Client-side: later batch.",
     "review_status": "fixed #1229 (issue #916)"
+  },
+  {
+    "batch": "admin",
+    "app": "admin",
+    "screen": "/admin/medicines-catalog",
+    "element": "Approve (publish) a medicine",
+    "file": "backend/src/modules/seo-search/seo-search.module.ts",
+    "line": 297,
+    "found": "[backend] The public product page, catalogue, search and alternatives required indexing_eligibility = true, but approve() sets it to false and nothing sets it to true for a medicine, so a medicine the admin adds and approves never reaches patients (the live DB had 17 medicines and 0 public). medicine-publication-report.ts defines published as public_eligibility + approved review, with indexing only for sitemaps, IndexNow and llms.txt. Found by the fix session (live web journey).",
+    "suspect": "Visibility filter mixed up with the search-engine filter.",
+    "review_status": "fixed #1433"
   }
 ]
