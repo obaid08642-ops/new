@@ -698,7 +698,11 @@
     "emergencySaveError": "تعذّر حفظ جهة الاتصال. حاول مجدداً.",
     "emergencySave": "حفظ",
     "nextAppointment": "موعدك القادم",
-    "nextAppointmentUnavailable": "تعذّر تحميل موعدك القادم الآن."
+    "nextAppointmentUnavailable": "تعذّر تحميل موعدك القادم الآن.",
+    "reminderFor": "لمن هذا التذكير؟",
+    "reminderForMe": "لي أنا",
+    "reminderForName": "تذكير لـ {name}",
+    "reminderMemberFallback": "فرد من العائلة"
   },
   "Prescriptions": {
     "title": "الوصفات الطبية",
@@ -2668,7 +2672,12 @@
       "invalid_invite_code": "رمز الدعوة غير صحيح. تأكد منه واطلب رمزاً جديداً إذا لزم الأمر.",
       "invite_expired": "انتهت صلاحية رمز الدعوة. اطلب من صاحب العائلة رمزاً جديداً.",
       "already_member": "أنت عضو في هذه العائلة بالفعل."
-    }
+    },
+    "medsWeek": "هذا الأسبوع: {taken} جرعة مأخوذة، {missed} فائتة",
+    "medsLastMissed": "آخر جرعة فائتة:",
+    "medsEditReminder": "تعديل التذكير",
+    "medsAddReminder": "إضافة تذكير دواء",
+    "close": "إغلاق"
   },
   "DiagWeb": {
     "retry": "حاول مرة أخرى",

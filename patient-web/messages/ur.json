@@ -748,7 +748,11 @@
     "emergencySaveError": "رابطہ محفوظ نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
     "emergencySave": "محفوظ کریں",
     "nextAppointment": "آپ کی اگلی اپائنٹمنٹ",
-    "nextAppointmentUnavailable": "آپ کی اگلی اپائنٹمنٹ ابھی لوڈ نہیں ہو سکی۔"
+    "nextAppointmentUnavailable": "آپ کی اگلی اپائنٹمنٹ ابھی لوڈ نہیں ہو سکی۔",
+    "reminderFor": "یہ یاد دہانی کس کے لیے ہے؟",
+    "reminderForMe": "میرے لیے",
+    "reminderForName": "{name} کے لیے یاد دہانی",
+    "reminderMemberFallback": "خاندان کا فرد"
   },
   "Prescriptions": {
     "title": "نسخے",
@@ -2668,7 +2672,12 @@
       "invalid_invite_code": "یہ دعوتی کوڈ درست نہیں ہے۔ اسے چیک کریں یا نیا کوڈ مانگیں۔",
       "invite_expired": "اس دعوتی کوڈ کی میعاد ختم ہو چکی ہے۔ فیملی کے مالک سے نیا کوڈ مانگیں۔",
       "already_member": "آپ پہلے سے اس فیملی کے رکن ہیں۔"
-    }
+    },
+    "medsWeek": "اس ہفتے: {taken} خوراکیں لی گئیں، {missed} چھوٹ گئیں",
+    "medsLastMissed": "آخری چھوٹی ہوئی خوراک:",
+    "medsEditReminder": "یاد دہانی میں ترمیم",
+    "medsAddReminder": "دوا کی یاد دہانی شامل کریں",
+    "close": "بند کریں"
   },
   "DiagWeb": {
     "retry": "دوبارہ کوشش کریں",
