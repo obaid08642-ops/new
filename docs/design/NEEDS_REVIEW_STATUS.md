@@ -14,19 +14,19 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Admin journeys | 20 | 4 | 16 | 0 | 0 | 0 |
 | Final pass | 8 | 8 | 0 | 0 | 0 | 0 |
 | Patient journeys | 86 | 41 | 44 | 1 | 0 | 0 |
-| Provider app | 30 | 8 | 21 | 1 | 0 | 0 |
-| Provider journeys | 34 | 25 | 9 | 0 | 0 | 0 |
-| **Total** | **733** | **253** | **381** | **87** | **1** | **11** |
+| Provider app | 31 | 9 | 21 | 1 | 0 | 0 |
+| Provider journeys | 34 | 22 | 12 | 0 | 0 | 0 |
+| **Total** | **734** | **251** | **384** | **87** | **1** | **11** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| client | 167 | 63 | 79 | 25 | 0 | 0 |
-| owner | 100 | 67 | 24 | 6 | 1 | 2 |
+| client | 168 | 64 | 79 | 25 | 0 | 0 |
+| owner | 100 | 64 | 27 | 6 | 1 | 2 |
 | backend | 229 | 42 | 158 | 25 | 0 | 4 |
 | untagged | 237 | 81 | 120 | 31 | 0 | 5 |
-| **Total** | **733** | **253** | **381** | **87** | **1** | **11** |
+| **Total** | **734** | **251** | **384** | **87** | **1** | **11** |
 
 ## By file
 
@@ -89,8 +89,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `journeys.json` | 86 | 41 | 44 | 1 | 0 | 0 |
 | `provider-admin-ish.json` | 3 | 2 | 1 | 0 | 0 | 0 |
 | `provider-doctor.json` | 6 | 1 | 5 | 0 | 0 | 0 |
-| `provider-facility.json` | 6 | 0 | 6 | 0 | 0 | 0 |
-| `provider-journeys.json` | 34 | 25 | 9 | 0 | 0 | 0 |
+| `provider-facility.json` | 7 | 1 | 6 | 0 | 0 | 0 |
+| `provider-journeys.json` | 34 | 22 | 12 | 0 | 0 | 0 |
 | `provider-lab.json` | 4 | 3 | 1 | 0 | 0 | 0 |
 | `provider-nursing.json` | 2 | 0 | 2 | 0 | 0 | 0 |
 | `provider-pharmacy.json` | 2 | 0 | 1 | 1 | 0 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 7 | 0 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 12 | 5 | 7 | 0 | 0 | 0 |
-| **Total** | **733** | **253** | **381** | **87** | **1** | **11** |
+| **Total** | **734** | **251** | **384** | **87** | **1** | **11** |
 
 ## Owner decisions (1)
 
@@ -108,7 +108,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---:|---|---|---|
 | 1 | `13-web.json#13` `patient-web/lib/legal/embedded.ts:15` | /terms Embedded fallback text | [owner] The embedded copy (issue 755/783) is built from docs/legal, which are drafts with [placeholders] until a Saudi lawyer approves them, so it stays off today. After approval: update docs/legal, run node patient-web… |
 
-## Open and unverified (264)
+## Open and unverified (262)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -327,8 +327,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `provider-admin-ish.json#1` | client | open | NurseVisitConsole Screen content | [client] Fixed on design/oc-provider: now lists the active visits and opens the field-ops screen (was a stub). |
 | `provider-admin-ish.json#2` | backend | open | RevenueInsights API GET /provider/ops/wallet/ledger | [backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider-ops/provi… |
 | `provider-doctor.json#2` | client | open | EPrescriptionScreen {t.titleAr} {t.drugs.length} | [client] Button "{t.titleAr} {t.drugs.length}" shows a success message without sending a request. |
+| `provider-facility.json#6` | client | open | FacilitySettingsScreen Pricing & Tariffs sheet | [client] The tariffs form starts from fixed numbers (ICU daily and hourly, ward, surgery room, emergency fee) instead of the facility's saved tariffs; saving the sheet sends them … |
 | `provider-journeys.json#1` | backend | open | pharmacy-inventory-ext.service map lines to catalogue | [backend] The search only reads the pharmacy's own inventory rows (provider_account_id = caller), minimum 2 characters; a new pharmacy with empty inventory can answer every line o… |
-| `provider-journeys.json#2` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | PharmacyBroadcastResponse send offer | [owner] A custom unit price field is accepted (admin audit endpoint exists) while the same screen says prices are never entered by hand; confirm with decision 12 (price ceiling) t… |
 | `provider-journeys.json#3` | backend | open | pharmacy-offer.service patient accepts | [backend] When the patient selects an offer the service only emits bus event pharmacy.offer.selected; nothing subscribes to it and notifyPharmacyNewAllocation is never called, so … |
 | `provider-journeys.json#4` | backend | open | pharmacy.schema prepare | [backend] A partially_confirmed allocation can only go to confirmed, rejected or cancelled; confirm() with an unavailable line tries partially_confirmed again and item changes are… |
 | `provider-journeys.json#5` | client | open (issue #1146) | PharmacyDashboard hand over / delivery | [client] The prescription dispensing path is a "disabled" notice and the old order detail and broadcast screens are defined but never rendered (dead code). |
@@ -344,12 +344,10 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `provider-journeys.json#23` | backend | open | emergency.module ambulance removal (decision 14) | [backend] The app no longer has the ambulance provider type, dashboard, SOS dispatch, GPS router or fleet screens. These backend modules still exist and are for the reviewer to re… |
 | `provider-journeys.json#24` | backend | open | PendingDashboard needs_changes reason | [backend] The note an admin writes with "request changes" is kept only in the status history and on the flagged documents (reviewer_note); GET /provider-onboarding/progress return… |
 | `provider-journeys.json#25` | backend | open | NursingFieldOps live position while on the way | [backend] The single visit flow sends the live position during IN_TRANSIT with POST /home-care/bookings/:id/gps (the older booking family) because /nursing/visits/:id/* has no pos… |
-| `provider-journeys.json#26` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | FacilitySettingsScreen facility ambulance fee setting | [owner] Facility settings still has an "Ambulance Fee (SAR)" field saved through settings/delta although the ambulance system is removed (decision 14); remove the field with the b… |
 | `provider-journeys.json#27` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | RadiologyDashboardNavigator radiology home visit tracking removed | [owner] The radiology order button "Home visit (GPS tracking)" and its route home_visit are removed because they opened the emergency GPS router (POST /emergency/:id/track), which… |
 | `provider-journeys.json#28` | backend | open | LabRegistration + Add Custom Test (Requires Approval) (hidden) | [backend] The wizard had "+ Add Custom Test (Requires Approval)" in the lab and radiology test menus; it only showed a toast and sent nothing. It is hidden now (M9). To bring it b… |
 | `provider-journeys.json#29` | client | open | DoctorRegistration inline clinic map | [client] The doctor wizard has two map inputs that write `location` in different shapes: the picker in the services step writes {lat, lng}, the inline map on the insurance step wr… |
 | `provider-journeys.json#30` | client | open | FacilityRegistration saving flag in data | [client] The facility steps keep their saving flag `loading` inside the registration data, so `loading: false` is part of `full_data` sent with the final submit. Kept as is in M9 … |
-| `provider-journeys.json#31` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | RegistrationWizard terms agreement | [owner] Doctor and facility registration have no terms checkbox (doctor shows a declaration text above the signature, facility shows nothing); pharmacy, lab, radiology and nursing… |
 | `provider-journeys.json#32` | client | open | LabRegistration Bundle Builder | [client] The lab and radiology test menu has a "Bundle Builder" whose bundles are only part of `full_data`; neither step2 nor step3 sends them, so no bundle reaches the catalogue. |
 | `provider-journeys.json#33` | backend | open | NursingFieldOps result upload | [backend] With result files the visit is completed through POST /home-care/bookings/:id/visit-report (the only route that stores attachments); that handler sends no `patient.notif… |
 | `provider-lab.json#0` | client | open | LabOrderDetail mock-name: openSampleForResults = async () => { | [client] mock-name (mock-scan): openSampleForResults = async () => { |
