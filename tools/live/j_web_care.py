@@ -28,6 +28,17 @@ def booked_consultation_thread():
     aid = j_consultation.book_paid(pat, doctor)
     if not aid:
         return acct, None, None, None, pat, None
+    journey('web care: the doctor runs and finishes the visit (the thread opens after it, decision 24)')
+    r = doctor.get('/provider/jobs/queue?status=incoming&kind=consultation')
+    inc = [j.get('id') for j in (r.body if isinstance(r.body, list) else r.items())]
+    if aid in inc:
+        r = doctor.post(f'/provider/jobs/consultation/{aid}/accept', {})
+        step('doctor accepts', r.ok, r)
+    for action in ('check-in', 'start'):
+        r = doctor.req('PATCH', f'/care/appointments/{aid}/{action}', {})
+        step(f'appointment {action}', r.ok, r)
+    r = doctor.post(f'/care/appointments/{aid}/finish', {'diagnosis': 'متابعة', 'notes': 'راحة', 'recommendations': 'مراجعة عند الحاجة'})
+    step('doctor finishes the visit', r.ok, r)
     journey('web care: patient and doctor write in the booking thread')
     r = pat.post('/chat/threads/booking', {'booking_kind': 'consultation', 'booking_id': aid})
     tid = (r.body.get('data') or r.body).get('id') if isinstance(r.body, dict) else None
@@ -87,7 +98,7 @@ def main():
 
     journey('web care: the appointments page shows the doctor (2-web#7)')
     try:
-        page.goto(f'{WEB}/ar/appointments', wait_until='load', timeout=60000)
+        page.goto(f'{WEB}/ar/appointments?tab=past', wait_until='load', timeout=60000)  # the visit is finished
         page.wait_for_selector('h1', timeout=30000)
         step("the appointments page names the booked doctor", bool(doctor_name) and doctor_name in page.inner_text('body'), doctor_name)
     except Exception as e:
@@ -109,6 +120,10 @@ def main():
         step('the mental health hub has no Relax row', n == 0, f'{n} link(s)')
         for old in ('relax', 'breathing', 'meditation'):
             page.goto(f'{WEB}/ar/mental-health/{old}', wait_until='load', timeout=60000)
+            try:  # a server redirect from a page is streamed and followed in the browser
+                page.wait_for_url('**/ar/mental-health', timeout=15000)
+            except Exception:
+                pass
             step(f'/mental-health/{old} opens the hub', page.url.rstrip('/').endswith('/ar/mental-health'), page.url)
     except Exception as e:
         step('mental health flow', False, str(e)[:300])

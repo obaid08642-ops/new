@@ -34,7 +34,8 @@ export function extractChatThreadSummaries(payload: unknown) {
 
 /** `text`: owner decision B27 (2026-10-14), only inside the thread: the text of the patient's own messages and the doctor's replies (never in list previews). */
 export type ChatMessageSummary = { id: string; senderRole: string; type: string; createdAt?: string; edited: boolean; deleted: boolean; hasAttachment: boolean; text?: string };
-const TEXT_ROLES = new Set(["patient", "doctor"]);
+// the doctor answers from the provider app, which sends as "provider" in the booking thread
+const TEXT_ROLES = new Set(["patient", "doctor", "provider"]);
 export function extractChatMessageSummaries(payload: unknown): ChatMessageSummary[] {
   const root = asRecord(payload);
   const list = Array.isArray(root?.messages) ? root.messages : listFrom(payload);
