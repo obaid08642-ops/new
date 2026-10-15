@@ -1,9 +1,5 @@
 import { BadRequestException, Injectable, Inject } from '@nestjs/common';
 import {
-  BreathingSession,
-  BreathingTechnique,
-  MeditationSession,
-  MeditationType,
   MoodEntry,
   MoodValue,
   MOOD_SCORE_MAP,
@@ -137,75 +133,15 @@ export class MentalHealthService {
     };
   }
 
-  /* ───── Optional practice logs: activity history, not care or outcome claims ───── */
-
-  async logMeditation(userId: string, data: Omit<Partial<MeditationSession>, 'logged_at'> & { logged_at?: string | Date }) {
-    this.requirePatientId(userId);
-    if (!data || !Object.values(MeditationType).includes(data.type as MeditationType)) {
-      throw new BadRequestException('نوع الممارسة مطلوب وغير صالح / A valid practice type is required');
-    }
-    const duration = Number(data.duration_minutes);
-    if (!Number.isInteger(duration) || duration < 1 || duration > 180) {
-      throw new BadRequestException('duration_minutes يجب أن يكون من 1 إلى 180 / duration_minutes must be from 1 to 180');
-    }
-    if (data.completed !== undefined && typeof data.completed !== 'boolean') {
-      throw new BadRequestException('completed يجب أن يكون true أو false / completed must be true or false');
-    }
-    const session = await this.meditationModel.create({
-      patient_id: userId,
-      type: data.type,
-      duration_minutes: duration,
-      ...(data.completed !== undefined ? { completed: data.completed } : {}),
-      logged_at: data.logged_at === undefined ? new Date() : this.parseEventDate(data.logged_at, 'logged_at'),
-    } as Partial<MeditationSession>);
-    return session.toObject();
-  }
-
-  async getMeditationHistory(userId: string) {
-    this.requirePatientId(userId);
-    return this.meditationModel.find({ patient_id: userId }).sort({ logged_at: -1 }).limit(30).lean();
-  }
-
-  async getMeditationStats(userId: string) {
-    this.requirePatientId(userId);
-    const sessions: any[] = await this.meditationModel.find({ patient_id: userId }).sort({ logged_at: -1 }).lean();
-    const completed = sessions.filter((session) => session.completed === true);
-    const totalMinutes = completed.reduce((sum, session) => sum + (Number.isFinite(session.duration_minutes) ? session.duration_minutes : 0), 0);
-    return { total_sessions: sessions.length, completed_sessions: completed.length, total_minutes: totalMinutes };
-  }
-
-  async logBreathing(userId: string, data: Omit<Partial<BreathingSession>, 'logged_at'> & { logged_at?: string | Date }) {
-    this.requirePatientId(userId);
-    if (!data || !Object.values(BreathingTechnique).includes(data.technique as BreathingTechnique)) {
-      throw new BadRequestException('تقنية التنفس مطلوبة وغير صالحة / A valid breathing technique is required');
-    }
-    const rounds = Number(data.rounds);
-    const duration = Number(data.duration_seconds);
-    if (!Number.isInteger(rounds) || rounds < 1 || rounds > 100 || !Number.isInteger(duration) || duration < 1 || duration > 7200) {
-      throw new BadRequestException('بيانات جلسة التنفس غير صالحة / Breathing session data is invalid');
-    }
-    const session = await this.breathingModel.create({
-      patient_id: userId,
-      technique: data.technique,
-      rounds,
-      duration_seconds: duration,
-      logged_at: data.logged_at === undefined ? new Date() : this.parseEventDate(data.logged_at, 'logged_at'),
-    } as Partial<BreathingSession>);
-    return session.toObject();
-  }
-
-  async getBreathingHistory(userId: string) {
-    this.requirePatientId(userId);
-    return this.breathingModel.find({ patient_id: userId }).sort({ logged_at: -1 }).limit(30).lean();
-  }
+  // Owner decision B18 (2026-10-14): no breathing or meditation sessions without clinical content; their routes are
+  // gone. Past session records stay in their collections (meditationModel, breathingModel); nothing reads them.
 
   async getDashboard(userId: string) {
     this.requirePatientId(userId);
-    const [mood, meditation, recentMoods] = await Promise.all([
+    const [mood, recentMoods] = await Promise.all([
       this.getMoodStats(userId),
-      this.getMeditationStats(userId),
       this.moodModel.find({ patient_id: userId }).sort({ logged_at: -1 }).limit(7).lean(),
     ]);
-    return { mood, meditation, recent_moods: recentMoods };
+    return { mood, recent_moods: recentMoods };
   }
 }

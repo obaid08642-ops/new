@@ -8,7 +8,7 @@
     "line": 279,
     "found": "[backend] The public product answer (GET /public/product/:locale/:slug) sends is_rx and available_online but not online_exclusive (available_online means shipped online, not online only), so the page cannot show the badge. (backend: backend/src/modules/medicines/med-i18n.ts:304)",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open"
+    "review_status": "fixed 1b2a00118 (verified on main: the public product DTO sends online_exclusive, med-i18n.ts:306, and the page shows the chip, p/[slug]/page.tsx:307)"
   },
   {
     "batch": 14,
