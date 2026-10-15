@@ -15,7 +15,7 @@ WEB = os.environ.get('NABD_WEB_JOURNEYS_URL', 'http://127.0.0.1:3100')
 def booked_consultation_thread():
     """A patient with a paid consultation and its booking thread holding one patient message and one doctor reply."""
     import j_accounts, j_admin, j_consultation, j_onboarding
-    _, admin = j_admin.login()
+    admin, _ = j_admin.login()  # the admin panel session (AdminWeb), as j_consultation's own run uses it
     specs = Client(None, 'anon').get('/catalogs/specialties')
     spec = next((x.get('code') or x.get('id') for x in (specs.body if isinstance(specs.body, list) else specs.items())), 'cardiology')
     p = j_onboarding.register_type('doctor', {'specialty': spec, 'academic_degree': 'consultant', 'consultation_modes': ['clinic', 'video', 'home']})
@@ -27,7 +27,7 @@ def booked_consultation_thread():
     pat = Client(acct['token'], 'patient')
     aid = j_consultation.book_paid(pat, doctor)
     if not aid:
-        return acct, None, None, None
+        return acct, None, None, None, pat, None
     journey('web care: patient and doctor write in the booking thread')
     r = pat.post('/chat/threads/booking', {'booking_kind': 'consultation', 'booking_id': aid})
     tid = (r.body.get('data') or r.body).get('id') if isinstance(r.body, dict) else None
@@ -38,12 +38,18 @@ def booked_consultation_thread():
     step('patient sends a message', r.ok, r)
     r = doctor.post('/provider/chat/send', {'appointment_id': aid, 'message': reply})
     step('doctor replies', r.ok, r)
-    return acct, tid, mine, reply
+    journey('web care: the appointments list names the doctor and the specialty (2-web#7)')
+    detail = pat.get(f'/care/appointments/{aid}')
+    lst = pat.get('/care/appointments')
+    row = next((x for x in (lst.body if isinstance(lst.body, list) else lst.items()) if x.get('id') == aid), {})
+    step('the list row carries the doctor name of the detail', bool(detail.get('doctor_name')) and row.get('doctor_name') == detail.get('doctor_name'), f"list={row.get('doctor_name')} detail={detail.get('doctor_name')}")
+    step('the list row carries the specialty in Arabic and English', bool(row.get('specialty_name_ar')) and 'specialty_name_en' in row, {k: row.get(k) for k in ('specialty_name_ar', 'specialty_name_en')})
+    return acct, tid, mine, reply, pat, detail.get('doctor_name')
 
 
 def main():
     journey('web care: setup')
-    acct, tid, mine, reply = booked_consultation_thread()
+    acct, tid, mine, reply, pat, doctor_name = booked_consultation_thread()
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
@@ -78,6 +84,14 @@ def main():
             step('booking thread for the web check', False, 'no thread')
     except Exception as e:
         step('chat thread flow', False, str(e)[:300])
+
+    journey('web care: the appointments page shows the doctor (2-web#7)')
+    try:
+        page.goto(f'{WEB}/ar/appointments', wait_until='load', timeout=60000)
+        page.wait_for_selector('h1', timeout=30000)
+        step("the appointments page names the booked doctor", bool(doctor_name) and doctor_name in page.inner_text('body'), doctor_name)
+    except Exception as e:
+        step('appointments flow', False, str(e)[:300])
 
     journey('web care: vitals tab is "Latest" (owner decision B12)')
     try:
