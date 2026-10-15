@@ -148,7 +148,7 @@ export default function TodayPage() {
           <h2 id="today-problems" className="text-lg font-bold">طلبات بها مشكلة</h2>
           <div className="mt-3 grid gap-4 lg:grid-cols-2">
             <div>
-              <h3 className="mb-2 text-sm font-black">عالقة ({num(alerts?.stuck_count ?? 0)})</h3>
+              <h3 className="mb-2 flex items-center justify-between text-sm font-black"><span>عالقة ({num(alerts?.stuck_count ?? 0)})</span><Link href="/admin/orders?problem=stuck" className="text-xs font-bold text-teal-700">عرض الكل</Link></h3>
               {stuck.slice(0, 20).map((s) => (
                 <div key={`${s.kind}:${s.id}`} className="flex items-center justify-between gap-3 border-b py-2 text-sm">
                   <span className="min-w-0 truncate">{s.kind} · {String(s.id).slice(0, 8)} · {s.state}</span>
@@ -160,7 +160,7 @@ export default function TodayPage() {
               {stuck.length === 0 ? <p className="text-sm text-slate-400">لا طلبات عالقة.</p> : null}
             </div>
             <div>
-              <h3 className="mb-2 text-sm font-black">مدفوعات فاشلة ({num(alerts?.failed_count ?? 0)})</h3>
+              <h3 className="mb-2 flex items-center justify-between text-sm font-black"><span>مدفوعات فاشلة ({num(alerts?.failed_count ?? 0)})</span><Link href="/admin/orders?problem=failed_payment" className="text-xs font-bold text-teal-700">عرض الكل</Link></h3>
               {failed.slice(0, 20).map((f, index) => (
                 <div key={f.id ?? index} className="flex items-center justify-between gap-3 border-b py-2 text-sm">
                   <span className="min-w-0 truncate">{f.booking_kind} · {Number(f.amount || 0)} ر.س · {f.status}</span>

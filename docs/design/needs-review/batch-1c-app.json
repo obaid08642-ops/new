@@ -19,7 +19,7 @@
     "line": 308,
     "found": "patientDtoAsync sends approx_delivery { eta_minutes: 60, label_ar: 'خلال ساعة تقريباً', label_en: 'Approximately within 1 hour' } for every offer: a constant, not a pharmacy or routing value.",
     "suspect": "The board draws '[distance] km · arrives in [time]'. The app does not draw the constant (it would be an invented promise); it draws the real distance and the preparation estimate. Backend should send a real delivery estimate or none.",
-    "review_status": "closed-unverified (issue #506: closed with no linked PR)"
+    "review_status": "fixed 2fc11d615 (verified on main: backend/src/modules/pharmacy/services/pharmacy-offer.service.ts:468 no invented ETA) (issue #506)"
   },
   {
     "batch": 1,

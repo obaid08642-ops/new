@@ -1,4 +1,5 @@
 import { Connection } from 'mongoose';
+import { STUCK_STATES, stuckMinutes } from './stuck-orders';
 
 /**
  * The problem-order queries behind the admin "today" screen (GET /admin/ops/alerts and the SLA tile of
@@ -8,14 +9,9 @@ import { Connection } from 'mongoose';
 
 export type OrderKind = 'pharmacy' | 'lab' | 'radiology' | 'nursing' | 'consultation';
 
-/** Open states in which an order counts as stuck once it is older than the stuck threshold. */
-export const STUCK_SOURCES: ReadonlyArray<{ kind: OrderKind; col: string; field: 'state' | 'status'; states: string[] }> = [
-  { kind: 'pharmacy', col: 'pharmacy_orders', field: 'status', states: ['NEW_REQUEST', 'QUOTED', 'ALLOCATED', 'CONFIRMED', 'ready_for_split'] },
-  { kind: 'lab', col: 'labbookings', field: 'state', states: ['NEW_REQUEST', 'PENDING_INSURANCE', 'WAITING_COPAY', 'CONFIRMED'] },
-  { kind: 'radiology', col: 'radiologybookings', field: 'state', states: ['NEW_REQUEST', 'PENDING_INSURANCE', 'WAITING_COPAY', 'CONFIRMED'] },
-  { kind: 'nursing', col: 'homecarebookings', field: 'state', states: ['NEW_REQUEST', 'PENDING_INSURANCE', 'CONFIRMED', 'ASSIGNED'] },
-  { kind: 'consultation', col: 'appointments', field: 'status', states: ['PENDING', 'CONFIRMED', 'CHECKED_IN'] },
-];
+/** Open states in which an order counts as stuck: the one definition in stuck-orders.ts (issue 1236). */
+export const STUCK_SOURCES: ReadonlyArray<{ kind: OrderKind; col: string; field: string; states: string[] }> = Object.entries(STUCK_STATES)
+  .map(([kind, k]) => ({ kind: kind as OrderKind, col: k.collection, field: k.field, states: k.states }));
 
 /** Bookings whose `sla_due_at` passed while still in one of these non-final states breach the SLA. */
 export const SLA_SOURCES: ReadonlyArray<{ kind: OrderKind; col: string; closed: string[] }> = [
@@ -28,12 +24,9 @@ export const SLA_SOURCES: ReadonlyArray<{ kind: OrderKind; col: string; closed: 
 /** Transaction statuses the today screen lists as failed payments. */
 export const FAILED_PAYMENT_STATUSES = ['failed', 'cancelled'];
 
-/** The stuck threshold the today screen uses when no admin rule overrides it (system_config.ops_stuck_minutes). */
+/** The stuck threshold (the orders console setting, else the older system_config value, else 30): stuck-orders.ts. */
 export async function opsStuckMinutes(conn: Connection): Promise<number> {
-  const cfg: { value?: { ops_stuck_minutes?: unknown } } | null = await conn.collection('system_config')
-    .findOne({ key: 'system_config' } as never).catch(() => null) as never;
-  const n = Number(cfg?.value?.ops_stuck_minutes ?? 30);
-  return Number.isFinite(n) ? Math.max(1, n) : 30;
+  return stuckMinutes(conn);
 }
 
 export type StuckOrder = { kind: OrderKind; id: string; state: string; since: Date };

@@ -1,9 +1,10 @@
-import { Module, Controller, Post, Get, Body, Param, Query, UseGuards, Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { Module, Controller, Post, Get, Body, Param, Query, UseGuards, Injectable, ForbiddenException, NotFoundException, GoneException } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtAuthGuard, Roles, CurrentUser } from '../../../common/auth.guard';
 import { JwtService } from '@nestjs/jwt';
 import { UserRole } from '../../../common/enums';
+import { Permission, RequirePermissions } from '../../../common/permissions';
 import { Order, OrderDocument, OrderSchema } from '../../../schemas/order.schema';
 import { OrderState } from '../../../common/enums';
 import { EventBusService } from '../../events/event-bus.service';
@@ -205,40 +206,6 @@ export class AdminAuthorityService {
   }
 
   // ===== IMPERSONATION =====
-  async impersonateUser(admin: any, targetUserId: string) {
-    const targetUser = (await this.userModel.findOne({ id: targetUserId }).lean()) as any;
-    if (!targetUser) throw new NotFoundException('Target user not found');
-
-    const payload = {
-      id: targetUser.id,
-      email: targetUser.email,
-      phone: targetUser.phone,
-      role: targetUser.role,
-      full_name: targetUser.full_name,
-      permissions: targetUser.permissions || [],
-      impersonator: {
-        id: admin.id,
-        email: admin.email,
-        full_name: admin.full_name,
-      }
-    };
-
-    const token = await this.jwtService.signAsync(payload);
-
-    await this.logAction(admin, 'impersonate_user', 'user', targetUserId, 'Technical Support troubleshooting session started', null, { target_role: targetUser.role });
-
-    return {
-      access_token: token,
-      user: {
-        id: targetUser.id,
-        email: targetUser.email,
-        phone: targetUser.phone,
-        role: targetUser.role,
-        full_name: targetUser.full_name,
-      }
-    };
-  }
-
   // ===== ACTIONS LOG =====
   async listActions(filter: { action?: string; admin_id?: string; target_type?: string; limit?: number }) {
     const q: any = {};
@@ -252,26 +219,47 @@ export class AdminAuthorityService {
 @Controller('admin/authority')
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
+// Every override names the permission the same action needs elsewhere (admin-orders: order.cancel / order.reassign /
+// order.refund; providers: facility.edit), so the guard does not rest on the admin role alone.
 export class AdminAuthorityController {
   constructor(private svc: AdminAuthorityService) {}
+  @RequirePermissions(Permission.ORDER_CANCEL)
   @Post('appointments/:id/force-cancel') fca(@Param('id') id: string, @Body() b: FcaDto, @CurrentUser() u: any) { return this.svc.forceCancelAppt(u, id, b.reason || ''); }
+  @RequirePermissions(Permission.APPOINTMENT_UPDATE)
   @Post('appointments/:id/force-confirm') fcoappt(@Param('id') id: string, @Body() b: FcoapptDto, @CurrentUser() u: any) { return this.svc.forceConfirmAppt(u, id, b.reason || ''); }
+  @RequirePermissions(Permission.APPOINTMENT_UPDATE)
   @Post('appointments/:id/force-reschedule') fra(@Param('id') id: string, @Body() b: FraDto, @CurrentUser() u: any) { return this.svc.forceRescheduleAppt(u, id, b.new_time, b.reason || ''); }
+  @RequirePermissions(Permission.ORDER_CANCEL)
   @Post('orders/:id/force-cancel') fco(@Param('id') id: string, @Body() b: FcoDto, @CurrentUser() u: any) { return this.svc.forceCancelOrder(u, id, b.reason || ''); }
+  @RequirePermissions(Permission.ORDER_REASSIGN)
   @Post('orders/:id/force-complete') fkco(@Param('id') id: string, @Body() b: FkcoDto, @CurrentUser() u: any) { return this.svc.forceCompleteOrder(u, id, b.reason || ''); }
+  @RequirePermissions(Permission.ORDER_REASSIGN)
   @Post('orders/:id/force-reassign') frr(@Param('id') id: string, @Body() b: FrrDto, @CurrentUser() u: any) { return this.svc.forceReassignOrder(u, id, b.pharmacy_id, b.reason || ''); }
 
+  @RequirePermissions(Permission.ORDER_CANCEL)
   @Post('labs/:id/force-cancel') fcl(@Param('id') id: string, @Body() b: FclDto, @CurrentUser() u: any) { return this.svc.forceCancelLab(u, id, b.reason || ''); }
+  @RequirePermissions(Permission.ORDER_REASSIGN)
   @Post('labs/:id/force-complete') fkcl(@Param('id') id: string, @Body() b: FkclDto, @CurrentUser() u: any) { return this.svc.forceCompleteLab(u, id, b.reason || ''); }
+  @RequirePermissions(Permission.ORDER_REFUND)
   @Post('labs/:id/override-insurance') oil(@Param('id') id: string, @Body() b: OilDto, @CurrentUser() u: any) { return this.svc.overrideLabInsurance(u, id, b.status, b.reason || ''); }
 
+  @RequirePermissions(Permission.ORDER_CANCEL)
   @Post('radiology/:id/force-cancel') fcr(@Param('id') id: string, @Body() b: FcrDto, @CurrentUser() u: any) { return this.svc.forceCancelRad(u, id, b.reason || ''); }
+  @RequirePermissions(Permission.ORDER_REASSIGN)
   @Post('radiology/:id/force-complete') fkcr(@Param('id') id: string, @Body() b: FkcrDto, @CurrentUser() u: any) { return this.svc.forceCompleteRad(u, id, b.reason || ''); }
+  @RequirePermissions(Permission.ORDER_REFUND)
   @Post('radiology/:id/override-insurance') oir(@Param('id') id: string, @Body() b: OirDto, @CurrentUser() u: any) { return this.svc.overrideRadInsurance(u, id, b.status, b.reason || ''); }
 
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post('providers/:id/suspend') susp(@Param('id') id: string, @Body() b: SuspDto, @CurrentUser() u: any) { return this.svc.suspendProvider(u, id, b.reason || ''); }
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post('providers/:id/unsuspend') unsp(@Param('id') id: string, @CurrentUser() u: any) { return this.svc.unsuspendProvider(u, id); }
-  @Post('users/:id/impersonate') impersonate(@Param('id') targetUserId: string, @CurrentUser() admin: any) { return this.svc.impersonateUser(admin, targetUserId); }
+  // Minted a full, ungoverned token for ANY user (super_admin included) for any admin, without user.impersonate, a case,
+  // a purpose or a time limit. Support sessions go through the governed POST /admin/impersonation/start only.
+  @Post('users/:id/impersonate') impersonateDisabled(): never {
+    throw new GoneException('legacy_impersonation_disabled_use_admin_impersonation_start');
+  }
 
+  @RequirePermissions(Permission.DATA_EXPORT)
   @Get('actions') log(@Query() q: any) { return this.svc.listActions({ action: q?.action, admin_id: q?.admin_id, target_type: q?.target_type, limit: q?.limit ? Number(q.limit) : undefined }); }
 }

@@ -17,7 +17,7 @@ export interface CatalogPublicationInput {
   idempotencyKey: string;
 }
 
-const SOURCE_COLLECTIONS: Record<CatalogEntityType, string> = {
+export const SOURCE_COLLECTIONS: Record<CatalogEntityType, string> = {
   medicine: CATALOG_COLLECTIONS.medicines,
   provider: 'provider_profiles',
   facility: 'facilities',
@@ -25,6 +25,24 @@ const SOURCE_COLLECTIONS: Record<CatalogEntityType, string> = {
   radiology_service: CATALOG_COLLECTIONS.radiology_services,
   home_care_service: CATALOG_COLLECTIONS.nursing_services,
 };
+
+/**
+ * P13-R13: the single rule deciding whether an entity is publicly listed.
+ * Used by refresh() and by the reconciliation job, so the two can never drift
+ * apart.
+ */
+export function expectedPublication(entityType: CatalogEntityType, source: any): { published: boolean; indexable: boolean } {
+  const publicEligible = source?.public_eligibility === true;
+  const medicalApproved = source?.medical_review_status === 'approved';
+  let operational = false;
+  if (entityType === 'medicine') operational = source?.is_deleted !== true;
+  else if (entityType === 'provider') operational = String(source?.status || '').toLowerCase() === 'active';
+  else if (entityType === 'facility') operational = source?.is_active === true;
+  else operational = source?.active === true && source?.is_deleted !== true;
+  const published = publicEligible && medicalApproved && operational;
+  const indexable = published && source?.indexing_eligibility === true;
+  return { published, indexable };
+}
 
 /**
  * Materializes a minimal public-discovery projection synchronously after a
@@ -41,13 +59,6 @@ export class CatalogPublicationService {
     private readonly redis: RedisService,
     private readonly events: EventBusService,
   ) {}
-
-  private isOperational(entityType: CatalogEntityType, source: any): boolean {
-    if (entityType === 'medicine') return source.is_deleted !== true;
-    if (entityType === 'provider') return String(source.status || '').toLowerCase() === 'active';
-    if (entityType === 'facility') return source.is_active === true;
-    return source.active === true && source.is_deleted !== true;
-  }
 
   private canonicalPath(entityType: CatalogEntityType, source: any): string {
     const token = encodeURIComponent(source.slug || source.id);
@@ -79,10 +90,7 @@ export class CatalogPublicationService {
     const source = await this.conn.collection(SOURCE_COLLECTIONS[input.entityType]).findOne({ id: input.entityId });
     if (!source) throw new NotFoundException(`catalog_source_not_found:${input.entityType}:${input.entityId}`);
 
-    const publicEligible = source.public_eligibility === true;
-    const medicalApproved = source.medical_review_status === 'approved';
-    const published = publicEligible && medicalApproved && this.isOperational(input.entityType, source);
-    const indexable = published && source.indexing_eligibility === true;
+    const { published, indexable } = expectedPublication(input.entityType, source);
     const now = new Date();
     const canonicalPath = this.canonicalPath(input.entityType, source);
 
@@ -91,7 +99,7 @@ export class CatalogPublicationService {
       entity_id: source.id,
       source_collection: SOURCE_COLLECTIONS[input.entityType],
       source_updated_at: source.updatedAt || now,
-      public_eligibility: publicEligible,
+      public_eligibility: source.public_eligibility === true,
       indexing_eligibility: source.indexing_eligibility === true,
       medical_review_status: source.medical_review_status || 'pending',
       last_reviewed: source.last_reviewed || null,
