@@ -130,7 +130,7 @@ export class ProviderProfileController {
 }
 
 @Controller('provider/operators')
-@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
 export class ProviderOperatorsController {
   constructor(private readonly svc: ProviderOperatorsService) {}
   @Get() list(@CurrentUser() u: any) { return this.svc.list(u); }
@@ -211,7 +211,7 @@ import { trackingId, TRACK_PREFIX } from '../../common/tracking';
 import { NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 
 @Controller('provider/requests')
-@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
 export class ProviderRequestsController {
   constructor(
     private readonly svc: ProviderRequestEngineService,
@@ -438,7 +438,7 @@ export class ProviderRequestsController {
 }
 
 @Controller('provider/wallet')
-@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
 export class ProviderWalletController {
   constructor(
     @InjectConnection() private readonly conn: Connection,
@@ -459,7 +459,7 @@ export class ProviderWalletController {
 }
 
 @Controller('provider/notifications')
-@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
 export class ProviderNotificationsController {
   constructor(private readonly svc: ProviderNotificationsService) {}
   @Get() list(@CurrentUser() u: any, @Query() q: any) { return this.svc.list(u, q); }
@@ -506,7 +506,7 @@ export class ProviderDashboardController {
 // ============================================================================
 
 @Controller('provider/capabilities')
-@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
 export class ProviderCapabilitiesController {
   constructor(private readonly svc: ServiceCapabilityService) {}
   // Pharmacy inventory
@@ -532,7 +532,7 @@ export class ProviderCapabilitiesController {
 }
 
 @Controller('provider/zones')
-@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
 export class ProviderZonesController {
   constructor(private readonly svc: ServiceCapabilityService) {}
   @Get() list(@CurrentUser() u: any) { return this.svc.listZones(u); }
@@ -541,7 +541,7 @@ export class ProviderZonesController {
 }
 
 @Controller('provider/schedule-slots')
-@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
 export class ProviderScheduleSlotsController {
   constructor(private readonly svc: SchedulingEngineService) {}
   @Get() list(@CurrentUser() u: any) { return this.svc.listSlots(u); }

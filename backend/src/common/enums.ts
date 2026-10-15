@@ -12,7 +12,6 @@ export enum UserRole {
   HOME_CARE = 'home_care',
   NURSING = 'nursing',
   NURSE = 'nurse',
-  AMBULANCE = 'ambulance',
   PHYSIOTHERAPIST = 'physiotherapist',
   ADMIN = 'admin',
   DELIVERY = 'delivery',
