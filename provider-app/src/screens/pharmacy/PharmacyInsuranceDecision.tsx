@@ -5,7 +5,7 @@
  * per-item outcomes + approval_reference + idempotency_key.
  * This replaces the generic insurance-engine screen for pharmacy orders.
  */
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import * as Crypto from 'expo-crypto';
 import { useTheme, useLang, useToast } from '../../context';
@@ -99,6 +99,36 @@ export function PharmacyInsuranceQueueScreen({ onBack }: { onBack: () => void })
           ))
         )}
       </ScrollView>
+    </View>
+  );
+}
+
+/**
+ * Opens the same decision form straight from an Orders card whose allocation row carries
+ * awaits_insurance_decision (provider-journeys needs-review line 22). It only loads the
+ * allocation detail the queue loads; the decision itself is the form's existing POST.
+ */
+export function PharmacyInsuranceDecisionForAllocation({ allocationId, onBack }: { allocationId: string; onBack: () => void }) {
+  const { theme } = useTheme();
+  const { t } = useLang();
+  const { show } = useToast();
+  const [detail, setDetail] = useState<Record<string, unknown> | null>(null);
+  const backRef = useRef(onBack);
+  backRef.current = onBack;
+
+  useEffect(() => {
+    let live = true;
+    client.get<Record<string, unknown>>(`/provider/pharmacy/allocations/${allocationId}`)
+      .then((r) => { if (live) setDetail(r.data); })
+      .catch(() => { if (live) { show(t('error'), 'error'); backRef.current(); } });
+    return () => { live = false; };
+  }, [allocationId, show, t]);
+
+  if (detail) return <PharmacyInsuranceDecisionForm detail={detail} onBack={onBack} />;
+  return (
+    <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <NHeader title={t('insuranceDecisionRecord')} onBack={onBack} />
+      <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: SP.xxl }} accessibilityLabel={t('loading')} />
     </View>
   );
 }
