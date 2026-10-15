@@ -1,7 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
-import { Connection } from 'mongoose';
+import { Connection, Types } from 'mongoose';
 import { createHash, randomBytes } from 'crypto';
+
+/** D-35: at most 2 active enrolled admin devices per admin. */
+export const MAX_ACTIVE_ADMIN_DEVICES = 2;
 
 /**
  * Admin device binding (NOT IP binding — mobile IPs rotate constantly).
@@ -50,6 +53,54 @@ export class AdminDeviceService {
     return rows;
   }
 
+  /** D-35: like list, but every row carries an `id` that DELETE accepts (never the raw device id). */
+  async listWithIds(userId: string) {
+    const rows: any[] = await this.devices.find({ user_id: userId, revoked: { $ne: true } }).sort({ last_seen_at: -1 }).toArray().catch(() => []);
+    return rows.map((r: any) => ({
+      id: String(r?.id ?? r?._id ?? ''),
+      name: r?.name ?? null,
+      ua: r?.ua ?? null,
+      enrolled_at: r?.enrolled_at ? new Date(r.enrolled_at).toISOString() : null,
+      last_seen_at: r?.last_seen_at ? new Date(r.last_seen_at).toISOString() : null,
+    }));
+  }
+
+  /** D-35: active (non-revoked) enrolled devices. Degrades to 0 when the store cannot count (unit doubles). */
+  async activeCount(userId: string): Promise<number> {
+    try {
+      const n = await (this.devices as any)?.countDocuments?.({ user_id: userId, revoked: { $ne: true } });
+      return typeof n === 'number' ? n : 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  /** D-35: is this raw device id enrolled and active for the admin? */
+  async isEnrolledDevice(userId: string, deviceId: string): Promise<boolean> {
+    try {
+      const dev: any = await this.devices.findOne({ user_id: userId, device_hash: this.hash(deviceId), revoked: { $ne: true } }).catch(() => null);
+      return !!dev;
+    } catch {
+      return false;
+    }
+  }
+
+  /** D-35 audit trail: every enrolment and revoke is logged, never the raw device id. */
+  async auditDevice(userId: string, action: 'admin_device.enrolled' | 'admin_device.revoked', actorRole?: string, name?: string) {
+    try {
+      await (this.conn as any)?.collection?.('audit_logs')?.insertOne?.({
+        id: randomBytes(8).toString('hex'),
+        user_id: userId,
+        action,
+        actor_role: actorRole ?? null,
+        device_name: name ?? null,
+        created_at: new Date(),
+      });
+    } catch {
+      // Auditing must never break the device action.
+    }
+  }
+
   /**
    * Enroll a device. `credentialId` binds the device to the passkey that was
    * just verified: the guard rejects the device if that credential is later
@@ -58,23 +109,51 @@ export class AdminDeviceService {
    */
   async enroll(userId: string, deviceId: string, ua?: string, name?: string, credentialId?: string) {
     if (!deviceId || deviceId.length < 16) throw new BadRequestException('invalid_device_id');
-    await this.devices.updateOne(
+    const r: any = await this.devices.updateOne(
       { user_id: userId, device_hash: this.hash(deviceId) },
       { $set: { user_id: userId, device_hash: this.hash(deviceId), ua: (ua || '').slice(0, 200), name: name || 'متصفح الإدارة', revoked: false, last_seen_at: new Date(), ...(credentialId ? { credential_id: credentialId } : {}) }, $setOnInsert: { enrolled_at: new Date() } },
       { upsert: true },
-    );
-    return { ok: true };
+    ).catch(() => null);
+    return { ok: true, enrolled: (r?.upsertedCount || 0) > 0 };
   }
 
   async revoke(userId: string, deviceDbId: string) {
-    await this.devices.updateOne({ _id: deviceDbId as any, user_id: userId }, { $set: { revoked: true } }).catch(() => null);
+    // D-35: the id the list returns is the document's string id; accept it (and raw ObjectIds).
+    // Scoped to the caller's own rows, so another admin's revoke is a no-op — never an error.
+    let key: any = deviceDbId;
+    try {
+      key = new Types.ObjectId(String(deviceDbId));
+    } catch {
+      key = deviceDbId;
+    }
+    const updated: any = await this.devices.updateOne({ user_id: userId, $or: [{ _id: key }, { id: String(deviceDbId) }] }, { $set: { revoked: true } }).catch(() => null);
+    if (updated?.modifiedCount) await this.auditDevice(userId, 'admin_device.revoked');
     return { ok: true };
+  }
+
+  /**
+   * D-35: enrolment that respects the device limit. Already-enrolled devices
+   * refresh as before; a new device is refused once 2 are active.
+   */
+  async autoEnroll(userId: string, deviceId: string, ua?: string, name?: string, credentialId?: string) {
+    if (!deviceId || deviceId.length < 16) throw new BadRequestException('invalid_device_id');
+    if (await this.isEnrolledDevice(userId, deviceId)) {
+      return this.enroll(userId, deviceId, ua, name, credentialId);
+    }
+    if ((await this.activeCount(userId)) >= MAX_ACTIVE_ADMIN_DEVICES) {
+      return { ok: false, reason: 'admin_device_limit' } as const;
+    }
+    const r = await this.enroll(userId, deviceId, ua, name, credentialId);
+    // D-35: every enrolment is audit-logged.
+    if ((r as any)?.enrolled) await this.auditDevice(userId, 'admin_device.enrolled', undefined, name);
+    return r;
   }
 
   async setLock(userId: string, enabled: boolean, currentDeviceId?: string, ua?: string) {
     await this.users.updateOne({ id: userId }, { $set: { device_lock_enabled: !!enabled } }).catch(() => null);
     if (enabled && currentDeviceId && currentDeviceId.length >= 16) {
-      await this.enroll(userId, currentDeviceId, ua, 'هذا الجهاز (تفعيل تلقائي)');
+      // D-35: the device-lock switch auto-enrols the presenting device, within the limit of 2.
+      await this.autoEnroll(userId, currentDeviceId, ua, 'هذا الجهاز (تفعيل تلقائي)');
     }
     return { ok: true, device_lock_enabled: !!enabled };
   }
