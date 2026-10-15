@@ -8,12 +8,12 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| Patient app and web | 434 | 79 | 255 | 88 | 1 | 11 |
+| Patient app and web | 434 | 81 | 253 | 88 | 1 | 11 |
 | Other | 29 | 22 | 7 | 0 | 0 | 0 |
 | Admin | 97 | 8 | 56 | 33 | 0 | 0 |
 | Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
 | Final pass | 8 | 8 | 0 | 0 | 0 | 0 |
-| Patient journeys | 87 | 33 | 52 | 2 | 0 | 0 |
+| Patient journeys | 87 | 31 | 54 | 2 | 0 | 0 |
 | Provider app | 31 | 8 | 22 | 1 | 0 | 0 |
 | Provider journeys | 34 | 17 | 15 | 2 | 0 | 0 |
 | **Total** | **740** | **177** | **423** | **128** | **1** | **11** |
@@ -73,9 +73,9 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `admin-providers.json` | 8 | 0 | 5 | 3 | 0 | 0 |
 | `admin-public-directories.json` | 14 | 0 | 4 | 10 | 0 | 0 |
 | `admin-system.json` | 12 | 2 | 7 | 3 | 0 | 0 |
-| `batch-0-app.json` | 13 | 4 | 8 | 0 | 0 | 1 |
+| `batch-0-app.json` | 13 | 5 | 7 | 0 | 0 | 1 |
 | `batch-0-runtime.json` | 8 | 6 | 1 | 1 | 0 | 0 |
-| `batch-0-web.json` | 19 | 8 | 9 | 1 | 0 | 1 |
+| `batch-0-web.json` | 19 | 10 | 7 | 1 | 0 | 1 |
 | `batch-1a-app.json` | 19 | 3 | 4 | 11 | 0 | 1 |
 | `batch-1a-web.json` | 12 | 4 | 6 | 2 | 0 | 0 |
 | `batch-1b-app.json` | 12 | 4 | 5 | 2 | 0 | 1 |
@@ -83,10 +83,10 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1c-app.json` | 12 | 0 | 10 | 1 | 0 | 1 |
 | `batch-1c-web.json` | 13 | 1 | 9 | 3 | 0 | 0 |
 | `batch-1d-app.json` | 20 | 2 | 11 | 7 | 0 | 0 |
-| `batch-1d-web.json` | 10 | 2 | 5 | 3 | 0 | 0 |
+| `batch-1d-web.json` | 10 | 1 | 6 | 3 | 0 | 0 |
 | `final-pass-2.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `final-pass.json` | 4 | 4 | 0 | 0 | 0 | 0 |
-| `journeys.json` | 87 | 33 | 52 | 2 | 0 | 0 |
+| `journeys.json` | 87 | 31 | 54 | 2 | 0 | 0 |
 | `provider-admin-ish.json` | 3 | 1 | 2 | 0 | 0 | 0 |
 | `provider-doctor.json` | 6 | 1 | 5 | 0 | 0 | 0 |
 | `provider-facility.json` | 7 | 1 | 6 | 0 | 0 | 0 |
@@ -175,6 +175,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-0-app.json#2` | untagged | open (issue #410) | /login Two api helpers and three base-URL resolutions | login.tsx, welcome.tsx and useSocialLogin.ts use utils/api.ts (axios HttpClient, base EXPO_PUBLIC_API_URL + /api/v1 else https://api.nabd.plus/api/v1: src/services/HttpClient.ts:5… |
 | `batch-0-app.json#3` | untagged | open (issue #411) | /login Social buttons (Google, X, Snapchat): request hooks with empty client ids | useSocialLogin runs Google.useAuthRequest with clientId, iosClientId and androidClientId set to '' when the env vars are missing (lines 88-92), and AuthSession.useAuthRequest for … |
 | `batch-0-app.json#4` | untagged | closed-unverified (issue #412: closed with no linked PR) | /login POST /auth/social-login: the backend does not verify the Apple, X and Sn… | The app sends {provider, token} (Apple: the identity token; X and Snapchat: an opaque OAuth access token; Google: an access token). backend/src/modules/auth/auth.service.ts social… |
+| `batch-0-app.json#5` | untagged | open (issue #413) | /register Submit: duplicate email or phone found only after the OTP step | POST /auth/send-otp {email, purpose:'register'} sends a code to any email, registered or not (backend auth.service.ts:956-967 ignores the existing account when purpose is 'registe… |
 | `batch-0-app.json#8` | untagged | open (issue #416) | /notifications Row tap: routes the app cannot translate do nothing | openNotif pushes only when translateBackendRoute(n.route) returns a target (src/hooks/usePushNotifications.ts:33-77); otherwise the row is marked read and nothing happens (no inbo… |
 | `batch-0-app.json#12` | owner | open (issue #420) | /services Services catalogue and Home items: labels held in data files | catalog.ts and src/features/home/homeItems.ts (and notificationsFeed constants before this pass) keep Arabic phrases as titles and descriptions, translated through the old Arabic-… |
 | `batch-0-runtime.json#0` | untagged | open (issue #421) | /services Direct visits to /consultations/doctors: inline style attributes | /services no longer lands here (batch-0-fixes: it goes to Home), but the page itself, reached by its own URL or from Home's doctor links, still puts raw legacy colours (#FDFDFC, #… |
@@ -184,6 +185,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-0-runtime.json#6` | untagged | open (issue #427) | all routes Largest-contentful-paint stays above 2.5 s (F82) | Lighthouse on the production build (median of 3): LCP 3.0-3.2 s on /ar and /ar/consultations/doctors, 4.3 s on /ar/pharmacy, against 2.5 s. The shared-JS trim did not move it (mai… |
 | `batch-0-runtime.json#7` | untagged | open (issue #428) | tooling tools/design/import-rule.baseline.json is not on main | The import rule (P12.C2) and its baseline exist on fix/audit-2026-09 only; main has neither. patient-app AuthKit no longer imports @expo/vector-icons (BrandMark in packages/ui-nat… |
 | `batch-0-web.json#1` | untagged | open (issue #430) | /login Google button (rendered only when NEXT_PUBLIC_GOOGLE_CLIENT_ID is set) | FIXED in batch-0-fixes: the busy state now clears when the popup is closed or fails to open (error_callback) and when the Google script fails to load; a press before the script ha… |
+| `batch-0-web.json#3` | untagged | open (issue #432) | /register Consent policy ids and versions sent on registration | policy_id/version come from NEXT_PUBLIC_TERMS_POLICY_ID/_VERSION and NEXT_PUBLIC_PRIVACY_POLICY_ID/_VERSION with defaults 'terms'/'v1' and 'privacy'/'v1' (lines 18-23, 45-48). The… |
+| `batch-0-web.json#5` | untagged | open (issue #434) | /register Submit error messages (account may already exist) | FIXED on the client in batch-0-fixes: 409 now says "already registered, sign in", 429 says to wait, every 5xx says registration could not be completed and that the account may alr… |
 | `batch-0-web.json#6` | untagged | open (issue #435) | /forgot-password Submit → success message | FIXED on the client in batch-0-fixes: the success message now links to /password-reset ("I have the code"), a throttled request says so, and the reset page takes the token in a pl… |
 | `batch-0-web.json#7` | untagged | open (issue #436) | /onboarding Whole screen (entry and outcome) | No link in the web points to /onboarding (grep over app, components-next, lib); /welcome is reached only from the login back button and the onboarding screens; finishing onboardin… |
 | `batch-0-web.json#8` | untagged | open (issue #437) | /onboarding Slides, buttons and labels | FIXED in batch-0-fixes: slide titles and bodies, the carousel, language and permission steps and the frame's back label and hero text are in messages (Onboarding, AuthFrame; six l… |
@@ -213,7 +216,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1d-app.json#7` | untagged | open (issue #537) | /payments/result Callers in other batches reach the result with nothing to veri… | approval-pending.tsx:103,177 push /payments/processing with no params; the result screen now says it cannot confirm (old screen spun forever). copay, diagnostics and nursing pass … |
 | `batch-1d-app.json#18` | untagged | open (issue #548) | /payments/result Success board colours and confetti not drawn | The Success board is a dark full-bleed page with lime (#D7FF00) and confetti colours that are not tokens. |
 | `batch-1d-web.json#1` | untagged | open (issue #551) | /pharmacy/payment Payment provider not exercised | No gateway key on the local backend (intent answers 503) and no Mongo replica set (selection / insurance acceptance fail). Hosted checkout, return and webhook were checked only ag… |
-| `batch-1d-web.json#9` | untagged | open (issue #559) | /payments/result Unused: app/api/payments/status/[ref], lib/api/pharmacy-draft.… | Both have no caller (pharmacy-draft.ts only its own test, not deleted: not this slice's test). The result screen verifies any transaction by id but 'Track / Try again' lead to pha… |
 | `final-pass-2.json#0` | client | open | /admin/approvals approvals list call | [client] The path is built from a variable, so the inventory cannot check it (UNRESOLVED x1). |
 | `final-pass-2.json#1` | client | open | API catalogs service catalogue by type | [client] client.get(SVC_ENDPOINT[type]) is built from a map, so the call is not resolved by the inventory (1 site). |
 | `final-pass-2.json#2` | client | open | order list, generic data sources apiFetch(path) and RemoteDataSource.get/post | [client] 4 call sites forward a variable path (also core/data/HttpRemoteDataSource.ts:80, data/repositories/sources/RemoteDataSource.ts:38 and :47); the runtime check passed for t… |
@@ -238,7 +240,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `journeys.json#41` | untagged | open (issue #1050) | 3 doctor chat | App chat composer is text only (no voice note, image or file), no "emergency 997" line, no follow-up window state or "book a follow-up" button (decision 24). |
 | `journeys.json#42` | untagged | open (issue #1051) | 4 cancel (list "edit") | Two cancel UIs on web: the appointment page (cancel with a reason) and /consultations/cancel-reschedule (reached from the list "edit" button) which also has cancel and reschedule. |
 | `journeys.json#44` | untagged | open (issue #1053) | 4 cancel | Cancelling from the appointment page gives no refund amount or method afterwards, only a refresh. |
-| `journeys.json#46` | untagged | open (issue #1055) | 4 pay card | After a consultation card payment the shared /payments/result has no order id, so "paid" offers only "my orders" (the pharmacy orders list), not the appointment. |
 | `journeys.json#48` | untagged | open (issue #1057) | 4 appointment page | A finished appointment links to the generic /prescriptions list, not to that visit's prescription or to "اطلب الأدوية دي"; no chat entry or follow-up from the appointment page. |
 | `journeys.json#49` | untagged | open (issue #1058) | 5 book home lab | Booking a lab test from the lab list ends at "no lab available" with only a back button (no compatible lab in seed, but also no alternative such as the lab list or the cart). |
 | `journeys.json#50` | untagged | open (issue #1059) | 5 book home lab | Two booking entries: "book this package" -> /diagnostics/labs/book and "add to my order" -> /diagnostics/cart (cart -> checkout). |
@@ -253,7 +254,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `journeys.json#74` | untagged | open (issue #1083) | 8 manual request | The request form has no photo of the box and no quantity (decision 12 mentions text, box photo and prescription requests). |
 | `journeys.json#75` | untagged | open (issue #1084) | 8 price review | Offers for a manual request show no "price not verified" state (decision 12) and no way to counter or reject a price except the substitute negotiation. |
 | `journeys.json#77` | untagged | open (issue #1086) | 9 connection loss | Offline, tapping "request offers" in the cart ends on the browser's own error page; the service worker has no fetch handler or offline page. |
-| `journeys.json#78` | untagged | open (issue #1087) | 9 payment | The payment-result screen is pharmacy-specific: a returned consultation or nursing payment has no order to track. |
 | `journeys.json#83` | untagged | open (issue #1092) | 10 dashboard | The dashboard keeps a "المحادثات" (/chat) tile (decision 24 removes the chat list). |
 | `provider-admin-ish.json#2` | backend | open | RevenueInsights API GET /provider/ops/wallet/ledger | [backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider-ops/provi… |
 | `provider-doctor.json#2` | client | open | EPrescriptionScreen {t.titleAr} {t.drugs.length} | [client] Button "{t.titleAr} {t.drugs.length}" shows a success message without sending a request. |
