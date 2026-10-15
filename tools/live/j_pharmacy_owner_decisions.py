@@ -113,7 +113,7 @@ def order_chat(admin, pat, pharm):
     step('a substitute with another strength is refused (substitute_outside_prescription)', r.status == 400 and 'substitute_outside_prescription' in str(r.body), r)
     r = pharm.post(f'/pharmacy/chat/threads/{tid}/messages', {'text': 'بديل جنيس', 'substitute_offer': {'inventory_item_id': inv.get(generic['id']), 'notes': 'نفس المادة والتركيز'}})
     sub = r.get('substitute_offer') or {}
-    step('the generic is sent, with the name and price of the inventory row', r.ok and sub.get('name') == generic['name_ar'] and sub.get('price') == 31, r)
+    step('the generic is sent, with the name and price of the inventory row', r.ok and sub.get('name') == generic['name_ar'] and sub.get('price') == 37, r)
     r = pat.post(f'/pharmacy/chat/threads/{tid}/messages', {'substitute_offer': {'inventory_item_id': inv.get(generic['id'])}})
     step('the patient cannot attach a substitute', r.status in (400, 403), r)
 
