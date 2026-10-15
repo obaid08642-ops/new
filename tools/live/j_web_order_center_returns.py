@@ -55,7 +55,7 @@ def main():
         except Exception:
             pass
         step('the return is a row of the order centre', row.count() >= 1, f'{row.count()} link(s)')
-        text = page.locator('main').inner_text() if page.locator('main').count() else page.inner_text('body')
+        text = row.first.inner_text() if row.count() else ''
         step('the row carries the reason and the kind "طلب إرجاع"', 'منتج تالف في العبوة' in text and 'طلب إرجاع' in text, text[:300])
         if row.count():
             row.first.click()
