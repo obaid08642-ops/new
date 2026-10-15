@@ -143,7 +143,9 @@ def main():
     acct = j_accounts.app_signup(label='rx-chat-patient')
     pat = Client(acct['token'], 'patient')
     chat = order_chat(admin, pat, Client(p['token'], 'pharmacy'))
-    slug = public_slug(admin, chat['ordered']) if chat else None
+    from j_rx_substitute import rx_medicine
+    web_med = rx_medicine(admin, 'Augmentin', 'amoxicillin clavulanate', '1g', 'tablet')
+    slug = public_slug(admin, web_med) if web_med.get('id') else None
 
     try:
         from playwright.sync_api import sync_playwright
