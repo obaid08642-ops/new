@@ -96,7 +96,7 @@
     "line": 64,
     "found": "[client] The Relax screen lists recorded sessions only; starting a session needs the app (the old pages were history only; the app guides live in the hub).",
     "suspect": "Client-side: later batch.",
-    "review_status": "open (issue #866)"
+    "review_status": "fixed #1455 (owner decision B18: breathing and meditation removed, the pages redirect to /mental-health) (issue #866)"
   },
   {
     "batch": 8,
