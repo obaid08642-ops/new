@@ -52,7 +52,7 @@
     "line": 69,
     "found": "The app sends {provider, token} (Apple: the identity token; X and Snapchat: an opaque OAuth access token; Google: an access token). backend/src/modules/auth/auth.service.ts socialLogin (1068-1117): Google is checked against Google's userinfo endpoint (verifyGoogleToken, 1119-1135); Apple only base64-decodes the middle part of the JWT, with no signature, issuer or audience check (1137-1151); X and Snapchat accept any string: a token that is not a three-part JWT, which is what the app sends, gives a made-up email x_user_<4 digits>@nabd.app or snapchat_user_<4 digits>@nabd.app (verifyXToken 1153-1167, verifySnapchatToken 1169-1185). The email is then used to find or create a user and a session token is returned, with no role check on the found user.",
     "suspect": "Apple sign-in can be forged with a hand-made JWT for any email (including an existing account); X and Snapchat sign-ins create a new throw-away account each time and are not tied to the provider account. Backend fix needed: verify Apple identity tokens against Apple's keys, verify X and Snapchat access tokens with their user endpoints, and refuse privileged roles on this route.",
-    "review_status": "closed-unverified (issue #412: closed with no linked PR)"
+    "review_status": "fixed #1448: Q107 d7dc620f2 verifies the Apple token (auth.service.ts:1397-1416) and refuses X and Snapchat (:1303); live proof tools/live/j_social_login.py (issue #412)"
   },
   {
     "batch": 0,
