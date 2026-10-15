@@ -130,5 +130,16 @@
     "found": "`onPress={() => { /* Requires backend API integration */ }}`: the handler is empty.",
     "suspect": "A dead button. Needs a prescription PDF endpoint (none found in the prescriptions module or the health controller) or the button should be hidden.",
     "review_status": "fixed #1220 (issue #571)"
+  },
+  {
+    "batch": "tooling",
+    "app": "patient-web",
+    "screen": "/ (throttled network)",
+    "element": "tools/live/j_throttled_network.py browser half",
+    "file": "tools/live/j_throttled_network.py",
+    "line": 120,
+    "found": "[client] The browser half of j_throttled_network has always skipped in CI (live-gate.yml did not serve patient-web). Run against a served patient-web (fix session, local), 5 of 61 steps fail: the page on 3G answers 138 characters in 1 s, the 1% loss route sees 0 API requests, and the offline state shows no banner and no 'last updated' time (the journey names the owning fix: patient-web offline UI, 15.4). The gate now serves patient-web on :3100 for the j_web_* journeys only, so this journey still skips its browser half in CI.",
+    "suspect": "Offline UI (15.4) not built; the 3G and loss steps may also need the journey to follow the nonce server.",
+    "review_status": "open"
   }
 ]
