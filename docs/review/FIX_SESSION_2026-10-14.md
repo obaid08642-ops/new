@@ -18,6 +18,16 @@ The session does not stop until every item below is closed, one group after anot
 2. Every `open` or `closed-unverified` line in `docs/design/needs-review/*.json`.
 3. Every live-gate journey or scenario that fails on `main`, and every button, field or link you find dead while
    working (fix it in the PR for that area, or open a `route:claude-fix` issue and take it next).
+4. `closed-unverified` lines are issues closed without a PR that proves the fix. Check each on `main`. If it is
+   fixed, set `fixed` with the commit or the file:line that proves it. If it is not, reopen the issue and fix it.
+   Start with issue 412 (social login tokens), because it is a security item.
+
+What "fixed" means (owner, 2026-10-15): the screen, button or field works end to end on real data. Every control is
+wired to a real backend route that reads and writes the real database. No fake, placeholder or hard-coded data, no
+button that does nothing, and no "coming soon" in place of a feature the boards show. When the backend route or the
+data is missing, build it (route, DTO with validators, service, database fields, and the admin side when the data is
+managed there), unless the item belongs to another session (§4). Fix the root cause, not the symptom, and prove it
+with the live gate (red before, green after).
 
 How the work flows:
 
