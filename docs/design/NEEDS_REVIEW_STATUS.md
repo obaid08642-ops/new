@@ -10,23 +10,23 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---|---:|---:|---:|---:|---:|---:|
 | Patient app and web | 434 | 52 | 287 | 92 | 3 | 0 |
 | Other | 29 | 16 | 12 | 1 | 0 | 0 |
-| Admin | 99 | 7 | 59 | 33 | 0 | 0 |
+| Admin | 99 | 4 | 62 | 33 | 0 | 0 |
 | Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
-| Final pass | 8 | 6 | 0 | 2 | 0 | 0 |
+| Final pass | 8 | 4 | 2 | 2 | 0 | 0 |
 | Patient journeys | 87 | 20 | 65 | 2 | 0 | 0 |
-| Provider app | 31 | 7 | 23 | 1 | 0 | 0 |
+| Provider app | 31 | 4 | 23 | 4 | 0 | 0 |
 | Provider journeys | 34 | 9 | 22 | 2 | 1 | 0 |
-| **Total** | **742** | **119** | **484** | **135** | **4** | **0** |
+| **Total** | **742** | **111** | **489** | **138** | **4** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| client | 169 | 33 | 104 | 31 | 1 | 0 |
+| client | 169 | 28 | 106 | 34 | 1 | 0 |
 | owner | 100 | 17 | 39 | 42 | 2 | 0 |
-| backend | 235 | 29 | 177 | 29 | 0 | 0 |
+| backend | 235 | 26 | 180 | 29 | 0 | 0 |
 | untagged | 238 | 40 | 164 | 33 | 1 | 0 |
-| **Total** | **742** | **119** | **484** | **135** | **4** | **0** |
+| **Total** | **742** | **111** | **489** | **138** | **4** | **0** |
 
 ## By file
 
@@ -65,7 +65,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `9-app.json` | 8 | 0 | 6 | 2 | 0 | 0 |
 | `9-web.json` | 8 | 0 | 7 | 1 | 0 | 0 |
 | `ac-1-agent-oauth.json` | 2 | 2 | 0 | 0 | 0 | 0 |
-| `admin-catalogue.json` | 24 | 3 | 15 | 6 | 0 | 0 |
+| `admin-catalogue.json` | 24 | 0 | 18 | 6 | 0 | 0 |
 | `admin-customers-growth.json` | 14 | 0 | 8 | 6 | 0 | 0 |
 | `admin-finance.json` | 10 | 0 | 9 | 1 | 0 | 0 |
 | `admin-journeys.json` | 20 | 2 | 16 | 2 | 0 | 0 |
@@ -85,13 +85,13 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1d-app.json` | 20 | 1 | 12 | 7 | 0 | 0 |
 | `batch-1d-web.json` | 10 | 1 | 6 | 3 | 0 | 0 |
 | `final-pass-2.json` | 4 | 4 | 0 | 0 | 0 | 0 |
-| `final-pass.json` | 4 | 2 | 0 | 2 | 0 | 0 |
+| `final-pass.json` | 4 | 0 | 2 | 2 | 0 | 0 |
 | `journeys.json` | 87 | 20 | 65 | 2 | 0 | 0 |
 | `provider-admin-ish.json` | 3 | 1 | 2 | 0 | 0 | 0 |
 | `provider-doctor.json` | 6 | 1 | 5 | 0 | 0 | 0 |
 | `provider-facility.json` | 7 | 1 | 6 | 0 | 0 | 0 |
 | `provider-journeys.json` | 34 | 9 | 22 | 2 | 1 | 0 |
-| `provider-lab.json` | 4 | 3 | 1 | 0 | 0 | 0 |
+| `provider-lab.json` | 4 | 0 | 1 | 3 | 0 | 0 |
 | `provider-nursing.json` | 2 | 0 | 2 | 0 | 0 | 0 |
 | `provider-pharmacy.json` | 2 | 0 | 1 | 1 | 0 | 0 |
 | `provider-radiology.json` | 1 | 0 | 1 | 0 | 0 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 6 | 1 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 1 | 11 | 1 | 0 | 0 |
-| **Total** | **742** | **119** | **484** | **135** | **4** | **0** |
+| **Total** | **742** | **111** | **489** | **138** | **4** | **0** |
 
 ## Owner decisions (4)
 
@@ -111,7 +111,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 3 | `batch-1b-app.json#1` `patient-app/app/(tabs)/pharmacy.tsx:63` | /pharmacy/pharmacist-chat Hub tile 'Pharmacist consult' and product page 'Ask a… | The screen is the substitute-negotiation chat of one order (GET /pharmacy/chat/threads?order_id=); a thread exists only when a pharmacy proposes a substitute for an order line. The hub (pharmacy.tsx:63) and the product … |
 | 4 | `provider-journeys.json#5` `provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:538` | PharmacyDashboard hand over / delivery | [client] The prescription dispensing path is a "disabled" notice and the old order detail and broadcast screens are defined but never rendered (dead code). |
 
-## Open and unverified (119)
+## Open and unverified (111)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -145,9 +145,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `8-web.json#3` | backend | open (issue #861) | /maternity Weekly articles and fetal-week size/image | [backend] GET /maternity/content returns empty lists (weekly_tips, links) and there is no fetal-week endpoint; the board's 'Read this week' list and fetal size line are not drawn,… |
 | `ac-1-agent-oauth.json#0` | client | open | /oauth/authorize AI assistant consent page | [client] Functional consent page (client name, scopes, 'you confirm and pay on Nabd Plus', allow / don't allow) built on the auth layout with translations in six languages; it has… |
 | `ac-1-agent-oauth.json#1` | client | open | Settings > Connected AI apps List and disconnect connected AI assistants | [client] No screen yet. Backend is ready: GET /api/v1/patient/agent-connections (client_id, client_name, logo_uri, scopes, connected_at) and DELETE /api/v1/patient/agent-connectio… |
-| `admin-catalogue.json#18` | backend | open | /admin/medicines-catalog Controlled flag (quick edit) | [backend] Owner decision 10 needs `controlled` editable by admin, but it is not in MedicinesService.EDITABLE_FIELDS nor in AdminUpdateCatalogDto, so a PATCH would drop it. The con… |
-| `admin-catalogue.json#19` | backend | open | /admin/medicines-catalog Add item from the items-to-review queue | [backend] Decision 12 queue (pharmacy lines with no catalogue match, price not verified) does not exist: no sfda_price fields, GET /medicines/admin/pending-review answers 410 Gone… |
-| `admin-catalogue.json#20` | backend | open | /admin/medicines-catalog Change log for prescription flag and availability | [backend] Only price changes write a history row (medicine price history, shown in the quick edit); a prescription-flag or availability change goes to the generic audit log with n… |
 | `admin-journeys.json#14` | client | open | /admin/orders/[kind]/[id] Journey 3 / Refund action is labelled 'to wallet' but… | Fixed (the refund label now reads "استرداد إلى وسيلة الدفع الأصلية"; the compensation label was corrected the same way 2026-10-10, owner decision #952): [client] The refund action… |
 | `admin-journeys.json#18` | client | open (issue #955) | /admin/config-portal Journey 4 / Emergency maintenance switch is disabled and t… | [client] The 'Trigger System Kill-Switch' button is permanently disabled ('requires server set-up'), although the handler at line 183 and PUT /admin/governance/trigger-emergency-m… |
 | `admin-ops-monitoring.json#4` | backend | open | /admin/approvals One approvals endpoint with counts | [backend] No endpoint returns all pending approvals with counts, so the page asks nine existing list endpoints (providers, provider edits, withdrawals, refunds, returns, medicine … |
@@ -182,8 +179,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `final-pass-2.json#1` | client | open | API catalogs service catalogue by type | [client] client.get(SVC_ENDPOINT[type]) is built from a map, so the call is not resolved by the inventory (1 site). |
 | `final-pass-2.json#2` | client | open | order list, generic data sources apiFetch(path) and RemoteDataSource.get/post | [client] 4 call sites forward a variable path (also core/data/HttpRemoteDataSource.ts:80, data/repositories/sources/RemoteDataSource.ts:38 and :47); the runtime check passed for t… |
 | `final-pass-2.json#3` | client | open | docs/design/needs-review/*.json stale lines | [client] 50 older lines have no file or point to files deleted by the SOS removal, the cart/orders merges and the admin directory removal (the first two lines of this file are the… |
-| `final-pass.json#2` | client | open | MedicalJobsScreen guest applications list | [client] GET /recruitment/guest/mine answers 400 with the patient session and with none (runtime check, provider area 'shared'); the screen sends only device_id, so the call fails… |
-| `final-pass.json#3` | client | open | public directory pages (/articles, /doctors, /facilities, /home-care-services, … | [client] The server-side fetch uses a relative/BFF-less URL (`${base}/api/v1${endpoint}`), so the six directory pages render empty (NO_ROUTE x6 in the admin inventory); the pages … |
 | `journeys.json#2` | untagged | open (issue #1011) | 1 offers (no answer yet) | While no pharmacy has answered, the offers page only polls every 15 s with the sentence "an empty list does not mean the order was cancelled": no "expanding the search" step, no f… |
 | `journeys.json#7` | untagged | open (issue #1016) | 1 accept and pay | Two payment UIs for the same step: inline method buttons on the offers page (OnlinePaymentActions) and the separate /pharmacy/payment page. |
 | `journeys.json#8` | untagged | open | 1 order detail / tracking | Fixed on design/oc-journeys-1 (cancel button on order detail and tracking until the order is dispatched; the refund rule text of decision 26 waits for the OC-A policy D-26). No ca… |
@@ -216,9 +211,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `provider-journeys.json#23` | backend | open | emergency.module ambulance removal (decision 14) | [backend] The app no longer has the ambulance provider type, dashboard, SOS dispatch, GPS router or fleet screens. These backend modules still exist and are for the reviewer to re… |
 | `provider-journeys.json#28` | backend | open | LabRegistration + Add Custom Test (Requires Approval) (hidden) | [backend] The wizard had "+ Add Custom Test (Requires Approval)" in the lab and radiology test menus; it only showed a toast and sent nothing. It is hidden now (M9). To bring it b… |
 | `provider-journeys.json#33` | backend | open | NursingFieldOps result upload | [backend] With result files the visit is completed through POST /home-care/bookings/:id/visit-report (the only route that stores attachments); that handler sends no `patient.notif… |
-| `provider-lab.json#0` | client | open | LabOrderDetail mock-name: openSampleForResults = async () => { | [client] mock-name (mock-scan): openSampleForResults = async () => { |
-| `provider-lab.json#1` | client | open | LabTestMenuScreen dummy-value: Test Name (English) | [client] dummy-value (mock-scan): Test Name (English) |
-| `provider-lab.json#2` | client | open | LabTestMenuScreen dummy-value: Test Name (Arabic) | [client] dummy-value (mock-scan): Test Name (Arabic) |
 | `provider-shared.json#2` | backend | open | ProviderWalletScreen API GET /provider/wallet/transactions | [backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider-ops/provi… |
 | `rx-rules-app.json#0` | backend | open | /pharmacy/product-detail Online-only on alternatives and related | [backend] The alternatives rows of /medicines/:id/details are projected without online_exclusive, so an alternative never shows the online-only note. (backend: backend/src/modules… |
 | `rx-rules-app.json#1` | backend | open | /pharmacy/wishlist Online-only note on a wishlist row | [backend] GET /users/me/wishlist sends requires_prescription but not online_exclusive. (backend: backend/src/modules/users/users.service.ts:50) |
