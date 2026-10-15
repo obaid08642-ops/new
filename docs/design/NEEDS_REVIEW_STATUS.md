@@ -8,7 +8,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| Patient app and web | 434 | 52 | 287 | 92 | 3 | 0 |
+| Patient app and web | 434 | 51 | 288 | 92 | 3 | 0 |
 | Other | 29 | 16 | 12 | 1 | 0 | 0 |
 | Admin | 99 | 7 | 59 | 33 | 0 | 0 |
 | Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
@@ -16,7 +16,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Patient journeys | 87 | 20 | 65 | 2 | 0 | 0 |
 | Provider app | 31 | 7 | 23 | 1 | 0 | 0 |
 | Provider journeys | 34 | 9 | 22 | 2 | 1 | 0 |
-| **Total** | **742** | **119** | **484** | **135** | **4** | **0** |
+| **Total** | **742** | **118** | **485** | **135** | **4** | **0** |
 
 ## By tag
 
@@ -25,8 +25,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | client | 169 | 33 | 104 | 31 | 1 | 0 |
 | owner | 100 | 17 | 39 | 42 | 2 | 0 |
 | backend | 235 | 29 | 177 | 29 | 0 | 0 |
-| untagged | 238 | 40 | 164 | 33 | 1 | 0 |
-| **Total** | **742** | **119** | **484** | **135** | **4** | **0** |
+| untagged | 238 | 39 | 165 | 33 | 1 | 0 |
+| **Total** | **742** | **118** | **485** | **135** | **4** | **0** |
 
 ## By file
 
@@ -74,7 +74,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `admin-public-directories.json` | 14 | 0 | 4 | 10 | 0 | 0 |
 | `admin-system.json` | 13 | 2 | 8 | 3 | 0 | 0 |
 | `batch-0-app.json` | 13 | 3 | 10 | 0 | 0 | 0 |
-| `batch-0-runtime.json` | 8 | 4 | 3 | 1 | 0 | 0 |
+| `batch-0-runtime.json` | 8 | 3 | 4 | 1 | 0 | 0 |
 | `batch-0-web.json` | 19 | 6 | 12 | 1 | 0 | 0 |
 | `batch-1a-app.json` | 19 | 3 | 5 | 11 | 0 | 0 |
 | `batch-1a-web.json` | 12 | 3 | 7 | 2 | 0 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 6 | 1 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 1 | 11 | 1 | 0 | 0 |
-| **Total** | **742** | **119** | **484** | **135** | **4** | **0** |
+| **Total** | **742** | **118** | **485** | **135** | **4** | **0** |
 
 ## Owner decisions (4)
 
@@ -111,7 +111,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 3 | `batch-1b-app.json#1` `patient-app/app/(tabs)/pharmacy.tsx:63` | /pharmacy/pharmacist-chat Hub tile 'Pharmacist consult' and product page 'Ask a… | The screen is the substitute-negotiation chat of one order (GET /pharmacy/chat/threads?order_id=); a thread exists only when a pharmacy proposes a substitute for an order line. The hub (pharmacy.tsx:63) and the product … |
 | 4 | `provider-journeys.json#5` `provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:538` | PharmacyDashboard hand over / delivery | [client] The prescription dispensing path is a "disabled" notice and the old order detail and broadcast screens are defined but never rendered (dead code). |
 
-## Open and unverified (119)
+## Open and unverified (118)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -158,7 +158,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-0-app.json#8` | untagged | open (issue #416) | /notifications Row tap: routes the app cannot translate do nothing | openNotif pushes only when translateBackendRoute(n.route) returns a target (src/hooks/usePushNotifications.ts:33-77); otherwise the row is marked read and nothing happens (no inbo… |
 | `batch-0-app.json#12` | owner | open (issue #420) | /services Services catalogue and Home items: labels held in data files | catalog.ts and src/features/home/homeItems.ts (and notificationsFeed constants before this pass) keep Arabic phrases as titles and descriptions, translated through the old Arabic-… |
 | `batch-0-runtime.json#3` | untagged | open (issue #424) | /notifications Populated states not exercised | The seeded patient has no notifications, reminders, mood entries or appointments, so the runtime check only shows these lists in their empty state (all 2xx). The populated renderi… |
-| `batch-0-runtime.json#5` | untagged | open (issue #426) | all routes Shared JS still over the 170 KB gz budget after the #286 trim | Measured with Lighthouse (median of 3, production build, seeded backend), script transfer on /ar/pharmacy and /ar/consultations/doctors went from 224 to about 177 KB and on /ar fr… |
 | `batch-0-runtime.json#6` | untagged | open (issue #427) | all routes Largest-contentful-paint stays above 2.5 s (F82) | Lighthouse on the production build (median of 3): LCP 3.0-3.2 s on /ar and /ar/consultations/doctors, 4.3 s on /ar/pharmacy, against 2.5 s. The shared-JS trim did not move it (mai… |
 | `batch-0-runtime.json#7` | untagged | open (issue #428) | tooling tools/design/import-rule.baseline.json is not on main | The import rule (P12.C2) and its baseline exist on fix/audit-2026-09 only; main has neither. patient-app AuthKit no longer imports @expo/vector-icons (BrandMark in packages/ui-nat… |
 | `batch-0-web.json#1` | untagged | open (issue #430) | /login Google button (rendered only when NEXT_PUBLIC_GOOGLE_CLIENT_ID is set) | FIXED in batch-0-fixes: the busy state now clears when the popup is closed or fails to open (error_callback) and when the Google script fails to load; a press before the script ha… |
