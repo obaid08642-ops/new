@@ -22,6 +22,8 @@ export async function POST(request: Request, context: Context) {
   const upstream = await callPatientApi(`/unified-bookings/consultation/${appointmentId}/cancel`, { method: "POST", headers: { "content-type": "application/json", "idempotency-key": key }, body: JSON.stringify(input.data) }, token);
   const data = await upstream.json().catch(() => null);
   if (!upstream.ok) return boundedUpstreamError(data, "cancel_failed", upstream.status);
-  return NextResponse.json({ ok: true, refund: cancelRefund(data) }, { status: upstream.status, headers: { "cache-control": "no-store" } });
+  // journeys#44: the refund the cancellation computed, only when the server sent one
+  const refund = cancelRefund(data);
+  return NextResponse.json(refund ? { ok: true, refund } : { ok: true }, { status: upstream.status, headers: { "cache-control": "no-store" } });
 }
 
