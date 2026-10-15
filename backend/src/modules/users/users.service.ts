@@ -15,6 +15,7 @@ import { RedisService } from '../redis/redis.service';
 import { randomUUID } from 'crypto';
 import { ProductRankingEventService } from '../product-ranking/product-ranking-event.service';
 import { AuthService } from '../auth/auth.service';
+import { publicMedicineFilter } from '../medicines/public-medicine-filter';
 
 @Injectable()
 export class UsersService {
@@ -68,7 +69,8 @@ export class UsersService {
     } else {
       // Snapshot the medicine so the wishlist is useful even if it is later delisted.
       let medicine: any = null;
-      try { medicine = await this.conn.collection('medicines').findOne({ id: itemId } as any); } catch { /* keep bare id */ }
+      // The snapshot is taken from the public catalogue only: an item in medical review is never disclosed.
+      try { medicine = await this.conn.collection('medicines').findOne({ ...publicMedicineFilter(), id: itemId } as any); } catch { /* keep bare id */ }
       if (!profile.wishlist) profile.wishlist = [];
       profile.wishlist.push({
         id: itemId,

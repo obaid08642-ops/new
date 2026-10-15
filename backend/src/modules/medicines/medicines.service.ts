@@ -15,6 +15,7 @@ import { MedicineRepository } from "./repositories/medicine.repository";
 import { RedisService } from '../redis/redis.service';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
 import { AutoEntitySeoPipelineService } from '../events/auto-entity-seo-pipeline.service';
+import { publicMedicineFilter } from './public-medicine-filter';
 import { localizeMedicineStructured, DbLang, missingPublicMedicineTranslations, PUBLIC_CATALOG_LOCALES } from './med-i18n';
 import { normalizeRankingSort, ProductRankingService } from '../product-ranking/product-ranking.service';
 import { ManualBoostsService } from '../product-ranking/manual-boosts.service';
@@ -190,11 +191,7 @@ export class MedicinesService {
    * requiring it here hid every medicine the admin approves (approve() sets it false) from the app and search.
    */
   private publicCatalogFilter() {
-    return {
-      is_deleted: { $ne: true },
-      public_eligibility: true,
-      medical_review_status: 'approved',
-    };
+    return publicMedicineFilter();
   }
 
   /**
@@ -608,7 +605,7 @@ export class MedicinesService {
       const norm = this.normalizeSearchText(search);
       const tolerant = this.tolerantRegex(norm || search);
       rows = await this.model.find(
-        { ...this.catalogScope(includeUnverified), $or: [
+        { ...this.catalogScope(includeUnverified), ...((category && category !== 'all') ? { category } : {}), $or: [
           { name_ar: { $regex: tolerant, $options: 'i' } },
           { name_en: { $regex: tolerant, $options: 'i' } },
           { search_text: { $regex: tolerant, $options: 'i' } },
@@ -757,14 +754,18 @@ export class MedicinesService {
     if (cursor) {
       try {
         const decoded = JSON.parse(Buffer.from(cursor, 'base64url').toString('utf8'));
-        q.$or = [
+        const after = [
           { name_ar: { $gt: decoded.n } },
           { name_ar: decoded.n, id: { $gt: decoded.i } },
         ];
+        // A search already has its own $or: the cursor joins it with $and (assigning q.$or replaced the search's
+        // $or, so a later page dropped the term).
+        if (q.$or) q.$and = [...(q.$and || []), { $or: after }];
+        else q.$or = after;
       } catch { /* invalid cursor → first page */ }
     }
 
-    const cacheKey = `med:cursor:governed-v1:${search || ''}:${category || ''}:${cursor || ''}:${safeLimit}`;
+    const cacheKey = `med:cursor:governed-v2:${search || ''}:${category || ''}:${cursor || ''}:${safeLimit}`;
     const cached = await this.redis.getJson<any>(cacheKey);
     if (cached) return cached;
 
