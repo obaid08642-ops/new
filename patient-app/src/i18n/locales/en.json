@@ -1261,7 +1261,7 @@
   "consult.call.connectionError": "Connection error",
   "consult.call.backToConsult": "Back to consultations",
   "consult.call.preparing": "Preparing the consultation room",
-  "health.tab.today": "Today",
+  "health.tab.today": "Latest",
   "health.tab.history": "History",
   "health.tab.trends": "Trends",
   "health.tab.doses": "Today's doses",

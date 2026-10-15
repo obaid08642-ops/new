@@ -79,7 +79,8 @@ export default async function LabPackageDetailPage({ params }: Props) {
       {pkg.includedServices?.length ? <SectionCard id="pkg-included" title={t("includedTitle")}><BulletList items={pkg.includedServices} /></SectionCard> : null}
       {preparation.length > 0 ? <SectionCard id="pkg-prep" title={t("preparationTitle")}><BulletList items={preparation} /></SectionCard> : null}
       <Notice>{pkg.homeVisitSupported ? t("homeAvailable") : t("homeUnavailable")}</Notice>
-      <ActionLinks actions={[{ href: `/${locale}/diagnostics/labs/book?serviceId=${encodeURIComponent(packageId)}`, label: w("bookPackage") }, { href: addHref, label: w("addToOrderCta"), variant: "outline" }]} />
+      {/* journeys#50: one booking path, the cart (the lab is chosen there), as the app. */}
+      <ActionLinks actions={[{ href: addHref, label: w("addToOrderCta") }]} />
     </ConsultPage>
   );
 }

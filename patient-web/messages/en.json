@@ -652,7 +652,7 @@
     "partUnavailable": "This part couldn't be loaded.",
     "unitsRemaining": "{count, plural, one {# unit left} other {# units left}}",
     "vitalsTitle": "Vitals",
-    "vitalsToday": "Today",
+    "vitalsToday": "Latest",
     "vitalsHistory": "History",
     "vitalsTrends": "Trends",
     "noReading": "No reading yet",
@@ -916,9 +916,9 @@
   "ChatDetail": {
     "eyebrow": "Private conversation",
     "thread": "Conversation",
-    "messagesTitle": "Message activity",
+    "messagesTitle": "Messages",
     "back": "Back to chats",
-    "bodyHidden": "Message text, participants, reactions and attachments aren't shown here yet.",
+    "bodyHidden": "Participants' names, reactions and attachments aren't shown here.",
     "attachmentHidden": "This message has an attachment.",
     "deleted": "Deleted message",
     "timeUnavailable": "Time unavailable",
@@ -1513,6 +1513,7 @@
     "checkingBody": "We are asking the payment provider and the pharmacy for the result. This takes a few seconds.",
     "checkAgain": "Check again",
     "trackOrder": "Track the order",
+    "openBooking": "View the booking",
     "stalledTitle": "Still waiting for the provider",
     "stalledBody": "We have not received a final answer yet. Nothing is confirmed until the provider answers. Check again, or follow your orders.",
     "refundedTitle": "This payment was refunded",
@@ -1863,6 +1864,7 @@
     "invalid": "Enter a 6-digit code.",
     "failed": "The code could not be verified. You are not signed in.",
     "missing": "Start from sign in or create an account and we will send you a code.",
+    "notSent": "Your account was created, but the code could not be sent. Tap “Resend”.",
     "back": "Back",
     "wrong": "That code isn't right. Check it and try again.",
     "expired": "That code has expired. Request a new one.",
@@ -2685,6 +2687,8 @@
     "locationHome": "Home visit",
     "locationFacility": "At the facility",
     "trackSample": "Track the sample",
+    "openReport": "Open the report",
+    "openReportN": "Open report {n}",
     "uploadInsurance": "Upload insurance document",
     "bookingDetails": "Booking details",
     "sampleSteps": "Sample steps",
@@ -2726,13 +2730,9 @@
     "backToCart": "Back to the cart",
     "callLab": "Call the lab",
     "testTitle": "Test",
-    "bookTitle": "Book a test",
-    "noProviderTitle": "No lab available",
     "noProviderBody": "No lab can run this test right now.",
-    "backToTests": "Back to the tests",
     "tagHome": "Home sample",
     "tagFasting": "Fasting",
-    "bookPackage": "Book this package",
     "addToOrderCta": "Add to my order",
     "details": "Details",
     "hubTitle": "Labs and radiology",
@@ -2793,7 +2793,6 @@
     "searchErrorTitle": "The tests could not be loaded",
     "searchErrorBody": "Try again in a moment.",
     "testFacts": "Test details",
-    "bookTest": "Book this test",
     "cartEmptyTitle": "Your cart is empty",
     "cartEmptyBody": "Add tests before you book.",
     "browseTests": "Browse tests",
@@ -2886,15 +2885,6 @@
     "collectorTip1": "Have your ID and the test request ready",
     "collectorTip2": "Keep to the fasting the test needs",
     "collectorTip3": "Tell the collector about any medicines you take",
-    "errHomeInsuranceDoc": "A home visit with insurance needs a doctor's request or a pre-approval",
-    "errSlotTaken": "That time is no longer available",
-    "errBooking": "The booking could not be created. Try again.",
-    "bookWhere": "Where?",
-    "bookHomeUnavailable": "A home sample is not available for this test.",
-    "bookWhen": "Date and time",
-    "bookDocLabel": "Link to the doctor's request or approval (if needed)",
-    "bookSaving": "Booking…",
-    "bookConfirm": "Confirm the booking",
     "status_pending": "Waiting for confirmation",
     "status_insurance": "Waiting for insurance",
     "status_confirmed": "Confirmed",
@@ -3165,15 +3155,10 @@
     "avgMood": "Average mood",
     "avgEnergy": "Average energy",
     "avgStress": "Average stress",
-    "meditationSessions": "Meditation sessions",
-    "meditationMinutes": "Meditation time",
-    "minutes": "min",
     "notAvailable": "Not available",
     "careTitle": "What you can do",
     "moodRow": "Mood journal",
     "moodRowSub": "Your mood, energy and stress over the last 30 days",
-    "relaxRow": "Relax",
-    "relaxRowSub": "Breathing and meditation sessions",
     "therapistRow": "Book a therapist",
     "therapistRowSub": "Psychiatry doctors in consultations",
     "notice": "These figures describe what you recorded. They are not a diagnosis, a risk score or a treatment recommendation.",
@@ -3187,20 +3172,6 @@
     "energy": "Energy: {value}",
     "stress": "Stress: {value}",
     "sleepHours": "Sleep hours: {value}",
-    "relaxTitle": "Relax",
-    "tabBreathing": "Breathing",
-    "tabMeditation": "Meditation",
-    "relaxUnavailableTitle": "The sessions could not be loaded",
-    "breathingEmpty": "No breathing sessions recorded yet.",
-    "techniqueUnavailable": "Technique not available",
-    "rounds": "Rounds: {value}",
-    "durationSeconds": "Duration: {value} s",
-    "relaxNotice": "Your recorded sessions are shown here. Starting a new session is not available on the web.",
-    "meditationEmpty": "No meditation sessions recorded yet.",
-    "meditationUnavailable": "Type not available",
-    "durationMinutes": "Duration: {value} min",
-    "completed": "Completed",
-    "notCompleted": "Not completed",
     "moodValue": {
       "great": "Great",
       "good": "Good",
@@ -4098,6 +4069,75 @@
     "faqIngredient": "What is the active ingredient of {name}?",
     "faqPrice": "How much is {name} on Nabd Plus?",
     "howToTitle": "How to use {name}"
+  },
+  "LogForms": {
+    "saveError": "Could not save. What you typed is kept; try again.",
+    "saved": "Saved.",
+    "water": {
+      "title": "Log water",
+      "amount_ml": "Amount (ml)",
+      "save": "Add water",
+      "bad": {
+        "amount_ml": "Enter an amount between 50 and 3000 ml."
+      }
+    },
+    "mood": {
+      "title": "Log your mood",
+      "mood": "How is your mood right now?",
+      "option": {
+        "great": "Great",
+        "good": "Good",
+        "okay": "Okay",
+        "bad": "Difficult",
+        "terrible": "Very difficult"
+      },
+      "energy_level": "Energy (1-5, optional)",
+      "stress_level": "Stress (1-5, optional)",
+      "sleep_hours": "Hours of sleep (optional)",
+      "notes": "Short note (optional)",
+      "save": "Save mood",
+      "bad": {
+        "mood": "Choose your mood first.",
+        "energy_level": "Energy is a number from 1 to 5.",
+        "stress_level": "Stress is a number from 1 to 5.",
+        "sleep_hours": "Hours of sleep are between 0 and 24.",
+        "notes": "The note is too long."
+      }
+    },
+    "kicks": {
+      "title": "Log baby kicks",
+      "count": "Number of kicks",
+      "duration_seconds": "Over how many minutes",
+      "save": "Save kicks",
+      "bad": {
+        "count": "Enter a whole number from 1 to 200.",
+        "duration_seconds": "Enter the time in minutes, 1 to 240."
+      }
+    },
+    "contractions": {
+      "title": "Log a contraction",
+      "interval_seconds": "Minutes since the last one",
+      "duration_seconds": "How long it lasted (seconds)",
+      "save": "Save contraction",
+      "bad": {
+        "interval_seconds": "Enter minutes from 1 to 120.",
+        "duration_seconds": "Enter seconds from 5 to 300."
+      }
+    },
+    "growth": {
+      "title": "Log baby growth",
+      "month": "Age in months",
+      "weight_kg": "Weight (kg, optional)",
+      "height_cm": "Length (cm, optional)",
+      "head_circ_cm": "Head size (cm, optional)",
+      "save": "Save measurement",
+      "bad": {
+        "month": "Age is a whole number of months, 0 to 60.",
+        "weight_kg": "Weight is between 0.3 and 40 kg.",
+        "height_cm": "Length is between 20 and 150 cm.",
+        "head_circ_cm": "Head size is between 20 and 60 cm."
+      }
+    }
   },
   "CameraScan": {
     "start": "Scan with the camera",

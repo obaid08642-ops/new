@@ -11,7 +11,7 @@ API="${NABD_BACKEND:-http://127.0.0.1:8002}"
 run_step() {
   if command -v timeout >/dev/null 2>&1; then timeout "$@"; else shift; "$@"; fi
 }
-JOURNEYS=(j_accounts j_otp_abuse j_onboarding j_pharmacy j_lab j_radiology j_nursing j_consultation j_facility j_support j_loyalty j_chaos j_rapid_tap j_app_killed_payment j_throttled_network j_killswitches j_web_pharmacy j_web_family_scan j_family_meds)
+JOURNEYS=(j_accounts j_otp_abuse j_social_login j_onboarding j_pharmacy j_lab j_radiology j_nursing j_consultation j_facility j_support j_loyalty j_chaos j_rapid_tap j_app_killed_payment j_throttled_network j_killswitches j_web_pharmacy j_web_care j_rx_substitute j_web_dashboard j_admin_problems j_web_signup j_web_payment_result j_web_public_feed j_provider_review j_no_ambulance j_web_health_logging j_web_family_scan j_family_meds)
 # j_killswitches (15.12) joins once Phase 14.4 is ported: it needs the kill-switch helper,
 # the six seeded flag rows and their consumers (14.4/14.18 + P15.fix 3e2db704), which are
 # not on main yet; until then it cannot be green (rule above).
