@@ -420,7 +420,7 @@
     "kind": "wrong-state",
     "file": "patient-web/components-next/pharmacy-checkout/payment-result.tsx",
     "line": 173,
-    "review_status": "open (issue #1055)"
+    "review_status": "fixed #1467"
   },
   {
     "scenario": 4,
@@ -708,7 +708,7 @@
     "kind": "other",
     "file": "patient-web/components-next/pharmacy-checkout/payment-result.tsx",
     "line": 175,
-    "review_status": "open (issue #1087)"
+    "review_status": "fixed #1467"
   },
   {
     "scenario": 10,
