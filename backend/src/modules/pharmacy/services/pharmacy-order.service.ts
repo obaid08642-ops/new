@@ -196,9 +196,9 @@ export class PharmacyOrderService {
       // Enrich items with catalogue flags and unit_price
       const offerPriceMap = offerItemsMap.get(order.id) || new Map();
       const itemsWithFlags = (order.items || []).map((it: any) => {
-        const flags = catalogueFlags.get(it.id) || { requires_prescription: false, controlled: false };
+        const flags = catalogueFlags.get(it.id) || { requires_prescription: false, controlled: false, online_exclusive: false };
         const unitPrice = offerPriceMap.get(it.id);
-        return { ...it, requires_prescription: flags.requires_prescription, controlled: flags.controlled, ...(unitPrice !== undefined ? { unit_price: unitPrice } : {}) };
+        return { ...it, requires_prescription: flags.requires_prescription, controlled: flags.controlled, online_exclusive: flags.online_exclusive, ...(unitPrice !== undefined ? { unit_price: unitPrice } : {}) };
       });
 
       // Courier fields from allocation delivery
@@ -290,8 +290,8 @@ export class PharmacyOrderService {
     // D-10: enrich order items with requires_prescription and controlled from catalogue
     const catalogueFlags = await this.enrichItemsWithCatalogueFlags(order.items || []);
     const itemsWithFlags = (order.items || []).map((it: any) => {
-      const flags = catalogueFlags.get(it.id) || { requires_prescription: false, controlled: false };
-      return { ...it, requires_prescription: flags.requires_prescription, controlled: flags.controlled };
+      const flags = catalogueFlags.get(it.id) || { requires_prescription: false, controlled: false, online_exclusive: false };
+      return { ...it, requires_prescription: flags.requires_prescription, controlled: flags.controlled, online_exclusive: flags.online_exclusive };
     });
 
     // Courier fields from allocation delivery (when assigned)
@@ -366,12 +366,12 @@ export class PharmacyOrderService {
   }
 
   /**
-   * Fetch requires_prescription and controlled flags for order items by matching
-   * medicine_id, sku, or name with the medicines catalogue (D-10).
-   * Returns a map of item id -> { requires_prescription: boolean, controlled: boolean }
+   * Fetch requires_prescription, controlled and online_exclusive flags for order items by matching
+   * medicine_id, sku, or name with the medicines catalogue (D-10; decision 11: a reordered line keeps "online only").
+   * Returns a map of item id -> { requires_prescription, controlled, online_exclusive }
    */
-  private async enrichItemsWithCatalogueFlags(items: any[]): Promise<Map<string, { requires_prescription: boolean; controlled: boolean }>> {
-    const result = new Map<string, { requires_prescription: boolean; controlled: boolean }>();
+  private async enrichItemsWithCatalogueFlags(items: any[]): Promise<Map<string, { requires_prescription: boolean; controlled: boolean; online_exclusive: boolean }>> {
+    const result = new Map<string, { requires_prescription: boolean; controlled: boolean; online_exclusive: boolean }>();
     if (!items?.length) return result;
 
     const ids = [...new Set(items.map((it) => (typeof it?.medicine_id === 'string' ? it.medicine_id.trim() : '')).filter(Boolean))];
@@ -395,7 +395,7 @@ export class PharmacyOrderService {
     if (!or.length) return result;
 
     const meds: any[] = await this.conn.collection('medicines')
-      .find({ $or: or }, { projection: { _id: 0, id: 1, sku: 1, name_ar: 1, name_en: 1, requires_prescription: 1, controlled: 1 } })
+      .find({ $or: or }, { projection: { _id: 0, id: 1, sku: 1, name_ar: 1, name_en: 1, requires_prescription: 1, controlled: 1, online_exclusive: 1 } })
       .toArray();
 
     for (const it of items) {
@@ -409,6 +409,7 @@ export class PharmacyOrderService {
       result.set(it.id, {
         requires_prescription: med?.requires_prescription === true,
         controlled: med?.controlled === true,
+        online_exclusive: med?.online_exclusive === true,
       });
     }
     return result;
