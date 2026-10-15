@@ -21,6 +21,10 @@ describe("article body (10-web#2)", () => {
     expect(JSON.stringify(blocks)).not.toMatch(/script|alert|onerror|onclick|javascript|</);
   });
 
+  it("inline tags take no space of their own (a full stop stays against its word)", () => {
+    expect(articleBlocks("<p>نم ثماني ساعات <strong>كل ليلة</strong>.</p>")).toEqual([{ kind: "p", text: "نم ثماني ساعات كل ليلة." }]);
+  });
+
   it("chooses the body in the page language, with the other as the fallback", () => {
     const row = { slug: "a", body_ar: "<p>عربي</p>", body_en: "<p>English</p>" };
     expect(articleBodyHtml(row, "ar")).toBe("<p>عربي</p>");

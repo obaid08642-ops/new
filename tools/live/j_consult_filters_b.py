@@ -66,7 +66,8 @@ def main():
     import j_accounts
     patient = Client(j_accounts.app_signup(label='nursing-rx')['token'], 'patient')
     r = patient.get('/home-care/services?limit=200')
-    svcs = r.body.get('data', []) if isinstance(r.body, dict) else []
+    # GET /home-care/services answers a list (the compat controller the app reads); {data: [...]} is read too
+    svcs = r.body if isinstance(r.body, list) else (r.body.get('data', []) if isinstance(r.body, dict) else [])
     rx = [s for s in svcs if s.get('category') in ('injection', 'iv')]
     step('injections and IV need the patient prescription', rx and all(s.get('requires_patient_medication') is True for s in rx), [(s.get('name_ar'), s.get('requires_patient_medication')) for s in rx])
     step('vital signs do not', any(s.get('category') == 'vitals' and s.get('requires_patient_medication') is False for s in svcs), len(svcs))

@@ -22,7 +22,8 @@ function decode(text: string): string {
   });
 }
 
-const plain = (fragment: string): string => decode(fragment.replace(/<[^>]*>?/g, " ")).replace(/\s+/g, " ").trim();
+// inline tags (strong, em, a, span) take no space of their own, as in the browser: "<strong>x</strong>." reads "x."
+const plain = (fragment: string): string => decode(fragment.replace(/<[^>]*>?/g, "")).replace(/\s+/g, " ").trim();
 
 export function articleBlocks(html: unknown): ArticleBlock[] {
   if (typeof html !== "string" || !html.trim()) return [];
