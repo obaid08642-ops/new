@@ -14,19 +14,19 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
 | Final pass | 8 | 6 | 0 | 2 | 0 | 0 |
 | Patient journeys | 87 | 20 | 65 | 2 | 0 | 0 |
-| Provider app | 31 | 7 | 23 | 1 | 0 | 0 |
-| Provider journeys | 34 | 9 | 22 | 2 | 1 | 0 |
-| **Total** | **742** | **119** | **484** | **135** | **4** | **0** |
+| Provider app | 31 | 3 | 27 | 1 | 0 | 0 |
+| Provider journeys | 34 | 8 | 23 | 2 | 1 | 0 |
+| **Total** | **742** | **114** | **489** | **135** | **4** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| client | 169 | 33 | 104 | 31 | 1 | 0 |
+| client | 169 | 31 | 106 | 31 | 1 | 0 |
 | owner | 100 | 17 | 39 | 42 | 2 | 0 |
-| backend | 235 | 29 | 177 | 29 | 0 | 0 |
+| backend | 235 | 26 | 180 | 29 | 0 | 0 |
 | untagged | 238 | 40 | 164 | 33 | 1 | 0 |
-| **Total** | **742** | **119** | **484** | **135** | **4** | **0** |
+| **Total** | **742** | **114** | **489** | **135** | **4** | **0** |
 
 ## By file
 
@@ -87,20 +87,20 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `final-pass-2.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `final-pass.json` | 4 | 2 | 0 | 2 | 0 | 0 |
 | `journeys.json` | 87 | 20 | 65 | 2 | 0 | 0 |
-| `provider-admin-ish.json` | 3 | 1 | 2 | 0 | 0 | 0 |
-| `provider-doctor.json` | 6 | 1 | 5 | 0 | 0 | 0 |
-| `provider-facility.json` | 7 | 1 | 6 | 0 | 0 | 0 |
-| `provider-journeys.json` | 34 | 9 | 22 | 2 | 1 | 0 |
+| `provider-admin-ish.json` | 3 | 0 | 3 | 0 | 0 | 0 |
+| `provider-doctor.json` | 6 | 0 | 6 | 0 | 0 | 0 |
+| `provider-facility.json` | 7 | 0 | 7 | 0 | 0 | 0 |
+| `provider-journeys.json` | 34 | 8 | 23 | 2 | 1 | 0 |
 | `provider-lab.json` | 4 | 3 | 1 | 0 | 0 | 0 |
 | `provider-nursing.json` | 2 | 0 | 2 | 0 | 0 | 0 |
 | `provider-pharmacy.json` | 2 | 0 | 1 | 1 | 0 | 0 |
 | `provider-radiology.json` | 1 | 0 | 1 | 0 | 0 | 0 |
-| `provider-shared.json` | 6 | 1 | 5 | 0 | 0 | 0 |
+| `provider-shared.json` | 6 | 0 | 6 | 0 | 0 | 0 |
 | `rx-rules-app.json` | 6 | 6 | 0 | 0 | 0 | 0 |
 | `rx-rules-web.json` | 7 | 6 | 1 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 1 | 11 | 1 | 0 | 0 |
-| **Total** | **742** | **119** | **484** | **135** | **4** | **0** |
+| **Total** | **742** | **114** | **489** | **135** | **4** | **0** |
 
 ## Owner decisions (4)
 
@@ -111,7 +111,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 3 | `batch-1b-app.json#1` `patient-app/app/(tabs)/pharmacy.tsx:63` | /pharmacy/pharmacist-chat Hub tile 'Pharmacist consult' and product page 'Ask a… | The screen is the substitute-negotiation chat of one order (GET /pharmacy/chat/threads?order_id=); a thread exists only when a pharmacy proposes a substitute for an order line. The hub (pharmacy.tsx:63) and the product … |
 | 4 | `provider-journeys.json#5` `provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:538` | PharmacyDashboard hand over / delivery | [client] The prescription dispensing path is a "disabled" notice and the old order detail and broadcast screens are defined but never rendered (dead code). |
 
-## Open and unverified (119)
+## Open and unverified (114)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -204,9 +204,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `journeys.json#74` | untagged | open (issue #1083) | 8 manual request | The request form has no photo of the box and no quantity (decision 12 mentions text, box photo and prescription requests). |
 | `journeys.json#75` | untagged | open (issue #1084) | 8 price review | Offers for a manual request show no "price not verified" state (decision 12) and no way to counter or reject a price except the substitute negotiation. |
 | `journeys.json#77` | untagged | open (issue #1086) | 9 connection loss | Offline, tapping "request offers" in the cart ends on the browser's own error page; the service worker has no fetch handler or offline page. |
-| `provider-admin-ish.json#2` | backend | open | RevenueInsights API GET /provider/ops/wallet/ledger | [backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider-ops/provi… |
-| `provider-doctor.json#2` | client | open | EPrescriptionScreen {t.titleAr} {t.drugs.length} | [client] Button "{t.titleAr} {t.drugs.length}" shows a success message without sending a request. |
-| `provider-facility.json#6` | client | open | FacilitySettingsScreen Pricing & Tariffs sheet | [client] The tariffs form starts from fixed numbers (ICU daily and hourly, ward, surgery room, emergency fee) instead of the facility's saved tariffs; saving the sheet sends them … |
 | `provider-journeys.json#1` | backend | open | pharmacy-inventory-ext.service map lines to catalogue | [backend] The search only reads the pharmacy's own inventory rows (provider_account_id = caller), minimum 2 characters; a new pharmacy with empty inventory can answer every line o… |
 | `provider-journeys.json#4` | backend | open | pharmacy.schema prepare | [backend] A partially_confirmed allocation can only go to confirmed, rejected or cancelled; confirm() with an unavailable line tries partially_confirmed again and item changes are… |
 | `provider-journeys.json#18` | backend | open (issue #1179) | provider-ops.module balance | [backend] The wallet figure is earned minus payouts, clamped at 0, over only the latest 200 rows and counting pending (escrow) earnings; the withdrawal check uses the real ledger … |
@@ -215,11 +212,9 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `provider-journeys.json#22` | client | open | PharmacyDashboard prepare | [client] Insurance decision is a header shield icon on Orders and a row in More (opens the queue); an insurance order card has no inline decision button because the allocation lis… |
 | `provider-journeys.json#23` | backend | open | emergency.module ambulance removal (decision 14) | [backend] The app no longer has the ambulance provider type, dashboard, SOS dispatch, GPS router or fleet screens. These backend modules still exist and are for the reviewer to re… |
 | `provider-journeys.json#28` | backend | open | LabRegistration + Add Custom Test (Requires Approval) (hidden) | [backend] The wizard had "+ Add Custom Test (Requires Approval)" in the lab and radiology test menus; it only showed a toast and sent nothing. It is hidden now (M9). To bring it b… |
-| `provider-journeys.json#33` | backend | open | NursingFieldOps result upload | [backend] With result files the visit is completed through POST /home-care/bookings/:id/visit-report (the only route that stores attachments); that handler sends no `patient.notif… |
 | `provider-lab.json#0` | client | open | LabOrderDetail mock-name: openSampleForResults = async () => { | [client] mock-name (mock-scan): openSampleForResults = async () => { |
 | `provider-lab.json#1` | client | open | LabTestMenuScreen dummy-value: Test Name (English) | [client] dummy-value (mock-scan): Test Name (English) |
 | `provider-lab.json#2` | client | open | LabTestMenuScreen dummy-value: Test Name (Arabic) | [client] dummy-value (mock-scan): Test Name (Arabic) |
-| `provider-shared.json#2` | backend | open | ProviderWalletScreen API GET /provider/wallet/transactions | [backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider-ops/provi… |
 | `rx-rules-app.json#0` | backend | open | /pharmacy/product-detail Online-only on alternatives and related | [backend] The alternatives rows of /medicines/:id/details are projected without online_exclusive, so an alternative never shows the online-only note. (backend: backend/src/modules… |
 | `rx-rules-app.json#1` | backend | open | /pharmacy/wishlist Online-only note on a wishlist row | [backend] GET /users/me/wishlist sends requires_prescription but not online_exclusive. (backend: backend/src/modules/users/users.service.ts:50) |
 | `rx-rules-app.json#2` | backend | open | /search Needs-a-prescription and online-only on a medicine result | [backend] GET /home/search medicine rows carry id, names, price only: no requires_prescription or online_exclusive, so the result row cannot show either badge. (backend: backend/s… |
