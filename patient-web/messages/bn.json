@@ -2863,7 +2863,6 @@
     "trackingInProgress": "চলছে",
     "trackingScheduled": "নির্ধারিত সময়: {when}",
     "trackingBeforeTitle": "নমুনার আগে",
-    "trackingBeforeBody": "ডাক্তার অন্য কিছু না বললে নমুনার ৮ থেকে ১২ ঘণ্টা আগে কিছু খাবেন না।",
     "trackingStepsTitle": "ধাপ",
     "trackingNoSteps": "এখনও ট্র্যাকিংয়ের কোনো আপডেট নেই। ল্যাব ধাপগুলো নথিভুক্ত করলে সেগুলো এখানে দেখা যাবে।",
     "searchTests": "পরীক্ষা খুঁজুন…",
@@ -2872,10 +2871,6 @@
     "searchResults": "অনুসন্ধানের ফলাফল",
     "collectorLabel": "নমুনা সংগ্রহকারী",
     "collectorCall": "নমুনা সংগ্রহকারীকে কল করুন",
-    "collectorTipsTitle": "নমুনা সংগ্রহকারী এলে",
-    "collectorTip1": "পরিচয়পত্র ও পরীক্ষার অনুরোধ তৈরি রাখুন",
-    "collectorTip2": "পরীক্ষার জন্য প্রয়োজনীয় খালি পেটে থাকা মেনে চলুন",
-    "collectorTip3": "যেসব ওষুধ খান তা নমুনা সংগ্রহকারীকে জানান",
     "status_pending": "নিশ্চিতকরণের অপেক্ষায়",
     "status_insurance": "বিমার অপেক্ষায়",
     "status_confirmed": "নিশ্চিত",
@@ -2887,7 +2882,8 @@
     "bookingNotSentTitle": "কোনো বুকিং হয়নি",
     "bookingNotSentBody": "এই উইন্ডো এখনও বুকিং পাঠায় না, তাই কোনো অ্যাপয়েন্টমেন্ট তৈরি হয়নি এবং কোনো পেমেন্ট নেওয়া হয়নি। ভিজিট বুক করতে নার্সিং পেজ খুলুন।",
     "bookingNotSentCta": "নার্সিং পেজে যান",
-    "bookingNotSentClose": "বন্ধ করুন"
+    "bookingNotSentClose": "বন্ধ করুন",
+    "trackingPrepAsk": "ল্যাব আপনার সাথে প্রয়োজনীয় যেকোনো প্রস্তুতি নিশ্চিত করবে।"
   },
   "NursingWeb": {
     "hubTitle": "বাসায় যত্ন",

@@ -14,6 +14,8 @@ import { pick } from '../../common/sanitize';
 
 /** P3.3 (F15): writable catalog fields — LabService model vocabulary (lab.schema).
  * id/_id/is_deleted/governance flags excluded. */
+/** The languages a test's preparation text can be written in (decision B8); the app shows the one for its language. */
+export const PREPARATION_LANGS = ['ar', 'en', 'ur', 'hi', 'bn', 'tl'] as const;
 /** A booking's report as listed to the clients: no file content (the file is served on its own route). */
 export function reportSummary(r: any) {
   return { id: r?.id, name: r?.name, mime: r?.mime, uploaded_at: r?.uploaded_at, notes: r?.notes, has_file: typeof r?.base64 === 'string' && r.base64.length > 0 };
@@ -886,23 +888,41 @@ export class LabsService {
   }
 
   async getTracking(id: string, user: any) {
-    const b = await this.bkgModel.findOne({ id }).lean();
+    const b: any = await this.bkgModel.findOne({ id }).lean();
     if (!b) throw new NotFoundException('Booking not found');
     this.assertPatientOrAssignedProvider(user, b);
-    
-    // Convert history into tracking steps
-    const steps = b.state_history.map((h: any) => ({
-      title: `State changed to ${h.to}`,
-      time: new Date(h.at).toLocaleTimeString(),
-      done: true,
-      icon: 'check'
-    }));
 
+    // Decision B8 (2026-10-15): the steps are the booking's real status timeline (the app names each state),
+    // and the preparation is each test's own catalogue text; nothing is fixed or invented here.
+    const timeline = (Array.isArray(b.state_history) ? b.state_history : [])
+      .filter((h: any) => h && h.to && h.to !== h.from)
+      .map((h: any) => ({ state: String(h.to), at: h.at ? new Date(h.at).toISOString() : null }));
+
+    const serviceIds = (Array.isArray(b.items) ? b.items : []).map((i: any) => i?.service_id).filter(Boolean);
+    const services: any[] = serviceIds.length
+      ? await this.svcModel.find({ id: { $in: serviceIds } }, { _id: 0, id: 1, name_ar: 1, name_en: 1, ...Object.fromEntries(PREPARATION_LANGS.map((l) => [`preparation_${l}`, 1])) }).lean()
+      : [];
+    const preparation = services.flatMap((svc: any) => {
+      const texts = Object.fromEntries(PREPARATION_LANGS
+        .map((l) => [l, (Array.isArray(svc[`preparation_${l}`]) ? svc[`preparation_${l}`] : []).filter((x: unknown) => typeof x === 'string' && x.trim())])
+        .filter(([, list]) => (list as string[]).length > 0));
+      return Object.keys(texts).length ? [{ service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, texts }] : [];
+    });
+
+    // The technician's own name and phone (the account), never the raw id.
+    let tech: any = null;
+    if (b.technician_id) {
+      tech = await this.bkgModel.db.collection('users').findOne({ id: b.technician_id }, { projection: { _id: 0, full_name: 1, name: 1, phone: 1 } }).catch(() => null);
+    }
+    const eta = Number(b.gps_location?.eta);
     return {
-      eta: b.gps_location?.eta || 0,
-      distance: b.gps_location?.distance || 0,
-      techName: b.technician_id || 'Unknown',
-      steps: steps
+      state: b.state,
+      timeline,
+      preparation,
+      eta: Number.isFinite(eta) && eta > 0 ? eta : null,
+      distance: Number.isFinite(Number(b.gps_location?.distance)) ? Number(b.gps_location.distance) : null,
+      techName: tech?.full_name || tech?.name || null,
+      techPhone: tech?.phone || null,
     };
   }
 

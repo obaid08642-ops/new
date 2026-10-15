@@ -2863,7 +2863,6 @@
     "trackingInProgress": "Isinasagawa",
     "trackingScheduled": "Nakatakda: {when}",
     "trackingBeforeTitle": "Bago ang sample",
-    "trackingBeforeBody": "Huwag kumain 8 hanggang 12 oras bago ang sample maliban kung iba ang sabi ng iyong doktor.",
     "trackingStepsTitle": "Mga hakbang",
     "trackingNoSteps": "Wala pang update sa tracking. Lalabas dito ang mga hakbang kapag naitala na ng lab.",
     "searchTests": "Maghanap ng test…",
@@ -2872,10 +2871,6 @@
     "searchResults": "Mga resulta ng paghahanap",
     "collectorLabel": "Kukuha ng sample",
     "collectorCall": "Tawagan ang kukuha ng sample",
-    "collectorTipsTitle": "Pagdating ng kukuha ng sample",
-    "collectorTip1": "Ihanda ang iyong ID at ang request ng test",
-    "collectorTip2": "Sundin ang pag-aayuno na kailangan ng test",
-    "collectorTip3": "Sabihin sa kukuha ng sample ang anumang gamot na iniinom mo",
     "status_pending": "Naghihintay ng kumpirmasyon",
     "status_insurance": "Naghihintay ng insurance",
     "status_confirmed": "Kumpirmado",
@@ -2887,7 +2882,8 @@
     "bookingNotSentTitle": "Walang na-book",
     "bookingNotSentBody": "Hindi pa nagpapadala ng booking ang window na ito, kaya walang appointment na ginawa at walang bayad na kinuha. Buksan ang pahina ng nursing para mag-book ng pagbisita.",
     "bookingNotSentCta": "Pumunta sa nursing",
-    "bookingNotSentClose": "Isara"
+    "bookingNotSentClose": "Isara",
+    "trackingPrepAsk": "Kukumpirmahin sa iyo ng lab ang anumang kailangang paghahanda."
   },
   "NursingWeb": {
     "hubTitle": "Pangangalaga sa bahay",

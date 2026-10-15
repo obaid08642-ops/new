@@ -2863,7 +2863,6 @@
     "trackingInProgress": "In progress",
     "trackingScheduled": "Scheduled: {when}",
     "trackingBeforeTitle": "Before the sample",
-    "trackingBeforeBody": "Fast 8 to 12 hours before the sample unless your doctor says otherwise.",
     "trackingStepsTitle": "Steps",
     "trackingNoSteps": "No tracking updates yet. The steps appear here once the lab logs them.",
     "searchTests": "Search for a test…",
@@ -2872,10 +2871,6 @@
     "searchResults": "Search results",
     "collectorLabel": "Collector",
     "collectorCall": "Call the collector",
-    "collectorTipsTitle": "When the collector arrives",
-    "collectorTip1": "Have your ID and the test request ready",
-    "collectorTip2": "Keep to the fasting the test needs",
-    "collectorTip3": "Tell the collector about any medicines you take",
     "status_pending": "Waiting for confirmation",
     "status_insurance": "Waiting for insurance",
     "status_confirmed": "Confirmed",
@@ -2887,7 +2882,8 @@
     "bookingNotSentTitle": "Nothing was booked",
     "bookingNotSentBody": "This window does not send a booking yet, so no appointment was made and no payment was taken. Open the nursing page to book a visit.",
     "bookingNotSentCta": "Go to nursing",
-    "bookingNotSentClose": "Close"
+    "bookingNotSentClose": "Close",
+    "trackingPrepAsk": "The lab will confirm any preparation with you."
   },
   "NursingWeb": {
     "hubTitle": "Home care",

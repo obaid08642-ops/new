@@ -2863,7 +2863,6 @@
     "trackingInProgress": "جاری ہے",
     "trackingScheduled": "مقررہ وقت: {when}",
     "trackingBeforeTitle": "نمونہ لینے سے پہلے",
-    "trackingBeforeBody": "جب تک ڈاکٹر کچھ اور نہ کہے، نمونے سے 8 سے 12 گھنٹے پہلے کچھ نہ کھائیں۔",
     "trackingStepsTitle": "مراحل",
     "trackingNoSteps": "ابھی تک ٹریکنگ کی کوئی اپ ڈیٹ نہیں ہے۔ لیب جب مراحل درج کرے گی تو وہ یہاں نظر آئیں گے۔",
     "searchTests": "ٹیسٹ تلاش کریں…",
@@ -2872,10 +2871,6 @@
     "searchResults": "تلاش کے نتائج",
     "collectorLabel": "نمونہ لینے والا",
     "collectorCall": "نمونہ لینے والے کو کال کریں",
-    "collectorTipsTitle": "نمونہ لینے والے کے آنے پر",
-    "collectorTip1": "اپنا شناختی کارڈ اور ٹیسٹ کی درخواست تیار رکھیں",
-    "collectorTip2": "ٹیسٹ کے لیے درکار روزے / خالی پیٹ کی پابندی کریں",
-    "collectorTip3": "جو دوائیں لیتے ہیں وہ نمونہ لینے والے کو بتائیں",
     "status_pending": "تصدیق کا انتظار",
     "status_insurance": "انشورنس کا انتظار",
     "status_confirmed": "تصدیق شدہ",
@@ -2887,7 +2882,8 @@
     "bookingNotSentTitle": "کوئی بکنگ نہیں ہوئی",
     "bookingNotSentBody": "یہ ونڈو ابھی بکنگ نہیں بھیجتی، اس لیے کوئی ملاقات طے نہیں ہوئی اور کوئی ادائیگی نہیں لی گئی۔ وزٹ بک کرنے کے لیے نرسنگ کا صفحہ کھولیں۔",
     "bookingNotSentCta": "نرسنگ کے صفحے پر جائیں",
-    "bookingNotSentClose": "بند کریں"
+    "bookingNotSentClose": "بند کریں",
+    "trackingPrepAsk": "لیب آپ کے ساتھ کسی بھی ضروری تیاری کی تصدیق کرے گی۔"
   },
   "NursingWeb": {
     "hubTitle": "گھریلو نگہداشت",
