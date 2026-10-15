@@ -281,7 +281,8 @@
     "finalPriceFromOffer": "يظهر مع كل عرض",
     "flowNote": "نرسل طلبك إلى الصيدليات القريبة وتصلك عروضها. تختار الأنسب ثم تدفع.",
     "requestOffers": "اطلب عروض الصيدليات",
-    "summaryLabel": "ملخص الطلب"
+    "summaryLabel": "ملخص الطلب",
+    "manualRequest": "لم تجد دواءك؟ أضف طلبًا يدويًا"
   },
   "PharmacyFlow": {
     "sessionEnded": "انتهت جلستك. سجّل الدخول مجددًا للمتابعة.",
@@ -1383,7 +1384,8 @@
     "emptyCategory": "لا توجد منتجات منشورة في هذه الفئة حالياً.",
     "allCategories": "كل الفئات",
     "loadMore": "عرض المزيد",
-    "page": "صفحة {page}"
+    "page": "صفحة {page}",
+    "onlineOnly": "أونلاين فقط"
   },
   "Wallet": {
     "wallet": "المحفظة",
@@ -2085,7 +2087,8 @@
     "sortPopular": "الأكثر طلبًا",
     "sortPriceAsc": "السعر: من الأقل",
     "sortPriceDesc": "السعر: من الأعلى",
-    "sortNewest": "الأحدث"
+    "sortNewest": "الأحدث",
+    "askPharmacies": "اطلبه من الصيدليات القريبة"
   },
   "PharmacyOffers": {
     "backToOrder": "العودة إلى الطلب",

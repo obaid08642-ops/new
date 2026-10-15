@@ -331,7 +331,8 @@
     "finalPriceFromOffer": "ہر پیشکش کے ساتھ دکھائی جاتی ہے",
     "flowNote": "ہم آپ کی درخواست قریبی فارمیسیوں کو بھیجتے ہیں اور ان کی پیشکشیں آپ تک آتی ہیں۔ آپ بہترین چنتے ہیں، پھر ادائیگی کرتے ہیں۔",
     "requestOffers": "فارمیسیوں سے پیشکشیں منگوائیں",
-    "summaryLabel": "آرڈر کا خلاصہ"
+    "summaryLabel": "آرڈر کا خلاصہ",
+    "manualRequest": "دوا نہیں ملی؟ دستی درخواست شامل کریں"
   },
   "PharmacyFlow": {
     "sessionEnded": "آپ کا سیشن ختم ہو گیا۔ جاری رکھنے کے لیے دوبارہ سائن اِن کریں۔",
@@ -1383,7 +1384,8 @@
     "emptyCategory": "اس زمرے میں فی الحال کوئی شائع شدہ مصنوعات نہیں۔",
     "allCategories": "تمام زمرے",
     "loadMore": "مزید دیکھیں",
-    "page": "صفحہ {page}"
+    "page": "صفحہ {page}",
+    "onlineOnly": "صرف آن لائن"
   },
   "Wallet": {
     "wallet": "والٹ",
@@ -2085,7 +2087,8 @@
     "sortPopular": "سب سے زیادہ مقبول",
     "sortPriceAsc": "قیمت: کم سے زیادہ",
     "sortPriceDesc": "قیمت: زیادہ سے کم",
-    "sortNewest": "نئی ترین"
+    "sortNewest": "نئی ترین",
+    "askPharmacies": "قریبی فارمیسیوں سے مانگیں"
   },
   "PharmacyOffers": {
     "backToOrder": "آرڈر پر واپس",

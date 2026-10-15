@@ -331,7 +331,8 @@
     "finalPriceFromOffer": "Makikita sa bawat alok",
     "flowNote": "Ipinapadala namin ang iyong kahilingan sa mga kalapit na parmasya at babalik sa iyo ang kanilang mga alok. Ikaw ang pipili ng pinakamainam, saka magbabayad.",
     "requestOffers": "Humingi ng mga alok ng parmasya",
-    "summaryLabel": "Buod ng order"
+    "summaryLabel": "Buod ng order",
+    "manualRequest": "Hindi mahanap ang gamot? Magdagdag ng manwal na hiling"
   },
   "PharmacyFlow": {
     "sessionEnded": "Natapos na ang iyong session. Mag-sign in muli para magpatuloy.",
@@ -1383,7 +1384,8 @@
     "emptyCategory": "Walang naka-publish na produkto sa kategoryang ito.",
     "allCategories": "Lahat ng kategorya",
     "loadMore": "Mag-load pa",
-    "page": "Pahina {page}"
+    "page": "Pahina {page}",
+    "onlineOnly": "Online lang"
   },
   "Wallet": {
     "wallet": "Wallet",
@@ -2085,7 +2087,8 @@
     "sortPopular": "Pinakasikat",
     "sortPriceAsc": "Presyo: mababa pataas",
     "sortPriceDesc": "Presyo: mataas pababa",
-    "sortNewest": "Pinakabago"
+    "sortNewest": "Pinakabago",
+    "askPharmacies": "Hilingin sa mga kalapit na botika"
   },
   "PharmacyOffers": {
     "backToOrder": "Bumalik sa order",
