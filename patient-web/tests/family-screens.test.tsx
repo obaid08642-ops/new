@@ -191,7 +191,7 @@ describe("the old routes and the readers", () => {
     expect(parsePermissionRequests(pending)).toEqual([{ id: "req-1", name: "Omar Ali", permissions: ["reports"] }]);
     expect(parsePermissionRequests({ data: [{ member_name: "no id" }] })).toEqual([]);
     expect(parseCalendarEvents({ events: [{ id: "e1", title: "T", event_date: "2026-09-01" }] })).toEqual([{ id: "e1", title: "T", member: undefined, at: "2026-09-01" }]);
-    expect(parseMemberRecords(null)).toEqual({ gender: undefined, birthDate: undefined, bloodType: undefined, medicines: [], appointments: [], hasReports: false });
+    expect(parseMemberRecords(null)).toEqual({ gender: undefined, birthDate: undefined, bloodType: undefined, medicines: [], canSeeMeds: false, appointments: [], hasReports: false });
   });
 
   it("the family screens carry no raw colour, inline style or call entry", () => {
