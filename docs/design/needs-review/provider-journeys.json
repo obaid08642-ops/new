@@ -32,7 +32,7 @@
     "element": "map lines to catalogue",
     "found": "[backend] The search only reads the pharmacy's own inventory rows (provider_account_id = caller), minimum 2 characters; a new pharmacy with empty inventory can answer every line only with \"unavailable\".",
     "suspect": "dead end",
-    "review_status": "open"
+    "review_status": "fixed #1499"
   },
   {
     "scenario": 1,
@@ -85,7 +85,7 @@
     "element": "prepare",
     "found": "[backend] A partially_confirmed allocation can only go to confirmed, rejected or cancelled; confirm() with an unavailable line tries partially_confirmed again and item changes are blocked once an offer is selected (selected_offer_immutable). The UI shows only \"Confirm\" for this state.",
     "suspect": "dead end",
-    "review_status": "open"
+    "review_status": "fixed #1499"
   },
   {
     "scenario": 1,
