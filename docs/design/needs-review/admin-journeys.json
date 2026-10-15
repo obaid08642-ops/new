@@ -206,7 +206,7 @@
     "line": 344,
     "found": "[client] The 'Trigger System Kill-Switch' button is permanently disabled ('requires server set-up'), although the handler at line 183 and PUT /admin/governance/trigger-emergency-maintenance exist. GET/POST /kill-switches(/:key) have no admin screen. Confirmation uses two checkboxes and alert(). (backend: backend/src/modules/admin/web-core/controllers/admin-governance.controller.ts:26)",
     "suspect": "Client-side: later batch.",
-    "review_status": "open (issue #955)"
+    "review_status": "fixed #1521 (issue #955)"
   },
   {
     "batch": "admin-journeys",
