@@ -239,3 +239,15 @@ class AdminWeb(WebClient):
         elif not path.startswith('/api/') and not path.startswith('http'):
             path = '/api/admin' + path
         return super().req(method, path, body, h, idem)
+
+
+def web_login(ctx, base, identifier, password, path='/api/auth/login'):
+    """A browser sign-in through a website's BFF (a Playwright request context, so the cookies land in the browser).
+    Like Client.req, a 429 from the per-IP login throttle (every journey signs in from this one machine) is waited out
+    once instead of failing the journey."""
+    url = base.rstrip('/') + path
+    r = ctx.request.post(url, data={'identifier': identifier, 'password': password})
+    if r.status == 429 and os.environ.get('NABD_LIVE_WAIT_429', '1') == '1':
+        time.sleep(62)
+        r = ctx.request.post(url, data={'identifier': identifier, 'password': password})
+    return r
