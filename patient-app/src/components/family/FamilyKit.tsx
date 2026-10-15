@@ -55,10 +55,10 @@ export async function loadFamily(): Promise<{ group: FamilyGroup | null; members
 
 /**
  * Issue 693: a screen of the family group (calendar, chat) opened by someone with no group yet. The server answers 404
- * "No family group found" (calendar) or 403 "not_active_family_member" (chat); the screen says so and offers creating or
+ * "Not part of a family group" (calendar) or 403 "not_active_family_member" (chat); the screen says so and offers creating or
  * joining a family, as the family hub does, instead of a failure with a retry.
  */
-export const isNoFamily = (e: unknown) => /no family group found|not_active_family_member/i.test(String((e as { message?: unknown } | null)?.message ?? ''));
+export const isNoFamily = (e: unknown) => /no family group found|not part of a family group|not_active_family_member/i.test(String((e as { message?: unknown } | null)?.message ?? ''));
 
 export function NoFamilyState() {
   const { k, theme } = useScreenUi();

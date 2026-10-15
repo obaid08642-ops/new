@@ -33,7 +33,7 @@ def main():
 
     journey('issue 693: no family group is an answer the apps can tell apart')
     r = joiner.get('/family/calendar')
-    step('the calendar of someone with no family answers "No family group found"', r.status == 404 and 'no family group found' in str(r.body).lower(), r)
+    step('the calendar of someone with no family answers 404 "Not part of a family group"', r.status == 404 and 'not part of a family group' in str(r.body).lower(), r)
     r = joiner.get('/family/chat/messages')
     step('the chat answers not_active_family_member', r.status == 403 and 'not_active_family_member' in str(r.body), r)
     if not code:

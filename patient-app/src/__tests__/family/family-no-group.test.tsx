@@ -30,7 +30,7 @@ beforeEach(() => { mockApiFetch.mockReset(); mockReplace.mockReset(); mockPush.m
 
 describe('a family screen without a family group (issue 693)', () => {
   it('the calendar says there is no family yet and offers creating or joining one', async () => {
-    mockApiFetch.mockImplementation(async (path: string) => { if (path === '/family/calendar') throw new Error('No family group found'); return []; });
+    mockApiFetch.mockImplementation(async (path: string) => { if (path === '/family/calendar') throw new Error('Not part of a family group'); return []; });
     await render(wrap(<FamilyCalendarView />));
     expect(await screen.findByTestId('family-none')).toBeTruthy();
     expect(screen.getByText(k('family.hub.emptyTitle'))).toBeTruthy();
