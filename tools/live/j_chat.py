@@ -24,7 +24,8 @@ def run(pat, doctor, other_doctor, aid, profile_id=None):
     pid = ((me.body.get('data') or me.body) or {}).get('id') if isinstance(me.body, dict) else None
     step('patient id resolves for the direct-thread check', bool(pid), me.status)
     r = doctor.post('/chat/threads/direct', {'other_user_id': pid or str(uuid.uuid4())})
-    step('a direct thread to the booked patient is allowed', r.status in (200, 201) and bool(pid), r)
+    # Decision 24: a doctor appointment never opens a direct thread; the doctor is reached only in the booking thread.
+    step('a direct thread between the doctor and the booked patient is refused (decision 24)', r.status == 403 and bool(pid), r)
 
     journey('chat: doctor answers from the appointment (PreVisitChatScreen)')
     r = doctor.get(f'/provider/chat/appointment/{aid}')
@@ -33,6 +34,11 @@ def run(pat, doctor, other_doctor, aid, profile_id=None):
     step('doctor replies', r.ok, r)
     r = pat.get(f'/chat/threads/{tid}/messages')
     step('the patient sees the reply', r.ok and 'أحضر تحاليلك' in str(r.body), r)
+    # The patient is told the doctor wrote (notifications.service onChatMessageTargeted; the "chat" switch).
+    r = pat.get('/notifications?lang=en')
+    told = [n for n in rows(r) if isinstance(n, dict) and n.get('title') == 'New message from your doctor'
+            and ((n.get('action') or {}).get('route') if isinstance(n.get('action'), dict) else None) == f'/consultations/appointments/{aid}']
+    step('the patient is notified of the doctor\'s reply, linked to the appointment', r.ok and len(told) >= 1, f'{len(told)} matching')
     r = doctor.get('/chats/threads')
     step('the conversation is in the doctor chats inbox', r.ok and tid in str(r.body), r)
     r = other_doctor.get(f'/provider/chat/appointment/{aid}')
@@ -52,6 +58,12 @@ def run(pat, doctor, other_doctor, aid, profile_id=None):
     step('mark all read', r.ok, r)
     r = pat.post('/notifications/register-token', {'token': f'ExponentPushToken[{uuid.uuid4().hex[:22]}]', 'platform': 'ios'})
     step('push token registered', r.ok, r)
+    # patient-web lib/web-push.ts (through the patient proxy): the key, then this browser's subscription
+    r = pat.get('/push/web/vapid-key')
+    step('the website can read the web push key', r.ok and 'public_key' in (r.body or {}), r)
+    r = pat.post('/push/web/subscribe', {'endpoint': f'https://push.example.test/{uuid.uuid4()}', 'keys': {'p256dh': 'BPk', 'auth': 'au'}, 'user_agent': 'live-gate'},
+                 headers={'Idempotency-Key': str(uuid.uuid4())})
+    step('a browser subscription is saved', r.ok and r.get('ok') is True, r)
 
     journey('notifications: doctor bell')
     r = doctor.get('/provider/notifications')
@@ -62,19 +74,21 @@ def run(pat, doctor, other_doctor, aid, profile_id=None):
 
 
 if __name__ == '__main__':
-    import j_admin, j_accounts, j_onboarding, j_consultation
+    import j_admin, j_accounts, j_onboarding, j_concurrency
     from lib import summary
-    admin, _ = j_admin.login()
+    # The consultation chat opens once the doctor has finished the visit (ChatService.verifyCommunicationAllowed),
+    # so the journey starts from a paid consultation the doctor finished, as the apps reach it.
+    pat = Client(j_accounts.app_signup(label='chat-patient')['token'], 'patient')
+    aid = j_concurrency.completed_consultation(pat)
+    doctor = j_concurrency.DOCTOR_CLIENT
+    admin = j_concurrency._ADMIN or j_admin.login()[0]
     specs = Client(None, 'anon').get('/catalogs/specialties')
     spec = next((x.get('code') or x.get('id') for x in (specs.body if isinstance(specs.body, list) else specs.items())), 'cardiology')
-    docs = []
-    for _ in range(2):
-        p = j_onboarding.register_type('doctor', {'specialty': spec, 'academic_degree': 'consultant'})
-        j_onboarding.admin_review(admin, p)
-        j_onboarding.provider_after_approval(p)
-        docs.append(Client(p['token'], 'doctor'))
-    j_consultation.doctor_publishes_hours(docs[0], admin)
-    pat = Client(j_accounts.app_signup(label='chat-patient')['token'], 'patient')
-    aid = j_consultation.book_paid(pat, docs[0])
-    run(pat, docs[0], docs[1], aid, docs[0].get('/provider-onboarding/my-profile').get('id'))
+    p = j_onboarding.register_type('doctor', {'specialty': spec, 'academic_degree': 'consultant'})
+    j_onboarding.admin_review(admin, p)
+    j_onboarding.provider_after_approval(p)
+    if aid and doctor:
+        run(pat, doctor, Client(p['token'], 'doctor'), aid, doctor.get('/provider-onboarding/my-profile').get('id'))
+    else:
+        step('a finished consultation for the chat', False, 'see the failed booking/visit step above')
     summary()

@@ -421,6 +421,8 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'notif.homecare_cancelled.body': { ar: 'أُلغي طلب التمريض — يمكنك إعادة الحجز', en: 'The nursing request was cancelled — you can rebook', ur: 'منسوخ' },
   'notif.homecare_no_show.title': { ar: 'تعذر الوصول إليك', en: 'Could Not Reach You', ur: 'رابطہ نہیں' },
   'notif.homecare_no_show.body': { ar: 'سُجلت الزيارة كعدم حضور — أعد الجدولة', en: 'The visit was marked no-show — please reschedule', ur: 'نو شو' },
+  'notif.chat_doctor.title': { ar: 'رسالة جديدة من طبيبك', en: 'New message from your doctor', ur: 'آپ کے ڈاکٹر کا نیا پیغام' },
+  'notif.chat_doctor.body': { ar: 'افتح موعدك لقراءة الرسالة والرد عليها', en: 'Open your appointment to read and reply', ur: 'پیغام پڑھنے اور جواب دینے کے لیے اپنی ملاقات کھولیں' },
   'notif.homecare_emergency.title': { ar: 'أُوقفت الزيارة لسبب طبي', en: 'Visit Stopped for a Medical Reason', ur: 'طبی وجہ سے دورہ روک دیا گیا' },
   'notif.homecare_emergency.body': { ar: 'أوقف الممرض/ة الخدمة لدواعٍ طبية وستُراجع المبالغ المستردة', en: 'The nurse stopped the service for a medical reason; the refund will be reviewed', ur: 'نرس نے طبی وجہ سے سروس روک دی؛ رقم کی واپسی کا جائزہ لیا جائے گا' },
   'notif.homecare_report_doctor.title': { ar: 'تقرير زيارة تمريض منزلي', en: 'Home Nursing Visit Report', ur: 'گھریلو نرسنگ دورے کی رپورٹ' },

@@ -19,7 +19,6 @@ import { WebMcpLoader } from "@/components-next/web-mcp-loader";
 import { pickClientMessages } from "@/lib/i18n/client-messages";
 import { ThemeToggle } from "@/components-next/theme-toggle";
 import { THEME_INIT_SCRIPT } from "@/app/theme";
-import { ServiceWorkerRegister } from "@/components-next/service-worker-register";
 import { ModuleRouteGate, ModulesProvider } from "@/components-next/modules/modules-provider";
 import { getDisabledModules } from "@/lib/api/public-config-server";
 import { isPathHidden } from "@/lib/modules";
