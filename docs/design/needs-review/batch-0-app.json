@@ -63,7 +63,7 @@
     "line": 46,
     "found": "POST /auth/send-otp {email, purpose:'register'} sends a code to any email, registered or not (backend auth.service.ts:956-967 ignores the existing account when purpose is 'register'). The duplicate is rejected by POST /auth/register ('Phone already registered' / 'Email already registered', auth.service.ts:492,496), after the user has entered the code, and the message is English (otp.tsx:164).",
     "suspect": "BACKEND: there is no register-only availability check (no endpoint exists: checked in backend/src, auth and users controllers). Either POST /auth/send-otp with purpose 'register' answers 409 for a registered email or phone, or a new check endpoint is added. Client side the duplicate is now at least shown in the app language ('This email is already registered. Log in instead.') when the registration is refused after the code.",
-    "review_status": "open (issue #413)"
+    "review_status": "fixed #1462"
   },
   {
     "batch": 0,
