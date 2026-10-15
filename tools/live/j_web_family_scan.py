@@ -62,6 +62,8 @@ def main():
         step('the scan opens the join form with the code', f'code={code}' in page.url, page.url)
         field = page.locator('form input').first
         step('the code is filled in', field.input_value() == code, field.input_value())
+        # submit only once React has hydrated the form (a click before that is a plain HTML submit that sends nothing)
+        page.wait_for_function("() => { const f = document.querySelector('form'); return !!f && Object.keys(f).some((k) => k.startsWith('__react')); }", timeout=30000)
         page.locator('form button[type="submit"]').click()
         # the join form leaves the add page once the server has answered; poll the server for the result
         r = None
@@ -70,7 +72,8 @@ def main():
             if r.ok:
                 break
             page.wait_for_timeout(1000)
-        step('the joiner is now in the family', r is not None and r.ok, r)
+        alert = page.locator('[role="alert"]')
+        step('the joiner is now in the family', r is not None and r.ok, f"{r} / page says: {alert.first.inner_text() if alert.count() else ''}")
     except Exception as e:
         step('web scan flow', False, str(e)[:300])
     finally:
