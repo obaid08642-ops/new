@@ -172,16 +172,19 @@ export class ProviderAdminController {
   @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/documents/:docId/reject') rejectDocument(@CurrentUser() u: any, @Param('id') id: string, @Param('docId') docId: string, @Body() body: ReviewDocumentDto) { return this.svc.reviewDocument(u, id, docId, 'reject', body?.reason || body?.note); }
 
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/reprocess-image')
   async reprocessImage(@Param('id') id: string) {
     return this.processor.reprocessImage(id);
   }
 
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/replace-image')
   async replaceImage(@Param('id') id: string, @Body() body: ReplaceImageDto) {
     return this.processor.replaceImage(id, body.data_base64, body.mime);
   }
 
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/retry-image-jobs')
   async retryFailedJobs(@Param('id') id: string) {
     return this.processor.retryFailedJobs(id);
@@ -572,14 +575,17 @@ export class AdminMatchingController {
     return this.matching.matchForRequest(id, parseInt(limit || '10', 10) || 10);
   }
   // Run matching ad-hoc with a custom payload (no DB record created)
+  @RequirePermissions(Permission.ORDER_READ)
   @Post('preview') previewAdHoc(@CurrentUser() u: any, @Body() body: PreviewAdHocDto) {
     return this.matching.match({ ...body });
   }
   // Dispatch (run strategy) for an existing unassigned request
+  @RequirePermissions(Permission.ORDER_REASSIGN)
   @Post('dispatch/:requestId') dispatch(@CurrentUser() u: any, @Param('requestId') id: string, @Body() body: DispatchDto) {
     return this.assignment.dispatch(id, body?.timeout_seconds || 120);
   }
   // Manual assign
+  @RequirePermissions(Permission.ORDER_REASSIGN)
   @Post('assign/:requestId/:providerId') assign(@CurrentUser() u: any, @Param('requestId') rid: string, @Param('providerId') pid: string) {
     return this.assignment.manualAssign(u, rid, pid);
   }
@@ -588,11 +594,13 @@ export class AdminMatchingController {
     return this.assignment.listAttempts(u, id);
   }
   // Cron-style expiration sweep
+  @RequirePermissions(Permission.OPS_CRONS_RUN)
   @Post('expire-stale') expireStale(@CurrentUser() u: any) {
     return this.assignment.expireStale();
   }
   // ADMIN seed: create a new UNASSIGNED request that triggers matching (real DB record).
   // Intended for testing flow end-to-end while patient-side ordering is not yet built.
+  @RequirePermissions(Permission.ORDER_REASSIGN)
   @Post('seed-unassigned') seedUnassigned(@CurrentUser() u: any, @Body() body: SeedUnassignedDto) {
     const b = body as any || {};
     return this.assignment.createAndDispatch({

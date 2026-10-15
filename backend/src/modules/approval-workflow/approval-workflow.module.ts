@@ -17,6 +17,7 @@ import { PROVIDER_CONFIG_EDITABLE_FIELDS } from '../provider/providers.service';
 import { ServiceOwnership, ServiceOwnershipSchema } from '../service-catalog/service-catalog.module';
 import { CreateDto, DecideDto } from './approval-workflow.dto';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 export type ApprovalEntityType = 'medicine' | 'provider' | 'facility' | 'service';
 
 /**
@@ -374,6 +375,7 @@ export class ApprovalWorkflowController {
     return this.svc.getRequestDetails(id);
   }
 
+  @RequirePermissions(Permission.CATALOG_APPROVE)
   @Post('requests/:id/decide')
   @Roles(UserRole.ADMIN)
   @Audited({ model: 'ApprovalRequest', idParam: 'id', action: 'approval_request_decide' })

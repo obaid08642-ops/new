@@ -9,6 +9,7 @@ import { CurrentUser, Roles } from '../../../../common/auth.guard';
 import { UserRole } from '../../../../common/enums';
 import { TriggerEmergencyMaintenanceDto } from './admin-governance.dto';
 
+import { Permission, RequirePermissions } from '../../../../common/permissions';
 @Controller('admin/governance')
 @Roles(UserRole.ADMIN)
 export class AdminGovernanceController {
@@ -23,6 +24,7 @@ export class AdminGovernanceController {
     // this.redisClient = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
   }
 
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Put('trigger-emergency-maintenance')
   async triggerEmergencyMaintenance(@CurrentUser() _admin: any, @Body() _payload: TriggerEmergencyMaintenanceDto) {
     // Redis dispatch, immutable audit attribution, two-person approval, and

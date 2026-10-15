@@ -11,6 +11,7 @@ import { UserRole } from '../../common/enums';
 import { Request, Response, NextFunction } from 'express';
 import { randomUUID, createHash } from 'crypto';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 /** 23.1 — the full field set the plan requires of every event. */
 export interface AuditEntry {
   action: string;
@@ -488,6 +489,7 @@ export class AuditController {
   @Roles(UserRole.SUPER_ADMIN)
   holds() { return this.retention.listHolds(); }
 
+  @RequirePermissions(Permission.SECURITY_MANAGE)
   @Post('retention/holds')
   @Roles(UserRole.SUPER_ADMIN)
   async placeHold(@CurrentUser() admin: any, @Body() body: { user_id?: string; resource_id?: string; reason?: string; until?: string }) {
@@ -502,6 +504,7 @@ export class AuditController {
     return out;
   }
 
+  @RequirePermissions(Permission.SECURITY_MANAGE)
   @Delete('retention/holds/:id')
   @Roles(UserRole.SUPER_ADMIN)
   async releaseHold(@CurrentUser() admin: any, @Param('id') id: string) {
@@ -511,6 +514,7 @@ export class AuditController {
     return out;
   }
 
+  @RequirePermissions(Permission.SECURITY_MANAGE)
   @Post('retention/run')
   @Roles(UserRole.SUPER_ADMIN)
   async runRetention(@CurrentUser() admin: any) {

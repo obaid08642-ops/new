@@ -7,6 +7,7 @@ import { Location, LocationDocument } from '../location/schemas/location.schema'
 import { CreateLocationDto, ImportLocationsDto, UpdateLocationDto } from './admin-location.dto';
 import { LocationService } from './location.service';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 /**
  * Admin location governance: add / edit / deactivate cities and districts.
  * Reads stay on the public /api/v1/locations/* endpoints (GeoPicker fixed).
@@ -30,6 +31,7 @@ export class AdminLocationController {
     return this.locations.find(filter, { _id: 0, __v: 0 }).sort({ type: 1, name_ar: 1 }).limit(500).lean();
   }
 
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Post()
   async create(@Body() body: CreateLocationDto) {
     const { code, name_ar, name_en, type, parent_code, aliases } = body || {};
@@ -44,11 +46,13 @@ export class AdminLocationController {
   // P13-R11: bulk ingest of a verified official extract. Rows are validated
   // one by one (unknown parents, wrong parent types, bad codes and missing
   // coordinates are rejected and reported, never written).
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Post('import')
   async import(@Body() body: ImportLocationsDto) {
     return this.geo.importLocations(body?.locations || [], body?.source || 'admin');
   }
 
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Put(':code')
   async update(@Param('code') code: string, @Body() body: UpdateLocationDto) {
     const allowed = ['name_ar', 'name_en', 'aliases', 'is_active', 'coverage'];
@@ -59,6 +63,7 @@ export class AdminLocationController {
     return updated;
   }
 
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Delete(':code')
   async remove(@Param('code') code: string) {
     const children = await this.locations.countDocuments({ parent_code: { $eq: code }, is_active: { $ne: false } });

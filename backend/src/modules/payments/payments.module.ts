@@ -33,6 +33,7 @@ import {
   selectGateway,
 } from './payment-gateway';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 /**
  * Fallback for a failed or short-circuited payment-gateway operation.
  *
@@ -737,8 +738,10 @@ export class PaymentsController {
   @UseInterceptors(IdempotencyInterceptor)
   retry(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Headers('idempotency-key') key: string) { return this.svc.retryPayment(u, t, id, key); }
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.ORDER_REFUND)
   @Post('refund/:txn') refund(@CurrentUser() u: any, @Param('txn') txn: string, @Body() b: RefundPaymentDto) { return this.svc.refundPayment(u, txn, b.amount, b.reason); }
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.FINANCE_PAYOUT_APPROVE)
   @Post('capture/:txn') capture(@CurrentUser() u: any, @Param('txn') txn: string) { return this.svc.capturePayment(u, txn); }
   @Get('pharmacy/:orderId/capabilities') pharmacyCapabilities(@CurrentUser() u: any, @Param('orderId') orderId: string) { return this.svc.getPharmacyCapabilities(u, orderId); }
   @Get('consultation/:id/capabilities') consultationCapabilities(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.getConsultationCapabilities(u, id); }

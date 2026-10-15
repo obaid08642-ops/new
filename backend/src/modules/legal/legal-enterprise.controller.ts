@@ -9,6 +9,7 @@ import { UserRole } from '../../common/enums';
 import { LegalEnterpriseService } from './legal-enterprise.service';
 import { SetMatrixDto, SetConsentDto } from './legal-enterprise.dto';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 @Controller()
 export class LegalEnterpriseController {
   constructor(
@@ -101,6 +102,7 @@ export class LegalEnterpriseController {
 
   // ── License monitoring (manual trigger for admin) ──────────────────────
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.OPS_CRONS_RUN)
   @Post('admin/providers/license-monitor/run')
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)

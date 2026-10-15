@@ -1,4 +1,5 @@
-// Creates the live-test admin (the first admin has no API; production already has one).
+// Creates the live-test admin (the first admin has no API; production already has one). It is the owner account:
+// tools/live/start-backend.sh sets ADMIN_PASSKEY_EMAIL to its email, so it holds every admin permission (owner decision 29).
 //   node tools/live/seed_admin.js   (uses backend/node_modules; MONGO_URL, DB_NAME like the app)
 const path = require('path');
 const req = (m) => require(path.resolve(__dirname, '../../backend/node_modules', m));

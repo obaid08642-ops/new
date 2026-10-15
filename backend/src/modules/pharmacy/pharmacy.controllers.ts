@@ -20,6 +20,7 @@ import { PharmacyExpiryCommandService } from './services/pharmacy-expiry-command
 import { PaymentsService } from '../payments/payments.module';
 import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsuranceDto, SelectOfferDto, AcceptFinalQuoteDto, RegisterCodDto, AcceptInsuranceDto, ItemActionDto, OutDto, DeliveredDto, InsuranceDecisionDto, CancelDto3, SetTrackingDto, RestockDto, SampleOrderDto, PreviewOfferDto, DraftOfferDto, RejectDto, PostDto, ReportDto, CreateDto2, MarkShortageDto, RejectDto5, SetCodPolicyDto, PaymentRulesDto, PharmacyCodSettingDto, ResolvePriceReviewDto } from './pharmacy.controllers.dto';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 // =========================================================================
 //  PATIENT ENDPOINTS (/api/v2/patient/pharmacy/*)
 // =========================================================================
@@ -176,6 +177,7 @@ export class AdminPharmacyController {
     private broadcast: PharmacyBroadcastService,
     @InjectConnection() private readonly conn: Connection,
   ) {}
+  @RequirePermissions(Permission.ORDER_REASSIGN)
   @Post('split/:orderId') async manualSplit(@Param('orderId') id: string) {
     // Backward-compat: if order is in broadcasting state, route to broadcast fallback.
     try { return await this.split.runForOrder(id); }
@@ -258,6 +260,7 @@ export class AdminPharmacyController {
    * /medicines/admin/catalog/:id { sfda_price }, audit-logged there) or the offered price was confirmed;
    * who, when, how and the note stay on the row, and the admin notice for the offer is marked read.
    */
+  @RequirePermissions(Permission.CATALOG_PRICE_WRITE)
   @Post('price-review/:id/resolve') async resolvePriceReview(@CurrentUser() u: any, @Param('id') id: string, @Body() body: ResolvePriceReviewDto) {
     const col = this.conn.collection('pharmacy_price_reviews');
     const now = new Date();
@@ -274,6 +277,7 @@ export class AdminPharmacyController {
     await this.conn.collection('notifications').updateMany({ role: 'admin', type: 'pharmacy_price_review', 'body.review_id': row.id }, { $set: { read: true, read_at: now } });
     return row;
   }
+  @RequirePermissions(Permission.OPS_CRONS_RUN)
   @Post('expire-stale-allocations') expireStale() { return this.allocs.expireStale(); }
 }
 
@@ -325,6 +329,7 @@ export class AdminFulfillmentPolicyController {
   constructor(@InjectConnection() private readonly conn: Connection) {}
   private get col() { return this.conn.collection('pharmacy_fulfillment_policies'); }
   @Get() list(): Promise<any[]> { return this.col.find({ provider_account_id: null }, { projection: { _id: 0 } }).toArray(); }
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Put('cod') async setCod(@CurrentUser() u: any, @Body() b: SetCodPolicyDto): Promise<any> {
     const now = new Date();
     await this.col.updateOne(
@@ -348,12 +353,16 @@ export class AdminBroadcastController {
   async list(@Query('limit') limit?: string) {
     return this.bc.adminList(Math.min(Math.max(Number(limit) || 50, 1), 200));
   }
+  @RequirePermissions(Permission.ORDER_REASSIGN)
   @Post(':orderId/advance') advance() { throw new ServiceUnavailableException('manual_broadcast_advance_disabled_use_expiry_command'); }
+  @RequirePermissions(Permission.ORDER_REASSIGN)
   @Post(':orderId/fallback-split') fallback(@Param('orderId') id: string) { return this.bc.fallbackSplit(id); }
   /** Explicit privileged command; no timer, cron, queue worker, or caller-supplied clock. */
+  @RequirePermissions(Permission.OPS_CRONS_RUN)
   @Post('expire-due') expireDue(@Query('offer_cursor') offerCursor?: string, @Query('broadcast_cursor') broadcastCursor?: string, @Query('limit') limit?: string) {
     return this.expiry.expireDuePharmacyOffers(new Date(), { offer_id: offerCursor || undefined, broadcast_id: broadcastCursor || undefined }, limit ? Number(limit) : undefined);
   }
+  @RequirePermissions(Permission.OPS_CRONS_RUN)
   @Post('expire-stale') expireStale() { throw new ServiceUnavailableException('legacy_expiry_sweep_disabled_use_expire_due_command'); }
 }
 
@@ -361,6 +370,7 @@ export class AdminBroadcastController {
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
 export class AdminPharmacyInsuranceController {
+  @RequirePermissions(Permission.INSURANCE_MANAGE)
   @Post(':orderId/insurance-decision')
   decide() { throw new ServiceUnavailableException('admin_insurance_decision_disabled_selected_pharmacy_required'); }
 }
@@ -388,6 +398,7 @@ export class PharmacyChatController {
 @Roles(UserRole.ADMIN)
 export class AdminPharmacyChatController {
   constructor(private chat: PharmacyChatService) {}
+  @RequirePermissions(Permission.OPS_CRONS_RUN)
   @Post('sweep-auto-close') sweep() { return this.chat.sweepAutoClose(); }
 }
 
@@ -405,12 +416,17 @@ export class ProviderShortageController {
 @Roles(UserRole.ADMIN)
 export class AdminShortageController {
   constructor(private svc: PharmacyShortageService) {}
+  @RequirePermissions(Permission.CATALOG_SHORTAGE_DECIDE)
   @Post() create(@CurrentUser() u: any, @Body() b: CreateDto2) { return this.svc.createByAdmin(u, b); }
   @Get() list(@CurrentUser() u: any, @Query('status') st?: string) { return this.svc.list(u, st); }
   @Get('dashboard') getDashboard(@CurrentUser() u: any) { return this.svc.getShortageDashboard(u); }
+  @RequirePermissions(Permission.CATALOG_SHORTAGE_DECIDE)
   @Post(':id/mark') markShortage(@CurrentUser() u: any, @Param('id') medicineId: string, @Body() b: MarkShortageDto) { return this.svc.adminMarkShortage(u, medicineId, b); }
+  @RequirePermissions(Permission.CATALOG_SHORTAGE_DECIDE)
   @Post(':id/approve') approve(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.approve(u, id); }
+  @RequirePermissions(Permission.CATALOG_SHORTAGE_DECIDE)
   @Post(':id/reject') reject(@CurrentUser() u: any, @Param('id') id: string, @Body() b: RejectDto5) { return this.svc.reject(u, id, b?.reason); }
+  @RequirePermissions(Permission.CATALOG_SHORTAGE_DECIDE)
   @Post(':id/resolve') resolve(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.resolve(u, id); }
 }
 
@@ -437,6 +453,7 @@ export class PaymentRulesController {
 
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
   @Put('admin/payment-rules')
   async setRules(@CurrentUser() u: any, @Body() b: PaymentRulesDto) {
     const cap = Number(b?.pharmacy_cod_max_sar);

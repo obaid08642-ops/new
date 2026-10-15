@@ -16,6 +16,7 @@ import { escapeRegex } from '../../common/slug.util';
 import { StartDto, SubmitDto, AdminContractVisibilityDto } from './provider-onboarding.dto';
 import { PROVIDER_PUBLIC_PROJECTION } from './provider-private-fields';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 /**
  * Unified Provider Onboarding Wizard.
  * 3 sequential steps to register/upgrade any provider type:
@@ -527,6 +528,7 @@ export class ProviderOnboardingController {
   }
 
   /** Admin: grant/revoke the provider's ability to view their signed contract. */
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @UseGuards(JwtAuthGuard) @Post('admin/contracts/:id/visibility')
   @Roles(UserRole.ADMIN)
   async adminContractVisibility(@CurrentUser() u: any, @Param('id') id: string, @Body() b: AdminContractVisibilityDto) {

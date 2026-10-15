@@ -87,9 +87,9 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/system-ops', label: 'تشغيل النظام', permission: 'ops.queues.manage' },
       // D-16 / #953 (owner 2026-10-10): module switches are super-admin only: the new permission modules.manage (the reviewer adds it on the backend route).
       { href: '/admin/module-switches', label: 'مفاتيح الخدمات', permission: 'modules.manage' },
-      { href: '/admin/notification-center', label: 'مركز الإشعارات والحملات', permission: 'ops.queues.manage' },
+      { href: '/admin/notification-center', label: 'مركز الإشعارات والحملات', permission: 'notifications.send' },
       // #994: AI controls were reachable only by URL.
-      { href: '/admin/ai-control', label: 'التحكم في الذكاء الاصطناعي', permission: 'ops.queues.manage' },
+      { href: '/admin/ai-control', label: 'التحكم في الذكاء الاصطناعي', permission: 'settings.edit' },
       { href: '/admin/scheduled-reports', label: 'التقارير المجدولة', permission: 'reports.schedule.manage' },
       { href: '/admin/audit-logs', label: 'سجل التدقيق' },
       { href: '/admin/security', label: 'الأمان ومفاتيح الدخول' },
@@ -164,11 +164,12 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/home-curation': 'cms.edit',
   '/admin/article-review': 'cms.edit',
   '/admin/loyalty-config': 'coupons.manage',
-  '/admin/notification-center': 'ops.queues.manage',
+  // Owner decision 29: these pages' writes need the permission the backend names on them.
+  '/admin/notification-center': 'notifications.send',
   '/admin/system-ops': 'ops.queues.manage',
   '/admin/module-switches': 'modules.manage',
-  '/admin/config-portal': 'ops.queues.manage',
-  '/admin/ai-control': 'ops.queues.manage',
+  '/admin/config-portal': 'settings.edit',
+  '/admin/ai-control': 'settings.edit',
   '/admin/audit-logs': 'data.export',
   '/admin/rbac': 'rbac.manage',
   '/admin/scheduled-reports': 'reports.schedule.manage',

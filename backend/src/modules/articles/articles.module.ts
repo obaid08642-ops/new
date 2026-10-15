@@ -19,6 +19,7 @@ import { UserRole } from '../../common/enums';
 import { Article, ArticleSchema } from '../../schemas/article.schema';
 import { buildSlug, slugify, escapeRegex } from '../../common/slug.util';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 // R4-2: explicit allowlist for article updates (mirrors UpdateDto keys;
 // id/slug/status are never writable through this path).
 const ARTICLE_UPDATE_FIELDS = [
@@ -166,16 +167,23 @@ export class ArticlesAdminController {
 
   @Get() list(@Query('status') status?: string) { return this.svc.adminList(status); }
   @Get(':id') one(@Param('id') id: string) { return this.svc.adminOne(id); }
+  @RequirePermissions(Permission.CMS_EDIT)
   @Post() create(@Body() body: CreateDto) { return this.svc.create(body); }
+  @RequirePermissions(Permission.CMS_EDIT)
   @Patch(':id') update(@Param('id') id: string, @Body() body: UpdateDto) { return this.svc.update(id, body); }
+  @RequirePermissions(Permission.CMS_EDIT)
   @Post(':id/publish') publish(@Param('id') id: string) { return this.svc.publish(id); }
+  @RequirePermissions(Permission.CMS_EDIT)
   @Post(':id/unpublish') unpublish(@Param('id') id: string) { return this.svc.unpublish(id); }
+  @RequirePermissions(Permission.CMS_EDIT)
   @Delete(':id') remove(@Param('id') id: string) { return this.svc.remove(id); }
 
   /** D-1: approve a doctor-submitted article (re-checks prescription brands first). */
+  @RequirePermissions(Permission.CMS_EDIT)
   @Post(':id/approve') approve(@Param('id') id: string) { return this.doctorSvc.approve(id); }
 
   /** D-1: reject a doctor-submitted article with a reason. */
+  @RequirePermissions(Permission.CMS_EDIT)
   @Post(':id/reject') reject(@Param('id') id: string, @Body() body: RejectDoctorArticleDto) {
     return this.doctorSvc.reject(id, body?.reason);
   }

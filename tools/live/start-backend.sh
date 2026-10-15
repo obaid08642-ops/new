@@ -43,6 +43,9 @@ export MOYASAR_API_KEY="${MOYASAR_API_KEY:-sk_test_live_journeys}" MOYASAR_API_B
 # The harness sends it (NABD_ADMIN_GATE_TOKEN, same default); keep both in sync.
 export ADMIN_GATE_TOKEN="${ADMIN_GATE_TOKEN:-live-gate-token}"
 export NABD_ADMIN_GATE_TOKEN="${NABD_ADMIN_GATE_TOKEN:-$ADMIN_GATE_TOKEN}"
+# Owner decision 29: admin roles are restrictive, so an admin holds only the permissions of their roles. The live admin
+# (tools/live/seed_admin.js) is the owner account, which holds every permission: the designated owner email.
+export ADMIN_PASSKEY_EMAIL="${ADMIN_PASSKEY_EMAIL:-${LIVE_ADMIN_EMAIL:-admin@nabd.test}}"
 export NABD_ADMIN_DEVICE="${NABD_ADMIN_DEVICE:-live-gate-owner-macbook-01}"
 nohup node --max-old-space-size=1500 dist/main.js > /tmp/nabd-backend.log 2>&1 &
 for i in $(seq 1 90); do
