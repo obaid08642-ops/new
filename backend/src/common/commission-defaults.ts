@@ -22,7 +22,6 @@ export const DEFAULT_COMMISSIONS = {
     lab: { percent: 12, note: 'lab tests' },
     radiology: { percent: 12, note: 'imaging' },
     nursing: { percent: 15, note: 'home nursing' },
-    ambulance: { percent: 10, note: 'emergency rides' },
   },
   provider_overrides: {} as Record<string, { percent: number; note?: string }>,
   payout_schedule: { frequency: 'weekly', day: 'sunday', minimum_payout_sar: payoutMinimumDefault(), processing_days: 3 },

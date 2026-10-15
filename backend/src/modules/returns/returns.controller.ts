@@ -1,4 +1,5 @@
 import { PROVIDER_ROLES } from '../../common/enums';
+import { Permission, RequirePermissions } from '../../common/permissions';
 import { Controller, Delete, Get, Post, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ReturnsService } from './returns.service';
 import { JwtAuthGuard, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
@@ -62,8 +63,10 @@ export class ReturnsController {
     return this.returnsService.getById(id, user.id, user.role);
   }
 
+  // A return decision refunds money: it names the permission of the returns page (finance.payout.approve).
   @Post(':id/decide')
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.FINANCE_PAYOUT_APPROVE)
   async decide(
     @Param('id') id: string,
     @Body() body: DecideDto,
@@ -85,6 +88,7 @@ export class AdminReturnsController {
   }
 
   @Post(':id/decide')
+  @RequirePermissions(Permission.FINANCE_PAYOUT_APPROVE)
   decide(@Param('id') id: string, @Body() body: DecideDto, @CurrentUser() adminUser: any) {
     return this.returnsService.adminDecide(id, body.decision, body.note || '', adminUser);
   }

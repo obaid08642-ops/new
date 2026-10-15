@@ -12,6 +12,7 @@ import { PharmacyOrderRepository } from "./repositories/pharmacyorder.repository
 import { PharmacyInventoryItemRepository } from "./repositories/pharmacyinventoryitem.repository";
 import { isProviderRole } from '../../../common/enums';
 import { settlementDelayDefault } from '../../../common/commission-defaults';
+import { assertSubstituteInsidePrescription } from './rx-rules';
 
 function assertProvider(u: any) { if (!u || !isProviderRole(u.role)) throw new ForbiddenException('provider_scope_required'); }
 function assertPatient(u: any) { if (!u || u.role !== 'patient') throw new ForbiddenException('patient_scope_required'); }
@@ -129,6 +130,8 @@ export class PharmacyAllocationService {
       if (!body.substitute_sku) throw new BadRequestException('substitute_sku_required');
       const subInv = await this.inv.findOne({ provider_account_id: user.id, sku: body.substitute_sku, available: true });
       if (!subInv) throw new BadRequestException('substitute_not_in_inventory');
+      const order: any = await this.orders.findOne({ id: a.order_id });
+      await assertSubstituteInsidePrescription(this.orders.db, order?.items?.find((i: any) => i.id === item.order_item_id), subInv);
       const tracking = await this.split.holdsStock(a);
       if (tracking && subInv.stock < (body.qty_offered || item.qty_requested)) throw new BadRequestException('substitute_insufficient_stock');
       // P13-R2: never automatic. Store the proposal; sku, price, stock and
@@ -212,6 +215,7 @@ export class PharmacyAllocationService {
       const p = item.substitute_proposal;
       const subInv = await this.inv.findOne({ provider_account_id: a.pharmacy_account_id, sku: p.sku, available: true });
       if (!subInv) throw new BadRequestException('substitute_no_longer_available');
+      await assertSubstituteInsidePrescription(this.orders.db, order.items?.find((i: any) => i.id === item.order_item_id), subInv);
       const tracking = await this.split.holdsStock(a);
       const qty = p.qty_offered || item.qty_requested;
       if (tracking && subInv.stock < qty) throw new BadRequestException('substitute_insufficient_stock');
