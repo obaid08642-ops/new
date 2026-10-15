@@ -2,9 +2,8 @@ export const APP_NAME = 'نبض بلس';
 export const APP_NAME_EN = 'Nabd+';
 export const APP_VERSION = '1.0.0';
 
-// M1-ENV: fixed wrong default (was missing the /api prefix → pointed at non-existent /v1)
-export const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL
-  ?? (process.env.EXPO_PUBLIC_API_URL ? `${process.env.EXPO_PUBLIC_API_URL.replace(/\/$/, '')}/api/v1` : 'https://api.nabd.plus/api/v1');
+// Issue 410: the API base comes from ConfigManager's single rule (EXPO_PUBLIC_API_BASE_URL, else EXPO_PUBLIC_API_URL + /api/v1).
+export { API_BASE_URL } from './apiBase';
 export const SOCKET_URL = process.env.EXPO_PUBLIC_SOCKET_URL ?? 'https://api.nabd.plus';
 export const CDN_URL = process.env.EXPO_PUBLIC_CDN_URL ?? 'https://cdn.nabd.plus';
 

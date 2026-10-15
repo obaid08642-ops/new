@@ -69,7 +69,7 @@
     "kind": "duplicate",
     "file": "patient-web/components-next/pharmacy-offers/quote-section.tsx",
     "line": 86,
-    "review_status": "open (issue #1016)"
+    "review_status": "fixed #1476"
   },
   {
     "scenario": 1,
@@ -384,7 +384,7 @@
     "kind": "duplicate",
     "file": "patient-web/app/[locale]/appointments/page.tsx",
     "line": 70,
-    "review_status": "open (issue #1051)"
+    "review_status": "fixed #1476"
   },
   {
     "scenario": 4,
@@ -519,7 +519,7 @@
     "kind": "missing-step",
     "file": "patient-app/app/diagnostics/order/[id].tsx",
     "line": 165,
-    "review_status": "open (issue #1066)"
+    "review_status": "fixed #1480"
   },
   {
     "scenario": 5,
@@ -546,7 +546,7 @@
     "kind": "dead-end",
     "file": "patient-web/app/[locale]/home-care/services/[serviceId]/page.tsx",
     "line": 38,
-    "review_status": "open (issue #1069)"
+    "review_status": "fixed #1478"
   },
   {
     "scenario": 6,
@@ -573,7 +573,7 @@
     "kind": "duplicate",
     "file": "patient-web/app/[locale]/nursing/catalog/page.tsx",
     "line": 68,
-    "review_status": "open (issue #1072)"
+    "review_status": "fixed #1478"
   },
   {
     "scenario": 6,
@@ -699,7 +699,7 @@
     "kind": "missing-state",
     "file": "patient-web/public/sw.js",
     "line": 45,
-    "review_status": "open (issue #1086)"
+    "review_status": "fixed #1507 (issue #1086)"
   },
   {
     "scenario": 9,

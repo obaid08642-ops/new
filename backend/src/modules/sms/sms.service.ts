@@ -33,6 +33,11 @@ export class SmsService {
   }
 
   async sendOtp(phone: string, otp: string): Promise<boolean> {
+    return this.sendText(phone, `Your Nabd+ OTP is: ${otp}`);
+  }
+
+  /** One text message (an OTP, a password-reset link), through the same switch, chaos drill and provider as the OTP. */
+  async sendText(phone: string, text: string): Promise<boolean> {
     // 15.11 chaos drill: force the documented fallback (false, i.e. email+push)
     // before the enabled-check and before any provider HTTP call, so the drill
     // asserts the real degraded path rather than a provider error. Never in
@@ -55,7 +60,7 @@ export class SmsService {
         // Taqnyat Integration
         const res = await axios.post('https://api.taqnyat.sa/v1/messages', {
           recipients: [phone],
-          body: `Your Nabd+ OTP is: ${otp}`,
+          body: text,
           sender: 'Nabdah'
         }, {
           headers: { Authorization: `Bearer ${process.env.TAQNYAT_API_KEY}` }

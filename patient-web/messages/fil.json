@@ -1150,7 +1150,10 @@
     "allSpecialties": "Lahat ng espesyalidad",
     "paymentLabel": "Bayad",
     "payment_insurance": "Tumatanggap ng insurance",
-    "payment_cash": "Cash lang"
+    "payment_cash": "Cash lang",
+    "doctorPhotoAlt": "Larawan ni {name}",
+    "clinicPhotosTitle": "Mga larawan ng klinika",
+    "clinicPhotoAlt": "Larawan ng klinika {n}"
   },
   "LabsServices": {
     "eyebrow": "Pangangalaga sa laboratoryo",
@@ -1526,7 +1529,6 @@
     "attribute": "Katangian",
     "active_ingredient": "Aktibong sangkap",
     "price": "Presyo",
-    "dosage_form": "Anyo ng dosis",
     "manufacturer": "Tagagawa",
     "emptyBody": "Pumili ng dalawa o higit pang gamot mula sa katalogo.",
     "browse": "Mag-browse",
@@ -1534,7 +1536,9 @@
     "requires_prescription": "Kailangan ng reseta",
     "online_exclusive": "Online lang",
     "yes": "Oo",
-    "no": "Hindi"
+    "no": "Hindi",
+    "form": "Anyo ng dosis",
+    "strength": "Lakas"
   },
   "PharmacyRequest": {
     "title": "Humingi ng gamot sa pangalan",
@@ -2090,7 +2094,8 @@
     "sortPriceAsc": "Presyo: mababa pataas",
     "sortPriceDesc": "Presyo: mataas pababa",
     "sortNewest": "Pinakabago",
-    "askPharmacies": "Hilingin sa mga kalapit na botika"
+    "askPharmacies": "Hilingin sa mga kalapit na botika",
+    "compareAlternatives": "Ihambing sa mga alternatibo"
   },
   "PharmacyOffers": {
     "backToOrder": "Bumalik sa order",
@@ -2156,15 +2161,12 @@
     "orderStatusLink": "Katayuan ng order",
     "trackOrder": "Subaybayan ang order",
     "continuePayment": "Magpatuloy sa pagbabayad",
-    "showMethods": "Pumili ng paraan ng pagbabayad",
     "methodCard": "Card sa bangko",
     "methodApplePay": "Apple Pay",
     "methodGooglePay": "Google Pay",
-    "paymentUnavailable": "Walang available na online na paraan ng pagbabayad para sa order na ito ngayon.",
     "redirecting": "Dinadala ka sa ligtas na pahina ng pagbabayad…",
     "noRedirect": "Hindi pa available sa web ang paraan ng pagbabayad na ito. Pumili ng iba.",
     "paymentError": "Hindi masimulan ang pagbabayad. Walang naitalang bayad.",
-    "loadingMethods": "Nilo-load ang mga paraan ng pagbabayad…",
     "insurancePending": "Humingi ang parmasya ng pag-apruba sa iyong insurer. Walang babayaran bago ang desisyon.",
     "insuranceCovered": "Saklaw ng insurance ang buong order na ito. Walang dapat bayaran.",
     "insuranceDecisionTitle": "Desisyon ng insurance sa bawat item",
@@ -2863,7 +2865,6 @@
     "trackingInProgress": "Isinasagawa",
     "trackingScheduled": "Nakatakda: {when}",
     "trackingBeforeTitle": "Bago ang sample",
-    "trackingBeforeBody": "Huwag kumain 8 hanggang 12 oras bago ang sample maliban kung iba ang sabi ng iyong doktor.",
     "trackingStepsTitle": "Mga hakbang",
     "trackingNoSteps": "Wala pang update sa tracking. Lalabas dito ang mga hakbang kapag naitala na ng lab.",
     "searchTests": "Maghanap ng test…",
@@ -2872,10 +2873,6 @@
     "searchResults": "Mga resulta ng paghahanap",
     "collectorLabel": "Kukuha ng sample",
     "collectorCall": "Tawagan ang kukuha ng sample",
-    "collectorTipsTitle": "Pagdating ng kukuha ng sample",
-    "collectorTip1": "Ihanda ang iyong ID at ang request ng test",
-    "collectorTip2": "Sundin ang pag-aayuno na kailangan ng test",
-    "collectorTip3": "Sabihin sa kukuha ng sample ang anumang gamot na iniinom mo",
     "status_pending": "Naghihintay ng kumpirmasyon",
     "status_insurance": "Naghihintay ng insurance",
     "status_confirmed": "Kumpirmado",
@@ -2884,10 +2881,7 @@
     "status_processing": "Isinasagawa",
     "status_report": "Handa na ang ulat",
     "status_cancelled": "Kanselado",
-    "bookingNotSentTitle": "Walang na-book",
-    "bookingNotSentBody": "Hindi pa nagpapadala ng booking ang window na ito, kaya walang appointment na ginawa at walang bayad na kinuha. Buksan ang pahina ng nursing para mag-book ng pagbisita.",
-    "bookingNotSentCta": "Pumunta sa nursing",
-    "bookingNotSentClose": "Isara"
+    "trackingPrepAsk": "Kukumpirmahin sa iyo ng lab ang anumang kailangang paghahanda."
   },
   "NursingWeb": {
     "hubTitle": "Pangangalaga sa bahay",
@@ -2899,13 +2893,11 @@
     "browseCatalog": "Tingnan ang mga serbisyo ng nursing",
     "statusLabel": "Katayuan",
     "pulse": "Pulso",
-    "formService": "Serbisyo",
     "formTime": "Oras",
     "formAddress": "Tirahan",
     "formAddAddress": "Magdagdag muna ng address",
     "formNotes": "Mga tala (opsyonal)",
     "formBooking": "Nagbu-book…",
-    "formSelectService": "Pumili ng serbisyo",
     "formSelectTime": "Pumili ng araw at oras",
     "formPast": "Lumipas na ang oras na iyon. Pumili ng mas huling oras",
     "formFailed": "Hindi nagawa ang booking",
@@ -2967,7 +2959,6 @@
     "insurance": "May insurance",
     "priceLabel": "Presyo",
     "durationLabel": "Tagal",
-    "bookingNotice": "Read-only ang detalye ng serbisyo rito. Walang booking na ginagawa sa pahinang ito.",
     "back": "Bumalik sa mga serbisyo",
     "serviceUnavailableTitle": "Hindi ma-load ang mga serbisyo",
     "serviceUnavailableBody": "Pakisubukang muli mamaya.",
@@ -2987,13 +2978,19 @@
     "step_NURSE_ARRIVED": "Dumating ang nars",
     "step_CARE_IN_PROGRESS": "Nagpapatuloy ang care",
     "step_COMPLETED": "Tapos na ang visit",
-    "nurseTitle": "Profile ng nurse",
-    "nurseUnavailableTitle": "Hindi available ang profile sa ngayon",
-    "nurseUnavailableBody": "Hindi na-load ang detalye ng profile ng nurse.",
-    "experienceLabel": "Karanasan sa trabaho",
-    "ratingLabel": "Rating ng mga pasyente",
-    "nurseServicesTitle": "Mga available na serbisyo ng nursing",
-    "requestNurse": "Humiling ng pagbisita ng nurse"
+    "bookCta": "I-book ang serbisyong ito",
+    "bookTitle": "Mag-book ng home visit",
+    "chooseNurse": "Pumili ng nurse",
+    "noNurses": "Walang nurse na nag-aalok ng serbisyong ito ngayon. Subukan ulit mamaya.",
+    "today": "Ngayon",
+    "loadingSlots": "Nilo-load ang mga bakanteng oras…",
+    "noSlots": "Walang bakanteng oras sa araw na ito. Pumili ng ibang araw.",
+    "slotsFailed": "Hindi ma-load ang mga oras. Subukan ulit.",
+    "slotTaken": "Hindi na bakante ang oras na iyon. Pumili ng ibang oras.",
+    "addressNeedsLocation": "Pumili ng naka-save na address na may lokasyon sa mapa, o magdagdag ng isa.",
+    "payTitle": "Bayad",
+    "payNow": "Magbayad ngayon gamit ang card",
+    "payFailed": "Naka-save ang booking mo, pero hindi mabuksan ang payment page. Subukan ulit."
   },
   "MaternityWeb": {
     "title": "Pagbubuntis",
@@ -3219,23 +3216,11 @@
     "example4": "Pantal at pangangati ng balat",
     "symptomsLabel": "Iyong mga sintomas",
     "symptomsPlaceholder": "Halimbawa: sakit ng ulo sa loob ng dalawang araw na may pagduduwal",
-    "flagsLegend": "May alinman ka ba sa mga senyales na ito? Piliin ang lahat ng naaangkop",
-    "flag": {
-      "chest_pain": "Pananakit ng dibdib",
-      "breathing_difficulty": "Hirap sa paghinga",
-      "fainting_or_unresponsive": "Pagkawala ng malay o hindi tumutugon",
-      "heavy_bleeding": "Matinding pagdurugo",
-      "new_confusion": "Biglaang pagkalito",
-      "severe_allergic_reaction": "Matinding allergic reaction",
-      "severe_injury": "Malubhang pinsala"
-    },
     "submit": "Alamin ang susunod na hakbang",
     "submitting": "Sinusuri…",
     "error": "Hindi makakuha ng gabay ngayon. Subukan muli mamaya.",
     "emergencyTitle": "Mga senyales na nangangailangan ng agarang tulong",
-    "emergencyBody": "Ang mga senyales na napili mo ay nangangailangang kontakin agad ang lokal na serbisyong pang-emerhensiya, huwag nang maghintay ng appointment.",
     "consultationTitle": "Iminumungkahi naming kumonsulta sa doktor",
-    "consultationBody": "Wala kang napiling senyales ng emerhensiya. Kung tumagal o lumala ang sintomas, mag-book ng konsultasyon sa doktor.",
     "bookConsultation": "Mag-book ng konsultasyon",
     "askAgain": "Magtanong ng iba",
     "disclaimer": "Pangkalahatang gabay ito, hindi diagnosis o paggamot. Sa emerhensiya, tumawag sa mga serbisyong pang-emerhensiya.",
@@ -3246,7 +3231,16 @@
     "untitledReport": "Ulat na medikal",
     "reportsUnavailable": "Hindi ma-load ang iyong mga ulat ngayon. Subukan muli mamaya.",
     "leafletLink": "Basahin ang leaflet",
-    "historyTitle": "Mga dati mong tanong"
+    "leafletTitle": "Tungkol sa gamot na ito, mula sa leaflet nito",
+    "outOfScopeTitle": "Ang kayang gawin ng assistant",
+    "leaflet": {
+      "indications": "Para saan ito ginagamit",
+      "how_to_use": "Paano ito gamitin",
+      "side_effects": "Mga side effect",
+      "warnings": "Mga babala",
+      "storage": "Pag-iimbak",
+      "pregnancy": "Pagbubuntis at pagpapasuso"
+    }
   },
   "MonthlyReportWeb": {
     "title": "Iyong buwanang ulat",
@@ -4129,5 +4123,30 @@
         "head_circ_cm": "Ang sukat ng ulo ay mula 20 hanggang 60 cm."
       }
     }
+  },
+  "LabResult": {
+    "title": "Resulta ng lab",
+    "error": "Hindi ma-load ang resulta",
+    "errorBody": "Subukan ulit mamaya.",
+    "retry": "Subukan ulit",
+    "critical": "Mahalaga — kailangan ng follow-up",
+    "values": "Mga halaga",
+    "range": "Normal na saklaw {low} – {high}",
+    "flag_high": "Mataas",
+    "flag_low": "Mababa",
+    "flag_critical": "Kritikal",
+    "findings": "Mga natuklasan",
+    "impression": "Impresyon",
+    "recommendations": "Mga rekomendasyon",
+    "notes": "Mga tala ng lab",
+    "openBooking": "Buksan ang booking para makita ang report file",
+    "empty": "Wala nang ibang detalye ang resultang ito.",
+    "discuss": "Pag-usapan ang resulta kasama ang doktor",
+    "rangeText": "Normal na saklaw {range}"
+  },
+  "Offline": {
+    "title": "Offline ka",
+    "body": "Hindi mabuksan ang pahinang ito nang walang koneksyon. Nakatago ang iyong cart sa device na ito; ipadala ang iyong request kapag may koneksyon na ulit.",
+    "home": "Bumalik sa simula"
   }
 }

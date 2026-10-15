@@ -15,6 +15,5 @@ import { Provider, ProviderSchema } from './schemas/provider.schema';
 import { SystemConfigExtended, SystemConfigExtendedSchema } from './schemas/system-config-extended.schema';
 import { WithdrawalRequest, WithdrawalRequestSchema } from './schemas/withdrawal-request.schema';
 import { ProviderWithdrawalSchema } from '../../provider-ops/provider-ops.module';
-import { EmergencyRequestSchema } from '../../../schemas/emergency.schema';
 import { AppointmentSchema } from '../../../schemas/appointment.schema';
 import { FinanceEngineModule } from '../../finance-engine/finance-engine.module';

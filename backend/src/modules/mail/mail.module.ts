@@ -268,6 +268,19 @@ export class MailService {
     });
   }
 
+  /** 435: the password-reset message, a button to the website's reset page with the token in the link (and the link as text). */
+  async sendPasswordReset(to: string, subject: string, body: string, action: string, link: string, dir: 'rtl' | 'ltr'): Promise<MailResult> {
+    const esc = (v: string) => v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const align = dir === 'rtl' ? 'right' : 'left';
+    const html = `
+      <div dir="${dir}" style="font-family: system-ui, sans-serif; padding: 30px; text-align: ${align}; background-color: #ffffff; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px;">
+        <p style="color: #334155; font-size: 16px; line-height: 1.6;">${esc(body)}</p>
+        <p style="margin: 25px 0;"><a href="${esc(link)}" style="background-color: #D42A38; color: #ffffff; padding: 12px 20px; border-radius: 8px; text-decoration: none; display: inline-block;">${esc(action)}</a></p>
+        <p style="color: #64748b; font-size: 13px; word-break: break-all;">${esc(link)}</p>
+      </div>`;
+    return this.send(to, subject, html, `${body}\n\n${link}`);
+  }
+
   /** Shared OTP template — branded, short, and honest about the expiry. */
   async sendOtp(to: string, code: string, expiresMinutes = 5): Promise<MailResult> {
     const html = `

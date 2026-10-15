@@ -393,6 +393,8 @@ export default async function PublicProductPage({ params }: Props) {
               <section className={`${styles.block} ${styles.alts}`} aria-label={b("alternativesTitle")}>
                 <div className={styles.blockHead}>
                   <h2 className={styles.blockTitle}>{b("alternativesTitle")}</h2>
+                  {/* batch-1a-web#8: compare this medicine with its alternatives (POST /medicines/compare, as the app) */}
+                  <Link className={styles.blockLink} href={`/${locale}/medicines/compare?ids=${[product.id, ...alternatives.map((a) => a.id)].slice(0, 4).map(encodeURIComponent).join(",")}`}>{b("compareAlternatives")}</Link>
                   {product.active_ingredient ? (
                     <Link className={styles.blockLink} href={`/${locale}/c?q=${encodeURIComponent(product.active_ingredient)}`}>{b("seeAll")}</Link>
                   ) : null}
