@@ -9,6 +9,9 @@ import { LocalDate } from "./local-date";
 import { statusKey } from "@/components-next/pharmacy-offers/status";
 import { OFFER_TONES } from "@/components-next/pharmacy-offers/tones";
 import { CancelOrder } from "@/components-next/pharmacy-offers/cancel-order";
+import { pharmacyCancelRules } from "@/components-next/pharmacy-offers/cancel-rules";
+import { callPatientApi } from "@/lib/api/upstream";
+import { extractRecord } from "@/lib/api/profile";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { parseOrderId } from "@/lib/api/orders";
@@ -32,6 +35,11 @@ export async function OrderDetailScreen({ locale, orderId }: { locale: Locale; o
   const t = await getTranslations({ locale, namespace: "Orders" });
   const offers = await getTranslations({ locale, namespace: "PharmacyOffers" });
   const routeState = await getTranslations({ locale, namespace: "RouteState" });
+  // journeys#8 (decision 26): the cancel confirmation says the refund rule, from the server's public config (as the offers page)
+  const settingsT = await getTranslations({ locale, namespace: "SettingsWeb" });
+  const configResponse = await callPatientApi("/system-config/public").catch(() => null);
+  const config = configResponse?.ok ? extractRecord(await configResponse.json().catch(() => null)) : null;
+  const cancelRules = pharmacyCancelRules(config, { prep: offers("cancelRulePrep"), refundDays: (min, max) => settingsT("ruleRefundDays", { min, max }), returnDays: (days) => settingsT("ruleReturnDays", { days }) });
   const token = await requirePatientAccess(locale);
   const ordersHref = `/${locale}/orders`;
   const frame = (children: React.ReactNode) => (
@@ -120,7 +128,7 @@ export async function OrderDetailScreen({ locale, orderId }: { locale: Locale; o
         ) : (
           <ButtonLink href={next} label={next === tracking ? t("action.track") : t("action.continue")} fullWidth />
         )}
-        {canCancelOrder(detail.status) ? <CancelOrder orderId={orderId} after="refresh" /> : null}
+        {canCancelOrder(detail.status) ? <CancelOrder orderId={orderId} after="refresh" rules={cancelRules} /> : null}
       </div>
     </>,
   );

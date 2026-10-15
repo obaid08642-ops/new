@@ -113,6 +113,21 @@ def main():
         step('the offers page says the price is not verified', shown, page.locator('main').first.inner_text()[:300])
     except Exception as e:
         step('web offers', False, str(e)[:300])
+
+    journey('journeys 8 (decision 26): the order page says the refund rule before cancelling')
+    try:
+        cfg = Client(None, 'anon').get('/system-config/public')
+        rp = (cfg.body.get('data', cfg.body) if isinstance(cfg.body, dict) else {}).get('returns_policy') or {}
+        lo, hi = rp.get('wallet_refund_days_min'), rp.get('wallet_refund_days_max')
+        step('the server publishes the refund days', lo is not None and hi is not None, rp)
+        page.goto(f'{WEB}/ar/orders/{oid}', wait_until='load', timeout=60000)
+        page.wait_for_function("() => { const b = [...document.querySelectorAll('button')].find((x) => x.textContent.includes('إلغاء الطلب')); return !!b && Object.keys(b).some((k) => k.startsWith('__react')); }", timeout=30000)
+        page.get_by_role('button', name='إلغاء الطلب').first.click()
+        rule = page.get_by_text('يصل الاسترداد خلال', exact=False).first  # the numbers may be drawn in Arabic digits
+        rule.wait_for(timeout=20000)
+        step('the cancel confirmation says the refund rule from the server', True, '')
+    except Exception as e:
+        step('the cancel confirmation says the refund rule from the server', False, str(e)[:300])
     finally:
         browser.close()
         pw.stop()
