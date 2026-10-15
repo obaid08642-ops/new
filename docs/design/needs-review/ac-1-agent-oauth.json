@@ -19,6 +19,6 @@
     "line": 100,
     "found": "[client] No screen yet. Backend is ready: GET /api/v1/patient/agent-connections (client_id, client_name, logo_uri, scopes, connected_at) and DELETE /api/v1/patient/agent-connections/:clientId (ends that client's tokens at once).",
     "suspect": "Design session: add the settings row and screen on web and app (AGENT_COMMERCE_SPEC_2026-10-12 AC-1).",
-    "review_status": "open"
+    "review_status": "fixed #1516"
   }
 ]
