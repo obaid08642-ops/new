@@ -339,7 +339,7 @@
     "kind": "dead-end",
     "file": "patient-web/app/[locale]/chat/[threadId]/page.tsx",
     "line": 57,
-    "review_status": "open (issue #1046)"
+    "review_status": "fixed #1455 (the thread shows message texts, B27; the composer is there once the visit is finished, decision 24; j_web_care checks both) (issue #1046)"
   },
   {
     "scenario": 3,
