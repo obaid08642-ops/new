@@ -5,7 +5,7 @@
  * per-item outcomes + approval_reference + idempotency_key.
  * This replaces the generic insurance-engine screen for pharmacy orders.
  */
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import * as Crypto from 'expo-crypto';
 import { useTheme, useLang, useToast } from '../../context';
@@ -34,11 +34,11 @@ export function PharmacyInsuranceQueueScreen({ onBack }: { onBack: () => void })
 
   const load = useCallback(async () => {
     try {
-      const [a, b] = await Promise.all([
-        client.get('/provider/pharmacy/allocations', { params: { status: 'PENDING_REVIEW' } }),
-        client.get('/provider/pharmacy/allocations', { params: { status: 'PARTIALLY_CONFIRMED' } }),
-      ]);
-      const allocs = [...(a.data || []), ...(b.data || [])];
+      // The list marks the rows that await this pharmacy's insurance decision (awaits_insurance_decision). The old
+      // status filters asked for 'PENDING_REVIEW' / 'PARTIALLY_CONFIRMED', but the stored states are lower case, so
+      // this queue was always empty.
+      const list = await client.get('/provider/pharmacy/allocations');
+      const allocs = (Array.isArray(list.data) ? list.data : []).filter((x: { awaits_insurance_decision?: boolean }) => x.awaits_insurance_decision === true);
       const details = await Promise.all(
         allocs.map((x: any) =>
           client.get(`/provider/pharmacy/allocations/${x.id}`)
@@ -99,6 +99,36 @@ export function PharmacyInsuranceQueueScreen({ onBack }: { onBack: () => void })
           ))
         )}
       </ScrollView>
+    </View>
+  );
+}
+
+/**
+ * Opens the same decision form straight from an Orders card whose allocation row carries
+ * awaits_insurance_decision (provider-journeys needs-review line 22). It only loads the
+ * allocation detail the queue loads; the decision itself is the form's existing POST.
+ */
+export function PharmacyInsuranceDecisionForAllocation({ allocationId, onBack }: { allocationId: string; onBack: () => void }) {
+  const { theme } = useTheme();
+  const { t } = useLang();
+  const { show } = useToast();
+  const [detail, setDetail] = useState<Record<string, unknown> | null>(null);
+  const backRef = useRef(onBack);
+  backRef.current = onBack;
+
+  useEffect(() => {
+    let live = true;
+    client.get<Record<string, unknown>>(`/provider/pharmacy/allocations/${allocationId}`)
+      .then((r) => { if (live) setDetail(r.data); })
+      .catch(() => { if (live) { show(t('error'), 'error'); backRef.current(); } });
+    return () => { live = false; };
+  }, [allocationId, show, t]);
+
+  if (detail) return <PharmacyInsuranceDecisionForm detail={detail} onBack={onBack} />;
+  return (
+    <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <NHeader title={t('insuranceDecisionRecord')} onBack={onBack} />
+      <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: SP.xxl }} accessibilityLabel={t('loading')} />
     </View>
   );
 }
