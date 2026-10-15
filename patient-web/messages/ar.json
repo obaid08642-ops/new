@@ -345,7 +345,10 @@
     "callReady": "زيارة الفيديو جاهزة.",
     "callUnavailable": "زيارة الفيديو غير متاحة الآن.",
     "callDiscard": "إغلاق زيارة الفيديو",
-    "callOpen": "انضم إلى الزيارة المرئية"
+    "callOpen": "انضم إلى الزيارة المرئية",
+    "cancelledRefund": "أُلغي الموعد. يعود {amount} ({percent}٪ مما دفعت) إلى وسيلة الدفع الأصلية.",
+    "cancelledNoRefund": "أُلغي الموعد. لا يستحق استرداد وفق سياسة الإلغاء.",
+    "cancelledNotCharged": "أُلغي الموعد. لم يُخصم أي مبلغ."
   },
   "Medicines": {
     "eyebrow": "كتالوج خاص",
@@ -1437,13 +1440,10 @@
     "bundleTitle": "نبض بلس"
   },
   "BookConsultation": {
-    "homeAddressRequired": "حدد موقع المنزل (العنوان والإحداثيات) أولاً",
+    "homeAddressRequired": "اختر عنوان الزيارة من عناوينك المحفوظة أولًا",
     "cashClinicOnly": "الدفع النقدي متاح لزيارات العيادة فقط",
     "homeLocation": "موقع المنزل",
     "homeAddress": "العنوان",
-    "homeAddressPlaceholder": "الحي، الشارع، رقم المبنى",
-    "homeLat": "خط العرض",
-    "homeLng": "خط الطول",
     "slotTaken": "لم يعد هذا الموعد متاحاً. اختر موعداً آخر.",
     "title": "حجز استشارة",
     "subtitle": "اختر نوع الزيارة واليوم والوقت",
@@ -1477,7 +1477,9 @@
     "bookingFailed": "تعذر إتمام الحجز — تحقق من الموعد وطريقة الدفع",
     "fee": "رسوم الاستشارة",
     "duration": "مدة الزيارة",
-    "durationValue": "{n} دقيقة"
+    "durationValue": "{n} دقيقة",
+    "homeAddressNone": "أضف عنوانًا بموقعه على الخريطة لزيارة المنزل.",
+    "homeAddressAdd": "إضافة عنوان أو تعديله"
   },
   "AiHealthReport": {
     "title": "تقريرك الصحي الذكي",

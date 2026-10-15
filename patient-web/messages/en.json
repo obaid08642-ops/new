@@ -357,7 +357,10 @@
     "callReady": "Your video visit is ready.",
     "callUnavailable": "Video visit isn't available right now.",
     "callDiscard": "Close video visit",
-    "callOpen": "Join the video visit"
+    "callOpen": "Join the video visit",
+    "cancelledRefund": "Appointment cancelled. {amount} ({percent}% of what you paid) goes back to your original payment method.",
+    "cancelledNoRefund": "Appointment cancelled. Under the cancellation policy no refund is due.",
+    "cancelledNotCharged": "Appointment cancelled. Nothing was charged."
   },
   "Medicines": {
     "eyebrow": "Private catalog",
@@ -1437,13 +1440,10 @@
     "bundleTitle": "Nabd Plus"
   },
   "BookConsultation": {
-    "homeAddressRequired": "Enter your home location (address and coordinates) first",
+    "homeAddressRequired": "Choose the visit address from your saved addresses first",
     "cashClinicOnly": "Cash is available for clinic visits only",
     "homeLocation": "Home location",
     "homeAddress": "Address",
-    "homeAddressPlaceholder": "District, street, building",
-    "homeLat": "Latitude",
-    "homeLng": "Longitude",
     "slotTaken": "This slot is no longer available. Choose another time.",
     "title": "Book Consultation",
     "subtitle": "Pick a visit type, day and time",
@@ -1477,7 +1477,9 @@
     "bookingFailed": "Booking failed. Check the slot and the payment method.",
     "fee": "Consultation fee",
     "duration": "Visit length",
-    "durationValue": "{n} min"
+    "durationValue": "{n} min",
+    "homeAddressNone": "Add an address with its map location for a home visit.",
+    "homeAddressAdd": "Add or edit an address"
   },
   "AiHealthReport": {
     "title": "Your AI Health Report",

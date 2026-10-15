@@ -395,7 +395,10 @@
     "callReady": "Handa na ang iyong video visit.",
     "callUnavailable": "Hindi available ang video visit ngayon.",
     "callDiscard": "Isara ang video visit",
-    "callOpen": "Sumali sa video visit"
+    "callOpen": "Sumali sa video visit",
+    "cancelledRefund": "Nakansela ang appointment. Ang {amount} ({percent}% ng ibinayad mo) ay ibabalik sa orihinal mong paraan ng pagbabayad.",
+    "cancelledNoRefund": "Nakansela ang appointment. Ayon sa patakaran sa pagkansela, walang refund.",
+    "cancelledNotCharged": "Nakansela ang appointment. Walang siningil."
   },
   "Medicines": {
     "eyebrow": "Pribadong katalogo",
@@ -1437,13 +1440,10 @@
     "bundleTitle": "Nabd Plus"
   },
   "BookConsultation": {
-    "homeAddressRequired": "Ilagay muna ang lokasyon ng bahay (address at coordinates)",
+    "homeAddressRequired": "Piliin muna ang address ng pagbisita mula sa mga naka-save mong address",
     "cashClinicOnly": "Ang cash ay available lang para sa clinic visits",
     "homeLocation": "Lokasyon ng bahay",
     "homeAddress": "Address",
-    "homeAddressPlaceholder": "District, street, building",
-    "homeLat": "Latitude",
-    "homeLng": "Longitude",
     "slotTaken": "Hindi na available ang slot na ito. Pumili ng iba.",
     "title": "Mag-book ng Konsultasyon",
     "subtitle": "Pumili ng uri ng pagbisita, araw at oras",
@@ -1477,7 +1477,9 @@
     "bookingFailed": "Hindi natapos ang booking. Suriin ang oras at paraan ng pagbabayad.",
     "fee": "Bayad sa konsultasyon",
     "duration": "Haba ng pagbisita",
-    "durationValue": "{n} minuto"
+    "durationValue": "{n} minuto",
+    "homeAddressNone": "Magdagdag ng address na may lokasyon sa mapa para sa home visit.",
+    "homeAddressAdd": "Magdagdag o mag-edit ng address"
   },
   "AiHealthReport": {
     "title": "Ang Iyong AI Health Report",
