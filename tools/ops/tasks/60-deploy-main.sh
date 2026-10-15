@@ -204,6 +204,12 @@ wait_healthy nabdah-admin-web 36 || rollback "admin-web health"
 $COMPOSE up -d --no-build --no-deps nginx >/dev/null 2>&1 || rollback "nginx up"
 wait_healthy nabdah-nginx 24 || rollback "nginx health"
 nginx_ok || rollback "nginx -t"
+# nginx resolves upstream names (patient-web, admin-web, backend) once, when it loads its config. When compose leaves the
+# nginx container as it is (no change in its definition), it keeps the addresses of the containers it saw at its start,
+# and the recreated app containers may come back with each other's addresses: rehearsal run 38664756357 had nabd.plus
+# sent to admin-web (patient-web's old address), 404 on /ar. A reload after the app containers are up re-resolves them.
+$DK exec nabdah-nginx nginx -s reload >/dev/null 2>&1 || rollback "nginx reload"
+sleep 2
 for s in backend worker admin-web patient-web; do
   img=$($DK inspect -f '{{.Config.Image}}' nabdah-$s); case $img in *:$S8) ;; *) rollback "$s runs $img, not the release";; esac
 done
