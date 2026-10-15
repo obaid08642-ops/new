@@ -59,7 +59,8 @@ def main():
 
     journey('provider-journeys 1: the pharmacy prices both lines from the catalogue')
     first, second = lines.get(meds[0]['id'], {}), lines.get(meds[1]['id'], {})
-    bad = [{'order_item_id': str(first.get('order_item_id')), 'availability': 'available', 'qty_offered': 2, 'medicine_id': str(uuid.uuid4())}]
+    bad = [{'order_item_id': str(first.get('order_item_id')), 'availability': 'available', 'qty_offered': 2, 'medicine_id': str(uuid.uuid4())},
+           {'order_item_id': str(second.get('order_item_id')), 'availability': 'unavailable'}]
     r = pharm.post(f'/provider/pharmacy/broadcasts/{oid}/offers/draft', {'items': bad})
     step('an unknown catalogue item is refused', r.status == 400 and 'catalogue_item_not_found' in str(r.body), r)
     items = [
@@ -102,8 +103,13 @@ def main():
     step('the patient picks the offer with one line unavailable', r.ok, r)
     o = pat.get(f'/patient/pharmacy/orders/{oid}')
     order = o.body.get('data', o.body) if isinstance(o.body, dict) else {}
-    if order.get('governed_state') == 'FINAL_QUOTE_READY':
-        pat.post(f'/patient/pharmacy/orders/{oid}/final-quote/accept', {'quote_hash': order.get('pending_final_quote_hash'), 'quote_revision': order.get('pending_final_quote_revision')}, headers={'Idempotency-Key': KEY('fq')})
+    # as j_pharmacy.run: the patient accepts the final quote (the selected offer's hash) before paying
+    state = order.get('governed_state')
+    if state == 'FINAL_QUOTE_READY' or order.get('selected_offer_hash'):
+        h = order.get('pending_final_quote_hash') if state == 'FINAL_QUOTE_READY' else order.get('selected_offer_hash')
+        rev = order.get('pending_final_quote_revision') if state == 'FINAL_QUOTE_READY' else order.get('selected_offer_revision')
+        r = pat.post(f'/patient/pharmacy/orders/{oid}/final-quote/accept', {'quote_hash': h, 'quote_revision': rev}, headers={'Idempotency-Key': KEY('fq')})
+        step('the patient accepts the final quote', r.ok, r)
     card_payment(pat, 'pharmacy', oid)
     alloc = next((a for a in pharm.get('/provider/pharmacy/allocations').items() if a.get('order_id') == oid), None)
     step('the order is allocated to the pharmacy', alloc, oid)
