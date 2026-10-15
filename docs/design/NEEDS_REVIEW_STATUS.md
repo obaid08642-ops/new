@@ -8,25 +8,25 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| Patient app and web | 434 | 79 | 259 | 91 | 5 | 0 |
+| Patient app and web | 434 | 77 | 259 | 91 | 7 | 0 |
 | Other | 29 | 22 | 7 | 0 | 0 | 0 |
 | Admin | 97 | 8 | 56 | 33 | 0 | 0 |
 | Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
 | Final pass | 8 | 8 | 0 | 0 | 0 | 0 |
-| Patient journeys | 86 | 33 | 51 | 2 | 0 | 0 |
+| Patient journeys | 87 | 33 | 52 | 2 | 0 | 0 |
 | Provider app | 31 | 8 | 22 | 1 | 0 | 0 |
 | Provider journeys | 34 | 17 | 15 | 2 | 0 | 0 |
-| **Total** | **739** | **177** | **426** | **131** | **5** | **0** |
+| **Total** | **740** | **175** | **427** | **131** | **7** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | client | 169 | 51 | 90 | 28 | 0 | 0 |
-| owner | 100 | 17 | 36 | 42 | 5 | 0 |
+| owner | 100 | 16 | 36 | 42 | 6 | 0 |
 | backend | 233 | 35 | 169 | 29 | 0 | 0 |
-| untagged | 237 | 74 | 131 | 32 | 0 | 0 |
-| **Total** | **739** | **177** | **426** | **131** | **5** | **0** |
+| untagged | 238 | 73 | 132 | 32 | 1 | 0 |
+| **Total** | **740** | **175** | **427** | **131** | **7** | **0** |
 
 ## By file
 
@@ -78,7 +78,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-0-web.json` | 19 | 10 | 8 | 1 | 0 | 0 |
 | `batch-1a-app.json` | 19 | 3 | 5 | 11 | 0 | 0 |
 | `batch-1a-web.json` | 12 | 4 | 6 | 2 | 0 | 0 |
-| `batch-1b-app.json` | 12 | 5 | 5 | 2 | 0 | 0 |
+| `batch-1b-app.json` | 12 | 3 | 5 | 2 | 2 | 0 |
 | `batch-1b-web.json` | 13 | 3 | 6 | 4 | 0 | 0 |
 | `batch-1c-app.json` | 12 | 0 | 11 | 1 | 0 | 0 |
 | `batch-1c-web.json` | 13 | 1 | 9 | 3 | 0 | 0 |
@@ -86,7 +86,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1d-web.json` | 10 | 2 | 5 | 3 | 0 | 0 |
 | `final-pass-2.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `final-pass.json` | 4 | 4 | 0 | 0 | 0 | 0 |
-| `journeys.json` | 86 | 33 | 51 | 2 | 0 | 0 |
+| `journeys.json` | 87 | 33 | 52 | 2 | 0 | 0 |
 | `provider-admin-ish.json` | 3 | 1 | 2 | 0 | 0 | 0 |
 | `provider-doctor.json` | 6 | 1 | 5 | 0 | 0 | 0 |
 | `provider-facility.json` | 7 | 1 | 6 | 0 | 0 | 0 |
@@ -100,9 +100,9 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 7 | 0 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 6 | 7 | 0 | 0 | 0 |
-| **Total** | **739** | **177** | **426** | **131** | **5** | **0** |
+| **Total** | **740** | **175** | **427** | **131** | **7** | **0** |
 
-## Owner decisions (5)
+## Owner decisions (7)
 
 | # | Where | Screen / element | Question |
 |---:|---|---|---|
@@ -111,8 +111,10 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 3 | `3-app.json#6` `patient-app/app/diagnostics/sample-tracking.tsx:90` | /diagnostics/sample-tracking Preparation text, six default steps | [owner] Static medical text and a fixed step list, not from the booking; confirm the wording. |
 | 4 | `3-app.json#7` `patient-app/app/diagnostics/technician-tracking.tsx:4` | /diagnostics/technician-tracking Tips | [owner] [screen is now a redirect; kept so issue indices stay stable] Static text; the old third tip (samples sent in cold containers) was dropped as an unverified claim. |
 | 5 | `5-app.json#14` `patient-app/src/components/health/SleepView.tsx:120` | /health/sleep-score Static sleep tips | [owner] Four educational tips are static text (translated): confirm they stay. |
+| 6 | `batch-1b-app.json#0` `backend/src/modules/pharmacy/pharmacy.controllers.ts:273` | /pharmacy/pharmacist-chat Send a message, accept the substitute, reject it, ask… | Runtime probe on the seeded backend (2026-10-06): POST /pharmacy/chat/threads/:id/messages, /accept-substitute/:msgId, /reject and /remove-item answer 403 {"message":"Insufficient role"} for the seeded patient and for a… |
+| 7 | `batch-1b-app.json#1` `patient-app/app/(tabs)/pharmacy.tsx:63` | /pharmacy/pharmacist-chat Hub tile 'Pharmacist consult' and product page 'Ask a… | The screen is the substitute-negotiation chat of one order (GET /pharmacy/chat/threads?order_id=); a thread exists only when a pharmacy proposes a substitute for an order line. The hub (pharmacy.tsx:63) and the product … |
 
-## Open and unverified (177)
+## Open and unverified (175)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -194,8 +196,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1a-web.json#8` | untagged | open (issue #475) | /medicines/compare Compare table entry point | The page needs ?ids=a,b (up to 4) and reads each with an unauthenticated GET /medicines/:id; nothing on the web links to it with ids (the app compares through POST /medicines/comp… |
 | `batch-1a-web.json#10` | untagged | open (issue #477) | /p/[slug] Missing product: status and robots | Production build against the seeded backend: GET /ar/p/test-missing answers HTTP 200 with <meta name="robots" content="index, follow"> although the page calls notFound() (the upst… |
 | `batch-1a-web.json#11` | untagged | open (issue #478) | /medicines/compare Extra upstream call on every render | Production build: a plain GET /ar/medicines/compare makes the server call GET /api/v1/public/product-by-id/ar/compare (404), i.e. the legacy [medicineId] route's metadata resolver… |
-| `batch-1b-app.json#0` | untagged | open: the patient's four actions are allowed (pharmacy.cont… | /pharmacy/pharmacist-chat Send a message, accept the substitute, reject it, ask… | Runtime probe on the seeded backend (2026-10-06): POST /pharmacy/chat/threads/:id/messages, /accept-substitute/:msgId, /reject and /remove-item answer 403 {"message":"Insufficient… |
-| `batch-1b-app.json#1` | owner | open (issue #480) | /pharmacy/pharmacist-chat Hub tile 'Pharmacist consult' and product page 'Ask a… | The screen is the substitute-negotiation chat of one order (GET /pharmacy/chat/threads?order_id=); a thread exists only when a pharmacy proposes a substitute for an order line. Th… |
 | `batch-1b-app.json#2` | owner | open (issue #481) | /pharmacy/cart Price per line, 'Total', 'Delivery', points toggle, 'Deliver to'… | The board Cart draws a unit price per line, an estimated total in the footer, a totals card (subtotal, delivery, points discount), a 'use your points' switch and a delivery addres… |
 | `batch-1b-app.json#3` | untagged | open (issue #482) | /pharmacy/rx-order Checkout reads the prescription instead of the cart lines, a… | checkout.tsx:17 reads `prescriptionUrl` from useCart(), but CartContext has no such field (it belongs to DiagnosticsCartContext), so it is always undefined; line 21 `orderItems = … |
 | `batch-1b-app.json#6` | untagged | open (issue #485) | /pharmacy/scan-prescription Each OCR line without a medicine id is added to the… | POST /prescriptions/upload calls medicines.createManualEntry for every line the OCR could not match (is_manual_entry) with the patient's own text; the app sends the OCR result as … |
