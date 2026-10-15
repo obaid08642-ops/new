@@ -7,7 +7,14 @@ import type { Locale } from "@/lib/i18n";
  * F82-1: WebMCP registers tools for in-browser assistants. Nothing on the page needs it, so it is
  * fetched a few seconds after the page has loaded, when the browser is idle (3.4 KB gz and its descriptions are
  * out of the first load).
+ *
+ * F82 (issue 426): and only in a browser that has an assistant to register them with (`navigator.modelContext`). Without
+ * one the provider only filled a stand-in object that nothing reads, and every page load still downloaded it.
  */
+export function hasModelContext(scope: { navigator?: unknown } & object = window): boolean {
+  return Boolean((scope.navigator as { modelContext?: unknown } | undefined)?.modelContext || (scope as { modelContext?: unknown }).modelContext);
+}
+
 export function WebMcpLoader({ locale }: { locale: Locale }) {
   const [Provider, setProvider] = useState<ComponentType<{ locale: Locale }> | null>(null);
 
@@ -16,6 +23,7 @@ export function WebMcpLoader({ locale }: { locale: Locale }) {
     let idle = 0;
     let timer = 0;
     const load = () => {
+      if (!hasModelContext()) return;
       void import("./web-mcp-provider").then((mod) => {
         if (!cancelled) setProvider(() => mod.WebMcpProvider);
       });
