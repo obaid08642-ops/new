@@ -197,6 +197,20 @@ export class MedicinesService {
     };
   }
 
+  /**
+   * The base filter of every catalogue read: the public gate for patient/public reads, only "not deleted" for the
+   * admin/internal reads (includeUnverified). Every query of a read path starts from this, fallbacks included, so a
+   * medicine still in medical review never reaches a public response.
+   */
+  private catalogScope(includeUnverified: boolean): Record<string, unknown> {
+    return includeUnverified ? { is_deleted: { $ne: true } } : this.publicCatalogFilter();
+  }
+
+  /** Filter of the public catalogue stream (GET /medicines/stream): the same public gate as the search. */
+  publicStreamFilter(search?: string, category?: string): Record<string, unknown> {
+    return this.buildQuery(search, category, false);
+  }
+
   /** Static-catalog payload for a locale/category shard. This is deliberately
    * sourced from governed medicine records rather than a seed or client input. */
   async publicCatalogFragment(locale: string, category: string) {
@@ -233,7 +247,7 @@ export class MedicinesService {
   }
 
   private buildQuery(search?: string, category?: string, includeUnverified = true) {
-    const q: any = includeUnverified ? { is_deleted: { $ne: true } } : this.publicCatalogFilter();
+    const q: any = this.catalogScope(includeUnverified);
     // User text is matched literally: control characters dropped (MongoDB rejects a NUL in a
     // regex), regex metacharacters escaped (an input like "+" made the pattern invalid: 500,
     // and raw patterns are a ReDoS vector), length capped.
@@ -424,7 +438,7 @@ export class MedicinesService {
   }
 
   private async didYouMeanPool(): Promise<{ terms: { _id: string }[]; names: { name_en?: string; name_ar?: string }[] }> {
-    const cacheKey = 'med:dym:pool';
+    const cacheKey = 'med:dym:pool:governed-v1';
     const cached = await this.redis.getJson<{ terms: { _id: string }[]; names: { name_en?: string; name_ar?: string }[] }>(cacheKey);
     if (cached) return cached;
     const queries = this.conn.collection('search_queries');
@@ -435,7 +449,8 @@ export class MedicinesService {
         { $match: { createdAt: { $gte: since } } },
         { $group: { _id: '$term_lc', n: { $sum: 1 } } }, { $sort: { n: -1 } }, { $limit: 300 },
       ]).toArray(),
-      this.model.find({ is_deleted: { $ne: true }, usage_count: { $gt: 0 } }, { _id: 0, name_en: 1, name_ar: 1 } as any)
+      // Suggested names come from the public catalogue only: a medicine in medical review is never suggested.
+      this.model.find({ ...this.publicCatalogFilter(), usage_count: { $gt: 0 } }, { _id: 0, name_en: 1, name_ar: 1 } as any)
         .sort({ usage_count: -1 }).limit(300).lean(),
     ]);
     const pool = { terms: terms.map((x: any) => ({ _id: x._id })), names: (names as any[]).map((x) => ({ name_en: x.name_en, name_ar: x.name_ar })) };
@@ -472,7 +487,8 @@ export class MedicinesService {
     ]).toArray();
     if (!views.length) return [];
     const ids = views.map((v: any) => v._id);
-    const meds = await this.model.find({ id: { $in: ids } }, MedicinesService.CARD_PROJECTION);
+    // A medicine unpublished after the view (rejected, deleted) drops out of the row.
+    const meds = await this.model.find({ id: { $in: ids }, ...this.publicCatalogFilter() }, MedicinesService.CARD_PROJECTION);
     const byId = new Map((meds as any[]).map((m: any) => [m.id, this.withBadges(m?.toObject ? m.toObject() : m)]));
     return views
       .map((v: any) => ({ ...(byId.get(v._id) || null), last_viewed: v.last_viewed, view_count: v.views }))
@@ -544,7 +560,7 @@ export class MedicinesService {
   ) {
     const cap = clampPageInt(maxItems || 500, 1, 500);
     if (typeof category === 'string') category = category.replace(/[\u0000-\u001F\u007F-\u009F]/g, '').trim().slice(0, 100) || undefined;
-    const cacheKey = `med:list:governed-v2:${search || ''}:${category || ''}:${includeUnverified}:${cap}:${sort}:${pharmacyId || 'global'}`;
+    const cacheKey = `med:list:governed-v3:${search || ''}:${category || ''}:${includeUnverified}:${cap}:${sort}:${pharmacyId || 'global'}`;
     const cached = await this.redis.getJson<any[]>(cacheKey);
     if (cached) return cached;
     let rows: any[] = [];
@@ -562,7 +578,7 @@ export class MedicinesService {
       if (drugIds.length > 0) {
         const query: any = {
           id: { $in: drugIds },
-          ...(includeUnverified ? { is_deleted: { $ne: true } } : this.publicCatalogFilter()),
+          ...this.catalogScope(includeUnverified),
           ...((category && category !== 'all') ? { category } : {}),
         };
         const fetched = await this.model.find(query, MedicinesService.CARD_PROJECTION);
@@ -575,7 +591,7 @@ export class MedicinesService {
     if (rows.length === 0 && search && search.trim().length >= 2) {
       try {
         rows = await this.model.find(
-          { $text: { $search: search.trim() }, ...(includeUnverified ? { is_deleted: { $ne: true } } : this.publicCatalogFilter()), ...((category && category !== 'all') ? { category } : {}) } as any,
+          { $text: { $search: search.trim() }, ...this.catalogScope(includeUnverified), ...((category && category !== 'all') ? { category } : {}) } as any,
           { ...MedicinesService.CARD_PROJECTION, score: { $meta: 'textScore' } } as any,
         ).sort({ score: { $meta: 'textScore' } } as any).limit(cap);
       } catch { /* fall through to regex path */ }
@@ -592,7 +608,7 @@ export class MedicinesService {
       const norm = this.normalizeSearchText(search);
       const tolerant = this.tolerantRegex(norm || search);
       rows = await this.model.find(
-        { is_deleted: { $ne: true }, $or: [
+        { ...this.catalogScope(includeUnverified), $or: [
           { name_ar: { $regex: tolerant, $options: 'i' } },
           { name_en: { $regex: tolerant, $options: 'i' } },
           { search_text: { $regex: tolerant, $options: 'i' } },
@@ -656,7 +672,7 @@ export class MedicinesService {
       if (drugIds.length > 0) {
         const query: any = {
           id: { $in: drugIds },
-          ...(includeUnverified ? { is_deleted: { $ne: true } } : this.publicCatalogFilter()),
+          ...this.catalogScope(includeUnverified),
           ...((category && category !== 'all') ? { category } : {}),
         };
         const rows = await this.model.find(query, MedicinesService.CARD_PROJECTION);
@@ -936,7 +952,7 @@ export class MedicinesService {
   async warmHomepageCatalog(): Promise<void> {
     try {
       const data = await this.model
-        .find({ is_deleted: { $ne: true } } as any, MedicinesService.CARD_PROJECTION as any)
+        .find(this.publicCatalogFilter() as any, MedicinesService.CARD_PROJECTION as any)
         .sort({ usage_count: -1 })
         .limit(200)
         .lean()
@@ -953,7 +969,7 @@ export class MedicinesService {
   async warmTrendingCatalog(): Promise<void> {
     try {
       const data = await this.model
-        .find({ is_deleted: { $ne: true } } as any, MedicinesService.CARD_PROJECTION as any)
+        .find(this.publicCatalogFilter() as any, MedicinesService.CARD_PROJECTION as any)
         .sort({ usage_count: -1 })
         .limit(20)
         .lean()
