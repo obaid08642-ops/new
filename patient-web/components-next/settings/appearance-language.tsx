@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Radio, Segmented } from "@/components-next/ui-generated/components/Controls";
-import { THEME_STORAGE_KEY, isTheme, type Theme } from "@/app/theme";
+import { THEME_STORAGE_KEY, isTheme, saveThemeChoice, type Theme } from "@/app/theme";
 import { localeLabels, locales, type Locale } from "@/lib/i18n";
 import { FlushCard, Group } from "./settings-kit";
 import styles from "./settings.module.css";
@@ -43,10 +43,7 @@ export function AppearanceLanguage({ locale }: { locale: Locale }) {
     const value: Mode = next === "light" || next === "dark" ? next : "system";
     setMode(value);
     applyTheme(value);
-    try {
-      if (value === "system") window.localStorage.removeItem(THEME_STORAGE_KEY);
-      else window.localStorage.setItem(THEME_STORAGE_KEY, value);
-    } catch { /* nothing to persist to; the choice still applies on this page */ }
+    saveThemeChoice(value);
   }
 
   return (

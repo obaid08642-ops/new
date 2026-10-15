@@ -28,7 +28,7 @@ import path from "node:path";
 import { timingSafeEqual } from "node:crypto";
 import zlib from "node:zlib";
 import { fileURLToPath } from "node:url";
-import { CSP_INJECT_HEADER, UNAVAILABLE_FALLBACK_HEADER, createStamper, freshNonce, policyWithNonce } from "./nonce-transform.mjs";
+import { CSP_INJECT_HEADER, UNAVAILABLE_FALLBACK_HEADER, createStamper, createThemeStamper, freshNonce, policyWithNonce, themeFromCookie } from "./nonce-transform.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_PORT = Number(process.env.PORT || 3000);
@@ -145,15 +145,39 @@ function sendStamped(req, res, up, status, encoding, extra = {}) {
   delete out.etag;
   const body = openBody(req, res, status, out, encoding);
   const stamper = createStamper(nonce);
+  // the page is private to this response already (above), so it may carry this visitor's theme (decision 43 a)
+  const themer = createThemeStamper(themeFromCookie(req.headers.cookie));
   up.setEncoding("utf8");
-  up.on("data", (chunk) => body.write(stamper.push(chunk)));
-  up.on("end", () => body.end(stamper.end()));
+  up.on("data", (chunk) => body.write(themer.push(stamper.push(chunk))));
+  up.on("end", () => body.end(themer.push(stamper.end()) + themer.end()));
   up.on("error", () => res.destroy());
+}
+
+/**
+ * Decision 43 a: a page Next rendered for this request (a private page) gets the visitor's theme on <html> too. Only a
+ * document no shared cache may keep (no `public`, no `s-maxage`) and that Next did not compress; anything else passes as is.
+ */
+function themeFor(req, up) {
+  const theme = themeFromCookie(req.headers.cookie);
+  if (!theme || !isHtml(up.headers) || up.headers["content-encoding"]) return null;
+  return /\bpublic\b|s-maxage/i.test(String(up.headers["cache-control"] || "")) ? null : theme;
 }
 
 function sendUntouched(req, res, up, status, encoding) {
   up.on("error", () => res.destroy());
-  up.pipe(openBody(req, res, status, { ...up.headers }, encoding));
+  const theme = themeFor(req, up);
+  if (!theme) {
+    up.pipe(openBody(req, res, status, { ...up.headers }, encoding));
+    return;
+  }
+  const out = { ...up.headers };
+  delete out["content-length"];
+  delete out.etag;
+  const body = openBody(req, res, status, out, encoding);
+  const themer = createThemeStamper(theme);
+  up.setEncoding("utf8");
+  up.on("data", (chunk) => body.write(themer.push(chunk)));
+  up.on("end", () => body.end(themer.end()));
 }
 
 /**

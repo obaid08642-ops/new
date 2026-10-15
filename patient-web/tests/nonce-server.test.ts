@@ -111,6 +111,47 @@ describe("a session, a twin or any answer the proxy made no-store", () => {
   });
 });
 
+describe("the visitor's theme on <html> (owner decision 43 a, issue 427)", () => {
+  const privateDoc: http.RequestListener = (_req, res) => {
+    res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate" });
+    res.end('<!DOCTYPE html><html lang="ar" dir="rtl"><head></head><body><p>dashboard</p></body></html>');
+  };
+
+  it("a public page carries the theme from the cookie: both hooks and the colour scheme", async () => {
+    const { base } = await start((_req, res) => html(res, 200, PAGE, { "cache-control": "s-maxage=60, stale-while-revalidate=31535940" }));
+    const r = await fetch(`${base}/ar`, { headers: { cookie: "other=1; nabd.theme=dark", accept: "text/html" } });
+    const body = await r.text();
+    expect(body).toContain('<html data-theme="dark" class="dark" style="color-scheme:dark">');
+    expect(r.headers.get("cache-control")).toBe("private, no-cache");
+  });
+
+  it("a private page carries it too, light without the dark class; with no cookie the page is unchanged", async () => {
+    const { base } = await start(privateDoc);
+    const lit = await (await fetch(`${base}/ar/dashboard`, { headers: { cookie: "nabd.theme=light", accept: "text/html" } })).text();
+    expect(lit).toContain('<html data-theme="light" style="color-scheme:light" lang="ar" dir="rtl">');
+    const plain = await (await fetch(`${base}/ar/dashboard`, { headers: { accept: "text/html" } })).text();
+    expect(plain).toContain('<html lang="ar" dir="rtl">');
+  });
+
+  it("ignores a value that is not a theme, and never themes an answer a shared cache may keep", async () => {
+    const { base } = await start(privateDoc);
+    const odd = await (await fetch(`${base}/ar/dashboard`, { headers: { cookie: 'nabd.theme=dark" onload="x', accept: "text/html" } })).text();
+    expect(odd).not.toContain("data-theme");
+    const shared = await start((_req, res) => {
+      res.writeHead(200, { "content-type": "text/html", "cache-control": "public, max-age=60" });
+      res.end("<html><body>x</body></html>");
+    });
+    const kept = await (await fetch(`${shared.base}/ar/about`, { headers: { cookie: "nabd.theme=dark", accept: "text/html" } })).text();
+    expect(kept).toBe("<html><body>x</body></html>");
+  });
+
+  it("a trusted edge gets the page without a theme (the copy it keeps is everyone's)", async () => {
+    const { base } = await start((_req, res) => html(res, 200, PAGE, { "cache-control": "s-maxage=60, stale-while-revalidate=31535940" }), { edgeToken: "edge-secret" });
+    const body = await (await fetch(`${base}/ar`, { headers: { cookie: "nabd.theme=dark", [EDGE_STAMP_HEADER]: "edge-secret" } })).text();
+    expect(body).not.toContain("data-theme");
+  });
+});
+
 describe("edge mode (NABD_EDGE_STAMP_TOKEN)", () => {
   const cacheable: http.RequestListener = (_req, res) => html(res, 200, PAGE, { "cache-control": "s-maxage=60, stale-while-revalidate=31535940" });
 
