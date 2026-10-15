@@ -9,7 +9,7 @@ import datetime
 import os
 import subprocess
 
-from lib import Client, journey, step
+from lib import Client, journey, step, web_login
 
 WEB = os.environ.get('NABD_WEB_JOURNEYS_URL', 'http://127.0.0.1:3100')
 
@@ -53,7 +53,7 @@ def main():
     page = ctx.new_page()
     try:
         page.goto(f'{WEB}/ar', wait_until='load', timeout=60000)
-        r = ctx.request.post(f'{WEB}/api/auth/login', data={'identifier': acct['email'], 'password': acct['password']})
+        r = web_login(ctx, WEB, acct['email'], acct['password'])
         step('patient signs in on the website', r.ok, f'{r.status}')
         journey('decision 13 on the web: while the search widens')
         page.goto(f'{WEB}/ar/pharmacy/broadcast-status?orderId={oid}', wait_until='load', timeout=60000)
