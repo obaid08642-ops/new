@@ -1,2 +1,3 @@
-# 2026-10-15 reviewer: deploy main@8c8c08ac to production (release uploaded and verified 2026-10-14). Rehearsal run 38666904487 green: forced failures roll back, real deploy, same release again. nginx is reloaded after the app containers start (stale upstream addresses sent nabd.plus to admin-web: the intermittent /ar 404). MongoDB backup before anything changes; automatic rollback on any failed check.
+# 2026-10-15 reviewer: the deploy stopped at its pre-check (only 2 GB free on /; it needs 4). First free space (59-free-disk: build cache, unused images, old releases, oversized container logs, journal, apt cache; old nightly backups only if still short; never volumes or running containers), then deploy main@8c8c08ac (60-deploy-main: MongoDB backup first, nginx reloaded after the app containers start, automatic rollback on any failed check). Rehearsal run 38666904487 green.
+59-free-disk
 60-deploy-main
