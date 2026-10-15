@@ -269,6 +269,27 @@ jobs:
           set +e
           REHEARSE_FAIL_AT=checks bash tools/ops/tasks/60-deploy-main.sh 2>&1 | tee out.txt; rc=${PIPESTATUS[0]}
           bash tools/ops/rehearsal/check-rollback.sh out.txt $rc checks
+      - name: "Half-rolled-back stack (production after run 38757789693) -> tasks/64 finishes the rollback"
+        # production: the rollback restored files/env and admin-web/patient-web stayed old, but the backend stayed on the
+        # release (the old stack's compose up failed as a whole). Same state here: old files, backend from the release
+        # image, a leftover worker container; 64 must put the backend back on its rollback image and check the stack.
+        run: |
+          set +e
+          D=/opt/nabdah/deploy
+          TS=$(grep -oE 'rollback-[0-9]{8}T[0-9]{6}Z' out.txt | head -1 | cut -d- -f2); echo "rollback point $TS"
+          printf 'services:\n  backend:\n    image: nabdah-prod-backend:%s\n' "$S8" > /tmp/half.yml
+          sudo docker compose -f $D/docker-compose.production.yml -f /tmp/half.yml --project-directory $D --env-file $D/.env.production up -d --no-build --no-deps --force-recreate backend >/dev/null 2>&1
+          sudo docker run -d --name nabdah-worker --network none alpine:3.20 sleep 600 >/dev/null
+          sudo docker inspect -f '{{.Config.Image}}' nabdah-backend | grep -q ":$S8$" && echo "half state: backend on the release, worker leftover" || exit 1
+          OPS_ROLLBACK_TS=$TS OPS_RELEASE_S8=$S8 OPS_REQUIRE_MEDICINES=0 bash tools/ops/tasks/64-rollback-backend.sh 2>&1 | tee o64.txt; rc=${PIPESTATUS[0]}
+          echo "exit=$rc"; test $rc = 0 || exit 1
+          RB=$(sudo docker image inspect -f '{{.Id}}' nabdah-prod-backend:rollback-$TS)
+          test "$(sudo docker inspect -f '{{.Image}}' nabdah-backend)" = "$RB" && echo "backend back on rollback-$TS" || exit 1
+          ! sudo docker inspect nabdah-worker >/dev/null 2>&1 && echo "worker removed" || exit 1
+          grep -q 'deploy: ROLLBACK COMPLETE' o64.txt && grep -q 'x0: collection' o64.txt || exit 1
+          test "$(curl -sk -o /dev/null -w '%{http_code}' -H 'Host: api.nabd.plus' https://127.0.0.1/api/v1/health/liveness)" = 200 && test "$(curl -sk -o /dev/null -w '%{http_code}' -H 'Host: nabd.plus' https://127.0.0.1/ar)" = 200 && echo "api and site 200" || exit 1
+          for n in MONGO_ROOT_PASSWORD REDIS_PASSWORD JWT_SECRET; do v=$(sudo grep "^$n=" $D/.env.production | cut -d= -f2-); ! grep -qF "$v" o64.txt || { echo "$n printed"; exit 1; }; done
+          OPS_ROLLBACK_TS=$TS OPS_RELEASE_S8=$S8 OPS_REQUIRE_MEDICINES=0 bash tools/ops/tasks/64-rollback-backend.sh 2>&1 | grep -q 'deploy: backend already on rollback-' && echo "second run: nothing to do" || exit 1
       - name: "Backups 1: r2 step (Cloudflare stand-in) + 61-backups-env before the deploy"
         # Cloudflare: tools/ops/rehearsal/cf-mock.py stands in for the API (bucket, lifecycle, token). R2: a moto S3 server
         # on 127.0.0.1:9000; the key file's endpoint is pointed at it (rehearsal only). api.nabd.plus resolves to this
