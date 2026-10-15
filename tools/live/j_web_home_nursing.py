@@ -56,6 +56,10 @@ def main():
 
         journey('home nursing on the web: one services list (journeys#63)')
         page.goto(f'{WEB}/ar/home-care/services', wait_until='load', timeout=60000)
+        try:  # the redirect may arrive in the streamed page (a client-side replace)
+            page.wait_for_url('**/nursing/catalog**', timeout=15000)
+        except Exception:
+            pass
         step('the old services list opens the one nursing catalogue', '/nursing/catalog' in page.url, page.url)
 
         journey('home nursing on the web: book a service (journeys#60)')
@@ -67,14 +71,19 @@ def main():
             return
         book.first.click()
         page.wait_for_url('**/book', timeout=30000)
-        page.wait_for_selector('#home-care-nurse button', timeout=30000)
-        nurses = page.locator('#home-care-nurse button')
-        step('the nurses offering the service are listed', nurses.count() > 0, f'{nurses.count()} nurse(s)')
-        page.locator('#home-care-day button').nth(1).click()
-        page.wait_for_selector('#home-care-time button', timeout=30000)
-        step('tomorrow shows the nurse\'s free times', page.locator('#home-care-time button').count() > 0, page.locator('#home-care-time').inner_text()[:200])
-        page.locator('#home-care-time button').first.click()
-        step('the saved located address is offered', 'الملك فهد' in page.locator('#home-care-address').inner_text(), page.locator('#home-care-address').inner_text()[:200])
+        sec = lambda key: page.locator(f'section[aria-labelledby="home-care-{key}"]')
+        sec('nurse').locator('button').first.wait_for(timeout=30000)
+        nurses = sec('nurse').locator('button')
+        listed = pat.get(f"/home-care/providers?type={svc['id']}")
+        order = [n.get('id') for n in (listed.body if isinstance(listed.body, list) else listed.items())]
+        step('the nurses offering the service are listed, this nurse among them', nurses.count() == len(order) and nurse_id in order, f'{nurses.count()} button(s), {len(order)} from the server')
+        if nurse_id in order:
+            nurses.nth(order.index(nurse_id)).click()
+        sec('day').locator('button').nth(1).click()
+        sec('time').locator('button').first.wait_for(timeout=30000)
+        step('tomorrow shows the nurse\'s free times', sec('time').locator('button').count() > 0, sec('time').inner_text()[:200])
+        sec('time').locator('button').first.click()
+        step('the saved located address is offered', 'الملك فهد' in sec('address').inner_text(), sec('address').inner_text()[:200])
         with page.expect_request(lambda req: 'fake-moyasar' in req.url, timeout=30000) as went:
             page.locator('button', has_text='تأكيد الحجز').click()
         step('a card visit opens the Moyasar card page', 'fake-moyasar' in went.value.url, went.value.url)
