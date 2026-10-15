@@ -158,11 +158,11 @@ export class ProviderOnboardingService {
         'languages', 'display_name_ar', 'display_name_en',
       ],
       [ProviderType.HOSPITAL]: [
-        'doctors_roster', 'lab_roster', 'radiology_roster', 'nursing_roster', 'pharmacy_roster', 'ambulance_roster', 'working_hours',
+        'doctors_roster', 'lab_roster', 'radiology_roster', 'nursing_roster', 'pharmacy_roster', 'working_hours',
         'accepts_insurance', 'accepted_insurance', 'insurance_plans', 'accepts_cash', 'schedule_home', 'has_insurance_coordinator',
       ],
       [ProviderType.CLINIC]: [
-        'doctors_roster', 'lab_roster', 'radiology_roster', 'nursing_roster', 'pharmacy_roster', 'ambulance_roster', 'working_hours',
+        'doctors_roster', 'lab_roster', 'radiology_roster', 'nursing_roster', 'pharmacy_roster', 'working_hours',
         'accepts_insurance', 'accepted_insurance', 'insurance_plans', 'accepts_cash', 'schedule_home', 'has_insurance_coordinator',
       ],
       [ProviderType.LAB]: [

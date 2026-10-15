@@ -766,7 +766,7 @@ export class AuthService {
     const SELF_REGISTERABLE: string[] = [
       UserRole.PATIENT, UserRole.DOCTOR, UserRole.PHARMACY, UserRole.HOSPITAL,
       UserRole.LAB, UserRole.RADIOLOGY, UserRole.HOME_CARE, UserRole.NURSING,
-      UserRole.NURSE, UserRole.AMBULANCE, UserRole.PHYSIOTHERAPIST,
+      UserRole.NURSE, UserRole.PHYSIOTHERAPIST,
     ];
     const requestedRole = ((data.role as string) || UserRole.PATIENT) as UserRole;
     if (!SELF_REGISTERABLE.includes(requestedRole)) {

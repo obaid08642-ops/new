@@ -89,7 +89,7 @@ export class ChatService {
     const modelMap: Record<string, string> = {
       pharmacy: 'Order', lab: 'LabBooking', radiology: 'RadiologyBooking',
       nursing: 'HomeCareBooking', homecare: 'HomeCareBooking', consultation: 'Appointment',
-      doctor: 'Appointment', ambulance: 'AmbulanceRequest',
+      doctor: 'Appointment',
     };
     const modelName = modelMap[(bookingKind || '').toLowerCase()];
     if (!modelName) return {};
