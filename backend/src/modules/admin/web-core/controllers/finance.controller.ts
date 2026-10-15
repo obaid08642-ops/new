@@ -33,7 +33,10 @@ export class FinanceController {
     private readonly approvals: ApprovalService,
   ) {}
 
-  @Get('commissions')
+  // Per-transaction commission records (commissions.tsx, financial-ledger.tsx). It was GET /admin/finance/commissions,
+  // the same route as the finance suite's commission report, so only one of them could ever answer.
+  @Get('commissions/records')
+  @RequirePermissions(Permission.FINANCE_READ)
   async getCommissions() {
     const data = await this.commissionModel.find().exec();
     return { data };

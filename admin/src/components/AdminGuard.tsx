@@ -18,6 +18,9 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/health-dashboard', label: 'لوحة صحة النظام', permission: 'command.center.view' },
       // #960: the telemetry board (health, demand heatmap, command centre) was reachable only by URL.
       { href: '/admin/dashboard', label: 'لوحة القياس الحية', permission: 'command.center.view' },
+      // needs-review admin-ops-monitoring 3 and 13: both pages were reachable only by URL.
+      { href: '/admin/today', label: 'اليوم', permission: 'command.center.view' },
+      { href: '/admin/approvals', label: 'بانتظار موافقتي' },
       { href: '/admin/orders', label: 'دورة الطلبات', permission: 'order.read' },
       { href: '/admin/analytics-suite', label: 'التحليلات', permission: 'analytics.read' },
       { href: '/admin/analytics', label: 'التحليلات الداخلية', permission: 'analytics.read' },
@@ -120,6 +123,7 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/fraud-monitoring': 'command.center.view',
   '/admin/health-dashboard': 'command.center.view',
   '/admin/dashboard': 'command.center.view',
+  '/admin/today': 'command.center.view',
   '/admin/orders': 'order.read',
   '/admin/order-detail': 'order.read',
   '/admin/broadcast-monitor': 'order.read',
@@ -134,7 +138,8 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/returns': 'finance.payout.approve',
   '/admin/disputes': 'disputes.resolve',
   '/admin/provider-moderation': 'facility.edit',
-  '/admin/provider-audits': 'doctor.read',
+  // The page lists and decides provider profile edits (provider-deltas), which need facility.edit.
+  '/admin/provider-audits': 'facility.edit',
   '/admin/insurance-queue': 'order.read',
   '/admin/insurance-companies': 'order.read',
   '/admin/nursing-portal': 'appointment.read',
@@ -143,6 +148,7 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/catalog-manager': 'catalog.read',
   '/admin/price-override-audit': 'catalog.read',
   '/admin/shortage-reports': 'catalog.read',
+  '/admin/image-suggestions': 'catalog.read',
   '/admin/crm': 'crm.read',
   '/admin/segments': 'crm.read',
   '/admin/support-tickets': 'crm.read',
@@ -163,6 +169,8 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/rbac': 'rbac.manage',
   '/admin/scheduled-reports': 'reports.schedule.manage',
   '/admin/impersonation': 'user.impersonate',
+  // /admin/approvals has no single permission: each row needs its own list permission and the page shows only the
+  // rows the role can read (useCan inside the page), so every admin can open it.
   // NOTE: /admin/security manages the admin's OWN passkeys — intentionally
   // unlisted so every authenticated admin keeps access to personal security.
 };

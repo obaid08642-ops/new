@@ -869,6 +869,10 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'pharmacy.item_unavailable.body': { ar: '{item_name} غير متوفر لدى الصيدلية. افتح الطلب للبدائل.', en: '{item_name} is not available at the pharmacy. Open the order for options.', ur: '{item_name} فارمیسی میں دستیاب نہیں۔ متبادل کے لیے آرڈر کھولیں۔' },
   'pharmacy.split_completed.title': { ar: 'تم توزيع طلبك', en: 'Your order was split', ur: 'آپ کا آرڈر تقسیم ہو گیا' },
   'pharmacy.split_completed.body': { ar: 'سيصلك طلبك من أكثر من صيدلية. افتح الطلب للتفاصيل.', en: 'Your order will come from more than one pharmacy. Open it for details.', ur: 'آپ کا آرڈر ایک سے زیادہ فارمیسیوں سے آئے گا۔ تفصیل کے لیے کھولیں۔' },
+  'pharmacy.substitute_proposed.title': { ar: 'اقتراح بديل لصنف في طلبك', en: 'A substitute was proposed for your order', ur: 'آپ کے آرڈر کے لیے متبادل تجویز کیا گیا' },
+  'pharmacy.substitute_proposed.body': { ar: 'تقترح الصيدلية {substitute_name} بدلًا من {item_name}. اقبل أو ارفض من الطلب.', en: 'The pharmacy proposes {substitute_name} instead of {item_name}. Accept or reject from the order.', ur: 'فارمیسی {item_name} کی جگہ {substitute_name} تجویز کرتی ہے۔ آرڈر سے قبول یا مسترد کریں۔' },
+  'pharmacy.substitute_decided.title': { ar: 'رد المريض على البديل المقترح', en: 'Patient answered the proposed substitute', ur: 'مریض نے تجویز کردہ متبادل کا جواب دیا' },
+  'pharmacy.substitute_decided.body': { ar: 'قرار المريض بشأن {item_name}: {decision}.', en: 'The patient decision on {item_name}: {decision}.', ur: '{item_name} پر مریض کا فیصلہ: {decision}۔' },
 };
 
 @Injectable()

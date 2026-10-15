@@ -30,7 +30,7 @@
     "line": 145,
     "found": "[owner] Not drawn: permissions are per member (merge map B) and the badge on each member row shows how many of the four grants they have; confirm the board row can go.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #696)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision B14), main already complies: family/page.tsx per-member grant count, no group row (issue #696)"
   },
   {
     "batch": 6,
@@ -41,7 +41,7 @@
     "line": 147,
     "found": "[client] Fixed on design/oc-patient-other-1: the hub reads GET /family/emergency-contacts and draws '[N] contacts' on the row (the hint when the call fails or the list is empty).",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "fixed before this session (verified on main: family/page.tsx:82 counts GET /family/emergency-contacts)"
   },
   {
     "batch": 6,
@@ -74,7 +74,7 @@
     "line": 37,
     "found": "[owner] Family.dc.html has one mobile frame (the hub) and no web frames; the other four screens follow the closest templates (list, detail with tabs, chat, form with tabs).",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #701)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision B16), main already complies: the family web screens follow the closest templates (issue #701)"
   },
   {
     "batch": 6,

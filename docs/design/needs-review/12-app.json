@@ -30,7 +30,7 @@
     "line": 1,
     "found": "[owner] They are (auth) screens of Batch 13 and the register screen links to them before sign-in; left untouched. Redirect to /settings/about?tab=legal once the owner confirms the pre-sign-in case.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #755)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision B1), main already complies: (auth)/terms.tsx:10 loads the terms from the legal service, LegalKit.tsx:85 shows retry; signed-in users use Settings, About, Legal; the offline copy waits for the lawyer (issue #755)"
   },
   {
     "batch": 12,
@@ -41,7 +41,7 @@
     "line": 71,
     "found": "[owner] The old 'copy in 24 hours' and 'transfer to another platform (FHIR)' actions had no handler and no endpoint; hidden. Decide if they are wanted.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #756)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision B2), main already complies: PrivacyView.tsx:67 data export and :149 delete account; no FHIR transfer (issue #756)"
   },
   {
     "batch": 12,
@@ -118,7 +118,7 @@
     "line": 113,
     "found": "[owner] The Account board has the row but no screen or endpoint exists; not drawn.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #763)"
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision B3), main already complies: AccountView.tsx has no saved-cards row (issue #763)"
   },
   {
     "batch": 12,

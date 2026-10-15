@@ -1061,7 +1061,10 @@ export class AdminFinanceCoreController {
     private readonly refunds: RefundService,
     private readonly finance: FinanceCoreService,
   ) {}
+  // Platform money totals and the refund queue are finance reads: they name finance.read like the other finance pages.
+  @RequirePermissions(Permission.FINANCE_READ)
   @Get('ledger/summary') summary() { return this.finance.platformSummary(); }
+  @RequirePermissions(Permission.FINANCE_READ)
   @Get('refunds/queue') refundsQueue() { return this.refunds.adminQueue(); }
   @StepUp()
   @RequirePermissions(Permission.ORDER_REFUND)
@@ -1070,8 +1073,12 @@ export class AdminFinanceCoreController {
   }
 }
 
+// Admin reads of every patient's insurance requests: admin role and order.read (the insurance-queue page permission).
+// Before this the class had no @Roles, so any signed-in patient or provider who reached /admin passed JwtAuthGuard.
 @Controller('admin/insurance')
 @UseGuards(JwtAuthGuard)
+@Roles(UserRole.ADMIN)
+@RequirePermissions(Permission.ORDER_READ)
 export class AdminInsuranceController {
   constructor(private readonly svc: InsuranceFlowService) {}
   @Get('requests') all(@Query('state') state?: string) { return this.svc.adminAll(state); }
