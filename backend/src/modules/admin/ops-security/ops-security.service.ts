@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { randomBytes } from 'crypto';
@@ -13,6 +13,8 @@ const BACKUP_STALE_AFTER = 26 * HOUR;
 const SECRET_STALE_AFTER = 180 * DAY;
 
 const BACKUP_PAGE_KINDS = ['local', 'offsite', 'restore_test'];
+/** D-34 rows in security_events (field `at`) expire after this; the page reads 24 h and 7 d. */
+const SECURITY_EVENT_TTL_SECONDS = 90 * 24 * 3600;
 
 /** Env names that look like a secret: *SECRET*, *TOKEN*, *PASSWORD*, *PASS, *_KEY, *PRIVATE*, *DSN*. */
 function isSecretLike(name: string): boolean {
@@ -30,7 +32,7 @@ const iso = (v: unknown): string | null => {
 };
 
 @Injectable()
-export class OpsSecurityService {
+export class OpsSecurityService implements OnModuleInit {
   private readonly logger = new Logger(OpsSecurityService.name);
 
   constructor(
@@ -38,6 +40,15 @@ export class OpsSecurityService {
     private readonly mail: MailService,
     private readonly crypto: FieldEncryptionService,
   ) {}
+
+  /** Counts stay index-backed, and the rows written on every 429 cannot grow without bound. */
+  async onModuleInit() {
+    const events = this.conn.collection('security_events');
+    await events.createIndex({ type: 1, at: -1 }).catch(() => null);
+    await events.createIndex({ type: 1, createdAt: -1 }).catch(() => null);
+    // Only rows that carry `at` (the D-34 counters) expire; older event kinds keep their retention.
+    await events.createIndex({ at: 1 }, { expireAfterSeconds: SECURITY_EVENT_TTL_SECONDS }).catch(() => null);
+  }
 
   private get coll() {
     return (name: string) => this.conn.collection(name);
@@ -114,7 +125,11 @@ export class OpsSecurityService {
     for (const [w, start] of Object.entries(windows)) {
       const [failed, limited, blocked, devices] = await Promise.all([
         this.coll('security_events').countDocuments({ type: 'failed_sign_in', at: { $gte: new Date(start) } }).catch(() => 0),
-        this.coll('security_events').countDocuments({ type: 'rate_limited', at: { $gte: new Date(start) } }).catch(() => 0),
+        // 429s from the throttler guard (`at`) and from the API abuse middleware (`createdAt`).
+        this.coll('security_events').countDocuments({ $or: [
+          { type: 'rate_limited', at: { $gte: new Date(start) } },
+          { type: 'abuse.rate_limited', createdAt: { $gte: new Date(start) } },
+        ] }).catch(() => 0),
         this.coll('security_events').countDocuments({ type: 'blocked_request', at: { $gte: new Date(start) } }).catch(() => 0),
         this.coll('admin_devices').countDocuments({ enrolled_at: { $gte: new Date(start) } }).catch(() => 0),
       ]);
