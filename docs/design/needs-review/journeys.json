@@ -267,7 +267,7 @@
     "kind": "missing-field",
     "file": "patient-web/components-next/booking-flow.tsx",
     "line": 213,
-    "review_status": "open (issue #1038)"
+    "review_status": "fixed #1511"
   },
   {
     "scenario": 3,
@@ -402,7 +402,7 @@
     "kind": "missing-state",
     "file": "patient-web/components-next/appointment-actions.tsx",
     "line": 13,
-    "review_status": "open (issue #1053)"
+    "review_status": "fixed #1511"
   },
   {
     "scenario": 4,
