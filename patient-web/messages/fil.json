@@ -4060,5 +4060,74 @@
     "faqIngredient": "Ano ang aktibong sangkap ng {name}?",
     "faqPrice": "Magkano ang {name} sa Nabd Plus?",
     "howToTitle": "Paano gamitin ang {name}"
+  },
+  "LogForms": {
+    "saveError": "Hindi ma-save. Nananatili ang tinype mo; subukan ulit.",
+    "saved": "Na-save.",
+    "water": {
+      "title": "Itala ang tubig",
+      "amount_ml": "Dami (ml)",
+      "save": "Idagdag ang tubig",
+      "bad": {
+        "amount_ml": "Maglagay ng dami mula 50 hanggang 3000 ml."
+      }
+    },
+    "mood": {
+      "title": "Itala ang iyong mood",
+      "mood": "Kumusta ang mood mo ngayon?",
+      "option": {
+        "great": "Napakabuti",
+        "good": "Mabuti",
+        "okay": "Ayos lang",
+        "bad": "Mahirap",
+        "terrible": "Napakahirap"
+      },
+      "energy_level": "Enerhiya (1-5, opsyonal)",
+      "stress_level": "Stress (1-5, opsyonal)",
+      "sleep_hours": "Oras ng tulog (opsyonal)",
+      "notes": "Maikling tala (opsyonal)",
+      "save": "I-save ang mood",
+      "bad": {
+        "mood": "Piliin muna ang mood mo.",
+        "energy_level": "Ang enerhiya ay numero mula 1 hanggang 5.",
+        "stress_level": "Ang stress ay numero mula 1 hanggang 5.",
+        "sleep_hours": "Ang oras ng tulog ay mula 0 hanggang 24.",
+        "notes": "Masyadong mahaba ang tala."
+      }
+    },
+    "kicks": {
+      "title": "Itala ang sipa ng baby",
+      "count": "Bilang ng sipa",
+      "duration_seconds": "Sa loob ng ilang minuto",
+      "save": "I-save ang mga sipa",
+      "bad": {
+        "count": "Maglagay ng buong numero mula 1 hanggang 200.",
+        "duration_seconds": "Ilagay ang oras sa minuto, 1 hanggang 240."
+      }
+    },
+    "contractions": {
+      "title": "Itala ang contraction",
+      "interval_seconds": "Minuto mula sa huli",
+      "duration_seconds": "Gaano katagal (segundo)",
+      "save": "I-save ang contraction",
+      "bad": {
+        "interval_seconds": "Maglagay ng minuto mula 1 hanggang 120.",
+        "duration_seconds": "Maglagay ng segundo mula 5 hanggang 300."
+      }
+    },
+    "growth": {
+      "title": "Itala ang paglaki ng baby",
+      "month": "Edad sa buwan",
+      "weight_kg": "Timbang (kg, opsyonal)",
+      "height_cm": "Haba (cm, opsyonal)",
+      "head_circ_cm": "Sukat ng ulo (cm, opsyonal)",
+      "save": "I-save ang sukat",
+      "bad": {
+        "month": "Ang edad ay buong numero ng buwan, 0 hanggang 60.",
+        "weight_kg": "Ang timbang ay mula 0.3 hanggang 40 kg.",
+        "height_cm": "Ang haba ay mula 20 hanggang 150 cm.",
+        "head_circ_cm": "Ang sukat ng ulo ay mula 20 hanggang 60 cm."
+      }
+    }
   }
 }
