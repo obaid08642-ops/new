@@ -120,6 +120,13 @@ export class AdminDeviceApprovalService {
       throw new ConflictException('approval_required');
     }
     if (!code || !this.codesEqual(this.hashCode(String(code)), String(req.code_hash))) {
+      // At most 5 wrong codes per request: then the request is dropped and the device must ask again (new code).
+      const r: any = await this.requests.findOneAndUpdate({ id: req.id }, { $inc: { failed_attempts: 1 } }, { returnDocument: 'after' }).catch(() => null);
+      const failed = Number((r?.value ?? r)?.failed_attempts ?? 0);
+      if (failed >= 5) {
+        await this.requests.deleteOne({ id: req.id }).catch(() => null);
+        throw new ForbiddenException('too_many_attempts');
+      }
       throw new BadRequestException('invalid_code');
     }
     // Every path that enrols respects the limit of 2.
