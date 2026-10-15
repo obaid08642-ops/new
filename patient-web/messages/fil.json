@@ -1538,7 +1538,8 @@
     "yes": "Oo",
     "no": "Hindi",
     "form": "Anyo ng dosis",
-    "strength": "Lakas"
+    "strength": "Lakas",
+    "dosage_form": "Anyo ng dosis"
   },
   "PharmacyRequest": {
     "title": "Humingi ng gamot sa pangalan",
@@ -2272,7 +2273,10 @@
       "generic": "Hindi makumpleto ang aksyon. Walang nagbago.",
       "alreadyPaid": "Bayad na ang order na ito."
     },
-    "lastFromYou": "Ikaw: {text}"
+    "lastFromYou": "Ikaw: {text}",
+    "showMethods": "Pumili ng paraan ng pagbabayad",
+    "paymentUnavailable": "Walang available na online na paraan ng pagbabayad para sa order na ito ngayon.",
+    "loadingMethods": "Nilo-load ang mga paraan ng pagbabayad…"
   },
   "PharmacyCheckout": {
     "title": "Pag-checkout",
@@ -2881,7 +2885,16 @@
     "status_processing": "Isinasagawa",
     "status_report": "Handa na ang ulat",
     "status_cancelled": "Kanselado",
-    "trackingPrepAsk": "Kukumpirmahin sa iyo ng lab ang anumang kailangang paghahanda."
+    "trackingPrepAsk": "Kukumpirmahin sa iyo ng lab ang anumang kailangang paghahanda.",
+    "trackingBeforeBody": "Huwag kumain 8 hanggang 12 oras bago ang sample maliban kung iba ang sabi ng iyong doktor.",
+    "collectorTipsTitle": "Pagdating ng kukuha ng sample",
+    "collectorTip1": "Ihanda ang iyong ID at ang request ng test",
+    "collectorTip2": "Sundin ang pag-aayuno na kailangan ng test",
+    "collectorTip3": "Sabihin sa kukuha ng sample ang anumang gamot na iniinom mo",
+    "bookingNotSentTitle": "Walang na-book",
+    "bookingNotSentBody": "Hindi pa nagpapadala ng booking ang window na ito, kaya walang appointment na ginawa at walang bayad na kinuha. Buksan ang pahina ng nursing para mag-book ng pagbisita.",
+    "bookingNotSentCta": "Pumunta sa nursing",
+    "bookingNotSentClose": "Isara"
   },
   "NursingWeb": {
     "hubTitle": "Pangangalaga sa bahay",
@@ -2990,7 +3003,17 @@
     "addressNeedsLocation": "Pumili ng naka-save na address na may lokasyon sa mapa, o magdagdag ng isa.",
     "payTitle": "Bayad",
     "payNow": "Magbayad ngayon gamit ang card",
-    "payFailed": "Naka-save ang booking mo, pero hindi mabuksan ang payment page. Subukan ulit."
+    "payFailed": "Naka-save ang booking mo, pero hindi mabuksan ang payment page. Subukan ulit.",
+    "formService": "Serbisyo",
+    "formSelectService": "Pumili ng serbisyo",
+    "bookingNotice": "Read-only ang detalye ng serbisyo rito. Walang booking na ginagawa sa pahinang ito.",
+    "nurseTitle": "Profile ng nurse",
+    "nurseUnavailableTitle": "Hindi available ang profile sa ngayon",
+    "nurseUnavailableBody": "Hindi na-load ang detalye ng profile ng nurse.",
+    "experienceLabel": "Karanasan sa trabaho",
+    "ratingLabel": "Rating ng mga pasyente",
+    "nurseServicesTitle": "Mga available na serbisyo ng nursing",
+    "requestNurse": "Humiling ng pagbisita ng nurse"
   },
   "MaternityWeb": {
     "title": "Pagbubuntis",
@@ -3240,7 +3263,20 @@
       "warnings": "Mga babala",
       "storage": "Pag-iimbak",
       "pregnancy": "Pagbubuntis at pagpapasuso"
-    }
+    },
+    "flagsLegend": "May alinman ka ba sa mga senyales na ito? Piliin ang lahat ng naaangkop",
+    "flag": {
+      "chest_pain": "Pananakit ng dibdib",
+      "breathing_difficulty": "Hirap sa paghinga",
+      "fainting_or_unresponsive": "Pagkawala ng malay o hindi tumutugon",
+      "heavy_bleeding": "Matinding pagdurugo",
+      "new_confusion": "Biglaang pagkalito",
+      "severe_allergic_reaction": "Matinding allergic reaction",
+      "severe_injury": "Malubhang pinsala"
+    },
+    "emergencyBody": "Ang mga senyales na napili mo ay nangangailangang kontakin agad ang lokal na serbisyong pang-emerhensiya, huwag nang maghintay ng appointment.",
+    "consultationBody": "Wala kang napiling senyales ng emerhensiya. Kung tumagal o lumala ang sintomas, mag-book ng konsultasyon sa doktor.",
+    "historyTitle": "Mga dati mong tanong"
   },
   "MonthlyReportWeb": {
     "title": "Iyong buwanang ulat",
