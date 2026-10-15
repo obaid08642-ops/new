@@ -701,7 +701,11 @@
     "emergencySaveError": "تعذّر حفظ جهة الاتصال. حاول مجدداً.",
     "emergencySave": "حفظ",
     "nextAppointment": "موعدك القادم",
-    "nextAppointmentUnavailable": "تعذّر تحميل موعدك القادم الآن."
+    "nextAppointmentUnavailable": "تعذّر تحميل موعدك القادم الآن.",
+    "reminderFor": "لمن هذا التذكير؟",
+    "reminderForMe": "لي أنا",
+    "reminderForName": "تذكير لـ {name}",
+    "reminderMemberFallback": "فرد من العائلة"
   },
   "Prescriptions": {
     "title": "الوصفات الطبية",
@@ -1540,7 +1544,8 @@
     "yes": "نعم",
     "no": "لا",
     "form": "الشكل الدوائي",
-    "strength": "التركيز"
+    "strength": "التركيز",
+    "dosage_form": "الشكل الدوائي"
   },
   "PharmacyRequest": {
     "title": "اطلب دواءً بالاسم",
@@ -2262,7 +2267,10 @@
     "unavailableTitle": "لا توجد صيدلية متاحة الآن",
     "unavailableBody": "لم تردّ أي صيدلية قريبة في الوقت المحدد. حاول مرة أخرى لاحقًا.",
     "unavailableAction": "العودة إلى الصيدلية",
-    "searchRound": "الجولة {round}: نبحث في الصيدليات ضمن {km} كم"
+    "searchRound": "الجولة {round}: نبحث في الصيدليات ضمن {km} كم",
+    "showMethods": "اختيار طريقة الدفع",
+    "paymentUnavailable": "لا توجد طريقة دفع إلكتروني متاحة لهذا الطلب الآن.",
+    "loadingMethods": "جارٍ تحميل طرق الدفع…"
   },
   "PharmacyCheckout": {
     "title": "إتمام الطلب",
@@ -2662,7 +2670,12 @@
       "invalid_invite_code": "رمز الدعوة غير صحيح. تأكد منه واطلب رمزاً جديداً إذا لزم الأمر.",
       "invite_expired": "انتهت صلاحية رمز الدعوة. اطلب من صاحب العائلة رمزاً جديداً.",
       "already_member": "أنت عضو في هذه العائلة بالفعل."
-    }
+    },
+    "medsWeek": "هذا الأسبوع: {taken} جرعة مأخوذة، {missed} فائتة",
+    "medsLastMissed": "آخر جرعة فائتة:",
+    "medsEditReminder": "تعديل التذكير",
+    "medsAddReminder": "إضافة تذكير دواء",
+    "close": "إغلاق"
   },
   "DiagWeb": {
     "retry": "حاول مرة أخرى",
@@ -2871,7 +2884,16 @@
     "status_processing": "قيد التنفيذ",
     "status_report": "التقرير جاهز",
     "status_cancelled": "ملغي",
-    "trackingPrepAsk": "سيؤكد لك المختبر أي تحضير مطلوب قبل التحليل."
+    "trackingPrepAsk": "سيؤكد لك المختبر أي تحضير مطلوب قبل التحليل.",
+    "trackingBeforeBody": "الصيام من 8 إلى 12 ساعة قبل السحب ما لم يخبرك الطبيب بغير ذلك.",
+    "collectorTipsTitle": "عند وصول الأخصائي",
+    "collectorTip1": "جهّز الهوية وطلب التحليل",
+    "collectorTip2": "التزم بالصيام الذي يتطلبه التحليل",
+    "collectorTip3": "أخبر الأخصائي بأي أدوية تتناولها",
+    "bookingNotSentTitle": "لم يتم أي حجز",
+    "bookingNotSentBody": "هذه النافذة لا ترسل الحجز بعد، لذلك لم يُنشأ أي موعد ولم يُسحب أي مبلغ. افتح صفحة التمريض لحجز زيارة.",
+    "bookingNotSentCta": "إلى صفحة التمريض",
+    "bookingNotSentClose": "إغلاق"
   },
   "NursingWeb": {
     "hubTitle": "الرعاية المنزلية",
@@ -2980,7 +3002,17 @@
     "addressNeedsLocation": "اختر عنوانًا محفوظًا له موقع على الخريطة، أو أضف واحدًا.",
     "payTitle": "الدفع",
     "payNow": "ادفع الآن بالبطاقة",
-    "payFailed": "الحجز محفوظ، لكن تعذّر فتح صفحة الدفع. حاول مرة أخرى."
+    "payFailed": "الحجز محفوظ، لكن تعذّر فتح صفحة الدفع. حاول مرة أخرى.",
+    "formService": "الخدمة",
+    "formSelectService": "اختر الخدمة",
+    "bookingNotice": "تفاصيل الخدمة معروضة للقراءة فقط. لا يتم إنشاء حجز من هذه الصفحة.",
+    "nurseTitle": "ملف الممرض/ة",
+    "nurseUnavailableTitle": "الملف غير متاح حالياً",
+    "nurseUnavailableBody": "تعذر تحميل بيانات الممرض.",
+    "experienceLabel": "الخبرة الميدانية",
+    "ratingLabel": "تقييم المرضى",
+    "nurseServicesTitle": "الخدمات التمريضية المتاحة",
+    "requestNurse": "طلب زيارة تمريض"
   },
   "MaternityWeb": {
     "title": "الأمومة",
@@ -3236,7 +3268,20 @@
       "warnings": "تحذيرات",
       "storage": "طريقة الحفظ",
       "pregnancy": "الحمل والرضاعة"
-    }
+    },
+    "flagsLegend": "هل عندك واحدة من هذه العلامات؟ اختر كل ما ينطبق",
+    "flag": {
+      "chest_pain": "ألم في الصدر",
+      "breathing_difficulty": "صعوبة في التنفس",
+      "fainting_or_unresponsive": "إغماء أو عدم استجابة",
+      "heavy_bleeding": "نزيف شديد",
+      "new_confusion": "ارتباك مفاجئ",
+      "severe_allergic_reaction": "حساسية شديدة",
+      "severe_injury": "إصابة بليغة"
+    },
+    "emergencyBody": "العلامات التي اخترتها تستدعي الاتصال بخدمات الطوارئ المحلية الآن، وليس انتظار موعد.",
+    "consultationBody": "لم تختر علامات طارئة. إذا استمرت الأعراض أو ازدادت سوءاً فاحجز استشارة مع طبيب.",
+    "historyTitle": "أسئلتك السابقة"
   },
   "MonthlyReportWeb": {
     "title": "تقريرك الشهري",
@@ -4153,5 +4198,12 @@
     "title": "أنت غير متصل",
     "body": "تعذر فتح الصفحة لعدم وجود اتصال. سلتك محفوظة على هذا الجهاز؛ أرسل طلبك عند عودة الاتصال.",
     "home": "العودة إلى البداية"
+  },
+  "CameraScan": {
+    "start": "امسح بالكاميرا",
+    "stop": "أوقف الكاميرا",
+    "pointCamera": "وجّه الكاميرا إلى الرمز",
+    "viewfinder": "معاينة الكاميرا",
+    "cameraFailed": "تعذّر فتح الكاميرا. اسمح باستخدامها أو اكتب الرمز."
   }
 }

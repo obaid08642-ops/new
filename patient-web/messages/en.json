@@ -701,7 +701,11 @@
     "emergencySaveError": "The contact could not be saved. Try again.",
     "emergencySave": "Save",
     "nextAppointment": "Your next appointment",
-    "nextAppointmentUnavailable": "Your next appointment could not be loaded right now."
+    "nextAppointmentUnavailable": "Your next appointment could not be loaded right now.",
+    "reminderFor": "Who is this reminder for?",
+    "reminderForMe": "Me",
+    "reminderForName": "Reminder for {name}",
+    "reminderMemberFallback": "Family member"
   },
   "Prescriptions": {
     "title": "Prescriptions",
@@ -1540,7 +1544,8 @@
     "yes": "Yes",
     "no": "No",
     "form": "Dosage form",
-    "strength": "Strength"
+    "strength": "Strength",
+    "dosage_form": "Dosage form"
   },
   "PharmacyRequest": {
     "title": "Request a medicine by name",
@@ -2262,7 +2267,10 @@
     "unavailableTitle": "No pharmacy is available right now",
     "unavailableBody": "No nearby pharmacy replied in time. Please try again later.",
     "unavailableAction": "Back to the pharmacy",
-    "searchRound": "Round {round}: searching pharmacies within {km} km"
+    "searchRound": "Round {round}: searching pharmacies within {km} km",
+    "showMethods": "Choose a payment method",
+    "paymentUnavailable": "No online payment method is available for this order right now.",
+    "loadingMethods": "Loading the payment methods…"
   },
   "PharmacyCheckout": {
     "title": "Checkout",
@@ -2662,7 +2670,12 @@
       "invalid_invite_code": "This invite code is not valid. Check it, or ask for a new one.",
       "invite_expired": "This invite code has expired. Ask the family owner for a new one.",
       "already_member": "You are already a member of this family."
-    }
+    },
+    "medsWeek": "This week: {taken} taken, {missed} missed",
+    "medsLastMissed": "Last missed dose:",
+    "medsEditReminder": "Edit reminder",
+    "medsAddReminder": "Add a medicine reminder",
+    "close": "Close"
   },
   "DiagWeb": {
     "retry": "Try again",
@@ -2871,7 +2884,16 @@
     "status_processing": "In progress",
     "status_report": "Report ready",
     "status_cancelled": "Cancelled",
-    "trackingPrepAsk": "The lab will confirm any preparation with you."
+    "trackingPrepAsk": "The lab will confirm any preparation with you.",
+    "trackingBeforeBody": "Fast 8 to 12 hours before the sample unless your doctor says otherwise.",
+    "collectorTipsTitle": "When the collector arrives",
+    "collectorTip1": "Have your ID and the test request ready",
+    "collectorTip2": "Keep to the fasting the test needs",
+    "collectorTip3": "Tell the collector about any medicines you take",
+    "bookingNotSentTitle": "Nothing was booked",
+    "bookingNotSentBody": "This window does not send a booking yet, so no appointment was made and no payment was taken. Open the nursing page to book a visit.",
+    "bookingNotSentCta": "Go to nursing",
+    "bookingNotSentClose": "Close"
   },
   "NursingWeb": {
     "hubTitle": "Home care",
@@ -2980,7 +3002,17 @@
     "addressNeedsLocation": "Choose a saved address that has a map location, or add one.",
     "payTitle": "Payment",
     "payNow": "Pay now by card",
-    "payFailed": "Your booking is saved, but the payment page could not be opened. Try again."
+    "payFailed": "Your booking is saved, but the payment page could not be opened. Try again.",
+    "formService": "Service",
+    "formSelectService": "Choose a service",
+    "bookingNotice": "Service details are read-only here. No booking is created from this page.",
+    "nurseTitle": "Nurse Profile",
+    "nurseUnavailableTitle": "Profile Currently Unavailable",
+    "nurseUnavailableBody": "Could not load nurse profile details.",
+    "experienceLabel": "Field Experience",
+    "ratingLabel": "Patient Rating",
+    "nurseServicesTitle": "Available Nursing Services",
+    "requestNurse": "Request Nursing Visit"
   },
   "MaternityWeb": {
     "title": "Maternity",
@@ -3236,7 +3268,20 @@
       "warnings": "Warnings",
       "storage": "Storage",
       "pregnancy": "Pregnancy and breastfeeding"
-    }
+    },
+    "flagsLegend": "Do you have any of these signs? Pick all that apply",
+    "flag": {
+      "chest_pain": "Chest pain",
+      "breathing_difficulty": "Trouble breathing",
+      "fainting_or_unresponsive": "Fainting or not responding",
+      "heavy_bleeding": "Heavy bleeding",
+      "new_confusion": "Sudden confusion",
+      "severe_allergic_reaction": "Severe allergic reaction",
+      "severe_injury": "Serious injury"
+    },
+    "emergencyBody": "The signs you picked call for contacting your local emergency services now, not waiting for an appointment.",
+    "consultationBody": "You did not pick any emergency signs. If the symptoms last or get worse, book a consultation with a doctor.",
+    "historyTitle": "Your earlier questions"
   },
   "MonthlyReportWeb": {
     "title": "Your monthly report",
@@ -4153,5 +4198,12 @@
     "title": "You are offline",
     "body": "This page could not open without a connection. Your cart is kept on this device; send your request when you are back online.",
     "home": "Back to the start"
+  },
+  "CameraScan": {
+    "start": "Scan with the camera",
+    "stop": "Stop the camera",
+    "pointCamera": "Point the camera at the code",
+    "viewfinder": "Camera view",
+    "cameraFailed": "The camera could not be opened. Allow it, or type the code."
   }
 }

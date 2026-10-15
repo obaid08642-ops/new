@@ -13,7 +13,11 @@ export type ReminderInitial = { id?: string; name?: string; dose?: string; times
  * "Add reminder" and "Edit reminder" (the old reminder form, now in a sheet): the same payload to the same endpoints
  * (POST /api/health/reminders, PATCH /api/health/reminders/:id, with an idempotency key). It closes the sheet and reloads the screen.
  */
-export function ReminderForm({ initial }: { initial?: ReminderInitial }) {
+/**
+ * Journeys 67: `members` (the family members the caregiver may manage) adds a "for whom" choice to a new reminder;
+ * `forMember` writes this reminder for that member (the member page). The server checks the family right.
+ */
+export function ReminderForm({ initial, members, forMember }: { initial?: ReminderInitial; members?: Array<{ id: string; name: string }>; forMember?: { id: string; name: string } }) {
   const t = useTranslations("HealthWeb");
   const router = useRouter();
   const close = useSheetClose();
@@ -25,6 +29,7 @@ export function ReminderForm({ initial }: { initial?: ReminderInitial }) {
   });
   const [frequency, setFrequency] = useState(initial?.frequency || "daily");
   const [chronic, setChronic] = useState(Boolean(initial?.chronic));
+  const [memberId, setMemberId] = useState(forMember?.id ?? "");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -47,6 +52,7 @@ export function ReminderForm({ initial }: { initial?: ReminderInitial }) {
           times: [...new Set(chosenTimes)],
           frequency,
           chronic,
+          ...(memberId ? { for_member_id: memberId } : {}),
         }),
       });
       if (!res.ok) { setError(t("reminderSaveFailed")); return; }
@@ -61,6 +67,15 @@ export function ReminderForm({ initial }: { initial?: ReminderInitial }) {
 
   return (
     <form onSubmit={onSubmit} className={forms.stack} noValidate>
+      {forMember ? <p className={forms.label}>{t("reminderForName", { name: forMember.name })}</p> : !initial?.id && members && members.length > 0 ? (
+        <label className={forms.field}>
+          <span className={forms.label}>{t("reminderFor")}</span>
+          <select className={forms.control} value={memberId} onChange={(event) => setMemberId(event.target.value)}>
+            <option value="">{t("reminderForMe")}</option>
+            {members.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+          </select>
+        </label>
+      ) : null}
       <label className={forms.field}>
         <span className={forms.label}>{t("reminderName")}</span>
         <input className={forms.control} value={name} onChange={(event) => setName(event.target.value)} required maxLength={200} />
