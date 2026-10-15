@@ -84,9 +84,37 @@ def run(admin, pat, pharm):
     r = offer_with(generic)
     offer_id = r.get('id')
     step('the generic (same ingredient, strength and form) is accepted as the substitute', r.ok and offer_id, r)
-    if offer_id:
-        r = pharm.post(f'/provider/pharmacy/broadcasts/{oid}/offers/{offer_id}/submit')
-        step('the offer with the generic is sent to the patient', r.ok, r)
+    if not offer_id:
+        return
+    r = pharm.post(f'/provider/pharmacy/broadcasts/{oid}/offers/{offer_id}/submit')
+    step('the offer with the generic is sent to the patient', r.ok, r)
+
+    journey('rx substitute: after the card payment the order cannot be changed, so it is never stuck (issue 1440, part 1)')
+    from j_nursing import card_payment
+    r = pat.post(f'/patient/pharmacy/orders/{oid}/offers/{offer_id}/select', {'coverage_mode': 'cash'}, headers={'Idempotency-Key': KEY('rx-sub-select')})
+    step('the patient picks the offer with the generic', r.ok, r)
+    o = pat.get(f'/patient/pharmacy/orders/{oid}')
+    order = o.body.get('data', o.body) if isinstance(o.body, dict) else {}
+    if order.get('governed_state') == 'FINAL_QUOTE_READY' or order.get('selected_offer_hash'):
+        fq = order.get('governed_state') == 'FINAL_QUOTE_READY'
+        r = pat.post(f'/patient/pharmacy/orders/{oid}/final-quote/accept',
+                     {'quote_hash': order.get('pending_final_quote_hash' if fq else 'selected_offer_hash'),
+                      'quote_revision': order.get('pending_final_quote_revision' if fq else 'selected_offer_revision')},
+                     headers={'Idempotency-Key': KEY('rx-sub-quote')})
+        step('the patient accepts the final quote', r.ok, r)
+    step('the patient pays by card', bool(card_payment(pat, 'pharmacy', oid)), 'no payment')
+    r = pharm.get('/provider/pharmacy/allocations')
+    alloc = next((a for a in r.items() if oid in (a.get('order_id'), a.get('id'))), None)
+    step('the order is allocated to the pharmacy', r.ok and alloc, r.status)
+    if not alloc:
+        return
+    item_id = ((alloc.get('items') or [{}])[0]).get('id')
+    for body, what in (({'action': 'unavailable'}, 'mark the paid item unavailable'),
+                       ({'action': 'substitute', 'substitute_sku': weaker['id']}, 'swap the paid item')):
+        r = pharm.post(f"/provider/pharmacy/allocations/{alloc['id']}/items/{item_id}", body)
+        step(f'the pharmacy cannot {what} (selected_offer_immutable)', r.status == 400 and 'selected_offer_immutable' in str(r.body), r)
+    r = pharm.post(f"/provider/pharmacy/allocations/{alloc['id']}/confirm", {})
+    step('the paid order goes on: the pharmacy confirms it', r.ok, r)
 
 
 if __name__ == '__main__':
