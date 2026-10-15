@@ -73,19 +73,21 @@ def run(pat, doctor, other_doctor, aid, profile_id=None):
 
 
 if __name__ == '__main__':
-    import j_admin, j_accounts, j_onboarding, j_consultation
+    import j_admin, j_accounts, j_onboarding, j_concurrency
     from lib import summary
-    admin, _ = j_admin.login()
+    # The consultation chat opens once the doctor has finished the visit (ChatService.verifyCommunicationAllowed),
+    # so the journey starts from a paid consultation the doctor finished, as the apps reach it.
+    pat = Client(j_accounts.app_signup(label='chat-patient')['token'], 'patient')
+    aid = j_concurrency.completed_consultation(pat)
+    doctor = j_concurrency.DOCTOR_CLIENT
+    admin = j_concurrency._ADMIN or j_admin.login()[0]
     specs = Client(None, 'anon').get('/catalogs/specialties')
     spec = next((x.get('code') or x.get('id') for x in (specs.body if isinstance(specs.body, list) else specs.items())), 'cardiology')
-    docs = []
-    for _ in range(2):
-        p = j_onboarding.register_type('doctor', {'specialty': spec, 'academic_degree': 'consultant'})
-        j_onboarding.admin_review(admin, p)
-        j_onboarding.provider_after_approval(p)
-        docs.append(Client(p['token'], 'doctor'))
-    j_consultation.doctor_publishes_hours(docs[0], admin)
-    pat = Client(j_accounts.app_signup(label='chat-patient')['token'], 'patient')
-    aid = j_consultation.book_paid(pat, docs[0])
-    run(pat, docs[0], docs[1], aid, docs[0].get('/provider-onboarding/my-profile').get('id'))
+    p = j_onboarding.register_type('doctor', {'specialty': spec, 'academic_degree': 'consultant'})
+    j_onboarding.admin_review(admin, p)
+    j_onboarding.provider_after_approval(p)
+    if aid and doctor:
+        run(pat, doctor, Client(p['token'], 'doctor'), aid, doctor.get('/provider-onboarding/my-profile').get('id'))
+    else:
+        step('a finished consultation for the chat', False, 'see the failed booking/visit step above')
     summary()
