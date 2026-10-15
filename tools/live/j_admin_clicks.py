@@ -60,7 +60,6 @@ def main():
     try:
         page.locator('form input:not([type])').first.fill(EMAIL)
         page.fill('input[type="password"]', os.environ.get('NABD_ADMIN_PASSWORD', 'Adm1n!Live-Pass'))
-<<<<<<< HEAD
         # The admin login allows 10 a minute per IP; the journeys before this one sign in too. A 429 is waited out
         # once, as lib.Client does (NABD_LIVE_WAIT_429), instead of reading it as a changed form.
         with page.expect_response(lambda r: r.request.method == 'POST' and 'login' in r.url, timeout=20000) as sent:
@@ -72,15 +71,6 @@ def main():
                 page.click('button[type="submit"]')
         if sent.value.status >= 400:
             raise RuntimeError(f'login answered {sent.value.status}')
-=======
-        with page.expect_response(lambda res: '/api/admin/auth/login' in res.url, timeout=30000) as sent:
-            page.click('button[type="submit"]')
-        if sent.value.status == 429 and os.environ.get('NABD_LIVE_WAIT_429', '1') == '1':
-            # the per-IP login throttle (every journey signs in from this machine): wait the window out once, as lib does
-            time.sleep(62)
-            t0 = time.time()
-            page.click('button[type="submit"]')
->>>>>>> origin/fix/live-login-throttle
         page.wait_for_selector('input[inputmode="numeric"]', timeout=20000)
         code = mail_code(EMAIL, t0)
         if not code:
