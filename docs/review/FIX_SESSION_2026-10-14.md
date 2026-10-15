@@ -8,6 +8,40 @@ build session owns deploys, the server, Cloudflare and Phase 14; OpenCode owns D
 
 Answer the owner in **Egyptian Arabic**. Code, commits, PR bodies and docs in English.
 
+## 0. Work until everything is closed (owner, 2026-10-15)
+
+The session does not stop until every item below is closed, one group after another:
+
+1. Every open issue labelled `route:claude-fix` (the `[NR …]` issues and the ones the review session opens for you,
+   such as issue 1440). The PR that fixes one says `Closes #N`; one that is not a problem gets a comment with the
+   evidence (file:line on `main`) and is closed.
+2. Every `open` or `closed-unverified` line in `docs/design/needs-review/*.json`.
+3. Every live-gate journey or scenario that fails on `main`, and every button, field or link you find dead while
+   working (fix it in the PR for that area, or open a `route:claude-fix` issue and take it next).
+4. `closed-unverified` lines are issues closed without a PR that proves the fix. Check each on `main`. If it is
+   fixed, set `fixed` with the commit or the file:line that proves it. If it is not, reopen the issue and fix it.
+   Start with issue 412 (social login tokens), because it is a security item.
+
+What "fixed" means (owner, 2026-10-15): the screen, button or field works end to end on real data. Every control is
+wired to a real backend route that reads and writes the real database. No fake, placeholder or hard-coded data, no
+button that does nothing, and no "coming soon" in place of a feature the boards show. When the backend route or the
+data is missing, build it (route, DTO with validators, service, database fields, and the admin side when the data is
+managed there), unless the item belongs to another session (§4). Fix the root cause, not the symptom, and prove it
+with the live gate (red before, green after).
+
+How the work flows:
+
+- You open one PR per group into `main`, and the review session reviews and merges it. You never merge. Do not wait
+  for a merge: start the next group from today's `main`. If `NEEDS_REVIEW_STATUS.md` conflicts, merge `main` in and
+  re-run `node tools/design/needs-review-status.mjs`.
+- A red check on your PR is yours to fix, by root cause.
+- When the context runs low, the conversation is summarized and you go on. Before that, commit, push and update
+  `docs/review/FIX_SESSION_LOG.md` (what is done, what is next), then continue from the log. Do not end the session.
+- An item you cannot do (`BLOCKED: <exact reason>`, or an owner decision) is recorded and skipped. It never stops
+  the session.
+- You are done when `NEEDS_REVIEW_STATUS.md` shows no `open` or `closed-unverified` line and no `route:claude-fix`
+  issue is open. Then report to the owner, and §7 follows.
+
 ## 1. Read first
 
 1. `AGENTS.md` (honesty rules, design rules, translations, tokens). The `fix/audit-2026-09` branch rules do not apply:
@@ -90,7 +124,7 @@ node tools/design/needs-review-status.mjs --check
 
 - After every merged PR: one line in `docs/review/FIX_SESSION_LOG.md` (date, PR, lines closed, counts left).
 - To the owner, short Egyptian Arabic: what merged, the counts from `NEEDS_REVIEW_STATUS.md`, what waits on whom.
-- When the context runs low: commit, push, update the log, stop.
+- When the context runs low: commit, push, update the log, and continue (§0). Never stop with an item open.
 
 ## 7. After everything is closed: the final test (owner, agreed earlier)
 

@@ -74,7 +74,7 @@
     "line": 90,
     "found": "[owner] Static medical text and a fixed step list, not from the booking; confirm the wording.",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision (decision B8: a doctor reviews the fixed preparation steps before launch (sample-tracking.tsx:90)) (issue #628)"
+    "review_status": "open (decided 2026-10-15, reviewer for the owner: the steps come from the booking's real status timeline, and the preparation text per test from the catalogue `preparation` field; no fixed medical text)"
   },
   {
     "batch": 3,
@@ -85,7 +85,7 @@
     "line": 4,
     "found": "[owner] [screen is now a redirect; kept so issue indices stay stable] Static text; the old third tip (samples sent in cold containers) was dropped as an unverified claim.",
     "suspect": "Owner decision.",
-    "review_status": "owner-decision (decision B8: a doctor reviews the collector tips (diag.tech.tips) before launch) (issue #629)"
+    "review_status": "open (decided 2026-10-15, reviewer for the owner: the screen is a redirect; remove the static tips and the diag.tech.tips keys)"
   },
   {
     "batch": 3,
