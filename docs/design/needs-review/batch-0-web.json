@@ -19,7 +19,7 @@
     "line": 82,
     "found": "FIXED in batch-0-fixes: the busy state now clears when the popup is closed or fails to open (error_callback) and when the Google script fails to load; a press before the script has loaded shows a message instead of leaving both buttons disabled. STILL OPEN: next.config.ts / csp.ts send Cross-Origin-Opener-Policy: same-origin and the CSP lists no accounts.google.com in connect-src / frame-src.",
     "suspect": "LEFT, needs a security-header decision and a real client id to test: Google Identity Services popup flow normally needs same-origin-allow-popups, and the CSP may need accounts.google.com. Not exercised (NEXT_PUBLIC_GOOGLE_CLIENT_ID is not set in any environment available here).",
-    "review_status": "open (issue #430)"
+    "review_status": "fixed #1491"
   },
   {
     "batch": 0,
@@ -96,7 +96,7 @@
     "line": 17,
     "found": "FIXED in batch-0-fixes: slide titles and bodies, the carousel, language and permission steps and the frame's back label and hero text are in messages (Onboarding, AuthFrame; six languages). STILL OPEN: slide 2 (\"Book in minutes\") uses the lab icon and slide 3 (\"Track your health\") the pharmacy icon (app/[locale]/onboarding/page.tsx).",
     "suspect": "LEFT: check the icon and text pairing of slides 2 and 3 against the board; there is no onboarding board in the repo to compare with here.",
-    "review_status": "open (issue #437)"
+    "review_status": "fixed #1491"
   },
   {
     "batch": 0,

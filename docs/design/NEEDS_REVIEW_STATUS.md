@@ -8,15 +8,15 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| Patient app and web | 434 | 25 | 300 | 97 | 12 | 0 |
+| Patient app and web | 434 | 23 | 302 | 97 | 12 | 0 |
 | Other | 29 | 11 | 17 | 1 | 0 | 0 |
 | Admin | 99 | 6 | 59 | 34 | 0 | 0 |
 | Admin journeys | 20 | 1 | 17 | 2 | 0 | 0 |
 | Final pass | 8 | 2 | 0 | 6 | 0 | 0 |
-| Patient journeys | 87 | 11 | 72 | 2 | 2 | 0 |
+| Patient journeys | 87 | 12 | 71 | 2 | 2 | 0 |
 | Provider app | 31 | 7 | 23 | 1 | 0 | 0 |
 | Provider journeys | 34 | 2 | 29 | 2 | 1 | 0 |
-| **Total** | **742** | **65** | **517** | **145** | **15** | **0** |
+| **Total** | **742** | **64** | **518** | **145** | **15** | **0** |
 
 ## By tag
 
@@ -25,8 +25,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | client | 169 | 20 | 110 | 36 | 3 | 0 |
 | owner | 100 | 10 | 43 | 42 | 5 | 0 |
 | backend | 235 | 18 | 187 | 30 | 0 | 0 |
-| untagged | 238 | 17 | 177 | 37 | 7 | 0 |
-| **Total** | **742** | **65** | **517** | **145** | **15** | **0** |
+| untagged | 238 | 16 | 178 | 37 | 7 | 0 |
+| **Total** | **742** | **64** | **518** | **145** | **15** | **0** |
 
 ## By file
 
@@ -75,7 +75,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `admin-system.json` | 13 | 2 | 8 | 3 | 0 | 0 |
 | `batch-0-app.json` | 13 | 1 | 12 | 0 | 0 | 0 |
 | `batch-0-runtime.json` | 8 | 3 | 3 | 2 | 0 | 0 |
-| `batch-0-web.json` | 19 | 2 | 15 | 1 | 1 | 0 |
+| `batch-0-web.json` | 19 | 0 | 17 | 1 | 1 | 0 |
 | `batch-1a-app.json` | 19 | 1 | 5 | 11 | 2 | 0 |
 | `batch-1a-web.json` | 12 | 0 | 8 | 4 | 0 | 0 |
 | `batch-1b-app.json` | 12 | 0 | 6 | 3 | 3 | 0 |
@@ -86,7 +86,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1d-web.json` | 10 | 0 | 6 | 3 | 1 | 0 |
 | `final-pass-2.json` | 4 | 0 | 0 | 4 | 0 | 0 |
 | `final-pass.json` | 4 | 2 | 0 | 2 | 0 | 0 |
-| `journeys.json` | 87 | 11 | 72 | 2 | 2 | 0 |
+| `journeys.json` | 87 | 12 | 71 | 2 | 2 | 0 |
 | `provider-admin-ish.json` | 3 | 1 | 2 | 0 | 0 | 0 |
 | `provider-doctor.json` | 6 | 1 | 5 | 0 | 0 | 0 |
 | `provider-facility.json` | 7 | 1 | 6 | 0 | 0 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 6 | 1 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 1 | 11 | 1 | 0 | 0 |
-| **Total** | **742** | **65** | **517** | **145** | **15** | **0** |
+| **Total** | **742** | **64** | **518** | **145** | **15** | **0** |
 
 ## Owner decisions (15)
 
@@ -122,7 +122,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 14 | `journeys.json#34` `patient-web/app/[locale]/prescriptions/[prescriptionId]/page.tsx:97` | 3 prescription -> cart | Web "اطلب الأدوية دي" on the prescription page opens rx-order and broadcasts directly; decision 18 says it fills the cart (the app does). |
 | 15 | `provider-journeys.json#5` `provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:538` | PharmacyDashboard hand over / delivery | [client] The prescription dispensing path is a "disabled" notice and the old order detail and broadcast screens are defined but never rendered (dead code). |
 
-## Open and unverified (65)
+## Open and unverified (64)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -157,11 +157,10 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-0-runtime.json#3` | untagged | open (issue #424) | /notifications Populated states not exercised | The seeded patient has no notifications, reminders, mood entries or appointments, so the runtime check only shows these lists in their empty state (all 2xx). The populated renderi… |
 | `batch-0-runtime.json#5` | untagged | open (issue #426) | all routes Shared JS still over the 170 KB gz budget after the #286 trim | Measured with Lighthouse (median of 3, production build, seeded backend), script transfer on /ar/pharmacy and /ar/consultations/doctors went from 224 to about 177 KB and on /ar fr… |
 | `batch-0-runtime.json#6` | untagged | open (issue #427) | all routes Largest-contentful-paint stays above 2.5 s (F82) | Lighthouse on the production build (median of 3): LCP 3.0-3.2 s on /ar and /ar/consultations/doctors, 4.3 s on /ar/pharmacy, against 2.5 s. The shared-JS trim did not move it (mai… |
-| `batch-0-web.json#1` | untagged | open (issue #430) | /login Google button (rendered only when NEXT_PUBLIC_GOOGLE_CLIENT_ID is set) | FIXED in batch-0-fixes: the busy state now clears when the popup is closed or fails to open (error_callback) and when the Google script fails to load; a press before the script ha… |
-| `batch-0-web.json#8` | untagged | open (issue #437) | /onboarding Slides, buttons and labels | FIXED in batch-0-fixes: slide titles and bodies, the carousel, language and permission steps and the frame's back label and hero text are in messages (Onboarding, AuthFrame; six l… |
 | `batch-1a-app.json#8` | untagged | open (issue #456) | /pharmacy/product-detail Insurance row (hidden) | SPEC §A shows it only when the patient's insurer is in covered_by_insurance[] (company ids). The screen has no call for the patient's insurer and no id-to-name lookup for the row'… |
 | `final-pass.json#2` | client | open | MedicalJobsScreen guest applications list | [client] GET /recruitment/guest/mine answers 400 with the patient session and with none (runtime check, provider area 'shared'); the screen sends only device_id, so the call fails… |
 | `final-pass.json#3` | client | open | public directory pages (/articles, /doctors, /facilities, /home-care-services, … | [client] The server-side fetch uses a relative/BFF-less URL (`${base}/api/v1${endpoint}`), so the six directory pages render empty (NO_ROUTE x6 in the admin inventory); the pages … |
+| `journeys.json#2` | untagged | open (issue #1011) | 1 offers (no answer yet) | While no pharmacy has answered, the offers page only polls every 15 s with the sentence "an empty list does not mean the order was cancelled": no "expanding the search" step, no f… |
 | `journeys.json#8` | untagged | open | 1 order detail / tracking | Fixed on design/oc-journeys-1 (cancel button on order detail and tracking until the order is dispatched; the refund rule text of decision 26 waits for the OC-A policy D-26). No ca… |
 | `journeys.json#9` | untagged | open (issue #1018) | 1 checkout | Checkout offers "دفع مباشر" vs "عبر التأمين" as a toggle per order; decision 30 wants insurance or self-pay chosen at the start of the service and the app checkout has no insuranc… |
 | `journeys.json#23` | untagged | open (issue #1032) | 2 order from prescription | rx-order (web) has no pickup/delivery choice and no insurance choice (the cart checkout has both), and always creates the draft with payment_mode cash. |
