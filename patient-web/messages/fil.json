@@ -4089,5 +4089,12 @@
     "faqIngredient": "Ano ang aktibong sangkap ng {name}?",
     "faqPrice": "Magkano ang {name} sa Nabd Plus?",
     "howToTitle": "Paano gamitin ang {name}"
+  },
+  "CameraScan": {
+    "start": "I-scan gamit ang camera",
+    "stop": "Itigil ang camera",
+    "pointCamera": "Itutok ang camera sa code",
+    "viewfinder": "Tanaw ng camera",
+    "cameraFailed": "Hindi mabuksan ang camera. Payagan ito, o i-type ang code."
   }
 }

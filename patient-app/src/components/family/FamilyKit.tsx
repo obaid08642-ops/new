@@ -1,8 +1,8 @@
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { type Href } from 'expo-router';
+import { router, type Href } from 'expo-router';
 
-import { Avatar, FIcon, SERVICE_TONES, Toggle, type FillIconName, type ServiceTone } from '../../../../packages/ui-native/src';
+import { Avatar, EmptyState, FIcon, SERVICE_TONES, Toggle, type FillIconName, type ServiceTone } from '../../../../packages/ui-native/src';
 import { Chevron, goBack } from '../consult/ConsultKit';
 import { HealthScreen, Panel, Pill, rowsOf } from '../health/HealthKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
@@ -51,6 +51,31 @@ export async function loadFamily(): Promise<{ group: FamilyGroup | null; members
   }
   if (!group) return { group: null, members: [] };
   return { group, members: rowsOf<FamilyMember>(await apiFetch('/family/members')) };
+}
+
+/**
+ * Issue 693: a screen of the family group (calendar, chat) opened by someone with no group yet. The server answers 404
+ * "No family group found" (calendar) or 403 "not_active_family_member" (chat); the screen says so and offers creating or
+ * joining a family, as the family hub does, instead of a failure with a retry.
+ */
+export const isNoFamily = (e: unknown) => /no family group found|not_active_family_member/i.test(String((e as { message?: unknown } | null)?.message ?? ''));
+
+export function NoFamilyState() {
+  const { k, theme } = useScreenUi();
+  return (
+    <EmptyState
+      icon="users-three"
+      tone="peach"
+      title={k('family.hub.emptyTitle')}
+      body={k('family.hub.emptyBody')}
+      actionLabel={k('family.hub.create')}
+      onAction={() => router.replace(FAMILY_HUB)}
+      secondaryActionLabel={k('family.hub.joinExisting')}
+      onSecondaryAction={() => router.push({ pathname: FAMILY_ADD, params: { tab: 'join' } } as unknown as Href)}
+      theme={theme}
+      testID="family-none"
+    />
+  );
 }
 
 /** Service tones by position in the token list (color.service.*), so a screen names no colour. */

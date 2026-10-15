@@ -17,6 +17,7 @@ export const CLIENT_NAMESPACES = [
   "Articles",
   "AssistantWeb",
   "BookConsultation",
+  "CameraScan",
   "CartScreen",
   "ChatDetail",
   "ConsultClient",
