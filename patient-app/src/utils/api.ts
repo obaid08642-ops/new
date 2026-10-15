@@ -90,6 +90,16 @@ export function newIdempotencyKey(): string {
   return `app-${uuid || `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`}`;
 }
 
+/**
+ * Saves a protected file (a lab booking's report) to the cache with the session token and returns its local uri, or
+ * null when the server refuses it. The file is never fetched from a raw CDN url found in a payload.
+ */
+export async function downloadProtected(endpoint: string, filename: string): Promise<string | null> {
+  const token = await getToken();
+  const { fileManager } = await import('../services/FileManager');
+  return fileManager.downloadFile(`${BASE_URL}${endpoint}`, filename, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+}
+
 export async function apiFetch<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
   let token = await getToken();
   const url = endpoint.startsWith('http') ? endpoint : `${BASE_URL}${endpoint}`;

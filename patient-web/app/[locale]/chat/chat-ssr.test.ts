@@ -42,14 +42,14 @@ describe("the doctor thread of a booking (decision 24)", () => {
     await expect(ChatPage({ params: Promise.resolve({ locale: "en" }) })).rejects.toThrow("redirect:/en/appointments");
   });
 
-  it("shows the activity and the emergency number only: no text, names, attachments or token", async () => {
+  it("shows the doctor's reply (B27) and the emergency number: no names, attachments or token", async () => {
     state.thread.mockResolvedValue(json({ id: threadId, type: "booking", booking_kind: "consultation", booking_id: bookingId, is_active: true, name: "private-name" }));
-    state.messages.mockResolvedValue(json({ messages: [{ id: threadId, sender_role: "provider", type: "text", body: "private-message", createdAt: "2026-08-20T10:00:00.000Z", attachment_url: attachmentUrl }] }));
+    state.messages.mockResolvedValue(json({ messages: [{ id: threadId, sender_role: "provider", type: "text", body: "the doctor reply", createdAt: "2026-08-20T10:00:00.000Z", attachment_url: attachmentUrl }] }));
     const html = renderToStaticMarkup(await ChatThreadPage({ params: Promise.resolve({ locale: "en", threadId }) }));
     expect(html).toContain('href="tel:997"');
-    expect(html).toContain("messageTypes.text");
+    expect(html).toContain("the doctor reply");
     expect(html).not.toContain("bookFollowUp");
-    for (const secret of [serverToken, "private-name", "private-message", attachmentUrl]) expect(html).not.toContain(secret);
+    for (const secret of [serverToken, "private-name", attachmentUrl]) expect(html).not.toContain(secret);
     expect(html).toContain(`href="/en/appointments/${bookingId}"`);
   });
 
