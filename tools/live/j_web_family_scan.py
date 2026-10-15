@@ -63,9 +63,14 @@ def main():
         field = page.locator('form input').first
         step('the code is filled in', field.input_value() == code, field.input_value())
         page.locator('form button[type="submit"]').click()
-        page.wait_for_url('**/family**', timeout=30000)
-        r = joiner.get('/family/my-group')
-        step('the joiner is now in the family', r.ok, r)
+        # the join form leaves the add page once the server has answered; poll the server for the result
+        r = None
+        for _ in range(30):
+            r = joiner.get('/family/my-group')
+            if r.ok:
+                break
+            page.wait_for_timeout(1000)
+        step('the joiner is now in the family', r is not None and r.ok, r)
     except Exception as e:
         step('web scan flow', False, str(e)[:300])
     finally:
