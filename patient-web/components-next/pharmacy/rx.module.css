@@ -154,3 +154,6 @@
 @media (prefers-reduced-motion: reduce) {
   .progressBar { transition: none; }
 }
+/* journeys#23: the delivery / pickup choice on "order this prescription" */
+.fulfil { display: flex; flex-direction: column; gap: var(--nabd-space-sm); min-inline-size: 0; }
+.fulfilTitle { margin: 0; color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-h4); font-weight: 700; }

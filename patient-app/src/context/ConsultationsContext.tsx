@@ -29,9 +29,12 @@ export function ConsultationsProvider({ children }: { children: ReactNode }) {
           id: a._id || a.id,
           docName: a.doctor_name || a.provider_name || '',
           docId: a.doctor_id ? String(a.doctor_id) : undefined,
-          spec: a.specialty || a.specialty_ar || '',
+          // GET /care/appointments sends the specialty's names (specialty_name_ar / specialty_name_en) and the start as
+          // slot_start (issue 424: the list read keys the server never sends, so a real row had no date or time).
+          spec: a.specialty_name_ar || a.specialty_ar || a.specialty || '',
+          specEn: a.specialty_name_en || undefined,
           emoji: '',
-          at: a.appointment_date || a.scheduled_at || undefined,
+          at: a.slot_start || a.appointment_date || a.scheduled_at || undefined,
           time: a.start_time || '',
           type: a.service_type || a.consultation_type || 'online',
           status: a.status || 'pending',

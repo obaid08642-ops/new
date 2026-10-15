@@ -8,7 +8,7 @@
     "line": 72,
     "found": "[backend] the board draws them but the app reads no week or article endpoint; hidden until one exists (fetal images stay on the CDN)",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open (issue #849)"
+    "review_status": "fixed #1514"
   },
   {
     "batch": 8,
