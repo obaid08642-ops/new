@@ -19,7 +19,7 @@ Every open branch carries the live-gate login-throttle fix (#1502), so a sign-in
 | PR | What | Lines / issues |
 |---|---|---|
 | #1464 | provider payouts: one balance, server minimum, open second approval | provider-journeys 18-20 |
-| #1468 | owner questions 31-42 (docs) | question 39 is moot (main verified batch-1b-web 2), 40 duplicates 30 |
+| #1468 | owner questions 31-42 (docs) | question 40 is the same item as 30; batch-1b-web 2 was verified fixed on main |
 | #1471 | B8 part 1: no fixed medical text | 3-app 6, 7; 5-app 14 |
 | #1472 | Rx and online-only flags in every medicine list | rx-rules-app 0-3, 5 |
 | #1473 | web notifications: switches honoured, web push | batch-0-web 9, 16; issues 438, 445 |
