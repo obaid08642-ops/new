@@ -302,7 +302,7 @@ export class PharmacyOfferService {
         $set: {
           order_id: orderId, offer_version: offer.version, offer_status: offer.status, pharmacy_account_id: offer.pharmacy_account_id,
           lines: lines.map((i: any) => ({
-            order_item_id: i.order_item_id, medicine_id: i.medicine_id || null, sku: i.sku ?? null, name_ar: i.name_ar ?? null,
+            order_item_id: i.order_item_id, medicine_id: i.medicine_id || null, sku: i.sku ?? null, name_ar: i.name_ar ?? null, name_en: i.name_en ?? null,
             reason: i.above_catalogue_price ? 'price_above_catalogue' : 'not_verified',
             catalogue_price: i.catalogue_price ?? null, offered_price: i.unit_price ?? null,
           })),
