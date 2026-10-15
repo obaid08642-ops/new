@@ -4,7 +4,10 @@ import http from "node:http";
 import type { AddressInfo } from "node:net";
 import { afterEach, describe, expect, it } from "vitest";
 import zlib from "node:zlib";
-import { handler, pickEncoding, EDGE_STAMP_HEADER } from "../server/nonce-server.mjs";
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { handler, pickEncoding, precompressedAsset, EDGE_STAMP_HEADER } from "../server/nonce-server.mjs";
 import { CSP_INJECT_HEADER, CSP_NONCE_PLACEHOLDER, contentSecurityPolicy } from "../lib/security/csp";
 import { UNAVAILABLE_FALLBACK_HEADER } from "../lib/security/query-twin";
 
@@ -17,7 +20,7 @@ type Seen = { url?: string; headers: http.IncomingHttpHeaders }[];
 const closers: Array<() => void> = [];
 afterEach(() => { while (closers.length) closers.pop()!(); });
 
-async function start(upstream: http.RequestListener, options: { edgeToken?: string } = {}) {
+async function start(upstream: http.RequestListener, options: { edgeToken?: string; staticDir?: string | null } = {}) {
   const seen: Seen = [];
   const next = http.createServer((req, res) => { seen.push({ url: req.url, headers: req.headers }); upstream(req, res); });
   await new Promise<void>((resolve) => next.listen(0, "127.0.0.1", resolve));
@@ -269,5 +272,85 @@ describe("compression on the way out", () => {
     const r = await raw(`${base}/ar/photo`, { "accept-encoding": "gzip" });
     expect(r.headers["content-encoding"]).toBeUndefined();
     expect(r.body).toHaveLength(3000);
+  });
+});
+
+// F82 (issue 426): scripts and stylesheets the build compressed with brotli (scripts/precompress-static.mjs) go to a client that
+// accepts br from the .br file; Next still answers the head.
+describe("precompressed build assets", () => {
+  const SCRIPT = "console.log('a precompressed chunk');".repeat(300);
+  const raw = (url: string, headers: Record<string, string>, method = "GET") => new Promise<{ status: number; headers: http.IncomingHttpHeaders; body: Buffer }>((resolve, reject) => {
+    http.request(url, { headers, method }, (res) => { const chunks: Buffer[] = []; res.on("data", (c) => chunks.push(c)); res.on("end", () => resolve({ status: res.statusCode || 0, headers: res.headers, body: Buffer.concat(chunks) })); }).on("error", reject).end();
+  });
+  let dir = "";
+  const app: http.RequestListener = (req, res) => {
+    if (req.url === "/_next/static/chunks/missing.js") { res.writeHead(404, { "content-type": "text/plain" }); res.end("nope"); return; }
+    if (req.headers["if-none-match"] === 'W/"10-abc"') { res.writeHead(304, { etag: 'W/"10-abc"' }); res.end(); return; }
+    const gz = /gzip/.test(String(req.headers["accept-encoding"] || ""));
+    res.writeHead(200, { "content-type": "application/javascript; charset=UTF-8", "cache-control": "public, max-age=31536000, immutable", "x-content-type-options": "nosniff", etag: 'W/"10-abc"', ...(gz ? { "content-encoding": "gzip" } : {}) });
+    res.end(req.method === "HEAD" ? undefined : gz ? zlib.gzipSync(SCRIPT) : SCRIPT);
+  };
+  const setup = () => {
+    dir = mkdtempSync(join(tmpdir(), "nabd-static-"));
+    mkdirSync(join(dir, "chunks"));
+    writeFileSync(join(dir, "chunks", "a.js.br"), zlib.brotliCompressSync(SCRIPT));
+    writeFileSync(join(dir, "chunks", "missing.js.br"), zlib.brotliCompressSync(SCRIPT));
+    closers.push(() => rmSync(dir, { recursive: true, force: true }));
+    return dir;
+  };
+
+  it("sends the .br file with Next's head (type, cache, security headers), its length and its own validator", async () => {
+    const { base, seen } = await start(app, { staticDir: setup() });
+    const r = await raw(`${base}/_next/static/chunks/a.js`, { "accept-encoding": "gzip, deflate, br" });
+    expect(r.status).toBe(200);
+    expect(r.headers["content-encoding"]).toBe("br");
+    expect(zlib.brotliDecompressSync(r.body).toString()).toBe(SCRIPT);
+    expect(r.headers["content-length"]).toBe(String(r.body.length));
+    expect(r.headers["content-type"]).toBe("application/javascript; charset=UTF-8");
+    expect(r.headers["cache-control"]).toContain("immutable");
+    expect(r.headers["x-content-type-options"]).toBe("nosniff");
+    expect(r.headers.vary).toContain("Accept-Encoding");
+    expect(r.headers.etag).toBe('W/"10-abc-br"');
+    expect(seen.at(-1)?.headers["accept-encoding"]).toBe("identity");
+  });
+
+  it("a HEAD gets the head only", async () => {
+    const { base } = await start(app, { staticDir: setup() });
+    const r = await raw(`${base}/_next/static/chunks/a.js`, { "accept-encoding": "br" }, "HEAD");
+    expect(r.status).toBe(200);
+    expect(r.headers["content-encoding"]).toBe("br");
+    expect(r.body).toHaveLength(0);
+  });
+
+  it("a client without br, an asset without a .br file, or Next not answering 200 goes through as before", async () => {
+    const { base, seen } = await start(app, { staticDir: setup() });
+    const gzip = await raw(`${base}/_next/static/chunks/a.js`, { "accept-encoding": "gzip" });
+    expect(gzip.headers["content-encoding"]).toBe("gzip");
+    expect(zlib.gunzipSync(gzip.body).toString()).toBe(SCRIPT);
+    const other = await raw(`${base}/_next/static/chunks/b.js`, { "accept-encoding": "br, gzip" });
+    expect(other.headers["content-encoding"]).toBe("gzip");
+    const missing = await raw(`${base}/_next/static/chunks/missing.js`, { "accept-encoding": "br, gzip" });
+    expect(missing.status).toBe(404);
+    expect(missing.body.toString()).toBe("nope");
+    expect(seen.filter((s) => s.url === "/_next/static/chunks/missing.js")).toHaveLength(2);
+  });
+
+  it("passes a 304 through", async () => {
+    const { base } = await start(app, { staticDir: setup() });
+    const r = await raw(`${base}/_next/static/chunks/a.js`, { "accept-encoding": "br", "if-none-match": 'W/"10-abc"' });
+    expect(r.status).toBe(304);
+    expect(r.body).toHaveLength(0);
+  });
+
+  it("never reads outside the static folder, and only scripts and stylesheets", () => {
+    const root = setup();
+    writeFileSync(join(root, "secret.txt.br"), "x");
+    expect(precompressedAsset(root, "/_next/static/chunks/a.js")?.file).toBe(join(root, "chunks", "a.js.br"));
+    expect(precompressedAsset(root, "/_next/static/chunks/a.js?dpl=1")?.file).toBe(join(root, "chunks", "a.js.br"));
+    expect(precompressedAsset(root, "/_next/static/../../etc/passwd.js")).toBeNull();
+    expect(precompressedAsset(root, "/_next/static/%2e%2e/%2e%2e/x.js")).toBeNull();
+    expect(precompressedAsset(root, "/_next/static/secret.txt")).toBeNull();
+    expect(precompressedAsset(root, "/ar/chunks/a.js")).toBeNull();
+    expect(precompressedAsset(null, "/_next/static/chunks/a.js")).toBeNull();
   });
 });
