@@ -41,7 +41,7 @@
     "line": 126,
     "found": "[client] Fixed on design/backend-fields: the verified seal and the licence number are drawn from verified / scfhs_license_no; the photo is still not sent by toPublicDoctor.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open"
+    "review_status": "fixed #PR (issue #401)"
   },
   {
     "batch": 2,
