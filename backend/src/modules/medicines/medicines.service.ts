@@ -1078,9 +1078,9 @@ export class MedicinesService {
   async compare(ids: string[]) {
     if (!ids || !ids.length) return [];
     // batch-1a-web#8: the medicines a public product page shows (published and approved), as the product page reads them;
-    // indexing_eligibility only decides search-engine indexing (approval sets it false), so it is not asked for here.
-    const { indexing_eligibility: _indexing, ...visible } = this.publicCatalogFilter();
-    return this.model.find({ id: { $in: ids.slice(0, 4) }, ...visible }, { _id: 0, __v: 0 }).lean();
+    // indexing_eligibility only decides search-engine indexing (approval sets it false); the public filter does not ask
+    // for it any more, so it is used as it is.
+    return this.model.find({ id: { $in: ids.slice(0, 4) }, ...this.publicCatalogFilter() }, { _id: 0, __v: 0 }).lean();
   }
 
   async getById(id: string) {
