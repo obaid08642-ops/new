@@ -5,6 +5,7 @@ import { AdminApiError, adminFetch, adminMutation, type AdminSession } from '@/l
 import { useDrawer } from './useDrawer';
 import { useMediaQuery } from './useMediaQuery';
 import { useLegacyTableCards } from './useLegacyTableCards';
+import { AlertsBell } from './AlertsBell';
 import { getAdminCalendar, setAdminCalendar, type AdminCalendar } from '../utils/dates';
 
 type NavItem = { href: string; label: string; permission?: string };
@@ -20,6 +21,8 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/dashboard', label: 'لوحة القياس الحية', permission: 'command.center.view' },
       // needs-review admin-ops-monitoring 3 and 13: both pages were reachable only by URL.
       { href: '/admin/today', label: 'اليوم', permission: 'command.center.view' },
+      // #1235: the urgent-alert inbox behind the bell.
+      { href: '/admin/alerts', label: 'التنبيهات العاجلة', permission: 'command.center.view' },
       { href: '/admin/approvals', label: 'بانتظار موافقتي' },
       { href: '/admin/orders', label: 'دورة الطلبات', permission: 'order.read' },
       { href: '/admin/analytics-suite', label: 'التحليلات', permission: 'analytics.read' },
@@ -124,6 +127,7 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/health-dashboard': 'command.center.view',
   '/admin/dashboard': 'command.center.view',
   '/admin/today': 'command.center.view',
+  '/admin/alerts': 'command.center.view',
   '/admin/orders': 'order.read',
   '/admin/order-detail': 'order.read',
   '/admin/broadcast-monitor': 'order.read',
@@ -266,6 +270,7 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
   if (!session) return null;
 
   const requiredPermission = requiredPermissionFor(router.pathname);
+  const canSeeAlerts = permissionSet.has('command.center.view');
   if (requiredPermission && !permissionSet.has(requiredPermission)) {
     return (
       <div className="min-h-dvh flex items-center justify-center bg-slate-50" dir="rtl">
@@ -292,6 +297,7 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
           <span aria-hidden="true" className="flex flex-col gap-1.5"><i className="block h-0.5 w-5 bg-current" /><i className="block h-0.5 w-5 bg-current" /><i className="block h-0.5 w-5 bg-current" /></span>
         </button>
         <span className="py-3 text-lg font-bold text-teal-300">نبض</span>
+        {canSeeAlerts ? <AlertsBell className="ms-auto" /> : null}
       </header>
       {drawerOpen ? <div className="fixed inset-0 z-40 bg-slate-950/60 lg:hidden" aria-hidden="true" data-testid="nav-backdrop" onClick={closeNav} /> : null}
       <aside
@@ -312,6 +318,7 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
             <p className="mt-1 text-sm text-slate-400">مركز التحكم المؤسسي</p>
             <p className="mt-3 truncate text-xs text-slate-500">{session.user.full_name || session.user.email || session.user.id}</p>
           </div>
+          {canSeeAlerts ? <AlertsBell className="max-lg:hidden" /> : null}
           <button type="button" onClick={closeNav} aria-label="إغلاق القائمة" className="-me-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-xl hover:bg-slate-800 lg:hidden"><span aria-hidden="true">×</span></button>
         </div>
         <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4">
