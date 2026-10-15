@@ -13,10 +13,10 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Admin | 99 | 7 | 59 | 33 | 0 | 0 |
 | Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
 | Final pass | 8 | 6 | 0 | 2 | 0 | 0 |
-| Patient journeys | 87 | 20 | 65 | 2 | 0 | 0 |
+| Patient journeys | 87 | 19 | 66 | 2 | 0 | 0 |
 | Provider app | 31 | 7 | 23 | 1 | 0 | 0 |
 | Provider journeys | 34 | 9 | 22 | 2 | 1 | 0 |
-| **Total** | **742** | **117** | **486** | **135** | **4** | **0** |
+| **Total** | **742** | **116** | **487** | **135** | **4** | **0** |
 
 ## By tag
 
@@ -25,8 +25,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | client | 169 | 33 | 104 | 31 | 1 | 0 |
 | owner | 100 | 17 | 39 | 42 | 2 | 0 |
 | backend | 235 | 29 | 177 | 29 | 0 | 0 |
-| untagged | 238 | 38 | 166 | 33 | 1 | 0 |
-| **Total** | **742** | **117** | **486** | **135** | **4** | **0** |
+| untagged | 238 | 37 | 167 | 33 | 1 | 0 |
+| **Total** | **742** | **116** | **487** | **135** | **4** | **0** |
 
 ## By file
 
@@ -86,7 +86,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1d-web.json` | 10 | 1 | 6 | 3 | 0 | 0 |
 | `final-pass-2.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `final-pass.json` | 4 | 2 | 0 | 2 | 0 | 0 |
-| `journeys.json` | 87 | 20 | 65 | 2 | 0 | 0 |
+| `journeys.json` | 87 | 19 | 66 | 2 | 0 | 0 |
 | `provider-admin-ish.json` | 3 | 1 | 2 | 0 | 0 | 0 |
 | `provider-doctor.json` | 6 | 1 | 5 | 0 | 0 | 0 |
 | `provider-facility.json` | 7 | 1 | 6 | 0 | 0 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 6 | 1 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 1 | 11 | 1 | 0 | 0 |
-| **Total** | **742** | **117** | **486** | **135** | **4** | **0** |
+| **Total** | **742** | **116** | **487** | **135** | **4** | **0** |
 
 ## Owner decisions (4)
 
@@ -111,7 +111,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 3 | `batch-1b-app.json#1` `patient-app/app/(tabs)/pharmacy.tsx:63` | /pharmacy/pharmacist-chat Hub tile 'Pharmacist consult' and product page 'Ask a… | The screen is the substitute-negotiation chat of one order (GET /pharmacy/chat/threads?order_id=); a thread exists only when a pharmacy proposes a substitute for an order line. The hub (pharmacy.tsx:63) and the product … |
 | 4 | `provider-journeys.json#5` `provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:538` | PharmacyDashboard hand over / delivery | [client] The prescription dispensing path is a "disabled" notice and the old order detail and broadcast screens are defined but never rendered (dead code). |
 
-## Open and unverified (117)
+## Open and unverified (116)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -201,7 +201,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `journeys.json#68` | untagged | open (issue #1077) | 7 family member | The member page shows the member's medicines read-only, no doses taken/missed and no alert. |
 | `journeys.json#74` | untagged | open (issue #1083) | 8 manual request | The request form has no photo of the box and no quantity (decision 12 mentions text, box photo and prescription requests). |
 | `journeys.json#75` | untagged | open (issue #1084) | 8 price review | Offers for a manual request show no "price not verified" state (decision 12) and no way to counter or reject a price except the substitute negotiation. |
-| `journeys.json#77` | untagged | open (issue #1086) | 9 connection loss | Offline, tapping "request offers" in the cart ends on the browser's own error page; the service worker has no fetch handler or offline page. |
 | `provider-admin-ish.json#2` | backend | open | RevenueInsights API GET /provider/ops/wallet/ledger | [backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider-ops/provi… |
 | `provider-doctor.json#2` | client | open | EPrescriptionScreen {t.titleAr} {t.drugs.length} | [client] Button "{t.titleAr} {t.drugs.length}" shows a success message without sending a request. |
 | `provider-facility.json#6` | client | open | FacilitySettingsScreen Pricing & Tariffs sheet | [client] The tariffs form starts from fixed numbers (ICU daily and hourly, ward, surgery room, emergency fee) instead of the facility's saved tariffs; saving the sheet sends them … |
