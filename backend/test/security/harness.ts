@@ -23,6 +23,7 @@ import { JwtAuthGuard } from '../../src/common/auth.guard';
 import { WriteGuard } from '../../src/common/write-guard';
 import { RedisCacheInterceptor } from '../../src/common/redis-cache.interceptor';
 import { ImpersonationSessionService } from '../../src/common/impersonation-session.service';
+import { LedgerService } from '../../src/modules/finance-engine/finance-engine.module';
 import request from 'supertest';
 
 // Nest app boots (module compile + DI graph) routinely take 20–40s on CI;
@@ -46,6 +47,17 @@ const connectionStub = {
   model: () => null,
 };
 
+const ledgerStub = {
+  providerBalance: async (providerId: string) => ({
+    earned_cleared: 0,
+    earned_pending: 0,
+    debits: 0,
+    paid: 0,
+    locked: 0,
+    available: 0,
+  }),
+};
+
 export async function buildSecurityApp(
   controllers: any[],
   providers: any[],
@@ -59,6 +71,7 @@ export async function buildSecurityApp(
       Reflector,
       { provide: getConnectionToken(), useValue: connectionStub },
       { provide: ImpersonationSessionService, useValue: {} },
+      { provide: LedgerService, useValue: ledgerStub },
       { provide: APP_GUARD, useClass: JwtAuthGuard },
       { provide: APP_GUARD, useClass: WriteGuard },
     ],
