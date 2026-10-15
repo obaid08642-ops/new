@@ -497,7 +497,8 @@ export class HealthService {
       pills_remaining: normalized.pills_remaining,
       refill_date,
     };
-    const r = await this.reminders.findOneAndUpdate({ id, patient_id: user.id }, { $set }, { new: true });
+    const r = await this.reminders.findOneAndUpdate({ id, patient_id: patientId }, { $set }, { new: true });
+    if (!r) throw new NotFoundException();
     return r.toObject();
   }
 
