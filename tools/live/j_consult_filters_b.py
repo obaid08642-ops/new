@@ -63,7 +63,9 @@ def main():
     step('an unknown facility is still not found', r.status == 404, r.status)
 
     journey('4-app#3: the catalogue says which nursing services need the prescription')
-    r = anon.get('/home-care/services?limit=200')
+    import j_accounts
+    patient = Client(j_accounts.app_signup(label='nursing-rx')['token'], 'patient')
+    r = patient.get('/home-care/services?limit=200')
     svcs = r.body.get('data', []) if isinstance(r.body, dict) else []
     rx = [s for s in svcs if s.get('category') in ('injection', 'iv')]
     step('injections and IV need the patient prescription', rx and all(s.get('requires_patient_medication') is True for s in rx), [(s.get('name_ar'), s.get('requires_patient_medication')) for s in rx])
@@ -90,7 +92,7 @@ def main():
     page = browser.new_context(locale='ar-SA', viewport={'width': 390, 'height': 844}).new_page()
     try:
         page.goto(f'{WEB}/ar/articles/{slug}', wait_until='load', timeout=60000)
-        section = page.locator('#article-body')
+        section = page.locator('section[aria-labelledby="article-body"]')  # SectionCard puts the id on its heading
         section.wait_for(timeout=30000)
         text = section.inner_text()
         step('the page shows the heading, paragraphs and list', f'نوم صحي {tag}' in text and 'نم ثماني ساعات كل ليلة.' in text and 'أطفئ الشاشات' in text and 'اشرب الماء' in text, text[:300])
