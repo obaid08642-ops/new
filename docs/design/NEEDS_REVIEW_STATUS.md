@@ -8,7 +8,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| Patient app and web | 434 | 82 | 252 | 88 | 1 | 11 |
+| Patient app and web | 434 | 79 | 255 | 88 | 1 | 11 |
 | Other | 29 | 22 | 7 | 0 | 0 | 0 |
 | Admin | 97 | 8 | 56 | 33 | 0 | 0 |
 | Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
@@ -16,17 +16,17 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Patient journeys | 87 | 33 | 52 | 2 | 0 | 0 |
 | Provider app | 31 | 8 | 22 | 1 | 0 | 0 |
 | Provider journeys | 34 | 17 | 15 | 2 | 0 | 0 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| **Total** | **740** | **177** | **423** | **128** | **1** | **11** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | client | 169 | 51 | 90 | 28 | 0 | 0 |
-| owner | 100 | 21 | 34 | 42 | 1 | 2 |
+| owner | 100 | 18 | 37 | 42 | 1 | 2 |
 | backend | 233 | 35 | 168 | 26 | 0 | 4 |
 | untagged | 238 | 73 | 128 | 32 | 0 | 5 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| **Total** | **740** | **177** | **423** | **128** | **1** | **11** |
 
 ## By file
 
@@ -50,11 +50,11 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `1e-web.json` | 10 | 1 | 8 | 1 | 0 | 0 |
 | `2-app.json` | 17 | 4 | 10 | 3 | 0 | 0 |
 | `2-web.json` | 14 | 6 | 6 | 2 | 0 | 0 |
-| `3-app.json` | 10 | 3 | 6 | 1 | 0 | 0 |
+| `3-app.json` | 10 | 1 | 8 | 1 | 0 | 0 |
 | `3-web.json` | 8 | 2 | 5 | 1 | 0 | 0 |
 | `4-app.json` | 8 | 2 | 5 | 1 | 0 | 0 |
 | `4-web.json` | 7 | 1 | 6 | 0 | 0 | 0 |
-| `5-app.json` | 18 | 2 | 10 | 6 | 0 | 0 |
+| `5-app.json` | 18 | 1 | 11 | 6 | 0 | 0 |
 | `5-web.json` | 11 | 2 | 9 | 0 | 0 | 0 |
 | `6-app.json` | 10 | 3 | 3 | 4 | 0 | 0 |
 | `6-web.json` | 8 | 1 | 5 | 2 | 0 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 7 | 0 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 6 | 7 | 0 | 0 | 0 |
-| **Total** | **740** | **180** | **420** | **128** | **1** | **11** |
+| **Total** | **740** | **177** | **423** | **128** | **1** | **11** |
 
 ## Owner decisions (1)
 
@@ -108,7 +108,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---:|---|---|---|
 | 1 | `13-web.json#13` `patient-web/lib/legal/embedded.ts:15` | /terms Embedded fallback text | [owner] The embedded copy (issue 755/783) is built from docs/legal, which are drafts with [placeholders] until a Saudi lawyer approves them, so it stays off today. After approval: update docs/legal, run node patient-web… |
 
-## Open and unverified (191)
+## Open and unverified (188)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -134,15 +134,12 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `2-web.json#12` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /consultations/doctors Cash-only filter | [owner] The server has accepts_insurance only: 'Cash only' means doctors who do NOT accept insurance (accepts_insurance=false), not 'any doctor, paid in cash'. A patient who pays … |
 | `2-web.json#13` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /chat/[threadId] Sent text is not shown | [owner] The thread page lists message activity only (type and time, never the text: the privacy rule of the page), so after the composer sends, the patient sees the new activity r… |
 | `3-app.json#0` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /diagnostics Payment filter (cash / insurance) drawn on ServiceHub | [owner] The board has it; no field says which test or lab takes insurance, so it is not drawn. |
-| `3-app.json#6` | owner | open (decided 2026-10-15, reviewer for the owner: the steps… | /diagnostics/sample-tracking Preparation text, six default steps | [owner] Static medical text and a fixed step list, not from the booking; confirm the wording. |
-| `3-app.json#7` | owner | open (decided 2026-10-15, reviewer for the owner: the scree… | /diagnostics/technician-tracking Tips | [owner] [screen is now a redirect; kept so issue indices stay stable] Static text; the old third tip (samples sent in cold containers) was dropped as an unverified claim. |
 | `3-web.json#2` | client | open (issue #634) | /diagnostics service-booking-modal.tsx | [client] nursing/catalog's Book button now opens a window that says nothing was booked and links to /nursing (the old fake confirmation is gone); a real booking from the catalogue… |
 | `3-web.json#3` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /diagnostics labs carousel, cash filter, add toggle | [owner] board elements with no endpoint on the hub (no lab list, no cash flag, the cart is page based) |
 | `4-app.json#1` | client | open (issue #641) | /nursing/nurse-profile Transport choice | [client] The choice is not part of the POST /nursing/bookings payload; it only changes the tracking wording. The invented '(0 SAR)' price on the second option was removed. |
 | `4-app.json#3` | client | open (issue #643) | /nursing/service-details Injection policy check | [client] Decided by service ids and Arabic words in the title; a title in another language skips the prescription dialog. |
 | `4-web.json#1` | client | open (issue #649) | /nursing/catalog service-booking-modal.tsx | [client] The fake confirmation (timer, random reference, insurance estimate) is gone from the catalogue; the component is still in the repo and only components-next/diagnostics-hu… |
 | `5-app.json#10` | client | open | /health/emergency-contacts SOS notifies family | [client] FIXED on design/sos-removal: the SOS is removed (decision 14) and the family note now only says these are the people to call in an emergency. |
-| `5-app.json#14` | owner | open (decided 2026-10-15, reviewer for the owner: remove th… | /health/sleep-score Static sleep tips | [owner] Four educational tips are static text (translated): confirm they stay. |
 | `5-web.json#6` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /health/vitals Today tab | [owner] Today shows the latest reading of each vital (summary endpoint), not only readings taken today. Confirm that is what Today means. |
 | `5-web.json#9` | client | open (issue #682) | /health Dead API helpers | [client] getPatientReports and parseReports (lib/api/reports*.ts, vitals-server.ts) have no screen left; kept with their tests for the reviewer to delete. |
 | `6-app.json#0` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /family/member-health Book on their behalf | [owner] Opens the consultations tab without the member: booking for a member is not wired (the booking flow takes no member); the permission 'booking' exists but nothing uses it. |

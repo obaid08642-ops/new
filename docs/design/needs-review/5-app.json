@@ -162,7 +162,7 @@
     "line": 120,
     "found": "[owner] Four educational tips are static text (translated): confirm they stay.",
     "suspect": "Owner decision.",
-    "review_status": "open (decided 2026-10-15, reviewer for the owner: remove the hard-coded tips; show the published articles tagged sleep from the content API, or nothing when there are none)"
+    "review_status": "fixed #1471 (issue #669)"
   },
   {
     "batch": 5,
