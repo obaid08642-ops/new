@@ -27,6 +27,19 @@ export class ManualRequestDto {
   @IsOptional()
   @IsString()
   details?: string;
+
+  /** Journeys 74 (decision 12): how many boxes the patient wants. */
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(99)
+  qty?: number;
+
+  /** Journeys 74: a photo of the box (an image the patient uploaded through POST /storage/upload). */
+  @IsOptional()
+  @IsString()
+  @MaxLength(128)
+  photo_id?: string;
 }
 
 export class CreateDto {
@@ -335,6 +348,13 @@ export class OfferItemDto {
   @IsString()
   substitute_inventory_item_id?: string;
 
+  /** provider-journeys 1: a national catalogue item (search row with source "catalogue") when the line is priced from the
+   *  catalogue; the server adds it to the pharmacy's inventory. For a substitute it is the substitute item. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  medicine_id?: string;
+
   @IsOptional()
   @IsNumber()
   unit_price_override?: number;
@@ -538,4 +558,10 @@ export class PaymentRulesDto {
 /** D-25: PUT /provider/pharmacy/cod (the pharmacy switches its own cash on delivery). */
 export class PharmacyCodSettingDto {
   @IsBoolean() enabled: boolean;
+}
+
+/** D-12 (issue 331): the admin closes a price review: the catalogue price was updated, or the offered price was confirmed. */
+export class ResolvePriceReviewDto {
+  @IsIn(['catalogue_updated', 'price_confirmed']) resolution: 'catalogue_updated' | 'price_confirmed';
+  @IsOptional() @IsString() @MaxLength(500) note?: string;
 }

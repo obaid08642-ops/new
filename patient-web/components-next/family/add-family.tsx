@@ -8,6 +8,7 @@ import rx from "@/components-next/pharmacy/rx.module.css";
 import forms from "@/components-next/consult/consult.module.css";
 import styles from "./family.module.css";
 import { copyText } from "@/lib/copy-text";
+import { CameraScanner, QR_FORMATS } from "@/components-next/scan/camera-scanner";
 
 /** Invite: creates an invite code to share (POST /api/family/invite, as before) and copies it on request. */
 export function InviteTab() {
@@ -115,8 +116,9 @@ export function JoinTab({ locale, initialCode }: { locale: string; initialCode?:
 }
 
 /**
- * Scan: the web page has no camera, so the invite's code or its link is pasted and the join tab opens with the code filled
- * in (the code is taken from `?code=` / `?invite_code=` or the last path segment of a link, as before).
+ * Scan (issue 694): the camera reads the invite's QR code where the browser can (CameraScanner), or the code or its link is
+ * pasted; the join tab opens with the code filled in (the code is taken from `?code=` / `?invite_code=` or the last path
+ * segment of a link, as before).
  */
 export function ScanTab({ locale }: { locale: string }) {
   const t = useTranslations("FamilyWeb");
@@ -126,7 +128,11 @@ export function ScanTab({ locale }: { locale: string }) {
 
   function submit(event: FormEvent) {
     event.preventDefault();
-    const trimmed = value.trim();
+    go(value);
+  }
+
+  function go(raw: string) {
+    const trimmed = raw.trim();
     let extracted = trimmed;
     try {
       if (trimmed.includes("://") || trimmed.includes("?code=")) {
@@ -148,6 +154,7 @@ export function ScanTab({ locale }: { locale: string }) {
   return (
     <form onSubmit={submit} className={`${rx.card} ${forms.stack}`} noValidate aria-label={t("tabScan")}>
       <p className={rx.lead}>{t("scanLead")}</p>
+      <CameraScanner formats={QR_FORMATS} onResult={(scanned) => { setValue(scanned); go(scanned); }} />
       <label className={forms.field}>
         <span className={forms.label}>{t("scanField")}</span>
         <input className={forms.control} value={value} onChange={(event) => setValue(event.target.value)} autoComplete="off" dir="ltr" placeholder={t("scanHint")} />

@@ -86,6 +86,15 @@ describe("OfferList", () => {
   });
 });
 
+describe("decision 13: the search state the server sends", () => {
+  it("reads the widening search and the end with no pharmacy", () => {
+    expect(extractPatientPharmacyOrderProgress({ status: "broadcasting", search: { state: "expanding", round: 2, radius_km: 5, ends_at: "2026-10-15T10:00:00Z" } })?.search)
+      .toEqual({ state: "expanding", round: 2, radiusKm: 5, endsAt: "2026-10-15T10:00:00Z" });
+    expect(extractPatientPharmacyOrderProgress({ status: "manual_review", search: { state: "no_pharmacy_available" } })?.search).toEqual({ state: "no_pharmacy_available" });
+    expect(extractPatientPharmacyOrderProgress({ status: "broadcasting" })?.search).toBeUndefined();
+  });
+});
+
 describe("QuoteSection", () => {
   const base = { selected_offer_snapshot: { totals: { subtotal: 46.5, delivery_fee: 5, total: 51.5, currency: "SAR" }, hash: HASH }, selected_offer_hash: HASH, selected_offer_revision: 2 };
   const draw = async (order: Record<string, unknown>, screen: "offers" | "final" = "final") =>
@@ -114,6 +123,16 @@ describe("QuoteSection", () => {
     expect(await draw({ ...accepted, coverage_mode: "cash" })).toContain("codRegister");
     expect(await draw({ ...accepted, coverage_mode: "insurance" })).not.toContain("codRegister");
     expect(await draw({ ...accepted, coverage_mode: "cash", accepted_quote_snapshot: { cod_allowed: false, totals: { total: 51.5 } } })).not.toContain("codRegister");
+  });
+
+  it("FINAL_QUOTE_ACCEPTED: both screens send the patient to the one payment page, with no second set of method buttons (journeys#7)", async () => {
+    const accepted = { governed_state: "FINAL_QUOTE_ACCEPTED", ...base, coverage_mode: "cash", accepted_quote_snapshot: { cod_allowed: false, totals: { total: 51.5 } } };
+    for (const screen of ["offers", "final"] as const) {
+      const html = await draw(accepted, screen);
+      expect(html, screen).toContain(`/en/pharmacy/payment?orderId=${ORDER}`);
+      expect(html, screen).toContain("continuePayment");
+      expect(html, screen).not.toContain("showMethods");
+    }
   });
 
   it("COD_REGISTERED says it is a commitment and links to tracking, with no payment control", async () => {

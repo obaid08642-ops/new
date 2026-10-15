@@ -157,6 +157,7 @@ export function ProductCard({
   imageSrc,
   discountLabel,
   rxLabel,
+  onlineLabel,
   addLabel,
   href,
   linkAs,
@@ -207,6 +208,7 @@ export function ProductCard({
             {currency ? <span className="nabd-product-card__currency"> {currency}</span> : null}
           </span>
           {rxLabel ? <span className="nabd-product-card__rx">{rxLabel}</span> : null}
+          {onlineLabel ? <span className="nabd-product-card__online">{onlineLabel}</span> : null}
         </div>
         <button
           type="button"

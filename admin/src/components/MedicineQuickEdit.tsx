@@ -4,11 +4,11 @@ import { ConfirmDialog } from './ConfirmDialog';
 import type { LooseRow } from './DataTable';
 
 /**
- * Quick edit of the three fields an admin changes most on a phone: price, prescription flag, availability.
- * Routes (all existing): PATCH /medicines/admin/catalog/:id (price, requires_prescription, reason),
- * POST /medicines/admin/catalog/:id/availability, GET /medicines/admin/catalog/:id/price-history.
- * Price and prescription changes go through a confirmation dialog that shows old -> new. `controlled` is not
- * offered: the backend does not accept it (not in EDITABLE_FIELDS / the DTO).
+ * Quick edit of the fields an admin changes most on a phone: price, prescription flag, controlled flag (decision 10),
+ * availability. Routes: PATCH /medicines/admin/catalog/:id (price, requires_prescription, controlled, reason),
+ * POST /medicines/admin/catalog/:id/availability (status, reason), GET /medicines/admin/catalog/:id/price-history.
+ * Price, prescription and controlled changes go through a confirmation dialog that shows old -> new. Every change
+ * needs a typed reason; the backend keeps one history row per changed field (who, when, old -> new, reason).
  */
 
 export const AVAILABILITY_LABELS: Record<string, string> = {
@@ -18,18 +18,51 @@ export const AVAILABILITY_LABELS: Record<string, string> = {
   discontinued: 'متوقف',
 };
 
-type PriceChange = { id?: string; before_price: number; after_price: number; reason?: string; createdAt?: string };
+/** A per-item history row: price rows carry before_price/after_price, every other field { field, before, after }. */
+type HistoryRow = {
+  id?: string;
+  before_price?: number; after_price?: number;
+  field?: string; before?: unknown; after?: unknown;
+  reason?: string | null; changed_by?: string; changed_by_name?: string | null; createdAt?: string;
+};
+
+const HISTORY_FIELD_LABELS: Record<string, string> = {
+  requires_prescription: 'وصفة طبية',
+  controlled: 'صنف مراقب',
+  availability_status: 'التوفر',
+  online_exclusive: 'حصري أونلاين',
+};
+
+function historyValue(field: string | undefined, value: unknown): string {
+  if (value === null || value === undefined || value === '') return '—';
+  if (typeof value === 'boolean') return value ? 'نعم' : 'لا';
+  if (field === 'availability_status' && typeof value === 'string') return AVAILABILITY_LABELS[value] || value;
+  if (Array.isArray(value)) return value.join('، ');
+  return typeof value === 'object' ? JSON.stringify(value) : String(value);
+}
+
+/** One history row as "label: old -> new". */
+export function describeHistoryRow(h: HistoryRow): { label: string; from: string; to: string } {
+  if (h.before_price !== undefined || h.after_price !== undefined) {
+    return { label: 'السعر', from: h.before_price === null || h.before_price === undefined ? '—' : String(h.before_price), to: String(h.after_price ?? '—') };
+  }
+  const field = h.field || '';
+  return { label: HISTORY_FIELD_LABELS[field] || field, from: historyValue(field, h.before), to: historyValue(field, h.after) };
+}
 
 export type SensitiveChange = { label: string; from: string; to: string };
 
 /** The sensitive fields that differ between the stored item and the new values (shown in the confirm dialog). */
-export function sensitiveChanges(stored: LooseRow, next: { price: number; requires_prescription: boolean }): SensitiveChange[] {
+export function sensitiveChanges(stored: LooseRow, next: { price: number; requires_prescription: boolean; controlled?: boolean }): SensitiveChange[] {
   const out: SensitiveChange[] = [];
   if (Number(stored.price || 0) !== Number(next.price || 0)) {
     out.push({ label: 'السعر (ر.س)', from: String(Number(stored.price || 0)), to: String(Number(next.price || 0)) });
   }
   if (!!stored.requires_prescription !== !!next.requires_prescription) {
     out.push({ label: 'يتطلب وصفة طبية', from: stored.requires_prescription ? 'نعم' : 'لا', to: next.requires_prescription ? 'نعم' : 'لا' });
+  }
+  if (next.controlled !== undefined && !!stored.controlled !== next.controlled) {
+    out.push({ label: 'صنف مراقب (لا يُطلب أونلاين)', from: stored.controlled ? 'نعم' : 'لا', to: next.controlled ? 'نعم' : 'لا' });
   }
   return out;
 }
@@ -57,17 +90,18 @@ export function SensitiveChangeList({ changes, published }: { changes: Sensitive
 export function MedicineQuickEdit({ medicine, onClose, onSaved }: { medicine: LooseRow; onClose: () => void; onSaved: () => void | Promise<void> }) {
   const [price, setPrice] = useState(String(medicine.price ?? ''));
   const [rx, setRx] = useState(!!medicine.requires_prescription);
+  const [controlled, setControlled] = useState(!!medicine.controlled);
   const [availability, setAvailability] = useState<string>(medicine.availability_status || 'none');
   const [reason, setReason] = useState('');
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [history, setHistory] = useState<PriceChange[] | null>(null);
+  const [history, setHistory] = useState<HistoryRow[] | null>(null);
   const [historyFailed, setHistoryFailed] = useState(false);
 
   useEffect(() => {
     let live = true;
-    apiFetch<{ data?: PriceChange[] }>(`/medicines/admin/catalog/${encodeURIComponent(medicine.id)}/price-history?page=1&limit=5`)
+    apiFetch<{ data?: HistoryRow[] }>(`/medicines/admin/catalog/${encodeURIComponent(medicine.id)}/price-history?page=1&limit=5`)
       .then((r) => { if (live) setHistory(r?.data || []); })
       .catch(() => { if (live) setHistoryFailed(true); });
     return () => { live = false; };
@@ -75,8 +109,10 @@ export function MedicineQuickEdit({ medicine, onClose, onSaved }: { medicine: Lo
 
   const priceNumber = parseFloat(price);
   const priceValid = Number.isFinite(priceNumber) && priceNumber >= 0;
-  const changes = priceValid ? sensitiveChanges(medicine, { price: priceNumber, requires_prescription: rx }) : [];
-  const priceChanged = changes.some((c) => c.label.startsWith('السعر'));
+  const changes = priceValid ? sensitiveChanges(medicine, { price: priceNumber, requires_prescription: rx, controlled }) : [];
+  const priceChanged = Number(medicine.price || 0) !== priceNumber;
+  const rxChanged = !!medicine.requires_prescription !== rx;
+  const controlledChanged = !!medicine.controlled !== controlled;
   const availabilityChanged = availability !== (medicine.availability_status || 'none');
   const dirty = changes.length > 0 || availabilityChanged;
 
@@ -86,14 +122,16 @@ export function MedicineQuickEdit({ medicine, onClose, onSaved }: { medicine: Lo
     try {
       if (changes.length) {
         const body: Record<string, unknown> = {};
-        if (priceChanged) { body.price = priceNumber; body.reason = reason.trim(); }
-        if (changes.some((c) => c.label.startsWith('يتطلب'))) body.requires_prescription = rx;
+        body.reason = reason.trim();
+        if (priceChanged) body.price = priceNumber;
+        if (rxChanged) body.requires_prescription = rx;
+        if (controlledChanged) body.controlled = controlled;
         const saved: any = await apiFetch(`/medicines/admin/catalog/${encodeURIComponent(medicine.id)}`, { method: 'PATCH', body: JSON.stringify(body) });
         // F8: without the approve permission the change waits for an approver.
         if (saved?.pending_revision) alert('حُفظ التعديل وينتظر اعتماد مسؤول الكتالوج.');
       }
       if (availabilityChanged) {
-        await apiFetch(`/medicines/admin/catalog/${encodeURIComponent(medicine.id)}/availability`, { method: 'POST', body: JSON.stringify({ status: availability }) });
+        await apiFetch(`/medicines/admin/catalog/${encodeURIComponent(medicine.id)}/availability`, { method: 'POST', body: JSON.stringify({ status: availability, reason: reason.trim() }) });
       }
       setConfirmOpen(false);
       await onSaved();
@@ -110,7 +148,7 @@ export function MedicineQuickEdit({ medicine, onClose, onSaved }: { medicine: Lo
     event.preventDefault();
     setError('');
     if (!priceValid) { setError('أدخل سعراً صحيحاً.'); return; }
-    if (priceChanged && reason.trim().length < 5) { setError('سبب تغيير السعر مطلوب (5 أحرف على الأقل) — يلزم لتدقيق حوكمة الأسعار.'); return; }
+    if (dirty && reason.trim().length < 5) { setError('سبب التغيير مطلوب (5 أحرف على الأقل) — يُحفظ في سجل تغييرات الصنف.'); return; }
     if (changes.length) setConfirmOpen(true);
     else void save();
   };
@@ -127,14 +165,12 @@ export function MedicineQuickEdit({ medicine, onClose, onSaved }: { medicine: Lo
         <label className="block text-sm font-bold text-slate-700">السعر (ر.س)
           <input value={price} onChange={(e) => setPrice(e.target.value)} inputMode="decimal" dir="ltr" className="mt-1 w-full rounded border px-3 py-2 font-normal" />
         </label>
-        {priceChanged ? (
-          <label className="block text-sm font-bold text-slate-700">سبب تغيير السعر (يُسجَّل في سجل الأسعار)
-            <input value={reason} onChange={(e) => setReason(e.target.value)} className="mt-1 w-full rounded border px-3 py-2 font-normal" />
-          </label>
-        ) : null}
-
         <label className="flex items-center gap-2 text-sm font-bold text-slate-700">
           <input type="checkbox" checked={rx} onChange={(e) => setRx(e.target.checked)} /> يتطلب وصفة طبية (Rx)
+        </label>
+
+        <label className="flex items-center gap-2 text-sm font-bold text-slate-700">
+          <input type="checkbox" checked={controlled} onChange={(e) => setControlled(e.target.checked)} /> صنف مراقب (لا يُطلب أونلاين)
         </label>
 
         <label className="block text-sm font-bold text-slate-700">التوفر
@@ -143,20 +179,31 @@ export function MedicineQuickEdit({ medicine, onClose, onSaved }: { medicine: Lo
           </select>
         </label>
 
+        {dirty ? (
+          <label className="block text-sm font-bold text-slate-700">سبب التغيير (يُسجَّل في سجل تغييرات الصنف)
+            <input value={reason} onChange={(e) => setReason(e.target.value)} className="mt-1 w-full rounded border px-3 py-2 font-normal" />
+          </label>
+        ) : null}
+
         <div>
-          <h3 className="text-sm font-black text-slate-700">آخر تغييرات السعر</h3>
-          {historyFailed ? <p className="mt-1 text-xs text-rose-600">تعذر تحميل سجل الأسعار.</p> : null}
+          <h3 className="text-sm font-black text-slate-700">آخر التغييرات</h3>
+          {historyFailed ? <p className="mt-1 text-xs text-rose-600">تعذر تحميل سجل التغييرات.</p> : null}
           {!historyFailed && history === null ? <p className="mt-1 text-xs text-slate-400">جارٍ التحميل…</p> : null}
           {history && history.length === 0 ? <p className="mt-1 text-xs text-slate-400">لا تغييرات مسجلة.</p> : null}
           {history && history.length > 0 ? (
             <ul className="mt-1 space-y-1 text-xs text-slate-600">
-              {history.map((h, i) => (
-                <li key={h.id ?? i} className="flex flex-wrap justify-between gap-2 border-b py-1">
-                  <span dir="ltr" className="font-mono">{h.before_price} → {h.after_price}</span>
-                  <span className="truncate">{h.reason || '—'}</span>
-                  <span>{h.createdAt ? new Date(h.createdAt).toLocaleDateString('ar-SA-u-ca-gregory') : ''}</span>
-                </li>
-              ))}
+              {history.map((h, i) => {
+                const row = describeHistoryRow(h);
+                return (
+                  <li key={h.id ?? i} className="flex flex-wrap justify-between gap-2 border-b py-1">
+                    <span className="font-bold">{row.label}</span>
+                    <span><s className="text-slate-400">{row.from}</s> → <b>{row.to}</b></span>
+                    <span className="truncate">{h.reason || '—'}</span>
+                    <span>{h.changed_by_name || h.changed_by || '—'}</span>
+                    <span>{h.createdAt ? new Date(h.createdAt).toLocaleDateString('ar-SA-u-ca-gregory') : ''}</span>
+                  </li>
+                );
+              })}
             </ul>
           ) : null}
         </div>

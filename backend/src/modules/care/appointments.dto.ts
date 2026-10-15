@@ -1,4 +1,4 @@
-import { IsArray, IsDefined, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min, ValidateNested } from 'class-validator';
+import { IsArray, IsDefined, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min, ValidateNested, MaxLength } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ServiceType } from '../../schemas/appointment.schema';
 
@@ -55,6 +55,12 @@ export class CreateAppointmentDto {
   @IsIn(['cash', 'card', 'insurance'])
   @IsOptional()
   payment_method?: 'cash' | 'card' | 'insurance';
+
+  /** Issue 684: book on behalf of a family member (AppointmentsService checks the family group and the booking permission). */
+  @IsOptional()
+  @IsString()
+  @MaxLength(128)
+  for_member_id?: string;
 
   @IsString()
   @IsOptional()

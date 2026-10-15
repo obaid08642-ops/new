@@ -4,7 +4,7 @@ import { Connection } from 'mongoose';
 import { v4 as uuid } from 'uuid';
 import { validateReason, MIN_FINANCIAL_REASON_LENGTH, ReasonError } from '../../../common/rbac';
 import { AdminAuditService } from './audit.service';
-import { COMMISSION_SERVICE_TYPES, DEFAULT_COMMISSIONS } from '../../../common/commission-defaults';
+import { COMMISSION_SERVICE_TYPES, DEFAULT_COMMISSIONS, payoutMinimumDefault, settlementDelayDefault } from '../../../common/commission-defaults';
 
 const PAID_STATUSES = ['paid', 'confirmed', 'succeeded'];
 const VERTICALS: Record<string, string[]> = {
@@ -192,6 +192,8 @@ export class FinanceSuiteService {
       config_used: {
         percents, vat_percent: Math.round(vatRate * 10000) / 100,
         rates, vat_rate: vatRate, source: 'finance_config:commissions',
+        minimum_payout_sar: Number(cfg?.payout_schedule?.minimum_payout_sar ?? payoutMinimumDefault()),
+        settlement_delay_days: Number(cfg?.settlement?.delay_days?.default ?? settlementDelayDefault()),
       },
       by_vertical: Object.fromEntries(Object.entries(byVertical).map(([k, v]) => [k, round(v)])),
       totals: round(totals),
@@ -203,7 +205,7 @@ export class FinanceSuiteService {
    * readVatRate read, so a change here changes what the next order is charged (before, this wrote `rates`/`vat_rate`,
    * which only this report read). Every change is audited and kept in commission_history.
    */
-  async upsertCommissionConfig(body: { percents?: Record<string, number>; vat_percent?: number }, admin: any, rawReason: unknown) {
+  async upsertCommissionConfig(body: { percents?: Record<string, number>; vat_percent?: number; minimum_payout_sar?: number; settlement_delay_days?: number }, admin: any, rawReason: unknown) {
     const reason = validateReason(rawReason, MIN_FINANCIAL_REASON_LENGTH);
     const before: any = await this.commissionConfig();
     const $set: any = { updatedAt: new Date(), updated_by: admin.id };
@@ -219,10 +221,13 @@ export class FinanceSuiteService {
       if (!Number.isFinite(vp) || vp < 0 || vp > 50) throw new BadRequestException('vat_percent_out_of_range');
       $set['tax.vat_percent'] = vp;
     }
+    // The payout minimum and the escrow delay had no admin writer after the commissions routes were merged here.
+    if (body?.minimum_payout_sar !== undefined) $set['payout_schedule.minimum_payout_sar'] = Number(body.minimum_payout_sar);
+    if (body?.settlement_delay_days !== undefined) $set['settlement.delay_days.default'] = Number(body.settlement_delay_days);
     if (Object.keys($set).length === 2) throw new BadRequestException('nothing_to_update');
     await this.conn.collection('finance_config').updateOne({ key: 'commissions' }, { $set });
     const after: any = await this.conn.collection('finance_config').findOne({ key: 'commissions' }, { projection: { _id: 0 } });
-    const pick = (d: any) => ({ service_types: d?.service_types ?? null, tax: d?.tax ?? null });
+    const pick = (d: any) => ({ service_types: d?.service_types ?? null, tax: d?.tax ?? null, payout_schedule: d?.payout_schedule ?? null, settlement: d?.settlement ?? null });
     await this.audit.write({
       action: 'finance_config_update', actor: admin, target_type: 'finance_config', target_id: 'commissions',
       reason, before: pick(before), after: pick(after),

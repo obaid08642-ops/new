@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import { OfflineSupport } from "@/components-next/offline-support";
+import { OfflineBanner } from "@/components-next/network/offline-banner";
 import Link from "next/link";
 import "../globals.css";
 import { THEME_COLOR } from "../design-tokens/theme-color";
@@ -19,7 +21,6 @@ import { WebMcpLoader } from "@/components-next/web-mcp-loader";
 import { pickClientMessages } from "@/lib/i18n/client-messages";
 import { ThemeToggle } from "@/components-next/theme-toggle";
 import { THEME_INIT_SCRIPT } from "@/app/theme";
-import { ServiceWorkerRegister } from "@/components-next/service-worker-register";
 import { ModuleRouteGate, ModulesProvider } from "@/components-next/modules/modules-provider";
 import { getDisabledModules } from "@/lib/api/public-config-server";
 import { isPathHidden } from "@/lib/modules";
@@ -114,6 +115,7 @@ export default async function LocaleLayout({ children, params }: Props) {
       <body>
         <NextIntlClientProvider messages={messages}>
           <WebMcpLoader locale={typedLocale} />
+          <OfflineSupport />
           <div className={`shell ${fontVariables}`} lang={typedLocale} dir={getDirection(typedLocale)}>
             {/*
               12.A3 — the theme has to be known before the first pixel, or every
@@ -125,6 +127,10 @@ export default async function LocaleLayout({ children, params }: Props) {
               value; the CSP allows exactly this script by its hash (lib/security/csp.ts, THEME_SCRIPT_HASH).
             */}
             <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+            {/* P15.4: the offline banner with the time this page was made ("last updated"). For a static/ISR page this
+                render is the cached copy, so the time is that copy's, not the visit's. Early in the document so it is read
+                first; the banner itself is fixed at the bottom edge. */}
+            <OfflineBanner renderedAt={Date.now()} />
             <header className="topbar">
               <Link className="brand" href={`/${typedLocale}`}>
                 <span className="brand-mark">

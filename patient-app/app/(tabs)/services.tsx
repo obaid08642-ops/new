@@ -31,31 +31,31 @@ export default function ServicesScreen() {
     <Screen scroll theme={theme} edges={['top', 'start', 'end']} bottomSpace={barHeight + 40}>
       <View style={{ ...HUB_COLUMN, paddingTop: 7, gap: 16 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-          <Txt accessibilityRole="header" weight="bold" size={26} style={{ flex: 1, letterSpacing: -0.3 }}>الخدمات</Txt>
+          <Txt accessibilityRole="header" weight="bold" size={26} style={{ flex: 1, letterSpacing: -0.3 }}>{tr('services.cat.title')}</Txt>
           <Pressable
             accessibilityRole="link"
-            accessibilityLabel={tr('طلباتي')}
+            accessibilityLabel={tr('services.cat.myRequests')}
             onPress={() => router.push('/orders')}
             style={{ minHeight: 44, paddingHorizontal: 14, borderRadius: 22, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.onGlass, flexDirection: 'row', alignItems: 'center', gap: 6 }}
           >
             <Icon name="list" size={17} theme={theme} />
-            <Txt weight="medium" size={13.5}>طلباتي</Txt>
+            <Txt weight="medium" size={13.5}>{tr('services.cat.myRequests')}</Txt>
           </Pressable>
         </View>
 
         <Pressable
           accessibilityRole="search"
-          accessibilityLabel={tr('ابحث عن خدمة أو طبيب أو دواء')}
+          accessibilityLabel={tr('services.cat.searchForAService')}
           onPress={() => router.push('/search')}
           style={{ minHeight: 50, borderRadius: 25, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.onGlass, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16 }}
         >
           <Icon name="search" size={20} theme={theme} tone="secondary" />
-          <Txt size={15} color={c.text.secondary} style={{ flex: 1 }}>ابحث عن خدمة أو طبيب أو دواء</Txt>
+          <Txt size={15} color={c.text.secondary} style={{ flex: 1 }}>{tr('services.cat.searchForAService')}</Txt>
         </Pressable>
 
         {mainServices.length ? (
         <View style={{ gap: 10 }}>
-          <SectionHeader title={tr('الخدمات الرئيسية')} theme={theme} />
+          <SectionHeader title={tr('services.cat.primaryServices')} theme={theme} />
           <View style={{ gap: 10 }}>
             {rows.map((row, r) => (
               <View key={r} style={{ flexDirection: 'row', gap: 10 }}>
@@ -75,7 +75,7 @@ export default function ServicesScreen() {
 
         {moreServices.length ? (
         <View style={{ gap: 10 }}>
-          <SectionHeader title={tr('خدمات إضافية')} theme={theme} />
+          <SectionHeader title={tr('services.cat.additionalServices')} theme={theme} />
           <ServiceRows items={moreServices} />
         </View>
         ) : null}

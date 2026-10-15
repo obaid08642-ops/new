@@ -50,6 +50,11 @@ describe("pharmacy browse building blocks", () => {
     expect(html).not.toContain("cheaper");
   });
 
+  it("decision 11: an online-only card says so; other cards do not", () => {
+    expect(renderToStaticMarkup(<ProductGrid locale="en" items={[item({ onlineOnly: true })]} />)).toContain("nabd-product-card__online");
+    expect(renderToStaticMarkup(<ProductGrid locale="en" items={[item()]} />)).not.toContain("nabd-product-card__online");
+  });
+
   it("a product with no price says so and cannot be added: no invented 0.00", () => {
     const html = renderToStaticMarkup(<ProductGrid locale="en" items={[item({ price: 0 })]} />);
     expect(html).toContain("priceUnavailable");
