@@ -71,11 +71,11 @@ def main():
 
         journey('issue 864: a mood is logged on the website')
         page.goto(f'{WEB}/ar/mental-health/mood', wait_until='load', timeout=60000)
-        msg = submit('سجّل مزاجك', [('الطاقة (1-10، اختياري)', '6')], choice='جيد')
+        msg = submit('سجّل مزاجك', [('الطاقة (1-5، اختياري)', '4')], choice='جيد')
         step('the mood form says it was saved', 'تم الحفظ' in msg, msg)
         rows = pat.get('/mental-health/mood?days=30')
         items = rows.body if isinstance(rows.body, list) else rows.items()
-        step('the mood history holds the good mood with energy 6', any(x.get('mood') == 'good' and x.get('energy_level') == 6 for x in items), str(items)[:300])
+        step('the mood history holds the good mood with energy 4', any(x.get('mood') == 'good' and x.get('energy_level') == 4 for x in items), str(items)[:300])
 
         journey('issue 862: kicks, a contraction and the baby\'s growth are logged on the website')
         page.goto(f'{WEB}/ar/maternity', wait_until='load', timeout=60000)

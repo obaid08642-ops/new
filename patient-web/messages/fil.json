@@ -4111,15 +4111,15 @@
         "bad": "Mahirap",
         "terrible": "Napakahirap"
       },
-      "energy_level": "Enerhiya (1-10, opsyonal)",
-      "stress_level": "Stress (1-10, opsyonal)",
+      "energy_level": "Enerhiya (1-5, opsyonal)",
+      "stress_level": "Stress (1-5, opsyonal)",
       "sleep_hours": "Oras ng tulog (opsyonal)",
       "notes": "Maikling tala (opsyonal)",
       "save": "I-save ang mood",
       "bad": {
         "mood": "Piliin muna ang mood mo.",
-        "energy_level": "Ang enerhiya ay numero mula 1 hanggang 10.",
-        "stress_level": "Ang stress ay numero mula 1 hanggang 10.",
+        "energy_level": "Ang enerhiya ay numero mula 1 hanggang 5.",
+        "stress_level": "Ang stress ay numero mula 1 hanggang 5.",
         "sleep_hours": "Ang oras ng tulog ay mula 0 hanggang 24.",
         "notes": "Masyadong mahaba ang tala."
       }

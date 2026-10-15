@@ -4111,15 +4111,15 @@
         "bad": "Difficult",
         "terrible": "Very difficult"
       },
-      "energy_level": "Energy (1-10, optional)",
-      "stress_level": "Stress (1-10, optional)",
+      "energy_level": "Energy (1-5, optional)",
+      "stress_level": "Stress (1-5, optional)",
       "sleep_hours": "Hours of sleep (optional)",
       "notes": "Short note (optional)",
       "save": "Save mood",
       "bad": {
         "mood": "Choose your mood first.",
-        "energy_level": "Energy is a number from 1 to 10.",
-        "stress_level": "Stress is a number from 1 to 10.",
+        "energy_level": "Energy is a number from 1 to 5.",
+        "stress_level": "Stress is a number from 1 to 5.",
         "sleep_hours": "Hours of sleep are between 0 and 24.",
         "notes": "The note is too long."
       }

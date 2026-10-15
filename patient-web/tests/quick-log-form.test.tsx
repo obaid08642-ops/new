@@ -12,7 +12,7 @@ import { parseNutritionSummary } from "@/lib/nutrition/view";
 describe("the log forms", () => {
   it("send the app's own bodies, with minutes sent as seconds where the app does", () => {
     expect(quickLogBody("water", { amount_ml: "250" })).toEqual({ ok: true, body: { amount_ml: 250 } });
-    expect(quickLogBody("mood", { mood: "good", energy_level: "7", notes: " calm day " })).toEqual({ ok: true, body: { mood: "good", energy_level: 7, notes: "calm day" } });
+    expect(quickLogBody("mood", { mood: "good", energy_level: "4", notes: " calm day " })).toEqual({ ok: true, body: { mood: "good", energy_level: 4, notes: "calm day" } });
     expect(quickLogBody("kicks", { count: "10", duration_seconds: "2" })).toEqual({ ok: true, body: { count: 10, duration_seconds: 120 } });
     expect(quickLogBody("contractions", { interval_seconds: "5", duration_seconds: "45" })).toEqual({ ok: true, body: { interval_seconds: 300, duration_seconds: 45 } });
     expect(quickLogBody("growth", { month: "3", weight_kg: "٥٫٨".replace("٫", ".") })).toEqual({ ok: true, body: { month: 3, weight_kg: 5.8 } });
@@ -22,6 +22,7 @@ describe("the log forms", () => {
     expect(quickLogBody("water", {})).toEqual({ ok: false, field: "amount_ml" });
     expect(quickLogBody("water", { amount_ml: "99999" })).toEqual({ ok: false, field: "amount_ml" });
     expect(quickLogBody("mood", { mood: "ecstatic" })).toEqual({ ok: false, field: "mood" });
+    expect(quickLogBody("mood", { mood: "good", energy_level: "6" })).toEqual({ ok: false, field: "energy_level" });
     expect(quickLogBody("kicks", { count: "2.5", duration_seconds: "1" })).toEqual({ ok: false, field: "count" });
     expect(quickLogBody("growth", { month: "3", head_circ_cm: "5" })).toEqual({ ok: false, field: "head_circ_cm" });
   });

@@ -20,8 +20,8 @@ export const QUICK_LOGS = {
     path: "/mental-health/mood",
     fields: [
       { name: "mood", kind: "choice", options: ["great", "good", "okay", "bad", "terrible"], required: true },
-      { name: "energy_level", kind: "number", min: 1, max: 10 },
-      { name: "stress_level", kind: "number", min: 1, max: 10 },
+      { name: "energy_level", kind: "number", min: 1, max: 5, integer: true },
+      { name: "stress_level", kind: "number", min: 1, max: 5, integer: true },
       { name: "sleep_hours", kind: "number", min: 0, max: 24 },
       { name: "notes", kind: "text", maxLength: 500 },
     ],
