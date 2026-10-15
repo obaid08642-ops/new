@@ -15,7 +15,8 @@
 #   6. checks: health, readiness background_worker=up, site/admin/API 200, metrics 404 without token,
 #      cache MISS->HIT on a public answer and BYPASS with Authorization
 # Any failure in 3-6: files, env and images back, worker and meilisearch removed, old stack verified; exit 1.
-# Secret values are never printed. REHEARSE_FAIL_AT=<step> forces a failure; REHEARSE_MISSING_IMAGE=<service> treats
+# Secret values are never printed. REHEARSE_COMMIT_FAIL=<service> forces the export fallback of the rollback image.
+# REHEARSE_FAIL_AT=<step> forces a failure; REHEARSE_MISSING_IMAGE=<service> treats
 # that service's running image as gone from the host, as patient-web's is in production (rehearsal only).
 set -u
 SHA=${OPS_RELEASE_SHA:-8c8c08ac4706278a127b6605fc8596f10e6f4f7c}
@@ -74,7 +75,23 @@ for s in $APP_SERVICES; do
   # preflight 2026-10-14: the running patient-web's image was deleted from the host (the container still runs it);
   # without an image there is nothing to roll back to, so the running container is committed as the rollback image
   if [ "${REHEARSE_MISSING_IMAGE:-}" = "$s" ] || ! $DK image inspect "${OLDIMG[$s]}" >/dev/null 2>&1; then
-    $DK commit nabdah-$s "nabdah-$s:rollback-$TS" >/dev/null 2>&1 || { echo "deploy: ABORT cannot keep a rollback image of $s"; exit 1; }
+    # production 2026-10-15: `docker commit` failed on patient-web (its image is gone from the host). Fallback: export the
+    # container's filesystem and import it with the image settings that matter (command, entrypoint, workdir, user,
+    # port, PATH/NODE_ENV); compose supplies the rest of the environment, so no secret is baked into the image.
+    if [ "${REHEARSE_COMMIT_FAIL:-}" = "$s" ] || ! CERR=$($DK commit nabdah-$s "nabdah-$s:rollback-$TS" 2>&1 >/dev/null); then
+      echo "deploy: commit of $s failed ($(echo "${CERR:-forced in rehearsal}" | tr '\n' ' ' | cut -c1-160)); exporting its filesystem instead"
+      CH=()
+      J=$($DK inspect -f '{{json .Config.Entrypoint}}' nabdah-$s); [ "$J" != null ] && [ "$J" != '[]' ] && CH+=(--change "ENTRYPOINT $J")
+      J=$($DK inspect -f '{{json .Config.Cmd}}' nabdah-$s); [ "$J" != null ] && [ "$J" != '[]' ] && CH+=(--change "CMD $J")
+      J=$($DK inspect -f '{{.Config.WorkingDir}}' nabdah-$s); [ -n "$J" ] && CH+=(--change "WORKDIR $J")
+      J=$($DK inspect -f '{{.Config.User}}' nabdah-$s); [ -n "$J" ] && CH+=(--change "USER $J")
+      for p in $($DK inspect -f '{{range $k,$v := .Config.ExposedPorts}}{{$k}} {{end}}' nabdah-$s); do CH+=(--change "EXPOSE $p"); done
+      for e in $($DK inspect -f '{{range .Config.Env}}{{println .}}{{end}}' nabdah-$s | grep -E '^(PATH|NODE_ENV|NODE_VERSION|YARN_VERSION|HOSTNAME|PORT|NEXT_TELEMETRY_DISABLED)='); do
+        CH+=(--change "ENV $e")
+      done
+      $DK export nabdah-$s | $DK import "${CH[@]}" - "nabdah-$s:rollback-$TS" >/dev/null 2>&1 \
+        || { echo "deploy: ABORT cannot keep a rollback image of $s (commit and export both failed)"; exit 1; }
+    fi
     OLDIMG[$s]=$($DK image inspect -f '{{.Id}}' "nabdah-$s:rollback-$TS")
     echo "deploy: $s ran an image no longer on the host; its container was committed as the rollback image"
   fi

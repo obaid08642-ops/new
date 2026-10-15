@@ -1,3 +1,3 @@
-# 2026-10-15 reviewer: the deploy stopped at its pre-check (only 2 GB free on /; it needs 4). First free space (59-free-disk: build cache, unused images, old releases, oversized container logs, journal, apt cache; old nightly backups only if still short; never volumes or running containers), then deploy main@8c8c08ac (60-deploy-main: MongoDB backup first, nginx reloaded after the app containers start, automatic rollback on any failed check). Rehearsal run 38666904487 green.
+# 2026-10-15 reviewer: second try. Last run: cleanup freed 2 -> 5.7 GB and the backup was taken (328 MB), then the deploy stopped before any change: `docker commit` of patient-web failed (its image is gone from the host). The deploy now falls back to export+import for that rollback image (rehearsed: scenario 1 forces it and rolls back to it). Then deploy main@8c8c08ac.
 59-free-disk
 60-deploy-main
