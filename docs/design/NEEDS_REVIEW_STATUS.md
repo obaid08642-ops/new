@@ -8,25 +8,25 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| Patient app and web | 434 | 23 | 302 | 97 | 12 | 0 |
+| Patient app and web | 434 | 25 | 300 | 97 | 12 | 0 |
 | Other | 29 | 11 | 17 | 1 | 0 | 0 |
 | Admin | 99 | 6 | 59 | 34 | 0 | 0 |
 | Admin journeys | 20 | 1 | 17 | 2 | 0 | 0 |
 | Final pass | 8 | 2 | 0 | 6 | 0 | 0 |
 | Patient journeys | 87 | 12 | 71 | 2 | 2 | 0 |
-| Provider app | 31 | 7 | 23 | 1 | 0 | 0 |
-| Provider journeys | 34 | 2 | 29 | 2 | 1 | 0 |
-| **Total** | **742** | **64** | **518** | **145** | **15** | **0** |
+| Provider app | 31 | 3 | 27 | 1 | 0 | 0 |
+| Provider journeys | 34 | 1 | 30 | 2 | 1 | 0 |
+| **Total** | **742** | **61** | **521** | **145** | **15** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| client | 169 | 20 | 110 | 36 | 3 | 0 |
+| client | 169 | 18 | 112 | 36 | 3 | 0 |
 | owner | 100 | 10 | 43 | 42 | 5 | 0 |
-| backend | 235 | 18 | 187 | 30 | 0 | 0 |
-| untagged | 238 | 16 | 178 | 37 | 7 | 0 |
-| **Total** | **742** | **64** | **518** | **145** | **15** | **0** |
+| backend | 235 | 15 | 190 | 30 | 0 | 0 |
+| untagged | 238 | 18 | 176 | 37 | 7 | 0 |
+| **Total** | **742** | **61** | **521** | **145** | **15** | **0** |
 
 ## By file
 
@@ -75,7 +75,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `admin-system.json` | 13 | 2 | 8 | 3 | 0 | 0 |
 | `batch-0-app.json` | 13 | 1 | 12 | 0 | 0 | 0 |
 | `batch-0-runtime.json` | 8 | 3 | 3 | 2 | 0 | 0 |
-| `batch-0-web.json` | 19 | 0 | 17 | 1 | 1 | 0 |
+| `batch-0-web.json` | 19 | 2 | 15 | 1 | 1 | 0 |
 | `batch-1a-app.json` | 19 | 1 | 5 | 11 | 2 | 0 |
 | `batch-1a-web.json` | 12 | 0 | 8 | 4 | 0 | 0 |
 | `batch-1b-app.json` | 12 | 0 | 6 | 3 | 3 | 0 |
@@ -87,20 +87,20 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `final-pass-2.json` | 4 | 0 | 0 | 4 | 0 | 0 |
 | `final-pass.json` | 4 | 2 | 0 | 2 | 0 | 0 |
 | `journeys.json` | 87 | 12 | 71 | 2 | 2 | 0 |
-| `provider-admin-ish.json` | 3 | 1 | 2 | 0 | 0 | 0 |
-| `provider-doctor.json` | 6 | 1 | 5 | 0 | 0 | 0 |
-| `provider-facility.json` | 7 | 1 | 6 | 0 | 0 | 0 |
-| `provider-journeys.json` | 34 | 2 | 29 | 2 | 1 | 0 |
+| `provider-admin-ish.json` | 3 | 0 | 3 | 0 | 0 | 0 |
+| `provider-doctor.json` | 6 | 0 | 6 | 0 | 0 | 0 |
+| `provider-facility.json` | 7 | 0 | 7 | 0 | 0 | 0 |
+| `provider-journeys.json` | 34 | 1 | 30 | 2 | 1 | 0 |
 | `provider-lab.json` | 4 | 3 | 1 | 0 | 0 | 0 |
 | `provider-nursing.json` | 2 | 0 | 2 | 0 | 0 | 0 |
 | `provider-pharmacy.json` | 2 | 0 | 1 | 1 | 0 | 0 |
 | `provider-radiology.json` | 1 | 0 | 1 | 0 | 0 | 0 |
-| `provider-shared.json` | 6 | 1 | 5 | 0 | 0 | 0 |
+| `provider-shared.json` | 6 | 0 | 6 | 0 | 0 | 0 |
 | `rx-rules-app.json` | 6 | 1 | 5 | 0 | 0 | 0 |
 | `rx-rules-web.json` | 7 | 6 | 1 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 1 | 11 | 1 | 0 | 0 |
-| **Total** | **742** | **64** | **518** | **145** | **15** | **0** |
+| **Total** | **742** | **61** | **521** | **145** | **15** | **0** |
 
 ## Owner decisions (15)
 
@@ -122,7 +122,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 14 | `journeys.json#34` `patient-web/app/[locale]/prescriptions/[prescriptionId]/page.tsx:97` | 3 prescription -> cart | Web "اطلب الأدوية دي" on the prescription page opens rx-order and broadcasts directly; decision 18 says it fills the cart (the app does). |
 | 15 | `provider-journeys.json#5` `provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:538` | PharmacyDashboard hand over / delivery | [client] The prescription dispensing path is a "disabled" notice and the old order detail and broadcast screens are defined but never rendered (dead code). |
 
-## Open and unverified (64)
+## Open and unverified (61)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -157,6 +157,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-0-runtime.json#3` | untagged | open (issue #424) | /notifications Populated states not exercised | The seeded patient has no notifications, reminders, mood entries or appointments, so the runtime check only shows these lists in their empty state (all 2xx). The populated renderi… |
 | `batch-0-runtime.json#5` | untagged | open (issue #426) | all routes Shared JS still over the 170 KB gz budget after the #286 trim | Measured with Lighthouse (median of 3, production build, seeded backend), script transfer on /ar/pharmacy and /ar/consultations/doctors went from 224 to about 177 KB and on /ar fr… |
 | `batch-0-runtime.json#6` | untagged | open (issue #427) | all routes Largest-contentful-paint stays above 2.5 s (F82) | Lighthouse on the production build (median of 3): LCP 3.0-3.2 s on /ar and /ar/consultations/doctors, 4.3 s on /ar/pharmacy, against 2.5 s. The shared-JS trim did not move it (mai… |
+| `batch-0-web.json#1` | untagged | open (issue #430) | /login Google button (rendered only when NEXT_PUBLIC_GOOGLE_CLIENT_ID is set) | FIXED in batch-0-fixes: the busy state now clears when the popup is closed or fails to open (error_callback) and when the Google script fails to load; a press before the script ha… |
+| `batch-0-web.json#8` | untagged | open (issue #437) | /onboarding Slides, buttons and labels | FIXED in batch-0-fixes: slide titles and bodies, the carousel, language and permission steps and the frame's back label and hero text are in messages (Onboarding, AuthFrame; six l… |
 | `batch-1a-app.json#8` | untagged | open (issue #456) | /pharmacy/product-detail Insurance row (hidden) | SPEC §A shows it only when the patient's insurer is in covered_by_insurance[] (company ids). The screen has no call for the patient's insurer and no id-to-name lookup for the row'… |
 | `final-pass.json#2` | client | open | MedicalJobsScreen guest applications list | [client] GET /recruitment/guest/mine answers 400 with the patient session and with none (runtime check, provider area 'shared'); the screen sends only device_id, so the call fails… |
 | `final-pass.json#3` | client | open | public directory pages (/articles, /doctors, /facilities, /home-care-services, … | [client] The server-side fetch uses a relative/BFF-less URL (`${base}/api/v1${endpoint}`), so the six directory pages render empty (NO_ROUTE x6 in the admin inventory); the pages … |
@@ -172,15 +174,10 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `journeys.json#68` | untagged | open (issue #1077) | 7 family member | The member page shows the member's medicines read-only, no doses taken/missed and no alert. |
 | `journeys.json#74` | untagged | open (issue #1083) | 8 manual request | The request form has no photo of the box and no quantity (decision 12 mentions text, box photo and prescription requests). |
 | `journeys.json#75` | untagged | open (issue #1084) | 8 price review | Offers for a manual request show no "price not verified" state (decision 12) and no way to counter or reject a price except the substitute negotiation. |
-| `provider-admin-ish.json#2` | backend | open | RevenueInsights API GET /provider/ops/wallet/ledger | [backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider-ops/provi… |
-| `provider-doctor.json#2` | client | open | EPrescriptionScreen {t.titleAr} {t.drugs.length} | [client] Button "{t.titleAr} {t.drugs.length}" shows a success message without sending a request. |
-| `provider-facility.json#6` | client | open | FacilitySettingsScreen Pricing & Tariffs sheet | [client] The tariffs form starts from fixed numbers (ICU daily and hourly, ward, surgery room, emergency fee) instead of the facility's saved tariffs; saving the sheet sends them … |
 | `provider-journeys.json#22` | client | open | PharmacyDashboard prepare | [client] Insurance decision is a header shield icon on Orders and a row in More (opens the queue); an insurance order card has no inline decision button because the allocation lis… |
-| `provider-journeys.json#33` | backend | open | NursingFieldOps result upload | [backend] With result files the visit is completed through POST /home-care/bookings/:id/visit-report (the only route that stores attachments); that handler sends no `patient.notif… |
 | `provider-lab.json#0` | client | open | LabOrderDetail mock-name: openSampleForResults = async () => { | [client] mock-name (mock-scan): openSampleForResults = async () => { |
 | `provider-lab.json#1` | client | open | LabTestMenuScreen dummy-value: Test Name (English) | [client] dummy-value (mock-scan): Test Name (English) |
 | `provider-lab.json#2` | client | open | LabTestMenuScreen dummy-value: Test Name (Arabic) | [client] dummy-value (mock-scan): Test Name (Arabic) |
-| `provider-shared.json#2` | backend | open | ProviderWalletScreen API GET /provider/wallet/transactions | [backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider-ops/provi… |
 | `rx-rules-app.json#4` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /pharmacy/cart Suggested specialty needs the admin mapping | [owner] Consult a doctor opens the mapped specialty only when the admin has filled system_configs rx_consult_specialties (category to specialty); until then the answer is null and… |
 | `rx-rules-web.json#1` | backend | open | /c/[[...category]] Online-only note on a card and in search results | [backend] The public card answers (category items and product search) send is_rx but no online_exclusive; add it next to is_rx in the card DTOs. (backend: backend/src/modules/seo-… |
 | `rx-rules-web.json#2` | backend | open | /c/[[...category]] Old price and discount sent for a prescription item | [backend] The public product DTO sends old_price, discount_percent and has_discount for an Rx item (the admin catalogue lists withhold them); the client hides them with canShowPro… |
