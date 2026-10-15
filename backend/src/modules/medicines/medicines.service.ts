@@ -1026,7 +1026,7 @@ export class MedicinesService {
             { active_ingredient: med.active_ingredient, id: { $ne: id }, ...this.publicCatalogFilter() },
             // Needs-review issue 460: the alternative cards also need a picture, the pack and the name in every language.
             {
-              _id: 0, id: 1, name_ar: 1, name_en: 1, price: 1, manufacturer: 1, requires_prescription: 1,
+              _id: 0, id: 1, name_ar: 1, name_en: 1, price: 1, manufacturer: 1, requires_prescription: 1, online_exclusive: 1,
               image_1: 1, images: { $slice: 1 }, package_size: 1,
               ...Object.fromEntries((['ur', 'hi', 'bn', 'tl'] as const).map((lang) => [`translations.${lang}.name`, 1])),
             },
