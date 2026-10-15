@@ -10,13 +10,13 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---|---:|---:|---:|---:|---:|---:|
 | Patient app and web | 434 | 82 | 252 | 88 | 1 | 11 |
 | Other | 29 | 22 | 7 | 0 | 0 | 0 |
-| Admin | 97 | 8 | 56 | 33 | 0 | 0 |
+| Admin | 97 | 7 | 57 | 33 | 0 | 0 |
 | Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
 | Final pass | 8 | 8 | 0 | 0 | 0 | 0 |
-| Patient journeys | 87 | 30 | 55 | 2 | 0 | 0 |
+| Patient journeys | 87 | 33 | 52 | 2 | 0 | 0 |
 | Provider app | 31 | 8 | 22 | 1 | 0 | 0 |
 | Provider journeys | 34 | 17 | 15 | 2 | 0 | 0 |
-| **Total** | **740** | **177** | **423** | **128** | **1** | **11** |
+| **Total** | **740** | **179** | **421** | **128** | **1** | **11** |
 
 ## By tag
 
@@ -24,9 +24,9 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---|---:|---:|---:|---:|---:|---:|
 | client | 169 | 51 | 90 | 28 | 0 | 0 |
 | owner | 100 | 21 | 34 | 42 | 1 | 2 |
-| backend | 233 | 35 | 168 | 26 | 0 | 4 |
-| untagged | 238 | 70 | 131 | 32 | 0 | 5 |
-| **Total** | **740** | **177** | **423** | **128** | **1** | **11** |
+| backend | 233 | 34 | 169 | 26 | 0 | 4 |
+| untagged | 238 | 73 | 128 | 32 | 0 | 5 |
+| **Total** | **740** | **179** | **421** | **128** | **1** | **11** |
 
 ## By file
 
@@ -69,7 +69,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `admin-customers-growth.json` | 14 | 0 | 8 | 6 | 0 | 0 |
 | `admin-finance.json` | 9 | 0 | 8 | 1 | 0 | 0 |
 | `admin-journeys.json` | 20 | 2 | 16 | 2 | 0 | 0 |
-| `admin-ops-monitoring.json` | 16 | 3 | 9 | 4 | 0 | 0 |
+| `admin-ops-monitoring.json` | 16 | 2 | 10 | 4 | 0 | 0 |
 | `admin-providers.json` | 8 | 0 | 5 | 3 | 0 | 0 |
 | `admin-public-directories.json` | 14 | 0 | 4 | 10 | 0 | 0 |
 | `admin-system.json` | 12 | 2 | 7 | 3 | 0 | 0 |
@@ -86,7 +86,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1d-web.json` | 10 | 2 | 5 | 3 | 0 | 0 |
 | `final-pass-2.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `final-pass.json` | 4 | 4 | 0 | 0 | 0 | 0 |
-| `journeys.json` | 87 | 30 | 55 | 2 | 0 | 0 |
+| `journeys.json` | 87 | 33 | 52 | 2 | 0 | 0 |
 | `provider-admin-ish.json` | 3 | 1 | 2 | 0 | 0 | 0 |
 | `provider-doctor.json` | 6 | 1 | 5 | 0 | 0 | 0 |
 | `provider-facility.json` | 7 | 1 | 6 | 0 | 0 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 7 | 0 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 6 | 7 | 0 | 0 | 0 |
-| **Total** | **740** | **177** | **423** | **128** | **1** | **11** |
+| **Total** | **740** | **179** | **421** | **128** | **1** | **11** |
 
 ## Owner decisions (1)
 
@@ -108,7 +108,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---:|---|---|---|
 | 1 | `13-web.json#13` `patient-web/lib/legal/embedded.ts:15` | /terms Embedded fallback text | [owner] The embedded copy (issue 755/783) is built from docs/legal, which are drafts with [placeholders] until a Saudi lawyer approves them, so it stays off today. After approval: update docs/legal, run node patient-web… |
 
-## Open and unverified (188)
+## Open and unverified (190)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -169,7 +169,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `admin-journeys.json#18` | client | open (issue #955) | /admin/config-portal Journey 4 / Emergency maintenance switch is disabled and t… | [client] The 'Trigger System Kill-Switch' button is permanently disabled ('requires server set-up'), although the handler at line 183 and PUT /admin/governance/trigger-emergency-m… |
 | `admin-ops-monitoring.json#4` | backend | open | /admin/approvals One approvals endpoint with counts | [backend] No endpoint returns all pending approvals with counts, so the page asks nine existing list endpoints (providers, provider edits, withdrawals, refunds, returns, medicine … |
 | `admin-ops-monitoring.json#14` | backend | open (issue #1235) | /admin/today Urgent alerts: inbox, push, alert rules | [backend] The screen shows what the existing endpoints can say (SLA breaches, stuck orders, failed payments). There is no admin notification inbox or bell, no push to the admin's … |
-| `admin-ops-monitoring.json#15` | backend | open (issue #1236) | /admin/today Problem orders filter on the orders list | [backend] The orders list has no stuck / failed-payment / SLA-breach / refund-pending filter, so this screen lists only the stuck orders from ops/alerts (5 kinds, 30 minute thresh… |
 | `admin-system.json#1` | client | open (issue #995) | /admin/config-portal Trigger System Kill-Switch (معطّل — يتطلب إعداد الخادم) | [client] Button is disabled with no handler. |
 | `admin-system.json#10` | backend | open | /admin/system-ops Feature switch effect | [backend] The switch writes and audits (reason required), but backend code reads only `sms_enabled` (sms.service.ts) and ConfigService hands the flags to clients; there is no per-… |
 | `batch-0-app.json#2` | untagged | open (issue #410) | /login Two api helpers and three base-URL resolutions | login.tsx, welcome.tsx and useSocialLogin.ts use utils/api.ts (axios HttpClient, base EXPO_PUBLIC_API_URL + /api/v1 else https://api.nabd.plus/api/v1: src/services/HttpClient.ts:5… |
@@ -236,6 +235,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `journeys.json#33` | untagged | open (issue #1042) | 3 after the visit (summary) | "Order the medicines" on the summary goes to the pharmacy catalogue (/pharmacy), not "اطلب الأدوية دي" filling the cart (decision 18). |
 | `journeys.json#34` | untagged | open (issue #1043) | 3 prescription -> cart | Web "اطلب الأدوية دي" on the prescription page opens rx-order and broadcasts directly; decision 18 says it fills the cart (the app does). |
 | `journeys.json#37` | untagged | open (issue #1046) | 3 doctor chat | The web chat thread is an activity-only list (no text, no composer): "chat with doctor" buttons lead to a screen where nothing can be read or sent (decision 24 wants full messagin… |
+| `journeys.json#38` | untagged | open (issue #1047) | 3 doctor chat | The /chat thread list rows have no link, so threads cannot be opened; the page itself says threads cannot be opened. |
+| `journeys.json#39` | untagged | open (issue #1048) | 3 doctor chat | The /chat list is still reachable from the dashboard ("المحادثات") and used as the fallback of every chat redirect; decision 24 removes it. |
 | `journeys.json#41` | untagged | open (issue #1050) | 3 doctor chat | App chat composer is text only (no voice note, image or file), no "emergency 997" line, no follow-up window state or "book a follow-up" button (decision 24). |
 | `journeys.json#42` | untagged | open (issue #1051) | 4 cancel (list "edit") | Two cancel UIs on web: the appointment page (cancel with a reason) and /consultations/cancel-reschedule (reached from the list "edit" button) which also has cancel and reschedule. |
 | `journeys.json#44` | untagged | open (issue #1053) | 4 cancel | Cancelling from the appointment page gives no refund amount or method afterwards, only a refresh. |
@@ -255,6 +256,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `journeys.json#75` | untagged | open (issue #1084) | 8 price review | Offers for a manual request show no "price not verified" state (decision 12) and no way to counter or reject a price except the substitute negotiation. |
 | `journeys.json#77` | untagged | open (issue #1086) | 9 connection loss | Offline, tapping "request offers" in the cart ends on the browser's own error page; the service worker has no fetch handler or offline page. |
 | `journeys.json#78` | untagged | open (issue #1087) | 9 payment | The payment-result screen is pharmacy-specific: a returned consultation or nursing payment has no order to track. |
+| `journeys.json#83` | untagged | open (issue #1092) | 10 dashboard | The dashboard keeps a "المحادثات" (/chat) tile (decision 24 removes the chat list). |
 | `provider-admin-ish.json#2` | backend | open | RevenueInsights API GET /provider/ops/wallet/ledger | [backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider-ops/provi… |
 | `provider-doctor.json#2` | client | open | EPrescriptionScreen {t.titleAr} {t.drugs.length} | [client] Button "{t.titleAr} {t.drugs.length}" shows a success message without sending a request. |
 | `provider-facility.json#6` | client | open | FacilitySettingsScreen Pricing & Tariffs sheet | [client] The tariffs form starts from fixed numbers (ICU daily and hourly, ward, surgery room, emergency fee) instead of the facility's saved tariffs; saving the sheet sends them … |

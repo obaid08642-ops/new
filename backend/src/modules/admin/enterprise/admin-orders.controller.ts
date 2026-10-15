@@ -28,9 +28,10 @@ export class AdminOrdersConsoleController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('sort') sort?: string,
+    @Query('problem') problem?: string,
   ) {
     return this.svc.list({
-      kind, q, status, from, to, sort,
+      kind, q, status, from, to, sort, problem,
       page: page ? parseInt(page, 10) : 1,
       limit: limit ? parseInt(limit, 10) : 25,
     });
