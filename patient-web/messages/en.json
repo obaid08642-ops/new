@@ -1553,7 +1553,16 @@
     "detailsPh": "Strength, form or a note",
     "submit": "Send to nearby pharmacies",
     "submitting": "Sending the request…",
-    "error": "The request could not be sent. Try again."
+    "error": "The request could not be sent. Try again.",
+    "qty": "Quantity (boxes)",
+    "qtyInvalid": "Quantity is a number from 1 to 99.",
+    "photo": "Photo of the box",
+    "photoAdd": "Add a photo of the box",
+    "photoChange": "Change the photo",
+    "photoUploading": "Uploading the photo…",
+    "photoFailed": "Could not upload the photo. Try again.",
+    "photoType": "Choose an image file of a reasonable size.",
+    "photoAlt": "Photo of the medicine box"
   },
   "PharmacyBarcode": {
     "title": "Find by barcode",
@@ -2248,6 +2257,8 @@
       "alreadyPaid": "This order is already paid."
     },
     "lastFromYou": "You: {text}",
+    "priceNotVerified": "Price not verified against the catalogue price; the admin reviews it.",
+    "priceAboveCatalogue": "Price above the catalogue price; the admin was told.",
     "unavailableTitle": "No pharmacy is available right now",
     "unavailableBody": "No nearby pharmacy replied in time. Please try again later.",
     "unavailableAction": "Back to the pharmacy",

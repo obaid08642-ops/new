@@ -7,6 +7,7 @@ import { ConsultScreen, Gate, InfoRow, ResultHero, Section, Sheet, useConsultFor
 import { DayStrip, DoctorHead, SlotGrid, slotsEmptyKey, useDays } from '../../src/components/consult/ConsultBooking';
 import { AmountLine, Block, PlaceRow } from '../../src/components/diagnostics/DiagKit';
 import { Notice } from '../../src/components/pharmacy/OfferKit';
+import { HomeVisitTerms } from '../../src/components/nursing/HomeVisitTerms';
 import { Glyph } from '../../src/components/pharmacy/PharmacyKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
@@ -314,6 +315,8 @@ export default function NursingMegaProfile() {
               <Notice tone="info" text={k('nur.book.cashNote')} />
             </Block>
           )}
+          {/* journeys 66 (decision 26): the cancellation terms are shown before payment */}
+          <HomeVisitTerms />
         </Section>
       </Gate>
 

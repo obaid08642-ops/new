@@ -1553,7 +1553,16 @@
     "detailsPh": "Lakas, anyo o tala",
     "submit": "Ipadala sa mga kalapit na parmasya",
     "submitting": "Ipinapadala ang kahilingan…",
-    "error": "Hindi naipadala ang kahilingan. Subukan muli."
+    "error": "Hindi naipadala ang kahilingan. Subukan muli.",
+    "qty": "Dami (mga kahon)",
+    "qtyInvalid": "Ang dami ay numero mula 1 hanggang 99.",
+    "photo": "Larawan ng kahon",
+    "photoAdd": "Magdagdag ng larawan ng kahon",
+    "photoChange": "Palitan ang larawan",
+    "photoUploading": "Ina-upload ang larawan…",
+    "photoFailed": "Hindi na-upload ang larawan. Subukang muli.",
+    "photoType": "Pumili ng larawang file na tamang laki.",
+    "photoAlt": "Larawan ng kahon ng gamot"
   },
   "PharmacyBarcode": {
     "title": "Maghanap gamit ang barcode",
@@ -2248,6 +2257,8 @@
       "alreadyPaid": "Bayad na ang order na ito."
     },
     "lastFromYou": "Ikaw: {text}",
+    "priceNotVerified": "Hindi pa nasuri ang presyo laban sa presyo sa katalogo; sinusuri ito ng admin.",
+    "priceAboveCatalogue": "Mas mataas ang presyo kaysa sa presyo sa katalogo; naabisuhan ang admin.",
     "unavailableTitle": "Walang available na botika ngayon",
     "unavailableBody": "Walang malapit na botikang sumagot sa takdang oras. Subukan ulit mamaya.",
     "unavailableAction": "Bumalik sa botika",
