@@ -19,7 +19,7 @@
     "line": 28,
     "found": "[backend] Decision 26: /system-config/public sends numbers only; the sentences are templates in the locale files filled with those numbers, not server text.",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "closed-unverified (issue #754: closed with no linked PR)"
+    "review_status": "fixed f9a5a1581 (verified on main: patient-app/src/components/account/PolicyText.tsx:22-52 draws the policy only from GET /system-config/public numbers) (issue #754)"
   },
   {
     "batch": 12,

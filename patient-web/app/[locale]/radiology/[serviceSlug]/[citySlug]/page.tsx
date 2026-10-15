@@ -91,7 +91,7 @@ export default async function RadiologyCityPage({ params }: Props) {
       />
 
       {!hasServices ? (
-        <LandingEmpty icon={RADIOLOGY.icon} tone={RADIOLOGY.tone} title={t("radiology.emptyTitle")} body={t("radiology.emptyBody", vars)} actionLabel={t("radiology.register")} actionHref={`/${locale}/consultations/doctors`} />
+        <LandingEmpty icon={RADIOLOGY.icon} tone={RADIOLOGY.tone} title={t("radiology.emptyTitle")} body={t("radiology.emptyBody", vars)} actionLabel={t("radiology.register")} actionHref={`/${locale}/provider-info`} />
       ) : (
         <LandingSection id="centers" title={t("radiology.centers")}>
           <CardGrid label={t("radiology.centers")}>
