@@ -90,6 +90,13 @@ echo "deploy: rollback point: images tagged rollback-$TS (${OLDREF[backend]}, ${
 
 rollback() {
   echo "deploy: FAILED at '$1', rolling back"
+  # what the new containers said before they are replaced (into the encrypted report only; masked)
+  for c in nabdah-patient-web nabdah-nginx nabdah-backend; do
+    echo "evidence: -- $c"
+    $DK logs --tail 25 $c 2>&1 | sed -E 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/<email>/g; s/\+?[0-9][0-9 ()-]{8,}[0-9]/<number>/g' \
+      | grep -viE 'password|secret|token|authorization|cookie' | cut -c1-300 | sed 's/^/evidence:   /'
+  done
+  echo "evidence: -- GET /ar (Host: nabd.plus) headers"; curl -sk -o /dev/null -D - --max-time 10 -H 'Host: nabd.plus' https://127.0.0.1/ar | tr -d '\r' | grep -iE '^(HTTP|location|x-|cache-control|content-type)' | sed 's/^/evidence:   /'
   sudo -n tar -xzf "$SNAP" -C $D
   for f in $ABSENT; do sudo -n rm -f "$D/$f"; done
   for s in $APP_SERVICES; do $DK tag "${OLDIMG[$s]}" "${OLDREF[$s]}"; done
