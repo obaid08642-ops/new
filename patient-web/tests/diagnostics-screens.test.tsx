@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
@@ -12,7 +12,6 @@ import { DiagnosticsCartClient } from "@/components-next/diagnostics-cart-client
 import { DiagnosticsCheckoutForm } from "@/components-next/diagnostics-checkout-form";
 import { DiagnosticsDocumentUpload } from "@/components-next/diagnostics-document-upload";
 import { DiagnosticsSearchClient } from "@/components-next/diagnostics-search-client";
-import { LabBookingForm } from "@/components-next/lab-booking-form";
 
 const read = (file: string) => readFileSync(resolve(process.cwd(), file), "utf8");
 const code = (file: string) => read(file).replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
@@ -106,16 +105,6 @@ describe("the diagnostics client screens", () => {
     expect(facility).not.toContain("style=");
   });
 
-  it("the lab booking disables the home sample when the test has none, and cash when it is at home", () => {
-    const noHome = html(<LabBookingForm locale="en" serviceId="cbc" providerId="p1" serviceName="CBC" homeEligible={false} />);
-    expect(noHome).toMatch(/<button[^>]*disabled[^>]*>Home sample/);
-    expect(noHome).toContain("A home sample is not available for this test.");
-    const withHome = html(<LabBookingForm locale="en" serviceId="cbc" providerId="p1" serviceName="CBC" homeEligible />);
-    expect(withHome).not.toMatch(/<button[^>]*disabled[^>]*>Home sample/);
-    expect(withHome).toContain("Confirm the booking");
-    expect(withHome).not.toContain("style=");
-  });
-
   it("the insurance upload and the search render their fields with labels", () => {
     const upload = html(<DiagnosticsDocumentUpload locale="en" bookingId="b1" />);
     expect(upload).toContain("Doctor&#x27;s request");
@@ -137,11 +126,14 @@ describe("the flows the redesign must not touch", () => {
     expect(source).toContain('localStorage.removeItem("nabd-diagnostics-cart")');
   });
 
-  it("the lab booking still posts once with one idempotency key and the same body", () => {
-    const source = code("components-next/lab-booking-form.tsx");
-    expect(source).toContain('fetch("/api/patient/labs/bookings"');
-    expect(source).toContain("key.current ??= crypto.randomUUID()");
-    expect(source).toContain("provider_account_id: providerId");
+  it("one booking path (journeys#49, #50): /diagnostics/labs/book adds the test to the cart, the detail pages have one action", () => {
+    expect(existsSync(resolve(process.cwd(), "components-next/lab-booking-form.tsx"))).toBe(false);
+    const book = code("app/[locale]/diagnostics/labs/book/page.tsx");
+    expect(book).toContain("redirect(`/${locale}/diagnostics/cart?add=${encodeURIComponent(service.id)}");
+    expect(book).not.toContain("noProviderTitle");
+    for (const file of ["app/[locale]/diagnostics/test-detail/page.tsx", "app/[locale]/diagnostics/packages/[packageId]/page.tsx"]) {
+      expect(code(file), file).not.toContain("/diagnostics/labs/book");
+    }
   });
 
   it("the cart still stores its items under the same key in this browser", () => {
@@ -151,7 +143,7 @@ describe("the flows the redesign must not touch", () => {
   });
 
   it("none of the screens writes an inline style, a raw colour or a fake booking", () => {
-    for (const file of ["components-next/diagnostics-cart-client.tsx", "components-next/diagnostics-checkout-form.tsx", "components-next/lab-booking-form.tsx", "components-next/diagnostics-insurance-approval-client.tsx", "components-next/diagnostics-sample-tracking-client.tsx", "components-next/diagnostics-document-upload.tsx", "components-next/diagnostics-search-client.tsx", "components-next/diagnostics/diag-parts.tsx"]) {
+    for (const file of ["components-next/diagnostics-cart-client.tsx", "components-next/diagnostics-checkout-form.tsx", "components-next/diagnostics-insurance-approval-client.tsx", "components-next/diagnostics-sample-tracking-client.tsx", "components-next/diagnostics-document-upload.tsx", "components-next/diagnostics-search-client.tsx", "components-next/diagnostics/diag-parts.tsx"]) {
       const source = code(file);
       expect(source, file).not.toMatch(/style=\{/);
       expect(source, file).not.toMatch(/#[0-9a-fA-F]{6}\b/);
