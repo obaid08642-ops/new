@@ -73,7 +73,7 @@ def main():
         step('no latitude or longitude to type', section.locator('input').count() == 0, section.inner_text()[:300])
         select = section.locator('select')
         options = select.locator('option').all_inner_texts() if select.count() else []
-        step('the saved address is offered', any('شارع التحلية 7' in o for o in options), options)
+        step('the saved address is offered', any('شارع التحلية 7' in o for o in options), options or section.inner_text()[:300])
     except Exception as e:
         step('web flow', False, str(e)[:300])
     finally:

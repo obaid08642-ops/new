@@ -55,7 +55,7 @@ export default async function ConsultationCancelReschedulePage({ params, searchP
         appointmentId={appointmentId}
         labels={{ actionsTitle: a("actionsTitle"), cancelAppointment: a("cancelAppointment"), cancelConfirm: a("cancelConfirm"), cancelReason: a("cancelReason"), keepAppointment: a("keepAppointment"), confirmCancel: a("confirmCancel"), cancelConflict: a("cancelConflict"), cancelFailed: a("cancelFailed"), cancelUnavailable: a("cancelUnavailable") }}
         locale={locale}
-        refundText={{ refunded: String(a.raw("cancelledRefund")), noRefund: a("cancelledNoRefund"), notCharged: a("cancelledNotCharged") }}
+        refundText={{ refunded: a("cancelledRefund", { amount: "{amount}", percent: "{percent}" }), noRefund: a("cancelledNoRefund"), notCharged: a("cancelledNotCharged") }}
       />
     </ConsultPage>
   );
