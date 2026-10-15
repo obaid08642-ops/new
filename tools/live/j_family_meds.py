@@ -12,7 +12,7 @@ import hashlib
 import os
 import uuid
 
-from lib import Client, journey, step
+from lib import Client, journey, step, web_login
 
 WEB = os.environ.get('NABD_WEB_JOURNEYS_URL', 'http://127.0.0.1:3100')
 
@@ -67,7 +67,7 @@ def main():
     page = ctx.new_page()
     try:
         page.goto(f'{WEB}/ar', wait_until='load', timeout=60000)
-        r = ctx.request.post(f'{WEB}/api/auth/login', data={'identifier': owner_acct['email'], 'password': owner_acct['password']})
+        r = web_login(ctx, WEB, owner_acct['email'], owner_acct['password'])
         step('the owner signs in on the website', r.ok, f'{r.status}')
         ref = hashlib.sha256(f'nabd-family-member:{member_id}'.encode()).hexdigest()[:32]
         page.goto(f'{WEB}/ar/family/{ref}', wait_until='load', timeout=60000)
