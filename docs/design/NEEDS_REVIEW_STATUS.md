@@ -9,24 +9,24 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | Patient app and web | 434 | 52 | 287 | 92 | 3 | 0 |
-| Other | 29 | 16 | 12 | 1 | 0 | 0 |
+| Other | 29 | 15 | 13 | 1 | 0 | 0 |
 | Admin | 99 | 7 | 59 | 33 | 0 | 0 |
 | Admin journeys | 20 | 2 | 16 | 2 | 0 | 0 |
 | Final pass | 8 | 6 | 0 | 2 | 0 | 0 |
-| Patient journeys | 87 | 20 | 65 | 2 | 0 | 0 |
+| Patient journeys | 87 | 19 | 66 | 2 | 0 | 0 |
 | Provider app | 31 | 7 | 23 | 1 | 0 | 0 |
 | Provider journeys | 34 | 9 | 22 | 2 | 1 | 0 |
-| **Total** | **742** | **119** | **484** | **135** | **4** | **0** |
+| **Total** | **742** | **117** | **486** | **135** | **4** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| client | 169 | 33 | 104 | 31 | 1 | 0 |
+| client | 169 | 32 | 105 | 31 | 1 | 0 |
 | owner | 100 | 17 | 39 | 42 | 2 | 0 |
 | backend | 235 | 29 | 177 | 29 | 0 | 0 |
-| untagged | 238 | 40 | 164 | 33 | 1 | 0 |
-| **Total** | **742** | **119** | **484** | **135** | **4** | **0** |
+| untagged | 238 | 39 | 165 | 33 | 1 | 0 |
+| **Total** | **742** | **117** | **486** | **135** | **4** | **0** |
 
 ## By file
 
@@ -64,7 +64,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `8-web.json` | 13 | 1 | 11 | 1 | 0 | 0 |
 | `9-app.json` | 8 | 0 | 6 | 2 | 0 | 0 |
 | `9-web.json` | 8 | 0 | 7 | 1 | 0 | 0 |
-| `ac-1-agent-oauth.json` | 2 | 2 | 0 | 0 | 0 | 0 |
+| `ac-1-agent-oauth.json` | 2 | 1 | 1 | 0 | 0 | 0 |
 | `admin-catalogue.json` | 24 | 3 | 15 | 6 | 0 | 0 |
 | `admin-customers-growth.json` | 14 | 0 | 8 | 6 | 0 | 0 |
 | `admin-finance.json` | 10 | 0 | 9 | 1 | 0 | 0 |
@@ -86,7 +86,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1d-web.json` | 10 | 1 | 6 | 3 | 0 | 0 |
 | `final-pass-2.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `final-pass.json` | 4 | 2 | 0 | 2 | 0 | 0 |
-| `journeys.json` | 87 | 20 | 65 | 2 | 0 | 0 |
+| `journeys.json` | 87 | 19 | 66 | 2 | 0 | 0 |
 | `provider-admin-ish.json` | 3 | 1 | 2 | 0 | 0 | 0 |
 | `provider-doctor.json` | 6 | 1 | 5 | 0 | 0 | 0 |
 | `provider-facility.json` | 7 | 1 | 6 | 0 | 0 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 6 | 1 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 1 | 11 | 1 | 0 | 0 |
-| **Total** | **742** | **119** | **484** | **135** | **4** | **0** |
+| **Total** | **742** | **117** | **486** | **135** | **4** | **0** |
 
 ## Owner decisions (4)
 
@@ -111,7 +111,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 3 | `batch-1b-app.json#1` `patient-app/app/(tabs)/pharmacy.tsx:63` | /pharmacy/pharmacist-chat Hub tile 'Pharmacist consult' and product page 'Ask a… | The screen is the substitute-negotiation chat of one order (GET /pharmacy/chat/threads?order_id=); a thread exists only when a pharmacy proposes a substitute for an order line. The hub (pharmacy.tsx:63) and the product … |
 | 4 | `provider-journeys.json#5` `provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:538` | PharmacyDashboard hand over / delivery | [client] The prescription dispensing path is a "disabled" notice and the old order detail and broadcast screens are defined but never rendered (dead code). |
 
-## Open and unverified (119)
+## Open and unverified (117)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -144,7 +144,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `8-app.json#0` | backend | open (issue #849) | /maternity/hub Baby growth tab, fetal week content and weekly articles | [backend] the board draws them but the app reads no week or article endpoint; hidden until one exists (fetal images stay on the CDN) |
 | `8-web.json#3` | backend | open (issue #861) | /maternity Weekly articles and fetal-week size/image | [backend] GET /maternity/content returns empty lists (weekly_tips, links) and there is no fetal-week endpoint; the board's 'Read this week' list and fetal size line are not drawn,… |
 | `ac-1-agent-oauth.json#0` | client | open | /oauth/authorize AI assistant consent page | [client] Functional consent page (client name, scopes, 'you confirm and pay on Nabd Plus', allow / don't allow) built on the auth layout with translations in six languages; it has… |
-| `ac-1-agent-oauth.json#1` | client | open | Settings > Connected AI apps List and disconnect connected AI assistants | [client] No screen yet. Backend is ready: GET /api/v1/patient/agent-connections (client_id, client_name, logo_uri, scopes, connected_at) and DELETE /api/v1/patient/agent-connectio… |
 | `admin-catalogue.json#18` | backend | open | /admin/medicines-catalog Controlled flag (quick edit) | [backend] Owner decision 10 needs `controlled` editable by admin, but it is not in MedicinesService.EDITABLE_FIELDS nor in AdminUpdateCatalogDto, so a PATCH would drop it. The con… |
 | `admin-catalogue.json#19` | backend | open | /admin/medicines-catalog Add item from the items-to-review queue | [backend] Decision 12 queue (pharmacy lines with no catalogue match, price not verified) does not exist: no sfda_price fields, GET /medicines/admin/pending-review answers 410 Gone… |
 | `admin-catalogue.json#20` | backend | open | /admin/medicines-catalog Change log for prescription flag and availability | [backend] Only price changes write a history row (medicine price history, shown in the quick edit); a prescription-flag or availability change goes to the generic audit log with n… |
@@ -189,7 +188,6 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `journeys.json#8` | untagged | open | 1 order detail / tracking | Fixed on design/oc-journeys-1 (cancel button on order detail and tracking until the order is dispatched; the refund rule text of decision 26 waits for the OC-A policy D-26). No ca… |
 | `journeys.json#9` | untagged | open (issue #1018) | 1 checkout | Checkout offers "دفع مباشر" vs "عبر التأمين" as a toggle per order; decision 30 wants insurance or self-pay chosen at the start of the service and the app checkout has no insuranc… |
 | `journeys.json#22` | untagged | open (issue #1031) | 2 cart with Rx item | Web and app differ: the web cart goes straight to checkout and uses the "active" prescription, the app cart goes to rx-order to pick a prescription first. |
-| `journeys.json#23` | untagged | open (issue #1032) | 2 order from prescription | rx-order (web) has no pickup/delivery choice and no insurance choice (the cart checkout has both), and always creates the draft with payment_mode cash. |
 | `journeys.json#24` | untagged | open (issue #1033) | 2 insurance on offers | Insurance is only choosable per offer (coverage radio shown if insuranceReady) for the Rx and manual flows, contrary to decision 30 (choose first). |
 | `journeys.json#29` | untagged | open (issue #1038) | 3 booking (home visit) | Home visit asks the patient to type latitude and longitude as text; no saved-address / map picker (the app uses the address book). |
 | `journeys.json#34` | untagged | open (issue #1043) | 3 prescription -> cart | Web "اطلب الأدوية دي" on the prescription page opens rx-order and broadcasts directly; decision 18 says it fills the cart (the app does). |

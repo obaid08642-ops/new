@@ -213,7 +213,7 @@
     "kind": "missing-field",
     "file": "patient-web/components-next/pharmacy/rx-order-screen.tsx",
     "line": 57,
-    "review_status": "open (issue #1032)"
+    "review_status": "fixed #1516"
   },
   {
     "scenario": 2,
