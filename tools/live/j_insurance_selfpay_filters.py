@@ -69,7 +69,13 @@ def main():
     r = web.post('/api/auth/login', {'identifier': acct['email'], 'password': acct['password']})
     step('the patient signs in on the website', r.ok, r)
 
-    r = web.get('/ar/consultations/doctors?payment=insurance', headers=HTML)
+    # The doctors page is a cached public page and reads no session: the browser asks for the saved policy and opens the
+    # list for that company and class (components-next/consult/insurer-from-policy.tsx). The journey does the same calls.
+    r = web.get('/api/insurance/policy')
+    step('the website returns the saved company and class to the signed-in patient', r.ok and r.get('company') == code and r.get('class') == 'A', r)
+    guest = WebClient(WEB, 'web-guest')
+    step('a guest gets no policy', guest.get('/api/insurance/policy').status == 401)
+    r = web.get(f'/ar/consultations/doctors?payment=insurance&insurance={code}&insurance_class=A', headers=HTML)
     shown = ids_on(r.body)
     step('Insurance: the doctor contracted for the patient\'s company is listed', r.ok and contracted in shown, sorted(shown)[:10])
     step('Insurance: a doctor with no contract for it is not', r.ok and other not in shown, sorted(shown)[:10])

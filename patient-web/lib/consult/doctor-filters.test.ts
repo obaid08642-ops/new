@@ -62,6 +62,12 @@ describe("doctor filters: specialty and cash / insurance (issue 404)", () => {
     expect(doctorQuery({ filters: parseDoctorFilters({ payment: "insurance" }) })).toBe("/care/doctors?accepts_insurance=true");
     expect(doctorQuery({ filters: parseDoctorFilters({ payment: "self_pay" }) })).toBe("/care/doctors");
     expect(parseDoctorFilters({ payment: "cash" }).payment).toBe("self_pay");
+    // the saved insurer travels in the page URL (the page reads no session), only with "insurance"
+    const fromUrl = parseDoctorFilters({ payment: "insurance", insurance: "ins-1", insurance_class: "A" });
+    expect(fromUrl.insurer).toEqual({ company: "ins-1", class: "A" });
+    expect(filterPageParams(fromUrl).toString()).toBe("payment=insurance&insurance=ins-1&insurance_class=A");
+    expect(doctorQuery({ filters: fromUrl })).toBe("/care/doctors?insurance=ins-1&insurance_class=A");
+    expect(parseDoctorFilters({ payment: "self_pay", insurance: "ins-1" }).insurer).toBeUndefined();
     expect(doctorQuery({ filters: parseDoctorFilters({ payment: "cash" }) })).not.toContain("accepts_insurance");
     expect(parseDoctorFilters({ payment: "gold" })).not.toHaveProperty("payment");
     expect(insurerOf({ company_id: "ins-1", company_code: "bupa", provider: "Bupa", plan_class: "B" })).toEqual({ company: "ins-1", class: "B" });
