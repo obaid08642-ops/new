@@ -103,11 +103,21 @@ describe("a session, a twin or any answer the proxy made no-store", () => {
     expect(await r.text()).toContain(`<script nonce="${nonceOf(r)}">`);
   });
 
-  it("a cacheable public page is stamped and `private, no-cache` (a nonce must never sit in a shared cache)", async () => {
-    const { base } = await start((_req, res) => html(res, 200, PAGE, { "cache-control": "s-maxage=60, stale-while-revalidate=31535940" }));
-    const r = await fetch(`${base}/ar`);
-    expect(r.headers.get("cache-control")).toBe("private, no-cache");
-    expect(r.headers.get("cache-control")).not.toContain("s-maxage");
+  it("issue 1548: a guest's public page is stamped and goes out with shared-cache headers, header and tags on one nonce, no cookie set", async () => {
+    const { base } = await start((_req, res) => html(res, 200, PAGE, { "cache-control": "s-maxage=60, stale-while-revalidate=31535940", "set-cookie": "NEXT_LOCALE=ar; Path=/" }));
+    const r = await fetch(`${base}/ar`, { headers: { accept: "text/html" } });
+    expect(r.headers.get("cache-control")).toBe("public, max-age=0, s-maxage=60, stale-while-revalidate=31535940, stale-if-error=31536000");
+    expect(r.headers.get("set-cookie")).toBeNull();
+    expect(await r.text()).toContain(`<script nonce="${nonceOf(r)}">`);
+    const again = await fetch(`${base}/ar`, { headers: { accept: "text/html" } });
+    expect(nonceOf(again)).not.toBe(nonceOf(r));
+  });
+
+  it("issue 1548: a HEAD, an error status or a page Next did not mark s-maxage is never shared", async () => {
+    const { base } = await start((req, res) => html(res, req.url === "/ar/gone" ? 404 : 200, PAGE, { "cache-control": req.url === "/ar/dyn" ? "private, no-cache, no-store, max-age=0, must-revalidate" : "s-maxage=60, stale-while-revalidate=31535940" }));
+    expect((await fetch(`${base}/ar/gone`)).headers.get("cache-control")).toBe("private, no-cache");
+    expect((await fetch(`${base}/ar/dyn`)).headers.get("cache-control")).toContain("no-store");
+    expect((await fetch(`${base}/ar`, { method: "HEAD" })).headers.get("cache-control")).toBe("private, no-cache");
   });
 });
 
@@ -165,8 +175,8 @@ describe("edge mode (NABD_EDGE_STAMP_TOKEN)", () => {
     expect(r.headers.get(CSP_INJECT_HEADER)).toBeNull();
   });
 
-  it("anyone else is stamped here and gets `private, no-cache`: a wrong token, no token, or no token configured", async () => {
-    for (const [options, header] of [[{ edgeToken: "s3cret" }, "wrong"], [{ edgeToken: "s3cret" }, undefined], [{ edgeToken: "" }, ""]] as const) {
+  it("anyone else is stamped here and gets `private, no-cache` while an edge worker is configured: a wrong token or no token", async () => {
+    for (const [options, header] of [[{ edgeToken: "s3cret" }, "wrong"], [{ edgeToken: "s3cret" }, undefined]] as const) {
       const { base } = await start(cacheable, options);
       const r = await fetch(`${base}/ar`, { headers: header === undefined ? {} : { [EDGE_STAMP_HEADER]: header } });
       const body = await r.text();
