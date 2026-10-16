@@ -12,6 +12,7 @@ MAILJET_API_BASE). The gate backend on :8002 is not touched.
 import datetime
 import json
 import os
+import secrets
 import signal
 import subprocess
 import time
@@ -50,9 +51,13 @@ def node(script):
     return json.loads(r.stdout.strip().splitlines()[-1]) if r.returncode == 0 and r.stdout.strip() else None
 
 
+RUN_JWT_SECRET = secrets.token_hex(32)
+
+
 def start_backend(port, low_quota_for=None):
     env = {**os.environ, 'NODE_ENV': 'development', 'PORT': str(port), 'DB_NAME': DB, 'MONGO_URL': MONGO,
-           'JWT_SECRET': os.environ.get('JWT_SECRET', 'live-test-secret-0123456789abcdef-0123456789'),
+           # only this journey's own backends verify these tokens: a fresh random secret per run, no literal in the repo
+           'JWT_SECRET': os.environ.get('JWT_SECRET') or RUN_JWT_SECRET,
            'REDIS_URL': 'redis://127.0.0.1:6379', 'REDIS_HOST': '127.0.0.1', 'REDIS_PORT': '6379',
            'S3_ENDPOINT': 'http://127.0.0.1:9000', 'S3_BUCKET': 'nabd-live', 'S3_REGION': 'us-east-1',
            'S3_ACCESS_KEY_ID': 'live', 'S3_SECRET_ACCESS_KEY': 'live-secret',
