@@ -103,9 +103,41 @@ session builds the answer once it is given.
 | 40 | **Same item as question 30 (issue 480): answer it there.** "Ask a pharmacist" (app pharmacy hub tile and product page) opens the substitute chat of an order, which exists only when a pharmacy proposes a substitute; opened without an order it can only say "open the chat from an order". There is no general pharmacist chat. | batch-1b-app#1 (issue 480) | **Remove the two entry points** (as decision 24 does for doctors: chat only inside an order); the order page keeps its pharmacist chat. Building a general pharmacist chat is a new service (staffing, hours, liability) for the owner to plan. |
 | 41 | The pharmacy dashboard still holds a quick-offer screen that is never shown (the offer composer is `PharmacyBroadcastResponse`). The release contract `provider-app/provider-app.contracts.test.js` expects the offer calls in `PharmacyDashboard.tsx`, and only that screen has them, so it cannot be removed without changing the contract test. | provider-journeys#5 (issue 1146), #1474 | **Remove the unrendered screen and point the contract at the live composer** (`shared/blueprint/PharmacyBroadcastResponse.tsx`): the contract should check the code the pharmacist actually uses. Needs the owner (or reviewer) to approve the change to the acceptance test. |
 | 42 | The app's nurse booking offers "the nurse provides transport" or "I will send a car for the nurse". The choice is not saved on the booking and changes no price: the trip fee (decision 26) is charged either way. | 4-app#1 (issue 641) | **Remove the choice**: the nurse always comes to the patient and the trip fee applies, as the refund policy already says. If the owner wants "I send a car", it needs a booking field, a trip-fee waiver and the nurse's consent, which is a new feature. |
+| 43 | Lighthouse LCP (issue 427): after #1515 every byte budget passes, but LCP is still 2.8–4.6 s against 2.5 s. Three remaining causes need a product or security call: (a) the inline theme script at the top of `<body>` waits for every stylesheet (moving it can flash the wrong theme); (b) the root `app/[locale]/loading.tsx` skeleton wraps every page, so the content is revealed at least 300 ms after first paint; (c) `experimental.inlineCss` removes the stylesheet wait, but Next writes the `<style>` without the CSP nonce, so private pages lose their styling. | issue 427, #1515 | **(b) first**: keep loading skeletons per section (where data is fetched), not one at the root; then (a) read the theme from a cookie on the server so the script can move after the content without a flash. Keep (c) off until Next adds the nonce. |
+| 44 | Two working pages have no board: the AI-assistant consent page (`/oauth/authorize`, AC-1) and the seven public feature pages (`/features/[feature]`, SEO). Both are built on the shared kits (auth layout; public landing kit) with tokens only and six languages, and both work end to end. Accept them as they are, or wait for boards from the design session? | ac-1-agent-oauth#0, seo-feature-pages#0 | **Accept them on the shared kits** (no new colours, logo or patterns); a board later is a normal design change. |
 
-## D3. Question from the fix session (2026-10-16, open)
+## D3. Question from the fix session (2026-10-16)
 
 | # | Question | Where | Recommendation |
 |---:|---|---|---|
 | 45 | Lighthouse LCP (issue 427) after decision 43 (a and b, #1515). Measured locally with the CI build, medians of 3 runs: `/ar` 2.70–3.05 s, `/ar/c` 3.06–3.45 s, doctors 2.91 s (simulated throttling); one page swings 2.0–3.9 s between runs of the same build. The observed LCP equals the first paint (the hero text, about 0.2 s): the simulated number counts react-dom (72 KB) and the Next runtime (46 KB) when they finish loading before the first frame, which is a timing race. Removing all app code still leaves 2.3–2.6 s, so cutting components cannot make it pass reliably. With applied (devtools) throttling the same build measures `/ar` 1.94 s, doctors 1.78 s, `/ar/c` 2.62 s. Options: (1) measure in CI with devtools throttling, or the median of 3–5 runs, thresholds unchanged (`/ar/c` still needs its own pass: render-blocking CSS and page size); (2) load the framework scripts only after the first paint on public pages (custom script loading, not supported by the Next App Router; later interactivity, fragile); (3) make the first frame cheaper (less backdrop blur and heavy shadows above the fold; a visual change). | issue 427, #1515, batch-0-runtime#6 | **(1)**: the median of 3 runs with the same thresholds, which removes the noise without hiding a slow page, then a pass on `/ar/c` (its CSS and page size). (2) trades interactivity for a lab number and (3) changes the boards. |
+
+Decided 2026-10-16 (reviewer for the owner): **(1)**. CI measures with devtools throttling, the result is the median of 3 runs, the thresholds stay; `/ar/c` gets its own fix to pass them.
+
+## F. Decided 2026-10-15 (the owner asked the reviewer to decide questions 29-44)
+
+The recommendation in sections D and D2 is the decision, with these notes:
+
+- **29 (admin roles):** yes. Custom roles become restrictive, and every admin write route names a permission, in one
+  PR, before anyone other than the owner gets an admin account.
+- **30 and 40 (pharmacy order chat):** build it for orders only. The pharmacy opens a thread on an order line from its
+  existing "Order chat", and may attach a substitute from its inventory, checked against the prescription (issue 1440
+  rule). The patient answers in the existing screens. The "Pharmacist consult" hub tile and the product-page "Ask a
+  pharmacist" entry points are removed.
+- **31:** yes, the web order centre lists claims and returns too.
+- **32:** remove the web onboarding pages.
+- **33:** no delivery/pickup switch on the product page.
+- **34:** owner action (native reviewer per language before launch). The keys stay as they are.
+- **35:** the cart stays without prices and says that prices come with the offers.
+- **36:** use BarcodeDetector where the browser has it, with the typed field everywhere.
+- **37:** tokens only on the success screen. No lime and no confetti.
+- **38:** owner action: put the Moyasar **test** keys in the CI secrets.
+- **39:** the app's flow on both: the patient picks the prescription in rx-order before checkout.
+- **41:** approved. Remove the unrendered quick-offer screen, and point
+  `provider-app/provider-app.contracts.test.js` at `shared/blueprint/PharmacyBroadcastResponse.tsx`. The reviewer
+  approves this change to the contract test.
+- **42:** remove the transport choice. The nurse comes to the patient and the trip fee applies.
+- **43:** do (b) first: loading skeletons per section, not one at the root. Then do (a): the theme from a cookie on the
+  server. (c) stays off until Next adds the nonce.
+- **44:** accept both pages on the shared kits.
+

@@ -8,7 +8,7 @@
     "line": 54,
     "found": "[client] Functional consent page (client name, scopes, 'you confirm and pay on Nabd Plus', allow / don't allow) built on the auth layout with translations in six languages; it has no board yet. Data: GET /api/v1/oauth/authorize (backend/src/modules/agent-oauth/agent-oauth.controller.ts).",
     "suspect": "Design session: build it from a board (AGENT_COMMERCE_SPEC_2026-10-12 AC-1).",
-    "review_status": "open"
+    "review_status": "owner-decision (question 44, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md)"
   },
   {
     "batch": "AC-1",
