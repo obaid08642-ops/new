@@ -1,6 +1,6 @@
 import { UsersService } from './users.service';
 
-// issue 1585: GET /users/me/storage sends stable item keys, never a server-written (Arabic) label.
+// issue 1585: GET /users/me/storage sends stable item keys, that the clients translate (the legacy Arabic `label` is kept only for installed app builds).
 const ARABIC = /[؀-ۿ]/;
 
 function serviceFor() {
@@ -10,14 +10,14 @@ function serviceFor() {
 }
 
 describe('issue 1585 storage item keys', () => {
-  it('returns the two storage items by stable key without any Arabic text', async () => {
+  it('returns the two storage items by stable key; Arabic only in the legacy label', async () => {
     const out: any = await serviceFor().getStorageDetails('pat-1');
     expect(out.items.map((i: { key: string }) => i.key)).toEqual(['uploaded_prescriptions', 'medical_reports']);
     for (const item of out.items) {
-      expect(item.label).toBeUndefined();
       expect(typeof item.val).toBe('string');
       expect(typeof item.pct).toBe('number');
     }
-    expect(ARABIC.test(JSON.stringify(out))).toBe(false);
+    // Only the legacy `label` (for installed app builds) may carry Arabic; every other field is language-free.
+    expect(ARABIC.test(JSON.stringify(out.items.map(({ label: _legacy, ...rest }: { label?: string }) => rest)))).toBe(false);
   });
 });

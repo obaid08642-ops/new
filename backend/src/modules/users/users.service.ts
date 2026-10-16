@@ -323,10 +323,11 @@ export class UsersService {
       used: fmt(usedBytes),
       total: `${LIMIT_GB} GB`,
       limit: LIMIT_GB,
-      // issue 1585: stable keys; the clients translate them (no server-side label).
+      // issue 1585: stable keys; the clients translate them. `label` stays only for app builds already installed
+      // that read it (current web and app use `key`); remove it once those builds are retired.
       items: [
-        { key: 'uploaded_prescriptions', val: fmt(prescBytes), pct: pct(prescBytes), color: '#23B5CE' },
-        { key: 'medical_reports', val: fmt(reportBytes), pct: pct(reportBytes), color: '#7A6BEA' },
+        { key: 'uploaded_prescriptions', label: 'الوصفات المرفوعة', val: fmt(prescBytes), pct: pct(prescBytes), color: '#23B5CE' },
+        { key: 'medical_reports', label: 'التقارير الطبية', val: fmt(reportBytes), pct: pct(reportBytes), color: '#7A6BEA' },
       ],
     };
   }
