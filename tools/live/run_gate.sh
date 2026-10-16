@@ -21,6 +21,8 @@ restarts=0
 # DB the gate reports ~29 misleading 401/csrf step failures instead of the real
 # cause. Upsert it here (idempotent) so a fresh DB is self-sufficient.
 (cd "$ROOT/backend" && node "$ROOT/tools/live/seed_admin.js") || { echo "admin seed FAILED"; fail=1; }
+# The site's policy pages need their published texts before any journey opens them (seed_legal.py).
+(cd "$ROOT/tools/live" && python3 seed_legal.py) || { echo "legal seed FAILED"; fail=1; }
 # A backend killed mid-run (host memory pressure) turns into dozens of misleading
 # 502/401 step failures. Bring it back, but say so loudly and count it, so the
 # instability stays visible in the output instead of being silently healed.
