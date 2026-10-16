@@ -249,6 +249,11 @@ export class MedicinesService {
       const ors: any[] = [
         { name_ar: { $regex: lit, $options: 'i' } },
         { name_en: { $regex: lit, $options: 'i' } },
+        // Owner decision E (issue 1556): an ur/hi/bn page shows the localized name with the English one under it, and a
+        // search matches both, in any of the three scripts.
+        { 'translations.ur.name': { $regex: lit, $options: 'i' } },
+        { 'translations.hi.name': { $regex: lit, $options: 'i' } },
+        { 'translations.bn.name': { $regex: lit, $options: 'i' } },
         { active_ingredient: { $regex: lit, $options: 'i' } },
         { generic_name: { $regex: lit, $options: 'i' } },
         { barcode: { $regex: `^${lit}$`, $options: 'i' } }, // barcode exact match
@@ -595,6 +600,9 @@ export class MedicinesService {
         { is_deleted: { $ne: true }, $or: [
           { name_ar: { $regex: tolerant, $options: 'i' } },
           { name_en: { $regex: tolerant, $options: 'i' } },
+          { 'translations.ur.name': { $regex: tolerant, $options: 'i' } },
+          { 'translations.hi.name': { $regex: tolerant, $options: 'i' } },
+          { 'translations.bn.name': { $regex: tolerant, $options: 'i' } },
           { search_text: { $regex: tolerant, $options: 'i' } },
           { active_ingredient: { $regex: tolerant, $options: 'i' } },
         ] },
