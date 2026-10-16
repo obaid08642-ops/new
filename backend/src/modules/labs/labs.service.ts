@@ -26,7 +26,7 @@ export const LAB_CATALOG_FIELDS = [
   'name_ar', 'name_en', 'short_code', 'description_ar', 'description_en', 'category', 'sample_type', 'price', 'old_price', 'fasting_required', 'fasting_hours', 'home_visit_supported', 'facility_visit_supported', 'turnaround_hours', 'preparation_ar', 'preparation_en', 'preparation_ur', 'preparation_hi', 'preparation_bn', 'preparation_tl', 'is_package', 'included_services', 'popularity', 'active', 'unavailable', 'medical_referral_required',
 ] as const;
 import { getEffectiveRoles } from '../../common/auth.guard';
-import { UserRole } from '../../common/enums';
+import { UserRole, isAdminUser } from '../../common/enums';
 import { RedisService } from '../redis/redis.service';
 import { BusinessRulesService } from '../business-rules/business-rules.module';
 import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
@@ -797,14 +797,14 @@ export class LabsService {
 
   // --- Admin Catalog CRUD ---
   async createCatalog(user: any, body: any) {
-    if (user.role !== 'admin') throw new ForbiddenException();
+    if (!isAdminUser(user)) throw new ForbiddenException();
     const doc = await this.svcModel.create({ ...pick(body, LAB_CATALOG_FIELDS), ...reviewUpdate(body?.medical_review_status, user.id), id: require('uuid').v4() });
     await invalidateCatalogCache(this.redis, 'cache:lab-services:');
     return doc;
   }
 
   async updateCatalog(user: any, id: string, body: any) {
-    if (user.role !== 'admin') throw new ForbiddenException();
+    if (!isAdminUser(user)) throw new ForbiddenException();
     const updated = await this.svcModel.findOneAndUpdate({ id }, { $set: { ...pick(body, LAB_CATALOG_FIELDS), ...reviewUpdate(body?.medical_review_status, user.id) } }, { new: true });
     if (!updated) throw new NotFoundException();
     await invalidateCatalogCache(this.redis, 'cache:lab-services:');
@@ -813,12 +813,12 @@ export class LabsService {
 
   /** Admin catalog editor: every item including unpublished ones (the public list only shows approved). */
   async adminCatalog(user: any) {
-    if (!getEffectiveRoles(user).includes('admin')) throw new ForbiddenException();
+    if (!isAdminUser(user)) throw new ForbiddenException();
     return this.svcModel.find({ is_deleted: { $ne: true } }, { _id: 0, __v: 0 }).sort({ medical_review_status: 1, popularity: -1, name_ar: 1 }).limit(1000);
   }
 
   async deleteCatalog(user: any, id: string) {
-    if (user.role !== 'admin') throw new ForbiddenException();
+    if (!isAdminUser(user)) throw new ForbiddenException();
     const deleted = await this.svcModel.findOneAndDelete({ id });
     if (!deleted) throw new NotFoundException();
     // Without this a deleted item stays in the patients' cached lists until the TTL runs out.
@@ -828,7 +828,7 @@ export class LabsService {
 
   /** P6.0: medical-review decision — approve surfaces the item publicly. */
   async approveCatalogItem(user: any, id: string, approve: boolean) {
-    if (user.role !== 'admin') throw new ForbiddenException();
+    if (!isAdminUser(user)) throw new ForbiddenException();
     const updated = await this.svcModel.findOneAndUpdate(
       { id: { $eq: id } },
       { $set: reviewUpdate(approve ? 'approved' : 'rejected', user.id) },
@@ -842,7 +842,7 @@ export class LabsService {
   }
 
   async bulkApproveCatalog(user: any, ids: string[], approve: boolean) {
-    if (user.role !== 'admin') throw new ForbiddenException();
+    if (!isAdminUser(user)) throw new ForbiddenException();
     const list = (Array.isArray(ids) ? ids : []).filter((x) => typeof x === 'string' && x).slice(0, 200);
     if (!list.length) throw new BadRequestException('ids_required');
     const results: any[] = [];

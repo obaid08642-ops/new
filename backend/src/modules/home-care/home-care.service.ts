@@ -20,7 +20,7 @@ import { MedicalSupplyRequestRepository } from "./repositories/medicalsupplyrequ
 import { RedisService } from '../redis/redis.service';
 import { hasEffectiveRole } from '../../common/auth.guard';
 import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
-import { getEffectiveRoles } from '../../common/auth.guard';
+import { isAdminUser } from '../../common/enums';
 
 @Injectable()
 export class HomeCareSvc {
@@ -177,14 +177,14 @@ export class HomeCareSvc {
 
   // --- Admin Catalog CRUD (nursing/home-care services) ---
   async createCatalog(user: any, body: any) {
-    if (user.role !== 'admin') throw new ForbiddenException();
+    if (!isAdminUser(user)) throw new ForbiddenException();
     const doc = await this.svcModel.create({ ...pick(body, HOMECARE_CATALOG_FIELDS), ...reviewUpdate(body?.medical_review_status, user.id), id: require('uuid').v4() });
     await invalidateCatalogCache(this.redis, 'cache:home-care-services:');
     return doc;
   }
 
   async updateCatalog(user: any, id: string, body: any) {
-    if (user.role !== 'admin') throw new ForbiddenException();
+    if (!isAdminUser(user)) throw new ForbiddenException();
     const updated = await this.svcModel.findOneAndUpdate({ id }, { $set: { ...pick(body, HOMECARE_CATALOG_FIELDS), ...reviewUpdate(body?.medical_review_status, user.id) } }, { new: true });
     if (!updated) throw new NotFoundException();
     await invalidateCatalogCache(this.redis, 'cache:home-care-services:');
@@ -193,7 +193,7 @@ export class HomeCareSvc {
 
   /** Admin catalog editor: every item including unpublished ones (the public list only shows approved). */
   async adminCatalog(user: any) {
-    if (!getEffectiveRoles(user).includes('admin')) throw new ForbiddenException();
+    if (!isAdminUser(user)) throw new ForbiddenException();
     return this.svcModel.find({ is_deleted: { $ne: true } }, { _id: 0, __v: 0 }).sort({ medical_review_status: 1, popularity: -1, name_ar: 1 }).limit(1000);
   }
 
@@ -280,7 +280,7 @@ export class HomeCareSvc {
   }
 
   async deleteCatalog(user: any, id: string) {
-    if (user.role !== 'admin') throw new ForbiddenException();
+    if (!isAdminUser(user)) throw new ForbiddenException();
     const existing = await this.svcModel.findOne({ id });
     if (!existing) throw new NotFoundException();
     await this.svcModel.updateOne({ id }, { $set: { active: false, is_deleted: true } });
@@ -290,7 +290,7 @@ export class HomeCareSvc {
 
   /** P6.0: medical-review decision — approve surfaces the item publicly. */
   async approveCatalogItem(user: any, id: string, approve: boolean) {
-    if (user.role !== 'admin') throw new ForbiddenException();
+    if (!isAdminUser(user)) throw new ForbiddenException();
     const updated = await this.svcModel.findOneAndUpdate(
       { id: { $eq: id } },
       { $set: reviewUpdate(approve ? 'approved' : 'rejected', user.id) },
@@ -304,7 +304,7 @@ export class HomeCareSvc {
   }
 
   async bulkApproveCatalog(user: any, ids: string[], approve: boolean) {
-    if (user.role !== 'admin') throw new ForbiddenException();
+    if (!isAdminUser(user)) throw new ForbiddenException();
     const list = (Array.isArray(ids) ? ids : []).filter((x) => typeof x === 'string' && x).slice(0, 200);
     if (!list.length) throw new BadRequestException('ids_required');
     const results: any[] = [];
