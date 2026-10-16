@@ -279,6 +279,11 @@ export const TR = {
  optional:'اختياري', minutes:'دقيقة', hours:'ساعة', days:'أيام', km:'كم',
  // Pharmacy insurance (relay only: the pharmacy records the insurer's decision)
  insuranceDecisionRecord:'تسجيل قرار التأمين',
+ // Lab test preparation, per test in the six patient-app languages (decision of 2026-10-15)
+ labEditTest:'تعديل السعر والتحضير',
+ labPrepTitle:'تحضير المريض — خطوة في كل سطر',
+ labPrepHint:'اتركه فارغاً إذا لم يكن هناك تحضير؛ عندها يُبلَّغ المريض أن المختبر سيؤكد معه أي تحضير.',
+ labPrepAr:'بالعربية', labPrepEn:'بالإنجليزية', labPrepUr:'بالأردية', labPrepHi:'بالهندية', labPrepBn:'بالبنغالية', labPrepTl:'بالفلبينية',
  },
  en: {
  appName:'Nabd Plus', appSub:'Healthcare Provider App',
@@ -323,6 +328,10 @@ export const TR = {
  accept:'Accept', reject:'Reject', partialAccept:'Partial Accept',
  optional:'Optional', minutes:'min', hours:'hr', days:'days', km:'km',
  insuranceDecisionRecord:'Record insurance decision',
+ labEditTest:'Edit price & preparation',
+ labPrepTitle:'Patient preparation — one step per line',
+ labPrepHint:'Leave empty if there is none; the patient is then told the lab will confirm any preparation with them.',
+ labPrepAr:'Arabic', labPrepEn:'English', labPrepUr:'Urdu', labPrepHi:'Hindi', labPrepBn:'Bengali', labPrepTl:'Filipino',
  },
 } as const;
 export type TKey = keyof typeof TR.ar;

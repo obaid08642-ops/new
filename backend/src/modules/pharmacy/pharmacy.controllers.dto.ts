@@ -1,6 +1,7 @@
 import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsInt, IsNumber, IsObject, IsOptional, IsString, Max, MaxLength, Min, ValidateNested } from 'class-validator';
 import { AllocationItemAction } from './schemas/pharmacy.schema';
 import { Type } from 'class-transformer';
+import { AttributionDto } from '../../common/attribution';
 
 /** Delivery address as the apps send it (patient-app pharmacy-draft.ts, patient-web checkout-flow.tsx). */
 export class GeoPointDto {
@@ -90,6 +91,11 @@ export class CreateDto {
   @IsOptional()
   @IsString()
   delivery_address_id?: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AttributionDto)
+  attribution?: AttributionDto;
 
 }
 
@@ -425,22 +431,31 @@ export class RejectDto {
 
 }
 
+/**
+ * Issues 479/480: the pharmacy attaches a substitute from its own inventory to a chat message. Only the inventory row is
+ * sent; the server reads its sku, name and price and checks it against the prescription (issue 1440), so nothing typed
+ * by the pharmacy reaches the patient as a substitute.
+ */
 export class SubstituteOfferDto {
-  @IsOptional()
   @IsString()
-  sku?: string;
+  @MaxLength(128)
+  inventory_item_id: string;
 
   @IsOptional()
   @IsString()
-  name?: string;
-
-  @IsOptional()
-  @IsString()
+  @MaxLength(500)
   notes?: string;
+}
 
-  @IsOptional()
-  @IsNumber()
-  price?: number;
+/** Issues 479/480: the pharmacy opens (or gets) the negotiation of one line of an order it is part of. */
+export class OpenChatThreadDto {
+  @IsString()
+  @MaxLength(128)
+  order_id: string;
+
+  @IsString()
+  @MaxLength(128)
+  order_item_id: string;
 }
 
 export class PostDto {

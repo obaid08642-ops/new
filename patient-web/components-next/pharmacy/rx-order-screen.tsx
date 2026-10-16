@@ -1,22 +1,16 @@
 "use client";
 
-import { useRef, useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { CoreShell } from "@/components-next/core/core-shell";
 import { StickyFooter } from "@/components-next/ui-generated/shells";
-import { Button } from "@/components-next/ui-generated/components/Button";
-import { Segmented, StatusChip } from "@/components-next/ui-generated/components/Controls";
+import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { LinkEmptyState } from "./link-empty-state";
 import { formatDate } from "@/lib/format-date";
 import { isOrderablePrescriptionState, prescriptionStateKey } from "@/lib/pharmacy/prescription-state";
 import type { Locale } from "@/lib/i18n";
-import { newIdempotencyKey, sendBroadcast } from "@/lib/pharmacy/broadcast";
-import { AddressCard } from "./address-card";
+import { ButtonLink } from "./button-link";
 import { RxMedicineList } from "./rx-medicines";
 import { prescriptionStateTone } from "./rx-state";
-import { useDeliveryAddress } from "./use-delivery-address";
 import { PHARMACY_TONE } from "./tones";
 import rx from "./rx.module.css";
 
@@ -29,41 +23,21 @@ export type OrderablePrescription = {
 };
 
 /**
- * "Order the medicines of this prescription" (canvas/RxUpload family). The request goes to the nearby pharmacies with
- * the prescription attached (POST /patient/pharmacy/orders with `prescription_id`, then /submit), exactly as the
- * mobile app broadcasts; no price or payment is set here (they come from the offer the patient picks).
+ * "Order the medicines of this prescription" (canvas/RxUpload family): the prescription the patient picked. Owner decision
+ * 39 (issues 1031, 1043), the app's flow: from here the patient goes on to the checkout opened on this prescription
+ * (`/cart/checkout?prescriptionId=`), which sends its medicines with the cart's lines and `prescription_id`; nothing is
+ * broadcast from this screen, and no price or payment is set here (they come from the offer the patient picks).
  */
 export function RxOrderScreen({ locale, prescription }: { locale: Locale; prescription: OrderablePrescription }) {
   const t = useTranslations("RxUpload");
   const rxT = useTranslations("Prescriptions");
-  const flow = useTranslations("PharmacyFlow");
-  const checkout = useTranslations("PharmacyCheckout");
-  // journeys#23: delivered or picked up at the pharmacy (the cart checkout's same choice)
-  const [fulfillment, setFulfillment] = useState<"delivery" | "pickup">("delivery");
-  const router = useRouter();
-  const address = useDeliveryAddress(true);
-  const [sending, setSending] = useState(false);
-  const [failure, setFailure] = useState<"session" | "send" | null>(null);
-  const attempt = useRef<{ signature: string; key: string } | null>(null);
 
   const names = prescription.items.map((item) => item.name);
   const orderable = isOrderablePrescriptionState(prescription.state);
   const issued = formatDate(locale, prescription.issuedAt);
-  const canSend = orderable && names.length > 0 && address.status === "ready";
-
-  async function send() {
-    if (!canSend || sending || address.status !== "ready") return;
-    setSending(true);
-    setFailure(null);
-    const signature = `${prescription.id}:${address.address.id}:${fulfillment}`;
-    if (attempt.current?.signature !== signature) attempt.current = { signature, key: newIdempotencyKey() };
-    const result = await sendBroadcast({ kind: "prescription", prescriptionId: prescription.id, names, fulfillment }, address.address, attempt.current.key);
-    if (result.ok) return router.push(`/${locale}/pharmacy/broadcast-status?orderId=${encodeURIComponent(result.orderId)}`);
-    setSending(false);
-    setFailure(result.reason === "unauthenticated" ? "session" : "send");
-  }
-
-  const sendButton = <Button label={sending ? t("sending") : t("sendOffers")} size="lg" fullWidth disabled={!canSend} loading={sending} onClick={() => void send()} />;
+  const canContinue = orderable && names.length > 0;
+  const next = `/${locale}/cart/checkout?prescriptionId=${encodeURIComponent(prescription.id)}`;
+  const continueButton = <ButtonLink href={next} label={t("continueToRequest")} fullWidth />;
 
   return (
     <CoreShell
@@ -72,7 +46,7 @@ export function RxOrderScreen({ locale, prescription }: { locale: Locale; prescr
       backHref={`/${locale}/prescriptions/${encodeURIComponent(prescription.id)}`}
       hideTabs
       width="narrow"
-      footer={canSend ? <StickyFooter label={t("orderTitle")}><div className={rx.bar}>{sendButton}</div></StickyFooter> : undefined}
+      footer={canContinue ? <StickyFooter label={t("orderTitle")}><div className={rx.bar}>{continueButton}</div></StickyFooter> : undefined}
     >
       <div className={rx.page}>
         <div className={rx.head}><h1 className={rx.title}>{t("orderTitle")}</h1></div>
@@ -102,30 +76,9 @@ export function RxOrderScreen({ locale, prescription }: { locale: Locale; prescr
 
         {!orderable ? <p className={rx.note} role="status">{rxT("notOrderable")}</p> : null}
 
-        {orderable && names.length > 0 ? (
-          <section className={rx.fulfil} aria-labelledby="rx-order-fulfil">
-            <h2 className={rx.fulfilTitle} id="rx-order-fulfil">{checkout("fulfilLegend")}</h2>
-            <Segmented
-              label={checkout("fulfilLegend")}
-              value={fulfillment}
-              onChange={(value) => setFulfillment(value === "pickup" ? "pickup" : "delivery")}
-              options={[{ value: "delivery", label: checkout("fulfilDelivery") }, { value: "pickup", label: checkout("fulfilPickup") }]}
-              disabled={sending}
-            />
-            <AddressCard locale={locale} state={address} />
-          </section>
-        ) : null}
+        {canContinue ? <p className={rx.note}>{t("sendNote")}</p> : null}
 
-        {canSend ? <p className={rx.note}>{t("sendNote")}</p> : null}
-
-        {failure ? (
-          <div className={rx.error} role="alert">
-            {failure === "session" ? flow("sessionEnded") : t("sendFailed")}
-            {failure === "session" ? <div className={rx.errorActions}><Link className={rx.textLink} href={`/${locale}/login`}>{flow("signIn")}</Link></div> : null}
-          </div>
-        ) : null}
-
-        {canSend ? <div className={rx.deskActions}>{sendButton}</div> : null}
+        {canContinue ? <div className={rx.deskActions}>{continueButton}</div> : null}
       </div>
     </CoreShell>
   );

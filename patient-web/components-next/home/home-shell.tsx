@@ -86,7 +86,7 @@ export async function HomeShell({
           <Link href={home} className={`${styles.navLink} ${styles.navLinkActive}`} aria-current="page">{t("navHome")}</Link>
         )}
         {sections.map((s) => (
-          <NavLink key={s.id} href={s.href} className={styles.navLink} prefetch="viewport" signedIn={signedIn}>{s.label}</NavLink>
+          <NavLink key={s.id} href={s.href} className={styles.navLink} signedIn={signedIn}>{s.label}</NavLink>
         ))}
       </nav>
       <div className={styles.tools}>

@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, ForbiddenException, BadRequestException,
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { pick } from '../../common/sanitize';
+import { pickAttribution } from '../../common/attribution';
 
 /** P3.3 (F15): writable catalog fields — id/_id/active/governance flags excluded. */
 export const RADIOLOGY_CATALOG_FIELDS = [
@@ -535,6 +536,8 @@ export class RadiologyOpsService {
       documents,
       state: RadiologyBookingState.NEW_REQUEST,
       state_history: [{ from: '', to: RadiologyBookingState.NEW_REQUEST, by_user_id: user.id, by_role: user.role, at: new Date() }],
+      // P17-17.5: campaign attribution for the campaign report.
+      attribution: pickAttribution(body) ?? undefined,
     });
     this.events.emit('radiology.new_booking', { bookingId: booking.id, patientId: user.id });
     return booking;

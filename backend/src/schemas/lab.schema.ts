@@ -23,6 +23,10 @@ export class LabService extends Document {
   @Prop({ default: 24 }) turnaround_hours: number;
   @Prop({ default: [] }) preparation_ar: string[];
   @Prop({ default: [] }) preparation_en: string[];
+  @Prop({ default: [] }) preparation_ur: string[];
+  @Prop({ default: [] }) preparation_hi: string[];
+  @Prop({ default: [] }) preparation_bn: string[];
+  @Prop({ default: [] }) preparation_tl: string[];
   @Prop({ default: false }) is_package: boolean;
   @Prop({ default: [] }) included_services: string[]; // for packages
   @Prop({ default: 0 }) popularity: number;
@@ -107,6 +111,8 @@ export class LabBooking extends Document {
   @Prop({ default: [] }) reports: any[]; // [{name, url_base64, uploaded_at}]
   @Prop() technician_id?: string;
   @Prop() notes?: string;
+  /** P17-17.5: UTM campaign attribution (utm_source/medium/campaign/term/content). */
+  @Prop({ type: Object, required: false }) attribution?: Record<string, string>;
   @Prop({ enum: ['cash', 'card', 'insurance'], default: 'cash' }) payment_method: string;
   @Prop() insurance_provider?: string;
   @Prop() insurance_member_id?: string;

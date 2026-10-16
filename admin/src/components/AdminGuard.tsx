@@ -17,6 +17,8 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: '/admin/command-center', label: 'مركز القيادة الحي', permission: 'command.center.view' },
       { href: '/admin/health-dashboard', label: 'لوحة صحة النظام', permission: 'command.center.view' },
+      // P14.23: real-user web vitals (p75 per page type) against the plan's budgets.
+      { href: '/admin/web-vitals', label: 'أداء الموقع للمستخدمين', permission: 'command.center.view' },
       // #960: the telemetry board (health, demand heatmap, command centre) was reachable only by URL.
       { href: '/admin/dashboard', label: 'لوحة القياس الحية', permission: 'command.center.view' },
       // needs-review admin-ops-monitoring 3 and 13: both pages were reachable only by URL.
@@ -130,6 +132,7 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/command-center': 'command.center.view',
   '/admin/fraud-monitoring': 'command.center.view',
   '/admin/health-dashboard': 'command.center.view',
+  '/admin/web-vitals': 'command.center.view',
   '/admin/dashboard': 'command.center.view',
   '/admin/today': 'command.center.view',
   '/admin/alerts': 'command.center.view',

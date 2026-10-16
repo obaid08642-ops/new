@@ -12,7 +12,8 @@ import { useCan } from '@/components/AdminGuard';
 
 type TabKey = 'labs' | 'packages' | 'radiology' | 'nursing' | 'specialties' | 'insurance';
 
-type Field = { key: string; label: string; type: 'text' | 'number' | 'textarea' | 'checkbox' };
+/** 'lines': a list of strings (one per line), e.g. a test's preparation steps. */
+type Field = { key: string; label: string; type: 'text' | 'number' | 'textarea' | 'checkbox' | 'lines' };
 const F = {
   name_ar: { key: 'name_ar', label: 'الاسم (عربي)', type: 'text' },
   name_en: { key: 'name_en', label: 'الاسم (إنجليزي)', type: 'text' },
@@ -36,6 +37,14 @@ const F = {
   body_part: { key: 'body_part', label: 'العضو المستهدف', type: 'text' },
   contrast_required: { key: 'contrast_required', label: 'يتطلب صبغة', type: 'checkbox' },
   active: { key: 'active', label: 'مفعّل', type: 'checkbox' },
+  // Decision of 2026-10-15: a lab test's preparation is written per test in the six app languages
+  // (the patient app shows the one for its language; with none it only says the lab will confirm).
+  preparation_ar: { key: 'preparation_ar', label: 'التحضير (عربي) — خطوة في كل سطر', type: 'lines' },
+  preparation_en: { key: 'preparation_en', label: 'التحضير (إنجليزي) — خطوة في كل سطر', type: 'lines' },
+  preparation_ur: { key: 'preparation_ur', label: 'التحضير (أردو) — خطوة في كل سطر', type: 'lines' },
+  preparation_hi: { key: 'preparation_hi', label: 'التحضير (هندي) — خطوة في كل سطر', type: 'lines' },
+  preparation_bn: { key: 'preparation_bn', label: 'التحضير (بنغالي) — خطوة في كل سطر', type: 'lines' },
+  preparation_tl: { key: 'preparation_tl', label: 'التحضير (فلبيني) — خطوة في كل سطر', type: 'lines' },
 } satisfies Record<string, Field>;
 
 /** The reference specialties list: its own inline form (name only, no review flow). */
@@ -46,11 +55,13 @@ const SPECIALTIES_BASE = '/catalogs/admin/specialties';
  * (labs, packages, radiology, nursing): their backend serves PUT/DELETE /:id, POST /:id/approve and
  * POST /bulk-approve. Specialties and insurance have their own panels and endpoints.
  */
+const LAB_PREPARATION: Field[] = [F.preparation_ar, F.preparation_en, F.preparation_ur, F.preparation_hi, F.preparation_bn, F.preparation_tl];
+
 const TABS: { key: TabKey; label: string; adminBase: string; crudBase?: string; fields: Field[]; filter?: (i: any) => boolean }[] = [
   { key: 'labs', label: 'التحاليل', adminBase: '/labs/admin/catalog', crudBase: '/labs/admin/catalog', filter: (i) => !i.is_package,
-    fields: [F.name_ar, F.name_en, F.short_code, F.category, F.sample_type, F.price, F.old_price, F.turnaround_hours, F.popularity, F.fasting_required, F.home_visit_supported, F.active, F.description_ar, F.description_en] },
+    fields: [F.name_ar, F.name_en, F.short_code, F.category, F.sample_type, F.price, F.old_price, F.turnaround_hours, F.popularity, F.fasting_required, F.home_visit_supported, F.active, F.description_ar, F.description_en, ...LAB_PREPARATION] },
   { key: 'packages', label: 'الباقات', adminBase: '/labs/admin/catalog', crudBase: '/labs/admin/catalog', filter: (i) => !!i.is_package,
-    fields: [F.name_ar, F.name_en, F.short_code, F.category, F.price, F.old_price, F.turnaround_hours, F.popularity, F.home_visit_supported, F.active, F.description_ar, F.description_en] },
+    fields: [F.name_ar, F.name_en, F.short_code, F.category, F.price, F.old_price, F.turnaround_hours, F.popularity, F.home_visit_supported, F.active, F.description_ar, F.description_en, ...LAB_PREPARATION] },
   { key: 'radiology', label: 'الأشعة', adminBase: '/radiology/admin/catalog', crudBase: '/radiology/admin/catalog',
     fields: [F.name_ar, F.name_en, F.short_code, F.modality, F.body_part, F.price, F.old_price, F.turnaround_hours, F.popularity, F.contrast_required, F.fasting_required, F.home_visit_supported, F.image_url, F.icon, F.active, F.description_ar, F.description_en] },
   { key: 'nursing', label: 'التمريض المنزلي', adminBase: '/nursing/admin/catalog', crudBase: '/nursing/admin/catalog',
@@ -60,6 +71,12 @@ const TABS: { key: TabKey; label: string; adminBase: string; crudBase?: string; 
   // R6-6: insurance lives in this page (custom panel below). Medicines are edited only in /admin/medicines-catalog.
   { key: 'insurance', label: 'التأمين والشبكات', adminBase: '/insurance/companies', fields: [] },
 ];
+
+/** A 'lines' field's value (the stored list, or the text being edited) as the list of non-empty lines. */
+function toLines(v: unknown): string[] {
+  const raw = Array.isArray(v) ? v : typeof v === 'string' ? v.split('\n') : [];
+  return raw.filter((x): x is string => typeof x === 'string').map((x) => x.trim()).filter(Boolean);
+}
 
 // Medical review = publication: only "approved" items are shown to patients and bookable.
 const REVIEW: Record<string, { label: string; color: string; bg: string }> = {
@@ -121,6 +138,11 @@ export default function CatalogManagerPage() {
       const isNew = !editing.id;
       const body: any = {};
       for (const f of tabCfg.fields) {
+        if (f.type === 'lines') {
+          // Sent as the list the DTO accepts; an emptied box clears the list.
+          if (f.key in editing) body[f.key] = toLines(editing[f.key]);
+          continue;
+        }
         if (f.key in editing && editing[f.key] !== '' && editing[f.key] !== undefined) {
           body[f.key] = f.type === 'number' ? Number(editing[f.key] || 0) : f.type === 'checkbox' ? editing[f.key] !== false : editing[f.key];
         }
@@ -321,11 +343,11 @@ export default function CatalogManagerPage() {
                 </select>
               </div>
               {tabCfg.fields.map((f) => (
-                <div key={f.key} style={{ gridColumn: f.type === 'textarea' ? '1 / -1' : undefined }}>
+                <div key={f.key} style={{ gridColumn: f.type === 'textarea' || f.type === 'lines' ? '1 / -1' : undefined }}>
                   <label style={{ fontSize: 12, fontWeight: 700, color: '#475569', display: 'block', marginBottom: 4 }}>{f.label}</label>
-                  {f.type === 'textarea' ? (
-                    <textarea value={editing[f.key] || ''} onChange={(e) => setEditing({ ...editing, [f.key]: e.target.value })}
-                      rows={3} placeholder={f.label} style={{ width: '100%', padding: 10, borderRadius: 10, border: '1px solid #E2E8F0', fontFamily: 'inherit' }} />
+                  {f.type === 'textarea' || f.type === 'lines' ? (
+                    <textarea value={Array.isArray(editing[f.key]) ? editing[f.key].join('\n') : (editing[f.key] || '')} onChange={(e) => setEditing({ ...editing, [f.key]: e.target.value })}
+                      dir={f.type === 'lines' ? 'auto' : undefined} rows={3} placeholder={f.label} style={{ width: '100%', padding: 10, borderRadius: 10, border: '1px solid #E2E8F0', fontFamily: 'inherit' }} />
                   ) : f.type === 'checkbox' ? (
                     <input type="checkbox" checked={editing[f.key] !== false} onChange={(e) => setEditing({ ...editing, [f.key]: e.target.checked })} />
                   ) : (
