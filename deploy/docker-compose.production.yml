@@ -273,6 +273,12 @@ services:
       - ./coturn/turnserver.rendered.conf:/etc/coturn/turnserver.conf:ro
       - ./certs/turn:/etc/coturn/certs:ro
     network_mode: host  # TURN requires host networking (relay ports + source IPs)
+    # #1603: coturn writes a daily log (/var/tmp/turn_*.log) and a pid file into its container layer, with no rotation
+    # (isr-disk CI, `coturn-writes`). Read-only root + small memory-backed tmpfs: it starts, answers and writes nothing to disk.
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m
+      - /var/tmp:size=16m
     depends_on: []
     healthcheck:
       test: ["CMD-SHELL", "turnadmin -l -N turnserver.conf 2>/dev/null || nc -z 127.0.0.1 3478"]

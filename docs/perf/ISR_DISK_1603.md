@@ -46,22 +46,25 @@ Cloudflare edge cache in front (P14.9) rather than kept here. **Set the cap from
 hit rate after a day; raise `REDIS_CACHE_MAXMEMORY` only if there is RAM (the server has 3.8 GB shared with MongoDB,
 the backend and Meilisearch; the cache container is limited to 384 MB).
 
-## Proof in CI (`isr-disk`)
-`tools/perf/isr-disk/run-docker.sh` brings up the real compose services `patient-web` and `redis-cache` (their real
-limits) from the production Dockerfile, renders 5,000 product pages from the stand-in API and asserts: every page answers
-200; the patient-web **writable layer < 100 MB**; nothing under `/app/.next/server`; the root filesystem is read-only;
-cache memory ≤ its cap; `redis-cache` wrote < 16 MB to its layer. Results of the first run are in the PR.
+## Proof in CI (`isr-disk`, run 38933703451, test data)
+`tools/perf/isr-disk/run-docker.sh` brings up the real compose services `patient-web` and `redis-cache` (their real limits)
+from the production Dockerfile and renders 5,000 product pages from the stand-in API. Result: all 5,000 answered 200;
+**patient-web writable layer 0.0 MB** (before: 0.0 MB); `docker diff` shows only an empty `/app/.next/cache`; nothing under
+`/app/.next/server`; root filesystem read-only; **redis-cache used 256.0 MB of its 256 MB cap, 6,375 keys, 3,628 evicted**
+(`allkeys-lru`), 0.0 MB written to its layer; 42 KB per key on average.
 
 ## What else writes (coturn 935 MB)
-The issue measured 935 MB for `nabdah-coturn`. `deploy/coturn/turnserver.conf` logs to stdout (`log-file=stdout`, `verbose`),
-which Docker keeps in the container's json log, not in the layer; so either the 935 MB is that log (a container created
-before the compose `logging:` section existed has no rotation at all) or a path coturn writes. Two things settle it:
-- CI `coturn-writes` runs coturn 4.6.2 with the production config under allocation load and prints its layer and `docker diff`;
-- ops task `69-inspect-alert-and-logs` (read-only, branch `review/ops-1603`) prints, on the server, each container's layer,
-  log driver, log caps and log file size, and coturn's `docker diff`.
-The compose `logging:` cap now applies when the deploy recreates the container.
+CI `coturn-writes` (coturn 4.6.2, the production `turnserver.conf`, 4,000 allocation messages) shows the answer:
+- `docker diff` lists `/var/tmp/turn_1_<date>.log` and `/var/tmp/turnserver.pid`: **coturn writes a daily log file into its
+  container layer** although the config logs to stdout. That file has no rotation and no cap, so under real TURN traffic
+  (verbose logging, one line per allocation/refresh) it grows without limit: the 935 MB seen in production.
+  (In the short test it was small; the json log was 454 KB.)
+- **Hardened run** (`read_only: true`, `tmpfs /var/tmp` 16 MB): coturn starts, answers STUN, the layer stays at **0 bytes**,
+  and the log lives in memory under a hard cap.
+So the fix is the hardening in the same run: `read_only` + tmpfs for coturn (next commit in this PR). Task 69 on the server
+confirms the real file name and size before the change is deployed.
 
-Other writers checked: the nginx cache is a volume capped by `proxy_cache_path … max_size=1g`; Mongo, Redis and
+Other writers checked: the nginx cache is a volume capped by `proxy_cache_path ... max_size=1g`; Mongo, Redis and
 Meilisearch write to their volumes (not the layer); backend and worker log to stdout.
 
 ## Not in this PR
