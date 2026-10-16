@@ -129,8 +129,8 @@ def main():
         rx = next((x for x in rows if isinstance(x, dict) and x.get('id') == rx_id), None)
         step('the prescription is with the patient\'s prescriptions, uploaded by the patient, for the pharmacist to review',
              rx is not None and str(rx.get('state', '')).lower() in ('uploaded_by_patient',), rx and {k: rx.get(k) for k in ('id', 'state', 'notes')})
-        state = mongo(f'print(d.prescriptions.findOne({{id: "{rx_id}"}})?.upload_image?.startsWith("data:image/png;base64,"))')
-        step('the photo is stored with the prescription (health data)', state.endswith('true'), state)
+        state = mongo(f'const r = d.prescriptions.findOne({{id: "{rx_id}"}}); print(String(r && r.upload_image).slice(0, 22))')
+        step('the photo is stored with the prescription (health data)', state.endswith('data:image/png;base64,'), state)
 
         journey('what the scanner refuses')
         MODE['scan'] = 'garbage'
