@@ -1,5 +1,6 @@
 import { IsArray, IsDateString, IsDefined, IsNumber, IsObject, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
+import { AttributionDto } from '../../common/attribution';
 
 export class ManualRequestDto {
   @IsOptional()
@@ -140,6 +141,11 @@ export class BookDto {
   @IsOptional()
   @IsNumber()
   sessions_count?: number;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AttributionDto)
+  attribution?: AttributionDto;
 }
 
 export class BareSendDto {

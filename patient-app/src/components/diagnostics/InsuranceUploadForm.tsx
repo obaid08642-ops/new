@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Image, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
+import { Image } from 'expo-image';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 
@@ -257,7 +258,7 @@ export default function InsuranceUploadForm() {
             <Block gap={12}>
               <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
                 <View style={{ width: 60, height: 80, borderRadius: 12, overflow: 'hidden', backgroundColor: c.bg.canvas }}>
-                  {uploadedImg ? <Image accessibilityIgnoresInvertColors source={{ uri: uploadedImg }} style={{ width: '100%', height: '100%' }} /> : null}
+                  {uploadedImg ? <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors source={{ uri: uploadedImg }} style={{ width: '100%', height: '100%' }} /> : null}
                 </View>
                 <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'meta', 'regular'), lineHeight: 20, color: c.text.secondary, ...flow }}>{k('diag.upload.attached')}</Text>
               </View>

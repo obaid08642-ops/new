@@ -409,6 +409,8 @@ jobs:
           node scripts/verify-jest-result.mjs /tmp/mobile-jest-result.json "$jest_exit"
       - name: Export web bundle
         run: npm run export:web
+      - name: Android bundle size budget (P14.24)
+        run: node scripts/bundle-size.mjs
 
   provider-app:
     name: Provider App typecheck and tests
