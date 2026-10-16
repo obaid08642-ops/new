@@ -277,6 +277,8 @@ export const TR = {
  // Accept/Reject
  accept:'قبول', reject:'رفض', partialAccept:'قبول جزئي',
  optional:'اختياري', minutes:'دقيقة', hours:'ساعة', days:'أيام', km:'كم',
+ // Pharmacy insurance (relay only: the pharmacy records the insurer's decision)
+ insuranceDecisionRecord:'تسجيل قرار التأمين',
  },
  en: {
  appName:'Nabd Plus', appSub:'Healthcare Provider App',
@@ -320,6 +322,7 @@ export const TR = {
  pendingBody:'Your file was received and will be reviewed within 24 hours.',
  accept:'Accept', reject:'Reject', partialAccept:'Partial Accept',
  optional:'Optional', minutes:'min', hours:'hr', days:'days', km:'km',
+ insuranceDecisionRecord:'Record insurance decision',
  },
 } as const;
 export type TKey = keyof typeof TR.ar;

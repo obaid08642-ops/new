@@ -41,7 +41,7 @@
     "line": 63,
     "found": "[client] Decided by service ids and Arabic words in the title; a title in another language skips the prescription dialog.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open (issue #643)"
+    "review_status": "fixed #1513"
   },
   {
     "batch": 4,

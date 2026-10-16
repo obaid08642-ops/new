@@ -400,7 +400,7 @@
     "element": "prepare",
     "found": "[client] Insurance decision is a header shield icon on Orders and a row in More (opens the queue); an insurance order card has no inline decision button because the allocation list does not say which orders await a decision.",
     "suspect": "missing step",
-    "review_status": "open"
+    "review_status": "fixed #1520"
   },
   {
     "scenario": 4,

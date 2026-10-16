@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Monitor, Moon, Sun } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { THEME_STORAGE_KEY, isTheme, type Theme } from "@/app/theme";
+import { THEME_STORAGE_KEY, isTheme, saveThemeChoice, type Theme } from "@/app/theme";
 
 type Props = { label: string };
 
@@ -66,12 +66,7 @@ export function ThemeToggle({ label }: Props) {
     (next: Theme | "system") => {
       setTheme(next);
       apply(next);
-      try {
-        if (next === "system") window.localStorage.removeItem(THEME_STORAGE_KEY);
-        else window.localStorage.setItem(THEME_STORAGE_KEY, next);
-      } catch {
-        /* nothing to persist to; the choice still applies for this page */
-      }
+      saveThemeChoice(next);
     },
     [apply],
   );

@@ -80,6 +80,16 @@ describe("grouped search (D-29)", () => {
     expect(rows[1]).toMatchObject({ sub: "cardiology", price: undefined });
   });
 
+  it("reads requires_prescription and online_exclusive of a medicine row (rx-rules)", () => {
+    const rows = extractGroupedResults({
+      groups: [
+        { type: "medicine", items: [{ id: "m1", type: "medicine", name: "A", requires_prescription: true, online_exclusive: false }, { id: "m2", type: "medicine", name: "B", requires_prescription: false, online_exclusive: true }] },
+        { type: "doctor", items: [{ id: "d1", type: "doctor", name: "Dr S", requires_prescription: true }] },
+      ],
+    });
+    expect(rows.map((r) => [r.id, r.requiresPrescription, r.onlineOnly])).toEqual([["m1", true, false], ["m2", false, true], ["d1", undefined, undefined]]);
+  });
+
   it("returns no rows for anything that is not a grouped answer", () => {
     expect(extractGroupedResults(null)).toEqual([]);
     expect(extractGroupedResults([])).toEqual([]);

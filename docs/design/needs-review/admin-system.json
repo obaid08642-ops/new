@@ -19,7 +19,7 @@
     "line": 345,
     "found": "[client] Button is disabled with no handler.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open (issue #995)"
+    "review_status": "fixed #1521 (issue #995)"
   },
   {
     "batch": "admin",
@@ -118,7 +118,7 @@
     "line": 54,
     "found": "[backend] The switch writes and audits (reason required), but backend code reads only `sms_enabled` (sms.service.ts) and ConfigService hands the flags to clients; there is no per-module list and no kill-switch UI/route. Flipping any other flag changes nothing until a module checks it. (backend: backend/src/modules/sms/sms.service.ts:28)",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open"
+    "review_status": "fixed #1521"
   },
   {
     "batch": "admin",

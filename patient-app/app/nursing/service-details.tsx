@@ -35,6 +35,25 @@ export default function NursingServiceDetails() {
   const [sort, setSort] = useState<Sort>('nearest');
   // Pre-booking lock (injection policy): the nurse waits here until the patient confirms having a prescription.
   const [lockFor, setLockFor] = useState<string | null>(null);
+  // 4-app#3: whether this service needs the patient's prescription comes from the catalogue (requires_patient_medication,
+  // set by the admin), not from words in a title. Unknown (the catalogue could not be read) asks for it too.
+  const [needsRx, setNeedsRx] = useState<boolean | null>(null);
+  useEffect(() => {
+    let alive = true;
+    apiFetch<unknown>('/home-care/services?limit=200')
+      .then((res) => {
+        const rows = Array.isArray(res) ? (res as Rec[]) : ((res as { data?: Rec[] } | null)?.data ?? []);
+        const service = rows.find((row) => text(row.id) === serviceId);
+        if (alive) setNeedsRx(service ? service.requires_patient_medication === true : false);
+      })
+      .catch((err) => {
+        logError('nursing:service-details:catalogue', err);
+        if (alive) setNeedsRx(null);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [serviceId]);
 
   const fetchNurses = useCallback(
     async (sortType: Sort) => {
@@ -59,8 +78,8 @@ export default function NursingServiceDetails() {
 
   const choose = (id: string) => router.push({ pathname: '/nursing/nurse-profile', params: { nurseId: id, flow, serviceId } } as unknown as Href);
   const select = (id: string) => {
-    // Injections and drips need a prescription the nurse can see.
-    if (serviceId === 'injections' || serviceId === 'iv_drip' || title.includes('حقن') || title.includes('وريد')) setLockFor(id);
+    // Injections and drips need a prescription the nurse can see (the catalogue says which services do).
+    if (needsRx !== false) setLockFor(id);
     else choose(id);
   };
 

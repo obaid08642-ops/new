@@ -915,7 +915,8 @@
     "save": "लेख सहेजें",
     "unsave": "सहेजे गए से हटाएँ",
     "saveFailed": "सहेजे गए लेख अपडेट नहीं हो सके। फिर कोशिश करें।",
-    "signInToSave": "लेख सहेजने के लिए साइन इन करें"
+    "signInToSave": "लेख सहेजने के लिए साइन इन करें",
+    "bodyTitle": "लेख का पाठ"
   },
   "ChatDetail": {
     "eyebrow": "निजी बातचीत",
@@ -2518,7 +2519,11 @@
     "callConnecting": "कनेक्ट हो रहा है…",
     "callEnded": "कॉल समाप्त हो गई",
     "callLeave": "छोड़ें",
-    "callMute": "म्यूट",
+    "callMicrophone": "माइक्रोफ़ोन",
+    "callLive": "कनेक्ट हो गया",
+    "callWaitingForDoctor": "डॉक्टर के जुड़ने का इंतज़ार",
+    "callYou": "आप",
+    "callDoctor": "डॉक्टर",
     "callCamera": "कैमरा",
     "callNotReady": "कॉल अभी तैयार नहीं है",
     "callUnavailable": "कनेक्शन उपलब्ध नहीं है",

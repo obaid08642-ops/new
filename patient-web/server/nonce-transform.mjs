@@ -60,3 +60,54 @@ export function createStamper(nonce) {
     },
   };
 }
+
+// Owner decision 43 a (issue 427): the theme a visitor chose travels in this cookie (app/theme.ts, saveThemeChoice), and the
+// server writes it on <html>, so the first paint is already in that theme and the page's theme script can sit after the
+// content. Same name as the storage key.
+export const THEME_COOKIE = "nabd.theme";
+
+/** "light" or "dark" when the request's Cookie header carries an explicit choice, otherwise null (the script decides). */
+export function themeFromCookie(cookieHeader) {
+  const header = Array.isArray(cookieHeader) ? cookieHeader.join("; ") : String(cookieHeader || "");
+  const match = /(?:^|;\s*)nabd\.theme=(light|dark)(?=;|$)/.exec(header);
+  return match ? match[1] : null;
+}
+
+const HTML_OPEN = /<html(?=[\s>])([^>]*)>/i;
+
+/** Both theme hooks and the colour scheme on the page's <html> tag (app/theme.ts says why both), unless it has a theme. */
+export function stampTheme(html, theme) {
+  if (theme !== "light" && theme !== "dark") return html;
+  return html.replace(HTML_OPEN, (tag, attrs) => (/\sdata-theme\s*=/i.test(attrs)
+    ? tag
+    : `<html data-theme="${theme}"${theme === "dark" ? ' class="dark"' : ""} style="color-scheme:${theme}"${attrs}>`));
+}
+
+/**
+ * Streaming version: holds the start of the document until the <html> tag is complete (it is in the first bytes), stamps
+ * it, then lets everything through. A document with no <html> tag in its first 16 KB passes unchanged.
+ */
+export function createThemeStamper(theme) {
+  let held = "";
+  let done = theme !== "light" && theme !== "dark";
+  return {
+    push(chunk) {
+      if (done) return chunk;
+      held += chunk;
+      if (HTML_OPEN.test(held) || held.length > 16384) {
+        done = true;
+        const out = stampTheme(held, theme);
+        held = "";
+        return out;
+      }
+      return "";
+    },
+    end() {
+      const rest = held;
+      held = "";
+      if (done) return rest;
+      done = true;
+      return stampTheme(rest, theme);
+    },
+  };
+}
