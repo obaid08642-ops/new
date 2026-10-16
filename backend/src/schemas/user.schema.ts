@@ -35,6 +35,13 @@ export class User {
    *  written before this field existed stay `undefined` rather than claiming a decision. */
   @Prop({ type: [{ policy_id: String, version: String, accepted_at: Date, accepted: Boolean }], _id: false, default: [] })
   legal_consents?: { policy_id: string; version: string; accepted_at: Date; accepted: boolean }[];
+  /**
+   * P17-17.6: banner-grade purpose choices (analytics/marketing). No default:
+   * rows written before this field existed stay `undefined` (legacy allow —
+   * ingestion keeps flowing until the user makes an explicit choice).
+   */
+  @Prop({ type: { analytics: Boolean, marketing: Boolean, updated_at: Date }, _id: false, required: false })
+  consent_choices?: { analytics?: boolean; marketing?: boolean; updated_at?: Date };
   /** Opaque patient-facing identifier; never expose Mongo or account ids to clients. */
   @Prop({ unique: true, sparse: true, index: true }) health_id?: string;
   @Prop({ default: [] }) device_tokens: string[]; // Native push tokens (FCM/APNs/Expo)

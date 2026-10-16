@@ -154,17 +154,17 @@ export class CareService {
     }
 
     const slice = docs.slice(offset, offset + limit);
-    const out: any[] = [];
-    for (let i = 0; i < slice.length; i++) {
-      const dRaw: any = slice[i];
+    // P14.3: the next free time of the first 10 doctors, read together (each is 3 queries since nextAvailable
+    // preloads its 14 days), not one doctor after another.
+    const out: any[] = await Promise.all(slice.map(async (dRaw: any, i: number) => {
       const d: any = dRaw.toObject ? dRaw.toObject() : dRaw;
       let nextAvailableAt: string | null = null;
       if (i < 10) {
         const docFull = dRaw.toObject ? dRaw : await this.providerModel.findOne({ id: d.id });
         nextAvailableAt = docFull ? await this.slots.nextAvailable(docFull as any) : null;
       }
-      out.push(this.toPublicDoctor(d, nextAvailableAt, d._distance_km));
-    }
+      return this.toPublicDoctor(d, nextAvailableAt, d._distance_km);
+    }));
     const totalIsExact = !opts.available_today && !needDistance;
     return {
       page,

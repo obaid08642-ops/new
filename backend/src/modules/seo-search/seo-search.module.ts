@@ -233,6 +233,24 @@ export class SeoSearchService {
   }
 
   /**
+   * P14.3: the number of public products, the `total` of every catalogue page without a search term. It was a
+   * countDocuments over the whole catalogue on each page (the second-largest Mongo cost in the 2026-10-16 capacity run).
+   * Kept 60 s in the process; concurrent misses share one count. A publish shows in the total within a minute; the
+   * items themselves are always read live.
+   */
+  private publicCountCache: { exp: number; val: number; pending: Promise<number> | null } = { exp: 0, val: 0, pending: null };
+  private publicListingCount(filter: any): Promise<number> {
+    const c = this.publicCountCache;
+    if (Date.now() < c.exp) return Promise.resolve(c.val);
+    if (!c.pending) {
+      c.pending = this.conn.collection(CATALOG_COLLECTIONS.medicines).countDocuments(filter)
+        .then((n) => { this.publicCountCache = { exp: Date.now() + 60_000, val: n, pending: null }; return n; })
+        .catch((e) => { c.pending = null; throw e; });
+    }
+    return c.pending;
+  }
+
+  /**
    * P13-R16: "Cite this" block for medical/drug pages (plain text + BibTeX
    * with URL, author and access timestamp). Pure and exported for tests.
    */
@@ -456,7 +474,7 @@ export class SeoSearchService {
     const fetched = await cursor.toArray();
     const hasMore = fetched.length > perPage;
     const rows = hasMore ? fetched.slice(0, perPage) : fetched;
-    const total = term ? ((Math.max(page, 1) - 1) * perPage + rows.length + (hasMore ? 1 : 0)) : await this.conn.collection(CATALOG_COLLECTIONS.medicines).countDocuments(filter);
+    const total = term ? ((Math.max(page, 1) - 1) * perPage + rows.length + (hasMore ? 1 : 0)) : await this.publicListingCount(filter);
     return {
       query: term || null, locale, page: Math.max(page, 1), limit: perPage, total, has_more: hasMore,
       items: rows.map((m: any) => this.publicProductCard(m, locale)),
