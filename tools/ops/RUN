@@ -1,4 +1,11 @@
-# 2026-10-16 build session (#1603): read-only. Why did the #1446 disk alert not stop the outage (is monitor.sh scheduled
-# and running, did it log a disk alert and when, could it mail), and what did coturn write (935 MB): per container the
-# writable layer, log driver and caps, log file size; coturn's `docker diff` and largest directories. Changes nothing.
+# 2026-10-16 build session, in one approved run (nothing is deleted, nothing is changed on the server's disk):
+#   69  READ-ONLY (#1603): why did the #1446 disk alert not stop the outage; per container layer, log caps, log size; what coturn wrote.
+#   71  uploads the four old folders (/opt/nabdah/{nabdah-backend,patient-web,Napd-admin,import}) and the unused docker volume
+#       mongodb_secondary_data to s3://nabd-plus-backups/archive/2026-10-16/ and reads each object back (sha256). Removes nothing.
+#   cf:42  the bucket expired EVERY object after 30 days, which would delete that archive: this scopes the 30 days to mongodb/ and
+#       catalogue/ (the only prefixes anything writes) and keeps archive/. (Also fixes cf/20, which would have reset it.)
+# THEN, as a separate approval (after the cf line says archive/ is kept): RUN = 72-archive-remove, which removes the folders and the
+# volume that the bucket holds verified copies of, and every local nightly backup except the newest that the bucket also holds.
 69-inspect-alert-and-logs
+71-archive-upload
+cf:42-r2-archive-prefix

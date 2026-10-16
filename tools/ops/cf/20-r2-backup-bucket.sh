@@ -4,7 +4,8 @@
 # only when tools/ops/RUN lists r2-backup-bucket); tasks/61-backups-env.sh then writes the key into .env.production.
 #   1. bucket R2_BACKUP_BUCKET (default nabd-plus-backups): created if missing, must not be public (no r2.dev URL,
 #      no custom domain), must not be the public CDN bucket
-#   2. lifecycle: every object expires after 30 days; unfinished multipart uploads after 7
+#   2. lifecycle (_r2-lifecycle.sh): mongodb/ and catalogue/ expire after 30 days, archive/ and anything else is kept;
+#      unfinished multipart uploads after 7
 #   3. key: a user API token with only "Workers R2 Storage Bucket Item Read/Write" on that one bucket; S3 access key
 #      id = token id, secret = sha256(token value). Made only when the server has no BACKUP_S3_ACCESS_KEY_ID yet
 #      (or R2_ROTATE=1); an older token of the same name is deleted so only one exists.
@@ -41,14 +42,9 @@ N=$(echo "$R" | jq -r '(.result.domains // []) | length')
 [ "$N" = 0 ] || fail "bucket $BUCKET has $N custom domain(s), so it is public"
 echo "r2: bucket is private (r2.dev off, no custom domain)"
 
-# ---------------------------------------------------------------- 2. 30-day expiry
-RULES='{"rules":[{"id":"expire-backups-30-days","enabled":true,"conditions":{"prefix":""},"deleteObjectsTransition":{"condition":{"type":"Age","maxAge":2592000}},"abortMultipartUploadsTransition":{"condition":{"type":"Age","maxAge":604800}}}]}'
-R=$(cf_curl -X PUT -H 'Content-Type: application/json' "$API/accounts/$A/r2/buckets/$BUCKET/lifecycle" --data "$RULES")
-echo "$R" | ok || fail "lifecycle: $(echo "$R" | errs)"
-R=$(cf_curl "$API/accounts/$A/r2/buckets/$BUCKET/lifecycle")
-[ "$(echo "$R" | jq -r '[.result.rules[]? | select(.enabled == true and .deleteObjectsTransition.condition.maxAge == 2592000)] | length')" = 1 ] \
-  || fail "lifecycle not read back as 30 days"
-echo "r2: lifecycle set and read back: objects expire after 30 days"
+# ---------------------------------------------------------------- 2. 30-day expiry (mongodb/ and catalogue/ only, see _r2-lifecycle.sh)
+. "$(dirname "$0")/_r2-lifecycle.sh"
+r2_apply_lifecycle
 
 # ---------------------------------------------------------------- 3. key limited to the bucket
 if [ "${R2_ROTATE:-0}" != 1 ] && bash -c "${R2_HAS_KEY_CMD:-false}" >/dev/null 2>&1; then
