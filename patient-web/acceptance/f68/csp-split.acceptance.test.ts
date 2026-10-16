@@ -136,7 +136,7 @@ describe("F68: public pages render without a nonce and get a fresh one per respo
       expect(html).not.toMatch(/nonce=/);
       expect(scriptSrc).toContain("'strict-dynamic'");
       expect(scriptSrc).not.toContain("'unsafe-inline'");
-      const inline = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
+      const inline = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi)];
       expect(inline.length).toBe(2);
       for (const [, attrs, text] of inline) {
         expect(attrs).not.toMatch(/\ssrc=/);
