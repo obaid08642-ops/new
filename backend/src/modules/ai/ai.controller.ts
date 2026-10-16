@@ -46,6 +46,7 @@ export class AiController {
   }
 
   /** Admin: probe a candidate key live without storing it. */
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Post('admin/gateway/provider/:key/test')
   @Roles(UserRole.ADMIN)
   testProviderKey(@Param('key') key: AiProviderName, @Body() body: TestAiProviderKeyDto) {
