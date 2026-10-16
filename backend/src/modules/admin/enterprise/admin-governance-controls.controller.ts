@@ -1,6 +1,7 @@
-import { BadRequestException, Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Optional, Post, Query, UseGuards } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { HotCache } from '../../redis/hot-cache.service';
 import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../../common/auth.guard';
 import { Permission, RequirePermissions } from '../../../common/permissions';
 import { UserRole } from '../../../common/enums';
@@ -9,6 +10,9 @@ import { AdminAuditService } from './audit.service';
 import { SaveHomeCurationDto, SaveFeatureFlagDto } from './admin-governance-controls.dto';
 import { CATALOG_COLLECTIONS } from '../../catalogs/catalog-collections';
 import { EFFECTIVE_FLAGS, EFFECTIVE_FLAG_KEYS } from '../../feature-flags/effective-flags';
+
+/** P14.14: the HotCache key of the public home sections (read by GET /content/home, dropped on save). */
+const HOME_CONTENT_KEY = 'content:home:primary';
 
 /**
  * Missing A5/A6 administrative controls. The stored documents are the source
@@ -21,6 +25,7 @@ export class AdminGovernanceControlsController {
   constructor(
     @InjectConnection() private readonly conn: Connection,
     private readonly audit: AdminAuditService,
+    @Optional() private readonly hotCache?: HotCache,
   ) {}
 
   @Get('home-curation')
@@ -56,6 +61,7 @@ export class AdminGovernanceControlsController {
     const before: any = await this.conn.collection('home_curation').findOne({ key: 'primary' });
     const doc = { key: 'primary', version: Number(before?.version || 0) + 1, sections, updated_by: me.id, updatedAt: new Date() };
     await this.conn.collection('home_curation').updateOne({ key: 'primary' }, { $set: doc, $setOnInsert: { createdAt: new Date() } }, { upsert: true });
+    await this.hotCache?.invalidate(HOME_CONTENT_KEY);
     await this.audit.write({ action: 'home_curation_update', actor: me, target_type: 'home_curation', target_id: 'primary', reason, before: { version: before?.version ?? 0 }, after: { version: doc.version, sections: sections.length } });
     return doc;
   }
@@ -265,11 +271,16 @@ export class AdminGovernanceControlsController {
  */
 @Controller('content')
 export class PublicContentController {
-  constructor(@InjectConnection() private readonly conn: Connection) {}
+  constructor(@InjectConnection() private readonly conn: Connection, @Optional() private readonly hotCache?: HotCache) {}
 
   @Public()
   @Get('home')
   async home(): Promise<any> {
+    // P14.14: read on every app and site start; one database read per minute fleet-wide, dropped when an admin saves
+    return this.hotCache ? this.hotCache.get(HOME_CONTENT_KEY, { ttl: 60, swr: 600 }, () => this.readHome()) : this.readHome();
+  }
+
+  private async readHome(): Promise<any> {
     const doc: any = await this.conn.collection('home_curation').findOne({ key: 'primary' }, { projection: { _id: 0 } });
     const sections = Array.isArray(doc?.sections) ? doc.sections.filter((s: any) => s?.enabled !== false) : [];
     sections.sort((a: any, b: any) => (a?.position || 0) - (b?.position || 0));

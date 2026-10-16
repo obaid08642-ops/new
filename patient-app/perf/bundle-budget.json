@@ -1,0 +1,4 @@
+{
+  "_doc": "P14.24: Android bundle (Hermes bytecode) budget in bytes, checked by scripts/bundle-size.mjs in CI. Set 2026-10-16 at the measured size (20,889,901 bytes, with FlashList v2) plus 2%. Lower it when the bundle shrinks; never raise it without a reason in the PR.",
+  "android_bundle_bytes": 21307700
+}
