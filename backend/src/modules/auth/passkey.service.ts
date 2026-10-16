@@ -185,7 +185,9 @@ export class PasskeyService {
    */
   async isSingleDeviceCredential(credentialId: string): Promise<boolean> {
     try {
-      const cred: any = await this.passkeyModel.findOne({ credential_id: credentialId }).lean();
+      // $eq like the other credential lookups: a raw object here would be a
+      // NoSQL operator injection (CodeQL).
+      const cred: any = await this.passkeyModel.findOne({ credential_id: { $eq: credentialId } }).lean();
       if (!cred) return false;
       // Only an explicit single-device record counts. Rows enrolled before
       // syncability was recorded read back without the field and stay
