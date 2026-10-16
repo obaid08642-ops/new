@@ -1,8 +1,6 @@
-# 2026-10-16 reviewer: production outage. Root disk full since ~07:00 UTC (build session, from Sentry): Redis refuses
-# writes ("No space left on device"), mongodb drops off the network, every API route 500 since ~11:20.
-# 55 reads the state (read-only), 59 frees disk safely (images no container uses, old release folders, logs over
-# 100 MB, journal, apt cache; old nightly backups only if still under 6 GB free; never volumes or the database),
-# 66 starts mongodb/redis if stopped (no recreate), lets Redis save again, restarts backend+worker once if needed.
-55-inspect-outage
-59-free-disk
+# 2026-10-16 reviewer: outage, second pass. 59 freed only 0.2 GB (/ 100% of 38 GB); 66 stopped itself (under 1 GB).
+# 67 removes an unused 1 GB swap file, the loaded release tarball, an August dump, one old pre-deploy backup,
+# container logs over 20 MB and the rollback images, then measures the containers' writable layers.
+# 66 then starts mongodb/redis (no recreate), lets Redis save, restarts backend+worker once if needed.
+67-free-more
 66-recover-after-disk-full
