@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Rehearsal stand-in for the Cloudflare API calls of tools/ops/cf/20-r2-backup-bucket.sh (no real account).
 Checks the Global API Key headers, keeps buckets, lifecycle and tokens in memory, and logs each call to stdout.
-Also stands in for Resend (POST /emails, list: GET /_mails).
+Also stands in for Resend (POST /emails, list: GET /_mails) and for Cloudflare Access (apps, app policies, reusable
+policies, login methods) for tools/ops/cf/32-admin-access-allow-owner.sh: seed with POST /_access, read with GET /_access.
 Usage: cf-mock.py <port>   (state dump: GET /_state)"""
 import json, sys, uuid
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -39,6 +40,10 @@ class H(BaseHTTPRequestHandler):
             return self.send(200 if ok else 422, {"id": "mail-rehearsal"}, ok=bool(ok))
         if p == "/_mails":
             return self.send(200, STATE.get("mails", []))
+        if p == "/_access":
+            if method == "POST":
+                STATE["access"] = data
+            return self.send(200, STATE.get("access"))
         if not (self.headers.get("X-Auth-Email") and self.headers.get("X-Auth-Key")):
             return self.send(403, ok=False, err="missing global key headers")
         parts = p.strip("/").split("/")
@@ -62,6 +67,8 @@ class H(BaseHTTPRequestHandler):
                     STATE["lifecycle"][name] = data
                     return self.send(200, {})
                 return self.send(200, STATE["lifecycle"].get(name, {"rules": []}))
+        if parts[:3] == ["accounts", ACCOUNT, "access"]:
+            return self.access(method, parts[3:], data)
         if parts[:2] == ["user", "tokens"]:
             if len(parts) == 3 and parts[2] == "permission_groups":
                 return self.send(200, PG)
@@ -75,6 +82,41 @@ class H(BaseHTTPRequestHandler):
                 STATE["tokens"].pop(parts[2], None)
                 return self.send(200, {"id": parts[2]})
         return self.send(404, ok=False, err=f"not in the mock: {method} {p}")
+
+    def access(self, method, parts, data):
+        acc = STATE.setdefault("access", {"apps": [], "policies": [], "idps": []})
+        pol = {x["id"]: x for x in acc["policies"]}
+        def app_view(a):
+            return dict(a, policies=[dict(pol[i["id"]], precedence=i["precedence"]) for i in a["policies"]])
+        if parts == ["identity_providers"]:
+            if method == "POST":
+                idp = dict(data, id=uuid.uuid4().hex)
+                acc["idps"].append(idp)
+                return self.send(200, idp)
+            return self.send(200, acc["idps"])
+        if parts == ["apps"]:
+            return self.send(200, [app_view(a) for a in acc["apps"]])
+        app = next((a for a in acc["apps"] if len(parts) > 1 and a["id"] == parts[1]), None)
+        if parts[0] == "apps" and app is None:
+            return self.send(404, ok=False, err="application not found")
+        if parts[0] == "apps" and len(parts) == 2:
+            if method == "PUT":
+                ids = [x["id"] for x in data.get("policies", [])]
+                if sorted(ids) != sorted(i["id"] for i in app["policies"]):
+                    return self.send(400, ok=False, err="the update would detach policies")
+                app.update({k: v for k, v in data.items() if k != "policies"})
+            return self.send(200, app_view(app))
+        if parts[0] == "apps" and parts[2:3] == ["policies"]:
+            if len(parts) == 3:
+                return self.send(200, [dict(pol[i["id"]], precedence=i["precedence"]) for i in app["policies"]])
+            if method == "PUT" and parts[3] in pol and not pol[parts[3]].get("reusable"):
+                pol[parts[3]].update({k: v for k, v in data.items() if k != "precedence"})
+                return self.send(200, pol[parts[3]])
+            return self.send(400, ok=False, err="not an app policy of this app")
+        if parts[0] == "policies" and len(parts) == 2 and method == "PUT" and pol.get(parts[1], {}).get("reusable"):
+            pol[parts[1]].update(data)
+            return self.send(200, pol[parts[1]])
+        return self.send(404, ok=False, err="not in the access mock")
 
     def do_GET(self): self.handle_any("GET")
     def do_POST(self): self.handle_any("POST")

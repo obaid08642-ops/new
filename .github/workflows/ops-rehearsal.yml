@@ -7,6 +7,16 @@ on:
     branches: ['review/server-inspect', 'review/ops-*']
     paths: ['tools/ops/**', '.github/workflows/ops-rehearsal.yml']
 jobs:
+  access:
+    # tools/ops/cf/32-admin-access-allow-owner.sh against the Cloudflare stand-in: production's shape, a policy without
+    # the owner, a policy that pins one login method; each change idempotent, the e-mail never printed.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Access scenarios
+        run: bash tools/ops/rehearsal/access-scenarios.sh
+
   livekit-rotate:
     runs-on: ubuntu-latest
     timeout-minutes: 40

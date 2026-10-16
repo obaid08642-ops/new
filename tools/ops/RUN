@@ -1,4 +1,5 @@
-# 2026-10-16 reviewer: let the owner into admin.nabd.plus. Access allows only obaid08642@gmail.com and offers only
-# "sign in with a Cloudflare account"; the owner's Cloudflare account uses another e-mail. Adds the One-time PIN login
-# method (a code mailed to obaid08642@gmail.com); the "Owner only" policy is unchanged. Nothing runs on the server.
-cf:31-admin-access-otp
+# 2026-10-16 owner, item 1: let the owner into admin.nabd.plus. Makes sure the owner's e-mail is an include rule of the
+# Allow policy of the admin.nabd.plus Access app, the One-time PIN login exists and is allowed for the app (and every
+# Google login, when the app limits its logins), and prints the policy before and after as rule TYPES only.
+# Rehearsed: ops-rehearsal job "access" (tools/ops/rehearsal/access-scenarios.sh). Nothing runs on the server.
+cf:32-admin-access-allow-owner
