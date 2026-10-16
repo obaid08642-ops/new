@@ -29,7 +29,10 @@ export function hintFromAccessToken(accessToken: string): SessionHint | null {
   try {
     const payload = accessToken.split(".")[1];
     if (!payload) return null;
-    const json = JSON.parse(Buffer.from(payload.replace(/-/g, "+").replace(/_/g, "/"), "base64").toString("utf8")) as { sub?: unknown; id?: unknown; is_guest?: unknown };
+    // atob + TextDecoder, not Buffer: this module is also read in the browser (readSessionHintFromDocument), and a
+    // reference to Buffer made the bundler ship its 7 KB gz polyfill with the layout of every page (F82, issue 426).
+    const binary = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+    const json = JSON.parse(new TextDecoder().decode(Uint8Array.from(binary, (c) => c.charCodeAt(0)))) as { sub?: unknown; id?: unknown; is_guest?: unknown };
     const raw = json.sub ?? json.id;
     const id = typeof raw === "string" ? raw : typeof raw === "number" ? String(raw) : "";
     return ID_PATTERN.test(id) ? { kind: "user", id, isGuest: json.is_guest === true } : null;

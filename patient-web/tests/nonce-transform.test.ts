@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
-import { createStamper, policyWithNonce, stampTags, CSP_NONCE_PLACEHOLDER as SERVER_PLACEHOLDER, CSP_INJECT_HEADER as SERVER_HEADER } from "../server/nonce-transform.mjs";
+import { createStamper, createThemeStamper, policyWithNonce, stampTags, stampTheme, themeFromCookie, THEME_COOKIE, CSP_NONCE_PLACEHOLDER as SERVER_PLACEHOLDER, CSP_INJECT_HEADER as SERVER_HEADER } from "../server/nonce-transform.mjs";
 import { CSP_INJECT_HEADER, CSP_NONCE_PLACEHOLDER, contentSecurityPolicy, hasSessionCookie } from "../lib/security/csp";
 
 describe("F68 nonce stamping", () => {
@@ -55,6 +55,29 @@ describe("F68 nonce stamping", () => {
 
 // Stamping every tag is safe only while the app renders no untrusted raw HTML. This pins the places that use
 // dangerouslySetInnerHTML; adding one needs a review of what it renders (escaped or trusted only).
+describe("owner decision 43 a: the theme on <html> from the cookie", () => {
+  it("reads only an explicit light or dark choice, under the storage key's name", async () => {
+    const { THEME_COOKIE: APP_COOKIE } = await import("../app/theme");
+    expect(THEME_COOKIE).toBe(APP_COOKIE);
+    expect(themeFromCookie("nabd.theme=dark")).toBe("dark");
+    expect(themeFromCookie("a=1; nabd.theme=light; b=2")).toBe("light");
+    expect(themeFromCookie("nabd.theme=system")).toBeNull();
+    expect(themeFromCookie("xnabd.theme=dark")).toBeNull();
+    expect(themeFromCookie(undefined)).toBeNull();
+  });
+
+  it("stamps the first <html> tag once, keeps a theme already there, and is the same split across chunks", () => {
+    const doc = '<!DOCTYPE html><html lang="en" dir="ltr"><head></head><body><code>&lt;html&gt;</code></body></html>';
+    const once = stampTheme(doc, "dark");
+    expect(once).toContain('<html data-theme="dark" class="dark" style="color-scheme:dark" lang="en" dir="ltr">');
+    expect(stampTheme(once, "light")).toBe(once);
+    expect(stampTheme(doc, null)).toBe(doc);
+    const t = createThemeStamper("dark");
+    const streamed = ["<!DOCTYPE html><ht", 'ml lang="en" dir="l', 'tr"><head></head>', "<body><code>&lt;html&gt;</code></body></html>"].map((c) => t.push(c)).join("") + t.end();
+    expect(streamed).toBe(once);
+  });
+});
+
 describe("F68: raw HTML stays limited to reviewed places", () => {
   const ALLOWED = new Set(["app/[locale]/layout.tsx", "components-next/json-ld.tsx"]);
   const ROOT = join(__dirname, "..");

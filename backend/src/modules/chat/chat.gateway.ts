@@ -8,7 +8,8 @@ import {
   MessageBody,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Logger, ForbiddenException } from '@nestjs/common';
+import { Logger, ForbiddenException, Optional } from '@nestjs/common';
+import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { ChatService } from './chat.service';
 import { OnEvent } from '@nestjs/event-emitter';
 import { getWebSocketCorsOptions } from '../../config/websocket-cors';
@@ -29,7 +30,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private activeUsers = new Map<string, string>(); // socketId -> userId
   private restrictedThreads = new Map<string, string>(); // socketId -> thread id for chat_rt tokens
 
-  constructor(private readonly chatService: ChatService) {}
+  constructor(private readonly chatService: ChatService, @Optional() private readonly killSwitches?: KillSwitchesService) {}
 
   async handleConnection(socket: Socket) {
     // M6/ER-11: identity must come from a verified JWT — previously any client
@@ -109,6 +110,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // Enforce CLOSED state
     if (data.state === 'CLOSED') {
       return { error: 'chat_closed_after_24h' };
+    }
+    // Issue 955: the admin chat kill switch stops the realtime relay too.
+    if (this.killSwitches && !(await this.killSwitches.isOn('chat_enabled'))) {
+      return { error: 'kill_switch_off:chat_enabled' };
     }
     
     const userId = this.activeUsers.get(socket.id);

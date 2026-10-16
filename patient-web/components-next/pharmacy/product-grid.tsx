@@ -2,12 +2,24 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { getImageProps } from "next/image";
 import { useTranslations } from "next-intl";
 import { ProductCard } from "@/components-next/ui-generated/components/Cards";
 import { useCart } from "@/lib/context/CartContext";
 import { promoPercent } from "@/lib/discount";
 import { formatNumber, formatPrice } from "@/lib/format-price";
+import { allowedImageUrl } from "@/lib/image-hosts";
 import styles from "./pharmacy.module.css";
+
+/**
+ * The card's picture through the image optimizer (256 px WebP/AVIF for the 132 px box) instead of the CDN original, which
+ * runs up to 500 KB a product: the catalogue page loaded 2.8 MB of pictures (issue 427, owner decision 45).
+ */
+function cardImage(src: string | null | undefined): string | undefined {
+  const allowed = allowedImageUrl(src);
+  if (!allowed) return src || undefined;
+  return getImageProps({ src: allowed, alt: "", width: 128, height: 128 }).props.src;
+}
 
 /** One product of a listing, as the page's API sent it (the public catalogue's card fields). */
 export type GridProduct = {
@@ -17,6 +29,8 @@ export type GridProduct = {
   price: number;
   oldPrice: number | null;
   image: string | null;
+  /** The card's rendition of `image` (productCardImageSrc, made by the server page); `image` itself goes to the cart. */
+  thumb?: string;
   form: string | null;
   strength: string | null;
   packageSize: string | null;
@@ -66,7 +80,7 @@ export function ProductGrid({
                 price={priced ? money.amount : t("priceUnavailable")}
                 currency={priced ? money.currency : undefined}
                 disabled={!priced}
-                imageSrc={item.image || undefined}
+                imageSrc={cardImage(item.thumb || item.image)}
                 discountLabel={(item.rx ? undefined : item.badge) || (percent > 0 ? product("discount", { percent: formatNumber(locale, percent) }) : undefined)}
                 rxLabel={item.rx ? product("rxRequired") : undefined}
                 onlineLabel={item.onlineOnly === true ? product("onlineOnly") : undefined}

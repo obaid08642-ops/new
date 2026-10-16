@@ -914,7 +914,8 @@
     "save": "حفظ المقال",
     "unsave": "إزالة من المحفوظات",
     "saveFailed": "تعذر تحديث المقالات المحفوظة. حاول مجددًا.",
-    "signInToSave": "سجّل الدخول لحفظ المقالات"
+    "signInToSave": "سجّل الدخول لحفظ المقالات",
+    "bodyTitle": "نص المقال"
   },
   "ChatDetail": {
     "eyebrow": "محادثة خاصة",
@@ -2517,7 +2518,11 @@
     "callConnecting": "جارٍ الاتصال…",
     "callEnded": "انتهت المكالمة",
     "callLeave": "مغادرة",
-    "callMute": "كتم",
+    "callMicrophone": "الميكروفون",
+    "callLive": "متصل",
+    "callWaitingForDoctor": "بانتظار انضمام الطبيب",
+    "callYou": "أنت",
+    "callDoctor": "الطبيب",
     "callCamera": "الكاميرا",
     "callNotReady": "المكالمة غير جاهزة بعد",
     "callUnavailable": "تعذر الاتصال",

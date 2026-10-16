@@ -28,28 +28,32 @@ def _reuse():
     return w, admin
 
 
-def login():
-    reused = _reuse()
+def login(email=EMAIL, password=PASSWORD):
+    """The gate admin by default; another admin account (e.g. the super admin of seed_admin.js) gets its own
+    session, never the shared session file."""
+    shared = email == EMAIL
+    reused = _reuse() if shared else None
     if reused:
         return reused
-    journey('admin: login with email 2FA (admin panel)')
+    journey(f'admin: login with email 2FA (admin panel){"" if shared else f" as {email}"}')
     w = AdminWeb(ADMIN_WEB, 'admin')
     t0 = time.time()
-    r = w.post('/api/admin/auth/login', {'identifier': EMAIL, 'password': PASSWORD})
+    r = w.post('/api/admin/auth/login', {'identifier': email, 'password': password})
     step('credentials -> 202 requires_2fa', r.status == 202 and r.get('requires_2fa'), r)
-    code = mail_code(EMAIL, t0)
+    code = mail_code(email, t0)
     step('2FA code emailed to the admin', code, 'no mail')
-    r = w.post('/api/admin/auth/verify-2fa', {'identifier': EMAIL, 'code': code})
+    r = w.post('/api/admin/auth/verify-2fa', {'identifier': email, 'code': code})
     step('verify-2fa -> session', r.ok, r)
     step('session cookie set (httpOnly)', any(c.name for c in w.jar), [c.name for c in w.jar])
     # BFF 1:1 → /api/v1/admin/command-center (the dashboard's aggregated snapshot).
     r = w.get('/admin/admin/command-center')
     step('BFF call with the session (dashboard: command-center)', r.ok, r)
-    bad = AdminWeb(ADMIN_WEB).post('/api/admin/auth/login', {'identifier': EMAIL, 'password': 'wrong'})
-    step('wrong admin password rejected (401, or 429 once the login throttle trips)', bad.status in (400, 401, 429), bad)
+    if shared:
+        bad = AdminWeb(ADMIN_WEB).post('/api/admin/auth/login', {'identifier': EMAIL, 'password': 'wrong'})
+        step('wrong admin password rejected (401, or 429 once the login throttle trips)', bad.status in (400, 401, 429), bad)
     # Direct API token for admin steps that the journeys need (same user, same 2FA)
     tok = next((c.value for c in w.jar if c.name in ('admin_access',) or ('token' in c.name.lower() and 'refresh' not in c.name.lower())), None)
-    if SESSION_FILE:
+    if SESSION_FILE and shared:
         import json
         json.dump([{'name': c.name, 'value': c.value} for c in w.jar], open(SESSION_FILE, 'w'))
     admin = Client(tok, 'admin-api') if tok else None
