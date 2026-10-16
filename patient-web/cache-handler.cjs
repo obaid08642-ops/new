@@ -16,10 +16,13 @@
 //   (each instance on its own until Redis is back), never an error page because of the cache.
 const fs = require("node:fs");
 const path = require("node:path");
-const { createClient } = require("redis");
+const zlib = require("node:zlib");
+const { createClient, commandOptions } = require("redis");
 
 const TIMEOUT_MS = Number(process.env.NEXT_CACHE_REDIS_TIMEOUT_MS || 500);
-const ENTRY_TTL_SECONDS = 30 * 86_400;
+// #1603: an entry nobody asks for in a week is not worth its memory (the Redis instance is capped and evicts the least
+// recently used anyway; this is the upper bound for a page nobody evicted).
+const ENTRY_TTL_SECONDS = Number(process.env.NEXT_CACHE_TTL_SECONDS || 7 * 86_400);
 const LOCAL_MAX = 500;
 
 let client = null;
@@ -60,6 +63,19 @@ function decode(text) {
   });
 }
 
+/**
+ * #1603: entries are stored gzip-compressed. A page entry is HTML plus its RSC payload (base64 in the JSON), which
+ * compresses about 5x: the capped cache instance holds five times as many pages. Level 1: about 1 ms for a page.
+ */
+function pack(entry) {
+  return zlib.gzipSync(Buffer.from(encode(entry)), { level: 1 });
+}
+function unpack(buf) {
+  const raw = Buffer.isBuffer(buf) ? buf : Buffer.from(String(buf));
+  const gz = raw.length > 2 && raw[0] === 0x1f && raw[1] === 0x8b;
+  return decode((gz ? zlib.gunzipSync(raw) : raw).toString("utf8"));
+}
+
 function buildId(options) {
   try {
     return fs.readFileSync(path.join(options.serverDistDir || ".next/server", "..", "BUILD_ID"), "utf8").trim();
@@ -94,9 +110,9 @@ class RedisCacheHandler {
     try {
       const r = await withTimeout(redis());
       if (r) {
-        const text = await withTimeout(r.get(this.key(key)));
-        if (!text) return null;
-        const entry = decode(text);
+        const stored = await withTimeout(r.get(commandOptions({ returnBuffers: true }), this.key(key)));
+        if (!stored) return null;
+        const entry = unpack(stored);
         const tags = RedisCacheHandler.tagsOf(entry, ctx);
         if (tags.length) {
           const times = await withTimeout(r.mGet(tags.map((t) => this.revalidatedKey(t))));
@@ -115,7 +131,7 @@ class RedisCacheHandler {
     try {
       const r = await withTimeout(redis());
       if (!r) return;
-      const multi = r.multi().set(this.key(key), encode(entry), { EX: ENTRY_TTL_SECONDS });
+      const multi = r.multi().set(this.key(key), pack(entry), { EX: ENTRY_TTL_SECONDS });
       for (const tag of tags) multi.sAdd(this.tagKey(tag), key).expire(this.tagKey(tag), ENTRY_TTL_SECONDS);
       await withTimeout(multi.exec());
     } catch { /* the local copy is kept; Redis gets it on the next set */ }
@@ -143,3 +159,5 @@ class RedisCacheHandler {
 module.exports = RedisCacheHandler;
 module.exports.encode = encode;
 module.exports.decode = decode;
+module.exports.pack = pack;
+module.exports.unpack = unpack;
