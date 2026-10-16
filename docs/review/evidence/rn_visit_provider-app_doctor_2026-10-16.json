@@ -1,0 +1,1050 @@
+{
+ "type": "doctor",
+ "routes": 37,
+ "results": [
+  {
+   "route": "MainTabs",
+   "lang": "ar",
+   "landed": "MainTabs",
+   "len": 267,
+   "first": "الرئيسية | 0 | مواعيد اليوم",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "appointment_detail",
+   "lang": "ar",
+   "landed": "appointment_detail",
+   "len": 188,
+   "first": "→ | تفاصيل الموعد | م",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "consultation",
+   "lang": "ar",
+   "landed": "consultation",
+   "len": 44,
+   "first": "→ | الاستشارة | تعذر فتح الجلسة — تحقق من الموعد",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "prescription",
+   "lang": "ar",
+   "landed": "prescription",
+   "len": 127,
+   "first": "→ | الوصفة الطبية الإلكترونية | م",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "sick_leave",
+   "lang": "ar",
+   "landed": "sick_leave",
+   "len": 270,
+   "first": "→ | إجازة مرضية رقمية | م",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "medical_report",
+   "lang": "ar",
+   "landed": "medical_report",
+   "len": 278,
+   "first": "→ | كتابة تقرير طبي | م",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "referral",
+   "lang": "ar",
+   "landed": "referral",
+   "len": 252,
+   "first": "→ | تحويل مريض | إنشاء تحويل",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "request_test",
+   "lang": "ar",
+   "landed": "request_test",
+   "len": 2509,
+   "first": "→ | 🩺 طلب خدمات طبية | تحاليل",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "patient_file",
+   "lang": "ar",
+   "landed": "patient_file",
+   "len": 243,
+   "first": "→ | ملف المريض | م",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "withdrawal_workflow",
+   "lang": "ar",
+   "landed": "withdrawal_workflow",
+   "len": 414,
+   "first": "→ | سحب الأموال | الرصيد المتاح للسحب: 22.12 ريال",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "revenue_insights",
+   "lang": "ar",
+   "landed": "revenue_insights",
+   "len": 276,
+   "first": "→ | تفاصيل الإيرادات والتحليلات | أسبوع",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [
+    "other",
+    "provider_earning"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "availability_engine",
+   "lang": "ar",
+   "landed": "availability_engine",
+   "len": 408,
+   "first": "→ | جدول المواعيد والتوفر | ️ إجازة مؤقتة (وضع عدم الاتصال)",
+   "keys": [],
+   "icon_words": [
+    "video"
+   ],
+   "undef": [],
+   "latin": [
+    "clinic",
+    "video",
+    "voice",
+    "home"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "service_management",
+   "lang": "ar",
+   "landed": "service_management",
+   "len": 53,
+   "first": "→ | إدارة الخدمات والأسعار | الخدمات المتاحة",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "promotions",
+   "lang": "ar",
+   "landed": "promotions",
+   "len": 89,
+   "first": "مركز العروض الترويجية | العروض النشطة والمستمرة | لا توجد عروض ترويجية حالياً",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "create_promo",
+   "lang": "ar",
+   "landed": "create_promo",
+   "len": 117,
+   "first": "→ | إنشاء حملة ترويجية | عنوان الحملة *",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "web_config",
+   "lang": "ar",
+   "landed": "web_config",
+   "len": 177,
+   "first": "→ | تعديل الملف الشخصي | الملف الشخصي",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "subscriptions_ads",
+   "lang": "ar",
+   "landed": "subscriptions_ads",
+   "len": 186,
+   "first": "→ | الاشتراكات والترويج المدفوع | الباقة الحالية: —",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "affiliate",
+   "lang": "ar",
+   "landed": "affiliate",
+   "len": 295,
+   "first": "→ | بوابة التسويق بالعمولة | ادعُ مقدم خدمة واحصل على مكافآت الإحالة",
+   "keys": [],
+   "icon_words": [
+    "star"
+   ],
+   "undef": [],
+   "latin": [
+    "users",
+    "check",
+    "star"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "reputation",
+   "lang": "ar",
+   "landed": "reputation",
+   "len": 85,
+   "first": "→ | لوحة السمعة والتقييمات | star",
+   "keys": [],
+   "icon_words": [
+    "star"
+   ],
+   "undef": [],
+   "latin": [
+    "star"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "crm",
+   "lang": "ar",
+   "landed": "crm",
+   "len": 188,
+   "first": "→ | ذكاء الأعمال وإدارة العملاء | 0",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "ai_copilot",
+   "lang": "ar",
+   "landed": "ai_copilot",
+   "len": 213,
+   "first": "السجل الطبي ومساعد AI | اقتراح AI بناءً على الملاحظات | المريض (من قائمة العمل النشطة)",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [
+    "S - Subjective",
+    "O - Objective",
+    "A - Assessment",
+    "P - Plan"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "outbound_referral",
+   "lang": "ar",
+   "landed": "outbound_referral",
+   "len": 2017,
+   "first": "→ | شبكة التحويلات الخارجية | اسم أو رقم المريض",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [
+    "radiology"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "sos_dispatch",
+   "lang": "ar",
+   "nav": "unknown_route"
+  },
+  {
+   "route": "gps_router",
+   "lang": "ar",
+   "nav": "unknown_route"
+  },
+  {
+   "route": "profile_edit",
+   "lang": "ar",
+   "landed": "profile_edit",
+   "len": 375,
+   "first": "→ | تعديل الملف الشخصي | الملف الشخصي",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": [
+    "404 GET /provider/profile/image/status"
+   ]
+  },
+  {
+   "route": "insurance_config",
+   "lang": "ar",
+   "landed": "insurance_config",
+   "len": 536,
+   "first": "→ | التأمين الصحي | حدد شركات التأمين المقبولة لديك ونسب التحمل لكل شركة:",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "insurance_requests",
+   "lang": "ar",
+   "landed": "insurance_requests",
+   "len": 103,
+   "first": "→ | طلبات التأمين | مراجعة يدوية قبل تقديم الخدمة",
+   "keys": [],
+   "icon_words": [
+    "shield"
+   ],
+   "undef": [],
+   "latin": [
+    "shield"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "certificates_config",
+   "lang": "ar",
+   "landed": "certificates_config",
+   "len": 334,
+   "first": "→ | الشهادات والمؤهلات | المستندات الرسمية المرتبطة بملفك المهني وحالة اعتمادها لدى الإدار",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "media_config",
+   "lang": "ar",
+   "landed": "media_config",
+   "len": 103,
+   "first": "→ | الصور والوسائط | الصور المعروضة في صفحتك العامة للمرضى (العيادة، الأجهزة، الشهادات الم",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": [
+    "404 GET /storage/%D9%82%D9%8A%D9%85%D8%A9/signed-url"
+   ]
+  },
+  {
+   "route": "virtual_waiting_room",
+   "lang": "ar",
+   "landed": "virtual_waiting_room",
+   "len": 78,
+   "first": "→ | غرفة الانتظار الافتراضية | video",
+   "keys": [],
+   "icon_words": [
+    "video"
+   ],
+   "undef": [],
+   "latin": [
+    "video"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "pre_visit_chat",
+   "lang": "ar",
+   "landed": "pre_visit_chat",
+   "len": 28,
+   "first": "→ | محادثة ما قبل الموعد | إرسال",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 18,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "medical_jobs",
+   "lang": "ar",
+   "landed": "medical_jobs",
+   "len": 52,
+   "first": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "drug_index",
+   "lang": "ar",
+   "landed": "drug_index",
+   "len": 190,
+   "first": "دليل الأدوية الطبي | الكل | pain (2)",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [
+    "pain (2)",
+    "pain · tablet",
+    "pain · tablet"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "facility_invitations",
+   "lang": "ar",
+   "landed": "facility_invitations",
+   "len": 36,
+   "first": "→ | دعوات المنشآت | لا توجد دعوات حالياً",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "location_config",
+   "lang": "ar",
+   "landed": null,
+   "len": 0,
+   "first": "",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [
+    "(0 , r(...).codegenNativeComponent) is not a function"
+   ],
+   "bad": []
+  },
+  {
+   "route": "inbound_reports",
+   "lang": "ar",
+   "nav": "not_ready"
+  },
+  {
+   "route": "video_call",
+   "lang": "ar",
+   "nav": "not_ready"
+  },
+  {
+   "route": "MainTabs",
+   "lang": "en",
+   "landed": "MainTabs",
+   "len": 252,
+   "first": "Home | 0 | Today's Apts",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "appointment_detail",
+   "lang": "en",
+   "landed": "appointment_detail",
+   "len": 191,
+   "first": "← | Appointment Details | م",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "consultation",
+   "lang": "en",
+   "landed": "consultation",
+   "len": 59,
+   "first": "← | Consultation | Cannot open session — verify the appointment",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "prescription",
+   "lang": "en",
+   "landed": "prescription",
+   "len": 153,
+   "first": "← | E-Prescription | م",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [
+    "١٤٤٨ هـ"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "sick_leave",
+   "lang": "en",
+   "landed": "sick_leave",
+   "len": 302,
+   "first": "← | Digital Sick Leave | م",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "medical_report",
+   "lang": "en",
+   "landed": "medical_report",
+   "len": 314,
+   "first": "← | Medical Report | م",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [
+    "١٤٤٨ هـ"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "referral",
+   "lang": "en",
+   "landed": "referral",
+   "len": 301,
+   "first": "← | Patient Referral | Create Referral",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [
+    "١٤٤٨ هـ"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "request_test",
+   "lang": "en",
+   "landed": "request_test",
+   "len": 2415,
+   "first": "← | 🩺 Request Medical Services | Lab Tests",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "patient_file",
+   "lang": "en",
+   "landed": "patient_file",
+   "len": 242,
+   "first": "← | Patient File | م",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [
+    "، ضغط الدم",
+    "بنسيلين ",
+    "زيارة",
+    "سكري النوع "
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "withdrawal_workflow",
+   "lang": "en",
+   "landed": "withdrawal_workflow",
+   "len": 421,
+   "first": "← | Withdraw Funds | Available for withdrawal: 22.12 SAR",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [
+    "ريال"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "revenue_insights",
+   "lang": "en",
+   "landed": "revenue_insights",
+   "len": 253,
+   "first": "← | Revenue Insights | Week",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [
+    "٢٢٫١٢",
+    "٢٢٫١٢ "
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "availability_engine",
+   "lang": "en",
+   "landed": "availability_engine",
+   "len": 396,
+   "first": "← | Availability Settings | ️ Temporary Vacation (Offline)",
+   "keys": [],
+   "icon_words": [
+    "video"
+   ],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "service_management",
+   "lang": "en",
+   "landed": "service_management",
+   "len": 53,
+   "first": "← | Service Management | Available Services",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "promotions",
+   "lang": "en",
+   "landed": "promotions",
+   "len": 81,
+   "first": "Promotions Center | ACTIVE PROMOTIONS | No promotions available",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "create_promo",
+   "lang": "en",
+   "landed": "create_promo",
+   "len": 117,
+   "first": "← | Create Campaign | Campaign Title *",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [
+    "ريال"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "web_config",
+   "lang": "en",
+   "landed": "web_config",
+   "len": 138,
+   "first": "← | Edit Profile | Profile",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "subscriptions_ads",
+   "lang": "en",
+   "landed": "subscriptions_ads",
+   "len": 155,
+   "first": "← | Subscriptions & Ads Purchases | Current Plan: —",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "affiliate",
+   "lang": "en",
+   "landed": "affiliate",
+   "len": 289,
+   "first": "← | Affiliate Portal | Invite a provider & earn referral rewards",
+   "keys": [],
+   "icon_words": [
+    "star"
+   ],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "reputation",
+   "lang": "en",
+   "landed": "reputation",
+   "len": 75,
+   "first": "← | Reputation & Ratings | star",
+   "keys": [],
+   "icon_words": [
+    "star"
+   ],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "crm",
+   "lang": "en",
+   "landed": "crm",
+   "len": 168,
+   "first": "← | CRM & Revenue Intelligence | 0",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "ai_copilot",
+   "lang": "en",
+   "landed": "ai_copilot",
+   "len": 213,
+   "first": "EMR & AI Copilot | Get AI suggestion from notes | Patient (from your active queue)",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "outbound_referral",
+   "lang": "en",
+   "landed": "outbound_referral",
+   "len": 1843,
+   "first": "← | Smart Outbound Referral | Patient Name / ID",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "sos_dispatch",
+   "lang": "en",
+   "nav": "unknown_route"
+  },
+  {
+   "route": "gps_router",
+   "lang": "en",
+   "nav": "unknown_route"
+  },
+  {
+   "route": "profile_edit",
+   "lang": "en",
+   "landed": "profile_edit",
+   "len": 344,
+   "first": "← | Edit Profile | Profile",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": [
+    "404 GET /provider/profile/image/status"
+   ]
+  },
+  {
+   "route": "insurance_config",
+   "lang": "en",
+   "landed": "insurance_config",
+   "len": 411,
+   "first": "← | Health Insurance | Select which insurance providers you accept and specify copay perce",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "insurance_requests",
+   "lang": "en",
+   "landed": "insurance_requests",
+   "len": 121,
+   "first": "← | Insurance Requests | Manual review before service",
+   "keys": [],
+   "icon_words": [
+    "shield"
+   ],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "certificates_config",
+   "lang": "en",
+   "landed": "certificates_config",
+   "len": 355,
+   "first": "← | Qualifications | Official documents linked to your professional profile and their admi",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "media_config",
+   "lang": "en",
+   "landed": "media_config",
+   "len": 114,
+   "first": "← | Photos & Media | Photos displayed on your public profile for patients (clinic, instrum",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": [
+    "404 GET /storage/%D9%82%D9%8A%D9%85%D8%A9/signed-url"
+   ]
+  },
+  {
+   "route": "virtual_waiting_room",
+   "lang": "en",
+   "landed": "virtual_waiting_room",
+   "len": 79,
+   "first": "← | Virtual Waiting Room | video",
+   "keys": [],
+   "icon_words": [
+    "video"
+   ],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "pre_visit_chat",
+   "lang": "en",
+   "landed": "pre_visit_chat",
+   "len": 21,
+   "first": "← | Pre-visit Chat | Send",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "medical_jobs",
+   "lang": "en",
+   "landed": "medical_jobs",
+   "len": 33,
+   "first": "Medical Jobs | Browse | Post Ad",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "drug_index",
+   "lang": "en",
+   "landed": "drug_index",
+   "len": 166,
+   "first": "Medical Drug Index | All | pain (2)",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "facility_invitations",
+   "lang": "en",
+   "landed": "facility_invitations",
+   "len": 45,
+   "first": "← | Facility Invitations | No pending invitations",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "location_config",
+   "lang": "en",
+   "landed": null,
+   "len": 0,
+   "first": "",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [
+    "(0 , r(...).codegenNativeComponent) is not a function"
+   ],
+   "bad": []
+  },
+  {
+   "route": "inbound_reports",
+   "lang": "en",
+   "nav": "not_ready"
+  },
+  {
+   "route": "video_call",
+   "lang": "en",
+   "nav": "not_ready"
+  }
+ ],
+ "login_ok": true
+}
