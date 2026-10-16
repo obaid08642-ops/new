@@ -28,6 +28,15 @@ jobs:
           GITLEAKS_ENABLE_SUMMARY: 'true'
         # gitleaks-action exits non-zero when leaks are found, failing the job.
 
+  # Phase 16.1 — no .env file may enter the repository, in any app.
+  env-ignore:
+    name: Env files ignored in every app
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Every .env is ignored, templates stay tracked
+        run: bash tools/audit/env_ignore_check.sh
+
   # Phase 16.7 — npm audit as a gate: 0 high/critical runtime findings.
   npm-audit:
     name: npm audit (runtime, high/critical = 0)
