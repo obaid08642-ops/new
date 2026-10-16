@@ -23,6 +23,7 @@ export default async function WishlistPage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("Wishlist");
   const routeState = await getTranslations("RouteState");
+  const product = await getTranslations("PublicProduct");
   const token = await requirePatientAccess(locale);
   const response = await getPatientWishlist(token);
   if (response.status === 401) redirect(`/${locale}/login`);
@@ -59,6 +60,7 @@ export default async function WishlistPage({ params }: Props) {
                         {item.price !== undefined ? <span className={styles.rowPrice}>{formatPrice(locale, item.price).text}</span> : null}
                         {item.inStock === false ? <StatusChip label={t("outOfStock")} tone={PHARMACY_TONE} /> : item.inStock === true ? <StatusChip label={t("inStock")} tone="mint" /> : null}
                         {item.requiresPrescription === true ? <StatusChip label={t("needsRx")} tone="amber" /> : null}
+                        {item.onlineOnly === true ? <StatusChip label={product("onlineOnly")} tone="mint" /> : null}
                       </span>
                     </span>
                     <span className={styles.rowEnd}><Icon name={caret} size={16} tone="secondary" /></span>

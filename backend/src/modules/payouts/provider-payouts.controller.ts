@@ -1,5 +1,6 @@
 /** Provider-initiated withdrawal requests with an atomic ledger reservation. */
-import { Controller, Post, Get, Body, UseGuards, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Get, Body, UseGuards, BadRequestException, Optional } from '@nestjs/common';
+import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection, ClientSession } from 'mongoose';
 import { v4 as uuid } from 'uuid';
@@ -19,6 +20,7 @@ export class ProviderPayoutsController {
   constructor(
     @InjectConnection() private readonly conn: Connection,
     private readonly ledger: LedgerService,
+    @Optional() private readonly killSwitches?: KillSwitchesService,
   ) {}
 
   private get withdrawals() { return this.conn.collection('providerwithdrawals'); }
@@ -51,6 +53,8 @@ export class ProviderPayoutsController {
 
   @Post('request')
   async request(@CurrentUser() user: any, @Body() body: RequestDto) {
+    // Issue 955: the admin kill switch freezes new withdrawal requests before any balance is locked.
+    await this.killSwitches?.assertOn('provider_withdrawals');
     const amount = Math.round(Number(body?.amount) * 100) / 100;
     const idempotencyKey = String(body?.idempotency_key || '').trim();
     if (!Number.isFinite(amount) || amount <= 0) throw new BadRequestException('valid_amount_required');

@@ -101,13 +101,32 @@ describe('strict per-locale public DTO', () => {
     expect(dto.slugs.fil).toBe('abilify-aripiprazole-15-mg-28-tablets');
   });
 
-  it('computes discount from old_price and keeps governance facts', () => {
-    const dto = resolveMedicinePublicDto(v14, 'en');
+  it('computes discount from old_price for a non-prescription item', () => {
+    const dto = resolveMedicinePublicDto({ ...v14, requires_prescription: false }, 'en');
     expect(dto.price).toBe(419.6);
     expect(dto.old_price).toBe(500);
     expect(dto.discount_percent).toBe(16);
     expect(dto.has_discount).toBe(true);
+    expect(dto.is_rx).toBe(false);
+    expect(dto.currency).toBe('SAR');
+  });
+
+  it('withholds the old price and the discount of a prescription item (decision 10) and keeps governance facts', () => {
+    const dto = resolveMedicinePublicDto(v14, 'en');
+    expect(dto.price).toBe(419.6);
+    expect(dto.old_price).toBeNull();
+    expect(dto.discount_percent).toBe(0);
+    expect(dto.has_discount).toBe(false);
     expect(dto.is_rx).toBe(true);
     expect(dto.currency).toBe('SAR');
+    // An item flagged with the legacy is_rx field is a prescription item too.
+    const legacy = resolveMedicinePublicDto({ ...v14, requires_prescription: undefined, is_rx: true }, 'en');
+    expect(legacy.old_price).toBeNull();
+    expect(legacy.has_discount).toBe(false);
+  });
+
+  it('sends online_exclusive only when the medicine is flagged online-only', () => {
+    expect(resolveMedicinePublicDto({ ...v14, online_exclusive: true }, 'en').online_exclusive).toBe(true);
+    expect(resolveMedicinePublicDto(v14, 'en').online_exclusive).toBe(false);
   });
 });

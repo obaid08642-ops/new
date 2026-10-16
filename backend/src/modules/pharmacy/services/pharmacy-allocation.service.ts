@@ -35,6 +35,9 @@ export function buildQuoteHash(offer_id: string, offer_version: number, totals: 
   return crypto.createHash('sha256').update(JSON.stringify({ offer_id, offer_version, totals })).digest('hex');
 }
 
+type AllocationRow = { id: string; order_id: string; offer_id?: string; status: string } & Record<string, unknown>;
+type PendingOrderRow = { id: string; selected_allocation_id?: string; selected_offer_id?: string };
+
 @Injectable()
 export class PharmacyAllocationService {
   private readonly logger = new Logger('PharmacyAllocation');
@@ -76,7 +79,24 @@ export class PharmacyAllocationService {
   async listForProvider(user: any, status?: string) {    assertProvider(user);
     const q: any = { pharmacy_account_id: user.id };
     if (status) q.status = status;
-    return this.allocs.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(100).lean();
+    const rows: AllocationRow[] = await this.allocs.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(100).lean();
+    // Each row says whether its order waits for this pharmacy to record the insurer's
+    // decision (relay only, owner decision 35), so the Orders card can open that form inline.
+    // The rule matches PharmacyInsuranceDecisionService.decide: the selected allocation of an
+    // order in insurance_decision_pending, no decision recorded yet, still before fulfilment.
+    const orderIds = [...new Set(rows.map((r) => r.order_id).filter(Boolean))];
+    const pending: PendingOrderRow[] = orderIds.length
+      ? await this.orders.find(
+        { id: { $in: orderIds }, status: PharmacyOrderState.INSURANCE_DECISION_PENDING, insurance_decision: { $exists: false } },
+        { _id: 0, id: 1, selected_allocation_id: 1, selected_offer_id: 1 },
+      ).lean()
+      : [];
+    const awaiting = new Set<string>(pending.map((o) => `${o.id}|${o.selected_allocation_id}|${o.selected_offer_id}`));
+    const decidable: string[] = [PharmacyAllocationState.PENDING_REVIEW, PharmacyAllocationState.PARTIALLY_CONFIRMED];
+    return rows.map((r) => ({
+      ...r,
+      awaits_insurance_decision: !!r.offer_id && decidable.includes(r.status) && awaiting.has(`${r.order_id}|${r.id}|${r.offer_id}`),
+    }));
   }
 
   /** Locate the calling pharmacy's allocation for a given order (used by order-level Blueprint endpoints). */

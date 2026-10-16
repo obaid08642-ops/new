@@ -50,7 +50,7 @@ export interface SearchDocument {
   specialty?: string | null;
   code?: string | null;
   requires_prescription: boolean;
-  /** Sold by Nabd Plus online only (rx-rules-app #2): the result row shows the same note as the product page. */
+  /** Decision 11: a medicine sold online only (the result row says so). */
   online_exclusive: boolean;
   /**
    * Popularity used for ranking. Always 0 for prescription-only items: decision 29 says they are never

@@ -41,6 +41,18 @@ describe("search: doctor sub-line", () => {
   });
 });
 
+describe("search: a medicine row says needs-a-prescription and online-only (rx-rules)", () => {
+  it("shows the chips from the row's flags and nothing for a plain row", () => {
+    const med = (over: object) => ({ id: "m1", type: "Medicine", typeEn: "Medicine", name: "Panadol", ...over });
+    const both = renderToStaticMarkup(<ResultItem locale="en" query="" result={med({ requiresPrescription: true, onlineOnly: true })} />);
+    expect(both).toContain(createTranslator("en", "PublicProduct")("rxRequired"));
+    expect(both).toContain(createTranslator("en", "PublicProduct")("onlineOnly"));
+    const plain = renderToStaticMarkup(<ResultItem locale="en" query="" result={med({ requiresPrescription: false, onlineOnly: false })} />);
+    expect(plain).not.toContain(createTranslator("en", "PublicProduct")("rxRequired"));
+    expect(plain).not.toContain(createTranslator("en", "PublicProduct")("onlineOnly"));
+  });
+});
+
 describe("search: the home search box sends ?q=", () => {
   it("starts with the query in the field (the search itself runs in the browser)", () => {
     const html = renderToStaticMarkup(<SearchClient locale="en" initialQuery="panadol" />);

@@ -38,7 +38,7 @@ import {
 } from '../../components/ui';
 import { SP, R, FS, FW, PHARMA_CATS, LIMITS, C, API_BASE } from '../../constants';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
-import { PharmacyInsuranceQueueScreen } from './PharmacyInsuranceDecision';
+import { PharmacyInsuranceQueueScreen, PharmacyInsuranceDecisionForAllocation } from './PharmacyInsuranceDecision';
 import { PharmacyMoreScreen, SetupChecklist } from './PharmacyMore';
 import { PharmacyPrescriptionReviewScreen } from './PharmacyPrescriptionReview';
 import { PharmacyMyOffers } from './PharmacyMyOffers';
@@ -164,6 +164,7 @@ export function PharmacyDashboardNavigator({ onLogout }: { onLogout:()=>void }) 
      <Stack.Screen name="media_config">{({ navigation }: any) => <MediaConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
     <Stack.Screen name="insurance_decisions">{({ navigation }: any) => <PharmacyInsuranceQueueScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+    <Stack.Screen name="insurance_decision_order">{({ navigation, route }: any) => <PharmacyInsuranceDecisionForAllocation allocationId={String(route.params?.param?.allocation_id || '')} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="product_catalog">{({ navigation }: any) => <ActiveInventoryScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="working_hours">{({ navigation }: any) => <WorkingHoursEditorScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -856,7 +857,7 @@ const ORDER_SECTION_STATUSES: Record<OrderSection, string[]> = {
 };
 function DispatchWorkflowScreen({ onBack, onNavigate, initialSection = 'new' }: { onBack: () => void; onNavigate?: (s: string, p?: any) => void; initialSection?: OrderSection }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
 
@@ -1019,6 +1020,9 @@ function DispatchWorkflowScreen({ onBack, onNavigate, initialSection = 'new' }: 
         )}
         {courierFor !== a.id && collectFor !== a.id && (
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
+            {a.awaits_insurance_decision === true && onNavigate && (
+              <NBtn label={t('insuranceDecisionRecord')} size="sm" icon="shield" onPress={() => onNavigate('insurance_decision_order', { allocation_id: a.id })} />
+            )}
             {['pending_review', 'partially_confirmed'].includes(String(a.status)) && (
               <NBtn label={AR ? 'تأكيد' : 'Confirm'} size="sm" loading={actionId === a.id} onPress={() => doAction(a.id, 'confirm')} />
             )}
