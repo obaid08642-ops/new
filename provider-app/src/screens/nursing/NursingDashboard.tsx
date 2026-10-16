@@ -54,6 +54,7 @@ const { width: W } = Dimensions.get('window');
 // ══════════════════════════════════════════════════════════════════
 import { NursingFieldOps } from './NursingFieldOps';
 import { tokens, withAlpha } from '../../theme/tokens';
+import { fmtTime } from '../../utils/dates';
 
 export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
  const [tab, setTab] = useState('home');
@@ -1186,7 +1187,7 @@ function NursingChatScreen({ order, onBack }: { order: any; onBack: () => void }
         {!loading && msgs.length === 0 && <Text style={{ color: theme.textSub, textAlign: 'center' }}>{AR ? 'لا رسائل بعد — ابدأ المحادثة' : 'No messages yet — start the conversation'}</Text>}
         {msgs.map(m => {
           const mine = m.sender_id === (user as any)?.id;
-          const time = m.createdAt ? new Date(m.createdAt).toLocaleTimeString('ar-SA-u-ca-gregory', { hour: '2-digit', minute: '2-digit' }) : '';
+          const time = m.createdAt ? fmtTime(m.createdAt, AR) : '';
           return (
           <View key={m.id || m._id} style={{ alignSelf: mine ? 'flex-end' : 'flex-start', backgroundColor: mine ? theme.primary : theme.surface, padding: SP.md, borderRadius: R.md, maxWidth: '80%' }}>
             <Text style={{ color: mine ? '#FFF' : theme.text }}>{m.body}</Text>
