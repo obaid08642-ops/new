@@ -55,6 +55,7 @@ class Walk:
         self.stats = {'routes': 0, 'links_checked': 0, 'buttons_clicked': 0, 'buttons_skipped': 0, 'tabs': 0, 'selects': 0, 'searches': 0, 'rows': 0}
         self.net, self.js, self.dialogs = [], [], []
         self.seen = set()
+        self.notes = []
 
     def add(self, page, control, what, cls):
         key = (page, control, what[:80])
@@ -65,6 +66,10 @@ class Walk:
 
     def drain(self, page, control):
         for st, m, u in self.net:
+            # a 400/422 on a write is the server rejecting an empty form the crawler clicked without filling: expected
+            if st in (400, 422) and m != 'GET' and control.startswith('button'):
+                self.notes.append((page, control, f'{m} {u} -> {st} (validation on an unfilled form)'))
+                continue
             if st >= 400:
                 self.add(page, control, f'{m} {u} -> {st}', 'broken')
         for e in self.js:
@@ -316,7 +321,7 @@ def main():
     results = []
     for role, email, pwd in ACCOUNTS:
         results.append(walk(browser, role, email, pwd, only))
-        json.dump([{'role': r.role, 'stats': r.stats, 'defects': r.defects} for r in results], open(out, 'w'), ensure_ascii=False, indent=1)
+        json.dump([{'role': r.role, 'stats': r.stats, 'defects': r.defects, 'notes': r.notes} for r in results], open(out, 'w'), ensure_ascii=False, indent=1)
     browser.close(); pw.stop()
     total = 0
     for r in results:
