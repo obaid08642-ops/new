@@ -45,3 +45,10 @@ The test issues were resolved after each check.
 Production's backend sent ~1,000 errors every 5 minutes from 07:00 UTC on 2026-10-16 (Redis "MISCONF … No space
 left on device", MongoDB "ENOTFOUND mongodb": the root disk was full); Sentry's spike protection dropped most of
 them. Alerting on that (20.5) is the next item.
+
+## Verification runs must not look like production (2026-10-16 incident)
+The first verification of this PR sent test events to the PRODUCTION projects with `environment=production`, so the
+owner got alert e-mails (PATIENT-WEB-1…5, NABD-BACKEND-1Q; all resolved as test noise). The rule from now on:
+- a test or CI run uses its own environment: `SENTRY_ENVIRONMENT=ci` (backend, web server) and
+  `NEXT_PUBLIC_SENTRY_ENVIRONMENT=ci` at build time (browser), or no DSN at all;
+- a Sentry alert rule that e-mails the owner should filter `environment:production` (a project setting, not code).
