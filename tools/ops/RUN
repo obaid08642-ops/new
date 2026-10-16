@@ -1,1 +1,4 @@
-# 2026-10-16 reviewer: nothing to run. The review session's runs are done; the build session's report key is restored.
+# 2026-10-16 reviewer, READ-ONLY: production API answers 500 on every route (readiness included) since about 11:20 UTC;
+# the web still serves its cached pages. Find the cause: disk, memory, OOM kills, container states and logs (secrets
+# dropped). Report encrypted to the review session's key; the build session's key is restored after this run.
+55-inspect-outage

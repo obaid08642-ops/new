@@ -5,7 +5,7 @@
 set +e
 sec() { echo; echo "## $1"; }
 T() { timeout 40 "$@"; }
-S=${OUTAGE_SINCE:-"48 hours ago"}
+S=${OUTAGE_SINCE:-"12 hours ago"}
 redact() { grep -viE 'authorization|bearer|password|passwd|secret|token|api[_-]?key|cookie|set-cookie|private' | cut -c1-400; }
 sec "time, uptime, boots"; date -u; T uptime; T sudo -n last -x reboot shutdown 2>&1 | head -10; T sudo -n journalctl --list-boots --no-pager 2>&1 | tail -5
 sec "disk and inodes"; T df -h 2>&1 | grep -vE 'tmpfs|overlay'; T df -i / 2>&1
