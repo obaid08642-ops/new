@@ -1293,7 +1293,9 @@ export class AuthService {
       throw new HttpException('Too many invalid attempts. Please request a new code.', HttpStatus.TOO_MANY_REQUESTS);
     }
 
-    if (!(await bcrypt.compare(code, entry.code_hash))) {
+    // P17-17.9: the code is digits — normalize Arabic-Indic/Eastern
+    // Arabic-Indic forms before comparing with the stored Latin hash.
+    if (!(await bcrypt.compare(normalizeDigits(code).trim(), entry.code_hash))) {
       // increment attempts (keep remaining TTL by re-setting with same expiry window)
       const ttl = await this.redisService.ttl(key);
       await this.redisService.setJson(key, { ...entry, attempts: entry.attempts + 1 }, ttl > 0 ? ttl : this.OTP_TTL_SECONDS);
@@ -1323,8 +1325,11 @@ export class AuthService {
     AuthService.assertString(identifier, 'identifier');
     AuthService.assertString(newPassword, 'password');
     AuthService.assertString(code, 'code');
-    const isEmail = identifier.includes('@');
-    const u = await this.userModel.findOne(isEmail ? { email: identifier } : { phone: identifier });
+    // P17-17.9: normalize before lookup (an Arabic-Indic phone must find the
+    // Latin-stored account, exactly like the OTP identifier paths).
+    const normalizedIdentifier = this.normalizeOtpIdentifier(identifier);
+    const isEmail = normalizedIdentifier.includes('@');
+    const u = await this.userModel.findOne(isEmail ? { email: normalizedIdentifier } : { phone: normalizedIdentifier });
     if (!u) throw new UnauthorizedException('User not found');
     // Verify the OTP against the contact that actually received it.
     await this.verifyOtp(this.otpContact(u, identifier), code); // throws if invalid
