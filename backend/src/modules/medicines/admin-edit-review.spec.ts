@@ -36,7 +36,7 @@ describe('MedicinesService.adminUpdateCatalog: which edits need a fresh medical 
 
   it('marking an item controlled or online-only does not unpublish it', async () => {
     const svc = make();
-    const r = await svc.adminUpdateCatalog('m1', { controlled: true, online_exclusive: true }, 'adm');
+    const r = await svc.adminUpdateCatalog('m1', { controlled: true, online_exclusive: true, reason: 'narcotic schedule' }, 'adm');
     expect(r.requires_reapproval).toBe(false);
     expect(setOf(svc)).toEqual(expect.objectContaining({ controlled: true, online_exclusive: true }));
   });

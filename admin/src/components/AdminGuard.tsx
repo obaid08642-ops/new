@@ -71,6 +71,7 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/price-override-audit', label: 'تدقيق أسعار الأدوية' },
       { href: '/admin/pharmacy-price-review', label: 'مراجعة أسعار عروض الصيدليات', permission: 'catalog.read' },
       { href: '/admin/article-review', label: 'مراجعة مقالات الأطباء', permission: 'cms.edit' },
+      { href: '/admin/pregnancy-weeks', label: 'أسابيع الحمل', permission: 'cms.edit' },
       { href: '/admin/loyalty-config', label: 'إعدادات الولاء' },
       { href: '/admin/live-chat-console', label: 'الشات الحي' },
       { href: '/admin/appointments-oversight', label: 'إشراف المواعيد' },
@@ -163,6 +164,7 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/content-growth': 'cms.edit',
   '/admin/home-curation': 'cms.edit',
   '/admin/article-review': 'cms.edit',
+  '/admin/pregnancy-weeks': 'cms.edit',
   '/admin/loyalty-config': 'coupons.manage',
   // Owner decision 29: these pages' writes need the permission the backend names on them.
   '/admin/notification-center': 'notifications.send',

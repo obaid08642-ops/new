@@ -7,11 +7,16 @@ const BROADCAST = new Set([
 ]);
 
 /**
+ * The governed states of an order before an offer is selected (Q-3: the order detail derives them for a broadcasting
+ * order: ORDER_BROADCASTING while it waits, OFFERS_READY once a pharmacy has answered). The patient is still choosing.
+ */
+export const PRE_SELECTION_STATES: readonly string[] = ["ORDER_BROADCASTING", "OFFERS_READY"];
+
+/**
  * The page an order belongs on, from the states the backend really produces (`governedView` in
- * pharmacy-order.service.ts): no governed state until an offer is selected, then OFFER_SELECTED, FINAL_QUOTE_READY,
- * FINAL_QUOTE_ACCEPTED, COD_REGISTERED, INSURANCE_PROCESSING, INSURANCE_DECISION_READY, and the order's own status
- * once fulfilment starts. (OFFERS_READY and ORDER_BROADCASTING are not states the server sends: the phase before a
- * selection is read from the order's status.)
+ * pharmacy-order.service.ts): ORDER_BROADCASTING / OFFERS_READY (or none) until an offer is selected, then
+ * OFFER_SELECTED, FINAL_QUOTE_READY, FINAL_QUOTE_ACCEPTED, COD_REGISTERED, INSURANCE_PROCESSING,
+ * INSURANCE_DECISION_READY, and the order's own status once fulfilment starts.
  */
 export function routeForOrder(view: OrderPaymentView, orderId: string, locale: string): string {
   const id = encodeURIComponent(orderId);
@@ -26,6 +31,9 @@ export function routeForOrder(view: OrderPaymentView, orderId: string, locale: s
     case "INSURANCE_PROCESSING":
     case "INSURANCE_DECISION_READY":
       return `/${locale}/pharmacy/insurance-decision?orderId=${id}`;
+    case "ORDER_BROADCASTING":
+    case "OFFERS_READY":
+      return `/${locale}/pharmacy/broadcast-status?orderId=${id}`;
     case undefined:
     case "":
       break;

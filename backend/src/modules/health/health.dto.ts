@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString, ValidateIf } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString, ValidateIf, MaxLength } from 'class-validator';
 
 export class AddVitalDto {
   @IsDefined() @IsString() type: string;
@@ -20,6 +20,8 @@ export class AddVitalDto {
 export class UpdateVitalDto extends AddVitalDto {}
 
 export class UpdateReminderDto {
+  /** Journeys 67: a family caregiver (group owner or the 'meds' permission) creates or edits a member's reminder. */
+  @IsOptional() @IsString() @MaxLength(128) for_member_id?: string;
   @IsOptional() @IsString() dose?: string;
   @IsOptional() @IsString() medicine_name_ar?: string;
   @IsOptional() @IsString() medicine_name_en?: string;
@@ -39,6 +41,8 @@ export class UpdateReminderDto {
 }
 
 export class RcDto {
+  /** Journeys 67: a family caregiver (group owner or the 'meds' permission) creates or edits a member's reminder. */
+  @IsOptional() @IsString() @MaxLength(128) for_member_id?: string;
   @IsOptional()
   @IsString()
   dose?: string;

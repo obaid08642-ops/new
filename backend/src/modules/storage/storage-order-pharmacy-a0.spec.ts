@@ -6,7 +6,8 @@ import { UploadSecurityService } from './upload-security.service';
 function make(opts: { recipients?: string[]; allocations?: string[] }) {
   const file: any = { id: 'f1', owner_account_id: 'pat-1', visibility: 'private', mime: 'image/jpeg', original_name: 'rx.jpg', size_bytes: 1, backend: 'base64', data_base64: 'eA==' };
   const coll = (name: string): any => ({
-    find: (q: any) => ({ limit: () => ({ toArray: async () => (name === 'pharmacy_orders' && q.patient_account_id.$eq === 'pat-1' && q['prescription_attachments.uri'].$eq === '/api/v1/storage/f1' ? [{ id: 'ord-1' }] : []) }) }),
+    // the order carries the file as a prescription attachment or as the photo of a box (journeys 74): either clause
+    find: (q: any) => ({ limit: () => ({ toArray: async () => (name === 'pharmacy_orders' && q.patient_account_id.$eq === 'pat-1' && (q.$or || []).some((c: any) => (c['prescription_attachments.uri'] || c['items.photo_uri'])?.$eq === '/api/v1/storage/f1') ? [{ id: 'ord-1' }] : []) }) }),
     findOne: async (q: any) => {
       const list = name === 'pharmacy_broadcast_recipients' ? opts.recipients || [] : name === 'pharmacy_allocations' ? opts.allocations || [] : [];
       return q.order_id.$in.includes('ord-1') && list.includes(q.pharmacy_account_id.$eq) ? { _id: 1 } : null;

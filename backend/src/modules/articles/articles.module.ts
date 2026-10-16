@@ -25,7 +25,7 @@ import { Permission, RequirePermissions } from '../../common/permissions';
 const ARTICLE_UPDATE_FIELDS = [
   'title_ar', 'title_en', 'excerpt_ar', 'excerpt_en', 'body_ar', 'body_en',
   'category', 'tags', 'cover_image', 'author_name', 'author_title',
-  'seo_description_ar', 'seo_description_en',
+  'seo_description_ar', 'seo_description_en', 'pregnancy_week',
 ];
 
 @Injectable()
@@ -91,6 +91,7 @@ export class ArticlesService {
       author_title: body.author_title,
       seo_description_ar: body.seo_description_ar,
       seo_description_en: body.seo_description_en,
+      pregnancy_week: body.pregnancy_week,
       slug,
       status: 'DRAFT',
     });

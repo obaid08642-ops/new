@@ -591,6 +591,6 @@
     "element": "result upload",
     "found": "[backend] With result files the visit is completed through POST /home-care/bookings/:id/visit-report (the only route that stores attachments); that handler sends no `patient.notify` like /nursing/visits/:id/complete does (the patient signature is stored now). Visits without files still complete through /nursing/visits/:id/complete.",
     "suspect": "backend gap",
-    "review_status": "open"
+    "review_status": "fixed #1504"
   }
 ]

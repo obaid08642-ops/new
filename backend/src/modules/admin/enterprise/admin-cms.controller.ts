@@ -62,6 +62,7 @@ export class AdminCmsController {
       if (b[f] !== undefined) $set[f] = String(b[f] ?? '');
     }
     if (Array.isArray(b.tags)) $set.tags = b.tags.map(String).slice(0, 12);
+    if (b.pregnancy_week !== undefined) $set.pregnancy_week = b.pregnancy_week ?? null;
     if (b.slug !== undefined && String(b.slug).trim()) $set.slug = String(b.slug).trim().toLowerCase().replace(/\s+/g, '-').slice(0, 80);
 
     let id = b?.id;

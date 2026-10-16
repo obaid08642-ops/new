@@ -1,4 +1,5 @@
 import { copayRefundable, findCopayTransaction } from '../../common/copay-transaction';
+import { riyadhDayRange, riyadhMonthStart } from '../../common/riyadh-clock';
 import { ModuleRef } from '@nestjs/core';
 /**
  * EPIC 1 — FINANCE & MARKETPLACE ENGINE
@@ -947,8 +948,9 @@ export class ReportsService {
     let from: Date;
     if (fromQ) from = new Date(fromQ);
     else if (period === 'weekly') from = new Date(now.getTime() - 7 * 24 * 3600 * 1000);
-    else if (period === 'monthly') from = new Date(now.getFullYear(), now.getMonth(), 1);
-    else from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    // the day and the month of the report are Riyadh's (the server clock is UTC)
+    else if (period === 'monthly') from = riyadhMonthStart(now);
+    else from = riyadhDayRange(undefined, now)!.start;
     const to = toQ ? new Date(toQ) : now;
     const dateQ = { createdAt: { $gte: from, $lte: to } };
 

@@ -4,6 +4,7 @@
   Stack: backend :8002, patient-web :3100.
 """
 import datetime
+from zoneinfo import ZoneInfo
 import os
 
 from lib import Client, journey, step, web_login
@@ -56,7 +57,8 @@ def main():
         page.goto(f'{WEB}/ar/nutrition', wait_until='load', timeout=60000)
         msg = submit('سجّل الماء', [('الكمية (مل)', '350')])
         step('the water form says it was saved', 'تم الحفظ' in msg, msg)
-        today = datetime.date.today().isoformat()
+        # the patient's day is Riyadh's (the web asks for it the same way); the runner's clock is UTC
+        today = datetime.datetime.now(ZoneInfo('Asia/Riyadh')).date().isoformat()
         s = pat.get(f'/nutrition/daily-summary?date={today}')
         water = (s.get('water') or {}).get('consumed_ml') if isinstance(s.get('water'), dict) else s.get('water_ml')
         step('the day summary counts the 350 ml', s.ok and float(water or 0) >= 350, s)
