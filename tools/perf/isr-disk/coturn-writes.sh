@@ -7,7 +7,7 @@ set -u
 MODE=${1:-plain}
 HERE=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$HERE/../../.." && pwd)
-SECRET=ci-turn-secret-0123456789abcdef
+SECRET=$(openssl rand -hex 16)   # a throw-away value made per run (a literal here is a Gitleaks finding)
 D=$ROOT/deploy
 mkdir -p "$D/certs/turn/turn.nabd.plus"
 openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj /CN=turn.nabd.plus -keyout "$D/certs/turn/turn.nabd.plus/privkey.pem" -out "$D/certs/turn/turn.nabd.plus/fullchain.pem" 2>/dev/null
