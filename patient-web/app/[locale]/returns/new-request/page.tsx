@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
@@ -5,6 +6,7 @@ import { isLocale } from "@/lib/i18n";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { SectionCard } from "@/components-next/consult/consult-parts";
 import { ReturnRequestForm } from "@/components-next/return-request-form";
+import rx from "@/components-next/pharmacy/rx.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -14,10 +16,12 @@ export default async function ReturnNewRequestPage({ params }: Props) {
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const w = await getTranslations("ReturnsWeb");
+  const legal = await getTranslations("LegalLinks");
   await requirePatientAccess(locale);
   return (
     <ConsultPage locale={locale} title={w("newRequest")} backHref={`/${locale}/returns`}>
       <SectionCard id="return-form"><ReturnRequestForm locale={locale} /></SectionCard>
+      <Link className={rx.textLink} href={`/${locale}/refund-policy`}>{legal("refundPolicy")}</Link>
     </ConsultPage>
   );
 }

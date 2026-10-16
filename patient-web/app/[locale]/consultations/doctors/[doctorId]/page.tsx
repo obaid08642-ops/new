@@ -15,6 +15,7 @@ import { LinkSegmented } from "@/components-next/consult/link-segmented";
 import { ProfileHeader, type ProfileStat } from "@/components-next/consult/profile-header";
 import { Notice, SectionCard } from "@/components-next/consult/consult-parts";
 import styles from "@/components-next/consult/consult.module.css";
+import { readTelehealthConsent } from "@/lib/legal/telehealth-consent";
 
 type Props = { params: Promise<{ locale: string; doctorId: string }>; searchParams: Promise<{ date?: string; service_type?: string }> };
 const serviceTypes = ["video", "clinic", "home"] as const;
@@ -104,7 +105,7 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
         />
         <p className={`${styles.body} ${styles.muted}`}>{t("slotsForDate", { date: new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: "UTC" }).format(new Date(`${date}T00:00:00Z`)) })}</p>
         {slots?.slots.length ? (
-          <AppointmentBookingForm locale={locale} doctorId={doctor.id} serviceType={serviceType} slots={slots.slots} />
+          <AppointmentBookingForm locale={locale} doctorId={doctor.id} serviceType={serviceType} slots={slots.slots} consent={serviceType === "video" ? await readTelehealthConsent(locale) : null} />
         ) : (
           <Notice>{t(slots?.reason === "closed" ? "slotsClosed" : "slotsEmpty")}</Notice>
         )}

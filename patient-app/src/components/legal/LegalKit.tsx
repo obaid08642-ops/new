@@ -13,7 +13,8 @@ import { BASE_URL } from '../../utils/api';
  * The text is the policy the legal service answers for the language; nothing of it is written in the app.
  */
 
-export type PolicyKey = 'patient_terms' | 'privacy_policy';
+/** D-38: the terms, the privacy policy, the cancellation and refund policy and the telehealth consent. */
+export type PolicyKey = 'patient_terms' | 'privacy_policy' | 'refund_policy' | 'telehealth_consent';
 export interface Policy {
   content: string;
   version?: string | number | null;

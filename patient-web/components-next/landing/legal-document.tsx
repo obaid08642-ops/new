@@ -7,11 +7,15 @@ import type { Locale } from "@/lib/i18n";
 import styles from "./landing.module.css";
 
 /**
- * A legal page (terms, privacy): the shell, the title and the policy text the legal service answers, in a card (canvas/Settings:
+ * A legal page (terms, privacy, the cancellation and refund policy, the telehealth consent): the shell, the title and the policy text the legal service answers, in a card (canvas/Settings:
  * a white card of rows). The service holds Arabic and English; on a page in another language the text keeps its own language
  * and direction, so the reader and the screen reader are told which it is. The version and the date it applies from close the page.
  */
-export async function LegalDocument({ locale, kind, policy }: { locale: Locale; kind: "terms" | "privacy"; policy: LegalPolicy & { lang?: "ar" | "en"; current?: boolean } }) {
+export type LegalKind = "terms" | "privacy" | "refund" | "telehealth";
+
+const TITLE_KEYS: Record<LegalKind, string> = { terms: "legal.terms", privacy: "legal.privacy", refund: "legal.refund", telehealth: "legal.telehealth" };
+
+export async function LegalDocument({ locale, kind, policy }: { locale: Locale; kind: LegalKind; policy: LegalPolicy & { lang?: "ar" | "en"; current?: boolean } }) {
   const t = await getTranslations("PublicLanding");
   const groups: Array<{ kind: "heading" | "paragraph"; text: string } | { kind: "bullets"; items: string[] }> = [];
   for (const block of parseLegal(policy.content ?? "")) {
@@ -26,7 +30,8 @@ export async function LegalDocument({ locale, kind, policy }: { locale: Locale; 
   const date = effective && !Number.isNaN(effective.getTime()) ? new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: "UTC" }).format(effective) : "";
   const version = policy.version !== undefined && policy.version !== null && policy.version !== "" ? String(policy.version) : "";
   return (
-    <LandingPage locale={locale} title={t(kind === "terms" ? "legal.terms" : "legal.privacy")} backHref={`/${locale}/register`}>
+    // terms and privacy are read from the sign-up; the refund policy and the telehealth consent from anywhere on the site
+    <LandingPage locale={locale} title={t(TITLE_KEYS[kind])} backHref={kind === "terms" || kind === "privacy" ? `/${locale}/register` : `/${locale}`}>
       <article className={`${rx.card} ${styles.legal}`} lang={textLocale} dir={textLocale === "ar" ? "rtl" : "ltr"}>
         {groups.map((group, index) =>
           group.kind === "heading" ? (
