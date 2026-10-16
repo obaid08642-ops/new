@@ -1,3 +1,5 @@
+import * as Sentry from "@sentry/nextjs";
+
 export async function register() {
   if (process.env.NEXT_RUNTIME === "nodejs") {
     await import("./sentry.server.config");
@@ -11,3 +13,6 @@ export async function register() {
     await import("./sentry.edge.config");
   }
 }
+
+// P20.4: errors thrown while rendering server components and route handlers reach Sentry with the request
+export const onRequestError = Sentry.captureRequestError;
