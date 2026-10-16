@@ -4233,7 +4233,12 @@
       "plans": "Mga plano: {plans}",
       "actionTitle": "Idagdag ang iyong polisiya",
       "actionBody": "Pribado sa iyong account ang iyong polisiya, mga kahilingan at mga pag-apruba. Mag-sign in para idagdag ang iyong polisiya.",
-      "action": "Mag-sign in para idagdag ang polisiya"
+      "action": "Mag-sign in para idagdag ang polisiya",
+      "networkTitle": "Mga provider na tumatanggap sa iyong insurer",
+      "networkPick": "Kompanya ng seguro",
+      "networkPickHint": "Piliin ang iyong insurer",
+      "networkShow": "Ipakita ang mga provider",
+      "networkHint": "Piliin ang iyong insurer para makita ang mga ospital, klinika at botika na tumatanggap dito."
     },
     "homeCare": {
       "heroTitle": "Pag-aalaga at nursing sa bahay",
@@ -4269,6 +4274,15 @@
       "actionTitle": "Kunin ang iyong plano sa nutrisyon",
       "actionBody": "Pribado sa iyong account ang iyong plano, mga pagkain at target. Mag-sign in para makuha ang iyong plano.",
       "action": "Mag-sign in para makuha ang plano"
+    },
+    "emergency": {
+      "shareBody": "Ang iyong lokasyon ay napupunta lamang sa sarili mong mga emergency contact. Mag-sign in para ipadala ito.",
+      "shareAction": "Mag-sign in para ipadala ang lokasyon ko"
+    },
+    "ai": {
+      "actionTitle": "Magtanong sa assistant",
+      "actionBody": "Ang iyong mga tanong at larawan ay nananatiling pribado sa iyong account. Mag-sign in para magtanong sa assistant.",
+      "action": "Mag-sign in para magtanong"
     }
   }
 }

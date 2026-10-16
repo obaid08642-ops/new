@@ -4233,7 +4233,12 @@
       "plans": "Plans: {plans}",
       "actionTitle": "Add your policy",
       "actionBody": "Your policy, requests and approvals stay private to your account. Sign in to add your policy.",
-      "action": "Sign in to add your policy"
+      "action": "Sign in to add your policy",
+      "networkTitle": "Providers that accept your insurer",
+      "networkPick": "Insurer",
+      "networkPickHint": "Choose your insurer",
+      "networkShow": "Show providers",
+      "networkHint": "Choose your insurer to see the hospitals, clinics and pharmacies that accept it."
     },
     "homeCare": {
       "heroTitle": "Nursing and care at home",
@@ -4269,6 +4274,15 @@
       "actionTitle": "Get your nutrition plan",
       "actionBody": "Your plan, meals and target stay private to your account. Sign in to get your plan.",
       "action": "Sign in to get your plan"
+    },
+    "emergency": {
+      "shareBody": "Your location goes only to your own emergency contacts. Sign in to send it.",
+      "shareAction": "Sign in to send my location"
+    },
+    "ai": {
+      "actionTitle": "Ask the assistant",
+      "actionBody": "Your questions and photos stay private to your account. Sign in to ask the assistant.",
+      "action": "Sign in to ask"
     }
   }
 }
