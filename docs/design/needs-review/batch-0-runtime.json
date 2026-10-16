@@ -63,7 +63,7 @@
     "line": 0,
     "found": "Measured with Lighthouse (median of 3, production build, seeded backend), script transfer on /ar/pharmacy and /ar/consultations/doctors went from 224 to about 177 KB and on /ar from 224 to about 196 KB. What is left is the React and Next client runtime (about 113 KB gz in two chunks), the next-intl ICU message parser (about 12 KB gz: @formatjs/icu-messageformat-parser, intl-messageformat, use-intl), and components-next/web-mcp-provider.tsx (3.4 KB gz: six languages of tool descriptions shipped to every page, registering tools on a navigator.modelContext that nothing reads unless a WebMCP-capable browser provides it).",
     "suspect": "The budget cannot be met by design-system changes alone. Candidates for a separate change: load web-mcp-provider only when navigator.modelContext exists (or send only the current locale's descriptions from the server), and precompile the ICU messages so the parser leaves the client. Both are outside the design track, so reported here.",
-    "review_status": "open (issue #426)"
+    "review_status": "fixed #1515 (measured on main 236710aef: Lighthouse 13.5, production build served by the nonce server, devtools throttling, median of 3: script transfer /ar 161.2 KB, /ar/c 164.5 KB, /ar/consultations/doctors 158.1 KB, all under 170; brotli assets and per-section client messages of #1515; issue #426)"
   },
   {
     "batch": 0,
