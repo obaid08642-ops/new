@@ -38,6 +38,9 @@ def admin_adds_medicines(admin):
         r = admin.post('/medicines/admin/catalog', body)
         mid = r.get('id')
         step(f'admin creates "{en}"', r.ok and mid, r)
+        # medicines-catalog.tsx approve(): the medical review that makes the item public in patient search
+        r = admin.post(f'/medicines/admin/catalog/{mid}/approve', {'approve': True})
+        step(f'admin approves "{en}" in medical review', r.ok and r.get('medical_review_status') == 'approved', r)
         ids.append({'id': mid, 'name_ar': body['name_ar'], 'name_en': body['name_en'], 'price': price})
     return ids
 

@@ -16,10 +16,10 @@
     "screen": "/nursing/nurse-profile",
     "element": "Transport choice",
     "file": "patient-app/app/nursing/nurse-profile.tsx",
-    "line": 247,
+    "line": 286,
     "found": "[client] The choice is not part of the POST /nursing/bookings payload; it only changes the tracking wording. The invented '(0 SAR)' price on the second option was removed.",
     "suspect": "Client-side: later batch.",
-    "review_status": "owner-decision (question 42 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2) (issue #641)"
+    "review_status": "fixed #1532 (issue #641)"
   },
   {
     "batch": 4,
