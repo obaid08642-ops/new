@@ -1,3 +1,4 @@
+import { riyadhDayRange, riyadhMonthStart } from '../../common/riyadh-clock';
 import {
   Injectable,
   NotFoundException,
@@ -149,9 +150,10 @@ export class LoyaltyService {
         const doc: any = await (this as any).conn?.collection('loyalty_config')?.findOne({ key: 'global' });
         if (doc?.value?.earn_caps && typeof doc.value.earn_caps === 'object') caps = doc.value.earn_caps;
       } catch { /* no caps */ }
+      // the caps reset at midnight Riyadh time (the server clock is UTC)
       const now = new Date();
-      const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const dayStart = riyadhDayRange(undefined, now)!.start;
+      const monthStart = riyadhMonthStart(now);
       const [dayEarned, monthEarned] = await Promise.all([
         this.earnedSince(userId, reason, dayStart),
         this.earnedSince(userId, reason, monthStart),

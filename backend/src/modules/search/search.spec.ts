@@ -22,6 +22,13 @@ describe('D-29 search documents', () => {
     expect(otc.boost).toBeGreaterThan(0);
   });
 
+  it('rx-rules: a medicine document carries requires_prescription and online_exclusive for the result row', () => {
+    const online = toSearchDocument('medicines', { id: 'o', name_en: 'O', online_exclusive: true, ...APPROVED })!;
+    const rx = toSearchDocument('medicines', { id: 'r', name_en: 'R', requires_prescription: true, ...APPROVED })!;
+    expect([online.requires_prescription, online.online_exclusive]).toEqual([false, true]);
+    expect([rx.requires_prescription, rx.online_exclusive]).toEqual([true, false]);
+  });
+
   it('only active, approved records are searchable', () => {
     expect(toSearchDocument('medicines', { id: 'a', name_en: 'A', ...APPROVED, medical_review_status: 'pending' })).toBeNull();
     expect(toSearchDocument('medicines', { id: 'a', name_en: 'A', ...APPROVED, is_deleted: true })).toBeNull();

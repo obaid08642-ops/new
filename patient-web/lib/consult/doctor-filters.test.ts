@@ -47,8 +47,8 @@ describe("doctor filters: the GET /care/doctors query", () => {
     expect(doctorQuery({ filters: parseDoctorFilters({ available: "1" }) })).toBe("/care/doctors?type=clinic&available_within=15");
     expect(doctorQuery({ sort: "wait", filters: parseDoctorFilters({ available: "1", type: "video" }) })).toBe("/care/doctors?type=video&available_within=15");
   });
-  it("available now with nearest: no distance sort (the server cannot combine them); the city is still sent", () => {
-    expect(filterApiParams(parseDoctorFilters({ available: "1", nearest: "1", lat: "24.7", lng: "46.6" })).map(([k]) => k)).toEqual(["type", "available_within"]);
+  it("available now with nearest: the free doctors come nearest first (position sent; else the city)", () => {
+    expect(filterApiParams(parseDoctorFilters({ available: "1", nearest: "1", lat: "24.7", lng: "46.6" })).map(([k]) => k)).toEqual(["type", "available_within", "sort", "lat", "lng"]);
     expect(doctorQuery({ filters: parseDoctorFilters({ available: "1", nearest: "1", city: "Jeddah" }) })).toBe("/care/doctors?type=clinic&available_within=15&city=Jeddah");
   });
   it("text search is q, never search", () => {

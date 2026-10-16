@@ -74,7 +74,7 @@
     "line": 0,
     "found": "Lighthouse on the production build (median of 3): LCP 3.0-3.2 s on /ar and /ar/consultations/doctors, 4.3 s on /ar/pharmacy, against 2.5 s. The shared-JS trim did not move it (main measured the same: 3.1 s, 2.6 s, 4.6 s). Lighthouse lists render-blocking CSS (three stylesheets, about 28 KB gz) and the theme/nonce script as the savings.",
     "suspect": "F82 is a rendering-path problem (render-blocking CSS, font loading, server time to first byte on /pharmacy), not a bundle-size one. Needs its own change; not started.",
-    "review_status": "owner-decision (question 43 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #427)"
+    "review_status": "fixed #1515 (owner decisions 43 and 45: per-section skeletons, theme from a cookie, Lighthouse with devtools throttling and the median of 3, optimized catalogue pictures, prefetch on intent; CI Lighthouse green on all three pages) (issue #427)"
   },
   {
     "batch": 0,

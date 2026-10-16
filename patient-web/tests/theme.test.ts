@@ -17,10 +17,14 @@ const css = readFileSync(resolve(process.cwd(), "app/globals.css"), "utf8");
 describe("12.A3 — theme", () => {
   it("resolves before first paint, in the document, not after mount", () => {
     // A theme resolved in an effect is a flash of the wrong theme on every
-    // navigation, so the resolver has to be a synchronous script in the markup.
-    expect(layout).toContain("THEME_INIT_SCRIPT");
-    expect(layout.indexOf("THEME_INIT_SCRIPT")).toBeLessThan(layout.indexOf("<header"));
+    // navigation, so the resolver is a synchronous script in the markup. Owner
+    // decision 43 a (issue 427): the server writes the theme on <html> from the
+    // cookie (server/nonce-transform.mjs, tested in nonce-*.test.ts), so the
+    // script is the fallback and sits after the content, not before it.
+    const script = layout.indexOf("__html: THEME_INIT_SCRIPT");
+    expect(script).toBeGreaterThan(layout.indexOf("</footer>"));
     expect(THEME_INIT_SCRIPT).toContain("localStorage");
+    expect(THEME_INIT_SCRIPT).toContain("nabd\\.theme=(light|dark)");
     expect(THEME_INIT_SCRIPT).toContain("prefers-color-scheme: dark");
   });
 

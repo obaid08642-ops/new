@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
-import { THEME_STORAGE_KEY, isTheme, type Theme } from "@/app/theme";
+import { applyThemeToDocument, isTheme, saveThemeChoice, type Theme } from "@/app/theme";
 import styles from "./home.module.css";
 
 /**
@@ -20,16 +20,9 @@ export function ThemeButton({ label }: { label: string }) {
 
   const flip = useCallback(() => {
     const next: Theme = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
-    const root = document.documentElement;
-    root.setAttribute("data-theme", next);
-    root.classList.toggle("dark", next === "dark");
-    root.style.colorScheme = next;
+    applyThemeToDocument(next);
     setTheme(next);
-    try {
-      window.localStorage.setItem(THEME_STORAGE_KEY, next);
-    } catch {
-      /* nothing to persist to; the choice still applies for this page */
-    }
+    saveThemeChoice(next);
   }, []);
 
   return (

@@ -140,6 +140,6 @@
     "line": 10,
     "found": "[backend] GET /providers/map ids are provider-profile ids; /facility/[id] reads the facilities collection (entity-graph getRelatedFacility). The link works only where the two ids are the same; the old /consultations/clinics/[id] link made the same assumption. The map answer carries no facility slug. (backend: backend/src/modules/provider/providers.service.ts:361)",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open"
+    "review_status": "fixed #1513"
   }
 ]

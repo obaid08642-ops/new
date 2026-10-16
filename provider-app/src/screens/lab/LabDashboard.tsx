@@ -1508,9 +1508,19 @@ const s = StyleSheet.create({
 // ══════════════════════════════════════════════════════════════════
 // LAB TEST MENU (Settings & Pricing)
 // ══════════════════════════════════════════════════════════════════
+// A lab test's preparation is written per test in the six patient-app languages (decision of 2026-10-15);
+// the patient app shows the one for its language, and with none only says the lab will confirm any preparation.
+const PREP_LANGS = [
+  { code: 'ar', label: 'labPrepAr' }, { code: 'en', label: 'labPrepEn' }, { code: 'ur', label: 'labPrepUr' },
+  { code: 'hi', label: 'labPrepHi' }, { code: 'bn', label: 'labPrepBn' }, { code: 'tl', label: 'labPrepTl' },
+] as const;
+type PrepLang = typeof PREP_LANGS[number]['code'];
+const emptyPrep = (): Record<PrepLang, string> => ({ ar: '', en: '', ur: '', hi: '', bn: '', tl: '' });
+const prepLines = (text: string): string[] => text.split('\n').map((x) => x.trim()).filter(Boolean);
+
 function LabTestMenuScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
 
@@ -1523,6 +1533,7 @@ function LabTestMenuScreen({ onBack }: { onBack: () => void }) {
 
   const [editingService, setEditingService] = useState<any | null>(null);
   const [editPrice, setEditPrice] = useState('');
+  const [editPrep, setEditPrep] = useState<Record<PrepLang, string>>(emptyPrep);
 
   useEffect(() => { fetchServices(); }, []);
 
@@ -1543,7 +1554,10 @@ function LabTestMenuScreen({ onBack }: { onBack: () => void }) {
       await client.post('/approval-workflow/requests', {
         entity_type: 'service',
         entity_id: editingService.id,
-        change_data: { price: parseFloat(editPrice) || 0 }
+        change_data: {
+          price: parseFloat(editPrice) || 0,
+          ...Object.fromEntries(PREP_LANGS.map(({ code }) => [`preparation_${code}`, prepLines(editPrep[code])])),
+        }
       });
       show(AR ? 'تم إرسال التعديلات للمراجعة' : 'Changes sent for review', 'success');
       setEditingService(null);
@@ -1598,9 +1612,13 @@ function LabTestMenuScreen({ onBack }: { onBack: () => void }) {
                     {srv.price} {AR ? 'ر' : 'SAR'}
                   </Text>
                 </View>
-                <NBtn label={AR ? 'تعديل السعر' : 'Edit Price'} size="xs" variant="outline" full={false} onPress={() => {
+                <NBtn label={t('labEditTest')} size="xs" variant="outline" full={false} onPress={() => {
                   setEditingService(srv);
                   setEditPrice(String(srv.price || ''));
+                  setEditPrep(Object.fromEntries(PREP_LANGS.map(({ code }) => {
+                    const list = srv[`preparation_${code}`];
+                    return [code, Array.isArray(list) ? list.filter((x: unknown) => typeof x === 'string').join('\n') : ''];
+                  })) as Record<PrepLang, string>);
                 }} />
               </View>
             </NCard>
@@ -1609,8 +1627,14 @@ function LabTestMenuScreen({ onBack }: { onBack: () => void }) {
       )}
 
       {/* Edit Sheet */}
-      <NSheet visible={!!editingService} onClose={() => setEditingService(null)} title={AR ? 'تعديل السعر' : 'Edit Price'}>
+      <NSheet visible={!!editingService} onClose={() => setEditingService(null)} title={t('labEditTest')}>
         <NPriceInput label={AR ? 'السعر داخل المختبر' : 'Lab Price'} value={editPrice} onChange={setEditPrice} />
+        <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginTop: SP.lg }}>{t('labPrepTitle')}</Text>
+        <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>{t('labPrepHint')}</Text>
+        {PREP_LANGS.map(({ code, label }) => (
+          <NInput key={code} label={t(label)} value={editPrep[code]} multiline lines={2}
+            onChange={(v) => setEditPrep((prev) => ({ ...prev, [code]: v }))} />
+        ))}
         <NBtn label={AR ? 'إرسال التعديل للمراجعة' : 'Send for Review'} onPress={handleSaveEdit} style={{ marginTop: SP.xl }} />
       </NSheet>
 

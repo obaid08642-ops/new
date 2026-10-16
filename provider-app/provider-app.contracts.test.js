@@ -12,6 +12,8 @@ describe('Provider App release contracts', () => {
     .join('\n');
   const dashboard = readSplit('screens/doctor/doctor');
   const pharmacyDashboard = read('screens/pharmacy/PharmacyDashboard.tsx');
+  // Owner decision 41 (issue 1146): the offer contract checks the live composer, not the removed quick-offer screen.
+  const pharmacyBroadcastResponse = read('screens/shared/blueprint/PharmacyBroadcastResponse.tsx');
   const labDashboard = read('screens/lab/LabDashboard.tsx');
   const radiologyDashboard = read('screens/radiology/RadiologyDashboard.tsx');
   const facilityDashboard = readSplit('screens/facility/facility');
@@ -63,13 +65,13 @@ describe('Provider App release contracts', () => {
     expect(pharmacyDashboard).not.toContain('Simulate Drug Scan');
     expect(pharmacyDashboard).not.toContain('طلب وصفة #B-9901');
     expect(pharmacyDashboard).toContain("client.get('/provider/pharmacy/broadcasts')");
-    expect(pharmacyDashboard).toContain('/provider/pharmacy/broadcasts/${orderId}/offers/draft');
-    expect(pharmacyDashboard).toContain('/provider/pharmacy/broadcasts/${orderId}/offers/${offerId}/submit');
+    expect(pharmacyBroadcastResponse).toContain('/provider/pharmacy/broadcasts/${orderId}/offers/draft');
+    expect(pharmacyBroadcastResponse).toContain('/provider/pharmacy/broadcasts/${orderId}/offers/${offerId}/submit');
     expect(pharmacyDashboard).toContain('/provider/pharmacy/broadcasts/${rejectOrderId}/reject');
     expect(pharmacyDashboard).not.toContain('/provider/pharmacy/orders/${orderId}/accept');
     expect(pharmacyDashboard).not.toContain('/provider/pharmacy/broadcasts/${orderId}/i-have-all');
     expect(pharmacyDashboard).not.toContain('/provider/pharmacy/broadcasts/${orderId}/i-have-partial');
-    expect(pharmacyDashboard).toContain('the order is not assigned yet');
+    expect(pharmacyBroadcastResponse).toContain('the order is not assigned yet');
     expect(pharmacyDashboard).toContain("client.get('/provider/inventory/search', { params: { barcode: String(data) } })");
     expect(pharmacyDashboard).not.toContain('/pharmacy/orders/${rejectOrderId}/reject');
     expect(pharmacyDashboard).not.toMatch(/const\s+CHATS\s*=\s*\[/);

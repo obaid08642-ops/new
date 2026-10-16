@@ -4,6 +4,7 @@ import { PharmacyOrderService } from './pharmacy-order.service';
 const MEDS = [
   { id: 'med-rx', sku: 1002, name_ar: 'أوجمنتين', name_en: 'Augmentin', requires_prescription: true, controlled: false },
   { id: 'med-otc', sku: 1001, name_ar: 'بنادول', name_en: 'Panadol', requires_prescription: false, controlled: false },
+  { id: 'med-web', sku: 1003, name_ar: 'فيتامين', name_en: 'Vitamin', requires_prescription: false, controlled: false, online_exclusive: true },
 ];
 
 function svcWith(opts: { orders: any[]; allocs?: any[]; profiles?: any[] }) {
@@ -45,6 +46,19 @@ describe('A-1 order answers', () => {
     const { svc } = svcWith({ orders: [order] });
     const out = await svc.detail(patient, 'o1');
     expect(out.items.map((i: any) => [i.id, i.requires_prescription])).toEqual([['l1', true], ['l2', false]]);
+  });
+
+  it('decision 11: each line carries online_exclusive from the catalogue (the reorder picker keeps it on the cart line)', async () => {
+    const order = { id: 'o1', patient_account_id: 'pat', status: 'confirmed', items: [
+      { id: 'l1', matched_sku: '1003', qty: 1 },
+      { id: 'l2', medicine_id: 'med-otc', online_exclusive: true, qty: 1 },
+      { id: 'l3', name: 'typed request', qty: 1 },
+    ] };
+    const { svc } = svcWith({ orders: [order] });
+    const detail = await svc.detail(patient, 'o1');
+    expect(detail.items.map((i: any) => [i.id, i.online_exclusive])).toEqual([['l1', true], ['l2', false], ['l3', false]]);
+    const list = await svc.list(patient);
+    expect(list[0].items.map((i: any) => [i.id, i.online_exclusive])).toEqual([['l1', true], ['l2', false], ['l3', false]]);
   });
 
   it('the list of three orders reads allocations with exactly one query', async () => {

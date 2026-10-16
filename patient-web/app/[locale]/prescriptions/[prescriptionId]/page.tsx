@@ -93,8 +93,9 @@ export default async function PrescriptionDetailPage({ params }: Props) {
           <p className={rx.note}>{t("noMedicines")}</p>
         )}
 
+        {/* Owner decision 39 (issue 1043): like the app, the checkout opens on this prescription. */}
         {orderable && detail.items.length > 0 ? (
-          <ButtonLink href={`/${locale}/pharmacy/rx-order?prescriptionId=${encodeURIComponent(detail.id)}`} label={t("orderCta")} fullWidth />
+          <ButtonLink href={`/${locale}/cart/checkout?prescriptionId=${encodeURIComponent(detail.id)}`} label={t("orderCta")} fullWidth />
         ) : null}
         {!orderable ? <p className={rx.note} role="status">{t("notOrderable")}</p> : null}
         <ButtonLink href={back} label={t("back")} variant="ghost" size="md" />
