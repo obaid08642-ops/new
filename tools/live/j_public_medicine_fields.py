@@ -18,8 +18,10 @@ FORBIDDEN = {
     '_id', '__v', 'provenance', 'source', 'source_product_id', 'pending_revision', 'review_reason', 'created_by',
     'created_by_user_id', 'created_by_role', 'updated_by', 'deleted_at', 'is_deleted', 'aggregate_stock', 'pharmacies_count',
     'medical_review_status', 'public_eligibility', 'indexing_eligibility', 'approved_by', 'approved_at', 'rejected_reason',
-    'last_reviewed', 'change_requests', 'translation_conflict', 'usage_count', 'verified', 'version', 'search_text',
+    'change_requests', 'translation_conflict', 'usage_count', 'verified', 'version', 'search_text',
 }
+# Public by owner decision (2026-10-16): the date of the last medical review is a trust signal.
+ALLOWED = {'last_reviewed'}
 PATTERNS = [re.compile(p, re.I) for p in (r'review', r'^provenance', r'^source', r'^created_by', r'^updated_by', r'password|secret')]
 
 
@@ -30,7 +32,7 @@ def leaked(value, path='$'):
             out += leaked(v, f'{path}[{i}]')
     elif isinstance(value, dict):
         for k, v in value.items():
-            if k in FORBIDDEN or any(p.search(k) for p in PATTERNS):
+            if k not in ALLOWED and (k in FORBIDDEN or any(p.search(k) for p in PATTERNS)):
                 out.append(f'{path}.{k}')
             out += leaked(v, f'{path}.{k}')
     return out
