@@ -241,7 +241,8 @@ export class LiveKitService {
       { id: session.id, status: 'INITIATED' },
       { $set: { status: 'ACTIVE', started_at: new Date(), updatedAt: new Date() } },
     );
-    return { room_name: session.room_name, token };
+    // P14.22: the web call room links a dropped call to this appointment's chat
+    return { room_name: session.room_name, token, appointment_id: session.appointment_id ?? null };
   }
 
   async endCall(sessionId: string, userId: string) {

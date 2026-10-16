@@ -47,16 +47,22 @@ def first_bookable_quarter(now):
     t = now + QUARTER + datetime.timedelta(seconds=45)
     t = t.replace(second=0, microsecond=0)
     t += datetime.timedelta(minutes=(-t.minute) % 15)
-    if (t + datetime.timedelta(minutes=45)).date() != t.date():
+    # one 30-minute slot (slot.service.ts) must end by 23:59; only then does the window move to tomorrow 00:00
+    if (t + datetime.timedelta(minutes=30)).replace(second=0) > t.replace(hour=23, minute=59):
         t = (t + datetime.timedelta(days=1)).replace(hour=0, minute=0)
     return t
+
+
+def window_end(t):
+    """45 minutes after `t`, but never past 23:59 of the same day (the hours rule is end > start on one day)."""
+    return min(t + datetime.timedelta(minutes=45), t.replace(hour=23, minute=59))
 
 
 def doctor_publishes_video_window(doctor, admin, t):
     """j_consultation.doctor_publishes_hours with one 45-minute video window starting at `t` (UTC, as slot.service reads it),
     so the only slot is `t`: the 08:00-18:00 window of tomorrow could never reach the call-token window today."""
     journey('web call: doctor opens a video window (admin approves)')
-    end = t + datetime.timedelta(minutes=45)
+    end = window_end(t)
     body = {'day_of_week': (t.weekday() + 1) % 7, 'start_time': t.strftime('%H:%M'), 'end_time': end.strftime('%H:%M'), 'service_type': 'video'}
     r = doctor.post('/provider/schedule-slots', body)
     step(f"doctor submits video hours {body['start_time']}-{body['end_time']} UTC", r.ok, r)

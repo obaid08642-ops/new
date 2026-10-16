@@ -1,0 +1,48 @@
+{
+ "tag": "after2",
+ "thread": [
+  201,
+  "{'_id': '6ad28669a57533d50ed2990b', 'type': 'booking', 'participant_ids': ['7972e965-6417-4484-987c-969a7b66916b', 'fad5"
+ ],
+ "ledger_row": "{\n  acknowledged: true,\n  insertedId: ObjectId('6ad287aeff4b27f58532f75c')\n}",
+ "A_invite_404": [
+  "لا يوجد حساب مزود بهذا المعرف"
+ ],
+ "B_list": "المحادثات | ا# | استشارة #3062 | الرئيسية | المواعيد | المحادثات | المحفظة | الإعدادات",
+ "B_room": "ا# | استشارة #3062 | لا رسائل بعد | الرئيسية | المواعيد | المحادثات | المحفظة | الإعدادات",
+ "B_js": [],
+ "B_after_send": "الإعدادات | دعوات المنشآت (0) | ‹ | المظهر واللغة | الوضع النهاري | اللغة: العربية | EN | إعدادات الحساب | الخدمات المقدمة والأسعار | كشف العيادة | استشارة أونلاين | زيارة منزلية | حفظ التعديلات | الملف الشخصي والإعدادات | تعديل الملف الشخصي | ‹ | الموقع ونطاق",
+ "C_wallet": "→ | المحفظة والإيرادات | الرصيد المتاح للسحب | -88.1 ريال | طلب سحب | 46.9 | ر | إجمالي الإيرادات | 0 | ر | أرصدة معلقة (Escrow) | نسبة عمولة المنصة المحددة لك | كاش 10% • تأمين 8% | صافيك التقريبي: 42 ر.س | سجل العمليات | Clawback: refund walk | 2026-10-16 | -45 ر | Clawback: refund walk | 2026-10-16 | -45 ر | Clawback: refund walk | 2026-10-16 | -45 ر | Pharmacy order earning (escrow until settlement delay) | 2026-",
+ "C_api_balance": {
+  "available": -88.1,
+  "pending": 0,
+  "locked": 0,
+  "lifetime_earned": 46.9,
+  "paid_out": 0,
+  "debits": 135,
+  "negative": true,
+  "minimum_withdrawal": 1
+ },
+ "C_has_clawback_row": true,
+ "C_clawback_sign": [
+  true,
+  false
+ ],
+ "C_icon_words": [],
+ "E_orders_text": "الطلبات | طلبات جديدة | مؤكدة | لا توجد طلبات | الرئيسية | الطلبات | الوظائف | الأدوية | الإعدادات",
+ "E_has_70_male": [
+  false,
+  false
+ ],
+ "E_checklist_err": "Locator.click: Timeout 8000ms exceeded.\nCall log:\n  - waiting for get_by_text(re",
+ "E_js_orders": [],
+ "F_visitor_no_probe": "Nabd Plus | نبض بلس | EN | مرحباً بك في | Nabd Plus | اختر نوع حسابك لتبدأ تقديم خدماتك الطبية | طبيب مستقل | استشارات أونلاين، عيادة، زيارا",
+ "F_signed_in_ok": "مرحباً، | مستشفى نبضة الطبي | 0 | مواعيد اليوم | 0/4 | أسرّة مشغولة | ٠ | ر | إي",
+ "F_signed_in_api_down": "لا يوجد اتصال بالخادم | حسابك بخير. تحقق من اتصال الإنترنت وسنعيد المحاولة تلقائياً. | إعادة المحاولة | تسجيل الخروج",
+ "F_token_kept": true,
+ "G_server_online_screen_says": [
+  "متصل - جاهز لاستقبال الطلبات"
+ ],
+ "D_overflow": 352,
+ "D_wide": []
+}

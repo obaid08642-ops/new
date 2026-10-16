@@ -3302,5 +3302,18 @@
   "services.cat.searchForAService": "सेवा, डॉक्टर या दवा खोजें",
   "services.cat.primaryServices": "मुख्य सेवाएं",
   "services.cat.additionalServices": "अतिरिक्त सेवाएँ",
-  "services.cat.title": "सेवाएं"
+  "services.cat.title": "सेवाएं",
+  "health.hub.component.bmi": "बॉडी मास इंडेक्स",
+  "health.hub.component.bp": "रक्तचाप",
+  "health.hub.component.glucose": "रक्त शर्करा",
+  "health.hub.component.heart_rate": "हृदय गति",
+  "health.hub.component.sleep": "नींद की गुणवत्ता",
+  "health.hub.component.tracking": "नियमित रिकॉर्डिंग",
+  "health.hub.rec.bmi_high": "बीएमआई सामान्य से अधिक है — नियमित शारीरिक गतिविधि और संतुलित आहार इसे कम करने में मदद करते हैं",
+  "health.hub.rec.profile_incomplete": "अपना स्कोर अधिक सटीक बनाने के लिए स्वास्थ्य प्रोफ़ाइल में अपनी ऊँचाई और वज़न जोड़ें",
+  "health.hub.rec.bp_high": "आपकी ताज़ा रक्तचाप रीडिंग अधिक है — नमक कम करें, नियमित जाँच करें और डॉक्टर से सलाह लें",
+  "health.hub.rec.glucose_off": "ग्लूकोज़ रीडिंग सामान्य सीमा से बाहर है — अपने आहार योजना और दवाओं की समीक्षा डॉक्टर के साथ करें",
+  "health.hub.rec.sleep_low": "आपकी नींद की गुणवत्ता में सुधार चाहिए — सोने का समय तय रखें और सोने से पहले स्क्रीन कम करें",
+  "health.hub.rec.tracking_low": "अपना स्कोर अधिक सटीक बनाने के लिए नियमित रूप से अपने वाइटल दर्ज करें (सप्ताह में 5 रीडिंग)",
+  "health.hub.rec.tracking_start": "अपना स्वास्थ्य स्कोर चालू करने के लिए अपने वाइटल (रक्तचाप, शुगर, वज़न) दर्ज करना शुरू करें"
 }

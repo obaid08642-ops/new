@@ -2553,7 +2553,12 @@
     "policyFull": "{hours} घंटे या उससे अधिक पहले: 100% रिफंड",
     "policyHalf": "{half} से {full} घंटे पहले: {percent}% रिफंड",
     "policyLess": "{half} घंटे से कम: कोई रिफंड नहीं",
-    "policyUnavailable": "रद्द करने और रिफंड की नीति अभी उपलब्ध नहीं है।"
+    "policyUnavailable": "रद्द करने और रिफंड की नीति अभी उपलब्ध नहीं है।",
+    "callReconnecting": "कनेक्शन कमज़ोर है। आपकी कॉल फिर से जोड़ रहे हैं…",
+    "callAudioOnly": "आपका कनेक्शन कमज़ोर है, इसलिए हमने वीडियो बंद करके आवाज़ चालू रखी है।",
+    "callTryVideo": "वीडियो फिर से आज़माएँ",
+    "callDropped": "कॉल कट गई।",
+    "callContinueInChat": "चैट में जारी रखें"
   },
   "ConsultClient": {
     "payHeading": "सुरक्षित गेटवे से भुगतान पूरा करें",

@@ -3302,5 +3302,18 @@
   "services.cat.searchForAService": "সেবা, ডাক্তার বা ওষুধ খুঁজুন",
   "services.cat.primaryServices": "প্রধান সেবা",
   "services.cat.additionalServices": "অতিরিক্ত পরিষেবা",
-  "services.cat.title": "সেবা"
+  "services.cat.title": "সেবা",
+  "health.hub.component.bmi": "বডি মাস ইনডেক্স",
+  "health.hub.component.bp": "রক্তচাপ",
+  "health.hub.component.glucose": "রক্তে শর্করা",
+  "health.hub.component.heart_rate": "হৃদস্পন্দন",
+  "health.hub.component.sleep": "ঘুমের মান",
+  "health.hub.component.tracking": "নিয়মিত নথিভুক্তি",
+  "health.hub.rec.bmi_high": "বিএমআই স্বাভাবিকের চেয়ে বেশি — নিয়মিত শারীরিক কার্যকলাপ ও সুষম খাদ্য তা কমাতে সাহায্য করে",
+  "health.hub.rec.profile_incomplete": "আপনার স্কোর আরও নির্ভুল করতে স্বাস্থ্য প্রোফাইলে উচ্চতা ও ওজন যোগ করুন",
+  "health.hub.rec.bp_high": "আপনার সর্বশেষ রক্তচাপের রিডিং বেশি — লবণ কমান, নিয়মিত পরিমাপ করুন এবং ডাক্তারের পরামর্শ নিন",
+  "health.hub.rec.glucose_off": "গ্লুকোজের রিডিং স্বাভাবিক সীমার বাইরে — আপনার খাবারের পরিকল্পনা ও ওষুধ ডাক্তারের সঙ্গে পর্যালোচনা করুন",
+  "health.hub.rec.sleep_low": "আপনার ঘুমের মান উন্নত করা দরকার — ঘুমের সময় নির্দিষ্ট রাখুন এবং ঘুমের আগে স্ক্রিন কম ব্যবহার করুন",
+  "health.hub.rec.tracking_low": "আপনার স্কোর আরও নির্ভুল করতে নিয়মিত সূচক নথিভুক্ত করুন (সপ্তাহে ৫টি রিডিং)",
+  "health.hub.rec.tracking_start": "আপনার স্বাস্থ্য স্কোর চালু করতে সূচক (রক্তচাপ, সুগার, ওজন) নথিভুক্ত করা শুরু করুন"
 }
