@@ -3,26 +3,27 @@ import { SearchService } from '../search/search.service';
 
 /** Issue 1541: a provider delete removes every row the provider owns, its files, search documents and page caches. */
 
-type Row = Record<string, any>;
+type Row = Record<string, unknown>;
+type Filter = { $or?: Filter[]; [field: string]: unknown };
 
 /** A tiny in-memory Mongo: find / deleteMany with the $or/$in filters the service sends. */
 function fakeDb(data: Record<string, Row[]>) {
-  const match = (row: Row, filter: any): boolean => {
-    if (filter.$or) return filter.$or.some((f: any) => match(row, f));
-    return Object.entries(filter).every(([k, v]: [string, any]) => (v && typeof v === 'object' && '$in' in v ? v.$in.includes(row[k]) : row[k] === v));
+  const match = (row: Row, filter: Filter): boolean => {
+    if (filter.$or) return filter.$or.some((f) => match(row, f));
+    return Object.entries(filter).every(([k, v]) => (v && typeof v === 'object' && '$in' in v ? (v as { $in: unknown[] }).$in.includes(row[k]) : row[k] === v));
   };
   const collection = jest.fn((name: string) => {
     data[name] = data[name] || [];
     return {
-      find: (filter: any) => ({ toArray: async () => data[name].filter((r) => match(r, filter)) }),
-      deleteMany: async (filter: any) => {
+      find: (filter: Filter) => ({ toArray: async () => data[name].filter((r) => match(r, filter)) }),
+      deleteMany: async (filter: Filter) => {
         const before = data[name].length;
         data[name] = data[name].filter((r) => !match(r, filter));
         return { deletedCount: before - data[name].length };
       },
     };
   });
-  return { collection } as any;
+  return { collection };
 }
 
 describe('ProviderErasureService (issue 1541)', () => {
@@ -64,7 +65,7 @@ describe('ProviderErasureService (issue 1541)', () => {
     const search = { applyChange: jest.fn().mockResolvedValue(undefined) };
     const seo = { invalidateCaches: jest.fn().mockResolvedValue(undefined) };
     const purgeBus = { purge: jest.fn().mockResolvedValue(undefined) };
-    const svc = new ProviderErasureService({ collection: fakeDb(data).collection } as any, events as any, search as any, seo as any, purgeBus as any);
+    const svc = new ProviderErasureService({ collection: fakeDb(data).collection } as never, events as never, search as never, seo as never, purgeBus as never);
     return { svc, events, search, seo, purgeBus };
   };
 
@@ -149,9 +150,9 @@ describe('SearchService.applyChange with no record (issue 1541)', () => {
       find: jest.fn(() => ({ toArray: async () => [{ key: 'doctor-abc' }] })),
       deleteMany: jest.fn().mockResolvedValue({ deletedCount: 1 }),
     };
-    const svc = new SearchService({ collection: jest.fn(() => index) } as any);
+    const svc = new SearchService({ collection: jest.fn(() => index) } as never);
     const meili = { ensureIndex: jest.fn().mockResolvedValue(undefined), remove: jest.fn().mockResolvedValue(undefined), upsert: jest.fn() };
-    (svc as any).meili = meili;
+    (svc as unknown as { meili: typeof meili }).meili = meili;
     await svc.applyChange('provider_profiles', 'oid-1', null);
     expect(index.find).toHaveBeenCalledWith({ src: 'provider_profiles:oid-1' }, { projection: { key: 1 } });
     expect(index.deleteMany).toHaveBeenCalledWith({ key: { $in: ['doctor-abc'] } });
@@ -164,21 +165,21 @@ describe('AdminController provider delete routes (issue 1541)', () => {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { AdminController } = require('./admin.controller');
   const make = (profiles: Row[], users: Row[]) => {
-    const cols: Record<string, any> = {
-      provider_profiles: { findOne: jest.fn(async (f: any) => profiles.find((p) => p.id === f.id) || null), find: jest.fn(() => ({ sort: () => ({ limit: () => ({ toArray: async () => profiles }) }) })) },
-      users: { findOne: jest.fn(async (f: any) => users.find((u) => u.id === f.id) || null), find: jest.fn((f: any) => ({ toArray: async () => users.filter((u) => f.id.$in.includes(u.id)) })) },
+    const cols: Record<string, unknown> = {
+      provider_profiles: { findOne: jest.fn(async (f: { id: string }) => profiles.find((p) => p.id === f.id) || null), find: jest.fn(() => ({ sort: () => ({ limit: () => ({ toArray: async () => profiles }) }) })) },
+      users: { findOne: jest.fn(async (f: { id: string }) => users.find((u) => u.id === f.id) || null), find: jest.fn((f: { id: { $in: string[] } }) => ({ toArray: async () => users.filter((u) => f.id.$in.includes(String(u.id))) })) },
     };
-    const userModel: any = { db: { collection: (n: string) => cols[n] } };
-    const erasure = { identify: jest.fn(async (seed: any) => ({ ids: [seed.profile.id], profiles: [seed.profile] })), erase: jest.fn(async () => ({ provider_profiles: 1 })) };
+    const userModel = { db: { collection: (n: string) => cols[n] } };
+    const erasure = { identify: jest.fn(async (seed: { profile: Row }) => ({ ids: [seed.profile.id], profiles: [seed.profile] })), erase: jest.fn(async () => ({ provider_profiles: 1 })) };
     const events = { emit: jest.fn() };
-    const ctl = new AdminController(userModel, {} as any, {} as any, {} as any, events, erasure);
+    const ctl = new AdminController(userModel as never, {} as never, {} as never, {} as never, events as never, erasure as never);
     return { ctl, erasure, events };
   };
 
   it('lists only the profiles whose sign-in account is gone', async () => {
     const { ctl } = make([{ id: 'p1', user_id: 'gone', type: 'doctor', name_ar: 'د. اختبار' }, { id: 'p2', user_id: 'live' }, { id: 'p3' }], [{ id: 'live' }]);
     const out = await ctl.listOrphanProviderProfiles();
-    expect(out.items.map((i: any) => i.id)).toEqual(['p1', 'p3']);
+    expect(out.items.map((i: { id: string }) => i.id)).toEqual(['p1', 'p3']);
   });
 
   it('deletes a profile with no account through the erasure, and audits it', async () => {

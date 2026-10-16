@@ -54,10 +54,13 @@ const MEDIA_FIELDS = ['profile_photo', 'logo', 'clinic_images', 'license_documen
 export const PROVIDER_PURGE_TAGS = ['providers', 'sitemap', 'seo'];
 const PIPELINE_TYPES: readonly string[] = ['doctor', 'pharmacy', 'hospital', 'clinic', 'lab', 'radiology', 'nursing'];
 
+/** A stored row as read from MongoDB (provider_profiles, storage_objects...). */
+export type ProviderRow = Record<string, unknown> & { _id?: unknown };
+
 export interface ProviderIdentity {
   /** Every id the provider is known by (user, provider account, profile). */
   ids: string[];
-  profiles: any[];
+  profiles: ProviderRow[];
 }
 
 @Injectable()
@@ -73,12 +76,12 @@ export class ProviderErasureService {
   ) {}
 
   /** All ids and profiles of the provider behind a user id and/or a profile row. */
-  async identify(seed: { userId?: string; profile?: any }): Promise<ProviderIdentity> {
+  async identify(seed: { userId?: string; profile?: ProviderRow }): Promise<ProviderIdentity> {
     const ids = new Set<string>();
     const add = (v: unknown) => { if (typeof v === 'string' && v) ids.add(v); };
     add(seed.userId);
-    const profiles = new Map<string, any>();
-    const keep = (p: any) => {
+    const profiles = new Map<string, ProviderRow>();
+    const keep = (p: ProviderRow | null | undefined) => {
       if (!p) return;
       profiles.set(String(p._id), p);
       add(p.id); add(p.user_id); add(p.account_id);
@@ -90,11 +93,11 @@ export class ProviderErasureService {
     for (let pass = 0; pass < 2; pass++) {
       const list = [...ids];
       if (!list.length) break;
-      const rows: any[] = await db.collection('provider_profiles')
-        .find({ $or: [{ id: { $in: list } }, { user_id: { $in: list } }, { account_id: { $in: list } }] } as any).toArray();
+      const rows = await db.collection('provider_profiles')
+        .find({ $or: [{ id: { $in: list } }, { user_id: { $in: list } }, { account_id: { $in: list } }] }).toArray();
       rows.forEach(keep);
-      const accounts: any[] = await db.collection('provider_accounts')
-        .find({ $or: [{ id: { $in: [...ids] } }, { user_id: { $in: [...ids] } }] } as any, { projection: { id: 1, user_id: 1 } }).toArray();
+      const accounts = await db.collection('provider_accounts')
+        .find({ $or: [{ id: { $in: [...ids] } }, { user_id: { $in: [...ids] } }] }, { projection: { id: 1, user_id: 1 } }).toArray();
       for (const a of accounts) { add(a.id); add(a.user_id); }
     }
     return { ids: [...ids], profiles: [...profiles.values()] };
@@ -116,14 +119,15 @@ export class ProviderErasureService {
     const urls = new Set<string>();
     for (const p of profiles) {
       for (const f of MEDIA_FIELDS) {
-        for (const v of Array.isArray(p?.[f]) ? p[f] : [p?.[f]]) {
+        const value = p?.[f];
+        for (const v of Array.isArray(value) ? value : [value]) {
           if (typeof v !== 'string' || !v) continue;
           if (/^https?:\/\//i.test(v)) urls.add(v); else mediaIds.add(v);
         }
       }
     }
     const storageFilter = { $or: [{ owner_account_id: { $in: ids } }, { id: { $in: [...mediaIds] } }] };
-    const objects: any[] = await db.collection('storage_objects').find(storageFilter as any, { projection: { external_url: 1 } }).toArray();
+    const objects = await db.collection('storage_objects').find(storageFilter, { projection: { external_url: 1 } }).toArray();
     for (const o of objects) if (typeof o?.external_url === 'string' && /^https?:\/\//i.test(o.external_url)) urls.add(o.external_url);
     for (const url of urls) {
       try { await this.events?.emitAsync('storage.delete_by_url', { url }); } catch (e) { this.log.warn(`media delete failed: ${(e as Error).message}`); }
@@ -132,7 +136,7 @@ export class ProviderErasureService {
     for (const c of PROVIDER_OWNED_COLLECTIONS) {
       const or: Record<string, unknown>[] = c.fields.map((f) => ({ [f]: { $in: ids } }));
       if (c.name === 'storage_objects' && mediaIds.size) or.push({ id: { $in: [...mediaIds] } });
-      const res = await db.collection(c.name).deleteMany({ $or: or } as any);
+      const res = await db.collection(c.name).deleteMany({ $or: or });
       deleted[c.name] = res.deletedCount || 0;
     }
 
@@ -145,7 +149,8 @@ export class ProviderErasureService {
     for (const p of profiles) {
       const type = String(p?.type || 'doctor');
       const entityId = String(p?.id || p?._id);
-      if (PIPELINE_TYPES.includes(type)) await this.seo?.invalidateCaches(type as PipelineEntityType, entityId, p?.slug || undefined);
+      const slug = typeof p?.slug === 'string' && p.slug ? p.slug : undefined;
+      if (PIPELINE_TYPES.includes(type)) await this.seo?.invalidateCaches(type as PipelineEntityType, entityId, slug);
     }
     try {
       await this.purgeBus?.purge(PROVIDER_PURGE_TAGS);

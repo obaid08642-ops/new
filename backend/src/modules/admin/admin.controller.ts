@@ -568,12 +568,12 @@ export class AdminController {
   @Get('provider-profiles/orphans')
   async listOrphanProviderProfiles() {
     const db = this.userModel.db;
-    const profiles: any[] = await db.collection('provider_profiles')
+    const profiles = await db.collection('provider_profiles')
       .find({}, { projection: { _id: 1, id: 1, user_id: 1, account_id: 1, type: 1, name_ar: 1, name_en: 1, status: 1, createdAt: 1 } })
       .sort({ createdAt: -1 }).limit(5000).toArray();
     const userIds = [...new Set(profiles.map((p) => p.user_id).filter((v) => typeof v === 'string' && v))];
-    const users: any[] = userIds.length
-      ? await db.collection('users').find({ id: { $in: userIds } } as any, { projection: { id: 1 } }).toArray()
+    const users = userIds.length
+      ? await db.collection('users').find({ id: { $in: userIds } }, { projection: { id: 1 } }).toArray()
       : [];
     const existing = new Set(users.map((u) => u.id));
     const items = profiles
@@ -589,14 +589,14 @@ export class AdminController {
   @StepUp()
   @RequirePermissions(Permission.USER_EDIT, Permission.GDPR_MANAGE)
   @Delete('provider-profiles/:profileId')
-  async deleteOrphanProviderProfile(@Param('profileId') profileId: string, @CurrentUser() by?: any) {
+  async deleteOrphanProviderProfile(@Param('profileId') profileId: string, @CurrentUser() by?: { id?: string }) {
     const db = this.userModel.db;
-    let profile: any = await db.collection('provider_profiles').findOne({ id: profileId } as any);
+    let profile = await db.collection('provider_profiles').findOne({ id: profileId });
     if (!profile && /^[a-f0-9]{24}$/i.test(profileId)) {
-      profile = await db.collection('provider_profiles').findOne({ _id: new Types.ObjectId(profileId) } as any);
+      profile = await db.collection('provider_profiles').findOne({ _id: new Types.ObjectId(profileId) });
     }
     if (!profile) throw new BadRequestException('provider_profile_not_found');
-    if (profile.user_id && await db.collection('users').findOne({ id: profile.user_id } as any, { projection: { _id: 1 } })) {
+    if (profile.user_id && await db.collection('users').findOne({ id: profile.user_id }, { projection: { _id: 1 } })) {
       // A profile with a live account is deleted with its account (DELETE /admin/users/:userId), never half.
       throw new BadRequestException('provider_profile_has_account');
     }
@@ -618,7 +618,7 @@ export class AdminController {
   async cleanupOrphans(@Body() body: CleanupOrphansDto) {
     const dryRun = body?.dry_run !== false;
     const db = this.userModel.db;
-    const profiles: any[] = await db.collection('provider_profiles').find({}, { projection: { user_id: 1, status: 1, public_eligibility: 1 } }).toArray().catch(() => []);
+    const profiles = await db.collection('provider_profiles').find({}, { projection: { user_id: 1, status: 1, public_eligibility: 1 } }).toArray().catch(() => []);
     let fixed = 0;
     const sample: any[] = [];
     for (const p of profiles) {
