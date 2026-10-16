@@ -25,7 +25,9 @@ def main():
     body = r.body.get('data', r.body) if isinstance(r.body, dict) else {}
     items = body.get('items') or []
     step('storage items come by stable key', r.ok and [i.get('key') for i in items] == ['uploaded_prescriptions', 'medical_reports'], items)
-    step('the storage reply has no Arabic text', not ARABIC.search(str(body)), body)
+    # Only the legacy `label`, kept for app builds already installed, may still carry Arabic.
+    bare = {**body, 'items': [{k: v for k, v in i.items() if k != 'label'} for i in items]}
+    step('the storage reply has no Arabic text outside the legacy label', not ARABIC.search(str(bare)), bare)
     r = me.get('/support/faqs')
     faqs = r.body if isinstance(r.body, list) else r.items()
     step('there are FAQs', r.ok and len(faqs) > 0, r)
