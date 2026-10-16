@@ -2817,6 +2817,8 @@
   "set.privacy.thirdPartyHint": "انشورنس شراکت دار اور فارمیسیاں",
   "set.data.storage": "استعمال شدہ جگہ",
   "set.data.storageEmpty": "ابھی دکھانے کے لیے کوئی محفوظ ڈیٹا نہیں۔",
+  "set.data.item.uploaded_prescriptions": "اپ لوڈ کیے گئے نسخے",
+  "set.data.item.medical_reports": "طبی رپورٹس",
   "set.data.total": "کل: {total}",
   "set.data.export": "میرا ڈیٹا ایکسپورٹ کریں",
   "set.data.exportBody": "اپنے تمام ڈیٹا کی فائل حاصل کریں تاکہ اسے رکھ سکیں یا منتقل کر سکیں۔ ڈیٹا تک رسائی اور منتقلی آپ کا قانونی حق ہے۔",

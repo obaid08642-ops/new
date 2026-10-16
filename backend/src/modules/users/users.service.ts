@@ -323,9 +323,10 @@ export class UsersService {
       used: fmt(usedBytes),
       total: `${LIMIT_GB} GB`,
       limit: LIMIT_GB,
+      // issue 1585: stable keys; the clients translate them (no server-side label).
       items: [
-        { label: 'الوصفات المرفوعة', val: fmt(prescBytes), pct: pct(prescBytes), color: '#23B5CE' },
-        { label: 'التقارير الطبية', val: fmt(reportBytes), pct: pct(reportBytes), color: '#7A6BEA' },
+        { key: 'uploaded_prescriptions', val: fmt(prescBytes), pct: pct(prescBytes), color: '#23B5CE' },
+        { key: 'medical_reports', val: fmt(reportBytes), pct: pct(reportBytes), color: '#7A6BEA' },
       ],
     };
   }

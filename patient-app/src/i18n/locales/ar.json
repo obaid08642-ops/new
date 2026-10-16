@@ -2817,6 +2817,8 @@
   "set.privacy.thirdPartyHint": "شركاء التأمين والصيدليات",
   "set.data.storage": "المساحة المستخدمة",
   "set.data.storageEmpty": "لا توجد بيانات مخزنة لعرضها بعد.",
+  "set.data.item.uploaded_prescriptions": "الوصفات المرفوعة",
+  "set.data.item.medical_reports": "التقارير الطبية",
   "set.data.total": "الإجمالي: {total}",
   "set.data.export": "تصدير بياناتي",
   "set.data.exportBody": "احصل على ملف بكل بياناتك لتحتفظ به أو تنقله. من حقك النظامي الوصول إلى بياناتك ونقلها.",

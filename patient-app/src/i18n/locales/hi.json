@@ -2817,6 +2817,8 @@
   "set.privacy.thirdPartyHint": "बीमा भागीदार और फ़ार्मेसियां",
   "set.data.storage": "उपयोग किया गया स्टोरेज",
   "set.data.storageEmpty": "अभी दिखाने के लिए कोई संग्रहीत डेटा नहीं है।",
+  "set.data.item.uploaded_prescriptions": "अपलोड किए गए पर्चे",
+  "set.data.item.medical_reports": "मेडिकल रिपोर्ट",
   "set.data.total": "कुल: {total}",
   "set.data.export": "मेरा डेटा एक्सपोर्ट करें",
   "set.data.exportBody": "अपने सारे डेटा की फ़ाइल पाएं ताकि उसे रख या ले जा सकें। डेटा तक पहुँच और उसे ले जाना आपका कानूनी अधिकार है।",

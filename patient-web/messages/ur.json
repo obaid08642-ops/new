@@ -3742,6 +3742,10 @@
     },
     "storageTitle": "ڈیٹا اسٹوریج",
     "storageEmpty": "ابھی اسٹوریج کی کوئی تفصیل نہیں۔",
+    "storageItem": {
+      "uploaded_prescriptions": "اپ لوڈ کیے گئے نسخے",
+      "medical_reports": "طبی رپورٹس"
+    },
     "exportTitle": "میرے ڈیٹا کی کاپی",
     "exportBody": "ایک فائل ڈاؤن لوڈ کریں جس میں آپ کے اکاؤنٹ کا سارا ڈیٹا ہو۔",
     "exportButton": "میرا سارا ڈیٹا ایکسپورٹ کریں",
