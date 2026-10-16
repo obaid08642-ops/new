@@ -26,7 +26,8 @@
     "notifications": "اطلاعات",
     "cart": "کارٹ",
     "mainNav": "مرکزی نیویگیشن",
-    "sections": "سیکشنز"
+    "sections": "سیکشنز",
+    "cartCount": "کارٹ ({n, number})"
   },
   "Home": {
     "eyebrow": "ڈیجیٹل مریض پورٹل",
@@ -2085,7 +2086,12 @@
     "sortPriceDesc": "قیمت: زیادہ سے کم",
     "sortNewest": "نئی ترین",
     "askPharmacies": "قریبی فارمیسیوں سے مانگیں",
-    "compareAlternatives": "متبادلات سے موازنہ کریں"
+    "compareAlternatives": "متبادلات سے موازنہ کریں",
+    "similarTitle": "ملتی جلتی مصنوعات",
+    "imageCounter": "{n, number} / {total, number}",
+    "previousImage": "پچھلی تصویر",
+    "nextImage": "اگلی تصویر",
+    "inCartCta": "کارٹ میں ({n, number})"
   },
   "PharmacyOffers": {
     "backToOrder": "آرڈر پر واپس",

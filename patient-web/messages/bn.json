@@ -26,7 +26,8 @@
     "notifications": "বিজ্ঞপ্তি",
     "cart": "কার্ট",
     "mainNav": "প্রধান নেভিগেশন",
-    "sections": "বিভাগসমূহ"
+    "sections": "বিভাগসমূহ",
+    "cartCount": "কার্ট ({n, number})"
   },
   "Home": {
     "eyebrow": "ডিজিটাল রোগী পোর্টাল",
@@ -2085,7 +2086,12 @@
     "sortPriceDesc": "দাম: বেশি থেকে কম",
     "sortNewest": "নতুনতম",
     "askPharmacies": "কাছের ফার্মেসিগুলোর কাছে চান",
-    "compareAlternatives": "বিকল্পগুলোর সাথে তুলনা করুন"
+    "compareAlternatives": "বিকল্পগুলোর সাথে তুলনা করুন",
+    "similarTitle": "একই ধরনের পণ্য",
+    "imageCounter": "{n, number} / {total, number}",
+    "previousImage": "আগের ছবি",
+    "nextImage": "পরের ছবি",
+    "inCartCta": "কার্টে আছে ({n, number})"
   },
   "PharmacyOffers": {
     "backToOrder": "অর্ডারে ফিরুন",

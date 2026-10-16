@@ -1,47 +1,101 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
-import { IconButton } from "@/components-next/ui-generated/components/Button";
 import { CatalogImage } from "./catalog-image";
+import { arrowStep, clamp, isRtl, slideIndex, slideOffset } from "./gallery-math";
+import { ImageViewer } from "./image-viewer";
 import { PHARMACY_TONE } from "./tones";
 import { WishlistHeart } from "./wishlist-heart";
 import styles from "./product-detail.module.css";
 
 /**
  * The product gallery (canvas/ProductWeb: a column of 76 px thumbnails beside the stage; canvas/ProductFull: the
- * stage with dots under it). One list of buttons draws both: dots on phones, thumbnails from 768. The stage opens
- * the picture in a dialog (the page's existing zoom). With no picture there is the category's own icon on its
- * tinted tile, never a stock photo (spec A, "Gallery").
+ * stage with dots under it). One list of buttons draws both: dots on phones, thumbnails from 768. With no picture there
+ * is the category's own icon on its tinted tile, never a stock photo (spec A, "Gallery").
+ *
+ * Issue 1547: the stage is a scroll-snap strip, so a swipe moves between the pictures before and after the page
+ * hydrates (mirrored right to left by the strip's direction); the arrow keys move too, and a "2 / 4" counter says where
+ * the visitor is. Each picture is a plain link to the full picture, so a tap before hydration still opens it; once the
+ * page is interactive the tap opens the full-screen viewer (image-viewer.tsx) instead.
  */
 export function ProductGallery({ name, images, badge, itemId, locale }: { name: string; images: string[]; badge?: string; itemId?: string; locale: string }) {
   const t = useTranslations("PharmacyBrowse");
   const [index, setIndex] = useState(0);
-  const zoom = useRef<HTMLDialogElement>(null);
-  const current = images[index] ?? images[0];
+  const shown = useRef(0);
+  const [viewer, setViewer] = useState<number | null>(null);
+  const track = useRef<HTMLUListElement>(null);
+  const total = images.length;
+
+  const go = useCallback((target: number, smooth = true) => {
+    const el = track.current;
+    if (!el || total === 0) return;
+    const i = clamp(target, 0, total - 1);
+    el.scrollTo({ left: slideOffset(i, el.clientWidth, isRtl(el)), behavior: smooth ? "smooth" : "auto" });
+    shown.current = i;
+    setIndex(i);
+  }, [total]);
 
   return (
     <div className={styles.gallery}>
       <div className={styles.stage}>
-        {current ? (
+        {total > 0 ? (
           <>
-            <button type="button" className={styles.stageButton} aria-label={t("zoomImage")} onClick={() => zoom.current?.showModal()}>
-              <CatalogImage
-                src={current}
-                alt={`${name} (${t("imageOf", { n: index + 1, total: images.length })})`}
-                priority
-                sizes="(min-width: 1024px) 480px, 100vw"
-                className={styles.stageImage}
-              />
-            </button>
-            <dialog ref={zoom} className={styles.zoom} aria-label={name} onClick={(event) => { if (event.target === zoom.current) zoom.current?.close(); }}>
-              {/* eslint-disable-next-line @next/next/no-img-element -- the dialog shows the picture at its own size, once, on request */}
-              <img src={current} alt={name} className={styles.zoomImage} loading="lazy" decoding="async" />
-              <div className={styles.zoomClose}>
-                <IconButton name="close" label={t("closeImage")} variant="outlined" onClick={() => zoom.current?.close()} />
-              </div>
-            </dialog>
+            <ul
+              ref={track}
+              className={styles.stageTrack}
+              aria-label={t("imageOf", { n: index + 1, total })}
+              tabIndex={total > 1 ? 0 : undefined}
+              onScroll={(event) => {
+                const el = event.currentTarget;
+                const i = slideIndex(el.scrollLeft, el.clientWidth, total);
+                if (i !== shown.current) {
+                  shown.current = i;
+                  setIndex(i);
+                }
+              }}
+              onKeyDown={(event) => {
+                const step = arrowStep(event.key, isRtl(event.currentTarget));
+                if (step !== 0 && total > 1) {
+                  event.preventDefault();
+                  go(shown.current + step);
+                }
+              }}
+            >
+              {images.map((src, i) => (
+                <li key={src} className={styles.slide}>
+                  <a
+                    href={src}
+                    className={styles.stageButton}
+                    aria-label={t("zoomImage")}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      setViewer(i);
+                    }}
+                  >
+                    <CatalogImage
+                      src={src}
+                      alt={`${name} (${t("imageOf", { n: i + 1, total })})`}
+                      priority={i === 0}
+                      sizes="(min-width: 1024px) 480px, 100vw"
+                      className={styles.stageImage}
+                    />
+                  </a>
+                </li>
+              ))}
+            </ul>
+            {total > 1 ? <span className={styles.counter}>{t("imageCounter", { n: index + 1, total })}</span> : null}
+            <ImageViewer
+              name={name}
+              images={images}
+              open={viewer !== null}
+              start={viewer ?? index}
+              onClose={(last) => {
+                setViewer(null);
+                go(last, false);
+              }}
+            />
           </>
         ) : (
           <div className={styles.noImage}>
@@ -51,8 +105,8 @@ export function ProductGallery({ name, images, badge, itemId, locale }: { name: 
         {badge ? <span className={styles.stageBadge}>{badge}</span> : null}
         {itemId ? <WishlistHeart itemId={itemId} locale={locale} /> : null}
       </div>
-      {images.length > 1 ? (
-        <ul className={styles.thumbs} aria-label={t("imageOf", { n: index + 1, total: images.length })}>
+      {total > 1 ? (
+        <ul className={styles.thumbs} aria-label={t("imageOf", { n: index + 1, total })}>
           {images.map((src, i) => (
             <li key={src}>
               <button
@@ -60,7 +114,7 @@ export function ProductGallery({ name, images, badge, itemId, locale }: { name: 
                 className={`${styles.thumb} ${i === index ? styles.thumbOn : ""}`}
                 aria-label={t("showImage", { n: i + 1 })}
                 aria-current={i === index ? "true" : undefined}
-                onClick={() => setIndex(i)}
+                onClick={() => go(i)}
               >
                 <CatalogImage src={src} alt="" width={76} height={76} className={styles.thumbImage} sizes="76px" />
               </button>

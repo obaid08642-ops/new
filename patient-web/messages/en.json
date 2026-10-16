@@ -26,7 +26,8 @@
     "notifications": "Notifications",
     "cart": "Cart",
     "mainNav": "Main navigation",
-    "sections": "Sections"
+    "sections": "Sections",
+    "cartCount": "Cart ({n, number})"
   },
   "Home": {
     "eyebrow": "Digital patient portal",
@@ -2085,7 +2086,12 @@
     "sortPriceDesc": "Price: high to low",
     "sortNewest": "Newest",
     "askPharmacies": "Ask nearby pharmacies for it",
-    "compareAlternatives": "Compare with alternatives"
+    "compareAlternatives": "Compare with alternatives",
+    "similarTitle": "Similar products",
+    "imageCounter": "{n, number} / {total, number}",
+    "previousImage": "Previous image",
+    "nextImage": "Next image",
+    "inCartCta": "In cart ({n, number})"
   },
   "PharmacyOffers": {
     "backToOrder": "Back to the order",

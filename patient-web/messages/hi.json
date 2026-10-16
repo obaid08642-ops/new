@@ -26,7 +26,8 @@
     "notifications": "सूचनाएँ",
     "cart": "कार्ट",
     "mainNav": "मुख्य नेविगेशन",
-    "sections": "अनुभाग"
+    "sections": "अनुभाग",
+    "cartCount": "कार्ट ({n, number})"
   },
   "Home": {
     "eyebrow": "डिजिटल मरीज़ पोर्टल",
@@ -2085,7 +2086,12 @@
     "sortPriceDesc": "कीमत: ज़्यादा से कम",
     "sortNewest": "सबसे नया",
     "askPharmacies": "पास की फ़ार्मेसियों से माँगें",
-    "compareAlternatives": "विकल्पों से तुलना करें"
+    "compareAlternatives": "विकल्पों से तुलना करें",
+    "similarTitle": "मिलते-जुलते उत्पाद",
+    "imageCounter": "{n, number} / {total, number}",
+    "previousImage": "पिछली तस्वीर",
+    "nextImage": "अगली तस्वीर",
+    "inCartCta": "कार्ट में ({n, number})"
   },
   "PharmacyOffers": {
     "backToOrder": "ऑर्डर पर वापस",

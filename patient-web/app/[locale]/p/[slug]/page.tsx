@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { cdnImage, getPublicAlternatives, readPublicProduct, type PublicProduct } from "@/lib/api/public-products-server";
+import { cdnImage, getPublicEquivalents, readPublicProduct, type PublicProduct, type PublicProductCard } from "@/lib/api/public-products-server";
 import { PublicDataUnavailableError } from "@/lib/api/public-unavailable";
 import { JsonLd } from "@/components-next/json-ld";
 import { isLocale, locales } from "@/lib/i18n";
@@ -201,7 +201,10 @@ export default async function PublicProductPage({ params }: Props) {
   const crossedPrice = promoOldPrice(product, product.price, product.old_price);
   const money = formatPrice(locale, product.price);
 
-  const alternatives: GridProduct[] = (await getPublicAlternatives(locale, product)).map((alt) => ({
+  // Issue 1547: equivalents by the normalized active ingredient (same strength first), or, when there is none, similar
+  // products of the same therapeutic class / category. Both empty: no section and no heading.
+  const related = await getPublicEquivalents(locale, product.id);
+  const toGrid = (alt: PublicProductCard): GridProduct => ({
     id: alt.id,
     slug: alt.slug,
     name: alt.name || alt.slug,
@@ -216,7 +219,9 @@ export default async function PublicProductPage({ params }: Props) {
     onlineOnly: alt.online_exclusive === true,
     // "cheaper" is computed here, from the two real prices (spec A, "Alternatives")
     badge: alt.price > 0 && hasPrice && alt.price < product.price ? b("cheaper") : undefined,
-  }));
+  });
+  const alternatives = related.equivalents.map(toGrid);
+  const similar = related.similar.map(toGrid);
 
   const section = (id: string, title: string, items: string[]): DetailSection | null => (items.length ? { id, title, items } : null);
   const group = (id: string, title: string, parts: Array<DetailSection | null>): DetailGroup | null => {
@@ -392,7 +397,7 @@ export default async function PublicProductPage({ params }: Props) {
             </div>
 
             {alternatives.length ? (
-              <section className={`${styles.block} ${styles.alts}`} aria-label={b("alternativesTitle")}>
+              <section className={`${styles.block} ${styles.alts}`} aria-label={b("alternativesTitle")} data-testid="product-equivalents">
                 <div className={styles.blockHead}>
                   <h2 className={styles.blockTitle}>{b("alternativesTitle")}</h2>
                   {/* batch-1a-web#8: compare this medicine with its alternatives (POST /medicines/compare, as the app) */}
@@ -402,6 +407,14 @@ export default async function PublicProductPage({ params }: Props) {
                   ) : null}
                 </div>
                 <ProductGrid locale={locale} items={alternatives} layout="rail" />
+              </section>
+            ) : similar.length ? (
+              <section className={`${styles.block} ${styles.alts}`} aria-label={b("similarTitle")} data-testid="product-similar">
+                <div className={styles.blockHead}>
+                  <h2 className={styles.blockTitle}>{b("similarTitle")}</h2>
+                  {categoryPath ? <Link className={styles.blockLink} href={categoryPath}>{b("seeAll")}</Link> : null}
+                </div>
+                <ProductGrid locale={locale} items={similar} layout="rail" />
               </section>
             ) : null}
 
