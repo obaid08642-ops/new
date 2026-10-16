@@ -95,6 +95,7 @@ function ZoomSlide({ src, alt, active, onZoomed, onSwipeDown }: { src: string; a
     <div
       ref={slide}
       className={styles.viewerSlide}
+      data-testid="viewer-slide"
       data-zoomed="false"
       onPointerDown={(event) => {
         const p = local(event.clientX, event.clientY);
@@ -208,6 +209,7 @@ export function ImageViewer({ name, images, open, start, onClose }: { name: stri
     <dialog
       ref={dialog}
       className={styles.viewer}
+      data-testid="image-viewer"
       aria-label={name}
       onClose={() => {
         setLocked(false);
@@ -224,6 +226,7 @@ export function ImageViewer({ name, images, open, start, onClose }: { name: stri
       <div
         ref={track}
         className={styles.viewerTrack}
+        data-testid="viewer-track"
         data-locked={locked ? "true" : "false"}
         onScroll={(event) => {
           const el = event.currentTarget;
@@ -239,14 +242,15 @@ export function ImageViewer({ name, images, open, start, onClose }: { name: stri
             key={src}
             src={src}
             alt={`${name} (${t("imageOf", { n: i + 1, total })})`}
-            active={i === index}
+            // closed, every picture is inactive: it opens again at its full view
+            active={open && i === index}
             onZoomed={(zoomed) => { if (i === shown.current) setLocked(zoomed); }}
             onSwipeDown={close}
           />
         ))}
       </div>
       <div className={styles.viewerTop}>
-        {total > 1 ? <span className={styles.viewerCounter} aria-live="polite">{t("imageCounter", { n: index + 1, total })}</span> : <span />}
+        {total > 1 ? <span className={styles.viewerCounter} aria-live="polite" data-testid="viewer-counter">{t("imageCounter", { n: index + 1, total })}</span> : <span />}
         <IconButton name="close" label={t("closeImage")} variant="outlined" onClick={close} />
       </div>
       {total > 1 ? (

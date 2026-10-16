@@ -75,10 +75,11 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
     <Link
       href={`/${locale}/cart`}
       className={`${styles.iconLink} ${styles.cartLink}${extra ? ` ${extra}` : ""}`}
+      data-testid="cart-link"
       aria-label={itemCount > 0 ? shell("cartCount", { n: itemCount }) : shell("cart")}
     >
       <Icon name="cart" size={20} tone="currentColor" />
-      {itemCount > 0 ? <span className={styles.cartBadge} aria-hidden="true">{formatNumber(locale, itemCount)}</span> : null}
+      {itemCount > 0 ? <span className={styles.cartBadge} aria-hidden="true" data-testid="cart-badge">{formatNumber(locale, itemCount)}</span> : null}
     </Link>
   );
 

@@ -45,6 +45,7 @@ export function ProductGallery({ name, images, badge, itemId, locale }: { name: 
             <ul
               ref={track}
               className={styles.stageTrack}
+              data-testid="gallery-stage"
               aria-label={t("imageOf", { n: index + 1, total })}
               tabIndex={total > 1 ? 0 : undefined}
               onScroll={(event) => {
@@ -85,7 +86,7 @@ export function ProductGallery({ name, images, badge, itemId, locale }: { name: 
                 </li>
               ))}
             </ul>
-            {total > 1 ? <span className={styles.counter}>{t("imageCounter", { n: index + 1, total })}</span> : null}
+            {total > 1 ? <span className={styles.counter} data-testid="gallery-counter">{t("imageCounter", { n: index + 1, total })}</span> : null}
             <ImageViewer
               name={name}
               images={images}

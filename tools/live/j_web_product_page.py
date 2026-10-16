@@ -77,27 +77,31 @@ def main():
             arg=selector, timeout=60000)
 
     def counter():
-        return (page.locator('[class*="_counter_"]').first.inner_text() or '').translate(ASCII).replace(' ', '')
+        return (page.locator('[data-testid="gallery-counter"]').first.inner_text() or '').translate(ASCII).replace(' ', '')
 
-    def swipe(selector, dx, dy):
+    def swipe(selector, dx, dy, steps=12):
+        """A real touch drag through the browser's input pipeline (touchStart, moves, touchEnd)."""
         box = page.locator(selector).first.bounding_box()
-        cdp.send('Input.synthesizeScrollGesture', {
-            'x': box['x'] + box['width'] / 2 - dx / 2, 'y': box['y'] + box['height'] / 2 - dy / 2,
-            'xDistance': dx, 'yDistance': dy, 'gestureSourceType': 'touch', 'speed': 1200, 'preventFling': True})
-        page.wait_for_timeout(700)
+        x0, y0 = box['x'] + box['width'] / 2 - dx / 2, box['y'] + box['height'] / 2 - dy / 2
+        cdp.send('Input.dispatchTouchEvent', {'type': 'touchStart', 'touchPoints': [{'x': x0, 'y': y0}]})
+        for i in range(1, steps + 1):
+            cdp.send('Input.dispatchTouchEvent', {'type': 'touchMove', 'touchPoints': [{'x': x0 + dx * i / steps, 'y': y0 + dy * i / steps}]})
+            page.wait_for_timeout(16)
+        cdp.send('Input.dispatchTouchEvent', {'type': 'touchEnd', 'touchPoints': []})
+        page.wait_for_timeout(900)
 
     try:
         journey('issue 1547: the pictures swipe, and each one opens in full')
         page.goto(f'{WEB}/ar/p/{slug["a"]}', wait_until='load', timeout=60000)
-        links = page.locator('ul[class*="_stageTrack_"] a')
+        links = page.locator('[data-testid="gallery-stage"] a')
         hrefs = [links.nth(i).get_attribute('href') for i in range(links.count())]
         step('every picture of the stage is a plain link to the full picture (a tap before hydration opens it)', hrefs == PICTURES, hrefs)
-        hydrated('ul[class*="_stageTrack_"] a')
+        hydrated('[data-testid="gallery-stage"] a')
         step('the counter says 1 / 3', counter() == '1/3', counter())
-        swipe('ul[class*="_stageTrack_"]', 260, 0)
-        left = page.locator('ul[class*="_stageTrack_"]').evaluate('(el) => el.scrollLeft')
+        swipe('[data-testid="gallery-stage"]', 260, 0)
+        left = page.locator('[data-testid="gallery-stage"]').evaluate('(el) => el.scrollLeft')
         step('a touch swipe (finger to the right, right to left page) shows the second picture', counter() == '2/3' and left < 0, f'{counter()} scrollLeft={left}')
-        page.locator('ul[class*="_stageTrack_"]').focus()
+        page.locator('[data-testid="gallery-stage"]').focus()
         page.keyboard.press('ArrowLeft')
         page.wait_for_timeout(700)
         step('the arrow key (mirrored) moves to the third picture', counter() == '3/3', counter())
@@ -106,16 +110,16 @@ def main():
         step('and back to the second', counter() == '2/3', counter())
 
         journey('issue 1547: the full-screen viewer')
-        page.locator('ul[class*="_stageTrack_"] li').nth(1).locator('a').click()
-        dialog = page.locator('dialog[class*="_viewer_"]')
+        page.locator('[data-testid="gallery-stage"] li').nth(1).locator('a').click()
+        dialog = page.locator('[data-testid="image-viewer"]')
         dialog.wait_for(state='visible', timeout=10000)
         box = dialog.bounding_box()
         step('it covers the whole screen', box and abs(box['width'] - 390) < 1 and abs(box['height'] - 844) < 1, box)
         colours = dialog.evaluate("(el) => { const probe = document.createElement('div'); probe.style.background = 'var(--nabd-color-bg-inverse)'; document.body.append(probe); const want = getComputedStyle(probe).backgroundColor; probe.remove(); return [getComputedStyle(el).backgroundColor, want]; }")
         step('on the inverse (ink) token, not a raw colour', colours[0] == colours[1], colours)
-        shown = (page.locator('[class*="_viewerCounter_"]').inner_text() or '').translate(ASCII).replace(' ', '')
+        shown = (page.locator('[data-testid="viewer-counter"]').inner_text() or '').translate(ASCII).replace(' ', '')
         step('it opens on the picture that was tapped (2 / 3)', shown == '2/3', shown)
-        slide = page.locator('[class*="_viewerSlide_"]').nth(1)
+        slide = page.locator('[data-testid="viewer-slide"]').nth(1)
         sbox = slide.bounding_box()
         page.touchscreen.tap(sbox['x'] + sbox['width'] / 2 + 40, sbox['y'] + sbox['height'] / 2)
         page.wait_for_timeout(80)
@@ -123,7 +127,7 @@ def main():
         page.wait_for_timeout(400)
         transform = slide.locator('img').evaluate('(el) => el.style.transform')
         step('a double tap zooms in at the tapped point', 'scale(2.5)' in transform and slide.get_attribute('data-zoomed') == 'true', transform)
-        step('while zoomed the strip does not scroll away (pan instead)', page.locator('[class*="_viewerTrack_"]').get_attribute('data-locked') == 'true')
+        step('while zoomed the strip does not scroll away (pan instead)', page.locator('[data-testid="viewer-track"]').get_attribute('data-locked') == 'true')
         page.touchscreen.tap(sbox['x'] + sbox['width'] / 2, sbox['y'] + sbox['height'] / 2)
         page.wait_for_timeout(80)
         page.touchscreen.tap(sbox['x'] + sbox['width'] / 2, sbox['y'] + sbox['height'] / 2)
@@ -137,10 +141,10 @@ def main():
         page.keyboard.press('Escape')
         page.wait_for_timeout(300)
         step('Esc closes the viewer', not dialog.is_visible())
-        page.locator('ul[class*="_stageTrack_"] li').nth(1).locator('a').click()
+        page.locator('[data-testid="gallery-stage"] li').nth(1).locator('a').click()
         dialog.wait_for(state='visible', timeout=10000)
-        step('a picture zoomed before closing opens at full view again', page.locator('[class*="_viewerSlide_"][data-zoomed="true"]').count() == 0)
-        swipe('[class*="_viewerSlide_"] >> nth=1', 0, 220)
+        step('a picture zoomed before closing opens at full view again', page.locator('[data-testid="viewer-slide"][data-zoomed="true"]').count() == 0)
+        swipe('[data-testid="viewer-slide"] >> nth=1', 0, 220)
         step('a touch swipe down closes the viewer', not dialog.is_visible())
 
         journey('issue 1547: equivalents by the normalized active ingredient')
@@ -156,7 +160,7 @@ def main():
         text = (link.inner_text() or '').translate(ASCII)
         step('"add to cart" became "in cart (1)" with the way to the cart', '(1)' in text, text)
         step('the card button changed with it (no second add)', page.get_by_role('button', name='أضف للسلة').count() == 0)
-        badge = page.locator('a[class*="_cartLink_"]:visible [class*="_cartBadge_"]')
+        badge = page.locator('[data-testid="cart-link"]:visible [data-testid="cart-badge"]')
         step('the header cart badge says 1 at once', badge.count() == 1 and (badge.inner_text() or '').translate(ASCII) == '1', badge.count())
         stored = page.evaluate("() => Object.entries(localStorage).filter(([k]) => k.startsWith('nabd_cart')).map(([k, v]) => [k, v])")
         step('the line is kept on the device', any(a in v for _, v in stored), json.dumps(stored)[:300])
