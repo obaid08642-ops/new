@@ -51,6 +51,9 @@ def get(name):
             return l.split("=", 1)[1].strip().strip('"').strip("'")
     return None
 new = dict(l.split("=", 1) for l in open(newf, encoding="utf-8").read().splitlines() if "=" in l)
+# the weekly keep-alive to the non-primary providers mails OPS_ALERT_EMAIL (PR #1583); tasks/61 sets it, kept if set
+if not get("OPS_ALERT_EMAIL"):
+    new["OPS_ALERT_EMAIL"] = "obaid08642@gmail.com"
 changed = []
 for k, v in new.items():
     if get(k) == v:
@@ -58,8 +61,9 @@ for k, v in new.items():
     lines = [l for l in lines if not l.startswith(k + "=")]
     lines.append(f"{k}={v}")
     changed.append(k)
-present = [k for k in ("RESEND_API_KEY", "BREVO_API_KEY", "MAILJET_API_KEY", "MAILJET_SECRET_KEY") if get(k) or new.get(k)]
-missing = [k for k in ("RESEND_API_KEY", "BREVO_API_KEY", "MAILJET_API_KEY", "MAILJET_SECRET_KEY") if k not in present]
+NEEDED = ("RESEND_API_KEY", "BREVO_API_KEY", "MAILJET_API_KEY", "MAILJET_SECRET_KEY", "MAIL_FROM", "OPS_ALERT_EMAIL")
+present = [k for k in NEEDED if get(k) or new.get(k)]
+missing = [k for k in NEEDED if k not in present]
 ses = [k for k in ("SES_SMTP_HOST", "SES_SMTP_USER", "SES_SMTP_PASS") if get(k)]
 tmp = envf + ".tmp"
 with open(tmp, "w", encoding="utf-8") as f:
@@ -67,7 +71,7 @@ with open(tmp, "w", encoding="utf-8") as f:
 os.chmod(tmp, 0o600)
 os.replace(tmp, envf)
 print("names set: " + (" ".join(changed) if changed else "none"))
-print("keys present: " + " ".join(present) + ("; MISSING: " + " ".join(missing) if missing else ""))
+print("present: " + " ".join(present) + ("; MISSING: " + " ".join(missing) if missing else ""))
 if ses:
     print("note: SES names still in the env (" + " ".join(ses) + "); unused, MAIL_PROVIDER_ORDER leaves SES out")
 PY
