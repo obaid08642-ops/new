@@ -1,4 +1,8 @@
-# 2026-10-16 reviewer, READ-ONLY: production API answers 500 on every route (readiness included) since about 11:20 UTC;
-# the web still serves its cached pages. Find the cause: disk, memory, OOM kills, container states and logs (secrets
-# dropped). Report encrypted to the review session's key; the build session's key is restored after this run.
+# 2026-10-16 reviewer: production outage. Root disk full since ~07:00 UTC (build session, from Sentry): Redis refuses
+# writes ("No space left on device"), mongodb drops off the network, every API route 500 since ~11:20.
+# 55 reads the state (read-only), 59 frees disk safely (images no container uses, old release folders, logs over
+# 100 MB, journal, apt cache; old nightly backups only if still under 6 GB free; never volumes or the database),
+# 66 starts mongodb/redis if stopped (no recreate), lets Redis save again, restarts backend+worker once if needed.
 55-inspect-outage
+59-free-disk
+66-recover-after-disk-full
