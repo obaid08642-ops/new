@@ -45,6 +45,8 @@ import { logError } from '../../src/utils/logger';
 import { currentDbLang } from '../../src/utils/localize';
 import { prefetchAlternatives, prefetchHotMedicines } from '../../src/utils/prefetch';
 import { getVisibleProductIds } from '../../src/utils/productNav';
+import { VariantPicker } from '../../src/components/pharmacy/VariantPicker';
+import { productLocaleOf, type ProductVariant } from '../../src/utils/variantPicker';
 import { canShowPromo, discountPercent, medField, medGallery, medMeta, medName, medPrice, needsRx, oldPriceOf, onlineOnly, productNote, type Med } from '../../src/utils/pharmacyCatalog';
 
 /**
@@ -71,6 +73,8 @@ type Detail = Med & {
   sku?: number | string | null;
   barcode?: string | null;
   medical_review_status?: string;
+  /** Decision D (issue 1556): the record's variant group (powers, colours, shades); each variant is its own record. */
+  variant_group?: string | null;
   last_reviewed?: string | null;
   alternatives?: Med[];
   related_product_ids?: string[];
@@ -117,7 +121,9 @@ const SUGGEST_FIELDS = [
 ] as const;
 
 export default function ProductDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  // Decision D (issue 1556): `v` is the chosen variant (its own record); the route keeps it, so the choice is shareable.
+  const { id: entryId, v } = useLocalSearchParams<{ id: string; v?: string }>();
+  const id = v || entryId;
   const { theme, t, c, dir, flow, k, num, money, lang } = useScreenUi();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
@@ -163,6 +169,7 @@ export default function ProductDetailScreen() {
   const [zoom, setZoom] = useState(false);
   const [qty, setQty] = useState(1);
   const [related, setRelated] = useState<Med[]>([]);
+  const [variants, setVariants] = useState<{ group: string; rows: ProductVariant[] } | null>(null);
   const [inWishlist, setInWishlist] = useState(false);
   const [wishlistBusy, setWishlistBusy] = useState(false);
   const [suggestOpen, setSuggestOpen] = useState(false);
@@ -234,6 +241,27 @@ export default function ProductDetailScreen() {
       active = false;
     };
   }, [id, reloadKey]);
+
+  // Decision D: the product's variants (GET /public/product-variants/:locale/:id), read once per group.
+  useEffect(() => {
+    const group = med?.variant_group;
+    if (!med || !group) {
+      setVariants(null);
+      return;
+    }
+    if (variants?.group === group) return;
+    let active = true;
+    apiFetch<{ variants?: ProductVariant[] }>(`/public/product-variants/${productLocaleOf(currentDbLang())}/${encodeURIComponent(String(med.id))}`)
+      .then((res) => {
+        if (active) setVariants({ group, rows: Array.isArray(res?.variants) ? res.variants.filter((x) => x && x.id && x.variant) : [] });
+      })
+      .catch(() => {
+        if (active) setVariants(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [med, variants?.group]);
 
   // related products: the row only holds ids, so the real rows come from the catalogue's batch lookup
   useEffect(() => {
@@ -556,6 +584,17 @@ export default function ProductDetailScreen() {
                 </Text>
               ) : null}
             </View>
+
+            {/* decision D: the variant picker (powers, colours, shades); a choice opens that variant's own record */}
+            {variants && variants.rows.length > 1 ? (
+              <VariantPicker
+                variants={variants.rows.map((x) => ({ ...x, available: x.available && x.price > 0 }))}
+                selectedId={String(med.id)}
+                onSelect={(next) => {
+                  if (next !== String(med.id)) router.setParams({ v: next });
+                }}
+              />
+            ) : null}
 
             {/* price, quantity, availability */}
             <Card padding="md" theme={theme}>

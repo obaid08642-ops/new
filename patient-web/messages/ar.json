@@ -2083,7 +2083,21 @@
     "sortPriceDesc": "السعر: من الأعلى",
     "sortNewest": "الأحدث",
     "askPharmacies": "اطلبه من الصيدليات القريبة",
-    "compareAlternatives": "قارن بالبدائل"
+    "compareAlternatives": "قارن بالبدائل",
+    "variantTitle": "اختر الخيار",
+    "variantColour": "اللون",
+    "variantShade": "الدرجة",
+    "variantOptions": "الخيارات",
+    "variantPower": "القوة (الدرجة)",
+    "variantMinus": "سالب (−)",
+    "variantPlus": "موجب (+)",
+    "variantPowerSearch": "ابحث عن قوة",
+    "variantPowerSearchPlaceholder": "مثال: ‎-2.50",
+    "variantClear": "مسح",
+    "variantOption": "الخيار {n}",
+    "variantUnavailable": "{label} (غير متوفر)",
+    "variantNoPower": "لا توجد قوة مطابقة",
+    "variantChosen": "المختار: {label}"
   },
   "PharmacyOffers": {
     "backToOrder": "العودة إلى الطلب",

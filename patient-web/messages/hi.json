@@ -2083,7 +2083,21 @@
     "sortPriceDesc": "कीमत: ज़्यादा से कम",
     "sortNewest": "सबसे नया",
     "askPharmacies": "पास की फ़ार्मेसियों से माँगें",
-    "compareAlternatives": "विकल्पों से तुलना करें"
+    "compareAlternatives": "विकल्पों से तुलना करें",
+    "variantTitle": "विकल्प चुनें",
+    "variantColour": "रंग",
+    "variantShade": "शेड",
+    "variantOptions": "विकल्प",
+    "variantPower": "पावर",
+    "variantMinus": "माइनस (−)",
+    "variantPlus": "प्लस (+)",
+    "variantPowerSearch": "पावर खोजें",
+    "variantPowerSearchPlaceholder": "उदाहरण: -2.50",
+    "variantClear": "साफ़ करें",
+    "variantOption": "विकल्प {n}",
+    "variantUnavailable": "{label} (उपलब्ध नहीं)",
+    "variantNoPower": "कोई मेल खाती पावर नहीं",
+    "variantChosen": "चुना गया: {label}"
   },
   "PharmacyOffers": {
     "backToOrder": "ऑर्डर पर वापस",

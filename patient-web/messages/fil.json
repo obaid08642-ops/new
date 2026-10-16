@@ -2083,7 +2083,21 @@
     "sortPriceDesc": "Presyo: mataas pababa",
     "sortNewest": "Pinakabago",
     "askPharmacies": "Hilingin sa mga kalapit na botika",
-    "compareAlternatives": "Ihambing sa mga alternatibo"
+    "compareAlternatives": "Ihambing sa mga alternatibo",
+    "variantTitle": "Pumili ng opsyon",
+    "variantColour": "Kulay",
+    "variantShade": "Shade ng kulay",
+    "variantOptions": "Mga opsyon",
+    "variantPower": "Grado",
+    "variantMinus": "Bawas (−)",
+    "variantPlus": "Dagdag (+)",
+    "variantPowerSearch": "Hanapin ang grado",
+    "variantPowerSearchPlaceholder": "Halimbawa: -2.50",
+    "variantClear": "Burahin",
+    "variantOption": "Opsyon {n}",
+    "variantUnavailable": "{label} (hindi available)",
+    "variantNoPower": "Walang tugmang grado",
+    "variantChosen": "Napili: {label}"
   },
   "PharmacyOffers": {
     "backToOrder": "Bumalik sa order",
