@@ -35,7 +35,7 @@ import random
 import re
 import time
 
-from lib import journey, step
+from lib import journey, step, web_login
 
 WEB = os.environ.get('NABD_PATIENT_WEB', 'http://127.0.0.1:3000')
 # 3G-ish profile used by this journey (CDP takes bytes/s).
@@ -137,18 +137,29 @@ def main():
         return
 
     journey('throttled-network: warm cache on a good network')
-    ctx = browser.new_context(locale='ar-SA', viewport={'width': 390, 'height': 844})
+    # The site's service worker (offline page, #1507; its own journey is j_web_offline) answers fetches outside the page:
+    # CDP throttling and page.route never see them, so every profile below would pass without being applied.
+    ctx = browser.new_context(locale='ar-SA', viewport={'width': 390, 'height': 844}, service_workers='block')
     page = ctx.new_page()
     try:
         page.goto(WEB + '/ar', wait_until='load', timeout=45000)
+        # A signed-in patient: the pages then call the API from the browser (the presence heartbeat on every page), so
+        # the 1% loss below hits real API traffic. An anonymous visit sends none (static pages, session hint cookie).
+        from j_accounts import app_signup
+        acct = app_signup(label='throttled-web')
+        signed = web_login(ctx, WEB, acct['email'], acct['password'])
+        step('a patient signs in on the website (the pages then call the API)', signed.ok, f'{signed.status}')
     except Exception as e:
         skip('throttled-network', f'patient-web not running at {WEB}: {e}')
         browser.close(); pw.stop()
         return
+    t_warm = time.time()
+    page.goto(WEB + '/ar', wait_until='load', timeout=45000)  # the signed-in page, cached on a good network
+    warm_elapsed = time.time() - t_warm
     try:
         page.wait_for_load_state('networkidle', timeout=30000)
     except Exception:
-        pass
+        pass  # a signed-in page keeps its presence heartbeat going
     warm_text = page.evaluate('() => document.body ? document.body.innerText.slice(0, 4000) : ""')
     step('home renders on a good network (there is a cache to keep)', len(warm_text.strip()) > 200, f'{len(warm_text)} chars')
 
@@ -162,12 +173,23 @@ def main():
         loaded = True
     except Exception as e:
         loaded = str(e)[:150]
+    if loaded is True:
+        # The load event can fire while the streamed page still shows its loading card (owner question 43): the
+        # page is usable once its content has arrived, which on 3G is a moment later.
+        try:
+            page.wait_for_function('() => document.body && document.body.innerText.trim().length > 200', timeout=30000)
+        except Exception:
+            pass
     elapsed = time.time() - t0
     body = page.evaluate('() => document.body ? document.body.innerText.slice(0, 4000) : ""')
     step('the page loads on 3G (slow, not blank)', loaded is True and len(body.strip()) > 200,
          f'{elapsed:.0f}s, {len(body)} chars' if loaded is True else f'load failed: {loaded}')
-    step('the 3G profile was actually applied (not a vacuous pass)', g3_applied and elapsed >= 2.0,
-         f'{elapsed:.1f}s, cdp_applied={g3_applied}')
+    # The same signed-in page on 3G takes several times its good-network load (and at least a second at 400 kbps). A fixed
+    # 2 s floor failed for a light page whose scripts are already cached, although the profile was applied; after the
+    # web byte budgets (#1515) the page loads in ~0.7 s on 3G (9x its good-network time), so the floor is 0.5 s and the
+    # 3x ratio is what proves the profile.
+    step('the 3G profile was actually applied (not a vacuous pass)', g3_applied and elapsed >= max(0.5, 3 * warm_elapsed),
+         f'3G {elapsed:.2f}s vs good network {warm_elapsed:.2f}s, cdp_applied={g3_applied}')
     blank = page.evaluate('() => document.documentElement ? document.documentElement.innerHTML.length : 0')
     step('no blank-screen crash under 3G', blank > 5000, f'{blank} html chars')
 

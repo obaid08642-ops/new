@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { OfflineSupport } from "@/components-next/offline-support";
+import { OfflineBanner } from "@/components-next/network/offline-banner";
 import Link from "next/link";
 import "../globals.css";
 import { THEME_COLOR } from "../design-tokens/theme-color";
@@ -102,8 +103,8 @@ export default async function LocaleLayout({ children, params }: Props) {
   const moduleCopy = await getTranslations({ locale: typedLocale, namespace: "Modules" });
 
   return (
-    // The theme script (app/theme.ts) sets data-theme, the class and color-scheme on <html> before hydration, so those
-    // attributes legitimately differ from the server render.
+    // The nonce server (from the theme cookie) or the theme script (app/theme.ts) sets data-theme, the class and
+    // color-scheme on <html> before hydration, so those attributes legitimately differ from the server render.
     <html lang={typedLocale} dir={getDirection(typedLocale)} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href={apiOrigin} crossOrigin="anonymous" />
@@ -116,16 +117,10 @@ export default async function LocaleLayout({ children, params }: Props) {
           <WebMcpLoader locale={typedLocale} />
           <OfflineSupport />
           <div className={`shell ${fontVariables}`} lang={typedLocale} dir={getDirection(typedLocale)}>
-            {/*
-              12.A3 — the theme has to be known before the first pixel, or every
-              navigation flashes the wrong theme. This is a synchronous inline script
-              at the top of the body for that reason; see app/theme.ts for why it
-              sets BOTH data-theme and .dark.
-
-              F82-3: no nonce here. The page HTML is the same for everyone and is cached, so it cannot carry a per-request
-              value; the CSP allows exactly this script by its hash (lib/security/csp.ts, THEME_SCRIPT_HASH).
-            */}
-            <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+            {/* P15.4: the offline banner with the time this page was made ("last updated"). For a static/ISR page this
+                render is the cached copy, so the time is that copy's, not the visit's. Early in the document so it is read
+                first; the banner itself is fixed at the bottom edge. */}
+            <OfflineBanner renderedAt={Date.now()} />
             <header className="topbar">
               <Link className="brand" href={`/${typedLocale}`}>
                 <span className="brand-mark">
@@ -158,6 +153,16 @@ export default async function LocaleLayout({ children, params }: Props) {
                 <Link href={`/${typedLocale}/map`}>{t("footerMap")}</Link>
               </nav>
             </footer>
+            {/*
+              Owner decision 43 a (issue 427): the server writes the theme on <html> from the visitor's cookie (the nonce
+              server, server/nonce-transform.mjs stampTheme), so this script is only the fallback for a page that came
+              without it, and it sits after the content: an inline script waits for every stylesheet before it runs, and at
+              the top of the body that wait held back the content too. It sets BOTH data-theme and .dark (app/theme.ts).
+
+              F82-3: no nonce here. The page HTML is the same for everyone and is cached, so it cannot carry a per-request
+              value; the CSP allows exactly this script by its hash (lib/security/csp.ts, THEME_SCRIPT_HASH).
+            */}
+            <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
           </div>
         </NextIntlClientProvider>
       </body>

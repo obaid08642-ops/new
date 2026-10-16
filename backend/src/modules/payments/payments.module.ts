@@ -223,13 +223,14 @@ export class PaymentsService {
   }
 
   private assertBookingOwnerOrAdmin(user: any, booking: any) {
-    if (!user?.id || (booking.patient_id !== user.id && user.role !== 'admin')) {
+    // issue 684: a family member who booked on the patient's behalf (booked_by_user_id) pays for it too
+    if (!user?.id || (booking.patient_id !== user.id && booking.booked_by_user_id !== user.id && user.role !== 'admin')) {
       throw new BadRequestException('not_authorized');
     }
   }
 
   private assertTransactionVerifier(user: any, transaction: any) {
-    if (!user?.id || (transaction.patient_id !== user.id && !['admin', 'system'].includes(user.role))) {
+    if (!user?.id || (transaction.patient_id !== user.id && transaction.payer_id !== user.id && !['admin', 'system'].includes(user.role))) {
       // S-7: another patient's payment is none of this caller's business — 403,
       // never a 400 that tells them the record exists and is merely off-limits.
       throw new ForbiddenException('not_authorized');
@@ -281,7 +282,7 @@ export class PaymentsService {
     const id = String(ref || '').trim();
     if (!/^[A-Za-z0-9_-]{1,128}$/.test(id)) throw new NotFoundException('txn_not_found');
     const t: any = await this.txns.findOne({ $or: [{ id: { $eq: id } }, { gateway_intent_id: { $eq: id } }, { gateway_charge_id: { $eq: id } }] }).lean();
-    if (!t || (t.patient_id !== user?.id && !['admin', 'super_admin'].includes(user?.role))) throw new NotFoundException('txn_not_found');
+    if (!t || (t.patient_id !== user?.id && t.payer_id !== user?.id && !['admin', 'super_admin'].includes(user?.role))) throw new NotFoundException('txn_not_found');
     return this.publicTxn(t);
   }
 
@@ -347,7 +348,7 @@ export class PaymentsService {
   async getConsultationCapabilities(user: any, appointmentId: string) {
     const appt: any = await this.appts.findOne({ id: appointmentId }).lean();
     if (!appt) throw new NotFoundException('booking_not_found');
-    if (appt.patient_id !== user?.id && user?.role !== 'admin') throw new BadRequestException('not_authorized');
+    if (appt.patient_id !== user?.id && appt.booked_by_user_id !== user?.id && user?.role !== 'admin') throw new BadRequestException('not_authorized');
     if (appt.payment_status === 'paid') throw new BadRequestException('booking_already_paid');
     if (appt.payment_method && appt.payment_method !== 'card') throw new BadRequestException('card_payment_not_applicable');
     const amount = Math.round(Number(appt.total_price ?? 0) * 100) / 100;
@@ -490,7 +491,7 @@ export class PaymentsService {
     // live gateway intent for the same booking during an in-flight request.
     let txn: any;
     try {
-      txn = await this.txns.create({ booking_kind: kind, booking_id: id, patient_id: booking.patient_id || booking.patient_account_id, amount, gateway: this.adapter.name, method: normalizedMethod, status: 'initiating', idempotency_key: requestKey });
+      txn = await this.txns.create({ booking_kind: kind, booking_id: id, patient_id: booking.patient_id || booking.patient_account_id, ...(user?.id && user.id !== (booking.patient_id || booking.patient_account_id) ? { payer_id: user.id } : {}), amount, gateway: this.adapter.name, method: normalizedMethod, status: 'initiating', idempotency_key: requestKey });
     } catch (error: any) {
       if (error?.code === 11000) {
         const active: any = await this.txns.findOne({ booking_kind: kind, booking_id: { $eq: id }, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
@@ -548,6 +549,10 @@ export class PaymentsService {
       }
       // F74: a paid diagnostics parent confirms every child booking too.
       if (t.booking_kind === 'diagnostics') await this.confirmDiagnosticChildren(t).catch(() => null);
+      // Persist the paid state before announcing it: listeners (insurance copay settlement) re-read the
+      // transaction as status 'paid' and silently skip it while the save is still in flight.
+      t.webhook_payload = result.raw;
+      await t.save();
       // For online/home services we emit an event so the workflow engine (provider-jobs / booking-flow)
       // can transition CONFIRMED when payment is required pre-confirmation.
       this.events.emit('payment.completed', {

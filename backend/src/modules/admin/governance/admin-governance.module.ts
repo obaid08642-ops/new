@@ -15,7 +15,7 @@ import { toUniversal, domainStatesFor, WorkflowEngineModule } from '../../workfl
 import { B2BRequestSchema } from '../../../schemas/b2b-request.schema';
 import { B2BController } from './b2b.controller';
 import { SystemConfigController, PublicSystemConfigController } from './system-config.controller';
-import { ToggleDto, UpdateDto } from './admin-governance.dto';
+import { UpdateDto } from './admin-governance.dto';
 
 /**
  * Admin Governance — ALL queries derive from the universal lifecycle.
@@ -247,51 +247,6 @@ export class AdminGovernanceController {
   @Get('providers-performance') perf(@Query() q: any) { return this.svc.providersPerformance({ type: q.type, limit: q.limit ? Number(q.limit) : undefined }); }
   @Get('patient/:id') patient(@Param('id') id: string) { return this.svc.patientProfile(id); }
   @Get('trace/:entity_type/:entity_id') trace(@Param('entity_type') et: string, @Param('entity_id') ei: string) { return this.svc.entityTrace(et, ei); }
-}
-
-@Controller('kill-switches')
-@Roles(UserRole.ADMIN)
-@UseGuards(JwtAuthGuard)
-export class KillSwitchesController {
-  constructor(@InjectModel(SystemConfig.name) private configModel: Model<any>) {}
-
-  private defaultSwitches = [
-    { id: "KS001", name: "الشات الكامل", key: "chat_enabled", value: true, description: "إيقاف يوقف جميع المحادثات في التطبيق فوراً", danger: true },
-    { id: "KS002", name: "الكشوفات الأونلاين", key: "online_consultations", value: true, description: "إيقاف حجوزات الفيديو والاستشارات عن بعد", danger: true },
-    { id: "KS003", name: "سحب الأرباح للمزودين", key: "provider_withdrawals", value: true, description: "تجميد سحب الأرباح من محافظ المزودين", danger: true },
-    { id: "KS004", name: "بروكاست الصيدلية", key: "pharmacy_broadcast", value: true, description: "إيقاف إرسال طلبات الأدوية للصيدليات", danger: false },
-    { id: "KS005", name: "بروكاست التمريض", key: "nursing_broadcast", value: true, description: "إيقاف إرسال طلبات التمريض المنزلي", danger: false },
-    { id: "KS006", name: "التسجيل الجديد", key: "new_registrations", value: true, description: "إيقاف تسجيل مزودين ومرضى جدد", danger: false },
-    { id: "KS007", name: "نظام الطوارئ والإسعاف", key: "emergency_system", value: true, description: "إيقاف زر الاستغاثة وإرسال الإسعاف", danger: true },
-    { id: "KS008", name: "نشر التقييمات", key: "reviews_enabled", value: true, description: "إيقاف نشر تقييمات ومراجعات المرضى الجديدة", danger: false },
-    { id: "KS009", name: "الدفع الإلكتروني", key: "online_payments", value: true, description: "إيقاف بوابات الدفع — الطلبات كاش فقط", danger: true },
-  ];
-
-  @Get()
-  async list() {
-    let config = await this.configModel.findOne({ key: 'kill_switches' });
-    if (!config) {
-      config = await this.configModel.create({ key: 'kill_switches', value: this.defaultSwitches });
-    }
-    return config.value;
-  }
-
-  @Post(':key')
-  async toggle(@Param('key') key: string, @Body() body: ToggleDto) {
-    let config = await this.configModel.findOne({ key: 'kill_switches' });
-    if (!config) {
-      config = await this.configModel.create({ key: 'kill_switches', value: this.defaultSwitches });
-    }
-    const list = [...config.value];
-    const sw = list.find(s => s.key === key);
-    if (sw) {
-      sw.value = body.value;
-      config.value = list;
-      config.markModified('value');
-      await config.save();
-    }
-    return config.value;
-  }
 }
 
 @Controller('commissions')

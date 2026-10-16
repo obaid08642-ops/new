@@ -20,6 +20,7 @@
 
 import { createHash } from "node:crypto";
 import { THEME_INIT_SCRIPT } from "../../app/theme";
+import { livekitConnectSources } from "../consult/livekit-url";
 
 export const CSP_NONCE_PLACEHOLDER = "nabdCspNoncePlaceholder0000";
 /** Response header the proxy sets on public HTML for the nonce server; the nonce server removes it. */
@@ -41,10 +42,13 @@ export function contentSecurityPolicy(nonce: string, isDevelopment = process.env
     "frame-ancestors 'none'",
     "img-src 'self' data: https:",
     // issue 777: the map page embeds an OpenStreetMap view (https://www.openstreetmap.org/export/embed.html), whose tiles load from *.tile.openstreetmap.org
-    "frame-src 'self' https://www.openstreetmap.org",
-    `style-src 'self' 'nonce-${nonce}'${isDevelopment ? " 'unsafe-inline'" : ""}`,
+    // issue 430: Google sign-in (Google Identity Services) draws its popup and button from accounts.google.com/gsi/
+    "frame-src 'self' https://www.openstreetmap.org https://accounts.google.com/gsi/",
+    `style-src 'self' 'nonce-${nonce}' https://accounts.google.com/gsi/style${isDevelopment ? " 'unsafe-inline'" : ""}`,
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' '${THEME_SCRIPT_HASH}'${isDevelopment ? " 'unsafe-eval'" : ""}`,
-    "connect-src 'self' https://api.nabd.plus wss://live.nabd.plus https://cdn.nabd.plus",
+    // Decision 4 (2026-10-14): a LiveKit other than wss://live.nabd.plus (NABD_LIVEKIT_URL, e.g. the local one of
+    // tools/live/start-livekit.sh) is allowed by its exact origin, read at request time like the call screens read it.
+    ["connect-src 'self' https://api.nabd.plus wss://live.nabd.plus https://cdn.nabd.plus https://accounts.google.com/gsi/", ...livekitConnectSources()].join(" "),
     "font-src 'self' data:",
     "media-src 'self' https:",
     "object-src 'none'",

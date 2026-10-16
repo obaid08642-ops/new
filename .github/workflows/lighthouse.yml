@@ -56,10 +56,13 @@ jobs:
         with:
           urls: |
             http://localhost:3000/ar
-            http://localhost:3000/ar/pharmacy
+            http://localhost:3000/ar/c
             http://localhost:3000/ar/consultations/doctors
           budgetPath: ./patient-web/.github/lighthouse-budget.json
           # QUALITY_STANDARDS §2/§3: performance >= 90, accessibility >= 95, LCP < 2.5 s, CLS < 0.1, TBT <= 200 ms
+          # Owner decision 45 (issue 427): applied (devtools) throttling, the median of 3 runs per page, thresholds unchanged.
+          # The catalogue is audited at its own address (/ar/c, the nav's link); /ar/pharmacy is an old alias that redirects.
           configPath: ./patient-web/.lighthouserc.json
+          runs: 3
           uploadArtifacts: true
           temporaryPublicStorage: true

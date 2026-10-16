@@ -7,6 +7,7 @@ import { BarcodeScanner, canScanWithCamera } from '@/components/BarcodeScanner';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useCan } from '@/components/AdminGuard';
 import { MedicineQuickEdit, SensitiveChangeList, isPublished, sensitiveChanges, type SensitiveChange } from '@/components/MedicineQuickEdit';
+import { PriceReviewQueue, type PriceReviewLine } from '@/components/PriceReviewQueue';
 
 /**
  * Unified medicines catalog manager:
@@ -17,6 +18,8 @@ import { MedicineQuickEdit, SensitiveChangeList, isPublished, sensitiveChanges, 
  *  - change-requests tab: provider suggestions (field edit / new item / image)
  *    approve → applied to DB, reject → discarded
  *  - reports tab: top-selling, most-used, most-reported-unavailable
+ *  - items-to-review tab (decision 12): pharmacy offer lines with no catalogue match or above the catalogue price;
+ *    a not-matched line opens the create form prefilled (GET /admin/pharmacy/price-review)
  *
  * Backend: /medicines/admin/catalog[...], /medicines/admin/change-requests[...],
  *          /medicines/admin/reports
@@ -26,7 +29,7 @@ const EMPTY_FORM: any = {
   name_ar: '', name_en: '', active_ingredient: '', generic_name: '',
   manufacturer: '', brand: '', category: '', sub_category: '',
   form: '', strength: '', package_size: '', barcode: '',
-  price: '', requires_prescription: false,
+  price: '', requires_prescription: false, controlled: false,
   images: '', image: '',
   description_ar: '', description_en: '',
   usage_instructions_ar: '', usage_instructions_en: '',
@@ -60,7 +63,7 @@ const toArr = (v: any): string[] => Array.isArray(v) ? v : (typeof v === 'string
 const fromArr = (v: any): string => Array.isArray(v) ? v.join('، ') : (v || '');
 
 export default function MedicinesCatalogPage() {
-  const [tab, setTab] = useState<'catalog' | 'requests' | 'reports'>('catalog');
+  const [tab, setTab] = useState<'catalog' | 'review' | 'requests' | 'reports'>('catalog');
 
   // catalog state
   const [items, setItems] = useState<any[]>([]);
@@ -167,6 +170,20 @@ export default function MedicinesCatalogPage() {
   }, []);
 
   const openCreate = () => { setForm(EMPTY_FORM); setImageUrls([]); setEditId(null); setFormMode('create'); };
+  // Decision 12: a pharmacy line with no catalogue match becomes a new catalogue item; the admin completes the form.
+  const openCreateFromLine = (line: PriceReviewLine) => {
+    setForm({
+      ...EMPTY_FORM,
+      name_ar: line.name_ar || '',
+      name_en: line.name_en || '',
+      price: line.offered_price ?? '',
+      reason: 'إنشاء صنف من سطر عرض صيدلية غير مطابق للكتالوج',
+    });
+    setImageUrls([]);
+    setEditId(null);
+    setFormMode('create');
+    setTab('catalog');
+  };
   const openEdit = (m: any) => {
     setForm({
       ...EMPTY_FORM, ...m,
@@ -217,14 +234,14 @@ export default function MedicinesCatalogPage() {
     };
     if (formMode === 'edit' && editId) {
       const original = items.find((x: any) => x.id === editId);
-      // Enforce reason when price differs to avoid 400 price_change_reason_required
-      const priceChanged = original && Number(original.price || 0) !== Number(payload.price || 0);
-      if (priceChanged && (!payload.reason || String(payload.reason).trim().length < 5)) {
-        alert('سبب تغيير السعر مطلوب (5 أحرف على الأقل) — يلزم لتدقيق حوكمة الأسعار.');
+      // Price / prescription / controlled changes ask for confirmation (old -> new) before they are saved, and need a
+      // typed reason (>= 5 chars) that the item's change log keeps (backend: price_change_reason_required /
+      // flag_change_reason_required).
+      const changes = original ? sensitiveChanges(original, { price: payload.price, requires_prescription: !!payload.requires_prescription, controlled: !!payload.controlled }) : [];
+      if (changes.length && (!payload.reason || String(payload.reason).trim().length < 5)) {
+        alert('سبب التغيير مطلوب (5 أحرف على الأقل) عند تعديل السعر أو الوصفة الطبية أو صنف مراقب — يُحفظ في سجل تغييرات الصنف.');
         return;
       }
-      // Price / prescription changes ask for confirmation (old -> new) before they are saved.
-      const changes = original ? sensitiveChanges(original, { price: payload.price, requires_prescription: !!payload.requires_prescription }) : [];
       if (changes.length) { setFormConfirm({ changes, published: isPublished(original), run: commit }); return; }
     }
     await commit();
@@ -329,10 +346,10 @@ export default function MedicinesCatalogPage() {
             <p className="text-sm text-slate-500 mt-1">إدارة كاملة: إضافة / تعديل / حذف / شعار النواقص / اعتماد اقتراحات المزودين / تقارير.</p>
           </div>
           <div className="flex gap-2">
-            {(['catalog', 'requests', 'reports'] as const).map(t => (
+            {(['catalog', 'review', 'requests', 'reports'] as const).map(t => (
               <button key={t} onClick={() => setTab(t)}
                 className={`px-4 py-2 rounded-lg font-bold text-sm ${tab === t ? 'bg-teal-600 text-white' : 'bg-white border border-slate-300 text-slate-600'}`}>
-                {t === 'catalog' ? 'الكتالوج' : t === 'requests' ? 'طلبات التغيير' : 'التقارير'}
+                {t === 'catalog' ? 'الكتالوج' : t === 'review' ? 'أصناف للمراجعة' : t === 'requests' ? 'طلبات التغيير' : 'التقارير'}
               </button>
             ))}
           </div>
@@ -387,6 +404,12 @@ export default function MedicinesCatalogPage() {
                       يتطلب وصفة طبية (Rx)
                     </label>
                   </div>
+                  <div className="flex items-end pb-1">
+                    <label className="flex items-center gap-2 text-sm font-bold text-slate-700">
+                      <input type="checkbox" checked={!!form.controlled} onChange={e => setForm({ ...form, controlled: e.target.checked })} />
+                      صنف مراقب (لا يُطلب أونلاين)
+                    </label>
+                  </div>
                   <div className="col-span-2">
                     <label className="block text-sm font-bold text-slate-700 mb-2">صور الدواء (حد أقصى {MAX_IMAGES} — تُرفع على التخزين مباشرة)</label>
                     <div className="flex flex-wrap items-center gap-3">
@@ -433,7 +456,7 @@ export default function MedicinesCatalogPage() {
                   {F('precautions_ar', 'الاحتياطات (عربي)', { area: true })}
                   {F('precautions_en', 'الاحتياطات (إنجليزي)', { area: true, ltr: true })}
                   <div className="col-span-2">
-                    <label className="block text-xs font-bold text-amber-700 mb-1">سبب التغيير (مطلوب عند تعديل السعر — 5 أحرف على الأقل، يُحفظ في سجل التدقيق)</label>
+                    <label className="block text-xs font-bold text-amber-700 mb-1">سبب التغيير (مطلوب عند تعديل السعر أو الوصفة الطبية أو صنف مراقب — 5 أحرف على الأقل، يُحفظ في سجل تغييرات الصنف)</label>
                     <input value={form.reason || ''} onChange={e => setForm({ ...form, reason: e.target.value })} placeholder="مثال: تحديث تسعيرة المورد / عرض ترويجي" className="border border-amber-200 rounded px-2 py-1.5 w-full text-sm bg-amber-50/50" />
                   </div>
                 </div>
@@ -600,6 +623,8 @@ export default function MedicinesCatalogPage() {
             )}
           </div>
         )}
+
+        {tab === 'review' && <PriceReviewQueue onCreateFromLine={openCreateFromLine} canCreate={canCreate} />}
 
         {tab === 'reports' && (
           loading ? <div className="p-8 text-center text-slate-500">جاري التحميل...</div> : !reports ? (

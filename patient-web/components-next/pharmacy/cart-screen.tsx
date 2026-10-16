@@ -46,7 +46,9 @@ export function CartScreen({ locale, signedIn }: { locale: Locale; signedIn: boo
   const [announce, setAnnounce] = useState("");
   const address = useDeliveryAddress(signedIn && ready && items.length > 0);
 
-  const checkout = `/${locale}/cart/checkout`;
+  // Owner decision 39 (issues 1031, 1043), the app's flow: with a prescription medicine the next step is picking the
+  // prescription in rx-order, which then opens the checkout on it; otherwise the checkout.
+  const checkout = hasRxItems ? `/${locale}/pharmacy/rx-order` : `/${locale}/cart/checkout`;
   const upload = `/${locale}/pharmacy/rx-order?via=photo`;
 
   const changeQty = (item: CartItem, next: number) => {
@@ -58,7 +60,7 @@ export function CartScreen({ locale, signedIn }: { locale: Locale; signedIn: boo
     updateQty(item.id, next - item.qty);
   };
 
-  const requestButton = <ButtonLink href={checkout} label={t("requestOffers")} />;
+  const requestButton = <ButtonLink href={checkout} label={hasRxItems ? t("choosePrescription") : t("requestOffers")} />;
 
   const footer = ready && items.length > 0 ? (
     <StickyFooter label={t("summaryLabel")}>
@@ -171,6 +173,9 @@ export function CartScreen({ locale, signedIn }: { locale: Locale; signedIn: boo
               })}
             </ul>
           </section>
+
+          {/* Owner decision 35 (issue 481): the cart has no price; the prices come with the pharmacies' offers. */}
+          <p className={rx.note} data-testid="cart-price-note">{t("pricesNote")}</p>
 
           {/* The app cart's "can't find your medicine?" way in: ask the pharmacies for it by name (journeys scenario 8, issue 1081). */}
           <p className={rx.note}><Link className={rx.bannerAction} href={`/${locale}/pharmacy/request`}>{t("manualRequest")}</Link></p>

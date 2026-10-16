@@ -9,6 +9,9 @@ import { LocalDate } from "./local-date";
 import { statusKey } from "@/components-next/pharmacy-offers/status";
 import { OFFER_TONES } from "@/components-next/pharmacy-offers/tones";
 import { CancelOrder } from "@/components-next/pharmacy-offers/cancel-order";
+import { pharmacyCancelRules } from "@/components-next/pharmacy-offers/cancel-rules";
+import { callPatientApi } from "@/lib/api/upstream";
+import { extractRecord } from "@/lib/api/profile";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { parseOrderId } from "@/lib/api/orders";
@@ -48,6 +51,9 @@ export async function OrderDetailScreen({ locale, orderId }: { locale: Locale; o
     return frame(<div className={rx.state}><RetryLinkErrorState title={t("unavailableTitle")} body={t("unavailableBody")} retryLabel={routeState("retry")} actionLabel={t("backToOrders")} actionHref={ordersHref} /></div>);
   }
   const { detail } = order;
+  // journeys#8 (decision 26): the cancel confirmation says the refund rule, from the server's public config (as the
+  // offers page). Read only for an order that can still be cancelled, after the order itself.
+  const cancelRules = canCancelOrder(detail.status) ? await orderCancelRules(locale, offers) : undefined;
   const action = orderAction(detail.status);
   const encoded = encodeURIComponent(orderId);
   const next = routeForOrder({ status: detail.status, governedState: detail.governedState, paymentStatus: detail.paymentStatus }, orderId, locale);
@@ -120,8 +126,16 @@ export async function OrderDetailScreen({ locale, orderId }: { locale: Locale; o
         ) : (
           <ButtonLink href={next} label={next === tracking ? t("action.track") : t("action.continue")} fullWidth />
         )}
-        {canCancelOrder(detail.status) ? <CancelOrder orderId={orderId} after="refresh" /> : null}
+        {canCancelOrder(detail.status) ? <CancelOrder orderId={orderId} after="refresh" rules={cancelRules} /> : null}
       </div>
     </>,
   );
+}
+
+/** The refund rule the cancel confirmation shows (decision 26), from GET /system-config/public. */
+async function orderCancelRules(locale: Locale, offers: Awaited<ReturnType<typeof getTranslations>>) {
+  const settingsT = await getTranslations({ locale, namespace: "SettingsWeb" });
+  const configResponse = await callPatientApi("/system-config/public").catch(() => null);
+  const config = configResponse?.ok ? extractRecord(await configResponse.json().catch(() => null)) : null;
+  return pharmacyCancelRules(config, { prep: offers("cancelRulePrep"), refundDays: (min, max) => settingsT("ruleRefundDays", { min, max }), returnDays: (days) => settingsT("ruleReturnDays", { days }) });
 }

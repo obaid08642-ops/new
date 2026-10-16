@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Query, ForbiddenException, BadRequestException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, ForbiddenException, BadRequestException, UseGuards, Optional } from '@nestjs/common';
+import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { v4 as uuid } from 'uuid';
@@ -13,7 +14,7 @@ const uid = (u: any) => u?.id || u?._id || u?.user_id;
 @SelfService()
 @UseGuards(JwtAuthGuard)
 export class FamilyChatController {
-  constructor(@InjectConnection() private conn: Connection) {}
+  constructor(@InjectConnection() private conn: Connection, @Optional() private readonly killSwitches?: KillSwitchesService) {}
 
   private async familyOf(userId: string) {
     if (!userId) throw new ForbiddenException('authenticated_user_required');
@@ -42,6 +43,7 @@ export class FamilyChatController {
 
   @Post('messages')
   async send(@CurrentUser() u: any, @Body() body: SendDto) {
+    await this.killSwitches?.assertOn('chat_enabled');
     if (!body?.text?.trim()) throw new BadRequestException('text_required');
     const owner = await this.familyOf(uid(u));
     const msg = {

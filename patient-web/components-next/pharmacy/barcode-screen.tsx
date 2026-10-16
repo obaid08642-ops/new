@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { CoreShell } from "@/components-next/core/core-shell";
 import { DrugInteractionChecker } from "@/components-next/drug-interaction-checker";
 import { Button } from "@/components-next/ui-generated/components/Button";
+import { CameraScanner, PACK_FORMATS } from "@/components-next/scan/camera-scanner";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { Input } from "@/components-next/ui-generated/components/Inputs";
@@ -37,7 +38,8 @@ export function BarcodeScreen({ locale }: { locale: Locale }) {
   const looking = outcome.kind === "looking";
   const clean = cleanBarcode(code);
 
-  async function lookup() {
+  async function lookup(scanned?: string) {
+    const clean = cleanBarcode(scanned ?? code);
     if (!clean || looking) return;
     setOutcome({ kind: "looking" });
     try {
@@ -66,6 +68,10 @@ export function BarcodeScreen({ locale }: { locale: Locale }) {
       <div className={rx.page}>
         <div className={rx.head}><h1 className={rx.title}>{t("title")}</h1></div>
         <p className={rx.lead}>{t("intro")}</p>
+
+        {/* issue 499: the camera reads the pack's barcode where the browser can; typing it stays. Above the form, not in its
+            row: the row is the code field and its button, and a third item there was squeezed under the field. */}
+        <CameraScanner formats={PACK_FORMATS} onResult={(scanned) => { setCode(scanned.slice(0, 64)); void lookup(scanned.slice(0, 64)); }} />
 
         <form
           className={rx.lookup}

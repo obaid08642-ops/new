@@ -23,6 +23,10 @@ export class LabService extends Document {
   @Prop({ default: 24 }) turnaround_hours: number;
   @Prop({ default: [] }) preparation_ar: string[];
   @Prop({ default: [] }) preparation_en: string[];
+  @Prop({ default: [] }) preparation_ur: string[];
+  @Prop({ default: [] }) preparation_hi: string[];
+  @Prop({ default: [] }) preparation_bn: string[];
+  @Prop({ default: [] }) preparation_tl: string[];
   @Prop({ default: false }) is_package: boolean;
   @Prop({ default: [] }) included_services: string[]; // for packages
   @Prop({ default: 0 }) popularity: number;

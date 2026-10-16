@@ -150,6 +150,8 @@ export class PharmacyOrder extends Document {
     substituted_from?: string;
     intake_source?: 'ocr' | 'voice' | 'text' | 'manual';
     notes?: string;
+    /** Journeys 74: the patient's photo of the box (manual request). */
+    photo_uri?: string;
   }>;
 
   @Prop({ type: Object }) delivery_address?: {
@@ -158,7 +160,7 @@ export class PharmacyOrder extends Document {
   };
   @Prop() patient_notes?: string;
   @Prop() prescription_id?: string;
-  @Prop({ type: Object }) manual_request?: { name?: string; details?: string | null };
+  @Prop({ type: Object }) manual_request?: { name?: string; details?: string | null; qty?: number; photo_uri?: string };
   /** F73: draft fulfillment + payment mode. */
   @Prop({ type: String, enum: ['delivery', 'pickup'], default: 'delivery' }) fulfillment?: 'delivery' | 'pickup';
   @Prop({ type: String, enum: ['cash', 'insurance'], default: 'cash' }) payment_mode?: 'cash' | 'insurance';
@@ -469,7 +471,7 @@ export class PharmacyChatMessage extends Document {
   /** System lines carry a code the patient apps translate (the Arabic text stays for the pharmacy app). */
   @Prop() system_code?: 'substitute_accepted' | 'substitute_rejected' | 'item_removed';
   @Prop() image_uri?: string;
-  @Prop({ type: Object }) substitute_offer?: { sku?: string; name?: string; active_ingredient?: string; brand?: string; dosage?: string; form?: string; image_uri?: string; price?: number; notes?: string };
+  @Prop({ type: Object }) substitute_offer?: { inventory_item_id?: string; sku?: string; name?: string; name_en?: string; active_ingredient?: string; brand?: string; dosage?: string; form?: string; image_uri?: string; price?: number; notes?: string };
   @Prop({ default: false }) blocked: boolean;
   @Prop() blocked_reason?: string;
 }

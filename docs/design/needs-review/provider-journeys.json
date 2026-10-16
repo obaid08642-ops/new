@@ -102,7 +102,7 @@
     "element": "hand over / delivery",
     "found": "[client] The prescription dispensing path is a \"disabled\" notice and the old order detail and broadcast screens are defined but never rendered (dead code).",
     "suspect": "dead end",
-    "review_status": "owner-decision (question 41 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2) (issue #1146)"
+    "review_status": "fixed #1533 (issue #1146)"
   },
   {
     "scenario": 1,
@@ -400,7 +400,7 @@
     "element": "prepare",
     "found": "[client] Insurance decision is a header shield icon on Orders and a row in More (opens the queue); an insurance order card has no inline decision button because the allocation list does not say which orders await a decision.",
     "suspect": "missing step",
-    "review_status": "open"
+    "review_status": "fixed #1520"
   },
   {
     "scenario": 4,
@@ -591,6 +591,6 @@
     "element": "result upload",
     "found": "[backend] With result files the visit is completed through POST /home-care/bookings/:id/visit-report (the only route that stores attachments); that handler sends no `patient.notify` like /nursing/visits/:id/complete does (the patient signature is stored now). Visits without files still complete through /nursing/visits/:id/complete.",
     "suspect": "backend gap",
-    "review_status": "open"
+    "review_status": "fixed #1504"
   }
 ]

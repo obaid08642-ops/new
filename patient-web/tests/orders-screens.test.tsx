@@ -345,6 +345,15 @@ describe("/pharmacy/reorder", () => {
     expect(cartItemsFor(addable, {}, false)).toEqual([]);
   });
 
+  it("keeps the catalogue's online-only flag (online_exclusive) on the cart line (decision 11)", () => {
+    const online = parseOrderDetail(order({ items: [{ id: "i1", name_en: "Vitamin D", qty: 1, matched_sku: "sku-9", online_exclusive: true }, { id: "i3", name_en: "Zinc", qty: 1, matched_sku: "sku-8", online_exclusive: false }] }), "en")!;
+    const { addable } = reorderLines(online);
+    expect(cartItemsFor(addable, { i1: { on: true, qty: 1 }, i3: { on: true, qty: 1 } }, false)).toEqual([
+      { id: "sku-9", name: "Vitamin D", rx: false, onlineOnly: true, qty: 1 },
+      { id: "sku-8", name: "Zinc", rx: false, qty: 1 },
+    ]);
+  });
+
   it("draws the lines with their quantities, says how many were not added, and has a prescription note only when the order used one", () => {
     const { addable, skipped } = reorderLines(detail);
     const html = render(<ReorderPicker locale="en" orderId={ORDER} lines={addable} skipped={skipped} needsPrescription={false} />);

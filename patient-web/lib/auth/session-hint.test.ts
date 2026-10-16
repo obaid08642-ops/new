@@ -23,6 +23,11 @@ describe("the readable session hint (issue 363)", () => {
     expect(hintFromAccessToken("not-a-token")).toBeNull();
   });
 
+  it("decodes unpadded base64url payloads of every length (atob, no Buffer: the module also runs in the browser)", () => {
+    for (const id of ["u", "u1", "u12", "u123", "u-_1"]) expect(hintFromAccessToken(jwt({ sub: id, name: "نبض" }))).toEqual({ kind: "user", id, isGuest: false });
+    expect(hintFromAccessToken("h.%%%.s")).toBeNull();
+  });
+
   it("is set readable (not HttpOnly) next to the session cookies, holds no token, and says nobody once they are cleared", () => {
     const response = NextResponse.json({});
     const access = jwt({ sub: "u1", is_guest: false });

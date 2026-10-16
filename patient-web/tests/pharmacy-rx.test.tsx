@@ -69,7 +69,11 @@ describe("the cart screen (canvas/Cart)", () => {
     expect(html).toContain("Needs a prescription");
     expect(html).toContain("An item needs a prescription");
     expect(html).toContain('href="/en/pharmacy/rx-order?via=photo"');
-    expect(html).toContain('href="/en/cart/checkout"');
+    // decision 39: a cart with a prescription medicine goes to rx-order to pick the prescription, not straight to checkout
+    expect(html).toContain('href="/en/pharmacy/rx-order"');
+    expect(html).not.toContain('href="/en/cart/checkout"');
+    // decision 35: the cart says that the prices come with the offers
+    expect(html).toContain("No prices in the cart: the prices come with the pharmacies&#x27; offers.");
     expect(html).toContain("Set by the pharmacy&#x27;s offer"); // the delivery fee is not invented
     expect(html).toContain("Shown with each offer"); // nor the final price
     expect(html).toContain("This cart is saved in this browser, on this device.");
@@ -159,20 +163,20 @@ describe("the prescription upload screen (canvas/RxUpload)", () => {
 describe("ordering from a prescription", () => {
   const prescription = { id: ID, state: "APPROVED", issuedAt: "2026-08-20T10:00:00.000Z", doctorName: "Dr Sara", items: [{ name: "Metformin", dose: "500 mg" }] };
 
-  it("lists the prescription's medicines and waits for a saved address before it offers to send", () => {
+  it("lists the prescription's medicines and goes on to the checkout opened on it (decision 39)", () => {
     const html = renderToStaticMarkup(<RxOrderScreen locale="en" prescription={prescription} />);
     expect(html).toContain("Metformin");
     expect(html).toContain("Dose: 500 mg");
     expect(html).toContain("From Dr Sara");
     expect(html).toContain("Approved");
-    expect(html).toContain('aria-busy="true"'); // the address is being read: no send button yet
-    expect(html).not.toContain("Request pharmacy offers");
+    expect(html).toContain(`href="/en/cart/checkout?prescriptionId=${ID}"`);
+    expect(html).toContain("Continue to the request");
   });
 
   it("says a prescription with no listed medicines cannot be ordered, and what to do", () => {
     const html = renderToStaticMarkup(<RxOrderScreen locale="en" prescription={{ ...prescription, items: [] }} />);
     expect(html).toContain("No medicines are listed on this prescription");
-    expect(html).not.toContain("Request pharmacy offers");
+    expect(html).not.toContain("Continue to the request");
   });
 
   it("does not offer to order from a dispensed prescription", () => {
@@ -189,7 +193,7 @@ describe("the other screens render their first state without inline styles", () 
     expect(request).toContain("Send to nearby pharmacies");
     const barcode = renderToStaticMarkup(<BarcodeScreen locale="en" />);
     expect(barcode).toContain("Enter the barcode printed on the package");
-    expect(barcode).not.toContain("camera"); // the web does not promise a scan it does not have
+    expect(barcode).not.toContain("camera"); // decision 36: the camera button is drawn only in a browser that has BarcodeDetector
     const chat = renderToStaticMarkup(<ChatScreen locale="en" orderId={ORDER} />);
     expect(chat).toContain("Loading the conversation");
     for (const html of [request, barcode, chat]) expect(html).not.toContain("style=");
@@ -242,6 +246,9 @@ describe("sending a request to the pharmacies", () => {
     const rx = buildBroadcastBody({ kind: "prescription", prescriptionId: ID, names: ["Metformin"] }, located);
     expect(rx).toMatchObject({ items: [{ raw_name: "Metformin", qty: 1, intake_source: "prescription" }], prescription_id: ID, prescription_attachments: [ID] });
     for (const body of [manual, rx]) expect(JSON.stringify(body)).not.toMatch(/price|total|card/i);
+    // journeys#23: a prescription order can be picked up at the pharmacy (delivery stays the default)
+    expect(rx).toMatchObject({ fulfillment: "delivery" });
+    expect(buildBroadcastBody({ kind: "prescription", prescriptionId: ID, names: ["Metformin"], fulfillment: "pickup" }, located)).toMatchObject({ fulfillment: "pickup" });
   });
 
   it("creates then submits with idempotency keys, and returns the order id", async () => {
