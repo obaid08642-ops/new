@@ -19,7 +19,7 @@
     "line": 154,
     "found": "No gateway key on the local backend (intent answers 503) and no Mongo replica set (selection / insurance acceptance fail). Hosted checkout, return and webhook were checked only against a TEST stand-in outside the repo (payloads copied from the services).",
     "suspect": "Run once against the provider sandbox and a replica-set mongod.",
-    "review_status": "owner-decision (question 38 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2) (issue #551)"
+    "review_status": "owner-decision (owner action, decided 2026-10-15 question 38: Moyasar test keys in the CI secrets) (issue #551)"
   },
   {
     "batch": 1,
