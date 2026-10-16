@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Text, View } from 'react-native';
 import Constants from 'expo-constants';
+import { router, type Href } from 'expo-router';
 
 import { Card } from '../../../../packages/ui-native/src';
 import { Gate, Section, Sheet } from '../consult/ConsultKit';
@@ -77,6 +78,11 @@ function LegalTab() {
     <>
       <PolicyCard kind="cancellation" title={k('set.legal.cancellation')} />
       <PolicyCard kind="returns" title={k('set.legal.returns')} />
+      {/* D-38: the full cancellation and refund policy and the telehealth consent, each on its own screen */}
+      <Panel testID="legal-patient-texts">
+        <Row icon="arrows-left-right" tone="amber" title={k('legal.refund.title')} onPress={() => router.push('/settings/refund-policy' as Href)} testID="legal-refund-policy-link" />
+        <Row icon="video-camera" tone="blue" title={k('legal.telehealth.title')} onPress={() => router.push('/settings/telehealth-consent' as Href)} last testID="legal-telehealth-consent-link" />
+      </Panel>
       <Section title={k('set.legal.documents')}>
         <Gate status={list.status} onRetry={() => void list.reload()}>
           {rows.length === 0 ? (

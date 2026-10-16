@@ -6,6 +6,7 @@ import { callPatientApi } from "@/lib/api/upstream";
 import { extractAppointmentDetail } from "@/lib/api/appointments";
 import { APPOINTMENT_ID, isJoinable, statusKey, statusTone } from "@/lib/consult/appointment-view";
 import { CallTokenLauncher } from "@/components-next/call-token-launcher";
+import { readTelehealthConsent } from "@/lib/legal/telehealth-consent";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { Hero, Notice } from "@/components-next/consult/consult-parts";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
@@ -40,6 +41,8 @@ export default async function VirtualWaitingRoomPage({ params, searchParams }: P
         <CallTokenLauncher
           appointmentId={appointmentId}
           joinHref={`/${locale}/consultations/video-call?appointmentId=${encodeURIComponent(appointmentId)}`}
+          locale={locale}
+          consent={await readTelehealthConsent(locale)}
           labels={{ title: a("callTitle"), join: a("callJoin"), loading: a("callLoading"), ready: a("callReady"), unavailable: a("callUnavailable"), notReady: a("callDiscard"), open: a("callOpen") }}
         />
       ) : (
