@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { DoctorCard } from "@/components-next/ui-generated/components/Cards";
 import type { ConsultMode } from "@/components-next/ui-generated/components/contract";
 import { formatPrice } from "@/lib/format-price";
+import { optimizedImageSrc } from "@/lib/media/optimized-image";
 
 export type DoctorListCardProps = {
   locale: string;
@@ -51,7 +52,7 @@ export function DoctorListCard({ locale, href, name, grade, specialty, place, mo
       currency={money?.currency}
       bookLabel={bookLabel}
       verifiedLabel={verifiedLabel}
-      photoSrc={photoSrc}
+      photoSrc={optimizedImageSrc(photoSrc, 128)}
     />
   );
 }

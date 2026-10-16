@@ -10,6 +10,15 @@ export function redisUrlFromEnv(): string {
   return password ? `redis://:${password}@${host}:${port}` : `redis://${host}:${port}`;
 }
 
+/**
+ * P14.14: the cache role. `REDIS_CACHE_URL` points at a Redis run with `allkeys-lru` (only rebuildable copies live there:
+ * HotCache entries and their refresh locks). Unset, the cache shares the main instance, as before the split. The main
+ * instance (`REDIS_URL`) keeps queues, sessions, locks, idempotency and rate limits: `noeviction`.
+ */
+export function redisCacheUrlFromEnv(): string {
+  return process.env.REDIS_CACHE_URL || redisUrlFromEnv();
+}
+
 type Entry = { v: any; exp?: number };
 
 /**
@@ -26,6 +35,8 @@ type Entry = { v: any; exp?: number };
 export class RedisService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger('RedisService');
   private client: Redis;
+  private cacheClient: Redis;
+  private cacheReady = false;
   private subscriber: Redis;
   private publisher: Redis;
   private ready = false;
@@ -53,6 +64,13 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     this.client = new Redis(redisUrl, options);
     this.subscriber = new Redis(redisUrl, options);
     this.publisher = new Redis(redisUrl, options);
+    // P14.14: a separate cache instance only when one is configured
+    if (process.env.REDIS_CACHE_URL) {
+      this.cacheClient = new Redis(redisCacheUrlFromEnv(), options);
+      this.cacheClient.on('ready', () => { this.cacheReady = true; this.logger.log('Redis cache instance connected'); });
+      this.cacheClient.on('error', () => { this.cacheReady = false; this.fallbackWarn(); });
+      this.cacheClient.on('end', () => { this.cacheReady = false; });
+    }
 
     const markReady = () => { this.ready = true; this.logger.log('Redis connected'); };
     const markDown = () => { this.ready = false; this.fallbackWarn(); };
@@ -70,6 +88,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   async onModuleDestroy() {
     clearInterval(this.sweeper);
     await this.client?.quit().catch(() => undefined);
+    await this.cacheClient?.quit().catch(() => undefined);
     await this.subscriber?.quit().catch(() => undefined);
     await this.publisher?.quit().catch(() => undefined);
   }
@@ -399,6 +418,39 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   async unsubscribe(channel: string): Promise<void> {
     if (!this.ready) return;
     try { await this.subscriber.unsubscribe(channel); } catch { /* fall through */ }
+  }
+
+  // ── Cache role (P14.14) ──────────────────────────────────────
+  private cache(): Redis | null {
+    if (this.cacheClient) return this.cacheReady ? this.cacheClient : null;
+    return this.ready ? this.client : null;
+  }
+
+  async cacheGet(key: string): Promise<string | null> {
+    const c = this.cache();
+    if (c) { try { return await c.get(key); } catch { /* fall through */ } }
+    return this.memGet(key);
+  }
+
+  async cacheSet(key: string, value: string, ttlSeconds: number): Promise<void> {
+    const c = this.cache();
+    if (c) { try { await c.set(key, value, 'EX', Math.max(1, Math.round(ttlSeconds))); return; } catch { /* fall through */ } }
+    this.memSet(key, value, ttlSeconds);
+  }
+
+  async cacheDel(key: string): Promise<void> {
+    const c = this.cache();
+    if (c) { try { await c.del(key); return; } catch { /* fall through */ } }
+    this.memKv.delete(key);
+  }
+
+  /** A short lock in the cache instance (SET NX PX): true when this caller holds it. */
+  async cacheLock(key: string, ttlMs: number): Promise<boolean> {
+    const c = this.cache();
+    if (c) { try { return (await c.set(key, '1', 'PX', ttlMs, 'NX')) === 'OK'; } catch { /* fall through */ } }
+    if (this.memGet(key) !== null) return false;
+    this.memSet(key, '1', ttlMs / 1000);
+    return true;
   }
 
   // ── JSON helpers ─────────────────────────────────────────────

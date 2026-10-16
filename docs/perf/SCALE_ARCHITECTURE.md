@@ -111,6 +111,7 @@ Calls: LiveKit on its own server, simulcast + dynacast + audio-only fallback, TU
 | Error rate | < 0.5% |
 
 - **Output:** `docs/perf/load-test-<date>.md`, with the measured ceiling per scenario, the first bottleneck, and the next scale step.
+- **First report:** [`load-test-2026-10-16.md`](load-test-2026-10-16.md) (local test stack; staging BLOCKED). Re-run with the "Capacity (k6)" workflow after each scale step.
 
 ## 6. Scale-out steps (switch on when the metrics say so)
 | Step | When (any of) | What |
