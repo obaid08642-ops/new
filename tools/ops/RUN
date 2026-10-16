@@ -1,1 +1,4 @@
-# 2026-10-16 reviewer: nothing to run. Production recovered at 14:47 UTC (68-mongo-start); the build session's report key is restored.
+# 2026-10-16 build session (#1603): read-only. Why did the #1446 disk alert not stop the outage (is monitor.sh scheduled
+# and running, did it log a disk alert and when, could it mail), and what did coturn write (935 MB): per container the
+# writable layer, log driver and caps, log file size; coturn's `docker diff` and largest directories. Changes nothing.
+69-inspect-alert-and-logs
