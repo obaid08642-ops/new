@@ -1218,7 +1218,18 @@
     "preparation": "तैयारी",
     "preparationTitle": "आपकी विज़िट से पहले",
     "homeAvailable": "इस पैकेज में घर से नमूना लेने की सुविधा है।",
-    "homeUnavailable": "इस पैकेज के लिए घर से नमूना सूचीबद्ध नहीं है।"
+    "homeUnavailable": "इस पैकेज के लिए घर से नमूना सूचीबद्ध नहीं है।",
+    "categoryName": {
+      "blood": "रक्त जाँच",
+      "hormones": "हार्मोन",
+      "diabetes": "मधुमेह",
+      "vitamins": "विटामिन",
+      "cardiac": "हृदय",
+      "imaging": "इमेजिंग",
+      "kidney": "गुर्दा",
+      "liver": "यकृत",
+      "package": "पैकेज"
+    }
   },
   "RadiologyServices": {
     "eyebrow": "रेडियोलॉजी केयर",

@@ -1218,7 +1218,18 @@
     "preparation": "প্রস্তুতি",
     "preparationTitle": "ভিজিটের আগে",
     "homeAvailable": "এই প্যাকেজে বাড়ি থেকে নমুনা নেওয়া সমর্থিত।",
-    "homeUnavailable": "এই প্যাকেজের জন্য বাড়ি থেকে নমুনা তালিকাভুক্ত নেই।"
+    "homeUnavailable": "এই প্যাকেজের জন্য বাড়ি থেকে নমুনা তালিকাভুক্ত নেই।",
+    "categoryName": {
+      "blood": "রক্ত পরীক্ষা",
+      "hormones": "হরমোন",
+      "diabetes": "ডায়াবেটিস",
+      "vitamins": "ভিটামিন",
+      "cardiac": "হৃদযন্ত্র",
+      "imaging": "ইমেজিং",
+      "kidney": "কিডনি",
+      "liver": "লিভার",
+      "package": "প্যাকেজ"
+    }
   },
   "RadiologyServices": {
     "eyebrow": "রেডিওলজি কেয়ার",
