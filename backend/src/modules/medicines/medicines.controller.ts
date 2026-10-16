@@ -425,6 +425,18 @@ export class MedicinesController {
     return toPublicMedicine(await this.svc.getPublicById(id));
   }
 
+  /**
+   * How many pharmacies stock the item (owner, 2026-10-16): only for a signed-in patient, never on a public route.
+   * The count comes from the live inventory, not from the cached field on the record.
+   */
+  @Get(':id/availability')
+  @Roles(UserRole.PATIENT)
+  async availability(@Param('id') id: string): Promise<{ pharmacies_count: number; in_stock: boolean }> {
+    await this.svc.getPublicById(id);
+    const stock = await this.svc.aggregateStock(id);
+    return { pharmacies_count: stock.pharmacies_count, in_stock: stock.in_stock };
+  }
+
   @Public()
   @Get(':id/details')
   async details(@Param('id') id: string, @Headers('authorization') auth?: string, @Query('lang') lang?: string, @Headers('accept-language') acceptLang?: string) {

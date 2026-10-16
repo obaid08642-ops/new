@@ -19,7 +19,7 @@ export const MEDICINE_INTERNAL_FIELDS: ReadonlySet<string> = new Set([
   // Import and provenance.
   'provenance', 'source', 'source_product_id', 'translation_conflict', 'search_text',
   // Editorial workflow and audit.
-  'pending_revision', 'review_reason', 'medical_review_status', 'last_reviewed', 'public_eligibility', 'indexing_eligibility',
+  'pending_revision', 'review_reason', 'medical_review_status', 'public_eligibility', 'indexing_eligibility',
   'verified', 'approved_by', 'approved_at', 'rejected_reason', 'change_requests', 'version',
   'created_by', 'created_by_user_id', 'created_by_role', 'updated_by', 'deleted_at', 'deleted_by', 'is_deleted',
   // Stock and analytics.
@@ -34,7 +34,14 @@ const INTERNAL_KEY_PATTERNS: readonly RegExp[] = [
   /eligibility$/i, /password|secret/i,
 ];
 
+/**
+ * Fields a pattern above would withhold but the owner made public (2026-10-16): the date of the last medical review is a
+ * trust signal on the product page. The review status itself stays internal (a public item is approved by definition).
+ */
+const PUBLIC_MEDICINE_FIELDS: ReadonlySet<string> = new Set(['last_reviewed']);
+
 export function isInternalMedicineKey(key: string): boolean {
+  if (PUBLIC_MEDICINE_FIELDS.has(key)) return false;
   return MEDICINE_INTERNAL_FIELDS.has(key) || INTERNAL_KEY_PATTERNS.some((re) => re.test(key));
 }
 

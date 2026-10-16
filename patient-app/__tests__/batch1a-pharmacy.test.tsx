@@ -15,7 +15,7 @@ const mockApiFetch = jest.fn();
 const mockRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn(), canGoBack: jest.fn(() => true) };
 let mockParams: Record<string, string> = {};
 jest.mock('react-native-localize', () => require('react-native-localize/mock'));
-jest.mock('../src/utils/api', () => ({ apiFetch: (...a: unknown[]) => mockApiFetch(...a), BASE_URL: 'https://api.example.test/api/v1' }));
+jest.mock('../src/utils/api', () => ({ apiFetch: (...a: unknown[]) => mockApiFetch(...a), hasSession: async () => false, BASE_URL: 'https://api.example.test/api/v1' }));
 jest.mock('../src/utils/isOffline', () => ({ isOffline: jest.fn(async () => false) }));
 jest.mock('../src/utils/logger', () => ({ logError: jest.fn() }));
 jest.mock('expo-router', () => ({
@@ -150,7 +150,6 @@ describe('Product page (board ProductFull)', () => {
           requires_prescription: false,
           package_size: '24 قرص',
           form: 'أقراص',
-          pharmacies_count: 0,
           indications_ar: ['استعمال أ', 'استعمال ب'],
           alternatives: [{ id: 'alt', name_ar: 'بديل', price: 15 }],
         };

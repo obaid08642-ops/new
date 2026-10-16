@@ -33,15 +33,17 @@ const FORBIDDEN = [
   '_id', '__v', 'provenance', 'source', 'source_product_id', 'pending_revision', 'review_reason', 'created_by',
   'created_by_user_id', 'created_by_role', 'updated_by', 'deleted_at', 'is_deleted', 'aggregate_stock', 'pharmacies_count',
   'medical_review_status', 'public_eligibility', 'indexing_eligibility', 'approved_by', 'approved_at', 'rejected_reason',
-  'last_reviewed', 'change_requests', 'translation_conflict', 'usage_count', 'verified', 'version', 'search_text',
+  'change_requests', 'translation_conflict', 'usage_count', 'verified', 'version', 'search_text',
 ];
+/** Public by owner decision (2026-10-16): the date of the last medical review is a trust signal. */
+const ALLOWED = ['last_reviewed'];
 const FORBIDDEN_PATTERNS = [/review/i, /^provenance/i, /^source/i, /^created_by/i, /^updated_by/i, /password|secret/i];
 
 function leakedKeys(value: unknown, path = '$'): string[] {
   if (Array.isArray(value)) return value.flatMap((v, i) => leakedKeys(v, `${path}[${i}]`));
   if (!value || typeof value !== 'object') return [];
   return Object.entries(value as Record<string, unknown>).flatMap(([k, v]) => [
-    ...(FORBIDDEN.includes(k) || FORBIDDEN_PATTERNS.some((re) => re.test(k)) ? [`${path}.${k}`] : []),
+    ...(!ALLOWED.includes(k) && (FORBIDDEN.includes(k) || FORBIDDEN_PATTERNS.some((re) => re.test(k))) ? [`${path}.${k}`] : []),
     ...leakedKeys(v, `${path}.${k}`),
   ]);
 }

@@ -12,7 +12,8 @@ describe('public medicine projection', () => {
 
   it('drops every internal field at any depth and keeps the public ones', () => {
     const out = toPublicMedicine({ id: 'm1', name_ar: 'أ', price: 5, translations: { ur: { name: 'ا' } }, ...internal, alternatives: [{ id: 'm2', ...internal }], stock_status: { aggregate_stock: 9, pharmacies_count: 2, in_stock: true } });
-    expect(out).toEqual({ id: 'm1', name_ar: 'أ', price: 5, translations: { ur: { name: 'ا' } }, alternatives: [{ id: 'm2' }], stock_status: { in_stock: true } });
+    // last_reviewed is public by owner decision (2026-10-16); the review status and the pharmacy count are not.
+    expect(out).toEqual({ id: 'm1', name_ar: 'أ', price: 5, translations: { ur: { name: 'ا' } }, last_reviewed: internal.last_reviewed, alternatives: [{ id: 'm2', last_reviewed: internal.last_reviewed }], stock_status: { in_stock: true } });
   });
 
   it('withholds the old price and the discount of a prescription item', () => {
