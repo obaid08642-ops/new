@@ -81,15 +81,19 @@ def main():
     step('Insurance: the doctor contracted for the patient\'s company is listed', r.ok and contracted in shown, sorted(shown)[:10])
     step('Insurance: a doctor with no contract for it is not', r.ok and other not in shown, sorted(shown)[:10])
 
-    r = web.get('/ar/consultations/doctors?payment=self_pay', headers=HTML)
+    # In the full gate the database holds many doctors, so a page shows only its first page of them: compare with the same
+    # query without a payment filter (both dynamic, same sort) instead of looking for two doctors by id.
+    base_r = web.get('/ar/consultations/doctors?sort=rating', headers=HTML)
+    base = ids_on(base_r.body)
+    r = web.get('/ar/consultations/doctors?payment=self_pay&sort=rating', headers=HTML)
     shown = ids_on(r.body)
-    step('Self-pay: every doctor is listed', r.ok and {contracted, other} <= shown, sorted(shown)[:10])
+    step('Self-pay: every doctor is listed (the same list as with no payment filter)', base_r.ok and r.ok and bool(base) and shown == base, (len(base), len(shown), sorted(base ^ shown)[:6]))
     step('Self-pay is drawn as the chosen payment', r.ok and 'دفع ذاتي' in str(r.body), r.status)
     step('the old "Cash only" choice is gone', r.ok and 'كاش فقط' not in str(r.body), r.status)
 
-    r = web.get('/ar/consultations/doctors?payment=cash', headers=HTML)
+    r = web.get('/ar/consultations/doctors?payment=cash&sort=rating', headers=HTML)
     shown = ids_on(r.body)
-    step('an old payment=cash link reads as self-pay (every doctor, not "doctors without insurance")', r.ok and {contracted, other} <= shown, sorted(shown)[:10])
+    step('an old payment=cash link reads as self-pay (every doctor, not "doctors without insurance")', r.ok and bool(base) and shown == base, (len(base), len(shown), sorted(base ^ shown)[:6]))
 
     journey('decision 30 diagnostics: self-pay first, then insurance')
     made = {}
