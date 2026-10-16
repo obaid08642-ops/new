@@ -69,6 +69,15 @@ Check after every deploy:
 4. The nginx micro-cache is per edge node and is not purged: it keeps a public answer for at most its `s-maxage`
    (300 s). Purge by tag (P14.8) reaches every API process and node through Redis pub/sub.
 
+5. **More than one web (patient-web) instance (P14.10).** Build the image with `NEXT_CACHE_HANDLER=redis` and give every
+   instance `NEXT_CACHE_REDIS_URL` (the same Redis) and the same `NEXT_REVALIDATE_SECRET`. All instances then share one
+   ISR/data cache (`patient-web/cache-handler.cjs`, keys per build id; Next's in-memory copy is off), and a revalidation
+   on one instance (the purge bus calls `/api/revalidate` on any of them) is seen by all: the handler keeps the time of
+   each tag's revalidation in Redis and answers a miss for an older entry, because Next's own record of revalidated tags
+   lives inside each process. Redis down: each instance falls back to a small local cache (pages keep being served).
+   Proof: the `next-multi-instance` CI job (two instances behind nginx, one Redis: same revalidated content and same
+   Cache-Control on both, Next 16.3.5 from the lockfile). patient-web joins the `internal` network to reach Redis.
+
 **Rehearsal (P14.28): BLOCKED.** It needs a staging environment with two API nodes, a load balancer and a 3-node
 replica set. Staging was turned off on 2026-10-04 because it shared the production server, and the repo has no other
 staging host. The owner needs to provide a staging server (or an OVH project) before this can run.
