@@ -65,14 +65,15 @@ Then:
 A second rule, **after** it, name `No cache for everything else`, matching `http.host eq "nabd.plus"` with *Bypass cache*,
 makes sure no other HTML is ever kept even if a header were wrong.
 
-## Why a nonce may sit in the cached copy
+## No nonce in the cached copy (owner decision 2026-10-16: never a shared nonce)
 
-The pages carry a strict CSP: `script-src 'nonce-…' 'strict-dynamic'`. The nonce is drawn by the origin for each response it
-renders, and the header and every `<script nonce>` of that response travel together, so a cached copy is consistent with
-itself (the journey checks it). Guests then share that nonce for the edge TTL. What the nonce defends against is markup
-injected into the page; a guest page is rendered without any request or user input (no query string, no cookie, React
-escapes catalogue text), and the nonce is drawn after the content is fixed and replaced on every refetch, so a stored value
-cannot be written to match it. Signed-in pages, where request data is rendered, keep a per-response nonce and `no-store`.
+A guest's shareable copy carries **no nonce**. Its CSP is hash-based: `script-src 'self' 'strict-dynamic' 'sha256-…'…`, one
+hash per inline `<script>` of that exact copy, and no `'unsafe-inline'`. The hashes are computed by the nonce server from the
+bytes it sends (`hashedPage` / `policyWithHashes` in `patient-web/server/nonce-transform.mjs`), not at build time: Next's
+inline flight scripts carry the page's data and change on every ISR revalidation, so build-time hashes would not match the
+served copy. The page's `<script src>` tags are replaced by one inline, hashed loader that inserts the same scripts (trusted
+through `'strict-dynamic'`), and `<link rel=preload as=script>` hints are dropped. Signed-in and action pages (cart,
+checkout, sign-in, booking, orders, payments, any request with a session) keep a fresh per-request nonce and `no-store`.
 
 Stricter alternative already supported: **edge mode**. Set `NABD_EDGE_STAMP_TOKEN` on the origin and run a Worker on these
 paths that sends `x-nabd-edge-stamp: <token>`, caches the unstamped answer (placeholder nonce) and replaces

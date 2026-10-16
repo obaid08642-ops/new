@@ -89,8 +89,10 @@ describe("F68: public pages render without a nonce and get a fresh one per respo
     await new Promise<void>((resolve) => front.listen(0, "127.0.0.1", resolve));
     const url = `http://127.0.0.1:${(front.address() as { port: number }).port}/ar`;
     try {
-      const a = await fetch(url);
-      const b = await fetch(url);
+      // A cacheable page that is stamped with a nonce (a visitor with a theme cookie) is never shared; a guest's copy, which is
+      // shared, carries no nonce at all (owner decision 2026-10-16, next test).
+      const a = await fetch(url, { headers: { cookie: "nabd.theme=light" } });
+      const b = await fetch(url, { headers: { cookie: "nabd.theme=light" } });
       const [ha, hb] = [await a.text(), await b.text()];
       const na = /'nonce-([^']+)'/.exec(directive(csp(a), "script-src"))?.[1];
       const nb = /'nonce-([^']+)'/.exec(directive(csp(b), "script-src"))?.[1];
@@ -106,6 +108,44 @@ describe("F68: public pages render without a nonce and get a fresh one per respo
       expect(a.headers.get(CSP_INJECT_HEADER)).toBeNull();
       expect(cacheControl(a)).toContain("private");
       expect(cacheControl(a)).not.toContain("s-maxage");
+    } finally {
+      front.close();
+      upstream.close();
+    }
+  });
+
+  it("owner decision 2026-10-16: a guest's shared copy has no nonce, a hash for every inline script and 'strict-dynamic'", async () => {
+    const http = await import("node:http");
+    const { createHash } = await import("node:crypto");
+    const { handler } = await import("../../server/nonce-server.mjs");
+    const { contentSecurityPolicy, CSP_NONCE_PLACEHOLDER, CSP_INJECT_HEADER } = await import("../../lib/security/csp");
+    const page = '<html><head><script>self.__next_f=[]</script><style>.a{}</style><script src="/_next/static/a.js" async></script></head><body><p>&lt;script&gt;</p></body></html>';
+    const upstream = http.createServer((_req, res) => {
+      res.writeHead(200, { "content-type": "text/html; charset=utf-8", "content-security-policy": contentSecurityPolicy(CSP_NONCE_PLACEHOLDER, false), [CSP_INJECT_HEADER]: "1", "cache-control": "s-maxage=60, stale-while-revalidate" });
+      res.end(page);
+    });
+    await new Promise<void>((resolve) => upstream.listen(0, "127.0.0.1", resolve));
+    const front = http.createServer(handler((upstream.address() as { port: number }).port, { edgeToken: "" }));
+    await new Promise<void>((resolve) => front.listen(0, "127.0.0.1", resolve));
+    const url = `http://127.0.0.1:${(front.address() as { port: number }).port}/ar`;
+    try {
+      const a = await fetch(url);
+      const html = await a.text();
+      const scriptSrc = directive(csp(a), "script-src");
+      expect(csp(a)).not.toMatch(/'nonce-/);
+      expect(html).not.toMatch(/nonce=/);
+      expect(scriptSrc).toContain("'strict-dynamic'");
+      expect(scriptSrc).not.toContain("'unsafe-inline'");
+      const inline = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
+      expect(inline.length).toBe(2);
+      for (const [, attrs, text] of inline) {
+        expect(attrs).not.toMatch(/\ssrc=/);
+        expect(scriptSrc).toContain(`'sha256-${createHash("sha256").update(text).digest("base64")}'`);
+      }
+      expect(directive(csp(a), "style-src")).toContain(`'sha256-${createHash("sha256").update(".a{}").digest("base64")}'`);
+      expect(html).toContain("<p>&lt;script&gt;</p>");
+      expect(cacheControl(a)).toContain("public");
+      expect(cacheControl(a)).toContain("s-maxage=60");
     } finally {
       front.close();
       upstream.close();

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
-import { createStamper, createThemeStamper, policyWithNonce, stampTags, stampTheme, themeFromCookie, THEME_COOKIE, CSP_NONCE_PLACEHOLDER as SERVER_PLACEHOLDER, CSP_INJECT_HEADER as SERVER_HEADER } from "../server/nonce-transform.mjs";
+import { createStamper, createThemeStamper, hashedPage, policyWithHashes, policyWithNonce, sha256Source, stampTags, stampTheme, themeFromCookie, THEME_COOKIE, CSP_NONCE_PLACEHOLDER as SERVER_PLACEHOLDER, CSP_INJECT_HEADER as SERVER_HEADER } from "../server/nonce-transform.mjs";
 import { CSP_INJECT_HEADER, CSP_NONCE_PLACEHOLDER, contentSecurityPolicy, hasSessionCookie } from "../lib/security/csp";
 
 describe("F68 nonce stamping", () => {
@@ -91,5 +91,30 @@ describe("F68: raw HTML stays limited to reviewed places", () => {
       .filter((f) => readFileSync(f, "utf8").includes("dangerouslySetInnerHTML"))
       .map((f) => relative(ROOT, f));
     expect(users.filter((f) => !ALLOWED.has(f))).toEqual([]);
+  });
+});
+
+describe("owner decision 2026-10-16: the hashed copy a shared cache keeps", () => {
+  it("a src that tries to close the loader's tag stays inside the JSON (escaped), and the loader is hashed", () => {
+    const { html, scriptHashes } = hashedPage('<body><script src="/x.js?a=&lt;/script&gt;&lt;script&gt;alert(1)//" async=""></script></body>');
+    expect(html).not.toMatch(/<\/script><script>alert/);
+    expect(html.match(/<script>/g)?.length).toBe(1);
+    const loader = /<script>([\s\S]*)<\/script>/.exec(html)?.[1] || "";
+    expect(scriptHashes).toEqual([sha256Source(loader)]);
+  });
+
+  it("removes every nonce (attributes and the placeholder in Next's payload) and keeps inline styles allowed by hash", () => {
+    const { html, styleHashes } = hashedPage(`<head><style nonce="${SERVER_PLACEHOLDER}">a{}</style></head><script>x("${SERVER_PLACEHOLDER}")</script>`);
+    expect(html).not.toContain(SERVER_PLACEHOLDER);
+    expect(html).not.toMatch(/nonce=/);
+    expect(styleHashes).toEqual([sha256Source("a{}")]);
+  });
+
+  it("the policy loses every nonce, gains the hashes, keeps 'strict-dynamic' and never allows 'unsafe-inline' scripts", () => {
+    const policy = policyWithHashes(contentSecurityPolicy(CSP_NONCE_PLACEHOLDER, false), ["'sha256-AAA='"], ["'sha256-BBB='"]);
+    expect(policy).not.toMatch(/'nonce-/);
+    expect(policy).toMatch(/script-src [^;]*'strict-dynamic'[^;]*'sha256-AAA='/);
+    expect(policy).toMatch(/style-src [^;]*'sha256-BBB='/);
+    expect(() => policyWithHashes("script-src 'self' 'unsafe-inline'", [], [])).toThrow();
   });
 });

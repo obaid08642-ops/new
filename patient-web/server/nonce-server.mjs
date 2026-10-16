@@ -11,9 +11,10 @@
 //    an edge worker that stamps the nonce itself, so the page goes out with the placeholder policy, unstamped, and with
 //    the cache headers Next set (s-maxage, stale-while-revalidate) plus stale-if-error, so the edge may keep it.
 //
-// Issue 1548: every other request is stamped here. A guest's 200 of a static/ISR public page (no session, no theme cookie)
-// goes out `public, max-age=0, s-maxage, stale-while-revalidate, stale-if-error` with its stamped nonce, so a plain edge
-// cache (docs/ops/CLOUDFLARE_HTML_CACHE.md) keeps it with no worker; everything else is `private, no-cache` or no-store.
+// Issue 1548 + owner decision 2026-10-16 (never a shared nonce): a guest's 200 of a static/ISR public page (no session, no
+// theme cookie) goes out `public, max-age=0, s-maxage, stale-while-revalidate, stale-if-error` with NO nonce and a hash-based
+// policy (sha256 of each inline script of that copy + 'strict-dynamic'), so a plain edge cache (docs/ops/CLOUDFLARE_HTML_CACHE.md)
+// keeps it with no worker. Every other request is stamped here with a fresh nonce and is `private, no-cache` or no-store.
 //
 // Compression (one implementation, the reviewer's: a hashed asset, an image, an RSC or JSON answer keeps the app's own
 // Accept-Encoding and compression and passes through; only an HTML document, which this server may rewrite, is requested
@@ -32,7 +33,7 @@ import { timingSafeEqual } from "node:crypto";
 import zlib from "node:zlib";
 import { fileURLToPath } from "node:url";
 import { warmPublicPages, warmSettings } from "./warm-public.mjs";
-import { CSP_INJECT_HEADER, UNAVAILABLE_FALLBACK_HEADER, createStamper, createThemeStamper, freshNonce, policyWithNonce, themeFromCookie } from "./nonce-transform.mjs";
+import { CSP_INJECT_HEADER, UNAVAILABLE_FALLBACK_HEADER, createStamper, createThemeStamper, freshNonce, hashedPage, policyWithHashes, policyWithNonce, stampTags, themeFromCookie } from "./nonce-transform.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_PORT = Number(process.env.PORT || 3000);
@@ -159,31 +160,59 @@ export function sharedCacheControl(value) {
   return `public, max-age=0, s-maxage=${sMax ? sMax[1] : "60"}, stale-while-revalidate=${swr ? swr[1] : "31536000"}, stale-if-error=31536000`;
 }
 
-function sendStamped(req, res, up, status, encoding, extra = {}, shared = false) {
+/**
+ * Owner decision 2026-10-16: a guest's copy of a public page that a shared cache keeps carries NO nonce (a nonce must never
+ * be shared or reused). It goes out with a hash-based policy computed from the exact bytes of this copy (hashedPage,
+ * policyWithHashes in nonce-transform.mjs): the sha256 of every inline script + 'strict-dynamic', no 'unsafe-inline'. The
+ * page is read whole first (the render itself is already cached inside Next), because the header carries its hashes.
+ */
+function sendShared(req, res, up, status, encoding) {
+  up.on("error", () => res.destroy());
+  up.setEncoding("utf8");
+  let text = "";
+  up.on("data", (chunk) => { text += chunk; });
+  up.on("end", () => {
+    let page;
+    let policy;
+    try {
+      page = hashedPage(text);
+      policy = policyWithHashes(up.headers["content-security-policy"], page.scriptHashes, page.styleHashes);
+    } catch {
+      // Never a weaker policy: the page then goes out as any other, with a nonce of its own and never shared.
+      const nonce = freshNonce();
+      const own = { ...up.headers, "content-security-policy": policyWithNonce(up.headers["content-security-policy"], nonce), "cache-control": "private, no-cache" };
+      delete own[CSP_INJECT_HEADER];
+      delete own["content-length"];
+      delete own.etag;
+      openBody(req, res, status, own, encoding).end(stampTags(text, nonce));
+      return;
+    }
+    const out = { ...up.headers, "content-security-policy": policy, "cache-control": sharedCacheControl(up.headers["cache-control"]) };
+    delete out[CSP_INJECT_HEADER];
+    // The page holds no user data (per-user parts load on the client), and Next's locale cookie is not sent with it (a shared
+    // copy sets no cookie; Cloudflare does not cache a response that does).
+    delete out["set-cookie"];
+    delete out["content-length"];
+    delete out.etag;
+    openBody(req, res, status, out, encoding).end(page.html);
+  });
+}
+
+function sendStamped(req, res, up, status, encoding, extra = {}) {
   const out = { ...up.headers, ...extra };
   delete out[CSP_INJECT_HEADER];
   const nonce = freshNonce();
   out["content-security-policy"] = policyWithNonce(up.headers["content-security-policy"], nonce);
-  if (shared) {
-    // Issue 1548 (the trade-off is in docs/ops/CLOUDFLARE_HTML_CACHE.md): a guest's copy of a public page is the same for
-    // every guest, so the edge may keep it, nonce included. The nonce in the header and on the tags travel together in the
-    // one cached response, so the copy stays valid; a new nonce is drawn each time the edge refetches it. The page holds no
-    // user data (per-user parts load on the client), and Next's locale cookie is not sent with it (a shared copy sets no
-    // cookie; Cloudflare does not cache a response that does).
-    out["cache-control"] = sharedCacheControl(up.headers["cache-control"]);
-    delete out["set-cookie"];
-  } else if (!/no-store/i.test(String(out["cache-control"] || ""))) {
-    // The HTML now holds a nonce for this response only: no shared cache may keep it (the render itself is
-    // cached inside Next). Browsers may still keep it for back/forward. A no-store from the proxy (a session, a twin
-    // of a list page, the unavailable page) is kept.
-    out["cache-control"] = "private, no-cache";
-  }
+  // The HTML now holds a nonce for this response only: no shared cache may keep it (the render itself is
+  // cached inside Next). Browsers may still keep it for back/forward. A no-store from the proxy (a session, a twin
+  // of a list page, the unavailable page) is kept.
+  if (!/no-store/i.test(String(out["cache-control"] || ""))) out["cache-control"] = "private, no-cache";
   delete out["content-length"];
   delete out.etag;
   const body = openBody(req, res, status, out, encoding);
   const stamper = createStamper(nonce);
-  // a private page may carry this visitor's theme (decision 43 a); a shared one never does (guestCopyIsShared: no theme cookie)
-  const themer = createThemeStamper(shared ? null : themeFromCookie(req.headers.cookie));
+  // the page is private to this response already (above), so it may carry this visitor's theme (decision 43 a)
+  const themer = createThemeStamper(themeFromCookie(req.headers.cookie));
   up.setEncoding("utf8");
   up.on("data", (chunk) => body.write(themer.push(stamper.push(chunk))));
   up.on("end", () => body.end(themer.push(stamper.end()) + themer.end()));
@@ -317,7 +346,8 @@ export function handler(internalPort, options = {}) {
         return;
       }
       // With an edge worker configured (edge mode) the worker is what caches, so a page stamped here stays private.
-      sendStamped(req, res, up, status, encoding, {}, !edgeToken && guestCopyIsShared(req, up.headers, status));
+      if (!edgeToken && guestCopyIsShared(req, up.headers, status)) return sendShared(req, res, up, status, encoding);
+      sendStamped(req, res, up, status, encoding);
     }, bad);
     req.pipe(upstream);
   }
