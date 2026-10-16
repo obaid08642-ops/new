@@ -1,6 +1,7 @@
 import { readPublicEntity } from "@/lib/api/public-read";
 
-export type PolicyKey = "patient_terms" | "privacy_policy";
+/** The policies the patient site shows (D-38): terms, privacy, the cancellation and refund policy, the telehealth consent. */
+export type PolicyKey = "patient_terms" | "privacy_policy" | "refund_policy" | "telehealth_consent";
 export type LegalPolicy = { content?: string | null; version?: string | number | null; effective_date?: string | null };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus";

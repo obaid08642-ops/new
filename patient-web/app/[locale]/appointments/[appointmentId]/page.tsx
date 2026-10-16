@@ -8,6 +8,7 @@ import { isLocale } from "@/lib/i18n";
 import { isDone, isOpen, MODE_VISUAL, modeOf, statusKey, statusTone } from "@/lib/consult/appointment-view";
 import { PrescriptionClient } from "@/components-next/prescription-client";
 import { CallTokenLauncher } from "@/components-next/call-token-launcher";
+import { readTelehealthConsent } from "@/lib/legal/telehealth-consent";
 import { PolicyCard, policyLines } from "@/components-next/consult/policy-lines";
 import { getCancellationPolicy } from "@/lib/consult/cancellation-policy";
 import { ConsultationPaymentAction } from "@/components-next/consultation-payment-action";
@@ -192,6 +193,8 @@ export default async function AppointmentDetailPage({ params }: Props) {
             <CallTokenLauncher
               appointmentId={appointmentId}
               joinHref={`/${locale}/consultations/video-call?appointmentId=${id}`}
+              locale={locale}
+              consent={await readTelehealthConsent(locale)}
               labels={{ title: t("callTitle"), join: t("callJoin"), loading: t("callLoading"), ready: t("callReady"), unavailable: t("callUnavailable"), notReady: t("callDiscard"), open: t("callOpen") }}
             />
           ) : null}

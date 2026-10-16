@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, ForbiddenException, Get, Injectable, Module, NotFoundException, OnModuleInit, Optional, Param, Patch, Post, Query, UseGuards, BadRequestException } from '@nestjs/common';
 import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { isOnlineConsultation } from '../chat/consultation-window';
+import { assertTelehealthConsent } from '../legal/telehealth-consent';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -134,7 +135,11 @@ export class DoctorsService implements OnModuleInit {
   /** Atomic-ish booking via dup index check (best effort under no transactions). */
   async book(user: any, data: any) {
     if (!data.doctor_id || !data.scheduled_at || !data.type) throw new BadRequestException('missing_fields');
-    if (isOnlineConsultation({ type: data.type })) await this.killSwitches?.assertOn('online_consultations');
+    if (isOnlineConsultation({ type: data.type })) {
+      await this.killSwitches?.assertOn('online_consultations');
+      // D-38: the first online consultation needs the current telehealth_consent, on this booking path too.
+      await assertTelehealthConsent(this.appts.db, user.id);
+    }
     const doctor: any = await this.doctors.findOne({ id: { $eq: data.doctor_id } }).lean();
     if (!doctor) throw new NotFoundException('doctor_not_found');
     if (!doctor.is_accepting) throw new BadRequestException('doctor_not_accepting');

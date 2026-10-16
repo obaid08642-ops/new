@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { specialtyLabel } from "@/lib/specialties";
@@ -14,6 +15,8 @@ import { Segmented } from "@/components-next/ui-generated/components/Controls";
 import { StickyFooter } from "@/components-next/ui-generated/shells/StickyFooter";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { PolicyCard } from "@/components-next/consult/policy-lines";
+import { TelehealthConsentCard, needsTelehealthConsent } from "@/components-next/consult/telehealth-consent-card";
+import type { TelehealthConsentText } from "@/lib/legal/telehealth-consent";
 import { Hero, SectionCard } from "@/components-next/consult/consult-parts";
 import { formatPrice } from "@/lib/format-price";
 import rx from "@/components-next/pharmacy/rx.module.css";
@@ -50,9 +53,10 @@ function newIdempotencyKey(): string {
 /** A saved address with a map location, for a home visit (journeys#29). */
 export type HomeAddress = { id: string; label: string; line: string; lat: number; lng: number };
 
-export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddresses = [] }: { doctorId: string; locale: string; doctor: DoctorRow | null; top?: ReactNode; policy?: { title: string; lines: string[] }; homeAddresses?: HomeAddress[] }) {
+export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddresses = [], consent = null }: { doctorId: string; locale: string; doctor: DoctorRow | null; top?: ReactNode; policy?: { title: string; lines: string[] }; homeAddresses?: HomeAddress[]; consent?: TelehealthConsentText | null }) {
   const t = useTranslations("BookConsultation");
   const names = useTranslations("SpecialtyNames");
+  const legal = useTranslations("LegalLinks");
   const specialty = specialtyLabel(names, doctor?.specialty);
   const router = useRouter();
   const days = useMemo(() => nextDays(7, locale), [locale]);
@@ -73,6 +77,11 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
   const [homeAddressId, setHomeAddressId] = useState(homeAddresses[0]?.id ?? "");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // D-38: the server refused the online booking until the telehealth consent is accepted; the consent card is shown
+  const [consentAsked, setConsentAsked] = useState(false);
+  useEffect(() => {
+    if (consentAsked) document.getElementById("telehealth-consent-title")?.scrollIntoView({ block: "start" });
+  }, [consentAsked]);
   // #402: the visit length is the chosen slot's own length (start to end, from the doctor's schedule); none when it cannot be read.
   const chosen = slots.find((slot) => slot.start === selectedSlot);
   const durationMinutes = (() => {
@@ -167,6 +176,10 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
         return;
       }
       const data = await res.json().catch(() => null);
+      if (needsTelehealthConsent(data)) {
+        setConsentAsked(true);
+        return;
+      }
       // Never show the server's raw message (English/codes) to the patient (needs-review issue 1039).
       setError(String(data?.message ?? "").includes("slot_taken") ? t("slotTaken") : "booking_failed");
     } catch {
@@ -245,12 +258,26 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
         />
         {visitType !== "clinic" ? <p className={`${styles.body} ${styles.muted}`}>{t("cashClinicOnly")}</p> : null}
       </SectionCard>
-      {policy ? <PolicyCard title={policy.title} lines={policy.lines} /> : null}
+      {policy ? (
+        <PolicyCard title={policy.title} lines={policy.lines}>
+          <Link className={rx.textLink} href={`/${locale}/refund-policy`}>{legal("refundPolicy")}</Link>
+        </PolicyCard>
+      ) : null}
       {price || durationMinutes !== null ? (
         <section className={`${rx.card} ${styles.priceCard}`} aria-label={t("fee")}>
           {durationMinutes !== null ? <div className={styles.totalRow}><span>{t("duration")}</span><span>{t("durationValue", { n: new Intl.NumberFormat(locale).format(durationMinutes) })}</span></div> : null}
           {price ? <div className={styles.totalRow}><span>{t("fee")}</span><span>{price.text}</span></div> : null}
         </section>
+      ) : null}
+      {consentAsked && visitType === "video" ? (
+        <TelehealthConsentCard
+          locale={locale}
+          consent={consent}
+          onAccepted={() => {
+            setConsentAsked(false);
+            void submit();
+          }}
+        />
       ) : null}
       {error ? <p className={styles.error} role="alert">{error === "booking_failed" ? t("bookingFailed") : error}</p> : null}
     </ConsultPage>

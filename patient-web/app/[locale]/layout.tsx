@@ -101,6 +101,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   // cacheable), fail-open; hides entry points and stops deep links into a switched-off module
   const disabled = await getDisabledModules();
   const moduleCopy = await getTranslations({ locale: typedLocale, namespace: "Modules" });
+  const legalLinks = await getTranslations({ locale: typedLocale, namespace: "LegalLinks" });
 
   return (
     // The nonce server (from the theme cookie) or the theme script (app/theme.ts) sets data-theme, the class and
@@ -148,6 +149,7 @@ export default async function LocaleLayout({ children, params }: Props) {
               <nav aria-label={t("brand")} className="site-footer__links">
                 <Link href={`/${typedLocale}/terms`}>{t("footerTerms")}</Link>
                 <Link href={`/${typedLocale}/privacy`}>{t("footerPrivacy")}</Link>
+                <Link href={`/${typedLocale}/refund-policy`}>{legalLinks("refundPolicy")}</Link>
                 <Link href={`/${typedLocale}/settings/help`}>{t("footerSupport")}</Link>
                 {isPathHidden("/articles", disabled) ? null : <Link href={`/${typedLocale}/articles`}>{t("footerArticles")}</Link>}
                 <Link href={`/${typedLocale}/map`}>{t("footerMap")}</Link>

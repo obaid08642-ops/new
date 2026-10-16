@@ -1837,6 +1837,14 @@
     "medicines/compare": {
       "title": "Compare Medicines",
       "description": "Compare medicines, prices and alternatives."
+    },
+    "refundPolicy": {
+      "title": "Cancellation and Refund Policy",
+      "description": "When an order or appointment on Nabd Plus is refunded in full or in part after a cancellation."
+    },
+    "telehealthConsent": {
+      "title": "Telehealth Consent",
+      "description": "What you agree to before your first online consultation on Nabd Plus."
     }
   },
   "NursingVisits": {
@@ -3398,7 +3406,9 @@
       "version": "Version {version} · Effective {date}",
       "versionOnly": "Version {version}",
       "currentVersion": "This is the current version of the text. It will be replaced by the legally approved version before launch.",
-      "back": "Back"
+      "back": "Back",
+      "refund": "Cancellation and refund policy",
+      "telehealth": "Telehealth consent"
     },
     "provider": {
       "title": "Join as a provider",
@@ -4214,5 +4224,21 @@
   "Network": {
     "offline": "You are offline. This page shows the last saved copy.",
     "offlineLastUpdated": "You are offline. This page shows the last saved copy. Last updated: {time}"
+  },
+  "LegalLinks": {
+    "refundPolicy": "Cancellation and refund policy",
+    "telehealthConsent": "Telehealth consent"
+  },
+  "TelehealthConsent": {
+    "title": "Telehealth consent",
+    "intro": "Before your first online consultation, read and accept the consent. We record your acceptance with the version, the time and the device.",
+    "textLabel": "Consent text",
+    "version": "Version {version}",
+    "readFull": "Read the full text",
+    "accept": "I agree and continue",
+    "accepting": "Saving your consent…",
+    "failed": "We could not save your consent. Please try again.",
+    "sessionEnded": "Your session has ended.",
+    "signIn": "Sign in"
   }
 }

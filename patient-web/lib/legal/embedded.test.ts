@@ -33,7 +33,7 @@ describe("the embedded copy of the official texts (issue 755/783)", () => {
   });
 
   it("is on for every page language (the Arabic text is used when a language has none)", () => {
-    for (const key of ["patient_terms", "privacy_policy"] as const) {
+    for (const key of ["patient_terms", "privacy_policy", "refund_policy", "telehealth_consent"] as const) {
       const ar = EMBEDDED_POLICIES[key].ar;
       expect(ar).toBeDefined();
       for (const locale of ["ar", "en", "ur"]) expect(embeddedLegalPolicy(key, locale) !== null).toBe(true);

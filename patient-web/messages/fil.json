@@ -1837,6 +1837,14 @@
     "medicines/compare": {
       "title": "Paghambingin ang Gamot",
       "description": "Ihambing ang mga gamot, presyo at alternatibo."
+    },
+    "refundPolicy": {
+      "title": "Patakaran sa Pagkansela at Refund",
+      "description": "Kailan ibinabalik nang buo o bahagya ang bayad matapos kanselahin ang isang order o appointment sa Nabd Plus."
+    },
+    "telehealthConsent": {
+      "title": "Pahintulot sa Telehealth na Konsultasyon",
+      "description": "Ang sinasang-ayunan mo bago ang iyong unang online na konsultasyon sa Nabd Plus."
     }
   },
   "NursingVisits": {
@@ -3398,7 +3406,9 @@
       "version": "Bersyon {version} · Epektibo mula {date}",
       "versionOnly": "Bersyon {version}",
       "currentVersion": "Ito ang kasalukuyang bersyon ng teksto. Papalitan ito ng bersyong inaprubahan ng batas bago ang paglulunsad.",
-      "back": "Bumalik"
+      "back": "Bumalik",
+      "refund": "Patakaran sa pagkansela at refund",
+      "telehealth": "Pahintulot sa online na konsultasyon"
     },
     "provider": {
       "title": "Sumali bilang provider",
@@ -4214,5 +4224,21 @@
   "Network": {
     "offline": "Offline ka. Ipinapakita ng pahinang ito ang huling naka-save na kopya.",
     "offlineLastUpdated": "Offline ka. Ipinapakita ng pahinang ito ang huling naka-save na kopya. Huling pagbabago: {time}"
+  },
+  "LegalLinks": {
+    "refundPolicy": "Patakaran sa pagkansela at refund",
+    "telehealthConsent": "Pahintulot sa online na konsultasyon"
+  },
+  "TelehealthConsent": {
+    "title": "Pahintulot sa online na konsultasyon",
+    "intro": "Bago ang iyong unang online na konsultasyon, basahin at tanggapin ang pahintulot. Itinatala namin ang iyong pagsang-ayon kasama ang bersyon, oras at device.",
+    "textLabel": "Teksto ng pahintulot",
+    "version": "Bersyon {version}",
+    "readFull": "Basahin ang buong teksto",
+    "accept": "Sumasang-ayon ako, magpatuloy",
+    "accepting": "Sine-save ang iyong pagsang-ayon…",
+    "failed": "Hindi namin na-save ang iyong pagsang-ayon. Pakisubukang muli.",
+    "sessionEnded": "Natapos na ang iyong session.",
+    "signIn": "Mag-sign in"
   }
 }
