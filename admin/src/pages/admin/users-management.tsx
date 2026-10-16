@@ -219,7 +219,7 @@ export default function UsersManagementPage() {
 
   const handleDeleteOrphan = async (p: OrphanProfile) => {
     const name = p.name_ar || p.name_en || p.id;
-    if (!confirm(`⚠️ حذف نهائي!\nسيتم حذف ملف المزود «${name}» وكل بياناته (الخدمات والمواعيد المتاحة والصور ونتائج البحث) نهائياً ولا يمكن التراجع.\n\nهل أنت متأكد تماماً؟`)) return;
+    if (!confirm(`حذف نهائي!\nسيتم حذف ملف المزود «${name}» وكل بياناته (الخدمات والمواعيد المتاحة والصور ونتائج البحث) نهائياً ولا يمكن التراجع.\n\nهل أنت متأكد تماماً؟`)) return;
     if (!confirm(`تأكيد أخير: حذف ملف المزود «${name}» نهائياً من الـ backend وقاعدة البيانات؟`)) return;
     setActionBusy(p.id);
     try {
