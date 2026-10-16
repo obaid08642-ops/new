@@ -25,6 +25,7 @@ import { promoOldPrice, promoPercent } from "@/lib/discount";
 import { formatNumber, formatPrice } from "@/lib/format-price";
 import { ProductSections, type DetailGroup, type DetailSection } from "@/components-next/pharmacy/product-sections";
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
+import { englishNameUnder } from "@/lib/english-name-under";
 import styles from "@/components-next/pharmacy/product-detail.module.css";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -253,7 +254,9 @@ export default async function PublicProductPage({ params }: Props) {
     [medicines("prescription"), product.is_rx ? medicines("yes") : medicines("no")],
   ] as Array<[string, string | null | undefined]>).filter((row): row is [string, string] => Boolean(row[1]));
 
-  const names = lines(product.official_name !== name ? product.official_name : null);
+  // Decision E (issue 1556): ur, hi and bn show the English name under the localized one, so patient and pharmacist read the same product.
+  const englishName = englishNameUnder(locale, name, product.english_name);
+  const names = lines(product.official_name !== name && product.official_name !== englishName ? product.official_name : null);
   const ingredient = product.active_ingredient ? b("activeIngredientLine", { value: product.active_ingredient }) : null;
   const maker = [product.manufacturer, product.country_of_origin ? b("madeIn", { country: product.country_of_origin }) : null].filter(Boolean).join(" · ");
 
@@ -321,6 +324,7 @@ export default async function PublicProductPage({ params }: Props) {
 
               <div className={styles.names}>
                 <h1 className={styles.title}>{name}</h1>
+                {englishName ? <p className={styles.englishName} lang="en" dir="ltr" data-testid="english-name">{englishName}</p> : null}
                 <DirectAnswer sentences={[
                   product.active_ingredient ? seo("productIngredient", { name, ingredient: product.active_ingredient }) : null,
                   product.form ? seo("productForm", { form: product.form }) : null,
