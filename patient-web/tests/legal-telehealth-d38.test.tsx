@@ -21,7 +21,10 @@ vi.mock("@/components-next/core/core-shell", () => ({ CoreShell: ({ children }: 
 const api = vi.fn();
 const cookieValues: Record<string, string | undefined> = {};
 vi.mock("next/headers", () => ({ cookies: async () => ({ get: (name: string) => (cookieValues[name] ? { value: cookieValues[name] } : undefined) }) }));
-vi.mock("@/lib/api/upstream", () => ({ callPatientApi: (...a: unknown[]) => api(...a) }));
+vi.mock("@/lib/api/upstream", async () => ({
+  patientApiUrl: (await vi.importActual<typeof import("@/lib/api/upstream")>("@/lib/api/upstream")).patientApiUrl,
+  callPatientApi: (...a: unknown[]) => api(...a),
+}));
 
 import RefundPolicyPage from "../app/[locale]/refund-policy/page";
 import TelehealthConsentPage from "../app/[locale]/telehealth-consent/page";
