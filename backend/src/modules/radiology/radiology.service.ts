@@ -16,6 +16,7 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { RedisService } from '../redis/redis.service';
 import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
 import { getEffectiveRoles } from '../../common/auth.guard';
+import { isAdminUser } from '../../common/enums';
 
 const ALLOWED_ROLES_PROVIDER = ['radiology', 'admin', 'hospital'];
 
@@ -628,14 +629,14 @@ export class RadiologyOpsService {
 
   // --- Admin Catalog CRUD ---
   async createCatalog(user: any, body: any) {
-    if (user.role !== 'admin') throw new ForbiddenException();
+    if (!isAdminUser(user)) throw new ForbiddenException();
     const doc = await this.svcModel.create({ ...pick(body, RADIOLOGY_CATALOG_FIELDS), ...reviewUpdate(body?.medical_review_status, user.id), id: require('uuid').v4() });
     await invalidateCatalogCache(this.redis, 'cache:radiology-services:');
     return doc;
   }
 
   async updateCatalog(user: any, id: string, body: any) {
-    if (user.role !== 'admin') throw new ForbiddenException();
+    if (!isAdminUser(user)) throw new ForbiddenException();
     const updated = await this.svcModel.findOneAndUpdate({ id }, { $set: { ...pick(body, RADIOLOGY_CATALOG_FIELDS), ...reviewUpdate(body?.medical_review_status, user.id) } }, { new: true });
     if (!updated) throw new NotFoundException();
     await invalidateCatalogCache(this.redis, 'cache:radiology-services:');
@@ -644,12 +645,12 @@ export class RadiologyOpsService {
 
   /** Admin catalog editor: every item including unpublished ones (the public list only shows approved). */
   async adminCatalog(user: any) {
-    if (!getEffectiveRoles(user).includes('admin')) throw new ForbiddenException();
+    if (!isAdminUser(user)) throw new ForbiddenException();
     return this.svcModel.find({ is_deleted: { $ne: true } }, { _id: 0, __v: 0 }).sort({ medical_review_status: 1, popularity: -1, name_ar: 1 }).limit(1000);
   }
 
   async deleteCatalog(user: any, id: string) {
-    if (user.role !== 'admin') throw new ForbiddenException();
+    if (!isAdminUser(user)) throw new ForbiddenException();
     const deleted = await this.svcModel.findOneAndDelete({ id });
     if (!deleted) throw new NotFoundException();
     // Without this a deleted item stays in the patients' cached lists until the TTL runs out.
@@ -659,7 +660,7 @@ export class RadiologyOpsService {
 
   /** P6.0: medical-review decision — approve surfaces the item publicly. */
   async approveCatalogItem(user: any, id: string, approve: boolean) {
-    if (user.role !== 'admin') throw new ForbiddenException();
+    if (!isAdminUser(user)) throw new ForbiddenException();
     const updated = await this.svcModel.findOneAndUpdate(
       { id: { $eq: id } },
       { $set: reviewUpdate(approve ? 'approved' : 'rejected', user.id) },
@@ -673,7 +674,7 @@ export class RadiologyOpsService {
   }
 
   async bulkApproveCatalog(user: any, ids: string[], approve: boolean) {
-    if (user.role !== 'admin') throw new ForbiddenException();
+    if (!isAdminUser(user)) throw new ForbiddenException();
     const list = (Array.isArray(ids) ? ids : []).filter((x) => typeof x === 'string' && x).slice(0, 200);
     if (!list.length) throw new BadRequestException('ids_required');
     const results: any[] = [];
