@@ -26,18 +26,18 @@ export interface MainService {
 }
 
 export const MAIN_SERVICES: MainService[] = [
-  { service: 'lab', title: 'التحاليل المخبرية', route: '/(tabs)/diagnostics' },
-  { service: 'nursing', title: 'التمريض المنزلي', route: '/(tabs)/nursing', badge: 'جديد' },
-  { service: 'radiology', title: 'الأشعة التشخيصية', route: '/diagnostics/packages' },
-  { service: 'maternity', title: 'رعاية الأمومة', route: '/maternity/hub' },
+  { service: 'lab', title: 'services.cat.laboratoryTests', route: '/(tabs)/diagnostics' },
+  { service: 'nursing', title: 'services.cat.homeNursing', route: '/(tabs)/nursing', badge: 'services.cat.new' },
+  { service: 'radiology', title: 'services.cat.diagnosticImaging', route: '/diagnostics/packages' },
+  { service: 'maternity', title: 'services.cat.maternityCare', route: '/maternity/hub' },
 ];
 
 /** The rest of the Services tab, as rows. */
 export const MORE_SERVICES: ServiceRow[] = [
   { icon: 'ambulance', tone: tone('emergency'), title: 'emergency.title', desc: 'emergency.serviceDesc', route: '/emergency' },
-  { icon: 'eye', tone: 'blue', title: 'فحص النظر', desc: 'حجز فحص عيون مع أخصائي', route: '/search?view=doctors&specialty=ophthalmology' },
-  { icon: 'tooth', tone: 'mint', title: 'طب الأسنان', desc: 'تنظيف، حشو، تقويم، زراعة', route: '/search?view=doctors&specialty=dentistry' },
-  { icon: 'brain', tone: tone('mind'), title: 'الصحة النفسية', desc: 'استشارات نفسية وجلسات علاجية', route: '/mental-health/hub' },
-  { icon: 'bowl-food', tone: tone('nutrition'), title: 'التغذية والحمية', desc: 'خطط غذائية وتتبع السعرات', route: '/nutrition/hub' },
-  { icon: 'house', tone: tone('nursing'), title: 'الرعاية المنزلية', desc: 'رعاية كبار السن والأمراض المزمنة', route: '/(tabs)/nursing' },
+  { icon: 'eye', tone: 'blue', title: 'services.cat.visionTest', desc: 'services.cat.bookEyeExamWith', route: '/search?view=doctors&specialty=ophthalmology' },
+  { icon: 'tooth', tone: 'mint', title: 'services.cat.dentistry', desc: 'services.cat.cleaningFillingOrthoImplants', route: '/search?view=doctors&specialty=dentistry' },
+  { icon: 'brain', tone: tone('mind'), title: 'services.cat.mentalHealth', desc: 'services.cat.psychologicalConsultationsTherapySessions', route: '/mental-health/hub' },
+  { icon: 'bowl-food', tone: tone('nutrition'), title: 'services.cat.nutritionDiet', desc: 'services.cat.dietPlansCalorieTracking', route: '/nutrition/hub' },
+  { icon: 'house', tone: tone('nursing'), title: 'services.cat.homeCare', desc: 'services.cat.elderlyChronicCare', route: '/(tabs)/nursing' },
 ];

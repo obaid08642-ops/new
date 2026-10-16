@@ -10,6 +10,7 @@ import { Notice } from './pharmacy/OfferKit';
 import { step as scale, useScreenUi } from './screen/ScreenKit';
 import { useGuestGuard } from '../hooks/useGuestGuard';
 import { apiFetch } from '../utils/api';
+import { setBookingFor, useBookingFor } from '../utils/bookingFor';
 import { paymentIntentHeaders } from '../utils/payment-idempotency';
 import { appointmentMutationHeaders, isHttpsCheckout } from '../utils/consultation-payment';
 import { pickLocalized } from '../utils/localize';
@@ -51,6 +52,8 @@ export default function BookingConfirmScreen() {
   const { theme, t, c, flow, k } = useScreenUi();
   const { date, clock } = useConsultFormat();
   const params = useLocalSearchParams();
+  // issue 684: booking on behalf of a family member (set on the member page)
+  const bookingFor = useBookingFor();
   const { isGuest, requireAuth } = useGuestGuard();
   const [visitType, setVisitType] = useState((params.visitType as string) || 'clinic');
   const [payMethod, setPayMethod] = useState<'card' | 'cash' | 'insurance'>('card');
@@ -135,9 +138,12 @@ export default function BookingConfirmScreen() {
             ? { lat: Number(params.visit_lat), lng: Number(params.visit_lng), address: String(params.visit_address || '') }
             : undefined,
           slot_lock_id: slotLockId,
+          ...(bookingFor ? { for_member_id: bookingFor.id } : {}),
         }),
       });
       if (!appointment?.id) throw new Error(k('consult.confirm.createFailed'));
+      // the appointment exists: the next booking is for the person signed in again
+      if (bookingFor) setBookingFor(null);
 
       if (payMethod === 'insurance') {
         if (!appointment.insurance_request_id) throw new Error(k('consult.confirm.insuranceRequestFailed'));
@@ -186,6 +192,7 @@ export default function BookingConfirmScreen() {
         rating={doctor?.rating_avg}
         count={doctor?.rating_count}
       />
+      {bookingFor ? <Notice tone="info" text={k('consult.confirm.bookingFor', { name: bookingFor.name })} actionLabel={k('consult.confirm.bookingForMe')} onAction={() => setBookingFor(null)} /> : null}
 
       <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>{k('consult.book.visitType')}</Text>
       <ModeTiles tiles={VISIT_TYPES.map((v) => ({ id: v, mode: MODE_OF[v], price: null }))} value={visitType} onChange={setVisitType} label={k('consult.book.visitType')} />

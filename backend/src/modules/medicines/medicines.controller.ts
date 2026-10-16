@@ -185,7 +185,7 @@ export class MedicinesController {
   @Roles(UserRole.ADMIN)
   @RequirePermissions(Permission.CATALOG_SHORTAGE_DECIDE)
   setAvailability(@Param('id') id: string, @CurrentUser('id') by: string, @Body() body: SetAvailabilityDto) {
-    return this.svc.setAvailability(id, by, body?.status);
+    return this.svc.setAvailability(id, by, body?.status, body?.reason);
   }
 
   /** Provider suggests a new image for a medicine (upload via /storage first) */

@@ -77,8 +77,8 @@ jobs:
           for i in $(seq 1 60); do curl -s -o /dev/null http://127.0.0.1:3001/ && break; sleep 2; done
 
       # Fix session: patient-web screens are proven in a real browser too (tools/live/j_web_*.py), so the gate
-      # builds the website against this backend and serves it on :3100 (tools/live/start-web.sh). Not :3000: the browser
-      # half of j_throttled_network targets :3000 and has always skipped in CI; its offline UI is owned by 15.4.
+      # builds the website against this backend and serves it on :3100 (tools/live/start-web.sh). run_gate.sh points the
+      # browser half of j_throttled_network (NABD_PATIENT_WEB) at the same :3100 site.
       - uses: pnpm/action-setup@v4
         with:
           version: 10.4.1

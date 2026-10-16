@@ -145,6 +145,12 @@ export class SetAvailabilityDto {
   @IsDefined()
   @IsString()
   status: string;
+
+  /** Why the availability changed; kept on the item's change-log row (admin quick edit). */
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  reason?: string;
 }
 export class SuggestImageDto {
   @IsOptional()

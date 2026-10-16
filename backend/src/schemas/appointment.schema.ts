@@ -137,6 +137,11 @@ export class Appointment {
   @Prop() transaction_id?: string;
   @Prop() paid_at?: Date;
   @Prop() refund_status?: string;
+  // journeys#44: what the cancellation gives back (AppointmentsService.cancel writes them; strict mode dropped them, so the
+  // cancelled appointment never said its refund).
+  @Prop() refund_percentage?: number;
+  @Prop() refund_destination?: string;
+  @Prop() doctor_penalty?: number;
 }
 export type AppointmentDocument = Appointment & Document;
 export const AppointmentSchema = SchemaFactory.createForClass(Appointment);

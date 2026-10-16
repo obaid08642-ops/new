@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import { CoreShell } from "@/components-next/core/core-shell";
 import { StickyFooter } from "@/components-next/ui-generated/shells";
 import { Button } from "@/components-next/ui-generated/components/Button";
-import { StatusChip } from "@/components-next/ui-generated/components/Controls";
+import { Segmented, StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { LinkEmptyState } from "./link-empty-state";
 import { formatDate } from "@/lib/format-date";
 import { isOrderablePrescriptionState, prescriptionStateKey } from "@/lib/pharmacy/prescription-state";
@@ -37,6 +37,9 @@ export function RxOrderScreen({ locale, prescription }: { locale: Locale; prescr
   const t = useTranslations("RxUpload");
   const rxT = useTranslations("Prescriptions");
   const flow = useTranslations("PharmacyFlow");
+  const checkout = useTranslations("PharmacyCheckout");
+  // journeys#23: delivered or picked up at the pharmacy (the cart checkout's same choice)
+  const [fulfillment, setFulfillment] = useState<"delivery" | "pickup">("delivery");
   const router = useRouter();
   const address = useDeliveryAddress(true);
   const [sending, setSending] = useState(false);
@@ -52,9 +55,9 @@ export function RxOrderScreen({ locale, prescription }: { locale: Locale; prescr
     if (!canSend || sending || address.status !== "ready") return;
     setSending(true);
     setFailure(null);
-    const signature = `${prescription.id}:${address.address.id}`;
+    const signature = `${prescription.id}:${address.address.id}:${fulfillment}`;
     if (attempt.current?.signature !== signature) attempt.current = { signature, key: newIdempotencyKey() };
-    const result = await sendBroadcast({ kind: "prescription", prescriptionId: prescription.id, names }, address.address, attempt.current.key);
+    const result = await sendBroadcast({ kind: "prescription", prescriptionId: prescription.id, names, fulfillment }, address.address, attempt.current.key);
     if (result.ok) return router.push(`/${locale}/pharmacy/broadcast-status?orderId=${encodeURIComponent(result.orderId)}`);
     setSending(false);
     setFailure(result.reason === "unauthenticated" ? "session" : "send");
@@ -99,7 +102,19 @@ export function RxOrderScreen({ locale, prescription }: { locale: Locale; prescr
 
         {!orderable ? <p className={rx.note} role="status">{rxT("notOrderable")}</p> : null}
 
-        {orderable && names.length > 0 ? <AddressCard locale={locale} state={address} /> : null}
+        {orderable && names.length > 0 ? (
+          <section className={rx.fulfil} aria-labelledby="rx-order-fulfil">
+            <h2 className={rx.fulfilTitle} id="rx-order-fulfil">{checkout("fulfilLegend")}</h2>
+            <Segmented
+              label={checkout("fulfilLegend")}
+              value={fulfillment}
+              onChange={(value) => setFulfillment(value === "pickup" ? "pickup" : "delivery")}
+              options={[{ value: "delivery", label: checkout("fulfilDelivery") }, { value: "pickup", label: checkout("fulfilPickup") }]}
+              disabled={sending}
+            />
+            <AddressCard locale={locale} state={address} />
+          </section>
+        ) : null}
 
         {canSend ? <p className={rx.note}>{t("sendNote")}</p> : null}
 
