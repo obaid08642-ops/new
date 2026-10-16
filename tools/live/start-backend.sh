@@ -4,19 +4,23 @@
 # Mail goes to tools/live/smtp_sink.py on :2525 so OTP/email flows can be completed end to end.
 set -euo pipefail
 cd "$(dirname "$0")/../../backend"
-# Kill every previous backend (macOS xargs has no -r; pkill covers all).
-# SIGTERM alone left the process alive here, so escalate to SIGKILL — otherwise
-# the "restart" silently kept serving the previous dist.
-pkill -f "dist/main.js" 2>/dev/null || true
-for i in 1 2 3 4 5; do
-  pgrep -f "dist/main.js" >/dev/null 2>&1 || break
+# KEEP_OTHER_BACKENDS=1 starts one more node next to the running ones (tools/perf/scale-rehearsal: two API nodes
+# and a worker on other ports, BACKEND_LOG per node); by default every previous backend is stopped first.
+if [[ "${KEEP_OTHER_BACKENDS:-}" != 1 ]]; then
+  # Kill every previous backend (macOS xargs has no -r; pkill covers all).
+  # SIGTERM alone left the process alive here, so escalate to SIGKILL — otherwise
+  # the "restart" silently kept serving the previous dist.
+  pkill -f "dist/main.js" 2>/dev/null || true
+  for i in 1 2 3 4 5; do
+    pgrep -f "dist/main.js" >/dev/null 2>&1 || break
+    sleep 1
+    pkill -9 -f "dist/main.js" 2>/dev/null || true
+  done
+  if pgrep -f "dist/main.js" >/dev/null 2>&1; then
+    echo "old backend still running — kill it manually"; exit 1
+  fi
   sleep 1
-  pkill -9 -f "dist/main.js" 2>/dev/null || true
-done
-if pgrep -f "dist/main.js" >/dev/null 2>&1; then
-  echo "old backend still running — kill it manually"; exit 1
 fi
-sleep 1
 export NODE_ENV="${NODE_ENV:-development}" PORT="${PORT:-8002}"
 export JWT_SECRET="${JWT_SECRET:-live-test-secret-0123456789abcdef-0123456789}"
 export MONGO_URL="${MONGO_URL:-mongodb://127.0.0.1:27017/?replicaSet=rs0&directConnection=true}"
@@ -48,9 +52,11 @@ export NABD_ADMIN_GATE_TOKEN="${NABD_ADMIN_GATE_TOKEN:-$ADMIN_GATE_TOKEN}"
 export LIVEKIT_URL="${LIVEKIT_URL:-http://127.0.0.1:${LIVEKIT_PORT:-7880}}"
 export LIVEKIT_API_KEY="${LIVEKIT_API_KEY:-devkey}" LIVEKIT_API_SECRET="${LIVEKIT_API_SECRET:-secret}"
 export NABD_ADMIN_DEVICE="${NABD_ADMIN_DEVICE:-live-gate-owner-macbook-01}"
-nohup node --max-old-space-size=1500 dist/main.js > /tmp/nabd-backend.log 2>&1 &
+LOG="${BACKEND_LOG:-/tmp/nabd-backend.log}"
+nohup node --max-old-space-size=1500 dist/main.js > "$LOG" 2>&1 &
+echo $! > "$LOG.pid"
 for i in $(seq 1 90); do
   curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/api/v1/health/liveness" 2>/dev/null | grep -q 200 && { echo "backend up (db=$DB_NAME)"; exit 0; }
   sleep 2
 done
-echo "backend did not start"; tail -40 /tmp/nabd-backend.log; exit 1
+echo "backend did not start"; tail -40 "$LOG"; exit 1

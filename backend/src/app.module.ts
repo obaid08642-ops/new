@@ -145,6 +145,7 @@ import { AdminGateGuard } from './common/admin-gate.guard';
 import { StepUpGuard, StepUpService } from './common/step-up.guard';
 import { ProductRankingModule } from './modules/product-ranking/product-ranking.module';
 import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
+import { mongoDirectConnection } from './common/database/mongo-uri';
 
 @Module({
   imports: [
@@ -183,7 +184,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
       useFactory: () => ({
         uri: process.env.MONGO_URL || 'mongodb://localhost:27017',
         dbName: process.env.DB_NAME || 'nabd_nestjs',
-        directConnection: true,
+        directConnection: mongoDirectConnection(process.env.MONGO_URL),
         // ── High-concurrency connection pool (default Mongoose pool = 5, insufficient) ──
         maxPoolSize: parseInt(process.env.MONGO_MAX_POOL_SIZE || '200', 10),
         minPoolSize: parseInt(process.env.MONGO_MIN_POOL_SIZE || '20', 10),

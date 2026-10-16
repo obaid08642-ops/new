@@ -64,14 +64,34 @@ Check after every deploy:
    - health check `GET /api/v1/health/liveness`;
    - **sticky sessions are not needed**: sessions are JWTs, Socket.IO state goes through the Redis adapter, and the
      Socket.IO clients use the websocket transport.
-3. Run MongoDB as a 3-node replica set and give the app the replica set URL. Reports and analytics read from
+3. Run MongoDB as a 3-node replica set and give the app the replica set URL, every member listed:
+   `MONGO_URL=mongodb://<user>:<pass>@m1:27017,m2:27017,m3:27017/?replicaSet=rs0&authSource=admin`. With more than one
+   host the backend discovers the set and follows a failover (`backend/src/common/database/mongo-uri.ts`; until
+   P14.28 it forced a direct connection, which refuses such a URL). A one-host URL keeps the direct connection that
+   runs today; `MONGO_DIRECT_CONNECTION=false` turns discovery on for a one-host seed. Reports and analytics read from
    secondaries (`readPreference=secondaryPreferred` on their connections only).
 4. The nginx micro-cache is per edge node and is not purged: it keeps a public answer for at most its `s-maxage`
    (300 s). Purge by tag (P14.8) reaches every API process and node through Redis pub/sub.
 
-**Rehearsal (P14.28): BLOCKED.** It needs a staging environment with two API nodes, a load balancer and a 3-node
-replica set. Staging was turned off on 2026-10-04 because it shared the production server, and the repo has no other
-staging host. The owner needs to provide a staging server (or an OVH project) before this can run.
+**Rehearsal (P14.28): done on one machine, test data.** `tools/perf/scale-rehearsal/run.sh` (workflow "Scale step 3
+rehearsal") starts a 3-node replica set, one `worker` and two `api` nodes behind an nginx load balancer
+(`tools/perf/scale-rehearsal/nginx.conf`: least connections, a failed node out for 10 s, reads retried once on the
+other node, writes never retried), then runs the `capacity.js` mix through it. Result on 2026-10-16 (4 vCPU, everything
+on one machine, 30 VUs, 60 s per run):
+
+| Check | Result |
+|---|---|
+| Replica set: 1 primary, 2 secondaries; a `w: majority` write acknowledged | PASS |
+| Readiness through the load balancer: `background_worker=up` (one worker for the fleet) | PASS |
+| 200 requests through the load balancer | 100 on each node |
+| One node direct vs two behind the load balancer | 44 → 53 req/s; logged-in p95 536 → 317 ms; cart p95 1478 → 520 ms; 0 errors |
+| API node killed (`kill -9`) under load, restarted 20 s later | 0 errors in 3,508 requests; the node rejoined healthy |
+| Mongo primary stepped down under load | new primary elected in 216 ms; 0 errors in 4,252 requests |
+
+The throughput gain is small here because the two nodes, the three Mongo members and k6 share four cores; on separate
+servers each node brings its own cores. What the rehearsal proves is the mechanics: the spread, the failover of a node
+and of the primary without failed requests, and one worker for the fleet. **Still BLOCKED:** the same run on staging
+servers (no staging host), which gives the real per-node numbers.
 
 ## Step 4: realtime tier
 
@@ -82,7 +102,7 @@ staging host. The owner needs to provide a staging server (or an OVH project) be
 - Clients already reconnect with backoff. On reconnect they must re-fetch the state of the screen they are on: order
   status, chat messages since the last id, booking state. Emits are notifications, never the only copy of the data.
 
-**10k-socket test: BLOCKED** (needs staging, as above).
+**10k-socket test: BLOCKED** (needs staging servers: no staging host).
 
 ## Step 5: region resilience
 
@@ -105,8 +125,9 @@ k6 run -e BASE=https://<staging> -e SCENARIO=soak   -e PEAK=300 tools/perf/k6/ca
 - Run from several load generators, or allow-list the generators' IPs on staging. One generator is one IP and hits
   the per-IP limits. The script reports those 429s as `rate_limited`, separately from errors.
 
-**Measured ceilings: BLOCKED.** No staging environment (as above). Running `stress` against production is not allowed.
-The script is checked against a local build (smoke, test data): `public_api p95 = 22 ms`, `scenario_errors 0%`.
+**Measured ceilings:** the first report is `docs/perf/load-test-2026-10-16.md` (P14.27, a local test stack: ceiling,
+first bottleneck, next steps). Staging ceilings are BLOCKED (no staging host); running `stress` against production is
+not allowed. Re-run with the "Capacity (k6)" workflow after each step.
 
 ## Edge (Cloudflare): P14.1, P14.6, P14.9, P14.19
 
