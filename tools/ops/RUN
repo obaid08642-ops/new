@@ -1,6 +1,5 @@
-# 2026-10-16 reviewer: outage, second pass. 59 freed only 0.2 GB (/ 100% of 38 GB); 66 stopped itself (under 1 GB).
-# 67 removes an unused 1 GB swap file, the loaded release tarball, an August dump, one old pre-deploy backup,
-# container logs over 20 MB and the rollback images, then measures the containers' writable layers.
-# 66 then starts mongodb/redis (no recreate), lets Redis save, restarts backend+worker once if needed.
-67-free-more
-66-recover-after-disk-full
+# 2026-10-16 reviewer: outage, third pass. 8.7 GB free now; Redis healthy; MongoDB stays unhealthy after the disk-full
+# crash (exit 14 at 07:39 UTC), the backend gives 502. 68 reads the mongod log, starts the same container if stopped,
+# then restarts backend+worker once. Root cause of the full disk: patient-web wrote 5.6 GB of rendered pages into its
+# own container layer (/app/.next/server); fixed in code separately.
+68-mongo-start
