@@ -160,6 +160,8 @@ export class PharmacyOrder extends Document {
   };
   @Prop() patient_notes?: string;
   @Prop() prescription_id?: string;
+  /** P17-17.5: UTM campaign attribution (utm_source/medium/campaign/term/content). */
+  @Prop({ type: Object, required: false }) attribution?: Record<string, string>;
   @Prop({ type: Object }) manual_request?: { name?: string; details?: string | null; qty?: number; photo_uri?: string };
   /** F73: draft fulfillment + payment mode. */
   @Prop({ type: String, enum: ['delivery', 'pickup'], default: 'delivery' }) fulfillment?: 'delivery' | 'pickup';

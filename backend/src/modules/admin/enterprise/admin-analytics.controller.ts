@@ -9,6 +9,7 @@ import { AnalyticsSuiteService } from './analytics-suite.service';
 import { ScheduledReportsRunner } from './scheduled-reports.runner';
 import { Optional } from '@nestjs/common';
 import { PresenceService } from '../../presence/presence.service';
+import { MailService } from '../../mail/mail.module';
 import { CreateDto, UpdateDto, RemoveDto } from './admin-analytics.dto';
 
 /**
@@ -22,6 +23,7 @@ export class AdminAnalyticsSuiteController {
     private readonly svc: AnalyticsSuiteService,
     @InjectConnection() private readonly conn: Connection,
     @Optional() private readonly presence?: PresenceService,
+    @Optional() private readonly mail?: MailService,
   ) {}
 
   /** Live online visitors by platform (patient-web / patient-app / provider-app). */
@@ -45,7 +47,11 @@ export class AdminAnalyticsSuiteController {
     return out;
   }
 
-  /** Email delivery stats: today + last 30d by provider, vs configured plan limits. */
+  /**
+   * Email delivery stats: today + this month by provider, vs configured plan limits, plus the live per-provider
+   * state from the shared 'mail_quota' counters (Riyadh day/month): sent today, sent this month, quota left,
+   * this month's primary and the last error.
+   */
   @Get('email-usage')
   @RequirePermissions(Permission.ANALYTICS_READ)
   async emailUsage() {
@@ -76,6 +82,7 @@ export class AdminAnalyticsSuiteController {
         daily: Number(process.env.MAIL_DAILY_LIMIT || 0),
         monthly: Number(process.env.MAIL_MONTHLY_LIMIT || 0),
       },
+      providers: this.mail ? await this.mail.sharedProviderState() : [],
     };
   }
 

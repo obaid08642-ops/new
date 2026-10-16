@@ -1,6 +1,7 @@
 import { IsArray, IsDefined, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min, ValidateNested, MaxLength } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ServiceType } from '../../schemas/appointment.schema';
+import { AttributionDto } from '../../common/attribution';
 
 export class VisitLocationDto {
   @IsDefined()
@@ -77,6 +78,11 @@ export class CreateAppointmentDto {
   @IsString()
   @IsOptional()
   follow_up_of?: string;
+
+  @ValidateNested()
+  @Type(() => AttributionDto)
+  @IsOptional()
+  attribution?: AttributionDto;
 }
 
 export class CancelAppointmentDto {
