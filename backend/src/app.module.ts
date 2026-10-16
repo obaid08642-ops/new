@@ -6,6 +6,7 @@ import { CoturnModule } from './modules/coturn/coturn.module';
 import { RedisModule } from './modules/redis/redis.module';
 import { MailModule } from './modules/mail/mail.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { NewsletterModule } from './modules/newsletter/newsletter.module';
 import { ApiSecurityModule } from './modules/api-security/api-security.module';
 import { DeviceTrustModule } from './modules/device-trust/device-trust.module';
 import { SeoSearchModule } from './modules/seo-search/seo-search.module';
@@ -159,6 +160,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     RedisModule,
     MailModule,
     AnalyticsModule,
+    NewsletterModule,
     ApiSecurityModule,
     DeviceTrustModule,
     SeoSearchModule,
