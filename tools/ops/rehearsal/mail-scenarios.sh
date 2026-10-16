@@ -58,7 +58,7 @@ expect "A brevo key in env" "$(envget BREVO_API_KEY)" "$BREVO_API_KEY"
 expect "A mailjet secret in env" "$(envget MAILJET_SECRET_KEY)" "$MAILJET_SECRET_KEY"
 expect "A order" "$(envget MAIL_PROVIDER_ORDER)" resend,brevo,mailjet
 expect "A quotas" "$(envget RESEND_DAILY_QUOTA)/$(envget RESEND_MONTHLY_QUOTA) $(envget BREVO_DAILY_QUOTA) $(envget MAILJET_DAILY_QUOTA)/$(envget MAILJET_MONTHLY_QUOTA)" "100/3000 300 200/6000"
-expect "A brevo relay" "$(envget BREVO_SMTP_HOST):$(envget BREVO_SMTP_PORT)" smtp-relay.brevo.com:587
+expect "A no SMTP relay names (Brevo uses its REST API)" "$(envget BREVO_SMTP_HOST)" ""
 expect "A other lines kept" "$(envget JWT_SECRET) $(envget RESEND_API_KEY)" "keep-me re_rehearsal_resend_0004"
 expect "A env mode 600" "$(stat -c %a $W/deploy/.env.production)" 600
 expect "A key file shredded" "$(test -e $W/ops-mail.env; echo $?)" 1
