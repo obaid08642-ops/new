@@ -52,7 +52,8 @@ describe('Nabd+ brand assets shipped by the app', () => {
     // the fact a reviewer can actually check by eye, and it costs nothing.
     const source = readText(join(BRAND, 'src', 'notification-icon.svg'));
     // Comments are prose, not markup: strip them so this checks the drawing.
-    const markup = source.replace(/<!--[\s\S]*?-->/g, '');
+    let markup = source;
+    for (let prev = ''; prev !== markup; ) { prev = markup; markup = markup.replace(/<!--[\s\S]*?-->/g, ''); }
     const colours = [...markup.matchAll(/(?:fill|stroke)="(#[0-9A-Fa-f]{3,8})"/g)].map((m) =>
       m[1].toUpperCase(),
     );
