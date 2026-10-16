@@ -48,10 +48,12 @@ export class RadiologySeed implements OnModuleInit {
   }
 }
 
+import { ApprovalWorkflowModule } from '../approval-workflow/approval-workflow.module';
 @Module({
   imports: [
     WorkflowEngineModule,
     InsuranceEngineModule,
+    ApprovalWorkflowModule,
     MongooseModule.forFeature([
       { name: 'RadiologyService', schema: RadiologyServiceSchema },
       { name: ProviderProfile.name, schema: ProviderProfileSchema },
