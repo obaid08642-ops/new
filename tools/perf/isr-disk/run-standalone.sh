@@ -43,4 +43,8 @@ echo "of which .next/server: $(mb $(du -sb "$W/app/.next/server" | cut -f1)) MB,
 redis-cli -p 6390 info memory | tr -d '\r' | grep -E '^(used_memory_human|maxmemory_human|maxmemory_policy):' | tr '\n' ' '; echo
 redis-cli -p 6390 info stats | tr -d '\r' | grep -E '^(evicted_keys|keyspace_hits|keyspace_misses):' | tr '\n' ' '; echo
 echo "redis keys: $(redis-cli -p 6390 dbsize)"
+KEYS=$(redis-cli -p 6390 dbsize | tr -d '\r')
+# the handler fails OPEN when Redis is unreachable (pages are served from a small in-process cache, nothing on disk), so
+# "0 bytes written" alone proves nothing: in redis mode the pages must really be in Redis
+if [ "$MODE" = redis ] && [ "${KEYS:-0}" -lt 100 ]; then echo "FAIL: redis mode but only ${KEYS:-0} keys in Redis (was Redis reachable?)"; exit 1; fi
 echo "GROWTH_BYTES=$((B1 - B0))"

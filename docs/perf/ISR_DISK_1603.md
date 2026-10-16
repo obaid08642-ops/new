@@ -25,6 +25,16 @@ instance is the only way to give them different policies, so a full cache can ne
 | **Before** (no cache handler, what production ran) | **+1,310 MB** (`.next/server` 1,419 MB) for 5,000 pages, i.e. about 262 KB per page | files |
 | **After** (this PR) | **+0.0 MB**; all 5,000 requests answered 200 | Redis 256 MB cap reached, 3,650 entries evicted, 6,353 keys kept |
 
+The same for **1,000 pages** (the review session's check): before **+262 MB** (`.next/server` 420 MB after), after **+0.0 MB**
+with 2,003 entries (81.5 MB) in Redis.
+
+Does #1560 alone remove the cache from the container layer? **No.** #1560 (P14.10) added the Redis handler but made it opt-in
+at build time (`NEXT_CACHE_HANDLER=redis`), and the production image was never built with it, so production kept writing
+files. This PR makes it the default build, gives it a capped Redis to write to, and makes the filesystem read-only so a
+regression cannot silently write to the layer again. (The handler also fails OPEN: with Redis unreachable it serves from a
+small in-process cache and writes nothing to disk, so "0 MB written" is only meaningful together with the Redis key count,
+which `run-standalone.sh` now asserts.)
+
 1,310 MB for 5,000 pages matches production (5.59 GB for the pages rendered in 18 h).
 
 **Bytes per cached page** (measured): an entry is HTML 119 KB + RSC payload 84 KB + segment data 91 KB (the last two base64
