@@ -276,3 +276,16 @@ export function sameIngredientsFilter(product: {
     ...(product.id ? { id: { $ne: product.id } } : {}),
   };
 }
+
+/**
+ * Issue 1556 H (owner, 2026-10-16): the ingredient review queue covers the medicine categories only — the
+ * 2,575 records of "الأدوية والعلاج" (2,454) and "أدوية ومكملات غذائية" (121) in the 2026-10-16 data audit.
+ * Cosmetics, care products and devices never enter the queue.
+ */
+export const INGREDIENTS_SCOPE_CATEGORIES = ['الأدوية والعلاج', 'أدوية ومكملات غذائية'] as const;
+
+export const INGREDIENTS_SCOPE_FILTER = { category: { $in: [...INGREDIENTS_SCOPE_CATEGORIES] } };
+
+export function inIngredientsScope(row: { category?: unknown }): boolean {
+  return typeof row.category === 'string' && (INGREDIENTS_SCOPE_CATEGORIES as readonly string[]).includes(row.category.trim());
+}

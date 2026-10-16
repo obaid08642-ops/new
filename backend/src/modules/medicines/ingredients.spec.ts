@@ -1,5 +1,5 @@
 import { lookupInn, normalizeText } from './inn-normalization';
-import { ingredientsKey, isLeaflet, parseCatalogueRow, parseNumber, sameIngredientsFilter, splitLeaflet } from './ingredients';
+import { INGREDIENTS_SCOPE_FILTER, inIngredientsScope, ingredientsKey, isLeaflet, parseCatalogueRow, parseNumber, sameIngredientsFilter, splitLeaflet } from './ingredients';
 
 // Every input below is a value found in the production catalogue (public API sample, 2026-10-16; issue 1556).
 describe('issue 1556: INN normalization table', () => {
@@ -111,5 +111,20 @@ describe('issue 1547 helper: sameIngredientsFilter', () => {
     expect(sameIngredientsFilter({ ...p, ingredients: [{ inn: 'paracetamol', strength_value: null, strength_unit: null }] })).toBeNull();
     expect(sameIngredientsFilter({ ...p, dosage_form: null })).toBeNull();
     expect(sameIngredientsFilter({ ...p, ingredients_status: 'review' })).toBeNull();
+  });
+});
+
+describe('issue 1556 H: the ingredient review queue covers the medicine categories only', () => {
+  it('keeps medicines, drops cosmetics, care products and devices', () => {
+    expect(inIngredientsScope({ category: 'الأدوية والعلاج' })).toBe(true);
+    expect(inIngredientsScope({ category: 'أدوية ومكملات غذائية' })).toBe(true);
+    for (const c of ['العناية بالبشرة', 'المكياج والإكسسوارات', 'العناية بالشعر', 'العناية الشخصية', 'الرعاية الصحية المنزلية والأجهزة الطبية', 'الأم والطفل', 'الفيتامينات والتغذية الصحية']) {
+      expect(inIngredientsScope({ category: c })).toBe(false);
+    }
+    expect(inIngredientsScope({})).toBe(false);
+  });
+
+  it('the database query carries the same scope', () => {
+    expect(INGREDIENTS_SCOPE_FILTER).toEqual({ category: { $in: ['الأدوية والعلاج', 'أدوية ومكملات غذائية'] } });
   });
 });

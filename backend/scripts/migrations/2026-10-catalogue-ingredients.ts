@@ -4,6 +4,8 @@
 //
 // Prints coverage before and the projected coverage after, per field, and the rows that would go to the admin's
 // review queue (catalog_change_requests, type ingredients_review) with their reason.
+// Scope (owner, 2026-10-16, decision H): only the medicine categories (INGREDIENTS_SCOPE_CATEGORIES, 2,575 records);
+// cosmetics and devices are counted as out_of_scope and never reach the queue.
 //
 // Usage (reads only):
 //   MONGODB_URI=... DB_NAME=... npx ts-node --transpile-only scripts/migrations/2026-10-catalogue-ingredients.ts
@@ -11,7 +13,9 @@
 //   add --samples=N to print N example rows per outcome.
 import fs from 'fs';
 import mongoose from 'mongoose';
-import { INGREDIENTS_PARSER_VERSION, ParseResult, parseCatalogueRow } from '../../src/modules/medicines/ingredients';
+import {
+  INGREDIENTS_PARSER_VERSION, INGREDIENTS_SCOPE_CATEGORIES, INGREDIENTS_SCOPE_FILTER, ParseResult, inIngredientsScope, parseCatalogueRow,
+} from '../../src/modules/medicines/ingredients';
 
 const arg = (name: string) => process.argv.find((a) => a.startsWith(`--${name}=`))?.split('=').slice(1).join('=');
 if (process.argv.includes('--apply')) {
@@ -30,13 +34,15 @@ function tally() {
   };
 }
 
+let outOfScope = 0;
+
 async function* rows(): AsyncGenerator<Row> {
   if (FIXTURE) {
-    for (const r of JSON.parse(fs.readFileSync(FIXTURE, 'utf8')) as Row[]) yield r;
+    for (const r of JSON.parse(fs.readFileSync(FIXTURE, 'utf8')) as Row[]) if (inIngredientsScope(r)) yield r; else outOfScope += 1;
     return;
   }
   await mongoose.connect(process.env.MONGODB_URI || process.env.MONGO_URL || 'mongodb://127.0.0.1:27017', { dbName: process.env.DB_NAME || 'nabd' });
-  const cur = mongoose.connection.collection('medicines').find({ is_deleted: { $ne: true } }).sort({ _id: 1 }).batchSize(500);
+  const cur = mongoose.connection.collection('medicines').find({ is_deleted: { $ne: true }, ...INGREDIENTS_SCOPE_FILTER }).sort({ _id: 1 }).batchSize(500);
   for await (const r of cur) yield r as Row;
 }
 
@@ -77,7 +83,7 @@ async function run() {
       samples[key].push({ id: r.id, active_ingredient: String(r.active_ingredient || '').slice(0, 120), strength: r.strength, form: r.form, ingredients: p.ingredients, dosage_form: p.dosage_form, route: p.route, unknown: p.unknown });
     }
   }
-  console.log(JSON.stringify({ mode: 'dry-run', parser: INGREDIENTS_PARSER_VERSION, source: FIXTURE ? `fixture ${FIXTURE}` : `db ${process.env.DB_NAME || 'nabd'}`, before, after_projected: after }, null, 1));
+  console.log(JSON.stringify({ mode: 'dry-run', parser: INGREDIENTS_PARSER_VERSION, source: FIXTURE ? `fixture ${FIXTURE}` : `db ${process.env.DB_NAME || 'nabd'}`, scope: INGREDIENTS_SCOPE_CATEGORIES, out_of_scope_skipped: FIXTURE ? outOfScope : 'filtered in the query', before, after_projected: after }, null, 1));
   if (SAMPLES) console.log(JSON.stringify(samples, null, 1));
 }
 
