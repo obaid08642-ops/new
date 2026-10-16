@@ -76,8 +76,11 @@ export const perkText = (k: Translate, tier: Tier, index: number): string => {
 };
 /** A way to earn: its title and its amount caption in the patient's language (by the earn reason). */
 export const earnText = (k: Translate, num: (n: number) => string, way: EarnWay): { title: string; caption: string } => {
-  const title = (way.reason ? known(k, `loyalty.earn.${way.reason}`) : known(k, 'loyalty.earn.challenge')) ?? way.action;
-  if (!way.reason) return { title, caption: k('loyalty.earn.perChallenge') };
+  // The server's one way without a reason is the challenge row, whose points are a text label (never a number); any other
+  // way without a reason is not one this app knows, so it shows the server's own text and amount.
+  const challenge = !way.reason && typeof way.pts !== 'number';
+  const title = (way.reason ? known(k, `loyalty.earn.${way.reason}`) : challenge ? known(k, 'loyalty.earn.challenge') : null) ?? way.action;
+  if (challenge) return { title, caption: k('loyalty.earn.perChallenge') };
   return { title, caption: k('loyalty.pointsAmount', { points: typeof way.pts === 'number' ? num(way.pts) : way.pts }) };
 };
 
