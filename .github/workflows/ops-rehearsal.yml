@@ -7,6 +7,14 @@ on:
     branches: ['review/server-inspect', 'review/ops-*']
     paths: ['tools/ops/**', '.github/workflows/ops-rehearsal.yml']
 jobs:
+  mail:
+    # tools/ops/tasks/67-mail-env.sh and tools/ops/cf/41-mail-verify.sh against the stand-in API (owner, 2026-10-16)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Mail env and DNS checks (production shape, broken DNS, no key file, no secrets)
+        run: bash tools/ops/rehearsal/mail-scenarios.sh
   livekit-rotate:
     runs-on: ubuntu-latest
     timeout-minutes: 40

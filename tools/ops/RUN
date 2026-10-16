@@ -1,1 +1,9 @@
-# 2026-10-16 reviewer: nothing to run. Production recovered at 14:47 UTC (68-mongo-start); the build session's report key is restored.
+# 2026-10-16 owner: mail providers. Run AFTER the outage recovery (55/59/66) is done and production is healthy.
+# 67: BREVO_API_KEY, MAILJET_API_KEY, MAILJET_SECRET_KEY (GitHub secrets, on ssh stdin) into .env.production, with
+#     MAIL_PROVIDER_ORDER=resend,brevo,mailjet, the Brevo relay, and each free plan's quota (Resend 100/day 3000/month,
+#     Brevo 300/day, Mailjet 200/day 6000/month); Resend's view of nabd.plus (names and states). Nothing restarts:
+#     the backend reads them when the mail PR (#1583) is deployed.
+# cf:41: Cloudflare DNS (SPF once with the three includes, DKIM for each, DMARC) and Brevo's / Mailjet's verified state.
+# Rehearsal: ops-rehearsal job "mail" (tools/ops/rehearsal/mail-scenarios.sh).
+67-mail-env
+cf:41-mail-verify
