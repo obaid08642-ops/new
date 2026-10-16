@@ -353,8 +353,16 @@ export class MedicinesService {
     // Kill switch (analytics ingestion): accept-and-drop. Search results are
     // unaffected; only the search_queries write is skipped. The flag read stays
     // async/off-path so search latency never depends on it.
-    this.analyticsIngestAllowed().then((ok) => {
+    this.analyticsIngestAllowed().then(async (ok) => {
       if (!ok) return;
+      // P17-17.6: without the user's consent, no analytics is stored. Legacy
+      // rows (no explicit choice) keep flowing until the user decides.
+      if (userId) {
+        try {
+          const u: any = await this.conn.collection('users').findOne({ id: userId }, { projection: { consent_choices: 1 } });
+          if (u && u.consent_choices && u.consent_choices.analytics === false) return;
+        } catch { /* consent unreadable: keep legacy behavior */ }
+      }
       this.conn.collection('search_queries').insertOne({
         term: t,
         term_lc: t.toLowerCase(),
