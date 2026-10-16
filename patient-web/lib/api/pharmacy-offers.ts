@@ -69,6 +69,8 @@ export type PatientPharmacyOrderProgress = {
   status?: string;
   governedState?: string;
   coverageMode?: "cash" | "insurance";
+  /** Decision 30: insurance or self-pay as chosen when the request was sent (`payment_mode`, or `payment_method` insurance). */
+  paymentMode?: "cash" | "insurance";
   /** The selected offer (`selected_offer_snapshot`, `selected_offer_hash`, `selected_offer_revision`). */
   selectedQuote?: PatientPharmacyQuote;
   /** A revised final quote waiting for acceptance (`pending_final_quote_*`). */
@@ -224,6 +226,7 @@ export function extractPatientPharmacyOrderProgress(payload: unknown): PatientPh
     items: orderItems.length ? orderItems : undefined,
     governedState: governedStep(stringValue(source, ["governed_state", "governedState"])),
     coverageMode: rawCoverageMode === "cash" || rawCoverageMode === "insurance" ? rawCoverageMode : undefined,
+    paymentMode: stringValue(source, ["payment_mode", "paymentMode"]) === "insurance" || stringValue(source, ["payment_method", "paymentMethod"]) === "insurance" ? "insurance" : "cash",
     selectedQuote: parseQuote(source.selected_offer_snapshot, source.selected_offer_hash, source.selected_offer_revision),
     pendingQuote: parseQuote(source.pending_final_quote_snapshot, source.pending_final_quote_hash, source.pending_final_quote_revision),
     acceptedQuoteHash: stringValue(source, ["accepted_quote_hash", "acceptedQuoteHash"]),

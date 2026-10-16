@@ -133,15 +133,41 @@ describe('offers screen', () => {
     expect(posts()).toHaveLength(1);
   });
 
-  it('insurance is sent only when the patient chose it', async () => {
+  it('decision 30 (issue 1033): an insurance order is chosen with insurance, with no choice per offer', async () => {
+    answer({ '/patient/pharmacy/orders/ord/offers': offers(), '/patient/pharmacy/orders/ord': { ...searchingOrder, payment_mode: 'insurance', payment_method: 'insurance' } });
+    await render(wrap(<BroadcastStatusScreen />));
+    await screen.findByText('Test pharmacy 1');
+    await tap(screen.getByLabelText(k('pharmacy.offers.chooseFor', { name: 'Test pharmacy 1' })));
+    await screen.findByLabelText(k('pharmacy.offers.confirm'));
+    expect(screen.queryByLabelText(k('pharmacy.offers.coverage.cash'))).toBeNull();
+    expect(screen.queryByLabelText(k('pharmacy.offers.coverage.insurance'))).toBeNull();
+    expect(screen.getByText(k('pharmacy.offers.coverage.chosenInsurance'))).toBeTruthy();
+    await tap(screen.getByLabelText(k('pharmacy.offers.confirm')));
+    await waitFor(() => expect(posts()).toHaveLength(1));
+    expect(JSON.parse(posts()[0][1].body as string)).toEqual({ coverage_mode: 'insurance' });
+  });
+
+  it('decision 30: a self-pay order is chosen as self-pay and never asks about insurance', async () => {
     answer({ '/patient/pharmacy/orders/ord/offers': offers(), '/patient/pharmacy/orders/ord': searchingOrder });
     await render(wrap(<BroadcastStatusScreen />));
     await screen.findByText('Test pharmacy 1');
     await tap(screen.getByLabelText(k('pharmacy.offers.chooseFor', { name: 'Test pharmacy 1' })));
-    await tap(await screen.findByLabelText(k('pharmacy.offers.coverage.insurance')));
-    await tap(screen.getByLabelText(k('pharmacy.offers.confirm')));
-    await waitFor(() => expect(posts()).toHaveLength(1));
-    expect(JSON.parse(posts()[0][1].body as string)).toEqual({ coverage_mode: 'insurance' });
+    await screen.findByLabelText(k('pharmacy.offers.confirm'));
+    expect(screen.queryByLabelText(k('pharmacy.offers.coverage.insurance'))).toBeNull();
+    expect(screen.getByText(k('pharmacy.offers.coverage.chosenCash'))).toBeTruthy();
+  });
+
+  it('decision 30: an insurance order cannot pick a pharmacy that does not take insurance', async () => {
+    const outside = offers().map((o) => ({ ...o, insurance_ready: false }));
+    answer({ '/patient/pharmacy/orders/ord/offers': outside, '/patient/pharmacy/orders/ord': { ...searchingOrder, payment_mode: 'insurance' } });
+    await render(wrap(<BroadcastStatusScreen />));
+    await screen.findByText('Test pharmacy 1');
+    await tap(screen.getByLabelText(k('pharmacy.offers.chooseFor', { name: 'Test pharmacy 1' })));
+    await screen.findByText(k('pharmacy.offers.coverage.notInNetwork'));
+    const confirm = screen.getByLabelText(k('pharmacy.offers.confirm'));
+    expect(confirm.props.accessibilityState.disabled).toBe(true);
+    await tap(confirm);
+    expect(posts()).toHaveLength(0);
   });
 
   it('a refusal shows a real sentence, no fake success, and the control comes back', async () => {
