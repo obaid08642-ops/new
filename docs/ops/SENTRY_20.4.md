@@ -17,17 +17,19 @@ visible with its stack and release." Organisation `nabdplus` (region de.sentry.i
 |---|---|---|
 | backend + worker | `SENTRY_RELEASE` (build arg of `Dockerfile.backend` = the git SHA) in `instrument.ts` | `node --enable-source-maps`: frames name `src/*.ts` lines (tsc writes the maps) |
 | patient-web, server | `withSentryConfig({ release })` from `SENTRY_RELEASE` (build arg) | source maps uploaded when the build has `SENTRY_AUTH_TOKEN` (BuildKit secret), then deleted from the image |
-| patient-web, browser | same, injected into the bundle | same; `instrumentation-client.ts`; the DSN inlined at build time; CSP allows the DSN's ingest origin only |
+| patient-web, browser | same, injected into the bundle | same; `instrumentation-client.ts` listens for uncaught errors and rejections and loads the SDK (~55 KB gzip, its own chunk) on the first one, so pages stay inside the Lighthouse script budget (F82) and a page without errors never downloads it; the DSN inlined at build time; CSP allows the DSN's ingest origin only |
 | patient-app, provider-app | the SDK's own `bundleId@version+build` | the `@sentry/react-native` Expo plugin (org/project/url) uploads maps in EAS builds when `SENTRY_AUTH_TOKEN` is an EAS secret; Metro adds debug ids (`getSentryExpoConfig`) |
 
-`onRequestError` (server components, route handlers) and `onRouterTransitionStart` are wired too.
+`onRequestError` (server components, route handlers) is wired too. Browser tracing is left out (it would put the SDK in every page).
 
 ## Proof (2026-10-16, release `p20.4-verify-50dcc5d4`)
 - Backend: `NABD-BACKEND-1Q`, release `p20.4-verify-50dcc5d4`, frame `escapeRegex` at `src/common/slug.util.ts:56`
   (the TypeScript line, from `node --enable-source-maps` over the compiled `dist`).
-- Browser: `PATIENT-WEB-3`, release `p20.4-verify-50dcc5d4`, HeadlessChrome on `/:locale/privacy`, from the production
+- Browser, SDK loaded on the first error: `PATIENT-WEB-5`, release `p20.4-verify-50dcc5d4`; before the error the page had
+  downloaded no Sentry code.
+- Browser, SDK in the page (first version of this PR, over the script budget): `PATIENT-WEB-3`, release `p20.4-verify-50dcc5d4`, HeadlessChrome on `/:locale/privacy`, from the production
   build behind `server/nonce-server.mjs` with the production CSP (no violation; Sentry answered 200).
-Both test issues were resolved after the check.
+The test issues were resolved after each check.
 
 ## Owner and reviewer steps (not in this PR)
 1. **Release build** (`tools/ops/release/build-release.sh` on `review/server-inspect`): pass the SHA to both images:
