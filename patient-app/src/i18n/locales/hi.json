@@ -1983,6 +1983,8 @@
   "diag.hub.results": "मेरे नतीजे",
   "diag.hub.compare": "कीमतों की तुलना",
   "diag.place.group": "जांच की जगह",
+  "diag.pay.group": "भुगतान का तरीका",
+  "diag.pay.selfPay": "स्वयं भुगतान",
   "diag.place.homeLab": "घर पर",
   "diag.place.visitLab": "लैब में",
   "diag.place.homeRad": "घर पर",

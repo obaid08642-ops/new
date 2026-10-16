@@ -18,7 +18,9 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { DoctorListCard } from "@/components-next/consult/doctor-list-card";
 import { DoctorQuickFilters } from "@/components-next/consult/doctor-quick-filters";
-import { effectiveType, filterPageParams, nearestApplies, parseDoctorFilters, PAYMENT_FILTERS, serverOrdersList, VISIT_TYPES, type DoctorFilters, type PaymentFilter, type VisitType } from "@/lib/consult/doctor-filters";
+import { getOptionalPatientAccessToken } from "@/lib/auth/session";
+import { callPatientApi } from "@/lib/api/upstream";
+import { effectiveType, filterPageParams, insurerOf, nearestApplies, parseDoctorFilters, PAYMENT_FILTERS, serverOrdersList, VISIT_TYPES, type DoctorFilters, type PaymentFilter, type VisitType } from "@/lib/consult/doctor-filters";
 import { LinkSegmented } from "@/components-next/consult/link-segmented";
 import styles from "@/components-next/consult/consult.module.css";
 
@@ -57,6 +59,14 @@ export async function DoctorsView({ params, searchParams }: Props) {
   const names = await getTranslations("SpecialtyNames");
   let doctors: ReturnType<typeof extractDoctors> = [];
   const filters = parseDoctorFilters(sp);
+  // Decision 30: "Insurance" lists the doctors contracted for the patient's saved company and class. Only the dynamic twin
+  // (a filter is set) reads the session; the static page never has a filter, so it stays the same list for everyone.
+  if (filters.payment === "insurance" && searchParams !== undefined) {
+    const token = await getOptionalPatientAccessToken();
+    const policy = token ? await callPatientApi("/users/me/insurance", { cache: "no-store" }, token).then((r) => (r.ok ? r.json() : null)).catch(() => null) : null;
+    const insurer = insurerOf(policy);
+    if (insurer) filters.insurer = insurer;
+  }
   const shownType = effectiveType(filters);
   let failed = false;
   const response = await getPublicDoctors({ search: sp.q, specialty: sp.specialty, sort: ["rating", "price", "wait"].includes(sp.sort ?? "") ? sp.sort : undefined, filters }).catch(() => null);
@@ -117,6 +127,12 @@ export async function DoctorsView({ params, searchParams }: Props) {
         value={filters.payment ?? ""}
         options={PAYMENT_FILTERS.map((payment) => ({ value: payment, label: t(`payment_${payment}`), href: paymentHref(payment) }))}
       />
+      {filters.payment === "insurance" && !filters.insurer ? (
+        <div className={styles.activeFilter}>
+          <span>{t("paymentInsuranceNoPolicy")}</span>
+          <Link className={styles.activeFilterClear} href={`/${locale}/insurance/add-policy`}>{t("paymentAddPolicy")}</Link>
+        </div>
+      ) : null}
       <DoctorQuickFilters
         availableHref={withFilters({ availableNow: !filters.availableNow })}
         availableOn={filters.availableNow}

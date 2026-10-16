@@ -1983,6 +1983,8 @@
   "diag.hub.results": "My results",
   "diag.hub.compare": "Compare prices",
   "diag.place.group": "Where to test",
+  "diag.pay.group": "Payment",
+  "diag.pay.selfPay": "Self-pay",
   "diag.place.homeLab": "At home",
   "diag.place.visitLab": "At the lab",
   "diag.place.homeRad": "At home",
