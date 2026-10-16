@@ -1,8 +1,6 @@
-# 2026-10-15 reviewer: deploy main@ce53c57f (nginx resolve #1443, disk alert #1446, D-33 backups #1447, catalogue migration fix #1457). Build session rehearsal 38721153506 green on 41294fcf. 63 stops the run if an older deploy still runs; then free disk, upload release, R2 bucket + key, backups env + cron + monitor, deploy, verify a real backup to R2 and send one test alert mail.
-63-inspect-rollback
-59-free-disk
-release:ce53c57f79e7a59fac0aae8ed905cbceaf262cdd
-r2-backup-bucket
-61-backups-env
-60-deploy-main
-62-backups-verify
+# 2026-10-16 reviewer, owner-approved READ-ONLY data audit: export the reference catalogues (medicines, insurance,
+# lab, radiology, nursing; no patient or account data) and read the Cloudflare Access setup of admin.nabd.plus
+# (the owner's sign-in is refused) plus the CDN bucket's key list (pictures per product, issue 1556).
+# The report is encrypted to the review session's key for this run; the build session's key is restored after it.
+64-catalog-export
+cf:30-access-r2-inspect
