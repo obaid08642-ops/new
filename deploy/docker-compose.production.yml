@@ -95,6 +95,7 @@ services:
       MONGO_URL: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
       DB_NAME: ${DB_NAME:-nabd_nestjs}
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      REDIS_CACHE_URL: ${REDIS_CACHE_URL:-}   # P14.14: empty = the cache shares REDIS_URL (one Redis until scale step 2)
       REDIS_HOST: redis
       REDIS_PORT: "6379"
       REDIS_PASSWORD: ${REDIS_PASSWORD}
@@ -138,6 +139,7 @@ services:
       MONGO_URL: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
       DB_NAME: ${DB_NAME:-nabd_nestjs}
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      REDIS_CACHE_URL: ${REDIS_CACHE_URL:-}   # P14.14: empty = the cache shares REDIS_URL (one Redis until scale step 2)
       REDIS_HOST: redis
       REDIS_PORT: "6379"
       REDIS_PASSWORD: ${REDIS_PASSWORD}
@@ -171,6 +173,7 @@ services:
       MONGO_URL: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
       DB_NAME: ${DB_NAME:-nabd_nestjs}
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      REDIS_CACHE_URL: ${REDIS_CACHE_URL:-}   # P14.14: empty = the cache shares REDIS_URL (one Redis until scale step 2)
       REDIS_HOST: redis
       REDIS_PORT: "6379"
       REDIS_PASSWORD: ${REDIS_PASSWORD}
