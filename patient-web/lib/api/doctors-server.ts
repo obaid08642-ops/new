@@ -3,6 +3,9 @@ import { doctorQuery, doctorSlotsQuery } from "./doctors";
 import { filterApiParams, type DoctorFilters } from "@/lib/consult/doctor-filters";
 import { publicReadSignal } from "@/lib/api/public-timeout";
 
+/** Issue 1541: the backend purges this tag (POST /api/revalidate) when a provider is deleted, so its page goes at once. */
+export const PROVIDER_PAGES_TAG = "providers";
+
 /**
  * F82-1: the public doctor list carries no credential, so the unfiltered list (home cards and the
  * first view of /consultations/doctors) goes through the Next data cache for a minute. A search
@@ -11,7 +14,7 @@ import { publicReadSignal } from "@/lib/api/public-timeout";
 export async function getPublicDoctors(input: { search?: string; specialty?: string; sort?: "rating" | "price" | "wait"; filters?: DoctorFilters } = {}): Promise<Response | null> {
   // a position or a window of minutes is free-form too: a filtered list is never cached
   const cacheable = !(input.search ?? input.specialty ?? "").trim() && !(input.filters && filterApiParams(input.filters).length > 0);
-  try { return await fetch(patientApiUrl(doctorQuery(input)), { headers: { Accept: "application/json" }, signal: publicReadSignal(), ...(cacheable ? { next: { revalidate: 60 } } : { cache: "no-store" as const }) }); } catch { return null; }
+  try { return await fetch(patientApiUrl(doctorQuery(input)), { headers: { Accept: "application/json" }, signal: publicReadSignal(), ...(cacheable ? { next: { revalidate: 60, tags: [PROVIDER_PAGES_TAG] } } : { cache: "no-store" as const }) }); } catch { return null; }
 }
 
 export async function getPublicDoctor(doctorId: string): Promise<Response | null> {
@@ -25,7 +28,7 @@ export async function getPublicDoctor(doctorId: string): Promise<Response | null
  * Reads no cookie or header.
  */
 export async function getPublicDoctorEntity(slug: string): Promise<Response | null> {
-  try { return await fetch(patientApiUrl(`/entity-graph/related/doctor/${encodeURIComponent(slug)}`), { headers: { Accept: "application/json" }, signal: publicReadSignal(), next: { revalidate: 3600 } }); } catch { return null; }
+  try { return await fetch(patientApiUrl(`/entity-graph/related/doctor/${encodeURIComponent(slug)}`), { headers: { Accept: "application/json" }, signal: publicReadSignal(), next: { revalidate: 3600, tags: [PROVIDER_PAGES_TAG] } }); } catch { return null; }
 }
 
 export async function getPublicDoctorSlots(input: { id: string; date: string; serviceType: "clinic" | "video" | "home" }): Promise<Response | null> {
