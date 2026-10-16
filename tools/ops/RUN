@@ -1,4 +1,1 @@
-# 2026-10-16 reviewer: let the owner into admin.nabd.plus. Access allows only obaid08642@gmail.com and offers only
-# "sign in with a Cloudflare account"; the owner's Cloudflare account uses another e-mail. Adds the One-time PIN login
-# method (a code mailed to obaid08642@gmail.com); the "Owner only" policy is unchanged. Nothing runs on the server.
-cf:31-admin-access-otp
+# 2026-10-16 reviewer: nothing to run. The review session's runs are done; the build session's report key is restored.
