@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Inject, Optional } from '@nestjs/common';
+import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { Model } from 'mongoose';
 import { HomeCareService, HomeCareBooking, NursingBookingState, HomeCareBookingState, NursingVisitReport, CarePlan, MedicalSupplyRequest } from '../../schemas/home-care.schema';
 import { pick } from '../../common/sanitize';
@@ -33,6 +34,7 @@ export class HomeCareSvc {
     private readonly engine: WorkflowEngineService,
     private readonly bus: EventBusService,
     @Optional() private readonly redis?: RedisService,
+    @Optional() private readonly killSwitches?: KillSwitchesService,
   ) {}
 
   async list(opts: { category?: string; search?: string; duration?: string }) {
@@ -64,6 +66,8 @@ export class HomeCareSvc {
   }
 
   async book(user: any, data: any) {
+    // Issue 955: the admin kill switch refuses new home-nursing requests before anything is stored.
+    await this.killSwitches?.assertOn('nursing_broadcast');
     if (!data.service_id) throw new BadRequestException('service_id required');
     if (!data.scheduled_at) throw new BadRequestException('scheduled_at required');
     const svc = await this.svcModel.findOne({ id: data.service_id, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' });

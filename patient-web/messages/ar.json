@@ -280,7 +280,9 @@
     "finalPrice": "السعر النهائي",
     "finalPriceFromOffer": "يظهر مع كل عرض",
     "flowNote": "نرسل طلبك إلى الصيدليات القريبة وتصلك عروضها. تختار الأنسب ثم تدفع.",
+    "pricesNote": "لا أسعار في السلة: الأسعار تأتي مع عروض الصيدليات.",
     "requestOffers": "اطلب عروض الصيدليات",
+    "choosePrescription": "اختر الوصفة للمتابعة",
     "summaryLabel": "ملخص الطلب",
     "manualRequest": "لم تجد دواءك؟ أضف طلبًا يدويًا"
   },
@@ -345,7 +347,10 @@
     "callReady": "زيارة الفيديو جاهزة.",
     "callUnavailable": "زيارة الفيديو غير متاحة الآن.",
     "callDiscard": "إغلاق زيارة الفيديو",
-    "callOpen": "انضم إلى الزيارة المرئية"
+    "callOpen": "انضم إلى الزيارة المرئية",
+    "cancelledRefund": "أُلغي الموعد. يعود {amount} ({percent}٪ مما دفعت) إلى وسيلة الدفع الأصلية.",
+    "cancelledNoRefund": "أُلغي الموعد. لا يستحق استرداد وفق سياسة الإلغاء.",
+    "cancelledNotCharged": "أُلغي الموعد. لم يُخصم أي مبلغ."
   },
   "Medicines": {
     "eyebrow": "كتالوج خاص",
@@ -698,7 +703,11 @@
     "emergencySaveError": "تعذّر حفظ جهة الاتصال. حاول مجدداً.",
     "emergencySave": "حفظ",
     "nextAppointment": "موعدك القادم",
-    "nextAppointmentUnavailable": "تعذّر تحميل موعدك القادم الآن."
+    "nextAppointmentUnavailable": "تعذّر تحميل موعدك القادم الآن.",
+    "reminderFor": "لمن هذا التذكير؟",
+    "reminderForMe": "لي أنا",
+    "reminderForName": "تذكير لـ {name}",
+    "reminderMemberFallback": "فرد من العائلة"
   },
   "Prescriptions": {
     "title": "الوصفات الطبية",
@@ -907,7 +916,8 @@
     "save": "حفظ المقال",
     "unsave": "إزالة من المحفوظات",
     "saveFailed": "تعذر تحديث المقالات المحفوظة. حاول مجددًا.",
-    "signInToSave": "سجّل الدخول لحفظ المقالات"
+    "signInToSave": "سجّل الدخول لحفظ المقالات",
+    "bodyTitle": "نص المقال"
   },
   "ChatDetail": {
     "eyebrow": "محادثة خاصة",
@@ -1440,13 +1450,10 @@
     "bundleTitle": "نبض بلس"
   },
   "BookConsultation": {
-    "homeAddressRequired": "حدد موقع المنزل (العنوان والإحداثيات) أولاً",
+    "homeAddressRequired": "اختر عنوان الزيارة من عناوينك المحفوظة أولًا",
     "cashClinicOnly": "الدفع النقدي متاح لزيارات العيادة فقط",
     "homeLocation": "موقع المنزل",
     "homeAddress": "العنوان",
-    "homeAddressPlaceholder": "الحي، الشارع، رقم المبنى",
-    "homeLat": "خط العرض",
-    "homeLng": "خط الطول",
     "slotTaken": "لم يعد هذا الموعد متاحاً. اختر موعداً آخر.",
     "title": "حجز استشارة",
     "subtitle": "اختر نوع الزيارة واليوم والوقت",
@@ -1480,7 +1487,9 @@
     "bookingFailed": "تعذر إتمام الحجز — تحقق من الموعد وطريقة الدفع",
     "fee": "رسوم الاستشارة",
     "duration": "مدة الزيارة",
-    "durationValue": "{n} دقيقة"
+    "durationValue": "{n} دقيقة",
+    "homeAddressNone": "أضف عنوانًا بموقعه على الخريطة لزيارة المنزل.",
+    "homeAddressAdd": "إضافة عنوان أو تعديله"
   },
   "AiHealthReport": {
     "title": "تقريرك الصحي الذكي",
@@ -1538,7 +1547,8 @@
     "yes": "نعم",
     "no": "لا",
     "form": "الشكل الدوائي",
-    "strength": "التركيز"
+    "strength": "التركيز",
+    "dosage_form": "الشكل الدوائي"
   },
   "PharmacyRequest": {
     "title": "اطلب دواءً بالاسم",
@@ -1551,7 +1561,16 @@
     "detailsPh": "التركيز أو الشكل أو ملاحظة",
     "submit": "أرسل للصيدليات القريبة",
     "submitting": "جارٍ إرسال الطلب…",
-    "error": "تعذّر إرسال الطلب. حاول مجددًا."
+    "error": "تعذّر إرسال الطلب. حاول مجددًا.",
+    "qty": "الكمية (عدد العلب)",
+    "qtyInvalid": "الكمية رقم من 1 إلى 99.",
+    "photo": "صورة العلبة",
+    "photoAdd": "أضف صورة العلبة",
+    "photoChange": "غيّر الصورة",
+    "photoUploading": "جارٍ رفع الصورة…",
+    "photoFailed": "تعذر رفع الصورة. حاول مرة أخرى.",
+    "photoType": "اختر ملف صورة بحجم مناسب.",
+    "photoAlt": "صورة علبة الدواء"
   },
   "PharmacyBarcode": {
     "title": "البحث بالباركود",
@@ -1782,10 +1801,8 @@
     "rxNumber": "وصفة {code}",
     "noItemsTitle": "لا توجد أدوية مدرجة في هذه الوصفة",
     "noItemsBody": "ارفع صورة أوضح أو اطلب الدواء بالاسم.",
-    "sendOffers": "اطلب عروض الصيدليات",
-    "sending": "جارٍ إرسال الطلب…",
     "sendNote": "يصل طلبك إلى الصيدليات القريبة وتعود إليك عروضها. لا يُحدَّد سعر ولا دفع في هذه الخطوة.",
-    "sendFailed": "تعذّر إرسال الطلب. حاول مجددًا.",
+    "continueToRequest": "متابعة إلى الطلب",
     "waysLabel": "طرق الطلب بوصفة",
     "viaPhoto": "تصوير",
     "viaUpload": "رفع",
@@ -1915,33 +1932,6 @@
     "heroPoint2": "أطباء بالفيديو أو في العيادة أو في البيت",
     "heroPoint3": "تحاليل وأشعة وتمريض منزلي بتأمينك"
   },
-  "Onboarding": {
-    "introLabel": "تعريف بالتطبيق",
-    "slidesLabel": "الشرائح",
-    "slide1Title": "رعايتك الصحية في مكان واحد",
-    "slide1Body": "استشارات وصيدلية وتحاليل وتمريض منزلي وأكثر.",
-    "slide2Title": "احجز في دقائق",
-    "slide2Body": "مواعيد في العيادة أو بالفيديو أو زيارة منزلية.",
-    "slide3Title": "تابع صحتك",
-    "slide3Body": "مؤشراتك الحيوية وتقاريرك وتذكيرات أدويتك.",
-    "next": "التالي",
-    "continue": "متابعة",
-    "skip": "تخطي",
-    "languageTitle": "اختر لغتك",
-    "languageBody": "يمكنك تغييرها لاحقًا من الإعدادات.",
-    "languageLabel": "اللغة",
-    "permissionsTitle": "الأذونات",
-    "permissionsBody": "نطلب القدر اللازم فقط، ويمكنك التخطي دائمًا.",
-    "locationTitle": "الموقع",
-    "locationBody": "لنقترح أقرب الأطباء والصيدليات ونحسب التوصيل.",
-    "notificationsTitle": "الإشعارات",
-    "notificationsBody": "تنبيهات المواعيد والأدوية ونتائج التحاليل.",
-    "allow": "السماح",
-    "allowed": "تم السماح",
-    "denied": "غير مسموح",
-    "unsupported": "غير متاح في هذا المتصفح",
-    "start": "ابدأ"
-  },
   "SpecialtyNames": {
     "general_practice": "طب عام",
     "family_medicine": "طب الأسرة",
@@ -2038,8 +2028,6 @@
     "detailsTitle": "تفاصيل الدواء",
     "groupUsage": "الاستخدام",
     "groupMore": "التخزين ومعلومات أخرى",
-    "askTitle": "اسأل صيدليًا",
-    "askBody": "عن الجرعة أو التداخلات أو البدائل",
     "imageOf": "صورة {n, number} من {total, number}",
     "showImage": "اعرض الصورة {n, number}",
     "zoomImage": "تكبير الصورة",
@@ -2272,7 +2260,16 @@
       "generic": "تعذر تنفيذ الإجراء. لم يتغير شيء.",
       "alreadyPaid": "تم دفع هذا الطلب بالفعل."
     },
-    "lastFromYou": "أنت: {text}"
+    "lastFromYou": "أنت: {text}",
+    "priceNotVerified": "السعر غير متحقق منه مقابل سعر الكتالوج؛ تراجعه الإدارة.",
+    "priceAboveCatalogue": "السعر أعلى من سعر الكتالوج؛ أُبلغت الإدارة.",
+    "unavailableTitle": "لا توجد صيدلية متاحة الآن",
+    "unavailableBody": "لم تردّ أي صيدلية قريبة في الوقت المحدد. حاول مرة أخرى لاحقًا.",
+    "unavailableAction": "العودة إلى الصيدلية",
+    "searchRound": "الجولة {round}: نبحث في الصيدليات ضمن {km} كم",
+    "showMethods": "اختيار طريقة الدفع",
+    "paymentUnavailable": "لا توجد طريقة دفع إلكتروني متاحة لهذا الطلب الآن.",
+    "loadingMethods": "جارٍ تحميل طرق الدفع…"
   },
   "PharmacyCheckout": {
     "title": "إتمام الطلب",
@@ -2286,13 +2283,12 @@
     "itemsLabel": "أصناف طلبك",
     "lineQty": "× {qty, number}",
     "needsRx": "يحتاج وصفة طبية",
-    "rxChecking": "جارٍ التحقق من وصفاتك المحفوظة…",
     "rxAttached": "وصفتك المحفوظة مرفقة بالطلب.",
     "rxMissingTitle": "الوصفة الطبية مطلوبة",
-    "rxMissingBody": "في السلة أدوية تحتاج وصفة. ارفع وصفتك ثم أرسل الطلب.",
-    "rxUpload": "رفع",
+    "rxChooseBody": "في هذه السلة أدوية تحتاج وصفة. اختر الوصفة التي تشملها، ثم أرسل الطلب.",
+    "rxChoose": "اختر وصفة",
+    "rxFromPrescription": "أدوية من وصفتك",
     "rxConsult": "استشر طبيبًا",
-    "rxCheckFailed": "تعذر التحقق من وصفاتك. حاول مرة أخرى بعد قليل.",
     "fulfilLegend": "كيف تريد الاستلام؟",
     "fulfilDelivery": "توصيل",
     "fulfilPickup": "استلام",
@@ -2519,7 +2515,11 @@
     "callConnecting": "جارٍ الاتصال…",
     "callEnded": "انتهت المكالمة",
     "callLeave": "مغادرة",
-    "callMute": "كتم",
+    "callMicrophone": "الميكروفون",
+    "callLive": "متصل",
+    "callWaitingForDoctor": "بانتظار انضمام الطبيب",
+    "callYou": "أنت",
+    "callDoctor": "الطبيب",
     "callCamera": "الكاميرا",
     "callNotReady": "المكالمة غير جاهزة بعد",
     "callUnavailable": "تعذر الاتصال",
@@ -2672,7 +2672,12 @@
       "invalid_invite_code": "رمز الدعوة غير صحيح. تأكد منه واطلب رمزاً جديداً إذا لزم الأمر.",
       "invite_expired": "انتهت صلاحية رمز الدعوة. اطلب من صاحب العائلة رمزاً جديداً.",
       "already_member": "أنت عضو في هذه العائلة بالفعل."
-    }
+    },
+    "medsWeek": "هذا الأسبوع: {taken} جرعة مأخوذة، {missed} فائتة",
+    "medsLastMissed": "آخر جرعة فائتة:",
+    "medsEditReminder": "تعديل التذكير",
+    "medsAddReminder": "إضافة تذكير دواء",
+    "close": "إغلاق"
   },
   "DiagWeb": {
     "retry": "حاول مرة أخرى",
@@ -2881,7 +2886,16 @@
     "status_processing": "قيد التنفيذ",
     "status_report": "التقرير جاهز",
     "status_cancelled": "ملغي",
-    "trackingPrepAsk": "سيؤكد لك المختبر أي تحضير مطلوب قبل التحليل."
+    "trackingPrepAsk": "سيؤكد لك المختبر أي تحضير مطلوب قبل التحليل.",
+    "trackingBeforeBody": "الصيام من 8 إلى 12 ساعة قبل السحب ما لم يخبرك الطبيب بغير ذلك.",
+    "collectorTipsTitle": "عند وصول الأخصائي",
+    "collectorTip1": "جهّز الهوية وطلب التحليل",
+    "collectorTip2": "التزم بالصيام الذي يتطلبه التحليل",
+    "collectorTip3": "أخبر الأخصائي بأي أدوية تتناولها",
+    "bookingNotSentTitle": "لم يتم أي حجز",
+    "bookingNotSentBody": "هذه النافذة لا ترسل الحجز بعد، لذلك لم يُنشأ أي موعد ولم يُسحب أي مبلغ. افتح صفحة التمريض لحجز زيارة.",
+    "bookingNotSentCta": "إلى صفحة التمريض",
+    "bookingNotSentClose": "إغلاق"
   },
   "NursingWeb": {
     "hubTitle": "الرعاية المنزلية",
@@ -2990,7 +3004,17 @@
     "addressNeedsLocation": "اختر عنوانًا محفوظًا له موقع على الخريطة، أو أضف واحدًا.",
     "payTitle": "الدفع",
     "payNow": "ادفع الآن بالبطاقة",
-    "payFailed": "الحجز محفوظ، لكن تعذّر فتح صفحة الدفع. حاول مرة أخرى."
+    "payFailed": "الحجز محفوظ، لكن تعذّر فتح صفحة الدفع. حاول مرة أخرى.",
+    "formService": "الخدمة",
+    "formSelectService": "اختر الخدمة",
+    "bookingNotice": "تفاصيل الخدمة معروضة للقراءة فقط. لا يتم إنشاء حجز من هذه الصفحة.",
+    "nurseTitle": "ملف الممرض/ة",
+    "nurseUnavailableTitle": "الملف غير متاح حالياً",
+    "nurseUnavailableBody": "تعذر تحميل بيانات الممرض.",
+    "experienceLabel": "الخبرة الميدانية",
+    "ratingLabel": "تقييم المرضى",
+    "nurseServicesTitle": "الخدمات التمريضية المتاحة",
+    "requestNurse": "طلب زيارة تمريض"
   },
   "MaternityWeb": {
     "title": "الأمومة",
@@ -3055,7 +3079,13 @@
     "setupFailed": "تعذر حفظ الملف.",
     "connectionFailed": "تعذر الاتصال. حاولي مرة أخرى.",
     "setupNotice": "التتبع للتوعية ولا يغني عن استشارة الطبيب، وليس وسيلة لمنع الحمل.",
-    "saveProfile": "حفظ الملف"
+    "saveProfile": "حفظ الملف",
+    "weekTitle": "طفلك هذا الأسبوع",
+    "weekImageAlt": "طفلك في الأسبوع {week}",
+    "weekEmpty": "محتوى هذا الأسبوع غير متوفر بعد.",
+    "weekUnavailable": "تعذر تحميل محتوى هذا الأسبوع.",
+    "readThisWeek": "اقرأ هذا الأسبوع",
+    "readEmpty": "لا توجد مقالات لهذا الأسبوع بعد."
   },
   "NutritionWeb": {
     "title": "التغذية",
@@ -3240,7 +3270,20 @@
       "warnings": "تحذيرات",
       "storage": "طريقة الحفظ",
       "pregnancy": "الحمل والرضاعة"
-    }
+    },
+    "flagsLegend": "هل عندك واحدة من هذه العلامات؟ اختر كل ما ينطبق",
+    "flag": {
+      "chest_pain": "ألم في الصدر",
+      "breathing_difficulty": "صعوبة في التنفس",
+      "fainting_or_unresponsive": "إغماء أو عدم استجابة",
+      "heavy_bleeding": "نزيف شديد",
+      "new_confusion": "ارتباك مفاجئ",
+      "severe_allergic_reaction": "حساسية شديدة",
+      "severe_injury": "إصابة بليغة"
+    },
+    "emergencyBody": "العلامات التي اخترتها تستدعي الاتصال بخدمات الطوارئ المحلية الآن، وليس انتظار موعد.",
+    "consultationBody": "لم تختر علامات طارئة. إذا استمرت الأعراض أو ازدادت سوءاً فاحجز استشارة مع طبيب.",
+    "historyTitle": "أسئلتك السابقة"
   },
   "MonthlyReportWeb": {
     "title": "تقريرك الشهري",
@@ -3773,7 +3816,16 @@
     "aboutRulesUnavailable": "تعذر تحميل سياسة الإلغاء والاسترداد الآن.",
     "ruleCancelFull": "يمكن إلغاء الموعد قبل {hours} ساعة من وقته مع استرداد كامل المبلغ.",
     "ruleRefundDays": "يصل الاسترداد خلال {min} إلى {max} أيام عمل.",
-    "ruleReturnDays": "يمكن إرجاع المنتجات غير المستخدمة خلال {days} أيام من الاستلام."
+    "ruleReturnDays": "يمكن إرجاع المنتجات غير المستخدمة خلال {days} أيام من الاستلام.",
+    "connectedAppsTitle": "التطبيقات الذكية المتصلة",
+    "connectedAppsEmptyTitle": "لا تطبيقات متصلة",
+    "connectedAppsEmpty": "لم تربط أي مساعد ذكي بحسابك.",
+    "connectedAppsNote": "المساعد المتصل يطلب ولا يدفع: كل طلب أو حجز تؤكده وتدفعه أنت على نبض بلس.",
+    "connectedSince": "متصل منذ {date}",
+    "disconnectApp": "قطع الاتصال",
+    "disconnectFailed": "تعذر قطع الاتصال. حاول مرة أخرى.",
+    "rowConnectedApps": "التطبيقات الذكية المتصلة",
+    "rowConnectedAppsSub": "المساعدات التي سمحت لها بحسابك"
   },
   "AccountWeb": {
     "profileTitle": "حسابي",
@@ -4148,5 +4200,16 @@
     "title": "أنت غير متصل",
     "body": "تعذر فتح الصفحة لعدم وجود اتصال. سلتك محفوظة على هذا الجهاز؛ أرسل طلبك عند عودة الاتصال.",
     "home": "العودة إلى البداية"
+  },
+  "CameraScan": {
+    "start": "امسح بالكاميرا",
+    "stop": "أوقف الكاميرا",
+    "pointCamera": "وجّه الكاميرا إلى الرمز",
+    "viewfinder": "معاينة الكاميرا",
+    "cameraFailed": "تعذّر فتح الكاميرا. اسمح باستخدامها أو اكتب الرمز."
+  },
+  "Network": {
+    "offline": "أنت غير متصل بالإنترنت. تعرض الصفحة آخر نسخة محفوظة.",
+    "offlineLastUpdated": "أنت غير متصل بالإنترنت. تعرض الصفحة آخر نسخة محفوظة. آخر تحديث: {time}"
   }
 }

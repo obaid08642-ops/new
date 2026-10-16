@@ -271,6 +271,10 @@ export class CreateLabCatalogDto {
   @IsOptional() @IsNumber() turnaround_hours?: number;
   @IsOptional() @IsArray() @IsString({ each: true }) preparation_ar?: string[];
   @IsOptional() @IsArray() @IsString({ each: true }) preparation_en?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) preparation_ur?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) preparation_hi?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) preparation_bn?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) preparation_tl?: string[];
   @IsOptional() @IsBoolean() is_package?: boolean;
   @IsOptional() @IsArray() @IsString({ each: true }) included_services?: string[];
   @IsOptional() @IsNumber() popularity?: number;
@@ -297,6 +301,10 @@ export class UpdateLabCatalogDto {
   @IsOptional() @IsNumber() turnaround_hours?: number;
   @IsOptional() @IsArray() @IsString({ each: true }) preparation_ar?: string[];
   @IsOptional() @IsArray() @IsString({ each: true }) preparation_en?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) preparation_ur?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) preparation_hi?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) preparation_bn?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) preparation_tl?: string[];
   @IsOptional() @IsBoolean() is_package?: boolean;
   @IsOptional() @IsArray() @IsString({ each: true }) included_services?: string[];
   @IsOptional() @IsNumber() popularity?: number;

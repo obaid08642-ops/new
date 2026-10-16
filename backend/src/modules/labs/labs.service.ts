@@ -23,7 +23,7 @@ export function reportSummary(r: any) {
 }
 
 export const LAB_CATALOG_FIELDS = [
-  'name_ar', 'name_en', 'short_code', 'description_ar', 'description_en', 'category', 'sample_type', 'price', 'old_price', 'fasting_required', 'fasting_hours', 'home_visit_supported', 'facility_visit_supported', 'turnaround_hours', 'preparation_ar', 'preparation_en', 'is_package', 'included_services', 'popularity', 'active', 'unavailable', 'medical_referral_required',
+  'name_ar', 'name_en', 'short_code', 'description_ar', 'description_en', 'category', 'sample_type', 'price', 'old_price', 'fasting_required', 'fasting_hours', 'home_visit_supported', 'facility_visit_supported', 'turnaround_hours', 'preparation_ar', 'preparation_en', 'preparation_ur', 'preparation_hi', 'preparation_bn', 'preparation_tl', 'is_package', 'included_services', 'popularity', 'active', 'unavailable', 'medical_referral_required',
 ] as const;
 import { getEffectiveRoles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';

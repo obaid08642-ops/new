@@ -139,6 +139,13 @@ export class Appointment {
   @Prop() transaction_id?: string;
   @Prop() paid_at?: Date;
   @Prop() refund_status?: string;
+  // 2-app#3: the doctor's last position while on the way to a home visit (shown to the patient only in EN_ROUTE)
+  @Prop({ type: { lat: Number, lng: Number, at: Date }, _id: false }) doctor_position?: { lat: number; lng: number; at: Date };
+  // journeys#44: what the cancellation gives back (AppointmentsService.cancel writes them; strict mode dropped them, so the
+  // cancelled appointment never said its refund).
+  @Prop() refund_percentage?: number;
+  @Prop() refund_destination?: string;
+  @Prop() doctor_penalty?: number;
 }
 export type AppointmentDocument = Appointment & Document;
 export const AppointmentSchema = SchemaFactory.createForClass(Appointment);

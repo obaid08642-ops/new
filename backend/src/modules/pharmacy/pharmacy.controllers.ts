@@ -18,7 +18,7 @@ import { PharmacyOfferService } from './services/pharmacy-offer.service';
 import { PharmacyInsuranceDecisionService } from './services/pharmacy-insurance-decision.service';
 import { PharmacyExpiryCommandService } from './services/pharmacy-expiry-command.service';
 import { PaymentsService } from '../payments/payments.module';
-import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsuranceDto, SelectOfferDto, AcceptFinalQuoteDto, RegisterCodDto, AcceptInsuranceDto, ItemActionDto, OutDto, DeliveredDto, InsuranceDecisionDto, CancelDto3, SetTrackingDto, RestockDto, SampleOrderDto, PreviewOfferDto, DraftOfferDto, RejectDto, PostDto, ReportDto, CreateDto2, MarkShortageDto, RejectDto5, SetCodPolicyDto, PaymentRulesDto, PharmacyCodSettingDto, ResolvePriceReviewDto } from './pharmacy.controllers.dto';
+import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsuranceDto, SelectOfferDto, AcceptFinalQuoteDto, RegisterCodDto, AcceptInsuranceDto, ItemActionDto, OutDto, DeliveredDto, InsuranceDecisionDto, CancelDto3, SetTrackingDto, RestockDto, SampleOrderDto, PreviewOfferDto, DraftOfferDto, RejectDto, PostDto, OpenChatThreadDto, ReportDto, CreateDto2, MarkShortageDto, RejectDto5, SetCodPolicyDto, PaymentRulesDto, PharmacyCodSettingDto, ResolvePriceReviewDto } from './pharmacy.controllers.dto';
 
 // =========================================================================
 //  PATIENT ENDPOINTS (/api/v2/patient/pharmacy/*)
@@ -246,10 +246,46 @@ export class AdminPharmacyController {
     if (q?.reason === 'price_above_catalogue' || q?.reason === 'not_verified') filter['lines.reason'] = q.reason;
     const page = Math.max(1, Number(q?.page) || 1);
     const limit = Math.min(100, Math.max(1, Number(q?.limit) || 25));
-    const [items, total] = await Promise.all([
+    const [rows, total] = await Promise.all([
       col.find(filter, { projection: { _id: 0 } }).sort({ updatedAt: -1 }).skip((page - 1) * limit).limit(limit).toArray(),
       col.countDocuments(filter),
     ]);
+    // The admin queue (medicines-catalog "items to review") shows which pharmacy priced each line.
+    const ids = [...new Set(rows.map((r: any) => r.pharmacy_account_id).filter((v: unknown): v is string => typeof v === 'string' && v.length > 0))];
+    const profiles: any[] = ids.length
+      ? await this.conn.collection('provider_profiles')
+        .find({ account_id: { $in: ids } }, { projection: { _id: 0, account_id: 1, display_name_ar: 1, display_name_en: 1, name_ar: 1, name_en: 1, business_name: 1, legal_name: 1 } })
+        .toArray()
+      : [];
+    const names = new Map(profiles.map((p) => {
+      const registered = p.business_name || p.legal_name || null;
+      const ar = p.display_name_ar || p.name_ar || registered;
+      const en = p.display_name_en || p.name_en || registered;
+      return [p.account_id, { pharmacy_name_ar: ar || en || null, pharmacy_name_en: en || ar || null }];
+    }));
+    // A `not_verified` line either matches no catalogue item (the admin can create one from it) or matches an item
+    // that has no reference price yet (sfda_price): say which, so the queue offers "create" only for the first.
+    const lineKeys = rows.flatMap((r: any) => (Array.isArray(r.lines) ? r.lines : []).flatMap((l: any) => [l.medicine_id, l.sku]))
+      .filter((v: unknown) => (typeof v === 'string' && v.length > 0) || typeof v === 'number').map((v: unknown) => String(v));
+    const keys = [...new Set(lineKeys)];
+    const meds: any[] = keys.length
+      ? await this.conn.collection('medicines')
+        .find({ is_deleted: { $ne: true }, $or: [{ id: { $in: keys } }, { sku: { $in: [...keys, ...keys.filter((k) => /^\d+$/.test(k)).map(Number)] } }] }, { projection: { _id: 0, id: 1, sku: 1 } })
+        .toArray()
+      : [];
+    const byKey = new Map<string, string>();
+    for (const m of meds) {
+      byKey.set(String(m.id), m.id);
+      if (m.sku !== undefined && m.sku !== null) byKey.set(String(m.sku), m.id);
+    }
+    const items = rows.map((r: any) => ({
+      ...r,
+      ...(names.get(r.pharmacy_account_id) ?? { pharmacy_name_ar: null, pharmacy_name_en: null }),
+      lines: (Array.isArray(r.lines) ? r.lines : []).map((l: any) => ({
+        ...l,
+        catalogue_item_id: (l.medicine_id && byKey.get(String(l.medicine_id))) || (l.sku !== null && l.sku !== undefined ? byKey.get(String(l.sku)) : undefined) || null,
+      })),
+    }));
     return { items, total, page, limit };
   }
 
@@ -370,6 +406,9 @@ export class AdminPharmacyInsuranceController {
 export class PharmacyChatController {
   constructor(private chat: PharmacyChatService) {}
   @Get('threads') list(@CurrentUser() u: any, @Query('order_id') oid?: string) { return this.chat.listThreads(u, oid); }
+  // Issues 479/480: the pharmacy opens the negotiation of one line of an order it is part of (its offer or allocation).
+  @Roles(UserRole.PHARMACY)
+  @Post('threads') open(@CurrentUser() u: any, @Body() b: OpenChatThreadDto) { return this.chat.openForPharmacy(u, b.order_id, b.order_item_id); }
   @Get('threads/:id/messages') msgs(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.listMessages(u, id); }
   // Both sides of the substitute negotiation write; the service checks the caller is the thread's patient or pharmacy (needs-review issue 517).
   @Roles(UserRole.PHARMACY, UserRole.PATIENT, UserRole.ADMIN)

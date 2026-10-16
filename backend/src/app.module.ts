@@ -10,6 +10,7 @@ import { NewsletterModule } from './modules/newsletter/newsletter.module';
 import { ApiSecurityModule } from './modules/api-security/api-security.module';
 import { DeviceTrustModule } from './modules/device-trust/device-trust.module';
 import { SeoSearchModule } from './modules/seo-search/seo-search.module';
+import { DeferredLinksModule } from './modules/deferred-links/deferred-links.module';
 import { LocationModule } from './modules/location/location.module';
 import { SearchIntentModule } from './modules/search-intent/search-intent.module';
 import { SearchModule } from './modules/search/search.controller';
@@ -25,6 +26,7 @@ import { OpsModule } from './modules/ops/ops.module';
 import { FeatureFlagsModule } from './modules/feature-flags/feature-flags.module';
 import { MediaModule } from './modules/media/media.module';
 import { ModuleSwitchesModule } from './modules/module-switches/module-switches.module';
+import { KillSwitchesModule } from './modules/kill-switches/kill-switches.module';
 import { MoyasarModule } from './modules/moyasar/moyasar.module';
 import { FinanceEngineModule } from './modules/finance-engine/finance-engine.module';
 import { ConfigModule } from '@nestjs/config';
@@ -162,6 +164,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     ApiSecurityModule,
     DeviceTrustModule,
     SeoSearchModule,
+    DeferredLinksModule,
     LocationModule,
     SearchIntentModule,
     SearchModule,
@@ -176,6 +179,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     FeatureFlagsModule,
     MediaModule,
     ModuleSwitchesModule,
+    KillSwitchesModule,
     ConfigModule.forRoot({ isGlobal: true, validate: validateEnvironment }),
     MongooseModule.forRootAsync({
       useFactory: () => ({

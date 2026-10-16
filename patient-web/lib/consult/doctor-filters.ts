@@ -6,8 +6,8 @@
  *                     without a position the saved address city is sent as `city`. Clinic and home visit only: the
  *                     server rejects it for video.
  *   Available now  -> available_within=15 (whole minutes) with `type` (required by the server). The server orders by the
- *                     earliest free slot and does not combine it with a distance order, so with both on the position is
- *                     not sent (the city filter still is).
+ *                     earliest free slot; with "Nearest" too (clinic and home visit) the position is sent and the free
+ *                     doctors come nearest first (2-web#10).
  *
  * The same rules and the same 15 minutes as the app (patient-app/src/utils/consultNearby.ts).
  */
@@ -76,7 +76,7 @@ export function filterApiParams(filters: DoctorFilters): Array<[string, string]>
   if (filters.availableNow) out.push(["available_within", String(AVAILABLE_WITHIN_MINUTES)]);
   if (filters.nearest && filters.place && nearestApplies(type)) {
     if (filters.place.kind === "coords") {
-      if (!filters.availableNow) out.push(["sort", "distance"], ["lat", String(filters.place.lat)], ["lng", String(filters.place.lng)]);
+      out.push(["sort", "distance"], ["lat", String(filters.place.lat)], ["lng", String(filters.place.lng)]);
     } else {
       out.push(["city", filters.place.city]);
     }

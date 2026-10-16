@@ -113,6 +113,8 @@ export class PharmacyBroadcastService {
         matched_sku: item.matched_sku || null,
         // Needs-review issue 541: the patient's line note reaches the pharmacy that prices it.
         notes: typeof item.notes === 'string' && item.notes.trim() ? item.notes : null,
+        // Journeys 74: the patient's photo of the box (a manual request); this pharmacy may open it (storage rule).
+        photo_uri: typeof item.photo_uri === 'string' && item.photo_uri ? item.photo_uri : null,
       })),
       patient_notes: typeof order?.patient_notes === 'string' && order.patient_notes.trim() ? order.patient_notes : null,
     };

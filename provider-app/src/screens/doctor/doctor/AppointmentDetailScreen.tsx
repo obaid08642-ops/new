@@ -124,6 +124,7 @@ export function AppointmentDetailScreen({ apt, onBack, onNavigate }:
   </NCard>
   {/* the consultation screen verifies the appointment with the server before anything opens */}
   <NBtn label={AR ? 'فتح الاستشارة' : 'Open consultation'} onPress={() => onNavigate('consultation', apt)} style={{ marginTop: SP.xl }} />
+  {apt?.type === 'home' && apptId ? <HomeVisitTrip apptId={apptId} AR={AR} /> : null}
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.md }}>
  <View style={{ flex: 1 }}><NBtn label={AR ? 'تأكيد الموعد' : 'Confirm'} loading={acting} onPress={() => doPatch('confirm')} /></View>
  <View style={{ flex: 1 }}><NBtn label={AR ? 'إلغاء' : 'Cancel'} variant="danger" onPress={() => setShowCancel((v) => !v)} /></View>
@@ -163,5 +164,51 @@ export function AppointmentDetailScreen({ apt, onBack, onNavigate }:
  </NCard>
  )}
   </NScroll>
+  );
+}
+
+/**
+ * 2-app#3: a home visit's trip. "On my way" moves the appointment to EN_ROUTE and, while this screen is open, sends the
+ * doctor's position every half minute (POST /care/appointments/:id/position) so the patient sees it on a map;
+ * "Arrived" moves it to ARRIVED and stops sending. The server accepts the position only from this doctor while en route.
+ */
+function HomeVisitTrip({ apptId, AR }: { apptId: string; AR: boolean }) {
+  const { show } = useToast();
+  const [state, setState] = useState<'idle' | 'en_route' | 'arrived'>('idle');
+  const [busy, setBusy] = useState(false);
+  const watch = useRef<{ remove: () => void } | null>(null);
+
+  const stopSending = useCallback(() => { watch.current?.remove(); watch.current = null; }, []);
+  useEffect(() => stopSending, [stopSending]);
+
+  const startSending = useCallback(async () => {
+    const Location = await import('expo-location');
+    const perm = await Location.requestForegroundPermissionsAsync();
+    if (perm.status !== 'granted') { show(AR ? 'اسمح بالوصول إلى الموقع ليرى المريض أنك في الطريق' : 'Allow location so the patient can see you are on the way', 'error'); return; }
+    const send = (lat: number, lng: number) => client.post(`/care/appointments/${encodeURIComponent(apptId)}/position`, { lat, lng }).catch(() => undefined);
+    const first = await Location.getCurrentPositionAsync({});
+    void send(first.coords.latitude, first.coords.longitude);
+    watch.current = await Location.watchPositionAsync({ accuracy: Location.Accuracy.Balanced, timeInterval: 30_000, distanceInterval: 50 }, (pos) => { void send(pos.coords.latitude, pos.coords.longitude); });
+  }, [apptId, AR, show]);
+
+  async function move(action: 'en-route' | 'arrive') {
+    if (busy) return;
+    setBusy(true);
+    try {
+      await client.patch(`/care/appointments/${encodeURIComponent(apptId)}/${action}`, {});
+      if (action === 'en-route') { setState('en_route'); show(AR ? 'أُبلغ المريض أنك في الطريق' : 'The patient was told you are on the way', 'success'); await startSending(); }
+      else { stopSending(); setState('arrived'); show(AR ? 'أُبلغ المريض بوصولك' : 'The patient was told you arrived', 'success'); }
+    } catch (err: any) {
+      show(err?.response?.data?.message || (AR ? 'تعذر تحديث حالة الزيارة' : 'Could not update the visit'), 'error');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.md }}>
+      <View style={{ flex: 1 }}><NBtn label={AR ? 'في الطريق' : 'On my way'} loading={busy && state === 'idle'} disabled={state !== 'idle' || busy} onPress={() => void move('en-route')} /></View>
+      <View style={{ flex: 1 }}><NBtn label={AR ? 'وصلت' : 'Arrived'} variant="outline" loading={busy && state === 'en_route'} disabled={state !== 'en_route' || busy} onPress={() => void move('arrive')} /></View>
+    </View>
   );
 }
