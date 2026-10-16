@@ -1,4 +1,4 @@
-import { Injectable, ForbiddenException, NotFoundException, BadRequestException, ServiceUnavailableException, Inject, Logger } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException, BadRequestException, ConflictException, ServiceUnavailableException, Inject, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { PharmacyOrder, PharmacyOrderState, PharmacyAllocation, PharmacyAllocationState, ALLOCATION_TRANSITIONS, ORDER_TRANSITIONS, AllocationItemAction } from '../schemas/pharmacy.schema';
@@ -217,6 +217,51 @@ export class PharmacyAllocationService {
    * difference against an already-confirmed payment fails closed downstream
    * (payment_confirmation_required) — settling it is payments territory.
    */
+  /**
+   * Once the order is paid, a substitute may not change what the line costs: the paid amount is bound to the quote
+   * (pharmacy_payment_evidence.quote_snapshot_hash), so a new total would neither be charged nor refunded and the order
+   * could not be fulfilled. The pharmacy then cancels or refunds the line through its own flows instead.
+   */
+  private async assertNoPaidPriceChange(order: any, item: any, newUnitPrice: number, qty: number): Promise<void> {
+    const paid = await this.orders.db.collection('pharmacy_payment_evidence').findOne({ order_id: order.id, status: 'confirmed' });
+    if (!paid) return;
+    const before = Math.round(Number(item.unit_price || 0) * Number(item.qty_offered || item.qty_requested || 0) * 100);
+    const after = Math.round(Number(newUnitPrice || 0) * Number(qty || 0) * 100);
+    if (before !== after) throw new ConflictException('substitute_price_after_payment');
+  }
+
+  /**
+   * Owner decision 30: a substitute the pharmacy attached in the order chat (its own inventory row) and the patient
+   * accepted there goes through the same accept as a proposed substitute: availability, the prescription (issue 1440),
+   * the stock reservation and the paid-price rule above.
+   */
+  async acceptChatSubstitute(user: any, orderId: string, pharmacyAccountId: string, orderItemId: string, offer: { sku?: string; notes?: string }): Promise<any> {
+    const a = await this.allocs.findOne({ order_id: orderId, pharmacy_account_id: pharmacyAccountId });
+    if (!a) throw new BadRequestException('substitute_needs_selected_offer');
+    const item: any = a.items.find((i: any) => i.order_item_id === orderItemId);
+    if (!item) throw new NotFoundException('alloc_item_not_found');
+    if (!offer.sku) throw new BadRequestException('no_substitute_offer');
+    const before = { substitute_proposal: item.substitute_proposal, substitute_status: item.substitute_status };
+    item.substitute_proposal = { sku: offer.sku, qty_offered: item.qty_offered || item.qty_requested, reason: offer.notes || 'patient_accepted_in_chat' };
+    item.substitute_status = 'proposed';
+    a.markModified('items');
+    await a.save();
+    try {
+      return await this.decideSubstitute(user, a.id, item.id, 'accepted');
+    } catch (e) {
+      // A refused accept (paid order, stock, prescription) leaves the line as it was, so fulfilment never waits on it.
+      const fresh: any = await this.allocs.findOne({ id: a.id });
+      const line: any = fresh?.items?.find((i: any) => i.id === item.id);
+      if (fresh && line && line.substitute_status === 'proposed') {
+        line.substitute_proposal = before.substitute_proposal;
+        line.substitute_status = before.substitute_status;
+        fresh.markModified('items');
+        await fresh.save();
+      }
+      throw e;
+    }
+  }
+
   async decideSubstitute(user: any, allocId: string, allocItemId: string, decision: 'accepted' | 'rejected'): Promise<any> {
     assertPatient(user);
     if (decision !== 'accepted' && decision !== 'rejected') throw new BadRequestException('invalid_substitute_decision');
@@ -238,6 +283,7 @@ export class PharmacyAllocationService {
       await assertSubstituteInsidePrescription(this.orders.db, order.items?.find((i: any) => i.id === item.order_item_id), subInv);
       const tracking = await this.split.holdsStock(a);
       const qty = p.qty_offered || item.qty_requested;
+      await this.assertNoPaidPriceChange(order, item, Number(subInv.price), qty);
       if (tracking && subInv.stock < qty) throw new BadRequestException('substitute_insufficient_stock');
       // Release the original line's reservation, then reserve the substitute.
       if (tracking && item.action === AllocationItemAction.AVAILABLE && item.inventory_id && item.qty_offered) {

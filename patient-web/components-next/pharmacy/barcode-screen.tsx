@@ -69,6 +69,10 @@ export function BarcodeScreen({ locale }: { locale: Locale }) {
         <div className={rx.head}><h1 className={rx.title}>{t("title")}</h1></div>
         <p className={rx.lead}>{t("intro")}</p>
 
+        {/* issue 499: the camera reads the pack's barcode where the browser can; typing it stays. Above the form, not in its
+            row: the row is the code field and its button, and a third item there was squeezed under the field. */}
+        <CameraScanner formats={PACK_FORMATS} onResult={(scanned) => { setCode(scanned.slice(0, 64)); void lookup(scanned.slice(0, 64)); }} />
+
         <form
           className={rx.lookup}
           aria-label={t("title")}
@@ -77,8 +81,6 @@ export function BarcodeScreen({ locale }: { locale: Locale }) {
             void lookup();
           }}
         >
-          {/* issue 499: the camera reads the pack's barcode where the browser can; typing it stays */}
-          <CameraScanner formats={PACK_FORMATS} onResult={(scanned) => { setCode(scanned.slice(0, 64)); void lookup(scanned.slice(0, 64)); }} />
           <Input label={t("codeLabel")} placeholder={t("codePlaceholder")} value={code} disabled={looking} onChange={(value) => setCode(value.slice(0, 64))} />
           <Button label={looking ? t("looking") : t("lookup")} type="submit" size="lg" disabled={!clean} loading={looking} />
         </form>

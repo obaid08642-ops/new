@@ -549,6 +549,10 @@ export class PaymentsService {
       }
       // F74: a paid diagnostics parent confirms every child booking too.
       if (t.booking_kind === 'diagnostics') await this.confirmDiagnosticChildren(t).catch(() => null);
+      // Persist the paid state before announcing it: listeners (insurance copay settlement) re-read the
+      // transaction as status 'paid' and silently skip it while the save is still in flight.
+      t.webhook_payload = result.raw;
+      await t.save();
       // For online/home services we emit an event so the workflow engine (provider-jobs / booking-flow)
       // can transition CONFIRMED when payment is required pre-confirmation.
       this.events.emit('payment.completed', {
