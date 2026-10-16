@@ -226,7 +226,7 @@ export function extractPatientPharmacyOrderProgress(payload: unknown): PatientPh
     items: orderItems.length ? orderItems : undefined,
     governedState: governedStep(stringValue(source, ["governed_state", "governedState"])),
     coverageMode: rawCoverageMode === "cash" || rawCoverageMode === "insurance" ? rawCoverageMode : undefined,
-    paymentMode: stringValue(source, ["payment_mode", "paymentMode"]) === "insurance" || stringValue(source, ["payment_method", "paymentMethod"]) === "insurance" ? "insurance" : "cash",
+    paymentMode: paymentModeOf(stringValue(source, ["payment_mode", "paymentMode"]), stringValue(source, ["payment_method", "paymentMethod"])),
     selectedQuote: parseQuote(source.selected_offer_snapshot, source.selected_offer_hash, source.selected_offer_revision),
     pendingQuote: parseQuote(source.pending_final_quote_snapshot, source.pending_final_quote_hash, source.pending_final_quote_revision),
     acceptedQuoteHash: stringValue(source, ["accepted_quote_hash", "acceptedQuoteHash"]),
@@ -242,4 +242,10 @@ export function extractPatientPharmacyOrderProgress(payload: unknown): PatientPh
       items,
     } : undefined,
   };
+}
+
+/** Decision 30: the order's start choice; undefined when the server sent neither field (no invented "cash"). */
+function paymentModeOf(mode: string | undefined, method: string | undefined): "cash" | "insurance" | undefined {
+  if (mode === "insurance" || method === "insurance") return "insurance";
+  return mode || method ? "cash" : undefined;
 }
