@@ -88,7 +88,7 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
 
   const sections = allSections.filter((s) => !isPathHidden(s.href, disabled));
 
-  // The tabs are buttons that call router.push, which Next never prefetches: fetch their pages once the page is idle.
+  // The tabs are buttons that call router.push, which Next never prefetches: fetch a tab's page when it is reached.
   // This frame does not know whether a session exists, so it assumes one: the diagnostics hub lists the patient's own
   // bookings then and is left out of the full prefetch (the public sections are not affected).
   useRoutePrefetch(tabs.map((t) => t.href), { signedIn: true });
@@ -119,7 +119,7 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
           {topBarSearch ? <div className={styles.topSearch}>{topBarSearch}</div> : null}
           <nav className={styles.sections} aria-label={shell("mainNav")}>
             {sections.map((s) => (
-              <NavLink key={s.id} href={s.href} className={styles.section} prefetch="viewport" signedIn>{s.label}</NavLink>
+              <NavLink key={s.id} href={s.href} className={styles.section} signedIn>{s.label}</NavLink>
             ))}
           </nav>
         </>
