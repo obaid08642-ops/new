@@ -212,6 +212,12 @@ def main():
         survived = True
     except Exception as e:
         survived = str(e)[:150]
+    # The page's own API calls (GET /api/auth/session, then the signed-in reads) start after hydration, which can be
+    # after the load event when the HTML comes from the cache: count them once the page's network has settled.
+    try:
+        page.wait_for_load_state('networkidle', timeout=30000)
+    except Exception:
+        pass
     body = page.evaluate('() => document.body ? document.body.innerText.slice(0, 4000) : ""')
     step('the page survives 1% request loss (usable, not blank)',
          survived is True and len(body.strip()) > 200, f'aborted={aborted["n"]}/{total["n"]}')

@@ -82,6 +82,54 @@ export class AdminAnalyticsService {
     ]).toArray();
   }
 
+  // ── P17-17.5: campaign report — attributed orders per vertical ──────
+  // Reads the `attribution` each order/booking create path stores, so the
+  // report shows exactly what clients sent (collection names mirror the
+  // guest-merge registry: pharmacy_orders, lab/radiology/home_care_bookings,
+  // appointments).
+  async campaignReport(campaign: string, days = 30, limit = 100) {
+    const name = String(campaign || '').trim().slice(0, 120);
+    if (!name) throw new BadRequestException('campaign_required');
+    const safeDays = Math.min(365, Math.max(1, Number(days) || 30));
+    const safeLimit = Math.min(500, Math.max(1, Number(limit) || 100));
+    const since = new Date(Date.now() - safeDays * 86400000);
+    const verticals = [
+      { vertical: 'pharmacy', collection: 'pharmacy_orders' },
+      { vertical: 'lab', collection: 'lab_bookings' },
+      { vertical: 'radiology', collection: 'radiology_bookings' },
+      { vertical: 'nursing', collection: 'home_care_bookings' },
+      { vertical: 'consultation', collection: 'appointments' },
+    ];
+    const byVertical: Record<string, number> = {};
+    const rows: Array<{ vertical: string; id: string; total: number | null; status: string; created_at: Date }> = [];
+    for (const v of verticals) {
+      const docs: any[] = await this.col(v.collection)
+        .find({ 'attribution.utm_campaign': name, createdAt: { $gte: since } }, { projection: { _id: 0, id: 1, total: 1, total_price: 1, status: 1, state: 1, createdAt: 1 } })
+        .sort({ createdAt: -1 })
+        .limit(safeLimit)
+        .toArray()
+        .catch(() => []);
+      byVertical[v.vertical] = docs.length;
+      for (const d of docs) {
+        rows.push({
+          vertical: v.vertical,
+          id: String(d.id),
+          total: Number(d.total ?? d.total_price ?? NaN),
+          status: String(d.status ?? d.state ?? ''),
+          created_at: d.createdAt,
+        });
+      }
+    }
+    rows.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    return {
+      campaign: name,
+      from: since,
+      total: rows.length,
+      by_vertical: byVertical,
+      orders: rows.slice(0, safeLimit).map((r) => ({ ...r, total: Number.isFinite(r.total) ? r.total : null })),
+    };
+  }
+
   // ── P13-R10: ranking report per mode, pharmacy and category ─────────
   // Reads the same governed metrics the storefront ranks from, so the admin
   // sees exactly what the ranking API serves (no second counting path).
@@ -230,6 +278,12 @@ export class AdminAnalyticsController {
   @Get('search/emerging')
   searchEmerging(@Query('limit') limit?: string, @Query('days') days?: string) {
     return this.svc.searchEmerging(parseInt(limit || '20'), parseInt(days || '7'));
+  }
+
+  // P17-17.5: campaign-attributed orders across verticals.
+  @Get('campaigns')
+  campaigns(@Query('campaign') campaign?: string, @Query('days') days?: string, @Query('limit') limit?: string) {
+    return this.svc.campaignReport(campaign || '', parseInt(days || '30'), parseInt(limit || '100'));
   }
 }
 
