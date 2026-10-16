@@ -92,8 +92,6 @@ export function AppointmentCard({
 }
 
 /** The nine services of HomeWeb, each the shared ServiceTile inside a link. */
-/** The four sections of the tab bar: their pages are fetched once the page is idle; the other tiles on touch or hover. */
-const MAIN_SERVICES = new Set<ServiceName>(["consult", "pharmacy", "lab", "nursing"]);
 
 /** `signedIn` is given by a per-request page (the dashboard); the static Home leaves it out and each link asks the session identity itself (F82-3). */
 export function ServiceGrid({ locale, t, signedIn, disabled = NONE_DISABLED }: { locale: Locale; t: T; signedIn?: boolean; disabled?: DisabledModules }) {
@@ -116,7 +114,7 @@ export function ServiceGrid({ locale, t, signedIn, disabled = NONE_DISABLED }: {
       <ul className={`${styles.services} ${styles.rise}`}>
         {items.map((s) => (
           <li key={s.name}>
-            <NavLink href={s.href} className={styles.tileLink} prefetch={MAIN_SERVICES.has(s.name) ? "viewport" : "intent"} signedIn={signedIn}>
+            <NavLink href={s.href} className={styles.tileLink} signedIn={signedIn}>
               <ServiceTile name={s.name} label={s.label} size="lg" />
             </NavLink>
           </li>
@@ -255,7 +253,7 @@ export function DoctorsSection({ doctors, locale, t, specialties }: { doctors: D
     <section className={styles.section} aria-labelledby="home-doctors-title">
       <div className={styles.sectionHead}>
         <h2 id="home-doctors-title" className={styles.sectionTitle}>{t("doctorsTitle")}</h2>
-        <NavLink href={`/${locale}/consultations/doctors`} className={styles.seeAll} prefetch="viewport">{t("seeAll")}</NavLink>
+        <NavLink href={`/${locale}/consultations/doctors`} className={styles.seeAll}>{t("seeAll")}</NavLink>
       </div>
       <SoftLinks className={styles.cards}>
         {rows.map(({ d, name }) => (

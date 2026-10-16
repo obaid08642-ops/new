@@ -202,11 +202,11 @@
     "app": "patient-app",
     "screen": "/payments/result",
     "element": "Success board colours and confetti not drawn",
-    "file": "docs/design/canvas/Success.dc.html",
-    "line": 1,
+    "file": "patient-app/app/payments/result.tsx",
+    "line": 154,
     "found": "The Success board is a dark full-bleed page with lime (#D7FF00) and confetti colours that are not tokens.",
     "suspect": "Owner: decide whether the celebratory page should be added as a token set.",
-    "review_status": "owner-decision (question 37 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2) (issue #548)"
+    "review_status": "fixed #1533 (issue #548)"
   },
   {
     "batch": 1,
