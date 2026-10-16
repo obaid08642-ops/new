@@ -1,6 +1,4 @@
-# 2026-10-16 reviewer, owner-approved READ-ONLY data audit: export the reference catalogues (medicines, insurance,
-# lab, radiology, nursing; no patient or account data) and read the Cloudflare Access setup of admin.nabd.plus
-# (the owner's sign-in is refused) plus the CDN bucket's key list (pictures per product, issue 1556).
-# The report is encrypted to the review session's key for this run; the build session's key is restored after it.
-64-catalog-export
-cf:30-access-r2-inspect
+# 2026-10-16 reviewer: let the owner into admin.nabd.plus. Access allows only obaid08642@gmail.com and offers only
+# "sign in with a Cloudflare account"; the owner's Cloudflare account uses another e-mail. Adds the One-time PIN login
+# method (a code mailed to obaid08642@gmail.com); the "Owner only" policy is unchanged. Nothing runs on the server.
+cf:31-admin-access-otp
