@@ -86,6 +86,8 @@ export class HomeCareBooking extends Document {
   @Prop({ required: true }) service_name_ar: string;
   @Prop() service_name_en?: string;
   @Prop() notes?: string;
+  /** P17-17.5: UTM campaign attribution (utm_source/medium/campaign/term/content). */
+  @Prop({ type: Object, required: false }) attribution?: Record<string, string>;
   @Prop({ default: 1 }) sessions_count: number;
   @Prop({ required: true }) duration: string;
   @Prop({ required: true }) total: number;

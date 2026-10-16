@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { LabService, LabBooking, LabBookingState, LAB_BOOKING_TRANSITIONS, LabSample } from '../../schemas/lab.schema';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { EventBusService } from '../events/event-bus.service';
+import { pickAttribution } from '../../common/attribution';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { LabPdfService } from './lab-pdf.service';
 import { LabServiceRepository } from "./repositories/labservice.repository";
@@ -337,6 +338,8 @@ export class LabsService {
       insurance_member_id: data.insurance_member_id,
       insurance_status,
       documents,
+      // P17-17.5: campaign attribution for the campaign report.
+      attribution: pickAttribution(data) ?? undefined,
     });
     this.events.emit('lab.booking_created', { booking_id: booking.id, patient_id: user.id, tracking_id: booking.tracking_id });
     this.events.emit('lab.booking_state_changed', { booking_id: booking.id, patient_id: user.id, state: booking.state, tracking_id: booking.tracking_id });
