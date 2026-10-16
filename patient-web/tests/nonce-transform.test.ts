@@ -97,9 +97,9 @@ describe("F68: raw HTML stays limited to reviewed places", () => {
 describe("owner decision 2026-10-16: the hashed copy a shared cache keeps", () => {
   it("a src that tries to close the loader's tag stays inside the JSON (escaped), and the loader is hashed", () => {
     const { html, scriptHashes } = hashedPage('<body><script src="/x.js?a=&lt;/script&gt;&lt;script&gt;alert(1)//" async=""></script></body>');
-    expect(html).not.toMatch(/<\/script><script>alert/);
-    expect(html.match(/<script>/g)?.length).toBe(1);
-    const loader = /<script>([\s\S]*)<\/script>/.exec(html)?.[1] || "";
+    expect(html).not.toMatch(/<\/script\s*>\s*<script\b[^>]*>alert/i);
+    expect(html.match(/<script\b[^>]*>/gi)?.length).toBe(1);
+    const loader = /<script\b[^>]*>([\s\S]*)<\/script\s*>/i.exec(html)?.[1] || "";
     expect(scriptHashes).toEqual([sha256Source(loader)]);
   });
 

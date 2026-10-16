@@ -157,7 +157,7 @@ describe("a session, a twin or any answer the proxy made no-store", () => {
     // no parser-inserted external script and no script preload is left (both would need a nonce under 'strict-dynamic')
     expect(body).not.toMatch(/<script[^>]*\ssrc=/i);
     expect(body).not.toMatch(/<link[^>]*as="script"/i);
-    const inline = [...body.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map((m) => m[1]);
+    const inline = [...body.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi)].map((m) => m[1]);
     expect(inline.length).toBe(4);
     for (const text of inline) expect(scriptSrc).toContain(`'sha256-${createHash("sha256").update(text, "utf8").digest("base64")}'`);
     // the loader inserts the same external scripts, attributes and order kept

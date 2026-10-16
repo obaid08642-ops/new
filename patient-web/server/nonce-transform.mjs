@@ -167,14 +167,20 @@ export function hashedPage(html) {
     .replace(SCRIPT_HINT, "");
   const external = [];
   let first = true;
-  page = page.replace(SCRIPT_BLOCK, (block, attrs, body) => {
-    const attributes = tagAttributes(attrs);
-    if (!("src" in attributes) || body.trim() !== "") return block;
-    external.push(attributes);
-    if (!first) return "";
-    first = false;
-    return "\u0000NABD_LOADER\u0000";
-  });
+  // Removing a block could join the text around it into a new tag, so the removal repeats until nothing changes; every
+  // script left after it is either hashed below or makes the function throw.
+  let before;
+  do {
+    before = page;
+    page = page.replace(SCRIPT_BLOCK, (block, attrs, body) => {
+      const attributes = tagAttributes(attrs);
+      if (!("src" in attributes) || body.trim() !== "") return block;
+      external.push(attributes);
+      if (!first) return "";
+      first = false;
+      return "\u0000NABD_LOADER\u0000";
+    });
+  } while (page !== before);
   if (external.length) page = page.replace("\u0000NABD_LOADER\u0000", `<script>${scriptLoader(external)}</script>`);
   const scriptHashes = [];
   for (const m of page.matchAll(SCRIPT_BLOCK)) {
