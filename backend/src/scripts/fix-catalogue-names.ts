@@ -316,7 +316,8 @@ export function buildArabicNameFromEnglish(nameEn: string): string {
   }
   return out.join('')
     .replace(/\s+/g, ' ')
-    .replace(/(\s*[،\-/]\s*)+(?=[،\-/]|$)/g, '')
+    // A run of separators keeps only its last one (one character class, so no backtracking on long runs).
+    .replace(/[\s،\-/]{2,}/g, (run) => { const seps = run.replace(/\s/g, ''); return seps.length > 1 ? ` ${seps.slice(-1)} ` : run; })
     .replace(/\s*،(\s*،)+/g, '،')
     .replace(/\s*-\s*/g, ' - ')
     .replace(/\s+،/g, '،')
