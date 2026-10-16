@@ -14,11 +14,11 @@ Crawler output: 35 defect lines (7 admin, 28 super_admin). After triage: 6 disti
 | id | page / control | what happens | what should happen | file:line | class |
 |---|---|---|---|---|---|
 | D1 | `/admin/approvals`, `/admin/catalog-manager` as super_admin: load and every button | `GET labs/admin/catalog`, `radiology/admin/catalog`, `nursing/admin/catalog` -> 403; the catalogue screens show "failed to load" | a super admin can do everything an admin can: lists load, approve/edit/delete work | `backend/src/modules/labs/labs.service.ts:799-850`, `radiology/radiology.service.ts:630-690`, `home-care/home-care.service.ts:179-200,280-312` (`user.role !== 'admin'` / `getEffectiveRoles(user).includes('admin')`); the controller `@Roles(ADMIN)` already lets super_admin in, the service refuses | broken |
-| D2 | `/admin/orders` "تصدير CSV" | link `/api/admin/orders/export` -> 404 (verified live); the working path is `/api/admin/admin/orders/export` (200) | the CSV downloads | `admin/src/pages/admin/orders/index.tsx:41` (`exportUrl`) | broken |
-| D3 | `/admin/orders` export with a "problem" filter (stuck, SLA, failed payment, refund) | the filter is dropped, the CSV holds all orders | the CSV matches what the table shows | `admin/src/pages/admin/orders/index.tsx:41`; backend `admin-orders.controller.ts:40-55` and `exportCsv` take no `problem` | wrong |
+| D2 | `/admin/orders` "تصدير CSV" | link `/api/admin/orders/export` -> 404 (verified live); the working path is `/api/admin/admin/orders/export` (200) | the CSV downloads | `admin/src/pages/admin/orders/index.tsx:45` (`exportUrl`) | broken |
+| D3 | `/admin/orders` export with a "problem" filter (stuck, SLA, failed payment, refund) | the filter is dropped, the CSV holds all orders | the CSV matches what the table shows | `admin/src/pages/admin/orders/index.tsx:45`; backend `admin-orders.controller.ts:40-55` and `exportCsv` take no `problem` | wrong |
 | D4 | `/admin/locations` search with no match | blank table, no message | an empty-state sentence | `admin/src/pages/admin/locations.tsx:70` (`emptyText=""`) | missing |
 | D5 | `/admin/locations` "تعطيل" on a region/city with active children | backend answers 400 `has_active_children`; the page shows the raw code / generic failure | an Arabic reason ("disable the districts first") | `admin/src/pages/admin/locations.tsx:42-44` | copy |
-| D6 | `/admin/orders` status filter | free-text input; the table shows raw backend status values (English codes) | a select of real statuses with Arabic labels | `admin/src/pages/admin/orders/index.tsx:53,67` | illogical |
+| D6 | `/admin/orders` status filter | free-text input; the table shows raw backend status values (English codes) | a select of real statuses with Arabic labels | `admin/src/pages/admin/orders/index.tsx:49,65` | illogical |
 
 ## Reclassified (not defects)
 - `/admin/loyalty-config` "إضافة" and "إضافة تحدٍ" (400): the crawler clicked with an empty required title; server validation is right.
@@ -34,7 +34,7 @@ Crawler output: 35 defect lines (7 admin, 28 super_admin). After triage: 6 disti
 | 183 `any` casts in pages/components | confirmed (grep) |
 | Two order detail pages: `pages/admin/order-detail.tsx` (dashboard) and `pages/admin/orders/[kind]/[id].tsx` (orders list) | confirmed |
 | `dashboard.tsx:194` falls back to `href='#'` when an order has no kind/id | confirmed in code, not seen live (seed orders have both) |
-| ~180 other backend services test `user.role !== 'admin'` (see `grep "role !== 'admin'" backend/src/modules`), so super_admin is refused outside the catalogue too (e.g. home-care booking reads, labs sample reads, support, medical reports) | confirmed in code, not exercised live; remaining after D1 |
+| about 50 other backend service checks test `user.role !== 'admin'` (`grep -rn "role !== .admin." backend/src/modules`: 50 hits), so super_admin is refused outside the catalogue too (e.g. home-care booking reads, labs sample reads, support, medical reports) | confirmed in code, not exercised live; remaining after D1 |
 
 ## Not covered by this run
 Tabs (the admin has none), destructive buttons, form flows with filled data (only API journeys cover them), mobile width, dark mode.
