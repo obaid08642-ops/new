@@ -1218,7 +1218,18 @@
     "preparation": "تیاری",
     "preparationTitle": "وزٹ سے پہلے",
     "homeAvailable": "یہ پیکج گھر سے نمونہ لینے کی سہولت رکھتا ہے۔",
-    "homeUnavailable": "اس پیکج کے لیے گھر سے نمونہ درج نہیں ہے۔"
+    "homeUnavailable": "اس پیکج کے لیے گھر سے نمونہ درج نہیں ہے۔",
+    "categoryName": {
+      "blood": "خون کے ٹیسٹ",
+      "hormones": "ہارمونز",
+      "diabetes": "ذیابیطس",
+      "vitamins": "وٹامنز",
+      "cardiac": "دل",
+      "imaging": "امیجنگ",
+      "kidney": "گردے",
+      "liver": "جگر",
+      "package": "پیکجز"
+    }
   },
   "RadiologyServices": {
     "eyebrow": "ریڈیولوجی کیئر",
