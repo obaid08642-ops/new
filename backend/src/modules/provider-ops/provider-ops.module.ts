@@ -18,7 +18,7 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { randomUUID } from 'crypto';
 import { JwtAuthGuard, CurrentUser, Roles, hasEffectiveRole } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
-import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, PutPricingDto, PutTariffsDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto } from './provider-ops.dto';
+import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, PutPricingDto, PutTariffsDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto, ToggleInstantDto } from './provider-ops.dto';
 import { LedgerService } from '../finance-engine/finance-engine.module';
 import { settlementDelayDefault } from '../../common/commission-defaults';
 
@@ -396,7 +396,7 @@ export class ProviderOpsService {
    * Toggle the instant-booking availability of the authenticated provider.
    * A missing record intentionally starts offline so availability is never fabricated.
    */
-  async toggleInstantAvailability(user: any): Promise<{ instant_available: boolean }> {
+  async toggleInstantAvailability(user: any, desired?: boolean): Promise<{ instant_available: boolean }> {
     const providerId = typeof user?.id === 'string' ? user.id.trim() : '';
     const providerType = user?.provider_type || user?.providerType;
     const providerRoles = ['doctor', 'facility', 'hospital', 'pharmacy', 'pharmacist', 'lab', 'radiology', 'nursing', 'nurse', 'home_care'];
@@ -407,7 +407,7 @@ export class ProviderOpsService {
 
     const collection = this.conn.collection('provideravailability');
     const existing: any = await collection.findOne({ provider_id: providerId });
-    const instantAvailable = !(existing?.instant_available === true);
+    const instantAvailable = typeof desired === 'boolean' ? desired : !(existing?.instant_available === true);
     await collection.updateOne(
       { provider_id: providerId },
       {
@@ -434,6 +434,13 @@ export class ProviderOpsService {
       { upsert: true },
     );
     return { instant_available: instantAvailable };
+  }
+
+  async instantAvailability(user: any): Promise<{ instant_available: boolean }> {
+    const providerId = typeof user?.id === 'string' ? user.id.trim() : '';
+    if (!providerId) throw new BadRequestException('provider_id_required');
+    const row: any = await this.conn.collection('provideravailability').findOne({ provider_id: providerId });
+    return { instant_available: row?.instant_available === true };
   }
 
   // ═══ COMPAT: stats / reviews / settings / consultation-end ═══════════════
@@ -745,8 +752,15 @@ export class ProviderCompatController {
   /** Availability is explicit operational state, never a UI default. */
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
   @Post('ops/availability/toggle-instant')
-  toggleInstantAvailability(@CurrentUser() u: any) {
-    return this.svc.toggleInstantAvailability(u);
+  toggleInstantAvailability(@CurrentUser() u: any, @Body() b: ToggleInstantDto) {
+    return this.svc.toggleInstantAvailability(u, b?.available);
+  }
+
+  /** The provider's own online switch as the server holds it, so the app starts from the truth (it always started "offline"). */
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
+  @Get('ops/availability/instant')
+  async instantAvailability(@CurrentUser() u: any): Promise<{ instant_available: boolean }> {
+    return this.svc.instantAvailability(u);
   }
 
   /**

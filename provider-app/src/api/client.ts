@@ -37,6 +37,22 @@ client.interceptors.request.use(
  (error) => Promise.reject(error)
 );
 
+/**
+ * Reject with the AxiosError itself. The interceptor used to reject with `error.response.data` (the bare body), so
+ * `err.response` was undefined and every screen that reads `err.response.data.message` or `err.response.status`
+ * (about 70 catch blocks: payout codes, "collect the exact amount", "invitation already answered", the 401 fallbacks)
+ * silently fell back to its generic text. `err.message` stays the server's sentence, as the screens that read it expect.
+ */
+export function keepResponse(error: any): any {
+  const body = error?.response?.data;
+  if (body && typeof body === 'object') {
+    const m = Array.isArray(body.message) ? body.message.filter((x: unknown) => typeof x === 'string').join(', ') : body.message;
+    if (typeof m === 'string' && m) error.message = m;
+    error.statusCode = body.statusCode ?? error.response.status;
+  }
+  return error;
+}
+
 // Response Interceptor: Handle token expiration and standard error routing
 client.interceptors.response.use(
  (response) => response,
@@ -54,7 +70,7 @@ client.interceptors.response.use(
  }
  }
  
- return Promise.reject(error.response?.data || error);
+ return Promise.reject(keepResponse(error));
  }
 );
 
