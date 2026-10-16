@@ -1,5 +1,5 @@
 """Journey: admin login (admin/src/pages/login.tsx via the admin BFF) + session."""
-import os, time
+import os, re, time
 from lib import AdminWeb, Client, journey, step, mail_code, enroll_admin_device
 
 ADMIN_WEB = os.environ.get('NABD_ADMIN_WEB', 'http://127.0.0.1:3001')
@@ -10,13 +10,20 @@ SESSION_FILE = os.environ.get('LIVE_ADMIN_SESSION')  # run_gate.sh: reuse one ad
 DEVICE_FILE = os.environ.get('LIVE_ADMIN_DEVICE_FILE', '/tmp/nabd-admin-device-id')
 
 
-def _load_browser_device(w):
+def _device_file(email=EMAIL):
+    """One saved browser device per admin account: the 2-device limit is per user."""
+    if email == EMAIL:
+        return DEVICE_FILE
+    return DEVICE_FILE + '.' + re.sub(r'[^A-Za-z0-9]+', '_', email)
+
+
+def _load_browser_device(w, email=EMAIL):
     """D-35: one browser identity per gate run. A fresh jar would mint a fresh
     device id on every login and the 2-device limit would refuse the third one,
     so the enrolled device id is reused across this run's logins."""
     import http.cookiejar
     try:
-        with open(DEVICE_FILE) as f:
+        with open(_device_file(email)) as f:
             dev = f.read().strip()
     except OSError:
         return
@@ -24,11 +31,11 @@ def _load_browser_device(w):
         w.jar.set_cookie(http.cookiejar.Cookie(0, 'admin_device', dev, None, False, '127.0.0.1', False, False, '/', True, False, None, False, None, None, {}))
 
 
-def _save_browser_device(w):
+def _save_browser_device(w, email=EMAIL):
     dev = next((c.value for c in w.jar if c.name == 'admin_device'), None)
     if dev and len(dev) >= 16:
         try:
-            with open(DEVICE_FILE, 'w') as f:
+            with open(_device_file(email), 'w') as f:
                 f.write(dev)
         except OSError:
             pass
@@ -92,8 +99,7 @@ def login(email=EMAIL, password=PASSWORD):
         return reused
     journey(f'admin: login with email 2FA (admin panel){"" if shared else f" as {email}"}')
     w = AdminWeb(ADMIN_WEB, 'admin')
-    if shared:
-        _load_browser_device(w)
+    _load_browser_device(w, email)
     t0 = time.time()
     r = w.post('/api/admin/auth/login', {'identifier': email, 'password': password})
     step('credentials -> 202 requires_2fa', r.status == 202 and r.get('requires_2fa'), r)
@@ -115,8 +121,7 @@ def login(email=EMAIL, password=PASSWORD):
     if admin:
         enroll_admin_device(admin, email)
         _enroll_browser_device(w, admin, email)
-        if shared:
-            _save_browser_device(w)
+        _save_browser_device(w, email)
     # BFF 1:1 → /api/v1/admin/command-center (the dashboard's aggregated snapshot).
     r = w.get('/admin/admin/command-center')
     step('BFF call with the session (dashboard: command-center)', r.ok, r)
