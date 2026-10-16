@@ -735,6 +735,16 @@ export class ProviderOpsController {
   @Get('wallet/ledger') wallet(@CurrentUser() u: any, @Query('limit') l?: string): Promise<any> { return this.svc.walletLedger(u.id, l ? parseInt(l) : 100); }
 }
 
+/**
+ * Direction of one provider ledger row for the wallet list. The ledger stores payouts, clawbacks (`provider_debit`),
+ * penalties and chargebacks with a POSITIVE amount and subtracts them in `LedgerService.providerBalance`, so the sign of
+ * the amount cannot decide the direction: a refund clawback showed up as money received.
+ */
+const WALLET_DEBIT_TYPES = new Set(['payout', 'provider_debit', 'penalty', 'chargeback']);
+export function walletEntryDirection(entry: { type?: string; amount?: number }): 'CREDIT' | 'DEBIT' {
+  return WALLET_DEBIT_TYPES.has(String(entry.type)) || (entry.amount || 0) < 0 ? 'DEBIT' : 'CREDIT';
+}
+
 // ── Compat endpoints: routes the provider app calls that had no backend ─────
 
 @Controller('provider')
@@ -764,8 +774,9 @@ export class ProviderCompatController {
     const l = await this.svc.walletLedger(u.id, 100);
     return l.transactions.map((t: any) => ({
       id: t.id || t._id,
-      date: (t.createdAt || '').toString().slice(0, 10),
-      type: t.type === 'payout' || (t.amount || 0) < 0 ? 'DEBIT' : 'CREDIT',
+      // createdAt is a Date from Mongo: Date#toString() gave "Fri Oct 02" (no year, English weekday)
+      date: t.createdAt ? new Date(t.createdAt).toISOString().slice(0, 10) : '',
+      type: walletEntryDirection(t),
       amount: Math.abs(t.amount || 0),
       title: t.description || t.title || t.type,
     }));

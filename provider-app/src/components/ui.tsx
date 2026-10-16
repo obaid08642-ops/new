@@ -527,7 +527,8 @@ export function NEmpty({ icon='', title, sub, subtitle, actionLabel, onAction }:
  const { theme } = useTheme();
  return (
  <View style={{ flex:1, alignItems:'center', justifyContent:'center', padding:SP.xxxl }}>
- <Text style={{ fontSize:56, marginBottom:SP.xl }}>{icon}</Text>
+ {/* most screens pass an icon NAME ("calendar", "document"); drawing it as text printed the word itself */}
+ <View style={{ marginBottom:SP.xl }}>{hasIcon(icon) ? <I name={icon} size={56} color={theme.textSub} /> : <Text style={{ fontSize:56 }}>{icon}</Text>}</View>
  <Text style={{ fontSize:FS.xl, fontWeight:FW.bold, color:theme.text, textAlign:'center', marginBottom:SP.md }}>{title}</Text>
  {sub && <Text style={{ fontSize:FS.md, color:theme.textSub, textAlign:'center', lineHeight:22, marginBottom:SP.xxl }}>{sub}</Text>}
  {onAction && actionLabel && <NBtn label={actionLabel} onPress={onAction} full={false} style={{ paddingHorizontal:SP.xxxl }} />}
