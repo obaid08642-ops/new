@@ -151,10 +151,11 @@ export class AdminDeviceService {
 
   async setLock(userId: string, enabled: boolean, currentDeviceId?: string, ua?: string) {
     await this.users.updateOne({ id: userId }, { $set: { device_lock_enabled: !!enabled } }).catch(() => null);
-    if (enabled && currentDeviceId && currentDeviceId.length >= 16) {
-      // D-35: the device-lock switch auto-enrols the presenting device, within the limit of 2.
-      await this.autoEnroll(userId, currentDeviceId, ua, 'هذا الجهاز (تفعيل تلقائي)');
-    }
+    // D-35 reviewer (device-bound keys): enabling the lock no longer enrols
+    // the presenting device on its own. Any codeless enrollment would let a
+    // third device on the same account (e.g. via a synced passkey login) pass
+    // as enrolled. New devices come only through the approval + e-mailed-code
+    // flow (first device: code only); already-enrolled browsers are unaffected.
     return { ok: true, device_lock_enabled: !!enabled };
   }
 

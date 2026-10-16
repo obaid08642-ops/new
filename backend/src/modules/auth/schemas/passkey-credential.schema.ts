@@ -25,6 +25,16 @@ export class PasskeyCredential extends Document {
   @Prop({ type: [String], default: [] })
   transports: string[];
 
+  /**
+   * D-35 reviewer (device-bound keys): whether this credential may sync across
+   * devices (iCloud Keychain, Google Password Manager, ...). Only
+   * single-device credentials may back admin-device enrollment; syncable ones
+   * can still sign in. Rows written before this field existed read back as
+   * unknown and are treated as syncable (safe default: no auto-enrollment).
+   */
+  @Prop({ default: true })
+  syncable: boolean;
+
   @Prop({ default: '' })
   device_name: string;
 
