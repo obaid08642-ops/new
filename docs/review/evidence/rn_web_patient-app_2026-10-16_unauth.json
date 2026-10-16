@@ -1,0 +1,484 @@
+{
+ "app": "patient-app",
+ "build": "react-native-web export (not native)",
+ "routes": [
+  {
+   "route": "(auth)/forgot-password",
+   "url": "/forgot-password",
+   "landed": "/forgot-password",
+   "status": "TESTED",
+   "time_to_ready_ms": 1689,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "401 GET /care/appointments"
+    ]
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إرسال رمز التحقق",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/auth/send-otp",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 845
+    },
+    {
+     "label": "العودة لتسجيل الدخول",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3603
+    }
+   ]
+  },
+  {
+   "route": "(auth)/login",
+   "url": "/login",
+   "landed": "/login",
+   "status": "TESTED",
+   "time_to_ready_ms": 1394,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "401 GET /care/appointments"
+    ]
+   },
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إظهار كلمة المرور",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "نسيت كلمة المرور؟",
+     "result": "NAVIGATE",
+     "to": "/forgot-password",
+     "response_ms": 453
+    },
+    {
+     "label": "تسجيل الدخول",
+     "result": "UI_CHANGE",
+     "response_ms": 461
+    },
+    {
+     "label": "المتابعة مع Google",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إنشاء حساب",
+     "result": "NAVIGATE",
+     "to": "/register",
+     "response_ms": 476
+    }
+   ]
+  },
+  {
+   "route": "(auth)/otp",
+   "url": "/otp",
+   "landed": "/otp",
+   "status": "TESTED",
+   "time_to_ready_ms": 15399,
+   "ready": false,
+   "not_ready_reason": "0 request(s) in flight, 0 loading, stable=1",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "401 GET /care/appointments"
+    ]
+   },
+   "inputs_filled": 6,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "تأكيد",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/auth/verify-otp",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 828
+    },
+    {
+     "label": "تغيير رقم الجوال",
+     "result": "UI_CHANGE",
+     "response_ms": 462
+    }
+   ]
+  },
+  {
+   "route": "(auth)/privacy",
+   "url": "/privacy",
+   "landed": "/privacy",
+   "status": "TESTED",
+   "time_to_ready_ms": 2022,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "401 GET /care/appointments"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إعادة المحاولة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 804
+    }
+   ]
+  },
+  {
+   "route": "(auth)/provider-info",
+   "url": "/provider-info",
+   "landed": "/provider-info",
+   "status": "TESTED",
+   "time_to_ready_ms": 1410,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "401 GET /care/appointments"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الاستمرار كمريض",
+     "result": "NAVIGATE",
+     "to": "/",
+     "response_ms": 895
+    },
+    {
+     "label": "تسجيل الخروج",
+     "result": "SKIPPED_DESTRUCTIVE"
+    }
+   ]
+  },
+  {
+   "route": "(auth)/register",
+   "url": "/register",
+   "landed": "/register",
+   "status": "TESTED",
+   "time_to_ready_ms": 1407,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "401 GET /care/appointments"
+    ]
+   },
+   "inputs_filled": 5,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إظهار كلمة المرور",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "أوافق على الشروط والأحكام وسياسة الخصوصي",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الشروط والأحكام",
+     "result": "NAVIGATE",
+     "to": "/terms",
+     "response_ms": 812
+    },
+    {
+     "label": "سياسة الخصوصية",
+     "result": "NAVIGATE",
+     "to": "/privacy",
+     "response_ms": 814
+    },
+    {
+     "label": "إنشاء الحساب",
+     "result": "UI_CHANGE",
+     "response_ms": 463
+    },
+    {
+     "label": "تسجيل الدخول",
+     "result": "NAVIGATE",
+     "to": "/login",
+     "response_ms": 473
+    }
+   ]
+  },
+  {
+   "route": "(auth)/reset-password",
+   "url": "/reset-password",
+   "landed": "/reset-password",
+   "status": "TESTED",
+   "time_to_ready_ms": 1410,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "401 GET /care/appointments"
+    ]
+   },
+   "inputs_filled": 4,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إظهار كلمة المرور",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "حفظ كلمة المرور",
+     "result": "UI_CHANGE",
+     "response_ms": 453
+    }
+   ]
+  },
+  {
+   "route": "(auth)/terms",
+   "url": "/terms",
+   "landed": "/terms",
+   "status": "TESTED",
+   "time_to_ready_ms": 1998,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "401 GET /care/appointments"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إعادة المحاولة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 788
+    }
+   ]
+  },
+  {
+   "route": "(auth)/welcome",
+   "url": "/welcome",
+   "landed": "/welcome",
+   "status": "TESTED",
+   "time_to_ready_ms": 1410,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "401 GET /care/appointments"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العربية",
+     "result": "UI_CHANGE",
+     "response_ms": 483
+    },
+    {
+     "label": "تلقائي",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "فاتح",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "غامق",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Google",
+     "result": "UI_CHANGE",
+     "response_ms": 777
+    },
+    {
+     "label": "إنشاء حساب",
+     "result": "NAVIGATE",
+     "to": "/register",
+     "response_ms": 475
+    },
+    {
+     "label": "تسجيل الدخول",
+     "result": "NAVIGATE",
+     "to": "/login",
+     "response_ms": 489
+    },
+    {
+     "label": "المتابعة كضيف",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/auth/guest",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1389
+    }
+   ]
+  },
+  {
+   "route": "(onboarding)/intro",
+   "url": "/intro",
+   "landed": "/intro",
+   "status": "TESTED",
+   "time_to_ready_ms": 1422,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تخطي",
+     "result": "NAVIGATE",
+     "to": "/welcome",
+     "response_ms": 504
+    },
+    {
+     "label": "1 / 5",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "2 / 5",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "3 / 5",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "4 / 5",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "5 / 5",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "التالي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3589
+    }
+   ]
+  },
+  {
+   "route": "(onboarding)/language",
+   "url": "/language",
+   "landed": "/language",
+   "status": "TESTED",
+   "time_to_ready_ms": 1403,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العربية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3595
+    },
+    {
+     "label": "English",
+     "result": "UI_CHANGE",
+     "response_ms": 445
+    },
+    {
+     "label": "اردو",
+     "result": "JS_ERROR",
+     "error": "Cannot redefine property: Text",
+     "response_ms": 450
+    },
+    {
+     "label": "हिन्दी",
+     "result": "UI_CHANGE",
+     "response_ms": 439
+    },
+    {
+     "label": "বাংলা",
+     "result": "UI_CHANGE",
+     "response_ms": 449
+    },
+    {
+     "label": "Filipino",
+     "result": "UI_CHANGE",
+     "response_ms": 449
+    },
+    {
+     "label": "متابعة",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  }
+ ]
+}
