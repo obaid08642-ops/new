@@ -287,6 +287,8 @@ services:
     environment:
       NABD_API_BASE_URL: http://backend:8002/api/v1
       NEXT_PUBLIC_SITE_ORIGIN: https://nabd.plus
+      # P14.9: shared secret of the edge worker (deploy/cloudflare/edge-html-worker); empty = edge mode off
+      NABD_EDGE_STAMP_TOKEN: ${NABD_EDGE_STAMP_TOKEN:-}
       RUN_SANDBOX_TESTS: "false"
       RUN_SANDBOX_CREDENTIAL_TEST: "false"
       NODE_ENV: production

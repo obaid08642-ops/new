@@ -1,0 +1,17 @@
+name: edge-html-worker
+# P14.9: the Cloudflare worker that caches anonymous public HTML and stamps a fresh CSP nonce on every response.
+on:
+  pull_request:
+    paths: ['deploy/cloudflare/edge-html-worker/**', 'patient-web/lib/seo/public-indexable.ts', 'patient-web/server/nonce-transform.mjs', '.github/workflows/edge-html-worker.yml']
+  push:
+    branches: [main]
+    paths: ['deploy/cloudflare/edge-html-worker/**', 'patient-web/lib/seo/public-indexable.ts', 'patient-web/server/nonce-transform.mjs']
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node --test deploy/cloudflare/edge-html-worker/worker.test.mjs
