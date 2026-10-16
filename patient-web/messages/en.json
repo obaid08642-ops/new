@@ -1218,7 +1218,18 @@
     "preparation": "Preparation",
     "preparationTitle": "Before your visit",
     "homeAvailable": "Home collection is supported by this package.",
-    "homeUnavailable": "Home collection is not listed for this package."
+    "homeUnavailable": "Home collection is not listed for this package.",
+    "categoryName": {
+      "blood": "Blood tests",
+      "hormones": "Hormones",
+      "diabetes": "Diabetes",
+      "vitamins": "Vitamins",
+      "cardiac": "Heart",
+      "imaging": "Imaging",
+      "kidney": "Kidney",
+      "liver": "Liver",
+      "package": "Packages"
+    }
   },
   "RadiologyServices": {
     "eyebrow": "Radiology care",

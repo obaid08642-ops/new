@@ -1218,7 +1218,18 @@
     "preparation": "Paghahanda",
     "preparationTitle": "Bago ang iyong pagbisita",
     "homeAvailable": "Sinusuportahan ng package na ito ang kolekta sa bahay.",
-    "homeUnavailable": "Hindi nakalista ang kolekta sa bahay para sa package na ito."
+    "homeUnavailable": "Hindi nakalista ang kolekta sa bahay para sa package na ito.",
+    "categoryName": {
+      "blood": "Pagsusuri ng dugo",
+      "hormones": "Mga hormone",
+      "diabetes": "Dyabetis",
+      "vitamins": "Mga bitamina",
+      "cardiac": "Puso",
+      "imaging": "Larawang medikal",
+      "kidney": "Bato",
+      "liver": "Atay",
+      "package": "Mga pakete"
+    }
   },
   "RadiologyServices": {
     "eyebrow": "Radiology care",

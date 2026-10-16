@@ -1218,7 +1218,18 @@
     "preparation": "التحضير",
     "preparationTitle": "قبل الزيارة",
     "homeAvailable": "هذه الباقة تدعم سحب العينة من المنزل.",
-    "homeUnavailable": "لم يُذكر سحب العينة من المنزل لهذه الباقة."
+    "homeUnavailable": "لم يُذكر سحب العينة من المنزل لهذه الباقة.",
+    "categoryName": {
+      "blood": "تحاليل الدم",
+      "hormones": "الهرمونات",
+      "diabetes": "السكري",
+      "vitamins": "الفيتامينات",
+      "cardiac": "القلب",
+      "imaging": "الأشعة",
+      "kidney": "الكلى",
+      "liver": "الكبد",
+      "package": "الباقات"
+    }
   },
   "RadiologyServices": {
     "eyebrow": "رعاية الأشعة",
