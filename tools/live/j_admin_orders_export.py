@@ -46,11 +46,10 @@ def run():
     page.wait_for_timeout(1500)
 
     href = page.locator(EXPORT).get_attribute('href')
-    r = ctx.request.get(ADMIN_WEB + href, fail_on_status_code=False)
-    step('export link answers 200 (not 404)', r.status == 200, f'{href} -> {r.status}')
-    ctype = r.headers.get('content-type', '')
-    step('export is a CSV', 'text/csv' in ctype, ctype)
-    lines = [l for l in r.text().lstrip('﻿').split('\n') if l.strip()]
+    r = fetch(page, href)
+    step('export link answers 200 (not 404)', r['status'] == 200, f"{href} -> {r['status']}")
+    step('export is a CSV', 'text/csv' in r['type'], r['type'])
+    lines = [l for l in r['text'].lstrip('\ufeff').split('\n') if l.strip()]
     step('CSV starts with the header row', bool(lines) and lines[0].startswith('id,kind,state'), lines[:1])
     shown = total_shown(page)
     step('CSV rows = the table total (all orders)', shown >= 0 and len(lines) - 1 == shown, f'{len(lines) - 1} rows vs table {shown}')
@@ -59,10 +58,10 @@ def run():
     page.wait_for_timeout(1500)
     href2 = page.locator(EXPORT).get_attribute('href')
     step('export link carries the problem filter', 'problem=stuck' in (href2 or ''), href2)
-    r2 = ctx.request.get(ADMIN_WEB + href2, fail_on_status_code=False)
-    lines2 = [l for l in r2.text().lstrip('﻿').split('\n') if l.strip()] if r2.status == 200 else []
+    r2 = fetch(page, href2)
+    lines2 = [l for l in r2['text'].lstrip('\ufeff').split('\n') if l.strip()] if r2['status'] == 200 else []
     shown2 = total_shown(page)
-    step('filtered CSV rows = the filtered table total', r2.status == 200 and shown2 >= 0 and len(lines2) - 1 == shown2, f'{r2.status}: {len(lines2) - 1} rows vs table {shown2}')
+    step('filtered CSV rows = the filtered table total', r2['status'] == 200 and shown2 >= 0 and len(lines2) - 1 == shown2, f"{r2['status']}: {len(lines2) - 1} rows vs table {shown2}")
     browser.close()
     pw.stop()
 
