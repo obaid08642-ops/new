@@ -49,11 +49,12 @@ def _reuse():
     tok = next((c.value for c in w.jar if c.name == 'admin_access'), None)
     admin = Client(tok, 'admin-api') if tok else None
     if admin:
-        enroll_admin_device(admin, EMAIL)  # 7C-C2, idempotent
+        enroll_admin_device(admin, EMAIL)  # 7C-C2 + D-35 flow, idempotent
+        _enroll_browser_device(w, admin, EMAIL)
     return w, admin
 
 
-def _enroll_browser_device(w, admin):
+def _enroll_browser_device(w, admin, email=EMAIL):
     """D-35: the admin BFF proxies with the browser's admin_device cookie, so that
     device must be enrolled too. The gate run's enrolled device approves, then the
     browser device confirms with the e-mailed code."""
@@ -74,7 +75,7 @@ def _enroll_browser_device(w, admin):
     step('browser device enrollment approved from the enrolled device (D-35)', ra.ok, ra)
     if not ra.ok:
         return False
-    code = mail_code(EMAIL, t0)
+    code = mail_code(email, t0)
     step('browser enrollment code emailed to the admin (D-35)', bool(code), 'no mail')
     rc = admin.post(f'/admin/devices/requests/{request_id}/confirm', {'code': code or ''},
                     headers={'x-admin-device': browser})
@@ -82,24 +83,28 @@ def _enroll_browser_device(w, admin):
     return rc.ok
 
 
-def login():
-    reused = _reuse()
+def login(email=EMAIL, password=PASSWORD):
+    """The gate admin by default; another admin account (e.g. the super admin of seed_admin.js) gets its own
+    session, never the shared session file."""
+    shared = email == EMAIL
+    reused = _reuse() if shared else None
     if reused:
         return reused
-    journey('admin: login with email 2FA (admin panel)')
+    journey(f'admin: login with email 2FA (admin panel){"" if shared else f" as {email}"}')
     w = AdminWeb(ADMIN_WEB, 'admin')
-    _load_browser_device(w)
+    if shared:
+        _load_browser_device(w)
     t0 = time.time()
-    r = w.post('/api/admin/auth/login', {'identifier': EMAIL, 'password': PASSWORD})
+    r = w.post('/api/admin/auth/login', {'identifier': email, 'password': password})
     step('credentials -> 202 requires_2fa', r.status == 202 and r.get('requires_2fa'), r)
-    code = mail_code(EMAIL, t0)
+    code = mail_code(email, t0)
     step('2FA code emailed to the admin', code, 'no mail')
-    r = w.post('/api/admin/auth/verify-2fa', {'identifier': EMAIL, 'code': code})
+    r = w.post('/api/admin/auth/verify-2fa', {'identifier': email, 'code': code})
     step('verify-2fa -> session', r.ok, r)
     step('session cookie set (httpOnly)', any(c.name for c in w.jar), [c.name for c in w.jar])
     # Direct API token for admin steps that the journeys need (same user, same 2FA)
     tok = next((c.value for c in w.jar if c.name in ('admin_access',) or ('token' in c.name.lower() and 'refresh' not in c.name.lower())), None)
-    if SESSION_FILE:
+    if SESSION_FILE and shared:
         import json
         json.dump([{'name': c.name, 'value': c.value} for c in w.jar], open(SESSION_FILE, 'w'))
     admin = Client(tok, 'admin-api') if tok else None
@@ -108,14 +113,17 @@ def login():
     # code only) and then the browser device (approved from the gate device,
     # confirmed with the code) must be enrolled before the dashboard is read.
     if admin:
-        enroll_admin_device(admin, EMAIL)
-        _enroll_browser_device(w, admin)
-        _save_browser_device(w)
+        enroll_admin_device(admin, email)
+        _enroll_browser_device(w, admin, email)
+        if shared:
+            _save_browser_device(w)
     # BFF 1:1 → /api/v1/admin/command-center (the dashboard's aggregated snapshot).
     r = w.get('/admin/admin/command-center')
     step('BFF call with the session (dashboard: command-center)', r.ok, r)
-    bad = AdminWeb(ADMIN_WEB).post('/api/admin/auth/login', {'identifier': EMAIL, 'password': 'wrong'})
-    step('wrong admin password rejected (401, or 429 once the login throttle trips)', bad.status in (400, 401, 429), bad)
+    bad = None
+    if shared:
+        bad = AdminWeb(ADMIN_WEB).post('/api/admin/auth/login', {'identifier': EMAIL, 'password': 'wrong'})
+        step('wrong admin password rejected (401, or 429 once the login throttle trips)', bad.status in (400, 401, 429), bad)
     return w, admin
 
 

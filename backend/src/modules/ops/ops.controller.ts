@@ -4,8 +4,8 @@ import { Connection } from 'mongoose';
 import { JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { RedisService } from '../redis/redis.service';
+import { FAILED_PAYMENT_STATUSES, findStuckOrders, opsStuckMinutes } from './ops-alert-queries';
 import { connectionFlagSource, isKilled } from '../../common/killswitches/killswitches.helper';
-import { STUCK_STATES, stuckMinutes } from './stuck-orders';
 
 /**
  * Operations Center — one admin surface answering:
@@ -41,20 +41,11 @@ export class OpsController {
   /** B3: actionable alerts — stuck orders past the SLA threshold and failed payments. */
   @Get('alerts')
   async alerts() {
-    const stuckMin = await stuckMinutes(this.conn);
+    const stuckMin = await opsStuckMinutes(this.conn);
     const cutoff = new Date(Date.now() - stuckMin * 60000);
-    const kinds = Object.entries(STUCK_STATES).map(([kind, k]) => ({ kind, col: k.collection, field: k.field, states: k.states }));
-    const stuck: any[] = [];
-    for (const k of kinds) {
-      const rows: any[] = await this.conn.collection(k.col).find({
-        [k.field]: { $in: k.states },
-        createdAt: { $lt: cutoff },
-      }, { projection: { _id: 0, id: 1, state: 1, status: 1, createdAt: 1, patient_id: 1, total: 1, total_price: 1 } })
-        .sort({ createdAt: 1 }).limit(50).toArray().catch(() => []);
-      for (const r of rows) stuck.push({ kind: k.kind, id: r.id, state: r.state || r.status, since: r.createdAt });
-    }
+    const stuck = await findStuckOrders(this.conn, cutoff, 50);
     const failedPayments: any[] = await this.conn.collection('transactions').find(
-      { status: { $in: ['failed', 'cancelled'] } }, { projection: { _id: 0, id: 1, booking_kind: 1, booking_id: 1, amount: 1, status: 1, failure_reason: 1, createdAt: 1 } })
+      { status: { $in: FAILED_PAYMENT_STATUSES } }, { projection: { _id: 0, id: 1, booking_kind: 1, booking_id: 1, amount: 1, status: 1, failure_reason: 1, createdAt: 1 } })
       .sort({ createdAt: -1 }).limit(50).toArray().catch(() => []);
     return {
       stuck_minutes_threshold: stuckMin,

@@ -1,4 +1,6 @@
-import { Injectable, ForbiddenException, BadRequestException, NotFoundException, ServiceUnavailableException, Logger } from '@nestjs/common';
+import { Injectable, ForbiddenException, BadRequestException, NotFoundException, ServiceUnavailableException, Logger, Optional } from '@nestjs/common';
+import { KillSwitchesService } from '../kill-switches/kill-switches.service';
+
 import { MEDIA_RELEASE } from '../media/media-cleanup.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -21,6 +23,7 @@ export class ChatService {
     @InjectModel('ChatMessage') private readonly msgs: Model<ChatMessageDocument>,
     private readonly bus: EventBusService,
     private readonly events: EventEmitter2,
+    @Optional() private readonly killSwitches?: KillSwitchesService,
   ) {}
 
   // ── Thread management ────────────────────────────────────────
@@ -293,6 +296,8 @@ export class ChatService {
     attachment_name?: string; attachment_size?: number; duration_seconds?: number;
     reply_to_id?: string; forwarded_from_id?: string; client_message_id?: string; media_ids?: string[];
   }): Promise<ChatMessage> {
+    // Issue 955: the admin chat kill switch refuses every new message before anything is stored.
+    await this.killSwitches?.assertOn('chat_enabled');
     const thread = await this.threads.findOne({ id: { $eq: threadId } });
     if (!thread) throw new NotFoundException('thread_not_found');
     this.assertParticipant(thread, senderId);

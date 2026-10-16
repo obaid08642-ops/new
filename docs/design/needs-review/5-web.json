@@ -107,7 +107,7 @@
     "line": 16,
     "found": "[client] getPatientReports and parseReports (lib/api/reports*.ts, vitals-server.ts) have no screen left; kept with their tests for the reviewer to delete.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open (issue #682)"
+    "review_status": "fixed #1513"
   },
   {
     "batch": 5,

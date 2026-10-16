@@ -52,8 +52,10 @@ import { canShowPromo, discountPercent, medField, medGallery, medMeta, medName, 
  *
  * Gallery with dots and the discount / online-only badges, then the sheet: Rx, category and cold-chain chips, the
  * name block, the price card with the quantity stepper and availability, the shortage note, the key facts, the
- * alternatives, safety, the details accordion, related products, "ask a pharmacist" and the identifiers, with the
+ * alternatives, safety, the details accordion, related products and the identifiers, with the
  * glass footer (total, add to cart, buy now). Every field is hidden when the API does not send it; nothing is made up.
+ * Owner decisions 2026-10-15: no delivery/pickup choice here (question 33: it is chosen at checkout from the chosen offer,
+ * issue 455) and no "ask a pharmacist" entry (questions 30/40: the pharmacist chat lives inside an order, issue 480).
  */
 
 type Detail = Med & {
@@ -687,20 +689,6 @@ export default function ProductDetailScreen() {
                 </ScrollView>
               </View>
             ) : null}
-
-            {/* ask a pharmacist */}
-            <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.product.askPharmacist')} onPress={() => go('/pharmacy/pharmacist-chat' as Href)}>
-              <Card padding="md" theme={theme}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                  <FIcon icon="chat-circle-text" tone={PHARMACY_TONE} size={48} theme={theme} />
-                  <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
-                    <Text style={{ ...scale(t, 'bodyStrong'), lineHeight: 21, color: c.text.primary, ...flow }}>{k('pharmacy.product.askPharmacist')}</Text>
-                    <Text style={{ ...scale(t, 'label', 'regular'), color: c.text.secondary, ...flow }}>{k('pharmacy.product.askPharmacistBody')}</Text>
-                  </View>
-                  <Icon name={dir === 'rtl' ? 'caret-left' : 'caret-right'} size={18} theme={theme} tone="secondary" />
-                </View>
-              </Card>
-            </Pressable>
 
             {/* suggest an edit (reaches the admin approval queue) */}
             <Pressable accessibilityRole="button" accessibilityLabel={k('pharmacy.product.suggest')} onPress={() => setSuggestOpen(true)} style={{ minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>

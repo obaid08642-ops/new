@@ -7,8 +7,8 @@
  *                     city filter (the server's own city fallback needs a signed-in user with a city, so the client
  *                     sends the city itself). For clinic and home-visit only: the server rejects it for video.
  *   Available now  -> available_within=15 (whole minutes, > 0) with type=clinic|video|home_visit (required by the
- *                     server). The server orders by the earliest free slot and does not combine it with a distance
- *                     order, so with both chosen the position is not sent (the city filter still is).
+ *                     server). The server orders by the earliest free slot; with "Nearest" too (clinic and home visit)
+ *                     the position is sent and the free doctors come nearest first (2-app#10).
  *
  * Both controls are always on (decision 20, issue 339). With neither filter active the path is exactly
  * `/providers?type=doctor`.
@@ -41,7 +41,7 @@ export function buildDoctorsPath(opts: { mode: NearbyMode; nearest: boolean; ava
   if (opts.availableNow) parts.push(`available_within=${AVAILABLE_WITHIN_MINUTES}`);
   if (nearest && opts.place) {
     if (opts.place.kind === 'coords') {
-      if (!opts.availableNow && finite(opts.place.lat) && finite(opts.place.lng)) parts.push('sort=distance', `lat=${opts.place.lat}`, `lng=${opts.place.lng}`);
+      if (finite(opts.place.lat) && finite(opts.place.lng)) parts.push('sort=distance', `lat=${opts.place.lat}`, `lng=${opts.place.lng}`);
     } else if (opts.place.city.trim()) {
       parts.push(`city=${encodeURIComponent(opts.place.city.trim())}`);
     }
