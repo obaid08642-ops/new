@@ -244,7 +244,8 @@
       "consultation": "Consultation",
       "labs": "Lab test",
       "radiology": "Radiology scan",
-      "nursing": "Nursing visit"
+      "nursing": "Nursing visit",
+      "returns": "Return request"
     },
     "statusUnavailable": "Status unavailable",
     "partialNote": "Some orders could not be loaded. The rest are shown below; try again in a moment."

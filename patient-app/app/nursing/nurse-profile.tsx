@@ -51,7 +51,6 @@ export default function NursingMegaProfile() {
   const { clock } = useConsultFormat();
   const [daysCount, setDaysCount] = useState(1);
   const [frequencyOpen, setFrequencyOpen] = useState(false);
-  const [transportMode, setTransportMode] = useState<'patient' | 'nurse'>('nurse');
   const [gpsLocation, setGpsLocation] = useState<string | null>(null);
   const [addressObj, setAddressObj] = useState<Awaited<ReturnType<typeof resolveEffectiveAddress>>>(null);
   const selectedDate = days[dayIndex]?.iso ?? '';
@@ -285,11 +284,8 @@ export default function NursingMegaProfile() {
         <Section title={k('nur.book.where')}>
           <Block gap={4}>
             <PlaceRow text={gpsLocation ?? k('nur.book.noAddress')} actionLabel={gpsLocation ? k('nur.book.change') : k('nur.book.choose')} onAction={() => router.push('/profile/addresses?select=1' as Href)} />
-            <View>
-              <Radio theme={theme} label={k('nur.book.nurseTransport')} selected={transportMode === 'nurse'} divider onChange={() => setTransportMode('nurse')} />
-              <Radio theme={theme} label={k('nur.book.myTransport')} selected={transportMode === 'patient'} onChange={() => setTransportMode('patient')} />
-            </View>
-            <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...textFlow }}>{transportMode === 'nurse' ? (gpsLocation ? k('nur.book.nurseTransportTo', { address: gpsLocation }) : k('nur.book.nurseTransportBody')) : k('nur.book.myTransportBody')}</Text>
+            {/* owner decision 42 (issue 641): no transport choice; the nurse always comes to the patient and the trip fee applies */}
+            <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...textFlow }}>{gpsLocation ? k('nur.book.nurseTransportTo', { address: gpsLocation }) : k('nur.book.nurseTransportBody')}</Text>
           </Block>
         </Section>
 
