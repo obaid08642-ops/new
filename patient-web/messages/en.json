@@ -358,7 +358,10 @@
     "callReady": "Your video visit is ready.",
     "callUnavailable": "Video visit isn't available right now.",
     "callDiscard": "Close video visit",
-    "callOpen": "Join the video visit"
+    "callOpen": "Join the video visit",
+    "cancelledRefund": "Appointment cancelled. {amount} ({percent}% of what you paid) goes back to your original payment method.",
+    "cancelledNoRefund": "Appointment cancelled. Under the cancellation policy no refund is due.",
+    "cancelledNotCharged": "Appointment cancelled. Nothing was charged."
   },
   "Medicines": {
     "eyebrow": "Private catalog",
@@ -699,7 +702,11 @@
     "emergencySaveError": "The contact could not be saved. Try again.",
     "emergencySave": "Save",
     "nextAppointment": "Your next appointment",
-    "nextAppointmentUnavailable": "Your next appointment could not be loaded right now."
+    "nextAppointmentUnavailable": "Your next appointment could not be loaded right now.",
+    "reminderFor": "Who is this reminder for?",
+    "reminderForMe": "Me",
+    "reminderForName": "Reminder for {name}",
+    "reminderMemberFallback": "Family member"
   },
   "Prescriptions": {
     "title": "Prescriptions",
@@ -1441,13 +1448,10 @@
     "bundleTitle": "Nabd Plus"
   },
   "BookConsultation": {
-    "homeAddressRequired": "Enter your home location (address and coordinates) first",
+    "homeAddressRequired": "Choose the visit address from your saved addresses first",
     "cashClinicOnly": "Cash is available for clinic visits only",
     "homeLocation": "Home location",
     "homeAddress": "Address",
-    "homeAddressPlaceholder": "District, street, building",
-    "homeLat": "Latitude",
-    "homeLng": "Longitude",
     "slotTaken": "This slot is no longer available. Choose another time.",
     "title": "Book Consultation",
     "subtitle": "Pick a visit type, day and time",
@@ -1481,7 +1485,9 @@
     "bookingFailed": "Booking failed. Check the slot and the payment method.",
     "fee": "Consultation fee",
     "duration": "Visit length",
-    "durationValue": "{n} min"
+    "durationValue": "{n} min",
+    "homeAddressNone": "Add an address with its map location for a home visit.",
+    "homeAddressAdd": "Add or edit an address"
   },
   "AiHealthReport": {
     "title": "Your AI Health Report",
@@ -1539,7 +1545,8 @@
     "yes": "Yes",
     "no": "No",
     "form": "Dosage form",
-    "strength": "Strength"
+    "strength": "Strength",
+    "dosage_form": "Dosage form"
   },
   "PharmacyRequest": {
     "title": "Request a medicine by name",
@@ -1552,7 +1559,16 @@
     "detailsPh": "Strength, form or a note",
     "submit": "Send to nearby pharmacies",
     "submitting": "Sending the request…",
-    "error": "The request could not be sent. Try again."
+    "error": "The request could not be sent. Try again.",
+    "qty": "Quantity (boxes)",
+    "qtyInvalid": "Quantity is a number from 1 to 99.",
+    "photo": "Photo of the box",
+    "photoAdd": "Add a photo of the box",
+    "photoChange": "Change the photo",
+    "photoUploading": "Uploading the photo…",
+    "photoFailed": "Could not upload the photo. Try again.",
+    "photoType": "Choose an image file of a reasonable size.",
+    "photoAlt": "Photo of the medicine box"
   },
   "PharmacyBarcode": {
     "title": "Find by barcode",
@@ -1916,33 +1932,6 @@
     "heroPoint2": "Doctors by video, in clinic or at home",
     "heroPoint3": "Labs, radiology and home nursing with your insurance"
   },
-  "Onboarding": {
-    "introLabel": "App intro",
-    "slidesLabel": "Slides",
-    "slide1Title": "Your care, in one place",
-    "slide1Body": "Consultations, pharmacy, labs, home nursing and more.",
-    "slide2Title": "Book in minutes",
-    "slide2Body": "Clinic, video or home visits.",
-    "slide3Title": "Track your health",
-    "slide3Body": "Your vitals, reports and medication reminders.",
-    "next": "Next",
-    "continue": "Continue",
-    "skip": "Skip",
-    "languageTitle": "Choose your language",
-    "languageBody": "You can change it later in settings.",
-    "languageLabel": "Language",
-    "permissionsTitle": "Permissions",
-    "permissionsBody": "We ask only for what is needed, and you can always skip.",
-    "locationTitle": "Location",
-    "locationBody": "To suggest nearby doctors and pharmacies and work out delivery.",
-    "notificationsTitle": "Notifications",
-    "notificationsBody": "Appointment, medication and lab-result alerts.",
-    "allow": "Allow",
-    "allowed": "Allowed",
-    "denied": "Not allowed",
-    "unsupported": "Not available in this browser",
-    "start": "Get started"
-  },
   "SpecialtyNames": {
     "general_practice": "General Practice",
     "family_medicine": "Family Medicine",
@@ -2273,7 +2262,16 @@
       "generic": "The action could not be completed. Nothing was changed.",
       "alreadyPaid": "This order is already paid."
     },
-    "lastFromYou": "You: {text}"
+    "lastFromYou": "You: {text}",
+    "priceNotVerified": "Price not verified against the catalogue price; the admin reviews it.",
+    "priceAboveCatalogue": "Price above the catalogue price; the admin was told.",
+    "unavailableTitle": "No pharmacy is available right now",
+    "unavailableBody": "No nearby pharmacy replied in time. Please try again later.",
+    "unavailableAction": "Back to the pharmacy",
+    "searchRound": "Round {round}: searching pharmacies within {km} km",
+    "showMethods": "Choose a payment method",
+    "paymentUnavailable": "No online payment method is available for this order right now.",
+    "loadingMethods": "Loading the payment methods…"
   },
   "PharmacyCheckout": {
     "title": "Checkout",
@@ -2673,7 +2671,12 @@
       "invalid_invite_code": "This invite code is not valid. Check it, or ask for a new one.",
       "invite_expired": "This invite code has expired. Ask the family owner for a new one.",
       "already_member": "You are already a member of this family."
-    }
+    },
+    "medsWeek": "This week: {taken} taken, {missed} missed",
+    "medsLastMissed": "Last missed dose:",
+    "medsEditReminder": "Edit reminder",
+    "medsAddReminder": "Add a medicine reminder",
+    "close": "Close"
   },
   "DiagWeb": {
     "retry": "Try again",
@@ -2882,7 +2885,16 @@
     "status_processing": "In progress",
     "status_report": "Report ready",
     "status_cancelled": "Cancelled",
-    "trackingPrepAsk": "The lab will confirm any preparation with you."
+    "trackingPrepAsk": "The lab will confirm any preparation with you.",
+    "trackingBeforeBody": "Fast 8 to 12 hours before the sample unless your doctor says otherwise.",
+    "collectorTipsTitle": "When the collector arrives",
+    "collectorTip1": "Have your ID and the test request ready",
+    "collectorTip2": "Keep to the fasting the test needs",
+    "collectorTip3": "Tell the collector about any medicines you take",
+    "bookingNotSentTitle": "Nothing was booked",
+    "bookingNotSentBody": "This window does not send a booking yet, so no appointment was made and no payment was taken. Open the nursing page to book a visit.",
+    "bookingNotSentCta": "Go to nursing",
+    "bookingNotSentClose": "Close"
   },
   "NursingWeb": {
     "hubTitle": "Home care",
@@ -2991,7 +3003,17 @@
     "addressNeedsLocation": "Choose a saved address that has a map location, or add one.",
     "payTitle": "Payment",
     "payNow": "Pay now by card",
-    "payFailed": "Your booking is saved, but the payment page could not be opened. Try again."
+    "payFailed": "Your booking is saved, but the payment page could not be opened. Try again.",
+    "formService": "Service",
+    "formSelectService": "Choose a service",
+    "bookingNotice": "Service details are read-only here. No booking is created from this page.",
+    "nurseTitle": "Nurse Profile",
+    "nurseUnavailableTitle": "Profile Currently Unavailable",
+    "nurseUnavailableBody": "Could not load nurse profile details.",
+    "experienceLabel": "Field Experience",
+    "ratingLabel": "Patient Rating",
+    "nurseServicesTitle": "Available Nursing Services",
+    "requestNurse": "Request Nursing Visit"
   },
   "MaternityWeb": {
     "title": "Maternity",
@@ -3056,7 +3078,13 @@
     "setupFailed": "The profile could not be saved.",
     "connectionFailed": "Could not connect. Please try again.",
     "setupNotice": "Tracking is educational. It does not replace medical advice and is not contraception.",
-    "saveProfile": "Save profile"
+    "saveProfile": "Save profile",
+    "weekTitle": "Your baby this week",
+    "weekImageAlt": "Your baby at week {week}",
+    "weekEmpty": "This week's content isn't available yet.",
+    "weekUnavailable": "This week's content could not be loaded.",
+    "readThisWeek": "Read this week",
+    "readEmpty": "No articles for this week yet."
   },
   "NutritionWeb": {
     "title": "Nutrition",
@@ -3241,7 +3269,20 @@
       "warnings": "Warnings",
       "storage": "Storage",
       "pregnancy": "Pregnancy and breastfeeding"
-    }
+    },
+    "flagsLegend": "Do you have any of these signs? Pick all that apply",
+    "flag": {
+      "chest_pain": "Chest pain",
+      "breathing_difficulty": "Trouble breathing",
+      "fainting_or_unresponsive": "Fainting or not responding",
+      "heavy_bleeding": "Heavy bleeding",
+      "new_confusion": "Sudden confusion",
+      "severe_allergic_reaction": "Severe allergic reaction",
+      "severe_injury": "Serious injury"
+    },
+    "emergencyBody": "The signs you picked call for contacting your local emergency services now, not waiting for an appointment.",
+    "consultationBody": "You did not pick any emergency signs. If the symptoms last or get worse, book a consultation with a doctor.",
+    "historyTitle": "Your earlier questions"
   },
   "MonthlyReportWeb": {
     "title": "Your monthly report",
@@ -3774,7 +3815,16 @@
     "aboutRulesUnavailable": "The cancellation and refund policy could not be loaded right now.",
     "ruleCancelFull": "An appointment can be cancelled up to {hours} hours before its time for a full refund.",
     "ruleRefundDays": "Refunds arrive within {min} to {max} business days.",
-    "ruleReturnDays": "Unused products can be returned within {days} days of receipt."
+    "ruleReturnDays": "Unused products can be returned within {days} days of receipt.",
+    "connectedAppsTitle": "Connected AI apps",
+    "connectedAppsEmptyTitle": "No connected apps",
+    "connectedAppsEmpty": "You have not connected any AI assistant to your account.",
+    "connectedAppsNote": "A connected assistant can ask, not pay: you confirm and pay every order or booking on Nabd Plus.",
+    "connectedSince": "Connected since {date}",
+    "disconnectApp": "Disconnect",
+    "disconnectFailed": "Could not disconnect. Please try again.",
+    "rowConnectedApps": "Connected AI apps",
+    "rowConnectedAppsSub": "Assistants you allowed into your account"
   },
   "AccountWeb": {
     "profileTitle": "My account",
@@ -4149,5 +4199,16 @@
     "title": "You are offline",
     "body": "This page could not open without a connection. Your cart is kept on this device; send your request when you are back online.",
     "home": "Back to the start"
+  },
+  "CameraScan": {
+    "start": "Scan with the camera",
+    "stop": "Stop the camera",
+    "pointCamera": "Point the camera at the code",
+    "viewfinder": "Camera view",
+    "cameraFailed": "The camera could not be opened. Allow it, or type the code."
+  },
+  "Network": {
+    "offline": "You are offline. This page shows the last saved copy.",
+    "offlineLastUpdated": "You are offline. This page shows the last saved copy. Last updated: {time}"
   }
 }

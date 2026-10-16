@@ -37,7 +37,7 @@ describe('PharmacyOrderService.create manual request', () => {
     expect(created).toHaveLength(1);
     expect(created[0].items).toHaveLength(1);
     expect(created[0].items[0].raw_name).toBe('Panadol Extra');
-    expect(created[0].manual_request).toEqual({ name: 'Panadol Extra', details: 'encounters' });
+    expect(created[0].manual_request).toEqual({ name: 'Panadol Extra', details: 'encounters', qty: 1 });
     expect(created[0].payment_method).toBe('cash');
     expect(out.status).toBeDefined();
   });

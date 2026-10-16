@@ -113,7 +113,7 @@ export function SearchClient({ locale, initialQuery = "" }: { locale: string; in
       setState("loading");
       try {
         // D-29: the grouped home search; the API returns each name in the page's locale.
-        const response = await fetch(`/api/patient/search?q=${encodeURIComponent(q)}&locale=${encodeURIComponent(shellLocale)}&limit=10`, { cache: "no-store" });
+        const response = await fetch(`/api/search/public?q=${encodeURIComponent(q)}&locale=${encodeURIComponent(shellLocale)}&limit=10`, { cache: "no-store" });
         if (!response.ok) throw new Error("search_unavailable");
         const found = extractGroupedResults(await response.json().catch(() => null));
         // F71: one request per query. Only a query that found NOTHING asks the intent parser, and a confident intent

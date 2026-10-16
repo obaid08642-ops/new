@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { CoreShell } from "@/components-next/core/core-shell";
 import { DrugInteractionChecker } from "@/components-next/drug-interaction-checker";
 import { Button } from "@/components-next/ui-generated/components/Button";
+import { CameraScanner, PACK_FORMATS } from "@/components-next/scan/camera-scanner";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { Input } from "@/components-next/ui-generated/components/Inputs";
@@ -37,7 +38,8 @@ export function BarcodeScreen({ locale }: { locale: Locale }) {
   const looking = outcome.kind === "looking";
   const clean = cleanBarcode(code);
 
-  async function lookup() {
+  async function lookup(scanned?: string) {
+    const clean = cleanBarcode(scanned ?? code);
     if (!clean || looking) return;
     setOutcome({ kind: "looking" });
     try {
@@ -75,6 +77,8 @@ export function BarcodeScreen({ locale }: { locale: Locale }) {
             void lookup();
           }}
         >
+          {/* issue 499: the camera reads the pack's barcode where the browser can; typing it stays */}
+          <CameraScanner formats={PACK_FORMATS} onResult={(scanned) => { setCode(scanned.slice(0, 64)); void lookup(scanned.slice(0, 64)); }} />
           <Input label={t("codeLabel")} placeholder={t("codePlaceholder")} value={code} disabled={looking} onChange={(value) => setCode(value.slice(0, 64))} />
           <Button label={looking ? t("looking") : t("lookup")} type="submit" size="lg" disabled={!clean} loading={looking} />
         </form>

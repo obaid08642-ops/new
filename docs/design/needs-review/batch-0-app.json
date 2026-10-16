@@ -140,6 +140,6 @@
     "line": 1,
     "found": "catalog.ts and src/features/home/homeItems.ts (and notificationsFeed constants before this pass) keep Arabic phrases as titles and descriptions, translated through the old Arabic-keyed catalogue (autoTranslationsPhase5.json). The no-literal-ui-string gate scans only .tsx in the app (and .ts under app/), so these ~120 strings are not counted, but they are user-visible text written in code.",
     "suspect": "Owner decision: convert the data files to translation keys too (about 120 keys x 6 languages, mechanical) and extend the gate to .ts files under src/features. Not done here: only the route values of three rows changed.",
-    "review_status": "open (issue #420)"
+    "review_status": "fixed #1512"
   }
 ]
