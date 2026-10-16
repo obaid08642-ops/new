@@ -47,6 +47,7 @@ import { prefetchAlternatives, prefetchHotMedicines } from '../../src/utils/pref
 import { getVisibleProductIds } from '../../src/utils/productNav';
 import { VariantPicker } from '../../src/components/pharmacy/VariantPicker';
 import { productLocaleOf, type ProductVariant } from '../../src/utils/variantPicker';
+import { englishNameUnder } from '../../src/utils/englishNameUnder';
 import { canShowPromo, discountPercent, medField, medGallery, medMeta, medName, medPrice, needsRx, oldPriceOf, onlineOnly, productNote, type Med } from '../../src/utils/pharmacyCatalog';
 
 /**
@@ -366,7 +367,8 @@ export default function ProductDetailScreen() {
       pct,
       oldPrice,
       rx,
-      enName: lang !== 'en' && med.name_en && med.name_en !== name ? med.name_en : '',
+      // decision E (issue 1556): the English name under the localized one in ur, hi and bn only
+      enName: englishNameUnder(lang, name, med.name_en),
       ingredient: textOf(medField(med, 'active_ingredient')),
       generic: textOf(med.generic_name),
       maker: textOf(med.manufacturer),
@@ -572,7 +574,7 @@ export default function ProductDetailScreen() {
             {/* the name block */}
             <View style={{ gap: 4 }}>
               <Text accessibilityRole="header" style={{ ...scale(t, 'h2'), color: c.text.primary, ...flow }}>{view.name}</Text>
-              {view.enName ? <Text style={{ ...scale(t, 'control', 'regular'), color: c.text.secondary, writingDirection: 'ltr', textAlign: dir === 'rtl' ? 'right' : 'left' }}>{view.enName}</Text> : null}
+              {view.enName ? <Text testID="product-english-name" style={{ ...scale(t, 'caption', 'regular'), color: c.text.secondary, writingDirection: 'ltr', textAlign: dir === 'rtl' ? 'right' : 'left' }}>{view.enName}</Text> : null}
               {view.ingredient || view.generic ? (
                 <Text style={{ ...scale(t, 'control', 'regular'), color: c.text.tertiary, ...flow }}>
                   {[view.ingredient ? k('pharmacy.product.ingredient', { v: view.ingredient }) : '', view.generic ? k('pharmacy.product.scientific', { v: view.generic }) : ''].filter(Boolean).join(' · ')}

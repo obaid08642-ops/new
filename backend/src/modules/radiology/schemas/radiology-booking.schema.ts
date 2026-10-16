@@ -23,6 +23,8 @@ export class RadiologyBooking {
   delivery_mode: string;
 
   @Prop() referring_doctor_id?: string;
+  /** P17-17.5: UTM campaign attribution (utm_source/medium/campaign/term/content). */
+  @Prop({ type: Object, required: false }) attribution?: Record<string, string>;
   @Prop({ required: true })
   scan_type_code: string; // e.g., 'RAD-MRI-BRAIN'
 

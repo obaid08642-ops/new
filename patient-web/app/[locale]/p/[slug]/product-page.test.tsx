@@ -93,6 +93,19 @@ describe("public product page (catalog v14)", () => {
     expect(html).toMatch(/>61\.50<\/strong><span[^>]*>SAR</);
   });
 
+  // Decision E (issue 1556): ur, hi and bn draw the English name under the localized one; ar, en and fil do not.
+  it.each(["ur", "hi", "bn"])("a %s page shows the English name under the localized name", async (locale) => {
+    state.getPublicProduct.mockResolvedValue({ ...product, locale, name: "ایبلیفائی 15 ملی گرام", english_name: "Abilify, Aripiprazole 15 Mg - 28 Tablets" });
+    const html = renderToStaticMarkup(await PublicProductPage({ params: Promise.resolve({ locale, slug: "x" }) }));
+    expect(html).toMatch(/<h1[^>]*>ایبلیفائی 15 ملی گرام<\/h1><p[^>]*lang="en"[^>]*dir="ltr"[^>]*data-testid="english-name"[^>]*>Abilify, Aripiprazole 15 Mg - 28 Tablets<\/p>/);
+  });
+
+  it.each(["ar", "en", "fil"])("a %s page has no English line under the name", async (locale) => {
+    state.getPublicProduct.mockResolvedValue({ ...product, locale, name: "أبليفاي 15", english_name: "Abilify, Aripiprazole 15 Mg - 28 Tablets" });
+    const html = renderToStaticMarkup(await PublicProductPage({ params: Promise.resolve({ locale, slug: "x" }) }));
+    expect(html).not.toContain('data-testid="english-name"');
+  });
+
   it("emits indexable metadata with per-locale hreflang slugs", async () => {
     state.getPublicProduct.mockResolvedValue(product);
     const metadata = await generateMetadata({ params });

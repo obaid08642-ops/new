@@ -59,6 +59,7 @@
 .catChips { display: flex; flex-wrap: wrap; gap: 6px; }
 .title { margin: 0; font-size: var(--nabd-font-size-h2); line-height: var(--nabd-font-size-h2-lineHeight); font-weight: 700; overflow-wrap: anywhere; }
 .names { display: flex; flex-direction: column; gap: 4px; }
+.englishName { margin: 0; font-size: var(--nabd-font-size-control); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; text-align: start; }
 .altName { font-size: var(--nabd-font-size-control); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
 .maker { font-size: var(--nabd-font-size-control); color: var(--nabd-color-text-tertiary); overflow-wrap: anywhere; }
 

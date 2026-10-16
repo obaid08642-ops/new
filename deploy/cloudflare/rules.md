@@ -17,7 +17,11 @@ Expressions use the Cloudflare Rules language. The cookie names are the web sess
 | C4 | Public pages and public API | everything else on `nabd.plus`, `www.nabd.plus`, `api.nabd.plus` | Eligible for cache; **respect origin Cache-Control** (`@PublicCache` sends `public, s-maxage=300, stale-while-revalidate=60, stale-if-error=86400`; everything else is `private, no-store`). Serve stale while the origin is down: on. |
 
 The origin decides what is cacheable (default `private, no-store`, P14.7). These rules only add a second lock for
-signed-in traffic. Purge by `Cache-Tag` comes from the purge bus (P14.8) once the token exists.
+signed-in traffic.
+
+**HTML (P14.9):** the zone cache never holds HTML: each page carries a per-response CSP nonce. Anonymous public HTML is
+cached by the worker `deploy/cloudflare/edge-html-worker` (Cache API, fresh nonce per response); C1–C3 are enforced in
+that worker's code. See `docs/ops/edge-html.md`. Purge by `Cache-Tag` comes from the purge bus (P14.8) once the token exists.
 
 ## Rate limiting (P14.6)
 

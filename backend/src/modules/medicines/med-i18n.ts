@@ -234,6 +234,19 @@ export function publicVariant(v: unknown): { kind: string; power: number | null;
   };
 }
 
+/**
+ * Owner decision E (issue 1556, 2026-10-16): on ur, hi and bn pages the product name is shown with the English name
+ * under it, so a patient and a pharmacist read the same product. Not for ar, en or fil. Null when there is no English
+ * name or it equals the localized one.
+ */
+export const ENGLISH_UNDER_LOCALES = ['ur', 'hi', 'bn'] as const;
+export function englishNameUnder(productLocale: string, localizedName: string | null | undefined, nameEn: unknown): string | null {
+  if (!(ENGLISH_UNDER_LOCALES as readonly string[]).includes(productLocale)) return null;
+  const en = typeof nameEn === 'string' ? nameEn.trim() : '';
+  if (!en || en === String(localizedName || '').trim()) return null;
+  return en;
+}
+
 export function resolveMedicinePublicDto(raw: Record<string, any>, productLocale: string) {
   const lang = productLocaleToDb(productLocale);
   const tr = raw?.translations?.[lang] || {};
@@ -287,12 +300,14 @@ export function resolveMedicinePublicDto(raw: Record<string, any>, productLocale
     slugs[product] = pick(raw?.translations?.[db]?.slug, db === 'ar' ? raw?.slug : null, raw?.slug, raw?.id ? String(raw.id) : null);
   }
 
+  const name = text('name', LONG_TEXT_TR_KEYS.name);
   return {
     id: raw?.id,
     sku: raw?.sku ?? null,
     locale: productLocale,
     resolved_lang: lang,
-    name: text('name', LONG_TEXT_TR_KEYS.name),
+    name,
+    english_name: englishNameUnder(productLocale, name, raw?.name_en),
     official_name: text('official_name', LONG_TEXT_TR_KEYS.official_name),
     slug: slugs[productLocale] || raw?.slug || raw?.id,
     slugs,

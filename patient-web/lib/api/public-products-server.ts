@@ -9,6 +9,8 @@ export type PublicProduct = {
   sku: number | null;
   locale: string;
   name: string | null;
+  /** Decision E (issue 1556): on ur, hi and bn the English name drawn under the localized one; null on ar, en and fil. */
+  english_name?: string | null;
   official_name: string | null;
   slug: string;
   slugs: Record<string, string | null>;
