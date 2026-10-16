@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { FlatList, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { router, type Href } from 'expo-router';
 import { useDispatch } from 'react-redux';
 
@@ -224,14 +225,11 @@ export default function NotificationsScreen() {
       {loading ? (
         <FeedSkeleton />
       ) : (
-        <FlatList
+        <FlashList
           style={{ flex: 1 }}
           data={feed}
           keyExtractor={(i) => i.key}
           refreshControl={refresh}
-          initialNumToRender={15}
-          maxToRenderPerBatch={15}
-          windowSize={7}
           contentContainerStyle={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 40, flexGrow: 1 }}
           ListEmptyComponent={<View style={{ flex: 1, justifyContent: 'center' }}>{emptyState}</View>}
           renderItem={({ item }) =>

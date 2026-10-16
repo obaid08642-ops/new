@@ -1,3 +1,4 @@
+import { optimizedImageSrc } from "@/lib/media/optimized-image";
 import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
 import type { Metadata } from "next";
@@ -75,7 +76,7 @@ export default async function ClinicDetailPage({ params }: Props) {
 
   return (
     <ConsultPage locale={locale} title={clinic.name} backHref={back}>
-      {clinic.image ? <img src={clinic.image} alt={clinic.name} className={styles.cover} /> : null}
+      {clinic.image ? <img src={optimizedImageSrc(clinic.image, 414)} alt={clinic.name} className={styles.cover} decoding="async" /> : null}
       <ProfileHeader icon="hospital" tone="blue" line={t("typeLabel")} stats={stats} />
       {rows.length > 0 || clinic.phone ? (
         <SectionCard id="clinic-contact">

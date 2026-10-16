@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Image, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
+import { Image } from 'expo-image';
 import { router, type Href } from 'expo-router';
 
 import { Card, EmptyState, Input, Segmented } from '../../../../packages/ui-native/src';
@@ -77,7 +78,7 @@ function WeekContent({ week }: { week: number }) {
           <Card theme={theme} testID="maternity-week">
             <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 14 }}>
               {entry.image ? (
-                <Image source={{ uri: entry.image }} accessibilityLabel={k('care.mat.weekImageAlt', { week: num(entry.week) })} accessibilityIgnoresInvertColors resizeMode="cover" style={{ width: 96, height: 96, borderRadius: 20, backgroundColor: c.bg.sunken }} />
+                <Image cachePolicy="memory-disk" source={{ uri: entry.image }} accessibilityLabel={k('care.mat.weekImageAlt', { week: num(entry.week) })} accessibilityIgnoresInvertColors contentFit="cover" style={{ width: 96, height: 96, borderRadius: 20, backgroundColor: c.bg.sunken }} />
               ) : null}
               <View style={{ flex: 1, minWidth: 0, gap: 6 }}>
                 <Text style={{ ...scale(t, 'body', 'bold'), color: c.text.primary, ...flow }}>{entry.size}</Text>

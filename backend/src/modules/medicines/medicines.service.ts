@@ -13,6 +13,7 @@ import { PurgeBus } from '../../common/purge-bus';
 import { connectionFlagSource, isKilled } from '../../common/killswitches/killswitches.helper';
 import { MedicineRepository } from "./repositories/medicine.repository";
 import { RedisService } from '../redis/redis.service';
+import { HotCache } from '../redis/hot-cache.service';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
 import { AutoEntitySeoPipelineService } from '../events/auto-entity-seo-pipeline.service';
 import { localizeMedicineStructured, DbLang, missingPublicMedicineTranslations, PUBLIC_CATALOG_LOCALES } from './med-i18n';
@@ -37,6 +38,7 @@ export class MedicinesService {
     @Optional() private readonly rankingService?: ProductRankingService,
     @Optional() private readonly manualBoosts?: ManualBoostsService,
     @Optional() private readonly purgeBus?: PurgeBus,
+    @Optional() private readonly hotCache?: HotCache,
   ) {}
 
   /** R77: labeled sponsored flags from the governed manual layer (order untouched). */
@@ -249,6 +251,11 @@ export class MedicinesService {
       const ors: any[] = [
         { name_ar: { $regex: lit, $options: 'i' } },
         { name_en: { $regex: lit, $options: 'i' } },
+        // Owner decision E (issue 1556): an ur/hi/bn page shows the localized name with the English one under it, and a
+        // search matches both, in any of the three scripts.
+        { 'translations.ur.name': { $regex: lit, $options: 'i' } },
+        { 'translations.hi.name': { $regex: lit, $options: 'i' } },
+        { 'translations.bn.name': { $regex: lit, $options: 'i' } },
         { active_ingredient: { $regex: lit, $options: 'i' } },
         { generic_name: { $regex: lit, $options: 'i' } },
         { barcode: { $regex: `^${lit}$`, $options: 'i' } }, // barcode exact match
@@ -595,6 +602,9 @@ export class MedicinesService {
         { is_deleted: { $ne: true }, $or: [
           { name_ar: { $regex: tolerant, $options: 'i' } },
           { name_en: { $regex: tolerant, $options: 'i' } },
+          { 'translations.ur.name': { $regex: tolerant, $options: 'i' } },
+          { 'translations.hi.name': { $regex: tolerant, $options: 'i' } },
+          { 'translations.bn.name': { $regex: tolerant, $options: 'i' } },
           { search_text: { $regex: tolerant, $options: 'i' } },
           { active_ingredient: { $regex: tolerant, $options: 'i' } },
         ] },
@@ -851,8 +861,16 @@ export class MedicinesService {
 
   /** GET /medicines/hot — Top 50 hot/trending medicines (continuous dynamic ranking). */
   async hot() {
-    const cached = await this.redis.getJson<any[]>('med:hot:governed-v2:live');
-    if (cached) return cached;
+    // P14.14: the ranking strip of every home page; HotCache keeps one ranking read per refresh across the fleet
+    if (this.hotCache) return this.hotCache.get('med:hot:governed-v2', { ttl: 180, swr: 600 }, () => this.buildHot(false));
+    return this.buildHot(true);
+  }
+
+  private async buildHot(useRedisCopy: boolean): Promise<any[]> {
+    if (useRedisCopy) {
+      const cached = await this.redis.getJson<any[]>('med:hot:governed-v2:live');
+      if (cached) return cached;
+    }
 
     if (this.rankingService) {
       const { drugIds } = await this.rankingService.getRankedDrugIds({
@@ -872,7 +890,7 @@ export class MedicinesService {
           .filter(Boolean)
           .map((m: any) => this.withBadges(m?.toObject ? m.toObject() : m));
         if (ordered.length > 0) {
-          await this.redis.setJson('med:hot:governed-v2:live', ordered, 180);
+          if (useRedisCopy) await this.redis.setJson('med:hot:governed-v2:live', ordered, 180);
           return ordered;
         }
       }
@@ -881,7 +899,7 @@ export class MedicinesService {
     const rows = await this.model.find(this.publicCatalogFilter(), MedicinesService.CARD_PROJECTION)
       .sort({ usage_count: -1, verified: -1 }).limit(50);
     const result = rows.map((m: any) => this.withBadges(m?.toObject ? m.toObject() : m));
-    await this.redis.setJson('med:hot:governed-v2:live', result, 180);
+    if (useRedisCopy) await this.redis.setJson('med:hot:governed-v2:live', result, 180);
     return result;
   }
 
@@ -1031,9 +1049,17 @@ export class MedicinesService {
 
   /** Category counts for category strip in Pharmacy tab */
   async categories() {
+    // P14.14: a hot key. HotCache: one aggregation per refresh across the fleet, stale copy served while it refreshes.
+    if (this.hotCache) return this.hotCache.get('med:categories-governed-v1', { ttl: 3600, swr: 3600 }, () => this.buildCategories());
     const cacheKey = 'med:categories-governed-v1';
     const cached = await this.redis.getJson<any[]>(cacheKey);
     if (cached) return cached;
+    const result = await this.buildCategories();
+    await this.redis.setJson(cacheKey, result, 3600);
+    return result;
+  }
+
+  private async buildCategories() {
     const agg: any[] = await this.model.aggregate([
       { $match: this.publicCatalogFilter() },
       { $group: { _id: { cat: '$category', sub: '$sub_category' }, count: { $sum: 1 } } },
@@ -1056,7 +1082,6 @@ export class MedicinesService {
           .slice(0, 12),
       }))
       .sort((a, b) => b.count - a.count);
-    await this.redis.setJson(cacheKey, result, 3600);
     return result;
   }
 

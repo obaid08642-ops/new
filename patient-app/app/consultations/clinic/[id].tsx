@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Image } from 'expo-image';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { Card, FIcon } from '../../../../packages/ui-native/src';
@@ -74,7 +75,7 @@ export default function ClinicProfile() {
           <>
             <Card theme={theme} padding="none">
               {data.image ? (
-                <Image accessibilityIgnoresInvertColors accessibilityLabel={name} source={{ uri: data.image }} resizeMode="cover" style={{ width: '100%', height: 180, borderTopLeftRadius: 24, borderTopRightRadius: 24 }} />
+                <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors accessibilityLabel={name} source={{ uri: data.image }} contentFit="cover" style={{ width: '100%', height: 180, borderTopLeftRadius: 24, borderTopRightRadius: 24 }} />
               ) : (
                 <View style={{ height: 120, alignItems: 'center', justifyContent: 'center', backgroundColor: c.bg.media, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
                   <Glyph name="hospital" size={44} color={c.icon.secondary} />
