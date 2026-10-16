@@ -51,8 +51,11 @@ Check after every deploy:
    Redis runs `maxmemory 512mb` with `volatile-lru` (`deploy/redis/redis.conf`): only keys with a TTL (cache entries)
    can be evicted, so queue keys (no TTL) survive memory pressure. Check after the switch: `redis-cli -u $REDIS_CACHE_URL
    --scan --pattern 'hc:*' | head` lists entries, and the main instance holds no new `hc:*` key.
-6. Move LiveKit and coturn to their own server (P14.22). TURN listens on TLS 443 there, and `livekit.yaml` points
-   `turn.domain` at it.
+6. Move LiveKit and coturn to their own server (P14.22). TURN listens on TLS 443 there: `tls-listening-port=443` in
+   that server's `turnserver.conf` and `COTURN_TLS_PORT=443` in the backend's env (it hands out
+   `turns:turn.nabd.plus:443?transport=tcp`), so networks that only allow HTTPS out still connect. `livekit.yaml` points
+   `turn.domain` at it. Measured per-node capacity and how to re-measure it on the new server: `docs/perf/CALLS_14.22.md`
+   (`tools/perf/livekit/ladder.sh`, run from a second machine).
 
 **Rollback:** point the URLs back at the old services, which are kept stopped but intact for 7 days.
 
