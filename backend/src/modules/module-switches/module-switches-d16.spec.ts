@@ -58,3 +58,16 @@ describe('D-16 module switches', () => {
     expect(next).toHaveBeenCalledTimes(2);
   });
 });
+
+describe('module switches push the web cache (#1548)', () => {
+  it('a change purges the `modules` tag, and a failed purge does not fail the change', async () => {
+    const coll = { find: () => ({ toArray: async () => [] }), updateOne: async () => ({ modifiedCount: 1 }) };
+    const conn: any = { db: { collection: () => coll } };
+    const purged: string[][] = [];
+    const bus: any = { purge: async (tags: string[]) => { purged.push(tags); } };
+    await new ModuleSwitchesService(conn, bus).set('loyalty', false, 'maintenance');
+    expect(purged).toEqual([['modules']]);
+    const failing: any = { purge: async () => { throw new Error('down'); } };
+    await expect(new ModuleSwitchesService(conn, failing).set('loyalty', true, 'back on')).resolves.toEqual({ key: 'loyalty', enabled: true });
+  });
+});
