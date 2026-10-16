@@ -6,7 +6,8 @@ import { MedicinesService } from './medicines.service';
  */
 describe('MedicinesService.adminUpdateCatalog: which edits need a fresh medical review', () => {
   const approved = { id: 'm1', name_ar: 'دواء', price: 10, public_eligibility: true, indexing_eligibility: true, medical_review_status: 'approved', verified: true };
-  const ADMIN = { id: 'adm', role: 'admin' };
+  // Owner decision 29: an admin holds catalog.approve only when granted it (here directly on the record).
+  const ADMIN = { id: 'adm', role: 'admin', permissions: ['catalog.approve'] };
   const EDITOR = { id: 'ed', role: 'support_agent', permissions: ['catalog.update'] };
   const make = () => {
     const svc: any = Object.create(MedicinesService.prototype);

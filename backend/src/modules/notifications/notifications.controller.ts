@@ -5,6 +5,7 @@ import { UserRole } from '../../common/enums';
 import { PushService } from '../push/push.module';
 import { SendDto, ScheduleDto, RegisterTokenDto, TemplateUpsertDto, TemplatePreviewDto} from './notifications.dto';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 @Controller('notifications')
 @UseGuards(JwtAuthGuard)
 export class NotificationsController {
@@ -48,6 +49,7 @@ export class NotificationsController {
   }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.NOTIFICATIONS_SEND)
   @Post('admin/send')
   @Roles(UserRole.ADMIN)
   send(@Body() body: SendDto) {
@@ -56,6 +58,7 @@ export class NotificationsController {
 
   // M6/ER-8: admin — schedule a notification for future delivery
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.NOTIFICATIONS_SEND)
   @Post('admin/schedule')
   @Roles(UserRole.ADMIN)
   schedule(@Body() body: ScheduleDto) {
@@ -77,18 +80,21 @@ export class NotificationsController {
     return this.svc.listTemplates();
   }
 
+  @RequirePermissions(Permission.NOTIFICATIONS_SEND)
   @Post('admin/templates')
   @Roles(UserRole.ADMIN)
   upsertTemplate(@CurrentUser() u: any, @Body() b: TemplateUpsertDto) {
     return this.svc.upsertTemplate(u, b);
   }
 
+  @RequirePermissions(Permission.NOTIFICATIONS_SEND)
   @Post('admin/templates/:key/preview')
   @Roles(UserRole.ADMIN)
   previewTemplate(@Param('key') key: string, @Body() b: TemplatePreviewDto) {
     return this.svc.previewTemplate(key, b?.lang || 'ar', b?.params || {});
   }
 
+  @RequirePermissions(Permission.NOTIFICATIONS_SEND)
   @Post('admin/templates/:key/test-send')
   @Roles(UserRole.ADMIN)
   testSendTemplate(@CurrentUser() u: any, @Param('key') key: string, @Body() b: TemplatePreviewDto) {

@@ -219,12 +219,12 @@ def main():
         step('patient token is refused on GET /admin/insurance/requests (403)', r.status == 403, r)
         r = patient.get('/admin/insurance/stats', headers={'x-admin-gate-token': ADMIN_GATE_TOKEN})
         step('patient token is refused on GET /admin/insurance/stats (403)', r.status == 403, r)
-        # The live admin has role admin, which lacks finance.config.edit (super-admin only): the backend refuses the
-        # commission settings, so finance-suite must not offer the form (the page itself is checked once its
-        # duplicate GET /admin/finance/commissions route is fixed; see the fix-session log).
+        # Owner decision 29: the live admin is the owner account, which holds finance.config.edit, so the permission
+        # guard lets the commission settings through (the probe body is invalid on purpose: 400, nothing saved).
+        # A role without finance.config.edit is refused (403): j_admin_roles_restrictive.
         if admin:
             rr = admin.post('/admin/finance/commissions/config', {'rates': {}, 'vat_rate': 0.15, 'reason': 'permission probe only'})
-            step('backend refuses commission settings to role admin (403)', rr.status == 403, rr)
+            step('backend lets the owner past the finance.config.edit guard (validation 400, not 403)', rr.status == 400, rr)
         page.goto(f'{ADMIN_WEB}/admin/orders', wait_until='load', timeout=45000)
         page.wait_for_timeout(1500)
         # /admin/today and /admin/approvals were reachable only by URL.
@@ -274,7 +274,7 @@ def main():
         page.wait_for_selector('h2:has-text("العمولات وVAT")', timeout=30000)
         step('finance-suite renders the commissions card', True, '')
         shown = page.locator('button:has-text("حفظ وتدقيق الإعدادات")').count()
-        step('finance-suite hides the commission settings form from a role without finance.config.edit', shown == 0, f'{shown} save button(s) shown')
+        step('finance-suite offers the commission settings form to the owner (finance.config.edit)', shown == 1, f'{shown} save button(s) shown')
     except Exception as e:
         step('finance suite flow', False, str(e)[:300])
 

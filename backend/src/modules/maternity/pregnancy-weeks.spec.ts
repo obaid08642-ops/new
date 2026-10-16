@@ -104,7 +104,9 @@ describe('admin pregnancy week catalogue', () => {
       expect(Reflect.getMetadata(METHOD_METADATA, fn)).toBeDefined();
       expect(Reflect.getMetadata(PERMISSIONS_KEY, fn)).toEqual([Permission.CMS_EDIT]);
     }
-    expect(ROLE_PERMISSIONS[UserRole.ADMIN]).toContain(Permission.CMS_EDIT);
+    // Owner decision 29: the owner (super_admin) holds cms.edit; the built-in admin role grants nothing by itself.
+    expect(ROLE_PERMISSIONS[UserRole.SUPER_ADMIN]).toContain(Permission.CMS_EDIT);
+    expect(ROLE_PERMISSIONS[UserRole.ADMIN]).toEqual([]);
   });
 
   it('the image is an https URL on the CDN; plain http, other hosts and missing texts are refused', async () => {

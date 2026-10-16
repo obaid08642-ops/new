@@ -8,6 +8,7 @@ import { UpdateProfileDto, UpdateNotificationSettingsDto, UpdatePrivacySettingsD
 import { EraseAccountDto, RecordConsentDto } from './pdpl.dto';
 import { PdplService } from './pdpl.service';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 @Controller('users')
 @SelfService()
 @UseGuards(JwtAuthGuard)
@@ -133,12 +134,14 @@ export class UsersController {
     return this.users.listAll(role, search);
   }
 
+  @RequirePermissions(Permission.USER_EDIT)
   @Post(':id/toggle')
   @Roles(UserRole.ADMIN)
   toggle(@Param('id') id: string, @CurrentUser() by: any) {
     return this.users.toggle(id, by);
   }
 
+  @RequirePermissions(Permission.USER_EDIT)
   @Delete(':id')
   @Roles(UserRole.ADMIN)
   remove(@Param('id') id: string, @CurrentUser() by: any) {

@@ -16,6 +16,7 @@ import { UpdateLegalPolicyDto } from './legal.dto';
 import { DEFAULT_COMMISSIONS } from '../../common/commission-defaults';
 
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 @Injectable()
 export class LegalService {
   constructor(
@@ -176,6 +177,7 @@ export class LegalController {
     return this.svc.accept(user, key, req);
   }
 
+  @RequirePermissions(Permission.GDPR_MANAGE)
   @Put('admin/legal/policy/:key')
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)
