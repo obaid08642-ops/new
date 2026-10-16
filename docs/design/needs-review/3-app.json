@@ -8,7 +8,7 @@
     "line": 37,
     "found": "[owner] The board has it; no field says which test or lab takes insurance, so it is not drawn.",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #622)"
+    "review_status": "fixed #1604 (owner approved recommendation 5 on 2026-10-14: Self-pay / Insurance on the hub from insurance_availability and cash_availability; issue #622)"
   },
   {
     "batch": 3,
