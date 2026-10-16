@@ -20,12 +20,14 @@ export interface RelatedGraphResponse {
  * as the public lists (care.service PUBLIC_PROVIDER_FILTER / PUBLIC_FACILITY_FILTER, the public
  * product filter). An unreviewed or suspended entity is a 404, never a page.
  */
-const PUBLIC_DOCTOR = { type: 'doctor', status: 'active', public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
-const PUBLIC_PHARMACY = { type: 'pharmacy', status: 'active', public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
-const PUBLIC_FACILITY = { is_active: true, public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
+export const PUBLIC_DOCTOR = { type: 'doctor', status: 'active', public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
+export const PUBLIC_PHARMACY = { type: 'pharmacy', status: 'active', public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
+export const PUBLIC_FACILITY = { is_active: true, public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
 // 787: labs, radiology centres and pharmacies listed by type in explore (same rule, any provider type).
-const PUBLIC_TYPED_PROVIDER = { status: 'active', public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
-const PUBLIC_MEDICINE = { public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
+// P13-R8: single source for "links only to governed entities" — also enforced by
+// the public recommendations in seo-search (a second copy here would drift).
+export const PUBLIC_TYPED_PROVIDER = { status: 'active', public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
+export const PUBLIC_MEDICINE = { public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
 
 @Injectable()
 export class EntityGraphService implements OnModuleInit {
