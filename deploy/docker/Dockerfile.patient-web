@@ -16,6 +16,12 @@ ARG NEXT_PUBLIC_SITE_ORIGIN=https://nabd.plus
 ENV NEXT_PUBLIC_SITE_ORIGIN=$NEXT_PUBLIC_SITE_ORIGIN
 ARG NEXT_PUBLIC_GOOGLE_CLIENT_ID=
 ENV NEXT_PUBLIC_GOOGLE_CLIENT_ID=$NEXT_PUBLIC_GOOGLE_CLIENT_ID
+# #1603: the ISR/data cache goes to Redis (patient-web/cache-handler.cjs), never to the container's disk. Without a
+# cache handler Next wrote every rendered page under .next/server (5.8 GB in 18 h, no cap, no eviction) and filled the
+# server's disk. The handler reads NEXT_CACHE_REDIS_URL at run time (compose: the capped, evicting redis-cache).
+# Build with --build-arg NEXT_CACHE_HANDLER= (empty) only for a local image without Redis.
+ARG NEXT_CACHE_HANDLER=redis
+ENV NEXT_CACHE_HANDLER=$NEXT_CACHE_HANDLER
 RUN pnpm build
 
 FROM node:22-alpine AS runner
