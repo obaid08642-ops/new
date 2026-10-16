@@ -219,7 +219,7 @@ describe("/orders", () => {
       "/care/appointments": json([{ id: APPT, status: "confirmed", service_type: "video", slot_start: ts(11), doctor_name: "Dr Test" }]),
       "/labs/bookings/mine": json([{ id: LAB, state: "REPORT_READY", scheduled_at: ts(9), items: [{ name_en: "CBC" }] }]),
       "/radiology/bookings/mine": json([{ id: SCAN, state: "CANCELLED", scheduled_at: ts(7), scan_name_en: "Chest X-ray" }]),
-      "/nursing/visits": json([{ id: "visit-1", status: "NURSE_EN_ROUTE", scheduled_at: ts(10), service_name: "Wound care" }]),
+      "/nursing/bookings/mine": json([{ id: "visit-1", state: "NURSE_EN_ROUTE", scheduled_at: ts(10), service_name_en: "Wound care" }]),
     });
     const html = render(await OrdersScreen({ locale: "en" }));
     for (const href of [`/en/appointments/${APPT}`, `/en/orders/${ORDER}`, `/en/nursing/visits/visit-1`]) expect(html).toContain(`href="${href}"`);
