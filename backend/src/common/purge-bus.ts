@@ -24,7 +24,7 @@ export interface PurgeTargets {
 
 export const PURGE_CHANNEL = 'cache:purge';
 
-function defaultTargets(): PurgeTargets {
+export function defaultTargets(): PurgeTargets {
   return {
     async cloudflare(tags: string[]): Promise<void> {
       const token = process.env.CLOUDFLARE_API_TOKEN;
