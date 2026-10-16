@@ -54,8 +54,10 @@ describe('consult hub quick filters: the request', () => {
     expect(sortsByDistance(path)).toBe(false);
   });
 
-  it('available now with nearest: the server cannot combine them, so no distance sort is sent (the city still is)', () => {
-    expect(buildDoctorsPath({ ...base, nearest: true, availableNow: true, place: coords })).toBe('/care/doctors?type=clinic&available_within=15');
+  it('available now with nearest: the free doctors come nearest first (the position is sent; else the city)', () => {
+    const both = buildDoctorsPath({ ...base, nearest: true, availableNow: true, place: coords });
+    expect(both).toBe(`/care/doctors?type=clinic&available_within=15&sort=distance&lat=${coords.lat}&lng=${coords.lng}`);
+    expect(sortsByDistance(both)).toBe(true);
     expect(buildDoctorsPath({ ...base, nearest: true, availableNow: true, place: city })).toBe('/care/doctors?type=clinic&available_within=15&city=Test%20city');
   });
 });

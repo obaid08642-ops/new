@@ -67,4 +67,19 @@ describe('Q-13 available now', () => {
     expect(out.items.map((d: any) => d.id)).toContain('free');
     expect(out.items.map((d: any) => d.id)).not.toContain('busy');
   });
+
+  it('2-app#10 / 2-web#10: with sort=distance and a position the free doctors come nearest first', async () => {
+    const t0 = Date.now();
+    const docs = [
+      { id: 'far', consultation_modes: ['clinic'], geoPoint: { type: 'Point', coordinates: [46.9, 24.9] } },
+      { id: 'nowhere', consultation_modes: ['clinic'] },
+      { id: 'near', consultation_modes: ['clinic'], geoPoint: { type: 'Point', coordinates: [46.676, 24.714] } },
+    ];
+    const svc = svcWith(docs, { slots: [t0 + 10 * MIN] });
+    const out: any = await svc.listDoctors({ available_within: 30, available_type: 'clinic', sort: 'distance', lat: 24.7136, lng: 46.6753 } as any);
+    expect(out.items.map((d: any) => d.id)).toEqual(['near', 'far', 'nowhere']);
+    expect(out.items[0].distance_km).toBeLessThan(1);
+    const timeOrder: any = await svc.listDoctors({ available_within: 30, available_type: 'clinic' } as any);
+    expect(timeOrder.items).toHaveLength(3);
+  });
 });

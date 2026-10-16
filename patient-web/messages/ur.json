@@ -914,7 +914,8 @@
     "save": "مضمون محفوظ کریں",
     "unsave": "محفوظ شدہ سے ہٹائیں",
     "saveFailed": "محفوظ کردہ مضامین اپ ڈیٹ نہیں ہو سکے۔ دوبارہ کوشش کریں۔",
-    "signInToSave": "مضامین محفوظ کرنے کے لیے سائن اِن کریں"
+    "signInToSave": "مضامین محفوظ کرنے کے لیے سائن اِن کریں",
+    "bodyTitle": "مضمون کا متن"
   },
   "ChatDetail": {
     "eyebrow": "نجی گفتگو",
@@ -2517,7 +2518,11 @@
     "callConnecting": "جڑ رہا ہے…",
     "callEnded": "کال ختم ہو گئی",
     "callLeave": "چھوڑیں",
-    "callMute": "خاموش",
+    "callMicrophone": "مائیکروفون",
+    "callLive": "منسلک",
+    "callWaitingForDoctor": "ڈاکٹر کے شامل ہونے کا انتظار",
+    "callYou": "آپ",
+    "callDoctor": "ڈاکٹر",
     "callCamera": "کیمرا",
     "callNotReady": "کال ابھی تیار نہیں",
     "callUnavailable": "کنکشن دستیاب نہیں",

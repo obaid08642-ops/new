@@ -28,6 +28,8 @@ const F = {
   turnaround_hours: { key: 'turnaround_hours', label: 'مدة النتيجة (ساعة)', type: 'number' },
   sample_type: { key: 'sample_type', label: 'نوع العينة (blood/urine/swab)', type: 'text' },
   fasting_required: { key: 'fasting_required', label: 'يتطلب صياماً', type: 'checkbox' },
+  // 4-app#3: the app asks for the prescription before booking this service (injections, IV)
+  requires_patient_medication: { key: 'requires_patient_medication', label: 'يتطلب وصفة ودواء المريض', type: 'checkbox' },
   home_visit_supported: { key: 'home_visit_supported', label: 'متاح بزيارة منزلية', type: 'checkbox' },
   duration: { key: 'duration', label: 'المدة (hour/shift)', type: 'text' },
   modality: { key: 'modality', label: 'نوع الأشعة (xray/ct/mri/ultrasound)', type: 'text' },
@@ -52,7 +54,7 @@ const TABS: { key: TabKey; label: string; adminBase: string; crudBase?: string; 
   { key: 'radiology', label: 'الأشعة', adminBase: '/radiology/admin/catalog', crudBase: '/radiology/admin/catalog',
     fields: [F.name_ar, F.name_en, F.short_code, F.modality, F.body_part, F.price, F.old_price, F.turnaround_hours, F.popularity, F.contrast_required, F.fasting_required, F.home_visit_supported, F.image_url, F.icon, F.active, F.description_ar, F.description_en] },
   { key: 'nursing', label: 'التمريض المنزلي', adminBase: '/nursing/admin/catalog', crudBase: '/nursing/admin/catalog',
-    fields: [F.name_ar, F.name_en, F.category, F.price, F.duration, F.popularity, F.image_url, F.icon, F.active, F.description_ar, F.description_en] },
+    fields: [F.name_ar, F.name_en, F.category, F.price, F.duration, F.popularity, F.requires_patient_medication, F.image_url, F.icon, F.active, F.description_ar, F.description_en] },
   // P6.x-2: reference specialties have their own inline form (name only, no review flow).
   { key: 'specialties', label: 'التخصصات', adminBase: SPECIALTIES_BASE, fields: [] },
   // R6-6: insurance lives in this page (custom panel below). Medicines are edited only in /admin/medicines-catalog.

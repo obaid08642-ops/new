@@ -258,7 +258,10 @@ export function resolveMedicinePublicDto(raw: Record<string, any>, productLocale
   ].filter((u: any, i: number, arr: any[]) => typeof u === 'string' && u.length > 4 && arr.indexOf(u) === i);
 
   const price = Number(raw?.price || 0);
-  const old = Number(raw?.old_price || 0);
+  const isRx = raw?.requires_prescription === true || raw?.is_rx === true;
+  // Decision 10: no promotion on a prescription item. The old price and the discount are withheld here,
+  // like the admin catalogue lists and GET /medicines/:id do (medicines.service.ts), so no card can show them.
+  const old = isRx ? 0 : Number(raw?.old_price || 0);
   const discount = old > price && price > 0 ? Math.round((1 - price / old) * 100) : 0;
 
   // Slugs per locale so the web app can emit true per-language hreflang URLs.
@@ -301,7 +304,7 @@ export function resolveMedicinePublicDto(raw: Record<string, any>, productLocale
     price, old_price: old || null,
     discount_percent: discount, has_discount: discount > 0,
     currency: 'SAR',
-    is_rx: raw?.requires_prescription === true || raw?.is_rx === true,
+    is_rx: isRx,
     // Decision 11: the "online only" badge on the public product page and the online-only note on cart lines.
     online_exclusive: raw?.online_exclusive === true,
     // Published items are shown on the site; only indexable ones go to search engines (the page says noindex otherwise).

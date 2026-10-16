@@ -8,6 +8,7 @@ import { validateReason, ReasonError } from '../../../common/rbac';
 import { AdminAuditService } from './audit.service';
 import { SaveHomeCurationDto, SaveFeatureFlagDto } from './admin-governance-controls.dto';
 import { CATALOG_COLLECTIONS } from '../../catalogs/catalog-collections';
+import { EFFECTIVE_FLAGS, EFFECTIVE_FLAG_KEYS } from '../../feature-flags/effective-flags';
 
 /**
  * Missing A5/A6 administrative controls. The stored documents are the source
@@ -67,16 +68,21 @@ export class AdminGovernanceControlsController {
       this.conn.collection('feature_flags').find({}).project({ _id: 0 }).toArray(),
       this.conn.collection('featureflags').find({}).project({ _id: 0 }).toArray(),
     ]);
-    const merged = new Map<string, any>();
-    for (const source of [...legacy, ...canonical] as any[]) {
-      const key = String(source.key || source.name || '').trim();
-      if (!key) continue;
-      const current = merged.get(key);
-      const incomingAt = new Date(source.updatedAt || source.updated_at || 0).getTime();
-      const currentAt = new Date(current?.updatedAt || current?.updated_at || 0).getTime();
-      if (!current || incomingAt >= currentAt) merged.set(key, { key, enabled: !!source.enabled, rollout_percentage: Number(source.rollout_percentage ?? source.rollout ?? 100), updatedAt: source.updatedAt || source.updated_at || null, source: source.source || 'database' });
+    // The server checks (killswitches.helper connectionFlagSource, sms.service) read the `featureflags` rows, which
+    // this page writes together with `feature_flags`; the state shown is the one those checks see.
+    const readByChecks = new Map<string, any>();
+    for (const row of legacy as any[]) {
+      const key = String(row.key || '').trim();
+      if (key) readByChecks.set(key, row);
     }
-    return { data: [...merged.values()].sort((a, b) => a.key.localeCompare(b.key)), stores: { canonical: canonical.length, legacy: legacy.length } };
+    // needs-review admin-system item 10: only the flags a server check reads are listed, each with its effect. An absent
+    // row reads ON for every one of them except sms_enabled, whose default is the SMS_ENABLED env.
+    const data = EFFECTIVE_FLAGS.map((flag) => {
+      const row = readByChecks.get(flag.key);
+      const enabled = row ? !!row.enabled : flag.key === 'sms_enabled' ? process.env.SMS_ENABLED === 'true' : true;
+      return { key: flag.key, name: flag.name, effect: flag.effect, enabled, updatedAt: row?.updatedAt || row?.updated_at || null, stored: !!row };
+    });
+    return { data, stores: { canonical: canonical.length, legacy: legacy.length } };
   }
 
   @Post('feature-flags')
@@ -88,11 +94,14 @@ export class AdminGovernanceControlsController {
       throw error;
     }
     const key = String(body?.key || '').trim();
-    const rollout = Number(body?.rollout_percentage);
     if (!/^[a-z0-9._-]{2,80}$/i.test(key)) throw new BadRequestException('feature_flag_key_invalid');
+    // A key no server check reads would be a switch that changes nothing (needs-review admin-system item 10).
+    if (!EFFECTIVE_FLAG_KEYS.includes(key)) throw new BadRequestException('feature_flag_has_no_effect');
     if (typeof body?.enabled !== 'boolean') throw new BadRequestException('enabled_boolean_required');
-    if (!Number.isFinite(rollout) || rollout < 0 || rollout > 100) throw new BadRequestException('rollout_percentage_must_be_0_to_100');
     const before: any = await this.conn.collection('feature_flags').findOne({ key });
+    // Rollout is not read by any server check; it is kept as stored (100 when new) for the /config consumers.
+    const rollout = body?.rollout_percentage === undefined ? Number(before?.rollout_percentage ?? 100) : Number(body.rollout_percentage);
+    if (!Number.isFinite(rollout) || rollout < 0 || rollout > 100) throw new BadRequestException('rollout_percentage_must_be_0_to_100');
     const doc = { key, enabled: body.enabled, rollout_percentage: Math.round(rollout), updated_by: me.id, updatedAt: new Date(), source: 'admin_governance_controls' };
     await Promise.all([
       this.conn.collection('feature_flags').updateOne({ key }, { $set: doc, $setOnInsert: { createdAt: new Date() } }, { upsert: true }),
