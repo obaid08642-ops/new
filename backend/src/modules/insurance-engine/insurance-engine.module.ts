@@ -269,10 +269,6 @@ export class InsuranceFlowService {
     req.history = [...(req.history || []), { state, at: new Date(), by, note }];
   }
 
-  async companiesList() {
-    return this.companies.find({ is_active: true }, { _id: 0, __v: 0 }).lean();
-  }
-
   async savePolicy(user: any, body: any) {
     if (!body?.company_id) throw new BadRequestException('company_id is required');
     // add-policy.tsx sends the company code; other clients send the id
@@ -851,7 +847,8 @@ export class InsuranceFlowController {
   constructor(private readonly svc: InsuranceFlowService) {}
 
   // ---- patient ----
-  @Get('companies') companies() { return this.svc.companiesList(); }
+  // GET /insurance/companies is answered by InsuranceController (insurance.module.ts): the public catalogue with the plan
+  // tiers (issue 1550). A second handler here shadowed it, asked for a session and dropped the plans.
   @SelfService()
   @Post('save-policy') savePolicy(@CurrentUser() u: any, @Body() b: SavePolicyDto) { return this.svc.savePolicy(u, b); }
   @Get('my-policy') myPolicy(@CurrentUser() u: any) { return this.svc.myPolicy(u); }
