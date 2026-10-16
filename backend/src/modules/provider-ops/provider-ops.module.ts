@@ -748,9 +748,9 @@ export class ProviderOpsController {
  * penalties and chargebacks with a POSITIVE amount and subtracts them in `LedgerService.providerBalance`, so the sign of
  * the amount cannot decide the direction: a refund clawback showed up as money received.
  */
-const WALLET_DEBIT_TYPES = new Set(['payout', 'provider_debit', 'penalty', 'chargeback']);
+const LEDGER_DEBIT_TYPES = new Set(['payout', 'provider_debit', 'penalty', 'chargeback']);
 export function walletEntryDirection(entry: { type?: string; amount?: number }): 'CREDIT' | 'DEBIT' {
-  return WALLET_DEBIT_TYPES.has(String(entry.type)) || (entry.amount || 0) < 0 ? 'DEBIT' : 'CREDIT';
+  return LEDGER_DEBIT_TYPES.has(String(entry.type)) || (entry.amount || 0) < 0 ? 'DEBIT' : 'CREDIT';
 }
 
 // ── Compat endpoints: routes the provider app calls that had no backend ─────
