@@ -49,6 +49,14 @@ def main():
         return step('web home nursing', False, f'no chromium: {e}')
     ctx = browser.new_context(locale='ar-SA', viewport={'width': 390, 'height': 844})
     page = ctx.new_page()
+    # When tomorrow's times never arrive: was the request sent, what did it answer, did it fail, and what else was still
+    # in flight then (the browser opens at most six connections to one host; requests past that wait for a free one).
+    _slots_seen = []
+    _in_flight = {}
+    page.on('response', lambda resp: _slots_seen.append(f'{resp.status} {resp.url[-60:]}') if '/slots' in resp.url else None)
+    page.on('request', lambda req: (_in_flight.__setitem__(id(req), req.url[-70:]), _slots_seen.append('sent ' + req.url[-20:]) if '/slots' in req.url else None))
+    page.on('requestfinished', lambda req: _in_flight.pop(id(req), None))
+    page.on('requestfailed', lambda req: (_in_flight.pop(id(req), None), _slots_seen.append(f'failed {req.failure} {req.url[-20:]}') if '/slots' in req.url else None))
     try:
         page.goto(f'{WEB}/ar', wait_until='load', timeout=60000)
         r = web_login(ctx, WEB, acct['email'], acct['password'])
@@ -97,7 +105,8 @@ def main():
                     and sec('time').locator('[role="status"]').count() == 0 and sec('time').locator('button').count() > 0):
                 break
             page.wait_for_timeout(250)
-        step('tomorrow shows the nurse\'s free times', sec('time').locator('button').count() > 0, sec('time').inner_text()[:200])
+        _days = page.evaluate("() => [...document.querySelectorAll('section[aria-labelledby=\"home-care-day\"] button')].map(b => (b.getAttribute('aria-pressed')||'') + ':' + b.innerText.replace(/\\s+/g,' '))")
+        step('tomorrow shows the nurse\'s free times', sec('time').locator('button').count() > 0, sec('time').inner_text().replace('\n', ' | ')[:200] + ' || days=' + str(_days)[:300] + ' || slots=' + str(_slots_seen)[-600:] + ' || in flight=' + str(list(_in_flight.values()))[:700])
         sec('time').locator('button').first.click()
         step('the saved located address is offered', 'الملك فهد' in sec('address').inner_text(), sec('address').inner_text()[:200])
         with page.expect_request(lambda req: 'fake-moyasar' in req.url, timeout=30000) as went:
