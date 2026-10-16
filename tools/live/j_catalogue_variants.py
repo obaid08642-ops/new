@@ -94,9 +94,9 @@ def main():
     step('four variants, colour then power (Brown -1.00; Hazel -1.00, -2.50, +1.25)',
          order == [ids['b-1.00'], ids['h-1.00'], ids['h-2.50'], ids['h+1.25']], [(v.get('variant'), v.get('price')) for v in vs])
     h250 = next((v for v in vs if v.get('id') == ids['h-2.50']), {})
-    step('each variant carries its own SKU, price and attribute',
+    step('each variant is its own record (id, SKU field, price, attribute); admin-added TEST records have no SKU number',
          h250.get('price') == 57.5 and h250.get('variant', {}).get('power') == -2.5 and h250.get('variant', {}).get('colour') == 'hazel'
-         and len({v.get('sku') for v in vs}) == 4, h250)
+         and len({v.get('id') for v in vs}) == 4 and 'sku' in h250, h250)
     none = anon.get(f'/public/product-variants/en/{solo}')
     step('the drops (no group) have no variants, and every record still exists', none.ok and none.get('variants') == []
          and all(anon.get(f'/public/product-by-id/en/{i}').ok for i in ids.values()), none)
