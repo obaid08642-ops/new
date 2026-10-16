@@ -65,13 +65,18 @@ export class AdminDeviceService {
     }));
   }
 
-  /** D-35: active (non-revoked) enrolled devices. Degrades to 0 when the store cannot count (unit doubles). */
+  /**
+   * D-35: active (non-revoked) enrolled devices. A store without countDocuments (unit doubles) counts 0; a count that
+   * fails at runtime fails CLOSED (reports the limit), so a database error can never let a third device enrol.
+   */
   async activeCount(userId: string): Promise<number> {
+    const count = (this.devices as any)?.countDocuments;
+    if (typeof count !== 'function') return 0;
     try {
-      const n = await (this.devices as any)?.countDocuments?.({ user_id: userId, revoked: { $ne: true } });
-      return typeof n === 'number' ? n : 0;
+      const n = await count.call(this.devices, { user_id: userId, revoked: { $ne: true } });
+      return typeof n === 'number' ? n : MAX_ACTIVE_ADMIN_DEVICES;
     } catch {
-      return 0;
+      return MAX_ACTIVE_ADMIN_DEVICES;
     }
   }
 
