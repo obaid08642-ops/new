@@ -1,0 +1,13 @@
+# P14.9 edge HTML worker. Deployed by the build session (tools/ops), not from a laptop. The secret EDGE_STAMP_TOKEN is
+# set with the worker (same value as NABD_EDGE_STAMP_TOKEN in deploy/.env.production) and is never in this file.
+name = "nabd-edge-html"
+main = "worker.mjs"
+compatibility_date = "2026-09-01"
+workers_dev = false
+
+# Fail open: when the worker cannot run (plan limit, error), requests go straight to the origin, which stamps the nonce
+# itself and answers private/no-store, as it does today.
+routes = [
+  { pattern = "nabd.plus/*", zone_name = "nabd.plus" },
+  { pattern = "www.nabd.plus/*", zone_name = "nabd.plus" },
+]
