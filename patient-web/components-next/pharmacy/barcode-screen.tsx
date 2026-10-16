@@ -1,67 +1,98 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { CoreShell } from "@/components-next/core/core-shell";
 import { DrugInteractionChecker } from "@/components-next/drug-interaction-checker";
 import { Button } from "@/components-next/ui-generated/components/Button";
-import { CameraScanner, PACK_FORMATS } from "@/components-next/scan/camera-scanner";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
-import { Input } from "@/components-next/ui-generated/components/Inputs";
 import { formatPrice } from "@/lib/format-price";
 import type { Locale } from "@/lib/i18n";
-import { cleanBarcode, parseBarcodeLookup, type BarcodeMatch } from "@/lib/pharmacy/barcode";
+import { newIdempotencyKey } from "@/lib/pharmacy/broadcast";
+import { parseScanAnswer, type ScanMedicine } from "@/lib/pharmacy/ai-scan";
+import { MAX_RX_FILE_BYTES, checkRxFile, prepareRxImage } from "@/lib/pharmacy/rx-upload";
 import { ButtonLink } from "./button-link";
 import { PHARMACY_TONE } from "./tones";
 import rx from "./rx.module.css";
 
-type Outcome =
+type Failure = "type" | "size" | "read" | "unreadable" | "rxUnreadable" | "busy" | "scan" | "session";
+type Phase =
   | { kind: "idle" }
-  | { kind: "looking" }
-  | { kind: "found"; match: BarcodeMatch; code: string }
-  | { kind: "missing"; code: string }
-  | { kind: "failed"; reason: "lookup" | "session" };
+  | { kind: "reading" }
+  | { kind: "matches"; readAs: string | null; medicines: ScanMedicine[] }
+  | { kind: "opening" }
+  | { kind: "failed"; reason: Failure };
 
 /**
- * Scan a medicine (second pass, section 3: the old barcode and drug-interaction pages in one screen). Find a medicine by the barcode on its package (the app's barcode scanner, typed in: the web has no camera scan, so this
- * screen does not promise one). An exact match is shown as found; a name match on the typed text is shown as the closest
- * match, never as a recognised barcode.
+ * The AI scanner (decision 36, changed 2026-10-16; it replaces the BarcodeDetector camera, the catalogue has no barcodes).
+ * The patient takes or chooses one photo of a medicine pack, its barcode or QR code, or a prescription. POST /ai/scan reads
+ * it with the vision model: for a pack, barcode or QR it answers with the closest public-catalogue medicines, which the
+ * patient picks from; a prescription goes through the normal prescription flow on the server (read, then saved with the
+ * photo for the pharmacist's review) and this screen opens the prescription order. The interaction check stays below.
  */
 export function BarcodeScreen({ locale }: { locale: Locale }) {
   const t = useTranslations("PharmacyBarcode");
   const flow = useTranslations("PharmacyFlow");
   const browse = useTranslations("PharmacyBrowse");
-  const [code, setCode] = useState("");
-  const [outcome, setOutcome] = useState<Outcome>({ kind: "idle" });
-  const looking = outcome.kind === "looking";
-  const clean = cleanBarcode(code);
+  const router = useRouter();
+  const input = useRef<HTMLInputElement>(null);
+  const [phase, setPhase] = useState<Phase>({ kind: "idle" });
+  const busy = phase.kind === "reading" || phase.kind === "opening";
 
-  async function lookup(scanned?: string) {
-    const clean = cleanBarcode(scanned ?? code);
-    if (!clean || looking) return;
-    setOutcome({ kind: "looking" });
+  async function pick(event: React.ChangeEvent<HTMLInputElement>) {
+    const chosen = event.target.files?.[0];
+    event.target.value = "";
+    if (!chosen || busy) return;
+    const check = checkRxFile(chosen);
+    if (check !== "ok") return setPhase({ kind: "failed", reason: check });
+    setPhase({ kind: "reading" });
+    let image: string;
     try {
-      const response = await fetch(`/api/patient/medicines/by-barcode/${encodeURIComponent(clean)}`, { cache: "no-store", credentials: "same-origin" });
-      if (response.status === 401) return setOutcome({ kind: "failed", reason: "session" });
-      if (!response.ok) return setOutcome({ kind: "failed", reason: "lookup" });
-      const match = parseBarcodeLookup(await response.json().catch(() => null), locale);
-      setOutcome(match ? { kind: "found", match, code: clean } : { kind: "missing", code: clean });
+      image = await prepareRxImage(chosen);
     } catch {
-      setOutcome({ kind: "failed", reason: "lookup" });
+      return setPhase({ kind: "failed", reason: "read" });
+    }
+    try {
+      const response = await fetch("/api/patient/ai/scan", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "content-type": "application/json", "idempotency-key": newIdempotencyKey() },
+        body: JSON.stringify({ image_base64: image }),
+      });
+      if (response.status === 401) return setPhase({ kind: "failed", reason: "session" });
+      if (response.status === 429) return setPhase({ kind: "failed", reason: "busy" });
+      if (response.status === 422) return setPhase({ kind: "failed", reason: "unreadable" });
+      if (!response.ok) return setPhase({ kind: "failed", reason: "scan" });
+      const outcome = parseScanAnswer(await response.json().catch(() => null), locale);
+      if (!outcome) return setPhase({ kind: "failed", reason: "scan" });
+      if (outcome.kind === "prescriptionUnreadable") return setPhase({ kind: "failed", reason: "rxUnreadable" });
+      if (outcome.kind === "prescription") {
+        setPhase({ kind: "opening" });
+        router.push(`/${locale}/pharmacy/rx-order?prescriptionId=${encodeURIComponent(outcome.prescriptionId)}`);
+        return;
+      }
+      setPhase({ kind: "matches", readAs: outcome.readAs, medicines: outcome.medicines });
+    } catch {
+      setPhase({ kind: "failed", reason: "scan" });
     }
   }
 
-  function reset() {
-    setCode("");
-    setOutcome({ kind: "idle" });
-  }
-
-  const found = outcome.kind === "found" ? outcome.match : null;
-  const product = found?.medicine;
-  const meta = product ? [product.form, product.strength, product.manufacturer].filter(Boolean).join(" · ") : "";
-  const price = product?.price !== undefined ? formatPrice(locale, product.price).text : null;
+  const megabytes = new Intl.NumberFormat(locale, { style: "unit", unit: "megabyte", unitDisplay: "short" }).format(MAX_RX_FILE_BYTES / (1024 * 1024));
+  const errorText: Record<Failure, string> = {
+    type: t("errorType"),
+    size: t("errorSize", { size: megabytes }),
+    read: t("errorRead"),
+    unreadable: t("errorUnreadable"),
+    rxUnreadable: t("errorRxUnreadable"),
+    busy: t("errorBusy"),
+    scan: t("errorScan"),
+    session: flow("sessionEnded"),
+  };
+  const failure = phase.kind === "failed" ? phase.reason : null;
+  const productHref = (medicine: ScanMedicine) => `/${locale}/${medicine.slug ? `p/${encodeURIComponent(medicine.slug)}` : `medicines/${encodeURIComponent(medicine.id)}`}`;
 
   return (
     <CoreShell locale={locale} title={t("title")} backHref={`/${locale}/c`} width="narrow">
@@ -69,67 +100,68 @@ export function BarcodeScreen({ locale }: { locale: Locale }) {
         <div className={rx.head}><h1 className={rx.title}>{t("title")}</h1></div>
         <p className={rx.lead}>{t("intro")}</p>
 
-        {/* issue 499: the camera reads the pack's barcode where the browser can; typing it stays. Above the form, not in its
-            row: the row is the code field and its button, and a third item there was squeezed under the field. */}
-        <CameraScanner formats={PACK_FORMATS} onResult={(scanned) => { setCode(scanned.slice(0, 64)); void lookup(scanned.slice(0, 64)); }} />
+        <input ref={input} className={rx.srOnly} type="file" accept="image/jpeg,image/png,image/webp" capture="environment" tabIndex={-1} aria-hidden="true" onChange={(event) => void pick(event)} />
+        <Button
+          type="button"
+          size="lg"
+          fullWidth
+          startIcon="scan"
+          label={busy ? t("reading") : phase.kind === "idle" ? t("takePhoto") : t("another")}
+          loading={busy}
+          disabled={busy}
+          onClick={() => input.current?.click()}
+        />
+        {phase.kind === "reading" ? <p className={rx.note} role="status">{t("reading")}</p> : null}
+        {phase.kind === "opening" ? <p className={rx.note} role="status">{t("rxSaved")}</p> : null}
 
-        <form
-          className={rx.lookup}
-          aria-label={t("title")}
-          onSubmit={(event) => {
-            event.preventDefault();
-            void lookup();
-          }}
-        >
-          <Input label={t("codeLabel")} placeholder={t("codePlaceholder")} value={code} disabled={looking} onChange={(value) => setCode(value.slice(0, 64))} />
-          <Button label={looking ? t("looking") : t("lookup")} type="submit" size="lg" disabled={!clean} loading={looking} />
-        </form>
-
-        {outcome.kind === "failed" ? (
+        {failure ? (
           <div className={rx.error} role="alert">
-            {outcome.reason === "session" ? flow("sessionEnded") : t("errorLookup")}
-            {outcome.reason === "session" ? <div className={rx.errorActions}><Link className={rx.textLink} href={`/${locale}/login`}>{flow("signIn")}</Link></div> : null}
+            {errorText[failure]}
+            {failure === "session" ? <div className={rx.errorActions}><Link className={rx.textLink} href={`/${locale}/login`}>{flow("signIn")}</Link></div> : null}
+            {failure === "rxUnreadable" ? <div className={rx.errorActions}><Link className={rx.textLink} href={`/${locale}/pharmacy/rx-order?via=photo`}>{t("uploadRx")}</Link></div> : null}
           </div>
         ) : null}
 
-        {found && product && outcome.kind === "found" ? (
-          <section className={`${rx.card} ${rx.result}`} aria-label={found.kind === "exact" ? t("foundTitle") : t("closestTitle")}>
-            <div className={rx.chips}>
-              <StatusChip label={found.kind === "exact" ? t("foundTitle") : t("closestTitle")} tone={found.kind === "exact" ? "mint" : "amber"} />
-              {product.requiresRx ? <StatusChip label={t("needsRx")} tone="amber" /> : null}
-              {product.onlineOnly ? <StatusChip label={t("onlineOnly")} tone="mint" /> : null}
-            </div>
-            <div className={rx.resultHead}>
-              <FIcon icon="pill" tone={PHARMACY_TONE} size={48} />
-              <div className={rx.cardBody}>
-                <h2 className={rx.rowTitle}>{product.name}</h2>
-                {meta ? <span className={rx.rowSub}>{meta}</span> : null}
-              </div>
-            </div>
-            {found.kind === "closest" ? <p className={rx.note}>{t("closestNote")}</p> : null}
-            <span className={rx.price}>{price ?? t("priceUnavailable")}</span>
-            <span className={rx.note}>{t("barcodeLine", { code: outcome.code })}</span>
-            <div className={rx.actionsStack}>
-              <ButtonLink href={`/${locale}/${product.slug ? `p/${encodeURIComponent(product.slug)}` : `medicines/${encodeURIComponent(product.id)}`}`} label={t("viewProduct")} fullWidth />
-              <Button label={t("another")} variant="outline" size="lg" fullWidth onClick={reset} />
-            </div>
+        {phase.kind === "matches" && phase.medicines.length > 0 ? (
+          <section className={`${rx.card} ${rx.result}`} aria-labelledby="scan-matches">
+            <h2 className={rx.h2} id="scan-matches">{t("matchesTitle")}</h2>
+            {phase.readAs ? <p className={rx.note}>{t("matchesNote", { name: phase.readAs })}</p> : null}
+            <ul className={rx.list}>
+              {phase.medicines.map((medicine) => (
+                <li key={medicine.id}>
+                  <Link className={`${rx.listRow} ${rx.rowLink}`} href={productHref(medicine)}>
+                    <FIcon icon="pill" tone={PHARMACY_TONE} size={40} />
+                    <span className={rx.rowBody}>
+                      <span className={rx.rowTitle}>{medicine.name}</span>
+                      {medicine.meta ? <span className={rx.rowSub}>{medicine.meta}</span> : null}
+                      <span className={rx.rowSub}>{medicine.price !== undefined ? formatPrice(locale, medicine.price).text : t("priceUnavailable")}</span>
+                      {medicine.requiresRx || medicine.onlineOnly ? (
+                        <span className={rx.chips}>
+                          {medicine.requiresRx ? <StatusChip label={t("needsRx")} tone="amber" /> : null}
+                          {medicine.onlineOnly ? <StatusChip label={t("onlineOnly")} tone="mint" /> : null}
+                        </span>
+                      ) : null}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </section>
         ) : null}
 
-        {outcome.kind === "missing" ? (
-          <section className={`${rx.card} ${rx.result}`} aria-label={t("notFoundTitle")}>
-            <h2 className={rx.h2}>{t("notFoundTitle")}</h2>
-            <p className={rx.note} role="status">{t("notFoundBody", { code: outcome.code })}</p>
+        {phase.kind === "matches" && phase.medicines.length === 0 ? (
+          <section className={`${rx.card} ${rx.result}`} aria-label={t("noneTitle")}>
+            <h2 className={rx.h2}>{t("noneTitle")}</h2>
+            <p className={rx.note} role="status">{t("noneBody")}</p>
             <div className={rx.actionsStack}>
               <ButtonLink href={`/${locale}/pharmacy/rx-order?via=type`} label={t("requestByName")} fullWidth />
-              <Button label={t("another")} variant="outline" size="lg" fullWidth onClick={reset} />
             </div>
           </section>
         ) : null}
 
         <section className={rx.card} aria-labelledby="scan-ix">
           <h2 className={rx.h2} id="scan-ix">{browse("ixTitle")}</h2>
-          <DrugInteractionChecker key={product?.id ?? "none"} locale={locale} initialDrugs={product?.name ? [product.name] : []} />
+          <DrugInteractionChecker locale={locale} />
         </section>
       </div>
     </CoreShell>
