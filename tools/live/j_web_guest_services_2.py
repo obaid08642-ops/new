@@ -133,7 +133,7 @@ def main():
         step('/ar/home-care/providers: the guest sees the seeded provider', '/ar/login' not in page.url and bool(data['home_care']) and data['home_care'] in text, f'url={page.url} text={text[:200]}')
         guest_action('/ar/home-care/providers', '/ar/home-care')
 
-        text, _ = visit(f'/ar/diagnostics/search?q={urllib.parse.quote(tag)}')
+        text, _ = visit(f'/ar/diagnostics/search?q={urllib.parse.quote(data["test"])}')
         step('/ar/diagnostics/search: the guest sees the seeded test', '/ar/login' not in page.url and bool(data['test']) and data['test'] in text, f'url={page.url} text={text[:200]}')
 
         text, _ = visit(f'/ar/diagnostics/lab-comparison?testIds={data["test_id"]}')
