@@ -36,7 +36,8 @@ def login_admin(email, password):
 
 
 def run():
-    _, owner = j_admin.login()
+    # the designated owner (seed_admin.js: super_admin, ADMIN_PASSKEY_EMAIL); the gate admin holds an operations role
+    _, owner = j_admin.login(os.environ.get('LIVE_OWNER_EMAIL', 'owner@nabd.test'), os.environ.get('LIVE_OWNER_PASSWORD', 'Own3r!Live-Pass'))
 
     journey('owner: create a one-permission role and an admin that holds only it')
     key = uniq('cpn').lower()[:30]
