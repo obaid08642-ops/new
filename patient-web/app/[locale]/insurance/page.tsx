@@ -3,8 +3,15 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getPatientInsuranceBenefits, getPatientInsurancePolicy } from "@/lib/api/insurance-server";
 import { parseInsuranceSummary, type InsuranceSummary } from "@/lib/api/insurance";
 import { callPatientApi } from "@/lib/api/upstream";
-import { requirePatientAccess } from "@/lib/auth/session";
-import { isLocale } from "@/lib/i18n";
+import { getOptionalPatientAccessToken } from "@/lib/auth/session";
+import { readPublicInsurers } from "@/lib/api/public-services-server";
+import { parsePublicInsurers, signInHref } from "@/lib/services/guest";
+import { pickText } from "@/components-next/diagnostics/diag-parts";
+import { CareHero } from "@/components-next/care/care-kit";
+import { GuestAction, GuestList } from "@/components-next/guest/guest-service";
+import { guestListLabels } from "@/components-next/guest/guest-labels";
+import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
+import { isLocale, type Locale } from "@/lib/i18n";
 import { formatDate } from "@/lib/format-date";
 import { parseBenefits, parseProviders, parseRequestRows, isRequestState, requestTone, tabOf, type InsuranceTab } from "@/lib/insurance/view";
 
@@ -45,12 +52,13 @@ export default async function InsurancePage({ params, searchParams }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("InsuranceWeb");
   const rs = await getTranslations("RouteState");
-  const token = await requirePatientAccess(locale);
+  const token = await getOptionalPatientAccessToken();
   const tab: InsuranceTab = tabOf(sp.tab);
   const base = `/${locale}/insurance`;
+  if (!token) return <GuestInsurance locale={locale} />;
 
   const policyRes = await read(() => getPatientInsurancePolicy(token));
-  if (policyRes?.status === 401) redirect(`/${locale}/login`);
+  if (policyRes?.status === 401) redirect(signInHref(locale, base));
   if (policyRes?.status === 403 || policyRes?.status === 404) notFound();
   const summary: InsuranceSummary | null = policyRes ? parseInsuranceSummary(policyRes.body) : null;
   if (!summary) {
@@ -172,6 +180,36 @@ export default async function InsurancePage({ params, searchParams }: Props) {
         ]}
       />
       {content}
+    </ConsultPage>
+  );
+}
+
+/**
+ * Issue 1550: the insurance page of a guest. What the service is, the insurers and plans a policy can be added with (the public
+ * GET /insurance/companies), and the one action, adding a policy, which opens the sign-in and comes back to the form. The
+ * patient's own policy, requests and network are read only with a session.
+ */
+async function GuestInsurance({ locale }: { locale: Locale }) {
+  const t = await getTranslations("InsuranceWeb");
+  const g = await getTranslations("GuestServices");
+  const read = await readPublicInsurers();
+  const insurers = read.failed ? [] : parsePublicInsurers(read.body);
+  const labels = await guestListLabels(g("insurance.insurersEmpty"));
+  const shield = SERVICE_ICONS.insurance;
+  return (
+    <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}`}>
+      <CareHero tone={shield.tone} icon={shield.icon} label={t("title")} title={g("insurance.heroTitle")} lines={[g("insurance.heroBody")]} />
+      <h2 id="insurers" className={rx.h2}>{g("insurance.insurersTitle")}</h2>
+      <GuestList failed={read.failed} count={insurers.length} error={labels.error} empty={labels.empty}>
+        <RowsList label={g("insurance.insurersTitle")}>
+          {insurers.map((insurer) => {
+            const plans = insurer.plans.map((plan) => pickText(locale, plan.nameAr, plan.nameEn)).filter((name): name is string => !!name);
+            return <InsuranceRow key={insurer.id} locale={locale} title={pickText(locale, insurer.nameAr, insurer.nameEn) ?? ""} sub={plans.length ? g("insurance.plans", { plans: plans.join(" · ") }) : undefined} />;
+          })}
+        </RowsList>
+      </GuestList>
+      <GuestAction id="insurance-sign-in" title={g("insurance.actionTitle")} body={g("insurance.actionBody")} label={g("insurance.action")} href={signInHref(locale, `/${locale}/insurance/add-policy`)} />
+      <p className={styles.note}>{t("disclaimer")}</p>
     </ConsultPage>
   );
 }

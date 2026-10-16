@@ -3867,7 +3867,9 @@
     "mapPane": "Map",
     "mapIdleTitle": "Facilities map",
     "mapIdleBody": "Choose a facility from the list to see it on the map with directions.",
-    "mapIdleNote": "Open-source maps that protect your privacy."
+    "mapIdleNote": "Open-source maps that protect your privacy.",
+    "mapUnavailable": "The facilities could not be loaded. Please try again.",
+    "mapRetry": "Try again"
   },
   "ReturnsWeb": {
     "newRequest": "New return request",
@@ -4214,5 +4216,62 @@
   "Network": {
     "offline": "You are offline. This page shows the last saved copy.",
     "offlineLastUpdated": "You are offline. This page shows the last saved copy. Last updated: {time}"
+  },
+  "GuestServices": {
+    "seeAll": "See all",
+    "listUnavailableTitle": "This list could not be loaded",
+    "listUnavailable": "Please try again in a moment.",
+    "doctorsEmpty": "No doctors are listed yet",
+    "doctorsEmptyBody": "Doctors appear here once they are approved.",
+    "offers": {
+      "actionTitle": "Book an offer",
+      "actionBody": "Anyone can browse the offers. Sign in to book an offer and pay for it.",
+      "action": "Sign in to book"
+    },
+    "insurance": {
+      "heroTitle": "Your insurance on Nabd Plus",
+      "heroBody": "Add your policy once and see your insurer's decision on every booking.",
+      "insurersTitle": "Insurers on Nabd Plus",
+      "insurersEmpty": "No insurers are listed yet",
+      "plans": "Plans: {plans}",
+      "actionTitle": "Add your policy",
+      "actionBody": "Your policy, requests and approvals stay private to your account. Sign in to add your policy.",
+      "action": "Sign in to add your policy"
+    },
+    "homeCare": {
+      "heroTitle": "Nursing and care at home",
+      "heroBody": "Licensed nurses visit you at home for injections, wound care, vital signs and more.",
+      "servicesTitle": "Services and prices",
+      "servicesEmpty": "No home care services are listed yet",
+      "providersTitle": "Home care providers",
+      "providersEmpty": "No home care providers are listed yet",
+      "actionTitle": "Book a home visit",
+      "actionBody": "Sign in to book a visit and follow your visits.",
+      "action": "Sign in to book"
+    },
+    "maternity": {
+      "heroTitle": "Pregnancy and motherhood",
+      "heroBody": "Follow your pregnancy week by week, log kicks and contractions and track your baby's growth.",
+      "doctorsTitle": "Obstetrics and gynecology doctors",
+      "actionTitle": "Track your pregnancy",
+      "actionBody": "Your pregnancy profile and logs stay private to your account. Sign in to start.",
+      "action": "Sign in to start tracking"
+    },
+    "mental": {
+      "heroTitle": "Mental health and wellbeing",
+      "heroBody": "Keep a private mood journal and book a session with a psychiatrist.",
+      "doctorsTitle": "Psychiatrists",
+      "actionTitle": "Start your mood journal",
+      "actionBody": "Your mood journal stays private to your account. Sign in to start.",
+      "action": "Sign in to start"
+    },
+    "nutrition": {
+      "heroTitle": "Nutrition and healthy eating",
+      "heroBody": "Log your meals and water, set a body target, get a nutrition plan and follow up with a nutritionist.",
+      "doctorsTitle": "Nutritionists",
+      "actionTitle": "Get your nutrition plan",
+      "actionBody": "Your plan, meals and target stay private to your account. Sign in to get your plan.",
+      "action": "Sign in to get your plan"
+    }
   }
 }

@@ -2,7 +2,9 @@ import type { ReactNode } from "react";
 import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { requirePatientAccess } from "@/lib/auth/session";
+import { getOptionalPatientAccessToken } from "@/lib/auth/session";
+import { signInHref } from "@/lib/services/guest";
+import { GuestSpecialtyPage } from "@/components-next/guest/guest-specialty-page";
 import { callPatientApi } from "@/lib/api/upstream";
 import { formatDate } from "@/lib/format-date";
 import { getDirection, isLocale } from "@/lib/i18n";
@@ -43,8 +45,27 @@ export default async function MaternityPage({ params, searchParams }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("MaternityWeb");
   const rs = await getTranslations("RouteState");
-  const token = await requirePatientAccess(locale);
+  const token = await getOptionalPatientAccessToken();
   const base = `/${locale}/maternity`;
+  if (!token) {
+    // Issue 1550: a guest sees what the service is and its doctors; the profile and the logs are read only with a session.
+    const g = await getTranslations("GuestServices");
+    return (
+      <GuestSpecialtyPage
+        locale={locale}
+        title={t("title")}
+        tone={MATERNITY.tone}
+        icon={MATERNITY.icon}
+        heroTitle={g("maternity.heroTitle")}
+        heroBody={g("maternity.heroBody")}
+        specialty="gynecology"
+        doctorsTitle={g("maternity.doctorsTitle")}
+        action={{ id: "maternity-sign-in", title: g("maternity.actionTitle"), body: g("maternity.actionBody"), label: g("maternity.action"), next: `${base}/maternity-setup` }}
+      >
+        <Notice warn>{t("notice")}</Notice>
+      </GuestSpecialtyPage>
+    );
+  }
   const caret = getDirection(locale) === "rtl" ? "caret-left" : "caret-right";
 
   const frame = (body: ReactNode, tab?: (typeof TABS)[number]) => (
@@ -66,7 +87,7 @@ export default async function MaternityPage({ params, searchParams }: Props) {
   } catch {
     return frame(<ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
   }
-  if (response.status === 401) redirect(`/${locale}/login`);
+  if (response.status === 401) redirect(signInHref(locale, base));
   if (!response.ok) return frame(<ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
 
   const profile = parseMaternity(await response.json().catch(() => null));
