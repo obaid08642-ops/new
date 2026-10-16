@@ -88,9 +88,9 @@ def login(pw_browser, label, email, password):
 
 
 def check_page(w, page, route):
-    body = page.locator('body').inner_text(timeout=3000)
+    body = page.locator('body').inner_text(timeout=3000) or ''
     main = page.locator('main, [role=main]')
-    mtxt = main.first.inner_text(timeout=3000) if main.count() else body
+    mtxt = (main.first.inner_text(timeout=3000) if main.count() else body) or ''
     if len(mtxt.strip()) < 25:
         w.add(route, '(page)', 'main area is empty after load', 'broken')
     m = LEAK.search(body)
@@ -98,7 +98,7 @@ def check_page(w, page, route):
         ctxt = body[max(0, m.start() - 30):m.end() + 30].replace('\n', ' ')
         w.add(route, '(page)', f'raw "{m.group(0)}" shown on screen: ...{ctxt}...', 'wrong')
     for t in page.locator('[role=alert], .text-red-600, .text-red-700, .bg-red-50').all_inner_texts():
-        if ERR_TEXT.search(t):
+        if ERR_TEXT.search(t or ''):
             w.add(route, '(page)', f'error shown on load: {t.strip()[:100]}', 'broken')
     if page.evaluate('document.documentElement.scrollWidth > document.documentElement.clientWidth + 4'):
         w.add(route, '(page)', 'horizontal overflow at 1440px', 'wrong')
@@ -143,163 +143,166 @@ def walk(pw_browser, role, email, password, only_routes=None):
     i = 0
     while i < len(queue) and i < 220:
         route = queue[i]; i += 1
-        if route in visited:
-            continue
-        visited.add(route)
-        base = route.split('?')[0]
-        w.net.clear(); w.js.clear()
-        if not open_route(w, page, ADMIN_WEB + route, route):
-            continue
-        w.stats['routes'] += 1
-        check_page(w, page, route)
-        w.drain(route, '(load)')
-        url_now = page.url
-
-        # links
-        hrefs = {}
-        for a in page.locator('a:visible').all():
-            try:
-                href = a.get_attribute('href') or ''
-                txt = (a.inner_text(timeout=300) or a.get_attribute('aria-label') or '').strip()[:40]
-            except Exception:
-                continue
-            hrefs.setdefault(href, txt)
-        for href, txt in hrefs.items():
-            if href in ('', '#') or href.startswith('javascript:'):
-                w.add(route, f'link "{txt}"', f'dead link (href="{href}")', 'broken')
-                continue
-            if href.startswith(('tel:', 'mailto:', 'http://', 'https://', 'blob:', 'data:')) and not href.startswith(ADMIN_WEB):
-                continue
-            p = urllib.parse.urlparse(href)
-            target = p.path + (('?' + p.query) if p.query else '')
-            if not p.path.startswith('/'):
-                continue
-            if target not in link_status:
-                r = ctx.request.get(ADMIN_WEB + target, max_redirects=0, fail_on_status_code=False)
-                link_status[target] = r.status
-                w.stats['links_checked'] += 1
-                if p.path.startswith('/admin') and target not in visited and len(queue) < 220:
-                    queue.append(target)
-            st = link_status[target]
-            if st == 404 or st >= 500:
-                w.add(route, f'link "{txt}"', f'{href} -> {st}', 'broken')
-
-        if base in NO_CLICK_PAGES:
-            continue
-
-        def back():
-            if page.url != url_now:
-                open_route(w, page, ADMIN_WEB + route, route)
-
-        # tabs
-        for n in range(min(page.locator('[role=tab]:visible').count(), 12)):
-            tab = page.locator('[role=tab]:visible').nth(n)
-            try:
-                label = tab.inner_text(timeout=300).strip()[:30]
-                w.net.clear(); w.js.clear()
-                tab.click(timeout=2500); w.stats['tabs'] += 1
-                page.wait_for_timeout(700)
-                check_page(w, page, route)
-                w.drain(route, f'tab "{label}"')
-            except Exception:
-                pass
-        back()
-
-        # selects
-        for n in range(min(page.locator('select:visible').count(), 8)):
-            sel = page.locator('select:visible').nth(n)
-            try:
-                opts = sel.locator('option').evaluate_all('o => o.map(x => x.value)')
-                name = (sel.get_attribute('aria-label') or sel.get_attribute('name') or f'select#{n}')
-                for v in opts[:8]:
-                    w.net.clear(); w.js.clear()
-                    sel.select_option(v, timeout=2000); w.stats['selects'] += 1
-                    page.wait_for_timeout(600)
-                    w.drain(route, f'{name}={v}')
-                    if LEAK.search(page.locator('body').inner_text(timeout=2000)):
-                        w.add(route, f'{name}={v}', 'raw undefined/NaN/null shown after filter', 'wrong')
-            except Exception:
-                pass
-        back()
-
-        # search boxes: a no-match query must show an empty state, not crash or leave stale rows
-        for n in range(min(page.locator('input[type=search]:visible, input[placeholder*="بحث"]:visible').count(), 3)):
-            box = page.locator('input[type=search]:visible, input[placeholder*="بحث"]:visible').nth(n)
-            try:
-                w.net.clear(); w.js.clear()
-                box.fill('zzqq-no-such-term-9'); box.press('Enter'); w.stats['searches'] += 1
-                page.wait_for_timeout(1200)
-                w.drain(route, 'search (no match)')
-                rows = page.locator('tbody tr:visible').count()
-                if rows > 0 and 'لا' not in page.locator('tbody').first.inner_text(timeout=2000)[:120]:
-                    w.add(route, 'search', f'{rows} rows still shown for a term that matches nothing', 'wrong')
-                box.fill(''); box.press('Enter'); page.wait_for_timeout(500)
-            except Exception:
-                pass
-
-        # first table row
         try:
-            row = page.locator('tbody tr:visible').first
-            if row.count():
-                w.net.clear(); w.js.clear()
-                row.click(timeout=2000, position={'x': 8, 'y': 8}); w.stats['rows'] += 1
-                page.wait_for_timeout(900)
-                w.drain(route, 'row click')
-                page.keyboard.press('Escape')
-        except Exception:
-            pass
-        back()
+            if route in visited:
+                continue
+            visited.add(route)
+            base = route.split('?')[0]
+            w.net.clear(); w.js.clear()
+            if not open_route(w, page, ADMIN_WEB + route, route):
+                continue
+            w.stats['routes'] += 1
+            check_page(w, page, route)
+            w.drain(route, '(load)')
+            url_now = page.url
 
-        # buttons
-        labels, seen = [], set()
-        for b in page.locator('button:visible').all():
+            # links
+            hrefs = {}
+            for a in page.locator('a:visible').all():
+                try:
+                    href = a.get_attribute('href') or ''
+                    txt = (a.inner_text(timeout=300) or a.get_attribute('aria-label') or '').strip()[:40]
+                except Exception:
+                    continue
+                hrefs.setdefault(href, txt)
+            for href, txt in hrefs.items():
+                if href in ('', '#') or href.startswith('javascript:'):
+                    w.add(route, f'link "{txt}"', f'dead link (href="{href}")', 'broken')
+                    continue
+                if href.startswith(('tel:', 'mailto:', 'http://', 'https://', 'blob:', 'data:')) and not href.startswith(ADMIN_WEB):
+                    continue
+                p = urllib.parse.urlparse(href)
+                target = p.path + (('?' + p.query) if p.query else '')
+                if not p.path.startswith('/'):
+                    continue
+                if target not in link_status:
+                    r = ctx.request.get(ADMIN_WEB + target, max_redirects=0, fail_on_status_code=False)
+                    link_status[target] = r.status
+                    w.stats['links_checked'] += 1
+                    if p.path.startswith('/admin') and target not in visited and len(queue) < 220:
+                        queue.append(target)
+                st = link_status[target]
+                if st == 404 or st >= 500:
+                    w.add(route, f'link "{txt}"', f'{href} -> {st}', 'broken')
+
+            if base in NO_CLICK_PAGES:
+                continue
+
+            def back():
+                if page.url != url_now:
+                    open_route(w, page, ADMIN_WEB + route, route)
+
+            # tabs
+            for n in range(min(page.locator('[role=tab]:visible').count(), 12)):
+                tab = page.locator('[role=tab]:visible').nth(n)
+                try:
+                    label = tab.inner_text(timeout=300).strip()[:30]
+                    w.net.clear(); w.js.clear()
+                    tab.click(timeout=2500); w.stats['tabs'] += 1
+                    page.wait_for_timeout(700)
+                    check_page(w, page, route)
+                    w.drain(route, f'tab "{label}"')
+                except Exception:
+                    pass
+            back()
+
+            # selects
+            for n in range(min(page.locator('select:visible').count(), 8)):
+                sel = page.locator('select:visible').nth(n)
+                try:
+                    opts = sel.locator('option').evaluate_all('o => o.map(x => x.value)')
+                    name = (sel.get_attribute('aria-label') or sel.get_attribute('name') or f'select#{n}')
+                    for v in opts[:8]:
+                        w.net.clear(); w.js.clear()
+                        sel.select_option(v, timeout=2000); w.stats['selects'] += 1
+                        page.wait_for_timeout(600)
+                        w.drain(route, f'{name}={v}')
+                        if LEAK.search(page.locator('body').inner_text(timeout=2000)):
+                            w.add(route, f'{name}={v}', 'raw undefined/NaN/null shown after filter', 'wrong')
+                except Exception:
+                    pass
+            back()
+
+            # search boxes: a no-match query must show an empty state, not crash or leave stale rows
+            for n in range(min(page.locator('input[type=search]:visible, input[placeholder*="بحث"]:visible').count(), 3)):
+                box = page.locator('input[type=search]:visible, input[placeholder*="بحث"]:visible').nth(n)
+                try:
+                    w.net.clear(); w.js.clear()
+                    box.fill('zzqq-no-such-term-9'); box.press('Enter'); w.stats['searches'] += 1
+                    page.wait_for_timeout(1200)
+                    w.drain(route, 'search (no match)')
+                    rows = page.locator('tbody tr:visible').count()
+                    if rows > 0 and 'لا' not in page.locator('tbody').first.inner_text(timeout=2000)[:120]:
+                        w.add(route, 'search', f'{rows} rows still shown for a term that matches nothing', 'wrong')
+                    box.fill(''); box.press('Enter'); page.wait_for_timeout(500)
+                except Exception:
+                    pass
+
+            # first table row
             try:
-                txt = (b.inner_text(timeout=300) or b.get_attribute('aria-label') or b.get_attribute('title') or '').strip()
-            except Exception:
-                continue
-            key = re.sub(r'\d+', '#', txt)[:40]
-            if not txt:
-                w.add(route, '(unlabelled button)', 'a visible button has no text, aria-label or title', 'copy')
-                continue
-            if key in seen:
-                continue
-            seen.add(key)
-            if DESTRUCTIVE.search(txt):
-                w.stats['buttons_skipped'] += 1
-                continue
-            labels.append(txt)
-        for txt in labels[:45]:
-            if page.url != url_now:
-                open_route(w, page, ADMIN_WEB + route, route)
-            loc = page.get_by_role('button', name=txt, exact=True)
-            if not loc.count():
-                continue
-            w.net.clear(); w.js.clear(); w.dialogs.clear()
-            try:
-                loc.first.click(timeout=2500)
-            except Exception:
-                continue
-            w.stats['buttons_clicked'] += 1
-            page.wait_for_timeout(1100)
-            w.drain(route, f'button "{txt[:40]}"')
-            try:
-                for t in page.locator('[role=alert], .text-red-600, .text-red-700, .bg-red-50').all_inner_texts():
-                    if ERR_TEXT.search(t):
-                        w.add(route, f'button "{txt[:40]}"', f'error on screen: {t.strip()[:100]}', 'broken')
-                if LEAK.search(page.locator('body').inner_text(timeout=2000)):
-                    w.add(route, f'button "{txt[:40]}"', 'raw undefined/NaN/null shown after click', 'wrong')
+                row = page.locator('tbody tr:visible').first
+                if row.count():
+                    w.net.clear(); w.js.clear()
+                    row.click(timeout=2000, position={'x': 8, 'y': 8}); w.stats['rows'] += 1
+                    page.wait_for_timeout(900)
+                    w.drain(route, 'row click')
+                    page.keyboard.press('Escape')
             except Exception:
                 pass
-            for close in ('إلغاء', 'إغلاق', 'Close', '×', '✕'):
-                c = page.get_by_role('button', name=close, exact=True)
-                if c.count():
-                    try:
-                        c.first.click(timeout=800)
-                    except Exception:
-                        pass
-                    break
-            page.keyboard.press('Escape')
-        print(f'[{role}] {route:55s} links {len(hrefs):3d} buttons {len(labels):3d} defects so far {len(w.defects)}', flush=True)
+            back()
+
+            # buttons
+            labels, seen = [], set()
+            for b in page.locator('button:visible').all():
+                try:
+                    txt = (b.inner_text(timeout=300) or b.get_attribute('aria-label') or b.get_attribute('title') or '').strip()
+                except Exception:
+                    continue
+                key = re.sub(r'\d+', '#', txt)[:40]
+                if not txt:
+                    w.add(route, '(unlabelled button)', 'a visible button has no text, aria-label or title', 'copy')
+                    continue
+                if key in seen:
+                    continue
+                seen.add(key)
+                if DESTRUCTIVE.search(txt):
+                    w.stats['buttons_skipped'] += 1
+                    continue
+                labels.append(txt)
+            for txt in labels[:45]:
+                if page.url != url_now:
+                    open_route(w, page, ADMIN_WEB + route, route)
+                loc = page.get_by_role('button', name=txt, exact=True)
+                if not loc.count():
+                    continue
+                w.net.clear(); w.js.clear(); w.dialogs.clear()
+                try:
+                    loc.first.click(timeout=2500)
+                except Exception:
+                    continue
+                w.stats['buttons_clicked'] += 1
+                page.wait_for_timeout(1100)
+                w.drain(route, f'button "{txt[:40]}"')
+                try:
+                    for t in page.locator('[role=alert], .text-red-600, .text-red-700, .bg-red-50').all_inner_texts():
+                        if ERR_TEXT.search(t or ''):
+                            w.add(route, f'button "{txt[:40]}"', f'error on screen: {t.strip()[:100]}', 'broken')
+                    if LEAK.search(page.locator('body').inner_text(timeout=2000)):
+                        w.add(route, f'button "{txt[:40]}"', 'raw undefined/NaN/null shown after click', 'wrong')
+                except Exception:
+                    pass
+                for close in ('إلغاء', 'إغلاق', 'Close', '×', '✕'):
+                    c = page.get_by_role('button', name=close, exact=True)
+                    if c.count():
+                        try:
+                            c.first.click(timeout=800)
+                        except Exception:
+                            pass
+                        break
+                page.keyboard.press('Escape')
+            print(f'[{role}] {route:55s} links {len(hrefs):3d} buttons {len(labels):3d} defects so far {len(w.defects)}', flush=True)
+        except Exception as e:
+            w.add(route, '(page)', f'page did not render / crawler exception: {type(e).__name__}: {str(e)[:120]}', 'broken')
     ctx.close()
     return w
 
