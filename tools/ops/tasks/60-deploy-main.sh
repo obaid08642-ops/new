@@ -214,6 +214,13 @@ $COMPOSE config -q >/dev/null 2>&1 || rollback "compose config invalid"
 # ---------------------------------------------------------------- 5. up (named services only, no dependency restarts)
 $COMPOSE up -d --no-build --no-deps meilisearch >/dev/null 2>&1 || rollback "meilisearch up"
 wait_healthy nabdah-meilisearch 24 || rollback "meilisearch health"
+# #1603: the cache-only Redis behind patient-web's page cache (read-only, 256 MB, allkeys-lru, nothing on disk). Started
+# before patient-web, only when this release's compose file defines it (older releases have no such service).
+if $COMPOSE config --services 2>/dev/null | grep -qx redis-cache; then
+  $COMPOSE up -d --no-build --no-deps redis-cache >/dev/null 2>&1 || rollback "redis-cache up"
+  wait_healthy nabdah-redis-cache 24 || rollback "redis-cache health"
+  echo "deploy: redis-cache up ($($DK inspect -f '{{.HostConfig.Memory}}' nabdah-redis-cache) bytes limit)"
+fi
 $COMPOSE up -d --no-build --no-deps backend worker >/dev/null 2>&1 || rollback "backend/worker up"
 forced backend && rollback "backend (forced)"
 wait_healthy nabdah-backend 48 || rollback "backend health"
