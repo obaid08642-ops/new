@@ -3298,5 +3298,18 @@
   "services.cat.searchForAService": "ابحث عن خدمة أو طبيب أو دواء",
   "services.cat.primaryServices": "الخدمات الرئيسية",
   "services.cat.additionalServices": "خدمات إضافية",
-  "services.cat.title": "الخدمات"
+  "services.cat.title": "الخدمات",
+  "health.hub.component.bmi": "مؤشر كتلة الجسم",
+  "health.hub.component.bp": "ضغط الدم",
+  "health.hub.component.glucose": "سكر الدم",
+  "health.hub.component.heart_rate": "نبض القلب",
+  "health.hub.component.sleep": "جودة النوم",
+  "health.hub.component.tracking": "انتظام التسجيل",
+  "health.hub.rec.bmi_high": "مؤشر كتلة الجسم أعلى من الطبيعي — نشاط بدني منتظم وتغذية متوازنة يساعدان على خفضه",
+  "health.hub.rec.profile_incomplete": "أكمل طولك ووزنك في الملف الصحي لتحسب درجتك بدقة أعلى",
+  "health.hub.rec.bp_high": "قراءة ضغط الدم الأخيرة مرتفعة — قلل الملح وراقب الضغط بانتظام واستشر طبيبك",
+  "health.hub.rec.glucose_off": "قراءة السكر خارج النطاق الطبيعي — راجع خطة وجباتك وأدويتك مع طبيبك",
+  "health.hub.rec.sleep_low": "جودة نومك تحتاج تحسيناً — ثبّت موعد النوم وقلل الشاشات قبله",
+  "health.hub.rec.tracking_low": "سجّل مؤشراتك الحيوية بانتظام (٥ قراءات أسبوعياً) لرفع دقة درجتك",
+  "health.hub.rec.tracking_start": "ابدأ بتسجيل مؤشراتك الحيوية (ضغط، سكر، وزن) لتفعيل درجة الصحة"
 }
