@@ -3298,5 +3298,13 @@
   "services.cat.searchForAService": "ابحث عن خدمة أو طبيب أو دواء",
   "services.cat.primaryServices": "الخدمات الرئيسية",
   "services.cat.additionalServices": "خدمات إضافية",
-  "services.cat.title": "الخدمات"
+  "services.cat.title": "الخدمات",
+  "link.notFound.title": "هذه الصفحة غير متاحة",
+  "link.notFound.body": "قد يكون الرابط قديمًا أو أُزيلت الصفحة. جرّب البحث أو ارجع إلى الرئيسية.",
+  "link.search": "البحث",
+  "link.home": "الرئيسية",
+  "link.opening.medicine": "جارٍ فتح تفاصيل الدواء…",
+  "link.opening.doctor": "جارٍ فتح ملف الطبيب…",
+  "link.opening.facility": "جارٍ فتح المركز الطبي…",
+  "link.opening.link": "جارٍ فتح الرابط…"
 }

@@ -3298,5 +3298,13 @@
   "services.cat.searchForAService": "सेवा, डॉक्टर या दवा खोजें",
   "services.cat.primaryServices": "मुख्य सेवाएं",
   "services.cat.additionalServices": "अतिरिक्त सेवाएँ",
-  "services.cat.title": "सेवाएं"
+  "services.cat.title": "सेवाएं",
+  "link.notFound.title": "यह पेज उपलब्ध नहीं है",
+  "link.notFound.body": "हो सकता है लिंक पुराना हो या पेज हटा दिया गया हो। खोजें या होम पर लौटें।",
+  "link.search": "खोजें",
+  "link.home": "होम",
+  "link.opening.medicine": "दवा का विवरण खुल रहा है…",
+  "link.opening.doctor": "डॉक्टर की प्रोफ़ाइल खुल रही है…",
+  "link.opening.facility": "चिकित्सा केंद्र खुल रहा है…",
+  "link.opening.link": "लिंक खुल रहा है…"
 }

@@ -3298,5 +3298,13 @@
   "services.cat.searchForAService": "خدمت، ڈاکٹر یا دوا تلاش کریں",
   "services.cat.primaryServices": "بنیادی خدمات",
   "services.cat.additionalServices": "اضافی خدمات",
-  "services.cat.title": "خدمات"
+  "services.cat.title": "خدمات",
+  "link.notFound.title": "یہ صفحہ دستیاب نہیں ہے",
+  "link.notFound.body": "ہو سکتا ہے لنک پرانا ہو یا صفحہ ہٹا دیا گیا ہو۔ تلاش کریں یا ہوم پر واپس جائیں۔",
+  "link.search": "تلاش",
+  "link.home": "ہوم",
+  "link.opening.medicine": "دوا کی تفصیل کھل رہی ہے…",
+  "link.opening.doctor": "ڈاکٹر کی پروفائل کھل رہی ہے…",
+  "link.opening.facility": "طبی مرکز کھل رہا ہے…",
+  "link.opening.link": "لنک کھل رہا ہے…"
 }
