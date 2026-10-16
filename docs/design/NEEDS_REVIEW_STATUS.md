@@ -8,25 +8,25 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| Patient app and web | 434 | 14 | 317 | 97 | 6 | 0 |
-| Other | 29 | 7 | 19 | 1 | 2 | 0 |
-| Admin | 99 | 3 | 62 | 34 | 0 | 0 |
-| Admin journeys | 20 | 1 | 17 | 2 | 0 | 0 |
+| Patient app and web | 434 | 5 | 327 | 97 | 5 | 0 |
+| Other | 29 | 1 | 25 | 3 | 0 | 0 |
+| Admin | 99 | 0 | 65 | 34 | 0 | 0 |
+| Admin journeys | 20 | 0 | 18 | 2 | 0 | 0 |
 | Final pass | 8 | 0 | 2 | 6 | 0 | 0 |
 | Patient journeys | 87 | 2 | 83 | 2 | 0 | 0 |
 | Provider app | 31 | 0 | 27 | 4 | 0 | 0 |
-| Provider journeys | 34 | 1 | 31 | 2 | 0 | 0 |
-| **Total** | **742** | **28** | **558** | **148** | **8** | **0** |
+| Provider journeys | 34 | 0 | 32 | 2 | 0 | 0 |
+| **Total** | **742** | **8** | **579** | **150** | **5** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| client | 169 | 6 | 120 | 39 | 4 | 0 |
-| owner | 100 | 8 | 49 | 42 | 1 | 0 |
-| backend | 235 | 10 | 195 | 30 | 0 | 0 |
-| untagged | 238 | 4 | 194 | 37 | 3 | 0 |
-| **Total** | **742** | **28** | **558** | **148** | **8** | **0** |
+| client | 169 | 1 | 127 | 41 | 0 | 0 |
+| owner | 100 | 4 | 53 | 42 | 1 | 0 |
+| backend | 235 | 0 | 205 | 30 | 0 | 0 |
+| untagged | 238 | 3 | 194 | 37 | 4 | 0 |
+| **Total** | **742** | **8** | **579** | **150** | **5** | **0** |
 
 ## By file
 
@@ -35,11 +35,11 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `1-cart-app.json` | 1 | 0 | 1 | 0 | 0 | 0 |
 | `1-cart-web.json` | 4 | 0 | 4 | 0 | 0 | 0 |
 | `10-app.json` | 3 | 0 | 3 | 0 | 0 | 0 |
-| `10-web.json` | 4 | 1 | 3 | 0 | 0 | 0 |
+| `10-web.json` | 4 | 0 | 4 | 0 | 0 | 0 |
 | `11-app.json` | 5 | 0 | 3 | 2 | 0 | 0 |
 | `11-web.json` | 4 | 0 | 3 | 1 | 0 | 0 |
 | `12-app.json` | 17 | 0 | 12 | 5 | 0 | 0 |
-| `12-web.json` | 13 | 1 | 10 | 2 | 0 | 0 |
+| `12-web.json` | 13 | 0 | 11 | 2 | 0 | 0 |
 | `13-app.json` | 3 | 0 | 1 | 2 | 0 | 0 |
 | `13-web.json` | 14 | 0 | 13 | 0 | 1 | 0 |
 | `14a-app.json` | 6 | 0 | 5 | 1 | 0 | 0 |
@@ -47,15 +47,15 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `14b-app.json` | 5 | 1 | 4 | 0 | 0 | 0 |
 | `14b-web.json` | 4 | 0 | 3 | 1 | 0 | 0 |
 | `1e-app.json` | 6 | 0 | 4 | 2 | 0 | 0 |
-| `1e-web.json` | 10 | 0 | 8 | 1 | 1 | 0 |
-| `2-app.json` | 17 | 2 | 11 | 4 | 0 | 0 |
-| `2-web.json` | 14 | 3 | 9 | 2 | 0 | 0 |
+| `1e-web.json` | 10 | 0 | 9 | 1 | 0 | 0 |
+| `2-app.json` | 17 | 0 | 13 | 4 | 0 | 0 |
+| `2-web.json` | 14 | 1 | 11 | 2 | 0 | 0 |
 | `3-app.json` | 10 | 1 | 8 | 1 | 0 | 0 |
 | `3-web.json` | 8 | 1 | 6 | 1 | 0 | 0 |
-| `4-app.json` | 8 | 1 | 5 | 1 | 1 | 0 |
+| `4-app.json` | 8 | 0 | 7 | 1 | 0 | 0 |
 | `4-web.json` | 7 | 0 | 7 | 0 | 0 | 0 |
 | `5-app.json` | 18 | 0 | 11 | 7 | 0 | 0 |
-| `5-web.json` | 11 | 1 | 10 | 0 | 0 | 0 |
+| `5-web.json` | 11 | 0 | 11 | 0 | 0 | 0 |
 | `6-app.json` | 10 | 0 | 6 | 4 | 0 | 0 |
 | `6-web.json` | 8 | 0 | 6 | 2 | 0 | 0 |
 | `7-app.json` | 14 | 0 | 7 | 7 | 0 | 0 |
@@ -64,18 +64,18 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `8-web.json` | 13 | 0 | 12 | 1 | 0 | 0 |
 | `9-app.json` | 8 | 0 | 6 | 2 | 0 | 0 |
 | `9-web.json` | 8 | 0 | 7 | 1 | 0 | 0 |
-| `ac-1-agent-oauth.json` | 2 | 0 | 1 | 0 | 1 | 0 |
+| `ac-1-agent-oauth.json` | 2 | 1 | 0 | 1 | 0 | 0 |
 | `admin-catalogue.json` | 24 | 0 | 18 | 6 | 0 | 0 |
 | `admin-customers-growth.json` | 14 | 0 | 8 | 6 | 0 | 0 |
 | `admin-finance.json` | 10 | 0 | 9 | 1 | 0 | 0 |
-| `admin-journeys.json` | 20 | 1 | 17 | 2 | 0 | 0 |
-| `admin-ops-monitoring.json` | 16 | 1 | 10 | 5 | 0 | 0 |
+| `admin-journeys.json` | 20 | 0 | 18 | 2 | 0 | 0 |
+| `admin-ops-monitoring.json` | 16 | 0 | 11 | 5 | 0 | 0 |
 | `admin-providers.json` | 8 | 0 | 5 | 3 | 0 | 0 |
 | `admin-public-directories.json` | 14 | 0 | 4 | 10 | 0 | 0 |
-| `admin-system.json` | 13 | 2 | 8 | 3 | 0 | 0 |
+| `admin-system.json` | 13 | 0 | 10 | 3 | 0 | 0 |
 | `batch-0-app.json` | 13 | 0 | 13 | 0 | 0 | 0 |
-| `batch-0-runtime.json` | 8 | 1 | 4 | 2 | 1 | 0 |
-| `batch-0-web.json` | 19 | 0 | 18 | 1 | 0 | 0 |
+| `batch-0-runtime.json` | 8 | 0 | 5 | 2 | 1 | 0 |
+| `batch-0-web.json` | 19 | 0 | 17 | 1 | 1 | 0 |
 | `batch-1a-app.json` | 19 | 1 | 6 | 11 | 1 | 0 |
 | `batch-1a-web.json` | 12 | 0 | 8 | 4 | 0 | 0 |
 | `batch-1b-app.json` | 12 | 0 | 9 | 3 | 0 | 0 |
@@ -90,60 +90,37 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `provider-admin-ish.json` | 3 | 0 | 3 | 0 | 0 | 0 |
 | `provider-doctor.json` | 6 | 0 | 6 | 0 | 0 | 0 |
 | `provider-facility.json` | 7 | 0 | 7 | 0 | 0 | 0 |
-| `provider-journeys.json` | 34 | 1 | 31 | 2 | 0 | 0 |
+| `provider-journeys.json` | 34 | 0 | 32 | 2 | 0 | 0 |
 | `provider-lab.json` | 4 | 0 | 1 | 3 | 0 | 0 |
 | `provider-nursing.json` | 2 | 0 | 2 | 0 | 0 | 0 |
 | `provider-pharmacy.json` | 2 | 0 | 1 | 1 | 0 | 0 |
 | `provider-radiology.json` | 1 | 0 | 1 | 0 | 0 | 0 |
 | `provider-shared.json` | 6 | 0 | 6 | 0 | 0 | 0 |
-| `rx-rules-app.json` | 6 | 1 | 5 | 0 | 0 | 0 |
-| `rx-rules-web.json` | 7 | 6 | 1 | 0 | 0 | 0 |
-| `seo-feature-pages.json` | 1 | 0 | 0 | 0 | 1 | 0 |
+| `rx-rules-app.json` | 6 | 0 | 6 | 0 | 0 | 0 |
+| `rx-rules-web.json` | 7 | 0 | 7 | 0 | 0 | 0 |
+| `seo-feature-pages.json` | 1 | 0 | 0 | 1 | 0 | 0 |
 | `tooling.json` | 13 | 0 | 12 | 1 | 0 | 0 |
-| **Total** | **742** | **28** | **558** | **148** | **8** | **0** |
+| **Total** | **742** | **8** | **579** | **150** | **5** | **0** |
 
-## Owner decisions (8)
+## Owner decisions (5)
 
 | # | Where | Screen / element | Question |
 |---:|---|---|---|
 | 1 | `13-web.json#13` `patient-web/lib/legal/embedded.ts:15` | /terms Embedded fallback text | [owner] The embedded copy (issue 755/783) is built from docs/legal, which are drafts with [placeholders] until a Saudi lawyer approves them, so it stays off today. After approval: update docs/legal, run node patient-web… |
-| 2 | `1e-web.json#9` `patient-web/components-next/orders/center-rows.ts:79` | /orders Insurance claims and returns | [client] The app's order center also lists insurance claims and pharmacy returns; the web list has the five services of issue 378 only (claims and returns have their own pages). Needs an owner decision to merge them. |
-| 3 | `4-app.json#1` `patient-app/app/nursing/nurse-profile.tsx:247` | /nursing/nurse-profile Transport choice | [client] The choice is not part of the POST /nursing/bookings payload; it only changes the tracking wording. The invented '(0 SAR)' price on the second option was removed. |
-| 4 | `ac-1-agent-oauth.json#0` `patient-web/app/[locale]/oauth/authorize/page.tsx:54` | /oauth/authorize AI assistant consent page | [client] Functional consent page (client name, scopes, 'you confirm and pay on Nabd Plus', allow / don't allow) built on the auth layout with translations in six languages; it has no board yet. Data: GET /api/v1/oauth/a… |
-| 5 | `batch-0-runtime.json#6` `patient-web/app/[locale]/layout.tsx:0` | all routes Largest-contentful-paint stays above 2.5 s (F82) | Lighthouse on the production build (median of 3): LCP 3.0-3.2 s on /ar and /ar/consultations/doctors, 4.3 s on /ar/pharmacy, against 2.5 s. The shared-JS trim did not move it (main measured the same: 3.1 s, 2.6 s, 4.6 s… |
-| 6 | `batch-1a-app.json#18` `patient-app/src/i18n/locales/en.json:0` | /pharmacy Six-language strings | 177 pharmacy.* keys were added to patient-app/src/i18n/locales/{ar,en,ur,hi,bn,tl}.json. The English, Urdu, Hindi, Bengali and Filipino text was written by the design session (and, for reused phrases, taken from the phr… |
-| 7 | `batch-1d-web.json#1` `backend/src/modules/payments/payments.module.ts:154` | /pharmacy/payment Payment provider not exercised | No gateway key on the local backend (intent answers 503) and no Mongo replica set (selection / insurance acceptance fail). Hosted checkout, return and webhook were checked only against a TEST stand-in outside the repo (… |
-| 8 | `seo-feature-pages.json#0` `patient-web/app/[locale]/features/[feature]/page.tsx:67` | /features/[feature] Feature page layout | [client] The seven public feature pages (SEO, owner 2026-10-12) have no board: they are built on the public landing kit (LandingPage, LandingSection, CardGrid/EntityRow, the new FaqList, Notice, ActionLinks) with tokens… |
+| 2 | `batch-0-runtime.json#6` `patient-web/app/[locale]/layout.tsx:0` | all routes Largest-contentful-paint stays above 2.5 s (F82) | Lighthouse on the production build (median of 3): LCP 3.0-3.2 s on /ar and /ar/consultations/doctors, 4.3 s on /ar/pharmacy, against 2.5 s. The shared-JS trim did not move it (main measured the same: 3.1 s, 2.6 s, 4.6 s… |
+| 3 | `batch-0-web.json#7` `patient-web/next.config.ts:35` | /onboarding Whole screen (entry and outcome) | No link in the web points to /onboarding (grep over app, components-next, lib); /welcome is reached only from the login back button and the onboarding screens; finishing onboarding stores nothing (no flag, no API call). |
+| 4 | `batch-1a-app.json#18` `patient-app/src/i18n/locales/en.json:0` | /pharmacy Six-language strings | 177 pharmacy.* keys were added to patient-app/src/i18n/locales/{ar,en,ur,hi,bn,tl}.json. The English, Urdu, Hindi, Bengali and Filipino text was written by the design session (and, for reused phrases, taken from the phr… |
+| 5 | `batch-1d-web.json#1` `backend/src/modules/payments/payments.module.ts:154` | /pharmacy/payment Payment provider not exercised | No gateway key on the local backend (intent answers 503) and no Mongo replica set (selection / insurance acceptance fail). Hosted checkout, return and webhook were checked only against a TEST stand-in outside the repo (… |
 
-## Open and unverified (28)
+## Open and unverified (8)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
-| `10-web.json#2` | client | open (issue #742) | /articles/[slug] Article body | [client] The page shows the summary and a notice that the full text is not available here; the body is HTML and the parser drops it on purpose. Decide how to show it safely (sanit… |
-| `12-web.json#12` | backend | open | /map Hospital card link | [backend] GET /providers/map ids are provider-profile ids; /facility/[id] reads the facilities collection (entity-graph getRelatedFacility). The link works only where the two ids … |
 | `14b-app.json#4` | owner | open (decided 2026-10-15, reviewer for the owner: preparati… | /diagnostics/sample-tracking Static preparation and visit tips (items 628 / 629) | [owner] needs medical review before launch: diag.track.prep (fasting 8 to 12 hours) and diag.tech.tips are fixed texts for every package; owner approved them on condition of a med… |
-| `2-app.json#3` | backend | open (issue #385) | /consultations/home-visit-tracking Doctor on the way, map | [backend] Fixed on design/backend-fields: the step "Doctor on the way" follows EN_ROUTE / ARRIVED (Q-15); there is still no doctor position, so no map is drawn. |
-| `2-app.json#10` | backend | open | /consultations Nearest and Available now filters | [backend] Done on the client: the filters call GET /care/doctors (Q-12/Q-13). Backend limits: sort=distance with only a city needs the signed-in user's city (the client sends city… |
-| `2-web.json#9` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /consultations/virtual-waiting-room Connected call screens | [owner] The video call, waiting room and room screens were only seen in their error and not-ready states here (no media backend in the check); the connected layout is not verified. |
-| `2-web.json#10` | backend | open | /consultations/doctors Nearest with Available now | [backend] GET /care/doctors orders available_within results by next slot and ignores sort=distance, so with both on the position is not sent (the city filter still is); a combined… |
 | `2-web.json#12` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /consultations/doctors Cash-only filter | [owner] The server has accepts_insurance only: 'Cash only' means doctors who do NOT accept insurance (accepts_insurance=false), not 'any doctor, paid in cash'. A patient who pays … |
 | `3-app.json#0` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /diagnostics Payment filter (cash / insurance) drawn on ServiceHub | [owner] The board has it; no field says which test or lab takes insurance, so it is not drawn. |
 | `3-web.json#3` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /diagnostics labs carousel, cash filter, add toggle | [owner] board elements with no endpoint on the hub (no lab list, no cash flag, the cart is page based) |
-| `4-app.json#3` | client | open (issue #643) | /nursing/service-details Injection policy check | [client] Decided by service ids and Arabic words in the title; a title in another language skips the prescription dialog. |
-| `5-web.json#9` | client | open (issue #682) | /health Dead API helpers | [client] getPatientReports and parseReports (lib/api/reports*.ts, vitals-server.ts) have no screen left; kept with their tests for the reviewer to delete. |
-| `admin-journeys.json#18` | client | open (issue #955) | /admin/config-portal Journey 4 / Emergency maintenance switch is disabled and t… | [client] The 'Trigger System Kill-Switch' button is permanently disabled ('requires server set-up'), although the handler at line 183 and PUT /admin/governance/trigger-emergency-m… |
-| `admin-ops-monitoring.json#14` | backend | open (issue #1235) | /admin/today Urgent alerts: inbox, push, alert rules | [backend] The screen shows what the existing endpoints can say (SLA breaches, stuck orders, failed payments). There is no admin notification inbox or bell, no push to the admin's … |
-| `admin-system.json#1` | client | open (issue #995) | /admin/config-portal Trigger System Kill-Switch (معطّل — يتطلب إعداد الخادم) | [client] Button is disabled with no handler. |
-| `admin-system.json#10` | backend | open | /admin/system-ops Feature switch effect | [backend] The switch writes and audits (reason required), but backend code reads only `sms_enabled` (sms.service.ts) and ConfigService hands the flags to clients; there is no per-… |
-| `batch-0-runtime.json#5` | untagged | open (issue #426) | all routes Shared JS still over the 170 KB gz budget after the #286 trim | Measured with Lighthouse (median of 3, production build, seeded backend), script transfer on /ar/pharmacy and /ar/consultations/doctors went from 224 to about 177 KB and on /ar fr… |
+| `ac-1-agent-oauth.json#1` | client | open | Settings > Connected AI apps List and disconnect connected AI assistants | [client] No screen yet. Backend is ready: GET /api/v1/patient/agent-connections (client_id, client_name, logo_uri, scopes, connected_at) and DELETE /api/v1/patient/agent-connectio… |
 | `batch-1a-app.json#8` | untagged | open (issue #456) | /pharmacy/product-detail Insurance row (hidden) | SPEC §A shows it only when the patient's insurer is in covered_by_insurance[] (company ids). The screen has no call for the patient's insurer and no id-to-name lookup for the row'… |
 | `journeys.json#9` | untagged | open (issue #1018) | 1 checkout | Checkout offers "دفع مباشر" vs "عبر التأمين" as a toggle per order; decision 30 wants insurance or self-pay chosen at the start of the service and the app checkout has no insuranc… |
 | `journeys.json#24` | untagged | open (issue #1033) | 2 insurance on offers | Insurance is only choosable per offer (coverage radio shown if insuranceReady) for the Rx and manual flows, contrary to decision 30 (choose first). |
-| `provider-journeys.json#22` | client | open | PharmacyDashboard prepare | [client] Insurance decision is a header shield icon on Orders and a row in More (opens the queue); an insurance order card has no inline decision button because the allocation lis… |
-| `rx-rules-app.json#4` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /pharmacy/cart Suggested specialty needs the admin mapping | [owner] Consult a doctor opens the mapped specialty only when the admin has filled system_configs rx_consult_specialties (category to specialty); until then the answer is null and… |
-| `rx-rules-web.json#1` | backend | open | /c/[[...category]] Online-only note on a card and in search results | [backend] The public card answers (category items and product search) send is_rx but no online_exclusive; add it next to is_rx in the card DTOs. (backend: backend/src/modules/seo-… |
-| `rx-rules-web.json#2` | backend | open | /c/[[...category]] Old price and discount sent for a prescription item | [backend] The public product DTO sends old_price, discount_percent and has_discount for an Rx item (the admin catalogue lists withhold them); the client hides them with canShowPro… |
-| `rx-rules-web.json#3` | backend | open | /wishlist Online-only chip on a wishlist row | [backend] GET /users/me/wishlist sends requires_prescription but not online_exclusive. (backend: backend/src/modules/users/users.service.ts:50) |
-| `rx-rules-web.json#4` | backend | open | /search Needs-a-prescription and online-only on a medicine result | [backend] GET /home/search medicine rows carry id, names, price only: no requires_prescription or online_exclusive. (backend: backend/src/modules/home/home.service.ts:203) |
-| `rx-rules-web.json#5` | owner | open | /cart Online-only note on a cart line | [owner] Fixed on design/rx-rules: stored on the line when added. Web add paths that cannot know it: the public product page, the product cards and the reorder picker (their answer… |
-| `rx-rules-web.json#6` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /cart Suggested specialty needs the admin mapping | [owner] Consult a doctor opens the mapped specialty only when the admin has filled system_configs rx_consult_specialties (category to specialty); until then the answer is null and… |
