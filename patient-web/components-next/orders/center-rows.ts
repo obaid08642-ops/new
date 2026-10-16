@@ -146,7 +146,7 @@ export function diagnosticRows(locale: string, domain: "labs" | "radiology", pay
 const NURSING_DONE = new Set(["completed", "cancelled", "rejected"]);
 
 export function nursingRows(locale: string, payload: unknown, l: CenterLabels): CenterRow[] {
-  return extractNursingVisits(payload).map((visit) => {
+  return extractNursingVisits(payload, locale).map((visit) => {
     const status = visit.status ? nursingStatus(visit.status) : null;
     const href = `/${locale}/nursing/visits/${encodeURIComponent(visit.id)}`;
     return {
