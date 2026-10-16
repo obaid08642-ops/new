@@ -61,11 +61,43 @@ def script(name, *args):
     return out.returncode, (json.loads(line) if line else None), (out.stdout + out.stderr)[-600:]
 
 
+def _redis(*args):
+    """One Redis command over a plain socket (RESP), so the journey needs no redis-cli: the CI runner has Redis as a service only."""
+    import socket
+    sock = socket.create_connection((os.environ.get('REDIS_HOST', '127.0.0.1'), int(os.environ.get('REDIS_PORT', '6379'))), timeout=10)
+    try:
+        sock.sendall(b''.join([b'*%d\r\n' % len(args)] + [b'$%d\r\n%s\r\n' % (len(a.encode()), a.encode()) for a in map(str, args)]))
+        f = sock.makefile('rb')
+
+        def read():
+            line = f.readline().rstrip(b'\r\n')
+            kind, rest = line[:1], line[1:]
+            if kind in (b'+', b':'):
+                return rest.decode()
+            if kind == b'-':
+                raise RuntimeError(rest.decode())
+            if kind == b'$':
+                n = int(rest)
+                if n < 0:
+                    return None
+                return f.read(n + 2)[:-2].decode()
+            if kind == b'*':
+                return [read() for _ in range(int(rest))]
+            raise RuntimeError(f'unexpected reply {line!r}')
+        return read()
+    finally:
+        sock.close()
+
+
 def clear_public_cache():
     # The public lists are cached for 15 minutes (stale-while-revalidate); the journey does not wait for expiry.
-    keys = subprocess.run(['redis-cli', '--scan', '--pattern', 'cache:*'], capture_output=True, text=True).stdout.split()
-    for i in range(0, len(keys), 200):
-        subprocess.run(['redis-cli', 'del', *keys[i:i + 200]], capture_output=True)
+    cursor = '0'
+    while True:
+        cursor, keys = _redis('SCAN', cursor, 'MATCH', 'cache:*', 'COUNT', 500)
+        for i in range(0, len(keys), 200):
+            _redis('DEL', *keys[i:i + 200])
+        if cursor == '0':
+            break
 
 
 LISTS = [('lab tests', '/labs/services'), ('lab packages', '/labs/packages'), ('scans', '/radiology/services'), ('nursing services', '/home-care/services')]
