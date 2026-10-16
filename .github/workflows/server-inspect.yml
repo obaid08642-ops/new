@@ -60,6 +60,10 @@ jobs:
           CF: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CFE: ${{ secrets.CLOUDFLARE_EMAIL }}
           Z: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          # mail providers (owner, 2026-10-16): reach the server only on ssh stdin, for tasks/67-mail-env.sh
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          MAILJET_API_KEY: ${{ secrets.MAILJET_API_KEY }}
+          MAILJET_SECRET_KEY: ${{ secrets.MAILJET_SECRET_KEY }}
         run: |
           set +e   # a failing task must never stop the report from being saved
           PORT=${PORT:-22}
@@ -78,6 +82,14 @@ jobs:
             f=tools/ops/tasks/$t.sh
             [ -f "$f" ] || continue
             echo "== task $t" | tee -a report.txt
+            if [ "$t" = 67-mail-env ]; then
+              # the three keys as a mode-600 file in the deploy user's home; the task moves them into .env.production
+              # and shreds the file. printf is a shell builtin: the values are on no command line.
+              { [ -n "$BREVO_API_KEY" ] && printf 'BREVO_API_KEY=%s\n' "$BREVO_API_KEY"
+                [ -n "$MAILJET_API_KEY" ] && printf 'MAILJET_API_KEY=%s\n' "$MAILJET_API_KEY"
+                [ -n "$MAILJET_SECRET_KEY" ] && printf 'MAILJET_SECRET_KEY=%s\n' "$MAILJET_SECRET_KEY"; } \
+                | $SSH 'umask 077; cat > ops-mail.env' && echo "mail: key file delivered" | tee -a report.txt
+            fi
             if grep -q '^# ops-detach' "$f"; then
               # long mutating tasks run detached on the server (setsid), so a dropped SSH session cannot stop them
               # half way; the log is polled until the task writes its exit line
@@ -94,7 +106,7 @@ jobs:
             if [ "$rc" = 99 ]; then echo "x0: run stopped by $t (exit 99); nothing after it ran" | tee -a report.txt; break; fi
           done
           # public log: only the short status lines of mutating tasks
-          grep -E '^(x0|cleanup|deploy|rotate|backups|recover):' report.txt | sed -E 's/[0-9]{1,3}(\.[0-9]{1,3}){3}/<ip>/g' || true
+          grep -E '^(x0|cleanup|deploy|rotate|backups|recover|mail):' report.txt | sed -E 's/[0-9]{1,3}(\.[0-9]{1,3}){3}/<ip>/g' || true
           # migrations: names, exit codes and the JSON count lines only; an error line keeps its class, never its values
           grep -E '^migrate: ' report.txt | grep -E '^migrate: [0-9a-z-]+ (--apply|exit=[0-9]+)$|^migrate:   \{.*\}$|^migrate:   [A-Za-z]*Error' \
             | sed -E 's/dup key: \{.*$/dup key: <value>/; s/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/<email>/g; s/\+?[0-9][0-9 ()-]{8,}[0-9]/<number>/g' | cut -c1-200 || true
@@ -105,6 +117,9 @@ jobs:
           CF: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CFE: ${{ secrets.CLOUDFLARE_EMAIL }}   # set when CF holds a Global API Key (tools/ops/cf/_auth.sh)
           Z: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}           # cf/41-mail-verify.sh: Brevo's domain status
+          MAILJET_API_KEY: ${{ secrets.MAILJET_API_KEY }}       # and Mailjet's
+          MAILJET_SECRET_KEY: ${{ secrets.MAILJET_SECRET_KEY }}
         run: |
           set +e
           for t in $(grep -E '^\s*cf:' tools/ops/RUN | sed -E 's/^\s*cf://'); do
