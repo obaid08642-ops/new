@@ -28,6 +28,24 @@ export class HomeCareService extends Document {
   @Prop({ required: true }) name_en: string;
   @Prop() description_ar?: string;
   @Prop() description_en?: string;
+  // #1556 F: names, descriptions and preparation in the six app languages, and the published content
+  // (purpose, turnaround) from catalogs/content/services-content.v1.json.
+  @Prop() name_ur?: string;
+  @Prop() name_hi?: string;
+  @Prop() name_bn?: string;
+  @Prop() name_tl?: string;
+  @Prop() description_ur?: string;
+  @Prop() description_hi?: string;
+  @Prop() description_bn?: string;
+  @Prop() description_tl?: string;
+  @Prop({ type: [String], default: undefined }) preparation_ar?: string[];
+  @Prop({ type: [String], default: undefined }) preparation_en?: string[];
+  @Prop({ type: [String], default: undefined }) preparation_ur?: string[];
+  @Prop({ type: [String], default: undefined }) preparation_hi?: string[];
+  @Prop({ type: [String], default: undefined }) preparation_bn?: string[];
+  @Prop({ type: [String], default: undefined }) preparation_tl?: string[];
+  @Prop({ type: Object }) content?: Record<string, unknown>;
+  @Prop() needs_price?: boolean;
   @Prop({ required: true, index: true }) category: string; // nursing | physio | elderly | baby | iv | wound | injection | post_op | followup
   @Prop({ default: 'general' }) icon: string;
   @Prop({ required: true }) price: number;
