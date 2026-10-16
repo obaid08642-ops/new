@@ -1,12 +1,12 @@
 #!/bin/bash
-# Rehearsal of tools/ops/tasks/67-mail-env.sh and tools/ops/cf/41-mail-verify.sh against tools/ops/rehearsal/cf-mock.py
+# Rehearsal of tools/ops/tasks/70-mail-env.sh and tools/ops/cf/41-mail-verify.sh against tools/ops/rehearsal/cf-mock.py
 # (no real account, no real server). Test keys only.
 #   A. production shape (public DNS of 2026-10-16): one SPF with brevo, mailjet and amazonses; DKIM for the three;
-#      DMARC; Brevo and Mailjet verified; Resend verified -> 41 says OK; 67 puts the three keys, the order and the
-#      quotas into the env, keeps every other line, prints no value; a second 67 changes nothing
+#      DMARC; Brevo and Mailjet verified; Resend verified -> 41 says OK; 70 puts the three keys, the order and the
+#      quotas into the env, keeps every other line, prints no value; a second 70 changes nothing
 #   B. two SPF records, Mailjet DKIM missing, Brevo not authenticated until asked again -> 41 says NOT OK, names the two
 #      SPF records and the missing DKIM, asks Brevo again once and then reports it authenticated
-#   C. no key file and the Resend domain pending -> 67 keeps the keys already there and asks Resend to verify again
+#   C. no key file and the Resend domain pending -> 70 keeps the keys already there and asks Resend to verify again
 set -uo pipefail
 cd "$(dirname "$0")/../../.."
 PORT=18788
@@ -25,7 +25,7 @@ seed() { curl -s -X POST -H 'Content-Type: application/json' $M/_mail --data "$1
 noleak() { grep -qE "$SECRETS" "$1" && { echo "FAIL a key value appeared in the output of $2"; fail=1; } || true; }
 run41() { bash tools/ops/cf/41-mail-verify.sh > $W/41.txt 2>&1; rc=$?; sed 's/^/    /' $W/41.txt; noleak $W/41.txt 41
   grep -vE '^cf: ' $W/41.txt | grep -q . && { echo "FAIL 41 printed a line without the cf: prefix"; fail=1; }; return $rc; }
-run67() { bash tools/ops/tasks/67-mail-env.sh > $W/67.txt 2>&1; rc=$?; sed 's/^/    /' $W/67.txt; noleak $W/67.txt 67; return $rc; }
+run70() { bash tools/ops/tasks/70-mail-env.sh > $W/70.txt 2>&1; rc=$?; sed 's/^/    /' $W/70.txt; noleak $W/70.txt 70; return $rc; }
 # the task writes the env as root (sudo), as on the server: read it the same way
 envget() { sudo -n grep -m1 "^$1=" $W/deploy/.env.production | cut -d= -f2-; }
 DNS_OK='[
@@ -55,27 +55,27 @@ grep -q '^cf: mail OK' $W/41.txt; expect "A 41 OK line" $? 0
 grep -q '^cf: mail dns TXT _dmarc.nabd.plus (DMARC)$' $W/41.txt; expect "A DMARC listed by name" $? 0
 grep -q '^cf: mail dns A ' $W/41.txt; expect "A unrelated records not listed" $? 1
 printf 'BREVO_API_KEY=%s\nMAILJET_API_KEY=%s\nMAILJET_SECRET_KEY=%s\n' "$BREVO_API_KEY" "$MAILJET_API_KEY" "$MAILJET_SECRET_KEY" > $W/ops-mail.env
-run67; expect "A 67 exit" $? 0
+run70; expect "A 70 exit" $? 0
 expect "A brevo key in env" "$(envget BREVO_API_KEY)" "$BREVO_API_KEY"
 expect "A mailjet secret in env" "$(envget MAILJET_SECRET_KEY)" "$MAILJET_SECRET_KEY"
 expect "A order" "$(envget MAIL_PROVIDER_ORDER)" resend,brevo,mailjet
 expect "A alert e-mail set when missing" "$(envget OPS_ALERT_EMAIL)" obaid08642@gmail.com
-grep -q '^mail: env present: RESEND_API_KEY BREVO_API_KEY MAILJET_API_KEY MAILJET_SECRET_KEY MAIL_FROM OPS_ALERT_EMAIL$' $W/67.txt; expect "A every needed name present" $? 0
+grep -q '^mail: env present: RESEND_API_KEY BREVO_API_KEY MAILJET_API_KEY MAILJET_SECRET_KEY MAIL_FROM OPS_ALERT_EMAIL$' $W/70.txt; expect "A every needed name present" $? 0
 expect "A quotas" "$(envget RESEND_DAILY_QUOTA)/$(envget RESEND_MONTHLY_QUOTA) $(envget BREVO_DAILY_QUOTA) $(envget MAILJET_DAILY_QUOTA)/$(envget MAILJET_MONTHLY_QUOTA)" "100/3000 300 200/6000"
 expect "A no SMTP relay names (Brevo uses its REST API)" "$(envget BREVO_SMTP_HOST)" ""
 expect "A other lines kept" "$(envget JWT_SECRET) $(envget RESEND_API_KEY)" "keep-me re_rehearsal_resend_0004"
 expect "A env mode 600" "$(sudo -n stat -c %a $W/deploy/.env.production)" 600
 expect "A key file shredded" "$(test -e $W/ops-mail.env; echo $?)" 1
 expect "A one env copy kept" "$(sudo -n ls $W/backups | grep -c env-pre-mail)" 1
-grep -q '^mail: env note: SES names still in the env (SES_SMTP_HOST)' $W/67.txt; expect "A SES left unused and named" $? 0
-grep -q '^mail: resend: domain nabd.plus status=verified' $W/67.txt; expect "A resend verified" $? 0
-grep -q '^mail: resend:   DKIM TXT resend._domainkey status=verified$' $W/67.txt; expect "A resend records without values" $? 0
-grep -q 'p=MIGf\|feedback-smtp' $W/67.txt; expect "A no record values printed" $? 1
+grep -q '^mail: env note: SES names still in the env (SES_SMTP_HOST)' $W/70.txt; expect "A SES left unused and named" $? 0
+grep -q '^mail: resend: domain nabd.plus status=verified' $W/70.txt; expect "A resend verified" $? 0
+grep -q '^mail: resend:   DKIM TXT resend._domainkey status=verified$' $W/70.txt; expect "A resend records without values" $? 0
+grep -q 'p=MIGf\|feedback-smtp' $W/70.txt; expect "A no record values printed" $? 1
 sudo -n cp $W/deploy/.env.production $W/env-after-a
-run67; expect "A second 67 exit" $? 0
-grep -q '^mail: env names set: none$' $W/67.txt; expect "A second 67 sets nothing" $? 0
-sudo -n cmp -s $W/deploy/.env.production $W/env-after-a; expect "A second 67 leaves the env as it was" $? 0
-expect "A second 67 keeps no extra copy" "$(sudo -n ls $W/backups | grep -c env-pre-mail)" 1
+run70; expect "A second 70 exit" $? 0
+grep -q '^mail: env names set: none$' $W/70.txt; expect "A second 70 sets nothing" $? 0
+sudo -n cmp -s $W/deploy/.env.production $W/env-after-a; expect "A second 70 leaves the env as it was" $? 0
+expect "A second 70 keeps no extra copy" "$(sudo -n ls $W/backups | grep -c env-pre-mail)" 1
 
 echo "== B: two SPF records, Mailjet DKIM missing, Brevo authenticated only after asking again"
 B_DNS=$(echo "$DNS_OK" | jq -c 'map(select(.name != "mailjet._domainkey.nabd.plus")) + [{"type":"TXT","name":"nabd.plus","content":"\"v=spf1 include:spf.mailjet.com ~all\""}]')
@@ -91,10 +91,10 @@ grep -q '^cf: mail mailjet: domain dkim=Not Checked spf=OK$' $W/41.txt; expect "
 
 echo "== C: no key file, Resend pending"
 seed "{\"dns\":$DNS_OK,\"brevo\":$BREVO_OK,\"mailjet\":$MJ_OK,\"resend\":$(echo "$RS_OK" | jq -c '.status="pending"')}"
-run67; expect "C 67 exit" $? 0
-grep -q '^mail: no key file' $W/67.txt; expect "C no key file reported" $? 0
+run70; expect "C 70 exit" $? 0
+grep -q '^mail: no key file' $W/70.txt; expect "C no key file reported" $? 0
 expect "C keys kept" "$(envget BREVO_API_KEY)" "$BREVO_API_KEY"
-grep -q '^mail: resend: verification asked again$' $W/67.txt; expect "C Resend asked again" $? 0
+grep -q '^mail: resend: verification asked again$' $W/70.txt; expect "C Resend asked again" $? 0
 expect "C Resend verify called once" "$(curl -s $M/_mail | jq -r .result.resend.checks)" 1
 
 echo "== D: secrets not passed to the step"

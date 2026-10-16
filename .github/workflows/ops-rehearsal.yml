@@ -8,7 +8,7 @@ on:
     paths: ['tools/ops/**', '.github/workflows/ops-rehearsal.yml']
 jobs:
   mail:
-    # tools/ops/tasks/67-mail-env.sh and tools/ops/cf/41-mail-verify.sh against the stand-in API (owner, 2026-10-16)
+    # tools/ops/tasks/70-mail-env.sh and tools/ops/cf/41-mail-verify.sh against the stand-in API (owner, 2026-10-16)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

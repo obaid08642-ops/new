@@ -5,7 +5,7 @@
 #      send.nabd.plus has its own SPF); DMARC present.
 #   2. Brevo and Mailjet: whether each provider sees the domain verified (their APIs, with the GitHub secrets); when one
 #      does not, its check is run again once.
-# Resend's view is printed by tasks/67-mail-env.sh on the server, where its key is. Reads only, except the two
+# Resend's view is printed by tasks/70-mail-env.sh on the server, where its key is. Reads only, except the two
 # "check again" calls. Lines start with "cf: mail" (public log): names and states, never values.
 # Env: CF/CFE/Z (tools/ops/cf/_auth.sh), BREVO_API_KEY, MAILJET_API_KEY, MAILJET_SECRET_KEY;
 #      CF_API, BREVO_API, MAILJET_API (rehearsal: stand-ins).

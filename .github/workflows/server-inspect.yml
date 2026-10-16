@@ -60,7 +60,7 @@ jobs:
           CF: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CFE: ${{ secrets.CLOUDFLARE_EMAIL }}
           Z: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-          # mail providers (owner, 2026-10-16): reach the server only on ssh stdin, for tasks/67-mail-env.sh
+          # mail providers (owner, 2026-10-16): reach the server only on ssh stdin, for tasks/70-mail-env.sh
           BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
           MAILJET_API_KEY: ${{ secrets.MAILJET_API_KEY }}
           MAILJET_SECRET_KEY: ${{ secrets.MAILJET_SECRET_KEY }}
@@ -82,7 +82,7 @@ jobs:
             f=tools/ops/tasks/$t.sh
             [ -f "$f" ] || continue
             echo "== task $t" | tee -a report.txt
-            if [ "$t" = 67-mail-env ]; then
+            if [ "$t" = 70-mail-env ]; then
               # the three keys as a mode-600 file in the deploy user's home; the task moves them into .env.production
               # and shreds the file. printf is a shell builtin: the values are on no command line.
               { [ -n "$BREVO_API_KEY" ] && printf 'BREVO_API_KEY=%s\n' "$BREVO_API_KEY"

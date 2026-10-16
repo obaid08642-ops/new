@@ -1,9 +1,9 @@
-# 2026-10-16 owner: mail providers. Run AFTER the outage recovery (55/59/66) is done and production is healthy.
-# 67: BREVO_API_KEY, MAILJET_API_KEY, MAILJET_SECRET_KEY (GitHub secrets, on ssh stdin) into .env.production, with
-#     MAIL_PROVIDER_ORDER=resend,brevo,mailjet and each free plan's quota (Resend 100/day 3000/month,
-#     Brevo 300/day, Mailjet 200/day 6000/month); Resend's view of nabd.plus (names and states). Nothing restarts:
-#     the backend reads them when the mail PR (#1583) is deployed.
-# cf:41: Cloudflare DNS (SPF once with the three includes, DKIM for each, DMARC) and Brevo's / Mailjet's verified state.
-# Rehearsal: ops-rehearsal job "mail" (tools/ops/rehearsal/mail-scenarios.sh).
-67-mail-env
+# 2026-10-16 owner/review session: the mail keys leaked and are being rotated (Antigravity wrote them into
+# .env.production by hand). After the rotation, check the mail DNS and the providers' verified state:
+#   cf:41-mail-verify  SPF (one record, Resend + Brevo + Mailjet includes), DKIM for each, DMARC, and Brevo's / Mailjet's own
+#                      domain status. Reads only (plus one "check again" per provider that is not verified). Needs the NEW
+#                      BREVO_API_KEY / MAILJET_API_KEY / MAILJET_SECRET_KEY GitHub secrets; with the old ones revoked it
+#                      reports "not readable", the DNS part still runs.
+# NOT in RUN on purpose: 70-mail-env. Run on a server that has no key file it keeps the keys already in the env, but run
+# after the GitHub secrets hold the NEW keys it would write them (and the order and quotas) into .env.production.
 cf:41-mail-verify

@@ -48,7 +48,7 @@ class H(BaseHTTPRequestHandler):
             return self.send(200 if ok else 422, {"id": "mail-rehearsal"}, ok=bool(ok))
         if p == "/_mails":
             return self.send(200, STATE.get("mails", []))
-        # mail DNS and providers (tools/ops/cf/41-mail-verify.sh, tasks/67-mail-env.sh): seed with POST /_mail
+        # mail DNS and providers (tools/ops/cf/41-mail-verify.sh, tasks/70-mail-env.sh): seed with POST /_mail
         if p == "/_mail":
             if method == "POST":
                 STATE["mail"] = data
