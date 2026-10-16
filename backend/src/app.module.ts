@@ -140,6 +140,7 @@ import { ArticlesModule } from './modules/articles/articles.module';
 
 import { CorrelationMiddleware } from './common/correlation.middleware';
 import { ObservabilityModule } from './modules/observability/observability.module';
+import { RumModule } from './modules/rum/rum.module';
 import { DoctorsModule } from './modules/doctors/doctors.module';
 import { WriteGuard } from './common/write-guard';
 import { AdminGateGuard } from './common/admin-gate.guard';
@@ -219,6 +220,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
       }),
     }),
     ObservabilityModule,
+    RumModule,
     I18nCoreModule,
     AuthModule,
     UsersModule,
