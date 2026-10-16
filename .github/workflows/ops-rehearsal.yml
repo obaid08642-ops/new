@@ -383,7 +383,7 @@ jobs:
           A="aws-ci --endpoint-url http://127.0.0.1:9000 --region us-east-1"
           export AWS_ACCESS_KEY_ID=x AWS_SECRET_ACCESS_KEY=x
           $A s3 cp $B/nabd_nabd_nestjs_20261008-030001.gz s3://nabd-plus-backups/mongodb/ --only-show-errors 2>/dev/null || sudo -E $A s3 cp $B/nabd_nabd_nestjs_20261008-030001.gz s3://nabd-plus-backups/mongodb/ --only-show-errors
-          $A s3 cp s3://nabd-plus-backups/mongodb/nabd_nabd_nestjs_20261008-030001.gz /dev/null --only-show-errors || exit 1
+          $A s3api head-object --bucket nabd-plus-backups --key mongodb/nabd_nabd_nestjs_20261008-030001.gz >/dev/null || exit 1
           bash tools/ops/tasks/71-archive-upload.sh 2>&1 | tee o71.txt; test ${PIPESTATUS[0]} = 0 || exit 1
           for f in nabdah-backend patient-web Napd-admin import volume; do grep -q "cleanup: archive: $f: uploaded and read back" o71.txt || { echo "$f not archived"; exit 1; }; done
           grep -q 'manifest: archive/2026-10-16/MANIFEST.tsv lists 5 object' o71.txt || exit 1
