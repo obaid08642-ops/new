@@ -1,12 +1,15 @@
 /**
  * Unified Mail Module
  * ─────────────────────────────────────────────────────────────
- * Provider chain (21.4):  Resend → Amazon SES → Brevo.
+ * Provider chain (21.4):  Resend → Amazon SES → Brevo → Mailjet.
  * The chain switches on an error, a timeout or a used-up quota, and goes back
  * to the first provider when its window resets. Per provider there is a daily
  * and a monthly quota, a health state and a cooldown. Every send returns
  * { ok, provider, fallback_used } and writes a 'mail_log' row, so the admin can
  * see which provider sent each code and how much quota is left.
+ * The daily/monthly counters live in the 'mail_quota' Mongo collection (one
+ * document per provider per window), so restarts and several instances share
+ * them; the in-memory copy is only a cache.
  */
 import { BadGatewayException, Global, Injectable, Logger, Module, Optional, ServiceUnavailableException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -15,7 +18,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Resend } from 'resend';
 import * as nodemailer from 'nodemailer';
 
-export type MailProvider = 'resend' | 'ses' | 'brevo';
+export type MailProvider = 'resend' | 'ses' | 'brevo' | 'mailjet';
 
 export interface MailResult {
   ok: boolean;
@@ -36,18 +39,20 @@ export interface ProviderState {
   monthly_quota: number;
 }
 
-const DEFAULT_ORDER: MailProvider[] = ['resend', 'ses', 'brevo'];
+const DEFAULT_ORDER: MailProvider[] = ['resend', 'ses', 'brevo', 'mailjet'];
+const MAILJET_SEND_URL = 'https://api.mailjet.com/v3.1/send';
+/** Mailjet free tier: 200 emails a day, 6,000 a month. */
+const FREE_TIER: Partial<Record<MailProvider, { daily: number; monthly: number }>> = { mailjet: { daily: 200, monthly: 6_000 } };
+
+interface QuotaDoc { _id: string; count: number }
 const SEND_TIMEOUT_MS = Number(process.env.MAIL_SEND_TIMEOUT_MS || 10_000);
 const COOLDOWN_MS = Number(process.env.MAIL_PROVIDER_COOLDOWN_MS || 5 * 60_000);
 
 function quotaFor(provider: MailProvider, window: 'daily' | 'monthly'): number {
-  const raw =
-    provider === 'resend'
-      ? window === 'daily' ? process.env.RESEND_DAILY_QUOTA : process.env.RESEND_MONTHLY_QUOTA
-      : provider === 'ses'
-        ? window === 'daily' ? process.env.SES_DAILY_QUOTA : process.env.SES_MONTHLY_QUOTA
-        : window === 'daily' ? process.env.BREVO_DAILY_QUOTA : process.env.BREVO_MONTHLY_QUOTA;
-  const fallback = window === 'daily' ? 100_000 : 1_000_000;
+  const raw = process.env[`${provider.toUpperCase()}_${window === 'daily' ? 'DAILY' : 'MONTHLY'}_QUOTA`];
+  const free = FREE_TIER[provider];
+  const fallback = free ? free[window] : window === 'daily' ? 100_000 : 1_000_000;
+  if (raw === undefined || raw === '') return fallback;
   const parsed = Number(raw);
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
 }
@@ -104,7 +109,59 @@ export class MailService {
   isConfigured(provider: MailProvider): boolean {
     if (provider === 'resend') return Boolean(process.env.RESEND_API_KEY);
     if (provider === 'ses') return Boolean(process.env.SES_SMTP_HOST && process.env.SES_SMTP_USER && process.env.SES_SMTP_PASS);
-    return Boolean(process.env.BREVO_SMTP_HOST && process.env.BREVO_API_KEY);
+    if (provider === 'brevo') return Boolean(process.env.BREVO_SMTP_HOST && process.env.BREVO_API_KEY);
+    return Boolean(process.env.MAILJET_API_KEY && process.env.MAILJET_SECRET_KEY);
+  }
+
+  private quotaKeys(provider: MailProvider, s: { dailyWindowStart: number; monthlyWindowStart: number }) {
+    return { daily: `${provider}:d:${s.dailyWindowStart}`, monthly: `${provider}:m:${s.monthlyWindowStart}` };
+  }
+
+  private quotaCollection() {
+    return this.conn?.db?.collection<QuotaDoc>('mail_quota') ?? null;
+  }
+
+  /** Read the shared counters for the current windows (other instances, earlier runs). */
+  private async loadUsage(provider: MailProvider, now: number) {
+    const s = this.rollWindows(provider, now);
+    const col = this.quotaCollection();
+    if (!col) return s;
+    try {
+      const keys = this.quotaKeys(provider, s);
+      const docs = await col.find({ _id: { $in: [keys.daily, keys.monthly] } }).toArray();
+      for (const d of docs) {
+        if (d._id === keys.daily) s.dailyUsed = d.count;
+        if (d._id === keys.monthly) s.monthlyUsed = d.count;
+      }
+    } catch (e) {
+      this.logger.warn(`mail_quota read failed for ${provider}: ${e instanceof Error ? e.message : String(e)}`);
+    }
+    return s;
+  }
+
+  /** Count one send in the shared store (atomic $inc, upserted per window). */
+  private async recordUsage(provider: MailProvider, s: { dailyUsed: number; monthlyUsed: number; dailyWindowStart: number; monthlyWindowStart: number }) {
+    const col = this.quotaCollection();
+    if (!col) { s.dailyUsed += 1; s.monthlyUsed += 1; return; }
+    try {
+      const keys = this.quotaKeys(provider, s);
+      const [d, m] = await Promise.all([
+        col.findOneAndUpdate({ _id: keys.daily }, { $inc: { count: 1 }, $setOnInsert: { provider, window: 'daily', createdAt: new Date() } }, { upsert: true, returnDocument: 'after' }),
+        col.findOneAndUpdate({ _id: keys.monthly }, { $inc: { count: 1 }, $setOnInsert: { provider, window: 'monthly', createdAt: new Date() } }, { upsert: true, returnDocument: 'after' }),
+      ]);
+      s.dailyUsed = d?.count ?? s.dailyUsed + 1;
+      s.monthlyUsed = m?.count ?? s.monthlyUsed + 1;
+    } catch (e) {
+      s.dailyUsed += 1; s.monthlyUsed += 1;
+      this.logger.warn(`mail_quota write failed for ${provider}: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  }
+
+  /** Refresh the cached counters from the shared store, then report state. */
+  async sharedProviderState(): Promise<ProviderState[]> {
+    const now = Date.now();
+    for (const provider of this.order()) await this.loadUsage(provider, now);
+    return this.providerState();
   }
 
   /** Live provider state for the admin page (21.4). */
@@ -187,7 +244,33 @@ export class MailService {
     });
   }
 
-  /** Resend first → SES → Brevo. Never throws; the caller reads `ok`. */
+  /** Mailjet Send API v3.1 over HTTPS with basic auth; no SDK needed. */
+  private async sendViaMailjet(to: string, subject: string, html: string, text?: string, attachment?: { filename: string; content: string } | null): Promise<void> {
+    if (!this.isConfigured('mailjet')) throw new ServiceUnavailableException('mailjet_not_configured');
+    const fromRaw = process.env.MAILJET_FROM || this.fromAddress;
+    const match = /^\s*(.*?)\s*<([^>]+)>\s*$/.exec(fromRaw);
+    const from = match ? { Email: match[2], Name: match[1] || undefined } : { Email: fromRaw.trim() };
+    const auth = Buffer.from(`${process.env.MAILJET_API_KEY}:${process.env.MAILJET_SECRET_KEY}`).toString('base64');
+    const res = await fetch(MAILJET_SEND_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Basic ${auth}` },
+      body: JSON.stringify({
+        Messages: [{
+          From: from,
+          To: [{ Email: to }],
+          Subject: subject,
+          HTMLPart: html,
+          ...(text ? { TextPart: text } : {}),
+          ...(attachment ? { Attachments: [{ ContentType: 'text/csv', Filename: attachment.filename, Base64Content: Buffer.from(attachment.content, 'utf-8').toString('base64') }] } : {}),
+        }],
+      }),
+    });
+    if (!res.ok) throw new BadGatewayException(`mailjet_http_${res.status}`);
+    const body = (await res.json().catch(() => null)) as { Messages?: Array<{ Status?: string }> } | null;
+    if (body?.Messages?.[0]?.Status !== 'success') throw new BadGatewayException('mailjet_error');
+  }
+
+  /** Resend first → SES → Brevo → Mailjet. Never throws; the caller reads `ok`. */
   async send(to: string, subject: string, html: string, text?: string): Promise<MailResult> {
     return this.sendWithAttachment({ to, subject, html, text });
   }
@@ -204,7 +287,7 @@ export class MailService {
 
     for (const provider of this.order()) {
       if (!this.isConfigured(provider)) continue;
-      const state = this.rollWindows(provider, now);
+      const state = await this.loadUsage(provider, now);
       if (state.cooldownUntil > now) {
         this.logger.warn(`mail provider ${provider} is in cooldown until ${new Date(state.cooldownUntil).toISOString()}`);
         continue;
@@ -220,8 +303,7 @@ export class MailService {
           SEND_TIMEOUT_MS,
           provider,
         );
-        state.dailyUsed += 1;
-        state.monthlyUsed += 1;
+        await this.recordUsage(provider, state);
         state.consecutiveFailures = 0;
         state.cooldownUntil = 0;
         const fallback = attempted > 1;
@@ -255,7 +337,8 @@ export class MailService {
   ): Promise<void> {
     if (provider === 'resend') return this.sendViaResend(to, subject, html, text, attachment);
     if (provider === 'ses') return this.sendViaSes(to, subject, html, text, attachment);
-    return this.sendViaBrevo(to, subject, html, text, attachment);
+    if (provider === 'brevo') return this.sendViaBrevo(to, subject, html, text, attachment);
+    return this.sendViaMailjet(to, subject, html, text, attachment);
   }
 
   private withTimeout<T>(work: Promise<T>, ms: number, provider: string): Promise<T> {
