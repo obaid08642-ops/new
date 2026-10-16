@@ -240,7 +240,7 @@ export const Validate = {
 
  // Strip XSS / injection
  sanitize(v: string): string {
- return v.replace(/<[^>]*>/g,'').replace(/['"`;\\]/g,'').trim().slice(0,1000);
+ return v.replace(/[<>'"`;\\]/g,'').trim().slice(0,1000);
  },
 
  searchQuery(v: string): string {
