@@ -87,15 +87,16 @@ def main():
         sec('day').locator('button').nth(1).click()
         # until tomorrow is the chosen day and its own times have loaded: the previous day's buttons stay on screen for a
         # moment after the click, before the section switches to its loading line
-        try:
-            page.wait_for_function(
-                "() => { const s = document.querySelector('section[aria-labelledby=\"home-care-time\"]');"
-                " const days = document.querySelectorAll('section[aria-labelledby=\"home-care-day\"] button');"
-                " return !!s && days.length > 1 && days[1].getAttribute('aria-pressed') === 'true'"
-                " && !s.querySelector('[role=\"status\"]') && s.querySelectorAll('button').length > 0; }",
-                timeout=30000)
-        except Exception:
-            pass  # the step below reports what the section shows
+        # Polled from here, not with wait_for_function: on this page that one ended at once, its exception was swallowed
+        # and the step read the section half a second after the click, while tomorrow's times were still on the way
+        # (the backend answered them in 17 ms; local and CI logs, 2026-10-16).
+        import time as _time
+        _deadline = _time.time() + 30
+        while _time.time() < _deadline:
+            if (sec('day').locator('button').nth(1).get_attribute('aria-pressed') == 'true'
+                    and sec('time').locator('[role="status"]').count() == 0 and sec('time').locator('button').count() > 0):
+                break
+            page.wait_for_timeout(250)
         step('tomorrow shows the nurse\'s free times', sec('time').locator('button').count() > 0, sec('time').inner_text()[:200])
         sec('time').locator('button').first.click()
         step('the saved located address is offered', 'الملك فهد' in sec('address').inner_text(), sec('address').inner_text()[:200])
