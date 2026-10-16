@@ -1,36 +1,42 @@
-import { Controller, Put, Body, Get, Query, ServiceUnavailableException } from '@nestjs/common';
+import { Controller, Put, Body, Get, Query, Optional, ServiceUnavailableException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { SystemConfigExtended } from '../schemas/system-config-extended.schema';
 import { FraudAlert } from '../schemas/fraud-alert.schema';
 import { AuditLog } from '../schemas/audit-log.schema';
-import Redis from 'ioredis';
 import { CurrentUser, Roles } from '../../../../common/auth.guard';
 import { UserRole } from '../../../../common/enums';
+import { Permission, RequirePermissions } from '../../../../common/permissions';
+import { KillSwitchesService } from '../../../kill-switches/kill-switches.service';
 import { TriggerEmergencyMaintenanceDto } from './admin-governance.dto';
 
-import { Permission, RequirePermissions } from '../../../../common/permissions';
 @Controller('admin/governance')
 @Roles(UserRole.ADMIN)
 export class AdminGovernanceController {
-  private redisClient: Redis;
-
   constructor(
     @InjectModel(SystemConfigExtended.name) private configModel: Model<SystemConfigExtended>,
     @InjectModel(FraudAlert.name) private fraudAlertModel: Model<FraudAlert>,
-    @InjectModel(AuditLog.name) private auditLogModel: Model<AuditLog>
-  ) {
-    // Note: in a real environment we handle Redis connection gracefully
-    // this.redisClient = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+    @InjectModel(AuditLog.name) private auditLogModel: Model<AuditLog>,
+    @Optional() private readonly switches?: KillSwitchesService,
+  ) {}
+
+  /**
+   * Issues 955 / 995: platform-wide emergency maintenance. Super admin only (modules.manage, same as the module and
+   * kill switches), reason required and audited. On: every app shows its maintenance screen and the server refuses
+   * every non-admin write (EmergencyMaintenanceMiddleware). Off: the apps' previous banner flags come back exactly.
+   */
+  @Get('emergency-maintenance')
+  @RequirePermissions(Permission.MODULES_MANAGE)
+  emergencyMaintenance() {
+    if (!this.switches) throw new ServiceUnavailableException('kill_switches_unavailable');
+    return this.switches.emergencyState();
   }
 
-  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Put('trigger-emergency-maintenance')
-  async triggerEmergencyMaintenance(@CurrentUser() _admin: any, @Body() _payload: TriggerEmergencyMaintenanceDto) {
-    // Redis dispatch, immutable audit attribution, two-person approval, and
-    // recovery verification are not implemented in this source tree. Never
-    // persist or claim a system-wide maintenance state without them.
-    throw new ServiceUnavailableException('emergency maintenance command is not configured');
+  @RequirePermissions(Permission.MODULES_MANAGE)
+  async triggerEmergencyMaintenance(@CurrentUser() admin: { id?: string; role?: string; email?: string; full_name?: string }, @Body() payload: TriggerEmergencyMaintenanceDto) {
+    if (!this.switches) throw new ServiceUnavailableException('kill_switches_unavailable');
+    return this.switches.setEmergency(payload.forceMaintenanceState, payload.reason, admin);
   }
 
   @Get('fraud-alerts')

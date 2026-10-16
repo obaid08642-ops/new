@@ -185,8 +185,10 @@ def main():
     step('the page loads on 3G (slow, not blank)', loaded is True and len(body.strip()) > 200,
          f'{elapsed:.0f}s, {len(body)} chars' if loaded is True else f'load failed: {loaded}')
     # The same signed-in page on 3G takes several times its good-network load (and at least a second at 400 kbps). A fixed
-    # 2 s floor failed for a light page whose scripts are already cached, although the profile was applied.
-    step('the 3G profile was actually applied (not a vacuous pass)', g3_applied and elapsed >= max(1.0, 3 * warm_elapsed),
+    # 2 s floor failed for a light page whose scripts are already cached, although the profile was applied; after the
+    # web byte budgets (#1515) the page loads in ~0.7 s on 3G (9x its good-network time), so the floor is 0.5 s and the
+    # 3x ratio is what proves the profile.
+    step('the 3G profile was actually applied (not a vacuous pass)', g3_applied and elapsed >= max(0.5, 3 * warm_elapsed),
          f'3G {elapsed:.2f}s vs good network {warm_elapsed:.2f}s, cdp_applied={g3_applied}')
     blank = page.evaluate('() => document.documentElement ? document.documentElement.innerHTML.length : 0')
     step('no blank-screen crash under 3G', blank > 5000, f'{blank} html chars')

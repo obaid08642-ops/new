@@ -914,7 +914,8 @@
     "save": "I-save ang artikulo",
     "unsave": "Alisin sa naka-save",
     "saveFailed": "Hindi ma-update ang mga naka-save na artikulo. Subukan muli.",
-    "signInToSave": "Mag-sign in para mag-save ng mga artikulo"
+    "signInToSave": "Mag-sign in para mag-save ng mga artikulo",
+    "bodyTitle": "Teksto ng artikulo"
   },
   "ChatDetail": {
     "eyebrow": "Pribadong conversation",
@@ -2517,7 +2518,11 @@
     "callConnecting": "Kumokonekta…",
     "callEnded": "Natapos ang tawag",
     "callLeave": "Umalis",
-    "callMute": "I-mute",
+    "callMicrophone": "Mikropono",
+    "callLive": "Nakakonekta",
+    "callWaitingForDoctor": "Hinihintay na sumali ang doktor",
+    "callYou": "Ikaw",
+    "callDoctor": "Doktor",
     "callCamera": "Kamera",
     "callNotReady": "Hindi pa handa ang tawag",
     "callUnavailable": "Hindi available ang koneksyon",

@@ -1,4 +1,5 @@
-import { Module, Injectable, Controller, Get, Post, Param, Body, UseGuards, BadRequestException, NotFoundException, ForbiddenException, GoneException } from '@nestjs/common';
+import { Module, Injectable, Controller, Get, Post, Param, Body, UseGuards, BadRequestException, NotFoundException, ForbiddenException, GoneException, Optional } from '@nestjs/common';
+import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -32,6 +33,7 @@ export class PatientUxService {
     @InjectModel(Appointment.name) private appts: Model<any>,
     private events: EventEmitter2,
     private bus: EventBusService,
+    @Optional() private readonly killSwitches?: KillSwitchesService,
   ) {}
 
   private model(k: string): Model<any> {
@@ -61,6 +63,8 @@ export class PatientUxService {
   }
 
   async rate(user: any, body: { booking_kind: string; booking_id: string; rating: number; comment?: string; aspects?: any }) {
+    // Issue 955: the admin kill switch stops new reviews before anything is stored.
+    await this.killSwitches?.assertOn('reviews_enabled');
     if (!body.rating || body.rating < 1 || body.rating > 5) throw new BadRequestException('invalid_rating');
     const b = await this.bookingForReview(body.booking_kind, body.booking_id);
     if (!b) throw new NotFoundException();

@@ -2,7 +2,8 @@
  * Ratings & Reviews module — patients rate providers after completed services.
  * One rating per user per entity; provider rating_avg recomputed atomically.
  */
-import { Module, Injectable, Controller, Post, Get, Body, Param, Query, UseGuards, BadRequestException } from '@nestjs/common';
+import { Module, Injectable, Controller, Post, Get, Body, Param, Query, UseGuards, BadRequestException, Optional } from '@nestjs/common';
+import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, Public, SelfService } from '../../common/auth.guard';
@@ -11,12 +12,14 @@ import { PatientReviewsListController } from './ratings-compat.controller';
 
 @Injectable()
 export class RatingsService {
-  constructor(@InjectConnection() private readonly conn: Connection) {}
+  constructor(@InjectConnection() private readonly conn: Connection, @Optional() private readonly killSwitches?: KillSwitchesService) {}
 
   private get ratings() { return this.conn.collection('ratings'); }
   private get profiles() { return this.conn.collection('provider_profiles'); }
 
   async submit(user: any, body: { entity_type: string; entity_id: string; provider_id: string; score: number; comment?: string }) {
+    // Issue 955: the admin kill switch stops new reviews before anything is stored.
+    await this.killSwitches?.assertOn('reviews_enabled');
     const { entity_type, entity_id, provider_id, score, comment } = body || {};
     if (!entity_type || !entity_id || !provider_id) throw new BadRequestException('entity_type, entity_id, provider_id required');
     if (!['order', 'appointment', 'lab_booking', 'radiology_booking', 'homecare_booking', 'consultation'].includes(entity_type)) {

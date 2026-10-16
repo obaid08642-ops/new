@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { NavLink } from "@/components-next/nav/nav-link";
 import { SoftLinks } from "@/components-next/nav/soft-links";
-import Image from "next/image";
+import { CatalogImage } from "@/components-next/pharmacy/catalog-image";
 import { getTranslations } from "next-intl/server";
 import { DoctorCard } from "@/components-next/ui-generated/components/Cards";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
@@ -44,7 +44,7 @@ function PulseLine() {
 /** HomeWeb hero: eyebrow, title, pulse line and the search field (a plain GET form to /search). */
 export function HeroCard({ locale, t, eyebrow, title, headingId }: { locale: Locale; t: T; eyebrow?: string; title: string; headingId: string }) {
   return (
-    <section className={`${styles.hero} ${styles.rise}`} aria-labelledby={headingId}>
+    <section className={`${styles.hero} ${styles.riseInPlace}`} aria-labelledby={headingId}>
       <span className={styles.heroMark}><NabdMark size={34} variant="text" /></span>
       <div className={styles.heroText}>
         {eyebrow ? <p className={styles.eyebrow}>{eyebrow}</p> : null}
@@ -229,7 +229,7 @@ export function CuratedSections({ sections, locale, t, disabled = NONE_DISABLED 
                   <>
                     {image ? (
                       <span className={styles.cardMedia}>
-                        <Image src={image} alt="" fill sizes="(min-width: 1024px) 300px, (min-width: 768px) 45vw, 78vw" />
+                        <CatalogImage src={image} alt="" sizes="(min-width: 1024px) 300px, (min-width: 768px) 45vw, 78vw" className={styles.cardImage} />
                       </span>
                     ) : null}
                     <span className={styles.cardTitle}>{label}</span>

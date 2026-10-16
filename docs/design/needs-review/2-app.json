@@ -41,7 +41,7 @@
     "line": 71,
     "found": "[backend] Fixed on design/backend-fields: the step \"Doctor on the way\" follows EN_ROUTE / ARRIVED (Q-15); there is still no doctor position, so no map is drawn.",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open (issue #385)"
+    "review_status": "fixed #1518 (issue #385)"
   },
   {
     "batch": 2,
@@ -118,7 +118,7 @@
     "line": 356,
     "found": "[backend] Done on the client: the filters call GET /care/doctors (Q-12/Q-13). Backend limits: sort=distance with only a city needs the signed-in user's city (the client sends city as a filter instead), and available_within does not combine with a distance order (the order is by next slot).",
     "suspect": "Backend gap: reviewer session.",
-    "review_status": "open"
+    "review_status": "fixed #1513"
   },
   {
     "batch": 2,

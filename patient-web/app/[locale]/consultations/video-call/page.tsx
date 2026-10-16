@@ -4,6 +4,7 @@ import { isLocale } from "@/lib/i18n";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { callPatientApi } from "@/lib/api/upstream";
 import { VideoRoomClient } from "@/components-next/video-room-client";
+import { livekitUrl } from "@/lib/consult/livekit-url";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { Hero } from "@/components-next/consult/consult-parts";
@@ -28,7 +29,7 @@ export default async function VideoCallPage({ params, searchParams }: Props) {
     <ConsultPage locale={locale} title={c("videoCallTitle")} backHref={`/${locale}/appointments/${appointmentId}`} width="wide">
       <Hero icon="video-camera" tone="violet" title={c("videoCallTitle")} sub={c("videoCallSub")} />
       {credential ? (
-        <VideoRoomClient token={credential.token} room={credential.room} labels={{ connecting: c("callConnecting"), ended: c("callEnded"), leave: c("callLeave"), mute: c("callMute"), camera: c("callCamera") }} />
+        <VideoRoomClient token={credential.token} serverUrl={livekitUrl()} labels={{ connecting: c("callConnecting"), live: c("callLive"), waiting: c("callWaitingForDoctor"), ended: c("callEnded"), leave: c("callLeave"), microphone: c("callMicrophone"), camera: c("callCamera"), you: c("callYou"), doctor: c("callDoctor") }} />
       ) : (
         <ConsultState kind="error" title={reason === "not_ready" ? c("callNotReady") : c("callUnavailable")} body={c("callAvailableLater")} retryLabel={rs("retry")} />
       )}
