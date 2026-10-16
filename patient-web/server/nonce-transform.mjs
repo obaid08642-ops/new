@@ -126,7 +126,7 @@ export function createThemeStamper(theme) {
 
 const NONCE_ATTR = /\snonce\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi;
 const NONCE_BEARING_TAG = /<(script|style|link)(?=[\s>/])[^>]*>/gi;
-const SCRIPT_BLOCK = /<script(?=[\s>])([^>]*)>([\s\S]*?)<\/script\s*>/gi;
+const SCRIPT_BLOCK = /<script(?=[\s>])([^>]*)>([\s\S]*?)<\/script[^>]*>/gi;
 const STYLE_BLOCK = /<style(?=[\s>])[^>]*>([\s\S]*?)<\/style\s*>/gi;
 const SCRIPT_HINT = /<link(?=[\s/>])[^>]*\b(?:as\s*=\s*["']?script\b|rel\s*=\s*["']?modulepreload\b)[^>]*>/gi;
 const ATTRIBUTE = /([^\s"'=<>/`]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g;
