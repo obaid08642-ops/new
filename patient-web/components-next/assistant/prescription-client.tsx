@@ -113,7 +113,8 @@ export function PrescriptionClient() {
           disclaimer={t("disclaimer")}
           actions={
             <>
-              <ButtonLink href={`/${locale}/pharmacy/chat`} label={t("askPharmacist")} />
+              {/* decision 40: no pharmacist chat without an order; as the app, the pharmacies answer a request */}
+              <ButtonLink href={`/${locale}/pharmacy/rx-order`} label={t("askPharmacist")} />
               <Button label={t("explainAnother")} variant="ghost" onClick={again} />
             </>
           }
