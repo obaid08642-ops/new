@@ -57,8 +57,9 @@ export type BroadcastRequest =
    * The cart of this browser (checkout). `paymentMode` and `fulfillment` are the draft's own fields (`payment_mode`,
    * `fulfillment`): how the patient really pays is decided when an offer is selected, so no price, policy number or
    * identity number is sent here. A prescription medicine is ordered with the saved prescription that covers it.
+   * `rxNames`: the medicines of the prescription the patient picked in rx-order (decision 39), sent before the cart's lines.
    */
-  | { kind: "cart"; lines: BroadcastCartLine[]; paymentMode: "cash" | "insurance"; fulfillment: "delivery" | "pickup"; prescriptionId?: string };
+  | { kind: "cart"; lines: BroadcastCartLine[]; paymentMode: "cash" | "insurance"; fulfillment: "delivery" | "pickup"; prescriptionId?: string; rxNames?: string[] };
 
 const MAX_LINE_QTY = 99;
 
@@ -69,12 +70,15 @@ export function buildBroadcastBody(request: BroadcastRequest, address: DeliveryA
       ...base,
       fulfillment: request.fulfillment,
       payment_mode: request.paymentMode,
-      items: request.lines.map((line) => ({
-        raw_name: line.name.slice(0, 240),
-        qty: Math.min(MAX_LINE_QTY, Math.max(1, Math.trunc(line.qty) || 1)),
-        intake_source: "cart",
-        ...(line.sku ? { sku: line.sku.slice(0, 120) } : {}),
-      })),
+      items: [
+        ...(request.rxNames ?? []).map((name) => ({ raw_name: name.slice(0, 240), qty: 1, intake_source: "prescription" })),
+        ...request.lines.map((line) => ({
+          raw_name: line.name.slice(0, 240),
+          qty: Math.min(MAX_LINE_QTY, Math.max(1, Math.trunc(line.qty) || 1)),
+          intake_source: "cart",
+          ...(line.sku ? { sku: line.sku.slice(0, 120) } : {}),
+        })),
+      ],
       ...(request.prescriptionId ? { prescription_id: request.prescriptionId, prescription_attachments: [request.prescriptionId] } : {}),
     };
   }

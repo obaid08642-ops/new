@@ -44,10 +44,22 @@ describe("cart SSR boundary", () => {
     expect(element.props.locale).toBe("en");
   });
 
-  it("an old checkout link with a prescription goes to the screen that orders a prescription", async () => {
+  it("decision 39: a picked prescription opens the checkout on it (its medicines go with the cart's lines)", async () => {
     nav.redirect.mockClear();
-    await CartCheckoutPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ prescriptionId: "91047ef2-ad36-422a-a184-629693e7c729" }) });
-    expect(nav.redirect).toHaveBeenCalledWith("/en/pharmacy/rx-order?prescriptionId=91047ef2-ad36-422a-a184-629693e7c729");
+    const id = "91047ef2-ad36-422a-a184-629693e7c729";
+    state.callPatientApi.mockResolvedValue({ ok: true, status: 200, json: async () => ({ id, status: "APPROVED", items: [{ name: "Metformin" }] }) });
+    const element = (await CartCheckoutPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ prescriptionId: id }) })) as unknown as { props: Record<string, unknown> };
+    expect(state.callPatientApi).toHaveBeenCalledWith(`/prescriptions/${id}`, {}, "server-only-cart-token");
+    expect(element.props).toEqual({ locale: "en", prescription: { id, names: ["Metformin"] } });
+    expect(nav.redirect).not.toHaveBeenCalled();
+  });
+
+  it("a prescription that cannot be ordered goes back to rx-order, which says why", async () => {
+    nav.redirect.mockClear();
+    const id = "91047ef2-ad36-422a-a184-629693e7c729";
+    state.callPatientApi.mockResolvedValue({ ok: true, status: 200, json: async () => ({ id, status: "DISPENSED", items: [{ name: "Metformin" }] }) });
+    await CartCheckoutPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ prescriptionId: id }) }).catch(() => null);
+    expect(nav.redirect).toHaveBeenCalledWith(`/en/pharmacy/rx-order?prescriptionId=${id}`);
   });
 
   it("a malformed prescription id is a not-found page, never forwarded", async () => {

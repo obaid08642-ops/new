@@ -109,7 +109,7 @@ function Answer({ answer, again }: { answer: AssistantAnswer; again: () => void 
       actions={
         <>
           {answer.urgent ? <ButtonLink href={`/${locale}/emergency`} label={emergency("title")} variant="primary" /> : null}
-          {answer.askPharmacist ? <ButtonLink href={`/${locale}/pharmacy/chat`} label={t("askPharmacist")} variant="primary" /> : null}
+          {answer.askPharmacist ? <ButtonLink href={`/${locale}/pharmacy/rx-order`} label={t("askPharmacist")} variant="primary" /> : null}
           {answer.bookable ? <ButtonLink href={doctors} label={t("bookConsultation")} variant={answer.urgent || answer.askPharmacist ? "outline" : "primary"} /> : null}
           <Button label={t("askAgain")} variant="ghost" onClick={again} />
         </>
