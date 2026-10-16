@@ -6,6 +6,7 @@ import { UserRole } from '../../common/enums';
 import { DEFAULT_REFUND_POLICY } from './refund-policy.defaults';
 
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 @Controller('refund-policy')
 export class PublicRefundPolicyController {
   constructor(@InjectConnection() private readonly conn: Connection) {}
@@ -30,6 +31,7 @@ export class AdminRefundPolicyController {
     return doc?.value || DEFAULT_REFUND_POLICY;
   }
 
+  @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
   @Put()
   async set(@CurrentUser() u: any, @Body() body: any): Promise<any> {
     const policy = body || {};

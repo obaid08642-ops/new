@@ -6,6 +6,7 @@ import { Roles } from '../../../../common/auth.guard';
 import { UserRole } from '../../../../common/enums';
 import { IssueWarehouseQuotationDto } from './admin-extended-operations.dto';
 
+import { Permission, RequirePermissions } from '../../../../common/permissions';
 @Controller('admin/extended-operations')
 @Roles(UserRole.ADMIN)
 export class AdminExtendedOperationsController {
@@ -23,6 +24,7 @@ export class AdminExtendedOperationsController {
   // deltas APPROVED with a placeholder instead of applying them. The canonical,
   // applying path is /providers/provider-deltas/:id/approve (provider module).
 
+  @RequirePermissions(Permission.PHARMACY_INVENTORY_EDIT)
   @Patch('issue-quote/:procurementId')
   async issueWarehouseQuotation(
     @Param('procurementId') procurementId: string, 

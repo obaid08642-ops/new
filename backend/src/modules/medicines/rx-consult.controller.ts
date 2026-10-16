@@ -6,6 +6,7 @@ import { Connection } from 'mongoose';
 import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
 import { SPECIALTY_MASTER, UserRole } from '../../common/enums';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 /** system_configs key: which specialty the "استشر طبيب" button opens for an Rx item (owner decision 10). */
 export const RX_CONSULT_KEY = 'rx_consult_specialties';
 
@@ -99,6 +100,7 @@ export class RxConsultController {
   }
 
   /** PUT /api/v1/admin/pharmacy/rx-consult-specialties — admin, every slug checked, audit-logged. */
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Put('admin/pharmacy/rx-consult-specialties')
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)

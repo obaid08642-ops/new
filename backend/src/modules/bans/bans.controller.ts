@@ -4,6 +4,7 @@ import { JwtAuthGuard, Roles, CurrentUser } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { IsString, IsEnum, IsOptional, IsDateString } from 'class-validator';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 class CreateBanDto {
   @IsEnum(['ip', 'device']) type: 'ip' | 'device';
   @IsString() value: string;
@@ -17,11 +18,13 @@ class CreateBanDto {
 export class BansController {
   constructor(private bansService: BansService) {}
 
+  @RequirePermissions(Permission.USER_EDIT)
   @Post()
   ban(@CurrentUser('id') adminId: string, @Body() dto: CreateBanDto) {
     return this.bansService.ban(adminId, dto.type, dto.value, dto.reason, dto.expires_at);
   }
 
+  @RequirePermissions(Permission.USER_EDIT)
   @Delete(':value')
   unban(@Param('value') value: string) {
     return this.bansService.unban(value);
