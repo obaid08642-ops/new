@@ -14,6 +14,7 @@ import {
   midpoint,
   NO_ZOOM,
   pinchScale,
+  scrollStripTo,
   slideIndex,
   slideOffset,
   toggleZoom,
@@ -187,7 +188,7 @@ export function ImageViewer({ name, images, open, start, onClose }: { name: stri
     const el = track.current;
     if (!el) return;
     const i = clamp(target, 0, total - 1);
-    el.scrollTo({ left: slideOffset(i, el.clientWidth, isRtl(el)), behavior: smooth ? "smooth" : "auto" });
+    scrollStripTo(el, slideOffset(i, el.clientWidth, isRtl(el)), smooth);
     shown.current = i;
     setIndex(i);
   }, [total]);

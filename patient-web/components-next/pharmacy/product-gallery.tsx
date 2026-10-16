@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { CatalogImage } from "./catalog-image";
-import { arrowStep, clamp, isRtl, slideIndex, slideOffset } from "./gallery-math";
+import { arrowStep, clamp, isRtl, scrollStripTo, slideIndex, slideOffset } from "./gallery-math";
 import { ImageViewer } from "./image-viewer";
 import { PHARMACY_TONE } from "./tones";
 import { WishlistHeart } from "./wishlist-heart";
@@ -32,7 +32,7 @@ export function ProductGallery({ name, images, badge, itemId, locale }: { name: 
     const el = track.current;
     if (!el || total === 0) return;
     const i = clamp(target, 0, total - 1);
-    el.scrollTo({ left: slideOffset(i, el.clientWidth, isRtl(el)), behavior: smooth ? "smooth" : "auto" });
+    scrollStripTo(el, slideOffset(i, el.clientWidth, isRtl(el)), smooth);
     shown.current = i;
     setIndex(i);
   }, [total]);

@@ -80,3 +80,12 @@ export function isDoubleTap(previous: { t: number; x: number; y: number } | null
 export function isSwipeDown(dx: number, dy: number): boolean {
   return dy >= SWIPE_CLOSE_PX && dy > Math.abs(dx) * 1.5;
 }
+
+/**
+ * Scrolls a snap strip to a horizontal offset (from slideOffset, already RTL-aware). The positional scrollTo(x, 0)
+ * follows the strip's scroll-behavior, set here through the CSSOM (allowed by the CSP, unlike a style attribute).
+ */
+export function scrollStripTo(el: HTMLElement, x: number, smooth: boolean): void {
+  el.style.scrollBehavior = smooth ? "smooth" : "auto";
+  el.scrollTo(x, 0);
+}
