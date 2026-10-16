@@ -8,7 +8,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| Patient app and web | 434 | 6 | 325 | 97 | 6 | 0 |
+| Patient app and web | 434 | 5 | 326 | 97 | 6 | 0 |
 | Other | 29 | 0 | 26 | 1 | 2 | 0 |
 | Admin | 99 | 0 | 65 | 34 | 0 | 0 |
 | Admin journeys | 20 | 0 | 18 | 2 | 0 | 0 |
@@ -16,17 +16,17 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Patient journeys | 87 | 2 | 83 | 2 | 0 | 0 |
 | Provider app | 31 | 0 | 27 | 4 | 0 | 0 |
 | Provider journeys | 34 | 0 | 32 | 2 | 0 | 0 |
-| **Total** | **742** | **8** | **578** | **148** | **8** | **0** |
+| **Total** | **742** | **7** | **579** | **148** | **8** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | client | 169 | 0 | 126 | 39 | 4 | 0 |
-| owner | 100 | 4 | 53 | 42 | 1 | 0 |
+| owner | 100 | 3 | 54 | 42 | 1 | 0 |
 | backend | 235 | 0 | 205 | 30 | 0 | 0 |
 | untagged | 238 | 4 | 194 | 37 | 3 | 0 |
-| **Total** | **742** | **8** | **578** | **148** | **8** | **0** |
+| **Total** | **742** | **7** | **579** | **148** | **8** | **0** |
 
 ## By file
 
@@ -44,7 +44,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `13-web.json` | 14 | 0 | 13 | 0 | 1 | 0 |
 | `14a-app.json` | 6 | 0 | 5 | 1 | 0 | 0 |
 | `14a-web.json` | 5 | 0 | 5 | 0 | 0 | 0 |
-| `14b-app.json` | 5 | 1 | 4 | 0 | 0 | 0 |
+| `14b-app.json` | 5 | 0 | 5 | 0 | 0 | 0 |
 | `14b-web.json` | 4 | 0 | 3 | 1 | 0 | 0 |
 | `1e-app.json` | 6 | 0 | 4 | 2 | 0 | 0 |
 | `1e-web.json` | 10 | 0 | 8 | 1 | 1 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 0 | 7 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 0 | 0 | 0 | 1 | 0 |
 | `tooling.json` | 13 | 0 | 12 | 1 | 0 | 0 |
-| **Total** | **742** | **8** | **578** | **148** | **8** | **0** |
+| **Total** | **742** | **7** | **579** | **148** | **8** | **0** |
 
 ## Owner decisions (8)
 
@@ -115,11 +115,10 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 7 | `batch-1d-web.json#1` `backend/src/modules/payments/payments.module.ts:154` | /pharmacy/payment Payment provider not exercised | No gateway key on the local backend (intent answers 503) and no Mongo replica set (selection / insurance acceptance fail). Hosted checkout, return and webhook were checked only against a TEST stand-in outside the repo (… |
 | 8 | `seo-feature-pages.json#0` `patient-web/app/[locale]/features/[feature]/page.tsx:67` | /features/[feature] Feature page layout | [client] The seven public feature pages (SEO, owner 2026-10-12) have no board: they are built on the public landing kit (LandingPage, LandingSection, CardGrid/EntityRow, the new FaqList, Notice, ActionLinks) with tokens… |
 
-## Open and unverified (8)
+## Open and unverified (7)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
-| `14b-app.json#4` | owner | open (decided 2026-10-15, reviewer for the owner: preparati… | /diagnostics/sample-tracking Static preparation and visit tips (items 628 / 629) | [owner] needs medical review before launch: diag.track.prep (fasting 8 to 12 hours) and diag.tech.tips are fixed texts for every package; owner approved them on condition of a med… |
 | `2-web.json#12` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /consultations/doctors Cash-only filter | [owner] The server has accepts_insurance only: 'Cash only' means doctors who do NOT accept insurance (accepts_insurance=false), not 'any doctor, paid in cash'. A patient who pays … |
 | `3-app.json#0` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /diagnostics Payment filter (cash / insurance) drawn on ServiceHub | [owner] The board has it; no field says which test or lab takes insurance, so it is not drawn. |
 | `3-web.json#3` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /diagnostics labs carousel, cash filter, add toggle | [owner] board elements with no endpoint on the hub (no lab list, no cash flag, the cart is page based) |
