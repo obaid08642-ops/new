@@ -7,3 +7,8 @@
 # NOT in RUN on purpose: 70-mail-env. Run on a server that has no key file it keeps the keys already in the env, but run
 # after the GitHub secrets hold the NEW keys it would write them (and the order and quotas) into .env.production.
 cf:41-mail-verify
+# AFTER the next deploy and the owner's rotation of the Brevo / Mailjet keys, in this order (separate runs or one RUN):
+#   70-mail-env      writes the NEW keys (GitHub secrets), the provider order and the free-plan quotas into .env.production
+#   73-mail-test     recreates backend+worker if the env is newer, then sends ONE mail per provider to the owner through the app's own
+#                    MailService and prints the mail_log rows (provider, ok, fallback_used; the address as <owner>)
+#   cf:41-mail-verify  (already above) SPF / DKIM / DMARC and Brevo's / Mailjet's verified state
