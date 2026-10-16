@@ -10,6 +10,7 @@ vi.mock("next-intl/server", () => ({
     return (key: keyof typeof copy) => copy[key];
   },
   setRequestLocale: vi.fn(),
+  getLocale: async () => "en",
 }));
 vi.mock("@/lib/i18n", () => ({ isLocale: (locale: string) => ["ar", "en", "ur", "hi", "bn", "fil"].includes(locale) }));
 
@@ -29,6 +30,13 @@ describe("localized not-found boundary", () => {
 
     expect(html).toContain("Page unavailable");
     expect(html).toContain("Return home");
+    expect(html).toContain('href="/en"');
+  });
+
+  it("uses the request's locale when Next gives no params (a page under /en called notFound)", async () => {
+    const html = renderToStaticMarkup(await LocaleNotFound({}));
+
+    expect(html).toContain("Page unavailable");
     expect(html).toContain('href="/en"');
   });
 });
