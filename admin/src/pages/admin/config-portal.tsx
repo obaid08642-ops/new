@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { fetchWithAdminGuard } from '@/utils/api';
 import { DataTable } from '@/components/DataTable';
+import { useCan } from '@/components/AdminGuard';
 
 export default function ConfigPortal() {
-  const [activeTab, setActiveTab] = useState<'sla' | 'maintenance' | 'pricing' | 'apps' | 'urgent' | 'rxconsult'>('sla');
+  const [activeTab, setActiveTab] = useState<'sla' | 'pricing' | 'apps' | 'urgent' | 'rxconsult'>('sla');
+  // Issues 955 / 995: emergency maintenance and the kill switches live on /admin/kill-switches (modules.manage,
+  // the permission their backend routes require); this page only links there for a role that has it.
+  const canEmergency = useCan('modules.manage');
 
   // SLA State
   const [consultationDuration, setConsultationDuration] = useState(15);
@@ -110,10 +115,7 @@ export default function ConfigPortal() {
       setPricingMsg(s.ok && f.ok ? 'تم حفظ التسعير' : 'فشل الحفظ — تحقق من القيم');
     } catch { setPricingMsg('فشل الحفظ'); }
   };
-  const [killSwitchChecked1, setKillSwitchChecked1] = useState(false);
-  const [killSwitchChecked2, setKillSwitchChecked2] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [systemStatus, setSystemStatus] = useState<'online' | 'maintenance'>('online');
   // Platform cash-on-delivery policy: pharmacies may prepare COD orders only while it is active.
   const [codActive, setCodActive] = useState<boolean | null>(null);
   const [codSaving, setCodSaving] = useState(false);
@@ -141,7 +143,6 @@ export default function ConfigPortal() {
           if (data.consultationDuration) setConsultationDuration(data.consultationDuration);
           if (data.callRingingDuration) setCallRingingDuration(data.callRingingDuration);
           if (data.jwtExpiry) setJwtExpiry(data.jwtExpiry);
-          if (data.systemStatus) setSystemStatus(data.systemStatus);
         }
       } catch (error) {
         console.error('Failed to fetch initial SLA config', error);
@@ -199,47 +200,13 @@ export default function ConfigPortal() {
     }
   };
 
-  const handleTriggerEmergencyKillSwitch = async (forceMaintenanceState: boolean) => {
-    if (forceMaintenanceState && (!killSwitchChecked1 || !killSwitchChecked2)) {
-      alert('Must acknowledge both locks before triggering maintenance.');
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-            const res = await fetchWithAdminGuard(`/api/admin/admin/governance/trigger-emergency-maintenance`, {
-        method: 'PUT',
-        body: JSON.stringify({
-          forceMaintenanceState,
-          reason: forceMaintenanceState ? 'emergency-maintenance-enabled-by-admin' : 'emergency-maintenance-disabled-by-admin'
-        })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        alert(data.message);
-        setSystemStatus(forceMaintenanceState ? 'maintenance' : 'online');
-        if (!forceMaintenanceState) {
-          setKillSwitchChecked1(false);
-          setKillSwitchChecked2(false);
-        }
-      } else {
-        alert('Failed to execute command.');
-      }
-    } catch (error) {
-      console.error(error);
-      alert('Emergency Maintenance Trigger Error');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   return (
     <div className="p-8 max-w-6xl mx-auto space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900">بوابة الإعدادات والنظام المركزية</h1>
-        <div className={`px-4 py-2 rounded-full font-bold ${systemStatus === 'online' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-          حالة النظام: {systemStatus === 'online' ? 'متصل (Online)' : 'صيانة طارئة (Maintenance)'}
-        </div>
+        {canEmergency ? (
+          <Link href="/admin/kill-switches" className="rounded-lg border border-red-200 px-4 py-2 font-bold text-red-700">مفاتيح الطوارئ والصيانة الطارئة</Link>
+        ) : null}
       </div>
 
       {/* Tabs */}
@@ -249,13 +216,6 @@ export default function ConfigPortal() {
           onClick={() => setActiveTab('sla')}
         >
           تعديلات الـ SLA
-        </button>
-        <button
-          className={`py-3 px-6 font-medium text-lg flex items-center gap-2 ${activeTab === 'maintenance' ? 'border-b-2 border-red-500 text-red-600' : 'text-gray-500'}`}
-          onClick={() => setActiveTab('maintenance')}
-        >
-          <span className="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span>
-          مفتاح الإيقاف الطارئ
         </button>
         <button
           className={`py-3 px-6 font-medium text-lg ${activeTab === 'pricing' ? 'border-b-2 border-teal-500 text-teal-600' : 'text-gray-500'}`}
@@ -350,26 +310,6 @@ export default function ConfigPortal() {
           </div>
         )}
 
-        {activeTab === 'maintenance' && (
-          <div className="space-y-6">
-            <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-              {systemStatus === 'online' ? (
-                <p className="text-slate-600 font-medium">إيقاف خدمة بعينها يتم من صفحة «مفاتيح الخدمات» (للمشرف الأعلى فقط).</p>
-              ) : (
-                <div className="bg-white p-6 rounded border border-green-200 text-center">
-                  <h3 className="text-xl font-bold text-gray-800 mb-4">النظام حالياً في وضع الإيقاف الطارئ.</h3>
-                  <button
-                    disabled={isSubmitting}
-                    onClick={() => handleTriggerEmergencyKillSwitch(false)}
-                    className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg disabled:opacity-50 transition text-lg"
-                  >
-                    إلغاء وضع الصيانة (Restore Systems)
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
         {activeTab === 'pricing' && (
           <div className="space-y-6">
             <div className="bg-white p-6 rounded border border-gray-200">

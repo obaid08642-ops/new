@@ -15,7 +15,7 @@ import { NavLink } from "@/components-next/nav/nav-link";
 
 describe("NavLink", () => {
   it("starts on Next's default prefetch (null) for a listed route, and for any other route", () => {
-    const listed = renderToStaticMarkup(<NavLink href="/ar/consultations/doctors" prefetch="viewport">Doctors</NavLink>);
+    const listed = renderToStaticMarkup(<NavLink href="/ar/consultations/doctors">Doctors</NavLink>);
     expect(listed).toContain('href="/ar/consultations/doctors"');
     expect(listed).toContain('data-prefetch="null"');
     const other = renderToStaticMarkup(<NavLink href="/ar/orders">Orders</NavLink>);

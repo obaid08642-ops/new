@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { NavLink } from "@/components-next/nav/nav-link";
 import { SoftLinks } from "@/components-next/nav/soft-links";
-import Image from "next/image";
+import { CatalogImage } from "@/components-next/pharmacy/catalog-image";
 import { getTranslations } from "next-intl/server";
 import { DoctorCard } from "@/components-next/ui-generated/components/Cards";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
@@ -44,7 +44,7 @@ function PulseLine() {
 /** HomeWeb hero: eyebrow, title, pulse line and the search field (a plain GET form to /search). */
 export function HeroCard({ locale, t, eyebrow, title, headingId }: { locale: Locale; t: T; eyebrow?: string; title: string; headingId: string }) {
   return (
-    <section className={`${styles.hero} ${styles.rise}`} aria-labelledby={headingId}>
+    <section className={`${styles.hero} ${styles.riseInPlace}`} aria-labelledby={headingId}>
       <span className={styles.heroMark}><NabdMark size={34} variant="text" /></span>
       <div className={styles.heroText}>
         {eyebrow ? <p className={styles.eyebrow}>{eyebrow}</p> : null}
@@ -95,8 +95,6 @@ export function AppointmentCard({
 }
 
 /** The nine services of HomeWeb, each the shared ServiceTile inside a link. */
-/** The four sections of the tab bar: their pages are fetched once the page is idle; the other tiles on touch or hover. */
-const MAIN_SERVICES = new Set<ServiceName>(["consult", "pharmacy", "lab", "nursing"]);
 
 /** `signedIn` is given by a per-request page (the dashboard); the static Home leaves it out and each link asks the session identity itself (F82-3). */
 export function ServiceGrid({ locale, t, signedIn, disabled = NONE_DISABLED }: { locale: Locale; t: T; signedIn?: boolean; disabled?: DisabledModules }) {
@@ -119,7 +117,7 @@ export function ServiceGrid({ locale, t, signedIn, disabled = NONE_DISABLED }: {
       <ul className={`${styles.services} ${styles.rise}`}>
         {items.map((s) => (
           <li key={s.name}>
-            <NavLink href={s.href} className={styles.tileLink} prefetch={MAIN_SERVICES.has(s.name) ? "viewport" : "intent"} signedIn={signedIn}>
+            <NavLink href={s.href} className={styles.tileLink} signedIn={signedIn}>
               <ServiceTile name={s.name} label={s.label} size="lg" />
             </NavLink>
           </li>
@@ -229,7 +227,7 @@ export function CuratedSections({ sections, locale, t, disabled = NONE_DISABLED 
                   <>
                     {image ? (
                       <span className={styles.cardMedia}>
-                        <Image src={image} alt="" fill sizes="(min-width: 1024px) 300px, (min-width: 768px) 45vw, 78vw" />
+                        <CatalogImage src={image} alt="" sizes="(min-width: 1024px) 300px, (min-width: 768px) 45vw, 78vw" className={styles.cardImage} />
                       </span>
                     ) : null}
                     <span className={styles.cardTitle}>{label}</span>
@@ -258,7 +256,7 @@ export function DoctorsSection({ doctors, locale, t, specialties }: { doctors: D
     <section className={styles.section} aria-labelledby="home-doctors-title">
       <div className={styles.sectionHead}>
         <h2 id="home-doctors-title" className={styles.sectionTitle}>{t("doctorsTitle")}</h2>
-        <NavLink href={`/${locale}/consultations/doctors`} className={styles.seeAll} prefetch="viewport">{t("seeAll")}</NavLink>
+        <NavLink href={`/${locale}/consultations/doctors`} className={styles.seeAll}>{t("seeAll")}</NavLink>
       </div>
       <SoftLinks className={styles.cards}>
         {rows.map(({ d, name }) => (

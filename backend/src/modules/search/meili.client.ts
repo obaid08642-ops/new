@@ -34,7 +34,7 @@ export function meiliSettings() {
   return {
     searchableAttributes: ['names.ar', 'names.en', 'names.ur', 'names.hi', 'names.bn', 'names.fil', 'text'],
     filterableAttributes: ['type', 'section'],
-    displayedAttributes: ['key', 'id', 'type', 'section', 'names', 'slug', 'price', 'specialty', 'code', 'requires_prescription'],
+    displayedAttributes: ['key', 'id', 'type', 'section', 'names', 'slug', 'price', 'specialty', 'code', 'requires_prescription', 'online_exclusive'],
     rankingRules: ['words', 'typo', 'proximity', 'attribute', 'exactness'],
     typoTolerance: { enabled: true, minWordSizeForTypos: { oneTypo: 4, twoTypos: 8 } },
     synonyms: meiliSynonyms(),

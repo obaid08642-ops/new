@@ -9,5 +9,10 @@ const mongoose = req('mongoose'); const bcrypt = req('bcryptjs'); const { random
   const email = process.env.LIVE_ADMIN_EMAIL || 'admin@nabd.test';
   await users.updateOne({ email }, { $setOnInsert: { id: randomUUID(), full_name: 'Live Admin', email, phone: '+966500000001', role: 'admin', active: true, is_verified: true, password_hash: await bcrypt.hash(process.env.LIVE_ADMIN_PASSWORD || 'Adm1n!Live-Pass', 12), token_version: 0, createdAt: new Date(), updatedAt: new Date() } }, { upsert: true });
   console.log('admin ready:', email);
+  // Issues 955 / 995: the emergency controls (module switches, kill switches, emergency maintenance) need modules.manage,
+  // which only super_admin holds; j_admin_kill_switches signs in with this account to drive them.
+  const owner = process.env.LIVE_OWNER_EMAIL || 'owner@nabd.test';
+  await users.updateOne({ email: owner }, { $setOnInsert: { id: randomUUID(), full_name: 'Live Owner', email: owner, phone: '+966500000002', role: 'super_admin', active: true, is_verified: true, password_hash: await bcrypt.hash(process.env.LIVE_OWNER_PASSWORD || 'Own3r!Live-Pass', 12), token_version: 0, createdAt: new Date(), updatedAt: new Date() } }, { upsert: true });
+  console.log('super admin ready:', owner);
   await mongoose.disconnect();
 })().catch((e) => { console.error(e); process.exit(1); });

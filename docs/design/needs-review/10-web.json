@@ -30,7 +30,7 @@
     "line": 102,
     "found": "[client] The page shows the summary and a notice that the full text is not available here; the body is HTML and the parser drops it on purpose. Decide how to show it safely (sanitiser) before doctor-authored articles go live.",
     "suspect": "Client-side: later batch.",
-    "review_status": "open (issue #742)"
+    "review_status": "fixed #1513"
   },
   {
     "batch": 10,

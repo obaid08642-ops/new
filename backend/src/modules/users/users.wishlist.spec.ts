@@ -39,6 +39,20 @@ describe('UsersService wishlist (LJ-08)', () => {
     expect(out.map((r: any) => [r.id, r.available])).toEqual([['pending', false], ['deleted', false], ['discontinued', false], ['ok', true], ['gone', false]]);
   });
 
+  it('decision 11: sends online_exclusive from the live medicine, else from the stored snapshot', async () => {
+    const approved = { public_eligibility: true, medical_review_status: 'approved' };
+    const service = serviceFor(
+      { user_id: 'u-1', wishlist: [{ id: 'live-online' }, { id: 'live-store', online_exclusive: true }, { id: 'gone', online_exclusive: true }, { id: 'plain' }] },
+      [{ id: 'live-online', online_exclusive: true, ...approved }, { id: 'live-store', online_exclusive: false, ...approved }, { id: 'plain', ...approved }],
+    );
+    const out = await service.getWishlist('u-1');
+    expect(out.map((r: any) => [r.id, r.online_exclusive])).toEqual([['live-online', true], ['live-store', false], ['gone', true], ['plain', false]]);
+
+    const adder = serviceFor({ user_id: 'u-1', wishlist: [] }, [{ id: 'med-2', name_ar: 'أ', price: 3, online_exclusive: true }]);
+    await adder.toggleWishlist('u-1', 'med-2');
+    expect(adder.patientRepository.updateOne).toHaveBeenCalledWith({ user_id: 'u-1' }, { $set: { wishlist: [expect.objectContaining({ id: 'med-2', online_exclusive: true })] } });
+  });
+
   it('snapshots the medicine when adding, and toggles off on a second call', async () => {
     const service = serviceFor({ user_id: 'u-1', wishlist: [] }, [{ id: 'med-1', name_ar: 'بنادول', price: 12.5 }]);
     const add = await service.toggleWishlist('u-1', 'med-1');

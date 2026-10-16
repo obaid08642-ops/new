@@ -62,6 +62,7 @@ function Highlighted({ text, query }: { text: string; query: string }) {
 
 export function ResultItem({ result, locale, query }: { result: SearchResult; locale: string; query: string }) {
   const t = useTranslations("Search");
+  const product = useTranslations("PublicProduct");
   const kind = kindOf(result);
   const route = KINDS[result.typeEn || ""]?.href;
   const href = route ? route(result.id, locale) : undefined;
@@ -83,6 +84,8 @@ export function ResultItem({ result, locale, query }: { result: SearchResult; lo
         {price ? <span className={styles.price}>{t("price", { value: price })}</span> : null}
         {rate ? <span className={styles.rate}>{t("rating", { value: rate })}</span> : null}
         {"label" in kind ? <StatusChip label={t(kind.label)} tone={kind.tone} /> : null}
+        {result.requiresPrescription === true ? <StatusChip label={product("rxRequired")} tone="amber" /> : null}
+        {result.onlineOnly === true ? <StatusChip label={product("onlineOnly")} tone="mint" /> : null}
       </span>
     </span>
   </>;

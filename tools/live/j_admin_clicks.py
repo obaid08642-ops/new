@@ -231,6 +231,14 @@ def main():
         for href in ('/admin/today', '/admin/approvals'):
             n = page.locator(f'nav a[href="{href}"], aside a[href="{href}"]').count()
             step(f'navigation links to {href}', n > 0, f'{n} link(s)')
+        # Issues 955 / 995: the emergency controls need modules.manage (super admin), like their backend routes; role admin
+        # gets no link to them, and the config portal no longer shows a dead, permanently disabled kill-switch button.
+        page.goto(f'{ADMIN_WEB}/admin/config-portal', wait_until='load', timeout=45000)
+        page.wait_for_timeout(1500)
+        n = page.locator('a[href="/admin/kill-switches"]').count()
+        step('role admin gets no link to the emergency controls (modules.manage only)', n == 0, f'{n} link(s)')
+        dead = page.locator('button[disabled]:has-text("Kill-Switch")').count()
+        step('config portal has no disabled kill-switch button', dead == 0, f'{dead} button(s)')
         # The loyalty page listed the patient routes (active rewards only): a deactivated reward vanished and could
         # not be turned back on. Create one, deactivate it, and it must still be listed.
         if admin:
