@@ -33,6 +33,7 @@
  *   # apply exactly the approved report:
  *   MONGO_URL=... CATALOGUE_NAME_FIX_CONFIRM=apply npx ts-node src/scripts/fix-catalogue-names.ts \
  *     --apply --plan ./name-fix-report/name-fixes.json
+ *   --collection <name>  the catalogue collection (default `medicines`, the Medicine model's collection)
  */
 
 export type NameLang = 'ar' | 'ur' | 'hi' | 'bn';
@@ -549,7 +550,7 @@ export function buildReport(records: CatalogueRecord[]): FixRow[] {
 
 function parseArgs(argv: string[]) {
   const get = (k: string) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : undefined; };
-  return { apply: argv.includes('--apply'), input: get('--input'), out: get('--out') || './catalogue-name-fixes', plan: get('--plan') };
+  return { apply: argv.includes('--apply'), input: get('--input'), out: get('--out') || './catalogue-name-fixes', plan: get('--plan'), collection: get('--collection') || 'medicines' };
 }
 
 async function main() {
@@ -568,7 +569,7 @@ async function main() {
       const mongoose = (await import('mongoose')).default;
       if (!process.env.MONGO_URL) throw new Error('MONGO_URL or --input is required');
       await mongoose.connect(process.env.MONGO_URL);
-      records = (await mongoose.connection.collection('medicines_master').find({ is_deleted: { $ne: true } }).toArray()) as unknown as CatalogueRecord[];
+      records = (await mongoose.connection.collection(args.collection).find({ is_deleted: { $ne: true } }).toArray()) as unknown as CatalogueRecord[];
       await mongoose.disconnect();
     }
     const report = buildReport(records);
@@ -600,7 +601,7 @@ async function main() {
   const runId = `name-fix-${new Date().toISOString()}`;
   const modified = await applyPlan(
     plan,
-    mongoose.connection.collection('medicines_master') as unknown as UpdateCollection,
+    mongoose.connection.collection(args.collection) as unknown as UpdateCollection,
     mongoose.connection.collection('medicine_name_fixes') as unknown as AuditCollection,
     runId,
   );
