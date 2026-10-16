@@ -16,9 +16,10 @@
  *     used_today, usage_date, base_url }
  * Every request is logged to `ai_usage` (provider, model, feature, ms, ok, fell_back).
  */
-import { BadGatewayException, BadRequestException, Injectable, Logger, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, Injectable, Logger, NotFoundException, Optional, ServiceUnavailableException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { FieldEncryptionService } from '../../common/pdpl-compliance.module';
 import { connectionFlagSource, isKilled } from '../../common/killswitches/killswitches.helper';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
@@ -71,7 +72,10 @@ export class AiGatewayService {
   private genAI: GoogleGenerativeAI | null = null;
   private registryCache: { providers: ProviderConfig[]; mode: 'auto' | 'manual'; pinned: AiProviderName | null; purposeOverrides: Record<string, string>; at: number } | null = null;
 
-  constructor(@InjectConnection() private readonly conn: Connection) {
+  constructor(
+    @InjectConnection() private readonly conn: Connection,
+    @Optional() private readonly crypto?: FieldEncryptionService,
+  ) {
     if (process.env.GEMINI_API_KEY) {
       this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     }
@@ -79,6 +83,29 @@ export class AiGatewayService {
 
   private get providers() { return this.conn.collection('ai_providers'); }
   private get settings() { return this.conn.collection('featureflags'); }
+
+  /**
+   * 16.1 (13.R21): provider keys are encrypted at rest and masked on read.
+   * Without a FIELD_ENCRYPTION_KEY the crypto service passes values through
+   * (dev/test); in production the key comes from the environment and raw DB
+   * values are ciphertext. Decrypting a never-encrypted value returns it
+   * unchanged, so rows written before this change keep working.
+   */
+  private sealKey(raw: unknown): string {
+    const v = String(raw ?? '');
+    if (!v) return '';
+    return this.crypto ? this.crypto.encrypt(v) : v;
+  }
+
+  private openKey(stored: unknown): string {
+    const v = String(stored ?? '');
+    if (!v) return '';
+    return this.crypto ? this.crypto.decrypt(v) : v;
+  }
+
+  private static tailOf(key: string): string | null {
+    return key ? `…${key.slice(-4)}` : null;
+  }
 
   // ── Registry bootstrap: seed env keys into DB once ──────────────────────
   private async ensureRegistry() {
@@ -97,7 +124,7 @@ export class AiGatewayService {
     for (const p of DEFAULT_PROVIDERS) {
       await this.providers.updateOne(
         { key: p.key },
-        { $set: { ...p, api_key: envKeys[p.key] || '' } },
+        { $set: { ...p, api_key: this.sealKey(envKeys[p.key] || '') } },
         { upsert: true },
       );
     }
@@ -115,7 +142,8 @@ export class AiGatewayService {
       return { providers: this.registryCache.providers, mode: this.registryCache.mode, pinned: this.registryCache.pinned, purposeOverrides: this.registryCache.purposeOverrides };
     }
     await this.ensureRegistry();
-    const providers = (await this.providers.find({}).sort({ priority: 1 }).toArray()) as any[];
+    const stored = (await this.providers.find({}).sort({ priority: 1 }).toArray()) as any[];
+    const providers = stored.map((p) => ({ ...p, api_key: this.openKey(p.api_key) }));
     const modeDoc: any = await this.settings.findOne({ key: 'ai_mode' });
     const mode = (modeDoc?.value === 'manual' ? 'manual' : 'auto') as 'auto' | 'manual';
     const pinned = modeDoc?.pinned_provider || null;
@@ -251,26 +279,34 @@ export class AiGatewayService {
 
   // ── Admin management API ────────────────────────────────────────────────
   async listProviders() {
-    await this.ensureRegistry();
-    const providers = await this.providers.find({}).sort({ priority: 1 }).toArray();
-    const modeDoc: any = await this.settings.findOne({ key: 'ai_mode' });
+    const { providers, mode, pinned, purposeOverrides } = await this.loadRegistry();
     return {
-      mode: modeDoc?.value || 'auto',
-      pinned_provider: modeDoc?.pinned_provider || null,
-      purpose_overrides: modeDoc?.purpose_overrides || {},
+      mode,
+      pinned_provider: pinned,
+      purpose_overrides: purposeOverrides,
       providers: providers.map((p: any) => ({
         key: p.key, enabled: p.enabled, model: p.model, vision_model: p.vision_model,
         priority: p.priority, daily_quota: p.daily_quota, used_today: p.used_today,
-        has_key: !!p.api_key, note: p.note,
+        has_key: !!p.api_key, key_tail: AiGatewayService.tailOf(p.api_key), note: p.note,
       })),
     };
   }
 
   async updateProvider(key: AiProviderName, patch: Partial<Pick<ProviderConfig, 'enabled' | 'api_key' | 'model' | 'vision_model' | 'daily_quota' | 'priority'>>) {
     await this.ensureRegistry();
-    await this.providers.updateOne({ key }, { $set: { ...patch, updatedAt: new Date() } });
+    const { api_key, ...rest } = patch || {};
+    // 16.1: the key is sealed before storage and NEVER echoed back — the
+    // response carries only presence + tail (the old code returned it verbatim).
+    if (api_key !== undefined) {
+      await this.providers.updateOne({ key }, { $set: { api_key: this.sealKey(api_key), updatedAt: new Date() } });
+    }
+    if (Object.keys(rest).length) {
+      await this.providers.updateOne({ key }, { $set: { ...rest, updatedAt: new Date() } });
+    }
     this.registryCache = null;
-    return { ok: true, key, patch };
+    const row: any = await this.providers.findOne({ key });
+    const sealed = String(row?.api_key ?? '');
+    return { ok: true, key, has_key: sealed.length > 0, key_tail: AiGatewayService.tailOf(this.openKey(sealed)) };
   }
 
   /** Per-feature provider pin (null clears). Fallback chain stays intact behind it. */
