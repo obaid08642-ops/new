@@ -5,5 +5,7 @@ d4cb6b03ed4bedd33f6161386f81afacb66667d7:backend/src/config/env.placeholders.spe
 d4cb6b03ed4bedd33f6161386f81afacb66667d7:deploy/.env.production.example:generic-api-key:54
 # - web push unit test: a sample VAPID public key (public by design, not a secret; replaced by a built value since)
 234c4df3accc3cef7a06c2616bb54aafbd18e0a8:patient-web/lib/web-push.test.ts:generic-api-key:7
+# - #1603 coturn write experiment: a throw-away TURN secret literal in a CI script (CI-only value, not a credential; the script now generates it per run)
+a08ec88ebcbdc46c5f150578995946620a3205aa:tools/perf/isr-disk/coturn-writes.sh:generic-api-key:10
 # - live mail-rotation journey: the local test-only JWT fallback (same value as tools/live/start-backend.sh); replaced by a per-run random secret since
 9e4e8c6f429252943a9656f970fc2a1a01d1cc47:tools/live/j_mail_rotation.py:generic-api-key:55

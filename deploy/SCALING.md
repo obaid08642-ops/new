@@ -72,14 +72,22 @@ Check after every deploy:
 4. The nginx micro-cache is per edge node and is not purged: it keeps a public answer for at most its `s-maxage`
    (300 s). Purge by tag (P14.8) reaches every API process and node through Redis pub/sub.
 
-5. **More than one web (patient-web) instance (P14.10).** Build the image with `NEXT_CACHE_HANDLER=redis` and give every
-   instance `NEXT_CACHE_REDIS_URL` (the same Redis) and the same `NEXT_REVALIDATE_SECRET`. All instances then share one
+5. **More than one web (patient-web) instance (P14.10, and since #1603 the default for one).** The image is built with
+   `NEXT_CACHE_HANDLER=redis` (Dockerfile default) and every instance gets `NEXT_CACHE_REDIS_URL` (compose: the capped
+   `redis-cache` service) and the same `NEXT_REVALIDATE_SECRET`. All instances then share one
    ISR/data cache (`patient-web/cache-handler.cjs`, keys per build id; Next's in-memory copy is off), and a revalidation
    on one instance (the purge bus calls `/api/revalidate` on any of them) is seen by all: the handler keeps the time of
    each tag's revalidation in Redis and answers a miss for an older entry, because Next's own record of revalidated tags
    lives inside each process. Redis down: each instance falls back to a small local cache (pages keep being served).
    Proof: the `next-multi-instance` CI job (two instances behind nginx, one Redis: same revalidated content and same
-   Cache-Control on both, Next 16.3.5 from the lockfile). patient-web joins the `internal` network to reach Redis.
+   Cache-Control on both, Next 16.3.5 from the lockfile). patient-web reaches the cache instance over the `cache` network.
+
+   **Disk safety (#1603, 2026-10-16).** Without a cache handler Next wrote every rendered page under `.next/server` in
+   the container's own layer: 5.8 GB in 18 h on the production server, no cap, no eviction, root disk full, API down
+   for 7 h. Now: the page/data cache is in `redis-cache` (a separate instance: `allkeys-lru`, `maxmemory` 256 MB, nothing
+   saved, no volume, read-only root filesystem), entries are gzip-compressed (about 5x) with a 7-day TTL; patient-web runs
+   with a read-only root filesystem and two size-capped tmpfs (`/tmp` 32 MB, `/app/.next/cache` 128 MB); every service
+   logs `json-file` 20 MB x 3. Measured and enforced: `docs/perf/ISR_DISK_1603.md`, CI `isr-disk`, `tools/ops/check-compose-limits.py`.
 
 **Rehearsal (P14.28): BLOCKED.** It needs a staging environment with two API nodes, a load balancer and a 3-node
 replica set. Staging was turned off on 2026-10-04 because it shared the production server, and the repo has no other
@@ -131,6 +139,6 @@ in the dashboard, or adds a scoped API token as a CI secret.
 | Item | Decision | Why |
 |---|---|---|
 | 14.12 Fastify | Stays opt-in (`USE_FASTIFY=true`); Express stays the default | No measured RPS gain yet, and the live gate, click tests and contract tests run on Express. Switch only after a k6 run on staging shows the gain with the whole gate green under Fastify. |
-| 14.14 Redis roles | One Redis (`volatile-lru`, 512 MB) until step 2, then the main instance (`noeviction`) and a cache instance (`allkeys-lru`, `REDIS_CACHE_URL`) | One small server; queue keys carry no TTL, so `volatile-lru` never evicts them. The cache URL is wired in code (P14.14) and stays empty until step 2. |
+| 14.14 Redis roles | The main instance (`volatile-lru`, 512 MB: queues, sessions, rate limits) and, since #1603, a separate cache instance `redis-cache` (`allkeys-lru`, 256 MB, no persistence). patient-web's ISR cache uses it now; the backend's HotCache keeps sharing the main instance until `REDIS_CACHE_URL` is set to it (one line in `.env.production`) | The page cache must never be able to fill the disk or evict queue keys; a different instance is the only way to give it a different eviction policy. Queue keys carry no TTL, so `volatile-lru` never evicts them either. |
 | 14.19 Waiting room | No waiting room until a campaign needs one; when it does, a Cloudflare Worker queue in front of checkout only | Business plan Waiting Room is a paid plan decision for the owner. Load shedding (14.17) already protects checkout. |
 | 14.22 Calls | LiveKit and coturn move to their own server in step 2; LiveKit Cloud as overflow is an owner decision | They compete for CPU and UDP ports with the API on one box. |

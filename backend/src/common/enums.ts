@@ -335,3 +335,9 @@ export const PRESCRIPTION_TRANSITIONS: Record<PrescriptionState, PrescriptionSta
   [PrescriptionState.DISPENSED]: [PrescriptionState.ARCHIVED],
   [PrescriptionState.ARCHIVED]: [],
 };
+
+/** True for an admin or a super admin (a super admin can do everything an admin can). Reads the role claim only. */
+export function isAdminUser(user?: { role?: string | null } | null): boolean {
+  const role = String(user?.role || '').toLowerCase();
+  return role === UserRole.ADMIN || role === UserRole.SUPER_ADMIN;
+}
