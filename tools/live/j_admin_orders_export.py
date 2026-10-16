@@ -13,6 +13,13 @@ EMAIL, PASSWORD = 'admin@nabd.test', os.environ.get('NABD_ADMIN_PASSWORD', 'Adm1
 EXPORT = 'a:has-text("تصدير CSV")'
 
 
+def fetch(page, href):
+    """The download the browser makes for the link, from inside the page (the session cookie is Secure in production
+    mode, which a Node-side request context does not send over http)."""
+    return page.evaluate("""async (u) => { const r = await fetch(u, { credentials: 'same-origin' });
+        return { status: r.status, type: r.headers.get('content-type') || '', text: await r.text() }; }""", href)
+
+
 def total_shown(page):
     m = re.search(r'الإجمالي:\s*(\d+)', page.locator('footer').first.inner_text())
     return int(m.group(1)) if m else -1
