@@ -41,13 +41,16 @@ Check after every deploy:
 4. Point `MONGO_URL`, `REDIS_URL` and `MEILI_URL` in `.env.production` at the private addresses. Run
    `docker compose up -d backend worker` and check readiness.
 5. **Redis roles (P14.14).** Split into two instances here, not before:
-   - `redis-queue` with `maxmemory-policy noeviction` (BullMQ's requirement);
-   - `redis-cache` with `allkeys-lru`.
+   - the main instance (`REDIS_URL`), `maxmemory-policy noeviction`: BullMQ queues, sessions, locks, idempotency
+     records, rate limits, pub/sub. None of these may be evicted;
+   - `redis-cache` (`REDIS_CACHE_URL`), `allkeys-lru`: only rebuildable copies (HotCache entries `hc:*` and their
+     refresh locks). Losing any of them costs one database read.
 
-   The code reads one `REDIS_URL` today, so first add a queue URL for BullMQ (`bullRedisConnection()` in
-   `app.module.ts` and the push queue) and a cache URL for `RedisService`, each falling back to `REDIS_URL`.
-   Until then one Redis runs `maxmemory 512mb` with `volatile-lru` (`deploy/redis/redis.conf`): only keys with a TTL
-   (cache entries) can be evicted, so queue keys (no TTL) survive memory pressure.
+   The code is ready (`redis.service.ts` `redisCacheUrlFromEnv`, `hot-cache.service.ts`): set `REDIS_CACHE_URL` in
+   `.env.production` and recreate `backend` and `worker`. Empty, the cache shares `REDIS_URL`. Until the split the one
+   Redis runs `maxmemory 512mb` with `volatile-lru` (`deploy/redis/redis.conf`): only keys with a TTL (cache entries)
+   can be evicted, so queue keys (no TTL) survive memory pressure. Check after the switch: `redis-cli -u $REDIS_CACHE_URL
+   --scan --pattern 'hc:*' | head` lists entries, and the main instance holds no new `hc:*` key.
 6. Move LiveKit and coturn to their own server (P14.22). TURN listens on TLS 443 there, and `livekit.yaml` points
    `turn.domain` at it.
 
@@ -128,6 +131,6 @@ in the dashboard, or adds a scoped API token as a CI secret.
 | Item | Decision | Why |
 |---|---|---|
 | 14.12 Fastify | Stays opt-in (`USE_FASTIFY=true`); Express stays the default | No measured RPS gain yet, and the live gate, click tests and contract tests run on Express. Switch only after a k6 run on staging shows the gain with the whole gate green under Fastify. |
-| 14.14 Redis roles | One Redis (`volatile-lru`, 512 MB) until step 2, then queue (`noeviction`) and cache (`allkeys-lru`) instances | One small server; queue keys carry no TTL, so `volatile-lru` never evicts them. The second URL is wired in code at step 2. |
+| 14.14 Redis roles | One Redis (`volatile-lru`, 512 MB) until step 2, then the main instance (`noeviction`) and a cache instance (`allkeys-lru`, `REDIS_CACHE_URL`) | One small server; queue keys carry no TTL, so `volatile-lru` never evicts them. The cache URL is wired in code (P14.14) and stays empty until step 2. |
 | 14.19 Waiting room | No waiting room until a campaign needs one; when it does, a Cloudflare Worker queue in front of checkout only | Business plan Waiting Room is a paid plan decision for the owner. Load shedding (14.17) already protects checkout. |
 | 14.22 Calls | LiveKit and coturn move to their own server in step 2; LiveKit Cloud as overflow is an owner decision | They compete for CPU and UDP ports with the API on one box. |
