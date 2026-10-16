@@ -3298,5 +3298,18 @@
   "services.cat.searchForAService": "Search for a service, doctor or medicine",
   "services.cat.primaryServices": "Primary services",
   "services.cat.additionalServices": "Additional services",
-  "services.cat.title": "Services"
+  "services.cat.title": "Services",
+  "health.hub.component.bmi": "Body mass index",
+  "health.hub.component.bp": "Blood pressure",
+  "health.hub.component.glucose": "Blood glucose",
+  "health.hub.component.heart_rate": "Heart rate",
+  "health.hub.component.sleep": "Sleep quality",
+  "health.hub.component.tracking": "Tracking consistency",
+  "health.hub.rec.bmi_high": "BMI is above normal — regular activity and balanced nutrition help lower it",
+  "health.hub.rec.profile_incomplete": "Add your height and weight to your health profile to compute your score more accurately",
+  "health.hub.rec.bp_high": "Your latest blood pressure reading is high — cut salt, monitor regularly and consult your doctor",
+  "health.hub.rec.glucose_off": "Your glucose reading is out of the normal range — review your meal plan and medication with your doctor",
+  "health.hub.rec.sleep_low": "Your sleep quality needs improvement — keep a fixed bedtime and cut screens before bed",
+  "health.hub.rec.tracking_low": "Log your vitals regularly (5 readings a week) to make your score more accurate",
+  "health.hub.rec.tracking_start": "Start logging your vitals (blood pressure, glucose, weight) to activate your health score"
 }
