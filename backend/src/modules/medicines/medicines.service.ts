@@ -592,7 +592,8 @@ export class MedicinesService {
       const norm = this.normalizeSearchText(search);
       const tolerant = this.tolerantRegex(norm || search);
       rows = await this.model.find(
-        { is_deleted: { $ne: true }, $or: [
+        // Issue 1555: the public list (includeUnverified false) keeps the public catalogue gate on this fallback too.
+        { ...(includeUnverified ? { is_deleted: { $ne: true } } : this.publicCatalogFilter()), $or: [
           { name_ar: { $regex: tolerant, $options: 'i' } },
           { name_en: { $regex: tolerant, $options: 'i' } },
           { search_text: { $regex: tolerant, $options: 'i' } },

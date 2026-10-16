@@ -149,6 +149,7 @@ import { UserRole } from '../../common/enums';
 import { AutoEntitySeoPipelineService, PipelineEntityType } from '../events/auto-entity-seo-pipeline.service';
 import { PUBLIC_MEDICINE, PUBLIC_TYPED_PROVIDER } from '../entity-graph/entity-graph.service';
 import { resolveMedicinePublicDto, productLocaleToDb, PUBLIC_CATALOG_LOCALES } from '../medicines/med-i18n';
+import { toPublicMedicine, toPublicProductCard } from '../medicines/public-medicine';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 // P5.3: merged from SeoModule (seo/ → seo-search/)
 import { MedicineSchema } from '../../schemas/medicine.schema';
@@ -294,7 +295,8 @@ export class SeoSearchService {
   private async loadEntity(type: string, id: string): Promise<any> {
     if (type === 'category') return { id, is_category: true };
     const col = type === 'medicine' ? CATALOG_COLLECTIONS.medicines : type === 'article' ? 'articles' : 'provider_profiles';
-    return this.conn.collection(col).findOne({ id }, { projection: { _id: 0 } });
+    // Issue 1555: the public metadata of a medicine exists only for a published one.
+    return this.conn.collection(col).findOne(type === 'medicine' ? { id, ...PUBLIC_MEDICINE } : { id }, { projection: { _id: 0 } });
   }
 
   private cdn(u?: string) {
@@ -458,18 +460,8 @@ export class SeoSearchService {
     const total = term ? ((Math.max(page, 1) - 1) * perPage + rows.length + (hasMore ? 1 : 0)) : await this.conn.collection(CATALOG_COLLECTIONS.medicines).countDocuments(filter);
     return {
       query: term || null, locale, page: Math.max(page, 1), limit: perPage, total, has_more: hasMore,
-      items: rows.map((m: any) => {
-        const dto = resolveMedicinePublicDto(m, locale);
-        return {
-          sku: dto.sku, id: dto.id, slug: dto.slug, name: dto.name, official_name: dto.official_name,
-          description: dto.description, category: dto.category, sub_category: dto.sub_category,
-          form: dto.form, strength: dto.strength, package_size: dto.package_size,
-          active_ingredient: dto.active_ingredient, manufacturer: dto.manufacturer,
-          price: dto.price, old_price: dto.old_price, currency: dto.currency,
-          is_rx: dto.is_rx, online_exclusive: dto.online_exclusive, available: dto.available, image: dto.image,
-          url: `${process.env.WEB_PUBLIC_URL || 'https://nabd.plus'}/${locale}/p/${encodeURIComponent(String(dto.slug))}`,
-        };
-      }),
+      // Issue 1555: one card builder, shared with GET /medicines/:id/alternatives.
+      items: rows.map((m: any) => toPublicProductCard(m, locale)),
     };
   }
 
@@ -900,7 +892,8 @@ export class SeoSearchService {
         { 'translations.tl.search_aliases': trx },
       );
     }
-    const medQuery = { is_deleted: { $ne: true }, $or: medOrClauses };
+    // Issue 1555: a public search lists published medicines only (approved, public, not deleted).
+    const medQuery = { ...PUBLIC_MEDICINE, $or: medOrClauses };
     const [medicines, doctors, pharmacies, hospitals, labs, services] = await Promise.all([
       this.conn.collection(CATALOG_COLLECTIONS.medicines).find(medQuery as any, { projection: medProj } as any).limit(limit).toArray(),
       this.conn.collection('provider_profiles').find({ provider_type: 'doctor', $or: [{ name: rx }, { full_name: rx }, { specialty: rx }] } as any, { projection: docProj } as any).limit(limit).toArray(),
@@ -1153,8 +1146,9 @@ export class SeoSearchController {
 
   @Public()
   @Get('medicines/:id/recommendations')
-  medicineRecommendations(@Param('id') id: string, @Query('limit') limit?: string) {
-    return this.svc.medicineRecommendations(id, parseInt(limit || '12'));
+  async medicineRecommendations(@Param('id') id: string, @Query('limit') limit?: string) {
+    // Issue 1555: public fields only (no popularity counter, no old price on a prescription item).
+    return toPublicMedicine(await this.svc.medicineRecommendations(id, parseInt(limit || '12')));
   }
 
   @Public()

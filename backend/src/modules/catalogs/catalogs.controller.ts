@@ -6,6 +6,7 @@ import { UserRole } from '../../common/enums';
 import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
 import { PublicCache } from '../../common/public-cache.decorator';
 import { CATALOG_COLLECTIONS } from './catalog-collections';
+import { toPublicMedicine } from '../medicines/public-medicine';
 import { IsBoolean, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class SpecialtyUpsertDto {
@@ -71,7 +72,8 @@ export class CatalogsController {
       name_en: r.name_en,
       image_url: (Array.isArray(r.images) && r.images[0]) || r.image || null,
       is_active: true,
-      ...r,
+      // Issue 1555: public fields only, never the governance, audit or stock fields of the record.
+      ...toPublicMedicine(r),
     }));
   }
 
