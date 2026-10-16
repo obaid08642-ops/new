@@ -80,7 +80,7 @@ export const ROUTE_GROUP_NAMESPACES: Record<string, readonly string[]> = {
   register: ["Register"],
   reports: ["HealthWeb"],
   returns: ["ReturnsWeb"],
-  search: ["SpecialtyNames"],
+  search: ["SpecialtyNames", "PublicProduct"],
   settings: ["AgentConsent", "SettingsWeb"],
   support: ["SupportChatWeb"],
   welcome: ["Welcome"],
