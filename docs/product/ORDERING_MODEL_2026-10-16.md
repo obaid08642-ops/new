@@ -1,6 +1,6 @@
 # Ordering model for labs, radiology, nursing (owner decision 2026-10-16): gap map and phased plan
 
-The owner's decision (marketplace, one ordering flow What → Where → Who pays → Who provides → When → Confirm, the doctor's medical order, per-item insurance, safeguards, instant consultation) replaces the previous booking model and extends decisions 30 and 35. This file maps it against `main` (2026-10-16) and proposes the build order. **Nothing is built before the owner approves this plan.**
+The owner's decision (marketplace, one ordering flow What → Where → Who pays → Who provides → When → Confirm, the doctor's medical order, per-item insurance, safeguards, instant consultation) replaces the previous booking model and extends decisions 30 and 35. This file maps it against `main` (2026-10-16) and proposes the build order. **Approved by the owner on 2026-10-16.** The UX and behaviour are specified in `ORDERING_UX_SPEC_2026-10-16.md`.
 
 ## 1. Gap map (what exists on main)
 
@@ -33,7 +33,7 @@ The owner's decision (marketplace, one ordering flow What → Where → Who pays
   - home-care tracking;
   - the AI scanner (for photo orders).
 
-## 3. Owner decisions needed before phase M1
+## 3. Owner decisions (approved by the owner on 2026-10-16: the recommendation in each item)
 1. **"Held until done":**
    - (a) card authorisation, captured when the service is done. Moyasar supports authorise-then-capture, but an authorisation expires after a few days, so it fits ASAP and near-term visits only.
    - (b) charge at booking, automatic refund on cancellation or no-show by the provider. This works for any date.
