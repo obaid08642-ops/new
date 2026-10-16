@@ -5,7 +5,7 @@ import { AiService } from './ai.service';
 import { AiGatewayService } from './ai-gateway.service';
 import { JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
-import { TriageDto, SetModeDto, SetPurposeDto, VoiceDto, OcrDto, CopilotSuggestDto, OcrTranslateDto, MedicineImageSearchDto, BarcodeLookupDto, AnalyzeMealDto, GenerateExercisePlanDto, GenerateDietPlanDto, UpdateAiConfigDto, UpdateAiProviderDto} from './ai.dto';
+import { TriageDto, SetModeDto, SetPurposeDto, VoiceDto, OcrDto, CopilotSuggestDto, OcrTranslateDto, MedicineImageSearchDto, BarcodeLookupDto, AnalyzeMealDto, GenerateExercisePlanDto, GenerateDietPlanDto, UpdateAiConfigDto, UpdateAiProviderDto, TestAiProviderKeyDto } from './ai.dto';
 import { AssistantDto } from './assistant.service';
 import { AssistantService } from './assistant.service';
 import { AiProviderName } from './ai-gateway.service';
@@ -43,6 +43,13 @@ export class AiController {
   @Roles(UserRole.ADMIN)
   updateProvider(@Param('key') key: AiProviderName, @Body() body: UpdateAiProviderDto) {
     return this.gateway.updateProvider(key, body || {});
+  }
+
+  /** Admin: probe a candidate key live without storing it. */
+  @Post('admin/gateway/provider/:key/test')
+  @Roles(UserRole.ADMIN)
+  testProviderKey(@Param('key') key: AiProviderName, @Body() body: TestAiProviderKeyDto) {
+    return this.gateway.testKey(key, body?.api_key || '');
   }
 
   /** Admin: auto fallback & round-robin OR manual pinned provider. */
