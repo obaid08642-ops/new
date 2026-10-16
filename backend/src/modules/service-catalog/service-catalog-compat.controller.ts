@@ -6,6 +6,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import {  } from '../../common/auth.guard';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
+import { PREPARATION_LANGS } from '../labs/labs.service';
 
 @Controller('provider/capabilities')
 export class CapabilitiesCatalogController {
@@ -18,6 +19,8 @@ export class CapabilitiesCatalogController {
     return rows.map((s: any) => ({
       id: s.id || String(s._id), name_ar: s.name_ar, name_en: s.name_en,
       price: s.price, category: s.category, prep: s.prep_instructions || s.prep || null,
+      // The test's own preparation per language, so the lab's edit sheet (LabDashboard test menu) starts from it.
+      ...Object.fromEntries(PREPARATION_LANGS.map((l) => [`preparation_${l}`, Array.isArray(s[`preparation_${l}`]) ? s[`preparation_${l}`] : []])),
     }));
   }
 
