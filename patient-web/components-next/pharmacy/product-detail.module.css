@@ -143,13 +143,12 @@
 
 /* ---- sections below the hero ---- */
 .below { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--nabd-space-md); min-inline-size: 0; }
-/* a phone reads: key facts, alternatives, details, then the pharmacist card (canvas/ProductFull); the facts and the
-   pharmacist card share a column from 1024, so `.side` only groups them there */
+/* a phone reads: key facts, alternatives, then details (canvas/ProductFull); the facts sit in a side column from 1024,
+   so `.side` only groups them there. No "ask a pharmacist" card: the pharmacist chat lives inside an order (issue 480). */
 .side { display: contents; }
 .factsBlock { order: 1; }
 .alts { order: 2; }
 .details { order: 3; }
-.ask { order: 4; }
 .block { display: flex; flex-direction: column; gap: 10px; min-inline-size: 0; }
 .blockHead { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .blockTitle { margin: 0; font-size: var(--nabd-font-size-h4); font-weight: 700; }
@@ -161,16 +160,6 @@
 .fact { display: flex; flex-direction: column; gap: 4px; padding: 12px 10px; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-surface); min-inline-size: 0; }
 .factLabel { font-size: var(--nabd-font-size-micro); color: var(--nabd-color-text-secondary); }
 .factValue { margin: 0; font-size: var(--nabd-font-size-small); font-weight: 500; overflow-wrap: anywhere; }
-
-.ask {
-  display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: var(--nabd-radius-3xl);
-  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline);
-  color: var(--nabd-color-text-primary); text-decoration: none;
-}
-.ask:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
-.askText { display: flex; flex-direction: column; gap: 2px; min-inline-size: 0; }
-.askTitle { font-size: var(--nabd-font-size-body-lg); font-weight: 700; }
-.askBody { font-size: var(--nabd-font-size-caption); color: var(--nabd-color-text-secondary); }
 
 /* medicine details: an accordion on a phone, tabs from 768 */
 .detailsCard { background: var(--nabd-color-bg-surface); border-radius: var(--nabd-radius-3xl); overflow: hidden; }
@@ -236,6 +225,6 @@
   .alts { grid-area: alts; order: 0; }
   .details { grid-area: details; order: 0; }
   .side { grid-area: side; display: flex; flex-direction: column; gap: 16px; }
-  .factsBlock, .ask { order: 0; }
+  .factsBlock { order: 0; }
   .buyButtons { display: flex; }
 }

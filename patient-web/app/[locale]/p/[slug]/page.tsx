@@ -387,13 +387,6 @@ export default async function PublicProductPage({ params }: Props) {
                   </dl>
                 </section>
               ) : null}
-              <Link className={styles.ask} href={`/${locale}/pharmacy/chat`}>
-                <FIcon icon="chat-circle-text" tone={PHARMACY_TONE} size={52} />
-                <span className={styles.askText}>
-                  <span className={styles.askTitle}>{b("askTitle")}</span>
-                  <span className={styles.askBody}>{b("askBody")}</span>
-                </span>
-              </Link>
             </div>
 
             {alternatives.length ? (

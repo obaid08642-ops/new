@@ -34,7 +34,7 @@ export function HomeTabBar({
   // Until the identity is known the prefetch stays on the signed-in side (the one that prefetches less).
   const prefetchAsSignedIn = signedIn ?? identity.status !== "anonymous";
   const targets = isSignedIn && signedInHomeHref ? { ...hrefs, home: signedInHomeHref } : hrefs;
-  // The tabs are buttons that call router.push, which Next never prefetches: fetch their pages once the page is idle.
+  // The tabs are buttons that call router.push, which Next never prefetches: fetch a tab's page when it is reached.
   useRoutePrefetch(Object.values(targets), { signedIn: prefetchAsSignedIn });
   return (
     <BottomTabBar

@@ -8,7 +8,7 @@
     "line": 273,
     "found": "Runtime probe on the seeded backend (2026-10-06): POST /pharmacy/chat/threads/:id/messages, /accept-substitute/:msgId, /reject and /remove-item answer 403 {\"message\":\"Insufficient role\"} for the seeded patient and for a guest, even for a thread id that does not exist (the role guard runs first). The four routes carry @Roles(UserRole.PHARMACY, UserRole.ADMIN), while PharmacyChatService.postMessage / acceptSubstitute / rejectOrRemove check patient ownership (`t.patient_account_id !== user.id`) and are written for the patient. The app screen calls all four as the patient, so every patient action in the substitute negotiation fails. The screen shows the translated 'could not record your decision, the price and the payment did not change' notice; nothing is faked.",
     "suspect": "The role decorators on the patient actions are wrong (or a patient route is missing): the patient needs to post messages and accept, reject or remove. Backend fix for the reviewer; the app calls will work unchanged once the guard allows the patient.",
-    "review_status": "owner-decision (question 30): the patient's four actions are allowed (pharmacy.controllers.ts:352-360, #1222), but no route opens a negotiation thread (openOrGetThread has no caller), so the patient's and the provider app's chat screens (PharmacyDashboard.tsx:1050) stay empty (issue #479, reopened)"
+    "review_status": "fixed #1533 (issue #479)"
   },
   {
     "batch": 1,
@@ -19,7 +19,7 @@
     "line": 63,
     "found": "The screen is the substitute-negotiation chat of one order (GET /pharmacy/chat/threads?order_id=); a thread exists only when a pharmacy proposes a substitute for an order line. The hub (pharmacy.tsx:63) and the product page (product-detail.tsx:686) open it without an orderId, so a patient who wants to ask a pharmacist a question always lands on 'Open the chat from an order'. The backend has no general pharmacist-consultation endpoint (no thread without an order). The screen now says this honestly and points to the orders list instead of an endless empty chat.",
     "suspect": "Owner decision: either remove the two entry points, or add a pharmacist-consultation chat on the backend (a thread not tied to an order). Both entry points are slice 1a files, so they were not changed here.",
-    "review_status": "owner-decision (question 30): build the order chat end to end or remove it and its two entry points (issue #480)"
+    "review_status": "fixed #1533 (issue #480)"
   },
   {
     "batch": 1,
@@ -30,7 +30,7 @@
     "line": 2,
     "found": "The board Cart draws a unit price per line, an estimated total in the footer, a totals card (subtotal, delivery, points discount), a 'use your points' switch and a delivery address row. CartContext is a local staging list that deliberately keeps no price (sanitizePharmacyCartItem drops it; 'no client price, payment choice, or cart persistence is used before a pharmacy offer is selected'): the pharmacies' offers set the price. The medicine row has a catalogue price, but showing it as an estimate would contradict the broadcast model and the file's own rule. Not drawn: prices, total, points, delivery. The address is chosen at the next step (checkout, slice 1d). The note under the list says that prices come from the offers.",
     "suspect": "Owner decision: whether the cart may show an indicative catalogue total (labelled as an estimate) and the points switch (no cart-level points endpoint was found; the 10% rule belongs to payment), or whether the board's price rows are replaced by the 'prices come from offers' note as built.",
-    "review_status": "owner-decision (question 35 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2) (issue #481)"
+    "review_status": "fixed #1533 (issue #481)"
   },
   {
     "batch": 1,

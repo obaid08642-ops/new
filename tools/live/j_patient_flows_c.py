@@ -103,11 +103,14 @@ def main():
         journey('journeys#23: order the prescription for pickup')
         if rx_id:
             page.goto(f'{WEB}/ar/pharmacy/rx-order?prescriptionId={rx_id}', wait_until='load', timeout=60000)
-            page.wait_for_function("() => { const b = [...document.querySelectorAll('button')].find((x) => x.textContent.includes('اطلب عروض الصيدليات')); return !!b && Object.keys(b).some((k) => k.startsWith('__react')); }", timeout=30000)
-            # the delivery/pickup choice is a radio group (Segmented); it renders once the prescription has loaded
+            # decision 39 (the app's flow): rx-order confirms the prescription and continues to the checkout, which asks
+            # delivery or pickup (a Segmented radio group) and sends the request
+            page.get_by_role('link', name='متابعة إلى الطلب').first.click(timeout=30000)
+            page.wait_for_url('**/cart/checkout**', timeout=60000)
+            page.wait_for_function("() => { const b = [...document.querySelectorAll('button')].find((x) => x.textContent.includes('إرسال الطلب إلى الصيدليات')); return !!b && Object.keys(b).some((k) => k.startsWith('__react')); }", timeout=30000)
             pick = page.get_by_role('radio', name='استلام', exact=True)
             pick.first.click(timeout=30000)
-            page.get_by_role('button', name='اطلب عروض الصيدليات').last.click(timeout=30000)
+            page.get_by_role('button', name='إرسال الطلب إلى الصيدليات').last.click(timeout=30000)
             page.wait_for_url('**/broadcast-status**', timeout=60000)
             oid = page.url.split('orderId=')[1].split('&')[0] if 'orderId=' in page.url else None
             o = pat.get(f'/patient/pharmacy/orders/{oid}') if oid else None
