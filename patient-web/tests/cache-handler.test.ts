@@ -16,6 +16,22 @@ describe("P14.10 Redis cache handler", () => {
     expect(back.tags).toEqual(["medicines"]);
   });
 
+  it("stores entries compressed (#1603): a page entry is about 5x smaller in Redis, and reads back identical", () => {
+    const html = "<div>" + "جملة تجريبية عن الدواء ".repeat(3000) + "</div>";
+    const entry = { value: { kind: "APP_PAGE", html, rscData: Buffer.from(html), headers: { "x-next-cache-tags": "medicines" }, status: 200 }, lastModified: 5, tags: ["medicines"] };
+    const packed = Handler.pack(entry);
+    expect(packed.length).toBeLessThan(Handler.encode(entry).length / 4);
+    const back = Handler.unpack(packed);
+    expect(back.value.html).toBe(html);
+    expect(back.value.rscData.toString()).toBe(html);
+    expect(back.lastModified).toBe(5);
+  });
+
+  it("still reads an uncompressed entry (written before compression)", () => {
+    const entry = { value: { kind: "APP_PAGE", html: "x" }, lastModified: 1, tags: [] };
+    expect(Handler.unpack(Buffer.from(Handler.encode(entry))).value.html).toBe("x");
+  });
+
   it("without Redis it still serves from a local cache and drops entries by tag", async () => {
     delete process.env.NEXT_CACHE_REDIS_URL;
     const h = new Handler({ serverDistDir: "/nonexistent/server" });
