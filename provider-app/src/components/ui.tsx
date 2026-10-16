@@ -742,7 +742,7 @@ export function NPriceInput({ label, value, onChange, error, required, innerRef 
               placeholder="0" placeholderTextColor={theme.textHint} keyboardType="numeric"
               style={[s.textInput, { flex:1, color:theme.text, paddingHorizontal:SP.lg }]} />
             <View style={[s.priceSuffix, { borderColor:theme.border, borderLeftWidth:isRTL?0:1, borderRightWidth:isRTL?1:0 }]}>
-              <Text style={{ color:theme.textSub, fontSize:FS.sm, fontWeight:FW.semi }}>ريال</Text>
+              <Text style={{ color:theme.textSub, fontSize:FS.sm, fontWeight:FW.semi }}>{isRTL ? 'ريال' : 'SAR'}</Text>
             </View>
           </View>
           {error && <Text style={[s.hint, { color:theme.danger }]}>{error}</Text>}
