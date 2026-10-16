@@ -1,13 +1,7 @@
 // @ts-nocheck
 import React, { useState, useEffect, useCallback } from "react";
-import { FlatList,
-  View,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  StatusBar,
-  ActivityIndicator,
-} from "react-native";
+import { View, StyleSheet, ScrollView, TouchableOpacity, StatusBar, ActivityIndicator } from "react-native";
+import { FlashList } from "@shopify/flash-list";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "../../../src/context/AppContext";
@@ -129,14 +123,10 @@ export default function DoctorSearchView() {
           </AppText>
         </View>
       ) : (
-        <FlatList
+        <FlashList
           data={sorted}
           keyExtractor={(d) => String(d.id)}
           contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 100 }}
-          initialNumToRender={10}
-          maxToRenderPerBatch={10}
-          windowSize={7}
-          removeClippedSubviews
           ListEmptyComponent={
             <View style={{ alignItems: "center", paddingTop: 40 }}>
               <Icon name="search" size={48} color={colors.textTertiary} />

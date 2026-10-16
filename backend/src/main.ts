@@ -175,6 +175,14 @@ async function bootstrap() {
   app.useWebSocketAdapter(ioAdapter);
   app.useGlobalFilters(new SentryExceptionFilter(app.getHttpAdapter()));
 
+  // P14.23: the web reports web-vitals with navigator.sendBeacon as text/plain (no CORS preflight); only this path
+  // reads a text body, small, and turns it into the JSON the DTO validates.
+  app.use('/api/v1/rum/vitals', require('express').text({ type: 'text/plain', limit: '4kb' }), (req: any, _res: any, next: any) => {
+    if (typeof req.body === 'string') {
+      try { req.body = JSON.parse(req.body); } catch { req.body = {}; }
+    }
+    next();
+  });
   app.use(require('express').json({
     limit: '25mb',
     verify: (req: any, res: any, buf: any) => {
