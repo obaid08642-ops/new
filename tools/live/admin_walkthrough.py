@@ -115,18 +115,18 @@ def open_route(w, page, url, route):
     t0 = time.time()
     try:
         resp = page.goto(url, wait_until='load', timeout=45000)
+        dt = time.time() - t0  # time to the load event; the SSE stream of the live pages keeps the network busy by design
         try:
             page.wait_for_load_state('networkidle', timeout=8000)
         except Exception:
-            w.add(route, '(page)', 'network never idle within 8s (polling or slow call)', 'slow')
+            pass
     except Exception as e:
         w.add(route, '(page)', f'cannot open: {str(e)[:100]}', 'broken')
         return False
-    dt = time.time() - t0
     if resp is not None and resp.status >= 400:
         w.add(route, '(page)', f'document -> {resp.status}', 'broken')
     if dt > 4:
-        w.add(route, '(page)', f'load took {dt:.1f}s', 'slow')
+        w.add(route, '(page)', f'load event took {dt:.1f}s', 'slow')
     page.wait_for_timeout(800)
     return True
 
