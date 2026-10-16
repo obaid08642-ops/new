@@ -1,6 +1,7 @@
 import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsInt, IsNumber, IsObject, IsOptional, IsString, Max, MaxLength, Min, ValidateNested } from 'class-validator';
 import { AllocationItemAction } from './schemas/pharmacy.schema';
 import { Type } from 'class-transformer';
+import { AttributionDto } from '../../common/attribution';
 
 /** Delivery address as the apps send it (patient-app pharmacy-draft.ts, patient-web checkout-flow.tsx). */
 export class GeoPointDto {
@@ -90,6 +91,11 @@ export class CreateDto {
   @IsOptional()
   @IsString()
   delivery_address_id?: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AttributionDto)
+  attribution?: AttributionDto;
 
 }
 
