@@ -9,6 +9,7 @@ import { ListItem, SectionHeader, ServiceTile } from "@/components-next/ui-gener
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import type { FillIconName, ServiceName, ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { NabdMark } from "@/components-next/nabd-mark";
+import { HeroSearch } from "./hero-search";
 import { doctorDisplayName, type DoctorRow } from "@/lib/api/doctors";
 import { curatedHref } from "@/lib/curated";
 import { formatNextSlot } from "@/lib/format-slot";
@@ -41,7 +42,7 @@ function PulseLine() {
   );
 }
 
-/** HomeWeb hero: eyebrow, title, pulse line and the search field (a plain GET form to /search). */
+/** HomeWeb hero: eyebrow, title, pulse line and the search field (a plain GET form to /search, with instant suggestions). */
 export function HeroCard({ locale, t, eyebrow, title, headingId }: { locale: Locale; t: T; eyebrow?: string; title: string; headingId: string }) {
   return (
     <section className={`${styles.hero} ${styles.riseInPlace}`} aria-labelledby={headingId}>
@@ -51,11 +52,7 @@ export function HeroCard({ locale, t, eyebrow, title, headingId }: { locale: Loc
         <h1 id={headingId} className={styles.title}>{title}</h1>
       </div>
       <PulseLine />
-      <form className={styles.search} action={`/${locale}/search`} method="get" role="search">
-        <FIcon icon="magnifying-glass" tone="ink" chip="none" size={22} />
-        <input className={styles.searchInput} type="search" name="q" maxLength={100} placeholder={t("searchPlaceholder")} aria-label={t("searchLabel")} enterKeyHint="search" autoComplete="off" />
-        <button type="submit" className={styles.searchBtn}>{t("searchButton")}</button>
-      </form>
+      <HeroSearch locale={locale} placeholder={t("searchPlaceholder")} label={t("searchLabel")} button={t("searchButton")} />
     </section>
   );
 }

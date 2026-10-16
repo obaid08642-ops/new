@@ -1311,6 +1311,15 @@
     "kindNursing": "Pag-aalaga",
     "kindArticle": "Artikulo"
   },
+  "SearchSuggest": {
+    "listLabel": "Mga mungkahi sa paghahanap",
+    "loading": "Naghahanap ng mga mungkahi…",
+    "empty": "Walang mungkahi para sa “{query}”",
+    "error": "Hindi makuha ang mga mungkahi sa ngayon",
+    "retry": "Subukang muli",
+    "seeAll": "Lahat ng resulta para sa “{query}”",
+    "count": "{count, plural, =0 {Walang mungkahi} one {# mungkahi} other {# mungkahi}}"
+  },
   "Support": {
     "title": "Suporta",
     "faqTitle": "Mga madalas itanong",

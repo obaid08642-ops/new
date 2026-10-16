@@ -1311,6 +1311,15 @@
     "kindNursing": "تمريض",
     "kindArticle": "مقال"
   },
+  "SearchSuggest": {
+    "listLabel": "اقتراحات البحث",
+    "loading": "نبحث عن اقتراحات…",
+    "empty": "لا اقتراحات لـ«{query}»",
+    "error": "تعذّر جلب الاقتراحات الآن",
+    "retry": "أعد المحاولة",
+    "seeAll": "كل النتائج لـ«{query}»",
+    "count": "{count, plural, =0 {لا اقتراحات} one {اقتراح واحد} two {اقتراحان} few {# اقتراحات} many {# اقتراحًا} other {# اقتراح}}"
+  },
   "Support": {
     "title": "الدعم",
     "faqTitle": "الأسئلة الشائعة",

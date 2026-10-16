@@ -1311,6 +1311,15 @@
     "kindNursing": "نرسنگ",
     "kindArticle": "مضمون"
   },
+  "SearchSuggest": {
+    "listLabel": "تلاش کی تجاویز",
+    "loading": "تجاویز تلاش کی جا رہی ہیں…",
+    "empty": "«{query}» کے لیے کوئی تجویز نہیں",
+    "error": "تجاویز ابھی دستیاب نہیں ہیں",
+    "retry": "دوبارہ کوشش کریں",
+    "seeAll": "«{query}» کے تمام نتائج",
+    "count": "{count, plural, =0 {کوئی تجویز نہیں} one {# تجویز} other {# تجاویز}}"
+  },
   "Support": {
     "title": "معاونت",
     "faqTitle": "اکثر پوچھے گئے سوالات",
