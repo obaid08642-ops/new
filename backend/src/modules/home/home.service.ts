@@ -205,7 +205,8 @@ export class HomeService {
         ic: 'pill', c: '#FF4B55', cs: '#FFEBEC',
         price: m.price != null ? String(m.price) : null,
         priceEn: m.price != null ? String(m.price) : null,
-        requires_prescription: m.requires_prescription === true,
+        // Decisions 10 and 11: the result row says "needs a prescription" / "online only", like the catalogue cards.
+        requires_prescription: m.requires_prescription === true || m.is_rx === true,
         online_exclusive: m.online_exclusive === true,
       });
     }

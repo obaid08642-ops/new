@@ -1,5 +1,5 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { RxConsultController, RX_CONSULT_KEY } from './rx-consult.controller';
+import { RxConsultController, RX_CATEGORY_KEY, RX_CONSULT_KEY } from './rx-consult.controller';
 
 /** D-10: "استشر طبيب" opens consultations filtered by the admin's category -> specialty mapping. */
 function fakeConn(meds: any[], config: any = null) {
@@ -10,7 +10,7 @@ function fakeConn(meds: any[], config: any = null) {
     collection: (name: string) => {
       if (name === 'medicines') return {
         findOne: async (q: any) => meds.find((m) => match(m, q)) ?? null,
-        aggregate: () => ({ toArray: async () => [{ _id: 'Antibiotics', count: 3 }, { _id: null, count: 1 }] }),
+        aggregate: (pipeline: any[]) => { store.pipeline = pipeline; return { toArray: async () => [{ _id: 'Antibiotics', count: 3 }, { _id: null, count: 1 }, { _id: '', count: 1 }] }; },
       };
       if (name === 'system_configs') return {
         findOne: async (q: any) => (q.key === RX_CONSULT_KEY && store.config ? { key: RX_CONSULT_KEY, value: store.config } : null),
@@ -61,5 +61,15 @@ describe('RxConsultController', () => {
     const r: any = await new RxConsultController(fakeConn([RX])).getMapping();
     expect(r.categories).toEqual([{ key: 'Antibiotics', count: 3 }]);
     expect(r.specialties.length).toBeGreaterThan(10);
+  });
+
+  it('an Rx medicine whose sub-category is empty is listed under its category (the key the patient lookup falls back to)', async () => {
+    const conn = fakeConn([RX]);
+    await new RxConsultController(conn).getMapping();
+    const group = conn.store.pipeline.find((st: any) => st.$group).$group;
+    expect(group._id).toEqual(RX_CATEGORY_KEY);
+    // The key expression, evaluated as MongoDB does for the three shapes the catalogue stores.
+    const keyOf = (m: any) => (typeof m.sub_category === 'string' && m.sub_category !== '' ? m.sub_category : m.category);
+    expect([keyOf({ category: 'C', sub_category: 'S' }), keyOf({ category: 'C', sub_category: '' }), keyOf({ category: 'C' })]).toEqual(['S', 'C', 'C']);
   });
 });

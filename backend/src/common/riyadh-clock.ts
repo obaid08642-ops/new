@@ -76,3 +76,24 @@ function ramadanMonth(date: Date): number | null {
 export function isRamadan(date: Date): boolean {
   return ramadanMonth(date) === 9;
 }
+/** Saudi Arabia keeps UTC+3 all year (no daylight saving), so a Riyadh calendar day is a fixed 24 h window. */
+const RIYADH_OFFSET = '+03:00';
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * The instants that bound one Riyadh calendar day: `ymd` (YYYY-MM-DD, the day the patient sees on the app or the web), or
+ * the current Riyadh day when it is absent. Null for a malformed day. Server-local day getters (getFullYear/getDate) are
+ * UTC in production, so a log written between 00:00 and 03:00 Riyadh time fell on the previous day.
+ */
+export function riyadhDayRange(ymd?: string, now: Date = new Date()): { start: Date; end: Date } | null {
+  const day = ymd ?? riyadhParts(now).ymd;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return null;
+  const start = new Date(`${day}T00:00:00${RIYADH_OFFSET}`);
+  if (Number.isNaN(start.getTime()) || riyadhParts(start).ymd !== day) return null;
+  return { start, end: new Date(start.getTime() + DAY_MS - 1) };
+}
+
+/** The first instant of the current Riyadh calendar month. */
+export function riyadhMonthStart(now: Date = new Date()): Date {
+  return new Date(`${riyadhParts(now).ymd.slice(0, 7)}-01T00:00:00${RIYADH_OFFSET}`);
+}

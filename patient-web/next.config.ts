@@ -17,7 +17,13 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/*": ["./node_modules/@swc/helpers/**/*"],
   },
-  experimental: { globalNotFound: true },
+  experimental: {
+    globalNotFound: true,
+    // F82 (issue 427): the default merged the CSS modules of most sections (product, diagnostics, prescriptions, orders,
+    // health, ...) into one 112 KB render-blocking stylesheet that every page loaded. The graph strategy groups CSS by
+    // the routes that import it, so a page downloads close to only its own CSS (Turbopack only).
+    cssChunking: "graph",
+  },
 
   allowedDevOrigins: ["127.0.0.1", "3000-ikwbywe2u081i4meqv02p-09e989e4.sg1.manus.computer"],
   async redirects() {
@@ -31,6 +37,10 @@ const nextConfig: NextConfig = {
       { source: "/:locale/home-nursing", destination: "/:locale/nursing/catalog", permanent: false },
       { source: "/:locale/medicine", destination: "/:locale/c", permanent: true },
       { source: "/:locale/pharmacies", destination: "/:locale/c", permanent: false },
+      // F82: the pharmacy hub is the catalogue. app/[locale]/pharmacy/page.tsx only redirects, and a redirect from a static
+      // page is sent as a 200 with the whole app shell and a one-second <meta refresh> (Lighthouse audited the second page
+      // after the first had loaded its scripts). A config redirect is a plain 307 before any rendering.
+      { source: "/:locale/pharmacy", destination: "/:locale/c", permanent: false },
       { source: "/:locale/services", destination: "/:locale", permanent: false },
       // owner decision 32 (issue 436): the web has no onboarding; old links open the home page
       { source: "/:locale/onboarding/:path*", destination: "/:locale", permanent: false },
@@ -71,8 +81,16 @@ const nextConfig: NextConfig = {
     return { beforeFiles: [...queryTwinRewrites(), unavailablePageRewrite()], afterFiles: [], fallback: [] };
   },
   async headers() {
-    return [{ source: "/:path*", headers: [
+    // On every response, build assets included.
+    const everyResponse = [
       { key: "X-Content-Type-Options", value: "nosniff" },
+      { key: "Cross-Origin-Resource-Policy", value: "same-site" },
+      ...(process.env.NODE_ENV === "production" ? [{ key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" }] : []),
+    ];
+    // F82: these govern a document (framing, its CSP, its referrer, the features it may use, its browsing context group) and
+    // do nothing on a hashed script, stylesheet or font, where they only added about 1 KB of headers to each of the 15-20
+    // requests of a page load (counted in its transfer budget). So they are sent on everything except /_next/static/.
+    const documentOnly = [
       { key: "X-Frame-Options", value: "DENY" },
       { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
       { key: "Permissions-Policy", value: "camera=(self), microphone=(self), geolocation=(self), payment=(self)" },
@@ -82,8 +100,11 @@ const nextConfig: NextConfig = {
       { key: "X-DNS-Prefetch-Control", value: "off" },
       // F68: the web clients had no CSP at all.
       { key: "Content-Security-Policy", value: contentSecurityPolicy() },
-      ...(process.env.NODE_ENV === "production" ? [{ key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" }] : []),
-    ] }];
+    ];
+    return [
+      { source: "/:path*", headers: everyResponse },
+      { source: "/:path((?!_next/static/).*)", headers: documentOnly },
+    ];
   }
 };
 

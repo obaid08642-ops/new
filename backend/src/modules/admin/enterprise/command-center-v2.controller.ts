@@ -5,6 +5,7 @@ import { Observable, interval, merge, of, map, switchMap, from } from 'rxjs';
 import { JwtAuthGuard, Roles } from '../../../common/auth.guard';
 import { Permission, RequirePermissions } from '../../../common/permissions';
 import { UserRole } from '../../../common/enums';
+import { SLA_SOURCES, slaBreachFilter } from '../../ops/ops-alert-queries';
 
 /**
  * A7 — Command Center v2: live tiles over SSE (replaces 30s polling).
@@ -42,12 +43,9 @@ export class AdminCommandCenterV2Controller {
     ]);
 
     // SLA alerts: bookings whose SLA due date passed while still active
-    const slaBreached = await Promise.all([
-      count('orders', { sla_due_at: { $lt: new Date() }, state: { $nin: ['CANCELLED', 'DELIVERED'] } }),
-      count('labbookings', { sla_due_at: { $lt: new Date() }, state: { $nin: ['CANCELLED', 'REPORTED'] } }),
-      count('radiologybookings', { sla_due_at: { $lt: new Date() }, state: { $nin: ['CANCELLED', 'REPORT_PUBLISHED'] } }),
-      count('homecarebookings', { sla_due_at: { $lt: new Date() }, state: { $nin: ['CANCELLED', 'COMPLETED'] } }),
-    ]).then((a) => a.reduce((x, y) => x + y, 0));
+    const slaBreached = await Promise.all(
+      SLA_SOURCES.map((src) => count(src.col, slaBreachFilter(src.closed, new Date()))),
+    ).then((a) => a.reduce((x, y) => x + y, 0));
 
     return {
       ts: new Date().toISOString(),

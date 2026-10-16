@@ -150,6 +150,10 @@ export const STATE_MAP: Record<ServiceDomain, Record<string, ServiceState>> = {
     CONFIRMED: ServiceState.CONFIRMED,
     ASSIGNED: ServiceState.ASSIGNED,
     CHECKED_IN: ServiceState.IN_PROGRESS,
+    // A home visit (APPT_TRANSITIONS: CONFIRMED -> EN_ROUTE -> ARRIVED -> IN_PROGRESS), as nursing; without them
+    // PATCH /care/appointments/:id/en-route threw unknown_domain_state.
+    EN_ROUTE: ServiceState.IN_PROGRESS,
+    ARRIVED: ServiceState.IN_PROGRESS,
     IN_PROGRESS: ServiceState.IN_PROGRESS,
     ONGOING: ServiceState.IN_PROGRESS,
     COMPLETED: ServiceState.COMPLETED,

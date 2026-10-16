@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@ne
 import { AppointmentsService } from './appointments.service';
 import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';import { ApptState } from '../../schemas/appointment.schema';
-import { CreateAppointmentDto, CancelAppointmentDto, RescheduleAppointmentDto, JoinWaitlistDto} from './appointments.dto';
+import { CreateAppointmentDto, CancelAppointmentDto, RescheduleAppointmentDto, JoinWaitlistDto, DoctorPositionDto } from './appointments.dto';
 import { FinishAppointmentDto, CancelDto } from './appointments.generated.dto';
 import { Permission, RequirePermissions } from '../../common/permissions';
 
@@ -70,6 +70,12 @@ export class AppointmentsController {
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
   enRoute(@Param('id') id: string, @CurrentUser() user: any) {
     return this.svc.enRoute(id, user);
+  }
+
+  @Post(':id/position')
+  @Roles(UserRole.DOCTOR, UserRole.ADMIN)
+  position(@Param('id') id: string, @CurrentUser() user: any, @Body() body: DoctorPositionDto) {
+    return this.svc.updatePosition(id, user, body.lat, body.lng);
   }
 
   @Patch(':id/arrive')

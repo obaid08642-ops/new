@@ -23,6 +23,15 @@ export class RxConsultSpecialtiesDto {
 
 const bySlug = new Map(SPECIALTY_MASTER.map((s) => [s.slug, s]));
 
+/** $group key of an Rx medicine in the admin mapping: a non-empty string sub_category, else the category. */
+export const RX_CATEGORY_KEY = {
+  $cond: [
+    { $and: [{ $eq: [{ $type: '$sub_category' }, 'string'] }, { $ne: ['$sub_category', ''] }] },
+    '$sub_category',
+    '$category',
+  ],
+};
+
 /**
  * D-10: an Rx item in the cart offers "استشر طبيب", which opens consultations filtered to a suitable
  * specialty. The mapping is admin config (category -> specialty), never hard-coded; without one the
@@ -76,7 +85,9 @@ export class RxConsultController {
     const cfg = await this.config();
     const categories = await this.conn.collection('medicines').aggregate([
       { $match: { requires_prescription: true } },
-      { $group: { _id: { $ifNull: ['$sub_category', '$category'] }, count: { $sum: 1 } } },
+      // The key the patient lookup tries first: the sub-category, or the category when the sub-category is missing or
+      // empty (the admin catalogue form saves '' for "none"; $ifNull alone kept '' and the category was never listed).
+      { $group: { _id: RX_CATEGORY_KEY, count: { $sum: 1 } } },
       { $sort: { count: -1 } },
       { $limit: 300 },
     ]).toArray();
