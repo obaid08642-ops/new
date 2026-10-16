@@ -1,40 +1,39 @@
 /**
- * #1556 decision A (owner, 2026-10-16): the English name is the reference.
+ * #1556 decision A (owner, 2026-10-16), reworked after the review of PR #1588.
  *
- * For every medicine record, the displayed Arabic name (`name_ar`,
- * `translations.ar.name`) and the official Arabic name (`official_name_ar`,
- * `translations.ar.official_name`) are compared with the English name
- * (`name_en`, falling back to `translations.en.name`) by brand and by the
- * numbers in the name (strength and pack):
- *   - the candidate that matches the English brand + numbers is chosen and the
- *     display and official fields are made to agree with it;
- *   - if no candidate matches, an Arabic name is built from the English one and
- *     the row is flagged `needs_owner_check: true`;
- *   - `translations.{ur,hi,bn}.name` / `.official_name` get the same check; when
- *     neither matches, the English reference name is used (flagged), never a
- *     machine-written Urdu/Hindi/Bengali name;
- *   - Arabic descriptions that name another catalogue brand are REPORTED only
- *     (the schema has no safe fallback for a description; medical text is never
- *     rewritten automatically);
- *   - records that share one Arabic display name with a different English
- *     product are reported for the owner (variants such as Durex Thin/Invisible
- *     have the same brand and numbers, so the matcher alone cannot split them).
+ * The review ran the first version on the full production export (20,990 records): it would have changed
+ * 10,815 records, replaced 26,336 ur/hi/bn names with English, and cut correct Arabic names with a rule-built
+ * fallback. This version changes far less and writes nothing that the owner has not approved:
  *
- * Only name fields are written. Nothing is deleted. Each write is keyed by the
- * record `_id` and guarded by the exact `before` value, so re-running is a no-op
- * and a record edited after the dry run is skipped. Every applied change is also
- * stored in `medicine_name_fixes` (run_id, record, before, after) for rollback.
+ *   1. Scope: only records whose displayed Arabic name (`name_ar`, `translations.ar.name`) and official Arabic
+ *      name (`official_name_ar`, `translations.ar.official_name`) disagree on the BRAND, plus records that share
+ *      one Arabic display name with a different English product. Everything else is untouched.
+ *   2. No rule-built Arabic names. For each record in scope a small-model batch job (same pattern as the
+ *      classification job of #1595) gets the English name, both Arabic candidates and the description and
+ *      answers exactly one of keep_display / keep_official / new_text (+ text). Every answer is a proposal
+ *      for the owner. An invalid answer gives a flagged row without a proposal (never written).
+ *   3. `align` (display and official are the same brand, spelled differently): proposed only when the brand
+ *      skeletons match AND the numbers match exactly, and never when it would shorten the brand.
+ *   4. ur / hi / bn names: report only. No step of this script writes them (apply refuses every non-Arabic field).
+ *   5. Collection `medicines` (CATALOG_COLLECTIONS.medicines), `--collection <name>` to override.
+ *   6. Output: `proposals.csv` for the owner (sku, id, field, before, proposal, source, reason, approved).
+ *      `--apply <approved.csv>` writes only rows with approved=yes, each guarded by its `before` value (a row
+ *      whose stored value changed since the scan is skipped), and logs every write in `medicine_name_fixes`.
  *
- * Usage (see the PR for the review-session runbook):
- *   # dry run from a JSON / JSONL export (no database access):
- *   npx ts-node src/scripts/fix-catalogue-names.ts --input export.json --out ./name-fix-report
- *   # dry run against a database (default mode, read-only):
- *   MONGO_URL=... npx ts-node src/scripts/fix-catalogue-names.ts --out ./name-fix-report
- *   # apply exactly the approved report:
- *   MONGO_URL=... CATALOGUE_NAME_FIX_CONFIRM=apply npx ts-node src/scripts/fix-catalogue-names.ts \
- *     --apply --plan ./name-fix-report/name-fixes.json
- *   --collection <name>  the catalogue collection (default `medicines`, the Medicine model's collection)
+ * Steps (no step except `run` makes a network call):
+ *   scan       --input export.jsonl | (MONGO_URL [--collection medicines])  --out ./name-fix
+ *              writes scope.json, requests.jsonl, align.csv, localized-report.csv, estimate.json
+ *   estimate   --input export.jsonl [--total 800] [--batch 20]       cost estimate only (no API call)
+ *   run        --requests ./name-fix/requests.jsonl --out ./name-fix/responses.jsonl [--rpm 60]
+ *              calls the model; resumable; key from the environment only (GEMINI_API_KEY, or OPENAI_API_KEY
+ *              with AI_PROVIDER=openai). The model id comes from NAME_FIX_MODEL / CLASSIFY_MODEL or DEFAULT_MODEL.
+ *   proposals  --scan ./name-fix --responses ./name-fix/responses.jsonl --out ./name-fix
+ *              writes proposals.csv (align + model rows), every row flagged for the owner
+ *   apply      --apply ./name-fix/approved.csv   (MONGO_URL + CATALOGUE_NAME_FIX_CONFIRM=apply [--collection])
+ *
+ *   npx ts-node --transpile-only src/scripts/fix-catalogue-names.ts <step> ...
  */
+import { CATALOG_COLLECTIONS } from '../modules/catalogs/catalog-collections';
 
 export type NameLang = 'ar' | 'ur' | 'hi' | 'bn';
 export type MatchLevel = 'full' | 'partial' | 'none';
@@ -49,18 +48,6 @@ export interface CatalogueRecord {
   description_ar?: string | null;
   translations?: Record<string, Record<string, unknown> | null | undefined> | null;
   [key: string]: unknown;
-}
-
-export interface FixRow {
-  kind: 'change' | 'report';
-  sku: number | null;
-  id: string;
-  _id?: unknown;
-  field: string;
-  before: string | null;
-  after: string | null;
-  reason: string;
-  needs_owner_check: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -191,7 +178,7 @@ export function latinSkeletons(word: string): string[] {
 // Name parsing and matching
 // ---------------------------------------------------------------------------
 
-function firstSegmentWords(name: string): string[] {
+export function firstSegmentWords(name: string): string[] {
   const n = normaliseDigits(name);
   const seg = n.split(/[,،]| - /)[0] || '';
   const words: string[] = [];
@@ -224,7 +211,7 @@ function englishBrandSkeletons(nameEn: string): Set<string> {
   return out;
 }
 
-function brandMatches(localName: string, nameEn: string, lang: NameLang): boolean {
+export function brandMatches(localName: string, nameEn: string, lang: NameLang): boolean {
   const en = englishBrandSkeletons(nameEn);
   const enFirst = new Set(latinSkeletons(firstSegmentWords(nameEn)[0] || ''));
   const words = firstSegmentWords(localName);
@@ -247,103 +234,22 @@ export function nameMatchesEnglish(localName: string, nameEn: string, lang: Name
   return { match: loc.size === en.size ? 'full' : 'partial' };
 }
 
-// ---------------------------------------------------------------------------
-// Arabic name built from the English name (convention of correct records:
-// "<brand> <strength> <unit> - <count> <form>").
-// ---------------------------------------------------------------------------
-
-const UNIT_AR: Array<[RegExp, string]> = [
-  [/^mcg$|^µg$|^ug$/i, 'ميكروجرام'], [/^mg$/i, 'مجم'], [/^(gm|g|gram|grams)$/i, 'جم'],
-  [/^ml$/i, 'مل'], [/^(iu|i\.u\.)$/i, 'وحدة دولية'], [/^kg$/i, 'كجم'], [/^l$/i, 'لتر'],
-];
-const WORD_AR: Array<[RegExp, string]> = [
-  [/^tab(let|lets|s)?$/i, 'قرص'], [/^cap(sule|sules|s)?$/i, 'كبسولة'], [/^syrup$/i, 'شراب'],
-  [/^cream$/i, 'كريم'], [/^ointment$/i, 'مرهم'], [/^gel$/i, 'جل'], [/^drops?$/i, 'نقط'],
-  [/^vials?$/i, 'فيال'], [/^ampoules?$|^amps?$/i, 'أمبول'], [/^syringes?$|^pens?$/i, 'حقنة'],
-  [/^sachets?$/i, 'كيس'], [/^suppositor(y|ies)$/i, 'لبوس'], [/^spray$/i, 'بخاخ'],
-  [/^lotion$/i, 'لوشن'], [/^suspension$/i, 'معلق'], [/^injection$/i, 'حقن'],
-  [/^(pcs|pieces?)$/i, 'قطعة'], [/^bottles?$/i, 'عبوة'], [/^patch(es)?$/i, 'لصقة'],
-  [/^cr$/i, 'سي ار'], [/^xr$/i, 'اكس ار'], [/^sr$/i, 'اس ار'], [/^xl$/i, 'اكس ال'],
-];
-
-export function transliterateLatinToArabic(word: string): string {
-  const w = word.toLowerCase().replace(/[^a-z]/g, '');
-  let out = '';
-  for (let i = 0; i < w.length; i++) {
-    const two = w.slice(i, i + 2);
-    const map2: Record<string, string> = { ph: 'ف', sh: 'ش', ch: 'ش', th: 'ث', ck: 'ك', qu: 'كو', gh: 'ج' };
-    if (map2[two]) { out += map2[two]; i++; continue; }
-    const c = w[i];
-    const nx = w[i + 1] || '';
-    if (c === 'e' && i === w.length - 1 && i > 0) continue; // silent final e
-    if (c === 'c') { out += /[eiy]/.test(nx) ? 'س' : 'ك'; continue; }
-    if (i > 0 && c === w[i - 1] && !'aeiouy'.includes(c)) continue;
-    const map1: Record<string, string> = {
-      a: 'ا', b: 'ب', d: 'د', e: 'ي', f: 'ف', g: 'ج', h: 'ه', i: 'ي', j: 'ج', k: 'ك', l: 'ل',
-      m: 'م', n: 'ن', o: 'و', p: 'ب', q: 'ك', r: 'ر', s: 'س', t: 'ت', u: 'و', v: 'ف', w: 'و',
-      x: 'كس', y: 'ي', z: 'ز',
-    };
-    out += map1[c] || '';
-  }
-  return out;
-}
-
-export function buildArabicNameFromEnglish(nameEn: string): string {
-  const words = firstSegmentWords(nameEn);
-  const brandWord = words[0] || '';
-  const tokens = normaliseDigits(nameEn).split(/(\s+|,|-|\/)/);
-  const out: string[] = [];
-  let brandDone = false;
-  for (const t of tokens) {
-    if (!t) continue;
-    if (/^\s+$/.test(t)) { out.push(' '); continue; }
-    if (t === ',') { out.push('،'); continue; }
-    if (t === '-' || t === '/') { out.push(t); continue; }
-    if (!brandDone && t.replace(/[^\p{L}]/gu, '') === brandWord) { out.push(transliterateLatinToArabic(t)); brandDone = true; continue; }
-    const num = t.match(/^(\d+(?:\.\d+)?)(%|[a-zµ.]+)?$/i);
-    if (num) {
-      out.push(num[1]);
-      if (num[2]) {
-        const unit = num[2] === '%' ? '%' : UNIT_AR.find(([re]) => re.test(num[2]))?.[1];
-        if (unit) out.push(unit === '%' ? '%' : ` ${unit}`);
-      }
-      continue;
-    }
-    const clean = t.replace(/[^\p{L}%.]/gu, '');
-    if (clean === '%') { out.push('%'); continue; }
-    const unit = UNIT_AR.find(([re]) => re.test(clean))?.[1] || WORD_AR.find(([re]) => re.test(clean))?.[1];
-    if (unit) out.push(unit);
-    // Other English words (ingredient, claims) are dropped: the owner writes them.
-  }
-  return out.join('')
-    .replace(/\s+/g, ' ')
-    // A run of separators keeps only its last one (one character class, so no backtracking on long runs).
-    .replace(/[\s،\-/]{2,}/g, (run) => { const seps = run.replace(/\s/g, ''); return seps.length > 1 ? ` ${seps.slice(-1)} ` : run; })
-    .replace(/\s*،(\s*،)+/g, '،')
-    .replace(/\s*-\s*/g, ' - ')
-    .replace(/\s+،/g, '،')
-    .replace(/^[\s،\-/]+|[\s،\-/]+$/g, '')
-    .trim();
-}
 
 // ---------------------------------------------------------------------------
-// Planning
+// Record access
 // ---------------------------------------------------------------------------
 
-function str(v: unknown): string | null {
-  return typeof v === 'string' && v.trim() ? v.trim() : null;
-}
-
+/** The stored string at a dotted path (untrimmed, so the before-value guard compares the exact stored value). */
 function getPath(rec: CatalogueRecord, path: string): string | null {
   let cur: unknown = rec;
   for (const p of path.split('.')) {
     if (!cur || typeof cur !== 'object') return null;
     cur = (cur as Record<string, unknown>)[p];
   }
-  return str(cur);
+  return typeof cur === 'string' && cur.trim() ? cur : null;
 }
 
-function recordId(rec: CatalogueRecord): string {
+export function recordId(rec: CatalogueRecord): string {
   const raw = rec._id ?? rec.id;
   if (raw && typeof raw === 'object' && '$oid' in (raw as Record<string, unknown>)) return String((raw as Record<string, unknown>).$oid);
   return String(raw ?? '');
@@ -351,151 +257,487 @@ function recordId(rec: CatalogueRecord): string {
 
 function recordSku(rec: CatalogueRecord): number | null {
   const n = Number(rec.sku);
-  return Number.isFinite(n) && rec.sku !== null && rec.sku !== undefined ? n : null;
+  return Number.isFinite(n) && rec.sku !== null && rec.sku !== undefined && rec.sku !== '' ? n : null;
 }
 
 export function englishName(rec: CatalogueRecord): string | null {
-  return str(rec.name_en) || getPath(rec, 'translations.en.name');
+  return (getPath(rec, 'name_en') || getPath(rec, 'translations.en.name'))?.trim() || null;
 }
 
-const SCORE: Record<MatchLevel, number> = { full: 2, partial: 1, none: 0 };
-
-const FIELDS: Record<NameLang, { display: string[]; official: string[] }> = {
-  ar: { display: ['name_ar', 'translations.ar.name'], official: ['official_name_ar', 'translations.ar.official_name'] },
-  ur: { display: ['translations.ur.name'], official: ['translations.ur.official_name'] },
-  hi: { display: ['translations.hi.name'], official: ['translations.hi.official_name'] },
-  bn: { display: ['translations.bn.name'], official: ['translations.bn.official_name'] },
+/** The only fields any step of this script may write. */
+export const DISPLAY_FIELDS = ['name_ar', 'translations.ar.name'] as const;
+export const OFFICIAL_FIELDS = ['official_name_ar', 'translations.ar.official_name'] as const;
+export const WRITABLE_FIELDS: readonly string[] = [...DISPLAY_FIELDS, ...OFFICIAL_FIELDS];
+const LOCALIZED_FIELDS: Record<'ur' | 'hi' | 'bn', string[]> = {
+  ur: ['translations.ur.name', 'translations.ur.official_name'],
+  hi: ['translations.hi.name', 'translations.hi.official_name'],
+  bn: ['translations.bn.name', 'translations.bn.official_name'],
 };
 
-function planRecordLang(rec: CatalogueRecord, lang: NameLang, nameEn: string): FixRow[] {
-  const fields = [...FIELDS[lang].display, ...FIELDS[lang].official];
-  const present = fields.map((f) => ({ field: f, value: getPath(rec, f) })).filter((x) => x.value) as Array<{ field: string; value: string }>;
-  if (!present.length) return [];
-  const scored = present.map((p) => ({ ...p, level: nameMatchesEnglish(p.value, nameEn, lang).match }));
-  const best = scored.reduce((a, b) => (SCORE[b.level] > SCORE[a.level] ? b : a));
-  const allSame = present.every((p) => p.value === present[0].value);
-  if (allSame && best.level !== 'none') return [];
+function firstOf(rec: CatalogueRecord, fields: readonly string[]): string | null {
+  for (const f of fields) { const v = getPath(rec, f); if (v) return v; }
+  return null;
+}
 
-  let target: string;
-  let generated = false;
-  if (best.level === 'none') {
-    generated = true;
-    target = lang === 'ar' ? buildArabicNameFromEnglish(nameEn) : nameEn;
-  } else {
-    target = best.value;
+// ---------------------------------------------------------------------------
+// Arabic brand comparison
+// ---------------------------------------------------------------------------
+
+/** Unit and dosage-form words: never part of a brand (a name that starts with one has lost its brand). */
+const NON_BRAND_WORDS = new Set([
+  'مجم', 'ملجم', 'مج', 'جم', 'جرام', 'مل', 'ميكروجرام', 'وحدة', 'قرص', 'اقراص', 'كبسولة', 'كبسولات', 'شراب', 'كريم',
+  'مرهم', 'جل', 'نقط', 'قطرة', 'فيال', 'امبول', 'حقنة', 'حقن', 'كيس', 'اكياس', 'لبوس', 'بخاخ', 'لوشن', 'معلق', 'قطعة', 'عبوة', 'لصقة',
+].map((w) => normaliseArabic(w)));
+
+/** Words of the name before its first number, in the first segment (the brand and its suffixes). */
+export function brandTokens(name: string): string[] {
+  const seg = normaliseDigits(name).split(/[,،]| - /)[0] || '';
+  const out: string[] = [];
+  for (const w of seg.split(/\s+/)) {
+    if (!w) continue;
+    if (/\d/.test(w)) break;
+    const clean = w.replace(/[^\p{L}\p{M}]/gu, '');
+    if (!clean) continue;
+    if (NON_BRAND_WORDS.has(normaliseArabic(clean))) {
+      if (!out.length) break;
+      continue;
+    }
+    out.push(clean);
   }
-  const rows: FixRow[] = [];
-  for (const p of scored) {
-    if (p.value === target) continue;
-    const wrong = p.level === 'none';
-    const reason = generated
-      ? (lang === 'ar'
-        ? `wrong_product: no ${lang} name matches English brand/strength/pack; built from English "${nameEn}"`
-        : `wrong_product: no ${lang} name matches English brand/strength/pack; English reference name used`)
-      : wrong
-        ? `wrong_product: "${p.value}" does not match English brand/strength/pack; using ${best.field}`
-        : `align: same brand as English (spelling variant or pack detail); ${p.field} aligned to ${best.field}`;
+  return out;
+}
+
+function arabicBrandSkeleton(name: string): { first: string; all: string } {
+  const sks = brandTokens(name).slice(0, 3).map((w) => brandSkeleton(w, 'ar'));
+  return { first: sks[0] || '', all: collapse(sks.join('')) };
+}
+
+/**
+ * Same brand: the first brand words have one consonant skeleton, or the whole brand (up to 3 words) has, or
+ * both names match the English brand. Spelling variants (كرستور / كريستور) are the same brand.
+ */
+export function sameArabicBrand(a: string, b: string, nameEn: string | null): boolean {
+  const x = arabicBrandSkeleton(a);
+  const y = arabicBrandSkeleton(b);
+  if (x.first.length >= 2 && x.first === y.first) return true;
+  if (x.all.length >= 2 && x.all === y.all) return true;
+  if (nameEn && brandMatches(a, nameEn, 'ar') && brandMatches(b, nameEn, 'ar')) return true;
+  return false;
+}
+
+function sameNumbers(a: string, b: string): boolean {
+  const x = nameNumbers(a);
+  const y = nameNumbers(b);
+  return x.size === y.size && [...x].every((n) => y.has(n));
+}
+
+/** True when `proposal` would shorten `current`'s brand (fewer brand words). */
+export function shortensBrand(current: string, proposal: string): boolean {
+  return brandTokens(proposal).length < brandTokens(current).length;
+}
+
+// ---------------------------------------------------------------------------
+// Scan: scope, align proposals, ur/hi/bn report
+// ---------------------------------------------------------------------------
+
+export type Source = 'keep_display' | 'keep_official' | 'new_text' | 'align' | 'invalid_answer';
+
+export interface ProposalRow {
+  sku: number | null;
+  id: string;
+  field: string;
+  before: string;
+  proposal: string | null;
+  source: Source;
+  reason: string;
+}
+
+export interface ScopeItem {
+  id: string;
+  sku: number | null;
+  name_en: string;
+  display: string | null;
+  official: string | null;
+  description: string | null;
+  /** Current value of every present Arabic name field. */
+  fields: Record<string, string>;
+  why: 'brand_disagreement' | 'shared_arabic_name';
+  note: string;
+}
+
+export interface LocalizedReportRow {
+  sku: number | null;
+  id: string;
+  field: string;
+  value: string;
+  reason: string;
+}
+
+export interface ScanResult {
+  scope: ScopeItem[];
+  align: ProposalRow[];
+  localized: LocalizedReportRow[];
+  numbersDiffer: Array<{ sku: number | null; id: string; display: string; official: string }>;
+}
+
+function presentFields(rec: CatalogueRecord): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const f of WRITABLE_FIELDS) { const v = getPath(rec, f); if (v) out[f] = v; }
+  return out;
+}
+
+function scopeItem(rec: CatalogueRecord, nameEn: string, why: ScopeItem['why'], note: string): ScopeItem {
+  return {
+    id: recordId(rec), sku: recordSku(rec), name_en: nameEn,
+    display: firstOf(rec, DISPLAY_FIELDS), official: firstOf(rec, OFFICIAL_FIELDS),
+    description: getPath(rec, 'description_ar') || getPath(rec, 'translations.ar.description'),
+    fields: presentFields(rec), why, note,
+  };
+}
+
+/**
+ * align: display and official are the same brand with the same numbers and differ only in spelling. The value
+ * that fully matches the English name (brand + every number) wins; among two, the one with more brand words
+ * (never shorten), then display. No proposal when neither matches English fully.
+ */
+function planAlign(rec: CatalogueRecord, nameEn: string, display: string, official: string): ProposalRow[] {
+  const cands = [display, official].filter((v) => nameMatchesEnglish(v, nameEn, 'ar').match === 'full');
+  if (!cands.length) return [];
+  const target = cands.reduce((a, b) => (brandTokens(b).length > brandTokens(a).length ? b : a));
+  const rows: ProposalRow[] = [];
+  for (const [field, before] of Object.entries(presentFields(rec))) {
+    if (before === target) continue;
+    if (!sameArabicBrand(before, target, nameEn) || !sameNumbers(before, target) || shortensBrand(before, target)) continue;
     rows.push({
-      kind: 'change', sku: recordSku(rec), id: recordId(rec), _id: rec._id ?? rec.id, field: p.field,
-      before: p.value, after: target, reason, needs_owner_check: generated || best.level === 'partial',
+      sku: recordSku(rec), id: recordId(rec), field, before, proposal: target, source: 'align',
+      reason: 'align: same brand skeleton and same numbers; spelling taken from the name that matches the English name',
     });
   }
   return rows;
 }
 
-export function planNameFixes(records: CatalogueRecord[]): FixRow[] {
-  const rows: FixRow[] = [];
+function localizedReport(rec: CatalogueRecord, nameEn: string): LocalizedReportRow[] {
+  const rows: LocalizedReportRow[] = [];
+  for (const lang of ['ur', 'hi', 'bn'] as const) {
+    for (const field of LOCALIZED_FIELDS[lang]) {
+      const value = getPath(rec, field);
+      if (!value || nameMatchesEnglish(value, nameEn, lang).match !== 'none') continue;
+      rows.push({ sku: recordSku(rec), id: recordId(rec), field, value, reason: `report_only: ${lang} name does not match the English brand/numbers (never written; the English name is shown under it)` });
+    }
+  }
+  return rows;
+}
+
+export function scan(records: CatalogueRecord[]): ScanResult {
+  const scope: ScopeItem[] = [];
+  const inScope = new Set<string>();
+  const align: ProposalRow[] = [];
+  const localized: LocalizedReportRow[] = [];
+  const numbersDiffer: ScanResult['numbersDiffer'] = [];
   for (const rec of records) {
     const nameEn = englishName(rec);
     if (!nameEn) continue;
-    for (const lang of ['ar', 'ur', 'hi', 'bn'] as NameLang[]) rows.push(...planRecordLang(rec, lang, nameEn));
-  }
-  return rows;
-}
-
-const DESCRIPTION_FIELDS = ['description_ar', 'translations.ar.description'];
-
-/**
- * Arabic descriptions that name another catalogue brand and not the record's own
- * brand. Report only: `after` equals `before`, nothing is written.
- */
-export function planDescriptionReports(records: CatalogueRecord[]): FixRow[] {
-  const brandIndex = new Map<string, Set<number | string>>();
-  const ownSkeletons = new Map<CatalogueRecord, Set<string>>();
-  for (const rec of records) {
-    const en = englishName(rec);
-    if (!en) continue;
-    const first = firstSegmentWords(en)[0] || '';
-    const sks = new Set(latinSkeletons(first).filter((s) => s.length >= 3));
-    ownSkeletons.set(rec, sks);
-    for (const s of sks) {
-      if (!brandIndex.has(s)) brandIndex.set(s, new Set());
-      (brandIndex.get(s) as Set<number | string>).add(recordSku(rec) ?? recordId(rec));
+    localized.push(...localizedReport(rec, nameEn));
+    const display = firstOf(rec, DISPLAY_FIELDS);
+    const official = firstOf(rec, OFFICIAL_FIELDS);
+    if (!display || !official) continue;
+    const values = Object.values(presentFields(rec));
+    if (values.every((v) => v === values[0])) continue;
+    if (!sameArabicBrand(display, official, nameEn)) {
+      scope.push(scopeItem(rec, nameEn, 'brand_disagreement', 'display and official Arabic names name different brands'));
+      inScope.add(recordId(rec));
+      continue;
     }
-  }
-  const rows: FixRow[] = [];
-  for (const rec of records) {
-    const own = ownSkeletons.get(rec);
-    if (!own) continue;
-    const seen = new Set<string>();
-    for (const field of DESCRIPTION_FIELDS) {
-      const text = getPath(rec, field);
-      if (!text || seen.has(text)) continue;
-      seen.add(text);
-      const words = normaliseArabic(text).split(/[^\p{L}\p{M}]+/u).filter(Boolean);
-      const sks = new Set<string>();
-      for (const w of words) {
-        sks.add(brandSkeleton(w, 'ar'));
-        if (w.startsWith('ال') && w.length > 4) sks.add(brandSkeleton(w.slice(2), 'ar'));
-      }
-      if ([...own].some((s) => sks.has(s))) continue;
-      const others = new Set<number | string>();
-      for (const s of sks) {
-        if (s.length < 3 || own.has(s)) continue;
-        for (const o of brandIndex.get(s) || []) if (o !== (recordSku(rec) ?? recordId(rec))) others.add(o);
-      }
-      if (!others.size) continue;
-      rows.push({
-        kind: 'report', sku: recordSku(rec), id: recordId(rec), field, before: text, after: text,
-        reason: `description_other_brand: names the brand of sku ${[...others].slice(0, 5).join(', ')} and not "${firstSegmentWords(englishName(rec) || '')[0]}"; not rewritten (medical text, no safe fallback)`,
-        needs_owner_check: true,
-      });
+    if (!sameNumbers(display, official)) {
+      numbersDiffer.push({ sku: recordSku(rec), id: recordId(rec), display, official });
+      continue;
     }
+    align.push(...planAlign(rec, nameEn, display, official));
   }
-  return rows;
-}
 
-/** Records that share one Arabic display name with a different English product (after the planned fixes). */
-export function planSharedNameReports(records: CatalogueRecord[], changes: FixRow[]): FixRow[] {
-  const after = new Map<string, string>();
-  for (const c of changes) if (c.field === 'name_ar') after.set(c.id, c.after as string);
+  // Records that share one Arabic display name with a different English product.
   const groups = new Map<string, CatalogueRecord[]>();
   for (const rec of records) {
-    const ar = after.get(recordId(rec)) ?? str(rec.name_ar) ?? getPath(rec, 'translations.ar.name');
-    if (!ar || !englishName(rec)) continue;
-    const key = normaliseArabic(ar).replace(/\s+/g, ' ');
+    const display = firstOf(rec, DISPLAY_FIELDS);
+    if (!display || !englishName(rec)) continue;
+    const key = normaliseArabic(display).replace(/\s+/g, ' ').trim();
     if (!groups.has(key)) groups.set(key, []);
     (groups.get(key) as CatalogueRecord[]).push(rec);
   }
-  const rows: FixRow[] = [];
-  for (const [, group] of groups) {
-    const ens = new Set(group.map((r) => (englishName(r) as string).toLowerCase()));
-    if (ens.size < 2) continue;
+  for (const group of groups.values()) {
+    if (new Set(group.map((r) => (englishName(r) as string).toLowerCase())).size < 2) continue;
     for (const rec of group) {
-      const others = group.filter((g) => g !== rec).map((g) => `${recordSku(g)} "${englishName(g)}"`);
-      const name = after.get(recordId(rec)) ?? str(rec.name_ar) ?? getPath(rec, 'translations.ar.name');
-      rows.push({
-        kind: 'report', sku: recordSku(rec), id: recordId(rec), field: 'name_ar', before: name, after: name,
-        reason: `shared_arabic_name: same Arabic name as ${others.join('; ')} (English "${englishName(rec)}"); owner to name the variant`,
-        needs_owner_check: true,
-      });
+      if (inScope.has(recordId(rec))) continue;
+      const others = group.filter((g) => g !== rec).map((g) => `${recordSku(g) ?? recordId(g)} "${englishName(g)}"`).join('; ');
+      scope.push(scopeItem(rec, englishName(rec) as string, 'shared_arabic_name', `same Arabic display name as ${others}`));
+      inScope.add(recordId(rec));
     }
+  }
+  // An aligned record that is also in scope goes to the model only.
+  return { scope, align: align.filter((r) => !inScope.has(r.id)), localized, numbersDiffer };
+}
+
+// ---------------------------------------------------------------------------
+// Model job (same pattern as the classification job of #1595: estimate with no network, resumable run,
+// key from the environment only)
+// ---------------------------------------------------------------------------
+
+/**
+ * Same default and published price as the classification job of #1595.
+ * Source: https://ai.google.dev/gemini-api/docs/pricing (read 2026-10-16): input $0.10 / output $0.40 per 1M
+ * tokens (text); Batch API $0.05 / $0.20. Override the model with NAME_FIX_MODEL (or CLASSIFY_MODEL).
+ */
+export const PRICES: Record<string, { input: number; output: number; batchInput: number; batchOutput: number; source: string }> = {
+  'gemini-2.5-flash-lite': { input: 0.10, output: 0.40, batchInput: 0.05, batchOutput: 0.20, source: 'https://ai.google.dev/gemini-api/docs/pricing (2026-10-16)' },
+};
+export const DEFAULT_MODEL = 'gemini-2.5-flash-lite';
+export const DEFAULT_BATCH = 20;
+const DESCRIPTION_CLIP = 300;
+
+/** ~4 chars per token for Latin text and digits, ~2 for Arabic / Devanagari / Bengali, 1 per other symbol (as #1595). */
+export function approxTokens(s: string): number {
+  let latin = 0;
+  let other = 0;
+  let sym = 0;
+  for (const ch of s) {
+    if (/[A-Za-z0-9\s]/.test(ch)) latin += 1;
+    else if (/[؀-ۿऀ-ॿঀ-৿]/.test(ch)) other += 1;
+    else sym += 1;
+  }
+  return Math.ceil(latin / 4 + other / 2 + sym);
+}
+
+export const INSTRUCTIONS =
+  'You check the Arabic names of pharmacy products. Each product line is ' +
+  '"i|english name|arabic display name|arabic official name|arabic description". The English name is the reference ' +
+  '(brand, strength and pack). Answer with JSON only: [{"i":<i>,"a":"keep_display"|"keep_official"|"new_text","t":"<arabic name, only for new_text>"}]. ' +
+  'keep_display or keep_official when that Arabic name is the same product as the English name. new_text only when neither is, ' +
+  'written in Arabic script as "<brand> <strength> <unit> - <count> <form>", keeping the full brand. Never shorten the brand.';
+
+export function itemLine(i: number, s: ScopeItem): string {
+  const clip = (v: string | null, n: number) => (v || '').replace(/[|\n\r]/g, ' ').slice(0, n);
+  return `${i}|${clip(s.name_en, 120)}|${clip(s.display, 160)}|${clip(s.official, 160)}|${clip(s.description, DESCRIPTION_CLIP)}`;
+}
+
+export interface BatchRequest { id: string; record_ids: string[]; prompt: string }
+
+export function buildRequests(scope: ScopeItem[], batch = DEFAULT_BATCH): BatchRequest[] {
+  const out: BatchRequest[] = [];
+  for (let s = 0; s < scope.length; s += batch) {
+    const chunk = scope.slice(s, s + batch);
+    out.push({
+      id: `req_${String(s / batch).padStart(5, '0')}`,
+      record_ids: chunk.map((c) => c.id),
+      prompt: `${INSTRUCTIONS}\nPRODUCTS\n${chunk.map((c, i) => itemLine(i, c)).join('\n')}`,
+    });
+  }
+  return out;
+}
+
+/** Output per item, sized for a new_text answer (the expensive case). */
+export const OUTPUT_TOKENS_PER_ITEM = approxTokens('{"i":12,"a":"new_text","t":"اسيلوك 20 مجم - 14 كبسولة"},');
+
+export interface Estimate {
+  items: number; requests: number; instruction_tokens: number; item_tokens_avg: number; output_tokens_per_item: number;
+  total_input_tokens: number; total_output_tokens: number; model: string; usd_standard: number; usd_batch_api: number; price_source: string;
+}
+
+export function estimate(scope: ScopeItem[], total = scope.length, batch = DEFAULT_BATCH, model = DEFAULT_MODEL): Estimate {
+  const head = approxTokens(`${INSTRUCTIONS}\nPRODUCTS\n`);
+  const avg = scope.length ? scope.reduce((a, s, i) => a + approxTokens(itemLine(i % batch, s)) + 1, 0) / scope.length : 0;
+  const requests = Math.ceil(total / batch);
+  const totalIn = Math.round(requests * head + total * avg);
+  const totalOut = Math.round(total * OUTPUT_TOKENS_PER_ITEM + requests * 2);
+  const p = PRICES[model] || PRICES[DEFAULT_MODEL];
+  const usd = (i: number, o: number) => Math.round(((totalIn * i + totalOut * o) / 1e6) * 1000) / 1000;
+  return {
+    items: total, requests, instruction_tokens: head, item_tokens_avg: Math.round(avg * 10) / 10, output_tokens_per_item: OUTPUT_TOKENS_PER_ITEM,
+    total_input_tokens: totalIn, total_output_tokens: totalOut, model,
+    usd_standard: usd(p.input, p.output), usd_batch_api: usd(p.batchInput, p.batchOutput), price_source: p.source,
+  };
+}
+
+export type Caller = (prompt: string) => Promise<string>;
+
+export function callerFromEnv(env: NodeJS.ProcessEnv = process.env): Caller {
+  const provider = (env.AI_PROVIDER || 'gemini').toLowerCase();
+  const model = env.NAME_FIX_MODEL || env.CLASSIFY_MODEL;
+  if (provider === 'gemini') {
+    const key = env.GEMINI_API_KEY;
+    if (!key) throw new Error('GEMINI_API_KEY is required');
+    const id = model || DEFAULT_MODEL;
+    return async (prompt) => {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${id}:generateContent`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', 'x-goog-api-key': key },
+        body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature: 0, responseMimeType: 'application/json' } }),
+      });
+      if (!res.ok) throw new Error(`gemini ${res.status}: ${(await res.text()).slice(0, 200)}`);
+      const body = (await res.json()) as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
+      return body.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('') || '';
+    };
+  }
+  if (provider === 'openai') {
+    const key = env.OPENAI_API_KEY;
+    if (!key) throw new Error('OPENAI_API_KEY is required');
+    const id = model || env.OPENAI_MODEL;
+    if (!id) throw new Error('NAME_FIX_MODEL or OPENAI_MODEL is required with AI_PROVIDER=openai');
+    return async (prompt) => {
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
+        body: JSON.stringify({ model: id, temperature: 0, messages: [{ role: 'user', content: prompt }] }),
+      });
+      if (!res.ok) throw new Error(`openai ${res.status}: ${(await res.text()).slice(0, 200)}`);
+      const body = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
+      return body.choices?.[0]?.message?.content || '';
+    };
+  }
+  throw new Error(`AI_PROVIDER ${provider} is not supported by this job (gemini | openai)`);
+}
+
+export interface RunIo { done: Set<string>; write(line: string): void; sleep(ms: number): Promise<void> }
+
+export async function runRequests(reqs: BatchRequest[], call: Caller, io: RunIo, rpm = 60, maxRetries = 4): Promise<{ sent: number; skipped: number; failed: number }> {
+  const gap = Math.ceil(60000 / Math.max(1, rpm));
+  let sent = 0;
+  let skipped = 0;
+  let failed = 0;
+  for (const req of reqs) {
+    if (io.done.has(req.id)) { skipped += 1; continue; }
+    let attempt = 0;
+    for (;;) {
+      try {
+        const text = await call(req.prompt);
+        io.write(JSON.stringify({ id: req.id, text }));
+        io.done.add(req.id);
+        sent += 1;
+        break;
+      } catch {
+        attempt += 1;
+        if (attempt > maxRetries) { failed += 1; break; }
+        await io.sleep(gap * 2 ** attempt);
+      }
+    }
+    await io.sleep(gap);
+  }
+  return { sent, skipped, failed };
+}
+
+// ---------------------------------------------------------------------------
+// Proposals from the model answers
+// ---------------------------------------------------------------------------
+
+export type Answer = { i: number; a: 'keep_display' | 'keep_official' } | { i: number; a: 'new_text'; t: string };
+
+const ARABIC_LETTER = /[ء-ي]/;
+
+/** Well-formed answers only, by item index. A malformed entry is dropped (its item becomes invalid_answer). */
+export function parseAnswers(text: string): Map<number, Answer> {
+  const out = new Map<number, Answer>();
+  const m = /\[[\s\S]*\]/.exec(text);
+  if (!m) return out;
+  let arr: unknown;
+  try { arr = JSON.parse(m[0]); } catch { return out; }
+  if (!Array.isArray(arr)) return out;
+  for (const raw of arr) {
+    if (!raw || typeof raw !== 'object') continue;
+    const o = raw as Record<string, unknown>;
+    if (!Number.isInteger(o.i) || out.has(o.i as number)) continue;
+    const i = o.i as number;
+    if (o.a === 'keep_display' || o.a === 'keep_official') out.set(i, { i, a: o.a });
+    else if (o.a === 'new_text' && typeof o.t === 'string' && ARABIC_LETTER.test(o.t) && !/[A-Za-z]/.test(o.t) && o.t.trim().length <= 200) out.set(i, { i, a: 'new_text', t: o.t.trim() });
+  }
+  return out;
+}
+
+function rowsForItem(item: ScopeItem, answer: Answer | undefined): ProposalRow[] {
+  const base = { sku: item.sku, id: item.id };
+  const fields = Object.entries(item.fields);
+  if (!answer) {
+    return [{ ...base, field: 'name_ar', before: item.display || '', proposal: null, source: 'invalid_answer', reason: `${item.why}: no valid model answer; owner to decide (${item.note})` }];
+  }
+  const rows: ProposalRow[] = [];
+  if (answer.a === 'keep_display' || answer.a === 'keep_official') {
+    const target = answer.a === 'keep_display' ? item.display : item.official;
+    if (!target) return [{ ...base, field: 'name_ar', before: item.display || '', proposal: null, source: 'invalid_answer', reason: `${item.why}: model chose an empty candidate` }];
+    for (const [field, before] of fields) {
+      if (before === target) continue;
+      rows.push({ ...base, field, before, proposal: target, source: answer.a, reason: `${item.why}: model ${answer.a} for English "${item.name_en}" (${item.note})` });
+    }
+    return rows;
+  }
+  const text = answer.a === 'new_text' ? answer.t : '';
+  for (const [field, before] of fields) {
+    if (before === text) continue;
+    if (shortensBrand(before, text)) {
+      rows.push({ ...base, field, before, proposal: null, source: 'invalid_answer', reason: `${item.why}: model new_text "${text}" rejected: shorter brand than the current name` });
+      continue;
+    }
+    rows.push({ ...base, field, before, proposal: text, source: 'new_text', reason: `${item.why}: model new_text for English "${item.name_en}" (${item.note})` });
   }
   return rows;
 }
 
+export function proposalsFromResponses(scope: ScopeItem[], reqs: BatchRequest[], responses: Array<{ id: string; text: string }>): ProposalRow[] {
+  const byId = new Map(scope.map((s) => [s.id, s]));
+  const texts = new Map(responses.map((r) => [r.id, r.text]));
+  const out: ProposalRow[] = [];
+  for (const req of reqs) {
+    const text = texts.get(req.id);
+    const answers = text === undefined ? new Map<number, Answer>() : parseAnswers(text);
+    req.record_ids.forEach((rid, i) => {
+      const item = byId.get(rid);
+      if (item) out.push(...rowsForItem(item, answers.get(i)));
+    });
+  }
+  return out;
+}
+
 // ---------------------------------------------------------------------------
-// Apply (guarded by the before value; idempotent)
+// CSV
+// ---------------------------------------------------------------------------
+
+export const CSV_HEAD = ['sku', 'id', 'field', 'before', 'proposal', 'source', 'reason', 'approved'] as const;
+
+function csvCell(v: unknown): string {
+  const s = v === null || v === undefined ? '' : String(v);
+  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+export function toCsv(rows: ProposalRow[]): string {
+  return [CSV_HEAD.join(','), ...rows.map((r) => CSV_HEAD.map((h) => csvCell(h === 'approved' ? '' : r[h])).join(','))].join('\n') + '\n';
+}
+
+export function parseCsv(text: string): Array<Record<string, string>> {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let cell = '';
+  let quoted = false;
+  const src = text.replace(/^﻿/, '');
+  for (let i = 0; i < src.length; i++) {
+    const ch = src[i];
+    if (quoted) {
+      if (ch === '"' && src[i + 1] === '"') { cell += '"'; i++; } else if (ch === '"') quoted = false; else cell += ch;
+      continue;
+    }
+    if (ch === '"') quoted = true;
+    else if (ch === ',') { row.push(cell); cell = ''; } else if (ch === '\n' || ch === '\r') {
+      if (ch === '\r' && src[i + 1] === '\n') i++;
+      row.push(cell); cell = '';
+      if (row.some((c) => c !== '')) rows.push(row);
+      row = [];
+    } else cell += ch;
+  }
+  row.push(cell);
+  if (row.some((c) => c !== '')) rows.push(row);
+  const [head, ...body] = rows;
+  if (!head) return [];
+  return body.map((r) => Object.fromEntries(head.map((h, i) => [h.trim(), r[i] ?? ''])));
+}
+
+// ---------------------------------------------------------------------------
+// Apply (approved rows only; guarded by the before value; idempotent)
 // ---------------------------------------------------------------------------
 
 export interface UpdateCollection {
@@ -505,109 +747,145 @@ export interface AuditCollection {
   insertOne(doc: Record<string, unknown>): Promise<unknown>;
 }
 
-export async function applyPlan(plan: FixRow[], collection: UpdateCollection, audit: AuditCollection, runId: string): Promise<number> {
-  const byRecord = new Map<string, FixRow[]>();
-  for (const row of plan) {
-    if (row.kind !== 'change' || row.after === null || row.after === row.before) continue;
-    if (!byRecord.has(row.id)) byRecord.set(row.id, []);
-    (byRecord.get(row.id) as FixRow[]).push(row);
+export interface ApplyResult { approved: number; modified: number; skipped_changed_since_scan: number; refused: Array<{ id: string; field: string; reason: string }> }
+
+const APPLY_SOURCES = new Set<string>(['keep_display', 'keep_official', 'new_text', 'align']);
+
+/**
+ * Writes only rows with approved=yes. A row is refused when its field is not an Arabic name field (ur/hi/bn and
+ * everything else are never written), it has no proposal, its source is unknown, or an align row breaks the
+ * skeleton/numbers/never-shorten rule. Each write is guarded by the stored `before` value.
+ */
+export async function applyApproved(
+  rows: Array<Record<string, string>>, toKey: (id: string) => unknown, collection: UpdateCollection, audit: AuditCollection, runId: string,
+): Promise<ApplyResult> {
+  const res: ApplyResult = { approved: 0, modified: 0, skipped_changed_since_scan: 0, refused: [] };
+  for (const r of rows) {
+    if ((r.approved || '').trim().toLowerCase() !== 'yes') continue;
+    res.approved += 1;
+    const refuse = (reason: string) => res.refused.push({ id: r.id, field: r.field, reason });
+    if (!WRITABLE_FIELDS.includes(r.field)) { refuse('not an Arabic name field'); continue; }
+    if (!r.id || !r.before || !r.proposal || !r.proposal.trim()) { refuse('missing id, before or proposal'); continue; }
+    if (!APPLY_SOURCES.has(r.source)) { refuse(`source ${r.source} is not applicable`); continue; }
+    if (r.source === 'align' && (!sameArabicBrand(r.before, r.proposal, null) || !sameNumbers(r.before, r.proposal))) { refuse('align row: brand skeleton or numbers differ'); continue; }
+    if ((r.source === 'align' || r.source === 'new_text') && shortensBrand(r.before, r.proposal)) { refuse('proposal shortens the brand'); continue; }
+    const key = toKey(r.id);
+    const out = await collection.updateOne({ _id: key, [r.field]: r.before }, { $set: { [r.field]: r.proposal } });
+    if (!out.modifiedCount) { res.skipped_changed_since_scan += 1; continue; }
+    res.modified += 1;
+    await audit.insertOne({ run_id: runId, record_id: r.id, record_key: key, sku: r.sku || null, field: r.field, before: r.before, after: r.proposal, source: r.source, reason: r.reason, at: new Date() });
   }
-  let modified = 0;
-  for (const [, rows] of byRecord) {
-    const filter: Record<string, unknown> = { _id: rows[0]._id };
-    const set: Record<string, unknown> = {};
-    for (const r of rows) { filter[r.field] = r.before; set[r.field] = r.after; }
-    const res = await collection.updateOne(filter, { $set: set });
-    if (res.modifiedCount) {
-      modified += 1;
-      await audit.insertOne({
-        run_id: runId, record_id: rows[0].id, record_key: rows[0]._id, sku: rows[0].sku, at: new Date(),
-        changes: rows.map((r) => ({ field: r.field, before: r.before, after: r.after, reason: r.reason })),
-      });
-    }
-  }
-  return modified;
+  return res;
 }
 
 // ---------------------------------------------------------------------------
-// Report + CLI
+// CLI
 // ---------------------------------------------------------------------------
 
-function csvCell(v: unknown): string {
-  const s = v === null || v === undefined ? '' : String(v);
-  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-}
-
-export function toCsv(rows: FixRow[]): string {
-  const head = ['kind', 'sku', 'id', 'field', 'before', 'after', 'reason', 'needs_owner_check'];
-  return [head.join(','), ...rows.map((r) => head.map((h) => csvCell(r[h as keyof FixRow])).join(','))].join('\n') + '\n';
-}
-
-export function buildReport(records: CatalogueRecord[]): FixRow[] {
-  const changes = planNameFixes(records);
-  return [...changes, ...planDescriptionReports(records), ...planSharedNameReports(records, changes)];
+export function readExport(raw: string): CatalogueRecord[] {
+  const t = raw.trim();
+  if (!t) return [];
+  return t.startsWith('[') ? (JSON.parse(t) as CatalogueRecord[]) : t.split('\n').filter((l) => l.trim()).map((l) => JSON.parse(l) as CatalogueRecord);
 }
 
 function parseArgs(argv: string[]) {
   const get = (k: string) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : undefined; };
-  return { apply: argv.includes('--apply'), input: get('--input'), out: get('--out') || './catalogue-name-fixes', plan: get('--plan'), collection: get('--collection') || 'medicines' };
+  return {
+    step: get('--apply') ? 'apply' : argv[0], input: get('--input'), out: get('--out'), scan: get('--scan'), requests: get('--requests'),
+    responses: get('--responses'), approved: get('--apply'), collection: get('--collection') || CATALOG_COLLECTIONS.medicines,
+    batch: Number(get('--batch') || DEFAULT_BATCH), rpm: Number(get('--rpm') || 60), total: get('--total') ? Number(get('--total')) : undefined,
+  };
 }
 
 async function main() {
   /* eslint-disable @typescript-eslint/no-var-requires */
   const fs = require('fs') as typeof import('fs');
   const path = require('path') as typeof import('path');
-  const args = parseArgs(process.argv.slice(2));
-  const serialise = (rows: FixRow[]) => rows.map(({ _id, ...rest }) => ({ ...rest, record_key: _id && typeof _id === 'object' ? rest.id : _id }));
+  const a = parseArgs(process.argv.slice(2));
+  const need = (v: string | undefined, name: string): string => { if (!v) throw new Error(`${name} is required`); return v; };
+  const jsonl = (file: string) => (fs.existsSync(file) ? fs.readFileSync(file, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l)) : []);
+  const loadRecords = async (): Promise<CatalogueRecord[]> => {
+    if (a.input) return readExport(fs.readFileSync(a.input, 'utf8'));
+    if (!process.env.MONGO_URL) throw new Error('MONGO_URL or --input is required');
+    const mongoose = (await import('mongoose')).default;
+    await mongoose.connect(process.env.MONGO_URL);
+    const docs = (await mongoose.connection.collection(a.collection).find({ is_deleted: { $ne: true } }).toArray()) as unknown as CatalogueRecord[];
+    await mongoose.disconnect();
+    return docs;
+  };
 
-  if (!args.apply) {
-    let records: CatalogueRecord[];
-    if (args.input) {
-      const raw = fs.readFileSync(args.input, 'utf8').trim();
-      records = raw.startsWith('[') ? JSON.parse(raw) : raw.split('\n').filter(Boolean).map((l) => JSON.parse(l));
-    } else {
-      const mongoose = (await import('mongoose')).default;
-      if (!process.env.MONGO_URL) throw new Error('MONGO_URL or --input is required');
-      await mongoose.connect(process.env.MONGO_URL);
-      records = (await mongoose.connection.collection(args.collection).find({ is_deleted: { $ne: true } }).toArray()) as unknown as CatalogueRecord[];
-      await mongoose.disconnect();
-    }
-    const report = buildReport(records);
-    fs.mkdirSync(args.out, { recursive: true });
-    fs.writeFileSync(path.join(args.out, 'name-fixes.json'), JSON.stringify(serialise(report), null, 2));
-    fs.writeFileSync(path.join(args.out, 'name-fixes.csv'), toCsv(report));
-    const changes = report.filter((r) => r.kind === 'change');
+  if (a.step === 'scan') {
+    const records = await loadRecords();
+    const res = scan(records);
+    const out = need(a.out, '--out');
+    const reqs = buildRequests(res.scope, a.batch);
+    fs.mkdirSync(out, { recursive: true });
+    fs.writeFileSync(path.join(out, 'scope.json'), JSON.stringify(res.scope, null, 2));
+    fs.writeFileSync(path.join(out, 'requests.jsonl'), reqs.map((r) => JSON.stringify(r)).join('\n') + (reqs.length ? '\n' : ''));
+    fs.writeFileSync(path.join(out, 'align.csv'), toCsv(res.align));
+    fs.writeFileSync(path.join(out, 'numbers-differ.json'), JSON.stringify(res.numbersDiffer, null, 2));
+    fs.writeFileSync(path.join(out, 'localized-report.csv'), ['sku,id,field,value,reason', ...res.localized.map((r) => [r.sku, r.id, r.field, r.value, r.reason].map(csvCell).join(','))].join('\n') + '\n');
+    const est = estimate(res.scope, res.scope.length, a.batch);
+    fs.writeFileSync(path.join(out, 'estimate.json'), JSON.stringify(est, null, 2));
     console.log(JSON.stringify({
-      mode: 'dry-run', records: records.length,
-      changed_records: new Set(changes.map((c) => c.id)).size, changed_fields: changes.length,
-      needs_owner_check: report.filter((r) => r.needs_owner_check).length,
-      description_reports: report.filter((r) => r.reason.startsWith('description_')).length,
-      shared_name_reports: report.filter((r) => r.reason.startsWith('shared_arabic_name')).length,
-      out: args.out,
+      step: 'scan', collection: a.input ? null : a.collection, records: records.length,
+      scope_records: res.scope.length,
+      scope_brand_disagreement: res.scope.filter((s) => s.why === 'brand_disagreement').length,
+      scope_shared_arabic_name: res.scope.filter((s) => s.why === 'shared_arabic_name').length,
+      align_rows: res.align.length, align_records: new Set(res.align.map((r) => r.id)).size,
+      numbers_differ_reported: res.numbersDiffer.length, localized_report_rows: res.localized.length, localized_writes: 0,
+      requests: reqs.length, estimate_usd_standard: est.usd_standard, estimate_usd_batch_api: est.usd_batch_api, out,
     }, null, 2));
     return;
   }
-
-  if (process.env.CATALOGUE_NAME_FIX_CONFIRM !== 'apply') throw new Error('Set CATALOGUE_NAME_FIX_CONFIRM=apply to write');
-  if (!args.plan) throw new Error('--apply needs --plan <name-fixes.json> (the approved dry-run report)');
-  if (!process.env.MONGO_URL) throw new Error('MONGO_URL is required');
-  const mongoose = (await import('mongoose')).default;
-  await mongoose.connect(process.env.MONGO_URL);
-  const approved = JSON.parse(fs.readFileSync(args.plan, 'utf8')) as Array<FixRow & { record_key?: unknown }>;
-  const plan: FixRow[] = approved.map((r) => ({
-    ...r,
-    _id: typeof r.record_key === 'string' && /^[0-9a-f]{24}$/i.test(r.record_key) ? new mongoose.Types.ObjectId(r.record_key) : r.record_key,
-  }));
-  const runId = `name-fix-${new Date().toISOString()}`;
-  const modified = await applyPlan(
-    plan,
-    mongoose.connection.collection(args.collection) as unknown as UpdateCollection,
-    mongoose.connection.collection('medicine_name_fixes') as unknown as AuditCollection,
-    runId,
-  );
-  const planned = new Set(plan.filter((r) => r.kind === 'change').map((r) => r.id)).size;
-  console.log(JSON.stringify({ mode: 'apply', run_id: runId, planned_records: planned, modified_records: modified, skipped_changed_since_dry_run: planned - modified }, null, 2));
-  await mongoose.disconnect();
+  if (a.step === 'estimate') {
+    const res = scan(await loadRecords());
+    console.log(JSON.stringify(estimate(res.scope, a.total ?? res.scope.length, a.batch, process.env.NAME_FIX_MODEL || DEFAULT_MODEL), null, 2));
+    return;
+  }
+  if (a.step === 'run') {
+    const reqs = jsonl(need(a.requests, '--requests')) as BatchRequest[];
+    const outFile = need(a.out, '--out');
+    const done = new Set((jsonl(outFile) as Array<{ id: string }>).map((x) => x.id));
+    const res = await runRequests(reqs, callerFromEnv(), {
+      done, write: (line) => fs.appendFileSync(outFile, line + '\n'), sleep: (ms) => new Promise((r) => setTimeout(r, ms)),
+    }, a.rpm);
+    console.log(JSON.stringify({ step: 'run', ...res, out: outFile }));
+    return;
+  }
+  if (a.step === 'proposals') {
+    const dir = need(a.scan, '--scan');
+    const scope = JSON.parse(fs.readFileSync(path.join(dir, 'scope.json'), 'utf8')) as ScopeItem[];
+    const reqs = jsonl(path.join(dir, 'requests.jsonl')) as BatchRequest[];
+    const model = proposalsFromResponses(scope, reqs, jsonl(need(a.responses, '--responses')));
+    const alignRows = parseCsv(fs.readFileSync(path.join(dir, 'align.csv'), 'utf8')).map((r) => ({
+      sku: r.sku ? Number(r.sku) : null, id: r.id, field: r.field, before: r.before, proposal: r.proposal, source: 'align' as const, reason: r.reason,
+    }));
+    const rows = [...alignRows, ...model];
+    const out = need(a.out, '--out');
+    fs.mkdirSync(out, { recursive: true });
+    fs.writeFileSync(path.join(out, 'proposals.csv'), toCsv(rows));
+    const count = (s: Source) => rows.filter((r) => r.source === s).length;
+    console.log(JSON.stringify({ step: 'proposals', rows: rows.length, align: count('align'), keep_display: count('keep_display'), keep_official: count('keep_official'), new_text: count('new_text'), invalid_answer: count('invalid_answer'), out: path.join(out, 'proposals.csv') }, null, 2));
+    return;
+  }
+  if (a.step === 'apply') {
+    if (process.env.CATALOGUE_NAME_FIX_CONFIRM !== 'apply') throw new Error('Set CATALOGUE_NAME_FIX_CONFIRM=apply to write');
+    if (!process.env.MONGO_URL) throw new Error('MONGO_URL is required');
+    const rows = parseCsv(fs.readFileSync(need(a.approved, '--apply'), 'utf8'));
+    const mongoose = (await import('mongoose')).default;
+    await mongoose.connect(process.env.MONGO_URL);
+    const runId = `name-fix-${new Date().toISOString()}`;
+    const res = await applyApproved(
+      rows, (id) => (/^[0-9a-f]{24}$/i.test(id) ? new mongoose.Types.ObjectId(id) : id),
+      mongoose.connection.collection(a.collection) as unknown as UpdateCollection,
+      mongoose.connection.collection('medicine_name_fixes') as unknown as AuditCollection, runId,
+    );
+    console.log(JSON.stringify({ step: 'apply', run_id: runId, collection: a.collection, ...res }, null, 2));
+    await mongoose.disconnect();
+    return;
+  }
+  throw new Error('step must be one of: scan | estimate | run | proposals, or --apply <approved.csv>');
 }
 
 if (require.main === module) {
