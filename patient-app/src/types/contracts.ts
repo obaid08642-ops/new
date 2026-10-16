@@ -234,6 +234,8 @@ export interface Appointment {
   specialty?: string;
   docName?: string;
   spec?: string;
+  /** The specialty's English name when the server sent one (spec is the Arabic one). */
+  specEn?: string;
   emoji?: string;
   date?: string;
   /** The appointment's date as the server sent it (ISO), for the screens to format. */

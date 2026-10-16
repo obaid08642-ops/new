@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsOptional, IsString, IsUrl, MaxLength, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsInt, IsOptional, IsString, IsUrl, Max, MaxLength, Min, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 // P13-R15: cited references on health content.
@@ -87,6 +87,13 @@ export class CreateDto {
   @IsOptional()
   @IsBoolean()
   ai_generated?: boolean;
+
+  // Issues #849 / #861: the pregnancy week (1-42) the article belongs to ("Read this week").
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(42)
+  pregnancy_week?: number;
 
 }
 

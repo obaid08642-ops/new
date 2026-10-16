@@ -17,8 +17,8 @@ import { PAST, UPCOMING } from '../../src/utils/appointmentTabs';
  */
 
 export default function AppointmentsScreen() {
-  const { theme, c, k } = useScreenUi();
-  const { date, dayMonth, time, money } = useConsultFormat();
+  const { theme, c, k, lang } = useScreenUi();
+  const { date, dayMonth, time, clock, money } = useConsultFormat();
   const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
   const { appointments, isLoading, error, fetchAppointments } = useConsultations();
   const [refreshing, setRefreshing] = useState(false);
@@ -84,11 +84,15 @@ export default function AppointmentsScreen() {
           actions.push({ label: k('consult.appt.bookAgain'), onPress: () => router.push({ pathname: '/consultations/book/[id]', params: { id: a.docId } } as unknown as Href), tone: 'outline' as const, flex: true });
         }
         const price = Number(a.price) > 0 ? `${money(Number(a.price))} ${k('consult.currency')}` : '';
+        // the specialty in the reader's language (Arabic name for Arabic, else the English one when sent)
+        const spec = lang === 'ar' ? a.spec : a.specEn || a.spec;
+        // the date is on the day tile; the line carries the start time read from the server's instant (issue 424)
+        const when = a.time ? time(a.time) : clock(a.at) || date(a.at);
         return (
           <ApptCard
             day={dayMonth(a.at)}
             title={a.docName || k('consult.doctorFallback')}
-            subtitle={[a.spec, a.time ? time(a.time) : date(a.at), price].filter(Boolean).join(' · ')}
+            subtitle={[spec, when, price].filter(Boolean).join(' · ')}
             mode={mode}
             status={{ label: k(st.key), tone: st.tone }}
             actions={actions}

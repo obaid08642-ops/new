@@ -24,7 +24,7 @@
     "kind": "missing-state",
     "file": "patient-web/components-next/pharmacy-offers/offers-screen.tsx",
     "line": 98,
-    "review_status": "open (issue #1011)"
+    "review_status": "fixed #1487"
   },
   {
     "scenario": 1,
@@ -69,7 +69,7 @@
     "kind": "duplicate",
     "file": "patient-web/components-next/pharmacy-offers/quote-section.tsx",
     "line": 86,
-    "review_status": "open (issue #1016)"
+    "review_status": "fixed #1476"
   },
   {
     "scenario": 1,
@@ -78,7 +78,7 @@
     "kind": "missing-step",
     "file": "patient-web/components-next/orders/order-detail-screen.tsx",
     "line": 120,
-    "review_status": "open"
+    "review_status": "fixed #1512"
   },
   {
     "scenario": 1,
@@ -204,7 +204,7 @@
     "kind": "other",
     "file": "patient-app/app/pharmacy/cart.tsx",
     "line": 75,
-    "review_status": "open (issue #1031)"
+    "review_status": "owner-decision (question 39 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2) (issue #1031)"
   },
   {
     "scenario": 2,
@@ -213,7 +213,7 @@
     "kind": "missing-field",
     "file": "patient-web/components-next/pharmacy/rx-order-screen.tsx",
     "line": 57,
-    "review_status": "open (issue #1032)"
+    "review_status": "fixed #1516"
   },
   {
     "scenario": 2,
@@ -267,7 +267,7 @@
     "kind": "missing-field",
     "file": "patient-web/components-next/booking-flow.tsx",
     "line": 213,
-    "review_status": "open (issue #1038)"
+    "review_status": "fixed #1511"
   },
   {
     "scenario": 3,
@@ -312,7 +312,7 @@
     "kind": "wrong-state",
     "file": "patient-web/app/[locale]/prescriptions/[prescriptionId]/page.tsx",
     "line": 97,
-    "review_status": "open (issue #1043)"
+    "review_status": "owner-decision (question 39 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2: one prescription order flow) (issue #1043)"
   },
   {
     "scenario": 3,
@@ -384,7 +384,7 @@
     "kind": "duplicate",
     "file": "patient-web/app/[locale]/appointments/page.tsx",
     "line": 70,
-    "review_status": "open (issue #1051)"
+    "review_status": "fixed #1476"
   },
   {
     "scenario": 4,
@@ -402,7 +402,7 @@
     "kind": "missing-state",
     "file": "patient-web/components-next/appointment-actions.tsx",
     "line": 13,
-    "review_status": "open (issue #1053)"
+    "review_status": "fixed #1511"
   },
   {
     "scenario": 4,
@@ -519,7 +519,7 @@
     "kind": "missing-step",
     "file": "patient-app/app/diagnostics/order/[id].tsx",
     "line": 165,
-    "review_status": "open (issue #1066)"
+    "review_status": "fixed #1480"
   },
   {
     "scenario": 5,
@@ -546,7 +546,7 @@
     "kind": "dead-end",
     "file": "patient-web/app/[locale]/home-care/services/[serviceId]/page.tsx",
     "line": 38,
-    "review_status": "open (issue #1069)"
+    "review_status": "fixed #1478"
   },
   {
     "scenario": 6,
@@ -573,7 +573,7 @@
     "kind": "duplicate",
     "file": "patient-web/app/[locale]/nursing/catalog/page.tsx",
     "line": 68,
-    "review_status": "open (issue #1072)"
+    "review_status": "fixed #1478"
   },
   {
     "scenario": 6,
@@ -600,7 +600,7 @@
     "kind": "missing-state",
     "file": "patient-app/app/nursing/nurse-profile.tsx",
     "line": 141,
-    "review_status": "open (issue #1075)"
+    "review_status": "fixed #1512"
   },
   {
     "scenario": 7,
@@ -609,7 +609,7 @@
     "kind": "missing-field",
     "file": "patient-web/components-next/health/reminder-form.tsx",
     "line": 22,
-    "review_status": "open (issue #1076)"
+    "review_status": "fixed #1523 (issue #1076)"
   },
   {
     "scenario": 7,
@@ -618,7 +618,7 @@
     "kind": "missing-field",
     "file": "patient-web/app/[locale]/family/[memberRef]/page.tsx",
     "line": 98,
-    "review_status": "open (issue #1077)"
+    "review_status": "fixed #1523 (issue #1077)"
   },
   {
     "scenario": 7,
@@ -672,7 +672,7 @@
     "kind": "missing-field",
     "file": "patient-web/components-next/pharmacy/request-screen.tsx",
     "line": 47,
-    "review_status": "open (issue #1083)"
+    "review_status": "fixed #1512"
   },
   {
     "scenario": 8,
@@ -681,7 +681,7 @@
     "kind": "missing-state",
     "file": "patient-web/components-next/pharmacy-offers/offer-list.tsx",
     "line": 223,
-    "review_status": "open (issue #1084)"
+    "review_status": "fixed #1512"
   },
   {
     "scenario": 9,
@@ -699,7 +699,7 @@
     "kind": "missing-state",
     "file": "patient-web/public/sw.js",
     "line": 45,
-    "review_status": "open (issue #1086)"
+    "review_status": "fixed #1507 (issue #1086)"
   },
   {
     "scenario": 9,

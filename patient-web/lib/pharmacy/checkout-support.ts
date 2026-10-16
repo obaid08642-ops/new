@@ -9,10 +9,12 @@ function record(value: unknown): Record<string, unknown> | null {
  * The saved prescription a cart with prescription medicines is ordered with: the first of the patient's active ones
  * (`GET /prescriptions/active`, an array or `{ data: [...] }`). Only a real UUID counts; nothing is invented.
  */
-export function activePrescriptionId(payload: unknown): string | null {
+export function activePrescriptionId(payload: unknown, preferred?: string | null): string | null {
   const root = record(payload);
   const list = Array.isArray(payload) ? payload : [root?.data, root?.items, root?.prescriptions].find(Array.isArray);
   if (!Array.isArray(list)) return null;
+  // decision 18: the prescription the cart lines came from, when it is still one of the active ones
+  if (preferred && list.some((entry) => record(entry)?.id === preferred)) return preferred;
   for (const entry of list) {
     const id = record(entry)?.id;
     if (typeof id === "string" && UUID.test(id)) return id;

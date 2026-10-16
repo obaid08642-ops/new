@@ -14,10 +14,10 @@ export function resetErrorMessage(t: (key: string) => string, status: number): s
   return authErrorKind(status) === "unauthorized" ? t("invalidToken") : t("failed");
 }
 
-export function PasswordResetForm({ locale }: { locale: Locale }) {
+export function PasswordResetForm({ locale, initialToken = "" }: { locale: Locale; initialToken?: string }) {
   const t = useTranslations("PasswordReset");
   const router = useRouter();
-  const [resetToken, setToken] = useState("");
+  const [resetToken, setToken] = useState(initialToken);
   const [newPassword, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [busy, setBusy] = useState(false);

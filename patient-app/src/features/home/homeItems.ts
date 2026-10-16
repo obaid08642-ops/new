@@ -3,20 +3,20 @@ import { SERVICE_ICONS } from '../../../../packages/ui/icons/fill';
 
 /** The nine services of canvas/HomeApp.dc.html, in its order, with the routes the app already had for them. */
 export const HOME_SERVICES: HomeService[] = [
-  { service: 'consult', label: 'استشارات', route: '/(tabs)/consultations' },
-  { service: 'pharmacy', label: 'صيدلية', route: '/(tabs)/pharmacy' },
-  { service: 'lab', label: 'تحاليل وأشعة', route: '/(tabs)/diagnostics' },
-  { service: 'nursing', label: 'تمريض', route: '/(tabs)/nursing' },
-  { service: 'nutrition', label: 'التغذية', route: '/nutrition/hub' },
-  { service: 'maternity', label: 'الأمومة', route: '/maternity/hub' },
-  { service: 'map', label: 'الخريطة', route: '/map' },
-  { service: 'health', label: 'صحتي', route: '/(tabs)/health' },
+  { service: 'consult', label: 'services.cat.consultations', route: '/(tabs)/consultations' },
+  { service: 'pharmacy', label: 'services.cat.pharmacy', route: '/(tabs)/pharmacy' },
+  { service: 'lab', label: 'services.cat.labTestsAndScans', route: '/(tabs)/diagnostics' },
+  { service: 'nursing', label: 'services.cat.nursing', route: '/(tabs)/nursing' },
+  { service: 'nutrition', label: 'services.cat.nutrition', route: '/nutrition/hub' },
+  { service: 'maternity', label: 'services.cat.motherhood', route: '/maternity/hub' },
+  { service: 'map', label: 'services.cat.map', route: '/map' },
+  { service: 'health', label: 'services.cat.myHealth', route: '/(tabs)/health' },
   { service: 'emergency', label: 'emergency.title', route: '/emergency' },
 ];
 
 /** The AI tools row of the board. */
 export const HOME_TOOLS: HomeTool[] = [
-  { label: 'فحص الأعراض', icon: 'heartbeat', tone: SERVICE_ICONS.nursing.tone, route: '/ai?mode=symptoms' },
-  { label: 'مترجم الروشتات', icon: 'translate', tone: 'violet', route: '/ai?mode=prescription' },
-  { label: 'التقرير الشهري', icon: 'chart-line-up', tone: 'mint', route: '/ai/monthly-report' },
+  { label: 'services.cat.symptomCheck', icon: 'heartbeat', tone: SERVICE_ICONS.nursing.tone, route: '/ai?mode=symptoms' },
+  { label: 'services.cat.prescriptionTranslator', icon: 'translate', tone: 'violet', route: '/ai?mode=prescription' },
+  { label: 'services.cat.monthlyReport', icon: 'chart-line-up', tone: 'mint', route: '/ai/monthly-report' },
 ];

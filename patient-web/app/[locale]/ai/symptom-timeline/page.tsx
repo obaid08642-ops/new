@@ -5,7 +5,7 @@ import { redirectKeepingQuery } from "@/lib/redirect-keep-query";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-/** The symptom timeline is the symptoms mode of the assistant, which lists the earlier questions (GET /ai/triage/history). */
+/** The symptom timeline is the symptoms mode of the one assistant (decision 7). */
 export default async function Page({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();

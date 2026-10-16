@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react-native';
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import InsuranceCopayScreen from '../../../app/insurance/copay';
@@ -42,5 +42,31 @@ describe('InsuranceCopayScreen', () => {
     expect(screen.queryByText(k('insurance.request.approvalNumber'))).toBeNull();
     expect(screen.queryByText(k('insurance.request.copayPercent'))).toBeNull();
     expect(screen.getByText('30.00 SAR')).toBeTruthy();
+  });
+
+  it('issue 820: pays as the request page does: the server capabilities first, then the card intent', async () => {
+    mockApiFetch.mockImplementation(async (path: string) => {
+      if (path === '/insurance/requests/my') return [{ id: 'r1', state: 'COPAY_PENDING', copay_amount: 30, createdAt: '2026-10-01T00:00:00Z' }];
+      if (path === '/insurance/requests/r1/capabilities') return { methods: [{ id: 'card' }] };
+      if (path === '/payments/intent/insurance/r1') return { id: 'txn-1', checkout_url: 'https://checkout.example.test/1', amount: 30 };
+      return null;
+    });
+    await render(wrap(<InsuranceCopayScreen />));
+    await act(async () => { fireEvent.press(await screen.findByTestId('copay-pay')); });
+    const calls = mockApiFetch.mock.calls.map((c) => c[0]);
+    expect(calls).toEqual(['/insurance/requests/my', '/insurance/requests/r1/capabilities', '/payments/intent/insurance/r1']);
+    expect(JSON.parse(mockApiFetch.mock.calls[2][1].body)).toEqual({ method: 'card' });
+  });
+
+  it('issue 820: no card intent when the server does not open the card for this request', async () => {
+    mockApiFetch.mockImplementation(async (path: string) => {
+      if (path === '/insurance/requests/my') return [{ id: 'r1', state: 'COPAY_PENDING', copay_amount: 30, createdAt: '2026-10-01T00:00:00Z' }];
+      if (path === '/insurance/requests/r1/capabilities') return { methods: [] };
+      return null;
+    });
+    await render(wrap(<InsuranceCopayScreen />));
+    await act(async () => { fireEvent.press(await screen.findByTestId('copay-pay')); });
+    expect(mockApiFetch.mock.calls.map((c) => c[0])).not.toContain('/payments/intent/insurance/r1');
+    expect(await screen.findByTestId('copay-error')).toBeTruthy();
   });
 });

@@ -146,17 +146,18 @@ describe("the appointment screens", () => {
     expect(html).not.toContain("virtual-waiting-room");
   });
 
-  it("the detail shows the actions the status allows: open ones get cancel and reschedule, done ones the summary section", async () => {
+  it("the detail shows the actions the status allows: open ones link to the one cancel/reschedule page (journeys#42), done ones the summary section", async () => {
     server.one.mockResolvedValueOnce(json(row()));
     const open = render(await AppointmentDetailPage({ params: Promise.resolve({ locale: "en", appointmentId: ID }) }));
-    expect(open).toContain("Cancel appointment");
-    expect(open).toContain("Reschedule appointment");
+    expect(open).toContain(`/en/consultations/cancel-reschedule?appointmentId=${ID}`);
+    expect(open).not.toContain("Cancel appointment");
+    expect(open).not.toContain("Reschedule appointment");
     expect(open).toContain(`booking-status?appointmentId=${ID}`);
     server.one.mockResolvedValueOnce(json(row({ status: "COMPLETED", doctor_id: "d1", patient_notes: "Cough", state_history: [{ state: "CONFIRMED", at: "2026-10-01T10:00:00.000Z" }, { state: "COMPLETED", at: "2026-10-08T11:00:00.000Z" }] })));
     server.api.mockResolvedValueOnce(json({ data: { diagnosis: "Flu", notes: "Rest", recommendations: "Fluids", prescription: [{ name: "Paracetamol", dose: "500 mg" }], follow_up_recommended: true, follow_up_window_days: 5 } }));
     const done = render(await AppointmentDetailPage({ params: Promise.resolve({ locale: "en", appointmentId: ID }) }));
     for (const text of ["Consultation summary", "Flu", "Rest", "Fluids", "Paracetamol", "Follow-up recommended within 5 days", `/en/consultations/book/d1?followUp=${ID}`, `/en/appointments/${ID}/chat`, "Cough", "Status history", "Prescription"]) expect(done).toContain(text);
-    expect(done).not.toContain("Cancel appointment");
+    expect(done).not.toContain("cancel-reschedule");
     expect(done).not.toContain("/summary");
   });
 

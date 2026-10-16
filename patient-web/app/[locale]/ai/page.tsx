@@ -13,8 +13,8 @@ import { ReportClient } from "@/components-next/assistant/report-client";
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
 /**
- * The one AI assistant (merge map section 4): three modes in the URL (`?mode=symptoms|prescription|report`) over the endpoints
- * the old screens called: POST /ai/triage, POST /ai/prescription-ocr. The report mode sends nothing (no automatic report reading).
+ * The one AI assistant (merge map section 4): three modes in the URL (`?mode=symptoms|prescription|report`) over
+ * POST /ai/assistant (decision 15) and POST /ai/prescription-ocr. The report mode sends nothing (no automatic report reading).
  * The old triage, symptom checker, timeline, translator and report routes redirect here with their query.
  */
 export default async function AssistantPage({ params, searchParams }: Props) {

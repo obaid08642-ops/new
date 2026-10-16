@@ -83,3 +83,53 @@ and sets every line to `fixed #PR` or `not-a-problem: owner decided … `.
   - Owner of the work: the fix session (lines set back to `open` with this decision).
 - **Legal texts (terms, privacy).** Stays an owner action: a Saudi lawyer approves `docs/legal` before launch. Until
   then the embedded fallback stays off. This is a launch blocker and cannot be decided in code.
+
+## D2. More questions from the fix session (2026-10-15, open)
+
+Found while sweeping the open needs-review lines. Each line is set to `owner-decision` with the question number; the fix
+session builds the answer once it is given.
+
+| # | Question | Where | Recommendation |
+|---:|---|---|---|
+| 31 | The app's order centre also lists insurance claims and pharmacy returns; the web order centre lists the five services only (claims and returns have their own pages). Merge them on the web too? | 1e-web#9 | **Yes, for parity**: two more kinds in the web order centre, read from the same backend lists, each row opening its existing page. |
+| 32 | The web onboarding (`/welcome`, `/onboarding`) is reached by no link and finishing it saves nothing. Keep it (shown once after sign-up, completion saved on the account) or remove it from the web? | batch-0-web#7 (issue 436) | **Remove it from the web**: the site opens on the home page; location and notifications are asked where they are used (web push is being wired by the fix session for batch-0-web#9). |
+| 33 | The product board draws a delivery/pickup switch with times on the product page, but the mode is only known once a pharmacy answers with an offer. | batch-1a-app#7 (issue 455) | **No switch on the product page**; delivery or pickup is chosen at checkout from the chosen offer (as today). |
+| 34 | The en, ur, hi, bn and fil pharmacy texts (177 keys) were written by the sessions, not by native speakers. | batch-1a-app#18 (issue 466) | **Owner action**: a native reviewer per language before launch; the keys stay as they are until then. |
+| 35 | The cart board draws unit prices, an estimated total, points and a delivery row; pharmacy prices exist only once pharmacies answer with offers. | batch-1b-app#2 (issue 481) | **Keep the cart without prices** (decision: pharmacies answer with offers); the cart says the prices come with the offers. |
+| 36 | The web barcode page has only a typed field; the app scans with the camera. | batch-1b-web#8 (issue 499) | **Use the browser's BarcodeDetector where it exists** (Chrome/Android), with the typed field everywhere; no extra decoding library. |
+| 37 | The Success board is a dark full-bleed page with lime (#D7FF00) and confetti colours, which are not tokens. | batch-1d-app#18 (issue 548) | **Tokens only** (identity rule A): the success screen uses the existing canvas, action and service tones, no lime and no confetti. |
+| 38 | Hosted checkout, return and webhook were checked only against a local stand-in: no Moyasar test keys in the environment. | batch-1d-web#1 (issue 551) | **Owner action**: put the Moyasar test keys in the CI secrets so one run per release pays in the sandbox end to end. |
+| 39 | Prescription items in the cart: the web cart goes straight to checkout with the "active" prescription; the app first opens rx-order to pick the prescription. From a doctor's prescription, the web opens rx-order (broadcast at once) while the app opens checkout on that prescription. Which is the one flow? | journeys#22 (issue 1031), journeys#34 (issue 1043) | **The app's flow on both**: the patient picks the prescription in rx-order before checkout, so a line is never sent with the wrong prescription. |
+| 40 | **Same item as question 30 (issue 480): answer it there.** "Ask a pharmacist" (app pharmacy hub tile and product page) opens the substitute chat of an order, which exists only when a pharmacy proposes a substitute; opened without an order it can only say "open the chat from an order". There is no general pharmacist chat. | batch-1b-app#1 (issue 480) | **Remove the two entry points** (as decision 24 does for doctors: chat only inside an order); the order page keeps its pharmacist chat. Building a general pharmacist chat is a new service (staffing, hours, liability) for the owner to plan. |
+| 41 | The pharmacy dashboard still holds a quick-offer screen that is never shown (the offer composer is `PharmacyBroadcastResponse`). The release contract `provider-app/provider-app.contracts.test.js` expects the offer calls in `PharmacyDashboard.tsx`, and only that screen has them, so it cannot be removed without changing the contract test. | provider-journeys#5 (issue 1146), #1474 | **Remove the unrendered screen and point the contract at the live composer** (`shared/blueprint/PharmacyBroadcastResponse.tsx`): the contract should check the code the pharmacist actually uses. Needs the owner (or reviewer) to approve the change to the acceptance test. |
+| 42 | The app's nurse booking offers "the nurse provides transport" or "I will send a car for the nurse". The choice is not saved on the booking and changes no price: the trip fee (decision 26) is charged either way. | 4-app#1 (issue 641) | **Remove the choice**: the nurse always comes to the patient and the trip fee applies, as the refund policy already says. If the owner wants "I send a car", it needs a booking field, a trip-fee waiver and the nurse's consent, which is a new feature. |
+| 43 | Lighthouse LCP (issue 427): after #1515 every byte budget passes, but LCP is still 2.8–4.6 s against 2.5 s. Three remaining causes need a product or security call: (a) the inline theme script at the top of `<body>` waits for every stylesheet (moving it can flash the wrong theme); (b) the root `app/[locale]/loading.tsx` skeleton wraps every page, so the content is revealed at least 300 ms after first paint; (c) `experimental.inlineCss` removes the stylesheet wait, but Next writes the `<style>` without the CSP nonce, so private pages lose their styling. | issue 427, #1515 | **(b) first**: keep loading skeletons per section (where data is fetched), not one at the root; then (a) read the theme from a cookie on the server so the script can move after the content without a flash. Keep (c) off until Next adds the nonce. |
+| 44 | Two working pages have no board: the AI-assistant consent page (`/oauth/authorize`, AC-1) and the seven public feature pages (`/features/[feature]`, SEO). Both are built on the shared kits (auth layout; public landing kit) with tokens only and six languages, and both work end to end. Accept them as they are, or wait for boards from the design session? | ac-1-agent-oauth#0, seo-feature-pages#0 | **Accept them on the shared kits** (no new colours, logo or patterns); a board later is a normal design change. |
+
+## F. Decided 2026-10-15 (the owner asked the reviewer to decide questions 29-44)
+
+The recommendation in sections D and D2 is the decision, with these notes:
+
+- **29 (admin roles):** yes. Custom roles become restrictive, and every admin write route names a permission, in one
+  PR, before anyone other than the owner gets an admin account.
+- **30 and 40 (pharmacy order chat):** build it for orders only. The pharmacy opens a thread on an order line from its
+  existing "Order chat", and may attach a substitute from its inventory, checked against the prescription (issue 1440
+  rule). The patient answers in the existing screens. The "Pharmacist consult" hub tile and the product-page "Ask a
+  pharmacist" entry points are removed.
+- **31:** yes, the web order centre lists claims and returns too.
+- **32:** remove the web onboarding pages.
+- **33:** no delivery/pickup switch on the product page.
+- **34:** owner action (native reviewer per language before launch). The keys stay as they are.
+- **35:** the cart stays without prices and says that prices come with the offers.
+- **36:** use BarcodeDetector where the browser has it, with the typed field everywhere.
+- **37:** tokens only on the success screen. No lime and no confetti.
+- **38:** owner action: put the Moyasar **test** keys in the CI secrets.
+- **39:** the app's flow on both: the patient picks the prescription in rx-order before checkout.
+- **41:** approved. Remove the unrendered quick-offer screen, and point
+  `provider-app/provider-app.contracts.test.js` at `shared/blueprint/PharmacyBroadcastResponse.tsx`. The reviewer
+  approves this change to the contract test.
+- **42:** remove the transport choice. The nurse comes to the patient and the trip fee applies.
+- **43:** do (b) first: loading skeletons per section, not one at the root. Then do (a): the theme from a cookie on the
+  server. (c) stays off until Next adds the nonce.
+- **44:** accept both pages on the shared kits.
+
