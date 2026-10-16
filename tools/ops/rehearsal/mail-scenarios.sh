@@ -10,8 +10,9 @@
 set -uo pipefail
 cd "$(dirname "$0")/../../.."
 PORT=18788
-python3 tools/ops/rehearsal/cf-mock.py $PORT > /tmp/cf-mock-mail.log 2>&1 &
-MOCK=$!; W=$(mktemp -d); trap 'kill $MOCK; rm -rf "$W"' EXIT; sleep 1
+W=$(mktemp -d)
+python3 tools/ops/rehearsal/cf-mock.py $PORT > $W/mock.log 2>&1 &
+MOCK=$!; trap 'kill $MOCK; sudo -n rm -rf "$W"' EXIT; sleep 1
 M=http://127.0.0.1:$PORT
 export CF_API=$M/client/v4 CF=rehearsal-global-key CFE=ops@rehearsal.test Z=zone-rehearsal
 export BREVO_API=$M/v3 MAILJET_API=$M/v3/REST OPS_RESEND_API=$M
@@ -25,7 +26,8 @@ noleak() { grep -qE "$SECRETS" "$1" && { echo "FAIL a key value appeared in the 
 run41() { bash tools/ops/cf/41-mail-verify.sh > $W/41.txt 2>&1; rc=$?; sed 's/^/    /' $W/41.txt; noleak $W/41.txt 41
   grep -vE '^cf: ' $W/41.txt | grep -q . && { echo "FAIL 41 printed a line without the cf: prefix"; fail=1; }; return $rc; }
 run67() { bash tools/ops/tasks/67-mail-env.sh > $W/67.txt 2>&1; rc=$?; sed 's/^/    /' $W/67.txt; noleak $W/67.txt 67; return $rc; }
-envget() { grep -m1 "^$1=" $W/deploy/.env.production | cut -d= -f2-; }
+# the task writes the env as root (sudo), as on the server: read it the same way
+envget() { sudo -n grep -m1 "^$1=" $W/deploy/.env.production | cut -d= -f2-; }
 DNS_OK='[
  {"type":"TXT","name":"nabd.plus","content":"\"v=spf1 include:spf.brevo.com include:amazonses.com include:spf.mailjet.com ~all\""},
  {"type":"TXT","name":"nabd.plus","content":"\"brevo-code:aaaa\""},
@@ -62,18 +64,18 @@ grep -q '^mail: env present: RESEND_API_KEY BREVO_API_KEY MAILJET_API_KEY MAILJE
 expect "A quotas" "$(envget RESEND_DAILY_QUOTA)/$(envget RESEND_MONTHLY_QUOTA) $(envget BREVO_DAILY_QUOTA) $(envget MAILJET_DAILY_QUOTA)/$(envget MAILJET_MONTHLY_QUOTA)" "100/3000 300 200/6000"
 expect "A no SMTP relay names (Brevo uses its REST API)" "$(envget BREVO_SMTP_HOST)" ""
 expect "A other lines kept" "$(envget JWT_SECRET) $(envget RESEND_API_KEY)" "keep-me re_rehearsal_resend_0004"
-expect "A env mode 600" "$(stat -c %a $W/deploy/.env.production)" 600
+expect "A env mode 600" "$(sudo -n stat -c %a $W/deploy/.env.production)" 600
 expect "A key file shredded" "$(test -e $W/ops-mail.env; echo $?)" 1
-expect "A one env copy kept" "$(ls $W/backups | grep -c env-pre-mail)" 1
+expect "A one env copy kept" "$(sudo -n ls $W/backups | grep -c env-pre-mail)" 1
 grep -q '^mail: env note: SES names still in the env (SES_SMTP_HOST)' $W/67.txt; expect "A SES left unused and named" $? 0
 grep -q '^mail: resend: domain nabd.plus status=verified' $W/67.txt; expect "A resend verified" $? 0
 grep -q '^mail: resend:   DKIM TXT resend._domainkey status=verified$' $W/67.txt; expect "A resend records without values" $? 0
 grep -q 'p=MIGf\|feedback-smtp' $W/67.txt; expect "A no record values printed" $? 1
-cp $W/deploy/.env.production $W/env-after-a
+sudo -n cp $W/deploy/.env.production $W/env-after-a
 run67; expect "A second 67 exit" $? 0
 grep -q '^mail: env names set: none$' $W/67.txt; expect "A second 67 sets nothing" $? 0
-cmp -s $W/deploy/.env.production $W/env-after-a; expect "A second 67 leaves the env as it was" $? 0
-expect "A second 67 keeps no extra copy" "$(ls $W/backups | grep -c env-pre-mail)" 1
+sudo -n cmp -s $W/deploy/.env.production $W/env-after-a; expect "A second 67 leaves the env as it was" $? 0
+expect "A second 67 keeps no extra copy" "$(sudo -n ls $W/backups | grep -c env-pre-mail)" 1
 
 echo "== B: two SPF records, Mailjet DKIM missing, Brevo authenticated only after asking again"
 B_DNS=$(echo "$DNS_OK" | jq -c 'map(select(.name != "mailjet._domainkey.nabd.plus")) + [{"type":"TXT","name":"nabd.plus","content":"\"v=spf1 include:spf.mailjet.com ~all\""}]')
