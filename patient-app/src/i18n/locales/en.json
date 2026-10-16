@@ -316,6 +316,7 @@
   "pharmacy.product.buyNow": "Buy now",
   "pharmacy.product.reviewedOn": "Reviewed by the medical team on {date}",
   "pharmacy.product.reviewed": "Reviewed by the medical team",
+  "pharmacy.product.insuranceCovered": "Covered by your {company} insurance",
   "pharmacy.product.disclaimer": "The information does not replace advice from a doctor or pharmacist",
   "pharmacy.product.sku": "Product code: {v}",
   "pharmacy.fact.form": "Form",

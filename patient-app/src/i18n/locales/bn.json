@@ -316,6 +316,7 @@
   "pharmacy.product.buyNow": "এখনই কিনুন",
   "pharmacy.product.reviewedOn": "চিকিৎসা দল {date} তারিখে পর্যালোচনা করেছে",
   "pharmacy.product.reviewed": "চিকিৎসা দল পর্যালোচনা করেছে",
+  "pharmacy.product.insuranceCovered": "আপনার {company} বিমায় অন্তর্ভুক্ত",
   "pharmacy.product.disclaimer": "এই তথ্য ডাক্তার বা ফার্মাসিস্টের পরামর্শের বিকল্প নয়",
   "pharmacy.product.sku": "পণ্যের কোড: {v}",
   "pharmacy.fact.form": "রূপ",

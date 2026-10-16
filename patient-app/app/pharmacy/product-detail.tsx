@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
+import { useSelector } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
@@ -28,10 +29,13 @@ import {
   OfflineState,
   Radio,
   Screen,
+  SERVICE_ICONS,
   SectionHeader,
   Stepper,
   StickyFooter,
 } from '../../../packages/ui-native/src';
+import { rowsOf } from '../../src/components/health/HealthKit';
+import { loadPolicy } from '../../src/components/insurance/InsuranceKit';
 import ProductImage from '../../src/components/ProductImage';
 import { CountBadge, Glyph, PHARMACY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
 import { DetailAccordion, FactsGrid, MiniProduct, Pill, SafetyCard, type AccordionSection } from '../../src/components/pharmacy/ProductSections';
@@ -45,6 +49,7 @@ import { logError } from '../../src/utils/logger';
 import { currentDbLang } from '../../src/utils/localize';
 import { prefetchAlternatives, prefetchHotMedicines } from '../../src/utils/prefetch';
 import { getVisibleProductIds } from '../../src/utils/productNav';
+import { coveringInsurerName, type InsurerCompany } from '../../src/utils/productInsurance';
 import { canShowPromo, discountPercent, medField, medGallery, medMeta, medName, medPrice, needsRx, oldPriceOf, onlineOnly, productNote, type Med } from '../../src/utils/pharmacyCatalog';
 
 /**
@@ -75,6 +80,8 @@ type Detail = Med & {
   alternatives?: Med[];
   related_product_ids?: string[];
   interactions?: string[];
+  /** Insurance company ids that cover this product (SPEC §A insurance row). */
+  covered_by_insurance?: string[];
 };
 
 /** A field as a list of lines: an array as it is, a text split at its line breaks, nothing when empty. */
@@ -172,6 +179,10 @@ export default function ProductDetailScreen() {
   const [suggestNote, setSuggestNote] = useState('');
   const [suggestSending, setSuggestSending] = useState(false);
 
+  // SPEC §A insurance row (issue 456): signed-in patients only, and only when their insurer covers this product.
+  const isMember = useSelector((s: { auth?: { isAuthenticated?: boolean; isGuest?: boolean } }) => Boolean(s.auth?.isAuthenticated && !s.auth?.isGuest));
+  const [insurerName, setInsurerName] = useState<string | null>(null);
+
   const line = items.find((i) => String(i.id) === String(id));
   const inCartQty = line?.qty ?? 0;
   const shownQty = inCartQty > 0 ? inCartQty : qty;
@@ -234,6 +245,27 @@ export default function ProductDetailScreen() {
       active = false;
     };
   }, [id, reloadKey]);
+
+  // The insurance row: the saved policy (GET /users/me/insurance) and the company names (GET /insurance/companies).
+  const covered = med?.covered_by_insurance;
+  useEffect(() => {
+    setInsurerName(null);
+    if (!isMember || !Array.isArray(covered) || covered.length === 0) return;
+    let active = true;
+    (async () => {
+      try {
+        const policy = await loadPolicy();
+        if (!policy) return;
+        const companies = rowsOf<InsurerCompany>(await apiFetch<unknown>('/insurance/companies'));
+        if (active) setInsurerName(coveringInsurerName(covered, policy, companies, lang));
+      } catch (e) {
+        logError('pharmacy:product-insurer', e);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [isMember, covered, lang]);
 
   // related products: the row only holds ids, so the real rows come from the catalogue's batch lookup
   useEffect(() => {
@@ -602,6 +634,14 @@ export default function ProductDetailScreen() {
                 </View>
               ) : null}
             </Card>
+
+            {/* insurance row: the patient's insurer covers this product (SPEC §A) */}
+            {insurerName ? (
+              <View testID="product-insurance-row" style={{ borderRadius: 20, backgroundColor: c.status.info.bg, paddingVertical: 12, paddingHorizontal: 14, flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+                <FIcon icon={SERVICE_ICONS.insurance.icon} tone={SERVICE_ICONS.insurance.tone} size={36} theme={theme} />
+                <Text style={{ flex: 1, ...scale(t, 'control'), color: c.text.primary, ...flow }}>{k('pharmacy.product.insuranceCovered', { company: insurerName })}</Text>
+              </View>
+            ) : null}
 
             {/* shortage / discontinued */}
             {view.discontinued || view.limited ? (
