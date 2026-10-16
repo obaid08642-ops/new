@@ -521,6 +521,12 @@ export function NSkeleton({ w, h, br=R.md, style }:{ w:number|string; h:number; 
 }
 
 // ─── Empty State ──────────────────────────────────────────────────────────────
+// An `icon` prop is either the name of a vector icon ("calendar") or a ready glyph ("◔", an emoji). Drawing a name as
+// text printed the word itself on empty states, stat cards and success screens.
+function NIcon({ icon, size, color }: { icon: string; size: number; color: string }) {
+  return hasIcon(icon) ? <I name={icon} size={size} color={color} /> : <Text style={{ fontSize:size }}>{icon}</Text>;
+}
+
 export function NEmpty({ icon='', title, sub, subtitle, actionLabel, onAction }:
  { icon?:string; title:string; sub?:string; subtitle?:string; actionLabel?:string; onAction?:()=>void }) {
  sub = sub ?? subtitle;
@@ -528,7 +534,7 @@ export function NEmpty({ icon='', title, sub, subtitle, actionLabel, onAction }:
  return (
  <View style={{ flex:1, alignItems:'center', justifyContent:'center', padding:SP.xxxl }}>
  {/* most screens pass an icon NAME ("calendar", "document"); drawing it as text printed the word itself */}
- <View style={{ marginBottom:SP.xl }}>{hasIcon(icon) ? <I name={icon} size={56} color={theme.textSub} /> : <Text style={{ fontSize:56 }}>{icon}</Text>}</View>
+ <View style={{ marginBottom:SP.xl }}><NIcon icon={icon} size={56} color={theme.textSub} /></View>
  <Text style={{ fontSize:FS.xl, fontWeight:FW.bold, color:theme.text, textAlign:'center', marginBottom:SP.md }}>{title}</Text>
  {sub && <Text style={{ fontSize:FS.md, color:theme.textSub, textAlign:'center', lineHeight:22, marginBottom:SP.xxl }}>{sub}</Text>}
  {onAction && actionLabel && <NBtn label={actionLabel} onPress={onAction} full={false} style={{ paddingHorizontal:SP.xxxl }} />}
@@ -546,7 +552,7 @@ export function NSuccess({ icon='', title, sub, primaryLabel, onPrimary, secLabe
  return (
  <View style={{ flex:1, alignItems:'center', justifyContent:'center', padding:SP.xxxl, backgroundColor:theme.bg }}>
  <Animated.View style={[s.successIcon, { backgroundColor:theme.successBg, transform:[{scale:sc}] }]}>
- <Text style={{ fontSize:44 }}>{icon}</Text>
+ <NIcon icon={icon} size={44} color={theme.success} />
  </Animated.View>
  <Text style={{ fontSize:FS['3xl'], fontWeight:FW.bold, color:theme.text, textAlign:'center', marginBottom:SP.md }}>{title}</Text>
  {sub && <Text style={{ fontSize:FS.md, color:theme.textSub, textAlign:'center', lineHeight:24, marginBottom:SP.xxxl }}>{sub}</Text>}
@@ -607,7 +613,7 @@ export function NStatCard({ icon, label, value, color, unit, style }:
  const { isRTL } = useLang();
  return (
  <NCard style={[{ padding:SP.lg }, style]}>
- <Text style={{ fontSize:24, marginBottom:SP.xs }}>{icon}</Text>
+ <View style={{ marginBottom:SP.xs }}><NIcon icon={icon} size={24} color={color??theme.primary} /></View>
  <View style={{ flexDirection:isRTL?'row-reverse':'row', alignItems:'baseline', gap:4 }}>
  <Text style={{ fontSize:FS['2xl'], fontWeight:FW.xbold, color:color??theme.primary }}>{value}</Text>
  {unit && <Text style={{ fontSize:FS.sm, color:theme.textSub }}>{unit}</Text>}
