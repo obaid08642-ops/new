@@ -1,5 +1,7 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 import { LabBookingState } from '../../schemas/lab.schema';
+import { AttributionDto } from '../../common/attribution';
 
 export class BookDto {
   @IsDefined()
@@ -48,6 +50,11 @@ export class BookDto {
   @IsOptional()
   @IsString()
   insurance_member_id?: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AttributionDto)
+  attribution?: AttributionDto;
 
 }
 

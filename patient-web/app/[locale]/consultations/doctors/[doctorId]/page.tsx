@@ -1,3 +1,4 @@
+import { optimizedImageSrc } from "@/lib/media/optimized-image";
 import { JsonLd } from "@/components-next/json-ld";
 import { physician, breadcrumbList } from "@/lib/seo/structured-data";
 import type { Metadata } from "next";
@@ -91,7 +92,7 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
         <SectionCard id="clinic-photos-title" title={t("clinicPhotosTitle")}>
           <ul className={styles.gallery}>
             {doctor.clinicPhotos.map((src, index) => (
-              <li key={src}><img src={src} alt={t("clinicPhotoAlt", { n: index + 1 })} className={styles.galleryImg} loading="lazy" /></li>
+              <li key={src}><img src={optimizedImageSrc(src, 192)} alt={t("clinicPhotoAlt", { n: index + 1 })} className={styles.galleryImg} loading="lazy" decoding="async" /></li>
             ))}
           </ul>
         </SectionCard>

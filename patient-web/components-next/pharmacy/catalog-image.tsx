@@ -1,4 +1,5 @@
 import { getImageProps } from "next/image";
+import { preload } from "react-dom";
 import { allowedImageUrl } from "@/lib/image-hosts";
 
 /**
@@ -26,6 +27,9 @@ export function CatalogImage({
 }) {
   const { props } = getImageProps(width && height ? { src, alt, sizes, priority, width, height } : { src, alt, sizes, priority, fill: true });
   const { style: _inlineStyle, ...rest } = props;
+  // P14.20: the page's LCP picture (priority) is announced in the <head> with its srcset, so the browser fetches the
+  // right rendition before it lays out the page (<Image priority> would do this, but it carries an inline style)
+  if (priority && rest.src) preload(rest.src, { as: "image", imageSrcSet: rest.srcSet, imageSizes: rest.sizes, fetchPriority: "high" });
   // eslint-disable-next-line @next/next/no-img-element -- the optimizer's own props, minus the style attribute
   return <img {...rest} className={className} />;
 }
