@@ -3321,5 +3321,18 @@
   "loyalty.earn.referral_converted": "دوست کو مدعو کرنا (اس کی پہلی بکنگ پر)",
   "loyalty.earn.vitals_logged": "اہم علامات کا اندراج",
   "loyalty.earn.challenge": "صحت کا چیلنج",
-  "loyalty.earn.perChallenge": "چیلنج کے مطابق"
+  "loyalty.earn.perChallenge": "چیلنج کے مطابق",
+  "health.hub.component.bmi": "جسمانی ماس انڈیکس",
+  "health.hub.component.bp": "بلڈ پریشر",
+  "health.hub.component.glucose": "خون کی شکر",
+  "health.hub.component.heart_rate": "دل کی دھڑکن",
+  "health.hub.component.sleep": "نیند کا معیار",
+  "health.hub.component.tracking": "باقاعدہ اندراج",
+  "health.hub.rec.bmi_high": "بی ایم آئی معمول سے زیادہ ہے — باقاعدہ ورزش اور متوازن غذا اسے کم کرنے میں مدد دیتی ہے",
+  "health.hub.rec.profile_incomplete": "درست اسکور کے لیے اپنی صحت پروفائل میں قد اور وزن درج کریں",
+  "health.hub.rec.bp_high": "بلڈ پریشر کی تازہ ترین ریڈنگ زیادہ ہے — نمک کم کریں، باقاعدگی سے نگرانی کریں اور ڈاکٹر سے مشورہ کریں",
+  "health.hub.rec.glucose_off": "شوگر کی ریڈنگ معمول کی حد سے باہر ہے — اپنی غذائی منصوبہ بندی اور ادویات ڈاکٹر کے ساتھ دیکھیں",
+  "health.hub.rec.sleep_low": "آپ کی نیند کا معیار بہتر ہونا چاہیے — سونے کا وقت مقرر کریں اور سونے سے پہلے اسکرین کم کریں",
+  "health.hub.rec.tracking_low": "اپنے اسکور کو زیادہ درست بنانے کے لیے اہم علامات باقاعدگی سے درج کریں (ہفتے میں 5 ریڈنگز)",
+  "health.hub.rec.tracking_start": "اپنا ہیلتھ اسکور فعال کرنے کے لیے اہم علامات (پریشر، شوگر، وزن) درج کرنا شروع کریں"
 }

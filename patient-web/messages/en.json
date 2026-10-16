@@ -2533,7 +2533,12 @@
     "policyFull": "{hours} hours or more before: 100% refund",
     "policyHalf": "{half} to {full} hours before: {percent}% refund",
     "policyLess": "Less than {half} hours before: no refund",
-    "policyUnavailable": "The cancellation and refund policy is not available right now."
+    "policyUnavailable": "The cancellation and refund policy is not available right now.",
+    "callReconnecting": "Weak connection. Reconnecting your call…",
+    "callAudioOnly": "Your connection is weak, so we turned video off and kept the sound.",
+    "callTryVideo": "Try video again",
+    "callDropped": "The call was cut off.",
+    "callContinueInChat": "Continue in chat"
   },
   "ConsultClient": {
     "payHeading": "Complete the payment through a secure gateway",

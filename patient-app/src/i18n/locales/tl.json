@@ -3321,5 +3321,18 @@
   "loyalty.earn.referral_converted": "Pag-imbita ng kaibigan (sa una niyang booking)",
   "loyalty.earn.vitals_logged": "Pag-log ng mga vital sign",
   "loyalty.earn.challenge": "Hamon sa kalusugan",
-  "loyalty.earn.perChallenge": "Depende sa hamon"
+  "loyalty.earn.perChallenge": "Depende sa hamon",
+  "health.hub.component.bmi": "Indeks ng bigat ng katawan",
+  "health.hub.component.bp": "Presyon ng dugo",
+  "health.hub.component.glucose": "Asukal sa dugo",
+  "health.hub.component.heart_rate": "Tibok ng puso",
+  "health.hub.component.sleep": "Kalidad ng tulog",
+  "health.hub.component.tracking": "Pagkakapare-pareho ng pag-log",
+  "health.hub.rec.bmi_high": "Mas mataas sa normal ang BMI — nakakatulong ang regular na aktibidad at balanseng nutrisyon para ibaba ito",
+  "health.hub.rec.profile_incomplete": "Idagdag ang iyong taas at timbang sa health profile para mas tumpak ang iyong score",
+  "health.hub.rec.bp_high": "Mataas ang pinakabagong reading ng presyon ng dugo — bawasan ang asin, regular na subaybayan at kumonsulta sa doktor",
+  "health.hub.rec.glucose_off": "Wala sa normal na saklaw ang reading ng glucose — repasuhin ang iyong meal plan at gamot kasama ang doktor",
+  "health.hub.rec.sleep_low": "Kailangang pagbutihin ang kalidad ng iyong tulog — magtakda ng takdang oras ng pagtulog at bawasan ang screen bago matulog",
+  "health.hub.rec.tracking_low": "Regular na i-log ang iyong mga vital (5 reading kada linggo) para mas maging tumpak ang iyong score",
+  "health.hub.rec.tracking_start": "Simulan ang pag-log ng iyong mga vital (presyon, asukal, timbang) para ma-activate ang iyong health score"
 }
