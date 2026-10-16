@@ -1,6 +1,6 @@
 """Journey (backend, anonymous): public medicine and catalogue routes return public fields of published items only (issue 1555).
   - The admin creates and approves two medicines with the same active ingredient and a barcode, one of them prescription
-    only with an old price, and creates a third one that is never approved (TEST data).
+    only, and creates a third one that is never approved (TEST data).
   - Each public route is fetched anonymously (alternatives, detail, details, list, autocomplete, by-barcode,
     lookup-barcode, compare, hot, stream, recommendations, SEO resolve, global search, entity graph); no internal field
     (provenance, source*, review state, eligibility flags, stock counts, audit fields, _id, __v...) appears at any depth.
@@ -54,7 +54,7 @@ def create(admin, tag, suffix, barcode, rx, approve):
     body = {'name_ar': f'فيلدول {tag} {suffix}', 'name_en': f'Fieldol {tag} {suffix}', 'active_ingredient': f'fieldol-{tag}',
             'generic_name': f'fieldol-{tag}', 'manufacturer': 'Nabd Test', 'brand': f'Fieldol {tag}', 'category': 'vitamins',
             'sub_category': '', 'form': 'tablet', 'strength': suffix, 'package_size': '20', 'barcode': barcode, 'price': 20,
-            'old_price': 30, 'requires_prescription': rx, 'online_exclusive': False, 'images': [], 'image': '',
+            'requires_prescription': rx, 'online_exclusive': False, 'images': [], 'image': '',
             'description_ar': 'اختبار', 'description_en': 'test', 'usage_instructions_ar': '', 'usage_instructions_en': '',
             'indications_ar': [], 'indications_en': [], 'contraindications_ar': [], 'contraindications_en': [],
             'warnings_ar': [], 'warnings_en': [], 'side_effects_ar': [], 'side_effects_en': [], 'precautions_ar': [], 'precautions_en': [],
