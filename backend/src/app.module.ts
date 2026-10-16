@@ -6,6 +6,7 @@ import { CoturnModule } from './modules/coturn/coturn.module';
 import { RedisModule } from './modules/redis/redis.module';
 import { MailModule } from './modules/mail/mail.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { NewsletterModule } from './modules/newsletter/newsletter.module';
 import { ApiSecurityModule } from './modules/api-security/api-security.module';
 import { DeviceTrustModule } from './modules/device-trust/device-trust.module';
 import { SeoSearchModule } from './modules/seo-search/seo-search.module';
@@ -139,6 +140,7 @@ import { ArticlesModule } from './modules/articles/articles.module';
 
 import { CorrelationMiddleware } from './common/correlation.middleware';
 import { ObservabilityModule } from './modules/observability/observability.module';
+import { RumModule } from './modules/rum/rum.module';
 import { DoctorsModule } from './modules/doctors/doctors.module';
 import { WriteGuard } from './common/write-guard';
 import { AdminGateGuard } from './common/admin-gate.guard';
@@ -160,6 +162,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     RedisModule,
     MailModule,
     AnalyticsModule,
+    NewsletterModule,
     ApiSecurityModule,
     DeviceTrustModule,
     SeoSearchModule,
@@ -218,6 +221,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
       }),
     }),
     ObservabilityModule,
+    RumModule,
     I18nCoreModule,
     AuthModule,
     UsersModule,
