@@ -3,7 +3,7 @@
 #   1. .env.production (copy saved first, mode 600):
 #      - BREVO_API_KEY, MAILJET_API_KEY, MAILJET_SECRET_KEY from the key file the workflow left in $HOME (GitHub
 #        secrets, delivered on ssh stdin; shredded here whatever happens). RESEND_API_KEY is already on the server.
-#      - BREVO_SMTP_HOST/PORT (Brevo's relay), MAILJET_FROM/BREVO_FROM unset = MAIL_FROM
+#      - Brevo sends over its REST API with BREVO_API_KEY (PR #1583); MAILJET_FROM/BREVO_FROM unset = MAIL_FROM
 #      - MAIL_PROVIDER_ORDER=resend,brevo,mailjet (no Amazon SES, MailerSend or Cloudflare Email)
 #      - quotas = each free plan: Resend 100/day 3000/month, Brevo 300/day, Mailjet 200/day 6000/month
 #        (read by backend/src/modules/mail/mail.module.ts, PR #1583, as <PROVIDER>_DAILY_QUOTA/_MONTHLY_QUOTA)
@@ -31,8 +31,6 @@ else
   echo "mail: no key file (keys already on the server are kept)"
 fi
 cat >> "$T" <<'EOF'
-BREVO_SMTP_HOST=smtp-relay.brevo.com
-BREVO_SMTP_PORT=587
 MAIL_PROVIDER_ORDER=resend,brevo,mailjet
 RESEND_DAILY_QUOTA=100
 RESEND_MONTHLY_QUOTA=3000
