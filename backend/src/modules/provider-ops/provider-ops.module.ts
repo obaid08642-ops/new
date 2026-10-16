@@ -450,10 +450,7 @@ export class ProviderOpsService {
         pendingCount += await this.conn.collection(coll).countDocuments({ $or: pendOr });
       } catch { /* collection may not exist */ }
     }
-    const ledger = await this.walletLedger(providerId, 500);
-    const revenue = ledger.transactions
-      .filter((t: any) => t.type === 'provider_earning' && new Date(t.createdAt) >= dayStart)
-      .reduce((s: number, t: any) => s + (t.amount || 0), 0);
+    const revenue = (await this.earningRowsSince(providerId, dayStart)).reduce((s: number, t: any) => s + (t.amount || 0), 0);
     return { todayCount, revenue, pendingCount };
   }
 
@@ -498,8 +495,7 @@ export class ProviderOpsService {
       }
       if (first && new Date(first.createdAt) >= rangeStart) newPatients++;
     }
-    const ledger = await this.walletLedger(providerId, 1000);
-    const inRange = ledger.transactions.filter((t: any) => t.type === 'provider_earning' && new Date(t.createdAt) >= rangeStart);
+    const inRange = await this.earningRowsSince(providerId, rangeStart);
     const revenue = inRange.reduce((sum: number, t: any) => sum + (t.amount || 0), 0);
     const series = new Array(bucketCount).fill(0);
     for (const t of inRange) {
@@ -654,6 +650,18 @@ export class ProviderOpsService {
     };
     await this.conn.collection('platformledgerentries').insertOne(row as any);
     return row;
+  }
+
+  /**
+   * Earnings of one provider since a date. The stats used to filter `walletLedger(id, 500 | 1000)`, but that reads at
+   * most the 200 newest rows of ANY type, so a busy provider's "revenue today / this month / this year" counted only
+   * the last 200 ledger rows.
+   */
+  async earningRowsSince(providerId: string, since: Date): Promise<Array<{ amount: number; createdAt: Date }>> {
+    return this.conn.collection('platformledgerentries').find(
+      { provider_account_id: providerId, type: 'provider_earning', createdAt: { $gte: since } },
+      { projection: { _id: 0, amount: 1, createdAt: 1 } },
+    ).toArray() as unknown as Array<{ amount: number; createdAt: Date }>;
   }
 
   async walletLedger(providerId: string, limit = 100): Promise<any> {
