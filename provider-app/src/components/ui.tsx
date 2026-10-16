@@ -87,13 +87,19 @@ export function NBtn({
  const fg = disabled ? theme.textOff : { primary:'#FFF', secondary:theme.text, danger:'#FFF', outline:theme.primary, ghost:theme.primary }[variant];
  const bd = disabled ? theme.border : { primary:'transparent', secondary:theme.border, danger:'transparent', outline:theme.primary, ghost:'transparent' }[variant];
 
+ // A caller that passes `flex` (two buttons sharing a row) means the button's box, which is this wrapper: with the
+ // flex on the inner touchable and the wrapper at width 100%, every button of the row was as wide as the whole row and
+ // the second one left the screen (pharmacy "Returns Manager" in English, nursing "Reject", "Cancel / Confirm" rows).
+ const flat = (StyleSheet.flatten(style) || {}) as { flex?: number };
+ const wrapperFlex = flat.flex !== undefined ? { flex: flat.flex } : null;
+ const innerStyle = wrapperFlex ? { ...(StyleSheet.flatten(style) as object), flex: undefined } : style;
  return (
- <Animated.View style={[{ transform:[{scale:sc}] }, full ? {width:'100%'} : {}]}>
+ <Animated.View style={[{ transform:[{scale:sc}] }, wrapperFlex ?? (full ? {width:'100%'} : {})]}>
  <TouchableOpacity onPress={press} activeOpacity={0.9} disabled={disabled||loading}
  hitSlop={size==='xs' ? { top:5, bottom:5 } : undefined}
  style={[{ minHeight:h, backgroundColor:bg, borderRadius:R.lg, borderWidth:1.5, borderColor:bd,
  flexDirection:'row', alignItems:'center', justifyContent:'center', paddingHorizontal:px, gap:SP.sm,
- }, style]}>
+ }, innerStyle]}>
  {loading
  ? <ActivityIndicator color={fg} size="small" />
  : <>
