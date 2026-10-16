@@ -60,6 +60,13 @@ def six(row):
     return bad
 
 
+def journey_row(name):
+    # Earlier journeys in the gate create their own test rows, named with a
+    # 6-hex run id ("Iron eb76e2"); they are not catalogue rows.
+    import re
+    return bool(re.search(r' [0-9a-f]{6}$', str(name or '')))
+
+
 def run():
     import j_admin
     admin, _ = j_admin.login()
@@ -68,9 +75,11 @@ def run():
     journey('service content: dry run, then publish')
     rc, rep, tail = script()
     step('the dry run succeeds and lists what it would write', rc == 0 and rep and rep['mode'] == 'dry-run', tail)
+    def uncovered(k):
+        return [n for n in rep['report'][k]['without_content'] if not journey_row(n)]
     step('every lab, scan and nursing row in the catalogue has content in the file',
-         rep and all(rep['report'][k]['without_content'] == [] for k in ('lab_services', 'radiology_services', 'nursing_services')),
-         rep and {k: rep['report'][k]['without_content'] for k in ('lab_services', 'radiology_services', 'nursing_services')})
+         rep and all(uncovered(k) == [] for k in ('lab_services', 'radiology_services', 'nursing_services')),
+         rep and {k: uncovered(k) for k in ('lab_services', 'radiology_services', 'nursing_services')})
     rc, rep, tail = script('--apply')
     step('the content is published', rc == 0 and rep and rep['mode'] == 'apply', tail)
     rc, rep2, tail = script('--apply')
@@ -80,7 +89,7 @@ def run():
     journey('service content: the public lists carry it in six languages')
     for label, path in (('lab tests', '/labs/services'), ('scans', '/radiology/services'), ('nursing services', '/home-care/services')):
         r = anon.get(path)
-        rows = rows_of(r)
+        rows = [x for x in rows_of(r) if not journey_row(x.get('name_en'))]
         missing = {(x.get('name_en') or x.get('id')): six(x) for x in rows if six(x)}
         step(f'{label}: {len(rows)} listed, each with description, purpose, preparation and turnaround in ar/en/ur/hi/bn/tl', r.ok and rows and not missing, missing or r)
         published = all((x.get('content') or {}).get('status') == 'published' for x in rows)
