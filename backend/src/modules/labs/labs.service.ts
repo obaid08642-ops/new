@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { LabService, LabBooking, LabBookingState, LAB_BOOKING_TRANSITIONS, LabSample } from '../../schemas/lab.schema';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { EventBusService } from '../events/event-bus.service';
+import { pickAttribution } from '../../common/attribution';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { LabPdfService } from './lab-pdf.service';
 import { LabServiceRepository } from "./repositories/labservice.repository";
@@ -22,7 +23,7 @@ export function reportSummary(r: any) {
 }
 
 export const LAB_CATALOG_FIELDS = [
-  'name_ar', 'name_en', 'short_code', 'description_ar', 'description_en', 'category', 'sample_type', 'price', 'old_price', 'fasting_required', 'fasting_hours', 'home_visit_supported', 'facility_visit_supported', 'turnaround_hours', 'preparation_ar', 'preparation_en', 'is_package', 'included_services', 'popularity', 'active', 'unavailable', 'medical_referral_required',
+  'name_ar', 'name_en', 'short_code', 'description_ar', 'description_en', 'category', 'sample_type', 'price', 'old_price', 'fasting_required', 'fasting_hours', 'home_visit_supported', 'facility_visit_supported', 'turnaround_hours', 'preparation_ar', 'preparation_en', 'preparation_ur', 'preparation_hi', 'preparation_bn', 'preparation_tl', 'is_package', 'included_services', 'popularity', 'active', 'unavailable', 'medical_referral_required',
 ] as const;
 import { getEffectiveRoles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
@@ -337,6 +338,8 @@ export class LabsService {
       insurance_member_id: data.insurance_member_id,
       insurance_status,
       documents,
+      // P17-17.5: campaign attribution for the campaign report.
+      attribution: pickAttribution(data) ?? undefined,
     });
     this.events.emit('lab.booking_created', { booking_id: booking.id, patient_id: user.id, tracking_id: booking.tracking_id });
     this.events.emit('lab.booking_state_changed', { booking_id: booking.id, patient_id: user.id, state: booking.state, tracking_id: booking.tracking_id });

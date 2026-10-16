@@ -41,9 +41,9 @@ export type PublicRead = { data: any | null; failed: boolean };
  */
 const PUBLIC_REVALIDATE_SECONDS = 60;
 
-async function readPublic(path: string, revalidate: number = PUBLIC_REVALIDATE_SECONDS): Promise<PublicRead> {
+async function readPublic(path: string, revalidate: number = PUBLIC_REVALIDATE_SECONDS, tags?: string[]): Promise<PublicRead> {
   try {
-    const res = await fetch(patientApiUrl(path), { headers: { Accept: "application/json" }, next: { revalidate }, signal: publicReadSignal() });
+    const res = await fetch(patientApiUrl(path), { headers: { Accept: "application/json" }, next: { revalidate, ...(tags ? { tags } : {}) }, signal: publicReadSignal() });
     if (res.status >= 500) return { data: null, failed: true };
     if (!res.ok) return { data: null, failed: false };
     return { data: await res.json().catch(() => null), failed: false };
@@ -59,9 +59,15 @@ export const readHomeContent = () => readPublic("/content/home");
 export async function getPublicConfig(): Promise<any | null> { return (await readPublicConfig()).data; }
 export async function getHomeContent(): Promise<any | null> { return (await readHomeContent()).data; }
 
-/** Module switches (#953): GET /modules is public and cached 15 s, so a switch shows on the site within seconds. */
-const MODULES_REVALIDATE_SECONDS = 15;
-export const readModules = () => readPublic("/modules", MODULES_REVALIDATE_SECONDS);
+/**
+ * Module switches (#953): GET /modules is public. The root layout reads it, and a page is regenerated as often as the
+ * shortest window of the reads it makes: at 15 s every product, doctor and catalogue page was rendered again every 15 s
+ * while it had visitors (s-maxage=15, issue #1548). It is kept 5 minutes and tagged `modules`: a change made in the
+ * admin is pushed at once through the purge bus (POST /api/revalidate, tag `modules`), and the API itself refuses a
+ * switched-off module's routes immediately (module-switches.middleware), so the site only hides entry points later.
+ */
+const MODULES_REVALIDATE_SECONDS = 300;
+export const readModules = () => readPublic("/modules", MODULES_REVALIDATE_SECONDS, ["modules"]);
 
 /** The switched-off modules for this render. FAIL-OPEN: when the call fails or answers oddly, nothing is hidden. One read per request. */
 export const getDisabledModules = cache(async (): Promise<DisabledModules> => {

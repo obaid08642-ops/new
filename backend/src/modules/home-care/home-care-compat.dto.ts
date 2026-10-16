@@ -1,5 +1,6 @@
 import { ArrayMaxSize, IsArray, IsBoolean, IsDateString, IsDefined, IsNumber, IsObject, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
+import { AttributionDto } from '../../common/attribution';
 
 export class CreateBookingDto {
   @IsOptional()
@@ -39,6 +40,11 @@ export class CreateBookingDto {
   @IsString()
   @MaxLength(200)
   provider_id?: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AttributionDto)
+  attribution?: AttributionDto;
 }
 
 export class RespondDto {

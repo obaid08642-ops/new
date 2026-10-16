@@ -1,5 +1,7 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 import { LabBookingState } from '../../schemas/lab.schema';
+import { AttributionDto } from '../../common/attribution';
 
 export class BookDto {
   @IsDefined()
@@ -48,6 +50,11 @@ export class BookDto {
   @IsOptional()
   @IsString()
   insurance_member_id?: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AttributionDto)
+  attribution?: AttributionDto;
 
 }
 
@@ -264,6 +271,10 @@ export class CreateLabCatalogDto {
   @IsOptional() @IsNumber() turnaround_hours?: number;
   @IsOptional() @IsArray() @IsString({ each: true }) preparation_ar?: string[];
   @IsOptional() @IsArray() @IsString({ each: true }) preparation_en?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) preparation_ur?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) preparation_hi?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) preparation_bn?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) preparation_tl?: string[];
   @IsOptional() @IsBoolean() is_package?: boolean;
   @IsOptional() @IsArray() @IsString({ each: true }) included_services?: string[];
   @IsOptional() @IsNumber() popularity?: number;
@@ -290,6 +301,10 @@ export class UpdateLabCatalogDto {
   @IsOptional() @IsNumber() turnaround_hours?: number;
   @IsOptional() @IsArray() @IsString({ each: true }) preparation_ar?: string[];
   @IsOptional() @IsArray() @IsString({ each: true }) preparation_en?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) preparation_ur?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) preparation_hi?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) preparation_bn?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) preparation_tl?: string[];
   @IsOptional() @IsBoolean() is_package?: boolean;
   @IsOptional() @IsArray() @IsString({ each: true }) included_services?: string[];
   @IsOptional() @IsNumber() popularity?: number;
