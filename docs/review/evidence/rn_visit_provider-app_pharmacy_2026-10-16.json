@@ -1,0 +1,1043 @@
+{
+ "type": "pharmacy",
+ "routes": 35,
+ "results": [
+  {
+   "route": "MainTabs",
+   "lang": "ar",
+   "landed": "MainTabs",
+   "len": 153,
+   "first": "الرادار المباشر | غير متصل | أكمل تجهيز الصيدلية (2/5)",
+   "keys": [],
+   "icon_words": [
+    "moon"
+   ],
+   "undef": [],
+   "latin": [
+    "moon"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "shortage",
+   "lang": "ar",
+   "landed": "shortage",
+   "len": 41,
+   "first": "→ | الإبلاغ عن نقص الأدوية | إرسال بلاغ النقص",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "b2b_supply",
+   "lang": "ar",
+   "landed": "b2b_supply",
+   "len": 223,
+   "first": "→ | المستودع والإمداد | طلب توريد (B2B)",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "scanner",
+   "lang": "ar",
+   "landed": "scanner",
+   "len": 108,
+   "first": "→ | ماسح الباركود | camera",
+   "keys": [],
+   "icon_words": [
+    "camera"
+   ],
+   "undef": [],
+   "latin": [
+    "camera"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "wallet",
+   "lang": "ar",
+   "landed": "wallet",
+   "len": 282,
+   "first": "→ | المحفظة والإيرادات | الرصيد المتاح للسحب",
+   "keys": [
+    "trendingUp"
+   ],
+   "icon_words": [],
+   "undef": [],
+   "latin": [
+    "trendingUp",
+    "clock",
+    "Pharmacy order earning (escrow until settlement delay)"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "withdrawal_workflow",
+   "lang": "ar",
+   "landed": "withdrawal_workflow",
+   "len": 414,
+   "first": "→ | سحب الأموال | الرصيد المتاح للسحب: 46.90 ريال",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "order_history",
+   "lang": "ar",
+   "landed": "order_history",
+   "len": 118,
+   "first": "→ | الطلبات | جديدة (1)",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "returns_rma",
+   "lang": "ar",
+   "landed": "returns_rma",
+   "len": 81,
+   "first": "→ | مراجعة المرتجعات (RMA) | لا توجد مرتجعات",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "delivery_track",
+   "lang": "ar",
+   "nav": "unknown_route"
+  },
+  {
+   "route": "pharmacy_chat",
+   "lang": "ar",
+   "landed": "pharmacy_chat",
+   "len": 145,
+   "first": "→ | محادثة الطلب | اختر صنفاً لتكتب للمريض عنه أو لتقترح بديلاً من مخزونك. البديل لصنف بوص",
+   "keys": [],
+   "icon_words": [
+    "chat"
+   ],
+   "undef": [],
+   "latin": [
+    "chat"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "qr_menu",
+   "lang": "ar",
+   "landed": "qr_menu",
+   "len": 99,
+   "first": "→ | كتالوج المنتجات ورمز QR | qr",
+   "keys": [],
+   "icon_words": [
+    "qr"
+   ],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "reviews",
+   "lang": "ar",
+   "landed": "reviews",
+   "len": 45,
+   "first": "→ | تقييمات وآراء العملاء | —",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "chronic",
+   "lang": "ar",
+   "landed": "chronic",
+   "len": 125,
+   "first": "→ | برنامج رعاية الأمراض المزمنة | برنامج صرف الأدوية الشهرية التلقائي",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": [
+    "503 GET /pharmacy/orders/refills"
+   ]
+  },
+  {
+   "route": "promotions",
+   "lang": "ar",
+   "landed": "promotions",
+   "len": 89,
+   "first": "مركز العروض الترويجية | العروض النشطة والمستمرة | لا توجد عروض ترويجية حالياً",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "create_promo",
+   "lang": "ar",
+   "landed": "create_promo",
+   "len": 117,
+   "first": "→ | إنشاء حملة ترويجية | عنوان الحملة *",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "web_config",
+   "lang": "ar",
+   "landed": "web_config",
+   "len": 138,
+   "first": "→ | موقع مزود الخدمة العام | تفعيل الصفحة العامة للمريض",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "subscriptions_ads",
+   "lang": "ar",
+   "landed": "subscriptions_ads",
+   "len": 186,
+   "first": "→ | الاشتراكات والترويج المدفوع | الباقة الحالية: —",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "affiliate",
+   "lang": "ar",
+   "landed": "affiliate",
+   "len": 295,
+   "first": "→ | بوابة التسويق بالعمولة | ادعُ مقدم خدمة واحصل على مكافآت الإحالة",
+   "keys": [],
+   "icon_words": [
+    "star"
+   ],
+   "undef": [],
+   "latin": [
+    "users",
+    "check",
+    "star"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "reputation",
+   "lang": "ar",
+   "landed": "reputation",
+   "len": 85,
+   "first": "→ | لوحة السمعة والتقييمات | star",
+   "keys": [],
+   "icon_words": [
+    "star"
+   ],
+   "undef": [],
+   "latin": [
+    "star"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "crm",
+   "lang": "ar",
+   "landed": "crm",
+   "len": 137,
+   "first": "→ | ذكاء الأعمال وإدارة العملاء | 1",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "revenue_insights",
+   "lang": "ar",
+   "landed": "revenue_insights",
+   "len": 273,
+   "first": "→ | تفاصيل الإيرادات والتحليلات | أسبوع",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [
+    "other",
+    "provider_earning"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "pharmacy_broadcast",
+   "lang": "ar",
+   "landed": "pharmacy_broadcast",
+   "len": 80,
+   "first": "→ | عرض الصيدلية | document",
+   "keys": [],
+   "icon_words": [
+    "document"
+   ],
+   "undef": [],
+   "latin": [
+    "document"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "expiry_monitor",
+   "lang": "ar",
+   "landed": "expiry_monitor",
+   "len": 50,
+   "first": "→ | مراقبة الصلاحية | calendar",
+   "keys": [],
+   "icon_words": [
+    "calendar"
+   ],
+   "undef": [],
+   "latin": [
+    "calendar"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "medical_jobs",
+   "lang": "ar",
+   "landed": "medical_jobs",
+   "len": 52,
+   "first": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "drug_index",
+   "lang": "ar",
+   "landed": "drug_index",
+   "len": 190,
+   "first": "دليل الأدوية الطبي | الكل | pain (2)",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [
+    "pain (2)",
+    "pain · tablet",
+    "pain · tablet"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "insurance_config",
+   "lang": "ar",
+   "landed": "insurance_config",
+   "len": 536,
+   "first": "→ | التأمين الصحي | حدد شركات التأمين المقبولة لديك ونسب التحمل لكل شركة:",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "certificates_config",
+   "lang": "ar",
+   "landed": "certificates_config",
+   "len": 298,
+   "first": "→ | الشهادات والمؤهلات | المستندات الرسمية المرتبطة بملفك المهني وحالة اعتمادها لدى الإدار",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "media_config",
+   "lang": "ar",
+   "landed": "media_config",
+   "len": 103,
+   "first": "→ | الصور والوسائط | الصور المعروضة في صفحتك العامة للمرضى (العيادة، الأجهزة، الشهادات الم",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "pharmacy_info",
+   "lang": "ar",
+   "nav": "unknown_route"
+  },
+  {
+   "route": "insurance_requests",
+   "lang": "ar",
+   "landed": "insurance_requests",
+   "len": 103,
+   "first": "→ | طلبات التأمين | مراجعة يدوية قبل تقديم الخدمة",
+   "keys": [],
+   "icon_words": [
+    "shield"
+   ],
+   "undef": [],
+   "latin": [
+    "shield"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "insurance_decisions",
+   "lang": "ar",
+   "landed": "insurance_decisions",
+   "len": 225,
+   "first": "→ | قرارات التأمين — الصيدلية | سجّل رد شركة التأمين الذي حصلت عليه عبر نظامك",
+   "keys": [],
+   "icon_words": [
+    "shield"
+   ],
+   "undef": [],
+   "latin": [
+    "shield"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "product_catalog",
+   "lang": "ar",
+   "landed": "product_catalog",
+   "len": 211,
+   "first": "→ | إدارة المخزون | إضافة صنف من كتالوج الأدوية",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "working_hours",
+   "lang": "ar",
+   "landed": "working_hours",
+   "len": 121,
+   "first": "→ | إدارة أوقات العمل | الأحد",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "notifications",
+   "lang": "ar",
+   "landed": "notifications",
+   "len": 133,
+   "first": "→ | مركز الإشعارات والتنبيهات (1) | تم اعتماد حسابك",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "support",
+   "lang": "ar",
+   "landed": "support",
+   "len": 130,
+   "first": "→ | الدعم الفني والخدمة | إنشاء تذكرة دعم جديدة",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "MainTabs",
+   "lang": "en",
+   "landed": "MainTabs",
+   "len": 146,
+   "first": "Live Radar | Offline | Finish setting up (2/5)",
+   "keys": [],
+   "icon_words": [
+    "moon"
+   ],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "shortage",
+   "lang": "en",
+   "landed": "shortage",
+   "len": 43,
+   "first": "← | Drug Shortage Report | Send Shortage Report",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "b2b_supply",
+   "lang": "en",
+   "landed": "b2b_supply",
+   "len": 194,
+   "first": "← | Warehouse & Procurement | Order Supply (B2B)",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 352,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "scanner",
+   "lang": "en",
+   "landed": "scanner",
+   "len": 128,
+   "first": "← | Barcode Scanner | camera",
+   "keys": [],
+   "icon_words": [
+    "camera"
+   ],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "wallet",
+   "lang": "en",
+   "landed": "wallet",
+   "len": 302,
+   "first": "← | Wallet & Revenue | Available Balance",
+   "keys": [
+    "trendingUp"
+   ],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "withdrawal_workflow",
+   "lang": "en",
+   "landed": "withdrawal_workflow",
+   "len": 421,
+   "first": "← | Withdraw Funds | Available for withdrawal: 46.90 SAR",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [
+    "ريال"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "order_history",
+   "lang": "en",
+   "landed": "order_history",
+   "len": 106,
+   "first": "← | Orders | New (1)",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "returns_rma",
+   "lang": "en",
+   "landed": "returns_rma",
+   "len": 80,
+   "first": "← | Returns Management | No returns",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "delivery_track",
+   "lang": "en",
+   "nav": "unknown_route"
+  },
+  {
+   "route": "pharmacy_chat",
+   "lang": "en",
+   "landed": "pharmacy_chat",
+   "len": 206,
+   "first": "← | Order chat | Pick an item to write to the patient about it or to suggest a substitute ",
+   "keys": [],
+   "icon_words": [
+    "chat"
+   ],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "qr_menu",
+   "lang": "en",
+   "landed": "qr_menu",
+   "len": 115,
+   "first": "← | Pharmacy QR Catalog | qr",
+   "keys": [],
+   "icon_words": [
+    "qr"
+   ],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "reviews",
+   "lang": "en",
+   "landed": "reviews",
+   "len": 36,
+   "first": "← | Reviews & Ratings | —",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "chronic",
+   "lang": "en",
+   "landed": "chronic",
+   "len": 108,
+   "first": "← | Chronic Disease Care Program | Monthly Auto-Refill Program",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": [
+    "503 GET /pharmacy/orders/refills"
+   ]
+  },
+  {
+   "route": "promotions",
+   "lang": "en",
+   "landed": "promotions",
+   "len": 81,
+   "first": "Promotions Center | ACTIVE PROMOTIONS | No promotions available",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "create_promo",
+   "lang": "en",
+   "landed": "create_promo",
+   "len": 117,
+   "first": "← | Create Campaign | Campaign Title *",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [
+    "ريال"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "web_config",
+   "lang": "en",
+   "landed": "web_config",
+   "len": 116,
+   "first": "← | Public Mini-Website | Active Public Website",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "subscriptions_ads",
+   "lang": "en",
+   "landed": "subscriptions_ads",
+   "len": 155,
+   "first": "← | Subscriptions & Ads Purchases | Current Plan: —",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "affiliate",
+   "lang": "en",
+   "landed": "affiliate",
+   "len": 289,
+   "first": "← | Affiliate Portal | Invite a provider & earn referral rewards",
+   "keys": [],
+   "icon_words": [
+    "star"
+   ],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "reputation",
+   "lang": "en",
+   "landed": "reputation",
+   "len": 75,
+   "first": "← | Reputation & Ratings | star",
+   "keys": [],
+   "icon_words": [
+    "star"
+   ],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "crm",
+   "lang": "en",
+   "landed": "crm",
+   "len": 121,
+   "first": "← | CRM & Revenue Intelligence | 1",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [
+    "اختبار "
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "revenue_insights",
+   "lang": "en",
+   "landed": "revenue_insights",
+   "len": 250,
+   "first": "← | Revenue Insights | Week",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [
+    "٤٦٫٩",
+    "٤٦٫٩ "
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "pharmacy_broadcast",
+   "lang": "en",
+   "landed": "pharmacy_broadcast",
+   "len": 105,
+   "first": "← | Pharmacy offer | document",
+   "keys": [],
+   "icon_words": [
+    "document"
+   ],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "expiry_monitor",
+   "lang": "en",
+   "landed": "expiry_monitor",
+   "len": 53,
+   "first": "← | Inventory Expiry Monitor | calendar",
+   "keys": [],
+   "icon_words": [
+    "calendar"
+   ],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "medical_jobs",
+   "lang": "en",
+   "landed": "medical_jobs",
+   "len": 33,
+   "first": "Medical Jobs | Browse | Post Ad",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "drug_index",
+   "lang": "en",
+   "landed": "drug_index",
+   "len": 166,
+   "first": "Medical Drug Index | All | pain (2)",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "insurance_config",
+   "lang": "en",
+   "landed": "insurance_config",
+   "len": 411,
+   "first": "← | Health Insurance | Select which insurance providers you accept and specify copay perce",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "certificates_config",
+   "lang": "en",
+   "landed": "certificates_config",
+   "len": 325,
+   "first": "← | Qualifications | Official documents linked to your professional profile and their admi",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "media_config",
+   "lang": "en",
+   "landed": "media_config",
+   "len": 114,
+   "first": "← | Photos & Media | Photos displayed on your public profile for patients (clinic, instrum",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "pharmacy_info",
+   "lang": "en",
+   "nav": "unknown_route"
+  },
+  {
+   "route": "insurance_requests",
+   "lang": "en",
+   "landed": "insurance_requests",
+   "len": 121,
+   "first": "← | Insurance Requests | Manual review before service",
+   "keys": [],
+   "icon_words": [
+    "shield"
+   ],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "insurance_decisions",
+   "lang": "en",
+   "landed": "insurance_decisions",
+   "len": 242,
+   "first": "← | Insurance Decisions — Pharmacy | Record the insurer response from your own system",
+   "keys": [],
+   "icon_words": [
+    "shield"
+   ],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "product_catalog",
+   "lang": "en",
+   "landed": "product_catalog",
+   "len": 198,
+   "first": "← | Active Inventory | Add a medicine from the catalog",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "working_hours",
+   "lang": "en",
+   "landed": "working_hours",
+   "len": 151,
+   "first": "← | Working Hours Management | Sunday",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "notifications",
+   "lang": "en",
+   "landed": "notifications",
+   "len": 119,
+   "first": "← | Notifications Center | تم اعتماد حسابك",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [
+    "تم اعتماد حسابك",
+    "تمت الموافقة على حسابك في نبض",
+    "سجّل الدخول من جديد لتبدأ استقبال الطلبات"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "support",
+   "lang": "en",
+   "landed": "support",
+   "len": 120,
+   "first": "← | Technical Support | Create New Support Ticket",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  }
+ ],
+ "login_ok": true
+}
