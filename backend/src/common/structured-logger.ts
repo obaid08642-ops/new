@@ -48,7 +48,7 @@ export function setLogUser(userId: unknown, role?: unknown) {
  * clear. Matching is on the key name, so `patient_phone` and `nationalId` are
  * both caught whatever the caller called the variable.
  */
-const PII_KEY = /(phone|mobile|tel|email|e_?mail|user_?name|full_?name|first_?name|last_?name|national_?id|nid|iqama|passport|address|diagnosis|prescription|medical_?record|password|token|secret|api_?key|otp|code|cvv|card)/i;
+const PII_KEY = /(phone|mobile|tel|email|e_?mail|user_?name|full_?name|first_?name|last_?name|national_?id|nid|iqama|passport|address|diagnos|prescription|medical|medication|allerg|symptom|complaint|lab_?result|vitals|health_?(?:record|data|condition)|dob|birth|insurance_?(?:no|number)|policy_?(?:no|number)|iban|password|token|secret|api_?key|otp|code|cvv|card)/i;
 
 /** Values that look like a phone, an email or a national id even under a bland key. */
 const PII_VALUE = [
