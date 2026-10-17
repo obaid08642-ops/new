@@ -536,6 +536,33 @@ export class NotificationsService {
     });
   }
 
+  /** 19.11 step 6: the copay is paid, or the insurer covered everything, so the provider is told the service continues. */
+  private async tellProviderInsuranceReady(p: any, coveredInFull: boolean) {
+    if (!p?.request_id) return;
+    const accountId = await this.resolveProviderAccount(p.provider_id);
+    if (!accountId) return;
+    const short = String(p.request_id).slice(0, 8);
+    await this.notifyProviderAccount(accountId, {
+      type: 'booking_update',
+      title_ar: coveredInFull ? 'التأمين يغطي الخدمة بالكامل' : 'تم دفع تحمّل المريض',
+      title_en: coveredInFull ? 'Insurance covers the service in full' : 'The patient paid the copay',
+      body_ar: `طلب التأمين ${short}: يمكن متابعة الخدمة`, body_en: `Insurance request ${short}: the service can continue`,
+      related_id: String(p.request_id), related_type: 'insurance_request',
+    });
+  }
+
+  @OnEvent('insurance.copay.paid')
+  async onInsuranceCopayPaidTargeted(p: any) {
+    // A full approval already told the provider when it was decided; the zero-copay confirmation is not a second news item.
+    if (p?.covered_in_full) return;
+    await this.tellProviderInsuranceReady(p, false);
+  }
+
+  @OnEvent('insurance.decided')
+  async onInsuranceDecidedProviderTargeted(p: any) {
+    if (p?.state === 'APPROVED_FULL') await this.tellProviderInsuranceReady(p, true);
+  }
+
   @OnEvent('chat.message_sent')
   async onChatMessageTargeted(p: any) {
     const threadId = p?.thread_id || p?.meta?.thread_id;

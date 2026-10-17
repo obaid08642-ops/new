@@ -68,6 +68,34 @@ describe('provider decisions (#939)', () => {
   });
 });
 
+describe('insurance flow: the provider hears that the service continues (19.11 step 6)', () => {
+  const bell = async (run: (svc: any) => Promise<void>) => {
+    const svc = svcWith();
+    svc.resolveProviderAccount = jest.fn(async (id: string) => `acct-${id}`);
+    await run(svc);
+    return svc.notifyProviderAccount.mock.calls.map((c: any[]) => ({ account: c[0], ...c[1] }));
+  };
+
+  it('a paid copay reaches the provider account once', async () => {
+    const bells = await bell((svc) => svc.onInsuranceCopayPaidTargeted({ request_id: 'req-12345678', provider_id: 'p1' }));
+    expect(bells).toHaveLength(1);
+    expect(bells[0]).toMatchObject({ account: 'acct-p1', title_en: 'The patient paid the copay', related_type: 'insurance_request', related_id: 'req-12345678' });
+  });
+
+  it('a full approval tells the provider when it is decided, and the zero-copay confirmation is not a second bell', async () => {
+    const decided = await bell((svc) => svc.onInsuranceDecidedProviderTargeted({ request_id: 'req-1', provider_id: 'p1', state: 'APPROVED_FULL' }));
+    expect(decided.map((b: any) => b.title_en)).toEqual(['Insurance covers the service in full']);
+    const confirm = await bell((svc) => svc.onInsuranceCopayPaidTargeted({ request_id: 'req-1', provider_id: 'p1', covered_in_full: true }));
+    expect(confirm).toEqual([]);
+  });
+
+  it('a partial approval or a rejection does not tell the provider the service continues', async () => {
+    for (const state of ['COPAY_PENDING', 'REJECTED']) {
+      expect(await bell((svc) => svc.onInsuranceDecidedProviderTargeted({ request_id: 'req-1', provider_id: 'p1', state }))).toEqual([]);
+    }
+  });
+});
+
 describe('every notification key the server sends has a text', () => {
   it('no raw key reaches a user', () => {
     const i18n = new I18nService();
