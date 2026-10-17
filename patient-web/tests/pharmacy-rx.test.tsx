@@ -28,7 +28,7 @@ import { prescriptionStateTone } from "@/components-next/pharmacy/rx-state";
 import { extractCartPrescription } from "@/lib/api/cart-prescription";
 import { extractPrescriptionDetail, isOrderablePrescriptionState, prescriptionStateKey } from "@/lib/api/prescriptions";
 import { sanitizeCartItems } from "@/lib/context/CartContext";
-import { cleanBarcode, parseBarcodeLookup } from "@/lib/pharmacy/barcode";
+import { parseScanAnswer } from "@/lib/pharmacy/ai-scan";
 import { buildBroadcastBody, loadDeliveryAddresses, sendBroadcast } from "@/lib/pharmacy/broadcast";
 import { isBlockedMessage, parseThreadMessages, parseThreads } from "@/lib/pharmacy/chat";
 import { formatAddressLine, parseDeliveryAddresses, pickDeliveryAddress, toBroadcastAddress } from "@/lib/pharmacy/delivery-address";
@@ -192,8 +192,9 @@ describe("the other screens render their first state without inline styles", () 
     expect(request).toContain("At least 3 characters");
     expect(request).toContain("Send to nearby pharmacies");
     const barcode = renderToStaticMarkup(<BarcodeScreen locale="en" />);
-    expect(barcode).toContain("Enter the barcode printed on the package");
-    expect(barcode).not.toContain("camera"); // decision 36: the camera button is drawn only in a browser that has BarcodeDetector
+    expect(barcode).toContain("Take or choose a photo"); // decision 36: the AI scanner, one photo of a pack, code or prescription
+    expect(barcode).toContain('capture="environment"');
+    expect(barcode).not.toContain("barcode printed");
     const chat = renderToStaticMarkup(<ChatScreen locale="en" orderId={ORDER} />);
     expect(chat).toContain("Loading the conversation");
     for (const html of [request, barcode, chat]) expect(html).not.toContain("style=");
@@ -316,20 +317,22 @@ describe("the prescription photo", () => {
   });
 });
 
-describe("barcode lookup", () => {
-  const medicine = { id: "m1", slug: "panadol", name_ar: "بنادول", name_en: "Panadol", form: "Tablets", strength: "500 mg", manufacturer: "GSK", price: 12, requires_prescription: false };
+describe("AI scanner answer", () => {
+  const medicine = { id: "m1", slug: "panadol", name_ar: "بنادول", name_en: "Panadol", translations: { tl: { name: "Panadol (tl)" } }, form: "Tablets", strength: "500 mg", manufacturer: "GSK", price: 12, requires_prescription: true };
 
-  it("tells an exact barcode match from the backend's name match, which is not a recognised barcode", () => {
-    expect(parseBarcodeLookup({ found: true, source: "catalog", medicine }, "en")).toMatchObject({ kind: "exact", medicine: { name: "Panadol", slug: "panadol", price: 12 } });
-    expect(parseBarcodeLookup({ found: true, source: "fuzzy", medicine }, "en")?.kind).toBe("closest");
-    expect(parseBarcodeLookup({ found: true, source: "catalog", medicine }, "ar")?.medicine.name).toBe("بنادول");
+  it("lists the closest catalogue matches in the page's language, with the prescription chip data", () => {
+    const out = parseScanAnswer({ kind: "pack", reading: { name: "Panadol" }, matches: [medicine, { id: "" }, null] }, "en");
+    expect(out).toEqual({ kind: "matches", readAs: "Panadol", medicines: [{ id: "m1", slug: "panadol", name: "Panadol", meta: "Tablets · 500 mg · GSK", price: 12, requiresRx: true, onlineOnly: false }] });
+    expect(parseScanAnswer({ kind: "qr", matches: [medicine] }, "ar")).toMatchObject({ medicines: [{ name: "بنادول" }] });
+    expect(parseScanAnswer({ kind: "barcode", matches: [medicine] }, "fil")).toMatchObject({ medicines: [{ name: "Panadol (tl)" }] });
+    expect(parseScanAnswer({ kind: "pack", matches: [{ ...medicine, price: 0 }] }, "en")).toMatchObject({ medicines: [{ price: undefined }] });
   });
 
-  it("is a miss when nothing was found, and draws no price for a medicine that has none", () => {
-    expect(parseBarcodeLookup({ found: false, source: "none", medicine: null }, "en")).toBeNull();
-    expect(parseBarcodeLookup({ found: true, source: "catalog", medicine: { ...medicine, price: 0 } }, "en")?.medicine.price).toBeUndefined();
-    expect(cleanBarcode(" 6281 2345 ")).toBe("62812345");
-    expect(cleanBarcode("1".repeat(80))).toHaveLength(64);
+  it("a prescription opens the saved prescription, never a purchasable list; anything else is not trusted", () => {
+    expect(parseScanAnswer({ kind: "prescription", status: "saved", prescription_id: "rx-9", matches: [medicine] }, "en")).toEqual({ kind: "prescription", prescriptionId: "rx-9" });
+    expect(parseScanAnswer({ kind: "prescription", status: "unreadable", prescription_id: null }, "en")).toEqual({ kind: "prescriptionUnreadable" });
+    expect(parseScanAnswer({ kind: "food" }, "en")).toBeNull();
+    expect(parseScanAnswer(null, "en")).toBeNull();
   });
 });
 

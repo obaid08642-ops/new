@@ -544,6 +544,21 @@ export class MedicinesService {
     seo_description_ar: 0, seo_description_en: 0,
   };
 
+  /**
+   * Decision 36 (AI scanner): the public catalogue rows whose name or active ingredient contains the name a photo was read
+   * as. Only the public catalogue (publicCatalogFilter) and the card projection; the scanner ranks them.
+   */
+  async publicScanCandidates(name: string, limit = 25): Promise<any[]> {
+    const term = String(name || '').replace(/[\u0000-\u001F\u007F-\u009F]/g, ' ').trim().slice(0, 100);
+    if (term.length < 2) return [];
+    const re = { $regex: escapeRegex(term), $options: 'i' };
+    const rows: any[] = await this.model.find(
+      { ...this.publicCatalogFilter(), $or: [{ name_en: re }, { name_ar: re }, { active_ingredient: re }, { search_text: re }] },
+      MedicinesService.CARD_PROJECTION,
+    ).sort({ usage_count: -1, name_ar: 1 }).maxTimeMS(5000).limit(Math.min(Math.max(limit, 1), 50));
+    return rows.map((row: any) => this.withBadges(row?.toObject ? row.toObject() : row));
+  }
+
   /** Compute list badges so catalog rows can render RX/discount/shortage chips. */
   private withBadges(m: any) {
     const price = m.price || 0;
