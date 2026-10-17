@@ -27,8 +27,9 @@ export function useSearchSuggest(locale: string) {
   const [state, setState] = useState<SuggestState>(INITIAL_SUGGEST_STATE);
   const ref = useRef<SuggestController | null>(null);
   if (!ref.current) {
-    // The browser may reuse an answer for the max-age the route forwards (5 minutes): the same text gets the same list.
-    ref.current = new SuggestController({ locale, fetcher: (url, init) => fetch(url, init), onChange: setState });
+    // The browser never keeps an answer (no-store): turning the suggestions kill switch off must apply on the next letter.
+    // The edge still caches the shared answer (the route forwards the API's public s-maxage) and is purged on every change.
+    ref.current = new SuggestController({ locale, fetcher: (url, init) => fetch(url, { ...init, cache: "no-store" }), onChange: setState });
   }
   const controller = ref.current;
   useEffect(() => () => controller.dispose(), [controller]);
