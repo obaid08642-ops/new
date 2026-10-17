@@ -15,6 +15,7 @@ describe('serverMessage: what the backend and the api helpers say, as a translat
     ['Too many OTP verification attempts. Please request a new code.', 'errors.otpLocked'],
     ['Too many invalid attempts. Please request a new code.', 'errors.otpLocked'],
     ['ThrottlerException: Too Many Requests', 'errors.tooManyRequests'],
+    ['login_locked', 'errors.tooManyRequests'],   // 16.2: sign-in locked after repeated wrong passwords
     ['Email already registered', 'errors.emailRegistered'],
     ['Phone already registered', 'errors.phoneRegistered'],
     ['User not found', 'errors.userNotFound'],

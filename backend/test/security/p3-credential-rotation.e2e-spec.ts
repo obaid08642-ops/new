@@ -99,7 +99,7 @@ describe('P3.0a password change/reset revokes refresh sessions', () => {
 
     const res = await http().post('/api/v1/users/me/change-password')
       .set('Authorization', `Bearer ${phone.accessToken}`).set('x-device-id', 'dev-phone')
-      .send({ current_password: 'OldPass123', new_password: 'NewPass456' });
+      .send({ current_password: 'OldPass123', new_password: 'Rotated-Secret-456' });
     expect([200, 201]).toContain(res.status);
     expect(res.body.success).toBe(true);
     expect(res.body.access_token).toBeTruthy();
@@ -132,7 +132,7 @@ describe('P3.0a password change/reset revokes refresh sessions', () => {
     const phone = await session('pw-change-2', 'dev-phone');
     await http().post('/api/v1/users/me/change-password')
       .set('Authorization', `Bearer ${phone.accessToken}`)
-      .send({ current_password: 'nope-nope', new_password: 'NewPass456' })
+      .send({ current_password: 'nope-nope', new_password: 'Rotated-Secret-456' })
       .expect(401);
     await sessions(phone.accessToken).expect(200);
     const again = await refresh(phone.refreshToken, 'dev-phone');
@@ -143,7 +143,7 @@ describe('P3.0a password change/reset revokes refresh sessions', () => {
     await seedUser('pw-reset-1', 'OldPass123');
     const phone = await session('pw-reset-1', 'dev-phone');
     await redis.service.setJson('auth:password:reset:tok-1', { user_id: 'pw-reset-1' });
-    const r = await http().post('/api/v1/auth/password/reset').send({ reset_token: 'tok-1', new_password: 'NewPass456' });
+    const r = await http().post('/api/v1/auth/password/reset').send({ reset_token: 'tok-1', new_password: 'Rotated-Secret-456' });
     expect([200, 201]).toContain(r.status);
     await refresh(phone.refreshToken, 'dev-phone').expect(401);
     await sessions(phone.accessToken).expect(401);

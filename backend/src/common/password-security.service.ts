@@ -2,15 +2,15 @@
  * Phase 16.2 — passwords.
  *
  * At least 10 characters, checked against a breached-password list (k-anonymity
- * range API when reachable, a local list otherwise), progressive delays and a
- * lockout after repeated failures, and the same answer on login and on
- * "forgot password" whether or not the account exists.
+ * range API when reachable, a local list otherwise). Progressive lockout of sign-in is login-lock.service.ts; the same
+ * answer on login and on "forgot password" whether or not the account exists is in auth.service.ts.
  *
  * The local list holds the passwords that turn up first in every breach corpus.
  * It is deliberately conservative: it never blocks a password that is merely
  * unusual, only the ones that are known-compromised.
  */
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import * as bcrypt from 'bcryptjs';
 import { createHash } from 'crypto';
 
 export interface PasswordCheck {
@@ -50,7 +50,7 @@ export class PasswordSecurityService {
    * The shape check the API enforces: length and the breached list.
    * `probe` is injected so the range API can be tested without a network.
    */
-  async check(password: string, probe: BreachedProbe = this.breachedProbe): Promise<PasswordCheck> {
+  async check(password: string, probe?: BreachedProbe): Promise<PasswordCheck> {
     const shape = this.checkLocally(password);
     if (!shape.ok) return shape;
     try {
@@ -76,52 +76,58 @@ export class PasswordSecurityService {
     return { ok: true };
   }
 
-  private async looksCompromised(password: string, probe: BreachedProbe): Promise<boolean> {
+  private async looksCompromised(password: string, probe?: BreachedProbe): Promise<boolean> {
     if (LOCAL_BREACHED_LIST.includes(password.toLowerCase())) return true;
     const sha1 = createHash('sha1').update(password, 'utf8').digest('hex').toUpperCase();
     const prefix = sha1.slice(0, 5);
     const suffix = sha1.slice(5);
-
+    // An injected probe (tests) answers for itself. Otherwise the whole shard for this prefix is fetched once and kept for
+    // a day: every password that shares the five characters is answered from it.
+    if (probe) return probe(prefix, suffix);
+    if ((process.env.PASSWORD_BREACH_LOOKUP || '').toLowerCase() === 'off') return false;
     const cached = this.shards.get(prefix);
     if (cached && Date.now() - cached.at < SHARD_CACHE_MS) return cached.suffixes.has(suffix);
-
-    const breached = await probe(prefix, suffix);
-    this.shards.set(prefix, { at: Date.now(), suffixes: breached ? new Set([suffix]) : new Set() });
-    return breached;
+    const suffixes = await this.fetchShard(prefix);
+    this.shards.set(prefix, { at: Date.now(), suffixes });
+    return suffixes.has(suffix);
   }
 
   /**
-   * The k-anonymity probe: only the first five characters of the SHA-1 leave the
-   * server, so the password itself is never transmitted.
+   * The k-anonymity lookup: only the first five characters of the SHA-1 leave the server, so the password itself is never
+   * transmitted. Returns every suffix of that shard.
    */
-  private breachedProbe: BreachedProbe = async (prefix, suffix) => {
+  private async fetchShard(prefix: string): Promise<Set<string>> {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), SHARD_FETCH_TIMEOUT_MS);
     try {
       const res = await fetch(`${BREACHED_SHARD}/${prefix}`, { signal: controller.signal });
       if (!res.ok) throw new Error(`range api ${res.status}`);
-      const body = await res.text();
-      for (const line of body.split('\n')) {
+      const suffixes = new Set<string>();
+      for (const line of (await res.text()).split('\n')) {
         const candidate = line.split(':')[0]?.trim().toUpperCase();
-        if (candidate && candidate === suffix) return true;
+        if (candidate) suffixes.add(candidate);
       }
-      return false;
+      return suffixes;
     } finally {
       clearTimeout(timer);
     }
-  };
-
-  /**
-   * Progressive delay and lockout (16.2): the delay grows with each failure,
-   * and the account is locked once the window is exhausted.
-   */
-  backoff(failures: number): { delay_seconds: number; locked: boolean; until?: string } {
-    const threshold = Number(process.env.LOGIN_LOCK_THRESHOLD || 5);
-    const windowMs = Number(process.env.LOGIN_LOCK_WINDOW_MS || 15 * 60 * 1000);
-    if (failures >= threshold) {
-      return { delay_seconds: 0, locked: true, until: new Date(Date.now() + windowMs).toISOString() };
-    }
-    const delay = Math.min(2 ** Math.max(0, failures - 1), 30);
-    return { delay_seconds: delay, locked: false };
   }
+}
+/** A real bcrypt hash of a throwaway string: compared against when the account does not exist, so a sign-in takes as long either way. */
+let dummyHash: Promise<string> | undefined;
+export function dummyPasswordHash(): Promise<string> {
+  dummyHash ??= bcrypt.hash(`not-a-password-${Math.random()}`, 12);
+  return dummyHash;
+}
+
+let defaultPolicy: PasswordSecurityService | undefined;
+/**
+ * The one password rule for every place a person chooses a password (16.2): at least 10 characters, within bcrypt's
+ * 72 bytes, not on the breached lists. Throws 400 with the code (`password_too_short|password_too_long|password_compromised`).
+ * `service` is the injected instance when the caller has one (it shares the breached-list cache).
+ */
+export async function enforcePasswordPolicy(password: unknown, service?: PasswordSecurityService): Promise<void> {
+  const svc = service ?? (defaultPolicy ??= new PasswordSecurityService());
+  const verdict = await svc.check(typeof password === 'string' ? password : '');
+  if (!verdict.ok) throw new BadRequestException({ message: verdict.code, code: verdict.code, statusCode: 400 });
 }

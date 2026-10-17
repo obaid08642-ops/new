@@ -26,7 +26,8 @@ import { Logger } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { GuestService } from './guest.service';
 import { AccountLinkingService } from './account-linking.service';
-import { PasswordSecurityService } from '../../common/password-security.service';
+import { PasswordSecurityService, dummyPasswordHash } from '../../common/password-security.service';
+import { LoginLockService } from '../../common/login-lock.service';
 import { OtpAbuseGuard } from '../../common/otp-abuse.service';
 import { I18nService, resolveLang } from '../i18n/i18n.service';
 import { logEvent } from '../../common/structured-logger';
@@ -68,6 +69,8 @@ export class AuthService {
     @Optional() private otpAbuse?: OtpAbuseGuard,
     // Issue 955: the admin "new registrations" kill switch.
     @Optional() private killSwitches?: KillSwitchesService,
+    // 16.2: progressive lockout of password sign-in.
+    @Optional() private loginLock?: LoginLockService,
   ) {}
 
   /**
@@ -824,16 +827,23 @@ export class AuthService {
     AuthService.assertString(password, 'password');
     const isEmail = identifier.includes('@');
     const query = isEmail ? { email: identifier.trim().toLowerCase() } : { phone: identifier };
+    // 16.2: a locked identifier is refused before anything about the account is looked at.
+    await this.loginLock?.assertNotLocked(identifier, ctx?.ip);
     const u = await this.userModel.findOne(query);
     if (!u || !u.password_hash) {
+      // The same bcrypt work as a real check, so the answer does not come back faster for an unknown account.
+      await bcrypt.compare(password, await dummyPasswordHash());
       if (u) await this.adminLoginAlert(u, false, ctx); // C5: known account, bad secret
+      await this.loginLock?.recordFailure(identifier, ctx?.ip);
       throw new UnauthorizedException('Invalid credentials');
     }
     const ok = await bcrypt.compare(password, u.password_hash);
     if (!ok) {
       await this.adminLoginAlert(u, false, ctx); // C5: failed admin login attempt
+      await this.loginLock?.recordFailure(identifier, ctx?.ip);
       throw new UnauthorizedException('Invalid credentials');
     }
+    await this.loginLock?.recordSuccess(identifier, ctx?.ip);
     if (u.active === false) throw new UnauthorizedException('Account disabled');
 
     // Check 2FA requirement
@@ -1184,6 +1194,8 @@ export class AuthService {
     }
 
     if (existingUser.id === guestUserId) {
+      const policy = await this.passwordSecurity?.check(data.password);
+      if (policy && !policy.ok) throw new BadRequestException({ message: policy.code, code: policy.code, statusCode: HttpStatus.BAD_REQUEST });
       const hash = await bcrypt.hash(data.password, 12);
       existingUser.full_name = data.full_name;
       existingUser.phone = data.phone;
@@ -1349,8 +1361,12 @@ export class AuthService {
     // Latin-stored account, exactly like the OTP identifier paths).
     const normalizedIdentifier = this.normalizeOtpIdentifier(identifier);
     const isEmail = normalizedIdentifier.includes('@');
+    // 16.2: the new password follows the same rule as a registration, checked before the code is spent.
+    const policy = await this.passwordSecurity?.check(newPassword);
+    if (policy && !policy.ok) throw new BadRequestException({ message: policy.code, code: policy.code, statusCode: HttpStatus.BAD_REQUEST });
     const u = await this.userModel.findOne(isEmail ? { email: normalizedIdentifier } : { phone: normalizedIdentifier });
-    if (!u) throw new UnauthorizedException('User not found');
+    // An unknown account answers exactly like a wrong code, so this endpoint cannot be used to find out who is registered.
+    if (!u) throw new BadRequestException('Invalid OTP code');
     // Verify the OTP against the contact that actually received it.
     await this.verifyOtp(this.otpContact(u, identifier), code); // throws if invalid
     const hash = await bcrypt.hash(newPassword, 12);

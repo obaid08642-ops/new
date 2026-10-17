@@ -8,6 +8,7 @@ import { ProviderMailerService } from './provider-mailer.service';
 import { ProviderOperatorRepository } from "./repositories/provideroperator.repository";
 import { ProviderAccountRepository } from "./repositories/provideraccount.repository";
 import { ProviderAuditLogRepository } from "./repositories/providerauditlog.repository";
+import { enforcePasswordPolicy } from '../../../common/password-security.service';
 
 @Injectable()
 export class ProviderOperatorsService {
@@ -41,7 +42,7 @@ export class ProviderOperatorsService {
 
   async acceptInvite(body: { token: string; email: string; full_name?: string; phone?: string; password: string }) {
     if (!body.token || !body.email || !body.password) throw new BadRequestException('token/email/password required');
-    if (body.password.length < 8) throw new BadRequestException('password too short');
+    await enforcePasswordPolicy(body.password);
     const op = await this.ops.findOne({ email: body.email.toLowerCase().trim(), invite_token: body.token, status: OperatorStatus.INVITED });
     if (!op) throw new NotFoundException('invalid or expired invite');
     if (op.invite_token_expires_at && op.invite_token_expires_at.getTime() < Date.now()) throw new BadRequestException('invite expired');
