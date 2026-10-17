@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 type Lang = 'ar' | 'en' | 'ur';
-const DEFAULT: Lang = 'ar';
+const DEFAULT: Lang = 'en';
 
 /**
  * Centralized i18n dictionary. Backend keys here are mirrored on each client.
