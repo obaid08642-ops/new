@@ -6,6 +6,7 @@ import { CoturnModule } from './modules/coturn/coturn.module';
 import { RedisModule } from './modules/redis/redis.module';
 import { MailModule } from './modules/mail/mail.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { NewsletterModule } from './modules/newsletter/newsletter.module';
 import { ApiSecurityModule } from './modules/api-security/api-security.module';
 import { DeviceTrustModule } from './modules/device-trust/device-trust.module';
 import { SeoSearchModule } from './modules/seo-search/seo-search.module';
@@ -139,12 +140,14 @@ import { ArticlesModule } from './modules/articles/articles.module';
 
 import { CorrelationMiddleware } from './common/correlation.middleware';
 import { ObservabilityModule } from './modules/observability/observability.module';
+import { RumModule } from './modules/rum/rum.module';
 import { DoctorsModule } from './modules/doctors/doctors.module';
 import { WriteGuard } from './common/write-guard';
 import { AdminGateGuard } from './common/admin-gate.guard';
 import { StepUpGuard, StepUpService } from './common/step-up.guard';
 import { ProductRankingModule } from './modules/product-ranking/product-ranking.module';
 import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
+import { mongoDirectConnection } from './common/database/mongo-uri';
 
 @Module({
   imports: [
@@ -159,6 +162,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     RedisModule,
     MailModule,
     AnalyticsModule,
+    NewsletterModule,
     ApiSecurityModule,
     DeviceTrustModule,
     SeoSearchModule,
@@ -183,7 +187,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
       useFactory: () => ({
         uri: process.env.MONGO_URL || 'mongodb://localhost:27017',
         dbName: process.env.DB_NAME || 'nabd_nestjs',
-        directConnection: true,
+        directConnection: mongoDirectConnection(process.env.MONGO_URL),
         // ── High-concurrency connection pool (default Mongoose pool = 5, insufficient) ──
         maxPoolSize: parseInt(process.env.MONGO_MAX_POOL_SIZE || '200', 10),
         minPoolSize: parseInt(process.env.MONGO_MIN_POOL_SIZE || '20', 10),
@@ -217,6 +221,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
       }),
     }),
     ObservabilityModule,
+    RumModule,
     I18nCoreModule,
     AuthModule,
     UsersModule,

@@ -1,0 +1,40 @@
+
+=== admin: login with email 2FA (admin panel)
+  PASS  credentials -> 202 requires_2fa
+  PASS  2FA code emailed to the admin
+  PASS  verify-2fa -> session
+  PASS  session cookie set (httpOnly)
+  PASS  BFF call with the session (dashboard: command-center)
+  PASS  wrong admin password rejected (401, or 429 once the login throttle trips)
+  PASS  admin device enrolled for the gate run (C2)
+
+=== onboarding: radiology registers in the provider app
+  PASS  start
+  PASS  wizard sign-in
+  PASS  step3 as sent by LabRegistration.tsx:130
+  PASS  step2 as sent by LabRegistration.tsx:162
+  PASS  step2 as sent by LabRegistration.tsx:497
+  PASS  upload signature.png
+  PASS  email verified
+  PASS  submit for review
+
+=== onboarding: admin reviews the radiology
+  PASS  pending list (provider-moderation) shows the new provider
+  PASS  provider detail opens
+  PASS  approve with commissions
+  PASS  no longer pending
+
+=== onboarding: approved radiology signs in
+  PASS  provider login
+
+=== radiology: a new scan the centre proposes reaches the admin
+  PASS  the centre sends the scan and the answer carries a request id
+  PASS  the admin review list holds the request with who proposed it
+  PASS  the request carries the price and the preparation text
+  PASS  a scan without a name is refused, not acknowledged
+
+=== radiology: the availability schedule waits for review
+  PASS  the schedule update is acknowledged as waiting for review
+  PASS  the admin sees the schedule change among the pending provider changes
+
+##### 26/26 steps passed, 0 failed

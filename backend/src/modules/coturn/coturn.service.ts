@@ -18,6 +18,7 @@ export class CoturnService {
   private readonly turnPort: number;
 
   private readonly turnRealm: string;
+  private readonly turnsPort: number;
   private readonly customUrls: string[] | null;
 
   constructor() {
@@ -27,6 +28,8 @@ export class CoturnService {
     this.coturnSecret = process.env.COTURN_SECRET || '';
     this.stunPort = parseInt(process.env.COTURN_STUN_PORT || '3478', 10);
     this.turnPort = parseInt(process.env.COTURN_TURN_PORT || '3478', 10);
+    // P14.22: TURN over TLS. 5349 by default; 443 on the calls server, so strict networks (only HTTPS out) still connect.
+    this.turnsPort = parseInt(process.env.COTURN_TLS_PORT || '5349', 10);
     // TURN realm — must match the `realm=` directive in turnserver.conf
     this.turnRealm = process.env.TURN_REALM || process.env.COTURN_REALM || 'nabdahplus';
     // Full override: comma-separated ICE URLs (e.g. "stun:turn.example.com:3478,turn:turn.example.com:3478?transport=udp")
@@ -42,7 +45,7 @@ export class CoturnService {
       `stun:${this.coturnHost}:${this.stunPort}`,
       `turn:${this.coturnHost}:${this.turnPort}?transport=udp`,
       `turn:${this.coturnHost}:${this.turnPort}?transport=tcp`,
-      `turns:${this.coturnHost}:5349?transport=tcp`,
+      `turns:${this.coturnHost}:${this.turnsPort}?transport=tcp`,
     ];
   }
 

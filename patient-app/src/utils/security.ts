@@ -54,11 +54,16 @@ export async function secureDelete(key: string): Promise<void> {
 
 /** Remove HTML tags and script injections */
 export function sanitizeText(input: string): string {
-  return input
-    .replace(/<[^>]*>/g, '')
-    .replace(/javascript:/gi, '')
-    .replace(/on\w+=/gi, '')
-    .trim();
+  // No angle bracket survives, so no tag can (a tag-stripping pattern can be rebuilt by nested input such as
+  // "<scr<script>ipt>"). Schemes and on*= handlers are removed until nothing changes, so a removal cannot join
+  // the pieces of a new one ("javajavascript:script:").
+  let out = input.replace(/[<>]/g, '');
+  let prev: string;
+  do {
+    prev = out;
+    out = out.replace(/(?:javascript|vbscript|data)\s*:/gi, '').replace(/on\w+\s*=/gi, '');
+  } while (out !== prev);
+  return out.trim();
 }
 
 /** Sanitize phone number — digits only */

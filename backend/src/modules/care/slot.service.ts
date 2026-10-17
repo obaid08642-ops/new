@@ -14,6 +14,17 @@ import { AppointmentRepository } from "./repositories/appointment.repository";
  * We chunk each day into 30-minute slots, exclude already-booked slots and slots in the past.
  */
 const FULL_DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+const ACTIVE_BOOKING = ['PENDING', 'CONFIRMED', 'RESCHEDULED', 'CHECKED_IN', 'IN_PROGRESS'];
+
+/**
+ * P14.3: what slotsForDate would read for one day, loaded once for a range of days (nextAvailable). Each field, when
+ * present, replaces that day's query; the slot rules are the same code either way.
+ */
+export interface SlotPreload {
+  approved?: any[];                                  // provider_schedule_slots rows of the doctor, every weekday
+  leaves?: { start_date: Date; end_date: Date }[];   // approved leave overlapping the range
+  booked?: Date[];                                   // slot_start of active bookings in the range
+}
 
 @Injectable()
 export class SlotService {
@@ -28,7 +39,7 @@ export class SlotService {
   /**
    * Returns slots for a given doctor on a given date (ISO YYYY-MM-DD).
    */
-  async slotsForDate(doctor: ProviderProfileDocument, dateStr: string, service_type: 'clinic' | 'video' | 'home', duration_minutes = 30) {
+  async slotsForDate(doctor: ProviderProfileDocument, dateStr: string, service_type: 'clinic' | 'video' | 'home', duration_minutes = 30, pre?: SlotPreload) {
     // 1. Service type must be enabled for this doctor.
     if (!doctor.consultation_modes?.includes(service_type)) {
       return { date: dateStr, service_type, slots: [], reason: 'service_not_supported' };
@@ -37,7 +48,7 @@ export class SlotService {
     // 2. Opening windows for that day (see hoursFor).
     const date = new Date(dateStr + 'T00:00:00Z');
     if (isNaN(date.getTime())) return { date: dateStr, service_type, slots: [], reason: 'invalid_date' };
-    const windows = await this.hoursFor(doctor, date.getUTCDay(), service_type);
+    const windows = await this.hoursFor(doctor, date.getUTCDay(), service_type, pre?.approved);
     if (!windows.length) {
       return { date: dateStr, service_type, slots: [], reason: 'closed' };
     }
@@ -46,7 +57,11 @@ export class SlotService {
     const dayStart = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
     const dayEnd = new Date(dayStart.getTime() + 24 * 3600_000);
     const ids = [doctor.account_id, doctor.user_id].filter(Boolean);
-    if (ids.length > 0) {
+    if (pre?.leaves) {
+      if (pre.leaves.some((l) => new Date(l.start_date) < dayEnd && new Date(l.end_date) >= dayStart)) {
+        return { date: dateStr, service_type, slots: [], reason: 'on_leave' };
+      }
+    } else if (ids.length > 0) {
       const leave = await this.leaves.findOne({
         provider_account_id: { $in: ids },
         status: 'approved',
@@ -91,10 +106,10 @@ export class SlotService {
     // 4. Mark booked slots as unavailable.
     const startOfDay = new Date(baseDate.getTime());
     const endOfDay = new Date(baseDate.getTime() + 24 * 3600_000);
-    const booked = await this.apptModel.find({
+    const booked: any[] = pre?.booked ? pre.booked.map((slot_start) => ({ slot_start })) : await this.apptModel.find({
       doctor_id: doctor.id,
       slot_start: { $gte: startOfDay, $lt: endOfDay },
-      status: { $in: ['PENDING', 'CONFIRMED', 'RESCHEDULED', 'CHECKED_IN', 'IN_PROGRESS'] },
+      status: { $in: ACTIVE_BOOKING },
     }).select({ slot_start: 1 }).lean();
     const bookedSet = new Set(booked.map((b: any) => new Date(b.slot_start).toISOString()));
     for (const s of slots) {
@@ -111,12 +126,14 @@ export class SlotService {
    *  3. legacy working_hours.
    * Day keys are accepted as 'sun', 'sunday', a 0-6 number or 'all'.
    */
-  private async hoursFor(doctor: any, dow: number, mode: 'clinic' | 'video' | 'home'): Promise<{ open: string; close: string }[]> {
+  private async hoursFor(doctor: any, dow: number, mode: 'clinic' | 'video' | 'home', preApproved?: any[]): Promise<{ open: string; close: string }[]> {
     const HHMM = /^\d{2}:\d{2}$/;
     const slotsCol = (this.leaves as any).db?.collection('provider_schedule_slots');
-    const approved = doctor.account_id && slotsCol ? await slotsCol.find({
-      provider_account_id: doctor.account_id, day_of_week: dow, active: { $ne: false }, service_type: { $in: [mode, 'all'] },
-    }).toArray().catch(() => []) : [];
+    const approved = preApproved
+      ? preApproved.filter((x) => Number(x.day_of_week) === dow && x.active !== false && [mode, 'all'].includes(x.service_type))
+      : doctor.account_id && slotsCol ? await slotsCol.find({
+        provider_account_id: doctor.account_id, day_of_week: dow, active: { $ne: false }, service_type: { $in: [mode, 'all'] },
+      }).toArray().catch(() => []) : [];
     const fromApproved = (approved as any[]).filter((x) => HHMM.test(x.start_time) && HHMM.test(x.end_time)).map((x) => ({ open: x.start_time, close: x.end_time }));
     if (fromApproved.length) return fromApproved;
     const dayMatches = (d: any) => {
@@ -149,10 +166,29 @@ export class SlotService {
     const mode = (doctor.consultation_modes && doctor.consultation_modes[0]) as any;
     if (!mode) return null;
     const today = new Date();
+    // P14.3: the doctors list asks this for each doctor on the page; day by day it was up to 3 queries x 14 days.
+    // The doctor's weekly hours, leave and bookings for the 14 days are read once here, then each day is computed by
+    // slotsForDate from them (same rules).
+    const from = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+    const to = new Date(from.getTime() + 15 * 24 * 3600_000);
+    const ids = [(doctor as any).account_id, (doctor as any).user_id].filter(Boolean);
+    const slotsCol = (this.leaves as any).db?.collection('provider_schedule_slots');
+    const [approved, leaves, booked] = await Promise.all([
+      (doctor as any).account_id && slotsCol
+        ? slotsCol.find({ provider_account_id: (doctor as any).account_id, active: { $ne: false } }).toArray().catch(() => [])
+        : Promise.resolve([]),
+      ids.length
+        ? this.leaves.find({ provider_account_id: { $in: ids }, status: 'approved', start_date: { $lt: to }, end_date: { $gte: from } })
+          .select({ _id: 0, start_date: 1, end_date: 1 }).lean().catch(() => [])
+        : Promise.resolve([]),
+      this.apptModel.find({ doctor_id: doctor.id, slot_start: { $gte: from, $lt: to }, status: { $in: ACTIVE_BOOKING } })
+        .select({ slot_start: 1 }).lean(),
+    ]);
+    const pre: SlotPreload = { approved: approved as any[], leaves: leaves as any[], booked: (booked as any[]).map((b) => b.slot_start) };
     for (let i = 0; i < 14; i++) {
       const d = new Date(today.getTime() + i * 24 * 3600_000);
       const dateStr = d.toISOString().substring(0, 10);
-      const r = await this.slotsForDate(doctor, dateStr, mode);
+      const r = await this.slotsForDate(doctor, dateStr, mode, 30, pre);
       const slot = r.slots.find((s) => s.available);
       if (slot) return slot.start;
     }
