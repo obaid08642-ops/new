@@ -1,0 +1,291 @@
+sku,id,field,before,after,reason,confidence
+10672,med_v14_105458,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+10716,med_v14_101157,dosage_form,أقراص,tablet,from the form field,high
+10716,med_v14_101157,ingredients[].inn,سيتا يبتين + ميتفورمين,metformin / ميتفورمين,from the ingredient field,high
+10716,med_v14_101157,ingredients[].strength,850 مجم,850 mg,from the strength field,high
+11467,med_v14_103453,active_ingredient,لاموتريجين,,ingredient text is not an INN name we have; flag for admin review,low
+11467,med_v14_103453,dosage_form,أقراص,tablet,from the form field,high
+11467,med_v14_103453,ingredients[].strength,50 مجم,50 mg,from the strength field,high
+12146,med_v14_507809,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+12284,med_v14_105769,active_ingredient,إيتوريكوكسيب,,ingredient text is not an INN name we have; flag for admin review,low
+12284,med_v14_105769,dosage_form,أقراص,tablet,from the form field,high
+12284,med_v14_105769,ingredients[].strength,90 مجم,90 mg,from the strength field,high
+12800,med_v14_109022,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+12871,med_v14_101012,active_ingredient,أموكسيسيلين + حمض الكلافولانيك,,ingredient text is not an INN name we have; flag for admin review,low
+12871,med_v14_101012,dosage_form,أقراص,tablet,from the form field,high
+12871,med_v14_101012,ingredients[].strength,625 مجم,625 mg,from the strength field,high
+13468,med_v14_100242,dosage_form,بخاخ,spray,from the form field,high
+13468,med_v14_100242,ingredients[].inn,فلوتيكاسون 0.05٪,fluticasone / فلوتيكاسون,from the ingredient field,high
+15296,med_v14_107386,active_ingredient,"سيماجلوتايد.
+التركيزات المتوفرة:0.25 ملغ، 0.5 ملغ، 1 ملغ، 1.7 ملغ، و2.4 ملغ.
+المكونات غير الفعالة:فوسفات ثنائي الصوديوم، كلوريد الصوديوم، حمض الهيدروكلوريك، هيدروكسيد الصوديوم، ماء للحقن.، بروبيلين جليكول، فينول.
+تفاصيل المنتج:
+شكل الدواء:محلول للحقن يُقدَّم في أقلام جاهزة للاستخدام.
+أقلام FlexTouch متعددة الجرعات (تحتوي على 4 جرعات).
+المحلول شفاف وعديم اللون.
+لمزيد من المعلومات عن سيماجلوتايد:
+أستشر الطبيب أو الصيدلي الخاص بك
+من خلال تطبيق طمني الخاص بهيئة الغذاء والدواء السعودية
+من خلال زيارةموقع هيئة الدواء والغذاء السعودية
+من خلال زيارة الرابط الآتيمعلومات عن سيماجلوتايد
+من خلال زيارة الرابط الآتيمعلومات عن سيماجلوتايد
+من خلال زيارة الرابط الآتيمعلومات عن سيماجلوتايد",,ingredient text is not an INN name we have; flag for admin review,low
+15433,med_v14_105664,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+15490,med_v14_100511,active_ingredient,عقار كلوميفين سترات,,ingredient text is not an INN name we have; flag for admin review,low
+15490,med_v14_100511,dosage_form,أقراص,tablet,from the form field,high
+15490,med_v14_100511,ingredients[].strength,50 مجم,50 mg,from the strength field,high
+15582,med_v14_109047,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+15919,med_v14_105739,active_ingredient,ثنائي ميثيل فوماريت كبسول,,ingredient text is not an INN name we have; flag for admin review,low
+15919,med_v14_105739,dosage_form,كبسولات,capsule,from the form field,high
+15919,med_v14_105739,ingredients[].strength,120 مجم,120 mg,from the strength field,high
+16658,med_v14_105905,dosage_form,أقراص,tablet,from the form field,high
+16658,med_v14_105905,ingredients[].inn,أولميسارتان + أملوديبين + هيدروكلوروثيازيد,olmesartan / أولميسارتان | amlodipine / أملوديبين,from the ingredient field,high
+16658,med_v14_105905,ingredients[].strength,12.5 مجم,12.5 mg,from the strength field,high
+16693,med_v14_106429,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+16887,med_v14_100237,active_ingredient,أموكسيسيلين + حمض الكلافولانيك,,ingredient text is not an INN name we have; flag for admin review,low
+16887,med_v14_100237,dosage_form,أقراص,tablet,from the form field,high
+16887,med_v14_100237,ingredients[].strength,625 مجم,625 mg,from the strength field,high
+16933,med_v14_107771,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+17052,med_v14_106533,dosage_form,أقراص,tablet,from the form field,high
+17052,med_v14_106533,ingredients[].inn,ميتفورمين,metformin / ميتفورمين,from the ingredient field,high
+17052,med_v14_106533,ingredients[].strength,750 مجم,750 mg,from the strength field,high
+17568,med_v14_103145,active_ingredient,من مكونات عشبية للكحة والسعال,,ingredient text is not an INN name we have; flag for admin review,low
+17568,med_v14_103145,dosage_form,شراب,syrup,from the form field,high
+17568,med_v14_103145,ingredients[].strength,150 مل,150 ml,from the strength field,high
+17974,med_v14_106230,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+18105,med_v14_103758,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+18256,med_v14_102528,active_ingredient,بيتاميثازون 0.05% مرهم,,ingredient text is not an INN name we have; flag for admin review,low
+18256,med_v14_102528,dosage_form,مرهم,ointment,from the form field,high
+18890,med_v14_100641,active_ingredient,ديكساميثازون فوسفات أمبولات,,ingredient text is not an INN name we have; flag for admin review,low
+20215,med_v14_103231,active_ingredient,تاكروليمس 0.1٪ مرهم,,ingredient text is not an INN name we have; flag for admin review,low
+20215,med_v14_103231,dosage_form,مرهم,ointment,from the form field,high
+20342,med_v14_103545,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+20413,med_v14_105515,active_ingredient,براسوغريل,,ingredient text is not an INN name we have; flag for admin review,low
+20413,med_v14_105515,dosage_form,أقراص,tablet,from the form field,high
+20413,med_v14_105515,ingredients[].strength,10 مجم,10 mg,from the strength field,high
+20632,med_v14_105409,active_ingredient,أريبيبرازول / مل,,ingredient text is not an INN name we have; flag for admin review,low
+20632,med_v14_105409,dosage_form,شراب,syrup,from the form field,high
+20632,med_v14_105409,ingredients[].strength,1مجم,1 mg,from the strength field,high
+20821,med_v14_103883,active_ingredient,أفيلوماب,,ingredient text is not an INN name we have; flag for admin review,low
+20821,med_v14_103883,ingredients[].strength,20 ملجم,20 mg,from the strength field,high
+22098,med_v14_100906,dosage_form,شراب,syrup,from the form field,high
+22098,med_v14_100906,ingredients[].inn,باراسيتامول + كلورفينيرامين + سودوافدرين هيدروكلوريد,paracetamol / باراسيتامول,from the ingredient field,high
+22098,med_v14_100906,ingredients[].strength,120 مل,120 ml,from the strength field,high
+22426,med_v14_107714,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+22782,med_v14_502367,active_ingredient,بانتوبرازول,,ingredient text is not an INN name we have; flag for admin review,low
+22782,med_v14_502367,dosage_form,أقراص,tablet,from the form field,high
+22782,med_v14_502367,ingredients[].strength,40 مجم,40 mg,from the strength field,high
+22885,med_v14_107093,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+22938,med_v14_102380,active_ingredient,دروسبيرينون-إيثينيل إستراديول,,ingredient text is not an INN name we have; flag for admin review,low
+22938,med_v14_102380,dosage_form,أقراص,tablet,from the form field,high
+23026,med_v14_100515,active_ingredient,سيفاكلور كبسول,,ingredient text is not an INN name we have; flag for admin review,low
+23026,med_v14_100515,dosage_form,كبسولات,capsule,from the form field,high
+23026,med_v14_100515,ingredients[].strength,500 مجم,500 mg,from the strength field,high
+23228,med_v14_101860,active_ingredient,ديكلوفيناك البوتاسيوم,,ingredient text is not an INN name we have; flag for admin review,low
+23228,med_v14_101860,dosage_form,أقراص,tablet,from the form field,high
+23228,med_v14_101860,ingredients[].strength,50 مجم,50 mg,from the strength field,high
+23266,med_v14_106474,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+23368,med_v14_101069,dosage_form,أقراص,tablet,from the form field,high
+23368,med_v14_101069,ingredients[].inn,أديفوفير,adefovir / أديفوفير,from the ingredient field,high
+23368,med_v14_101069,ingredients[].strength,10 مجم,10 mg,from the strength field,high
+23390,med_v14_107366,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+23625,med_v14_102088,active_ingredient,تادالافيل,,ingredient text is not an INN name we have; flag for admin review,low
+23625,med_v14_102088,dosage_form,أقراص,tablet,from the form field,high
+23625,med_v14_102088,ingredients[].strength,20 مجم,20 mg,from the strength field,high
+24663,med_v14_103405,active_ingredient,لاكوساميد,,ingredient text is not an INN name we have; flag for admin review,low
+24663,med_v14_103405,dosage_form,أقراص,tablet,from the form field,high
+24663,med_v14_103405,ingredients[].strength,150 ملجم,150 mg,from the strength field,high
+24800,med_v14_101719,dosage_form,أقراص,tablet,from the form field,high
+24800,med_v14_101719,ingredients[].inn,باروكستين هيدروكلوريد,paroxetine / باروكستين,from the ingredient field,high
+24800,med_v14_101719,ingredients[].strength,30 ملجم,30 mg,from the strength field,high
+24875,med_v14_101567,dosage_form,أقراص,tablet,from the form field,high
+24875,med_v14_101567,ingredients[].inn,هيوسين,hyoscine / هيوسين,from the ingredient field,high
+25063,med_v14_101427,active_ingredient,تيلميسارتان + هيدروكلوروثيازيد,,ingredient text is not an INN name we have; flag for admin review,low
+25063,med_v14_101427,dosage_form,أقراص,tablet,from the form field,high
+25743,med_v14_204567,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+26093,med_v14_102857,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+26645,med_v14_105128,active_ingredient,بيتاهستين,,ingredient text is not an INN name we have; flag for admin review,low
+26645,med_v14_105128,dosage_form,أقراص,tablet,from the form field,high
+26645,med_v14_105128,ingredients[].strength,24 مجم,24 mg,from the strength field,high
+26901,med_v14_107655,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+27007,med_v14_107840,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+27072,med_v14_103596,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+27484,med_v14_106137,dosage_form,أقراص,tablet,from the form field,high
+27484,med_v14_106137,ingredients[].inn,دابا يفلوزين ميتفورمين,metformin / ميتفورمين,from the ingredient field,high
+27484,med_v14_106137,ingredients[].strength,1000 مجم,1000 mg,from the strength field,high
+28048,med_v14_100955,active_ingredient,فيلداجليبتين,,ingredient text is not an INN name we have; flag for admin review,low
+28048,med_v14_100955,dosage_form,أقراص,tablet,from the form field,high
+28048,med_v14_100955,ingredients[].strength,50 مجم,50 mg,from the strength field,high
+28235,med_v14_102072,dosage_form,أقراص,tablet,from the form field,high
+28235,med_v14_102072,ingredients[].inn,مونتيلوكاست,montelukast / مونتيلوكاست,from the ingredient field,high
+28235,med_v14_102072,ingredients[].strength,10 مجم,10 mg,from the strength field,high
+28369,med_v14_105875,active_ingredient,ايزوميبرازول كبسول,,ingredient text is not an INN name we have; flag for admin review,low
+28369,med_v14_105875,dosage_form,كبسولات,capsule,from the form field,high
+28369,med_v14_105875,ingredients[].strength,20 ملجم,20 mg,from the strength field,high
+28397,med_v14_103504,active_ingredient,تادالافيل,,ingredient text is not an INN name we have; flag for admin review,low
+28397,med_v14_103504,dosage_form,أقراص,tablet,from the form field,high
+28397,med_v14_103504,ingredients[].strength,20 مجم,20 mg,from the strength field,high
+29011,med_v14_102036,dosage_form,أقراص,tablet,from the form field,high
+29011,med_v14_102036,ingredients[].inn,باروكستين ممتدة المفعول,paroxetine / باروكستين,from the ingredient field,high
+29011,med_v14_102036,ingredients[].strength,12.5 مجم,12.5 mg,from the strength field,high
+29676,med_v14_103159,active_ingredient,أباتاسيبت,,ingredient text is not an INN name we have; flag for admin review,low
+29676,med_v14_103159,dosage_form,حقن,injection,from the form field,high
+29676,med_v14_103159,ingredients[].strength,125 مجم,125 mg,from the strength field,high
+31026,med_v14_102104,dosage_form,أقراص,tablet,from the form field,high
+31026,med_v14_102104,ingredients[].inn,لوسارتان,losartan / لوسارتان,from the ingredient field,high
+31026,med_v14_102104,ingredients[].strength,100 مجم,100 mg,from the strength field,high
+32243,med_v14_100244,active_ingredient,دوتاستيريد كبسول,,ingredient text is not an INN name we have; flag for admin review,low
+32243,med_v14_100244,dosage_form,كبسولات,capsule,from the form field,high
+32243,med_v14_100244,ingredients[].strength,0.5 مجم,0.5 mg,from the strength field,high
+32323,med_v14_107935,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+32613,med_v14_108034,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+34145,med_v14_105869,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+34157,med_v14_103417,active_ingredient,غسول كالامين,,ingredient text is not an INN name we have; flag for admin review,low
+34157,med_v14_103417,ingredients[].strength,100 مل,100 ml,from the strength field,high
+34223,med_v14_106061,ingredients[].inn,هيدروكسيكارباميد,hydroxycarbamide / هيدروكسيكارباميد,from the ingredient field,high
+34223,med_v14_106061,ingredients[].strength,100 مجم/مل,100 مجم/مل,from the strength field,high
+35382,med_v14_100868,dosage_form,أقراص,tablet,from the form field,high
+35382,med_v14_100868,ingredients[].inn,باراسيتامول + كودايين + كافيين,paracetamol / باراسيتامول,from the ingredient field,high
+36604,med_v14_102966,active_ingredient,انتيكافير,,ingredient text is not an INN name we have; flag for admin review,low
+36604,med_v14_102966,dosage_form,أقراص,tablet,from the form field,high
+36604,med_v14_102966,ingredients[].strength,0.5 مجم,0.5 mg,from the strength field,high
+36927,med_v14_100596,active_ingredient,سيفوروكسيم,,ingredient text is not an INN name we have; flag for admin review,low
+36927,med_v14_100596,dosage_form,أقراص,tablet,from the form field,high
+36927,med_v14_100596,ingredients[].strength,500 مجم,500 mg,from the strength field,high
+37168,med_v14_102570,dosage_form,أقراص,tablet,from the form field,high
+37168,med_v14_102570,ingredients[].inn,كويتيابين ممتدة المفعول,quetiapine / كويتيابين | quetiapine MR / None,from the ingredient field,high
+37168,med_v14_102570,ingredients[].strength,400 مجم,400 mg,from the strength field,high
+37529,med_v14_100301,active_ingredient,بيتاميثازون 0.1% كريم,,ingredient text is not an INN name we have; flag for admin review,low
+37529,med_v14_100301,dosage_form,كريم,cream,from the form field,high
+38117,med_v14_101541,ingredients[].inn,نيكوتين,nicotine / نيكوتين,from the ingredient field,high
+38673,med_v14_401339,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+40216,med_v14_101682,active_ingredient,ميلوكسيكام,,ingredient text is not an INN name we have; flag for admin review,low
+40216,med_v14_101682,dosage_form,أقراص,tablet,from the form field,high
+40216,med_v14_101682,ingredients[].strength,7.5 مجم,7.5 mg,from the strength field,high
+40277,med_v14_105617,active_ingredient,لقاح المكورات السحائية من المجموعة A و C و W-135 و Y المتقارن,,ingredient text is not an INN name we have; flag for admin review,low
+40277,med_v14_105617,ingredients[].strength,0.5 مل,0.5 ml,from the strength field,high
+40477,med_v14_102446,dosage_form,أقراص,tablet,from the form field,high
+40477,med_v14_102446,ingredients[].inn,أولانزابين,olanzapine / أولانزابين,from the ingredient field,high
+40477,med_v14_102446,ingredients[].strength,5 مجم,5 mg,from the strength field,high
+40531,med_v14_105441,active_ingredient,مرطب للعين,,ingredient text is not an INN name we have; flag for admin review,low
+40531,med_v14_105441,dosage_form,قطرة,eye drop,from the form field,high
+40641,med_v14_103535,active_ingredient,إبروتينيب,,ingredient text is not an INN name we have; flag for admin review,low
+40641,med_v14_103535,dosage_form,كبسولات,capsule,from the form field,high
+40641,med_v14_103535,ingredients[].strength,140 مجم,140 mg,from the strength field,high
+40726,med_v14_103550,active_ingredient,سلفاسالازين,,ingredient text is not an INN name we have; flag for admin review,low
+40726,med_v14_103550,dosage_form,أقراص,tablet,from the form field,high
+40726,med_v14_103550,ingredients[].strength,500 مجم,500 mg,from the strength field,high
+41167,med_v14_102900,active_ingredient,ميسالازين أكياس,,ingredient text is not an INN name we have; flag for admin review,low
+41167,med_v14_102900,dosage_form,أكياس,sachet,from the form field,high
+41475,med_v14_103132,active_ingredient,تادالافيل,,ingredient text is not an INN name we have; flag for admin review,low
+41475,med_v14_103132,dosage_form,أقراص,tablet,from the form field,high
+41475,med_v14_103132,ingredients[].strength,20 مجم,20 mg,from the strength field,high
+41904,med_v14_301213,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+42498,med_v14_106102,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+42591,med_v14_100527,active_ingredient,فالسارتان + هيدروكلوروثيازيد,,ingredient text is not an INN name we have; flag for admin review,low
+42591,med_v14_100527,dosage_form,أقراص,tablet,from the form field,high
+43141,med_v14_101027,dosage_form,أقراص,tablet,from the form field,high
+43141,med_v14_101027,ingredients[].inn,ميتفورمين,metformin / ميتفورمين,from the ingredient field,high
+43141,med_v14_101027,ingredients[].strength,850 مجم,850 mg,from the strength field,high
+43653,med_v14_103740,active_ingredient,البروستاديل,,ingredient text is not an INN name we have; flag for admin review,low
+43653,med_v14_103740,dosage_form,حقن,injection,from the form field,high
+43697,med_v14_101824,active_ingredient,"Anthraquinon Glycosides, Salicylic Acid",,ingredient text is not an INN name we have; flag for admin review,low
+43697,med_v14_101824,dosage_form,محلول,solution,from the form field,high
+43697,med_v14_101824,ingredients[].strength,10 مل,10 ml,from the strength field,high
+43833,med_v14_100052,active_ingredient,ديسلوراتادين,,ingredient text is not an INN name we have; flag for admin review,low
+43833,med_v14_100052,dosage_form,أقراص,tablet,from the form field,high
+43833,med_v14_100052,ingredients[].strength,5 ملجم,5 mg,from the strength field,high
+43939,med_v14_102166,active_ingredient,دوكسيسيكلين كبسول,,ingredient text is not an INN name we have; flag for admin review,low
+43939,med_v14_102166,dosage_form,كبسولات,capsule,from the form field,high
+43939,med_v14_102166,ingredients[].strength,100 مجم,100 mg,from the strength field,high
+44007,med_v14_511247,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+44144,med_v14_100603,active_ingredient,زايلوميتازولين 0.1٪ للأنف,,ingredient text is not an INN name we have; flag for admin review,low
+44144,med_v14_100603,ingredients[].strength,10 مل,10 ml,from the strength field,high
+44853,med_v14_100967,active_ingredient,أوميبرازول كبسول,,ingredient text is not an INN name we have; flag for admin review,low
+44853,med_v14_100967,dosage_form,كبسولات,capsule,from the form field,high
+44853,med_v14_100967,ingredients[].strength,40 مجم,40 mg,from the strength field,high
+46183,med_v14_103647,active_ingredient,ريبوسيكليب,,ingredient text is not an INN name we have; flag for admin review,low
+46183,med_v14_103647,dosage_form,أقراص,tablet,from the form field,high
+46183,med_v14_103647,ingredients[].strength,200 مجم,200 mg,from the strength field,high
+46346,med_v14_104408,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+46374,med_v14_101747,active_ingredient,أمانتادين سلفات,,ingredient text is not an INN name we have; flag for admin review,low
+46374,med_v14_101747,dosage_form,أقراص,tablet,from the form field,high
+47042,med_v14_101047,active_ingredient,إيثينيل إستراديول - جيستودين,,ingredient text is not an INN name we have; flag for admin review,low
+47042,med_v14_101047,dosage_form,أقراص,tablet,from the form field,high
+47079,med_v14_102282,dosage_form,أقراص,tablet,from the form field,high
+47079,med_v14_102282,ingredients[].inn,أملوديبين,amlodipine / أملوديبين,from the ingredient field,high
+47079,med_v14_102282,ingredients[].strength,5 مجم,5 mg,from the strength field,high
+47604,med_v14_102465,active_ingredient,باكلوفين,,ingredient text is not an INN name we have; flag for admin review,low
+47604,med_v14_102465,dosage_form,أقراص,tablet,from the form field,high
+47604,med_v14_102465,ingredients[].strength,10 مجم,10 mg,from the strength field,high
+48504,med_v14_100054,dosage_form,أقراص,tablet,from the form field,high
+48504,med_v14_100054,ingredients[].inn,مونتيلوكاست,montelukast / مونتيلوكاست,from the ingredient field,high
+48504,med_v14_100054,ingredients[].strength,10 مجم,10 mg,from the strength field,high
+48583,med_v14_507810,active_ingredient,جليمبريد,,ingredient text is not an INN name we have; flag for admin review,low
+48583,med_v14_507810,dosage_form,أقراص,tablet,from the form field,high
+48583,med_v14_507810,ingredients[].strength,2 مجم,2 mg,from the strength field,high
+48805,med_v14_105704,active_ingredient,أمبروكسول ممتدة المفعول,,ingredient text is not an INN name we have; flag for admin review,low
+48805,med_v14_105704,dosage_form,كبسولات,capsule,from the form field,high
+48805,med_v14_105704,ingredients[].strength,75 مجم,75 mg,from the strength field,high
+48817,med_v14_108860,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+49589,med_v14_103253,dosage_form,أقراص,tablet,from the form field,high
+49589,med_v14_103253,ingredients[].inn,لوسارتان,losartan / لوسارتان,from the ingredient field,high
+49589,med_v14_103253,ingredients[].strength,100 مجم,100 mg,from the strength field,high
+51406,med_v14_103885,active_ingredient,باريكالسيتول,,ingredient text is not an INN name we have; flag for admin review,low
+51406,med_v14_103885,dosage_form,كبسولات,capsule,from the form field,high
+51406,med_v14_103885,ingredients[].strength,1 ملجم,1 mg,from the strength field,high
+51797,med_v14_103581,active_ingredient,بيج إنترفيرون بيتا-1أ,,ingredient text is not an INN name we have; flag for admin review,low
+51797,med_v14_103581,dosage_form,حقن,injection,from the form field,high
+51797,med_v14_103581,ingredients[].strength,0.5 مل,0.5 ml,from the strength field,high
+52211,med_v14_100075,active_ingredient,جليمبريد,,ingredient text is not an INN name we have; flag for admin review,low
+52211,med_v14_100075,dosage_form,أقراص,tablet,from the form field,high
+52211,med_v14_100075,ingredients[].strength,2 مجم,2 mg,from the strength field,high
+52213,med_v14_401063,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+52238,med_v14_509576,active_ingredient,"مسحوق ألياف التفاح.
+خالٍ من الجلوتين، منتجات الألبان، البيض، الصويا، الذرة، القمح، الأسماك، المحار، والمكسرات.
+غير معدّل وراثيًا، قليل الصوديوم، ومناسب للنباتيين.
+قد يحدث اختلاف طبيعي في اللون.",,ingredient text is not an INN name we have; flag for admin review,low
+52288,med_v14_103732,active_ingredient,الكلوروكين,,ingredient text is not an INN name we have; flag for admin review,low
+52288,med_v14_103732,dosage_form,أقراص,tablet,from the form field,high
+52288,med_v14_103732,ingredients[].strength,150 ملجم,150 mg,from the strength field,high
+53010,med_v14_103420,active_ingredient,ميثوتريكسات,,ingredient text is not an INN name we have; flag for admin review,low
+53010,med_v14_103420,dosage_form,أقراص,tablet,from the form field,high
+53010,med_v14_103420,ingredients[].strength,2.5 ملجم,2.5 mg,from the strength field,high
+53064,med_v14_233575,active_ingredient,كحول 76 %,,ingredient text is not an INN name we have; flag for admin review,low
+53064,med_v14_233575,dosage_form,بخاخ,spray,from the form field,high
+53064,med_v14_233575,ingredients[].strength,250 مل,250 ml,from the strength field,high
+53971,med_v14_100282,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+53993,med_v14_101349,active_ingredient,أوفلوكساسين-بريدنيزولون-تتراهيدروزولين قطرة,,ingredient text is not an INN name we have; flag for admin review,low
+53993,med_v14_101349,dosage_form,قطرة,eye drop,from the form field,high
+53993,med_v14_101349,ingredients[].strength,5 مل,5 ml,from the strength field,high
+54008,med_v14_105992,active_ingredient,بوسولفان,,ingredient text is not an INN name we have; flag for admin review,low
+54008,med_v14_105992,dosage_form,أقراص,tablet,from the form field,high
+54008,med_v14_105992,ingredients[].strength,2 مجم,2 mg,from the strength field,high
+54476,med_v14_103826,active_ingredient,ثايروتروبين ألفا,,ingredient text is not an INN name we have; flag for admin review,low
+54476,med_v14_103826,ingredients[].strength,0.9 ملجم,0.9 mg,from the strength field,high
+54770,med_v14_105558,active_ingredient,فلوتيكازون + سالميتيرول بخاخ,,ingredient text is not an INN name we have; flag for admin review,low
+54770,med_v14_105558,dosage_form,بخاخ,spray,from the form field,high
+54887,med_v14_100903,active_ingredient,فلوكستين كبسول,,ingredient text is not an INN name we have; flag for admin review,low
+54887,med_v14_100903,dosage_form,كبسولات,capsule,from the form field,high
+54887,med_v14_100903,ingredients[].strength,20 مجم,20 mg,from the strength field,high
+54894,med_v14_105809,active_ingredient,أزيلسرتان + هيدروكلوروثيازيد,,ingredient text is not an INN name we have; flag for admin review,low
+54894,med_v14_105809,dosage_form,أقراص,tablet,from the form field,high
+54894,med_v14_105809,ingredients[].strength,12.5 مجم,12.5 mg,from the strength field,high
+55594,med_v14_102662,active_ingredient,من مكونات عشبية للكحة والسعال,,ingredient text is not an INN name we have; flag for admin review,low
+55594,med_v14_102662,ingredients[].strength,100 مل,100 ml,from the strength field,high
+56228,med_v14_109045,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+56542,med_v14_100215,active_ingredient,أتورفاستاتين40 مجم,,ingredient text is not an INN name we have; flag for admin review,low
+56542,med_v14_100215,dosage_form,أقراص,tablet,from the form field,high
+56542,med_v14_100215,ingredients[].strength,40 مجم,40 mg,from the strength field,high
+57285,med_v14_105465,active_ingredient,أوندانسيترون,,ingredient text is not an INN name we have; flag for admin review,low
+57285,med_v14_105465,dosage_form,أقراص,tablet,from the form field,high
+57285,med_v14_105465,ingredients[].strength,8 ملجم,8 mg,from the strength field,high
+57702,med_v14_218877,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+57899,med_v14_101255,active_ingredient,كلوزابين,,ingredient text is not an INN name we have; flag for admin review,low
+57899,med_v14_101255,dosage_form,أقراص,tablet,from the form field,high
+57899,med_v14_101255,ingredients[].strength,100 مجم,100 mg,from the strength field,high
+59246,med_v14_101493,active_ingredient,موميتازون 0.05٪ بخاخ للأنف,,ingredient text is not an INN name we have; flag for admin review,low
+59246,med_v14_101493,dosage_form,بخاخ,spray,from the form field,high
+59334,med_v14_108077,active_ingredient,,,leaflet text not in ingredient field; INN source unknown,low
+59359,med_v14_235366,active_ingredient,استحلاب,,ingredient text is not an INN name we have; flag for admin review,low
+59359,med_v14_235366,dosage_form,أقراص,tablet,from the form field,high
