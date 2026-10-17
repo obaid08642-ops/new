@@ -18,7 +18,7 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { randomUUID } from 'crypto';
 import { JwtAuthGuard, CurrentUser, Roles, hasEffectiveRole } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
-import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, PutPricingDto, PutTariffsDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto } from './provider-ops.dto';
+import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, PutPricingDto, PutTariffsDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto, ToggleInstantDto } from './provider-ops.dto';
 import { LedgerService } from '../finance-engine/finance-engine.module';
 import { settlementDelayDefault } from '../../common/commission-defaults';
 
@@ -396,7 +396,7 @@ export class ProviderOpsService {
    * Toggle the instant-booking availability of the authenticated provider.
    * A missing record intentionally starts offline so availability is never fabricated.
    */
-  async toggleInstantAvailability(user: any): Promise<{ instant_available: boolean }> {
+  async toggleInstantAvailability(user: any, desired?: boolean): Promise<{ instant_available: boolean }> {
     const providerId = typeof user?.id === 'string' ? user.id.trim() : '';
     const providerType = user?.provider_type || user?.providerType;
     const providerRoles = ['doctor', 'facility', 'hospital', 'pharmacy', 'pharmacist', 'lab', 'radiology', 'nursing', 'nurse', 'home_care'];
@@ -407,7 +407,7 @@ export class ProviderOpsService {
 
     const collection = this.conn.collection('provideravailability');
     const existing: any = await collection.findOne({ provider_id: providerId });
-    const instantAvailable = !(existing?.instant_available === true);
+    const instantAvailable = typeof desired === 'boolean' ? desired : !(existing?.instant_available === true);
     await collection.updateOne(
       { provider_id: providerId },
       {
@@ -436,6 +436,13 @@ export class ProviderOpsService {
     return { instant_available: instantAvailable };
   }
 
+  async instantAvailability(user: any): Promise<{ instant_available: boolean }> {
+    const providerId = typeof user?.id === 'string' ? user.id.trim() : '';
+    if (!providerId) throw new BadRequestException('provider_id_required');
+    const row: any = await this.conn.collection('provideravailability').findOne({ provider_id: providerId });
+    return { instant_available: row?.instant_available === true };
+  }
+
   // ═══ COMPAT: stats / reviews / settings / consultation-end ═══════════════
   async statsToday(providerId: string): Promise<any> {
     const dayStart = new Date(); dayStart.setHours(0, 0, 0, 0);
@@ -450,10 +457,7 @@ export class ProviderOpsService {
         pendingCount += await this.conn.collection(coll).countDocuments({ $or: pendOr });
       } catch { /* collection may not exist */ }
     }
-    const ledger = await this.walletLedger(providerId, 500);
-    const revenue = ledger.transactions
-      .filter((t: any) => t.type === 'provider_earning' && new Date(t.createdAt) >= dayStart)
-      .reduce((s: number, t: any) => s + (t.amount || 0), 0);
+    const revenue = (await this.earningRowsSince(providerId, dayStart)).reduce((s: number, t: any) => s + (t.amount || 0), 0);
     return { todayCount, revenue, pendingCount };
   }
 
@@ -498,8 +502,7 @@ export class ProviderOpsService {
       }
       if (first && new Date(first.createdAt) >= rangeStart) newPatients++;
     }
-    const ledger = await this.walletLedger(providerId, 1000);
-    const inRange = ledger.transactions.filter((t: any) => t.type === 'provider_earning' && new Date(t.createdAt) >= rangeStart);
+    const inRange = await this.earningRowsSince(providerId, rangeStart);
     const revenue = inRange.reduce((sum: number, t: any) => sum + (t.amount || 0), 0);
     const series = new Array(bucketCount).fill(0);
     for (const t of inRange) {
@@ -656,6 +659,18 @@ export class ProviderOpsService {
     return row;
   }
 
+  /**
+   * Earnings of one provider since a date. The stats used to filter `walletLedger(id, 500 | 1000)`, but that reads at
+   * most the 200 newest rows of ANY type, so a busy provider's "revenue today / this month / this year" counted only
+   * the last 200 ledger rows.
+   */
+  async earningRowsSince(providerId: string, since: Date): Promise<Array<{ amount: number; createdAt: Date }>> {
+    return this.conn.collection('platformledgerentries').find(
+      { provider_account_id: providerId, type: 'provider_earning', createdAt: { $gte: since } },
+      { projection: { _id: 0, amount: 1, createdAt: 1 } },
+    ).toArray() as unknown as Array<{ amount: number; createdAt: Date }>;
+  }
+
   async walletLedger(providerId: string, limit = 100): Promise<any> {
     const rows = await this.conn.collection('platformledgerentries').find(
       { provider_account_id: providerId },
@@ -735,6 +750,16 @@ export class ProviderOpsController {
   @Get('wallet/ledger') wallet(@CurrentUser() u: any, @Query('limit') l?: string): Promise<any> { return this.svc.walletLedger(u.id, l ? parseInt(l) : 100); }
 }
 
+/**
+ * Direction of one provider ledger row for the wallet list. The ledger stores payouts, clawbacks (`provider_debit`),
+ * penalties and chargebacks with a POSITIVE amount and subtracts them in `LedgerService.providerBalance`, so the sign of
+ * the amount cannot decide the direction: a refund clawback showed up as money received.
+ */
+const LEDGER_DEBIT_TYPES = new Set(['payout', 'provider_debit', 'penalty', 'chargeback']);
+export function walletEntryDirection(entry: { type?: string; amount?: number }): 'CREDIT' | 'DEBIT' {
+  return LEDGER_DEBIT_TYPES.has(String(entry.type)) || (entry.amount || 0) < 0 ? 'DEBIT' : 'CREDIT';
+}
+
 // ── Compat endpoints: routes the provider app calls that had no backend ─────
 
 @Controller('provider')
@@ -745,8 +770,15 @@ export class ProviderCompatController {
   /** Availability is explicit operational state, never a UI default. */
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
   @Post('ops/availability/toggle-instant')
-  toggleInstantAvailability(@CurrentUser() u: any) {
-    return this.svc.toggleInstantAvailability(u);
+  toggleInstantAvailability(@CurrentUser() u: any, @Body() b: ToggleInstantDto) {
+    return this.svc.toggleInstantAvailability(u, b?.available);
+  }
+
+  /** The provider's own online switch as the server holds it, so the app starts from the truth (it always started "offline"). */
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
+  @Get('ops/availability/instant')
+  async instantAvailability(@CurrentUser() u: any): Promise<{ instant_available: boolean }> {
+    return this.svc.instantAvailability(u);
   }
 
   /**
@@ -764,8 +796,9 @@ export class ProviderCompatController {
     const l = await this.svc.walletLedger(u.id, 100);
     return l.transactions.map((t: any) => ({
       id: t.id || t._id,
-      date: (t.createdAt || '').toString().slice(0, 10),
-      type: t.type === 'payout' || (t.amount || 0) < 0 ? 'DEBIT' : 'CREDIT',
+      // createdAt is a Date from Mongo: Date#toString() gave "Fri Oct 02" (no year, English weekday)
+      date: t.createdAt ? new Date(t.createdAt).toISOString().slice(0, 10) : '',
+      type: walletEntryDirection(t),
       amount: Math.abs(t.amount || 0),
       title: t.description || t.title || t.type,
     }));

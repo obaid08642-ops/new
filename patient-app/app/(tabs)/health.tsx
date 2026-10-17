@@ -17,13 +17,21 @@ import { apiFetch } from '../../src/utils/api';
  */
 
 interface Summary { key: string; label?: string; value: string; unit?: string; measured_at?: string | null }
-interface Score { score?: number | null; status?: string; message?: string; components?: Array<{ key: string; label: string; score: number }>; recommendations?: string[] }
+interface Score { score?: number | null; status?: string; message?: string; components?: Array<{ key: string; label: string; score: number }>; recommendations?: string[]; recommendation_keys?: string[] }
 interface Appointment { id?: string; doctorName?: string; type?: string; time?: string }
 interface Reminder { id: string; medicine_name_ar?: string; medicine_name_en?: string; dose?: string; times?: string[]; today_doses?: Array<{ time_key: string; status: string }> }
 
 const NUTRITION_TONE = SERVICE_ICONS.nutrition.tone;
 const HUB_VITALS = ['bp', 'glucose', 'weight', 'temperature'];
+/** The server's recommendation code ('health.rec.bp_high') as the app's own key; the server's Arabic sentence is only the fallback. */
+export const recKey = (code?: string) => (code && code.startsWith('health.rec.') ? `health.hub.rec.${code.slice('health.rec.'.length)}` : '');
 const SCORE_TONE: Record<string, ServiceTone> = { excellent: 'mint', good: 'blue', fair: 'amber', needs_attention: RX_TONE };
+
+/** An app message by key, else the server's own text for a key this app does not know. */
+export const scoreText = (k: (key: string) => string, key: string, fallback: string) => {
+  const text = key ? k(key) : key;
+  return text && text !== key ? text : fallback;
+};
 
 export default function HealthHub() {
   const { theme, t, c, dir, flow, k, num } = useScreenUi();
@@ -103,15 +111,15 @@ export default function HealthHub() {
                     </View>
                     {score.components?.length ? (
                       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-                        {score.components.map((comp) => <Pill key={comp.key} label={`${comp.label} ${num(comp.score)}`} tone="neutral" />)}
+                        {score.components.map((comp) => <Pill key={comp.key} label={`${scoreText(k, `health.hub.component.${comp.key}`, comp.label)} ${num(comp.score)}`} tone="neutral" />)}
                       </View>
                     ) : null}
-                    {score.recommendations?.[0] ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{score.recommendations[0]}</Text> : null}
+                    {score.recommendations?.[0] ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{scoreText(k, recKey(score.recommendation_keys?.[0]), score.recommendations[0])}</Text> : null}
                   </>
                 ) : (
                   <View style={{ gap: 4 }}>
                     <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{k('health.hub.score')}</Text>
-                    <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{score.message || k('health.hub.scoreEmpty')}</Text>
+                    <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{k('health.hub.scoreEmpty')}</Text>
                   </View>
                 )}
               </Pressable>

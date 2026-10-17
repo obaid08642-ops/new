@@ -2533,7 +2533,12 @@
     "policyFull": "{hours} oras o higit pa bago ang oras: 100% refund",
     "policyHalf": "{half} hanggang {full} oras bago ang oras: {percent}% refund",
     "policyLess": "Wala pang {half} oras bago ang oras: walang refund",
-    "policyUnavailable": "Hindi available ngayon ang patakaran sa pagkansela at refund."
+    "policyUnavailable": "Hindi available ngayon ang patakaran sa pagkansela at refund.",
+    "callReconnecting": "Mahina ang koneksyon. Ikinokonekta muli ang tawag mo…",
+    "callAudioOnly": "Mahina ang koneksyon mo, kaya pinatay namin ang video at pinanatili ang tunog.",
+    "callTryVideo": "Subukan muli ang video",
+    "callDropped": "Naputol ang tawag.",
+    "callContinueInChat": "Ituloy sa chat"
   },
   "ConsultClient": {
     "payHeading": "Kumpletuhin ang bayad sa pamamagitan ng ligtas na gateway",

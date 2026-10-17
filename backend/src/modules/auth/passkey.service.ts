@@ -157,6 +157,13 @@ export class PasskeyService {
     const { credential } = verification.registrationInfo;
     const already = await this.passkeyModel.findOne({ credential_id: credential.id });
     if (already) throw new BadRequestException('credential_already_registered');
+    // D-35 reviewer (device-bound keys): record whether this credential may sync.
+    // A multi-device credential, or one already backed up, can sign the admin
+    // in but can never back a device enrollment — otherwise a third Apple
+    // device on the same Apple ID would pass as an enrolled device.
+    const deviceType = (verification.registrationInfo as any)?.credentialDeviceType;
+    const backedUp = (verification.registrationInfo as any)?.credentialBackedUp === true;
+    const syncable = deviceType !== 'singleDevice' || backedUp;
     await this.passkeyModel.create({
       user_id: user.id,
       credential_id: credential.id,
@@ -165,8 +172,30 @@ export class PasskeyService {
       transports: (credential.transports as string[]) || [],
       device_name: (deviceName || '').slice(0, 80),
       last_used_at: new Date(),
+      syncable,
     });
     return { ok: true, credential_id: credential.id };
+  }
+
+  /**
+   * D-35 reviewer (device-bound keys): true only when the named credential is
+   * known to live on a single device. Rows enrolled before syncability was
+   * recorded (and unknown ids) count as syncable — they can sign in, but they
+   * can never auto-enroll a device.
+   */
+  async isSingleDeviceCredential(credentialId: string): Promise<boolean> {
+    try {
+      // $eq like the other credential lookups: a raw object here would be a
+      // NoSQL operator injection (CodeQL).
+      const cred: any = await this.passkeyModel.findOne({ credential_id: { $eq: credentialId } }).lean();
+      if (!cred) return false;
+      // Only an explicit single-device record counts. Rows enrolled before
+      // syncability was recorded read back without the field and stay
+      // syncable (safe default).
+      return (cred as any)?.syncable === false;
+    } catch {
+      return false;
+    }
   }
 
   // ── Login (second factor) ─────────────────────────────────────────────────
