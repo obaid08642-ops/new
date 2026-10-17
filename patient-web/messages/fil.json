@@ -283,7 +283,8 @@
       "consultation": "Konsultasyon",
       "labs": "Pagsusuri sa laboratoryo",
       "radiology": "Radyolohiya (scan)",
-      "nursing": "Pagbisita ng nars"
+      "nursing": "Pagbisita ng nars",
+      "returns": "Kahilingan sa pagbabalik"
     },
     "statusUnavailable": "Hindi available ang status",
     "partialNote": "May mga order na hindi ma-load. Nasa ibaba ang iba; subukan muli sa ilang sandali."
@@ -1166,7 +1167,8 @@
     "paymentAddPolicy": "Idagdag ang seguro",
     "doctorPhotoAlt": "Larawan ni {name}",
     "clinicPhotosTitle": "Mga larawan ng klinika",
-    "clinicPhotoAlt": "Larawan ng klinika {n}"
+    "clinicPhotoAlt": "Larawan ng klinika {n}",
+    "payment_cash": "Cash lang"
   },
   "LabsServices": {
     "eyebrow": "Pangangalaga sa laboratoryo",
@@ -1221,7 +1223,18 @@
     "preparation": "Paghahanda",
     "preparationTitle": "Bago ang iyong pagbisita",
     "homeAvailable": "Sinusuportahan ng package na ito ang kolekta sa bahay.",
-    "homeUnavailable": "Hindi nakalista ang kolekta sa bahay para sa package na ito."
+    "homeUnavailable": "Hindi nakalista ang kolekta sa bahay para sa package na ito.",
+    "categoryName": {
+      "blood": "Pagsusuri ng dugo",
+      "hormones": "Mga hormone",
+      "diabetes": "Dyabetis",
+      "vitamins": "Mga bitamina",
+      "cardiac": "Puso",
+      "imaging": "Larawang medikal",
+      "kidney": "Bato",
+      "liver": "Atay",
+      "package": "Mga pakete"
+    }
   },
   "RadiologyServices": {
     "eyebrow": "Radiology care",
@@ -1606,7 +1619,19 @@
     "errorUnreadable": "Hindi mabasa ang larawan. Subukan ang mas malinaw na larawan sa maliwanag na lugar.",
     "errorRxUnreadable": "Walang gamot na nabasa sa resetang ito. Subukan ang mas malinaw na larawan, o i-upload ito mula sa pahina ng reseta.",
     "errorBusy": "Masyadong maraming scan sa isang minuto. Maghintay sandali at subukang muli.",
-    "errorScan": "Hindi available ang scanner ngayon. Subukang muli."
+    "errorScan": "Hindi available ang scanner ngayon. Subukang muli.",
+    "codeLabel": "Numero ng barcode",
+    "codePlaceholder": "6281234567890",
+    "lookup": "Hanapin",
+    "looking": "Hinahanap…",
+    "foundTitle": "Nahanap ang gamot",
+    "closestTitle": "Pinakamalapit na tugma",
+    "closestNote": "Walang gamot na may eksaktong barcode na ito. Ito ang pinakamalapit na tugma ayon sa pangalan.",
+    "notFoundTitle": "Hindi nahanap ang gamot",
+    "notFoundBody": "Wala sa katalogo ang barcode na {code}.",
+    "barcodeLine": "Numero ng barcode: {code}",
+    "viewProduct": "Tingnan ang produkto",
+    "errorLookup": "Nabigo ang paghahanap ng barcode. Subukan muli."
   },
   "PharmacyChat": {
     "title": "Negosasyon sa parmasya",
@@ -1852,6 +1877,14 @@
     "medicines/compare": {
       "title": "Paghambingin ang Gamot",
       "description": "Ihambing ang mga gamot, presyo at alternatibo."
+    },
+    "refundPolicy": {
+      "title": "Patakaran sa Pagkansela at Refund",
+      "description": "Kailan ibinabalik nang buo o bahagya ang bayad matapos kanselahin ang isang order o appointment sa Nabd Plus."
+    },
+    "telehealthConsent": {
+      "title": "Pahintulot sa Telehealth na Konsultasyon",
+      "description": "Ang sinasang-ayunan mo bago ang iyong unang online na konsultasyon sa Nabd Plus."
     }
   },
   "NursingVisits": {
@@ -2289,7 +2322,10 @@
     "searchRound": "Round {round}: naghahanap ng botika sa loob ng {km} km",
     "showMethods": "Pumili ng paraan ng pagbabayad",
     "paymentUnavailable": "Walang available na online na paraan ng pagbabayad para sa order na ito ngayon.",
-    "loadingMethods": "Nilo-load ang mga paraan ng pagbabayad…"
+    "loadingMethods": "Nilo-load ang mga paraan ng pagbabayad…",
+    "coverageLegend": "Paano ka magbabayad?",
+    "coverageCash": "Cash o online, pagkatapos ng pinal na presyo",
+    "coverageInsurance": "Seguro sa kalusugan"
   },
   "PharmacyCheckout": {
     "title": "Pag-checkout",
@@ -2921,7 +2957,8 @@
     "bookingNotSentTitle": "Walang na-book",
     "bookingNotSentBody": "Hindi pa nagpapadala ng booking ang window na ito, kaya walang appointment na ginawa at walang bayad na kinuha. Buksan ang pahina ng nursing para mag-book ng pagbisita.",
     "bookingNotSentCta": "Pumunta sa nursing",
-    "bookingNotSentClose": "Isara"
+    "bookingNotSentClose": "Isara",
+    "payAll": "Lahat"
   },
   "NursingWeb": {
     "hubTitle": "Pangangalaga sa bahay",
@@ -3421,7 +3458,9 @@
       "version": "Bersyon {version} · Epektibo mula {date}",
       "versionOnly": "Bersyon {version}",
       "currentVersion": "Ito ang kasalukuyang bersyon ng teksto. Papalitan ito ng bersyong inaprubahan ng batas bago ang paglulunsad.",
-      "back": "Bumalik"
+      "back": "Bumalik",
+      "refund": "Patakaran sa pagkansela at refund",
+      "telehealth": "Pahintulot sa online na konsultasyon"
     },
     "provider": {
       "title": "Sumali bilang provider",
@@ -4317,5 +4356,21 @@
       "actionBody": "Ang iyong mga tanong at larawan ay nananatiling pribado sa iyong account. Mag-sign in para magtanong sa assistant.",
       "action": "Mag-sign in para magtanong"
     }
+  },
+  "LegalLinks": {
+    "refundPolicy": "Patakaran sa pagkansela at refund",
+    "telehealthConsent": "Pahintulot sa online na konsultasyon"
+  },
+  "TelehealthConsent": {
+    "title": "Pahintulot sa online na konsultasyon",
+    "intro": "Bago ang iyong unang online na konsultasyon, basahin at tanggapin ang pahintulot. Itinatala namin ang iyong pagsang-ayon kasama ang bersyon, oras at device.",
+    "textLabel": "Teksto ng pahintulot",
+    "version": "Bersyon {version}",
+    "readFull": "Basahin ang buong teksto",
+    "accept": "Sumasang-ayon ako, magpatuloy",
+    "accepting": "Sine-save ang iyong pagsang-ayon…",
+    "failed": "Hindi namin na-save ang iyong pagsang-ayon. Pakisubukang muli.",
+    "sessionEnded": "Natapos na ang iyong session.",
+    "signIn": "Mag-sign in"
   }
 }

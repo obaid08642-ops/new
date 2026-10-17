@@ -6,6 +6,7 @@ import { OrderState, UserRole, DeliveryState } from '../../common/enums';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { ReorderPartialDto, CancelDto, RejectBasketDto, OptInCashDto, UpdateInsuranceApprovalDto, RejectDto, PartialDto, PlaceBidDto, AssignDto, DeliveryUpdateDto, AdminTransitionDto} from './orders.dto';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 @Controller('orders')
 @SelfService()
 @UseGuards(JwtAuthGuard)
@@ -159,6 +160,7 @@ export class OrdersController {
     return this.svc.listEscalated();
   }
 
+  @RequirePermissions(Permission.ORDER_REASSIGN)
   @Post(':id/admin/transition')
   @Roles(UserRole.ADMIN)
   adminTransition(@Param('id') id: string, @CurrentUser() user: any, @Body() body: AdminTransitionDto) {

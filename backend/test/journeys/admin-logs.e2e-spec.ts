@@ -67,7 +67,8 @@ describe('Gate 20.3 journey: a known error is found in /admin/logs by request id
   let app: INestApplication;
   let store: LogsStoreService;
   const stdout: string[] = [];
-  const admin = tokenFor('admin-1', 'admin');
+  // Owner decision 29: the built-in admin role grants nothing; the owner (super_admin) holds every permission.
+  const admin = tokenFor('owner-1', 'super_admin');
   const get = (url: string, token = admin) => request(app.getHttpServer()).get(url).set('Authorization', `Bearer ${token}`).set('x-admin-device', DEVICE);
 
   beforeAll(async () => {
@@ -108,7 +109,7 @@ describe('Gate 20.3 journey: a known error is found in /admin/logs by request id
     expect(events).toContain('http_request');
     expect(events).toContain('exception');   // Nest's own error line for the thrown Error, through the LoggerService
     const http = res.body.data.find((r: any) => r.event === 'http_request');
-    expect(http).toMatchObject({ level: 'error', status: 500, request_id: KNOWN_ID, user_id: 'admin-1', service: 'backend', module: 'http' });
+    expect(http).toMatchObject({ level: 'error', status: 500, request_id: KNOWN_ID, user_id: 'owner-1', service: 'backend', module: 'http' });
     expect(typeof http.duration_ms).toBe('number');
     expect(res.body.data.every((r: any) => r.request_id === KNOWN_ID)).toBe(true);
   });
@@ -142,6 +143,7 @@ describe('Gate 20.3 journey: a known error is found in /admin/logs by request id
   it('is read-only and permission-gated', async () => {
     expect((await get('/api/v1/admin/logs', tokenFor('p-1', 'patient'))).status).toBe(403);
     expect((await get('/api/v1/admin/logs', tokenFor('s-1', 'support_agent'))).status).toBe(403);
+    expect((await get('/api/v1/admin/logs', tokenFor('a-1', 'admin'))).status).toBe(403); // an admin with no custom role
     expect((await request(app.getHttpServer()).get('/api/v1/admin/logs')).status).toBe(401);
     for (const method of ['post', 'put', 'patch', 'delete'] as const) {
       const r = await (request(app.getHttpServer()) as any)[method]('/api/v1/admin/logs').set('Authorization', `Bearer ${admin}`).set('x-admin-device', DEVICE).send({});

@@ -50,6 +50,9 @@ export MOYASAR_API_KEY="${MOYASAR_API_KEY:-sk_test_live_journeys}" MOYASAR_API_B
 # The harness sends it (NABD_ADMIN_GATE_TOKEN, same default); keep both in sync.
 export ADMIN_GATE_TOKEN="${ADMIN_GATE_TOKEN:-live-gate-token}"
 export NABD_ADMIN_GATE_TOKEN="${NABD_ADMIN_GATE_TOKEN:-$ADMIN_GATE_TOKEN}"
+# Owner decision 29: admin roles are restrictive, so an admin holds only the permissions of their roles. The designated
+# owner is the seeded super_admin (tools/live/seed_admin.js, LIVE_OWNER_EMAIL); the gate admin holds a custom role.
+export ADMIN_PASSKEY_EMAIL="${ADMIN_PASSKEY_EMAIL:-${LIVE_OWNER_EMAIL:-owner@nabd.test}}"
 # Video calls (decision 4, 2026-10-14): the local LiveKit dev server of tools/live/start-livekit.sh (dev key/secret),
 # unless the caller already points the backend at another LiveKit.
 export LIVEKIT_URL="${LIVEKIT_URL:-http://127.0.0.1:${LIVEKIT_PORT:-7880}}"

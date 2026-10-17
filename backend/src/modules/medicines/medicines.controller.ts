@@ -135,6 +135,7 @@ export class MedicinesController {
   }
 
   /** Admin: manual hot-list regeneration */
+  @RequirePermissions(Permission.OPS_CRONS_RUN)
   @Post('admin/hot/regenerate')
   @Roles(UserRole.ADMIN)
   regenerateHot() {
@@ -422,6 +423,7 @@ export class MedicinesController {
     return this.svc.alternatives(id);
   }
 
+  @RequirePermissions(Permission.CATALOG_CREATE)
   @Post('manual-entry')
   createManual(@Body() body: ManualEntryDto, @CurrentUser() user: any) {
     return this.svc.createManualEntry(body, user.id, user.role);
@@ -434,30 +436,35 @@ export class MedicinesController {
   }
 
   /** Legacy contracts are intentionally fail-closed; use the canonical handlers above. */
+  @RequirePermissions(Permission.CATALOG_CREATE)
   @Post('admin/catalog-legacy-disabled')
   @Roles(UserRole.ADMIN)
   createCatalogLegacyDisabled(): never {
     throw new GoneException('legacy_catalog_create_disabled_use_canonical_contract');
   }
 
+  @RequirePermissions(Permission.CATALOG_DELETE_RESTORE)
   @Delete('admin/catalog/:id/legacy-delete-disabled')
   @Roles(UserRole.ADMIN)
   deleteCatalogLegacyDisabled(): never {
     throw new GoneException('legacy_catalog_delete_disabled_use_soft_delete_restore_contract');
   }
 
+  @RequirePermissions(Permission.CATALOG_APPROVE)
   @Post(':id/approve')
   @Roles(UserRole.ADMIN)
   approveLegacyDisabled(): never {
     throw new GoneException('legacy_medicine_approve_disabled_use_change_requests_contract');
   }
 
+  @RequirePermissions(Permission.CATALOG_APPROVE)
   @Post(':id/reject')
   @Roles(UserRole.ADMIN)
   rejectLegacyDisabled(): never {
     throw new GoneException('legacy_medicine_reject_disabled_use_change_requests_contract');
   }
 
+  @RequirePermissions(Permission.CATALOG_UPDATE)
   @Patch(':id')
   @Roles(UserRole.ADMIN)
   updateLegacyDisabled(): never {

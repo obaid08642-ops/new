@@ -39,6 +39,7 @@ import { ProviderProductionService } from '../../src/modules/provider-production
 import { TEST_JWT_SECRET, signToken, tokenFor } from '../security/harness';
 import { makeDb } from '../support/fake-db';
 import request from 'supertest';
+import { ownerEmail } from '../../src/common/effective-permissions';
 import { createHash } from 'crypto';
 
 jest.setTimeout(180_000);
@@ -61,6 +62,8 @@ describe('Gate P2 provider onboarding journeys', () => {
       device_hash: createHash('sha256').update(ADMIN_DEVICE).digest('hex'),
       revoked: false,
     });
+    // Owner decision 29: admin roles are restrictive; the journey's admin is the owner account (every permission).
+    await db.collection('users').insertOne({ id: 'admin-1', role: 'admin', email: ownerEmail() });
     const repo = (name: string) => {
       const m = db.model(name);
       return { findOne: m.findOne, find: m.find, create: m.create, updateOne: m.updateOne, updateMany: m.updateMany, countDocuments: m.countDocuments, model: m };

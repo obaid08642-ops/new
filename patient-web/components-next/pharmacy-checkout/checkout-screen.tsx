@@ -53,6 +53,7 @@ export type CheckoutPrescription = { id: string; names: string[] };
 export function CheckoutScreen({ locale, prescription = null }: { locale: Locale; prescription?: CheckoutPrescription | null }) {
   const t = useTranslations("PharmacyCheckout");
   const flow = useTranslations("PharmacyFlow");
+  const legal = useTranslations("LegalLinks");
   const router = useRouter();
   const { items, ready, clearCart, hasRxItems } = useCart();
   const rxNames = prescription?.names ?? [];
@@ -212,6 +213,8 @@ export function CheckoutScreen({ locale, prescription = null }: { locale: Locale
         </section>
 
         <p className={rx.note}>{t("sendNote")}</p>
+        {/* D-38: the cancellation and refund policy is one tap away before the order is sent */}
+        <Link className={rx.textLink} href={`/${locale}/refund-policy`}>{legal("refundPolicy")}</Link>
 
         {failure ? (
           <div className={rx.error} role="alert">

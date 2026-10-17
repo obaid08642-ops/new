@@ -13,6 +13,7 @@ import { CreateSubAdminDto, UpdateSubAdminDto, CreateProviderDto, CleanupOrphans
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { ProviderErasureService } from './provider-erasure.service';
 
+import { ownerEmail } from '../../common/effective-permissions';
 /** Provider roles an admin may create accounts for (never staff/admin roles). */
 const PROVIDER_CREATABLE_ROLES = [
   UserRole.DOCTOR, UserRole.PHARMACY, UserRole.HOSPITAL, UserRole.LAB,
@@ -318,7 +319,7 @@ export class AdminController {
 
   /** Only the platform owner (designated admin email) may manage sub-admins. */
   private assertOwner(user: any, dbUser?: any) {
-    const designated = (process.env.ADMIN_PASSKEY_EMAIL || 'Obaid08642@gmail.com').trim().toLowerCase();
+    const designated = ownerEmail();
     const email = (dbUser?.email || user?.email || '').trim().toLowerCase();
     if (email !== designated) throw new ForbiddenException('owner_only');
   }
@@ -336,7 +337,7 @@ export class AdminController {
       .find({ role: { $in: [UserRole.ADMIN, UserRole.SUPER_ADMIN] } }, { password_hash: 0 })
       .sort({ createdAt: -1 })
       .lean();
-    const designated = (process.env.ADMIN_PASSKEY_EMAIL || 'Obaid08642@gmail.com').trim().toLowerCase();
+    const designated = ownerEmail();
     return admins.map((a: any) => ({
       id: a.id, full_name: a.full_name, email: a.email, phone: a.phone,
       role: a.role, permissions: a.permissions || [],
@@ -345,6 +346,7 @@ export class AdminController {
     }));
   }
 
+  @RequirePermissions(Permission.RBAC_MANAGE)
   @Post('sub-admins')
   async createSubAdmin(@CurrentUser() by: any, @Body() body: CreateSubAdminDto) {
     this.assertOwner(by, await this.resolveUser(by));
@@ -375,6 +377,7 @@ export class AdminController {
   }
 
   @StepUp()
+  @RequirePermissions(Permission.RBAC_MANAGE)
   @Patch('sub-admins/:userId')
   async updateSubAdmin(@CurrentUser() by: any, @Param('userId') userId: string, @Body() body: UpdateSubAdminDto) {
     this.assertOwner(by, await this.resolveUser(by));
@@ -383,7 +386,7 @@ export class AdminController {
     if (target.role !== UserRole.ADMIN && target.role !== UserRole.SUPER_ADMIN) {
       throw new BadRequestException('not_an_admin');
     }
-    const designated = (process.env.ADMIN_PASSKEY_EMAIL || 'Obaid08642@gmail.com').trim().toLowerCase();
+    const designated = ownerEmail();
     if ((target.email || '').trim().toLowerCase() === designated) {
       throw new BadRequestException('cannot_modify_owner');
     }
@@ -397,12 +400,13 @@ export class AdminController {
   }
 
   @StepUp()
+  @RequirePermissions(Permission.RBAC_MANAGE)
   @Delete('sub-admins/:userId')
   async deleteSubAdmin(@CurrentUser() by: any, @Param('userId') userId: string) {
     this.assertOwner(by, await this.resolveUser(by));
     const target = await this.userModel.findOne({ id: userId });
     if (!target) throw new BadRequestException('user_not_found');
-    const designated = (process.env.ADMIN_PASSKEY_EMAIL || 'Obaid08642@gmail.com').trim().toLowerCase();
+    const designated = ownerEmail();
     if ((target.email || '').trim().toLowerCase() === designated) {
       throw new BadRequestException('cannot_modify_owner');
     }

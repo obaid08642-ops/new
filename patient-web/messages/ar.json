@@ -233,7 +233,8 @@
       "consultation": "استشارة طبية",
       "labs": "تحاليل",
       "radiology": "أشعة",
-      "nursing": "تمريض منزلي"
+      "nursing": "تمريض منزلي",
+      "returns": "طلب إرجاع"
     },
     "statusUnavailable": "الحالة غير متاحة",
     "partialNote": "تعذّر تحميل بعض الطلبات. الباقي ظاهر أدناه، حاول مرة أخرى بعد قليل."
@@ -1166,7 +1167,8 @@
     "paymentAddPolicy": "أضف التأمين",
     "doctorPhotoAlt": "صورة {name}",
     "clinicPhotosTitle": "صور العيادة",
-    "clinicPhotoAlt": "صورة العيادة {n}"
+    "clinicPhotoAlt": "صورة العيادة {n}",
+    "payment_cash": "كاش فقط"
   },
   "LabsServices": {
     "eyebrow": "الرعاية المخبرية",
@@ -1221,7 +1223,18 @@
     "preparation": "التحضير",
     "preparationTitle": "قبل الزيارة",
     "homeAvailable": "هذه الباقة تدعم سحب العينة من المنزل.",
-    "homeUnavailable": "لم يُذكر سحب العينة من المنزل لهذه الباقة."
+    "homeUnavailable": "لم يُذكر سحب العينة من المنزل لهذه الباقة.",
+    "categoryName": {
+      "blood": "تحاليل الدم",
+      "hormones": "الهرمونات",
+      "diabetes": "السكري",
+      "vitamins": "الفيتامينات",
+      "cardiac": "القلب",
+      "imaging": "الأشعة",
+      "kidney": "الكلى",
+      "liver": "الكبد",
+      "package": "الباقات"
+    }
   },
   "RadiologyServices": {
     "eyebrow": "رعاية الأشعة",
@@ -1606,7 +1619,19 @@
     "errorUnreadable": "تعذّرت قراءة الصورة. جرّب صورة أوضح في إضاءة جيدة.",
     "errorRxUnreadable": "لم نتمكن من قراءة أي دواء من هذه الوصفة. جرّب صورة أوضح أو ارفعها من صفحة الوصفة.",
     "errorBusy": "عمليات مسح كثيرة خلال دقيقة. انتظر قليلًا ثم حاول مرة أخرى.",
-    "errorScan": "الماسح غير متاح الآن. حاول مرة أخرى."
+    "errorScan": "الماسح غير متاح الآن. حاول مرة أخرى.",
+    "codeLabel": "الباركود",
+    "codePlaceholder": "6281234567890",
+    "lookup": "بحث",
+    "looking": "جارٍ البحث…",
+    "foundTitle": "تم العثور على الدواء",
+    "closestTitle": "أقرب نتيجة",
+    "closestNote": "لا يوجد دواء بهذا الباركود تحديدًا. هذه أقرب نتيجة بالاسم.",
+    "notFoundTitle": "لم يُعثر على الدواء",
+    "notFoundBody": "الباركود {code} غير موجود في الكتالوج.",
+    "barcodeLine": "الباركود: {code}",
+    "viewProduct": "عرض المنتج",
+    "errorLookup": "فشل البحث بالباركود. حاول مجددًا."
   },
   "PharmacyChat": {
     "title": "التفاوض مع الصيدلية",
@@ -1852,6 +1877,14 @@
     "medicines/compare": {
       "title": "مقارنة الأدوية",
       "description": "قارن الأدوية والأسعار والبدائل."
+    },
+    "refundPolicy": {
+      "title": "سياسة الإلغاء والاسترداد",
+      "description": "متى يُسترد المبلغ كاملاً أو جزئياً عند إلغاء طلب أو موعد في نبض بلس."
+    },
+    "telehealthConsent": {
+      "title": "الموافقة على الاستشارة الطبية عن بُعد",
+      "description": "ما توافق عليه قبل أول استشارة طبية عن بُعد في نبض بلس."
     }
   },
   "NursingVisits": {
@@ -2289,7 +2322,10 @@
     "searchRound": "الجولة {round}: نبحث في الصيدليات ضمن {km} كم",
     "showMethods": "اختيار طريقة الدفع",
     "paymentUnavailable": "لا توجد طريقة دفع إلكتروني متاحة لهذا الطلب الآن.",
-    "loadingMethods": "جارٍ تحميل طرق الدفع…"
+    "loadingMethods": "جارٍ تحميل طرق الدفع…",
+    "coverageLegend": "كيف ستدفع؟",
+    "coverageCash": "نقدًا أو إلكترونيًا بعد السعر النهائي",
+    "coverageInsurance": "التأمين"
   },
   "PharmacyCheckout": {
     "title": "إتمام الطلب",
@@ -2921,7 +2957,8 @@
     "bookingNotSentTitle": "لم يتم أي حجز",
     "bookingNotSentBody": "هذه النافذة لا ترسل الحجز بعد، لذلك لم يُنشأ أي موعد ولم يُسحب أي مبلغ. افتح صفحة التمريض لحجز زيارة.",
     "bookingNotSentCta": "إلى صفحة التمريض",
-    "bookingNotSentClose": "إغلاق"
+    "bookingNotSentClose": "إغلاق",
+    "payAll": "الكل"
   },
   "NursingWeb": {
     "hubTitle": "الرعاية المنزلية",
@@ -3421,7 +3458,9 @@
       "version": "الإصدار {version} · ساري من {date}",
       "versionOnly": "الإصدار {version}",
       "currentVersion": "هذه هي النسخة الحالية من النص. ستُستبدل بالنسخة المعتمدة قانونيًا قبل الإطلاق.",
-      "back": "رجوع"
+      "back": "رجوع",
+      "refund": "سياسة الإلغاء والاسترداد",
+      "telehealth": "الموافقة على الاستشارة عن بُعد"
     },
     "provider": {
       "title": "انضم كمقدم خدمة",
@@ -4317,5 +4356,21 @@
       "actionBody": "تبقى أسئلتك وصورك خاصة بحسابك. سجّل الدخول لتسأل المساعد.",
       "action": "سجّل الدخول لتسأل"
     }
+  },
+  "LegalLinks": {
+    "refundPolicy": "سياسة الإلغاء والاسترداد",
+    "telehealthConsent": "الموافقة على الاستشارة عن بُعد"
+  },
+  "TelehealthConsent": {
+    "title": "الموافقة على الاستشارة عن بُعد",
+    "intro": "قبل أول استشارة عن بُعد، اقرأ الموافقة ووافق عليها. نحفظ موافقتك مع رقم الإصدار والوقت والجهاز.",
+    "textLabel": "نص الموافقة",
+    "version": "الإصدار {version}",
+    "readFull": "اقرأ النص الكامل",
+    "accept": "أوافق وأتابع",
+    "accepting": "جارٍ حفظ موافقتك…",
+    "failed": "لم نتمكن من حفظ موافقتك. حاول مرة أخرى.",
+    "sessionEnded": "انتهت جلستك.",
+    "signIn": "سجّل الدخول"
   }
 }

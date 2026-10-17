@@ -245,7 +245,8 @@
       "consultation": "Consultation",
       "labs": "Lab test",
       "radiology": "Radiology scan",
-      "nursing": "Nursing visit"
+      "nursing": "Nursing visit",
+      "returns": "Return request"
     },
     "statusUnavailable": "Status unavailable",
     "partialNote": "Some orders could not be loaded. The rest are shown below; try again in a moment."
@@ -1166,7 +1167,8 @@
     "paymentAddPolicy": "Add insurance",
     "doctorPhotoAlt": "Photo of {name}",
     "clinicPhotosTitle": "Clinic photos",
-    "clinicPhotoAlt": "Clinic photo {n}"
+    "clinicPhotoAlt": "Clinic photo {n}",
+    "payment_cash": "Cash only"
   },
   "LabsServices": {
     "eyebrow": "Laboratory care",
@@ -1221,7 +1223,18 @@
     "preparation": "Preparation",
     "preparationTitle": "Before your visit",
     "homeAvailable": "Home collection is supported by this package.",
-    "homeUnavailable": "Home collection is not listed for this package."
+    "homeUnavailable": "Home collection is not listed for this package.",
+    "categoryName": {
+      "blood": "Blood tests",
+      "hormones": "Hormones",
+      "diabetes": "Diabetes",
+      "vitamins": "Vitamins",
+      "cardiac": "Heart",
+      "imaging": "Imaging",
+      "kidney": "Kidney",
+      "liver": "Liver",
+      "package": "Packages"
+    }
   },
   "RadiologyServices": {
     "eyebrow": "Radiology care",
@@ -1606,7 +1619,19 @@
     "errorUnreadable": "The photo could not be read. Try a clearer photo in good light.",
     "errorRxUnreadable": "No medicines could be read from this prescription. Try a clearer photo, or upload it from the prescription page.",
     "errorBusy": "Too many scans in a minute. Wait a moment and try again.",
-    "errorScan": "The scanner is not available right now. Try again."
+    "errorScan": "The scanner is not available right now. Try again.",
+    "codeLabel": "Barcode",
+    "codePlaceholder": "6281234567890",
+    "lookup": "Look up",
+    "looking": "Looking up…",
+    "foundTitle": "Medicine found",
+    "closestTitle": "Closest match",
+    "closestNote": "No medicine has this exact barcode. This is the closest match by name.",
+    "notFoundTitle": "Medicine not found",
+    "notFoundBody": "The barcode {code} is not in the catalogue.",
+    "barcodeLine": "Barcode: {code}",
+    "viewProduct": "View the product",
+    "errorLookup": "The barcode lookup failed. Try again."
   },
   "PharmacyChat": {
     "title": "Pharmacy negotiation",
@@ -1852,6 +1877,14 @@
     "medicines/compare": {
       "title": "Compare Medicines",
       "description": "Compare medicines, prices and alternatives."
+    },
+    "refundPolicy": {
+      "title": "Cancellation and Refund Policy",
+      "description": "When an order or appointment on Nabd Plus is refunded in full or in part after a cancellation."
+    },
+    "telehealthConsent": {
+      "title": "Telehealth Consent",
+      "description": "What you agree to before your first online consultation on Nabd Plus."
     }
   },
   "NursingVisits": {
@@ -2289,7 +2322,10 @@
     "searchRound": "Round {round}: searching pharmacies within {km} km",
     "showMethods": "Choose a payment method",
     "paymentUnavailable": "No online payment method is available for this order right now.",
-    "loadingMethods": "Loading the payment methods…"
+    "loadingMethods": "Loading the payment methods…",
+    "coverageLegend": "How will you pay?",
+    "coverageCash": "Cash or online, after the final price",
+    "coverageInsurance": "Insurance"
   },
   "PharmacyCheckout": {
     "title": "Checkout",
@@ -2921,7 +2957,8 @@
     "bookingNotSentTitle": "Nothing was booked",
     "bookingNotSentBody": "This window does not send a booking yet, so no appointment was made and no payment was taken. Open the nursing page to book a visit.",
     "bookingNotSentCta": "Go to nursing",
-    "bookingNotSentClose": "Close"
+    "bookingNotSentClose": "Close",
+    "payAll": "All"
   },
   "NursingWeb": {
     "hubTitle": "Home care",
@@ -3421,7 +3458,9 @@
       "version": "Version {version} · Effective {date}",
       "versionOnly": "Version {version}",
       "currentVersion": "This is the current version of the text. It will be replaced by the legally approved version before launch.",
-      "back": "Back"
+      "back": "Back",
+      "refund": "Cancellation and refund policy",
+      "telehealth": "Telehealth consent"
     },
     "provider": {
       "title": "Join as a provider",
@@ -4317,5 +4356,21 @@
       "actionBody": "Your questions and photos stay private to your account. Sign in to ask the assistant.",
       "action": "Sign in to ask"
     }
+  },
+  "LegalLinks": {
+    "refundPolicy": "Cancellation and refund policy",
+    "telehealthConsent": "Telehealth consent"
+  },
+  "TelehealthConsent": {
+    "title": "Telehealth consent",
+    "intro": "Before your first online consultation, read and accept the consent. We record your acceptance with the version, the time and the device.",
+    "textLabel": "Consent text",
+    "version": "Version {version}",
+    "readFull": "Read the full text",
+    "accept": "I agree and continue",
+    "accepting": "Saving your consent…",
+    "failed": "We could not save your consent. Please try again.",
+    "sessionEnded": "Your session has ended.",
+    "signIn": "Sign in"
   }
 }

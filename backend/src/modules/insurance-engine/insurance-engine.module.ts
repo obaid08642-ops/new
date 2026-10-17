@@ -1088,6 +1088,7 @@ export class AdminInsuranceController {
 export class FinanceCoreController {
   constructor(private readonly finance: FinanceCoreService) {}
   /** Internal hook: record commission when an order/booking is paid. */
+  @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
   @Post('ledger/accrue') accrue(@Body() b: AccrueDto) { return this.finance.accrue(b); }
   @Get('ledger/provider/summary') providerSummary(@CurrentUser() u: any) { return this.finance.providerSummary(u.id); }
 }
