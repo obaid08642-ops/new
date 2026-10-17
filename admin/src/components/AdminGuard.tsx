@@ -100,6 +100,8 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/ai-control', label: 'التحكم في الذكاء الاصطناعي', permission: 'settings.edit' },
       { href: '/admin/scheduled-reports', label: 'التقارير المجدولة', permission: 'reports.schedule.manage' },
       { href: '/admin/audit-logs', label: 'سجل التدقيق' },
+      // 20.3: warn/error log lines (read-only); the page has its own six-language texts
+      { href: '/admin/logs', label: 'سجلات النظام' },
       { href: '/admin/security', label: 'الأمان ومفاتيح الدخول' },
     ],
   },
@@ -183,6 +185,7 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/config-portal': 'settings.edit',
   '/admin/ai-control': 'settings.edit',
   '/admin/audit-logs': 'data.export',
+  '/admin/logs': 'system.logs.view',
   '/admin/rbac': 'rbac.manage',
   '/admin/scheduled-reports': 'reports.schedule.manage',
   '/admin/impersonation': 'user.impersonate',

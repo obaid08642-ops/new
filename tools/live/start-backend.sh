@@ -58,6 +58,9 @@ export ADMIN_PASSKEY_EMAIL="${ADMIN_PASSKEY_EMAIL:-${LIVE_OWNER_EMAIL:-owner@nab
 export LIVEKIT_URL="${LIVEKIT_URL:-http://127.0.0.1:${LIVEKIT_PORT:-7880}}"
 export LIVEKIT_API_KEY="${LIVEKIT_API_KEY:-devkey}" LIVEKIT_API_SECRET="${LIVEKIT_API_SECRET:-secret}"
 export NABD_ADMIN_DEVICE="${NABD_ADMIN_DEVICE:-live-gate-owner-macbook-01}"
+# A catalogue write purges the website's cached product pages (PurgeBus -> POST /api/revalidate, tag `medicines`). The gate
+# serves the website on :3100 (start-web.sh gets the same secret), so a journey can edit a product and read the new page.
+export NEXT_REVALIDATE_URL="${NEXT_REVALIDATE_URL:-http://127.0.0.1:${PATIENT_WEB_PORT:-3100}/api/revalidate}" NEXT_REVALIDATE_SECRET="${NEXT_REVALIDATE_SECRET:-live-gate-revalidate-secret}"
 LOG="${BACKEND_LOG:-/tmp/nabd-backend.log}"
 nohup node --max-old-space-size=1500 dist/main.js > "$LOG" 2>&1 &
 echo $! > "$LOG.pid"

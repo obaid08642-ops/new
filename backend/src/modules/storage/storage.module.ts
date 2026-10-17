@@ -10,6 +10,7 @@ import { Logger } from '@nestjs/common';
 import { CurrentUser, Public, JwtAuthGuard, SelfService } from '../../common/auth.guard';
 import { UploadDto, UploadSuggestionImageDto } from './storage.dto';
 import { Purpose, UploadSecurityService } from './upload-security.service';
+import { logEvent } from '../../common/structured-logger';
 
 export enum StorageBackend { BASE64 = 'base64', S3 = 's3', CLOUDINARY = 'cloudinary', SUPABASE = 'supabase' }
 
@@ -136,7 +137,7 @@ export class StorageService {
   ) {
     if (!S3R2Adapter.configured()) {
       // eslint-disable-next-line no-console
-      console.warn('S3 storage not configured (S3_BUCKET/S3_ENDPOINT/keys) — falling back to inline base64 storage');
+      logEvent('warn', 'storage_not_configured', { fallback: 'inline_base64', needs: 'S3_BUCKET/S3_ENDPOINT/keys' }, 'storage');
     }
   }
 

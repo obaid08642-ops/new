@@ -10,6 +10,7 @@ import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { Request, Response, NextFunction } from 'express';
 import { randomUUID, createHash } from 'crypto';
+import { logEvent, runWithLogContext } from '../../common/structured-logger';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
 /** 23.1 — the full field set the plan requires of every event. */
@@ -113,7 +114,7 @@ export class AuditService {
       // A failure here must never break the user's action, but a trail that silently stops is
       // worse than none: say so.
       // eslint-disable-next-line no-console
-      console.error(`[audit] failed to record ${entry?.action}: ${e?.message}`);
+      logEvent('error', 'audit_record_failed', { action: entry?.action, error: e?.message }, 'security');
     }
   }
 
@@ -365,8 +366,8 @@ export class TracingMiddleware implements NestMiddleware {
     res.on('finish', () => {
       const ms = Date.now() - start;
       if (ms > 1500 || res.statusCode >= 500) {
-        // eslint-disable-next-line no-console
-        console.warn(`[slow_or_err] ${req.method} ${req.originalUrl} ${res.statusCode} ${ms}ms cid=${id}`);
+        runWithLogContext({ requestId: id }, () =>
+          logEvent(res.statusCode >= 500 ? 'error' : 'warn', 'slow_or_err', { method: req.method, route: String(req.originalUrl || req.url || '').split('?')[0], status: res.statusCode, duration_ms: ms }, 'security'));
       }
     });
     next();

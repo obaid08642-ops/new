@@ -87,6 +87,8 @@ export enum Permission {
   INSURANCE_MANAGE = 'insurance.manage',
   SUPPORT_MANAGE = 'support.manage',
   CRM_MANAGE = 'crm.manage',
+  // 20.3: read-only view of the stored warn/error log lines (/admin/logs)
+  SYSTEM_LOGS_VIEW = 'system.logs.view',
 }
 
 /** Arabic labels for the permission catalog (RBAC editor UI). */
@@ -157,6 +159,7 @@ export const PERMISSION_LABELS_AR: Record<string, string> = {
   [Permission.INSURANCE_MANAGE]: 'إدارة التأمين والمطالبات',
   [Permission.SUPPORT_MANAGE]: 'إدارة الدعم والمكالمات',
   [Permission.CRM_MANAGE]: 'إدارة شرائح العملاء',
+  [Permission.SYSTEM_LOGS_VIEW]: 'عرض سجلات النظام (قراءة فقط)',
 };
 
 export interface OwnershipOptions {
