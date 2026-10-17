@@ -11,6 +11,9 @@
  *     instead of silently skipping the edge.
  *  6. A Redis failure does not fail the purge call (short TTLs are the
  *     backstop), but the edge calls still run.
+ *  7. Every edge layer is tried even when another one fails: a Cloudflare
+ *     failure must not leave the Next pages (ISR copies of the product pages)
+ *     uninvalidated, and the purge still fails loudly afterwards.
  */
 import { PurgeBus, PURGE_CHANNEL } from './purge-bus';
 
@@ -105,5 +108,22 @@ describe('14.8 PurgeBus invalidates all four layers (mocked)', () => {
       next: async () => {},
     });
     await expect(bus.purge(['medicines'])).rejects.toThrow(/purge_cloudflare_failed/);
+  });
+
+  it('still purges Next when Cloudflare fails, and then fails loudly with both reasons', async () => {
+    const redis: any = fakeRedis();
+    const seen: string[][] = [];
+    const bus = new PurgeBus(redis, {
+      cloudflare: async () => { throw new Error('purge_cloudflare_failed:429'); },
+      next: async (t) => { seen.push(t); },
+    });
+    await expect(bus.purge(['medicines'])).rejects.toThrow(/purge_cloudflare_failed:429/);
+    expect(seen).toEqual([['medicines']]);
+
+    const both = new PurgeBus(redis, {
+      cloudflare: async () => { throw new Error('purge_cloudflare_failed:429'); },
+      next: async () => { throw new Error('purge_next_failed:503'); },
+    });
+    await expect(both.purge(['medicines'])).rejects.toThrow(/purge_cloudflare_failed:429.*purge_next_failed:503/);
   });
 });

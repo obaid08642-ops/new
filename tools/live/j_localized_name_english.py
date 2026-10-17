@@ -7,7 +7,9 @@
 """
 import json
 import os
+import re
 import subprocess
+import time
 import urllib.parse
 import uuid
 
@@ -73,15 +75,38 @@ def main():
         for loc, expect in (('ur', True), ('hi', True), ('ar', False)):
             slug = anon.get(f'/public/product-by-id/{loc}/{mid}').get('slug')
             page = browser.new_context(viewport={'width': 390, 'height': 844}).new_page()
-            page.goto(f'{WEB}/{loc}/p/{slug}', wait_until='load', timeout=60000)
+            res = page.goto(f'{WEB}/{loc}/p/{slug}', wait_until='load', timeout=60000)
             page.locator('h1').first.wait_for(timeout=30000)
             en = page.get_by_test_id('english-name')
+            # What the page drew, kept for the failure message: the status and cache headers of the copy, the h1 and the
+            # English line(s) as read, and the answer the backend gives for the same slug right now. A failure then says
+            # whether the copy is old (the backend answer differs), the page drew nothing (no line), or the text differs.
+            seen = {'status': res.status if res else None, 'cache': (res.headers.get('x-nextjs-cache'), res.headers.get('cache-control')) if res else None,
+                    'h1': page.locator('h1').first.inner_text().strip(), 'english_lines': [e.strip() for e in en.all_inner_texts()],
+                    'backend_english_name': anon.get(f'/public/product/{loc}/{slug}').get('english_name')}
             if expect:
-                ok = en.count() == 1 and en.inner_text().strip() == name_en and page.locator('h1').first.inner_text().strip() == names[loc]
-                step(f'{loc} page: the English name under the {loc} name', ok, page.locator('h1').first.inner_text())
+                ok = en.count() == 1 and en.inner_text().strip() == name_en and seen['h1'] == names[loc]
+                step(f'{loc} page: the English name under the {loc} name', ok, seen)
             else:
-                step(f'{loc} page: no English line under the name', en.count() == 0, en.count())
+                step(f'{loc} page: no English line under the name', en.count() == 0, seen)
+            if loc == 'ur':
+                ur_slug = slug
             page.close()
+
+        journey('an admin edit reaches the product page (the cached copy is purged, not kept for its revalidate hour)')
+        new_price = 17
+        e = admin.patch(f'/medicines/admin/catalog/{mid}', {'price': new_price, 'reason': 'تعديل سعر صنف الاختبار'})
+        step('admin edits the price (TEST data)', e.ok, e)
+        page = browser.new_context(viewport={'width': 390, 'height': 844}).new_page()
+        shown = None
+        for _ in range(20):   # the purge runs 500 ms after the write; Next drops the copy at once
+            page.goto(f'{WEB}/ur/p/{ur_slug}', wait_until='load', timeout=60000)
+            shown = page.locator('main').first.inner_text()
+            if re.search(rf'(?<!\d){new_price}(?![\d.])', shown.replace('٫', '.')) or f'{new_price}' in shown:
+                break
+            time.sleep(0.5)
+        step('the ur product page shows the new price after the edit', f'{new_price}' in (shown or ''), (shown or '')[:200])
+        page.close()
     except Exception as e:
         step('web flow', False, str(e)[:300])
     finally:
