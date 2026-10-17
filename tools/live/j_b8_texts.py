@@ -33,7 +33,7 @@ def sleep_check(admin):
     ids = {}
     for name, tags in (('sleep', ['sleep']), ('heart', ['heart'])):
         r = admin.post('/admin/admin/articles', {'title_ar': f'مقال {name} {tag}', 'title_en': f'Article {name} {tag}', 'body_ar': 'نص', 'body_en': 'Text',
-                                           'category': 'wellness', 'tags': tags})
+                                           'category': 'wellness', 'tags': tags, 'author_name': 'د. مؤلف الاختبار (TEST data)'})
         ids[name] = r.get('id')
         step(f'admin writes the {name} article', r.ok and ids[name], r)
         r = admin.post(f'/admin/admin/articles/{ids[name]}/publish', {})
