@@ -12,7 +12,7 @@ import { Connection } from 'mongoose';
 import { expandMultilingualSearchTerms, normalizeSearchText } from '../seo-search/seo-search.module';
 import {
   SEARCH_SOURCES, SEARCH_TYPES, SECTION_TYPES, SearchDocument, SearchLocale, SearchSection, SearchSource, SearchType,
-  displayName, escapeRegex, sourceFilter, textScore, toSearchDocument, tolerantPattern,
+  SEARCH_CACHE_TAG, displayName, escapeRegex, sourceFilter, textScore, toSearchDocument, tolerantPattern,
 } from './search-documents';
 import { MeiliClient } from './meili.client';
 import { runsBackgroundWork } from '../../common/process-role';
@@ -32,8 +32,6 @@ const SUGGEST_LIMIT = 8;
 const SUGGEST_POOL = 200;
 /** The bounded second query for the inside-a-word tier, asked only when the first tiers are short of SUGGEST_LIMIT. */
 const SUGGEST_INFIX_POOL = 50;
-/** The cache tag of the suggestions (search.controller.ts @PublicCache(…, ['search'])): a catalogue write purges it. */
-const SEARCH_CACHE_TAG = 'search';
 const SUGGEST_PROJECTION = { _id: 0, key: 1, id: 1, type: 1, section: 1, names: 1, text: 1, boost: 1, slug: 1, code: 1 };
 
 /** Arabic-script text (Arabic, Urdu) is suggested from its first letter; other scripts from two letters. */
@@ -98,6 +96,9 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
     await this.index.createIndex({ key: 1 }, { unique: true }).catch(() => null);
     await this.index.createIndex({ src: 1 }).catch(() => null);
     await this.index.createIndex({ type: 1 }).catch(() => null);
+    // The suggestions sort by popularity before their limit: with this index MongoDB walks the popular rows first and stops
+    // at the limit for a common prefix, instead of sorting every row that matches.
+    await this.index.createIndex({ boost: -1 }).catch(() => null);
     this.watch();
     // The rebuild runs in the background: the API starts at once and answers from what is indexed.
     void this.bootRebuild();

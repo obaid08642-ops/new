@@ -231,6 +231,31 @@ describe('issue 1544: Meilisearch path (prefix search, typo tolerance) and the M
   });
 });
 
+describe('issue 1544: indexes of search_index', () => {
+  it('the worker ensures an index on boost: the suggestions sort by it before their limit', async () => {
+    const prevRole = process.env.PROCESS_ROLE;
+    process.env.PROCESS_ROLE = 'worker';
+    const created: unknown[] = [];
+    const conn: any = {
+      watch: () => { throw new Error('no change streams'); },
+      collection: () => ({
+        createIndex: async (spec: unknown) => { created.push(spec); return 'ok'; },
+        findOne: async () => ({ version: 3 }),
+        estimatedDocumentCount: async () => 1,
+        find: () => ({ [Symbol.asyncIterator]: async function* () { /* no rows */ } }),
+      }),
+    };
+    const svc = new SearchService(conn);
+    try {
+      await svc.onApplicationBootstrap();
+      expect(created).toEqual(expect.arrayContaining([{ key: 1 }, { src: 1 }, { type: 1 }, { boost: -1 }]));
+    } finally {
+      await svc.onModuleDestroy();
+      if (prevRole === undefined) delete process.env.PROCESS_ROLE; else process.env.PROCESS_ROLE = prevRole;
+    }
+  });
+});
+
 describe('issue 1544: edge cache and purge', () => {
   it('the suggest route is public for anonymous requests, with the owner header and the search tag', () => {
     const meta = Reflect.getMetadata(PUBLIC_CACHE_KEY, SearchController.prototype.suggest) as PublicCacheOptions;

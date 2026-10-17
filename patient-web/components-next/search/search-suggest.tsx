@@ -27,7 +27,8 @@ export function useSearchSuggest(locale: string) {
   const [state, setState] = useState<SuggestState>(INITIAL_SUGGEST_STATE);
   const ref = useRef<SuggestController | null>(null);
   if (!ref.current) {
-    ref.current = new SuggestController({ locale, fetcher: (url, init) => fetch(url, { ...init, cache: "no-store" }), onChange: setState });
+    // The browser may reuse an answer for the max-age the route forwards (5 minutes): the same text gets the same list.
+    ref.current = new SuggestController({ locale, fetcher: (url, init) => fetch(url, init), onChange: setState });
   }
   const controller = ref.current;
   useEffect(() => () => controller.dispose(), [controller]);
