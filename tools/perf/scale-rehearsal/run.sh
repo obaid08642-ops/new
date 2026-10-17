@@ -104,6 +104,7 @@ a=$(grep -c ' 127.0.0.1:8101 ' "$OUT/lb-access.log"); b=$(grep -c ' 127.0.0.1:81
 # ------------------------------------------------------------------ fixtures through the load balancer
 NABD_API="http://127.0.0.1:8100/api/v1" python3 "$ROOT/tools/perf/k6/fixtures.py" > "$OUT/fixtures.json" 2> "$OUT/fixtures.err"
 check "fixtures (doctor, patients, paid booking, chat thread, call session) made through the load balancer" $?
+[ -s "$OUT/fixtures.json" ] || { echo "--- fixtures.err (last 40 lines)"; tail -40 "$OUT/fixtures.err"; }
 
 run_k6() { # $1 name, $2 base url
   "$K6" run -q -e BASE="$2" -e SCENARIO=constant -e VUS="$VUS" -e DURATION="$DURATION" -e FIXTURES="$OUT/fixtures.json" \
