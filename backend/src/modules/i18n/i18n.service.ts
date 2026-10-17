@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-type Lang = 'ar' | 'en' | 'ur';
+type Lang = 'ar' | 'en' | 'ur' | 'hi' | 'bn' | 'fil';
 const DEFAULT: Lang = 'en';
 
 /**
@@ -11,16 +11,16 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   // ============ Core ============
   'app.name': { ar: 'نبض', en: 'Nabd', ur: 'نبض' },
   'app.tagline': { ar: 'صحتك بنبضة واحدة', en: 'Healthcare in one pulse', ur: 'ایک دھڑکن میں صحت' },
-  'common.ok': { ar: 'حسناً', en: 'OK', ur: 'ٹھیک ہے' },
-  'common.cancel': { ar: 'إلغاء', en: 'Cancel', ur: 'منسوخ' },
-  'common.save': { ar: 'حفظ', en: 'Save', ur: 'محفوظ' },
-  'common.search': { ar: 'بحث', en: 'Search', ur: 'تلاش' },
-  'common.confirm': { ar: 'تأكيد', en: 'Confirm', ur: 'تصدیق' },
-  'common.next': { ar: 'التالي', en: 'Next', ur: 'اگلا' },
-  'common.back': { ar: 'رجوع', en: 'Back', ur: 'واپس' },
-  'common.delete': { ar: 'حذف', en: 'Delete', ur: 'حذف' },
-  'common.add': { ar: 'إضافة', en: 'Add', ur: 'شامل' },
-  'common.continue': { ar: 'متابعة', en: 'Continue', ur: 'جاری رکھیں' },
+  'common.ok': { ar: 'حسناً', en: 'OK', ur: 'ٹھیک ہے', hi: 'ठीक है', bn: 'ঠিক আছে', fil: 'Ok' },
+  'common.cancel': { ar: 'إلغاء', en: 'Cancel', ur: 'منسوخ', hi: 'रद्द करें', bn: 'রদ্দ করুন', fil: 'Ibura' },
+  'common.save': { ar: 'حفظ', en: 'Save', ur: 'محفوظ', hi: 'सेव करें', bn: 'সংরক্ষণ করুন', fil: 'Ilagay' },
+  'common.search': { ar: 'بحث', en: 'Search', ur: 'تلاش', hi: 'खोजें', bn: 'খੋঁজে ফেলুন', fil: 'Hahan' },
+  'common.confirm': { ar: 'تأكيد', en: 'Confirm', ur: 'تصدیق', hi: 'पुष्टि करें', bn: 'সতর্কতা দিন', fil: 'Pamahint' },
+  'common.next': { ar: 'التالي', en: 'Next', ur: 'اگلا', hi: 'अगला', bn: 'প Next', fil: 'Susunod' },
+  'common.back': { ar: 'رجوع', en: 'Back', ur: 'واپس', hi: 'पीछे', bn: 'পেছনে', fil: 'Back' },
+  'common.delete': { ar: 'حذف', en: 'Delete', ur: 'حذف', hi: 'हटाएं', bn: 'হ্যাঁপ.stringify	delete', fil: 'Alisin' },
+  'common.add': { ar: 'إضافة', en: 'Add', ur: 'شامل', hi: 'जोड़ें', bn: 'যোগুন', fil: 'Ilagay' },
+  'common.continue': { ar: 'متابعة', en: 'Continue', ur: 'جاری رکھیں', hi: 'जारी रखें', bn: 'জ ongoing continue', fil: 'Lanpagl' },
   'common.retry': { ar: 'إعادة المحاولة', en: 'Retry', ur: 'دوبارہ کوشش' },
   'common.loading': { ar: 'جارٍ التحميل...', en: 'Loading...', ur: 'لوڈ ہو رہا ہے...' },
   'common.empty': { ar: 'لا توجد بيانات', en: 'No data', ur: 'کوئی ڈیٹا نہیں' },
