@@ -974,7 +974,20 @@ export class AuthService {
     // passkey revokes the device — a token replayed without a live credential is
     // rejected by the guard even though the device id is enrolled.
     if (this.adminDevices && ctx?.deviceId) {
-      await this.adminDevices.enroll(u.id, ctx.deviceId, ctx.ua, ctx.deviceName, response?.id);
+      // D-35 reviewer (device-bound keys): a passkey login auto-enrols the
+      // presenting device ONLY when the verified credential is known to live
+      // on a single device. A synced credential (same Apple ID on a third
+      // device) still signs the admin in, but its device must come through
+      // the approval + e-mailed-code flow like any other new device.
+      let bound = false;
+      try {
+        bound = await this.passkeys?.isSingleDeviceCredential?.(response?.id);
+      } catch {
+        bound = false;
+      }
+      if (bound) {
+        await this.adminDevices.autoEnroll(u.id, ctx.deviceId, ctx.ua, ctx.deviceName, response?.id);
+      }
     }
     if (this.deviceTrust) {
       const { token, device } = await this.deviceTrust.issue(u.id, ctx?.ua, ctx?.ip);

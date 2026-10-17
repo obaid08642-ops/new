@@ -33,7 +33,7 @@ def main():
         return fail('admin clicks', 'python playwright not installed')
 
     import j_admin
-    from lib import mail_code
+    from lib import mail_code, enroll_device_flow
 
     journey('admin clicks: login through the browser (2FA)')
     try:
@@ -47,6 +47,16 @@ def main():
             pass
         return fail('admin clicks', f'no chromium: {e}')
     ctx = browser.new_context(locale='ar-SA')
+    # D-35: one browser identity per gate run — reuse the enrolled browser device
+    # (the admin BFF proxies with this cookie), or this fresh profile mints a new
+    # device per run and burns the 2-device limit.
+    try:
+        with open(j_admin.DEVICE_FILE) as _f:
+            _dev = _f.read().strip()
+    except OSError:
+        _dev = ''
+    if len(_dev) >= 16:
+        ctx.add_cookies([{'name': 'admin_device', 'value': _dev, 'domain': '127.0.0.1', 'path': '/'}])
     page = ctx.new_page()
     try:
         page.goto(f'{ADMIN_WEB}/login', wait_until='load', timeout=45000)
@@ -94,6 +104,14 @@ def main():
         _, admin = j_admin.login()
     except Exception as e:
         step('admin api client for assertions', False, str(e)[:200])
+
+    # D-35: this fresh browser profile mints its own device id, which the BFF
+    # proxies as x-admin-device — enroll it (request → approve from the gate
+    # device → e-mailed code → confirm) so the clicks below are not 403s.
+    if admin:
+        _cookies = ctx.cookies()
+        _dev = next((c['value'] for c in _cookies if c.get('name') == 'admin_device'), None)
+        enroll_device_flow(admin, _dev, EMAIL, 'gate-run-playwright-browser')
 
     U = f'e2e-{uuid.uuid4().hex[:6]}'
 
