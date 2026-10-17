@@ -7,7 +7,7 @@ import worker from "./worker.mjs";
 
 const T = Date.UTC(2026, 9, 17, 12, 0, 0);
 const html = `<html>${"x".repeat(6000)}</html>`;
-const ENV = { SYNTH_IDENTIFIER: "synthetic@nabd.test", SYNTH_PASSWORD: "S3cret-synth-pass" };
+const ENV = { SYNTH_IDENTIFIER: "synthetic@nabd.test", SYNTH_PASSWORD: "fixture-not-a-secret" };
 const json = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
 
 /** A stand-in for the site and the API. `over` replaces answers by "METHOD path". */
@@ -79,7 +79,7 @@ test("each kind of breakage fails the right journey, with a reason that holds no
     const r = res.find((x) => x.component === id);
     assert.equal(r.ok, false, id);
     assert.ok(r.detail.includes(reason), `${id}: ${r.detail}`);
-    assert.ok(!JSON.stringify(res).includes("S3cret-synth-pass") && !JSON.stringify(res).includes("jwt-token-value"), "no secret in a result");
+    assert.ok(!JSON.stringify(res).includes("fixture-not-a-secret") && !JSON.stringify(res).includes("jwt-token-value"), "no secret in a result");
     for (const other of ["home", "doctors"].filter((x) => x !== id)) assert.equal(res.find((x) => x.component === other).ok, true, `${id}: ${other} is independent`);
   }
 });
@@ -151,7 +151,7 @@ test("the cron: reports as the journeys vantage, alerts after the second failing
   assert.equal(componentStatus(state, "search", T + 20 * 60_000), "up");
   r = await runJourneyCron(env, T + 30 * 60_000, mk(false));
   assert.deepEqual(r.sent.map((x) => [x.component, x.type]), [["doctors", "recovered"]]);
-  assert.ok(!JSON.stringify([...kvData.values()]).includes("S3cret-synth-pass"), "the password is not stored");
+  assert.ok(!JSON.stringify([...kvData.values()]).includes("fixture-not-a-secret"), "the password is not stored");
 });
 
 test("the scheduled handler picks the journeys on their cron and the probes on the other", async () => {
