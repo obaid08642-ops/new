@@ -4291,6 +4291,7 @@
     "staleCopyNote": "Naka-save na kopya ang ipinapakita ng site habang bumabawi ang server.",
     "language": "Wika",
     "componentWebsite": "Website ng Nabd Plus",
+    "componentHome": "Pangunahing pahina",
     "componentApi": "Server ng aplikasyon (API)",
     "componentSearch": "Paghahanap",
     "componentProduct": "Mga pahina ng produkto",
