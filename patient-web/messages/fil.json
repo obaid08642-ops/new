@@ -26,7 +26,8 @@
     "notifications": "Mga abiso",
     "cart": "Cart",
     "mainNav": "Pangunahing nabigasyon",
-    "sections": "Mga seksyon"
+    "sections": "Mga seksyon",
+    "cartCount": "Laman ng cart ({n, number})"
   },
   "Home": {
     "eyebrow": "Digital na portal ng pasyente",
@@ -2083,7 +2084,12 @@
     "sortPriceDesc": "Presyo: mataas pababa",
     "sortNewest": "Pinakabago",
     "askPharmacies": "Hilingin sa mga kalapit na botika",
-    "compareAlternatives": "Ihambing sa mga alternatibo"
+    "compareAlternatives": "Ihambing sa mga alternatibo",
+    "similarTitle": "Mga katulad na produkto",
+    "imageCounter": "{n, number} / {total, number}",
+    "previousImage": "Nakaraang larawan",
+    "nextImage": "Susunod na larawan",
+    "inCartCta": "Nasa cart ({n, number})"
   },
   "PharmacyOffers": {
     "backToOrder": "Bumalik sa order",
