@@ -25,6 +25,15 @@ interface RouteStat {
   maxMs: number;
 }
 
+/**
+ * Gauges other modules register (20.10): name, help and a function read at scrape time, e.g. the realtime gateway's
+ * open socket count. Process-wide so a module needs no constructor change to publish one.
+ */
+const registeredGauges = new Map<string, { help: string; read: () => number }>();
+export function registerGauge(name: string, help: string, read: () => number): void {
+  registeredGauges.set(name, { help, read });
+}
+
 @Injectable()
 export class MetricsService {
   private readonly routes = new Map<string, RouteStat>();
@@ -103,6 +112,11 @@ export class MetricsService {
     push('nabd_event_loop_lag_ms', 'gauge', 'How late the event loop timer fires.', this.eventLoopLagMs);
     push('nabd_heap_used_bytes', 'gauge', 'Heap bytes in use.', mem.heapUsed);
     push('nabd_rss_bytes', 'gauge', 'Resident set size.', mem.rss);
+    for (const [name, g] of registeredGauges) {
+      let v = 0;
+      try { v = Number(g.read()) || 0; } catch { /* a broken gauge must not break the scrape */ }
+      push(name, 'gauge', g.help, v);
+    }
 
     // One HELP/TYPE per metric name, then one series per route. Declaring the
     // type per series instead would be invalid exposition.
