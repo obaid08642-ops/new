@@ -101,4 +101,26 @@ echo "== D: secrets not passed to the step"
 ( unset BREVO_API_KEY MAILJET_API_KEY MAILJET_SECRET_KEY; bash tools/ops/cf/41-mail-verify.sh > $W/41.txt 2>&1 ); expect "D 41 exit" $? 1
 grep -q '^cf: mail brevo: BLOCKED secret BREVO_API_KEY not passed' $W/41.txt; expect "D Brevo blocked named" $? 0
 
+echo "== E: Mailjet diagnose (tasks/74), read-only"
+export MAILJET_API=$M/v3/REST
+MJK=mj-rehearsal-pub-0002; MJS=mj-rehearsal-secret-0003
+seed "{\"mailjet_auth\":{\"user\":\"$MJK\",\"pass\":\"$MJS\"}}"
+run74() { bash tools/ops/tasks/74-mailjet-diagnose.sh > $W/74.txt 2>&1; rc=$?; sed 's/^/    /' $W/74.txt; noleak $W/74.txt 74; return $rc; }
+setenv() { printf 'MAILJET_API_KEY=%s\nMAILJET_SECRET_KEY=%s\nMAIL_FROM=Nabd Plus <no-reply@nabd.plus>\n' "$1" "$2" | sudo -n tee $W/deploy/.env.production > /dev/null; }
+sudo -n cp $W/deploy/.env.production $W/env-before-e
+setenv "$MJK" "$MJS"; run74; expect "E ok pair exit" $? 0
+grep -q '^mail: mailjet: OK the credentials' $W/74.txt; expect "E ok pair says OK" $? 0
+setenv "$MJS" "$MJK"; run74; expect "E swapped exit" $? 1
+grep -q 'key and secret SWAPPED: HTTP 200' $W/74.txt; expect "E swap detected" $? 0
+grep -q 'in each other.s place' $W/74.txt; expect "E swap named as the cause" $? 0
+setenv "$MJK" "wrongwrongwrongwrongwrongwrong00"; run74; expect "E wrong pair exit" $? 1
+grep -q 'does not accept these values' $W/74.txt; expect "E wrong pair named" $? 0
+grep -q 'Mailjet says: API key authentication' $W/74.txt; expect "E Mailjet text shown" $? 0
+setenv "$MJK" " $MJS "; run74 >/dev/null
+grep -q 'flags: whitespace-inside' $W/74.txt || grep -q 'flags:.*whitespace' $W/74.txt; expect "E whitespace flagged" $? 0
+grep -q 'trimmed of whitespace/quotes: HTTP 200' $W/74.txt; expect "E trimming fixes it, said so" $? 0
+printf 'MAIL_FROM=x\n' | sudo -n tee $W/deploy/.env.production > /dev/null; run74; expect "E missing values exit" $? 1
+grep -q 'NOT SET in .env.production' $W/74.txt; expect "E missing named" $? 0
+sudo -n cp $W/env-before-e $W/deploy/.env.production
+
 [ $fail = 0 ] && echo "mail rehearsal: PASS" || { echo "mail rehearsal: FAIL"; exit 1; }

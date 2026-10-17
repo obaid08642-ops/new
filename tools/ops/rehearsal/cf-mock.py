@@ -66,6 +66,17 @@ class H(BaseHTTPRequestHandler):
                         r["status"] = True
                 return self.raw(200, {"message": "ok"})
             return self.raw(200, b) if b else self.raw(404, {"code": "document_not_found"})
+        if p.startswith("/v3/REST/apikey"):  # Mailjet: who the credentials are
+            import base64
+            h = self.headers.get("Authorization", "")
+            try:
+                user, _, pw = base64.b64decode(h[6:]).decode().partition(":") if h.startswith("Basic ") else ("", "", "")
+            except Exception:
+                user, pw = "", ""
+            want = mail.get("mailjet_auth") or {}
+            if want and (user, pw) == (want.get("user"), want.get("pass")):
+                return self.raw(200, {"Count": 1, "Data": [{"ID": 7, "IsActive": True, "Name": "rehearsal", "Usage": "transactional"}]})
+            return self.raw(401, {"ErrorMessage": "API key authentication/authorization failure. You may be unauthorized to access the API or your API key may be expired. Visit API keys management section ( https://app.mailjet.com/account/api_keys ) to check your keys.", "StatusCode": 401})
         if p.startswith("/v3/REST/dns"):  # Mailjet
             if not self.headers.get("Authorization", "").startswith("Basic "):
                 return self.raw(401, {"ErrorMessage": "unauthorized"})
