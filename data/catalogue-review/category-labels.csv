@@ -12,19 +12,19 @@ main,الفيتامينات والتغذية الصحية,الفيتامينات
 main,المكياج والإكسسوارات,المكياج والإكسسوارات,Makeup & Accessories,میک اپ اور لوازمات,मेकअप और सहायक उपकरण,মেকআপ ও আনুষাঙ্গিক,Pampaganda at mga Aksesorya,4157,المكياج والإكسسوارات,keep,
 main,النظافة الشخصية والحماية,النظافة الشخصية والحماية,Personal Hygiene & Protection,ذاتی صفائی اور حفاظت,व्यक्तिगत स्वच्छता और सुरक्षा,ব্যক্তিগত পরিচর্যা ও সুরক্ষা,Personal na Kalinisan at Proteksyon,234,النظافة الشخصية والحماية,keep,
 main,تجميل وعناية,تجميل وعناية,Cosmetics & Care,کاسمیٹکس اور نگہداشت,सौंदर्य प्रसाधन एवं देखभाल,প্রসাধনী এবং যত্ন,Mga Kosmetiko at Pangangalaga,31,تجميل وعناية,keep,
-sub,Aqaufresh,Aqaufresh,Aqaufresh,اکوافریش,एक्वाफ्रेश,অ্যাকুয়াফ্রেশ,Aqaufresh,1,تجميل وعناية > Aqaufresh,drop,brand used as a sub-category (owner decision B)
-sub,Baby Products,Baby Products,Baby Products,بچے کی مصنوعات,शिशु उत्पाद,শিশুর পণ্য,Mga Produkto ng Sanggol,1,أدوية ومكملات غذائية > Baby Products,drop,store sub-label; merged into الأم والطفل
-sub,"Bio Biloba, Ginko Biloba Food Supplement   60 Tablets","Bio Biloba, Ginko Biloba Food Supplement   60 Tablets","Bio Biloba, Ginko Biloba Food Supplement   60 Tablets",بایو بلوبا، جِنکو بلوبا فوڈ سپلیمنٹ 60 گولیاں,"बायो बिलोबा, जिंको बिलोबा फूड सप्लीमेंट 60 गोलियां","বায়ো বিলোবা, জিঙ্কো বিলোবা ফুড সাপ্লিমেন্ট 60 ট্যাবলেট","Bio Biloba, Ginko Biloba Food Supplement 60 Tablets",10,"أدوية ومكملات غذائية > Bio Biloba, Ginko Biloba Food Supplement   60 Tablets",drop,product line used as a sub-category (owner decision B)
-sub,Electrorush,Electrorush,Electrorush,الیکٹروش,इलेक्ट्रोरश,ইলেক্ট্রোরাশ,Electrorush,3,أدوية ومكملات غذائية > Electrorush,drop,brand used as a sub-category (owner decision B)
-sub,Glow & Lovely,Glow & Lovely,Glow & Lovely,گلو اینڈ لولی,चमकीला और प्यारा,গ্লো অ্যান্ড লাভলি,Glow & Lovely,2,تجميل وعناية > Glow & Lovely,drop,brand used as a sub-category (owner decision B)
-sub,Mum and Baby,Mum and Baby,Mum And Baby,ماں اور بچہ,माँ और बच्चा,মা এবং বেবি,Nanay At Baby,18,أدوية ومكملات غذائية > Mum and Baby,drop,store sub-label; merged into الأم والطفل
-sub,Natural Factors,Natural Factors,Natural Factors,قدرتی عوامل,प्राकृतिक कारक,প্রাকৃতিক কারণ,Natural Factors,8,تجميل وعناية > Natural Factors,drop,brand used as a sub-category (owner decision B)
-sub,Nivea,Nivea,Nivea,نیوا,निवेआ,নিভিয়া,Nivea,3,تجميل وعناية > Nivea,drop,brand used as a sub-category (owner decision B)
-sub,Offers,Offers,Offers,پیشکش کرتا ہے۔,ऑफर,অফার করে,Mga alok,9,تجميل وعناية > Offers,drop,store promo tag (owner decision B)
-sub,Personal Hygiene,Personal Hygiene,Personal Hygiene,ذاتی حفظان صحت,व्यक्तिगत स्वच्छता,ব্যক্তিগত স্বাস্থ্যবিধি,Personal na Kalinisan,2,تجميل وعناية > Personal Hygiene,drop,store sub-label; merged into العناية الشخصية
-sub,Promotions,Promotions,Promotions,پروموشنز,प्रमोशन,প্রচার,Mga promosyon,2,أدوية ومكملات غذائية > Promotions,drop,store promo tag (owner decision B)
-sub,Skin Care,Skin Care,Skin Care,جلد کی دیکھ بھال,त्वचा की देखभाल,ত্বকের যত্ন,Pangangalaga sa Balat,6,تجميل وعناية > Skin Care,drop,store sub-label; merged into العناية بالبشرة
-sub,Vitamins & Healthy Nutrition,Vitamins & Healthy Nutrition,Vitamins & Healthy Nutrition,وٹامنز اور صحت مند غذائیت,विटामिन और स्वस्थ पोषण,ভিটামিন এবং স্বাস্থ্যকর পুষ্টি,Mga Bitamina at Malusog na Nutrisyon,87,أدوية ومكملات غذائية > Vitamins & Healthy Nutrition,drop,store sub-label; merged into الفيتامينات والتغذية الصحية
+sub,Aqaufresh,,Aqaufresh,اکوافریش,एक्वाफ्रेश,অ্যাকুয়াফ্রেশ,Aqaufresh,1,تجميل وعناية > Aqaufresh,merge,brand used as a sub-category (owner decision B)
+sub,Baby Products,,Baby Products,بچے کی مصنوعات,शिशु उत्पाद,শিশুর পণ্য,Mga Produkto ng Sanggol,1,أدوية ومكملات غذائية > Baby Products,merge,store sub-label; merged into الأم والطفل
+sub,"Bio Biloba, Ginko Biloba Food Supplement   60 Tablets",,"Bio Biloba, Ginko Biloba Food Supplement   60 Tablets",بایو بلوبا، جِنکو بلوبا فوڈ سپلیمنٹ 60 گولیاں,"बायो बिलोबा, जिंको बिलोबा फूड सप्लीमेंट 60 गोलियां","বায়ো বিলোবা, জিঙ্কো বিলোবা ফুড সাপ্লিমেন্ট 60 ট্যাবলেট","Bio Biloba, Ginko Biloba Food Supplement 60 Tablets",10,"أدوية ومكملات غذائية > Bio Biloba, Ginko Biloba Food Supplement   60 Tablets",merge,product line used as a sub-category (owner decision B)
+sub,Electrorush,,Electrorush,الیکٹروش,इलेक्ट्रोरश,ইলেক্ট্রোরাশ,Electrorush,3,أدوية ومكملات غذائية > Electrorush,merge,brand used as a sub-category (owner decision B)
+sub,Glow & Lovely,,Glow & Lovely,گلو اینڈ لولی,चमकीला और प्यारा,গ্লো অ্যান্ড লাভলি,Glow & Lovely,2,تجميل وعناية > Glow & Lovely,merge,brand used as a sub-category (owner decision B)
+sub,Mum and Baby,,Mum And Baby,ماں اور بچہ,माँ और बच्चा,মা এবং বেবি,Nanay At Baby,18,أدوية ومكملات غذائية > Mum and Baby,merge,store sub-label; merged into الأم والطفل
+sub,Natural Factors,,Natural Factors,قدرتی عوامل,प्राकृतिक कारक,প্রাকৃতিক কারণ,Natural Factors,8,تجميل وعناية > Natural Factors,merge,brand used as a sub-category (owner decision B)
+sub,Nivea,,Nivea,نیوا,निवेआ,নিভিয়া,Nivea,3,تجميل وعناية > Nivea,merge,brand used as a sub-category (owner decision B)
+sub,Offers,,Offers,پیشکش کرتا ہے۔,ऑफर,অফার করে,Mga alok,9,تجميل وعناية > Offers,merge,store promo tag (owner decision B)
+sub,Personal Hygiene,,Personal Hygiene,ذاتی حفظان صحت,व्यक्तिगत स्वच्छता,ব্যক্তিগত স্বাস্থ্যবিধি,Personal na Kalinisan,2,تجميل وعناية > Personal Hygiene,merge,store sub-label; merged into العناية الشخصية
+sub,Promotions,,Promotions,پروموشنز,प्रमोशन,প্রচার,Mga promosyon,2,أدوية ومكملات غذائية > Promotions,merge,store promo tag (owner decision B)
+sub,Skin Care,,Skin Care,جلد کی دیکھ بھال,त्वचा की देखभाल,ত্বকের যত্ন,Pangangalaga sa Balat,6,تجميل وعناية > Skin Care,merge,store sub-label; merged into العناية بالبشرة
+sub,Vitamins & Healthy Nutrition,,Vitamins & Healthy Nutrition,وٹامنز اور صحت مند غذائیت,विटामिन और स्वस्थ पोषण,ভিটামিন এবং স্বাস্থ্যকর পুষ্টি,Mga Bitamina at Malusog na Nutrisyon,87,أدوية ومكملات غذائية > Vitamins & Healthy Nutrition,merge,store sub-label; merged into الفيتامينات والتغذية الصحية
 sub,eye-wear,النظارات,Eye Wear,عینک,चश्मा,চশমা,Mga Salamin,13,المكياج والإكسسوارات > eye-wear,relabel,stored value 'eye-wear' is not Arabic; Arabic label proposed
 sub,hospital-at-home,الرعاية الصحية في المنزل,Hospital At Home,گھر پر طبی نگہداشت,घर पर स्वास्थ्य सेवा,বাড়িতে স্বাস্থ্যসেবা,Pangangalaga sa Bahay,2,الرعاية الصحية المنزلية والأجهزة الطبية > hospital-at-home,relabel,stored value 'hospital-at-home' is not Arabic; Arabic label proposed
 sub,أدوات وأجهزة تصفيف الشعر,أدوات وأجهزة تصفيف الشعر,Hair Tools,بالوں کے اوزار,बालों के उपकरण,চুলের সরঞ্জাম,Mga Gamit sa Buhok,535,العناية بالشعر > أدوات وأجهزة تصفيف الشعر,keep,
@@ -40,14 +40,14 @@ sub,الأجهزة والمستلزمات الطبية,الأجهزة والمس
 sub,الأدوية المزمنة,الأدوية المزمنة,Chronic Medication,دائمی ادویات,पुरानी दवाएं,দীর্ঘস্থায়ী রোগের ওষুধ,Gamot para sa Matagalang Sakit,677,الأدوية والعلاج > الأدوية المزمنة,keep,
 sub,الأعشاب والمستخلصات الطبيعية,الأعشاب والمستخلصات الطبيعية,Herbals & Extracts,جڑی بوٹیاں اور قدرتی عرق,जड़ी-बूटियाँ और प्राकृतिक अर्क,ভেষজ ও প্রাকৃতিক নির্যাস,Mga Halamang Gamot,42,الفيتامينات والتغذية الصحية > الأعشاب والمستخلصات الطبيعية,keep,
 sub,الأغذية الصحية والمشروبات,الأغذية الصحية والمشروبات,Healthy Food,صحت بخش خوراک,स्वस्थ भोजन,স্বাস্থ্যকর খাবার,Masustansyang Pagkain,232,الفيتامينات والتغذية الصحية > الأغذية الصحية والمشروبات,keep,
-sub,الإسعافات الأولية,الإسعافات الأولية,First Aid,ابتدائی طبی امداد,प्राथमिक चिकित्सा,প্রাথমিক চিকিৎসা,Unang Aklate,239,الرعاية الصحية المنزلية والأجهزة الطبية > الإسعافات الأولية,keep,
+sub,الإسعافات الأولية,الإسعافات الأولية,First Aid,ابتدائی طبی امداد,प्राथमिक चिकित्सा,প্রাথমিক চিকিৎসা,Pangunang Lunas,239,الرعاية الصحية المنزلية والأجهزة الطبية > الإسعافات الأولية,keep,
 sub,الاستحمام والعناية بالجسم,الاستحمام والعناية بالجسم,Bath & Shower,غسل اور شاور,स्नान और शावर,গোসল ও স্নান,Paliligo at Shower,632,العناية الشخصية > الاستحمام والعناية بالجسم | العناية بالجسم والاستحمام > الاستحمام والعناية بالجسم,keep,the source holds 2 English values for this label: Bath & Shower (391) | Bath & Body Care (241)
 sub,التغذية الرياضية وبناء الأجسام,التغذية الرياضية وبناء الأجسام,Sports Nutrition,کھیلوں کی غذائیت,खेल पोषण,ক্রীড়া পুষ্টি,Nutrisyon sa Palakasan,39,الفيتامينات والتغذية الصحية > التغذية الرياضية وبناء الأجسام,keep,
 sub,الحماية من الشمس والتسمير,الحماية من الشمس والتسمير,Sun Care,دھوپ سے تحفظ,धूप से देखभाल,সূর্য সুরক্ষা,Proteksyon sa Araw,236,العناية بالبشرة > الحماية من الشمس والتسمير,keep,
 sub,الدعامات ومشدات الجسم,الدعامات ومشدات الجسم,Braces & Supports,بریسز اور سپورٹ,ब्रेसिज़ और सपोर्ट,ব্রেস এবং সাপোর্ট,Mga Pantulong at Brace,173,الرعاية الصحية المنزلية والأجهزة الطبية > الدعامات ومشدات الجسم,keep,
 sub,الرموش والغراء,الرموش والغراء,Eyelashes,پلکیں,पलकें,চোখের পাপড়ি,Mga Pilikmata,89,المكياج والإكسسوارات > الرموش والغراء,keep,
 sub,الرياضة واللياقة البدنية,الرياضة واللياقة البدنية,Sports & Fitness,کھیل اور فٹنس,खेल और फिटनेस,খেলাধুলা ও ফিটনেস,Palakasan at Kalakasan,35,الرعاية الصحية المنزلية والأجهزة الطبية > الرياضة واللياقة البدنية,keep,
-sub,الشامبو والبلسم,الشامبو والبلسم,Shampoo & Conditioner,شیمپو اور کنڈیشنر,शैम्पू और कंडीशनर,শ্যাম্পু ও কন্ডিশনার,Shampoo at Conditioner,963,العناية بالشعر > الشامبو والبلسم,keep,
+sub,الشامبو والبلسم,الشامبو والبلسم,Shampoo & Conditioner,شیمپو اور کنڈیشنر,शैम्पू और कंडीशनर,শ্যাম্পু ও কন্ডিশনার,Shampoo & Conditioner,963,العناية بالشعر > الشامبو والبلسم,keep,
 sub,الصحة الجنسية والإنجابية,الصحة الجنسية والإنجابية,Sexual Wellbeing,جنسی تندرستی,यौन स्वास्थ्य,যৌন সুস্থতা,Sekswal na Kalusugan,21,العناية الشخصية > الصحة الجنسية والإنجابية,keep,
 sub,العبوات الترويجية,العبوات الترويجية,Promo Packs,پروموشنل پیک,प्रोमो पैक,প্রমো প্যাক,bundle-and-save,1,العناية الشخصية > العبوات الترويجية,drop,promo pack label (owner decision B)
 sub,العدسات اللاصقة,العدسات اللاصقة,Contact Lenses,کانٹیکٹ لینس,कॉन्टैक्ट लेंस,কন্টাক্ট লেন্স,Mga Kontak Lente,764,المكياج والإكسسوارات > العدسات اللاصقة,keep,
@@ -192,7 +192,7 @@ sub_sub,القلب والدورة الدموية,القلب والدورة ال�
 sub_sub,القمل والصئبان,القمل والصئبان,Anti Lice,چچڑ اور بچھڑ,जूँ और मिलावट,উপি ও মাথিটুনি,Kuto at Itlog,14,الأم والطفل > صحة وسلامة الطفل > القمل والصئبان | العناية بالشعر > علاجات ومشاكل الشعر > القمل والصئبان,keep,the source holds 2 English values for this label: Anti Lice (13) | Lice Treatment (1)
 sub_sub,الكالسيوم,الكالسيوم,Calcium,کیلشیم,कैल्शियम,ক্যালসিয়াম,Calcium (Kalsayum),21,أدوية ومكملات غذائية > Vitamins & Healthy Nutrition > الكالسيوم | الفيتامينات والتغذية الصحية > المعادن والأملاح الصحية > الكالسيوم,keep,
 sub_sub,الكركم,الكركم,Curcumin,ہلدی,हल्दी,হলুদ,Curcumin (Luwengo),15,"أدوية ومكملات غذائية > Bio Biloba, Ginko Biloba Food Supplement   60 Tablets > الكركم | الفيتامينات والتغذية الصحية > الأعشاب والمستخلصات الطبيعية > الكركم",keep,
-sub_sub,الكريم الملون,الكريم الملون,Bb & Cc Cream,بی بی اور سی سی کرم,बीबी और सीसी क्रीम,বিবি ও সিসি ক্রিম,BB at CC Cream,17,العناية بالبشرة > مرطبات البشرة > الكريم الملون,keep,
+sub_sub,الكريم الملون,الكريم الملون,Bb & Cc Cream,بی بی اور سی سی کریم,बीबी और सीसी क्रीम,বিবি ও সিসি ক্রিম,BB at CC Cream,17,العناية بالبشرة > مرطبات البشرة > الكريم الملون,keep,
 sub_sub,الكلى والكبد,الكلى والكبد,Kidney & Liver,گردے اور جگر,गुर्दे और यकृत,কিডনি ও লিভার,Bato at Atay,38,الأدوية والعلاج > أدوية بوصفة طبية > الكلى والكبد,keep,
 sub_sub,الكولاجين,الكولاجين,Collagen,کولاجن,कोलेजन,কোলেজেন,Collagen (Kolagen),16,أدوية ومكملات غذائية > Vitamins & Healthy Nutrition > الكولاجين | الفيتامينات والتغذية الصحية > المكملات الغذائية > الكولاجين,keep,
 sub_sub,الكوليسترول والدهون الثلاثية,الكوليسترول والدهون الثلاثية,Cholesterol & Triglycerides,کولیسٹرول اور ٹرائی گلیسرائیڈز,कोलेस्ट्रॉल और ट्राइग्लिसराइड्स,কোলেস্টেরল ও ট্রাইগ্লিসারাইড,Kolesterol at Triglycerides,60,الأدوية والعلاج > الأدوية المزمنة > الكوليسترول والدهون الثلاثية,keep,
@@ -224,7 +224,7 @@ sub_sub,بديل الزيت,بديل الزيت,Oil Replacement,تیل کا مت
 sub_sub,برايمر,برايمر,Primer,پرائمر,प्राइमर,প্রাইমার,Pambasa ng makeup,19,المكياج والإكسسوارات > مكياج الوجه > برايمر,keep,
 sub_sub,بروتين زيادة الوزن,بروتين زيادة الوزن,Weight Gain Protein,وزن بڑھانے کا پروٹین,वजन बढ़ाने वाला प्रोटीन,ওজন বাড়ানোর প্রোটিন,Protina para sa Pagdagdag ng Timbang,4,الفيتامينات والتغذية الصحية > التغذية الرياضية وبناء الأجسام > بروتين زيادة الوزن,keep,
 sub_sub,بعد الشمس,بعد الشمس,After Sun,سورج کے بعد,सन के बाद,রোদের পরে,Pagsunod ng Araw,4,العناية بالبشرة > الحماية من الشمس والتسمير > بعد الشمس | تجميل وعناية > Nivea > بعد الشمس,keep,
-sub_sub,بلسم,بلسم,Conditioner,کنڈیشنر,कंडीशनर,কন্ডিশনার,Pambalot at pampakinis ng buhok,308,العناية بالشعر > الشامبو والبلسم > بلسم,keep,
+sub_sub,بلسم,بلسم,Conditioner,کنڈیشنر,कंडीशनर,কন্ডিশনার,Conditioner,308,العناية بالشعر > الشامبو والبلسم > بلسم,keep,
 sub_sub,بودرة الجسم,بودرة الجسم,Body Powder,جسم کی پاؤڈر,बॉडी पाउडर,বডি পাউডার,Pulbos para sa katawan,5,العناية الشخصية > العناية بالجسم > بودرة الجسم,keep,
 sub_sub,بودرة العناية الحميمية,بودرة العناية الحميمية,Intimate Powder,اندرونی نگہداشت کی پاؤڈر,इंटिमेट पाउडर,ইনটিমেট পাউডার,Pulbos para sa bahagi ng babae,1,العناية الشخصية > العناية النسائية > بودرة العناية الحميمية,keep,
 sub_sub,بودرة الوجه,بودرة الوجه,Make Up Powder,چہرے کی پاؤڈر,फेस पाउडर,ফেস পাউডার,Pambasaang Pulbos sa Mukha,53,المكياج والإكسسوارات > مكياج الوجه > بودرة الوجه,keep,
@@ -306,11 +306,11 @@ sub_sub,سيروم العين,سيروم العين,Eye Serum,آنکھ کا سی
 sub_sub,سيروم الوجه,سيروم الوجه,Face Serum,چہرے کا سیرم,चेहरे का सीरम,মুখের সিরাম,Seriao ng mukha,165,العناية بالبشرة > سيروم وعلاجات الوجه > سيروم الوجه,keep,
 sub_sub,سيروم نضارة وترطيب الوجه,سيروم نضارة وترطيب الوجه,Face Serum,چہرے کا نضارت اور نمی کا سیرم,चेहरे की ताजगी और नमी का सीरम,মুখের তাজা ও আর্দ্রতার সিরাম,Serum para sa Kabuhayan at Hydration ng Mukha,6,العناية بالبشرة > سيروم وعلاجات الوجه > سيروم نضارة وترطيب الوجه,keep,
 sub_sub,سيروم وزيوت علاج الشعر,سيروم وزيوت علاج الشعر,Hair Serum & Oils,بال کے علاج کا سیرم اور تیل,बालों के उपचार का सीरम और तेल,চুলের চিকিৎসার সিরাম ও তেল,Hair Serum at Mga Langis,10,العناية بالشعر > تغذية وعلاج الشعر > سيروم وزيوت علاج الشعر,keep,
-sub_sub,شامبو,شامبو,Shampoo,شامپو,शैम्पू,শ্যাম্পু,Sampo,535,العناية بالشعر > الشامبو والبلسم > شامبو,keep,
-sub_sub,شامبو جاف,شامبو جاف,Dry Shampoo,خشک شامپو,ड्राई शैम्पू,ড্রাই শ্যাম্পু,Dry Shampoo (Sampong tuyô),10,العناية بالشعر > الشامبو والبلسم > شامبو جاف,keep,
-sub_sub,شامبو صبغة ومعالجة الشيب,شامبو صبغة ومعالجة الشيب,Anti-Grey Shampoo,سفیدی کا شامپو اور علاج,ग्रे कवर शैम्पू,গ্রে কভার শ্যাম্পু,Shampoo para sa Pagsasapin at Grey Hair,1,العناية بالشعر > صبغات الشعر > شامبو صبغة ومعالجة الشيب,keep,
-sub_sub,شامبو وبلسم الأطفال,شامبو وبلسم الأطفال,Shampoo & Conditioner,بچوں کا شامپو اور بلسم,बच्चों का शैम्पू और कंडीशनर,শিশুর শ্যাম্পু ও কন্ডিশনার,Shampoo at Conditioner para sa Bata,65,الأم والطفل > استحمام وعناية الطفل > شامبو وبلسم الأطفال,keep,
-sub_sub,شامبو وبلسم الشعر,شامبو وبلسم الشعر,Shampoo & Conditioner,شامپو اور بلسم,शैम्पू और कंडीशनर,শ্যাম্পু ও কন্ডিশনার,Shampoo at Conditioner,47,العناية بالشعر > الشامبو والبلسم > شامبو وبلسم الشعر,keep,
+sub_sub,شامبو,شامبو,Shampoo,شامپو,शैम्पू,শ্যাম্পু,Shampoo,535,العناية بالشعر > الشامبو والبلسم > شامبو,keep,
+sub_sub,شامبو جاف,شامبو جاف,Dry Shampoo,خشک شامپو,ड्राई शैम्पू,ড্রাই শ্যাম্পু,Dry Shampoo,10,العناية بالشعر > الشامبو والبلسم > شامبو جاف,keep,
+sub_sub,شامبو صبغة ومعالجة الشيب,شامبو صبغة ومعالجة الشيب,Anti-Grey Shampoo,سفیدی کا شامپو اور علاج,ग्रे कवर शैम्पू,গ্রে কভার শ্যাম্পু,Anti-Grey Shampoo,1,العناية بالشعر > صبغات الشعر > شامبو صبغة ومعالجة الشيب,keep,
+sub_sub,شامبو وبلسم الأطفال,شامبو وبلسم الأطفال,Shampoo & Conditioner,بچوں کا شامپو اور بلسم,बच्चों का शैम्पू और कंडीशनर,শিশুর শ্যাম্পু ও কন্ডিশনার,Baby Shampoo & Conditioner,65,الأم والطفل > استحمام وعناية الطفل > شامبو وبلسم الأطفال,keep,
+sub_sub,شامبو وبلسم الشعر,شامبو وبلسم الشعر,Shampoo & Conditioner,شامپو اور بلسم,शैम्पू और कंडीशनर,শ্যাম্পু ও কন্ডিশনার,Shampoo & Conditioner,47,العناية بالشعر > الشامبو والبلسم > شامبو وبلسم الشعر,keep,
 sub_sub,شرائح إزالة الشعر,شرائح إزالة الشعر,Hair Removal Strips,بال ہٹانے کی شرائح,बाल हटाने की स्ट्रिप,চুল ঠিকানোর স্ট্রিপ,Mga Hair Removal Strip,17,العناية الشخصية > العناية النسائية > شرائح إزالة الشعر,keep,
 sub_sub,شرائط اختبار منزلية,شرائط اختبار منزلية,Home Use Tests,گھریلو ٹیسٹ کی اسٹرپ,घरेलू टेस्ट स्ट्रिप,বাড়ির টেস্ট স্ট্রিপ,Mga Home Use Test,23,الرعاية الصحية المنزلية والأجهزة الطبية > الأجهزة والمستلزمات الطبية > شرائط اختبار منزلية,keep,
 sub_sub,شفرات الحلاقة اليدوية,شفرات الحلاقة اليدوية,Manual Razors,دستی شیو بلیڈ,मैनुअल रेज़र ब्लेड,ম্যানুয়াল রেজার ব্লেড,Mga Manual Razor,5,العناية الشخصية > العناية بالرجل > شفرات الحلاقة اليدوية,keep,
@@ -381,17 +381,17 @@ sub_sub,كرسي الإطعام,كرسي الإطعام,High Chair,ہائی چی
 sub_sub,كرسي متحرك,كرسي متحرك,Wheel Chair,وہیل چیئر,व्हील चेयर,হুইল চেয়ার,Singkad na panakid,7,الرعاية الصحية المنزلية والأجهزة الطبية > رعاية كبار السن > كرسي متحرك,keep,
 sub_sub,كرسي مرحاض,كرسي مرحاض,Commode Chair,کمود چیئر,कमोड चेयर,কমোড চেয়ার,Kursi para sa pagpapadaan,7,الرعاية الصحية المنزلية والأجهزة الطبية > رعاية كبار السن > كرسي مرحاض,keep,
 sub_sub,كريم أساس,كريم أساس,Foundation,فاؤنڈیشن,फाउंडेशन,ফাউন্ডেশন,Kulay ng mukha,145,المكياج والإكسسوارات > مكياج الوجه > كريم أساس,keep,
-sub_sub,كريم إزالة الشعر,كريم إزالة الشعر,Hair Removal Cream,بال ہٹانے کا کرم,बाल हटाने का क्रीम,চুল ঠিকানোর ক্রিম,Krim sa Pag-aalis ng Buhok,47,العناية الشخصية > العناية النسائية > كريم إزالة الشعر,keep,
+sub_sub,كريم إزالة الشعر,كريم إزالة الشعر,Hair Removal Cream,بال ہٹانے کی کریم,बाल हटाने का क्रीम,চুল ঠিকানোর ক্রিম,Krim sa Pag-aalis ng Buhok,47,العناية الشخصية > العناية النسائية > كريم إزالة الشعر,keep,
 sub_sub,كريم الأساس والبودرة,كريم الأساس والبودرة,Foundation & Face Powder,فاؤنڈیشن اور فیس پاؤڈر,फाउंडेशन और फेस पाउडर,ফাউন্ডেশন ও ফেস পাউডার,Foundation at Face Powder,49,المكياج والإكسسوارات > مكياج الوجه > كريم الأساس والبودرة,keep,
-sub_sub,كريم الحفاضات,كريم الحفاضات,Rash Cream,حفاض کا کرم,डायपर रैश क्रीम,ডায়াপারের র‍্যাশ ক্রিম,Krim para sa pag-init ng diaper,29,الأم والطفل > حفاضات ومناديل الأطفال > كريم الحفاضات,keep,
-sub_sub,كريم الشعر,كريم الشعر,Hair Cream,بال کا کرم,हेयर क्रीम,হেয়ার ক্রিম,Krim ng buhok,107,العناية بالشعر > تغذية وعلاج الشعر > كريم الشعر,keep,
-sub_sub,كريم العين,كريم العين,Eye Cream,آنکھ کا کرم,आँख का क्रीम,চোখের ক্রিম,Krim ng mata,18,العناية بالبشرة > مرطبات البشرة > كريم العين | تجميل وعناية > Glow & Lovely > كريم العين,keep,
-sub_sub,كريم اليدين,كريم اليدين,Hand Cream,ہاتھوں کا کرم,हाथों का क्रीम,হাতের ক্রিম,Krim ng kamay,3,العناية بالبشرة > مرطبات البشرة > كريم اليدين,keep,
-sub_sub,كريم مرطب,كريم مرطب,Moisturizing Cream,مرطوب کرنے والا کرم,मॉइस्चराइज़िंग क्रीम,ময়েশ্চারাইজিং ক্রিম,Pambasa ng balat,8,العناية بالبشرة > مرطبات البشرة > كريم مرطب,keep,
-sub_sub,كريم ولوشن,كريم ولوشن,Cream & Lotion,کرم اور لوشن,क्रीम और लोशन,ক্রিম ও লোশন,Cream at Lotion,336,العناية بالبشرة > مرطبات البشرة > كريم ولوشن | تجميل وعناية > Glow & Lovely > كريم ولوشن,keep,
-sub_sub,كريم ولوشن ترطيب الجسم,كريم ولوشن ترطيب الجسم,Body Cream & Lotion,جسم کا مرطوب کرنے والا کرم اور لوشن,शरीर का मॉइस्चराइज़िंग क्रीम और लोशन,শরীরের ময়েশ্চারাইজিং ক্রিম ও লোশন,Body Cream at Lotion,39,العناية بالبشرة > مرطبات البشرة > كريم ولوشن ترطيب الجسم,keep,
-sub_sub,كريمات الجسم,كريمات الجسم,Body Cream,جسم کے کرم,बॉडी क्रीम,বডি ক্রিম,Mga krim ng katawan,104,العناية الشخصية > العناية بالجسم > كريمات الجسم,keep,
-sub_sub,كريمات ترطيب البشرة والوجه,كريمات ترطيب البشرة والوجه,Moisturizing Cream,جلد اور چہرے کے مرطوب کرنے والے کرم,त्वचा और चेहरे के मॉइस्चराइज़िंग क्रीम,ত্বক ও মুখের ময়েশ্চারাইজিং ক্রিম,Krim para sa Balat at Mukha,27,العناية بالبشرة > مرطبات البشرة > كريمات ترطيب البشرة والوجه,keep,
+sub_sub,كريم الحفاضات,كريم الحفاضات,Rash Cream,حفاض کی کریم,डायपर रैश क्रीम,ডায়াপারের র‍্যাশ ক্রিম,Krim para sa pag-init ng diaper,29,الأم والطفل > حفاضات ومناديل الأطفال > كريم الحفاضات,keep,
+sub_sub,كريم الشعر,كريم الشعر,Hair Cream,بال کی کریم,हेयर क्रीम,হেয়ার ক্রিম,Krim ng buhok,107,العناية بالشعر > تغذية وعلاج الشعر > كريم الشعر,keep,
+sub_sub,كريم العين,كريم العين,Eye Cream,آنکھ کی کریم,आँख का क्रीम,চোখের ক্রিম,Krim ng mata,18,العناية بالبشرة > مرطبات البشرة > كريم العين | تجميل وعناية > Glow & Lovely > كريم العين,keep,
+sub_sub,كريم اليدين,كريم اليدين,Hand Cream,ہاتھوں کی کریم,हाथों का क्रीम,হাতের ক্রিম,Krim ng kamay,3,العناية بالبشرة > مرطبات البشرة > كريم اليدين,keep,
+sub_sub,كريم مرطب,كريم مرطب,Moisturizing Cream,مرطوب کرنے والا کریم,मॉइस्चराइज़िंग क्रीम,ময়েশ্চারাইজিং ক্রিম,Pambasa ng balat,8,العناية بالبشرة > مرطبات البشرة > كريم مرطب,keep,
+sub_sub,كريم ولوشن,كريم ولوشن,Cream & Lotion,کریم اور لوشن,क्रीम और लोशन,ক্রিম ও লোশন,Cream & Lotion,336,العناية بالبشرة > مرطبات البشرة > كريم ولوشن | تجميل وعناية > Glow & Lovely > كريم ولوشن,keep,
+sub_sub,كريم ولوشن ترطيب الجسم,كريم ولوشن ترطيب الجسم,Body Cream & Lotion,جسم کا مرطوب کرنے والا کریم اور لوشن,शरीर का मॉइस्चराइज़िंग क्रीम और लोशन,শরীরের ময়েশ্চারাইজিং ক্রিম ও লোশন,Body Cream & Lotion,39,العناية بالبشرة > مرطبات البشرة > كريم ولوشن ترطيب الجسم,keep,
+sub_sub,كريمات الجسم,كريمات الجسم,Body Cream,باڈی کریم,बॉडी क्रीम,বডি ক্রিম,Mga krim ng katawan,104,العناية الشخصية > العناية بالجسم > كريمات الجسم,keep,
+sub_sub,كريمات ترطيب البشرة والوجه,كريمات ترطيب البشرة والوجه,Moisturizing Cream,جلد اور چہرے کے مرطوب کرنے والے کریم,त्वचा और चेहरे के मॉइस्चराइज़िंग क्रीम,ত্বক ও মুখের ময়েশ্চারাইজিং ক্রিম,Krim para sa Balat at Mukha,27,العناية بالبشرة > مرطبات البشرة > كريمات ترطيب البشرة والوجه,keep,
 sub_sub,كريمات وجل تصفيف الشعر,كريمات وجل تصفيف الشعر,Hair Styling Creams & Gel,بال کی کریم اور جیل,हेयर स्टाइलिंग क्रीम और जेल,হেয়ার স্টাইলিং ক্রিম ও জেল,Mga Hair Styling Cream at Gel,42,العناية بالشعر > تصفيف وتثبيت الشعر > كريمات وجل تصفيف الشعر,keep,
 sub_sub,كلوت الأطفال,كلوت الأطفال,Pants,بچوں کے پینٹ,बच्चों के पैंट्स,শিশুর প্যান্ট,Mga Pants ng Sanggol,62,أدوية ومكملات غذائية > Mum and Baby > كلوت الأطفال | الأم والطفل > حفاضات ومناديل الأطفال > كلوت الأطفال,keep,
 sub_sub,كلوت السباحة,كلوت السباحة,Swimming Pants,تیرتی کے پینٹ,स्विमिंग पैंट्स,সুইমিং প্যান্ট,Mga Swimming Pants,5,أدوية ومكملات غذائية > Mum and Baby > كلوت السباحة | الأم والطفل > حفاضات ومناديل الأطفال > كلوت السباحة,keep,
@@ -400,16 +400,16 @@ sub_sub,كو إنزيم كيو10,كو إنزيم كيو10,Co Enzyme Q10,کو ا�
 sub_sub,كونسيلر,كونسيلر,Concealer,کانسیلر,कंसीलर,কনসিলার,Pampatago ng kulay sa ilalim ng mata,85,المكياج والإكسسوارات > مكياج الوجه > كونسيلر,keep,
 sub_sub,لاصقات التدفئة وتسكين الآلام,لاصقات التدفئة وتسكين الآلام,Heat & Pain Relief Patches,گرم کرنے اور درد کے لیے پچ,गर्मी और दर्द राहत पैच,উষ্ণতা ও ব্যথা উপশম প্যাচ,Mga Pain Relief at Heating Patch,1,الرعاية الصحية المنزلية والأجهزة الطبية > الدعامات ومشدات الجسم > لاصقات التدفئة وتسكين الآلام,keep,
 sub_sub,لصقات الجروح,لصقات الجروح,Wounds & Fractures Bandages,زخم اور ہڈیوں کے پچ,घाव और हड्डी के पट्टी,ক্ষত ও হাড়ের ব্যান্ডেজ,Mga Bandage sa mga Sugat at Kasukasuan,161,الرعاية الصحية المنزلية والأجهزة الطبية > الإسعافات الأولية > لصقات الجروح,keep,
-sub_sub,لوشن الجسم,لوشن الجسم,Body Lotion,جسم کا لوشن,बॉडी लोशन,বডি লোশন,Lotion ng katawan,271,العناية الشخصية > العناية بالجسم > لوشن الجسم,keep,
-sub_sub,لوشن ترطيب الجسم,لوشن ترطيب الجسم,Body Lotion,جسم کا مرطوب لوشن,शरीर का मॉइस्चराइज़िंग लोशन,শরীরের ময়েশ্চারাইজিং লোশন,Badyong Moisturizing Lotion,3,العناية بالبشرة > مرطبات البشرة > لوشن ترطيب الجسم,keep,
-sub_sub,لوشن وكريم الأطفال,لوشن وكريم الأطفال,Lotion & Cream,بچوں کا لوشن اور کرم,बच्चों का लोशन और क्रीम,শিশুর লোশন ও ক্রিম,Lotion at Cream para sa Sanggol,66,الأم والطفل > استحمام وعناية الطفل > لوشن وكريم الأطفال,keep,
-sub_sub,ليف إن بلسم,ليف إن بلسم,Leave-In Conditioner,لیف ان بلسم,लीव-इन कंडीशनर,লিভ-ইন কন্ডিশনার,Pambalot ng buhok na hindi hinuhugasan,39,العناية بالشعر > الشامبو والبلسم > ليف إن بلسم,keep,
+sub_sub,لوشن الجسم,لوشن الجسم,Body Lotion,جسم کا لوشن,बॉडी लोशन,বডি লোশন,Body Lotion,271,العناية الشخصية > العناية بالجسم > لوشن الجسم,keep,
+sub_sub,لوشن ترطيب الجسم,لوشن ترطيب الجسم,Body Lotion,جسم کا مرطوب لوشن,शरीर का मॉइस्चराइज़िंग लोशन,শরীরের ময়েশ্চারাইজিং লোশন,Body Lotion,3,العناية بالبشرة > مرطبات البشرة > لوشن ترطيب الجسم,keep,
+sub_sub,لوشن وكريم الأطفال,لوشن وكريم الأطفال,Lotion & Cream,بچوں کا لوشن اور کریم,बच्चों का लोशन और क्रीम,শিশুর লোশন ও ক্রিম,Baby Lotion & Cream,66,الأم والطفل > استحمام وعناية الطفل > لوشن وكريم الأطفال,keep,
+sub_sub,ليف إن بلسم,ليف إن بلسم,Leave-In Conditioner,لیف ان بلسم,लीव-इन कंडीशनर,লিভ-ইন কন্ডিশনার,Leave-In Conditioner,39,العناية بالشعر > الشامبو والبلسم > ليف إن بلسم,keep,
 sub_sub,ماء ميسيلار,ماء ميسيلار,Micellar Water,مائیسلر واٹر,माइसेलर वॉटर,মাইসেলার ওয়াটার,Micellar water (malinis na tubig),37,العناية بالبشرة > مزيلات المكياج > ماء ميسيلار,keep,
 sub_sub,ماسك الشعر,ماسك الشعر,Hair Mask,بال کا ماسک,हेयर मास्क,হেয়ার মাস্ক,Mask ng buhok,107,العناية بالشعر > تغذية وعلاج الشعر > ماسك الشعر,keep,
 sub_sub,ماسكات وحمامات زيت الشعر,ماسكات وحمامات زيت الشعر,Hair Masks & Hot Oil Treatments,بال کے ماسک اور تیل کے حمام,हेयर मास्क और हेयर ऑयल बाथ,হেয়ার মাস্ক ও তেলের গোসল,Mga Hair Mask at Hot Oil Treatment,45,العناية بالشعر > تغذية وعلاج الشعر > ماسكات وحمامات زيت الشعر,keep,
 sub_sub,ماكينات الحلاقة وتشذيب الشعر,ماكينات الحلاقة وتشذيب الشعر,Electric Shavers & Trimmers,بجلی سے شیو اور ٹرمنگ کی مشینیں,इलेक्ट्रिक शेवर और ट्रिमर,ইলেকট্রিক শেভার ও ট্রিমার,Electric Shavers at Trimmers,14,العناية الشخصية > العناية بالرجل > ماكينات الحلاقة وتشذيب الشعر,keep,
 sub_sub,مثبتات المكياج,مثبتات المكياج,Make Up Fixers,میک اپ فکس,मेकअप फिक्सर,মেকআপ ফিক্সার,Pampatago ng makeup,8,المكياج والإكسسوارات > مكياج الوجه > مثبتات المكياج,keep,
-sub_sub,مجفف الشعر,مجفف الشعر,Hair Dryer,بال خشک کرنے والا آلہ,हेयर ड्रायर,হেয়ার ড্রায়ার,Pipang tuyô ng buhok,20,العناية بالشعر > أدوات وأجهزة تصفيف الشعر > مجفف الشعر,keep,
+sub_sub,مجفف الشعر,مجفف الشعر,Hair Dryer,بال خشک کرنے والا آلہ,हेयर ड्रायर,হেয়ার ড্রায়ার,Hair Dryer,20,العناية بالشعر > أدوات وأجهزة تصفيف الشعر > مجفف الشعر,keep,
 sub_sub,مجموعة الاستحمام,مجموعة الاستحمام,Bath Sets,غسل کا سیٹ,बाथ सेट,বাথ সেট,Mga Bath Set,5,الأم والطفل > خطوات العناية الأولى > مجموعة الاستحمام,keep,
 sub_sub,محاليل ومنتجات صحية,محاليل ومنتجات صحية,Health Solutions & Products,صحت مند حل اور مصنوعات,स्वास्थ्य समाधान और उत्पाद,স্বাস্থ্য সমাধান ও পণ্য,Mga Solusyon at Produkto sa Kalusugan,2,الصحة والعافية المتخصصة > العناية المتخصصة > محاليل ومنتجات صحية,keep,
 sub_sub,محدد الشفاه,محدد الشفاه,Lip Liner,لپ لائنر,लिप लाइनर,লিপ লাইনার,Liner ng bibig,62,المكياج والإكسسوارات > مكياج الشفاه > محدد الشفاه,keep,
@@ -417,22 +417,22 @@ sub_sub,محدد العيون,محدد العيون,Contour,آئی کانٹور,
 sub_sub,محلول العدسات,محلول العدسات,Lenses Solution,عدسات کا محلول,कॉन्टैक्ट लेंस सॉल्यूशन,কন্ট্যাক্ট লেন্স সলিউশন,Lentes Solution,6,المكياج والإكسسوارات > العدسات اللاصقة > محلول العدسات,keep,
 sub_sub,محليات,محليات,Sweetners,چینی,मीठास (स्वीटनर),মিষ্টি (সুইটেনার),Mga Sweetener,22,الفيتامينات والتغذية الصحية > الأغذية الصحية والمشروبات > محليات,keep,
 sub_sub,مرطب الشفاه,مرطب الشفاه,Lip Balm & Scrub,شفاں کا بلم اور اسکرب,होंठों का बाम और स्क्रब,ঠোঁটের বাম ও স্ক্রাব,Lip Balm at Scrub,166,العناية بالبشرة > العناية بالشفاه وترطيبها > مرطب الشفاه,keep,
-sub_sub,مرطب ليلي,مرطب ليلي,Night Cream,رات کا کرم,नाइट क्रीम,রাতের ক্রিম,Krim ng gabi,16,العناية بالبشرة > مرطبات البشرة > مرطب ليلي,keep,
-sub_sub,مرطب نهاري,مرطب نهاري,Day Cream,دن کا کرم,डे क्रीम,দিনের ক্রিম,Krim ng araw,33,العناية بالبشرة > مرطبات البشرة > مرطب نهاري,keep,
+sub_sub,مرطب ليلي,مرطب ليلي,Night Cream,رات کی کریم,नाइट क्रीम,রাতের ক্রিম,Krim ng gabi,16,العناية بالبشرة > مرطبات البشرة > مرطب ليلي,keep,
+sub_sub,مرطب نهاري,مرطب نهاري,Day Cream,دن کی کریم,डे क्रीम,দিনের ক্রিম,Krim ng araw,33,العناية بالبشرة > مرطبات البشرة > مرطب نهاري,keep,
 sub_sub,مزيل المناكير,مزيل المناكير,Nail Polish Remover,ناخنوں کا پولش متبادل,नाखून पॉलिश रिमूवर,নখের পলিশ রিমুভার,Pambubura ng kuko,27,المكياج والإكسسوارات > العناية بالأظافر والطلاء > مزيل المناكير,keep,
 sub_sub,مزيل عرق بخاخ,مزيل عرق بخاخ,Deodorant Spray,ڈیئڈورنٹ اسپرے,डिओडोरेंट स्प्रे,ডিওডোরেন্ট স্প্রে,Spray na pampaalin ng pawis,110,العناية الشخصية > مزيلات العرق > مزيل عرق بخاخ,keep,
 sub_sub,مزيل عرق رجالي,مزيل عرق رجالي,Men Deodorants,مردوں کے ڈیئڈورنٹ,पुरुष डिओडोरेंट,পুরুষের ডিওডোরেন্ট,Mga Deodorant ng Lalaki,88,العناية الشخصية > العناية بالرجل > مزيل عرق رجالي,keep,
 sub_sub,مزيل عرق رول-أون,مزيل عرق رول-أون,Deodorant Roll-On,رول آن ڈیئڈورنٹ,रोल-ऑन डिओडोरेंट,রোল-অন ডিওডোরেন্ট,Roll-On na Deodorant,97,العناية الشخصية > مزيلات العرق > مزيل عرق رول-أون,keep,
 sub_sub,مزيل عرق ستيك,مزيل عرق ستيك,Deodorant Stick,اسٹک ڈیئڈورنٹ,स्टिक डिओडोरेंट,স্টিক ডিওডোরেন্ট,Stick na Deodorant,71,العناية الشخصية > مزيلات العرق > مزيل عرق ستيك,keep,
 sub_sub,مزيل عرق طبي,مزيل عرق طبي,Advanced Deodorant,ایڈوانسڈ ڈیئڈورنٹ,एडवांस्ड डिओडोरेंट,অ্যাডভান্সড ডিওডোরেন্ট,Advanced na Deodorant,102,العناية الشخصية > مزيلات العرق > مزيل عرق طبي,keep,
-sub_sub,مزيل عرق كريم,مزيل عرق كريم,Deodorant Cream,ڈیئڈورنٹ کرم,डिओडोरेंट क्रीम,ডিওডোরেন্ট ক্রিম,Krim na pampabango ng katawan,10,العناية الشخصية > مزيلات العرق > مزيل عرق كريم,keep,
+sub_sub,مزيل عرق كريم,مزيل عرق كريم,Deodorant Cream,ڈیئڈورنٹ کریم,डिओडोरेंट क्रीम,ডিওডোরেন্ট ক্রিম,Krim na pampabango ng katawan,10,العناية الشخصية > مزيلات العرق > مزيل عرق كريم,keep,
 sub_sub,مزيل عرق للأطفال,مزيل عرق للأطفال,Kids Deodorant & Spray,بچوں کا ڈیئڈورنٹ اور اسپرے,बच्चों का डिओडोरेंट और स्प्रे,শিশুর ডিওডোरেন্ট ও স্প্রে,Deodorant at Spray ng Bata,8,العناية الشخصية > العناية بالأطفال > مزيل عرق للأطفال,keep,
 sub_sub,مزيل مكياج العين,مزيل مكياج العين,Eye,میک اپ ریموور آئی,आँख का मेकअप रिमूवर,চোখের মেকআপ রিমুভার,Pambubura ng Makeup sa Mata,19,العناية بالبشرة > مزيلات المكياج > مزيل مكياج العين,keep,
 sub_sub,مزيل مكياج الوجه,مزيل مكياج الوجه,Face,فیس میک اپ ریموور,फेस मेकअप रिमूवर,ফেস মেকআপ রিমুভার,Pambubura ng Makeup sa Mukha,104,العناية بالبشرة > مزيلات المكياج > مزيل مكياج الوجه,keep,
 sub_sub,مساعد الاسترخاء والنوم,مساعد الاسترخاء والنوم,Sleep Aid,نیند اور آرام میں مدد,नींद और विश्राम में सहायता,ঘুম ও বিশ্রামে সহায়তা,Tulong sa Pagpapahupa at Tulog,50,أدوية ومكملات غذائية > Vitamins & Healthy Nutrition > مساعد الاسترخاء والنوم | الفيتامينات والتغذية الصحية > مكملات حسب الحالة الصحية > مساعد الاسترخاء والنوم,keep,
 sub_sub,مساعدات التخسيس,مساعدات التخسيس,Weight Management,وزن کم کرنے میں مدد,वजन घटाने में सहायता,ওজন কমাতে সহায়তা,Tulong sa Pagpapatumba,30,أدوية ومكملات غذائية > Vitamins & Healthy Nutrition > مساعدات التخسيس | الفيتامينات والتغذية الصحية > مكملات حسب الحالة الصحية > مساعدات التخسيس,keep,
 sub_sub,مستلزمات الاستحمام,مستلزمات الاستحمام,Shower Essentials,غسل کے اوزار,स्नान के सामान,গোসলের সরঞ্জাম,Mga Kasangkapan sa Paliligo,80,الأم والطفل > استحمام وعناية الطفل > مستلزمات الاستحمام | العناية الشخصية > الاستحمام والعناية بالجسم > مستلزمات الاستحمام,keep,the source holds 2 English values for this label: Shower Essentials (66) | Bath Accessories (14)
-sub_sub,مستلزمات الاسعافات الأولية,مستلزمات الاسعافات الأولية,First Aid Accessories,ابتدائی طبی امداد کے اوزار,प्राथमिक चिकित्सा सामान,প্রাথমিক চিকিৎসা সরঞ্জাম,Mga Kasangkapan sa Unang Aklate,38,الرعاية الصحية المنزلية والأجهزة الطبية > الإسعافات الأولية > مستلزمات الاسعافات الأولية,keep,
+sub_sub,مستلزمات الاسعافات الأولية,مستلزمات الاسعافات الأولية,First Aid Accessories,ابتدائی طبی امداد کے اوزار,प्राथमिक चिकित्सा सामान,প্রাথমিক চিকিৎসা সরঞ্জাম,Mga Gamit sa Pangunang Lunas,38,الرعاية الصحية المنزلية والأجهزة الطبية > الإسعافات الأولية > مستلزمات الاسعافات الأولية,keep,
 sub_sub,مستلزمات الحلاقة,مستلزمات الحلاقة,Shaving Essentials,شیو کے اوزار,शेविंग सामान,শেভিং সরঞ্জাম,Mga Kasangkapan sa Pag-ah shave,63,العناية الشخصية > العناية بالرجل > مستلزمات الحلاقة,keep,
 sub_sub,مستلزمات الرضاعة الطبيعية,مستلزمات الرضاعة الطبيعية,Breastfeeding Essentials,چنگشی اڑ کے لیے اوزار,स्तनपान सामान,বুকচুঙানোর সামগ্রী,Mga Kasangkapan sa Pagpapasuso,82,الأم والطفل > تغذية ورضاعة الأطفال > مستلزمات الرضاعة الطبيعية,keep,
 sub_sub,مستلزمات تعقيم المرحاض,مستلزمات تعقيم المرحاض,Toilet Hygiene Essentials,بیت الخلاء کی صفائی کے اوزار,शौचालय स्वच्छता सामान,প্র্যাশ্রয়ের পরিচর্যার সামগ্রী,Mga Kasangkapan sa Kalinisan ng Toilet,6,الرعاية الصحية المنزلية والأجهزة الطبية > منتجات العناية بالمنزل > مستلزمات تعقيم المرحاض,keep,
