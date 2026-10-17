@@ -27,6 +27,7 @@ import { ProviderOnboardingController } from '../../src/modules/provider-onboard
 import { ProviderOnboardingService } from '../../src/modules/provider-onboarding/provider-onboarding.module';
 import { ProviderAdminController } from '../../src/modules/provider/provider.controllers';
 import { ProviderAdminService } from '../../src/modules/provider/services/provider-admin.service';
+import { ScfhsLicenseService } from '../../src/modules/provider/services/scfhs-license.service';
 import { ProviderAuthController } from '../../src/modules/provider/provider.controllers';
 import { ProviderAuthService } from '../../src/modules/provider/services/provider-auth.service';
 import { ProviderProfileController } from '../../src/modules/provider/provider.controllers';
@@ -85,6 +86,8 @@ describe('Gate P2 provider onboarding journeys', () => {
         ProviderProductionService,
         ProviderDashboardService,
         { provide: ProviderSeedService, useValue: {} },
+        // The SCFHS lookup is a network service; the licence rules have their own unit tests.
+        { provide: ScfhsLicenseService, useValue: { decideFor: async () => ({ decision: { verified: true, license_status: 'verified', source: 'admin_manual' }, result: null, number: 'n' }), store: async () => undefined, recordAtSubmission: async () => undefined } },
         { provide: getModelToken('User'), useValue: db.model('users') },
         { provide: getModelToken('ProviderProfile'), useValue: db.model('provider_profiles') },
         { provide: 'UserRepository', useValue: repo('users') },

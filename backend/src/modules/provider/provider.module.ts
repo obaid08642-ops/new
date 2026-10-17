@@ -19,6 +19,7 @@ import { ProviderAuthService } from './services/provider-auth.service';
 import { ProviderProfileService } from './services/provider-profile.service';
 import { ProviderOperatorsService } from './services/provider-operators.service';
 import { ProviderAdminService } from './services/provider-admin.service';
+import { ScfhsLicenseModule } from './services/scfhs-license.service';
 import { ProviderOtpService } from './services/provider-otp.service';
 import { ProviderMailerService } from './services/provider-mailer.service';
 import { ProviderRequestEngineService } from './services/provider-request-engine.service';
@@ -88,6 +89,7 @@ import { ProviderDrugIndexController } from './provider-drug-index.controller';
 
 @Module({
   imports: [
+    ScfhsLicenseModule,
     MongooseModule.forFeature([
       { name: 'ProviderAccount', schema: ProviderAccountSchema },
       { name: 'LeaveRequest', schema: LeaveRequestSchema },

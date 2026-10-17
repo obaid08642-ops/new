@@ -536,6 +536,21 @@ export class NotificationsService {
     });
   }
 
+  /** 19.3: the provider is told why it disappeared from the app, and what to do. */
+  @OnEvent('provider.license_lapsed')
+  async onProviderLicenseLapsed(p: any) {
+    if (!p?.provider_id) return;
+    const expired = p.outcome === 'expired';
+    await this.notifyProviderAccount(String(p.provider_id), {
+      type: 'booking_update',
+      title_ar: expired ? 'انتهت صلاحية ترخيص هيئة التخصصات الصحية' : 'تعذّر التحقق من ترخيص هيئة التخصصات الصحية',
+      title_en: expired ? 'Your SCFHS licence has expired' : 'Your SCFHS licence could not be verified',
+      body_ar: 'أُخفي حسابك من التطبيق إلى أن يُجدَّد الترخيص ويراجعه فريق نبض بلس.',
+      body_en: 'Your account is hidden from the app until the licence is renewed and the Nabd Plus team reviews it.',
+      related_id: p.profile_id ? String(p.profile_id) : undefined, related_type: 'provider_license',
+    });
+  }
+
   @OnEvent('chat.message_sent')
   async onChatMessageTargeted(p: any) {
     const threadId = p?.thread_id || p?.meta?.thread_id;

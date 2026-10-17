@@ -13,6 +13,8 @@ import { ProviderProfileRepository } from "./repositories/providerprofile.reposi
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
 import { escapeRegex } from '../../common/slug.util';
+import { ManualLicenseCheck, requiresScfhs } from '../../common/scfhs-license';
+import { ScfhsLicenseService } from './services/scfhs-license.service';
 
 /**
  * Fields a provider may edit on their own profile (and, via the
@@ -58,6 +60,7 @@ export class ProvidersService {
     private events: EventEmitter2,
     private readonly publication: CatalogPublicationService,
     @InjectConnection() private readonly connection: Connection,
+    private readonly scfhs: ScfhsLicenseService,
   ) {}
 
   private async refreshPublicProjection(provider: any, actorId: string, reason: string) {
@@ -216,9 +219,12 @@ export class ProvidersService {
   }
 
   // ============ Admin Review ============
-  async approve(id: string, admin: any) {
+  async approve(id: string, admin: any, manualLicenseCheck?: ManualLicenseCheck) {
     const p = await this.providerModel.findOne({ id });
     if (!p) throw new NotFoundException();
+    // 19.3: a doctor, pharmacist or individual nurse is approved only on a confirmed SCFHS licence.
+    const licenseCheck = requiresScfhs(p) ? await this.scfhs.decideFor(p, manualLicenseCheck) : null;
+    if (licenseCheck && !licenseCheck.decision.verified) throw new ConflictException(licenseCheck.decision.reason || 'scfhs_license_not_verified');
     p.status = ProviderStatus.ACTIVE;
     p.approved_at = new Date();
     p.approved_by = admin.id;
@@ -229,6 +235,7 @@ export class ProvidersService {
     p.last_reviewed = p.approved_at;
     p.provenance = 'admin_provider_review';
     await p.save();
+    if (licenseCheck) await this.scfhs.store({ id: p.id }, licenseCheck.decision, licenseCheck.result, admin.id, manualLicenseCheck);
     await this.userModel.updateOne({ id: p.user_id }, { $set: { active: true } });
     this.events.emit('provider.approved', { provider_id: p.id });
     await this.refreshPublicProjection(p, admin.id, 'provider_approved');
