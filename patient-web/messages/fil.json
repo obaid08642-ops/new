@@ -3790,6 +3790,10 @@
     },
     "storageTitle": "Imbakan ng datos",
     "storageEmpty": "Wala pang detalye ng imbakan.",
+    "storageItem": {
+      "uploaded_prescriptions": "Mga na-upload na reseta",
+      "medical_reports": "Mga medikal na ulat"
+    },
     "exportTitle": "Kopya ng aking datos",
     "exportBody": "Mag-download ng isang file na may lahat ng datos sa iyong account.",
     "exportButton": "I-export ang lahat ng aking datos",

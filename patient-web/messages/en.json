@@ -3790,6 +3790,10 @@
     },
     "storageTitle": "Data storage",
     "storageEmpty": "No storage details yet.",
+    "storageItem": {
+      "uploaded_prescriptions": "Uploaded prescriptions",
+      "medical_reports": "Medical reports"
+    },
     "exportTitle": "A copy of my data",
     "exportBody": "Download one file with all the data held in your account.",
     "exportButton": "Export all my data",

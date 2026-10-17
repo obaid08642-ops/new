@@ -3790,6 +3790,10 @@
     },
     "storageTitle": "ডেটা স্টোরেজ",
     "storageEmpty": "এখনো স্টোরেজের কোনো বিবরণ নেই।",
+    "storageItem": {
+      "uploaded_prescriptions": "আপলোড করা প্রেসক্রিপশন",
+      "medical_reports": "মেডিক্যাল রিপোর্ট"
+    },
     "exportTitle": "আমার ডেটার একটি কপি",
     "exportBody": "একটি ফাইল ডাউনলোড করুন যাতে আপনার অ্যাকাউন্টের সব ডেটা আছে।",
     "exportButton": "আমার সব ডেটা এক্সপোর্ট করুন",

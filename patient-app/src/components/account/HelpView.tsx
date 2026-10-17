@@ -9,6 +9,10 @@ import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { AccountScreen, SETTINGS_HOME, StarRating } from './AccountKit';
+import { faqText, type ServerFaq } from './serverText';
+
+// The FAQ text by app language lives in serverText.ts; the Help screen keeps exporting it for its test.
+export { faqText };
 
 /**
  * Help and support (merge map sections 3 and 8): `?tab=help` has the ways to reach support (the chat, my requests, the support
@@ -20,13 +24,6 @@ import { AccountScreen, SETTINGS_HOME, StarRating } from './AccountKit';
 const TABS = ['help', 'feedback'] as const;
 const KINDS = ['suggestion', 'issue', 'complaint', 'praise', 'question'] as const;
 
-interface Faq { q?: string; question?: string; question_en?: string | null; a?: string; answer?: string; answer_en?: string | null; category?: string }
-
-/** The FAQ the admin wrote, in the patient's language: Arabic for Arabic, the English text for every other language (the admin writes those two). */
-export const faqText = (faq: Faq, lang: string) => ({
-  question: (lang !== 'ar' && faq.question_en) || faq.q || faq.question || '',
-  answer: (lang !== 'ar' && faq.answer_en) || faq.a || faq.answer || '',
-});
 
 export function HelpView() {
   const { k } = useScreenUi();
@@ -41,7 +38,7 @@ export function HelpView() {
 
 function HelpTab() {
   const { k, theme, t, c, flow, lang } = useScreenUi();
-  const faqs = useRemote(async () => rowsOf<Faq>(await apiFetch('/support/faqs')), [], 'settings:faqs');
+  const faqs = useRemote(async () => rowsOf<ServerFaq>(await apiFetch('/support/faqs')), [], 'settings:faqs');
   const [phone, setPhone] = useState<string | null>(null);
   useRemote(async () => {
     const config = bodyOf<{ contact?: { support_phone?: string } }>(await apiFetch('/config').catch(() => null));
