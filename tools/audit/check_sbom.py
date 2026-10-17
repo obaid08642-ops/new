@@ -26,7 +26,9 @@ def problems(app, sbom):
     names = {full(c) for c in components}
     for c in components:
         names |= {full(n) for n in (c.get('components') or [])}
-    wanted = json.loads((ROOT / app / 'package.json').read_text()).get('dependencies', {})
+    # a workspace/local package (link:, file:, workspace:) is this repository's own code, not a third-party component
+    wanted = {n: v for n, v in json.loads((ROOT / app / 'package.json').read_text()).get('dependencies', {}).items()
+              if not str(v).startswith(('link:', 'file:', 'workspace:'))}
     missing = sorted(n for n in wanted if n not in names)
     if missing:
         bad.append(f'{len(missing)} runtime dependencies missing from the SBOM: {", ".join(missing[:8])}')

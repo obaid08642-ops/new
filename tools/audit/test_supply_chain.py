@@ -77,6 +77,11 @@ class Sbom(unittest.TestCase):
         short = {'bomFormat': 'CycloneDX', 'specVersion': '1.6', 'components': [{'name': n} for n in list(deps)[1:]]}
         self.assertTrue(any('missing' in p for p in mod.problems('admin', short)))
         self.assertTrue(mod.problems('admin', {'bomFormat': 'SPDX'}))
+        # this repository's own packages (link:) are not components of the SBOM
+        web = json.loads((mod.ROOT / 'patient-web' / 'package.json').read_text())['dependencies']
+        third_party = [n for n, v in web.items() if not v.startswith('link:')]
+        listed = {'bomFormat': 'CycloneDX', 'specVersion': '1.6', 'components': [{'group': n.split('/')[0], 'name': n.split('/')[1]} if n.startswith('@') else {'name': n} for n in third_party]}
+        self.assertEqual(mod.problems('patient-web', listed), [])
         # a scoped package is written as group + name
         scoped = [{'group': n.split('/')[0], 'name': n.split('/')[1]} if n.startswith('@') else {'name': n} for n in deps]
         self.assertEqual(mod.problems('admin', {'bomFormat': 'CycloneDX', 'specVersion': '1.6', 'components': scoped}), [])
