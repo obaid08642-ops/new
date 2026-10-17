@@ -10,7 +10,7 @@ n=0; bad=0
 check() { n=$((n+1)); if [ "$2" = 0 ]; then echo "ok $n - $1"; else echo "NOT OK $n - $1"; bad=$((bad+1)); fi; }
 ver() { curl -s "$BASE/api/v1/ping" | sed -n 's/.*"v":"\([^"]*\)".*/\1/p'; }
 k6run() { # name duration -> runs k6 in the background, summary in $HERE/out-<name>.json
-  docker run --rm --network host -v "$HERE:/w" -e BASE=$BASE -e DURATION=$2 grafana/k6:0.54.0 run --quiet --summary-export=/w/out-$1.json /w/load.js >"$HERE/k6-$1.log" 2>&1 &
+  docker run --rm --network host -u "$(id -u):$(id -g)" -v "$HERE:/w" -e BASE=$BASE -e DURATION=$2 grafana/k6:0.54.0 run --quiet --summary-export=/w/out-$1.json /w/load.js >"$HERE/k6-$1.log" 2>&1 &
   K6PID=$!
 }
 metric() { python3 -c "import json,sys;d=json.load(open('$HERE/out-$1.json'))['metrics'];print(d['$2']['$3'])"; }
