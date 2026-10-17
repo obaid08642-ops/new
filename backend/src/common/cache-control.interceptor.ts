@@ -55,7 +55,7 @@ export class CacheControlInterceptor implements NestInterceptor {
         }
         res.setHeader?.(
           'Cache-Control',
-          `public, s-maxage=${meta.ttl}, stale-while-revalidate=60, stale-if-error=86400`,
+          meta.cacheControl ?? `public, s-maxage=${meta.ttl}, stale-while-revalidate=60, stale-if-error=86400`,
         );
         if (meta.tags && meta.tags.length) {
           res.setHeader?.('Cache-Tag', meta.tags.join(', '));
