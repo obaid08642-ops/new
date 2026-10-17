@@ -406,7 +406,8 @@ class AdminSpecialtiesController extends AdminController {
       })) as any);
     }
     const rows = await col.find({ active: { $ne: false } } as any).sort({ sort: 1 }).limit(200).toArray();
-    return rows.map((s: any) => ({ id: s.id || String(s._id), code: s.code, name_ar: s.name_ar, name_en: s.name_en, active: s.active !== false }));
+    // #1556 F: the six-language names (ur/hi/bn/tl) written by scripts/migrations/2026-10-services-content.ts.
+    return rows.map((s: any) => ({ id: s.id || String(s._id), code: s.code, name_ar: s.name_ar, name_en: s.name_en, name_ur: s.name_ur ?? null, name_hi: s.name_hi ?? null, name_bn: s.name_bn ?? null, name_tl: s.name_tl ?? null, active: s.active !== false }));
   }
 
   @Post()
