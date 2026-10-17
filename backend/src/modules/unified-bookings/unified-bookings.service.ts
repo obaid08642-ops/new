@@ -5,6 +5,7 @@ import { redisUrlFromEnv } from '../redis/redis.service';
 // BullMQ types are available (bullmq ^5.80.2) — Queue is optional for write-behind;
 // if no queue is injected we fall back to setImmediate so the caller never blocks.
 import type { Queue as BullMQQueue } from 'bullmq';
+import { logEvent } from '../../common/structured-logger';
 
 @Injectable()
 export class UnifiedBookingsService {
@@ -65,7 +66,7 @@ export class UnifiedBookingsService {
       } catch (err) {
         // Persist failed — release the slot so it becomes available again.
         await this.releaseBookingLock(providerId, slotTs).catch(() => undefined);
-        console.warn(`[write-behind] persist failed for booking ${bookingId}:`, (err as Error)?.message || err);
+        logEvent('warn', 'write_behind_persist_failed', { booking_id: String(bookingId), error: (err as Error)?.message || String(err) }, 'unified-bookings');
       }
     };
 

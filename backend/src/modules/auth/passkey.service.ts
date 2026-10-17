@@ -15,6 +15,7 @@ import type {
 import { PasskeyCredential } from './schemas/passkey-credential.schema';
 import { User } from '../../schemas/user.schema';
 import { RedisService } from '../redis/redis.service';
+import { logEvent } from '../../common/structured-logger';
 
 const ENROLL_CHAL_TTL = 300; // 5 minutes
 const LOGIN_CHAL_TTL = 300;
@@ -148,7 +149,7 @@ export class PasskeyService {
       });
     } catch (e: any) {
       // TEMP-DIAG: surface the real simplewebauthn failure reason in container logs
-      console.error('PASSKEY_ENROLL_VERIFY_FAIL', e?.message, JSON.stringify({ rpID: this.rpID, origin: this.origin }));
+      logEvent('error', 'passkey_enroll_verify_failed', { reason: e?.message, rp_id: this.rpID, origin: this.origin }, 'auth');
       throw new UnauthorizedException('passkey_verification_failed');
     }
     if (!verification.verified || !verification.registrationInfo) {

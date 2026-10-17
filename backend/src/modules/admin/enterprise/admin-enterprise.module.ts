@@ -19,6 +19,7 @@ import { AdminSegmentsController } from './admin-segments.controller';
 import { AdminCouponsController } from './admin-coupons.controller';
 import { AdminCmsController } from './admin-cms.controller';
 import { AdminOpsController } from './admin-ops.controller';
+import { AdminLogsController } from '../../logs/admin-logs.controller';
 import { ScheduledReportsRunner } from './scheduled-reports.runner';
 import { AdminCommandCenterV2Controller } from './command-center-v2.controller';
 import { AdminGovernanceControlsController, PublicContentController } from './admin-governance-controls.controller';
@@ -58,6 +59,7 @@ import { ImpersonationSecurityModule } from '../../../common/impersonation-secur
     AdminCouponsController,
     // ── A6 ──
     AdminOpsController,
+    AdminLogsController,
     AdminGovernanceControlsController,
     PublicContentController,
     // ── A7 ──
