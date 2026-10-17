@@ -558,7 +558,7 @@ export class UnifiedBookingsService {
         await persistFn();
       } catch (err) {
         this.releaseWriteBehindLock(providerId, slotTs);
-        console.warn(`[write-behind] persist failed for ${bookingId}:`, (err as Error)?.message || err);
+        logEvent('warn', 'write_behind_persist_failed', { booking_id: String(bookingId), error: (err as Error)?.message || String(err) }, 'unified-bookings');
       }
     };
     if (this.writeBehindQueue?.add) {
@@ -629,6 +629,7 @@ import { CartModule } from '../cart/cart.module';
 import { HomeCareModule } from '../home-care/home-care.module';
 import { CareModule } from '../care/care.module';
 import { OrdersModule } from '../orders/orders.module';
+import { logEvent } from '../../common/structured-logger';
 
 @Module({
   imports: [

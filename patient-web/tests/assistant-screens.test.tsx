@@ -27,7 +27,7 @@ vi.mock("next-intl/server", async () => {
 vi.mock("@/components-next/core/core-shell", () => ({
   CoreShell: ({ children, title, backHref }: { children: ReactNode; title?: string; backHref?: string }) => <div data-shell data-title={title} data-back={backHref}>{children}</div>,
 }));
-vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: async () => "server-only-token" }));
+vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: async () => "server-only-token", getOptionalPatientAccessToken: async () => "server-only-token" }));
 vi.mock("@/lib/api/upstream", () => ({ callPatientApi: server.api }));
 
 import AssistantPage from "@/app/[locale]/ai/page";

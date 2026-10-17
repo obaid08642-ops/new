@@ -1,7 +1,7 @@
 import { StepUp } from '../../common/step-up.guard';
 import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, BadRequestException, ForbiddenException, Optional, ServiceUnavailableException } from '@nestjs/common';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
-import { Connection, Model } from 'mongoose';
+import { Connection, Model, Types } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import * as bcrypt from 'bcryptjs';
 import { randomBytes } from 'crypto';
@@ -11,7 +11,9 @@ import { User, UserDocument } from '../../schemas/user.schema';
 import { ProviderDelta } from '../provider/schemas/provider-delta.schema';
 import { CreateSubAdminDto, UpdateSubAdminDto, CreateProviderDto, CleanupOrphansDto } from './admin.dto';
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { ProviderErasureService } from './provider-erasure.service';
 
+import { ownerEmail } from '../../common/effective-permissions';
 /** Provider roles an admin may create accounts for (never staff/admin roles). */
 const PROVIDER_CREATABLE_ROLES = [
   UserRole.DOCTOR, UserRole.PHARMACY, UserRole.HOSPITAL, UserRole.LAB,
@@ -29,7 +31,13 @@ export class AdminController {
     @InjectModel('Appointment') private readonly appointmentModel: Model<any>,
     @InjectConnection() private readonly connection: Connection,
     @Optional() private readonly events?: EventEmitter2,
+    @Optional() private readonly erasure?: ProviderErasureService,
   ) {}
+
+  private requireErasure(): ProviderErasureService {
+    if (!this.erasure) throw new ServiceUnavailableException('provider_erasure_unavailable');
+    return this.erasure;
+  }
 
   // ── Referral program report (admin) ──────────────────────────
 
@@ -311,7 +319,7 @@ export class AdminController {
 
   /** Only the platform owner (designated admin email) may manage sub-admins. */
   private assertOwner(user: any, dbUser?: any) {
-    const designated = (process.env.ADMIN_PASSKEY_EMAIL || 'Obaid08642@gmail.com').trim().toLowerCase();
+    const designated = ownerEmail();
     const email = (dbUser?.email || user?.email || '').trim().toLowerCase();
     if (email !== designated) throw new ForbiddenException('owner_only');
   }
@@ -329,7 +337,7 @@ export class AdminController {
       .find({ role: { $in: [UserRole.ADMIN, UserRole.SUPER_ADMIN] } }, { password_hash: 0 })
       .sort({ createdAt: -1 })
       .lean();
-    const designated = (process.env.ADMIN_PASSKEY_EMAIL || 'Obaid08642@gmail.com').trim().toLowerCase();
+    const designated = ownerEmail();
     return admins.map((a: any) => ({
       id: a.id, full_name: a.full_name, email: a.email, phone: a.phone,
       role: a.role, permissions: a.permissions || [],
@@ -338,6 +346,7 @@ export class AdminController {
     }));
   }
 
+  @RequirePermissions(Permission.RBAC_MANAGE)
   @Post('sub-admins')
   async createSubAdmin(@CurrentUser() by: any, @Body() body: CreateSubAdminDto) {
     this.assertOwner(by, await this.resolveUser(by));
@@ -368,6 +377,7 @@ export class AdminController {
   }
 
   @StepUp()
+  @RequirePermissions(Permission.RBAC_MANAGE)
   @Patch('sub-admins/:userId')
   async updateSubAdmin(@CurrentUser() by: any, @Param('userId') userId: string, @Body() body: UpdateSubAdminDto) {
     this.assertOwner(by, await this.resolveUser(by));
@@ -376,7 +386,7 @@ export class AdminController {
     if (target.role !== UserRole.ADMIN && target.role !== UserRole.SUPER_ADMIN) {
       throw new BadRequestException('not_an_admin');
     }
-    const designated = (process.env.ADMIN_PASSKEY_EMAIL || 'Obaid08642@gmail.com').trim().toLowerCase();
+    const designated = ownerEmail();
     if ((target.email || '').trim().toLowerCase() === designated) {
       throw new BadRequestException('cannot_modify_owner');
     }
@@ -390,12 +400,13 @@ export class AdminController {
   }
 
   @StepUp()
+  @RequirePermissions(Permission.RBAC_MANAGE)
   @Delete('sub-admins/:userId')
   async deleteSubAdmin(@CurrentUser() by: any, @Param('userId') userId: string) {
     this.assertOwner(by, await this.resolveUser(by));
     const target = await this.userModel.findOne({ id: userId });
     if (!target) throw new BadRequestException('user_not_found');
-    const designated = (process.env.ADMIN_PASSKEY_EMAIL || 'Obaid08642@gmail.com').trim().toLowerCase();
+    const designated = ownerEmail();
     if ((target.email || '').trim().toLowerCase() === designated) {
       throw new BadRequestException('cannot_modify_owner');
     }
@@ -524,26 +535,14 @@ export class AdminController {
     }
     const uid = user.id;
     const db = this.userModel.db;
-    // Media purge FIRST (while we still know the urls): provider profile photos,
-    // logos, clinic images + every storage object owned by the account — each
-    // emitted to the storage deleter (Cloudinary destroy / R2 DeleteObject).
-    try {
-      const urls = new Set<string>();
-      const profile: any = await db.collection('provider_profiles').findOne({ user_id: uid }, { projection: { profile_photo: 1, logo: 1, clinic_images: 1 } }).catch(() => null);
-      for (const u of [profile?.profile_photo, profile?.logo, ...(profile?.clinic_images || [])]) {
-        if (typeof u === 'string' && u.startsWith('http')) urls.add(u);
-      }
-      const objs: any[] = await db.collection('storage_objects').find({ owner_account_id: uid }, { projection: { external_url: 1 } }).toArray().catch(() => []);
-      for (const o of objs) if (typeof o?.external_url === 'string' && o.external_url.startsWith('http')) urls.add(o.external_url);
-      for (const url of urls) {
-        try { this.events?.emit('storage.delete_by_url', { url }); } catch {}
-      }
-    } catch { /* media purge is best-effort; record purge below still runs */ }
+    // Issue 1541: a provider's own rows (profile, account, capabilities, slots, pending revisions, files), its
+    // search documents and its public page/sitemap entry go first, from the one list in ProviderErasureService.
+    const erasure = this.requireErasure();
+    await erasure.erase(await erasure.identify({ userId: uid }));
     // Purge directly-owned, user-scoped records. Shared clinical/financial
     // records (orders, appointments, ledger) are kept for audit integrity.
     const ownedCollections: Array<{ name: string; fields: string[] }> = [
       { name: 'patients', fields: ['user_id'] },
-      { name: 'provider_profiles', fields: ['user_id'] },
       { name: 'carts', fields: ['user_id', 'patient_id'] },
       { name: 'pushtokens', fields: ['user_id'] },
       { name: 'notifications', fields: ['user_id'] },
@@ -554,7 +553,6 @@ export class AdminController {
       { name: 'wearabledevices', fields: ['user_id'] },
       { name: 'medicationreminders', fields: ['user_id'] },
       { name: 'provider_contracts', fields: ['user_id'] },
-      { name: 'storage_objects', fields: ['owner_account_id'] },
     ];
     for (const c of ownedCollections) {
       try {
@@ -564,6 +562,53 @@ export class AdminController {
     await this.userModel.deleteOne({ _id: user._id });
     try { this.events?.emit('admin.user_updated', { admin_id: by?.id, target_user_id: uid, action: 'permanent_delete' }); } catch {}
     return { ok: true, message: 'user_deleted_permanently' };
+  }
+
+  /**
+   * Issue 1541: provider profiles whose sign-in account is gone (no users row behind user_id). They are not in the
+   * user directory, so the user delete cannot reach them; the admin deletes them from this list.
+   */
+  @RequirePermissions(Permission.USER_EDIT, Permission.GDPR_MANAGE)
+  @Get('provider-profiles/orphans')
+  async listOrphanProviderProfiles() {
+    const db = this.userModel.db;
+    const profiles = await db.collection('provider_profiles')
+      .find({}, { projection: { _id: 1, id: 1, user_id: 1, account_id: 1, type: 1, name_ar: 1, name_en: 1, status: 1, createdAt: 1 } })
+      .sort({ createdAt: -1 }).limit(5000).toArray();
+    const userIds = [...new Set(profiles.map((p) => p.user_id).filter((v) => typeof v === 'string' && v))];
+    const users = userIds.length
+      ? await db.collection('users').find({ id: { $in: userIds } }, { projection: { id: 1 } }).toArray()
+      : [];
+    const existing = new Set(users.map((u) => u.id));
+    const items = profiles
+      .filter((p) => !p.user_id || !existing.has(p.user_id))
+      .map((p) => ({ id: p.id || String(p._id), type: p.type || null, name_ar: p.name_ar || null, name_en: p.name_en || null, status: p.status || null, created_at: p.createdAt || null }));
+    return { items, total: items.length };
+  }
+
+  /**
+   * Issue 1541: permanently delete a provider profile that has no sign-in account, with everything it owns
+   * (same rows, files, search documents and page caches as the user delete). Same guard as the user delete.
+   */
+  @StepUp()
+  @RequirePermissions(Permission.USER_EDIT, Permission.GDPR_MANAGE)
+  @Delete('provider-profiles/:profileId')
+  async deleteOrphanProviderProfile(@Param('profileId') profileId: string, @CurrentUser() by?: { id?: string }) {
+    const db = this.userModel.db;
+    let profile = await db.collection('provider_profiles').findOne({ id: profileId });
+    if (!profile && /^[a-f0-9]{24}$/i.test(profileId)) {
+      profile = await db.collection('provider_profiles').findOne({ _id: new Types.ObjectId(profileId) });
+    }
+    if (!profile) throw new BadRequestException('provider_profile_not_found');
+    if (profile.user_id && await db.collection('users').findOne({ id: profile.user_id }, { projection: { _id: 1 } })) {
+      // A profile with a live account is deleted with its account (DELETE /admin/users/:userId), never half.
+      throw new BadRequestException('provider_profile_has_account');
+    }
+    const erasure = this.requireErasure();
+    const deleted = await erasure.erase(await erasure.identify({ profile }));
+    const target = profile.id || String(profile._id);
+    try { this.events?.emit('admin.user_updated', { admin_id: by?.id, target_user_id: target, action: 'provider_profile_delete' }); } catch {}
+    return { ok: true, message: 'provider_profile_deleted', deleted };
   }
 
   /**
@@ -577,7 +622,7 @@ export class AdminController {
   async cleanupOrphans(@Body() body: CleanupOrphansDto) {
     const dryRun = body?.dry_run !== false;
     const db = this.userModel.db;
-    const profiles: any[] = await db.collection('provider_profiles').find({}, { projection: { user_id: 1, status: 1, public_eligibility: 1 } }).toArray().catch(() => []);
+    const profiles = await db.collection('provider_profiles').find({}, { projection: { user_id: 1, status: 1, public_eligibility: 1 } }).toArray().catch(() => []);
     let fixed = 0;
     const sample: any[] = [];
     for (const p of profiles) {

@@ -56,7 +56,8 @@
   ],
   "medical_review_status": "approved",
   "public_eligibility": true,
-  "is_active": true
+  "is_active": true,
+  "popularity": 84
  },
  {
   "name_en": "Medical Injections (IV/IM)",
@@ -232,7 +233,8 @@
   ],
   "medical_review_status": "approved",
   "public_eligibility": true,
-  "is_active": true
+  "is_active": true,
+  "popularity": 42
  },
  {
   "category": "specialized_care",
@@ -315,7 +317,8 @@
   ],
   "medical_review_status": "approved",
   "public_eligibility": true,
-  "is_active": true
+  "is_active": true,
+  "popularity": 75
  },
  {
   "category": "specialized_care",
@@ -672,35 +675,6 @@
   "is_active": true
  },
  {
-  "name_en": "Blood Sample Collection",
-  "name_ar": "سحب عينات مخبرية منزلية",
-  "category": "sample",
-  "price": 70,
-  "description_ar": "سحب عينات الدم والبول والبراز في المنزل وتوصيلها للمختبر المعتمد مع تتبع النتائج في التطبيق.",
-  "description_en": "Home blood/urine/stool sample collection delivered to the accredited lab with results tracked in the app.",
-  "icon": "bloodtype",
-  "duration": "hour",
-  "duration_value": 1,
-  "popularity": 84,
-  "requires_companion": false,
-  "requires_patient_medication": false,
-  "image_url": "https://res.cloudinary.com/mcuwxgjz/image/upload/v1786117321/nabd/catalog/nur_injection.png",
-  "active": true,
-  "cash_availability": true,
-  "insurance_availability": true,
-  "preparation_ar": [
-   "إذا كان التحليل يتطلب صياماً، الالتزام بالصيام حسب تعليمات المختبر.",
-   "تجهيز أسماء التحاليل المطلوبة أو روشتة الطبيب."
-  ],
-  "preparation_en": [
-   "If the test requires fasting, follow the lab's fasting instructions.",
-   "Have the requested test names or the doctor's prescription ready."
-  ],
-  "medical_review_status": "approved",
-  "public_eligibility": true,
-  "is_active": true
- },
- {
   "name_en": "Elderly Daily Care",
   "name_ar": "رعاية يومية لكبار السن",
   "category": "elderly",
@@ -780,33 +754,6 @@
   ],
   "preparation_en": [
    "Have the hospital discharge report and medication list ready."
-  ],
-  "medical_review_status": "approved",
-  "public_eligibility": true,
-  "is_active": true
- },
- {
-  "name_en": "Newborn & Mother Care",
-  "name_ar": "رعاية الأم وحديث الولادة",
-  "category": "baby",
-  "price": 220,
-  "description_ar": "رعاية منزلية للأم والمولود — متابعة الصفراء والرضاعة الطبيعية وخياطة الولادة وإرشاد الأم الجديدة.",
-  "description_en": "Home care for mother and newborn — jaundice follow-up, breastfeeding support, postpartum care and new-mother guidance.",
-  "icon": "baby_changing_station",
-  "duration": "hour",
-  "duration_value": 1,
-  "popularity": 75,
-  "requires_companion": false,
-  "requires_patient_medication": false,
-  "image_url": "https://res.cloudinary.com/mcuwxgjz/image/upload/v1786117305/nabd/catalog/nur_baby.png",
-  "active": true,
-  "cash_availability": true,
-  "insurance_availability": true,
-  "preparation_ar": [
-   "تجهيز تقرير الولادة وأي تعليمات من الطبيب."
-  ],
-  "preparation_en": [
-   "Have the delivery report and any doctor's instructions ready."
   ],
   "medical_review_status": "approved",
   "public_eligibility": true,
@@ -894,35 +841,6 @@
   "preparation_en": [
    "Prepare the daily medication list and emergency numbers.",
    "Clear walkways at home to prevent falls."
-  ],
-  "medical_review_status": "approved",
-  "public_eligibility": true,
-  "is_active": true
- },
- {
-  "name_en": "Oxygen Therapy Setup",
-  "name_ar": "تركيب ومتابعة الأكسجين المنزلي",
-  "category": "basic_nursing",
-  "price": 190,
-  "description_ar": "تركيب أجهزة الأكسجين المنزلية ومتابعة تشبع الأكسجين وتدريب الأسرة على الاستخدام الآمن.",
-  "description_en": "Home oxygen setup, saturation monitoring and family training on safe use.",
-  "icon": "oxygen",
-  "duration": "hour",
-  "duration_value": 1,
-  "popularity": 42,
-  "requires_companion": true,
-  "requires_patient_medication": false,
-  "image_url": "https://res.cloudinary.com/mcuwxgjz/image/upload/v1786117336/nabd/catalog/nur_vitals.png",
-  "active": true,
-  "cash_availability": true,
-  "insurance_availability": true,
-  "preparation_ar": [
-   "تجهيز وصفة الطبيب لمعدل تدفق الأكسجين.",
-   "إبعاد أي مصادر لهب أو تدخين عن منطقة الأكسجين."
-  ],
-  "preparation_en": [
-   "Have the doctor's oxygen-flow prescription ready.",
-   "Keep flames and smoking away from the oxygen area."
   ],
   "medical_review_status": "approved",
   "public_eligibility": true,

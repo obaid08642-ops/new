@@ -110,6 +110,18 @@ def pay_card(pat, aid):
     return False
 
 
+def accept_telehealth_consent(pat):
+    """D-38 (issue 1549): before the first online consultation the app shows the telehealth consent and the patient accepts
+    it (TelehealthConsentSheet: POST /legal/accept/telehealth_consent with the device id). Only when it is published and
+    still pending for this patient, as the app asks only then."""
+    r = pat.get('/legal/pending')
+    pending = [p.get('key') for p in (r.body if isinstance(r.body, list) else r.items())]
+    if 'telehealth_consent' not in pending:
+        return
+    r = pat.post('/legal/accept/telehealth_consent', {}, headers={'x-device-id': f'live-{uuid.uuid4().hex[:12]}', 'x-app-platform': 'android'})
+    step('the patient accepts the telehealth consent before the first online consultation', r.ok, r)
+
+
 def book_variant(pat, doctor, service_type, payment, provider=None):
     """P8 matrix: book one visit-type × payment combo (card flows pay fully)."""
     doc_id = doctor.get('/provider/me').get('account', 'id')
@@ -159,6 +171,8 @@ def book_variant(pat, doctor, service_type, payment, provider=None):
     used.add(t0)
     book_variant._used_slots = used
     journey(f'consultation matrix: {service_type} x {payment}')
+    if service_type == 'video':
+        accept_telehealth_consent(pat)
     r = pat.post('/slot-locks/reserve', {'provider_id': did, 'booking_kind': 'consultation', 'slot_start': slot})
     lock = r.get('id')
     body = {'doctor_id': did, 'service_type': service_type, 'slot_start': slot, 'payment_method': payment, 'slot_lock_id': lock}

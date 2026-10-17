@@ -9,6 +9,8 @@ export type PublicProduct = {
   sku: number | null;
   locale: string;
   name: string | null;
+  /** Decision E (issue 1556): on ur, hi and bn the English name drawn under the localized one; null on ar, en and fil. */
+  english_name?: string | null;
   official_name: string | null;
   slug: string;
   slugs: Record<string, string | null>;
@@ -234,29 +236,27 @@ export async function readPublicCategoryProducts(
   };
 }
 
+/** What the product page shows under the product (issue 1547): equivalents, or similar products when there are none. */
+export type PublicEquivalents = { equivalents: PublicProductCard[]; similar: PublicProductCard[] };
+
+const toCard = (it: PublicProductCard): PublicProductCard => ({
+  ...it,
+  name: cleanProductName(it.name, it.official_name),
+  image: resolveImageUri(it.image) || (Array.isArray(it.images) && it.images[0] ? resolveImageUri(it.images[0]) : null),
+});
+
 /**
- * Products with the same active ingredient (the product page's "alternatives"): the public product search
- * (`GET /public/products/search`) by the ingredient, kept to exact matches of it, without the product itself.
- * Empty when the product has no active ingredient or the search is unavailable: the section is then hidden.
+ * The product's equivalents (`GET /public/product-equivalents/{locale}/{id}`): the published products with the same
+ * NORMALIZED active ingredient, the same strength first; and, only when there is none, `similar` products of the same
+ * therapeutic class / category. Both empty when the read fails or there is nothing: the page then draws no section.
  */
-export async function getPublicAlternatives(
-  locale: Locale,
-  product: { id: string; active_ingredient: string | null },
-  max = 5,
-): Promise<PublicProductCard[]> {
-  const ingredient = (product.active_ingredient || "").trim();
-  if (!isLocale(locale) || !ingredient) return [];
-  const params = new URLSearchParams({ q: ingredient, locale, page: "1", limit: "12" });
-  const data = await getJson<{ items?: PublicProductCard[] }>(`/public/products/search?${params.toString()}`);
-  const wanted = ingredient.toLowerCase();
-  return (data?.items || [])
-    .filter((it) => it.id !== product.id && (it.active_ingredient || "").trim().toLowerCase() === wanted && it.price > 0)
-    .slice(0, max)
-    .map((it) => ({
-      ...it,
-      name: cleanProductName(it.name, it.official_name),
-      image: resolveImageUri(it.image) || (Array.isArray(it.images) && it.images[0] ? resolveImageUri(it.images[0]) : null),
-    }));
+export async function getPublicEquivalents(locale: Locale, productId: string): Promise<PublicEquivalents> {
+  if (!isLocale(locale) || !productId) return { equivalents: [], similar: [] };
+  const data = await getJson<Partial<PublicEquivalents>>(`/public/product-equivalents/${locale}/${encodeURIComponent(productId)}`);
+  return {
+    equivalents: (data?.equivalents || []).filter((it) => it.id !== productId).map(toCard),
+    similar: (data?.similar || []).filter((it) => it.id !== productId).map(toCard),
+  };
 }
 
 export type ProductSitemapPage = {

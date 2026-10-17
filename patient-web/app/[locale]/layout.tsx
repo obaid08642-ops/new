@@ -8,6 +8,7 @@ import { THEME_COLOR } from "../design-tokens/theme-color";
 import "@/components-next/ui-generated/shells/shells.css";
 import "@/components-next/ui-generated/components/components.css";
 import { fontVariables } from "@/app/fonts";
+import { WebVitalsReporter } from "@/components-next/web-vitals-reporter";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
@@ -101,6 +102,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   // cacheable), fail-open; hides entry points and stops deep links into a switched-off module
   const disabled = await getDisabledModules();
   const moduleCopy = await getTranslations({ locale: typedLocale, namespace: "Modules" });
+  const legalLinks = await getTranslations({ locale: typedLocale, namespace: "LegalLinks" });
 
   return (
     // The nonce server (from the theme cookie) or the theme script (app/theme.ts) sets data-theme, the class and
@@ -116,6 +118,7 @@ export default async function LocaleLayout({ children, params }: Props) {
         <NextIntlClientProvider messages={messages}>
           <WebMcpLoader locale={typedLocale} />
           <OfflineSupport />
+          <WebVitalsReporter locale={typedLocale} />
           <div className={`shell ${fontVariables}`} lang={typedLocale} dir={getDirection(typedLocale)}>
             {/* P15.4: the offline banner with the time this page was made ("last updated"). For a static/ISR page this
                 render is the cached copy, so the time is that copy's, not the visit's. Early in the document so it is read
@@ -148,6 +151,7 @@ export default async function LocaleLayout({ children, params }: Props) {
               <nav aria-label={t("brand")} className="site-footer__links">
                 <Link href={`/${typedLocale}/terms`}>{t("footerTerms")}</Link>
                 <Link href={`/${typedLocale}/privacy`}>{t("footerPrivacy")}</Link>
+                <Link href={`/${typedLocale}/refund-policy`}>{legalLinks("refundPolicy")}</Link>
                 <Link href={`/${typedLocale}/settings/help`}>{t("footerSupport")}</Link>
                 {isPathHidden("/articles", disabled) ? null : <Link href={`/${typedLocale}/articles`}>{t("footerArticles")}</Link>}
                 <Link href={`/${typedLocale}/map`}>{t("footerMap")}</Link>

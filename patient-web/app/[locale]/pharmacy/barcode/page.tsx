@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: Props) {
   return { title: t("title") };
 }
 
-/** Find a medicine by the barcode on its package (canvas/PharmacyHub family). */
+/** The AI scanner (decision 36): one photo of a pack, its barcode or QR code, or a prescription (canvas/PharmacyHub family). */
 export default async function PharmacyBarcodePage({ params }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();

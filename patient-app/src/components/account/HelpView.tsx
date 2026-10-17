@@ -20,7 +20,13 @@ import { AccountScreen, SETTINGS_HOME, StarRating } from './AccountKit';
 const TABS = ['help', 'feedback'] as const;
 const KINDS = ['suggestion', 'issue', 'complaint', 'praise', 'question'] as const;
 
-interface Faq { q?: string; question?: string; a?: string; answer?: string; category?: string }
+interface Faq { q?: string; question?: string; question_en?: string | null; a?: string; answer?: string; answer_en?: string | null; category?: string }
+
+/** The FAQ the admin wrote, in the patient's language: Arabic for Arabic, the English text for every other language (the admin writes those two). */
+export const faqText = (faq: Faq, lang: string) => ({
+  question: (lang !== 'ar' && faq.question_en) || faq.q || faq.question || '',
+  answer: (lang !== 'ar' && faq.answer_en) || faq.a || faq.answer || '',
+});
 
 export function HelpView() {
   const { k } = useScreenUi();
@@ -34,7 +40,7 @@ export function HelpView() {
 }
 
 function HelpTab() {
-  const { k, theme, t, c, flow } = useScreenUi();
+  const { k, theme, t, c, flow, lang } = useScreenUi();
   const faqs = useRemote(async () => rowsOf<Faq>(await apiFetch('/support/faqs')), [], 'settings:faqs');
   const [phone, setPhone] = useState<string | null>(null);
   useRemote(async () => {
@@ -72,7 +78,7 @@ function HelpTab() {
             <Card theme={theme} padding="none">
               {shown.map((faq, i) => {
                 const expanded = open === i;
-                const question = faq.q || faq.question || '';
+                const { question, answer } = faqText(faq, lang);
                 return (
                   <View key={`${question}-${i}`} style={{ borderBottomWidth: i === shown.length - 1 ? 0 : 1, borderBottomColor: c.border.hairline }}>
                     <Pressable accessibilityRole="button" accessibilityLabel={question} accessibilityState={{ expanded }} onPress={() => setOpen(expanded ? null : i)} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, paddingHorizontal: 14, minHeight: 56 }} testID={`faq-${i}`}>
@@ -81,7 +87,7 @@ function HelpTab() {
                         <Chevron />
                       </View>
                     </Pressable>
-                    {expanded ? <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, paddingHorizontal: 14, paddingBottom: 14, ...flow }}>{faq.a || faq.answer || ''}</Text> : null}
+                    {expanded ? <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, paddingHorizontal: 14, paddingBottom: 14, ...flow }}>{answer}</Text> : null}
                   </View>
                 );
               })}

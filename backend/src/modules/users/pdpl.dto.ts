@@ -27,3 +27,12 @@ export class RecordConsentDto {
   @IsBoolean()
   accepted: boolean;
 }
+
+// P17-17.6: banner-grade purpose choices — both flags strictly boolean.
+export class ConsentChoicesDto {
+  @IsBoolean()
+  analytics!: boolean;
+
+  @IsBoolean()
+  marketing!: boolean;
+}

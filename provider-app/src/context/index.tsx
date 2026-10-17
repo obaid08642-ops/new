@@ -14,6 +14,7 @@ import * as LocalAuth from 'expo-local-authentication';
 import { getTheme, TR, type ThemeMode, type Theme, type Lang, type TKey, API_BASE } from '../constants';
 import { Vault, Tokens, SessionMgr, RateLimiter, Audit, SK, Validate, Biometric, buildHeaders, DeviceId } from '../security/Security';
 import { mapAccountStatus } from '../utils/accountStatus';
+import { apiReachable, refreshOutcome } from '../utils/session';
 
 // ═══════════════════════════════════════
 // THEME
@@ -214,9 +215,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshSession = async () => {
     try {
-      const isOnline = await fetch('https://1.1.1.1', { method: 'HEAD' }).then(() => true).catch(() => false);
-      if (!isOnline) {
-        setAppState('offline');
+      // The app's own API decides "offline" (it used to be a HEAD to https://1.1.1.1). A signed-in provider without a
+      // connection sees the offline screen; a visitor without a connection sees the welcome screen.
+      const reachable = await apiReachable(API_BASE);
+      if (!reachable) {
+        setAppState((await Tokens.getRefresh()) ? 'offline' : 'logged_out');
         setLoading(false);
         return;
       }
@@ -230,8 +233,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         }
       }
-      const refreshed = await tryRefresh();
-      if (!refreshed) { await logout(); return; }
+      const outcome = await refreshDetailed();
+      // A server that does not answer is not a reason to sign the provider out: keep the session and offer a retry.
+      if (outcome === 'unreachable') { setAppState('offline'); return; }
+      if (outcome !== 'ok') { await logout(); return; }
     } catch (e) {
       if (__DEV__) console.warn('[Auth] refreshSession error', e);
       setAppState('logged_out');
@@ -264,30 +269,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return next === 'logged_in';
   };
 
-  const tryRefresh = async (): Promise<boolean> => {
+  const refreshDetailed = async (): Promise<'ok' | 'blocked' | 'denied' | 'unreachable'> => {
     const refresh = await Tokens.getRefresh();
     const sessionId = await Tokens.getSessionId();
-    if (!refresh || !sessionId) return false;
+    if (!refresh || !sessionId) return 'denied';
+    let res: Response | null = null;
     try {
       const deviceId = await DeviceId.get();
       const headers = await buildHeaders(false);
       const customIp = await Vault.get(SK.CUSTOM_API_IP);
       const baseUrl = customIp ? `http://${customIp}:8002/api/v1` : API_BASE;
-      const res = await fetch(`${baseUrl}/provider/auth/refresh`, {
+      res = await fetch(`${baseUrl}/provider/auth/refresh`, {
         method: 'POST',
         headers,
         body: JSON.stringify({ refresh_token: refresh, session_id: sessionId, device_identifier: deviceId })
       });
-      if (!res.ok) throw new Error('Refresh failed');
+    } catch {
+      return 'unreachable';
+    }
+    const outcome = refreshOutcome(res);
+    if (outcome !== 'ok') return outcome;
+    try {
       const data = await res.json();
       await Tokens.save(data.access_token, data.refresh_token, sessionId, data.provider_id, data.provider_type);
       const u = mapBackendResponseToUser(data);
       setUser(u);
-      if (!checkAppStatus(u.status)) return false;
-      return true;
-    } catch { 
-      return false; 
+      if (!checkAppStatus(u.status)) return 'blocked';
+      await syncOnline();
+      return 'ok';
+    } catch {
+      return 'unreachable';
     }
+  };
+  const tryRefresh = async (): Promise<boolean> => (await refreshDetailed()) === 'ok';
+
+  // The server holds the provider's online switch; the app used to start from "offline" whatever it said.
+  const syncOnline = async () => {
+    try {
+      const headers = await buildHeaders(true);
+      const res = await fetch(`${API_BASE}/provider/ops/availability/instant`, { method: 'GET', headers });
+      if (!res.ok) return;
+      const data = await res.json();
+      updateUser({ isOnline: data?.instant_available === true });
+    } catch { /* the switch keeps its last known value */ }
   };
 
   const login = async (identifier: string, password: string): Promise<{ ok: boolean; err?: string }> => {
@@ -315,6 +339,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!checkAppStatus(u.status)) return { ok: false, err: mapAccountStatus(u.status) === 'suspended' ? 'الحساب موقوف' : 'الحساب غير معتمد بعد' };
       RateLimiter.reset(key);
       Audit.log('login', true, { provider: u.providerType });
+      await syncOnline();
       return { ok: true };
     } catch (e: any) {
       Audit.log('login_fail', false, { identifier });
@@ -388,7 +413,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const headers = await buildHeaders(true);
   const res = await fetch(`${API_BASE}/provider/ops/availability/toggle-instant`, {
  method: 'POST',
- headers
+ headers,
+ body: JSON.stringify({ available: next }),
  });
  if (!res.ok) throw new Error('Toggle failed');
  const data = await res.json();

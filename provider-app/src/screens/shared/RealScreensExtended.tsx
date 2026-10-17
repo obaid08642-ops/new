@@ -59,6 +59,7 @@ export function ChronicDiseaseProgramScreen({ onBack }: { onBack: () => void }) 
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
   const [patients, setPatients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadErr, setLoadErr] = useState(false);
 
   useEffect(() => {
     client.get('/pharmacy/orders/refills')
@@ -71,7 +72,8 @@ export function ChronicDiseaseProgramScreen({ onBack }: { onBack: () => void }) 
           status: o.state || 'Active',
         })));
       })
-      .catch(() => setPatients([]))
+      // the read is refused today (503 canonical_pharmacy_flow_required): that is not "no refill orders"
+      .catch(() => { setPatients([]); setLoadErr(true); })
       .finally(() => setLoading(false));
   }, []);
 
@@ -89,7 +91,12 @@ export function ChronicDiseaseProgramScreen({ onBack }: { onBack: () => void }) 
         </NCard>
 
         {loading && <ActivityIndicator color={theme.primary} style={{ marginVertical: SP.xl }} />}
-        {!loading && patients.length === 0 && (
+        {!loading && loadErr && (
+          <NCard style={{ alignItems: 'center', paddingVertical: SP.xxl }}>
+            <Text style={{ color: theme.danger, textAlign: 'center' }}>{AR ? 'تعذر تحميل طلبات إعادة الصرف من الخادم' : 'Could not load the refill orders from the server'}</Text>
+          </NCard>
+        )}
+        {!loading && !loadErr && patients.length === 0 && (
           <NCard style={{ alignItems: 'center', paddingVertical: SP.xxl }}>
             <Text style={{ color: theme.textSub }}>{AR ? 'لا توجد طلبات إعادة صرف بعد' : 'No refill orders yet'}</Text>
           </NCard>

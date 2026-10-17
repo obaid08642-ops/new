@@ -29,6 +29,7 @@ import { PatientProfile, PatientProfileSchema } from '../../schemas/patient-prof
 import { AiModule } from '../ai/ai.module';
 import { AiGatewayService } from '../ai/ai-gateway.service';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 @Injectable()
 export class InsuranceService {
   private readonly logger = new Logger(InsuranceService.name);
@@ -463,6 +464,7 @@ export class AdminInsuranceClaimsController {
 
   @Get() list(@Query('status') status?: string) { return this.svc.adminClaims(status); }
 
+  @RequirePermissions(Permission.INSURANCE_MANAGE)
   @Post(':id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
     return this.svc.decideClaim(u, id, body?.approve === true, body?.note);
   }
@@ -555,6 +557,7 @@ export class InsuranceController {
   }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.INSURANCE_MANAGE)
   @Post('companies')
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   createCompany(@Body() b: CreateCompanyDto) {
@@ -563,6 +566,7 @@ export class InsuranceController {
 
   /** Admin edit (whitelist): rename, logo, enable/disable. */
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.INSURANCE_MANAGE)
   @Patch('companies/:id')
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   updateCompany(@Param('id') id: string, @Body() b: UpdateCompanyDto) {
@@ -589,6 +593,7 @@ export class InsuranceController {
 
   /** Admin: delete a tier (network) from a company. */
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.INSURANCE_MANAGE)
   @Delete('companies/:companyId/networks/:networkId')
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   deleteNetwork(@Param('companyId') companyId: string, @Param('networkId') networkId: string) {
@@ -602,6 +607,7 @@ export class InsuranceController {
   }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.INSURANCE_MANAGE)
   @Post('companies/:companyId/networks')
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   createNetwork(@Param('companyId') companyId: string, @Body() b: CreateInsuranceNetworkDto) {
@@ -615,6 +621,7 @@ export class InsuranceController {
   }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.INSURANCE_MANAGE)
   @Post('networks/:networkId/rules')
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   createRule(@Param('networkId') networkId: string, @Body() b: CreateCoverageRuleDto) {

@@ -1,0 +1,82 @@
+name: Scale step 3 rehearsal
+
+# P14.28: deploy/SCALING.md step 3 on one runner: two API nodes and one worker behind an nginx load balancer, on a
+# 3-node MongoDB replica set (tools/perf/scale-rehearsal/run.sh). Kills an API node and steps down the Mongo primary
+# under k6 load, and compares one node with two. Test data only; nothing leaves the runner. The numbers are the
+# runner's (every process shares its cores): they prove the mechanics, not production's capacity.
+on:
+  pull_request:
+    paths:
+      - 'tools/perf/scale-rehearsal/**'
+      - 'tools/live/start-backend.sh'
+      - '.github/workflows/scale-rehearsal.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: scale-rehearsal-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rehearsal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    services:
+      redis:
+        image: redis:7
+        ports: ['6379:6379']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: k6 (pinned release, checked) and nginx
+        run: |
+          curl -sSfL -o /tmp/k6.tgz https://github.com/grafana/k6/releases/download/v1.3.0/k6-v1.3.0-linux-amd64.tar.gz
+          echo "84d26fc1f7bc03e02f2e016b3b1b20c032e05dfe461fca82de4e3a6ebe72ddbd  /tmp/k6.tgz" | sha256sum -c -
+          tar -xzf /tmp/k6.tgz -C /tmp && sudo install /tmp/k6-v1.3.0-linux-amd64/k6 /usr/local/bin/k6 && k6 version
+          command -v nginx || { sudo apt-get update -q && sudo apt-get install -y -q nginx-light; }
+          sudo systemctl stop nginx 2>/dev/null || true
+          nginx -v
+
+      - name: Test doubles (S3, SMTP sink, Moyasar) and LiveKit
+        run: |
+          pip install 'moto[server]==5.*' boto3 aiosmtpd
+          nohup moto_server -p 9000 > /tmp/moto.log 2>&1 &
+          nohup python3 tools/live/smtp_sink.py > /tmp/smtp.log 2>&1 &
+          nohup python3 tools/live/fake_moyasar.py > /tmp/moyasar.log 2>&1 &
+          for i in $(seq 1 30); do curl -s -o /dev/null http://127.0.0.1:9000 && break; sleep 1; done
+          python3 -c "import boto3; boto3.client('s3', endpoint_url='http://127.0.0.1:9000', aws_access_key_id='live', aws_secret_access_key='live-secret', region_name='us-east-1').create_bucket(Bucket='nabd-live')"
+          bash tools/live/start-livekit.sh
+
+      - name: Backend build
+        working-directory: backend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Rehearsal (replica set, two API nodes + worker, load balancer, node kill, primary step-down)
+        run: |
+          OUT=/tmp/scale-rehearsal MONGO_MODE=docker VUS=20 DURATION=60s bash tools/perf/scale-rehearsal/run.sh
+          cat /tmp/scale-rehearsal/report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: scale-rehearsal-${{ github.run_id }}
+          path: |
+            /tmp/scale-rehearsal/*.md
+            /tmp/scale-rehearsal/*.log
+            /tmp/scale-rehearsal/*.txt
+            /tmp/scale-rehearsal/k6-*.json
+          retention-days: 30

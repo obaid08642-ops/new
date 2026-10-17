@@ -17,6 +17,8 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: '/admin/command-center', label: 'مركز القيادة الحي', permission: 'command.center.view' },
       { href: '/admin/health-dashboard', label: 'لوحة صحة النظام', permission: 'command.center.view' },
+      // P14.23: real-user web vitals (p75 per page type) against the plan's budgets.
+      { href: '/admin/web-vitals', label: 'أداء الموقع للمستخدمين', permission: 'command.center.view' },
       // #960: the telemetry board (health, demand heatmap, command centre) was reachable only by URL.
       { href: '/admin/dashboard', label: 'لوحة القياس الحية', permission: 'command.center.view' },
       // needs-review admin-ops-monitoring 3 and 13: both pages were reachable only by URL.
@@ -93,11 +95,13 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/module-switches', label: 'مفاتيح الخدمات', permission: 'modules.manage' },
       // Issues 955 / 995: emergency maintenance + kill switches; the backend routes require modules.manage too.
       { href: '/admin/kill-switches', label: 'مفاتيح الطوارئ', permission: 'modules.manage' },
-      { href: '/admin/notification-center', label: 'مركز الإشعارات والحملات', permission: 'ops.queues.manage' },
+      { href: '/admin/notification-center', label: 'مركز الإشعارات والحملات', permission: 'notifications.send' },
       // #994: AI controls were reachable only by URL.
-      { href: '/admin/ai-control', label: 'التحكم في الذكاء الاصطناعي', permission: 'ops.queues.manage' },
+      { href: '/admin/ai-control', label: 'التحكم في الذكاء الاصطناعي', permission: 'settings.edit' },
       { href: '/admin/scheduled-reports', label: 'التقارير المجدولة', permission: 'reports.schedule.manage' },
       { href: '/admin/audit-logs', label: 'سجل التدقيق' },
+      // 20.3: warn/error log lines (read-only); the page has its own six-language texts
+      { href: '/admin/logs', label: 'سجلات النظام' },
       { href: '/admin/security', label: 'الأمان ومفاتيح الدخول' },
     ],
   },
@@ -130,6 +134,7 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/command-center': 'command.center.view',
   '/admin/fraud-monitoring': 'command.center.view',
   '/admin/health-dashboard': 'command.center.view',
+  '/admin/web-vitals': 'command.center.view',
   '/admin/dashboard': 'command.center.view',
   '/admin/today': 'command.center.view',
   '/admin/alerts': 'command.center.view',
@@ -172,13 +177,15 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/article-review': 'cms.edit',
   '/admin/pregnancy-weeks': 'cms.edit',
   '/admin/loyalty-config': 'coupons.manage',
-  '/admin/notification-center': 'ops.queues.manage',
+  // Owner decision 29: these pages' writes need the permission the backend names on them.
+  '/admin/notification-center': 'notifications.send',
   '/admin/system-ops': 'ops.queues.manage',
   '/admin/module-switches': 'modules.manage',
   '/admin/kill-switches': 'modules.manage',
-  '/admin/config-portal': 'ops.queues.manage',
-  '/admin/ai-control': 'ops.queues.manage',
+  '/admin/config-portal': 'settings.edit',
+  '/admin/ai-control': 'settings.edit',
   '/admin/audit-logs': 'data.export',
+  '/admin/logs': 'system.logs.view',
   '/admin/rbac': 'rbac.manage',
   '/admin/scheduled-reports': 'reports.schedule.manage',
   '/admin/impersonation': 'user.impersonate',

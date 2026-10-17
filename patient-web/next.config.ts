@@ -1,3 +1,4 @@
+import path from "node:path";
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 import { withSentryConfig } from "@sentry/nextjs";
@@ -17,6 +18,11 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/*": ["./node_modules/@swc/helpers/**/*"],
   },
+  // P14.10: more than one web instance shares the ISR/data cache in Redis (cache-handler.cjs). Opt-in at build time
+  // (NEXT_CACHE_HANDLER=redis); then no instance keeps its own in-memory copy. One instance keeps Next's file cache.
+  ...(process.env.NEXT_CACHE_HANDLER === "redis"
+    ? { cacheHandler: path.join(process.cwd(), "cache-handler.cjs"), cacheMaxMemorySize: 0 }
+    : {}),
   experimental: {
     globalNotFound: true,
     // F82 (issue 427): the default merged the CSS modules of most sections (product, diagnostics, prescriptions, orders,
@@ -114,7 +120,17 @@ const withNextIntl = createNextIntlPlugin({
   requestConfig: "./i18n/request.ts",
   experimental: { messages: { path: "./messages", format: "json", locales: "infer", precompile: true } },
 });
+// P20.4: the release (SENTRY_RELEASE = the git SHA, a build arg of Dockerfile.patient-web) is written into the server
+// and browser bundles, so every event names the deployed commit. Source maps go to the patient-web project and are
+// deleted from the image afterwards; without SENTRY_AUTH_TOKEN (local and CI builds) nothing is uploaded.
 export default withSentryConfig(withNextIntl(nextConfig), {
+  org: "nabdplus",
+  project: "patient-web",
+  sentryUrl: "https://de.sentry.io/",
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  release: { name: process.env.SENTRY_RELEASE || undefined, create: !!process.env.SENTRY_AUTH_TOKEN },
+  sourcemaps: { disable: !process.env.SENTRY_AUTH_TOKEN, deleteSourcemapsAfterUpload: true },
+  telemetry: false,
   silent: true,
   disableLogger: true,
 });

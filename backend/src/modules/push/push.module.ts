@@ -27,6 +27,7 @@ import { I18nService } from '../i18n/i18n.service';
 import { runsBackgroundWork } from '../../common/process-role';
 
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 // ── Schema ────────────────────────────────────────────────────────────
 
 @Schema({ timestamps: true })
@@ -437,6 +438,19 @@ export class PushService implements OnModuleInit {
     }
   }
 
+  /**
+   * P14.4: many notifications in one round trip (a campaign page). `jobId` makes a re-queued item (a resumed
+   * fan-out) a no-op while the earlier job is still kept by the queue.
+   */
+  async queueNotifications(items: { userId: string; title: string; body: string; data?: any; jobId: string }[], priority: 'high' | 'normal' = 'normal') {
+    if (!items.length) return;
+    await this.queue.addBulk(items.map((x) => ({
+      name: 'send',
+      data: { userId: x.userId, title: x.title, body: x.body, data: x.data || {}, priority },
+      opts: { jobId: x.jobId, attempts: 3, backoff: { type: 'exponential', delay: 2000 }, removeOnComplete: { count: 1000 }, removeOnFail: { count: 5000 } },
+    })));
+  }
+
   /** Queue a notification for reliable delivery */
   async queueNotification(userId: string, title: string, body: string, data: any = {}, priority: 'high' | 'normal' = 'high') {
     await this.queue.add('send', { userId, title, body, data, priority }, {
@@ -824,6 +838,7 @@ export class PushController {
   track(@CurrentUser() u: any, @Body() b: TrackDto) { return this.svc.trackEngagement(u.id, b); }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.NOTIFICATIONS_SEND)
   @Post('admin/campaign')
   @Roles(UserRole.ADMIN)
   async sendCampaign(@Body() b: SendCampaignDto) {

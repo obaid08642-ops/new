@@ -1,0 +1,67 @@
+name: isr-disk
+# #1603 (production outage 2026-10-16): patient-web wrote its ISR page cache into its container layer (5.8 GB in 18 h) and
+# filled the server's disk. This job pins the fix: the compose limits (static), then the REAL compose services (patient-web
+# + redis-cache, same limits) rendering 5,000 product pages from a stand-in API (test data): the container layer stays
+# under 100 MB, nothing is written under .next/server, the cache stays under its cap and evicts instead of failing.
+on:
+  pull_request:
+    paths:
+      - 'deploy/docker-compose.production.yml'
+      - 'deploy/docker/Dockerfile.patient-web'
+      - 'deploy/coturn/**'
+      - 'patient-web/cache-handler.cjs'
+      - 'patient-web/next.config.ts'
+      - 'tools/perf/isr-disk/**'
+      - 'tools/ops/check-compose-limits.py'
+      - '.github/workflows/isr-disk.yml'
+  workflow_dispatch:
+jobs:
+  compose-limits:
+    name: compose limits
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: "Static rules (logs 20m x 3 on every service, read-only web, capped tmpfs, redis-cache LRU without persistence)"
+        run: pip install -q pyyaml && python3 tools/ops/check-compose-limits.py
+      - name: The compose file still parses with the new service and network
+        run: |
+          touch deploy/.env.production
+          for v in $(grep -oE '\$\{[A-Z0-9_]+:\?' deploy/docker-compose.production.yml | sed -E 's/\$\{|:\?//g' | sort -u); do echo "$v=ci-$v"; done > ci.env
+          echo "REDIS_PASSWORD=cipass" >> ci.env
+          docker compose -f deploy/docker-compose.production.yml --env-file ci.env config -q && echo "compose config ok"
+
+  container-layer:
+    name: container layer stays small
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Stand-in API (test data)
+        run: (node tools/perf/isr-disk/stub-api.mjs 4010 0.0.0.0 > /tmp/stub.log 2>&1 &) && sleep 1 && curl -s localhost:4010/api/v1/public/product/ar/p-1 | head -c 100
+      - name: Build the production image of patient-web (Dockerfile.patient-web, default build args)
+        run: docker build -q -t nabdah-patient-web:ci -f deploy/docker/Dockerfile.patient-web patient-web
+      - name: 5,000 product pages through the real compose services
+        run: |
+          touch deploy/.env.production
+          for v in $(grep -oE '\$\{[A-Z0-9_]+:\?' deploy/docker-compose.production.yml | sed -E 's/\$\{|:\?//g' | sort -u); do echo "$v=ci-$v"; done > ci.env
+          echo "REDIS_PASSWORD=cipass" >> ci.env
+          bash tools/perf/isr-disk/run-docker.sh 5000
+      - name: Logs on failure
+        if: failure()
+        run: docker logs nabdah-patient-web 2>&1 | tail -40; docker logs nabdah-redis-cache 2>&1 | tail -20
+
+  coturn-writes:
+    name: what coturn writes
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: "Production config under load (informational, finds the paths coturn writes)"
+        continue-on-error: true
+        run: bash tools/perf/isr-disk/coturn-writes.sh plain
+      - name: "Hardened (read-only root, 16 MB tmpfs), does it start and answer?"
+        continue-on-error: true
+        run: bash tools/perf/isr-disk/coturn-writes.sh hardened

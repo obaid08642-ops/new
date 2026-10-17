@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
@@ -11,27 +12,10 @@ import { formatMoney } from "@/components-next/pharmacy-offers/format";
 import { LocalDate } from "@/components-next/orders/local-date";
 import { ReturnStatusChip, returnStatus } from "@/components-next/returns/return-kit";
 import forms from "@/components-next/consult/consult.module.css";
+import { extractReturns } from "@/lib/api/returns";
+import rx from "@/components-next/pharmacy/rx.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
-
-type ReturnRequest = { id: string; status: string; amount?: number; reason?: string; createdAt?: string };
-
-function extractReturns(payload: unknown): ReturnRequest[] {
-  const root = payload && typeof payload === "object" && !Array.isArray(payload) ? payload as Record<string, unknown> : null;
-  const values = Array.isArray(payload) ? payload : [root?.data, root?.returns, root?.items].find(Array.isArray);
-  if (!Array.isArray(values)) return [];
-  return values.flatMap((value) => {
-    const r = value && typeof value === "object" ? value as Record<string, unknown> : null;
-    if (!r || !r.id) return [];
-    return [{
-      id: String(r.id),
-      status: String(r.status ?? r.state ?? "processing"),
-      amount: Number(r.refund_amount ?? r.amount ?? NaN) || undefined,
-      reason: typeof r.reason === "string" ? r.reason : undefined,
-      createdAt: typeof r.createdAt === "string" ? r.createdAt : undefined,
-    }];
-  });
-}
 
 /** `/returns`: the patient's return requests (GET /pharmacy/returns), restyled on the shared rows; every value is the server's. */
 export default async function ReturnsPage({ params }: Props) {
@@ -42,6 +26,7 @@ export default async function ReturnsPage({ params }: Props) {
   const t = await getTranslations("Returns");
   const w = await getTranslations("ReturnsWeb");
   const rs = await getTranslations("RouteState");
+  const legal = await getTranslations("LegalLinks");
   const response = await callPatientApi("/pharmacy/returns", {}, token);
   if (response.status === 401) redirect(`/${locale}/login`);
   const back = `/${locale}/orders`;
@@ -56,6 +41,7 @@ export default async function ReturnsPage({ params }: Props) {
   return (
     <ConsultPage locale={locale} title={t("title")} backHref={back}>
       <ButtonLink href={`/${locale}/returns/new-request`} label={w("newRequest")} fullWidth />
+      <Link className={rx.textLink} href={`/${locale}/refund-policy`}>{legal("refundPolicy")}</Link>
       {returns.length === 0 ? (
         <ConsultState kind="empty" icon="arrows-left-right" tone="amber" title={t("empty")} />
       ) : (

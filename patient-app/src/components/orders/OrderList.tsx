@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { FlatList, RefreshControl, ScrollView, View } from 'react-native';
+import { RefreshControl, ScrollView, View } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { router, useFocusEffect, type Href } from 'expo-router';
 
 import { AppHeader, Chip, EmptyState, ErrorState, OfflineState, Screen, Segmented } from '../../../../packages/ui-native/src';
@@ -157,7 +158,7 @@ export function OrderList({ endpoints, titleKey, testID }: { endpoints: OrderEnd
 
   return (
     <Screen theme={theme} direction={dir} header={header} testID={testID}>
-      <FlatList
+      <FlashList
         style={{ flex: 1 }}
         data={shown}
         keyExtractor={(row) => row.key}
@@ -166,8 +167,6 @@ export function OrderList({ endpoints, titleKey, testID }: { endpoints: OrderEnd
         ListEmptyComponent={<EmptyState icon="receipt" tone={ORDERS_TONE} title={k(bucket === 'current' ? 'orders.emptyCurrent' : 'orders.emptyPrevious')} body={k('orders.emptyBody')} theme={theme} />}
         contentContainerStyle={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 40 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); void load('manual'); }} tintColor={c.text.primary} />}
-        initialNumToRender={10}
-        windowSize={7}
         renderItem={({ item }) => <OrderCard row={item} onPress={item.route ? () => router.push(item.route as unknown as Href) : undefined} />}
         testID={`${testID}-list`}
       />

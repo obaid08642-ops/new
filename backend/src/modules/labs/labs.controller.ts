@@ -233,6 +233,7 @@ export class LabsController {
 
   // --- Admin Quality Control & Dispute Intervention ---
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.ORDER_REASSIGN)
   @Patch('admin/bookings/:id/force-state')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   @Roles(UserRole.ADMIN)

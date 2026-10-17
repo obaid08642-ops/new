@@ -1,0 +1,126 @@
+{
+ "type": "radiology",
+ "routes": 7,
+ "results": [
+  {
+   "route": "MainTabs",
+   "lang": "ar",
+   "landed": "MainTabs",
+   "len": 383,
+   "first": "لوحة الأشعة | ◎ | 4",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [
+    "check"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "order_detail",
+   "lang": "ar",
+   "landed": null,
+   "len": 0,
+   "first": "",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [
+    "Cannot read properties of undefined (reading 'safety_questionnaire')"
+   ],
+   "bad": []
+  },
+  {
+   "route": "reporting",
+   "lang": "ar",
+   "nav": "not_ready"
+  },
+  {
+   "route": "insurance_requests",
+   "lang": "ar",
+   "nav": "not_ready"
+  },
+  {
+   "route": "home_visit",
+   "lang": "ar",
+   "nav": "not_ready"
+  },
+  {
+   "route": "wallet",
+   "lang": "ar",
+   "nav": "not_ready"
+  },
+  {
+   "route": "drug_index",
+   "lang": "ar",
+   "nav": "not_ready"
+  },
+  {
+   "route": "MainTabs",
+   "lang": "en",
+   "landed": "MainTabs",
+   "len": 415,
+   "first": "Radiology Dashboard | ◎ | 4",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [
+    "أشعة الباريوم",
+    "أشعة سينية ",
+    "صدر",
+    "٠٠ ص",
+    "٠٠ م",
+    "٢٠٢٦ ١"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "order_detail",
+   "lang": "en",
+   "landed": null,
+   "len": 0,
+   "first": "",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [
+    "Cannot read properties of undefined (reading 'safety_questionnaire')"
+   ],
+   "bad": []
+  },
+  {
+   "route": "reporting",
+   "lang": "en",
+   "nav": "not_ready"
+  },
+  {
+   "route": "insurance_requests",
+   "lang": "en",
+   "nav": "not_ready"
+  },
+  {
+   "route": "home_visit",
+   "lang": "en",
+   "nav": "not_ready"
+  },
+  {
+   "route": "wallet",
+   "lang": "en",
+   "nav": "not_ready"
+  },
+  {
+   "route": "drug_index",
+   "lang": "en",
+   "nav": "not_ready"
+  }
+ ],
+ "login_ok": true
+}

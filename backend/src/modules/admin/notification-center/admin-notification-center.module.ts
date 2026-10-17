@@ -21,12 +21,13 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Cron, CronExpression, Interval } from '@nestjs/schedule';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
 import { PushModule, PushService } from '../../push/push.module';
 import { compileSegment } from '../enterprise/segments.engine';
 
+import { Permission, RequirePermissions } from '../../../common/permissions';
 // ── Schema ────────────────────────────────────────────────────────────
 
 @Schema({ timestamps: true })
@@ -101,30 +102,28 @@ export class AdminNotificationCenterService {
 
   // ── Segment resolution ────────────────────────────────────────────
 
-  async resolveSegment(segment: string): Promise<string[]> {
-    if (!segment || segment === 'all') {
-      const rows = await this.users.find({}, { projection: { id: 1, _id: 0 } }).limit(100000).toArray();
-      return rows.map((u: any) => u.id).filter(Boolean);
-    }
-    if (segment === 'patients') return this.usersByRole('patient');
+  /**
+   * The users of a segment as a Mongo filter (P14.4: the fan-out pages through it, so there is no cap; the old list
+   * stopped at 100,000 users without saying so).
+   */
+  async segmentFilter(segment: string): Promise<any> {
+    if (!segment || segment === 'all') return {};
+    if (segment === 'patients') return this.roleFilter('patient');
     if (segment === 'providers') {
-      const roles = Object.values(AdminNotificationCenterService.ROLE_ALIASES).flat().concat('provider');
-      const rows = await this.users.find({ role: { $in: roles } }, { projection: { id: 1, _id: 0 } }).limit(100000).toArray();
-      return rows.map((u: any) => u.id).filter(Boolean);
+      return { role: { $in: Object.values(AdminNotificationCenterService.ROLE_ALIASES).flat().concat('provider') } };
     }
-    if (segment.startsWith('role:')) return this.usersByRole(segment.slice(5));
+    if (segment.startsWith('role:')) return this.roleFilter(segment.slice(5));
     if (segment.startsWith('segment:')) {
       const id = segment.slice('segment:'.length);
       const saved: any = await this.conn.collection('segments').findOne({ id });
       if (!saved) throw new NotFoundException('saved_segment_not_found');
-      const rows = await this.users.find(compileSegment(saved.definition), { projection: { id: 1, _id: 0 } }).limit(100000).toArray();
-      return rows.map((u: any) => u.id).filter(Boolean);
+      return compileSegment(saved.definition);
     }
     if (segment.startsWith('user:')) {
       const id = segment.slice(5);
       const user = await this.users.findOne({ id }, { projection: { id: 1, _id: 0 } });
       if (!user?.id) throw new NotFoundException('target user not found');
-      return [user.id];
+      return { id: user.id };
     }
     throw new BadRequestException(`Unknown segment: ${segment}`);
   }
@@ -135,10 +134,8 @@ export class AdminNotificationCenterService {
     nurse: ['nurse', 'home_care', 'nursing'], hospital: ['hospital'], driver: ['driver'],
   };
 
-  private async usersByRole(role: string): Promise<string[]> {
-    const roles = AdminNotificationCenterService.ROLE_ALIASES[role] || [role];
-    const rows = await this.users.find({ role: { $in: roles } }, { projection: { id: 1, _id: 0 } }).limit(100000).toArray();
-    return rows.map((u: any) => u.id).filter(Boolean);
+  private roleFilter(role: string): any {
+    return { role: { $in: AdminNotificationCenterService.ROLE_ALIASES[role] || [role] } };
   }
 
   async segmentCounts() {
@@ -205,39 +202,111 @@ export class AdminNotificationCenterService {
     return { received: by['received'] || 0, opened: by['opened'] || 0, clicked: by['clicked'] || 0 };
   }
 
-  /** Execute a campaign now (or from the scheduler). */
+  /**
+   * Start a campaign now (admin "send", a broadcast, or the scheduler). P14.4: the request only claims the campaign
+   * (draft/scheduled -> sending, once) and counts its audience; the worker queues the pushes (runFanouts), so a large
+   * audience never holds an HTTP request open and a crash resumes where it stopped.
+   */
   async sendCampaign(id: string) {
     const c: any = await this.campaigns.findOne({ id });
     if (!c) throw new NotFoundException('Campaign not found');
     if (c.status === 'sent' || c.status === 'sending') return { ok: false, reason: `already_${c.status}` };
+    const filter = await this.segmentFilter(c.segment);
+    const targeted = await this.users.countDocuments({ ...filter, id: { $exists: true } });
+    if (targeted === 0) {
+      await this.campaigns.updateOne({ id }, { $set: { status: 'failed', last_error: 'campaign audience is empty', updatedAt: new Date() } });
+      throw new BadRequestException('campaign audience is empty');
+    }
+    const claimed = await this.campaigns.updateOne(
+      { id, status: { $in: ['draft', 'scheduled'] } },
+      { $set: { status: 'sending', stats: { targeted, sent: 0, failed: 0, variants: {} }, fanout: { cursor: null, lease_until: new Date(0) }, updatedAt: new Date() } },
+    );
+    if (claimed.modifiedCount === 0) return { ok: false, reason: 'already_started' };
+    this.logger.log(`Campaign ${id} started for ${targeted} users (segment=${c.segment})`);
+    return { ok: true, status: 'sending', targeted };
+  }
 
-    await this.campaigns.updateOne({ id }, { $set: { status: 'sending', updatedAt: new Date() } });
+  static readonly FANOUT_PAGE = 1000;
+  static readonly FANOUT_LEASE_MS = 60_000;
+  static readonly FANOUT_MAX_ERRORS = 5;
+  private fanoutRunning = false;
+
+  /**
+   * P14.4: the worker queues the pushes of every campaign in `sending`, a page of users at a time (ordered by id, one
+   * addBulk per page). After each page it saves the cursor and the counts and renews its lease, so a worker that dies
+   * mid-campaign is replaced by the next one after the lease (60 s) and continues from the last saved page: at most the
+   * one page in flight is queued again (same job ids, so the queue skips those it still holds).
+   */
+  @Interval(10_000)
+  async runFanouts(): Promise<void> {
+    if (this.fanoutRunning) return;
+    this.fanoutRunning = true;
     try {
-      const userIds = await this.resolveSegment(c.segment);
-      if (userIds.length === 0) throw new BadRequestException('campaign audience is empty');
-      const data: any = { type: 'campaign', campaign_id: id };
-      if (c.deep_link?.route) {
-        data.screen = c.deep_link.route;
-        if (c.deep_link.params) data.params = c.deep_link.params;
+      for (let n = 0; n < 10; n++) {
+        const now = new Date();
+        const c: any = await this.campaigns.findOneAndUpdate(
+          { status: 'sending', 'fanout.lease_until': { $lt: now } },
+          { $set: { 'fanout.lease_until': new Date(now.getTime() + AdminNotificationCenterService.FANOUT_LEASE_MS) } },
+          { returnDocument: 'after' },
+        ).then((r: any) => (r && 'value' in r ? r.value : r));
+        if (!c) return;
+        await this.fanout(c).catch(async (e: any) => {
+          // a queue or database error: the saved cursor stays, the next tick after the lease continues from it;
+          // only an error that keeps coming back fails the campaign
+          const errors = Number(c.fanout?.errors || 0) + 1;
+          this.logger.error(`Campaign ${c.id} fan-out error ${errors}/${AdminNotificationCenterService.FANOUT_MAX_ERRORS}: ${e.message}`);
+          await this.campaigns.updateOne({ id: c.id }, {
+            $set: errors >= AdminNotificationCenterService.FANOUT_MAX_ERRORS
+              ? { status: 'failed', last_error: e.message, 'fanout.errors': errors, updatedAt: new Date() }
+              : { last_error: e.message, 'fanout.errors': errors, updatedAt: new Date() },
+          });
+        });
       }
-      let queued = 0;
-      const variants = Array.isArray(c.variants) && c.variants.length ? c.variants : [{ id: 'A', title: c.title, body: c.body }];
-      const variantStats: Record<string, number> = {};
-      for (const uid of userIds) {
-        const hash = [...String(uid)].reduce((sum, char) => sum + char.charCodeAt(0), 0);
+    } finally {
+      this.fanoutRunning = false;
+    }
+  }
+
+  private async fanout(c: any): Promise<void> {
+    const filter = await this.segmentFilter(c.segment);
+    const data: any = { type: 'campaign', campaign_id: c.id };
+    if (c.deep_link?.route) {
+      data.screen = c.deep_link.route;
+      if (c.deep_link.params) data.params = c.deep_link.params;
+    }
+    const variants = Array.isArray(c.variants) && c.variants.length ? c.variants : [{ id: 'A', title: c.title, body: c.body }];
+    let cursor: string | null = c.fanout?.cursor ?? null;
+    for (;;) {
+      const page = await this.users.find(
+        { ...filter, id: cursor === null ? { $exists: true } : { $gt: cursor } },
+        { projection: { id: 1, _id: 0 } },
+      ).sort({ id: 1 }).limit(AdminNotificationCenterService.FANOUT_PAGE).toArray();
+      const ids = page.map((u: any) => String(u.id)).filter(Boolean);
+      const perVariant: Record<string, number> = {};
+      await this.push.queueNotifications(ids.map((uid) => {
+        const hash = [...uid].reduce((sum, char) => sum + char.charCodeAt(0), 0);
         const variant = variants[hash % variants.length];
-        await this.push.queueNotification(uid, variant.title, variant.body, { ...data, ab_variant: variant.id }, 'normal');
-        variantStats[variant.id] = (variantStats[variant.id] || 0) + 1;
-        queued++;
-      }
-      await this.campaigns.updateOne({ id }, {
-        $set: { status: 'sent', sent_at: new Date(), stats: { targeted: userIds.length, sent: queued, failed: 0, variants: variantStats }, updatedAt: new Date() },
+        perVariant[variant.id] = (perVariant[variant.id] || 0) + 1;
+        return { userId: uid, title: variant.title, body: variant.body, data: { ...data, ab_variant: variant.id }, jobId: `campaign-${c.id}-${uid}` };
+      }), 'normal');
+      if (ids.length) cursor = ids[ids.length - 1];
+      const inc: Record<string, number> = { 'stats.sent': ids.length };
+      for (const [v, k] of Object.entries(perVariant)) inc[`stats.variants.${v}`] = k;
+      const done = page.length < AdminNotificationCenterService.FANOUT_PAGE;
+      await this.campaigns.updateOne({ id: c.id }, {
+        $inc: inc,
+        $set: {
+          'fanout.cursor': cursor,
+          'fanout.errors': 0,
+          'fanout.lease_until': new Date(Date.now() + AdminNotificationCenterService.FANOUT_LEASE_MS),
+          updatedAt: new Date(),
+          ...(done ? { status: 'sent', sent_at: new Date() } : {}),
+        },
       });
-      this.logger.log(`Campaign ${id} sent to ${queued} users (segment=${c.segment})`);
-      return { ok: true, targeted: userIds.length, queued };
-    } catch (e: any) {
-      await this.campaigns.updateOne({ id }, { $set: { status: 'failed', last_error: e.message, updatedAt: new Date() } });
-      throw e;
+      if (done) {
+        this.logger.log(`Campaign ${c.id} queued for its audience (segment=${c.segment})`);
+        return;
+      }
     }
   }
 
@@ -413,10 +482,12 @@ export class AdminNotificationCenterController {
   statsOverview() { return this.svc.overviewStats(); }
 
   /** Immediate broadcast to a segment */
+  @RequirePermissions(Permission.NOTIFICATIONS_SEND)
   @Post('broadcasts')
   broadcast(@CurrentUser() admin: any, @Body() body: BroadcastDto) { return this.svc.broadcast(String(admin?.id), body); }
 
   /** Create campaign (draft or scheduled when scheduled_at provided) */
+  @RequirePermissions(Permission.NOTIFICATIONS_SEND)
   @Post('campaigns')
   createCampaign(@CurrentUser() admin: any, @Body() body: CreateCampaignDto) { return this.svc.createCampaign(String(admin?.id), body); }
 
@@ -431,14 +502,17 @@ export class AdminNotificationCenterController {
   getCampaign(@Param('id') id: string) { return this.svc.getCampaign(id); }
 
   /** Send a draft/scheduled campaign immediately */
+  @RequirePermissions(Permission.NOTIFICATIONS_SEND)
   @Post('campaigns/:id/send')
   sendCampaign(@Param('id') id: string) { return this.svc.sendCampaign(id); }
 
   /** Cancel a draft/scheduled campaign */
+  @RequirePermissions(Permission.NOTIFICATIONS_SEND)
   @Delete('campaigns/:id')
   cancelCampaign(@Param('id') id: string) { return this.svc.cancelCampaign(id); }
 
   /** Manual retargeting run (also runs automatically every 6h) */
+  @RequirePermissions(Permission.NOTIFICATIONS_SEND)
   @Post('retarget/run')
   retarget() { return this.svc.retargetIncompleteOrders(); }
 }

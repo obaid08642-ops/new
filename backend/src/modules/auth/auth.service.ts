@@ -29,6 +29,7 @@ import { AccountLinkingService } from './account-linking.service';
 import { PasswordSecurityService } from '../../common/password-security.service';
 import { OtpAbuseGuard } from '../../common/otp-abuse.service';
 import { I18nService, resolveLang } from '../i18n/i18n.service';
+import { logEvent } from '../../common/structured-logger';
 
 @Injectable()
 export class AuthService {
@@ -974,7 +975,20 @@ export class AuthService {
     // passkey revokes the device — a token replayed without a live credential is
     // rejected by the guard even though the device id is enrolled.
     if (this.adminDevices && ctx?.deviceId) {
-      await this.adminDevices.enroll(u.id, ctx.deviceId, ctx.ua, ctx.deviceName, response?.id);
+      // D-35 reviewer (device-bound keys): a passkey login auto-enrols the
+      // presenting device ONLY when the verified credential is known to live
+      // on a single device. A synced credential (same Apple ID on a third
+      // device) still signs the admin in, but its device must come through
+      // the approval + e-mailed-code flow like any other new device.
+      let bound = false;
+      try {
+        bound = await this.passkeys?.isSingleDeviceCredential?.(response?.id);
+      } catch {
+        bound = false;
+      }
+      if (bound) {
+        await this.adminDevices.autoEnroll(u.id, ctx.deviceId, ctx.ua, ctx.deviceName, response?.id);
+      }
     }
     if (this.deviceTrust) {
       const { token, device } = await this.deviceTrust.issue(u.id, ctx?.ua, ctx?.ip);
@@ -1262,7 +1276,7 @@ export class AuthService {
         !process.env.SMTP_HOST &&
         !process.env.INFOBIP_API_KEY
       ) {
-        console.warn('No OTP delivery channel configured; OTP was not logged.');
+        logEvent('warn', 'otp_no_delivery_channel', {}, 'auth');
       }
       if (!delivered.length) {
         throw new ServiceUnavailableException({ message: 'otp_channel_unavailable', code: 'otp_channel_unavailable' });
@@ -1270,7 +1284,7 @@ export class AuthService {
       return { ok: true, channel: delivered[0] };
     } catch (err: any) {
       if (err instanceof ServiceUnavailableException) throw err;
-      console.error('Failed to send verification code:', err);
+      logEvent('error', 'verification_code_send_failed', { error: (err as Error)?.message }, 'auth');
       return { ok: false, error: err.message };
     }
   }
@@ -1299,7 +1313,9 @@ export class AuthService {
       throw new HttpException('Too many invalid attempts. Please request a new code.', HttpStatus.TOO_MANY_REQUESTS);
     }
 
-    if (!(await bcrypt.compare(code, entry.code_hash))) {
+    // P17-17.9: the code is digits — normalize Arabic-Indic/Eastern
+    // Arabic-Indic forms before comparing with the stored Latin hash.
+    if (!(await bcrypt.compare(normalizeDigits(code).trim(), entry.code_hash))) {
       // increment attempts (keep remaining TTL by re-setting with same expiry window)
       const ttl = await this.redisService.ttl(key);
       await this.redisService.setJson(key, { ...entry, attempts: entry.attempts + 1 }, ttl > 0 ? ttl : this.OTP_TTL_SECONDS);
@@ -1329,8 +1345,11 @@ export class AuthService {
     AuthService.assertString(identifier, 'identifier');
     AuthService.assertString(newPassword, 'password');
     AuthService.assertString(code, 'code');
-    const isEmail = identifier.includes('@');
-    const u = await this.userModel.findOne(isEmail ? { email: identifier } : { phone: identifier });
+    // P17-17.9: normalize before lookup (an Arabic-Indic phone must find the
+    // Latin-stored account, exactly like the OTP identifier paths).
+    const normalizedIdentifier = this.normalizeOtpIdentifier(identifier);
+    const isEmail = normalizedIdentifier.includes('@');
+    const u = await this.userModel.findOne(isEmail ? { email: normalizedIdentifier } : { phone: normalizedIdentifier });
     if (!u) throw new UnauthorizedException('User not found');
     // Verify the OTP against the contact that actually received it.
     await this.verifyOtp(this.otpContact(u, identifier), code); // throws if invalid

@@ -62,9 +62,10 @@ describe('sensitive admin writes require a named permission', () => {
     expect(perms(c, v, p)).toEqual([perm]);
   });
 
-  it('the built-in admin role keeps every permission these routes need (no lock-out)', () => {
+  it('the owner (super_admin) keeps every permission these routes need (no lock-out); the built-in admin role grants none (owner decision 29)', () => {
     const needed = Array.from(new Set(CASES.map((x) => x[3])));
-    expect(needed.filter((p) => !ROLE_PERMISSIONS[UserRole.ADMIN].includes(p))).toEqual([]);
+    expect(needed.filter((p) => !ROLE_PERMISSIONS[UserRole.SUPER_ADMIN].includes(p))).toEqual([]);
+    expect(ROLE_PERMISSIONS[UserRole.ADMIN]).toEqual([]);
   });
 
   it('module switches need modules.manage, held by super admin only (owner 2026-10-10)', () => {

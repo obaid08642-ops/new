@@ -16,7 +16,6 @@ function detectorClass(): DetectorCtor | null {
 }
 
 export const QR_FORMATS = ["qr_code"];
-export const PACK_FORMATS = ["ean_13", "ean_8", "upc_a", "upc_e", "code_128"];
 
 /**
  * Scan with the camera on the website (issues 499, 694): the rear camera through getUserMedia and the browser's

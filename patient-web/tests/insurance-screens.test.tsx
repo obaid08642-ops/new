@@ -29,7 +29,8 @@ vi.mock("next-intl/server", async () => {
 vi.mock("@/components-next/core/core-shell", () => ({
   CoreShell: ({ children, title, backHref }: { children: ReactNode; title?: string; backHref?: string }) => <div data-shell data-title={title} data-back={backHref}>{children}</div>,
 }));
-vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: async () => "server-only-insurance-token-never-in-html" }));
+// issue 1550: the hubs read the session without requiring it (a guest gets the public part)
+vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: async () => "server-only-insurance-token-never-in-html", getOptionalPatientAccessToken: async () => "server-only-insurance-token-never-in-html" }));
 vi.mock("@/lib/api/upstream", () => ({ callPatientApi: server.api }));
 
 import InsurancePage from "@/app/[locale]/insurance/page";
