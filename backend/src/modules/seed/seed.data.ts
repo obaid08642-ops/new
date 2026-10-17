@@ -85,7 +85,7 @@ export const SEED_DOCTORS = [
     languages: ['ar', 'en'],
     accepts_insurance: true, accepted_insurance: ['bupa', 'tawuniya', 'medgulf', 'walaa'],
     public_eligibility: true,
-    medical_review_status: \'approved\',
+    medical_review_status: 'approved',
   },
   // 2
   { full_name: 'د. فاطمة الجبر', phone: '+966544000002', password: 'Doctor@123',
@@ -100,7 +100,7 @@ export const SEED_DOCTORS = [
     languages: ['ar', 'en'],
     accepts_insurance: true, accepted_insurance: ['bupa', 'tawuniya', 'medgulf', 'rajhi_takaful', 'walaa'],
     public_eligibility: true,
-    medical_review_status: \'approved\',
+    medical_review_status: 'approved',
   },
   // 3
   { full_name: 'د. خالد العتيبي', phone: '+966544000003', password: 'Doctor@123',
@@ -115,7 +115,7 @@ export const SEED_DOCTORS = [
     languages: ['ar', 'en'],
     accepts_insurance: true, accepted_insurance: ['tawuniya', 'rajhi_takaful', 'malath'],
     public_eligibility: true,
-    medical_review_status: \'approved\',
+    medical_review_status: 'approved',
   },
   // 4
   { full_name: 'د. نورة السبيعي', phone: '+966544000004', password: 'Doctor@123',
@@ -130,7 +130,7 @@ export const SEED_DOCTORS = [
     languages: ['ar', 'en'],
     accepts_insurance: true, accepted_insurance: ['bupa', 'tawuniya', 'medgulf', 'walaa', 'arabian_shield'],
     public_eligibility: true,
-    medical_review_status: \'approved\',
+    medical_review_status: 'approved',
   },
   // 5
   { full_name: 'د. عبدالله الحربي', phone: '+966544000005', password: 'Doctor@123',
@@ -145,7 +145,7 @@ export const SEED_DOCTORS = [
     languages: ['ar', 'en'],
     accepts_insurance: true, accepted_insurance: ['bupa', 'tawuniya', 'medgulf', 'walaa', 'malath', 'salama'],
     public_eligibility: true,
-    medical_review_status: \'approved\',
+    medical_review_status: 'approved',
   },
   // 6
   { full_name: 'د. منى الفهد', phone: '+966544000006', password: 'Doctor@123',
@@ -172,7 +172,7 @@ export const SEED_DOCTORS = [
     languages: ['ar'],
     accepts_insurance: true, accepted_insurance: ['bupa', 'tawuniya', 'medgulf', 'gulf_union'],
     public_eligibility: true,
-    medical_review_status: \'approved\',
+    medical_review_status: 'approved',
   },
   // 8
   { full_name: 'د. ريم الدوسري', phone: '+966544000008', password: 'Doctor@123',
@@ -187,7 +187,7 @@ export const SEED_DOCTORS = [
     languages: ['ar', 'en'],
     accepts_insurance: true, accepted_insurance: ['bupa', 'tawuniya'],
     public_eligibility: true,
-    medical_review_status: \'approved\',
+    medical_review_status: 'approved',
   },
   // 9
   { full_name: 'د. ياسر الشمري', phone: '+966544000009', password: 'Doctor@123',
@@ -202,7 +202,7 @@ export const SEED_DOCTORS = [
     languages: ['ar', 'en'],
     accepts_insurance: true, accepted_insurance: ['bupa', 'tawuniya', 'medgulf_a', 'walaa', 'allianz'],
     public_eligibility: true,
-    medical_review_status: \'approved\',
+    medical_review_status: 'approved',
   },
   // 10
   { full_name: 'د. سارة المطيري', phone: '+966544000010', password: 'Doctor@123',
@@ -217,7 +217,7 @@ export const SEED_DOCTORS = [
     languages: ['ar', 'en'],
     accepts_insurance: true, accepted_insurance: ['bupa', 'tawuniya', 'walaa', 'globemed'],
     public_eligibility: true,
-    medical_review_status: \'approved\',
+    medical_review_status: 'approved',
   },
   // 11
   { full_name: 'د. ماجد الغامدي', phone: '+966544000011', password: 'Doctor@123',
@@ -232,7 +232,7 @@ export const SEED_DOCTORS = [
     languages: ['ar', 'en'],
     accepts_insurance: true, accepted_insurance: ['bupa', 'tawuniya', 'medgulf', 'axa', 'walaa'],
     public_eligibility: true,
-    medical_review_status: \'approved\',
+    medical_review_status: 'approved',
   },
   // 12
   { full_name: 'د. هند الرشيد', phone: '+966544000012', password: 'Doctor@123',
@@ -259,7 +259,7 @@ export const SEED_DOCTORS = [
     languages: ['ar', 'en'],
     accepts_insurance: true, accepted_insurance: ['bupa', 'tawuniya', 'medgulf', 'arabian_shield'],
     public_eligibility: true,
-    medical_review_status: \'approved\',
+    medical_review_status: 'approved',
   },
   // 14
   { full_name: 'د. لمى الخالدي', phone: '+966544000014', password: 'Doctor@123',
@@ -274,7 +274,7 @@ export const SEED_DOCTORS = [
     languages: ['ar', 'en'],
     accepts_insurance: true, accepted_insurance: ['bupa', 'tawuniya', 'medgulf', 'walaa', 'nextcare'],
     public_eligibility: true,
-    medical_review_status: \'approved\',
+    medical_review_status: 'approved',
   },
   // 15
   { full_name: 'د. فهد البلوي', phone: '+966544000015', password: 'Doctor@123',
@@ -289,7 +289,7 @@ export const SEED_DOCTORS = [
     languages: ['ar'],
     accepts_insurance: true, accepted_insurance: ['tawuniya', 'walaa', 'malath'],
     public_eligibility: true,
-    medical_review_status: \'approved\',
+    medical_review_status: 'approved',
   },
   // 16
   { full_name: 'د. عائشة الزهراني', phone: '+966544000016', password: 'Doctor@123',
@@ -304,7 +304,7 @@ export const SEED_DOCTORS = [
     languages: ['ar', 'en'],
     accepts_insurance: true, accepted_insurance: ['tawuniya', 'rajhi_takaful', 'walaa', 'malath', 'salama'],
     public_eligibility: true,
-    medical_review_status: \'approved\',
+    medical_review_status: 'approved',
   },
   // 17
   { full_name: 'د. ناصر الدوسري', phone: '+966544000017', password: 'Doctor@123',
@@ -319,7 +319,7 @@ export const SEED_DOCTORS = [
     languages: ['ar', 'en'],
     accepts_insurance: true, accepted_insurance: ['bupa', 'tawuniya', 'medgulf', 'arabian_shield'],
     public_eligibility: true,
-    medical_review_status: \'approved\',
+    medical_review_status: 'approved',
   },
 ];
 
