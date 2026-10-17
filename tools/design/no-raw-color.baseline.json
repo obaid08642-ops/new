@@ -3,7 +3,7 @@
   "totals": {
     "patient-web": 517,
     "patient-app": 317,
-    "provider-app": 235,
+    "provider-app": 229,
     "admin": 167
   },
   "files": {
@@ -52,7 +52,6 @@
     "patient-app/src/theme/index.ts": 119,
     "patient-app/src/utils/medication-notifications.ts": 2,
     "patient-app/src/utils/notifications.ts": 2,
-    "provider-app/src/components/AppGate.tsx": 6,
     "provider-app/src/components/ContractModal.tsx": 2,
     "provider-app/src/components/GeoPicker.tsx": 7,
     "provider-app/src/components/LocationPickerModal.tsx": 2,
