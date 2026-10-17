@@ -229,3 +229,31 @@
   .factsBlock { order: 0; }
   .buyButtons { display: flex; }
 }
+
+/* ---- variant picker (owner decision D, issue 1556): swatches from each variant's picture, a power grid ---- */
+.variants { display: flex; flex-direction: column; gap: var(--nabd-space-md); margin-block-end: var(--nabd-space-md); }
+.variantBlock { display: flex; flex-direction: column; gap: 8px; }
+.variantLabel { margin: 0; font-size: var(--nabd-font-size-label); font-weight: 600; color: var(--nabd-color-text-primary); }
+.swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+.swatch {
+  inline-size: 56px; block-size: 56px; min-inline-size: 44px; padding: 2px; border-radius: var(--nabd-radius-md);
+  border: 1.5px solid var(--nabd-color-border-subtle); background: var(--nabd-color-bg-surface); cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.swatchOn { border: 2px solid var(--nabd-color-text-primary); }
+.swatch:disabled, .power:disabled { opacity: 0.4; cursor: not-allowed; }
+.swatchImg { inline-size: 100%; block-size: 100%; object-fit: cover; border-radius: var(--nabd-radius-sm); }
+.swatchText { font-size: var(--nabd-font-size-micro); color: var(--nabd-color-text-secondary); text-align: center; padding: 2px; }
+.powerTools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.powerSearch { display: none; flex: 1 1 200px; }
+.powerGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 6px; max-block-size: 264px; overflow-y: auto; }
+.power {
+  min-block-size: 44px; padding-inline: 8px; border-radius: var(--nabd-radius-sm); cursor: pointer;
+  border: 1px solid var(--nabd-color-border-subtle); background: var(--nabd-color-bg-surface);
+  color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-control); font-variant-numeric: tabular-nums;
+}
+.powerOn { background: var(--nabd-color-action-selected-bg); color: var(--nabd-color-action-selected-fg); border-color: var(--nabd-color-action-selected-bg); }
+.variantEmpty, .variantChosen { margin: 0; font-size: var(--nabd-font-size-small); color: var(--nabd-color-text-secondary); }
+@media (min-width: 768px) {
+  .powerSearch { display: block; }
+}
