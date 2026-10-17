@@ -3,6 +3,7 @@ reset flow does not tell who is registered. Its own caller address (RFC 5737 ran
 provokes is not shared with the journeys that sign in from 127.0.0.1."""
 import random
 
+import os
 import time
 
 from lib import Client, journey, step, mail_code, phone
@@ -17,6 +18,8 @@ def login(identifier, password):
 
 
 def run(acct):
+    # A 429 here is the thing under test: do not let the client wait it out and retry.
+    os.environ['NABD_LIVE_WAIT_429'] = '0'
     ghost = f'ghost-{random.randint(10**8, 10**9)}@nabd.test'
 
     journey('passwords: a known and an unknown account get the same answer')
