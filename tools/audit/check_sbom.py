@@ -19,9 +19,13 @@ def problems(app, sbom):
     if not components:
         bad.append('no components')
     # Trivy nests lockfile packages under the application component
-    names = {c.get('name') for c in components}
+    def full(c):
+        # CycloneDX writes @scope/pkg as group "@scope" + name "pkg"
+        return f"{c['group']}/{c['name']}" if c.get('group') else c.get('name')
+
+    names = {full(c) for c in components}
     for c in components:
-        names |= {n.get('name') for n in (c.get('components') or [])}
+        names |= {full(n) for n in (c.get('components') or [])}
     wanted = json.loads((ROOT / app / 'package.json').read_text()).get('dependencies', {})
     missing = sorted(n for n in wanted if n not in names)
     if missing:

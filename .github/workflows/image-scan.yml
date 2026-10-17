@@ -31,12 +31,15 @@ jobs:
           - image: backend
             context: backend
             dockerfile: backend/Dockerfile.production
+            ignorefile: backend/.trivyignore   # fastify / nodemailer: the same accepted list as the fs scan (security.yml)
           - image: admin-web
             context: admin
             dockerfile: deploy/docker/Dockerfile.admin-web
+            ignorefile: deploy/.trivyignore-image
           - image: patient-web
             context: patient-web
             dockerfile: deploy/docker/Dockerfile.patient-web
+            ignorefile: deploy/.trivyignore-image
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Build the image
@@ -50,4 +53,4 @@ jobs:
           exit-code: '1'
           ignore-unfixed: true
         env:
-          TRIVY_IGNOREFILE: deploy/.trivyignore-image
+          TRIVY_IGNOREFILE: ${{ matrix.ignorefile }}

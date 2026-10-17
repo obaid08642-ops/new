@@ -11,13 +11,19 @@ ARG NEXT_PUBLIC_SITE_URL=https://admin.nabd.plus
 ARG NEXT_PUBLIC_APP_NAME="Nabdah Plus Admin"
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL NEXT_PUBLIC_WS_URL=$NEXT_PUBLIC_WS_URL NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL NEXT_PUBLIC_APP_NAME=$NEXT_PUBLIC_APP_NAME
 RUN npm run build
+# 16.7: the image ships runtime dependencies only (the dev tooling carried advisories of its own: tinypool via vitest)
+RUN npm prune --omit=dev --no-audit --no-fund
 
 # ── Stage 2: run ──────────────────────────────────────────────────
 FROM node:20-bookworm-slim AS production
 WORKDIR /usr/src/app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1
-RUN apt-get update && apt-get install -y --no-install-recommends wget \
-  && rm -rf /var/lib/apt/lists/*
+# 16.7: security updates of the base image (libcap2, gnutls, perl-base ... had fixes); npm/corepack/yarn are not needed to run
+# (`node` starts next below) and their bundled packages carried advisories, so they are removed.
+RUN apt-get update && apt-get upgrade -y --no-install-recommends && apt-get install -y --no-install-recommends wget \
+  && rm -rf /var/lib/apt/lists/* \
+  && rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack /opt/yarn-* \
+  && rm -f /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack /usr/local/bin/yarn /usr/local/bin/yarnpkg
 COPY --from=builder /usr/src/app/package.json ./
 COPY --from=builder /usr/src/app/node_modules ./node_modules
 COPY --from=builder /usr/src/app/.next ./.next
@@ -28,4 +34,4 @@ USER nextjs
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=5 \
   CMD wget -qO- http://localhost:3000/ || exit 1
-CMD ["npx", "next", "start", "-p", "3000"]
+CMD ["node", "node_modules/next/dist/bin/next", "start", "-p", "3000"]

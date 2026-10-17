@@ -77,6 +77,9 @@ class Sbom(unittest.TestCase):
         short = {'bomFormat': 'CycloneDX', 'specVersion': '1.6', 'components': [{'name': n} for n in list(deps)[1:]]}
         self.assertTrue(any('missing' in p for p in mod.problems('admin', short)))
         self.assertTrue(mod.problems('admin', {'bomFormat': 'SPDX'}))
+        # a scoped package is written as group + name
+        scoped = [{'group': n.split('/')[0], 'name': n.split('/')[1]} if n.startswith('@') else {'name': n} for n in deps]
+        self.assertEqual(mod.problems('admin', {'bomFormat': 'CycloneDX', 'specVersion': '1.6', 'components': scoped}), [])
 
 
 class AuditGate(unittest.TestCase):
