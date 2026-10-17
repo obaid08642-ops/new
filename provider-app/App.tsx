@@ -16,6 +16,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { RootProvider, useAuth, useTheme } from './src/context';
 import { SplashScreen, WelcomeScreen, LoginScreen, ForgotPasswordScreen } from './src/screens/auth/AuthScreens';
 import { PendingDashboard } from './src/screens/auth/PendingDashboard';
+import { OfflineScreen } from './src/screens/auth/OfflineScreen';
 import type { BlockedAccountState } from './src/utils/accountStatus';
 import { DoctorRegistration }         from './src/screens/doctor/DoctorRegistration';
 import { DoctorDashboardNavigator }   from './src/screens/doctor/DoctorDashboard';
@@ -73,7 +74,7 @@ const linking: LinkingOptions<any> = {
 };
 
 function AppNavigator() {
-  const { isLoggedIn, user, logout, appState } = useAuth();
+  const { isLoggedIn, user, logout, appState, refreshSession } = useAuth();
   const { theme } = useTheme();
   const [pType, setPType]   = useState('doctor');
   // Register this device's push token once the provider is signed in (the token used to be
@@ -87,9 +88,13 @@ function AppNavigator() {
     return <SplashScreen onDone={() => {}} />;
   }
 
-  if (appState === 'pending' || appState === 'needs_changes' || appState === 'suspended' || appState === 'rejected' || appState === 'offline') {
+  if (appState === 'offline') {
+    return <OfflineScreen onRetry={() => { void refreshSession(); }} onLogout={async () => { await logout(); }} />;
+  }
+
+  if (appState === 'pending' || appState === 'needs_changes' || appState === 'suspended' || appState === 'rejected') {
     // every account that is not approved yet: the screen says which state (reason + resubmit for needs_changes / rejected)
-    const blocked: BlockedAccountState = appState === 'offline' ? 'pending' : appState;
+    const blocked: BlockedAccountState = appState;
     return (
       <NavigationContainer ref={navigationRef}>
         <Stack.Navigator id={undefined as any} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.bg } }}>

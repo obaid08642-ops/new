@@ -1,6 +1,7 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException, Optional } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { PurgeBus } from '../../common/purge-bus';
 
 /** D-16 (owner decision 16, issue #335): one flag per product module. Absent = ON. */
 export const MODULE_KEYS = [
@@ -49,7 +50,13 @@ const CACHE_TTL_MS = 2000;
 export class ModuleSwitchesService {
   private cache: { at: number; map: Record<string, boolean> } | null = null;
 
-  constructor(@InjectConnection() private readonly conn: Connection) {}
+  private readonly logger = new Logger(ModuleSwitchesService.name);
+
+  constructor(
+    @InjectConnection() private readonly conn: Connection,
+    // the web keeps GET /modules 5 minutes (tag `modules`): a change is pushed to it at once (#1548)
+    @Optional() private readonly purgeBus?: PurgeBus,
+  ) {}
 
   /** Path segment check: any /admin/ route (manager UI) is never blocked. */
   static isAdminRoute(path: string): boolean {
@@ -99,6 +106,7 @@ export class ModuleSwitchesService {
       { upsert: true },
     );
     this.cache = null;
+    this.purgeBus?.purge(['modules']).catch((e: any) => this.logger.error(`purge modules failed: ${e?.message || e}`));
     return { key, enabled };
   }
 }

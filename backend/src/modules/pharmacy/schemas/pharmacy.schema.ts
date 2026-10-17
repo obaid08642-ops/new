@@ -160,6 +160,8 @@ export class PharmacyOrder extends Document {
   };
   @Prop() patient_notes?: string;
   @Prop() prescription_id?: string;
+  /** P17-17.5: UTM campaign attribution (utm_source/medium/campaign/term/content). */
+  @Prop({ type: Object, required: false }) attribution?: Record<string, string>;
   @Prop({ type: Object }) manual_request?: { name?: string; details?: string | null; qty?: number; photo_uri?: string };
   /** F73: draft fulfillment + payment mode. */
   @Prop({ type: String, enum: ['delivery', 'pickup'], default: 'delivery' }) fulfillment?: 'delivery' | 'pickup';
@@ -441,7 +443,10 @@ export class PharmacyOffer extends Document {
   @Prop({ type: [Object], default: [] }) timeline: Array<{ ts: Date; event: string; by?: string; meta?: any }>;
 }
 export const PharmacyOfferSchema = SchemaFactory.createForClass(PharmacyOffer);
-PharmacyOfferSchema.index({ order_id: 1, pharmacy_account_id: 1, version: -1 });
+// P13-R1: one offer per order and pharmacy. `version` is a revision counter on the
+// document itself (upsertDraft edits the prior offer in place), not part of the
+// identity, so the uniqueness key is the pair the spec names.
+PharmacyOfferSchema.index({ order_id: 1, pharmacy_account_id: 1 }, { unique: true });
 PharmacyOfferSchema.index({ patient_account_id: 1, order_id: 1, status: 1, quote_expires_at: 1 });
 PharmacyOfferSchema.index({ status: 1, quote_expires_at: 1, id: 1 });
 

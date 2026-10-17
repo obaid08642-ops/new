@@ -1,5 +1,7 @@
-import { IsArray, IsBoolean, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 import { RadiologyBookingState } from '../../schemas/radiology.schema';
+import { AttributionDto } from '../../common/attribution';
 
 export class BookDto {
   @IsOptional()
@@ -25,6 +27,11 @@ export class BookDto {
   @IsOptional()
   @IsArray()
   documents?: unknown[];
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AttributionDto)
+  attribution?: AttributionDto;
 
 }
 

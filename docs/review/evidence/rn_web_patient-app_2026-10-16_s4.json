@@ -1,0 +1,2402 @@
+{
+ "app": "patient-app",
+ "build": "react-native-web export (not native)",
+ "routes": [
+  {
+   "route": "payments/failed",
+   "url": "/payments/failed",
+   "landed": "/payments/result?status=failed",
+   "status": "TESTED",
+   "time_to_ready_ms": 1854,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "العودة للرئيسية",
+     "result": "NAVIGATE",
+     "to": "/",
+     "response_ms": 907
+    }
+   ]
+  },
+  {
+   "route": "payments/processing",
+   "url": "/payments/processing",
+   "landed": "/payments/result",
+   "status": "TESTED",
+   "time_to_ready_ms": 1443,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "العودة للرئيسية",
+     "result": "NAVIGATE",
+     "to": "/",
+     "response_ms": 862
+    }
+   ]
+  },
+  {
+   "route": "payments/result",
+   "url": "/payments/result",
+   "landed": "/payments/result",
+   "status": "TESTED",
+   "time_to_ready_ms": 1414,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "العودة للرئيسية",
+     "result": "NAVIGATE",
+     "to": "/",
+     "response_ms": 872
+    }
+   ]
+  },
+  {
+   "route": "payments/success",
+   "url": "/payments/success",
+   "landed": "/payments/result?status=success",
+   "status": "TESTED",
+   "time_to_ready_ms": 1407,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "العودة للرئيسية",
+     "result": "NAVIGATE",
+     "to": "/",
+     "response_ms": 882
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/barcode-scanner",
+   "url": "/pharmacy/barcode-scanner",
+   "landed": "/pharmacy/barcode-scanner",
+   "status": "TESTED",
+   "time_to_ready_ms": 1402,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "منح إذن الكاميرا",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3584
+    },
+    {
+     "label": "لم تجد الدواء؟ أضفه يدويًا",
+     "result": "NAVIGATE",
+     "to": "/pharmacy/rx-order?via=type",
+     "response_ms": 859
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/broadcast-status",
+   "url": "/pharmacy/broadcast-status",
+   "landed": "/pharmacy/broadcast-status",
+   "status": "TESTED",
+   "time_to_ready_ms": 902,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [
+     "Cannot find native module 'ExpoMediaLibraryNext'"
+    ],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "pharmacy/cart",
+   "url": "/pharmacy/cart",
+   "landed": "/pharmacy/cart",
+   "status": "TESTED",
+   "time_to_ready_ms": 1417,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "تصفح الأدوية",
+     "result": "NAVIGATE",
+     "to": "/pharmacy",
+     "response_ms": 866
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/checkout",
+   "url": "/pharmacy/checkout",
+   "landed": "/pharmacy/checkout",
+   "status": "TESTED",
+   "time_to_ready_ms": 1387,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "تصفح الأدوية",
+     "result": "NAVIGATE",
+     "to": "/pharmacy",
+     "response_ms": 875
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/custom-item",
+   "url": "/pharmacy/custom-item",
+   "landed": "/pharmacy/rx-order?via=type",
+   "status": "TESTED",
+   "time_to_ready_ms": 2018,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "تصوير",
+     "result": "NAVIGATE",
+     "to": "/pharmacy/rx-order?via=photo",
+     "response_ms": 455
+    },
+    {
+     "label": "رفع",
+     "result": "NAVIGATE",
+     "to": "/pharmacy/rx-order?via=upload",
+     "response_ms": 465
+    },
+    {
+     "label": "كتابة الأسماء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3594
+    },
+    {
+     "label": "تغيير الموقع",
+     "result": "NAVIGATE",
+     "to": "/shared/location-picker",
+     "response_ms": 454
+    },
+    {
+     "label": "بث الطلب وطلب عروض",
+     "result": "NO_EFFECT",
+     "disabled": true,
+     "response_ms": 3593
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/drug-not-found",
+   "url": "/pharmacy/drug-not-found",
+   "landed": "/pharmacy/rx-order?via=type",
+   "status": "TESTED",
+   "time_to_ready_ms": 2027,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "تصوير",
+     "result": "NAVIGATE",
+     "to": "/pharmacy/rx-order?via=photo",
+     "response_ms": 459
+    },
+    {
+     "label": "رفع",
+     "result": "NAVIGATE",
+     "to": "/pharmacy/rx-order?via=upload",
+     "response_ms": 471
+    },
+    {
+     "label": "كتابة الأسماء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3611
+    },
+    {
+     "label": "تغيير الموقع",
+     "result": "NAVIGATE",
+     "to": "/shared/location-picker",
+     "response_ms": 464
+    },
+    {
+     "label": "بث الطلب وطلب عروض",
+     "result": "NO_EFFECT",
+     "disabled": true,
+     "response_ms": 3595
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/filters",
+   "url": "/pharmacy/filters",
+   "landed": "/pharmacy",
+   "status": "TESTED",
+   "time_to_ready_ms": 2048,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "طلباتي",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "السلة",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "مسح",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "مسح الباركود",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "تصوير الروشتة",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "ارفع الروشتة",
+     "result": "NAVIGATE",
+     "to": "/pharmacy/rx-order?via=photo",
+     "response_ms": 500
+    },
+    {
+     "label": "المفضلة",
+     "result": "NAVIGATE",
+     "to": "/pharmacy/wishlist",
+     "response_ms": 806
+    },
+    {
+     "label": "التذكيرات",
+     "result": "NAVIGATE",
+     "to": "/health/medications?tab=reminders",
+     "response_ms": 824
+    },
+    {
+     "label": "تصفية",
+     "result": "UI_CHANGE",
+     "response_ms": 468
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3569
+    },
+    {
+     "label": "طلب دواء خاص",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3609
+    },
+    {
+     "label": "الرئيسية",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الصيدلية",
+     "result": "NAVIGATE",
+     "to": "/pharmacy?filter_category=all&filter_forms=&filter_brands=&filter_rx=0&filter_min_price=&filter_max_price=&filter_sort=relevant",
+     "response_ms": 1345
+    },
+    {
+     "label": "الاستشارات",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "التحاليل",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "التمريض",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/final-quote",
+   "url": "/pharmacy/final-quote",
+   "landed": "/pharmacy/final-quote",
+   "status": "TESTED",
+   "time_to_ready_ms": 1407,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "طلباتي",
+     "result": "NAVIGATE",
+     "to": "/orders",
+     "response_ms": 823
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/insurance-decision",
+   "url": "/pharmacy/insurance-decision",
+   "landed": "/pharmacy/insurance-decision",
+   "status": "TESTED",
+   "time_to_ready_ms": 1403,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "طلباتي",
+     "result": "NAVIGATE",
+     "to": "/orders",
+     "response_ms": 814
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/manual-order",
+   "url": "/pharmacy/manual-order",
+   "landed": "/pharmacy/rx-order?via=type",
+   "status": "TESTED",
+   "time_to_ready_ms": 1995,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "تصوير",
+     "result": "NAVIGATE",
+     "to": "/pharmacy/rx-order?via=photo",
+     "response_ms": 477
+    },
+    {
+     "label": "رفع",
+     "result": "NAVIGATE",
+     "to": "/pharmacy/rx-order?via=upload",
+     "response_ms": 465
+    },
+    {
+     "label": "كتابة الأسماء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3620
+    },
+    {
+     "label": "تغيير الموقع",
+     "result": "NAVIGATE",
+     "to": "/shared/location-picker",
+     "response_ms": 453
+    },
+    {
+     "label": "بث الطلب وطلب عروض",
+     "result": "NO_EFFECT",
+     "disabled": true,
+     "response_ms": 3584
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/medicine-compare",
+   "url": "/pharmacy/medicine-compare",
+   "landed": "/pharmacy/medicine-compare",
+   "status": "TESTED",
+   "time_to_ready_ms": 1440,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/order-confirm",
+   "url": "/pharmacy/order-confirm",
+   "landed": "/pharmacy/order-confirm",
+   "status": "TESTED",
+   "time_to_ready_ms": 1410,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "طلباتي",
+     "result": "NAVIGATE",
+     "to": "/orders",
+     "response_ms": 872
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/order-history",
+   "url": "/pharmacy/order-history",
+   "landed": "/orders",
+   "status": "TESTED",
+   "time_to_ready_ms": 2062,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الحالية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3568
+    },
+    {
+     "label": "السابقة",
+     "result": "UI_CHANGE",
+     "response_ms": 440
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/order-tracking",
+   "url": "/pharmacy/order-tracking",
+   "landed": "/pharmacy/order-tracking",
+   "status": "TESTED",
+   "time_to_ready_ms": 1407,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "طلباتي",
+     "result": "NAVIGATE",
+     "to": "/orders",
+     "response_ms": 820
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/payment",
+   "url": "/pharmacy/payment",
+   "landed": "/pharmacy/payment",
+   "status": "TESTED",
+   "time_to_ready_ms": 1444,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "طلباتي",
+     "result": "NAVIGATE",
+     "to": "/orders",
+     "response_ms": 806
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/pharmacist-chat",
+   "url": "/pharmacy/pharmacist-chat",
+   "landed": "/pharmacy/pharmacist-chat",
+   "status": "TESTED",
+   "time_to_ready_ms": 1420,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "طلباتي",
+     "result": "NAVIGATE",
+     "to": "/orders",
+     "response_ms": 807
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/product-detail",
+   "url": "/pharmacy/product-detail",
+   "landed": "/pharmacy/product-detail",
+   "status": "TESTED",
+   "time_to_ready_ms": 2054,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /medicines/undefined/details"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إعادة المحاولة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 797
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/product-search",
+   "url": "/pharmacy/product-search",
+   "landed": "/search",
+   "status": "TESTED",
+   "time_to_ready_ms": 1435,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "مسح",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "ماسح الأدوية",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إلغاء",
+     "result": "NAVIGATE",
+     "to": "/",
+     "response_ms": 911
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/reorder",
+   "url": "/pharmacy/reorder",
+   "landed": "/pharmacy/reorder",
+   "status": "TESTED",
+   "time_to_ready_ms": 1415,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "طلباتي",
+     "result": "NAVIGATE",
+     "to": "/orders",
+     "response_ms": 829
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/request",
+   "url": "/pharmacy/request",
+   "landed": "/pharmacy/rx-order?via=type",
+   "status": "TESTED",
+   "time_to_ready_ms": 2017,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "تصوير",
+     "result": "NAVIGATE",
+     "to": "/pharmacy/rx-order?via=photo",
+     "response_ms": 450
+    },
+    {
+     "label": "رفع",
+     "result": "NAVIGATE",
+     "to": "/pharmacy/rx-order?via=upload",
+     "response_ms": 460
+    },
+    {
+     "label": "كتابة الأسماء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3609
+    },
+    {
+     "label": "تغيير الموقع",
+     "result": "NAVIGATE",
+     "to": "/shared/location-picker",
+     "response_ms": 456
+    },
+    {
+     "label": "بث الطلب وطلب عروض",
+     "result": "NO_EFFECT",
+     "disabled": true,
+     "response_ms": 3611
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/rx-order",
+   "url": "/pharmacy/rx-order",
+   "landed": "/pharmacy/rx-order",
+   "status": "TESTED",
+   "time_to_ready_ms": 1417,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "تصوير",
+     "result": "NAVIGATE",
+     "to": "/pharmacy/rx-order?via=photo",
+     "response_ms": 444
+    },
+    {
+     "label": "رفع",
+     "result": "NAVIGATE",
+     "to": "/pharmacy/rx-order?via=upload",
+     "response_ms": 500
+    },
+    {
+     "label": "كتابة الأسماء",
+     "result": "NAVIGATE",
+     "to": "/pharmacy/rx-order?via=type",
+     "response_ms": 453
+    },
+    {
+     "label": "الكاميرا",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3608
+    },
+    {
+     "label": "احفظ الروشتة وتابع",
+     "result": "NO_EFFECT",
+     "disabled": true,
+     "response_ms": 3600
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/scan-prescription",
+   "url": "/pharmacy/scan-prescription",
+   "landed": "/pharmacy/rx-order?via=photo",
+   "status": "TESTED",
+   "time_to_ready_ms": 1424,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "تصوير",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3613
+    },
+    {
+     "label": "رفع",
+     "result": "NAVIGATE",
+     "to": "/pharmacy/rx-order?via=upload",
+     "response_ms": 451
+    },
+    {
+     "label": "كتابة الأسماء",
+     "result": "NAVIGATE",
+     "to": "/pharmacy/rx-order?via=type",
+     "response_ms": 474
+    },
+    {
+     "label": "الكاميرا",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3602
+    },
+    {
+     "label": "احفظ الروشتة وتابع",
+     "result": "NO_EFFECT",
+     "disabled": true,
+     "response_ms": 3573
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/waiting-for-pharmacy",
+   "url": "/pharmacy/waiting-for-pharmacy",
+   "landed": "/orders",
+   "status": "TESTED",
+   "time_to_ready_ms": 2024,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الحالية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3618
+    },
+    {
+     "label": "السابقة",
+     "result": "UI_CHANGE",
+     "response_ms": 430
+    }
+   ]
+  },
+  {
+   "route": "pharmacy/wishlist",
+   "url": "/pharmacy/wishlist",
+   "landed": "/pharmacy/wishlist",
+   "status": "TESTED",
+   "time_to_ready_ms": 1991,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "ابدأ التسوق",
+     "result": "NAVIGATE",
+     "to": "/pharmacy",
+     "response_ms": 831
+    }
+   ]
+  },
+  {
+   "route": "profile/addresses",
+   "url": "/profile/addresses",
+   "landed": "/profile/addresses",
+   "status": "TESTED",
+   "time_to_ready_ms": 2038,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إضافة عنوان على الخريطة",
+     "result": "NAVIGATE",
+     "to": "/shared/location-picker",
+     "response_ms": 459
+    }
+   ]
+  },
+  {
+   "route": "profile/index",
+   "url": "/profile",
+   "landed": "/profile",
+   "status": "TESTED",
+   "time_to_ready_ms": 2009,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "تعديل",
+     "result": "NAVIGATE",
+     "to": "/health/profile",
+     "response_ms": 826
+    },
+    {
+     "label": "طلباتي",
+     "result": "NAVIGATE",
+     "to": "/orders",
+     "response_ms": 843
+    },
+    {
+     "label": "مواعيدي",
+     "result": "NAVIGATE",
+     "to": "/consultations/appointments",
+     "response_ms": 492
+    },
+    {
+     "label": "نقاطي",
+     "result": "NAVIGATE",
+     "to": "/loyalty/hub",
+     "response_ms": 8616,
+     "slow": "0 request(s) in flight, 2 loading, stable=12"
+    },
+    {
+     "label": "العناوين",
+     "result": "NAVIGATE",
+     "to": "/profile/addresses",
+     "response_ms": 828
+    },
+    {
+     "label": "عائلتي",
+     "result": "NAVIGATE",
+     "to": "/family",
+     "response_ms": 1323
+    },
+    {
+     "label": "التأمين",
+     "result": "NAVIGATE",
+     "to": "/insurance?tab=policy",
+     "response_ms": 836
+    },
+    {
+     "label": "الإعدادات",
+     "result": "JS_ERROR",
+     "error": "Cannot find native module 'ExpoMediaLibraryNext'",
+     "response_ms": 528
+    },
+    {
+     "label": "الدعم والمساعدة",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الخصوصية والأمان",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "تسجيل الخروج",
+     "result": "SKIPPED_DESTRUCTIVE"
+    }
+   ]
+  },
+  {
+   "route": "profile/insurance",
+   "url": "/profile/insurance",
+   "landed": "/insurance?tab=policy",
+   "status": "TESTED",
+   "time_to_ready_ms": 2032,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إضافة بوليصة",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الوثيقة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3605
+    },
+    {
+     "label": "المزايا",
+     "result": "NAVIGATE",
+     "to": "/insurance?tab=benefits",
+     "response_ms": 782
+    },
+    {
+     "label": "الشبكة",
+     "result": "NAVIGATE",
+     "to": "/insurance?tab=network",
+     "response_ms": 1324
+    },
+    {
+     "label": "تغيير شركة التأمين",
+     "result": "UI_CHANGE",
+     "response_ms": 806
+    },
+    {
+     "label": "استعلام عن تأميني (الضمان الصحي)",
+     "result": "UI_CHANGE",
+     "response_ms": 553
+    },
+    {
+     "label": "ما تغطيه وثيقتي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 789
+    },
+    {
+     "label": "مزودو الشبكة",
+     "result": "UI_CHANGE",
+     "response_ms": 794
+    }
+   ]
+  },
+  {
+   "route": "programs/active",
+   "url": "/programs/active",
+   "landed": "/programs/active",
+   "status": "TESTED",
+   "time_to_ready_ms": 1983,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "reports/ai-analysis",
+   "url": "/reports/ai-analysis",
+   "landed": "/health/records?tab=reports",
+   "status": "TESTED",
+   "time_to_ready_ms": 2077,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "التقارير",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3589
+    },
+    {
+     "label": "الوصفات",
+     "result": "NAVIGATE",
+     "to": "/health/records?tab=prescriptions",
+     "response_ms": 803
+    },
+    {
+     "label": "الجدول الزمني",
+     "result": "NAVIGATE",
+     "to": "/health/records?tab=timeline",
+     "response_ms": 803
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3588
+    },
+    {
+     "label": "تحاليل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3583
+    },
+    {
+     "label": "أشعة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3568
+    },
+    {
+     "label": "ملاحظات طبية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3587
+    }
+   ]
+  },
+  {
+   "route": "reports/hub",
+   "url": "/reports/hub",
+   "landed": "/health/records?tab=reports",
+   "status": "TESTED",
+   "time_to_ready_ms": 2014,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "التقارير",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3629
+    },
+    {
+     "label": "الوصفات",
+     "result": "NAVIGATE",
+     "to": "/health/records?tab=prescriptions",
+     "response_ms": 798
+    },
+    {
+     "label": "الجدول الزمني",
+     "result": "NAVIGATE",
+     "to": "/health/records?tab=timeline",
+     "response_ms": 832
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3633
+    },
+    {
+     "label": "تحاليل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3589
+    },
+    {
+     "label": "أشعة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3586
+    },
+    {
+     "label": "ملاحظات طبية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3581
+    }
+   ]
+  },
+  {
+   "route": "reports/passport",
+   "url": "/reports/passport",
+   "landed": "/reports/passport",
+   "status": "TESTED",
+   "time_to_ready_ms": 2018,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "مشاركة",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "reports/timeline",
+   "url": "/reports/timeline",
+   "landed": "/health/records?tab=timeline",
+   "status": "TESTED",
+   "time_to_ready_ms": 2126,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "التقارير",
+     "result": "NAVIGATE",
+     "to": "/health/records?tab=reports",
+     "response_ms": 782
+    },
+    {
+     "label": "الوصفات",
+     "result": "NAVIGATE",
+     "to": "/health/records?tab=prescriptions",
+     "response_ms": 823
+    },
+    {
+     "label": "الجدول الزمني",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3597
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3623
+    },
+    {
+     "label": "مواعيد",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3632
+    },
+    {
+     "label": "تحاليل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3599
+    },
+    {
+     "label": "وصفات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3595
+    },
+    {
+     "label": "مؤشرات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3608
+    }
+   ]
+  },
+  {
+   "route": "reports/view-report",
+   "url": "/reports/view-report",
+   "landed": "/reports/view-report",
+   "status": "TESTED",
+   "time_to_ready_ms": 1395,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إعادة المحاولة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3593
+    }
+   ]
+  },
+  {
+   "route": "returns/detail",
+   "url": "/returns/detail",
+   "landed": "/returns/detail",
+   "status": "TESTED",
+   "time_to_ready_ms": 1422,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "مواعيدي",
+     "result": "NAVIGATE",
+     "to": "/consultations/appointments",
+     "response_ms": 463
+    }
+   ]
+  },
+  {
+   "route": "returns/hub",
+   "url": "/returns/hub",
+   "landed": "/returns/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 2619,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "طلب إرجاع جديد",
+     "result": "NAVIGATE",
+     "to": "/returns/new-request",
+     "response_ms": 449
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3600
+    },
+    {
+     "label": "قيد المراجعة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3609
+    },
+    {
+     "label": "موافق عليه",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3579
+    },
+    {
+     "label": "تم الاسترداد",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3578
+    },
+    {
+     "label": "مرفوض",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3586
+    }
+   ]
+  },
+  {
+   "route": "returns/new-request",
+   "url": "/returns/new-request",
+   "landed": "/returns/new-request",
+   "status": "TESTED",
+   "time_to_ready_ms": 1402,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "طلب صيدلية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3625
+    },
+    {
+     "label": "استشارة طبية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3593
+    },
+    {
+     "label": "تحاليل ومختبر",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3584
+    },
+    {
+     "label": "تمريض منزلي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3585
+    },
+    {
+     "label": "خدمة مغطاة بالتأمين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3603
+    },
+    {
+     "label": "التالي",
+     "result": "UI_CHANGE",
+     "response_ms": 446
+    }
+   ]
+  },
+  {
+   "route": "reviews/index",
+   "url": "/reviews",
+   "landed": "/reviews",
+   "status": "TESTED",
+   "time_to_ready_ms": 1428,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "1 نجوم",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "2 نجوم",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "3 نجوم",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "4 نجوم",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "5 نجوم",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "نشر التقييم بشكل مجهول",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إرسال التقييم",
+     "result": "NO_EFFECT",
+     "disabled": true,
+     "response_ms": 3594
+    }
+   ]
+  },
+  {
+   "route": "room/[id]",
+   "status": "NOT_TESTED_DYNAMIC"
+  },
+  {
+   "route": "s/[type]/[slug]",
+   "status": "NOT_TESTED_DYNAMIC"
+  },
+  {
+   "route": "search/index",
+   "url": "/search",
+   "landed": "/search",
+   "status": "TESTED",
+   "time_to_ready_ms": 1455,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "مسح",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "ماسح الأدوية",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إلغاء",
+     "result": "NAVIGATE",
+     "to": "/",
+     "response_ms": 884
+    }
+   ]
+  },
+  {
+   "route": "settings/about",
+   "url": "/settings/about",
+   "landed": "/settings/about",
+   "status": "TESTED",
+   "time_to_ready_ms": 1413,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "عن التطبيق",
+     "result": "NAVIGATE",
+     "to": "/settings/about?tab=about",
+     "response_ms": 461
+    },
+    {
+     "label": "الشروط والسياسات",
+     "result": "NAVIGATE",
+     "to": "/settings/about?tab=legal",
+     "response_ms": 812
+    }
+   ]
+  },
+  {
+   "route": "settings/data",
+   "url": "/settings/data",
+   "landed": "/settings/privacy?tab=data",
+   "status": "TESTED",
+   "time_to_ready_ms": 15419,
+   "ready": false,
+   "not_ready_reason": "0 request(s) in flight, 2 loading, stable=24",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الخصوصية",
+     "result": "NAVIGATE",
+     "to": "/settings/privacy?tab=privacy",
+     "response_ms": 805
+    },
+    {
+     "label": "بياناتي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 11772,
+     "slow": "0 request(s) in flight, 2 loading, stable=16"
+    },
+    {
+     "label": "حذف الحساب",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "تصدير كل بياناتي",
+     "result": "UI_CHANGE",
+     "response_ms": 8614,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    }
+   ]
+  },
+  {
+   "route": "settings/feedback",
+   "url": "/settings/feedback",
+   "landed": "/settings/help?tab=feedback",
+   "status": "TESTED",
+   "time_to_ready_ms": 1433,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "المساعدة",
+     "result": "NAVIGATE",
+     "to": "/settings/help?tab=help",
+     "response_ms": 804
+    },
+    {
+     "label": "ملاحظات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3621
+    },
+    {
+     "label": "1 نجوم",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "2 نجوم",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "3 نجوم",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "4 نجوم",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "5 نجوم",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "اقتراح",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3583
+    },
+    {
+     "label": "مشكلة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3576
+    },
+    {
+     "label": "شكوى",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3582
+    },
+    {
+     "label": "إطراء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3586
+    },
+    {
+     "label": "استفسار",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3596
+    },
+    {
+     "label": "إرسال الملاحظة",
+     "result": "NO_EFFECT",
+     "disabled": true,
+     "response_ms": 3593
+    }
+   ]
+  },
+  {
+   "route": "settings/help",
+   "url": "/settings/help",
+   "landed": "/settings/help",
+   "status": "TESTED",
+   "time_to_ready_ms": 2058,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "المساعدة",
+     "result": "NAVIGATE",
+     "to": "/settings/help?tab=help",
+     "response_ms": 445
+    },
+    {
+     "label": "ملاحظات",
+     "result": "NAVIGATE",
+     "to": "/settings/help?tab=feedback",
+     "response_ms": 468
+    },
+    {
+     "label": "محادثة مع الدعم",
+     "result": "NAVIGATE",
+     "to": "/support/chat",
+     "response_ms": 834
+    },
+    {
+     "label": "طلباتي للدعم",
+     "result": "NAVIGATE",
+     "to": "/support/ticket",
+     "response_ms": 819
+    },
+    {
+     "label": "كيف أحجز موعد؟",
+     "result": "UI_CHANGE",
+     "response_ms": 457
+    },
+    {
+     "label": "هل التأمين مغطى؟",
+     "result": "UI_CHANGE",
+     "response_ms": 445
+    }
+   ]
+  },
+  {
+   "route": "settings/index",
+   "url": "/settings",
+   "landed": "/settings",
+   "status": "TESTED",
+   "time_to_ready_ms": 856,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [
+     "Cannot find native module 'ExpoMediaLibraryNext'"
+    ],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "settings/language",
+   "url": "/settings/language",
+   "landed": "/settings/language",
+   "status": "TESTED",
+   "time_to_ready_ms": 900,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [
+     "Cannot find native module 'ExpoMediaLibraryNext'"
+    ],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "settings/notifications",
+   "url": "/settings/notifications",
+   "landed": "/settings/notifications",
+   "status": "TESTED",
+   "time_to_ready_ms": 897,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [
+     "Cannot find native module 'ExpoMediaLibraryNext'"
+    ],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "settings/notifications-settings",
+   "url": "/settings/notifications-settings",
+   "landed": "/settings/notifications-settings",
+   "status": "TESTED",
+   "time_to_ready_ms": 930,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [
+     "Cannot find native module 'ExpoMediaLibraryNext'"
+    ],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "settings/privacy",
+   "url": "/settings/privacy",
+   "landed": "/settings/privacy",
+   "status": "TESTED",
+   "time_to_ready_ms": 2007,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الخصوصية",
+     "result": "NAVIGATE",
+     "to": "/settings/privacy?tab=privacy",
+     "response_ms": 451
+    },
+    {
+     "label": "بياناتي",
+     "result": "NAVIGATE",
+     "to": "/settings/privacy?tab=data",
+     "response_ms": 8633,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    },
+    {
+     "label": "حذف الحساب",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "مشاركة الموقع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "تحليلات الاستخدام",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "مشاركة البيانات الصحية",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "التواصل التسويقي",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "مشاركة مع أطراف ثالثة",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "settings/security",
+   "url": "/settings/security",
+   "landed": "/settings/security",
+   "status": "TESTED",
+   "time_to_ready_ms": 921,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [
+     "Cannot find native module 'ExpoMediaLibraryNext'"
+    ],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "settings/support-chat",
+   "url": "/settings/support-chat",
+   "landed": "/support/chat",
+   "status": "TESTED",
+   "time_to_ready_ms": 2010,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إلغاء حجز",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/support/chat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 832
+    },
+    {
+     "label": "مشكلة في طلب",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/support/chat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 482
+    },
+    {
+     "label": "استرداد المبلغ",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/support/chat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 464
+    },
+    {
+     "label": "سؤال عن التأمين",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/support/chat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 468
+    },
+    {
+     "label": "شكوى",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/support/chat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 461
+    },
+    {
+     "label": "صورة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3599
+    },
+    {
+     "label": "إرسال",
+     "result": "NO_EFFECT",
+     "disabled": true,
+     "response_ms": 3565
+    }
+   ]
+  },
+  {
+   "route": "settings/terms",
+   "url": "/settings/terms",
+   "landed": "/settings/about?tab=legal",
+   "status": "TESTED",
+   "time_to_ready_ms": 2024,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "عن التطبيق",
+     "result": "NAVIGATE",
+     "to": "/settings/about?tab=about",
+     "response_ms": 444
+    },
+    {
+     "label": "الشروط والسياسات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3616
+    }
+   ]
+  },
+  {
+   "route": "shared/location-picker",
+   "url": "/shared/location-picker",
+   "landed": "/shared/location-picker",
+   "status": "TESTED",
+   "time_to_ready_ms": 1433,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 5,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "استخدم موقعي الحالي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 11737,
+     "slow": "0 request(s) in flight, 1 loading, stable=16"
+    },
+    {
+     "label": "حفظ العنوان",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/users/me/addresses",
+     "tokens_sent": 5,
+     "tokens_stored": 0,
+     "response_ms": 8779,
+     "slow": "0 request(s) in flight, 1 loading, stable=16"
+    }
+   ]
+  },
+  {
+   "route": "support/chat",
+   "url": "/support/chat",
+   "landed": "/support/chat",
+   "status": "TESTED",
+   "time_to_ready_ms": 2018,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إلغاء حجز",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/support/chat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 482
+    },
+    {
+     "label": "مشكلة في طلب",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/support/chat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 483
+    },
+    {
+     "label": "استرداد المبلغ",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/support/chat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 472
+    },
+    {
+     "label": "سؤال عن التأمين",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/support/chat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 501
+    },
+    {
+     "label": "شكوى",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/support/chat",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 479
+    },
+    {
+     "label": "صورة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3608
+    },
+    {
+     "label": "إرسال",
+     "result": "NO_EFFECT",
+     "disabled": true,
+     "response_ms": 3591
+    }
+   ]
+  },
+  {
+   "route": "support/ticket",
+   "url": "/support/ticket",
+   "landed": "/support/ticket",
+   "status": "TESTED",
+   "time_to_ready_ms": 2031,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "طلب جديد",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إلغاء حجز",
+     "result": "NAVIGATE",
+     "to": "/support/chat",
+     "response_ms": 899
+    }
+   ]
+  },
+  {
+   "route": "voice/index",
+   "url": "/voice",
+   "landed": "/ai",
+   "status": "TESTED",
+   "time_to_ready_ms": 1393,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "أعراضي",
+     "result": "NAVIGATE",
+     "to": "/ai?mode=symptoms",
+     "response_ms": 444
+    },
+    {
+     "label": "وصفتي أو دوائي",
+     "result": "NAVIGATE",
+     "to": "/ai?mode=prescription",
+     "response_ms": 465
+    },
+    {
+     "label": "تقريري",
+     "result": "NAVIGATE",
+     "to": "/ai?mode=report",
+     "response_ms": 485
+    },
+    {
+     "label": "عرض التوجيه",
+     "result": "UI_CHANGE",
+     "response_ms": 460
+    }
+   ]
+  },
+  {
+   "route": "wearables/hub",
+   "url": "/wearables/hub",
+   "landed": "/health/vitals",
+   "status": "TESTED",
+   "time_to_ready_ms": 2005,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الأحدث",
+     "result": "NAVIGATE",
+     "to": "/health/vitals?tab=today",
+     "response_ms": 456
+    },
+    {
+     "label": "السجل",
+     "result": "NAVIGATE",
+     "to": "/health/vitals?tab=history",
+     "response_ms": 818
+    },
+    {
+     "label": "الاتجاهات",
+     "result": "NAVIGATE",
+     "to": "/health/vitals?tab=trends",
+     "response_ms": 806
+    },
+    {
+     "label": "إضافة قراءة",
+     "result": "UI_CHANGE",
+     "response_ms": 478
+    }
+   ]
+  }
+ ]
+}

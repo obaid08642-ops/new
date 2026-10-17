@@ -1,0 +1,780 @@
+{
+ "version": 1,
+ "retrieved_at": "2026-10-16",
+ "rule": "Owner decision F (#1556): insurers and classes only from official sources, a source URL per row, no guessed class names.",
+ "source": {
+  "url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+  "page": "https://www.ia.gov.sa/ar/licenses",
+  "publisher": "Insurance Authority (ia.gov.sa), the regulator that took over health insurance licensing from CCHI",
+  "document_date": "2026-10-14"
+ },
+ "companies": [
+  {
+   "licence_no": "TMN/200412/1",
+   "unified_no": "7000911508",
+   "licence_expiry": "2028-04-12",
+   "health_insurance_licensed": true,
+   "entity_type": "insurer",
+   "name_ar": "الشركة التعاونية للتأمين",
+   "name_en": "Tawuniya",
+   "seed_code": "tawuniya",
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/20079/2",
+   "unified_no": "7001519912",
+   "licence_expiry": "2028-02-25",
+   "health_insurance_licensed": true,
+   "entity_type": "insurer",
+   "name_ar": "شركة ملاذ للتأمين التعاوني",
+   "name_en": "Malath Insurance",
+   "seed_code": "malath",
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/20079/3",
+   "unified_no": "7001548317",
+   "licence_expiry": "2028-02-25",
+   "health_insurance_licensed": true,
+   "entity_type": "insurer",
+   "name_ar": "شركة المتوسط والخليج للتأمين وإعادة التأمين التعاوني (ميدغلف)",
+   "name_en": "MedGulf",
+   "seed_code": "medgulf",
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/20079/4",
+   "unified_no": "7001523724",
+   "licence_expiry": "2028-02-25",
+   "health_insurance_licensed": true,
+   "entity_type": "insurer",
+   "name_ar": "شركة سلامة للتأمين التعاوني",
+   "name_en": "Salama Cooperative Insurance",
+   "seed_code": "salama",
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/20079/6",
+   "unified_no": "7001527816",
+   "licence_expiry": "2028-11-22",
+   "health_insurance_licensed": true,
+   "entity_type": "insurer",
+   "name_ar": "شركة الدرع العربي للتأمين التعاوني",
+   "name_en": "Arabian Shield",
+   "seed_code": "arabian_shield",
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/20079/8",
+   "unified_no": "7001539720",
+   "licence_expiry": "2028-02-24",
+   "health_insurance_licensed": true,
+   "entity_type": "insurer",
+   "name_ar": "الشركة العربية السعودية للتأمين التعاوني (سايكو)",
+   "name_en": "SAICO",
+   "seed_code": "saico",
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/20079/9",
+   "unified_no": "7001532279",
+   "licence_expiry": "2028-02-24",
+   "health_insurance_licensed": true,
+   "entity_type": "insurer",
+   "name_ar": "شركة إتحاد الخليج الأهلية للتأمين التعاوني",
+   "name_en": "Gulf Union Alahlia",
+   "seed_code": "gulf_union",
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/20083/11",
+   "unified_no": "7001537161",
+   "licence_expiry": "2028-08-21",
+   "health_insurance_licensed": true,
+   "entity_type": "insurer",
+   "name_ar": "شركة متكاملة للتأمين",
+   "name_en": "Mutakamela Insurance",
+   "seed_code": null,
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/20083/12",
+   "unified_no": "7001549059",
+   "licence_expiry": "2028-09-10",
+   "health_insurance_licensed": true,
+   "entity_type": "insurer",
+   "name_ar": "شركة الإتحاد للتأمين التعاوني",
+   "name_en": "Al-Etihad Cooperative Insurance",
+   "seed_code": "aletihad",
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/20083/13",
+   "unified_no": "7001544472",
+   "licence_expiry": "2028-09-11",
+   "health_insurance_licensed": true,
+   "entity_type": "insurer",
+   "name_ar": "شركة الصقر للتأمين التعاوني",
+   "name_en": "Al Sagr Cooperative Insurance",
+   "seed_code": "alsagr",
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/20086/14",
+   "unified_no": "7001534630",
+   "licence_expiry": "1441-06-03 (Hijri, as printed)",
+   "health_insurance_licensed": true,
+   "entity_type": "insurer",
+   "name_ar": "الشركة السعودية الهندية للتأمين التعاوني",
+   "name_en": "Saudi Indian Company for Cooperative Insurance",
+   "seed_code": null,
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/20086/15",
+   "unified_no": "7001527667",
+   "licence_expiry": "2028-12-01",
+   "health_insurance_licensed": true,
+   "entity_type": "insurer",
+   "name_ar": "شركة التأمين العربية التعاونية",
+   "name_en": "Arabia Insurance Cooperative",
+   "seed_code": null,
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/20087/16",
+   "unified_no": "7001526578",
+   "licence_expiry": "2028-12-15",
+   "health_insurance_licensed": true,
+   "entity_type": "insurer",
+   "name_ar": "شركة ولاء للتأمين التعاوني",
+   "name_en": "Walaa Cooperative Insurance",
+   "seed_code": "walaa",
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/20087/17",
+   "unified_no": "7001556021",
+   "licence_expiry": "2029-01-03",
+   "health_insurance_licensed": false,
+   "entity_type": "reinsurer",
+   "name_ar": "الشركة السعودية لإعادة التأمين \"إعادة\"",
+   "name_en": "Saudi Re",
+   "seed_code": null,
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/20088/18",
+   "unified_no": "7001571327",
+   "licence_expiry": "2029-01-24",
+   "health_insurance_licensed": true,
+   "entity_type": "insurer",
+   "name_ar": "شركة بوبا العربية للتأمين التعاوني",
+   "name_en": "Bupa Arabia",
+   "seed_code": "bupa",
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/200812/19",
+   "unified_no": "7001559389",
+   "licence_expiry": "2027-07-05",
+   "health_insurance_licensed": true,
+   "entity_type": "insurer",
+   "name_ar": "الشركة المتحدة للتأمين التعاوني",
+   "name_en": "United Cooperative Assurance",
+   "seed_code": "uca",
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/20095/21",
+   "unified_no": "7001535694",
+   "licence_expiry": "2027-11-26",
+   "health_insurance_licensed": true,
+   "entity_type": "insurer",
+   "name_ar": "المجموعة المتحدة للتأمين التعاوني (أسيج)",
+   "name_en": "ACIG",
+   "seed_code": "acig",
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/200911/22",
+   "unified_no": "7001593321",
+   "licence_expiry": "2027-06-03",
+   "health_insurance_licensed": true,
+   "entity_type": "insurer",
+   "name_ar": "شركة الراجحي للتأمين التعاوني",
+   "name_en": "Al Rajhi Takaful",
+   "seed_code": "takaful_rajhi",
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/200912/23",
+   "unified_no": "7001632319",
+   "licence_expiry": "2027-06-23",
+   "health_insurance_licensed": false,
+   "entity_type": "insurer",
+   "name_ar": "شركة تشب العربية للتأمين التعاوني",
+   "name_en": "Chubb Arabia",
+   "seed_code": "chubb",
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/200912/24",
+   "unified_no": "7001609481",
+   "licence_expiry": "2027-06-30",
+   "health_insurance_licensed": true,
+   "entity_type": "insurer",
+   "name_ar": "شركة ليفا للتأمين",
+   "name_en": "Liva Insurance",
+   "seed_code": null,
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/20101/25",
+   "unified_no": "7001607683",
+   "licence_expiry": "2027-08-13",
+   "health_insurance_licensed": true,
+   "entity_type": "insurer",
+   "name_ar": "شركة مجموعة الخليج للتأمين",
+   "name_en": "Gulf Insurance Group (GIG Saudi)",
+   "seed_code": "axa",
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/20103/26",
+   "unified_no": "7001641419",
+   "licence_expiry": "2027-09-20",
+   "health_insurance_licensed": true,
+   "entity_type": "insurer",
+   "name_ar": "الشركة الخليجية العامة للتأمين التعاوني",
+   "name_en": "Gulf General Cooperative Insurance",
+   "seed_code": null,
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/20106/29",
+   "unified_no": "7001629364",
+   "licence_expiry": "2028-01-02",
+   "health_insurance_licensed": false,
+   "entity_type": "insurer",
+   "name_ar": "الشركة الوطنية للتأمين",
+   "name_en": "Wataniya Insurance",
+   "seed_code": null,
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/20107/30",
+   "unified_no": "7001626717",
+   "licence_expiry": "2028-01-22",
+   "health_insurance_licensed": true,
+   "entity_type": "insurer",
+   "name_ar": "شركة أمانة للتأمين التعاوني",
+   "name_en": "Amana Cooperative Insurance",
+   "seed_code": "amana",
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/20128/32",
+   "unified_no": "7001703672",
+   "licence_expiry": "2027-05-03",
+   "health_insurance_licensed": true,
+   "entity_type": "insurer",
+   "name_ar": "شركة عناية السعودية للتأمين التعاوني",
+   "name_en": "Saudi Enaya Cooperative Insurance",
+   "seed_code": "enaya",
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/201312/34",
+   "unified_no": "7001791990",
+   "licence_expiry": "2028-08-08",
+   "health_insurance_licensed": true,
+   "entity_type": "insurer",
+   "name_ar": "شركة الجزيرة تكافل تعاوني",
+   "name_en": "Aljazira Takaful",
+   "seed_code": "aljazira_takaful",
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/202307/37",
+   "unified_no": "7033024162",
+   "licence_expiry": "2029-06-03",
+   "health_insurance_licensed": false,
+   "entity_type": "insurer",
+   "name_ar": "الشركة السعودية لخدمات الضمان الإسكاني \"ضمانات\"",
+   "name_en": "Saudi Housing Guarantee Services (Damanat)",
+   "seed_code": null,
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/202301/36",
+   "unified_no": "7030409622",
+   "licence_expiry": "2028-12-08",
+   "health_insurance_licensed": true,
+   "entity_type": "foreign_branch",
+   "name_ar": "فرع شركة سيجنا وورلد وايد انشورنس",
+   "name_en": "Cigna Worldwide Insurance (branch)",
+   "seed_code": "cigna",
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  },
+  {
+   "licence_no": "TMN/202412/38",
+   "unified_no": "7041839510",
+   "licence_expiry": "2027-12-21",
+   "health_insurance_licensed": true,
+   "entity_type": "foreign_branch",
+   "name_ar": "فرع شركة اورينت للتأمين",
+   "name_en": "Orient Insurance (branch)",
+   "seed_code": null,
+   "source_url": "https://www.ia.gov.sa/Licenses/%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9%2014%D8%A3%D9%83%D8%AA%D9%88%D8%A8%D8%B1.pdf",
+   "source_page": "https://www.ia.gov.sa/ar/licenses",
+   "source_label": "Insurance Authority: licensed companies (PDF dated 14 Oct 2026)",
+   "retrieved_at": "2026-10-16",
+   "classes": [],
+   "classes_status": "not_published_officially_found"
+  }
+ ],
+ "seed_companies_not_on_list": [
+  {
+   "seed_code": "allianz",
+   "name_en": "Allianz Saudi",
+   "kind": "insurer",
+   "reason": "not on the Insurance Authority licensed list of 14 Oct 2026 (merged, renamed or not licensed): owner to confirm before it is shown"
+  },
+  {
+   "seed_code": "cig",
+   "name_en": "CIG",
+   "kind": "insurer",
+   "reason": "not on the Insurance Authority licensed list of 14 Oct 2026 (merged, renamed or not licensed): owner to confirm before it is shown"
+  },
+  {
+   "seed_code": "globemed",
+   "name_en": "GlobeMed",
+   "kind": "tpa",
+   "reason": "third-party administrator (TPA), not an insurer: not on the insurer list"
+  },
+  {
+   "seed_code": "nextcare",
+   "name_en": "NextCare",
+   "kind": "tpa",
+   "reason": "third-party administrator (TPA), not an insurer: not on the insurer list"
+  },
+  {
+   "seed_code": "medivisa",
+   "name_en": "Mediviza",
+   "kind": "tpa",
+   "reason": "third-party administrator (TPA), not an insurer: not on the insurer list"
+  },
+  {
+   "seed_code": "mednet",
+   "name_en": "MedNet",
+   "kind": "tpa",
+   "reason": "third-party administrator (TPA), not an insurer: not on the insurer list"
+  },
+  {
+   "seed_code": "buruj",
+   "name_en": "Buruj",
+   "kind": "insurer",
+   "reason": "not on the Insurance Authority licensed list of 14 Oct 2026 (merged, renamed or not licensed): owner to confirm before it is shown"
+  },
+  {
+   "seed_code": "alahli_takaful",
+   "name_en": "AlAhli Takaful",
+   "kind": "insurer",
+   "reason": "not on the Insurance Authority licensed list of 14 Oct 2026 (merged, renamed or not licensed): owner to confirm before it is shown"
+  },
+  {
+   "seed_code": "sabb_takaful",
+   "name_en": "SABB Takaful",
+   "kind": "insurer",
+   "reason": "not on the Insurance Authority licensed list of 14 Oct 2026 (merged, renamed or not licensed): owner to confirm before it is shown"
+  },
+  {
+   "seed_code": "alalamiya",
+   "name_en": "Al Alamiya",
+   "kind": "insurer",
+   "reason": "not on the Insurance Authority licensed list of 14 Oct 2026 (merged, renamed or not licensed): owner to confirm before it is shown"
+  }
+ ],
+ "seed_invented_classes": [
+  {
+   "seed_code": "bupa",
+   "classes": [
+    "VIP",
+    "Gold",
+    "Silver",
+    "Bronze"
+   ]
+  },
+  {
+   "seed_code": "tawuniya",
+   "classes": [
+    "VIP",
+    "Gold",
+    "Silver"
+   ]
+  },
+  {
+   "seed_code": "medgulf",
+   "classes": [
+    "Class A",
+    "Class B",
+    "Class C"
+   ]
+  },
+  {
+   "seed_code": "saico",
+   "classes": [
+    "Gold",
+    "Silver"
+   ]
+  },
+  {
+   "seed_code": "takaful_rajhi",
+   "classes": [
+    "VIP",
+    "Gold",
+    "Silver"
+   ]
+  },
+  {
+   "seed_code": "walaa",
+   "classes": [
+    "Gold",
+    "Silver"
+   ]
+  },
+  {
+   "seed_code": "allianz",
+   "classes": [
+    "Comprehensive",
+    "Basic"
+   ]
+  },
+  {
+   "seed_code": "axa",
+   "classes": [
+    "VIP",
+    "Gold"
+   ]
+  },
+  {
+   "seed_code": "cig",
+   "classes": [
+    "Gold",
+    "Silver"
+   ]
+  },
+  {
+   "seed_code": "malath",
+   "classes": [
+    "Gold",
+    "Silver"
+   ]
+  },
+  {
+   "seed_code": "salama",
+   "classes": [
+    "Gold",
+    "Silver"
+   ]
+  },
+  {
+   "seed_code": "gulf_union",
+   "classes": [
+    "Gold",
+    "Silver"
+   ]
+  },
+  {
+   "seed_code": "arabian_shield",
+   "classes": [
+    "VIP",
+    "Gold"
+   ]
+  },
+  {
+   "seed_code": "alsagr",
+   "classes": [
+    "Gold",
+    "Silver"
+   ]
+  },
+  {
+   "seed_code": "amana",
+   "classes": [
+    "Gold",
+    "Silver"
+   ]
+  },
+  {
+   "seed_code": "cigna",
+   "classes": [
+    "Comprehensive"
+   ]
+  },
+  {
+   "seed_code": "globemed",
+   "classes": [
+    "Comprehensive"
+   ]
+  },
+  {
+   "seed_code": "nextcare",
+   "classes": [
+    "Comprehensive"
+   ]
+  },
+  {
+   "seed_code": "medivisa",
+   "classes": [
+    "Comprehensive"
+   ]
+  },
+  {
+   "seed_code": "mednet",
+   "classes": [
+    "Comprehensive"
+   ]
+  },
+  {
+   "seed_code": "buruj",
+   "classes": [
+    "Gold",
+    "Silver"
+   ]
+  },
+  {
+   "seed_code": "acig",
+   "classes": [
+    "Gold",
+    "Silver"
+   ]
+  },
+  {
+   "seed_code": "enaya",
+   "classes": [
+    "Gold",
+    "Silver"
+   ]
+  },
+  {
+   "seed_code": "uca",
+   "classes": [
+    "Gold",
+    "Silver"
+   ]
+  },
+  {
+   "seed_code": "alahli_takaful",
+   "classes": [
+    "Gold",
+    "Silver"
+   ]
+  },
+  {
+   "seed_code": "chubb",
+   "classes": [
+    "Comprehensive"
+   ]
+  },
+  {
+   "seed_code": "aljazira_takaful",
+   "classes": [
+    "Gold",
+    "Silver"
+   ]
+  },
+  {
+   "seed_code": "sabb_takaful",
+   "classes": [
+    "Gold",
+    "Silver"
+   ]
+  },
+  {
+   "seed_code": "alalamiya",
+   "classes": [
+    "Gold",
+    "Silver"
+   ]
+  },
+  {
+   "seed_code": "aletihad",
+   "classes": [
+    "Gold",
+    "Silver"
+   ]
+  }
+ ],
+ "for_owner": {
+  "no_published_classes": [
+   "Tawuniya",
+   "Malath Insurance",
+   "MedGulf",
+   "Salama Cooperative Insurance",
+   "Arabian Shield",
+   "SAICO",
+   "Gulf Union Alahlia",
+   "Mutakamela Insurance",
+   "Al-Etihad Cooperative Insurance",
+   "Al Sagr Cooperative Insurance",
+   "Saudi Indian Company for Cooperative Insurance",
+   "Arabia Insurance Cooperative",
+   "Walaa Cooperative Insurance",
+   "Bupa Arabia",
+   "United Cooperative Assurance",
+   "ACIG",
+   "Al Rajhi Takaful",
+   "Liva Insurance",
+   "Gulf Insurance Group (GIG Saudi)",
+   "Gulf General Cooperative Insurance",
+   "Amana Cooperative Insurance",
+   "Saudi Enaya Cooperative Insurance",
+   "Aljazira Takaful",
+   "Cigna Worldwide Insurance (branch)",
+   "Orient Insurance (branch)"
+  ],
+  "note": "No insurer page found in this session publishes its class (network) names as an official list. Bupa Arabia press material refers to numbered networks (\"Network seven and above\", buy.bupa.com.sa) but no full list. Classes stay empty until the owner supplies them or approves a named official page per insurer."
+ }
+}

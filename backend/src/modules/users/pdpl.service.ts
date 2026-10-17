@@ -306,4 +306,40 @@ export class PdplService {
     if (!user) throw new BadRequestException('user_not_found');
     return { consents: user.legal_consents || [] };
   }
+
+  /**
+   * P17-17.6: banner-grade purpose choices. Both flags are strictly boolean —
+   * the banner always sends an explicit decision per purpose; anything else
+   * is rejected rather than guessed.
+   */
+  async setConsentChoices(userId: string, choices: { analytics: boolean; marketing: boolean }) {
+    if (typeof choices?.analytics !== 'boolean' || typeof choices?.marketing !== 'boolean') {
+      throw new BadRequestException('consent_choice_invalid');
+    }
+    const user: any = await this.userModel.findOne({ id: { $eq: String(userId) } });
+    if (!user) throw new BadRequestException('user_not_found');
+    const value = { analytics: choices.analytics, marketing: choices.marketing, updated_at: new Date() };
+    await this.userModel.updateOne({ id: { $eq: String(userId) } }, { $set: { consent_choices: value } });
+    return { ok: true, choices: value };
+  }
+
+  async getConsentChoices(userId: string) {
+    const user: any = await this.userModel.findOne({ id: { $eq: String(userId) } }, { consent_choices: 1 }).lean();
+    if (!user) throw new BadRequestException('user_not_found');
+    return { choices: (user as any).consent_choices || {} };
+  }
+
+  /** P17-17.6: true unless the user explicitly refused analytics. */
+  async analyticsAllowed(userId?: string | null): Promise<boolean> {
+    if (!userId) return true;
+    try {
+      const user: any = await this.userModel.findOne({ id: { $eq: String(userId) } }, { consent_choices: 1 }).lean();
+      if (!user) return true;
+      const c = (user as any).consent_choices;
+      if (!c || typeof c.analytics !== 'boolean') return true;
+      return c.analytics === true;
+    } catch {
+      return true;
+    }
+  }
 }

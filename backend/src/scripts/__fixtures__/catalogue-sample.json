@@ -1,0 +1,632 @@
+[
+ {
+  "_id": "fx1",
+  "id": "med_fx_1",
+  "sku": 900100,
+  "name_en": "Gaviscon Double Action Liquid 300ml",
+  "name_ar": "جافيسكون دبل أكشن شراب 300 مل",
+  "is_prescription": false,
+  "category": "الأدوية والعلاج",
+  "sub_category": "أدوية الجهاز الهضمي",
+  "sub_sub_category": "مضادات الحموضة",
+  "categories": [
+   "الأدوية والعلاج",
+   "أدوية الجهاز الهضمي",
+   "مضادات الحموضة"
+  ],
+  "translations": {
+   "ar": {
+    "name": "جافيسكون دبل أكشن شراب 300 مل",
+    "main_category": "الأدوية والعلاج",
+    "sub_category": "أدوية الجهاز الهضمي",
+    "sub_sub_category": "مضادات الحموضة"
+   },
+   "en": {
+    "name": "Gaviscon Double Action Liquid 300ml",
+    "main_category": "Medicines",
+    "sub_category": "Digestive",
+    "sub_sub_category": "Antacids"
+   }
+  }
+ },
+ {
+  "_id": "fx2",
+  "id": "med_fx_2",
+  "sku": 900101,
+  "name_en": "Nexium 40mg 14 Tablets",
+  "name_ar": "نيكسيوم 40 مجم 14 قرص",
+  "is_prescription": true,
+  "category": "الأدوية والعلاج",
+  "sub_category": "أدوية الجهاز الهضمي",
+  "sub_sub_category": "مضادات الحموضة",
+  "categories": [
+   "الأدوية والعلاج",
+   "أدوية الجهاز الهضمي",
+   "مضادات الحموضة"
+  ],
+  "translations": {
+   "ar": {
+    "name": "نيكسيوم 40 مجم 14 قرص",
+    "main_category": "الأدوية والعلاج",
+    "sub_category": "أدوية الجهاز الهضمي",
+    "sub_sub_category": "مضادات الحموضة"
+   },
+   "en": {
+    "name": "Nexium 40mg 14 Tablets",
+    "main_category": "Medicines",
+    "sub_category": "Digestive",
+    "sub_sub_category": "Antacids"
+   }
+  }
+ },
+ {
+  "_id": "fx3",
+  "id": "med_fx_3",
+  "sku": 900102,
+  "name_en": "Panadol Extra 24 Tablets",
+  "name_ar": "بنادول اكسترا 24 قرص",
+  "is_prescription": false,
+  "category": "الأدوية والعلاج",
+  "sub_category": "المسكنات",
+  "sub_sub_category": "مسكنات الألم",
+  "categories": [
+   "الأدوية والعلاج",
+   "المسكنات",
+   "مسكنات الألم"
+  ],
+  "translations": {
+   "ar": {
+    "name": "بنادول اكسترا 24 قرص",
+    "main_category": "الأدوية والعلاج",
+    "sub_category": "المسكنات",
+    "sub_sub_category": "مسكنات الألم"
+   },
+   "en": {
+    "name": "Panadol Extra 24 Tablets",
+    "main_category": "Medicines",
+    "sub_category": "Pain Relief",
+    "sub_sub_category": "Analgesics"
+   }
+  }
+ },
+ {
+  "_id": "fx4",
+  "id": "med_fx_4",
+  "sku": 900103,
+  "name_en": "Brufen 400mg 30 Tablets",
+  "name_ar": "بروفين 400 مجم 30 قرص",
+  "is_prescription": false,
+  "category": "الأدوية والعلاج",
+  "sub_category": "المسكنات",
+  "sub_sub_category": "مسكنات الألم",
+  "categories": [
+   "الأدوية والعلاج",
+   "المسكنات",
+   "مسكنات الألم"
+  ],
+  "translations": {
+   "ar": {
+    "name": "بروفين 400 مجم 30 قرص",
+    "main_category": "الأدوية والعلاج",
+    "sub_category": "المسكنات",
+    "sub_sub_category": "مسكنات الألم"
+   },
+   "en": {
+    "name": "Brufen 400mg 30 Tablets",
+    "main_category": "Medicines",
+    "sub_category": "Pain Relief",
+    "sub_sub_category": "Analgesics"
+   }
+  }
+ },
+ {
+  "_id": "fx5",
+  "id": "med_fx_5",
+  "sku": 900104,
+  "name_en": "Solgar Vitamin D3 1000 IU 100 Softgels",
+  "name_ar": "سولجار فيتامين د3 1000 وحدة 100 كبسولة",
+  "is_prescription": false,
+  "category": "الفيتامينات والتغذية الصحية",
+  "sub_category": "الفيتامينات المتعددة",
+  "sub_sub_category": "فيتامين د",
+  "categories": [
+   "الفيتامينات والتغذية الصحية",
+   "الفيتامينات المتعددة",
+   "فيتامين د"
+  ],
+  "translations": {
+   "ar": {
+    "name": "سولجار فيتامين د3 1000 وحدة 100 كبسولة",
+    "main_category": "الفيتامينات والتغذية الصحية",
+    "sub_category": "الفيتامينات المتعددة",
+    "sub_sub_category": "فيتامين د"
+   },
+   "en": {
+    "name": "Solgar Vitamin D3 1000 IU 100 Softgels",
+    "main_category": "Vitamins",
+    "sub_category": "Multivitamins",
+    "sub_sub_category": "Vitamin D"
+   }
+  }
+ },
+ {
+  "_id": "fx6",
+  "id": "med_fx_6",
+  "sku": 900105,
+  "name_en": "Centrum Advance Multivitamin 30 Tablets",
+  "name_ar": "سنتروم أدفانس فيتامينات متعددة 30 قرص",
+  "is_prescription": false,
+  "category": "الفيتامينات والتغذية الصحية",
+  "sub_category": "الفيتامينات المتعددة",
+  "sub_sub_category": "فيتامين د",
+  "categories": [
+   "الفيتامينات والتغذية الصحية",
+   "الفيتامينات المتعددة",
+   "فيتامين د"
+  ],
+  "translations": {
+   "ar": {
+    "name": "سنتروم أدفانس فيتامينات متعددة 30 قرص",
+    "main_category": "الفيتامينات والتغذية الصحية",
+    "sub_category": "الفيتامينات المتعددة",
+    "sub_sub_category": "فيتامين د"
+   },
+   "en": {
+    "name": "Centrum Advance Multivitamin 30 Tablets",
+    "main_category": "Vitamins",
+    "sub_category": "Multivitamins",
+    "sub_sub_category": "Vitamin D"
+   }
+  }
+ },
+ {
+  "_id": "fx7",
+  "id": "med_fx_7",
+  "sku": 900106,
+  "name_en": "Pampers Baby Dry Diapers Size 4 Maxi 64 Pieces",
+  "name_ar": "حفاضات بامبرز بيبي دراي مقاس 4 ماكسي 64 حفاضة",
+  "is_prescription": false,
+  "category": "الأم والطفل",
+  "sub_category": "الحفاضات",
+  "sub_sub_category": "حفاضات الأطفال",
+  "categories": [
+   "الأم والطفل",
+   "الحفاضات",
+   "حفاضات الأطفال"
+  ],
+  "translations": {
+   "ar": {
+    "name": "حفاضات بامبرز بيبي دراي مقاس 4 ماكسي 64 حفاضة",
+    "main_category": "الأم والطفل",
+    "sub_category": "الحفاضات",
+    "sub_sub_category": "حفاضات الأطفال"
+   },
+   "en": {
+    "name": "Pampers Baby Dry Diapers Size 4 Maxi 64 Pieces",
+    "main_category": "Mother & Baby",
+    "sub_category": "Diapers",
+    "sub_sub_category": "Baby Diapers"
+   }
+  }
+ },
+ {
+  "_id": "fx8",
+  "id": "med_fx_8",
+  "sku": 900107,
+  "name_en": "Huggies Extra Care Diapers Size 3",
+  "name_ar": "حفاضات هجيز إكسترا كير مقاس 3",
+  "is_prescription": false,
+  "category": "الأم والطفل",
+  "sub_category": "الحفاضات",
+  "sub_sub_category": "حفاضات الأطفال",
+  "categories": [
+   "الأم والطفل",
+   "الحفاضات",
+   "حفاضات الأطفال"
+  ],
+  "translations": {
+   "ar": {
+    "name": "حفاضات هجيز إكسترا كير مقاس 3",
+    "main_category": "الأم والطفل",
+    "sub_category": "الحفاضات",
+    "sub_sub_category": "حفاضات الأطفال"
+   },
+   "en": {
+    "name": "Huggies Extra Care Diapers Size 3",
+    "main_category": "Mother & Baby",
+    "sub_category": "Diapers",
+    "sub_sub_category": "Baby Diapers"
+   }
+  }
+ },
+ {
+  "_id": "fx9",
+  "id": "med_fx_9",
+  "sku": 900108,
+  "name_en": "CeraVe Moisturising Cream 340g",
+  "name_ar": "سيرافي كريم مرطب 340 جم",
+  "is_prescription": false,
+  "category": "العناية بالبشرة",
+  "sub_category": "الترطيب",
+  "sub_sub_category": "كريمات مرطبة",
+  "categories": [
+   "العناية بالبشرة",
+   "الترطيب",
+   "كريمات مرطبة"
+  ],
+  "translations": {
+   "ar": {
+    "name": "سيرافي كريم مرطب 340 جم",
+    "main_category": "العناية بالبشرة",
+    "sub_category": "الترطيب",
+    "sub_sub_category": "كريمات مرطبة"
+   },
+   "en": {
+    "name": "CeraVe Moisturising Cream 340g",
+    "main_category": "Skin Care",
+    "sub_category": "Moisturising",
+    "sub_sub_category": "Moisturising Creams"
+   }
+  }
+ },
+ {
+  "_id": "fx10",
+  "id": "med_fx_10",
+  "sku": 900109,
+  "name_en": "Eucerin Aquaporin Active Moisturizing Cream 50ml",
+  "name_ar": "يوسيرين أكوابورين كريم مرطب 50 مل",
+  "is_prescription": false,
+  "category": "العناية بالبشرة",
+  "sub_category": "الترطيب",
+  "sub_sub_category": "كريمات مرطبة",
+  "categories": [
+   "العناية بالبشرة",
+   "الترطيب",
+   "كريمات مرطبة"
+  ],
+  "translations": {
+   "ar": {
+    "name": "يوسيرين أكوابورين كريم مرطب 50 مل",
+    "main_category": "العناية بالبشرة",
+    "sub_category": "الترطيب",
+    "sub_sub_category": "كريمات مرطبة"
+   },
+   "en": {
+    "name": "Eucerin Aquaporin Active Moisturizing Cream 50ml",
+    "main_category": "Skin Care",
+    "sub_category": "Moisturising",
+    "sub_sub_category": "Moisturising Creams"
+   }
+  }
+ },
+ {
+  "_id": "fx11",
+  "id": "med_fx_11",
+  "sku": 900110,
+  "name_en": "La Roche-Posay Anthelios SPF50+ Sunscreen 50ml",
+  "name_ar": "لاروش بوزيه أنثيليوس واقي شمس 50 مل",
+  "is_prescription": false,
+  "category": "العناية بالبشرة",
+  "sub_category": "الحماية من الشمس",
+  "sub_sub_category": "واقي الشمس",
+  "categories": [
+   "العناية بالبشرة",
+   "الحماية من الشمس",
+   "واقي الشمس"
+  ],
+  "translations": {
+   "ar": {
+    "name": "لاروش بوزيه أنثيليوس واقي شمس 50 مل",
+    "main_category": "العناية بالبشرة",
+    "sub_category": "الحماية من الشمس",
+    "sub_sub_category": "واقي الشمس"
+   },
+   "en": {
+    "name": "La Roche-Posay Anthelios SPF50+ Sunscreen 50ml",
+    "main_category": "Skin Care",
+    "sub_category": "Sun Protection",
+    "sub_sub_category": "Sunscreen"
+   }
+  }
+ },
+ {
+  "_id": "fx12",
+  "id": "med_fx_12",
+  "sku": 900111,
+  "name_en": "Bioderma Photoderm Max SPF 50+ Cream",
+  "name_ar": "بيوديرما فوتوديرم ماكس واقي شمس كريم",
+  "is_prescription": false,
+  "category": "العناية بالبشرة",
+  "sub_category": "الحماية من الشمس",
+  "sub_sub_category": "واقي الشمس",
+  "categories": [
+   "العناية بالبشرة",
+   "الحماية من الشمس",
+   "واقي الشمس"
+  ],
+  "translations": {
+   "ar": {
+    "name": "بيوديرما فوتوديرم ماكس واقي شمس كريم",
+    "main_category": "العناية بالبشرة",
+    "sub_category": "الحماية من الشمس",
+    "sub_sub_category": "واقي الشمس"
+   },
+   "en": {
+    "name": "Bioderma Photoderm Max SPF 50+ Cream",
+    "main_category": "Skin Care",
+    "sub_category": "Sun Protection",
+    "sub_sub_category": "Sunscreen"
+   }
+  }
+ },
+ {
+  "_id": "fx13",
+  "id": "med_fx_13",
+  "sku": 900112,
+  "name_en": "Head & Shoulders Anti-Dandruff Shampoo 400ml",
+  "name_ar": "هيد آند شولدرز شامبو ضد القشرة 400 مل",
+  "is_prescription": false,
+  "category": "العناية بالشعر",
+  "sub_category": "الشامبو",
+  "sub_sub_category": "شامبو ضد القشرة",
+  "categories": [
+   "العناية بالشعر",
+   "الشامبو",
+   "شامبو ضد القشرة"
+  ],
+  "translations": {
+   "ar": {
+    "name": "هيد آند شولدرز شامبو ضد القشرة 400 مل",
+    "main_category": "العناية بالشعر",
+    "sub_category": "الشامبو",
+    "sub_sub_category": "شامبو ضد القشرة"
+   },
+   "en": {
+    "name": "Head & Shoulders Anti-Dandruff Shampoo 400ml",
+    "main_category": "Hair Care",
+    "sub_category": "Shampoo",
+    "sub_sub_category": "Anti-dandruff Shampoo"
+   }
+  }
+ },
+ {
+  "_id": "fx14",
+  "id": "med_fx_14",
+  "sku": 900113,
+  "name_en": "Vichy Dercos Anti-Dandruff Shampoo 200ml",
+  "name_ar": "فيشي ديركوس شامبو ضد القشرة 200 مل",
+  "is_prescription": false,
+  "category": "العناية بالشعر",
+  "sub_category": "الشامبو",
+  "sub_sub_category": "شامبو ضد القشرة",
+  "categories": [
+   "العناية بالشعر",
+   "الشامبو",
+   "شامبو ضد القشرة"
+  ],
+  "translations": {
+   "ar": {
+    "name": "فيشي ديركوس شامبو ضد القشرة 200 مل",
+    "main_category": "العناية بالشعر",
+    "sub_category": "الشامبو",
+    "sub_sub_category": "شامبو ضد القشرة"
+   },
+   "en": {
+    "name": "Vichy Dercos Anti-Dandruff Shampoo 200ml",
+    "main_category": "Hair Care",
+    "sub_category": "Shampoo",
+    "sub_sub_category": "Anti-dandruff Shampoo"
+   }
+  }
+ },
+ {
+  "_id": "fx15",
+  "id": "med_fx_15",
+  "sku": 900114,
+  "name_en": "Maybelline Color Sensational Lipstick 540",
+  "name_ar": "ميبيلين كولور سنسيشنال أحمر شفاه 540",
+  "is_prescription": false,
+  "category": "المكياج والإكسسوارات",
+  "sub_category": "مكياج الشفاه",
+  "sub_sub_category": "أحمر الشفاه",
+  "categories": [
+   "المكياج والإكسسوارات",
+   "مكياج الشفاه",
+   "أحمر الشفاه"
+  ],
+  "translations": {
+   "ar": {
+    "name": "ميبيلين كولور سنسيشنال أحمر شفاه 540",
+    "main_category": "المكياج والإكسسوارات",
+    "sub_category": "مكياج الشفاه",
+    "sub_sub_category": "أحمر الشفاه"
+   },
+   "en": {
+    "name": "Maybelline Color Sensational Lipstick 540",
+    "main_category": "Makeup",
+    "sub_category": "Lips",
+    "sub_sub_category": "Lipstick"
+   }
+  }
+ },
+ {
+  "_id": "fx16",
+  "id": "med_fx_16",
+  "sku": 900115,
+  "name_en": "L'Oreal Color Riche Lipstick 302",
+  "name_ar": "لوريال كولور ريش أحمر شفاه 302",
+  "is_prescription": false,
+  "category": "المكياج والإكسسوارات",
+  "sub_category": "مكياج الشفاه",
+  "sub_sub_category": "أحمر الشفاه",
+  "categories": [
+   "المكياج والإكسسوارات",
+   "مكياج الشفاه",
+   "أحمر الشفاه"
+  ],
+  "translations": {
+   "ar": {
+    "name": "لوريال كولور ريش أحمر شفاه 302",
+    "main_category": "المكياج والإكسسوارات",
+    "sub_category": "مكياج الشفاه",
+    "sub_sub_category": "أحمر الشفاه"
+   },
+   "en": {
+    "name": "L'Oreal Color Riche Lipstick 302",
+    "main_category": "Makeup",
+    "sub_category": "Lips",
+    "sub_sub_category": "Lipstick"
+   }
+  }
+ },
+ {
+  "_id": "fx17",
+  "id": "med_fx_17",
+  "sku": 900116,
+  "name_en": "Dove Beauty Bar Soap 135g",
+  "name_ar": "صابون دوف 135 جم",
+  "is_prescription": false,
+  "category": "العناية الشخصية",
+  "sub_category": "الاستحمام",
+  "sub_sub_category": "الصابون",
+  "categories": [
+   "العناية الشخصية",
+   "الاستحمام",
+   "الصابون"
+  ],
+  "translations": {
+   "ar": {
+    "name": "صابون دوف 135 جم",
+    "main_category": "العناية الشخصية",
+    "sub_category": "الاستحمام",
+    "sub_sub_category": "الصابون"
+   },
+   "en": {
+    "name": "Dove Beauty Bar Soap 135g",
+    "main_category": "Personal Care",
+    "sub_category": "Bath",
+    "sub_sub_category": "Soap"
+   }
+  }
+ },
+ {
+  "_id": "fx18",
+  "id": "med_fx_18",
+  "sku": 900117,
+  "name_en": "Lux Soft Touch Soap Bar 170g",
+  "name_ar": "صابون لوكس سوفت تاتش 170 جم",
+  "is_prescription": false,
+  "category": "العناية الشخصية",
+  "sub_category": "الاستحمام",
+  "sub_sub_category": "الصابون",
+  "categories": [
+   "العناية الشخصية",
+   "الاستحمام",
+   "الصابون"
+  ],
+  "translations": {
+   "ar": {
+    "name": "صابون لوكس سوفت تاتش 170 جم",
+    "main_category": "العناية الشخصية",
+    "sub_category": "الاستحمام",
+    "sub_sub_category": "الصابون"
+   },
+   "en": {
+    "name": "Lux Soft Touch Soap Bar 170g",
+    "main_category": "Personal Care",
+    "sub_category": "Bath",
+    "sub_sub_category": "Soap"
+   }
+  }
+ },
+ {
+  "_id": "fx19",
+  "id": "med_fx_19",
+  "sku": 900118,
+  "name_en": "Omron M2 Basic Blood Pressure Monitor",
+  "name_ar": "جهاز قياس الضغط أومرون إم 2",
+  "is_prescription": false,
+  "category": "الرعاية الصحية المنزلية والأجهزة الطبية",
+  "sub_category": "أجهزة القياس",
+  "sub_sub_category": "أجهزة قياس الضغط",
+  "categories": [
+   "الرعاية الصحية المنزلية والأجهزة الطبية",
+   "أجهزة القياس",
+   "أجهزة قياس الضغط"
+  ],
+  "translations": {
+   "ar": {
+    "name": "جهاز قياس الضغط أومرون إم 2",
+    "main_category": "الرعاية الصحية المنزلية والأجهزة الطبية",
+    "sub_category": "أجهزة القياس",
+    "sub_sub_category": "أجهزة قياس الضغط"
+   },
+   "en": {
+    "name": "Omron M2 Basic Blood Pressure Monitor",
+    "main_category": "Home Health & Devices",
+    "sub_category": "Monitors",
+    "sub_sub_category": "Blood Pressure Monitors"
+   }
+  }
+ },
+ {
+  "_id": "fx20",
+  "id": "med_fx_20",
+  "sku": 900119,
+  "name_en": "Microlife BP A2 Blood Pressure Monitor",
+  "name_ar": "جهاز قياس الضغط مايكرولايف",
+  "is_prescription": false,
+  "category": "الرعاية الصحية المنزلية والأجهزة الطبية",
+  "sub_category": "أجهزة القياس",
+  "sub_sub_category": "أجهزة قياس الضغط",
+  "categories": [
+   "الرعاية الصحية المنزلية والأجهزة الطبية",
+   "أجهزة القياس",
+   "أجهزة قياس الضغط"
+  ],
+  "translations": {
+   "ar": {
+    "name": "جهاز قياس الضغط مايكرولايف",
+    "main_category": "الرعاية الصحية المنزلية والأجهزة الطبية",
+    "sub_category": "أجهزة القياس",
+    "sub_sub_category": "أجهزة قياس الضغط"
+   },
+   "en": {
+    "name": "Microlife BP A2 Blood Pressure Monitor",
+    "main_category": "Home Health & Devices",
+    "sub_category": "Monitors",
+    "sub_sub_category": "Blood Pressure Monitors"
+   }
+  }
+ },
+ {
+  "_id": "fx21",
+  "id": "med_fx_21",
+  "sku": 900120,
+  "name_en": "Silicone Face Cleansing Brush",
+  "name_ar": "فرشاة سيليكون لتنظيف الوجه",
+  "is_prescription": false,
+  "category": "العناية بالبشرة",
+  "sub_category": "الترطيب",
+  "sub_sub_category": "كريمات مرطبة",
+  "categories": [
+   "العناية بالبشرة",
+   "الترطيب",
+   "كريمات مرطبة"
+  ],
+  "translations": {
+   "ar": {
+    "name": "فرشاة سيليكون لتنظيف الوجه",
+    "main_category": "العناية بالبشرة",
+    "sub_category": "الترطيب",
+    "sub_sub_category": "كريمات مرطبة"
+   },
+   "en": {
+    "name": "Silicone Face Cleansing Brush",
+    "main_category": "Skin Care",
+    "sub_category": "Moisturising",
+    "sub_sub_category": "Moisturising Creams"
+   }
+  }
+ }
+]

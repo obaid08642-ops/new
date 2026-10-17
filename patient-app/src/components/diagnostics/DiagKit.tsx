@@ -1,5 +1,6 @@
 import React from 'react';
-import { Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Image } from 'expo-image';
 import { router, type Href } from 'expo-router';
 import Svg, { Path } from 'react-native-svg';
 
@@ -457,7 +458,7 @@ export function DetailHead({ icon, tone, image, title, body }: { icon: FillIconN
     <Card theme={theme} tint={tone} padding="lg">
       <View style={{ alignItems: 'center', gap: 10 }}>
         {image ? (
-          <Image accessibilityIgnoresInvertColors source={{ uri: image }} style={{ width: 96, height: 96, borderRadius: 24, backgroundColor: c.bg.surface }} resizeMode="cover" />
+          <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors source={{ uri: image }} style={{ width: 96, height: 96, borderRadius: 24, backgroundColor: c.bg.surface }} contentFit="cover" />
         ) : (
           <FIcon icon={icon} tone={tone} size={72} theme={theme} />
         )}

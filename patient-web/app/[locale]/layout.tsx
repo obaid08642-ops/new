@@ -8,6 +8,7 @@ import { THEME_COLOR } from "../design-tokens/theme-color";
 import "@/components-next/ui-generated/shells/shells.css";
 import "@/components-next/ui-generated/components/components.css";
 import { fontVariables } from "@/app/fonts";
+import { WebVitalsReporter } from "@/components-next/web-vitals-reporter";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
@@ -116,6 +117,7 @@ export default async function LocaleLayout({ children, params }: Props) {
         <NextIntlClientProvider messages={messages}>
           <WebMcpLoader locale={typedLocale} />
           <OfflineSupport />
+          <WebVitalsReporter locale={typedLocale} />
           <div className={`shell ${fontVariables}`} lang={typedLocale} dir={getDirection(typedLocale)}>
             {/* P15.4: the offline banner with the time this page was made ("last updated"). For a static/ISR page this
                 render is the cached copy, so the time is that copy's, not the visit's. Early in the document so it is read
