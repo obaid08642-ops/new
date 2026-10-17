@@ -5,6 +5,7 @@ import { UserRole } from '../../common/enums';
 import { SEARCH_LOCALES, SEARCH_SECTIONS, SearchLocale, SearchSection } from './search-documents';
 import { SearchService } from './search.service';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 export class SearchQueryDto {
   @IsOptional() @IsString() @MaxLength(120) q?: string;
   @IsOptional() @IsIn([...SEARCH_SECTIONS]) section?: SearchSection;
@@ -40,6 +41,7 @@ export class SearchAdminController {
   constructor(private readonly svc: SearchService) {}
 
   /** Rebuilds the search index from MongoDB (the source of truth). */
+  @RequirePermissions(Permission.OPS_CRONS_RUN)
   @Post('reindex') @HttpCode(200)
   reindex() {
     return this.svc.rebuild();

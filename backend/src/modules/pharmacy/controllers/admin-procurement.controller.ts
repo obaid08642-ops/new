@@ -16,6 +16,7 @@ import { ProcurementService } from '../services/procurement.service';
 import { AdminCreateQuotationDto } from '../dto/admin-create-quotation.dto';
 import { ProcurementStatus } from '../enums/procurement-status.enum';
 
+import { Permission, RequirePermissions } from '../../../common/permissions';
 @Controller('admin/procurement')
 @UseGuards(JwtAuthGuard)
 @Roles('admin' as any)
@@ -50,12 +51,14 @@ export class AdminProcurementController {
   }
 
   /** PATCH /admin/procurement/:id/review - Move to UNDER_ADMIN_REVIEW */
+  @RequirePermissions(Permission.PHARMACY_INVENTORY_EDIT)
   @Patch(':id/review')
   async startReview(@Param('id') id: string) {
     return this.procurementService.adminStartReview(id);
   }
 
   /** POST /admin/procurement/:id/quotation - Create & send quotation to pharmacy */
+  @RequirePermissions(Permission.PHARMACY_INVENTORY_EDIT)
   @Post(':id/quotation')
   async createQuotation(
     @Request() req: any,
@@ -73,12 +76,14 @@ export class AdminProcurementController {
   }
 
   /** PATCH /admin/procurement/:id/cancel - Cancel a request */
+  @RequirePermissions(Permission.PHARMACY_INVENTORY_EDIT)
   @Patch(':id/cancel')
   async cancelRequest(@Param('id') id: string) {
     return this.procurementService.adminCancelRequest(id);
   }
 
   /** PATCH /admin/procurement/:id/complete - Mark as COMPLETED after delivery */
+  @RequirePermissions(Permission.PHARMACY_INVENTORY_EDIT)
   @Patch(':id/complete')
   async completeRequest(@Param('id') id: string) {
     return this.procurementService.adminCompleteRequest(id);

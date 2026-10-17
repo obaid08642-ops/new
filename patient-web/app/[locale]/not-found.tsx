@@ -1,4 +1,4 @@
-import { getTranslations, setRequestLocale } from "next-intl/server";
+import { getLocale, getTranslations, setRequestLocale } from "next-intl/server";
 import { isLocale } from "@/lib/i18n";
 import { RouteState } from "@/components-next/core/route-state";
 
@@ -10,6 +10,15 @@ export default async function LocaleNotFound(props: Props) {
     try {
       const p = await props.params;
       if (p?.locale && isLocale(p.locale)) locale = p.locale;
+    } catch {
+      // ignore
+    }
+  } else {
+    // Next renders not-found without params (a page that calls notFound() under /en/...): the request's locale comes from
+    // next-intl, so an English page no longer shows the Arabic "page unavailable" state (issue 1550 walkthrough).
+    try {
+      const requested = await getLocale();
+      if (isLocale(requested)) locale = requested;
     } catch {
       // ignore
     }

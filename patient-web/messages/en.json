@@ -244,7 +244,8 @@
       "consultation": "Consultation",
       "labs": "Lab test",
       "radiology": "Radiology scan",
-      "nursing": "Nursing visit"
+      "nursing": "Nursing visit",
+      "returns": "Return request"
     },
     "statusUnavailable": "Status unavailable",
     "partialNote": "Some orders could not be loaded. The rest are shown below; try again in a moment."
@@ -1218,7 +1219,18 @@
     "preparation": "Preparation",
     "preparationTitle": "Before your visit",
     "homeAvailable": "Home collection is supported by this package.",
-    "homeUnavailable": "Home collection is not listed for this package."
+    "homeUnavailable": "Home collection is not listed for this package.",
+    "categoryName": {
+      "blood": "Blood tests",
+      "hormones": "Hormones",
+      "diabetes": "Diabetes",
+      "vitamins": "Vitamins",
+      "cardiac": "Heart",
+      "imaging": "Imaging",
+      "kidney": "Kidney",
+      "liver": "Liver",
+      "package": "Packages"
+    }
   },
   "RadiologyServices": {
     "eyebrow": "Radiology care",
@@ -1837,6 +1849,14 @@
     "medicines/compare": {
       "title": "Compare Medicines",
       "description": "Compare medicines, prices and alternatives."
+    },
+    "refundPolicy": {
+      "title": "Cancellation and Refund Policy",
+      "description": "When an order or appointment on Nabd Plus is refunded in full or in part after a cancellation."
+    },
+    "telehealthConsent": {
+      "title": "Telehealth Consent",
+      "description": "What you agree to before your first online consultation on Nabd Plus."
     }
   },
   "NursingVisits": {
@@ -3400,7 +3420,9 @@
       "version": "Version {version} · Effective {date}",
       "versionOnly": "Version {version}",
       "currentVersion": "This is the current version of the text. It will be replaced by the legally approved version before launch.",
-      "back": "Back"
+      "back": "Back",
+      "refund": "Cancellation and refund policy",
+      "telehealth": "Telehealth consent"
     },
     "provider": {
       "title": "Join as a provider",
@@ -3869,7 +3891,9 @@
     "mapPane": "Map",
     "mapIdleTitle": "Facilities map",
     "mapIdleBody": "Choose a facility from the list to see it on the map with directions.",
-    "mapIdleNote": "Open-source maps that protect your privacy."
+    "mapIdleNote": "Open-source maps that protect your privacy.",
+    "mapUnavailable": "The facilities could not be loaded. Please try again.",
+    "mapRetry": "Try again"
   },
   "ReturnsWeb": {
     "newRequest": "New return request",
@@ -4216,6 +4240,79 @@
   "Network": {
     "offline": "You are offline. This page shows the last saved copy.",
     "offlineLastUpdated": "You are offline. This page shows the last saved copy. Last updated: {time}"
+  },
+  "LegalLinks": {
+    "refundPolicy": "Cancellation and refund policy",
+    "telehealthConsent": "Telehealth consent"
+  },
+  "TelehealthConsent": {
+    "title": "Telehealth consent",
+    "intro": "Before your first online consultation, read and accept the consent. We record your acceptance with the version, the time and the device.",
+    "textLabel": "Consent text",
+    "version": "Version {version}",
+    "readFull": "Read the full text",
+    "accept": "I agree and continue",
+    "accepting": "Saving your consent…",
+    "failed": "We could not save your consent. Please try again.",
+    "sessionEnded": "Your session has ended.",
+    "signIn": "Sign in"
+  },
+  "GuestServices": {
+    "seeAll": "See all",
+    "listUnavailableTitle": "This list could not be loaded",
+    "listUnavailable": "Please try again in a moment.",
+    "doctorsEmpty": "No doctors are listed yet",
+    "doctorsEmptyBody": "Doctors appear here once they are approved.",
+    "offers": {
+      "actionTitle": "Book an offer",
+      "actionBody": "Anyone can browse the offers. Sign in to book an offer and pay for it.",
+      "action": "Sign in to book"
+    },
+    "insurance": {
+      "heroTitle": "Your insurance on Nabd Plus",
+      "heroBody": "Add your policy once and see your insurer's decision on every booking.",
+      "insurersTitle": "Insurers on Nabd Plus",
+      "insurersEmpty": "No insurers are listed yet",
+      "plans": "Plans: {plans}",
+      "actionTitle": "Add your policy",
+      "actionBody": "Your policy, requests and approvals stay private to your account. Sign in to add your policy.",
+      "action": "Sign in to add your policy"
+    },
+    "homeCare": {
+      "heroTitle": "Nursing and care at home",
+      "heroBody": "Licensed nurses visit you at home for injections, wound care, vital signs and more.",
+      "servicesTitle": "Services and prices",
+      "servicesEmpty": "No home care services are listed yet",
+      "providersTitle": "Home care providers",
+      "providersEmpty": "No home care providers are listed yet",
+      "actionTitle": "Book a home visit",
+      "actionBody": "Sign in to book a visit and follow your visits.",
+      "action": "Sign in to book"
+    },
+    "maternity": {
+      "heroTitle": "Pregnancy and motherhood",
+      "heroBody": "Follow your pregnancy week by week, log kicks and contractions and track your baby's growth.",
+      "doctorsTitle": "Obstetrics and gynecology doctors",
+      "actionTitle": "Track your pregnancy",
+      "actionBody": "Your pregnancy profile and logs stay private to your account. Sign in to start.",
+      "action": "Sign in to start tracking"
+    },
+    "mental": {
+      "heroTitle": "Mental health and wellbeing",
+      "heroBody": "Keep a private mood journal and book a session with a psychiatrist.",
+      "doctorsTitle": "Psychiatrists",
+      "actionTitle": "Start your mood journal",
+      "actionBody": "Your mood journal stays private to your account. Sign in to start.",
+      "action": "Sign in to start"
+    },
+    "nutrition": {
+      "heroTitle": "Nutrition and healthy eating",
+      "heroBody": "Log your meals and water, set a body target, get a nutrition plan and follow up with a nutritionist.",
+      "doctorsTitle": "Nutritionists",
+      "actionTitle": "Get your nutrition plan",
+      "actionBody": "Your plan, meals and target stay private to your account. Sign in to get your plan.",
+      "action": "Sign in to get your plan"
+    }
   },
   "WaitingRoom": {
     "title": "You're in the queue",

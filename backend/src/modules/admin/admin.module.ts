@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BullModule } from '@nestjs/bullmq';
 import { AdminController } from './admin.controller';
+import { ProviderErasureService } from './provider-erasure.service';
+import { SearchModule } from '../search/search.controller';
 import { User, UserSchema } from '../../schemas/user.schema';
 import { ProviderDelta, ProviderDeltaSchema } from '../provider/schemas/provider-delta.schema';
 import { AppointmentSchema } from '../../schemas/appointment.schema';
@@ -87,6 +89,7 @@ import { AdminUrgentAlertsService } from './alerts/admin-urgent-alerts.service';
     MailModule,
     OpsSecurityModule,
     SeoSearchModule,
+    SearchModule,
     PresenceModule,
     BullModule.registerQueue({ name: 'notifications-delivery' }),
     WorkflowEngineModule,
@@ -164,6 +167,8 @@ import { AdminUrgentAlertsService } from './alerts/admin-urgent-alerts.service';
     AdminUrgentAlertsController,
 ],
   providers: [
+    // issue 1541: the one list of a provider's own rows, used by the user delete and the orphan-profile delete
+    ProviderErasureService,
     // P5.3: merged from AdminAuthorityModule
     AdminAuthorityService,
     // P5.3: merged from AdminCommandCenterModule

@@ -282,7 +282,8 @@
       "consultation": "Konsultasyon",
       "labs": "Pagsusuri sa laboratoryo",
       "radiology": "Radyolohiya (scan)",
-      "nursing": "Pagbisita ng nars"
+      "nursing": "Pagbisita ng nars",
+      "returns": "Kahilingan sa pagbabalik"
     },
     "statusUnavailable": "Hindi available ang status",
     "partialNote": "May mga order na hindi ma-load. Nasa ibaba ang iba; subukan muli sa ilang sandali."
@@ -1218,7 +1219,18 @@
     "preparation": "Paghahanda",
     "preparationTitle": "Bago ang iyong pagbisita",
     "homeAvailable": "Sinusuportahan ng package na ito ang kolekta sa bahay.",
-    "homeUnavailable": "Hindi nakalista ang kolekta sa bahay para sa package na ito."
+    "homeUnavailable": "Hindi nakalista ang kolekta sa bahay para sa package na ito.",
+    "categoryName": {
+      "blood": "Pagsusuri ng dugo",
+      "hormones": "Mga hormone",
+      "diabetes": "Dyabetis",
+      "vitamins": "Mga bitamina",
+      "cardiac": "Puso",
+      "imaging": "Larawang medikal",
+      "kidney": "Bato",
+      "liver": "Atay",
+      "package": "Mga pakete"
+    }
   },
   "RadiologyServices": {
     "eyebrow": "Radiology care",
@@ -1837,6 +1849,14 @@
     "medicines/compare": {
       "title": "Paghambingin ang Gamot",
       "description": "Ihambing ang mga gamot, presyo at alternatibo."
+    },
+    "refundPolicy": {
+      "title": "Patakaran sa Pagkansela at Refund",
+      "description": "Kailan ibinabalik nang buo o bahagya ang bayad matapos kanselahin ang isang order o appointment sa Nabd Plus."
+    },
+    "telehealthConsent": {
+      "title": "Pahintulot sa Telehealth na Konsultasyon",
+      "description": "Ang sinasang-ayunan mo bago ang iyong unang online na konsultasyon sa Nabd Plus."
     }
   },
   "NursingVisits": {
@@ -3400,7 +3420,9 @@
       "version": "Bersyon {version} · Epektibo mula {date}",
       "versionOnly": "Bersyon {version}",
       "currentVersion": "Ito ang kasalukuyang bersyon ng teksto. Papalitan ito ng bersyong inaprubahan ng batas bago ang paglulunsad.",
-      "back": "Bumalik"
+      "back": "Bumalik",
+      "refund": "Patakaran sa pagkansela at refund",
+      "telehealth": "Pahintulot sa online na konsultasyon"
     },
     "provider": {
       "title": "Sumali bilang provider",
@@ -3869,7 +3891,9 @@
     "mapPane": "Mapa",
     "mapIdleTitle": "Mapa ng mga pasilidad",
     "mapIdleBody": "Pumili ng pasilidad sa listahan para makita ito sa mapa kasama ang direksyon.",
-    "mapIdleNote": "Mga open-source na mapa na nagpoprotekta sa iyong pagkapribado."
+    "mapIdleNote": "Mga open-source na mapa na nagpoprotekta sa iyong pagkapribado.",
+    "mapUnavailable": "Hindi ma-load ang mga pasilidad. Subukang muli.",
+    "mapRetry": "Subukang muli"
   },
   "ReturnsWeb": {
     "newRequest": "Bagong kahilingan sa pagbabalik",
@@ -4216,6 +4240,79 @@
   "Network": {
     "offline": "Offline ka. Ipinapakita ng pahinang ito ang huling naka-save na kopya.",
     "offlineLastUpdated": "Offline ka. Ipinapakita ng pahinang ito ang huling naka-save na kopya. Huling pagbabago: {time}"
+  },
+  "LegalLinks": {
+    "refundPolicy": "Patakaran sa pagkansela at refund",
+    "telehealthConsent": "Pahintulot sa online na konsultasyon"
+  },
+  "TelehealthConsent": {
+    "title": "Pahintulot sa online na konsultasyon",
+    "intro": "Bago ang iyong unang online na konsultasyon, basahin at tanggapin ang pahintulot. Itinatala namin ang iyong pagsang-ayon kasama ang bersyon, oras at device.",
+    "textLabel": "Teksto ng pahintulot",
+    "version": "Bersyon {version}",
+    "readFull": "Basahin ang buong teksto",
+    "accept": "Sumasang-ayon ako, magpatuloy",
+    "accepting": "Sine-save ang iyong pagsang-ayon…",
+    "failed": "Hindi namin na-save ang iyong pagsang-ayon. Pakisubukang muli.",
+    "sessionEnded": "Natapos na ang iyong session.",
+    "signIn": "Mag-sign in"
+  },
+  "GuestServices": {
+    "seeAll": "Tingnan lahat",
+    "listUnavailableTitle": "Hindi ma-load ang listahang ito",
+    "listUnavailable": "Subukang muli pagkalipas ng ilang sandali.",
+    "doctorsEmpty": "Wala pang nakalistang doktor",
+    "doctorsEmptyBody": "Lumalabas dito ang mga doktor kapag naaprubahan na sila.",
+    "offers": {
+      "actionTitle": "Mag-book ng alok",
+      "actionBody": "Kahit sino ay puwedeng tumingin ng mga alok. Mag-sign in para mag-book ng alok at magbayad.",
+      "action": "Mag-sign in para mag-book"
+    },
+    "insurance": {
+      "heroTitle": "Ang iyong insurance sa Nabd Plus",
+      "heroBody": "Idagdag ang iyong polisiya nang isang beses at makita ang pasya ng iyong insurer sa bawat booking.",
+      "insurersTitle": "Mga insurer sa Nabd Plus",
+      "insurersEmpty": "Wala pang nakalistang insurer",
+      "plans": "Mga plano: {plans}",
+      "actionTitle": "Idagdag ang iyong polisiya",
+      "actionBody": "Pribado sa iyong account ang iyong polisiya, mga kahilingan at mga pag-apruba. Mag-sign in para idagdag ang iyong polisiya.",
+      "action": "Mag-sign in para idagdag ang polisiya"
+    },
+    "homeCare": {
+      "heroTitle": "Pag-aalaga at nursing sa bahay",
+      "heroBody": "Bumibisita sa bahay ang mga lisensiyadong nars para sa iniksiyon, pag-aalaga ng sugat, pagsukat ng vital signs at iba pa.",
+      "servicesTitle": "Mga serbisyo at presyo",
+      "servicesEmpty": "Wala pang nakalistang serbisyo ng pag-aalaga sa bahay",
+      "providersTitle": "Mga nagbibigay ng pag-aalaga sa bahay",
+      "providersEmpty": "Wala pang nakalistang nagbibigay ng pag-aalaga sa bahay",
+      "actionTitle": "Mag-book ng pagbisita sa bahay",
+      "actionBody": "Mag-sign in para mag-book ng pagbisita at subaybayan ang iyong mga pagbisita.",
+      "action": "Mag-sign in para mag-book"
+    },
+    "maternity": {
+      "heroTitle": "Pagbubuntis at pagiging ina",
+      "heroBody": "Subaybayan ang iyong pagbubuntis linggo-linggo, itala ang mga sipa at paghilab at bantayan ang paglaki ng iyong sanggol.",
+      "doctorsTitle": "Mga doktor sa obstetrics at gynecology",
+      "actionTitle": "Subaybayan ang iyong pagbubuntis",
+      "actionBody": "Pribado sa iyong account ang iyong profile at mga tala ng pagbubuntis. Mag-sign in para magsimula.",
+      "action": "Mag-sign in para magsimulang sumubaybay"
+    },
+    "mental": {
+      "heroTitle": "Kalusugang pangkaisipan at kagalingan",
+      "heroBody": "Magtago ng pribadong talaarawan ng mood at mag-book ng sesyon sa isang psychiatrist.",
+      "doctorsTitle": "Mga psychiatrist",
+      "actionTitle": "Simulan ang iyong talaarawan ng mood",
+      "actionBody": "Pribado sa iyong account ang iyong talaarawan ng mood. Mag-sign in para magsimula.",
+      "action": "Mag-sign in para magsimula"
+    },
+    "nutrition": {
+      "heroTitle": "Nutrisyon at malusog na pagkain",
+      "heroBody": "Itala ang iyong mga pagkain at tubig, magtakda ng target ng katawan, kumuha ng plano sa nutrisyon at kumonsulta sa isang nutritionist.",
+      "doctorsTitle": "Mga nutritionist",
+      "actionTitle": "Kunin ang iyong plano sa nutrisyon",
+      "actionBody": "Pribado sa iyong account ang iyong plano, mga pagkain at target. Mag-sign in para makuha ang iyong plano.",
+      "action": "Mag-sign in para makuha ang plano"
+    }
   },
   "WaitingRoom": {
     "title": "Nasa pila ka",

@@ -27,6 +27,7 @@ import { UserRole } from '../../../common/enums';
 import { PushModule, PushService } from '../../push/push.module';
 import { compileSegment } from '../enterprise/segments.engine';
 
+import { Permission, RequirePermissions } from '../../../common/permissions';
 // ── Schema ────────────────────────────────────────────────────────────
 
 @Schema({ timestamps: true })
@@ -481,10 +482,12 @@ export class AdminNotificationCenterController {
   statsOverview() { return this.svc.overviewStats(); }
 
   /** Immediate broadcast to a segment */
+  @RequirePermissions(Permission.NOTIFICATIONS_SEND)
   @Post('broadcasts')
   broadcast(@CurrentUser() admin: any, @Body() body: BroadcastDto) { return this.svc.broadcast(String(admin?.id), body); }
 
   /** Create campaign (draft or scheduled when scheduled_at provided) */
+  @RequirePermissions(Permission.NOTIFICATIONS_SEND)
   @Post('campaigns')
   createCampaign(@CurrentUser() admin: any, @Body() body: CreateCampaignDto) { return this.svc.createCampaign(String(admin?.id), body); }
 
@@ -499,14 +502,17 @@ export class AdminNotificationCenterController {
   getCampaign(@Param('id') id: string) { return this.svc.getCampaign(id); }
 
   /** Send a draft/scheduled campaign immediately */
+  @RequirePermissions(Permission.NOTIFICATIONS_SEND)
   @Post('campaigns/:id/send')
   sendCampaign(@Param('id') id: string) { return this.svc.sendCampaign(id); }
 
   /** Cancel a draft/scheduled campaign */
+  @RequirePermissions(Permission.NOTIFICATIONS_SEND)
   @Delete('campaigns/:id')
   cancelCampaign(@Param('id') id: string) { return this.svc.cancelCampaign(id); }
 
   /** Manual retargeting run (also runs automatically every 6h) */
+  @RequirePermissions(Permission.NOTIFICATIONS_SEND)
   @Post('retarget/run')
   retarget() { return this.svc.retargetIncompleteOrders(); }
 }

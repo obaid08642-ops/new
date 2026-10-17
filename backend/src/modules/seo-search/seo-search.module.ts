@@ -171,6 +171,7 @@ import { MedicineRepository } from './seo-repositories/medicine.repository';
 import { ProviderProfileRepository } from './seo-repositories/providerprofile.repository';
 import { ArticleRepository } from './seo-repositories/article.repository';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 /** Orders of the public catalogue (#816); anything else is the default popularity order. */
 export const CATALOGUE_SORTS = ['popular', 'price_asc', 'price_desc', 'newest'] as const;
 export type CatalogueSort = (typeof CATALOGUE_SORTS)[number];
@@ -1353,6 +1354,7 @@ export class SeoAdminController {
    * (live sitemap showed raw UUIDs). Bounded batches; each entity goes
    * through the governed pipeline (collision check + history).
    */
+  @RequirePermissions(Permission.SEO_CONTROL)
   @Post('backfill-slugs')
   async backfillSlugs(@Body() dto: BackfillSlugsDto) {
     if (!this.pipeline) return { ok: false, error: 'pipeline_unavailable' };
@@ -1368,6 +1370,7 @@ export class SeoAdminController {
    * R49 warmup: prime Redis + edge cache for the hottest public URLs
    * after each deploy (sitemap, catalogs, MCP). Call once post-deploy.
    */
+  @RequirePermissions(Permission.SEO_CONTROL)
   @Post('warm-cache')
   async warmCache() {
     const base = (process.env.NABD_PUBLIC_URL || 'https://api.nabd.plus').replace(/\/$/, '');

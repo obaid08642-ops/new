@@ -9,9 +9,10 @@ import {
 } from '../../../common/permissions';
 import { UserRole } from '../../../common/enums';
 import {
-  CUSTOM_ROLE_KEY_RE, mergePermissions, roleSatisfies, sanitizePermissions, validateReason,
+  CUSTOM_ROLE_KEY_RE, sanitizePermissions, validateReason,
 } from '../../../common/rbac';
 import { invalidateDynamicRoleCache } from '../../../common/auth.guard';
+import { resolveStaffAccess } from '../../../common/effective-permissions';
 import { AdminAuditService } from './audit.service';
 
 const CATALOG = Object.values(Permission) as string[];
@@ -32,6 +33,18 @@ export class AdminSecurityController {
     @InjectConnection() private readonly conn: Connection,
     private readonly audit: AdminAuditService,
   ) {}
+
+  /**
+   * Owner decision 29: roles are restrictive, so a staff member who may manage roles must not grant more than they
+   * hold. Only the owner grants a permission they have not been given, or changes their own roles.
+   */
+  private async assertCanGrant(me: any, permissions: string[]) {
+    const access = await resolveStaffAccess(this.conn, me);
+    if (access.is_owner) return;
+    const held = new Set(access.permissions);
+    const beyond = permissions.filter((p) => !held.has(p));
+    if (beyond.length) throw new ForbiddenException(`cannot_grant_unheld_permissions:${beyond.join(',')}`);
+  }
 
   // ── Identity ─────────────────────────────────────────────────
 
@@ -64,16 +77,9 @@ export class AdminSecurityController {
       { projection: { id: 1, full_name: 1, email: 1, phone: 1, role: 1, permissions: 1, custom_role_keys: 1 } },
     );
     if (!dbUser) throw new NotFoundException('admin_user_not_found');
-    const staticPerms = mergePermissions(
-      ...[me.role].map((r) => ROLE_PERMISSIONS[r as UserRole] || []),
-      dbUser.permissions || [],
-    );
-    let customPerms: string[] = [];
+    // The same resolver as the guard, so the panel shows exactly what the backend allows (owner decision 29).
+    const access = await resolveStaffAccess(this.conn, me);
     const keys = dbUser.custom_role_keys || [];
-    if (keys.length) {
-      const docs = await this.conn.collection('admin_custom_roles').find({ key: { $in: keys } }).toArray().catch(() => []);
-      customPerms = mergePermissions(...docs.map((d) => d?.permissions || []));
-    }
     return {
       user: {
         id: dbUser.id,
@@ -87,8 +93,8 @@ export class AdminSecurityController {
           : null,
       },
       custom_role_keys: keys,
-      is_super_admin: roleSatisfies('super_admin', [dbUser.role]),
-      permissions: mergePermissions(staticPerms, customPerms),
+      is_super_admin: access.is_owner,
+      permissions: access.permissions,
     };
   }
 
@@ -136,6 +142,7 @@ export class AdminSecurityController {
     if ((b.system_protected_keys || []).includes?.(key)) throw new ConflictException('reserved_key');
 
     const permissions = sanitizePermissions(b?.permissions, CATALOG);
+    await this.assertCanGrant(me, permissions);
     const doc = {
       id: `acr_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`,
       key,
@@ -169,7 +176,10 @@ export class AdminSecurityController {
     const $set: any = { updatedAt: new Date(), updated_by: me.id };
     if (b?.name_ar !== undefined) $set.name_ar = String(b.name_ar).trim();
     if (b?.description_ar !== undefined) $set.description_ar = String(b.description_ar).trim() || null;
-    if (b?.permissions !== undefined) $set.permissions = sanitizePermissions(b.permissions, CATALOG);
+    if (b?.permissions !== undefined) {
+      $set.permissions = sanitizePermissions(b.permissions, CATALOG);
+      await this.assertCanGrant(me, $set.permissions);
+    }
     await this.conn.collection('admin_custom_roles').updateOne({ id }, { $set });
     invalidateDynamicRoleCache();
 
@@ -218,6 +228,10 @@ export class AdminSecurityController {
     const unknown = requestedKeys.filter((k) => !known.has(k));
     if (unknown.length) throw new BadRequestException(`unknown_role_keys:${unknown.join(',')}`);
 
+    if (String(userId) === String(me?.id) && !(await resolveStaffAccess(this.conn, me)).is_owner) {
+      throw new ForbiddenException('cannot_change_own_roles');
+    }
+    await this.assertCanGrant(me, (knownDocs as any[]).flatMap((d) => (Array.isArray(d?.permissions) ? d.permissions.map(String) : [])));
     const nextKeys = [...new Set(requestedKeys)].sort();
     // F09: role change revokes the staffer's sessions — they re-login with new permissions.
     await this.conn.collection('users').updateOne({ id: userId }, { $set: { custom_role_keys: nextKeys }, $inc: { token_version: 1 } });

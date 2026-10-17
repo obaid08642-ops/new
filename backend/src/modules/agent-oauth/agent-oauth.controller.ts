@@ -9,6 +9,7 @@ import {
   RegisterClientDto, RevokeRequestDto, TokenRequestDto,
 } from './agent-oauth.dto';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 /** RFC 8414 + RFC 9728 discovery documents, served at the host root (no /api prefix). */
 @Controller({ path: '.well-known', version: VERSION_NEUTRAL })
 export class AgentOAuthWellKnownController {
@@ -122,11 +123,13 @@ export class AdminAgentClientsController {
     return this.oauth.adminList();
   }
 
+  @RequirePermissions(Permission.SECURITY_MANAGE)
   @Post()
   create(@Body() body: AdminCreateAgentClientDto) {
     return this.oauth.adminCreate(body);
   }
 
+  @RequirePermissions(Permission.SECURITY_MANAGE)
   @Patch(':clientId')
   update(@Param('clientId') clientId: string, @Body() body: AdminUpdateAgentClientDto) {
     return this.oauth.adminSetBlocked(clientId, body.blocked);

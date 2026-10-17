@@ -7,6 +7,8 @@ import { isPrevious, orderAction, orderNumber, type OrderAction, type OrderRow }
 import { pickText } from "@/components-next/diagnostics/diag-parts";
 import { diagStatus } from "@/components-next/diagnostics/status";
 import { nursingStatus } from "@/components-next/nursing/nursing-parts";
+import { returnStatus, returnTone } from "@/components-next/returns/return-kit";
+import { extractReturns } from "@/lib/api/returns";
 import { formatMoney } from "@/components-next/pharmacy-offers/format";
 import { statusKey as pharmacyStatusKey } from "@/components-next/pharmacy-offers/status";
 import { SERVICE_ICONS, type FillIconName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
@@ -15,14 +17,14 @@ import { statusTone as pharmacyTone } from "./status-tone";
 /**
  * The web order center (issue 378): one list of everything the patient asked for, built from what each service's own list
  * endpoint returns, like the app's order center (patient-app/src/utils/orderCenter.ts). Reading only: a field the server
- * did not send is left out. Insurance claims and returns, which the app also lists, have their own web pages and are not
- * part of this list (reported in the audit).
+ * did not send is left out. Pharmacy returns are listed too, as in the app (owner decision 31); insurance claims are not a
+ * patient feature (owner decision 35 of 2026-10-10), so neither list has them.
  *
  *   GET /patient/pharmacy/orders   pharmacy        GET /care/appointments   consultations
  *   GET /labs/bookings/mine        labs            GET /radiology/bookings/mine   radiology
- *   GET /nursing/visits   nursing visits
+ *   GET /nursing/visits   nursing visits      GET /pharmacy/returns   returns
  */
-export type OrderKind = "pharmacy" | "consultation" | "labs" | "radiology" | "nursing";
+export type OrderKind = "pharmacy" | "consultation" | "labs" | "radiology" | "nursing" | "returns";
 export type Bucket = "current" | "previous";
 
 /** A row ready to draw: every label is already in the reader's language, so the list needs no translations of its own. */
@@ -51,6 +53,8 @@ export const KIND_VISUAL: Record<OrderKind, { icon: FillIconName; tone: ServiceT
   labs: SERVICE_ICONS.lab,
   radiology: SERVICE_ICONS.radiology,
   nursing: SERVICE_ICONS.nursing,
+  // the returns page's own look (app/[locale]/returns/page.tsx)
+  returns: { icon: "arrows-left-right", tone: "amber" },
 };
 
 type Translate = (key: string, values?: Record<string, string | number>) => string;
@@ -63,6 +67,7 @@ export type CenterLabels = {
   diagWeb: Translate;
   diagnostics: Translate;
   nursing: Translate;
+  returns: Translate;
 };
 
 /** Where an order's action goes: its page for what can be done next, reordering for a finished order. */
@@ -146,7 +151,7 @@ export function diagnosticRows(locale: string, domain: "labs" | "radiology", pay
 const NURSING_DONE = new Set(["completed", "cancelled", "rejected"]);
 
 export function nursingRows(locale: string, payload: unknown, l: CenterLabels): CenterRow[] {
-  return extractNursingVisits(payload).map((visit) => {
+  return extractNursingVisits(payload, locale).map((visit) => {
     const status = visit.status ? nursingStatus(visit.status) : null;
     const href = `/${locale}/nursing/visits/${encodeURIComponent(visit.id)}`;
     return {
@@ -160,6 +165,29 @@ export function nursingRows(locale: string, payload: unknown, l: CenterLabels): 
       statusLabel: status && status.key !== "unknown" ? l.nursing(`status.${status.key}`) : l.orders("statusUnavailable"),
       statusTone: status?.tone ?? "ink",
       bucket: status && NURSING_DONE.has(status.key) ? "previous" : "current",
+      action: { href, label: l.orders("action.details") },
+    };
+  });
+}
+
+const RETURN_DONE = new Set(["completed", "rejected"]);
+
+export function returnRows(locale: string, payload: unknown, l: CenterLabels): CenterRow[] {
+  return extractReturns(payload).map((item) => {
+    const status = returnStatus(item.status);
+    const href = `/${locale}/returns/${encodeURIComponent(item.id)}`;
+    return {
+      key: `returns-${item.id}`,
+      kind: "returns",
+      href,
+      ...KIND_VISUAL.returns,
+      title: item.reason || l.orders("kind.returns"),
+      meta: l.orders("kind.returns"),
+      at: item.createdAt,
+      statusLabel: l.returns(`status.${status}`),
+      statusTone: returnTone(status),
+      bucket: RETURN_DONE.has(status) ? "previous" : "current",
+      amount: item.amount !== undefined ? formatMoney(locale, item.amount) : undefined,
       action: { href, label: l.orders("action.details") },
     };
   });

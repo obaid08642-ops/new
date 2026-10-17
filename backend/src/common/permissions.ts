@@ -80,6 +80,13 @@ export enum Permission {
   SEO_CONTROL = 'seo.control',
   // Owner 2026-10-10: turning whole services on/off is super-admin only.
   MODULES_MANAGE = 'modules.manage',
+  // Owner decision 29: every admin write route names a permission; these cover the writes no earlier name fitted.
+  SETTINGS_EDIT = 'settings.edit',
+  SECURITY_MANAGE = 'security.manage',
+  NOTIFICATIONS_SEND = 'notifications.send',
+  INSURANCE_MANAGE = 'insurance.manage',
+  SUPPORT_MANAGE = 'support.manage',
+  CRM_MANAGE = 'crm.manage',
   // 20.3: read-only view of the stored warn/error log lines (/admin/logs)
   SYSTEM_LOGS_VIEW = 'system.logs.view',
 }
@@ -146,6 +153,12 @@ export const PERMISSION_LABELS_AR: Record<string, string> = {
   [Permission.TRANSLATIONS_EDIT]: 'تحرير الترجمات',
   [Permission.SEO_CONTROL]: 'التحكم بنشر SEO',
   [Permission.MODULES_MANAGE]: 'تشغيل وإيقاف الخدمات',
+  [Permission.SETTINGS_EDIT]: 'تعديل إعدادات المنصة',
+  [Permission.SECURITY_MANAGE]: 'إدارة الأمان والتدقيق',
+  [Permission.NOTIFICATIONS_SEND]: 'إرسال الإشعارات والحملات',
+  [Permission.INSURANCE_MANAGE]: 'إدارة التأمين والمطالبات',
+  [Permission.SUPPORT_MANAGE]: 'إدارة الدعم والمكالمات',
+  [Permission.CRM_MANAGE]: 'إدارة شرائح العملاء',
   [Permission.SYSTEM_LOGS_VIEW]: 'عرض سجلات النظام (قراءة فقط)',
 };
 
@@ -161,30 +174,9 @@ export const CheckOwnership = (options: OwnershipOptions) => SetMetadata(CHECK_O
 
 export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
   [UserRole.SUPER_ADMIN]: Object.values(Permission),
-  [UserRole.ADMIN]: [
-    Permission.DOCTOR_CREATE, Permission.DOCTOR_EDIT, Permission.DOCTOR_READ,
-    Permission.APPOINTMENT_READ, Permission.APPOINTMENT_UPDATE,
-    Permission.PRESCRIPTION_READ,
-    Permission.PHARMACY_INVENTORY_READ,
-    Permission.LAB_RESULT_READ,
-    Permission.RADIOLOGY_RESULT_READ,
-    Permission.FACILITY_CREATE, Permission.FACILITY_EDIT, Permission.FACILITY_READ,
-    Permission.USER_READ, Permission.USER_EDIT,
-    Permission.DATA_EXPORT, Permission.DATA_BACKUP,
-    // Enterprise baseline for platform admins (A1–A7)
-    Permission.COMMAND_CENTER_VIEW, Permission.RBAC_MANAGE,
-    Permission.DISPUTES_RESOLVE,
-    Permission.ORDER_READ, Permission.ORDER_CANCEL, Permission.ORDER_REFUND,
-    Permission.ORDER_COMPENSATE, Permission.ORDER_REASSIGN, Permission.ORDER_SLA_EXTEND, Permission.ORDER_NOTE_ADD,
-    Permission.FINANCE_READ, Permission.FINANCE_PAYOUT_APPROVE, Permission.ANALYTICS_READ, Permission.ANALYTICS_EXPORT,
-    Permission.SCHEDULED_REPORTS_MANAGE, Permission.CRM_READ, Permission.GDPR_MANAGE,
-    Permission.CMS_EDIT, Permission.COUPONS_MANAGE,
-    Permission.OPS_QUEUES_MANAGE, Permission.OPS_CRONS_RUN,
-    Permission.TRANSLATIONS_EDIT, Permission.SEO_CONTROL, Permission.SYSTEM_LOGS_VIEW,
-    Permission.CATALOG_READ, Permission.CATALOG_CREATE, Permission.CATALOG_UPDATE,
-    Permission.CATALOG_PRICE_WRITE, Permission.CATALOG_IMPORT,
-    Permission.CATALOG_DELETE_RESTORE, Permission.CATALOG_SHORTAGE_DECIDE, Permission.CATALOG_APPROVE,
-  ],
+  // Owner decision 29: the built-in admin role grants nothing. An admin holds only the permissions of the custom
+  // roles assigned to them; the owner (super_admin, or the designated owner email) holds every permission.
+  [UserRole.ADMIN]: [],
   [UserRole.SUPPORT_AGENT]: [
     Permission.DOCTOR_READ,
     Permission.APPOINTMENT_READ,
