@@ -4313,5 +4313,12 @@
       "actionBody": "Pribado sa iyong account ang iyong plano, mga pagkain at target. Mag-sign in para makuha ang iyong plano.",
       "action": "Mag-sign in para makuha ang plano"
     }
+  },
+  "WaitingRoom": {
+    "title": "Nasa pila ka",
+    "body": "Maraming nagbabayad ngayon. Isa-isa naming pinapapasok ang mga bisita para mabilis ang pagbabayad para sa lahat.",
+    "positionLabel": "Puwesto mo sa pila: {position}",
+    "estimate": "Tinatayang paghihintay: mga {minutes} minuto",
+    "keepOpen": "Huwag isara ang pahinang ito. Kusa kang mapupunta sa pagbabayad pagdating ng turno mo. Naka-save ang iyong cart."
   }
 }

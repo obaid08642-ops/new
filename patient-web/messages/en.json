@@ -4313,5 +4313,12 @@
       "actionBody": "Your plan, meals and target stay private to your account. Sign in to get your plan.",
       "action": "Sign in to get your plan"
     }
+  },
+  "WaitingRoom": {
+    "title": "You're in the queue",
+    "body": "Lots of people are checking out right now. We let visitors in by turn so payment stays fast for everyone.",
+    "positionLabel": "Your place in the queue: {position}",
+    "estimate": "Estimated wait: about {minutes} min",
+    "keepOpen": "Keep this page open. You'll go to checkout automatically when it's your turn. Your cart is saved."
   }
 }

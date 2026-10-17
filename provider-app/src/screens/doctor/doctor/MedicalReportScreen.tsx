@@ -34,6 +34,7 @@ import {
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { tokens } from '../../../theme/tokens';
 import { styles } from './_shared';
+import { fmtDate } from '../../../utils/dates';
 
 export function MedicalReportScreen({ apt, onBack }: { apt: any; onBack: () => void }) {
  const { theme } = useTheme();
@@ -61,7 +62,7 @@ export function MedicalReportScreen({ apt, onBack }: { apt: any; onBack: () => v
  <NAvatar name={apt?.patient ?? 'مريض'} size={44} />
  <View>
  <Text style={{ fontWeight: FW.bold, color: theme.text }}>{apt?.patient ?? '—'}</Text>
- <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{new Date().toLocaleDateString('ar-SA')}</Text>
+ <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{fmtDate(new Date(), AR)}</Text>
  </View>
  </NCard>
 

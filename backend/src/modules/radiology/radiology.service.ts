@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Optional } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Optional, ServiceUnavailableException } from '@nestjs/common';
+import { randomUUID } from 'crypto';
+import { InjectModel, InjectConnection } from '@nestjs/mongoose';
+import { Connection, Model, Types } from 'mongoose';
 import { pick } from '../../common/sanitize';
 import { pickAttribution } from '../../common/attribution';
 
@@ -16,7 +17,24 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { RedisService } from '../redis/redis.service';
 import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
 import { getEffectiveRoles } from '../../common/auth.guard';
+import { ApprovalWorkflowService } from '../approval-workflow/approval-workflow.module';
 import { isAdminUser } from '../../common/enums';
+
+/** Fields of a centre's "add a scan" request that the approval workflow's radiology allowlist accepts. */
+const RADIOLOGY_PROPOSAL_FIELDS = [
+  'name_ar', 'name_en', 'modality_category', 'price', 'estimated_duration_minutes', 'insurance_availability', 'portable_ultrasound',
+  'requires_pregnancy_check', 'requires_metal_implant_check', 'requires_contrast_allergy_check', 'preparation_ar', 'preparation_en',
+] as const;
+
+/** Preparation choices of the radiology app (ar, en), written into the proposal as text. */
+const RADIOLOGY_PREPARATION_TEXT: Record<string, [string, string]> = {
+  fasting_6h: ['صيام 6 ساعات', 'Fasting 6 hours'],
+  drink_water: ['شرب لتر ماء', 'Drink 1L of water'],
+  hold_urine: ['حبس البول', 'Full bladder'],
+  creatinine: ['تحليل وظائف كلى', 'Recent creatinine test'],
+  no_metal: ['إزالة الأشياء المعدنية', 'Remove metal objects'],
+  contrast_consent: ['موافقة على الصبغة', 'Contrast consent'],
+};
 
 const ALLOWED_ROLES_PROVIDER = ['radiology', 'admin', 'hospital'];
 
@@ -41,6 +59,8 @@ export class RadiologyOpsService {
     private events: EventEmitter2,
     @Optional() private readonly redis?: RedisService,
     @Optional() private readonly insurance?: InsuranceFlowService,
+    @Optional() private readonly approvals?: ApprovalWorkflowService,
+    @Optional() @InjectConnection() private readonly conn?: Connection,
   ) {}
 
   // ──────────────────────────────────────────────
@@ -364,10 +384,39 @@ export class RadiologyOpsService {
   // ──────────────────────────────────────────────
   // MODULE 15: Catalog Delta Request (requires admin approval)
   // ──────────────────────────────────────────────
+  /**
+   * A centre's request to add a scan, or to change its schedule, reaches an admin. It used to emit an event that only
+   * the SEO indexer listens to and answer "submitted for admin approval": nothing was stored, nothing reached the
+   * admin, and the centre's price and schedule were lost.
+   *  - a new scan goes through the approval workflow the lab dashboard uses (`/approval-workflow/requests`);
+   *  - a schedule update is a settings change waiting for review (`provider_deltas`, applied on approval).
+   */
   async catalogDeltaRequest(user: any, body: any) {
-    // Sends to approval workflow — patient sees nothing until approved
-    this.events.emit('radiology.catalog_delta', { providerAccountId: user.account_id ?? user.id, changes: body, requestedBy: user.id });
-    return { ok: true, message: 'Delta request submitted for admin approval. Changes will not appear to patients until approved.' };
+    if (!this.approvals || !this.conn) throw new ServiceUnavailableException('approval_workflow_unavailable');
+    const accountId = user.account_id ?? user.id;
+    if (body?.type === 'schedule_update') {
+      const value = {
+        working_days: body.working_days, morning_shift: body.morning_shift, evening_shift: body.evening_shift,
+        emergency_available: body.emergency_available === true,
+      };
+      const delta = {
+        id: randomUUID(), provider_id: accountId, target: 'settings',
+        requested_changes: { settings_key: 'radiology_schedule', value },
+        status: 'pending', createdAt: new Date(), updatedAt: new Date(),
+      };
+      await this.conn.collection('provider_deltas').insertOne(delta as any);
+      return { ok: true, message: 'delta_submitted', pending_review: true, data: { id: delta.id, status: 'pending', target: 'settings' } };
+    }
+    if (!String(body?.name_en || body?.name_ar || '').trim()) throw new BadRequestException('name_required');
+    if (!(Number(body?.price) >= 0)) throw new BadRequestException('price_required');
+    const prep = (Array.isArray(body?.preparation_keys) ? body.preparation_keys : [])
+      .map((k: string) => RADIOLOGY_PREPARATION_TEXT[k]).filter(Boolean) as [string, string][];
+    const change = pick({
+      ...body,
+      preparation_ar: prep.length ? prep.map((p) => p[0]).join('، ') : undefined,
+      preparation_en: prep.length ? prep.map((p) => p[1]).join(', ') : undefined,
+    }, [...RADIOLOGY_PROPOSAL_FIELDS]);
+    return this.approvals.createRequest(user.id, user.role, { entity_type: 'service', change_data: { type: 'radiology', ...change } });
   }
 
   // MODULE 12: Patient confirms preparation
