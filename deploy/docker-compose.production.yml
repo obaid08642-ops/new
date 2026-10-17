@@ -118,6 +118,9 @@ services:
       PORT: "8002"
       # P14.26: HTTP and sockets only; cron jobs, queue consumers and the search sync run in `worker` below
       PROCESS_ROLE: api
+      # 20.3: debug|info|warn|error. info in production (stdout, capped 20m x 3); warn and error are also stored in
+      # Mongo `app_logs` (30-day TTL, size-capped) and shown in the admin dashboard > Logs. Set it in .env.production to change it.
+      LOG_LEVEL: ${LOG_LEVEL:-info}
       HTTP_COMPRESSION: edge   # P14.25: nginx gzips (gzip_proxied any); the API does not compress twice
       MONGO_URL: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
       DB_NAME: ${DB_NAME:-nabd_nestjs}
@@ -162,6 +165,7 @@ services:
       NODE_ENV: production
       CLUSTER_MODE: "false"
       PROCESS_ROLE: worker
+      LOG_LEVEL: ${LOG_LEVEL:-info}   # 20.3, see the backend service
       PORT: "8002"
       MONGO_URL: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
       DB_NAME: ${DB_NAME:-nabd_nestjs}

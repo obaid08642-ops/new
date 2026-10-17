@@ -80,6 +80,8 @@ export enum Permission {
   SEO_CONTROL = 'seo.control',
   // Owner 2026-10-10: turning whole services on/off is super-admin only.
   MODULES_MANAGE = 'modules.manage',
+  // 20.3: read-only view of the stored warn/error log lines (/admin/logs)
+  SYSTEM_LOGS_VIEW = 'system.logs.view',
 }
 
 /** Arabic labels for the permission catalog (RBAC editor UI). */
@@ -144,6 +146,7 @@ export const PERMISSION_LABELS_AR: Record<string, string> = {
   [Permission.TRANSLATIONS_EDIT]: 'تحرير الترجمات',
   [Permission.SEO_CONTROL]: 'التحكم بنشر SEO',
   [Permission.MODULES_MANAGE]: 'تشغيل وإيقاف الخدمات',
+  [Permission.SYSTEM_LOGS_VIEW]: 'عرض سجلات النظام (قراءة فقط)',
 };
 
 export interface OwnershipOptions {
@@ -177,7 +180,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     Permission.SCHEDULED_REPORTS_MANAGE, Permission.CRM_READ, Permission.GDPR_MANAGE,
     Permission.CMS_EDIT, Permission.COUPONS_MANAGE,
     Permission.OPS_QUEUES_MANAGE, Permission.OPS_CRONS_RUN,
-    Permission.TRANSLATIONS_EDIT, Permission.SEO_CONTROL,
+    Permission.TRANSLATIONS_EDIT, Permission.SEO_CONTROL, Permission.SYSTEM_LOGS_VIEW,
     Permission.CATALOG_READ, Permission.CATALOG_CREATE, Permission.CATALOG_UPDATE,
     Permission.CATALOG_PRICE_WRITE, Permission.CATALOG_IMPORT,
     Permission.CATALOG_DELETE_RESTORE, Permission.CATALOG_SHORTAGE_DECIDE, Permission.CATALOG_APPROVE,

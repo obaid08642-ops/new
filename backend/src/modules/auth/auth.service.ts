@@ -29,6 +29,7 @@ import { AccountLinkingService } from './account-linking.service';
 import { PasswordSecurityService } from '../../common/password-security.service';
 import { OtpAbuseGuard } from '../../common/otp-abuse.service';
 import { I18nService, resolveLang } from '../i18n/i18n.service';
+import { logEvent } from '../../common/structured-logger';
 
 @Injectable()
 export class AuthService {
@@ -1275,7 +1276,7 @@ export class AuthService {
         !process.env.SMTP_HOST &&
         !process.env.INFOBIP_API_KEY
       ) {
-        console.warn('No OTP delivery channel configured; OTP was not logged.');
+        logEvent('warn', 'otp_no_delivery_channel', {}, 'auth');
       }
       if (!delivered.length) {
         throw new ServiceUnavailableException({ message: 'otp_channel_unavailable', code: 'otp_channel_unavailable' });
@@ -1283,7 +1284,7 @@ export class AuthService {
       return { ok: true, channel: delivered[0] };
     } catch (err: any) {
       if (err instanceof ServiceUnavailableException) throw err;
-      console.error('Failed to send verification code:', err);
+      logEvent('error', 'verification_code_send_failed', { error: (err as Error)?.message }, 'auth');
       return { ok: false, error: err.message };
     }
   }
