@@ -41,11 +41,18 @@ def livekit_up():
         return False
 
 
+LEAD = QUARTER + datetime.timedelta(seconds=150)   # the backend lists a slot >= 15 min ahead; 150 s to publish the hours and book
+
+
 def first_bookable_quarter(now):
     """The earliest slot the backend lists (>= 15 min ahead, care/slot.service.ts) on a quarter hour
-    (appointments.service.ts), with 45 s to publish the hours and book; never across midnight (end > start rule)."""
-    t = now + QUARTER + datetime.timedelta(seconds=45)
-    t = t.replace(second=0, microsecond=0)
+    (appointments.service.ts), with LEAD - 15 min to publish the hours and book; never across midnight (end > start rule).
+    The time is rounded UP to the quarter (seconds included): rounding the minute down first could leave a slot only
+    ~15 min 8 s ahead, which the setup (admin 2FA login, onboarding, approval) then pushed under the 15-min cut-off, so
+    the slot was never listed ("matrix video+card: free slot")."""
+    t = now + LEAD
+    if t.second or t.microsecond:
+        t = t.replace(second=0, microsecond=0) + datetime.timedelta(minutes=1)
     t += datetime.timedelta(minutes=(-t.minute) % 15)
     # one 30-minute slot (slot.service.ts) must end by 23:59; only then does the window move to tomorrow 00:00
     if (t + datetime.timedelta(minutes=30)).replace(second=0) > t.replace(hour=23, minute=59):
