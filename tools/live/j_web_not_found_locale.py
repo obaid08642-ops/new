@@ -39,6 +39,11 @@ def main():
             journey(f'web not-found ({loc}): the state is in the page language')
             for path in PATHS:
                 page.goto(f'{WEB}/{loc}/{path}', wait_until='load', timeout=60000)
+                # client pages show their loading state first; read the page once the state has settled
+                try:
+                    page.get_by_text(title, exact=False).first.wait_for(timeout=20000)
+                except Exception:
+                    pass
                 body = page.inner_text('main') if page.locator('main').count() else page.inner_text('body')
                 step(f'/{loc}/{path} says "{title}"', title in body, body[:200])
                 step(f'/{loc}/{path} shows no Arabic', not AR.search(body), [l for l in body.split('\n') if AR.search(l)][:3])
