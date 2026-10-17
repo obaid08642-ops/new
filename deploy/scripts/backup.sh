@@ -21,12 +21,34 @@ if ! docker exec "$MONGO_CONTAINER" mongodump --quiet \
   report local false "" "mongodump failed or wrote nothing"
   exit 1
 fi
+
+# 16.9: the dump is encrypted before it is kept; the readable file is removed only after the encrypted one decrypts to the same bytes
+ENCERR=$(backup_encryption_error)
+if [ -n "$ENCERR" ]; then
+  rm -f "$FILE"
+  echo "[$(date)] FAIL: $ENCERR - the readable dump was removed, no backup was kept"
+  report local false "" "$ENCERR"
+  exit 1
+fi
+if backup_encryption_enabled; then
+  if ! backup_encrypt "$FILE" "$FILE.gpg" || [ ! -s "$FILE.gpg" ] \
+     || [ "$(backup_decrypt "$FILE.gpg" | sha256sum | cut -d' ' -f1)" != "$(sha256sum < "$FILE" | cut -d' ' -f1)" ]; then
+    rm -f "$FILE" "$FILE.gpg"
+    echo "[$(date)] FAIL: encrypting the dump failed or did not decrypt back to the same bytes"
+    report local false "" "backup encryption failed"
+    exit 1
+  fi
+  rm -f "$FILE"
+  FILE="$FILE.gpg"
+else
+  echo "[$(date)] WARNING: the dump is NOT encrypted (BACKUP_ENCRYPTION_PASSPHRASE_FILE is not set)"
+fi
 SIZE=$(stat -c %s "$FILE")
 echo "[$(date)] local backup: $(basename "$FILE") ($SIZE bytes)"
 report local true "$SIZE"
 
 # retention: 14 days on the server
-find "$BACKUP_DIR" -maxdepth 1 -name "nabd_*.gz" -mtime +14 -delete
+find "$BACKUP_DIR" -maxdepth 1 \( -name "nabd_*.gz" -o -name "nabd_*.gz.gpg" \) -mtime +14 -delete
 
 ERR=$(private_bucket_error)
 if [ -n "$ERR" ]; then
