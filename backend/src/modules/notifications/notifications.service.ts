@@ -547,7 +547,8 @@ export class NotificationsService {
       title_ar: coveredInFull ? 'التأمين يغطي الخدمة بالكامل' : 'تم دفع تحمّل المريض',
       title_en: coveredInFull ? 'Insurance covers the service in full' : 'The patient paid the copay',
       body_ar: `طلب التأمين ${short}: يمكن متابعة الخدمة`, body_en: `Insurance request ${short}: the service can continue`,
-      related_id: String(p.request_id), related_type: 'insurance_request',
+      // its own type: the bell keeps one row per (type, id), and the request already has its "new request" row
+      related_id: String(p.request_id), related_type: 'insurance_request_ready',
     });
   }
 

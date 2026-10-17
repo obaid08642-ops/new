@@ -79,7 +79,7 @@ describe('insurance flow: the provider hears that the service continues (19.11 s
   it('a paid copay reaches the provider account once', async () => {
     const bells = await bell((svc) => svc.onInsuranceCopayPaidTargeted({ request_id: 'req-12345678', provider_id: 'p1' }));
     expect(bells).toHaveLength(1);
-    expect(bells[0]).toMatchObject({ account: 'acct-p1', title_en: 'The patient paid the copay', related_type: 'insurance_request', related_id: 'req-12345678' });
+    expect(bells[0]).toMatchObject({ account: 'acct-p1', title_en: 'The patient paid the copay', related_type: 'insurance_request_ready', related_id: 'req-12345678' });
   });
 
   it('a full approval tells the provider when it is decided, and the zero-copay confirmation is not a second bell', async () => {
@@ -93,6 +93,24 @@ describe('insurance flow: the provider hears that the service continues (19.11 s
     for (const state of ['COPAY_PENDING', 'REJECTED']) {
       expect(await bell((svc) => svc.onInsuranceDecidedProviderTargeted({ request_id: 'req-1', provider_id: 'p1', state }))).toEqual([]);
     }
+  });
+});
+
+describe('the provider bell keeps a row for each stage of one insurance request (19.11)', () => {
+  it('"new request" and "the patient paid" are two rows, not one: the bell drops a second row with the same type and id', async () => {
+    const rows: any[] = [];
+    const col = {
+      findOne: async (f: any) => rows.find((r) => Object.entries(f).every(([k, v]) => r[k] === v)) ?? null,
+      insertOne: async (d: any) => { rows.push(d); },
+    };
+    const svc: any = Object.create(NotificationsService.prototype);
+    svc.model = { db: { collection: () => col } };
+    svc.sendPush = jest.fn(async () => undefined);
+    svc.resolveProviderAccount = jest.fn(async () => 'acct-1');
+    await svc.onInsuranceRequestedTargeted({ request_id: 'req-12345678', provider_id: 'p1' });
+    await svc.onInsuranceCopayPaidTargeted({ request_id: 'req-12345678', provider_id: 'p1' });
+    await svc.onInsuranceCopayPaidTargeted({ request_id: 'req-12345678', provider_id: 'p1' }); // the same event twice is still one row
+    expect(rows.map((r) => r.title_en)).toEqual(['New insurance request to review', 'The patient paid the copay']);
   });
 });
 
