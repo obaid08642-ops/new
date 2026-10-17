@@ -416,41 +416,17 @@ export class InsuranceFlowService {
     if (!Number.isFinite(price) || price <= 0) throw new BadRequestException('booking_price_not_ready');
     const { has_policy, policy } = await this.myPolicy(user);
     if (!has_policy) throw new BadRequestException('NO_INSURANCE_POLICY'); // patient app redirects to add-policy then deep-returns (BR-2.2)
-    
-    // Check if provider has active contract for patient's insurance company and class
-    if (policy?.company_id && policy?.class) {
-      const providerProfile: any = await this.providerModel.findOne({ id: { $eq: providerId } }).lean();
-      if (providerProfile?.accepted_insurance) {
-        const hasContract = providerProfile.accepted_insurance.some(
-          (c: any) => c.company_id === policy.company_id && 
-                      Array.isArray(c.classes) && c.classes.includes(policy.class) && 
-                      c.active !== false
-        );
-        if (!hasContract) {
-          throw new ConflictException('insurance_not_accepted_by_provider');
-        }
-      } else {
-        // No insurance contracts configured
-        throw new ConflictException('insurance_not_accepted_by_provider');
-      }
-    } else if (policy?.provider && policy?.class) {
-      // Legacy policy format uses 'provider' instead of 'company_id'
-      const providerProfile: any = await this.providerModel.findOne({ id: { $eq: providerId } }).lean();
-      if (providerProfile?.accepted_insurance) {
-        const hasContract = providerProfile.accepted_insurance.some(
-          (c: any) => c.company_id === policy.provider && 
-                      Array.isArray(c.classes) && c.classes.includes(policy.class) && 
-                      c.active !== false
-        );
-        if (!hasContract) {
-          throw new ConflictException('insurance_not_accepted_by_provider');
-        }
-      } else {
-        // No insurance contracts configured
-        throw new ConflictException('insurance_not_accepted_by_provider');
-      }
-    }
-    
+
+    // D-30: the provider must hold an active contract for the patient's company AND class. Fails closed:
+    // a policy without a company or a class, or a provider without contracts, is refused.
+    const companyId = policy?.company_id || policy?.provider; // legacy saves keep the company in `provider`
+    if (!companyId || !policy?.class) throw new BadRequestException('insurance_class_required');
+    const providerProfile: any = await this.providerModel.findOne({ id: { $eq: providerId } }).lean();
+    const contracts: any[] = Array.isArray(providerProfile?.accepted_insurance) ? providerProfile.accepted_insurance : [];
+    const hasContract = contracts.some((c: any) => c && typeof c === 'object' && c.company_id === companyId
+      && Array.isArray(c.classes) && c.classes.includes(policy.class) && c.active !== false);
+    if (!hasContract) throw new ConflictException('insurance_not_accepted_by_provider');
+
     const existing = await this.requests.findOne({ patient_id: user.id, booking_kind: kind, booking_id: bookingId, state: { $in: ['PENDING_PROVIDER_REVIEW', 'COPAY_PENDING', 'APPROVED_FULL', 'COPAY_PAID'] } }).lean();
     if (existing) return existing;
     const doc = await this.requests.create({

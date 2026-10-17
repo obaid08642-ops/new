@@ -87,6 +87,8 @@ export class CareService {
     degree?: string;
     insurance?: string;
     insuranceClass?: string;
+    /** payment=insurance: filter by the signed-in patient's own saved company and class. */
+    paymentInsurance?: boolean;
     accepts_insurance?: boolean;
     lat?: number;
     lng?: number;
@@ -98,10 +100,10 @@ export class CareService {
     page?: number;
     limit?: number;
   } = {}) {
-    // If payment=insurance is used with a user, resolve their insurance policy
+    // Self-pay lists are never filtered; only payment=insurance reads the patient's saved policy.
     let insuranceCompany = opts.insurance;
     let insuranceClass = opts.insuranceClass;
-    if (!insuranceCompany && opts.user) {
+    if (opts.paymentInsurance && !insuranceCompany && opts.user) {
       const profile = await this.providerModel.db.collection('patient_profiles').findOne({ user_id: opts.user.id }, { projection: { insurance: 1 } });
       if (profile?.insurance?.provider) {
         insuranceCompany = profile.insurance.provider;
@@ -114,13 +116,15 @@ export class CareService {
     if (opts.city) q.city = opts.city;
     if (opts.facility_id) q.facility_id = opts.facility_id;
     if (opts.degree) q.academic_degree = opts.degree;
-    // Filter by insurance company AND class when both are provided
+    // Company AND class when both are given (new contracts: { company_id, classes, active }); a company alone also
+    // matches the older plain-id entries.
     if (insuranceCompany && insuranceClass) {
-      q.$and = [
-        { accepted_insurance: { $elemMatch: { company_id: insuranceCompany, classes: insuranceClass, active: true } } }
-      ];
+      q.$and = [{ accepted_insurance: { $elemMatch: { company_id: insuranceCompany, classes: insuranceClass, active: true } } }];
     } else if (insuranceCompany) {
-      q.accepted_insurance = { $in: [insuranceCompany] };
+      q.$and = [{ $or: [
+        { accepted_insurance: { $in: [insuranceCompany] } },
+        { accepted_insurance: { $elemMatch: { company_id: insuranceCompany, active: true } } },
+      ] }];
     }
     if (opts.accepts_insurance !== undefined) q.accepts_insurance = opts.accepts_insurance;
     const searchRegex = publicSearchRegex(opts.q);

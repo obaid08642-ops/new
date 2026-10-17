@@ -84,7 +84,7 @@ export class UsersInsuranceController {
       verified: false, // Must be verified by admin
     };
     await this.users.updatePatientProfile(id, { insurance: updatedInsurance });
-    // Return the saved insurance object
-    return updatedInsurance;
+    // Fixed JSON only: never echo the patient's text back (read it with GET /users/me/insurance).
+    return { success: true, verified: false };
   }
 }

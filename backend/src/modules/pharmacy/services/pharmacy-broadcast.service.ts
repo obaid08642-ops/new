@@ -174,19 +174,7 @@ export class PharmacyBroadcastService {
       return existing;
     }
     
-    // Fetch patient's insurance info for insurance orders
-    let insuranceCompany: string | undefined;
-    let insuranceClass: string | undefined;
-    if (order.coverage_mode === 'insurance') {
-      const profile: any = await (this.profiles as any).db.collection('patient_profiles').findOne(
-        { user_id: order.patient_account_id },
-        { projection: { insurance: 1 } }
-      );
-      if (profile?.insurance?.provider) {
-        insuranceCompany = profile.insurance.provider;
-        insuranceClass = profile.insurance.class;
-      }
-    }
+    const insurance = await this.insuranceOf(order);
     
     const stages = await this.getBroadcastStages();
     const round1 = stages[0];
@@ -206,7 +194,7 @@ export class PharmacyBroadcastService {
       timeline: [{ ts: startedAt, event: 'broadcast_started', meta: { radius: round1.radius_km, round_expires_at: roundDeadline } }],
     });
     
-    await this.broadcastRound(bc, order, insuranceCompany, insuranceClass);
+    await this.broadcastRound(bc, order, insurance);
     order.status = PharmacyOrderState.BROADCASTING;
     order.timeline.push({ ts: new Date(), event: 'broadcasting_round_1', meta: { radius: round1.radius_km } });
     await order.save();
@@ -219,11 +207,11 @@ export class PharmacyBroadcastService {
    * Persist recipient membership and one notification intent per pharmacy. A later
    * dispatcher may send it; this request never sends push/socket directly.
    */
-  private async broadcastRound(bc: PharmacyBroadcast, order: PharmacyOrder, insuranceCompany?: string, insuranceClass?: string) {
+  private async broadcastRound(bc: PharmacyBroadcast, order: PharmacyOrder, insurance?: { company?: string; cls?: string }) {
     const center = order.delivery_address?.geo;
     // F73: pickup orders filter pharmacies to a 15 km radius (patient travels).
     const radius = (order as any).fulfillment === 'pickup' ? Math.min(Number(bc.current_radius_km) || 15, 15) : bc.current_radius_km;
-    const pharms = await this.findEligiblePharmaciesWithin(center, radius, { extended: Boolean((bc as any).extended_stage), insuranceCompany, insuranceClass });
+    const pharms = await this.findEligiblePharmaciesWithin(center, radius, { extended: Boolean((bc as any).extended_stage), insurance });
     const alreadyNotified = new Set<string>(Array.isArray(bc.notified_pharmacies) ? bc.notified_pharmacies : []);
     const candidates = pharms.map((pharmacy: any) => String(pharmacy.account_id)).filter((id: string) => id && !alreadyNotified.has(id));
     const now = new Date();
@@ -317,20 +305,7 @@ export class PharmacyBroadcastService {
       throw new BadRequestException('broadcast_round_not_due');
     }
     
-    // Fetch patient's insurance info for insurance orders
-    let insuranceCompany: string | undefined;
-    let insuranceClass: string | undefined;
-    const orderForInsurance = await this.orders.findOne({ id: order_id });
-    if (orderForInsurance?.coverage_mode === 'insurance') {
-      const profile: any = await (this.profiles as any).db.collection('patient_profiles').findOne(
-        { user_id: orderForInsurance.patient_account_id },
-        { projection: { insurance: 1 } }
-      );
-      if (profile?.insurance?.provider) {
-        insuranceCompany = profile.insurance.provider;
-        insuranceClass = profile.insurance.class;
-      }
-    }
+    const insurance = await this.insuranceOf(await this.orders.findOne({ id: order_id }));
     
     const stages = await this.getBroadcastStages();
     const nextIdx = bc.current_round; // 1-based round index
@@ -352,7 +327,7 @@ export class PharmacyBroadcastService {
         bc.round_expires_at = extendedDeadline;
         bc.timeline.push({ ts: extendedAt, event: isPickup ? 'extended_round_self_pickup_15km' : 'extended_round_own_delivery', meta: { round: bc.current_round, radius: extendedRadius, round_expires_at: extendedDeadline } });
         await bc.save();
-        await this.broadcastRound(bc, orderForExtended, insuranceCompany, insuranceClass);
+        await this.broadcastRound(bc, orderForExtended, insurance);
         return bc.toObject();
       }
       // No more rounds → trigger Best Partial Match algorithm
@@ -373,7 +348,7 @@ export class PharmacyBroadcastService {
     await bc.save();
     
     const order = await this.orders.findOne({ id: order_id });
-    if (order) await this.broadcastRound(bc, order, insuranceCompany, insuranceClass);
+    if (order) await this.broadcastRound(bc, order, insurance);
     
     // broadcastRound persisted recipient intents; no direct best-effort event is emitted.
     return bc.toObject();
@@ -415,9 +390,20 @@ export class PharmacyBroadcastService {
     return { order_id, selection_required: true, reason: 'automatic_split_disabled' };
   }
 
+  /** The patient's saved company and class for an insurance order; undefined for any other order (no filter). */
+  private async insuranceOf(order: any): Promise<{ company?: string; cls?: string } | undefined> {
+    if (order?.coverage_mode !== 'insurance') return undefined;
+    const profile: any = await (this.profiles as any).db.collection('patient_profiles').findOne(
+      { user_id: order.patient_account_id },
+      { projection: { insurance: 1 } },
+    );
+    const ins = profile?.insurance;
+    return { company: ins?.company_id || ins?.provider, cls: ins?.class };
+  }
+
   // ============== INTERNAL: geo filter ==============
   /** Eligible, approved and available recipient set computed server-side for a given round. */
-  async findEligiblePharmaciesWithin(center: any, radius_km: number, opts?: { extended?: boolean; insuranceCompany?: string; insuranceClass?: string }) {
+  async findEligiblePharmaciesWithin(center: any, radius_km: number, opts?: { extended?: boolean; insurance?: { company?: string; cls?: string } }) {
     const accs = await (this.profiles as any).db.collection('provider_accounts').find({ provider_type: 'pharmacy', status: { $in: ['approved', 'active'] } }).project({ id: 1 }).toArray();
     if (!accs.length || !Number.isFinite(Number(center?.lat)) || !Number.isFinite(Number(center?.lng)) || !Number.isFinite(Number(radius_km)) || Number(radius_km) <= 0) return [];
     const ids = accs.map((a: any) => a.id);
@@ -433,10 +419,12 @@ export class PharmacyBroadcastService {
       const pharm = p as any;
       const d = this.geo.distanceKm({ lat: Number(p.geo.lat), lng: Number(p.geo.lng) }, center);
       if (!Number.isFinite(d)) continue;
-      // Filter by insurance company and class if provided
-      if (opts?.insuranceCompany && opts?.insuranceClass) {
-        const hasContract = Array.isArray(pharm.accepted_insurance) && pharm.accepted_insurance.some(
-          (c: any) => c.company_id === opts.insuranceCompany && Array.isArray(c.classes) && c.classes.includes(opts.insuranceClass) && c.active !== false
+      // An insurance order reaches only pharmacies contracted for the patient's company AND class (fails closed
+      // when the patient's policy has no company or class).
+      if (opts?.insurance) {
+        const { company, cls } = opts.insurance;
+        const hasContract = Boolean(company && cls) && Array.isArray(pharm.accepted_insurance) && pharm.accepted_insurance.some(
+          (c: any) => c && typeof c === 'object' && c.company_id === company && Array.isArray(c.classes) && c.classes.includes(cls) && c.active !== false
         );
         if (!hasContract) continue;
       }
