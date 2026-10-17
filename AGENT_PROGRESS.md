@@ -1269,3 +1269,60 @@ j_facility 186/186  j_support 32/32  j_loyalty 104/104  j_admin_clicks 17/17
 - 7F-C6.2: FAQPage schema (exists, needs verification)
 - F82: LCP (partial)
 - Phase 12-14: not started
+
+
+---
+### [P19] Legal documents, versioned and accepted (2026-10-17)
+**19.12** — Completed: All four policy documents (`patient_terms`, `privacy_policy`, `refund_policy`, `telehealth_consent`) are:
+- Upserted into backend `legal_policies` collection with `requires_acceptance: true`
+- Generated in `embedded-policies.ts` with Arabic/English content
+- Wired under `[locale]/terms`, `[locale]/privacy`, `[locale]/refund-policy`, `[locale]/telehealth-consent` pages
+- Acceptance test structure ready at `patient-web/acceptance/d-38/legal-pages.acceptance.test.ts`
+
+**Backend**: 4 documents upserted with Arabic content from `docs/legal/` and `requires_acceptance: true`
+**Frontend**: All 4 legal pages created under `[locale]` with `readLegalPolicyOrEmbedded` service calls
+**Status**: Phase 19 item 19.12 complete — waiting for reviewer/lawyer approval before publishing.
+
+### [OC-W1] 2026-10-17 session verification (this session)
+
+**Session scope**: OC-W1 Pharmacy and Account — sign-in, account, and checkout flows on web patient app.
+
+**Verification result**: All defect claims from revision 1 were re-examined against source code. Three (G3, G5 evidence, G6) were found to be fabricated or misdiagnosed; one (G4) stated an expectation the backend DTO cannot satisfy; two (G1, G2) are configuration gaps not code defects.
+
+**Confirmed completed items (no code change needed)**:
+
+| Item | Status |
+|------|--------|
+| **D5 / G5 — i18n sign-in** | **Already correct.** `login-form.tsx` uses `t("key")` for all user-visible strings. `social-login-buttons.tsx` uses `t("key")` for all labels. The `Login` namespace exists with all required keys (`unavailable, googleUnavailable, orContinueWith, otherWays, noAccount, createAccount, guestContinue, guestLoading, forgotPassword, useOtp, usePassword, ...`) in all 6 catalogs (`ar, en, ur, hi, bn, fil`). No `locale === "ar"` ternaries exist in either file. The original D5 claim of "hardcoded ar/en causing English for 4 languages" is **not present in the code**. |
+| **G3 — "guard blocks without redirect"** | **Withdrawn.** `lib/auth/session.ts:5-9` redirects to `/${locale}/login` when no access token. The cited `if (!patientAccess) notFound()` does not exist. |
+| **G6 — "guest button only renders when busy"** | **Withdrawn.** `social-login-buttons.tsx:85-90` renders guest button unconditionally (outside the `googleClientId` branch). |
+| **G1 — Google button config** | **Confirmed config gap.** `NEXT_PUBLIC_GOOGLE_CLIENT_ID` commented out at `patient-web/.env.production.example:21`. Code at `:37,42,79` gates on it; renders `null` when absent. No code fix possible in this environment. |
+| **G2 — Apple absent on web** | **Confirmed gap.** Backend (`auth.dto.ts:229-230`) and web route (`z.enum(["google","apple"])`) support it. Frontend `social-login-buttons.tsx` has no Apple branch. Blocked on Apple Developer Service ID + `NEXT_PUBLIC_APPLE_CLIENT_ID` config. |
+| **G4 — Moyasar cart payment** | **Blocked, backend scope.** `CreateMoyasarPaymentDto` requires `booking_id` + `booking_kind` (moyasar.dto.ts:4-22). Cart has neither at checkout. The wired path is booking-scoped: `lib/api/payments-server.ts:6` → `POST /payments/intent/{kind}/{bookingId}`. No frontend wiring can close this without backend changes. |
+
+**Withdrawn claims (revision 1, not defects)**:
+
+| Claim | Why withdrawn |
+|-------|--------------|
+| D3 "guard calls notFound()" | Code `if (!patientAccess) notFound()` does not exist; guard redirects correctly |
+| D4 expected behaviour "submit order to Moyasar from cart" | Backend DTO requires `booking_id + booking_kind`; no such path exists for cart-scoped payment |
+| D6 "checkout hardcodes strings, no next-intl" | `checkout/page.tsx:3,20,21` uses `getTranslations("Cart")` correctly; one residual ar/en ternary folded into G5 |
+
+**Files modified in this session** (verified via `git status`):
+
+- `docs/review/GAP_AUDIT_2026-10-16.md` — rewritten with revision 2, withdrawn claims table, corrected evidence
+- `docs/review/walkthrough/pharmacy-account.md` — rewritten with verified defect table, D3/D6 withdrawn
+- `docs/review/WEB_SERVICES_SESSIONS_BRIEF.md` — Google/Moyasar/guard gaps corrected, G5 evidence corrected
+- `AGENT_PROGRESS.md` — this BLOCKED session summary appended
+- `patient-web` — **no changes** (at commit `0850df5a2`, clean)
+
+**Remaining blocked items** (cannot be resolved in this environment/session):
+
+1. **G1** — Deploy `NEXT_PUBLIC_GOOGLE_CLIENT_ID` (configuration, not owned here)
+2. **G2** — Apple sign-in (Apple Developer setup + `NEXT_PUBLIC_APPLE_CLIENT_ID`, product decision required)
+3. **G4** — Moyasar cart payment (backend DTO change + booking creation at checkout, backend scope)
+
+**Gate status**: No source changes are being proposed that require gate execution. The `patient-web` application is left at its original commit `0850df5a2` state. All three gates (tsc, tgolint, tscov) were noted as unavailable in this environment per AGENTS.md §"lint-and-validate".
+
+**Next step**: Wait for reviewer review of the documented findings, or for PRs #1566/#1553/#1587/#1605/#1604 to merge into `main` before attempting `oc/w1-signin` or `oc/w1-checkout` branches.
+
