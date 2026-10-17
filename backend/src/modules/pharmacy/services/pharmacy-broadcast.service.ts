@@ -4,6 +4,7 @@
  * If no FULL_ACCEPT exists, runs the Best Partial Match ranking algorithm.
  * Exposes reject/decline broadcast logging rejections to the Shortage Engine.
  */
+import { hasInsuranceContract, policyClass, policyCompanyKeys } from '../../../common/insurance-policy';
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException, ServiceUnavailableException, Logger, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -207,7 +208,7 @@ export class PharmacyBroadcastService {
    * Persist recipient membership and one notification intent per pharmacy. A later
    * dispatcher may send it; this request never sends push/socket directly.
    */
-  private async broadcastRound(bc: PharmacyBroadcast, order: PharmacyOrder, insurance?: { company?: string; cls?: string }) {
+  private async broadcastRound(bc: PharmacyBroadcast, order: PharmacyOrder, insurance?: { companyKeys: string[]; cls: string }) {
     const center = order.delivery_address?.geo;
     // F73: pickup orders filter pharmacies to a 15 km radius (patient travels).
     const radius = (order as any).fulfillment === 'pickup' ? Math.min(Number(bc.current_radius_km) || 15, 15) : bc.current_radius_km;
@@ -391,19 +392,18 @@ export class PharmacyBroadcastService {
   }
 
   /** The patient's saved company and class for an insurance order; undefined for any other order (no filter). */
-  private async insuranceOf(order: any): Promise<{ company?: string; cls?: string } | undefined> {
+  private async insuranceOf(order: any): Promise<{ companyKeys: string[]; cls: string } | undefined> {
     if (order?.coverage_mode !== 'insurance') return undefined;
     const profile: any = await (this.profiles as any).db.collection('patient_profiles').findOne(
       { user_id: order.patient_account_id },
       { projection: { insurance: 1 } },
     );
-    const ins = profile?.insurance;
-    return { company: ins?.company_id || ins?.provider, cls: ins?.class };
+    return { companyKeys: policyCompanyKeys(profile?.insurance), cls: policyClass(profile?.insurance) };
   }
 
   // ============== INTERNAL: geo filter ==============
   /** Eligible, approved and available recipient set computed server-side for a given round. */
-  async findEligiblePharmaciesWithin(center: any, radius_km: number, opts?: { extended?: boolean; insurance?: { company?: string; cls?: string } }) {
+  async findEligiblePharmaciesWithin(center: any, radius_km: number, opts?: { extended?: boolean; insurance?: { companyKeys: string[]; cls: string } }) {
     const accs = await (this.profiles as any).db.collection('provider_accounts').find({ provider_type: 'pharmacy', status: { $in: ['approved', 'active'] } }).project({ id: 1 }).toArray();
     if (!accs.length || !Number.isFinite(Number(center?.lat)) || !Number.isFinite(Number(center?.lng)) || !Number.isFinite(Number(radius_km)) || Number(radius_km) <= 0) return [];
     const ids = accs.map((a: any) => a.id);
@@ -421,13 +421,7 @@ export class PharmacyBroadcastService {
       if (!Number.isFinite(d)) continue;
       // An insurance order reaches only pharmacies contracted for the patient's company AND class (fails closed
       // when the patient's policy has no company or class).
-      if (opts?.insurance) {
-        const { company, cls } = opts.insurance;
-        const hasContract = Boolean(company && cls) && Array.isArray(pharm.accepted_insurance) && pharm.accepted_insurance.some(
-          (c: any) => c && typeof c === 'object' && c.company_id === company && Array.isArray(c.classes) && c.classes.includes(cls) && c.active !== false
-        );
-        if (!hasContract) continue;
-      }
+      if (opts?.insurance && !hasInsuranceContract(pharm.accepted_insurance, opts.insurance.companyKeys, opts.insurance.cls)) continue;
       const hasOwnDelivery = Boolean(pharm.has_own_delivery || pharm.has_own_drivers);
       const ownRadius = Number(pharm.delivery_radius_km ?? pharm.max_delivery_radius_km);
       let qualifies = false;

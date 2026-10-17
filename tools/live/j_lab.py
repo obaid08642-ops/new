@@ -187,7 +187,7 @@ def matrix_payment_location(pat, lab, admin=None, other_lab=None):
         import j_insurance
         from j_insurance import insured_lab
         journey('lab matrix: home x insurance')
-        j_insurance.add_policy(pat, j_insurance.admin_adds_company(admin))
+        j_insurance.add_policy(pat, j_insurance.admin_adds_company(admin), providers=[lab])
         if other_lab is not None:
             insured_lab(pat, lab, other_lab, location='home')
         else:

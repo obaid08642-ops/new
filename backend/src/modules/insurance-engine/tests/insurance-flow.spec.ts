@@ -93,6 +93,12 @@ describe('InsuranceFlowService', () => {
       expect(requests.create).not.toHaveBeenCalled();
     });
 
+    it('reads the policy that /insurance/save-policy writes (company id and code, plan_class)', async () => {
+      withPolicy({ company_id: 'uuid-1', company_code: 'company-1', provider: 'Company One', plan_class: 'A' });
+      await service.createRequest(patient, booking);
+      expect(requests.create).toHaveBeenCalled();
+    });
+
     it('accepts a legacy policy that keeps the company in `provider`', async () => {
       withPolicy({ provider: 'company-1', class: 'A' });
       await service.createRequest(patient, booking);

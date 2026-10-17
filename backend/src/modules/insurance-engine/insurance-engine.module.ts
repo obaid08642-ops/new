@@ -22,6 +22,7 @@ import { JwtAuthGuard, CurrentUser, SelfService, Roles } from '../../common/auth
 import { InsuranceCompanySchema, InsuranceCompanyDocument } from '../../schemas/insurance.schema';
 import { PatientProfileSchema } from '../../schemas/patient-profile.schema';
 import { ProviderProfileSchema } from '../../schemas/provider-profile.schema';
+import { hasInsuranceContract, policyClass, policyCompanyKeys } from '../../common/insurance-policy';
 import { FraudService, RefundExecutor } from '../finance-engine/finance-engine.module';
 import { TransactionSchema } from '../../schemas/transaction.schema';
 import { OrderSchema } from '../../schemas/order.schema';
@@ -419,13 +420,14 @@ export class InsuranceFlowService {
 
     // D-30: the provider must hold an active contract for the patient's company AND class. Fails closed:
     // a policy without a company or a class, or a provider without contracts, is refused.
-    const companyId = policy?.company_id || policy?.provider; // legacy saves keep the company in `provider`
-    if (!companyId || !policy?.class) throw new BadRequestException('insurance_class_required');
-    const providerProfile: any = await this.providerModel.findOne({ id: { $eq: providerId } }).lean();
-    const contracts: any[] = Array.isArray(providerProfile?.accepted_insurance) ? providerProfile.accepted_insurance : [];
-    const hasContract = contracts.some((c: any) => c && typeof c === 'object' && c.company_id === companyId
-      && Array.isArray(c.classes) && c.classes.includes(policy.class) && c.active !== false);
-    if (!hasContract) throw new ConflictException('insurance_not_accepted_by_provider');
+    const companyKeys = policyCompanyKeys(policy);
+    const policyCls = policyClass(policy);
+    if (!companyKeys.length || !policyCls) throw new BadRequestException('insurance_class_required');
+    // A booking names its provider by profile id or by account id, depending on the service.
+    const providerProfile: any = await this.providerModel.findOne({
+      $or: [{ id: { $eq: providerId } }, { user_id: { $eq: providerId } }, { account_id: { $eq: providerId } }],
+    }).lean();
+    if (!hasInsuranceContract(providerProfile?.accepted_insurance, companyKeys, policyCls)) throw new ConflictException('insurance_not_accepted_by_provider');
 
     const existing = await this.requests.findOne({ patient_id: user.id, booking_kind: kind, booking_id: bookingId, state: { $in: ['PENDING_PROVIDER_REVIEW', 'COPAY_PENDING', 'APPROVED_FULL', 'COPAY_PAID'] } }).lean();
     if (existing) return existing;

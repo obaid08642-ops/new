@@ -1,4 +1,5 @@
 import { StorageService } from '../storage/storage.module';
+import { policyClass, policyCompanyKeys } from '../../common/insurance-policy';
 import { BadRequestException, Injectable, NotFoundException, Inject, Optional } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
@@ -102,12 +103,14 @@ export class CareService {
   } = {}) {
     // Self-pay lists are never filtered; only payment=insurance reads the patient's saved policy.
     let insuranceCompany = opts.insurance;
+    let insuranceKeys = insuranceCompany ? [insuranceCompany] : [];
     let insuranceClass = opts.insuranceClass;
     if (opts.paymentInsurance && !insuranceCompany && opts.user) {
       const profile = await this.providerModel.db.collection('patient_profiles').findOne({ user_id: opts.user.id }, { projection: { insurance: 1 } });
       if (profile?.insurance?.provider) {
-        insuranceCompany = profile.insurance.provider;
-        insuranceClass = profile.insurance.class;
+        insuranceKeys = policyCompanyKeys(profile.insurance);
+        insuranceCompany = insuranceKeys[0];
+        insuranceClass = policyClass(profile.insurance) || undefined;
       }
     }
     const q: any = { type: ProviderType.DOCTOR, ...PUBLIC_PROVIDER_FILTER };
@@ -119,11 +122,11 @@ export class CareService {
     // Company AND class when both are given (new contracts: { company_id, classes, active }); a company alone also
     // matches the older plain-id entries.
     if (insuranceCompany && insuranceClass) {
-      q.$and = [{ accepted_insurance: { $elemMatch: { company_id: insuranceCompany, classes: insuranceClass, active: true } } }];
+      q.$and = [{ accepted_insurance: { $elemMatch: { company_id: { $in: insuranceKeys }, classes: insuranceClass, active: true } } }];
     } else if (insuranceCompany) {
       q.$and = [{ $or: [
-        { accepted_insurance: { $in: [insuranceCompany] } },
-        { accepted_insurance: { $elemMatch: { company_id: insuranceCompany, active: true } } },
+        { accepted_insurance: { $in: insuranceKeys } },
+        { accepted_insurance: { $elemMatch: { company_id: { $in: insuranceKeys }, active: true } } },
       ] }];
     }
     if (opts.accepts_insurance !== undefined) q.accepts_insurance = opts.accepts_insurance;

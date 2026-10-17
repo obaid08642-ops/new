@@ -20,7 +20,7 @@ describe('D-30 doctor list by insurance company and class', () => {
   it('payment=insurance filters by the signed-in patient\'s saved company AND class', async () => {
     const { svc, seen } = svcWith({ provider: 'bupa', class: 'A' });
     await svc.listDoctors({ paymentInsurance: true, user: { id: 'p1', role: 'patient' } } as any);
-    expect(JSON.stringify(seen.q)).toContain(JSON.stringify({ $elemMatch: { company_id: 'bupa', classes: 'A', active: true } }));
+    expect(JSON.stringify(seen.q)).toContain(JSON.stringify({ $elemMatch: { company_id: { $in: ['bupa'] }, classes: 'A', active: true } }));
   });
 
   it('a self-pay list is never filtered, even for a patient with a saved policy', async () => {
@@ -32,6 +32,14 @@ describe('D-30 doctor list by insurance company and class', () => {
   it('an anonymous visitor filters through the query company and class', async () => {
     const { svc, seen } = svcWith(null);
     await svc.listDoctors({ insurance: 'tawuniya', insuranceClass: 'B' } as any);
-    expect(JSON.stringify(seen.q)).toContain(JSON.stringify({ $elemMatch: { company_id: 'tawuniya', classes: 'B', active: true } }));
+    expect(JSON.stringify(seen.q)).toContain(JSON.stringify({ $elemMatch: { company_id: { $in: ['tawuniya'] }, classes: 'B', active: true } }));
+  });
+});
+
+describe('D-30 doctor list reads the policy of either save endpoint', () => {
+  it('payment=insurance matches a contract by company id or code, and plan_class', async () => {
+    const { svc, seen } = svcWith({ company_id: 'uuid-1', company_code: 'bupa', provider: 'بوبا', plan_class: 'A' });
+    await svc.listDoctors({ paymentInsurance: true, user: { id: 'p1', role: 'patient' } } as any);
+    expect(JSON.stringify(seen.q)).toContain(JSON.stringify({ $elemMatch: { company_id: { $in: ['uuid-1', 'bupa', 'بوبا'] }, classes: 'A', active: true } }));
   });
 });
