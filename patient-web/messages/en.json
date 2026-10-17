@@ -1314,6 +1314,15 @@
     "kindNursing": "Nursing",
     "kindArticle": "Article"
   },
+  "SearchSuggest": {
+    "listLabel": "Search suggestions",
+    "loading": "Looking for suggestions…",
+    "empty": "No suggestions for “{query}”",
+    "error": "Suggestions are unavailable right now",
+    "retry": "Try again",
+    "seeAll": "All results for “{query}”",
+    "count": "{count, plural, =0 {No suggestions} one {# suggestion} other {# suggestions}}"
+  },
   "Support": {
     "title": "Support",
     "faqTitle": "Frequently asked questions",

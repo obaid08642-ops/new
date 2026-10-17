@@ -1314,6 +1314,15 @@
     "kindNursing": "नर्सिंग",
     "kindArticle": "लेख"
   },
+  "SearchSuggest": {
+    "listLabel": "खोज सुझाव",
+    "loading": "सुझाव ढूँढे जा रहे हैं…",
+    "empty": "“{query}” के लिए कोई सुझाव नहीं",
+    "error": "सुझाव अभी उपलब्ध नहीं हैं",
+    "retry": "फिर से कोशिश करें",
+    "seeAll": "“{query}” के सभी नतीजे",
+    "count": "{count, plural, =0 {कोई सुझाव नहीं} one {# सुझाव} other {# सुझाव}}"
+  },
   "Support": {
     "title": "सहायता",
     "faqTitle": "अक्सर पूछे जाने वाले प्रश्न",

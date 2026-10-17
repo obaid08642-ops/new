@@ -20,6 +20,8 @@ export const CLIENT_NAMESPACES = [
   "NotificationSettings",
   "RouteState",
   "Search",
+  // the instant suggestions of the home hero search box and the search page (issue 1544)
+  "SearchSuggest",
   "Shared",
 ] as const;
 
