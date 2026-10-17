@@ -33,6 +33,7 @@ import { moyasarBase } from '../../common/moyasar-base';
 import { isMoyasarWebhookAuthenticated } from '../../common/moyasar-webhook-auth';
 import { PaymentsModule, PaymentsService } from '../payments/payments.module';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 // ── Schemas ──────────────────────────────────────────────────────────────────
 
 @Schema({ timestamps: true, collection: 'moyasar_payments' })
@@ -492,6 +493,7 @@ export class MoyasarController {
    * E1-F3: previously any authenticated user (incl. patients) could refund
    * any payment by id. Patients must use POST /refunds/request (approval flow).
    */
+  @RequirePermissions(Permission.ORDER_REFUND)
   @Post('payments/:moyasarId/refund')
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)

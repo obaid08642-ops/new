@@ -261,6 +261,7 @@ export class RadiologyController {
 
   // --- Admin Quality Control & Dispute Intervention ---
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.ORDER_REASSIGN)
   @Patch('admin/bookings/:id/force-state')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   forceState(@CurrentUser() u: any, @Param('id') id: string, @Body() b: ForceStateDto) {

@@ -5,6 +5,7 @@ import { UserRole } from '../../common/enums';
 import { LiveKitService } from './livekit.service';
 import { PingPatientDto, MarkNoShowDto, InitiateCallDto, SaveMetricsDto, MuteParticipantDto } from './livekit.dto';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 @Controller('calls')
 @UseGuards(JwtAuthGuard)
 export class LiveKitController {
@@ -105,6 +106,7 @@ export class LiveKitController {
   }
 
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @RequirePermissions(Permission.SUPPORT_MANAGE)
   @Post('admin/rooms/:roomName/mute/:participantId')
   muteParticipant(
     @Param('roomName') roomName: string,
@@ -115,6 +117,7 @@ export class LiveKitController {
   }
 
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @RequirePermissions(Permission.SUPPORT_MANAGE)
   @Post('admin/rooms/:roomName/remove/:participantId')
   removeParticipant(@Param('roomName') roomName: string, @Param('participantId') pid: string) {
     return this.svc.removeParticipant(roomName, pid);

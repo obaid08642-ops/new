@@ -9,6 +9,8 @@ import { Input } from "@/components-next/ui-generated/components/Inputs";
 import { Segmented } from "@/components-next/ui-generated/components/Controls";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { formatWhen } from "@/components-next/pharmacy-offers/format";
+import { TelehealthConsentCard, needsTelehealthConsent } from "@/components-next/consult/telehealth-consent-card";
+import type { TelehealthConsentText } from "@/lib/legal/telehealth-consent";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/consult/consult.module.css";
 
@@ -20,11 +22,14 @@ export function AppointmentBookingForm({
   doctorId,
   serviceType,
   slots,
+  consent = null,
 }: {
   locale: Locale;
   doctorId: string;
   serviceType: "video" | "clinic" | "home";
   slots: Slot[];
+  /** D-38: the telehealth consent text, shown when the server asks for it before an online booking. */
+  consent?: TelehealthConsentText | null;
 }) {
   const router = useRouter();
   const t = useTranslations("Doctors");
@@ -36,6 +41,7 @@ export function AppointmentBookingForm({
   const [submitting, setSubmitting] = useState(false);
   const [confirmedBooking, setConfirmedBooking] = useState<{ id: string; slot: string } | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
+  const [consentAsked, setConsentAsked] = useState(false);
   const idempotency = useRef<string | null>(null);
 
   const allowedMethods: PaymentMethod[] =
@@ -75,6 +81,10 @@ export function AppointmentBookingForm({
       }
       if (response.status === 401) {
         router.push(`/${locale}/login`);
+        return;
+      }
+      if (needsTelehealthConsent(payload)) {
+        setConsentAsked(true);
         return;
       }
       const serverMessage =
@@ -147,6 +157,17 @@ export function AppointmentBookingForm({
             <p className={`${styles.body} ${styles.muted}`}>{t("payInsuranceNote")}</p>
           ) : paymentMethod === "card" ? (
             <p className={`${styles.body} ${styles.muted}`}>{t("payCardNote")}</p>
+          ) : null}
+          {consentAsked && serviceType === "video" ? (
+            <TelehealthConsentCard
+              locale={locale}
+              consent={consent}
+              onAccepted={() => {
+                setConsentAsked(false);
+                idempotency.current = crypto.randomUUID();
+                void submit();
+              }}
+            />
           ) : null}
           {message ? <p className={styles.error} role="alert">{message}</p> : null}
           <Button fullWidth label={submitting ? t("bookingSubmitting") : t("confirmBooking")} loading={submitting} disabled={!selected} onClick={() => void submit()} />

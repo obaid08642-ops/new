@@ -1,19 +1,24 @@
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
+import { Image } from 'expo-image';
 import { router, type Href } from 'expo-router';
 
-import { EmptyState, Input, Segmented } from '../../../../packages/ui-native/src';
-import { Gate, useConsultFormat } from '../consult/ConsultKit';
+import { Card, EmptyState, Input, Segmented } from '../../../../packages/ui-native/src';
+import { Gate, Section, useConsultFormat } from '../consult/ConsultKit';
 import { HealthTabs, Notice, Panel, Pill, Row, bodyOf, useRemote, useTab } from '../health/HealthKit';
-import { useScreenUi } from '../screen/ScreenKit';
+import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
+import { parseMaternityContent } from '../../utils/maternityWeek';
 import { CareHero, CareScreen, PrimaryAction } from './CareKit';
 
 /**
  * Maternity (board CareHub, merge map section 5): one hub with the tabs Pregnancy and Ovulation (`?tab=`) and the
  * setup form. GET /maternity/profile, POST /maternity/profile. Every figure is an estimate from the dates the reader
- * entered. The baby-growth tab and the fetal-week content have no endpoint the app reads and are not drawn.
+ * entered. Under the pregnancy week, GET /maternity/content gives the admin's entry for that week (the baby's size line, a short
+ * development text and an image on the CDN; issues #849, #861) and "Read this week" (published articles tagged with the week,
+ * opening /articles/[slug]). A week the admin has not filled shows an honest empty line; nothing is bundled (owner decision D).
+ * The baby-growth tab has no endpoint the app reads and is not drawn.
  */
 
 export const MATERNITY_HUB = '/maternity/hub' as Href;
@@ -51,6 +56,55 @@ export function cycleEstimate(profile: Profile | null) {
   return { ovulation, start: addDays(ovulation, -5), end: addDays(ovulation, 1), next: addDays(last, profile.cycle_length), length: profile.cycle_length, day };
 }
 
+const openArticle = (slug: string) => router.push({ pathname: '/articles/[slug]', params: { slug } } as unknown as Href);
+
+/** The week's entry of the admin catalogue and "Read this week" (GET /maternity/content), each with an honest empty line. */
+function WeekContent({ week }: { week: number }) {
+  const { k, num, lang, theme, t, c, flow } = useScreenUi();
+  const remote = useRemote(async () => parseMaternityContent(await apiFetch('/maternity/content'), lang), [week, lang], 'maternity:content');
+  const content = remote.data;
+  if (!content) {
+    return remote.status === 'loading' ? null : (
+      <Section title={k('care.mat.weekTitle')}>
+        <Notice tone="warning" text={k('care.mat.weekUnavailable')} testID="maternity-week-unavailable" />
+      </Section>
+    );
+  }
+  const entry = content.entry;
+  return (
+    <>
+      <Section title={k('care.mat.weekTitle')}>
+        {entry ? (
+          <Card theme={theme} testID="maternity-week">
+            <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 14 }}>
+              {entry.image ? (
+                <Image cachePolicy="memory-disk" source={{ uri: entry.image }} accessibilityLabel={k('care.mat.weekImageAlt', { week: num(entry.week) })} accessibilityIgnoresInvertColors contentFit="cover" style={{ width: 96, height: 96, borderRadius: 20, backgroundColor: c.bg.sunken }} />
+              ) : null}
+              <View style={{ flex: 1, minWidth: 0, gap: 6 }}>
+                <Text style={{ ...scale(t, 'body', 'bold'), color: c.text.primary, ...flow }}>{entry.size}</Text>
+                <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{entry.development}</Text>
+              </View>
+            </View>
+          </Card>
+        ) : (
+          <Notice text={k('care.mat.weekEmpty')} testID="maternity-week-empty" />
+        )}
+      </Section>
+      <Section title={k('care.mat.readThisWeek')}>
+        {content.articles.length ? (
+          <Panel testID="maternity-read-this-week">
+            {content.articles.map((article, index) => (
+              <Row key={article.slug} icon="file-text" tone="mint" title={article.title} subtitle={article.excerpt ?? undefined} onPress={() => openArticle(article.slug)} last={index === content.articles.length - 1} testID={`maternity-article-${article.slug}`} />
+            ))}
+          </Panel>
+        ) : (
+          <Notice text={k('care.mat.readEmpty')} testID="maternity-read-empty" />
+        )}
+      </Section>
+    </>
+  );
+}
+
 const trimesterKey = (week: number) => (week <= 13 ? 'care.mat.trimester1' : week <= 27 ? 'care.mat.trimester2' : 'care.mat.trimester3');
 
 export function MaternityHubView() {
@@ -80,6 +134,7 @@ export function MaternityHubView() {
             />
             {tab === 'pregnancy' ? (
               profile.is_pregnant ? (
+                <>
                 <CareHero
                   testID="maternity-pregnancy"
                   tone="pink"
@@ -89,6 +144,8 @@ export function MaternityHubView() {
                 >
                   <Pill label={k('care.mat.estimate')} tone="info" />
                 </CareHero>
+                {week ? <WeekContent week={week} /> : null}
+                </>
               ) : (
                 <EmptyState icon="baby" tone="pink" title={k('care.mat.noPregnancyTitle')} body={k('care.mat.noPregnancyBody')} actionLabel={k('care.mat.update')} onAction={() => router.push(MATERNITY_SETUP)} />
               )

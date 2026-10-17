@@ -7,6 +7,9 @@
 FROM node:20-bookworm-slim AS production
 WORKDIR /usr/src/app
 ENV NODE_ENV=production
+# P20.4: the release (git SHA) every Sentry event carries; the release build passes --build-arg SENTRY_RELEASE=<sha>
+ARG SENTRY_RELEASE=
+ENV SENTRY_RELEASE=$SENTRY_RELEASE
 # wget for docker healthcheck
 RUN apt-get update && apt-get install -y --no-install-recommends wget \
   && rm -rf /var/lib/apt/lists/*
@@ -19,4 +22,5 @@ USER nestjs
 EXPOSE 8002
 HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=5 \
   CMD wget -qO- http://127.0.0.1:8002/api/v1/health/liveness || exit 1
-CMD ["node", "dist/main"]
+# --enable-source-maps: error stacks (logs and Sentry) name src/*.ts lines, from the dist/*.js.map tsc writes
+CMD ["node", "--enable-source-maps", "dist/main"]

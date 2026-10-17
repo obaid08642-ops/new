@@ -5,6 +5,7 @@ import { JwtAuthGuard, Roles, Public } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 @Controller('feature-flags')
 @Roles(UserRole.ADMIN)
 export class PublicFeatureFlagsController {
@@ -29,6 +30,7 @@ export class FeatureFlagsController {
     return this.svc.getAll();
   }
 
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Post(':key')
   @Roles(UserRole.ADMIN)
   async setFlag(@Param('key') key: string, @Body() body: SetFeatureFlagDto) {

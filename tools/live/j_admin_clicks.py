@@ -33,7 +33,7 @@ def main():
         return fail('admin clicks', 'python playwright not installed')
 
     import j_admin
-    from lib import mail_code
+    from lib import mail_code, enroll_device_flow
 
     journey('admin clicks: login through the browser (2FA)')
     try:
@@ -47,6 +47,16 @@ def main():
             pass
         return fail('admin clicks', f'no chromium: {e}')
     ctx = browser.new_context(locale='ar-SA')
+    # D-35: one browser identity per gate run — reuse the enrolled browser device
+    # (the admin BFF proxies with this cookie), or this fresh profile mints a new
+    # device per run and burns the 2-device limit.
+    try:
+        with open(j_admin.DEVICE_FILE) as _f:
+            _dev = _f.read().strip()
+    except OSError:
+        _dev = ''
+    if len(_dev) >= 16:
+        ctx.add_cookies([{'name': 'admin_device', 'value': _dev, 'domain': '127.0.0.1', 'path': '/'}])
     page = ctx.new_page()
     try:
         page.goto(f'{ADMIN_WEB}/login', wait_until='load', timeout=45000)
@@ -94,6 +104,14 @@ def main():
         _, admin = j_admin.login()
     except Exception as e:
         step('admin api client for assertions', False, str(e)[:200])
+
+    # D-35: this fresh browser profile mints its own device id, which the BFF
+    # proxies as x-admin-device — enroll it (request → approve from the gate
+    # device → e-mailed code → confirm) so the clicks below are not 403s.
+    if admin:
+        _cookies = ctx.cookies()
+        _dev = next((c['value'] for c in _cookies if c.get('name') == 'admin_device'), None)
+        enroll_device_flow(admin, _dev, EMAIL, 'gate-run-playwright-browser')
 
     U = f'e2e-{uuid.uuid4().hex[:6]}'
 
@@ -219,18 +237,26 @@ def main():
         step('patient token is refused on GET /admin/insurance/requests (403)', r.status == 403, r)
         r = patient.get('/admin/insurance/stats', headers={'x-admin-gate-token': ADMIN_GATE_TOKEN})
         step('patient token is refused on GET /admin/insurance/stats (403)', r.status == 403, r)
-        # The live admin has role admin, which lacks finance.config.edit (super-admin only): the backend refuses the
-        # commission settings, so finance-suite must not offer the form (the page itself is checked once its
-        # duplicate GET /admin/finance/commissions route is fixed; see the fix-session log).
+        # Owner decision 29: the live admin is the owner account, which holds finance.config.edit, so the permission
+        # guard lets the commission settings through (the probe body is invalid on purpose: 400, nothing saved).
+        # A role without finance.config.edit is refused (403): j_admin_roles_restrictive.
         if admin:
             rr = admin.post('/admin/finance/commissions/config', {'rates': {}, 'vat_rate': 0.15, 'reason': 'permission probe only'})
-            step('backend refuses commission settings to role admin (403)', rr.status == 403, rr)
+            step('backend lets the owner past the finance.config.edit guard (validation 400, not 403)', rr.status == 400, rr)
         page.goto(f'{ADMIN_WEB}/admin/orders', wait_until='load', timeout=45000)
         page.wait_for_timeout(1500)
         # /admin/today and /admin/approvals were reachable only by URL.
         for href in ('/admin/today', '/admin/approvals'):
             n = page.locator(f'nav a[href="{href}"], aside a[href="{href}"]').count()
             step(f'navigation links to {href}', n > 0, f'{n} link(s)')
+        # Issues 955 / 995: the emergency controls need modules.manage (super admin), like their backend routes; role admin
+        # gets no link to them, and the config portal no longer shows a dead, permanently disabled kill-switch button.
+        page.goto(f'{ADMIN_WEB}/admin/config-portal', wait_until='load', timeout=45000)
+        page.wait_for_timeout(1500)
+        n = page.locator('a[href="/admin/kill-switches"]').count()
+        step('role admin gets no link to the emergency controls (modules.manage only)', n == 0, f'{n} link(s)')
+        dead = page.locator('button[disabled]:has-text("Kill-Switch")').count()
+        step('config portal has no disabled kill-switch button', dead == 0, f'{dead} button(s)')
         # The loyalty page listed the patient routes (active rewards only): a deactivated reward vanished and could
         # not be turned back on. Create one, deactivate it, and it must still be listed.
         if admin:
@@ -266,7 +292,7 @@ def main():
         page.wait_for_selector('h2:has-text("العمولات وVAT")', timeout=30000)
         step('finance-suite renders the commissions card', True, '')
         shown = page.locator('button:has-text("حفظ وتدقيق الإعدادات")').count()
-        step('finance-suite hides the commission settings form from a role without finance.config.edit', shown == 0, f'{shown} save button(s) shown')
+        step('finance-suite offers the commission settings form to the owner (finance.config.edit)', shown == 1, f'{shown} save button(s) shown')
     except Exception as e:
         step('finance suite flow', False, str(e)[:300])
 

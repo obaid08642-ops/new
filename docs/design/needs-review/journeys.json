@@ -24,7 +24,7 @@
     "kind": "missing-state",
     "file": "patient-web/components-next/pharmacy-offers/offers-screen.tsx",
     "line": 98,
-    "review_status": "open (issue #1011)"
+    "review_status": "fixed #1487"
   },
   {
     "scenario": 1,
@@ -78,7 +78,7 @@
     "kind": "missing-step",
     "file": "patient-web/components-next/orders/order-detail-screen.tsx",
     "line": 120,
-    "review_status": "open"
+    "review_status": "fixed #1512"
   },
   {
     "scenario": 1,
@@ -87,7 +87,7 @@
     "kind": "missing-field",
     "file": "patient-web/components-next/pharmacy-checkout/checkout-screen.tsx",
     "line": 197,
-    "review_status": "open (issue #1018)"
+    "review_status": "fixed #1605 (decision 30: chosen on the request screen in app and web; in-network broadcast needs the D-30 backend #1459; issue #1018)"
   },
   {
     "scenario": 1,
@@ -204,7 +204,7 @@
     "kind": "other",
     "file": "patient-app/app/pharmacy/cart.tsx",
     "line": 75,
-    "review_status": "owner-decision (question 39 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2) (issue #1031)"
+    "review_status": "fixed #1533 (issue #1031)"
   },
   {
     "scenario": 2,
@@ -213,7 +213,7 @@
     "kind": "missing-field",
     "file": "patient-web/components-next/pharmacy/rx-order-screen.tsx",
     "line": 57,
-    "review_status": "open (issue #1032)"
+    "review_status": "fixed #1516"
   },
   {
     "scenario": 2,
@@ -222,7 +222,7 @@
     "kind": "other",
     "file": "patient-web/components-next/pharmacy-offers/offer-list.tsx",
     "line": 204,
-    "review_status": "open (issue #1033)"
+    "review_status": "fixed #1605 (decision 30: no choice per offer, the order's start choice is used; issue #1033)"
   },
   {
     "scenario": 3,
@@ -267,7 +267,7 @@
     "kind": "missing-field",
     "file": "patient-web/components-next/booking-flow.tsx",
     "line": 213,
-    "review_status": "open (issue #1038)"
+    "review_status": "fixed #1511"
   },
   {
     "scenario": 3,
@@ -312,7 +312,7 @@
     "kind": "wrong-state",
     "file": "patient-web/app/[locale]/prescriptions/[prescriptionId]/page.tsx",
     "line": 97,
-    "review_status": "owner-decision (question 39 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2: one prescription order flow) (issue #1043)"
+    "review_status": "fixed #1533 (issue #1043)"
   },
   {
     "scenario": 3,
@@ -402,7 +402,7 @@
     "kind": "missing-state",
     "file": "patient-web/components-next/appointment-actions.tsx",
     "line": 13,
-    "review_status": "open (issue #1053)"
+    "review_status": "fixed #1511"
   },
   {
     "scenario": 4,
@@ -600,7 +600,7 @@
     "kind": "missing-state",
     "file": "patient-app/app/nursing/nurse-profile.tsx",
     "line": 141,
-    "review_status": "open (issue #1075)"
+    "review_status": "fixed #1512"
   },
   {
     "scenario": 7,
@@ -609,7 +609,7 @@
     "kind": "missing-field",
     "file": "patient-web/components-next/health/reminder-form.tsx",
     "line": 22,
-    "review_status": "open (issue #1076)"
+    "review_status": "fixed #1523 (issue #1076)"
   },
   {
     "scenario": 7,
@@ -618,7 +618,7 @@
     "kind": "missing-field",
     "file": "patient-web/app/[locale]/family/[memberRef]/page.tsx",
     "line": 98,
-    "review_status": "open (issue #1077)"
+    "review_status": "fixed #1523 (issue #1077)"
   },
   {
     "scenario": 7,
@@ -672,7 +672,7 @@
     "kind": "missing-field",
     "file": "patient-web/components-next/pharmacy/request-screen.tsx",
     "line": 47,
-    "review_status": "open (issue #1083)"
+    "review_status": "fixed #1512"
   },
   {
     "scenario": 8,
@@ -681,7 +681,7 @@
     "kind": "missing-state",
     "file": "patient-web/components-next/pharmacy-offers/offer-list.tsx",
     "line": 223,
-    "review_status": "open (issue #1084)"
+    "review_status": "fixed #1512"
   },
   {
     "scenario": 9,

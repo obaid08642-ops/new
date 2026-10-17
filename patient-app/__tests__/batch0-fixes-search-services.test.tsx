@@ -140,7 +140,7 @@ describe('services rows lead where the label says', () => {
   const route = (title: string) => rows.find((r) => r.title === title)?.route;
 
   it('eye exam and dentistry open the doctors search filtered to their specialty (they both opened the same unfiltered list)', () => {
-    expect(route('فحص النظر')).toBe('/search?view=doctors&specialty=ophthalmology');
-    expect(route('طب الأسنان')).toBe('/search?view=doctors&specialty=dentistry');
+    expect(route('services.cat.visionTest')).toBe('/search?view=doctors&specialty=ophthalmology');
+    expect(route('services.cat.dentistry')).toBe('/search?view=doctors&specialty=dentistry');
   });
 });

@@ -53,8 +53,12 @@
 
 .rise { animation: rise 420ms cubic-bezier(.22, 1, .36, 1) both; }
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+/* F82 (issue 427): the hero holds the page's largest text. Faded in from opacity 0 it was never a paint candidate, so the
+   largest paint became whatever showed up after hydration (the sign-in button). It rises without the fade. */
+.riseInPlace { animation: riseInPlace 420ms cubic-bezier(.22, 1, .36, 1) both; }
+@keyframes riseInPlace { from { transform: translateY(14px); } to { transform: none; } }
 @keyframes draw { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
-@media (prefers-reduced-motion: reduce) { .rise, .pulsePath { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .rise, .riseInPlace, .pulsePath { animation: none; } }
 
 /* ---- hero: greeting (or the page title), pulse line, search; the appointment beside it on a desktop ---- */
 .heroGrid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
@@ -66,6 +70,8 @@
   display: flex; flex-direction: column; gap: 18px; min-inline-size: 0;
 }
 @media (min-width: 1024px) { .hero { padding: 28px; } }
+/* the suggestions dropdown of the search field (issue 1544) stays above the sections after the hero */
+.hero:focus-within { position: relative; z-index: var(--nabd-z-raised); }
 .heroMark { display: inline-flex; }
 @media (min-width: 540px) { .heroMark { display: none; } }
 .heroText { display: flex; flex-direction: column; gap: 4px; min-inline-size: 0; }
@@ -185,6 +191,7 @@
   border: 1px solid var(--nabd-color-border-subtle); box-shadow: var(--nabd-shadow-card);
 }
 .cardMedia { position: relative; aspect-ratio: 11 / 5; background: var(--nabd-color-bg-sunken); }
+.cardImage { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; object-fit: cover; }
 .cardTitle { padding: 12px 14px; font-size: var(--nabd-font-size-row); font-weight: 700; overflow-wrap: anywhere; }
 
 /* ---- loading ---- */

@@ -1,4 +1,4 @@
-import { IsArray, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class CreateDto {
   @IsOptional()
@@ -55,6 +55,13 @@ export class CreateDto {
   @IsOptional()
   @IsString()
   seo_description_en?: string;
+
+  // Issues #849 / #861: the pregnancy week (1-42) the article belongs to ("Read this week").
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(42)
+  pregnancy_week?: number;
 
 }
 

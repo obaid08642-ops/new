@@ -8,7 +8,8 @@ import { visibleItems } from "@/lib/modules";
 import { Chip, SectionHeader, ServiceTile } from "@/components-next/ui-generated/components/Surfaces";
 import { EmptyState, ErrorState } from "@/components-next/ui-generated/components/Feedback";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
-import { Search } from "@/components-next/ui-generated/components/Inputs";
+import { SearchSuggest, useSearchSuggest } from "@/components-next/search/search-suggest";
+import { SuggestSearchField } from "@/components-next/search/search-suggest-field";
 import { SERVICE_ICONS, type FillIconName, type ServiceName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { CoreShell } from "@/components-next/core/core-shell";
@@ -62,6 +63,7 @@ function Highlighted({ text, query }: { text: string; query: string }) {
 
 export function ResultItem({ result, locale, query }: { result: SearchResult; locale: string; query: string }) {
   const t = useTranslations("Search");
+  const product = useTranslations("PublicProduct");
   const kind = kindOf(result);
   const route = KINDS[result.typeEn || ""]?.href;
   const href = route ? route(result.id, locale) : undefined;
@@ -83,6 +85,8 @@ export function ResultItem({ result, locale, query }: { result: SearchResult; lo
         {price ? <span className={styles.price}>{t("price", { value: price })}</span> : null}
         {rate ? <span className={styles.rate}>{t("rating", { value: rate })}</span> : null}
         {"label" in kind ? <StatusChip label={t(kind.label)} tone={kind.tone} /> : null}
+        {result.requiresPrescription === true ? <StatusChip label={product("rxRequired")} tone="amber" /> : null}
+        {result.onlineOnly === true ? <StatusChip label={product("onlineOnly")} tone="mint" /> : null}
       </span>
     </span>
   </>;
@@ -98,6 +102,8 @@ export function SearchClient({ locale, initialQuery = "" }: { locale: string; in
   const routeState = useTranslations("RouteState");
   const shellLocale: Locale = isLocale(locale) ? locale : "ar";
   const [query, setQuery] = useState(initialQuery);
+  // issue 1544: instant suggestions under the field while typing (the results below follow the query too)
+  const suggest = useSearchSuggest(shellLocale);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [state, setState] = useState<"idle" | "loading" | "error">(initialQuery.trim().length >= 2 ? "loading" : "idle");
   const [tab, setTab] = useState<Tab>("all");
@@ -113,7 +119,7 @@ export function SearchClient({ locale, initialQuery = "" }: { locale: string; in
       setState("loading");
       try {
         // D-29: the grouped home search; the API returns each name in the page's locale.
-        const response = await fetch(`/api/patient/search?q=${encodeURIComponent(q)}&locale=${encodeURIComponent(shellLocale)}&limit=10`, { cache: "no-store" });
+        const response = await fetch(`/api/search/public?q=${encodeURIComponent(q)}&locale=${encodeURIComponent(shellLocale)}&limit=10`, { cache: "no-store" });
         if (!response.ok) throw new Error("search_unavailable");
         const found = extractGroupedResults(await response.json().catch(() => null));
         // F71: one request per query. Only a query that found NOTHING asks the intent parser, and a confident intent
@@ -209,7 +215,21 @@ export function SearchClient({ locale, initialQuery = "" }: { locale: string; in
     <CoreShell
       locale={shellLocale}
       cancelHref={`/${locale}`}
-      search={<Search variant="page" value={query} onChange={(value) => setQuery(truncateQuery(value))} placeholder={t("placeholder")} label={t("title")} onClear={() => setQuery("")} clearLabel={t("clear")} />}
+      search={<SearchSuggest
+        state={suggest.state}
+        controller={suggest.controller}
+        renderField={(combobox) => (
+          <SuggestSearchField
+            combobox={combobox}
+            value={query}
+            onChange={(value) => { const next = truncateQuery(value); setQuery(next); suggest.controller.input(next); }}
+            onClear={() => { setQuery(""); suggest.controller.input(""); }}
+            placeholder={t("placeholder")}
+            label={t("title")}
+            clearLabel={t("clear")}
+          />
+        )}
+      />}
     >
       {searching && state === "idle" && results.length > 0 ? null : <h1 className={styles.srOnly}>{t("title")}</h1>}
       {content}

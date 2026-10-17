@@ -18,7 +18,7 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { randomUUID } from 'crypto';
 import { JwtAuthGuard, CurrentUser, Roles, hasEffectiveRole } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
-import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, PutPricingDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto } from './provider-ops.dto';
+import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, PutPricingDto, PutTariffsDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto, ToggleInstantDto } from './provider-ops.dto';
 import { LedgerService } from '../finance-engine/finance-engine.module';
 import { settlementDelayDefault } from '../../common/commission-defaults';
 
@@ -162,6 +162,21 @@ export class ProviderOpsService {
 
   async myTemplates(doctorId: string): Promise<any[]> {
     return this.conn.collection('prescription_templates').find({ doctor_id: doctorId }).sort({ usage_count: -1, createdAt: -1 }).limit(50).toArray();
+  }
+
+  /**
+   * The doctor applied a saved template to the prescription being written: count the use (the list is
+   * ordered by usage_count) and hand back the doctor's own template so the screen fills the form from it.
+   */
+  async useTemplate(doctorId: string, id: string): Promise<any> {
+    const now = new Date();
+    const doc = await this.conn.collection('prescription_templates').findOneAndUpdate(
+      { id: { $eq: id }, doctor_id: { $eq: doctorId } },
+      { $inc: { usage_count: 1 }, $set: { last_used_at: now } },
+      { returnDocument: 'after', projection: { _id: 0 } },
+    );
+    if (!doc) throw new NotFoundException('template not found');
+    return doc;
   }
 
   async deleteTemplate(doctorId: string, id: string) {
@@ -381,7 +396,7 @@ export class ProviderOpsService {
    * Toggle the instant-booking availability of the authenticated provider.
    * A missing record intentionally starts offline so availability is never fabricated.
    */
-  async toggleInstantAvailability(user: any): Promise<{ instant_available: boolean }> {
+  async toggleInstantAvailability(user: any, desired?: boolean): Promise<{ instant_available: boolean }> {
     const providerId = typeof user?.id === 'string' ? user.id.trim() : '';
     const providerType = user?.provider_type || user?.providerType;
     const providerRoles = ['doctor', 'facility', 'hospital', 'pharmacy', 'pharmacist', 'lab', 'radiology', 'nursing', 'nurse', 'home_care'];
@@ -392,7 +407,7 @@ export class ProviderOpsService {
 
     const collection = this.conn.collection('provideravailability');
     const existing: any = await collection.findOne({ provider_id: providerId });
-    const instantAvailable = !(existing?.instant_available === true);
+    const instantAvailable = typeof desired === 'boolean' ? desired : !(existing?.instant_available === true);
     await collection.updateOne(
       { provider_id: providerId },
       {
@@ -421,6 +436,13 @@ export class ProviderOpsService {
     return { instant_available: instantAvailable };
   }
 
+  async instantAvailability(user: any): Promise<{ instant_available: boolean }> {
+    const providerId = typeof user?.id === 'string' ? user.id.trim() : '';
+    if (!providerId) throw new BadRequestException('provider_id_required');
+    const row: any = await this.conn.collection('provideravailability').findOne({ provider_id: providerId });
+    return { instant_available: row?.instant_available === true };
+  }
+
   // ═══ COMPAT: stats / reviews / settings / consultation-end ═══════════════
   async statsToday(providerId: string): Promise<any> {
     const dayStart = new Date(); dayStart.setHours(0, 0, 0, 0);
@@ -435,10 +457,7 @@ export class ProviderOpsService {
         pendingCount += await this.conn.collection(coll).countDocuments({ $or: pendOr });
       } catch { /* collection may not exist */ }
     }
-    const ledger = await this.walletLedger(providerId, 500);
-    const revenue = ledger.transactions
-      .filter((t: any) => t.type === 'provider_earning' && new Date(t.createdAt) >= dayStart)
-      .reduce((s: number, t: any) => s + (t.amount || 0), 0);
+    const revenue = (await this.earningRowsSince(providerId, dayStart)).reduce((s: number, t: any) => s + (t.amount || 0), 0);
     return { todayCount, revenue, pendingCount };
   }
 
@@ -483,8 +502,7 @@ export class ProviderOpsService {
       }
       if (first && new Date(first.createdAt) >= rangeStart) newPatients++;
     }
-    const ledger = await this.walletLedger(providerId, 1000);
-    const inRange = ledger.transactions.filter((t: any) => t.type === 'provider_earning' && new Date(t.createdAt) >= rangeStart);
+    const inRange = await this.earningRowsSince(providerId, rangeStart);
     const revenue = inRange.reduce((sum: number, t: any) => sum + (t.amount || 0), 0);
     const series = new Array(bucketCount).fill(0);
     for (const t of inRange) {
@@ -574,6 +592,15 @@ export class ProviderOpsService {
     return { ok: true, message: 'delta_submitted', pending_review: true, data: { id: delta.id, status: 'pending', target: 'settings' } };
   }
 
+  /** The newest change of one settings key that is still waiting for admin review (null when none). */
+  async pendingSettingChange(providerId: string, key: string): Promise<any> {
+    const d: any = await this.conn.collection('provider_deltas').findOne(
+      { provider_id: { $eq: providerId }, status: 'pending', target: 'settings', 'requested_changes.settings_key': { $eq: key } },
+      { sort: { createdAt: -1 }, projection: { _id: 0, id: 1, requested_changes: 1, createdAt: 1 } },
+    );
+    return d ? { id: d.id, value: d.requested_changes?.value ?? null, submitted_at: d.createdAt } : null;
+  }
+
   async endConsultation(user: any, body: any) {
     const appointmentId = body.appointment_id || body.id;
     if (!appointmentId) throw new BadRequestException('appointment_id required');
@@ -632,6 +659,18 @@ export class ProviderOpsService {
     return row;
   }
 
+  /**
+   * Earnings of one provider since a date. The stats used to filter `walletLedger(id, 500 | 1000)`, but that reads at
+   * most the 200 newest rows of ANY type, so a busy provider's "revenue today / this month / this year" counted only
+   * the last 200 ledger rows.
+   */
+  async earningRowsSince(providerId: string, since: Date): Promise<Array<{ amount: number; createdAt: Date }>> {
+    return this.conn.collection('platformledgerentries').find(
+      { provider_account_id: providerId, type: 'provider_earning', createdAt: { $gte: since } },
+      { projection: { _id: 0, amount: 1, createdAt: 1 } },
+    ).toArray() as unknown as Array<{ amount: number; createdAt: Date }>;
+  }
+
   async walletLedger(providerId: string, limit = 100): Promise<any> {
     const rows = await this.conn.collection('platformledgerentries').find(
       { provider_account_id: providerId },
@@ -657,6 +696,7 @@ export class ProviderOpsController {
   // Doctor: leave/vacation
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
   @Post('doctor/leave') addLeave(@CurrentUser() u: any, @Body() b: AddLeaveDto) { return this.svc.addLeave(u.id, b); }
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('doctor/leave') leaves(@CurrentUser() u: any): Promise<any[]> { return this.svc.myLeaves(u.id); }
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
   @Delete('doctor/leave/:id') cancelLeave(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.cancelLeave(u.id, id); }
@@ -667,9 +707,12 @@ export class ProviderOpsController {
   @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('doctor/templates') templates(@CurrentUser() u: any): Promise<any[]> { return this.svc.myTemplates(u.id); }
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
+  @Post('doctor/templates/:id/use') useTemplate(@CurrentUser() u: any, @Param('id') id: string): Promise<any> { return this.svc.useTemplate(u.id, id); }
+  @Roles(UserRole.DOCTOR, UserRole.ADMIN)
   @Delete('doctor/templates/:id') delTemplate(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.deleteTemplate(u.id, id); }
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
   @Post('doctor/diagnoses') saveDx(@CurrentUser() u: any, @Body() b: SaveDxDto) { return this.svc.saveDiagnosis(u.id, b); }
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('doctor/diagnoses') diagnoses(@CurrentUser() u: any, @Query('search') s?: string): Promise<any[]> { return this.svc.myDiagnoses(u.id, s); }
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
   @Post('doctor/blacklist/:patientId') block(@CurrentUser() u: any, @Param('patientId') p: string, @Body() b: BlockDto) { return this.svc.blacklistPatient(u.id, p, b?.reason); }
@@ -677,6 +720,7 @@ export class ProviderOpsController {
   @Delete('doctor/blacklist/:patientId') unblock(@CurrentUser() u: any, @Param('patientId') p: string) { return this.svc.unblacklistPatient(u.id, p); }
   @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('doctor/blacklist') blacklist(@CurrentUser() u: any): Promise<any[]> { return this.svc.myBlacklist(u.id); }
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('doctor/patient-crm/:patientId') getCrm(@CurrentUser() u: any, @Param('patientId') p: string) { return this.svc.getPatientCrm(u.id, p); }
   @Roles(UserRole.DOCTOR, UserRole.ADMIN)
   @Put('doctor/patient-crm/:patientId') putCrm(@CurrentUser() u: any, @Param('patientId') p: string, @Body() b: PutCrmDto) { return this.svc.putPatientCrm(u.id, p, b || {}); }
@@ -706,6 +750,16 @@ export class ProviderOpsController {
   @Get('wallet/ledger') wallet(@CurrentUser() u: any, @Query('limit') l?: string): Promise<any> { return this.svc.walletLedger(u.id, l ? parseInt(l) : 100); }
 }
 
+/**
+ * Direction of one provider ledger row for the wallet list. The ledger stores payouts, clawbacks (`provider_debit`),
+ * penalties and chargebacks with a POSITIVE amount and subtracts them in `LedgerService.providerBalance`, so the sign of
+ * the amount cannot decide the direction: a refund clawback showed up as money received.
+ */
+const LEDGER_DEBIT_TYPES = new Set(['payout', 'provider_debit', 'penalty', 'chargeback']);
+export function walletEntryDirection(entry: { type?: string; amount?: number }): 'CREDIT' | 'DEBIT' {
+  return LEDGER_DEBIT_TYPES.has(String(entry.type)) || (entry.amount || 0) < 0 ? 'DEBIT' : 'CREDIT';
+}
+
 // ── Compat endpoints: routes the provider app calls that had no backend ─────
 
 @Controller('provider')
@@ -716,8 +770,15 @@ export class ProviderCompatController {
   /** Availability is explicit operational state, never a UI default. */
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
   @Post('ops/availability/toggle-instant')
-  toggleInstantAvailability(@CurrentUser() u: any) {
-    return this.svc.toggleInstantAvailability(u);
+  toggleInstantAvailability(@CurrentUser() u: any, @Body() b: ToggleInstantDto) {
+    return this.svc.toggleInstantAvailability(u, b?.available);
+  }
+
+  /** The provider's own online switch as the server holds it, so the app starts from the truth (it always started "offline"). */
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
+  @Get('ops/availability/instant')
+  async instantAvailability(@CurrentUser() u: any): Promise<{ instant_available: boolean }> {
+    return this.svc.instantAvailability(u);
   }
 
   /**
@@ -735,8 +796,9 @@ export class ProviderCompatController {
     const l = await this.svc.walletLedger(u.id, 100);
     return l.transactions.map((t: any) => ({
       id: t.id || t._id,
-      date: (t.createdAt || '').toString().slice(0, 10),
-      type: t.type === 'payout' || (t.amount || 0) < 0 ? 'DEBIT' : 'CREDIT',
+      // createdAt is a Date from Mongo: Date#toString() gave "Fri Oct 02" (no year, English weekday)
+      date: t.createdAt ? new Date(t.createdAt).toISOString().slice(0, 10) : '',
+      type: walletEntryDirection(t),
       amount: Math.abs(t.amount || 0),
       title: t.description || t.title || t.type,
     }));
@@ -749,6 +811,7 @@ export class ProviderCompatController {
   }
 
   /** Period stats for the Statistics screen: week | month | year. */
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('stats/period') async statsPeriod(@CurrentUser() u: any, @Query('period') period?: string): Promise<any> {
     const p = period === 'week' || period === 'year' ? period : 'month';
     return this.svc.statsPeriod(u.id, p);
@@ -762,6 +825,28 @@ export class ProviderCompatController {
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
   @Put('settings/pricing') async putPricing(@CurrentUser() u: any, @Body() b: PutPricingDto) {
     return this.svc.requestSettingChange(u.id, 'pricing', b?.pricing ?? b);
+  }
+
+  /**
+   * Facility tariffs (ICU daily/hourly, ward, surgery room, emergency fee). GET returns the approved
+   * tariffs (null when none were ever approved) and the change still waiting for admin review, so the
+   * screen starts from real values; PUT sends only the entered prices to admin review (same path as pricing).
+   */
+  @Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
+  @Get('settings/tariffs') async getTariffs(@CurrentUser() u: any): Promise<any> {
+    const [tariffs, pending] = await Promise.all([
+      this.svc.getProviderSetting(u.id, 'tariffs', null),
+      this.svc.pendingSettingChange(u.id, 'tariffs'),
+    ]);
+    return { tariffs, pending };
+  }
+  @Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
+  @Put('settings/tariffs') async putTariffs(@CurrentUser() u: any, @Body() b: PutTariffsDto) {
+    const keys: Array<keyof PutTariffsDto> = ['icu_daily', 'icu_hourly', 'ward_daily', 'surgery_room', 'emergency_fee'];
+    const entered: Partial<Record<keyof PutTariffsDto, number>> = {};
+    for (const k of keys) if (typeof b?.[k] === 'number') entered[k] = b[k];
+    if (!Object.keys(entered).length) throw new BadRequestException('at least one tariff is required');
+    return this.svc.requestSettingChange(u.id, 'tariffs', entered);
   }
 
   /** Reviews received by this provider */
@@ -786,6 +871,7 @@ export class ProviderCompatController {
   }
 
   /** Schedule settings (nursing/providers): shifts, maxVisits, emergencyReady */
+  @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('schedule/settings') async getSched(@CurrentUser() u: any) {
     return this.svc.getProviderSetting(u.id, 'schedule_settings', null);
   }

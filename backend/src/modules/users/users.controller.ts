@@ -5,9 +5,10 @@ import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { UserRole } from '../../common/enums';
 import { UpdateDisplayDto, ChangePasswordDto } from './users.dto';
 import { UpdateProfileDto, UpdateNotificationSettingsDto, UpdatePrivacySettingsDto, UpdateSecuritySettingsDto } from './users.settings.dto';
-import { EraseAccountDto, RecordConsentDto } from './pdpl.dto';
+import { ConsentChoicesDto, EraseAccountDto, RecordConsentDto } from './pdpl.dto';
 import { PdplService } from './pdpl.service';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 @Controller('users')
 @SelfService()
 @UseGuards(JwtAuthGuard)
@@ -122,6 +123,17 @@ export class UsersController {
   recordConsent(@CurrentUser('id') id: string, @Body() body: RecordConsentDto) {
     return this.pdpl.recordConsent(id, body.policy_id, body.version, body.accepted);
   }
+
+  // P17-17.6: banner-grade purpose choices (analytics/marketing).
+  @Get('me/consent-choices')
+  getMyConsentChoices(@CurrentUser('id') id: string) {
+    return this.pdpl.getConsentChoices(id);
+  }
+
+  @Post('me/consent-choices')
+  setMyConsentChoices(@CurrentUser('id') id: string, @Body() body: ConsentChoicesDto) {
+    return this.pdpl.setConsentChoices(id, { analytics: body.analytics, marketing: body.marketing });
+  }
   @Delete('me/sessions/:jti')
   @RequireIdempotency()
   revokeSession(@CurrentUser('id') id: string, @Param('jti') jti: string) {
@@ -133,12 +145,14 @@ export class UsersController {
     return this.users.listAll(role, search);
   }
 
+  @RequirePermissions(Permission.USER_EDIT)
   @Post(':id/toggle')
   @Roles(UserRole.ADMIN)
   toggle(@Param('id') id: string, @CurrentUser() by: any) {
     return this.users.toggle(id, by);
   }
 
+  @RequirePermissions(Permission.USER_EDIT)
   @Delete(':id')
   @Roles(UserRole.ADMIN)
   remove(@Param('id') id: string, @CurrentUser() by: any) {

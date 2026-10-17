@@ -6,9 +6,11 @@ import { CoturnModule } from './modules/coturn/coturn.module';
 import { RedisModule } from './modules/redis/redis.module';
 import { MailModule } from './modules/mail/mail.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { NewsletterModule } from './modules/newsletter/newsletter.module';
 import { ApiSecurityModule } from './modules/api-security/api-security.module';
 import { DeviceTrustModule } from './modules/device-trust/device-trust.module';
 import { SeoSearchModule } from './modules/seo-search/seo-search.module';
+import { DeferredLinksModule } from './modules/deferred-links/deferred-links.module';
 import { LocationModule } from './modules/location/location.module';
 import { SearchIntentModule } from './modules/search-intent/search-intent.module';
 import { SearchModule } from './modules/search/search.controller';
@@ -24,6 +26,7 @@ import { OpsModule } from './modules/ops/ops.module';
 import { FeatureFlagsModule } from './modules/feature-flags/feature-flags.module';
 import { MediaModule } from './modules/media/media.module';
 import { ModuleSwitchesModule } from './modules/module-switches/module-switches.module';
+import { KillSwitchesModule } from './modules/kill-switches/kill-switches.module';
 import { MoyasarModule } from './modules/moyasar/moyasar.module';
 import { FinanceEngineModule } from './modules/finance-engine/finance-engine.module';
 import { ConfigModule } from '@nestjs/config';
@@ -47,6 +50,7 @@ import { EmergencyModule } from './modules/emergency/emergency.module';
 import { RealtimeModule } from './modules/realtime/realtime.module';
 import { I18nCoreModule } from './modules/i18n/i18n.module';
 import { AiModule } from './modules/ai/ai.module';
+import { ScannerModule } from './modules/scanner/scanner.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { EventsModule } from './modules/events/events.module';
 import { SeedModule } from './modules/seed/seed.module';
@@ -137,12 +141,15 @@ import { ArticlesModule } from './modules/articles/articles.module';
 
 import { CorrelationMiddleware } from './common/correlation.middleware';
 import { ObservabilityModule } from './modules/observability/observability.module';
+import { LogsModule } from './modules/logs/logs.module';
+import { RumModule } from './modules/rum/rum.module';
 import { DoctorsModule } from './modules/doctors/doctors.module';
 import { WriteGuard } from './common/write-guard';
 import { AdminGateGuard } from './common/admin-gate.guard';
 import { StepUpGuard, StepUpService } from './common/step-up.guard';
 import { ProductRankingModule } from './modules/product-ranking/product-ranking.module';
 import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
+import { mongoDirectConnection } from './common/database/mongo-uri';
 
 @Module({
   imports: [
@@ -157,9 +164,11 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     RedisModule,
     MailModule,
     AnalyticsModule,
+    NewsletterModule,
     ApiSecurityModule,
     DeviceTrustModule,
     SeoSearchModule,
+    DeferredLinksModule,
     LocationModule,
     SearchIntentModule,
     SearchModule,
@@ -174,12 +183,13 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     FeatureFlagsModule,
     MediaModule,
     ModuleSwitchesModule,
+    KillSwitchesModule,
     ConfigModule.forRoot({ isGlobal: true, validate: validateEnvironment }),
     MongooseModule.forRootAsync({
       useFactory: () => ({
         uri: process.env.MONGO_URL || 'mongodb://localhost:27017',
         dbName: process.env.DB_NAME || 'nabd_nestjs',
-        directConnection: true,
+        directConnection: mongoDirectConnection(process.env.MONGO_URL),
         // ── High-concurrency connection pool (default Mongoose pool = 5, insufficient) ──
         maxPoolSize: parseInt(process.env.MONGO_MAX_POOL_SIZE || '200', 10),
         minPoolSize: parseInt(process.env.MONGO_MIN_POOL_SIZE || '20', 10),
@@ -213,6 +223,8 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
       }),
     }),
     ObservabilityModule,
+    LogsModule,
+    RumModule,
     I18nCoreModule,
     AuthModule,
     UsersModule,
@@ -221,6 +233,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     OrdersModule,
     EmergencyModule,
     AiModule,
+    ScannerModule,
     NotificationsModule,
     EventsModule,
     RealtimeModule,

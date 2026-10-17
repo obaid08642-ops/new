@@ -23,6 +23,7 @@ const labServiceSchema = z.object({
   included_services: z.array(z.string().max(180)).max(100).optional(),
   special_notes: z.string().max(2000).optional(),
   insurance_availability: z.boolean().optional(),
+  cash_availability: z.boolean().optional(),
   home_collection_availability: z.boolean().optional(),
   in_lab_availability: z.boolean().optional(),
   medical_referral_required: z.boolean().optional(),
@@ -37,6 +38,8 @@ export type LabService = {
   price?: number; oldPrice?: number; fastingRequired?: boolean; fastingHours?: number;
   homeVisitSupported?: boolean; facilityVisitSupported?: boolean; turnaroundHours?: number;
   preparationAr?: string[]; preparationEn?: string[]; isPackage?: boolean; includedServices?: string[]; specialNotes?: string; insuranceAvailable?: boolean;
+  /** Decision 30: the patient may pay for it themselves (`cash_availability`, absent = yes). */
+  cashAvailable?: boolean;
   homeCollectionAvailable?: boolean; inLabAvailable?: boolean; referralRequired?: boolean;
   unavailable?: boolean; imageUrl?: string; icon?: string;
 };
@@ -63,7 +66,7 @@ function parseLabService(value: unknown): LabService | null {
     homeVisitSupported: item.home_visit_supported, facilityVisitSupported: item.facility_visit_supported,
     turnaroundHours: item.turnaround_hours, preparationAr: item.preparation_ar, preparationEn: item.preparation_en,
     isPackage: item.is_package, includedServices: item.included_services, specialNotes: item.special_notes,
-    insuranceAvailable: item.insurance_availability, homeCollectionAvailable: item.home_collection_availability,
+    insuranceAvailable: item.insurance_availability, cashAvailable: item.cash_availability, homeCollectionAvailable: item.home_collection_availability,
     inLabAvailable: item.in_lab_availability, referralRequired: item.medical_referral_required,
     unavailable: item.unavailable, imageUrl: item.image_url, icon: item.icon,
   };
@@ -76,3 +79,8 @@ export function extractLabService(payload: unknown) {
   const item = root && typeof root === "object" && !Array.isArray(root) && "data" in root ? (root as Record<string, unknown>).data : root;
   return parseLabService(item);
 }
+
+/** Decision 30 (owner 2026-10-14, question 5): the hub's "Insurance" lists what takes insurance, "Self-pay" what the patient may pay. */
+export type LabPay = "insurance" | "self_pay";
+export const labPaymentFits = (pay: LabPay, service: Pick<LabService, "insuranceAvailable" | "cashAvailable">): boolean =>
+  pay === "insurance" ? service.insuranceAvailable === true : service.cashAvailable !== false;

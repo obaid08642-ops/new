@@ -1,5 +1,6 @@
 import React from 'react';
-import { Image, Pressable, Share, Text, View } from 'react-native';
+import { Pressable, Share, Text, View } from 'react-native';
+import { Image } from 'expo-image';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { Card, EmptyState } from '../../../../packages/ui-native/src';
@@ -143,7 +144,7 @@ export function OfferDetailView() {
       <Gate status={remote.status === 'ready' && !offer ? 'missing' : remote.status} onRetry={() => void remote.reload()} missingTitle={k('offers.missingTitle')} missingBody={k('offers.missingBody')} errorTitle={k('offers.errorTitle')}>
         {offer ? (
           <>
-            {offer.image ? <Image accessibilityIgnoresInvertColors accessibilityLabel={title} source={{ uri: offer.image }} style={{ width: '100%', height: 200, borderRadius: 24, backgroundColor: c.bg.surface }} resizeMode="cover" /> : null}
+            {offer.image ? <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors accessibilityLabel={title} source={{ uri: offer.image }} style={{ width: '100%', height: 200, borderRadius: 24, backgroundColor: c.bg.surface }} contentFit="cover" /> : null}
             <View style={{ gap: 6 }}>
               {offer.target?.sponsored ? <Pill tone="neutral" label={k('offers.sponsored')} /> : null}
               <Text accessibilityRole="header" style={{ ...scale(t, 'h2'), color: c.text.primary, ...flow }}>{title}</Text>

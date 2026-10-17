@@ -5,6 +5,7 @@ import { AdminApiError, adminFetch, adminMutation, type AdminSession } from '@/l
 import { useDrawer } from './useDrawer';
 import { useMediaQuery } from './useMediaQuery';
 import { useLegacyTableCards } from './useLegacyTableCards';
+import { AlertsBell } from './AlertsBell';
 import { getAdminCalendar, setAdminCalendar, type AdminCalendar } from '../utils/dates';
 
 type NavItem = { href: string; label: string; permission?: string };
@@ -16,10 +17,14 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: '/admin/command-center', label: 'مركز القيادة الحي', permission: 'command.center.view' },
       { href: '/admin/health-dashboard', label: 'لوحة صحة النظام', permission: 'command.center.view' },
+      // P14.23: real-user web vitals (p75 per page type) against the plan's budgets.
+      { href: '/admin/web-vitals', label: 'أداء الموقع للمستخدمين', permission: 'command.center.view' },
       // #960: the telemetry board (health, demand heatmap, command centre) was reachable only by URL.
       { href: '/admin/dashboard', label: 'لوحة القياس الحية', permission: 'command.center.view' },
       // needs-review admin-ops-monitoring 3 and 13: both pages were reachable only by URL.
       { href: '/admin/today', label: 'اليوم', permission: 'command.center.view' },
+      // issue 1235: the urgent-alert inbox behind the bell.
+      { href: '/admin/alerts', label: 'التنبيهات العاجلة', permission: 'command.center.view' },
       { href: '/admin/approvals', label: 'بانتظار موافقتي' },
       { href: '/admin/orders', label: 'دورة الطلبات', permission: 'order.read' },
       { href: '/admin/analytics-suite', label: 'التحليلات', permission: 'analytics.read' },
@@ -71,6 +76,7 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/price-override-audit', label: 'تدقيق أسعار الأدوية' },
       { href: '/admin/pharmacy-price-review', label: 'مراجعة أسعار عروض الصيدليات', permission: 'catalog.read' },
       { href: '/admin/article-review', label: 'مراجعة مقالات الأطباء', permission: 'cms.edit' },
+      { href: '/admin/pregnancy-weeks', label: 'أسابيع الحمل', permission: 'cms.edit' },
       { href: '/admin/loyalty-config', label: 'إعدادات الولاء' },
       { href: '/admin/live-chat-console', label: 'الشات الحي' },
       { href: '/admin/appointments-oversight', label: 'إشراف المواعيد' },
@@ -87,11 +93,15 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/system-ops', label: 'تشغيل النظام', permission: 'ops.queues.manage' },
       // D-16 / #953 (owner 2026-10-10): module switches are super-admin only: the new permission modules.manage (the reviewer adds it on the backend route).
       { href: '/admin/module-switches', label: 'مفاتيح الخدمات', permission: 'modules.manage' },
-      { href: '/admin/notification-center', label: 'مركز الإشعارات والحملات', permission: 'ops.queues.manage' },
+      // Issues 955 / 995: emergency maintenance + kill switches; the backend routes require modules.manage too.
+      { href: '/admin/kill-switches', label: 'مفاتيح الطوارئ', permission: 'modules.manage' },
+      { href: '/admin/notification-center', label: 'مركز الإشعارات والحملات', permission: 'notifications.send' },
       // #994: AI controls were reachable only by URL.
-      { href: '/admin/ai-control', label: 'التحكم في الذكاء الاصطناعي', permission: 'ops.queues.manage' },
+      { href: '/admin/ai-control', label: 'التحكم في الذكاء الاصطناعي', permission: 'settings.edit' },
       { href: '/admin/scheduled-reports', label: 'التقارير المجدولة', permission: 'reports.schedule.manage' },
       { href: '/admin/audit-logs', label: 'سجل التدقيق' },
+      // 20.3: warn/error log lines (read-only); the page has its own six-language texts
+      { href: '/admin/logs', label: 'سجلات النظام' },
       { href: '/admin/security', label: 'الأمان ومفاتيح الدخول' },
     ],
   },
@@ -124,8 +134,10 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/command-center': 'command.center.view',
   '/admin/fraud-monitoring': 'command.center.view',
   '/admin/health-dashboard': 'command.center.view',
+  '/admin/web-vitals': 'command.center.view',
   '/admin/dashboard': 'command.center.view',
   '/admin/today': 'command.center.view',
+  '/admin/alerts': 'command.center.view',
   '/admin/orders': 'order.read',
   '/admin/order-detail': 'order.read',
   '/admin/broadcast-monitor': 'order.read',
@@ -163,13 +175,17 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/content-growth': 'cms.edit',
   '/admin/home-curation': 'cms.edit',
   '/admin/article-review': 'cms.edit',
+  '/admin/pregnancy-weeks': 'cms.edit',
   '/admin/loyalty-config': 'coupons.manage',
-  '/admin/notification-center': 'ops.queues.manage',
+  // Owner decision 29: these pages' writes need the permission the backend names on them.
+  '/admin/notification-center': 'notifications.send',
   '/admin/system-ops': 'ops.queues.manage',
   '/admin/module-switches': 'modules.manage',
-  '/admin/config-portal': 'ops.queues.manage',
-  '/admin/ai-control': 'ops.queues.manage',
+  '/admin/kill-switches': 'modules.manage',
+  '/admin/config-portal': 'settings.edit',
+  '/admin/ai-control': 'settings.edit',
   '/admin/audit-logs': 'data.export',
+  '/admin/logs': 'system.logs.view',
   '/admin/rbac': 'rbac.manage',
   '/admin/scheduled-reports': 'reports.schedule.manage',
   '/admin/impersonation': 'user.impersonate',
@@ -270,6 +286,7 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
   if (!session) return null;
 
   const requiredPermission = requiredPermissionFor(router.pathname);
+  const canSeeAlerts = permissionSet.has('command.center.view');
   if (requiredPermission && !permissionSet.has(requiredPermission)) {
     return (
       <div className="min-h-dvh flex items-center justify-center bg-slate-50" dir="rtl">
@@ -296,6 +313,7 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
           <span aria-hidden="true" className="flex flex-col gap-1.5"><i className="block h-0.5 w-5 bg-current" /><i className="block h-0.5 w-5 bg-current" /><i className="block h-0.5 w-5 bg-current" /></span>
         </button>
         <span className="py-3 text-lg font-bold text-teal-300">نبض</span>
+        {canSeeAlerts ? <AlertsBell className="ms-auto" /> : null}
       </header>
       {drawerOpen ? <div className="fixed inset-0 z-40 bg-slate-950/60 lg:hidden" aria-hidden="true" data-testid="nav-backdrop" onClick={closeNav} /> : null}
       <aside
@@ -316,6 +334,7 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
             <p className="mt-1 text-sm text-slate-400">مركز التحكم المؤسسي</p>
             <p className="mt-3 truncate text-xs text-slate-500">{session.user.full_name || session.user.email || session.user.id}</p>
           </div>
+          {canSeeAlerts ? <AlertsBell className="max-lg:hidden" /> : null}
           <button type="button" onClick={closeNav} aria-label="إغلاق القائمة" className="-me-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-xl hover:bg-slate-800 lg:hidden"><span aria-hidden="true">×</span></button>
         </div>
         <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4">

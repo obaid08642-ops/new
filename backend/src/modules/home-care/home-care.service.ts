@@ -1,7 +1,9 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Inject, Optional } from '@nestjs/common';
+import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { Model } from 'mongoose';
 import { HomeCareService, HomeCareBooking, NursingBookingState, HomeCareBookingState, NursingVisitReport, CarePlan, MedicalSupplyRequest } from '../../schemas/home-care.schema';
 import { pick } from '../../common/sanitize';
+import { pickAttribution } from '../../common/attribution';
 
 /** P3.3 (F15): writable catalog fields — id/_id/active/governance flags excluded. */
 export const HOMECARE_CATALOG_FIELDS = [
@@ -18,7 +20,7 @@ import { MedicalSupplyRequestRepository } from "./repositories/medicalsupplyrequ
 import { RedisService } from '../redis/redis.service';
 import { hasEffectiveRole } from '../../common/auth.guard';
 import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
-import { getEffectiveRoles } from '../../common/auth.guard';
+import { isAdminUser } from '../../common/enums';
 
 @Injectable()
 export class HomeCareSvc {
@@ -32,6 +34,7 @@ export class HomeCareSvc {
     private readonly engine: WorkflowEngineService,
     private readonly bus: EventBusService,
     @Optional() private readonly redis?: RedisService,
+    @Optional() private readonly killSwitches?: KillSwitchesService,
   ) {}
 
   async list(opts: { category?: string; search?: string; duration?: string }) {
@@ -63,6 +66,8 @@ export class HomeCareSvc {
   }
 
   async book(user: any, data: any) {
+    // Issue 955: the admin kill switch refuses new home-nursing requests before anything is stored.
+    await this.killSwitches?.assertOn('nursing_broadcast');
     if (!data.service_id) throw new BadRequestException('service_id required');
     if (!data.scheduled_at) throw new BadRequestException('scheduled_at required');
     const svc = await this.svcModel.findOne({ id: data.service_id, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' });
@@ -111,6 +116,8 @@ export class HomeCareSvc {
       notes: data.notes,
       payment_method: paymentMethod,
       sessions_count: sessions,
+      // P17-17.5: campaign attribution for the campaign report.
+      attribution: pickAttribution(data) ?? undefined,
     });
     this.events.emit('homecare.booking_created', { booking_id: booking.id, patient_id: user.id });
     await this.engine.announceCreated({ kind: 'nursing', entity_id: booking.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { service_id: svc.id, total, sessions } });
@@ -170,14 +177,14 @@ export class HomeCareSvc {
 
   // --- Admin Catalog CRUD (nursing/home-care services) ---
   async createCatalog(user: any, body: any) {
-    if (user.role !== 'admin') throw new ForbiddenException();
+    if (!isAdminUser(user)) throw new ForbiddenException();
     const doc = await this.svcModel.create({ ...pick(body, HOMECARE_CATALOG_FIELDS), ...reviewUpdate(body?.medical_review_status, user.id), id: require('uuid').v4() });
     await invalidateCatalogCache(this.redis, 'cache:home-care-services:');
     return doc;
   }
 
   async updateCatalog(user: any, id: string, body: any) {
-    if (user.role !== 'admin') throw new ForbiddenException();
+    if (!isAdminUser(user)) throw new ForbiddenException();
     const updated = await this.svcModel.findOneAndUpdate({ id }, { $set: { ...pick(body, HOMECARE_CATALOG_FIELDS), ...reviewUpdate(body?.medical_review_status, user.id) } }, { new: true });
     if (!updated) throw new NotFoundException();
     await invalidateCatalogCache(this.redis, 'cache:home-care-services:');
@@ -186,7 +193,7 @@ export class HomeCareSvc {
 
   /** Admin catalog editor: every item including unpublished ones (the public list only shows approved). */
   async adminCatalog(user: any) {
-    if (!getEffectiveRoles(user).includes('admin')) throw new ForbiddenException();
+    if (!isAdminUser(user)) throw new ForbiddenException();
     return this.svcModel.find({ is_deleted: { $ne: true } }, { _id: 0, __v: 0 }).sort({ medical_review_status: 1, popularity: -1, name_ar: 1 }).limit(1000);
   }
 
@@ -273,7 +280,7 @@ export class HomeCareSvc {
   }
 
   async deleteCatalog(user: any, id: string) {
-    if (user.role !== 'admin') throw new ForbiddenException();
+    if (!isAdminUser(user)) throw new ForbiddenException();
     const existing = await this.svcModel.findOne({ id });
     if (!existing) throw new NotFoundException();
     await this.svcModel.updateOne({ id }, { $set: { active: false, is_deleted: true } });
@@ -283,7 +290,7 @@ export class HomeCareSvc {
 
   /** P6.0: medical-review decision — approve surfaces the item publicly. */
   async approveCatalogItem(user: any, id: string, approve: boolean) {
-    if (user.role !== 'admin') throw new ForbiddenException();
+    if (!isAdminUser(user)) throw new ForbiddenException();
     const updated = await this.svcModel.findOneAndUpdate(
       { id: { $eq: id } },
       { $set: reviewUpdate(approve ? 'approved' : 'rejected', user.id) },
@@ -297,7 +304,7 @@ export class HomeCareSvc {
   }
 
   async bulkApproveCatalog(user: any, ids: string[], approve: boolean) {
-    if (user.role !== 'admin') throw new ForbiddenException();
+    if (!isAdminUser(user)) throw new ForbiddenException();
     const list = (Array.isArray(ids) ? ids : []).filter((x) => typeof x === 'string' && x).slice(0, 200);
     if (!list.length) throw new BadRequestException('ids_required');
     const results: any[] = [];

@@ -82,10 +82,10 @@
     "screen": "/pharmacy/product-detail",
     "element": "Delivery / pickup choice with \"within [time]\" (hidden)",
     "file": "patient-app/app/pharmacy/product-detail.tsx",
-    "line": 0,
+    "line": 57,
     "found": "The board draws a delivery or pickup segmented control with expected times. The cart item (src/context/CartContext.tsx) carries no delivery mode and the pharmacy draft is built later from the offers, and the medicine row has no delivery time. A control that changes nothing would be a dead control, so it is not drawn.",
     "suspect": "Owner decision: where delivery or pickup is chosen (here, in the cart or on the selected offer) and which field gives the times.",
-    "review_status": "owner-decision (question 33 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2) (issue #455)"
+    "review_status": "fixed #1533 (issue #455)"
   },
   {
     "batch": 1,
@@ -96,7 +96,7 @@
     "line": 0,
     "found": "SPEC §A shows it only when the patient's insurer is in covered_by_insurance[] (company ids). The screen has no call for the patient's insurer and no id-to-name lookup for the row's \"مشمول في تأمين [شركة]\".",
     "suspect": "Needs the insurer from the profile or the insurance module and a name lookup for the company ids; then the row can be drawn.",
-    "review_status": "open (issue #456)"
+    "review_status": "fixed #1602 (issue #456; nothing writes covered_by_insurance yet: issue 1601)"
   },
   {
     "batch": 1,
@@ -206,6 +206,6 @@
     "line": 0,
     "found": "177 pharmacy.* keys were added to patient-app/src/i18n/locales/{ar,en,ur,hi,bn,tl}.json. The English, Urdu, Hindi, Bengali and Filipino text was written by the design session (and, for reused phrases, taken from the phrase catalogue after correcting the entries that were wrong).",
     "suspect": "A native speaker should review the Urdu, Hindi, Bengali and Filipino text, especially the medical wording (precautions, contraindications, interactions).",
-    "review_status": "owner-decision (question 34 in docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md section D2) (issue #466)"
+    "review_status": "owner-decision (owner action, decided 2026-10-15 question 34: native reviewer per language before launch) (issue #466)"
   }
 ]

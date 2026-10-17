@@ -1,3 +1,4 @@
+import { optimizedImageSrc } from "@/lib/media/optimized-image";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
@@ -25,7 +26,7 @@ export function PolicyCard({ title, sub, badge, tone, logoUrl, lines = [] }: { t
   return (
     <section className={`${rx.card} ${styles.policy}`}>
       <div className={styles.policyTop}>
-        {logoUrl ? <img src={logoUrl} alt="" aria-hidden width={44} height={44} className={styles.policyLogo} /> : <FIcon icon="shield-check" tone="blue" size={44} />}
+        {logoUrl ? <img src={optimizedImageSrc(logoUrl, 44)} alt="" aria-hidden width={44} height={44} className={styles.policyLogo} loading="lazy" decoding="async" /> : <FIcon icon="shield-check" tone="blue" size={44} />}
         <StatusBadge tone={tone}>{badge}</StatusBadge>
       </div>
       <div>

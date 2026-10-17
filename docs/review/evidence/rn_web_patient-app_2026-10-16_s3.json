@@ -1,0 +1,3119 @@
+{
+ "app": "patient-app",
+ "build": "react-native-web export (not native)",
+ "routes": [
+  {
+   "route": "health/trends",
+   "url": "/health/trends",
+   "landed": "/health/vitals?tab=trends",
+   "status": "TESTED",
+   "time_to_ready_ms": 2483,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الأحدث",
+     "result": "NAVIGATE",
+     "to": "/health/vitals?tab=today",
+     "response_ms": 822
+    },
+    {
+     "label": "السجل",
+     "result": "NAVIGATE",
+     "to": "/health/vitals?tab=history",
+     "response_ms": 813
+    },
+    {
+     "label": "الاتجاهات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3599
+    },
+    {
+     "label": "إضافة قراءة",
+     "result": "UI_CHANGE",
+     "response_ms": 478
+    }
+   ]
+  },
+  {
+   "route": "health/vitals",
+   "url": "/health/vitals",
+   "landed": "/health/vitals",
+   "status": "TESTED",
+   "time_to_ready_ms": 1994,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الأحدث",
+     "result": "NAVIGATE",
+     "to": "/health/vitals?tab=today",
+     "response_ms": 443
+    },
+    {
+     "label": "السجل",
+     "result": "NAVIGATE",
+     "to": "/health/vitals?tab=history",
+     "response_ms": 824
+    },
+    {
+     "label": "الاتجاهات",
+     "result": "NAVIGATE",
+     "to": "/health/vitals?tab=trends",
+     "response_ms": 805
+    },
+    {
+     "label": "إضافة قراءة",
+     "result": "UI_CHANGE",
+     "response_ms": 480
+    }
+   ]
+  },
+  {
+   "route": "health/vitals-log",
+   "url": "/health/vitals-log",
+   "landed": "/health/vitals?tab=history",
+   "status": "TESTED",
+   "time_to_ready_ms": 2022,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الأحدث",
+     "result": "NAVIGATE",
+     "to": "/health/vitals?tab=today",
+     "response_ms": 796
+    },
+    {
+     "label": "السجل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3593
+    },
+    {
+     "label": "الاتجاهات",
+     "result": "NAVIGATE",
+     "to": "/health/vitals?tab=trends",
+     "response_ms": 791
+    },
+    {
+     "label": "ضغط الدم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3582
+    },
+    {
+     "label": "السكر",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 797
+    },
+    {
+     "label": "نبض القلب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 798
+    },
+    {
+     "label": "الوزن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 801
+    },
+    {
+     "label": "الحرارة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 789
+    },
+    {
+     "label": "أكسجين الدم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 795
+    },
+    {
+     "label": "إضافة قراءة",
+     "result": "UI_CHANGE",
+     "response_ms": 453
+    }
+   ]
+  },
+  {
+   "route": "health/wearables",
+   "url": "/health/wearables",
+   "landed": "/health/wearables",
+   "status": "TESTED",
+   "time_to_ready_ms": 1432,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "index",
+   "url": "/",
+   "landed": "/",
+   "status": "TESTED",
+   "time_to_ready_ms": 873,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [
+     "The method or property ExpoNotifications.getLastNotificationResponse is not available on web, are you sure you've linked all the native dependencies properly?"
+    ],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "insurance/add-policy",
+   "url": "/insurance/add-policy",
+   "landed": "/insurance/add-policy",
+   "status": "TESTED",
+   "time_to_ready_ms": 1983,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 4,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "مسح بطاقة التأمين بالكاميرا",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3586
+    },
+    {
+     "label": "بوبا العربية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3588
+    },
+    {
+     "label": "التعاونية للتأمين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3584
+    },
+    {
+     "label": "ميدغلف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3630
+    },
+    {
+     "label": "سايكو للتأمين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3587
+    },
+    {
+     "label": "تكافل الراجحي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3597
+    },
+    {
+     "label": "ولاء للتأمين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3579
+    },
+    {
+     "label": "أليانز السعودية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3583
+    },
+    {
+     "label": "أكسا الخليج",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3601
+    },
+    {
+     "label": "الخليجية العامة للتأمين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3586
+    },
+    {
+     "label": "ملاذ للتأمين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3584
+    },
+    {
+     "label": "سلامة للتأمين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3582
+    },
+    {
+     "label": "الخليج للتأمين (المتحدة)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3584
+    },
+    {
+     "label": "الدرع العربي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3602
+    },
+    {
+     "label": "الصقر للتأمين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3611
+    },
+    {
+     "label": "الأمانة للتأمين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3582
+    },
+    {
+     "label": "سيغنا",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3592
+    },
+    {
+     "label": "جلوب ميد",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3572
+    },
+    {
+     "label": "نيكست كير",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3585
+    },
+    {
+     "label": "ميديفيزا",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3571
+    },
+    {
+     "label": "ميدنت",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3612
+    },
+    {
+     "label": "بروج للتأمين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3589
+    },
+    {
+     "label": "أسيج للتأمين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3603
+    },
+    {
+     "label": "عناية للتأمين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3595
+    },
+    {
+     "label": "الاتحاد التجاري",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3599
+    },
+    {
+     "label": "الأهلي تكافل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3577
+    },
+    {
+     "label": "تشب للتأمين",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3596
+    },
+    {
+     "label": "الجزيرة تكافل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3589
+    },
+    {
+     "label": "ساب تكافل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3588
+    },
+    {
+     "label": "العالمية للتأمين التعاوني",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3578
+    },
+    {
+     "label": "الاتحاد للتأمين التعاوني",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3609
+    },
+    {
+     "label": "حفظ وإضافة الوثيقة",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/insurance/save-policy",
+     "tokens_sent": 4,
+     "tokens_stored": 0,
+     "response_ms": 942
+    }
+   ]
+  },
+  {
+   "route": "insurance/approval-pending",
+   "url": "/insurance/approval-pending",
+   "landed": "/insurance/request",
+   "status": "TESTED",
+   "time_to_ready_ms": 2020,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "مواعيدي",
+     "result": "NAVIGATE",
+     "to": "/consultations/appointments",
+     "response_ms": 453
+    }
+   ]
+  },
+  {
+   "route": "insurance/benefits-summary",
+   "url": "/insurance/benefits-summary",
+   "landed": "/insurance?tab=benefits",
+   "status": "TESTED",
+   "time_to_ready_ms": 2045,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إضافة بوليصة",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الوثيقة",
+     "result": "NAVIGATE",
+     "to": "/insurance?tab=policy",
+     "response_ms": 792
+    },
+    {
+     "label": "المزايا",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3633
+    },
+    {
+     "label": "الشبكة",
+     "result": "NAVIGATE",
+     "to": "/insurance?tab=network",
+     "response_ms": 1310
+    }
+   ]
+  },
+  {
+   "route": "insurance/copay",
+   "url": "/insurance/copay",
+   "landed": "/insurance/copay",
+   "status": "TESTED",
+   "time_to_ready_ms": 2020,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "مواعيدي",
+     "result": "NAVIGATE",
+     "to": "/consultations/appointments",
+     "response_ms": 454
+    }
+   ]
+  },
+  {
+   "route": "insurance/coverage-check",
+   "url": "/insurance/coverage-check",
+   "landed": "/insurance/coverage-check",
+   "status": "TESTED",
+   "time_to_ready_ms": 1425,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "استشارة طبيب",
+     "result": "UI_CHANGE",
+     "response_ms": 442
+    },
+    {
+     "label": "تحاليل مخبرية",
+     "result": "UI_CHANGE",
+     "response_ms": 447
+    },
+    {
+     "label": "أشعة وتشخيص",
+     "result": "UI_CHANGE",
+     "response_ms": 438
+    },
+    {
+     "label": "تمريض منزلي",
+     "result": "UI_CHANGE",
+     "response_ms": 447
+    },
+    {
+     "label": "عرض تغطية وثيقتي",
+     "result": "UI_CHANGE",
+     "response_ms": 552
+    }
+   ]
+  },
+  {
+   "route": "insurance/hub",
+   "url": "/insurance/hub",
+   "landed": "/insurance",
+   "status": "TESTED",
+   "time_to_ready_ms": 2014,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إضافة بوليصة",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الوثيقة",
+     "result": "NAVIGATE",
+     "to": "/insurance?tab=policy",
+     "response_ms": 448
+    },
+    {
+     "label": "المزايا",
+     "result": "NAVIGATE",
+     "to": "/insurance?tab=benefits",
+     "response_ms": 795
+    },
+    {
+     "label": "الشبكة",
+     "result": "NAVIGATE",
+     "to": "/insurance?tab=network",
+     "response_ms": 1344
+    },
+    {
+     "label": "تغيير شركة التأمين",
+     "result": "UI_CHANGE",
+     "response_ms": 807
+    },
+    {
+     "label": "استعلام عن تأميني (الضمان الصحي)",
+     "result": "UI_CHANGE",
+     "response_ms": 545
+    },
+    {
+     "label": "ما تغطيه وثيقتي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 814
+    },
+    {
+     "label": "مزودو الشبكة",
+     "result": "UI_CHANGE",
+     "response_ms": 808
+    }
+   ]
+  },
+  {
+   "route": "insurance/index",
+   "url": "/insurance",
+   "landed": "/insurance",
+   "status": "TESTED",
+   "time_to_ready_ms": 2031,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إضافة بوليصة",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الوثيقة",
+     "result": "NAVIGATE",
+     "to": "/insurance?tab=policy",
+     "response_ms": 446
+    },
+    {
+     "label": "المزايا",
+     "result": "NAVIGATE",
+     "to": "/insurance?tab=benefits",
+     "response_ms": 810
+    },
+    {
+     "label": "الشبكة",
+     "result": "NAVIGATE",
+     "to": "/insurance?tab=network",
+     "response_ms": 1316
+    },
+    {
+     "label": "تغيير شركة التأمين",
+     "result": "UI_CHANGE",
+     "response_ms": 805
+    },
+    {
+     "label": "استعلام عن تأميني (الضمان الصحي)",
+     "result": "UI_CHANGE",
+     "response_ms": 549
+    },
+    {
+     "label": "ما تغطيه وثيقتي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 796
+    },
+    {
+     "label": "مزودو الشبكة",
+     "result": "UI_CHANGE",
+     "response_ms": 782
+    }
+   ]
+  },
+  {
+   "route": "insurance/network-providers",
+   "url": "/insurance/network-providers",
+   "landed": "/insurance?tab=network",
+   "status": "TESTED",
+   "time_to_ready_ms": 2610,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إضافة بوليصة",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الوثيقة",
+     "result": "NAVIGATE",
+     "to": "/insurance?tab=policy",
+     "response_ms": 811
+    },
+    {
+     "label": "المزايا",
+     "result": "NAVIGATE",
+     "to": "/insurance?tab=benefits",
+     "response_ms": 795
+    },
+    {
+     "label": "الشبكة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3583
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3586
+    },
+    {
+     "label": "أطباء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3571
+    },
+    {
+     "label": "مستشفيات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3615
+    },
+    {
+     "label": "صيدليات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3595
+    },
+    {
+     "label": "مختبرات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3585
+    }
+   ]
+  },
+  {
+   "route": "insurance/payment-split",
+   "url": "/insurance/payment-split",
+   "landed": "/insurance/request",
+   "status": "TESTED",
+   "time_to_ready_ms": 2032,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "مواعيدي",
+     "result": "NAVIGATE",
+     "to": "/consultations/appointments",
+     "response_ms": 463
+    }
+   ]
+  },
+  {
+   "route": "insurance/policy-detail",
+   "url": "/insurance/policy-detail",
+   "landed": "/insurance?tab=policy",
+   "status": "TESTED",
+   "time_to_ready_ms": 2062,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إضافة بوليصة",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الوثيقة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3595
+    },
+    {
+     "label": "المزايا",
+     "result": "NAVIGATE",
+     "to": "/insurance?tab=benefits",
+     "response_ms": 808
+    },
+    {
+     "label": "الشبكة",
+     "result": "NAVIGATE",
+     "to": "/insurance?tab=network",
+     "response_ms": 1342
+    },
+    {
+     "label": "تغيير شركة التأمين",
+     "result": "UI_CHANGE",
+     "response_ms": 816
+    },
+    {
+     "label": "استعلام عن تأميني (الضمان الصحي)",
+     "result": "UI_CHANGE",
+     "response_ms": 558
+    },
+    {
+     "label": "ما تغطيه وثيقتي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 783
+    },
+    {
+     "label": "مزودو الشبكة",
+     "result": "UI_CHANGE",
+     "response_ms": 799
+    }
+   ]
+  },
+  {
+   "route": "insurance/request",
+   "url": "/insurance/request",
+   "landed": "/insurance/request",
+   "status": "TESTED",
+   "time_to_ready_ms": 2009,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "مواعيدي",
+     "result": "NAVIGATE",
+     "to": "/consultations/appointments",
+     "response_ms": 453
+    }
+   ]
+  },
+  {
+   "route": "insurance/submit-claim",
+   "url": "/insurance/submit-claim",
+   "landed": "/insurance",
+   "status": "TESTED",
+   "time_to_ready_ms": 2012,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إضافة بوليصة",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الوثيقة",
+     "result": "NAVIGATE",
+     "to": "/insurance?tab=policy",
+     "response_ms": 446
+    },
+    {
+     "label": "المزايا",
+     "result": "NAVIGATE",
+     "to": "/insurance?tab=benefits",
+     "response_ms": 824
+    },
+    {
+     "label": "الشبكة",
+     "result": "NAVIGATE",
+     "to": "/insurance?tab=network",
+     "response_ms": 1321
+    },
+    {
+     "label": "تغيير شركة التأمين",
+     "result": "UI_CHANGE",
+     "response_ms": 829
+    },
+    {
+     "label": "استعلام عن تأميني (الضمان الصحي)",
+     "result": "UI_CHANGE",
+     "response_ms": 578
+    },
+    {
+     "label": "ما تغطيه وثيقتي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 795
+    },
+    {
+     "label": "مزودو الشبكة",
+     "result": "UI_CHANGE",
+     "response_ms": 789
+    }
+   ]
+  },
+  {
+   "route": "loyalty/challenges",
+   "url": "/loyalty/challenges",
+   "landed": "/loyalty/hub?tab=challenges",
+   "status": "TESTED",
+   "time_to_ready_ms": 15413,
+   "ready": false,
+   "not_ready_reason": "0 request(s) in flight, 2 loading, stable=21",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "المكافآت",
+     "result": "NAVIGATE",
+     "to": "/loyalty/hub?tab=rewards",
+     "response_ms": 8619,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    },
+    {
+     "label": "التحديات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 11770,
+     "slow": "0 request(s) in flight, 2 loading, stable=16"
+    },
+    {
+     "label": "ادعُ أصدقاءك",
+     "result": "NAVIGATE",
+     "to": "/loyalty/hub?tab=invite",
+     "response_ms": 8607,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    }
+   ]
+  },
+  {
+   "route": "loyalty/hub",
+   "url": "/loyalty/hub",
+   "landed": "/loyalty/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 15436,
+   "ready": false,
+   "not_ready_reason": "0 request(s) in flight, 2 loading, stable=21",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "المكافآت",
+     "result": "NAVIGATE",
+     "to": "/loyalty/hub?tab=rewards",
+     "response_ms": 8608,
+     "slow": "0 request(s) in flight, 2 loading, stable=16"
+    },
+    {
+     "label": "التحديات",
+     "result": "NAVIGATE",
+     "to": "/loyalty/hub?tab=challenges",
+     "response_ms": 8630,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    },
+    {
+     "label": "ادعُ أصدقاءك",
+     "result": "NAVIGATE",
+     "to": "/loyalty/hub?tab=invite",
+     "response_ms": 8617,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    }
+   ]
+  },
+  {
+   "route": "loyalty/leaderboard",
+   "url": "/loyalty/leaderboard",
+   "landed": "/loyalty/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 15392,
+   "ready": false,
+   "not_ready_reason": "0 request(s) in flight, 2 loading, stable=21",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "المكافآت",
+     "result": "NAVIGATE",
+     "to": "/loyalty/hub?tab=rewards",
+     "response_ms": 8597,
+     "slow": "0 request(s) in flight, 2 loading, stable=16"
+    },
+    {
+     "label": "التحديات",
+     "result": "NAVIGATE",
+     "to": "/loyalty/hub?tab=challenges",
+     "response_ms": 8640,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    },
+    {
+     "label": "ادعُ أصدقاءك",
+     "result": "NAVIGATE",
+     "to": "/loyalty/hub?tab=invite",
+     "response_ms": 8623,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    }
+   ]
+  },
+  {
+   "route": "loyalty/referrals",
+   "url": "/loyalty/referrals",
+   "landed": "/loyalty/hub?tab=invite",
+   "status": "TESTED",
+   "time_to_ready_ms": 15412,
+   "ready": false,
+   "not_ready_reason": "0 request(s) in flight, 2 loading, stable=21",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "المكافآت",
+     "result": "NAVIGATE",
+     "to": "/loyalty/hub?tab=rewards",
+     "response_ms": 8606,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    },
+    {
+     "label": "التحديات",
+     "result": "NAVIGATE",
+     "to": "/loyalty/hub?tab=challenges",
+     "response_ms": 8618,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    },
+    {
+     "label": "ادعُ أصدقاءك",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 11783,
+     "slow": "0 request(s) in flight, 2 loading, stable=16"
+    },
+    {
+     "label": "نسخ",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 8601,
+     "slow": "0 request(s) in flight, 2 loading, stable=9"
+    },
+    {
+     "label": "مشاركة الكود",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 11735,
+     "slow": "0 request(s) in flight, 2 loading, stable=16"
+    },
+    {
+     "label": "تطبيق الكود",
+     "result": "NO_EFFECT",
+     "disabled": true,
+     "response_ms": 11736,
+     "slow": "0 request(s) in flight, 2 loading, stable=16"
+    }
+   ]
+  },
+  {
+   "route": "loyalty/rewards",
+   "url": "/loyalty/rewards",
+   "landed": "/loyalty/hub?tab=rewards",
+   "status": "TESTED",
+   "time_to_ready_ms": 15446,
+   "ready": false,
+   "not_ready_reason": "0 request(s) in flight, 2 loading, stable=21",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "المكافآت",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 11809,
+     "slow": "0 request(s) in flight, 2 loading, stable=16"
+    },
+    {
+     "label": "التحديات",
+     "result": "NAVIGATE",
+     "to": "/loyalty/hub?tab=challenges",
+     "response_ms": 8608,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    },
+    {
+     "label": "ادعُ أصدقاءك",
+     "result": "NAVIGATE",
+     "to": "/loyalty/hub?tab=invite",
+     "response_ms": 8633,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    }
+   ]
+  },
+  {
+   "route": "map/index",
+   "url": "/map",
+   "landed": "/map",
+   "status": "TESTED",
+   "time_to_ready_ms": 1408,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "مسح البحث",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3595
+    },
+    {
+     "label": "أطباء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3583
+    },
+    {
+     "label": "مستشفيات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3573
+    },
+    {
+     "label": "صيدليات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3571
+    },
+    {
+     "label": "مختبرات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3573
+    },
+    {
+     "label": "تمريض",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3585
+    },
+    {
+     "label": "موقعي",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "maternity/baby-development",
+   "url": "/maternity/baby-development",
+   "landed": "/maternity/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 2002,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "ابدئي الإعداد",
+     "result": "NAVIGATE",
+     "to": "/maternity/maternity-setup",
+     "response_ms": 470
+    }
+   ]
+  },
+  {
+   "route": "maternity/baby-growth",
+   "url": "/maternity/baby-growth",
+   "landed": "/maternity/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 1999,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "ابدئي الإعداد",
+     "result": "NAVIGATE",
+     "to": "/maternity/maternity-setup",
+     "response_ms": 473
+    }
+   ]
+  },
+  {
+   "route": "maternity/hub",
+   "url": "/maternity/hub",
+   "landed": "/maternity/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 1996,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "ابدئي الإعداد",
+     "result": "NAVIGATE",
+     "to": "/maternity/maternity-setup",
+     "response_ms": 535
+    }
+   ]
+  },
+  {
+   "route": "maternity/maternity-setup",
+   "url": "/maternity/maternity-setup",
+   "landed": "/maternity/maternity-setup",
+   "status": "TESTED",
+   "time_to_ready_ms": 1446,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "متابعة الدورة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3589
+    },
+    {
+     "label": "متابعة الحمل",
+     "result": "UI_CHANGE",
+     "response_ms": 433
+    },
+    {
+     "label": "الدورة منتظمة",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الدورة غير منتظمة",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "حفظ المتابعة",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/maternity/profile",
+     "tokens_sent": 1,
+     "tokens_stored": 0,
+     "response_ms": 840
+    }
+   ]
+  },
+  {
+   "route": "maternity/ovulation-tracker",
+   "url": "/maternity/ovulation-tracker",
+   "landed": "/maternity/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 2085,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "ابدئي الإعداد",
+     "result": "NAVIGATE",
+     "to": "/maternity/maternity-setup",
+     "response_ms": 459
+    }
+   ]
+  },
+  {
+   "route": "maternity/pregnancy-tracker",
+   "url": "/maternity/pregnancy-tracker",
+   "landed": "/maternity/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 2080,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "ابدئي الإعداد",
+     "result": "NAVIGATE",
+     "to": "/maternity/maternity-setup",
+     "response_ms": 472
+    }
+   ]
+  },
+  {
+   "route": "medicine/[slug]",
+   "status": "NOT_TESTED_DYNAMIC"
+  },
+  {
+   "route": "mental-health/breathing",
+   "url": "/mental-health/breathing",
+   "landed": "/mental-health/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 1402,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "سجل المزاج",
+     "result": "NAVIGATE",
+     "to": "/mental-health/mood-journal",
+     "response_ms": 865
+    },
+    {
+     "label": "اطلب استشارة عبر نَبْض",
+     "result": "NAVIGATE",
+     "to": "/search?view=doctors&specialty=psychiatry",
+     "response_ms": 1989
+    },
+    {
+     "label": "مساعدة عاجلة",
+     "result": "NAVIGATE",
+     "to": "/emergency",
+     "response_ms": 810
+    }
+   ]
+  },
+  {
+   "route": "mental-health/crisis-support",
+   "url": "/mental-health/crisis-support",
+   "landed": "/mental-health/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 1386,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "سجل المزاج",
+     "result": "NAVIGATE",
+     "to": "/mental-health/mood-journal",
+     "response_ms": 819
+    },
+    {
+     "label": "اطلب استشارة عبر نَبْض",
+     "result": "NAVIGATE",
+     "to": "/search?view=doctors&specialty=psychiatry",
+     "response_ms": 1965
+    },
+    {
+     "label": "مساعدة عاجلة",
+     "result": "NAVIGATE",
+     "to": "/emergency",
+     "response_ms": 814
+    }
+   ]
+  },
+  {
+   "route": "mental-health/hub",
+   "url": "/mental-health/hub",
+   "landed": "/mental-health/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 1385,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "سجل المزاج",
+     "result": "NAVIGATE",
+     "to": "/mental-health/mood-journal",
+     "response_ms": 825
+    },
+    {
+     "label": "اطلب استشارة عبر نَبْض",
+     "result": "NAVIGATE",
+     "to": "/search?view=doctors&specialty=psychiatry",
+     "response_ms": 1988
+    },
+    {
+     "label": "مساعدة عاجلة",
+     "result": "NAVIGATE",
+     "to": "/emergency",
+     "response_ms": 836
+    }
+   ]
+  },
+  {
+   "route": "mental-health/index",
+   "url": "/mental-health",
+   "landed": "/mental-health/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 1402,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "سجل المزاج",
+     "result": "NAVIGATE",
+     "to": "/mental-health/mood-journal",
+     "response_ms": 835
+    },
+    {
+     "label": "اطلب استشارة عبر نَبْض",
+     "result": "NAVIGATE",
+     "to": "/search?view=doctors&specialty=psychiatry",
+     "response_ms": 1936
+    },
+    {
+     "label": "مساعدة عاجلة",
+     "result": "NAVIGATE",
+     "to": "/emergency",
+     "response_ms": 813
+    }
+   ]
+  },
+  {
+   "route": "mental-health/meditation",
+   "url": "/mental-health/meditation",
+   "landed": "/mental-health/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 1431,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "سجل المزاج",
+     "result": "NAVIGATE",
+     "to": "/mental-health/mood-journal",
+     "response_ms": 825
+    },
+    {
+     "label": "اطلب استشارة عبر نَبْض",
+     "result": "NAVIGATE",
+     "to": "/search?view=doctors&specialty=psychiatry",
+     "response_ms": 1931
+    },
+    {
+     "label": "مساعدة عاجلة",
+     "result": "NAVIGATE",
+     "to": "/emergency",
+     "response_ms": 803
+    }
+   ]
+  },
+  {
+   "route": "mental-health/mood-journal",
+   "url": "/mental-health/mood-journal",
+   "landed": "/mental-health/mood-journal",
+   "status": "TESTED",
+   "time_to_ready_ms": 2012,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "رائع",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3647
+    },
+    {
+     "label": "جيد",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3579
+    },
+    {
+     "label": "محايد",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3600
+    },
+    {
+     "label": "صعب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3625
+    },
+    {
+     "label": "صعب جداً",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3623
+    },
+    {
+     "label": "1",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3615
+    },
+    {
+     "label": "2",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3582
+    },
+    {
+     "label": "3",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3633
+    },
+    {
+     "label": "4",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3592
+    },
+    {
+     "label": "5",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3593
+    },
+    {
+     "label": "هادئ",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3600
+    },
+    {
+     "label": "متعب",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3611
+    },
+    {
+     "label": "متوتر",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3600
+    },
+    {
+     "label": "متواصل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3593
+    },
+    {
+     "label": "مرتاح",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3606
+    },
+    {
+     "label": "مثقل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3583
+    },
+    {
+     "label": "حفظ التسجيل",
+     "result": "UI_CHANGE",
+     "response_ms": 439
+    }
+   ]
+  },
+  {
+   "route": "mental-health/self-assessment",
+   "url": "/mental-health/self-assessment",
+   "landed": "/mental-health/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 1432,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "سجل المزاج",
+     "result": "NAVIGATE",
+     "to": "/mental-health/mood-journal",
+     "response_ms": 829
+    },
+    {
+     "label": "اطلب استشارة عبر نَبْض",
+     "result": "NAVIGATE",
+     "to": "/search?view=doctors&specialty=psychiatry",
+     "response_ms": 1993
+    },
+    {
+     "label": "مساعدة عاجلة",
+     "result": "NAVIGATE",
+     "to": "/emergency",
+     "response_ms": 828
+    }
+   ]
+  },
+  {
+   "route": "mental-health/therapist-match",
+   "url": "/mental-health/therapist-match",
+   "landed": "/consultations",
+   "status": "TESTED",
+   "time_to_ready_ms": 2055,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "مواعيدي",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "مسح البحث",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "تصفية",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "عيادة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3608
+    },
+    {
+     "label": "منزلي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3607
+    },
+    {
+     "label": "أونلاين",
+     "result": "UI_CHANGE",
+     "response_ms": 471
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3586
+    },
+    {
+     "label": "كاش",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3587
+    },
+    {
+     "label": "تأمين",
+     "result": "UI_CHANGE",
+     "response_ms": 473
+    },
+    {
+     "label": "الأقرب",
+     "result": "NO_EFFECT",
+     "disabled": true,
+     "response_ms": 3568
+    },
+    {
+     "label": "متاح الآن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3578
+    },
+    {
+     "label": "عرض الكل",
+     "result": "UI_CHANGE",
+     "response_ms": 807
+    },
+    {
+     "label": "الرئيسية",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الصيدلية",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الاستشارات",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "التحاليل",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "التمريض",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "notifications/index",
+   "url": "/notifications",
+   "landed": "/notifications",
+   "status": "TESTED",
+   "time_to_ready_ms": 2008,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "nursing/insurance-status",
+   "url": "/nursing/insurance-status",
+   "landed": "/nursing/insurance-status",
+   "status": "TESTED",
+   "time_to_ready_ms": 2053,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "زيارات التمريض",
+     "result": "NAVIGATE",
+     "to": "/nursing/visits",
+     "response_ms": 799
+    }
+   ]
+  },
+  {
+   "route": "nursing/live-tracking",
+   "url": "/nursing/live-tracking",
+   "landed": "/nursing/live-tracking",
+   "status": "TESTED",
+   "time_to_ready_ms": 1394,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إعادة المحاولة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3573
+    }
+   ]
+  },
+  {
+   "route": "nursing/nurse-profile",
+   "url": "/nursing/nurse-profile",
+   "landed": "/nursing/nurse-profile",
+   "status": "TESTED",
+   "time_to_ready_ms": 2020,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /home-care/providers/undefined"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إعادة المحاولة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 789
+    }
+   ]
+  },
+  {
+   "route": "nursing/service-details",
+   "url": "/nursing/service-details",
+   "landed": "/nursing/service-details",
+   "status": "TESTED",
+   "time_to_ready_ms": 2010,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الأقرب أولاً",
+     "result": "UI_CHANGE",
+     "response_ms": 446
+    }
+   ]
+  },
+  {
+   "route": "nursing/service-info",
+   "url": "/nursing/service-info",
+   "landed": "/nursing/service-info",
+   "status": "TESTED",
+   "time_to_ready_ms": 1989,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /home-care/services/undefined"
+    ]
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إعادة المحاولة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 784
+    }
+   ]
+  },
+  {
+   "route": "nursing/visits",
+   "url": "/nursing/visits",
+   "landed": "/nursing/visits",
+   "status": "TESTED",
+   "time_to_ready_ms": 2009,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "احجز زيارة",
+     "result": "NAVIGATE",
+     "to": "/nursing",
+     "response_ms": 845
+    }
+   ]
+  },
+  {
+   "route": "nutrition/ai-meal-planner",
+   "url": "/nutrition/ai-meal-planner",
+   "landed": "/nutrition/hub?tab=today",
+   "status": "TESTED",
+   "time_to_ready_ms": 15380,
+   "ready": false,
+   "not_ready_reason": "0 request(s) in flight, 2 loading, stable=24",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "اليوم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 11851,
+     "slow": "0 request(s) in flight, 2 loading, stable=16"
+    },
+    {
+     "label": "الخطة",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=plan",
+     "response_ms": 791
+    },
+    {
+     "label": "الهدف",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=target",
+     "response_ms": 822
+    },
+    {
+     "label": "إعداد أهداف التغذية",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=target",
+     "response_ms": 795
+    },
+    {
+     "label": "+250 مل",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/water",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 8756,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    },
+    {
+     "label": "+500 مل",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/water",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 8744,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    },
+    {
+     "label": "تسجيل وجبة",
+     "result": "NAVIGATE",
+     "to": "/nutrition/log-meal",
+     "response_ms": 460
+    }
+   ]
+  },
+  {
+   "route": "nutrition/ai-plan-builder",
+   "url": "/nutrition/ai-plan-builder",
+   "landed": "/nutrition/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 15378,
+   "ready": false,
+   "not_ready_reason": "0 request(s) in flight, 2 loading, stable=24",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "اليوم",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=today",
+     "response_ms": 8619,
+     "slow": "0 request(s) in flight, 2 loading, stable=16"
+    },
+    {
+     "label": "الخطة",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=plan",
+     "response_ms": 821
+    },
+    {
+     "label": "الهدف",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=target",
+     "response_ms": 814
+    },
+    {
+     "label": "إعداد أهداف التغذية",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=target",
+     "response_ms": 811
+    },
+    {
+     "label": "+250 مل",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/water",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 8770,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    },
+    {
+     "label": "+500 مل",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/water",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 8752,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    },
+    {
+     "label": "تسجيل وجبة",
+     "result": "NAVIGATE",
+     "to": "/nutrition/log-meal",
+     "response_ms": 467
+    }
+   ]
+  },
+  {
+   "route": "nutrition/body-composition",
+   "url": "/nutrition/body-composition",
+   "landed": "/nutrition/hub?tab=target",
+   "status": "TESTED",
+   "time_to_ready_ms": 2049,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 7,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "اليوم",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=today",
+     "response_ms": 8607,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    },
+    {
+     "label": "الخطة",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=plan",
+     "response_ms": 808
+    },
+    {
+     "label": "الهدف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3611
+    },
+    {
+     "label": "خفض الوزن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3592
+    },
+    {
+     "label": "المحافظة على الوزن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3654
+    },
+    {
+     "label": "زيادة الكتلة العضلية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3584
+    },
+    {
+     "label": "نمط صحي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3588
+    },
+    {
+     "label": "قليل الحركة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3583
+    },
+    {
+     "label": "خفيف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3578
+    },
+    {
+     "label": "متوسط",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3589
+    },
+    {
+     "label": "نشط",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3581
+    },
+    {
+     "label": "نشط جداً",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3586
+    },
+    {
+     "label": "حفظ الأهداف",
+     "result": "UI_CHANGE",
+     "response_ms": 447
+    }
+   ]
+  },
+  {
+   "route": "nutrition/body-target",
+   "url": "/nutrition/body-target",
+   "landed": "/nutrition/hub?tab=target",
+   "status": "TESTED",
+   "time_to_ready_ms": 2041,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 7,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "اليوم",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=today",
+     "response_ms": 8591,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    },
+    {
+     "label": "الخطة",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=plan",
+     "response_ms": 789
+    },
+    {
+     "label": "الهدف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3644
+    },
+    {
+     "label": "خفض الوزن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3599
+    },
+    {
+     "label": "المحافظة على الوزن",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3616
+    },
+    {
+     "label": "زيادة الكتلة العضلية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3588
+    },
+    {
+     "label": "نمط صحي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3570
+    },
+    {
+     "label": "قليل الحركة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3588
+    },
+    {
+     "label": "خفيف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3600
+    },
+    {
+     "label": "متوسط",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3584
+    },
+    {
+     "label": "نشط",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3597
+    },
+    {
+     "label": "نشط جداً",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3592
+    },
+    {
+     "label": "حفظ الأهداف",
+     "result": "UI_CHANGE",
+     "response_ms": 451
+    }
+   ]
+  },
+  {
+   "route": "nutrition/calorie-analyzer",
+   "url": "/nutrition/calorie-analyzer",
+   "landed": "/nutrition/log-meal",
+   "status": "TESTED",
+   "time_to_ready_ms": 1457,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 6,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الإفطار",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3585
+    },
+    {
+     "label": "الغداء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3593
+    },
+    {
+     "label": "العشاء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3618
+    },
+    {
+     "label": "وجبة خفيفة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3596
+    },
+    {
+     "label": "حفظ الوجبة",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/meals",
+     "tokens_sent": 1,
+     "tokens_stored": 0,
+     "response_ms": 8635,
+     "slow": "0 request(s) in flight, 2 loading, stable=14"
+    }
+   ]
+  },
+  {
+   "route": "nutrition/daily-tracker",
+   "url": "/nutrition/daily-tracker",
+   "landed": "/nutrition/hub?tab=today",
+   "status": "TESTED",
+   "time_to_ready_ms": 15409,
+   "ready": false,
+   "not_ready_reason": "0 request(s) in flight, 2 loading, stable=24",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "اليوم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 11762,
+     "slow": "0 request(s) in flight, 2 loading, stable=16"
+    },
+    {
+     "label": "الخطة",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=plan",
+     "response_ms": 796
+    },
+    {
+     "label": "الهدف",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=target",
+     "response_ms": 808
+    },
+    {
+     "label": "إعداد أهداف التغذية",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=target",
+     "response_ms": 820
+    },
+    {
+     "label": "+250 مل",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/water",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 8763,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    },
+    {
+     "label": "+500 مل",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/water",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 8747,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    },
+    {
+     "label": "تسجيل وجبة",
+     "result": "NAVIGATE",
+     "to": "/nutrition/log-meal",
+     "response_ms": 484
+    }
+   ]
+  },
+  {
+   "route": "nutrition/exercise-plan",
+   "url": "/nutrition/exercise-plan",
+   "landed": "/nutrition/hub?tab=today",
+   "status": "TESTED",
+   "time_to_ready_ms": 15374,
+   "ready": false,
+   "not_ready_reason": "0 request(s) in flight, 2 loading, stable=24",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "اليوم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 11777,
+     "slow": "0 request(s) in flight, 2 loading, stable=16"
+    },
+    {
+     "label": "الخطة",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=plan",
+     "response_ms": 790
+    },
+    {
+     "label": "الهدف",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=target",
+     "response_ms": 810
+    },
+    {
+     "label": "إعداد أهداف التغذية",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=target",
+     "response_ms": 802
+    },
+    {
+     "label": "+250 مل",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/water",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 8767,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    },
+    {
+     "label": "+500 مل",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/water",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 8739,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    },
+    {
+     "label": "تسجيل وجبة",
+     "result": "NAVIGATE",
+     "to": "/nutrition/log-meal",
+     "response_ms": 488
+    }
+   ]
+  },
+  {
+   "route": "nutrition/food-scanner",
+   "url": "/nutrition/food-scanner",
+   "landed": "/nutrition/log-meal",
+   "status": "TESTED",
+   "time_to_ready_ms": 1419,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 6,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الإفطار",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3607
+    },
+    {
+     "label": "الغداء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3595
+    },
+    {
+     "label": "العشاء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3597
+    },
+    {
+     "label": "وجبة خفيفة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3623
+    },
+    {
+     "label": "حفظ الوجبة",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/meals",
+     "tokens_sent": 1,
+     "tokens_stored": 0,
+     "response_ms": 8647,
+     "slow": "0 request(s) in flight, 2 loading, stable=14"
+    }
+   ]
+  },
+  {
+   "route": "nutrition/hub",
+   "url": "/nutrition/hub",
+   "landed": "/nutrition/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 15406,
+   "ready": false,
+   "not_ready_reason": "0 request(s) in flight, 2 loading, stable=24",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "اليوم",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=today",
+     "response_ms": 8620,
+     "slow": "0 request(s) in flight, 2 loading, stable=16"
+    },
+    {
+     "label": "الخطة",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=plan",
+     "response_ms": 809
+    },
+    {
+     "label": "الهدف",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=target",
+     "response_ms": 808
+    },
+    {
+     "label": "إعداد أهداف التغذية",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=target",
+     "response_ms": 830
+    },
+    {
+     "label": "+250 مل",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/water",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 8745,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    },
+    {
+     "label": "+500 مل",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/water",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 8756,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    },
+    {
+     "label": "تسجيل وجبة",
+     "result": "NAVIGATE",
+     "to": "/nutrition/log-meal",
+     "response_ms": 472
+    }
+   ]
+  },
+  {
+   "route": "nutrition/index",
+   "url": "/nutrition",
+   "landed": "/nutrition/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 15432,
+   "ready": false,
+   "not_ready_reason": "0 request(s) in flight, 2 loading, stable=24",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "اليوم",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=today",
+     "response_ms": 8613,
+     "slow": "0 request(s) in flight, 2 loading, stable=16"
+    },
+    {
+     "label": "الخطة",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=plan",
+     "response_ms": 858
+    },
+    {
+     "label": "الهدف",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=target",
+     "response_ms": 808
+    },
+    {
+     "label": "إعداد أهداف التغذية",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=target",
+     "response_ms": 809
+    },
+    {
+     "label": "+250 مل",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/water",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 8755,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    },
+    {
+     "label": "+500 مل",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/water",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 8757,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    },
+    {
+     "label": "تسجيل وجبة",
+     "result": "NAVIGATE",
+     "to": "/nutrition/log-meal",
+     "response_ms": 480
+    }
+   ]
+  },
+  {
+   "route": "nutrition/log-meal",
+   "url": "/nutrition/log-meal",
+   "landed": "/nutrition/log-meal",
+   "status": "TESTED",
+   "time_to_ready_ms": 1442,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 6,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الإفطار",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3594
+    },
+    {
+     "label": "الغداء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3631
+    },
+    {
+     "label": "العشاء",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3598
+    },
+    {
+     "label": "وجبة خفيفة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3606
+    },
+    {
+     "label": "حفظ الوجبة",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/meals",
+     "tokens_sent": 1,
+     "tokens_stored": 0,
+     "response_ms": 8648,
+     "slow": "0 request(s) in flight, 2 loading, stable=14"
+    }
+   ]
+  },
+  {
+   "route": "nutrition/nutrition-plan",
+   "url": "/nutrition/nutrition-plan",
+   "landed": "/nutrition/hub",
+   "status": "TESTED",
+   "time_to_ready_ms": 15470,
+   "ready": false,
+   "not_ready_reason": "0 request(s) in flight, 2 loading, stable=24",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "اليوم",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=today",
+     "response_ms": 8626,
+     "slow": "0 request(s) in flight, 2 loading, stable=16"
+    },
+    {
+     "label": "الخطة",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=plan",
+     "response_ms": 797
+    },
+    {
+     "label": "الهدف",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=target",
+     "response_ms": 815
+    },
+    {
+     "label": "إعداد أهداف التغذية",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=target",
+     "response_ms": 814
+    },
+    {
+     "label": "+250 مل",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/water",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 8774,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    },
+    {
+     "label": "+500 مل",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/water",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 8755,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    },
+    {
+     "label": "تسجيل وجبة",
+     "result": "NAVIGATE",
+     "to": "/nutrition/log-meal",
+     "response_ms": 478
+    }
+   ]
+  },
+  {
+   "route": "nutrition/water-tracker",
+   "url": "/nutrition/water-tracker",
+   "landed": "/nutrition/hub?tab=today",
+   "status": "TESTED",
+   "time_to_ready_ms": 15405,
+   "ready": false,
+   "not_ready_reason": "0 request(s) in flight, 2 loading, stable=24",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "اليوم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 11772,
+     "slow": "0 request(s) in flight, 2 loading, stable=16"
+    },
+    {
+     "label": "الخطة",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=plan",
+     "response_ms": 800
+    },
+    {
+     "label": "الهدف",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=target",
+     "response_ms": 791
+    },
+    {
+     "label": "إعداد أهداف التغذية",
+     "result": "NAVIGATE",
+     "to": "/nutrition/hub?tab=target",
+     "response_ms": 822
+    },
+    {
+     "label": "+250 مل",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/water",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 8765,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    },
+    {
+     "label": "+500 مل",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nutrition/water",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 8775,
+     "slow": "0 request(s) in flight, 2 loading, stable=15"
+    },
+    {
+     "label": "تسجيل وجبة",
+     "result": "NAVIGATE",
+     "to": "/nutrition/log-meal",
+     "response_ms": 475
+    }
+   ]
+  },
+  {
+   "route": "offers/[id]",
+   "status": "NOT_TESTED_DYNAMIC"
+  },
+  {
+   "route": "offers/index",
+   "url": "/offers",
+   "landed": "/offers",
+   "status": "TESTED",
+   "time_to_ready_ms": 2028,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "orders/index",
+   "url": "/orders",
+   "landed": "/orders",
+   "status": "TESTED",
+   "time_to_ready_ms": 2012,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الحالية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3606
+    },
+    {
+     "label": "السابقة",
+     "result": "UI_CHANGE",
+     "response_ms": 438
+    }
+   ]
+  }
+ ]
+}

@@ -263,7 +263,7 @@ export class OrdersConsoleService {
    * callers receive an explicit truncation header and can use scheduled reports
    * for larger ranges.
    */
-  async exportCsv(opts: { kind?: string; q?: string; status?: string; from?: string; to?: string }) {
+  async exportCsv(opts: { kind?: string; q?: string; status?: string; from?: string; to?: string; problem?: string }) {
     const maxRows = Math.max(1, Math.min(10_000, Number(process.env.ADMIN_EXPORT_MAX_ROWS || 10_000)));
     const first = await this.list({ ...opts, page: 1, limit: 100 });
     const rows = [...first.data];

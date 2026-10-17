@@ -9,20 +9,31 @@
 //    then answers with the translated unavailable page, and this server sends it as 503 + Retry-After, never cached.
 //  - Edge mode (off unless NABD_EDGE_STAMP_TOKEN is set): a request that carries `x-nabd-edge-stamp: <token>` comes from
 //    an edge worker that stamps the nonce itself, so the page goes out with the placeholder policy, unstamped, and with
-//    the cache headers Next set (s-maxage, stale-while-revalidate) plus stale-if-error, so the edge may keep it. Every
-//    other request is stamped here and is `private, no-cache`.
+//    the cache headers Next set (s-maxage, stale-while-revalidate) plus stale-if-error, so the edge may keep it.
+//
+// Issue 1548 + owner decision 2026-10-16 (never a shared nonce): a guest's 200 of a static/ISR public page (no session, no
+// theme cookie) goes out `public, max-age=0, s-maxage, stale-while-revalidate, stale-if-error` with NO nonce and a hash-based
+// policy (sha256 of each inline script of that copy + 'strict-dynamic'), so a plain edge cache (docs/ops/CLOUDFLARE_HTML_CACHE.md)
+// keeps it with no worker. Every other request is stamped here with a fresh nonce and is `private, no-cache` or no-store.
 //
 // Compression (one implementation, the reviewer's: a hashed asset, an image, an RSC or JSON answer keeps the app's own
 // Accept-Encoding and compression and passes through; only an HTML document, which this server may rewrite, is requested
 // uncompressed and compressed here, br or gzip by the client's Accept-Encoding).
 //
+// F82 (issue 426): Next only gzips. A build script and script or stylesheet under /_next/static/ that the build compressed
+// with brotli ahead of time (scripts/precompress-static.mjs writes `<file>.br` next to it) goes to a client that accepts br
+// from that file: about 14% fewer bytes than Next's gzip on the scripts every page loads. Next still answers the head
+// (a HEAD request: status, type, cache and security headers), so nothing about the asset changes but its encoding.
+//
 //   node server/nonce-server.mjs            (PORT = public port, default 3000; NEXT_INTERNAL_PORT default 3999+)
+import fs from "node:fs";
 import http from "node:http";
 import path from "node:path";
 import { timingSafeEqual } from "node:crypto";
 import zlib from "node:zlib";
 import { fileURLToPath } from "node:url";
-import { CSP_INJECT_HEADER, UNAVAILABLE_FALLBACK_HEADER, createStamper, freshNonce, policyWithNonce } from "./nonce-transform.mjs";
+import { warmPublicPages, warmSettings } from "./warm-public.mjs";
+import { CSP_INJECT_HEADER, UNAVAILABLE_FALLBACK_HEADER, createStamper, createThemeStamper, freshNonce, hashedPage, policyWithHashes, policyWithNonce, stampTags, themeFromCookie } from "./nonce-transform.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_PORT = Number(process.env.PORT || 3000);
@@ -53,6 +64,42 @@ function compressor(encoding) {
   if (encoding === "br") return zlib.createBrotliCompress({ params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 5 } });
   return zlib.createGzip({ level: 6 });
 }
+
+const STATIC_PREFIX = "/_next/static/";
+const precompressedCache = new Map();
+
+/**
+ * The brotli file the build wrote for a script or stylesheet under /_next/static/ ({ file, size }), or null. Hashed assets
+ * never change under the same name, so what is found (or not) is remembered. Anything that would leave the static
+ * folder is refused.
+ */
+export function precompressedAsset(staticDir, url) {
+  if (!staticDir) return null;
+  let pathname;
+  try {
+    pathname = decodeURIComponent(new URL(String(url || ""), "http://local").pathname);
+  } catch {
+    return null;
+  }
+  if (!pathname.startsWith(STATIC_PREFIX) || !/\.(?:js|css)$/.test(pathname)) return null;
+  const rel = path.posix.normalize(pathname.slice(STATIC_PREFIX.length));
+  if (rel.startsWith("..") || path.posix.isAbsolute(rel) || rel.includes("\0")) return null;
+  const root = path.resolve(staticDir);
+  const file = path.resolve(root, `${rel}.br`);
+  if (!file.startsWith(root + path.sep)) return null;
+  if (precompressedCache.has(file)) return precompressedCache.get(file);
+  let found = null;
+  try {
+    const stat = fs.statSync(file);
+    if (stat.isFile()) found = { file, size: stat.size };
+  } catch {
+    found = null;
+  }
+  precompressedCache.set(file, found);
+  return found;
+}
+
+const acceptsBrotli = (req) => /\bbr\b/i.test(String(req.headers["accept-encoding"] || ""));
 
 const isHtml = (headers) => /text\/html/i.test(String(headers["content-type"] || ""));
 
@@ -90,6 +137,67 @@ function edgeCacheControl(value) {
   return /stale-if-error/i.test(base) ? base : `${base}, stale-if-error=31536000`;
 }
 
+/**
+ * Issue 1548: may this stamped page go out with headers a shared cache (Cloudflare) keeps? Only a guest's GET of a public
+ * static/ISR page that Next answered 200 with `s-maxage` (the proxy already turned a session's answer into no-store), and
+ * only when the visitor has no theme cookie: a page carrying a chosen theme on <html> is that visitor's, so it stays private
+ * (the shared copy has no theme on <html>; the theme script picks it on the client, as before decision 43 a).
+ */
+export function guestCopyIsShared(req, upHeaders, status) {
+  if (req.method !== "GET" || status !== 200) return false;
+  const cc = String(upHeaders["cache-control"] || "");
+  if (/no-store|private/i.test(cc) || !/s-maxage\s*=\s*\d+/i.test(cc)) return false;
+  return themeFromCookie(req.headers.cookie) === null;
+}
+
+/**
+ * The shared-cache header for such a page: Next's own window (s-maxage, stale-while-revalidate) for the edge, stale-if-error
+ * so the edge keeps serving the last good copy in an outage (#302, no cap), and max-age=0 so a browser always asks again.
+ */
+export function sharedCacheControl(value) {
+  const sMax = /s-maxage\s*=\s*(\d+)/i.exec(String(value || ""));
+  const swr = /stale-while-revalidate\s*=\s*(\d+)/i.exec(String(value || ""));
+  return `public, max-age=0, s-maxage=${sMax ? sMax[1] : "60"}, stale-while-revalidate=${swr ? swr[1] : "31536000"}, stale-if-error=31536000`;
+}
+
+/**
+ * Owner decision 2026-10-16: a guest's copy of a public page that a shared cache keeps carries NO nonce (a nonce must never
+ * be shared or reused). It goes out with a hash-based policy computed from the exact bytes of this copy (hashedPage,
+ * policyWithHashes in nonce-transform.mjs): the sha256 of every inline script + 'strict-dynamic', no 'unsafe-inline'. The
+ * page is read whole first (the render itself is already cached inside Next), because the header carries its hashes.
+ */
+function sendShared(req, res, up, status, encoding) {
+  up.on("error", () => res.destroy());
+  up.setEncoding("utf8");
+  let text = "";
+  up.on("data", (chunk) => { text += chunk; });
+  up.on("end", () => {
+    let page;
+    let policy;
+    try {
+      page = hashedPage(text);
+      policy = policyWithHashes(up.headers["content-security-policy"], page.scriptHashes, page.styleHashes);
+    } catch {
+      // Never a weaker policy: the page then goes out as any other, with a nonce of its own and never shared.
+      const nonce = freshNonce();
+      const own = { ...up.headers, "content-security-policy": policyWithNonce(up.headers["content-security-policy"], nonce), "cache-control": "private, no-cache" };
+      delete own[CSP_INJECT_HEADER];
+      delete own["content-length"];
+      delete own.etag;
+      openBody(req, res, status, own, encoding).end(stampTags(text, nonce));
+      return;
+    }
+    const out = { ...up.headers, "content-security-policy": policy, "cache-control": sharedCacheControl(up.headers["cache-control"]) };
+    delete out[CSP_INJECT_HEADER];
+    // The page holds no user data (per-user parts load on the client), and Next's locale cookie is not sent with it (a shared
+    // copy sets no cookie; Cloudflare does not cache a response that does).
+    delete out["set-cookie"];
+    delete out["content-length"];
+    delete out.etag;
+    openBody(req, res, status, out, encoding).end(page.html);
+  });
+}
+
 function sendStamped(req, res, up, status, encoding, extra = {}) {
   const out = { ...up.headers, ...extra };
   delete out[CSP_INJECT_HEADER];
@@ -103,19 +211,72 @@ function sendStamped(req, res, up, status, encoding, extra = {}) {
   delete out.etag;
   const body = openBody(req, res, status, out, encoding);
   const stamper = createStamper(nonce);
+  // the page is private to this response already (above), so it may carry this visitor's theme (decision 43 a)
+  const themer = createThemeStamper(themeFromCookie(req.headers.cookie));
   up.setEncoding("utf8");
-  up.on("data", (chunk) => body.write(stamper.push(chunk)));
-  up.on("end", () => body.end(stamper.end()));
+  up.on("data", (chunk) => body.write(themer.push(stamper.push(chunk))));
+  up.on("end", () => body.end(themer.push(stamper.end()) + themer.end()));
   up.on("error", () => res.destroy());
+}
+
+/**
+ * Decision 43 a: a page Next rendered for this request (a private page) gets the visitor's theme on <html> too. Only a
+ * document no shared cache may keep (no `public`, no `s-maxage`) and that Next did not compress; anything else passes as is.
+ */
+function themeFor(req, up) {
+  const theme = themeFromCookie(req.headers.cookie);
+  if (!theme || !isHtml(up.headers) || up.headers["content-encoding"]) return null;
+  return /\bpublic\b|s-maxage/i.test(String(up.headers["cache-control"] || "")) ? null : theme;
 }
 
 function sendUntouched(req, res, up, status, encoding) {
   up.on("error", () => res.destroy());
-  up.pipe(openBody(req, res, status, { ...up.headers }, encoding));
+  const theme = themeFor(req, up);
+  if (!theme) {
+    up.pipe(openBody(req, res, status, { ...up.headers }, encoding));
+    return;
+  }
+  const out = { ...up.headers };
+  delete out["content-length"];
+  delete out.etag;
+  const body = openBody(req, res, status, out, encoding);
+  const themer = createThemeStamper(theme);
+  up.setEncoding("utf8");
+  up.on("data", (chunk) => body.write(themer.push(chunk)));
+  up.on("end", () => body.end(themer.end()));
+}
+
+/**
+ * Sends a precompressed asset: the head comes from Next (asked with HEAD, uncompressed), the body from the .br file. Calls
+ * `fallback` when Next does not answer 200 or 304 (the request then goes through as usual).
+ */
+function sendPrecompressed(req, res, asset, ask, headers, fallback) {
+  const head = ask({ method: "HEAD", url: req.url }, { ...headers, "accept-encoding": "identity" }, (up) => {
+    up.resume();
+    const status = up.statusCode || 502;
+    if (status === 304) {
+      res.writeHead(304, { ...up.headers });
+      res.end();
+      return;
+    }
+    if (status !== 200) return fallback();
+    const out = { ...up.headers, "content-encoding": "br", "content-length": String(asset.size) };
+    out.vary = !out.vary ? "Accept-Encoding" : /accept-encoding/i.test(String(out.vary)) ? out.vary : `${out.vary}, Accept-Encoding`;
+    // another representation of the same asset: its own validator
+    if (typeof out.etag === "string") out.etag = out.etag.replace(/"$/, '-br"');
+    delete out["transfer-encoding"];
+    res.writeHead(200, out);
+    if (req.method === "HEAD") return res.end();
+    const body = fs.createReadStream(asset.file);
+    body.on("error", () => res.destroy());
+    body.pipe(res);
+  }, fallback);
+  head.end();
 }
 
 export function handler(internalPort, options = {}) {
   const edgeToken = options.edgeToken ?? process.env.NABD_EDGE_STAMP_TOKEN ?? "";
+  const staticDir = options.staticDir === undefined ? path.join(HERE, "..", ".next", "static") : options.staticDir;
   const ask = (req, headers, onResponse, onError) => {
     const upstream = http.request({ host: "127.0.0.1", port: internalPort, method: req.method, path: req.url, headers }, onResponse);
     upstream.on("error", onError);
@@ -123,6 +284,19 @@ export function handler(internalPort, options = {}) {
   };
 
   return (req, res) => {
+    if ((req.method === "GET" || req.method === "HEAD") && acceptsBrotli(req)) {
+      const asset = precompressedAsset(staticDir, req.url);
+      if (asset) {
+        const assetHeaders = { ...req.headers };
+        delete assetHeaders[UNAVAILABLE_FALLBACK_HEADER];
+        delete assetHeaders[EDGE_STAMP_HEADER];
+        return sendPrecompressed(req, res, asset, ask, assetHeaders, () => proxy(req, res));
+      }
+    }
+    return proxy(req, res);
+  };
+
+  function proxy(req, res) {
     const headers = { ...req.headers };
     // Only HTML documents may be rewritten. For those the app answers uncompressed and this server compresses its own
     // output (openBody); everything else (JS, CSS, images, RSC, API) keeps Next's compression and passes through.
@@ -171,10 +345,12 @@ export function handler(internalPort, options = {}) {
         up.pipe(openBody(req, res, status, out, encoding));
         return;
       }
+      // With an edge worker configured (edge mode) the worker is what caches, so a page stamped here stays private.
+      if (!edgeToken && guestCopyIsShared(req, up.headers, status)) return sendShared(req, res, up, status, encoding);
       sendStamped(req, res, up, status, encoding);
     }, bad);
     req.pipe(upstream);
-  };
+  }
 }
 
 async function main() {
@@ -184,6 +360,9 @@ async function main() {
   await import(NEXT_SERVER);
   http.createServer(handler(INTERNAL_PORT)).listen(PUBLIC_PORT, PUBLIC_HOST, () => {
     console.log(`nonce-server: :${PUBLIC_PORT} -> next :${INTERNAL_PORT}`);
+    // Issue 1548: render the most-visited public pages into the ISR cache now, not on a visitor's first request.
+    const warm = warmSettings();
+    if (warm) warmPublicPages(INTERNAL_PORT, warm).then((n) => console.log(`nonce-server: warmed ${n.ok} public pages (${n.failed} failed)`));
   });
 }
 

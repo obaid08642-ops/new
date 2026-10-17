@@ -36,7 +36,9 @@ import { listLimitMiddleware } from './common/list-limit.middleware';
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
 import { WinstonModule } from 'nest-winston';
-import * as winston from 'winston';
+import { bootstrapWinstonOptions } from './common/winston-logger';
+import { LoggerService } from './common/logger.service';
+import { logEvent } from './common/structured-logger';
 
 // ── Cluster Mode: spawn one worker per CPU core ──────────────────────────────
 // Enabled by default in production; set CLUSTER_MODE=false to disable (e.g. in tests).
@@ -49,46 +51,45 @@ const clusterEnabled =
 
 if (clusterEnabled) {
   const numCPUs = parseInt(process.env.CLUSTER_WORKERS || String(os.cpus().length), 10);
-  const primaryLogger = new Logger('ClusterPrimary');
-  primaryLogger.log(`Starting ${numCPUs} worker(s) (${os.cpus().length} CPU cores detected)`);
+  logEvent('info', 'cluster_starting', { workers: numCPUs, cpu_cores: os.cpus().length }, 'cluster');
 
   for (let i = 0; i < numCPUs; i++) {
     (cluster as any).fork();
   }
 
   (cluster as any).on('exit', (worker: any, code: number, signal: string) => {
-    primaryLogger.warn(`Worker ${worker.process.pid} exited (code=${code}, signal=${signal}). Restarting...`);
+    logEvent('warn', 'cluster_worker_exited', { pid: worker.process.pid, exit_code: code, signal }, 'cluster');
     (cluster as any).fork();
   });
 
   (cluster as any).on('online', (worker: any) => {
-    primaryLogger.log(`Worker ${worker.process.pid} is online`);
+    logEvent('info', 'cluster_worker_online', { pid: worker.process.pid }, 'cluster');
   });
 } else {
   // Worker process or non-production: run the NestJS app normally
   bootstrap().catch((err) => {
-    console.error('Bootstrap failed:', err);
+    logEvent('error', 'bootstrap_failed', { error: (err as Error)?.message, stack: String((err as Error)?.stack ?? '').split('\n').slice(0, 8).join('\n') }, 'bootstrap');
     process.exit(1);
   });
 }
 
 async function bootstrap() {
-  const loggerConfig = process.env.NODE_ENV === 'production'
-    ? winston.format.combine(winston.format.timestamp(), winston.format.json())
-    : winston.format.combine(winston.format.timestamp(), winston.format.colorize(), winston.format.simple());
+  // 20.3: while Nest boots, winston at LOG_LEVEL (debug in development, info in production) prints the same JSON as the
+  // app logger; as soon as the app exists `app.useLogger(LoggerService)` takes over every Logger in the process.
+  const bootLogger = () => WinstonModule.createLogger(bootstrapWinstonOptions());
 
   if (process.env.USE_MEMORY_MONGO === 'true') {
     if (process.env.NODE_ENV === 'production') {
       throw new Error('FATAL: USE_MEMORY_MONGO must not be enabled in production');
     }
-    console.log('[MongoMemoryServer] Starting (non-production only)...');
+    logEvent('info', 'memory_mongo_starting', {}, 'bootstrap');
     try {
       const { MongoMemoryServer } = await import('mongodb-memory-server');
       const mongod = await MongoMemoryServer.create();
       process.env.MONGO_URL = mongod.getUri();
-      console.log(`[MongoMemoryServer] Started at ${process.env.MONGO_URL}`);
+      logEvent('info', 'memory_mongo_started', {}, 'bootstrap');
     } catch (e) {
-      console.error('[MongoMemoryServer] Error:', e);
+      logEvent('error', 'memory_mongo_failed', { error: (e as Error)?.message }, 'bootstrap');
     }
   }
 
@@ -106,15 +107,17 @@ async function bootstrap() {
           origin: allowedOrigins, credentials: true,
           methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
         },
-        logger: WinstonModule.createLogger({ transports: [new winston.transports.Console({ format: loggerConfig })] }),
+        logger: bootLogger(),
       })
     : await NestFactory.create(AppModule, {
         cors: typeof allowedOrigins === 'boolean' ? allowedOrigins : {
           origin: allowedOrigins, credentials: true,
           methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
         },
-        logger: WinstonModule.createLogger({ transports: [new winston.transports.Console({ format: loggerConfig })] }),
+        logger: bootLogger(),
       });
+  // every `new Logger(...)`, Nest's own lines and logEvent now go through one logger: JSON, masked, with the request id
+  app.useLogger(app.get(LoggerService));
   const logger = new Logger('Bootstrap');
 
   if (useFastify) {
@@ -175,6 +178,14 @@ async function bootstrap() {
   app.useWebSocketAdapter(ioAdapter);
   app.useGlobalFilters(new SentryExceptionFilter(app.getHttpAdapter()));
 
+  // P14.23: the web reports web-vitals with navigator.sendBeacon as text/plain (no CORS preflight); only this path
+  // reads a text body, small, and turns it into the JSON the DTO validates.
+  app.use('/api/v1/rum/vitals', require('express').text({ type: 'text/plain', limit: '4kb' }), (req: any, _res: any, next: any) => {
+    if (typeof req.body === 'string') {
+      try { req.body = JSON.parse(req.body); } catch { req.body = {}; }
+    }
+    next();
+  });
   app.use(require('express').json({
     limit: '25mb',
     verify: (req: any, res: any, buf: any) => {

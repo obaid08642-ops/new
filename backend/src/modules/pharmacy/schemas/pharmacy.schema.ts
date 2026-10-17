@@ -150,6 +150,8 @@ export class PharmacyOrder extends Document {
     substituted_from?: string;
     intake_source?: 'ocr' | 'voice' | 'text' | 'manual';
     notes?: string;
+    /** Journeys 74: the patient's photo of the box (manual request). */
+    photo_uri?: string;
   }>;
 
   @Prop({ type: Object }) delivery_address?: {
@@ -158,7 +160,9 @@ export class PharmacyOrder extends Document {
   };
   @Prop() patient_notes?: string;
   @Prop() prescription_id?: string;
-  @Prop({ type: Object }) manual_request?: { name?: string; details?: string | null };
+  /** P17-17.5: UTM campaign attribution (utm_source/medium/campaign/term/content). */
+  @Prop({ type: Object, required: false }) attribution?: Record<string, string>;
+  @Prop({ type: Object }) manual_request?: { name?: string; details?: string | null; qty?: number; photo_uri?: string };
   /** F73: draft fulfillment + payment mode. */
   @Prop({ type: String, enum: ['delivery', 'pickup'], default: 'delivery' }) fulfillment?: 'delivery' | 'pickup';
   @Prop({ type: String, enum: ['cash', 'insurance'], default: 'cash' }) payment_mode?: 'cash' | 'insurance';
@@ -439,7 +443,10 @@ export class PharmacyOffer extends Document {
   @Prop({ type: [Object], default: [] }) timeline: Array<{ ts: Date; event: string; by?: string; meta?: any }>;
 }
 export const PharmacyOfferSchema = SchemaFactory.createForClass(PharmacyOffer);
-PharmacyOfferSchema.index({ order_id: 1, pharmacy_account_id: 1, version: -1 });
+// P13-R1: one offer per order and pharmacy. `version` is a revision counter on the
+// document itself (upsertDraft edits the prior offer in place), not part of the
+// identity, so the uniqueness key is the pair the spec names.
+PharmacyOfferSchema.index({ order_id: 1, pharmacy_account_id: 1 }, { unique: true });
 PharmacyOfferSchema.index({ patient_account_id: 1, order_id: 1, status: 1, quote_expires_at: 1 });
 PharmacyOfferSchema.index({ status: 1, quote_expires_at: 1, id: 1 });
 
@@ -469,7 +476,7 @@ export class PharmacyChatMessage extends Document {
   /** System lines carry a code the patient apps translate (the Arabic text stays for the pharmacy app). */
   @Prop() system_code?: 'substitute_accepted' | 'substitute_rejected' | 'item_removed';
   @Prop() image_uri?: string;
-  @Prop({ type: Object }) substitute_offer?: { sku?: string; name?: string; active_ingredient?: string; brand?: string; dosage?: string; form?: string; image_uri?: string; price?: number; notes?: string };
+  @Prop({ type: Object }) substitute_offer?: { inventory_item_id?: string; sku?: string; name?: string; name_en?: string; active_ingredient?: string; brand?: string; dosage?: string; form?: string; image_uri?: string; price?: number; notes?: string };
   @Prop({ default: false }) blocked: boolean;
   @Prop() blocked_reason?: string;
 }

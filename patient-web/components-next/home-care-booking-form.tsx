@@ -10,11 +10,11 @@ import { Input, Select } from "@/components-next/ui-generated/components/Inputs"
 import { SectionCard } from "@/components-next/consult/consult-parts";
 import { startNursingPayment } from "@/components-next/nursing/nursing-pay";
 import styles from "@/components-next/consult/consult.module.css";
+import { chosenSlot, nurseSlotsView, parseNurseSlots, type NurseSlotsResult } from "@/lib/nursing/nurse-slots";
 import nursing from "@/components-next/nursing/nursing.module.css";
 
 export type BookableNurse = { id: string; name: string; detail?: string };
 export type BookableAddress = { id: string; label: string };
-type Slot = { start: string; available: boolean };
 type Method = "card" | "insurance";
 
 function nextDays(count: number, locale: string) {
@@ -81,9 +81,11 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
   const methods: Method[] = insurance ? ["card", "insurance"] : ["card"];
   const [nurseId, setNurseId] = useState(nurses[0]?.id ?? "");
   const [day, setDay] = useState(days[0]?.iso ?? "");
-  const [slots, setSlots] = useState<Slot[]>([]);
-  const [slotsState, setSlotsState] = useState<"loading" | "ready" | "failed">("loading");
-  const [slot, setSlot] = useState<string | null>(null);
+  const [slotsResult, setSlotsResult] = useState<NurseSlotsResult | null>(null);
+  const [picked, setPicked] = useState<string | null>(null);
+  // issue 1571: the times shown are the ones loaded for the nurse and day chosen now, never the previous day's
+  const { state: slotsState, slots } = nurseSlotsView(slotsResult, nurseId, day);
+  const slot = chosenSlot({ state: slotsState, slots }, picked);
   const [addressId, setAddressId] = useState(addresses[0]?.id ?? "");
   const [notes, setNotes] = useState("");
   const [method, setMethod] = useState<Method>("card");
@@ -93,21 +95,13 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
   const attempt = useRef<ReturnType<typeof createHomeCareBookingAttempt> | null>(null);
 
   useEffect(() => {
-    setSlot(null);
+    setPicked(null);
     if (!nurseId || !day) return;
     const controller = new AbortController();
-    setSlotsState("loading");
     fetch(`/api/patient/home-care/providers/${encodeURIComponent(nurseId)}/slots?date=${day}`, { cache: "no-store", signal: controller.signal })
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error("slots_unavailable"))))
-      .then((data: { slots?: unknown }) => {
-        const list = Array.isArray(data?.slots) ? data.slots : [];
-        setSlots(list.flatMap((row) => {
-          const value = row as { start?: unknown; available?: unknown };
-          return typeof value?.start === "string" && value.available !== false ? [{ start: value.start, available: true }] : [];
-        }));
-        setSlotsState("ready");
-      })
-      .catch(() => { if (!controller.signal.aborted) { setSlots([]); setSlotsState("failed"); } });
+      .then((data: unknown) => { if (!controller.signal.aborted) setSlotsResult({ nurseId, day, state: "ready", slots: parseNurseSlots(data) }); })
+      .catch(() => { if (!controller.signal.aborted) setSlotsResult({ nurseId, day, state: "failed", slots: [] }); });
     return () => controller.abort();
   }, [nurseId, day]);
 
@@ -149,7 +143,7 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
       <SectionCard id="home-care-nurse" title={t("chooseNurse")}>
         <div className={styles.slots} role="group" aria-label={t("chooseNurse")}>
           {nurses.map((nurse) => (
-            <button key={nurse.id} type="button" className={styles.choice} aria-pressed={nurse.id === nurseId} onClick={() => setNurseId(nurse.id)}>
+            <button key={nurse.id} type="button" value={nurse.id} className={styles.choice} aria-pressed={nurse.id === nurseId} onClick={() => setNurseId(nurse.id)}>
               {nurse.name}{nurse.detail ? ` · ${nurse.detail}` : ""}
             </button>
           ))}
@@ -173,7 +167,7 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
           : (
             <div className={styles.slots} role="group" aria-label={t("formTime")}>
               {slots.map((s) => (
-                <button key={s.start} type="button" className={styles.choice} aria-pressed={s.start === slot} onClick={() => setSlot(s.start)}>
+                <button key={s.start} type="button" className={styles.choice} aria-pressed={s.start === slot} onClick={() => setPicked(s.start)}>
                   {clock.format(new Date(s.start))}
                 </button>
               ))}

@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { cdnImage, getPublicAlternatives, readPublicProduct, type PublicProduct } from "@/lib/api/public-products-server";
+import { cdnImage, getPublicEquivalents, readPublicProduct, type PublicProduct, type PublicProductCard } from "@/lib/api/public-products-server";
 import { PublicDataUnavailableError } from "@/lib/api/public-unavailable";
 import { JsonLd } from "@/components-next/json-ld";
 import { isLocale, locales } from "@/lib/i18n";
@@ -20,10 +20,12 @@ import { ChipLink } from "@/components-next/pharmacy/chip-link";
 import { BuyActions, BuyBar, BuyProvider } from "@/components-next/pharmacy/product-buy";
 import { ProductGallery } from "@/components-next/pharmacy/product-gallery";
 import { ProductGrid, type GridProduct } from "@/components-next/pharmacy/product-grid";
+import { productCardImageSrc } from "@/components-next/pharmacy/catalog-image";
 import { promoOldPrice, promoPercent } from "@/lib/discount";
 import { formatNumber, formatPrice } from "@/lib/format-price";
 import { ProductSections, type DetailGroup, type DetailSection } from "@/components-next/pharmacy/product-sections";
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
+import { englishNameUnder } from "@/lib/english-name-under";
 import styles from "@/components-next/pharmacy/product-detail.module.css";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -200,13 +202,17 @@ export default async function PublicProductPage({ params }: Props) {
   const crossedPrice = promoOldPrice(product, product.price, product.old_price);
   const money = formatPrice(locale, product.price);
 
-  const alternatives: GridProduct[] = (await getPublicAlternatives(locale, product)).map((alt) => ({
+  // Issue 1547: equivalents by the normalized active ingredient (same strength first), or, when there is none, similar
+  // products of the same therapeutic class / category. Both empty: no section and no heading.
+  const related = await getPublicEquivalents(locale, product.id);
+  const toGrid = (alt: PublicProductCard): GridProduct => ({
     id: alt.id,
     slug: alt.slug,
     name: alt.name || alt.slug,
     price: alt.price,
     oldPrice: alt.old_price,
     image: alt.image,
+    thumb: productCardImageSrc(alt.image),
     form: alt.form,
     strength: alt.strength,
     packageSize: alt.package_size,
@@ -214,7 +220,9 @@ export default async function PublicProductPage({ params }: Props) {
     onlineOnly: alt.online_exclusive === true,
     // "cheaper" is computed here, from the two real prices (spec A, "Alternatives")
     badge: alt.price > 0 && hasPrice && alt.price < product.price ? b("cheaper") : undefined,
-  }));
+  });
+  const alternatives = related.equivalents.map(toGrid);
+  const similar = related.similar.map(toGrid);
 
   const section = (id: string, title: string, items: string[]): DetailSection | null => (items.length ? { id, title, items } : null);
   const group = (id: string, title: string, parts: Array<DetailSection | null>): DetailGroup | null => {
@@ -246,7 +254,9 @@ export default async function PublicProductPage({ params }: Props) {
     [medicines("prescription"), product.is_rx ? medicines("yes") : medicines("no")],
   ] as Array<[string, string | null | undefined]>).filter((row): row is [string, string] => Boolean(row[1]));
 
-  const names = lines(product.official_name !== name ? product.official_name : null);
+  // Decision E (issue 1556): ur, hi and bn show the English name under the localized one, so patient and pharmacist read the same product.
+  const englishName = englishNameUnder(locale, name, product.english_name);
+  const names = lines(product.official_name !== name && product.official_name !== englishName ? product.official_name : null);
   const ingredient = product.active_ingredient ? b("activeIngredientLine", { value: product.active_ingredient }) : null;
   const maker = [product.manufacturer, product.country_of_origin ? b("madeIn", { country: product.country_of_origin }) : null].filter(Boolean).join(" · ");
 
@@ -314,6 +324,7 @@ export default async function PublicProductPage({ params }: Props) {
 
               <div className={styles.names}>
                 <h1 className={styles.title}>{name}</h1>
+                {englishName ? <p className={styles.englishName} lang="en" dir="ltr" data-testid="english-name">{englishName}</p> : null}
                 <DirectAnswer sentences={[
                   product.active_ingredient ? seo("productIngredient", { name, ingredient: product.active_ingredient }) : null,
                   product.form ? seo("productForm", { form: product.form }) : null,
@@ -380,17 +391,10 @@ export default async function PublicProductPage({ params }: Props) {
                   </dl>
                 </section>
               ) : null}
-              <Link className={styles.ask} href={`/${locale}/pharmacy/chat`}>
-                <FIcon icon="chat-circle-text" tone={PHARMACY_TONE} size={52} />
-                <span className={styles.askText}>
-                  <span className={styles.askTitle}>{b("askTitle")}</span>
-                  <span className={styles.askBody}>{b("askBody")}</span>
-                </span>
-              </Link>
             </div>
 
             {alternatives.length ? (
-              <section className={`${styles.block} ${styles.alts}`} aria-label={b("alternativesTitle")}>
+              <section className={`${styles.block} ${styles.alts}`} aria-label={b("alternativesTitle")} data-testid="product-equivalents">
                 <div className={styles.blockHead}>
                   <h2 className={styles.blockTitle}>{b("alternativesTitle")}</h2>
                   {/* batch-1a-web#8: compare this medicine with its alternatives (POST /medicines/compare, as the app) */}
@@ -400,6 +404,14 @@ export default async function PublicProductPage({ params }: Props) {
                   ) : null}
                 </div>
                 <ProductGrid locale={locale} items={alternatives} layout="rail" />
+              </section>
+            ) : similar.length ? (
+              <section className={`${styles.block} ${styles.alts}`} aria-label={b("similarTitle")} data-testid="product-similar">
+                <div className={styles.blockHead}>
+                  <h2 className={styles.blockTitle}>{b("similarTitle")}</h2>
+                  {categoryPath ? <Link className={styles.blockLink} href={categoryPath}>{b("seeAll")}</Link> : null}
+                </div>
+                <ProductGrid locale={locale} items={similar} layout="rail" />
               </section>
             ) : null}
 

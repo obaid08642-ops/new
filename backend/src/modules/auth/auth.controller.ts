@@ -53,6 +53,7 @@ import { JwtAuthGuard, Public, CurrentUser, SelfService, Roles } from '../../com
 import { IsString, IsOptional, MinLength } from 'class-validator';
 import { UserRole } from '../../common/enums';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 class RegisterDto {
   // Legacy registration payload.
   @IsOptional() @IsString() full_name?: string;
@@ -432,6 +433,7 @@ export class AuthController {
 
   /** 21.3 — the admin edits the matrix; it applies on the next request, no deploy. */
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Put('admin/guest/capabilities')
   setGuestCapabilities(@CurrentUser('id') adminId: string, @Body() dto: GuestCapabilitiesDto) {
     return this.guestMatrix.setCapabilities(dto.capabilities as Record<GuestCapability, boolean>, adminId);
@@ -442,6 +444,7 @@ export class AuthController {
    * anyone trigger the deletion of guest rows.
    */
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.OPS_CRONS_RUN)
   @Post('guest/cleanup')
   async cleanupGuests(@Body() dto: GuestCleanupDto) {
     return this.guestLifecycle.purgeInactiveGuests();

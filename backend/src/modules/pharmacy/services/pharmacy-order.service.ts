@@ -1,4 +1,5 @@
-import { Injectable, ForbiddenException, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException, BadRequestException, Inject, Optional } from '@nestjs/common';
+import { KillSwitchesService } from '../../kill-switches/kill-switches.service';
 import { Connection, Model } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
 import { enforceRxRules } from './rx-rules';
@@ -8,6 +9,7 @@ import { SmartSplitService } from './smart-split.service';
 import { PharmacyNotificationService } from './pharmacy-notification.service';
 import { PharmacyBroadcastService } from './pharmacy-broadcast.service';
 import { EventBusService } from '../../events/event-bus.service';
+import { pickAttribution } from '../../../common/attribution';
 import { WorkflowEngineService } from '../../workflow-engine/workflow-engine.module';
 
 import { PharmacyAllocationState } from '../schemas/pharmacy.schema';
@@ -30,6 +32,7 @@ export class PharmacyOrderService {
     private bus: EventBusService,
     private engine: WorkflowEngineService,
     @InjectConnection() private readonly conn: Connection,
+    @Optional() private readonly killSwitches?: KillSwitchesService,
   ) {}
 
   /**
@@ -98,14 +101,27 @@ export class PharmacyOrderService {
     // Manual free-text request (web manual form): a named item the pharmacy
     // matches during broadcast, same as a typed unknown item.
     const manual = body.manual_request && typeof body.manual_request === 'object' ? body.manual_request : null;
+    // Journeys 74 (decision 12): the quantity and a photo of the box. The photo must be the patient's own uploaded image;
+    // the pharmacies asked about this order may open it (StorageService.orderPharmacyMayRead).
+    const manualQty = Number.isInteger(manual?.qty) && manual.qty >= 1 && manual.qty <= 99 ? manual.qty : 1;
+    let manualPhotoUri: string | undefined;
+    if (manual && typeof manual.photo_id === 'string' && manual.photo_id.trim()) {
+      const photo: any = await this.conn.collection('storage_objects').findOne(
+        { id: { $eq: manual.photo_id.trim() }, owner_account_id: { $eq: user.id }, deleted: { $ne: true } },
+        { projection: { _id: 0, id: 1, mime: 1 } },
+      );
+      if (!photo || !String(photo.mime || '').toLowerCase().startsWith('image/')) throw new BadRequestException('manual_photo_invalid');
+      manualPhotoUri = `/api/v1/storage/${encodeURIComponent(photo.id)}`;
+    }
     if (!items.length && manual && String(manual.name || '').trim()) {
       items.push({
         id: uuidv4(),
         raw_name: sanitize(manual.name),
-        qty: 1,
+        qty: manualQty,
         match_status: OrderItemMatchStatus.MANUAL,
         intake_source: 'manual',
         notes: typeof manual.details === 'string' ? sanitize(manual.details).slice(0, 500) : undefined,
+        ...(manualPhotoUri ? { photo_uri: manualPhotoUri } : {}),
       });
     }
     if (!items.length && !body.prescription_id) throw new BadRequestException('items_required');
@@ -122,7 +138,7 @@ export class PharmacyOrderService {
       delivery_address: normalizedAddress,
       patient_notes: body.patient_notes,
       prescription_id: typeof body.prescription_id === 'string' ? body.prescription_id : attachments.prescriptionId,
-      manual_request: manual ? { name: sanitize(manual.name).slice(0, 200), details: typeof manual.details === 'string' ? sanitize(manual.details).slice(0, 500) : null } : undefined,
+      manual_request: manual ? { name: sanitize(manual.name).slice(0, 200), details: typeof manual.details === 'string' ? sanitize(manual.details).slice(0, 500) : null, qty: manualQty, ...(manualPhotoUri ? { photo_uri: manualPhotoUri } : {}) } : undefined,
       payment_method: typeof body.payment_method === 'string' ? body.payment_method : 'cash',
       // F73: draft fulfillment + payment mode (validated by DTO enums).
       fulfillment: body.fulfillment === 'pickup' ? 'pickup' : 'delivery',
@@ -131,6 +147,8 @@ export class PharmacyOrderService {
       delivery_address_id: typeof body.delivery_address_id === 'string' ? body.delivery_address_id : undefined,
       prescription_attachments: attachments.files,
       totals: { subtotal: 0, delivery_fee: 0, total: 0, currency: 'SAR' },
+      // P17-17.5: campaign attribution for the campaign report.
+      attribution: pickAttribution(body) ?? undefined,
       timeline: [{ ts: new Date(), event: 'created' }],
     });
     await this.engine.announceCreated({ kind: 'pharmacy', entity_id: order.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { items: items.length, intake_source: 'broadcast' } });
@@ -183,9 +201,9 @@ export class PharmacyOrderService {
       // Enrich items with catalogue flags and unit_price
       const offerPriceMap = offerItemsMap.get(order.id) || new Map();
       const itemsWithFlags = (order.items || []).map((it: any) => {
-        const flags = catalogueFlags.get(it.id) || { requires_prescription: false, controlled: false };
+        const flags = catalogueFlags.get(it.id) || { requires_prescription: false, controlled: false, online_exclusive: false };
         const unitPrice = offerPriceMap.get(it.id);
-        return { ...it, requires_prescription: flags.requires_prescription, controlled: flags.controlled, ...(unitPrice !== undefined ? { unit_price: unitPrice } : {}) };
+        return { ...it, requires_prescription: flags.requires_prescription, controlled: flags.controlled, online_exclusive: flags.online_exclusive, ...(unitPrice !== undefined ? { unit_price: unitPrice } : {}) };
       });
 
       // Courier fields from allocation delivery
@@ -277,8 +295,8 @@ export class PharmacyOrderService {
     // D-10: enrich order items with requires_prescription and controlled from catalogue
     const catalogueFlags = await this.enrichItemsWithCatalogueFlags(order.items || []);
     const itemsWithFlags = (order.items || []).map((it: any) => {
-      const flags = catalogueFlags.get(it.id) || { requires_prescription: false, controlled: false };
-      return { ...it, requires_prescription: flags.requires_prescription, controlled: flags.controlled };
+      const flags = catalogueFlags.get(it.id) || { requires_prescription: false, controlled: false, online_exclusive: false };
+      return { ...it, requires_prescription: flags.requires_prescription, controlled: flags.controlled, online_exclusive: flags.online_exclusive };
     });
 
     // Courier fields from allocation delivery (when assigned)
@@ -353,12 +371,12 @@ export class PharmacyOrderService {
   }
 
   /**
-   * Fetch requires_prescription and controlled flags for order items by matching
-   * medicine_id, sku, or name with the medicines catalogue (D-10).
-   * Returns a map of item id -> { requires_prescription: boolean, controlled: boolean }
+   * Fetch requires_prescription, controlled and online_exclusive flags for order items by matching
+   * medicine_id, sku, or name with the medicines catalogue (D-10; decision 11: a reordered line keeps "online only").
+   * Returns a map of item id -> { requires_prescription, controlled, online_exclusive }
    */
-  private async enrichItemsWithCatalogueFlags(items: any[]): Promise<Map<string, { requires_prescription: boolean; controlled: boolean }>> {
-    const result = new Map<string, { requires_prescription: boolean; controlled: boolean }>();
+  private async enrichItemsWithCatalogueFlags(items: any[]): Promise<Map<string, { requires_prescription: boolean; controlled: boolean; online_exclusive: boolean }>> {
+    const result = new Map<string, { requires_prescription: boolean; controlled: boolean; online_exclusive: boolean }>();
     if (!items?.length) return result;
 
     const ids = [...new Set(items.map((it) => (typeof it?.medicine_id === 'string' ? it.medicine_id.trim() : '')).filter(Boolean))];
@@ -382,7 +400,7 @@ export class PharmacyOrderService {
     if (!or.length) return result;
 
     const meds: any[] = await this.conn.collection('medicines')
-      .find({ $or: or }, { projection: { _id: 0, id: 1, sku: 1, name_ar: 1, name_en: 1, requires_prescription: 1, controlled: 1 } })
+      .find({ $or: or }, { projection: { _id: 0, id: 1, sku: 1, name_ar: 1, name_en: 1, requires_prescription: 1, controlled: 1, online_exclusive: 1 } })
       .toArray();
 
     for (const it of items) {
@@ -396,6 +414,7 @@ export class PharmacyOrderService {
       result.set(it.id, {
         requires_prescription: med?.requires_prescription === true,
         controlled: med?.controlled === true,
+        online_exclusive: med?.online_exclusive === true,
       });
     }
     return result;
@@ -715,6 +734,8 @@ export class PharmacyOrderService {
   /** Patient submits the draft → triggers Smart Split. */
   async submit(user: any, id: string): Promise<any> {
     assertPatient(user);
+    // Issue 955: the admin kill switch stops sending orders to pharmacies; the order stays a draft, nothing changes.
+    await this.killSwitches?.assertOn('pharmacy_broadcast');
     const order = await this.orders.findOne({ id });
     if (!order) throw new NotFoundException('order_not_found');
     if (order.patient_account_id !== user.id) throw new ForbiddenException('not_yours');

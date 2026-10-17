@@ -46,19 +46,63 @@
 .thumb:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: -3px; border-radius: var(--nabd-radius-md); }
 .thumbImage { display: none; }
 
-.zoom {
-  inline-size: 100%; max-inline-size: min(92vw, 720px); padding: 0; border: 0; border-radius: var(--nabd-radius-3xl);
-  background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary); overflow: hidden;
+/* issue 1547: the stage is a scroll-snap strip (a swipe moves between the pictures, mirrored right to left by the
+   strip's direction), with the "2 / 4" counter on it */
+.stageTrack {
+  position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; display: flex;
+  overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none;
 }
-.zoom::backdrop { background: color-mix(in srgb, var(--nabd-color-brand-ink) 60%, transparent); }
-.zoomImage { display: block; inline-size: 100%; block-size: auto; max-block-size: 80dvh; object-fit: contain; }
-.zoomClose { position: absolute; inset-block-start: 12px; inset-inline-end: 12px; }
+.stageTrack::-webkit-scrollbar { display: none; }
+.stageTrack:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: -4px; }
+.slide { position: relative; flex: 0 0 100%; scroll-snap-align: center; scroll-snap-stop: always; }
+.counter {
+  position: absolute; inset-block-end: 14px; inset-inline-end: 16px; padding: 2px 10px; border-radius: var(--nabd-radius-pill);
+  background: var(--nabd-color-bg-inverse); color: var(--nabd-color-text-onInverse);
+  font-size: var(--nabd-font-size-small); font-weight: 500; pointer-events: none;
+}
+
+/* the full-screen viewer: the whole screen on the inverse (ink) surface, one picture per slide */
+.viewer {
+  position: fixed; inset: 0; inline-size: 100%; block-size: 100%; max-inline-size: none; max-block-size: none;
+  margin: 0; padding: 0; border: 0; overflow: hidden;
+  background: var(--nabd-color-bg-inverse); color: var(--nabd-color-text-onInverse);
+}
+.viewer::backdrop { background: var(--nabd-color-bg-inverse); }
+:global(html):has(.viewer[open]) { overflow: hidden; }
+.viewerTrack {
+  display: flex; inline-size: 100%; block-size: 100%; overflow-x: auto; overflow-y: hidden;
+  scroll-snap-type: x mandatory; overscroll-behavior: contain; scrollbar-width: none;
+}
+.viewerTrack::-webkit-scrollbar { display: none; }
+.viewerTrack[data-locked="true"] { overflow: hidden; }
+.viewerSlide {
+  flex: 0 0 100%; block-size: 100%; scroll-snap-align: center; scroll-snap-stop: always; overflow: hidden;
+  display: grid; place-items: center; touch-action: pan-x; cursor: zoom-in; user-select: none;
+}
+.viewerSlide[data-zoomed="true"] { touch-action: none; cursor: grab; }
+.viewerImage {
+  display: block; inline-size: 100%; block-size: 100%; object-fit: contain; transform-origin: center;
+  transition: transform 160ms ease-out; -webkit-user-drag: none;
+}
+.viewerSlide[data-zoomed="true"] .viewerImage, .viewerSlide[data-dragging="true"] .viewerImage { transition: none; }
+.viewerTop {
+  position: absolute; inset-block-start: 0; inset-inline: 0; display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: max(12px, env(safe-area-inset-top)) 12px 12px;
+}
+.viewerCounter { font-size: var(--nabd-font-size-control); font-weight: 500; color: var(--nabd-color-text-onInverse); }
+.viewerNav { position: absolute; inset-block-start: 50%; translate: 0 -50%; display: none; }
+.viewerPrev { inset-inline-start: 16px; }
+.viewerNext { inset-inline-end: 16px; }
+.viewerNav:dir(rtl) svg { scale: -1 1; }
+@media (hover: hover) and (pointer: fine) { .viewerNav { display: block; } }
+@media (prefers-reduced-motion: reduce) { .viewerImage { transition: none; } }
 
 /* ---- the text above the price ---- */
 .chipsRow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .catChips { display: flex; flex-wrap: wrap; gap: 6px; }
 .title { margin: 0; font-size: var(--nabd-font-size-h2); line-height: var(--nabd-font-size-h2-lineHeight); font-weight: 700; overflow-wrap: anywhere; }
 .names { display: flex; flex-direction: column; gap: 4px; }
+.englishName { margin: 0; font-size: var(--nabd-font-size-control); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; text-align: start; }
 .altName { font-size: var(--nabd-font-size-control); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
 .maker { font-size: var(--nabd-font-size-control); color: var(--nabd-color-text-tertiary); overflow-wrap: anywhere; }
 
@@ -100,13 +144,12 @@
 
 /* ---- sections below the hero ---- */
 .below { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--nabd-space-md); min-inline-size: 0; }
-/* a phone reads: key facts, alternatives, details, then the pharmacist card (canvas/ProductFull); the facts and the
-   pharmacist card share a column from 1024, so `.side` only groups them there */
+/* a phone reads: key facts, alternatives, then details (canvas/ProductFull); the facts sit in a side column from 1024,
+   so `.side` only groups them there. No "ask a pharmacist" card: the pharmacist chat lives inside an order (issue 480). */
 .side { display: contents; }
 .factsBlock { order: 1; }
 .alts { order: 2; }
 .details { order: 3; }
-.ask { order: 4; }
 .block { display: flex; flex-direction: column; gap: 10px; min-inline-size: 0; }
 .blockHead { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .blockTitle { margin: 0; font-size: var(--nabd-font-size-h4); font-weight: 700; }
@@ -118,16 +161,6 @@
 .fact { display: flex; flex-direction: column; gap: 4px; padding: 12px 10px; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-surface); min-inline-size: 0; }
 .factLabel { font-size: var(--nabd-font-size-micro); color: var(--nabd-color-text-secondary); }
 .factValue { margin: 0; font-size: var(--nabd-font-size-small); font-weight: 500; overflow-wrap: anywhere; }
-
-.ask {
-  display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: var(--nabd-radius-3xl);
-  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline);
-  color: var(--nabd-color-text-primary); text-decoration: none;
-}
-.ask:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
-.askText { display: flex; flex-direction: column; gap: 2px; min-inline-size: 0; }
-.askTitle { font-size: var(--nabd-font-size-body-lg); font-weight: 700; }
-.askBody { font-size: var(--nabd-font-size-caption); color: var(--nabd-color-text-secondary); }
 
 /* medicine details: an accordion on a phone, tabs from 768 */
 .detailsCard { background: var(--nabd-color-bg-surface); border-radius: var(--nabd-radius-3xl); overflow: hidden; }
@@ -193,6 +226,6 @@
   .alts { grid-area: alts; order: 0; }
   .details { grid-area: details; order: 0; }
   .side { grid-area: side; display: flex; flex-direction: column; gap: 16px; }
-  .factsBlock, .ask { order: 0; }
+  .factsBlock { order: 0; }
   .buyButtons { display: flex; }
 }

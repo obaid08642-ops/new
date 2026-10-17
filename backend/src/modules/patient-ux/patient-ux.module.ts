@@ -1,4 +1,5 @@
-import { Module, Injectable, Controller, Get, Post, Param, Body, UseGuards, BadRequestException, NotFoundException, ForbiddenException, GoneException } from '@nestjs/common';
+import { Module, Injectable, Controller, Get, Post, Param, Body, UseGuards, BadRequestException, NotFoundException, ForbiddenException, GoneException, Optional } from '@nestjs/common';
+import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -32,6 +33,7 @@ export class PatientUxService {
     @InjectModel(Appointment.name) private appts: Model<any>,
     private events: EventEmitter2,
     private bus: EventBusService,
+    @Optional() private readonly killSwitches?: KillSwitchesService,
   ) {}
 
   private model(k: string): Model<any> {
@@ -61,6 +63,8 @@ export class PatientUxService {
   }
 
   async rate(user: any, body: { booking_kind: string; booking_id: string; rating: number; comment?: string; aspects?: any }) {
+    // Issue 955: the admin kill switch stops new reviews before anything is stored.
+    await this.killSwitches?.assertOn('reviews_enabled');
     if (!body.rating || body.rating < 1 || body.rating > 5) throw new BadRequestException('invalid_rating');
     const b = await this.bookingForReview(body.booking_kind, body.booking_id);
     if (!b) throw new NotFoundException();
@@ -192,6 +196,7 @@ export class AdminRefundsController {
   @Get() list() { return this.svc.adminListRefunds(); }
   @Get('pending') pending() { return this.svc.adminListRefunds('requested'); }
   // Approving marked the booking 'refunded' without a Moyasar refund (one refund path, owner decision 952).
+  @RequirePermissions(Permission.ORDER_REFUND)
   @Post(':id/decide') decideDisabled(): never { throw new GoneException('refund_decision_disabled_use_order_or_returns_page'); }
 }
 
@@ -320,6 +325,7 @@ export class AdminOverrideController {
    * Marked a booking paid, refunded or failed by hand: "paid" with no Moyasar payment, "refunded" with no refund.
    * The patient pays only through Moyasar and refunds have one path (owner decision 952), so this is gone.
    */
+  @RequirePermissions(Permission.ORDER_REFUND)
   @Post('payment') markPaymentDisabled(): never {
     throw new GoneException('manual_payment_status_disabled_moyasar_only');
   }

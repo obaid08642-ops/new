@@ -20,14 +20,14 @@ import { formatNumber } from "@/lib/format-price";
 import type { Locale } from "@/lib/i18n";
 import { createBroadcastAttempt, type BroadcastRequest } from "@/lib/pharmacy/broadcast";
 import { sendCartRequest, type SendFailure } from "@/lib/pharmacy/send-cart";
-import { activePrescriptionId, parseInsurancePolicy, type InsurancePolicyView } from "@/lib/pharmacy/checkout-support";
+import { parseInsurancePolicy, type InsurancePolicyView } from "@/lib/pharmacy/checkout-support";
+import { RxMedicineList } from "@/components-next/pharmacy/rx-medicines";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import ov from "@/components-next/pharmacy-offers/offers.module.css";
 import styles from "./checkout.module.css";
 
 type Fulfillment = "delivery" | "pickup";
 type PaymentMode = "cash" | "insurance";
-type PrescriptionState = { status: "idle" } | { status: "loading" } | { status: "found"; id: string } | { status: "missing" } | { status: "error" } | { status: "unauthenticated" };
 type PolicyState = { status: "idle" } | { status: "loading" } | { status: "ok"; policy: InsurancePolicyView } | { status: "none" } | { status: "error" };
 type Failure = SendFailure;
 
@@ -37,42 +37,35 @@ type Failure = SendFailure;
  * the delivery fee and the final price come from the offer the patient chooses, so nothing is added up on this screen.
  * Sending is single-flight (a ref plus the disabled button) and keeps one idempotency key until the server has answered,
  * so a retry after a dropped connection cannot create a second order.
+ *
+ * Owner decision 39 (issues 1031, 1043), the app's flow: a cart with prescription medicines goes through rx-order first,
+ * where the patient picks the prescription; the checkout then opens on that prescription (`prescription`, read by the
+ * page from `?prescriptionId=`) and sends its medicines with the cart's lines and `prescription_id`. Without a picked
+ * prescription such a cart cannot be sent: the screen points to rx-order, and no "active" prescription is guessed.
+ *
+ * Decision 30 (needs-review journeys 9, issue 1018): insurance or self-pay is chosen here, before the request goes out, and
+ * the order carries it (`payment_mode`, `payment_method`); the offers page selects with it and never asks again. Insurance
+ * needs the saved policy and a prescription on the order (the server refuses an insurance order without one), so it is
+ * offered with a picked prescription only.
  */
-export function CheckoutScreen({ locale }: { locale: Locale }) {
+export type CheckoutPrescription = { id: string; names: string[] };
+
+export function CheckoutScreen({ locale, prescription = null }: { locale: Locale; prescription?: CheckoutPrescription | null }) {
   const t = useTranslations("PharmacyCheckout");
   const flow = useTranslations("PharmacyFlow");
+  const legal = useTranslations("LegalLinks");
   const router = useRouter();
   const { items, ready, clearCart, hasRxItems } = useCart();
-  const active = ready && items.length > 0;
+  const rxNames = prescription?.names ?? [];
+  const active = ready && (items.length > 0 || rxNames.length > 0);
   const address = useDeliveryAddress(active);
-  const fromPrescription = items.find((item) => item.rx && item.prescriptionId)?.prescriptionId ?? null;
 
   const [fulfillment, setFulfillment] = useState<Fulfillment>("delivery");
   const [mode, setMode] = useState<PaymentMode>("cash");
-  const [prescription, setPrescription] = useState<PrescriptionState>({ status: "idle" });
   const [policy, setPolicy] = useState<PolicyState>({ status: "idle" });
   const [sending, setSending] = useState(false);
   const [failure, setFailure] = useState<Failure | null>(null);
   const attempt = useRef(createBroadcastAttempt());
-
-  // a cart with prescription medicines is ordered with the patient's saved, active prescription
-  useEffect(() => {
-    if (!active || !hasRxItems) return;
-    let live = true;
-    setPrescription({ status: "loading" });
-    void fetch("/api/patient/prescriptions/active", { credentials: "same-origin", cache: "no-store" })
-      .then(async (response) => {
-        if (!live) return;
-        if (response.status === 401) return setPrescription({ status: "unauthenticated" });
-        if (!response.ok) return setPrescription({ status: "error" });
-        const id = activePrescriptionId(await response.json().catch(() => null), fromPrescription);
-        setPrescription(id ? { status: "found", id } : { status: "missing" });
-      })
-      .catch(() => live && setPrescription({ status: "error" }));
-    return () => {
-      live = false;
-    };
-  }, [active, hasRxItems, fromPrescription]);
 
   // the saved insurance, read once, only when the patient asks for the insurance path (asked again after a failed read)
   const policyAsked = useRef(false);
@@ -98,8 +91,9 @@ export function CheckoutScreen({ locale }: { locale: Locale }) {
       });
   }, [active, mode]);
 
-  const prescriptionOk = !hasRxItems || prescription.status === "found";
-  const insuranceOk = mode === "cash" || policy.status === "ok";
+  const prescriptionOk = !hasRxItems || prescription !== null;
+  const payMode: PaymentMode = prescription ? mode : "cash";
+  const insuranceOk = payMode === "cash" || policy.status === "ok";
   const canSend = active && address.status === "ready" && prescriptionOk && insuranceOk && !sending;
 
   async function send() {
@@ -107,9 +101,9 @@ export function CheckoutScreen({ locale }: { locale: Locale }) {
     const request: BroadcastRequest = {
       kind: "cart",
       lines: items.map((item) => ({ name: item.name, qty: item.qty, sku: item.id })),
-      paymentMode: mode,
+      paymentMode: payMode,
       fulfillment,
-      ...(hasRxItems && prescription.status === "found" ? { prescriptionId: prescription.id } : {}),
+      ...(prescription ? { prescriptionId: prescription.id, rxNames } : {}),
     };
     setSending(true);
     setFailure(null);
@@ -126,7 +120,7 @@ export function CheckoutScreen({ locale }: { locale: Locale }) {
   }
 
   const sendButton = <Button label={sending ? t("sending") : t("send")} size="lg" fullWidth disabled={!canSend} loading={sending} onClick={() => void send()} />;
-  const count = items.reduce((sum, item) => sum + item.qty, 0);
+  const count = items.reduce((sum, item) => sum + item.qty, 0) + rxNames.length;
 
   let body;
   if (!ready) {
@@ -136,7 +130,7 @@ export function CheckoutScreen({ locale }: { locale: Locale }) {
         <Skeleton variant="block" />
       </div>
     );
-  } else if (items.length === 0) {
+  } else if (!active) {
     body = (
       <div className={rx.state}>
         <EmptyState
@@ -162,7 +156,7 @@ export function CheckoutScreen({ locale }: { locale: Locale }) {
               <span className={rx.cardLabel}>{t("requestLead")}</span>
             </div>
           </div>
-          <ul className={styles.items} aria-label={t("itemsLabel")}>
+          {items.length ? <ul className={styles.items} aria-label={t("itemsLabel")}>
             {items.map((item) => (
               <li className={styles.item} key={item.id}>
                 <span className={styles.itemName} dir="auto">{item.name}</span>
@@ -170,10 +164,15 @@ export function CheckoutScreen({ locale }: { locale: Locale }) {
                 {item.rx ? <span className={styles.itemChip}><StatusChip label={t("needsRx")} tone={OFFER_TONES.warn} /></span> : null}
               </li>
             ))}
-          </ul>
+          </ul> : null}
         </section>
 
-        {hasRxItems ? <PrescriptionNotice state={prescription} locale={locale} lines={items} /> : null}
+        {prescription ? (
+          <>
+            <RxMedicineList label={t("rxFromPrescription")} items={rxNames.map((name) => ({ name, lines: [] }))} />
+            <p className={`${ov.notice} ${ov.noticeOk}`} role="status">{t("rxAttached")}</p>
+          </>
+        ) : hasRxItems ? <PrescriptionNotice locale={locale} lines={items} /> : null}
 
         <section className={styles.group} aria-labelledby="checkout-fulfil">
           <h2 className={styles.legend} id="checkout-fulfil">{t("fulfilLegend")}</h2>
@@ -194,14 +193,14 @@ export function CheckoutScreen({ locale }: { locale: Locale }) {
           <div className={styles.segmented}>
             <Segmented
               label={t("payLegend")}
-              value={mode}
+              value={payMode}
               onChange={(value) => setMode(value === "insurance" ? "insurance" : "cash")}
-              options={[{ value: "cash", label: t("payDirect") }, { value: "insurance", label: t("payInsurance") }]}
+              options={[{ value: "cash", label: t("payDirect") }, { value: "insurance", label: t("payInsurance"), disabled: !prescription }]}
               disabled={sending}
             />
           </div>
-          {mode === "insurance" ? <InsuranceCard state={policy} locale={locale} /> : null}
-          <p className={rx.note}>{t("payNote")}</p>
+          {payMode === "insurance" ? <InsuranceCard state={policy} locale={locale} /> : null}
+          <p className={rx.note}>{prescription ? t("payNote") : t("payInsuranceNeedsRx")}</p>
         </section>
 
         <section className={rx.card} aria-label={t("summaryTitle")}>
@@ -214,6 +213,8 @@ export function CheckoutScreen({ locale }: { locale: Locale }) {
         </section>
 
         <p className={rx.note}>{t("sendNote")}</p>
+        {/* D-38: the cancellation and refund policy is one tap away before the order is sent */}
+        <Link className={rx.textLink} href={`/${locale}/refund-policy`}>{legal("refundPolicy")}</Link>
 
         {failure ? (
           <div className={rx.error} role="alert">
@@ -244,21 +245,17 @@ export function CheckoutScreen({ locale }: { locale: Locale }) {
   );
 }
 
-/** A cart with prescription medicines needs a saved prescription: say which of the real answers it got. */
-function PrescriptionNotice({ state, locale, lines }: { state: PrescriptionState; locale: Locale; lines: ReadonlyArray<{ id: string; rx: boolean }> }) {
+/** A cart with prescription medicines and no picked prescription: the patient picks it in rx-order first (decision 39). */
+function PrescriptionNotice({ locale, lines }: { locale: Locale; lines: ReadonlyArray<{ id: string; rx: boolean }> }) {
   const t = useTranslations("PharmacyCheckout");
-  if (state.status === "idle" || state.status === "loading") return <p className={rx.note} role="status">{t("rxChecking")}</p>;
-  if (state.status === "found") return <p className={`${ov.notice} ${ov.noticeOk}`} role="status">{t("rxAttached")}</p>;
-  if (state.status === "unauthenticated") return null;
-  if (state.status === "error") return <p className={rx.error} role="alert">{t("rxCheckFailed")}</p>;
   return (
-    <div className={rx.banner} role="alert">
+    <div className={rx.banner} role="alert" data-testid="checkout-rx-choose">
       <div className={rx.bannerBody}>
         <span className={rx.bannerTitle}>{t("rxMissingTitle")}</span>
-        <span className={rx.bannerText}>{t("rxMissingBody")}</span>
+        <span className={rx.bannerText}>{t("rxChooseBody")}</span>
       </div>
       <div className={rx.bannerActions}>
-        <Link className={rx.bannerAction} href={`/${locale}/pharmacy/rx-order?via=photo`}>{t("rxUpload")}</Link>
+        <Link className={rx.bannerAction} href={`/${locale}/pharmacy/rx-order`}>{t("rxChoose")}</Link>
         <RxConsultLink className={rx.bannerAction} locale={locale} lines={lines} label={t("rxConsult")} />
       </div>
     </div>

@@ -41,7 +41,15 @@
       "expo-notifications",
       "expo-location",
       "expo-local-authentication",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      [
+        "@sentry/react-native",
+        {
+          "url": "https://de.sentry.io/",
+          "organization": "nabdplus",
+          "project": "provider-app"
+        }
+      ]
     ],
     "extra": {
       "apiBaseUrl": "https://api.nabd.plus/api/v1"

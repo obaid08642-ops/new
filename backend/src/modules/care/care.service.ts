@@ -172,17 +172,17 @@ export class CareService {
     }
 
     const slice = docs.slice(offset, offset + limit);
-    const out: any[] = [];
-    for (let i = 0; i < slice.length; i++) {
-      const dRaw: any = slice[i];
+    // P14.3: the next free time of the first 10 doctors, read together (each is 3 queries since nextAvailable
+    // preloads its 14 days), not one doctor after another.
+    const out: any[] = await Promise.all(slice.map(async (dRaw: any, i: number) => {
       const d: any = dRaw.toObject ? dRaw.toObject() : dRaw;
       let nextAvailableAt: string | null = null;
       if (i < 10) {
         const docFull = dRaw.toObject ? dRaw : await this.providerModel.findOne({ id: d.id });
         nextAvailableAt = docFull ? await this.slots.nextAvailable(docFull as any) : null;
       }
-      out.push(this.toPublicDoctor(d, nextAvailableAt, d._distance_km));
-    }
+      return this.toPublicDoctor(d, nextAvailableAt, d._distance_km);
+    }));
     const totalIsExact = !opts.available_today && !needDistance;
     return {
       page,
@@ -254,11 +254,29 @@ export class CareService {
       }
       if (earliest !== null) out.push({ doc: d, at: earliest });
     }
-    out.sort((a, b) => a.at - b.at);
-    const slice = out.slice(offset, offset + limit);
+    // 2-app#10 / 2-web#10: "nearest free doctor" - with sort=distance and the patient's position (clinic and home visit;
+    // video has no meaningful "near"), the doctors free in the window are ordered by distance, then by the earliest start.
+    // A doctor without a location comes after those with one.
+    const near = opts.sort === 'distance' && mode !== 'video' && this.validPoint(opts.lat, opts.lng);
+    const distanceOf = (doc: any): number | null => {
+      const c = doc?.geoPoint?.coordinates;
+      const lat = Array.isArray(c) ? Number(c[1]) : Number(doc?.location?.lat);
+      const lng = Array.isArray(c) ? Number(c[0]) : Number(doc?.location?.lng);
+      return Number.isFinite(lat) && Number.isFinite(lng) ? haversineKm(opts.lat, opts.lng, lat, lng) : null;
+    };
+    const ranked = out.map((row) => ({ ...row, km: near ? distanceOf(row.doc) : null }));
+    ranked.sort((a, b) => {
+      if (near) {
+        if (a.km === null && b.km !== null) return 1;
+        if (b.km === null && a.km !== null) return -1;
+        if (a.km !== null && b.km !== null && a.km !== b.km) return a.km - b.km;
+      }
+      return a.at - b.at;
+    });
+    const slice = ranked.slice(offset, offset + limit);
     const items: any[] = [];
-    for (const { doc, at } of slice) {
-      const pub: any = this.toPublicDoctor(doc, null);
+    for (const { doc, at, km } of slice) {
+      const pub: any = this.toPublicDoctor(doc, null, km ?? undefined);
       pub.next_slot_at = new Date(at).toISOString();
       items.push(pub);
     }
@@ -266,6 +284,10 @@ export class CareService {
       page, limit, total: null, total_is_exact: false,
       has_more: out.length > offset + limit, items,
     };
+  }
+
+  private validPoint(lat: unknown, lng: unknown): boolean {
+    return typeof lat === 'number' && Number.isFinite(lat) && Math.abs(lat) <= 90 && typeof lng === 'number' && Number.isFinite(lng) && Math.abs(lng) <= 180;
   }
 
   /** Bookings + active holds overlapping [start, start + dur), with the 5-minute post-booking buffer. */

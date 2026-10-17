@@ -12,6 +12,8 @@ import { PasskeyCredential, PasskeyCredentialSchema } from './schemas/passkey-cr
 import { TrustedDevice, TrustedDeviceSchema } from './schemas/trusted-device.schema';
 import { DeviceTrustService } from './device-trust.service';
 import { AdminDeviceService } from './admin-device.service';
+import { AdminDeviceApprovalService } from './admin-device-approval.service';
+import { MailModule } from '../mail/mail.module';
 import { AdminSessionService } from './admin-session.service';
 import { AdminRecoveryService } from './admin-recovery.service';
 import { AdminRecoveryController } from './admin-recovery.controller';
@@ -47,6 +49,7 @@ import { GuestCapabilityGuard, GuestPermissionMatrixService } from './permission
     }),
     PushModule,
     PresenceModule,
+    MailModule,
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: PatientProfile.name, schema: PatientProfileSchema },
@@ -56,7 +59,7 @@ import { GuestCapabilityGuard, GuestPermissionMatrixService } from './permission
     ]),
   ],
   controllers: [AuthController, PasskeyController, AdminDevicesController, AdminRecoveryController, StepUpController],
-  providers: [AuthService, PasskeyService, DeviceTrustService, AdminDeviceService, AdminSessionService, AdminRecoveryService, StepUpService, StepUpGuard, JwtAuthGuard, GuestService, GuestLifecycleService, AccountLinkingService, CheckoutContactService, GuestPermissionMatrixService, GuestCapabilityGuard, { provide: 'PatientProfileRepository', useClass: PatientProfileRepository }, { provide: 'UserRepository', useClass: UserRepository }],
+  providers: [AuthService, PasskeyService, DeviceTrustService, AdminDeviceService, AdminDeviceApprovalService, AdminSessionService, AdminRecoveryService, StepUpService, StepUpGuard, JwtAuthGuard, GuestService, GuestLifecycleService, AccountLinkingService, CheckoutContactService, GuestPermissionMatrixService, GuestCapabilityGuard, { provide: 'PatientProfileRepository', useClass: PatientProfileRepository }, { provide: 'UserRepository', useClass: UserRepository }],
   exports: [AuthService, JwtModule, JwtAuthGuard, MongooseModule, DeviceTrustService, AdminSessionService, GuestService, GuestLifecycleService, AccountLinkingService, CheckoutContactService, GuestPermissionMatrixService, GuestCapabilityGuard],
 })
 export class AuthModule {}

@@ -28,12 +28,57 @@ export function effectivePermissionRoles(identity: any): string[] {
   ].filter(Boolean)));
 }
 
-export async function resolveEffectivePermissions(connection: Connection, identity: any): Promise<string[]> {
+/**
+ * The owner account: the designated owner email (the same identity the owner-only sub-admin routes check) on an
+ * admin account. Set ADMIN_PASSKEY_EMAIL in each environment.
+ */
+export function ownerEmail(): string {
+  return (process.env.ADMIN_PASSKEY_EMAIL || 'Obaid08642@gmail.com').trim().toLowerCase();
+}
+
+/** Staff accounts whose grants live on the user record (custom roles, direct grants), not in the token. */
+const STAFF_ROLES = new Set(['admin', 'super_admin', 'support_agent', 'finance']);
+const ADMIN_ROLES = new Set(['admin', 'super_admin']);
+
+export interface StaffAccess { permissions: string[]; is_owner: boolean }
+
+/**
+ * Owner decision 29: admin roles are restrictive. An admin's effective permissions are the union of the
+ * permissions of the custom roles assigned to them (plus catalogued grants stored on their own record); the built-in
+ * `admin` role grants none. The owner (super_admin, or the designated owner email on an admin account) holds every
+ * permission. Grants are read from the user record on every check, so a role change applies at once; when that read
+ * fails nothing is granted beyond the static role set.
+ */
+export async function resolveStaffAccess(connection: Connection, identity: any): Promise<StaffAccess> {
   const roles = effectivePermissionRoles(identity);
-  const rawKeys = Array.isArray(identity?.custom_role_keys) ? identity.custom_role_keys : [];
+  const knownPermissions = new Set<string>(Object.values(Permission));
+  if (roles.includes('super_admin')) return { permissions: [...knownPermissions], is_owner: true };
+
+  let rawKeys: unknown[] = Array.isArray(identity?.custom_role_keys) ? identity.custom_role_keys : [];
+  let rawDirect: unknown[] = Array.isArray(identity?.permissions) ? identity.permissions : [];
+  let email = typeof identity?.email === 'string' ? identity.email : '';
+  const id = identity?.id || identity?.sub;
+  if (id && roles.some((r) => STAFF_ROLES.has(r))) {
+    let record: any = null;
+    try {
+      record = await connection.collection('users').findOne(
+        { id: { $eq: String(id) } },
+        { projection: { email: 1, custom_role_keys: 1, permissions: 1 } },
+      );
+    } catch {
+      record = null;
+    }
+    // The stored record is the source of truth for staff grants; a token never carries them.
+    rawKeys = Array.isArray(record?.custom_role_keys) ? record.custom_role_keys : [];
+    rawDirect = Array.isArray(record?.permissions) ? record.permissions : [];
+    email = typeof record?.email === 'string' ? record.email : '';
+  }
+  if (roles.some((r) => ADMIN_ROLES.has(r)) && email && email.trim().toLowerCase() === ownerEmail()) {
+    return { permissions: [...knownPermissions], is_owner: true };
+  }
+
   const customRoleKeys = Array.from(new Set(rawKeys.map(String).filter((key) => /^[a-z0-9_-]{3,40}$/.test(key))));
   let customPermissions: string[] = [];
-
   if (customRoleKeys.length) {
     try {
       const rolesFromDb: any[] = await connection.collection('admin_custom_roles')
@@ -47,17 +92,21 @@ export async function resolveEffectivePermissions(connection: Connection, identi
     }
   }
 
-  const knownPermissions = new Set<string>(Object.values(Permission));
-  const directPermissions = Array.isArray(identity?.permissions)
-    ? identity.permissions.map(String).filter((permission: string) => knownPermissions.has(permission))
-    : [];
+  const directPermissions = rawDirect.map(String).filter((permission: string) => knownPermissions.has(permission));
   const allowedCustomPermissions = customPermissions.filter((permission) => knownPermissions.has(permission));
 
-  return mergePermissions(
-    ...roles.map((role) => ROLE_PERMISSIONS[role as keyof typeof ROLE_PERMISSIONS] || []),
-    allowedCustomPermissions,
-    directPermissions,
-  );
+  return {
+    permissions: mergePermissions(
+      ...roles.map((role) => ROLE_PERMISSIONS[role as keyof typeof ROLE_PERMISSIONS] || []),
+      allowedCustomPermissions,
+      directPermissions,
+    ),
+    is_owner: false,
+  };
+}
+
+export async function resolveEffectivePermissions(connection: Connection, identity: any): Promise<string[]> {
+  return (await resolveStaffAccess(connection, identity)).permissions;
 }
 
 export async function hasEffectivePermission(connection: Connection, identity: any, permission: Permission): Promise<boolean> {

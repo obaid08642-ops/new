@@ -13,6 +13,7 @@ import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
 import { CatalogSearch } from "@/components-next/pharmacy/catalog-search";
 import { ChipLink } from "@/components-next/pharmacy/chip-link";
 import { ProductGrid } from "@/components-next/pharmacy/product-grid";
+import { productCardImageSrc } from "@/components-next/pharmacy/catalog-image";
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
 import styles from "@/components-next/pharmacy/pharmacy.module.css";
 
@@ -167,6 +168,7 @@ export async function CategoryView({ params, searchParams }: Props) {
             price: it.price || 0,
             oldPrice: it.old_price,
             image: it.image,
+            thumb: productCardImageSrc(it.image),
             form: it.form,
             strength: it.strength,
             packageSize: it.package_size,

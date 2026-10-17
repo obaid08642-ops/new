@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { createRoot, type Root } from 'react-dom/client';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { BarcodeScanner, canScanWithCamera } from '../BarcodeScanner';
-import { SensitiveChangeList, isPublished, sensitiveChanges } from '../MedicineQuickEdit';
+import { SensitiveChangeList, describeHistoryRow, isPublished, sensitiveChanges } from '../MedicineQuickEdit';
 
 beforeAll(() => { (globalThis as unknown as { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true; });
 
@@ -33,6 +33,19 @@ describe('sensitiveChanges', () => {
     const both = sensitiveChanges(stored, { price: 8, requires_prescription: true });
     expect(both.map((c) => c.label)).toEqual(['السعر (ر.س)', 'يتطلب وصفة طبية']);
     expect(both[1]).toMatchObject({ from: 'لا', to: 'نعم' });
+  });
+
+  it('lists a controlled-flag change (decision 10) behind the same confirmation', () => {
+    const stored = { price: 10, requires_prescription: false };
+    expect(sensitiveChanges(stored, { price: 10, requires_prescription: false, controlled: false })).toEqual([]);
+    const c = sensitiveChanges(stored, { price: 10, requires_prescription: false, controlled: true });
+    expect(c).toEqual([{ label: 'صنف مراقب (لا يُطلب أونلاين)', from: 'لا', to: 'نعم' }]);
+  });
+
+  it('describes price and field history rows as old -> new', () => {
+    expect(describeHistoryRow({ before_price: 10, after_price: 12 })).toEqual({ label: 'السعر', from: '10', to: '12' });
+    expect(describeHistoryRow({ field: 'controlled', before: null, after: true })).toEqual({ label: 'صنف مراقب', from: '—', to: 'نعم' });
+    expect(describeHistoryRow({ field: 'availability_status', before: 'none', after: 'discontinued' })).toEqual({ label: 'التوفر', from: 'متوفر', to: 'متوقف' });
   });
 
   it('treats a missing stored price as 0', () => {

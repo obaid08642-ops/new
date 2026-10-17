@@ -4,7 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("next-intl", () => ({ useLocale: () => "ar", useTranslations: () => (key: string) => key }));
 
 import LocaleError from "./error";
-import LocaleLoading from "./loading";
+// owner decision 43 (issue 427): no skeleton at the root; a section that reads the patient's data has its own
+import SectionLoading from "./orders/loading";
 
 describe("locale route states", () => {
   it("does not serialize an upstream error message in the recovery boundary", () => {
@@ -15,8 +16,8 @@ describe("locale route states", () => {
     expect(html).toContain('href="/ar"');
   });
 
-  it("exposes a polite loading state without route data", () => {
-    const html = renderToStaticMarkup(<LocaleLoading />);
+  it("a section's skeleton is a polite loading state without route data", () => {
+    const html = renderToStaticMarkup(<SectionLoading />);
 
     expect(html).toContain('aria-busy="true"');
     expect(html).toContain('role="status"');

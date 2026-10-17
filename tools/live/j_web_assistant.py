@@ -49,6 +49,8 @@ def main():
 
     def ask(text):
         page.goto(f'{WEB}/ar/ai?mode=symptoms', wait_until='load', timeout=60000)
+        # the settled page: while React streams it, the form is briefly in the document twice (one hidden copy)
+        page.wait_for_function("() => document.querySelectorAll('textarea').length === 1", timeout=30000)
         page.locator('textarea').fill(text)
         page.locator('form button[type="submit"]').click()
         page.locator('section[role="alert"], section[role="status"]').first.wait_for(timeout=60000)
@@ -74,7 +76,8 @@ def main():
         journey('decision 15 on the web: a catalogue medicine shows its leaflet and the pharmacist')
         card = ask(f'ما هو Leafletol {tag}؟')
         text = card.inner_text()
-        step('the medicine answer offers "ask the pharmacist"', card.locator('a[href="/ar/pharmacy/chat"]', has_text='اسأل الصيدلي').count() == 1 and bool(med_id), text[:300])
+        # decision 40: no pharmacist chat without an order; as in the app, the pharmacies answer a request (rx-order)
+        step('the medicine answer offers "ask the pharmacist"', card.locator('a[href="/ar/pharmacy/rx-order"]', has_text='اسأل الصيدلي').count() == 1 and bool(med_id), text[:300])
         step('and no "book a consultation" for a medicine question', card.locator('a[href^="/ar/consultations/doctors"]').count() == 0, text[:200])
     except Exception as e:
         step('web assistant flow', False, str(e)[:300])

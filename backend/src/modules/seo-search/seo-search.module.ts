@@ -2,6 +2,7 @@
 import { BackfillSlugsDto } from './seo-search.dto';
 import { safeDecode } from '../../common/slug.util';
 import { buildMedicineReport, medicineReportMarkdown } from './medicine-publication-report';
+import { publicMedicineFilter } from '../medicines/public-medicine-filter';
 /** Arabic/English search normalization: strip Arabic diacritics & tatweel, unify alef/hamza/yeh/teh-marbuta variants, NFKD + lowercase + collapse spaces. Pure, locale-safe. */
 export function normalizeSearchText(input: string): string {
   return (input ?? "")
@@ -147,8 +148,10 @@ import { Public, Roles } from '../../common/auth.guard';
 import { PublicCache } from '../../common/public-cache.decorator';
 import { UserRole } from '../../common/enums';
 import { AutoEntitySeoPipelineService, PipelineEntityType } from '../events/auto-entity-seo-pipeline.service';
+import { PUBLIC_MEDICINE, PUBLIC_TYPED_PROVIDER } from '../entity-graph/entity-graph.service';
 import { resolveMedicinePublicDto, productLocaleToDb, PUBLIC_CATALOG_LOCALES } from '../medicines/med-i18n';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
+import { EquivalentRow, ingredientCandidatePattern, ingredientParts, rankEquivalents } from './product-equivalents';
 // P5.3: merged from SeoModule (seo/ → seo-search/)
 import { MedicineSchema } from '../../schemas/medicine.schema';
 import { LabServiceSchema } from '../../schemas/lab.schema';
@@ -170,12 +173,40 @@ import { MedicineRepository } from './seo-repositories/medicine.repository';
 import { ProviderProfileRepository } from './seo-repositories/providerprofile.repository';
 import { ArticleRepository } from './seo-repositories/article.repository';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 /** Orders of the public catalogue (#816); anything else is the default popularity order. */
 export const CATALOGUE_SORTS = ['popular', 'price_asc', 'price_desc', 'newest'] as const;
 export type CatalogueSort = (typeof CATALOGUE_SORTS)[number];
 
 const SITE = process.env.API_PUBLIC_URL?.replace('/api/v1', '') || 'https://api.nabd.plus';
 const SITE_NAME = 'نبض';
+
+/** P13-R16: long-standing default site FAQ (fallback when the faqs collection is empty). */
+export const SITE_FAQ_DEFAULTS = [
+  { '@type': 'Question', name: 'هل الطلب يحتاج وصفة طبية؟', acceptedAnswer: { '@type': 'Answer', text: 'الأدوية المميزة بشارة RX فقط تتطلب رفع روشتة قبل إتمام الدفع.' } },
+  { '@type': 'Question', name: 'هل يمكن الطلب كضيف؟', acceptedAnswer: { '@type': 'Answer', text: 'نعم — التصفح والبحث والطلب والحجز متاحة للضيوف، والتأمين والعائلة يتطلبان حساباً.' } },
+  { '@type': 'Question', name: 'كيف تصل الصور والمنتجات؟', acceptedAnswer: { '@type': 'Answer', text: 'صور المنتجات تُقدَّم عبر CDN عالمي، والمنتجات من كتالوج 21,000+ صنف موثق.' } },
+  { '@type': 'Question', name: 'ماذا يعني "قد يكون غير متوفر"؟', acceptedAnswer: { '@type': 'Answer', text: 'شارة تحذيرية تظهر بعد اعتماد الإدارة لبلاغ نقص من الصيدليات — المنتج يبقى قابلاً للطلب.' } },
+];
+
+/**
+ * P13-R16: "Cite this" block for medical/drug pages — plain text plus BibTeX
+ * carrying the URL, the author and the access timestamp. BibTeX-unsafe
+ * characters are stripped so the entry always parses.
+ */
+export function buildCitation(input: { title: string; author: string; url: string; date?: Date | string }): { text: string; bibtex: string } {
+  const title = String(input?.title || '').trim() || 'Untitled';
+  const author = String(input?.author || '').trim() || SITE_NAME;
+  const url = String(input?.url || '').trim();
+  const at = input?.date ? new Date(input.date) : new Date();
+  const stamp = Number.isNaN(at.getTime()) ? new Date() : at;
+  const accessed = stamp.toISOString().slice(0, 10);
+  const text = `${author}. ${title}. ${SITE_NAME}. ${url} (accessed ${accessed}).`;
+  const safe = (s: string) => String(s).replace(/[{}"\\]/g, '').slice(0, 300);
+  const key = `nabdplus-${accessed.replace(/-/g, '')}-${Math.abs([...title].reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 7) % 10000)}`;
+  const bibtex = `@online{${key},\n  title = {${safe(title)}},\n  author = {${safe(author)}},\n  url = {${safe(url)}},\n  urldate = {${accessed}}\n}`;
+  return { text, bibtex };
+}
 
 function slugify(s: string): string {
   return (s || '').trim().replace(/[\s_]+/g, '-').replace(/[^\p{L}\p{N}-]/gu, '').replace(/-+/g, '-').replace(/^-|-$/g, '').toLowerCase().slice(0, 80);
@@ -198,11 +229,34 @@ export class SeoSearchService {
   private catalogCountCache = { exp: 0, val: 0 };
   async catalogCount(): Promise<number> {
     if (Date.now() < this.catalogCountCache.exp) return this.catalogCountCache.val;
-    const n = await this.conn.collection(CATALOG_COLLECTIONS.medicines).estimatedDocumentCount().catch(() => 0);
+    // The advertised product count (llms.txt) counts the public catalogue only.
+    const n = await this.conn.collection(CATALOG_COLLECTIONS.medicines).countDocuments(this.publicProductFilter()).catch(() => 0);
     this.catalogCountCache = { exp: Date.now() + 3600_000, val: n };
     return n;
   }
 
+  /**
+   * P14.3: the number of public products, the `total` of every catalogue page without a search term. It was a
+   * countDocuments over the whole catalogue on each page (the second-largest Mongo cost in the 2026-10-16 capacity run).
+   * Kept 60 s in the process; concurrent misses share one count. A publish shows in the total within a minute; the
+   * items themselves are always read live.
+   */
+  private publicCountCache: { exp: number; val: number; pending: Promise<number> | null } = { exp: 0, val: 0, pending: null };
+  private publicListingCount(filter: any): Promise<number> {
+    const c = this.publicCountCache;
+    if (Date.now() < c.exp) return Promise.resolve(c.val);
+    if (!c.pending) {
+      c.pending = this.conn.collection(CATALOG_COLLECTIONS.medicines).countDocuments(filter)
+        .then((n) => { this.publicCountCache = { exp: Date.now() + 60_000, val: n, pending: null }; return n; })
+        .catch((e) => { c.pending = null; throw e; });
+    }
+    return c.pending;
+  }
+
+  /**
+   * P13-R16: "Cite this" block for medical/drug pages (plain text + BibTeX
+   * with URL, author and access timestamp). Pure and exported for tests.
+   */
   async metadata(type: string, id: string): Promise<any> {
     const entity = await this.loadEntity(type, id);
     if (!entity) return null;
@@ -211,10 +265,17 @@ export class SeoSearchService {
     const canonical = `${SITE}/s/${type}/${slug}`;
     const description = base.description.slice(0, 155);
     const image = base.image || `${SITE}/og-default.png`;
+    const author = type === 'medicine'
+      ? entity.manufacturer || SITE_NAME
+      : type === 'article'
+        ? entity.author_name || SITE_NAME
+        : entity.name || entity.full_name || SITE_NAME;
+    const stamp = entity.updatedAt || entity.published_at || entity.last_reviewed || new Date();
     return {
       type, id: entity.id, slug, canonical_url: canonical,
       page_title: `${base.title} | ${SITE_NAME}`,
       meta_description: description,
+      citation: buildCitation({ title: base.title, author: String(author), url: canonical, date: stamp }),
       og: {
         'og:title': base.title, 'og:description': description, 'og:url': canonical,
         'og:image': image, 'og:type': base.ogType, 'og:site_name': SITE_NAME, 'og:locale': 'ar_SA',
@@ -227,10 +288,37 @@ export class SeoSearchService {
     };
   }
 
+  /**
+   * P13-R16: site FAQPage driven by the admin-managed faqs collection, with
+   * the long-standing default copy as fallback when the collection is empty.
+   */
+  async siteFaqJsonLd(): Promise<any> {
+    try {
+      const rows: any[] = await this.conn.collection('faqs')
+        .find({ active: { $ne: false } })
+        .sort({ sort: 1 })
+        .limit(20)
+        .toArray();
+      const items = (rows || [])
+        .filter((r: any) => r?.question_ar && r?.answer_ar)
+        .map((r: any) => ({
+          '@type': 'Question',
+          name: String(r.question_ar),
+          acceptedAnswer: { '@type': 'Answer', text: String(r.answer_ar) },
+        }));
+      if (items.length > 0) {
+        return { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: items };
+      }
+    } catch { /* fall through to defaults */ }
+    return { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: SITE_FAQ_DEFAULTS };
+  }
+
   private async loadEntity(type: string, id: string): Promise<any> {
     if (type === 'category') return { id, is_category: true };
     const col = type === 'medicine' ? CATALOG_COLLECTIONS.medicines : type === 'article' ? 'articles' : 'provider_profiles';
-    return this.conn.collection(col).findOne({ id }, { projection: { _id: 0 } });
+    // Public SEO metadata: a medicine still in medical review has no public page.
+    const gate = type === 'medicine' ? this.publicProductFilter() : {};
+    return this.conn.collection(col).findOne({ ...gate, id }, { projection: { _id: 0 } });
   }
 
   private cdn(u?: string) {
@@ -251,13 +339,22 @@ export class SeoSearchService {
       case 'medicine': {
         const title = e.name_ar || e.name_en || 'منتج';
         const desc = [e.description_ar, e.active_ingredient ? `المادة الفعالة: ${e.active_ingredient}` : null, e.manufacturer ? `من ${e.manufacturer}` : null].filter(Boolean).join(' — ') || `${title} — متوفر في صيدلية ${SITE_NAME}`;
+        // P13-R16: the commerce node is unchanged; the Drug node carries the
+        // medical semantics (validators accept @graph with both types).
+        const product = (url: string, img: string) => ({
+          '@context': 'https://schema.org', '@type': 'Product', name: title, description: desc, image: img, url,
+          brand: e.manufacturer ? { '@type': 'Brand', name: e.manufacturer } : undefined,
+          offers: e.price ? { '@type': 'Offer', price: e.price, priceCurrency: 'SAR', availability: e.availability_status === 'none' || !e.availability_status ? 'https://schema.org/InStock' : 'https://schema.org/LimitedAvailability' } : undefined,
+        });
+        const drug = (url: string) => ({
+          '@context': 'https://schema.org', '@type': 'Drug', name: title, description: desc, url,
+          ...(e.active_ingredient ? { activeIngredient: e.active_ingredient } : {}),
+          ...(e.manufacturer ? { manufacturer: { '@type': 'Organization', name: e.manufacturer } } : {}),
+          ...(e.dosage_form || e.form ? { dosageForm: e.dosage_form || e.form } : {}),
+        });
         return {
           title, description: desc, image: e.image ? this.cdn(e.image) : null, ogType: 'product', changefreq: 'weekly', priority: 0.8,
-          jsonLd: (url: string, img: string) => ({
-            '@context': 'https://schema.org', '@type': 'Product', name: title, description: desc, image: img, url,
-            brand: e.manufacturer ? { '@type': 'Brand', name: e.manufacturer } : undefined,
-            offers: e.price ? { '@type': 'Offer', price: e.price, priceCurrency: 'SAR', availability: e.availability_status === 'none' || !e.availability_status ? 'https://schema.org/InStock' : 'https://schema.org/LimitedAvailability' } : undefined,
-          }),
+          jsonLd: (url: string, img: string) => ({ '@context': 'https://schema.org', '@graph': [product(url, img), drug(url)] }),
           breadcrumbs: (url: string) => this.crumbs(url, [['الرئيسية', SITE], ['الصيدلية', `${SITE}/pharmacy`], [e.category || 'منتجات', null], [title, url]]),
         };
       }
@@ -296,7 +393,7 @@ export class SeoSearchService {
    * false), so an item added in the admin never reached patients. A page that is not indexable says noindex.
    */
   private publicProductFilter() {
-    return { is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' } as any;
+    return publicMedicineFilter() as any;
   }
 
   /** Search-engine surfaces (sitemaps, product count for them): published and indexing_eligibility. */
@@ -382,22 +479,78 @@ export class SeoSearchService {
     const fetched = await cursor.toArray();
     const hasMore = fetched.length > perPage;
     const rows = hasMore ? fetched.slice(0, perPage) : fetched;
-    const total = term ? ((Math.max(page, 1) - 1) * perPage + rows.length + (hasMore ? 1 : 0)) : await this.conn.collection(CATALOG_COLLECTIONS.medicines).countDocuments(filter);
+    const total = term ? ((Math.max(page, 1) - 1) * perPage + rows.length + (hasMore ? 1 : 0)) : await this.publicListingCount(filter);
     return {
       query: term || null, locale, page: Math.max(page, 1), limit: perPage, total, has_more: hasMore,
-      items: rows.map((m: any) => {
-        const dto = resolveMedicinePublicDto(m, locale);
-        return {
-          sku: dto.sku, id: dto.id, slug: dto.slug, name: dto.name, official_name: dto.official_name,
-          description: dto.description, category: dto.category, sub_category: dto.sub_category,
-          form: dto.form, strength: dto.strength, package_size: dto.package_size,
-          active_ingredient: dto.active_ingredient, manufacturer: dto.manufacturer,
-          price: dto.price, old_price: dto.old_price, currency: dto.currency,
-          is_rx: dto.is_rx, online_exclusive: dto.online_exclusive, available: dto.available, image: dto.image,
-          url: `${process.env.WEB_PUBLIC_URL || 'https://nabd.plus'}/${locale}/p/${encodeURIComponent(String(dto.slug))}`,
-        };
-      }),
+      items: rows.map((m: any) => this.publicProductCard(m, locale)),
     };
+  }
+
+  /** One localized, buy-ready product card (the search results and the product page's equivalents share it). */
+  private publicProductCard(m: any, locale: string) {
+    const dto = resolveMedicinePublicDto(m, locale);
+    return {
+      sku: dto.sku, id: dto.id, slug: dto.slug, name: dto.name, official_name: dto.official_name,
+      description: dto.description, category: dto.category, sub_category: dto.sub_category,
+      form: dto.form, strength: dto.strength, package_size: dto.package_size,
+      active_ingredient: dto.active_ingredient, manufacturer: dto.manufacturer,
+      price: dto.price, old_price: dto.old_price, currency: dto.currency,
+      is_rx: dto.is_rx, online_exclusive: dto.online_exclusive, available: dto.available, image: dto.image,
+      url: `${process.env.WEB_PUBLIC_URL || 'https://nabd.plus'}/${locale}/p/${encodeURIComponent(String(dto.slug))}`,
+    };
+  }
+
+  /**
+   * Issue 1547: what the product page shows under the product. `equivalents`: the published products with the same
+   * NORMALIZED active ingredient set (product-equivalents.ts), same strength first. `similar`: only when there is no
+   * equivalent, the published products of the same therapeutic class (sub_sub_category), then of the same
+   * sub-category, then of the same category, most used first. Both empty when there is nothing to show.
+   * Unknown or unpublished product: 404. Prices and the Rx rule come from the public DTO (no old price on Rx).
+   */
+  async publicProductEquivalents(locale: string, id: string, limit = 8) {
+    const col = this.conn.collection(CATALOG_COLLECTIONS.medicines);
+    const med: any = await col.findOne(
+      { ...this.publicProductFilter(), id },
+      { projection: { _id: 0, id: 1, active_ingredient: 1, strength: 1, form: 1, category: 1, sub_category: 1, sub_sub_category: 1 } },
+    );
+    if (!med) throw new NotFoundException('product_not_found');
+    const max = Math.min(Math.max(Number.isFinite(limit) ? limit : 8, 1), 20);
+    const fullProjection = { _id: 0, interactions: 0, change_requests: 0 };
+    const cards = async (ids: string[]) => {
+      if (!ids.length) return [];
+      const rows: any[] = await col.find({ ...this.publicProductFilter(), id: { $in: ids } } as any, { projection: fullProjection } as any).toArray();
+      const byId = new Map(rows.map((r) => [r.id, r]));
+      return ids.map((x) => byId.get(x)).filter(Boolean).map((m) => this.publicProductCard(m, locale));
+    };
+
+    const parts = ingredientParts(med.active_ingredient);
+    const pattern = ingredientCandidatePattern(parts);
+    let equivalentIds: string[] = [];
+    if (pattern) {
+      const candidates: EquivalentRow[] = await col.find(
+        { ...this.publicProductFilter(), id: { $ne: id }, active_ingredient: { $regex: pattern, $options: 'i' }, price: { $gt: 0 } } as any,
+        { projection: { _id: 0, id: 1, active_ingredient: 1, strength: 1, form: 1, usage_count: 1, price: 1 } } as any,
+      ).limit(500).toArray() as any;
+      equivalentIds = rankEquivalents(med, candidates, max).map((r) => r.id);
+    }
+    const equivalents = await cards(equivalentIds);
+    if (equivalents.length) return { locale, id, equivalents, similar: [] };
+
+    // No equivalent: the same therapeutic class, widening to the sub-category and the category until the list is full.
+    const scopes: Array<Record<string, string>> = [];
+    if (med.category && med.sub_category && med.sub_sub_category) scopes.push({ category: med.category, sub_category: med.sub_category, sub_sub_category: med.sub_sub_category });
+    if (med.category && med.sub_category) scopes.push({ category: med.category, sub_category: med.sub_category });
+    if (med.category) scopes.push({ category: med.category });
+    const similarIds: string[] = [];
+    for (const scope of scopes) {
+      if (similarIds.length >= max) break;
+      const rows: any[] = await col.find(
+        { ...this.publicProductFilter(), ...scope, id: { $nin: [id, ...similarIds] }, price: { $gt: 0 } } as any,
+        { projection: { _id: 0, id: 1 } } as any,
+      ).sort({ usage_count: -1, id: 1 }).limit(max - similarIds.length).toArray();
+      similarIds.push(...rows.map((r) => r.id));
+    }
+    return { locale, id, equivalents: [], similar: await cards(similarIds) };
   }
 
   /** Slug batches for the web sitemap index (paginated XML sitemaps). */
@@ -435,6 +588,13 @@ export class SeoSearchService {
       for (const [k, v] of this.sitemapCache) if (v.exp <= now) this.sitemapCache.delete(k);
     }
     return val;
+  }
+
+  /** Image sitemap rows: a sitemap lists only indexable public products. */
+  async imageSitemapMedicines(): Promise<any[]> {
+    return this.conn.collection(CATALOG_COLLECTIONS.medicines)
+      .find({ ...this.indexableProductFilter(), image: { $ne: null } }, { projection: { _id: 0, id: 1, name_ar: 1, slug: 1, image: 1 } } as any)
+      .sort({ usage_count: -1 }).limit(1500).toArray();
   }
 
   async publicProductCount(): Promise<number> {
@@ -827,7 +987,7 @@ export class SeoSearchService {
         { 'translations.tl.search_aliases': trx },
       );
     }
-    const medQuery = { is_deleted: { $ne: true }, $or: medOrClauses };
+    const medQuery = { ...this.publicProductFilter(), $or: medOrClauses };
     const [medicines, doctors, pharmacies, hospitals, labs, services] = await Promise.all([
       this.conn.collection(CATALOG_COLLECTIONS.medicines).find(medQuery as any, { projection: medProj } as any).limit(limit).toArray(),
       this.conn.collection('provider_profiles').find({ provider_type: 'doctor', $or: [{ name: rx }, { full_name: rx }, { specialty: rx }] } as any, { projection: docProj } as any).limit(limit).toArray(),
@@ -879,7 +1039,9 @@ export class SeoSearchService {
    * and the structure is AI-ranking ready (score breakdown exposed).
    */
   async medicineRecommendations(id: string, limit = 12): Promise<any> {
-    const med: any = await this.conn.collection(CATALOG_COLLECTIONS.medicines).findOne({ id, is_deleted: { $ne: true } }, { projection: { _id: 0 } });
+    // P13-R8: internal links only from real, governed edges — the root and
+    // every candidate must pass the same public rule as the entity pages.
+    const med: any = await this.conn.collection(CATALOG_COLLECTIONS.medicines).findOne({ id, ...PUBLIC_MEDICINE }, { projection: { _id: 0 } });
     if (!med) return { strategy: 'none', items: [] };
     const card = { _id: 0, id: 1, name_ar: 1, name_en: 1, price: 1, old_price: 1, image: 1, manufacturer: 1, brand: 1, requires_prescription: 1, form: 1, strength: 1, active_ingredient: 1, category: 1, sub_category: 1, usage_count: 1, availability_status: 1 };
 
@@ -896,25 +1058,25 @@ export class SeoSearchService {
     const queries: Array<Promise<any>> = [];
     // 1) Same active ingredient (strongest)
     if (med.active_ingredient) {
-      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ active_ingredient: med.active_ingredient, is_deleted: { $ne: true } } as any, { projection: card } as any).limit(20).toArray()
+      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ active_ingredient: med.active_ingredient, ...PUBLIC_MEDICINE } as any, { projection: card } as any).limit(20).toArray()
         .then(rows => rows.forEach(r => add(r, 50, 'نفس المادة الفعالة'))));
     }
     // 2) Same strength/dosage (within ingredient match)
     if (med.active_ingredient && med.strength) {
-      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ active_ingredient: med.active_ingredient, strength: med.strength, is_deleted: { $ne: true } } as any, { projection: card } as any).limit(10).toArray()
+      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ active_ingredient: med.active_ingredient, strength: med.strength, ...PUBLIC_MEDICINE } as any, { projection: card } as any).limit(10).toArray()
         .then(rows => rows.forEach(r => add(r, 15, 'نفس التركيز'))));
     }
     // 3) Same category + sub_category (usage similarity)
-    queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ category: med.category, sub_category: med.sub_category, is_deleted: { $ne: true } } as any, { projection: card } as any).limit(20).toArray()
+    queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ category: med.category, sub_category: med.sub_category, ...PUBLIC_MEDICINE } as any, { projection: card } as any).limit(20).toArray()
       .then(rows => rows.forEach(r => add(r, med.active_ingredient ? 10 : 30, 'نفس الفئة والاستخدام'))));
     // 4) Same brand/manufacturer
     const brand = med.brand || med.manufacturer;
     if (brand) {
-      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ $or: [{ brand }, { manufacturer: brand }], is_deleted: { $ne: true } } as any, { projection: card } as any).limit(15).toArray()
+      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ $or: [{ brand }, { manufacturer: brand }], ...PUBLIC_MEDICINE } as any, { projection: card } as any).limit(15).toArray()
         .then(rows => rows.forEach(r => add(r, 8, 'نفس البراند'))));
     }
     // 5) Popularity boost (usage_count percentile)
-    queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ category: med.category, is_deleted: { $ne: true } } as any, { projection: card } as any).sort({ usage_count: -1 }).limit(10).toArray()
+    queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ category: med.category, ...PUBLIC_MEDICINE } as any, { projection: card } as any).sort({ usage_count: -1 }).limit(10).toArray()
       .then(rows => rows.forEach(r => add(r, Math.min(12, (r.usage_count || 0) / 10), 'الأكثر رواجاً'))));
     await Promise.all(queries);
 
@@ -930,15 +1092,17 @@ export class SeoSearchService {
   }
 
   async doctorRecommendations(id: string, limit = 10): Promise<any> {
-    const doc: any = await this.conn.collection('provider_profiles').findOne({ id, provider_type: 'doctor' } as any, { projection: { _id: 0 } });
+    // P13-R8: internal links only from real, governed edges — same public
+    // rule as the doctor pages (suspended or unreviewed doctors link nowhere).
+    const doc: any = await this.conn.collection('provider_profiles').findOne({ id, provider_type: 'doctor', ...PUBLIC_TYPED_PROVIDER } as any, { projection: { _id: 0 } });
     if (!doc) return { same_specialty: [], nearby: [] };
     const card = { _id: 0, id: 1, name: 1, full_name: 1, specialty: 1, photo_url: 1, rating: 1, city: 1, consultation_price: 1 };
     const [sameSpecialty, nearby] = await Promise.all([
       doc.specialty
-        ? this.conn.collection('provider_profiles').find({ provider_type: 'doctor', specialty: doc.specialty, id: { $ne: id } } as any, { projection: card } as any).sort({ rating: -1 }).limit(limit).toArray()
+        ? this.conn.collection('provider_profiles').find({ provider_type: 'doctor', specialty: doc.specialty, id: { $ne: id }, ...PUBLIC_TYPED_PROVIDER } as any, { projection: card } as any).sort({ rating: -1 }).limit(limit).toArray()
         : Promise.resolve([]),
       doc.city
-        ? this.conn.collection('provider_profiles').find({ provider_type: 'doctor', city: doc.city, id: { $ne: id } } as any, { projection: card } as any).sort({ rating: -1 }).limit(limit).toArray()
+        ? this.conn.collection('provider_profiles').find({ provider_type: 'doctor', city: doc.city, id: { $ne: id }, ...PUBLIC_TYPED_PROVIDER } as any, { projection: card } as any).sort({ rating: -1 }).limit(limit).toArray()
         : Promise.resolve([]),
     ]);
     return { same_specialty: sameSpecialty, nearby, ranking: 'specialty>nearby>rating (AI-rank ready)' };
@@ -995,15 +1159,9 @@ export class SeoSearchController {
   @Public()
   @Get('seo/site/faq')
   faqSchema(): any {
-    return {
-      '@context': 'https://schema.org', '@type': 'FAQPage',
-      mainEntity: [
-        { '@type': 'Question', name: 'هل الطلب يحتاج وصفة طبية؟', acceptedAnswer: { '@type': 'Answer', text: 'الأدوية المميزة بشارة RX فقط تتطلب رفع روشتة قبل إتمام الدفع.' } },
-        { '@type': 'Question', name: 'هل يمكن الطلب كضيف؟', acceptedAnswer: { '@type': 'Answer', text: 'نعم — التصفح والبحث والطلب والحجز متاحة للضيوف، والتأمين والعائلة يتطلبان حساباً.' } },
-        { '@type': 'Question', name: 'كيف تصل الصور والمنتجات؟', acceptedAnswer: { '@type': 'Answer', text: 'صور المنتجات تُقدَّم عبر CDN عالمي، والمنتجات من كتالوج 21,000+ صنف موثق.' } },
-        { '@type': 'Question', name: 'ماذا يعني "قد يكون غير متوفر"؟', acceptedAnswer: { '@type': 'Answer', text: 'شارة تحذيرية تظهر بعد اعتماد الإدارة لبلاغ نقص من الصيدليات — المنتج يبقى قابلاً للطلب.' } },
-      ],
-    };
+    // P13-R16: collection-driven via the service; the previous hardcoded copy
+    // stays the fallback inside siteFaqJsonLd, so this route never 500s.
+    return this.svc.siteFaqJsonLd();
   }
 
   @Public()
@@ -1061,9 +1219,7 @@ export class SeoSearchController {
   @Public()
   @Get('image-sitemap.xml')
   async imageSitemap(@Res() res: Response) {
-    const meds = await (this.svc as any).conn.collection(CATALOG_COLLECTIONS.medicines)
-      .find({ is_deleted: { $ne: true }, image: { $ne: null } }, { projection: { _id: 0, id: 1, name_ar: 1, slug: 1, image: 1 } } as any)
-      .sort({ usage_count: -1 }).limit(1500).toArray();
+    const meds = await this.svc.imageSitemapMedicines();
     const cdn = (u: string) => u?.startsWith('http') ? u : `${process.env.S3_PUBLIC_BASE_URL || 'https://cdn.nabd.plus'}/${u}`;
     const urls = meds.map((m: any) => {
       const slug = m.slug || m.id;
@@ -1113,6 +1269,14 @@ export class SeoSearchController {
   ) {
     const loc = (PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale || '') ? locale! : 'ar';
     return this.svc.publicProductSearch(q || '', loc, parseInt(limit || '20'), parseInt(page || '1'));
+  }
+
+  /** Issue 1547: the product page's equivalents (same normalized active ingredient), or similar products when none. */
+  @Public()
+  @Get('public/product-equivalents/:locale/:id')
+  publicProductEquivalents(@Param('locale') locale: string, @Param('id') id: string, @Query('limit') limit?: string) {
+    if (!(PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale)) throw new NotFoundException('locale_not_supported');
+    return this.svc.publicProductEquivalents(locale, id, Number.parseInt(limit ?? '', 10) || 8);
   }
 
   /** Legacy id-based lookup (redirects legacy /medicines/:id pages to /p/{slug}). */
@@ -1264,6 +1428,7 @@ export class SeoAdminController {
    * (live sitemap showed raw UUIDs). Bounded batches; each entity goes
    * through the governed pipeline (collision check + history).
    */
+  @RequirePermissions(Permission.SEO_CONTROL)
   @Post('backfill-slugs')
   async backfillSlugs(@Body() dto: BackfillSlugsDto) {
     if (!this.pipeline) return { ok: false, error: 'pipeline_unavailable' };
@@ -1279,6 +1444,7 @@ export class SeoAdminController {
    * R49 warmup: prime Redis + edge cache for the hottest public URLs
    * after each deploy (sitemap, catalogs, MCP). Call once post-deploy.
    */
+  @RequirePermissions(Permission.SEO_CONTROL)
   @Post('warm-cache')
   async warmCache() {
     const base = (process.env.NABD_PUBLIC_URL || 'https://api.nabd.plus').replace(/\/$/, '');

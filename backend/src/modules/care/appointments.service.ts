@@ -1,4 +1,5 @@
 import { escapeRegex } from '../../common/slug.util';
+import { pickAttribution } from '../../common/attribution';
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException, Logger, Inject, Optional } from '@nestjs/common';
 import { Model, Connection } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -13,6 +14,9 @@ import { AppointmentRepository } from "./repositories/appointment.repository";
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
 import { hasEffectiveRole } from '../../common/auth.guard';
 import { DEFAULT_REFUND_POLICY } from '../refund-policy/refund-policy.defaults';
+import { KillSwitchesService } from '../kill-switches/kill-switches.service';
+import { isOnlineConsultation } from '../chat/consultation-window';
+import { assertTelehealthConsent } from '../legal/telehealth-consent';
 
 /** Platform fee schedule (SAR). Move to DB/config when admin dashboard supports it. */
 const PLATFORM_FEES = {
@@ -39,6 +43,7 @@ export class AppointmentsService {
     private engine: WorkflowEngineService,
     private insurance: InsuranceFlowService,
     @Optional() private locks?: SlotLocksService,
+    @Optional() private readonly killSwitches?: KillSwitchesService,
   ) {}
 
   /**
@@ -95,31 +100,12 @@ export class AppointmentsService {
   }
 
   /**
-   * D-38: the first online (video) consultation needs the current telehealth_consent.
-   * Throws telehealth_consent_required when the patient has not accepted it. When the
-   * deployment configures no such policy (or the connection double has no collections),
-   * booking proceeds as before.
+   * D-38: the first online (video) consultation needs the current telehealth_consent (legal/telehealth-consent.ts).
+   * Throws telehealth_consent_required when it has not been accepted. When the deployment publishes no such policy
+   * (or the connection double has no collections), booking proceeds as before.
    */
-  private async assertTelehealthConsent(patientId: string): Promise<void> {
-    let policies: any = null;
-    let acceptances: any = null;
-    try {
-      policies = (this.connection as any)?.collection?.('legal_policies')
-        ?? (this.connection as any)?.db?.collection?.('legal_policies');
-      acceptances = (this.connection as any)?.collection?.('legal_acceptances')
-        ?? (this.connection as any)?.db?.collection?.('legal_acceptances');
-    } catch {
-      return;
-    }
-    if (!policies || !acceptances) return;
-    const policy: any = await policies.findOne({ key: 'telehealth_consent' });
-    if (!policy || policy.requires_acceptance === false) return;
-    const accepted: any = await acceptances.findOne({
-      user_id: patientId,
-      policy_key: 'telehealth_consent',
-      version: policy.version,
-    });
-    if (!accepted) throw new BadRequestException('telehealth_consent_required');
+  private async assertTelehealthConsent(accountId: string): Promise<void> {
+    await assertTelehealthConsent(this.connection, accountId);
   }
 
   async create(user: any, body: {
@@ -140,6 +126,8 @@ export class AppointmentsService {
     if (!body?.doctor_id || !body?.service_type || !body?.slot_start) {
       throw new BadRequestException('doctor_id, service_type, slot_start required');
     }
+    // Issue 955: the admin kill switch for remote consultations refuses new video/voice bookings before anything is held.
+    if (isOnlineConsultation({ service_type: body.service_type })) await this.killSwitches?.assertOn('online_consultations');
     // On-behalf family booking: patient becomes the member, booker is audited
     let patientId: string = user.id;
     let bookedBy: string | undefined;
@@ -166,8 +154,10 @@ export class AppointmentsService {
     }
     // D-38: the first online (video) consultation needs telehealth_consent. Skipped when
     // the deployment configures no such policy, so unit doubles without collections keep working.
+    // The account that books (and accepts in the app or on the web) is the one asked: a guardian booking for a family
+    // member accepts for that visit, since the member has no session of their own to accept with.
     if (body.service_type === 'video') {
-      await this.assertTelehealthConsent(patientId);
+      await this.assertTelehealthConsent(user.id);
     }
     const slotStart = new Date(body.slot_start);
     if (isNaN(slotStart.getTime()) || slotStart.getTime() < Date.now() + 5 * 60_000) {
@@ -271,6 +261,8 @@ export class AppointmentsService {
         patient_notes: body.patient_notes,
         symptoms: body.symptoms || [],
         visit_location: body.visit_location,
+        // P17-17.5: campaign attribution for the campaign report.
+        attribution: pickAttribution(body) ?? undefined,
         payment_method: pm,
         insurance_provider: body.insurance_provider,
         insurance_member_id: body.insurance_member_id,
@@ -341,9 +333,14 @@ export class AppointmentsService {
     return !!linked;
   }
 
-  private async assertAppointmentAccess(appt: any, user: any): Promise<void> {
+  /**
+   * `booker`: the family member who booked and paid for someone else (684) may also read the booking, preview its
+   * refund and cancel it; never join the call, read the medical summary or move its state.
+   */
+  private async assertAppointmentAccess(appt: any, user: any, opts: { booker?: boolean } = {}): Promise<void> {
     if (user?.role === UserRole.ADMIN || user?.role === UserRole.SUPER_ADMIN) return;
     if (appt.patient_id === user?.id) return;
+    if (opts.booker && appt.booked_by_user_id && appt.booked_by_user_id === user?.id) return;
     if (await this.isDoctorOwner(appt, user)) return;
     if (await this.isFacilityOwner(appt, user)) return;
     throw new ForbiddenException();
@@ -394,9 +391,11 @@ export class AppointmentsService {
     const appt = await this.apptModel.findOne({ id }, { _id: 0, __v: 0 });
     if (!appt) throw new NotFoundException();
     // Authorization: patient owner OR the doctor's provider identity OR admin.
-    await this.assertAppointmentAccess(appt, user);
+    await this.assertAppointmentAccess(appt, user, { booker: true });
 
     const obj: any = appt.toObject();
+    // 2-app#3: the doctor's position is shared only while the doctor is on the way
+    if (String(obj.status) !== APPT_STATES.EN_ROUTE) delete obj.doctor_position;
     
     // B-1: follow-up linkage, both directions. `follow_up_of` is stored at
     // booking time (same patient + doctor, original completed — validated in
@@ -486,7 +485,7 @@ export class AppointmentsService {
   async cancel(id: string, user: any, reason?: string, isNoShow: boolean = false) {
     const appt = await this.apptModel.findOne({ id });
     if (!appt) throw new NotFoundException();
-    await this.assertAppointmentAccess(appt, user);
+    await this.assertAppointmentAccess(appt, user, { booker: true });
 
     const { refundPercentage, refundDestination, penaltyAmount } = await this.calculateRefund(appt, user, reason, isNoShow);
 
@@ -517,7 +516,7 @@ export class AppointmentsService {
   async previewRefund(id: string, user: any): Promise<{ refund_percentage: number; refund_destination: string; penalty_amount: number; estimated_amount: number }> {
     const appt = await this.apptModel.findOne({ id });
     if (!appt) throw new NotFoundException();
-    await this.assertAppointmentAccess(appt, user);
+    await this.assertAppointmentAccess(appt, user, { booker: true });
     const { refundPercentage, refundDestination, penaltyAmount } = await this.calculateRefund(appt, user);
     const estimatedAmount = Math.round((Number(appt.total_price || 0) * refundPercentage) / 100);
     return { refund_percentage: refundPercentage, refund_destination: refundDestination, penalty_amount: penaltyAmount, estimated_amount: estimatedAmount };
@@ -585,6 +584,21 @@ export class AppointmentsService {
   }
 
   /** Q-15: provider arrived — home visits only. Emits appointment.arrived. */
+  /**
+   * 2-app#3: the doctor's live position while on the way to a home visit (the provider app sends it every half minute or
+   * so). Only the appointment's own doctor, only for a home visit in EN_ROUTE; the patient reads it on the appointment.
+   */
+  async updatePosition(id: string, user: any, lat: number, lng: number) {
+    const appt = await this.apptModel.findOne({ id });
+    if (!appt) throw new NotFoundException();
+    if (!(await this.isDoctorOwner(appt, user)) && user?.role !== UserRole.ADMIN) throw new ForbiddenException();
+    if (appt.service_type !== 'home' || appt.status !== APPT_STATES.EN_ROUTE) throw new BadRequestException('position_only_while_en_route');
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) throw new BadRequestException('invalid_position');
+    const at = new Date();
+    await this.apptModel.updateOne({ id }, { $set: { doctor_position: { lat, lng, at } } });
+    return { ok: true, at };
+  }
+
   async arrive(id: string, user: any) {
     const appt = await this.apptModel.findOne({ id });
     if (!appt) throw new NotFoundException();
