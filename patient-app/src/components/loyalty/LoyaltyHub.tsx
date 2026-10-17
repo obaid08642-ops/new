@@ -15,7 +15,9 @@ import { logError } from '../../utils/logger';
  * (Rewards, Challenges, Invite friends; `?tab=`) and the points history. One screen in place of rewards, challenges,
  * referrals and the removed leaderboard. GET /loyalty/account, /loyalty/transactions, /loyalty/config (tiers and ways to
  * earn: the server's own), /loyalty/rewards + POST claim, /loyalty/challenges + POST join, /referrals/my + POST apply.
- * Every title, description, tier name and perk is the server's text; the screen adds no rule, no amount and no colour.
+ * Reward, challenge and invitation titles are the server's text; the tier names, the perks and the ways to earn are
+ * translated by the server's stable ids (tier id, perk code, earn reason) and show the server's text only for an id this
+ * app does not know yet. The screen adds no rule, no amount and no colour.
  */
 
 const TABS = ['rewards', 'challenges', 'invite'] as const;
@@ -29,9 +31,11 @@ interface Tier {
   label: string;
   minPts: number;
   perks?: string[];
+  perk_codes?: string[];
 }
 interface EarnWay {
   action: string;
+  reason?: string | null;
   pts: number | string;
 }
 interface Config {
@@ -57,6 +61,28 @@ interface HubData {
   earnWays: EarnWay[];
   transactions: Transaction[];
 }
+
+type Translate = (key: string, vars?: Record<string, string | number>) => string;
+const known = (k: Translate, key: string): string | null => {
+  const text = k(key);
+  return text === key ? null : text;
+};
+/** A tier's name in the patient's language (by the tier id), else the server's own label. */
+export const tierName = (k: Translate, tier: Tier): string => known(k, `loyalty.tier.${tier.id}`) ?? tier.label;
+/** A perk in the patient's language (by its code), else the server's own text. */
+export const perkText = (k: Translate, tier: Tier, index: number): string => {
+  const code = tier.perk_codes?.[index];
+  return (code ? known(k, `loyalty.perk.${code}`) : null) ?? tier.perks?.[index] ?? '';
+};
+/** A way to earn: its title and its amount caption in the patient's language (by the earn reason). */
+export const earnText = (k: Translate, num: (n: number) => string, way: EarnWay): { title: string; caption: string } => {
+  // The server's one way without a reason is the challenge row, whose points are a text label (never a number); any other
+  // way without a reason is not one this app knows, so it shows the server's own text and amount.
+  const challenge = !way.reason && typeof way.pts !== 'number';
+  const title = (way.reason ? known(k, `loyalty.earn.${way.reason}`) : challenge ? known(k, 'loyalty.earn.challenge') : null) ?? way.action;
+  if (challenge) return { title, caption: k('loyalty.earn.perChallenge') };
+  return { title, caption: k('loyalty.pointsAmount', { points: typeof way.pts === 'number' ? num(way.pts) : way.pts }) };
+};
 
 /** The balance, the tier and its progress to the next tier (only what the server sent). */
 export function tierProgress(tiers: Tier[], tierId: string, points: number) {
@@ -100,8 +126,8 @@ export function LoyaltyHubView() {
               testID="loyalty-balance"
               tone={tone}
               ring={{ value: progress.share, label: k('loyalty.balanceLabel', { points: num(data.points) }), valueText: num(data.points), caption: k('loyalty.points') }}
-              title={progress.current.label}
-              lines={progress.next && progress.missing > 0 ? [k('loyalty.toNext', { points: num(progress.missing), tier: progress.next.label })] : []}
+              title={tierName(k, progress.current)}
+              lines={progress.next && progress.missing > 0 ? [k('loyalty.toNext', { points: num(progress.missing), tier: tierName(k, progress.next) })] : []}
             >
               <CareBar value={progress.share} tone={tone} label={k('loyalty.progress')} />
             </CareHero>
@@ -197,25 +223,25 @@ function RewardsTab({ points, data, progress, onChanged }: { points: number; dat
         <Section title={k('loyalty.earn.title')}>
           <Panel>
             {data.earnWays.map((way, i) => (
-              <Row key={`${way.action}-${i}`} icon="star" tone={TIER_TONES[i % TIER_TONES.length]} title={way.action} caption={k('loyalty.pointsAmount', { points: typeof way.pts === 'number' ? num(way.pts) : way.pts })} last={i === data.earnWays.length - 1} />
+              <Row key={`${way.action}-${i}`} icon="star" tone={TIER_TONES[i % TIER_TONES.length]} title={earnText(k, num, way).title} caption={earnText(k, num, way).caption} last={i === data.earnWays.length - 1} />
             ))}
           </Panel>
         </Section>
       ) : null}
       {progress.current?.perks && progress.current.perks.length > 0 ? (
-        <Section title={k('loyalty.perks.title', { tier: progress.current.label })}>
+        <Section title={k('loyalty.perks.title', { tier: tierName(k, progress.current) })}>
           <Panel>
             {progress.current.perks.map((perk, i) => (
-              <Row key={`${perk}-${i}`} icon="check-circle" tone="mint" title={perk} last={i === progress.current!.perks!.length - 1} />
+              <Row key={`${perk}-${i}`} icon="check-circle" tone="mint" title={perkText(k, progress.current!, i)} last={i === progress.current!.perks!.length - 1} />
             ))}
           </Panel>
         </Section>
       ) : null}
       {progress.next?.perks && progress.next.perks.length > 0 ? (
-        <Section title={k('loyalty.perks.next', { tier: progress.next.label })}>
+        <Section title={k('loyalty.perks.next', { tier: tierName(k, progress.next) })}>
           <Panel>
             {progress.next.perks.slice(0, 2).map((perk, i, all) => (
-              <Row key={`${perk}-${i}`} icon="star" tone="amber" title={perk} last={i === all.length - 1} />
+              <Row key={`${perk}-${i}`} icon="star" tone="amber" title={perkText(k, progress.next!, i)} last={i === all.length - 1} />
             ))}
           </Panel>
         </Section>

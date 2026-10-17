@@ -27,6 +27,7 @@ import { useInsuranceCatalog } from '../../../api/catalogs';
 import { SK, Vault } from '../../../security/Security';
 import { tokens, withAlpha } from '../../../theme/tokens';
 import { st } from './MedicalDrugIndexScreen';
+import { mapThreads, mapMessages } from '../../../utils/chatMap';
 
 export function ChatSystem({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
@@ -35,35 +36,31 @@ export function ChatSystem({ onBack }: { onBack: () => void }) {
   const [conversations, setConversations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchChats = async () => {
-      setLoading(true);
-      try {
-        const res = await client.get('/chats/threads');
-        const list = Array.isArray(res.data) ? res.data : (res.data?.threads || []);
-        setConversations(list.map((t: any) => ({
-          id: t.id,
-          name: t.name || t.booking_kind || '—',
-          lastMsg: t.last_message || '',
-          lastAt: t.last_message_at || null,
-          raw: t,
-        })));
-      } catch (err) {
-        // API unavailable — show empty state (no demo data in production)
-        setConversations([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchChats();
-  }, []);
+  const { user } = useAuth();
+  const me = String((user as { id?: string } | null)?.id || '');
+  const [loadErr, setLoadErr] = useState(false);
+
+  const fetchChats = useCallback(async () => {
+    setLoading(true); setLoadErr(false);
+    try {
+      // GET /chat/threads answers { threads, total }
+      const res = await client.get('/chat/threads');
+      setConversations(mapThreads(res.data, me, AR));
+    } catch {
+      // not "no conversations": the list could not be read
+      setLoadErr(true);
+    } finally {
+      setLoading(false);
+    }
+  }, [me, AR]);
+  useEffect(() => { void fetchChats(); }, [fetchChats]);
 
   if (activeChat) {
     return <ChatRoom conv={activeChat} onBack={() => setActiveChat(null)} />;
   }
 
   const filtered = conversations.filter(c =>
-    (c.name || '').includes(search) || (c.lastMsg || '').includes(search)
+    (c.name || '').toLowerCase().includes(search.toLowerCase()) || (c.lastMsg || '').toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -81,6 +78,10 @@ export function ChatSystem({ onBack }: { onBack: () => void }) {
         <View style={{ padding: SP.xl, alignItems: 'center' }}>
           <Text style={{ color: theme.textSub }}>{AR ? 'جاري التحميل...' : 'Loading...'}</Text>
         </View>
+      ) : loadErr ? (
+        <NEmpty title={AR ? 'تعذر تحميل المحادثات' : 'Could not load conversations'} sub={AR ? 'تحقق من الاتصال ثم أعد المحاولة.' : 'Check your connection and try again.'} actionLabel={AR ? 'إعادة المحاولة' : 'Retry'} onAction={() => { void fetchChats(); }} />
+      ) : filtered.length === 0 ? (
+        <NEmpty title={AR ? 'لا توجد محادثات' : 'No conversations yet'} sub={AR ? 'تظهر هنا محادثات الحجوزات مع المرضى.' : 'Conversations with patients for your bookings appear here.'} />
       ) : (
         <FlatList data={filtered} keyExtractor={i => i.id}
           contentContainerStyle={{ paddingHorizontal: SP.lg, paddingBottom: 100 }}
@@ -121,32 +122,52 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
   const [callType, setCallType] = useState<'audio'|'video'|null>(null);
   const scrollRef = useRef<ScrollView>(null);
 
+  const { user } = useAuth();
+  const me = String((user as { id?: string } | null)?.id || '');
+  const [loadErr, setLoadErr] = useState(false);
+  const [sending, setSending] = useState(false);
+
+  const loadMessages = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
+    try {
+      // GET /chat/threads/:id/messages answers { messages (newest first), has_more }
+      const res = await client.get(`/chat/threads/${conv.id}/messages`);
+      setMessages(mapMessages(res.data, me, AR));
+      setLoadErr(false);
+    } catch {
+      if (!silent) setLoadErr(true);
+    } finally {
+      if (!silent) setLoading(false);
+    }
+  }, [conv.id, me, AR]);
+
   useEffect(() => {
-    const fetchMsgs = async () => {
-      setLoading(true);
-      try {
-        const res = await client.get(`/chats/${conv.id}/messages`);
-        setMessages(res.data || []);
-      } catch {
-        setMessages([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchMsgs();
-  }, [conv.id, AR]);
+    void loadMessages();
+    const timer = setInterval(() => { void loadMessages(true); }, 8000);
+    return () => clearInterval(timer);
+  }, [loadMessages]);
+
+  // The server's own refusal ("the follow-up window ended", "the doctor closed this chat") is the message to show.
+  const sendErrorText = (e: unknown): string => {
+    const err = e as { response?: { data?: { message?: unknown } }; message?: unknown } | null;
+    const m = err?.response?.data?.message ?? err?.message;
+    return typeof m === 'string' && m ? m : (AR ? 'تعذر إرسال الرسالة' : 'Could not send the message');
+  };
 
   const sendMsg = async () => {
-    if (!msg.trim()) return;
-    const newMsg = { id: Date.now().toString(), text: msg, sender: 'me', time: 'الآن', type: 'text' };
-    setMessages(prev => [...prev, newMsg]);
-    const txt = msg;
-    setMsg('');
-    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
+    const txt = msg.trim();
+    if (!txt || sending) return;
+    setSending(true);
     try {
-      await client.post(`/chats/${conv.id}/messages`, { text: txt });
-    } catch {
-      // optimistic UI send
+      await client.post(`/chat/threads/${conv.id}/messages`, { type: 'text', body: txt, client_message_id: `prov-${Date.now()}-${Math.random().toString(36).slice(2, 8)}` });
+      setMsg('');
+      await loadMessages(true);
+      setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
+    } catch (e) {
+      // keep the typed text: nothing was sent
+      show(sendErrorText(e), 'error');
+    } finally {
+      setSending(false);
     }
   };
 
@@ -168,15 +189,21 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
         uri = res.assets[0].uri; mime = res.assets[0].mimeType || mime; name = res.assets[0].name || name;
       }
       if (!uri) return;
-      const base64 = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
-      const up = await client.post('/storage/upload', { data_base64: base64, mime, original_name: name });
-      const url = up?.data?.url || up?.data?.id;
-      if (!url) { show(AR ? 'تعذر رفع المرفق' : 'Could not upload attachment', 'error'); return; }
-      const newMsg = { id: Date.now().toString(), text: url, sender: 'me', time: 'الآن', type: 'file' };
-      setMessages(prev => [...prev, newMsg]);
-      await client.post(`/chats/${conv.id}/messages`, { text: url }).catch(() => null);
-    } catch {
-      show(AR ? 'تعذر إرفاق الملف' : 'Could not attach file', 'error');
+      // same route the patient app uses: the file goes to the media store for this thread, the message carries its id
+      const form = new FormData();
+      form.append('file', { uri, name, type: mime } as unknown as Blob);
+      form.append('purpose', 'chat');
+      form.append('thread_id', conv.id);
+      const up = await client.post('/media/upload', form);
+      const mediaId = up?.data?.id;
+      if (!mediaId) { show(AR ? 'تعذر رفع المرفق' : 'Could not upload attachment', 'error'); return; }
+      await client.post(`/chat/threads/${conv.id}/messages`, {
+        type: mime.startsWith('image/') ? 'image' : 'file', body: name, media_ids: [mediaId], attachment_mime: mime, attachment_name: name,
+        client_message_id: `prov-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      });
+      await loadMessages(true);
+    } catch (e) {
+      show(sendErrorText(e), 'error');
     }
   };
 
@@ -187,12 +214,9 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
  <View style={[st.topBar, { backgroundColor: theme.surface, borderBottomColor: theme.border, flexDirection: AR ? 'row-reverse' : 'row' }]}>
  <TouchableOpacity onPress={onBack} style={{ padding: SP.xs }}><I name="back" size={20} color={theme.primary} /></TouchableOpacity>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md, flex: 1 }}>
- <NAvatar name={conv?.name ?? '—'} size={40} online={conv?.online} />
+ <NAvatar name={conv?.name ?? '—'} size={40} />
  <View>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{conv?.name ?? '—'}</Text>
- <Text style={{ fontSize: FS.xs, color: conv?.online ? tokens.success : theme.textSub }}>
- {conv?.online ? (AR ? 'متصل الآن' : 'Online') : (AR ? 'غير متصل' : 'Offline')}
- </Text>
  </View>
  </View>
 
@@ -201,6 +225,8 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
  {/* Messages */}
  <ScrollView ref={scrollRef} contentContainerStyle={{ padding: SP.lg, paddingBottom: SP.xxl }}
  showsVerticalScrollIndicator={false}>
+ {loadErr && <NEmpty title={AR ? 'تعذر تحميل الرسائل' : 'Could not load the messages'} actionLabel={AR ? 'إعادة المحاولة' : 'Retry'} onAction={() => { void loadMessages(); }} />}
+ {!loading && !loadErr && messages.length === 0 && <Text style={{ color: theme.textSub, textAlign: 'center' }}>{AR ? 'لا رسائل بعد' : 'No messages yet'}</Text>}
  {messages.map(m => {
  const isMe = m.sender === 'me';
  return (
@@ -240,7 +266,7 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
  multiline maxLength={2000}
  />
 
- <TouchableOpacity onPress={sendMsg} disabled={!msg.trim()}
+ <TouchableOpacity testID="chat-send" onPress={sendMsg} disabled={!msg.trim() || sending}
  style={[st.sendBtn, { backgroundColor: msg.trim() ? theme.primary : theme.surface2 }]}>
  <I name="forward" size={18} color={msg.trim() ? '#FFF' : theme.textSub} />
  </TouchableOpacity>

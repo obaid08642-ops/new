@@ -18,6 +18,8 @@ import { I, IBg } from '../../../components/icons';
 import { SP, R, FS, FW, C } from '../../../constants';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ledgerTypeLabel, serviceLabel } from '../../../utils/ledgerLabels';
+
 export type RevenueRole = 'provider' | 'facility';
 
 type LedgerTxn = { type?: string; amount?: number; createdAt?: string; service_type?: string; reference_type?: string };
@@ -159,7 +161,7 @@ export function RevenueInsights({ onBack, role = 'provider' }: { onBack: () => v
  return (
  <View key={label}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: 4 }}>
- <Text style={{ fontSize: FS.sm, color: theme.text }}>{label}</Text>
+ <Text style={{ fontSize: FS.sm, color: theme.text }}>{serviceLabel(label, AR)}</Text>
  <Text style={{ fontSize: FS.sm, color: theme.text, fontWeight: FW.bold }}>{val.toLocaleString()} {AR ? 'ر' : 'SAR'}</Text>
  </View>
  <View style={{ height: 6, backgroundColor: theme.surface3, borderRadius: R.full, overflow: 'hidden' }}>
@@ -181,7 +183,7 @@ export function RevenueInsights({ onBack, role = 'provider' }: { onBack: () => v
  return (
  <View key={type} style={{ marginBottom: SP.md }}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: 4 }}>
- <Text style={{ fontSize: FS.sm, color: theme.text }}>{type}</Text>
+ <Text style={{ fontSize: FS.sm, color: theme.text }}>{ledgerTypeLabel(type, AR)}</Text>
  <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color }}>{pct}%</Text>
  </View>
  <View style={{ height: 8, backgroundColor: theme.surface2, borderRadius: R.full }}>

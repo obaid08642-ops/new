@@ -9,6 +9,7 @@ import {
  Animated, FlatList, Alert, Dimensions, Switch, TextInput,
  KeyboardAvoidingView, Platform, Linking, ActivityIndicator, Image
 } from 'react-native';
+import { payoutErrorText } from '../../../utils/payoutErrors';
 import client from '../../../api/client';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, useLang, useAuth, useToast } from '../../../context';
@@ -104,8 +105,7 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
       setSubmittedReference(String(reference));
       setSubmitted(true);
     } catch (err: any) {
-      const msg = err?.response?.data?.message;
-      show(typeof msg === 'string' ? msg : (AR ? 'تعذر إرسال طلب السحب — تحقق من الاتصال وحاول مجدداً' : 'Could not submit withdrawal request — check connection and retry'), 'error');
+      show(payoutErrorText(err?.response?.data?.message ?? err?.message, AR, AR ? 'تعذر إرسال طلب السحب — تحقق من الاتصال وحاول مجدداً' : 'Could not submit withdrawal request — check connection and retry'), 'error');
     } finally {
       setSubmitting(false);
     }

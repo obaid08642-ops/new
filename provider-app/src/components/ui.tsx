@@ -87,13 +87,19 @@ export function NBtn({
  const fg = disabled ? theme.textOff : { primary:'#FFF', secondary:theme.text, danger:'#FFF', outline:theme.primary, ghost:theme.primary }[variant];
  const bd = disabled ? theme.border : { primary:'transparent', secondary:theme.border, danger:'transparent', outline:theme.primary, ghost:'transparent' }[variant];
 
+ // A caller that passes `flex` (two buttons sharing a row) means the button's box, which is this wrapper: with the
+ // flex on the inner touchable and the wrapper at width 100%, every button of the row was as wide as the whole row and
+ // the second one left the screen (pharmacy "Returns Manager" in English, nursing "Reject", "Cancel / Confirm" rows).
+ const flat = (StyleSheet.flatten(style) || {}) as { flex?: number };
+ const wrapperFlex = flat.flex !== undefined ? { flex: flat.flex } : null;
+ const innerStyle = wrapperFlex ? { ...(StyleSheet.flatten(style) as object), flex: undefined } : style;
  return (
- <Animated.View style={[{ transform:[{scale:sc}] }, full ? {width:'100%'} : {}]}>
+ <Animated.View style={[{ transform:[{scale:sc}] }, wrapperFlex ?? (full ? {width:'100%'} : {})]}>
  <TouchableOpacity onPress={press} activeOpacity={0.9} disabled={disabled||loading}
  hitSlop={size==='xs' ? { top:5, bottom:5 } : undefined}
  style={[{ minHeight:h, backgroundColor:bg, borderRadius:R.lg, borderWidth:1.5, borderColor:bd,
  flexDirection:'row', alignItems:'center', justifyContent:'center', paddingHorizontal:px, gap:SP.sm,
- }, style]}>
+ }, innerStyle]}>
  {loading
  ? <ActivityIndicator color={fg} size="small" />
  : <>
@@ -521,13 +527,20 @@ export function NSkeleton({ w, h, br=R.md, style }:{ w:number|string; h:number; 
 }
 
 // ─── Empty State ──────────────────────────────────────────────────────────────
+// An `icon` prop is either the name of a vector icon ("calendar") or a ready glyph ("◔", an emoji). Drawing a name as
+// text printed the word itself on empty states, stat cards and success screens.
+function NIcon({ icon, size, color }: { icon: string; size: number; color: string }) {
+  return hasIcon(icon) ? <I name={icon} size={size} color={color} /> : <Text style={{ fontSize:size }}>{icon}</Text>;
+}
+
 export function NEmpty({ icon='', title, sub, subtitle, actionLabel, onAction }:
  { icon?:string; title:string; sub?:string; subtitle?:string; actionLabel?:string; onAction?:()=>void }) {
  sub = sub ?? subtitle;
  const { theme } = useTheme();
  return (
  <View style={{ flex:1, alignItems:'center', justifyContent:'center', padding:SP.xxxl }}>
- <Text style={{ fontSize:56, marginBottom:SP.xl }}>{icon}</Text>
+ {/* most screens pass an icon NAME ("calendar", "document"); drawing it as text printed the word itself */}
+ <View style={{ marginBottom:SP.xl }}><NIcon icon={icon} size={56} color={theme.textSub} /></View>
  <Text style={{ fontSize:FS.xl, fontWeight:FW.bold, color:theme.text, textAlign:'center', marginBottom:SP.md }}>{title}</Text>
  {sub && <Text style={{ fontSize:FS.md, color:theme.textSub, textAlign:'center', lineHeight:22, marginBottom:SP.xxl }}>{sub}</Text>}
  {onAction && actionLabel && <NBtn label={actionLabel} onPress={onAction} full={false} style={{ paddingHorizontal:SP.xxxl }} />}
@@ -545,7 +558,7 @@ export function NSuccess({ icon='', title, sub, primaryLabel, onPrimary, secLabe
  return (
  <View style={{ flex:1, alignItems:'center', justifyContent:'center', padding:SP.xxxl, backgroundColor:theme.bg }}>
  <Animated.View style={[s.successIcon, { backgroundColor:theme.successBg, transform:[{scale:sc}] }]}>
- <Text style={{ fontSize:44 }}>{icon}</Text>
+ <NIcon icon={icon} size={44} color={theme.success} />
  </Animated.View>
  <Text style={{ fontSize:FS['3xl'], fontWeight:FW.bold, color:theme.text, textAlign:'center', marginBottom:SP.md }}>{title}</Text>
  {sub && <Text style={{ fontSize:FS.md, color:theme.textSub, textAlign:'center', lineHeight:24, marginBottom:SP.xxxl }}>{sub}</Text>}
@@ -606,7 +619,7 @@ export function NStatCard({ icon, label, value, color, unit, style }:
  const { isRTL } = useLang();
  return (
  <NCard style={[{ padding:SP.lg }, style]}>
- <Text style={{ fontSize:24, marginBottom:SP.xs }}>{icon}</Text>
+ <View style={{ marginBottom:SP.xs }}><NIcon icon={icon} size={24} color={color??theme.primary} /></View>
  <View style={{ flexDirection:isRTL?'row-reverse':'row', alignItems:'baseline', gap:4 }}>
  <Text style={{ fontSize:FS['2xl'], fontWeight:FW.xbold, color:color??theme.primary }}>{value}</Text>
  {unit && <Text style={{ fontSize:FS.sm, color:theme.textSub }}>{unit}</Text>}
@@ -735,7 +748,7 @@ export function NPriceInput({ label, value, onChange, error, required, innerRef 
               placeholder="0" placeholderTextColor={theme.textHint} keyboardType="numeric"
               style={[s.textInput, { flex:1, color:theme.text, paddingHorizontal:SP.lg }]} />
             <View style={[s.priceSuffix, { borderColor:theme.border, borderLeftWidth:isRTL?0:1, borderRightWidth:isRTL?1:0 }]}>
-              <Text style={{ color:theme.textSub, fontSize:FS.sm, fontWeight:FW.semi }}>ريال</Text>
+              <Text style={{ color:theme.textSub, fontSize:FS.sm, fontWeight:FW.semi }}>{isRTL ? 'ريال' : 'SAR'}</Text>
             </View>
           </View>
           {error && <Text style={[s.hint, { color:theme.danger }]}>{error}</Text>}
