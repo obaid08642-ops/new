@@ -1,1 +1,9 @@
-# 2026-10-17 reviewer: nothing to run. 69-deploy-check confirmed release 05246a2d running since 06:15 UTC; the build session's report key is restored.
+# 2026-10-17 owner: the deploy is done and the GitHub secrets hold the NEW Brevo / Mailjet keys. In this order, one run:
+#   70-mail-env      writes the keys (GitHub secrets), the provider order (resend,brevo,mailjet) and the free-plan quotas
+#                    (Resend 100/day 3000/month, Brevo 300/day, Mailjet 200/day 6000/month) into .env.production; prints names only
+#   73-mail-test     recreates backend+worker if the env is newer, then sends ONE mail per provider to the owner through the app's own
+#                    MailService and prints the mail_log rows (provider, ok, fallback_used; the address as <owner>)
+#   cf:41-mail-verify  SPF (one record, three includes), DKIM for each, DMARC, and Brevo's / Mailjet's verified state (names + state only)
+70-mail-env
+73-mail-test
+cf:41-mail-verify
