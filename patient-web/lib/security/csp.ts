@@ -39,6 +39,18 @@ export const SESSION_COOKIES = ["nabd_access", "nabd_refresh"] as const;
  */
 export const THEME_SCRIPT_HASH = `sha256-${createHash("sha256").update(THEME_INIT_SCRIPT).digest("base64")}`;
 
+/**
+ * P20.4: the browser Sentry SDK posts errors to its DSN's ingest origin (https://o….ingest.de.sentry.io); without that
+ * origin in connect-src no browser error reaches Sentry. The DSN is inlined at build time (Dockerfile.patient-web).
+ */
+export function sentryIngestOrigin(dsn = process.env.NEXT_PUBLIC_SENTRY_DSN): string | null {
+  try {
+    return dsn ? new URL(dsn).origin : null;
+  } catch {
+    return null;
+  }
+}
+
 export function contentSecurityPolicy(nonce: string, isDevelopment = process.env.NODE_ENV === "development") {
   return [
     "default-src 'self'",
@@ -53,7 +65,7 @@ export function contentSecurityPolicy(nonce: string, isDevelopment = process.env
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' '${THEME_SCRIPT_HASH}'${isDevelopment ? " 'unsafe-eval'" : ""}`,
     // Decision 4 (2026-10-14): a LiveKit other than wss://live.nabd.plus (NABD_LIVEKIT_URL, e.g. the local one of
     // tools/live/start-livekit.sh) is allowed by its exact origin, read at request time like the call screens read it.
-    ["connect-src 'self' https://api.nabd.plus wss://live.nabd.plus https://cdn.nabd.plus https://accounts.google.com/gsi/", ...livekitConnectSources()].join(" "),
+    ["connect-src 'self' https://api.nabd.plus wss://live.nabd.plus https://cdn.nabd.plus https://accounts.google.com/gsi/", ...livekitConnectSources(), sentryIngestOrigin()].filter(Boolean).join(" "),
     "font-src 'self' data:",
     "media-src 'self' https:",
     "object-src 'none'",
