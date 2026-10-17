@@ -1,0 +1,46 @@
+
+=== admin: login with email 2FA (admin panel)
+  PASS  credentials -> 202 requires_2fa
+  PASS  2FA code emailed to the admin
+  PASS  verify-2fa -> session
+  PASS  session cookie set (httpOnly)
+  PASS  BFF call with the session (dashboard: command-center)
+  PASS  wrong admin password rejected (401, or 429 once the login throttle trips)
+  PASS  admin device enrolled for the gate run (C2)
+
+=== onboarding: radiology registers in the provider app
+  PASS  start
+  PASS  wizard sign-in
+  PASS  step3 as sent by LabRegistration.tsx:130
+  PASS  step2 as sent by LabRegistration.tsx:162
+  PASS  step2 as sent by LabRegistration.tsx:497
+  PASS  upload signature.png
+  PASS  email verified
+  PASS  submit for review
+
+=== onboarding: admin reviews the radiology
+  PASS  pending list (provider-moderation) shows the new provider
+  PASS  provider detail opens
+  PASS  approve with commissions
+  PASS  no longer pending
+
+=== onboarding: approved radiology signs in
+  PASS  provider login
+
+=== radiology: a new scan the centre proposes reaches the admin
+  FAIL  the centre sends the scan and the answer carries a request id  ->  201 {"ok": true, "message": "Delta request submitted for admin approval. Changes will not appear to patients until approved."}
+  FAIL  the admin review list holds the request with who proposed it  ->  None
+  FAIL  the request carries the price and the preparation text  ->  {}
+  FAIL  a scan without a name is refused, not acknowledged  ->  201 {"ok": true, "message": "Delta request submitted for admin approval. Changes will not appear to patients until approved."}
+
+=== radiology: the availability schedule waits for review
+  FAIL  the schedule update is acknowledged as waiting for review  ->  201 {"ok": true, "message": "Delta request submitted for admin approval. Changes will not appear to patients until approved."}
+  FAIL  the admin sees the schedule change among the pending provider changes  ->  []
+
+##### 20/26 steps passed, 6 failed
+  FAIL [radiology: a new scan the centre proposes reaches the admin] the centre sends the scan and the answer carries a request id: 201 {"ok": true, "message": "Delta request submitted for admin approval. Changes will not appear to patients until approved."}
+  FAIL [radiology: a new scan the centre proposes reaches the admin] the admin review list holds the request with who proposed it: None
+  FAIL [radiology: a new scan the centre proposes reaches the admin] the request carries the price and the preparation text: {}
+  FAIL [radiology: a new scan the centre proposes reaches the admin] a scan without a name is refused, not acknowledged: 201 {"ok": true, "message": "Delta request submitted for admin approval. Changes will not appear to patients until approved."}
+  FAIL [radiology: the availability schedule waits for review] the schedule update is acknowledged as waiting for review: 201 {"ok": true, "message": "Delta request submitted for admin approval. Changes will not appear to patients until approved."}
+  FAIL [radiology: the availability schedule waits for review] the admin sees the schedule change among the pending provider changes: []

@@ -5,11 +5,12 @@ import { AiService } from './ai.service';
 import { AiGatewayService } from './ai-gateway.service';
 import { JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
-import { TriageDto, SetModeDto, SetPurposeDto, VoiceDto, OcrDto, CopilotSuggestDto, OcrTranslateDto, MedicineImageSearchDto, BarcodeLookupDto, AnalyzeMealDto, GenerateExercisePlanDto, GenerateDietPlanDto, UpdateAiConfigDto, UpdateAiProviderDto} from './ai.dto';
+import { TriageDto, SetModeDto, SetPurposeDto, VoiceDto, OcrDto, CopilotSuggestDto, OcrTranslateDto, MedicineImageSearchDto, BarcodeLookupDto, AnalyzeMealDto, GenerateExercisePlanDto, GenerateDietPlanDto, UpdateAiConfigDto, UpdateAiProviderDto, TestAiProviderKeyDto } from './ai.dto';
 import { AssistantDto } from './assistant.service';
 import { AssistantService } from './assistant.service';
 import { AiProviderName } from './ai-gateway.service';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 @Controller('ai')
 @SelfService()
 @UseGuards(JwtAuthGuard)
@@ -22,6 +23,7 @@ export class AiController {
     return this.svc.getAiConfig();
   }
 
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Post('config')
   @Roles(UserRole.ADMIN)
   updateConfig(@Body() body: UpdateAiConfigDto) {
@@ -36,13 +38,23 @@ export class AiController {
   }
 
   /** Admin: enable/disable/rekey/re-model/re-priority a provider. */
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Post('admin/gateway/provider/:key')
   @Roles(UserRole.ADMIN)
   updateProvider(@Param('key') key: AiProviderName, @Body() body: UpdateAiProviderDto) {
     return this.gateway.updateProvider(key, body || {});
   }
 
+  /** Admin: probe a candidate key live without storing it. */
+  @RequirePermissions(Permission.SETTINGS_EDIT)
+  @Post('admin/gateway/provider/:key/test')
+  @Roles(UserRole.ADMIN)
+  testProviderKey(@Param('key') key: AiProviderName, @Body() body: TestAiProviderKeyDto) {
+    return this.gateway.testKey(key, body?.api_key || '');
+  }
+
   /** Admin: auto fallback & round-robin OR manual pinned provider. */
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Post('admin/gateway/mode')
   @Roles(UserRole.ADMIN)
   setMode(@Body() body: SetModeDto) {
@@ -50,6 +62,7 @@ export class AiController {
   }
 
   /** Admin: pin one provider for a single feature (null clears; fallback preserved). */
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Post('admin/gateway/purpose')
   @Roles(UserRole.ADMIN)
   setPurpose(@Body() body: SetPurposeDto) {

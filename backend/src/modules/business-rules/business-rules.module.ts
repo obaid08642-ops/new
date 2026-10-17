@@ -14,6 +14,7 @@ import { UserRole, ServiceDomain } from '../../common/enums';
 import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { UpdateSurgeDto, UpdateFeesDto, ValidateRulesDto } from './business-rules.dto';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 export type RuleContext = {
   kind: ServiceDomain;
   patient?: { id?: string; age?: number; sex?: 'male' | 'female'; chronic?: string[] };
@@ -292,6 +293,7 @@ export class BusinessRulesController {
   getSurge() { return this.svc.getSurgeConfig(); }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
   @Post('config/surge')
   updateSurge(@Body() body: UpdateSurgeDto) { return this.svc.updateSurgeConfig(body); }
 
@@ -301,6 +303,7 @@ export class BusinessRulesController {
   pricing() { return this.svc.pricing(); }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
   @Post('config/fees')
   updateFees(@Body() body: UpdateFeesDto) { return this.svc.updateFees(body); }
 

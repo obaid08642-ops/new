@@ -4287,7 +4287,14 @@
       "expo-secure-store",
       "expo-audio",
       "expo-sqlite",
-      "@sentry/react-native",
+      [
+        "@sentry/react-native",
+        {
+          "url": "https://de.sentry.io/",
+          "organization": "nabdplus",
+          "project": "patient-app"
+        }
+      ],
       "expo-image",
       "expo-sharing",
       "expo-video",

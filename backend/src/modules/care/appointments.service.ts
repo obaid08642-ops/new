@@ -16,6 +16,7 @@ import { hasEffectiveRole } from '../../common/auth.guard';
 import { DEFAULT_REFUND_POLICY } from '../refund-policy/refund-policy.defaults';
 import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { isOnlineConsultation } from '../chat/consultation-window';
+import { assertTelehealthConsent } from '../legal/telehealth-consent';
 
 /** Platform fee schedule (SAR). Move to DB/config when admin dashboard supports it. */
 const PLATFORM_FEES = {
@@ -99,31 +100,12 @@ export class AppointmentsService {
   }
 
   /**
-   * D-38: the first online (video) consultation needs the current telehealth_consent.
-   * Throws telehealth_consent_required when the patient has not accepted it. When the
-   * deployment configures no such policy (or the connection double has no collections),
-   * booking proceeds as before.
+   * D-38: the first online (video) consultation needs the current telehealth_consent (legal/telehealth-consent.ts).
+   * Throws telehealth_consent_required when it has not been accepted. When the deployment publishes no such policy
+   * (or the connection double has no collections), booking proceeds as before.
    */
-  private async assertTelehealthConsent(patientId: string): Promise<void> {
-    let policies: any = null;
-    let acceptances: any = null;
-    try {
-      policies = (this.connection as any)?.collection?.('legal_policies')
-        ?? (this.connection as any)?.db?.collection?.('legal_policies');
-      acceptances = (this.connection as any)?.collection?.('legal_acceptances')
-        ?? (this.connection as any)?.db?.collection?.('legal_acceptances');
-    } catch {
-      return;
-    }
-    if (!policies || !acceptances) return;
-    const policy: any = await policies.findOne({ key: 'telehealth_consent' });
-    if (!policy || policy.requires_acceptance === false) return;
-    const accepted: any = await acceptances.findOne({
-      user_id: patientId,
-      policy_key: 'telehealth_consent',
-      version: policy.version,
-    });
-    if (!accepted) throw new BadRequestException('telehealth_consent_required');
+  private async assertTelehealthConsent(accountId: string): Promise<void> {
+    await assertTelehealthConsent(this.connection, accountId);
   }
 
   async create(user: any, body: {
@@ -172,8 +154,10 @@ export class AppointmentsService {
     }
     // D-38: the first online (video) consultation needs telehealth_consent. Skipped when
     // the deployment configures no such policy, so unit doubles without collections keep working.
+    // The account that books (and accepts in the app or on the web) is the one asked: a guardian booking for a family
+    // member accepts for that visit, since the member has no session of their own to accept with.
     if (body.service_type === 'video') {
-      await this.assertTelehealthConsent(patientId);
+      await this.assertTelehealthConsent(user.id);
     }
     const slotStart = new Date(body.slot_start);
     if (isNaN(slotStart.getTime()) || slotStart.getTime() < Date.now() + 5 * 60_000) {

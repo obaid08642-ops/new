@@ -93,8 +93,10 @@ def main():
     page = browser.new_context(locale='ar-SA', viewport={'width': 390, 'height': 844}).new_page()
     try:
         page.goto(f'{WEB}/ar/articles/{slug}', wait_until='load', timeout=60000)
-        section = page.locator('section[aria-labelledby="article-body"]')  # SectionCard puts the id on its heading
-        section.wait_for(timeout=30000)
+        # SectionCard puts the id on its heading. While the page streams in, React briefly holds a hidden copy of the
+        # section (two matches); wait for the settled page, as j_web_call does, before reading it.
+        page.wait_for_function("() => document.querySelectorAll('section[aria-labelledby=\"article-body\"]').length === 1", timeout=30000)
+        section = page.locator('section[aria-labelledby="article-body"]')
         text = section.inner_text()
         step('the page shows the heading, paragraphs and list', f'نوم صحي {tag}' in text and 'نم ثماني ساعات كل ليلة.' in text and 'أطفئ الشاشات' in text and 'اشرب الماء' in text, text[:300])
         step('nothing in the body ran or stayed markup', page.evaluate(f'() => window.__pwned_{tag} === undefined') and section.locator('script, img, [onclick]').count() == 0, '')

@@ -18,11 +18,12 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { DoctorListCard } from "@/components-next/consult/doctor-list-card";
 import { DoctorQuickFilters } from "@/components-next/consult/doctor-quick-filters";
+import { InsurerFromPolicy } from "@/components-next/consult/insurer-from-policy";
 import { effectiveType, filterPageParams, nearestApplies, parseDoctorFilters, PAYMENT_FILTERS, serverOrdersList, VISIT_TYPES, type DoctorFilters, type PaymentFilter, type VisitType } from "@/lib/consult/doctor-filters";
 import { LinkSegmented } from "@/components-next/consult/link-segmented";
 import styles from "@/components-next/consult/consult.module.css";
 
-export type DoctorsViewProps = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string; specialty?: string; sort?: "rating" | "price" | "wait"; type?: string; payment?: string; available?: string; nearest?: string; lat?: string; lng?: string; city?: string }> };
+export type DoctorsViewProps = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string; specialty?: string; sort?: "rating" | "price" | "wait"; type?: string; payment?: string; insurance?: string; insurance_class?: string; available?: string; nearest?: string; lat?: string; lng?: string; city?: string }> };
 type Props = DoctorsViewProps;
 
 /**
@@ -57,6 +58,8 @@ export async function DoctorsView({ params, searchParams }: Props) {
   const names = await getTranslations("SpecialtyNames");
   let doctors: ReturnType<typeof extractDoctors> = [];
   const filters = parseDoctorFilters(sp);
+  // Decision 30: "Insurance" lists the doctors contracted for the patient's saved company and class. The page reads them from
+  // the URL only (no session on a cached public page); InsurerFromPolicy fills them in from the saved policy in the browser.
   const shownType = effectiveType(filters);
   let failed = false;
   const response = await getPublicDoctors({ search: sp.q, specialty: sp.specialty, sort: ["rating", "price", "wait"].includes(sp.sort ?? "") ? sp.sort : undefined, filters }).catch(() => null);
@@ -117,6 +120,14 @@ export async function DoctorsView({ params, searchParams }: Props) {
         value={filters.payment ?? ""}
         options={PAYMENT_FILTERS.map((payment) => ({ value: payment, label: t(`payment_${payment}`), href: paymentHref(payment) }))}
       />
+      {filters.payment === "insurance" && !filters.insurer ? (
+        <InsurerFromPolicy
+          pageHref={pageHref(filterPageParams(filters, { ...text, sort: sp.sort }))}
+          noPolicyText={t("paymentInsuranceNoPolicy")}
+          addPolicyHref={`/${locale}/insurance/add-policy`}
+          addPolicyText={t("paymentAddPolicy")}
+        />
+      ) : null}
       <DoctorQuickFilters
         availableHref={withFilters({ availableNow: !filters.availableNow })}
         availableOn={filters.availableNow}

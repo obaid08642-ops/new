@@ -92,6 +92,7 @@ export class AdminCouponsController {
     return this.col.find(q).sort({ createdAt: -1 }).limit(200).project({ _id: 0 }).toArray();
   }
 
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Post()
   async create(@Body() b: CreateDto, @CurrentUser() me: any) {
     let reason: string;
@@ -129,6 +130,7 @@ export class AdminCouponsController {
   }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Patch(':id')
   async update(@Param('id') id: string, @Body() b: UpdateDto, @CurrentUser() me: any): Promise<any> {
     let reason: string;
@@ -155,6 +157,7 @@ export class AdminCouponsController {
 
   /** Dry-run the deterministic engine against a hypothetical basket. */
   @SelfService()
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Post('validate')
   async validate(@Body() b: ValidateDto) {
     const code = String(b?.code || '').trim().toUpperCase();
@@ -173,6 +176,7 @@ export class AdminCouponsController {
 
   /** Real redemption record (checkout calls this after order confirmation). */
   @SelfService()
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Post('redeem')
   async redeem(@Body() b: RedeemDto) {
     const code = String(b?.code || '').trim().toUpperCase();
@@ -190,6 +194,7 @@ export class AdminCouponsController {
   }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Delete(':id')
   async remove(@Param('id') id: string, @Body() b: RemoveDto, @CurrentUser() me: any) {
     let reason: string;

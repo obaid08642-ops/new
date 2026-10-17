@@ -26,7 +26,8 @@
     "notifications": "Notifications",
     "cart": "Cart",
     "mainNav": "Main navigation",
-    "sections": "Sections"
+    "sections": "Sections",
+    "cartCount": "Cart ({n, number})"
   },
   "Home": {
     "eyebrow": "Digital patient portal",
@@ -244,7 +245,8 @@
       "consultation": "Consultation",
       "labs": "Lab test",
       "radiology": "Radiology scan",
-      "nursing": "Nursing visit"
+      "nursing": "Nursing visit",
+      "returns": "Return request"
     },
     "statusUnavailable": "Status unavailable",
     "partialNote": "Some orders could not be loaded. The rest are shown below; try again in a moment."
@@ -1159,8 +1161,10 @@
     "specialtyLabel": "Specialty",
     "allSpecialties": "All specialties",
     "paymentLabel": "Payment",
-    "payment_insurance": "Accepts insurance",
-    "payment_cash": "Cash only",
+    "payment_insurance": "Insurance",
+    "payment_self_pay": "Self-pay",
+    "paymentInsuranceNoPolicy": "Add your insurance to see only the doctors contracted with your company and class. For now every doctor who accepts insurance is shown.",
+    "paymentAddPolicy": "Add insurance",
     "doctorPhotoAlt": "Photo of {name}",
     "clinicPhotosTitle": "Clinic photos",
     "clinicPhotoAlt": "Clinic photo {n}"
@@ -1218,7 +1222,18 @@
     "preparation": "Preparation",
     "preparationTitle": "Before your visit",
     "homeAvailable": "Home collection is supported by this package.",
-    "homeUnavailable": "Home collection is not listed for this package."
+    "homeUnavailable": "Home collection is not listed for this package.",
+    "categoryName": {
+      "blood": "Blood tests",
+      "hormones": "Hormones",
+      "diabetes": "Diabetes",
+      "vitamins": "Vitamins",
+      "cardiac": "Heart",
+      "imaging": "Imaging",
+      "kidney": "Kidney",
+      "liver": "Liver",
+      "package": "Packages"
+    }
   },
   "RadiologyServices": {
     "eyebrow": "Radiology care",
@@ -1312,6 +1327,15 @@
     "kindRadiology": "Radiology",
     "kindNursing": "Nursing",
     "kindArticle": "Article"
+  },
+  "SearchSuggest": {
+    "listLabel": "Search suggestions",
+    "loading": "Looking for suggestions…",
+    "empty": "No suggestions for “{query}”",
+    "error": "Suggestions are unavailable right now",
+    "retry": "Try again",
+    "seeAll": "All results for “{query}”",
+    "count": "{count, plural, =0 {No suggestions} one {# suggestion} other {# suggestions}}"
   },
   "Support": {
     "title": "Support",
@@ -1573,25 +1597,28 @@
     "photoAlt": "Photo of the medicine box"
   },
   "PharmacyBarcode": {
-    "title": "Find by barcode",
-    "intro": "Enter the barcode printed on the package to find the medicine.",
-    "codeLabel": "Barcode",
-    "codePlaceholder": "6281234567890",
-    "lookup": "Look up",
-    "looking": "Looking up…",
-    "foundTitle": "Medicine found",
-    "closestTitle": "Closest match",
-    "closestNote": "No medicine has this exact barcode. This is the closest match by name.",
-    "notFoundTitle": "Medicine not found",
-    "notFoundBody": "The barcode {code} is not in the catalogue.",
-    "barcodeLine": "Barcode: {code}",
-    "needsRx": "Needs a prescription",
-    "priceUnavailable": "Price not available",
-    "viewProduct": "View the product",
-    "another": "Look up another barcode",
+    "title": "Scan a medicine",
+    "intro": "Take or choose a photo of a medicine pack, its barcode or QR code, or a prescription, and we show the closest medicines in the catalogue.",
+    "takePhoto": "Take or choose a photo",
+    "another": "Scan another photo",
+    "reading": "Reading the photo…",
+    "rxSaved": "Your prescription was saved for the pharmacist's review. Opening it…",
+    "matchesTitle": "Closest matches",
+    "matchesNote": "Read as: {name}. Pick the medicine that matches your pack.",
+    "noneTitle": "No close match found",
+    "noneBody": "We could not match this photo to a medicine in the catalogue.",
     "requestByName": "Request it by name",
-    "errorLookup": "The barcode lookup failed. Try again.",
-    "onlineOnly": "Online only"
+    "needsRx": "Needs a prescription",
+    "onlineOnly": "Online only",
+    "priceUnavailable": "Price not available",
+    "uploadRx": "Upload the prescription",
+    "errorType": "Choose a photo file.",
+    "errorSize": "The photo is larger than {size}.",
+    "errorRead": "The photo could not be opened. Choose another one.",
+    "errorUnreadable": "The photo could not be read. Try a clearer photo in good light.",
+    "errorRxUnreadable": "No medicines could be read from this prescription. Try a clearer photo, or upload it from the prescription page.",
+    "errorBusy": "Too many scans in a minute. Wait a moment and try again.",
+    "errorScan": "The scanner is not available right now. Try again."
   },
   "PharmacyChat": {
     "title": "Pharmacy negotiation",
@@ -1837,6 +1864,14 @@
     "medicines/compare": {
       "title": "Compare Medicines",
       "description": "Compare medicines, prices and alternatives."
+    },
+    "refundPolicy": {
+      "title": "Cancellation and Refund Policy",
+      "description": "When an order or appointment on Nabd Plus is refunded in full or in part after a cancellation."
+    },
+    "telehealthConsent": {
+      "title": "Telehealth Consent",
+      "description": "What you agree to before your first online consultation on Nabd Plus."
     }
   },
   "NursingVisits": {
@@ -2083,7 +2118,12 @@
     "sortPriceDesc": "Price: high to low",
     "sortNewest": "Newest",
     "askPharmacies": "Ask nearby pharmacies for it",
-    "compareAlternatives": "Compare with alternatives"
+    "compareAlternatives": "Compare with alternatives",
+    "similarTitle": "Similar products",
+    "imageCounter": "{n, number} / {total, number}",
+    "previousImage": "Previous image",
+    "nextImage": "Next image",
+    "inCartCta": "In cart ({n, number})"
   },
   "PharmacyOffers": {
     "backToOrder": "Back to the order",
@@ -2121,9 +2161,9 @@
     "validUntil": "Valid until {when}",
     "validFor": "Valid for {time}",
     "expired": "This offer has expired",
-    "coverageLegend": "How will you pay?",
-    "coverageCash": "Cash or online, after the final price",
-    "coverageInsurance": "Insurance",
+    "coverageChosenCash": "You pay in cash or online after the final price (chosen when you sent the request)",
+    "coverageChosenInsurance": "You pay with insurance (chosen when you sent the request)",
+    "coverageNotInNetwork": "This pharmacy does not take insurance. Choose another offer.",
     "selectOffer": "Select this offer",
     "selecting": "Selecting…",
     "selectNote": "Nothing is charged when you select an offer.",
@@ -2295,7 +2335,8 @@
     "payLegend": "How will you pay?",
     "payDirect": "Pay directly",
     "payInsurance": "Through insurance",
-    "payNote": "You confirm how you pay when you choose an offer.",
+    "payNote": "Choose now: the offers you receive are for this choice, and it does not change when you choose an offer.",
+    "payInsuranceNeedsRx": "Insurance needs a prescription: order with your prescription to use it.",
     "insuranceLoading": "Loading your insurance",
     "insuranceCardTitle": "Your insurance",
     "insuranceClass": "Class: {class}",
@@ -2533,7 +2574,12 @@
     "policyFull": "{hours} hours or more before: 100% refund",
     "policyHalf": "{half} to {full} hours before: {percent}% refund",
     "policyLess": "Less than {half} hours before: no refund",
-    "policyUnavailable": "The cancellation and refund policy is not available right now."
+    "policyUnavailable": "The cancellation and refund policy is not available right now.",
+    "callReconnecting": "Weak connection. Reconnecting your call…",
+    "callAudioOnly": "Your connection is weak, so we turned video off and kept the sound.",
+    "callTryVideo": "Try video again",
+    "callDropped": "The call was cut off.",
+    "callContinueInChat": "Continue in chat"
   },
   "ConsultClient": {
     "payHeading": "Complete the payment through a secure gateway",
@@ -2747,7 +2793,7 @@
     "placeHomeScan": "Home scan",
     "placeCenter": "At the center",
     "payLabel": "Payment",
-    "payAll": "All",
+    "paySelf": "Self-pay",
     "payInsurance": "Insurance",
     "quickResults": "My results",
     "quickCompare": "Compare prices",
@@ -3395,7 +3441,9 @@
       "version": "Version {version} · Effective {date}",
       "versionOnly": "Version {version}",
       "currentVersion": "This is the current version of the text. It will be replaced by the legally approved version before launch.",
-      "back": "Back"
+      "back": "Back",
+      "refund": "Cancellation and refund policy",
+      "telehealth": "Telehealth consent"
     },
     "provider": {
       "title": "Join as a provider",
@@ -3864,7 +3912,9 @@
     "mapPane": "Map",
     "mapIdleTitle": "Facilities map",
     "mapIdleBody": "Choose a facility from the list to see it on the map with directions.",
-    "mapIdleNote": "Open-source maps that protect your privacy."
+    "mapIdleNote": "Open-source maps that protect your privacy.",
+    "mapUnavailable": "The facilities could not be loaded. Please try again.",
+    "mapRetry": "Try again"
   },
   "ReturnsWeb": {
     "newRequest": "New return request",
@@ -4211,5 +4261,99 @@
   "Network": {
     "offline": "You are offline. This page shows the last saved copy.",
     "offlineLastUpdated": "You are offline. This page shows the last saved copy. Last updated: {time}"
+  },
+  "WaitingRoom": {
+    "title": "You're in the queue",
+    "body": "Lots of people are checking out right now. We let visitors in by turn so payment stays fast for everyone.",
+    "positionLabel": "Your place in the queue: {position}",
+    "estimate": "Estimated wait: about {minutes} min",
+    "keepOpen": "Keep this page open. You'll go to checkout automatically when it's your turn. Your cart is saved."
+  },
+  "GuestServices": {
+    "seeAll": "See all",
+    "listUnavailableTitle": "This list could not be loaded",
+    "listUnavailable": "Please try again in a moment.",
+    "doctorsEmpty": "No doctors are listed yet",
+    "doctorsEmptyBody": "Doctors appear here once they are approved.",
+    "offers": {
+      "actionTitle": "Book an offer",
+      "actionBody": "Anyone can browse the offers. Sign in to book an offer and pay for it.",
+      "action": "Sign in to book"
+    },
+    "insurance": {
+      "heroTitle": "Your insurance on Nabd Plus",
+      "heroBody": "Add your policy once and see your insurer's decision on every booking.",
+      "insurersTitle": "Insurers on Nabd Plus",
+      "insurersEmpty": "No insurers are listed yet",
+      "plans": "Plans: {plans}",
+      "actionTitle": "Add your policy",
+      "actionBody": "Your policy, requests and approvals stay private to your account. Sign in to add your policy.",
+      "action": "Sign in to add your policy",
+      "networkTitle": "Providers that accept your insurer",
+      "networkPick": "Insurer",
+      "networkPickHint": "Choose your insurer",
+      "networkShow": "Show providers",
+      "networkHint": "Choose your insurer to see the hospitals, clinics and pharmacies that accept it."
+    },
+    "homeCare": {
+      "heroTitle": "Nursing and care at home",
+      "heroBody": "Licensed nurses visit you at home for injections, wound care, vital signs and more.",
+      "servicesTitle": "Services and prices",
+      "servicesEmpty": "No home care services are listed yet",
+      "providersTitle": "Home care providers",
+      "providersEmpty": "No home care providers are listed yet",
+      "actionTitle": "Book a home visit",
+      "actionBody": "Sign in to book a visit and follow your visits.",
+      "action": "Sign in to book"
+    },
+    "maternity": {
+      "heroTitle": "Pregnancy and motherhood",
+      "heroBody": "Follow your pregnancy week by week, log kicks and contractions and track your baby's growth.",
+      "doctorsTitle": "Obstetrics and gynecology doctors",
+      "actionTitle": "Track your pregnancy",
+      "actionBody": "Your pregnancy profile and logs stay private to your account. Sign in to start.",
+      "action": "Sign in to start tracking"
+    },
+    "mental": {
+      "heroTitle": "Mental health and wellbeing",
+      "heroBody": "Keep a private mood journal and book a session with a psychiatrist.",
+      "doctorsTitle": "Psychiatrists",
+      "actionTitle": "Start your mood journal",
+      "actionBody": "Your mood journal stays private to your account. Sign in to start.",
+      "action": "Sign in to start"
+    },
+    "nutrition": {
+      "heroTitle": "Nutrition and healthy eating",
+      "heroBody": "Log your meals and water, set a body target, get a nutrition plan and follow up with a nutritionist.",
+      "doctorsTitle": "Nutritionists",
+      "actionTitle": "Get your nutrition plan",
+      "actionBody": "Your plan, meals and target stay private to your account. Sign in to get your plan.",
+      "action": "Sign in to get your plan"
+    },
+    "emergency": {
+      "shareBody": "Your location goes only to your own emergency contacts. Sign in to send it.",
+      "shareAction": "Sign in to send my location"
+    },
+    "ai": {
+      "actionTitle": "Ask the assistant",
+      "actionBody": "Your questions and photos stay private to your account. Sign in to ask the assistant.",
+      "action": "Sign in to ask"
+    }
+  },
+  "LegalLinks": {
+    "refundPolicy": "Cancellation and refund policy",
+    "telehealthConsent": "Telehealth consent"
+  },
+  "TelehealthConsent": {
+    "title": "Telehealth consent",
+    "intro": "Before your first online consultation, read and accept the consent. We record your acceptance with the version, the time and the device.",
+    "textLabel": "Consent text",
+    "version": "Version {version}",
+    "readFull": "Read the full text",
+    "accept": "I agree and continue",
+    "accepting": "Saving your consent…",
+    "failed": "We could not save your consent. Please try again.",
+    "sessionEnded": "Your session has ended.",
+    "signIn": "Sign in"
   }
 }

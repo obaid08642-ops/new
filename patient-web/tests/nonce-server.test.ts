@@ -4,6 +4,7 @@ import http from "node:http";
 import type { AddressInfo } from "node:net";
 import { afterEach, describe, expect, it } from "vitest";
 import zlib from "node:zlib";
+import { createHash } from "node:crypto";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -104,10 +105,75 @@ describe("a session, a twin or any answer the proxy made no-store", () => {
   });
 
   it("a cacheable public page is stamped and `private, no-cache` (a nonce must never sit in a shared cache)", async () => {
+    // Restored from main (owner decision 2026-10-16: never a shared nonce). A cacheable public page that is stamped with a
+    // nonce (here: a visitor with a theme cookie, whose copy is theirs) is private; the guest copy that IS shared carries no
+    // nonce at all (next test).
     const { base } = await start((_req, res) => html(res, 200, PAGE, { "cache-control": "s-maxage=60, stale-while-revalidate=31535940" }));
-    const r = await fetch(`${base}/ar`);
+    const r = await fetch(`${base}/ar`, { headers: { cookie: "nabd.theme=dark" } });
+    expect(nonceOf(r)).toBeTruthy();
     expect(r.headers.get("cache-control")).toBe("private, no-cache");
     expect(r.headers.get("cache-control")).not.toContain("s-maxage");
+  });
+
+  it("no response that carries a nonce is ever shareable, and no nonce is ever reused (guest, theme cookie, session, HEAD)", async () => {
+    const { base } = await start((_req, res) => html(res, 200, PAGE, { "cache-control": "s-maxage=60, stale-while-revalidate=31535940" }));
+    const seen = new Set<string>();
+    for (const init of [{}, { headers: { cookie: "nabd.theme=light" } }, { headers: { cookie: "nabd.theme=dark" } }, { method: "HEAD" }, {}, { method: "HEAD" }] as RequestInit[]) {
+      const r = await fetch(`${base}/ar`, init);
+      const body = init.method === "HEAD" ? "" : await r.text();
+      const cc = r.headers.get("cache-control") || "";
+      const nonce = nonceOf(r);
+      if (nonce) {
+        expect(cc).toMatch(/private/);
+        expect(cc).not.toMatch(/public|s-maxage/);
+        expect(seen.has(nonce)).toBe(false);
+        seen.add(nonce);
+      } else {
+        expect(body).not.toMatch(/nonce=/i);
+        expect(body).not.toContain(CSP_NONCE_PLACEHOLDER);
+      }
+    }
+    expect(seen.size).toBe(4);
+  });
+
+  it("owner decision 2026-10-16: a guest's cached public page has a hash policy with 'strict-dynamic', no nonce, and every inline script matches a hash", async () => {
+    const page = '<html><head><link rel="preload" as="script" fetchPriority="low" nonce="' + CSP_NONCE_PLACEHOLDER + '" href="/_next/static/chunks/a.js"/>'
+      + '<script type="application/ld+json">{"@type":"Thing"}</script></head><body><p>page</p>'
+      + '<script src="/_next/static/chunks/a.js" id="_R_" async=""></script><script src="/_next/static/chunks/p.js" noModule=""></script>'
+      + '<script nonce="' + CSP_NONCE_PLACEHOLDER + '">(self.__next_f=self.__next_f||[]).push([0])</script>'
+      + '<script>self.__next_f.push([1,"0:{\\"nonce\\":\\"' + CSP_NONCE_PLACEHOLDER + '\\"}"])</script></body></html>';
+    const { base } = await start((_req, res) => html(res, 200, page, { "cache-control": "s-maxage=60, stale-while-revalidate=31535940", "set-cookie": "NEXT_LOCALE=ar; Path=/" }));
+    const r = await fetch(`${base}/ar`, { headers: { accept: "text/html" } });
+    const body = await r.text();
+    const policy = r.headers.get("content-security-policy") || "";
+    const scriptSrc = policy.split(";").map((d) => d.trim()).find((d) => d.startsWith("script-src ")) || "";
+    expect(r.headers.get("cache-control")).toBe("public, max-age=0, s-maxage=60, stale-while-revalidate=31535940, stale-if-error=31536000");
+    expect(r.headers.get("set-cookie")).toBeNull();
+    expect(policy).not.toMatch(/'nonce-/);
+    expect(scriptSrc).toContain("'strict-dynamic'");
+    expect(scriptSrc).not.toContain("'unsafe-inline'");
+    expect(body).not.toMatch(/nonce=/i);
+    expect(body).not.toContain(CSP_NONCE_PLACEHOLDER);
+    // no parser-inserted external script and no script preload is left (both would need a nonce under 'strict-dynamic')
+    expect(body).not.toMatch(/<script[^>]*\ssrc=/i);
+    expect(body).not.toMatch(/<link[^>]*as="script"/i);
+    const inline = [...body.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script[^>]*>/gi)].map((m) => m[1]);
+    expect(inline.length).toBe(4);
+    for (const text of inline) expect(scriptSrc).toContain(`'sha256-${createHash("sha256").update(text, "utf8").digest("base64")}'`);
+    // the loader inserts the same external scripts, attributes and order kept
+    expect(body).toContain('"src":"/_next/static/chunks/a.js","id":"_R_","async":""');
+    expect(body).toContain('"src":"/_next/static/chunks/p.js","nomodule":""');
+    // the same copy is the same bytes and the same policy every time (what the edge keeps is self-consistent; nothing per response)
+    const again = await fetch(`${base}/ar`, { headers: { accept: "text/html" } });
+    expect(await again.text()).toBe(body);
+    expect(again.headers.get("content-security-policy")).toBe(policy);
+  });
+
+  it("issue 1548: a HEAD, an error status or a page Next did not mark s-maxage is never shared", async () => {
+    const { base } = await start((req, res) => html(res, req.url === "/ar/gone" ? 404 : 200, PAGE, { "cache-control": req.url === "/ar/dyn" ? "private, no-cache, no-store, max-age=0, must-revalidate" : "s-maxage=60, stale-while-revalidate=31535940" }));
+    expect((await fetch(`${base}/ar/gone`)).headers.get("cache-control")).toBe("private, no-cache");
+    expect((await fetch(`${base}/ar/dyn`)).headers.get("cache-control")).toContain("no-store");
+    expect((await fetch(`${base}/ar`, { method: "HEAD" })).headers.get("cache-control")).toBe("private, no-cache");
   });
 });
 
@@ -165,8 +231,8 @@ describe("edge mode (NABD_EDGE_STAMP_TOKEN)", () => {
     expect(r.headers.get(CSP_INJECT_HEADER)).toBeNull();
   });
 
-  it("anyone else is stamped here and gets `private, no-cache`: a wrong token, no token, or no token configured", async () => {
-    for (const [options, header] of [[{ edgeToken: "s3cret" }, "wrong"], [{ edgeToken: "s3cret" }, undefined], [{ edgeToken: "" }, ""]] as const) {
+  it("anyone else is stamped here and gets `private, no-cache` while an edge worker is configured: a wrong token or no token", async () => {
+    for (const [options, header] of [[{ edgeToken: "s3cret" }, "wrong"], [{ edgeToken: "s3cret" }, undefined]] as const) {
       const { base } = await start(cacheable, options);
       const r = await fetch(`${base}/ar`, { headers: header === undefined ? {} : { [EDGE_STAMP_HEADER]: header } });
       const body = await r.text();
@@ -246,10 +312,22 @@ describe("compression on the way out", () => {
   it("gzips a big stamped page for a client that accepts only gzip, and the stamp survives the round trip", async () => {
     const big = `<html><head><script>self.__next_f=[]</script></head><body>${"<p>public page</p>".repeat(2000)}</body></html>`;
     const { base } = await start((_req, res) => html(res, 200, big, { "cache-control": "s-maxage=60" }));
-    const r = await raw(`${base}/ar`, { "accept-encoding": "gzip", accept: "text/html" });
+    // a visitor with a theme cookie gets a stamped (private) copy; the guest's shared copy is hashed (next test)
+    const r = await raw(`${base}/ar`, { "accept-encoding": "gzip", accept: "text/html", cookie: "nabd.theme=light" });
     expect(r.headers["content-encoding"]).toBe("gzip");
     const text = zlib.gunzipSync(r.body).toString("utf8");
     expect(text).toMatch(/<script nonce="[^"]+">self\.__next_f=\[\]<\/script>/);
+    expect(r.body.length).toBeLessThan(text.length / 5);
+  });
+
+  it("gzips a guest's shared (hashed) copy too, and the hash of its inline script is in the policy", async () => {
+    const big = `<html><head><script>self.__next_f=[]</script></head><body>${"<p>public page</p>".repeat(2000)}</body></html>`;
+    const { base } = await start((_req, res) => html(res, 200, big, { "cache-control": "s-maxage=60" }));
+    const r = await raw(`${base}/ar`, { "accept-encoding": "gzip", accept: "text/html" });
+    expect(r.headers["content-encoding"]).toBe("gzip");
+    const text = zlib.gunzipSync(r.body).toString("utf8");
+    expect(text).toContain("<script>self.__next_f=[]</script>");
+    expect(String(r.headers["content-security-policy"])).toContain(`'sha256-${createHash("sha256").update("self.__next_f=[]").digest("base64")}'`);
     expect(r.body.length).toBeLessThan(text.length / 5);
   });
 

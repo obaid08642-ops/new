@@ -7,6 +7,7 @@ import { UserRole } from '../../common/enums';
 import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
 import { RespondToBroadcastDto, ClaimReferralDto, UpdateFlagDto, EnrollProgramDto, CompleteSessionDto, MatchPharmacyDto, MatchNurseDto, VerifyNurseAttendanceDto, VerifyBarcodeDto, VerifyLabResultsDto, EnrollCorporateDto, CreateAdBidDto} from './nabd-extensions.dto';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 @Controller()
 @UseGuards(JwtAuthGuard)
 export class NabdExtensionsController {
@@ -49,6 +50,7 @@ export class NabdExtensionsController {
   }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Put('admin/config/flags')
   @Roles(UserRole.ADMIN)
   async updateFlag(@CurrentUser() admin: any, @Body() body: UpdateFlagDto) {
@@ -185,6 +187,7 @@ export class NabdExtensionsController {
   }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Post('admin/ads/bid')
   async placeAdBid(@CurrentUser() provider: any, @Body() body: CreateAdBidDto) {
     await this.svc.logActivity('ads.bid_placed', undefined, provider.id, body);

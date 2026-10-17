@@ -21,8 +21,8 @@ export const EFFECTIVE_FLAGS: readonly EffectiveFlag[] = [
   { key: KILLSWITCH_FEATURES.liveMap, name: 'الخريطة الحية للعمليات', effect: 'عند التعطيل تعرض خريطة العمليات في لوحة الإدارة نتيجة فارغة بدل المواقع الحية.' },
   // medicines.service.ts: search analytics are not written.
   { key: KILLSWITCH_FEATURES.analyticsIngestion, name: 'تسجيل تحليلات البحث', effect: 'عند التعطيل لا تُسجل عمليات البحث في التحليلات؛ البحث نفسه يعمل.' },
-  // medicines.service.ts didYouMean(): no suggestion.
-  { key: KILLSWITCH_FEATURES.searchSuggestions, name: 'اقتراحات البحث', effect: 'عند التعطيل لا يظهر «هل تقصد؟» عند بحث بلا نتائج.' },
+  // medicines.service.ts didYouMean(): no suggestion; search.service.ts suggest(): no suggestions while typing (issue 1544).
+  { key: KILLSWITCH_FEATURES.searchSuggestions, name: 'اقتراحات البحث', effect: 'عند التعطيل لا تظهر قائمة الاقتراحات أثناء الكتابة في خانة البحث، ولا يظهر «هل تقصد؟» عند بحث بلا نتائج. البحث نفسه يعمل.' },
   // sms.service.ts isEnabled(): the SMS channel.
   { key: 'sms_enabled', name: 'الرسائل النصية SMS', effect: 'عند التعطيل لا يرسل الخادم أي رسالة نصية. بلا قيمة محفوظة يتبع إعداد الخادم SMS_ENABLED.' },
 ];

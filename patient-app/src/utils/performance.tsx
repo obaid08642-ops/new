@@ -120,7 +120,10 @@ export function getOptimizedImageUrl(
 ): string {
   if (!url) return '';
   // CDN image optimization params
-  if (url.includes('cdn.nabdahplus.com')) {
+  let host = '';
+  try { host = new URL(url).hostname; } catch { return url; }
+  // The host itself, not a substring: "https://evil.example/cdn.nabdahplus.com" is not the CDN.
+  if (host === 'cdn.nabdahplus.com') {
     return `${url}?w=${width}&q=${quality}&f=webp`;
   }
   return url;

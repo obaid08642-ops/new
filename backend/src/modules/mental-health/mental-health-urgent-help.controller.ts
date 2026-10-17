@@ -6,6 +6,7 @@ import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guar
 import { UserRole } from '../../common/enums';
 import { UrgentHelpDto } from './mental-health.dto';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 /** system_configs key of the one "Need urgent help?" number (owner decision 8). Never hard-coded: null until the admin sets it. */
 export const URGENT_HELP_KEY = 'mental_health_urgent_help';
 
@@ -29,6 +30,7 @@ export class MentalHealthUrgentHelpController {
   }
 
   /** PUT /api/v1/admin/mental-health/urgent-help — admin only, audited. */
+  @RequirePermissions(Permission.CMS_EDIT)
   @Put('admin/mental-health/urgent-help')
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)

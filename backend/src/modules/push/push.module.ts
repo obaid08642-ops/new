@@ -27,6 +27,7 @@ import { I18nService } from '../i18n/i18n.service';
 import { runsBackgroundWork } from '../../common/process-role';
 
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 // ── Schema ────────────────────────────────────────────────────────────
 
 @Schema({ timestamps: true })
@@ -837,6 +838,7 @@ export class PushController {
   track(@CurrentUser() u: any, @Body() b: TrackDto) { return this.svc.trackEngagement(u.id, b); }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.NOTIFICATIONS_SEND)
   @Post('admin/campaign')
   @Roles(UserRole.ADMIN)
   async sendCampaign(@Body() b: SendCampaignDto) {

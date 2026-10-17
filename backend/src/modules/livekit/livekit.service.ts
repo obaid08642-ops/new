@@ -1,4 +1,5 @@
 import { isOnlineConsultation } from '../chat/consultation-window';
+import { assertTelehealthConsent } from '../legal/telehealth-consent';
 import { BadRequestException, ConflictException, ForbiddenException, Injectable, Logger, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import { AccessToken } from 'livekit-server-sdk';
 import { randomUUID } from 'crypto';
@@ -47,6 +48,16 @@ export class LiveKitService {
   }
 
   /**
+   * D-38: the patient side of an online consultation (the patient, or the guardian who booked it) cannot start or join
+   * the call before accepting the current telehealth_consent. The doctor side is not asked: the consent is the patient's.
+   */
+  private async assertPatientConsent(appt: any, userId: string): Promise<void> {
+    const patientSide = [appt?.patient_id, appt?.user_id, appt?.booked_by_user_id].filter(Boolean).map(String);
+    if (!patientSide.includes(String(userId))) return;
+    await assertTelehealthConsent(this.conn, String(appt?.booked_by_user_id || userId));
+  }
+
+  /**
    * Issues a deterministic consultation room token only for the booked patient
    * or the assigned doctor during the appointment window. Foreign identities
    * receive 404 to avoid confirming that a booking exists.
@@ -56,6 +67,7 @@ export class LiveKitService {
     const isParticipant = appt && [String(appt.patient_id), String(appt.doctor_user_id)].includes(String(user?.id));
     if (!isParticipant) throw new NotFoundException('booking_not_found');
     if (appt.service_type !== 'video') throw new BadRequestException('call_token_only_available_for_video_booking');
+    await this.assertPatientConsent(appt, String(user?.id));
     if ([APPT_STATES.CANCELLED, APPT_STATES.COMPLETED, APPT_STATES.RESCHEDULED].includes(appt.status)) {
       throw new BadRequestException('call_token_not_available_for_booking_state');
     }
@@ -190,6 +202,7 @@ export class LiveKitService {
     if (!patientId || !providerId || ![patientId, providerId].includes(String(callerId))) {
       throw new ForbiddenException('Caller is not an appointment participant');
     }
+    await this.assertPatientConsent(appt, String(callerId));
     const resolvedCallee = calleeId || ([patientId, providerId].find(id => id !== String(callerId)) || '');
     if (!resolvedCallee || ![patientId, providerId].includes(String(resolvedCallee)) || String(resolvedCallee) === String(callerId)) {
       throw new ForbiddenException('Callee is not an appointment participant');
@@ -221,13 +234,15 @@ export class LiveKitService {
         );
         throw new BadRequestException('appointment_not_active');
       }
+      if (appt) await this.assertPatientConsent(appt, userId);
     }
     const token = await this.createToken(session.room_name, userName);
     await this.callSessions.updateOne(
       { id: session.id, status: 'INITIATED' },
       { $set: { status: 'ACTIVE', started_at: new Date(), updatedAt: new Date() } },
     );
-    return { room_name: session.room_name, token };
+    // P14.22: the web call room links a dropped call to this appointment's chat
+    return { room_name: session.room_name, token, appointment_id: session.appointment_id ?? null };
   }
 
   async endCall(sessionId: string, userId: string) {

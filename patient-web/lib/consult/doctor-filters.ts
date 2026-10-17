@@ -18,13 +18,26 @@ export type VisitType = (typeof VISIT_TYPES)[number];
 
 export type NearbyPlace = { kind: "coords"; lat: number; lng: number } | { kind: "city"; city: string };
 
-/** Who pays: "insurance" = doctors who accept insurance (`accepts_insurance=true`); "cash" = doctors who do not, so the visit is paid in cash (`accepts_insurance=false`). */
-export const PAYMENT_FILTERS = ["insurance", "cash"] as const;
+/**
+ * Who pays, chosen first (decision 30; owner 2026-10-14 question 28 replaced the old "Cash only" = `accepts_insurance=false`):
+ *   insurance -> with the patient's saved policy, only the doctors contracted for that company and class
+ *                (`insurance=<company id>&insurance_class=<class>`, the D-30 list contract); without a saved policy (a guest,
+ *                or no policy yet) the doctors who accept insurance (`accepts_insurance=true`);
+ *   self_pay  -> every doctor (a patient who pays can book anyone; the list is unchanged).
+ * An old shared link with `payment=cash` reads as self-pay.
+ */
+export const PAYMENT_FILTERS = ["insurance", "self_pay"] as const;
 export type PaymentFilter = (typeof PAYMENT_FILTERS)[number];
+
+/** The patient's saved insurer (GET /users/me/insurance). It travels in the page URL (`insurance`, `insurance_class`), filled in
+ *  by the browser from the saved policy, so the doctors page itself never reads the session (static/cached page rule). */
+export type Insurer = { company: string; class?: string };
 
 export type DoctorFilters = {
   type?: VisitType;
   payment?: PaymentFilter;
+  /** Only with payment "insurance": the saved policy's company and class, from the page URL. */
+  insurer?: Insurer;
   availableNow: boolean;
   nearest: boolean;
   place: NearbyPlace | null;
@@ -48,8 +61,11 @@ function numberParam(value: string | undefined, limit: number): number | null {
 export function parseDoctorFilters(raw: Raw): DoctorFilters {
   const rawType = first(raw.type);
   const type = (VISIT_TYPES as readonly string[]).includes(rawType ?? "") ? (rawType as VisitType) : undefined;
-  const rawPayment = first(raw.payment);
+  const rawPayment = first(raw.payment) === "cash" ? "self_pay" : first(raw.payment);
   const payment = (PAYMENT_FILTERS as readonly string[]).includes(rawPayment ?? "") ? (rawPayment as PaymentFilter) : undefined;
+  const company = payment === "insurance" ? boundedText(first(raw.insurance)) : undefined;
+  const insurerClass = company ? boundedText(first(raw.insurance_class)) : undefined;
+  const insurer: Insurer | undefined = company ? (insurerClass ? { company, class: insurerClass } : { company }) : undefined;
   const availableNow = first(raw.available) === "1";
   const nearest = first(raw.nearest) === "1" && nearestApplies(type ?? (availableNow ? "clinic" : undefined));
   let place: NearbyPlace | null = null;
@@ -60,7 +76,7 @@ export function parseDoctorFilters(raw: Raw): DoctorFilters {
     if (lat !== null && lng !== null) place = { kind: "coords", lat, lng };
     else if (city) place = { kind: "city", city };
   }
-  return { type, ...(payment ? { payment } : {}), availableNow, nearest: nearest && place !== null, place };
+  return { type, ...(payment ? { payment } : {}), ...(insurer ? { insurer } : {}), availableNow, nearest: nearest && place !== null, place };
 }
 
 /** "Available now" needs a visit type; without a chosen one the clinic is the default (and is shown as chosen). */
@@ -72,7 +88,12 @@ export function filterApiParams(filters: DoctorFilters): Array<[string, string]>
   const type = effectiveType(filters);
   const out: Array<[string, string]> = [];
   if (type) out.push(["type", type]);
-  if (filters.payment) out.push(["accepts_insurance", filters.payment === "insurance" ? "true" : "false"]);
+  if (filters.payment === "insurance") {
+    if (filters.insurer) {
+      out.push(["insurance", filters.insurer.company]);
+      if (filters.insurer.class) out.push(["insurance_class", filters.insurer.class]);
+    } else out.push(["accepts_insurance", "true"]);
+  }
   if (filters.availableNow) out.push(["available_within", String(AVAILABLE_WITHIN_MINUTES)]);
   if (filters.nearest && filters.place && nearestApplies(type)) {
     if (filters.place.kind === "coords") {
@@ -95,6 +116,10 @@ export function filterPageParams(filters: DoctorFilters, extra: { q?: string; sp
   if (extra.sort) params.set("sort", extra.sort);
   if (filters.type) params.set("type", filters.type);
   if (filters.payment) params.set("payment", filters.payment);
+  if (filters.payment === "insurance" && filters.insurer) {
+    params.set("insurance", filters.insurer.company);
+    if (filters.insurer.class) params.set("insurance_class", filters.insurer.class);
+  }
   if (filters.availableNow) params.set("available", "1");
   if (filters.nearest && filters.place) {
     params.set("nearest", "1");
@@ -106,4 +131,18 @@ export function filterPageParams(filters: DoctorFilters, extra: { q?: string; sp
     }
   }
   return params;
+}
+
+/** The insurer of a saved policy (GET /users/me/insurance): the company id (add-policy save) or provider, and the class. */
+export function insurerOf(policy: unknown): Insurer | undefined {
+  if (!policy || typeof policy !== "object") return undefined;
+  const p = policy as Record<string, unknown>;
+  const company = boundedText(p.company_id) ?? boundedText(p.provider);
+  if (!company) return undefined;
+  const cls = boundedText(p.class) ?? boundedText(p.plan_class);
+  return cls ? { company, class: cls } : { company };
+}
+
+function boundedText(v: unknown): string | undefined {
+  return typeof v === "string" && v.trim() ? v.trim().slice(0, 128) : undefined;
 }

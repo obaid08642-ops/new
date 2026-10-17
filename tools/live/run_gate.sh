@@ -11,7 +11,7 @@ API="${NABD_BACKEND:-http://127.0.0.1:8002}"
 run_step() {
   if command -v timeout >/dev/null 2>&1; then timeout "$@"; else shift; "$@"; fi
 }
-JOURNEYS=(j_accounts j_otp_abuse j_social_login j_onboarding j_pharmacy j_lab j_radiology j_nursing j_consultation j_facility j_support j_loyalty j_chaos j_rapid_tap j_app_killed_payment j_throttled_network j_killswitches j_web_pharmacy j_web_care j_rx_substitute j_web_dashboard j_admin_problems j_web_signup j_web_payment_result j_web_public_feed j_provider_review j_no_ambulance j_web_health_logging j_payouts j_b8_texts j_rx_flags j_web_one_cancel j_lab_result_push j_sfda_price_review j_password_reset_link j_provider_proposals j_pharmacy_catalogue_lines j_web_compare_catalogue j_doctor_photos j_web_home_nursing j_web_assistant j_web_offline j_web_offers_waiting j_web_b0_public j_provider_side_b j_admin_catalogue_fields j_web_cancel_home j_manual_request j_pregnancy_weeks j_patient_flows_c j_web_family_scan j_family_book_for_member j_family_meds j_app_populated_lists j_rx_rules_fields j_consult_filters_b j_admin_urgent_alerts j_doctor_home_position j_pharmacy_insurance_inline j_admin_kill_switches j_web_call j_pharmacy_owner_decisions j_lab_preparation_langs j_localized_name_english j_mail_rotation j_public_medicine_fields)
+JOURNEYS=(j_accounts j_otp_abuse j_social_login j_onboarding j_pharmacy j_lab j_radiology j_nursing j_consultation j_facility j_support j_loyalty j_chaos j_rapid_tap j_app_killed_payment j_throttled_network j_killswitches j_web_pharmacy j_web_care j_rx_substitute j_web_dashboard j_admin_problems j_web_signup j_web_payment_result j_web_public_feed j_provider_review j_no_ambulance j_web_health_logging j_payouts j_b8_texts j_rx_flags j_web_one_cancel j_lab_result_push j_sfda_price_review j_password_reset_link j_provider_proposals j_pharmacy_catalogue_lines j_web_compare_catalogue j_doctor_photos j_web_home_nursing j_web_assistant j_web_offline j_web_offers_waiting j_web_b0_public j_provider_side_b j_admin_catalogue_fields j_web_cancel_home j_manual_request j_pregnancy_weeks j_patient_flows_c j_web_family_scan j_family_book_for_member j_family_meds j_app_populated_lists j_rx_rules_fields j_consult_filters_b j_admin_urgent_alerts j_doctor_home_position j_pharmacy_insurance_inline j_admin_kill_switches j_web_call j_pharmacy_owner_decisions j_lab_preparation_langs j_localized_name_english j_mail_rotation j_admin_super_catalog j_radiology_delta_request j_web_public_cache j_admin_locations_states j_admin_orders_export j_web_guest_services j_web_guest_services_2 j_pharmacy_insurance_first j_services_content j_services_merged j_web_product_page j_web_search_suggest j_drug_index_access j_admin_provider_delete j_insurance_selfpay_filters j_product_insurance_row j_ai_scanner j_web_nursing_visits j_web_lab_labels j_web_not_found_locale j_web_family_chat_empty j_web_order_center_returns j_telehealth_consent j_admin_roles_restrictive j_public_medicine_fields)
 # j_killswitches (15.12) joins once Phase 14.4 is ported: it needs the kill-switch helper,
 # the six seeded flag rows and their consumers (14.4/14.18 + P15.fix 3e2db704), which are
 # not on main yet; until then it cannot be green (rule above).
@@ -21,6 +21,8 @@ restarts=0
 # DB the gate reports ~29 misleading 401/csrf step failures instead of the real
 # cause. Upsert it here (idempotent) so a fresh DB is self-sufficient.
 (cd "$ROOT/backend" && node "$ROOT/tools/live/seed_admin.js") || { echo "admin seed FAILED"; fail=1; }
+# The site's policy pages need their published texts before any journey opens them (seed_legal.py).
+(cd "$ROOT/tools/live" && python3 seed_legal.py) || { echo "legal seed FAILED"; fail=1; }
 # A backend killed mid-run (host memory pressure) turns into dozens of misleading
 # 502/401 step failures. Bring it back, but say so loudly and count it, so the
 # instability stays visible in the output instead of being silently healed.
@@ -50,7 +52,10 @@ export NABD_PATIENT_WEB="${NABD_PATIENT_WEB:-${NABD_WEB_JOURNEYS_URL:-http://127
 python3 gate_p1.py || fail=1
 for j in "${JOURNEYS[@]}"; do
   ensure_backend || fail=1
-  out=$(run_step 1200 python3 "$j.py" 2>&1)
+  # j_web_call waits on the real clock for the booking call window; near midnight UTC that window is tomorrow 00:00
+  # (up to ~45 min away), so it gets a longer limit than the 20 minutes every other journey has.
+  tmo=1200; [[ $j == j_web_call ]] && tmo=3600
+  out=$(run_step "$tmo" python3 "$j.py" 2>&1)
   line=$(grep -E '^##### ' <<<"$out" | tail -1)
   echo "$j: ${line:-no summary (crashed)}"
   if [[ -z $line || ! $line =~ ", 0 failed" ]]; then

@@ -90,7 +90,9 @@ describe('Issue 1555: public medicine routes return public fields only', () => {
     })),
     alternatives: jest.fn(async () => [record('m2'), rx]),
     publicCatalogFragment: jest.fn(async () => [{ id: 'm1', slug: 'med-m1', name: 'دواء', category: 'medications', form: 'tablet', strength: '500mg', price: 12, image: null, requires_prescription: false, availability_status: 'none' }]),
-    buildQuery: jest.fn(() => ({ is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' })),
+    buildQuery: jest.fn((_search?: string, _category?: string, _includeUnverified?: boolean) => ({ is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' })),
+    // As MedicinesService.publicStreamFilter: the stream filter is buildQuery with includeUnverified false.
+    publicStreamFilter: jest.fn((search?: string, category?: string) => svc.buildQuery(search, category, false)),
     model: {
       find: jest.fn(() => ({
         lean: () => ({ batchSize: () => ({ cursor: () => (async function* () { yield record('m1'); })() }) }),

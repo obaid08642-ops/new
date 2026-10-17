@@ -4,7 +4,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { randomBytes } from 'crypto';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
-import { PUBLIC_MEDICINE } from '../entity-graph/entity-graph.service';
+import { publicMedicineFilter } from '../medicines/public-medicine-filter';
 import { readVatRate } from '../business-rules/business-rules.module';
 
 export interface ProductFeedQuery {
@@ -51,8 +51,8 @@ export class AiCommerceService {
     const skip = (page - 1) * limit;
     const locale = query.locale || 'ar';
 
-    // Issue 1555: the public product feed lists published medicines only (approved, public, not deleted).
-    const filter: Record<string, any> = { ...PUBLIC_MEDICINE };
+    // A public feed for AI agents: medically approved, public items only.
+    const filter: Record<string, any> = { ...publicMedicineFilter() };
 
     if (query.category) {
       filter.category = query.category;

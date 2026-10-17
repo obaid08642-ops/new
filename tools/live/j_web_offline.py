@@ -34,14 +34,24 @@ def main():
         }""")
         step('the service worker is ready and keeps the offline page', ready == 'cached', ready)
         page.reload(wait_until='load')  # the page is now controlled by the worker
-        ctx.set_offline(True)
+        step('the page is controlled by the worker', page.evaluate('() => !!navigator.serviceWorker.controller'))
+        # The network is cut with a context route, not ctx.set_offline(True): set_offline reaches the worker's own network
+        # only once Playwright has attached to the worker (a worker less than a second old is not yet attached), and since
+        # the public pages are served from the ISR cache the whole flow now fits in that window. Then the worker's fetch
+        # still reached the server, the worker answered with the real checkout page (a redirect to the sign-in, or its
+        # loading state) and the journey read "العربية" or "جارٍ التحميل" instead of the offline page. A route aborts the
+        # worker's requests as well as the page's, whatever the worker's age.
+        cut = lambda route: route.abort('internetdisconnected')
+        ctx.route('**/*', cut)
+        reach = [sw.evaluate("() => fetch('/ar/cart/checkout?probe=1', { cache: 'no-store' }).then(() => 'reached', () => 'cut')") for sw in ctx.service_workers]
+        step('offline, the worker itself cannot reach the site', bool(reach) and all(r == 'cut' for r in reach), reach)
         try:
             page.goto(f'{WEB}/ar/cart/checkout', wait_until='load', timeout=30000)
             text = page.locator('main').first.inner_text()
         except Exception as e:
             text = f'navigation failed: {str(e)[:200]}'
         step('offline, the checkout shows the site\'s offline page', 'أنت غير متصل' in text and 'سلتك محفوظة' in text, text[:300])
-        ctx.set_offline(False)
+        ctx.unroute('**/*', cut)
         res = page.goto(f'{WEB}/ar/offline', wait_until='load', timeout=30000)
         step('the offline page itself is not indexed', 'noindex' in (page.locator('meta[name="robots"]').first.get_attribute('content') or ''), res.status if res else None)
         page.goto(f'{WEB}/ar', wait_until='load', timeout=30000)
