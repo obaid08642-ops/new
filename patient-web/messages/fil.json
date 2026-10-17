@@ -3869,7 +3869,9 @@
     "mapPane": "Mapa",
     "mapIdleTitle": "Mapa ng mga pasilidad",
     "mapIdleBody": "Pumili ng pasilidad sa listahan para makita ito sa mapa kasama ang direksyon.",
-    "mapIdleNote": "Mga open-source na mapa na nagpoprotekta sa iyong pagkapribado."
+    "mapIdleNote": "Mga open-source na mapa na nagpoprotekta sa iyong pagkapribado.",
+    "mapUnavailable": "Hindi ma-load ang mga pasilidad. Subukang muli.",
+    "mapRetry": "Subukang muli"
   },
   "ReturnsWeb": {
     "newRequest": "Bagong kahilingan sa pagbabalik",
@@ -4223,5 +4225,76 @@
     "positionLabel": "Puwesto mo sa pila: {position}",
     "estimate": "Tinatayang paghihintay: mga {minutes} minuto",
     "keepOpen": "Huwag isara ang pahinang ito. Kusa kang mapupunta sa pagbabayad pagdating ng turno mo. Naka-save ang iyong cart."
+  },
+  "GuestServices": {
+    "seeAll": "Tingnan lahat",
+    "listUnavailableTitle": "Hindi ma-load ang listahang ito",
+    "listUnavailable": "Subukang muli pagkalipas ng ilang sandali.",
+    "doctorsEmpty": "Wala pang nakalistang doktor",
+    "doctorsEmptyBody": "Lumalabas dito ang mga doktor kapag naaprubahan na sila.",
+    "offers": {
+      "actionTitle": "Mag-book ng alok",
+      "actionBody": "Kahit sino ay puwedeng tumingin ng mga alok. Mag-sign in para mag-book ng alok at magbayad.",
+      "action": "Mag-sign in para mag-book"
+    },
+    "insurance": {
+      "heroTitle": "Ang iyong insurance sa Nabd Plus",
+      "heroBody": "Idagdag ang iyong polisiya nang isang beses at makita ang pasya ng iyong insurer sa bawat booking.",
+      "insurersTitle": "Mga insurer sa Nabd Plus",
+      "insurersEmpty": "Wala pang nakalistang insurer",
+      "plans": "Mga plano: {plans}",
+      "actionTitle": "Idagdag ang iyong polisiya",
+      "actionBody": "Pribado sa iyong account ang iyong polisiya, mga kahilingan at mga pag-apruba. Mag-sign in para idagdag ang iyong polisiya.",
+      "action": "Mag-sign in para idagdag ang polisiya",
+      "networkTitle": "Mga provider na tumatanggap sa iyong insurer",
+      "networkPick": "Kompanya ng seguro",
+      "networkPickHint": "Piliin ang iyong insurer",
+      "networkShow": "Ipakita ang mga provider",
+      "networkHint": "Piliin ang iyong insurer para makita ang mga ospital, klinika at botika na tumatanggap dito."
+    },
+    "homeCare": {
+      "heroTitle": "Pag-aalaga at nursing sa bahay",
+      "heroBody": "Bumibisita sa bahay ang mga lisensiyadong nars para sa iniksiyon, pag-aalaga ng sugat, pagsukat ng vital signs at iba pa.",
+      "servicesTitle": "Mga serbisyo at presyo",
+      "servicesEmpty": "Wala pang nakalistang serbisyo ng pag-aalaga sa bahay",
+      "providersTitle": "Mga nagbibigay ng pag-aalaga sa bahay",
+      "providersEmpty": "Wala pang nakalistang nagbibigay ng pag-aalaga sa bahay",
+      "actionTitle": "Mag-book ng pagbisita sa bahay",
+      "actionBody": "Mag-sign in para mag-book ng pagbisita at subaybayan ang iyong mga pagbisita.",
+      "action": "Mag-sign in para mag-book"
+    },
+    "maternity": {
+      "heroTitle": "Pagbubuntis at pagiging ina",
+      "heroBody": "Subaybayan ang iyong pagbubuntis linggo-linggo, itala ang mga sipa at paghilab at bantayan ang paglaki ng iyong sanggol.",
+      "doctorsTitle": "Mga doktor sa obstetrics at gynecology",
+      "actionTitle": "Subaybayan ang iyong pagbubuntis",
+      "actionBody": "Pribado sa iyong account ang iyong profile at mga tala ng pagbubuntis. Mag-sign in para magsimula.",
+      "action": "Mag-sign in para magsimulang sumubaybay"
+    },
+    "mental": {
+      "heroTitle": "Kalusugang pangkaisipan at kagalingan",
+      "heroBody": "Magtago ng pribadong talaarawan ng mood at mag-book ng sesyon sa isang psychiatrist.",
+      "doctorsTitle": "Mga psychiatrist",
+      "actionTitle": "Simulan ang iyong talaarawan ng mood",
+      "actionBody": "Pribado sa iyong account ang iyong talaarawan ng mood. Mag-sign in para magsimula.",
+      "action": "Mag-sign in para magsimula"
+    },
+    "nutrition": {
+      "heroTitle": "Nutrisyon at malusog na pagkain",
+      "heroBody": "Itala ang iyong mga pagkain at tubig, magtakda ng target ng katawan, kumuha ng plano sa nutrisyon at kumonsulta sa isang nutritionist.",
+      "doctorsTitle": "Mga nutritionist",
+      "actionTitle": "Kunin ang iyong plano sa nutrisyon",
+      "actionBody": "Pribado sa iyong account ang iyong plano, mga pagkain at target. Mag-sign in para makuha ang iyong plano.",
+      "action": "Mag-sign in para makuha ang plano"
+    },
+    "emergency": {
+      "shareBody": "Ang iyong lokasyon ay napupunta lamang sa sarili mong mga emergency contact. Mag-sign in para ipadala ito.",
+      "shareAction": "Mag-sign in para ipadala ang lokasyon ko"
+    },
+    "ai": {
+      "actionTitle": "Magtanong sa assistant",
+      "actionBody": "Ang iyong mga tanong at larawan ay nananatiling pribado sa iyong account. Mag-sign in para magtanong sa assistant.",
+      "action": "Mag-sign in para magtanong"
+    }
   }
 }

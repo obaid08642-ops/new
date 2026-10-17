@@ -15,7 +15,8 @@ vi.mock("@/components-next/core/core-shell", () => ({
   CoreShell: ({ children }: { children: ReactNode }) => createElement("div", { "data-shell": true }, children),
 }));
 vi.mock("@/lib/i18n", () => ({ isLocale: () => true, getDirection: () => "ltr", locales: ["en"] }));
-vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: state.requirePatientAccess }));
+// issue 1550: the hub reads the session without requiring it (a guest gets the public part)
+vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: state.requirePatientAccess, getOptionalPatientAccessToken: state.requirePatientAccess }));
 vi.mock("@/lib/api/home-care-server", () => ({ getPatientHomeCareBookings: state.getPatientHomeCareBookings }));
 
 import HomeCarePage from "./page";

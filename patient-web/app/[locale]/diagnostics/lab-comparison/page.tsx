@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
 import { ConsultPage } from "@/components-next/consult/consult-page";
@@ -11,19 +10,19 @@ import styles from "@/components-next/diagnostics/diag.module.css";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ testIds?: string }> };
 
-/** The labs that can run all the chosen tests (canvas/ServiceHub "قارن المختبرات"): one card per compatible lab from `/labs/compatible-providers`, each going to the lab. */
+/** The labs that can run all the chosen tests (canvas/ServiceHub "قارن المختبرات"): one card per compatible lab from `/labs/compatible-providers`, each going to the lab.
+ * The read is public (@Public), so a guest compares labs too and no credential is sent (issue 1550); the cart asks for the sign-in. */
 export default async function LabComparisonPage({ params, searchParams }: Props) {
   const { locale } = await params;
   const sp = await searchParams;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("DiagWeb");
-  const token = await requirePatientAccess(locale);
   const testIds = (sp.testIds || "").split(",").map((s) => s.trim()).filter(Boolean).slice(0, 20);
   let labs: Array<{ id: string; name: string }> = [];
   let failed = false;
   if (testIds.length) {
-    const upstream = await callPatientApi(`/labs/compatible-providers?testIds=${testIds.map(encodeURIComponent).join(",")}`, {}, token);
+    const upstream = await callPatientApi(`/labs/compatible-providers?testIds=${testIds.map(encodeURIComponent).join(",")}`);
     failed = !upstream.ok;
     const data = upstream.ok ? await upstream.json().catch(() => null) : null;
     const list = Array.isArray(data) ? data : (data as { data?: unknown })?.data;

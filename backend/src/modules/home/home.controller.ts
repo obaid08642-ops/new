@@ -7,6 +7,11 @@ import { JwtAuthGuard, Public } from '../../common/auth.guard';
 export class HomeController {
   constructor(private readonly homeService: HomeService) {}
 
+  /**
+   * Issue 1550: the live offer campaigns are the public catalogue a visitor sees before signing in (title, prices and the
+   * provider's public name and rating; nothing about the reader). Booking an offer stays behind sign-in.
+   */
+  @Public()
   @Get('offers')
   getOffers() {
     return this.homeService.getOffers();
