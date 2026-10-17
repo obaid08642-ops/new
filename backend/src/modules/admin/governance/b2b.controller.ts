@@ -7,6 +7,7 @@ import { B2bDecisionDto } from './admin-governance.dto';
 import { UserRole } from '../../../common/enums';
 
 
+import { Permission, RequirePermissions } from '../../../common/permissions';
 @Controller('b2b')
 @Roles(UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
@@ -24,6 +25,7 @@ export class B2BController {
     return requests;
   }
 
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post('requests/:id/approve')
   async approve(@Param('id') id: string, @Body() body?: B2bDecisionDto) {
     const req = await this.b2bModel.findOne({ id: { $eq: id } });
@@ -34,6 +36,7 @@ export class B2BController {
     return req.toObject();
   }
 
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post('requests/:id/reject')
   async reject(@Param('id') id: string, @Body() body?: B2bDecisionDto) {
     const req = await this.b2bModel.findOne({ id: { $eq: id } });

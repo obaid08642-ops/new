@@ -4,6 +4,7 @@ import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guar
 import { ProviderType, ProviderStatus, UserRole } from '../../common/enums';
 import { ApplyDto, AdminCreateDto, RejectDto, SuspendDto} from './providers.dto';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 @Controller('providers')
 @Roles(UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
@@ -57,6 +58,7 @@ export class ProvidersController {
   // their approve path marked deltas APPROVED without ever applying the changes.
   // ============ Admin ============
 
+  @RequirePermissions(Permission.FACILITY_CREATE)
   @Post('admin/create')
   @Roles(UserRole.ADMIN)
   adminCreate(@Body() body: AdminCreateDto, @CurrentUser() admin: any) {
@@ -75,18 +77,21 @@ export class ProvidersController {
     return this.svc.listPending();
   }
 
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/approve')
   @Roles(UserRole.ADMIN)
   approve(@Param('id') id: string, @CurrentUser() admin: any) {
     return this.svc.approve(id, admin);
   }
 
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/reject')
   @Roles(UserRole.ADMIN)
   reject(@Param('id') id: string, @CurrentUser() admin: any, @Body() body: RejectDto) {
     return this.svc.reject(id, admin, body?.reason || '');
   }
 
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/suspend')
   @Roles(UserRole.ADMIN)
   suspend(@Param('id') id: string, @CurrentUser() admin: any, @Body() body: SuspendDto) {

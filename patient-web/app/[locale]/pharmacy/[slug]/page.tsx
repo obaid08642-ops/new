@@ -1,5 +1,6 @@
 import { JsonLd } from "@/components-next/json-ld";
 import { patientApiUrl } from "@/lib/api/upstream";
+import { PROVIDER_PAGES_TAG } from "@/lib/api/doctors-server";
 import { pharmacy, breadcrumbList, medicalWebPage } from "@/lib/seo/structured-data";
 import { DirectAnswer } from "@/components-next/seo/direct-answer";
 import type { Metadata } from "next";
@@ -22,7 +23,8 @@ async function fetchPharmacy(slug: string) {
     // issue 473: the same server base as every other server fetch (patientApiUrl); appending /api/v1 to a public base
     // that already ends in it made every pharmacy page a 404.
     const res = await fetch(patientApiUrl(`/entity-graph/related/pharmacy/${encodeURIComponent(slug)}`), {
-      next: { revalidate: 3600 },
+      // issue 1541: purged with the provider pages when the pharmacy is deleted
+      next: { revalidate: 3600, tags: [PROVIDER_PAGES_TAG] },
     });
     // The backend resolves the reviewed pharmacy profile; anything else is a 404 (the old fallback
     // to the doctor resolver could draw a doctor as a pharmacy).

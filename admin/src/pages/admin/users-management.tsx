@@ -31,6 +31,9 @@ const ROLE_FILTERS = [
   { value: 'nursing', label: 'التمريض' },
 ];
 
+/** A provider profile with no sign-in account (GET /admin/provider-profiles/orphans, issue 1541). */
+type OrphanProfile = { id: string; type: string | null; name_ar: string | null; name_en: string | null; status: string | null };
+
 export default function UsersManagementPage() {
   // Suspend/reactivate need user.edit, permanent deletion user.edit + gdpr.manage, and the provider file and its
   // moderation actions facility.edit (admin.controller / provider admin controller). Controls a role cannot use are hidden.
@@ -196,6 +199,39 @@ export default function UsersManagementPage() {
     }
   };
 
+  // Issue 1541: provider profiles with no sign-in account are not in the user list; they are listed and deleted here
+  // (same permissions and the same two confirmations as the user delete).
+  const [orphans, setOrphans] = useState<OrphanProfile[]>([]);
+  const fetchOrphans = async () => {
+    if (!canErase) return;
+    try {
+      const res = await apiFetch('/api/admin/admin/provider-profiles/orphans');
+      setOrphans(Array.isArray(res?.items) ? (res.items as OrphanProfile[]) : []);
+    } catch {
+      setOrphans([]);
+    }
+  };
+  useEffect(() => {
+    const t = setTimeout(fetchOrphans, 0);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canErase]);
+
+  const handleDeleteOrphan = async (p: OrphanProfile) => {
+    const name = p.name_ar || p.name_en || p.id;
+    if (!confirm(`حذف نهائي!\nسيتم حذف ملف المزود «${name}» وكل بياناته (الخدمات والمواعيد المتاحة والصور ونتائج البحث) نهائياً ولا يمكن التراجع.\n\nهل أنت متأكد تماماً؟`)) return;
+    if (!confirm(`تأكيد أخير: حذف ملف المزود «${name}» نهائياً من الـ backend وقاعدة البيانات؟`)) return;
+    setActionBusy(p.id);
+    try {
+      await apiFetch(`/api/admin/admin/provider-profiles/${encodeURIComponent(p.id)}`, { method: 'DELETE' });
+      await fetchOrphans();
+    } catch (err: unknown) {
+      alert(`فشل الحذف: ${err instanceof Error ? err.message : ''}`);
+    } finally {
+      setActionBusy(null);
+    }
+  };
+
   /** Directory status: moderation-aware. A provider still awaiting approval is
    * NEVER shown as "نشط" — pending/rejected/suspended reflect the review state. */
   const statusOf = (u: any): { key: string; label: string; cls: string } => {
@@ -326,6 +362,32 @@ export default function UsersManagementPage() {
                   </div>
                 );
               } },
+            ]}
+          />
+        </div>
+      )}
+
+      {canErase && orphans.length > 0 && (
+        <div className="mt-8 bg-white rounded-lg shadow overflow-hidden">
+          <h2 className="text-lg font-bold p-4 border-b border-gray-200">ملفات مزودين بلا حساب ({orphans.length})</h2>
+          <DataTable
+            bare
+            rows={orphans}
+            getRowKey={(p) => String(p.id)}
+            emptyText="لا توجد ملفات مزودين بلا حساب."
+            columns={[
+              { key: 'name', header: 'الاسم', className: 'font-medium text-gray-900', render: (p) => p.name_ar || p.name_en || '-' },
+              { key: 'type', header: 'النوع', className: 'text-gray-500', render: (p) => ROLE_LABELS[String(p.type || '').toLowerCase()] || p.type || '-' },
+              { key: 'id', header: 'المعرّف', className: 'text-gray-500', render: (p) => <span dir="ltr">{p.id}</span> },
+              { key: 'actions', header: 'الإجراءات', actions: true, className: 'text-sm font-medium', render: (p) => (
+                <button
+                  onClick={() => handleDeleteOrphan(p as OrphanProfile)}
+                  disabled={actionBusy === p.id}
+                  className="text-red-600 hover:text-red-900 font-bold disabled:opacity-50"
+                >
+                  حذف نهائي
+                </button>
+              ) },
             ]}
           />
         </div>

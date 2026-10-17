@@ -50,6 +50,7 @@ import { EmergencyModule } from './modules/emergency/emergency.module';
 import { RealtimeModule } from './modules/realtime/realtime.module';
 import { I18nCoreModule } from './modules/i18n/i18n.module';
 import { AiModule } from './modules/ai/ai.module';
+import { ScannerModule } from './modules/scanner/scanner.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { EventsModule } from './modules/events/events.module';
 import { SeedModule } from './modules/seed/seed.module';
@@ -140,6 +141,7 @@ import { ArticlesModule } from './modules/articles/articles.module';
 
 import { CorrelationMiddleware } from './common/correlation.middleware';
 import { ObservabilityModule } from './modules/observability/observability.module';
+import { LogsModule } from './modules/logs/logs.module';
 import { RumModule } from './modules/rum/rum.module';
 import { DoctorsModule } from './modules/doctors/doctors.module';
 import { WriteGuard } from './common/write-guard';
@@ -147,6 +149,7 @@ import { AdminGateGuard } from './common/admin-gate.guard';
 import { StepUpGuard, StepUpService } from './common/step-up.guard';
 import { ProductRankingModule } from './modules/product-ranking/product-ranking.module';
 import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
+import { mongoDirectConnection } from './common/database/mongo-uri';
 
 @Module({
   imports: [
@@ -186,7 +189,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
       useFactory: () => ({
         uri: process.env.MONGO_URL || 'mongodb://localhost:27017',
         dbName: process.env.DB_NAME || 'nabd_nestjs',
-        directConnection: true,
+        directConnection: mongoDirectConnection(process.env.MONGO_URL),
         // ── High-concurrency connection pool (default Mongoose pool = 5, insufficient) ──
         maxPoolSize: parseInt(process.env.MONGO_MAX_POOL_SIZE || '200', 10),
         minPoolSize: parseInt(process.env.MONGO_MIN_POOL_SIZE || '20', 10),
@@ -220,6 +223,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
       }),
     }),
     ObservabilityModule,
+    LogsModule,
     RumModule,
     I18nCoreModule,
     AuthModule,
@@ -229,6 +233,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     OrdersModule,
     EmergencyModule,
     AiModule,
+    ScannerModule,
     NotificationsModule,
     EventsModule,
     RealtimeModule,

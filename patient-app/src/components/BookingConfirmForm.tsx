@@ -15,6 +15,7 @@ import { paymentIntentHeaders } from '../utils/payment-idempotency';
 import { appointmentMutationHeaders, isHttpsCheckout } from '../utils/consultation-payment';
 import { pickLocalized } from '../utils/localize';
 import { showLocalizedAlert } from '../components/LocalizedAlert';
+import { TelehealthConsentSheet, isTelehealthConsentRefusal } from './legal/TelehealthConsent';
 
 /**
  * Confirm the booking — board BookingConfirm (canvas/BookingConfirm.dc.html), the first state of booking-status. The
@@ -58,6 +59,8 @@ export default function BookingConfirmScreen() {
   const [visitType, setVisitType] = useState((params.visitType as string) || 'clinic');
   const [payMethod, setPayMethod] = useState<'card' | 'cash' | 'insurance'>('card');
   const [loading, setLoading] = useState(false);
+  // D-38: the server asks for the telehealth consent before the first online consultation
+  const [consentOpen, setConsentOpen] = useState(false);
   const [doctor, setDoctor] = useState<DoctorLite | null>(null);
   const [insurance, setInsurance] = useState<InsuranceLite | null>(null);
 
@@ -167,6 +170,10 @@ export default function BookingConfirmScreen() {
       // Opening checkout never marks an appointment paid or confirmed in the client.
       router.replace({ pathname: '/consultations/booking-status', params: { appointmentId: appointment.id, visitType, payment_pending: payMethod === 'card' ? 'true' : 'false' } } as unknown as Href);
     } catch (error) {
+      if (isTelehealthConsentRefusal(error)) {
+        setConsentOpen(true);
+        return;
+      }
       showLocalizedAlert(k('consult.confirm.failedTitle'), (error instanceof Error && error.message) || k('consult.confirm.tryLater'));
     } finally {
       setLoading(false);
@@ -225,6 +232,14 @@ export default function BookingConfirmScreen() {
       ) : null}
 
       <Notice tone="info" text={k('consult.confirm.stepsNote')} />
+      <TelehealthConsentSheet
+        open={consentOpen}
+        onClose={() => setConsentOpen(false)}
+        onAccepted={() => {
+          setConsentOpen(false);
+          void handleConfirm();
+        }}
+      />
     </ConsultScreen>
   );
 }

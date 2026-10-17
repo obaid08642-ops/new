@@ -136,6 +136,8 @@ const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }>
   { method: "POST", route: new RegExp("^/patient/pharmacy/orders$") },
   { method: "POST", route: new RegExp("^/prescriptions/upload$") },
   { method: "POST", route: new RegExp("^/ai/prescription-ocr$") },
+  // decision 36: the AI scanner (one photo: pack, barcode, QR or prescription)
+  { method: "POST", route: new RegExp("^/ai/scan$") },
   { method: "PATCH", route: new RegExp(`^/patient/pharmacy/orders/${orderId}$`, "i") },
   { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/submit$`, "i") },
   { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/cancel$`, "i") },

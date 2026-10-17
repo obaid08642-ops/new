@@ -41,7 +41,7 @@
     "line": 146,
     "found": "[owner] board elements with no endpoint on the hub (no lab list, no cash flag, the cart is page based)",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md; issue #635)"
+    "review_status": "fixed #1604 (payment filter Self-pay / Insurance per recommendation 5; labs carousel and add toggle: owner decided no on 2026-10-14; issue #635)"
   },
   {
     "batch": 3,

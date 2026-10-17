@@ -1,6 +1,8 @@
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { requirePatientAccess } from "@/lib/auth/session";
+import { getOptionalPatientAccessToken } from "@/lib/auth/session";
+import { signInHref } from "@/lib/services/guest";
+import { GuestSpecialtyPage } from "@/components-next/guest/guest-specialty-page";
 import { callPatientApi } from "@/lib/api/upstream";
 import { parseWellbeingDashboard } from "@/lib/api/mental-health";
 import { getDirection, isLocale } from "@/lib/i18n";
@@ -29,8 +31,28 @@ export default async function MentalHealthPage({ params }: Props) {
   const t = await getTranslations("MentalWeb");
   const rs = await getTranslations("RouteState");
   const em = await getTranslations("Emergency");
-  const token = await requirePatientAccess(locale);
+  const token = await getOptionalPatientAccessToken();
   const caret = getDirection(locale) === "rtl" ? "caret-left" : "caret-right";
+  if (!token) {
+    // Issue 1550: a guest sees what the service is, its doctors and the urgent-help row; the mood summary needs a session.
+    const g = await getTranslations("GuestServices");
+    return (
+      <GuestSpecialtyPage
+        locale={locale}
+        title={t("title")}
+        tone={MIND.tone}
+        icon={MIND.icon}
+        heroTitle={g("mental.heroTitle")}
+        heroBody={g("mental.heroBody")}
+        specialty="psychiatry"
+        doctorsTitle={g("mental.doctorsTitle")}
+        action={{ id: "mental-sign-in", title: g("mental.actionTitle"), body: g("mental.actionBody"), label: g("mental.action"), next: `/${locale}/mental-health/mood` }}
+      >
+        <RowCard href={`/${locale}/emergency`} icon={SERVICE_ICONS.emergency.icon} tone={SERVICE_ICONS.emergency.tone} title={em("title")} sub={t("urgentRowSub")} caret={<Icon name={caret} size={16} tone="secondary" />} />
+        <Notice>{t("notice")}</Notice>
+      </GuestSpecialtyPage>
+    );
+  }
   const unavailable = (
     <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/dashboard`}>
       <ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />
@@ -43,7 +65,7 @@ export default async function MentalHealthPage({ params }: Props) {
   } catch {
     return unavailable;
   }
-  if (response.status === 401) redirect(`/${locale}/login`);
+  if (response.status === 401) redirect(signInHref(locale, `/${locale}/mental-health`));
   if (response.status === 403 || response.status === 404) notFound();
   if (!response.ok) return unavailable;
   const data = parseWellbeingDashboard(await response.json().catch(() => null));

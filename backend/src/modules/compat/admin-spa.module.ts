@@ -37,6 +37,7 @@ import { UserRole } from '../../common/enums';
 import { CreateDtoGen2, CreateDto2Gen2, CreateDto3, CreateDto4, CreateDto5, UploadDto } from './admin-spa.generated.dto';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 // These config endpoints intentionally store admin-owned, free-form JSON values.
 class FreeformConfigObjectPipe implements PipeTransform<unknown, Record<string, unknown>> {
   transform(value: unknown): Record<string, unknown> {
@@ -139,6 +140,7 @@ class AdminBroadcastController extends AdminController {
     return doc?.value || {};
   }
 
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Put('config')
   async putConfig(@CurrentUser() user: any, @Body(new FreeformConfigObjectPipe()) body: Record<string, unknown>) {
     await this.conn.collection('admin_config').updateOne(
@@ -149,6 +151,7 @@ class AdminBroadcastController extends AdminController {
     return { ok: true };
   }
 
+  @RequirePermissions(Permission.ORDER_REASSIGN)
   @Post(':id/expand')
   async expand(@Param('id') id: string, @Body() body: ExpandDto) {
     const segments = Array.isArray(body?.segments) ? body.segments.map(String) : [];
@@ -159,6 +162,7 @@ class AdminBroadcastController extends AdminController {
     return { ok: true, added: segments.length };
   }
 
+  @RequirePermissions(Permission.ORDER_CANCEL)
   @Post(':id/cancel')
   async cancel(@Param('id') id: string, @CurrentUser() user: any) {
     const res = await this.conn.collection('admin_broadcasts').updateOne(
@@ -194,6 +198,7 @@ class AdminShiftsController extends AdminController {
     return rows.map((s: any) => ({ ...s, id: s.id || String(s._id) }));
   }
 
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post()
   async create(@CurrentUser() user: any, @Body() body: CreateDto) {
     if (!body?.facility_id || !body?.staff_id || !body?.date) throw new BadRequestException('المنشأة والموظف والتاريخ مطلوبة');
@@ -368,6 +373,7 @@ class AdminTasksController extends AdminController {
     return rows.map((r: any) => ({ ...r, id: r.id || String(r._id) }));
   }
 
+  @RequirePermissions(Permission.OPS_QUEUES_MANAGE)
   @Post()
   async create(@CurrentUser() user: any, @Body() body: CreateDtoGen2) {
     if (!body?.title) throw new BadRequestException('عنوان المهمة مطلوب');
@@ -406,9 +412,11 @@ class AdminSpecialtiesController extends AdminController {
       })) as any);
     }
     const rows = await col.find({ active: { $ne: false } } as any).sort({ sort: 1 }).limit(200).toArray();
-    return rows.map((s: any) => ({ id: s.id || String(s._id), code: s.code, name_ar: s.name_ar, name_en: s.name_en, active: s.active !== false }));
+    // #1556 F: the six-language names (ur/hi/bn/tl) written by scripts/migrations/2026-10-services-content.ts.
+    return rows.map((s: any) => ({ id: s.id || String(s._id), code: s.code, name_ar: s.name_ar, name_en: s.name_en, name_ur: s.name_ur ?? null, name_hi: s.name_hi ?? null, name_bn: s.name_bn ?? null, name_tl: s.name_tl ?? null, active: s.active !== false }));
   }
 
+  @RequirePermissions(Permission.CATALOG_UPDATE)
   @Post()
   async create(@Body() body: CreateDto2Gen2) {
     if (!body?.name_ar || !body?.code) throw new BadRequestException('الرمز والاسم مطلوبان');
@@ -465,6 +473,7 @@ class AdminCmsController extends AdminController {
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
 class AdminOrdersController extends AdminController {
+  @RequirePermissions(Permission.ORDER_REASSIGN)
   @Post(':id/reassign')
   async reassign(@Param('id') id: string, @CurrentUser() user: any, @Body() body: ReassignDto) {
     const pid = String(body?.provider_id || '').trim();
@@ -543,6 +552,7 @@ class AdminCommissionsController extends AdminController {
     return rows.map((r: any) => ({ ...r, id: r.id || String(r._id) }));
   }
 
+  @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
   @Put(':id')
   async update(@Param('id') id: string, @CurrentUser() user: any, @Body() body: UpdateDto) {
     if (body?.commission === undefined) throw new BadRequestException('قيمة العمولة مطلوبة');
@@ -565,6 +575,7 @@ class AdminRefundsController extends AdminController {
     return rows.map((r: any) => ({ ...r, id: r.id || String(r._id) }));
   }
 
+  @RequirePermissions(Permission.ORDER_REFUND)
   @Post()
   async create(@CurrentUser() user: any, @Body() body: CreateDto2) {
     if (!body?.order_id || !(Number(body?.amount) > 0)) throw new BadRequestException('order_id والمبلغ مطلوبان');
@@ -587,6 +598,7 @@ class AdminCouponsController extends AdminController {
     return rows.map((r: any) => ({ ...r, id: r.id || String(r._id) }));
   }
 
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Post()
   async create(@CurrentUser() user: any, @Body() body: CreateDto4) {
     if (!body?.code) throw new BadRequestException('رمز القسيمة مطلوب');
@@ -610,6 +622,7 @@ class AdminCouponsController extends AdminController {
     return doc;
   }
 
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Patch(':code')
   async update(@CurrentUser() user: any, @Param('code') code: string, @Body() body: CouponUpdateDto) {
     const allowed = ['discount_percent', 'discount_amount', 'max_uses', 'valid_from', 'valid_until',
@@ -628,6 +641,7 @@ class AdminCouponsController extends AdminController {
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
 class AdminLoyaltyController extends AdminController {
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Put('config')
   async putConfig(@CurrentUser() user: any, @Body(new FreeformConfigObjectPipe()) body: Record<string, unknown>) {
     await this.conn.collection('loyalty_config').updateOne(
@@ -638,6 +652,7 @@ class AdminLoyaltyController extends AdminController {
     return { ok: true };
   }
 
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Put('earn-rules/:id')
   async updateEarnRule(@Param('id') id: string, @CurrentUser() user: any, @Body() body: LoyaltyEarnRuleUpdateDto) {
     const allowed = ['name_ar', 'name_en', 'event', 'points', 'multiplier', 'active', 'conditions'];
@@ -648,6 +663,7 @@ class AdminLoyaltyController extends AdminController {
     return { ok: true };
   }
 
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Post('earn-rules/:id/toggle')
   async toggleEarnRule(@Param('id') id: string) {
     const doc: any = await this.conn.collection('loyalty_earn_rules').findOne(byId(id) as any);
@@ -685,6 +701,7 @@ class AdminLoyaltyController extends AdminController {
     return { ok: true, balance: acc?.balance ?? 0 };
   }
 
+  @RequirePermissions(Permission.ORDER_COMPENSATE)
   @Post('manual-adjust')
   async manualAdjust(@CurrentUser() user: any, @Body() body: ManualAdjustDto) {
     if (!body?.user_id || !Number.isFinite(Number(body?.points)) || Number(body.points) === 0) {
@@ -694,6 +711,7 @@ class AdminLoyaltyController extends AdminController {
     return this.adjust(String(body.user_id), pts, pts > 0 ? 'admin_credit' : 'admin_debit', body.reason || null, uid(user));
   }
 
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Post('redeem')
   async redeem(@CurrentUser() user: any, @Body() body: RedeemDto) {
     if (!body?.user_id || !(Number(body?.points) > 0)) throw new BadRequestException('user_id ونقاط موجبة مطلوبة');
@@ -715,6 +733,7 @@ class AdminDeliveryController extends AdminController {
     return rows.map((r: any) => ({ ...r, id: r.id || String(r._id) }));
   }
 
+  @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
   @Post('rules')
   async createRule(@CurrentUser() user: any, @Body() body: CreateRuleDto) {
     // An unnamed rule with defaults would be an active free-delivery rule for every order.
@@ -730,6 +749,7 @@ class AdminDeliveryController extends AdminController {
     return doc;
   }
 
+  @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
   @Put('rules/:id')
   async updateRule(@Param('id') id: string, @CurrentUser() user: any, @Body() body: DeliveryRuleUpdateDto) {
     const allowed = ['name_ar', 'min_order_sar', 'service_type', 'city', 'user_segment', 'free', 'fee_sar', 'active'];
@@ -740,6 +760,7 @@ class AdminDeliveryController extends AdminController {
     return { ok: true };
   }
 
+  @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
   @Post('rules/:id/toggle')
   async toggleRule(@Param('id') id: string) {
     const doc: any = await this.conn.collection('delivery_rules').findOne(byId(id) as any);
@@ -748,6 +769,7 @@ class AdminDeliveryController extends AdminController {
     return { ok: true, active: !doc.active };
   }
 
+  @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
   @Delete('rules/:id')
   async deleteRule(@Param('id') id: string) {
     const res = await this.conn.collection('delivery_rules').deleteOne(byId(id) as any);
@@ -755,6 +777,7 @@ class AdminDeliveryController extends AdminController {
     return { ok: true };
   }
 
+  @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
   @Put('base-fees')
   async baseFees(@CurrentUser() user: any, @Body(new FreeformConfigObjectPipe()) body: Record<string, unknown>) {
     await this.conn.collection('delivery_config').updateOne(
@@ -765,6 +788,7 @@ class AdminDeliveryController extends AdminController {
     return { ok: true };
   }
 
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Post('toggle')
   async toggleSystem(@CurrentUser() user: any, @Body() body: ToggleSystemDto) {
     await this.conn.collection('delivery_config').updateOne(
@@ -818,6 +842,7 @@ class AdminPromotionsController extends AdminController {
     return { ...doc, id: doc.id || String(doc._id) };
   }
 
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Post()
   async create(@CurrentUser() user: any, @Body() body: CreateDto5) {
     if (!body?.title_ar) throw new BadRequestException('عنوان العرض مطلوب');
@@ -834,6 +859,7 @@ class AdminPromotionsController extends AdminController {
     return doc;
   }
 
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Put(':id')
   async update(@Param('id') id: string, @CurrentUser() user: any, @Body() body: PromotionUpdateDto) {
     const allowed = ['title_ar', 'title_en', 'original_price', 'discounted_price', 'start_date', 'end_date', 'image_url', 'target_parameters', 'status'];
@@ -844,6 +870,7 @@ class AdminPromotionsController extends AdminController {
     return { ok: true };
   }
 
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Post(':id/toggle')
   async toggle(@Param('id') id: string) {
     const doc: any = await this.conn.collection('promotioncampaigns').findOne(byId(id) as any);
@@ -853,6 +880,7 @@ class AdminPromotionsController extends AdminController {
     return { ok: true, status: next };
   }
 
+  @RequirePermissions(Permission.COUPONS_MANAGE)
   @Delete(':id')
   async remove(@Param('id') id: string) {
     const res = await this.conn.collection('promotioncampaigns').deleteOne(byId(id) as any);
@@ -906,6 +934,7 @@ class AdminNotificationsController extends AdminController {
     }));
   }
 
+  @RequirePermissions(Permission.NOTIFICATIONS_SEND)
   @Post('send')
   async send(@CurrentUser() user: any, @Body() body: SendDto) {
     const text = String(body?.body || body?.message || '').trim();
@@ -933,6 +962,7 @@ class AdminNotificationsController extends AdminController {
     return rows.map((r: any) => ({ ...r, id: r.id || String(r._id) }));
   }
 
+  @RequirePermissions(Permission.NOTIFICATIONS_SEND)
   @Post('auto-rules')
   async createAutoRule(@CurrentUser() user: any, @Body() body: CreateAutoRuleDto) {
     if (!body?.name || !body?.trigger) throw new BadRequestException('الاسم والمشغّل مطلوبان');
@@ -945,6 +975,7 @@ class AdminNotificationsController extends AdminController {
     return doc;
   }
 
+  @RequirePermissions(Permission.NOTIFICATIONS_SEND)
   @Put('auto-rules/:id')
   async updateAutoRule(@Param('id') id: string, @Body() body: AutoRuleUpdateDto) {
     const allowed = ['name', 'trigger', 'template', 'channels', 'active'];
@@ -955,6 +986,7 @@ class AdminNotificationsController extends AdminController {
     return { ok: true };
   }
 
+  @RequirePermissions(Permission.NOTIFICATIONS_SEND)
   @Delete('auto-rules/:id')
   async removeAutoRule(@Param('id') id: string) {
     const res = await this.conn.collection('notification_auto_rules').deleteOne(byId(id) as any);
@@ -1014,11 +1046,13 @@ class AdminInsuranceClaimsController extends AdminController {
     return { ok: true, id: req.id || id, state: update.state, copay_amount: update.copay_amount };
   }
 
+  @RequirePermissions(Permission.INSURANCE_MANAGE)
   @Post('claims/:id/approve')
   approve(@Param('id') id: string, @CurrentUser() user: any, @Body() body: ClaimApprovalDto) {
     return this.decide(id, user, true, body);
   }
 
+  @RequirePermissions(Permission.INSURANCE_MANAGE)
   @Post('claims/:id/reject')
   reject(@Param('id') id: string, @CurrentUser() user: any, @Body() body: RejectDto) {
     return this.decide(id, user, false, body);
@@ -1048,6 +1082,7 @@ class AdminProviderSubAccountsController extends AdminController {
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
 class AdminMedicinesController extends AdminController {
+  @RequirePermissions(Permission.CATALOG_SHORTAGE_DECIDE)
   @Post(':id/shortage')
   async shortage(@Param('id') id: string, @CurrentUser() user: any, @Body() body: ShortageDto) {
     let med: any = await this.conn.collection(CATALOG_COLLECTIONS.medicines).findOne(byId(id) as any);
@@ -1072,6 +1107,7 @@ class AdminMedicinesController extends AdminController {
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
 class AdminBulkUploadController extends AdminController {
+  @RequirePermissions(Permission.CATALOG_IMPORT)
   @Post()
   @UseInterceptors(FileInterceptor('file'))
   async upload(@CurrentUser() user: any, @UploadedFile() file: any, @Body() body: UploadDto) {
@@ -1172,18 +1208,23 @@ class AdminSystemController extends AdminController {
   }
 
   @Get('theme') theme() { return this.getConfig('theme', DEFAULT_THEME); }
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Put('theme') putTheme(@CurrentUser() u: any, @Body() b: ThemeConfigDto) { return this.putConfig('theme', b, u); }
 
   @Get('permissions') permissions() { return this.getConfig('permissions', DEFAULT_PERMISSIONS); }
+  @RequirePermissions(Permission.RBAC_MANAGE)
   @Put('permissions') putPermissions(@CurrentUser() u: any, @Body(new ParseArrayPipe({ items: PermissionEntryDto })) b: PermissionEntryDto[]) { return this.putConfig('permissions', b, u); }
 
   @Get('workflows') workflows() { return this.getConfig('workflows', DEFAULT_WORKFLOWS); }
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Put('workflows') putWorkflows(@CurrentUser() u: any, @Body(new ParseArrayPipe({ items: WorkflowEntryDto })) b: WorkflowEntryDto[]) { return this.putConfig('workflows', b, u); }
 
   @Get('ai-config') aiConfig() { return this.getConfig('ai-config', DEFAULT_AI_CONFIG); }
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Put('ai-config') putAiConfig(@CurrentUser() u: any, @Body() b: AiConfigDto) { return this.putConfig('ai-config', b, u); }
 
   @Get('alert-rules') alertRules() { return this.getConfig('alert-rules', []); }
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Put('alert-rules') putAlertRules(@CurrentUser() u: any, @Body(new ParseArrayPipe({ items: AlertRuleDto })) b: AlertRuleDto[]) { return this.putConfig('alert-rules', b, u); }
 }
 
@@ -1236,6 +1277,7 @@ class AdminAnalyticsController extends AdminController {
     return [...merged.entries()].map(([city, count]) => ({ city, count })).sort((a, b) => b.count - a.count);
   }
 
+  @RequirePermissions(Permission.ANALYTICS_READ)
   @Post('custom-report')
   async customReport(@Body() body: CustomReportDto) {
     const entity = String(body?.entity || 'orders');
@@ -1327,6 +1369,7 @@ class AdminNursingPortalController extends AdminController {
     }));
   }
 
+  @RequirePermissions(Permission.ORDER_REASSIGN)
   @Post('requests/:id/assign')
   async assign(@Param('id') id: string, @CurrentUser() user: any, @Body() body: AssignDto) {
     const providerId = body?.provider_id || body?.nurse_id;
@@ -1334,6 +1377,7 @@ class AdminNursingPortalController extends AdminController {
     return this.transition(id, 'PROVIDER_ASSIGNED', uid(user), { provider_id: providerId, nurse_id: providerId }, String(providerId));
   }
 
+  @RequirePermissions(Permission.ORDER_REASSIGN)
   @Post('requests/:id/reassign')
   async reassign(@Param('id') id: string, @CurrentUser() user: any, @Body() body: AssignDto) {
     const providerId = body?.provider_id || body?.nurse_id;
@@ -1341,6 +1385,7 @@ class AdminNursingPortalController extends AdminController {
     return this.transition(id, 'PROVIDER_ASSIGNED', uid(user), { provider_id: providerId, nurse_id: providerId }, String(providerId));
   }
 
+  @RequirePermissions(Permission.ORDER_CANCEL)
   @Post('requests/:id/cancel')
   async cancel(@Param('id') id: string, @CurrentUser() user: any) {
     return this.transition(id, 'CANCELLED', uid(user), { cancelled_by: uid(user), cancelled_at: new Date() });

@@ -256,6 +256,7 @@ export class AdminAuthorityController {
   @Post('providers/:id/unsuspend') unsp(@Param('id') id: string, @CurrentUser() u: any) { return this.svc.unsuspendProvider(u, id); }
   // Minted a full, ungoverned token for ANY user (super_admin included) for any admin, without user.impersonate, a case,
   // a purpose or a time limit. Support sessions go through the governed POST /admin/impersonation/start only.
+  @RequirePermissions(Permission.USER_IMPERSONATE)
   @Post('users/:id/impersonate') impersonateDisabled(): never {
     throw new GoneException('legacy_impersonation_disabled_use_admin_impersonation_start');
   }

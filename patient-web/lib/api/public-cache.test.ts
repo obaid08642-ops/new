@@ -32,7 +32,7 @@ describe("public data cache (F82-1)", () => {
     await getPublicDoctors();
     await getPublicDoctors({ sort: "rating" });
     for (const [, init] of fetchMock().mock.calls) {
-      expect(init.next).toEqual({ revalidate: 60 });
+      expect(init.next).toEqual({ revalidate: 60, tags: ["providers"] });
       expect(init.cache).toBeUndefined();
     }
   });

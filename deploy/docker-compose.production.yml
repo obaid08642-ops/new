@@ -6,12 +6,15 @@
 # ═══════════════════════════════════════════════════════════════════
 name: nabdah-prod
 
-# Shared logging defaults (json-file with rotation — logrotate covers the rest)
+# Shared logging defaults for EVERY service: json-file, at most 3 files of 20 MB (60 MB per container). Before 2026-10-16 it
+# was 5 x 50 MB (250 MB per container) and the mongodb/coturn logs alone were dozens of rotated 50 MB files. The rule is
+# pinned by tools/ops/check-compose-limits.py (CI "compose limits"): a service without `logging: *logopts`, or a larger
+# cap, fails the build. Existing containers keep their old cap until they are recreated by the deploy.
 x-logging: &logopts
   driver: json-file
   options:
-    max-size: "50m"
-    max-file: "5"
+    max-size: "20m"
+    max-file: "3"
 
 services:
   # ── MongoDB ──────────────────────────────────────────────────────
@@ -55,6 +58,30 @@ services:
       start_period: 5s
     logging: *logopts
 
+  # ── Redis cache (P14.14 role "cache"; 2026-10-16 #1603): rebuildable copies only — the Next.js page/data cache of
+  # patient-web (patient-web/cache-handler.cjs) and, once REDIS_CACHE_URL points here, the backend's HotCache. A separate
+  # INSTANCE (not a DB of `redis`): maxmemory-policy is per instance, and the main one keeps the queues, rate limiters and
+  # sessions. allkeys-lru + a hard maxmemory: when full it evicts the least recently used page, never refuses a write and
+  # never touches the app's data. Nothing is saved (no RDB, no AOF), nothing is on a volume, the root filesystem is read-only:
+  # this container cannot write to the disk at all. A restart empties it; pages are rendered again on demand.
+  redis-cache:
+    image: redis:7-alpine
+    container_name: nabdah-redis-cache
+    restart: unless-stopped
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}", "--maxmemory", "${REDIS_CACHE_MAXMEMORY:-256mb}",
+              "--maxmemory-policy", "allkeys-lru", "--save", "", "--appendonly", "no", "--dir", "/tmp"]
+    read_only: true
+    tmpfs: ["/tmp:size=16m"]
+    mem_limit: 384m
+    networks: [cache]
+    healthcheck:
+      test: ["CMD-SHELL", "REDISCLI_AUTH=\"${REDIS_PASSWORD}\" redis-cli ping | grep -q PONG"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    logging: *logopts
+
   # ── Meilisearch (D-29 search engine; ~300 MB RAM; mirror of the MongoDB search_index) ──
   meilisearch:
     image: getmeili/meilisearch:v1.10
@@ -91,6 +118,9 @@ services:
       PORT: "8002"
       # P14.26: HTTP and sockets only; cron jobs, queue consumers and the search sync run in `worker` below
       PROCESS_ROLE: api
+      # 20.3: debug|info|warn|error. info in production (stdout, capped 20m x 3); warn and error are also stored in
+      # Mongo `app_logs` (30-day TTL, size-capped) and shown in the admin dashboard > Logs. Set it in .env.production to change it.
+      LOG_LEVEL: ${LOG_LEVEL:-info}
       HTTP_COMPRESSION: edge   # P14.25: nginx gzips (gzip_proxied any); the API does not compress twice
       MONGO_URL: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
       DB_NAME: ${DB_NAME:-nabd_nestjs}
@@ -135,6 +165,7 @@ services:
       NODE_ENV: production
       CLUSTER_MODE: "false"
       PROCESS_ROLE: worker
+      LOG_LEVEL: ${LOG_LEVEL:-info}   # 20.3, see the backend service
       PORT: "8002"
       MONGO_URL: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
       DB_NAME: ${DB_NAME:-nabd_nestjs}
@@ -246,6 +277,12 @@ services:
       - ./coturn/turnserver.rendered.conf:/etc/coturn/turnserver.conf:ro
       - ./certs/turn:/etc/coturn/certs:ro
     network_mode: host  # TURN requires host networking (relay ports + source IPs)
+    # #1603: coturn writes a daily log (/var/tmp/turn_*.log) and a pid file into its container layer, with no rotation
+    # (isr-disk CI, `coturn-writes`). Read-only root + small memory-backed tmpfs: it starts, answers and writes nothing to disk.
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m
+      - /var/tmp:size=16m
     depends_on: []
     healthcheck:
       test: ["CMD-SHELL", "turnadmin -l -N turnserver.conf 2>/dev/null || nc -z 127.0.0.1 3478"]
@@ -297,8 +334,17 @@ services:
       NODE_ENV: production
       NEXT_PUBLIC_SENTRY_DSN: "https://b85367ac6782629e65b311de92c0e3bc@o4511819998429184.ingest.de.sentry.io/4512078080245840"
       SENTRY_DSN: "https://b85367ac6782629e65b311de92c0e3bc@o4511819998429184.ingest.de.sentry.io/4512078080245840"
+      # #1603: the ISR/data cache lives in redis-cache (the image is built with NEXT_CACHE_HANDLER=redis), not in the
+      # container layer. Redis down or slow: the page is rendered without it (a small in-process copy), never an error.
+      NEXT_CACHE_REDIS_URL: redis://:${REDIS_PASSWORD}@redis-cache:6379
     depends_on: [backend]
-    networks: [web]
+    networks: [web, cache]
+    # #1603: nothing can grow the container layer. The root filesystem is read-only; the only writable places are
+    # memory-backed and capped (Next's image-optimizer cache, scratch). A write beyond the cap fails that one write.
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m
+      - /app/.next/cache:size=128m
     logging: *logopts
 
   certbot:
@@ -322,3 +368,6 @@ networks:
     driver: bridge
   web:        # nginx-facing services
     driver: bridge
+  cache:      # redis-cache and its clients only (patient-web; the backend joins when REDIS_CACHE_URL is switched on)
+    driver: bridge
+    internal: true

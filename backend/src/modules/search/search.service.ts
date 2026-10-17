@@ -16,6 +16,7 @@ import {
 } from './search-documents';
 import { MeiliClient } from './meili.client';
 import { runsBackgroundWork } from '../../common/process-role';
+import { connectionFlagSource, isKilled } from '../../common/killswitches/killswitches.helper';
 
 export const SEARCH_INDEX = 'search_index';
 const META = 'search_index_meta';
@@ -24,6 +25,26 @@ const META = 'search_index_meta';
 // 3: medicine documents carry online_exclusive (rx-rules-web#4), so existing indexes rebuild once more.
 const INDEX_VERSION = 3;
 const BATCH = 500;
+/** Suggestions shown, and the candidates ranked to pick them (a short prefix matches many names). */
+const SUGGEST_LIMIT = 8;
+const SUGGEST_POOL = 200;
+
+/** Arabic-script text (Arabic, Urdu) is suggested from its first letter; other scripts from two letters. */
+export function suggestMinLength(query: string): number {
+  return /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/.test(query) ? 1 : 2;
+}
+
+export interface SuggestItem {
+  id: string;
+  type: SearchType;
+  section: SearchSection | null;
+  name: string;
+  name_locale: SearchLocale;
+  /** A medicine's or an article's page slug. */
+  slug: string | null;
+  /** A specialty's code (its doctor list filter). */
+  code: string | null;
+}
 
 export interface SearchItem {
   id: string;
@@ -234,12 +255,29 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
     return { query, engine, groups };
   }
 
-  async suggest(q: string, locale: SearchLocale = 'ar') {
+  /**
+   * Instant suggestions while typing (plan 17.3, issue 1544): names that start a word with the typed text, the best
+   * match first (the whole name, then a name that starts with it, then a later word), then popularity. Answered from
+   * `search_index` (MongoDB), which holds only the governed, approved items (sourceFilter), so nothing in medical
+   * review is suggested. Arabic script starts from the first letter, other scripts from two.
+   * The "search suggestions" kill switch answers `{ suggestions: [], disabled: true }`: the clients draw no dropdown.
+   */
+  async suggest(q: string, locale: SearchLocale = 'ar'): Promise<{ suggestions: SuggestItem[]; disabled?: true }> {
+    if (await isKilled('searchSuggestions', connectionFlagSource(this.conn))) return { suggestions: [], disabled: true };
     const query = normalizeSearchText(q || '').slice(0, 60);
-    if (query.length < 2) return { suggestions: [] };
+    if (query.length < suggestMinLength(query)) return { suggestions: [] };
     const rx = new RegExp(`(^| )${escapeRegex(query)}`);
-    const rows = await this.index.find({ name_text: rx }, { projection: { _id: 0, id: 1, type: 1, names: 1, boost: 1 } }).sort({ boost: -1 }).limit(8).toArray();
-    return { suggestions: rows.map((r: any) => ({ id: r.id, type: r.type, ...displayName(r, locale) })) };
+    const rows = await this.index
+      .find({ name_text: rx }, { projection: { _id: 0, id: 1, type: 1, section: 1, names: 1, name_text: 1, text: 1, boost: 1, slug: 1, code: 1 } })
+      .limit(SUGGEST_POOL).maxTimeMS(3000).toArray();
+    rows.sort((a: any, b: any) => (textScore(b, [query]) + b.boost) - (textScore(a, [query]) + a.boost)
+      || String(a.name_text).length - String(b.name_text).length
+      || String(a.id).localeCompare(String(b.id)));
+    return {
+      suggestions: rows.slice(0, SUGGEST_LIMIT).map((r: any) => ({
+        id: r.id, type: r.type, section: r.section ?? null, ...displayName(r, locale), slug: r.slug ?? null, code: r.code ?? null,
+      })),
+    };
   }
 
   private async mongoSearch(query: string, types: SearchType[], limit: number, locale: SearchLocale): Promise<Record<string, SearchItem[]>> {

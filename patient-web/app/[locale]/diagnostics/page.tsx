@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractDiagnosticBookings, type DiagnosticBooking } from "@/lib/api/diagnostics";
 import { getDiagnosticBookings } from "@/lib/api/diagnostics-server";
-import { extractLabServices, type LabService } from "@/lib/api/labs";
+import { extractLabServices, labPaymentFits, type LabService } from "@/lib/api/labs";
 import { getPublicLabServices } from "@/lib/api/labs-server";
 import { extractRadiologyServices } from "@/lib/api/radiology";
 import { getPublicRadiologyServices } from "@/lib/api/radiology-server";
@@ -62,7 +62,8 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
   const query = (await searchParams) ?? {};
   const kind = query.kind === "radiology" ? "radiology" : "labs";
   const place = query.place === "facility" ? "facility" : "home";
-  const pay = query.pay === "insurance" ? "insurance" : "all";
+  // Decision 30 (owner 2026-10-14, question 5): insurance or self-pay first; self-pay is the default.
+  const pay = query.pay === "insurance" ? "insurance" : "self_pay";
   const t = await getTranslations("DiagWeb");
   const d = await getTranslations("Diagnostics");
   const rtl = locale === "ar" || locale === "ur";
@@ -96,14 +97,15 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
     const params = new URLSearchParams();
     if (next.kind !== "labs") params.set("kind", next.kind);
     if (next.place !== "home") params.set("place", next.place);
-    if (next.pay !== "all") params.set("pay", next.pay);
+    if (next.pay !== "self_pay") params.set("pay", next.pay);
     const qs = params.toString();
     return `/${locale}/diagnostics${qs ? `?${qs}` : ""}`;
   };
 
   const fits = (service: { homeVisitSupported?: boolean; facilityVisitSupported?: boolean }) => (place === "home" ? service.homeVisitSupported !== false : service.facilityVisitSupported !== false);
-  const tests = labServices.filter((s) => s.isPackage !== true && !s.unavailable && fits(s) && (pay !== "insurance" || s.insuranceAvailable === true)).slice(0, LIMIT_TESTS);
-  const shownPackages = packages.filter((p) => !p.unavailable && (pay !== "insurance" || p.insuranceAvailable === true)).slice(0, LIMIT_PACKAGES);
+  const pays = (s: LabService) => labPaymentFits(pay, s);
+  const tests = labServices.filter((s) => s.isPackage !== true && !s.unavailable && fits(s) && pays(s)).slice(0, LIMIT_TESTS);
+  const shownPackages = packages.filter((p) => !p.unavailable && pays(p)).slice(0, LIMIT_PACKAGES);
   const scans = radiologyServices.filter(fits).slice(0, LIMIT_RADIOLOGY);
 
   const testTags = (s: LabService): Tag[] => [
@@ -147,7 +149,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
           <LinkSegmented
             label={t("payLabel")}
             value={pay}
-            options={[{ value: "all", label: t("payAll"), href: href({ pay: "all" }) }, { value: "insurance", label: t("payInsurance"), href: href({ pay: "insurance" }) }]}
+            options={[{ value: "self_pay", label: t("paySelf"), href: href({ pay: "self_pay" }) }, { value: "insurance", label: t("payInsurance"), href: href({ pay: "insurance" }) }]}
           />
         ) : null}
       </div>

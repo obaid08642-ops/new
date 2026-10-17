@@ -11,7 +11,7 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import type { Locale } from "@/lib/i18n";
 import { parseOrderRows } from "@/lib/pharmacy/order-view";
 import { callPatientApi } from "@/lib/api/upstream";
-import { consultationRows, diagnosticRows, nursingRows, pharmacyRows, sortCenterRows, type CenterLabels, type CenterRow } from "./center-rows";
+import { consultationRows, diagnosticRows, nursingRows, pharmacyRows, returnRows, sortCenterRows, type CenterLabels, type CenterRow } from "./center-rows";
 import { OrderList } from "./order-list";
 import rx from "@/components-next/pharmacy/rx.module.css";
 
@@ -30,7 +30,7 @@ async function read(locale: string, load: () => Promise<Response>, build: (paylo
 
 /**
  * `/orders`: everything the patient asked for in one place, like the app's order center (issue 378): pharmacy orders,
- * consultations, lab and radiology bookings and nursing visits, newest first, from each service's own endpoint. A service
+ * consultations, lab and radiology bookings, nursing visits and returns, newest first, from each service's own endpoint. A service
  * that does not answer is named in a note and the others still show; only when none answers is the page an error.
  */
 export async function OrdersScreen({ locale }: { locale: Locale }) {
@@ -44,6 +44,7 @@ export async function OrdersScreen({ locale }: { locale: Locale }) {
     diagWeb: await getTranslations({ locale, namespace: "DiagWeb" }),
     diagnostics: await getTranslations({ locale, namespace: "Diagnostics" }),
     nursing: await getTranslations({ locale, namespace: "NursingWeb" }),
+    returns: await getTranslations({ locale, namespace: "ReturnsWeb" }),
   };
   const token = await requirePatientAccess(locale);
 
@@ -53,6 +54,7 @@ export async function OrdersScreen({ locale }: { locale: Locale }) {
     read(locale, () => getDiagnosticBookings(token, "labs"), (payload) => diagnosticRows(locale, "labs", payload, labels)),
     read(locale, () => getDiagnosticBookings(token, "radiology"), (payload) => diagnosticRows(locale, "radiology", payload, labels)),
     read(locale, () => getPatientNursingVisits(token), (payload) => nursingRows(locale, payload, labels)),
+    read(locale, () => callPatientApi("/pharmacy/returns", {}, token), (payload) => returnRows(locale, payload, labels)),
   ]);
   const rows = sortCenterRows(sources.flatMap((source) => source.rows));
   const failedCount = sources.filter((source) => source.failed).length;

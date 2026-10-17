@@ -1151,6 +1151,7 @@ export class AdminFinanceEngineController {
   }
 
   /** Commission rules with overrides + effective dates + versioning (S11). */
+  @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
   @Post('commission-rules')
   setCommissionRule(@CurrentUser() u: any, @Body() b: SetCommissionRuleDto) {
     return this.commissions.setRule(u.id, { ...b });
@@ -1161,6 +1162,7 @@ export class AdminFinanceEngineController {
     return this.commissions.history();
   }
 
+  @RequirePermissions(Permission.FINANCE_READ)
   @Post('commission-rules/resolve')
   resolveCommission(@Body() b: ResolveCommissionDto) {
     return this.commissions.resolve(String(b?.service_type || ''), {

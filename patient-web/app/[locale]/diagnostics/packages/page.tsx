@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { isLabCategory } from "@/lib/lab-categories";
 import { extractLabServices } from "@/lib/api/labs";
 import { getPublicLabServices } from "@/lib/api/labs-server";
 import { isLocale } from "@/lib/i18n";
@@ -40,7 +41,8 @@ export default async function LabsPackagesPage({ params, searchParams }: Props) 
     );
   }
   const packages = extractLabServices(await response.json().catch(() => null)).filter((item) => item.isPackage !== false);
-  const categories = [...new Set(packages.map((item) => item.category).filter(Boolean))] as string[];
+  // The codes are shown by their label in the page's language (issue 1550 walkthrough: the list showed "cardiac", "package").
+  const categories = [...new Set(packages.map((item) => item.category?.trim().toLowerCase()).filter(isLabCategory))];
 
   return (
     <ConsultPage locale={locale} title={t("title")} backHref={backHref}>
@@ -54,7 +56,7 @@ export default async function LabsPackagesPage({ params, searchParams }: Props) 
           categories.length > 0 ? (
             <select className={consult.control} name="category" defaultValue={category} aria-label={t("category")}>
               <option value="">{t("allCategories")}</option>
-              {categories.map((item) => <option key={item} value={item}>{item}</option>)}
+              {categories.map((item) => <option key={item} value={item}>{t(`categoryName.${item}`)}</option>)}
             </select>
           ) : undefined
         }

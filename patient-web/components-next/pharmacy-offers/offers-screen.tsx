@@ -156,7 +156,7 @@ export async function OffersScreen({ locale, orderId, variant }: Props) {
           </section>
         ) : null}
 
-        {browsing && views.length ? <OfferList orderId={orderId} offers={views} after={variant === "broadcast" ? "tracking" : "refresh"} /> : null}
+        {browsing && views.length ? <OfferList orderId={orderId} offers={views} after={variant === "broadcast" ? "tracking" : "refresh"} coverage={progress.paymentMode ?? "cash"} /> : null}
         {browsing && views.length ? <p className={styles.privacy}>{t("privacyNote")}</p> : null}
         {browsing && !views.length ? (
           <div className={styles.state}><EmptyState icon="pill" tone={OFFER_TONES.pharmacy} title={t("emptyTitle")} body={t("emptyBody")} /></div>

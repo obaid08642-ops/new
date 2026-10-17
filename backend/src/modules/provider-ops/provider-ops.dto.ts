@@ -230,3 +230,9 @@ export class EndConsultationDto {
 
 
 }
+
+export class ToggleInstantDto {
+  // The state the provider asked for. Without it the server flips whatever it holds, which turned an "online" tap into
+  // "offline" whenever the app and the server disagreed (the app always started from "offline").
+  @IsOptional() @IsBoolean() available?: boolean;
+}

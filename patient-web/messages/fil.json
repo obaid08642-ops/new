@@ -26,7 +26,8 @@
     "notifications": "Mga abiso",
     "cart": "Cart",
     "mainNav": "Pangunahing nabigasyon",
-    "sections": "Mga seksyon"
+    "sections": "Mga seksyon",
+    "cartCount": "Laman ng cart ({n, number})"
   },
   "Home": {
     "eyebrow": "Digital na portal ng pasyente",
@@ -282,7 +283,8 @@
       "consultation": "Konsultasyon",
       "labs": "Pagsusuri sa laboratoryo",
       "radiology": "Radyolohiya (scan)",
-      "nursing": "Pagbisita ng nars"
+      "nursing": "Pagbisita ng nars",
+      "returns": "Kahilingan sa pagbabalik"
     },
     "statusUnavailable": "Hindi available ang status",
     "partialNote": "May mga order na hindi ma-load. Nasa ibaba ang iba; subukan muli sa ilang sandali."
@@ -1159,8 +1161,10 @@
     "specialtyLabel": "Espesyalidad",
     "allSpecialties": "Lahat ng espesyalidad",
     "paymentLabel": "Bayad",
-    "payment_insurance": "Tumatanggap ng insurance",
-    "payment_cash": "Cash lang",
+    "payment_insurance": "Seguro",
+    "payment_self_pay": "Sariling bayad",
+    "paymentInsuranceNoPolicy": "Idagdag ang iyong seguro para makita lang ang mga doktor na may kontrata sa iyong kompanya at klase. Sa ngayon, lahat ng doktor na tumatanggap ng seguro ang ipinapakita.",
+    "paymentAddPolicy": "Idagdag ang seguro",
     "doctorPhotoAlt": "Larawan ni {name}",
     "clinicPhotosTitle": "Mga larawan ng klinika",
     "clinicPhotoAlt": "Larawan ng klinika {n}"
@@ -1218,7 +1222,18 @@
     "preparation": "Paghahanda",
     "preparationTitle": "Bago ang iyong pagbisita",
     "homeAvailable": "Sinusuportahan ng package na ito ang kolekta sa bahay.",
-    "homeUnavailable": "Hindi nakalista ang kolekta sa bahay para sa package na ito."
+    "homeUnavailable": "Hindi nakalista ang kolekta sa bahay para sa package na ito.",
+    "categoryName": {
+      "blood": "Pagsusuri ng dugo",
+      "hormones": "Mga hormone",
+      "diabetes": "Dyabetis",
+      "vitamins": "Mga bitamina",
+      "cardiac": "Puso",
+      "imaging": "Larawang medikal",
+      "kidney": "Bato",
+      "liver": "Atay",
+      "package": "Mga pakete"
+    }
   },
   "RadiologyServices": {
     "eyebrow": "Radiology care",
@@ -1312,6 +1327,15 @@
     "kindRadiology": "Radyolohiya",
     "kindNursing": "Pag-aalaga",
     "kindArticle": "Artikulo"
+  },
+  "SearchSuggest": {
+    "listLabel": "Mga mungkahi sa paghahanap",
+    "loading": "Naghahanap ng mga mungkahi…",
+    "empty": "Walang mungkahi para sa “{query}”",
+    "error": "Hindi makuha ang mga mungkahi sa ngayon",
+    "retry": "Subukang muli",
+    "seeAll": "Lahat ng resulta para sa “{query}”",
+    "count": "{count, plural, =0 {Walang mungkahi} one {# mungkahi} other {# mungkahi}}"
   },
   "Support": {
     "title": "Suporta",
@@ -1573,25 +1597,28 @@
     "photoAlt": "Larawan ng kahon ng gamot"
   },
   "PharmacyBarcode": {
-    "title": "Maghanap gamit ang barcode",
-    "intro": "Ilagay ang barcode na nakalimbag sa pakete para mahanap ang gamot.",
-    "codeLabel": "Numero ng barcode",
-    "codePlaceholder": "6281234567890",
-    "lookup": "Hanapin",
-    "looking": "Hinahanap…",
-    "foundTitle": "Nahanap ang gamot",
-    "closestTitle": "Pinakamalapit na tugma",
-    "closestNote": "Walang gamot na may eksaktong barcode na ito. Ito ang pinakamalapit na tugma ayon sa pangalan.",
-    "notFoundTitle": "Hindi nahanap ang gamot",
-    "notFoundBody": "Wala sa katalogo ang barcode na {code}.",
-    "barcodeLine": "Numero ng barcode: {code}",
-    "needsRx": "Kailangan ng reseta",
-    "priceUnavailable": "Walang available na presyo",
-    "viewProduct": "Tingnan ang produkto",
-    "another": "Maghanap ng ibang barcode",
+    "title": "I-scan ang gamot",
+    "intro": "Kumuha o pumili ng larawan ng pakete ng gamot, ng barcode o QR code nito, o ng reseta, at ipapakita namin ang pinakamalapit na gamot sa katalogo.",
+    "takePhoto": "Kumuha o pumili ng larawan",
+    "another": "Mag-scan ng ibang larawan",
+    "reading": "Binabasa ang larawan…",
+    "rxSaved": "Na-save ang iyong reseta para sa pagsusuri ng parmasyutiko. Binubuksan…",
+    "matchesTitle": "Pinakamalapit na tugma",
+    "matchesNote": "Nabasa bilang: {name}. Piliin ang gamot na tugma sa iyong pakete.",
+    "noneTitle": "Walang malapit na tugma",
+    "noneBody": "Hindi maitugma ang larawang ito sa isang gamot sa katalogo.",
     "requestByName": "Hilingin sa pangalan",
-    "errorLookup": "Nabigo ang paghahanap ng barcode. Subukan muli.",
-    "onlineOnly": "Online lang"
+    "needsRx": "Kailangan ng reseta",
+    "onlineOnly": "Online lang",
+    "priceUnavailable": "Walang available na presyo",
+    "uploadRx": "I-upload ang reseta",
+    "errorType": "Pumili ng file ng larawan.",
+    "errorSize": "Mas malaki ang larawan kaysa {size}.",
+    "errorRead": "Hindi mabuksan ang larawan. Pumili ng iba.",
+    "errorUnreadable": "Hindi mabasa ang larawan. Subukan ang mas malinaw na larawan sa maliwanag na lugar.",
+    "errorRxUnreadable": "Walang gamot na nabasa sa resetang ito. Subukan ang mas malinaw na larawan, o i-upload ito mula sa pahina ng reseta.",
+    "errorBusy": "Masyadong maraming scan sa isang minuto. Maghintay sandali at subukang muli.",
+    "errorScan": "Hindi available ang scanner ngayon. Subukang muli."
   },
   "PharmacyChat": {
     "title": "Negosasyon sa parmasya",
@@ -1837,6 +1864,14 @@
     "medicines/compare": {
       "title": "Paghambingin ang Gamot",
       "description": "Ihambing ang mga gamot, presyo at alternatibo."
+    },
+    "refundPolicy": {
+      "title": "Patakaran sa Pagkansela at Refund",
+      "description": "Kailan ibinabalik nang buo o bahagya ang bayad matapos kanselahin ang isang order o appointment sa Nabd Plus."
+    },
+    "telehealthConsent": {
+      "title": "Pahintulot sa Telehealth na Konsultasyon",
+      "description": "Ang sinasang-ayunan mo bago ang iyong unang online na konsultasyon sa Nabd Plus."
     }
   },
   "NursingVisits": {
@@ -2083,7 +2118,12 @@
     "sortPriceDesc": "Presyo: mataas pababa",
     "sortNewest": "Pinakabago",
     "askPharmacies": "Hilingin sa mga kalapit na botika",
-    "compareAlternatives": "Ihambing sa mga alternatibo"
+    "compareAlternatives": "Ihambing sa mga alternatibo",
+    "similarTitle": "Mga katulad na produkto",
+    "imageCounter": "{n, number} / {total, number}",
+    "previousImage": "Nakaraang larawan",
+    "nextImage": "Susunod na larawan",
+    "inCartCta": "Nasa cart ({n, number})"
   },
   "PharmacyOffers": {
     "backToOrder": "Bumalik sa order",
@@ -2121,9 +2161,9 @@
     "validUntil": "May bisa hanggang {when}",
     "validFor": "May bisa sa loob ng {time}",
     "expired": "Nag-expire na ang alok na ito",
-    "coverageLegend": "Paano ka magbabayad?",
-    "coverageCash": "Cash o online, pagkatapos ng pinal na presyo",
-    "coverageInsurance": "Seguro sa kalusugan",
+    "coverageChosenCash": "Magbabayad ka ng cash o online pagkatapos ng huling presyo (pinili mo nang ipadala ang kahilingan)",
+    "coverageChosenInsurance": "Magbabayad ka gamit ang seguro (pinili mo nang ipadala ang kahilingan)",
+    "coverageNotInNetwork": "Hindi tumatanggap ng seguro ang parmasyang ito. Pumili ng ibang alok.",
     "selectOffer": "Piliin ang alok na ito",
     "selecting": "Pinipili…",
     "selectNote": "Walang sisingilin kapag pumili ka ng alok.",
@@ -2295,7 +2335,8 @@
     "payLegend": "Paano ka magbabayad?",
     "payDirect": "Direktang bayad",
     "payInsurance": "Sa pamamagitan ng insurance",
-    "payNote": "Kinukumpirma mo kung paano ka magbabayad kapag pumili ka ng alok.",
+    "payNote": "Pumili ngayon: ang mga alok na matatanggap mo ay para sa piniling ito, at hindi ito nagbabago kapag pumili ka ng alok.",
+    "payInsuranceNeedsRx": "Kailangan ng reseta para sa seguro: mag-order gamit ang iyong reseta para magamit ito.",
     "insuranceLoading": "Nilo-load ang insurance mo",
     "insuranceCardTitle": "Ang insurance mo",
     "insuranceClass": "Klase: {class}",
@@ -2533,7 +2574,12 @@
     "policyFull": "{hours} oras o higit pa bago ang oras: 100% refund",
     "policyHalf": "{half} hanggang {full} oras bago ang oras: {percent}% refund",
     "policyLess": "Wala pang {half} oras bago ang oras: walang refund",
-    "policyUnavailable": "Hindi available ngayon ang patakaran sa pagkansela at refund."
+    "policyUnavailable": "Hindi available ngayon ang patakaran sa pagkansela at refund.",
+    "callReconnecting": "Mahina ang koneksyon. Ikinokonekta muli ang tawag mo…",
+    "callAudioOnly": "Mahina ang koneksyon mo, kaya pinatay namin ang video at pinanatili ang tunog.",
+    "callTryVideo": "Subukan muli ang video",
+    "callDropped": "Naputol ang tawag.",
+    "callContinueInChat": "Ituloy sa chat"
   },
   "ConsultClient": {
     "payHeading": "Kumpletuhin ang bayad sa pamamagitan ng ligtas na gateway",
@@ -2747,7 +2793,7 @@
     "placeHomeScan": "Scan sa bahay",
     "placeCenter": "Sa sentro",
     "payLabel": "Bayad",
-    "payAll": "Lahat",
+    "paySelf": "Sariling bayad",
     "payInsurance": "Seguro",
     "quickResults": "Aking mga resulta",
     "quickCompare": "Ihambing ang presyo",
@@ -3395,7 +3441,9 @@
       "version": "Bersyon {version} · Epektibo mula {date}",
       "versionOnly": "Bersyon {version}",
       "currentVersion": "Ito ang kasalukuyang bersyon ng teksto. Papalitan ito ng bersyong inaprubahan ng batas bago ang paglulunsad.",
-      "back": "Bumalik"
+      "back": "Bumalik",
+      "refund": "Patakaran sa pagkansela at refund",
+      "telehealth": "Pahintulot sa online na konsultasyon"
     },
     "provider": {
       "title": "Sumali bilang provider",
@@ -3864,7 +3912,9 @@
     "mapPane": "Mapa",
     "mapIdleTitle": "Mapa ng mga pasilidad",
     "mapIdleBody": "Pumili ng pasilidad sa listahan para makita ito sa mapa kasama ang direksyon.",
-    "mapIdleNote": "Mga open-source na mapa na nagpoprotekta sa iyong pagkapribado."
+    "mapIdleNote": "Mga open-source na mapa na nagpoprotekta sa iyong pagkapribado.",
+    "mapUnavailable": "Hindi ma-load ang mga pasilidad. Subukang muli.",
+    "mapRetry": "Subukang muli"
   },
   "ReturnsWeb": {
     "newRequest": "Bagong kahilingan sa pagbabalik",
@@ -4211,5 +4261,99 @@
   "Network": {
     "offline": "Offline ka. Ipinapakita ng pahinang ito ang huling naka-save na kopya.",
     "offlineLastUpdated": "Offline ka. Ipinapakita ng pahinang ito ang huling naka-save na kopya. Huling pagbabago: {time}"
+  },
+  "WaitingRoom": {
+    "title": "Nasa pila ka",
+    "body": "Maraming nagbabayad ngayon. Isa-isa naming pinapapasok ang mga bisita para mabilis ang pagbabayad para sa lahat.",
+    "positionLabel": "Puwesto mo sa pila: {position}",
+    "estimate": "Tinatayang paghihintay: mga {minutes} minuto",
+    "keepOpen": "Huwag isara ang pahinang ito. Kusa kang mapupunta sa pagbabayad pagdating ng turno mo. Naka-save ang iyong cart."
+  },
+  "GuestServices": {
+    "seeAll": "Tingnan lahat",
+    "listUnavailableTitle": "Hindi ma-load ang listahang ito",
+    "listUnavailable": "Subukang muli pagkalipas ng ilang sandali.",
+    "doctorsEmpty": "Wala pang nakalistang doktor",
+    "doctorsEmptyBody": "Lumalabas dito ang mga doktor kapag naaprubahan na sila.",
+    "offers": {
+      "actionTitle": "Mag-book ng alok",
+      "actionBody": "Kahit sino ay puwedeng tumingin ng mga alok. Mag-sign in para mag-book ng alok at magbayad.",
+      "action": "Mag-sign in para mag-book"
+    },
+    "insurance": {
+      "heroTitle": "Ang iyong insurance sa Nabd Plus",
+      "heroBody": "Idagdag ang iyong polisiya nang isang beses at makita ang pasya ng iyong insurer sa bawat booking.",
+      "insurersTitle": "Mga insurer sa Nabd Plus",
+      "insurersEmpty": "Wala pang nakalistang insurer",
+      "plans": "Mga plano: {plans}",
+      "actionTitle": "Idagdag ang iyong polisiya",
+      "actionBody": "Pribado sa iyong account ang iyong polisiya, mga kahilingan at mga pag-apruba. Mag-sign in para idagdag ang iyong polisiya.",
+      "action": "Mag-sign in para idagdag ang polisiya",
+      "networkTitle": "Mga provider na tumatanggap sa iyong insurer",
+      "networkPick": "Kompanya ng seguro",
+      "networkPickHint": "Piliin ang iyong insurer",
+      "networkShow": "Ipakita ang mga provider",
+      "networkHint": "Piliin ang iyong insurer para makita ang mga ospital, klinika at botika na tumatanggap dito."
+    },
+    "homeCare": {
+      "heroTitle": "Pag-aalaga at nursing sa bahay",
+      "heroBody": "Bumibisita sa bahay ang mga lisensiyadong nars para sa iniksiyon, pag-aalaga ng sugat, pagsukat ng vital signs at iba pa.",
+      "servicesTitle": "Mga serbisyo at presyo",
+      "servicesEmpty": "Wala pang nakalistang serbisyo ng pag-aalaga sa bahay",
+      "providersTitle": "Mga nagbibigay ng pag-aalaga sa bahay",
+      "providersEmpty": "Wala pang nakalistang nagbibigay ng pag-aalaga sa bahay",
+      "actionTitle": "Mag-book ng pagbisita sa bahay",
+      "actionBody": "Mag-sign in para mag-book ng pagbisita at subaybayan ang iyong mga pagbisita.",
+      "action": "Mag-sign in para mag-book"
+    },
+    "maternity": {
+      "heroTitle": "Pagbubuntis at pagiging ina",
+      "heroBody": "Subaybayan ang iyong pagbubuntis linggo-linggo, itala ang mga sipa at paghilab at bantayan ang paglaki ng iyong sanggol.",
+      "doctorsTitle": "Mga doktor sa obstetrics at gynecology",
+      "actionTitle": "Subaybayan ang iyong pagbubuntis",
+      "actionBody": "Pribado sa iyong account ang iyong profile at mga tala ng pagbubuntis. Mag-sign in para magsimula.",
+      "action": "Mag-sign in para magsimulang sumubaybay"
+    },
+    "mental": {
+      "heroTitle": "Kalusugang pangkaisipan at kagalingan",
+      "heroBody": "Magtago ng pribadong talaarawan ng mood at mag-book ng sesyon sa isang psychiatrist.",
+      "doctorsTitle": "Mga psychiatrist",
+      "actionTitle": "Simulan ang iyong talaarawan ng mood",
+      "actionBody": "Pribado sa iyong account ang iyong talaarawan ng mood. Mag-sign in para magsimula.",
+      "action": "Mag-sign in para magsimula"
+    },
+    "nutrition": {
+      "heroTitle": "Nutrisyon at malusog na pagkain",
+      "heroBody": "Itala ang iyong mga pagkain at tubig, magtakda ng target ng katawan, kumuha ng plano sa nutrisyon at kumonsulta sa isang nutritionist.",
+      "doctorsTitle": "Mga nutritionist",
+      "actionTitle": "Kunin ang iyong plano sa nutrisyon",
+      "actionBody": "Pribado sa iyong account ang iyong plano, mga pagkain at target. Mag-sign in para makuha ang iyong plano.",
+      "action": "Mag-sign in para makuha ang plano"
+    },
+    "emergency": {
+      "shareBody": "Ang iyong lokasyon ay napupunta lamang sa sarili mong mga emergency contact. Mag-sign in para ipadala ito.",
+      "shareAction": "Mag-sign in para ipadala ang lokasyon ko"
+    },
+    "ai": {
+      "actionTitle": "Magtanong sa assistant",
+      "actionBody": "Ang iyong mga tanong at larawan ay nananatiling pribado sa iyong account. Mag-sign in para magtanong sa assistant.",
+      "action": "Mag-sign in para magtanong"
+    }
+  },
+  "LegalLinks": {
+    "refundPolicy": "Patakaran sa pagkansela at refund",
+    "telehealthConsent": "Pahintulot sa online na konsultasyon"
+  },
+  "TelehealthConsent": {
+    "title": "Pahintulot sa online na konsultasyon",
+    "intro": "Bago ang iyong unang online na konsultasyon, basahin at tanggapin ang pahintulot. Itinatala namin ang iyong pagsang-ayon kasama ang bersyon, oras at device.",
+    "textLabel": "Teksto ng pahintulot",
+    "version": "Bersyon {version}",
+    "readFull": "Basahin ang buong teksto",
+    "accept": "Sumasang-ayon ako, magpatuloy",
+    "accepting": "Sine-save ang iyong pagsang-ayon…",
+    "failed": "Hindi namin na-save ang iyong pagsang-ayon. Pakisubukang muli.",
+    "sessionEnded": "Natapos na ang iyong session.",
+    "signIn": "Mag-sign in"
   }
 }

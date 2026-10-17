@@ -149,7 +149,7 @@ export function FamilyChat({ locale }: { locale: string }) {
           body={t("chatNoGroupBody")}
           actionLabel={t("chatJoin")}
           actionHref={`/${locale}/family/add?tab=join`}
-          secondaryLabel={t("chatBack")}
+          secondaryLabel={t("backToFamily")}
           secondaryHref={`/${locale}/family`}
         />
       </div>

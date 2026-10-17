@@ -1,0 +1,35 @@
+/* Issue 1544: the suggestions dropdown under a search field. Tokens only. */
+.wrap { position: relative; min-inline-size: 0; }
+.popup {
+  position: absolute; inset-inline: 0; inset-block-start: calc(100% + var(--nabd-space-3xs)); z-index: var(--nabd-z-sheet);
+  background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary);
+  border: 1px solid var(--nabd-color-border-subtle); border-radius: var(--nabd-radius-xl); box-shadow: var(--nabd-shadow-raised);
+  padding-block: var(--nabd-space-3xs); max-block-size: min(60vh, 420px); overflow-y: auto; text-align: start;
+}
+.list { list-style: none; margin: 0; padding: 0; }
+.list:empty { display: none; }
+.option {
+  display: flex; align-items: center; gap: var(--nabd-space-2xs); min-block-size: 44px; box-sizing: border-box;
+  padding: var(--nabd-space-2xs) var(--nabd-space-xs); color: inherit; text-decoration: none; cursor: pointer;
+}
+.option[aria-selected="true"], .option:hover { background: var(--nabd-color-bg-sunken); }
+.option:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: -3px; }
+.name { flex: 1; min-inline-size: 0; font-size: var(--nabd-font-size-row); line-height: 1.4; overflow-wrap: anywhere; }
+.mark { background: var(--nabd-color-service-amber-bg); color: inherit; border-radius: var(--nabd-radius-sm); padding-inline: 2px; font-weight: 700; }
+.kind { flex: none; font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); }
+.state {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--nabd-space-2xs); margin: 0;
+  padding: var(--nabd-space-2xs) var(--nabd-space-xs); font-size: var(--nabd-font-size-body); color: var(--nabd-color-text-secondary);
+}
+.action {
+  min-block-size: 44px; padding-inline: var(--nabd-space-xs); border: 0; border-radius: var(--nabd-radius-pill); cursor: pointer;
+  background: var(--nabd-color-bg-sunken); color: var(--nabd-color-text-primary); font-family: inherit; font-size: var(--nabd-font-size-body); font-weight: 700;
+}
+.action:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.all {
+  display: flex; align-items: center; min-block-size: 44px; padding-inline: var(--nabd-space-xs);
+  border-block-start: 1px solid var(--nabd-color-border-subtle); color: var(--nabd-color-text-primary);
+  font-size: var(--nabd-font-size-body); font-weight: 700; text-decoration: none;
+}
+.all:hover { background: var(--nabd-color-bg-sunken); }
+.all:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: -3px; }

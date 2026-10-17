@@ -1,0 +1,14 @@
+# CI override for deploy/docker-compose.production.yml (#1603 proof): the real redis-cache and patient-web services,
+# with their real limits (read_only, tmpfs, mem_limit, logging), reachable from the runner and pointed at a stand-in API.
+#   docker compose -f deploy/docker-compose.production.yml -f tools/perf/isr-disk/compose.ci.yml --env-file ci.env \
+#     up -d --no-deps redis-cache patient-web
+services:
+  patient-web:
+    image: nabdah-patient-web:ci
+    ports: ["3201:3000"]
+    environment:
+      NABD_API_BASE_URL: http://host.docker.internal:4010/api/v1
+    extra_hosts: ["host.docker.internal:host-gateway"]
+networks:
+  cache:
+    internal: false   # the production network is internal; the runner must reach the web container only through its port

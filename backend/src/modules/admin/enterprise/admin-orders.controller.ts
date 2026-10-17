@@ -45,9 +45,10 @@ export class AdminOrdersConsoleController {
     @Query('status') status: string | undefined,
     @Query('from') from: string | undefined,
     @Query('to') to: string | undefined,
+    @Query('problem') problem: string | undefined,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const output = await this.svc.exportCsv({ kind, q, status, from, to });
+    const output = await this.svc.exportCsv({ kind, q, status, from, to, problem });
     res.setHeader('content-type', 'text/csv; charset=utf-8');
     res.setHeader('content-disposition', `attachment; filename="${output.filename}"`);
     res.setHeader('x-export-truncated', String(output.truncated));

@@ -6,6 +6,7 @@ import { Model } from 'mongoose';
 import { SystemConfig, SystemConfigDocument } from '../../../schemas/system-config.schema';
 import { UpdateConfigDto } from './system-config.dto';
 
+import { Permission, RequirePermissions } from '../../../common/permissions';
 /**
  * SystemConfigController
  * Provides endpoints to get and update global system configuration.
@@ -30,6 +31,7 @@ export class SystemConfigController {
     return { key: config.key, value: config.value };
   }
 
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Put()
   async updateConfig(@Body() body: UpdateConfigDto) {
     const key = 'system_config';

@@ -18,6 +18,8 @@ import { SignOutButton } from "@/components-next/sign-out-button";
 import { shellSectionHrefs } from "@/components-next/shell-links";
 import { ThemeToggle } from "@/components-next/theme-toggle";
 import { getDirection, type Locale } from "@/lib/i18n";
+import { useCart } from "@/lib/context/CartContext";
+import { formatNumber } from "@/lib/format-price";
 import styles from "./core.module.css";
 
 /**
@@ -67,6 +69,19 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
   // a switched-off module has no section and no tab (#953)
   const disabled = useDisabledModules();
   const rtl = getDirection(locale) === "rtl";
+  // issue 1547: the cart's count on its icon, read from the cart of this browser, so an add shows at once
+  const { itemCount } = useCart();
+  const cartLink = (extra = "") => (
+    <Link
+      href={`/${locale}/cart`}
+      className={`${styles.iconLink} ${styles.cartLink}${extra ? ` ${extra}` : ""}`}
+      data-testid="cart-link"
+      aria-label={itemCount > 0 ? shell("cartCount", { n: itemCount }) : shell("cart")}
+    >
+      <Icon name="cart" size={20} tone="currentColor" />
+      {itemCount > 0 ? <span className={styles.cartBadge} aria-hidden="true" data-testid="cart-badge">{formatNumber(locale, itemCount)}</span> : null}
+    </Link>
+  );
 
   const allTabs: Array<BottomTabItem & { href: string }> = [
     { id: "home", label: nav("navHome"), icon: "house", href: `/${locale}` },
@@ -125,15 +140,16 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
         </>
       )}
 
+      {/* pages without the tab bar (the product page, canvas/ProductFull) carry the cart in the phone header */}
+      {hideTabs && !search ? cartLink(`${styles.phoneOnly} ${styles.phoneCart}`) : null}
+
       <div className={`${styles.tools} ${styles.wideOnly}`}>
         <LocaleSelector current={locale} label={shell("language")} />
         <ThemeToggle label={shared("theme")} />
         <Link href={`/${locale}/notifications`} className={styles.iconLink} aria-label={shell("notifications")}>
           <Icon name="bell" size={20} tone="currentColor" />
         </Link>
-        <Link href={`/${locale}/cart`} className={styles.iconLink} aria-label={shell("cart")}>
-          <Icon name="cart" size={20} tone="currentColor" />
-        </Link>
+        {cartLink()}
         <Link href={`/${locale}/profile`} className={styles.iconLink} aria-label={shared("account")}>
           <Icon name="user" size={20} tone="currentColor" />
         </Link>

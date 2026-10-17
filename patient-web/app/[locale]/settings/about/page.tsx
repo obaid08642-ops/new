@@ -29,6 +29,7 @@ export default async function SettingsAboutPage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("SettingsWeb");
   const c = await getTranslations("ConsultWeb");
+  const legal = await getTranslations("LegalLinks");
   const response = await callPatientApi("/system-config/public");
   const config = response.ok ? extractRecord(await response.json().catch(() => null)) : null;
   const cancel = extractRecord({ data: config?.cancellation_policy ?? null });
@@ -56,6 +57,8 @@ export default async function SettingsAboutPage({ params }: Props) {
           rows={[
             { href: `/${locale}/terms`, icon: "file-text", tone: "ink", title: t("aboutTerms") },
             { href: `/${locale}/privacy`, icon: "shield-check", tone: "teal", title: t("aboutPrivacy") },
+            { href: `/${locale}/refund-policy`, icon: "arrows-left-right", tone: "amber", title: legal("refundPolicy") },
+            { href: `/${locale}/telehealth-consent`, icon: "video-camera", tone: "blue", title: legal("telehealthConsent") },
           ]}
         />
       </Group>

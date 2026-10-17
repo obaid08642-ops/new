@@ -44,6 +44,7 @@ import { PharmacyPrescriptionReviewScreen } from './PharmacyPrescriptionReview';
 import { PharmacyMyOffers } from './PharmacyMyOffers';
 import { PharmacyReturnDetail } from './PharmacyReturnDetail';
 import { buildHeaders, Biometric, SK, Vault } from '../../security/Security';
+import { analysisItems } from '../../utils/procurementAnalysis';
 import client from '../../api/client';
 import { WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderProfileEditor, ProviderHomeStats, GlobalSystemSettings } from '../shared/SharedScreens';
 import {
@@ -452,8 +453,8 @@ function B2BSupplyRequestScreen({ onBack }: any) {
   const runAnalysis = async (payload: any) => {
     setAnalyzing(true);
     try {
-      const res: any = await client.post('/pharmacy/procurement/analyze-file', payload);
-      const items = Array.isArray(res?.items) ? res.items : [];
+      const res = await client.post('/pharmacy/procurement/analyze-file', payload);
+      const items = analysisItems(res);
       if (items.length === 0) {
         show(AR ? 'لم يتعرف الذكاء الاصطناعي على أصناف — جرّب صورة أوضح أو الكتابة اليدوية' : 'AI found no items — try a clearer image or text', 'info');
       }

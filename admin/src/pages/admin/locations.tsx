@@ -5,6 +5,17 @@ import { apiFetch } from '../../utils/api';
 
 type Loc = { code: string; name_ar: string; name_en: string; type: string; parent_code?: string | null; is_active?: boolean };
 
+// The backend answers with machine codes; the page says what to do.
+const ERROR_AR: Record<string, string> = {
+  has_active_children: 'لا يمكن تعطيله وتحته مواقع نشطة. عطّل المواقع التابعة له أولاً.',
+  code_exists: 'هذا الكود مستخدم لموقع آخر.',
+  parent_not_found: 'الموقع الأب غير موجود.',
+  invalid_type: 'نوع الموقع غير صالح.',
+  code_name_type_required: 'الكود والاسمان والنوع مطلوبة.',
+  location_not_found: 'الموقع غير موجود.',
+};
+const errorText = (e: unknown, fallback: string) => { const m = e instanceof Error ? e.message : ''; return ERROR_AR[m] || fallback; };
+
 export default function LocationsAdminPage() {
   const [rows, setRows] = useState<Loc[]>([]);
   const [loading, setLoading] = useState(true);
@@ -20,7 +31,7 @@ export default function LocationsAdminPage() {
       const qs = new URLSearchParams({ type, include_inactive: '1', ...(q ? { q } : {}) }).toString();
       const r: any = await apiFetch(`/api/admin/admin/locations?${qs}`);
       setRows(Array.isArray(r) ? r : []);
-    } catch (e: any) { setError(e?.message || 'تعذر تحميل المواقع'); }
+    } catch (e: any) { setError(errorText(e, 'تعذر تحميل المواقع')); }
     finally { setLoading(false); }
   }, [type, q]);
   useEffect(() => { void load(); }, [load]);
@@ -32,7 +43,7 @@ export default function LocationsAdminPage() {
       await apiFetch('/api/admin/admin/locations', { method: 'POST', body: JSON.stringify({ ...form, code: form.code.trim(), parent_code: form.parent_code.trim() || undefined }) });
       setForm({ code: '', name_ar: '', name_en: '', type: form.type, parent_code: '' });
       await load();
-    } catch (e: any) { setError(e?.message || 'فشل الإضافة'); }
+    } catch (e: any) { setError(errorText(e, 'فشل الإضافة')); }
     finally { setBusy(''); }
   };
 
@@ -40,7 +51,7 @@ export default function LocationsAdminPage() {
     if (!confirm(`تعطيل ${code}؟ سيختفي من كل القوائم.`)) return;
     setBusy(code); setError('');
     try { await apiFetch(`/api/admin/admin/locations/${encodeURIComponent(code)}`, { method: 'DELETE' }); await load(); }
-    catch (e: any) { setError(e?.message || 'فشل التعطيل'); }
+    catch (e: any) { setError(errorText(e, 'فشل التعطيل')); }
     finally { setBusy(''); }
   };
 
@@ -67,7 +78,7 @@ export default function LocationsAdminPage() {
 <DataTable
       rows={rows}
       getRowKey={(r) => r.code}
-      emptyText=""
+      emptyText={q ? 'لا توجد مواقع مطابقة للبحث.' : 'لا توجد مواقع من هذا النوع.'}
       columns={[
         { key: 'code', header: 'الكود', className: 'font-mono text-xs', render: (r) => <span dir="ltr">{r.code}</span> },
         { key: 'ar', header: 'عربي', render: (r) => r.name_ar },
