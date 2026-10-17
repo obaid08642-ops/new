@@ -1991,6 +1991,8 @@
   "diag.hub.results": "نتائجي",
   "diag.hub.compare": "قارن الأسعار",
   "diag.place.group": "مكان الفحص",
+  "diag.pay.group": "طريقة الدفع",
+  "diag.pay.selfPay": "دفع ذاتي",
   "diag.place.homeLab": "سحب منزلي",
   "diag.place.visitLab": "في المختبر",
   "diag.place.homeRad": "أشعة منزلية",

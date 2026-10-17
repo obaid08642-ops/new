@@ -32,6 +32,10 @@ export interface CatalogItem {
   homeVisit: boolean;
   facilityVisit: boolean;
   isPopular: boolean;
+  /** Decision 30: the service can be booked on insurance (`insurance_availability: true`). */
+  insurance: boolean;
+  /** Decision 30: the service can be paid by the patient (`cash_availability` not false). */
+  selfPay: boolean;
 }
 
 const asText = (v: unknown): string => (typeof v === 'string' || typeof v === 'number' ? String(v) : '');
@@ -69,6 +73,8 @@ export function normalizeLabService(raw: unknown): CatalogItem | null {
     homeVisit: Boolean(r.home_visit_supported ?? r.homeAvailable),
     facilityVisit: Boolean(r.facility_visit_supported),
     isPopular: (asNumber(r.popularity) ?? 0) >= 80,
+    insurance: r.insurance_availability === true,
+    selfPay: r.cash_availability !== false,
   };
 }
 
