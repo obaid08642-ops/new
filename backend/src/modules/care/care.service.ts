@@ -86,6 +86,7 @@ export class CareService {
     facility_id?: string;
     degree?: string;
     insurance?: string;
+    insuranceClass?: string;
     accepts_insurance?: boolean;
     lat?: number;
     lng?: number;
@@ -97,13 +98,30 @@ export class CareService {
     page?: number;
     limit?: number;
   } = {}) {
+    // If payment=insurance is used with a user, resolve their insurance policy
+    let insuranceCompany = opts.insurance;
+    let insuranceClass = opts.insuranceClass;
+    if (!insuranceCompany && opts.user) {
+      const profile = await this.providerModel.db.collection('patient_profiles').findOne({ user_id: opts.user.id }, { projection: { insurance: 1 } });
+      if (profile?.insurance?.provider) {
+        insuranceCompany = profile.insurance.provider;
+        insuranceClass = profile.insurance.class;
+      }
+    }
     const q: any = { type: ProviderType.DOCTOR, ...PUBLIC_PROVIDER_FILTER };
     if (opts.specialty) q.specialty = opts.specialty;
     if (opts.service_type) q.consultation_modes = { $in: [opts.service_type] };
     if (opts.city) q.city = opts.city;
     if (opts.facility_id) q.facility_id = opts.facility_id;
     if (opts.degree) q.academic_degree = opts.degree;
-    if (opts.insurance) q.accepted_insurance = { $in: [opts.insurance] };
+    // Filter by insurance company AND class when both are provided
+    if (insuranceCompany && insuranceClass) {
+      q.$and = [
+        { accepted_insurance: { $elemMatch: { company_id: insuranceCompany, classes: insuranceClass, active: true } } }
+      ];
+    } else if (insuranceCompany) {
+      q.accepted_insurance = { $in: [insuranceCompany] };
+    }
     if (opts.accepts_insurance !== undefined) q.accepts_insurance = opts.accepts_insurance;
     const searchRegex = publicSearchRegex(opts.q);
     if (searchRegex) {

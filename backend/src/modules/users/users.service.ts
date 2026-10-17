@@ -194,6 +194,7 @@ export class UsersService {
     'chronic_diseases', 'allergies', 'current_medications', 'emergency_contacts',
     'addresses', 'preferred_lang', 'avatar_url', 'national_id', 'marital_status',
     'occupation', 'smoking_status', 'notes',
+    'insurance',
   ]);
 
   async updatePatientProfile(user_id: string, data: Partial<PatientProfile> & { chronic_conditions?: string[] }) {

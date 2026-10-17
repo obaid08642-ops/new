@@ -10,7 +10,7 @@ import { PROVIDER_ROLES } from '../../common/enums';
  * BR-1 (payment matrix): online/video/audio/home/delivery = online payment only;
  * clinic = online or pay-at-clinic. Enforced server-side via /bookings/quote.
  */
-import { Module, Controller, Injectable, Get, Post, Body, Param, Query, UseGuards, NotFoundException, BadRequestException, ForbiddenException, Optional, Logger } from '@nestjs/common';
+import { Module, Controller, Injectable, Get, Post, Body, Param, Query, UseGuards, NotFoundException, BadRequestException, ForbiddenException, ConflictException, Optional, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectConnection, InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
@@ -21,6 +21,7 @@ import { StepUp } from '../../common/step-up.guard';
 import { JwtAuthGuard, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
 import { InsuranceCompanySchema, InsuranceCompanyDocument } from '../../schemas/insurance.schema';
 import { PatientProfileSchema } from '../../schemas/patient-profile.schema';
+import { ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { FraudService, RefundExecutor } from '../finance-engine/finance-engine.module';
 import { TransactionSchema } from '../../schemas/transaction.schema';
 import { OrderSchema } from '../../schemas/order.schema';
@@ -255,6 +256,7 @@ export class InsuranceFlowService {
     @InjectModel('InsuranceServiceRequest') private requests: Model<any>,
     @InjectModel('InsuranceCompany') private companies: Model<InsuranceCompanyDocument>,
     @InjectModel('PatientProfile') private patients: Model<any>,
+    @InjectModel('ProviderProfile') private providerModel: Model<any>,
     private events: EventEmitter2,
     @InjectModel('Transaction') private transactions: Model<any>,
     @InjectModel('Order') private orders: Model<any>,
@@ -418,6 +420,41 @@ export class InsuranceFlowService {
     if (!Number.isFinite(price) || price <= 0) throw new BadRequestException('booking_price_not_ready');
     const { has_policy, policy } = await this.myPolicy(user);
     if (!has_policy) throw new BadRequestException('NO_INSURANCE_POLICY'); // patient app redirects to add-policy then deep-returns (BR-2.2)
+    
+    // Check if provider has active contract for patient's insurance company and class
+    if (policy?.company_id && policy?.class) {
+      const providerProfile: any = await this.providerModel.findOne({ id: { $eq: providerId } }).lean();
+      if (providerProfile?.accepted_insurance) {
+        const hasContract = providerProfile.accepted_insurance.some(
+          (c: any) => c.company_id === policy.company_id && 
+                      Array.isArray(c.classes) && c.classes.includes(policy.class) && 
+                      c.active !== false
+        );
+        if (!hasContract) {
+          throw new ConflictException('insurance_not_accepted_by_provider');
+        }
+      } else {
+        // No insurance contracts configured
+        throw new ConflictException('insurance_not_accepted_by_provider');
+      }
+    } else if (policy?.provider && policy?.class) {
+      // Legacy policy format uses 'provider' instead of 'company_id'
+      const providerProfile: any = await this.providerModel.findOne({ id: { $eq: providerId } }).lean();
+      if (providerProfile?.accepted_insurance) {
+        const hasContract = providerProfile.accepted_insurance.some(
+          (c: any) => c.company_id === policy.provider && 
+                      Array.isArray(c.classes) && c.classes.includes(policy.class) && 
+                      c.active !== false
+        );
+        if (!hasContract) {
+          throw new ConflictException('insurance_not_accepted_by_provider');
+        }
+      } else {
+        // No insurance contracts configured
+        throw new ConflictException('insurance_not_accepted_by_provider');
+      }
+    }
+    
     const existing = await this.requests.findOne({ patient_id: user.id, booking_kind: kind, booking_id: bookingId, state: { $in: ['PENDING_PROVIDER_REVIEW', 'COPAY_PENDING', 'APPROVED_FULL', 'COPAY_PAID'] } }).lean();
     if (existing) return existing;
     const doc = await this.requests.create({
@@ -1108,6 +1145,7 @@ export class FinanceCoreController {
       { name: 'CommissionRule', schema: CommissionRuleSchema },
       { name: 'InsuranceCompany', schema: InsuranceCompanySchema },
       { name: 'PatientProfile', schema: PatientProfileSchema },
+      { name: 'ProviderProfile', schema: ProviderProfileSchema },
       { name: 'Transaction', schema: TransactionSchema },
       { name: 'Order', schema: OrderSchema },
       { name: 'LabBooking', schema: LabBookingSchema },

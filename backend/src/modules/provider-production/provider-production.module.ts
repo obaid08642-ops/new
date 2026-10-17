@@ -638,7 +638,9 @@ export class ProviderProductionService {
       for (const e of patch.accepted_insurance) {
         const company_id = String(e?.company_id || '').trim();
         if (!company_id) throw new BadRequestException('accepted_insurance_company_id_required');
-        const entry: any = { company_id, active: e?.active !== false };
+        const classes = Array.isArray(e?.classes) ? e.classes.map((c: any) => String(c).trim().slice(0, 20)).filter(Boolean) : [];
+        if (!classes.length) throw new BadRequestException('accepted_insurance_classes_required');
+        const entry: any = { company_id, classes, active: e?.active !== false };
         if (e?.copay_pct !== undefined && e?.copay_pct !== null && e?.copay_pct !== '') {
           const cp = Number(e.copay_pct);
           if (!Number.isFinite(cp) || cp < 0 || cp > 100) throw new BadRequestException('accepted_insurance_copay_pct_must_be_0_100');
@@ -669,10 +671,10 @@ export class ProviderProductionService {
       throw new BadRequestException('availability_roundtrip_failed');
     }
     if (patch.accepted_insurance !== undefined) {
-      const activeIds = [...new Set(patch.accepted_insurance.filter((e: any) => e.active).map((e: any) => e.company_id))];
+      const activeContracts = patch.accepted_insurance.filter((e: any) => e.active !== false);
       await this.conn.collection('provider_profiles').updateOne(
         { $or: [{ user_id: user.id }, { account_id: user.id }] },
-        { $set: { accepted_insurance: activeIds, updatedAt: new Date() } },
+        { $set: { accepted_insurance: activeContracts, updatedAt: new Date() } },
       );
     }
     return { ok: true, availability: back.availability };

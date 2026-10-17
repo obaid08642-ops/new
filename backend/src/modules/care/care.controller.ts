@@ -38,6 +38,8 @@ export class CareController {
     @Query('facility_id') facility_id?: string,
     @Query('degree') degree?: string,
     @Query('insurance') insurance?: string,
+    @Query('insurance_class') insuranceClass?: string,
+    @Query('payment') payment?: string,
     @Query('accepts_insurance') accepts_insurance?: string,
     @Query('lat') lat?: string,
     @Query('lng') lng?: string,
@@ -53,11 +55,20 @@ export class CareController {
     if (available_within !== undefined && availableWithin === undefined) {
       throw new BadRequestException('available_within must be a positive whole number of minutes');
     }
+    // Determine insurance company and class from either explicit params or payment=insurance + user's policy
+    let insuranceCompany = insurance;
+    let insuranceClassFilter = insuranceClass;
+    if (payment === 'insurance' && user) {
+      // Patient's own policy will be used via the service
+      insuranceCompany = undefined; // Will be resolved from user's profile in service
+      insuranceClassFilter = undefined; // Will be resolved from user's profile in service
+    }
     return this.svc.listDoctors({
       specialty, service_type: service_type ?? (type === 'home_visit' ? 'home' : type as any) ?? undefined,
       nearest_type: type,
       available_today: available_today === 'true' || available_today === '1',
-      q, city, facility_id, degree, insurance,
+      q, city, facility_id, degree, insurance: insuranceCompany,
+      insuranceClass: insuranceClassFilter,
       accepts_insurance: accepts_insurance === 'true' ? true : accepts_insurance === 'false' ? false : undefined,
       lat: lat === undefined ? undefined : queryNumber(lat),
       lng: lng === undefined ? undefined : queryNumber(lng),
