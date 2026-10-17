@@ -32,6 +32,8 @@ export S3_ACCESS_KEY_ID="${S3_ACCESS_KEY_ID:-live}" S3_SECRET_ACCESS_KEY="${S3_S
 export SES_SMTP_HOST=127.0.0.1 SES_SMTP_PORT=2525 SES_SMTP_USER=live SES_SMTP_PASS=live SES_FROM=no-reply@nabd.test
 # SES is only in the chain when it is ordered (owner spec 2026-10-16); the live stack orders it so mail reaches smtp_sink.
 # j_mail_rotation starts its own backends with Resend/Brevo/Mailjet pointed at tools/live/fake_mail.py.
+# 16.5: every upload is scanned; tools/live/fake_clamd.py stands in for ClamAV (it flags the EICAR test string).
+export CLAMD_HOST="${CLAMD_HOST:-127.0.0.1}" CLAMD_PORT="${CLAMD_PORT:-3311}" UPLOAD_SCAN="${UPLOAD_SCAN:-required}"
 export MAIL_PROVIDER_ORDER="${MAIL_PROVIDER_ORDER:-ses}"
 export ALLOWED_ORIGINS="${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3001,http://localhost:8081,http://localhost:8082}"
 export CORS_ORIGINS="$ALLOWED_ORIGINS"
