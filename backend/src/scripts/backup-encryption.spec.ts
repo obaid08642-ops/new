@@ -86,6 +86,7 @@ d('16.9 encrypted backups', () => {
   });
 
   it('a passphrase file that is too short or unreadable fails the backup', () => {
+    fs.rmSync(pass);                                   // it was written read-only: a normal user cannot overwrite it
     fs.writeFileSync(pass, 'short\n', { mode: 0o400 });
     expect(run('backup.sh', env({ BACKUP_ENCRYPTION_PASSPHRASE_FILE: pass })).status).not.toBe(0);
     expect(files(backups)).toEqual([]);
