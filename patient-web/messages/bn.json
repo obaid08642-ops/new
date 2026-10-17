@@ -1167,8 +1167,7 @@
     "paymentAddPolicy": "বিমা যোগ করুন",
     "doctorPhotoAlt": "{name}-এর ছবি",
     "clinicPhotosTitle": "ক্লিনিকের ছবি",
-    "clinicPhotoAlt": "ক্লিনিকের ছবি {n}",
-    "payment_cash": "শুধু নগদ"
+    "clinicPhotoAlt": "ক্লিনিকের ছবি {n}"
   },
   "LabsServices": {
     "eyebrow": "ল্যাবরেটরি কেয়ার",
@@ -1619,19 +1618,7 @@
     "errorUnreadable": "ছবিটি পড়া যায়নি। ভালো আলোতে আরও পরিষ্কার ছবি চেষ্টা করুন।",
     "errorRxUnreadable": "এই প্রেসক্রিপশন থেকে কোনো ওষুধ পড়া যায়নি। আরও পরিষ্কার ছবি চেষ্টা করুন বা প্রেসক্রিপশন পাতা থেকে আপলোড করুন।",
     "errorBusy": "এক মিনিটে অনেক বেশি স্ক্যান। একটু অপেক্ষা করে আবার চেষ্টা করুন।",
-    "errorScan": "স্ক্যানার এখন উপলব্ধ নয়। আবার চেষ্টা করুন।",
-    "codeLabel": "বারকোড",
-    "codePlaceholder": "6281234567890",
-    "lookup": "খুঁজুন",
-    "looking": "খোঁজা হচ্ছে…",
-    "foundTitle": "ওষুধ পাওয়া গেছে",
-    "closestTitle": "সবচেয়ে কাছের মিল",
-    "closestNote": "এই হুবহু বারকোডের কোনো ওষুধ নেই। এটি নামের ভিত্তিতে সবচেয়ে কাছের মিল।",
-    "notFoundTitle": "ওষুধ পাওয়া যায়নি",
-    "notFoundBody": "বারকোড {code} ক্যাটালগে নেই।",
-    "barcodeLine": "বারকোড: {code}",
-    "viewProduct": "পণ্য দেখুন",
-    "errorLookup": "বারকোড খোঁজা ব্যর্থ হয়েছে। আবার চেষ্টা করুন।"
+    "errorScan": "স্ক্যানার এখন উপলব্ধ নয়। আবার চেষ্টা করুন।"
   },
   "PharmacyChat": {
     "title": "ফার্মেসির সঙ্গে আলোচনা",
@@ -2322,10 +2309,7 @@
     "searchRound": "রাউন্ড {round}: {km} কিমির মধ্যে ফার্মেসি খোঁজা হচ্ছে",
     "showMethods": "পরিশোধ পদ্ধতি বেছে নিন",
     "paymentUnavailable": "এই অর্ডারের জন্য এখন কোনো অনলাইন পরিশোধ পদ্ধতি নেই।",
-    "loadingMethods": "পরিশোধ পদ্ধতি লোড হচ্ছে…",
-    "coverageLegend": "আপনি কীভাবে পরিশোধ করবেন?",
-    "coverageCash": "চূড়ান্ত দামের পর নগদ বা অনলাইনে",
-    "coverageInsurance": "বিমা"
+    "loadingMethods": "পরিশোধ পদ্ধতি লোড হচ্ছে…"
   },
   "PharmacyCheckout": {
     "title": "চেকআউট",
@@ -2957,8 +2941,7 @@
     "bookingNotSentTitle": "কোনো বুকিং হয়নি",
     "bookingNotSentBody": "এই উইন্ডো এখনও বুকিং পাঠায় না, তাই কোনো অ্যাপয়েন্টমেন্ট তৈরি হয়নি এবং কোনো পেমেন্ট নেওয়া হয়নি। ভিজিট বুক করতে নার্সিং পেজ খুলুন।",
     "bookingNotSentCta": "নার্সিং পেজে যান",
-    "bookingNotSentClose": "বন্ধ করুন",
-    "payAll": "সব"
+    "bookingNotSentClose": "বন্ধ করুন"
   },
   "NursingWeb": {
     "hubTitle": "বাসায় যত্ন",

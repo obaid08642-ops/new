@@ -46,7 +46,15 @@ def run():
     t0 = time.time()
     page.locator('form input:not([type])').first.fill(EMAIL)
     page.fill('input[type="password"]', PASSWORD)
-    page.click('button[type="submit"]')
+    # The admin login allows 10 a minute per IP and the journeys before this one sign in too: a 429 is waited out once,
+    # as j_admin_clicks does (NABD_LIVE_WAIT_429), instead of reading it as a broken login form.
+    with page.expect_response(lambda r: r.request.method == 'POST' and 'login' in r.url, timeout=20000) as sent:
+        page.click('button[type="submit"]')
+    if sent.value.status == 429 and os.environ.get('NABD_LIVE_WAIT_429', '1') == '1':
+        time.sleep(min(int(sent.value.headers.get('retry-after') or 61), 90))
+        t0 = time.time()
+        with page.expect_response(lambda r: r.request.method == 'POST' and 'login' in r.url, timeout=20000) as sent:
+            page.click('button[type="submit"]')
     page.wait_for_selector('input[inputmode="numeric"]', timeout=20000)
     page.fill('input[inputmode="numeric"]', mail_code(EMAIL, t0))
     page.click('button[type="submit"]')

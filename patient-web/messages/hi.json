@@ -1167,8 +1167,7 @@
     "paymentAddPolicy": "बीमा जोड़ें",
     "doctorPhotoAlt": "{name} की तस्वीर",
     "clinicPhotosTitle": "क्लिनिक की तस्वीरें",
-    "clinicPhotoAlt": "क्लिनिक की तस्वीर {n}",
-    "payment_cash": "केवल नकद"
+    "clinicPhotoAlt": "क्लिनिक की तस्वीर {n}"
   },
   "LabsServices": {
     "eyebrow": "प्रयोगशाला देखभाल",
@@ -1619,19 +1618,7 @@
     "errorUnreadable": "फ़ोटो पढ़ी नहीं जा सकी। अच्छी रोशनी में साफ़ फ़ोटो आज़माएँ।",
     "errorRxUnreadable": "इस पर्चे से कोई दवा पढ़ी नहीं जा सकी। साफ़ फ़ोटो आज़माएँ या पर्चे वाले पेज से अपलोड करें।",
     "errorBusy": "एक मिनट में बहुत अधिक स्कैन। थोड़ा रुककर फिर कोशिश करें।",
-    "errorScan": "स्कैनर अभी उपलब्ध नहीं है। फिर कोशिश करें।",
-    "codeLabel": "बारकोड",
-    "codePlaceholder": "6281234567890",
-    "lookup": "खोजें",
-    "looking": "खोज जारी है…",
-    "foundTitle": "दवा मिल गई",
-    "closestTitle": "सबसे नज़दीकी मिलान",
-    "closestNote": "इस सटीक बारकोड वाली कोई दवा नहीं मिली। यह नाम के आधार पर सबसे नज़दीकी मिलान है।",
-    "notFoundTitle": "दवा नहीं मिली",
-    "notFoundBody": "बारकोड {code} कैटलॉग में नहीं है।",
-    "barcodeLine": "बारकोड: {code}",
-    "viewProduct": "उत्पाद देखें",
-    "errorLookup": "बारकोड खोज विफल रही। फिर कोशिश करें।"
+    "errorScan": "स्कैनर अभी उपलब्ध नहीं है। फिर कोशिश करें।"
   },
   "PharmacyChat": {
     "title": "फ़ार्मेसी से बातचीत",
@@ -2322,10 +2309,7 @@
     "searchRound": "राउंड {round}: {km} किमी के भीतर फ़ार्मेसी खोजी जा रही हैं",
     "showMethods": "भुगतान का तरीका चुनें",
     "paymentUnavailable": "इस ऑर्डर के लिए अभी ऑनलाइन भुगतान का कोई तरीका उपलब्ध नहीं है।",
-    "loadingMethods": "भुगतान के तरीके लोड हो रहे हैं…",
-    "coverageLegend": "आप भुगतान कैसे करेंगे?",
-    "coverageCash": "अंतिम कीमत के बाद नकद या ऑनलाइन",
-    "coverageInsurance": "बीमा"
+    "loadingMethods": "भुगतान के तरीके लोड हो रहे हैं…"
   },
   "PharmacyCheckout": {
     "title": "चेकआउट",
@@ -2957,8 +2941,7 @@
     "bookingNotSentTitle": "कोई बुकिंग नहीं हुई",
     "bookingNotSentBody": "यह विंडो अभी बुकिंग नहीं भेजती, इसलिए कोई अपॉइंटमेंट नहीं बना और कोई भुगतान नहीं लिया गया। विज़िट बुक करने के लिए नर्सिंग पेज खोलें।",
     "bookingNotSentCta": "नर्सिंग पेज पर जाएँ",
-    "bookingNotSentClose": "बंद करें",
-    "payAll": "सभी"
+    "bookingNotSentClose": "बंद करें"
   },
   "NursingWeb": {
     "hubTitle": "घरेलू देखभाल",

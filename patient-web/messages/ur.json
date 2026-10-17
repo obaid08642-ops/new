@@ -1167,8 +1167,7 @@
     "paymentAddPolicy": "انشورنس شامل کریں",
     "doctorPhotoAlt": "{name} کی تصویر",
     "clinicPhotosTitle": "کلینک کی تصاویر",
-    "clinicPhotoAlt": "کلینک کی تصویر {n}",
-    "payment_cash": "صرف نقد"
+    "clinicPhotoAlt": "کلینک کی تصویر {n}"
   },
   "LabsServices": {
     "eyebrow": "لیبارٹری کیئر",
@@ -1619,19 +1618,7 @@
     "errorUnreadable": "تصویر نہیں پڑھی جا سکی۔ اچھی روشنی میں زیادہ واضح تصویر آزمائیں۔",
     "errorRxUnreadable": "اس نسخے سے کوئی دوا نہیں پڑھی جا سکی۔ زیادہ واضح تصویر آزمائیں یا نسخے کے صفحے سے اپ لوڈ کریں۔",
     "errorBusy": "ایک منٹ میں بہت زیادہ اسکین۔ تھوڑا انتظار کر کے دوبارہ کوشش کریں۔",
-    "errorScan": "اسکینر ابھی دستیاب نہیں۔ دوبارہ کوشش کریں۔",
-    "codeLabel": "بار کوڈ",
-    "codePlaceholder": "6281234567890",
-    "lookup": "تلاش کریں",
-    "looking": "تلاش جاری ہے…",
-    "foundTitle": "دوا مل گئی",
-    "closestTitle": "قریب ترین نتیجہ",
-    "closestNote": "اس عین بار کوڈ والی کوئی دوا نہیں ملی۔ یہ نام کے لحاظ سے قریب ترین نتیجہ ہے۔",
-    "notFoundTitle": "دوا نہیں ملی",
-    "notFoundBody": "بار کوڈ {code} کیٹلاگ میں موجود نہیں۔",
-    "barcodeLine": "بار کوڈ: {code}",
-    "viewProduct": "پروڈکٹ دیکھیں",
-    "errorLookup": "بار کوڈ کی تلاش ناکام رہی۔ دوبارہ کوشش کریں۔"
+    "errorScan": "اسکینر ابھی دستیاب نہیں۔ دوبارہ کوشش کریں۔"
   },
   "PharmacyChat": {
     "title": "فارمیسی سے بات چیت",
@@ -2322,10 +2309,7 @@
     "searchRound": "راؤنڈ {round}: {km} کلومیٹر کے اندر فارمیسیاں تلاش ہو رہی ہیں",
     "showMethods": "ادائیگی کا طریقہ منتخب کریں",
     "paymentUnavailable": "اس آرڈر کے لیے فی الحال آن لائن ادائیگی کا کوئی طریقہ دستیاب نہیں۔",
-    "loadingMethods": "ادائیگی کے طریقے لوڈ ہو رہے ہیں…",
-    "coverageLegend": "آپ کیسے ادائیگی کریں گے؟",
-    "coverageCash": "حتمی قیمت کے بعد نقد یا آن لائن",
-    "coverageInsurance": "انشورنس"
+    "loadingMethods": "ادائیگی کے طریقے لوڈ ہو رہے ہیں…"
   },
   "PharmacyCheckout": {
     "title": "چیک آؤٹ",
@@ -2957,8 +2941,7 @@
     "bookingNotSentTitle": "کوئی بکنگ نہیں ہوئی",
     "bookingNotSentBody": "یہ ونڈو ابھی بکنگ نہیں بھیجتی، اس لیے کوئی ملاقات طے نہیں ہوئی اور کوئی ادائیگی نہیں لی گئی۔ وزٹ بک کرنے کے لیے نرسنگ کا صفحہ کھولیں۔",
     "bookingNotSentCta": "نرسنگ کے صفحے پر جائیں",
-    "bookingNotSentClose": "بند کریں",
-    "payAll": "سب"
+    "bookingNotSentClose": "بند کریں"
   },
   "NursingWeb": {
     "hubTitle": "گھریلو نگہداشت",

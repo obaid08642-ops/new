@@ -1167,8 +1167,7 @@
     "paymentAddPolicy": "Idagdag ang seguro",
     "doctorPhotoAlt": "Larawan ni {name}",
     "clinicPhotosTitle": "Mga larawan ng klinika",
-    "clinicPhotoAlt": "Larawan ng klinika {n}",
-    "payment_cash": "Cash lang"
+    "clinicPhotoAlt": "Larawan ng klinika {n}"
   },
   "LabsServices": {
     "eyebrow": "Pangangalaga sa laboratoryo",
@@ -1619,19 +1618,7 @@
     "errorUnreadable": "Hindi mabasa ang larawan. Subukan ang mas malinaw na larawan sa maliwanag na lugar.",
     "errorRxUnreadable": "Walang gamot na nabasa sa resetang ito. Subukan ang mas malinaw na larawan, o i-upload ito mula sa pahina ng reseta.",
     "errorBusy": "Masyadong maraming scan sa isang minuto. Maghintay sandali at subukang muli.",
-    "errorScan": "Hindi available ang scanner ngayon. Subukang muli.",
-    "codeLabel": "Numero ng barcode",
-    "codePlaceholder": "6281234567890",
-    "lookup": "Hanapin",
-    "looking": "Hinahanap…",
-    "foundTitle": "Nahanap ang gamot",
-    "closestTitle": "Pinakamalapit na tugma",
-    "closestNote": "Walang gamot na may eksaktong barcode na ito. Ito ang pinakamalapit na tugma ayon sa pangalan.",
-    "notFoundTitle": "Hindi nahanap ang gamot",
-    "notFoundBody": "Wala sa katalogo ang barcode na {code}.",
-    "barcodeLine": "Numero ng barcode: {code}",
-    "viewProduct": "Tingnan ang produkto",
-    "errorLookup": "Nabigo ang paghahanap ng barcode. Subukan muli."
+    "errorScan": "Hindi available ang scanner ngayon. Subukang muli."
   },
   "PharmacyChat": {
     "title": "Negosasyon sa parmasya",
@@ -2322,10 +2309,7 @@
     "searchRound": "Round {round}: naghahanap ng botika sa loob ng {km} km",
     "showMethods": "Pumili ng paraan ng pagbabayad",
     "paymentUnavailable": "Walang available na online na paraan ng pagbabayad para sa order na ito ngayon.",
-    "loadingMethods": "Nilo-load ang mga paraan ng pagbabayad…",
-    "coverageLegend": "Paano ka magbabayad?",
-    "coverageCash": "Cash o online, pagkatapos ng pinal na presyo",
-    "coverageInsurance": "Seguro sa kalusugan"
+    "loadingMethods": "Nilo-load ang mga paraan ng pagbabayad…"
   },
   "PharmacyCheckout": {
     "title": "Pag-checkout",
@@ -2957,8 +2941,7 @@
     "bookingNotSentTitle": "Walang na-book",
     "bookingNotSentBody": "Hindi pa nagpapadala ng booking ang window na ito, kaya walang appointment na ginawa at walang bayad na kinuha. Buksan ang pahina ng nursing para mag-book ng pagbisita.",
     "bookingNotSentCta": "Pumunta sa nursing",
-    "bookingNotSentClose": "Isara",
-    "payAll": "Lahat"
+    "bookingNotSentClose": "Isara"
   },
   "NursingWeb": {
     "hubTitle": "Pangangalaga sa bahay",

@@ -1167,8 +1167,7 @@
     "paymentAddPolicy": "أضف التأمين",
     "doctorPhotoAlt": "صورة {name}",
     "clinicPhotosTitle": "صور العيادة",
-    "clinicPhotoAlt": "صورة العيادة {n}",
-    "payment_cash": "كاش فقط"
+    "clinicPhotoAlt": "صورة العيادة {n}"
   },
   "LabsServices": {
     "eyebrow": "الرعاية المخبرية",
@@ -1619,19 +1618,7 @@
     "errorUnreadable": "تعذّرت قراءة الصورة. جرّب صورة أوضح في إضاءة جيدة.",
     "errorRxUnreadable": "لم نتمكن من قراءة أي دواء من هذه الوصفة. جرّب صورة أوضح أو ارفعها من صفحة الوصفة.",
     "errorBusy": "عمليات مسح كثيرة خلال دقيقة. انتظر قليلًا ثم حاول مرة أخرى.",
-    "errorScan": "الماسح غير متاح الآن. حاول مرة أخرى.",
-    "codeLabel": "الباركود",
-    "codePlaceholder": "6281234567890",
-    "lookup": "بحث",
-    "looking": "جارٍ البحث…",
-    "foundTitle": "تم العثور على الدواء",
-    "closestTitle": "أقرب نتيجة",
-    "closestNote": "لا يوجد دواء بهذا الباركود تحديدًا. هذه أقرب نتيجة بالاسم.",
-    "notFoundTitle": "لم يُعثر على الدواء",
-    "notFoundBody": "الباركود {code} غير موجود في الكتالوج.",
-    "barcodeLine": "الباركود: {code}",
-    "viewProduct": "عرض المنتج",
-    "errorLookup": "فشل البحث بالباركود. حاول مجددًا."
+    "errorScan": "الماسح غير متاح الآن. حاول مرة أخرى."
   },
   "PharmacyChat": {
     "title": "التفاوض مع الصيدلية",
@@ -2322,10 +2309,7 @@
     "searchRound": "الجولة {round}: نبحث في الصيدليات ضمن {km} كم",
     "showMethods": "اختيار طريقة الدفع",
     "paymentUnavailable": "لا توجد طريقة دفع إلكتروني متاحة لهذا الطلب الآن.",
-    "loadingMethods": "جارٍ تحميل طرق الدفع…",
-    "coverageLegend": "كيف ستدفع؟",
-    "coverageCash": "نقدًا أو إلكترونيًا بعد السعر النهائي",
-    "coverageInsurance": "التأمين"
+    "loadingMethods": "جارٍ تحميل طرق الدفع…"
   },
   "PharmacyCheckout": {
     "title": "إتمام الطلب",
@@ -2957,8 +2941,7 @@
     "bookingNotSentTitle": "لم يتم أي حجز",
     "bookingNotSentBody": "هذه النافذة لا ترسل الحجز بعد، لذلك لم يُنشأ أي موعد ولم يُسحب أي مبلغ. افتح صفحة التمريض لحجز زيارة.",
     "bookingNotSentCta": "إلى صفحة التمريض",
-    "bookingNotSentClose": "إغلاق",
-    "payAll": "الكل"
+    "bookingNotSentClose": "إغلاق"
   },
   "NursingWeb": {
     "hubTitle": "الرعاية المنزلية",
