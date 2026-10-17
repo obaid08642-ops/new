@@ -55,7 +55,9 @@ describe('Gate P3 live: empty bodies do not create records', () => {
   it('insurance needs a company or policy/member number', async () => {
     const c = new UsersInsuranceController(users);
     await expect(c.updateInsurance('p1', {} as any)).rejects.toBeInstanceOf(BadRequestException);
-    await expect(c.updateInsurance('p1', { provider: 'bupa', policy_number: 'P-1' } as any)).resolves.toBeDefined();
+    // D-30: a company needs its class too.
+    await expect(c.updateInsurance('p1', { provider: 'bupa', policy_number: 'P-1' } as any)).rejects.toThrow('insurance_class_required');
+    await expect(c.updateInsurance('p1', { provider: 'bupa', class: 'A', policy_number: 'P-1' } as any)).resolves.toBeDefined();
   });
   it('a new legal policy needs Arabic content and a slug key', async () => {
     const col: any = { findOne: async () => null, insertOne: async () => ({}), updateOne: async () => ({}) };
