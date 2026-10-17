@@ -214,6 +214,18 @@ describe('fix-catalogue-names (#1556 A, reworked after the review of #1588)', ()
         expect(display.every((r) => r.source === 'invalid_answer' && r.proposal === null)).toBe(true);
       }
     });
+
+    it('a keep_display / keep_official that picks a name with no brand (starts with a unit) is rejected', () => {
+      const nobrand = 'مجم - 14 كبسولة';
+      const bad = MUST_STAY.map((r) => ({ ...r, name_ar: nobrand, translations: { ...r.translations, ar: { ...(r.translations?.ar || {}), name: nobrand } } }));
+      const scope = scan(bad).scope;
+      expect(scope.length).toBeGreaterThan(0);
+      const r2 = buildRequests(scope, 20);
+      const text = JSON.stringify(r2[0].record_ids.map((_, i) => ({ i, a: 'keep_display' })));
+      const rows = proposalsFromResponses(scope, r2, [{ id: r2[0].id, text }]);
+      expect(rows.every((r) => r.source === 'invalid_answer' && r.proposal === null)).toBe(true);
+      expect(rows.some((r) => /no brand/.test(r.reason))).toBe(true);
+    });
   });
 
   describe('apply (approved rows only)', () => {
@@ -263,9 +275,10 @@ describe('fix-catalogue-names (#1556 A, reworked after the review of #1588)', ()
         row({ id: 'id-955439', field: 'name_ar', before: 'اسيكال بلس', proposal: 'اسيكالشيوابل قرص', source: 'new_text', approved: 'yes' }),
         row({ id: 'id-222', field: 'name_ar', before: 'بانادول اكسترا 500 مجم - 24 قرص', proposal: 'بانادول 500 مجم - 24 قرص', source: 'align', approved: 'yes' }),
         row({ id: 'id-111', field: 'official_name_ar', before: 'كريستور 10 مجم - 28 قرص', proposal: 'كرستور 10 مجم - 28 قرص', source: 'align', approved: 'no' }),
+        row({ id: 'id-948256', field: 'name_ar', before: 'اترازول 10 مجم - 28 قرص', proposal: 'مجم - 28 قرص', source: 'keep_official', approved: 'yes' }),
       ], (id) => id, col, auditCollection, 'run-3');
       expect(col.writes).toEqual([]);
-      expect(out.approved).toBe(7);
+      expect(out.approved).toBe(8);
       expect(out.refused.map((r) => r.reason)).toEqual([
         'not an Arabic name field',
         'missing id, before or proposal',
@@ -274,6 +287,7 @@ describe('fix-catalogue-names (#1556 A, reworked after the review of #1588)', ()
         'proposal shortens the brand',
         'proposal shortens the brand',
         'proposal shortens the brand',
+        'proposal has no brand (it starts with a unit or form word)',
       ]);
     });
   });

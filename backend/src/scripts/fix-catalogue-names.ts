@@ -661,6 +661,7 @@ function rowsForItem(item: ScopeItem, answer: Answer | undefined): ProposalRow[]
   if (answer.a === 'keep_display' || answer.a === 'keep_official') {
     const target = answer.a === 'keep_display' ? item.display : item.official;
     if (!target) return [{ ...base, field: 'name_ar', before: item.display || '', proposal: null, source: 'invalid_answer', reason: `${item.why}: model chose an empty candidate` }];
+    if (!brandTokens(target).length) return [{ ...base, field: 'name_ar', before: item.display || '', proposal: null, source: 'invalid_answer', reason: `${item.why}: model chose "${target}", which has no brand (it starts with a unit or form word)` }];
     for (const [field, before] of fields) {
       if (before === target) continue;
       rows.push({ ...base, field, before, proposal: target, source: answer.a, reason: `${item.why}: model ${answer.a} for English "${item.name_en}" (${item.note})` });
@@ -769,6 +770,7 @@ export async function applyApproved(
     if (!APPLY_SOURCES.has(r.source)) { refuse(`source ${r.source} is not applicable`); continue; }
     if (r.source === 'align' && (!sameArabicBrand(r.before, r.proposal, null) || !sameNumbers(r.before, r.proposal))) { refuse('align row: brand skeleton or numbers differ'); continue; }
     if ((r.source === 'align' || r.source === 'new_text') && shortensBrand(r.before, r.proposal)) { refuse('proposal shortens the brand'); continue; }
+    if (!brandTokens(r.proposal).length) { refuse('proposal has no brand (it starts with a unit or form word)'); continue; }
     const key = toKey(r.id);
     const out = await collection.updateOne({ _id: key, [r.field]: r.before }, { $set: { [r.field]: r.proposal } });
     if (!out.modifiedCount) { res.skipped_changed_since_scan += 1; continue; }
