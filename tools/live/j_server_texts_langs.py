@@ -1,6 +1,6 @@
 """Journey: server-sent texts follow the page language (issue 1585).
   - GET /users/me/storage names its items by stable key (uploaded_prescriptions, medical_reports), with no Arabic text.
-  - GET /support/faqs: every FAQ has an English question (the built-in fallback carries ar, en, ur, hi, bn, fil).
+  - GET /support/faqs: the admin writes a FAQ (TEST data; there are no built-in questions); every FAQ has an English question.
   - On the website (a real browser, signed in): /en/settings/privacy?tab=data shows the storage items in English and
     /en/settings/help shows the FAQ questions in English; neither has Arabic letters in those items.
   Stack: backend :8002, patient-web :3100.
@@ -12,13 +12,14 @@ from lib import Client, journey, step, web_login
 
 WEB = os.environ.get('NABD_WEB_JOURNEYS_URL', 'http://127.0.0.1:3100')
 ARABIC = re.compile('[؀-ۿ]')
-LANGS = ['ar', 'en', 'ur', 'hi', 'bn', 'fil']
 
 
 def main():
     import j_accounts
     acct = j_accounts.app_signup(label='server-texts')
     me = Client(acct['token'], 'patient')
+    import j_admin
+    admin, _ = j_admin.login()
 
     journey('issue 1585: the server sends keys and six-language FAQs')
     r = me.get('/users/me/storage')
@@ -28,15 +29,14 @@ def main():
     # Only the legacy `label`, kept for app builds already installed, may still carry Arabic.
     bare = {**body, 'items': [{k: v for k, v in i.items() if k != 'label'} for i in items]}
     step('the storage reply has no Arabic text outside the legacy label', not ARABIC.search(str(bare)), bare)
+    r = admin.post('/support/admin/faqs', {'question_ar': 'كيف أغيّر لغة التطبيق؟', 'question_en': 'How do I change the app language?',
+                                           'answer_ar': 'من الإعدادات ثم اللغة.', 'answer_en': 'Open Settings, then Language.', 'sort': 1})
+    step('admin writes a FAQ in Arabic and English (TEST data)', r.ok and r.get('id'), r)
     r = me.get('/support/faqs')
     faqs = r.body if isinstance(r.body, list) else r.items()
     step('there are FAQs', r.ok and len(faqs) > 0, r)
     english = [str(f.get('question_en') or '') for f in faqs]
     step('every FAQ has an English question without Arabic letters', all(q and not ARABIC.search(q) for q in english), english)
-    if not any(f.get('question_ur') for f in faqs):
-        step('(stored FAQs in this database; the six-language fallback is covered by the backend spec)', True)
-    else:
-        step('the built-in FAQs carry all six languages', all(all(str(f.get(f'question_{l}') or '').strip() and str(f.get(f'answer_{l}') or '').strip() for l in LANGS) for f in faqs), faqs[:1])
 
     try:
         from playwright.sync_api import sync_playwright

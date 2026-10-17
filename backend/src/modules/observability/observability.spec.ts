@@ -169,8 +169,8 @@ describe('Phase 20.3 structured logs and PII masking', () => {
     const p = JSON.parse(lines[0]);
     expect(p.event).toBe('payment_failed');
     expect(p.level).toBe('error');
-    expect(p.amount).toBe(20);
-    expect(p.phone).toBe('[redacted]');
+    expect(p.details.amount).toBe(20);
+    expect(p.details.phone).toBe('[redacted]');
   });
 
   it('a line with no request id says so rather than inventing one', () => {

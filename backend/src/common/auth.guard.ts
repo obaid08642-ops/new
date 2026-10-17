@@ -13,6 +13,7 @@ import { adminGateSatisfied } from './admin-gate.guard';
 import { resolveEffectivePermissions } from './effective-permissions';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { setLogUser } from './structured-logger';
 
 /**
  * Compatibility hook for RBAC mutation handlers. Effective permissions are no
@@ -127,6 +128,8 @@ export class JwtAuthGuard implements CanActivate {
     // Attach original user payload to request. Support tokens are validated against
     // durable session on every request, so revoke/expiry takes effect immediately.
     req.user = payload;
+    // 20.3: every log line of this request now carries the account id (id only)
+    setLogUser((payload as any)?.id ?? (payload as any)?.sub, (payload as any)?.role);
     // F09 session revocation: login access tokens carry `tv` (token_version).
     // Ban, suspend, password change and role change bump the stored version,
     // so stale tokens 401 on their next request. On public routes a stale

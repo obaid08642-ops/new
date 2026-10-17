@@ -23,7 +23,7 @@ fi
 if [[ $what == patient-web || $what == all ]]; then
   stop "$PW_PORT" "$ROOT/patient-web/.next/standalone"; stop "$PW_INTERNAL" "$ROOT/patient-web/.next/standalone"
   cd "$ROOT/patient-web" && rm -rf .next/standalone/public .next/standalone/.next/static .next/standalone/server && cp -r public .next/standalone/ && mkdir -p .next/standalone/.next && cp -r .next/static .next/standalone/.next/ && cp -r server .next/standalone/server
-  (cd "$ROOT/patient-web/.next/standalone" && PORT=$PW_PORT HOSTNAME=127.0.0.1 NEXT_INTERNAL_PORT=$PW_INTERNAL NABD_API_BASE_URL=$API/api/v1 NEXT_PUBLIC_SITE_ORIGIN=$PW_ORIGIN NABD_LIVEKIT_URL=$PW_LIVEKIT NODE_ENV=production nohup node server/nonce-server.mjs > /tmp/pw-server.log 2>&1 &)
+  (cd "$ROOT/patient-web/.next/standalone" && PORT=$PW_PORT HOSTNAME=127.0.0.1 NEXT_INTERNAL_PORT=$PW_INTERNAL NABD_API_BASE_URL=$API/api/v1 NEXT_PUBLIC_SITE_ORIGIN=$PW_ORIGIN NABD_LIVEKIT_URL=$PW_LIVEKIT NEXT_REVALIDATE_SECRET="${NEXT_REVALIDATE_SECRET:-live-gate-revalidate-secret}" NODE_ENV=production nohup node server/nonce-server.mjs > /tmp/pw-server.log 2>&1 &)
 fi
 for port in 3001 "$PW_PORT"; do
   for i in $(seq 1 30); do curl -s -o /dev/null "http://127.0.0.1:$port/" && break; sleep 1; done

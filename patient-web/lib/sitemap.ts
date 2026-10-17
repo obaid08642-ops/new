@@ -16,7 +16,8 @@ export function backendOrigin() {
  */
 export async function sitemapFeed<T>(path: string, revalidate = 21600): Promise<T> {
   const res = await fetch(`${backendOrigin()}/api/v1${path}`, {
-    next: { revalidate },
+    // issue 1541: the backend purges "sitemap" when a provider is deleted, so its entry leaves the sitemap at once
+    next: { revalidate, tags: ["sitemap"] },
     headers: { "User-Agent": "NabdPlus-Sitemap-Renderer/1.0", Accept: "application/json" },
   } as RequestInit);
   if (!res.ok) throw new Error(`sitemap_feed_${res.status}:${path}`);

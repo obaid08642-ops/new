@@ -54,6 +54,8 @@ const { width: W } = Dimensions.get('window');
 // ══════════════════════════════════════════════════════════════════
 import { NursingFieldOps } from './NursingFieldOps';
 import { tokens, withAlpha } from '../../theme/tokens';
+import { fmtTime } from '../../utils/dates';
+import { addressLine, addressShort, patientMeta } from '../../utils/address';
 
 export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
  const [tab, setTab] = useState('home');
@@ -132,7 +134,7 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
                 {incomingRequest.service_name_ar || incomingRequest.service_name_en || (AR ? 'تمريض منزلي' : 'Home Nursing')}
                </Text>
                <Text style={{ fontSize: FS.md, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
-               {AR ? 'موقع المريض:' : 'Patient Location:'} {incomingRequest.address?.address || incomingRequest.address || '—'}
+               {AR ? 'موقع المريض:' : 'Patient Location:'} {addressLine(incomingRequest.address) || '—'}
                </Text>
                {incomingRequest.scheduled_at ? (
                <Text style={{ fontSize: FS.sm, color: theme.primary, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>
@@ -299,7 +301,7 @@ function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ on
  <NAvatar name={order.patient_name || order.patient || '—'} size={46} />
  <View>
  <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text,textAlign:AR?'right':'left'}}>{order.patient_name || order.patient || '—'}</Text>
- <Text style={{fontSize:FS.xs,color:theme.textSub}}>{order.age || 70} {AR?'سنة':'yrs'} | {order.gender || (AR ? 'ذكر' : 'Male')} | {(order.address?.address || order.address || '').split('،')[0]}</Text>
+ <Text style={{fontSize:FS.xs,color:theme.textSub}}>{[...patientMeta(order, AR), addressShort(order.address)].filter(Boolean).join(' | ')}</Text>
  </View>
  </View>
  <View style={{alignItems:'flex-end'}}>
@@ -331,7 +333,7 @@ function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ on
  <NAvatar name={order.patient_name || order.patient || '—'} size={42} online />
  <View style={{flex:1}}>
  <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text,textAlign:AR?'right':'left'}}>{order.patient_name || order.patient || '—'}</Text>
- <Text style={{fontSize:FS.xs,color:theme.textSub}}>{(order.address?.address || order.address || '').split('،')[0]} | {order.date || new Date(order.scheduled_at).toLocaleTimeString()}</Text>
+ <Text style={{fontSize:FS.xs,color:theme.textSub}}>{addressShort(order.address)} | {order.date || new Date(order.scheduled_at).toLocaleTimeString()}</Text>
  </View>
  <View style={{alignItems:'flex-end',gap:SP.xs}}>
  <NBadge label={AR?'نشط':'Active'} variant="primary" size="xs" />
@@ -456,7 +458,7 @@ function VisitChecklist({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
  <NHeader title={AR?'قائمة مهام الزيارة':'Visit Checklist'} onBack={onBack} />
  <NCard style={{marginBottom:SP.xl,flexDirection:AR?'row-reverse':'row',gap:SP.md,alignItems:'center'}}>
  <NAvatar name={order?.patient??'—'} size={44} />
- <View><Text style={{fontWeight:FW.bold,color:theme.text}}>{order?.patient??'—'}</Text><Text style={{fontSize:FS.xs,color:theme.textSub}}>{order?.address?.split('،')[0]??'—'}</Text></View>
+ <View><Text style={{fontWeight:FW.bold,color:theme.text}}>{order?.patient??'—'}</Text><Text style={{fontSize:FS.xs,color:theme.textSub}}>{addressShort(order?.address) || '—'}</Text></View>
  </NCard>
 
  {/* Progress */}
@@ -1186,7 +1188,7 @@ function NursingChatScreen({ order, onBack }: { order: any; onBack: () => void }
         {!loading && msgs.length === 0 && <Text style={{ color: theme.textSub, textAlign: 'center' }}>{AR ? 'لا رسائل بعد — ابدأ المحادثة' : 'No messages yet — start the conversation'}</Text>}
         {msgs.map(m => {
           const mine = m.sender_id === (user as any)?.id;
-          const time = m.createdAt ? new Date(m.createdAt).toLocaleTimeString('ar-SA-u-ca-gregory', { hour: '2-digit', minute: '2-digit' }) : '';
+          const time = m.createdAt ? fmtTime(m.createdAt, AR) : '';
           return (
           <View key={m.id || m._id} style={{ alignSelf: mine ? 'flex-end' : 'flex-start', backgroundColor: mine ? theme.primary : theme.surface, padding: SP.md, borderRadius: R.md, maxWidth: '80%' }}>
             <Text style={{ color: mine ? '#FFF' : theme.text }}>{m.body}</Text>

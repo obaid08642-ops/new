@@ -162,17 +162,19 @@ const PATHS: Record<string, string[]> = {
 };
 
 // ─── Main Icon Component (SVG) ────────────────────────────────────────────────
+// Names screens pass that are spelled differently from the PATHS keys.
+const ICON_ALIASES: Record<string, string> = {
+  test_tube: 'testTube', trending_up: 'trendUp', orders: 'delivery', jobs: 'briefcase', drugs: 'pill',
+  flask: 'testTube', notifications: 'bell', hospital: 'facility', checklist: 'list',
+};
+const iconKey = (name: string): string => ICON_ALIASES[name] ?? name;
+
 export function I({ name, size = 22, color, strokeWidth = 1.8, style }: IconProps) {
  const { theme } = useTheme();
  const activeColor = color ?? theme.text;
 
  // Normalize icon names (aliases)
- let key = name;
- if (name === 'test_tube') key = 'testTube';
- if (name === 'trending_up') key = 'trendUp';
- if (name === 'orders') key = 'delivery';
- if (name === 'jobs') key = 'briefcase';
- if (name === 'drugs') key = 'pill';
+ const key = iconKey(name);
 
  const paths = PATHS[key];
  if (!paths) return <View style={{ width: size, height: size }} />;
@@ -192,12 +194,7 @@ export function I({ name, size = 22, color, strokeWidth = 1.8, style }: IconProp
  *  text-rendered icon props to SVG without breaking unknown/legacy values). */
 export function hasIcon(name: string): boolean {
  if (!name) return false;
- let key = name;
- if (name === 'test_tube') key = 'testTube';
- if (name === 'trending_up') key = 'trendUp';
- if (name === 'orders') key = 'delivery';
- if (name === 'jobs') key = 'briefcase';
- if (name === 'drugs') key = 'pill';
+ const key = iconKey(name);
  return !!PATHS[key];
 }
 

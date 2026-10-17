@@ -11,6 +11,9 @@ import { logError } from '../../utils/logger';
 import { AccountScreen, SETTINGS_HOME, StarRating } from './AccountKit';
 import { faqText, type ServerFaq } from './serverText';
 
+// The FAQ text by app language lives in serverText.ts; the Help screen keeps exporting it for its test.
+export { faqText };
+
 /**
  * Help and support (merge map sections 3 and 8): `?tab=help` has the ways to reach support (the chat, my requests, the support
  * phone from GET /config) and the FAQ (GET /support/faqs, grouped by the category the server sends); `?tab=feedback` sends

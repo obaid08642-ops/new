@@ -1,0 +1,1048 @@
+{
+ "type": "home_care",
+ "routes": 37,
+ "results": [
+  {
+   "route": "MainTabs",
+   "lang": "ar",
+   "landed": "MainTabs",
+   "len": 341,
+   "first": "تمريض منزلي | نبضة للتمريض | غير متاح",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "order_detail",
+   "lang": "ar",
+   "landed": "order_detail",
+   "len": 39,
+   "first": "→ | العمليات الميدانية | تعذر تحميل الزيارة",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "checklist",
+   "lang": "ar",
+   "landed": "checklist",
+   "len": 188,
+   "first": "→ | قائمة مهام الزيارة | —",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "checkin",
+   "lang": "ar",
+   "nav": "unknown_route"
+  },
+  {
+   "route": "care_plan",
+   "lang": "ar",
+   "landed": "care_plan",
+   "len": 163,
+   "first": "→ | خطة الرعاية المستمرة | —",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "progress",
+   "lang": "ar",
+   "landed": "progress",
+   "len": 158,
+   "first": "→ | ملاحظات يومية | —",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "visit_report",
+   "lang": "ar",
+   "nav": "unknown_route"
+  },
+  {
+   "route": "supplies",
+   "lang": "ar",
+   "landed": "supplies",
+   "len": 503,
+   "first": "→ | المستلزمات الطبية | اطلب المستلزمات الطبية اللازمة لزياراتك. يتم التوصيل من مخازن المس",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "nursing_services",
+   "lang": "ar",
+   "landed": "nursing_services",
+   "len": 478,
+   "first": "→ | الخدمات المقدمة والمستلزمات | تنبيه المستلزمات الطبية الهام:",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "nursing_pricing",
+   "lang": "ar",
+   "landed": "nursing_pricing",
+   "len": 264,
+   "first": "→ | إعدادات نموذج التسعير للتمريض | حدد باقات ونماذج التسعير المتاحة للتمريض المنزلي. يمكن",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "nursing_coverage",
+   "lang": "ar",
+   "landed": "nursing_coverage",
+   "len": 314,
+   "first": "→ | نطاق تغطية خدمة التمريض | 15 KM",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "promotions",
+   "lang": "ar",
+   "landed": "promotions",
+   "len": 89,
+   "first": "مركز العروض الترويجية | العروض النشطة والمستمرة | لا توجد عروض ترويجية حالياً",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "create_promo",
+   "lang": "ar",
+   "landed": "create_promo",
+   "len": 117,
+   "first": "→ | إنشاء حملة ترويجية | عنوان الحملة *",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "web_config",
+   "lang": "ar",
+   "landed": "web_config",
+   "len": 157,
+   "first": "→ | معلومات الحساب | الملف الشخصي",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "subscriptions_ads",
+   "lang": "ar",
+   "landed": "subscriptions_ads",
+   "len": 186,
+   "first": "→ | الاشتراكات والترويج المدفوع | الباقة الحالية: —",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "affiliate",
+   "lang": "ar",
+   "landed": "affiliate",
+   "len": 295,
+   "first": "→ | بوابة التسويق بالعمولة | ادعُ مقدم خدمة واحصل على مكافآت الإحالة",
+   "keys": [],
+   "icon_words": [
+    "star"
+   ],
+   "undef": [],
+   "latin": [
+    "users",
+    "check",
+    "star"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "reputation",
+   "lang": "ar",
+   "landed": "reputation",
+   "len": 85,
+   "first": "→ | لوحة السمعة والتقييمات | star",
+   "keys": [],
+   "icon_words": [
+    "star"
+   ],
+   "undef": [],
+   "latin": [
+    "star"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "crm",
+   "lang": "ar",
+   "landed": "crm",
+   "len": 137,
+   "first": "→ | ذكاء الأعمال وإدارة العملاء | 1",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "revenue_insights",
+   "lang": "ar",
+   "landed": "revenue_insights",
+   "len": 314,
+   "first": "→ | تفاصيل الإيرادات والتحليلات | أسبوع",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "sos_dispatch",
+   "lang": "ar",
+   "nav": "unknown_route"
+  },
+  {
+   "route": "gps_router",
+   "lang": "ar",
+   "nav": "unknown_route"
+  },
+  {
+   "route": "nurse_visit",
+   "lang": "ar",
+   "landed": "nurse_visit",
+   "len": 75,
+   "first": "→ | زيارات التمريض النشطة | اختبار walker",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "nurse_checklist",
+   "lang": "ar",
+   "landed": "nurse_checklist",
+   "len": 68,
+   "first": "→ | قائمة مهام التمريض | checklist",
+   "keys": [],
+   "icon_words": [
+    "checklist"
+   ],
+   "undef": [],
+   "latin": [
+    "checklist"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "profile_edit",
+   "lang": "ar",
+   "landed": "profile_edit",
+   "len": 290,
+   "first": "→ | معلومات الحساب | الملف الشخصي",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": [
+    "404 GET /provider/profile/image/status"
+   ]
+  },
+  {
+   "route": "medical_jobs",
+   "lang": "ar",
+   "landed": "medical_jobs",
+   "len": 52,
+   "first": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "drug_index",
+   "lang": "ar",
+   "landed": "drug_index",
+   "len": 190,
+   "first": "دليل الأدوية الطبي | الكل | pain (2)",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [
+    "pain (2)",
+    "pain · tablet",
+    "pain · tablet"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "insurance_config",
+   "lang": "ar",
+   "landed": "insurance_config",
+   "len": 536,
+   "first": "→ | التأمين الصحي | حدد شركات التأمين المقبولة لديك ونسب التحمل لكل شركة:",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "certificates_config",
+   "lang": "ar",
+   "landed": "certificates_config",
+   "len": 298,
+   "first": "→ | الشهادات والمؤهلات | المستندات الرسمية المرتبطة بملفك المهني وحالة اعتمادها لدى الإدار",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "media_config",
+   "lang": "ar",
+   "landed": "media_config",
+   "len": 103,
+   "first": "→ | الصور والوسائط | الصور المعروضة في صفحتك العامة للمرضى (العيادة، الأجهزة، الشهادات الم",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "wallet",
+   "lang": "ar",
+   "landed": "wallet",
+   "len": 229,
+   "first": "→ | المحفظة والإيرادات | الرصيد المتاح للسحب",
+   "keys": [
+    "trendingUp"
+   ],
+   "icon_words": [],
+   "undef": [],
+   "latin": [
+    "trendingUp",
+    "clock"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "chat",
+   "lang": "ar",
+   "landed": "chat",
+   "len": 165,
+   "first": "→ | التواصل مع المريض | هذه المحادثة مخصصة لترتيب الوصول (أرقام البوابات، الموقع الدقيق) و",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": [
+    "400 POST /chats/threads/booking"
+   ]
+  },
+  {
+   "route": "insurance_requests",
+   "lang": "ar",
+   "landed": "insurance_requests",
+   "len": 121,
+   "first": "→ | طلبات التأمين | مراجعة يدوية قبل تقديم الخدمة",
+   "keys": [],
+   "icon_words": [
+    "shield"
+   ],
+   "undef": [],
+   "latin": [
+    "shield"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "working_hours",
+   "lang": "ar",
+   "landed": "working_hours",
+   "len": 249,
+   "first": "→ | مواعيد العمل | الورديات (SHIFTS)",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "notifications",
+   "lang": "ar",
+   "landed": "notifications",
+   "len": 231,
+   "first": "→ | مركز الإشعارات والتنبيهات (3) | حجز جديد بانتظارك",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "password",
+   "lang": "ar",
+   "landed": "password",
+   "len": 57,
+   "first": "→ | الأمان والحماية 2FA | تغيير كلمة المرور",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "2fa",
+   "lang": "ar",
+   "landed": "2fa",
+   "len": 57,
+   "first": "→ | الأمان والحماية 2FA | تغيير كلمة المرور",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "devices",
+   "lang": "ar",
+   "landed": "devices",
+   "len": 57,
+   "first": "→ | الأمان والحماية 2FA | تغيير كلمة المرور",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "latin": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "MainTabs",
+   "lang": "en",
+   "landed": "MainTabs",
+   "len": 331,
+   "first": "Home Nursing | Nabdah Nursing | Offline",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [
+    "اختبار ",
+    "شارع الملك فهد ",
+    "٠٠ ص"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "order_detail",
+   "lang": "en",
+   "landed": "order_detail",
+   "len": 36,
+   "first": "← | Field Operations | Visit unavailable",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "checklist",
+   "lang": "en",
+   "landed": "checklist",
+   "len": 184,
+   "first": "← | Visit Checklist | —",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [
+    "أخذ الموافقة المستنيرة",
+    "التحقق من هوية المريض",
+    "تجهيز حقل معقم",
+    "توثيق الإجراء في التقرير",
+    "قياس العلامات الحيوية الأساسية",
+    "مراجعة الأدوية والحساسية"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "checkin",
+   "lang": "en",
+   "nav": "unknown_route"
+  },
+  {
+   "route": "care_plan",
+   "lang": "en",
+   "landed": "care_plan",
+   "len": 147,
+   "first": "← | Care Plan | —",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "progress",
+   "lang": "en",
+   "landed": "progress",
+   "len": 122,
+   "first": "← | Progress Notes | —",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "visit_report",
+   "lang": "en",
+   "nav": "unknown_route"
+  },
+  {
+   "route": "supplies",
+   "lang": "en",
+   "landed": "supplies",
+   "len": 527,
+   "first": "← | Medical Supplies | Order medical supplies for your visits. Delivered from hospital inv",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [
+    "أكياس نفايات طبية",
+    "أنبوب سحب عينات",
+    "جهاز قياس سكر ",
+    "حاقنات ",
+    "رول",
+    "زجاجة"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "nursing_services",
+   "lang": "en",
+   "landed": "nursing_services",
+   "len": 470,
+   "first": "← | Services Offered & Supplies | Important Clinical Supplies Kit Notice:",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "nursing_pricing",
+   "lang": "en",
+   "landed": "nursing_pricing",
+   "len": 262,
+   "first": "← | Nursing Pricing Models | Configure pricing packages for home nursing. You can activate",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [
+    "ريال"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "nursing_coverage",
+   "lang": "en",
+   "landed": "nursing_coverage",
+   "len": 305,
+   "first": "← | Nursing Coverage Area | 15 KM",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "promotions",
+   "lang": "en",
+   "landed": "promotions",
+   "len": 81,
+   "first": "Promotions Center | ACTIVE PROMOTIONS | No promotions available",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "create_promo",
+   "lang": "en",
+   "landed": "create_promo",
+   "len": 117,
+   "first": "← | Create Campaign | Campaign Title *",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [
+    "ريال"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "web_config",
+   "lang": "en",
+   "landed": "web_config",
+   "len": 129,
+   "first": "← | Account Info | Profile",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "subscriptions_ads",
+   "lang": "en",
+   "landed": "subscriptions_ads",
+   "len": 155,
+   "first": "← | Subscriptions & Ads Purchases | Current Plan: —",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "affiliate",
+   "lang": "en",
+   "landed": "affiliate",
+   "len": 289,
+   "first": "← | Affiliate Portal | Invite a provider & earn referral rewards",
+   "keys": [],
+   "icon_words": [
+    "star"
+   ],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "reputation",
+   "lang": "en",
+   "landed": "reputation",
+   "len": 75,
+   "first": "← | Reputation & Ratings | star",
+   "keys": [],
+   "icon_words": [
+    "star"
+   ],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "crm",
+   "lang": "en",
+   "landed": "crm",
+   "len": 121,
+   "first": "← | CRM & Revenue Intelligence | 1",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [
+    "اختبار "
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "revenue_insights",
+   "lang": "en",
+   "landed": "revenue_insights",
+   "len": 302,
+   "first": "← | Revenue Insights | Week",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "sos_dispatch",
+   "lang": "en",
+   "nav": "unknown_route"
+  },
+  {
+   "route": "gps_router",
+   "lang": "en",
+   "nav": "unknown_route"
+  },
+  {
+   "route": "nurse_visit",
+   "lang": "en",
+   "landed": "nurse_visit",
+   "len": 72,
+   "first": "← | Active nursing visits | اختبار walker",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [
+    "اختبار "
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "nurse_checklist",
+   "lang": "en",
+   "landed": "nurse_checklist",
+   "len": 63,
+   "first": "← | Nurse Checklist Console | checklist",
+   "keys": [],
+   "icon_words": [
+    "checklist"
+   ],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "profile_edit",
+   "lang": "en",
+   "landed": "profile_edit",
+   "len": 265,
+   "first": "← | Account Info | Profile",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": [
+    "404 GET /provider/profile/image/status"
+   ]
+  },
+  {
+   "route": "medical_jobs",
+   "lang": "en",
+   "landed": "medical_jobs",
+   "len": 33,
+   "first": "Medical Jobs | Browse | Post Ad",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "drug_index",
+   "lang": "en",
+   "landed": "drug_index",
+   "len": 166,
+   "first": "Medical Drug Index | All | pain (2)",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "insurance_config",
+   "lang": "en",
+   "landed": "insurance_config",
+   "len": 411,
+   "first": "← | Health Insurance | Select which insurance providers you accept and specify copay perce",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "certificates_config",
+   "lang": "en",
+   "landed": "certificates_config",
+   "len": 325,
+   "first": "← | Qualifications | Official documents linked to your professional profile and their admi",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "media_config",
+   "lang": "en",
+   "landed": "media_config",
+   "len": 114,
+   "first": "← | Photos & Media | Photos displayed on your public profile for patients (clinic, instrum",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "wallet",
+   "lang": "en",
+   "landed": "wallet",
+   "len": 257,
+   "first": "← | Wallet & Revenue | Available Balance",
+   "keys": [
+    "trendingUp"
+   ],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "chat",
+   "lang": "en",
+   "landed": "chat",
+   "len": 173,
+   "first": "← | Pre-Visit Chat | This chat is for arrival logistics (Gate codes, exact location) and c",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": [
+    "400 POST /chats/threads/booking"
+   ]
+  },
+  {
+   "route": "insurance_requests",
+   "lang": "en",
+   "landed": "insurance_requests",
+   "len": 141,
+   "first": "← | Insurance Requests | Manual review before service",
+   "keys": [],
+   "icon_words": [
+    "shield"
+   ],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "working_hours",
+   "lang": "en",
+   "landed": "working_hours",
+   "len": 219,
+   "first": "← | Working Hours | SHIFTS",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "notifications",
+   "lang": "en",
+   "landed": "notifications",
+   "len": 207,
+   "first": "← | Notifications Center | حجز جديد بانتظارك",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [
+    "تم اعتماد حسابك",
+    "تمت الموافقة على حسابك في نبض",
+    "حجز جديد بانتظارك",
+    "رقم الحجز ",
+    "سجّل الدخول من جديد لتبدأ استقبال الطلبات"
+   ],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "password",
+   "lang": "en",
+   "landed": "password",
+   "len": 48,
+   "first": "← | Security & 2FA | Change Password",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "2fa",
+   "lang": "en",
+   "landed": "2fa",
+   "len": 48,
+   "first": "← | Security & 2FA | Change Password",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  },
+  {
+   "route": "devices",
+   "lang": "en",
+   "landed": "devices",
+   "len": 48,
+   "first": "← | Security & 2FA | Change Password",
+   "keys": [],
+   "icon_words": [],
+   "undef": [],
+   "arabic": [],
+   "overflow": 0,
+   "js": [],
+   "bad": []
+  }
+ ],
+ "login_ok": true
+}

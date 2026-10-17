@@ -1,0 +1,38 @@
+# P14.19 waiting room (deploy/cloudflare/waiting-room-worker/worker.mjs). Deployed by the build session through ops with the
+# owner's approval, only for a campaign that needs it (docs/ops/waiting-room.md). The secret WAITING_ROOM_SECRET is set
+# with `wrangler secret put` and is never in this file.
+name = "nabd-waiting-room"
+main = "worker.mjs"
+compatibility_date = "2026-09-01"
+workers_dev = false
+
+# Only the two checkout entry pages per locale (a route's wildcard may only end the path); nothing else reaches the worker.
+routes = [
+  { pattern = "nabd.plus/ar/cart/checkout*", zone_name = "nabd.plus" },
+  { pattern = "nabd.plus/ar/pharmacy/payment*", zone_name = "nabd.plus" },
+  { pattern = "nabd.plus/en/cart/checkout*", zone_name = "nabd.plus" },
+  { pattern = "nabd.plus/en/pharmacy/payment*", zone_name = "nabd.plus" },
+  { pattern = "nabd.plus/ur/cart/checkout*", zone_name = "nabd.plus" },
+  { pattern = "nabd.plus/ur/pharmacy/payment*", zone_name = "nabd.plus" },
+  { pattern = "nabd.plus/hi/cart/checkout*", zone_name = "nabd.plus" },
+  { pattern = "nabd.plus/hi/pharmacy/payment*", zone_name = "nabd.plus" },
+  { pattern = "nabd.plus/bn/cart/checkout*", zone_name = "nabd.plus" },
+  { pattern = "nabd.plus/bn/pharmacy/payment*", zone_name = "nabd.plus" },
+  { pattern = "nabd.plus/fil/cart/checkout*", zone_name = "nabd.plus" },
+  { pattern = "nabd.plus/fil/pharmacy/payment*", zone_name = "nabd.plus" },
+]
+
+[vars]
+WAITING_ROOM = "off"        # "on" for the campaign window
+ADMIT_PER_MINUTE = "120"    # set from the capacity report (docs/perf/load-test-*.md): checkouts per minute the origin holds
+BURST = "60"
+ADMIT_MINUTES = "15"
+
+[[durable_objects.bindings]]
+name = "ROOM"
+class_name = "Room"
+
+# SQLite-backed Durable Objects are available on the Workers Free plan.
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Room"]

@@ -20,6 +20,8 @@ export const CLIENT_NAMESPACES = [
   "NotificationSettings",
   "RouteState",
   "Search",
+  // the instant suggestions of the home hero search box and the search page (issue 1544)
+  "SearchSuggest",
   "Shared",
 ] as const;
 
@@ -47,12 +49,12 @@ export function pickClientMessages<T extends Record<string, unknown>>(messages: 
 export const ROUTE_GROUP_NAMESPACES: Record<string, readonly string[]> = {
   "home-care": ["NursingWeb"],
   ai: ["AiHealthReport", "AssistantWeb", "Emergency", "RxUpload"],
-  appointments: ["ConsultClient"],
+  appointments: ["ConsultClient", "TelehealthConsent"],
   articles: ["Articles", "PharmacyBrowse"],
   c: ["PharmacyBrowse", "PublicProduct"],
-  cart: ["CartScreen", "PharmacyAddress", "PharmacyCheckout", "PharmacyFlow"],
+  cart: ["CartScreen", "LegalLinks", "PharmacyAddress", "PharmacyCheckout", "PharmacyFlow"],
   chat: ["ChatDetail"],
-  consultations: ["BookConsultation", "Doctors", "ShareReport", "SpecialtyNames"],
+  consultations: ["BookConsultation", "Doctors", "LegalLinks", "ShareReport", "SpecialtyNames", "TelehealthConsent"],
   diagnostics: ["DiagWeb"],
   emergency: ["Emergency"],
   family: ["CameraScan", "FamilyWeb", "HealthWeb"],
@@ -73,7 +75,7 @@ export const ROUTE_GROUP_NAMESPACES: Record<string, readonly string[]> = {
   p: ["PharmacyBrowse", "PublicProduct"],
   "password-reset": ["PasswordReset"],
   payments: ["Payments"],
-  pharmacy: ["CameraScan", "CartScreen", "OrderReorder", "PharmacyAddress", "PharmacyBarcode", "PharmacyBrowse", "PharmacyChat", "PharmacyCheckout", "PharmacyFlow", "PharmacyOffers", "PharmacyRequest", "Prescriptions", "RxUpload"],
+  pharmacy: ["CartScreen", "OrderReorder", "PharmacyAddress", "PharmacyBarcode", "PharmacyBrowse", "PharmacyChat", "PharmacyCheckout", "PharmacyFlow", "PharmacyOffers", "PharmacyRequest", "Prescriptions", "RxUpload"],
   profile: ["AccountWeb", "Addresses", "DeliveryAddressSelect"],
   programs: ["ProgramsWeb"],
   q: ["Doctors", "PharmacyBrowse", "PublicProduct"],

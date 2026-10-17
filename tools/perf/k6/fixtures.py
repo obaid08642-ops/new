@@ -41,7 +41,7 @@ def admin_login():
     tok = tok if isinstance(tok, str) else (tok or {}).get('accessToken')
     step('2FA -> admin token', r.ok and tok, r)
     admin = AdminApi(tok, 'admin-api')
-    enroll_admin_device(admin)
+    enroll_admin_device(admin, email)  # D-35: a first device confirms with the e-mailed code
     return admin
 
 

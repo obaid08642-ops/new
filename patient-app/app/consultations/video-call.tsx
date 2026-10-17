@@ -7,6 +7,7 @@ import { ErrorState } from '../../../packages/ui-native/src';
 import { CallButton, CallIdentity, useCallUi } from '../../src/components/consult/CallKit';
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
+import { TelehealthConsentSheet, isTelehealthConsentRefusal } from '../../src/components/legal/TelehealthConsent';
 
 /**
  * Video call — no board (owner decision, 2026-10-04): the layout stays, drawn with the dark tokens, the font and
@@ -46,6 +47,9 @@ export default function VideoCallScreen() {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<{ doctor_name?: string } | null>(null);
   const [failed, setFailed] = useState(false);
+  // D-38: the server refuses the patient's call until the telehealth consent is accepted; then the call is tried again
+  const [consentAsked, setConsentAsked] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   const [micOn, setMicOn] = useState(true);
   const [camOn, setCamOn] = useState(true);
 
@@ -136,6 +140,11 @@ export default function VideoCallScreen() {
         setLoading(false);
         activeRoom = newRoom;
       } catch (error) {
+        if (isTelehealthConsentRefusal(error)) {
+          setConsentAsked(true);
+          setLoading(false);
+          return;
+        }
         logError('consultations:video-call:livekit', error);
         setFailed(true);
         setLoading(false);
@@ -149,7 +158,7 @@ export default function VideoCallScreen() {
         void activeRoom.disconnect();
       }
     };
-  }, [appointmentId]);
+  }, [appointmentId, attempt]);
 
   // Toggle Camera
   useEffect(() => {
@@ -173,6 +182,22 @@ export default function VideoCallScreen() {
   };
 
   const full = { width: '100%', height: '100%' } as const;
+
+  if (consentAsked) {
+    return (
+      <View style={{ flex: 1, backgroundColor: c.bg.canvas }}>
+        <TelehealthConsentSheet
+          open
+          onClose={() => router.back()}
+          onAccepted={() => {
+            setConsentAsked(false);
+            setLoading(true);
+            setAttempt((n) => n + 1);
+          }}
+        />
+      </View>
+    );
+  }
 
   if (loading) {
     return (

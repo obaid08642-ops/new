@@ -6,6 +6,7 @@ import { PharmacyOrderService } from '../pharmacy/services/pharmacy-order.servic
 import { PharmacyOfferService } from '../pharmacy/services/pharmacy-offer.service';
 import { catalogueFlags } from '../pharmacy/services/rx-rules';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
+import { publicMedicineFilter } from '../medicines/public-medicine-filter';
 import { CareService } from '../care/care.service';
 import { AppointmentsService } from '../care/appointments.service';
 import { SlotLocksService } from '../slot-locks/slot-locks.module';
@@ -367,7 +368,8 @@ export class AgentToolsService {
     // Owner rule: a prescription (Rx) or controlled item is refused to an agent, whole request,
     // BEFORE anything is created. Only OTC lines can be ordered.
     const meds = await this.conn.collection(CATALOG_COLLECTIONS.medicines)
-      .find({ id: { $in: [...new Set(lines.map((l) => l.medicine_id))] } },
+      // An agent orders from the public catalogue only: an item in medical review is not found.
+      .find({ ...publicMedicineFilter(), id: { $in: [...new Set(lines.map((l) => l.medicine_id))] } },
         { projection: { _id: 0, id: 1, sku: 1, name_ar: 1, name_en: 1, price: 1, requires_prescription: 1, controlled: 1 } })
       .toArray();
     const byId = new Map(meds.map((m: Record<string, unknown>) => [String(m.id), m]));

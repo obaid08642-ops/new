@@ -4,8 +4,10 @@
      refused (issue 1440 rule), one inside it reaches the patient (patient API and the website's chat page).
   2. Web cart (decisions 35 and 39): the cart says the prices come with the offers; a cart with a prescription medicine goes
      to rx-order to pick the prescription, and the checkout never guesses an "active" one.
-  3. Web barcode page (decision 36): the camera button exists only where BarcodeDetector exists; a scanned code goes
-     through the same lookup as a typed one.
+  3. Web scan page (decision 36, changed 2026-10-16: an AI scanner, not a barcode reader): even in a browser with
+     BarcodeDetector there is no barcode camera and no typed barcode; one photo goes to POST /ai/scan, the closest matches
+     are listed, a prescription opens rx-order. The scan answer is routed in the browser here; j_ai_scanner proves the
+     backend (vision model, public catalogue, prescription flow).
   4. The product page has no "ask a pharmacist" entry (decision 40).
   Stack: backend :8002, patient-web :3100. A missing browser or patient-web is a FAIL, never a PASS.
 """
@@ -20,11 +22,10 @@ WEB = os.environ.get('NABD_WEB_JOURNEYS_URL', 'http://127.0.0.1:3100')
 KEY = lambda tag: f'mobile-{tag}-{uuid.uuid4()}'
 anon = Client()
 
-# a fake BarcodeDetector that reads one fixed code, for the browser that has the API
-STUB_CODE = '6281234567890'
-STUB = """
-window.BarcodeDetector = class { constructor() {} async detect() { return [{ rawValue: '%s' }]; } };
-""" % STUB_CODE
+# a fake BarcodeDetector: the scan page must not use it any more (decision 36)
+STUB = "window.BarcodeDetector = class { constructor() {} async detect() { return [{ rawValue: '6281234567890' }]; } };"
+# a 1x1 PNG for the photo input
+PNG_1PX = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
 
 
 def public_slug(admin, med):
@@ -250,29 +251,42 @@ def main():
     except Exception as e:
         step('web cart flow', False, str(e)[:300])
 
-    journey('web barcode page: the camera only where BarcodeDetector exists (decision 36)')
+    journey('web scan page: the AI scanner, not a barcode reader (decision 36, changed 2026-10-16)')
     try:
-        page.goto(f'{WEB}/ar/pharmacy/barcode', wait_until='load', timeout=60000)
-        page.wait_for_selector('h1', timeout=30000)
-        page.wait_for_timeout(1500)
-        has_api = page.evaluate("'BarcodeDetector' in window")
-        # the shared camera scanner (components-next/scan/camera-scanner.tsx) draws its button only with BarcodeDetector
-        cam = page.get_by_role('button', name='امسح بالكاميرا').count()
-        step('without the API there is no camera button, the typed field stays', (cam == 0 or has_api) and page.locator('input').count() > 0, f'api={has_api} camera={cam}')
+        import base64
+        import json as _json
         ctx2 = browser.new_context(locale='ar-SA', viewport={'width': 390, 'height': 844}, permissions=['camera'])
         ctx2.add_init_script(STUB)
         web_login(ctx2, WEB, acct['email'], acct['password'])
         p2 = ctx2.new_page()
+        answers = [{'kind': 'pack', 'reading': {'name': 'Panadol'}, 'matches': [{'id': 'scan-m1', 'slug': 'scan-m1', 'name_ar': 'دواء المسح', 'price': 9, 'requires_prescription': True}]},
+                   {'kind': 'prescription', 'status': 'saved', 'prescription_id': 'rx-scan-1', 'route': '/pharmacy/rx-order?prescriptionId=rx-scan-1', 'matches': []}]
+        sent = []
+
+        def answer(route):
+            sent.append(route.request.post_data_json or {})
+            route.fulfill(status=200, content_type='application/json', body=_json.dumps(answers[min(len(sent), len(answers)) - 1]))
+        p2.route('**/api/patient/ai/scan', answer)
         p2.goto(f'{WEB}/ar/pharmacy/barcode', wait_until='load', timeout=60000)
-        p2.locator('button:visible', has_text='امسح بالكاميرا').first.wait_for(timeout=30000)
-        step('with BarcodeDetector the camera button is shown', True)
-        step('the typed field is still there', p2.locator('input').count() > 0, 'no input')
-        with p2.expect_request(lambda req: f'/medicines/by-barcode/{STUB_CODE}' in req.url, timeout=30000):
-            p2.locator('button:visible', has_text='امسح بالكاميرا').first.click()
-        step('the scanned code goes through the same lookup as a typed one', True)
+        p2.wait_for_function("() => { const i = document.querySelector('input[type=file]'); return !!i && Object.keys(i).some((k) => k.startsWith('__react')); }", timeout=30000)
+        p2.wait_for_timeout(1000)
+        cam = p2.get_by_role('button', name='امسح بالكاميرا').count()
+        # the only text field left on the page is the interaction checker's (its own section), not a barcode field
+        typed = p2.evaluate("() => [...document.querySelectorAll('input:not([type=file])')].filter((i) => !i.closest('section[aria-labelledby=scan-ix]') && !i.closest('header')).length")
+        step('even with BarcodeDetector there is no barcode camera and no typed barcode field', cam == 0 and p2.locator('video').count() == 0 and typed == 0, f'camera={cam} typed={typed}')
+        photo = p2.locator('input[type=file]')
+        step('the scanner takes a photo (camera capture, image types)', photo.get_attribute('capture') == 'environment' and 'image/jpeg' in (photo.get_attribute('accept') or ''), photo.get_attribute('accept'))
+        photo.set_input_files(files=[{'name': 'pack.png', 'mimeType': 'image/png', 'buffer': base64.b64decode(PNG_1PX)}])
+        p2.get_by_role('heading', name='أقرب النتائج').wait_for(timeout=30000)
+        link = p2.locator('a[href="/ar/p/scan-m1"]')
+        step('the photo goes to /ai/scan as an image; the closest match is listed and links to its product page',
+             bool(sent) and str(sent[0].get('image_base64', '')).startswith('data:image/') and link.count() == 1, str(sent[:1])[:120])
+        photo.set_input_files(files=[{'name': 'rx.png', 'mimeType': 'image/png', 'buffer': base64.b64decode(PNG_1PX)}])
+        p2.wait_for_url('**/ar/pharmacy/rx-order?prescriptionId=rx-scan-1', timeout=30000)
+        step('a prescription photo opens the prescription order (the normal flow), not a list to buy', True)
         ctx2.close()
     except Exception as e:
-        step('web barcode camera', False, str(e)[:300])
+        step('web scan page', False, str(e)[:300])
     browser.close()
     pw.stop()
 

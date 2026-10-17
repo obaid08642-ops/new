@@ -13,10 +13,10 @@ import { CartProvider, useCart } from '../src/context/CartContext';
 
 // Boundaries only: the API, the router, the app context, the camera and the picker. Fixtures live in this test.
 const mockApiFetch = jest.fn();
+const mockTakePicture = jest.fn();
 const mockRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn(), canGoBack: jest.fn(() => true), setParams: jest.fn() };
 let mockParams: Record<string, string> = {};
 let mockCamera: { granted: boolean; canAskAgain: boolean } | null = { granted: true, canAskAgain: true };
-let mockScan: ((e: { data: string }) => void) | undefined;
 const mockRequestCamera = jest.fn();
 const mockPickerPermission = jest.fn();
 const mockLaunchLibrary = jest.fn();
@@ -41,10 +41,11 @@ jest.mock('expo-router', () => {
 });
 jest.mock('expo-camera', () => ({
   useCameraPermissions: () => [mockCamera, mockRequestCamera],
-  CameraView: (props: { onBarcodeScanned?: (e: { data: string }) => void }) => {
-    mockScan = props.onBarcodeScanned;
+  // the scanner takes one photo through the camera's ref (decision 36: no barcode reading)
+  CameraView: require('react').forwardRef((_props: object, ref: unknown) => {
+    require('react').useImperativeHandle(ref, () => ({ takePictureAsync: (...a: unknown[]) => mockTakePicture(...a) }));
     return null;
-  },
+  }),
 }));
 jest.mock('expo-image-picker', () => ({
   requestCameraPermissionsAsync: (...a: unknown[]) => mockPickerPermission(...a),
@@ -87,6 +88,9 @@ const wrap = (node: React.ReactNode, lines: Array<{ id: string; name: string; rx
 
 beforeEach(async () => {
   jest.clearAllMocks();
+  // reset, not only clear: a queued mockResolvedValueOnce left by one test must not answer the next test's calls
+  mockApiFetch.mockReset();
+  mockTakePicture.mockReset().mockResolvedValue({ base64: 'cGhvdG8=' });
   mockParams = {};
   mockCamera = { granted: true, canAskAgain: true };
   mockApiFetch.mockResolvedValue({});
@@ -343,32 +347,38 @@ describe('Barcode scanner', () => {
   });
 });
 
-describe('Barcode lookup', () => {
-  it('a found medicine shows what the directory sent (no availability claim) and can go to the cart', async () => {
-    mockApiFetch.mockResolvedValue({ found: true, medicine: { id: 'm1', name_ar: 'دواء ١', manufacturer: 'شركة', price: 18.5, requires_prescription: true } });
+describe('AI scanner (decision 36)', () => {
+  const press = async () => fireEvent.press(screen.getByTestId('scan-take'));
+
+  it('a photo goes to POST /ai/scan; the closest matches are listed and a picked one can go to the cart', async () => {
+    mockApiFetch.mockImplementation(async (p: string) => (p === '/ai/scan'
+      ? { kind: 'pack', reading: { name: 'Panadol' }, matches: [{ id: 'm1', name_ar: 'دواء ١', price: 18.5, requires_prescription: true }, { id: 'm2', name_ar: 'دواء ٢', price: 4 }] }
+      : {}));
     await render(wrap(<BarcodeScanner />));
-    await waitFor(() => expect(mockScan).toBeDefined());
-    await mockScan?.({ data: '6281234567890' });
-    await waitFor(() => expect(screen.getByText('دواء ١')).toBeTruthy());
-    expect(mockApiFetch).toHaveBeenCalledWith('/medicines/by-barcode/6281234567890');
-    expect(screen.getByText(/18\.50/)).toBeTruthy();
+    await press();
+    await waitFor(() => expect(screen.getByText(T('pharmacy.barcode.matchesTitle'))).toBeTruthy());
+    const call = mockApiFetch.mock.calls.find(([p]) => p === '/ai/scan');
+    expect(JSON.parse((call?.[1] as { body: string }).body)).toEqual({ image_base64: 'cGhvdG8=', mime_type: 'image/jpeg' });
+    expect(mockApiFetch.mock.calls.some(([p]) => String(p).startsWith('/medicines/by-barcode'))).toBe(false);
+    expect(screen.getByText('دواء ٢')).toBeTruthy();
+    await fireEvent.press(screen.getByLabelText('دواء ١'));
+    await waitFor(() => expect(screen.getByText(/18\.50/)).toBeTruthy());
     expect(screen.getByText(T('pharmacy.needsRx'))).toBeTruthy();
-    expect(screen.queryByText(/متوفر/)).toBeNull();
     await fireEvent.press(screen.getByLabelText(T('pharmacy.addToCart')));
     await waitFor(() => expect(screen.getByText('in-cart:m1:1')).toBeTruthy());
     expect(mockRouter.push).toHaveBeenCalledWith('/pharmacy/cart');
   });
 
-  it('a found medicine can be checked for interactions: its name goes to the server, the verdict and hits are the server\'s', async () => {
+  it('a picked medicine can be checked for interactions: its name goes to the server, the verdict and hits are the server\'s', async () => {
     mockApiFetch.mockImplementation(async (p: string) => {
-      if (p.startsWith('/medicines/by-barcode/')) return { found: true, medicine: { id: 'm1', name_ar: 'دواء ١', price: 5 } };
+      if (p === '/ai/scan') return { kind: 'qr', matches: [{ id: 'm1', name_ar: 'دواء ١', price: 5 }] };
       if (p === '/ai/drug-interactions') return { checked: 2, safe: false, interactions: [{ severity: 'high', note_ar: 'ملاحظة اختبار' }] };
       return {};
     });
     await render(wrap(<BarcodeScanner />));
-    await waitFor(() => expect(mockScan).toBeDefined());
-    await mockScan?.({ data: '6281234567890' });
-    await waitFor(() => expect(screen.getByText('دواء ١')).toBeTruthy());
+    await press();
+    await waitFor(() => expect(screen.getByLabelText('دواء ١')).toBeTruthy());
+    await fireEvent.press(screen.getByLabelText('دواء ١'));
     await fireEvent.press(screen.getByLabelText(T('pharmacy.scan.ixCheck')));
     await waitFor(() => expect(screen.getByText(T('pharmacy.scan.ixAttention'))).toBeTruthy());
     const call = mockApiFetch.mock.calls.find(([p]) => p === '/ai/drug-interactions');
@@ -377,27 +387,33 @@ describe('Barcode lookup', () => {
     expect(screen.getByText('ملاحظة اختبار')).toBeTruthy();
   });
 
-  it('a barcode can be typed: it goes through the same lookup', async () => {
-    mockApiFetch.mockResolvedValue({ found: false });
+  it('a prescription photo opens the saved prescription order and lists nothing to buy', async () => {
+    mockApiFetch.mockImplementation(async (p: string) => (p === '/ai/scan' ? { kind: 'prescription', status: 'saved', prescription_id: 'rx-9', matches: [] } : {}));
     await render(wrap(<BarcodeScanner />));
-    await fireEvent.changeText(screen.getByLabelText(T('pharmacy.scan.typeCode')), '12345');
-    await fireEvent.press(screen.getByLabelText(T('pharmacy.scan.typeGo')));
-    await waitFor(() => expect(mockApiFetch).toHaveBeenCalledWith('/medicines/by-barcode/12345'));
+    await press();
+    await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith({ pathname: '/pharmacy/rx-order', params: { prescriptionId: 'rx-9' } }));
+    expect(screen.queryByText(T('pharmacy.barcode.matchesTitle'))).toBeNull();
   });
 
-  it('a code that is not in the directory and a failed lookup are different states; the failed one can be retried', async () => {
-    mockApiFetch.mockResolvedValueOnce({ found: false });
+  it('no match offers a manual request; an unreadable prescription, an unreadable photo, too many scans and a failure each say so', async () => {
+    mockApiFetch.mockImplementation(async (p: string) => (p === '/ai/scan' ? { kind: 'pack', reading: { name: 'x' }, matches: [] } : {}));
     const view = await render(wrap(<BarcodeScanner />));
-    await waitFor(() => expect(mockScan).toBeDefined());
-    await mockScan?.({ data: '111' });
-    await waitFor(() => expect(screen.getByText(T('pharmacy.barcode.notFoundTitle'))).toBeTruthy());
-    await fireEvent.press(screen.getByLabelText(T('pharmacy.barcode.scanAnotherCode')));
-    mockApiFetch.mockRejectedValueOnce(new Error('OFFLINE_ERROR')).mockResolvedValueOnce({ found: false });
-    await mockScan?.({ data: '222' });
-    await waitFor(() => expect(screen.getByText(T('pharmacy.barcode.errorTitle'))).toBeTruthy());
-    expect(screen.queryByText(T('pharmacy.barcode.notFoundTitle'))).toBeNull();
-    await fireEvent.press(screen.getByLabelText(T('pharmacy.retry')));
-    await waitFor(() => expect(screen.getByText(T('pharmacy.barcode.notFoundTitle'))).toBeTruthy());
+    await press();
+    await waitFor(() => expect(screen.getByText(T('pharmacy.barcode.noMatchTitle'))).toBeTruthy());
+    await fireEvent.press(screen.getByLabelText(T('pharmacy.hub.manualRequest')));
+    expect(mockRouter.push).toHaveBeenCalledWith('/pharmacy/rx-order?via=type');
+    await fireEvent.press(screen.getByLabelText(T('pharmacy.barcode.scanAnother')));
+    const cases: Array<[() => Promise<unknown>, string]> = [
+      [async () => ({ kind: 'prescription', status: 'unreadable', prescription_id: null }), 'pharmacy.scan.unreadable'],
+      [async () => { throw new Error('scan_unreadable'); }, 'pharmacy.barcode.photoUnknown'],
+      [async () => { throw new Error('ThrottlerException: Too Many Requests'); }, 'pharmacy.barcode.busy'],
+      [async () => { throw new Error('OFFLINE_ERROR'); }, 'pharmacy.barcode.photoError'],
+    ];
+    for (const [answer, key] of cases) {
+      mockApiFetch.mockImplementation(async (p: string) => (p === '/ai/scan' ? answer() : {}));
+      await press();
+      await waitFor(() => expect(screen.getByText(T(key))).toBeTruthy());
+    }
     view.unmount();
   });
 });

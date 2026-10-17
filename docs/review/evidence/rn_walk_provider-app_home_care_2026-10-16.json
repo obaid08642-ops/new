@@ -1,0 +1,1678 @@
+{
+ "provider_type": "home_care",
+ "login_via_ui": true,
+ "build": "rn-web E2E export (not native)",
+ "perf": {
+  "app_boot_to_ready_ms": 2008,
+  "login_to_dashboard_ready_ms": 1899,
+  "dashboard_ready": true,
+  "dashboard_not_ready_reason": ""
+ },
+ "screens": [
+  {
+   "route": "MainTabs",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 401,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "تمريض منزلي | نبضة للتمريض | غير متاح | ! | 0 | طلبات جديدة | ◔ | 1 | زيارات"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "غير متاح",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/provider/ops/availability/toggle-instant",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 578
+    },
+    {
+     "label": "الإشعارات",
+     "result": "NAVIGATE",
+     "to": "notifications",
+     "response_ms": 889
+    },
+    {
+     "label": "المحفظة",
+     "result": "NAVIGATE",
+     "to": "wallet",
+     "response_ms": 1459
+    },
+    {
+     "label": "الزيارة",
+     "result": "NAVIGATE",
+     "to": "order_detail",
+     "response_ms": 905
+    },
+    {
+     "label": "قائمة",
+     "result": "JS_ERROR",
+     "error": "e?.address?.split is not a function",
+     "response_ms": 603
+    },
+    {
+     "label": "خطة",
+     "result": "NAVIGATE",
+     "to": "care_plan",
+     "response_ms": 918
+    },
+    {
+     "label": "ملاحظات",
+     "result": "NAVIGATE",
+     "to": "progress",
+     "response_ms": 925
+    },
+    {
+     "label": "مستلزمات",
+     "result": "NAVIGATE",
+     "to": "supplies",
+     "response_ms": 1392
+    },
+    {
+     "label": "اW",
+     "result": "NAVIGATE",
+     "to": "order_detail",
+     "response_ms": 877
+    },
+    {
+     "label": "فتح الزيارة",
+     "result": "NAVIGATE",
+     "to": "order_detail",
+     "response_ms": 897
+    },
+    {
+     "label": "قائمة المهام",
+     "result": "JS_ERROR",
+     "error": "e?.address?.split is not a function",
+     "response_ms": 536
+    },
+    {
+     "label": "الرئيسية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 517
+    },
+    {
+     "label": "الطلبات",
+     "result": "UI_CHANGE",
+     "response_ms": 517
+    },
+    {
+     "label": "الوظائف",
+     "result": "UI_CHANGE",
+     "response_ms": 894
+    },
+    {
+     "label": "الأدوية",
+     "result": "UI_CHANGE",
+     "response_ms": 2034
+    },
+    {
+     "label": "الإعدادات",
+     "result": "UI_CHANGE",
+     "response_ms": 959
+    }
+   ],
+   "summary": {
+    "WRITE": 1,
+    "NAVIGATE": 8,
+    "JS_ERROR": 2,
+    "NO_EFFECT": 1,
+    "UI_CHANGE": 4
+   }
+  },
+  {
+   "route": "notifications",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 754,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | مركز الإشعارات والتنبيهات (3) | حجز جديد بانتظارك | منذ 3 دقيق"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 490
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1
+   }
+  },
+  {
+   "route": "wallet",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": {
+     "kind": "nursing",
+     "id": "d8a4024a-f86d-4118-b6e8-5fcc2c334732",
+     "tracking_id": "HC-2610-CEHDC",
+     "patient_id": "83fe496d-cce6-4827-a712-912a880735a0",
+     "universal_state": "CONFIRMED",
+     "domain_state": "CONFIRMED",
+     "total": 250,
+     "scheduled_at": "2026-10-18T07:00:00.000Z",
+     "title_ar": "رعاية يومية لكبار السن",
+     "payment_method": "card",
+     "payment_status": "paid",
+     "insurance_provider": null,
+     "insurance_status": "none",
+     "address": {
+      "address": "شارع الملك فهد 3، الرياض",
+      "city": "الرياض",
+      "lat": 24.7001,
+      "lng": 46.7001
+     },
+     "contact": null,
+     "service_type": null,
+     "createdAt": "2026-10-16T19:48:39.095Z",
+     "updatedAt": "2026-10-16T19:48:39.196Z",
+     "patient_name": "اختبار walker",
+     "patient_phone": "+966580111721",
+     "patient_age": null,
+     "patient_gender": null,
+     "patient_blood_type": null,
+     "patient_allergies": [],
+     "patient_chronic": [],
+     "attachments_count": 0,
+     "status": "active"
+    }
+   },
+   "time_to_ready_ms": 1878,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | المحفظة والإيرادات | الرصيد المتاح للسحب | 0 ريال | طلب سحب | tren"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 493
+    },
+    {
+     "label": "طلب سحب",
+     "result": "NAVIGATE",
+     "to": "withdrawal_workflow",
+     "response_ms": 1379
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2
+   }
+  },
+  {
+   "route": "order_detail",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": {
+     "kind": "nursing",
+     "id": "d8a4024a-f86d-4118-b6e8-5fcc2c334732",
+     "tracking_id": "HC-2610-CEHDC",
+     "patient_id": "83fe496d-cce6-4827-a712-912a880735a0",
+     "universal_state": "CONFIRMED",
+     "domain_state": "CONFIRMED",
+     "total": 250,
+     "scheduled_at": "2026-10-18T07:00:00.000Z",
+     "title_ar": "رعاية يومية لكبار السن",
+     "payment_method": "card",
+     "payment_status": "paid",
+     "insurance_provider": null,
+     "insurance_status": "none",
+     "address": {
+      "address": "شارع الملك فهد 3، الرياض",
+      "city": "الرياض",
+      "lat": 24.7001,
+      "lng": 46.7001
+     },
+     "contact": null,
+     "service_type": null,
+     "createdAt": "2026-10-16T19:48:39.095Z",
+     "updatedAt": "2026-10-16T19:48:39.196Z",
+     "patient_name": "اختبار walker",
+     "patient_phone": "+966580111721",
+     "patient_age": null,
+     "patient_gender": null,
+     "patient_blood_type": null,
+     "patient_allergies": [],
+     "patient_chronic": [],
+     "attachments_count": 0,
+     "status": "active"
+    }
+   },
+   "time_to_ready_ms": 747,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | العمليات الميدانية | اختبار walker | شارع الملك فهد 3، الرياض | "
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "withdrawal_workflow",
+     "response_ms": 512
+    },
+    {
+     "label": "بدء التحرك للموقع",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/nursing/visits/d8a4024a-f86d-4118-b6e8-5fcc2c334732/transit",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1363
+    },
+    {
+     "label": "قائمة مهام الزيارة",
+     "result": "JS_ERROR",
+     "error": "e?.address?.split is not a function",
+     "response_ms": 527
+    },
+    {
+     "label": "ملاحظات يومية",
+     "result": "NAVIGATE",
+     "to": "progress",
+     "response_ms": 880
+    },
+    {
+     "label": "المريض لم يحضر",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/nursing/visits/d8a4024a-f86d-4118-b6e8-5fcc2c334732/no-show",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 827
+    },
+    {
+     "label": "إيقاف طارئ",
+     "result": "SKIPPED_DESTRUCTIVE"
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 2,
+    "WRITE": 2,
+    "JS_ERROR": 1,
+    "SKIPPED_DESTRUCTIVE": 1
+   }
+  },
+  {
+   "route": "care_plan",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": {
+     "kind": "nursing",
+     "id": "d8a4024a-f86d-4118-b6e8-5fcc2c334732",
+     "tracking_id": "HC-2610-CEHDC",
+     "patient_id": "83fe496d-cce6-4827-a712-912a880735a0",
+     "universal_state": "CONFIRMED",
+     "domain_state": "CONFIRMED",
+     "total": 250,
+     "scheduled_at": "2026-10-18T07:00:00.000Z",
+     "title_ar": "رعاية يومية لكبار السن",
+     "payment_method": "card",
+     "payment_status": "paid",
+     "insurance_provider": null,
+     "insurance_status": "none",
+     "address": {
+      "address": "شارع الملك فهد 3، الرياض",
+      "city": "الرياض",
+      "lat": 24.7001,
+      "lng": 46.7001
+     },
+     "contact": null,
+     "service_type": null,
+     "createdAt": "2026-10-16T19:48:39.095Z",
+     "updatedAt": "2026-10-16T19:48:39.196Z",
+     "patient_name": "اختبار walker",
+     "patient_phone": "+966580111721",
+     "patient_age": null,
+     "patient_gender": null,
+     "patient_blood_type": null,
+     "patient_allergies": [],
+     "patient_chronic": [],
+     "attachments_count": 0,
+     "status": "active"
+    }
+   },
+   "time_to_ready_ms": 748,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | خطة الرعاية المستمرة | اW | اختبار walker | مريض مزمن | خطط الرعاي"
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "order_detail",
+     "response_ms": 508
+    },
+    {
+     "label": "عنوان الخطة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 469
+    },
+    {
+     "label": "المهام (سطر لكل مهمة)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 458
+    },
+    {
+     "label": "إنشاء الخطة",
+     "result": "UI_CHANGE",
+     "response_ms": 454
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 2,
+    "UI_CHANGE": 1
+   }
+  },
+  {
+   "route": "progress",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": {
+     "kind": "nursing",
+     "id": "d8a4024a-f86d-4118-b6e8-5fcc2c334732",
+     "tracking_id": "HC-2610-CEHDC",
+     "patient_id": "83fe496d-cce6-4827-a712-912a880735a0",
+     "universal_state": "CONFIRMED",
+     "domain_state": "CONFIRMED",
+     "total": 250,
+     "scheduled_at": "2026-10-18T07:00:00.000Z",
+     "title_ar": "رعاية يومية لكبار السن",
+     "payment_method": "card",
+     "payment_status": "paid",
+     "insurance_provider": null,
+     "insurance_status": "none",
+     "address": {
+      "address": "شارع الملك فهد 3، الرياض",
+      "city": "الرياض",
+      "lat": 24.7001,
+      "lng": 46.7001
+     },
+     "contact": null,
+     "service_type": null,
+     "createdAt": "2026-10-16T19:48:39.095Z",
+     "updatedAt": "2026-10-16T19:48:39.196Z",
+     "patient_name": "اختبار walker",
+     "patient_phone": "+966580111721",
+     "patient_age": null,
+     "patient_gender": null,
+     "patient_blood_type": null,
+     "patient_allergies": [],
+     "patient_chronic": [],
+     "attachments_count": 0,
+     "status": "active"
+    }
+   },
+   "time_to_ready_ms": 759,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | ملاحظات يومية | — | — | إضافة ملاحظة جديدة | العلامات الحيوية | الضغ"
+   },
+   "status": "TESTED",
+   "inputs_filled": 6,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "care_plan",
+     "response_ms": 492
+    },
+    {
+     "label": "الضغط",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 477
+    },
+    {
+     "label": "النبض",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 469
+    },
+    {
+     "label": "الحرارة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 509
+    },
+    {
+     "label": "SpO2",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 468
+    },
+    {
+     "label": "السكر",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 463
+    },
+    {
+     "label": "الملاحظات السريرية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 474
+    },
+    {
+     "label": "حفظ الملاحظة",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/nursing/notes",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 882
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 6,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "supplies",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": {
+     "kind": "nursing",
+     "id": "d8a4024a-f86d-4118-b6e8-5fcc2c334732",
+     "tracking_id": "HC-2610-CEHDC",
+     "patient_id": "83fe496d-cce6-4827-a712-912a880735a0",
+     "universal_state": "CONFIRMED",
+     "domain_state": "CONFIRMED",
+     "total": 250,
+     "scheduled_at": "2026-10-18T07:00:00.000Z",
+     "title_ar": "رعاية يومية لكبار السن",
+     "payment_method": "card",
+     "payment_status": "paid",
+     "insurance_provider": null,
+     "insurance_status": "none",
+     "address": {
+      "address": "شارع الملك فهد 3، الرياض",
+      "city": "الرياض",
+      "lat": 24.7001,
+      "lng": 46.7001
+     },
+     "contact": null,
+     "service_type": null,
+     "createdAt": "2026-10-16T19:48:39.095Z",
+     "updatedAt": "2026-10-16T19:48:39.196Z",
+     "patient_name": "اختبار walker",
+     "patient_phone": "+966580111721",
+     "patient_age": null,
+     "patient_gender": null,
+     "patient_blood_type": null,
+     "patient_allergies": [],
+     "patient_chronic": [],
+     "attachments_count": 0,
+     "status": "active"
+    }
+   },
+   "time_to_ready_ms": 746,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "→ | المستلزمات الطبية | اطلب المستلزمات الطبية اللازمة لزياراتك."
+   },
+   "status": "TESTED",
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "→",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 475
+    },
+    {
+     "label": "اسم المستلزم",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 516
+    },
+    {
+     "label": "الكمية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 457
+    },
+    {
+     "label": "إرسال الطلب",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: إرسال الطلب"
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 2,
+    "CRAWLER_TARGET_MISSING": 1
+   }
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "الطلبات"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 802,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "الطلبات | طلبات جديدة | مؤكدة | document | لا توجد طلبات | الرئيسية | ال"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "طلبات جديدة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 459
+    },
+    {
+     "label": "مؤكدة",
+     "result": "UI_CHANGE",
+     "response_ms": 461
+    },
+    {
+     "label": "الرئيسية",
+     "result": "UI_CHANGE",
+     "response_ms": 488
+    },
+    {
+     "label": "الطلبات",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 462
+    },
+    {
+     "label": "الوظائف",
+     "result": "UI_CHANGE",
+     "response_ms": 837
+    },
+    {
+     "label": "الأدوية",
+     "result": "UI_CHANGE",
+     "response_ms": 1922
+    },
+    {
+     "label": "الإعدادات",
+     "result": "UI_CHANGE",
+     "response_ms": 829
+    }
+   ],
+   "summary": {
+    "NO_EFFECT": 2,
+    "UI_CHANGE": 5
+   }
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "الوظائف"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 1138,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "الوظائف الطبية | تصفح الوظائف | إضافة إعلان | الوارد (ATS) | الرئيسي"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "UI_CHANGE",
+     "response_ms": 468
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 442
+    },
+    {
+     "label": "تصفح الوظائف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 502
+    },
+    {
+     "label": "إضافة إعلان",
+     "result": "UI_CHANGE",
+     "response_ms": 524
+    },
+    {
+     "label": "الوارد (ATS)",
+     "result": "UI_CHANGE",
+     "response_ms": 1356
+    },
+    {
+     "label": "(icon #5)",
+     "result": "UI_CHANGE",
+     "response_ms": 456
+    },
+    {
+     "label": "الرئيسية",
+     "result": "UI_CHANGE",
+     "response_ms": 499
+    },
+    {
+     "label": "الطلبات",
+     "result": "UI_CHANGE",
+     "response_ms": 488
+    },
+    {
+     "label": "الوظائف",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 495
+    },
+    {
+     "label": "الأدوية",
+     "result": "UI_CHANGE",
+     "response_ms": 1979
+    },
+    {
+     "label": "الإعدادات",
+     "result": "UI_CHANGE",
+     "response_ms": 880
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 9,
+    "NO_EFFECT": 2
+   }
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "الأدوية"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 2256,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "دليل الأدوية الطبي | الكل | pain (2) | بنادول اكسترا 500 ملغ ac6c8"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "(icon #0)",
+     "result": "UI_CHANGE",
+     "response_ms": 447
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 431
+    },
+    {
+     "label": "الكل",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 482
+    },
+    {
+     "label": "pain (2)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1949
+    },
+    {
+     "label": "بنادول اكسترا 500 ملغ ac6c85",
+     "result": "UI_CHANGE",
+     "response_ms": 840
+    },
+    {
+     "label": "فيتامين سي 1000 ملغ 0c652e",
+     "result": "UI_CHANGE",
+     "response_ms": 848
+    },
+    {
+     "label": "الرئيسية",
+     "result": "UI_CHANGE",
+     "response_ms": 499
+    },
+    {
+     "label": "الطلبات",
+     "result": "UI_CHANGE",
+     "response_ms": 491
+    },
+    {
+     "label": "الوظائف",
+     "result": "UI_CHANGE",
+     "response_ms": 843
+    },
+    {
+     "label": "الأدوية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 488
+    },
+    {
+     "label": "الإعدادات",
+     "result": "UI_CHANGE",
+     "response_ms": 889
+    }
+   ],
+   "summary": {
+    "UI_CHANGE": 7,
+    "NO_EFFECT": 4
+   }
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "الإعدادات"
+   ],
+   "reached_by": "TAP_PATH",
+   "params": null,
+   "time_to_ready_ms": 1142,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "الإعدادات | نبضة للتمريض | نشط | الملف الشخصي | معلومات الحساب | ‹ | الخ"
+   },
+   "status": "TESTED",
+   "inputs_filled": 3,
+   "elements": [
+    {
+     "label": "معلومات الحساب",
+     "result": "NAVIGATE",
+     "to": "profile_edit",
+     "response_ms": 984
+    },
+    {
+     "label": "الخدمات المقدمة",
+     "result": "NAVIGATE",
+     "to": "nursing_services",
+     "response_ms": 610
+    },
+    {
+     "label": "نموذج التسعير",
+     "result": "NAVIGATE",
+     "to": "nursing_pricing",
+     "response_ms": 673
+    },
+    {
+     "label": "نطاق التغطية",
+     "result": "NAVIGATE",
+     "to": "nursing_coverage",
+     "response_ms": 600
+    },
+    {
+     "label": "مواعيد العمل",
+     "result": "NAVIGATE",
+     "to": "working_hours",
+     "response_ms": 627
+    },
+    {
+     "label": "التأمين الصحي",
+     "result": "NAVIGATE",
+     "to": "insurance_config",
+     "response_ms": 2120
+    },
+    {
+     "label": "طلبات التأمين الواردة",
+     "result": "NAVIGATE",
+     "to": "insurance_requests",
+     "response_ms": 937
+    },
+    {
+     "label": "الشهادات والمؤهلات",
+     "result": "NAVIGATE",
+     "to": "certificates_config",
+     "response_ms": 965
+    },
+    {
+     "label": "الصور والوسائط",
+     "result": "NAVIGATE",
+     "to": "media_config",
+     "response_ms": 684
+    },
+    {
+     "label": "إعدادات الصفحة العامة",
+     "result": "NAVIGATE",
+     "to": "web_config",
+     "response_ms": 987
+    },
+    {
+     "label": "الاشتراكات والإعلانات",
+     "result": "NAVIGATE",
+     "to": "subscriptions_ads",
+     "response_ms": 776
+    },
+    {
+     "label": "مستوى السمعة والتقييمات",
+     "result": "NAVIGATE",
+     "to": "reputation",
+     "response_ms": 997
+    },
+    {
+     "label": "وحدة تتبع زيارات التمريض (GPS)",
+     "result": "NAVIGATE",
+     "to": "nurse_visit",
+     "response_ms": 1009
+    },
+    {
+     "label": "قائمة مهام العلامات الحيوية والرعاية",
+     "result": "NAVIGATE",
+     "to": "nurse_checklist",
+     "response_ms": 1000
+    },
+    {
+     "label": "(icon #14)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 468
+    },
+    {
+     "label": "(icon #15)",
+     "result": "UI_CHANGE",
+     "response_ms": 452
+    },
+    {
+     "label": "(icon #16)",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: الإعدادات"
+    },
+    {
+     "label": "الإشعارات",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: الإعدادات"
+    },
+    {
+     "label": "الوظائف الطبية",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: الإعدادات"
+    },
+    {
+     "label": "دليل الأدوية الطبي",
+     "result": "CRAWLER_TARGET_MISSING",
+     "error": "control not found: الإعدادات"
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 14,
+    "NO_EFFECT": 1,
+    "UI_CHANGE": 1,
+    "CRAWLER_TARGET_MISSING": 4
+   }
+  },
+  {
+   "route": "withdrawal_workflow",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 1254,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Withdraw Funds | Available for withdrawal: 0.00 SAR | BANK ACC"
+   },
+   "status": "TESTED",
+   "inputs_filled": 3,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 544
+    },
+    {
+     "label": "Al Rajhi Bank",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 537
+    },
+    {
+     "label": "Saudi National Bank (SNB)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 527
+    },
+    {
+     "label": "Riyad Bank",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 508
+    },
+    {
+     "label": "SAB (Saudi Awwal Bank)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 508
+    },
+    {
+     "label": "Alinma Bank",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 501
+    },
+    {
+     "label": "Banque Saudi Fransi (BSF)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 574
+    },
+    {
+     "label": "Bank AlJazira",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 516
+    },
+    {
+     "label": "Arab National Bank (ANB)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 499
+    },
+    {
+     "label": "Bank AlBilad",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 504
+    },
+    {
+     "label": "Emirates NBD",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 517
+    },
+    {
+     "label": "Gulf International Bank",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 547
+    },
+    {
+     "label": "NBK",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 506
+    },
+    {
+     "label": "Other",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 517
+    },
+    {
+     "label": "Account holder name (as registered) *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 543
+    },
+    {
+     "label": "IBAN *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 504
+    },
+    {
+     "label": "Withdrawal Amount (min 1 SAR) *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 499
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 16
+   }
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "الطلبات",
+    "الوظائف"
+   ],
+   "reached_by": "TAP_PATH",
+   "status": "CRAWLER_TARGET_MISSING",
+   "reason": "control not found: الطلبات",
+   "screenshot": "/tmp/nav2_home_care_MainTabs_ui.png",
+   "controls_now": [
+    "Offline",
+    "Notifications",
+    "Wallet &",
+    "Current",
+    "Visit",
+    "Care",
+    "Progress",
+    "Medical",
+    "اW",
+    "Open visit",
+    "Checklist",
+    "Home",
+    "Orders",
+    "Jobs",
+    "Drugs",
+    "Settings"
+   ],
+   "route_now": {
+    "name": "MainTabs",
+    "params": null
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "الطلبات",
+    "الأدوية"
+   ],
+   "reached_by": "TAP_PATH",
+   "status": "CRAWLER_TARGET_MISSING",
+   "reason": "control not found: الطلبات",
+   "screenshot": "/tmp/nav2_home_care_MainTabs_ui.png",
+   "controls_now": [
+    "Offline",
+    "Notifications",
+    "Wallet &",
+    "Current",
+    "Visit",
+    "Care",
+    "Progress",
+    "Medical",
+    "اW",
+    "Open visit",
+    "Checklist",
+    "Home",
+    "Orders",
+    "Jobs",
+    "Drugs",
+    "Settings"
+   ],
+   "route_now": {
+    "name": "MainTabs",
+    "params": null
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "الطلبات",
+    "الإعدادات"
+   ],
+   "reached_by": "TAP_PATH",
+   "status": "CRAWLER_TARGET_MISSING",
+   "reason": "control not found: الطلبات",
+   "screenshot": "/tmp/nav2_home_care_MainTabs_ui.png",
+   "controls_now": [
+    "Offline",
+    "Notifications",
+    "Wallet &",
+    "Current",
+    "Visit",
+    "Care",
+    "Progress",
+    "Medical",
+    "اW",
+    "Open visit",
+    "Checklist",
+    "Home",
+    "Orders",
+    "Jobs",
+    "Drugs",
+    "Settings"
+   ],
+   "route_now": {
+    "name": "MainTabs",
+    "params": null
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
+  },
+  {
+   "route": "MainTabs",
+   "ui_path": [
+    "الوظائف",
+    "(icon #1)"
+   ],
+   "reached_by": "TAP_PATH",
+   "status": "CRAWLER_TARGET_MISSING",
+   "reason": "control not found: الوظائف",
+   "screenshot": "/tmp/nav2_home_care_MainTabs_ui.png",
+   "controls_now": [
+    "Offline",
+    "Notifications",
+    "Wallet &",
+    "Current",
+    "Visit",
+    "Care",
+    "Progress",
+    "Medical",
+    "اW",
+    "Open visit",
+    "Checklist",
+    "Home",
+    "Orders",
+    "Jobs",
+    "Drugs",
+    "Settings"
+   ],
+   "route_now": {
+    "name": "MainTabs",
+    "params": null
+   },
+   "pending": [],
+   "failed_requests": [],
+   "js": [],
+   "bad_reads": []
+  },
+  {
+   "route": "profile_edit",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 740,
+   "render": {
+    "js": [],
+    "bad_reads": [
+     "404 GET /provider/profile/image/status"
+    ],
+    "heading": "← | Account Info | Profile | Public page | H |  For a professional loo"
+   },
+   "status": "TESTED",
+   "inputs_filled": 5,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 528
+    },
+    {
+     "label": "Profile",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 482
+    },
+    {
+     "label": "Public page",
+     "result": "UI_CHANGE",
+     "response_ms": 493
+    },
+    {
+     "label": "Upload Photo",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 498
+    },
+    {
+     "label": "Improve Photo",
+     "result": "UI_CHANGE",
+     "response_ms": 498
+    },
+    {
+     "label": "Full Name (Arabic) *",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 559
+    },
+    {
+     "label": "Full Name (English) *",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "Bio (Arabic)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 496
+    },
+    {
+     "label": "Bio (English)",
+     "result": "SKIPPED_DESTRUCTIVE"
+    },
+    {
+     "label": "Website",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 481
+    },
+    {
+     "label": "Save Changes",
+     "result": "UI_CHANGE",
+     "response_ms": 515
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 5,
+    "UI_CHANGE": 3,
+    "SKIPPED_DESTRUCTIVE": 2
+   }
+  },
+  {
+   "route": "nursing_services",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 399,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Services Offered & Supplies | Important Clinical Supplies Ki"
+   },
+   "status": "TESTED",
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "profile_edit",
+     "response_ms": 606
+    },
+    {
+     "label": "Wound Dressing",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 603
+    },
+    {
+     "label": "Ins.",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 569
+    },
+    {
+     "label": "(icon #3)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 454
+    },
+    {
+     "label": "Vital Signs Monitoring",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 622
+    },
+    {
+     "label": "(icon #6)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 441
+    },
+    {
+     "label": "Injection Administration",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 564
+    },
+    {
+     "label": "(icon #9)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 433
+    },
+    {
+     "label": "Catheterization",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 571
+    },
+    {
+     "label": "(icon #12)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 431
+    },
+    {
+     "label": "Elderly Care",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 578
+    },
+    {
+     "label": "(icon #15)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 445
+    },
+    {
+     "label": "Postpartum Care",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 604
+    },
+    {
+     "label": "(icon #18)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 460
+    },
+    {
+     "label": "(icon #19)",
+     "result": "UI_CHANGE",
+     "response_ms": 470
+    },
+    {
+     "label": "Save Services & Options",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/provider/settings/delta",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 962
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 13,
+    "UI_CHANGE": 1,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "nursing_pricing",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 398,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Nursing Pricing Models | Configure pricing packages for home"
+   },
+   "status": "TESTED",
+   "inputs_filled": 6,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 498
+    },
+    {
+     "label": "(icon #1)",
+     "result": "UI_CHANGE",
+     "response_ms": 435
+    },
+    {
+     "label": "Hourly Fee (SAR)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 510
+    },
+    {
+     "label": "(icon #3)",
+     "result": "UI_CHANGE",
+     "response_ms": 440
+    },
+    {
+     "label": "Daily Fee (SAR)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 518
+    },
+    {
+     "label": "(icon #5)",
+     "result": "UI_CHANGE",
+     "response_ms": 458
+    },
+    {
+     "label": "(icon #6)",
+     "result": "UI_CHANGE",
+     "response_ms": 459
+    },
+    {
+     "label": "Save Pricing Models",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/provider/settings/delta",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 859
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "UI_CHANGE": 4,
+    "NO_EFFECT": 2,
+    "WRITE": 1
+   }
+  },
+  {
+   "route": "nursing_coverage",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 400,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Nursing Coverage Area | 15 KM | GPS Base Location Verification"
+   },
+   "status": "TESTED",
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "MainTabs",
+     "response_ms": 474
+    },
+    {
+     "label": "Verify Current GPS Location",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/nursing/coverage/verify-gps",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 828
+    },
+    {
+     "label": "5 KM",
+     "result": "UI_CHANGE",
+     "response_ms": 467
+    },
+    {
+     "label": "10 KM",
+     "result": "UI_CHANGE",
+     "response_ms": 467
+    },
+    {
+     "label": "15 KM",
+     "result": "UI_CHANGE",
+     "response_ms": 469
+    },
+    {
+     "label": "20 KM",
+     "result": "UI_CHANGE",
+     "response_ms": 492
+    },
+    {
+     "label": "30 KM",
+     "result": "UI_CHANGE",
+     "response_ms": 456
+    },
+    {
+     "label": "50 KM",
+     "result": "UI_CHANGE",
+     "response_ms": 478
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "WRITE": 1,
+    "UI_CHANGE": 6
+   }
+  },
+  {
+   "route": "working_hours",
+   "ui_path": [],
+   "reached_by": "TAP_PATH",
+   "params": {
+    "param": null
+   },
+   "time_to_ready_ms": 399,
+   "render": {
+    "js": [],
+    "bad_reads": [],
+    "heading": "← | Working Hours | SHIFTS | Morning (08:00 - 16:00) | Evening (16:0"
+   },
+   "status": "TESTED",
+   "inputs_filled": 5,
+   "elements": [
+    {
+     "label": "←",
+     "result": "NAVIGATE",
+     "to": "nursing_coverage",
+     "response_ms": 504
+    },
+    {
+     "label": "(icon #1)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 441
+    },
+    {
+     "label": "(icon #2)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 436
+    },
+    {
+     "label": "(icon #3)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 443
+    },
+    {
+     "label": "Max Daily Visits",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 507
+    },
+    {
+     "label": "(icon #5)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 435
+    },
+    {
+     "label": "Save Schedule",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/provider/schedule/settings",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 843
+    }
+   ],
+   "summary": {
+    "NAVIGATE": 1,
+    "NO_EFFECT": 5,
+    "WRITE": 1
+   }
+  }
+ ],
+ "registered": [
+  "MainTabs",
+  "order_detail",
+  "checklist",
+  "checkin",
+  "care_plan",
+  "progress",
+  "visit_report",
+  "supplies",
+  "nursing_services",
+  "nursing_pricing",
+  "nursing_coverage",
+  "promotions",
+  "create_promo",
+  "web_config",
+  "subscriptions_ads",
+  "affiliate",
+  "reputation",
+  "crm",
+  "revenue_insights",
+  "sos_dispatch",
+  "gps_router",
+  "nurse_visit",
+  "nurse_checklist",
+  "profile_edit",
+  "medical_jobs",
+  "drug_index",
+  "insurance_config",
+  "certificates_config",
+  "media_config",
+  "wallet",
+  "chat",
+  "insurance_requests",
+  "working_hours",
+  "notifications",
+  "password",
+  "2fa",
+  "devices"
+ ],
+ "reloads": 78
+}

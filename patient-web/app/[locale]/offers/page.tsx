@@ -2,7 +2,9 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { requirePatientAccess } from "@/lib/auth/session";
+import { getOptionalPatientAccessToken } from "@/lib/auth/session";
+import { signInHref } from "@/lib/services/guest";
+import { GuestAction } from "@/components-next/guest/guest-service";
 import { getOffers } from "@/lib/api/offers-server";
 import { isLocale } from "@/lib/i18n";
 import { parseOffers } from "@/lib/loyalty/view";
@@ -21,17 +23,23 @@ const OFFER = SERVICE_ICONS.points;
 /**
  * Offers (merge map 2, section 7: the list and the detail stay): the live campaigns of GET /home/offers as cards with the
  * server's title, provider, discount, price and old price. No discount or price is computed or invented here.
+ * Issue 1550: GET /home/offers is public, so a guest sees the same list; booking an offer is what asks for the sign-in.
  */
 export default async function OffersPage({ params }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
-  const token = await requirePatientAccess(locale);
+  const token = await getOptionalPatientAccessToken();
   const t = await getTranslations("OffersWeb");
+  const g = await getTranslations("GuestServices");
   const rs = await getTranslations("RouteState");
+  const guestAction = token ? null : (
+    <GuestAction id="offers-sign-in" title={g("offers.actionTitle")} body={g("offers.actionBody")} label={g("offers.action")} href={signInHref(locale, `/${locale}/offers`)} />
+  );
   const frame = (body: ReactNode) => (
-    <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/dashboard`}>
+    <ConsultPage locale={locale} title={t("title")} backHref={token ? `/${locale}/dashboard` : `/${locale}`}>
       {body}
+      {guestAction}
     </ConsultPage>
   );
   const failed = () => frame(<ConsultState kind="error" title={t("errorTitle")} body={t("error")} retryLabel={rs("retry")} />);
@@ -42,7 +50,8 @@ export default async function OffersPage({ params }: Props) {
   } catch {
     return failed();
   }
-  if (response.status === 401) redirect(`/${locale}/login`);
+  // an expired session: sign in again and come back here (a guest never gets 401 from this public read)
+  if (response.status === 401 && token) redirect(signInHref(locale, `/${locale}/offers`));
   if (!response.ok) return failed();
   const offers = parseOffers(await response.json().catch(() => null), locale);
   if (offers.length === 0) return frame(<ConsultState kind="empty" icon={OFFER.icon} tone={OFFER.tone} title={t("emptyTitle")} body={t("empty")} />);

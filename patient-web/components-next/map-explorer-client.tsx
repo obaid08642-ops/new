@@ -11,7 +11,8 @@ import { mapBookHref } from "@/lib/map/book-href";
 import forms from "@/components-next/consult/consult.module.css";
 import styles from "./map-explorer.module.css";
 
-const MAP_URL = "/api/patient/providers/map?radius=25";
+/** Issue 1550: the public read (no session needed); the patient proxy answered 401 to a guest and the map stayed empty. */
+const MAP_URL = "/api/map/providers";
 
 type Labels = {
   searchPh: string;
@@ -51,7 +52,7 @@ const TYPE_ICON: Record<ProviderType, { icon: FillIconName; tone: ServiceTone }>
 };
 
 /**
- * The facilities map (GET /providers/map?radius=25): a search field, the type filters, the list of providers with directions
+ * The facilities map (GET /providers/map, public): a search field, the type filters, the list of providers with directions
  * and booking, and the OpenStreetMap pane of the chosen one. The list is the server's; nothing is invented when it is empty.
  */
 export function MapExplorerClient({ locale, labels }: { locale: string; labels: Labels }) {
@@ -59,6 +60,9 @@ export function MapExplorerClient({ locale, labels }: { locale: string; labels: 
   // The list the last visit in this tab received shows at once; the request below replaces it (lib/swr-lite.ts).
   const [providers, setProviders] = useState<Provider[]>(() => peekSwr<Provider[]>(MAP_URL) ?? []);
   const [loading, setLoading] = useState(() => peekSwr<Provider[]>(MAP_URL) === undefined);
+  // the list could not be read (no answer or an error answer): said so with a retry, never shown as "no facilities"
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   const [selectedType, setSelectedType] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
@@ -68,14 +72,16 @@ export function MapExplorerClient({ locale, labels }: { locale: string; labels: 
     (async () => {
       try {
         const res = await fetch(MAP_URL);
-        if (res.ok) {
+        if (!res.ok) {
+          if (!cancelled && peekSwr<Provider[]>(MAP_URL) === undefined) setFailed(true);
+        } else {
           const data = await res.json().catch(() => null);
           const list = Array.isArray(data) ? data : data?.data ?? [];
           if (!cancelled && Array.isArray(list)) {
             const next: Provider[] =
               list.map((p: Record<string, any>) => ({
                 id: String(p.id ?? p._id ?? ""),
-                name: String(p.name_ar ?? p.name ?? p.clinic_name ?? ""),
+                name: String((locale === "ar" || locale === "ur" ? p.name_ar ?? p.name_en : p.name_en ?? p.name_ar) ?? p.name ?? p.clinic_name ?? ""),
                 type: p.type || p.provider_type || "doctor",
                 rating: typeof p.rating === "number" ? p.rating : undefined,
                 distance_km: typeof p.distance_km === "number" ? p.distance_km : undefined,
@@ -86,10 +92,12 @@ export function MapExplorerClient({ locale, labels }: { locale: string; labels: 
               }));
             putSwr(MAP_URL, next);
             setProviders(next);
+            setFailed(false);
           }
         }
       } catch {
-        // an empty list is shown, never made-up providers
+        // never made-up providers: the error line and its retry are shown instead
+        if (!cancelled && peekSwr<Provider[]>(MAP_URL) === undefined) setFailed(true);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -97,7 +105,7 @@ export function MapExplorerClient({ locale, labels }: { locale: string; labels: 
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [attempt, locale]);
 
   const filtered = useMemo(() => {
     return providers.filter((p) => {
@@ -138,6 +146,13 @@ export function MapExplorerClient({ locale, labels }: { locale: string; labels: 
 
         {loading ? (
           <p className={styles.state} role="status"><Spinner />{t("mapLoading")}</p>
+        ) : failed ? (
+          <div className={`${styles.state} ${styles.stateError}`} role="alert">
+            <p>{t("mapUnavailable")}</p>
+            <button type="button" className="nabd-button nabd-button--outline nabd-button--sm" onClick={() => { setFailed(false); setLoading(true); setAttempt((n) => n + 1); }}>
+              <span className="nabd-button__label">{t("mapRetry")}</span>
+            </button>
+          </div>
         ) : filtered.length === 0 ? (
           <p className={styles.state} role="status">{labels.noProviders}</p>
         ) : (

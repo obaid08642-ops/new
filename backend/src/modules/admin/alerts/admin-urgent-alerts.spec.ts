@@ -17,7 +17,8 @@ import { UpdateAdminAlertRulesDto } from './admin-urgent-alerts.dto';
 
 jest.setTimeout(120_000);
 
-const ADMIN = { id: 'adm-1', role: 'admin', email: 'ops@nabd.test' };
+// Owner decision 29: the built-in admin role grants nothing by itself; the full-access admin here is the owner.
+const ADMIN = { id: 'adm-1', role: 'super_admin', email: 'ops@nabd.test' };
 const FINANCE_ONLY = { id: 'adm-2', role: 'admin', email: 'fin@nabd.test', custom_role_keys: [] as string[] };
 
 describe('AdminUrgentAlertsService', () => {
@@ -44,7 +45,7 @@ describe('AdminUrgentAlertsService', () => {
     svc = new AdminUrgentAlertsService(conn, mail as never, audit as never);
     await svc.onModuleInit();
     await col('users').insertMany([
-      { id: ADMIN.id, role: 'admin', email: ADMIN.email, active: true },
+      { id: ADMIN.id, role: 'super_admin', email: ADMIN.email, active: true },
       // Not an admin-panel role (never e-mailed); holds command.center.view + order.read, not finance.read.
       { id: 'sup-1', role: 'support_agent', email: 'support@nabd.test', active: true },
       { id: 'adm-off', role: 'admin', email: 'off@nabd.test', active: false },
@@ -155,8 +156,8 @@ describe('AdminUrgentAlertsService', () => {
     expect(after.data.map((a: any) => [a.kind, a.read])).toEqual([['payment_failures', false], ['order_stuck', true]]);
     expect((await svc.list(ADMIN as never, 1, 20, true)).total).toBe(1);
     // Another admin's read state is their own.
-    await col('users').insertOne({ id: 'adm-3', role: 'admin', email: 'x@nabd.test' } as never);
-    expect(await svc.unreadCount({ id: 'adm-3', role: 'admin' } as never)).toBe(2);
+    await col('users').insertOne({ id: 'adm-3', role: 'super_admin', email: 'x@nabd.test' } as never);
+    expect(await svc.unreadCount({ id: 'adm-3', role: 'super_admin' } as never)).toBe(2);
     // support_agent holds command.center.view + order.read but not finance.read: sees only the order alert.
     const sup = await svc.list({ id: 'sup-1', role: 'support_agent' } as never, 1, 20);
     expect(sup.data.map((a: any) => a.kind)).toEqual(['order_stuck']);
@@ -204,10 +205,11 @@ describe('AdminUrgentAlertsController guards', () => {
     expect(perms('POST', 'evaluate')).toEqual([Permission.OPS_CRONS_RUN]);
   });
 
-  it('the built-in admin role holds every permission these routes need', () => {
+  it('the owner (super_admin) holds every permission these routes need; the built-in admin role grants none (owner decision 29)', () => {
     for (const p of [Permission.COMMAND_CENTER_VIEW, Permission.OPS_CRONS_RUN, Permission.ORDER_READ, Permission.FINANCE_READ]) {
-      expect(ROLE_PERMISSIONS[UserRole.ADMIN]).toContain(p);
+      expect(ROLE_PERMISSIONS[UserRole.SUPER_ADMIN]).toContain(p);
     }
+    expect(ROLE_PERMISSIONS[UserRole.ADMIN]).toEqual([]);
   });
 
   it('the rules DTO rejects unknown kinds, non-integer thresholds and extra fields', async () => {

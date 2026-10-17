@@ -6,8 +6,6 @@ import { SupportRequest, SupportStatus, SupportCategory, PatientSettings } from 
 import { SupportRequestRepository } from "./repositories/supportrequest.repository";
 import { PatientSettingsRepository } from "./repositories/patientsettings.repository";
 
-const FAQ_LANGS = ['ar', 'en', 'ur', 'hi', 'bn', 'fil'] as const;
-type FaqLang = (typeof FAQ_LANGS)[number];
 
 @Injectable()
 export class SupportService {
@@ -99,26 +97,12 @@ export class SupportService {
     try {
       const rows: any[] = await this.conn.collection('faqs').find({ active: { $ne: false } }).sort({ sort: 1 }).limit(100).toArray();
       if (rows.length) return rows.map((r: any) => ({ id: r.id || String(r._id), question: r.question_ar, question_en: r.question_en || null, answer: r.answer_ar, answer_en: r.answer_en || null }));
-    } catch { /* fall through to defaults */ }
-    // issue 1585: the built-in fallback carries every app language in the same shape as stored FAQs
-    // (question/answer = Arabic, question_en/answer_en = English) plus question_<lang>/answer_<lang> for ur, hi, bn, fil.
-    return SupportService.DEFAULT_FAQS.map((f) => ({ id: f.id, question: f.question.ar, answer: f.answer.ar, ...Object.fromEntries(FAQ_LANGS.flatMap((l) => [[`question_${l}`, f.question[l]], [`answer_${l}`, f.answer[l]]])) }));
+    } catch { /* collection unavailable: the list is empty */ }
+    // No placeholder questions: until the admin writes FAQs the list is empty and the app says so.
+    return [];
   }
 
-  private static readonly DEFAULT_FAQS: ReadonlyArray<{ id: string; question: Record<FaqLang, string>; answer: Record<FaqLang, string> }> = [
-    {
-      id: '1',
-      question: { ar: 'كيف أحجز موعد؟', en: 'How do I book an appointment?', ur: 'میں اپائنٹمنٹ کیسے بک کروں؟', hi: 'मैं अपॉइंटमेंट कैसे बुक करूँ?', bn: 'আমি কীভাবে অ্যাপয়েন্টমেন্ট বুক করব?', fil: 'Paano ako magpapa-book ng appointment?' },
-      answer: { ar: 'يمكنك الحجز من خلال قسم العيادات', en: 'You can book from the clinics section.', ur: 'آپ کلینکس کے سیکشن سے بک کر سکتے ہیں۔', hi: 'आप क्लिनिक सेक्शन से बुक कर सकते हैं।', bn: 'আপনি ক্লিনিক বিভাগ থেকে বুক করতে পারেন।', fil: 'Maaari kang mag-book mula sa seksyon ng mga klinika.' },
-    },
-    {
-      id: '2',
-      question: { ar: 'هل التأمين مغطى؟', en: 'Is insurance covered?', ur: 'کیا انشورنس کور ہوتی ہے؟', hi: 'क्या बीमा कवर होता है?', bn: 'বিমা কি কভার করা হয়?', fil: 'Sakop ba ng insurance?' },
-      answer: { ar: 'نعم، ندعم معظم شركات التأمين', en: 'Yes, we support most insurance companies.', ur: 'جی ہاں، ہم زیادہ تر انشورنس کمپنیوں کو سپورٹ کرتے ہیں۔', hi: 'हाँ, हम अधिकांश बीमा कंपनियों का समर्थन करते हैं।', bn: 'হ্যাঁ, আমরা বেশিরভাগ বিমা কোম্পানি সমর্থন করি।', fil: 'Oo, sinusuportahan namin ang karamihan ng mga kumpanya ng insurance.' },
-    },
-  ];
-
-  /** P6.x-13: admin-managed FAQs (public list falls back to defaults when empty). */
+  /** P6.x-13: admin-managed FAQs (the public list is empty until the admin writes some). */
   async listFaqsAdmin(): Promise<any[]> {
     return this.conn.collection('faqs').find({}).sort({ sort: 1 }).limit(200).toArray();
   }
@@ -144,7 +128,28 @@ export class SupportService {
     return { ok: true };
   }
 
-  async submitFeedback(user_id: string) {
-    return { success: true, message: 'شكرًا لملاحظاتك!' };
+  /**
+   * The patient's feedback is kept as a support request (category by the kind of feedback), so it reaches the same admin
+   * queue as every other message from a patient. It used to answer success and keep nothing.
+   */
+  async submitFeedback(user: any, body: { message: string; rating?: string | number; category?: string; type?: string }) {
+    const message = String(body?.message ?? '').trim();
+    if (!message) throw new BadRequestException('message required');
+    const kind = String(body.category || body.type || 'general').trim().toLowerCase();
+    const category = (({ suggestion: SupportCategory.SUGGESTION, complaint: SupportCategory.COMPLAINT, issue: SupportCategory.TECHNICAL, problem: SupportCategory.TECHNICAL } as Record<string, SupportCategory>)[kind]) ?? SupportCategory.GENERAL;
+    const rating = body.rating === undefined || body.rating === null ? '' : ` (${body.rating})`;
+    const r = await this.req.create({
+      user_id: user.id,
+      user_name: user.full_name,
+      user_phone: user.phone,
+      category,
+      subject: `feedback: ${kind}${rating}`.slice(0, 120),
+      message,
+      attachments: [],
+      source_role: user.role || 'patient',
+      priority: 'low',
+      thread: [{ by: user.id, role: user.role || 'patient', message, at: new Date() }],
+    });
+    return { success: true, id: r.id, tracking_id: r.tracking_id };
   }
 }

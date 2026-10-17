@@ -12,6 +12,18 @@ export class LabService extends Document {
   @Prop() short_code?: string; // e.g., CBC, FBS, TSH
   @Prop() description_ar?: string;
   @Prop() description_en?: string;
+  // #1556 F: names, descriptions and preparation in the six app languages, and the published content
+  // (purpose, turnaround) from catalogs/content/services-content.v1.json.
+  @Prop() name_ur?: string;
+  @Prop() name_hi?: string;
+  @Prop() name_bn?: string;
+  @Prop() name_tl?: string;
+  @Prop() description_ur?: string;
+  @Prop() description_hi?: string;
+  @Prop() description_bn?: string;
+  @Prop() description_tl?: string;
+  @Prop({ type: Object }) content?: Record<string, unknown>;
+  @Prop() needs_price?: boolean;
   @Prop({ required: true, index: true }) category: string; // blood | hormones | diabetes | vitamins | cardiac | imaging | kidney | liver
   @Prop({ default: 'blood' }) sample_type: string; // blood | urine | imaging | swab
   @Prop({ required: true }) price: number;

@@ -238,6 +238,7 @@ export class AdminGovernanceService {
 
 import { SystemConfig, SystemConfigSchema } from '../../../schemas/system-config.schema';
 
+import { Permission, RequirePermissions } from '../../../common/permissions';
 @Controller('admin/governance')
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
@@ -319,6 +320,7 @@ export class CommissionsController {
     return out;
   }
 
+  @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
   @Put(':id')
   async update(@Param('id') id: string, @Body() body: UpdateDto) {
     const set: any = {};
