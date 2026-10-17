@@ -16,6 +16,16 @@ def run():
     pw = sync_playwright().start()
     browser = pw.chromium.launch(executable_path=os.environ.get('CHROMIUM') or None, args=['--disable-dev-shm-usage'])
     ctx = browser.new_context(locale='ar-SA', viewport={'width': 1440, 'height': 900})
+    # D-35: the admin BFF proxies with the browser's admin_device cookie; reuse the gate run's enrolled browser device
+    # (j_admin saves it), as j_admin_clicks does, or this fresh profile is refused as an unenrolled device.
+    import j_admin
+    try:
+        with open(j_admin.DEVICE_FILE) as f:
+            dev = f.read().strip()
+    except OSError:
+        dev = ''
+    if len(dev) >= 16:
+        ctx.add_cookies([{'name': 'admin_device', 'value': dev, 'domain': '127.0.0.1', 'path': '/'}])
     page = ctx.new_page()
     page.on('dialog', lambda d: d.accept())
     journey('admin locations: empty search and the reason a parent cannot be disabled')
