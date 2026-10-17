@@ -70,7 +70,7 @@ jobs:
           OUT=/tmp/scale-rehearsal MONGO_MODE=docker VUS=20 DURATION=60s bash tools/perf/scale-rehearsal/run.sh
           cat /tmp/scale-rehearsal/report.md >> "$GITHUB_STEP_SUMMARY"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: scale-rehearsal-${{ github.run_id }}
