@@ -54,9 +54,9 @@ export type BroadcastRequest =
   /** The medicines of a saved prescription (backend `prescription_id`); quantity is the pharmacy's to confirm. */
   | { kind: "prescription"; prescriptionId: string; names: string[]; fulfillment?: "delivery" | "pickup" }
   /**
-   * The cart of this browser (checkout). `paymentMode` and `fulfillment` are the draft's own fields (`payment_mode`,
-   * `fulfillment`): how the patient really pays is decided when an offer is selected, so no price, policy number or
-   * identity number is sent here. A prescription medicine is ordered with the saved prescription that covers it.
+   * The cart of this browser (checkout). `paymentMode` and `fulfillment` are the draft's own fields (`payment_mode` and
+   * `payment_method`, `fulfillment`): insurance or self-pay is chosen before sending (decision 30) and the offer is selected
+   * with it; no price, policy number or identity number is sent here. A prescription medicine is ordered with the saved prescription that covers it.
    * `rxNames`: the medicines of the prescription the patient picked in rx-order (decision 39), sent before the cart's lines.
    */
   | { kind: "cart"; lines: BroadcastCartLine[]; paymentMode: "cash" | "insurance"; fulfillment: "delivery" | "pickup"; prescriptionId?: string; rxNames?: string[] };
@@ -64,12 +64,14 @@ export type BroadcastRequest =
 const MAX_LINE_QTY = 99;
 
 export function buildBroadcastBody(request: BroadcastRequest, address: DeliveryAddress & { lat: number; lng: number }) {
-  const base = { delivery_address: toBroadcastAddress(address), fulfillment: "delivery", payment_mode: "cash" };
+  const base = { delivery_address: toBroadcastAddress(address), fulfillment: "delivery", payment_mode: "cash", payment_method: "cash" };
   if (request.kind === "cart") {
     return {
       ...base,
       fulfillment: request.fulfillment,
       payment_mode: request.paymentMode,
+      // decision 30: the choice made before sending; the broadcast reads payment_method (D-30 contract)
+      payment_method: request.paymentMode === "insurance" ? "insurance" : "cash",
       items: [
         ...(request.rxNames ?? []).map((name) => ({ raw_name: name.slice(0, 240), qty: 1, intake_source: "prescription" })),
         ...request.lines.map((line) => ({

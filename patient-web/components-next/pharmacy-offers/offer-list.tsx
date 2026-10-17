@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
-import { Radio, Segmented, StatusChip } from "@/components-next/ui-generated/components/Controls";
+import { Segmented, StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { buildOfferSelectionRequest, type PharmacyCoverageMode } from "@/lib/api/pharmacy-actions";
 import { formatKilometres, formatMinutes, formatMoney, formatRemaining, formatWhen } from "./format";
@@ -57,17 +57,21 @@ export function lowestPriceIds(offers: OfferView[]): Set<string> {
 
 type Props = {
   orderId: string;
+  /**
+   * Decision 30 (needs-review journeys 24, issue 1033): insurance or self-pay was chosen when the request was sent (the
+   * order's `payment_mode`); every offer is selected with that choice, never a new one per offer.
+   */
+  coverage: PharmacyCoverageMode;
   /** `refresh` stays on the page after a selection (the order's offers page); `tracking` goes to the order's tracking. */
   after: "refresh" | "tracking";
 };
 
-export function OfferList({ orderId, offers, after }: Props & { offers: OfferView[] }) {
+export function OfferList({ orderId, offers, after, coverage }: Props & { offers: OfferView[] }) {
   const t = useTranslations("PharmacyOffers");
   const locale = useLocale();
   const router = useRouter();
   const [sort, setSort] = useState<SortKey>("price");
   const [now, setNow] = useState<number | null>(null);
-  const [modes, setModes] = useState<Record<string, PharmacyCoverageMode>>({});
   const action = usePharmacyAction();
   const [failedOffer, setFailedOffer] = useState<string | null>(null);
 
@@ -98,7 +102,8 @@ export function OfferList({ orderId, offers, after }: Props & { offers: OfferVie
   const hasNear = offers.some((offer) => offer.distanceKm !== undefined);
 
   async function select(offer: OfferView) {
-    const mode = modes[offer.id] ?? "cash";
+    const mode = coverage;
+    if (mode === "insurance" && !offer.insuranceReady) return;
     const request = buildOfferSelectionRequest(orderId, offer.id, mode);
     if (!request || action.pending) return;
     setFailedOffer(null);
@@ -134,8 +139,9 @@ export function OfferList({ orderId, offers, after }: Props & { offers: OfferVie
           const remaining = now !== null && offer.expiresAt ? new Date(offer.expiresAt).getTime() - now : null;
           // the absolute time is written by the browser, after mount, in the reader's own time zone (not on the server: see LocalTime)
           const until = now !== null && offer.expiresAt ? formatWhen(locale, offer.expiresAt) : null;
-          const mode = modes[offer.id] ?? "cash";
-          const selectable = offer.open && !gone && offer.total !== undefined;
+          // an insurance order is never sent to a pharmacy that does not take insurance (decision 30)
+          const outOfNetwork = coverage === "insurance" && !offer.insuranceReady;
+          const selectable = offer.open && !gone && offer.total !== undefined && !outOfNetwork;
           const meta = [
             offer.distanceKm !== undefined ? t("distanceAway", { distance: formatKilometres(locale, offer.distanceKm) }) : null,
             offer.preparationMinutes !== undefined ? t("ready", { time: formatMinutes(locale, offer.preparationMinutes) }) : null,
@@ -208,15 +214,8 @@ export function OfferList({ orderId, offers, after }: Props & { offers: OfferVie
               ) : null}
               {offer.open ? (
                 <div className={styles.pick}>
-                  {offer.insuranceReady ? (
-                    <>
-                      <p className={styles.pickLegend} id={`coverage-${offer.id}`}>{t("coverageLegend")}</p>
-                      <div className={styles.pickGroup} role="radiogroup" aria-labelledby={`coverage-${offer.id}`}>
-                        <Radio label={t("coverageCash")} selected={mode === "cash"} disabled={action.pending || gone} onChange={() => setModes((current) => ({ ...current, [offer.id]: "cash" }))} divider />
-                        <Radio label={t("coverageInsurance")} selected={mode === "insurance"} disabled={action.pending || gone} onChange={() => setModes((current) => ({ ...current, [offer.id]: "insurance" }))} />
-                      </div>
-                    </>
-                  ) : null}
+                  <p className={styles.pickLegend}>{coverage === "insurance" ? t("coverageChosenInsurance") : t("coverageChosenCash")}</p>
+                  {outOfNetwork ? <p className={styles.note} role="note">{t("coverageNotInNetwork")}</p> : null}
                   <div className={styles.pickAction}>
                     <Button
                       label={action.pending && action.activeId?.startsWith(`select:${offer.id}:`) ? t("selecting") : t("selectOffer")}

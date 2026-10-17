@@ -40,7 +40,7 @@ import {
  * fees, totals, distances and expiry are the server's numbers and are only formatted here.
  *
  * Choosing an offer is a mutation (POST .../offers/:offerId/select): the card is marked, the footer shows the server's
- * total and the coverage, and one tap on "confirm" sends it. The control is disabled while it is pending, a retry sends
+ * total and the payment chosen when the request was sent (decision 30), and one tap on "confirm" sends it. The control is disabled while it is pending, a retry sends
  * the same idempotency key, and a refusal shows the server's reason.
  */
 
@@ -59,7 +59,6 @@ export default function BroadcastStatusScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [sort, setSort] = useState<OfferSort>('price');
   const [pickedId, setPickedId] = useState<string | null>(null);
-  const [coverage, setCoverage] = useState<Coverage>('cash');
   const [confirming, setConfirming] = useState(false);
   const [pickError, setPickError] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
@@ -68,7 +67,6 @@ export default function BroadcastStatusScreen() {
   const [now, setNow] = useState(() => Date.now());
 
   const hasData = useRef(false);
-  const coverageTouched = useRef(false);
   const phaseRef = useRef<string>('searching');
   const submitted = useRef(false);
   const inFlight = useRef(false); // set at once on a tap, before the next render shows the disabled control
@@ -93,7 +91,6 @@ export default function BroadcastStatusScreen() {
       if (orderRes.status === 'fulfilled') {
         const parsed = parseOrder(orderRes.value);
         setOrder(parsed);
-        if (!coverageTouched.current) setCoverage(defaultCoverage(parsed));
       } else {
         logError('pharmacy:offers-order', orderRes.reason);
       }
@@ -114,6 +111,9 @@ export default function BroadcastStatusScreen() {
     }, [load]),
   );
 
+  // Decision 30 (needs-review journeys 24, issue 1033): insurance or self-pay was chosen when the request was sent; an offer
+  // is selected with that choice, never a new one per offer.
+  const coverage: Coverage = defaultCoverage(order);
   const phase = offerPhase(order);
   phaseRef.current = phase;
 
@@ -157,8 +157,9 @@ export default function BroadcastStatusScreen() {
 
   const confirm = async () => {
     if (!orderId || !picked || confirming || submitted.current || inFlight.current) return;
+    if (coverage === 'insurance' && !picked.insuranceReady) return;
     inFlight.current = true;
-    const mode: Coverage = coverage === 'insurance' && !picked.insuranceReady ? 'cash' : coverage;
+    const mode: Coverage = coverage;
     const slot = `${picked.id}:${mode}`;
     let key = keys.current.get(slot);
     if (!key) {
@@ -270,10 +271,7 @@ export default function BroadcastStatusScreen() {
   const ended = phase === 'review' && open.length === 0;
   const sortOptions = available.map((v) => ({ value: v, label: k(`pharmacy.offers.sort.${v}`) }));
   const pickedName = picked ? offerName(picked, lang) ?? k('pharmacy.offers.pharmacyFallback') : '';
-  const coverageOptions = [
-    { value: 'cash', label: k('pharmacy.offers.coverage.cash') },
-    { value: 'insurance', label: k('pharmacy.offers.coverage.insurance'), disabled: picked ? !picked.insuranceReady : false },
-  ];
+  const outOfNetwork = Boolean(picked && coverage === 'insurance' && !picked.insuranceReady);
 
   const footer = picked ? (
     <StickyFooter theme={theme} direction={dir} testID="offer-confirm-bar">
@@ -284,10 +282,11 @@ export default function BroadcastStatusScreen() {
             {picked.totals.total !== null ? <Money amount={picked.totals.total} currency={picked.totals.currency} /> : null}
           </View>
         </View>
-        <Segmented options={coverageOptions} value={coverage === 'insurance' && !picked.insuranceReady ? 'cash' : coverage} onChange={(v) => { coverageTouched.current = true; setCoverage(v === 'insurance' ? 'insurance' : 'cash'); }} label={k('pharmacy.offers.coverage.label')} size="sm" disabled={confirming} theme={theme} />
+        <Text testID="offer-coverage" style={{ ...scale(t, 'small', 'medium'), color: c.text.primary, ...flow }}>{coverage === 'insurance' ? k('pharmacy.offers.coverage.chosenInsurance') : k('pharmacy.offers.coverage.chosenCash')}</Text>
+        {outOfNetwork ? <Notice tone="warning" text={k('pharmacy.offers.coverage.notInNetwork')} /> : null}
         <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('pharmacy.offers.noPaymentNow')}</Text>
         {pickError ? <Notice tone="danger" text={k(pickError)} /> : null}
-        <Button label={pickError ? k('pharmacy.offers.confirmRetry') : k('pharmacy.offers.confirm')} size="lg" fullWidth loading={confirming} disabled={confirming || picked.totals.total === null} onPress={() => void confirm()} theme={theme} />
+        <Button label={pickError ? k('pharmacy.offers.confirmRetry') : k('pharmacy.offers.confirm')} size="lg" fullWidth loading={confirming} disabled={confirming || picked.totals.total === null || outOfNetwork} onPress={() => void confirm()} theme={theme} />
       </View>
     </StickyFooter>
   ) : undefined;

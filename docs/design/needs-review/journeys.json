@@ -87,7 +87,7 @@
     "kind": "missing-field",
     "file": "patient-web/components-next/pharmacy-checkout/checkout-screen.tsx",
     "line": 197,
-    "review_status": "open (issue #1018)"
+    "review_status": "fixed #1605 (decision 30: chosen on the request screen in app and web; in-network broadcast needs the D-30 backend #1459; issue #1018)"
   },
   {
     "scenario": 1,
@@ -222,7 +222,7 @@
     "kind": "other",
     "file": "patient-web/components-next/pharmacy-offers/offer-list.tsx",
     "line": 204,
-    "review_status": "open (issue #1033)"
+    "review_status": "fixed #1605 (decision 30: no choice per offer, the order's start choice is used; issue #1033)"
   },
   {
     "scenario": 3,
