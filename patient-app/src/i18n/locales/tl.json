@@ -316,6 +316,7 @@
   "pharmacy.product.buyNow": "Bilhin ngayon",
   "pharmacy.product.reviewedOn": "Sinuri ng pangkat medikal noong {date}",
   "pharmacy.product.reviewed": "Sinuri ng pangkat medikal",
+  "pharmacy.product.insuranceCovered": "Sakop ng iyong insurance sa {company}",
   "pharmacy.product.disclaimer": "Hindi pamalit ang impormasyong ito sa payo ng doktor o parmasyutiko",
   "pharmacy.product.sku": "Code ng produkto: {v}",
   "pharmacy.fact.form": "Anyo",

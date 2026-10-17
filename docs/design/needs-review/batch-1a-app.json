@@ -96,7 +96,7 @@
     "line": 0,
     "found": "SPEC §A shows it only when the patient's insurer is in covered_by_insurance[] (company ids). The screen has no call for the patient's insurer and no id-to-name lookup for the row's \"مشمول في تأمين [شركة]\".",
     "suspect": "Needs the insurer from the profile or the insurance module and a name lookup for the company ids; then the row can be drawn.",
-    "review_status": "open (issue #456)"
+    "review_status": "fixed #1602 (issue #456; nothing writes covered_by_insurance yet: issue 1601)"
   },
   {
     "batch": 1,

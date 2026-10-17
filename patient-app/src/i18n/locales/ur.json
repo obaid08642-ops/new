@@ -316,6 +316,7 @@
   "pharmacy.product.buyNow": "ابھی خریدیں",
   "pharmacy.product.reviewedOn": "طبی ٹیم نے {date} کو جائزہ لیا",
   "pharmacy.product.reviewed": "طبی ٹیم نے جائزہ لیا",
+  "pharmacy.product.insuranceCovered": "آپ کے {company} انشورنس میں شامل",
   "pharmacy.product.disclaimer": "یہ معلومات ڈاکٹر یا فارماسسٹ کے مشورے کا متبادل نہیں",
   "pharmacy.product.sku": "پروڈکٹ کوڈ: {v}",
   "pharmacy.fact.form": "شکل",

@@ -8,7 +8,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| Patient app and web | 434 | 1 | 330 | 97 | 6 | 0 |
+| Patient app and web | 434 | 0 | 331 | 97 | 6 | 0 |
 | Other | 29 | 0 | 26 | 1 | 2 | 0 |
 | Admin | 99 | 0 | 65 | 34 | 0 | 0 |
 | Admin journeys | 20 | 0 | 18 | 2 | 0 | 0 |
@@ -16,7 +16,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Patient journeys | 87 | 0 | 85 | 2 | 0 | 0 |
 | Provider app | 31 | 0 | 27 | 4 | 0 | 0 |
 | Provider journeys | 34 | 0 | 32 | 2 | 0 | 0 |
-| **Total** | **742** | **1** | **585** | **148** | **8** | **0** |
+| **Total** | **742** | **0** | **586** | **148** | **8** | **0** |
 
 ## By tag
 
@@ -25,8 +25,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | client | 169 | 0 | 126 | 39 | 4 | 0 |
 | owner | 100 | 0 | 57 | 42 | 1 | 0 |
 | backend | 235 | 0 | 205 | 30 | 0 | 0 |
-| untagged | 238 | 1 | 197 | 37 | 3 | 0 |
-| **Total** | **742** | **1** | **585** | **148** | **8** | **0** |
+| untagged | 238 | 0 | 198 | 37 | 3 | 0 |
+| **Total** | **742** | **0** | **586** | **148** | **8** | **0** |
 
 ## By file
 
@@ -76,7 +76,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-0-app.json` | 13 | 0 | 13 | 0 | 0 | 0 |
 | `batch-0-runtime.json` | 8 | 0 | 6 | 2 | 0 | 0 |
 | `batch-0-web.json` | 19 | 0 | 17 | 1 | 1 | 0 |
-| `batch-1a-app.json` | 19 | 1 | 6 | 11 | 1 | 0 |
+| `batch-1a-app.json` | 19 | 0 | 7 | 11 | 1 | 0 |
 | `batch-1a-web.json` | 12 | 0 | 8 | 4 | 0 | 0 |
 | `batch-1b-app.json` | 12 | 0 | 9 | 3 | 0 | 0 |
 | `batch-1b-web.json` | 13 | 0 | 9 | 4 | 0 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 0 | 7 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 0 | 0 | 0 | 1 | 0 |
 | `tooling.json` | 13 | 0 | 12 | 1 | 0 | 0 |
-| **Total** | **742** | **1** | **585** | **148** | **8** | **0** |
+| **Total** | **742** | **0** | **586** | **148** | **8** | **0** |
 
 ## Owner decisions (8)
 
@@ -115,8 +115,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 7 | `batch-1d-web.json#1` `backend/src/modules/payments/payments.module.ts:154` | /pharmacy/payment Payment provider not exercised | No gateway key on the local backend (intent answers 503) and no Mongo replica set (selection / insurance acceptance fail). Hosted checkout, return and webhook were checked only against a TEST stand-in outside the repo (… |
 | 8 | `seo-feature-pages.json#0` `patient-web/app/[locale]/features/[feature]/page.tsx:67` | /features/[feature] Feature page layout | [client] The seven public feature pages (SEO, owner 2026-10-12) have no board: they are built on the public landing kit (LandingPage, LandingSection, CardGrid/EntityRow, the new FaqList, Notice, ActionLinks) with tokens… |
 
-## Open and unverified (1)
+## Open and unverified (0)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
-| `batch-1a-app.json#8` | untagged | open (issue #456) | /pharmacy/product-detail Insurance row (hidden) | SPEC §A shows it only when the patient's insurer is in covered_by_insurance[] (company ids). The screen has no call for the patient's insurer and no id-to-name lookup for the row'… |

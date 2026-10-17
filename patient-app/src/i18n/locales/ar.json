@@ -316,6 +316,7 @@
   "pharmacy.product.buyNow": "اشترِ الآن",
   "pharmacy.product.reviewedOn": "راجعه الفريق الطبي في {date}",
   "pharmacy.product.reviewed": "راجعه الفريق الطبي",
+  "pharmacy.product.insuranceCovered": "مشمول في تأمين {company}",
   "pharmacy.product.disclaimer": "المعلومات لا تغني عن استشارة الطبيب أو الصيدلي",
   "pharmacy.product.sku": "رمز المنتج: {v}",
   "pharmacy.fact.form": "الشكل",
