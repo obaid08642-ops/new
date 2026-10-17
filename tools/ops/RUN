@@ -1,1 +1,2 @@
-# 2026-10-17 build session: mail run 39011163649 done (Resend ok, Brevo ok, Mailjet failed, GitHub secrets BREVO/MAILJET empty in the workflow). Nothing to run.
+# 2026-10-17 owner: why does Mailjet answer 401? 74 is read-only: key shapes and Mailjet's own answer, no value printed. Rehearsal green (review/ops-mail-2, run 39016893873).
+74-mailjet-diagnose
