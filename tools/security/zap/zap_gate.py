@@ -36,6 +36,17 @@ def risk(alert):
         return {'High': 3, 'Medium': 2, 'Low': 1}.get(desc.split(' ')[0], 0)
 
 
+def describe(alert, limit=3):
+    """Where a finding is and what ZAP matched: the part of the report a person needs to act on it."""
+    out = []
+    for inst in (alert.get('instances') or [])[:limit]:
+        evidence = str(inst.get('evidence') or '').replace('\n', ' ')[:160]
+        other = str(inst.get('otherinfo') or '').replace('\n', ' ')[:200]
+        out.append(f"\n      at {inst.get('method', '')} {inst.get('uri', '')}" + (f"\n         evidence: {evidence}" if evidence else '') + (f"\n         info: {other}" if other else ''))
+    solution = str(alert.get('solution') or '').replace('\n', ' ')[:200]
+    return ''.join(out) + (f"\n      fix: {solution}" if solution else '')
+
+
 def evaluate(reports, accepted):
     high, medium, seen = [], [], set()
     for report in reports:
@@ -45,7 +56,7 @@ def evaluate(reports, accepted):
             r = risk(a)
             name = f"{a.get('name') or a.get('alert')} (plugin {pid}, {len(a.get('instances') or [])} instance(s))"
             if r >= HIGH and pid not in accepted:
-                high.append(name)
+                high.append(name + describe(a))
             elif r == MEDIUM:
                 medium.append(name)
     stale = sorted(p for p in accepted if p not in seen)

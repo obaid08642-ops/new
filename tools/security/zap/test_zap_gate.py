@@ -24,6 +24,15 @@ class Gate(unittest.TestCase):
         high, _, _ = zap_gate.evaluate([report(alert(40018, 3, 'SQL Injection'))], {})
         self.assertEqual(len(high), 1)
 
+    def test_high_finding_names_where_and_what(self):
+        a = alert(10003, 3, 'Vulnerable JS Library')
+        a['instances'] = [{'uri': 'http://x/_next/static/a.js', 'method': 'GET', 'evidence': 'jquery 1.6', 'otherinfo': 'CVE-2020-1'}]
+        a['solution'] = 'Upgrade'
+        high, _, _ = zap_gate.evaluate([report(a)], {})
+        self.assertIn('http://x/_next/static/a.js', high[0])
+        self.assertIn('jquery 1.6', high[0])
+        self.assertIn('CVE-2020-1', high[0])
+
     def test_medium_and_low_pass(self):
         high, medium, _ = zap_gate.evaluate([report(alert(10038, 2), alert(10021, 1))], {})
         self.assertEqual((len(high), len(medium)), (0, 1))
