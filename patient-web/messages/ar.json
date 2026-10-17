@@ -1456,7 +1456,15 @@
     "cancel": "إلغاء",
     "removeConfirmTitle": "تأكيد حذف العنوان",
     "removeConfirm": "هل تريد حذف العنوان «{name}»؟ لا يمكن التراجع عن ذلك.",
-    "removeConfirmYes": "نعم، احذف"
+    "removeConfirmYes": "نعم، احذف",
+    "shortAddress": "رمز العنوان الوطني المختصر (اختياري)",
+    "shortAddressPlaceholder": "مثال: {example}",
+    "shortAddressFind": "ابحث عن العنوان",
+    "shortAddressFinding": "جارٍ البحث…",
+    "shortAddressFound": "تم العثور على العنوان. عُبّئ سطر العنوان من العنوان الوطني.",
+    "shortAddressInvalid": "العنوان المختصر أربعة أحرف وأربعة أرقام، مثل {example}.",
+    "shortAddressNotFound": "لم نجد عنواناً لهذا الرمز. تأكد منه وحاول مرة أخرى.",
+    "shortAddressUnavailable": "خدمة البريد السعودي لا تستجيب الآن. يمكنك حفظ العنوان بالتفاصيل التي كتبتها."
   },
   "ShareReport": {
     "title": "مشاركة التقارير",

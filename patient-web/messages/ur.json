@@ -1456,7 +1456,15 @@
     "cancel": "منسوخ کریں",
     "removeConfirmTitle": "پتہ ہٹانے کی تصدیق",
     "removeConfirm": "کیا آپ پتہ «{name}» ہٹانا چاہتے ہیں؟ اسے واپس نہیں کیا جا سکتا۔",
-    "removeConfirmYes": "ہاں، ہٹائیں"
+    "removeConfirmYes": "ہاں، ہٹائیں",
+    "shortAddress": "قومی پتے کا مختصر کوڈ (اختیاری)",
+    "shortAddressPlaceholder": "مثال: {example}",
+    "shortAddressFind": "پتہ تلاش کریں",
+    "shortAddressFinding": "تلاش جاری ہے…",
+    "shortAddressFound": "پتہ مل گیا۔ پتے کی لائن قومی پتے سے بھر دی گئی ہے۔",
+    "shortAddressInvalid": "مختصر پتہ چار حروف اور چار ہندسوں پر مشتمل ہوتا ہے، جیسے {example}۔",
+    "shortAddressNotFound": "اس کوڈ کا کوئی پتہ نہیں ملا۔ کوڈ چیک کر کے دوبارہ کوشش کریں۔",
+    "shortAddressUnavailable": "سعودی پوسٹ اس وقت جواب نہیں دے رہی۔ آپ اپنی لکھی ہوئی تفصیلات کے ساتھ پتہ پھر بھی محفوظ کر سکتے ہیں۔"
   },
   "ShareReport": {
     "title": "رپورٹس شیئر کریں",

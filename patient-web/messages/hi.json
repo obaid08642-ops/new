@@ -1456,7 +1456,15 @@
     "cancel": "रद्द करें",
     "removeConfirmTitle": "पता हटाने की पुष्टि",
     "removeConfirm": "क्या आप पता “{name}” हटाना चाहते हैं? इसे वापस नहीं किया जा सकता।",
-    "removeConfirmYes": "हाँ, हटाएं"
+    "removeConfirmYes": "हाँ, हटाएं",
+    "shortAddress": "राष्ट्रीय पते का संक्षिप्त कोड (वैकल्पिक)",
+    "shortAddressPlaceholder": "उदाहरण: {example}",
+    "shortAddressFind": "पता खोजें",
+    "shortAddressFinding": "खोज रहे हैं…",
+    "shortAddressFound": "पता मिल गया। पते की पंक्ति राष्ट्रीय पते से भर दी गई है।",
+    "shortAddressInvalid": "संक्षिप्त पता चार अक्षरों और चार अंकों का होता है, जैसे {example}।",
+    "shortAddressNotFound": "इस कोड के लिए कोई पता नहीं मिला। कोड जाँचकर फिर कोशिश करें।",
+    "shortAddressUnavailable": "सऊदी पोस्ट अभी जवाब नहीं दे रही। आप अपने लिखे विवरण के साथ पता फिर भी सहेज सकते हैं।"
   },
   "ShareReport": {
     "title": "रिपोर्ट साझा करें",

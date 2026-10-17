@@ -1456,7 +1456,15 @@
     "cancel": "Kanselahin",
     "removeConfirmTitle": "Kumpirmahin ang pagtanggal ng address",
     "removeConfirm": "Alisin ang address na “{name}”? Hindi na ito maibabalik.",
-    "removeConfirmYes": "Oo, alisin"
+    "removeConfirmYes": "Oo, alisin",
+    "shortAddress": "Maikling code ng National Address (opsyonal)",
+    "shortAddressPlaceholder": "Halimbawa: {example}",
+    "shortAddressFind": "Hanapin ang address",
+    "shortAddressFinding": "Naghahanap…",
+    "shortAddressFound": "Nahanap. Napunan na ang linya ng address mula sa National Address.",
+    "shortAddressInvalid": "Ang maikling address ay apat na letra at apat na numero, gaya ng {example}.",
+    "shortAddressNotFound": "Walang nahanap na address para sa code na ito. Suriin ito at subukan muli.",
+    "shortAddressUnavailable": "Hindi sumasagot ngayon ang Saudi Post. Maaari mo pa ring i-save ang address kasama ang mga detalyeng itinype mo."
   },
   "ShareReport": {
     "title": "Ibahagi ang mga Ulat",

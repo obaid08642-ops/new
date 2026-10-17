@@ -1456,7 +1456,15 @@
     "cancel": "বাতিল",
     "removeConfirmTitle": "ঠিকানা মোছার নিশ্চিতকরণ",
     "removeConfirm": "“{name}” ঠিকানাটি মুছবেন? এটি ফেরানো যাবে না।",
-    "removeConfirmYes": "হ্যাঁ, মুছুন"
+    "removeConfirmYes": "হ্যাঁ, মুছুন",
+    "shortAddress": "জাতীয় ঠিকানার সংক্ষিপ্ত কোড (ঐচ্ছিক)",
+    "shortAddressPlaceholder": "উদাহরণ: {example}",
+    "shortAddressFind": "ঠিকানা খুঁজুন",
+    "shortAddressFinding": "খোঁজা হচ্ছে…",
+    "shortAddressFound": "ঠিকানা পাওয়া গেছে। ঠিকানার লাইন জাতীয় ঠিকানা থেকে পূরণ করা হয়েছে।",
+    "shortAddressInvalid": "সংক্ষিপ্ত ঠিকানা চারটি অক্ষর ও চারটি সংখ্যার, যেমন {example}।",
+    "shortAddressNotFound": "এই কোডের কোনো ঠিকানা পাওয়া যায়নি। কোডটি দেখে আবার চেষ্টা করুন।",
+    "shortAddressUnavailable": "সৌদি পোস্ট এখন সাড়া দিচ্ছে না। আপনার লেখা বিবরণসহ ঠিকানাটি তবুও সংরক্ষণ করতে পারেন।"
   },
   "ShareReport": {
     "title": "রিপোর্ট শেয়ার করুন",

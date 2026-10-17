@@ -46,6 +46,11 @@ export class PatientProfile {
       lat: Number,
       lng: Number,
       is_default: Boolean,
+      short_address: String,
+      building_number: String,
+      additional_number: String,
+      post_code: String,
+      national_address_verified: Boolean,
     }],
     _id: false,
     default: [],
@@ -65,6 +70,11 @@ export class PatientProfile {
     lat?: number;
     lng?: number;
     is_default?: boolean;
+    short_address?: string;
+    building_number?: string;
+    additional_number?: string;
+    post_code?: string;
+    national_address_verified?: boolean;
   }[];
   @Prop({
     type: {
