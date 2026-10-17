@@ -2533,7 +2533,12 @@
     "policyFull": "قبل {hours} ساعة أو أكثر: استرداد 100%",
     "policyHalf": "قبل {half} إلى {full} ساعة: استرداد {percent}%",
     "policyLess": "أقل من {half} ساعة: لا يوجد استرداد",
-    "policyUnavailable": "سياسة الإلغاء والاسترداد غير متاحة الآن."
+    "policyUnavailable": "سياسة الإلغاء والاسترداد غير متاحة الآن.",
+    "callReconnecting": "الاتصال ضعيف، نعيد الاتصال بالمكالمة…",
+    "callAudioOnly": "الاتصال ضعيف، فأوقفنا الفيديو وأبقينا الصوت.",
+    "callTryVideo": "جرّب الفيديو مرة أخرى",
+    "callDropped": "انقطعت المكالمة.",
+    "callContinueInChat": "أكمل في المحادثة"
   },
   "ConsultClient": {
     "payHeading": "أكمل الدفع من خلال بوابة آمنة",

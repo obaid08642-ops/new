@@ -51,8 +51,11 @@ Check after every deploy:
    Redis runs `maxmemory 512mb` with `volatile-lru` (`deploy/redis/redis.conf`): only keys with a TTL (cache entries)
    can be evicted, so queue keys (no TTL) survive memory pressure. Check after the switch: `redis-cli -u $REDIS_CACHE_URL
    --scan --pattern 'hc:*' | head` lists entries, and the main instance holds no new `hc:*` key.
-6. Move LiveKit and coturn to their own server (P14.22). TURN listens on TLS 443 there, and `livekit.yaml` points
-   `turn.domain` at it.
+6. Move LiveKit and coturn to their own server (P14.22). TURN listens on TLS 443 there: `tls-listening-port=443` in
+   that server's `turnserver.conf` and `COTURN_TLS_PORT=443` in the backend's env (it hands out
+   `turns:turn.nabd.plus:443?transport=tcp`), so networks that only allow HTTPS out still connect. `livekit.yaml` points
+   `turn.domain` at it. Measured per-node capacity and how to re-measure it on the new server: `docs/perf/CALLS_14.22.md`
+   (`tools/perf/livekit/ladder.sh`, run from a second machine).
 
 **Rollback:** point the URLs back at the old services, which are kept stopped but intact for 7 days.
 
@@ -67,23 +70,51 @@ Check after every deploy:
    - health check `GET /api/v1/health/liveness`;
    - **sticky sessions are not needed**: sessions are JWTs, Socket.IO state goes through the Redis adapter, and the
      Socket.IO clients use the websocket transport.
-3. Run MongoDB as a 3-node replica set and give the app the replica set URL. Reports and analytics read from
+3. Run MongoDB as a 3-node replica set and give the app the replica set URL, every member listed:
+   `MONGO_URL=mongodb://<user>:<pass>@m1:27017,m2:27017,m3:27017/?replicaSet=rs0&authSource=admin`. With more than one
+   host the backend discovers the set and follows a failover (`backend/src/common/database/mongo-uri.ts`; until
+   P14.28 it forced a direct connection, which refuses such a URL). A one-host URL keeps the direct connection that
+   runs today; `MONGO_DIRECT_CONNECTION=false` turns discovery on for a one-host seed. Reports and analytics read from
    secondaries (`readPreference=secondaryPreferred` on their connections only).
 4. The nginx micro-cache is per edge node and is not purged: it keeps a public answer for at most its `s-maxage`
    (300 s). Purge by tag (P14.8) reaches every API process and node through Redis pub/sub.
 
-5. **More than one web (patient-web) instance (P14.10).** Build the image with `NEXT_CACHE_HANDLER=redis` and give every
-   instance `NEXT_CACHE_REDIS_URL` (the same Redis) and the same `NEXT_REVALIDATE_SECRET`. All instances then share one
+5. **More than one web (patient-web) instance (P14.10, and since #1603 the default for one).** The image is built with
+   `NEXT_CACHE_HANDLER=redis` (Dockerfile default) and every instance gets `NEXT_CACHE_REDIS_URL` (compose: the capped
+   `redis-cache` service) and the same `NEXT_REVALIDATE_SECRET`. All instances then share one
    ISR/data cache (`patient-web/cache-handler.cjs`, keys per build id; Next's in-memory copy is off), and a revalidation
    on one instance (the purge bus calls `/api/revalidate` on any of them) is seen by all: the handler keeps the time of
    each tag's revalidation in Redis and answers a miss for an older entry, because Next's own record of revalidated tags
    lives inside each process. Redis down: each instance falls back to a small local cache (pages keep being served).
    Proof: the `next-multi-instance` CI job (two instances behind nginx, one Redis: same revalidated content and same
-   Cache-Control on both, Next 16.3.5 from the lockfile). patient-web joins the `internal` network to reach Redis.
+   Cache-Control on both, Next 16.3.5 from the lockfile). patient-web reaches the cache instance over the `cache` network.
 
-**Rehearsal (P14.28): BLOCKED.** It needs a staging environment with two API nodes, a load balancer and a 3-node
-replica set. Staging was turned off on 2026-10-04 because it shared the production server, and the repo has no other
-staging host. The owner needs to provide a staging server (or an OVH project) before this can run.
+   **Disk safety (#1603, 2026-10-16).** Without a cache handler Next wrote every rendered page under `.next/server` in
+   the container's own layer: 5.8 GB in 18 h on the production server, no cap, no eviction, root disk full, API down
+   for 7 h. Now: the page/data cache is in `redis-cache` (a separate instance: `allkeys-lru`, `maxmemory` 256 MB, nothing
+   saved, no volume, read-only root filesystem), entries are gzip-compressed (about 5x) with a 7-day TTL; patient-web runs
+   with a read-only root filesystem and two size-capped tmpfs (`/tmp` 32 MB, `/app/.next/cache` 128 MB); every service
+   logs `json-file` 20 MB x 3. Measured and enforced: `docs/perf/ISR_DISK_1603.md`, CI `isr-disk`, `tools/ops/check-compose-limits.py`.
+
+**Rehearsal (P14.28): done on one machine, test data.** `tools/perf/scale-rehearsal/run.sh` (workflow "Scale step 3
+rehearsal") starts a 3-node replica set, one `worker` and two `api` nodes behind an nginx load balancer
+(`tools/perf/scale-rehearsal/nginx.conf`: least connections, a failed node out for 10 s, reads retried once on the
+other node, writes never retried), then runs the `capacity.js` mix through it. Result on 2026-10-16 (4 vCPU, everything
+on one machine, 30 VUs, 60 s per run):
+
+| Check | Result |
+|---|---|
+| Replica set: 1 primary, 2 secondaries; a `w: majority` write acknowledged | PASS |
+| Readiness through the load balancer: `background_worker=up` (one worker for the fleet) | PASS |
+| 200 requests through the load balancer | 100 on each node |
+| One node direct vs two behind the load balancer | 44 → 53 req/s; logged-in p95 536 → 317 ms; cart p95 1478 → 520 ms; 0 errors |
+| API node killed (`kill -9`) under load, restarted 20 s later | 0 errors in 3,508 requests; the node rejoined healthy |
+| Mongo primary stepped down under load | new primary elected in 216 ms; 0 errors in 4,252 requests |
+
+The throughput gain is small here because the two nodes, the three Mongo members and k6 share four cores; on separate
+servers each node brings its own cores. What the rehearsal proves is the mechanics: the spread, the failover of a node
+and of the primary without failed requests, and one worker for the fleet. **Still BLOCKED:** the same run on staging
+servers (no staging host), which gives the real per-node numbers.
 
 ## Step 4: realtime tier
 
@@ -94,7 +125,7 @@ staging host. The owner needs to provide a staging server (or an OVH project) be
 - Clients already reconnect with backoff. On reconnect they must re-fetch the state of the screen they are on: order
   status, chat messages since the last id, booking state. Emits are notifications, never the only copy of the data.
 
-**10k-socket test: BLOCKED** (needs staging, as above).
+**10k-socket test: BLOCKED** (needs staging servers: no staging host).
 
 ## Step 5: region resilience
 
@@ -117,8 +148,9 @@ k6 run -e BASE=https://<staging> -e SCENARIO=soak   -e PEAK=300 tools/perf/k6/ca
 - Run from several load generators, or allow-list the generators' IPs on staging. One generator is one IP and hits
   the per-IP limits. The script reports those 429s as `rate_limited`, separately from errors.
 
-**Measured ceilings: BLOCKED.** No staging environment (as above). Running `stress` against production is not allowed.
-The script is checked against a local build (smoke, test data): `public_api p95 = 22 ms`, `scenario_errors 0%`.
+**Measured ceilings:** the first report is `docs/perf/load-test-2026-10-16.md` (P14.27, a local test stack: ceiling,
+first bottleneck, next steps). Staging ceilings are BLOCKED (no staging host); running `stress` against production is
+not allowed. Re-run with the "Capacity (k6)" workflow after each step.
 
 ## Edge (Cloudflare): P14.1, P14.6, P14.9, P14.19
 
@@ -131,6 +163,6 @@ in the dashboard, or adds a scoped API token as a CI secret.
 | Item | Decision | Why |
 |---|---|---|
 | 14.12 Fastify | Stays opt-in (`USE_FASTIFY=true`); Express stays the default | No measured RPS gain yet, and the live gate, click tests and contract tests run on Express. Switch only after a k6 run on staging shows the gain with the whole gate green under Fastify. |
-| 14.14 Redis roles | One Redis (`volatile-lru`, 512 MB) until step 2, then the main instance (`noeviction`) and a cache instance (`allkeys-lru`, `REDIS_CACHE_URL`) | One small server; queue keys carry no TTL, so `volatile-lru` never evicts them. The cache URL is wired in code (P14.14) and stays empty until step 2. |
+| 14.14 Redis roles | The main instance (`volatile-lru`, 512 MB: queues, sessions, rate limits) and, since #1603, a separate cache instance `redis-cache` (`allkeys-lru`, 256 MB, no persistence). patient-web's ISR cache uses it now; the backend's HotCache keeps sharing the main instance until `REDIS_CACHE_URL` is set to it (one line in `.env.production`) | The page cache must never be able to fill the disk or evict queue keys; a different instance is the only way to give it a different eviction policy. Queue keys carry no TTL, so `volatile-lru` never evicts them either. |
 | 14.19 Waiting room | No waiting room until a campaign needs one; then the Worker queue in front of the web checkout (`deploy/cloudflare/waiting-room-worker`, `docs/ops/waiting-room.md`), switched on for the campaign window | Business plan Waiting Room is a paid plan decision for the owner. Load shedding (14.17) already protects checkout and the API. |
 | 14.22 Calls | LiveKit and coturn move to their own server in step 2; LiveKit Cloud as overflow is an owner decision | They compete for CPU and UDP ports with the API on one box. |

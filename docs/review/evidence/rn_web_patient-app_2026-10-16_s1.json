@@ -1,0 +1,2785 @@
+{
+ "app": "patient-app",
+ "build": "react-native-web export (not native)",
+ "routes": [
+  {
+   "route": "(auth)/forgot-password",
+   "url": "/forgot-password",
+   "landed": "/forgot-password",
+   "status": "TESTED",
+   "time_to_ready_ms": 2132,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إرسال رمز التحقق",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/auth/send-otp",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 832
+    },
+    {
+     "label": "العودة لتسجيل الدخول",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3610
+    }
+   ]
+  },
+  {
+   "route": "(auth)/login",
+   "url": "/login",
+   "landed": "/login",
+   "status": "TESTED",
+   "time_to_ready_ms": 1382,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 2,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إظهار كلمة المرور",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "نسيت كلمة المرور؟",
+     "result": "NAVIGATE",
+     "to": "/forgot-password",
+     "response_ms": 460
+    },
+    {
+     "label": "تسجيل الدخول",
+     "result": "UI_CHANGE",
+     "response_ms": 450
+    },
+    {
+     "label": "المتابعة مع Google",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إنشاء حساب",
+     "result": "NAVIGATE",
+     "to": "/register",
+     "response_ms": 455
+    }
+   ]
+  },
+  {
+   "route": "(auth)/otp",
+   "url": "/otp",
+   "landed": "/otp",
+   "status": "TESTED",
+   "time_to_ready_ms": 15361,
+   "ready": false,
+   "not_ready_reason": "0 request(s) in flight, 0 loading, stable=1",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 6,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "تأكيد",
+     "result": "WRITE",
+     "status": 400,
+     "method": "POST",
+     "url": "/auth/verify-otp",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 815
+    },
+    {
+     "label": "تغيير رقم الجوال",
+     "result": "UI_CHANGE",
+     "response_ms": 546
+    }
+   ]
+  },
+  {
+   "route": "(auth)/privacy",
+   "url": "/privacy",
+   "landed": "/privacy",
+   "status": "TESTED",
+   "time_to_ready_ms": 2008,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إعادة المحاولة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 795
+    }
+   ]
+  },
+  {
+   "route": "(auth)/provider-info",
+   "url": "/provider-info",
+   "landed": "/provider-info",
+   "status": "TESTED",
+   "time_to_ready_ms": 1454,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الاستمرار كمريض",
+     "result": "NAVIGATE",
+     "to": "/",
+     "response_ms": 897
+    },
+    {
+     "label": "تسجيل الخروج",
+     "result": "SKIPPED_DESTRUCTIVE"
+    }
+   ]
+  },
+  {
+   "route": "(auth)/register",
+   "url": "/register",
+   "landed": "/register",
+   "status": "TESTED",
+   "time_to_ready_ms": 1424,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 5,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إظهار كلمة المرور",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "أوافق على الشروط والأحكام وسياسة الخصوصي",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "الشروط والأحكام",
+     "result": "NAVIGATE",
+     "to": "/terms",
+     "response_ms": 804
+    },
+    {
+     "label": "سياسة الخصوصية",
+     "result": "NAVIGATE",
+     "to": "/privacy",
+     "response_ms": 798
+    },
+    {
+     "label": "إنشاء الحساب",
+     "result": "UI_CHANGE",
+     "response_ms": 467
+    },
+    {
+     "label": "تسجيل الدخول",
+     "result": "NAVIGATE",
+     "to": "/login",
+     "response_ms": 489
+    }
+   ]
+  },
+  {
+   "route": "(auth)/reset-password",
+   "url": "/reset-password",
+   "landed": "/reset-password",
+   "status": "TESTED",
+   "time_to_ready_ms": 1388,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 4,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إظهار كلمة المرور",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "حفظ كلمة المرور",
+     "result": "UI_CHANGE",
+     "response_ms": 453
+    }
+   ]
+  },
+  {
+   "route": "(auth)/terms",
+   "url": "/terms",
+   "landed": "/terms",
+   "status": "TESTED",
+   "time_to_ready_ms": 2019,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "رجوع",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "إعادة المحاولة",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 791
+    }
+   ]
+  },
+  {
+   "route": "(auth)/welcome",
+   "url": "/welcome",
+   "landed": "/welcome",
+   "status": "TESTED",
+   "time_to_ready_ms": 1422,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العربية",
+     "result": "UI_CHANGE",
+     "response_ms": 480
+    },
+    {
+     "label": "تلقائي",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "فاتح",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "غامق",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Google",
+     "result": "UI_CHANGE",
+     "response_ms": 769
+    },
+    {
+     "label": "إنشاء حساب",
+     "result": "NAVIGATE",
+     "to": "/register",
+     "response_ms": 493
+    },
+    {
+     "label": "تسجيل الدخول",
+     "result": "NAVIGATE",
+     "to": "/login",
+     "response_ms": 491
+    },
+    {
+     "label": "المتابعة كضيف",
+     "result": "WRITE",
+     "status": 201,
+     "method": "POST",
+     "url": "/auth/guest",
+     "tokens_sent": 0,
+     "tokens_stored": 0,
+     "response_ms": 1392
+    }
+   ]
+  },
+  {
+   "route": "(onboarding)/intro",
+   "url": "/intro",
+   "landed": "/intro",
+   "status": "TESTED",
+   "time_to_ready_ms": 1435,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "تخطي",
+     "result": "NAVIGATE",
+     "to": "/welcome",
+     "response_ms": 514
+    },
+    {
+     "label": "1 / 5",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "2 / 5",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "3 / 5",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "4 / 5",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "5 / 5",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "التالي",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3589
+    }
+   ]
+  },
+  {
+   "route": "(onboarding)/language",
+   "url": "/language",
+   "landed": "/language",
+   "status": "TESTED",
+   "time_to_ready_ms": 1441,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "العربية",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3591
+    },
+    {
+     "label": "English",
+     "result": "UI_CHANGE",
+     "response_ms": 480
+    },
+    {
+     "label": "اردو",
+     "result": "JS_ERROR",
+     "error": "Cannot redefine property: Text",
+     "response_ms": 451
+    },
+    {
+     "label": "हिन्दी",
+     "result": "UI_CHANGE",
+     "response_ms": 482
+    },
+    {
+     "label": "বাংলা",
+     "result": "UI_CHANGE",
+     "response_ms": 435
+    },
+    {
+     "label": "Filipino",
+     "result": "UI_CHANGE",
+     "response_ms": 445
+    },
+    {
+     "label": "متابعة",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "(tabs)/consultations/index",
+   "url": "/consultations",
+   "landed": "/consultations",
+   "status": "TESTED",
+   "time_to_ready_ms": 2041,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Aking mga appointment",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "I-clear ang paghahanap",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Salain",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Klinika",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3593
+    },
+    {
+     "label": "Sa bahay",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3579
+    },
+    {
+     "label": "Sa internet",
+     "result": "UI_CHANGE",
+     "response_ms": 445
+    },
+    {
+     "label": "Lahat",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3575
+    },
+    {
+     "label": "Pera",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3573
+    },
+    {
+     "label": "Seguro",
+     "result": "UI_CHANGE",
+     "response_ms": 457
+    },
+    {
+     "label": "Pinakamalapit",
+     "result": "UI_CHANGE",
+     "response_ms": 786
+    },
+    {
+     "label": "Available ngayon",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3575
+    },
+    {
+     "label": "Tingnan lahat",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3558
+    },
+    {
+     "label": "Home",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Parmasya",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Mga Konsultasyon",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Mga Lab Test",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Nursing",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "(tabs)/diagnostics",
+   "url": "/diagnostics",
+   "landed": "/diagnostics",
+   "status": "TESTED",
+   "time_to_ready_ms": 2291,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "Mga order at resulta ko",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/orders",
+     "response_ms": 833
+    },
+    {
+     "label": "Burahin ang paghahanap",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "I-filter",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Mga lab test",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3663
+    },
+    {
+     "label": "Radiology at imaging",
+     "result": "UI_CHANGE",
+     "response_ms": 478
+    },
+    {
+     "label": "Mga resulta ko",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/my-results",
+     "response_ms": 859
+    },
+    {
+     "label": "Ihambing ang presyo",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/search",
+     "response_ms": 1368
+    },
+    {
+     "label": "Sa bahay",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3673
+    },
+    {
+     "label": "Sa lab",
+     "result": "UI_CHANGE",
+     "response_ms": 563
+    },
+    {
+     "label": "Pumili",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "May insurance o reseta ka ba?",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/insurance-approval",
+     "response_ms": 479
+    },
+    {
+     "label": "Home",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/package-detail?id=PKG_SENIORS&serviceType=home",
+     "response_ms": 881
+    },
+    {
+     "label": "Parmasya",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Mga Konsultasyon",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Mga Lab Test",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3686
+    },
+    {
+     "label": "Nursing",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "(tabs)/health",
+   "url": "/health",
+   "landed": "/health",
+   "status": "TESTED",
+   "time_to_ready_ms": 2333,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "ID sa kalusugan",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Aking medical profile",
+     "result": "NAVIGATE",
+     "to": "/health/profile",
+     "response_ms": 515
+    },
+    {
+     "label": "Marka ng kalusugan",
+     "result": "NAVIGATE",
+     "to": "/health/vitals",
+     "response_ms": 842
+    },
+    {
+     "label": "Mag-log ng reading",
+     "result": "NAVIGATE",
+     "to": "/health/vitals",
+     "response_ms": 814
+    },
+    {
+     "label": "Mga ulat at resulta",
+     "result": "NAVIGATE",
+     "to": "/health/records?tab=reports",
+     "response_ms": 834
+    },
+    {
+     "label": "Mga reseta",
+     "result": "NAVIGATE",
+     "to": "/health/records?tab=prescriptions",
+     "response_ms": 800
+    },
+    {
+     "label": "Aking mga gamot",
+     "result": "NAVIGATE",
+     "to": "/health/medications",
+     "response_ms": 825
+    },
+    {
+     "label": "Mga talamak na kondisyon",
+     "result": "NAVIGATE",
+     "to": "/health/profile?tab=conditions",
+     "response_ms": 812
+    },
+    {
+     "label": "Mga trend",
+     "result": "NAVIGATE",
+     "to": "/health/vitals?tab=trends",
+     "response_ms": 830
+    },
+    {
+     "label": "Tulog",
+     "result": "NAVIGATE",
+     "to": "/consultations",
+     "response_ms": 837
+    },
+    {
+     "label": "Mga wearable",
+     "result": "NAVIGATE",
+     "to": "/consultations",
+     "response_ms": 822
+    },
+    {
+     "label": "Pamilya",
+     "result": "NAVIGATE",
+     "to": "/family",
+     "response_ms": 825
+    },
+    {
+     "label": "Chat ng pamilya",
+     "result": "NAVIGATE",
+     "to": "/family/chat",
+     "response_ms": 1961
+    },
+    {
+     "label": "Nars sa bahay",
+     "result": "NAVIGATE",
+     "to": "/nursing",
+     "response_ms": 837
+    },
+    {
+     "label": "Aking mga programa",
+     "result": "NAVIGATE",
+     "to": "/programs/active",
+     "response_ms": 806
+    },
+    {
+     "label": "Mga artikulo sa kalusugan",
+     "result": "NAVIGATE",
+     "to": "/articles",
+     "response_ms": 815
+    },
+    {
+     "label": "Aking mga hamon",
+     "result": "NAVIGATE",
+     "to": "/loyalty/hub",
+     "response_ms": 8624,
+     "slow": "0 request(s) in flight, 2 loading, stable=12"
+    },
+    {
+     "label": "Home",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Parmasya",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Mga Konsultasyon",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Mga Lab Test",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Nursing",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "(tabs)/index",
+   "url": "/",
+   "landed": "/",
+   "status": "TESTED",
+   "time_to_ready_ms": 883,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [
+     "The method or property ExpoNotifications.getLastNotificationResponse is not available on web, are you sure you've linked all the native dependencies properly?"
+    ],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": []
+  },
+  {
+   "route": "(tabs)/nursing",
+   "url": "/nursing",
+   "landed": "/nursing",
+   "status": "TESTED",
+   "time_to_ready_ms": 2006,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "Aking mga pagbisita",
+     "result": "NAVIGATE",
+     "to": "/nursing/visits",
+     "response_ms": 814
+    },
+    {
+     "label": "Burahin ang hinahanap",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Salain",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Seguro medikal",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3642
+    },
+    {
+     "label": "Cash (walang insurance)",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3642
+    },
+    {
+     "label": "Home",
+     "result": "NAVIGATE",
+     "to": "/nursing/service-info?serviceId=ef35bff2-28a7-405e-ae0f-aa917388f776&flow=cash&gender=any&availability=any&nationality=any&search=",
+     "response_ms": 809
+    },
+    {
+     "label": "Parmasya",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Mga Konsultasyon",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Mga Lab Test",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Nursing",
+     "result": "NAVIGATE",
+     "to": "/nursing/service-info?serviceId=9b2c1773-4baa-43af-a3cf-94992df50387&flow=cash&gender=any&availability=any&nationality=any&search=",
+     "response_ms": 811
+    }
+   ]
+  },
+  {
+   "route": "(tabs)/pharmacy",
+   "url": "/pharmacy",
+   "landed": "/pharmacy",
+   "status": "TESTED",
+   "time_to_ready_ms": 2009,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "Aking mga order",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Kariton",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "I-clear",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "I-scan ang barcode",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Kunan ng litrato ang reseta",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "I-upload ang reseta",
+     "result": "NAVIGATE",
+     "to": "/pharmacy/rx-order?via=photo",
+     "response_ms": 523
+    },
+    {
+     "label": "Mga paborito",
+     "result": "NAVIGATE",
+     "to": "/pharmacy/wishlist",
+     "response_ms": 817
+    },
+    {
+     "label": "Mga paalala",
+     "result": "NAVIGATE",
+     "to": "/health/medications?tab=reminders",
+     "response_ms": 850
+    },
+    {
+     "label": "I-filter",
+     "result": "UI_CHANGE",
+     "response_ms": 485
+    },
+    {
+     "label": "Lahat",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3630
+    },
+    {
+     "label": "Hiling para sa partikular na gamot",
+     "result": "NAVIGATE",
+     "to": "/pharmacy?filter_category=all&filter_forms=&filter_brands=&filter_rx=0&filter_min_price=&filter_max_price=&filter_sort=price_asc",
+     "response_ms": 1402
+    },
+    {
+     "label": "Home",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Parmasya",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3643
+    },
+    {
+     "label": "Mga Konsultasyon",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Mga Lab Test",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Nursing",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "(tabs)/services",
+   "url": "/services",
+   "landed": "/services",
+   "status": "TESTED",
+   "time_to_ready_ms": 1434,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Aking mga kahilingan",
+     "result": "NAVIGATE",
+     "to": "/orders",
+     "response_ms": 830
+    },
+    {
+     "label": "Maghanap ng serbisyo, doktor o gamot",
+     "result": "NAVIGATE",
+     "to": "/search",
+     "response_ms": 516
+    },
+    {
+     "label": "Mga laboratory test",
+     "result": "NAVIGATE",
+     "to": "/diagnostics",
+     "response_ms": 897
+    },
+    {
+     "label": "Pag-aalaga ng nars sa bahay",
+     "result": "NAVIGATE",
+     "to": "/nursing",
+     "response_ms": 860
+    },
+    {
+     "label": "Diagnostic na imaging",
+     "result": "NAVIGATE",
+     "to": "/diagnostics/packages",
+     "response_ms": 831
+    },
+    {
+     "label": "Pangangalaga sa pagiging ina",
+     "result": "NAVIGATE",
+     "to": "/maternity/hub",
+     "response_ms": 834
+    },
+    {
+     "label": "Agarang tulong",
+     "result": "NAVIGATE",
+     "to": "/emergency",
+     "response_ms": 850
+    },
+    {
+     "label": "Pagsusuri sa paningin",
+     "result": "NAVIGATE",
+     "to": "/search?view=doctors&specialty=ophthalmology",
+     "response_ms": 1976
+    },
+    {
+     "label": "Pangangalaga sa ngipin",
+     "result": "NAVIGATE",
+     "to": "/search?view=doctors&specialty=dentistry",
+     "response_ms": 1944
+    },
+    {
+     "label": "Kalusugang pangkaisipan",
+     "result": "NAVIGATE",
+     "to": "/mental-health/hub",
+     "response_ms": 467
+    },
+    {
+     "label": "Nutrisyon at diyeta",
+     "result": "NAVIGATE",
+     "to": "/consultations",
+     "response_ms": 851
+    },
+    {
+     "label": "Pangangalaga sa bahay",
+     "result": "NAVIGATE",
+     "to": "/consultations",
+     "response_ms": 825
+    },
+    {
+     "label": "Home",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Parmasya",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Mga Konsultasyon",
+     "result": "NAVIGATE",
+     "to": "/mental-health/hub",
+     "response_ms": 468
+    },
+    {
+     "label": "Mga Lab Test",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Nursing",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "ai-assistant",
+   "url": "/ai-assistant",
+   "landed": "/ai?mode=symptoms",
+   "status": "TESTED",
+   "time_to_ready_ms": 1442,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Aking mga sintomas",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3595
+    },
+    {
+     "label": "Aking reseta o gamot",
+     "result": "NAVIGATE",
+     "to": "/ai?mode=prescription",
+     "response_ms": 461
+    },
+    {
+     "label": "Aking ulat",
+     "result": "NAVIGATE",
+     "to": "/ai?mode=report",
+     "response_ms": 450
+    },
+    {
+     "label": "Ipakita ang gabay",
+     "result": "UI_CHANGE",
+     "response_ms": 458
+    }
+   ]
+  },
+  {
+   "route": "ai/chat-doctor",
+   "url": "/ai/chat-doctor",
+   "landed": "/consultations/appointments",
+   "status": "TESTED",
+   "time_to_ready_ms": 1402,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Bagong booking",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Paparating",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3576
+    },
+    {
+     "label": "Nakaraan",
+     "result": "UI_CHANGE",
+     "response_ms": 440
+    },
+    {
+     "label": "Mag-book ng appointment",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "ai/index",
+   "url": "/ai",
+   "landed": "/ai",
+   "status": "TESTED",
+   "time_to_ready_ms": 1435,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Aking mga sintomas",
+     "result": "NAVIGATE",
+     "to": "/ai?mode=symptoms",
+     "response_ms": 456
+    },
+    {
+     "label": "Aking reseta o gamot",
+     "result": "NAVIGATE",
+     "to": "/ai?mode=prescription",
+     "response_ms": 469
+    },
+    {
+     "label": "Aking ulat",
+     "result": "NAVIGATE",
+     "to": "/ai?mode=report",
+     "response_ms": 457
+    },
+    {
+     "label": "Ipakita ang gabay",
+     "result": "UI_CHANGE",
+     "response_ms": 462
+    }
+   ]
+  },
+  {
+   "route": "ai/monthly-report",
+   "url": "/ai/monthly-report",
+   "landed": "/ai/monthly-report",
+   "status": "TESTED",
+   "time_to_ready_ms": 2039,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Magtala ng sukat ngayon",
+     "result": "NAVIGATE",
+     "to": "/health/vitals?tab=history",
+     "response_ms": 819
+    }
+   ]
+  },
+  {
+   "route": "ai/prescription-translator",
+   "url": "/ai/prescription-translator",
+   "landed": "/ai?mode=prescription",
+   "status": "TESTED",
+   "time_to_ready_ms": 1467,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Aking mga sintomas",
+     "result": "NAVIGATE",
+     "to": "/ai?mode=symptoms",
+     "response_ms": 468
+    },
+    {
+     "label": "Aking reseta o gamot",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3623
+    },
+    {
+     "label": "Aking ulat",
+     "result": "NAVIGATE",
+     "to": "/ai?mode=report",
+     "response_ms": 460
+    },
+    {
+     "label": "Kumuha ng litrato",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3601
+    },
+    {
+     "label": "Pumili sa gallery",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3600
+    }
+   ]
+  },
+  {
+   "route": "ai/skin-analysis",
+   "url": "/ai/skin-analysis",
+   "landed": "/ai",
+   "status": "TESTED",
+   "time_to_ready_ms": 1416,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Aking mga sintomas",
+     "result": "NAVIGATE",
+     "to": "/ai?mode=symptoms",
+     "response_ms": 440
+    },
+    {
+     "label": "Aking reseta o gamot",
+     "result": "NAVIGATE",
+     "to": "/ai?mode=prescription",
+     "response_ms": 464
+    },
+    {
+     "label": "Aking ulat",
+     "result": "NAVIGATE",
+     "to": "/ai?mode=report",
+     "response_ms": 453
+    },
+    {
+     "label": "Ipakita ang gabay",
+     "result": "UI_CHANGE",
+     "response_ms": 467
+    }
+   ]
+  },
+  {
+   "route": "ai/symptom-checker",
+   "url": "/ai/symptom-checker",
+   "landed": "/ai?mode=symptoms",
+   "status": "TESTED",
+   "time_to_ready_ms": 1425,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Aking mga sintomas",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3591
+    },
+    {
+     "label": "Aking reseta o gamot",
+     "result": "NAVIGATE",
+     "to": "/ai?mode=prescription",
+     "response_ms": 447
+    },
+    {
+     "label": "Aking ulat",
+     "result": "NAVIGATE",
+     "to": "/ai?mode=report",
+     "response_ms": 472
+    },
+    {
+     "label": "Ipakita ang gabay",
+     "result": "UI_CHANGE",
+     "response_ms": 447
+    }
+   ]
+  },
+  {
+   "route": "ai/symptom-timeline",
+   "url": "/ai/symptom-timeline",
+   "landed": "/ai?mode=symptoms",
+   "status": "TESTED",
+   "time_to_ready_ms": 1391,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Aking mga sintomas",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3610
+    },
+    {
+     "label": "Aking reseta o gamot",
+     "result": "NAVIGATE",
+     "to": "/ai?mode=prescription",
+     "response_ms": 444
+    },
+    {
+     "label": "Aking ulat",
+     "result": "NAVIGATE",
+     "to": "/ai?mode=report",
+     "response_ms": 454
+    },
+    {
+     "label": "Ipakita ang gabay",
+     "result": "UI_CHANGE",
+     "response_ms": 454
+    }
+   ]
+  },
+  {
+   "route": "ai/triage",
+   "url": "/ai/triage",
+   "landed": "/ai?mode=symptoms",
+   "status": "TESTED",
+   "time_to_ready_ms": 1379,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Aking mga sintomas",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3598
+    },
+    {
+     "label": "Aking reseta o gamot",
+     "result": "NAVIGATE",
+     "to": "/ai?mode=prescription",
+     "response_ms": 443
+    },
+    {
+     "label": "Aking ulat",
+     "result": "NAVIGATE",
+     "to": "/ai?mode=report",
+     "response_ms": 463
+    },
+    {
+     "label": "Ipakita ang gabay",
+     "result": "UI_CHANGE",
+     "response_ms": 460
+    }
+   ]
+  },
+  {
+   "route": "articles/[slug]",
+   "status": "NOT_TESTED_DYNAMIC"
+  },
+  {
+   "route": "articles/bookmarks",
+   "url": "/articles/bookmarks",
+   "landed": "/articles?tab=saved",
+   "status": "TESTED",
+   "time_to_ready_ms": 1991,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Lahat",
+     "result": "NAVIGATE",
+     "to": "/articles?tab=all",
+     "response_ms": 828
+    },
+    {
+     "label": "Naka-save",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3599
+    },
+    {
+     "label": "Mag-browse ng mga artikulo",
+     "result": "NAVIGATE",
+     "to": "/articles?tab=all",
+     "response_ms": 805
+    }
+   ]
+  },
+  {
+   "route": "articles/index",
+   "url": "/articles",
+   "landed": "/articles",
+   "status": "TESTED",
+   "time_to_ready_ms": 2058,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Lahat",
+     "result": "NAVIGATE",
+     "to": "/articles?tab=all",
+     "response_ms": 459
+    },
+    {
+     "label": "Naka-save",
+     "result": "NAVIGATE",
+     "to": "/articles?tab=saved",
+     "response_ms": 809
+    },
+    {
+     "label": "I-clear ang paghahanap",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "community/hub",
+   "url": "/community/hub",
+   "landed": "/articles",
+   "status": "TESTED",
+   "time_to_ready_ms": 2012,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Lahat",
+     "result": "NAVIGATE",
+     "to": "/articles?tab=all",
+     "response_ms": 438
+    },
+    {
+     "label": "Naka-save",
+     "result": "NAVIGATE",
+     "to": "/articles?tab=saved",
+     "response_ms": 834
+    },
+    {
+     "label": "I-clear ang paghahanap",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "community/post-detail",
+   "url": "/community/post-detail",
+   "landed": "/articles",
+   "status": "TESTED",
+   "time_to_ready_ms": 2002,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Lahat",
+     "result": "NAVIGATE",
+     "to": "/articles?tab=all",
+     "response_ms": 458
+    },
+    {
+     "label": "Naka-save",
+     "result": "NAVIGATE",
+     "to": "/articles?tab=saved",
+     "response_ms": 827
+    },
+    {
+     "label": "I-clear ang paghahanap",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "consultations/appointment-detail",
+   "url": "/consultations/appointment-detail",
+   "landed": "/consultations/appointment-detail",
+   "status": "TESTED",
+   "time_to_ready_ms": 1404,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Aking mga appointment",
+     "result": "NAVIGATE",
+     "to": "/consultations/appointments",
+     "response_ms": 471
+    }
+   ]
+  },
+  {
+   "route": "consultations/appointments",
+   "url": "/consultations/appointments",
+   "landed": "/consultations/appointments",
+   "status": "TESTED",
+   "time_to_ready_ms": 1408,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Bagong booking",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Paparating",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3588
+    },
+    {
+     "label": "Nakaraan",
+     "result": "UI_CHANGE",
+     "response_ms": 438
+    },
+    {
+     "label": "Mag-book ng appointment",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "consultations/book/[id]",
+   "status": "NOT_TESTED_DYNAMIC"
+  },
+  {
+   "route": "consultations/booking-confirm",
+   "url": "/consultations/booking-confirm",
+   "landed": "/consultations/booking-status",
+   "status": "TESTED",
+   "time_to_ready_ms": 1437,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Sa internet",
+     "result": "UI_CHANGE",
+     "response_ms": 454
+    },
+    {
+     "label": "Klinika",
+     "result": "UI_CHANGE",
+     "response_ms": 430
+    },
+    {
+     "label": "Sa bahay",
+     "result": "UI_CHANGE",
+     "response_ms": 457
+    },
+    {
+     "label": "Credit o debit card",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3613
+    },
+    {
+     "label": "Cash sa klinika",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Seguro",
+     "result": "UI_CHANGE",
+     "response_ms": 459
+    },
+    {
+     "label": "Magpatuloy sa ligtas na pagbabayad",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "consultations/booking-pending",
+   "url": "/consultations/booking-pending",
+   "landed": "/consultations/booking-status",
+   "status": "TESTED",
+   "time_to_ready_ms": 1391,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Sa internet",
+     "result": "UI_CHANGE",
+     "response_ms": 441
+    },
+    {
+     "label": "Klinika",
+     "result": "UI_CHANGE",
+     "response_ms": 447
+    },
+    {
+     "label": "Sa bahay",
+     "result": "UI_CHANGE",
+     "response_ms": 474
+    },
+    {
+     "label": "Credit o debit card",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3600
+    },
+    {
+     "label": "Cash sa klinika",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Seguro",
+     "result": "UI_CHANGE",
+     "response_ms": 462
+    },
+    {
+     "label": "Magpatuloy sa ligtas na pagbabayad",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "consultations/booking-status",
+   "url": "/consultations/booking-status",
+   "landed": "/consultations/booking-status",
+   "status": "TESTED",
+   "time_to_ready_ms": 1470,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Sa internet",
+     "result": "UI_CHANGE",
+     "response_ms": 458
+    },
+    {
+     "label": "Klinika",
+     "result": "UI_CHANGE",
+     "response_ms": 451
+    },
+    {
+     "label": "Sa bahay",
+     "result": "UI_CHANGE",
+     "response_ms": 446
+    },
+    {
+     "label": "Credit o debit card",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3565
+    },
+    {
+     "label": "Cash sa klinika",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Seguro",
+     "result": "UI_CHANGE",
+     "response_ms": 448
+    },
+    {
+     "label": "Magpatuloy sa ligtas na pagbabayad",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "consultations/booking-success",
+   "url": "/consultations/booking-success",
+   "landed": "/consultations/booking-status",
+   "status": "TESTED",
+   "time_to_ready_ms": 1442,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Sa internet",
+     "result": "UI_CHANGE",
+     "response_ms": 450
+    },
+    {
+     "label": "Klinika",
+     "result": "UI_CHANGE",
+     "response_ms": 445
+    },
+    {
+     "label": "Sa bahay",
+     "result": "UI_CHANGE",
+     "response_ms": 451
+    },
+    {
+     "label": "Credit o debit card",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3594
+    },
+    {
+     "label": "Cash sa klinika",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Seguro",
+     "result": "UI_CHANGE",
+     "response_ms": 448
+    },
+    {
+     "label": "Magpatuloy sa ligtas na pagbabayad",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "consultations/call-history",
+   "url": "/consultations/call-history",
+   "landed": "/consultations/call-history",
+   "status": "TESTED",
+   "time_to_ready_ms": 2044,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "consultations/cancel-reschedule",
+   "url": "/consultations/cancel-reschedule",
+   "landed": "/consultations/cancel-reschedule",
+   "status": "TESTED",
+   "time_to_ready_ms": 1420,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Aking mga appointment",
+     "result": "NAVIGATE",
+     "to": "/consultations/appointments",
+     "response_ms": 469
+    }
+   ]
+  },
+  {
+   "route": "consultations/chat-with-doctor",
+   "url": "/consultations/chat-with-doctor",
+   "landed": "/consultations/chat-with-doctor",
+   "status": "TESTED",
+   "time_to_ready_ms": 1394,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Sa emergency, tumawag agad sa 997. Hindi",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3638
+    },
+    {
+     "label": "Larawan",
+     "result": "NO_EFFECT",
+     "disabled": true,
+     "response_ms": 3570
+    },
+    {
+     "label": "Dokumento",
+     "result": "NO_EFFECT",
+     "disabled": true,
+     "response_ms": 3575
+    },
+    {
+     "label": "Ipadala",
+     "result": "NO_EFFECT",
+     "disabled": true,
+     "response_ms": 3579
+    }
+   ]
+  },
+  {
+   "route": "consultations/clinic-confirm",
+   "url": "/consultations/clinic-confirm",
+   "landed": "/consultations/booking-status?state=confirmed",
+   "status": "TESTED",
+   "time_to_ready_ms": 1396,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "I-refresh ang katayuan",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3639
+    },
+    {
+     "label": "Kanselahin ang booking",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3563
+    }
+   ]
+  },
+  {
+   "route": "consultations/clinic-location",
+   "url": "/consultations/clinic-location",
+   "landed": "/consultations/booking-status?view=location",
+   "status": "TESTED",
+   "time_to_ready_ms": 1410,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Sa internet",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3614
+    },
+    {
+     "label": "Klinika",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3569
+    },
+    {
+     "label": "Sa bahay",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3567
+    },
+    {
+     "label": "Credit o debit card",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3574
+    },
+    {
+     "label": "Cash sa klinika",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3568
+    },
+    {
+     "label": "Seguro",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3571
+    },
+    {
+     "label": "Magpatuloy sa ligtas na pagbabayad",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3612
+    }
+   ]
+  },
+  {
+   "route": "consultations/clinic/[id]",
+   "status": "NOT_TESTED_DYNAMIC"
+  },
+  {
+   "route": "consultations/doctor-profile",
+   "url": "/consultations/doctor-profile",
+   "landed": "/search?view=doctors",
+   "status": "TESTED",
+   "time_to_ready_ms": 2685,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1108
+    },
+    {
+     "label": "Pinakamataas na rating",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3577
+    },
+    {
+     "label": "Pinakamababang presyo",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3566
+    }
+   ]
+  },
+  {
+   "route": "consultations/doctor-search",
+   "url": "/consultations/doctor-search",
+   "landed": "/search?view=doctors",
+   "status": "TESTED",
+   "time_to_ready_ms": 2652,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "󰁍",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 1127
+    },
+    {
+     "label": "Pinakamataas na rating",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3563
+    },
+    {
+     "label": "Pinakamababang presyo",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3585
+    }
+   ]
+  },
+  {
+   "route": "consultations/doctor/[id]",
+   "status": "NOT_TESTED_DYNAMIC"
+  },
+  {
+   "route": "consultations/follow-up",
+   "url": "/consultations/follow-up",
+   "landed": "/consultations/appointments",
+   "status": "TESTED",
+   "time_to_ready_ms": 1377,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Bagong booking",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Paparating",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3581
+    },
+    {
+     "label": "Nakaraan",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3579
+    },
+    {
+     "label": "Mag-book ng appointment",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3573
+    }
+   ]
+  },
+  {
+   "route": "consultations/home-visit-tracking",
+   "url": "/consultations/home-visit-tracking",
+   "landed": "/consultations/home-visit-tracking",
+   "status": "TESTED",
+   "time_to_ready_ms": 1445,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Aking mga appointment",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3570
+    }
+   ]
+  },
+  {
+   "route": "consultations/incoming-call",
+   "url": "/consultations/incoming-call",
+   "landed": "/consultations/incoming-call",
+   "status": "TESTED",
+   "time_to_ready_ms": 1409,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Tanggihan",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3582
+    },
+    {
+     "label": "Tanggapin",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3577
+    }
+   ]
+  },
+  {
+   "route": "consultations/offer/[id]",
+   "status": "NOT_TESTED_DYNAMIC"
+  },
+  {
+   "route": "consultations/post-call-rating",
+   "url": "/consultations/post-call-rating",
+   "landed": "/consultations/post-call-rating",
+   "status": "TESTED",
+   "time_to_ready_ms": 1405,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Masama",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Katamtaman",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Mabuti",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Napakahusay",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3575
+    },
+    {
+     "label": "Pambihira",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Mabilis",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3574
+    },
+    {
+     "label": "Propesyonal",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3574
+    },
+    {
+     "label": "Malinis",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3594
+    },
+    {
+     "label": "Matulungin",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3573
+    },
+    {
+     "label": "Inirerekomenda ko",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3569
+    },
+    {
+     "label": "Ipadala ang rating",
+     "result": "NO_EFFECT",
+     "disabled": true,
+     "response_ms": 3565
+    }
+   ]
+  },
+  {
+   "route": "consultations/prescription-from-doctor",
+   "url": "/consultations/prescription-from-doctor",
+   "landed": "/consultations/appointments",
+   "status": "TESTED",
+   "time_to_ready_ms": 1404,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Bagong booking",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Paparating",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3595
+    },
+    {
+     "label": "Nakaraan",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3590
+    },
+    {
+     "label": "Mag-book ng appointment",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3580
+    }
+   ]
+  },
+  {
+   "route": "consultations/share-report",
+   "url": "/consultations/share-report",
+   "landed": "/consultations/share-report",
+   "status": "TESTED",
+   "time_to_ready_ms": 2030,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3590
+    },
+    {
+     "label": "Bumalik sa mga ulat",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3585
+    }
+   ]
+  },
+  {
+   "route": "consultations/specialty-select",
+   "url": "/consultations/specialty-select",
+   "landed": "/consultations/specialty-select",
+   "status": "TESTED",
+   "time_to_ready_ms": 2609,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  },
+  {
+   "route": "consultations/summary",
+   "url": "/consultations/summary",
+   "landed": "/consultations/appointments",
+   "status": "TESTED",
+   "time_to_ready_ms": 1417,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Bagong booking",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Paparating",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3589
+    },
+    {
+     "label": "Nakaraan",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3571
+    },
+    {
+     "label": "Mag-book ng appointment",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3596
+    }
+   ]
+  },
+  {
+   "route": "consultations/video-call",
+   "url": "/consultations/video-call",
+   "landed": "/consultations/video-call",
+   "status": "TESTED",
+   "time_to_ready_ms": 1428,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3581
+    }
+   ]
+  },
+  {
+   "route": "consultations/virtual-waiting-room",
+   "url": "/consultations/virtual-waiting-room",
+   "landed": "/consultations/virtual-waiting-room",
+   "status": "TESTED",
+   "time_to_ready_ms": 1394,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3590
+    }
+   ]
+  },
+  {
+   "route": "consultations/waiting-room",
+   "url": "/consultations/waiting-room",
+   "landed": "/consultations/virtual-waiting-room",
+   "status": "TESTED",
+   "time_to_ready_ms": 1386,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3613
+    }
+   ]
+  },
+  {
+   "route": "delivery/address-select",
+   "url": "/delivery/address-select",
+   "landed": "/profile/addresses?select=1",
+   "status": "TESTED",
+   "time_to_ready_ms": 2056,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Magdagdag ng address sa mapa",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3573
+    }
+   ]
+  },
+  {
+   "route": "diagnostics/book-sample",
+   "url": "/diagnostics/book-sample",
+   "landed": "/diagnostics/book-sample",
+   "status": "TESTED",
+   "time_to_ready_ms": 1386,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 0,
+   "elements": [
+    {
+     "label": "Bumalik",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Pumunta sa cart",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3573
+    }
+   ]
+  },
+  {
+   "route": "diagnostics/booking-confirm",
+   "url": "/diagnostics/booking-confirm",
+   "landed": "/diagnostics",
+   "status": "TESTED",
+   "time_to_ready_ms": 2025,
+   "ready": true,
+   "not_ready_reason": "",
+   "render": {
+    "js": [],
+    "bad_reads": []
+   },
+   "inputs_filled": 1,
+   "elements": [
+    {
+     "label": "Mga order at resulta ko",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3587
+    },
+    {
+     "label": "Burahin ang paghahanap",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "I-filter",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Mga lab test",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3572
+    },
+    {
+     "label": "Radiology at imaging",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3580
+    },
+    {
+     "label": "Mga resulta ko",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3593
+    },
+    {
+     "label": "Ihambing ang presyo",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3572
+    },
+    {
+     "label": "Sa bahay",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3605
+    },
+    {
+     "label": "Sa lab",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3561
+    },
+    {
+     "label": "Pumili",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3574
+    },
+    {
+     "label": "May insurance o reseta ka ba?",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3604
+    },
+    {
+     "label": "Home",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Parmasya",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Mga Konsultasyon",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    },
+    {
+     "label": "Mga Lab Test",
+     "result": "NO_EFFECT",
+     "disabled": false,
+     "response_ms": 3591
+    },
+    {
+     "label": "Nursing",
+     "result": "TAP_FAILED",
+     "error": "Locator.dispatch_event: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locat"
+    }
+   ]
+  }
+ ]
+}

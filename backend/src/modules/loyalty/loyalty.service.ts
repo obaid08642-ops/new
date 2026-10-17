@@ -15,11 +15,13 @@ import { ChallengeProgressRepository } from "./repositories/challengeprogress.re
 import { RewardRepository } from "./repositories/reward.repository";
 import { RewardClaimRepository } from "./repositories/rewardclaim.repository";
 
+// `perk_codes` run parallel to `perks`: stable ids the clients translate into the patient's language (the Arabic `perks`
+// stay for older clients and the admin screens).
 const TIERS = [
-  { id: 'bronze', label: 'برونزي', icon: 'emoji_events', color: '#CD7C3C', minPts: 0, maxPts: 1000, perks: ['5% كاشباك على الاستشارات', 'أولوية حجز عادية'] },
-  { id: 'silver', label: 'فضي', icon: 'emoji_events', color: '#8B9DB0', minPts: 1001, maxPts: 5000, perks: ['8% كاشباك', 'شحن مجاني من الصيدلية', 'أولوية حجز متقدمة'] },
-  { id: 'gold', label: 'ذهبي', icon: 'emoji_events', color: '#F0A526', minPts: 5001, maxPts: 15000, perks: ['12% كاشباك', 'استشارة مجانية/شهر', 'دعم أولوية 24/7'] },
-  { id: 'platinum', label: 'بلاتيني', icon: 'stars', color: '#23B5CE', minPts: 15001, maxPts: 999999, perks: ['15% كاشباك', '2 استشارة مجانية/شهر', 'مدير صحة شخصي', 'دخول حصري للعروض'] },
+  { id: 'bronze', label: 'برونزي', icon: 'emoji_events', color: '#CD7C3C', minPts: 0, maxPts: 1000, perks: ['5% كاشباك على الاستشارات', 'أولوية حجز عادية'], perk_codes: ['cashback_5_consult', 'priority_standard'] },
+  { id: 'silver', label: 'فضي', icon: 'emoji_events', color: '#8B9DB0', minPts: 1001, maxPts: 5000, perks: ['8% كاشباك', 'شحن مجاني من الصيدلية', 'أولوية حجز متقدمة'], perk_codes: ['cashback_8', 'free_pharmacy_shipping', 'priority_advanced'] },
+  { id: 'gold', label: 'ذهبي', icon: 'emoji_events', color: '#F0A526', minPts: 5001, maxPts: 15000, perks: ['12% كاشباك', 'استشارة مجانية/شهر', 'دعم أولوية 24/7'], perk_codes: ['cashback_12', 'free_consult_monthly_1', 'support_priority_24_7'] },
+  { id: 'platinum', label: 'بلاتيني', icon: 'stars', color: '#23B5CE', minPts: 15001, maxPts: 999999, perks: ['15% كاشباك', '2 استشارة مجانية/شهر', 'مدير صحة شخصي', 'دخول حصري للعروض'], perk_codes: ['cashback_15', 'free_consult_monthly_2', 'personal_health_manager', 'exclusive_offers'] },
 ];
 
 function calculateTier(lifetimePoints: number): string {
