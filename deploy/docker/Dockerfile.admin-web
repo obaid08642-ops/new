@@ -2,7 +2,7 @@
 FROM node:20-bookworm-slim AS builder
 WORKDIR /usr/src/app
 COPY package.json package-lock.json* ./
-RUN npm ci --no-audit --no-fund || npm install --no-audit --no-fund
+RUN npm ci --no-audit --no-fund
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ARG NEXT_PUBLIC_API_URL=https://api.nabd.plus
