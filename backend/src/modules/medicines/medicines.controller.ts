@@ -1,5 +1,4 @@
 import { Body, Controller, Get, Headers, Param, Patch, Post, Query, UseGuards, Delete, Put, GoneException, Res, Header, BadRequestException } from '@nestjs/common';
-import { escapeRegex } from '../../common/slug.util';
 import { MedicinesService } from './medicines.service';
 import { queryInt } from '../../common/safe-query';
 import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
@@ -357,18 +356,9 @@ export class MedicinesController {
     @Res() res?: any,
   ): Promise<void> {
     const raw = res?.raw || res;
-    // Build filter using service's buildQuery if available, else minimal query directly
-    let filter: any;
+    // Public endpoint: the same public catalogue gate as the search (approved and public only).
+    const filter = this.svc.publicStreamFilter(search, category && category !== 'all' ? category : undefined);
     const svcAny: any = this.svc as any;
-    if (typeof svcAny.buildQuery === 'function') {
-      filter = svcAny.buildQuery(search, category && category !== 'all' ? category : undefined, true);
-    } else if (typeof svcAny.buildFilter === 'function') {
-      filter = svcAny.buildFilter({ search, category, sort });
-    } else {
-      filter = { is_deleted: { $ne: true } };
-      if (search) filter.$or = [{ name_ar: { $regex: escapeRegex(String(search)), $options: 'i' } }, { name_en: { $regex: escapeRegex(String(search)), $options: 'i' } }];
-      if (category && category !== 'all') filter.category = category;
-    }
     try {
       raw.write('{"items":[');
       let first = true;

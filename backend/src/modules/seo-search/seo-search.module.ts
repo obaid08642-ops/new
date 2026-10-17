@@ -2,6 +2,7 @@
 import { BackfillSlugsDto } from './seo-search.dto';
 import { safeDecode } from '../../common/slug.util';
 import { buildMedicineReport, medicineReportMarkdown } from './medicine-publication-report';
+import { publicMedicineFilter } from '../medicines/public-medicine-filter';
 /** Arabic/English search normalization: strip Arabic diacritics & tatweel, unify alef/hamza/yeh/teh-marbuta variants, NFKD + lowercase + collapse spaces. Pure, locale-safe. */
 export function normalizeSearchText(input: string): string {
   return (input ?? "")
@@ -227,7 +228,8 @@ export class SeoSearchService {
   private catalogCountCache = { exp: 0, val: 0 };
   async catalogCount(): Promise<number> {
     if (Date.now() < this.catalogCountCache.exp) return this.catalogCountCache.val;
-    const n = await this.conn.collection(CATALOG_COLLECTIONS.medicines).estimatedDocumentCount().catch(() => 0);
+    // The advertised product count (llms.txt) counts the public catalogue only.
+    const n = await this.conn.collection(CATALOG_COLLECTIONS.medicines).countDocuments(this.publicProductFilter()).catch(() => 0);
     this.catalogCountCache = { exp: Date.now() + 3600_000, val: n };
     return n;
   }
@@ -313,7 +315,9 @@ export class SeoSearchService {
   private async loadEntity(type: string, id: string): Promise<any> {
     if (type === 'category') return { id, is_category: true };
     const col = type === 'medicine' ? CATALOG_COLLECTIONS.medicines : type === 'article' ? 'articles' : 'provider_profiles';
-    return this.conn.collection(col).findOne({ id }, { projection: { _id: 0 } });
+    // Public SEO metadata: a medicine still in medical review has no public page.
+    const gate = type === 'medicine' ? this.publicProductFilter() : {};
+    return this.conn.collection(col).findOne({ ...gate, id }, { projection: { _id: 0 } });
   }
 
   private cdn(u?: string) {
@@ -388,7 +392,7 @@ export class SeoSearchService {
    * false), so an item added in the admin never reached patients. A page that is not indexable says noindex.
    */
   private publicProductFilter() {
-    return { is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' } as any;
+    return publicMedicineFilter() as any;
   }
 
   /** Search-engine surfaces (sitemaps, product count for them): published and indexing_eligibility. */
@@ -583,6 +587,13 @@ export class SeoSearchService {
       for (const [k, v] of this.sitemapCache) if (v.exp <= now) this.sitemapCache.delete(k);
     }
     return val;
+  }
+
+  /** Image sitemap rows: a sitemap lists only indexable public products. */
+  async imageSitemapMedicines(): Promise<any[]> {
+    return this.conn.collection(CATALOG_COLLECTIONS.medicines)
+      .find({ ...this.indexableProductFilter(), image: { $ne: null } }, { projection: { _id: 0, id: 1, name_ar: 1, slug: 1, image: 1 } } as any)
+      .sort({ usage_count: -1 }).limit(1500).toArray();
   }
 
   async publicProductCount(): Promise<number> {
@@ -975,7 +986,7 @@ export class SeoSearchService {
         { 'translations.tl.search_aliases': trx },
       );
     }
-    const medQuery = { is_deleted: { $ne: true }, $or: medOrClauses };
+    const medQuery = { ...this.publicProductFilter(), $or: medOrClauses };
     const [medicines, doctors, pharmacies, hospitals, labs, services] = await Promise.all([
       this.conn.collection(CATALOG_COLLECTIONS.medicines).find(medQuery as any, { projection: medProj } as any).limit(limit).toArray(),
       this.conn.collection('provider_profiles').find({ provider_type: 'doctor', $or: [{ name: rx }, { full_name: rx }, { specialty: rx }] } as any, { projection: docProj } as any).limit(limit).toArray(),
@@ -1207,9 +1218,7 @@ export class SeoSearchController {
   @Public()
   @Get('image-sitemap.xml')
   async imageSitemap(@Res() res: Response) {
-    const meds = await (this.svc as any).conn.collection(CATALOG_COLLECTIONS.medicines)
-      .find({ is_deleted: { $ne: true }, image: { $ne: null } }, { projection: { _id: 0, id: 1, name_ar: 1, slug: 1, image: 1 } } as any)
-      .sort({ usage_count: -1 }).limit(1500).toArray();
+    const meds = await this.svc.imageSitemapMedicines();
     const cdn = (u: string) => u?.startsWith('http') ? u : `${process.env.S3_PUBLIC_BASE_URL || 'https://cdn.nabd.plus'}/${u}`;
     const urls = meds.map((m: any) => {
       const slug = m.slug || m.id;
