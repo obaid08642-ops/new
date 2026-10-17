@@ -7,7 +7,10 @@ import {
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { logEvent } from '../../common/structured-logger';
+import { createHmac } from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
+import { OnModuleInit } from '@nestjs/common';
 
 /**
  * Patient referral program.
@@ -21,13 +24,43 @@ import { v4 as uuidv4 } from 'uuid';
  *  - no self-referral
  *  - a user can be referred only once
  *  - only genuinely new users (account < 30 days, no completed bookings)
+ *  - 16.12, one person per referral: the phone number of the account (from the account, never from the request) and the device
+ *    of the session are stored only as keyed hashes, and a phone or a device that already took part in a referral - as the
+ *    referred person, or as the referrer's own - cannot be used again. A unique index closes the race between two requests.
+ *  - 16.12, reward cap: one referrer is rewarded for at most REFERRAL_MAX_REWARDS_PER_MONTH (default 10) conversions in 30
+ *    days; the rest stay 'held' for an admin to look at, with no points.
  */
+export const REFERRAL_IDENTITY_USED = 'referral_identity_already_used';
 @Injectable()
-export class ReferralService {
+export class ReferralService implements OnModuleInit {
   constructor(
     @InjectConnection() private connection: Connection,
     private events: EventEmitter2,
   ) {}
+
+  /** 16.12: a keyed hash, so the raw phone number or device id is never stored in the referral data. */
+  static identityHash(kind: 'phone' | 'device', value: string): string {
+    const key = process.env.REFERRAL_HASH_KEY || process.env.JWT_SECRET || 'referral';
+    return createHmac('sha256', key).update(`${kind}:${String(value).trim().toLowerCase()}`).digest('hex').slice(0, 40);
+  }
+
+  /** Max conversions one referrer is rewarded for in 30 days (REFERRAL_MAX_REWARDS_PER_MONTH, default 10). */
+  static maxRewardsPerMonth(env: NodeJS.ProcessEnv = process.env): number {
+    const n = parseInt(String(env.REFERRAL_MAX_REWARDS_PER_MONTH || ''), 10);
+    return Number.isInteger(n) && n >= 0 ? n : 10;
+  }
+
+  async onModuleInit() {
+    try {
+      // one person per referral, enforced by the database: a phone or a device can be in one live referral only
+      await this.invites.createIndex({ referred_user_id: 1 }, { unique: true, name: 'referred_user_unique' });
+      await this.invites.createIndex({ referred_phone_hash: 1 }, { unique: true, name: 'referred_phone_unique', partialFilterExpression: { referred_phone_hash: { $type: 'string' }, status: { $in: ['registered', 'rewarded', 'held'] } } });
+      await this.invites.createIndex({ referred_device_hash: 1 }, { unique: true, name: 'referred_device_unique', partialFilterExpression: { referred_device_hash: { $type: 'string' }, status: { $in: ['registered', 'rewarded', 'held'] } } });
+    } catch (e: any) {
+      // existing rows may already break an index; the application checks below still apply, and the error is visible
+      logEvent('error', 'referral_index_failed', { error: e?.message }, 'referral');
+    }
+  }
 
   private get users() { return this.connection.db.collection('users'); }
   private get invites() { return this.connection.db.collection('referral_invites'); }
@@ -55,8 +88,15 @@ export class ReferralService {
     return after?.referral_code || code;
   }
 
+  /** The devices a user has been seen on (hashes), so their own second account cannot be referred from the first. */
+  private async rememberDevice(userId: string, deviceId?: string) {
+    if (!deviceId) return;
+    await this.users.updateOne({ id: userId }, { $addToSet: { referral_device_hashes: ReferralService.identityHash('device', deviceId) } });
+  }
+
   /** Referrer dashboard: code, aggregate stats, invite list with real states. */
-  async myDashboard(userId: string) {
+  async myDashboard(userId: string, deviceId?: string) {
+    await this.rememberDevice(userId, deviceId);
     const code = await this.getOrCreateCode(userId);
     const invites = await this.invites
       .find({ referrer_id: userId })
@@ -88,15 +128,15 @@ export class ReferralService {
   }
 
   /** A new user applies a referrer's code. */
-  async apply(userId: string, rawCode: string) {
+  async apply(userId: string, rawCode: string, deviceId?: string) {
     const code = String(rawCode || '').trim().toUpperCase();
     if (!code) throw new BadRequestException('code is required');
 
-    const referrer: any = await this.users.findOne({ referral_code: code }, { projection: { id: 1 } });
+    const referrer: any = await this.users.findOne({ referral_code: code }, { projection: { id: 1, phone: 1, referral_device_hashes: 1 } });
     if (!referrer) throw new NotFoundException('invalid referral code');
     if (referrer.id === userId) throw new BadRequestException('cannot use your own referral code');
 
-    const me: any = await this.users.findOne({ id: userId }, { projection: { referred_by: 1, createdAt: 1 } });
+    const me: any = await this.users.findOne({ id: userId }, { projection: { referred_by: 1, createdAt: 1, phone: 1, referral_device_hashes: 1 } });
     if (!me) throw new NotFoundException('user not found');
     if (me.referred_by) throw new ConflictException('a referral code was already applied to this account');
 
@@ -115,16 +155,47 @@ export class ReferralService {
     const existing = await this.invites.findOne({ referred_user_id: userId });
     if (existing) throw new ConflictException('a referral code was already applied to this account');
 
-    await this.invites.insertOne({
-      id: uuidv4(),
-      referrer_id: referrer.id,
-      referred_user_id: userId,
-      code,
-      status: 'registered',
-      reward_points: 0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    } as any);
+    // 16.12: one person per referral. The phone is the account's own (verified at sign-up), the device is the session's.
+    const phoneHash = me.phone ? ReferralService.identityHash('phone', String(me.phone)) : undefined;
+    const deviceHash = deviceId ? ReferralService.identityHash('device', deviceId) : undefined;
+    if (!phoneHash && !deviceHash) throw new BadRequestException('referral_identity_required');
+    await this.rememberDevice(userId, deviceId);
+    const referrerPhoneHash = referrer.phone ? ReferralService.identityHash('phone', String(referrer.phone)) : undefined;
+    const referrerDevices: string[] = Array.isArray(referrer.referral_device_hashes) ? referrer.referral_device_hashes : [];
+    if ((phoneHash && phoneHash === referrerPhoneHash) || (deviceHash && referrerDevices.includes(deviceHash))) {
+      await this.flag(userId, referrer.id, 'self_referral_same_phone_or_device');
+      throw new BadRequestException('cannot use your own referral code');
+    }
+    const clash = await this.invites.findOne({
+      status: { $in: ['registered', 'rewarded', 'held'] },
+      $or: [...(phoneHash ? [{ referred_phone_hash: phoneHash }] : []), ...(deviceHash ? [{ referred_device_hash: deviceHash }] : [])],
+    });
+    if (clash) {
+      await this.flag(userId, referrer.id, 'identity_already_referred');
+      throw new ConflictException(REFERRAL_IDENTITY_USED);
+    }
+
+    try {
+      await this.invites.insertOne({
+        id: uuidv4(),
+        referrer_id: referrer.id,
+        referred_user_id: userId,
+        code,
+        status: 'registered',
+        reward_points: 0,
+        referred_phone_hash: phoneHash,
+        referred_device_hash: deviceHash,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as any);
+    } catch (e: any) {
+      // the unique indexes decide a race between two requests with the same person behind them
+      if (e?.code === 11000) {
+        await this.flag(userId, referrer.id, 'identity_already_referred');
+        throw new ConflictException(REFERRAL_IDENTITY_USED);
+      }
+      throw e;
+    }
     await this.users.updateOne({ id: userId }, { $set: { referred_by: referrer.id, referral_applied_at: new Date() } });
     return { ok: true, status: 'registered' };
   }
@@ -142,6 +213,15 @@ export class ReferralService {
     const invite: any = await this.invites.findOne({ referred_user_id: payload.user_id, status: 'registered' });
     if (!invite) return;
 
+    // 16.12: a referrer is rewarded for a limited number of conversions in 30 days; the rest are held for review, with no points
+    const since = new Date(Date.now() - 30 * 24 * 3600 * 1000);
+    const rewardedRecently = await this.invites.countDocuments({ referrer_id: invite.referrer_id, status: 'rewarded', rewarded_at: { $gte: since } });
+    if (rewardedRecently >= ReferralService.maxRewardsPerMonth()) {
+      await this.invites.updateOne({ id: invite.id, status: 'registered' }, { $set: { status: 'held', held_reason: 'referrer_monthly_cap', held_at: new Date(), updatedAt: new Date() } });
+      await this.flag(payload.user_id, invite.referrer_id, 'referrer_monthly_cap');
+      return;
+    }
+
     // Atomic claim — only one concurrent event can flip the state
     const claimed = await this.invites.updateOne(
       { id: invite.id, status: 'registered' },
@@ -151,5 +231,12 @@ export class ReferralService {
 
     this.events.emit('referral.converted', { user_id: invite.referrer_id, referred_id: payload.user_id });
     this.events.emit('referral.welcome_bonus', { user_id: payload.user_id, referral_id: invite.id });
+  }
+
+  /** A refused or held referral is a security event the admin can read; it never carries the phone or the device. */
+  private async flag(userId: string, referrerId: string, reason: string) {
+    await this.connection.db.collection('security_events').insertOne({
+      type: 'referral_blocked', reason, user_id: userId, referrer_id: referrerId, at: new Date(),
+    } as any).catch(() => undefined);
   }
 }
