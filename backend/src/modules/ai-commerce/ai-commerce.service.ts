@@ -4,6 +4,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { randomBytes } from 'crypto';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
+import { publicMedicineFilter } from '../medicines/public-medicine-filter';
 import { readVatRate } from '../business-rules/business-rules.module';
 
 export interface ProductFeedQuery {
@@ -50,7 +51,8 @@ export class AiCommerceService {
     const skip = (page - 1) * limit;
     const locale = query.locale || 'ar';
 
-    const filter: Record<string, any> = { is_deleted: { $ne: true } };
+    // A public feed for AI agents: medically approved, public items only.
+    const filter: Record<string, any> = { ...publicMedicineFilter() };
 
     if (query.category) {
       filter.category = query.category;

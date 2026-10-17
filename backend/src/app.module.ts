@@ -50,6 +50,7 @@ import { EmergencyModule } from './modules/emergency/emergency.module';
 import { RealtimeModule } from './modules/realtime/realtime.module';
 import { I18nCoreModule } from './modules/i18n/i18n.module';
 import { AiModule } from './modules/ai/ai.module';
+import { ScannerModule } from './modules/scanner/scanner.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { EventsModule } from './modules/events/events.module';
 import { SeedModule } from './modules/seed/seed.module';
@@ -232,6 +233,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     OrdersModule,
     EmergencyModule,
     AiModule,
+    ScannerModule,
     NotificationsModule,
     EventsModule,
     RealtimeModule,

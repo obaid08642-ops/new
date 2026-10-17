@@ -4,8 +4,8 @@ import { getPatientInsuranceBenefits, getPatientInsurancePolicy } from "@/lib/ap
 import { parseInsuranceSummary, type InsuranceSummary } from "@/lib/api/insurance";
 import { callPatientApi } from "@/lib/api/upstream";
 import { getOptionalPatientAccessToken } from "@/lib/auth/session";
-import { readPublicInsurers } from "@/lib/api/public-services-server";
-import { parsePublicInsurers, signInHref } from "@/lib/services/guest";
+import { readPublicInsurers, readPublicNetworkProviders } from "@/lib/api/public-services-server";
+import { parsePublicInsurers, parsePublicProviders, signInHref } from "@/lib/services/guest";
 import { pickText } from "@/components-next/diagnostics/diag-parts";
 import { CareHero } from "@/components-next/care/care-kit";
 import { GuestAction, GuestList } from "@/components-next/guest/guest-service";
@@ -27,7 +27,7 @@ import forms from "@/components-next/consult/consult.module.css";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/insurance/insurance.module.css";
 
-type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string; q?: string; type?: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string; q?: string; type?: string; company?: string }> };
 
 /** One GET that may fail or throw: the part says so in place and the rest of the page still works. */
 async function read(call: () => Promise<Response>): Promise<{ status: number; body: unknown } | null> {
@@ -55,7 +55,7 @@ export default async function InsurancePage({ params, searchParams }: Props) {
   const token = await getOptionalPatientAccessToken();
   const tab: InsuranceTab = tabOf(sp.tab);
   const base = `/${locale}/insurance`;
-  if (!token) return <GuestInsurance locale={locale} />;
+  if (!token) return <GuestInsurance locale={locale} tab={tab} company={sp.company} type={sp.type} />;
 
   const policyRes = await read(() => getPatientInsurancePolicy(token));
   if (policyRes?.status === 401) redirect(signInHref(locale, base));
@@ -186,29 +186,66 @@ export default async function InsurancePage({ params, searchParams }: Props) {
 
 /**
  * Issue 1550: the insurance page of a guest. What the service is, the insurers and plans a policy can be added with (the public
- * GET /insurance/companies), and the one action, adding a policy, which opens the sign-in and comes back to the form. The
- * patient's own policy, requests and network are read only with a session.
+ * GET /insurance/companies), and the one action, adding a policy, which opens the sign-in and comes back to the form. On the
+ * network tab (`?tab=network`, where the old /insurance/network-providers lands) the guest picks an insurer and sees the published
+ * providers that accept it (the public GET /providers?insurance_company=…). The patient's own policy, requests and network are
+ * read only with a session.
  */
-async function GuestInsurance({ locale }: { locale: Locale }) {
+async function GuestInsurance({ locale, tab, company, type }: { locale: Locale; tab: InsuranceTab; company?: string; type?: string }) {
   const t = await getTranslations("InsuranceWeb");
   const g = await getTranslations("GuestServices");
   const read = await readPublicInsurers();
   const insurers = read.failed ? [] : parsePublicInsurers(read.body);
   const labels = await guestListLabels(g("insurance.insurersEmpty"));
   const shield = SERVICE_ICONS.insurance;
+  const base = `/${locale}/insurance`;
+  const network = tab === "network";
+  // Only an insurer of the public list is read; anything else typed into the URL is ignored.
+  const chosen = network ? insurers.find((insurer) => insurer.id === company?.trim()) : undefined;
+  const networkType = type && isProviderType(type) ? type : undefined;
+  const networkRead = chosen ? await readPublicNetworkProviders(chosen.id, networkType) : null;
+  const providers = networkRead && !networkRead.failed ? parsePublicProviders(networkRead.body) : [];
+  const networkLabels = await guestListLabels(t("networkEmpty"));
   return (
     <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}`}>
       <CareHero tone={shield.tone} icon={shield.icon} label={t("title")} title={g("insurance.heroTitle")} lines={[g("insurance.heroBody")]} />
+      {network ? (
+        <section aria-labelledby="insurance-network">
+          <h2 id="insurance-network" className={rx.h2}>{g("insurance.networkTitle")}</h2>
+          <form method="get" action={base} className={styles.search} role="search" aria-labelledby="insurance-network">
+            <input type="hidden" name="tab" value="network" />
+            <label className={`${forms.field} ${styles.searchField}`}>
+              <span className={forms.label}>{g("insurance.networkPick")}</span>
+              <select className={forms.control} name="company" defaultValue={chosen?.id ?? ""}>
+                <option value="" disabled>{g("insurance.networkPickHint")}</option>
+                {insurers.map((insurer) => <option key={insurer.id} value={insurer.id}>{pickText(locale, insurer.nameAr, insurer.nameEn) ?? ""}</option>)}
+              </select>
+            </label>
+            <button type="submit" className="nabd-button nabd-button--primary nabd-button--lg"><span className="nabd-button__label">{g("insurance.networkShow")}</span></button>
+          </form>
+          {networkRead ? (
+            <GuestList failed={networkRead.failed} count={providers.length} error={networkLabels.error} empty={networkLabels.empty}>
+              <RowsList label={g("insurance.networkTitle")}>
+                {providers.map((provider) => (
+                  <InsuranceRow key={provider.id} locale={locale} title={pickText(locale, provider.nameAr, provider.nameEn) ?? ""} sub={isProviderType(provider.type) ? t(`providerType.${provider.type}`) : provider.city} />
+                ))}
+              </RowsList>
+            </GuestList>
+          ) : (
+            <Notice>{g("insurance.networkHint")}</Notice>
+          )}
+        </section>
+      ) : null}
       <h2 id="insurers" className={rx.h2}>{g("insurance.insurersTitle")}</h2>
       <GuestList failed={read.failed} count={insurers.length} error={labels.error} empty={labels.empty}>
         <RowsList label={g("insurance.insurersTitle")}>
           {insurers.map((insurer) => {
             const plans = insurer.plans.map((plan) => pickText(locale, plan.nameAr, plan.nameEn)).filter((name): name is string => !!name);
-            return <InsuranceRow key={insurer.id} locale={locale} title={pickText(locale, insurer.nameAr, insurer.nameEn) ?? ""} sub={plans.length ? g("insurance.plans", { plans: plans.join(" · ") }) : undefined} />;
+            return <InsuranceRow key={insurer.id} locale={locale} href={`${base}?${new URLSearchParams({ tab: "network", company: insurer.id }).toString()}`} title={pickText(locale, insurer.nameAr, insurer.nameEn) ?? ""} sub={plans.length ? g("insurance.plans", { plans: plans.join(" · ") }) : undefined} />;
           })}
         </RowsList>
       </GuestList>
-      <GuestAction id="insurance-sign-in" title={g("insurance.actionTitle")} body={g("insurance.actionBody")} label={g("insurance.action")} href={signInHref(locale, `/${locale}/insurance/add-policy`)} />
+      <GuestAction id="insurance-sign-in" title={g("insurance.actionTitle")} body={g("insurance.actionBody")} label={g("insurance.action")} href={signInHref(locale, `${base}/add-policy`)} />
       <p className={styles.note}>{t("disclaimer")}</p>
     </ConsultPage>
   );

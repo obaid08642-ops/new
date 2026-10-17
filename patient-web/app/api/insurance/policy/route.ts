@@ -4,6 +4,7 @@ import { z } from "zod";
 import { authCookieNames } from "@/lib/auth/cookies";
 import { callPatientApi } from "@/lib/api/upstream";
 import { boundedUpstreamError } from "@/lib/api/error-response";
+import { insurerOf } from "@/lib/consult/doctor-filters";
 
 const schema = z.object({
   company_id: z.string().min(1).max(128),
@@ -33,4 +34,17 @@ export async function POST(request: Request) {
   const data = await upstream.json().catch(() => null);
   if (!upstream.ok) return boundedUpstreamError(data, "policy_save_failed", upstream.status);
   return NextResponse.json(data ?? { ok: true }, { headers: { "cache-control": "no-store" } });
+}
+
+/** The saved policy's company and class only (decision 30: the doctors list asks for it in the browser; the page reads no session). */
+export async function GET() {
+  const store = await cookies();
+  const accessToken = store.get(authCookieNames.access)?.value;
+  const noStore = { "cache-control": "no-store" };
+  if (!accessToken) return NextResponse.json({ message: "authentication_required" }, { status: 401, headers: noStore });
+  const upstream = await callPatientApi("/users/me/insurance", { cache: "no-store" }, accessToken);
+  const data = await upstream.json().catch(() => null);
+  if (!upstream.ok) return boundedUpstreamError(data, "policy_read_failed", upstream.status);
+  const insurer = insurerOf(data);
+  return insurer ? NextResponse.json(insurer, { headers: noStore }) : NextResponse.json({ message: "no_policy" }, { status: 404, headers: noStore });
 }

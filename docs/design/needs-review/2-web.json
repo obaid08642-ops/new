@@ -140,7 +140,7 @@
     "line": 76,
     "found": "[owner] The server has accepts_insurance only: 'Cash only' means doctors who do NOT accept insurance (accepts_insurance=false), not 'any doctor, paid in cash'. A patient who pays cash can still book any doctor from the unfiltered list. (backend: backend/src/modules/care/care.controller.ts:54)",
     "suspect": "Owner decision.",
-    "review_status": "open (owner approved the recommendation 2026-10-14, docs/review/OWNER_DECISIONS_PENDING_2026-10-14.md)"
+    "review_status": "fixed #1604 (owner approved recommendation 28 on 2026-10-14: Insurance / Self-pay, decision 30; class matching needs the D-30 backend #1459)"
   },
   {
     "batch": 2,

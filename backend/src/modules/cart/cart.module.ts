@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { JwtAuthGuard, CurrentUser, SelfService } from '../../common/auth.guard';
 import { Prescription, PrescriptionSchema } from '../../schemas/prescription.schema';
 import { Medicine, MedicineSchema } from '../../schemas/medicine.schema';
+import { publicMedicineFilter } from '../medicines/public-medicine-filter';
 import { PrescriptionState } from '../../common/enums';
 import { OrdersModule } from '../orders/orders.module';
 import { OrdersService } from '../orders/orders.service';
@@ -122,7 +123,8 @@ export class CartService {
     const manualName = String(body?.manual_name || '').trim();
     if ((medicineId && manualName) || (!medicineId && !manualName)) throw new BadRequestException('medicine_id_or_manual_name_required');
     if (medicineId) {
-      const medicine: any = await this.medicines.findOne({ id: medicineId, is_deleted: { $ne: true } }).lean();
+      // Only a public (medically approved) catalogue item can be added; anything else is not found.
+      const medicine: any = await this.medicines.findOne({ ...publicMedicineFilter(), id: medicineId }).lean();
       if (!medicine) throw new NotFoundException('medicine_not_found');
       return this.addLine(user, {
         kind: 'pharmacy', service_id: medicine.id, name_ar: medicine.name_ar,

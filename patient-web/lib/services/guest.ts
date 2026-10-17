@@ -26,7 +26,7 @@ export function parsePublicInsurers(payload: unknown): PublicInsurer[] {
   });
 }
 
-export type PublicProvider = { id: string; nameAr?: string; nameEn?: string; city?: string };
+export type PublicProvider = { id: string; nameAr?: string; nameEn?: string; city?: string; type?: string };
 
 /** GET /providers?type=…: the public provider rows (the backend strips every private field). */
 export function parsePublicProviders(payload: unknown): PublicProvider[] {
@@ -34,7 +34,7 @@ export function parsePublicProviders(payload: unknown): PublicProvider[] {
     const id = text(row.id);
     const nameAr = text(row.name_ar) ?? text(row.name);
     const nameEn = text(row.name_en);
-    return id && (nameAr || nameEn) ? [{ id, nameAr, nameEn, city: text(row.city) }] : [];
+    return id && (nameAr || nameEn) ? [{ id, nameAr, nameEn, city: text(row.city), type: text(row.type) }] : [];
   });
 }
 

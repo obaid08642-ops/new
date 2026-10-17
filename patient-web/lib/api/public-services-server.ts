@@ -29,3 +29,12 @@ export const readPublicHomeCareServices = () => readPublic("/nursing/catalog");
 export const readPublicHomeCareProviders = () => readPublic("/providers?type=home_care");
 /** GET /care/doctors?specialty=…: the published doctors of one specialty, with their consultation price. */
 export const readPublicDoctorsOf = (specialty: string) => readPublic(doctorQuery({ specialty }));
+/**
+ * GET /providers?insurance_company=…: the published providers that accept one insurer (its network); the same public discovery
+ * filter as above. The insurer id is one the public GET /insurance/companies listed, never a value typed into the URL.
+ */
+export const readPublicNetworkProviders = (companyId: string, type?: string) => {
+  const query = new URLSearchParams({ insurance_company: companyId });
+  if (type) query.set("type", type);
+  return readPublic(`/providers?${query.toString()}`);
+};

@@ -22,27 +22,62 @@ def patient_address(pat):
 MEDS = [('بنادول اكسترا 500 ملغ', 'Panadol Extra 500mg', 12.5), ('فيتامين سي 1000 ملغ', 'Vitamin C 1000mg', 25.0)]
 
 
-def admin_adds_medicines(admin):
+def catalog_body(ar, en, price):
     # admin/src/pages/admin/medicines-catalog.tsx saveForm (create)
+    return {'name_ar': ar, 'name_en': en, 'active_ingredient': 'paracetamol', 'generic_name': 'paracetamol',
+            'manufacturer': 'GSK', 'brand': 'Panadol', 'category': 'pain', 'sub_category': '', 'form': 'tablet', 'strength': '500mg',
+            'package_size': '24', 'barcode': '', 'price': price, 'requires_prescription': False, 'images': [], 'image': '',
+            'description_ar': 'مسكن', 'description_en': 'pain relief', 'usage_instructions_ar': '', 'usage_instructions_en': '',
+            'indications_ar': ['صداع'], 'indications_en': ['headache'], 'contraindications_ar': [], 'contraindications_en': [],
+            'warnings_ar': [], 'warnings_en': [], 'side_effects_ar': [], 'side_effects_en': [], 'precautions_ar': [], 'precautions_en': [],
+            'reason': 'إنشاء صنف جديد عبر واجهة الإدارة'}
+
+
+def admin_approves(admin, mid, label):
+    # admin medicines-catalog.tsx decideItem(m, true): the medical review that makes a new item public
+    r = admin.post(f'/medicines/admin/catalog/{mid}/approve', {'approve': True})
+    step(f'admin approves "{label}" (medical review)', r.ok and r.get('medical_review_status') == 'approved', r)
+
+
+def admin_adds_medicines(admin):
+    # A new catalogue item starts in medical review (not public); the admin approves it before patients can find it.
     journey('catalog: admin adds medicines')
     ids = []
     for ar, en, price in MEDS:
         tag = uuid.uuid4().hex[:6]
-        body = {'name_ar': f'{ar} {tag}', 'name_en': f'{en} {tag}', 'active_ingredient': 'paracetamol', 'generic_name': 'paracetamol',
-                'manufacturer': 'GSK', 'brand': 'Panadol', 'category': 'pain', 'sub_category': '', 'form': 'tablet', 'strength': '500mg',
-                'package_size': '24', 'barcode': '', 'price': price, 'requires_prescription': False, 'images': [], 'image': '',
-                'description_ar': 'مسكن', 'description_en': 'pain relief', 'usage_instructions_ar': '', 'usage_instructions_en': '',
-                'indications_ar': ['صداع'], 'indications_en': ['headache'], 'contraindications_ar': [], 'contraindications_en': [],
-                'warnings_ar': [], 'warnings_en': [], 'side_effects_ar': [], 'side_effects_en': [], 'precautions_ar': [], 'precautions_en': [],
-                'reason': 'إنشاء صنف جديد عبر واجهة الإدارة'}
+        body = catalog_body(f'{ar} {tag}', f'{en} {tag}', price)
         r = admin.post('/medicines/admin/catalog', body)
         mid = r.get('id')
         step(f'admin creates "{en}"', r.ok and mid, r)
-        # medicines-catalog.tsx approve(): the medical review that makes the item public in patient search
-        r = admin.post(f'/medicines/admin/catalog/{mid}/approve', {'approve': True})
-        step(f'admin approves "{en}" in medical review', r.ok and r.get('medical_review_status') == 'approved', r)
+        if mid:
+            admin_approves(admin, mid, en)
         ids.append({'id': mid, 'name_ar': body['name_ar'], 'name_en': body['name_en'], 'price': price})
     return ids
+
+
+def pending_medicine_not_public(admin, pat):
+    # Medical governance: GET /medicines?q= (patient-app and patient-web search) never shows an item still in review,
+    # also when no approved item matches the query (the typo-tolerant fallback used to skip the public gate).
+    journey('catalog governance: a medicine in medical review is not public until approved')
+    tag = uuid.uuid4().hex[:6]
+    body = catalog_body(f'دواء قيد المراجعة {tag}', f'Review Pending Drug {tag}', 15.0)
+    r = admin.post('/medicines/admin/catalog', body)
+    mid = r.get('id')
+    step('admin creates a new item (medical review pending)', r.ok and mid, r)
+    if not mid:
+        return
+    guest = Client()
+    hits = lambda c, q: [x.get('id') for x in c.get('/medicines?q=' + urllib.parse.quote(q) + '&limit=50').items()]
+    for q in (body['name_ar'], body['name_en']):
+        step(f'patient search for "{q}" does not show the pending item', mid not in hits(pat, q), q)
+        step(f'guest search for "{q}" does not show the pending item', mid not in hits(guest, q), q)
+    r = guest.get(f'/medicines/{mid}')
+    step('the pending item page is not public (404)', r.status == 404, r)
+    admin_approves(admin, mid, body['name_en'])
+    for q in (body['name_ar'], body['name_en']):
+        step(f'after approval the patient finds it searching "{q}"', mid in hits(pat, q), q)
+    r = guest.get(f'/medicines/{mid}')
+    step('after approval the item page is public', r.ok and r.get('id') == mid, r)
 
 
 def pharmacy_prices_items(pharm, admin, meds):
@@ -440,6 +475,7 @@ if __name__ == '__main__':
     j_onboarding.provider_after_approval(p)
     pat = j_accounts.app_signup(label='buyer')
     meds = admin_adds_medicines(admin)
+    pending_medicine_not_public(admin, Client(pat['token'], 'patient'))
     ph = Client(p['token'], 'pharmacy')
     pharmacy_prices_items(ph, admin, meds)
     public_page(ph)

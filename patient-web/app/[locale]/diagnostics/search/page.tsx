@@ -1,7 +1,6 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { isLabCategory, type LabCategory } from "@/lib/lab-categories";
-import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
 import { DiagnosticsSearchClient, type SearchRow } from "@/components-next/diagnostics-search-client";
@@ -31,15 +30,16 @@ function extractServices(payload: unknown, locale: string, categoryLabel: (code:
   });
 }
 
-/** The diagnostics search (canvas/Search): the live `/labs/services` list with a field that filters it as you type. */
+/**
+ * The diagnostics search (canvas/Search): the live `/labs/services` list with a field that filters it as you type. The list is
+ * public (@Public on the backend), so a guest gets it too and the read carries no credential (issue 1550); booking asks for the sign-in.
+ */
 export default async function DiagnosticsSearchPage({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("DiagWeb");
-  const token = await requirePatientAccess(locale);
-  const response = await callPatientApi("/labs/services", {}, token);
-  if (response.status === 401) redirect(`/${locale}/login`);
+  const response = await callPatientApi("/labs/services");
   const backHref = `/${locale}/diagnostics`;
   if (!response.ok) {
     return (

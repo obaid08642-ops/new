@@ -42,6 +42,11 @@ type Failure = SendFailure;
  * where the patient picks the prescription; the checkout then opens on that prescription (`prescription`, read by the
  * page from `?prescriptionId=`) and sends its medicines with the cart's lines and `prescription_id`. Without a picked
  * prescription such a cart cannot be sent: the screen points to rx-order, and no "active" prescription is guessed.
+ *
+ * Decision 30 (needs-review journeys 9, issue 1018): insurance or self-pay is chosen here, before the request goes out, and
+ * the order carries it (`payment_mode`, `payment_method`); the offers page selects with it and never asks again. Insurance
+ * needs the saved policy and a prescription on the order (the server refuses an insurance order without one), so it is
+ * offered with a picked prescription only.
  */
 export type CheckoutPrescription = { id: string; names: string[] };
 
@@ -87,7 +92,8 @@ export function CheckoutScreen({ locale, prescription = null }: { locale: Locale
   }, [active, mode]);
 
   const prescriptionOk = !hasRxItems || prescription !== null;
-  const insuranceOk = mode === "cash" || policy.status === "ok";
+  const payMode: PaymentMode = prescription ? mode : "cash";
+  const insuranceOk = payMode === "cash" || policy.status === "ok";
   const canSend = active && address.status === "ready" && prescriptionOk && insuranceOk && !sending;
 
   async function send() {
@@ -95,7 +101,7 @@ export function CheckoutScreen({ locale, prescription = null }: { locale: Locale
     const request: BroadcastRequest = {
       kind: "cart",
       lines: items.map((item) => ({ name: item.name, qty: item.qty, sku: item.id })),
-      paymentMode: mode,
+      paymentMode: payMode,
       fulfillment,
       ...(prescription ? { prescriptionId: prescription.id, rxNames } : {}),
     };
@@ -187,14 +193,14 @@ export function CheckoutScreen({ locale, prescription = null }: { locale: Locale
           <div className={styles.segmented}>
             <Segmented
               label={t("payLegend")}
-              value={mode}
+              value={payMode}
               onChange={(value) => setMode(value === "insurance" ? "insurance" : "cash")}
-              options={[{ value: "cash", label: t("payDirect") }, { value: "insurance", label: t("payInsurance") }]}
+              options={[{ value: "cash", label: t("payDirect") }, { value: "insurance", label: t("payInsurance"), disabled: !prescription }]}
               disabled={sending}
             />
           </div>
-          {mode === "insurance" ? <InsuranceCard state={policy} locale={locale} /> : null}
-          <p className={rx.note}>{t("payNote")}</p>
+          {payMode === "insurance" ? <InsuranceCard state={policy} locale={locale} /> : null}
+          <p className={rx.note}>{prescription ? t("payNote") : t("payInsuranceNeedsRx")}</p>
         </section>
 
         <section className={rx.card} aria-label={t("summaryTitle")}>

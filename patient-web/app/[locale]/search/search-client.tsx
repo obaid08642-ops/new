@@ -8,7 +8,8 @@ import { visibleItems } from "@/lib/modules";
 import { Chip, SectionHeader, ServiceTile } from "@/components-next/ui-generated/components/Surfaces";
 import { EmptyState, ErrorState } from "@/components-next/ui-generated/components/Feedback";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
-import { Search } from "@/components-next/ui-generated/components/Inputs";
+import { SearchSuggest, useSearchSuggest } from "@/components-next/search/search-suggest";
+import { SuggestSearchField } from "@/components-next/search/search-suggest-field";
 import { SERVICE_ICONS, type FillIconName, type ServiceName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { CoreShell } from "@/components-next/core/core-shell";
@@ -101,6 +102,8 @@ export function SearchClient({ locale, initialQuery = "" }: { locale: string; in
   const routeState = useTranslations("RouteState");
   const shellLocale: Locale = isLocale(locale) ? locale : "ar";
   const [query, setQuery] = useState(initialQuery);
+  // issue 1544: instant suggestions under the field while typing (the results below follow the query too)
+  const suggest = useSearchSuggest(shellLocale);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [state, setState] = useState<"idle" | "loading" | "error">(initialQuery.trim().length >= 2 ? "loading" : "idle");
   const [tab, setTab] = useState<Tab>("all");
@@ -212,7 +215,21 @@ export function SearchClient({ locale, initialQuery = "" }: { locale: string; in
     <CoreShell
       locale={shellLocale}
       cancelHref={`/${locale}`}
-      search={<Search variant="page" value={query} onChange={(value) => setQuery(truncateQuery(value))} placeholder={t("placeholder")} label={t("title")} onClear={() => setQuery("")} clearLabel={t("clear")} />}
+      search={<SearchSuggest
+        state={suggest.state}
+        controller={suggest.controller}
+        renderField={(combobox) => (
+          <SuggestSearchField
+            combobox={combobox}
+            value={query}
+            onChange={(value) => { const next = truncateQuery(value); setQuery(next); suggest.controller.input(next); }}
+            onClear={() => { setQuery(""); suggest.controller.input(""); }}
+            placeholder={t("placeholder")}
+            label={t("title")}
+            clearLabel={t("clear")}
+          />
+        )}
+      />}
     >
       {searching && state === "idle" && results.length > 0 ? null : <h1 className={styles.srOnly}>{t("title")}</h1>}
       {content}

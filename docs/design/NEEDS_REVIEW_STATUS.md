@@ -8,25 +8,25 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| Patient app and web | 434 | 4 | 329 | 97 | 4 | 0 |
+| Patient app and web | 434 | 0 | 333 | 97 | 4 | 0 |
 | Other | 29 | 1 | 25 | 3 | 0 | 0 |
 | Admin | 99 | 0 | 65 | 34 | 0 | 0 |
 | Admin journeys | 20 | 0 | 18 | 2 | 0 | 0 |
 | Final pass | 8 | 0 | 2 | 6 | 0 | 0 |
-| Patient journeys | 87 | 2 | 83 | 2 | 0 | 0 |
+| Patient journeys | 87 | 0 | 85 | 2 | 0 | 0 |
 | Provider app | 31 | 0 | 27 | 4 | 0 | 0 |
 | Provider journeys | 34 | 0 | 32 | 2 | 0 | 0 |
-| **Total** | **742** | **7** | **581** | **150** | **4** | **0** |
+| **Total** | **742** | **1** | **587** | **150** | **4** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | client | 169 | 1 | 127 | 41 | 0 | 0 |
-| owner | 100 | 3 | 54 | 42 | 1 | 0 |
+| owner | 100 | 0 | 57 | 42 | 1 | 0 |
 | backend | 235 | 0 | 205 | 30 | 0 | 0 |
-| untagged | 238 | 3 | 195 | 37 | 3 | 0 |
-| **Total** | **742** | **7** | **581** | **150** | **4** | **0** |
+| untagged | 238 | 0 | 198 | 37 | 3 | 0 |
+| **Total** | **742** | **1** | **587** | **150** | **4** | **0** |
 
 ## By file
 
@@ -49,9 +49,9 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `1e-app.json` | 6 | 0 | 4 | 2 | 0 | 0 |
 | `1e-web.json` | 10 | 0 | 9 | 1 | 0 | 0 |
 | `2-app.json` | 17 | 0 | 13 | 4 | 0 | 0 |
-| `2-web.json` | 14 | 1 | 11 | 2 | 0 | 0 |
-| `3-app.json` | 10 | 1 | 8 | 1 | 0 | 0 |
-| `3-web.json` | 8 | 1 | 6 | 1 | 0 | 0 |
+| `2-web.json` | 14 | 0 | 12 | 2 | 0 | 0 |
+| `3-app.json` | 10 | 0 | 9 | 1 | 0 | 0 |
+| `3-web.json` | 8 | 0 | 7 | 1 | 0 | 0 |
 | `4-app.json` | 8 | 0 | 7 | 1 | 0 | 0 |
 | `4-web.json` | 7 | 0 | 7 | 0 | 0 | 0 |
 | `5-app.json` | 18 | 0 | 11 | 7 | 0 | 0 |
@@ -76,7 +76,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-0-app.json` | 13 | 0 | 13 | 0 | 0 | 0 |
 | `batch-0-runtime.json` | 8 | 0 | 6 | 2 | 0 | 0 |
 | `batch-0-web.json` | 19 | 0 | 17 | 1 | 1 | 0 |
-| `batch-1a-app.json` | 19 | 1 | 6 | 11 | 1 | 0 |
+| `batch-1a-app.json` | 19 | 0 | 7 | 11 | 1 | 0 |
 | `batch-1a-web.json` | 12 | 0 | 8 | 4 | 0 | 0 |
 | `batch-1b-app.json` | 12 | 0 | 9 | 3 | 0 | 0 |
 | `batch-1b-web.json` | 13 | 0 | 9 | 4 | 0 | 0 |
@@ -86,7 +86,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1d-web.json` | 10 | 0 | 6 | 3 | 1 | 0 |
 | `final-pass-2.json` | 4 | 0 | 0 | 4 | 0 | 0 |
 | `final-pass.json` | 4 | 0 | 2 | 2 | 0 | 0 |
-| `journeys.json` | 87 | 2 | 83 | 2 | 0 | 0 |
+| `journeys.json` | 87 | 0 | 85 | 2 | 0 | 0 |
 | `provider-admin-ish.json` | 3 | 0 | 3 | 0 | 0 | 0 |
 | `provider-doctor.json` | 6 | 0 | 6 | 0 | 0 | 0 |
 | `provider-facility.json` | 7 | 0 | 7 | 0 | 0 | 0 |
@@ -100,7 +100,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 0 | 7 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 0 | 0 | 1 | 0 | 0 |
 | `tooling.json` | 13 | 0 | 12 | 1 | 0 | 0 |
-| **Total** | **742** | **7** | **581** | **150** | **4** | **0** |
+| **Total** | **742** | **1** | **587** | **150** | **4** | **0** |
 
 ## Owner decisions (4)
 
@@ -111,14 +111,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 3 | `batch-1a-app.json#18` `patient-app/src/i18n/locales/en.json:0` | /pharmacy Six-language strings | 177 pharmacy.* keys were added to patient-app/src/i18n/locales/{ar,en,ur,hi,bn,tl}.json. The English, Urdu, Hindi, Bengali and Filipino text was written by the design session (and, for reused phrases, taken from the phr… |
 | 4 | `batch-1d-web.json#1` `backend/src/modules/payments/payments.module.ts:154` | /pharmacy/payment Payment provider not exercised | No gateway key on the local backend (intent answers 503) and no Mongo replica set (selection / insurance acceptance fail). Hosted checkout, return and webhook were checked only against a TEST stand-in outside the repo (… |
 
-## Open and unverified (7)
+## Open and unverified (1)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
-| `2-web.json#12` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /consultations/doctors Cash-only filter | [owner] The server has accepts_insurance only: 'Cash only' means doctors who do NOT accept insurance (accepts_insurance=false), not 'any doctor, paid in cash'. A patient who pays … |
-| `3-app.json#0` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /diagnostics Payment filter (cash / insurance) drawn on ServiceHub | [owner] The board has it; no field says which test or lab takes insurance, so it is not drawn. |
-| `3-web.json#3` | owner | open (owner approved the recommendation 2026-10-14, docs/re… | /diagnostics labs carousel, cash filter, add toggle | [owner] board elements with no endpoint on the hub (no lab list, no cash flag, the cart is page based) |
 | `ac-1-agent-oauth.json#1` | client | open | Settings > Connected AI apps List and disconnect connected AI assistants | [client] No screen yet. Backend is ready: GET /api/v1/patient/agent-connections (client_id, client_name, logo_uri, scopes, connected_at) and DELETE /api/v1/patient/agent-connectio… |
-| `batch-1a-app.json#8` | untagged | open (issue #456) | /pharmacy/product-detail Insurance row (hidden) | SPEC §A shows it only when the patient's insurer is in covered_by_insurance[] (company ids). The screen has no call for the patient's insurer and no id-to-name lookup for the row'… |
-| `journeys.json#9` | untagged | open (issue #1018) | 1 checkout | Checkout offers "دفع مباشر" vs "عبر التأمين" as a toggle per order; decision 30 wants insurance or self-pay chosen at the start of the service and the app checkout has no insuranc… |
-| `journeys.json#24` | untagged | open (issue #1033) | 2 insurance on offers | Insurance is only choosable per offer (coverage radio shown if insuranceReady) for the Rx and manual flows, contrary to decision 30 (choose first). |
