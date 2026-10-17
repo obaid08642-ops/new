@@ -50,7 +50,10 @@ export NABD_PATIENT_WEB="${NABD_PATIENT_WEB:-${NABD_WEB_JOURNEYS_URL:-http://127
 python3 gate_p1.py || fail=1
 for j in "${JOURNEYS[@]}"; do
   ensure_backend || fail=1
-  out=$(run_step 1200 python3 "$j.py" 2>&1)
+  # j_web_call waits on the real clock for the call window (up to ~17 min after its setup, then the call itself): 30 min,
+  # as j_admin_clicks below; every other journey keeps the 20 min cap.
+  cap=1200; [[ $j == j_web_call ]] && cap=1800
+  out=$(run_step "$cap" python3 "$j.py" 2>&1)
   line=$(grep -E '^##### ' <<<"$out" | tail -1)
   echo "$j: ${line:-no summary (crashed)}"
   if [[ -z $line || ! $line =~ ", 0 failed" ]]; then
