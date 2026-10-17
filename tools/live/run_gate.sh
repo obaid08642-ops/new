@@ -50,7 +50,10 @@ export NABD_PATIENT_WEB="${NABD_PATIENT_WEB:-${NABD_WEB_JOURNEYS_URL:-http://127
 python3 gate_p1.py || fail=1
 for j in "${JOURNEYS[@]}"; do
   ensure_backend || fail=1
-  out=$(run_step 1200 python3 "$j.py" 2>&1)
+  # j_web_call waits on the real clock for the booking call window; near midnight UTC that window is tomorrow 00:00
+  # (up to ~45 min away), so it gets a longer limit than the 20 minutes every other journey has.
+  tmo=1200; [[ $j == j_web_call ]] && tmo=3600
+  out=$(run_step "$tmo" python3 "$j.py" 2>&1)
   line=$(grep -E '^##### ' <<<"$out" | tail -1)
   echo "$j: ${line:-no summary (crashed)}"
   if [[ -z $line || ! $line =~ ", 0 failed" ]]; then
