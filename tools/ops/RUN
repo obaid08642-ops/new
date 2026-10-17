@@ -1,1 +1,2 @@
-# 2026-10-16 reviewer: nothing to run. Production recovered at 14:47 UTC (68-mongo-start); the build session's report key is restored.
+# 2026-10-17 reviewer: read-only check of what production runs (owner asked whether the Antigravity deploy of main happened).
+69-deploy-check
