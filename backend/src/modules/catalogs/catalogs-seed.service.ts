@@ -5,16 +5,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { CATALOG_COLLECTIONS } from './catalog-collections';
 
-/**
- * Market-gap nursing additions (competitor audit).
- * Per-item upsert by code — deploys live automatically, never overwrites admin edits.
- */
-const NURSING_ADDITIONS = [
-  { code: 'dialysis_home', duration: 'hour', duration_value: 4, name_ar: 'غسيل كلى منزلي', name_en: 'Home Dialysis Session', category: 'specialized_care', price: 450, popularity: 40, description_ar: 'جلسة غسيل كلى منزلية بإشراف تمريضي متخصص.', description_en: 'Supervised home hemodialysis session.', image_url: 'https://cdn.nabd.plus/nursing/dialysis_home.png', active: true },
-  { code: 'speech_therapy', duration: 'hour', duration_value: 1, name_ar: 'علاج النطق والتخاطب', name_en: 'Speech Therapy', category: 'specialized_care', price: 220, popularity: 45, description_ar: 'جلسات تخاطب للأطفال ومرضى الجلطات.', description_en: 'Speech sessions for children and stroke patients.', image_url: 'https://cdn.nabd.plus/nursing/speech_therapy.png', active: true },
-  { code: 'lactation', duration: 'hour', duration_value: 1, name_ar: 'استشارة الرضاعة الطبيعية', name_en: 'Lactation Consultant', category: 'baby', price: 180, popularity: 55, description_ar: 'دعم الرضاعة للأمهات الجدد في المنزل.', description_en: 'In-home breastfeeding support for new mothers.', image_url: 'https://cdn.nabd.plus/nursing/lactation.png', active: true },
-];
-
 @Injectable()
 export class CatalogsSeedService implements OnModuleInit {
   private readonly logger = new Logger(CatalogsSeedService.name);
@@ -28,17 +18,6 @@ export class CatalogsSeedService implements OnModuleInit {
 
   private async seed() {
     let ok = 0;
-    for (const x of NURSING_ADDITIONS) {
-      try {
-        const r: any = await this.conn.collection(CATALOG_COLLECTIONS.nursing_services).updateOne(
-          { code: x.code },
-          { $setOnInsert: { ...x, id: x.code } },
-          { upsert: true },
-        );
-        if (r.upsertedCount || r.upsertedId) ok++;
-      } catch { /* already live */ }
-    }
-    if (ok) this.logger.log(`Seeded ${ok} new nursing services`);
     // Rows seeded by an earlier build carried `is_active` (not a schema field): every reader filters on
     // `active`, so they never reached patients even after admin approval. Idempotent repair.
     await this.conn.collection(CATALOG_COLLECTIONS.nursing_services)
@@ -52,8 +31,9 @@ export class CatalogsSeedService implements OnModuleInit {
     await this.conn.collection(CATALOG_COLLECTIONS.nursing_services)
       .updateMany({ duration: { $exists: false } } as any, { $set: { duration: 'hour', duration_value: 1 } } as any).catch(() => null);
     // P5.1: seed-data JSONs are the insert-only bootstrap source (never a read
-    // fallback). Same keys as the one-shot migration script.
-    ok = 0;
+    // fallback). Same keys as the one-shot migration script. #1556 F: they are the ONLY seed of the
+    // lab/radiology/nursing lists (the parallel TS seeds that created duplicate rows are gone), and each
+    // upsert matches either key a row may carry, so an older row is never inserted twice.
     try {
       const dir = path.join(__dirname, 'seed-data');
       const slug = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 60) || 'item';
@@ -66,7 +46,7 @@ export class CatalogsSeedService implements OnModuleInit {
         const code = x.short_code || slug(x.name_en);
         try {
           const r: any = await this.conn.collection(CATALOG_COLLECTIONS.lab_services).updateOne(
-            { test_code: code }, { $setOnInsert: { active: true, ...x, test_code: code, id: okId(x.id) || code } }, { upsert: true });
+            { $or: [{ test_code: code }, { short_code: code }] }, { $setOnInsert: { active: true, ...x, test_code: code, id: okId(x.id) || code } }, { upsert: true });
           if (r.upsertedCount || r.upsertedId) ok++;
         } catch { /* already live */ }
       }
@@ -82,7 +62,7 @@ export class CatalogsSeedService implements OnModuleInit {
         const id = okId(x.id) || slug(x.name_en);
         try {
           const r: any = await this.conn.collection(CATALOG_COLLECTIONS.nursing_services).updateOne(
-            { id }, { $setOnInsert: { active: true, duration: 'hour', duration_value: 1, ...x, id, code: x.code || id } }, { upsert: true });
+            { $or: [{ id }, { code: x.code || id }] }, { $setOnInsert: { active: true, duration: 'hour', duration_value: 1, ...x, id, code: x.code || id } }, { upsert: true });
           if (r.upsertedCount || r.upsertedId) ok++;
         } catch { /* already live */ }
       }
