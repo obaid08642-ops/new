@@ -150,6 +150,7 @@ import { UserRole } from '../../common/enums';
 import { AutoEntitySeoPipelineService, PipelineEntityType } from '../events/auto-entity-seo-pipeline.service';
 import { PUBLIC_MEDICINE, PUBLIC_TYPED_PROVIDER } from '../entity-graph/entity-graph.service';
 import { resolveMedicinePublicDto, productLocaleToDb, PUBLIC_CATALOG_LOCALES } from '../medicines/med-i18n';
+import { toPublicMedicine, toPublicProductCard } from '../medicines/public-medicine';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { EquivalentRow, ingredientCandidatePattern, ingredientParts, rankEquivalents } from './product-equivalents';
 // P5.3: merged from SeoModule (seo/ → seo-search/)
@@ -488,16 +489,8 @@ export class SeoSearchService {
 
   /** One localized, buy-ready product card (the search results and the product page's equivalents share it). */
   private publicProductCard(m: any, locale: string) {
-    const dto = resolveMedicinePublicDto(m, locale);
-    return {
-      sku: dto.sku, id: dto.id, slug: dto.slug, name: dto.name, official_name: dto.official_name,
-      description: dto.description, category: dto.category, sub_category: dto.sub_category,
-      form: dto.form, strength: dto.strength, package_size: dto.package_size,
-      active_ingredient: dto.active_ingredient, manufacturer: dto.manufacturer,
-      price: dto.price, old_price: dto.old_price, currency: dto.currency,
-      is_rx: dto.is_rx, online_exclusive: dto.online_exclusive, available: dto.available, image: dto.image,
-      url: `${process.env.WEB_PUBLIC_URL || 'https://nabd.plus'}/${locale}/p/${encodeURIComponent(String(dto.slug))}`,
-    };
+    // Issue 1555: one card builder, shared with GET /medicines/:id/alternatives (public-medicine.ts).
+    return toPublicProductCard(m, locale);
   }
 
   /**
@@ -1238,8 +1231,9 @@ export class SeoSearchController {
 
   @Public()
   @Get('medicines/:id/recommendations')
-  medicineRecommendations(@Param('id') id: string, @Query('limit') limit?: string) {
-    return this.svc.medicineRecommendations(id, parseInt(limit || '12'));
+  async medicineRecommendations(@Param('id') id: string, @Query('limit') limit?: string) {
+    // Issue 1555: public fields only (no popularity counter, no old price on a prescription item).
+    return toPublicMedicine(await this.svc.medicineRecommendations(id, parseInt(limit || '12')));
   }
 
   @Public()
