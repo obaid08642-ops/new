@@ -14,7 +14,7 @@
 import { Injectable } from '@nestjs/common';
 
 /** Latency buckets in milliseconds, matching the plan's p50/p95/p99 need. */
-const LATENCY_BUCKETS = [5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000];
+export const LATENCY_BUCKETS = [5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000];
 
 interface RouteStat {
   count: number;
@@ -163,9 +163,32 @@ export class MetricsService {
     };
   }
 
+  /**
+   * A copy of the cumulative counters, for the SLO evaluator (20.5): it diffs two snapshots to get the requests, errors
+   * and latency histogram of the last N minutes. Copied, so later requests do not change a snapshot already taken.
+   */
+  snapshot(): MetricsSnapshot {
+    const routes: MetricsSnapshot['routes'] = {};
+    for (const [route, s] of this.routes) routes[route] = { count: s.count, errors: s.errors, buckets: [...s.buckets] };
+    return { routes, eventLoopLagMs: this.eventLoopLagMs };
+  }
+
   reset() {
     this.routes.clear();
   }
+}
+
+export interface MetricsSnapshot {
+  routes: Record<string, { count: number; errors: number; buckets: number[] }>;
+  eventLoopLagMs: number;
+}
+
+/** The p-th percentile (upper bucket edge, as in `percentile`) of cumulative bucket counts. */
+export function percentileFromBuckets(buckets: number[], count: number, p: number): number {
+  if (count <= 0) return 0;
+  const target = count * (p / 100);
+  for (let i = 0; i < buckets.length; i += 1) if (buckets[i] >= target) return LATENCY_BUCKETS[i];
+  return LATENCY_BUCKETS[LATENCY_BUCKETS.length - 1];
 }
 
 /**
