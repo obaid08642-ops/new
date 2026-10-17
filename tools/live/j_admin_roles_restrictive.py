@@ -31,7 +31,7 @@ def login_admin(email, password):
     tok = next((c.value for c in w.jar if c.name == 'admin_access'), None)
     step('restricted admin: session token issued', bool(tok), [c.name for c in w.jar])
     api = Client(tok, 'admin-api')
-    enroll_admin_device(api)
+    enroll_admin_device(api, email)  # D-35: a first device confirms with the e-mailed code
     return api
 
 
