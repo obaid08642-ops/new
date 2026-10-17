@@ -14,6 +14,11 @@
  *   scripts (the RSC payload `self.__next_f.push(…)`) whose content changes with every page and every revalidation,
  *   and SRI covers external chunks only (measured on a production build, 2026-10-06).
  *
+ *   Owner decision 2026-10-16 (never a shared nonce): the copy of a public page a shared cache keeps (a guest's GET, see
+ *   guestCopyIsShared in server/nonce-server.mjs) therefore carries NO nonce: the nonce server computes the sha256 of each
+ *   inline script from the exact bytes of that copy (not at build time, for the reason above) and sends script-src with those
+ *   hashes + 'strict-dynamic', with the external scripts behind one hashed loader (server/nonce-transform.mjs, hashedPage).
+ *
  * Safety of stamping every tag: React escapes text, the RSC payload escapes "<" (<), and the only raw HTML
  * the app renders is the theme script and JSON-LD (escaped). A test pins that list (tests/csp-raw-html.test.ts).
  */
