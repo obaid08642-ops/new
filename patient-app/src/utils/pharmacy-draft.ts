@@ -16,9 +16,11 @@ export function buildPatientPharmacyDraft(items: CartDraftLine[], deliveryAddres
       lat: Number(deliveryAddress.lat), lng: Number(deliveryAddress.lng),
     },
     prescription_attachments: prescriptionAttachment ? [prescriptionAttachment] : [],
-    // F73: draft fulfillment + payment mode travel end-to-end.
+    // F73: draft fulfillment + payment mode travel end-to-end. Decision 30: insurance or self-pay is chosen before the
+    // request goes out; `payment_method` is what the broadcast reads to reach only in-network pharmacies (D-30 contract).
     fulfillment: opts?.fulfillment === 'pickup' ? 'pickup' : 'delivery',
     payment_mode: opts?.payment_mode === 'insurance' ? 'insurance' : 'cash',
+    payment_method: opts?.payment_mode === 'insurance' ? 'insurance' : 'cash',
     // the saved prescription the order is for (backend CreateDto `prescription_id`), the same link the web sends
     ...(opts?.prescription_id ? { prescription_id: opts.prescription_id } : {}),
   };

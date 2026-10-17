@@ -29,6 +29,8 @@ export default async function CallRoomPage({ params }: Props) {
   const jraw = asRecord(await join.json().catch(() => null));
   const jrec = asRecord(jraw?.data) ?? jraw;
   const roomToken = typeof jrec?.token === "string" ? jrec.token : null;
+  // P14.22: a dropped call offers the appointment's chat (the join answer names the appointment of the call)
+  const appointmentId = typeof jrec?.appointment_id === "string" && /^[0-9a-f-]{36}$/i.test(jrec.appointment_id) ? jrec.appointment_id : null;
   if (!join.ok || !roomToken) {
     return (
       <ConsultPage locale={locale} title={c("roomErrorTitle")} backHref={`/${locale}/consultations`}>
@@ -40,8 +42,9 @@ export default async function CallRoomPage({ params }: Props) {
     <ConsultPage locale={locale} title={c("roomTitle")} backHref={`/${locale}/consultations`} width="wide">
       <VideoRoomClient
         token={roomToken}
+        chatHref={appointmentId ? `/${locale}/appointments/${appointmentId}/chat` : undefined}
         serverUrl={livekitUrl()}
-        labels={{ connecting: c("roomPreparing"), live: c("callLive"), waiting: c("callWaitingForDoctor"), ended: c("callEnded"), leave: c("callLeave"), microphone: c("callMicrophone"), camera: c("callCamera"), you: c("callYou"), doctor: c("callDoctor") }}
+        labels={{ connecting: c("roomPreparing"), live: c("callLive"), waiting: c("callWaitingForDoctor"), ended: c("callEnded"), leave: c("callLeave"), microphone: c("callMicrophone"), camera: c("callCamera"), you: c("callYou"), doctor: c("callDoctor"), reconnecting: c("callReconnecting"), audioOnly: c("callAudioOnly"), tryVideo: c("callTryVideo"), dropped: c("callDropped"), continueInChat: c("callContinueInChat") }}
       />
     </ConsultPage>
   );

@@ -9,6 +9,7 @@ import { SubmitIndexNowDto } from './seo.dto';
 import { IndexNowService } from './indexnow.service';
 import { UserRole } from '../../common/enums';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 /**
  * Public SEO endpoints — slug resolution, meta tag generation,
  * sitemap.xml + robots.txt for search engine discovery.
@@ -109,6 +110,7 @@ export class SeoController {
    * Trigger on-demand or batch IndexNow submission for updated URLs.
    */
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.SEO_CONTROL)
   @Post('indexnow/submit')
   async submitIndexNow(@Body() body: SubmitIndexNowDto) {
     return this.indexNowSvc.submitUrls(body.urls);

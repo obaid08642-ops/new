@@ -42,7 +42,8 @@ export default function OrdersConsolePage() {
   useEffect(() => { void load(); }, [load]);
 
   function update(name: keyof typeof filters, value: string) { setFilters((current) => ({ ...current, [name]: value })); setPage(1); }
-  function exportUrl() { const { problem: _problem, ...rest } = filters; return `/api/admin/orders/export${toQuery(rest)}`; }
+  // Same filters as the table, the problem filter included; the export route lives under the admin BFF prefix like the list.
+  function exportUrl() { return `/api/admin/admin/orders/export${toQuery(filters)}`; }
 
   return <><Head><title>دورة الطلبات | نبض</title></Head><section dir="rtl" className="p-6 md:p-8">
     <header className="mb-6 flex flex-wrap items-end justify-between gap-4"><div><h1 className="text-3xl font-bold">دورة الطلبات الموحدة</h1><p className="mt-1 text-sm text-slate-500">بحث وفرز وتصفية من الخادم لجميع أنواع الطلبات دون كشف حالات مصطنعة.</p></div><a href={exportUrl()} className="rounded-lg border border-teal-700 px-4 py-2 text-sm font-bold text-teal-800">تصدير CSV</a></header>

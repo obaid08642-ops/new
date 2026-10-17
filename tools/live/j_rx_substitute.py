@@ -23,6 +23,9 @@ def rx_medicine(admin, name, ingredient, strength, form):
             'reason': 'صنف بوصفة للاختبار الحي'}
     r = admin.post('/medicines/admin/catalog', body)
     step(f'admin creates prescription-only {name} {strength} {form}', r.ok and r.get('id'), r)
+    if r.get('id'):
+        from j_pharmacy import admin_approves
+        admin_approves(admin, r.get('id'), f'{name} {strength} {form}')
     return {'id': r.get('id'), 'name_ar': body['name_ar'], 'name_en': body['name_en']}
 
 

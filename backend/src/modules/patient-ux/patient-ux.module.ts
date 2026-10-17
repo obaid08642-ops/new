@@ -196,6 +196,7 @@ export class AdminRefundsController {
   @Get() list() { return this.svc.adminListRefunds(); }
   @Get('pending') pending() { return this.svc.adminListRefunds('requested'); }
   // Approving marked the booking 'refunded' without a Moyasar refund (one refund path, owner decision 952).
+  @RequirePermissions(Permission.ORDER_REFUND)
   @Post(':id/decide') decideDisabled(): never { throw new GoneException('refund_decision_disabled_use_order_or_returns_page'); }
 }
 
@@ -324,6 +325,7 @@ export class AdminOverrideController {
    * Marked a booking paid, refunded or failed by hand: "paid" with no Moyasar payment, "refunded" with no refund.
    * The patient pays only through Moyasar and refunds have one path (owner decision 952), so this is gone.
    */
+  @RequirePermissions(Permission.ORDER_REFUND)
   @Post('payment') markPaymentDisabled(): never {
     throw new GoneException('manual_payment_status_disabled_moyasar_only');
   }

@@ -15,6 +15,22 @@ export class RadiologyService extends Document {
   @Prop() short_code?: string;
   @Prop() description_ar?: string;
   @Prop() description_en?: string;
+  // #1556 F: names, descriptions and preparation in the six app languages, and the published content
+  // (purpose, turnaround) from catalogs/content/services-content.v1.json.
+  @Prop() name_ur?: string;
+  @Prop() name_hi?: string;
+  @Prop() name_bn?: string;
+  @Prop() name_tl?: string;
+  @Prop() description_ur?: string;
+  @Prop() description_hi?: string;
+  @Prop() description_bn?: string;
+  @Prop() description_tl?: string;
+  @Prop({ type: [String], default: undefined }) preparation_ur?: string[];
+  @Prop({ type: [String], default: undefined }) preparation_hi?: string[];
+  @Prop({ type: [String], default: undefined }) preparation_bn?: string[];
+  @Prop({ type: [String], default: undefined }) preparation_tl?: string[];
+  @Prop({ type: Object }) content?: Record<string, unknown>;
+  @Prop() needs_price?: boolean;
   // imaging modality
   @Prop({ required: true, index: true }) modality: string; // xray | ct | mri | ultrasound | mammography | dexa | fluoroscopy | pet
   @Prop() body_part?: string; // chest, abdomen, brain, knee, etc.

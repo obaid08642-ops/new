@@ -32,6 +32,13 @@ describe("patient pharmacy order-progress adapter", () => {
     })).toEqual({ governedState: "FINAL_QUOTE_ACCEPTED", coverageMode: "cash", acceptedQuoteHash: "hash", acceptedQuoteRevision: 3, acceptedQuoteTotal: 36.5, codAllowed: true, paymentStatus: "pending" });
   });
 
+  it("reads the start choice (decision 30) only when the server sends it", () => {
+    expect(extractPatientPharmacyOrderProgress({ governed_state: "OFFERS_OPEN", payment_mode: "insurance" })?.paymentMode).toBe("insurance");
+    expect(extractPatientPharmacyOrderProgress({ governed_state: "OFFERS_OPEN", payment_method: "insurance" })?.paymentMode).toBe("insurance");
+    expect(extractPatientPharmacyOrderProgress({ governed_state: "OFFERS_OPEN", payment_mode: "cash" })?.paymentMode).toBe("cash");
+    expect(extractPatientPharmacyOrderProgress({ governed_state: "OFFERS_OPEN" })?.paymentMode).toBeUndefined();
+  });
+
   it("keeps insurance decisions scoped to the patient-facing per-item result", () => {
     expect(extractPatientPharmacyOrderProgress({
       governed_state: "INSURANCE_DECISION_READY",

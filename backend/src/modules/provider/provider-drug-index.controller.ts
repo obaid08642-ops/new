@@ -2,10 +2,15 @@ import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { escapeRegex } from '../../common/slug.util';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import { JwtAuthGuard } from '../../common/auth.guard';
+import { JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { PROVIDER_ROLES, UserRole } from '../../common/enums';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 
 @Controller('drugs')
+// Provider drug index (provider-app MedicalDrugIndexScreen, the only client): the full catalogue, items still in
+// medical review included, so it is for providers and admins only; a patient gets 403 (patients use /medicines).
+@UseGuards(JwtAuthGuard)
+@Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN)
 export class ProviderDrugIndexController {
   constructor(@InjectConnection() private readonly conn: Connection) {}
   private get col() { return this.conn.collection(CATALOG_COLLECTIONS.medicines); }

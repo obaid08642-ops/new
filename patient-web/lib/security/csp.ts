@@ -14,6 +14,11 @@
  *   scripts (the RSC payload `self.__next_f.push(…)`) whose content changes with every page and every revalidation,
  *   and SRI covers external chunks only (measured on a production build, 2026-10-06).
  *
+ *   Owner decision 2026-10-16 (never a shared nonce): the copy of a public page a shared cache keeps (a guest's GET, see
+ *   guestCopyIsShared in server/nonce-server.mjs) therefore carries NO nonce: the nonce server computes the sha256 of each
+ *   inline script from the exact bytes of that copy (not at build time, for the reason above) and sends script-src with those
+ *   hashes + 'strict-dynamic', with the external scripts behind one hashed loader (server/nonce-transform.mjs, hashedPage).
+ *
  * Safety of stamping every tag: React escapes text, the RSC payload escapes "<" (<), and the only raw HTML
  * the app renders is the theme script and JSON-LD (escaped). A test pins that list (tests/csp-raw-html.test.ts).
  */
@@ -34,6 +39,18 @@ export const SESSION_COOKIES = ["nabd_access", "nabd_refresh"] as const;
  */
 export const THEME_SCRIPT_HASH = `sha256-${createHash("sha256").update(THEME_INIT_SCRIPT).digest("base64")}`;
 
+/**
+ * P20.4: the browser Sentry SDK posts errors to its DSN's ingest origin (https://o….ingest.de.sentry.io); without that
+ * origin in connect-src no browser error reaches Sentry. The DSN is inlined at build time (Dockerfile.patient-web).
+ */
+export function sentryIngestOrigin(dsn = process.env.NEXT_PUBLIC_SENTRY_DSN): string | null {
+  try {
+    return dsn ? new URL(dsn).origin : null;
+  } catch {
+    return null;
+  }
+}
+
 export function contentSecurityPolicy(nonce: string, isDevelopment = process.env.NODE_ENV === "development") {
   return [
     "default-src 'self'",
@@ -48,7 +65,7 @@ export function contentSecurityPolicy(nonce: string, isDevelopment = process.env
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' '${THEME_SCRIPT_HASH}'${isDevelopment ? " 'unsafe-eval'" : ""}`,
     // Decision 4 (2026-10-14): a LiveKit other than wss://live.nabd.plus (NABD_LIVEKIT_URL, e.g. the local one of
     // tools/live/start-livekit.sh) is allowed by its exact origin, read at request time like the call screens read it.
-    ["connect-src 'self' https://api.nabd.plus wss://live.nabd.plus https://cdn.nabd.plus https://accounts.google.com/gsi/", ...livekitConnectSources()].join(" "),
+    ["connect-src 'self' https://api.nabd.plus wss://live.nabd.plus https://cdn.nabd.plus https://accounts.google.com/gsi/", ...livekitConnectSources(), sentryIngestOrigin()].filter(Boolean).join(" "),
     "font-src 'self' data:",
     "media-src 'self' https:",
     "object-src 'none'",

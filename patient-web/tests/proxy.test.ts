@@ -5,6 +5,7 @@ vi.mock("next-intl/middleware", () => ({ default: () => () => new Response() }))
 vi.mock("../i18n/routing", () => ({ routing: { locales: ["ar", "en", "ur", "hi", "bn", "fil"] } }));
 
 import { proxy } from "../proxy";
+import { CSP_NONCE_PLACEHOLDER } from "../lib/security/csp";
 
 function request(pathname: string) {
   return new NextRequest(new URL(pathname, "https://nabd.plus"));
@@ -55,5 +56,45 @@ describe("indexing response policy", () => {
     expect(firstPolicy).toContain("'strict-dynamic'");
     expect(firstPolicy).not.toContain("script-src 'self' 'unsafe-inline'");
     expect(firstPolicy).not.toBe(secondPolicy);
+  });
+});
+
+describe("owner decision 2026-10-16: action and signed-in pages keep a per-request nonce and are never cached", () => {
+  const ACTION = ["/ar/cart", "/en/checkout", "/ar/login", "/en/consultations/book", "/ar/pharmacy/payment", "/en/orders", "/ar/dashboard"];
+  const nonceOf = (policy: string | null) => /'nonce-([^']+)'/.exec(policy || "")?.[1];
+
+  for (const edge of ["1", ""]) {
+    it(`two requests to an action page get different nonces and no-store (behind the nonce server: ${edge === "1"})`, async () => {
+      vi.stubEnv("NABD_CSP_EDGE_NONCE", edge);
+      try {
+        for (const pathname of ACTION) {
+          const first = await proxy(request(pathname));
+          const second = await proxy(request(pathname));
+          const a = nonceOf(first.headers.get("content-security-policy"));
+          const b = nonceOf(second.headers.get("content-security-policy"));
+          expect(a).toBeTruthy();
+          expect(b).toBeTruthy();
+          expect(a).not.toBe(b);
+          expect(a).not.toBe(CSP_NONCE_PLACEHOLDER);
+          for (const r of [first, second]) {
+            expect(r.headers.get("cache-control")).toContain("no-store");
+            expect(r.headers.get("cache-control")).toContain("private");
+            expect(r.headers.get("content-security-policy")).toContain("'strict-dynamic'");
+          }
+        }
+      } finally {
+        vi.unstubAllEnvs();
+      }
+    });
+  }
+
+  it("a public page asked with a session is never cached either", async () => {
+    vi.stubEnv("NABD_CSP_EDGE_NONCE", "1");
+    try {
+      const r = await proxy(new NextRequest(new URL("/ar", "https://nabd.plus"), { headers: { cookie: "nabd_access=a.b.c" } }));
+      expect(r.headers.get("cache-control")).toContain("no-store");
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 });

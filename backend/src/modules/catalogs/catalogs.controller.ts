@@ -8,6 +8,7 @@ import { PublicCache } from '../../common/public-cache.decorator';
 import { CATALOG_COLLECTIONS } from './catalog-collections';
 import { IsBoolean, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 export class SpecialtyUpsertDto {
   @IsOptional() @IsString() code?: string;
   @IsDefined() @IsString() name_ar!: string;
@@ -125,6 +126,7 @@ export class CatalogsController {
     return this.conn.collection('specialties').find({}).sort({ sort: 1 }).limit(500).toArray();
   }
 
+  @RequirePermissions(Permission.CATALOG_UPDATE)
   @Post('admin/specialties')
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)
@@ -146,6 +148,7 @@ export class CatalogsController {
     return doc;
   }
 
+  @RequirePermissions(Permission.CATALOG_DELETE_RESTORE)
   @Delete('admin/specialties/:code')
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)

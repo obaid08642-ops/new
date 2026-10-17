@@ -125,6 +125,18 @@ for (const lang of ['ar', 'en', 'ur', 'hi', 'bn', 'tl']) {
   MedicineSchema.index({ [`translations.${lang}.slug`]: 1 }, { unique: true, sparse: true });
 }
 
+// Issue 1548: the public catalogue reads (`/c` listing and search, `/public/products/search`, product by id). Every one
+// filters on the public flags and sorts, and without these Mongo fetched every public product and sorted them in memory
+// (explain: SORT over ~19k documents for 48 rows). Equality first, then the sort keys of each order the page offers
+// (popularity, price both ways, newest), so the first page is read in index order and stops at the limit.
+const PUBLIC_KEYS = { public_eligibility: 1, medical_review_status: 1 } as const;
+MedicineSchema.index({ ...PUBLIC_KEYS, usage_count: -1, rating: -1, _id: 1 }, { name: 'public_popularity' });
+MedicineSchema.index({ ...PUBLIC_KEYS, price: 1, _id: 1 }, { name: 'public_price_asc' });
+MedicineSchema.index({ ...PUBLIC_KEYS, price: -1, _id: 1 }, { name: 'public_price_desc' });
+MedicineSchema.index({ ...PUBLIC_KEYS, createdAt: -1, _id: 1 }, { name: 'public_newest' });
+// The product id (a uuid string, not _id) is how the product page's related reads, the cart and orders find a product.
+MedicineSchema.index({ id: 1 }, { name: 'id_1' });
+
 MedicineSchema.pre('save', function (next) {
   if (this.isModified('name_ar') || this.isModified('name_en') || !this.slug) {
     const name = this.name_ar || this.name_en || 'item';

@@ -33,3 +33,11 @@ jobs:
       - uses: github/codeql-action/analyze@v4
         with:
           category: '/language:${{ matrix.language }}'
+          output: sarif-results
+      # The alerts as a run artifact, so sessions without code-scanning read access can fix them by root cause.
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: codeql-sarif-${{ matrix.language }}
+          path: sarif-results
+          retention-days: 14

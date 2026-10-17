@@ -27,7 +27,8 @@ vi.mock("next-intl/server", async () => {
 vi.mock("@/components-next/core/core-shell", () => ({
   CoreShell: ({ children, title, backHref }: { children: ReactNode; title?: string; backHref?: string }) => <div data-shell data-title={title} data-back={backHref}>{children}</div>,
 }));
-vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: async () => "server-only-care-token" }));
+// issue 1550: the hubs read the session without requiring it (a guest gets the public part)
+vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: async () => "server-only-care-token", getOptionalPatientAccessToken: async () => "server-only-care-token" }));
 vi.mock("@/lib/api/upstream", () => ({ callPatientApi: server.api }));
 vi.mock("@/lib/api/mood-server", () => ({ getPatientMoodHistory: (token: string) => server.api("/mental-health/mood?days=30", {}, token) }));
 vi.mock("@/lib/api/breathing-server", () => ({ getPatientBreathingHistory: (token: string) => server.api("/mental-health/breathing", {}, token) }));

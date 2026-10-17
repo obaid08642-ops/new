@@ -315,7 +315,7 @@ describe("sending the cart as a request", () => {
 
   it("carries names, quantities and the draft's own options: no price, no policy number, no identity number", () => {
     const body = buildBroadcastBody({ kind: "cart", lines, paymentMode: "insurance", fulfillment: "pickup" }, located);
-    expect(body).toMatchObject({ fulfillment: "pickup", payment_mode: "insurance", items: [{ raw_name: "Paracetamol 500", qty: 2, sku: "m1", intake_source: "cart" }, { raw_name: "Vitamin C", qty: 99, intake_source: "cart" }] });
+    expect(body).toMatchObject({ fulfillment: "pickup", payment_mode: "insurance", payment_method: "insurance", items: [{ raw_name: "Paracetamol 500", qty: 2, sku: "m1", intake_source: "cart" }, { raw_name: "Vitamin C", qty: 99, intake_source: "cart" }] });
     const text = JSON.stringify(body);
     expect(text).not.toMatch(/price|policy|national|nid|patient_notes|insurance:/i);
     expect(body).not.toHaveProperty("prescription_id");
@@ -419,6 +419,16 @@ describe("the checkout screen", () => {
     expect(html).toContain('href="/en/pharmacy/rx-order"');
     expect(html).toContain("Choose a prescription");
     expect(html).toMatch(/nabd-button[^"]*--disabled/);
+  });
+
+  it("decision 30 (issue 1018): insurance or self-pay is chosen here, before sending; without a prescription it is self-pay", () => {
+    cart.value.items = [item()];
+    const html = render(<CheckoutScreen locale="en" />);
+    expect(html).toContain("Insurance needs a prescription");
+    expect(html).toMatch(/<button[^>]*disabled=""[^>]*>(?:(?!<\/button>)[\s\S])*Through insurance/);
+    const withRx = render(<CheckoutScreen locale="en" prescription={{ id: TXN, names: ["Metformin"] }} />);
+    expect(withRx).toContain("Choose now: the offers you receive are for this choice");
+    expect(withRx).not.toMatch(/<button[^>]*disabled=""[^>]*>(?:(?!<\/button>)[\s\S])*Through insurance/);
   });
 
   it("decision 39: opened on a picked prescription it lists its medicines, even with an empty cart", () => {

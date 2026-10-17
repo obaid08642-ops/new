@@ -15,6 +15,7 @@ import { OnEvent, EventEmitter2 } from '@nestjs/event-emitter';
 import { Injectable as Inj } from '@nestjs/common';
 import { ReconciliationService } from './reconciliation.service';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 @Schema({ collection: 'event_dlq', timestamps: true })
 export class EventDlq extends Document {
   @Prop({ required: true, index: true }) original_event_id: string;
@@ -139,12 +140,15 @@ export class EventReliabilityService {
 export class EventReliabilityController {
   constructor(private svc: EventReliabilityService, private recon: ReconciliationService) {}
   @Get('status') status() { return this.svc.status(); }
+  @RequirePermissions(Permission.OPS_QUEUES_MANAGE)
   @Post('retry-failed') retry() { return this.svc.retryFailed(); }
+  @RequirePermissions(Permission.OPS_QUEUES_MANAGE)
   @Post('replay/:eventId') replay(@Param('eventId') id: string) { return this.svc.replayOne(id); }
   // P13-R13: failed-propagation list + reconciliation reports.
   @Get('failed') failed(@Query('limit') limit?: string, @Query('status') status?: string): Promise<any> {
     return this.recon.failedList({ limit: limit === undefined ? undefined : Number(limit), status });
   }
+  @RequirePermissions(Permission.OPS_QUEUES_MANAGE)
   @Post('reconciliation/run') runRecon(@Query('limit') limit?: string) {
     return this.recon.reconcile({ limit: limit === undefined ? undefined : Number(limit) });
   }

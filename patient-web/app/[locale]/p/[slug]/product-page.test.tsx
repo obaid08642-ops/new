@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const state = vi.hoisted(() => ({ getPublicProduct: vi.fn(), getPublicAlternatives: vi.fn(), getPublicVariants: vi.fn(), failed: false }));
+const state = vi.hoisted(() => ({ getPublicProduct: vi.fn(), getPublicEquivalents: vi.fn(), getPublicVariants: vi.fn(), failed: false }));
 
 // The shell and the client controls are not under test here (the page's data and structured data are).
 vi.mock("next/navigation", () => ({ notFound: vi.fn(), useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
@@ -17,7 +17,7 @@ vi.mock("@/lib/i18n", () => ({
 vi.mock("@/lib/api/public-products-server", () => ({
   getPublicProduct: state.getPublicProduct,
   readPublicProduct: async (...args: unknown[]) => ({ data: state.failed ? null : await state.getPublicProduct(...args), failed: state.failed }),
-  getPublicAlternatives: state.getPublicAlternatives,
+  getPublicEquivalents: state.getPublicEquivalents,
   getPublicVariants: state.getPublicVariants,
   cdnImage: (u?: string | null) => (u ? (u.startsWith("http") ? u : `https://cdn.nabd.plus/${u}`) : null),
 }));
@@ -45,7 +45,7 @@ const params = Promise.resolve({ locale: "en", slug: "abilify-aripiprazole-15-mg
 describe("public product page (catalog v14)", () => {
   beforeEach(() => {
     state.getPublicProduct.mockReset();
-    state.getPublicAlternatives.mockReset().mockResolvedValue([]);
+    state.getPublicEquivalents.mockReset().mockResolvedValue({ equivalents: [], similar: [] });
     state.getPublicVariants.mockReset().mockResolvedValue([]);
     state.failed = false;
   });
@@ -91,6 +91,44 @@ describe("public product page (catalog v14)", () => {
     expect(html).toContain('data-testid="variant-picker"');
     expect(html).toMatch(/aria-checked="true"[^>]*aria-label="-2.50"/);
     expect(html).toMatch(/>61\.50<\/strong><span[^>]*>SAR</);
+  });
+
+  // issue 1547: the pictures swipe on a scroll-snap strip and each one is a plain link to the full picture (a tap before
+  // hydration still opens it); the counter says "n / total"
+  it("draws every picture on the swipe strip as a link to the full picture, one preload, and the counter", async () => {
+    state.getPublicProduct.mockResolvedValue({ ...product, images: ["100002_img_1.webp", "100002_img_2.webp", "100002_img_3.webp"] });
+    const html = renderToStaticMarkup(await PublicProductPage({ params }));
+    for (const n of [1, 2, 3]) expect(html).toContain(`href="https://cdn.nabd.plus/100002_img_${n}.webp"`);
+    expect(html.match(/<link[^>]*rel="preload"[^>]*as="image"[^>]*>/g) ?? []).toHaveLength(1);
+    expect(html).toContain("imageCounter");
+    expect(html).toMatch(/<dialog[^>]*aria-label="Abilify/);
+    expect(html).not.toContain("style=");
+  });
+
+  // issue 1547: equivalents first; similar products only when there is none; no heading at all when both are empty
+  it("shows the equivalents, else the similar products, else nothing", async () => {
+    state.getPublicProduct.mockResolvedValue(product);
+    const card = (id: string, extra: Record<string, unknown> = {}) => ({
+      id, slug: id, name: `Name ${id}`, form: "Tablets", strength: "15 mg", package_size: null, price: 100, old_price: null,
+      currency: "SAR", is_rx: true, available: true, image: null, ...extra,
+    });
+    state.getPublicEquivalents.mockResolvedValue({ equivalents: [card("eq1")], similar: [] });
+    let html = renderToStaticMarkup(await PublicProductPage({ params }));
+    expect(html).toContain('data-testid="product-equivalents"');
+    expect(html).not.toContain('data-testid="product-similar"');
+    expect(html).toContain("Name eq1");
+
+    state.getPublicEquivalents.mockResolvedValue({ equivalents: [], similar: [card("sim1", { old_price: 300 })] });
+    html = renderToStaticMarkup(await PublicProductPage({ params }));
+    expect(html).toContain('data-testid="product-similar"');
+    expect(html).toContain("similarTitle");
+    expect(html).toContain("Name sim1");
+    expect(html).not.toContain("alternativesTitle");
+
+    state.getPublicEquivalents.mockResolvedValue({ equivalents: [], similar: [] });
+    html = renderToStaticMarkup(await PublicProductPage({ params }));
+    expect(html).not.toContain("alternativesTitle");
+    expect(html).not.toContain("similarTitle");
   });
 
   // Decision E (issue 1556): ur, hi and bn draw the English name under the localized one; ar, en and fil do not.

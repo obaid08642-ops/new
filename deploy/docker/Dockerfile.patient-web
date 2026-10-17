@@ -16,7 +16,23 @@ ARG NEXT_PUBLIC_SITE_ORIGIN=https://nabd.plus
 ENV NEXT_PUBLIC_SITE_ORIGIN=$NEXT_PUBLIC_SITE_ORIGIN
 ARG NEXT_PUBLIC_GOOGLE_CLIENT_ID=
 ENV NEXT_PUBLIC_GOOGLE_CLIENT_ID=$NEXT_PUBLIC_GOOGLE_CLIENT_ID
-RUN pnpm build
+# #1603: the ISR/data cache goes to Redis (patient-web/cache-handler.cjs), never to the container's disk. Without a
+# cache handler Next wrote every rendered page under .next/server (5.8 GB in 18 h, no cap, no eviction) and filled the
+# server's disk. The handler reads NEXT_CACHE_REDIS_URL at run time (compose: the capped, evicting redis-cache).
+# Build with --build-arg NEXT_CACHE_HANDLER= (empty) only for a local image without Redis.
+ARG NEXT_CACHE_HANDLER=redis
+ENV NEXT_CACHE_HANDLER=$NEXT_CACHE_HANDLER
+# P20.4: the browser bundle reads NEXT_PUBLIC_SENTRY_DSN at BUILD time (the runtime value in compose reaches only the
+# server). The DSN is public (it is in every page); this is the patient-web project's.
+ARG NEXT_PUBLIC_SENTRY_DSN=https://b85367ac6782629e65b311de92c0e3bc@o4511819998429184.ingest.de.sentry.io/4512078080245840
+ENV NEXT_PUBLIC_SENTRY_DSN=$NEXT_PUBLIC_SENTRY_DSN
+# the release every event carries (the git SHA); the release build passes --build-arg SENTRY_RELEASE=<sha>
+ARG SENTRY_RELEASE=
+ENV SENTRY_RELEASE=$SENTRY_RELEASE
+# source maps: uploaded only when the build gets the token as a secret (--secret id=sentry_auth_token,env=...),
+# never as an arg or layer
+RUN --mount=type=secret,id=sentry_auth_token \
+  SENTRY_AUTH_TOKEN="$(cat /run/secrets/sentry_auth_token 2>/dev/null || true)" pnpm build
 
 FROM node:22-alpine AS runner
 WORKDIR /app

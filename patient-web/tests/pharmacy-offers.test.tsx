@@ -51,7 +51,7 @@ describe("offer ordering", () => {
 
 describe("OfferList", () => {
   it("draws the server's totals and unit prices as sent, through the locale formatter, with no style attribute", () => {
-    const html = renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" offers={[offer()]} />);
+    const html = renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" coverage="cash" offers={[offer()]} />);
     expect(html).not.toContain("style=");
     expect(html).toContain("SAR 51.50"); // en: the total the server sent
     expect(html).toContain("SAR 46.50"); // subtotal as sent
@@ -63,26 +63,44 @@ describe("OfferList", () => {
   });
 
   it("an offer text from the pharmacy is drawn as text, never as markup", () => {
-    const html = renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" offers={[offer({ pharmacyName: "<img src=x onerror=alert(1)>", note: "<script>alert(1)</script>" })]} />);
+    const html = renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" coverage="cash" offers={[offer({ pharmacyName: "<img src=x onerror=alert(1)>", note: "<script>alert(1)</script>" })]} />);
     expect(html).not.toContain("<img src=x");
     expect(html).not.toContain("<script>alert");
     expect(html).toContain("&lt;img src=x onerror=alert(1)&gt;");
   });
 
   it("an offer with no price cannot be selected and says so: no invented total", () => {
-    const html = renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" offers={[offer({ total: undefined, subtotal: undefined, deliveryFee: undefined })]} />);
+    const html = renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" coverage="cash" offers={[offer({ total: undefined, subtotal: undefined, deliveryFee: undefined })]} />);
     expect(html).toContain("priceMissing");
     expect(html).not.toContain("0.00");
     expect(html).toMatch(/nabd-button[^"]*--disabled/);
   });
 
-  it("offers the insurance choice only when the server says the offer is insurance-ready", () => {
-    expect(renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" offers={[offer({ insuranceReady: true })]} />)).toContain("coverageInsurance");
-    expect(renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" offers={[offer({ insuranceReady: false })]} />)).not.toContain("coverageInsurance");
+  it("decision 30 (issue 1033): no choice per offer; the offer is selected with the payment chosen at the start", () => {
+    const cash = renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" coverage="cash" offers={[offer({ insuranceReady: true })]} />);
+    expect(cash).not.toContain('role="radiogroup"');
+    expect(cash).not.toContain("coverageLegend");
+    expect(cash).toContain("coverageChosenCash");
+    const insured = renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" coverage="insurance" offers={[offer({ insuranceReady: true })]} />);
+    expect(insured).not.toContain('role="radiogroup"');
+    expect(insured).toContain("coverageChosenInsurance");
+    expect(insured).not.toMatch(/nabd-button[^"]*--disabled/);
+  });
+
+  it("decision 30: an insurance order cannot select a pharmacy that does not take insurance", () => {
+    const html = renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" coverage="insurance" offers={[offer({ insuranceReady: false })]} />);
+    expect(html).toContain("coverageNotInNetwork");
+    expect(html).toMatch(/nabd-button[^"]*--disabled/);
+  });
+
+  it("decision 30: the order says what was chosen at the start", () => {
+    expect(extractPatientPharmacyOrderProgress({ status: "broadcasting", payment_mode: "insurance" })?.paymentMode).toBe("insurance");
+    expect(extractPatientPharmacyOrderProgress({ status: "broadcasting", payment_method: "insurance" })?.paymentMode).toBe("insurance");
+    expect(extractPatientPharmacyOrderProgress({ status: "broadcasting", payment_mode: "cash" })?.paymentMode).toBe("cash");
   });
 
   it("a non-open offer has no select button", () => {
-    expect(renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" offers={[offer({ open: false })]} />)).not.toContain("selectOffer");
+    expect(renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" coverage="cash" offers={[offer({ open: false })]} />)).not.toContain("selectOffer");
   });
 });
 
@@ -193,7 +211,7 @@ describe("times", () => {
     expect(html).toBe('<time dateTime="2026-10-06T10:00:00.000Z"></time>');
   });
   it("the absolute validity of an offer is not drawn on the server either", () => {
-    const html = renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" offers={[offer({ expiresAt: "2099-10-06T10:00:00.000Z" })]} />);
+    const html = renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" coverage="cash" offers={[offer({ expiresAt: "2099-10-06T10:00:00.000Z" })]} />);
     expect(html).not.toContain("validUntil");
   });
 });

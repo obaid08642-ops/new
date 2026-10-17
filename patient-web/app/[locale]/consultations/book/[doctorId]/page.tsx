@@ -14,6 +14,7 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { policyLines } from "@/components-next/consult/policy-lines";
 import { getCancellationPolicy } from "@/lib/consult/cancellation-policy";
+import { readTelehealthConsent } from "@/lib/legal/telehealth-consent";
 import type { Metadata } from "next";
 
 type Props = { params: Promise<{ locale: string; doctorId: string }> };
@@ -66,6 +67,7 @@ export default async function BookConsultationPage({ params }: Props) {
       doctor={doctor}
       policy={policy}
       homeAddresses={homeAddresses}
+      consent={await readTelehealthConsent(locale)}
       top={<JsonLd data={physician({ name, locale, path: `/consultations/doctors/${encodeURIComponent(doctorId)}`, specialty: doctor?.specialty })} />}
     />
   );

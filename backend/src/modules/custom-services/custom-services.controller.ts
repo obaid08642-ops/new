@@ -5,6 +5,7 @@ import { CustomServicesService } from './custom-services.service';
 import { UserRole } from '../../common/enums';
 import { CreateDto, UpdateStatusDto } from './custom-services.dto';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 @UseGuards(JwtAuthGuard)
 @Controller('custom-services')
 export class CustomServicesController {
@@ -18,5 +19,6 @@ export class CustomServicesController {
   // Admin/provider list & status update
   @Get('admin/list') list(@Query('kind') k?: string, @Query('status') s?: string) { return this.svc.adminList(k, s); }
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.ORDER_REASSIGN)
   @Patch('admin/:id/status') updateStatus(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateStatusDto) { return this.svc.updateStatus(u, id, b.status, b.note); }
 }

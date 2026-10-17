@@ -1,67 +1,33 @@
-// @ts-nocheck
-/**
- * M6 / ER-12: universal-link catcher for public SEO pages.
- * https://app.nabdahplus.com/s/:type/:slug resolves the entity via the
- * backend SEO service and forwards to the matching in-app screen.
- * If resolution fails the user lands on search with the slug as query.
- */
-import React, { useEffect, useState } from 'react';
-import { View, ActivityIndicator, Text } from 'react-native';
-import { useLocalSearchParams, router } from 'expo-router';
-import { apiFetch } from '../../../src/utils/api';
-import { LocalizedText } from '../../../src/components/LocalizedText';
-import { ScreenState } from '../../../src/components/ScreenStates';
+import React from 'react';
+import { useLocalSearchParams, type Href } from 'expo-router';
 
-const TYPE_ROUTE = {
-  medicine: (id) => ({ pathname: '/pharmacy/product-detail', params: { id } }),
-  doctor: (id) => ({ pathname: '/consultations/doctor-profile', params: { id } }),
-  facility: (id) => ({ pathname: '/consultations/clinic/[id]', params: { id } }),
-  'lab-service': (id) => ({ pathname: '/diagnostics/search', params: { serviceId: id } }),
-  'home-care-service': (id) => ({ pathname: '/nursing', params: { serviceId: id } }),
+import LinkCatcher from '../../../src/components/LinkCatcher';
+import { apiFetch } from '../../../src/utils/api';
+
+/**
+ * Universal-link catcher for the public SEO pages: https://app.nabdahplus.com/s/:type/:slug is resolved by the
+ * backend SEO service and forwarded to the matching screen.
+ */
+const TYPE_ROUTE: Record<string, (id: string) => Href> = {
+  medicine: (id) => ({ pathname: '/pharmacy/product-detail', params: { id } }) as Href,
+  doctor: (id) => ({ pathname: '/consultations/doctor-profile', params: { id } }) as Href,
+  facility: (id) => ({ pathname: '/consultations/clinic/[id]', params: { id } }) as Href,
+  'lab-service': (id) => ({ pathname: '/diagnostics/search', params: { serviceId: id } }) as Href,
+  'home-care-service': (id) => ({ pathname: '/nursing', params: { serviceId: id } }) as Href,
 };
 
 export default function PublicLinkCatcher() {
-  const { type, slug } = useLocalSearchParams();
-  const [err, setErr] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string|null>(null);
-
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const entity = await apiFetch(`/seo/resolve/${type}/${encodeURIComponent(String(slug))}`);
-        if (!mounted) return;
-        const id = entity?.id;
-        const factory = TYPE_ROUTE[String(type)];
-        if (id && factory) {
-          router.replace(factory(id));
-        } else {
-          setErr(true);
-        }
-      } catch {
-        if (mounted) { setErr(true); setError('تعذر فتح الرابط'); }
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
-    return () => { mounted = false; };
-  }, [type, slug]);
-
-  if (err) {
-    // Fallback: global search with the slug as query
-    router.replace({ pathname: '/search', params: { q: String(slug || '').replace(/-/g, ' ') } });
-    return null;
-  }
-
+  const { type, slug } = useLocalSearchParams<{ type: string; slug: string }>();
   return (
-    <ScreenState loading={loading} error={error} empty={false} emptyTitle="لا توجد بيانات" onRetry={() => setError(null)}>
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8FAFC' }}>
-      <ActivityIndicator size="large" color="#0D9488" />
-      <LocalizedText style={{ marginTop: 12, color: '#64748B' }}>جاري فتح الرابط…</LocalizedText>
-    </View>
-    </ScreenState>
+    <LinkCatcher
+      opening="link"
+      deps={[type, slug]}
+      resolve={async () => {
+        const factory = TYPE_ROUTE[String(type)];
+        if (!factory) return null;
+        const found = await apiFetch<{ id?: string }>(`/seo/resolve/${type}/${encodeURIComponent(String(slug))}`);
+        return found?.id ? factory(String(found.id)) : null;
+      }}
+    />
   );
 }

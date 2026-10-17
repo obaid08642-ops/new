@@ -13,6 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { CreateDto, ToggleDto, ApproveDto, OfferingDto, UpdateServiceDto, ProviderScheduleDto } from './service-catalog.dto';
 import { CapabilitiesCatalogController } from './service-catalog-compat.controller';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 /** Provider catalog ownership map: tracks which lab/radiology service belongs to which provider account (extends existing catalog non-destructively via separate ownership doc). */
 @Schema({ timestamps: true, collection: 'service_ownership' })
 export class ServiceOwnership extends Document {
@@ -262,6 +263,7 @@ export class ServiceCatalogController {
 
   // Admin
   @Get('admin/:type') @Roles(UserRole.ADMIN) adminAll(@Param('type') t: 'lab' | 'radiology', @Query() q: any) { return this.svc.adminListAll(t, q); }
+  @RequirePermissions(Permission.CATALOG_APPROVE)
   @Post('admin/:type/:id/approve') @Roles(UserRole.ADMIN) approve(@Param('type') t: 'lab' | 'radiology', @Param('id') id: string, @Body() b: ApproveDto, @CurrentUser() u: any) { return this.svc.adminApproveService(t, id, b.approve !== false, u); }
 }
 

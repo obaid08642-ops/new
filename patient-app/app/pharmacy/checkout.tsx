@@ -2,7 +2,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
 
-import { AppHeader, Button, Card, EmptyState, ErrorState, FIcon, OfflineState, Screen, Segmented, StickyFooter } from '../../../packages/ui-native/src';
+import { AppHeader, Button, Card, EmptyState, ErrorState, FIcon, OfflineState, SERVICE_ICONS, Screen, Segmented, StickyFooter } from '../../../packages/ui-native/src';
+import { loadPolicy, type InsurancePolicy } from '../../src/components/insurance/InsuranceKit';
 import { Notice } from '../../src/components/pharmacy/OfferKit';
 import { PHARMACY_TONE, goBack } from '../../src/components/pharmacy/PharmacyKit';
 import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
@@ -27,9 +28,17 @@ import { resolveEffectiveAddress, type SelectedAddress } from '../../src/utils/s
  * default address, read again when the screen comes back into focus); delivery or pickup. Two requests, create then
  * submit, each with an idempotency key: a retry after no answer sends the same keys and finds the same order, a retry
  * after an answer takes new ones. The control is disabled while they run and a synchronous guard stops a second tap.
+ *
+ * Decision 30 (needs-review journeys 9, issue 1018): insurance or self-pay is chosen here, before the request goes out,
+ * not per offer: the order carries it (`payment_mode` / `payment_method`), the broadcast reaches the pharmacies for that
+ * choice and the offers screen selects with it. Insurance needs the saved policy (GET /users/me/insurance) and a
+ * prescription on the order (the server refuses an insurance order without one), so it is offered with a prescription
+ * only. Once the request exists the choice is fixed (the order's edit takes everything but the payment mode).
  */
 
 type Fulfillment = 'delivery' | 'pickup';
+type PayMode = 'cash' | 'insurance';
+type PolicyState = { status: 'idle' | 'loading' | 'none' | 'error' } | { status: 'ok'; policy: InsurancePolicy };
 
 export default function PharmacyCheckoutScreen() {
   const { theme, t, c, dir, flow, k, num } = useScreenUi();
@@ -38,6 +47,9 @@ export default function PharmacyCheckoutScreen() {
   const rxId = (Array.isArray(params.prescriptionId) ? params.prescriptionId[0] : params.prescriptionId) || undefined;
 
   const [fulfillment, setFulfillment] = useState<Fulfillment>('delivery');
+  const [payMode, setPayMode] = useState<PayMode>('cash');
+  const [policy, setPolicy] = useState<PolicyState>({ status: 'idle' });
+  const [policyTry, setPolicyTry] = useState(0);
   const [address, setAddress] = useState<SelectedAddress | null>(null);
   const [loadingAddress, setLoadingAddress] = useState(true);
   const [rxLines, setRxLines] = useState<DraftLine[]>([]);
@@ -93,9 +105,29 @@ export default function PharmacyCheckoutScreen() {
     };
   }, [rxId, rxTry]);
 
+  // the saved policy, read when the patient chooses insurance (again after a failed read)
+  useEffect(() => {
+    if (payMode !== 'insurance') return undefined;
+    let active = true;
+    setPolicy({ status: 'loading' });
+    void (async () => {
+      try {
+        const saved = await loadPolicy();
+        if (active) setPolicy(saved ? { status: 'ok', policy: saved } : { status: 'none' });
+      } catch (error) {
+        logError('pharmacy:checkout:policy', error);
+        if (active) setPolicy({ status: 'error' });
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [payMode, policyTry]);
+
   const lines = checkoutLines(rxId ? rxLines : [], items.map((i) => ({ id: i.id, name: i.name, qty: i.qty })));
   const hasPoint = Boolean(address) && Number.isFinite(Number(address?.lat)) && Number.isFinite(Number(address?.lng));
-  const ready = !loadingAddress && (!rxId || rxState === 'ready') && lines.all.length > 0;
+  const insuranceOk = payMode === 'cash' || (Boolean(rxId) && policy.status === 'ok');
+  const ready = !loadingAddress && (!rxId || rxState === 'ready') && lines.all.length > 0 && insuranceOk;
 
   const send = async () => {
     if (busy.current || !ready) return;
@@ -108,7 +140,7 @@ export default function PharmacyCheckoutScreen() {
     setProblemKey(null);
     setNeedsLocation(false);
     try {
-      const draft = buildPatientPharmacyDraft(lines.all, address, rxId, { fulfillment, ...(rxId ? { prescription_id: rxId } : {}) });
+      const draft = buildPatientPharmacyDraft(lines.all, address, rxId, { fulfillment, payment_mode: rxId ? payMode : 'cash', ...(rxId ? { prescription_id: rxId } : {}) });
       const body = JSON.stringify(draft);
       let pair = keys.current.get(body);
       if (!pair) {
@@ -247,6 +279,36 @@ export default function PharmacyCheckoutScreen() {
             theme={theme}
           />
           {fulfillment === 'pickup' ? <Text style={{ ...scale(t, 'meta', 'regular'), lineHeight: 20, color: c.text.secondary, ...flow }}>{k('pharmacy.checkout.pickupNote')}</Text> : null}
+        </View>
+
+        <View style={{ gap: 8 }}>
+          <Text accessibilityRole="header" style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>{k('pharmacy.offers.coverage.label')}</Text>
+          <Segmented
+            label={k('pharmacy.offers.coverage.label')}
+            value={payMode}
+            onChange={(v) => setPayMode(v === 'insurance' ? 'insurance' : 'cash')}
+            disabled={submitting || created.current !== null}
+            options={[
+              { value: 'cash', label: k('pharmacy.offers.coverage.cash') },
+              { value: 'insurance', label: k('pharmacy.offers.coverage.insurance'), disabled: !rxId },
+            ]}
+            theme={theme}
+          />
+          <Text style={{ ...scale(t, 'meta', 'regular'), lineHeight: 20, color: c.text.secondary, ...flow }}>{rxId ? k('pharmacy.checkout.payFirst') : k('pharmacy.checkout.insuranceNeedsRx')}</Text>
+          {payMode === 'insurance' && policy.status === 'ok' ? (
+            <Card theme={theme} testID="checkout-insurance-card">
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <FIcon icon={SERVICE_ICONS.insurance.icon} tone={SERVICE_ICONS.insurance.tone} size={40} theme={theme} />
+                <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>{policy.policy.provider_name || policy.policy.provider || k('pharmacy.offers.coverage.insurance')}</Text>
+              </View>
+            </Card>
+          ) : null}
+          {payMode === 'insurance' && policy.status === 'none' ? (
+            <Notice tone="warning" text={k('pharmacy.checkout.insuranceNone')} actionLabel={k('pharmacy.checkout.insuranceAdd')} onAction={() => router.push('/insurance/add-policy' as Href)} />
+          ) : null}
+          {payMode === 'insurance' && policy.status === 'error' ? (
+            <Notice tone="danger" text={k('pharmacy.checkout.insuranceError')} actionLabel={k('pharmacy.retry')} onAction={() => setPolicyTry((n) => n + 1)} />
+          ) : null}
         </View>
 
         <Card theme={theme}>

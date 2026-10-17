@@ -34,6 +34,7 @@ import {
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { tokens } from '../../../theme/tokens';
 import { styles } from './_shared';
+import { fmtTime } from '../../../utils/dates';
 
 export function NotificationsScreen({ onBack }: { onBack: () => void }) {
  const { theme } = useTheme();
@@ -51,7 +52,7 @@ export function NotificationsScreen({ onBack }: { onBack: () => void }) {
         icon: n.type?.toLowerCase().includes('radiology') ? 'document-text' : n.type?.toLowerCase().includes('payment') ? 'cash' : 'notifications',
         ar: n.message_ar || n.message,
         en: n.message_en || n.message,
-        time: new Date(n.createdAt).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }),
+        time: fmtTime(n.createdAt, AR),
         unread: !n.read,
         metadata: n.metadata
       })));

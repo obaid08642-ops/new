@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 // Owner decision D (issue 1556): the product page's variant picker, built for long lists.
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string, v?: Record<string, unknown>) => (v ? `${key}:${Object.values(v).join(",")}` : key) }));
-vi.mock("@/lib/context/CartContext", () => ({ useCart: () => ({ addItem: vi.fn() }) }));
+vi.mock("@/lib/context/CartContext", () => ({ useCart: () => ({ addItem: vi.fn(), items: [], updateQty: vi.fn() }) }));
 vi.mock("next/image", () => ({ getImageProps: ({ src }: { src: string }) => ({ props: { src } }) }));
 
 import { BuyProvider, type BuyProduct, type BuyVariant } from "@/components-next/pharmacy/product-buy";
