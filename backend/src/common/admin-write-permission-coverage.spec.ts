@@ -17,6 +17,10 @@ const ADMIN_ROLES = new Set<string>([UserRole.ADMIN, UserRole.SUPER_ADMIN]);
 // enrol and lock their own device, or the device allow-list would lock them out of the panel.
 const OWN_ACCOUNT_ROUTES = new Set<string>([
   'AdminDevicesController.enroll',
+  // D-35: approve and confirm read the request by id AND the caller's user_id (admin-device-approval.service.ts),
+  // so an admin only ever approves or confirms a new device of their own account.
+  'AdminDevicesController.approve',
+  'AdminDevicesController.confirm',
   'AdminDevicesController.revoke',
   'AdminDevicesController.setLock',
 ]);
