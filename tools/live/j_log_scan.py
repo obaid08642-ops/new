@@ -14,15 +14,18 @@ LOG = os.environ.get('BACKEND_LOG', '/tmp/nabd-backend.log')
 PHONE = re.compile(r'(?<!\d)(?:\+?966|0)?5\d{8}(?!\d)|\+\d{10,15}(?!\d)')
 EMAIL = re.compile(r'[\w.+-]+@[\w-]+(?:\.[\w-]+)+')
 NATIONAL_ID = re.compile(r'(?<![\d.])[12]\d{9}(?![\d.])')
+# request ids, trace ids and content hashes are digits mixed with hex; a digit run inside one is not personal data
+OPAQUE_ID = re.compile(r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}|\b[0-9a-fA-F]{16,}\b')
 KEYS = {'ts', 'level', 'service', 'module', 'event', 'request_id', 'user_id', 'route', 'status', 'duration_ms', 'details'}
 
 
 def leaks(text):
     found = []
+    text = OPAQUE_ID.sub('<id>', text)
     for name, rx in (('phone', PHONE), ('email', EMAIL), ('national id', NATIONAL_ID)):
         m = rx.search(text)
         if m:
-            found.append(f'{name}: {m.group(0)[:4]}...')
+            found.append(f'{name}: {m.group(0)[:4]}... in {text[max(0, m.start() - 60):m.start()]!r}')
     return found
 
 
