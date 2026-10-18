@@ -66,21 +66,6 @@ export class MediaService {
     }
   }
 
-  async generatePresignedUploadUrl(originalName: string, mimeType: string, folder = 'general', expiresIn = 15 * 60): Promise<{ uploadUrl: string; key: string }> {
-    this.assertConfigured();
-    const extension = originalName.split('.').pop() || '';
-    const key = `${folder}/${uuid()}.${extension}`;
-
-    try {
-      const command = new PutObjectCommand({ Bucket: this.bucketName, Key: key, ContentType: mimeType });
-      const uploadUrl = await getSignedUrl(this.s3Client, command, { expiresIn: Math.min(Math.max(expiresIn, 60), 15 * 60) });
-      return { uploadUrl, key };
-    } catch (error) {
-      this.logger.error(`Failed to generate private presigned upload URL: ${error.message}`, error.stack);
-      throw new BadRequestException('media_upload_url_generation_failed');
-    }
-  }
-
   async deleteFile(key: string): Promise<void> {
     this.assertConfigured();
     try {

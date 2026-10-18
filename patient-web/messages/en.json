@@ -4299,6 +4299,7 @@
     "staleCopyNote": "The site is serving a saved copy while the server recovers.",
     "language": "Language",
     "componentWebsite": "Website",
+    "componentHome": "Home page",
     "componentApi": "Application server (API)",
     "componentSearch": "Search",
     "componentProduct": "Product pages",

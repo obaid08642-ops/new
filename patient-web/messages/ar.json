@@ -4299,6 +4299,7 @@
     "staleCopyNote": "الموقع يعرض نسخة محفوظة بينما يتعافى الخادم.",
     "language": "اللغة",
     "componentWebsite": "الموقع",
+    "componentHome": "الصفحة الرئيسية",
     "componentApi": "خادم التطبيق",
     "componentSearch": "البحث",
     "componentProduct": "صفحات المنتجات",

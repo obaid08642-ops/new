@@ -4299,6 +4299,7 @@
     "staleCopyNote": "सर्वर के ठीक होने तक साइट सहेजी हुई प्रति दिखा रही है।",
     "language": "भाषा",
     "componentWebsite": "वेबसाइट",
+    "componentHome": "मुख्य पृष्ठ",
     "componentApi": "एप्लिकेशन सर्वर",
     "componentSearch": "खोज",
     "componentProduct": "उत्पाद पृष्ठ",

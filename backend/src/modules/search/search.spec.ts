@@ -78,7 +78,8 @@ describe('D-29 Meilisearch adapter', () => {
     expect(settings.body.typoTolerance.enabled).toBe(true);
     expect(settings.body.searchableAttributes).toEqual(expect.arrayContaining(['names.ar', 'names.en', 'names.ur', 'names.hi', 'names.bn', 'names.fil']));
     expect(meiliSynonyms().panadol).toEqual(expect.arrayContaining(['paracetamol', 'باراسيتامول']));
-    expect(JSON.stringify(meiliSettings())).not.toMatch(/boost|usage|sponsor/);
+    // Relevance only: popularity is returned as a displayed field (tie-break) but never a ranking rule.
+    expect(JSON.stringify(meiliSettings().rankingRules)).not.toMatch(/boost|usage|sponsor/);
   });
 
   it('pushes and removes documents and searches one type per query', async () => {

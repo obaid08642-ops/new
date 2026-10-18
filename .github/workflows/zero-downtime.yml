@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Migrations follow expand/contract (new destructive migrations need contract-of)
         run: |
           python3 -m unittest discover -s tools/ci -p 'test_migration_safety.py' -v
@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Rolling deploy during a k6 run, then a broken release
         run: bash tools/ops/zero-downtime/run.sh
       - name: Logs
