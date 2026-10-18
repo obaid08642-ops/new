@@ -117,6 +117,8 @@
   "errors.codeRequired": "सत्यापन कोड दर्ज करें",
   "errors.offline": "इंटरनेट कनेक्शन नहीं है। अपना नेटवर्क जाँचें।",
   "errors.server": "सर्वर में त्रुटि हुई। बाद में फिर कोशिश करें।",
+  "errors.crashTitle": "कुछ गड़बड़ हो गई",
+  "errors.crashBody": "फिर से कोशिश करें। अगर यह जारी रहे, तो ऐप दोबारा खोलें।",
   "errors.notFound": "मांगी गई चीज़ नहीं मिली",
   "auth.login": "लॉग इन",
   "auth.createAccount": "खाता बनाएं",
