@@ -8,6 +8,8 @@ export class PushToken {
   @Prop({ required: true, unique: true }) token: string;
   @Prop({ enum: ['expo', 'fcm', 'apns'], default: 'expo' }) provider: string;
   @Prop() device_id?: string;
+  @Prop({ index: true }) session_id?: string; // 21.7: the sign-in it was registered from
+  @Prop() device_name?: string;
   @Prop() platform?: 'ios' | 'android' | 'web';
   @Prop({ default: true }) active: boolean;
   @Prop({ default: Date.now }) last_seen_at: Date;

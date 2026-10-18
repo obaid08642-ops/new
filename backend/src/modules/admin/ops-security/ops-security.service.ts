@@ -13,7 +13,9 @@ const BACKUP_STALE_AFTER = 26 * HOUR;
 /** D-34: a secret is stale when never rotated or rotated longer ago than this. */
 const SECRET_STALE_AFTER = 180 * DAY;
 
-const BACKUP_PAGE_KINDS = ['local', 'offsite', 'restore_test'];
+const BACKUP_PAGE_KINDS = ['local', 'offsite', 'restore_test', 'oplog', 'dr_drill'];
+/** 20.8: oplog slices run every 10 min; older than this and point-in-time recovery has a hole */
+const OPLOG_STALE_AFTER = 30 * 60 * 1000;
 /** D-34 rows in security_events (field `at`) expire after this; the page reads 24 h and 7 d. */
 const SECURITY_EVENT_TTL_SECONDS = 90 * 24 * 3600;
 
@@ -57,11 +59,13 @@ export class OpsSecurityService implements OnModuleInit {
 
   // ── Backups ──────────────────────────────────────────────
 
-  async reportBackupRun(run: { kind: string; ok: boolean; size_bytes?: number; finished_at: string; error?: string }) {
+  async reportBackupRun(run: { kind: string; ok: boolean; size_bytes?: number; finished_at: string; error?: string; rpo_seconds?: number; rto_seconds?: number }) {
     const doc = {
       kind: run.kind,
       ok: !!run.ok,
       size_bytes: typeof run.size_bytes === 'number' ? run.size_bytes : null,
+      rpo_seconds: typeof run.rpo_seconds === 'number' ? run.rpo_seconds : null,
+      rto_seconds: typeof run.rto_seconds === 'number' ? run.rto_seconds : null,
       finished_at: new Date(run.finished_at),
       error: run.error ?? null,
       reported_at: new Date(),
@@ -103,17 +107,23 @@ export class OpsSecurityService implements OnModuleInit {
     }
     const shape = (r: any) =>
       r ? { at: iso(r.finished_at), ok: !!r.ok, size_bytes: typeof r.size_bytes === 'number' ? r.size_bytes : null } : null;
-    const since = Date.now() - BACKUP_STALE_AFTER;
-    const fresh = (kind: string) => {
+    const fresh = (kind: string, within = BACKUP_STALE_AFTER) => {
       const r = newest[kind];
+      const since = Date.now() - within;
       return !!r && !!r.ok && (r.finished_at instanceof Date ? r.finished_at.getTime() : new Date(r.finished_at).getTime()) >= since;
     };
     return {
       local: shape(newest.local),
       offsite: shape(newest.offsite),
       restore_test: shape(newest.restore_test),
-      // Red when the newest successful local OR off-server copy is older than 26 h (or missing).
-      stale: !fresh('local') || !fresh('offsite'),
+      // 20.8: point-in-time recovery. oplog = newest slice run; dr_drill = newest disaster recovery drill with its measured numbers.
+      oplog: shape(newest.oplog),
+      dr_drill: newest.dr_drill
+        ? { ...shape(newest.dr_drill), rpo_seconds: newest.dr_drill.rpo_seconds ?? null, rto_seconds: newest.dr_drill.rto_seconds ?? null }
+        : null,
+      // Red when the newest successful local OR off-server copy is older than 26 h (or missing),
+      // or (once oplog slices have ever been reported) the newest slice is older than 30 min or failed.
+      stale: !fresh('local') || !fresh('offsite') || (!!newest.oplog && !fresh('oplog', OPLOG_STALE_AFTER)),
     };
   }
 
