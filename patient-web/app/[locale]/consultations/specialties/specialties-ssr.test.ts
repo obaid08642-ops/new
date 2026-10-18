@@ -26,7 +26,9 @@ describe("specialties SSR boundary", () => {
     state.getPublicSpecialties.mockResolvedValue(new Response(JSON.stringify({ data: [{ slug: "cardiology", name_ar: "قلب", name_en: "Cardiology", count: 7, patient_id: "private-patient" }] }), { status: 200 }));
     const html = renderToStaticMarkup(await SpecialtySelectPage({ params: Promise.resolve({ locale: "en" }) }));
     expect(html).toContain("Cardiology");
-    expect(html).toContain("/en/consultations/doctors?specialty=%D9%82%D9%84%D8%A8");
+    // The link carries the slug the doctors list reads (it used to carry the Arabic name).
+    expect(html).toContain("/en/consultations/doctors?specialty=cardiology");
+    expect(html).not.toContain("%D9%82%D9%84%D8%A8");
     expect(html).not.toContain("private-patient");
     expect(html).not.toContain("access-token");
   });
