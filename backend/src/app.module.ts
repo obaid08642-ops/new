@@ -96,6 +96,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { SlotLocksModule } from './modules/slot-locks/slot-locks.module';
 import { PushModule } from './modules/push/push.module';
 import { SecurityModule } from './modules/security/security.module';
+import { RiskModule } from './modules/risk/risk.module';
 import { RealtimeSseModule } from './modules/realtime/realtime.sse';
 import { ProviderOpsModule } from './modules/provider-ops/provider-ops.module';
 import { PatientUxModule } from './modules/patient-ux/patient-ux.module';
@@ -272,6 +273,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     FinanceEngineModule,
     SlotLocksModule,
     PushModule,
+    RiskModule,
     SecurityModule,
     RealtimeSseModule,
     ProviderOpsModule,
