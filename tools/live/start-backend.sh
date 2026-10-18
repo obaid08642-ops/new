@@ -34,7 +34,7 @@ export SES_SMTP_HOST=127.0.0.1 SES_SMTP_PORT=2525 SES_SMTP_USER=live SES_SMTP_PA
 # j_mail_rotation starts its own backends with Resend/Brevo/Mailjet pointed at tools/live/fake_mail.py.
 # 19.7: Saudi Post National Address lookups go to tools/live/fake_spl.py (RRRD2929 and JEDA1234 exist).
 # (the template is kept in a variable: a literal {code} inside ${VAR:-...} ends the expansion at the first "}" in bash)
-SPL_DEFAULT_URL='http://127.0.0.1:9101/address?shortaddress={code}&api_key={key}'
+SPL_DEFAULT_URL='http://127.0.0.1:9102/address?shortaddress={code}&api_key={key}'
 export SPL_API_URL="${SPL_API_URL:-$SPL_DEFAULT_URL}" SPL_API_KEY="${SPL_API_KEY:-live}"
 export MAIL_PROVIDER_ORDER="${MAIL_PROVIDER_ORDER:-ses}"
 export ALLOWED_ORIGINS="${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3001,http://localhost:8081,http://localhost:8082}"

@@ -1,4 +1,5 @@
-"""Saudi Post (SPL) National Address stand-in for live journeys (SPL_API_URL=http://127.0.0.1:9101/address?shortaddress={code}&api_key={key}).
+"""Saudi Post (SPL) National Address stand-in for live journeys (SPL_API_URL=http://127.0.0.1:9102/address?shortaddress={code}&api_key={key}).
+Port 9102: 9101 belongs to the chaos journey's slow proxy (j_chaos / slow_proxy.py).
 
   GET /address?shortaddress=RRRD2929&api_key=live  -> {"Addresses":[{...}], "success": true}
   GET /address?shortaddress=<unknown code>         -> {"Addresses":[], "success": true}   (valid format, no such address)
@@ -42,4 +43,4 @@ class H(BaseHTTPRequestHandler):
 
 
 if __name__ == '__main__':
-    ThreadingHTTPServer(('127.0.0.1', 9101), H).serve_forever()
+    ThreadingHTTPServer(('127.0.0.1', 9102), H).serve_forever()
