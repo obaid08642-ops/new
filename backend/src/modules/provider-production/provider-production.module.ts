@@ -671,10 +671,13 @@ export class ProviderProductionService {
       throw new BadRequestException('availability_roundtrip_failed');
     }
     if (patch.accepted_insurance !== undefined) {
+      // `accepted_insurance` stays the list of active company ids (many readers and the public map expect strings);
+      // the D-30 company-and-class contracts live beside it in `insurance_class_contracts`.
       const activeContracts = patch.accepted_insurance.filter((e: any) => e.active !== false);
+      const activeIds = [...new Set(activeContracts.map((e: any) => e.company_id))];
       await this.conn.collection('provider_profiles').updateOne(
         { $or: [{ user_id: user.id }, { account_id: user.id }] },
-        { $set: { accepted_insurance: activeContracts, updatedAt: new Date() } },
+        { $set: { accepted_insurance: activeIds, insurance_class_contracts: activeContracts, updatedAt: new Date() } },
       );
     }
     return { ok: true, availability: back.availability };

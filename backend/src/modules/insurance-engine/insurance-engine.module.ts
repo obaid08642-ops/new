@@ -418,6 +418,9 @@ export class InsuranceFlowService {
     const { has_policy, policy } = await this.myPolicy(user);
     if (!has_policy) throw new BadRequestException('NO_INSURANCE_POLICY'); // patient app redirects to add-policy then deep-returns (BR-2.2)
 
+    // A retry or a poll of a request that already exists returns it, even if the provider's contracts changed since.
+    const existing = await this.requests.findOne({ patient_id: user.id, booking_kind: kind, booking_id: bookingId, state: { $in: ['PENDING_PROVIDER_REVIEW', 'COPAY_PENDING', 'APPROVED_FULL', 'COPAY_PAID'] } }).lean();
+    if (existing) return existing;
     // D-30: the provider must hold an active contract for the patient's company AND class. Fails closed:
     // a policy without a company or a class, or a provider without contracts, is refused.
     const companyKeys = policyCompanyKeys(policy);
@@ -427,10 +430,8 @@ export class InsuranceFlowService {
     const providerProfile: any = await this.providerModel.findOne({
       $or: [{ id: { $eq: providerId } }, { user_id: { $eq: providerId } }, { account_id: { $eq: providerId } }],
     }).lean();
-    if (!hasInsuranceContract(providerProfile?.accepted_insurance, companyKeys, policyCls)) throw new ConflictException('insurance_not_accepted_by_provider');
+    if (!hasInsuranceContract(providerProfile?.insurance_class_contracts, companyKeys, policyCls)) throw new ConflictException('insurance_not_accepted_by_provider');
 
-    const existing = await this.requests.findOne({ patient_id: user.id, booking_kind: kind, booking_id: bookingId, state: { $in: ['PENDING_PROVIDER_REVIEW', 'COPAY_PENDING', 'APPROVED_FULL', 'COPAY_PAID'] } }).lean();
-    if (existing) return existing;
     const doc = await this.requests.create({
       patient_id: user.id, patient_name: user.full_name,
       provider_id: providerId,

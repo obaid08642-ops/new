@@ -44,7 +44,7 @@ import { MoyasarService } from '../modules/moyasar/moyasar.module';
 import { ProviderProfileController, ProviderScoreController } from '../modules/provider/provider.controllers';
 
 describe('Gate P3 live: empty bodies do not create records', () => {
-  const users: any = { getPatientProfile: async () => ({ addresses: [], insurance: {} }), updatePatientProfile: async () => ({}) };
+  const users: any = { getPatientProfile: async () => ({ addresses: [], insurance: {} }), updatePatientProfile: async () => ({}), setPatientInsurance: async () => ({}) };
   it('address needs a street/line1 or coordinates', async () => {
     const c = new UsersAddressesController(users, {} as any);
     await expect(c.addAddress('p1', {} as any)).rejects.toBeInstanceOf(BadRequestException);

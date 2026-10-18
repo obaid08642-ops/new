@@ -421,7 +421,7 @@ export class PharmacyBroadcastService {
       if (!Number.isFinite(d)) continue;
       // An insurance order reaches only pharmacies contracted for the patient's company AND class (fails closed
       // when the patient's policy has no company or class).
-      if (opts?.insurance && !hasInsuranceContract(pharm.accepted_insurance, opts.insurance.companyKeys, opts.insurance.cls)) continue;
+      if (opts?.insurance && !hasInsuranceContract(pharm.insurance_class_contracts, opts.insurance.companyKeys, opts.insurance.cls)) continue;
       const hasOwnDelivery = Boolean(pharm.has_own_delivery || pharm.has_own_drivers);
       const ownRadius = Number(pharm.delivery_radius_km ?? pharm.max_delivery_radius_km);
       let qualifies = false;

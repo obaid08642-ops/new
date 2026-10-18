@@ -74,7 +74,8 @@ export class UsersInsuranceController {
     if (![body.provider, body.provider_name, body.policy_number, body.member_id].some((v) => String(v || '').trim())) {
       throw new BadRequestException('insurance_details_required');
     }
-    if (body.provider && !body.class) {
+    // a policy that names a company (by id or by name) must name its class: bookings and broadcasts match on both
+    if ((body.provider || body.provider_name) && !body.class) {
       throw new BadRequestException('insurance_class_required');
     }
     const profile = await this.users.getPatientProfile(id);
@@ -83,7 +84,7 @@ export class UsersInsuranceController {
       ...body,
       verified: false, // Must be verified by admin
     };
-    await this.users.updatePatientProfile(id, { insurance: updatedInsurance });
+    await this.users.setPatientInsurance(id, updatedInsurance);
     // Fixed JSON only: never echo the patient's text back (read it with GET /users/me/insurance).
     return { success: true, verified: false };
   }

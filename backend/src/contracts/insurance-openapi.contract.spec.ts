@@ -20,7 +20,7 @@ describe('Insurance OpenAPI contracts', () => {
       controllers: [UserInsuranceController, UsersInsuranceController, InsuranceController],
       providers: [
         { provide: 'PatientProfileRepository', useValue: { findOne: jest.fn() } },
-        { provide: UsersService, useValue: { getPatientProfile: jest.fn(), updatePatientProfile: jest.fn() } },
+        { provide: UsersService, useValue: { getPatientProfile: jest.fn(), updatePatientProfile: jest.fn(), setPatientInsurance: jest.fn() } },
         { provide: getModelToken('PatientProfile'), useValue: {} },
         { provide: InsuranceService, useValue: { listCompanies: jest.fn().mockResolvedValue([]) } },
         { provide: JwtService, useValue: { verifyAsync: jest.fn() } },

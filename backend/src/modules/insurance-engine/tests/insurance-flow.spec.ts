@@ -30,7 +30,7 @@ describe('InsuranceFlowService', () => {
     requests = { findOne: jest.fn(), create: jest.fn(async (data) => makeDoc(data)) };
     transactions = { findOne: jest.fn() };
     orders = { findOne: jest.fn() };
-    providers = { findOne: jest.fn(() => ({ lean: async () => ({ accepted_insurance: [{ company_id: 'company-1', classes: ['A'], active: true }] }) })) };
+    providers = { findOne: jest.fn(() => ({ lean: async () => ({ insurance_class_contracts: [{ company_id: 'company-1', classes: ['A'], active: true }] }) })) };
     service = new InsuranceFlowService(requests, {} as any, {} as any, providers, events, transactions, orders, {} as any, {} as any, {} as any, {} as any);
     jest.clearAllMocks();
   });
@@ -76,12 +76,21 @@ describe('InsuranceFlowService', () => {
       withPolicy({ company_id: 'company-2', class: 'A' });
       await expect(service.createRequest(patient, booking)).rejects.toBeInstanceOf(ConflictException);
       withPolicy({ company_id: 'company-1', class: 'A' });
-      providers.findOne.mockReturnValue({ lean: async () => ({ accepted_insurance: [{ company_id: 'company-1', classes: ['A'], active: false }] }) });
+      providers.findOne.mockReturnValue({ lean: async () => ({ insurance_class_contracts: [{ company_id: 'company-1', classes: ['A'], active: false }] }) });
       await expect(service.createRequest(patient, booking)).rejects.toBeInstanceOf(ConflictException);
       providers.findOne.mockReturnValue({ lean: async () => ({ accepted_insurance: ['company-1'] }) });
       await expect(service.createRequest(patient, booking)).rejects.toBeInstanceOf(ConflictException);
       providers.findOne.mockReturnValue({ lean: async () => null });
       await expect(service.createRequest(patient, booking)).rejects.toBeInstanceOf(ConflictException);
+      expect(requests.create).not.toHaveBeenCalled();
+    });
+
+    it('a request that already exists is returned on retry even after the provider changed its contracts', async () => {
+      withPolicy({ company_id: 'company-1', class: 'A' });
+      const existing = makeDoc({ id: 'req-old', state: 'PENDING_PROVIDER_REVIEW' });
+      requests.findOne.mockReturnValue({ lean: async () => existing });
+      providers.findOne.mockReturnValue({ lean: async () => ({ insurance_class_contracts: [] }) });
+      await expect(service.createRequest(patient, booking)).resolves.toBe(existing);
       expect(requests.create).not.toHaveBeenCalled();
     });
 

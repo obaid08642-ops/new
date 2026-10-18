@@ -114,7 +114,7 @@ export class CareService {
     let insuranceClass = opts.insuranceClass;
     if (opts.paymentInsurance && !insuranceCompany && opts.user) {
       const profile = await this.providerModel.db.collection('patient_profiles').findOne({ user_id: opts.user.id }, { projection: { insurance: 1 } });
-      if (profile?.insurance?.provider) {
+      if (policyCompanyKeys(profile?.insurance).length) {
         insuranceKeys = policyCompanyKeys(profile.insurance);
         insuranceCompany = insuranceKeys[0];
         insuranceClass = policyClass(profile.insurance) || undefined;
@@ -126,14 +126,14 @@ export class CareService {
     if (opts.city) q.city = opts.city;
     if (opts.facility_id) q.facility_id = opts.facility_id;
     if (opts.degree) q.academic_degree = opts.degree;
-    // Company AND class when both are given (new contracts: { company_id, classes, active }); a company alone also
-    // matches the older plain-id entries.
+    // Company AND class when both are given (contracts: { company_id, classes, active } in insurance_class_contracts); a
+    // company alone also matches the older plain-id entries of accepted_insurance.
     if (insuranceCompany && insuranceClass) {
-      q.$and = [{ accepted_insurance: { $elemMatch: { company_id: { $in: insuranceKeys }, classes: insuranceClass, active: true } } }];
+      q.$and = [{ insurance_class_contracts: { $elemMatch: { company_id: { $in: insuranceKeys }, classes: insuranceClass, active: { $ne: false } } } }];
     } else if (insuranceCompany) {
       q.$and = [{ $or: [
         { accepted_insurance: { $in: insuranceKeys } },
-        { accepted_insurance: { $elemMatch: { company_id: { $in: insuranceKeys }, active: true } } },
+        { insurance_class_contracts: { $elemMatch: { company_id: { $in: insuranceKeys }, active: { $ne: false } } } },
       ] }];
     }
     if (opts.accepts_insurance !== undefined) q.accepts_insurance = opts.accepts_insurance;
