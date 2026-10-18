@@ -2826,6 +2826,8 @@
   "set.privacy.thirdPartyHint": "বিমা অংশীদার ও ফার্মেসি",
   "set.data.storage": "ব্যবহৃত স্টোরেজ",
   "set.data.storageEmpty": "দেখানোর মতো কোনো সংরক্ষিত ডেটা এখনও নেই।",
+  "set.data.item.uploaded_prescriptions": "আপলোড করা প্রেসক্রিপশন",
+  "set.data.item.medical_reports": "মেডিক্যাল রিপোর্ট",
   "set.data.total": "মোট: {total}",
   "set.data.export": "আমার ডেটা এক্সপোর্ট করুন",
   "set.data.exportBody": "আপনার সব ডেটার একটি ফাইল নিন, রাখতে বা সরাতে। ডেটায় প্রবেশ ও স্থানান্তর আপনার আইনি অধিকার।",

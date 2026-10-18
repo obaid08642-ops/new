@@ -3798,6 +3798,10 @@
     },
     "storageTitle": "مساحة التخزين",
     "storageEmpty": "لا توجد تفاصيل تخزين بعد.",
+    "storageItem": {
+      "uploaded_prescriptions": "الوصفات المرفوعة",
+      "medical_reports": "التقارير الطبية"
+    },
     "exportTitle": "نسخة من بياناتي",
     "exportBody": "حمّل ملفًا واحدًا فيه كل بياناتك المحفوظة في حسابك.",
     "exportButton": "تصدير كل بياناتي",

@@ -3798,6 +3798,10 @@
     },
     "storageTitle": "डेटा स्टोरेज",
     "storageEmpty": "अभी स्टोरेज का कोई विवरण नहीं।",
+    "storageItem": {
+      "uploaded_prescriptions": "अपलोड किए गए पर्चे",
+      "medical_reports": "मेडिकल रिपोर्ट"
+    },
     "exportTitle": "मेरे डेटा की प्रति",
     "exportBody": "एक फ़ाइल डाउनलोड करें जिसमें आपके खाते का सारा डेटा हो।",
     "exportButton": "मेरा सारा डेटा एक्सपोर्ट करें",

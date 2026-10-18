@@ -2826,6 +2826,8 @@
   "set.privacy.thirdPartyHint": "Insurance partners and pharmacies",
   "set.data.storage": "Storage used",
   "set.data.storageEmpty": "No stored data to show yet.",
+  "set.data.item.uploaded_prescriptions": "Uploaded prescriptions",
+  "set.data.item.medical_reports": "Medical reports",
   "set.data.total": "Total: {total}",
   "set.data.export": "Export my data",
   "set.data.exportBody": "Get a file with all your data to keep or move. You have the legal right to access and port your data.",
