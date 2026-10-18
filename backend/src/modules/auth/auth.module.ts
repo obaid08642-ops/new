@@ -1,6 +1,7 @@
 import { Module, Global } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import type { StringValue } from 'ms';
+import { UsersModule } from '../users/users.module';
 import { PushModule } from '../push/push.module';
 import { PresenceModule } from '../presence/presence.module';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -49,6 +50,7 @@ import { GuestChatListInterceptor, GuestPolicyGuard } from './guest-policy';
       },
     }),
     PushModule,
+    UsersModule,
     PresenceModule,
     MailModule,
     MongooseModule.forFeature([
