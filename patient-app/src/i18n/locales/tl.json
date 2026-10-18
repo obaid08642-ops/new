@@ -3269,6 +3269,8 @@
   "diag.result.error": "Hindi ma-load ang resulta",
   "diag.result.by": "Inilabas ni",
   "diag.result.values": "Mga halaga",
+  "diag.result.trendTitle": "Pagbabago",
+  "diag.result.trendNote": "Mga naunang resulta ng parehong test",
   "diag.result.range": "Normal na saklaw {low} – {high}",
   "diag.result.flag.normal": "Nasa normal",
   "diag.result.flag.high": "Mataas",
