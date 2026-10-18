@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
+import { chooseLocale } from "./lib/i18n/device-locale";
 import { isPublicIndexable } from "./lib/seo/public-indexable";
 import { contentSecurityPolicy, CSP_INJECT_HEADER, CSP_NONCE_PLACEHOLDER, edgeNonceEnabled, hasSessionCookie } from "./lib/security/csp";
 
@@ -9,6 +10,7 @@ const noIndexHeader = "noindex, nofollow, noarchive";
 const NO_STORE = "private, no-cache, no-store, max-age=0, must-revalidate";
 
 const LOCALE = "(?:ar|en|ur|hi|bn|fil)";
+const LOCALE_PREFIX = new RegExp(`^\\/${LOCALE}(?:\\/|$)`);
 // F82-3: the translated page that answers when a public page failed with no cached copy (app/[locale]/unavailable). It is
 // static, so it takes the stamping path like a public page; it is never indexed and never stored.
 const UNAVAILABLE_PAGE = new RegExp(`^\\/${LOCALE}\\/unavailable\\/?$`);
@@ -64,6 +66,19 @@ export async function proxy(request: NextRequest) {
     markdownUrl.pathname = "/api/agent-markdown";
     markdownUrl.search = `?path=${encodeURIComponent(pathname === "/" ? "/" : pathname)}`;
     return NextResponse.rewrite(markdownUrl);
+  }
+
+  // Rule 6: a page path without a locale goes to the language the user chose, else the device's (lib/i18n/device-locale.ts).
+  // The answer depends on the device and the cookie, so it is never stored and the cache is told to vary on both.
+  if (!LOCALE_PREFIX.test(pathname)) {
+    const target = request.nextUrl.clone();
+    const locale = chooseLocale(request.cookies.get("NEXT_LOCALE")?.value, request.headers.get("accept-language"));
+    target.pathname = `/${locale}${pathname === "/" ? "" : pathname}`;
+    const redirect = NextResponse.redirect(target, 307);
+    redirect.headers.set("Cache-Control", NO_STORE);
+    redirect.headers.set("Vary", "Accept-Language, Cookie");
+    redirect.headers.set("X-Robots-Tag", noIndexHeader);
+    return redirect;
   }
 
   // F68: public pages render without a nonce (cacheable); the nonce server stamps a fresh one on every response.
