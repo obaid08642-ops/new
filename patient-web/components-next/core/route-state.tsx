@@ -10,6 +10,8 @@ type Props = {
   primaryLabel: string;
   returnHomeLabel: string;
   onRetry?: () => void;
+  /** Extra help under the state card (the not-found page's search and popular links). */
+  children?: React.ReactNode;
 };
 
 /**
@@ -37,7 +39,7 @@ function StateGlyph({ icon, path }: { icon: string; path: string }) {
   );
 }
 
-export function RouteState({ kind, locale, title, body, primaryLabel, returnHomeLabel, onRetry }: Props) {
+export function RouteState({ kind, locale, title, body, primaryLabel, returnHomeLabel, onRetry, children }: Props) {
   // The way home is a real link: it works before hydration and without JS, and a full navigation also
   // clears a crashed route's error boundary.
   const home = `/${locale}`;
@@ -64,6 +66,7 @@ export function RouteState({ kind, locale, title, body, primaryLabel, returnHome
             <span className="nabd-button__label">{primaryLabel}</span>
           </a>
         )}
+        {children}
       </div>
     </main>
   );

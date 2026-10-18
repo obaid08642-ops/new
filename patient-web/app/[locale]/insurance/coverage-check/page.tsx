@@ -11,7 +11,8 @@ import forms from "@/components-next/consult/consult.module.css";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/insurance/insurance.module.css";
 
-const SERVICES = ["consultation", "pharmacy", "lab"] as const;
+// The same four types and values as the app (patient-app/app/insurance/coverage-check.tsx).
+const SERVICES = ["consultation", "labs", "radiology", "nursing"] as const;
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ service_type?: string; q?: string }> };
 

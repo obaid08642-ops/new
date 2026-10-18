@@ -21,7 +21,9 @@
     "footerMap": "মানচিত্র",
     "skipToContent": "বিষয়বস্তুতে যান",
     "backToTop": "পৃষ্ঠার শুরুতে ফিরুন",
-    "readingProgress": "পড়ার অগ্রগতি"
+    "readingProgress": "পড়ার অগ্রগতি",
+    "dialogCancel": "বাতিল করুন",
+    "dialogConfirm": "নিশ্চিত করুন"
   },
   "CoreShell": {
     "back": "ফিরে যান",
@@ -212,7 +214,10 @@
   "NotFound": {
     "title": "পৃষ্ঠা উপলব্ধ নয়",
     "body": "এই পেজটি খোলা যাচ্ছে না, অথবা এতে আপনার অনুমতি নেই।",
-    "returnHome": "হোমে ফিরুন"
+    "returnHome": "হোমে ফিরুন",
+    "searchLabel": "সাইটে খুঁজুন",
+    "searchButton": "খুঁজুন",
+    "popularTitle": "জনপ্রিয় বিভাগ"
   },
   "RouteState": {
     "loadingCode": "লোড হচ্ছে",
@@ -1329,7 +1334,11 @@
     "kindLabPackage": "টেস্ট প্যাকেজ",
     "kindRadiology": "রেডিওলজি",
     "kindNursing": "নার্সিং",
-    "kindArticle": "নিবন্ধ"
+    "kindArticle": "নিবন্ধ",
+    "recentTitle": "সাম্প্রতিক অনুসন্ধান",
+    "recentClear": "মুছুন",
+    "trendingTitle": "এখন জনপ্রিয়",
+    "tryTitle": "এর যেকোনো একটি চেষ্টা করুন"
   },
   "SearchSuggest": {
     "listLabel": "খোঁজার পরামর্শ",
@@ -2507,6 +2516,9 @@
       "confirmed": "নিশ্চিত",
       "scheduled": "নির্ধারিত",
       "checked_in": "চেক-ইন হয়েছে",
+      "rescheduled": "পুনঃনির্ধারিত",
+      "en_route": "পথে",
+      "arrived": "পৌঁছে গেছে",
       "in_progress": "চলছে",
       "completed": "সম্পন্ন",
       "cancelled": "বাতিল",
@@ -2673,6 +2685,8 @@
     "emergencyTitle": "জরুরি যোগাযোগ",
     "emergencySub": "জরুরি অবস্থায় কাকে ডাকবেন",
     "unavailableTitle": "পরিবার লোড করা যায়নি",
+    "notSharedTitle": "রেকর্ড শেয়ার করা হয়নি",
+    "notShared": "এই সদস্য তাঁদের রেকর্ড আপনার সঙ্গে শেয়ার করেননি।",
     "unavailable": "অনুগ্রহ করে পরে আবার চেষ্টা করুন।",
     "noGroupTitle": "পারিবারিক গ্রুপ তৈরি করুন",
     "noGroupBody": "এখনও কোনো পারিবারিক গ্রুপ নেই। আত্মীয়দের আমন্ত্রণ জানাতে ও যত্ন ভাগ করতে একটি তৈরি করুন।",
@@ -3607,8 +3621,9 @@
       "service": "সেবার ধরন",
       "svc": {
         "consultation": "চিকিৎসা পরামর্শ",
-        "pharmacy": "ওষুধ",
-        "lab": "ল্যাব পরীক্ষা"
+        "labs": "ল্যাব পরীক্ষা",
+        "radiology": "রেডিওলজি",
+        "nursing": "বাড়িতে নার্সিং"
       },
       "check": "কভারেজ দেখান",
       "result": "রেকর্ডে থাকা কভারেজ",
