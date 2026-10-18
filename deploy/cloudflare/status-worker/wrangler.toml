@@ -9,9 +9,16 @@ workers_dev = false
 routes = [{ pattern = "status.nabd.plus", custom_domain = true }]
 
 [triggers]
-crons = ["*/5 * * * *"]
+crons = ["*/5 * * * *", "*/10 * * * *"]   # probes every 5 minutes, the synthetic journeys every 10 (worker.mjs JOURNEY_CRON)
 
 # The id is filled in at rollout (`wrangler kv namespace create STATUS`).
 [[kv_namespaces]]
 binding = "STATUS"
 id = "REPLACE_AT_ROLLOUT"
+
+# Secrets (wrangler secret put, never in this file): INGEST_SECRET; for the journeys SYNTH_IDENTIFIER and SYNTH_PASSWORD (the test
+# patient); for alerts TELEGRAM_BOT_TOKEN, TELEGRAM_ALERT_CHAT_ID, RESEND_API_KEY. Plain vars below are not secret.
+[vars]
+OPS_ALERT_EMAIL = ""
+MAIL_FROM = ""
+SYNTH_SEARCH_TERM = "بنادول"

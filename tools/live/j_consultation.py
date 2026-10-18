@@ -16,8 +16,13 @@ DOCTOR_SCREEN_GETS = ['/provider/profile', '/provider/profile/availability', '/p
 
 LAST_TXN = {}
 
+# The day is fixed when the journey starts: a run that crosses midnight would otherwise publish hours for one
+# weekday and then look for slots on the next one ("closed").
+_RUN_DAY = datetime.date.today()
+
+
 def tomorrow():
-    return datetime.date.today() + datetime.timedelta(days=1)
+    return _RUN_DAY + datetime.timedelta(days=1)
 
 
 def doctor_publishes_hours(doctor, admin, service_types=('clinic',)):

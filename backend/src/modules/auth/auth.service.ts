@@ -2,7 +2,7 @@ import { Injectable, BadRequestException, UnauthorizedException, ConflictExcepti
 import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import { createPublicKey, KeyObject } from 'crypto';
+import { createHmac, createPublicKey, KeyObject, randomBytes } from 'crypto';
 import * as nodemailer from 'nodemailer';
 import { Optional } from '@nestjs/common';
 import { KillSwitchesService } from '../kill-switches/kill-switches.service';
@@ -30,6 +30,17 @@ import { PasswordSecurityService } from '../../common/password-security.service'
 import { OtpAbuseGuard } from '../../common/otp-abuse.service';
 import { I18nService, resolveLang } from '../i18n/i18n.service';
 import { logEvent } from '../../common/structured-logger';
+
+/** A device id is an opaque token of 8-128 plain characters; anything else is not a device. */
+export function normaliseGuestDeviceId(raw: unknown): string | null {
+  const v = Array.isArray(raw) ? raw[0] : raw;
+  return typeof v === 'string' && /^[A-Za-z0-9._:-]{8,128}$/.test(v) ? v : null;
+}
+
+/** The stored form of a device id: a keyed hash, so the database never holds the id a device presents. */
+export function guestDeviceHash(deviceId: string): string {
+  return createHmac('sha256', process.env.JWT_SECRET || 'guest-device').update(`guest-device:${deviceId}`).digest('hex').slice(0, 48);
+}
 
 @Injectable()
 export class AuthService {
@@ -1095,44 +1106,76 @@ export class AuthService {
    * (persistent across reinstalls of the session), so orders/cart/preferences
    * never fragment into throwaway accounts.
    */
-  async guest(phone?: string, deviceId?: string) {
-    const client = (this.redisService as any).getClient?.();
+  /**
+   * 21.1 - the device-bound guest account.
+   *
+   * A guest is a real server-side row (UUID, `is_guest`), found by DEVICE ID only. The binding lives in MongoDB
+   * (`guest_devices`, a keyed hash of the id, unique), so a Redis restart or eviction cannot turn a reopen into a new
+   * guest; reinstalling the app makes a new device id and so a new guest. The IP address is never part of the identity.
+   *
+   * A client-supplied phone is NOT identity either (it is unverified): it used to create a guest row carrying someone
+   * else's number (blocking that person's own sign-up) and to hand the session of the guest who typed it to anyone who
+   * knew it. The phone is asked for at checkout (21.5), where it is a contact, not a key. The `phone` argument is kept
+   * only so older callers still compile; it is ignored.
+   */
+  private guestDeviceIndexReady: Promise<unknown> | null = null;
+  private ensureGuestDeviceIndex(bindings: { createIndex: (...a: any[]) => Promise<unknown> }) {
+    // unique: one guest per device, even for two requests at once; created once per process
+    return (this.guestDeviceIndexReady ??= bindings.createIndex({ device_hash: 1 }, { unique: true, name: 'device_hash_unique' }).catch((e: unknown) => {
+      this.guestDeviceIndexReady = null;
+      throw e;
+    }));
+  }
 
-    // 1) Existing guest for this device? → reuse it
-    if (deviceId && client) {
-      const existingId = await client.get(`guest_device:${deviceId}`);
-      if (existingId) {
-        const existing = await this.userModel.findOne({ id: existingId });
-        // Only a real guest row may be re-issued from an unauthenticated device id.
-        // Once a guest converts, the binding must not mint tokens for that account.
-        if (existing && existing.is_guest === true) {
-          return { user: this.publicUser(existing), token: this.signToken(existing, deviceId) };
-        }
+  async guest(_ignoredPhone?: string, deviceId?: string) {
+    const device = normaliseGuestDeviceId(deviceId);
+    if (!device) throw new BadRequestException('device_id_required');
+    const deviceHash = guestDeviceHash(device);
+    const bindings = this.userModel.db.collection('guest_devices');
+    await this.ensureGuestDeviceIndex(bindings);
+
+    // 1) a guest already bound to this device: re-issue its session (only while it is still a guest)
+    const bound: any = await bindings.findOne({ device_hash: deviceHash });
+    if (bound?.guest_id) {
+      const existing = await this.userModel.findOne({ id: bound.guest_id });
+      if (existing && existing.is_guest === true) {
+        await bindings.updateOne({ device_hash: deviceHash }, { $set: { last_seen_at: new Date() } });
+        return { user: this.publicUser(existing), token: this.signToken(existing, device) };
       }
     }
 
-    // 2) Create (or reuse by phone) the guest account
-    // The phone is unverified input: reuse a row by phone only when it is a guest
-    // row, and never attach a phone that already belongs to a registered account.
-    const byPhone = phone ? await this.userModel.findOne({ phone }) : null;
-    let u = byPhone && byPhone.is_guest === true ? byPhone : null;
-    if (!u) {
-      const guestPhone = phone && !byPhone ? phone : `guest-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-      u = await this.userModel.create({
-        full_name: 'Guest',
-        phone: guestPhone,
-        is_guest: true,
-        role: UserRole.PATIENT,
-      });
-      await this.patientModel.create({ user_id: u.id });
+    // 2) create the guest and CLAIM the binding. The claim is one atomic operation, so of several first requests of one device
+    //    exactly one binding is stored; the others delete the guest they made and use the winner's.
+    const guestPhone = `guest-${Date.now()}-${randomBytes(4).toString('hex')}`;
+    const u = await this.userModel.create({ full_name: 'Guest', phone: guestPhone, is_guest: true, role: UserRole.PATIENT });
+    await this.patientModel.create({ user_id: u.id });
+    const now = new Date();
+    let winnerId: string | undefined;
+    if (bound?.guest_id) {
+      // a stale binding (the guest was converted or deleted): replace it, but only if nobody else did first
+      const r: any = await bindings.updateOne({ device_hash: deviceHash, guest_id: bound.guest_id }, { $set: { guest_id: u.id, last_seen_at: now } });
+      winnerId = r?.matchedCount ? u.id : (await bindings.findOne({ device_hash: deviceHash }))?.guest_id;
+    } else {
+      try {
+        const r: any = await bindings.findOneAndUpdate(
+          { device_hash: deviceHash },
+          { $setOnInsert: { device_hash: deviceHash, guest_id: u.id, created_at: now, last_seen_at: now } },
+          { upsert: true, returnDocument: 'after' },
+        );
+        winnerId = (r && 'value' in r && 'ok' in r ? r.value : r)?.guest_id;
+      } catch (e: any) {
+        if (e?.code !== 11000) throw e;
+        winnerId = (await bindings.findOne({ device_hash: deviceHash }))?.guest_id;     // two upserts collided: the other one won
+      }
     }
-
-    // 3) Bind device → guest id permanently (90d rolling)
-    if (deviceId && client) {
-      await client.set(`guest_device:${deviceId}`, u.id, 'EX', 90 * 24 * 3600);
+    if (winnerId && winnerId !== u.id) {
+      await this.patientModel.deleteOne({ user_id: u.id }).catch(() => undefined);
+      await this.userModel.deleteOne({ id: u.id }).catch(() => undefined);
+      const winner = await this.userModel.findOne({ id: winnerId });
+      if (winner?.is_guest === true) return { user: this.publicUser(winner), token: this.signToken(winner, device) };
+      throw new ConflictException('guest_device_busy');       // the winner was converted in this instant: the caller retries
     }
-
-    return { user: this.publicUser(u), token: this.signToken(u, deviceId) };
+    return { user: this.publicUser(u), token: this.signToken(u, device) };
   }
 
   /** Re-point a guest's data to another account (used by the merge path). */

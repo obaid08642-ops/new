@@ -4291,6 +4291,7 @@
     "staleCopyNote": "সার্ভার ঠিক না হওয়া পর্যন্ত সাইট সংরক্ষিত কপি দেখাচ্ছে।",
     "language": "ভাষা",
     "componentWebsite": "ওয়েবসাইট",
+    "componentHome": "মূল পাতা",
     "componentApi": "অ্যাপ্লিকেশন সার্ভার",
     "componentSearch": "অনুসন্ধান",
     "componentProduct": "পণ্যের পাতা",

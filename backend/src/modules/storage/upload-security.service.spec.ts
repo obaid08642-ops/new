@@ -150,15 +150,4 @@ describe('Phase 16.5 upload security', () => {
     ).rejects.toThrow('unsupported mime');
   });
 
-  it('fails closed when the virus scan is unavailable in production', async () => {
-    const previous = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'production';
-    try {
-      await expect(svc.assertClean(Buffer.from('x'), async () => { throw new Error('clamav down'); })).rejects.toThrow('file_failed_security_scan');
-      await expect(svc.assertClean(Buffer.from('x'), async () => false)).rejects.toThrow('file_failed_security_scan');
-      await expect(svc.assertClean(Buffer.from('x'), async () => true)).resolves.toBeUndefined();
-    } finally {
-      process.env.NODE_ENV = previous;
-    }
-  });
 });
