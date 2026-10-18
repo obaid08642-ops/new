@@ -155,7 +155,35 @@ def run(pat, nurse, admin=None):
         r = admin.post(f'/admin/admin/orders/nursing/{bid}/refund', {'mode': 'partial', 'amount': paid, 'reason': 'محاولة استرداد يتجاوز المتبقي من المبلغ'})
         step('refund above the remaining amount is refused', r.status == 400, r)
     matrix_shift_booking(pat, nurse, admin)
+    if admin:
+        insurance_matrix(pat, nurse, admin)
     return bid
+
+
+def insurance_matrix(pat, nurse, admin):
+    """19.11 for a nursing visit: the request opens with the booking, the nurse receives it and enters the outcome,
+    the patient pays the copay (or the full price after a rejection), and the nurse can then accept the visit."""
+    import j_insurance
+    journey('nursing: insurance (policy, request opened with the booking)')
+    company = j_insurance.add_policy(pat, j_insurance.admin_adds_company(admin))
+    if not company:
+        return
+    j_insurance.accept_insurance(nurse, company)
+    nurse_id = nurse.get('/provider/me').get('account', 'id')
+    r = pat.get('/home-care/services')
+    svcs = r.body if isinstance(r.body, list) else r.items()
+    addr = {'address': 'شارع الملك فهد 3، الرياض', 'city': 'الرياض', 'lat': 24.7001, 'lng': 46.7001}
+    for i, outcome in enumerate(('approve_partial', 'approve_full', 'reject')):
+        svc = svcs[(i + 1) % len(svcs)]  # a different service each time: the 3-minute duplicate-submit guard
+        r = pat.post('/nursing/bookings', {'provider_id': nurse_id, 'service_id': svc['id'], 'service_name_ar': svc.get('name_ar'),
+                                           'scheduled_at': tomorrow_at(10 + i), 'address': addr, 'payment_method': 'insurance'})
+        bid = r.get('id')
+        step(f'nursing {outcome}: the insurance visit is booked', r.ok and bid, r)
+        if not bid:
+            continue
+        r = nurse.post(f'/provider/jobs/nursing/{bid}/accept', {})
+        step(f'nursing {outcome}: the nurse cannot accept before the insurance outcome', r.status == 400, r)
+        j_insurance.engine_flow(pat, nurse, 'nursing', bid, outcome, lambda b=bid: nurse.post(f'/provider/jobs/nursing/{b}/accept', {}).ok, f'nursing {outcome}')
 
 
 def matrix_shift_booking(pat, nurse, admin=None):
