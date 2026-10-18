@@ -85,6 +85,8 @@ export const ROUTE_GROUP_NAMESPACES: Record<string, readonly string[]> = {
   search: ["SpecialtyNames", "PublicProduct"],
   settings: ["AgentConsent", "SettingsWeb"],
   support: ["SupportChatWeb"],
+  // the wishlist rows: remove (the heart) and add to cart (wishlist-row-actions)
+  wishlist: ["PharmacyBrowse"],
   welcome: ["Welcome"],
 };
 
