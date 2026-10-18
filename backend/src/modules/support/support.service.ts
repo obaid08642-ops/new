@@ -6,6 +6,7 @@ import { SupportRequest, SupportStatus, SupportCategory, PatientSettings } from 
 import { SupportRequestRepository } from "./repositories/supportrequest.repository";
 import { PatientSettingsRepository } from "./repositories/patientsettings.repository";
 
+
 @Injectable()
 export class SupportService {
   constructor(

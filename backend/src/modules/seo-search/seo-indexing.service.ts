@@ -116,7 +116,11 @@ export class SeoIndexingService {
     }
     urls = [...new Set(urls)];
     for (let i = 0; i < urls.length; i += INDEXNOW_BATCH) {
-      await this.indexNow.submitUrls(urls.slice(i, i + INDEXNOW_BATCH)).catch(() => null);
+      // P13-R15 fix: a degraded IndexNow client (sync throw or non-promise
+      // return) must never crash the sweep — normalize before awaiting.
+      await Promise.resolve()
+        .then(() => this.indexNow.submitUrls(urls.slice(i, i + INDEXNOW_BATCH)))
+        .catch(() => null);
     }
     await state.updateOne({ _id: 'sweep' as any }, { $set: { last_run: now, lease_until: new Date(0), last_count: urls.length } }).catch(() => null);
     return { submitted: urls.length };

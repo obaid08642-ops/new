@@ -3,6 +3,7 @@ import { ProvidersService } from './providers.service';
 import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
 import { ProviderType, ProviderStatus, UserRole } from '../../common/enums';
 import { ApplyDto, AdminCreateDto, RejectDto, SuspendDto} from './providers.dto';
+import { ApproveDto } from './provider.controllers.generated.dto';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
 @Controller('providers')
@@ -80,8 +81,8 @@ export class ProvidersController {
   @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/approve')
   @Roles(UserRole.ADMIN)
-  approve(@Param('id') id: string, @CurrentUser() admin: any) {
-    return this.svc.approve(id, admin);
+  approve(@Param('id') id: string, @CurrentUser() admin: any, @Body() body: ApproveDto) {
+    return this.svc.approve(id, admin, body?.manual_license_check);
   }
 
   @RequirePermissions(Permission.FACILITY_EDIT)

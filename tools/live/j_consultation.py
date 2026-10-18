@@ -16,8 +16,13 @@ DOCTOR_SCREEN_GETS = ['/provider/profile', '/provider/profile/availability', '/p
 
 LAST_TXN = {}
 
+# The day is fixed when the journey starts: a run that crosses midnight would otherwise publish hours for one
+# weekday and then look for slots on the next one ("closed").
+_RUN_DAY = datetime.date.today()
+
+
 def tomorrow():
-    return datetime.date.today() + datetime.timedelta(days=1)
+    return _RUN_DAY + datetime.timedelta(days=1)
 
 
 def doctor_publishes_hours(doctor, admin, service_types=('clinic',)):
@@ -248,10 +253,27 @@ def run(pat, doctor, admin):
     step('appointment COMPLETED', r.ok and str(r.get('status')).upper() == 'COMPLETED', r)
     r = pat.get(f'/care/appointments/{aid}/summary')
     step('visit summary opens', r.ok, r)
+    # 16.9 health data protection: ciphertext at rest, plaintext through the API, every read logged
+    import health_db
+    raw_appt = health_db.find_raw('appointments', {'id': aid}) or {}
+    step('16.9: the stored visit summary is ciphertext in the database', health_db.is_cipher((raw_appt.get('summary') or {}).get('diagnosis'))
+         and health_db.is_cipher((raw_appt.get('summary') or {}).get('notes')), (raw_appt.get('summary') or {}).get('diagnosis'))
+    step('16.9: the summary the patient reads is the doctor\'s text', r.get('diagnosis') == 'التهاب حلق فيروسي' and r.get('notes') == 'راحة وسوائل', r)
+    raw_rx = health_db.find_raw('prescriptions', {'appointment_id': aid}) or {}
+    step('16.9: the stored prescription diagnosis, notes and dosing instructions are ciphertext',
+         health_db.is_cipher(raw_rx.get('diagnosis')) and health_db.is_cipher(raw_rx.get('notes'))
+         and all(health_db.is_cipher(i.get('instructions')) for i in raw_rx.get('items') or [{}]), {k: raw_rx.get(k) for k in ('diagnosis', 'notes')})
+    log = pat.get('/medical-reports/access-log')
+    kinds = {(x.get('record_kind'), x.get('actor_kind')) for x in (log.get('data') or [])}
+    step('16.9: the patient sees who read their visit summary (access log)', log.ok and ('consultation_summary', 'patient') in kinds, log)
     r = pat.get('/prescriptions/active')
     step('prescription-from-doctor lists the prescription', r.ok and 'Paracetamol' in str(r.body), r)
     rx = next((x for x in (r.body if isinstance(r.body, list) else r.items()) if x.get('appointment_id') == aid), {})
     it = (rx.get('items') or [{}])[0]
+    step('16.9: the prescription the patient reads has the plaintext diagnosis and dosing instructions',
+        rx.get('diagnosis') == 'التهاب حلق فيروسي' and 'كل 8 ساعات' in str(it.get('instructions')), {'diagnosis': rx.get('diagnosis'), 'instructions': it.get('instructions')})
+    log2 = pat.get('/medical-reports/access-log')
+    step('16.9: listing the prescriptions is logged as a read of each prescription', any(x.get('record_kind') == 'prescription' for x in (log2.get('data') or [])), log2)
     # prescription-from-doctor "add to reminders" (src/utils/prescription-view reminderPayload)
     r = pat.post('/health/reminders', {'medication_name': it.get('medicine_name_ar'), 'medicine_name_en': it.get('medicine_name_en'), 'dose': it.get('dose'),
                                        'frequency': 'daily', 'duration_days': it.get('duration_days'), 'instructions_ar': it.get('instructions'),

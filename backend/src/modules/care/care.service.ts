@@ -12,11 +12,18 @@ import { UserRepository } from "./repositories/user.repository";
 import { FacilityRepository } from "./repositories/facility.repository";
 
 const MAX_PUBLIC_SEARCH_LENGTH = 80;
-const PUBLIC_PROVIDER_FILTER = {
+/**
+ * A doctor is public only with a verified, unexpired licence (19.3). The daily SCFHS re-check hides a lapsed provider;
+ * the expiry test here keeps one off the lists in the hours before it runs. No expiry date on file passes: the date
+ * is held by verification, and `license_verified` is the gate.
+ */
+const publicProviderFilter = () => ({
   status: ProviderStatus.ACTIVE,
   public_eligibility: true,
   medical_review_status: 'approved',
-};
+  license_verified: true,
+  license_expiry_date: { $not: { $lte: new Date() } },
+});
 const PUBLIC_FACILITY_FILTER = {
   is_active: true,
   public_eligibility: true,
@@ -47,7 +54,7 @@ export class CareService {
   /** ===== Specialties — merge master registry with live counts ===== */
   async specialties() {
     const live: any[] = await this.providerModel.aggregate([
-      { $match: { type: ProviderType.DOCTOR, ...PUBLIC_PROVIDER_FILTER } },
+      { $match: { type: ProviderType.DOCTOR, ...publicProviderFilter() } },
       { $group: { _id: '$specialty', count: { $sum: 1 } } },
     ]);
     const liveMap = new Map<string, number>(live.map((x) => [x._id, x.count]));
@@ -113,7 +120,7 @@ export class CareService {
         insuranceClass = policyClass(profile.insurance) || undefined;
       }
     }
-    const q: any = { type: ProviderType.DOCTOR, ...PUBLIC_PROVIDER_FILTER };
+    const q: any = { type: ProviderType.DOCTOR, ...publicProviderFilter() };
     if (opts.specialty) q.specialty = opts.specialty;
     if (opts.service_type) q.consultation_modes = { $in: [opts.service_type] };
     if (opts.city) q.city = opts.city;
@@ -423,7 +430,7 @@ export class CareService {
 
   /** ===== Doctor detail (with facility join) ===== */
   async doctorById(id: string) {
-    const doc = await this.providerModel.findOne({ id, type: ProviderType.DOCTOR, ...PUBLIC_PROVIDER_FILTER }, { _id: 0, __v: 0 });
+    const doc = await this.providerModel.findOne({ id, type: ProviderType.DOCTOR, ...publicProviderFilter() }, { _id: 0, __v: 0 });
     if (!doc) throw new NotFoundException('doctor_not_found');
     const obj: any = this.toPublicDoctor(doc, await this.slots.nextAvailable(doc));
     if (obj.facility_id) {
@@ -449,7 +456,7 @@ export class CareService {
     // addresses; the raw clinic_images (private file ids) are not part of the public model
 
     // Similar doctors — real fields only, no fabricated rating/price fallbacks
-    const similar = await this.providerModel.find({ type: ProviderType.DOCTOR, ...PUBLIC_PROVIDER_FILTER, specialty: obj.specialty, id: { $ne: obj.id } }, { _id: 0, __v: 0 }).limit(3);
+    const similar = await this.providerModel.find({ type: ProviderType.DOCTOR, ...publicProviderFilter(), specialty: obj.specialty, id: { $ne: obj.id } }, { _id: 0, __v: 0 }).limit(3);
     obj.similarDoctors = similar.map(d => {
       const s = d.toObject();
       return this.toPublicDoctor(s);
@@ -460,7 +467,7 @@ export class CareService {
 
   /** ===== Slots ===== */
   async doctorSlots(id: string, date: string, service_type: 'clinic' | 'video' | 'home') {
-    const doc = await this.providerModel.findOne({ id, type: ProviderType.DOCTOR, ...PUBLIC_PROVIDER_FILTER });
+    const doc = await this.providerModel.findOne({ id, type: ProviderType.DOCTOR, ...publicProviderFilter() });
     if (!doc) throw new NotFoundException('doctor_not_found');
     return this.slots.slotsForDate(doc, date, service_type);
   }
@@ -472,7 +479,7 @@ export class CareService {
     const re = publicSearchRegex(q);
     if (!re) return out;
     const docs = await this.providerModel
-      .find({ type: ProviderType.DOCTOR, ...PUBLIC_PROVIDER_FILTER,
+      .find({ type: ProviderType.DOCTOR, ...publicProviderFilter(),
         $or: [{ name_ar: re }, { name_en: re }, { specialty: re }] }, { _id: 0, __v: 0 })
       .limit(8);
     out.doctors = docs.map((d: any) => this.toPublicDoctor(d));
@@ -505,7 +512,7 @@ export class CareService {
     const obj: any = this.toPublicFacility(f);
     // Hydrate doctors of this facility
     const doctors = await this.providerModel
-      .find({ facility_id: id, type: ProviderType.DOCTOR, ...PUBLIC_PROVIDER_FILTER }, { _id: 0, __v: 0 })
+      .find({ facility_id: id, type: ProviderType.DOCTOR, ...publicProviderFilter() }, { _id: 0, __v: 0 })
       .limit(50);
     obj.doctors = doctors.map((d) => this.toPublicDoctor(d));
     return obj;
@@ -519,7 +526,7 @@ export class CareService {
 
   /** The image behind a doctor's public media address, only for a public doctor and only one of that doctor's own images. */
   async doctorMedia(id: string, mediaId: string) {
-    const doc: any = await this.providerModel.findOne({ id, type: ProviderType.DOCTOR, ...PUBLIC_PROVIDER_FILTER }, { _id: 0, profile_photo: 1, clinic_images: 1 }).lean();
+    const doc: any = await this.providerModel.findOne({ id, type: ProviderType.DOCTOR, ...publicProviderFilter() }, { _id: 0, profile_photo: 1, clinic_images: 1 }).lean();
     const own = [doc?.profile_photo, ...(Array.isArray(doc?.clinic_images) ? doc.clinic_images : [])].filter(Boolean).map(String);
     if (!doc || !own.includes(mediaId) || !this.storage) throw new NotFoundException('media_not_found');
     const image = await this.storage.publicProfileImage(mediaId);

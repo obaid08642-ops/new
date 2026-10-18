@@ -672,7 +672,9 @@ export class InsuranceFlowService {
     }
     req.decided_by = user.id; req.decided_at = new Date();
     await req.save();
-    this.events.emit('insurance.decided', { request_id: req.id, patient_id: req.patient_id, state: req.state, copay_amount: req.copay_amount });
+    this.events.emit('insurance.decided', { request_id: req.id, patient_id: req.patient_id, provider_id: req.provider_id, state: req.state, copay_amount: req.copay_amount });
+    // Step 6 of the flow (19.11): when the insurer covers everything nothing is owed, so the service continues now.
+    if (req.state === 'APPROVED_FULL') await this.confirmServiceBooking(req);
     return req.toObject();
   }
 
@@ -739,7 +741,8 @@ export class InsuranceFlowService {
     const req = await this.requests.findOne({ id: { $eq: id } });
     if (!req) throw new NotFoundException('request not found');
     if (req.patient_id !== user.id) throw new ForbiddenException();
-    if (req.state === 'APPROVED_FULL') {
+    const coveredInFull = req.state === 'APPROVED_FULL';
+    if (coveredInFull) {
       this.push(req, 'COPAY_PAID', user.id, 'no copay due');
     } else if (req.state === 'COPAY_PENDING') {
       const paymentId = String(body?.payment_id || '').trim();
@@ -759,7 +762,7 @@ export class InsuranceFlowService {
       throw new BadRequestException(`cannot pay copay in state ${req.state}`);
     }
     await req.save();
-    this.events.emit('insurance.copay.paid', { request_id: req.id, provider_id: req.provider_id, patient_id: req.patient_id });
+    this.events.emit('insurance.copay.paid', { request_id: req.id, provider_id: req.provider_id, patient_id: req.patient_id, covered_in_full: coveredInFull });
     await this.confirmServiceBooking(req);
     return req.toObject();
   }
