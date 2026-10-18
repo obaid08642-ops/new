@@ -1,7 +1,7 @@
 // Owner decision D (issue 1556, 2026-10-16): records that are one product in several powers, colours or shades become
 // ONE product with a picker. Sets `variant_group` and `variant` from the English name (src/modules/medicines/variant-grouping.ts);
 // deletes nothing, changes no name, price or picture. Idempotent: a second --apply changes nothing; a record that no
-// longer belongs to a group (its name was corrected) loses only the fields this script wrote.
+// longer belongs to a group (its name was corrected) has only the fields this script wrote set to null (nothing is dropped: expand-only, 20.9).
 // Dry-run first (the default): prints the counts and, with --report <file>, writes every group for the owner.
 // NEVER run on production (refused when NODE_ENV=production): the owner runs it after reading the dry-run report.
 // Usage: MONGODB_URI=... DB_NAME=... npx ts-node --transpile-only scripts/migrations/2026-10-catalogue-variant-groups.ts [--report out.json] [--apply]
@@ -82,7 +82,7 @@ async function run() {
     })));
     modified += res.modifiedCount;
   }
-  const cleared = clears.length ? (await meds.updateMany({ id: { $in: clears } }, { $unset: { variant_group: '', variant: '' } })).modifiedCount : 0;
+  const cleared = clears.length ? (await meds.updateMany({ id: { $in: clears } }, { $set: { variant_group: null, variant: null } })).modifiedCount : 0;
   console.log(JSON.stringify({ ...summary, updated: modified, cleared }));
 }
 
