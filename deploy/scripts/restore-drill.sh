@@ -30,7 +30,12 @@ else
 fi
 
 # ── 2. Restore drill into a throwaway database ───────────────────────────────
-latest=$(ls -1t "$BACKUP_DIR"/nabd_*.gz 2>/dev/null | head -1)
+# plain (.gz) and encrypted (.gz.gpg, 16.9) archives; nullglob so a missing kind is not an error
+shopt -s nullglob
+archives=("$BACKUP_DIR"/nabd_*.gz "$BACKUP_DIR"/nabd_*.gz.gpg)
+shopt -u nullglob
+latest=""
+[ "${#archives[@]}" -gt 0 ] && latest=$(ls -1t "${archives[@]}" 2>/dev/null | head -1)
 if [ -z "$latest" ]; then
   echo "$LOG_TAG FAIL: no backup archive found in $BACKUP_DIR — the nightly backup is not producing files"
   ERRMSG="no backup archive found"; exit 1
@@ -42,8 +47,12 @@ echo "$LOG_TAG restoring $(basename "$latest") into $DRILL_DB"
 # host tool when installed, else the one in the MongoDB container (the archive goes in on stdin either way)
 in_mongo() { if command -v "$1" >/dev/null 2>&1; then "$@"; else docker exec -i "$MONGO_CONTAINER" "$@"; fi; }
 ERRMSG="mongorestore failed"
-in_mongo mongorestore --quiet --uri="${MONGO_URL:-mongodb://localhost:27017}" \
-  --archive --gzip --nsFrom="${DB_NAME:-nabd_nestjs}.*" --nsTo="${DRILL_DB}.*" < "$latest"
+# 16.9: an encrypted backup (.gpg) is decrypted on the way in; the passphrase file must be readable here too, or the drill fails
+restore_stream() { case "$latest" in *.gpg) backup_decrypt "$latest" ;; *) cat "$latest" ;; esac; }
+case "$latest" in *.gpg) if [ -z "${BACKUP_ENCRYPTION_PASSPHRASE_FILE:-}" ]; then ERRMSG="the backup is encrypted but BACKUP_ENCRYPTION_PASSPHRASE_FILE is not set"; echo "$LOG_TAG FAIL: $ERRMSG"; exit 1; fi ;; esac
+ERRMSG="mongorestore failed"
+restore_stream | in_mongo mongorestore --quiet --uri="${MONGO_URL:-mongodb://localhost:27017}" \
+  --archive --gzip --nsFrom="${DB_NAME:-nabd_nestjs}.*" --nsTo="${DRILL_DB}.*"
 ERRMSG=""
 
 # ── 3. Assert the data really came back (a zero-document restore is a failure) ─
