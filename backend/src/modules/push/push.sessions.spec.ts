@@ -40,3 +40,32 @@ describe('PushService tokens and sessions (21.7)', () => {
     expect(service.tokens.deleteMany).not.toHaveBeenCalled();
   });
 });
+
+/** The schema itself must keep `session_id`: Mongoose drops fields it does not know (a mock model cannot show that). */
+describe('PushService tokens on a real model (21.7)', () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const mongoose = require('mongoose');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { MongoMemoryServer } = require('mongodb-memory-server');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { PushTokenSchema } = require('./push.module');
+  let mongo: any;
+  let conn: any;
+  let service: any;
+  beforeAll(async () => {
+    mongo = await MongoMemoryServer.create({ instance: { launchTimeout: 60000 } });
+    conn = await mongoose.createConnection(mongo.getUri(), { dbName: 'push-sessions' }).asPromise();
+    service = Object.create(PushService.prototype);
+    service.tokens = conn.model('PushToken', PushTokenSchema);
+  }, 120_000);
+  afterAll(async () => { await conn.close(); await mongo.stop(); });
+
+  it('keeps the sign-in id and removes exactly the ended sign-in\'s tokens', async () => {
+    await service.register({ id: 'u1', sid: 'sid-phone', dev: 'dev-phone' }, { token: 'ExponentPushToken[phone]', platform: 'ios' });
+    await service.register({ id: 'u1', sid: 'sid-laptop', dev: 'dev-laptop' }, { token: 'ExponentPushToken[laptop]', platform: 'web' });
+    const stored = await service.tokens.find({ user_id: 'u1' }).lean();
+    expect(stored.map((t: any) => t.session_id).sort()).toEqual(['sid-laptop', 'sid-phone']);
+    expect(await service.removeForSessions('u1', ['sid-laptop'], ['dev-laptop'])).toBe(1);
+    expect((await service.tokens.find({ user_id: 'u1' }).lean()).map((t: any) => t.token)).toEqual(['ExponentPushToken[phone]']);
+  });
+});

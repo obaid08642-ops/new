@@ -37,6 +37,8 @@ export class PushToken {
   @Prop({ default: 'expo', enum: ['expo', 'fcm', 'apns', 'webpush'] }) provider: string;
   @Prop({ enum: ['ios', 'android', 'web'] }) platform: string;
   @Prop() device_id?: string;
+  /** 21.7: the sign-in (JWT `sid`) this token was registered from, so signing it out removes the token. */
+  @Prop({ index: true }) session_id?: string;
   @Prop() device_name?: string;
   @Prop({ default: true }) active: boolean;
   @Prop() last_seen_at?: Date;
