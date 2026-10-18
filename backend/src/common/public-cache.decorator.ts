@@ -10,6 +10,11 @@ export interface PublicCacheOptions {
   tags?: string[];
   /** Set when the body depends on locale — adds `Vary: Accept-Language`. */
   varyLanguage?: boolean;
+  /**
+   * The exact Cache-Control of an anonymous answer, when the default (`public, s-maxage=<ttl>, ...`) does not fit the route
+   * (issue 1544: suggestions also set `max-age` and a one-day stale-while-revalidate). The auth fail-closed rule still applies.
+   */
+  cacheControl?: string;
 }
 
 /**
@@ -26,9 +31,10 @@ export interface PublicCacheOptions {
  * does — a public route that needs the user is a cross-user leak, not a
  * cacheable route.
  */
-export const PublicCache = (ttl: number, tags: string[] = [], options: { varyLanguage?: boolean } = {}) =>
+export const PublicCache = (ttl: number, tags: string[] = [], options: { varyLanguage?: boolean; cacheControl?: string } = {}) =>
   SetMetadata(PUBLIC_CACHE_KEY, {
     ttl,
     tags,
     varyLanguage: options.varyLanguage ?? false,
+    ...(options.cacheControl ? { cacheControl: options.cacheControl } : {}),
   } as PublicCacheOptions);

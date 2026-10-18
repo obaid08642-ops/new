@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { trackingId, TRACK_PREFIX } from '../common/tracking';
+import { healthFieldsPlugin } from '../common/health-fields';
 
 /**
  * MedicalReport — a doctor / facility issued medical report (NOT a lab/radiology result).
@@ -57,5 +58,7 @@ export class MedicalReport extends Document {
   @Prop({ type: [Object], default: [] }) share_history: Array<{ doctor_id: string; doctor_name?: string; shared_at: Date; revoked_at?: Date }>;
 }
 export const MedicalReportSchema = SchemaFactory.createForClass(MedicalReport);
+// 16.9: the report text is ciphertext at rest
+MedicalReportSchema.plugin(healthFieldsPlugin, { registry: 'medicalreports' });
 MedicalReportSchema.index({ patient_id: 1, createdAt: -1 });
 MedicalReportSchema.index({ report_type: 1, patient_id: 1 });

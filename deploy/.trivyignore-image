@@ -1,0 +1,5 @@
+# Trivy image-scan baseline - Phase 16.7
+# One line per advisory that cannot be fixed yet, with the reason and the way out. Empty on purpose: the first CI run
+# of .github/workflows/image-scan.yml lists what the images carry; every entry added here needs the owner's reading.
+#
+# CVE-XXXX-NNNN   # package, why it cannot be fixed now, target version

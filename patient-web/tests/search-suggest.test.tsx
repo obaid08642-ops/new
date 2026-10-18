@@ -9,7 +9,7 @@ vi.mock("next-intl", async () => {
 });
 
 import {
-  SUGGEST_DEBOUNCE_MS, SuggestController, canSuggest, highlightParts, parseSuggestions, suggestionHref,
+  SUGGEST_DEBOUNCE_MS, SuggestController, canSuggest, highlightParts, parseHighlights, parseSuggestions, suggestionHref,
   type SuggestState,
 } from "@/lib/search/suggest";
 import { SearchSuggest } from "@/components-next/search/search-suggest";
@@ -18,9 +18,9 @@ import { createTranslator } from "./helpers/intl";
 /** A fetch answer whose body is read in microtasks (a real Response body stream needs the event loop, frozen by fake timers). */
 const answer = (body: unknown, status = 200) => ({ ok: status >= 200 && status < 300, status, json: async () => body }) as unknown as Response;
 const bruf = { suggestions: [
-  { id: "m1", type: "medicine", name: "بروف 600", slug: "bruf-600", code: null },
-  { id: "m2", type: "medicine", name: "بروفينال 400", slug: "brufinal-400", code: null },
-  { id: "s1", type: "specialty", name: "برامج", slug: null, code: "nutrition" },
+  { id: "m1", type: "medicine", name: "بروف 600", slug: "bruf-600", code: null, highlights: [{ start: 0, length: 4 }] },
+  { id: "m2", type: "medicine", name: "بروفينال 400", slug: "brufinal-400", code: null, highlights: [{ start: 0, length: 4 }] },
+  { id: "s1", type: "specialty", name: "برامج", slug: null, code: "nutrition", highlights: [{ start: 0, length: 2 }] },
 ] };
 
 /** A controller on a fake fetch: each call is recorded with its abort signal and answered when the test says so. */
@@ -188,16 +188,32 @@ describe("issue 1544: links and highlight", () => {
 
   it("drops malformed rows and unknown types", () => {
     const { items, disabled } = parseSuggestions({ suggestions: [{ id: "a", type: "community", name: "x" }, { id: "", type: "doctor", name: "y" }, { id: "d", type: "doctor", name: "Dr Y" }, null] }, "en");
-    expect(items).toEqual([{ id: "d", type: "doctor", name: "Dr Y", href: "/en/consultations/doctors/d" }]);
+    expect(items).toEqual([{ id: "d", type: "doctor", name: "Dr Y", highlights: [], href: "/en/consultations/doctors/d" }]);
     expect(disabled).toBe(false);
   });
 
-  it("marks the typed text, ignoring diacritics, hamza forms and case, word starts first", () => {
-    expect(highlightParts("بروفينال 400", "بروف")).toEqual([{ text: "بروف", match: true }, { text: "ينال 400", match: false }]);
-    expect(highlightParts("شراب بُروف", "بروف")).toEqual([{ text: "شراب ", match: false }, { text: "بُروف", match: true }]);
-    expect(highlightParts("أدول", "اد")).toEqual([{ text: "أد", match: true }, { text: "ول", match: false }]);
-    expect(highlightParts("Super Bruf", "BRU")).toEqual([{ text: "Super ", match: false }, { text: "Bru", match: true }, { text: "f", match: false }]);
-    expect(highlightParts("Panadol", "zz")).toEqual([{ text: "Panadol", match: false }]);
+  it("draws the server's ranges as the marked parts, in order, as plain text", () => {
+    expect(highlightParts("بروفينال 400", [{ start: 0, length: 4 }])).toEqual([{ text: "بروف", match: true }, { text: "ينال 400", match: false }]);
+    expect(highlightParts("شراب بُروف", [{ start: 5, length: 5 }])).toEqual([{ text: "شراب ", match: false }, { text: "بُروف", match: true }]);
+    expect(highlightParts("Super Bruf", [{ start: 7, length: 3 }])).toEqual([{ text: "Super B", match: false }, { text: "ruf", match: true }]);
+    expect(highlightParts("Bruf bruf", [{ start: 0, length: 4 }, { start: 5, length: 4 }])).toEqual([
+      { text: "Bruf", match: true }, { text: " ", match: false }, { text: "bruf", match: true },
+    ]);
+    expect(highlightParts("Panadol", [])).toEqual([{ text: "Panadol", match: false }]);
+    expect(highlightParts("", [])).toEqual([{ text: "", match: false }]);
+  });
+
+  it("parses the server's highlights: whole numbers inside the name, sorted, overlaps merged, bad entries dropped", () => {
+    expect(parseHighlights([{ start: 4, length: 2 }, { start: 0, length: 2 }], "abcdef")).toEqual([{ start: 0, length: 2 }, { start: 4, length: 2 }]);
+    expect(parseHighlights([{ start: 0, length: 3 }, { start: 2, length: 2 }], "abcdef")).toEqual([{ start: 0, length: 4 }]);
+    expect(parseHighlights([{ start: -1, length: 2 }, { start: 5, length: 9 }, { start: 1.5, length: 1 }, { start: 0, length: 0 }, "x", null, { start: "1", length: 1 }], "abcdef")).toEqual([]);
+    expect(parseHighlights(undefined, "abc")).toEqual([]);
+    expect(parseHighlights("<mark>", "abc")).toEqual([]);
+  });
+
+  it("keeps the highlights of each suggestion from the answer", () => {
+    const { items } = parseSuggestions({ suggestions: [{ id: "a", type: "doctor", name: "Dr Ali", highlights: [{ start: 3, length: 3 }] }] }, "en");
+    expect(items).toEqual([{ id: "a", type: "doctor", name: "Dr Ali", highlights: [{ start: 3, length: 3 }], href: "/en/consultations/doctors/a" }]);
   });
 });
 

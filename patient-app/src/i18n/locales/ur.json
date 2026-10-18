@@ -3356,5 +3356,6 @@
   "pharmacy.barcode.matchesNote": "پڑھا گیا: {name}۔ اپنے ڈبے سے ملتی دوا منتخب کریں۔",
   "pharmacy.barcode.noMatchTitle": "کوئی قریبی مماثلت نہیں ملی",
   "pharmacy.barcode.noMatchBody": "یہ تصویر فہرست کی کسی دوا سے نہیں ملائی جا سکی۔",
-  "pharmacy.barcode.busy": "ایک منٹ میں بہت زیادہ اسکین۔ تھوڑا انتظار کر کے دوبارہ کوشش کریں۔"
+  "pharmacy.barcode.busy": "ایک منٹ میں بہت زیادہ اسکین۔ تھوڑا انتظار کر کے دوبارہ کوشش کریں۔",
+  "common.optimisticUndone": "یہ تبدیلی محفوظ نہ ہو سکی، اس لیے واپس کر دی گئی۔ دوبارہ کوشش کریں۔"
 }

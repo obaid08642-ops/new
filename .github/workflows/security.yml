@@ -17,11 +17,11 @@ jobs:
     name: Gitleaks secret scan (full history)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
       - name: Run gitleaks on full git history
-        uses: gitleaks/gitleaks-action@v3
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_ENABLE_COMMENTS: 'false'
@@ -33,62 +33,64 @@ jobs:
     name: Env files ignored in every app
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Every .env is ignored, templates stay tracked
         run: bash tools/audit/env_ignore_check.sh
 
-  # Phase 16.7 — npm audit as a gate: 0 high/critical runtime findings.
-  npm-audit:
-    name: npm audit (runtime, high/critical = 0)
+  # Phase 16.4 — nginx keeps the security headers on what it serves itself, and never lists a directory.
+  nginx-headers:
+    name: nginx security headers and autoindex off
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Static check of deploy/nginx
+        run: |
+          python3 tools/audit/nginx_headers_check.py
+          python3 -m unittest tools/audit/test_nginx_headers_check.py
+
+  # Phase 16.7 — dependency audit as a gate for every app: 0 NEW high/critical runtime advisories.
+  # tools/audit/audit-baseline.json lists the known ones per app with the reason; a baseline entry that is no longer
+  # vulnerable fails too, so the list only shrinks. Dev-only tooling is not audited (--omit=dev / --prod).
+  dependency-audit:
+    name: Dependency audit (${{ matrix.app }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [backend, admin, patient-web, patient-app, provider-app]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 20
-      - name: Install the backend (audit does not need a build)
-        working-directory: backend
-        run: npm ci --ignore-scripts
-      - name: Fail on high or critical runtime vulnerabilities
-        working-directory: backend
-        # --omit=dev: dev-only tooling is not what ships.
-        #
-        # Two advisories are pre-existing debt that cannot be cleared without a
-        # MAJOR upgrade (nodemailer 10, and fastify advisories with no 5.x fix).
-        # They are listed rather than hidden: the job prints them on every run
-        # and still fails on anything NEW. Re-baseline each when it lands.
-        #
-        # @nestjs/platform-fastify and sharp were NOT baselined: both had
-        # non-breaking fixes and are upgraded in this branch.
-        run: |
-          npm audit --omit=dev --json > /tmp/audit.json || true
-          node -e '
-            const a = require("/tmp/audit.json");
-            const KNOWN = new Set(["fastify", "nodemailer"]);
-            const v = a.vulnerabilities || {};
-            const known = [], fresh = [];
-            for (const [name, x] of Object.entries(v)) {
-              if (x.severity !== "high" && x.severity !== "critical") continue;
-              (KNOWN.has(name) ? known : fresh).push(`${name}@${x.range} (${x.severity})`);
-            }
-            if (known.length) {
-              console.log("Known-unfixed (need a MAJOR upgrade, tracked separately):");
-              for (const k of known) console.log("  - " + k);
-            }
-            if (fresh.length) {
-              console.error("\nNew high/critical vulnerabilities:");
-              for (const f of fresh) console.error("  - " + f);
-              process.exit(1);
-            }
-            console.log("No new high/critical runtime vulnerabilities.");
-          '
+      - name: Enable pnpm (patient-web)
+        if: matrix.app == 'patient-web'
+        run: corepack enable
+      - name: Audit the lockfile (no install needed)
+        run: node tools/audit/audit_gate.mjs ${{ matrix.app }}
+
+  # Phase 16.7 — lockfiles are enforced and every Action is pinned by commit SHA.
+  supply-chain:
+    name: Lockfiles and pinned Actions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.12'
+      - name: Every app has a tracked lockfile in step with package.json; installs use it
+        run: python3 tools/audit/lockfile_check.py
+      - name: Every GitHub Action is pinned by commit SHA
+        run: python3 tools/audit/pin_actions.py --check
+      - name: The checks themselves still catch what they should
+        run: python3 -m unittest tools/audit/test_supply_chain.py -v
 
   # Phase 16.7 — container image scanning.
   trivy:
     name: Trivy (dependency and filesystem scan)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Scan the backend dependency tree
         # Pinned by real commit SHA (review item F: no invented pins).
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0

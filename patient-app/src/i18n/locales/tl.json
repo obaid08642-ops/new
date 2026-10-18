@@ -3356,5 +3356,6 @@
   "pharmacy.barcode.matchesNote": "Nabasa bilang: {name}. Piliin ang gamot na tugma sa iyong pakete.",
   "pharmacy.barcode.noMatchTitle": "Walang malapit na tugma",
   "pharmacy.barcode.noMatchBody": "Hindi maitugma ang larawang ito sa isang gamot sa katalogo.",
-  "pharmacy.barcode.busy": "Masyadong maraming scan sa isang minuto. Maghintay sandali at subukang muli."
+  "pharmacy.barcode.busy": "Masyadong maraming scan sa isang minuto. Maghintay sandali at subukang muli.",
+  "common.optimisticUndone": "Hindi nai-save ang pagbabago, kaya ibinalik ito. Pakisubukan ulit."
 }

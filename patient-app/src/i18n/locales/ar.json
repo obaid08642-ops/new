@@ -3356,5 +3356,6 @@
   "pharmacy.barcode.matchesNote": "قُرئت على أنها: {name}. اختر الدواء المطابق لعلبتك.",
   "pharmacy.barcode.noMatchTitle": "لم نجد دواءً مطابقًا",
   "pharmacy.barcode.noMatchBody": "لم نتمكن من مطابقة هذه الصورة مع دواء في الدليل.",
-  "pharmacy.barcode.busy": "عمليات مسح كثيرة خلال دقيقة. انتظر قليلًا ثم حاول مرة أخرى."
+  "pharmacy.barcode.busy": "عمليات مسح كثيرة خلال دقيقة. انتظر قليلًا ثم حاول مرة أخرى.",
+  "common.optimisticUndone": "تعذّر حفظ التغيير فأُلغي. حاول مرة أخرى."
 }
