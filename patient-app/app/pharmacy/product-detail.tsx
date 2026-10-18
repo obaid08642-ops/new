@@ -44,7 +44,7 @@ import { DetailAccordion, FactsGrid, MiniProduct, Pill, SafetyCard, type Accordi
 import { COLUMN, step as scale, tint, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useCart } from '../../src/context/CartContext';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
-import { apiFetch } from '../../src/utils/api';
+import { apiFetch, hasSession } from '../../src/utils/api';
 import { dateLocaleFor } from '../../src/utils/dates';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
@@ -76,11 +76,8 @@ type Detail = Med & {
   potentially_unavailable?: boolean;
   discontinued?: boolean;
   shortage_notes?: string | null;
-  pharmacies_count?: number;
-  stock_status?: { pharmacies_count?: number };
   sku?: number | string | null;
   barcode?: string | null;
-  medical_review_status?: string;
   /** Decision D (issue 1556): the record's variant group (powers, colours, shades); each variant is its own record. */
   variant_group?: string | null;
   last_reviewed?: string | null;
@@ -172,6 +169,7 @@ export default function ProductDetailScreen() {
   ).current;
 
   const [med, setMed] = useState<Detail | null>(null);
+  const [pharmacyCount, setPharmacyCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState<'error' | 'offline' | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -232,6 +230,7 @@ export default function ProductDetailScreen() {
     (async () => {
       setLoading(true);
       setFailed(null);
+      setPharmacyCount(null);
       try {
         const data = await apiFetch<Detail>(`/medicines/${id}/details?lang=${currentDbLang()}`);
         if (!active) return;
@@ -239,6 +238,12 @@ export default function ProductDetailScreen() {
           setMed(data);
           setImages(medGallery(data));
           apiFetch('/medicines/events', { method: 'POST', body: JSON.stringify({ event_type: 'product_viewed', drug_id: id }) }).catch(() => {});
+          // How many pharmacies stock it: a signed-in route only (owner, 2026-10-16); guests see no count.
+          if (await hasSession()) {
+            apiFetch<{ pharmacies_count: number }>(`/medicines/${id}/availability`)
+              .then((a) => { if (active) setPharmacyCount(a.pharmacies_count); })
+              .catch((e) => logError('pharmacy:product-availability', e));
+          }
           prefetchAlternatives(data.alternatives || []);
           prefetchHotMedicines();
         } else {
@@ -369,7 +374,7 @@ export default function ProductDetailScreen() {
     const pct = canShowPromo(med) ? discountPercent(med) : 0;
     const oldPrice = oldPriceOf(med);
     const lastReviewed = med.last_reviewed ? new Date(med.last_reviewed) : null;
-    const stock = med.pharmacies_count ?? med.stock_status?.pharmacies_count ?? 0;
+    const stock = pharmacyCount ?? 0;
     const storage = textOf(medField(med, 'storage_conditions'));
     // `label` is a translation key; `value` is data, or a key when `valueIsKey`
     const shortFacts: { key: string; icon: 'pill' | 'scales' | 'package' | 'thermometer' | 'globe' | 'file-text'; label: string; value: string; valueIsKey?: boolean }[] = [];
@@ -420,11 +425,12 @@ export default function ProductDetailScreen() {
       pregnancy,
       breastfeeding,
       sections,
-      reviewed: med.medical_review_status === 'approved',
+      // Every public item is medically approved (owner, 2026-10-16); the date says when.
+      reviewed: true,
       reviewedOn: lastReviewed && !Number.isNaN(lastReviewed.getTime()) ? lastReviewed.toLocaleDateString(dateLocaleFor(lang), { year: 'numeric', month: 'short', day: 'numeric' }) : '',
       alternatives: Array.isArray(med.alternatives) ? med.alternatives : [],
     };
-  }, [med, lang]);
+  }, [med, lang, pharmacyCount]);
 
   const cartBadge = <CountBadge count={itemCount} />;
 
