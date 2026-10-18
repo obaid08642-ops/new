@@ -62,6 +62,7 @@ const PII_VALUE = [
 ];
 
 const REDACTED = '[redacted]';
+const UUID_VALUE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
 
 /** Mask one value. Objects are walked; arrays are walked element by element. */
 export function maskPii(input: unknown, depth = 0): unknown {
@@ -75,6 +76,8 @@ export function maskPii(input: unknown, depth = 0): unknown {
     }
     return out;
   }
+  // a request id / error id is a UUID: an opaque id, and a run of digits inside it must not look like a phone number
+  if (typeof input === 'string' && UUID_VALUE.test(input)) return input;
   if (typeof input === 'string' && PII_VALUE.some((re) => re.test(input))) return REDACTED;
   return input;
 }
