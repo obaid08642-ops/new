@@ -33,8 +33,9 @@ function extractFaqs(payload: unknown, locale: Locale): Faq[] {
   return values.flatMap((value) => {
     const r = asRecord(value);
     if (!r) return [];
-    const question = String((isAr ? r.question_ar : r.question_en) ?? r.question_ar ?? r.question_en ?? r.question ?? "");
-    const answer = String((isAr ? r.answer_ar : r.answer_en) ?? r.answer_ar ?? r.answer_en ?? r.answer ?? "");
+    // issue 1585: a FAQ may carry question_<locale> for every app language (the built-in fallback does).
+    const question = String(r[`question_${locale}`] ?? (isAr ? r.question_ar : r.question_en) ?? r.question_ar ?? r.question_en ?? r.question ?? "");
+    const answer = String(r[`answer_${locale}`] ?? (isAr ? r.answer_ar : r.answer_en) ?? r.answer_ar ?? r.answer_en ?? r.answer ?? "");
     return question ? [{ id: String(r.id ?? question), question, answer }] : [];
   });
 }

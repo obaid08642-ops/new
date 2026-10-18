@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// P20.6 / P20.7: one external vantage point. Probes the public site and API, prints a one-line result per component, posts the
+// P20.6: one external vantage point (GitHub's network). Probes the public site and API, prints a one-line result per component, posts the
 // result to the status page (POST /ingest, HMAC-signed) when STATUS_INGEST_SECRET is set, and exits 1 when any component is down
 // (so the scheduled GitHub Actions run fails and GitHub emails the repository's watchers).
 //   node tools/uptime/probe.mjs [--vantage github-actions] [--status-url https://status.nabd.plus]

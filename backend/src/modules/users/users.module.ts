@@ -13,16 +13,19 @@ import { PatientProfileRepository } from './repositories/patient-profile.reposit
 import { ProviderProfileRepository } from './repositories/provider-profile.repository';
 import { DataRetentionService } from './data-retention.service';
 import { PdplService } from './pdpl.service';
+import { NationalAddressModule } from './national-address.service';
+import { NationalAddressController } from './national-address.controller';
 
 @Module({
   imports: [
+    NationalAddressModule,
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: PatientProfile.name, schema: PatientProfileSchema },
       { name: ProviderProfile.name, schema: ProviderProfileSchema },
     ]),
   ],
-  controllers: [UsersController, UsersAddressesController, UsersInsuranceController, UserInsuranceController],
+  controllers: [UsersController, UsersAddressesController, NationalAddressController, UsersInsuranceController, UserInsuranceController],
   providers: [
     UsersService,
     { provide: 'UserRepository', useClass: UserRepository },

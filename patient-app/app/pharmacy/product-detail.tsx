@@ -44,13 +44,15 @@ import { DetailAccordion, FactsGrid, MiniProduct, Pill, SafetyCard, type Accordi
 import { COLUMN, step as scale, tint, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useCart } from '../../src/context/CartContext';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
-import { apiFetch } from '../../src/utils/api';
+import { apiFetch, hasSession } from '../../src/utils/api';
 import { dateLocaleFor } from '../../src/utils/dates';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { currentDbLang } from '../../src/utils/localize';
 import { prefetchAlternatives, prefetchHotMedicines } from '../../src/utils/prefetch';
 import { getVisibleProductIds } from '../../src/utils/productNav';
+import { VariantPicker } from '../../src/components/pharmacy/VariantPicker';
+import { productLocaleOf, type ProductVariant } from '../../src/utils/variantPicker';
 import { coveringInsurerName, type InsurerCompany } from '../../src/utils/productInsurance';
 import { englishNameUnder } from '../../src/utils/englishNameUnder';
 import { canShowPromo, discountPercent, medField, medGallery, medMeta, medName, medPrice, needsRx, oldPriceOf, onlineOnly, productNote, type Med } from '../../src/utils/pharmacyCatalog';
@@ -74,11 +76,10 @@ type Detail = Med & {
   potentially_unavailable?: boolean;
   discontinued?: boolean;
   shortage_notes?: string | null;
-  pharmacies_count?: number;
-  stock_status?: { pharmacies_count?: number };
   sku?: number | string | null;
   barcode?: string | null;
-  medical_review_status?: string;
+  /** Decision D (issue 1556): the record's variant group (powers, colours, shades); each variant is its own record. */
+  variant_group?: string | null;
   last_reviewed?: string | null;
   alternatives?: Med[];
   related_product_ids?: string[];
@@ -127,7 +128,9 @@ const SUGGEST_FIELDS = [
 ] as const;
 
 export default function ProductDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  // Decision D (issue 1556): `v` is the chosen variant (its own record); the route keeps it, so the choice is shareable.
+  const { id: entryId, v } = useLocalSearchParams<{ id: string; v?: string }>();
+  const id = v || entryId;
   const { theme, t, c, dir, flow, k, num, money, lang } = useScreenUi();
   const notice = useNotice(theme);
   const insets = useSafeAreaInsets();
@@ -166,6 +169,7 @@ export default function ProductDetailScreen() {
   ).current;
 
   const [med, setMed] = useState<Detail | null>(null);
+  const [pharmacyCount, setPharmacyCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState<'error' | 'offline' | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -174,6 +178,7 @@ export default function ProductDetailScreen() {
   const [zoom, setZoom] = useState(false);
   const [qty, setQty] = useState(1);
   const [related, setRelated] = useState<Med[]>([]);
+  const [variants, setVariants] = useState<{ group: string; rows: ProductVariant[] } | null>(null);
   const [inWishlist, setInWishlist] = useState(false);
   const [wishlistBusy, setWishlistBusy] = useState(false);
   const [suggestOpen, setSuggestOpen] = useState(false);
@@ -225,6 +230,7 @@ export default function ProductDetailScreen() {
     (async () => {
       setLoading(true);
       setFailed(null);
+      setPharmacyCount(null);
       try {
         const data = await apiFetch<Detail>(`/medicines/${id}/details?lang=${currentDbLang()}`);
         if (!active) return;
@@ -232,6 +238,12 @@ export default function ProductDetailScreen() {
           setMed(data);
           setImages(medGallery(data));
           apiFetch('/medicines/events', { method: 'POST', body: JSON.stringify({ event_type: 'product_viewed', drug_id: id }) }).catch(() => {});
+          // How many pharmacies stock it: a signed-in route only (owner, 2026-10-16); guests see no count.
+          if (await hasSession()) {
+            apiFetch<{ pharmacies_count: number }>(`/medicines/${id}/availability`)
+              .then((a) => { if (active) setPharmacyCount(a.pharmacies_count); })
+              .catch((e) => logError('pharmacy:product-availability', e));
+          }
           prefetchAlternatives(data.alternatives || []);
           prefetchHotMedicines();
         } else {
@@ -251,6 +263,27 @@ export default function ProductDetailScreen() {
       active = false;
     };
   }, [id, reloadKey]);
+
+  // Decision D: the product's variants (GET /public/product-variants/:locale/:id), read once per group.
+  useEffect(() => {
+    const group = med?.variant_group;
+    if (!med || !group) {
+      setVariants(null);
+      return;
+    }
+    if (variants?.group === group) return;
+    let active = true;
+    apiFetch<{ variants?: ProductVariant[] }>(`/public/product-variants/${productLocaleOf(currentDbLang())}/${encodeURIComponent(String(med.id))}`)
+      .then((res) => {
+        if (active) setVariants({ group, rows: Array.isArray(res?.variants) ? res.variants.filter((x) => x && x.id && x.variant) : [] });
+      })
+      .catch(() => {
+        if (active) setVariants(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [med, variants?.group]);
 
   // The insurance row: the saved policy (GET /users/me/insurance) and the company names (GET /insurance/companies).
   const covered = med?.covered_by_insurance;
@@ -341,7 +374,7 @@ export default function ProductDetailScreen() {
     const pct = canShowPromo(med) ? discountPercent(med) : 0;
     const oldPrice = oldPriceOf(med);
     const lastReviewed = med.last_reviewed ? new Date(med.last_reviewed) : null;
-    const stock = med.pharmacies_count ?? med.stock_status?.pharmacies_count ?? 0;
+    const stock = pharmacyCount ?? 0;
     const storage = textOf(medField(med, 'storage_conditions'));
     // `label` is a translation key; `value` is data, or a key when `valueIsKey`
     const shortFacts: { key: string; icon: 'pill' | 'scales' | 'package' | 'thermometer' | 'globe' | 'file-text'; label: string; value: string; valueIsKey?: boolean }[] = [];
@@ -392,11 +425,12 @@ export default function ProductDetailScreen() {
       pregnancy,
       breastfeeding,
       sections,
-      reviewed: med.medical_review_status === 'approved',
+      // Every public item is medically approved (owner, 2026-10-16); the date says when.
+      reviewed: true,
       reviewedOn: lastReviewed && !Number.isNaN(lastReviewed.getTime()) ? lastReviewed.toLocaleDateString(dateLocaleFor(lang), { year: 'numeric', month: 'short', day: 'numeric' }) : '',
       alternatives: Array.isArray(med.alternatives) ? med.alternatives : [],
     };
-  }, [med, lang]);
+  }, [med, lang, pharmacyCount]);
 
   const cartBadge = <CountBadge count={itemCount} />;
 
@@ -595,6 +629,17 @@ export default function ProductDetailScreen() {
                 </Text>
               ) : null}
             </View>
+
+            {/* decision D: the variant picker (powers, colours, shades); a choice opens that variant's own record */}
+            {variants && variants.rows.length > 1 ? (
+              <VariantPicker
+                variants={variants.rows.map((x) => ({ ...x, available: x.available && x.price > 0 }))}
+                selectedId={String(med.id)}
+                onSelect={(next) => {
+                  if (next !== String(med.id)) router.setParams({ v: next });
+                }}
+              />
+            ) : null}
 
             {/* price, quantity, availability */}
             <Card padding="md" theme={theme}>

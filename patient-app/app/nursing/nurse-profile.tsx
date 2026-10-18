@@ -199,6 +199,7 @@ export default function NursingMegaProfile() {
           address: addressObj ? formatAddressLine(addressObj) : undefined,
           city: addressObj?.city || undefined,
           district: addressObj?.district || undefined,
+          short_address: addressObj?.short_address || undefined,
           lat: Number.isFinite(Number(addressObj?.lat)) ? Number(addressObj?.lat) : undefined,
           lng: Number.isFinite(Number(addressObj?.lng)) ? Number(addressObj?.lng) : undefined,
         },

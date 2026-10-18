@@ -52,7 +52,7 @@ export function setLogUser(userId: unknown, role?: unknown) {
  * clear. Matching is on the key name, so `patient_phone` and `nationalId` are
  * both caught whatever the caller called the variable.
  */
-const PII_KEY = /(phone|mobile|tel|email|e_?mail|user_?name|full_?name|first_?name|last_?name|national_?id|nid|iqama|passport|address|diagnosis|prescription|medical_?record|password|token|secret|api_?key|otp|code|cvv|card)/i;
+const PII_KEY = /(phone|mobile|tel|email|e_?mail|user_?name|full_?name|first_?name|last_?name|national_?id|nid|iqama|passport|address|diagnos|prescription|medical|medication|allerg|symptom|complaint|lab_?result|vitals|health_?(?:record|data|condition)|dob|birth|insurance_?(?:no|number)|policy_?(?:no|number)|iban|password|token|secret|api_?key|otp|code|cvv|card)/i;
 
 /** Values that look like a phone, an email or a national id even under a bland key. */
 const PII_VALUE = [
@@ -62,6 +62,7 @@ const PII_VALUE = [
 ];
 
 const REDACTED = '[redacted]';
+const UUID_VALUE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
 
 /** Mask one value. Objects are walked; arrays are walked element by element. */
 export function maskPii(input: unknown, depth = 0): unknown {
@@ -75,6 +76,8 @@ export function maskPii(input: unknown, depth = 0): unknown {
     }
     return out;
   }
+  // a request id / error id is a UUID: an opaque id, and a run of digits inside it must not look like a phone number
+  if (typeof input === 'string' && UUID_VALUE.test(input)) return input;
   if (typeof input === 'string' && PII_VALUE.some((re) => re.test(input))) return REDACTED;
   return input;
 }

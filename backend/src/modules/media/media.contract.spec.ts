@@ -1,5 +1,9 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { MediaController } from './media.controller';
+import { UploadSecurityService } from '../storage/upload-security.service';
+
+// a real (tiny) PDF: the upload is judged by its bytes now (16.5)
+const PDF = Buffer.from('%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF\n');
 
 const OWNER = { id: 'patient-1', role: 'patient' };
 const OTHER = { id: 'stranger-1', role: 'patient' };
@@ -10,10 +14,10 @@ function controllerFor(options: { asset?: any; chatThread?: any } = {}) {
   const controller: any = Object.create(MediaController.prototype);
   controller.mediaService = {
     uploadBuffer: jest.fn().mockResolvedValue({ key: 'chat/patient-1/object.pdf' }),
-    generatePresignedUploadUrl: jest.fn().mockResolvedValue({ key: 'chat/patient-1/object.pdf', uploadUrl: 'https://signed-upload.example' }),
     generatePresignedDownloadUrl: jest.fn().mockResolvedValue('https://signed-download.example'),
     deleteFile: jest.fn().mockResolvedValue(undefined),
   };
+  controller.uploadSecurity = new UploadSecurityService();
   controller.assets = {
     create: jest.fn().mockResolvedValue({ id: 'media-1', purpose: 'chat', thread_id: 'thread-1' }),
     findOne: jest.fn().mockReturnValue(lean(options.asset ?? null)),
@@ -26,7 +30,7 @@ function controllerFor(options: { asset?: any; chatThread?: any } = {}) {
 describe('MediaController private-asset contract', () => {
   it('rejects a chat upload by a non-participant before storage is invoked', async () => {
     const { controller, ChatThreadModel } = controllerFor({ chatThread: null });
-    const file: any = { buffer: Buffer.from('x'), originalname: 'note.pdf', mimetype: 'application/pdf', size: 1 };
+    const file: any = { buffer: PDF, originalname: 'note.pdf', mimetype: 'application/pdf', size: PDF.length };
 
     await expect(controller.uploadFile(OTHER, file, { purpose: 'chat', thread_id: 'thread-1' })).rejects.toThrow(NotFoundException);
 
@@ -36,7 +40,7 @@ describe('MediaController private-asset contract', () => {
 
   it('persists a private chat asset owner binding and exposes an ID rather than a public URL', async () => {
     const { controller } = controllerFor({ chatThread: { id: 'thread-1', participant_ids: [OWNER.id] } });
-    const file: any = { buffer: Buffer.from('x'), originalname: 'note.pdf', mimetype: 'application/pdf', size: 1 };
+    const file: any = { buffer: PDF, originalname: 'note.pdf', mimetype: 'application/pdf', size: PDF.length };
 
     await expect(controller.uploadFile(OWNER, file, { purpose: 'chat', thread_id: 'thread-1' }))
       .resolves.toEqual({ id: 'media-1', purpose: 'chat', thread_id: 'thread-1' });

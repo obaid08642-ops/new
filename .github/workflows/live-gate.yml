@@ -24,9 +24,9 @@ jobs:
         image: redis:7
         ports: ['6379:6379']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
@@ -34,7 +34,7 @@ jobs:
             backend/package-lock.json
             admin/package-lock.json
 
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: '3.12'
 
@@ -45,12 +45,14 @@ jobs:
           docker exec mongo mongosh --quiet --eval 'rs.initiate({_id:"rs0",members:[{_id:0,host:"127.0.0.1:27017"}]})'
           for i in $(seq 1 30); do docker exec mongo mongosh --quiet --eval 'rs.status().ok' | grep -q 1 && break; sleep 2; done
 
-      - name: Test doubles (S3, SMTP sink, Moyasar)
+      - name: Test doubles (S3, SMTP sink, Moyasar, ClamAV, Saudi Post)
         run: |
           pip install 'moto[server]==5.*' boto3 aiosmtpd
           nohup moto_server -p 9000 > /tmp/moto.log 2>&1 &
           nohup python3 tools/live/smtp_sink.py > /tmp/smtp.log 2>&1 &
           nohup python3 tools/live/fake_moyasar.py > /tmp/moyasar.log 2>&1 &
+          nohup python3 tools/live/fake_spl.py > /tmp/spl.log 2>&1 &
+          nohup python3 tools/live/fake_clamd.py > /tmp/clamd.log 2>&1 &
           for i in $(seq 1 30); do curl -s -o /dev/null http://127.0.0.1:9000 && break; sleep 1; done
           python3 -c "import boto3; boto3.client('s3', endpoint_url='http://127.0.0.1:9000', aws_access_key_id='live', aws_secret_access_key='live-secret', region_name='us-east-1').create_bucket(Bucket='nabd-live')"
 
@@ -83,7 +85,7 @@ jobs:
       # Fix session: patient-web screens are proven in a real browser too (tools/live/j_web_*.py), so the gate
       # builds the website against this backend and serves it on :3100 (tools/live/start-web.sh). run_gate.sh points the
       # browser half of j_throttled_network (NABD_PATIENT_WEB) at the same :3100 site.
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
         with:
           version: 10.4.1
 
