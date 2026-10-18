@@ -4,6 +4,7 @@ import { getDeviceId } from './deviceId';
 import { decodeJwt } from './jwt';
 import type { User } from '../types';
 import { secureGet } from './security';
+import { ensureInstallChecked } from './installCheck';
 
 export interface GuestSession {
   user: User;
@@ -40,6 +41,7 @@ export async function createGuestSession(): Promise<GuestSession> {
  */
 export async function ensureGuestSession(): Promise<GuestSession | null> {
   try {
+    await ensureInstallChecked();   // 21.1: first, forget a session that belongs to a previous install
     const existing = await secureGet(STORAGE_KEYS.AUTH_TOKEN).catch(() => null);
     if (existing) return null;
     return await createGuestSession();
