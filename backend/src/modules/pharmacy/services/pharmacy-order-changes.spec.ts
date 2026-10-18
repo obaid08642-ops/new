@@ -173,11 +173,21 @@ describe('22.5 order changes', () => {
       expect(again).toMatchObject({ existing: true, child_order_id: ok[0].child_order_id });
     });
 
+    it('an empty or null marker on the order does not block the split', async () => {
+      for (const marker of [null, '']) {
+        await selectedOrder();
+        await alloc([{ order_item_id: 'i1', action: 'available', qty_offered: 3 }, { order_item_id: 'i2', action: 'unavailable', qty_offered: 0 }, { order_item_id: 'i3', action: 'available', qty_offered: 2 }]);
+        await conn.collection('pharmacy_orders').updateOne({ id: 'o1' }, { $set: { split_child_order_id: marker } });
+        expect(await service.splitRemaining(patient, 'o1')).toMatchObject({ ok: true, existing: false });
+        await conn.collection('pharmacy_orders').deleteMany({}); await conn.collection('pharmacy_allocations').deleteMany({});
+      }
+    });
+
     it('refuses: nothing left, no chosen offer, a cancelled order, someone else\'s order', async () => {
       await selectedOrder();
       await alloc([{ order_item_id: 'i1', action: 'available', qty_offered: 3 }, { order_item_id: 'i2', action: 'available', qty_offered: 1 }, { order_item_id: 'i3', action: 'available', qty_offered: 2 }]);
       await expect(service.splitRemaining(patient, 'o1')).rejects.toThrow('nothing_to_split');
-      expect((await conn.collection('pharmacy_orders').findOne({ id: 'o1' }))?.split_child_order_id).toBeUndefined(); // the claim is released
+      expect((await conn.collection('pharmacy_orders').findOne({ id: 'o1' }))?.split_claim).toBeUndefined(); // the claim is released
       await conn.collection('pharmacy_orders').updateOne({ id: 'o1' }, { $unset: { selected_offer_id: '' } });
       await expect(service.splitRemaining(patient, 'o1')).rejects.toThrow('select_an_offer_first');
       await conn.collection('pharmacy_orders').updateOne({ id: 'o1' }, { $set: { selected_offer_id: 'of1', status: PharmacyOrderState.CANCELLED } });

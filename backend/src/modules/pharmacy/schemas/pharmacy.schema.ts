@@ -236,6 +236,8 @@ export class PharmacyOrder extends Document {
   @Prop({ default: 1 }) edit_revision?: number;
   /** 22.5 — an order split off this one when the chosen pharmacy could not fill everything (and the other way round). */
   @Prop() split_child_order_id?: string;
+  /** 22.5 — set by whoever is creating the split order, so only one request does. */
+  @Prop() split_claim?: Date;
   @Prop() parent_order_id?: string;
   @Prop() split_from_offer_id?: string;
 }

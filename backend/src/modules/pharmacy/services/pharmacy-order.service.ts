@@ -830,8 +830,8 @@ export class PharmacyOrderService {
     const allocs: any[] = await this.allocs.find({ order_id: id }).lean();
     const remaining = unfilledItems(order, allocs);
     if (!remaining.length) throw new BadRequestException('nothing_to_split');
-    // one winner: whoever flips the marker creates the child
-    const claim: any = await this.orders.updateOne({ id, patient_account_id: user.id, $or: [{ split_child_order_id: { $exists: false } }, { split_child_order_id: null }] }, { $set: { split_child_order_id: 'pending' } });
+    // one winner: whoever sets the claim creates the child (a field of its own, so no older value of the pointer can block it)
+    const claim: any = await this.orders.updateOne({ id, split_claim: { $exists: false } }, { $set: { split_claim: new Date() } });
     if (!(claim?.modifiedCount ?? claim?.nModified ?? 0)) {
       const again: any = await this.orders.findOne({ id }).lean();
       if (again?.split_child_order_id && again.split_child_order_id !== 'pending') return { ok: true, existing: true, child_order_id: again.split_child_order_id };
@@ -859,7 +859,7 @@ export class PharmacyOrderService {
       }).catch(() => null);
       return { ok: true, existing: false, child_order_id: child.id, items: remaining.length };
     } catch (e) {
-      await this.orders.updateOne({ id, split_child_order_id: 'pending' }, { $unset: { split_child_order_id: '' } }).catch(() => undefined);
+      await this.orders.updateOne({ id, split_child_order_id: { $in: [null, ''] } }, { $unset: { split_claim: '' } }).catch(() => undefined);
       throw e;
     }
   }
