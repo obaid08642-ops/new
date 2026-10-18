@@ -1,5 +1,3 @@
-# 2026-10-18 owner: Email Routing (security@, support@, customer@ -> the owner's mailbox) and the search suggest cache rule.
-# Both are read-only checks. The apply tasks (cf:44-email-routing-apply, cf:43-search-suggest-cache-apply) wait for the owner's Approve after these.
-# Rehearsal green on review/ops-cf-2 (job cloudflare-edge). Report key unchanged.
+# 2026-10-18 owner: Email Routing (security@, support@, customer@) and the search suggest cache rule. Read-only checks; the apply tasks wait for the owner's Approve. Run 47 blocked on an apex MX of another provider (names printed from this run on). Report key unchanged.
 cf:44-email-routing-check
 cf:43-search-suggest-cache-check
