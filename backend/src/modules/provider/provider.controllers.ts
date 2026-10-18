@@ -1,3 +1,4 @@
+import { protectHealthDoc } from '../../common/health-fields';
 import { PROVIDER_ROLES } from '../../common/enums';
 import { isProviderRole } from '../../common/enums';
 import { Controller, Post, Get, Patch, Delete, Body, Param, Query, Req, Inject } from '@nestjs/common';
@@ -391,13 +392,15 @@ export class ProviderRequestsController {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    await this.conn.collection('medicalreports').insertOne(doc as any);
+    // 16.9: the certificate text is health data; the raw write encrypts it (the appointment keeps its own encrypted copy of the reason)
+    const reasonCipher = protectHealthDoc('appointments', { sickLeaves: [{ reason: doc.diagnosis }] }).sickLeaves[0].reason;
+    await this.conn.collection('medicalreports').insertOne(protectHealthDoc('medicalreports', { ...doc }) as any);
 
     // Record on the appointment for the patient's timeline
     if (id && id !== 'new') {
       await this.conn.collection('appointments').updateOne(
         { $or: [{ id }, { _id: id as any }] } as any,
-        { $push: { sickLeaves: { days, reason: doc.diagnosis, tracking_id: doc.tracking_id, at: new Date() } } } as any,
+        { $push: { sickLeaves: { days, reason: reasonCipher, tracking_id: doc.tracking_id, at: new Date() } } } as any,
       );
     }
 
@@ -441,7 +444,7 @@ export class ProviderRequestsController {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    await this.conn.collection('medicalreports').insertOne(doc as any);
+    await this.conn.collection('medicalreports').insertOne(protectHealthDoc('medicalreports', { ...doc }) as any);   // 16.9
     this.events.emit('medical_report.created', { id: doc.id, patient_id: doc.patient_id, critical: doc.critical, tracking_id: doc.tracking_id });
     return { ok: true, message: 'medical_report_issued', tracking_id: doc.tracking_id, verify_url: `/api/v1/medical-reports/track/${doc.tracking_id}` };
   }

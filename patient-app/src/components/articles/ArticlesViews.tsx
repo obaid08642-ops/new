@@ -9,6 +9,10 @@ import { CONSULT_TONE, Gate, Section, goBack, useConsultFormat, type GateStatus 
 import { HealthScreen, HealthTabs, Pill, rowsOf, useRemote, useTab } from '../health/HealthKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
+import { useApp } from '../../context/AppContext';
+import { useSearchSuggest } from '../../hooks/useSearchSuggest';
+import { SearchSuggestList } from '../search/SearchSuggestList';
+import { suggestionRoute } from '../../utils/searchSuggest';
 import { pickLocalized } from '../../utils/localize';
 
 /**
@@ -93,6 +97,8 @@ function AllTab() {
   const params = useLocalSearchParams<{ category?: string }>();
   const category = typeof params.category === 'string' ? params.category : '';
   const [text, setText] = useState('');
+  const { lang } = useApp();
+  const suggest = useSearchSuggest(text, lang);
   const [query, setQuery] = useState('');
   useEffect(() => {
     const id = setTimeout(() => setQuery(text.trim()), 400);
@@ -116,6 +122,18 @@ function AllTab() {
   return (
     <>
       <Search value={text} onChange={setText} onClear={() => setText('')} clearLabel={k('articles.clearSearch')} placeholder={k('articles.search')} variant="page" theme={theme} testID="articles-search" />
+      {suggest.open ? (
+        <SearchSuggestList
+          items={suggest.items}
+          query={text}
+          onPick={(item) => {
+            const route = suggestionRoute(item);
+            if (!route) return;
+            suggest.close();
+            router.push({ pathname: route.pathname, params: route.params } as unknown as Href);
+          }}
+        />
+      ) : null}
       {names.length > 0 ? (
         <HealthTabs tabs={[{ key: '', label: k('articles.allCategories') }, ...names.map((n) => ({ key: n, label: n }))]} value={category} onChange={(next) => router.setParams({ category: next })} testID="article-categories" />
       ) : null}

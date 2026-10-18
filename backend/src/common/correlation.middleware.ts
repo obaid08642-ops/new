@@ -46,6 +46,12 @@ export class CorrelationMiddleware implements NestMiddleware {
 
     // Everything downstream runs inside this context, so a log line from deep
     // in a service still knows which request it belongs to (20.3).
-    runWithLogContext({ requestId }, () => next());
+    const deviceHeader = req.headers['x-device-id'];
+    runWithLogContext({
+      requestId,
+      ip: req.ip || undefined,
+      userAgent: String(req.headers['user-agent'] ?? '').slice(0, 240) || undefined,
+      deviceId: (Array.isArray(deviceHeader) ? deviceHeader[0] : deviceHeader)?.slice(0, 128),
+    }, () => next());
   }
 }

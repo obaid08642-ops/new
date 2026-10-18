@@ -2,6 +2,7 @@ import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { exportAuditEvents } from '../security/user-history.service';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { revealHealthDocs } from '../../common/health-fields';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from '../../schemas/user.schema';
@@ -139,7 +140,8 @@ export class PdplService {
         .toArray()
         .catch(() => []);
       if (rows.length) {
-        data.collections[collection] = rows.map((r) => this.sanitize(r as any));
+        // the patient's copy of their data is readable: the health fields are decrypted for the export (16.9)
+        data.collections[collection] = revealHealthDocs(collection, rows).map((r) => this.sanitize(r as any));
       }
     }
 

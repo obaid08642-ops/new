@@ -5,10 +5,10 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { MedicalReport, MedicalReportType } from '../../schemas/medical-report.schema';
 import { MedicalReportRepository } from "./repositories/medicalreport.repository";
 import { hasEffectiveRole } from '../../common/auth.guard';
-import { FieldEncryptionService, MedicalAccessLogService } from '../../common/pdpl-compliance.module';
+import { MedicalAccessLogService, logMedicalRead } from '../../common/pdpl-compliance.module';
 
-/** 16.9: the report fields that are health data and are encrypted at rest. */
-const SENSITIVE_REPORT_FIELDS = ['patient_name', 'summary', 'body', 'diagnosis', 'recommendations'];
+// 16.9: the report text is encrypted at rest by the model (health-fields plugin on MedicalReportSchema), so nothing here
+// encrypts or decrypts: a hydrated document, toObject() and JSON give plaintext, the database holds ciphertext.
 
 @Injectable()
 export class MedicalReportsService {
@@ -16,7 +16,6 @@ export class MedicalReportsService {
     @Inject('MedicalReportRepository') private readonly model: MedicalReportRepository,
     private readonly events: EventEmitter2,
     @InjectConnection() private readonly connection: Connection,
-    private readonly fieldCrypto: FieldEncryptionService,
     private readonly accessLog: MedicalAccessLogService,
   ) {}
 
@@ -25,9 +24,13 @@ export class MedicalReportsService {
     if (opts.type) filter.report_type = opts.type;
     if (opts.q) {
       const re = new RegExp(opts.q.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
-      filter.$or = [{ title_ar: re }, { title_en: re }, { summary: re }, { diagnosis: re }];
+      // titles only: summary and diagnosis are ciphertext at rest (16.9), a regex cannot match them
+      filter.$or = [{ title_ar: re }, { title_en: re }];
     }
-    return this.model.find(filter, { _id: 0, __v: 0, body: 0 }).sort({ issued_at: -1, createdAt: -1 }).limit(Math.min(opts.limit || 80, 200));
+    const rows = await this.model.find(filter, { _id: 0, __v: 0, body: 0 }).sort({ issued_at: -1, createdAt: -1 }).limit(Math.min(opts.limit || 80, 200));
+    // the list shows each report's summary and diagnosis, so it is a read of every report in it
+    await logMedicalRead(this.accessLog, user, rows.map((r: any) => ({ kind: 'medical_report', id: String(r.id), action: 'list', subject_id: r.patient_id })));
+    return rows;
   }
 
   async one(user: any, id: string) {
@@ -41,31 +44,15 @@ export class MedicalReportsService {
     if (!r.viewed_by_patient && r.patient_id === user.id) { r.viewed_by_patient = true; r.patient_viewed_at = new Date(); await r.save(); }
 
     // 16.9: every read of a medical record leaves a row naming who read it.
-    await this.accessLog.record(
-      {
-        actor_id: user.id,
-        actor_role: user.role,
-        actor_kind: user.role === 'patient' ? 'patient' : user.role === 'admin' ? 'admin' : 'provider',
-        ip: user.ip,
-        device_id: user.device_id,
-        user_agent: user.ua,
-      },
-      { kind: 'medical_report', id, action: 'read' },
-    ).catch((e) => undefined);
-
-    // 16.9: the sensitive fields are ciphertext at rest; they are decrypted on
-    // the way out, so the database never holds the readable text.
-    const obj = r.toObject();
-    this.fieldCrypto.decryptFields(obj as Record<string, unknown>, SENSITIVE_REPORT_FIELDS);
-    return obj;
+    await logMedicalRead(this.accessLog, user, [{ kind: 'medical_report', id, action: 'read', subject_id: r.patient_id }]);
+    return r.toObject();
   }
 
   async create(user: any, body: any) {
     if (!['admin', 'doctor', 'hospital', 'radiology', 'lab'].includes(user.role)) throw new ForbiddenException('provider only');
     if (!body.patient_id) throw new BadRequestException('patient_id required');
     if (!body.title_ar) throw new BadRequestException('title_ar required');
-    // 16.9: encrypt before the document is written.
-    const payload = this.fieldCrypto.encryptFields({
+    const payload = {
       patient_id: body.patient_id,
       patient_name: body.patient_name,
       title_ar: body.title_ar,
@@ -86,12 +73,10 @@ export class MedicalReportsService {
       facility_name: body.facility_name,
       attachments: body.attachments || [],
       issued_at: body.issued_at ? new Date(body.issued_at) : new Date(),
-    }, SENSITIVE_REPORT_FIELDS);
+    };
     const r = await this.model.create(payload);
     this.events.emit('medical_report.created', { id: r.id, patient_id: body.patient_id, critical: r.critical, tracking_id: r.tracking_id });
-    const created = r.toObject();
-    this.fieldCrypto.decryptFields(created as Record<string, unknown>, SENSITIVE_REPORT_FIELDS);
-    return created;
+    return r.toObject();
   }
 
   /** Public-ish: get by tracking_id (for share/print without auth complications). */
@@ -102,13 +87,8 @@ export class MedicalReportsService {
       const pid = await this.ownDoctorProfileId(user);
       if (!pid || !(r.shared_with_doctor_ids || []).includes(pid)) throw new NotFoundException();
     }
-    await this.accessLog.record(
-      { actor_id: user.id, actor_role: user.role, actor_kind: user.role === 'patient' ? 'patient' : user.role === 'admin' ? 'admin' : 'provider' },
-      { kind: 'medical_report', id: String(r.id), action: 'read_by_tracking' },
-    ).catch(() => undefined);
-    const obj = r.toObject ? r.toObject() : { ...r };
-    this.fieldCrypto.decryptFields(obj as Record<string, unknown>, SENSITIVE_REPORT_FIELDS);
-    return obj;
+    await logMedicalRead(this.accessLog, user, [{ kind: 'medical_report', id: String(r.id), action: 'read_by_tracking', subject_id: r.patient_id }]);
+    return r.toObject ? r.toObject() : { ...r };
   }
 
   /** Resolve the caller's provider profile id when they act as a doctor. */
@@ -165,6 +145,8 @@ export class MedicalReportsService {
     if (!user || !hasEffectiveRole(user, 'doctor')) throw new ForbiddenException('doctor only');
     const pid = await this.ownDoctorProfileId(user);
     if (!pid) return [];
-    return this.model.find({ shared_with_doctor_ids: pid }, { _id: 0, __v: 0, body: 0 }).sort({ issued_at: -1, createdAt: -1 }).limit(100);
+    const rows = await this.model.find({ shared_with_doctor_ids: pid }, { _id: 0, __v: 0, body: 0 }).sort({ issued_at: -1, createdAt: -1 }).limit(100);
+    await logMedicalRead(this.accessLog, user, rows.map((r: any) => ({ kind: 'medical_report', id: String(r.id), action: 'list_shared', subject_id: r.patient_id })));
+    return rows;
   }
 }

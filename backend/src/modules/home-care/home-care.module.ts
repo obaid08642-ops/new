@@ -17,11 +17,13 @@ import { HomeCarePackagesController } from './home-care-packages.controller';
 import { NursingCompatController } from './nursing-compat.controller';
 import { PatientHomeCareController } from './patient-home-care.controller';
 import { PatientNurseProfileController } from './nurse-profile.controller';
+import { InsuranceEngineModule } from '../insurance-engine/insurance-engine.module';
 
 @Module({
   imports: [
     WorkflowEngineModule,
     ChatModule,
+    InsuranceEngineModule,
     MongooseModule.forFeature([
       { name: 'HomeCareService', schema: HomeCareServiceSchema },
       { name: 'NurseProvider', schema: NurseProviderSchema },

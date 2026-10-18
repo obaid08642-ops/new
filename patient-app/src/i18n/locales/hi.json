@@ -3354,5 +3354,6 @@
   "pharmacy.barcode.matchesNote": "पढ़ा गया: {name}। अपने पैक से मेल खाती दवा चुनें।",
   "pharmacy.barcode.noMatchTitle": "कोई मिलती-जुलती दवा नहीं मिली",
   "pharmacy.barcode.noMatchBody": "यह फ़ोटो सूची की किसी दवा से नहीं मिलाई जा सकी।",
-  "pharmacy.barcode.busy": "एक मिनट में बहुत अधिक स्कैन। थोड़ा रुककर फिर कोशिश करें।"
+  "pharmacy.barcode.busy": "एक मिनट में बहुत अधिक स्कैन। थोड़ा रुककर फिर कोशिश करें।",
+  "common.optimisticUndone": "यह बदलाव सहेजा नहीं जा सका, इसलिए वापस कर दिया गया। कृपया फिर से कोशिश करें।"
 }
