@@ -6,13 +6,16 @@
  * 20.5 as data, so an alert can read the same numbers the owner declared rather
  * than a threshold hard-coded in a monitoring UI.
  */
-import { Controller, Get, Header, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Header, Optional, Post, UseGuards } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import { Roles, JwtAuthGuard, Public } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { MetricsService } from '../../common/metrics.service';
 import { SLO_TARGETS } from '../../common/slo-targets';
+import { Permission, RequirePermissions } from '../../common/permissions';
 import { MetricsScrapeGuard } from './metrics-scrape.guard';
+import { SloAlertsService } from './slo-alerts.service';
+import { DrillAlertDto } from './slo-alerts.dto';
 
 /**
  * Scrape surface: no user JWT (Prometheus cannot carry one) and @SkipThrottle (a scrape must never trip a rate limit for a
@@ -22,7 +25,7 @@ import { MetricsScrapeGuard } from './metrics-scrape.guard';
  */
 @Controller('observability')
 export class ObservabilityController {
-  constructor(private readonly metrics: MetricsService) {}
+  constructor(private readonly metrics: MetricsService, @Optional() private readonly alerts?: SloAlertsService) {}
 
   @Public()
   @UseGuards(MetricsScrapeGuard)
@@ -67,5 +70,24 @@ export class ObservabilityController {
     const budget = availability ? availability.target : 0.999;
     const ok = observed.requests === 0 ? true : observed.error_ratio <= (1 - budget);
     return { ok, error_ratio: observed.error_ratio, target: budget, requests: observed.requests };
+  }
+
+  /** 20.5 — the alert rules, which are firing now, which channels are configured, and the latest events. */
+  @UseGuards(JwtAuthGuard)
+  @Get('alerts')
+  @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.OPS_QUEUES_MANAGE)
+  alertStatus() {
+    return this.alerts?.status() ?? { rules: [], channels: {}, recent_events: [] };
+  }
+
+  /** 20.5 — a drill: the real notification of one rule, marked [DRILL], through every configured channel. */
+  @UseGuards(JwtAuthGuard)
+  @Post('alerts/drill')
+  @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.OPS_QUEUES_MANAGE)
+  async drill(@Body() body: DrillAlertDto) {
+    if (!this.alerts) return { ok: false, error: 'alerts_unavailable' };
+    return { ok: true, event: await this.alerts.drill(body.rule) };
   }
 }
