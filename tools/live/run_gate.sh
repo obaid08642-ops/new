@@ -11,16 +11,29 @@ API="${NABD_BACKEND:-http://127.0.0.1:8002}"
 run_step() {
   if command -v timeout >/dev/null 2>&1; then timeout "$@"; else shift; "$@"; fi
 }
-JOURNEYS=(j_accounts j_otp_abuse j_onboarding j_pharmacy j_lab j_radiology j_nursing j_consultation j_facility j_support j_loyalty j_chaos j_rapid_tap j_app_killed_payment j_throttled_network j_killswitches)
-# j_killswitches (15.12) joins once Phase 14.4 is ported: it needs the kill-switch helper,
-# the six seeded flag rows and their consumers (14.4/14.18 + P15.fix 3e2db704), which are
-# not on main yet; until then it cannot be green (rule above).
+# Journeys run in the order of gate_order.txt, then every other runnable j_*.py (one with a __main__ guard) joins by its file alone.
+# gate_skip.txt lists journeys that are not green yet (they stay out until fixed); TAIL_JOURNEYS run on their own at the end.
+# j_log_scan (16.6) reads the backend log of the whole run, so it must come after every other journey.
+TAIL_JOURNEYS=(j_admin_clicks j_log_scan)
+discover_journeys() {
+  local candidates skipped
+  candidates=$(grep -lE "^if __name__ == .__main__.:" j_*.py | sed 's/\.py$//' | sort)
+  skipped=$({ grep -vE '^[[:space:]]*(#|$)' gate_skip.txt 2>/dev/null; printf '%s\n' "${TAIL_JOURNEYS[@]}"; })
+  { grep -vE '^[[:space:]]*(#|$)' gate_order.txt; printf '%s\n' "$candidates"; } \
+    | awk 'NF && !seen[$0]++' \
+    | grep -xFf <(printf '%s\n' "$candidates") \
+    | grep -vxFf <(printf '%s\n' "$skipped")
+}
+JOURNEYS=()
+while IFS= read -r j; do JOURNEYS+=("$j"); done < <(discover_journeys)
 fail=0
 restarts=0
 # The journeys log in as admin@nabd.test and nothing else seeds it, so on a fresh
 # DB the gate reports ~29 misleading 401/csrf step failures instead of the real
 # cause. Upsert it here (idempotent) so a fresh DB is self-sufficient.
 (cd "$ROOT/backend" && node "$ROOT/tools/live/seed_admin.js") || { echo "admin seed FAILED"; fail=1; }
+# The site's policy pages need their published texts before any journey opens them (seed_legal.py).
+(cd "$ROOT/tools/live" && python3 seed_legal.py) || { echo "legal seed FAILED"; fail=1; }
 # A backend killed mid-run (host memory pressure) turns into dozens of misleading
 # 502/401 step failures. Bring it back, but say so loudly and count it, so the
 # instability stays visible in the output instead of being silently healed.
@@ -43,10 +56,17 @@ export NABD_ADMIN_GATE_TOKEN="${NABD_ADMIN_GATE_TOKEN:-$ADMIN_GATE_TOKEN}"
 export NABD_ADMIN_DEVICE="${NABD_ADMIN_DEVICE:-live-gate-owner-macbook-01}"
 # one admin 2FA login per gate run (the login endpoint is rate limited per IP)
 export LIVE_ADMIN_SESSION="$(mktemp)"; rm -f "$LIVE_ADMIN_SESSION"
+# j_throttled_network drives patient-web in a real browser too (3G, 1% loss, offline banner). It reads NABD_PATIENT_WEB
+# (default :3000, where nothing runs in the gate), so its browser half always skipped: point it at the site the gate
+# serves for the j_web_* journeys (live-gate.yml, start-web.sh PATIENT_WEB_PORT=3100).
+export NABD_PATIENT_WEB="${NABD_PATIENT_WEB:-${NABD_WEB_JOURNEYS_URL:-http://127.0.0.1:3100}}"
 python3 gate_p1.py || fail=1
 for j in "${JOURNEYS[@]}"; do
   ensure_backend || fail=1
-  out=$(run_step 1200 python3 "$j.py" 2>&1)
+  # j_web_call waits on the real clock for the booking call window; near midnight UTC that window is tomorrow 00:00
+  # (up to ~45 min away), so it gets a longer limit than the 20 minutes every other journey has.
+  tmo=1200; [[ $j == j_web_call ]] && tmo=3600
+  out=$(run_step "$tmo" python3 "$j.py" 2>&1)
   line=$(grep -E '^##### ' <<<"$out" | tail -1)
   echo "$j: ${line:-no summary (crashed)}"
   if [[ -z $line || ! $line =~ ", 0 failed" ]]; then
@@ -58,14 +78,16 @@ done
 # CHROMIUM=<path>). A missing browser is a FAIL, never a PASS.
 # The journey reads CHROME; forward the documented CHROMIUM override to it.
 export CHROME="${CHROME:-${CHROMIUM:-}}"
-ensure_backend || fail=1
-out=$(run_step 1800 python3 j_admin_clicks.py 2>&1)
-line=$(grep -E '^##### ' <<<"$out" | tail -1)
-echo "j_admin_clicks: ${line:-no summary (crashed)}"
-if [[ -z $line || ! $line =~ ", 0 failed" ]]; then
-  fail=1
-  grep -E '^\s+FAIL|Traceback|Error' <<<"$out" | head -20
-fi
+for j in "${TAIL_JOURNEYS[@]}"; do
+  ensure_backend || fail=1
+  out=$(run_step 1800 python3 "$j.py" 2>&1)
+  line=$(grep -E '^##### ' <<<"$out" | tail -1)
+  echo "$j: ${line:-no summary (crashed)}"
+  if [[ -z $line || ! $line =~ ", 0 failed" ]]; then
+    fail=1
+    grep -E '^\s+FAIL|Traceback|Error' <<<"$out" | head -20
+  fi
+done
 if [[ $restarts -gt 0 ]]; then
   echo "NOTE: backend restarted $restarts time(s) during this run — host memory pressure, not a journey failure"
 fi

@@ -9,6 +9,10 @@ import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { AccountScreen, SETTINGS_HOME, StarRating } from './AccountKit';
+import { faqText, type ServerFaq } from './serverText';
+
+// The FAQ text by app language lives in serverText.ts; the Help screen keeps exporting it for its test.
+export { faqText };
 
 /**
  * Help and support (merge map sections 3 and 8): `?tab=help` has the ways to reach support (the chat, my requests, the support
@@ -20,7 +24,6 @@ import { AccountScreen, SETTINGS_HOME, StarRating } from './AccountKit';
 const TABS = ['help', 'feedback'] as const;
 const KINDS = ['suggestion', 'issue', 'complaint', 'praise', 'question'] as const;
 
-interface Faq { q?: string; question?: string; a?: string; answer?: string; category?: string }
 
 export function HelpView() {
   const { k } = useScreenUi();
@@ -34,8 +37,8 @@ export function HelpView() {
 }
 
 function HelpTab() {
-  const { k, theme, t, c, flow } = useScreenUi();
-  const faqs = useRemote(async () => rowsOf<Faq>(await apiFetch('/support/faqs')), [], 'settings:faqs');
+  const { k, theme, t, c, flow, lang } = useScreenUi();
+  const faqs = useRemote(async () => rowsOf<ServerFaq>(await apiFetch('/support/faqs')), [], 'settings:faqs');
   const [phone, setPhone] = useState<string | null>(null);
   useRemote(async () => {
     const config = bodyOf<{ contact?: { support_phone?: string } }>(await apiFetch('/config').catch(() => null));
@@ -72,7 +75,7 @@ function HelpTab() {
             <Card theme={theme} padding="none">
               {shown.map((faq, i) => {
                 const expanded = open === i;
-                const question = faq.q || faq.question || '';
+                const { question, answer } = faqText(faq, lang);
                 return (
                   <View key={`${question}-${i}`} style={{ borderBottomWidth: i === shown.length - 1 ? 0 : 1, borderBottomColor: c.border.hairline }}>
                     <Pressable accessibilityRole="button" accessibilityLabel={question} accessibilityState={{ expanded }} onPress={() => setOpen(expanded ? null : i)} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, paddingHorizontal: 14, minHeight: 56 }} testID={`faq-${i}`}>
@@ -81,7 +84,7 @@ function HelpTab() {
                         <Chevron />
                       </View>
                     </Pressable>
-                    {expanded ? <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, paddingHorizontal: 14, paddingBottom: 14, ...flow }}>{faq.a || faq.answer || ''}</Text> : null}
+                    {expanded ? <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, paddingHorizontal: 14, paddingBottom: 14, ...flow }}>{answer}</Text> : null}
                   </View>
                 );
               })}

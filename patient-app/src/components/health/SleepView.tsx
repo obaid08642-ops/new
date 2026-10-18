@@ -7,6 +7,7 @@ import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { dateLocaleFor } from '../../utils/dates';
 import { apiFetch } from '../../utils/api';
 import { HealthScreen, Notice, Panel, Pill, Row, SheetForm, rowsOf, useRemote } from './HealthKit';
+import { ArticleCard, type ArticleRow } from '../articles/ArticlesViews';
 
 /**
  * Sleep (board HealthHub, merge map row "Sleep"): last night's score and hours, the last seven days, the log and the
@@ -19,18 +20,16 @@ interface Night { id?: string; measured_at?: string; duration_hours?: number; sl
 const quality = (score?: number | null): { key: 'excellent' | 'good' | 'fair' | 'poor'; tone: 'success' | 'info' | 'warning' | 'danger' } | null =>
   score == null ? null : score >= 80 ? { key: 'excellent', tone: 'success' } : score >= 60 ? { key: 'good', tone: 'info' } : score >= 40 ? { key: 'fair', tone: 'warning' } : { key: 'poor', tone: 'danger' };
 
-const TIPS = [
-  { key: 'health.sleep.tip1', icon: 'moon' },
-  { key: 'health.sleep.tip2', icon: 'thermometer' },
-  { key: 'health.sleep.tip3', icon: 'bowl-food' },
-  { key: 'health.sleep.tip4', icon: 'flower-lotus' },
-] as const;
+/** Decision B8 (2026-10-15): no fixed medical text; the sleep advice is the published articles tagged "sleep". */
+const SLEEP_ARTICLES = '/articles?tag=sleep&limit=4';
 
 export function SleepView() {
   const { k, theme, t, c, flow, lang } = useScreenUi();
   const fmt = useConsultFormat();
   const [sheet, setSheet] = useState(false);
   const { status, data, reload } = useRemote(async () => rowsOf<Night>(await apiFetch('/health/sleep?limit=30')), [], 'health:sleep');
+  const reads = useRemote(async () => rowsOf<ArticleRow>(await apiFetch(SLEEP_ARTICLES)), [], 'health:sleep-articles');
+  const articles = reads.data ?? [];
   const nights = data ?? [];
   const last = nights[0] ?? null;
   const q = quality(last?.sleep_score);
@@ -117,13 +116,11 @@ export function SleepView() {
           </>
         )}
 
-        <Section title={k('health.sleep.tips')}>
-          <Panel>
-            {TIPS.map((tip, i) => (
-              <Row key={tip.key} icon={tip.icon} tone="violet" title={k(tip.key)} last={i === TIPS.length - 1} />
-            ))}
-          </Panel>
-        </Section>
+        {articles.length > 0 ? (
+          <Section title={k('health.sleep.tips')}>
+            {articles.map((a) => <ArticleCard key={a.id || a.slug} article={a} testID={`sleep-article-${a.slug}`} />)}
+          </Section>
+        ) : null}
       </Gate>
       <AddSleepSheet open={sheet} onClose={() => setSheet(false)} onSaved={() => { setSheet(false); void reload(true); }} />
     </HealthScreen>

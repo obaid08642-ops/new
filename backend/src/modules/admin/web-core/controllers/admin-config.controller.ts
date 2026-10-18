@@ -4,8 +4,9 @@ import { Connection } from 'mongoose';
 import { JwtAuthGuard } from '../../../../common/auth.guard';
 import { Roles, CurrentUser } from '../../../../common/auth.guard';
 import { UserRole } from '../../../../common/enums';
-import { SlaDto, AppVersionsDto } from './admin-config.dto';
+import { SlaDto, AppVersionsDto, OrdersConsoleConfigDto } from './admin-config.dto';
 
+import { Permission, RequirePermissions } from '../../../../common/permissions';
 const SLA_KEY = 'sla';
 const SLA_DEFAULTS = { consultationDuration: 15, callRingingDuration: 45, jwtExpiry: 24 };
 
@@ -13,7 +14,7 @@ const DISPUTE_CONFIG_KEY = 'dispute_config';
 const DISPUTE_CONFIG_DEFAULTS = { max_refund_sar: 2000 };
 
 const ORDERS_CONSOLE_CONFIG_KEY = 'orders_console_config';
-const ORDERS_CONSOLE_CONFIG_DEFAULTS = { compensation_max_sar: 500 };
+const ORDERS_CONSOLE_CONFIG_DEFAULTS = { compensation_max_sar: 500, stuck_minutes: 30 };
 
 /** F45: SLA timers persist in system_configs (key 'sla'), every change audit-logged. */
 @Controller('admin/config')
@@ -29,6 +30,7 @@ export class AdminConfigController {
   }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Put('sla')
   @Roles(UserRole.ADMIN)
   async updateSLA(@Body() body: SlaDto, @CurrentUser() admin: any) {
@@ -61,6 +63,7 @@ export class AdminConfigController {
     return { ...DISPUTE_CONFIG_DEFAULTS, ...(doc?.value || {}) };
   }
 
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Put('dispute-config')
   @Roles(UserRole.ADMIN)
   async updateDisputeConfig(@Body() body: any, @CurrentUser() admin: any) {
@@ -96,15 +99,19 @@ export class AdminConfigController {
     return { ...ORDERS_CONSOLE_CONFIG_DEFAULTS, ...(doc?.value || {}) };
   }
 
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Put('orders-console-config')
   @Roles(UserRole.ADMIN)
-  async updateOrdersConsoleConfig(@Body() body: any, @CurrentUser() admin: any) {
-    const value: any = { ...ORDERS_CONSOLE_CONFIG_DEFAULTS };
+  async updateOrdersConsoleConfig(@Body() body: OrdersConsoleConfigDto, @CurrentUser() admin: any) {
+    // A setting not sent keeps its saved value (saving one field never resets the other).
+    const saved = await this.conn.collection('system_configs').findOne({ key: ORDERS_CONSOLE_CONFIG_KEY });
+    const value: any = { ...ORDERS_CONSOLE_CONFIG_DEFAULTS, ...(saved?.value || {}) };
     if (body?.compensation_max_sar !== undefined) {
       const n = Number(body.compensation_max_sar);
       if (!Number.isFinite(n) || n <= 0) throw new BadRequestException('compensation_max_sar must be a positive number');
       value.compensation_max_sar = n;
     }
+    if (body?.stuck_minutes !== undefined) value.stuck_minutes = body.stuck_minutes;
     await this.conn.collection('system_configs').updateOne(
       { key: ORDERS_CONSOLE_CONFIG_KEY },
       { $set: { key: ORDERS_CONSOLE_CONFIG_KEY, value, updated_at: new Date() }, $setOnInsert: { created_at: new Date() } },
@@ -132,6 +139,7 @@ export class AdminConfigController {
   }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Put('app-versions')
   @Roles(UserRole.ADMIN)
   async updateAppVersions(@Body() body: AppVersionsDto, @CurrentUser() admin: any) {

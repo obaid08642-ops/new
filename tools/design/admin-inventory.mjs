@@ -655,6 +655,9 @@ for (const f of pageFiles.sort()) {
   };
   // guard findings
   const gf = [];
+  // A control the page shows only behind useCan('<permission>') (AdminGuard) names the backend permission itself:
+  // a role without it never sees the control, so the call is not a page/backend mismatch.
+  const gatedBy = new Set(files.flatMap((fp) => [...read(join(REPO, fp)).matchAll(/useCan\(\s*['"]([^'"]+)['"]\s*\)/g)].map((m) => m[1])));
   for (const c of row.calls) {
     if (!c.guards) continue;
     const g = c.guards;
@@ -664,7 +667,8 @@ for (const f of pageFiles.sort()) {
     if (route.startsWith('/admin/') && g.perms.length) {
       const bad = g.perms.filter((p) => !PERM_VALUES.has(p));
       if (bad.length) gf.push({ code: 'G-VOCAB-BE', call: c, note: `backend requires unknown permission ${bad.join(', ')}`, severity: 'high' });
-      if (!reqPerm) gf.push({ code: 'G-PAGE-NOPERM', call: c, note: `Page has no client permission (any admin sees it) but ${c.method} ${c.backendPath} requires ${g.perms.join(', ')}; roles without it get a 403 inside the page.`, severity: 'low' });
+      if (g.perms.every((p) => gatedBy.has(p))) { /* gated in the page with useCan */ }
+      else if (!reqPerm) gf.push({ code: 'G-PAGE-NOPERM', call: c, note: `Page has no client permission (any admin sees it) but ${c.method} ${c.backendPath} requires ${g.perms.join(', ')}; roles without it get a 403 inside the page.`, severity: 'low' });
       else if (!g.perms.includes(reqPerm)) gf.push({ code: 'G-PERM-MISMATCH', call: c, note: `Page requires "${reqPerm}" but ${c.method} ${c.backendPath} requires ${g.perms.join(' + ')}; an admin role with the page permission only gets a 403 on this call.`, severity: 'medium' });
     }
     if (mut && !g.public && g.roles.length && !g.perms.length && SENSITIVE.test(c.backendPath || '')) gf.push({ code: 'G-ROLE-ONLY-WRITE', call: c, note: `${c.method} ${c.backendPath} is protected by role only (no @RequirePermissions): every admin role, including a custom restricted one, can run it.`, severity: 'medium' });
@@ -765,7 +769,7 @@ W.push('', '## Backend admin routes never called by an admin page', '', `${uncal
 }
 W.push('', '## Public directory pages inside admin', '');
 for (const r of rows.filter((x) => x.publicDirectory)) W.push(`- ${code(r.route)} (${code(r.file)}): ${r.calls.length ? r.calls.map((c) => `${c.method} ${c.path} [${c.status}]`).join('; ') : 'no API call'}; behind the admin session guard? ${r.file.includes('pages/admin') ? 'yes' : 'NO: not under /admin, the proxy.ts matcher only forces login for paths starting /admin, so it is served to anyone'}.`);
-W.push('', '## Limits', '', '- Static, heuristic (TypeScript AST). Props passed by a parent into a child are not traced beyond depth 2 of local imports; a handler given as a prop is reported `ok` (parent callback) and not followed.', '- Response field names are not compared with backend DTOs; request bodies are not compared with DTOs (run `tools/audit/dtocheck.js` for that).', '- Guard extraction reads decorators textually (class + handler); custom guards named in `@UseGuards` other than JwtAuthGuard are listed, not evaluated.', '- Hard-coded record arrays are leads (`mock`): option lists with record-like keys can be false positives; reviewed ones are overridden in `docs/design/inventory/admin-audit-overrides.json`.', '- No runtime check: no admin account was signed in against a seeded backend in this audit.', '');
+W.push('', '## Limits', '', '- Static, heuristic (TypeScript AST). Props passed by a parent into a child are not traced beyond depth 2 of local imports; a handler given as a prop is reported `ok` (parent callback) and not followed.', '- Response field names are not compared with backend DTOs; request bodies are not compared with DTOs (run `tools/audit/dtocheck.js` for that).', '- Guard extraction reads decorators textually (class + handler); custom guards named in `@UseGuards` other than JwtAuthGuard are listed, not evaluated.', '- A call whose backend permissions are all named in a `useCan(\'<permission>\')` somewhere in the page unit counts as gated (no G-PAGE-NOPERM / G-PERM-MISMATCH); the tool does not check that the useCan guards that exact control, the click tests do.', '- Hard-coded record arrays are leads (`mock`): option lists with record-like keys can be false positives; reviewed ones are overridden in `docs/design/inventory/admin-audit-overrides.json`.', '- No runtime check: no admin account was signed in against a seeded backend in this audit.', '');
 const wireMd = W.join('\n');
 
 const screensJson = JSON.stringify({ generated: 'tools/design/admin-inventory.mjs', nav: NAV, routePermissions: ROUTE_PERMS, deadNav, routes: rows }, null, 1) + '\n';

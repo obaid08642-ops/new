@@ -1,3 +1,4 @@
+import { UserRateLimit, UserRateLimitGuard } from '../../common/user-rate-limit';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -10,6 +11,8 @@ import { Logger } from '@nestjs/common';
 import { CurrentUser, Public, JwtAuthGuard, SelfService } from '../../common/auth.guard';
 import { UploadDto, UploadSuggestionImageDto } from './storage.dto';
 import { Purpose, UploadSecurityService } from './upload-security.service';
+import { ClamavService } from './clamav.service';
+import { logEvent } from '../../common/structured-logger';
 
 export enum StorageBackend { BASE64 = 'base64', S3 = 's3', CLOUDINARY = 'cloudinary', SUPABASE = 'supabase' }
 
@@ -136,7 +139,7 @@ export class StorageService {
   ) {
     if (!S3R2Adapter.configured()) {
       // eslint-disable-next-line no-console
-      console.warn('S3 storage not configured (S3_BUCKET/S3_ENDPOINT/keys) — falling back to inline base64 storage');
+      logEvent('warn', 'storage_not_configured', { fallback: 'inline_base64', needs: 'S3_BUCKET/S3_ENDPOINT/keys' }, 'storage');
     }
   }
 
@@ -296,7 +299,8 @@ export class StorageService {
     if (!db?.collection) return false;
     const uri = `/api/v1/storage/${encodeURIComponent(o.id)}`;
     const orders: any[] = await db.collection('pharmacy_orders')
-      .find({ patient_account_id: { $eq: String(o.owner_account_id) }, 'prescription_attachments.uri': { $eq: uri } }, { projection: { _id: 0, id: 1 } })
+      // a prescription file, or the photo of the box on a manual request (journeys 74)
+      .find({ patient_account_id: { $eq: String(o.owner_account_id) }, $or: [{ 'prescription_attachments.uri': { $eq: uri } }, { 'items.photo_uri': { $eq: uri } }] }, { projection: { _id: 0, id: 1 } })
       .limit(50).toArray();
     const orderIds = orders.map((r) => r.id).filter((v) => typeof v === 'string');
     if (!orderIds.length) return false;
@@ -313,6 +317,34 @@ export class StorageService {
     const data = await this.adapter.get(o);
     if (o.visibility !== 'public_read') delete (data as any).external_url;
     return { id: o.id, mime: o.mime, original_name: o.original_name, size_bytes: o.size_bytes, ...data };
+  }
+
+  /**
+   * 2-web#3 / 2-app#13: an image of a PUBLIC profile (an approved doctor's photo or clinic photos). The caller (CareService)
+   * has already checked that the id is one of that profile's images; this returns the bytes (local base64 store) or a short
+   * link (public CDN, or a 5-minute presigned R2 link). Nothing else is ever served through it.
+   */
+  async publicProfileImage(id: string): Promise<{ mime: string; data?: Buffer; url?: string } | null> {
+    const o: any = await this.model.findOne({ id, deleted: false }).lean();
+    if (!o || !String(o.mime || '').startsWith('image/')) return null;
+    if (o.backend === StorageBackend.BASE64 && o.data_base64) return { mime: o.mime, data: Buffer.from(o.data_base64, 'base64') };
+    if (o.visibility === 'public_read' && o.external_url) return { mime: o.mime, url: o.external_url };
+    if (o.external_key && S3R2Adapter.configured()) {
+      try {
+        const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
+        const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+        const client = new S3Client({
+          region: process.env.S3_REGION || 'auto',
+          endpoint: process.env.S3_ENDPOINT,
+          credentials: { accessKeyId: process.env.S3_ACCESS_KEY_ID as string, secretAccessKey: process.env.S3_SECRET_ACCESS_KEY as string },
+          forcePathStyle: true,
+        });
+        return { mime: o.mime, url: await getSignedUrl(client, new GetObjectCommand({ Bucket: process.env.S3_BUCKET, Key: o.external_key }), { expiresIn: 300 }) };
+      } catch (e: any) {
+        this.logger.warn(`profile image presign failed: ${e.message}`);
+      }
+    }
+    return null;
   }
 
   // ═══ Signed delivery URLs (private files) ═══════════════════════════════
@@ -438,7 +470,10 @@ export class StorageService {
 @UseGuards(JwtAuthGuard)
 export class StorageController {
   constructor(private readonly svc: StorageService) {}
+  // 16.12: an account may store 60 files an hour (USER_RATE_LIMIT_UPLOAD=<limit>/<seconds> tunes it)
   @Post('upload')
+  @UseGuards(UserRateLimitGuard)
+  @UserRateLimit('upload', 60, 3600)
   async upload(@Body() body: UploadDto, @CurrentUser() user: any) {
     if (!user?.id) throw new ForbiddenException('authenticated_upload_required');
     // Storage backend, object key, and visibility are server policy. The client
@@ -474,6 +509,8 @@ export class StorageController {
    */
   @Public()
   @Post('upload-suggestion-image')
+  @UseGuards(UserRateLimitGuard)
+  @UserRateLimit('upload_suggestion', 10, 3600)   // 16.12: a visitor is counted by address, so a few a hour
   async uploadSuggestionImage(@Body() body: UploadSuggestionImageDto, @CurrentUser() user: any) {
     const IMAGE_MIME = new Set(['image/jpeg', 'image/png', 'image/webp']);
     if (!IMAGE_MIME.has(body?.mime)) throw new BadRequestException('image mime only (jpeg/png/webp)');
@@ -499,7 +536,7 @@ export class StorageController {
 @Module({
   imports: [MongooseModule.forFeature([{ name: 'StorageObject', schema: StorageObjectSchema }])],
   controllers: [StorageController],
-  providers: [StorageService, UploadSecurityService],
-  exports: [StorageService, UploadSecurityService, MongooseModule],
+  providers: [StorageService, UploadSecurityService, ClamavService],
+  exports: [StorageService, UploadSecurityService, ClamavService, MongooseModule],
 })
 export class StorageModule {}

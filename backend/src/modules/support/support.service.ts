@@ -6,6 +6,7 @@ import { SupportRequest, SupportStatus, SupportCategory, PatientSettings } from 
 import { SupportRequestRepository } from "./repositories/supportrequest.repository";
 import { PatientSettingsRepository } from "./repositories/patientsettings.repository";
 
+
 @Injectable()
 export class SupportService {
   constructor(
@@ -96,14 +97,12 @@ export class SupportService {
     try {
       const rows: any[] = await this.conn.collection('faqs').find({ active: { $ne: false } }).sort({ sort: 1 }).limit(100).toArray();
       if (rows.length) return rows.map((r: any) => ({ id: r.id || String(r._id), question: r.question_ar, question_en: r.question_en || null, answer: r.answer_ar, answer_en: r.answer_en || null }));
-    } catch { /* fall through to defaults */ }
-    return [
-      { id: '1', question: 'كيف أحجز موعد؟', answer: 'يمكنك الحجز من خلال قسم العيادات' },
-      { id: '2', question: 'هل التأمين مغطى؟', answer: 'نعم، ندعم معظم شركات التأمين' }
-    ];
+    } catch { /* collection unavailable: the list is empty */ }
+    // No placeholder questions: until the admin writes FAQs the list is empty and the app says so.
+    return [];
   }
 
-  /** P6.x-13: admin-managed FAQs (public list falls back to defaults when empty). */
+  /** P6.x-13: admin-managed FAQs (the public list is empty until the admin writes some). */
   async listFaqsAdmin(): Promise<any[]> {
     return this.conn.collection('faqs').find({}).sort({ sort: 1 }).limit(200).toArray();
   }
@@ -129,7 +128,28 @@ export class SupportService {
     return { ok: true };
   }
 
-  async submitFeedback(user_id: string) {
-    return { success: true, message: 'شكرًا لملاحظاتك!' };
+  /**
+   * The patient's feedback is kept as a support request (category by the kind of feedback), so it reaches the same admin
+   * queue as every other message from a patient. It used to answer success and keep nothing.
+   */
+  async submitFeedback(user: any, body: { message: string; rating?: string | number; category?: string; type?: string }) {
+    const message = String(body?.message ?? '').trim();
+    if (!message) throw new BadRequestException('message required');
+    const kind = String(body.category || body.type || 'general').trim().toLowerCase();
+    const category = (({ suggestion: SupportCategory.SUGGESTION, complaint: SupportCategory.COMPLAINT, issue: SupportCategory.TECHNICAL, problem: SupportCategory.TECHNICAL } as Record<string, SupportCategory>)[kind]) ?? SupportCategory.GENERAL;
+    const rating = body.rating === undefined || body.rating === null ? '' : ` (${body.rating})`;
+    const r = await this.req.create({
+      user_id: user.id,
+      user_name: user.full_name,
+      user_phone: user.phone,
+      category,
+      subject: `feedback: ${kind}${rating}`.slice(0, 120),
+      message,
+      attachments: [],
+      source_role: user.role || 'patient',
+      priority: 'low',
+      thread: [{ by: user.id, role: user.role || 'patient', message, at: new Date() }],
+    });
+    return { success: true, id: r.id, tracking_id: r.tracking_id };
   }
 }

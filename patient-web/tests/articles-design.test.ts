@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 
 const css = readFileSync(resolve(process.cwd(), "components-next/articles/articles.module.css"), "utf8");
 const kit = readFileSync(resolve(process.cwd(), "components-next/articles/article-kit.tsx"), "utf8");
-const page = readFileSync(resolve(process.cwd(), "app/[locale]/articles/page.tsx"), "utf8");
+const page = readFileSync(resolve(process.cwd(), "app/[locale]/articles/articles-view.tsx"), "utf8");
 const detail = readFileSync(resolve(process.cwd(), "app/[locale]/articles/[slug]/page.tsx"), "utf8");
 
 describe("articles design", () => {

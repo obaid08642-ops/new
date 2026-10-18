@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { apiFetch } from '../../utils/api';
 import { dateLocale } from '../../utils/dates';
 import { DataTable, type LooseRow } from '@/components/DataTable';
+import { useCan } from '@/components/AdminGuard';
 
 const SEGMENTS = [  { value: 'all', label: 'جميع المستخدمين' },
   { value: 'patients', label: 'المرضى فقط' },
@@ -12,11 +13,19 @@ const SEGMENTS = [  { value: 'all', label: 'جميع المستخدمين' },
   { value: 'role:radiology', label: 'مراكز الأشعة' },
   { value: 'role:nurse', label: 'التمريض' },
   { value: 'role:hospital', label: 'المستشفيات والعيادات' },
-  { value: 'role:ambulance', label: 'الإسعاف' },
   { value: 'role:driver', label: 'السائقون' },
 ];
 
+/** One row of email-usage.providers (backend MailService.providerState). */
+interface MailProviderRow {
+  provider: string; configured: boolean; primary: boolean;
+  daily_used: number; monthly_used: number; daily_quota: number | null; monthly_quota: number | null;
+  daily_left: number | null; monthly_left: number | null; last_error: string | null;
+}
+
 export default function NotificationCenterPage() {
+  // The e-mail usage card reads analytics-suite/email-usage, which needs analytics.read.
+  const canAnalytics = useCan('analytics.read');
   const [stats, setStats] = useState<any>(null);
   const [emailUsage, setEmailUsage] = useState<any>(null);
   const [segmentCounts, setSegmentCounts] = useState<any>(null);
@@ -92,7 +101,7 @@ export default function NotificationCenterPage() {
         apiFetch('/api/admin/admin/notification-center/stats/overview').catch(() => null),
         apiFetch('/api/admin/admin/notification-center/segments').catch(() => null),
         apiFetch(`/api/admin/admin/notification-center/campaigns?page=${page}&limit=15`).catch(() => ({ data: [] })),
-        apiFetch('/api/admin/admin/analytics-suite/email-usage').catch(() => null),
+        canAnalytics ? apiFetch('/api/admin/admin/analytics-suite/email-usage').catch(() => null) : Promise.resolve(null),
       ]);
       setStats(s);
       setEmailUsage(eu);
@@ -197,7 +206,7 @@ export default function NotificationCenterPage() {
         </div>
       </div>
 
-      {/* ── Email usage (Resend → SES) ────────── */}
+      {/* ── Email usage (Resend / Brevo / Mailjet, monthly primary) ── */}
       <div className="bg-white p-4 rounded-lg shadow border mb-8">
         <div className="text-sm font-bold mb-2">استهلاك البريد (اليوم / الشهر)</div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
@@ -207,6 +216,29 @@ export default function NotificationCenterPage() {
           <div>فاشل الشهر: <b className="text-rose-600">{emailUsage?.month?.failed ?? '—'}</b></div>
         </div>
         <div className="text-xs text-gray-400 mt-2">حسب المزود (الشهر): {emailUsage ? Object.entries(emailUsage.month?.by_provider || {}).map(([k, v]) => `${k}: ${v}`).join(' · ') : '—'}</div>
+        {/* Per provider (shared mail_quota counters, Riyadh day/month); the primary rotates every month. */}
+        <table className="w-full text-xs mt-3" data-testid="mail-providers">
+          <thead>
+            <tr className="text-gray-500">
+              <th className="text-start p-1">المزود</th>
+              <th className="text-start p-1">مرسل اليوم</th>
+              <th className="text-start p-1">مرسل الشهر</th>
+              <th className="text-start p-1">المتبقي (اليوم / الشهر)</th>
+              <th className="text-start p-1">آخر خطأ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {((emailUsage?.providers || []) as MailProviderRow[]).filter((p) => p.configured).map((p) => (
+              <tr key={p.provider} className="border-t" data-provider={p.provider}>
+                <td className="p-1 font-bold">{p.provider}{p.primary ? ' — الأساسي هذا الشهر' : ''}</td>
+                <td className="p-1">{p.daily_used} / {p.daily_quota ?? "∞"}</td>
+                <td className="p-1">{p.monthly_used} / {p.monthly_quota ?? "∞"}</td>
+                <td className="p-1">{p.daily_left ?? "∞"} / {p.monthly_left ?? "∞"}</td>
+                <td className="p-1 text-rose-600">{p.last_error || '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       {/* ── Composer ──────────────────────────── */}

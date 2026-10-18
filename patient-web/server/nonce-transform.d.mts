@@ -1,6 +1,16 @@
 export declare const CSP_NONCE_PLACEHOLDER: string;
 export declare const CSP_INJECT_HEADER: string;
+export declare const UNAVAILABLE_FALLBACK_HEADER: string;
 export declare function freshNonce(): string;
 export declare function policyWithNonce(policy: string | null | undefined, nonce: string): string;
 export declare function stampTags(html: string, nonce: string): string;
 export declare function createStamper(nonce: string): { push(chunk: string): string; end(): string };
+export declare const THEME_COOKIE: string;
+export declare function themeFromCookie(cookieHeader: string | string[] | null | undefined): "light" | "dark" | null;
+export declare function stampTheme(html: string, theme: string | null): string;
+export declare function createThemeStamper(theme: string | null): { push(chunk: string): string; end(): string };
+export declare function sha256Source(text: string): string;
+export declare function tagAttributes(attrs: string): Record<string, string>;
+export declare function scriptLoader(scripts: Record<string, string>[]): string;
+export declare function hashedPage(html: string): { html: string; scriptHashes: string[]; styleHashes: string[] };
+export declare function policyWithHashes(policy: string | null | undefined, scriptHashes: string[], styleHashes: string[]): string;

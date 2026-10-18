@@ -33,6 +33,8 @@ import { formatAddressLine, resolveEffectiveAddress } from '../../src/utils/sele
 
 type MainTab = 'labs' | 'radiology';
 type Place = 'home' | 'clinic';
+/** Decision 30: insurance or self-pay is chosen first; the lists show only the services that take that payment. */
+type Pay = 'self_pay' | 'insurance';
 type FilterId = 'all' | 'tests' | 'packages' | 'labs' | 'highest_rated' | 'lowest_price' | 'home_visit';
 const FILTERS: Array<{ id: FilterId; key: string }> = [
   { id: 'all', key: 'diag.filter.all' },
@@ -55,6 +57,7 @@ export default function DiagnosticsHub() {
   const { tab } = useLocalSearchParams<{ tab?: string }>();
   const [mainTab, setMainTab] = useState<MainTab>(tab === 'radiology' ? 'radiology' : 'labs');
   const [place, setPlace] = useState<Place>('home');
+  const [pay, setPay] = useState<Pay>('self_pay');
   const [query, setQuery] = useState('');
   const [sheet, setSheet] = useState(false);
   const [filter, setFilter] = useState<FilterId>('all');
@@ -123,8 +126,9 @@ export default function DiagnosticsHub() {
   const match = (name: string) => needle === '' || name.toLowerCase().includes(needle);
   const byPrice = (a: CatalogItem, b: CatalogItem) => (a.price ?? Infinity) - (b.price ?? Infinity);
   const view = useMemo(() => {
-    let p = packages.filter((x) => match(x.name));
-    let ts = tests.filter((x) => match(x.name));
+    const pays = (x: CatalogItem) => (pay === 'insurance' ? x.insurance : x.selfPay);
+    let p = packages.filter((x) => match(x.name) && pays(x));
+    let ts = tests.filter((x) => match(x.name) && pays(x));
     let rs = rads.filter((x) => match(x.name) && (place === 'clinic' || x.homeVisit));
     let ls = labs.filter((x) => match(x.name));
     if (filter === 'home_visit') {
@@ -140,7 +144,7 @@ export default function DiagnosticsHub() {
     if (filter === 'highest_rated') ls = [...ls].sort((a, b) => (b.rating ?? -1) - (a.rating ?? -1));
     return { p, ts, rs, ls };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [packages, tests, rads, labs, needle, place, filter]);
+  }, [packages, tests, rads, labs, needle, place, pay, filter]);
 
   const showPackages = filter === 'all' || filter === 'packages' || filter === 'lowest_price' || filter === 'home_visit' || filter === 'highest_rated';
   const showTests = filter !== 'packages' && filter !== 'labs';
@@ -212,6 +216,19 @@ export default function DiagnosticsHub() {
               <Segmented theme={theme} label={k('diag.place.group')} options={placeOptions} value={place} onChange={(v) => setPlace(v as Place)} />
               {place === 'home' ? <PlaceRow text={addressLine} actionLabel={address ? k('diag.addr.change') : k('diag.addr.choose')} onAction={() => router.push('/profile/addresses?select=1' as Href)} /> : null}
             </View>
+
+            {isLab ? (
+              <Segmented
+              theme={theme}
+              label={k('diag.pay.group')}
+              options={[
+                { value: 'self_pay', label: k('diag.pay.selfPay') },
+                { value: 'insurance', label: k('diag.pay.insurance') },
+              ]}
+              value={pay}
+              onChange={(v) => setPay(v as Pay)}
+              />
+            ) : null}
 
             <LinkCard icon="shield-check" tone={INSURANCE_TONE} title={k('diag.hub.insTitle')} body={k('diag.hub.insBody')} onPress={() => router.push('/diagnostics/insurance-approval' as Href)} />
           </>

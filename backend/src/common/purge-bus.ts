@@ -24,7 +24,7 @@ export interface PurgeTargets {
 
 export const PURGE_CHANNEL = 'cache:purge';
 
-function defaultTargets(): PurgeTargets {
+export function defaultTargets(): PurgeTargets {
   return {
     async cloudflare(tags: string[]): Promise<void> {
       const token = process.env.CLOUDFLARE_API_TOKEN;
@@ -91,9 +91,13 @@ export class PurgeBus {
       // stale edge copy is never left behind silently.
     }
     // 3+4. Edge layers. These THROW on missing credentials or HTTP failure —
-    // fail loudly, so a caller never believes a stale edge copy is gone.
-    await this.t.cloudflare(unique);
-    await this.t.next(unique);
+    // fail loudly, so a caller never believes a stale edge copy is gone. Both are always tried: one after the other, a
+    // Cloudflare failure (missing token, API error, rate limit) skipped the Next call, and the product pages kept their
+    // old ISR copy for the rest of their revalidate window although the write had succeeded.
+    const targets = this.t;
+    const settled = await Promise.allSettled([targets.cloudflare(unique), targets.next(unique)]);
+    const failures = settled.flatMap((r) => (r.status === 'rejected' ? [r.reason instanceof Error ? r.reason.message : String(r.reason)] : []));
+    if (failures.length) throw new Error(failures.join('; '));
   }
 
   /** Subscribe once per instance so in-memory caches can invalidate on purge. */

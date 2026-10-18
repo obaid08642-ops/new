@@ -20,12 +20,14 @@ export interface RelatedGraphResponse {
  * as the public lists (care.service PUBLIC_PROVIDER_FILTER / PUBLIC_FACILITY_FILTER, the public
  * product filter). An unreviewed or suspended entity is a 404, never a page.
  */
-const PUBLIC_DOCTOR = { type: 'doctor', status: 'active', public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
-const PUBLIC_PHARMACY = { type: 'pharmacy', status: 'active', public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
-const PUBLIC_FACILITY = { is_active: true, public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
+export const PUBLIC_DOCTOR = { type: 'doctor', status: 'active', public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
+export const PUBLIC_PHARMACY = { type: 'pharmacy', status: 'active', public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
+export const PUBLIC_FACILITY = { is_active: true, public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
 // 787: labs, radiology centres and pharmacies listed by type in explore (same rule, any provider type).
-const PUBLIC_TYPED_PROVIDER = { status: 'active', public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
-const PUBLIC_MEDICINE = { public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
+// P13-R8: single source for "links only to governed entities" — also enforced by
+// the public recommendations in seo-search (a second copy here would drift).
+export const PUBLIC_TYPED_PROVIDER = { status: 'active', public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
+export const PUBLIC_MEDICINE = { public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
 
 @Injectable()
 export class EntityGraphService implements OnModuleInit {
@@ -103,7 +105,7 @@ export class EntityGraphService implements OnModuleInit {
           active_ingredient: activeIng,
           _id: { $ne: medicine._id },
         })
-        .project({ name_ar: 1, name_en: 1, slug: 1, price: 1, form: 1, strength: 1, sku: 1, image: 1 })
+        .project({ _id: 0, name_ar: 1, name_en: 1, slug: 1, price: 1, form: 1, strength: 1, sku: 1, image: 1 })
         .limit(6)
         .toArray();
     }
@@ -220,7 +222,7 @@ export class EntityGraphService implements OnModuleInit {
       const ingRegexes = condition.relevant_ingredients.map(ing => new RegExp(escapeRegex(String(ing)), 'i'));
       medicines = await medCol
         .find({ ...PUBLIC_MEDICINE, active_ingredient: { $in: ingRegexes } })
-        .project({ id: 1, sku: 1, slug: 1, name_ar: 1, name_en: 1, price: 1, form: 1, strength: 1, active_ingredient: 1 })
+        .project({ _id: 0, id: 1, sku: 1, slug: 1, name_ar: 1, name_en: 1, price: 1, form: 1, strength: 1, active_ingredient: 1 })
         .limit(6)
         .toArray();
     }
@@ -273,7 +275,33 @@ export class EntityGraphService implements OnModuleInit {
     });
 
     if (!facility) {
-      throw new NotFoundException(`Facility '${identifier}' not found`);
+      // 12-web#12: a hospital or clinic registered through the provider app is a provider profile, not a seeded facility;
+      // the map links it by its profile id, so its page is answered from the public profile (same entity shape).
+      const profile: any = await this.connection.collection('provider_profiles').findOne({
+        ...PUBLIC_TYPED_PROVIDER, type: { $in: ['hospital', 'clinic'] }, $or: [{ id: identifier }, { slug: identifier }],
+      });
+      if (!profile) throw new NotFoundException(`Facility '${identifier}' not found`);
+      const doctors = await this.connection.collection('provider_profiles')
+        .find({ ...PUBLIC_DOCTOR, facility_id: profile.id })
+        .project({ id: 1, slug: 1, name_ar: 1, name_en: 1, specialty: 1, rating: 1 })
+        .limit(10)
+        .toArray();
+      return {
+        entity_type: 'facility',
+        entity_id: identifier,
+        entity: {
+          id: profile.id,
+          slug: profile.slug,
+          name_ar: profile.display_name_ar || profile.name_ar,
+          name_en: profile.display_name_en || profile.name_en,
+          type: profile.type,
+          city: profile.city,
+          district: profile.district,
+          phone: null, // a provider profile publishes no phone number
+          accepted_insurance: Array.isArray(profile.accepted_insurance) ? profile.accepted_insurance : [],
+        },
+        relationships: { doctors, departments: Array.isArray(profile.departments) ? profile.departments : [] },
+      };
     }
 
     // Find doctors practicing at this facility

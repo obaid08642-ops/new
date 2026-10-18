@@ -6,7 +6,7 @@ import { SeoController } from './seo.controller';
 import { CreateDto, UpdateDto } from './articles.dto';
 import { DoctorArticlesController, DoctorArticlesService, RejectDoctorArticleDto } from './doctor-articles.controller';
 import {
-  Body, Controller, Delete, Get, Injectable, Module,
+  BadRequestException, Body, Controller, Delete, Get, Injectable, Module,
   NotFoundException, Optional, Param, Patch, Post, Query, Req, UseGuards,
 } from '@nestjs/common';
 import { InjectConnection, InjectModel, MongooseModule } from '@nestjs/mongoose';
@@ -19,12 +19,15 @@ import { UserRole } from '../../common/enums';
 import { Article, ArticleSchema } from '../../schemas/article.schema';
 import { buildSlug, slugify, escapeRegex } from '../../common/slug.util';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 // R4-2: explicit allowlist for article updates (mirrors UpdateDto keys;
 // id/slug/status are never writable through this path).
 const ARTICLE_UPDATE_FIELDS = [
   'title_ar', 'title_en', 'excerpt_ar', 'excerpt_en', 'body_ar', 'body_en',
   'category', 'tags', 'cover_image', 'author_name', 'author_title',
-  'seo_description_ar', 'seo_description_en',
+  'seo_description_ar', 'seo_description_en', 'pregnancy_week',
+  // P13-R15: trust fields are editable, status/ai lineage are not.
+  'reviewer_name', 'reviewer_credentials', 'references', 'ai_generated',
 ];
 
 @Injectable()
@@ -41,9 +44,11 @@ export class ArticlesService {
   }
 
   list(query: any) {
-    const { category, q, limit = '20', page = '1' } = query;
+    const { category, q, tag, limit = '20', page = '1' } = query;
     const filter: any = { status: 'PUBLISHED', is_deleted: { $ne: true } };
     if (category) filter.category = category;
+    // ?tag=sleep: the articles carrying that tag (the sleep screen's advice, decision B8). Compared as a plain string.
+    if (typeof tag === 'string' && tag) filter.tags = { $eq: tag };
     if (q) {
       const re = new RegExp(escapeRegex(String(q)), 'i');
       filter.$or = [{ title_ar: re }, { title_en: re }, { tags: q }];
@@ -86,8 +91,15 @@ export class ArticlesService {
       cover_image: body.cover_image,
       author_name: body.author_name,
       author_title: body.author_title,
+      reviewer_name: body.reviewer_name,
+      reviewer_credentials: body.reviewer_credentials,
+      references: Array.isArray(body.references)
+        ? body.references.filter((r: any) => r && typeof r.label === 'string' && typeof r.url === 'string').slice(0, 20)
+        : undefined,
+      ai_generated: body.ai_generated === true,
       seo_description_ar: body.seo_description_ar,
       seo_description_en: body.seo_description_en,
+      pregnancy_week: body.pregnancy_week,
       slug,
       status: 'DRAFT',
     });
@@ -102,8 +114,24 @@ export class ArticlesService {
     return this.model.findOneAndUpdate({ id: { $eq: id } }, { $set: patch }, { new: true }).then((r) => this.changed(id, r));
   }
 
-  publish(id: string) {
-    return this.model.findOneAndUpdate({ id }, { $set: { status: 'PUBLISHED', published_at: new Date() } }, { new: true }).then((r) => this.changed(id, r));
+  async publish(id: string) {
+    // P13-R15: medical content trust gate. Every published page shows an
+    // author; AI-generated drafts additionally need a named, credentialed
+    // human reviewer (reviewed_at is stamped here, not by the client).
+    const doc: any = await this.model.findOne({ id }).lean();
+    if (!doc) throw new NotFoundException('article not found');
+    if (!doc.author_name || !String(doc.author_name).trim()) throw new BadRequestException('author_required');
+    const set: any = { status: 'PUBLISHED', published_at: new Date() };
+    if (doc.ai_generated === true) {
+      if (!doc.reviewer_name || !String(doc.reviewer_name).trim() ||
+          !doc.reviewer_credentials || !String(doc.reviewer_credentials).trim()) {
+        throw new BadRequestException('human_review_required');
+      }
+      set.reviewed_at = new Date();
+    } else if (doc.reviewer_name) {
+      set.reviewed_at = doc.reviewed_at || new Date();
+    }
+    return this.model.findOneAndUpdate({ id }, { $set: set }, { new: true }).then((r) => this.changed(id, r));
   }
 
   unpublish(id: string) {
@@ -164,16 +192,23 @@ export class ArticlesAdminController {
 
   @Get() list(@Query('status') status?: string) { return this.svc.adminList(status); }
   @Get(':id') one(@Param('id') id: string) { return this.svc.adminOne(id); }
+  @RequirePermissions(Permission.CMS_EDIT)
   @Post() create(@Body() body: CreateDto) { return this.svc.create(body); }
+  @RequirePermissions(Permission.CMS_EDIT)
   @Patch(':id') update(@Param('id') id: string, @Body() body: UpdateDto) { return this.svc.update(id, body); }
+  @RequirePermissions(Permission.CMS_EDIT)
   @Post(':id/publish') publish(@Param('id') id: string) { return this.svc.publish(id); }
+  @RequirePermissions(Permission.CMS_EDIT)
   @Post(':id/unpublish') unpublish(@Param('id') id: string) { return this.svc.unpublish(id); }
+  @RequirePermissions(Permission.CMS_EDIT)
   @Delete(':id') remove(@Param('id') id: string) { return this.svc.remove(id); }
 
   /** D-1: approve a doctor-submitted article (re-checks prescription brands first). */
+  @RequirePermissions(Permission.CMS_EDIT)
   @Post(':id/approve') approve(@Param('id') id: string) { return this.doctorSvc.approve(id); }
 
   /** D-1: reject a doctor-submitted article with a reason. */
+  @RequirePermissions(Permission.CMS_EDIT)
   @Post(':id/reject') reject(@Param('id') id: string, @Body() body: RejectDoctorArticleDto) {
     return this.doctorSvc.reject(id, body?.reason);
   }

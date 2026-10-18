@@ -35,6 +35,7 @@ jest.mock('../../context/AppContext', () => ({ useApp: () => ({ isDark: false, l
 jest.mock('../../context/CartContext', () => ({ useCart: () => mockCart }));
 jest.mock('../../utils/selectedAddress', () => ({ resolveEffectiveAddress: jest.fn(async () => mockAddress.current) }));
 jest.mock('../../components/LocalizedAlert', () => ({ showLocalizedAlert: jest.fn() }));
+jest.mock('../../utils/onReconnect', () => ({ onReconnect: jest.fn(() => () => undefined) }));
 jest.mock('../../utils/isOffline', () => ({ isOffline: jest.fn(async () => false) }));
 jest.mock('../../utils/logger', () => ({ logError: jest.fn() }));
 jest.mock('../../utils/api', () => ({ BASE_URL: 'https://api.example.test/api/v1', R2_PUBLIC_URL: 'https://cdn.example.test', apiFetch: jest.fn(), newIdempotencyKey: jest.fn(() => 'app-test-nonce-0001') }));
@@ -118,6 +119,49 @@ describe('checkout', () => {
     expect(body.payment_mode).toBe('cash');
     expect((posts()[0][1].headers as Record<string, string>)['Idempotency-Key']).toMatch(/^[A-Za-z0-9._:-]{16,128}$/);
     expect(mockCart.clearCart).toHaveBeenCalledTimes(1);
+  });
+
+  it('decision 30 (issue 1018): insurance or self-pay is chosen before the request goes out, and the order carries it', async () => {
+    mockParams.current = { prescriptionId: 'rx1' };
+    answer({ '/prescriptions/rx1': { id: 'rx1', items: [{ name: 'Amoxicillin' }] }, '/users/me/insurance': { provider: 'Test insurer', policy_number: 'POL-1', class: 'A' } }, (path) => (path.endsWith('/submit') ? {} : { id: 'order-ins-1' }));
+    await render(wrap(<CheckoutScreen />));
+    await screen.findByText('Amoxicillin');
+    expect(screen.getByText(k('pharmacy.checkout.payFirst'))).toBeTruthy();
+    await tap(screen.getByLabelText(k('pharmacy.offers.coverage.insurance')));
+    await screen.findByText('Test insurer');
+    await tap(screen.getByLabelText(k('pharmacy.checkout.submit')));
+    await waitFor(() => expect(posts()).toHaveLength(2));
+    const body = JSON.parse(posts()[0][1].body as string);
+    expect(body.payment_mode).toBe('insurance');
+    expect(body.payment_method).toBe('insurance');
+    expect(body.prescription_id).toBe('rx1');
+  });
+
+  it('decision 30: insurance with no saved policy is not sent; the screen asks to add the policy', async () => {
+    mockParams.current = { prescriptionId: 'rx1' };
+    answer({ '/prescriptions/rx1': { id: 'rx1', items: [{ name: 'Amoxicillin' }] }, '/users/me/insurance': null });
+    await render(wrap(<CheckoutScreen />));
+    await screen.findByText('Amoxicillin');
+    await tap(screen.getByLabelText(k('pharmacy.offers.coverage.insurance')));
+    await screen.findByText(k('pharmacy.checkout.insuranceNone'));
+    const submit = screen.getByLabelText(k('pharmacy.checkout.submit'));
+    expect(submit.props.accessibilityState.disabled).toBe(true);
+    await tap(submit);
+    expect(posts()).toHaveLength(0);
+  });
+
+  it('decision 30: without a prescription the order is self-pay (insurance orders need one) and says so', async () => {
+    mockCart.items = [{ id: 'c1', name: 'Vitamin C', qty: 1, rx: false }];
+    answer({}, (path) => (path.endsWith('/submit') ? {} : { id: 'order-cash-1' }));
+    await render(wrap(<CheckoutScreen />));
+    await screen.findByText('Vitamin C');
+    expect(screen.getByText(k('pharmacy.checkout.insuranceNeedsRx'))).toBeTruthy();
+    await tap(screen.getByLabelText(k('pharmacy.offers.coverage.insurance')));
+    await tap(screen.getByLabelText(k('pharmacy.checkout.submit')));
+    await waitFor(() => expect(posts()).toHaveLength(2));
+    const body = JSON.parse(posts()[0][1].body as string);
+    expect(body.payment_mode).toBe('cash');
+    expect(body.payment_method).toBe('cash');
   });
 
   it('a retry after no answer sends the same keys and does not create a second order; after an answer it takes new ones', async () => {

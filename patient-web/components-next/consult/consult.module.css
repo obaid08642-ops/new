@@ -154,6 +154,9 @@ textarea.control { resize: vertical; line-height: 1.6; overflow-wrap: anywhere; 
 
 /* ---- the doctor, clinic and specialty pages ---- */
 .profile { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.profilePhoto { inline-size: 88px; block-size: 88px; border-radius: 50%; object-fit: cover; background: var(--nabd-color-bg-sunken); }
+.gallery { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr)); gap: 8px; }
+.galleryImg { display: block; inline-size: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-sunken); }
 .profileName { display: inline-flex; align-items: center; gap: 6px; justify-content: center; flex-wrap: wrap; }
 .profileTitle { margin: 0; font-size: var(--nabd-font-size-h1); line-height: var(--nabd-font-size-h1-lineHeight); font-weight: 700; overflow-wrap: anywhere; }
 .stats { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: 8px; inline-size: 100%; }
@@ -184,6 +187,9 @@ textarea.control { resize: vertical; line-height: 1.6; overflow-wrap: anywhere; 
   background: var(--nabd-color-bg-sunken); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-3xl);
 }
 .stage video { inline-size: 100%; max-block-size: 60vh; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-inverse); }
+.tile { display: flex; flex-direction: column; gap: 6px; min-inline-size: 0; margin: 0; }
+.tileMedia { display: grid; gap: 8px; min-block-size: 160px; overflow: hidden; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-inverse); }
+.tileLabel { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
 .callState { display: flex; align-items: center; gap: 8px; margin: 0; font-size: var(--nabd-font-size-control); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
 .spin { animation: consult-spin 0.9s linear infinite; }
 @keyframes consult-spin { to { transform: rotate(360deg); } }
@@ -199,3 +205,11 @@ textarea.control { resize: vertical; line-height: 1.6; overflow-wrap: anywhere; 
 .pickRow { display: flex; align-items: center; gap: 12px; min-block-size: 56px; padding: 8px 14px; box-sizing: border-box; cursor: pointer; min-inline-size: 0; }
 .pickRow input { flex: none; inline-size: 22px; block-size: 22px; margin: 0; accent-color: var(--nabd-color-action-primary-bg); }
 .pickRow:has(input:focus-visible) { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+
+/* D-38: the telehealth consent text inside the booking form: a bounded, scrollable reading area */
+.consentText {
+  display: flex; flex-direction: column; gap: var(--nabd-space-sm); max-block-size: 320px; overflow-y: auto; padding: 12px 14px;
+  border-radius: var(--nabd-radius-xl); background: var(--nabd-color-status-info-bg); overscroll-behavior: contain;
+}
+.consentText:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.consentHeading { margin: 0; font-size: var(--nabd-font-size-control); font-weight: 700; line-height: 1.5; }

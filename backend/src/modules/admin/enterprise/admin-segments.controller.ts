@@ -64,6 +64,7 @@ export class AdminSegmentsController {
     return { count, sample, compiled_filter: filter };
   }
 
+  @RequirePermissions(Permission.CRM_MANAGE)
   @Post()
   async create(@Body() b: CreateDto, @CurrentUser() me: any) {
     let reason: string;
@@ -92,6 +93,7 @@ export class AdminSegmentsController {
     return clean;
   }
 
+  @RequirePermissions(Permission.CRM_MANAGE)
   @Delete(':id')
   async remove(@Param('id') id: string, @Body() b: RemoveDto, @CurrentUser() me: any) {
     let reason: string;

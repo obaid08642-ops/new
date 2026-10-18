@@ -2,7 +2,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { cdnImage, getPublicAlternatives, getPublicProduct, type PublicProduct } from "@/lib/api/public-products-server";
+import { cdnImage, getPublicEquivalents, getPublicVariants, readPublicProduct, type PublicProduct, type PublicProductCard } from "@/lib/api/public-products-server";
+import { PublicDataUnavailableError } from "@/lib/api/public-unavailable";
 import { JsonLd } from "@/components-next/json-ld";
 import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl, siteOrigin } from "@/lib/seo";
@@ -16,16 +17,29 @@ import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { CatalogSearch } from "@/components-next/pharmacy/catalog-search";
 import { ChipLink } from "@/components-next/pharmacy/chip-link";
-import { BuyActions, BuyBar, BuyProvider } from "@/components-next/pharmacy/product-buy";
+import { BuyActions, BuyBar, BuyPrice, BuyProvider, type BuyVariant } from "@/components-next/pharmacy/product-buy";
+import { VariantGallery, VariantPicker } from "@/components-next/pharmacy/variant-picker";
 import { ProductGallery } from "@/components-next/pharmacy/product-gallery";
 import { ProductGrid, type GridProduct } from "@/components-next/pharmacy/product-grid";
+import { productCardImageSrc } from "@/components-next/pharmacy/catalog-image";
 import { promoOldPrice, promoPercent } from "@/lib/discount";
 import { formatNumber, formatPrice } from "@/lib/format-price";
 import { ProductSections, type DetailGroup, type DetailSection } from "@/components-next/pharmacy/product-sections";
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
+import { englishNameUnder } from "@/lib/english-name-under";
 import styles from "@/components-next/pharmacy/product-detail.module.css";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
+
+// F82-3: static/ISR. The page is made of public data only (no cookie, no header, no search parameter): the same HTML for
+// everyone, generated on the first request for a slug, kept for the window of the product read (lib/api/public-products-server.ts,
+// one hour) and regenerated in the background. A product that does not exist is a 404; a failed read throws, so Next keeps the
+// last good copy (stale-if-error, #302) instead of caching a not-found or an error. What the visitor can do (the buy bar, the
+// cart) lives in client components that read the device's own cart, so nothing here depends on who is looking.
+export const revalidate = 3600;
+export function generateStaticParams() {
+  return [];
+}
 
 function hreflangMap(product: PublicProduct) {
   return Object.fromEntries([
@@ -40,7 +54,9 @@ function hreflangMap(product: PublicProduct) {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
   if (!isLocale(locale)) return {};
-  const product = await getPublicProduct(locale, slug);
+  const read = await readPublicProduct(locale, slug);
+  if (read.failed) throw new PublicDataUnavailableError("product");
+  const product = read.data;
   if (!product) return { robots: { index: false, follow: false } };
   const name = product.name || product.official_name || "Product";
   const canonical = localizedUrl(locale, `/p/${encodeURIComponent(product.slug)}`);
@@ -51,7 +67,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: name,
     description,
     alternates: { canonical, languages: hreflangMap(product) },
-    robots: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
+    // An item published on the site but not (yet) cleared for search engines is shown to patients with noindex.
+    robots: product.indexable === false ? { index: false, follow: true } : { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
     openGraph: {
       title: name, description, url: canonical, type: "website", siteName: "Nabd Plus",
       locale: locale === "ar" ? "ar_SA" : locale,
@@ -79,7 +96,10 @@ export default async function PublicProductPage({ params }: Props) {
   const shared = await getTranslations("Shared");
   const medicines = await getTranslations("Medicines");
   const seo = await getTranslations("SeoAnswer");
-  const fetchedProduct = await getPublicProduct(locale, slug);
+  const read = await readPublicProduct(locale, slug);
+  // a failed read (no answer, or a 5xx) throws, so Next keeps the last good copy of this page (stale-if-error, #302)
+  if (read.failed) throw new PublicDataUnavailableError("product");
+  const fetchedProduct = read.data;
   if (!fetchedProduct) notFound();
   const product: PublicProduct = fetchedProduct;
   const name = product.name || product.official_name || t("products");
@@ -183,20 +203,34 @@ export default async function PublicProductPage({ params }: Props) {
   const crossedPrice = promoOldPrice(product, product.price, product.old_price);
   const money = formatPrice(locale, product.price);
 
-  const alternatives: GridProduct[] = (await getPublicAlternatives(locale, product)).map((alt) => ({
+  // Decision D (issue 1556): the product's variants (powers, colours, shades), each its own record with its own SKU and price.
+  const variants: BuyVariant[] = (await getPublicVariants(locale, product)).map((v) => ({
+    id: v.id, sku: v.sku, slug: v.slug, name: v.name || name, price: v.price, image: cdnImage(v.image) || null,
+    available: v.available && v.price > 0, power: v.variant.power, colour: v.variant.colour, shade: v.variant.shade, kind: v.variant.kind,
+  }));
+  const hasVariants = variants.length > 1;
+
+  // Issue 1547: equivalents by the normalized active ingredient (same strength first), or, when there is none, similar
+  // products of the same therapeutic class / category. Both empty: no section and no heading.
+  const related = await getPublicEquivalents(locale, product.id);
+  const toGrid = (alt: PublicProductCard): GridProduct => ({
     id: alt.id,
     slug: alt.slug,
     name: alt.name || alt.slug,
     price: alt.price,
     oldPrice: alt.old_price,
     image: alt.image,
+    thumb: productCardImageSrc(alt.image),
     form: alt.form,
     strength: alt.strength,
     packageSize: alt.package_size,
     rx: alt.is_rx,
+    onlineOnly: alt.online_exclusive === true,
     // "cheaper" is computed here, from the two real prices (spec A, "Alternatives")
     badge: alt.price > 0 && hasPrice && alt.price < product.price ? b("cheaper") : undefined,
-  }));
+  });
+  const alternatives = related.equivalents.map(toGrid);
+  const similar = related.similar.map(toGrid);
 
   const section = (id: string, title: string, items: string[]): DetailSection | null => (items.length ? { id, title, items } : null);
   const group = (id: string, title: string, parts: Array<DetailSection | null>): DetailGroup | null => {
@@ -228,18 +262,22 @@ export default async function PublicProductPage({ params }: Props) {
     [medicines("prescription"), product.is_rx ? medicines("yes") : medicines("no")],
   ] as Array<[string, string | null | undefined]>).filter((row): row is [string, string] => Boolean(row[1]));
 
-  const names = lines(product.official_name !== name ? product.official_name : null);
+  // Decision E (issue 1556): ur, hi and bn show the English name under the localized one, so patient and pharmacist read the same product.
+  const englishName = englishNameUnder(locale, name, product.english_name);
+  const names = lines(product.official_name !== name && product.official_name !== englishName ? product.official_name : null);
   const ingredient = product.active_ingredient ? b("activeIngredientLine", { value: product.active_ingredient }) : null;
   const maker = [product.manufacturer, product.country_of_origin ? b("madeIn", { country: product.country_of_origin }) : null].filter(Boolean).join(" · ");
 
   return (
     <BuyProvider
       locale={locale}
+      variants={hasVariants ? variants : undefined}
       product={{
         id: product.id,
         name,
         price: product.price,
         rx: product.is_rx,
+        onlineOnly: product.online_exclusive === true,
         image: images[0] || null,
         slug: product.slug,
         activeIngredient: product.active_ingredient,
@@ -279,12 +317,17 @@ export default async function PublicProductPage({ params }: Props) {
           </nav>
 
           <section className={styles.hero}>
-            <ProductGallery name={name} images={images} itemId={product.id} locale={locale} badge={percent > 0 ? t("discount", { percent: formatNumber(locale, percent) }) : undefined} />
+            {hasVariants ? (
+              <VariantGallery name={name} images={images} pageProductId={product.id} locale={locale} badge={percent > 0 ? t("discount", { percent: formatNumber(locale, percent) }) : undefined} />
+            ) : (
+              <ProductGallery name={name} images={images} itemId={product.id} locale={locale} badge={percent > 0 ? t("discount", { percent: formatNumber(locale, percent) }) : undefined} />
+            )}
 
             <div className={styles.info}>
               <div className={styles.chipsRow}>
                 <StatusChip label={product.is_rx ? t("rxRequired") : t("otc")} tone={product.is_rx ? "amber" : "mint"} />
                 <StatusChip label={product.available ? t("available") : discontinued ? t("unavailable") : t("limited")} tone={product.available ? "mint" : "amber"} />
+                {product.online_exclusive === true ? <StatusChip label={t("onlineOnly")} tone="mint" /> : null}
               </div>
               {product.category && categoryPath ? (
                 <div className={styles.catChips}>
@@ -294,6 +337,7 @@ export default async function PublicProductPage({ params }: Props) {
 
               <div className={styles.names}>
                 <h1 className={styles.title}>{name}</h1>
+                {englishName ? <p className={styles.englishName} lang="en" dir="ltr" data-testid="english-name">{englishName}</p> : null}
                 <DirectAnswer sentences={[
                   product.active_ingredient ? seo("productIngredient", { name, ingredient: product.active_ingredient }) : null,
                   product.form ? seo("productForm", { form: product.form }) : null,
@@ -307,7 +351,14 @@ export default async function PublicProductPage({ params }: Props) {
               </div>
 
               <Card elevation="card" padding="lg">
-                {hasPrice ? (
+                {hasVariants ? <VariantPicker locale={locale} /> : null}
+                {hasPrice && hasVariants ? (
+                  <div className={styles.priceBlock}>
+                    {/* each variant has its own price: drawn for the chosen one (no crossed-out price across variants) */}
+                    <BuyPrice locale={locale} className={styles.priceRow} amountClassName={styles.price} currencyClassName={styles.currency} />
+                    <div className={styles.priceNote}>{b("taxIncluded")}</div>
+                  </div>
+                ) : hasPrice ? (
                   <div className={styles.priceBlock}>
                     <div className={styles.priceRow}>
                       <strong className={styles.price}>{money.amount}</strong>
@@ -360,24 +411,27 @@ export default async function PublicProductPage({ params }: Props) {
                   </dl>
                 </section>
               ) : null}
-              <Link className={styles.ask} href={`/${locale}/pharmacy/chat`}>
-                <FIcon icon="chat-circle-text" tone={PHARMACY_TONE} size={52} />
-                <span className={styles.askText}>
-                  <span className={styles.askTitle}>{b("askTitle")}</span>
-                  <span className={styles.askBody}>{b("askBody")}</span>
-                </span>
-              </Link>
             </div>
 
             {alternatives.length ? (
-              <section className={`${styles.block} ${styles.alts}`} aria-label={b("alternativesTitle")}>
+              <section className={`${styles.block} ${styles.alts}`} aria-label={b("alternativesTitle")} data-testid="product-equivalents">
                 <div className={styles.blockHead}>
                   <h2 className={styles.blockTitle}>{b("alternativesTitle")}</h2>
+                  {/* batch-1a-web#8: compare this medicine with its alternatives (POST /medicines/compare, as the app) */}
+                  <Link className={styles.blockLink} href={`/${locale}/medicines/compare?ids=${[product.id, ...alternatives.map((a) => a.id)].slice(0, 4).map(encodeURIComponent).join(",")}`}>{b("compareAlternatives")}</Link>
                   {product.active_ingredient ? (
                     <Link className={styles.blockLink} href={`/${locale}/c?q=${encodeURIComponent(product.active_ingredient)}`}>{b("seeAll")}</Link>
                   ) : null}
                 </div>
                 <ProductGrid locale={locale} items={alternatives} layout="rail" />
+              </section>
+            ) : similar.length ? (
+              <section className={`${styles.block} ${styles.alts}`} aria-label={b("similarTitle")} data-testid="product-similar">
+                <div className={styles.blockHead}>
+                  <h2 className={styles.blockTitle}>{b("similarTitle")}</h2>
+                  {categoryPath ? <Link className={styles.blockLink} href={categoryPath}>{b("seeAll")}</Link> : null}
+                </div>
+                <ProductGrid locale={locale} items={similar} layout="rail" />
               </section>
             ) : null}
 

@@ -49,27 +49,61 @@ export function FacilitySettingsScreen({ onLogout, onNavigate }: { onLogout: () 
  const AR = lang === 'ar';
  const [showLogout, setLogout] = useState(false);
 
- // Pricing details states
+ // Tariffs: the form starts from the facility's approved tariffs (GET /provider/settings/tariffs), empty when none
+ // were ever approved; saving sends only the prices the facility entered to admin review.
  const [showPricing, setShowPricing] = useState(false);
- const [icuDaily, setIcuDaily] = useState('1500');
- const [icuHourly, setIcuHourly] = useState('100');
- const [wardDaily, setWardDaily] = useState('500');
- const [surgPrice, setSurgPrice] = useState('3000');
- const [erFee, setErFee] = useState('250');
- const [ambFee, setAmbFee] = useState('150');
+ const [icuDaily, setIcuDaily] = useState('');
+ const [icuHourly, setIcuHourly] = useState('');
+ const [wardDaily, setWardDaily] = useState('');
+ const [surgPrice, setSurgPrice] = useState('');
+ const [erFee, setErFee] = useState('');
+ const [tariffsLoading, setTariffsLoading] = useState(false);
+ const [tariffsPending, setTariffsPending] = useState(false);
  const [savingPrices, setSavingPrices] = useState(false);
 
+ const asField = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? String(v) : '');
+ const openPricing = async () => {
+ setShowPricing(true);
+ setTariffsLoading(true);
+ try {
+   const res = await client.get('/provider/settings/tariffs');
+   const t = res?.data?.tariffs || {};
+   setIcuDaily(asField(t.icu_daily)); setIcuHourly(asField(t.icu_hourly)); setWardDaily(asField(t.ward_daily));
+   setSurgPrice(asField(t.surgery_room)); setErFee(asField(t.emergency_fee));
+   setTariffsPending(!!res?.data?.pending);
+ } catch (e) {
+   setShowPricing(false);
+   show(AR ? 'تعذر تحميل التعريفات المحفوظة' : 'Could not load the saved tariffs', 'error');
+ } finally {
+   setTariffsLoading(false);
+ }
+ };
+
  const handleSavePrices = async () => {
+ const fields: Array<[string, string]> = [['icu_daily', icuDaily], ['icu_hourly', icuHourly], ['ward_daily', wardDaily], ['surgery_room', surgPrice], ['emergency_fee', erFee]];
+ const entered: Record<string, number> = {};
+ for (const [key, raw] of fields) {
+   if (!raw.trim()) continue;
+   const n = Number(raw.trim());
+   if (!Number.isFinite(n) || n < 0) {
+     show(AR ? 'أدخل أسعاراً صحيحة (أرقام موجبة)' : 'Enter valid prices (positive numbers)', 'error');
+     return;
+   }
+   entered[key] = n;
+ }
+ if (!Object.keys(entered).length) {
+   show(AR ? 'أدخل سعراً واحداً على الأقل' : 'Enter at least one price', 'error');
+   return;
+ }
  setSavingPrices(true);
  try {
-   await client.post('/provider/settings/delta', { 
-     newData: { icuDaily, icuHourly, wardDaily, surgPrice, erFee, ambFee } 
-   });
-   setSavingPrices(false);
+   await client.put('/provider/settings/tariffs', entered);
    setShowPricing(false);
+   setTariffsPending(true);
    show(AR ? 'بانتظار موافقة الإدارة على الأسعار الجديدة' : 'Pending admin approval for new pricing', 'success');
  } catch(e) {
    show(AR ? 'فشل إرسال التعديلات' : 'Failed to submit changes', 'error');
+ } finally {
    setSavingPrices(false);
  }
  };
@@ -113,7 +147,7 @@ return (
  {[
  { icon:'facility', ar:'معلومات المنشأة', en:'Facility Information', action: () => onNavigate('facility_info') },
  { icon:'home', ar:'الأقسام والخدمات', en:'Departments & Services', action: () => onNavigate('departments') },
- { icon:'wallet', ar:'الأسعار والتعريفات', en:'Pricing & Rates', action: () => setShowPricing(true) },
+ { icon:'wallet', ar:'الأسعار والتعريفات', en:'Pricing & Rates', action: openPricing },
  { icon:'shield', ar:'إعدادات التأمين', en:'Insurance Settings', action: () => onNavigate('insurance_config') },
  { icon:'shield', ar:'طلبات التأمين الواردة', en:'Insurance Requests', action: () => onNavigate('insurance_requests') },
  { icon:'document', ar:'الرخص والمستندات الرسمية', en:'Licenses & Documents', action: () => onNavigate('certificates_config') },
@@ -187,14 +221,20 @@ return (
  {/* ICU & Wards pricing sheet */}
  <NSheet visible={showPricing} onClose={() => setShowPricing(false)} title={AR ? ' أسعار وتكاليف الخدمات' : ' Pricing & Tariffs'} height={550}>
  <ScrollView contentContainerStyle={{ padding: SP.md }}>
+ {tariffsLoading ? <ActivityIndicator color={theme.primary} style={{ marginBottom: SP.md }} /> : null}
+ {tariffsPending ? (
+ <Text style={{ color: theme.warn, fontSize: FS.sm, marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>
+ {AR ? 'لديك تعديل أسعار بانتظار موافقة الإدارة؛ الأسعار المعروضة هي المعتمدة حالياً.' : 'A pricing change is waiting for admin approval; the prices shown are the ones approved now.'}
+ </Text>
+ ) : null}
  <NPriceInput label={AR ? 'سعر سرير العناية المركزة ICU (يومي)' : 'ICU Bed Rate (Daily - SAR)'} value={icuDaily} onChange={setIcuDaily} />
  <NPriceInput label={AR ? 'سعر سرير العناية المركزة ICU (ساعي)' : 'ICU Bed Rate (Hourly - SAR)'} value={icuHourly} onChange={setIcuHourly} />
  <NPriceInput label={AR ? 'سعر سرير التنويم بالأجنحة (يومي)' : 'Ward Inpatient Rate (Daily - SAR)'} value={wardDaily} onChange={setWardDaily} />
  <NPriceInput label={AR ? 'تكلفة فتح غرف العمليات للعملية' : 'Surgery Room Starting Price (SAR)'} value={surgPrice} onChange={setSurgPrice} />
  <NPriceInput label={AR ? 'رسوم الطوارئ' : 'Emergency Fee (SAR)'} value={erFee} onChange={setErFee} />
- <NPriceInput label={AR ? 'رسوم الإسعاف' : 'Ambulance Fee (SAR)'} value={ambFee} onChange={setAmbFee} />
+ {/* owner decision B23 / decision 14: no ambulance service, so no ambulance fee */}
  
- <NBtn label={AR ? ' حفظ التعريفات' : ' Save Tariffs'} loading={savingPrices} onPress={handleSavePrices} style={{ marginTop: SP.md }} />
+ <NBtn label={AR ? ' حفظ التعريفات' : ' Save Tariffs'} loading={savingPrices} disabled={tariffsLoading} onPress={handleSavePrices} style={{ marginTop: SP.md }} />
  </ScrollView>
  </NSheet>
 

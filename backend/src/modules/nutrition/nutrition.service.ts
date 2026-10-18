@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, Inject } from '@nestjs/common';
+import { riyadhDayRange, riyadhParts } from '../../common/riyadh-clock';
 import { Model } from 'mongoose';
 import {
   NutritionProfile,
@@ -26,12 +27,11 @@ export class NutritionService {
 
   /* ───────── Helpers ───────── */
 
-  /** Build start/end-of-day range for a given date string (YYYY-MM-DD) or today */
+  /** The Riyadh calendar day (YYYY-MM-DD, as the app and the web send it), or today in Riyadh. */
   private dayRange(dateStr?: string): { start: Date; end: Date } {
-    const base = dateStr ? new Date(dateStr) : new Date();
-    const start = new Date(base.getFullYear(), base.getMonth(), base.getDate(), 0, 0, 0, 0);
-    const end = new Date(base.getFullYear(), base.getMonth(), base.getDate(), 23, 59, 59, 999);
-    return { start, end };
+    const range = riyadhDayRange(dateStr || undefined);
+    if (!range) throw new BadRequestException('date must be YYYY-MM-DD');
+    return range;
   }
 
   /** BMI = weight (kg) / height (m)²; it is absent until both patient-entered measurements exist. */
@@ -211,7 +211,7 @@ export class NutritionService {
     const totalExerciseMinutes = exercises.reduce((sum, e) => sum + (e.duration_minutes || 0), 0);
 
     return {
-      date: start.toISOString().split('T')[0],
+      date: riyadhParts(start).ymd,
       calories: {
         consumed: totalCalories,
         burned: totalCaloriesBurned,
@@ -240,13 +240,12 @@ export class NutritionService {
   /* ───────── Weekly Report ───────── */
 
   async getWeeklyReport(userId: string) {
-    const today = new Date();
+    // the last seven Riyadh days, today included
+    const todayStart = riyadhDayRange()!.start;
     const days: any[] = [];
 
     for (let i = 6; i >= 0; i--) {
-      const d = new Date(today);
-      d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().split('T')[0];
+      const dateStr = riyadhParts(new Date(todayStart.getTime() - i * 24 * 60 * 60 * 1000)).ymd;
       const summary = await this.getDailySummary(userId, dateStr);
       days.push(summary);
     }

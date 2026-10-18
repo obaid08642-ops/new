@@ -5,6 +5,7 @@ import { UserRole } from '../../common/enums';
 import { LiveKitService } from './livekit.service';
 import { PingPatientDto, MarkNoShowDto, InitiateCallDto, SaveMetricsDto, MuteParticipantDto } from './livekit.dto';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 @Controller('calls')
 @UseGuards(JwtAuthGuard)
 export class LiveKitController {
@@ -17,13 +18,13 @@ export class LiveKitController {
     return this.svc.getProviderWaitingRoom(u.id);
   }
 
-  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
   @Post('provider/ping-patient')
   pingPatient(@CurrentUser() u: any, @Body() body: PingPatientDto) {
     return this.svc.pingPatient(u.id, body.patient_id);
   }
 
-  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
   @Post('provider/no-show')
   markNoShow(@CurrentUser() u: any, @Body() body: MarkNoShowDto) {
     return this.svc.markNoShow(u.id, body.appointment_id);
@@ -105,6 +106,7 @@ export class LiveKitController {
   }
 
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @RequirePermissions(Permission.SUPPORT_MANAGE)
   @Post('admin/rooms/:roomName/mute/:participantId')
   muteParticipant(
     @Param('roomName') roomName: string,
@@ -115,6 +117,7 @@ export class LiveKitController {
   }
 
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @RequirePermissions(Permission.SUPPORT_MANAGE)
   @Post('admin/rooms/:roomName/remove/:participantId')
   removeParticipant(@Param('roomName') roomName: string, @Param('participantId') pid: string) {
     return this.svc.removeParticipant(roomName, pid);

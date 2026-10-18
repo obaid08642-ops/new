@@ -1,5 +1,6 @@
 import { patientApiUrl } from "@/lib/api/upstream";
 import { isLocale, type Locale } from "@/lib/i18n";
+import { publicReadSignal } from "@/lib/api/public-timeout";
 
 const slugSchema = /^[\p{L}\p{N}_-]{1,180}$/u;
 
@@ -8,6 +9,8 @@ export type PublicProduct = {
   sku: number | null;
   locale: string;
   name: string | null;
+  /** Decision E (issue 1556): on ur, hi and bn the English name drawn under the localized one; null on ar, en and fil. */
+  english_name?: string | null;
   official_name: string | null;
   slug: string;
   slugs: Record<string, string | null>;
@@ -35,12 +38,45 @@ export type PublicProduct = {
   has_discount: boolean;
   currency: string;
   is_rx: boolean;
+  /** Decision 11: sold online only ("أونلاين فقط" badge); absent on answers from before the field was sent. */
+  online_exclusive?: boolean;
+  /** Approved for search engines (indexing_eligibility); a published item that is not stays on the site with noindex. */
+  indexable?: boolean;
   available_online: boolean;
   availability_status: string;
   available: boolean;
   country_of_origin: string | null;
   images: string[];
   image: string | null;
+  /** Decision D (issue 1556): the product's variant group (powers, colours, shades), null when it has none. */
+  variant_group?: string | null;
+  variant?: PublicVariantAttr | null;
+};
+
+/** A record's own attribute inside its variant group (decision D). Colour and shade are words of the English name. */
+export type PublicVariantAttr = {
+  kind: "power" | "colour" | "colour_power" | "shade" | "picture" | string;
+  power: number | null;
+  colour: string | null;
+  shade: string | null;
+  position: number;
+};
+
+/** One variant of a product (GET /public/product-variants/:locale/:id): its own id, SKU, price and picture. */
+export type PublicVariant = {
+  id: string;
+  sku: number | null;
+  slug: string;
+  name: string | null;
+  price: number;
+  old_price: number | null;
+  currency: string;
+  is_rx: boolean;
+  online_exclusive: boolean;
+  available: boolean;
+  availability_status: string;
+  image: string | null;
+  variant: PublicVariantAttr;
 };
 
 export type PublicProductCard = {
@@ -56,6 +92,7 @@ export type PublicProductCard = {
   old_price: number | null;
   currency: string;
   is_rx: boolean;
+  online_exclusive?: boolean;
   available: boolean;
   image: string | null;
   images?: string[];
@@ -115,30 +152,51 @@ export function cleanProductName(name?: string | null, officialName?: string | n
   return off || n;
 }
 
-async function getJson<T>(path: string, revalidate = 3600): Promise<T | null> {
+/** What a public read answered: the body (null when there is none) and whether the service FAILED (no answer, or a 5xx), as opposed to answering with nothing (a 404). */
+export type PublicRead<T> = { data: T | null; failed: boolean };
+
+async function readJson<T>(path: string, revalidate = 3600): Promise<PublicRead<T>> {
   try {
     const res = await fetch(patientApiUrl(path), {
       headers: { Accept: "application/json" },
       // 14.8: tagged so a catalogue change revalidates product pages at once (POST /api/revalidate).
       next: { revalidate, tags: ["medicines"] },
+      signal: publicReadSignal(),
     } as RequestInit);
-    if (!res.ok) return null;
-    return (await res.json()) as T;
+    if (res.status >= 500) return { data: null, failed: true };
+    if (!res.ok) return { data: null, failed: false };
+    return { data: (await res.json()) as T, failed: false };
   } catch {
-    return null;
+    return { data: null, failed: true };
   }
 }
 
-export async function getPublicProduct(locale: Locale, slug: string): Promise<PublicProduct | null> {
-  const decoded = decodeURIComponent(slug);
-  if (!isLocale(locale) || !slugSchema.test(decoded)) return null;
-  const prod = await getJson<PublicProduct>(`/public/product/${locale}/${encodeURIComponent(decoded)}`);
-  if (!prod) return null;
+async function getJson<T>(path: string, revalidate = 3600): Promise<T | null> {
+  return (await readJson<T>(path, revalidate)).data;
+}
+
+function normalizeProduct(prod: PublicProduct): PublicProduct {
   return {
     ...prod,
     name: cleanProductName(prod.name, prod.official_name),
     images: resolveProductGallery(prod),
   };
+}
+
+export async function getPublicProduct(locale: Locale, slug: string): Promise<PublicProduct | null> {
+  return (await readPublicProduct(locale, slug)).data;
+}
+
+/**
+ * F82-3: the product page is cached (ISR), so it must tell "no such product" (404, a page) from "the service failed"
+ * (it throws, and Next keeps the last good copy). The answer is the same for every visitor.
+ */
+export async function readPublicProduct(locale: Locale, slug: string): Promise<PublicRead<PublicProduct>> {
+  let decoded: string;
+  try { decoded = decodeURIComponent(slug); } catch { return { data: null, failed: false }; }
+  if (!isLocale(locale) || !slugSchema.test(decoded)) return { data: null, failed: false };
+  const read = await readJson<PublicProduct>(`/public/product/${locale}/${encodeURIComponent(decoded)}`);
+  return { data: read.data ? normalizeProduct(read.data) : null, failed: read.failed };
 }
 
 export type CategoryTree = {
@@ -147,8 +205,12 @@ export type CategoryTree = {
 };
 
 export async function getPublicCategories(locale: Locale): Promise<CategoryTree | null> {
-  if (!isLocale(locale)) return null;
-  return getJson<CategoryTree>(`/public/categories/${locale}`);
+  return (await readPublicCategories(locale)).data;
+}
+
+export async function readPublicCategories(locale: Locale): Promise<PublicRead<CategoryTree>> {
+  if (!isLocale(locale)) return { data: null, failed: false };
+  return readJson<CategoryTree>(`/public/categories/${locale}`);
 }
 
 export type CategoryItems = {
@@ -169,47 +231,68 @@ export async function getPublicCategoryProducts(
   q?: string,
   sort?: "popular" | "price_asc" | "price_desc" | "newest"
 ): Promise<CategoryItems | null> {
-  if (!isLocale(locale)) return null;
+  return (await readPublicCategoryProducts(locale, category, sub, page, q, sort)).data;
+}
+
+export async function readPublicCategoryProducts(
+  locale: Locale,
+  category: string | undefined,
+  sub: string | undefined,
+  page: number,
+  q?: string,
+  sort?: "popular" | "price_asc" | "price_desc" | "newest"
+): Promise<PublicRead<CategoryItems>> {
+  if (!isLocale(locale)) return { data: null, failed: false };
   const catParam = category && category.trim() ? category : "all";
   const params = new URLSearchParams({ category: catParam, page: String(page) });
   if (sub) params.set("sub", sub);
   if (q && q.trim()) params.set("q", q.trim());
+  // #816: the catalogue order; the default (popularity) is left out so the static page and its cache key stay the same
   if (sort && sort !== "popular") params.set("sort", sort);
-  const data = await getJson<CategoryItems>(`/public/categories/${locale}/items?${params.toString()}`);
-  if (!data) return null;
+  const read = await readJson<CategoryItems>(`/public/categories/${locale}/items?${params.toString()}`);
+  const data = read.data;
+  if (!data) return { data: null, failed: read.failed };
   return {
-    ...data,
-    items: (data.items || []).map((it) => ({
-      ...it,
-      name: cleanProductName(it.name, it.official_name),
-      image: resolveImageUri(it.image) || (Array.isArray(it.images) && it.images[0] ? resolveImageUri(it.images[0]) : null),
-    })),
+    failed: false,
+    data: {
+      ...data,
+      items: (data.items || []).map((it) => ({
+        ...it,
+        name: cleanProductName(it.name, it.official_name),
+        image: resolveImageUri(it.image) || (Array.isArray(it.images) && it.images[0] ? resolveImageUri(it.images[0]) : null),
+      })),
+    },
   };
 }
 
+/** What the product page shows under the product (issue 1547): equivalents, or similar products when there are none. */
+export type PublicEquivalents = { equivalents: PublicProductCard[]; similar: PublicProductCard[] };
+
+const toCard = (it: PublicProductCard): PublicProductCard => ({
+  ...it,
+  name: cleanProductName(it.name, it.official_name),
+  image: resolveImageUri(it.image) || (Array.isArray(it.images) && it.images[0] ? resolveImageUri(it.images[0]) : null),
+});
+
+/** Decision D (issue 1556): the variants of a product for the picker; none when it has no group or the read fails. */
+export async function getPublicVariants(locale: Locale, product: { id: string; variant_group?: string | null }): Promise<PublicVariant[]> {
+  if (!isLocale(locale) || !product.variant_group) return [];
+  const data = await getJson<{ variants?: PublicVariant[] }>(`/public/product-variants/${locale}/${encodeURIComponent(product.id)}`);
+  return Array.isArray(data?.variants) ? data.variants.filter((v) => v && v.id && v.variant) : [];
+}
+
 /**
- * Products with the same active ingredient (the product page's "alternatives"): the public product search
- * (`GET /public/products/search`) by the ingredient, kept to exact matches of it, without the product itself.
- * Empty when the product has no active ingredient or the search is unavailable: the section is then hidden.
+ * The product's equivalents (`GET /public/product-equivalents/{locale}/{id}`): the published products with the same
+ * NORMALIZED active ingredient, the same strength first; and, only when there is none, `similar` products of the same
+ * therapeutic class / category. Both empty when the read fails or there is nothing: the page then draws no section.
  */
-export async function getPublicAlternatives(
-  locale: Locale,
-  product: { id: string; active_ingredient: string | null },
-  max = 5,
-): Promise<PublicProductCard[]> {
-  const ingredient = (product.active_ingredient || "").trim();
-  if (!isLocale(locale) || !ingredient) return [];
-  const params = new URLSearchParams({ q: ingredient, locale, page: "1", limit: "12" });
-  const data = await getJson<{ items?: PublicProductCard[] }>(`/public/products/search?${params.toString()}`);
-  const wanted = ingredient.toLowerCase();
-  return (data?.items || [])
-    .filter((it) => it.id !== product.id && (it.active_ingredient || "").trim().toLowerCase() === wanted && it.price > 0)
-    .slice(0, max)
-    .map((it) => ({
-      ...it,
-      name: cleanProductName(it.name, it.official_name),
-      image: resolveImageUri(it.image) || (Array.isArray(it.images) && it.images[0] ? resolveImageUri(it.images[0]) : null),
-    }));
+export async function getPublicEquivalents(locale: Locale, productId: string): Promise<PublicEquivalents> {
+  if (!isLocale(locale) || !productId) return { equivalents: [], similar: [] };
+  const data = await getJson<Partial<PublicEquivalents>>(`/public/product-equivalents/${locale}/${encodeURIComponent(productId)}`);
+  return {
+    equivalents: (data?.equivalents || []).filter((it) => it.id !== productId).map(toCard),
+    similar: (data?.similar || []).filter((it) => it.id !== productId).map(toCard),
+  };
 }
 
 export type ProductSitemapPage = {

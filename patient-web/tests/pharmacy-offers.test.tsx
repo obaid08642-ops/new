@@ -51,7 +51,7 @@ describe("offer ordering", () => {
 
 describe("OfferList", () => {
   it("draws the server's totals and unit prices as sent, through the locale formatter, with no style attribute", () => {
-    const html = renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" offers={[offer()]} />);
+    const html = renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" coverage="cash" offers={[offer()]} />);
     expect(html).not.toContain("style=");
     expect(html).toContain("SAR 51.50"); // en: the total the server sent
     expect(html).toContain("SAR 46.50"); // subtotal as sent
@@ -63,26 +63,53 @@ describe("OfferList", () => {
   });
 
   it("an offer text from the pharmacy is drawn as text, never as markup", () => {
-    const html = renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" offers={[offer({ pharmacyName: "<img src=x onerror=alert(1)>", note: "<script>alert(1)</script>" })]} />);
+    const html = renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" coverage="cash" offers={[offer({ pharmacyName: "<img src=x onerror=alert(1)>", note: "<script>alert(1)</script>" })]} />);
     expect(html).not.toContain("<img src=x");
     expect(html).not.toContain("<script>alert");
     expect(html).toContain("&lt;img src=x onerror=alert(1)&gt;");
   });
 
   it("an offer with no price cannot be selected and says so: no invented total", () => {
-    const html = renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" offers={[offer({ total: undefined, subtotal: undefined, deliveryFee: undefined })]} />);
+    const html = renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" coverage="cash" offers={[offer({ total: undefined, subtotal: undefined, deliveryFee: undefined })]} />);
     expect(html).toContain("priceMissing");
     expect(html).not.toContain("0.00");
     expect(html).toMatch(/nabd-button[^"]*--disabled/);
   });
 
-  it("offers the insurance choice only when the server says the offer is insurance-ready", () => {
-    expect(renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" offers={[offer({ insuranceReady: true })]} />)).toContain("coverageInsurance");
-    expect(renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" offers={[offer({ insuranceReady: false })]} />)).not.toContain("coverageInsurance");
+  it("decision 30 (issue 1033): no choice per offer; the offer is selected with the payment chosen at the start", () => {
+    const cash = renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" coverage="cash" offers={[offer({ insuranceReady: true })]} />);
+    expect(cash).not.toContain('role="radiogroup"');
+    expect(cash).not.toContain("coverageLegend");
+    expect(cash).toContain("coverageChosenCash");
+    const insured = renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" coverage="insurance" offers={[offer({ insuranceReady: true })]} />);
+    expect(insured).not.toContain('role="radiogroup"');
+    expect(insured).toContain("coverageChosenInsurance");
+    expect(insured).not.toMatch(/nabd-button[^"]*--disabled/);
+  });
+
+  it("decision 30: an insurance order cannot select a pharmacy that does not take insurance", () => {
+    const html = renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" coverage="insurance" offers={[offer({ insuranceReady: false })]} />);
+    expect(html).toContain("coverageNotInNetwork");
+    expect(html).toMatch(/nabd-button[^"]*--disabled/);
+  });
+
+  it("decision 30: the order says what was chosen at the start", () => {
+    expect(extractPatientPharmacyOrderProgress({ status: "broadcasting", payment_mode: "insurance" })?.paymentMode).toBe("insurance");
+    expect(extractPatientPharmacyOrderProgress({ status: "broadcasting", payment_method: "insurance" })?.paymentMode).toBe("insurance");
+    expect(extractPatientPharmacyOrderProgress({ status: "broadcasting", payment_mode: "cash" })?.paymentMode).toBe("cash");
   });
 
   it("a non-open offer has no select button", () => {
-    expect(renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" offers={[offer({ open: false })]} />)).not.toContain("selectOffer");
+    expect(renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" coverage="cash" offers={[offer({ open: false })]} />)).not.toContain("selectOffer");
+  });
+});
+
+describe("decision 13: the search state the server sends", () => {
+  it("reads the widening search and the end with no pharmacy", () => {
+    expect(extractPatientPharmacyOrderProgress({ status: "broadcasting", search: { state: "expanding", round: 2, radius_km: 5, ends_at: "2026-10-15T10:00:00Z" } })?.search)
+      .toEqual({ state: "expanding", round: 2, radiusKm: 5, endsAt: "2026-10-15T10:00:00Z" });
+    expect(extractPatientPharmacyOrderProgress({ status: "manual_review", search: { state: "no_pharmacy_available" } })?.search).toEqual({ state: "no_pharmacy_available" });
+    expect(extractPatientPharmacyOrderProgress({ status: "broadcasting" })?.search).toBeUndefined();
   });
 });
 
@@ -114,6 +141,16 @@ describe("QuoteSection", () => {
     expect(await draw({ ...accepted, coverage_mode: "cash" })).toContain("codRegister");
     expect(await draw({ ...accepted, coverage_mode: "insurance" })).not.toContain("codRegister");
     expect(await draw({ ...accepted, coverage_mode: "cash", accepted_quote_snapshot: { cod_allowed: false, totals: { total: 51.5 } } })).not.toContain("codRegister");
+  });
+
+  it("FINAL_QUOTE_ACCEPTED: both screens send the patient to the one payment page, with no second set of method buttons (journeys#7)", async () => {
+    const accepted = { governed_state: "FINAL_QUOTE_ACCEPTED", ...base, coverage_mode: "cash", accepted_quote_snapshot: { cod_allowed: false, totals: { total: 51.5 } } };
+    for (const screen of ["offers", "final"] as const) {
+      const html = await draw(accepted, screen);
+      expect(html, screen).toContain(`/en/pharmacy/payment?orderId=${ORDER}`);
+      expect(html, screen).toContain("continuePayment");
+      expect(html, screen).not.toContain("showMethods");
+    }
   });
 
   it("COD_REGISTERED says it is a commitment and links to tracking, with no payment control", async () => {
@@ -174,7 +211,7 @@ describe("times", () => {
     expect(html).toBe('<time dateTime="2026-10-06T10:00:00.000Z"></time>');
   });
   it("the absolute validity of an offer is not drawn on the server either", () => {
-    const html = renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" offers={[offer({ expiresAt: "2099-10-06T10:00:00.000Z" })]} />);
+    const html = renderToStaticMarkup(<OfferList orderId={ORDER} after="refresh" coverage="cash" offers={[offer({ expiresAt: "2099-10-06T10:00:00.000Z" })]} />);
     expect(html).not.toContain("validUntil");
   });
 });

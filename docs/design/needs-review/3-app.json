@@ -7,7 +7,8 @@
     "file": "patient-app/app/(tabs)/diagnostics.tsx",
     "line": 37,
     "found": "[owner] The board has it; no field says which test or lab takes insurance, so it is not drawn.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "fixed #1604 (owner approved recommendation 5 on 2026-10-14: Self-pay / Insurance on the hub from insurance_availability and cash_availability; issue #622)"
   },
   {
     "batch": 3,
@@ -17,7 +18,8 @@
     "file": "patient-app/app/(tabs)/diagnostics.tsx",
     "line": 37,
     "found": "[backend] No distance on the catalogue lists; the option was dropped.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1342 (issue #623)"
   },
   {
     "batch": 3,
@@ -27,7 +29,8 @@
     "file": "patient-app/app/(tabs)/diagnostics.tsx",
     "line": 274,
     "found": "[backend] GET /providers?type=lab returns an empty list on the seeded database, so the carousel is hidden; the board's 'accepts insurance' tag has no field.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1352 #1390 (issue #624)"
   },
   {
     "batch": 3,
@@ -37,7 +40,8 @@
     "file": "patient-app/app/(tabs)/diagnostics.tsx",
     "line": 206,
     "found": "[owner] Opens the test search (lab-comparison needs a test); confirm that is the intended entry.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision B6), main already complies: (tabs)/diagnostics.tsx:208 Compare opens the test search (issue #625)"
   },
   {
     "batch": 3,
@@ -47,7 +51,8 @@
     "file": "patient-app/app/diagnostics/insurance-approval.tsx",
     "line": 34,
     "found": "[backend] A constant added in the screen to the amount to pay; the server sends no such fee.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1223 (issue #626)"
   },
   {
     "batch": 3,
@@ -57,7 +62,8 @@
     "file": "patient-app/app/diagnostics/checkout.tsx",
     "line": 15,
     "found": "[backend] Six fixed times and seven days, no availability from the server.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1306 (issue #627)"
   },
   {
     "batch": 3,
@@ -67,7 +73,8 @@
     "file": "patient-app/app/diagnostics/sample-tracking.tsx",
     "line": 90,
     "found": "[owner] Static medical text and a fixed step list, not from the booking; confirm the wording.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "fixed #1471 (issue #628)"
   },
   {
     "batch": 3,
@@ -77,7 +84,8 @@
     "file": "patient-app/app/diagnostics/technician-tracking.tsx",
     "line": 4,
     "found": "[owner] [screen is now a redirect; kept so issue indices stay stable] Static text; the old third tip (samples sent in cold containers) was dropped as an unverified claim.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "fixed #1471 (issue #629)"
   },
   {
     "batch": 3,
@@ -87,7 +95,8 @@
     "file": "patient-app/src/context/DiagnosticsCartContext.tsx",
     "line": 54,
     "found": "[client] Fixed on design/oc-patient-other-1: the cart is now kept on the device per signed-in patient (AsyncStorage key @nabd_diag_cart:v1:<user id>), restored on the next start and removed when the cart is emptied or the patient signs out.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed before this session (verified on main: DiagnosticsCartContext.tsx:47 keeps the cart per patient on the device)"
   },
   {
     "batch": 3,
@@ -97,6 +106,7 @@
     "file": "patient-app/app/diagnostics/lab-comparison.tsx",
     "line": 106,
     "found": "[backend] Every lab shows the same base price of the service; the compatible-providers answer carries no per-lab price.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1352 #1390 (issue #631)"
   }
 ]

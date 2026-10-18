@@ -1,5 +1,6 @@
 import { IsArray, IsDefined, IsNumber, IsObject, IsOptional, IsString, MaxLength, ValidateNested, IsBoolean, IsIn } from 'class-validator';
 import { Type } from 'class-transformer';
+import { AttributionDto } from '../../common/attribution';
 
 export class NursingVitalsDto {
   @IsOptional() @IsString() @MaxLength(20) bp?: string;
@@ -66,6 +67,22 @@ export class CreateBookingDto {
   @IsOptional()
   @IsString()
   service_name_ar?: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AttributionDto)
+  attribution?: AttributionDto;
+}
+
+/** provider-journeys#25: the nurse's live position while on the way (POST /nursing/visits/:id/position). */
+export class VisitPositionDto {
+  @IsDefined()
+  @IsNumber()
+  lat: number;
+
+  @IsDefined()
+  @IsNumber()
+  lng: number;
 }
 
 export class ArriveAtPatientDto {

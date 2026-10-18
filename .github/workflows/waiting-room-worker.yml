@@ -1,0 +1,26 @@
+name: Waiting room worker
+
+# P14.19: the checkout waiting room (deploy/cloudflare/waiting-room-worker) with a stand-in origin and Durable Object:
+# guarded paths, a spike above capacity queued in order with no error, signed cookies, the page's CSP and tokens.
+on:
+  pull_request:
+    paths:
+      - 'deploy/cloudflare/waiting-room-worker/**'
+      - 'patient-web/messages/**'
+      - 'packages/design-tokens/tokens.json'
+      - '.github/workflows/waiting-room-worker.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - run: node --test deploy/cloudflare/waiting-room-worker/worker.test.mjs

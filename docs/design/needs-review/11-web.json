@@ -7,7 +7,8 @@
     "file": "patient-web/app/[locale]/loyalty/page.tsx",
     "line": 121,
     "found": "[backend] the Challenges tab shows what GET /loyalty/challenges sends and filters nothing; a challenge that asks for buying medicines must be removed by the server (decision 9)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "not-a-problem: removed by decision 9, the web tab reads the same filtered GET /loyalty/challenges (loyalty.service.ts:346-348, PR #1280) (issue #749)"
   },
   {
     "batch": 11,
@@ -17,7 +18,8 @@
     "file": "patient-web/app/[locale]/loyalty/page.tsx",
     "line": 165,
     "found": "[backend] the amounts a referral pays (the old copy said 50 and 100 points) are not sent by any endpoint, so the copy states no number; /referrals/my or /loyalty/config should send them",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1316 (issue #750)"
   },
   {
     "batch": 11,
@@ -27,7 +29,8 @@
     "file": "patient-web/lib/loyalty/view.ts",
     "line": 117,
     "found": "[backend] GET /home/offers sends only the Arabic title (t = title_ar), and disc is computed as a percentage that is NaN% when original_price is 0 (the client hides such a value); the list also sends a raw colour (c) and icon (ic) the clients ignore (backend: backend/src/modules/home/home.service.ts:36)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1223 #1227 (issue #751)"
   },
   {
     "batch": 11,
@@ -37,6 +40,7 @@
     "file": "patient-web/app/[locale]/offers/[offerId]/page.tsx",
     "line": 99,
     "found": "[owner] the app offer detail has a share action; the web page never had one and none was added (feature)",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "fixed #1285 (issue #752)"
   }
 ]

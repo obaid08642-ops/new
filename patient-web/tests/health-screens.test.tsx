@@ -29,7 +29,8 @@ vi.mock("next-intl/server", async () => {
 vi.mock("@/components-next/core/core-shell", () => ({
   CoreShell: ({ children, title, backHref }: { children: ReactNode; title?: string; backHref?: string }) => <div data-shell data-title={title} data-back={backHref}>{children}</div>,
 }));
-vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: async () => "server-only-health-token" }));
+// issue 1550: the hubs read the session without requiring it (a guest gets the public part)
+vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: async () => "server-only-health-token", getOptionalPatientAccessToken: async () => "server-only-health-token" }));
 vi.mock("@/lib/api/upstream", () => ({ callPatientApi: server.api }));
 
 import HealthPage from "@/app/[locale]/health/page";
@@ -286,7 +287,7 @@ describe("detail screens and redirects", () => {
   it("every old route is a redirect to a tab or a section of the new screens", async () => {
     const config = (await import("../next.config")).default;
     const redirects = await (config as unknown as { redirects: () => Promise<Array<{ source: string; destination: string }>> }).redirects();
-    const to = (source: string) => redirects.find((entry) => entry.source === `/:locale${source}`)?.destination;
+    const to = (source: string) => redirects.find((entry) => entry.source.replace(/^\/:locale\([^)]*\)/, "/:locale") === `/:locale${source}`)?.destination;
     expect(to("/health/score")).toBe("/:locale/health");
     expect(to("/health/vitals/log")).toBe("/:locale/health/vitals?tab=today&add=1");
     expect(to("/health/trends")).toBe("/:locale/health/vitals?tab=trends");

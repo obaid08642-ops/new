@@ -2,9 +2,10 @@ import { Injectable, BadRequestException, UnauthorizedException, ConflictExcepti
 import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import { createPublicKey, KeyObject } from 'crypto';
+import { createHmac, createPublicKey, KeyObject, randomBytes } from 'crypto';
 import * as nodemailer from 'nodemailer';
 import { Optional } from '@nestjs/common';
+import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { PushService } from '../push/push.module';
 import { escapeHtml, MailService } from '../mail/mail.module';
 import { SmsService } from '../sms/sms.service';
@@ -25,8 +26,22 @@ import { Logger } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { GuestService } from './guest.service';
 import { AccountLinkingService } from './account-linking.service';
-import { PasswordSecurityService } from '../../common/password-security.service';
+import { PasswordSecurityService, dummyPasswordHash } from '../../common/password-security.service';
+import { LoginLockService } from '../../common/login-lock.service';
 import { OtpAbuseGuard } from '../../common/otp-abuse.service';
+import { I18nService, resolveLang } from '../i18n/i18n.service';
+import { logEvent } from '../../common/structured-logger';
+
+/** A device id is an opaque token of 8-128 plain characters; anything else is not a device. */
+export function normaliseGuestDeviceId(raw: unknown): string | null {
+  const v = Array.isArray(raw) ? raw[0] : raw;
+  return typeof v === 'string' && /^[A-Za-z0-9._:-]{8,128}$/.test(v) ? v : null;
+}
+
+/** The stored form of a device id: a keyed hash, so the database never holds the id a device presents. */
+export function guestDeviceHash(deviceId: string): string {
+  return createHmac('sha256', process.env.JWT_SECRET || 'guest-device').update(`guest-device:${deviceId}`).digest('hex').slice(0, 48);
+}
 
 @Injectable()
 export class AuthService {
@@ -40,6 +55,8 @@ export class AuthService {
   private readonly OTP_MAX_VERIFY_ATTEMPTS = 5;
   private readonly PATIENT_OTP_TTL_SECONDS = 5 * 60;
   private readonly PATIENT_EXCHANGE_TTL_SECONDS = 60;
+  /** A password-reset link is opened from a mailbox or a phone, often minutes later: 30 minutes, single use. */
+  private readonly PASSWORD_RESET_TTL_SECONDS = 30 * 60;
   private readonly PATIENT_OTP_LOCK_TTL_SECONDS = 15 * 60;
 
   constructor(
@@ -61,6 +78,10 @@ export class AuthService {
     @Optional() private passwordSecurity?: PasswordSecurityService,
     // 16.3: SMS pumping — per-IP fan-out, country allow-list, daily budget.
     @Optional() private otpAbuse?: OtpAbuseGuard,
+    // Issue 955: the admin "new registrations" kill switch.
+    @Optional() private killSwitches?: KillSwitchesService,
+    // 16.2: progressive lockout of password sign-in.
+    @Optional() private loginLock?: LoginLockService,
   ) {}
 
   /**
@@ -142,7 +163,16 @@ export class AuthService {
 
     const u = await this.userModel.findOne({ id: payload.sub });
     if (!u || u.active === false) throw new UnauthorizedException('User not found or disabled');
+    // 21.8: a guest who keeps using the app is not inactive; written at most once a day
+    if (u.is_guest === true) await this.touchGuestActivity(u);
     return this.signToken(u, boundDevice || deviceId);
+  }
+
+  /** 21.8: the guest was active now (at most one write a day). Failure never blocks the refresh. */
+  private async touchGuestActivity(u: any): Promise<void> {
+    const last = u.last_active_at ? new Date(u.last_active_at).getTime() : 0;
+    if (Date.now() - last < 24 * 3600 * 1000) return;
+    try { await this.userModel.updateOne({ id: u.id }, { $set: { last_active_at: new Date() } }); } catch { /* best effort */ }
   }
 
   /** Revoke every refresh session of a user (logout-all / theft response). */
@@ -187,6 +217,22 @@ export class AuthService {
       const jti = (this.jwt.decode(refreshToken) as any)?.jti;
       if (jti) await this.storeRefreshSession(userId, jti, deviceId);
     } catch { /* same contract as signToken: store failure never breaks the response */ }
+  }
+
+  /** Issue 440: revoke the one refresh session a signed-out token belongs to. A token that does not verify revokes nothing. */
+  async revokeRefreshSession(refreshToken: string): Promise<boolean> {
+    let payload: any;
+    try {
+      payload = this.jwt.verify(refreshToken);
+    } catch {
+      return false;
+    }
+    if (payload?.type !== 'refresh' || !payload.jti) return false;
+    const client = (this.redisService as any).getClient?.();
+    if (!client) return false;
+    const removed = await client.del(`refresh:${payload.jti}`).catch(() => 0);
+    if (payload.sub) await client.srem(`refresh_user:${payload.sub}`, payload.jti).catch(() => 0);
+    return removed > 0;
   }
 
   async logoutAllDevices(userId: string) {
@@ -517,18 +563,38 @@ export class AuthService {
     const user = await this.userModel.findOne(normalized.includes('@') ? { email: normalized } : { phone: normalized });
     if (!user || user.active === false) return { requested: true };
     const resetToken = require('crypto').randomBytes(32).toString('base64url');
-    await this.redisService.setJson(this.passwordResetKey(resetToken), { user_id: user.id }, this.PATIENT_EXCHANGE_TTL_SECONDS);
-    try {
-      if (normalized.includes('@')) {
-        await this.mail?.send(normalized, 'Password reset', `Your Nabd+ password-reset token is ${resetToken}. It expires in 60 seconds.`);
-      } else if (user.email) {
-        // SMS retired: reset link goes by email (Resend→SES).
-        await this.mail?.send(user.email, 'Password reset', `Your Nabd+ password-reset token is ${resetToken}. It expires in 60 seconds.`);
-      }
-    } catch {
-      // Do not disclose account state or the raw token in the HTTP response.
-    }
+    await this.redisService.setJson(this.passwordResetKey(resetToken), { user_id: user.id }, this.PASSWORD_RESET_TTL_SECONDS);
+    await this.deliverPasswordReset(user, normalized.includes('@') ? normalized : user.email, resetToken);
     return { requested: true };
+  }
+
+  /**
+   * 435: the reset reaches the person as a link to the website's reset page (the page reads the token from the link), valid
+   * for 30 minutes, in their language. Email when there is one; a phone-only account gets it by SMS (when SMS is on) and on
+   * its signed-in devices by push. Every channel is best effort and the answer stays the same opaque `requested`.
+   */
+  private async deliverPasswordReset(user: any, email: string | undefined, resetToken: string) {
+    const webLocales = ['ar', 'en', 'ur', 'hi', 'bn', 'fil'];
+    const pref = String(user?.preferred_lang || '').toLowerCase().replace(/^tl$/, 'fil');
+    const locale = webLocales.includes(pref) ? pref : 'ar';
+    const site = (process.env.PUBLIC_SITE_ORIGIN || 'https://nabd.plus').replace(/\/$/, '');
+    const link = `${site}/${locale}/password-reset?token=${encodeURIComponent(resetToken)}`;
+    const minutes = Math.round(this.PASSWORD_RESET_TTL_SECONDS / 60);
+    const i18n = new I18nService();
+    const lang = resolveLang(pref);
+    const body = i18n.t('auth.passwordReset.body', lang, { minutes });
+    if (email) {
+      try {
+        await this.mail?.sendPasswordReset(email, i18n.t('auth.passwordReset.subject', lang), body, i18n.t('auth.passwordReset.action', lang), link, lang === 'en' ? 'ltr' : 'rtl');
+      } catch { /* do not disclose account state */ }
+      return;
+    }
+    if (user?.phone) {
+      try { await this.sms?.sendText(user.phone, `${body} ${link}`); } catch { /* best effort */ }
+    }
+    if (user?.id) {
+      try { await this.push?.sendTemplated(user.id, 'auth.passwordReset.subject', 'auth.passwordReset.body', { kind: 'password_reset', url: link }, { minutes }); } catch { /* best effort */ }
+    }
   }
 
   async resetPatientPassword(resetToken: string, newPassword: string) {
@@ -627,6 +693,7 @@ export class AuthService {
     locale: string;
     consents: Array<{ policy_id: string; version: string }>;
   }) {
+    await this.killSwitches?.assertOn('new_registrations');
     AuthService.assertString(data?.name, 'name');
     AuthService.assertString(data?.identifier, 'identifier');
     AuthService.assertString(data?.password, 'password');
@@ -685,12 +752,19 @@ export class AuthService {
     await this.recordSignupAcceptances(user.id, consents);
     this.events.emit(EVENTS.USER_REGISTERED, { user_id: user.id, role: user.role });
 
-    // The response remains minimal; requestPatientOtp emits the opaque delivery DTO.
-    await this.requestPatientOtp(identifier);
+    // The response remains minimal; requestPatientOtp emits the opaque delivery DTO. The account exists now: a code
+    // that could not be sent (provider down, rate limit) is reported as such, never as a failed registration (issue 434).
+    try {
+      await this.requestPatientOtp(identifier);
+    } catch {
+      return { registered: true, otp_sent: false };
+    }
     return { registered: true };
   }
 
   async register(data: { full_name: string; phone?: string; password: string; email?: string; role?: UserRole }, guestToken?: string) {
+    // Refused before the verified OTP is consumed, so the same code works once registrations are back on.
+    await this.killSwitches?.assertOn('new_registrations');
     if (data.email !== undefined) AuthService.assertString(data.email, 'email');
     if (data.phone !== undefined) AuthService.assertString(data.phone, 'phone');
     AuthService.assertString(data.password, 'password');
@@ -745,7 +819,7 @@ export class AuthService {
     const SELF_REGISTERABLE: string[] = [
       UserRole.PATIENT, UserRole.DOCTOR, UserRole.PHARMACY, UserRole.HOSPITAL,
       UserRole.LAB, UserRole.RADIOLOGY, UserRole.HOME_CARE, UserRole.NURSING,
-      UserRole.NURSE, UserRole.AMBULANCE, UserRole.PHYSIOTHERAPIST,
+      UserRole.NURSE, UserRole.PHYSIOTHERAPIST,
     ];
     const requestedRole = ((data.role as string) || UserRole.PATIENT) as UserRole;
     if (!SELF_REGISTERABLE.includes(requestedRole)) {
@@ -773,16 +847,23 @@ export class AuthService {
     AuthService.assertString(password, 'password');
     const isEmail = identifier.includes('@');
     const query = isEmail ? { email: identifier.trim().toLowerCase() } : { phone: identifier };
+    // 16.2: a locked identifier is refused before anything about the account is looked at.
+    await this.loginLock?.assertNotLocked(identifier, ctx?.ip);
     const u = await this.userModel.findOne(query);
     if (!u || !u.password_hash) {
+      // The same bcrypt work as a real check, so the answer does not come back faster for an unknown account.
+      await bcrypt.compare(password, await dummyPasswordHash());
       if (u) await this.adminLoginAlert(u, false, ctx); // C5: known account, bad secret
+      await this.loginLock?.recordFailure(identifier, ctx?.ip);
       throw new UnauthorizedException('Invalid credentials');
     }
     const ok = await bcrypt.compare(password, u.password_hash);
     if (!ok) {
       await this.adminLoginAlert(u, false, ctx); // C5: failed admin login attempt
+      await this.loginLock?.recordFailure(identifier, ctx?.ip);
       throw new UnauthorizedException('Invalid credentials');
     }
+    await this.loginLock?.recordSuccess(identifier, ctx?.ip);
     if (u.active === false) throw new UnauthorizedException('Account disabled');
 
     // Check 2FA requirement
@@ -924,7 +1005,20 @@ export class AuthService {
     // passkey revokes the device — a token replayed without a live credential is
     // rejected by the guard even though the device id is enrolled.
     if (this.adminDevices && ctx?.deviceId) {
-      await this.adminDevices.enroll(u.id, ctx.deviceId, ctx.ua, ctx.deviceName, response?.id);
+      // D-35 reviewer (device-bound keys): a passkey login auto-enrols the
+      // presenting device ONLY when the verified credential is known to live
+      // on a single device. A synced credential (same Apple ID on a third
+      // device) still signs the admin in, but its device must come through
+      // the approval + e-mailed-code flow like any other new device.
+      let bound = false;
+      try {
+        bound = await this.passkeys?.isSingleDeviceCredential?.(response?.id);
+      } catch {
+        bound = false;
+      }
+      if (bound) {
+        await this.adminDevices.autoEnroll(u.id, ctx.deviceId, ctx.ua, ctx.deviceName, response?.id);
+      }
     }
     if (this.deviceTrust) {
       const { token, device } = await this.deviceTrust.issue(u.id, ctx?.ua, ctx?.ip);
@@ -1022,44 +1116,76 @@ export class AuthService {
    * (persistent across reinstalls of the session), so orders/cart/preferences
    * never fragment into throwaway accounts.
    */
-  async guest(phone?: string, deviceId?: string) {
-    const client = (this.redisService as any).getClient?.();
+  /**
+   * 21.1 - the device-bound guest account.
+   *
+   * A guest is a real server-side row (UUID, `is_guest`), found by DEVICE ID only. The binding lives in MongoDB
+   * (`guest_devices`, a keyed hash of the id, unique), so a Redis restart or eviction cannot turn a reopen into a new
+   * guest; reinstalling the app makes a new device id and so a new guest. The IP address is never part of the identity.
+   *
+   * A client-supplied phone is NOT identity either (it is unverified): it used to create a guest row carrying someone
+   * else's number (blocking that person's own sign-up) and to hand the session of the guest who typed it to anyone who
+   * knew it. The phone is asked for at checkout (21.5), where it is a contact, not a key. The `phone` argument is kept
+   * only so older callers still compile; it is ignored.
+   */
+  private guestDeviceIndexReady: Promise<unknown> | null = null;
+  private ensureGuestDeviceIndex(bindings: { createIndex: (...a: any[]) => Promise<unknown> }) {
+    // unique: one guest per device, even for two requests at once; created once per process
+    return (this.guestDeviceIndexReady ??= bindings.createIndex({ device_hash: 1 }, { unique: true, name: 'device_hash_unique' }).catch((e: unknown) => {
+      this.guestDeviceIndexReady = null;
+      throw e;
+    }));
+  }
 
-    // 1) Existing guest for this device? → reuse it
-    if (deviceId && client) {
-      const existingId = await client.get(`guest_device:${deviceId}`);
-      if (existingId) {
-        const existing = await this.userModel.findOne({ id: existingId });
-        // Only a real guest row may be re-issued from an unauthenticated device id.
-        // Once a guest converts, the binding must not mint tokens for that account.
-        if (existing && existing.is_guest === true) {
-          return { user: this.publicUser(existing), token: this.signToken(existing, deviceId) };
-        }
+  async guest(_ignoredPhone?: string, deviceId?: string) {
+    const device = normaliseGuestDeviceId(deviceId);
+    if (!device) throw new BadRequestException('device_id_required');
+    const deviceHash = guestDeviceHash(device);
+    const bindings = this.userModel.db.collection('guest_devices');
+    await this.ensureGuestDeviceIndex(bindings);
+
+    // 1) a guest already bound to this device: re-issue its session (only while it is still a guest)
+    const bound: any = await bindings.findOne({ device_hash: deviceHash });
+    if (bound?.guest_id) {
+      const existing = await this.userModel.findOne({ id: bound.guest_id });
+      if (existing && existing.is_guest === true) {
+        await bindings.updateOne({ device_hash: deviceHash }, { $set: { last_seen_at: new Date() } });
+        return { user: this.publicUser(existing), token: this.signToken(existing, device) };
       }
     }
 
-    // 2) Create (or reuse by phone) the guest account
-    // The phone is unverified input: reuse a row by phone only when it is a guest
-    // row, and never attach a phone that already belongs to a registered account.
-    const byPhone = phone ? await this.userModel.findOne({ phone }) : null;
-    let u = byPhone && byPhone.is_guest === true ? byPhone : null;
-    if (!u) {
-      const guestPhone = phone && !byPhone ? phone : `guest-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-      u = await this.userModel.create({
-        full_name: 'Guest',
-        phone: guestPhone,
-        is_guest: true,
-        role: UserRole.PATIENT,
-      });
-      await this.patientModel.create({ user_id: u.id });
+    // 2) create the guest and CLAIM the binding. The claim is one atomic operation, so of several first requests of one device
+    //    exactly one binding is stored; the others delete the guest they made and use the winner's.
+    const guestPhone = `guest-${Date.now()}-${randomBytes(4).toString('hex')}`;
+    const u = await this.userModel.create({ full_name: 'Guest', phone: guestPhone, is_guest: true, role: UserRole.PATIENT });
+    await this.patientModel.create({ user_id: u.id });
+    const now = new Date();
+    let winnerId: string | undefined;
+    if (bound?.guest_id) {
+      // a stale binding (the guest was converted or deleted): replace it, but only if nobody else did first
+      const r: any = await bindings.updateOne({ device_hash: deviceHash, guest_id: bound.guest_id }, { $set: { guest_id: u.id, last_seen_at: now } });
+      winnerId = r?.matchedCount ? u.id : (await bindings.findOne({ device_hash: deviceHash }))?.guest_id;
+    } else {
+      try {
+        const r: any = await bindings.findOneAndUpdate(
+          { device_hash: deviceHash },
+          { $setOnInsert: { device_hash: deviceHash, guest_id: u.id, created_at: now, last_seen_at: now } },
+          { upsert: true, returnDocument: 'after' },
+        );
+        winnerId = (r && 'value' in r && 'ok' in r ? r.value : r)?.guest_id;
+      } catch (e: any) {
+        if (e?.code !== 11000) throw e;
+        winnerId = (await bindings.findOne({ device_hash: deviceHash }))?.guest_id;     // two upserts collided: the other one won
+      }
     }
-
-    // 3) Bind device → guest id permanently (90d rolling)
-    if (deviceId && client) {
-      await client.set(`guest_device:${deviceId}`, u.id, 'EX', 90 * 24 * 3600);
+    if (winnerId && winnerId !== u.id) {
+      await this.patientModel.deleteOne({ user_id: u.id }).catch(() => undefined);
+      await this.userModel.deleteOne({ id: u.id }).catch(() => undefined);
+      const winner = await this.userModel.findOne({ id: winnerId });
+      if (winner?.is_guest === true) return { user: this.publicUser(winner), token: this.signToken(winner, device) };
+      throw new ConflictException('guest_device_busy');       // the winner was converted in this instant: the caller retries
     }
-
-    return { user: this.publicUser(u), token: this.signToken(u, deviceId) };
+    return { user: this.publicUser(u), token: this.signToken(u, device) };
   }
 
   /** Re-point a guest's data to another account (used by the merge path). */
@@ -1120,6 +1246,8 @@ export class AuthService {
     }
 
     if (existingUser.id === guestUserId) {
+      const policy = await this.passwordSecurity?.check(data.password);
+      if (policy && !policy.ok) throw new BadRequestException({ message: policy.code, code: policy.code, statusCode: HttpStatus.BAD_REQUEST });
       const hash = await bcrypt.hash(data.password, 12);
       existingUser.full_name = data.full_name;
       existingUser.phone = data.phone;
@@ -1181,6 +1309,11 @@ export class AuthService {
 
     const isEmail = normalized.includes('@');
     const existing = await this.userModel.findOne(isEmail ? { email: normalized } : { phone: normalized });
+    // Sign-up for an address that already has an account: say so now, not after the code step (issue 413). This
+    // reveals nothing new: /auth/register answers the same 409 for the same identifier.
+    if (existing && purpose === 'register') {
+      throw new ConflictException({ message: 'identifier_already_registered', code: 'identifier_already_registered', statusCode: HttpStatus.CONFLICT });
+    }
     if (!existing && purpose !== 'register') {
       // No account: same answer as a sent code, so this endpoint cannot be used to
       // test which emails/phones are registered. Nothing is stored or sent.
@@ -1207,7 +1340,7 @@ export class AuthService {
         !process.env.SMTP_HOST &&
         !process.env.INFOBIP_API_KEY
       ) {
-        console.warn('No OTP delivery channel configured; OTP was not logged.');
+        logEvent('warn', 'otp_no_delivery_channel', {}, 'auth');
       }
       if (!delivered.length) {
         throw new ServiceUnavailableException({ message: 'otp_channel_unavailable', code: 'otp_channel_unavailable' });
@@ -1215,7 +1348,7 @@ export class AuthService {
       return { ok: true, channel: delivered[0] };
     } catch (err: any) {
       if (err instanceof ServiceUnavailableException) throw err;
-      console.error('Failed to send verification code:', err);
+      logEvent('error', 'verification_code_send_failed', { error: (err as Error)?.message }, 'auth');
       return { ok: false, error: err.message };
     }
   }
@@ -1244,7 +1377,9 @@ export class AuthService {
       throw new HttpException('Too many invalid attempts. Please request a new code.', HttpStatus.TOO_MANY_REQUESTS);
     }
 
-    if (!(await bcrypt.compare(code, entry.code_hash))) {
+    // P17-17.9: the code is digits — normalize Arabic-Indic/Eastern
+    // Arabic-Indic forms before comparing with the stored Latin hash.
+    if (!(await bcrypt.compare(normalizeDigits(code).trim(), entry.code_hash))) {
       // increment attempts (keep remaining TTL by re-setting with same expiry window)
       const ttl = await this.redisService.ttl(key);
       await this.redisService.setJson(key, { ...entry, attempts: entry.attempts + 1 }, ttl > 0 ? ttl : this.OTP_TTL_SECONDS);
@@ -1274,9 +1409,16 @@ export class AuthService {
     AuthService.assertString(identifier, 'identifier');
     AuthService.assertString(newPassword, 'password');
     AuthService.assertString(code, 'code');
-    const isEmail = identifier.includes('@');
-    const u = await this.userModel.findOne(isEmail ? { email: identifier } : { phone: identifier });
-    if (!u) throw new UnauthorizedException('User not found');
+    // P17-17.9: normalize before lookup (an Arabic-Indic phone must find the
+    // Latin-stored account, exactly like the OTP identifier paths).
+    const normalizedIdentifier = this.normalizeOtpIdentifier(identifier);
+    const isEmail = normalizedIdentifier.includes('@');
+    // 16.2: the new password follows the same rule as a registration, checked before the code is spent.
+    const policy = await this.passwordSecurity?.check(newPassword);
+    if (policy && !policy.ok) throw new BadRequestException({ message: policy.code, code: policy.code, statusCode: HttpStatus.BAD_REQUEST });
+    const u = await this.userModel.findOne(isEmail ? { email: normalizedIdentifier } : { phone: normalizedIdentifier });
+    // An unknown account answers exactly like a wrong code, so this endpoint cannot be used to find out who is registered.
+    if (!u) throw new BadRequestException('Invalid OTP code');
     // Verify the OTP against the contact that actually received it.
     await this.verifyOtp(this.otpContact(u, identifier), code); // throws if invalid
     const hash = await bcrypt.hash(newPassword, 12);
@@ -1316,6 +1458,8 @@ export class AuthService {
     // A banned or deactivated account never gets a token this way either.
     if (u && u.active === false) throw new ForbiddenException('account_disabled');
     if (!u) {
+      // A first social sign-in creates an account: refused while new registrations are off.
+      await this.killSwitches?.assertOn('new_registrations');
       u = await this.userModel.create({
         full_name: name,
         email: email,

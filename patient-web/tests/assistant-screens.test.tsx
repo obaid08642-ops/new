@@ -27,7 +27,7 @@ vi.mock("next-intl/server", async () => {
 vi.mock("@/components-next/core/core-shell", () => ({
   CoreShell: ({ children, title, backHref }: { children: ReactNode; title?: string; backHref?: string }) => <div data-shell data-title={title} data-back={backHref}>{children}</div>,
 }));
-vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: async () => "server-only-token" }));
+vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: async () => "server-only-token", getOptionalPatientAccessToken: async () => "server-only-token" }));
 vi.mock("@/lib/api/upstream", () => ({ callPatientApi: server.api }));
 
 import AssistantPage from "@/app/[locale]/ai/page";
@@ -42,7 +42,7 @@ import SkinRedirect from "@/app/[locale]/ai/skin-analysis/page";
 import ChatDoctorRedirect from "@/app/[locale]/ai/chat-doctor/page";
 import VoiceRedirect from "@/app/[locale]/voice/page";
 import { AnswerCard, AskedBubble } from "@/components-next/assistant/assistant-kit";
-import { parseMode, parseTriageHistory, RED_FLAGS, triageCareLevel, triageRequestBody, triageSpecialty } from "@/lib/ai/assistant";
+import { assistantRequestBody, parseAssistantAnswer, parseMode } from "@/lib/ai/assistant";
 import { isAllowedPatientApiRequest } from "@/lib/api/patient-allowlist";
 
 const params = Promise.resolve({ locale: "en" });
@@ -67,37 +67,28 @@ describe("the assistant's pure parts", () => {
     expect(parseMode(undefined)).toBe("symptoms");
   });
 
-  it("sends the ticked red flags, or none, with the trimmed text", () => {
-    expect(triageRequestBody("  headache ", [])).toEqual({ symptoms: "headache", red_flags: ["none"] });
-    expect(triageRequestBody("pain", ["chest_pain", "heavy_bleeding"])).toEqual({ symptoms: "pain", red_flags: ["chest_pain", "heavy_bleeding"] });
-    expect(RED_FLAGS).toHaveLength(7);
+  it("decision 15: asks the one assistant with the trimmed text in the page's language", () => {
+    expect(assistantRequestBody("  headache ", "en")).toEqual({ message: "headache", locale: "en" });
+    expect(assistantRequestBody("x", "fil")).toEqual({ message: "x", locale: "fil" });
+    expect(assistantRequestBody("x", "fr").locale).toBe("ar");
   });
 
-  it("reads only the server's care level, never a guess from the text", () => {
-    expect(triageCareLevel({ care_level: "emergency", notice: "x" })).toBe("emergency");
-    expect(triageCareLevel({ data: { care_level: "consultation" } })).toBe("consultation");
-    expect(triageCareLevel({ response: "go to the ER now" })).toBeNull();
-    expect(triageCareLevel({ care_level: "clinical_assessment" })).toBeNull();
-    expect(triageCareLevel(null)).toBeNull();
+  it("reads the server's answer: red flag first, the specialty slug, the leaflet and the pharmacist, never a guess", () => {
+    expect(parseAssistantAnswer({ kind: "red_flag", text: "Call now", disclaimer: "D", actions: [{ type: "emergency_call", tel: "997" }] }))
+      .toMatchObject({ kind: "red_flag", urgent: true, bookable: true, specialty: null });
+    expect(parseAssistantAnswer({ kind: "specialty", text: "See a doctor", disclaimer: "D", actions: [{ type: "book_consultation", specialty: "dermatology" }] }))
+      .toMatchObject({ urgent: false, bookable: true, specialty: "dermatology" });
+    expect(parseAssistantAnswer({ kind: "specialty", text: "T", disclaimer: "D", actions: [{ type: "book_consultation", specialty: "../admin" }] })?.specialty).toBeNull();
+    expect(parseAssistantAnswer({ kind: "leaflet", text: "From the leaflet", disclaimer: "D", actions: [{ type: "ask_pharmacist" }], leaflet: { indications: ["Pain"], storage: "Cool place", bogus: "x" } }))
+      .toMatchObject({ askPharmacist: true, bookable: false, leaflet: [{ part: "indications", lines: ["Pain"] }, { part: "storage", lines: ["Cool place"] }] });
+    expect(parseAssistantAnswer({ kind: "specialty", text: "T" })).toBeNull();
+    expect(parseAssistantAnswer({ care_level: "emergency" })).toBeNull();
+    expect(parseAssistantAnswer(null)).toBeNull();
   });
 
-  it("reads the specialty slug the server names and the history oldest first (issues 879, 882)", () => {
-    expect(triageSpecialty({ care_level: "consultation", specialty: "dermatology" })).toBe("dermatology");
-    expect(triageSpecialty({ specialty: null })).toBeNull();
-    expect(triageSpecialty({ specialty: "../admin" })).toBeNull();
-    expect(parseTriageHistory([
-      { symptoms: "rash", care_level: "consultation", specialty: "dermatology" },
-      { symptoms: "", care_level: "consultation" },
-      { symptoms: "chest pain", care_level: "emergency", specialty: null },
-    ])).toEqual([
-      { asked: "chest pain", level: "emergency", specialty: null },
-      { asked: "rash", level: "consultation", specialty: "dermatology" },
-    ]);
-    expect(parseTriageHistory({ error: "x" })).toEqual([]);
-  });
-
-  it("allows the triage and OCR calls and no longer the skin analysis", () => {
-    expect(isAllowedPatientApiRequest("/ai/triage", "POST")).toBe(true);
+  it("allows the assistant and OCR calls, no longer the old triage, and no skin analysis", () => {
+    expect(isAllowedPatientApiRequest("/ai/assistant", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/ai/triage", "POST")).toBe(false);
     expect(isAllowedPatientApiRequest("/ai/prescription-ocr", "POST")).toBe(true);
     expect(isAllowedPatientApiRequest("/ai/skin-analysis", "POST")).toBe(false);
   });
@@ -124,10 +115,10 @@ describe("the answer card (decision 15, UI part)", () => {
 });
 
 describe("the assistant screen", () => {
-  it("opens on the symptoms mode: the text, the seven red flags and the three mode links, with no skin or voice entry", async () => {
+  it("opens on the symptoms mode: the question box and the three mode links (the server finds red flags itself), with no skin or voice entry", async () => {
     const out = await html(AssistantPage({ params, searchParams: Promise.resolve({}) }));
     expect(out).toContain("Describe your symptoms");
-    for (const label of ["Chest pain", "Trouble breathing", "Serious injury"]) expect(out).toContain(label);
+    expect(out).toContain("<textarea");
     expect(out).toContain("/en/ai?mode=prescription");
     expect(out).toContain("/en/ai?mode=report");
     expect(out).not.toMatch(/skin-analysis|\/voice|chat-doctor/);

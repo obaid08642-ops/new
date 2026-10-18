@@ -19,6 +19,7 @@ import { SystemEvent, SystemEventSchema } from '../events/system-event.schema';
 import { User, UserSchema, UserDocument } from '../../schemas/user.schema';
 import { toUniversal, WorkflowEngineService, WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 @Injectable()
 export class ConsistencyService {
   constructor(
@@ -181,7 +182,9 @@ export class ConsistencyService {
 export class ConsistencyController {
   constructor(private svc: ConsistencyService) {}
   @Get('audit') audit() { return this.svc.audit(); }
+  @RequirePermissions(Permission.OPS_CRONS_RUN)
   @Post('reconcile') reconcile() { return this.svc.reconcile(); }
+  @RequirePermissions(Permission.OPS_CRONS_RUN)
   @Post('fix-orphans') fixOrphans(@Query('dry_run') dry?: string) { return this.svc.fixOrphans(dry !== 'false'); }
 }
 

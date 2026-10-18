@@ -1,33 +1,69 @@
 #!/bin/bash
-# ═══ Daily backup: mongodump → gzip → local (14d) + Cloudflare R2 ═══
-# Installed as host cron: 0 3 * * * /opt/nabdah/deploy/scripts/backup.sh
-set -euo pipefail
-cd "$(dirname "$0")/.."
-set -a; source .env.production; set +a
+# ═══ Nightly backup (D-33, owner decision 33): mongodump → local (14 days) + off-server copy ═══
+# The off-server copy goes ONLY to the private bucket (BACKUP_S3_*), never to S3_BUCKET, the public CDN bucket
+# (incident 2026-10-08: backups uploaded there were downloadable by anyone). The bucket expires copies after 30 days
+# (backup-bucket-lifecycle.sh). Both runs are reported to the admin page (D-34). Schedule: deploy/cron/nabd-backups.
+# Exit: 0 only when the local dump AND the off-server copy succeeded.
+set -uo pipefail
+source "$(dirname "$0")/_backup-common.sh"
+nabd_load_env
 
 TS=$(date +%Y%m%d-%H%M%S)
-DIR=/opt/nabdah/backups
-FILE="$DIR/nabd_${DB_NAME:-nabd_nestjs}_$TS.gz"
-mkdir -p "$DIR"
+FILE="$BACKUP_DIR/nabd_${DB_NAME}_$TS.gz"
+mkdir -p "$BACKUP_DIR"
 
-echo "[$(date)] mongodump…"
-docker exec nabdah-mongodb mongodump --quiet \
-  -u "$MONGO_ROOT_USER" -p "$MONGO_ROOT_PASSWORD" --authenticationDatabase admin \
-  --db="${DB_NAME:-nabd_nestjs}" --archive --gzip > "$FILE"
-SIZE=$(du -h "$FILE" | cut -f1)
-echo "[$(date)] local backup: $FILE ($SIZE)"
-
-# Upload to R2 (S3-compatible) when configured
-# Upload disabled 2026-10-08: S3_BUCKET is the PUBLIC CDN bucket (cdn.nabd.plus), so backups
-# uploaded there were downloadable by anyone. Re-enable only with a PRIVATE bucket + encryption.
-if [ "${BACKUP_UPLOAD_ENABLED:-0}" = 1 ] && [ -n "${S3_ENDPOINT:-}" ] && [ -n "${S3_BUCKET:-}" ] && [ -n "${S3_ACCESS_KEY_ID:-}" ]; then
-  export AWS_ACCESS_KEY_ID="$S3_ACCESS_KEY_ID"
-  export AWS_SECRET_ACCESS_KEY="$S3_SECRET_ACCESS_KEY"
-  aws s3 cp "$FILE" "s3://${S3_BUCKET}/backups/$(basename "$FILE")" \
-    --endpoint-url "${S3_ENDPOINT}" --region auto \
-    && echo "[$(date)] uploaded to R2: backups/$(basename "$FILE")"
+echo "[$(date)] mongodump $DB_NAME"
+if ! docker exec "$MONGO_CONTAINER" mongodump --quiet \
+       -u "${MONGO_ROOT_USER:-}" -p "${MONGO_ROOT_PASSWORD:-}" --authenticationDatabase admin \
+       --db="$DB_NAME" --archive --gzip > "$FILE" || [ ! -s "$FILE" ]; then
+  rm -f "$FILE"
+  echo "[$(date)] FAIL: mongodump failed or wrote nothing"
+  report local false "" "mongodump failed or wrote nothing"
+  exit 1
 fi
 
-# Retention: 14 days local
-find "$DIR" -name "nabd_*.gz" -mtime +14 -delete
+# 16.9: the dump is encrypted before it is kept; the readable file is removed only after the encrypted one decrypts to the same bytes
+ENCERR=$(backup_encryption_error)
+if [ -n "$ENCERR" ]; then
+  rm -f "$FILE"
+  echo "[$(date)] FAIL: $ENCERR - the readable dump was removed, no backup was kept"
+  report local false "" "$ENCERR"
+  exit 1
+fi
+if backup_encryption_enabled; then
+  if ! backup_encrypt "$FILE" "$FILE.gpg" || [ ! -s "$FILE.gpg" ] \
+     || [ "$(backup_decrypt "$FILE.gpg" | sha256sum | cut -d' ' -f1)" != "$(sha256sum < "$FILE" | cut -d' ' -f1)" ]; then
+    rm -f "$FILE" "$FILE.gpg"
+    echo "[$(date)] FAIL: encrypting the dump failed or did not decrypt back to the same bytes"
+    report local false "" "backup encryption failed"
+    exit 1
+  fi
+  rm -f "$FILE"
+  FILE="$FILE.gpg"
+else
+  echo "[$(date)] WARNING: the dump is NOT encrypted (BACKUP_ENCRYPTION_PASSPHRASE_FILE is not set)"
+fi
+SIZE=$(stat -c %s "$FILE")
+echo "[$(date)] local backup: $(basename "$FILE") ($SIZE bytes)"
+report local true "$SIZE"
+
+# retention: 14 days on the server
+find "$BACKUP_DIR" -maxdepth 1 \( -name "nabd_*.gz" -o -name "nabd_*.gz.gpg" \) -mtime +14 -delete
+
+ERR=$(private_bucket_error)
+if [ -n "$ERR" ]; then
+  echo "[$(date)] FAIL off-server copy: $ERR"
+  report offsite false "" "$ERR"
+  exit 1
+fi
+KEY="mongodb/$(basename "$FILE")"
+if OUT=$(backup_aws s3 cp "$FILE" "s3://$BACKUP_S3_BUCKET/$KEY" --only-show-errors 2>&1); then
+  echo "[$(date)] off-server copy: s3://$BACKUP_S3_BUCKET/$KEY"
+  report offsite true "$SIZE"
+else
+  OUT=$(printf '%s' "$OUT" | tail -3)
+  echo "[$(date)] FAIL off-server copy: $OUT"
+  report offsite false "" "upload failed: $OUT"
+  exit 1
+fi
 echo "[$(date)] done."

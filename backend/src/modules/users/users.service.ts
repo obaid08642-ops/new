@@ -15,6 +15,8 @@ import { RedisService } from '../redis/redis.service';
 import { randomUUID } from 'crypto';
 import { ProductRankingEventService } from '../product-ranking/product-ranking-event.service';
 import { AuthService } from '../auth/auth.service';
+import { publicMedicineFilter } from '../medicines/public-medicine-filter';
+import { enforcePasswordPolicy } from '../../common/password-security.service';
 
 @Injectable()
 export class UsersService {
@@ -50,6 +52,8 @@ export class UsersService {
         price: Number(med?.price ?? item.price ?? 0),
         image: med?.image || item.image,
         requires_prescription: med?.requires_prescription ?? item.requires_prescription ?? false,
+        // Decision 11: the row says "online only" (and the cart line added from it keeps it).
+        online_exclusive: (med ? med.online_exclusive : item.online_exclusive) === true,
         // #464: "available" means the item is still in the public catalogue (approved, published, not withdrawn
         // or discontinued); a row that only remains in the collection is not available to order.
         available: !!med && med.is_deleted !== true && med.public_eligibility === true && med.medical_review_status === 'approved'
@@ -67,7 +71,8 @@ export class UsersService {
     } else {
       // Snapshot the medicine so the wishlist is useful even if it is later delisted.
       let medicine: any = null;
-      try { medicine = await this.conn.collection('medicines').findOne({ id: itemId } as any); } catch { /* keep bare id */ }
+      // The snapshot is taken from the public catalogue only: an item in medical review is never disclosed.
+      try { medicine = await this.conn.collection('medicines').findOne({ ...publicMedicineFilter(), id: itemId } as any); } catch { /* keep bare id */ }
       if (!profile.wishlist) profile.wishlist = [];
       profile.wishlist.push({
         id: itemId,
@@ -76,6 +81,7 @@ export class UsersService {
         price: Number(medicine?.price ?? 0),
         image: medicine?.image,
         requires_prescription: medicine?.requires_prescription ?? false,
+        online_exclusive: medicine?.online_exclusive === true,
         added_at: new Date(),
       });
       if (this.rankingEvents) {
@@ -320,9 +326,11 @@ export class UsersService {
       used: fmt(usedBytes),
       total: `${LIMIT_GB} GB`,
       limit: LIMIT_GB,
+      // issue 1585: stable keys; the clients translate them. `label` stays only for app builds already installed
+      // that read it (current web and app use `key`); remove it once those builds are retired.
       items: [
-        { label: 'الوصفات المرفوعة', val: fmt(prescBytes), pct: pct(prescBytes), color: '#23B5CE' },
-        { label: 'التقارير الطبية', val: fmt(reportBytes), pct: pct(reportBytes), color: '#7A6BEA' },
+        { key: 'uploaded_prescriptions', label: 'الوصفات المرفوعة', val: fmt(prescBytes), pct: pct(prescBytes), color: '#23B5CE' },
+        { key: 'medical_reports', label: 'التقارير الطبية', val: fmt(reportBytes), pct: pct(reportBytes), color: '#7A6BEA' },
       ],
     };
   }
@@ -352,7 +360,7 @@ export class UsersService {
   async changePassword(id: string, body: any, deviceId?: string) {
     const current = String(body?.current_password || '');
     const next = String(body?.new_password || '');
-    if (next.length < 8) throw new BadRequestException('كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل');
+    await enforcePasswordPolicy(next);
     const u: any = await this.userRepository.findOne({ id });
     if (!u) throw new NotFoundException();
     if (u.password_hash) {

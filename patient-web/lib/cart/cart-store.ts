@@ -20,8 +20,10 @@ export interface CartItem {
   form?: string | null;
   strength?: string | null;
   slug?: string | null;
-  /** The product's `online_exclusive`, stored when the line is added by a source that knows it (absent on older lines and on the public product pages, whose answers do not carry it). */
+  /** The product's `online_exclusive`, stored when the line is added by a source that knows it (absent on older lines and on lines added before the public product answer carried it). */
   onlineOnly?: boolean;
+  /** Decision 18: the prescription this line was ordered from ("order these medicines" on a prescription); the checkout sends that one. */
+  prescriptionId?: string;
 }
 
 export type CartItemInput = Omit<CartItem, "qty"> & { qty?: number };
@@ -60,6 +62,7 @@ export function sanitizeCartItems(value: unknown): CartItem[] {
       id, name, qty, rx: line.rx === true,
       image: text(line.image), activeIngredient: text(line.activeIngredient), form: text(line.form), strength: text(line.strength), slug: text(line.slug),
       ...(line.onlineOnly === true ? { onlineOnly: true } : {}),
+      ...(typeof line.prescriptionId === "string" && /^[0-9a-f-]{36}$/i.test(line.prescriptionId) ? { prescriptionId: line.prescriptionId } : {}),
     }];
   });
 }
@@ -69,7 +72,7 @@ export function mergeCarts(base: CartItem[], extra: CartItem[]): CartItem[] {
   const merged = base.map((line) => ({ ...line }));
   for (const line of extra) {
     const at = merged.findIndex((existing) => existing.id === line.id);
-    if (at >= 0) merged[at] = { ...merged[at], ...(line.onlineOnly ? { onlineOnly: true } : {}), qty: Math.min(merged[at].qty + line.qty, MAX_LINE_QTY) };
+    if (at >= 0) merged[at] = { ...merged[at], ...(line.onlineOnly ? { onlineOnly: true } : {}), ...(line.prescriptionId ? { prescriptionId: line.prescriptionId } : {}), qty: Math.min(merged[at].qty + line.qty, MAX_LINE_QTY) };
     else merged.push({ ...line });
   }
   return merged;

@@ -83,6 +83,16 @@ describe('nurse booking page', () => {
     expect(posts()).toHaveLength(0);
   });
 
+  it('offers no transport choice: the nurse comes to the patient (owner decision 42, issue 641)', async () => {
+    mockParams.current = { nurseId: 'nurse-1', flow: 'cash', serviceId: 'svc-1' };
+    answer({});
+    await render(wrap(<NurseBookingScreen />));
+    await screen.findByText('Test Nurse');
+    expect(screen.queryByText('I will provide the transport')).toBeNull();
+    expect(screen.queryByText('The nurse provides the transport')).toBeNull();
+    expect(screen.getByText(/^The nurse comes to your location/)).toBeTruthy();
+  });
+
   it('books a cash visit for the chosen nurse, then starts the payment', async () => {
     mockParams.current = { nurseId: 'nurse-1', flow: 'cash', serviceId: 'svc-1' };
     answer({}, (path) => (path === '/nursing/bookings' ? { id: 'b-1' } : { id: 'txn-1', checkout_url: 'https://pay.example.test/x', amount: 100 }));

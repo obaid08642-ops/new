@@ -2,6 +2,14 @@
 
 > **2026-10-09: the active task list is `docs/review/OPENCODE_PLAN_2026-10-09.md` (sessions OC-A, OC-B, OC-C, OC-D). Read it first; it overrides this file where they differ.**
 
+> **Owner, 2026-10-14 night (newest):** the needs-review lines (`docs/design/needs-review/*.json`) and every open `[NR …]` issue go to a **Claude fix session** (`docs/review/FIX_SESSION_2026-10-14.md`, label `route:claude-fix`). OpenCode does not take them.
+
+> **Owner, 2026-10-14 evening (newest):**
+> - Three OpenCode sessions stay: **OC-A**: D-30 only. **OC-D**: D-28, D-34, D-35. **OC-E**: the rest of Phase 13, then the backend parts of Phase 17.
+> - **D-33 moves to the Claude build session** (it runs on the server through the ops workflow). That session also owns deploys, Cloudflare, staging and the rest of Phase 14 (`docs/review/BUILD_SESSION_2026-10-14.md`). Do not take those items.
+> - Each D item starts only when its spec is in `backend/acceptance/d-<n>/` on `main`. The lead review session writes the specs.
+> - OC-G (AC-2 to AC-6) is done.
+
 > **Owner, 2026-10-14 (newest; overrides everything below where they differ):**
 > - **OC-B, OC-C and OC-F are closed for OpenCode.** The lead reviewer finishes their remaining work: the open issues of §5 and §6, D-29, D-36, F8 (pending catalogue revisions, #294/#300) and the remaining Phase 14 items. Do not push `oc/B-*`, `oc/C-*` or `oc/P14-*` branches.
 > - **The open issues of OC-A (§4)** are also verified, fixed and closed by the lead reviewer. OC-A keeps only **D-30** (insurance first) once its spec is on `main`.

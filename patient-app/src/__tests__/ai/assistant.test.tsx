@@ -8,8 +8,9 @@ import { message } from '../../components/screen/ScreenKit';
 
 /**
  * Batch 9: the one assistant and the monthly report. Every value is a TEST value. What is proved: the mode of the route picks
- * the mode (and a wrong one falls back to symptoms); a triage answer shows the disclaimer, the way into a consultation, and for
- * `care_level: emergency` the urgent block; the request is the existing POST /ai/triage; the report mode sends no request;
+ * the mode (and a wrong one falls back to symptoms); the question goes to the one assistant (POST /ai/assistant, decision 15) and
+ * its answer shows the server's text and disclaimer, the urgent block first for a red flag, the doctor list on the named
+ * specialty, and a medicine's leaflet with "ask the pharmacist"; the report mode sends no request;
  * the monthly report counts only the month's appointments and fails as a whole only when all four calls fail.
  */
 
@@ -57,49 +58,50 @@ describe('AssistantView', () => {
     expect(screen.getByText(k('ai.symptoms.question'))).toBeTruthy();
   });
 
-  it('sends the symptoms and the red flags to POST /ai/triage and shows the way into a consultation with the disclaimer', async () => {
-    mockApi.mockResolvedValue({ care_level: 'consultation' });
+  it('sends the question to POST /ai/assistant in the app language and shows the server\'s text, disclaimer and the way into a consultation', async () => {
+    mockApi.mockResolvedValue({ kind: 'specialty', text: 'TEST see a doctor', disclaimer: 'TEST not a diagnosis', actions: [{ type: 'book_consultation', specialty: 'general_practice' }] });
     await ask('headache');
     await waitFor(() => expect(screen.getByTestId('assistant-answer')).toBeTruthy());
-    expect(mockApi).toHaveBeenCalledWith('/ai/triage', { method: 'POST', body: JSON.stringify({ symptoms: 'headache', red_flags: ['none'] }) });
-    expect(screen.getByText(k('ai.disclaimer'))).toBeTruthy();
+    expect(mockApi).toHaveBeenCalledWith('/ai/assistant', { method: 'POST', body: expect.stringContaining('"message":"headache"') });
+    expect(JSON.parse(mockApi.mock.calls[0][1].body).locale).toMatch(/^(ar|en|ur|hi|bn|fil)$/);
+    expect(screen.getByText('TEST see a doctor')).toBeTruthy();
+    expect(screen.getByText('TEST not a diagnosis')).toBeTruthy();
     expect(screen.queryByTestId('assistant-emergency')).toBeNull();
     await act(async () => {
       fireEvent.press(screen.getByTestId('assistant-book'));
     });
-    expect(mockPush).toHaveBeenCalledWith('/(tabs)/consultations');
+    expect(mockPush).toHaveBeenCalledWith('/search?view=doctors&specialty=general_practice');
   });
 
-  it('shows the urgent block for an emergency answer and no phone number of its own', async () => {
-    mockApi.mockResolvedValue({ care_level: 'emergency' });
+  it('shows the urgent block first for a red flag and no phone number of its own', async () => {
+    mockApi.mockResolvedValue({ kind: 'red_flag', text: 'TEST get help now', disclaimer: 'TEST D', actions: [{ type: 'emergency_call', tel: '997' }] });
     await ask('chest pain');
     await waitFor(() => expect(screen.getByTestId('assistant-emergency')).toBeTruthy());
     expect(screen.getByText(k('ai.emergencyTitle'))).toBeTruthy();
-    expect(screen.getByText(k('ai.disclaimer'))).toBeTruthy();
+    expect(screen.queryByText('997')).toBeNull();
     await act(async () => {
       fireEvent.press(screen.getByTestId('assistant-urgent'));
     });
     expect(mockPush).toHaveBeenCalledWith('/emergency');
   });
 
-  it('opens the doctor list on the specialty the server names (issue 871)', async () => {
-    mockApi.mockResolvedValue({ care_level: 'consultation', specialty: 'dermatology' });
-    await ask('rash');
+  it('a medicine question shows its leaflet and "ask the pharmacist"', async () => {
+    mockApi.mockResolvedValue({ kind: 'leaflet', text: 'TEST from the leaflet', disclaimer: 'TEST D', actions: [{ type: 'ask_pharmacist' }], medicine: { id: 'm1' }, leaflet: { indications: ['TEST pain relief'] } });
+    await ask('panadol');
     await waitFor(() => expect(screen.getByTestId('assistant-answer')).toBeTruthy());
+    expect(screen.getByText(k('ai.leaflet.indications'))).toBeTruthy();
+    expect(screen.getByText('• TEST pain relief')).toBeTruthy();
+    expect(screen.queryByTestId('assistant-book')).toBeNull();
     await act(async () => {
-      fireEvent.press(screen.getByTestId('assistant-book'));
+      fireEvent.press(screen.getByTestId('assistant-pharmacist'));
     });
-    expect(mockPush).toHaveBeenCalledWith('/search?view=doctors&specialty=dermatology');
+    expect(mockPush).toHaveBeenCalledWith('/pharmacy/rx-order?via=type');
   });
 
-  it('shows the earlier questions from GET /ai/triage/history (issue 873)', async () => {
-    mockApi.mockImplementation(async (path: string) =>
-      path.startsWith('/ai/triage/history') ? [{ symptoms: 'itchy skin', care_level: 'consultation', specialty: 'dermatology' }] : []);
-    await render(wrap(<AssistantView />));
-    await waitFor(() => expect(screen.getByTestId('assistant-history')).toBeTruthy());
-    expect(screen.getByText(k('ai.history.title'))).toBeTruthy();
-    expect(screen.getByText('itchy skin')).toBeTruthy();
-    expect(mockApi).toHaveBeenCalledWith('/ai/triage/history?limit=20');
+  it('an answer without the server\'s text is no answer: the error is shown', async () => {
+    mockApi.mockResolvedValue({ care_level: 'consultation' });
+    await ask('rash');
+    await waitFor(() => expect(screen.getByTestId('assistant-error')).toBeTruthy());
   });
 
   it('says so when the request fails and keeps what was typed', async () => {
@@ -115,7 +117,7 @@ describe('AssistantView', () => {
       fireEvent.press(screen.getByTestId('assistant-send'));
     });
     expect(screen.getByText(k('ai.symptoms.required'))).toBeTruthy();
-    expect(mockApi).not.toHaveBeenCalledWith('/ai/triage', expect.anything());
+    expect(mockApi).not.toHaveBeenCalledWith('/ai/assistant', expect.anything());
   });
 
   it('the report mode sends no request and points to the reports', async () => {

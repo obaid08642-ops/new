@@ -28,6 +28,18 @@ export class SuggestChangeDto {
 }
 
 export class SuggestNewItemDto {
+  // The service requires one of the two names (name_ar or name_en is required); the DTO used to reject both, so no
+  // suggestion could ever be stored.
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  name_ar?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  name_en?: string;
+
   @IsOptional()
   @IsString()
   id?: string;
@@ -133,6 +145,12 @@ export class SetAvailabilityDto {
   @IsDefined()
   @IsString()
   status: string;
+
+  /** Why the availability changed; kept on the item's change-log row (admin quick edit). */
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  reason?: string;
 }
 export class SuggestImageDto {
   @IsOptional()

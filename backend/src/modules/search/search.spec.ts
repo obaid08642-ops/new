@@ -22,6 +22,13 @@ describe('D-29 search documents', () => {
     expect(otc.boost).toBeGreaterThan(0);
   });
 
+  it('rx-rules: a medicine document carries requires_prescription and online_exclusive for the result row', () => {
+    const online = toSearchDocument('medicines', { id: 'o', name_en: 'O', online_exclusive: true, ...APPROVED })!;
+    const rx = toSearchDocument('medicines', { id: 'r', name_en: 'R', requires_prescription: true, ...APPROVED })!;
+    expect([online.requires_prescription, online.online_exclusive]).toEqual([false, true]);
+    expect([rx.requires_prescription, rx.online_exclusive]).toEqual([true, false]);
+  });
+
   it('only active, approved records are searchable', () => {
     expect(toSearchDocument('medicines', { id: 'a', name_en: 'A', ...APPROVED, medical_review_status: 'pending' })).toBeNull();
     expect(toSearchDocument('medicines', { id: 'a', name_en: 'A', ...APPROVED, is_deleted: true })).toBeNull();
@@ -29,6 +36,13 @@ describe('D-29 search documents', () => {
     expect(isVisible('lab_services', { active: true, category: 'imaging', ...APPROVED })).toBe(false);
     expect(isVisible('specialties', { active: false })).toBe(false);
     expect(sourceFilter('lab_services')).toMatchObject({ active: true, medical_review_status: 'approved' });
+  });
+
+  it('439: a medicine approved for publication is found on the site even when it is not indexed by search engines', () => {
+    const published = { id: 'm', name_en: 'M', public_eligibility: true, medical_review_status: 'approved', indexing_eligibility: false };
+    expect(isVisible('medicines', published)).toBe(true);
+    expect(toSearchDocument('medicines', published)).not.toBeNull();
+    expect(sourceFilter('medicines')).not.toHaveProperty('indexing_eligibility');
   });
 
   it('a name match ranks above an ingredient match; typos match within a word', () => {
@@ -64,7 +78,8 @@ describe('D-29 Meilisearch adapter', () => {
     expect(settings.body.typoTolerance.enabled).toBe(true);
     expect(settings.body.searchableAttributes).toEqual(expect.arrayContaining(['names.ar', 'names.en', 'names.ur', 'names.hi', 'names.bn', 'names.fil']));
     expect(meiliSynonyms().panadol).toEqual(expect.arrayContaining(['paracetamol', 'باراسيتامول']));
-    expect(JSON.stringify(meiliSettings())).not.toMatch(/boost|usage|sponsor/);
+    // Relevance only: popularity is returned as a displayed field (tie-break) but never a ranking rule.
+    expect(JSON.stringify(meiliSettings().rankingRules)).not.toMatch(/boost|usage|sponsor/);
   });
 
   it('pushes and removes documents and searches one type per query', async () => {

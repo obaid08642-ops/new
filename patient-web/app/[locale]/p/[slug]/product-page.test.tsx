@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const state = vi.hoisted(() => ({ getPublicProduct: vi.fn(), getPublicAlternatives: vi.fn() }));
+const state = vi.hoisted(() => ({ getPublicProduct: vi.fn(), getPublicEquivalents: vi.fn(), getPublicVariants: vi.fn(), failed: false }));
 
 // The shell and the client controls are not under test here (the page's data and structured data are).
 vi.mock("next/navigation", () => ({ notFound: vi.fn(), useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
@@ -16,7 +16,9 @@ vi.mock("@/lib/i18n", () => ({
 }));
 vi.mock("@/lib/api/public-products-server", () => ({
   getPublicProduct: state.getPublicProduct,
-  getPublicAlternatives: state.getPublicAlternatives,
+  readPublicProduct: async (...args: unknown[]) => ({ data: state.failed ? null : await state.getPublicProduct(...args), failed: state.failed }),
+  getPublicEquivalents: state.getPublicEquivalents,
+  getPublicVariants: state.getPublicVariants,
   cdnImage: (u?: string | null) => (u ? (u.startsWith("http") ? u : `https://cdn.nabd.plus/${u}`) : null),
 }));
 
@@ -43,7 +45,9 @@ const params = Promise.resolve({ locale: "en", slug: "abilify-aripiprazole-15-mg
 describe("public product page (catalog v14)", () => {
   beforeEach(() => {
     state.getPublicProduct.mockReset();
-    state.getPublicAlternatives.mockReset().mockResolvedValue([]);
+    state.getPublicEquivalents.mockReset().mockResolvedValue({ equivalents: [], similar: [] });
+    state.getPublicVariants.mockReset().mockResolvedValue([]);
+    state.failed = false;
   });
 
   it("renders the localized product with buy-ready price and structured data", async () => {
@@ -77,6 +81,69 @@ describe("public product page (catalog v14)", () => {
     expect(html).toContain('href="/en/c/Medicine%20%26%20Treatment/Prescribed%20Treatments"');
   });
 
+  // Decision D (issue 1556): a product with variants draws the picker and the chosen variant's own price.
+  it("draws the variant picker and the chosen variant's price when the product has variants", async () => {
+    state.getPublicProduct.mockResolvedValue({ ...product, id: "d2", is_rx: false, old_price: null, variant_group: "vg_diva", variant: { kind: "power", power: -2.5, colour: null, shade: null, position: 1 } });
+    const variant = (id: string, power: number, price: number) => ({ id, sku: 1, slug: `diva-${id}`, name: `Diva ${power}`, price, old_price: null, currency: "SAR", is_rx: false, online_exclusive: false, available: true, availability_status: "none", image: `${id}.webp`, variant: { kind: "power", power, colour: null, shade: null, position: 0 } });
+    state.getPublicVariants.mockResolvedValue([variant("d1", -0.25, 55), variant("d2", -2.5, 61.5)]);
+    const html = renderToStaticMarkup(await PublicProductPage({ params }));
+    expect(state.getPublicVariants).toHaveBeenCalledWith("en", expect.objectContaining({ id: "d2", variant_group: "vg_diva" }));
+    expect(html).toContain('data-testid="variant-picker"');
+    expect(html).toMatch(/aria-checked="true"[^>]*aria-label="-2.50"/);
+    expect(html).toMatch(/>61\.50<\/strong><span[^>]*>SAR</);
+  });
+
+  // issue 1547: the pictures swipe on a scroll-snap strip and each one is a plain link to the full picture (a tap before
+  // hydration still opens it); the counter says "n / total"
+  it("draws every picture on the swipe strip as a link to the full picture, one preload, and the counter", async () => {
+    state.getPublicProduct.mockResolvedValue({ ...product, images: ["100002_img_1.webp", "100002_img_2.webp", "100002_img_3.webp"] });
+    const html = renderToStaticMarkup(await PublicProductPage({ params }));
+    for (const n of [1, 2, 3]) expect(html).toContain(`href="https://cdn.nabd.plus/100002_img_${n}.webp"`);
+    expect(html.match(/<link[^>]*rel="preload"[^>]*as="image"[^>]*>/g) ?? []).toHaveLength(1);
+    expect(html).toContain("imageCounter");
+    expect(html).toMatch(/<dialog[^>]*aria-label="Abilify/);
+    expect(html).not.toContain("style=");
+  });
+
+  // issue 1547: equivalents first; similar products only when there is none; no heading at all when both are empty
+  it("shows the equivalents, else the similar products, else nothing", async () => {
+    state.getPublicProduct.mockResolvedValue(product);
+    const card = (id: string, extra: Record<string, unknown> = {}) => ({
+      id, slug: id, name: `Name ${id}`, form: "Tablets", strength: "15 mg", package_size: null, price: 100, old_price: null,
+      currency: "SAR", is_rx: true, available: true, image: null, ...extra,
+    });
+    state.getPublicEquivalents.mockResolvedValue({ equivalents: [card("eq1")], similar: [] });
+    let html = renderToStaticMarkup(await PublicProductPage({ params }));
+    expect(html).toContain('data-testid="product-equivalents"');
+    expect(html).not.toContain('data-testid="product-similar"');
+    expect(html).toContain("Name eq1");
+
+    state.getPublicEquivalents.mockResolvedValue({ equivalents: [], similar: [card("sim1", { old_price: 300 })] });
+    html = renderToStaticMarkup(await PublicProductPage({ params }));
+    expect(html).toContain('data-testid="product-similar"');
+    expect(html).toContain("similarTitle");
+    expect(html).toContain("Name sim1");
+    expect(html).not.toContain("alternativesTitle");
+
+    state.getPublicEquivalents.mockResolvedValue({ equivalents: [], similar: [] });
+    html = renderToStaticMarkup(await PublicProductPage({ params }));
+    expect(html).not.toContain("alternativesTitle");
+    expect(html).not.toContain("similarTitle");
+  });
+
+  // Decision E (issue 1556): ur, hi and bn draw the English name under the localized one; ar, en and fil do not.
+  it.each(["ur", "hi", "bn"])("a %s page shows the English name under the localized name", async (locale) => {
+    state.getPublicProduct.mockResolvedValue({ ...product, locale, name: "ایبلیفائی 15 ملی گرام", english_name: "Abilify, Aripiprazole 15 Mg - 28 Tablets" });
+    const html = renderToStaticMarkup(await PublicProductPage({ params: Promise.resolve({ locale, slug: "x" }) }));
+    expect(html).toMatch(/<h1[^>]*>ایبلیفائی 15 ملی گرام<\/h1><p[^>]*lang="en"[^>]*dir="ltr"[^>]*data-testid="english-name"[^>]*>Abilify, Aripiprazole 15 Mg - 28 Tablets<\/p>/);
+  });
+
+  it.each(["ar", "en", "fil"])("a %s page has no English line under the name", async (locale) => {
+    state.getPublicProduct.mockResolvedValue({ ...product, locale, name: "أبليفاي 15", english_name: "Abilify, Aripiprazole 15 Mg - 28 Tablets" });
+    const html = renderToStaticMarkup(await PublicProductPage({ params: Promise.resolve({ locale, slug: "x" }) }));
+    expect(html).not.toContain('data-testid="english-name"');
+  });
+
   it("emits indexable metadata with per-locale hreflang slugs", async () => {
     state.getPublicProduct.mockResolvedValue(product);
     const metadata = await generateMetadata({ params });
@@ -94,5 +161,12 @@ describe("public product page (catalog v14)", () => {
     state.getPublicProduct.mockResolvedValue(null);
     const metadata = await generateMetadata({ params });
     expect(metadata.robots).toMatchObject({ index: false, follow: false });
+  });
+
+  // F82-3: the page is cached, so a failed read must throw (Next keeps the last good copy) and never become a cached 404.
+  it("throws when the service failed, and still answers not-found for a product that does not exist", async () => {
+    state.failed = true;
+    await expect(PublicProductPage({ params })).rejects.toThrow("public data unavailable");
+    await expect(generateMetadata({ params })).rejects.toThrow("public data unavailable");
   });
 });

@@ -11,7 +11,7 @@ import { adminFetch, apiErrorMessage } from '@/lib/admin-client';
 
 type Tiles = {
   orders_active: number; labs_active: number; radiology_active: number; nursing_active: number; appointments_today: number;
-  sos_open: number; tickets_open: number; revenue_24h_sar: number; payments_24h: number; sla_breach_total: number;
+  tickets_open: number; revenue_24h_sar: number; payments_24h: number; sla_breach_total: number;
 };
 type Snapshot = { ts: string; tiles: Tiles };
 type OpsOverview = { today?: { total_requests?: number; success_rate?: number | null; server_errors?: number } };
@@ -98,7 +98,11 @@ export default function TodayPage() {
         {error ? <p role="alert" className="rounded-lg bg-rose-50 p-3 text-rose-700">{error}</p> : null}
 
         <article className="rounded-2xl border border-rose-200 bg-white p-4 shadow-sm md:p-6" aria-labelledby="today-urgent">
-          <h2 id="today-urgent" className="text-lg font-bold">تنبيهات عاجلة</h2>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 id="today-urgent" className="text-lg font-bold">تنبيهات عاجلة</h2>
+            {/* issue 1235: the same findings are stored and e-mailed by rule while this screen is closed. */}
+            <Link href="/admin/alerts" className="inline-flex min-h-11 items-center rounded border px-3 text-xs font-bold text-teal-700">صندوق التنبيهات والقواعد</Link>
+          </div>
           {urgent.length ? (
             <ul className="mt-3 space-y-2">
               {urgent.map((item) => (
@@ -144,7 +148,7 @@ export default function TodayPage() {
           <h2 id="today-problems" className="text-lg font-bold">طلبات بها مشكلة</h2>
           <div className="mt-3 grid gap-4 lg:grid-cols-2">
             <div>
-              <h3 className="mb-2 text-sm font-black">عالقة ({num(alerts?.stuck_count ?? 0)})</h3>
+              <h3 className="mb-2 flex items-center justify-between text-sm font-black"><span>عالقة ({num(alerts?.stuck_count ?? 0)})</span><Link href="/admin/orders?problem=stuck" className="text-xs font-bold text-teal-700">عرض الكل</Link></h3>
               {stuck.slice(0, 20).map((s) => (
                 <div key={`${s.kind}:${s.id}`} className="flex items-center justify-between gap-3 border-b py-2 text-sm">
                   <span className="min-w-0 truncate">{s.kind} · {String(s.id).slice(0, 8)} · {s.state}</span>
@@ -156,7 +160,7 @@ export default function TodayPage() {
               {stuck.length === 0 ? <p className="text-sm text-slate-400">لا طلبات عالقة.</p> : null}
             </div>
             <div>
-              <h3 className="mb-2 text-sm font-black">مدفوعات فاشلة ({num(alerts?.failed_count ?? 0)})</h3>
+              <h3 className="mb-2 flex items-center justify-between text-sm font-black"><span>مدفوعات فاشلة ({num(alerts?.failed_count ?? 0)})</span><Link href="/admin/orders?problem=failed_payment" className="text-xs font-bold text-teal-700">عرض الكل</Link></h3>
               {failed.slice(0, 20).map((f, index) => (
                 <div key={f.id ?? index} className="flex items-center justify-between gap-3 border-b py-2 text-sm">
                   <span className="min-w-0 truncate">{f.booking_kind} · {Number(f.amount || 0)} ر.س · {f.status}</span>

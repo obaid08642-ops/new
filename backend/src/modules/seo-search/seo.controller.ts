@@ -5,10 +5,12 @@ import { Controller, Get, Post, Body, Param, NotFoundException, Header, Res, Use
 import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
 import { Response } from 'express';
 import { SeoService } from './seo.service';
+import { toPublicMedicine } from '../medicines/public-medicine';
 import { SubmitIndexNowDto } from './seo.dto';
 import { IndexNowService } from './indexnow.service';
 import { UserRole } from '../../common/enums';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 /**
  * Public SEO endpoints — slug resolution, meta tag generation,
  * sitemap.xml + robots.txt for search engine discovery.
@@ -32,9 +34,11 @@ export class SeoController {
       const { _moved_from, ...rest } = entity;
       const path = type === 'doctor' ? `/doctor/${entity.slug || ''}` : type === 'pharmacy' ? `/pharmacy/${entity.slug || ''}` : type === 'facility' ? `/facility/${entity.slug || ''}` : `/s/${type}/${entity.slug || ''}`;
       res.status(301).setHeader('Location', `https://nabd.plus/ar${path}`);
-      return { ...rest, moved_from: _moved_from, canonical_path: `/ar${path}` };
+      const moved = { ...rest, moved_from: _moved_from, canonical_path: `/ar${path}` };
+      return type === 'medicine' ? toPublicMedicine(moved) : moved;
     }
-    return entity;
+    // Issue 1555: a medicine leaves this public route with public fields only.
+    return type === 'medicine' ? toPublicMedicine(entity) : entity;
   }
 
   /** Get meta tags JSON. */
@@ -109,6 +113,7 @@ export class SeoController {
    * Trigger on-demand or batch IndexNow submission for updated URLs.
    */
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.SEO_CONTROL)
   @Post('indexnow/submit')
   async submitIndexNow(@Body() body: SubmitIndexNowDto) {
     return this.indexNowSvc.submitUrls(body.urls);

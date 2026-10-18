@@ -159,7 +159,7 @@ export const CommissionRuleSchema = SchemaFactory.createForClass(CommissionRule)
 const DEFAULT_COMMISSIONS: Record<string, number> = {
   consultation: 0.15, video: 0.15, audio: 0.15, chat: 0.15,
   clinic: 0.12, home_visit: 0.18, nursing: 0.18, physiotherapy: 0.18,
-  pharmacy: 0.10, lab: 0.12, radiology: 0.12, ambulance: 0.15, default: 0.15,
+  pharmacy: 0.10, lab: 0.12, radiology: 0.12, default: 0.15,
 };
 
 @Injectable()
@@ -214,7 +214,7 @@ export class FinanceCoreService {
 // Quote (BR-1) — the server decides allowed payment methods, never the UI
 // ============================================================================
 
-const ONLINE_ONLY_CHANNELS = ['online', 'video', 'audio', 'chat', 'home', 'home_visit', 'delivery', 'nursing', 'physiotherapy', 'ambulance'];
+const ONLINE_ONLY_CHANNELS = ['online', 'video', 'audio', 'chat', 'home', 'home_visit', 'delivery', 'nursing', 'physiotherapy'];
 
 @Controller('bookings')
 @UseGuards(JwtAuthGuard)
@@ -267,10 +267,6 @@ export class InsuranceFlowService {
   private push(req: any, state: string, by: string, note?: string) {
     req.state = state;
     req.history = [...(req.history || []), { state, at: new Date(), by, note }];
-  }
-
-  async companiesList() {
-    return this.companies.find({ is_active: true }, { _id: 0, __v: 0 }).lean();
   }
 
   async savePolicy(user: any, body: any) {
@@ -661,7 +657,9 @@ export class InsuranceFlowService {
     }
     req.decided_by = user.id; req.decided_at = new Date();
     await req.save();
-    this.events.emit('insurance.decided', { request_id: req.id, patient_id: req.patient_id, state: req.state, copay_amount: req.copay_amount });
+    this.events.emit('insurance.decided', { request_id: req.id, patient_id: req.patient_id, provider_id: req.provider_id, state: req.state, copay_amount: req.copay_amount });
+    // Step 6 of the flow (19.11): when the insurer covers everything nothing is owed, so the service continues now.
+    if (req.state === 'APPROVED_FULL') await this.confirmServiceBooking(req);
     return req.toObject();
   }
 
@@ -728,7 +726,8 @@ export class InsuranceFlowService {
     const req = await this.requests.findOne({ id: { $eq: id } });
     if (!req) throw new NotFoundException('request not found');
     if (req.patient_id !== user.id) throw new ForbiddenException();
-    if (req.state === 'APPROVED_FULL') {
+    const coveredInFull = req.state === 'APPROVED_FULL';
+    if (coveredInFull) {
       this.push(req, 'COPAY_PAID', user.id, 'no copay due');
     } else if (req.state === 'COPAY_PENDING') {
       const paymentId = String(body?.payment_id || '').trim();
@@ -748,7 +747,7 @@ export class InsuranceFlowService {
       throw new BadRequestException(`cannot pay copay in state ${req.state}`);
     }
     await req.save();
-    this.events.emit('insurance.copay.paid', { request_id: req.id, provider_id: req.provider_id, patient_id: req.patient_id });
+    this.events.emit('insurance.copay.paid', { request_id: req.id, provider_id: req.provider_id, patient_id: req.patient_id, covered_in_full: coveredInFull });
     await this.confirmServiceBooking(req);
     return req.toObject();
   }
@@ -851,7 +850,8 @@ export class InsuranceFlowController {
   constructor(private readonly svc: InsuranceFlowService) {}
 
   // ---- patient ----
-  @Get('companies') companies() { return this.svc.companiesList(); }
+  // GET /insurance/companies is answered by InsuranceController (insurance.module.ts): the public catalogue with the plan
+  // tiers (issue 1550). A second handler here shadowed it, asked for a session and dropped the plans.
   @SelfService()
   @Post('save-policy') savePolicy(@CurrentUser() u: any, @Body() b: SavePolicyDto) { return this.svc.savePolicy(u, b); }
   @Get('my-policy') myPolicy(@CurrentUser() u: any) { return this.svc.myPolicy(u); }
@@ -887,9 +887,9 @@ export class InsuranceFlowController {
   // ---- provider ----
   @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)
   @Get('requests/provider/queue') providerQueue(@CurrentUser() u: any, @Query('state') state?: string) { return this.svc.providerQueue(u, state); }
-  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
   @Post('requests/:id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() b: DecideDto) { return this.svc.decide(u, id, b); }
-  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
   @Post('provider/jobs/consultation/:id/insurance') gatekeeper(@CurrentUser() u: any, @Param('id') id: string, @Body() b: GatekeeperDto) { return this.svc.gatekeeperDecision(u, id, b); }
 
   // ---- legacy aliases the patient app already calls ----
@@ -914,7 +914,7 @@ export class InsuranceAliasController {
     return this.svc.payCopay(u, b?.request_id || b?.id, b);
   }
 
-  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
   @Post('home-care/insurance/verify') verify(@CurrentUser() u: any) {
     return this.svc.myPolicy(u);
   }
@@ -1061,7 +1061,10 @@ export class AdminFinanceCoreController {
     private readonly refunds: RefundService,
     private readonly finance: FinanceCoreService,
   ) {}
+  // Platform money totals and the refund queue are finance reads: they name finance.read like the other finance pages.
+  @RequirePermissions(Permission.FINANCE_READ)
   @Get('ledger/summary') summary() { return this.finance.platformSummary(); }
+  @RequirePermissions(Permission.FINANCE_READ)
   @Get('refunds/queue') refundsQueue() { return this.refunds.adminQueue(); }
   @StepUp()
   @RequirePermissions(Permission.ORDER_REFUND)
@@ -1070,8 +1073,12 @@ export class AdminFinanceCoreController {
   }
 }
 
+// Admin reads of every patient's insurance requests: admin role and order.read (the insurance-queue page permission).
+// Before this the class had no @Roles, so any signed-in patient or provider who reached /admin passed JwtAuthGuard.
 @Controller('admin/insurance')
 @UseGuards(JwtAuthGuard)
+@Roles(UserRole.ADMIN)
+@RequirePermissions(Permission.ORDER_READ)
 export class AdminInsuranceController {
   constructor(private readonly svc: InsuranceFlowService) {}
   @Get('requests') all(@Query('state') state?: string) { return this.svc.adminAll(state); }
@@ -1084,6 +1091,7 @@ export class AdminInsuranceController {
 export class FinanceCoreController {
   constructor(private readonly finance: FinanceCoreService) {}
   /** Internal hook: record commission when an order/booking is paid. */
+  @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
   @Post('ledger/accrue') accrue(@Body() b: AccrueDto) { return this.finance.accrue(b); }
   @Get('ledger/provider/summary') providerSummary(@CurrentUser() u: any) { return this.finance.providerSummary(u.id); }
 }

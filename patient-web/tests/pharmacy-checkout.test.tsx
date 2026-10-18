@@ -23,7 +23,7 @@ vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: async () => "server
 vi.mock("@/components-next/pharmacy-checkout/read-order", () => ({ readOrderPaymentView: server.order, readCapabilities: server.caps }));
 
 import { CheckoutScreen } from "@/components-next/pharmacy-checkout/checkout-screen";
-import { checkPayment, PaymentResult } from "@/components-next/pharmacy-checkout/payment-result";
+import { bookingHref, checkPayment, PaymentResult } from "@/components-next/pharmacy-checkout/payment-result";
 import { PayScreen } from "@/components-next/pharmacy-checkout/pay-screen";
 import { PaymentScreen } from "@/components-next/pharmacy-checkout/payment-screen";
 import { InsuranceDecision } from "@/components-next/pharmacy-offers/insurance-decision";
@@ -32,7 +32,7 @@ import { transactionIdOf, checkoutUrlOf } from "@/lib/api/pharmacy-payment";
 import { extractPatientPharmacyOrderProgress } from "@/lib/api/pharmacy-offers";
 import { isAllowedPatientApiRequest } from "@/lib/api/patient-allowlist";
 import { buildBroadcastBody, createBroadcastAttempt, type BroadcastRequest, type BroadcastResult } from "@/lib/pharmacy/broadcast";
-import { activePrescriptionId, parseInsurancePolicy } from "@/lib/pharmacy/checkout-support";
+import { parseInsurancePolicy } from "@/lib/pharmacy/checkout-support";
 import { routeForOrder } from "@/lib/pharmacy/order-route";
 import { forgetPayment, recallPayment, rememberPayment } from "@/lib/pharmacy/payment-return";
 import { capabilitiesFrom, needsCapabilities, outcomeOfTransactionStatus, paymentPageState, parseOrderPaymentView, parseVerification, type OrderPaymentView } from "@/lib/pharmacy/payment-state";
@@ -181,6 +181,26 @@ describe("the payment result is whatever the backend says, never the address", (
     expect(result.ids.orderId).toBe(ORDER);
   });
 
+  it("a consultation paid by card comes back with the provider's id only: the backend names the transaction and the appointment (issues 1055, 1087)", async () => {
+    const APPT = "9b2f4c1e-3a5d-4e6f-8a7b-1c2d3e4f5a6b";
+    const fetchImpl = route({ verify: () => json(200, { transactionId: TXN, status: "paid", bookingKind: "consultation", bookingId: APPT }) });
+    const result = await checkPayment({ gatewayRef: "pay_7Hq2Zk91" }, fetchImpl);
+    expect(result.phase).toEqual({ kind: "paid" });
+    expect(result.ids.transactionId).toBe(TXN);
+    expect(result.ids.orderId).toBeUndefined();
+    expect(bookingHref("ar", result.ids.booking)).toBe(`/ar/appointments/${APPT}`);
+    expect(String((fetchImpl as unknown as { mock: { calls: unknown[][] } }).mock.calls[0][0])).toContain("/api/payments/status/pay_7Hq2Zk91");
+  });
+
+  it("every paid booking kind opens its own page", () => {
+    const ID = "9b2f4c1e-3a5d-4e6f-8a7b-1c2d3e4f5a6b";
+    expect(bookingHref("en", { kind: "lab", id: ID })).toBe(`/en/diagnostics/bookings/labs/${ID}`);
+    expect(bookingHref("en", { kind: "radiology", id: ID })).toBe(`/en/diagnostics/bookings/radiology/${ID}`);
+    expect(bookingHref("en", { kind: "insurance", id: ID })).toBe(`/en/insurance/requests/${ID}`);
+    expect(bookingHref("en", { kind: "pharmacy", id: ID })).toBe(`/en/orders/${ID}/tracking`);
+    expect(bookingHref("en", { kind: "consultation", id: "not-an-id" })).toBeUndefined();
+  });
+
   it("nothing to ask about is 'unknown'; an unreachable backend is 'error', never a guess", async () => {
     expect((await checkPayment({})).phase).toEqual({ kind: "unknown" });
     expect((await checkPayment({ orderId: ORDER, transactionId: TXN }, route({}))).phase).toEqual({ kind: "error" });
@@ -271,7 +291,12 @@ describe("where an order belongs, from the states the backend really produces", 
     expect(to({ governedState: "IN_FULFILLMENT" })).toBe(`/en/orders/${ORDER}/tracking`);
   });
 
-  it("before a selection the server sends no governed state: the order's status decides (OFFERS_READY never comes)", () => {
+  it("before a selection the order detail says ORDER_BROADCASTING / OFFERS_READY (Q-3): the patient is still choosing", () => {
+    expect(to({ governedState: "OFFERS_READY", status: "broadcasting" })).toBe(`/en/pharmacy/broadcast-status?orderId=${ORDER}`);
+    expect(to({ governedState: "ORDER_BROADCASTING", status: "broadcasting" })).toBe(`/en/pharmacy/broadcast-status?orderId=${ORDER}`);
+  });
+
+  it("without a governed state the order's status decides", () => {
     expect(to({ status: "broadcasting" })).toBe(`/en/pharmacy/broadcast-status?orderId=${ORDER}`);
     expect(to({ status: "offer_selection_pending" })).toBe(`/en/pharmacy/broadcast-status?orderId=${ORDER}`);
     expect(to({ status: "negotiating_substitutes" })).toBe(`/en/pharmacy/broadcast-status?orderId=${ORDER}`);
@@ -290,11 +315,16 @@ describe("sending the cart as a request", () => {
 
   it("carries names, quantities and the draft's own options: no price, no policy number, no identity number", () => {
     const body = buildBroadcastBody({ kind: "cart", lines, paymentMode: "insurance", fulfillment: "pickup" }, located);
-    expect(body).toMatchObject({ fulfillment: "pickup", payment_mode: "insurance", items: [{ raw_name: "Paracetamol 500", qty: 2, sku: "m1", intake_source: "cart" }, { raw_name: "Vitamin C", qty: 99, intake_source: "cart" }] });
+    expect(body).toMatchObject({ fulfillment: "pickup", payment_mode: "insurance", payment_method: "insurance", items: [{ raw_name: "Paracetamol 500", qty: 2, sku: "m1", intake_source: "cart" }, { raw_name: "Vitamin C", qty: 99, intake_source: "cart" }] });
     const text = JSON.stringify(body);
     expect(text).not.toMatch(/price|policy|national|nid|patient_notes|insurance:/i);
     expect(body).not.toHaveProperty("prescription_id");
     expect(buildBroadcastBody({ kind: "cart", lines, paymentMode: "cash", fulfillment: "delivery", prescriptionId: TXN }, located)).toMatchObject({ prescription_id: TXN, prescription_attachments: [TXN], payment_mode: "cash" });
+  });
+
+  it("decision 39: the picked prescription's medicines go first, with the cart's lines and prescription_id", () => {
+    const body = buildBroadcastBody({ kind: "cart", lines, paymentMode: "cash", fulfillment: "delivery", prescriptionId: TXN, rxNames: ["Metformin"] }, located);
+    expect(body).toMatchObject({ prescription_id: TXN, items: [{ raw_name: "Metformin", qty: 1, intake_source: "prescription" }, { raw_name: "Paracetamol 500", intake_source: "cart" }, { raw_name: "Vitamin C" }] });
   });
 
   const request: BroadcastRequest = { kind: "cart", lines, paymentMode: "cash", fulfillment: "delivery" };
@@ -380,6 +410,32 @@ describe("the checkout screen", () => {
     expect(html).not.toContain("style=");
     // nothing can be sent before the address and the prescription have been read
     expect(html).toMatch(/nabd-button[^"]*--disabled/);
+  });
+
+  it("decision 39: a cart with prescription medicines and no picked prescription points to rx-order; no active one is guessed", () => {
+    cart.value.items = [item({ id: "m2", name: "Amoxicillin", qty: 1, rx: true })];
+    cart.value.hasRxItems = true;
+    const html = render(<CheckoutScreen locale="en" />);
+    expect(html).toContain('href="/en/pharmacy/rx-order"');
+    expect(html).toContain("Choose a prescription");
+    expect(html).toMatch(/nabd-button[^"]*--disabled/);
+  });
+
+  it("decision 30 (issue 1018): insurance or self-pay is chosen here, before sending; without a prescription it is self-pay", () => {
+    cart.value.items = [item()];
+    const html = render(<CheckoutScreen locale="en" />);
+    expect(html).toContain("Insurance needs a prescription");
+    expect(html).toMatch(/<button[^>]*disabled=""[^>]*>(?:(?!<\/button>)[\s\S])*Through insurance/);
+    const withRx = render(<CheckoutScreen locale="en" prescription={{ id: TXN, names: ["Metformin"] }} />);
+    expect(withRx).toContain("Choose now: the offers you receive are for this choice");
+    expect(withRx).not.toMatch(/<button[^>]*disabled=""[^>]*>(?:(?!<\/button>)[\s\S])*Through insurance/);
+  });
+
+  it("decision 39: opened on a picked prescription it lists its medicines, even with an empty cart", () => {
+    const html = render(<CheckoutScreen locale="en" prescription={{ id: TXN, names: ["Metformin"] }} />);
+    expect(html).toContain("Metformin");
+    expect(html).toContain("Medicines from your prescription");
+    expect(html).not.toContain("Your cart is empty");
   });
 });
 
@@ -525,13 +581,6 @@ describe("what the browser may call", () => {
 });
 
 describe("small readers", () => {
-  it("the saved prescription is the first active one with a real id", () => {
-    expect(activePrescriptionId([{ id: "nope" }, { id: TXN }])).toBe(TXN);
-    expect(activePrescriptionId({ data: [{ id: TXN }] })).toBe(TXN);
-    expect(activePrescriptionId([])).toBeNull();
-    expect(activePrescriptionId(null)).toBeNull();
-  });
-
   it("the insurance row shows who insures the patient and the class, never a number", () => {
     expect(parseInsurancePolicy({ has_policy: true, policy: { company_name: "Bupa", plan_class: "A", policy_number: "9023", national_id: "1000000000" } })).toEqual({ company: "Bupa", planClass: "A" });
     expect(parseInsurancePolicy({ has_policy: false, policy: {} })).toBeNull();

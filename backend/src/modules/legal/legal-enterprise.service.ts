@@ -153,9 +153,10 @@ export class LegalEnterpriseService {
 
   // ── 4) Settlement reports (PDF + Excel) for providers ─────────────────────
   async settlementData(providerId: string, from?: string, to?: string): Promise<any> {
+    const range = parseSettlementRange(from, to);
     const dateQ: any = {};
-    if (from) dateQ.$gte = new Date(from);
-    if (to) dateQ.$lte = new Date(to);
+    if (range.from) dateQ.$gte = range.from;
+    if (range.to) dateQ.$lte = range.to;
     const match: any = { provider_account_id: providerId };
     if (from || to) match.createdAt = dateQ;
 
@@ -257,7 +258,7 @@ export class LegalEnterpriseService {
         // Expired → auto-suspend + notify
         await this.conn.collection('provider_profiles').updateOne(
           { _id: p._id },
-          { $set: { status: 'suspended', suspended_reason: 'license_expired', suspended_at: new Date() } },
+          { $set: { status: 'suspended', suspended_reason: 'license_expired', suspended_at: new Date(), public_eligibility: false, indexing_eligibility: false, license_verified: false, license_status: 'expired' } },
         );
         await this.notify(p.user_id || p.account_id, 'تعليق الحساب — انتهاء الترخيص',
           'تم تعليق حسابك تلقائياً لانتهاء الترخيص المهني. يرجى تجديد الترخيص ورفعه لإعادة التفعيل.',
@@ -420,4 +421,24 @@ export class LegalEnterpriseService {
     const removed = [...w1].filter(w => !w2.has(w));
     return { key, added_words: added.length, removed_words: removed.length, added: added.slice(0, 200), removed: removed.slice(0, 200) };
   }
+}
+
+/**
+ * 16.8 - the report range is two dates or nothing. Anything else is a 400, never a silently different query: the ZAP scan
+ * flagged `from=x' AND '1'='1' --` as SQL injection because an invalid date turned into a query the answer of which changed
+ * with the payload. (The store is MongoDB, so it was never SQL, but unchecked input steering a query is what the finding means.)
+ */
+export function parseSettlementRange(from?: string, to?: string): { from?: Date; to?: Date } {
+  const iso = /^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?(?:Z|[+-]\d{2}:\d{2})?)?$/;
+  const one = (label: string, v?: string): Date | undefined => {
+    if (v === undefined || v === '') return undefined;
+    if (typeof v !== 'string' || !iso.test(v)) throw new BadRequestException(`invalid_${label}_date`);
+    const d = new Date(v);
+    if (Number.isNaN(d.getTime())) throw new BadRequestException(`invalid_${label}_date`);
+    return d;
+  };
+  const f = one('from', from);
+  const t = one('to', to);
+  if (f && t && f > t) throw new BadRequestException('from_after_to');
+  return { from: f, to: t };
 }

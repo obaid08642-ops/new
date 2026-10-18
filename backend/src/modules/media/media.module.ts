@@ -4,9 +4,10 @@ import { MediaService } from './media.service';
 import { MediaController } from './media.controller';
 import { MediaAsset, MediaAssetSchema } from './media.schema';
 import { MediaCleanupService } from './media-cleanup.service';
+import { StorageModule } from '../storage/storage.module';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: MediaAsset.name, schema: MediaAssetSchema }])],
+  imports: [StorageModule, MongooseModule.forFeature([{ name: MediaAsset.name, schema: MediaAssetSchema }])],
   controllers: [MediaController],
   providers: [MediaService, MediaCleanupService],
   exports: [MediaService, MediaCleanupService],

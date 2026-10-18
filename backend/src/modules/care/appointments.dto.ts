@@ -1,6 +1,7 @@
-import { IsArray, IsDefined, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min, ValidateNested } from 'class-validator';
+import { IsArray, IsDefined, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min, ValidateNested, MaxLength } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ServiceType } from '../../schemas/appointment.schema';
+import { AttributionDto } from '../../common/attribution';
 
 export class VisitLocationDto {
   @IsDefined()
@@ -56,6 +57,12 @@ export class CreateAppointmentDto {
   @IsOptional()
   payment_method?: 'cash' | 'card' | 'insurance';
 
+  /** Issue 684: book on behalf of a family member (AppointmentsService checks the family group and the booking permission). */
+  @IsOptional()
+  @IsString()
+  @MaxLength(128)
+  for_member_id?: string;
+
   @IsString()
   @IsOptional()
   insurance_provider?: string;
@@ -71,6 +78,11 @@ export class CreateAppointmentDto {
   @IsString()
   @IsOptional()
   follow_up_of?: string;
+
+  @ValidateNested()
+  @Type(() => AttributionDto)
+  @IsOptional()
+  attribution?: AttributionDto;
 }
 
 export class CancelAppointmentDto {
@@ -93,4 +105,10 @@ export class JoinWaitlistDto {
   @IsDefined()
   @IsString()
   date: string;
+}
+
+/** 2-app#3: the doctor's position while on the way to a home visit. */
+export class DoctorPositionDto {
+  @IsNumber() @Min(-90) @Max(90) lat: number;
+  @IsNumber() @Min(-180) @Max(180) lng: number;
 }

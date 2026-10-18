@@ -1,0 +1,56 @@
+name: Docker image scan (Trivy)
+
+# Phase 16.7: the production images are built and scanned with Trivy. HIGH and CRITICAL findings that have a fix fail
+# the job (ignore-unfixed); known ones are listed with a reason in deploy/.trivyignore-image. Runs when a Dockerfile or a
+# lockfile changes, every night (a new advisory can appear without a commit) and on demand.
+
+on:
+  pull_request:
+    paths:
+      - 'backend/Dockerfile*'
+      - 'deploy/docker/Dockerfile.*'
+      - 'backend/package-lock.json'
+      - 'admin/package-lock.json'
+      - 'patient-web/pnpm-lock.yaml'
+      - '.github/workflows/image-scan.yml'
+  schedule:
+    - cron: '45 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  image:
+    name: Trivy image (${{ matrix.image }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: backend
+            context: backend
+            dockerfile: backend/Dockerfile.production
+            ignorefile: backend/.trivyignore   # fastify / nodemailer: the same accepted list as the fs scan (security.yml)
+          - image: admin-web
+            context: admin
+            dockerfile: deploy/docker/Dockerfile.admin-web
+            ignorefile: deploy/.trivyignore-image
+          - image: patient-web
+            context: patient-web
+            dockerfile: deploy/docker/Dockerfile.patient-web
+            ignorefile: deploy/.trivyignore-image
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Build the image
+        run: docker build -f ${{ matrix.dockerfile }} -t nabd-scan/${{ matrix.image }}:ci ${{ matrix.context }}
+      - name: Scan it
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: nabd-scan/${{ matrix.image }}:ci
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          ignore-unfixed: true
+        env:
+          TRIVY_IGNOREFILE: ${{ matrix.ignorefile }}

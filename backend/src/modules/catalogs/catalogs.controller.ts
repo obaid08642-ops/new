@@ -6,8 +6,10 @@ import { UserRole } from '../../common/enums';
 import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
 import { PublicCache } from '../../common/public-cache.decorator';
 import { CATALOG_COLLECTIONS } from './catalog-collections';
+import { toPublicMedicine } from '../medicines/public-medicine';
 import { IsBoolean, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 export class SpecialtyUpsertDto {
   @IsOptional() @IsString() code?: string;
   @IsDefined() @IsString() name_ar!: string;
@@ -71,7 +73,8 @@ export class CatalogsController {
       name_en: r.name_en,
       image_url: (Array.isArray(r.images) && r.images[0]) || r.image || null,
       is_active: true,
-      ...r,
+      // Issue 1555: public fields only, never the governance, audit or stock fields of the record.
+      ...toPublicMedicine(r),
     }));
   }
 
@@ -125,6 +128,7 @@ export class CatalogsController {
     return this.conn.collection('specialties').find({}).sort({ sort: 1 }).limit(500).toArray();
   }
 
+  @RequirePermissions(Permission.CATALOG_UPDATE)
   @Post('admin/specialties')
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)
@@ -146,6 +150,7 @@ export class CatalogsController {
     return doc;
   }
 
+  @RequirePermissions(Permission.CATALOG_DELETE_RESTORE)
   @Delete('admin/specialties/:code')
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)

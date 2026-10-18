@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { NavLink } from "@/components-next/nav/nav-link";
 import { SoftLinks } from "@/components-next/nav/soft-links";
-import Image from "next/image";
+import { CatalogImage } from "@/components-next/pharmacy/catalog-image";
 import { getTranslations } from "next-intl/server";
 import { DoctorCard } from "@/components-next/ui-generated/components/Cards";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
@@ -9,6 +9,7 @@ import { ListItem, SectionHeader, ServiceTile } from "@/components-next/ui-gener
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import type { FillIconName, ServiceName, ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { NabdMark } from "@/components-next/nabd-mark";
+import { HeroSearch } from "./hero-search";
 import { doctorDisplayName, type DoctorRow } from "@/lib/api/doctors";
 import { curatedHref } from "@/lib/curated";
 import { formatNextSlot } from "@/lib/format-slot";
@@ -41,21 +42,17 @@ function PulseLine() {
   );
 }
 
-/** HomeWeb hero: eyebrow, title, pulse line and the search field (a plain GET form to /search). */
+/** HomeWeb hero: eyebrow, title, pulse line and the search field (a plain GET form to /search, with instant suggestions). */
 export function HeroCard({ locale, t, eyebrow, title, headingId }: { locale: Locale; t: T; eyebrow?: string; title: string; headingId: string }) {
   return (
-    <section className={`${styles.hero} ${styles.rise}`} aria-labelledby={headingId}>
+    <section className={`${styles.hero} ${styles.riseInPlace}`} aria-labelledby={headingId}>
       <span className={styles.heroMark}><NabdMark size={34} variant="text" /></span>
       <div className={styles.heroText}>
         {eyebrow ? <p className={styles.eyebrow}>{eyebrow}</p> : null}
         <h1 id={headingId} className={styles.title}>{title}</h1>
       </div>
       <PulseLine />
-      <form className={styles.search} action={`/${locale}/search`} method="get" role="search">
-        <FIcon icon="magnifying-glass" tone="ink" chip="none" size={22} />
-        <input className={styles.searchInput} type="search" name="q" maxLength={100} placeholder={t("searchPlaceholder")} aria-label={t("searchLabel")} enterKeyHint="search" autoComplete="off" />
-        <button type="submit" className={styles.searchBtn}>{t("searchButton")}</button>
-      </form>
+      <HeroSearch locale={locale} placeholder={t("searchPlaceholder")} label={t("searchLabel")} button={t("searchButton")} />
     </section>
   );
 }
@@ -95,10 +92,9 @@ export function AppointmentCard({
 }
 
 /** The nine services of HomeWeb, each the shared ServiceTile inside a link. */
-/** The four sections of the tab bar: their pages are fetched once the page is idle; the other tiles on touch or hover. */
-const MAIN_SERVICES = new Set<ServiceName>(["consult", "pharmacy", "lab", "nursing"]);
 
-export function ServiceGrid({ locale, t, signedIn = false, disabled = NONE_DISABLED }: { locale: Locale; t: T; signedIn?: boolean; disabled?: DisabledModules }) {
+/** `signedIn` is given by a per-request page (the dashboard); the static Home leaves it out and each link asks the session identity itself (F82-3). */
+export function ServiceGrid({ locale, t, signedIn, disabled = NONE_DISABLED }: { locale: Locale; t: T; signedIn?: boolean; disabled?: DisabledModules }) {
   const base = `/${locale}`;
   const all: Array<{ name: ServiceName; label: string; href: string }> = [
     { name: "consult", label: t("svcConsult"), href: `${base}/consultations/doctors` },
@@ -118,7 +114,7 @@ export function ServiceGrid({ locale, t, signedIn = false, disabled = NONE_DISAB
       <ul className={`${styles.services} ${styles.rise}`}>
         {items.map((s) => (
           <li key={s.name}>
-            <NavLink href={s.href} className={styles.tileLink} prefetch={MAIN_SERVICES.has(s.name) ? "viewport" : "intent"} signedIn={signedIn}>
+            <NavLink href={s.href} className={styles.tileLink} signedIn={signedIn}>
               <ServiceTile name={s.name} label={s.label} size="lg" />
             </NavLink>
           </li>
@@ -169,7 +165,6 @@ const MORE: Array<{ key: string; href: string; icon: FillIconName; tone: Service
   { key: "reminders", href: "health/medications?tab=all", icon: "clock-counter-clockwise", tone: "violet" },
   { key: "prescriptions", href: "prescriptions", icon: "prescription", tone: TONE.rx },
   { key: "family", href: "family", icon: "users-three", tone: "peach" },
-  { key: "chat", href: "chat", icon: "chat-circle-text", tone: "blue" },
   { key: "notifications", href: "notifications", icon: "bell", tone: "amber" },
   { key: "search", href: "search", icon: "magnifying-glass", tone: "blue" },
   { key: "offers", href: "offers", icon: "gift", tone: "pink" },
@@ -229,7 +224,7 @@ export function CuratedSections({ sections, locale, t, disabled = NONE_DISABLED 
                   <>
                     {image ? (
                       <span className={styles.cardMedia}>
-                        <Image src={image} alt="" fill sizes="(min-width: 1024px) 300px, (min-width: 768px) 45vw, 78vw" />
+                        <CatalogImage src={image} alt="" sizes="(min-width: 1024px) 300px, (min-width: 768px) 45vw, 78vw" className={styles.cardImage} />
                       </span>
                     ) : null}
                     <span className={styles.cardTitle}>{label}</span>
@@ -258,7 +253,7 @@ export function DoctorsSection({ doctors, locale, t, specialties }: { doctors: D
     <section className={styles.section} aria-labelledby="home-doctors-title">
       <div className={styles.sectionHead}>
         <h2 id="home-doctors-title" className={styles.sectionTitle}>{t("doctorsTitle")}</h2>
-        <NavLink href={`/${locale}/consultations/doctors`} className={styles.seeAll} prefetch="viewport">{t("seeAll")}</NavLink>
+        <NavLink href={`/${locale}/consultations/doctors`} className={styles.seeAll}>{t("seeAll")}</NavLink>
       </div>
       <SoftLinks className={styles.cards}>
         {rows.map(({ d, name }) => (

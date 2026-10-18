@@ -8,10 +8,43 @@ import {
   ProductRankingMetricsDocument,
 } from '../../schemas/product-ranking-metrics.schema';
 
+/**
+ * P13-R9: every spec mode. `most_viewed`/`bestseller` are legacy aliases kept
+ * for existing callers; the four modes below them are the R9 additions.
+ */
+export type RankingSort =
+  | 'smart_ranking' | 'trending' | 'bestseller' | 'most_viewed'
+  | 'most_searched' | 'most_added_to_cart' | 'highest_conversion' | 'popular_recently';
+
+export const RANKING_SORTS: readonly RankingSort[] = [
+  'smart_ranking', 'trending', 'bestseller', 'most_viewed',
+  'most_searched', 'most_added_to_cart', 'highest_conversion', 'popular_recently',
+];
+
+/** Unknown sorts fall back to smart_ranking (never throw on user input). */
+export function normalizeRankingSort(s?: string): RankingSort {
+  return (RANKING_SORTS as readonly string[]).includes(String(s)) ? (s as RankingSort) : 'smart_ranking';
+}
+
+/** Mongo field each mode sorts by (shared by the fallback query and hydration). */
+export function modeScoreField(sort: RankingSort): string {
+  switch (sort) {
+    case 'trending': return 'trending_score';
+    case 'most_viewed': return 'views_count';
+    case 'bestseller': return 'purchases_count';
+    case 'most_searched': return 'searches_count';
+    case 'most_added_to_cart': return 'cart_adds_count';
+    case 'highest_conversion': return 'conversion_rate';
+    case 'popular_recently': return 'recent_score';
+    case 'smart_ranking':
+    default: return 'composite_score';
+  }
+}
+
 export interface RankingScope {
   pharmacyId?: string; // undefined or 'global' for global storefront
   category?: string;   // undefined for ALL CATEGORIES
-  sort?: 'smart_ranking' | 'trending' | 'bestseller' | 'most_viewed';
+  sort?: RankingSort | string;
   limit?: number;
   offset?: number;
 }
@@ -37,6 +70,9 @@ export class ProductRankingService {
   // Recency half-life parameters in days (env-overridable, same defaults)
   private readonly POPULARITY_HALF_LIFE_DAYS = Number(process.env.RANK_POPULARITY_HALF_LIFE_DAYS || 30);
   private readonly TRENDING_HALF_LIFE_DAYS = Number(process.env.RANK_TRENDING_HALF_LIFE_DAYS || 7);
+  // P13-R9: "popular recently" velocity window (fixed-window counters are
+  // follow-up; this continuous 24h-decay score answers the mode today).
+  private readonly RECENT_HALF_LIFE_DAYS = Number(process.env.RANK_RECENT_HALF_LIFE_DAYS || 1);
   private readonly COLD_START_BOOST_DAYS = Number(process.env.RANK_COLD_START_BOOST_DAYS || 7);
   private readonly COLD_START_INITIAL_SCORE = Number(process.env.RANK_COLD_START_INITIAL_SCORE || 15.0);
 
@@ -51,14 +87,27 @@ export class ProductRankingService {
 
   /**
    * Redis ZSet key generator for continuous dynamic re-ranking.
-   * Scopes strictly partition datasets:
-   * - Global all categories: rank:global:all
-   * - Global category specific: rank:global:cat:{cat}
-   * - Pharmacy all categories: rank:pharmacy:{pId}:all
-   * - Pharmacy category specific: rank:pharmacy:{pId}:cat:{cat}
+   * One family per mode (popularity, trending, searched, cart, conversion,
+   * recent); scopes strictly partition datasets:
+   * - Global all categories: rank:{mode}:global:all
+   * - Global category specific: rank:{mode}:global:cat:{cat}
+   * - Pharmacy all categories: rank:{mode}:pharmacy:{pId}:all
+   * - Pharmacy category specific: rank:{mode}:pharmacy:{pId}:cat:{cat}
+   * The `trending` flag is the legacy alias for mode 'trending' (kept so
+   * existing keys and callers keep working).
    */
-  getZSetKey(scope: { pharmacyId?: string; category?: string; trending?: boolean }): string {
-    const prefix = scope.trending ? 'rank:trending' : 'rank:popular';
+  getZSetKey(scope: { pharmacyId?: string; category?: string; trending?: boolean; mode?: RankingSort | string }): string {
+    const sort = normalizeRankingSort(
+      scope.mode ?? (scope.trending ? 'trending' : undefined) ?? 'smart_ranking',
+    );
+    const prefix = sort === 'smart_ranking' ? 'rank:popular'
+      : sort === 'trending' ? 'rank:trending'
+      : sort === 'bestseller' ? 'rank:sales'
+      : sort === 'most_viewed' ? 'rank:views'
+      : sort === 'most_searched' ? 'rank:searched'
+      : sort === 'most_added_to_cart' ? 'rank:cart'
+      : sort === 'highest_conversion' ? 'rank:conversion'
+      : 'rank:recent';
     const target = scope.pharmacyId && scope.pharmacyId !== 'global'
       ? `pharmacy:${scope.pharmacyId}`
       : 'global';
@@ -114,7 +163,7 @@ export class ProductRankingService {
   calculateCompositeScore(
     metrics: Partial<ProductRankingMetrics>,
     options?: { isTrending?: boolean },
-  ): { compositeScore: number; trendingScore: number } {
+  ): { compositeScore: number; trendingScore: number; recentScore: number } {
     const views = metrics.views_count || 0;
     const searches = metrics.searches_count || 0;
     const clicks = metrics.clicks_count || 0;
@@ -146,7 +195,11 @@ export class ProductRankingService {
     const trendDecay = this.getRecencyDecayMultiplier(lastEvent, this.TRENDING_HALF_LIFE_DAYS);
     const trendingScore = Math.round(((rawSignalScore * trendDecay) + (coldStart * 1.5)) * availability * 100) / 100;
 
-    return { compositeScore, trendingScore };
+    // P13-R9 "popular recently": 24h-half-life velocity on the same signals.
+    const recentDecay = this.getRecencyDecayMultiplier(lastEvent, this.RECENT_HALF_LIFE_DAYS);
+    const recentScore = Math.round(((rawSignalScore * recentDecay) + coldStart) * availability * 100) / 100;
+
+    return { compositeScore, trendingScore, recentScore };
   }
 
   /**
@@ -158,7 +211,7 @@ export class ProductRankingService {
     pharmacyId: string = 'global',
     category: string = 'general',
     availabilityStatus?: string,
-  ): Promise<{ compositeScore: number; trendingScore: number }> {
+  ): Promise<{ compositeScore: number; trendingScore: number; recentScore: number }> {
     const cleanPharm = pharmacyId || 'global';
     const cleanCat = (category || 'general').trim().toLowerCase();
 
@@ -178,27 +231,42 @@ export class ProductRankingService {
     }
 
     // 2. Compute live continuous scores
-    const { compositeScore, trendingScore } = this.calculateCompositeScore(record);
+    const { compositeScore, trendingScore, recentScore } = this.calculateCompositeScore(record);
     record.composite_score = compositeScore;
     record.trending_score = trendingScore;
+    record.recent_score = recentScore;
     record.conversion_rate = record.views_count > 0 ? (record.purchases_count / record.views_count) : 0;
     if (typeof record?.save === 'function') {
       await record.save();
     }
 
-    // 3. Update Redis Sorted Sets continuously across all relevant scopes
+    // 3. Update Redis Sorted Sets continuously across all relevant scopes.
+    // P13-R9: one ZSet family per ranking mode (popular, trending, sales,
+    // views, searched, cart, conversion, recent), each partitioned by scope.
+    const modeScores: Record<string, number> = {
+      smart_ranking: compositeScore,
+      trending: trendingScore,
+      bestseller: record.purchases_count || 0,
+      most_viewed: record.views_count || 0,
+      most_searched: record.searches_count || 0,
+      most_added_to_cart: record.cart_adds_count || 0,
+      highest_conversion: record.conversion_rate || 0,
+      popular_recently: recentScore,
+    };
+    const writeScope = async (pharmacyId?: string, category?: string) => {
+      for (const mode of RANKING_SORTS) {
+        await this.redisService.zadd(
+          this.getZSetKey({ pharmacyId, category, mode }),
+          modeScores[mode],
+          drugId,
+        );
+      }
+    };
     // Scope A: Specific target (global or pharmacy) - ALL CATEGORIES
-    const keyAllPopular = this.getZSetKey({ pharmacyId: cleanPharm });
-    const keyAllTrending = this.getZSetKey({ pharmacyId: cleanPharm, trending: true });
-    await this.redisService.zadd(keyAllPopular, compositeScore, drugId);
-    await this.redisService.zadd(keyAllTrending, trendingScore, drugId);
-
+    await writeScope(cleanPharm);
     // Scope B: Specific target (global or pharmacy) - CATEGORY SPECIFIC
     if (cleanCat && cleanCat !== 'all') {
-      const keyCatPopular = this.getZSetKey({ pharmacyId: cleanPharm, category: cleanCat });
-      const keyCatTrending = this.getZSetKey({ pharmacyId: cleanPharm, category: cleanCat, trending: true });
-      await this.redisService.zadd(keyCatPopular, compositeScore, drugId);
-      await this.redisService.zadd(keyCatTrending, trendingScore, drugId);
+      await writeScope(cleanPharm, cleanCat);
     }
 
     // If pharmacy-specific, also sync to Global scope
@@ -206,7 +274,7 @@ export class ProductRankingService {
       await this.syncGlobalAggregation(drugId, cleanCat);
     }
 
-    return { compositeScore, trendingScore };
+    return { compositeScore, trendingScore, recentScore };
   }
 
   /**
@@ -259,24 +327,34 @@ export class ProductRankingService {
     globalRecord.last_event_at = latestEvent;
     globalRecord.availability_status = bestAvailability;
 
-    const { compositeScore, trendingScore } = this.calculateCompositeScore(globalRecord);
+    const { compositeScore, trendingScore, recentScore } = this.calculateCompositeScore(globalRecord);
     globalRecord.composite_score = compositeScore;
     globalRecord.trending_score = trendingScore;
+    globalRecord.recent_score = recentScore;
+    globalRecord.conversion_rate = globalRecord.views_count > 0 ? (globalRecord.purchases_count / globalRecord.views_count) : 0;
     if (typeof globalRecord?.save === 'function') {
       await globalRecord.save();
     }
 
-    // Update global ZSets
-    const gKeyAllPopular = this.getZSetKey({ pharmacyId: 'global' });
-    const gKeyAllTrending = this.getZSetKey({ pharmacyId: 'global', trending: true });
-    await this.redisService.zadd(gKeyAllPopular, compositeScore, drugId);
-    await this.redisService.zadd(gKeyAllTrending, trendingScore, drugId);
+    // Update global ZSets — one family per mode, all scopes.
+    const globalScores: Record<string, number> = {
+      smart_ranking: compositeScore,
+      trending: trendingScore,
+      bestseller: globalRecord.purchases_count || 0,
+      most_viewed: globalRecord.views_count || 0,
+      most_searched: globalRecord.searches_count || 0,
+      most_added_to_cart: globalRecord.cart_adds_count || 0,
+      highest_conversion: globalRecord.conversion_rate || 0,
+      popular_recently: recentScore,
+    };
+    for (const mode of RANKING_SORTS) {
+      await this.redisService.zadd(this.getZSetKey({ pharmacyId: 'global', mode }), globalScores[mode], drugId);
+    }
 
     if (category && category !== 'all') {
-      const gKeyCatPopular = this.getZSetKey({ pharmacyId: 'global', category });
-      const gKeyCatTrending = this.getZSetKey({ pharmacyId: 'global', category, trending: true });
-      await this.redisService.zadd(gKeyCatPopular, compositeScore, drugId);
-      await this.redisService.zadd(gKeyCatTrending, trendingScore, drugId);
+      for (const mode of RANKING_SORTS) {
+        await this.redisService.zadd(this.getZSetKey({ pharmacyId: 'global', category, mode }), globalScores[mode], drugId);
+      }
     }
   }
 
@@ -286,7 +364,7 @@ export class ProductRankingService {
    * If scope.category is specified -> ranks ONLY within that category.
    */
   async getRankedDrugIds(scope: RankingScope): Promise<{ drugIds: string[]; total: number }> {
-    const isTrending = scope.sort === 'trending';
+    const sort = normalizeRankingSort(typeof scope.sort === 'string' ? scope.sort : undefined);
     // Kill switch: serve the non-personalized default list (deterministic
     // catalog order, no behavior signals) and never hydrate the Redis ZSets
     // with degraded reads.
@@ -297,7 +375,7 @@ export class ProductRankingService {
     const key = this.getZSetKey({
       pharmacyId: scope.pharmacyId,
       category: scope.category,
-      trending: isTrending,
+      mode: sort,
     });
 
     const total = await this.redisService.zcard(key);
@@ -312,12 +390,12 @@ export class ProductRankingService {
     }
 
     // Fallback: Query MongoDB metrics and hydrate ZSet
-    const sortField: any = isTrending ? { trending_score: -1 } : { composite_score: -1 };
+    const sortField: any = { [modeScoreField(sort)]: -1 };
     const { docs, count } = await this.mongoRanked(scope, sortField, offset, limit);
 
     // Hydrate Redis ZSet asynchronously
     for (const d of docs) {
-      const score = isTrending ? d.trending_score : d.composite_score;
+      const score = d[modeScoreField(sort)] ?? 0;
       await this.redisService.zadd(key, score, d.drug_id);
     }
 

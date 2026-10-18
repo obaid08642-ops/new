@@ -1,4 +1,7 @@
-import { Body, Controller, Delete, ForbiddenException, Get, Injectable, Module, NotFoundException, OnModuleInit, Param, Patch, Post, Query, UseGuards, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, Injectable, Module, NotFoundException, OnModuleInit, Optional, Param, Patch, Post, Query, UseGuards, BadRequestException } from '@nestjs/common';
+import { KillSwitchesService } from '../kill-switches/kill-switches.service';
+import { isOnlineConsultation } from '../chat/consultation-window';
+import { assertTelehealthConsent } from '../legal/telehealth-consent';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -39,6 +42,7 @@ export class DoctorsService implements OnModuleInit {
     @InjectModel('ConsultationNote') private notes: Model<ConsultationNote>,
     @InjectModel('NotificationItem') private notifs: Model<NotificationItem>,
     private bus: EventBusService,
+    @Optional() private readonly killSwitches?: KillSwitchesService,
   ) {}
 
   async onModuleInit() {
@@ -131,6 +135,11 @@ export class DoctorsService implements OnModuleInit {
   /** Atomic-ish booking via dup index check (best effort under no transactions). */
   async book(user: any, data: any) {
     if (!data.doctor_id || !data.scheduled_at || !data.type) throw new BadRequestException('missing_fields');
+    if (isOnlineConsultation({ type: data.type })) {
+      await this.killSwitches?.assertOn('online_consultations');
+      // D-38: the first online consultation needs the current telehealth_consent, on this booking path too.
+      await assertTelehealthConsent(this.appts.db, user.id);
+    }
     const doctor: any = await this.doctors.findOne({ id: { $eq: data.doctor_id } }).lean();
     if (!doctor) throw new NotFoundException('doctor_not_found');
     if (!doctor.is_accepting) throw new BadRequestException('doctor_not_accepting');
@@ -207,6 +216,7 @@ export class DoctorsService implements OnModuleInit {
   }
 
   async postMessage(user: any, appointment_id: string, text: string) {
+    await this.killSwitches?.assertOn('chat_enabled');
     if (!text?.trim()) throw new BadRequestException('empty');
     if (/\b\d{8,}\b/.test(text) || /https?:\/\//i.test(text) || /(whatsapp|telegram|واتساب|تيلي)/i.test(text)) throw new BadRequestException('content_blocked');
     const a: any = await this.appts.findOne({ id: { $eq: appointment_id } }).lean();

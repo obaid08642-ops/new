@@ -64,6 +64,7 @@ export class AdminOpsController {
   }
 
   /** Real retry of a single failed job. */
+  @RequirePermissions(Permission.OPS_QUEUES_MANAGE)
   @Post('queues/:name/jobs/:jobId/retry')
   async retryJob(@Param('name') name: string, @Param('jobId') jobId: string, @Body() b: RetryJobDto, @CurrentUser() me: any) {
     const job = await this.notificationsQueue.getJob(String(jobId));
@@ -78,6 +79,7 @@ export class AdminOpsController {
   }
 
   /** Retry ALL failed jobs up to a cap — audited, reason mandatory. */
+  @RequirePermissions(Permission.OPS_QUEUES_MANAGE)
   @Post('queues/:name/retry-failed')
   async retryFailed(@Param('name') name: string, @Body() b: RetryFailedDto, @CurrentUser() me: any) {
     let reason = '';
@@ -117,6 +119,7 @@ export class AdminOpsController {
     return { total_keys: Object.keys(DICTIONARY).length, data: rows.slice(0, 400), overridden_count: overrideMap.size };
   }
 
+  @RequirePermissions(Permission.TRANSLATIONS_EDIT)
   @Post('translations')
   async upsertTranslation(@Body() b: UpsertTranslationDto, @CurrentUser() me: any) {
     const key = String(b?.key || '').trim();
@@ -150,6 +153,7 @@ export class AdminOpsController {
     return { data: docs, note: 'indexable=false يستبعد المسار من sitemap وrobots عبر طبقة النشر' };
   }
 
+  @RequirePermissions(Permission.SEO_CONTROL)
   @Post('seo/controls')
   async setSeoControl(@Body() b: SetSeoControlDto, @CurrentUser() me: any) {
     const routeKey = String(b?.route_key || '').trim().toLowerCase(); // e.g. medicine-catalog | articles | doctors

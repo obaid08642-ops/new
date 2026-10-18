@@ -8,6 +8,7 @@ import { PharmacyOrderState } from '../pharmacy/schemas/pharmacy.schema';
 import { LabBookingState } from '../../schemas/lab.schema';
 import { RadiologyBookingState } from '../../schemas/radiology.schema';
 import { NursingBookingState } from '../../schemas/home-care.schema';
+import { APPT_STATES } from '../../schemas/appointment.schema';
 
 const unmapped = (domain: keyof typeof STATE_MAP, states: Record<string, string>) =>
   Object.values(states).filter((v) => !STATE_MAP[domain]?.[String(v).toUpperCase()]);
@@ -17,4 +18,6 @@ describe('workflow engine STATE_MAP covers every domain state', () => {
   it('lab booking states', () => expect(unmapped('lab', LabBookingState as any)).toEqual([]));
   it('radiology booking states', () => expect(unmapped('radiology', RadiologyBookingState as any)).toEqual([]));
   it('nursing booking states', () => expect(unmapped('nursing', NursingBookingState as any)).toEqual([]));
+  // a home visit's EN_ROUTE / ARRIVED were unmapped: the doctor could not set off (2-app #3)
+  it('appointment states', () => expect(unmapped('consultation', APPT_STATES)).toEqual([]));
 });

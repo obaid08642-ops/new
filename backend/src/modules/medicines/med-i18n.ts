@@ -220,6 +220,33 @@ function localizeFactField(base: string, arabicValue: string, trValue: unknown, 
  * sibling field is English when an L translation exists — the historical bug
  * this resolver eliminates.
  */
+/** The public part of a record's variant attribute (decision D): kind, power, colour or shade words, and its order. */
+export function publicVariant(v: unknown): { kind: string; power: number | null; colour: string | null; shade: string | null; position: number } | null {
+  if (!v || typeof v !== 'object') return null;
+  const o = v as Record<string, unknown>;
+  if (typeof o.kind !== 'string') return null;
+  return {
+    kind: o.kind,
+    power: typeof o.power === 'number' && Number.isFinite(o.power) ? o.power : null,
+    colour: typeof o.colour === 'string' && o.colour ? o.colour : null,
+    shade: typeof o.shade === 'string' && o.shade ? o.shade : null,
+    position: typeof o.position === 'number' ? o.position : 0,
+  };
+}
+
+/**
+ * Owner decision E (issue 1556, 2026-10-16): on ur, hi and bn pages the product name is shown with the English name
+ * under it, so a patient and a pharmacist read the same product. Not for ar, en or fil. Null when there is no English
+ * name or it equals the localized one.
+ */
+export const ENGLISH_UNDER_LOCALES = ['ur', 'hi', 'bn'] as const;
+export function englishNameUnder(productLocale: string, localizedName: string | null | undefined, nameEn: unknown): string | null {
+  if (!(ENGLISH_UNDER_LOCALES as readonly string[]).includes(productLocale)) return null;
+  const en = typeof nameEn === 'string' ? nameEn.trim() : '';
+  if (!en || en === String(localizedName || '').trim()) return null;
+  return en;
+}
+
 export function resolveMedicinePublicDto(raw: Record<string, any>, productLocale: string) {
   const lang = productLocaleToDb(productLocale);
   const tr = raw?.translations?.[lang] || {};
@@ -258,7 +285,10 @@ export function resolveMedicinePublicDto(raw: Record<string, any>, productLocale
   ].filter((u: any, i: number, arr: any[]) => typeof u === 'string' && u.length > 4 && arr.indexOf(u) === i);
 
   const price = Number(raw?.price || 0);
-  const old = Number(raw?.old_price || 0);
+  const isRx = raw?.requires_prescription === true || raw?.is_rx === true;
+  // Decision 10: no promotion on a prescription item. The old price and the discount are withheld here,
+  // like the admin catalogue lists and GET /medicines/:id do (medicines.service.ts), so no card can show them.
+  const old = isRx ? 0 : Number(raw?.old_price || 0);
   const discount = old > price && price > 0 ? Math.round((1 - price / old) * 100) : 0;
 
   // Slugs per locale so the web app can emit true per-language hreflang URLs.
@@ -270,12 +300,14 @@ export function resolveMedicinePublicDto(raw: Record<string, any>, productLocale
     slugs[product] = pick(raw?.translations?.[db]?.slug, db === 'ar' ? raw?.slug : null, raw?.slug, raw?.id ? String(raw.id) : null);
   }
 
+  const name = text('name', LONG_TEXT_TR_KEYS.name);
   return {
     id: raw?.id,
     sku: raw?.sku ?? null,
     locale: productLocale,
     resolved_lang: lang,
-    name: text('name', LONG_TEXT_TR_KEYS.name),
+    name,
+    english_name: englishNameUnder(productLocale, name, raw?.name_en),
     official_name: text('official_name', LONG_TEXT_TR_KEYS.official_name),
     slug: slugs[productLocale] || raw?.slug || raw?.id,
     slugs,
@@ -301,13 +333,20 @@ export function resolveMedicinePublicDto(raw: Record<string, any>, productLocale
     price, old_price: old || null,
     discount_percent: discount, has_discount: discount > 0,
     currency: 'SAR',
-    is_rx: raw?.requires_prescription === true || raw?.is_rx === true,
+    is_rx: isRx,
+    // Decision 11: the "online only" badge on the public product page and the online-only note on cart lines.
+    online_exclusive: raw?.online_exclusive === true,
+    // Published items are shown on the site; only indexable ones go to search engines (the page says noindex otherwise).
+    indexable: raw?.indexing_eligibility === true,
     available_online: raw?.available_online !== false,
     availability_status: raw?.availability_status || 'none',
     available: raw?.availability_status === 'none' || !raw?.availability_status,
     country_of_origin: raw?.country_of_origin || null,
     images,
     image: images[0] || null,
+    // Decision D (issue 1556): the record's variant group and its own attribute (power / colour / shade / picture order).
+    variant_group: typeof raw?.variant_group === 'string' && raw.variant_group ? raw.variant_group : null,
+    variant: publicVariant(raw?.variant),
     search_aliases: Array.isArray(tr?.search_aliases) ? tr.search_aliases : (Array.isArray(trEn?.search_aliases) ? trEn.search_aliases : []),
   };
 }

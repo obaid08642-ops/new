@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { optimistic } from '../../src/utils/optimistic';
+import { useNotice } from '../../src/hooks/useNotice';
 import {
   FlatList,
   Modal,
@@ -13,6 +15,7 @@ import {
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
+import { useSelector } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
@@ -28,23 +31,30 @@ import {
   OfflineState,
   Radio,
   Screen,
+  SERVICE_ICONS,
   SectionHeader,
   Stepper,
   StickyFooter,
 } from '../../../packages/ui-native/src';
+import { rowsOf } from '../../src/components/health/HealthKit';
+import { loadPolicy } from '../../src/components/insurance/InsuranceKit';
 import ProductImage from '../../src/components/ProductImage';
 import { CountBadge, Glyph, PHARMACY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
 import { DetailAccordion, FactsGrid, MiniProduct, Pill, SafetyCard, type AccordionSection } from '../../src/components/pharmacy/ProductSections';
 import { COLUMN, step as scale, tint, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useCart } from '../../src/context/CartContext';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
-import { apiFetch } from '../../src/utils/api';
+import { apiFetch, hasSession } from '../../src/utils/api';
 import { dateLocaleFor } from '../../src/utils/dates';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { currentDbLang } from '../../src/utils/localize';
 import { prefetchAlternatives, prefetchHotMedicines } from '../../src/utils/prefetch';
 import { getVisibleProductIds } from '../../src/utils/productNav';
+import { VariantPicker } from '../../src/components/pharmacy/VariantPicker';
+import { productLocaleOf, type ProductVariant } from '../../src/utils/variantPicker';
+import { coveringInsurerName, type InsurerCompany } from '../../src/utils/productInsurance';
+import { englishNameUnder } from '../../src/utils/englishNameUnder';
 import { canShowPromo, discountPercent, medField, medGallery, medMeta, medName, medPrice, needsRx, oldPriceOf, onlineOnly, productNote, type Med } from '../../src/utils/pharmacyCatalog';
 
 /**
@@ -52,8 +62,10 @@ import { canShowPromo, discountPercent, medField, medGallery, medMeta, medName, 
  *
  * Gallery with dots and the discount / online-only badges, then the sheet: Rx, category and cold-chain chips, the
  * name block, the price card with the quantity stepper and availability, the shortage note, the key facts, the
- * alternatives, safety, the details accordion, related products, "ask a pharmacist" and the identifiers, with the
+ * alternatives, safety, the details accordion, related products and the identifiers, with the
  * glass footer (total, add to cart, buy now). Every field is hidden when the API does not send it; nothing is made up.
+ * Owner decisions 2026-10-15: no delivery/pickup choice here (question 33: it is chosen at checkout from the chosen offer,
+ * issue 455) and no "ask a pharmacist" entry (questions 30/40: the pharmacist chat lives inside an order, issue 480).
  */
 
 type Detail = Med & {
@@ -64,15 +76,16 @@ type Detail = Med & {
   potentially_unavailable?: boolean;
   discontinued?: boolean;
   shortage_notes?: string | null;
-  pharmacies_count?: number;
-  stock_status?: { pharmacies_count?: number };
   sku?: number | string | null;
   barcode?: string | null;
-  medical_review_status?: string;
+  /** Decision D (issue 1556): the record's variant group (powers, colours, shades); each variant is its own record. */
+  variant_group?: string | null;
   last_reviewed?: string | null;
   alternatives?: Med[];
   related_product_ids?: string[];
   interactions?: string[];
+  /** Insurance company ids that cover this product (SPEC §A insurance row). */
+  covered_by_insurance?: string[];
 };
 
 /** A field as a list of lines: an array as it is, a text split at its line breaks, nothing when empty. */
@@ -115,8 +128,11 @@ const SUGGEST_FIELDS = [
 ] as const;
 
 export default function ProductDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  // Decision D (issue 1556): `v` is the chosen variant (its own record); the route keeps it, so the choice is shareable.
+  const { id: entryId, v } = useLocalSearchParams<{ id: string; v?: string }>();
+  const id = v || entryId;
   const { theme, t, c, dir, flow, k, num, money, lang } = useScreenUi();
+  const notice = useNotice(theme);
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const colWidth = Math.min(width, 440);
@@ -153,6 +169,7 @@ export default function ProductDetailScreen() {
   ).current;
 
   const [med, setMed] = useState<Detail | null>(null);
+  const [pharmacyCount, setPharmacyCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState<'error' | 'offline' | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -161,6 +178,7 @@ export default function ProductDetailScreen() {
   const [zoom, setZoom] = useState(false);
   const [qty, setQty] = useState(1);
   const [related, setRelated] = useState<Med[]>([]);
+  const [variants, setVariants] = useState<{ group: string; rows: ProductVariant[] } | null>(null);
   const [inWishlist, setInWishlist] = useState(false);
   const [wishlistBusy, setWishlistBusy] = useState(false);
   const [suggestOpen, setSuggestOpen] = useState(false);
@@ -169,6 +187,10 @@ export default function ProductDetailScreen() {
   const [suggestValue, setSuggestValue] = useState('');
   const [suggestNote, setSuggestNote] = useState('');
   const [suggestSending, setSuggestSending] = useState(false);
+
+  // SPEC §A insurance row (issue 456): signed-in patients only, and only when their insurer covers this product.
+  const isMember = useSelector((s: { auth?: { isAuthenticated?: boolean; isGuest?: boolean } }) => Boolean(s.auth?.isAuthenticated && !s.auth?.isGuest));
+  const [insurerName, setInsurerName] = useState<string | null>(null);
 
   const line = items.find((i) => String(i.id) === String(id));
   const inCartQty = line?.qty ?? 0;
@@ -190,14 +212,16 @@ export default function ProductDetailScreen() {
   const toggleWishlist = async () => {
     if (wishlistBusy) return;
     setWishlistBusy(true);
-    try {
-      const res = await apiFetch<{ in_wishlist?: boolean }>(`/users/me/wishlist/${id}`, { method: 'POST' });
-      setInWishlist(res?.in_wishlist ?? !inWishlist);
-    } catch {
-      // honest failure: leave the icon unchanged
-    } finally {
-      setWishlistBusy(false);
-    }
+    const was = inWishlist;
+    // 15.3: the heart changes at once; it goes back, with a message, when the server refused
+    const done = await optimistic({
+      apply: () => setInWishlist(!was),
+      request: () => apiFetch<{ in_wishlist?: boolean }>(`/users/me/wishlist/${id}`, { method: 'POST' }),
+      rollback: () => setInWishlist(was),
+      onFail: () => notice.show(k('common.optimisticUndone')),
+    });
+    if (done.ok) setInWishlist(done.value?.in_wishlist ?? !was);
+    setWishlistBusy(false);
   };
 
   // GET /medicines/:id/details — the enriched row: every field, the gallery, the discount, alternatives and stock
@@ -206,6 +230,7 @@ export default function ProductDetailScreen() {
     (async () => {
       setLoading(true);
       setFailed(null);
+      setPharmacyCount(null);
       try {
         const data = await apiFetch<Detail>(`/medicines/${id}/details?lang=${currentDbLang()}`);
         if (!active) return;
@@ -213,6 +238,12 @@ export default function ProductDetailScreen() {
           setMed(data);
           setImages(medGallery(data));
           apiFetch('/medicines/events', { method: 'POST', body: JSON.stringify({ event_type: 'product_viewed', drug_id: id }) }).catch(() => {});
+          // How many pharmacies stock it: a signed-in route only (owner, 2026-10-16); guests see no count.
+          if (await hasSession()) {
+            apiFetch<{ pharmacies_count: number }>(`/medicines/${id}/availability`)
+              .then((a) => { if (active) setPharmacyCount(a.pharmacies_count); })
+              .catch((e) => logError('pharmacy:product-availability', e));
+          }
           prefetchAlternatives(data.alternatives || []);
           prefetchHotMedicines();
         } else {
@@ -232,6 +263,48 @@ export default function ProductDetailScreen() {
       active = false;
     };
   }, [id, reloadKey]);
+
+  // Decision D: the product's variants (GET /public/product-variants/:locale/:id), read once per group.
+  useEffect(() => {
+    const group = med?.variant_group;
+    if (!med || !group) {
+      setVariants(null);
+      return;
+    }
+    if (variants?.group === group) return;
+    let active = true;
+    apiFetch<{ variants?: ProductVariant[] }>(`/public/product-variants/${productLocaleOf(currentDbLang())}/${encodeURIComponent(String(med.id))}`)
+      .then((res) => {
+        if (active) setVariants({ group, rows: Array.isArray(res?.variants) ? res.variants.filter((x) => x && x.id && x.variant) : [] });
+      })
+      .catch(() => {
+        if (active) setVariants(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [med, variants?.group]);
+
+  // The insurance row: the saved policy (GET /users/me/insurance) and the company names (GET /insurance/companies).
+  const covered = med?.covered_by_insurance;
+  useEffect(() => {
+    setInsurerName(null);
+    if (!isMember || !Array.isArray(covered) || covered.length === 0) return;
+    let active = true;
+    (async () => {
+      try {
+        const policy = await loadPolicy();
+        if (!policy) return;
+        const companies = rowsOf<InsurerCompany>(await apiFetch<unknown>('/insurance/companies'));
+        if (active) setInsurerName(coveringInsurerName(covered, policy, companies, lang));
+      } catch (e) {
+        logError('pharmacy:product-insurer', e);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [isMember, covered, lang]);
 
   // related products: the row only holds ids, so the real rows come from the catalogue's batch lookup
   useEffect(() => {
@@ -301,7 +374,7 @@ export default function ProductDetailScreen() {
     const pct = canShowPromo(med) ? discountPercent(med) : 0;
     const oldPrice = oldPriceOf(med);
     const lastReviewed = med.last_reviewed ? new Date(med.last_reviewed) : null;
-    const stock = med.pharmacies_count ?? med.stock_status?.pharmacies_count ?? 0;
+    const stock = pharmacyCount ?? 0;
     const storage = textOf(medField(med, 'storage_conditions'));
     // `label` is a translation key; `value` is data, or a key when `valueIsKey`
     const shortFacts: { key: string; icon: 'pill' | 'scales' | 'package' | 'thermometer' | 'globe' | 'file-text'; label: string; value: string; valueIsKey?: boolean }[] = [];
@@ -336,7 +409,8 @@ export default function ProductDetailScreen() {
       pct,
       oldPrice,
       rx,
-      enName: lang !== 'en' && med.name_en && med.name_en !== name ? med.name_en : '',
+      // decision E (issue 1556): the English name under the localized one in ur, hi and bn only
+      enName: englishNameUnder(lang, name, med.name_en),
       ingredient: textOf(medField(med, 'active_ingredient')),
       generic: textOf(med.generic_name),
       maker: textOf(med.manufacturer),
@@ -351,11 +425,12 @@ export default function ProductDetailScreen() {
       pregnancy,
       breastfeeding,
       sections,
-      reviewed: med.medical_review_status === 'approved',
+      // Every public item is medically approved (owner, 2026-10-16); the date says when.
+      reviewed: true,
       reviewedOn: lastReviewed && !Number.isNaN(lastReviewed.getTime()) ? lastReviewed.toLocaleDateString(dateLocaleFor(lang), { year: 'numeric', month: 'short', day: 'numeric' }) : '',
       alternatives: Array.isArray(med.alternatives) ? med.alternatives : [],
     };
-  }, [med, lang]);
+  }, [med, lang, pharmacyCount]);
 
   const cartBadge = <CountBadge count={itemCount} />;
 
@@ -542,7 +617,7 @@ export default function ProductDetailScreen() {
             {/* the name block */}
             <View style={{ gap: 4 }}>
               <Text accessibilityRole="header" style={{ ...scale(t, 'h2'), color: c.text.primary, ...flow }}>{view.name}</Text>
-              {view.enName ? <Text style={{ ...scale(t, 'control', 'regular'), color: c.text.secondary, writingDirection: 'ltr', textAlign: dir === 'rtl' ? 'right' : 'left' }}>{view.enName}</Text> : null}
+              {view.enName ? <Text testID="product-english-name" style={{ ...scale(t, 'caption', 'regular'), color: c.text.secondary, writingDirection: 'ltr', textAlign: dir === 'rtl' ? 'right' : 'left' }}>{view.enName}</Text> : null}
               {view.ingredient || view.generic ? (
                 <Text style={{ ...scale(t, 'control', 'regular'), color: c.text.tertiary, ...flow }}>
                   {[view.ingredient ? k('pharmacy.product.ingredient', { v: view.ingredient }) : '', view.generic ? k('pharmacy.product.scientific', { v: view.generic }) : ''].filter(Boolean).join(' · ')}
@@ -554,6 +629,17 @@ export default function ProductDetailScreen() {
                 </Text>
               ) : null}
             </View>
+
+            {/* decision D: the variant picker (powers, colours, shades); a choice opens that variant's own record */}
+            {variants && variants.rows.length > 1 ? (
+              <VariantPicker
+                variants={variants.rows.map((x) => ({ ...x, available: x.available && x.price > 0 }))}
+                selectedId={String(med.id)}
+                onSelect={(next) => {
+                  if (next !== String(med.id)) router.setParams({ v: next });
+                }}
+              />
+            ) : null}
 
             {/* price, quantity, availability */}
             <Card padding="md" theme={theme}>
@@ -600,6 +686,14 @@ export default function ProductDetailScreen() {
                 </View>
               ) : null}
             </Card>
+
+            {/* insurance row: the patient's insurer covers this product (SPEC §A) */}
+            {insurerName ? (
+              <View testID="product-insurance-row" style={{ borderRadius: 20, backgroundColor: c.status.info.bg, paddingVertical: 12, paddingHorizontal: 14, flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+                <FIcon icon={SERVICE_ICONS.insurance.icon} tone={SERVICE_ICONS.insurance.tone} size={36} theme={theme} />
+                <Text style={{ flex: 1, ...scale(t, 'control'), color: c.text.primary, ...flow }}>{k('pharmacy.product.insuranceCovered', { company: insurerName })}</Text>
+              </View>
+            ) : null}
 
             {/* shortage / discontinued */}
             {view.discontinued || view.limited ? (
@@ -688,20 +782,6 @@ export default function ProductDetailScreen() {
               </View>
             ) : null}
 
-            {/* ask a pharmacist */}
-            <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.product.askPharmacist')} onPress={() => go('/pharmacy/pharmacist-chat' as Href)}>
-              <Card padding="md" theme={theme}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                  <FIcon icon="chat-circle-text" tone={PHARMACY_TONE} size={48} theme={theme} />
-                  <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
-                    <Text style={{ ...scale(t, 'bodyStrong'), lineHeight: 21, color: c.text.primary, ...flow }}>{k('pharmacy.product.askPharmacist')}</Text>
-                    <Text style={{ ...scale(t, 'label', 'regular'), color: c.text.secondary, ...flow }}>{k('pharmacy.product.askPharmacistBody')}</Text>
-                  </View>
-                  <Icon name={dir === 'rtl' ? 'caret-left' : 'caret-right'} size={18} theme={theme} tone="secondary" />
-                </View>
-              </Card>
-            </Pressable>
-
             {/* suggest an edit (reaches the admin approval queue) */}
             <Pressable accessibilityRole="button" accessibilityLabel={k('pharmacy.product.suggest')} onPress={() => setSuggestOpen(true)} style={{ minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>
               <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.link }}>{k('pharmacy.product.suggest')}</Text>
@@ -717,6 +797,7 @@ export default function ProductDetailScreen() {
           </View>
         </View>
       </Screen>
+      {notice.node}
 
       {/* back, share, favourite, cart over the gallery */}
       <View pointerEvents="box-none" style={{ position: 'absolute', top: 0, start: 0, end: 0, zIndex: 20, paddingTop: insets.top + 7, paddingHorizontal: 16 }}>

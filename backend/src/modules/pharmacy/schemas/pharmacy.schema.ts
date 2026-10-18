@@ -150,15 +150,19 @@ export class PharmacyOrder extends Document {
     substituted_from?: string;
     intake_source?: 'ocr' | 'voice' | 'text' | 'manual';
     notes?: string;
+    /** Journeys 74: the patient's photo of the box (manual request). */
+    photo_uri?: string;
   }>;
 
   @Prop({ type: Object }) delivery_address?: {
-    city?: string; district?: string; street?: string;
+    city?: string; district?: string; street?: string; short_address?: string;
     geo?: { lat: number; lng: number }; notes?: string;
   };
   @Prop() patient_notes?: string;
   @Prop() prescription_id?: string;
-  @Prop({ type: Object }) manual_request?: { name?: string; details?: string | null };
+  /** P17-17.5: UTM campaign attribution (utm_source/medium/campaign/term/content). */
+  @Prop({ type: Object, required: false }) attribution?: Record<string, string>;
+  @Prop({ type: Object }) manual_request?: { name?: string; details?: string | null; qty?: number; photo_uri?: string };
   /** F73: draft fulfillment + payment mode. */
   @Prop({ type: String, enum: ['delivery', 'pickup'], default: 'delivery' }) fulfillment?: 'delivery' | 'pickup';
   @Prop({ type: String, enum: ['cash', 'insurance'], default: 'cash' }) payment_mode?: 'cash' | 'insurance';
@@ -228,6 +232,14 @@ export class PharmacyOrder extends Document {
 
   @Prop({ type: [Object], default: [] }) timeline: Array<{ ts: Date; event: string; by?: string; meta?: any }>;
   @Prop() cancellation_reason?: string;
+  /** 22.5 — counts edits after the order was sent to pharmacies (1 = never edited); offers quoted for an older version must be requoted. */
+  @Prop({ default: 1 }) edit_revision?: number;
+  /** 22.5 — an order split off this one when the chosen pharmacy could not fill everything (and the other way round). */
+  @Prop() split_child_order_id?: string;
+  /** 22.5 — set by whoever is creating the split order, so only one request does. */
+  @Prop() split_claim?: Date;
+  @Prop() parent_order_id?: string;
+  @Prop() split_from_offer_id?: string;
 }
 export const PharmacyOrderSchema = SchemaFactory.createForClass(PharmacyOrder);
 PharmacyOrderSchema.index({ patient_account_id: 1, status: 1, createdAt: -1 });
@@ -262,6 +274,10 @@ export class PharmacyAllocation extends Document {
     unit_price?: number;
     substitute_for_sku?: string;
     substitute_reason?: string;
+    // P13-R2: a substitute is a patient decision, never automatic. The
+    // pharmacist stores a proposal; sku/price/totals change only on accept.
+    substitute_status?: 'proposed' | 'accepted' | 'rejected';
+    substitute_proposal?: { sku: string; name?: string; unit_price?: number; qty_offered?: number; reason?: string };
     notes?: string;
     updated_at?: Date;
   }>;
@@ -415,6 +431,8 @@ export class PharmacyOffer extends Document {
   @Prop({ maxlength: 500 }) provider_note?: string;
   @Prop({ required: true, index: true }) quote_expires_at: Date;
   @Prop() expired_at?: Date;
+  /** 22.5 — the patient edited the order after this quote was made: it is a draft again and must be requoted before it can be chosen. */
+  @Prop() requote_required?: boolean;
   /** Short fencing lease used by a durable command when a quote becomes due. */
   @Prop({ type: Object }) expiry_claim?: { token: string; claimed_at: Date; lease_expires_at: Date };
   @Prop() estimated_preparation_minutes?: number;
@@ -435,7 +453,10 @@ export class PharmacyOffer extends Document {
   @Prop({ type: [Object], default: [] }) timeline: Array<{ ts: Date; event: string; by?: string; meta?: any }>;
 }
 export const PharmacyOfferSchema = SchemaFactory.createForClass(PharmacyOffer);
-PharmacyOfferSchema.index({ order_id: 1, pharmacy_account_id: 1, version: -1 });
+// P13-R1: one offer per order and pharmacy. `version` is a revision counter on the
+// document itself (upsertDraft edits the prior offer in place), not part of the
+// identity, so the uniqueness key is the pair the spec names.
+PharmacyOfferSchema.index({ order_id: 1, pharmacy_account_id: 1 }, { unique: true });
 PharmacyOfferSchema.index({ patient_account_id: 1, order_id: 1, status: 1, quote_expires_at: 1 });
 PharmacyOfferSchema.index({ status: 1, quote_expires_at: 1, id: 1 });
 
@@ -465,7 +486,7 @@ export class PharmacyChatMessage extends Document {
   /** System lines carry a code the patient apps translate (the Arabic text stays for the pharmacy app). */
   @Prop() system_code?: 'substitute_accepted' | 'substitute_rejected' | 'item_removed';
   @Prop() image_uri?: string;
-  @Prop({ type: Object }) substitute_offer?: { sku?: string; name?: string; active_ingredient?: string; brand?: string; dosage?: string; form?: string; image_uri?: string; price?: number; notes?: string };
+  @Prop({ type: Object }) substitute_offer?: { inventory_item_id?: string; sku?: string; name?: string; name_en?: string; active_ingredient?: string; brand?: string; dosage?: string; form?: string; image_uri?: string; price?: number; notes?: string };
   @Prop({ default: false }) blocked: boolean;
   @Prop() blocked_reason?: string;
 }

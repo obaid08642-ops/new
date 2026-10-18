@@ -1,13 +1,7 @@
 // @ts-nocheck
 import React, { useState, useEffect, useCallback } from "react";
-import { FlatList,
-  View,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  StatusBar,
-  ActivityIndicator,
-} from "react-native";
+import { View, StyleSheet, ScrollView, TouchableOpacity, StatusBar, ActivityIndicator } from "react-native";
+import { FlashList } from "@shopify/flash-list";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "../../../src/context/AppContext";
@@ -26,6 +20,9 @@ import { pickLocalized } from '../../../src/utils/localize';
 import { autoTranslate } from '../../../src/i18n';
 import { dateLocaleFor } from '../../../src/utils/dates';
 import { DOCTOR_SORTS, doctorRows, doctorsQuery, type DoctorSort } from '../../../src/utils/doctorSearch';
+import { suggestionRoute } from '../../../src/utils/searchSuggest';
+import { useSearchSuggest } from '../../../src/hooks/useSearchSuggest';
+import { SearchSuggestList } from '../../../src/components/search/SearchSuggestList';
 
 // Removed STATIC_DOCS
 
@@ -37,6 +34,7 @@ export default function DoctorSearchView() {
   // the route's `specialty` is a filter the server understands, not text to type into the search box
   const specialty = typeof params.specialty === "string" ? params.specialty : "";
   const [query, setQuery] = useState(typeof params.q === "string" ? params.q : "");
+  const suggest = useSearchSuggest(query, lang);
   const [sort, setSort] = useState<DoctorSort>("rating");
   const [doctors, setDoctors] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -95,6 +93,18 @@ export default function DoctorSearchView() {
           placeholder={tr("search.doctors.placeholder")}
           icon="search"
         />
+        {suggest.open ? (
+          <SearchSuggestList
+            items={suggest.items}
+            query={query}
+            onPick={(item) => {
+              const route = suggestionRoute(item);
+              if (!route) return;
+              suggest.close();
+              router.push({ pathname: route.pathname, params: route.params } as any);
+            }}
+          />
+        ) : null}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -129,14 +139,10 @@ export default function DoctorSearchView() {
           </AppText>
         </View>
       ) : (
-        <FlatList
+        <FlashList
           data={sorted}
           keyExtractor={(d) => String(d.id)}
           contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 100 }}
-          initialNumToRender={10}
-          maxToRenderPerBatch={10}
-          windowSize={7}
-          removeClippedSubviews
           ListEmptyComponent={
             <View style={{ alignItems: "center", paddingTop: 40 }}>
               <Icon name="search" size={48} color={colors.textTertiary} />

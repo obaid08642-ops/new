@@ -277,6 +277,13 @@ export const TR = {
  // Accept/Reject
  accept:'قبول', reject:'رفض', partialAccept:'قبول جزئي',
  optional:'اختياري', minutes:'دقيقة', hours:'ساعة', days:'أيام', km:'كم',
+ // Pharmacy insurance (relay only: the pharmacy records the insurer's decision)
+ insuranceDecisionRecord:'تسجيل قرار التأمين',
+ // Lab test preparation, per test in the six patient-app languages (decision of 2026-10-15)
+ labEditTest:'تعديل السعر والتحضير',
+ labPrepTitle:'تحضير المريض — خطوة في كل سطر',
+ labPrepHint:'اتركه فارغاً إذا لم يكن هناك تحضير؛ عندها يُبلَّغ المريض أن المختبر سيؤكد معه أي تحضير.',
+ labPrepAr:'بالعربية', labPrepEn:'بالإنجليزية', labPrepUr:'بالأردية', labPrepHi:'بالهندية', labPrepBn:'بالبنغالية', labPrepTl:'بالفلبينية',
  },
  en: {
  appName:'Nabd Plus', appSub:'Healthcare Provider App',
@@ -320,6 +327,11 @@ export const TR = {
  pendingBody:'Your file was received and will be reviewed within 24 hours.',
  accept:'Accept', reject:'Reject', partialAccept:'Partial Accept',
  optional:'Optional', minutes:'min', hours:'hr', days:'days', km:'km',
+ insuranceDecisionRecord:'Record insurance decision',
+ labEditTest:'Edit price & preparation',
+ labPrepTitle:'Patient preparation — one step per line',
+ labPrepHint:'Leave empty if there is none; the patient is then told the lab will confirm any preparation with them.',
+ labPrepAr:'Arabic', labPrepEn:'English', labPrepUr:'Urdu', labPrepHi:'Hindi', labPrepBn:'Bengali', labPrepTl:'Filipino',
  },
 } as const;
 export type TKey = keyof typeof TR.ar;
@@ -340,3 +352,13 @@ export const API_BASE = envApiUrl
   : process.env.EXPO_PUBLIC_LOCAL_DEV === '1'
     ? `http://${localIp}:8002/api/v1`
     : 'https://api.nabd.plus/api/v1';
+
+// The public website (patient-web): a provider's public page is /{locale}/{doctor|pharmacy|facility}/{slug} there.
+export const WEB_ORIGIN = (process.env.EXPO_PUBLIC_WEB_URL || 'https://nabd.plus').replace(/\/$/, '');
+const PUBLIC_PAGE: Record<string, string> = { doctor: 'doctor', pharmacy: 'pharmacy', hospital: 'facility', clinic: 'facility', facility: 'facility' };
+/** The provider's public page on the website, or null when the account type has none or the profile has no slug yet. */
+export function publicPageUrl(role: string | undefined, slug: string | null | undefined, lang: string): string | null {
+  const kind = role ? PUBLIC_PAGE[role] : undefined;
+  if (!kind || !slug) return null;
+  return `${WEB_ORIGIN}/${lang === 'ar' ? 'ar' : 'en'}/${kind}/${encodeURIComponent(slug)}`;
+}

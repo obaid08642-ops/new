@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { UserRole } from '../common/enums';
+import { RETIRED_USER_ROLES, UserRole } from '../common/enums';
 import { v4 as uuid } from 'uuid';
 
 @Schema({ timestamps: true, collection: 'users' })
@@ -12,11 +12,12 @@ export class User {
   @Prop({ unique: true, sparse: true }) phone: string;
   @Prop({ unique: true, sparse: true }) email?: string;
   @Prop() password_hash?: string;
-  @Prop({ type: String, enum: Object.values(UserRole), default: UserRole.PATIENT }) role: UserRole;
+  @Prop({ type: String, enum: [...Object.values(UserRole), ...RETIRED_USER_ROLES], default: UserRole.PATIENT }) role: UserRole;
   @Prop({ default: true }) active: boolean;
   /** Restricted identity allowed to complete onboarding but not provider operations. */
   @Prop({ default: false, index: true }) onboarding_only?: boolean;
   @Prop({ default: false }) is_guest: boolean;
+  @Prop() last_active_at?: Date; // 21.8: a guest's latest use (refresh), so inactivity is measured from use, not from creation
   @Prop() deleted_at?: Date;
   /** PDPL erasure audit: why and when the account was anonymised (10.1). */
   @Prop() deletion_reason?: string;
@@ -35,6 +36,13 @@ export class User {
    *  written before this field existed stay `undefined` rather than claiming a decision. */
   @Prop({ type: [{ policy_id: String, version: String, accepted_at: Date, accepted: Boolean }], _id: false, default: [] })
   legal_consents?: { policy_id: string; version: string; accepted_at: Date; accepted: boolean }[];
+  /**
+   * P17-17.6: banner-grade purpose choices (analytics/marketing). No default:
+   * rows written before this field existed stay `undefined` (legacy allow —
+   * ingestion keeps flowing until the user makes an explicit choice).
+   */
+  @Prop({ type: { analytics: Boolean, marketing: Boolean, updated_at: Date }, _id: false, required: false })
+  consent_choices?: { analytics?: boolean; marketing?: boolean; updated_at?: Date };
   /** Opaque patient-facing identifier; never expose Mongo or account ids to clients. */
   @Prop({ unique: true, sparse: true, index: true }) health_id?: string;
   @Prop({ default: [] }) device_tokens: string[]; // Native push tokens (FCM/APNs/Expo)

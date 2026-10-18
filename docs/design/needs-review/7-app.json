@@ -7,7 +7,8 @@
     "file": "patient-app/src/components/insurance/InsuranceKit.tsx",
     "line": 32,
     "found": "[owner] Removed 2026-10-10 (decision 35): the Refunds tab of the insurance hub is gone on app and web (order and return refunds stay in Orders and Returns).",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision A, decision 35), main already complies: no refunds or claims tab in InsuranceHubTabs.tsx"
   },
   {
     "batch": 7,
@@ -17,7 +18,8 @@
     "file": "patient-app/app/insurance/copay.tsx",
     "line": 37,
     "found": "[client] Picks the newest COPAY_PENDING from /requests/my and posts the intent with no method; the request page reads one id and asks capabilities. Different payment paths, so kept separate (map 2 rule).",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1484"
   },
   {
     "batch": 7,
@@ -27,7 +29,8 @@
     "file": "patient-app/src/components/insurance/InsuranceRequestView.tsx",
     "line": 184,
     "found": "[owner] Old approval-pending offered pay cash to /payments/processing with no params; removed per decision 25.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision A, decision 25), main already complies: InsuranceRequestView.tsx offers no cash after a decline (issue #821)"
   },
   {
     "batch": 7,
@@ -37,7 +40,8 @@
     "file": "patient-app/src/components/insurance/InsuranceRequestView.tsx",
     "line": 94,
     "found": "[client] 6 s re-read while the provider has not decided kept as before; no stop after a time limit.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "not-a-problem: Not a problem: the 6 s re-read while the provider decides is the existing behaviour, kept on purpose; (issue #822)"
   },
   {
     "batch": 7,
@@ -47,7 +51,8 @@
     "file": "patient-app/src/components/insurance/InsuranceHubTabs.tsx",
     "line": 29,
     "found": "[backend] Removed 2026-10-10 (decision 35): the Claims tab is gone; the old UI used a fixed 500000 annual limit that is not shown. Backend could return the policy limit.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #826 (issue #823)"
   },
   {
     "batch": 7,
@@ -57,7 +62,8 @@
     "file": "patient-app/src/components/insurance/InsuranceHubView.tsx",
     "line": 219,
     "found": "[client] The old profile form always sent class: 'A'; kept unchanged, the real class is unknown to the patient.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "not-a-problem: Not a problem: the note records that the profile form keeps the class the patient cannot know; (issue #824)"
   },
   {
     "batch": 7,
@@ -67,7 +73,8 @@
     "file": "patient-app/app/insurance/coverage-check.tsx",
     "line": 85,
     "found": "[backend] Old UI showed 100 - copay_percent as the insurer share (computed); only the server copay percent and cap are shown.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1353 #1403 (issue #825)"
   },
   {
     "batch": 7,
@@ -77,7 +84,8 @@
     "file": "patient-app/src/components/insurance/InsuranceHubTabs.tsx",
     "line": 40,
     "found": "[backend] No policy renewal date or total limit comes from the API, so none is shown.",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1353 #1403 (issue #826)"
   },
   {
     "batch": 7,
@@ -87,7 +95,8 @@
     "file": "patient-app/src/components/account/AccountView.tsx",
     "line": 116,
     "found": "[client] Redirect works; these files hold old Arabic literals so were left for the batch that owns them.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "not-a-problem: Not a problem: the redirect works and the file's old literals are counted in the literal-string baseline, which only goes down; (issue #827)"
   },
   {
     "batch": 7,
@@ -97,7 +106,8 @@
     "file": "patient-app/app/insurance/submit-claim.tsx",
     "line": 6,
     "found": "[client] Removed 2026-10-10 (decision 35): the claim form and its receipt upload are gone; the route redirects to the hub.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "not-a-problem: removed 2026-10-10 (decision 35, insurance is relay-only); submit-claim.tsx redirects to the insurance hub"
   },
   {
     "batch": 7,
@@ -107,7 +117,8 @@
     "file": "patient-app/app/insurance/coverage-check.tsx",
     "line": 56,
     "found": "[backend] Decision 35 item 6 / queue D-37: GET /insurance/coverage-check (and nphies* services) read the saved policy only; screen text now says so; rename or remove the endpoint names. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:699)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1353 (issue #829)"
   },
   {
     "batch": 7,
@@ -117,7 +128,8 @@
     "file": "patient-app/src/utils/insurance-copay-contract.ts",
     "line": 22,
     "found": "[backend] Insurance engine writes insurer_approval_code, the provider-app controller writes approval_code; the app reads both. One name would be safer; states APPROVED_PARTIAL / APPEAL_PENDING of the schema are not mapped on the client. (backend: backend/src/modules/insurance-engine/insurance-engine.module.ts:40)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1353 #1403 (issue #830)"
   },
   {
     "batch": 7,
@@ -127,7 +139,8 @@
     "file": "patient-app/src/components/insurance/InsuranceHubTabs.tsx",
     "line": 29,
     "found": "[owner] Removed 2026-10-10 (decision 35): the claims and refunds tabs and the claim form are removed (owner decision 35, insurance is relay-only and view-only).",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision A, decision 35), main already complies: no claims tab; submit-claim redirects to the hub"
   },
   {
     "batch": 7,
@@ -137,6 +150,7 @@
     "file": "patient-app/src/i18n/locales/en.json",
     "line": 2337,
     "found": "[client] Batch 14 text, not changed here: nur.book.insFetched, nur.book.inReviewBody, nur.book.insNote, diag.upload.readFailed, pharmacy.ins.processingTitle, consult.confirm.insuranceReady (same keys on web: DiagWeb.insuranceSub, PharmacyCheckout.insuranceBody and others).",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed a78e1c83a (verified on main: patient-app en.json nur.book.insFetched, inReviewBody, insNote, diag.upload.readFailed, pharmacy.ins.processingTitle, consult.confirm.insuranceReady describe relaying to the provider or insurer) (issue #832)"
   }
 ]

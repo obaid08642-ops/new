@@ -25,7 +25,7 @@ export default async function NursingVisitsPage({ params }: Props) {
   try {
     const response = await getPatientNursingVisits(token);
     if (response.ok) {
-      visits = extractNursingVisits(await response.json().catch(() => null));
+      visits = extractNursingVisits(await response.json().catch(() => null), locale);
     }
   } catch {}
   const caret = <Caret rtl={getDirection(locale) === "rtl"} />;

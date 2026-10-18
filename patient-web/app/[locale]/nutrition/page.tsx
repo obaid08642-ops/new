@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { requirePatientAccess } from "@/lib/auth/session";
+import { getOptionalPatientAccessToken } from "@/lib/auth/session";
+import { signInHref } from "@/lib/services/guest";
+import { GuestSpecialtyPage } from "@/components-next/guest/guest-specialty-page";
 import { callPatientApi } from "@/lib/api/upstream";
 import { isLocale } from "@/lib/i18n";
 import { pickTab } from "@/lib/health/view";
@@ -13,6 +15,7 @@ import { HealthTabs, RowsCard, SectionHead, VitalTile } from "@/components-next/
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { NutritionBodyTargetClient } from "@/components-next/nutrition-body-target-client";
 import { NutritionPlanGenerate } from "@/components-next/nutrition-plan-generate";
+import { QuickLogForm } from "@/components-next/health/quick-log-form";
 import { Notice } from "@/components-next/consult/consult-parts";
 import { parseNutritionPlan } from "@/lib/nutrition/plan";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
@@ -38,9 +41,26 @@ export default async function NutritionPage({ params, searchParams }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("NutritionWeb");
   const rs = await getTranslations("RouteState");
-  const token = await requirePatientAccess(locale);
+  const token = await getOptionalPatientAccessToken();
   const tab = pickTab(query.tab, TABS, "today");
   const base = `/${locale}/nutrition`;
+  if (!token) {
+    // Issue 1550: a guest sees what the service is and its nutritionists; the plan, the meals and the target need a session.
+    const g = await getTranslations("GuestServices");
+    return (
+      <GuestSpecialtyPage
+        locale={locale}
+        title={t("title")}
+        tone={NUTRITION.tone}
+        icon={NUTRITION.icon}
+        heroTitle={g("nutrition.heroTitle")}
+        heroBody={g("nutrition.heroBody")}
+        specialty="nutrition"
+        doctorsTitle={g("nutrition.doctorsTitle")}
+        action={{ id: "nutrition-sign-in", title: g("nutrition.actionTitle"), body: g("nutrition.actionBody"), label: g("nutrition.action"), next: `${base}?tab=plan` }}
+      />
+    );
+  }
 
   const frame = (body: ReactNode) => (
     <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/dashboard`}>
@@ -62,7 +82,7 @@ export default async function NutritionPage({ params, searchParams }: Props) {
     } catch {
       return frame(<ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
     }
-    if (planRes.status === 401) redirect(`/${locale}/login`);
+    if (planRes.status === 401) redirect(signInHref(locale, `${base}?tab=${tab}`));
     if (!planRes.ok && planRes.status !== 204) return frame(<ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
     const plan = planRes.status === 204 ? null : parseNutritionPlan(await planRes.json().catch(() => null));
     const nutritionist = <ButtonLink href={`/${locale}/consultations/doctors?specialty=nutrition`} label={t("planNutritionist")} variant="outline" />;
@@ -107,7 +127,7 @@ export default async function NutritionPage({ params, searchParams }: Props) {
   } catch {
     return frame(<ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
   }
-  if (summaryRes.status === 401 || mealsRes.status === 401) redirect(`/${locale}/login`);
+  if (summaryRes.status === 401 || mealsRes.status === 401) redirect(signInHref(locale, `${base}?tab=${tab}`));
   if (!summaryRes.ok) return frame(<ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
 
   const summary = parseNutritionSummary(await summaryRes.json().catch(() => null));
@@ -137,6 +157,8 @@ export default async function NutritionPage({ params, searchParams }: Props) {
         <li><VitalTile label={t("calories")} value={number.format(summary.calories)} unit={t("kcal")} icon="bowl-food" tone={NUTRITION.tone} /></li>
         <li><VitalTile label={t("water")} value={number.format(summary.waterMl)} unit={t("ml")} icon="drop" tone="blue" /></li>
       </ul>
+      <SectionHead id="log-water" title={t("water")} />
+      <QuickLogForm kind="water" />
       <SectionHead id="meals" title={t("meals")} />
       {meals === null ? (
         <ConsultState kind="error" title={t("mealsUnavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />

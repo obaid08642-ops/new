@@ -15,7 +15,7 @@ const mockApiFetch = jest.fn();
 const mockRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn(), canGoBack: jest.fn(() => true) };
 let mockParams: Record<string, string> = {};
 jest.mock('react-native-localize', () => require('react-native-localize/mock'));
-jest.mock('../src/utils/api', () => ({ apiFetch: (...a: unknown[]) => mockApiFetch(...a), BASE_URL: 'https://api.example.test/api/v1' }));
+jest.mock('../src/utils/api', () => ({ apiFetch: (...a: unknown[]) => mockApiFetch(...a), hasSession: async () => false, BASE_URL: 'https://api.example.test/api/v1' }));
 jest.mock('../src/utils/isOffline', () => ({ isOffline: jest.fn(async () => false) }));
 jest.mock('../src/utils/logger', () => ({ logError: jest.fn() }));
 jest.mock('expo-router', () => ({
@@ -29,16 +29,18 @@ jest.mock('../src/components/LocalizedAlert', () => ({ showLocalizedAlert: jest.
 
 import PharmacyHub from '../app/(tabs)/pharmacy';
 import ProductDetail from '../app/pharmacy/product-detail';
+import WishlistScreen from '../app/pharmacy/wishlist';
 
 const metrics = { frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 47, bottom: 34, left: 0, right: 0 } };
-const store = () => configureStore({ reducer: { auth: authReducer } });
+const store = (signedIn = false) =>
+  configureStore({ reducer: { auth: authReducer }, preloadedState: signedIn ? { auth: { ...authReducer(undefined, { type: 'init' }), isAuthenticated: true, isGuest: false } } : undefined });
 
 function CartProbe() {
   const { items } = useCart();
   return <>{items.map((i) => <Text key={i.id}>{`in-cart:${i.id}:${i.qty}`}</Text>)}</>;
 }
-const wrap = (node: React.ReactNode) => (
-  <Provider store={store()}>
+const wrap = (node: React.ReactNode, signedIn = false) => (
+  <Provider store={store(signedIn)}>
     <SafeAreaProvider initialMetrics={metrics}>
       <CartProvider>
         {node}
@@ -150,7 +152,6 @@ describe('Product page (board ProductFull)', () => {
           requires_prescription: false,
           package_size: '24 قرص',
           form: 'أقراص',
-          pharmacies_count: 0,
           indications_ar: ['استعمال أ', 'استعمال ب'],
           alternatives: [{ id: 'alt', name_ar: 'بديل', price: 15 }],
         };
@@ -180,5 +181,105 @@ describe('Product page (board ProductFull)', () => {
     await fireEvent.press(screen.getByText('اشترِ الآن'));
     await waitFor(() => expect(screen.getByText('in-cart:m1:2')).toBeTruthy());
     expect(mockRouter.push).toHaveBeenCalledWith('/pharmacy/cart');
+  });
+});
+
+describe('Product page insurance row (SPEC §A, issue 456)', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockParams = { id: 'm1' };
+  });
+  const answer = (policy: unknown) =>
+    mockApiFetch.mockImplementation(async (path: string) => {
+      if (path.startsWith('/medicines/m1/details')) return { id: 'm1', name_ar: 'دواء ١', price: 20, covered_by_insurance: ['ins-bupa'] };
+      if (path === '/users/me/insurance') return policy;
+      if (path === '/insurance/companies') return [{ id: 'ins-bupa', code: 'bupa', name_ar: 'بوبا', name_en: 'Bupa' }, { id: 'ins-taw', code: 'tawuniya', name_ar: 'التعاونية' }];
+      return [];
+    });
+
+  it("shows the row when the signed-in patient's insurer is in covered_by_insurance (saved by code, matched by id)", async () => {
+    answer({ provider: 'bupa', class: 'A', policy_number: 'P-1' });
+    await render(wrap(<ProductDetail />, true));
+    await waitFor(() => expect(screen.getByText('مشمول في تأمين بوبا')).toBeTruthy());
+  });
+
+  it('reads the policy the add-policy screen saves (company_id, provider = the company name)', async () => {
+    answer({ company_id: 'ins-bupa', company_code: 'bupa', provider: 'بوبا العربية', policy_number: 'P-2' });
+    await render(wrap(<ProductDetail />, true));
+    await waitFor(() => expect(screen.getByText('مشمول في تأمين بوبا')).toBeTruthy());
+  });
+
+  it('hides the row when the insurer does not cover the product', async () => {
+    answer({ provider: 'tawuniya', class: 'A', policy_number: 'P-1' });
+    await render(wrap(<ProductDetail />, true));
+    await waitFor(() => expect(mockApiFetch).toHaveBeenCalledWith('/insurance/companies'));
+    expect(screen.queryByTestId('product-insurance-row')).toBeNull();
+  });
+
+  it('never asks for a policy and shows no row when nobody is signed in', async () => {
+    answer({ provider: 'bupa', class: 'A', policy_number: 'P-1' });
+    await render(wrap(<ProductDetail />));
+    await waitFor(() => expect(screen.getAllByText('دواء ١').length).toBeGreaterThan(0));
+    expect(mockApiFetch).not.toHaveBeenCalledWith('/users/me/insurance');
+    expect(screen.queryByTestId('product-insurance-row')).toBeNull();
+  });
+});
+
+
+// 15.3: optimistic only where it is safe. The heart and the favourites list change at once and go back, with a message,
+// when the server refuses (a forced 500).
+describe('15.3 wishlist is optimistic and rolls back', () => {
+  const UNDONE = 'تعذّر حفظ التغيير فأُلغي. حاول مرة أخرى.';
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockParams = { id: 'm1' };
+  });
+  const serve = (post: (path: string) => unknown, list: unknown[] = []) =>
+    mockApiFetch.mockImplementation(async (path: string, init?: { method?: string }) => {
+      if (init?.method === 'POST') {
+        const r = post(path);
+        if (r instanceof Error) throw r;
+        return r;
+      }
+      if (path.startsWith('/medicines/m1/details')) return { id: 'm1', name_ar: 'دواء ١', price: 20 };
+      if (path === '/users/me/wishlist') return list;
+      return {};
+    });
+
+  it('the heart on the product page fills at once; a 500 empties it again and says why', async () => {
+    serve(() => Object.assign(new Error('Internal Server Error'), { status: 500 }));
+    await render(wrap(<ProductDetail />));
+    await waitFor(() => expect(screen.getAllByText('دواء ١').length).toBeGreaterThan(0));
+    await fireEvent.press(screen.getByLabelText('أضف للمفضلة'));
+    await waitFor(() => expect(screen.getByText(UNDONE)).toBeTruthy());
+    expect(screen.getByLabelText('أضف للمفضلة')).toBeTruthy();
+    expect(screen.queryByLabelText('إزالة من المفضلة')).toBeNull();
+  });
+
+  it('when the server accepts, the heart stays filled and nothing is announced', async () => {
+    serve(() => ({ in_wishlist: true }));
+    await render(wrap(<ProductDetail />));
+    await waitFor(() => expect(screen.getAllByText('دواء ١').length).toBeGreaterThan(0));
+    await fireEvent.press(screen.getByLabelText('أضف للمفضلة'));
+    await waitFor(() => expect(screen.getByLabelText('إزالة من المفضلة')).toBeTruthy());
+    expect(screen.queryByText(UNDONE)).toBeNull();
+  });
+
+  it('removing a favourite takes the row away at once; a 500 brings it back and says why', async () => {
+    serve(() => Object.assign(new Error('Internal Server Error'), { status: 500 }), [{ id: 'm1', name_ar: 'دواء ١', price: 20 }]);
+    await render(wrap(<WishlistScreen />));
+    await waitFor(() => expect(screen.getByText('دواء ١')).toBeTruthy());
+    await fireEvent.press(screen.getByLabelText('إزالة من المفضلة'));
+    await waitFor(() => expect(screen.getByText(UNDONE)).toBeTruthy());
+    expect(screen.getByText('دواء ١')).toBeTruthy();
+  });
+
+  it('a favourite the server removed stays removed', async () => {
+    serve(() => ({ in_wishlist: false }), [{ id: 'm1', name_ar: 'دواء ١', price: 20 }]);
+    await render(wrap(<WishlistScreen />));
+    await waitFor(() => expect(screen.getByText('دواء ١')).toBeTruthy());
+    await fireEvent.press(screen.getByLabelText('إزالة من المفضلة'));
+    await waitFor(() => expect(screen.queryByText('دواء ١')).toBeNull());
+    expect(screen.queryByText(UNDONE)).toBeNull();
   });
 });

@@ -1,29 +1,57 @@
-import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
+import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
+import { MetricsService, normaliseRoute } from './metrics.service';
+import { logEvent, runWithLogContext } from './structured-logger';
 
+/**
+ * Phase 20.1 / 20.2 / 20.3 — one request id end to end, one metric per
+ * request, and every log line inside the request carrying that id.
+ *
+ * The id is taken from the caller's `x-correlation-id` when there is one, so a
+ * request that starts at the web BFF keeps the same id all the way into the API
+ * (20.1). It is echoed back on the response so a user can quote it in a
+ * support request.
+ */
 @Injectable()
 export class CorrelationMiddleware implements NestMiddleware {
-  private readonly logger = new Logger('HTTP');
+  constructor(private readonly metrics?: MetricsService) {}
 
   use(req: Request, res: Response, next: NextFunction) {
-    const correlationId = req.headers['x-correlation-id'] || uuidv4();
-    req['correlationId'] = correlationId;
-    res.setHeader('X-Correlation-ID', correlationId);
+    const incoming = req.headers['x-correlation-id'];
+    const supplied = Array.isArray(incoming) ? incoming[0] : incoming;
+    // the caller's id is kept only when it is a plain token (it is searched and stored); anything else gets a fresh one
+    const requestId = supplied && /^[A-Za-z0-9._:-]{1,128}$/.test(supplied) ? supplied : uuidv4();
+    req['correlationId'] = requestId;
+    res.setHeader('X-Correlation-ID', requestId);
 
-    const { method, originalUrl } = req;
-    const userAgent = req.get('user-agent') || '';
-    const start = Date.now();
+    const startedAt = Date.now();
 
     res.on('finish', () => {
-      const { statusCode } = res;
-      const contentLength = res.get('content-length');
-      const duration = Date.now() - start;
-      this.logger.log(
-        `[${correlationId}] ${method} ${originalUrl} ${statusCode} ${contentLength} - ${userAgent} ${duration}ms`
+      const durationMs = Date.now() - startedAt;
+      const route = normaliseRoute(req.route?.path ? String((req as any).route.path) : req.originalUrl || req.url);
+      this.metrics?.record(route, res.statusCode, durationMs);
+      // finish runs outside the request's async context: put the id (and the caller, known by now) back for this one line
+      runWithLogContext({ requestId, userId: (req as any).user?.id ? String((req as any).user.id) : undefined, role: (req as any).user?.role }, () =>
+        logEvent(res.statusCode >= 500 ? 'error' : 'info', 'http_request', {
+          module: 'http',
+          method: req.method,
+          route,
+          status: res.statusCode,
+          duration_ms: durationMs,
+          content_length: Number(res.get('content-length') || 0),
+        }),
       );
     });
 
-    next();
+    // Everything downstream runs inside this context, so a log line from deep
+    // in a service still knows which request it belongs to (20.3).
+    const deviceHeader = req.headers['x-device-id'];
+    runWithLogContext({
+      requestId,
+      ip: req.ip || undefined,
+      userAgent: String(req.headers['user-agent'] ?? '').slice(0, 240) || undefined,
+      deviceId: (Array.isArray(deviceHeader) ? deviceHeader[0] : deviceHeader)?.slice(0, 128),
+    }, () => next());
   }
 }

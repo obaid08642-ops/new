@@ -10,12 +10,15 @@ import { ProviderProfile, ProviderProfileDocument, ProviderProfileSchema } from 
 import { User, UserDocument, UserSchema } from '../../schemas/user.schema';
 import { EventBusService } from '../events/event-bus.service';
 import { ContractPdfService } from './contract-pdf.service';
+import { ScfhsLicenseModule, ScfhsLicenseService } from '../provider/services/scfhs-license.service';
 import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { escapeRegex } from '../../common/slug.util';
 import { StartDto, SubmitDto, AdminContractVisibilityDto } from './provider-onboarding.dto';
 import { PROVIDER_PUBLIC_PROJECTION } from './provider-private-fields';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
+import { enforcePasswordPolicy } from '../../common/password-security.service';
 /**
  * Unified Provider Onboarding Wizard.
  * 3 sequential steps to register/upgrade any provider type:
@@ -32,6 +35,7 @@ export class ProviderOnboardingService {
     @InjectModel('ProviderProfile') private providerModel: Model<ProviderProfileDocument>,
     private bus: EventBusService,
     private contracts: ContractPdfService,
+    private scfhs: ScfhsLicenseService,
   ) {}
 
   private typeToRole(type: ProviderType): UserRole {
@@ -63,6 +67,7 @@ export class ProviderOnboardingService {
     }
     if (!user) {
       if (!body.password) throw new BadRequestException('password_required_for_new_user');
+      await enforcePasswordPolicy(body.password);
       const hash = await bcrypt.hash(body.password, 12);
       try {
         user = await this.userModel.create({
@@ -158,11 +163,11 @@ export class ProviderOnboardingService {
         'languages', 'display_name_ar', 'display_name_en',
       ],
       [ProviderType.HOSPITAL]: [
-        'doctors_roster', 'lab_roster', 'radiology_roster', 'nursing_roster', 'pharmacy_roster', 'ambulance_roster', 'working_hours',
+        'doctors_roster', 'lab_roster', 'radiology_roster', 'nursing_roster', 'pharmacy_roster', 'working_hours',
         'accepts_insurance', 'accepted_insurance', 'insurance_plans', 'accepts_cash', 'schedule_home', 'has_insurance_coordinator',
       ],
       [ProviderType.CLINIC]: [
-        'doctors_roster', 'lab_roster', 'radiology_roster', 'nursing_roster', 'pharmacy_roster', 'ambulance_roster', 'working_hours',
+        'doctors_roster', 'lab_roster', 'radiology_roster', 'nursing_roster', 'pharmacy_roster', 'working_hours',
         'accepts_insurance', 'accepted_insurance', 'insurance_plans', 'accepts_cash', 'schedule_home', 'has_insurance_coordinator',
       ],
       [ProviderType.LAB]: [
@@ -251,6 +256,8 @@ export class ProviderOnboardingService {
     // pending profile that cannot be found by moderation or contract review.
     await this.mirrorToModerationQueue(user, profile);
     await this.generateAndStoreContract(user, profile);
+    // 19.3: look the SCFHS licence up now so the reviewing admin sees the answer; submitting approves nobody.
+    await this.scfhs.recordAtSubmission(profile.toObject()).catch(() => null);
     this.bus.emit({ type: 'provider.submitted_for_review', entity_type: 'provider', entity_id: profile.id, actor_account_id: user.id, actor_role: 'provider', meta: { type: profile.type } }).catch(() => null);
     return profile.toObject();
   }
@@ -430,7 +437,15 @@ export class ProviderOnboardingService {
   async getProgress(user: any) {
     const profile = await this.providerModel.findOne({ user_id: user.id }, { _id: 0, __v: 0 });
     if (!profile) return { started: false };
-    return { started: true, ...profile.toObject() };
+    // provider-journeys#24: the reviewer's written reason ("request changes", reject, suspend) lives on the moderation
+    // account's status history, not on the profile; the status screen shows it (accountStatus reasonFromProgress).
+    const account: any = await this.providerModel.db.collection('provider_accounts')
+      .findOne({ $or: [{ id: user.id }, { user_id: user.id }] }, { projection: { _id: 0, status: 1, status_history: 1 } })
+      .catch(() => null);
+    const reviewed = ['needs_changes', 'rejected', 'suspended'].includes(String(account?.status || ''));
+    const last = reviewed ? [...(account?.status_history || [])].reverse().find((h: any) => h?.to === account.status) : null;
+    const note = typeof last?.note === 'string' && last.note.trim() ? last.note.trim() : undefined;
+    return { started: true, ...profile.toObject(), ...(reviewed ? { review_status: account.status } : {}), ...(note ? { review_note: note, review_note_at: last.at } : {}) };
   }
 
   /**
@@ -519,6 +534,7 @@ export class ProviderOnboardingController {
   }
 
   /** Admin: grant/revoke the provider's ability to view their signed contract. */
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @UseGuards(JwtAuthGuard) @Post('admin/contracts/:id/visibility')
   @Roles(UserRole.ADMIN)
   async adminContractVisibility(@CurrentUser() u: any, @Param('id') id: string, @Body() b: AdminContractVisibilityDto) {
@@ -544,7 +560,7 @@ export class UnifiedSearchController {
 }
 
 @Module({
-  imports: [MongooseModule.forFeature([
+  imports: [ScfhsLicenseModule, MongooseModule.forFeature([
     { name: 'User', schema: UserSchema },
     { name: 'ProviderProfile', schema: ProviderProfileSchema },
   ])],

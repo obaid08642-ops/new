@@ -34,6 +34,7 @@ import {
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { tokens } from '../../../theme/tokens';
 import { styles } from './_shared';
+import { fmtDate } from '../../../utils/dates';
 
 export function EPrescriptionScreen({ apt, onBack }:
  { apt: any; onBack: () => void }) {
@@ -53,6 +54,10 @@ export function EPrescriptionScreen({ apt, onBack }:
  const [templates, setTemplates] = useState<any[]>([]);
  const [templatesLoading, setTemplatesLoading] = useState(false);
 
+ const templateDrugs = (items: unknown): Drug[] => (Array.isArray(items) ? items : []).map((d: any, i: number) => typeof d === 'string'
+   ? { id: `t-${i}`, name: d, dose: '', freq: '', duration: '', notes: '' }
+   : { id: String(d.id || `t-${i}`), name: d.name || '', dose: d.dose || '', freq: d.freq || '', duration: d.duration || '', notes: d.notes || '' });
+
  async function loadTemplates() {
    setTemplatesLoading(true);
    try {
@@ -61,14 +66,33 @@ export function EPrescriptionScreen({ apt, onBack }:
      setTemplates(list.map((t: any) => ({
        id: String(t.id),
        titleAr: t.name, titleEn: t.name,
-       drugs: (Array.isArray(t.items) ? t.items : []).map((d: any, i: number) => typeof d === 'string'
-         ? { id: `t-${i}`, name: d, dose: '', freq: '', duration: '', notes: '' }
-         : { id: String(d.id || `t-${i}`), name: d.name || '', dose: d.dose || '', freq: d.freq || '', duration: d.duration || '', notes: d.notes || '' }),
+       drugs: templateDrugs(t.items),
      })));
    } catch {
      show(AR ? 'تعذر تحميل النماذج' : 'Could not load templates', 'error');
    } finally {
      setTemplatesLoading(false);
+   }
+ }
+ // Applying a template is recorded on the server (POST .../templates/:id/use counts the use, which orders the list)
+ // and the form is filled from the template the server returns, so the success message follows a real response.
+ const [applyingTemplate, setApplyingTemplate] = useState<string | null>(null);
+ async function applyTemplate(id: string) {
+   setApplyingTemplate(id);
+   try {
+     const res = await client.post(`/provider/ops/doctor/templates/${encodeURIComponent(id)}/use`, {});
+     const items = templateDrugs(res?.data?.items);
+     if (!items.length) {
+       show(AR ? 'النموذج لا يحتوي على أدوية' : 'This template has no medicines', 'error');
+       return;
+     }
+     setDrugs(items);
+     setShowTemplates(false);
+     show(AR ? 'تم تحميل النموذج' : 'Template loaded successfully', 'success');
+   } catch (err: any) {
+     show(err?.response?.data?.message || (AR ? 'تعذر تحميل النموذج' : 'Could not load the template'), 'error');
+   } finally {
+     setApplyingTemplate(null);
    }
  }
  const [templateName, setTemplateName] = useState('');
@@ -160,7 +184,7 @@ export function EPrescriptionScreen({ apt, onBack }:
  <NAvatar name={apt?.patient ?? 'مريض'} size={44} />
  <View>
  <Text style={{ fontWeight: FW.bold, color: theme.text }}>{apt?.patient ?? '—'}</Text>
- <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{new Date().toLocaleDateString('ar-SA')}</Text>
+ <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{fmtDate(new Date(), AR)}</Text>
  </View>
  </NCard>
 
@@ -292,7 +316,7 @@ export function EPrescriptionScreen({ apt, onBack }:
  {templatesLoading ? <ActivityIndicator color={theme.primary} /> : null}
  {templates.map(t => (
  <View key={t.id} style={{ padding: SP.md, borderBottomWidth: 1, borderBottomColor: theme.border, flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
- <TouchableOpacity style={{ flex: 1 }} onPress={() => { setDrugs(t.drugs); setShowTemplates(false); show(AR ? 'تم تحميل النموذج' : 'Template loaded successfully', 'success'); }}>
+ <TouchableOpacity style={{ flex: 1 }} disabled={applyingTemplate !== null} onPress={() => applyTemplate(t.id)}>
  <Text style={{ color: theme.text, fontSize: FS.md, fontWeight: FW.bold }}>{AR ? t.titleAr : t.titleEn}</Text>
  <Text style={{ color: theme.textSub, fontSize: FS.xs }}>{t.drugs.length} {AR ? 'أدوية' : 'drugs'}</Text>
  </TouchableOpacity>

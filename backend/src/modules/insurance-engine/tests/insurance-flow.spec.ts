@@ -66,6 +66,30 @@ describe('InsuranceFlowService', () => {
       expect(events.emit).toHaveBeenCalledWith('insurance.decided', expect.objectContaining({ request_id: 'req-1', state: 'APPROVED_FULL' }));
     });
 
+    it('approve_full confirms the service booking (nothing is owed) and names the provider in the decided event', async () => {
+      const req = pendingReq();
+      req.booking_kind = 'radiology';
+      req.booking_id = 'rad-1';
+      requests.findOne.mockResolvedValue(req);
+      const radiology = { updateOne: jest.fn(async () => undefined) };
+      (service as any).radiology = radiology;
+      await service.decide({ id: 'prov-1', role: 'doctor' }, 'req-1', { decision: 'approve_full', approval_ref: 'APR-TEST' });
+      expect(radiology.updateOne).toHaveBeenCalledWith({ id: { $eq: 'rad-1' }, state: { $in: ['NEW_REQUEST', 'PENDING_INSURANCE', 'WAITING_COPAY'] } }, { $set: { state: 'CONFIRMED', insurance_status: 'approved' } });
+      expect(events.emit).toHaveBeenCalledWith('insurance.decided', expect.objectContaining({ provider_id: 'prov-1', state: 'APPROVED_FULL' }));
+    });
+
+    it('approve_partial and reject do not confirm the booking', async () => {
+      const radiology = { updateOne: jest.fn(async () => undefined) };
+      (service as any).radiology = radiology;
+      for (const body of [{ decision: 'approve_partial', approval_ref: 'A', copay_percent: 20 }, { decision: 'reject', reason: 'not covered' }]) {
+        const req = pendingReq();
+        req.booking_kind = 'radiology';
+        requests.findOne.mockResolvedValue(req);
+        await service.decide({ id: 'prov-1', role: 'doctor' }, 'req-1', body);
+      }
+      expect(radiology.updateOne).not.toHaveBeenCalled();
+    });
+
     it('approve_partial computes copay = price × percent', async () => {
       const req = pendingReq();
       requests.findOne.mockResolvedValue(req);
@@ -136,7 +160,7 @@ describe('InsuranceFlowService', () => {
       requests.findOne.mockResolvedValue(req);
       const res = await service.payCopay({ id: 'pat-1' }, 'req-1', {});
       expect(res.state).toBe('COPAY_PAID');
-      expect(events.emit).toHaveBeenCalledWith('insurance.copay.paid', expect.objectContaining({ request_id: 'req-1' }));
+      expect(events.emit).toHaveBeenCalledWith('insurance.copay.paid', expect.objectContaining({ request_id: 'req-1', covered_in_full: true }));
     });
 
     it('COPAY_PENDING requires a payment id that is verified against the owned insurance request', async () => {
@@ -211,7 +235,7 @@ describe('QuoteController (BR-1)', () => {
     expect(q.allowed_methods).toContain('online');
   });
 
-  it.each(['online', 'video', 'audio', 'chat', 'home', 'home_visit', 'delivery', 'nursing', 'physiotherapy', 'ambulance'])(
+  it.each(['online', 'video', 'audio', 'chat', 'home', 'home_visit', 'delivery', 'nursing', 'physiotherapy'])(
     'channel "%s" is online-only (no clinic_pay)',
     (channel) => {
       const q = ctl.quote({ channel, price: '200' });

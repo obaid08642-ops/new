@@ -11,6 +11,8 @@ export function sanitizeWizardData(data: any): any {
   const out: any = {};
   for (const [k, v] of Object.entries(data || {})) {
     if (/pass|secret|token|signatureData/i.test(k)) continue;
+    // A screen's own saving flag (FacilityRegistration raises `loading` in its data) is not application data.
+    if (k === 'loading') continue;
     if (typeof v === 'string' && /^(file|content):\/\//.test(v)) continue;
     if (Array.isArray(v) && v.length > 0 && v.every((x) => typeof x === 'string' && /^(file|content):\/\//.test(x))) continue;
     out[k] = v;

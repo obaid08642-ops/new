@@ -41,12 +41,15 @@ export function ProviderWalletScreen({ onBack, onNavigate, embedded, revenueRout
   const [commissionIns, setCommissionIns] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchWallet = async () => {
+  const [loadErr, setLoadErr] = useState(false);
+
+  const fetchWallet = useCallback(async () => {
+      setLoading(true); setLoadErr(false);
       try {
+        // Both reads must succeed: a failed history read used to show "No transactions yet" next to a real balance.
         const [wRes, txRes] = await Promise.all([
           client.get('/provider/payouts/balance'),
-          client.get('/provider/wallet/transactions').catch(() => ({ data: [] })),
+          client.get('/provider/wallet/transactions'),
         ]);
         // Real per-provider commission rates set by the admin (cash % + insurance %)
         client.get('/provider/me').then((meRes: any) => {
@@ -63,14 +66,29 @@ export function ProviderWalletScreen({ onBack, onNavigate, embedded, revenueRout
         setLockedAmount(Number(wRes.data?.locked || 0));
         setTotalRevenue(Number(wRes.data?.lifetime_earned || 0));
         setTransactions(Array.isArray(txRes.data) ? txRes.data : []);
-      } catch (err) {
-        console.warn('Failed to fetch wallet', err);
+      } catch {
+        // never draw 0 SAR for a balance that was not read
+        setLoadErr(true);
       } finally {
         setLoading(false);
       }
-    };
-    fetchWallet();
   }, []);
+  useEffect(() => { void fetchWallet(); }, [fetchWallet]);
+
+  if (loadErr) {
+    return (
+      <View style={{ flex: 1, backgroundColor: theme.bg }}>
+        <NHeader title={AR ? 'المحفظة والإيرادات' : 'Wallet & Revenue'} onBack={embedded ? undefined : onBack} />
+        <NEmpty
+          icon="alert"
+          title={AR ? 'تعذر تحميل المحفظة' : 'Could not load the wallet'}
+          sub={AR ? 'لم نتمكن من قراءة رصيدك من الخادم. تحقق من الاتصال ثم أعد المحاولة.' : 'We could not read your balance from the server. Check your connection and retry.'}
+          actionLabel={AR ? 'إعادة المحاولة' : 'Retry'}
+          onAction={() => { void fetchWallet(); }}
+        />
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>

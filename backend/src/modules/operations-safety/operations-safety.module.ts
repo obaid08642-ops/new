@@ -20,6 +20,7 @@ import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-p
 import { toUniversal, WorkflowEngineService, WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
 import { EscalateDto, AssessDto, FallbackDto } from './operations-safety.dto';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 @Schema({ collection: 'cancellation_penalties', timestamps: true })
 export class CancellationPenalty extends Document {
   @Prop({ required: true, index: true }) booking_id: string;
@@ -141,8 +142,11 @@ export class OperationsSafetyService {
 export class OperationsSafetyController {
   constructor(private svc: OperationsSafetyService) {}
   @Get('sla') sla() { return this.svc.slaReport(); }
+  @RequirePermissions(Permission.ORDER_SLA_EXTEND)
   @Post('escalate') escalate(@Body() b: EscalateDto) { return this.svc.escalate(b); }
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post('penalty/assess') assess(@Body() b: AssessDto) { return this.svc.assessPenalty(b); }
+  @RequirePermissions(Permission.ORDER_REASSIGN)
   @Post('fallback') fallback(@Body() b: FallbackDto) { return this.svc.fallback(b); }
   @Get('penalties') penalties(@Query() q: any) { return this.svc.listPenalties(q); }
 }

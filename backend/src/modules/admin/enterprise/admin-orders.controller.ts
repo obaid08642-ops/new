@@ -28,9 +28,10 @@ export class AdminOrdersConsoleController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('sort') sort?: string,
+    @Query('problem') problem?: string,
   ) {
     return this.svc.list({
-      kind, q, status, from, to, sort,
+      kind, q, status, from, to, sort, problem,
       page: page ? parseInt(page, 10) : 1,
       limit: limit ? parseInt(limit, 10) : 25,
     });
@@ -44,9 +45,10 @@ export class AdminOrdersConsoleController {
     @Query('status') status: string | undefined,
     @Query('from') from: string | undefined,
     @Query('to') to: string | undefined,
+    @Query('problem') problem: string | undefined,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const output = await this.svc.exportCsv({ kind, q, status, from, to });
+    const output = await this.svc.exportCsv({ kind, q, status, from, to, problem });
     res.setHeader('content-type', 'text/csv; charset=utf-8');
     res.setHeader('content-disposition', `attachment; filename="${output.filename}"`);
     res.setHeader('x-export-truncated', String(output.truncated));

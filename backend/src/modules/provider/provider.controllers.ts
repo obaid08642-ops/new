@@ -1,3 +1,4 @@
+import { protectHealthDoc } from '../../common/health-fields';
 import { PROVIDER_ROLES } from '../../common/enums';
 import { isProviderRole } from '../../common/enums';
 import { Controller, Post, Get, Patch, Delete, Body, Param, Query, Req, Inject } from '@nestjs/common';
@@ -72,6 +73,13 @@ export class ProviderAuthController {
   }
   @Get('me')
   me(@CurrentUser() user: any) { return this.svc.me(user); }
+  /** 23.6 — the provider's own signed-in devices and sign-in history. */
+  @SelfService()
+  @Get('sessions')
+  sessions(@CurrentUser() user: any, @Query('session_id') sessionId?: string) { return this.svc.listSessions(user, sessionId).then((devices) => ({ devices })); }
+  @SelfService()
+  @Get('history')
+  history(@CurrentUser() user: any, @Query('page') page?: string, @Query('limit') limit?: string) { return this.svc.history(user, Number(page) || 1, Number(limit) || 30); }
 }
 
 @Controller('provider')
@@ -130,7 +138,7 @@ export class ProviderProfileController {
 }
 
 @Controller('provider/operators')
-@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
 export class ProviderOperatorsController {
   constructor(private readonly svc: ProviderOperatorsService) {}
   @Get() list(@CurrentUser() u: any) { return this.svc.list(u); }
@@ -172,16 +180,19 @@ export class ProviderAdminController {
   @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/documents/:docId/reject') rejectDocument(@CurrentUser() u: any, @Param('id') id: string, @Param('docId') docId: string, @Body() body: ReviewDocumentDto) { return this.svc.reviewDocument(u, id, docId, 'reject', body?.reason || body?.note); }
 
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/reprocess-image')
   async reprocessImage(@Param('id') id: string) {
     return this.processor.reprocessImage(id);
   }
 
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/replace-image')
   async replaceImage(@Param('id') id: string, @Body() body: ReplaceImageDto) {
     return this.processor.replaceImage(id, body.data_base64, body.mime);
   }
 
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/retry-image-jobs')
   async retryFailedJobs(@Param('id') id: string) {
     return this.processor.retryFailedJobs(id);
@@ -211,7 +222,7 @@ import { trackingId, TRACK_PREFIX } from '../../common/tracking';
 import { NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 
 @Controller('provider/requests')
-@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
 export class ProviderRequestsController {
   constructor(
     private readonly svc: ProviderRequestEngineService,
@@ -381,13 +392,15 @@ export class ProviderRequestsController {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    await this.conn.collection('medicalreports').insertOne(doc as any);
+    // 16.9: the certificate text is health data; the raw write encrypts it (the appointment keeps its own encrypted copy of the reason)
+    const reasonCipher = protectHealthDoc('appointments', { sickLeaves: [{ reason: doc.diagnosis }] }).sickLeaves[0].reason;
+    await this.conn.collection('medicalreports').insertOne(protectHealthDoc('medicalreports', { ...doc }) as any);
 
     // Record on the appointment for the patient's timeline
     if (id && id !== 'new') {
       await this.conn.collection('appointments').updateOne(
         { $or: [{ id }, { _id: id as any }] } as any,
-        { $push: { sickLeaves: { days, reason: doc.diagnosis, tracking_id: doc.tracking_id, at: new Date() } } } as any,
+        { $push: { sickLeaves: { days, reason: reasonCipher, tracking_id: doc.tracking_id, at: new Date() } } } as any,
       );
     }
 
@@ -431,14 +444,14 @@ export class ProviderRequestsController {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    await this.conn.collection('medicalreports').insertOne(doc as any);
+    await this.conn.collection('medicalreports').insertOne(protectHealthDoc('medicalreports', { ...doc }) as any);   // 16.9
     this.events.emit('medical_report.created', { id: doc.id, patient_id: doc.patient_id, critical: doc.critical, tracking_id: doc.tracking_id });
     return { ok: true, message: 'medical_report_issued', tracking_id: doc.tracking_id, verify_url: `/api/v1/medical-reports/track/${doc.tracking_id}` };
   }
 }
 
 @Controller('provider/wallet')
-@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
 export class ProviderWalletController {
   constructor(
     @InjectConnection() private readonly conn: Connection,
@@ -459,7 +472,7 @@ export class ProviderWalletController {
 }
 
 @Controller('provider/notifications')
-@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
 export class ProviderNotificationsController {
   constructor(private readonly svc: ProviderNotificationsService) {}
   @Get() list(@CurrentUser() u: any, @Query() q: any) { return this.svc.list(u, q); }
@@ -487,8 +500,8 @@ export class ProviderDashboardController {
   @Get('availability') getAvail(@CurrentUser() u: any) { return this.dash.getAvailability(u); }
   @SelfService()
   @Post('availability') setAvail(@CurrentUser() u: any, @Body() body: SetAvailDto) { return this.dash.setAvailability(u, body); }
-  // R71 / F17: demo data only in explicit test mode. Open in every environment, any provider (an ambulance
-  // included) could plant schedules that skip admin approval and pharmacy/lab/radiology/doctor capabilities.
+  // R71 / F17: demo data only in explicit test mode. Open in every environment, any provider
+  // could plant schedules that skip admin approval and pharmacy/lab/radiology/doctor capabilities.
   private assertTestSeedAllowed() {
     if (process.env.NODE_ENV !== 'test' || process.env.ALLOW_TEST_SEED !== 'true') {
       throw new ServiceUnavailableException('test_seed_disabled');
@@ -506,7 +519,7 @@ export class ProviderDashboardController {
 // ============================================================================
 
 @Controller('provider/capabilities')
-@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
 export class ProviderCapabilitiesController {
   constructor(private readonly svc: ServiceCapabilityService) {}
   // Pharmacy inventory
@@ -532,7 +545,7 @@ export class ProviderCapabilitiesController {
 }
 
 @Controller('provider/zones')
-@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
 export class ProviderZonesController {
   constructor(private readonly svc: ServiceCapabilityService) {}
   @Get() list(@CurrentUser() u: any) { return this.svc.listZones(u); }
@@ -541,7 +554,7 @@ export class ProviderZonesController {
 }
 
 @Controller('provider/schedule-slots')
-@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
 export class ProviderScheduleSlotsController {
   constructor(private readonly svc: SchedulingEngineService) {}
   @Get() list(@CurrentUser() u: any) { return this.svc.listSlots(u); }
@@ -572,14 +585,17 @@ export class AdminMatchingController {
     return this.matching.matchForRequest(id, parseInt(limit || '10', 10) || 10);
   }
   // Run matching ad-hoc with a custom payload (no DB record created)
+  @RequirePermissions(Permission.ORDER_READ)
   @Post('preview') previewAdHoc(@CurrentUser() u: any, @Body() body: PreviewAdHocDto) {
     return this.matching.match({ ...body });
   }
   // Dispatch (run strategy) for an existing unassigned request
+  @RequirePermissions(Permission.ORDER_REASSIGN)
   @Post('dispatch/:requestId') dispatch(@CurrentUser() u: any, @Param('requestId') id: string, @Body() body: DispatchDto) {
     return this.assignment.dispatch(id, body?.timeout_seconds || 120);
   }
   // Manual assign
+  @RequirePermissions(Permission.ORDER_REASSIGN)
   @Post('assign/:requestId/:providerId') assign(@CurrentUser() u: any, @Param('requestId') rid: string, @Param('providerId') pid: string) {
     return this.assignment.manualAssign(u, rid, pid);
   }
@@ -588,11 +604,13 @@ export class AdminMatchingController {
     return this.assignment.listAttempts(u, id);
   }
   // Cron-style expiration sweep
+  @RequirePermissions(Permission.OPS_CRONS_RUN)
   @Post('expire-stale') expireStale(@CurrentUser() u: any) {
     return this.assignment.expireStale();
   }
   // ADMIN seed: create a new UNASSIGNED request that triggers matching (real DB record).
   // Intended for testing flow end-to-end while patient-side ordering is not yet built.
+  @RequirePermissions(Permission.ORDER_REASSIGN)
   @Post('seed-unassigned') seedUnassigned(@CurrentUser() u: any, @Body() body: SeedUnassignedDto) {
     const b = body as any || {};
     return this.assignment.createAndDispatch({

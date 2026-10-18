@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -7,6 +8,8 @@ import { DataTable } from '@/components/DataTable';
 type Order = { id: string; kind: string; status: string; patient?: { id?: string; name?: string; phone?: string }; provider?: { id?: string; name?: string }; amount?: number; currency?: string; created_at?: string; sla_due_at?: string; is_delayed?: boolean };
 type OrdersResponse = { data: Order[]; total: number; page: number; pages: number };
 const kinds = ['', 'pharmacy', 'lab', 'radiology', 'nursing', 'consultation'];
+// Issue 1236: the orders the Today screen counts (backend `problem` filter), all of them and paginated.
+const problems: Array<[string, string]> = [['', 'كل الطلبات'], ['stuck', 'عالقة'], ['sla_breach', 'تجاوزت مهلة الخدمة'], ['failed_payment', 'دفع فاشل'], ['refund_pending', 'استرداد معلّق']];
 const kindLabels: Record<string, string> = { '': 'كل الأنواع', pharmacy: 'صيدلية', lab: 'مختبر', radiology: 'أشعة', nursing: 'تمريض', consultation: 'استشارات (عيادة/فيديو/منزلي)' };
 
 function delayText(order: Order): string {
@@ -20,7 +23,12 @@ function delayText(order: Order): string {
 
 export default function OrdersConsolePage() {
   const [result, setResult] = useState<OrdersResponse>({ data: [], total: 0, page: 1, pages: 1 });
-  const [filters, setFilters] = useState({ kind: '', status: '', q: '', from: '', to: '', sort: 'newest' });
+  const router = useRouter();
+  const [filters, setFilters] = useState({ kind: '', status: '', q: '', from: '', to: '', sort: 'newest', problem: '' });
+  useEffect(() => {
+    const p = router.isReady ? String(router.query.problem || '') : '';
+    if (p && problems.some(([value]) => value === p)) setFilters((current) => ({ ...current, problem: p }));
+  }, [router.isReady, router.query.problem]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -34,11 +42,12 @@ export default function OrdersConsolePage() {
   useEffect(() => { void load(); }, [load]);
 
   function update(name: keyof typeof filters, value: string) { setFilters((current) => ({ ...current, [name]: value })); setPage(1); }
-  function exportUrl() { return `/api/admin/orders/export${toQuery(filters)}`; }
+  // Same filters as the table, the problem filter included; the export route lives under the admin BFF prefix like the list.
+  function exportUrl() { return `/api/admin/admin/orders/export${toQuery(filters)}`; }
 
   return <><Head><title>دورة الطلبات | نبض</title></Head><section dir="rtl" className="p-6 md:p-8">
     <header className="mb-6 flex flex-wrap items-end justify-between gap-4"><div><h1 className="text-3xl font-bold">دورة الطلبات الموحدة</h1><p className="mt-1 text-sm text-slate-500">بحث وفرز وتصفية من الخادم لجميع أنواع الطلبات دون كشف حالات مصطنعة.</p></div><a href={exportUrl()} className="rounded-lg border border-teal-700 px-4 py-2 text-sm font-bold text-teal-800">تصدير CSV</a></header>
-    <div className="mb-5 grid gap-3 rounded-2xl border bg-white p-4 shadow-sm md:grid-cols-3 lg:grid-cols-6"><input value={filters.q} onChange={(e) => update('q', e.target.value)} className="rounded-lg border px-3 py-2 text-sm" placeholder="بحث بالمعرّف أو العميل"/><select value={filters.kind} onChange={(e) => update('kind', e.target.value)} className="rounded-lg border px-3 py-2 text-sm">{kinds.map((kind) => <option key={kind} value={kind}>{kindLabels[kind]}</option>)}</select><input value={filters.status} onChange={(e) => update('status', e.target.value)} className="rounded-lg border px-3 py-2 text-sm" placeholder="الحالة"/><label className="text-xs text-slate-500">من<input type="date" value={filters.from} onChange={(e) => update('from', e.target.value)} className="mt-1 w-full rounded-lg border px-3 py-2 text-sm"/></label><label className="text-xs text-slate-500">إلى<input type="date" value={filters.to} onChange={(e) => update('to', e.target.value)} className="mt-1 w-full rounded-lg border px-3 py-2 text-sm"/></label><select value={filters.sort} onChange={(e) => update('sort', e.target.value)} className="rounded-lg border px-3 py-2 text-sm"><option value="newest">الأحدث أولاً</option><option value="oldest">الأقدم أولاً</option><option value="amount_asc">القيمة تصاعدياً</option><option value="amount_desc">القيمة تنازلياً</option></select></div>
+    <div className="mb-5 grid gap-3 rounded-2xl border bg-white p-4 shadow-sm md:grid-cols-3 lg:grid-cols-7"><input value={filters.q} onChange={(e) => update('q', e.target.value)} className="rounded-lg border px-3 py-2 text-sm" placeholder="بحث بالمعرّف أو العميل"/><select value={filters.kind} onChange={(e) => update('kind', e.target.value)} className="rounded-lg border px-3 py-2 text-sm">{kinds.map((kind) => <option key={kind} value={kind}>{kindLabels[kind]}</option>)}</select><input value={filters.status} onChange={(e) => update('status', e.target.value)} className="rounded-lg border px-3 py-2 text-sm" placeholder="الحالة"/><label className="text-xs text-slate-500">من<input type="date" value={filters.from} onChange={(e) => update('from', e.target.value)} className="mt-1 w-full rounded-lg border px-3 py-2 text-sm"/></label><label className="text-xs text-slate-500">إلى<input type="date" value={filters.to} onChange={(e) => update('to', e.target.value)} className="mt-1 w-full rounded-lg border px-3 py-2 text-sm"/></label><select aria-label="مشكلة" value={filters.problem} onChange={(e) => update('problem', e.target.value)} className="rounded-lg border px-3 py-2 text-sm">{problems.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select><select value={filters.sort} onChange={(e) => update('sort', e.target.value)} className="rounded-lg border px-3 py-2 text-sm"><option value="newest">الأحدث أولاً</option><option value="oldest">الأقدم أولاً</option><option value="amount_asc">القيمة تصاعدياً</option><option value="amount_desc">القيمة تنازلياً</option></select></div>
     {error ? <p role="alert" className="mb-4 rounded-lg bg-rose-50 p-3 text-rose-700">{error}</p> : null}
     <div className="overflow-x-auto rounded-2xl border bg-white shadow-sm"><DataTable
   bare

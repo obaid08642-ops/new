@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { optimistic } from '../../utils/optimistic';
 import { Pressable, Text, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
@@ -59,7 +60,10 @@ export function MedicationsView() {
   const [error, setError] = useState<string | null>(null);
 
   const rem = useRemote(async () => rowsOf<Reminder>(await apiFetch('/health/reminders')), [version], 'health:reminders');
-  const reminders = rem.data ?? [];
+  // 15.3: a reminder that was turned off disappears at once; it comes back, with the error, if the server refuses
+  const [stopped, setStopped] = useState<ReadonlySet<string>>(() => new Set());
+  const reminders = (rem.data ?? []).filter((r) => !stopped.has(String(r.id)));
+  useEffect(() => { setStopped(new Set()); }, [rem.data]);
   const reload = () => setVersion((v) => v + 1);
 
   const logDose = async (reminder: Reminder, dose: Dose, status: 'taken' | 'skipped') => {
@@ -74,11 +78,18 @@ export function MedicationsView() {
   const stopReminder = async (id: string) => {
     setActionKey(`stop-${id}`);
     setError(null);
-    try {
-      await apiFetch(`/health/reminders/${id}`, { method: 'PATCH', body: JSON.stringify({ active: false }) });
-      await cancelMedicationNotifications(id);
-      reload();
-    } catch { setError(t('stopError')); } finally { setActionKey(null); }
+    const mark = (on: boolean) => setStopped((current) => { const next = new Set(current); if (on) next.add(String(id)); else next.delete(String(id)); return next; });
+    const done = await optimistic({
+      apply: () => mark(true),
+      request: async () => {
+        await apiFetch(`/health/reminders/${id}`, { method: 'PATCH', body: JSON.stringify({ active: false }) });
+        await cancelMedicationNotifications(id);
+      },
+      rollback: () => mark(false),
+      onFail: () => setError(t('stopError')),
+    });
+    if (done.ok) reload(); // stays hidden until the list the server sends next replaces the local mark
+    setActionKey(null);
   };
   const syncAlerts = async (reminder: Reminder) => {
     setActionKey(`sync-${reminder.id}`);

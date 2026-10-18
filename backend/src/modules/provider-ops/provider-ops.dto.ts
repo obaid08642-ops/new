@@ -1,4 +1,4 @@
-import { ArrayMaxSize, IsArray, IsBoolean, IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString, Matches, MaxLength, ValidateNested } from 'class-validator';
+import { ArrayMaxSize, IsArray, IsBoolean, IsDefined, IsIn, IsNumber, IsObject, IsOptional, IsString, Matches, MaxLength, Min, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class AddLeaveDto {
@@ -132,6 +132,34 @@ export class PutPricingDto {
 
 }
 
+/** Facility tariffs (provider-app FacilitySettingsScreen): only the prices the facility entered, in SAR. */
+export class PutTariffsDto {
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  icu_daily?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  icu_hourly?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  ward_daily?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  surgery_room?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  emergency_fee?: number;
+}
+
 export class ReplyReviewDto {
   @IsOptional()
   @IsString()
@@ -201,4 +229,10 @@ export class EndConsultationDto {
   amount?: number;
 
 
+}
+
+export class ToggleInstantDto {
+  // The state the provider asked for. Without it the server flips whatever it holds, which turned an "online" tap into
+  // "offline" whenever the app and the server disagreed (the app always started from "offline").
+  @IsOptional() @IsBoolean() available?: boolean;
 }

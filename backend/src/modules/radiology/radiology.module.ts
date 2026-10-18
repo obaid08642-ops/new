@@ -1,7 +1,5 @@
-import { Module, Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { MongooseModule, InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { RADIOLOGY_SEED } from './radiology.seed';
+import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
 import { RadiologyController as RadiologyPublicController } from './radiology.controller';
 import { RadiologyOpsService } from './radiology.service';
 import { RadiologyProviderController } from './controllers/radiology-provider.controller';
@@ -20,38 +18,13 @@ import { RadiologyReminderCron } from './cron/radiology-reminder.cron';
 import { StorageObjectSchema } from '../storage/storage.module';
 import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 
-@Injectable()
-export class RadiologySeed implements OnModuleInit {
-  private readonly logger = new Logger('RadiologySeed');
-  constructor(@InjectModel('RadiologyService') private readonly svcModel: Model<any>) {}
-  async onModuleInit() {
-    setImmediate(() =>
-      this.seed().catch((e: any) => this.logger.warn(`Background radiology seed failed: ${e?.message}`)),
-    );
-  }
 
-  private async seed() {
-    let ok = 0;
-    for (const x of RADIOLOGY_SEED as any[]) {
-      try {
-        await this.svcModel.updateOne(
-          { short_code: x.short_code },
-          { $setOnInsert: { ...x, id: x.id || require('uuid').v4(), active: true } },
-          { upsert: true },
-        );
-        ok++;
-      } catch (e: any) {
-        this.logger.error(`seed_doc_failed (${x?.short_code}): ${e?.message?.slice(0, 120)}`);
-      }
-    }
-    this.logger.log(`Seeded ${ok}/${RADIOLOGY_SEED.length} radiology services`);
-  }
-}
-
+import { ApprovalWorkflowModule } from '../approval-workflow/approval-workflow.module';
 @Module({
   imports: [
     WorkflowEngineModule,
     InsuranceEngineModule,
+    ApprovalWorkflowModule,
     MongooseModule.forFeature([
       { name: 'RadiologyService', schema: RadiologyServiceSchema },
       { name: ProviderProfile.name, schema: ProviderProfileSchema },
@@ -72,7 +45,6 @@ export class RadiologySeed implements OnModuleInit {
     RadiologyOpsService, 
     RadiologyNotificationListener,
     RadiologyReminderCron,
-    RadiologySeed,
     { provide: 'LabResultRepository', useClass: LabResultRepository }, 
     { provide: 'RadiologyBookingRepository', useClass: RadiologyBookingRepository }, 
     { provide: 'RadiologyServiceRepository', useClass: RadiologyServiceRepository }

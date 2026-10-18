@@ -46,6 +46,17 @@ describe('A-2 patient offer list', () => {
     expect(Object.fromEntries(list.map((o) => [o.id, o.status]))).toEqual({ live: 'open', late: 'expired', gone: 'withdrawn' });
   });
 
+  it('journeys 75: each named line carries the price check the website shows', async () => {
+    const items = [
+      { order_item_id: 'a', name_ar: 'أ', action: 'available', price_check: 'not_verified' },
+      { order_item_id: 'b', name_ar: 'ب', action: 'available', above_catalogue_price: true },
+      { order_item_id: 'c', name_ar: 'ج', action: 'available', price_check: 'verified' },
+    ];
+    const { svc } = svcWith([offer('live', 'ph1', 'submitted', { items })]);
+    const [row]: any[] = await svc.listForPatient(user, 'ord1');
+    expect(row.lines.map((l: any) => l.price_status)).toEqual(['not_verified', 'above_catalogue', 'verified']);
+  });
+
   it('keeps only the latest sent version per pharmacy', async () => {
     const { svc } = svcWith([offer('v2', 'ph1', 'submitted', { version: 2 }), offer('v1', 'ph1', 'cancelled', { version: 1 })]);
     expect((await svc.listForPatient(user, 'ord1', true)).map((o: any) => o.id)).toEqual(['v2']);

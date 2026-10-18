@@ -14,8 +14,15 @@ DOCTOR_SCREEN_GETS = ['/provider/profile', '/provider/profile/availability', '/p
                       '/hospital/invitations/inbox', '/provider/dashboard/stats', '/provider/crm']
 
 
+LAST_TXN = {}
+
+# The day is fixed when the journey starts: a run that crosses midnight would otherwise publish hours for one
+# weekday and then look for slots on the next one ("closed").
+_RUN_DAY = datetime.date.today()
+
+
 def tomorrow():
-    return datetime.date.today() + datetime.timedelta(days=1)
+    return _RUN_DAY + datetime.timedelta(days=1)
 
 
 def doctor_publishes_hours(doctor, admin, service_types=('clinic',)):
@@ -78,6 +85,8 @@ def book_paid(pat, doctor):
     step('card is offered for this consultation', r.ok and any(m.get('id') == 'card' for m in (r.get('methods') or [])), r)
     r = pat.post(f'/payments/intent/consultation/{aid}', {'method': 'card'}, headers={'Idempotency-Key': f'payment-consultation-{aid}-{uuid.uuid4()}'})
     txn = r.body.get('data', r.body) if isinstance(r.body, dict) else {}
+    global LAST_TXN
+    LAST_TXN = txn  # the web payment-result journey returns with this payment's gateway id
     step('checkout link is https', r.ok and str(txn.get('checkout_url', '')).startswith('https://'), r)
     if txn.get('gateway_intent_id'):
         fake_pay(txn['gateway_intent_id'])
@@ -104,6 +113,18 @@ def pay_card(pat, aid):
         step('payment verified', r.ok and r.get('status') == 'paid', r)
         return r.ok
     return False
+
+
+def accept_telehealth_consent(pat):
+    """D-38 (issue 1549): before the first online consultation the app shows the telehealth consent and the patient accepts
+    it (TelehealthConsentSheet: POST /legal/accept/telehealth_consent with the device id). Only when it is published and
+    still pending for this patient, as the app asks only then."""
+    r = pat.get('/legal/pending')
+    pending = [p.get('key') for p in (r.body if isinstance(r.body, list) else r.items())]
+    if 'telehealth_consent' not in pending:
+        return
+    r = pat.post('/legal/accept/telehealth_consent', {}, headers={'x-device-id': f'live-{uuid.uuid4().hex[:12]}', 'x-app-platform': 'android'})
+    step('the patient accepts the telehealth consent before the first online consultation', r.ok, r)
 
 
 def book_variant(pat, doctor, service_type, payment, provider=None):
@@ -155,6 +176,8 @@ def book_variant(pat, doctor, service_type, payment, provider=None):
     used.add(t0)
     book_variant._used_slots = used
     journey(f'consultation matrix: {service_type} x {payment}')
+    if service_type == 'video':
+        accept_telehealth_consent(pat)
     r = pat.post('/slot-locks/reserve', {'provider_id': did, 'booking_kind': 'consultation', 'slot_start': slot})
     lock = r.get('id')
     body = {'doctor_id': did, 'service_type': service_type, 'slot_start': slot, 'payment_method': payment, 'slot_lock_id': lock}
@@ -230,10 +253,27 @@ def run(pat, doctor, admin):
     step('appointment COMPLETED', r.ok and str(r.get('status')).upper() == 'COMPLETED', r)
     r = pat.get(f'/care/appointments/{aid}/summary')
     step('visit summary opens', r.ok, r)
+    # 16.9 health data protection: ciphertext at rest, plaintext through the API, every read logged
+    import health_db
+    raw_appt = health_db.find_raw('appointments', {'id': aid}) or {}
+    step('16.9: the stored visit summary is ciphertext in the database', health_db.is_cipher((raw_appt.get('summary') or {}).get('diagnosis'))
+         and health_db.is_cipher((raw_appt.get('summary') or {}).get('notes')), (raw_appt.get('summary') or {}).get('diagnosis'))
+    step('16.9: the summary the patient reads is the doctor\'s text', r.get('diagnosis') == 'التهاب حلق فيروسي' and r.get('notes') == 'راحة وسوائل', r)
+    raw_rx = health_db.find_raw('prescriptions', {'appointment_id': aid}) or {}
+    step('16.9: the stored prescription diagnosis, notes and dosing instructions are ciphertext',
+         health_db.is_cipher(raw_rx.get('diagnosis')) and health_db.is_cipher(raw_rx.get('notes'))
+         and all(health_db.is_cipher(i.get('instructions')) for i in raw_rx.get('items') or [{}]), {k: raw_rx.get(k) for k in ('diagnosis', 'notes')})
+    log = pat.get('/medical-reports/access-log')
+    kinds = {(x.get('record_kind'), x.get('actor_kind')) for x in (log.get('data') or [])}
+    step('16.9: the patient sees who read their visit summary (access log)', log.ok and ('consultation_summary', 'patient') in kinds, log)
     r = pat.get('/prescriptions/active')
     step('prescription-from-doctor lists the prescription', r.ok and 'Paracetamol' in str(r.body), r)
     rx = next((x for x in (r.body if isinstance(r.body, list) else r.items()) if x.get('appointment_id') == aid), {})
     it = (rx.get('items') or [{}])[0]
+    step('16.9: the prescription the patient reads has the plaintext diagnosis and dosing instructions',
+        rx.get('diagnosis') == 'التهاب حلق فيروسي' and 'كل 8 ساعات' in str(it.get('instructions')), {'diagnosis': rx.get('diagnosis'), 'instructions': it.get('instructions')})
+    log2 = pat.get('/medical-reports/access-log')
+    step('16.9: listing the prescriptions is logged as a read of each prescription', any(x.get('record_kind') == 'prescription' for x in (log2.get('data') or [])), log2)
     # prescription-from-doctor "add to reminders" (src/utils/prescription-view reminderPayload)
     r = pat.post('/health/reminders', {'medication_name': it.get('medicine_name_ar'), 'medicine_name_en': it.get('medicine_name_en'), 'dose': it.get('dose'),
                                        'frequency': 'daily', 'duration_days': it.get('duration_days'), 'instructions_ar': it.get('instructions'),
@@ -253,6 +293,16 @@ def run(pat, doctor, admin):
     r = admin.get('/admin/admin/orders?kind=consultation&limit=25')
     row = next((x for x in r.items() if x.get('id') == aid), None)
     step('console lists it with status and amount', r.ok and row and str(row.get('status')).upper() == 'COMPLETED' and row.get('amount', 0) > 0, row or r.status)
+
+    # Fix session (money): the patient pays only through Moyasar and refunds have one path (owner decision 952), so
+    # no admin route marks a booking paid or refunded by hand.
+    journey('consultation: no manual payment status or fake refund')
+    r = admin.post('/admin/admin/override/payment', {'kind': 'consultation', 'id': aid, 'payment_status': 'refunded', 'reason': 'live gate probe: manual refund'})
+    step('admin cannot mark the booking "refunded" without a refund', not r.ok, r)
+    r = pat.get(f'/care/appointments/{aid}')
+    step('the booking is still paid (no refund was made)', str(r.get('payment_status')).lower() != 'refunded', r.get('payment_status'))
+    r = pat.post('/patient-ux/refund', {'booking_kind': 'consultation', 'booking_id': aid, 'reason': 'live gate probe'})
+    step('the side refund queue (no money moves) is closed', not r.ok, r)
     return aid
 
 

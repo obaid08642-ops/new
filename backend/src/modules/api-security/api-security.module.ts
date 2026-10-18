@@ -22,6 +22,7 @@ import { JwtAuthGuard, Roles, Public } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { ClearDto } from './api-security.dto';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 // ── Rate limit budgets per route class ──────────────────────────────
 const LIMITS: Array<{ pattern: RegExp; name: string; perMinute: number; perHour: number }> = [
   { pattern: /\/auth\/(login|register|social-login)/, name: 'login', perMinute: 5, perHour: 30 },
@@ -249,6 +250,7 @@ export class ApiSecurityController {
     return { data: rows, counts };
   }
 
+  @RequirePermissions(Permission.SECURITY_MANAGE)
   @Post('blacklist/clear')
   async clear(@Body() body: ClearDto) {
     const c = (this.sec as any).client?.();

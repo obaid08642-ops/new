@@ -96,15 +96,31 @@ def run(pat, nurse, admin=None):
     step('cannot arrive before setting off', r.status == 400, r)
     r = nurse.post(f'/nursing/visits/{bid}/transit', {})
     step('on the way', r.ok, r)
+    # NursingFieldOps sends the live position on the way (provider-journeys#25: the visit family's own route)
+    r = nurse.post(f'/nursing/visits/{bid}/position', {'lat': 24.7005, 'lng': 46.7005})
+    step('the nurse shares the live position on the way', r.ok, r)
+    r = pat.get(f'/nursing/visits/{bid}/tracking')
+    step("the patient's tracking shows that position", r.ok and r.get('current_lat') == 24.7005 and r.get('current_lng') == 46.7005, r)
     r = nurse.post(f'/nursing/visits/{bid}/arrive', {'lat': 24.80, 'lng': 46.80})
     step('arrival far from the patient is refused (geofence)', r.status == 400, r)
     r = nurse.post(f'/nursing/visits/{bid}/arrive', {'lat': 24.7002, 'lng': 46.7002})
     step('arrived at the patient', r.ok, r)
     r = nurse.post(f'/nursing/visits/{bid}/start-care', {})
     step('care started', r.ok, r)
+    r = nurse.post(f'/nursing/visits/{bid}/complete', {'clinical_notes': 'بدون توقيع'})
+    step("a visit is not completed without the patient's signature (provider-journeys#13)", r.status == 400 and 'patient_signature_required' in str(r.body), r)
     # NursingFieldOps doComplete: notes + the patient's signature (required by the screen)
     r = nurse.post(f'/nursing/visits/{bid}/complete', {'clinical_notes': 'تم إعطاء الحقنة ومتابعة العلامات الحيوية', 'signature_base64': 'data:image/png;base64,iVBORw0KGgo='})
     step('visit completed with the report', r.ok, r)
+
+    journey('nursing: each visit step reaches the patient as a notification')
+    # NursingFieldOps steps (/nursing/visits/:id/*) -> homecare.booking_state_changed -> NotificationsService onHomecareState.
+    r = pat.get('/notifications?lang=en')
+    rows = r.body if isinstance(r.body, list) else r.items()
+    mine = [n for n in rows if isinstance(n, dict) and ((n.get('action') or {}).get('route') if isinstance(n.get('action'), dict) else None) == f'/nursing/tracking/{bid}']
+    titles = {n.get('title') for n in mine}
+    for title, what in (('Nurse On The Way', 'on the way'), ('Nurse Arrived', 'arrived'), ('Visit Completed', 'visit completed')):
+        step(f'the patient is notified: {what}', r.ok and title in titles, sorted(t for t in titles if t))
 
     journey('nursing: the patient sees the finished visit')
     r = pat.get('/nursing/bookings/mine')
@@ -139,7 +155,35 @@ def run(pat, nurse, admin=None):
         r = admin.post(f'/admin/admin/orders/nursing/{bid}/refund', {'mode': 'partial', 'amount': paid, 'reason': 'محاولة استرداد يتجاوز المتبقي من المبلغ'})
         step('refund above the remaining amount is refused', r.status == 400, r)
     matrix_shift_booking(pat, nurse, admin)
+    if admin:
+        insurance_matrix(pat, nurse, admin)
     return bid
+
+
+def insurance_matrix(pat, nurse, admin):
+    """19.11 for a nursing visit: the request opens with the booking, the nurse receives it and enters the outcome,
+    the patient pays the copay (or the full price after a rejection), and the nurse can then accept the visit."""
+    import j_insurance
+    journey('nursing: insurance (policy, request opened with the booking)')
+    company = j_insurance.add_policy(pat, j_insurance.admin_adds_company(admin))
+    if not company:
+        return
+    j_insurance.accept_insurance(nurse, company)
+    nurse_id = nurse.get('/provider/me').get('account', 'id')
+    r = pat.get('/home-care/services')
+    svcs = r.body if isinstance(r.body, list) else r.items()
+    addr = {'address': 'شارع الملك فهد 3، الرياض', 'city': 'الرياض', 'lat': 24.7001, 'lng': 46.7001}
+    for i, outcome in enumerate(('approve_partial', 'approve_full', 'reject')):
+        svc = svcs[(i + 1) % len(svcs)]  # a different service each time: the 3-minute duplicate-submit guard
+        r = pat.post('/nursing/bookings', {'provider_id': nurse_id, 'service_id': svc['id'], 'service_name_ar': svc.get('name_ar'),
+                                           'scheduled_at': tomorrow_at(10 + i), 'address': addr, 'payment_method': 'insurance'})
+        bid = r.get('id')
+        step(f'nursing {outcome}: the insurance visit is booked', r.ok and bid, r)
+        if not bid:
+            continue
+        r = nurse.post(f'/provider/jobs/nursing/{bid}/accept', {})
+        step(f'nursing {outcome}: the nurse cannot accept before the insurance outcome', r.status == 400, r)
+        j_insurance.engine_flow(pat, nurse, 'nursing', bid, outcome, lambda b=bid: nurse.post(f'/provider/jobs/nursing/{b}/accept', {}).ok, f'nursing {outcome}')
 
 
 def matrix_shift_booking(pat, nurse, admin=None):

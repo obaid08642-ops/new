@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { specialtyLabel } from "@/lib/specialties";
@@ -8,11 +9,14 @@ import type { ReactNode } from "react";
 import { doctorDisplayName, type DoctorRow } from "@/lib/api/doctors";
 import type { Locale } from "@/lib/i18n";
 import { Button } from "@/components-next/ui-generated/components/Button";
-import { Input } from "@/components-next/ui-generated/components/Inputs";
+import { Input, Select } from "@/components-next/ui-generated/components/Inputs";
+import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { Segmented } from "@/components-next/ui-generated/components/Controls";
 import { StickyFooter } from "@/components-next/ui-generated/shells/StickyFooter";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { PolicyCard } from "@/components-next/consult/policy-lines";
+import { TelehealthConsentCard, needsTelehealthConsent } from "@/components-next/consult/telehealth-consent-card";
+import type { TelehealthConsentText } from "@/lib/legal/telehealth-consent";
 import { Hero, SectionCard } from "@/components-next/consult/consult-parts";
 import { formatPrice } from "@/lib/format-price";
 import rx from "@/components-next/pharmacy/rx.module.css";
@@ -46,9 +50,13 @@ function newIdempotencyKey(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-export function BookingFlow({ doctorId, locale, doctor, top, policy }: { doctorId: string; locale: string; doctor: DoctorRow | null; top?: ReactNode; policy?: { title: string; lines: string[] } }) {
+/** A saved address with a map location, for a home visit (journeys#29). */
+export type HomeAddress = { id: string; label: string; line: string; lat: number; lng: number };
+
+export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddresses = [], consent = null }: { doctorId: string; locale: string; doctor: DoctorRow | null; top?: ReactNode; policy?: { title: string; lines: string[] }; homeAddresses?: HomeAddress[]; consent?: TelehealthConsentText | null }) {
   const t = useTranslations("BookConsultation");
   const names = useTranslations("SpecialtyNames");
+  const legal = useTranslations("LegalLinks");
   const specialty = specialtyLabel(names, doctor?.specialty);
   const router = useRouter();
   const days = useMemo(() => nextDays(7, locale), [locale]);
@@ -66,11 +74,14 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy }: { doctorI
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "card" | "insurance">("card");
-  const [homeLat, setHomeLat] = useState("");
-  const [homeLng, setHomeLng] = useState("");
-  const [homeAddress, setHomeAddress] = useState("");
+  const [homeAddressId, setHomeAddressId] = useState(homeAddresses[0]?.id ?? "");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // D-38: the server refused the online booking until the telehealth consent is accepted; the consent card is shown
+  const [consentAsked, setConsentAsked] = useState(false);
+  useEffect(() => {
+    if (consentAsked) document.getElementById("telehealth-consent-title")?.scrollIntoView({ block: "start" });
+  }, [consentAsked]);
   // #402: the visit length is the chosen slot's own length (start to end, from the doctor's schedule); none when it cannot be read.
   const chosen = slots.find((slot) => slot.start === selectedSlot);
   const durationMinutes = (() => {
@@ -114,13 +125,12 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy }: { doctorI
       // Home visits require a location for the doctor to travel to.
       let visitLocation: { lat: number; lng: number; address: string } | undefined;
       if (visitType === "home") {
-        const lat = Number(homeLat);
-        const lng = Number(homeLng);
-        if (!Number.isFinite(lat) || !Number.isFinite(lng) || !homeAddress.trim()) {
+        const home = homeAddresses.find((a) => a.id === homeAddressId);
+        if (!home) {
           setError(t("homeAddressRequired"));
           return;
         }
-        visitLocation = { lat, lng, address: homeAddress.trim() };
+        visitLocation = { lat: home.lat, lng: home.lng, address: home.line || home.label };
       }
       // Hold the slot first (10-min TTL): the server consumes the lock on
       // booking success and releases it on failure, so double-submits and a
@@ -166,6 +176,10 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy }: { doctorI
         return;
       }
       const data = await res.json().catch(() => null);
+      if (needsTelehealthConsent(data)) {
+        setConsentAsked(true);
+        return;
+      }
       // Never show the server's raw message (English/codes) to the patient (needs-review issue 1039).
       setError(String(data?.message ?? "").includes("slot_taken") ? t("slotTaken") : "booking_failed");
     } catch {
@@ -224,11 +238,12 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy }: { doctorI
       </SectionCard>
       {visitType === "home" ? (
         <SectionCard id="book-home" title={t("homeLocation")}>
-          <Input label={t("homeAddress")} placeholder={t("homeAddressPlaceholder")} value={homeAddress} onChange={(value) => setHomeAddress(value.slice(0, 500))} multiline rows={2} />
-          <div className={styles.two}>
-            <Input label={t("homeLat")} value={homeLat} onChange={setHomeLat} keyboardType="decimal" />
-            <Input label={t("homeLng")} value={homeLng} onChange={setHomeLng} keyboardType="decimal" />
-          </div>
+          {homeAddresses.length > 0 ? (
+            <Select label={t("homeAddress")} value={homeAddressId} onChange={setHomeAddressId} options={homeAddresses.map((a) => ({ value: a.id, label: a.label }))} />
+          ) : (
+            <p className={`${styles.body} ${styles.muted}`}>{t("homeAddressNone")}</p>
+          )}
+          <ButtonLink href={`/${locale}/profile/addresses`} label={t("homeAddressAdd")} variant="outline" size="md" />
         </SectionCard>
       ) : null}
       <SectionCard id="book-notes" title={t("notes")}>
@@ -243,12 +258,26 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy }: { doctorI
         />
         {visitType !== "clinic" ? <p className={`${styles.body} ${styles.muted}`}>{t("cashClinicOnly")}</p> : null}
       </SectionCard>
-      {policy ? <PolicyCard title={policy.title} lines={policy.lines} /> : null}
+      {policy ? (
+        <PolicyCard title={policy.title} lines={policy.lines}>
+          <Link className={rx.textLink} href={`/${locale}/refund-policy`}>{legal("refundPolicy")}</Link>
+        </PolicyCard>
+      ) : null}
       {price || durationMinutes !== null ? (
         <section className={`${rx.card} ${styles.priceCard}`} aria-label={t("fee")}>
           {durationMinutes !== null ? <div className={styles.totalRow}><span>{t("duration")}</span><span>{t("durationValue", { n: new Intl.NumberFormat(locale).format(durationMinutes) })}</span></div> : null}
           {price ? <div className={styles.totalRow}><span>{t("fee")}</span><span>{price.text}</span></div> : null}
         </section>
+      ) : null}
+      {consentAsked && visitType === "video" ? (
+        <TelehealthConsentCard
+          locale={locale}
+          consent={consent}
+          onAccepted={() => {
+            setConsentAsked(false);
+            void submit();
+          }}
+        />
       ) : null}
       {error ? <p className={styles.error} role="alert">{error === "booking_failed" ? t("bookingFailed") : error}</p> : null}
     </ConsultPage>

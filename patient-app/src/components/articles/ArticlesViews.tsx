@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Image, Pressable, Share, Text, View } from 'react-native';
+import { Pressable, Share, Text, View } from 'react-native';
+import { Image } from 'expo-image';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 import Svg, { Path } from 'react-native-svg';
 
@@ -8,6 +9,10 @@ import { CONSULT_TONE, Gate, Section, goBack, useConsultFormat, type GateStatus 
 import { HealthScreen, HealthTabs, Pill, rowsOf, useRemote, useTab } from '../health/HealthKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
+import { useApp } from '../../context/AppContext';
+import { useSearchSuggest } from '../../hooks/useSearchSuggest';
+import { SearchSuggestList } from '../search/SearchSuggestList';
+import { suggestionRoute } from '../../utils/searchSuggest';
 import { pickLocalized } from '../../utils/localize';
 
 /**
@@ -72,7 +77,7 @@ export function ArticleCard({ article, saved = false, testID }: { article: Artic
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={title} onPress={() => openArticle(article.slug)} testID={testID} style={{ minHeight: 44 }}>
       <Card theme={theme} padding="none">
-        {article.cover_image ? <Image source={{ uri: article.cover_image }} accessibilityIgnoresInvertColors style={{ width: '100%', height: 150, borderTopLeftRadius: 24, borderTopRightRadius: 24, backgroundColor: c.bg.sunken }} resizeMode="cover" /> : null}
+        {article.cover_image ? <Image cachePolicy="memory-disk" source={{ uri: article.cover_image }} accessibilityIgnoresInvertColors style={{ width: '100%', height: 150, borderTopLeftRadius: 24, borderTopRightRadius: 24, backgroundColor: c.bg.sunken }} contentFit="cover" /> : null}
         <View style={{ padding: 14, gap: 8 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
             {article.category ? <Pill label={article.category} tone="info" /> : <View />}
@@ -92,6 +97,8 @@ function AllTab() {
   const params = useLocalSearchParams<{ category?: string }>();
   const category = typeof params.category === 'string' ? params.category : '';
   const [text, setText] = useState('');
+  const { lang } = useApp();
+  const suggest = useSearchSuggest(text, lang);
   const [query, setQuery] = useState('');
   useEffect(() => {
     const id = setTimeout(() => setQuery(text.trim()), 400);
@@ -115,6 +122,18 @@ function AllTab() {
   return (
     <>
       <Search value={text} onChange={setText} onClear={() => setText('')} clearLabel={k('articles.clearSearch')} placeholder={k('articles.search')} variant="page" theme={theme} testID="articles-search" />
+      {suggest.open ? (
+        <SearchSuggestList
+          items={suggest.items}
+          query={text}
+          onPick={(item) => {
+            const route = suggestionRoute(item);
+            if (!route) return;
+            suggest.close();
+            router.push({ pathname: route.pathname, params: route.params } as unknown as Href);
+          }}
+        />
+      ) : null}
       {names.length > 0 ? (
         <HealthTabs tabs={[{ key: '', label: k('articles.allCategories') }, ...names.map((n) => ({ key: n, label: n }))]} value={category} onChange={(next) => router.setParams({ category: next })} testID="article-categories" />
       ) : null}
@@ -205,7 +224,7 @@ export function ArticleDetailView({ slug }: { slug: string }) {
       <Gate status={gate} onRetry={() => void reload()} missingTitle={k('articles.missing')} missingBody={k('articles.missingBody')}>
         {article ? (
           <>
-            {article.cover_image ? <Image source={{ uri: article.cover_image }} accessibilityIgnoresInvertColors style={{ width: '100%', height: 200, borderRadius: 24, backgroundColor: c.bg.sunken }} resizeMode="cover" /> : null}
+            {article.cover_image ? <Image cachePolicy="memory-disk" source={{ uri: article.cover_image }} accessibilityIgnoresInvertColors style={{ width: '100%', height: 200, borderRadius: 24, backgroundColor: c.bg.sunken }} contentFit="cover" /> : null}
             {article.category ? <Pill label={article.category} tone="info" /> : null}
             <Text accessibilityRole="header" style={{ ...scale(t, 'h2'), color: c.text.primary, ...flow }}>{pickLocalized(article.title_ar, article.title_en)}</Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10 }}>

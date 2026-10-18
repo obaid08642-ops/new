@@ -12,7 +12,6 @@ import { SystemConfig, SystemConfigDocument } from '../../schemas/system-config.
 import { UserRole, ProviderType, ProviderStatus } from '../../common/enums';
 import { SEED_USERS, SEED_PHARMACIES, SEED_DOCTORS, SEED_DELIVERY, SEED_MEDICINES } from './seed.data';
 import { SEED_FACILITIES } from './seed.facilities';
-import { LAB_SEED } from '../labs/labs.seed';
 import { UserRepository } from "./repositories/user.repository";
 import { PatientProfileRepository } from "./repositories/patientprofile.repository";
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
@@ -33,7 +32,8 @@ export class SeedService implements OnModuleInit {
     @Inject('MedicineRepository') private medModel: MedicineRepository,
     @Inject('PharmacyInventoryRepository') private invModel: PharmacyInventoryRepository,
     @Inject('FacilityRepository') private facilityModel: FacilityRepository,
-    @Inject('LabServiceRepository') private labSvcModel: LabServiceRepository,
+    // Lab services are seeded from catalogs/seed-data/labs.json only (#1556 F: one lab list).
+    @Inject('LabServiceRepository') private readonly _labSvcModel: LabServiceRepository,
     @Inject('SystemConfigRepository') private configModel: SystemConfigRepository,
   ) {}
 
@@ -42,7 +42,6 @@ export class SeedService implements OnModuleInit {
     for (const step of [
       () => this.seedSystemConfig(),
       () => this.seedMedicines(),
-      () => this.seedLabs(),
       () => this.seedFulfillmentPolicies(),
     ]) {
       try {
@@ -343,23 +342,6 @@ export class SeedService implements OnModuleInit {
       await this.invModel.insertMany(rows, { ordered: false }).catch(() => {});
       this.logger.log(`Seeded ${rows.length} pharmacy inventory rows`);
     }
-  }
-
-  private async seedLabs() {
-    // Per-item upsert (no count gate): market-gap additions deploy live automatically.
-    let ok = 0;
-    for (const x of LAB_SEED as any[]) {
-      if (!x.short_code) continue;
-      try {
-        const r = await this.labSvcModel.updateOne(
-          { short_code: x.short_code },
-          { $setOnInsert: { ...x, active: true } },
-          { upsert: true },
-        );
-        if ((r as any).upsertedCount || (r as any).upsertedId) ok++;
-      } catch { /* duplicate → already live */ }
-    }
-    if (ok) this.logger.log(`Seeded ${ok} new lab services`);
   }
 
   async seedSystemConfig() {
