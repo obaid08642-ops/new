@@ -3601,8 +3601,9 @@
       "service": "Uri ng serbisyo",
       "svc": {
         "consultation": "Konsultasyong medikal",
-        "pharmacy": "Mga gamot",
-        "lab": "Mga lab test"
+        "labs": "Mga lab test",
+        "radiology": "Radiolohiya",
+        "nursing": "Pag-aalaga sa bahay"
       },
       "check": "Ipakita ang saklaw",
       "result": "Saklaw na nakatala",

@@ -3601,8 +3601,9 @@
       "service": "Service type",
       "svc": {
         "consultation": "Medical consultation",
-        "pharmacy": "Medicines",
-        "lab": "Lab tests"
+        "labs": "Lab tests",
+        "radiology": "Radiology",
+        "nursing": "Home nursing"
       },
       "check": "Show coverage",
       "result": "Coverage on file",
