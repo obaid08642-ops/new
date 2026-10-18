@@ -88,3 +88,4 @@ j_web_order_center_returns
 j_telehealth_consent
 j_admin_roles_restrictive
 j_security_headers
+j_business_rules
