@@ -11,6 +11,7 @@ Stack: backend :8002 started by start-backend.sh (AI_KEYS_ENC_KEY is set there).
 """
 import json
 import os
+import secrets
 import subprocess
 
 from lib import Client, step, journey
@@ -18,8 +19,9 @@ from health_db import find_raw, BACKEND, MONGO, DB
 
 OWNER_EMAIL = os.environ.get('LIVE_OWNER_EMAIL', 'owner@nabd.test')
 OWNER_PASSWORD = os.environ.get('LIVE_OWNER_PASSWORD', 'Own3r!Live-Pass')
-KEY = 'live-test-key-0123456789-ABCD'
-LEGACY = 'legacy-plain-key-9876543210-WXYZ'
+# test values are made up per run, so no key-shaped literal sits in the repository
+KEY = 'k-' + secrets.token_hex(12) + '-' + secrets.token_hex(2).upper()
+LEGACY = 'p-' + secrets.token_hex(12) + '-' + secrets.token_hex(2).upper()
 
 
 def set_raw(provider, api_key):
@@ -56,7 +58,7 @@ def run():
     step('stored value does not contain the key', KEY not in stored, stored[-12:])
     view = owner.get('/ai/admin/gateway')
     d = row(view.body if isinstance(view.body, dict) else {}, 'deepseek')
-    step('view shows has_key and the end of the real key', d.get('has_key') is True and d.get('key_preview') == '••••ABCD', d)
+    step('view shows has_key and the end of the real key', d.get('has_key') is True and d.get('key_preview') == '••••' + KEY[-4:], d)
     step('the key itself never appears in the response', KEY not in json.dumps(view.body), '')
 
     try:
@@ -66,7 +68,7 @@ def run():
         step('plaintext row written', set_raw('deepseek', LEGACY), '')
         view = owner.get('/ai/admin/gateway')
         d = row(view.body if isinstance(view.body, dict) else {}, 'deepseek')
-        step('preview is the end of the real key', d.get('key_preview') == '••••WXYZ', d)
+        step('preview is the end of the real key', d.get('key_preview') == '••••' + LEGACY[-4:], d)
         step('legacy value never returned whole', LEGACY not in json.dumps(view.body), '')
 
     finally:
