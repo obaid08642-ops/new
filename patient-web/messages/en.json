@@ -4273,7 +4273,9 @@
     "openBooking": "Open the booking to see the report file",
     "empty": "This result has no further details.",
     "discuss": "Discuss the result with a doctor",
-    "rangeText": "Normal range {range}"
+    "rangeText": "Normal range {range}",
+    "trendTitle": "Trend",
+    "trendNote": "Earlier results of the same test"
   },
   "Offline": {
     "title": "You are offline",

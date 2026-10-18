@@ -4273,7 +4273,9 @@
     "openBooking": "Buksan ang booking para makita ang report file",
     "empty": "Wala nang ibang detalye ang resultang ito.",
     "discuss": "Pag-usapan ang resulta kasama ang doktor",
-    "rangeText": "Normal na saklaw {range}"
+    "rangeText": "Normal na saklaw {range}",
+    "trendTitle": "Pagbabago",
+    "trendNote": "Mga naunang resulta ng parehong test"
   },
   "Offline": {
     "title": "Offline ka",
