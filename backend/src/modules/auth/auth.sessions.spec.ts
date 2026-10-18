@@ -158,6 +158,19 @@ describe('AuthService sessions (21.7)', () => {
     expect((await service.listSessions(user.id)).map((d) => d.session_id)).toEqual([a.sid]);
   });
 
+  it('the apps\' own route (DELETE /users/me/sessions/:jti) ends the sign-in the same way: revoked at once, push tokens gone', async () => {
+    const a = await signIn(IPHONE, '10.1.2.3', 'dev-iphone-0000000001');
+    const b = await signIn(CHROME, '192.168.5.9');
+    const jtiB = (jwt.decode(b.refreshToken) as any).jti;
+    await expect(service.revokeSessionByJti(user.id, 'not-a-jti')).rejects.toBeInstanceOf(NotFoundException);
+    await expect(service.revokeSessionByJti('someone-else', jtiB)).rejects.toBeInstanceOf(NotFoundException);
+    const r = await service.revokeSessionByJti(user.id, jtiB);
+    expect(r).toMatchObject({ ok: true, sessions_revoked: 1 });
+    expect(revoked.map((x) => x.sid)).toEqual([b.sid]);
+    expect(pushRemoved[0].sids).toEqual([b.sid]);
+    expect((await service.listSessions(user.id)).map((d) => d.session_id)).toEqual([a.sid]);
+  });
+
   it('sign out of all devices ends every sign-in and marks them revoked', async () => {
     const a = await signIn(IPHONE, '10.1.2.3');
     const b = await signIn(CHROME, '192.168.5.9');

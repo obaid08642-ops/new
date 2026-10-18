@@ -302,6 +302,17 @@ export class AuthService {
     return { ok: true, sessions_revoked: r.revoked, push_tokens_removed: r.push_removed };
   }
 
+  /**
+   * 21.7 — sign out the sign-in that holds this refresh session id (what `GET /users/me/sessions` lists and the apps send to
+   * `DELETE /users/me/sessions/:jti`). Same effect as ending it by its sign-in id: the access token stops at once and its
+   * push tokens go.
+   */
+  async revokeSessionByJti(userId: string, jti: string) {
+    const r = await this.endSessions(userId, (m) => m.jti === jti);
+    if (!r.revoked) throw new NotFoundException('session_not_found');
+    return { ok: true, sessions_revoked: r.revoked, push_tokens_removed: r.push_removed };
+  }
+
   /** 21.7 — sign out one listed device by its session id. Only the account's own sessions are ever in the set. */
   async revokeSession(userId: string, sessionId: string) {
     const r = await this.endSessions(userId, (m) => m.sid === sessionId);

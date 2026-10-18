@@ -47,6 +47,19 @@ def run():
     step('labels are readable, addresses masked, no raw user agent', other.get('label') == 'Chrome · Windows'
          and mine.get('platform') == 'ios' and '*' in str(mine.get('ip')) and 'Mozilla' not in str(rows), rows)
 
+    journey('sessions: the apps\' own route (GET/DELETE /users/me/sessions) ends a sign-in the same way')
+    tablet_dev = 'live-tablet-' + uuid.uuid4().hex
+    r = anon.post('/auth/login', {'phone': p['phone'], 'password': p['password']}, headers={'x-device-id': tablet_dev, 'user-agent': CHROME})
+    tablet = tok(r)
+    tablet_c = Client(tablet.get('accessToken'), 'tablet')
+    r = phone_c.get('/users/me/sessions', headers={'x-device-id': phone_dev})
+    rows2 = r.items()
+    t_row = next((x for x in rows2 if x.get('device') == tablet_dev), {})
+    step('the apps\' list shows a readable label and no raw user agent', r.ok and t_row.get('label') == 'Chrome · Windows' and 'Mozilla' not in str(rows2), rows2)
+    r = phone_c.delete(f"/users/me/sessions/{t_row.get('id')}")
+    step('ending it through the apps\' route works', r.ok, r)
+    step('and the tablet\'s access token is refused at once', tablet_c.get('/auth/me').status == 401, '')
+
     journey('sessions: push tokens follow the device')
     for c, name, dev in ((phone_c, 'phone', phone_dev), (laptop_c, 'laptop', laptop_dev)):
         r = c.post('/notifications/register-token', {'token': f'ExponentPushToken[live-{name}-{uuid.uuid4().hex[:8]}]', 'provider': 'expo', 'platform': 'ios' if name == 'phone' else 'web'},
