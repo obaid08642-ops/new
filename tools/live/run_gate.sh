@@ -12,11 +12,13 @@ run_step() {
   if command -v timeout >/dev/null 2>&1; then timeout "$@"; else shift; "$@"; fi
 }
 # Journeys run in the order of gate_order.txt, then every other runnable j_*.py (one with a __main__ guard) joins by its file alone.
-# gate_skip.txt lists journeys that are not green yet (they stay out until fixed); j_admin_clicks runs on its own below.
+# gate_skip.txt lists journeys that are not green yet (they stay out until fixed); TAIL_JOURNEYS run on their own at the end.
+# j_log_scan (16.6) reads the backend log of the whole run, so it must come after every other journey.
+TAIL_JOURNEYS=(j_admin_clicks j_log_scan)
 discover_journeys() {
   local candidates skipped
   candidates=$(grep -lE "^if __name__ == .__main__.:" j_*.py | sed 's/\.py$//' | sort)
-  skipped=$({ grep -vE '^[[:space:]]*(#|$)' gate_skip.txt 2>/dev/null; printf '%s\n' j_admin_clicks; })
+  skipped=$({ grep -vE '^[[:space:]]*(#|$)' gate_skip.txt 2>/dev/null; printf '%s\n' "${TAIL_JOURNEYS[@]}"; })
   { grep -vE '^[[:space:]]*(#|$)' gate_order.txt; printf '%s\n' "$candidates"; } \
     | awk 'NF && !seen[$0]++' \
     | grep -xFf <(printf '%s\n' "$candidates") \
@@ -76,14 +78,16 @@ done
 # CHROMIUM=<path>). A missing browser is a FAIL, never a PASS.
 # The journey reads CHROME; forward the documented CHROMIUM override to it.
 export CHROME="${CHROME:-${CHROMIUM:-}}"
-ensure_backend || fail=1
-out=$(run_step 1800 python3 j_admin_clicks.py 2>&1)
-line=$(grep -E '^##### ' <<<"$out" | tail -1)
-echo "j_admin_clicks: ${line:-no summary (crashed)}"
-if [[ -z $line || ! $line =~ ", 0 failed" ]]; then
-  fail=1
-  grep -E '^\s+FAIL|Traceback|Error' <<<"$out" | head -20
-fi
+for j in "${TAIL_JOURNEYS[@]}"; do
+  ensure_backend || fail=1
+  out=$(run_step 1800 python3 "$j.py" 2>&1)
+  line=$(grep -E '^##### ' <<<"$out" | tail -1)
+  echo "$j: ${line:-no summary (crashed)}"
+  if [[ -z $line || ! $line =~ ", 0 failed" ]]; then
+    fail=1
+    grep -E '^\s+FAIL|Traceback|Error' <<<"$out" | head -20
+  fi
+done
 if [[ $restarts -gt 0 ]]; then
   echo "NOTE: backend restarted $restarts time(s) during this run — host memory pressure, not a journey failure"
 fi
