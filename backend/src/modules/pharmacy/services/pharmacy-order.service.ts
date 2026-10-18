@@ -832,7 +832,8 @@ export class PharmacyOrderService {
     if (!remaining.length) throw new BadRequestException('nothing_to_split');
     // one winner: whoever sets the claim creates the child (a field of its own, so no older value of the pointer can block it)
     const claim: any = await this.orders.updateOne({ id, split_claim: { $exists: false } }, { $set: { split_claim: new Date() } });
-    if (!(claim?.modifiedCount ?? claim?.nModified ?? 0)) {
+    // the order repository's updateOne is a findOneAndUpdate: it answers the updated order, or null when nothing matched
+    if (!claim) {
       const again: any = await this.orders.findOne({ id }).lean();
       if (again?.split_child_order_id && again.split_child_order_id !== 'pending') return { ok: true, existing: true, child_order_id: again.split_child_order_id };
       throw new ConflictException('split_in_progress');

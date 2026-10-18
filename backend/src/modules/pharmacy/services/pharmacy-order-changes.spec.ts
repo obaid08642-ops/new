@@ -29,7 +29,8 @@ describe('22.5 order changes', () => {
     });
     const orders: any = {
       findOne: (q: any) => { const p: any = col.findOne(q); p.lean = async () => col.findOne(q); const then = p.then.bind(p); return Object.assign(Promise.resolve(then((d: any) => wrap(d))), { lean: async () => col.findOne(q) }); },
-      updateOne: (q: any, u: any) => col.updateOne(q, u),
+      // like the real repository: updateOne is findOneAndUpdate, answering the updated order or null
+      updateOne: async (q: any, u: any) => { const r: any = await col.findOneAndUpdate(q, u, { returnDocument: 'after' }); return r && 'ok' in r && 'value' in r ? r.value : r ?? null; },
       create: async (doc: any) => { created.push(doc); await col.insertOne({ ...doc }); return wrap({ ...doc }); },
     };
     const allocs: any = {
