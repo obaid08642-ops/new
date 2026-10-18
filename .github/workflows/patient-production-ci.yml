@@ -13,7 +13,8 @@ permissions:
 
 concurrency:
   group: patient-production-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+  # a newer push to the same PR replaces the older run; runs on main are never cancelled
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   policy:

@@ -5,6 +5,11 @@ on:
   pull_request:
     paths: ['patient-web/cache-handler.cjs', 'patient-web/next.config.ts', 'patient-web/package.json', 'tools/perf/next-multi-instance/**', '.github/workflows/next-multi-instance.yml']
   workflow_dispatch:
+# A newer push to the same PR replaces the older run (it would be thrown away anyway); pushes to main and scheduled runs are never cancelled.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   two-instances:
     runs-on: ubuntu-latest
