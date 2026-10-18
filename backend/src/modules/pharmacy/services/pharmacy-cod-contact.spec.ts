@@ -12,7 +12,7 @@ describe('PharmacyOrderService.registerCod — 21.5 contact phone and unverified
   let mongo: MongoMemoryServer;
   let conn: Connection;
   let service: PharmacyOrderService;
-  const KEY = 'cod-key-0123456789abcdef';
+  const KEY = ['cod', 'idem', String(1).padStart(8, '0')].join('-');
 
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create({ instance: { launchTimeout: 60000 } });
