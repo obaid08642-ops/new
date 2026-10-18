@@ -88,11 +88,11 @@ def run():
     text = str(d.body)
     step('the detail names counts, never a raw device id or address', DEVICE not in str(owner.get(f"/admin/risk/users/{farm[0]['id']}").body) and '203.0.' not in text, text[:200])
     r = owner.get('/admin/risk/summary')
-    step('the summary counts them', r.ok and (r.get('medium', 0) + r.get('high', 0)) >= 4 and any(b.get('signal') == 'account_farm' for b in r.get('by_signal') or []), r)
+    step('the summary counts them', r.ok and ((r.get('medium') or 0) + (r.get('high') or 0)) >= 4 and any(b.get('signal') == 'account_farm' for b in r.get('by_signal') or []), r)
     r = owner.get('/admin/risk/users?signal=account_farm&limit=100')
     step('filtering by signal lists the farm', r.ok and {f['id'] for f in farm} <= {u['user_id'] for u in r.get('users') or []}, r)
     r = owner.post(f"/admin/risk/users/{farm[0]['id']}/rescore", {})
-    step('re-scoring one account answers its score', r.ok and r.get('score', 0) >= 45, r)
+    step('re-scoring one account answers its score', r.ok and (r.get('score') or 0) >= 45, r)
 
     journey('risk: nothing is blocked')
     r = Client().post('/auth/login', {'phone': farm[0]['phone'], 'password': farm[0]['password']})

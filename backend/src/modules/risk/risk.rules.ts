@@ -30,6 +30,8 @@ export interface RiskRules {
   card_distinct_failed: number;
   /** Accounts on one device that redeemed the same coupon. */
   promo_accounts_per_device: number;
+  /** Weight of an account farm seen by address alone: below `levels.medium`, because many honest people share one address (a mobile carrier, an office). */
+  farm_ip_weight: number;
   weights: Record<SignalType, number>;
   levels: { medium: number; high: number };
 }
@@ -48,6 +50,7 @@ export const DEFAULT_RISK_RULES: RiskRules = {
   card_window_minutes: 60,
   card_distinct_failed: 3,
   promo_accounts_per_device: 3,
+  farm_ip_weight: 20,
   weights: {
     account_farm: 45, device_sharing: 20, fake_orders: 40, cod_abuse: 35, card_testing: 50, promo_abuse: 35,
     // the detectors that already existed (finance engine) feed the same score
@@ -86,6 +89,7 @@ export function mergeRules(stored: unknown): RiskRules {
     card_window_minutes: num(s.card_window_minutes, d.card_window_minutes, 1, 24 * 60),
     card_distinct_failed: num(s.card_distinct_failed, d.card_distinct_failed, 2, 1000),
     promo_accounts_per_device: num(s.promo_accounts_per_device, d.promo_accounts_per_device, 2, 1000),
+    farm_ip_weight: num(s.farm_ip_weight, d.farm_ip_weight, 0, 100),
     weights,
     levels: medium < high ? { medium, high } : d.levels,
   };

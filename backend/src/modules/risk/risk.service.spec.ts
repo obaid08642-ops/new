@@ -55,7 +55,10 @@ describe('Phase 22.11 risk scoring', () => {
       for (let i = 1; i <= 4; i++) await origin(`n${i}`, 'register', `dev-n${i}`, '203.0.113.9');
       expect(types(await risk.evaluate('n1', { force: true }))).toEqual([]);
       await origin('n5', 'register', 'dev-n5', '203.0.113.9');
-      expect((await risk.evaluate('n3', { force: true }))!.signals[0].evidence).toMatchObject({ by: 'address', accounts: 5 });
+      const scored = (await risk.evaluate('n3', { force: true }))!;
+      expect(scored.signals[0].evidence).toMatchObject({ by: 'address', accounts: 5 });
+      // one shared address alone (a mobile carrier, an office) never reaches the medium level
+      expect(scored.level).toBe('low');
     });
 
     it('registrations spread over weeks on one device are not a farm', async () => {

@@ -111,7 +111,7 @@ export class RiskService {
       if (o.ip_h) {
         const accounts = await this.col('risk_origins').distinct('user_id', { kind: 'register', ip_h: o.ip_h, at: { $gte: from, $lte: to } });
         if (accounts.length >= r.farm_ip_accounts) {
-          out.push({ type: 'account_farm', weight: r.weights.account_farm, evidence: { by: 'address', accounts: accounts.length, window_hours: r.farm_window_hours, user_ids: accounts.slice(0, 20) } });
+          out.push({ type: 'account_farm', weight: Math.min(r.farm_ip_weight, r.weights.account_farm), evidence: { by: 'address', accounts: accounts.length, window_hours: r.farm_window_hours, user_ids: accounts.slice(0, 20) } });
           return out;
         }
       }
