@@ -47,6 +47,10 @@ export default async function MedicineComparePage({ params, searchParams }: Prop
   // a row that no medicine has data for is not drawn
   // the catalogue's own field names (medicine.schema: form, strength), not the old guesses (dosage_form)
   const fields = (["active_ingredient", "price", "form", "strength", "manufacturer", "requires_prescription", "online_exclusive"] as const).filter((f) => items.some((m) => value(m, f) !== null));
+  // The cheapest price of the compared medicines is marked (parity audit /medicines/compare: the app's "lowest" chip).
+  const prices = items.map((m) => (typeof m.price === "number" && m.price > 0 ? m.price : null)).filter((p): p is number => p !== null);
+  const cheapest = prices.length >= 2 ? Math.min(...prices) : null;
+  const lowest = (await getTranslations("PharmacyOffers"))("lowestPrice");
   const back = `/${locale}/c`;
   const caret = getDirection(locale) === "rtl" ? "caret-right" : "caret-left";
 
@@ -78,7 +82,12 @@ export default async function MedicineComparePage({ params, searchParams }: Prop
                 {fields.map((f) => (
                   <tr key={f}>
                     <th scope="row">{t(f)}</th>
-                    {items.map((m, i) => <td key={i}>{value(m, f) ?? "—"}</td>)}
+                    {items.map((m, i) => (
+                      <td key={i}>
+                        {value(m, f) ?? "—"}
+                        {f === "price" && cheapest !== null && m.price === cheapest ? <span className={styles.lowestTag}>{lowest}</span> : null}
+                      </td>
+                    ))}
                   </tr>
                 ))}
               </tbody>

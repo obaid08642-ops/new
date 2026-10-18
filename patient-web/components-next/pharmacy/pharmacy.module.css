@@ -139,3 +139,6 @@ a.row:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd
   .rail { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; overflow: visible; margin-inline: 0; padding: 0; }
   .rail .cell { flex: none; }
 }
+
+/* The cheapest price in the comparison table (parity audit /medicines/compare). */
+.lowestTag { display: inline-block; margin-inline-start: 8px; padding: 2px 8px; border-radius: 999px; font-size: var(--nabd-font-size-caption); font-weight: 700; background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-subtle); }
