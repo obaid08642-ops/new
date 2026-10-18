@@ -31,7 +31,7 @@ const KINDS: Record<string, { group: Exclude<Tab, "all">; icon: FillIconName; to
   Medicine: { group: "medicines", icon: "pill", tone: toneOf("pharmacy"), label: "kindMedicine", href: (id, l) => `/${l}/medicines/${encodeURIComponent(id)}` }, // i18n-ok: label is a Search message key
   Doctor: { group: "doctors", icon: "stethoscope", tone: toneOf("consult"), label: "kindDoctor", href: (id, l) => `/${l}/consultations/doctors/${encodeURIComponent(id)}` }, // i18n-ok: label is a Search message key
   Specialty: { group: "doctors", icon: "stethoscope", tone: toneOf("consult"), label: "kindSpecialty", href: (code, l) => `/${l}/consultations/doctors?specialty=${encodeURIComponent(code)}` }, // i18n-ok: label is a Search message key
-  Lab: { group: "labs", icon: "test-tube", tone: toneOf("lab"), label: "kindLab" }, // i18n-ok: label is a Search message key
+  Lab: { group: "labs", icon: "test-tube", tone: toneOf("lab"), label: "kindLab", href: (id, l) => `/${l}/diagnostics/test-detail?testId=${encodeURIComponent(id)}` }, // i18n-ok: label is a Search message key
   LabPackage: { group: "labs", icon: "test-tube", tone: toneOf("lab"), label: "kindLabPackage" }, // i18n-ok: label is a Search message key
   Radiology: { group: "radiology", icon: "scan", tone: toneOf("radiology"), label: "kindRadiology", href: (id, l) => `/${l}/diagnostics/radiology/${encodeURIComponent(id)}` }, // i18n-ok: label is a Search message key
   Nursing: { group: "other", icon: SERVICE_ICONS.nursing.icon, tone: toneOf("nursing"), label: "kindNursing", href: (id, l) => `/${l}/home-care/services/${encodeURIComponent(id)}` }, // i18n-ok: label is a Search message key
