@@ -57,9 +57,10 @@ def run(acct):
     for password, code in (('Short1!', 'password_too_short'), ('letmein123', 'password_compromised')):
         email = f'weak-{random.randint(10**8, 10**9)}@nabd.test'
         t0 = time.time()
-        anon.post('/auth/send-otp', {'email': email, 'purpose': 'register'})
+        sent = anon.post('/auth/send-otp', {'email': email, 'purpose': 'register'})
         otp = mail_code(email, t0)
-        anon.post('/auth/verify-otp', {'email': email, 'code': otp})
+        verified = anon.post('/auth/verify-otp', {'email': email, 'code': otp})
+        step(f'"{password}": the e-mail is proven first (send-otp, mail, verify-otp)', sent.ok and bool(otp) and verified.ok, (sent.status, bool(otp), verified.status, verified.body))
         r = anon.post('/auth/register', {'full_name': 'اختبار', 'phone': phone(), 'email': email, 'password': password})
         step(f'registering with "{password}" is refused ({code})', r.status == 400 and code in str(r.body), r)
 
