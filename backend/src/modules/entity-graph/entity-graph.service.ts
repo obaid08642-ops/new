@@ -105,7 +105,7 @@ export class EntityGraphService implements OnModuleInit {
           active_ingredient: activeIng,
           _id: { $ne: medicine._id },
         })
-        .project({ name_ar: 1, name_en: 1, slug: 1, price: 1, form: 1, strength: 1, sku: 1, image: 1 })
+        .project({ _id: 0, name_ar: 1, name_en: 1, slug: 1, price: 1, form: 1, strength: 1, sku: 1, image: 1 })
         .limit(6)
         .toArray();
     }
@@ -222,7 +222,7 @@ export class EntityGraphService implements OnModuleInit {
       const ingRegexes = condition.relevant_ingredients.map(ing => new RegExp(escapeRegex(String(ing)), 'i'));
       medicines = await medCol
         .find({ ...PUBLIC_MEDICINE, active_ingredient: { $in: ingRegexes } })
-        .project({ id: 1, sku: 1, slug: 1, name_ar: 1, name_en: 1, price: 1, form: 1, strength: 1, active_ingredient: 1 })
+        .project({ _id: 0, id: 1, sku: 1, slug: 1, name_ar: 1, name_en: 1, price: 1, form: 1, strength: 1, active_ingredient: 1 })
         .limit(6)
         .toArray();
     }
