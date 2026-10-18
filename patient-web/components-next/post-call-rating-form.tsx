@@ -9,6 +9,14 @@ import styles from "@/components-next/consult/consult.module.css";
 /** `star` is a template with {n}: the name of one star ("{n} of 5"), the number written for the reader's language. */
 type Labels = { rating: string; star: string; comment: string; commentPh: string; submit: string; submitting: string; thanks: string; error: string };
 
+/**
+ * The body the backend reads (patient-ux `RateDto`): the booking kind and its id, the rating, and the comment if any.
+ * Nothing else: the API refuses unknown fields (forbidNonWhitelisted), so no `locale`.
+ */
+export function reviewBody(appointmentId: string, rating: number, comment: string) {
+  return { booking_kind: "appointment", booking_id: appointmentId, rating, comment: comment.trim() || undefined };
+}
+
 export function PostCallRatingForm({ locale, appointmentId, labels }: { locale: string; appointmentId: string; labels: Labels }) {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
@@ -19,12 +27,13 @@ export function PostCallRatingForm({ locale, appointmentId, labels }: { locale: 
 
   async function submit() {
     if (rating < 1 || busy) return;
+    if (!appointmentId) { setErr(labels.error); return; }
     setBusy(true); setErr(null);
     try {
       const res = await fetch("/api/patient-ux/review", {
         method: "POST",
         headers: { "content-type": "application/json", "idempotency-key": crypto.randomUUID() },
-        body: JSON.stringify({ appointment_id: appointmentId || null, rating, comment: comment.trim() || null, locale }),
+        body: JSON.stringify(reviewBody(appointmentId, rating, comment)),
       });
       if (!res.ok) throw new Error("failed");
       setDone(true);

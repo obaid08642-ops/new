@@ -21,7 +21,9 @@
     "footerMap": "Map",
     "skipToContent": "Skip to content",
     "backToTop": "Back to top",
-    "readingProgress": "Reading progress"
+    "readingProgress": "Reading progress",
+    "dialogCancel": "Cancel",
+    "dialogConfirm": "Confirm"
   },
   "CoreShell": {
     "back": "Back",
@@ -833,7 +835,10 @@
   "NotFound": {
     "title": "Page unavailable",
     "body": "This page can't be opened, or you don't have access to it.",
-    "returnHome": "Return home"
+    "returnHome": "Return home",
+    "searchLabel": "Search Nabd",
+    "searchButton": "Search",
+    "popularTitle": "Popular sections"
   },
   "RouteState": {
     "loadingCode": "Loading",
@@ -1329,7 +1334,11 @@
     "kindLabPackage": "Test package",
     "kindRadiology": "Radiology",
     "kindNursing": "Nursing",
-    "kindArticle": "Article"
+    "kindArticle": "Article",
+    "recentTitle": "Recent searches",
+    "recentClear": "Clear",
+    "trendingTitle": "Trending now",
+    "tryTitle": "Try one of these"
   },
   "SearchSuggest": {
     "listLabel": "Search suggestions",
@@ -2507,6 +2516,9 @@
       "confirmed": "Confirmed",
       "scheduled": "Scheduled",
       "checked_in": "Checked in",
+      "rescheduled": "Rescheduled",
+      "en_route": "On the way",
+      "arrived": "Arrived",
       "in_progress": "In progress",
       "completed": "Completed",
       "cancelled": "Cancelled",
@@ -2673,6 +2685,8 @@
     "emergencyTitle": "Emergency contacts",
     "emergencySub": "Who to reach in an emergency",
     "unavailableTitle": "Unable to load family",
+    "notSharedTitle": "Records not shared",
+    "notShared": "This member has not shared their records with you.",
     "unavailable": "Please try again later.",
     "noGroupTitle": "Create a family group",
     "noGroupBody": "No family group yet. Create one to invite relatives and share care.",
@@ -3607,8 +3621,9 @@
       "service": "Service type",
       "svc": {
         "consultation": "Medical consultation",
-        "pharmacy": "Medicines",
-        "lab": "Lab tests"
+        "labs": "Lab tests",
+        "radiology": "Radiology",
+        "nursing": "Home nursing"
       },
       "check": "Show coverage",
       "result": "Coverage on file",
@@ -4279,7 +4294,9 @@
     "openBooking": "Open the booking to see the report file",
     "empty": "This result has no further details.",
     "discuss": "Discuss the result with a doctor",
-    "rangeText": "Normal range {range}"
+    "rangeText": "Normal range {range}",
+    "trendTitle": "Trend",
+    "trendNote": "Earlier results of the same test"
   },
   "Offline": {
     "title": "You are offline",

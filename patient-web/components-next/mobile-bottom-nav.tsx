@@ -64,7 +64,7 @@ export function MobileBottomNav({
   ];
 
   return (
-    <nav className={styles.bottomNav} aria-label="Mobile Navigation">
+    <nav className={styles.bottomNav} aria-label="Mobile Navigation" data-print-hide>
       <div className={styles.inner}>
         {navItems.map((item) => {
           const Icon = item.icon;

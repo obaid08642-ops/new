@@ -3269,6 +3269,8 @@
   "diag.result.error": "ফলাফল লোড করা যায়নি",
   "diag.result.by": "প্রদানকারী",
   "diag.result.values": "মান",
+  "diag.result.trendTitle": "প্রবণতা",
+  "diag.result.trendNote": "একই পরীক্ষার আগের ফলাফল",
   "diag.result.range": "স্বাভাবিক সীমা {low} – {high}",
   "diag.result.flag.normal": "স্বাভাবিক",
   "diag.result.flag.high": "বেশি",

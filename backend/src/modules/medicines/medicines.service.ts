@@ -22,6 +22,18 @@ import { normalizeRankingSort, ProductRankingService } from '../product-ranking/
 import { ManualBoostsService } from '../product-ranking/manual-boosts.service';
 import { escapeRegex } from '../../common/slug.util';
 
+/** A trending term needs at least this many searches in the week before it is shown to everyone. */
+export const TRENDING_MIN_SEARCHES = Number(process.env.TRENDING_MIN_SEARCHES) || 5;
+
+/** A term that may be published as trending: 2 to 40 characters, no e-mail address and no run of 5+ digits (a phone or id). */
+export function isPublishableTrendingTerm(term: unknown): boolean {
+  if (typeof term !== 'string') return false;
+  const t = term.trim();
+  if (t.length < 2 || t.length > 40) return false;
+  if (t.includes('@')) return false;
+  return !/[0-9٠-٩۰-۹]{5,}/.test(t);
+}
+
 @Injectable()
 export class MedicinesService {
   /** Search/list cache TTL — medicine catalog changes are rare, reads are hot. */
@@ -470,21 +482,29 @@ export class MedicinesService {
     return pool;
   }
 
-  /** Trending searches (last 7 days) — powers the "trending now" row in apps. */
+  /**
+   * Trending searches (last 7 days) — powers the "trending now" row in apps and on the web (public).
+   * The list is everyone's searches, so a term is only shown once enough searches made it common: a term typed by one or two
+   * people (a name, a rare condition) is never published, nor anything that looks like contact data. The cache key carries
+   * the size, so one caller's size is not served to the others.
+   */
   async trendingSearches(limit = 10) {
-    const cacheKey = 'med:trending';
+    const size = Math.min(Math.max(Math.trunc(limit) || 10, 1), 20);
+    const cacheKey = `med:trending:v2:${size}`;
     const cached = await this.redis.getJson<any[]>(cacheKey);
     if (cached) return cached;
     const since = new Date(Date.now() - 7 * 24 * 3600 * 1000);
     const rows = await this.conn.collection('search_queries').aggregate([
-      { $match: { createdAt: { $gte: since } } },
+      { $match: { createdAt: { $gte: since }, term_lc: { $type: 'string' } } },
       { $group: { _id: '$term_lc', searches: { $sum: 1 } } },
+      { $match: { searches: { $gte: TRENDING_MIN_SEARCHES } } },
       { $sort: { searches: -1 } },
-      { $limit: limit },
+      { $limit: size * 3 },
       { $project: { _id: 0, term: '$_id', searches: 1 } },
     ]).toArray();
-    await this.redis.setJson(cacheKey, rows, 900); // 15min
-    return rows;
+    const shown = rows.filter((r: any) => isPublishableTrendingTerm(r.term)).slice(0, size);
+    await this.redis.setJson(cacheKey, shown, 900); // 15min
+    return shown;
   }
 
   /** Recently viewed products for the user ("أكمل من حيث توقفت"). */

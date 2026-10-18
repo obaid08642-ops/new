@@ -21,7 +21,9 @@
     "footerMap": "الخريطة",
     "skipToContent": "انتقل إلى المحتوى",
     "backToTop": "العودة إلى أعلى الصفحة",
-    "readingProgress": "تقدم القراءة"
+    "readingProgress": "تقدم القراءة",
+    "dialogCancel": "إلغاء",
+    "dialogConfirm": "تأكيد"
   },
   "CoreShell": {
     "back": "رجوع",
@@ -833,7 +835,10 @@
   "NotFound": {
     "title": "الصفحة غير متاحة",
     "body": "لا يمكن فتح هذه الصفحة، أو ليس لديك صلاحية للوصول إليها.",
-    "returnHome": "العودة إلى البداية"
+    "returnHome": "العودة إلى البداية",
+    "searchLabel": "ابحث في نبض",
+    "searchButton": "بحث",
+    "popularTitle": "أقسام شائعة"
   },
   "RouteState": {
     "loadingCode": "جارٍ التحميل",
@@ -1329,7 +1334,11 @@
     "kindLabPackage": "باقة تحاليل",
     "kindRadiology": "أشعة",
     "kindNursing": "تمريض",
-    "kindArticle": "مقال"
+    "kindArticle": "مقال",
+    "recentTitle": "عمليات البحث الأخيرة",
+    "recentClear": "مسح",
+    "trendingTitle": "الأكثر بحثًا الآن",
+    "tryTitle": "جرّب أحد هذه"
   },
   "SearchSuggest": {
     "listLabel": "اقتراحات البحث",
@@ -2507,6 +2516,9 @@
       "confirmed": "مؤكد",
       "scheduled": "مجدول",
       "checked_in": "تم تسجيل الوصول",
+      "rescheduled": "أُعيد جدولته",
+      "en_route": "في الطريق",
+      "arrived": "وصل",
       "in_progress": "جارٍ الآن",
       "completed": "مكتمل",
       "cancelled": "ملغى",
@@ -2673,6 +2685,8 @@
     "emergencyTitle": "جهات الطوارئ",
     "emergencySub": "من تتصل به في الطوارئ",
     "unavailableTitle": "تعذر تحميل العائلة",
+    "notSharedTitle": "السجلات غير مشتركة",
+    "notShared": "لم يشارك هذا الفرد سجلاته معك.",
     "unavailable": "يرجى المحاولة مرة أخرى لاحقًا.",
     "noGroupTitle": "إنشاء مجموعة عائلية",
     "noGroupBody": "لا توجد مجموعة عائلية بعد. أنشئ واحدة لدعوة أقاربك ومشاركة الرعاية.",
@@ -3607,8 +3621,9 @@
       "service": "نوع الخدمة",
       "svc": {
         "consultation": "استشارة طبية",
-        "pharmacy": "أدوية",
-        "lab": "تحاليل"
+        "labs": "تحاليل",
+        "radiology": "الأشعة",
+        "nursing": "التمريض المنزلي"
       },
       "check": "عرض التغطية",
       "result": "التغطية المسجّلة",
@@ -4279,7 +4294,9 @@
     "openBooking": "افتح الطلب لعرض ملف التقرير",
     "empty": "لا توجد تفاصيل أخرى في هذه النتيجة.",
     "discuss": "ناقش النتيجة مع طبيب",
-    "rangeText": "المعدل الطبيعي {range}"
+    "rangeText": "المعدل الطبيعي {range}",
+    "trendTitle": "الاتجاه",
+    "trendNote": "نتائج سابقة لنفس التحليل"
   },
   "Offline": {
     "title": "أنت غير متصل",
