@@ -183,9 +183,31 @@ export class AiGatewayService {
   private get settings() { return this.conn.collection('featureflags'); }
 
   // ── Registry bootstrap: seed env keys into DB once ──────────────────────
+  private legacyKeysMigrated = false;
+
+  /**
+   * 16.1: rows saved before P13-R21 (or seeded without AI_KEYS_ENC_KEY) hold
+   * the key in plaintext. Wrap each one once; the filter matches the exact old
+   * value so a concurrent admin save is never overwritten. Without the
+   * encryption key nothing changes and the next start tries again.
+   */
+  private async migrateLegacyKeys(): Promise<void> {
+    if (this.legacyKeysMigrated) return;
+    const rows = (await this.providers.find({}).sort({ priority: 1 }).toArray()) as unknown as Array<{ key: string; api_key?: string }>;
+    const legacy = rows.filter((r) => r.api_key && !String(r.api_key).startsWith(ENC_PREFIX));
+    for (const r of legacy) {
+      let wrapped: string;
+      try { wrapped = encryptApiKey(String(r.api_key)); }
+      catch { this.logger.warn('AI_KEYS_ENC_KEY missing — plaintext provider keys left unencrypted'); return; }
+      await this.providers.updateOne({ key: r.key, api_key: r.api_key }, { $set: { api_key: wrapped } });
+    }
+    if (legacy.length) this.logger.log(`encrypted ${legacy.length} legacy AI provider key(s) at rest`);
+    this.legacyKeysMigrated = true;
+  }
+
   private async ensureRegistry() {
     const count = await this.providers.countDocuments({});
-    if (count > 0) return;
+    if (count > 0) { await this.migrateLegacyKeys(); return; }
     const envKeys: Record<string, string> = {
       gemini: process.env.GEMINI_API_KEY || '',
       openai: process.env.OPENAI_API_KEY || '',
@@ -216,6 +238,7 @@ export class AiGatewayService {
       { upsert: true },
     );
     this.logger.log('AI provider registry seeded into DB');
+    await this.migrateLegacyKeys();
   }
 
   /** Load registry + mode with a 20s cache. Keys are decrypted in memory only. */
@@ -451,8 +474,10 @@ export class AiGatewayService {
   // ── Admin management API ────────────────────────────────────────────────
   private maskKey(stored: string): { has_key: boolean; key_preview: string | null } {
     if (!stored) return { has_key: false, key_preview: null };
-    const tail = String(stored).replace(/^enc:/, '').slice(-4);
-    return { has_key: true, key_preview: `••••${tail}` };
+    // The preview is the end of the real key, never the end of the ciphertext.
+    let plain = '';
+    try { plain = decryptApiKey(String(stored)); } catch { plain = ''; }
+    return { has_key: true, key_preview: plain.length >= 8 ? `••••${plain.slice(-4)}` : null };
   }
 
   async listProviders() {
