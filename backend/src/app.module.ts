@@ -40,6 +40,7 @@ import { backgroundImports, backgroundProviders } from './common/process-role';
 import { WorkerHeartbeatService } from './common/worker-heartbeat.service';
 import { BullModule } from '@nestjs/bullmq';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { GracefulDrain } from './common/graceful-drain';
 import { LoadSheddingGuard } from './common/load-shedding.guard';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
@@ -95,6 +96,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { SlotLocksModule } from './modules/slot-locks/slot-locks.module';
 import { PushModule } from './modules/push/push.module';
 import { SecurityModule } from './modules/security/security.module';
+import { RiskModule } from './modules/risk/risk.module';
 import { RealtimeSseModule } from './modules/realtime/realtime.sse';
 import { ProviderOpsModule } from './modules/provider-ops/provider-ops.module';
 import { PatientUxModule } from './modules/patient-ux/patient-ux.module';
@@ -114,6 +116,7 @@ import { FacilityOpsModule } from './modules/facility-ops/facility-ops.module';
 import { ProviderProductionModule } from './modules/provider-production/provider-production.module';
 import { ImpersonationSessionService } from './common/impersonation-session.service';
 import { CommonModule } from './common/common.module';
+import { GuestChatListInterceptor, GuestPolicyGuard } from './modules/auth/guest-policy';
 import { PdplComplianceModule } from './common/pdpl-compliance.module';
 import { HealthController } from './health.controller';
 import { HealthDashboardController } from './modules/health/health-dashboard.controller';
@@ -140,6 +143,7 @@ import { BillingModule } from './modules/billing/billing.module';
 import { ArticlesModule } from './modules/articles/articles.module';
 
 import { CorrelationMiddleware } from './common/correlation.middleware';
+import { RequestMetaMiddleware } from './common/request-meta';
 import { ObservabilityModule } from './modules/observability/observability.module';
 import { LogsModule } from './modules/logs/logs.module';
 import { RumModule } from './modules/rum/rum.module';
@@ -269,6 +273,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     FinanceEngineModule,
     SlotLocksModule,
     PushModule,
+    RiskModule,
     SecurityModule,
     RealtimeSseModule,
     ProviderOpsModule,
@@ -306,15 +311,18 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
   ],
   controllers: [HealthController, HealthDashboardController, ProviderPayoutsController],
   providers: [
+    GracefulDrain,
     ImpersonationSessionService,
     ...backgroundProviders([WorkerHeartbeatService]),
     { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: GuestPolicyGuard },          // 21.3: the guest permission matrix, after the caller is known
     { provide: APP_GUARD, useClass: WriteGuard },
     { provide: APP_GUARD, useClass: RateLimitAuditGuard },
     { provide: APP_GUARD, useClass: AdminGateGuard },
     { provide: APP_GUARD, useClass: LoadSheddingGuard },
     { provide: APP_GUARD, useClass: StepUpGuard },
     StepUpService,
+    { provide: APP_INTERCEPTOR, useClass: GuestChatListInterceptor },
     { provide: APP_INTERCEPTOR, useClass: AuditLogInterceptor },
     { provide: APP_INTERCEPTOR, useClass: IdempotencyInterceptor },
     { provide: APP_INTERCEPTOR, useClass: AdaptiveConcurrencyInterceptor },
@@ -323,6 +331,6 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(BansMiddleware, CorrelationMiddleware).forRoutes('*');
+    consumer.apply(BansMiddleware, CorrelationMiddleware, RequestMetaMiddleware).forRoutes('*');
   }
 }

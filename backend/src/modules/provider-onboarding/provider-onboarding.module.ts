@@ -10,6 +10,7 @@ import { ProviderProfile, ProviderProfileDocument, ProviderProfileSchema } from 
 import { User, UserDocument, UserSchema } from '../../schemas/user.schema';
 import { EventBusService } from '../events/event-bus.service';
 import { ContractPdfService } from './contract-pdf.service';
+import { ScfhsLicenseModule, ScfhsLicenseService } from '../provider/services/scfhs-license.service';
 import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { escapeRegex } from '../../common/slug.util';
@@ -17,6 +18,7 @@ import { StartDto, SubmitDto, AdminContractVisibilityDto } from './provider-onbo
 import { PROVIDER_PUBLIC_PROJECTION } from './provider-private-fields';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { enforcePasswordPolicy } from '../../common/password-security.service';
 /**
  * Unified Provider Onboarding Wizard.
  * 3 sequential steps to register/upgrade any provider type:
@@ -33,6 +35,7 @@ export class ProviderOnboardingService {
     @InjectModel('ProviderProfile') private providerModel: Model<ProviderProfileDocument>,
     private bus: EventBusService,
     private contracts: ContractPdfService,
+    private scfhs: ScfhsLicenseService,
   ) {}
 
   private typeToRole(type: ProviderType): UserRole {
@@ -64,6 +67,7 @@ export class ProviderOnboardingService {
     }
     if (!user) {
       if (!body.password) throw new BadRequestException('password_required_for_new_user');
+      await enforcePasswordPolicy(body.password);
       const hash = await bcrypt.hash(body.password, 12);
       try {
         user = await this.userModel.create({
@@ -252,6 +256,8 @@ export class ProviderOnboardingService {
     // pending profile that cannot be found by moderation or contract review.
     await this.mirrorToModerationQueue(user, profile);
     await this.generateAndStoreContract(user, profile);
+    // 19.3: look the SCFHS licence up now so the reviewing admin sees the answer; submitting approves nobody.
+    await this.scfhs.recordAtSubmission(profile.toObject()).catch(() => null);
     this.bus.emit({ type: 'provider.submitted_for_review', entity_type: 'provider', entity_id: profile.id, actor_account_id: user.id, actor_role: 'provider', meta: { type: profile.type } }).catch(() => null);
     return profile.toObject();
   }
@@ -554,7 +560,7 @@ export class UnifiedSearchController {
 }
 
 @Module({
-  imports: [MongooseModule.forFeature([
+  imports: [ScfhsLicenseModule, MongooseModule.forFeature([
     { name: 'User', schema: UserSchema },
     { name: 'ProviderProfile', schema: ProviderProfileSchema },
   ])],

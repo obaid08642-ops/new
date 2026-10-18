@@ -125,9 +125,12 @@ describe("privacy and my data", () => {
   });
 
   it("?tab=data reads the storage summary and offers the export; ?tab=delete asks for the password and reads nothing", async () => {
-    server.storage.mockResolvedValue(json({ used: "1 MB", total: "100 MB", items: [{ label: "Records", val: "1 MB", pct: 1 }] }));
+    server.storage.mockResolvedValue(json({ used: "1 MB", total: "100 MB", items: [{ key: "uploaded_prescriptions", val: "1 MB", pct: 1 }, { key: "medical_reports", val: "0.0 MB", pct: 0 }] }));
     const data = render(await SettingsPrivacyPage({ params, searchParams: search({ tab: "data" }) }));
     expect(data).toContain("1 MB / 100 MB");
+    // issue 1585: the item names come from the locale file by the server's stable key.
+    expect(data).toContain("Uploaded prescriptions");
+    expect(data).toContain("Medical reports");
     expect(data).toContain("Export all my data");
     server.storage.mockReset();
     const erase = render(await SettingsPrivacyPage({ params, searchParams: search({ tab: "delete" }) }));
@@ -162,6 +165,13 @@ describe("help and support", () => {
     expect(html).toContain("How do I book?");
     expect(html).toContain('href="/en/support/chat"');
     expect(server.api.mock.calls[0][0]).toBe("/support/faqs");
+  });
+
+  it("issue 1585: the server's built-in FAQs show in the page language, not Arabic", async () => {
+    server.api.mockResolvedValue(json([{ id: "1", question: "كيف أحجز موعد؟", answer: "يمكنك الحجز", question_ar: "كيف أحجز موعد؟", answer_ar: "يمكنك الحجز", question_en: "How do I book an appointment?", answer_en: "You can book from the clinics section." }]));
+    const html = render(await SettingsHelpPage({ params, searchParams: search() }));
+    expect(html).toContain("How do I book an appointment?");
+    expect(html).not.toContain("كيف أحجز");
   });
 
   it("the requests tab reads the patient's requests, the feedback tab reads nothing", async () => {

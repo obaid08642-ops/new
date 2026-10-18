@@ -1,0 +1,55 @@
+name: zero-downtime
+# 20.9 safe deployments. The real deploy/scripts/rolling-deploy.sh rolls a service behind a real nginx (upstream `resolve`)
+# while k6 sends 60 requests/s (GET and POST): 0 failed requests; a broken release rolls back and still 0 failures.
+# Also: the expand/contract rule for database migrations and the compose settings the drain depends on.
+on:
+  pull_request:
+    paths:
+      - 'deploy/scripts/rolling-deploy.sh'
+      - 'deploy/docker-compose.production.yml'
+      - 'deploy/nginx/**'
+      - 'backend/src/common/graceful-drain*'
+      - 'backend/scripts/migrations/**'
+      - 'tools/ci/migration-safety*'
+      - 'tools/ops/zero-downtime/**'
+      - '.github/workflows/zero-downtime.yml'
+  workflow_dispatch:
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Migrations follow expand/contract (new destructive migrations need contract-of)
+        run: |
+          python3 -m unittest discover -s tools/ci -p 'test_migration_safety.py' -v
+          python3 tools/ci/migration-safety.py
+      - name: Compose keeps the drain settings; nginx upstreams still re-resolve
+        run: |
+          pip install -q pyyaml
+          python3 - <<'PY'
+          import re, yaml
+          c = yaml.safe_load(open("deploy/docker-compose.production.yml"))["services"]
+          for s in ("backend", "worker", "patient-web", "admin-web"):
+              assert c[s].get("stop_grace_period"), f"{s}: stop_grace_period missing"
+          assert "SHUTDOWN_DRAIN_MS" in c["backend"]["environment"], "backend: SHUTDOWN_DRAIN_MS missing"
+          n = open("deploy/nginx/nginx.conf").read()
+          for up in ("backend:8002", "patient-web:3000", "admin-web:3000"):
+              assert f"server {up} resolve;" in n, f"nginx upstream {up} lost `resolve`"
+          print("compose and nginx: ok")
+          PY
+      - name: Scripts parse
+        run: bash -n deploy/scripts/rolling-deploy.sh && bash -n tools/ops/zero-downtime/run.sh
+  under-load:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Rolling deploy during a k6 run, then a broken release
+        run: bash tools/ops/zero-downtime/run.sh
+      - name: Logs
+        if: always()
+        run: |
+          cd tools/ops/zero-downtime
+          for f in roll.log broken.log k6-roll.log k6-broken.log; do echo "::group::$f"; cat "$f" 2>/dev/null; echo "::endgroup::"; done
+          docker ps -a

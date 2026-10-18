@@ -12,21 +12,48 @@ TS=$(date +%Y%m%d-%H%M%S)
 FILE="$BACKUP_DIR/nabd_${DB_NAME}_$TS.gz"
 mkdir -p "$BACKUP_DIR"
 
+# 20.8: where the oplog stood just before the dump started; point-in-time recovery replays the oplog from here
+OPLOG_START=$(oplog_head)
+[ -n "$OPLOG_START" ] || echo "[$(date)] WARN: oplog position unreadable, this dump cannot be used as the base of a point-in-time recovery"
+
 echo "[$(date)] mongodump $DB_NAME"
-if ! docker exec "$MONGO_CONTAINER" mongodump --quiet \
-       -u "${MONGO_ROOT_USER:-}" -p "${MONGO_ROOT_PASSWORD:-}" --authenticationDatabase admin \
+AUTH=(); while IFS= read -r a; do AUTH+=("$a"); done < <(mongo_auth)
+if ! docker exec "$MONGO_CONTAINER" mongodump --quiet "${AUTH[@]}" \
        --db="$DB_NAME" --archive --gzip > "$FILE" || [ ! -s "$FILE" ]; then
   rm -f "$FILE"
   echo "[$(date)] FAIL: mongodump failed or wrote nothing"
   report local false "" "mongodump failed or wrote nothing"
   exit 1
 fi
+
+# 16.9: the dump is encrypted before it is kept; the readable file is removed only after the encrypted one decrypts to the same bytes
+ENCERR=$(backup_encryption_error)
+if [ -n "$ENCERR" ]; then
+  rm -f "$FILE"
+  echo "[$(date)] FAIL: $ENCERR - the readable dump was removed, no backup was kept"
+  report local false "" "$ENCERR"
+  exit 1
+fi
+if backup_encryption_enabled; then
+  if ! backup_encrypt "$FILE" "$FILE.gpg" || [ ! -s "$FILE.gpg" ] \
+     || [ "$(backup_decrypt "$FILE.gpg" | sha256sum | cut -d' ' -f1)" != "$(sha256sum < "$FILE" | cut -d' ' -f1)" ]; then
+    rm -f "$FILE" "$FILE.gpg"
+    echo "[$(date)] FAIL: encrypting the dump failed or did not decrypt back to the same bytes"
+    report local false "" "backup encryption failed"
+    exit 1
+  fi
+  rm -f "$FILE"
+  FILE="$FILE.gpg"
+else
+  echo "[$(date)] WARNING: the dump is NOT encrypted (BACKUP_ENCRYPTION_PASSPHRASE_FILE is not set)"
+fi
+[ -z "$OPLOG_START" ] || printf '%s\n' "$OPLOG_START" > "$FILE.oplogts"   # 20.8: next to the (possibly encrypted) dump
 SIZE=$(stat -c %s "$FILE")
 echo "[$(date)] local backup: $(basename "$FILE") ($SIZE bytes)"
 report local true "$SIZE"
 
 # retention: 14 days on the server
-find "$BACKUP_DIR" -maxdepth 1 -name "nabd_*.gz" -mtime +14 -delete
+find "$BACKUP_DIR" -maxdepth 1 \( -name "nabd_*.gz" -o -name "nabd_*.gz.gpg" -o -name "nabd_*.oplogts" \) -mtime +14 -delete
 
 ERR=$(private_bucket_error)
 if [ -n "$ERR" ]; then
@@ -35,7 +62,8 @@ if [ -n "$ERR" ]; then
   exit 1
 fi
 KEY="mongodb/$(basename "$FILE")"
-if OUT=$(backup_aws s3 cp "$FILE" "s3://$BACKUP_S3_BUCKET/$KEY" --only-show-errors 2>&1); then
+if OUT=$(backup_aws s3 cp "$FILE" "s3://$BACKUP_S3_BUCKET/$KEY" --only-show-errors 2>&1) \
+   && { [ ! -f "$FILE.oplogts" ] || OUT=$(backup_aws s3 cp "$FILE.oplogts" "s3://$BACKUP_S3_BUCKET/$KEY.oplogts" --only-show-errors 2>&1); }; then
   echo "[$(date)] off-server copy: s3://$BACKUP_S3_BUCKET/$KEY"
   report offsite true "$SIZE"
 else

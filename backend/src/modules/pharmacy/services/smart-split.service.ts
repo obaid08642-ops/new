@@ -3,6 +3,7 @@
  * Real allocation optimizer (greedy weighted set-cover).
  * Persists full explainability snapshot on the order's split_decision field.
  */
+import { logEvent } from '../../../common/structured-logger';
 import { Injectable, Logger, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -394,9 +395,20 @@ export class SmartSplitService {
 
   async releaseStockForAllocation(alloc: PharmacyAllocation) {
     if (!(await this.holdsStock(alloc))) return;
-    // Callers save the allocation afterwards; persist the flag here too so a failed save cannot double-release.
+    // 16.12: the release is CLAIMED in the database, atomically, before any stock is given back: two paths releasing the same
+    // allocation at once (a cancel and a timeout job) would otherwise both pass the flag check above and credit the stock twice.
+    // Only the caller whose update flips stock_reserved gets to release; an error here means nothing is released (a stuck
+    // reservation an admin can see is better than stock that was never there).
+    let claimed: any;
+    try {
+      claimed = await this.allocs.updateOne({ id: alloc.id, stock_reserved: { $ne: false } }, { $set: { stock_reserved: false } });
+    } catch (e: any) {
+      logEvent('error', 'stock_release_claim_failed', { allocation_id: alloc.id, error: e?.message }, 'pharmacy');
+      return;
+    }
+    if (!claimed) return;
+    // Callers save the allocation afterwards; the flag is already persisted so a failed save cannot double-release.
     alloc.stock_reserved = false;
-    await this.allocs.updateOne({ id: alloc.id }, { $set: { stock_reserved: false } }).catch(() => null);
     for (const it of alloc.items || []) {
       if (it.action !== AllocationItemAction.AVAILABLE) continue;
       if (!it.inventory_id || !it.qty_offered) continue;

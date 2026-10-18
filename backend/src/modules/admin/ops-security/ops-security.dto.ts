@@ -2,7 +2,7 @@ import { IsBoolean, IsDateString, IsIn, IsNotEmpty, IsNumber, IsOptional, IsStri
 
 /** D-34: the server-side backup scripts report a run (D-33 calls this). */
 export class ReportBackupRunDto {
-  @IsIn(['local', 'offsite', 'restore_test', 'catalogue_export'])
+  @IsIn(['local', 'offsite', 'restore_test', 'catalogue_export', 'oplog', 'dr_drill'])
   kind!: string;
 
   @IsBoolean()
@@ -14,6 +14,16 @@ export class ReportBackupRunDto {
 
   @IsDateString()
   finished_at!: string;
+
+  /** 20.8: recovery point the oplog chain delivers (dr_drill) */
+  @IsOptional()
+  @IsNumber()
+  rpo_seconds?: number;
+
+  /** 20.8: wall time of the whole restore (dr_drill) */
+  @IsOptional()
+  @IsNumber()
+  rto_seconds?: number;
 
   @IsOptional()
   @IsString()

@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
+import { makeAppendOnly } from '../common/append-only';
 
 /**
  * Phase 23 — the audit trail.
@@ -61,3 +62,5 @@ export const AuditLogSchema = SchemaFactory.createForClass(AuditLog);
 AuditLogSchema.index({ createdAt: -1 });
 /** The chain is walked in insertion order, so that order must be indexable. */
 AuditLogSchema.index({ sequence: 1 });
+/** 16.6 — nothing reachable through the model can change or remove a stored row. */
+makeAppendOnly(AuditLogSchema, 'audit_logs');

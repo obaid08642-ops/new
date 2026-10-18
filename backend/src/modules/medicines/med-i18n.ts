@@ -220,6 +220,20 @@ function localizeFactField(base: string, arabicValue: string, trValue: unknown, 
  * sibling field is English when an L translation exists — the historical bug
  * this resolver eliminates.
  */
+/** The public part of a record's variant attribute (decision D): kind, power, colour or shade words, and its order. */
+export function publicVariant(v: unknown): { kind: string; power: number | null; colour: string | null; shade: string | null; position: number } | null {
+  if (!v || typeof v !== 'object') return null;
+  const o = v as Record<string, unknown>;
+  if (typeof o.kind !== 'string') return null;
+  return {
+    kind: o.kind,
+    power: typeof o.power === 'number' && Number.isFinite(o.power) ? o.power : null,
+    colour: typeof o.colour === 'string' && o.colour ? o.colour : null,
+    shade: typeof o.shade === 'string' && o.shade ? o.shade : null,
+    position: typeof o.position === 'number' ? o.position : 0,
+  };
+}
+
 /**
  * Owner decision E (issue 1556, 2026-10-16): on ur, hi and bn pages the product name is shown with the English name
  * under it, so a patient and a pharmacist read the same product. Not for ar, en or fil. Null when there is no English
@@ -330,6 +344,9 @@ export function resolveMedicinePublicDto(raw: Record<string, any>, productLocale
     country_of_origin: raw?.country_of_origin || null,
     images,
     image: images[0] || null,
+    // Decision D (issue 1556): the record's variant group and its own attribute (power / colour / shade / picture order).
+    variant_group: typeof raw?.variant_group === 'string' && raw.variant_group ? raw.variant_group : null,
+    variant: publicVariant(raw?.variant),
     search_aliases: Array.isArray(tr?.search_aliases) ? tr.search_aliases : (Array.isArray(trEn?.search_aliases) ? trEn.search_aliases : []),
   };
 }

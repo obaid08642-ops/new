@@ -127,17 +127,62 @@ describe('Phase 16.9 medical access log', () => {
     expect(rows[0].ip).toMatch(/^enc\.v1:/);
   });
 
-  it('the patient sees their own history; the admin sees everyone else', async () => {
-    await log.record({ actor_id: 'doctor-1', actor_role: 'doctor', actor_kind: 'provider' }, { kind: 'lab_result', id: 'l1' });
-    await log.record({ actor_id: 'doctor-2', actor_role: 'doctor', actor_kind: 'provider' }, { kind: 'lab_result', id: 'l2' });
+  it('the patient sees who looked at THEIR records (and nobody else\'s); the admin sees all, narrowed by filters', async () => {
+    await log.record({ actor_id: 'doctor-1', actor_role: 'doctor', actor_kind: 'provider' }, { kind: 'lab_result', id: 'l1', subject_id: 'p1' });
+    await log.record({ actor_id: 'doctor-2', actor_role: 'doctor', actor_kind: 'provider' }, { kind: 'lab_result', id: 'l2', subject_id: 'p2' });
+    await log.record({ actor_id: 'p1', actor_role: 'patient', actor_kind: 'patient' }, { kind: 'medical_report', id: 'r9', subject_id: 'p1' });
 
     const adminView = await log.timeline({ id: 'admin-1', role: 'admin' });
-    expect(adminView).toHaveLength(2);
-    expect(adminView.map((r) => r.record_id).sort()).toEqual(['l1', 'l2']);
+    expect(adminView.map((r) => r.record_id).sort()).toEqual(['l1', 'l2', 'r9']);
+    expect((await log.timeline({ id: 'admin-1', role: 'admin' }, { patient_id: 'p2' })).map((r) => r.record_id)).toEqual(['l2']);
+    expect((await log.timeline({ id: 'admin-1', role: 'admin' }, { actor_id: 'doctor-1' })).map((r) => r.record_id)).toEqual(['l1']);
 
-    await log.record({ actor_id: 'p1', actor_role: 'patient', actor_kind: 'patient' }, { kind: 'medical_report', id: 'r9' });
     const patientView = await log.timeline({ id: 'p1', role: 'patient' });
-    expect(patientView).toHaveLength(1);
-    expect(patientView[0].record_id).toBe('r9');
+    expect(patientView.map((r) => r.record_id).sort()).toEqual(['l1', 'r9']);          // the doctor who read p1's result, and p1's own read
+    expect(patientView.some((r) => r.record_id === 'l2')).toBe(false);                  // never another patient's
+    // a patient cannot widen the view with a filter
+    expect((await log.timeline({ id: 'p1', role: 'patient' }, { patient_id: 'p2', actor_id: 'doctor-2' })).map((r) => r.record_id).sort()).toEqual(['l1', 'r9']);
+  });
+
+  it('recordMany writes one row per record, and the ip / user agent / device come from the request context', async () => {
+    const { runWithLogContext } = await import('./structured-logger');
+    await runWithLogContext({ requestId: 'req-77', ip: '10.9.8.7', userAgent: 'jest-ua', deviceId: 'dev-9' }, () =>
+      log.recordMany({ actor_id: 'doctor-3', actor_role: 'doctor', actor_kind: 'provider' }, [
+        { kind: 'prescription', id: 'rx1', action: 'list', subject_id: 'p5' },
+        { kind: 'prescription', id: 'rx2', action: 'list', subject_id: 'p5' },
+      ]),
+    );
+    const rows = await conn.collection('medical_access_logs').find({}).toArray();
+    expect(rows).toHaveLength(2);
+    for (const r of rows) {
+      expect(r.ip).toMatch(/^enc\.v1:/);
+      expect(r.user_agent).toBe('jest-ua');
+      expect(r.device_id).toBe('dev-9');
+      expect(r.request_id).toBe('req-77');
+      expect(r.subject_id).toBe('p5');
+    }
+    const view = await log.timeline({ id: 'p5', role: 'patient' });
+    expect(view.map((r) => r.ip)).toEqual(['10.9.8.7', '10.9.8.7']);
+  });
+
+  it('logMedicalRead writes the row, never throws, and never breaks the caller when the write fails', async () => {
+    const { logMedicalRead } = await import('./pdpl-compliance.module');
+    await logMedicalRead(log, { id: 'doc-9', role: 'doctor' }, [{ kind: 'consultation_summary', id: 'a1', subject_id: 'p6' }]);
+    expect((await log.timeline({ id: 'p6', role: 'patient' })).map((r) => [r.record_kind, r.actor_kind])).toEqual([['consultation_summary', 'provider']]);
+    const broken = { record: async () => { throw new Error('mongo down'); }, recordMany: async () => { throw new Error('mongo down'); } } as unknown as MedicalAccessLogService;
+    await expect(logMedicalRead(broken, { id: 'x', role: 'doctor' }, [{ kind: 'k', id: 'i' }])).resolves.toBeUndefined();
+    await expect(logMedicalRead(undefined, { id: 'x', role: 'doctor' }, [{ kind: 'k', id: 'i' }])).resolves.toBeUndefined();
+  });
+
+  it('the collection has a retention TTL (default 5 years, configurable, never under 30 days) and the lookup indexes', async () => {
+    const { medicalAccessLogRetentionDays } = await import('./pdpl-compliance.module');
+    expect(medicalAccessLogRetentionDays({} as NodeJS.ProcessEnv)).toBe(1825);
+    expect(medicalAccessLogRetentionDays({ MEDICAL_ACCESS_LOG_RETENTION_DAYS: '365' } as unknown as NodeJS.ProcessEnv)).toBe(365);
+    expect(medicalAccessLogRetentionDays({ MEDICAL_ACCESS_LOG_RETENTION_DAYS: '3' } as unknown as NodeJS.ProcessEnv)).toBe(1825);
+    await log.onModuleInit();
+    const idx = await conn.collection('medical_access_logs').indexes();
+    const ttl = idx.find((i) => i.name === 'created_at_ttl');
+    expect(ttl?.expireAfterSeconds).toBe(1825 * 86400);
+    expect(idx.map((i) => i.name)).toEqual(expect.arrayContaining(['subject_created', 'actor_created']));
   });
 });

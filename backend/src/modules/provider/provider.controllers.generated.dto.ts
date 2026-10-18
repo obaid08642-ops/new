@@ -1,4 +1,5 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, MaxLength, Min, Matches } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, MaxLength, Min, Matches, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 import { OtpPurpose } from './schemas';
 
 export class RegisterDto {
@@ -343,7 +344,24 @@ export class RejectDeltaDto2 {
 
 }
 
+/** 19.3: the admin's own check of the SCFHS licence, accepted only when the SCFHS service cannot answer. */
+export class ManualLicenseCheckDto {
+  @IsDefined()
+  @IsString()
+  @MaxLength(200)
+  reference: string;
+
+  @IsDefined()
+  @IsDateString()
+  expiry_date: string;
+}
+
 export class ApproveDto {
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => ManualLicenseCheckDto)
+  manual_license_check?: ManualLicenseCheckDto;
+
   @IsOptional()
   @IsString()
   note?: string;
@@ -408,6 +426,11 @@ export class ReactivateDto {
   @IsOptional()
   @IsString()
   reason?: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => ManualLicenseCheckDto)
+  manual_license_check?: ManualLicenseCheckDto;
 
 }
 

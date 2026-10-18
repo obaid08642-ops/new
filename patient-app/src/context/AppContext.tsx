@@ -12,6 +12,7 @@ import { getLocales } from 'react-native-localize';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors } from '../theme';
 import { LanguageManager } from '../i18n/LanguageManager';
+import { pickDeviceLanguage } from '../i18n/deviceLanguage';
 import { config as appConfig } from '../core/config';
 import { subscribeDeepLinkLanguage, takeDeepLinkLanguage } from '../navigation/deepLinkLanguage';
 
@@ -43,11 +44,7 @@ const STORAGE_THEME = '@nabdah_theme_mode';
 const STORAGE_LANG = '@nabdah_language';
 
 function detectDeviceLanguage(): LangCode {
-  const code = String(getLocales()?.[0]?.languageCode || '').toLowerCase();
-  if (code === 'ar' || code === 'en' || code === 'ur' || code === 'hi' || code === 'bn' || code === 'fil' || code === 'tl') {
-    return code === 'tl' ? 'fil' : code as LangCode;
-  }
-  return 'ar';
+  return pickDeviceLanguage(getLocales());
 }
 
 // ---------------------------------------------------------------------------

@@ -5,12 +5,17 @@ import { MedicalReportsService } from './medical-reports.service';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { ShareDto, CreateDto } from './medical-reports.dto';
+import { MedicalAccessLogService } from '../../common/pdpl-compliance.module';
 
 @UseGuards(JwtAuthGuard)
 @Controller('medical-reports')
 @SelfService()
 export class MedicalReportsController {
-  constructor(private readonly svc: MedicalReportsService, @InjectConnection() private readonly conn: Connection) {}
+  constructor(
+    private readonly svc: MedicalReportsService,
+    @InjectConnection() private readonly conn: Connection,
+    private readonly access: MedicalAccessLogService,
+  ) {}
 
   /** Unified health timeline — merged REAL events from appointments, lab/radiology
    *  bookings, prescriptions and vital readings. Empty array when the patient has none. */
@@ -46,6 +51,16 @@ export class MedicalReportsController {
 
   @Get('shared-with-me')
   sharedWithMe(@CurrentUser() user: any) { return this.svc.sharedWithMe(user); }
+
+  /** 16.9: the patient sees who looked at their medical records (any role, newest first). */
+  @Get('access-log')
+  async accessLog(@CurrentUser() user: any, @Query('limit') limit?: string) {
+    const rows = await this.access.timeline({ id: user.id, role: 'patient' }, { limit: limit ? parseInt(limit, 10) : undefined });
+    return {
+      count: rows.length,
+      data: rows.map((r: any) => ({ at: r.created_at, action: r.action, record_kind: r.record_kind, record_id: r.record_id, actor_kind: r.actor_kind, actor_role: r.actor_role, by_me: r.actor_id === user.id })),
+    };
+  }
 
   @Post(':id/share')
   share(@CurrentUser() user: any, @Param('id') id: string, @Body() body: ShareDto) {
