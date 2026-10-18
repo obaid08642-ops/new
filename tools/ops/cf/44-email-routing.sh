@@ -11,13 +11,15 @@
 #   44-email-routing-check.sh   reads only: state, destination status, DNS facts
 #   44-email-routing-apply.sh   APPLY=1: adds the destination (Cloudflare mails the owner a link to confirm it), then, once it is
 #                               confirmed, enables routing and creates the three rules. Safe to run again.
+# Owner, 2026-10-18: Amazon SES is not used any more; its apex MX (inbound-smtp.<region>.amazonaws.com) is an old leftover and
+# is removed here, once, before routing is enabled. Any OTHER foreign apex MX still blocks the run.
 # Lines start with "cf: email" (public log). Env: CF/CFE/Z (_auth.sh), EMAIL_ROUTING_DEST, APPLY, CF_API.
 set -uo pipefail
 . "$(dirname "$0")/_auth.sh"
 CF_API=${CF_API:-https://api.cloudflare.com/client/v4}
 APPLY=${APPLY:-0}
 DOMAIN=nabd.plus
-ALIASES="security support customer"
+ALIASES="info support security customer doctor"
 say() { echo "cf: email $*"; }
 api() { cf_curl -H 'Content-Type: application/json' "$@"; }
 [ -n "${EMAIL_ROUTING_DEST:-}" ] || { say "BLOCKED secret OPS_FORWARD_EMAIL (EMAIL_ROUTING_DEST) is not passed to this step"; exit 1; }
@@ -31,9 +33,12 @@ names() { echo "$1" | jq -r '.result[] | "\(.type) \(.name)"' | sort; }
 
 # ---------------------------------------------------------------- 1. before
 spf_ok "$D0" && say "SPF before: one record with brevo, mailjet and amazonses" || { say "BLOCKED SPF is not in the expected shape before the change ($(spfcount "$D0") record(s)); fix SPF first (cf:41-mail-verify)"; exit 1; }
-FOREIGN=$(echo "$D0" | jq -r --arg d "$DOMAIN" '[.result[] | select(.type == "MX" and .name == $d and (.content | test("mx.cloudflare.net$") | not))] | length')
+SES_RE='^inbound-smtp\.[a-z0-9-]+\.amazonaws\.com\.?$'
+SES_MX_IDS=$(echo "$D0" | jq -r --arg d "$DOMAIN" --arg re "$SES_RE" '.result[] | select(.type == "MX" and .name == $d and (.content | test($re))) | .id')
+FOREIGN=$(echo "$D0" | jq -r --arg d "$DOMAIN" --arg re "$SES_RE" '[.result[] | select(.type == "MX" and .name == $d and (.content | test("mx.cloudflare.net$") | not) and (.content | test($re) | not))] | length')
 # the mail server names (public DNS data, no secret) of every apex MX, so the owner can tell what receives mail today
 echo "$D0" | jq -r --arg d "$DOMAIN" '.result[] | select(.type == "MX" and .name == $d) | "cf: email apex MX \(.priority // "-") \(.content)"'
+[ -z "$SES_MX_IDS" ] || say "old Amazon SES inbound MX present (owner confirmed it is unused): it is removed on apply"
 [ "$FOREIGN" = 0 ] || { say "BLOCKED $FOREIGN apex MX record(s) of another mail provider exist on $DOMAIN: routing would take over the mailbox. Nothing changed"; exit 1; }
 CFMX=$(echo "$D0" | jq -r --arg d "$DOMAIN" '[.result[] | select(.type == "MX" and .name == $d)] | length')
 say "apex MX records now: $CFMX (Cloudflare's)"
@@ -65,6 +70,12 @@ fi
 [ "$DV" = verified ] || { say "WAITING the owner has not clicked the confirmation link yet (check the inbox and spam); run -apply again after"; exit 0; }
 
 # ---------------------------------------------------------------- 3. enable (MX) and keep SPF to one record
+# the old Amazon SES inbound MX (owner: no longer used) goes first, so Email Routing can take the apex
+for id in $SES_MX_IDS; do
+  X=$(api -X DELETE "$CF_API/zones/$Z/dns_records/$id")
+  say "old Amazon SES inbound MX removed: success=$(echo "$X" | jq -r .success) $(echo "$X" | jq -c '[.errors[]?.message]')"
+  [ "$(echo "$X" | jq -r .success)" = true ] || { say "FAILED to remove the old MX: nothing else changed"; exit 1; }
+done
 if [ "$ENABLED" != true ]; then
   E=$(api -X POST "$CF_API/zones/$Z/email/routing/dns" --data '{}')
   [ "$(echo "$E" | jq -r .success)" = true ] || { say "FAILED to enable routing: $(echo "$E" | jq -c '[.errors[]?.message]'): nothing else changed"; exit 1; }

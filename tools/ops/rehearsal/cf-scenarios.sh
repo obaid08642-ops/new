@@ -95,10 +95,10 @@ bash tools/ops/cf/44-email-routing-apply.sh > $W/e1b.txt 2>&1; rc=$?; sed 's/^/ 
 expect "E1 apply (2) exits 0" $rc 0
 contains "E1 SPF still one" "SPF after: still ONE record" $W/e1b.txt; contains "E1 no provider record lost" "no DNS record of the mail providers" $W/e1b.txt
 contains "E1 three apex MX" "apex MX records: 3" $W/e1b.txt
-expect "E1 three rules" "$(curl -s $M/_er | jq -r '.result.rules | sort | join(",")')" "customer@nabd.plus,security@nabd.plus,support@nabd.plus"
+expect "E1 five rules" "$(curl -s $M/_er | jq -r '.result.rules | sort | join(",")')" "customer@nabd.plus,doctor@nabd.plus,info@nabd.plus,security@nabd.plus,support@nabd.plus"
 absent "E1 no address printed (apply 2)" "rehearsal-owner" $W/e1b.txt
 bash tools/ops/cf/44-email-routing-apply.sh > $W/e1d.txt 2>&1; contains "E1 second run: rules exist, nothing new" "rule security@: exists" $W/e1d.txt
-expect "E1 still three rules" "$(curl -s $M/_er | jq -r '.result.rules | length')" 3
+expect "E1 still five rules" "$(curl -s $M/_er | jq -r '.result.rules | length')" 5
 
 
 echo "== E2 Email Routing adds its own SPF record"
@@ -120,6 +120,18 @@ post /_reset; post /_mail "{\"dns\":$(echo "$DNS_OK" | jq -c '. + [{"type":"TXT"
 bash tools/ops/cf/44-email-routing-apply.sh > $W/e4.txt 2>&1; rc=$?; sed 's/^/    /' $W/e4.txt
 expect "E4 apply refuses" $rc 1; contains "E4 BLOCKED" "SPF is not in the expected shape" $W/e4.txt
 expect "E4 nothing registered" "$(curl -s $M/_er | jq -r '.result.addresses | length')" 0
+
+echo "== E5 the old Amazon SES inbound MX is removed (owner 2026-10-18), then routing and five rules"
+post /_reset; post /_mail "{\"dns\":$(echo "$DNS_OK" | jq -c '. + [{"type":"MX","name":"nabd.plus","content":"inbound-smtp.eu-west-1.amazonaws.com"}]')}"
+bash tools/ops/cf/44-email-routing-check.sh > $W/e5c.txt 2>&1; rc=$?; sed 's/^/    /' $W/e5c.txt
+expect "E5 check exits 0" $rc 0; contains "E5 check sees the SES MX" "old Amazon SES inbound MX present" $W/e5c.txt
+bash tools/ops/cf/44-email-routing-apply.sh > $W/e5a.txt 2>&1; post /_verify_dest
+bash tools/ops/cf/44-email-routing-apply.sh > $W/e5b.txt 2>&1; rc=$?; sed 's/^/    /' $W/e5b.txt
+expect "E5 apply exits 0" $rc 0; contains "E5 SES MX removed" "old Amazon SES inbound MX removed: success=true" $W/e5b.txt
+absent "E5 no SES MX left" "inbound-smtp" <(curl -s $M/_er)
+contains "E5 three apex MX (Cloudflare)" "apex MX records: 3" $W/e5b.txt
+contains "E5 SPF still one" "SPF after: still ONE record" $W/e5b.txt
+expect "E5 five rules" "$(curl -s $M/_er | jq -r '.result.rules | length')" 5
 
 echo "== no credential value in any output"
 cat $W/*.txt | grep -q "rehearsal-global-key" && { echo "FAIL the key appeared"; fail=1; } || echo "PASS no key in the outputs"
