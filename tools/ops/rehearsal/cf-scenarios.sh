@@ -111,6 +111,7 @@ contains "E2 SPF ends as one record" "SPF after: still ONE record" $W/e2.txt
 echo "== E3 another provider already receives mail on the apex"
 post /_reset; post /_mail "{\"dns\":$(echo "$DNS_OK" | jq -c '. + [{"type":"MX","name":"nabd.plus","content":"mx1.other-mail.example"}]')}"
 bash tools/ops/cf/44-email-routing-apply.sh > $W/e3.txt 2>&1; rc=$?; sed 's/^/    /' $W/e3.txt
+contains "E3 names the foreign mail server" "apex MX - mx1.other-mail.example" $W/e3.txt
 expect "E3 apply refuses" $rc 1; contains "E3 BLOCKED" "apex MX record(s) of another mail provider" $W/e3.txt
 expect "E3 nothing registered" "$(curl -s $M/_er | jq -r '.result.addresses | length')" 0
 

@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Mail env and DNS checks (production shape, broken DNS, no key file, no secrets)
         run: bash tools/ops/rehearsal/mail-scenarios.sh
   cloudflare-edge:
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Suggest cache rule (apply, rollback, private origin) and Email Routing (wait for confirmation, SPF stays one record, foreign MX)
         run: bash tools/ops/rehearsal/cf-scenarios.sh
   livekit-rotate:
@@ -155,7 +155,7 @@ jobs:
       SHA: ce53c57f79e7a59fac0aae8ed905cbceaf262cdd   # main after #1443 (nginx resolve), #1446 (disk alert), #1447 (D-33), #1457 (catalog migration fix); the production run pins the same SHA
       OPS_RELEASE_SHA: ce53c57f79e7a59fac0aae8ed905cbceaf262cdd
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Build the release from main (same script the server-ops workflow runs)
         run: |
           set -euo pipefail
