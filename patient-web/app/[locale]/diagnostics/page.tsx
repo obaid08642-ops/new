@@ -9,14 +9,15 @@ import { getPublicLabServices } from "@/lib/api/labs-server";
 import { extractRadiologyServices } from "@/lib/api/radiology";
 import { getPublicRadiologyServices } from "@/lib/api/radiology-server";
 import { requirePatientAccess } from "@/lib/auth/session";
-import { patientApiUrl } from "@/lib/api/upstream";
+import { callPatientApi, patientApiUrl } from "@/lib/api/upstream";
+import { OrderContextBar } from "@/components-next/ordering/order-context-bar";
+import { defaultAddressLine, insuranceClass } from "@/components-next/ordering/order-context";
 import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
-import { LinkSegmented } from "@/components-next/consult/link-segmented";
 import { ReferralNote, LAB, PackageCard, QuickLink, RADIOLOGY, RadiologyTile, Rail, SearchForm, SectionHead, TestList, TestRow, hoursText, money, pickText, type Tag } from "@/components-next/diagnostics/diag-parts";
 import { diagStatus } from "@/components-next/diagnostics/status";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
@@ -66,6 +67,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
   const pay = query.pay === "insurance" ? "insurance" : "self_pay";
   const t = await getTranslations("DiagWeb");
   const d = await getTranslations("Diagnostics");
+  const oc = await getTranslations("OrderContext");
   const rtl = locale === "ar" || locale === "ur";
 
   // The patient's own requests (a signed-in patient only); the public catalogue below needs no session.
@@ -75,8 +77,17 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
   } catch {
     token = null;
   }
+  // Ord01: the saved address and insurance for the context bar (signed in only; GET /users/me/*, read on the server).
+  let address: string | null | undefined;
+  let insurance: { hasPolicy: boolean; cls: string | null } | undefined;
   let domains: Domain[] = [];
   if (token) {
+    const [addressesResponse, insuranceResponse] = await Promise.all([
+      callPatientApi("/users/me/addresses", { cache: "no-store" }, token).catch(() => null),
+      callPatientApi("/users/me/insurance", { cache: "no-store" }, token).catch(() => null),
+    ]);
+    address = addressesResponse?.ok ? defaultAddressLine(await addressesResponse.json().catch(() => null)) : null;
+    insurance = insuranceResponse?.ok ? insuranceClass(await insuranceResponse.json().catch(() => null)) : { hasPolicy: false, cls: null };
     const [labsResponse, radiologyResponse] = await Promise.all([getDiagnosticBookings(token, "labs"), getDiagnosticBookings(token, "radiology")]);
     const toDomain = async (domain: "labs" | "radiology", response: Response): Promise<Domain> => ({ domain, ok: response.ok, bookings: response.ok ? extractDiagnosticBookings(await response.json().catch(() => null)) : [] });
     domains = await Promise.all([toDomain("labs", labsResponse), toDomain("radiology", radiologyResponse)]);
@@ -136,23 +147,23 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
         </Link>
       </nav>
 
-      <div className={styles.filters}>
-        <LinkSegmented
-          label={t("placeLabel")}
-          value={place}
-          options={[
-            { value: "home", label: kind === "labs" ? t("placeHomeLab") : t("placeHomeScan"), href: href({ place: "home" }) },
-            { value: "facility", label: kind === "labs" ? t("placeLab") : t("placeCenter"), href: href({ place: "facility" }) },
-          ]}
-        />
-        {kind === "labs" ? (
-          <LinkSegmented
-            label={t("payLabel")}
-            value={pay}
-            options={[{ value: "self_pay", label: t("paySelf"), href: href({ pay: "self_pay" }) }, { value: "insurance", label: t("payInsurance"), href: href({ pay: "insurance" }) }]}
-          />
-        ) : null}
-      </div>
+      <OrderContextBar
+        label={t("placeLabel")}
+        placeLabel={t("placeLabel")}
+        place={place}
+        placeOptions={[
+          { value: "home", label: kind === "labs" ? t("placeHomeLab") : t("placeHomeScan"), href: href({ place: "home" }) },
+          { value: "facility", label: kind === "labs" ? t("placeLab") : t("placeCenter"), href: href({ place: "facility" }) },
+        ]}
+        payLabel={t("payLabel")}
+        pay={kind === "labs" ? pay : undefined}
+        payOptions={kind === "labs" ? [{ value: "self_pay", label: t("paySelf"), href: href({ pay: "self_pay" }) }, { value: "insurance", label: t("payInsurance"), href: href({ pay: "insurance" }) }] : undefined}
+        address={address}
+        insurance={insurance}
+        addressHref={`/${locale}/profile/addresses`}
+        insuranceHref={`/${locale}/profile`}
+        copy={{ hint: oc("hint"), addAddress: oc("addAddress"), addInsurance: oc("addInsurance"), insuranceSub: oc("insuranceSub"), insuranceName: t("payInsurance") }}
+      />
 
       <div className={styles.quickGrid}>
         <QuickLink href={`/${locale}/diagnostics/results`} icon="chart-line-up" tone={DIAG_TONES.good} label={t("quickResults")} />
