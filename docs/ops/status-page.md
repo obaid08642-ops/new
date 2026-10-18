@@ -12,7 +12,7 @@ design tokens, a strict CSP. `https://status.nabd.plus/api/status.json` is the s
 |---|---|---|
 | `cloudflare` | the worker's own cron, every 5 minutes (`wrangler.toml`) | Cloudflare's edge (the data centre that runs the cron) |
 | `github-actions` | `.github/workflows/uptime.yml`, `tools/uptime/probe.mjs`, every 5 minutes, reports to `POST /ingest` | GitHub's runners (a different provider and region) |
-| `journeys` (20.7) | the synthetic user journeys, same `/ingest` | GitHub's runners |
+| `journeys` (20.7) | the synthetic user journeys, run by the worker's second cron (every 10 minutes) | Cloudflare's edge (see `synthetic-journeys.md`) |
 
 Honest limit: that is **two independent networks**, not "many regions". A real multi-region monitor (UptimeRobot, Better Stack, Pingdom: probes from
 several continents, free tiers exist) is an external service and needs the owner's approval; the status page would then just add its vantage to `/ingest`
@@ -27,7 +27,7 @@ as **degraded**, not working. The GitHub probe retries once before it calls a co
 Per component, from the vantages that reported in the last 15 minutes: all ok = working; some = degraded (one vantage's own trouble is not an outage); none = down;
 nothing recent = "No recent data". An **incident** opens when a component is down and closes when it works again; the page shows the last 10, and the 30/90-day
 uptime per component. History is one KV key (90 days of ok/total per day and component); the worker writes it once per report: 2 vantages x 288 = 576 writes a
-day, 3 with the journeys 720; the Workers KV Free plan allows 1,000 writes a day. If the plan or the cadence changes, move the history to D1.
+day, plus 144 for the journeys = 720; the Workers KV Free plan allows 1,000 writes a day. If the plan or the cadence changes, move the history to D1.
 
 ## Alerts (who hears when it is down)
 - The GitHub uptime run **fails** when a component is down; GitHub emails that to the repository's watchers (the owner: Watch > Custom > Workflows).

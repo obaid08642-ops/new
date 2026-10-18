@@ -15,5 +15,10 @@ export async function GET(request: NextRequest) {
   if (!q) return NextResponse.json({ message: "query_required" }, { status: 400 });
   if (!isLocale(locale)) return NextResponse.json({ message: "invalid_locale" }, { status: 400 });
   const upstream = await callPatientApi(`/search/suggest?q=${encodeURIComponent(q)}&locale=${locale}`, { signal: request.signal });
-  return forwardApiResponse(upstream);
+  const response = await forwardApiResponse(upstream);
+  // Only a shared answer may be cached at the edge: the API says `public` for an anonymous request (this route sends none),
+  // and only for a 200. Every other answer keeps forwardApiResponse's `no-store`. The cache key is the query string (q, locale).
+  const cacheControl = upstream.headers.get("cache-control");
+  if (upstream.status === 200 && cacheControl && cacheControl.startsWith("public")) response.headers.set("cache-control", cacheControl);
+  return response;
 }

@@ -10,6 +10,7 @@ import { Logger } from '@nestjs/common';
 import { CurrentUser, Public, JwtAuthGuard, SelfService } from '../../common/auth.guard';
 import { UploadDto, UploadSuggestionImageDto } from './storage.dto';
 import { Purpose, UploadSecurityService } from './upload-security.service';
+import { ClamavService } from './clamav.service';
 import { logEvent } from '../../common/structured-logger';
 
 export enum StorageBackend { BASE64 = 'base64', S3 = 's3', CLOUDINARY = 'cloudinary', SUPABASE = 'supabase' }
@@ -529,7 +530,7 @@ export class StorageController {
 @Module({
   imports: [MongooseModule.forFeature([{ name: 'StorageObject', schema: StorageObjectSchema }])],
   controllers: [StorageController],
-  providers: [StorageService, UploadSecurityService],
-  exports: [StorageService, UploadSecurityService, MongooseModule],
+  providers: [StorageService, UploadSecurityService, ClamavService],
+  exports: [StorageService, UploadSecurityService, ClamavService, MongooseModule],
 })
 export class StorageModule {}
