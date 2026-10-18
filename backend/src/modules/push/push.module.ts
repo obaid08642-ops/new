@@ -377,7 +377,9 @@ export class PushService implements OnModuleInit {
           token: body.token,
           provider: body.provider || 'expo',
           platform: body.platform,
-          device_id: body.device_id,
+          device_id: body.device_id ?? user.dev,
+          // 21.7: the sign-in this token was registered from, so signing that device out removes it
+          ...(user.sid ? { session_id: user.sid } : {}),
           device_name: body.device_name,
           active: true,
           last_seen_at: new Date(),
@@ -387,6 +389,19 @@ export class PushService implements OnModuleInit {
       { upsert: true, new: true },
     );
     return { ok: true };
+  }
+
+  /**
+   * 21.7 — sign-out removes the push tokens of the signed-out device: those registered from the ended sign-ins, and
+   * (tokens registered before sign-ins were tracked) those of the same device id. Returns how many were removed.
+   */
+  async removeForSessions(userId: string, sessionIds: string[], deviceIds: string[] = []): Promise<number> {
+    const or: Record<string, unknown>[] = [];
+    if (sessionIds.length) or.push({ session_id: { $in: sessionIds } });
+    if (deviceIds.length) or.push({ device_id: { $in: deviceIds }, session_id: { $exists: false } });
+    if (!or.length) return 0;
+    const res = await this.tokens.deleteMany({ user_id: { $eq: userId }, $or: or });
+    return res.deletedCount ?? 0;
   }
 
   async unregister(userId: string, token: string) {
