@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: "Static rules (logs 20m x 3 on every service, read-only web, capped tmpfs, redis-cache LRU without persistence)"
         run: pip install -q pyyaml && python3 tools/ops/check-compose-limits.py
       - name: The compose file still parses with the new service and network
@@ -36,8 +36,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with: { node-version: 20 }
       - name: Stand-in API (test data)
         run: (node tools/perf/isr-disk/stub-api.mjs 4010 0.0.0.0 > /tmp/stub.log 2>&1 &) && sleep 1 && curl -s localhost:4010/api/v1/public/product/ar/p-1 | head -c 100
@@ -58,7 +58,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: "Production config under load (informational, finds the paths coturn writes)"
         continue-on-error: true
         run: bash tools/perf/isr-disk/coturn-writes.sh plain
