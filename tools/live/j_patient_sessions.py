@@ -20,6 +20,8 @@ CHROME = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/12
 
 
 def tok(r):
+    if r.get('accessToken'):  # /auth/refresh answers the pair at the top level
+        return {'accessToken': r.get('accessToken'), 'refreshToken': r.get('refreshToken')}
     t = r.get('token')
     return t if isinstance(t, dict) else {'accessToken': t, 'refreshToken': r.get('refresh_token')}
 
