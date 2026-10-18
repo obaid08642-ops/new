@@ -86,8 +86,9 @@ def main():
     base = str(6290000000000 + int(tag, 16) % 1000000)
     a = create(admin, tag, '500mg', base + '1', False, True)
     b = create(admin, tag, '250mg', base + '2', True, True)
+    c = create(admin, tag, '750mg', base + '4', False, True)
     u = create(admin, tag, '100mg', base + '3', False, False)
-    if not (a and b and u):
+    if not (a and b and c and u):
         return
     anon = Client(None, 'anon')
 
@@ -95,11 +96,12 @@ def main():
     r = anon.get(f'/medicines/{a}/alternatives?locale=en')
     check('alternatives', r, hidden=u)
     cards = r.body if isinstance(r.body, list) else []
-    rx_card = next((c for c in cards if c.get('id') == b), None)
-    step('alternatives: the approved alternative is listed', rx_card is not None, cards)
+    otc_card = next((x for x in cards if x.get('id') == c), None)
+    step('alternatives: the approved non-prescription alternative is listed', otc_card is not None, cards)
     step('alternatives: card fields of /public/products/search (name, slug, url, is_rx)',
-         rx_card is not None and {'name', 'slug', 'url', 'is_rx', 'price', 'currency'} <= set(rx_card), rx_card)
-    step('alternatives: no old price on the prescription item', rx_card is not None and rx_card.get('is_rx') is True and rx_card.get('old_price') is None, rx_card)
+         otc_card is not None and {'name', 'slug', 'url', 'is_rx', 'price', 'currency'} <= set(otc_card), otc_card)
+    # 22.3 (owner rule): a prescription item is never promoted as an alternative
+    step('alternatives: the prescription item is not promoted (22.3)', all(x.get('id') != b for x in cards), cards)
 
     journey('issue 1555: every public medicine route returns public fields only')
     check('detail', anon.get(f'/medicines/{a}'))
