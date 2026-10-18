@@ -2685,6 +2685,8 @@
     "emergencyTitle": "Mga emergency contact",
     "emergencySub": "Sino ang tatawagan sa emergency",
     "unavailableTitle": "Hindi na-load ang pamilya",
+    "notSharedTitle": "Hindi ibinahagi ang mga rekord",
+    "notShared": "Hindi pa ibinabahagi ng miyembrong ito ang kanyang mga rekord sa iyo.",
     "unavailable": "Pakisubukang muli mamaya.",
     "noGroupTitle": "Gumawa ng grupo ng pamilya",
     "noGroupBody": "Wala pang grupo ng pamilya. Gumawa ng isa upang mag-imbita ng kamag-anak at magbahagi ng pangangalaga.",

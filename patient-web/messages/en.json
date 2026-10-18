@@ -2685,6 +2685,8 @@
     "emergencyTitle": "Emergency contacts",
     "emergencySub": "Who to reach in an emergency",
     "unavailableTitle": "Unable to load family",
+    "notSharedTitle": "Records not shared",
+    "notShared": "This member has not shared their records with you.",
     "unavailable": "Please try again later.",
     "noGroupTitle": "Create a family group",
     "noGroupBody": "No family group yet. Create one to invite relatives and share care.",
