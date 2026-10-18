@@ -17,8 +17,9 @@ describe('F02 kill-switches access control', () => {
     await post(app, '/api/v1/kill-switches/chat_enabled', patientToken(), { value: false, reason: 'probe reason' }).expect(403);
   });
 
+  // admin-1 is the owner account in the harness (owner decision 29), so the principal without the permission is another admin id
   it('role admin without modules.manage → 403', async () => {
-    await post(app, '/api/v1/kill-switches/chat_enabled', tokenFor('admin-1', 'admin'), { value: false, reason: 'probe reason' }).expect(403);
+    await post(app, '/api/v1/kill-switches/chat_enabled', tokenFor('admin-2', 'admin'), { value: false, reason: 'probe reason' }).expect(403);
     expect(switches.set).not.toHaveBeenCalled();
   });
 
