@@ -1,0 +1,2167 @@
+{
+ "_meta": {
+  "note": "Placeholders {n},{a},{b},{d},{h},{m},{k},{p},{t},{x} are filled at runtime with locale-formatted numbers, dates, SAR prices (p), clock (t) and insurer names (x). Brand and class names (Bupa Arabia, Tawuniya, MedGulf, Malath, VIP) and the unit code SAR stay Latin. Provider-app (ord22, ord30-33) ships ar+en; the other four languages are filled for the patient-visible preview and for shared keys.",
+  "boards": "Ord20,Ord21,Ord22,Ord30,Ord31,Ord32,Ord33"
+ },
+ "ord.acct": {
+  "ar": "الحساب",
+  "en": "Account",
+  "ur": "اکاؤنٹ",
+  "hi": "खाता",
+  "bn": "অ্যাকাউন্ট",
+  "tl": "Account"
+ },
+ "ord.add": {
+  "ar": "إضافة",
+  "en": "Add",
+  "ur": "شامل کریں",
+  "hi": "जोड़ें",
+  "bn": "যোগ করুন",
+  "tl": "Idagdag"
+ },
+ "ord.all": {
+  "ar": "الكل",
+  "en": "All",
+  "ur": "سب",
+  "hi": "सभी",
+  "bn": "সব",
+  "tl": "Lahat"
+ },
+ "ord.back": {
+  "ar": "رجوع",
+  "en": "Back",
+  "ur": "واپس",
+  "hi": "वापस",
+  "bn": "ফিরে যান",
+  "tl": "Bumalik"
+ },
+ "ord.close": {
+  "ar": "إغلاق",
+  "en": "Close",
+  "ur": "بند کریں",
+  "hi": "बंद करें",
+  "bn": "বন্ধ করুন",
+  "tl": "Isara"
+ },
+ "ord.ctx.home": {
+  "ar": "البيت – حي النرجس",
+  "en": "Home – Al Narjis",
+  "ur": "گھر – النرجس",
+  "hi": "घर – अल नरजिस",
+  "bn": "বাড়ি – আল নারজিস",
+  "tl": "Bahay – Al Narjis",
+  "_layout": "Context pills wrap onto a second row when the three do not fit one line; text is never truncated."
+ },
+ "ord.ctx.label": {
+  "ar": "السياق: المكان والدفع ولمن",
+  "en": "Context: place, payment and patient",
+  "ur": "سیاق: جگہ، ادائیگی اور مریض",
+  "hi": "संदर्भ: जगह, भुगतान और मरीज़",
+  "bn": "প্রসঙ্গ: স্থান, পেমেন্ট ও রোগী",
+  "tl": "Konteksto: lugar, bayad at pasyente",
+  "_layout": "Context pills wrap onto a second row when the three do not fit one line; text is never truncated."
+ },
+ "ord.ctx.pay": {
+  "ar": "بوبا – ذهبي",
+  "en": "Bupa – Gold",
+  "ur": "بوپا – گولڈ",
+  "hi": "बूपा – गोल्ड",
+  "bn": "বুপা – গোল্ড",
+  "tl": "Bupa – Gold",
+  "_layout": "Context pills wrap onto a second row when the three do not fit one line; text is never truncated."
+ },
+ "ord.ctx.who": {
+  "ar": "أنا",
+  "en": "Me",
+  "ur": "میں",
+  "hi": "मैं",
+  "bn": "আমি",
+  "tl": "Ako",
+  "_layout": "Context pills wrap onto a second row when the three do not fit one line; text is never truncated."
+ },
+ "ord.doc1": {
+  "ar": "د. سارة العتيبي",
+  "en": "Dr. Sara Al-Otaibi",
+  "ur": "ڈاکٹر سارہ العتیبی",
+  "hi": "डॉ. सारा अल-ओतैबी",
+  "bn": "ডা. সারা আল-ওতাইবি",
+  "tl": "Dr. Sara Al-Otaibi"
+ },
+ "ord.doc1.spec": {
+  "ar": "باطنة وسكري",
+  "en": "Internal medicine and diabetes",
+  "ur": "داخلی طب اور ذیابیطس",
+  "hi": "आंतरिक चिकित्सा और मधुमेह",
+  "bn": "অভ্যন্তরীণ চিকিৎসা ও ডায়াবেটিস",
+  "tl": "Internal medicine at diabetes"
+ },
+ "ord.doc2": {
+  "ar": "د. خالد الحربي",
+  "en": "Dr. Khalid Al-Harbi",
+  "ur": "ڈاکٹر خالد الحربی",
+  "hi": "डॉ. खालिद अल-हरबी",
+  "bn": "ডা. খালিদ আল-হারবি",
+  "tl": "Dr. Khalid Al-Harbi"
+ },
+ "ord.edit": {
+  "ar": "تعديل",
+  "en": "Edit",
+  "ur": "ترمیم",
+  "hi": "बदलें",
+  "bn": "সম্পাদনা",
+  "tl": "I-edit"
+ },
+ "ord.err.s": {
+  "ar": "تحقق من الاتصال ثم حاول مرة أخرى",
+  "en": "Check your connection and try again",
+  "ur": "اپنا کنکشن چیک کریں اور دوبارہ کوشش کریں",
+  "hi": "अपना कनेक्शन जाँचें और फिर कोशिश करें",
+  "bn": "সংযোগ দেখে আবার চেষ্টা করুন",
+  "tl": "Suriin ang koneksyon at subukan muli"
+ },
+ "ord.err.t": {
+  "ar": "تعذّر التحميل",
+  "en": "Could not load",
+  "ur": "لوڈ نہیں ہو سکا",
+  "hi": "लोड नहीं हो सका",
+  "bn": "লোড করা যায়নি",
+  "tl": "Hindi ma-load"
+ },
+ "ord.from": {
+  "ar": "من {p}",
+  "en": "From {p}",
+  "ur": "{p} سے",
+  "hi": "{p} से",
+  "bn": "{p} থেকে",
+  "tl": "Mula {p}"
+ },
+ "ord.g.labs": {
+  "ar": "التحاليل",
+  "en": "Lab tests",
+  "ur": "لیب ٹیسٹ",
+  "hi": "लैब टेस्ट",
+  "bn": "ল্যাব টেস্ট",
+  "tl": "Mga lab test"
+ },
+ "ord.g.meds": {
+  "ar": "الأدوية",
+  "en": "Medicines",
+  "ur": "ادویات",
+  "hi": "दवाइयाँ",
+  "bn": "ওষুধ",
+  "tl": "Mga gamot"
+ },
+ "ord.g.nurs": {
+  "ar": "التمريض",
+  "en": "Nursing",
+  "ur": "نرسنگ",
+  "hi": "नर्सिंग",
+  "bn": "নার্সিং",
+  "tl": "Nursing"
+ },
+ "ord.g.rad": {
+  "ar": "الأشعة",
+  "en": "Radiology",
+  "ur": "ریڈیولوجی",
+  "hi": "रेडियोलॉजी",
+  "bn": "রেডিওলজি",
+  "tl": "Radiology"
+ },
+ "ord.g.sess": {
+  "ar": "الجلسات",
+  "en": "Sessions",
+  "ur": "سیشنز",
+  "hi": "सत्र",
+  "bn": "সেশন",
+  "tl": "Mga session"
+ },
+ "ord.it.amox": {
+  "ar": "أموكسيسيلين ٥٠٠ ملغ",
+  "en": "Amoxicillin 500 mg",
+  "ur": "ایموکسیسلین 500 ملی گرام",
+  "hi": "एमोक्सिसिलिन 500 मिग्रा",
+  "bn": "অ্যামোক্সিসিলিন ৫০০ মিগ্রা",
+  "tl": "Amoxicillin 500 mg"
+ },
+ "ord.it.amox.d": {
+  "ar": "كل {h} ساعات · {d} أيام",
+  "en": "Every {h} hours · {d} days",
+  "ur": "ہر {h} گھنٹے · {d} دن",
+  "hi": "हर {h} घंटे · {d} दिन",
+  "bn": "প্রতি {h} ঘণ্টা · {d} দিন",
+  "tl": "Kada {h} oras · {d} araw"
+ },
+ "ord.it.cbc": {
+  "ar": "صورة دم كاملة (CBC)",
+  "en": "Complete blood count (CBC)",
+  "ur": "مکمل بلڈ کاؤنٹ (CBC)",
+  "hi": "पूर्ण रक्त गणना (CBC)",
+  "bn": "সম্পূর্ণ রক্ত গণনা (CBC)",
+  "tl": "Complete blood count (CBC)"
+ },
+ "ord.it.fast": {
+  "ar": "صيام {h} ساعات",
+  "en": "Fast for {h} hours",
+  "ur": "{h} گھنٹے روزہ",
+  "hi": "{h} घंटे उपवास",
+  "bn": "{h} ঘণ্টা উপবাস",
+  "tl": "Mag-ayuno ng {h} oras"
+ },
+ "ord.it.hba1c": {
+  "ar": "السكر التراكمي (HbA1c)",
+  "en": "Glycated haemoglobin (HbA1c)",
+  "ur": "گلائیکیٹڈ ہیموگلوبن (HbA1c)",
+  "hi": "ग्लाइकेटेड हीमोग्लोबिन (HbA1c)",
+  "bn": "গ্লাইকেটেড হিমোগ্লোবিন (HbA1c)",
+  "tl": "Glycated hemoglobin (HbA1c)"
+ },
+ "ord.it.inj": {
+  "ar": "حقن عضل",
+  "en": "Intramuscular injection",
+  "ur": "عضلاتی انجیکشن",
+  "hi": "मांसपेशी में इंजेक्शन",
+  "bn": "মাংসপেশিতে ইনজেকশন",
+  "tl": "Intramuscular injection"
+ },
+ "ord.it.inj.d": {
+  "ar": "{n} جلسات · كل يومين · {m} دقيقة",
+  "en": "{n} sessions · every 2 days · {m} min",
+  "ur": "{n} سیشن · ہر دو دن بعد · {m} منٹ",
+  "hi": "{n} सत्र · हर 2 दिन · {m} मिनट",
+  "bn": "{n}টি সেশন · প্রতি ২ দিনে · {m} মিনিট",
+  "tl": "{n} session · kada 2 araw · {m} min"
+ },
+ "ord.it.liver": {
+  "ar": "وظائف الكبد",
+  "en": "Liver function",
+  "ur": "جگر کے ٹیسٹ",
+  "hi": "लिवर फ़ंक्शन",
+  "bn": "লিভার ফাংশন",
+  "tl": "Liver function"
+ },
+ "ord.it.mri": {
+  "ar": "رنين مغناطيسي للركبة",
+  "en": "Knee MRI",
+  "ur": "گھٹنے کا ایم آر آئی",
+  "hi": "घुटने का एमआरआई",
+  "bn": "হাঁটুর এমআরআই",
+  "tl": "MRI ng tuhod"
+ },
+ "ord.it.nofast": {
+  "ar": "بدون صيام",
+  "en": "No fasting",
+  "ur": "روزہ ضروری نہیں",
+  "hi": "उपवास ज़रूरी नहीं",
+  "bn": "উপবাস লাগবে না",
+  "tl": "Hindi kailangan ng pag-aayuno"
+ },
+ "ord.it.noprep": {
+  "ar": "بدون تحضير",
+  "en": "No preparation",
+  "ur": "تیاری کی ضرورت نہیں",
+  "hi": "तैयारी की ज़रूरत नहीं",
+  "bn": "প্রস্তুতি লাগবে না",
+  "tl": "Walang paghahanda"
+ },
+ "ord.it.para": {
+  "ar": "باراسيتامول ٥٠٠ ملغ",
+  "en": "Paracetamol 500 mg",
+  "ur": "پیراسیٹامول 500 ملی گرام",
+  "hi": "पैरासिटामोल 500 मिग्रा",
+  "bn": "প্যারাসিটামল ৫০০ মিগ্রা",
+  "tl": "Paracetamol 500 mg"
+ },
+ "ord.it.para.d": {
+  "ar": "عند الحاجة فقط",
+  "en": "Only when needed",
+  "ur": "صرف ضرورت پر",
+  "hi": "ज़रूरत पड़ने पर ही",
+  "bn": "শুধু প্রয়োজনে",
+  "tl": "Kung kinakailangan lamang"
+ },
+ "ord.it.phys": {
+  "ar": "علاج طبيعي",
+  "en": "Physiotherapy",
+  "ur": "فزیوتھراپی",
+  "hi": "फ़िज़ियोथेरेपी",
+  "bn": "ফিজিওথেরাপি",
+  "tl": "Physiotherapy"
+ },
+ "ord.it.phys.d": {
+  "ar": "{n} جلسات · {m} دقيقة",
+  "en": "{n} sessions · {m} min",
+  "ur": "{n} سیشن · {m} منٹ",
+  "hi": "{n} सत्र · {m} मिनट",
+  "bn": "{n}টি সেশন · {m} মিনিট",
+  "tl": "{n} session · {m} min"
+ },
+ "ord.it.tsh": {
+  "ar": "هرمون الغدة الدرقية (TSH)",
+  "en": "Thyroid hormone (TSH)",
+  "ur": "تھائیرائڈ ہارمون (TSH)",
+  "hi": "थायरॉइड हार्मोन (TSH)",
+  "bn": "থাইরয়েড হরমোন (TSH)",
+  "tl": "Thyroid hormone (TSH)"
+ },
+ "ord.it.us": {
+  "ar": "سونار البطن",
+  "en": "Abdominal ultrasound",
+  "ur": "پیٹ کا الٹراساؤنڈ",
+  "hi": "पेट का अल्ट्रासाउंड",
+  "bn": "পেটের আলট্রাসাউন্ড",
+  "tl": "Ultrasound ng tiyan"
+ },
+ "ord.it.vitd": {
+  "ar": "فيتامين د",
+  "en": "Vitamin D",
+  "ur": "وٹامن ڈی",
+  "hi": "विटामिन डी",
+  "bn": "ভিটামিন ডি",
+  "tl": "Bitamina D"
+ },
+ "ord.it.xray": {
+  "ar": "أشعة سينية للصدر",
+  "en": "Chest X-ray",
+  "ur": "سینے کا ایکس رے",
+  "hi": "छाती का एक्स-रे",
+  "bn": "বুকের এক্স-রে",
+  "tl": "Chest X-ray"
+ },
+ "ord.loading": {
+  "ar": "جارٍ التحميل",
+  "en": "Loading",
+  "ur": "لوڈ ہو رہا ہے",
+  "hi": "लोड हो रहा है",
+  "bn": "লোড হচ্ছে",
+  "tl": "Naglo-load"
+ },
+ "ord.meta": {
+  "ar": "زيارة {d} أكتوبر · طلب #{n}",
+  "en": "Visit {d} Oct · Order #{n}",
+  "ur": "وزٹ {d} اکتوبر · آرڈر #{n}",
+  "hi": "विज़िट {d} अक्टूबर · ऑर्डर #{n}",
+  "bn": "ভিজিট {d} অক্টোবর · অর্ডার #{n}",
+  "tl": "Bisita {d} Okt · Order #{n}"
+ },
+ "ord.nav.doc": {
+  "ar": "الأطباء",
+  "en": "Doctors",
+  "ur": "ڈاکٹرز",
+  "hi": "डॉक्टर",
+  "bn": "ডাক্তার",
+  "tl": "Mga doktor"
+ },
+ "ord.nav.pharm": {
+  "ar": "الصيدلية",
+  "en": "Pharmacy",
+  "ur": "فارمیسی",
+  "hi": "फ़ार्मेसी",
+  "bn": "ফার্মেসি",
+  "tl": "Botika"
+ },
+ "ord.next": {
+  "ar": "التالي",
+  "en": "Next",
+  "ur": "اگلا",
+  "hi": "आगे",
+  "bn": "পরবর্তী",
+  "tl": "Susunod"
+ },
+ "ord.on": {
+  "ar": "مفعّل",
+  "en": "On",
+  "ur": "آن",
+  "hi": "चालू",
+  "bn": "চালু",
+  "tl": "Naka-on"
+ },
+ "ord.pnav.badge": {
+  "ar": "لوحة المزوّد",
+  "en": "Provider panel",
+  "ur": "فراہم کنندہ پینل",
+  "hi": "प्रदाता पैनल",
+  "bn": "প্রদানকারী প্যানেল",
+  "tl": "Panel ng provider",
+  "_layout": "Button/pill: min-height 44px and no fixed width; the label wraps to two lines and the control grows in the longest languages (en/fil/bn)."
+ },
+ "ord.pnav.home": {
+  "ar": "الرئيسية",
+  "en": "Home",
+  "ur": "ہوم",
+  "hi": "होम",
+  "bn": "হোম",
+  "tl": "Home"
+ },
+ "ord.pnav.orders": {
+  "ar": "الطلبات",
+  "en": "Orders",
+  "ur": "آرڈرز",
+  "hi": "ऑर्डर",
+  "bn": "অর্ডার",
+  "tl": "Mga order"
+ },
+ "ord.pnav.settings": {
+  "ar": "الإعدادات",
+  "en": "Settings",
+  "ur": "سیٹنگز",
+  "hi": "सेटिंग्स",
+  "bn": "সেটিংস",
+  "tl": "Settings"
+ },
+ "ord.pnav.tests": {
+  "ar": "الفحوص والأسعار",
+  "en": "Tests and prices",
+  "ur": "ٹیسٹ اور قیمتیں",
+  "hi": "टेस्ट और कीमतें",
+  "bn": "টেস্ট ও দাম",
+  "tl": "Mga test at presyo"
+ },
+ "ord.retry": {
+  "ar": "إعادة المحاولة",
+  "en": "Try again",
+  "ur": "دوبارہ کوشش کریں",
+  "hi": "फिर से कोशिश करें",
+  "bn": "আবার চেষ্টা করুন",
+  "tl": "Subukan muli"
+ },
+ "ord.sar": {
+  "ar": "ر.س",
+  "en": "SAR",
+  "ur": "SAR",
+  "hi": "SAR",
+  "bn": "SAR",
+  "tl": "SAR"
+ },
+ "ord.save": {
+  "ar": "حفظ",
+  "en": "Save",
+  "ur": "محفوظ کریں",
+  "hi": "सहेजें",
+  "bn": "সংরক্ষণ করুন",
+  "tl": "I-save"
+ },
+ "ord.shield": {
+  "ar": "يُرفق هذا الأمر تلقائيًا بالحجز وبطلب التأمين",
+  "en": "This order is attached automatically to the booking and to the insurance request",
+  "ur": "یہ آرڈر بکنگ اور انشورنس درخواست کے ساتھ خود بخود منسلک ہوتا ہے",
+  "hi": "यह ऑर्डर बुकिंग और बीमा अनुरोध के साथ अपने-आप जुड़ जाता है",
+  "bn": "এই অর্ডার বুকিং ও বিমা অনুরোধের সাথে স্বয়ংক্রিয়ভাবে যুক্ত হয়",
+  "tl": "Awtomatikong ikakabit ang order na ito sa booking at sa insurance request",
+  "_layout": "Body text wraps; container grows in height (no fixed height)."
+ },
+ "ord.st.booked": {
+  "ar": "محجوز",
+  "en": "Booked",
+  "ur": "بک ہو چکا",
+  "hi": "बुक हो गया",
+  "bn": "বুক হয়েছে",
+  "tl": "Naka-book"
+ },
+ "ord.st.expired": {
+  "ar": "منتهي",
+  "en": "Expired",
+  "ur": "میعاد ختم",
+  "hi": "समाप्त",
+  "bn": "মেয়াদোত্তীর্ণ",
+  "tl": "Nag-expire"
+ },
+ "ord.st.later": {
+  "ar": "لاحقًا",
+  "en": "Later",
+  "ur": "بعد میں",
+  "hi": "बाद में",
+  "bn": "পরে",
+  "tl": "Mamaya"
+ },
+ "ord.st.new": {
+  "ar": "لم يُطلب",
+  "en": "Not ordered",
+  "ur": "آرڈر نہیں ہوا",
+  "hi": "ऑर्डर नहीं हुआ",
+  "bn": "অর্ডার হয়নি",
+  "tl": "Hindi pa na-order"
+ },
+ "ord.st.wait": {
+  "ar": "بانتظار الموافقة",
+  "en": "Awaiting approval",
+  "ur": "منظوری کا انتظار",
+  "hi": "मंज़ूरी का इंतज़ार",
+  "bn": "অনুমোদনের অপেক্ষায়",
+  "tl": "Naghihintay ng approval"
+ },
+ "ord.valid.long": {
+  "ar": "صالح حتى {d} نوفمبر · باقي {n} يومًا",
+  "en": "Valid until {d} Nov · {n} days left",
+  "ur": "{d} نومبر تک کارآمد · {n} دن باقی",
+  "hi": "{d} नवंबर तक वैध · {n} दिन बाकी",
+  "bn": "{d} নভেম্বর পর্যন্ত বৈধ · {n} দিন বাকি",
+  "tl": "Valid hanggang {d} Nob · {n} araw pa"
+ },
+ "ord.valid.over": {
+  "ar": "انتهت صلاحية هذا الأمر في {d} أكتوبر",
+  "en": "This order expired on {d} Oct",
+  "ur": "اس آرڈر کی میعاد {d} اکتوبر کو ختم ہو گئی",
+  "hi": "इस ऑर्डर की वैधता {d} अक्टूबर को समाप्त हुई",
+  "bn": "এই অর্ডারের মেয়াদ {d} অক্টোবর শেষ হয়েছে",
+  "tl": "Nag-expire ang order na ito noong {d} Okt"
+ },
+ "ord.valid.short": {
+  "ar": "صالح حتى {d} أكتوبر · باقي {n} أيام",
+  "en": "Valid until {d} Oct · {n} days left",
+  "ur": "{d} اکتوبر تک کارآمد · {n} دن باقی",
+  "hi": "{d} अक्टूबर तक वैध · {n} दिन बाकी",
+  "bn": "{d} অক্টোবর পর্যন্ত বৈধ · {n} দিন বাকি",
+  "tl": "Valid hanggang {d} Okt · {n} araw pa"
+ },
+ "ord20.b.labs": {
+  "ar": "اطلب التحاليل",
+  "en": "Order the tests",
+  "ur": "ٹیسٹ آرڈر کریں",
+  "hi": "टेस्ट ऑर्डर करें",
+  "bn": "টেস্ট অর্ডার করুন",
+  "tl": "I-order ang mga test",
+  "_layout": "Button/pill: min-height 44px and no fixed width; the label wraps to two lines and the control grows in the longest languages (en/fil/bn)."
+ },
+ "ord20.b.meds": {
+  "ar": "اطلب عروضًا من الصيدليات",
+  "en": "Request pharmacy offers",
+  "ur": "فارمیسیوں سے آفر منگوائیں",
+  "hi": "फ़ार्मेसियों से ऑफ़र मंगाएँ",
+  "bn": "ফার্মেসির অফার চান",
+  "tl": "Humingi ng alok sa mga botika"
+ },
+ "ord20.b.nurs": {
+  "ar": "اطلب التمريض",
+  "en": "Order nursing",
+  "ur": "نرسنگ آرڈر کریں",
+  "hi": "नर्सिंग ऑर्डर करें",
+  "bn": "নার্সিং অর্ডার করুন",
+  "tl": "I-order ang nursing",
+  "_layout": "Button/pill: min-height 44px and no fixed width; the label wraps to two lines and the control grows in the longest languages (en/fil/bn)."
+ },
+ "ord20.b.rad": {
+  "ar": "اطلب الأشعة",
+  "en": "Order the scans",
+  "ur": "اسکین آرڈر کریں",
+  "hi": "स्कैन ऑर्डर करें",
+  "bn": "স্ক্যান অর্ডার করুন",
+  "tl": "I-order ang mga scan",
+  "_layout": "Button/pill: min-height 44px and no fixed width; the label wraps to two lines and the control grows in the longest languages (en/fil/bn)."
+ },
+ "ord20.b.sess": {
+  "ar": "احجز الجلسات",
+  "en": "Book the sessions",
+  "ur": "سیشن بک کریں",
+  "hi": "सत्र बुक करें",
+  "bn": "সেশন বুক করুন",
+  "tl": "I-book ang mga session",
+  "_layout": "Button/pill: min-height 44px and no fixed width; the label wraps to two lines and the control grows in the longest languages (en/fil/bn)."
+ },
+ "ord20.clock": {
+  "ar": "بانتظار موافقة التأمين · {t}",
+  "en": "Waiting for insurance approval · {t}",
+  "ur": "انشورنس منظوری کا انتظار · {t}",
+  "hi": "बीमा मंज़ूरी का इंतज़ार · {t}",
+  "bn": "বিমা অনুমোদনের অপেক্ষা · {t}",
+  "tl": "Naghihintay ng insurance approval · {t}"
+ },
+ "ord20.clock.s": {
+  "ar": "إن لم تصل الموافقة نعرض لك موعدًا بديلًا",
+  "en": "If approval does not arrive we offer you another slot",
+  "ur": "منظوری نہ آئی تو ہم متبادل وقت پیش کریں گے",
+  "hi": "मंज़ूरी न आई तो हम दूसरा समय दिखाएँगे",
+  "bn": "অনুমোদন না এলে আমরা বিকল্প সময় দেখাব",
+  "tl": "Kapag walang approval, mag-aalok kami ng ibang oras"
+ },
+ "ord20.empty.b": {
+  "ar": "احجز استشارة",
+  "en": "Book a consultation",
+  "ur": "مشاورت بک کریں",
+  "hi": "परामर्श बुक करें",
+  "bn": "পরামর্শ বুক করুন",
+  "tl": "Mag-book ng konsultasyon",
+  "_layout": "Button/pill: min-height 44px and no fixed width; the label wraps to two lines and the control grows in the longest languages (en/fil/bn)."
+ },
+ "ord20.empty.s": {
+  "ar": "عندما يكتب طبيبك أمرًا طبيًا يظهر هنا مع زر الطلب لكل مجموعة",
+  "en": "When your doctor writes an order it appears here with an Order button for each group",
+  "ur": "جب آپ کا ڈاکٹر آرڈر لکھے گا تو یہاں ہر گروپ کے آرڈر بٹن کے ساتھ نظر آئے گا",
+  "hi": "जब आपका डॉक्टर ऑर्डर लिखेगा तो वह हर समूह के ऑर्डर बटन के साथ यहाँ दिखेगा",
+  "bn": "ডাক্তার অর্ডার লিখলে প্রতি গ্রুপের অর্ডার বোতামসহ এখানে দেখা যাবে",
+  "tl": "Lalabas dito ang order ng doktor na may Order button sa bawat grupo"
+ },
+ "ord20.empty.t": {
+  "ar": "لا توجد طلبات طبية بعد",
+  "en": "No medical orders yet",
+  "ur": "ابھی کوئی طبی آرڈر نہیں",
+  "hi": "अभी कोई मेडिकल ऑर्डर नहीं",
+  "bn": "এখনও কোনো মেডিকেল অর্ডার নেই",
+  "tl": "Wala pang medical order"
+ },
+ "ord20.est": {
+  "ar": "حصتك المقدّرة {p} (تقدير)",
+  "en": "Your estimated share {p} (estimate)",
+  "ur": "آپ کا تخمینی حصہ {p} (تخمینہ)",
+  "hi": "आपका अनुमानित हिस्सा {p} (अनुमान)",
+  "bn": "আপনার আনুমানিক অংশ {p} (আনুমানিক)",
+  "tl": "Tantiyang bahagi mo {p} (tantiya)"
+ },
+ "ord20.exp.note": {
+  "ar": "انتهت صلاحية الأمر ولا يمكن استخدامه. اطلب من طبيبك أمرًا جديدًا",
+  "en": "This order has expired and cannot be used. Ask your doctor for a new one",
+  "ur": "آرڈر کی میعاد ختم ہو گئی ہے۔ اپنے ڈاکٹر سے نیا آرڈر مانگیں",
+  "hi": "ऑर्डर की वैधता समाप्त हो गई है। अपने डॉक्टर से नया ऑर्डर माँगें",
+  "bn": "অর্ডারের মেয়াদ শেষ। আপনার ডাক্তারের কাছে নতুন অর্ডার চান",
+  "tl": "Nag-expire na ang order at hindi na magagamit. Humingi ng bago sa doktor"
+ },
+ "ord20.f.group": {
+  "ar": "نوع الطلب",
+  "en": "Order type",
+  "ur": "آرڈر کی قسم",
+  "hi": "ऑर्डर का प्रकार",
+  "bn": "অর্ডারের ধরন",
+  "tl": "Uri ng order"
+ },
+ "ord20.f.status": {
+  "ar": "الحالة",
+  "en": "Status",
+  "ur": "حالت",
+  "hi": "स्थिति",
+  "bn": "অবস্থা",
+  "tl": "Katayuan"
+ },
+ "ord20.f.who": {
+  "ar": "لمن",
+  "en": "For whom",
+  "ur": "کس کے لیے",
+  "hi": "किसके लिए",
+  "bn": "কার জন্য",
+  "tl": "Para kanino"
+ },
+ "ord20.meds.note": {
+  "ar": "الصيدليات تردّ بعروض بأسعارها",
+  "en": "Pharmacies reply with priced offers",
+  "ur": "فارمیسیاں قیمت کے ساتھ آفر بھیجتی ہیں",
+  "hi": "फ़ार्मेसियाँ कीमत के साथ ऑफ़र भेजती हैं",
+  "bn": "ফার্মেসি দামসহ অফার পাঠায়",
+  "tl": "Sasagot ang mga botika ng alok na may presyo",
+  "_layout": "Body text wraps; container grows in height (no fixed height)."
+ },
+ "ord20.tab.expired": {
+  "ar": "منتهية",
+  "en": "Expired",
+  "ur": "میعاد ختم",
+  "hi": "समाप्त",
+  "bn": "মেয়াদোত্তীর্ণ",
+  "tl": "Nag-expire"
+ },
+ "ord20.tab.valid": {
+  "ar": "سارية",
+  "en": "Valid",
+  "ur": "کارآمد",
+  "hi": "वैध",
+  "bn": "বৈধ",
+  "tl": "Valid"
+ },
+ "ord20.title": {
+  "ar": "طلباتي الطبية",
+  "en": "My medical orders",
+  "ur": "میرے طبی آرڈرز",
+  "hi": "मेरे मेडिकल ऑर्डर",
+  "bn": "আমার মেডিকেল অর্ডার",
+  "tl": "Mga medical order ko"
+ },
+ "ord21.b.disabled": {
+  "ar": "لا يمكن الطلب – الأمر منتهي",
+  "en": "Cannot order – order expired",
+  "ur": "آرڈر نہیں ہو سکتا – میعاد ختم",
+  "hi": "ऑर्डर नहीं हो सकता – वैधता समाप्त",
+  "bn": "অর্ডার করা যাবে না – মেয়াদ শেষ",
+  "tl": "Hindi ma-order – nag-expire"
+ },
+ "ord21.free": {
+  "ar": "الطبيب لا يختار لك المزوّد؛ أنت تختار الأنسب سعرًا وموقعًا",
+  "en": "Your doctor does not pick the provider; you choose the best for price and place",
+  "ur": "ڈاکٹر فراہم کنندہ نہیں چنتا؛ قیمت اور جگہ کے حساب سے آپ خود چنتے ہیں",
+  "hi": "डॉक्टर प्रदाता नहीं चुनते; कीमत और जगह के हिसाब से आप चुनते हैं",
+  "bn": "ডাক্তার প্রদানকারী বাছেন না; দাম ও স্থান দেখে আপনি বাছুন",
+  "tl": "Hindi pumipili ng provider ang doktor; ikaw ang pipili batay sa presyo at lugar"
+ },
+ "ord21.later": {
+  "ar": "أزل التحديد لتطلبه لاحقًا",
+  "en": "Untick to order it later",
+  "ur": "بعد میں آرڈر کے لیے نشان ہٹائیں",
+  "hi": "बाद में ऑर्डर करने के लिए निशान हटाएँ",
+  "bn": "পরে অর্ডারের জন্য টিক সরান",
+  "tl": "Alisin ang tsek para i-order mamaya"
+ },
+ "ord21.note.l": {
+  "ar": "ملاحظة الطبيب",
+  "en": "Doctor's note",
+  "ur": "ڈاکٹر کا نوٹ",
+  "hi": "डॉक्टर का नोट",
+  "bn": "ডাক্তারের নোট",
+  "tl": "Tala ng doktor"
+ },
+ "ord21.note.t": {
+  "ar": "الصيام ٨ ساعات قبل التحاليل. أعد التقييم بعد أسبوعين.",
+  "en": "Fast for 8 hours before the tests. Review again in two weeks.",
+  "ur": "ٹیسٹ سے 8 گھنٹے پہلے روزہ رکھیں۔ دو ہفتے بعد دوبارہ دکھائیں۔",
+  "hi": "टेस्ट से 8 घंटे पहले उपवास रखें। दो हफ़्ते बाद फिर दिखाएँ।",
+  "bn": "টেস্টের ৮ ঘণ্টা আগে উপবাস থাকুন। দুই সপ্তাহ পরে আবার দেখান।",
+  "tl": "Mag-ayuno ng 8 oras bago ang mga test. Magpa-check muli sa loob ng dalawang linggo.",
+  "_layout": "Body text wraps; container grows in height (no fixed height)."
+ },
+ "ord21.prog": {
+  "ar": "مدة الصلاحية",
+  "en": "Validity period",
+  "ur": "میعاد",
+  "hi": "वैधता अवधि",
+  "bn": "বৈধতার সময়",
+  "tl": "Panahon ng bisa"
+ },
+ "ord21.sel": {
+  "ar": "{a} من {b} محددة",
+  "en": "{a} of {b} selected",
+  "ur": "{b} میں سے {a} منتخب",
+  "hi": "{b} में से {a} चुने",
+  "bn": "{b}-এর মধ্যে {a}টি নির্বাচিত",
+  "tl": "{a} sa {b} ang napili"
+ },
+ "ord21.title": {
+  "ar": "تفاصيل الأمر الطبي",
+  "en": "Medical order details",
+  "ur": "طبی آرڈر کی تفصیل",
+  "hi": "मेडिकल ऑर्डर का विवरण",
+  "bn": "মেডিকেল অর্ডারের বিবরণ",
+  "tl": "Detalye ng medical order"
+ },
+ "ord22.age": {
+  "ar": "{n} سنة",
+  "en": "{n} years",
+  "ur": "{n} سال",
+  "hi": "{n} वर्ष",
+  "bn": "{n} বছর",
+  "tl": "{n} taon"
+ },
+ "ord22.days": {
+  "ar": "{n} يومًا",
+  "en": "{n} days",
+  "ur": "{n} دن",
+  "hi": "{n} दिन",
+  "bn": "{n} দিন",
+  "tl": "{n} araw"
+ },
+ "ord22.err.t": {
+  "ar": "تعذّر إرسال الأمر",
+  "en": "Could not send the order",
+  "ur": "آرڈر نہیں بھیجا جا سکا",
+  "hi": "ऑर्डर नहीं भेजा जा सका",
+  "bn": "অর্ডার পাঠানো যায়নি",
+  "tl": "Hindi naipadala ang order"
+ },
+ "ord22.f.count": {
+  "ar": "عدد الجلسات",
+  "en": "Number of sessions",
+  "ur": "سیشنز کی تعداد",
+  "hi": "सत्रों की संख्या",
+  "bn": "সেশনের সংখ্যা",
+  "tl": "Bilang ng session"
+ },
+ "ord22.f.dur": {
+  "ar": "المدة (دقيقة)",
+  "en": "Duration (min)",
+  "ur": "دورانیہ (منٹ)",
+  "hi": "अवधि (मिनट)",
+  "bn": "সময়কাল (মিনিট)",
+  "tl": "Tagal (min)"
+ },
+ "ord22.f.freq": {
+  "ar": "التكرار",
+  "en": "Frequency",
+  "ur": "تکرار",
+  "hi": "आवृत्ति",
+  "bn": "পুনরাবৃত্তি",
+  "tl": "Dalas"
+ },
+ "ord22.f.freq.v": {
+  "ar": "كل يومين",
+  "en": "Every 2 days",
+  "ur": "ہر دو دن بعد",
+  "hi": "हर 2 दिन",
+  "bn": "প্রতি ২ দিনে",
+  "tl": "Kada 2 araw"
+ },
+ "ord22.months": {
+  "ar": "{n} أشهر",
+  "en": "{n} months",
+  "ur": "{n} ماہ",
+  "hi": "{n} महीने",
+  "bn": "{n} মাস",
+  "tl": "{n} buwan"
+ },
+ "ord22.nat": {
+  "ar": "من الكتالوج الوطني",
+  "en": "From the national catalogue",
+  "ur": "قومی کیٹلاگ سے",
+  "hi": "राष्ट्रीय कैटलॉग से",
+  "bn": "জাতীয় ক্যাটালগ থেকে",
+  "tl": "Mula sa pambansang katalogo"
+ },
+ "ord22.note.l": {
+  "ar": "ملاحظة للمريض",
+  "en": "Note for the patient",
+  "ur": "مریض کے لیے نوٹ",
+  "hi": "मरीज़ के लिए नोट",
+  "bn": "রোগীর জন্য নোট",
+  "tl": "Tala para sa pasyente"
+ },
+ "ord22.note.ph": {
+  "ar": "مثال: الصيام ٨ ساعات قبل التحاليل",
+  "en": "Example: fast for 8 hours before the tests",
+  "ur": "مثال: ٹیسٹ سے 8 گھنٹے پہلے روزہ",
+  "hi": "उदाहरण: टेस्ट से 8 घंटे पहले उपवास",
+  "bn": "উদাহরণ: টেস্টের ৮ ঘণ্টা আগে উপবাস",
+  "tl": "Halimbawa: mag-ayuno ng 8 oras bago ang test"
+ },
+ "ord22.pname": {
+  "ar": "[اسم المريض]",
+  "en": "[Patient name]",
+  "ur": "[مریض کا نام]",
+  "hi": "[मरीज़ का नाम]",
+  "bn": "[রোগীর নাম]",
+  "tl": "[Pangalan ng pasyente]"
+ },
+ "ord22.rm": {
+  "ar": "حذف البند",
+  "en": "Remove item",
+  "ur": "آئٹم ہٹائیں",
+  "hi": "आइटम हटाएँ",
+  "bn": "আইটেম সরান",
+  "tl": "Alisin ang item"
+ },
+ "ord22.rule": {
+  "ar": "يصل المريض إشعار وبطاقة في الرئيسية. أنت لا تختار المزوّد",
+  "en": "The patient gets a notification and a Home card. You do not pick the provider",
+  "ur": "مریض کو نوٹیفکیشن اور ہوم کارڈ ملتا ہے۔ آپ فراہم کنندہ نہیں چنتے",
+  "hi": "मरीज़ को सूचना और होम कार्ड मिलता है। आप प्रदाता नहीं चुनते",
+  "bn": "রোগী নোটিফিকেশন ও হোম কার্ড পান। আপনি প্রদানকারী বাছেন না",
+  "tl": "Makakatanggap ang pasyente ng notification at Home card. Hindi ikaw ang pipili ng provider",
+  "_layout": "Body text wraps; container grows in height (no fixed height)."
+ },
+ "ord22.search": {
+  "ar": "ابحث في الكتالوج الوطني",
+  "en": "Search the national catalogue",
+  "ur": "قومی کیٹلاگ میں تلاش کریں",
+  "hi": "राष्ट्रीय कैटलॉग में खोजें",
+  "bn": "জাতীয় ক্যাটালগে খুঁজুন",
+  "tl": "Maghanap sa pambansang katalogo"
+ },
+ "ord22.send": {
+  "ar": "أرسل الأمر للمريض",
+  "en": "Send order to patient",
+  "ur": "آرڈر مریض کو بھیجیں",
+  "hi": "ऑर्डर मरीज़ को भेजें",
+  "bn": "অর্ডার রোগীকে পাঠান",
+  "tl": "Ipadala ang order sa pasyente",
+  "_layout": "Button/pill: min-height 44px and no fixed width; the label wraps to two lines and the control grows in the longest languages (en/fil/bn)."
+ },
+ "ord22.sent.s": {
+  "ar": "يظهر في «طلباتي الطبية» مع زر الطلب لكل مجموعة",
+  "en": "It shows in “My medical orders” with an Order button per group",
+  "ur": "یہ «میرے طبی آرڈرز» میں ہر گروپ کے آرڈر بٹن کے ساتھ دکھتا ہے",
+  "hi": "यह «मेरे मेडिकल ऑर्डर» में हर समूह के ऑर्डर बटन के साथ दिखता है",
+  "bn": "এটি «আমার মেডিকেল অর্ডার»-এ প্রতি গ্রুপের অর্ডার বোতামসহ দেখা যায়",
+  "tl": "Lalabas ito sa “Mga medical order ko” na may Order button sa bawat grupo",
+  "_layout": "Body text wraps; container grows in height (no fixed height)."
+ },
+ "ord22.sent.t": {
+  "ar": "وصل الأمر إلى المريض",
+  "en": "The order reached the patient",
+  "ur": "آرڈر مریض تک پہنچ گیا",
+  "hi": "ऑर्डर मरीज़ तक पहुँच गया",
+  "bn": "অর্ডার রোগীর কাছে পৌঁছেছে",
+  "tl": "Naabot na ng order ang pasyente"
+ },
+ "ord22.series": {
+  "ar": "يُنشأ كسلسلة جلسات؛ يدفع المريض الكل أو كل جلسة، ويلغي كل جلسة على حدة",
+  "en": "Created as a series; the patient pays all or per session and can cancel each session",
+  "ur": "سیشنز کی سیریز بنتی ہے؛ مریض سب یا ہر سیشن کی ادائیگی کرتا ہے اور ہر سیشن الگ منسوخ کر سکتا ہے",
+  "hi": "सत्रों की श्रृंखला बनती है; मरीज़ सब या हर सत्र का भुगतान करता है और हर सत्र अलग रद्द कर सकता है",
+  "bn": "সেশনের সিরিজ তৈরি হয়; রোগী সব বা প্রতি সেশনে পেমেন্ট করেন এবং প্রতিটি আলাদা বাতিল করতে পারেন",
+  "tl": "Gagawing serye; babayaran ng pasyente ang lahat o bawat session at puwedeng kanselahin ang bawat isa"
+ },
+ "ord22.sum": {
+  "ar": "ملخص الأمر",
+  "en": "Order summary",
+  "ur": "آرڈر کا خلاصہ",
+  "hi": "ऑर्डर सारांश",
+  "bn": "অর্ডারের সারাংশ",
+  "tl": "Buod ng order"
+ },
+ "ord22.title": {
+  "ar": "أمر طبي جديد",
+  "en": "New medical order",
+  "ur": "نیا طبی آرڈر",
+  "hi": "नया मेडिकल ऑर्डर",
+  "bn": "নতুন মেডিকেল অর্ডার",
+  "tl": "Bagong medical order"
+ },
+ "ord22.validity": {
+  "ar": "مدة صلاحية الأمر",
+  "en": "Order validity",
+  "ur": "آرڈر کی میعاد",
+  "hi": "ऑर्डर की वैधता",
+  "bn": "অর্ডারের বৈধতা",
+  "tl": "Bisa ng order"
+ },
+ "ord30.auto": {
+  "ar": "القبول التلقائي",
+  "en": "Auto-accept",
+  "ur": "خودکار قبولیت",
+  "hi": "स्वतः स्वीकार",
+  "bn": "স্বয়ংক্রিয় গ্রহণ",
+  "tl": "Awtomatikong pagtanggap"
+ },
+ "ord30.auto.s": {
+  "ar": "تقبل الطلب العاجل فور وصوله وتظهر أولًا للمرضى القريبين",
+  "en": "Accepts an urgent request on arrival and shows first to nearby patients",
+  "ur": "فوری درخواست آتے ہی قبول کرتا ہے اور قریبی مریضوں کو پہلے دکھائی دیتا ہے",
+  "hi": "तत्काल अनुरोध आते ही स्वीकार करता है और पास के मरीज़ों को पहले दिखता है",
+  "bn": "জরুরি অনুরোধ আসামাত্র গ্রহণ করে এবং কাছের রোগীদের আগে দেখায়",
+  "tl": "Tinatanggap agad ang urgent na request at una kang makikita ng malalapit na pasyente",
+  "_layout": "Body text wraps; container grows in height (no fixed height)."
+ },
+ "ord30.book": {
+  "ar": "الحجز في المنشأة",
+  "en": "Booking at the facility",
+  "ur": "سہولت مرکز میں بکنگ",
+  "hi": "सुविधा केंद्र पर बुकिंग",
+  "bn": "সুবিধা কেন্দ্রে বুকিং",
+  "tl": "Booking sa pasilidad",
+  "_layout": "Button/pill: min-height 44px and no fixed width; the label wraps to two lines and the control grows in the longest languages (en/fil/bn)."
+ },
+ "ord30.book.slots": {
+  "ar": "مواعيد محددة",
+  "en": "Time slots",
+  "ur": "مقررہ وقت",
+  "hi": "निर्धारित समय",
+  "bn": "নির্দিষ্ট সময়",
+  "tl": "Mga time slot"
+ },
+ "ord30.book.walk": {
+  "ar": "بدون موعد (رمز QR)",
+  "en": "Walk-in (QR code)",
+  "ur": "بغیر وقت (QR کوڈ)",
+  "hi": "बिना समय (QR कोड)",
+  "bn": "সময় ছাড়া (QR কোড)",
+  "tl": "Walk-in (QR code)"
+ },
+ "ord30.closed": {
+  "ar": "مغلق",
+  "en": "Closed",
+  "ur": "بند",
+  "hi": "बंद",
+  "bn": "বন্ধ",
+  "tl": "Sarado"
+ },
+ "ord30.cls.a": {
+  "ar": "فئة أ",
+  "en": "Class A",
+  "ur": "کلاس A",
+  "hi": "श्रेणी A",
+  "bn": "শ্রেণি A",
+  "tl": "Klase A"
+ },
+ "ord30.cls.b": {
+  "ar": "فئة ب",
+  "en": "Class B",
+  "ur": "کلاس B",
+  "hi": "श्रेणी B",
+  "bn": "শ্রেণি B",
+  "tl": "Klase B"
+ },
+ "ord30.cls.c": {
+  "ar": "فئة ج",
+  "en": "Class C",
+  "ur": "کلاس C",
+  "hi": "श्रेणी C",
+  "bn": "শ্রেণি C",
+  "tl": "Klase C"
+ },
+ "ord30.cls.vip": {
+  "ar": "VIP",
+  "en": "VIP",
+  "ur": "VIP",
+  "hi": "VIP",
+  "bn": "VIP",
+  "tl": "VIP"
+ },
+ "ord30.d1": {
+  "ar": "السبت – الأربعاء",
+  "en": "Saturday – Wednesday",
+  "ur": "ہفتہ – بدھ",
+  "hi": "शनिवार – बुधवार",
+  "bn": "শনিবার – বুধবার",
+  "tl": "Sabado – Miyerkules"
+ },
+ "ord30.d2": {
+  "ar": "الخميس",
+  "en": "Thursday",
+  "ur": "جمعرات",
+  "hi": "गुरुवार",
+  "bn": "বৃহস্পতিবার",
+  "tl": "Huwebes"
+ },
+ "ord30.d3": {
+  "ar": "الجمعة",
+  "en": "Friday",
+  "ur": "جمعہ",
+  "hi": "शुक्रवार",
+  "bn": "শুক্রবার",
+  "tl": "Biyernes"
+ },
+ "ord30.done": {
+  "ar": "ابدأ استقبال الطلبات",
+  "en": "Start receiving orders",
+  "ur": "آرڈر وصول کرنا شروع کریں",
+  "hi": "ऑर्डर लेना शुरू करें",
+  "bn": "অর্ডার নেওয়া শুরু করুন",
+  "tl": "Simulan ang pagtanggap ng order",
+  "_layout": "Button/pill: min-height 44px and no fixed width; the label wraps to two lines and the control grows in the longest languages (en/fil/bn)."
+ },
+ "ord30.fee": {
+  "ar": "رسوم الزيارة المنزلية",
+  "en": "Home-visit fee",
+  "ur": "گھر پر وزٹ کی فیس",
+  "hi": "होम विज़िट शुल्क",
+  "bn": "বাসায় ভিজিটের ফি",
+  "tl": "Bayad sa pagbisita sa bahay"
+ },
+ "ord30.fee.h": {
+  "ar": "تظهر للمريض منفصلة عن أسعار الفحوص",
+  "en": "Shown to the patient separately from test prices",
+  "ur": "مریض کو ٹیسٹ کی قیمتوں سے الگ دکھائی جاتی ہے",
+  "hi": "मरीज़ को टेस्ट की कीमतों से अलग दिखती है",
+  "bn": "রোগীকে টেস্টের দাম থেকে আলাদা দেখানো হয়",
+  "tl": "Hiwalay na ipinapakita sa pasyente mula sa presyo ng test",
+  "_layout": "Body text wraps; container grows in height (no fixed height)."
+ },
+ "ord30.female": {
+  "ar": "نساء",
+  "en": "Women",
+  "ur": "خواتین",
+  "hi": "महिलाएँ",
+  "bn": "নারী",
+  "tl": "Babae"
+ },
+ "ord30.h1": {
+  "ar": "٨:٠٠ ص – ١٠:٠٠ م",
+  "en": "8:00 AM – 10:00 PM",
+  "ur": "صبح 8:00 – رات 10:00",
+  "hi": "सुबह 8:00 – रात 10:00",
+  "bn": "সকাল ৮:০০ – রাত ১০:০০",
+  "tl": "8:00 AM – 10:00 PM"
+ },
+ "ord30.h2": {
+  "ar": "٨:٠٠ ص – ٢:٠٠ م",
+  "en": "8:00 AM – 2:00 PM",
+  "ur": "صبح 8:00 – دوپہر 2:00",
+  "hi": "सुबह 8:00 – दोपहर 2:00",
+  "bn": "সকাল ৮:০০ – দুপুর ২:০০",
+  "tl": "8:00 AM – 2:00 PM"
+ },
+ "ord30.hours": {
+  "ar": "ساعات الدوام",
+  "en": "Working hours",
+  "ur": "کام کے اوقات",
+  "hi": "कार्य समय",
+  "bn": "কাজের সময়",
+  "tl": "Oras ng trabaho"
+ },
+ "ord30.ins.bupa": {
+  "ar": "بوبا العربية",
+  "en": "Bupa Arabia",
+  "ur": "Bupa Arabia",
+  "hi": "Bupa Arabia",
+  "bn": "Bupa Arabia",
+  "tl": "Bupa Arabia"
+ },
+ "ord30.ins.mal": {
+  "ar": "ملاذ",
+  "en": "Malath",
+  "ur": "Malath",
+  "hi": "Malath",
+  "bn": "Malath",
+  "tl": "Malath"
+ },
+ "ord30.ins.med": {
+  "ar": "ميدغلف",
+  "en": "MedGulf",
+  "ur": "MedGulf",
+  "hi": "MedGulf",
+  "bn": "MedGulf",
+  "tl": "MedGulf"
+ },
+ "ord30.ins.search": {
+  "ar": "ابحث عن شركة تأمين",
+  "en": "Search insurance company",
+  "ur": "انشورنس کمپنی تلاش کریں",
+  "hi": "बीमा कंपनी खोजें",
+  "bn": "বিমা কোম্পানি খুঁজুন",
+  "tl": "Maghanap ng insurance company"
+ },
+ "ord30.ins.selall": {
+  "ar": "اختيار كل الفئات",
+  "en": "Select all classes",
+  "ur": "تمام کلاسیں منتخب کریں",
+  "hi": "सभी श्रेणियाँ चुनें",
+  "bn": "সব শ্রেণি নির্বাচন করুন",
+  "tl": "Piliin ang lahat ng klase",
+  "_layout": "Button/pill: min-height 44px and no fixed width; the label wraps to two lines and the control grows in the longest languages (en/fil/bn)."
+ },
+ "ord30.ins.sum": {
+  "ar": "{a} شركات · {b} فئات",
+  "en": "{a} companies · {b} classes",
+  "ur": "{a} کمپنیاں · {b} کلاسیں",
+  "hi": "{a} कंपनियाँ · {b} श्रेणियाँ",
+  "bn": "{a}টি কোম্পানি · {b}টি শ্রেণি",
+  "tl": "{a} kumpanya · {b} klase"
+ },
+ "ord30.ins.taw": {
+  "ar": "التعاونية",
+  "en": "Tawuniya",
+  "ur": "Tawuniya",
+  "hi": "Tawuniya",
+  "bn": "Tawuniya",
+  "tl": "Tawuniya"
+ },
+ "ord30.km": {
+  "ar": "{n} كم",
+  "en": "{n} km",
+  "ur": "{n} کلومیٹر",
+  "hi": "{n} किमी",
+  "bn": "{n} কিমি",
+  "tl": "{n} km"
+ },
+ "ord30.later": {
+  "ar": "تضيف الأسعار في الخطوة التالية، ويمكنك تعديل كل شيء لاحقًا",
+  "en": "You add prices next, and can change everything later",
+  "ur": "قیمتیں اگلے مرحلے میں شامل کریں، سب کچھ بعد میں بدل سکتے ہیں",
+  "hi": "कीमतें अगले चरण में जोड़ें, सब कुछ बाद में बदल सकते हैं",
+  "bn": "দাম পরের ধাপে যোগ করুন, সবকিছু পরে বদলানো যাবে",
+  "tl": "Magdaragdag ka ng presyo sa susunod; puwede mong baguhin ang lahat mamaya"
+ },
+ "ord30.male": {
+  "ar": "رجال",
+  "en": "Men",
+  "ur": "مرد",
+  "hi": "पुरुष",
+  "bn": "পুরুষ",
+  "tl": "Lalaki"
+ },
+ "ord30.min": {
+  "ar": "{n} دقيقة",
+  "en": "{n} min",
+  "ur": "{n} منٹ",
+  "hi": "{n} मिनट",
+  "bn": "{n} মিনিট",
+  "tl": "{n} min"
+ },
+ "ord30.mode.f": {
+  "ar": "في المنشأة",
+  "en": "At the facility",
+  "ur": "سہولت مرکز میں",
+  "hi": "सुविधा केंद्र पर",
+  "bn": "সুবিধা কেন্দ্রে",
+  "tl": "Sa pasilidad"
+ },
+ "ord30.mode.f.s": {
+  "ar": "المريض يأتي إليك",
+  "en": "The patient comes to you",
+  "ur": "مریض آپ کے پاس آتا ہے",
+  "hi": "मरीज़ आपके पास आता है",
+  "bn": "রোগী আপনার কাছে আসেন",
+  "tl": "Pupunta sa iyo ang pasyente"
+ },
+ "ord30.mode.h": {
+  "ar": "زيارة منزلية",
+  "en": "Home visit",
+  "ur": "گھر پر وزٹ",
+  "hi": "घर पर विज़िट",
+  "bn": "বাসায় ভিজিট",
+  "tl": "Pagbisita sa bahay"
+ },
+ "ord30.mode.h.s": {
+  "ar": "فريقك يذهب إلى المريض",
+  "en": "Your team goes to the patient",
+  "ur": "آپ کی ٹیم مریض کے پاس جاتی ہے",
+  "hi": "आपकी टीम मरीज़ के पास जाती है",
+  "bn": "আপনার দল রোগীর কাছে যায়",
+  "tl": "Pupunta ang team mo sa pasyente"
+ },
+ "ord30.r.home": {
+  "ar": "الزيارة المنزلية",
+  "en": "Home visit",
+  "ur": "گھر پر وزٹ",
+  "hi": "होम विज़िट",
+  "bn": "বাসায় ভিজিট",
+  "tl": "Pagbisita sa bahay"
+ },
+ "ord30.r.hours": {
+  "ar": "الدوام",
+  "en": "Hours",
+  "ur": "اوقات",
+  "hi": "समय",
+  "bn": "সময়",
+  "tl": "Oras"
+ },
+ "ord30.r.ins": {
+  "ar": "التأمين",
+  "en": "Insurance",
+  "ur": "انشورنس",
+  "hi": "बीमा",
+  "bn": "বিমা",
+  "tl": "Insurance"
+ },
+ "ord30.r.modes": {
+  "ar": "طرق الخدمة",
+  "en": "Modes",
+  "ur": "خدمت کے طریقے",
+  "hi": "सेवा के तरीके",
+  "bn": "সেবার ধরন",
+  "tl": "Mga paraan"
+ },
+ "ord30.r.modes.v": {
+  "ar": "منزلي + منشأة",
+  "en": "Home + facility",
+  "ur": "گھر + سہولت مرکز",
+  "hi": "घर + सुविधा केंद्र",
+  "bn": "বাসা + সুবিধা কেন্দ্র",
+  "tl": "Bahay + pasilidad"
+ },
+ "ord30.radius": {
+  "ar": "نطاق الخدمة",
+  "en": "Service radius",
+  "ur": "خدمت کا دائرہ",
+  "hi": "सेवा का दायरा",
+  "bn": "সেবার পরিধি",
+  "tl": "Saklaw ng serbisyo"
+ },
+ "ord30.radius.h": {
+  "ar": "يراك المريض داخل هذا النطاق فقط",
+  "en": "Patients see you only inside this radius",
+  "ur": "مریض آپ کو صرف اس دائرے میں دیکھتے ہیں",
+  "hi": "मरीज़ आपको केवल इसी दायरे में देखते हैं",
+  "bn": "রোগীরা শুধু এই পরিধির মধ্যে আপনাকে দেখেন",
+  "tl": "Makikita ka lang ng pasyente sa loob ng saklaw na ito",
+  "_layout": "Body text wraps; container grows in height (no fixed height)."
+ },
+ "ord30.review": {
+  "ar": "مراجعة سريعة",
+  "en": "Quick review",
+  "ur": "فوری جائزہ",
+  "hi": "त्वरित समीक्षा",
+  "bn": "দ্রুত পর্যালোচনা",
+  "tl": "Mabilis na pagsusuri"
+ },
+ "ord30.s1": {
+  "ar": "طريقة الخدمة",
+  "en": "How you serve",
+  "ur": "خدمت کا طریقہ",
+  "hi": "सेवा का तरीका",
+  "bn": "সেবার ধরন",
+  "tl": "Paraan ng serbisyo"
+ },
+ "ord30.s2": {
+  "ar": "التأمين",
+  "en": "Insurance",
+  "ur": "انشورنس",
+  "hi": "बीमा",
+  "bn": "বিমা",
+  "tl": "Insurance"
+ },
+ "ord30.s3": {
+  "ar": "القبول والدوام",
+  "en": "Acceptance and hours",
+  "ur": "قبولیت اور اوقات",
+  "hi": "स्वीकृति और समय",
+  "bn": "গ্রহণ ও সময়",
+  "tl": "Pagtanggap at oras"
+ },
+ "ord30.s4": {
+  "ar": "الطاقم والمراجعة",
+  "en": "Staff and review",
+  "ur": "عملہ اور جائزہ",
+  "hi": "स्टाफ़ और समीक्षा",
+  "bn": "কর্মী ও পর্যালোচনা",
+  "tl": "Staff at pagsusuri"
+ },
+ "ord30.staff": {
+  "ar": "جنس الطاقم المتاح",
+  "en": "Staff genders available",
+  "ur": "دستیاب عملے کی جنس",
+  "hi": "उपलब्ध स्टाफ़ का लिंग",
+  "bn": "উপলব্ধ কর্মীর লিঙ্গ",
+  "tl": "Kasarian ng available na staff"
+ },
+ "ord30.staff.s": {
+  "ar": "يستخدمه المريض عند تفضيل جنس الممرض أو الفني",
+  "en": "Used when the patient prefers a nurse or technician gender",
+  "ur": "مریض نرس یا ٹیکنیشن کی جنس کی ترجیح پر استعمال کرتا ہے",
+  "hi": "जब मरीज़ नर्स या तकनीशियन का लिंग चुनता है तब काम आता है",
+  "bn": "রোগী নার্স বা টেকনিশিয়ানের লিঙ্গ পছন্দ করলে ব্যবহৃত হয়",
+  "tl": "Ginagamit kapag may kagustuhan ang pasyente sa kasarian ng nurse o technician",
+  "_layout": "Body text wraps; container grows in height (no fixed height)."
+ },
+ "ord30.step": {
+  "ar": "الخطوة {a} من {b}",
+  "en": "Step {a} of {b}",
+  "ur": "مرحلہ {a} از {b}",
+  "hi": "चरण {a} / {b}",
+  "bn": "ধাপ {a} / {b}",
+  "tl": "Hakbang {a} sa {b}"
+ },
+ "ord30.sumtitle": {
+  "ar": "ملخص إعداداتك",
+  "en": "Your setup summary",
+  "ur": "آپ کی ترتیب کا خلاصہ",
+  "hi": "आपकी सेटिंग का सारांश",
+  "bn": "আপনার সেটআপের সারাংশ",
+  "tl": "Buod ng setup mo"
+ },
+ "ord30.title": {
+  "ar": "إعداد خدماتك",
+  "en": "Set up your services",
+  "ur": "اپنی خدمات ترتیب دیں",
+  "hi": "अपनी सेवाएँ सेट करें",
+  "bn": "আপনার সেবা সেট আপ করুন",
+  "tl": "I-set up ang mga serbisyo mo"
+ },
+ "ord30.win": {
+  "ar": "الزيارات المنزلية تُحجز في نوافذ مدتها ساعتان",
+  "en": "Home visits are booked in 2-hour windows",
+  "ur": "گھر کے وزٹ 2 گھنٹے کی ونڈو میں بُک ہوتے ہیں",
+  "hi": "होम विज़िट 2 घंटे की विंडो में बुक होती हैं",
+  "bn": "বাসার ভিজিট ২ ঘণ্টার উইন্ডোতে বুক হয়",
+  "tl": "Naka-book ang pagbisita sa 2-oras na window"
+ },
+ "ord31.addprice": {
+  "ar": "أضف السعر",
+  "en": "Add price",
+  "ur": "قیمت شامل کریں",
+  "hi": "कीमत जोड़ें",
+  "bn": "দাম যোগ করুন",
+  "tl": "Magdagdag ng presyo",
+  "_layout": "Button/pill: min-height 44px and no fixed width; the label wraps to two lines and the control grows in the longest languages (en/fil/bn)."
+ },
+ "ord31.bulk": {
+  "ar": "أدوات التعديل المجمّع",
+  "en": "Bulk tools",
+  "ur": "بلک ٹولز",
+  "hi": "बल्क टूल",
+  "bn": "বাল্ক টুলস",
+  "tl": "Mga bulk tool"
+ },
+ "ord31.c.cov": {
+  "ar": "التغطية",
+  "en": "Coverage",
+  "ur": "کوریج",
+  "hi": "कवरेज",
+  "bn": "কভারেজ",
+  "tl": "Saklaw"
+ },
+ "ord31.c.item": {
+  "ar": "الفحص",
+  "en": "Test",
+  "ur": "ٹیسٹ",
+  "hi": "टेस्ट",
+  "bn": "টেস্ট",
+  "tl": "Test"
+ },
+ "ord31.c.pf": {
+  "ar": "سعر المنشأة",
+  "en": "Facility price",
+  "ur": "سہولت مرکز کی قیمت",
+  "hi": "सुविधा केंद्र की कीमत",
+  "bn": "সুবিধা কেন্দ্রের দাম",
+  "tl": "Presyo sa pasilidad"
+ },
+ "ord31.c.ph": {
+  "ar": "سعر المنزل",
+  "en": "Home price",
+  "ur": "گھر کی قیمت",
+  "hi": "घर की कीमत",
+  "bn": "বাসার দাম",
+  "tl": "Presyo sa bahay"
+ },
+ "ord31.c.src": {
+  "ar": "المصدر",
+  "en": "Source",
+  "ur": "ذریعہ",
+  "hi": "स्रोत",
+  "bn": "উৎস",
+  "tl": "Pinagmulan"
+ },
+ "ord31.c.ta": {
+  "ar": "مدة النتيجة",
+  "en": "Turnaround",
+  "ur": "نتیجے کا وقت",
+  "hi": "नतीजे का समय",
+  "bn": "ফলাফলের সময়",
+  "tl": "Tagal ng resulta"
+ },
+ "ord31.center": {
+  "ar": "المركز فقط",
+  "en": "Facility only",
+  "ur": "صرف سہولت مرکز",
+  "hi": "केवल सुविधा केंद्र",
+  "bn": "শুধু সুবিধা কেন্দ্র",
+  "tl": "Pasilidad lang"
+ },
+ "ord31.cus": {
+  "ar": "مخصّص",
+  "en": "Custom",
+  "ur": "حسبِ ضرورت",
+  "hi": "कस्टम",
+  "bn": "কাস্টম",
+  "tl": "Custom"
+ },
+ "ord31.def.h": {
+  "ar": "رسوم الزيارة {p} · نطاق {n} كم",
+  "en": "Visit fee {p} · radius {n} km",
+  "ur": "وزٹ فیس {p} · دائرہ {n} کلومیٹر",
+  "hi": "विज़िट शुल्क {p} · दायरा {n} किमी",
+  "bn": "ভিজিট ফি {p} · পরিধি {n} কিমি",
+  "tl": "Bayad sa bisita {p} · saklaw {n} km"
+ },
+ "ord31.def.s": {
+  "ar": "كل فحص يرث هذه الإعدادات إلا إذا غيّرتها له",
+  "en": "Every test inherits these settings unless you change them for it",
+  "ur": "ہر ٹیسٹ یہی ترتیب لیتا ہے جب تک آپ اسے نہ بدلیں",
+  "hi": "हर टेस्ट यही सेटिंग लेता है जब तक आप उसके लिए न बदलें",
+  "bn": "আপনি না বদলালে প্রতিটি টেস্ট এই সেটিং পায়",
+  "tl": "Nagmamana ang bawat test sa mga ito maliban kung babaguhin mo"
+ },
+ "ord31.def.t": {
+  "ar": "إعداداتك الافتراضية",
+  "en": "Your defaults",
+  "ur": "آپ کی ڈیفالٹ ترتیب",
+  "hi": "आपकी डिफ़ॉल्ट सेटिंग",
+  "bn": "আপনার ডিফল্ট সেটিং",
+  "tl": "Mga default mo"
+ },
+ "ord31.empty.b": {
+  "ar": "أضف من الكتالوج الوطني",
+  "en": "Add from the national catalogue",
+  "ur": "قومی کیٹلاگ سے شامل کریں",
+  "hi": "राष्ट्रीय कैटलॉग से जोड़ें",
+  "bn": "জাতীয় ক্যাটালগ থেকে যোগ করুন",
+  "tl": "Magdagdag mula sa pambansang katalogo",
+  "_layout": "Button/pill: min-height 44px and no fixed width; the label wraps to two lines and the control grows in the longest languages (en/fil/bn)."
+ },
+ "ord31.empty.t": {
+  "ar": "لم تضف فحوصًا بعد",
+  "en": "You have not added tests yet",
+  "ur": "آپ نے ابھی ٹیسٹ شامل نہیں کیے",
+  "hi": "आपने अभी टेस्ट नहीं जोड़े",
+  "bn": "আপনি এখনও টেস্ট যোগ করেননি",
+  "tl": "Wala ka pang naidagdag na test"
+ },
+ "ord31.fl.custom": {
+  "ar": "مخصّص · {n}",
+  "en": "Customised · {n}",
+  "ur": "حسبِ ضرورت · {n}",
+  "hi": "कस्टम · {n}",
+  "bn": "কাস্টম · {n}",
+  "tl": "Naka-customize · {n}",
+  "_layout": "Button/pill: min-height 44px and no fixed width; the label wraps to two lines and the control grows in the longest languages (en/fil/bn)."
+ },
+ "ord31.fl.noprice": {
+  "ar": "بلا سعر · {n}",
+  "en": "No price · {n}",
+  "ur": "بغیر قیمت · {n}",
+  "hi": "बिना कीमत · {n}",
+  "bn": "দাম নেই · {n}",
+  "tl": "Walang presyo · {n}",
+  "_layout": "Button/pill: min-height 44px and no fixed width; the label wraps to two lines and the control grows in the longest languages (en/fil/bn)."
+ },
+ "ord31.inh": {
+  "ar": "يرث الإعداد",
+  "en": "Inherits",
+  "ur": "ڈیفالٹ لیتا ہے",
+  "hi": "डिफ़ॉल्ट लेता है",
+  "bn": "ডিফল্ট পায়",
+  "tl": "Nagmamana"
+ },
+ "ord31.m.h": {
+  "ar": "منزلي",
+  "en": "Home",
+  "ur": "گھر",
+  "hi": "घर",
+  "bn": "বাসা",
+  "tl": "Bahay"
+ },
+ "ord31.nocov": {
+  "ar": "غير مغطى من: {x}",
+  "en": "Not covered by: {x}",
+  "ur": "کور نہیں: {x}",
+  "hi": "कवर नहीं: {x}",
+  "bn": "কভার নয়: {x}",
+  "tl": "Hindi saklaw ng: {x}"
+ },
+ "ord31.portable": {
+  "ar": "جهاز محمول: المنزل مسموح",
+  "en": "Portable unit: home allowed",
+  "ur": "پورٹیبل مشین: گھر کی اجازت",
+  "hi": "पोर्टेबल मशीन: घर की अनुमति",
+  "bn": "পোর্টেবল মেশিন: বাসা অনুমোদিত",
+  "tl": "Portable na makina: pinapayagan sa bahay"
+ },
+ "ord31.rad.lock": {
+  "ar": "الأشعة المنزلية متاحة للأجهزة المحمولة فقط",
+  "en": "Home radiology is for portable units only",
+  "ur": "گھر پر ریڈیولوجی صرف پورٹیبل مشینوں کے لیے",
+  "hi": "घर पर रेडियोलॉजी केवल पोर्टेबल मशीनों के लिए",
+  "bn": "বাসায় রেডিওলজি শুধু পোর্টেবল মেশিনের জন্য",
+  "tl": "Ang radiology sa bahay ay para sa portable na makina lang"
+ },
+ "ord31.rad.lock.s": {
+  "ar": "هذا الفحص يُجرى في المركز فقط، ولا يمكن تفعيل المنزل له",
+  "en": "This scan is done at the centre only; home cannot be turned on",
+  "ur": "یہ اسکین صرف مرکز میں ہوتا ہے؛ گھر آن نہیں ہو سکتا",
+  "hi": "यह स्कैन केवल केंद्र पर होता है; घर चालू नहीं हो सकता",
+  "bn": "এই স্ক্যান শুধু কেন্দ্রে হয়; বাসা চালু করা যাবে না",
+  "tl": "Sa sentro lang ginagawa ang scan na ito; hindi maaaring i-on ang bahay"
+ },
+ "ord31.search": {
+  "ar": "ابحث في فحوصك",
+  "en": "Search your tests",
+  "ur": "اپنے ٹیسٹ میں تلاش کریں",
+  "hi": "अपने टेस्ट में खोजें",
+  "bn": "আপনার টেস্টে খুঁজুন",
+  "tl": "Hanapin sa mga test mo"
+ },
+ "ord31.sh.cat": {
+  "ar": "من الكتالوج الوطني، قابل للتعديل",
+  "en": "From the national catalogue, editable",
+  "ur": "قومی کیٹلاگ سے، قابلِ ترمیم",
+  "hi": "राष्ट्रीय कैटलॉग से, बदला जा सकता है",
+  "bn": "জাতীয় ক্যাটালগ থেকে, সম্পাদনাযোগ্য",
+  "tl": "Mula sa pambansang katalogo, puwedeng i-edit"
+ },
+ "ord31.sh.home": {
+  "ar": "السماح بالمنزل",
+  "en": "Allow at home",
+  "ur": "گھر پر اجازت",
+  "hi": "घर पर अनुमति",
+  "bn": "বাসায় অনুমতি",
+  "tl": "Payagan sa bahay"
+ },
+ "ord31.sh.nocov": {
+  "ar": "غير مغطى من",
+  "en": "Not covered by",
+  "ur": "کور نہیں از",
+  "hi": "कवर नहीं, कंपनी",
+  "bn": "কভার নয়, কোম্পানি",
+  "tl": "Hindi saklaw ng"
+ },
+ "ord31.sh.pf": {
+  "ar": "السعر في المنشأة",
+  "en": "Price at the facility",
+  "ur": "سہولت مرکز میں قیمت",
+  "hi": "सुविधा केंद्र पर कीमत",
+  "bn": "সুবিধা কেন্দ্রে দাম",
+  "tl": "Presyo sa pasilidad"
+ },
+ "ord31.sh.ph": {
+  "ar": "السعر في المنزل",
+  "en": "Price at home",
+  "ur": "گھر پر قیمت",
+  "hi": "घर पर कीमत",
+  "bn": "বাসায় দাম",
+  "tl": "Presyo sa bahay"
+ },
+ "ord31.sh.prep": {
+  "ar": "نص التحضير",
+  "en": "Preparation text",
+  "ur": "تیاری کی ہدایت",
+  "hi": "तैयारी का निर्देश",
+  "bn": "প্রস্তুতির নির্দেশ",
+  "tl": "Teksto ng paghahanda"
+ },
+ "ord31.sh.prep.t": {
+  "ar": "لا حاجة للصيام، ويمكن شرب الماء",
+  "en": "No fasting needed; water is fine",
+  "ur": "روزہ ضروری نہیں، پانی پی سکتے ہیں",
+  "hi": "उपवास ज़रूरी नहीं, पानी पी सकते हैं",
+  "bn": "উপবাস লাগবে না, পানি পান করতে পারেন",
+  "tl": "Hindi kailangang mag-ayuno; puwede ang tubig"
+ },
+ "ord31.sh.reset": {
+  "ar": "العودة للافتراضي",
+  "en": "Reset to default",
+  "ur": "ڈیفالٹ پر واپس",
+  "hi": "डिफ़ॉल्ट पर लौटें",
+  "bn": "ডিফল্টে ফিরুন",
+  "tl": "Ibalik sa default"
+ },
+ "ord31.sh.sub": {
+  "ar": "اترك الحقل فارغًا ليرث الإعداد الافتراضي",
+  "en": "Leave a field empty to inherit the default",
+  "ur": "ڈیفالٹ کے لیے خانہ خالی چھوڑیں",
+  "hi": "डिफ़ॉल्ट के लिए खाना खाली छोड़ें",
+  "bn": "ডিফল্টের জন্য ঘর খালি রাখুন",
+  "tl": "Iwanang walang laman para magmana ng default"
+ },
+ "ord31.sh.ta": {
+  "ar": "مدة ظهور النتيجة",
+  "en": "Result turnaround",
+  "ur": "نتیجے کا وقت",
+  "hi": "नतीजे का समय",
+  "bn": "ফলাফলের সময়",
+  "tl": "Tagal bago ang resulta"
+ },
+ "ord31.sh.title": {
+  "ar": "تخصيص الفحص",
+  "en": "Customise this test",
+  "ur": "اس ٹیسٹ کو حسبِ ضرورت بنائیں",
+  "hi": "इस टेस्ट को कस्टमाइज़ करें",
+  "bn": "এই টেস্ট কাস্টমাইজ করুন",
+  "tl": "I-customize ang test"
+ },
+ "ord31.ta": {
+  "ar": "النتيجة خلال {n} ساعات",
+  "en": "Result within {n} hours",
+  "ur": "نتیجہ {n} گھنٹوں میں",
+  "hi": "नतीजा {n} घंटे में",
+  "bn": "ফলাফল {n} ঘণ্টায়",
+  "tl": "Resulta sa loob ng {n} oras"
+ },
+ "ord31.title": {
+  "ar": "فحوصي وأسعارها",
+  "en": "My tests and prices",
+  "ur": "میرے ٹیسٹ اور قیمتیں",
+  "hi": "मेरे टेस्ट और कीमतें",
+  "bn": "আমার টেস্ট ও দাম",
+  "tl": "Mga test at presyo ko"
+ },
+ "ord32.added": {
+  "ar": "مضاف",
+  "en": "Added",
+  "ur": "شامل",
+  "hi": "जोड़ा गया",
+  "bn": "যোগ করা হয়েছে",
+  "tl": "Naidagdag"
+ },
+ "ord32.after": {
+  "ar": "بعد",
+  "en": "After",
+  "ur": "بعد",
+  "hi": "बाद",
+  "bn": "পরে",
+  "tl": "Pagkatapos"
+ },
+ "ord32.before": {
+  "ar": "قبل",
+  "en": "Before",
+  "ur": "پہلے",
+  "hi": "पहले",
+  "bn": "আগে",
+  "tl": "Bago"
+ },
+ "ord32.c1": {
+  "ar": "تحاليل الدم",
+  "en": "Blood tests",
+  "ur": "خون کے ٹیسٹ",
+  "hi": "रक्त जाँच",
+  "bn": "রক্ত পরীক্ষা",
+  "tl": "Mga blood test"
+ },
+ "ord32.c2": {
+  "ar": "الهرمونات",
+  "en": "Hormones",
+  "ur": "ہارمونز",
+  "hi": "हार्मोन",
+  "bn": "হরমোন",
+  "tl": "Mga hormone"
+ },
+ "ord32.c3": {
+  "ar": "الفيتامينات",
+  "en": "Vitamins",
+  "ur": "وٹامنز",
+  "hi": "विटामिन",
+  "bn": "ভিটামিন",
+  "tl": "Mga bitamina"
+ },
+ "ord32.cp.b": {
+  "ar": "انسخ إلى المنزل",
+  "en": "Copy to home",
+  "ur": "گھر میں کاپی کریں",
+  "hi": "घर में कॉपी करें",
+  "bn": "বাসায় কপি করুন",
+  "tl": "Kopyahin sa bahay"
+ },
+ "ord32.cp.cov": {
+  "ar": "استثناءات التغطية",
+  "en": "Coverage exceptions",
+  "ur": "کوریج کے استثنا",
+  "hi": "कवरेज अपवाद",
+  "bn": "কভারেজ ব্যতিক্রম",
+  "tl": "Mga eksepsiyon sa saklaw"
+ },
+ "ord32.cp.prep": {
+  "ar": "نص التحضير",
+  "en": "Preparation text",
+  "ur": "تیاری کی ہدایت",
+  "hi": "तैयारी का निर्देश",
+  "bn": "প্রস্তুতির নির্দেশ",
+  "tl": "Teksto ng paghahanda"
+ },
+ "ord32.cp.price": {
+  "ar": "الأسعار",
+  "en": "Prices",
+  "ur": "قیمتیں",
+  "hi": "कीमतें",
+  "bn": "দাম",
+  "tl": "Mga presyo"
+ },
+ "ord32.cp.skip": {
+  "ar": "الفحوص التي لا تُجرى منزليًا (مثل الرنين) تُتخطى تلقائيًا",
+  "en": "Tests that cannot be done at home (such as MRI) are skipped automatically",
+  "ur": "جو ٹیسٹ گھر پر نہیں ہو سکتے (جیسے MRI) خود بخود چھوڑ دیے جاتے ہیں",
+  "hi": "जो टेस्ट घर पर नहीं हो सकते (जैसे MRI) अपने-आप छूट जाते हैं",
+  "bn": "যে টেস্ট বাসায় করা যায় না (যেমন MRI) তা স্বয়ংক্রিয়ভাবে বাদ যায়",
+  "tl": "Awtomatikong lalaktawan ang mga test na hindi magagawa sa bahay (gaya ng MRI)"
+ },
+ "ord32.cp.ta": {
+  "ar": "مدة النتيجة",
+  "en": "Turnaround",
+  "ur": "نتیجے کا وقت",
+  "hi": "नतीजे का समय",
+  "bn": "ফলাফলের সময়",
+  "tl": "Tagal ng resulta"
+ },
+ "ord32.cp.what": {
+  "ar": "ما الذي يُنسخ",
+  "en": "What is copied",
+  "ur": "کیا کاپی ہوگا",
+  "hi": "क्या कॉपी होगा",
+  "bn": "কী কপি হবে",
+  "tl": "Ano ang kokopyahin"
+ },
+ "ord32.from": {
+  "ar": "من",
+  "en": "From",
+  "ur": "سے",
+  "hi": "से",
+  "bn": "থেকে",
+  "tl": "Mula sa"
+ },
+ "ord32.imp.dl": {
+  "ar": "نزّل ملف الأخطاء",
+  "en": "Download the error file",
+  "ur": "غلطیوں کی فائل ڈاؤن لوڈ کریں",
+  "hi": "त्रुटि फ़ाइल डाउनलोड करें",
+  "bn": "ত্রুটির ফাইল ডাউনলোড করুন",
+  "tl": "I-download ang error file"
+ },
+ "ord32.imp.e1": {
+  "ar": "السطر {n}: السعر غير صالح",
+  "en": "Row {n}: invalid price",
+  "ur": "قطار {n}: قیمت درست نہیں",
+  "hi": "पंक्ति {n}: कीमत मान्य नहीं",
+  "bn": "সারি {n}: দাম সঠিক নয়",
+  "tl": "Hilera {n}: di-wastong presyo"
+ },
+ "ord32.imp.e2": {
+  "ar": "السطر {n}: الفحص غير موجود في الكتالوج",
+  "en": "Row {n}: test not in the catalogue",
+  "ur": "قطار {n}: ٹیسٹ کیٹلاگ میں نہیں",
+  "hi": "पंक्ति {n}: टेस्ट कैटलॉग में नहीं",
+  "bn": "সারি {n}: টেস্ট ক্যাটালগে নেই",
+  "tl": "Hilera {n}: wala sa katalogo ang test"
+ },
+ "ord32.imp.fail": {
+  "ar": "الملف غير صالح",
+  "en": "The file is not valid",
+  "ur": "فائل درست نہیں",
+  "hi": "फ़ाइल मान्य नहीं है",
+  "bn": "ফাইলটি সঠিক নয়",
+  "tl": "Hindi wasto ang file"
+ },
+ "ord32.imp.fail.s": {
+  "ar": "تأكد أنه CSV وأعمدته مثل القالب",
+  "en": "Make sure it is a CSV with the template's columns",
+  "ur": "یقینی بنائیں کہ یہ ٹیمپلیٹ جیسے کالموں والی CSV ہے",
+  "hi": "सुनिश्चित करें कि यह टेम्पलेट जैसे कॉलम वाली CSV है",
+  "bn": "নিশ্চিত করুন এটি টেমপ্লেটের কলামসহ CSV",
+  "tl": "Tiyaking CSV ito na may mga column ng template",
+  "_layout": "Body text wraps; container grows in height (no fixed height)."
+ },
+ "ord32.imp.ok": {
+  "ar": "تم استيراد {a} صفًا · {b} صفوف بها أخطاء",
+  "en": "Imported {a} rows · {b} rows have errors",
+  "ur": "{a} قطاریں امپورٹ · {b} میں غلطیاں",
+  "hi": "{a} पंक्तियाँ आयात · {b} में त्रुटि",
+  "bn": "{a}টি সারি আমদানি · {b}টিতে ত্রুটি",
+  "tl": "Na-import ang {a} hilera · {b} ang may error"
+ },
+ "ord32.imp.prog": {
+  "ar": "جارٍ استيراد الملف",
+  "en": "Importing the file",
+  "ur": "فائل امپورٹ ہو رہی ہے",
+  "hi": "फ़ाइल आयात हो रही है",
+  "bn": "ফাইল আমদানি হচ্ছে",
+  "tl": "Ini-import ang file"
+ },
+ "ord32.ok.b": {
+  "ar": "عرض الفحوص",
+  "en": "View tests",
+  "ur": "ٹیسٹ دیکھیں",
+  "hi": "टेस्ट देखें",
+  "bn": "টেস্ট দেখুন",
+  "tl": "Tingnan ang mga test",
+  "_layout": "Button/pill: min-height 44px and no fixed width; the label wraps to two lines and the control grows in the longest languages (en/fil/bn)."
+ },
+ "ord32.ok.t": {
+  "ar": "تم تطبيق التغيير على {n} فحوص",
+  "en": "Change applied to {n} tests",
+  "ur": "تبدیلی {n} ٹیسٹ پر لاگو ہو گئی",
+  "hi": "बदलाव {n} टेस्ट पर लागू हुआ",
+  "bn": "{n}টি টেস্টে পরিবর্তন প্রয়োগ হয়েছে",
+  "tl": "Nailapat ang pagbabago sa {n} test"
+ },
+ "ord32.op.amt": {
+  "ar": "رفع بمبلغ",
+  "en": "Raise by amount",
+  "ur": "رقم کا اضافہ",
+  "hi": "राशि बढ़ाएँ",
+  "bn": "পরিমাণ বাড়ান",
+  "tl": "Taasan ng halaga",
+  "_layout": "Button/pill: min-height 44px and no fixed width; the label wraps to two lines and the control grows in the longest languages (en/fil/bn)."
+ },
+ "ord32.op.pct": {
+  "ar": "رفع بنسبة",
+  "en": "Raise by %",
+  "ur": "فیصد اضافہ",
+  "hi": "प्रतिशत बढ़ाएँ",
+  "bn": "শতাংশ বাড়ান",
+  "tl": "Taasan ng %"
+ },
+ "ord32.op.set": {
+  "ar": "سعر ثابت",
+  "en": "Fixed price",
+  "ur": "مقررہ قیمت",
+  "hi": "निश्चित कीमत",
+  "bn": "নির্দিষ্ট দাম",
+  "tl": "Takdang presyo"
+ },
+ "ord32.pick": {
+  "ar": "تحديد",
+  "en": "Select",
+  "ur": "منتخب کریں",
+  "hi": "चुनें",
+  "bn": "নির্বাচন করুন",
+  "tl": "Pumili"
+ },
+ "ord32.search": {
+  "ar": "ابحث في الكتالوج",
+  "en": "Search the catalogue",
+  "ur": "کیٹلاگ میں تلاش کریں",
+  "hi": "कैटलॉग में खोजें",
+  "bn": "ক্যাটালগে খুঁজুন",
+  "tl": "Maghanap sa katalogo"
+ },
+ "ord32.t1": {
+  "ar": "إضافة من الكتالوج الوطني",
+  "en": "Add from the national catalogue",
+  "ur": "قومی کیٹلاگ سے شامل کریں",
+  "hi": "राष्ट्रीय कैटलॉग से जोड़ें",
+  "bn": "জাতীয় ক্যাটালগ থেকে যোগ করুন",
+  "tl": "Magdagdag mula sa pambansang katalogo"
+ },
+ "ord32.t1.b": {
+  "ar": "أضف {n} فحوص",
+  "en": "Add {n} tests",
+  "ur": "{n} ٹیسٹ شامل کریں",
+  "hi": "{n} टेस्ट जोड़ें",
+  "bn": "{n}টি টেস্ট যোগ করুন",
+  "tl": "Magdagdag ng {n} test",
+  "_layout": "Button/pill: min-height 44px and no fixed width; the label wraps to two lines and the control grows in the longest languages (en/fil/bn)."
+ },
+ "ord32.t1.s": {
+  "ar": "التحضير ومدة النتيجة تأتي من الكتالوج ويمكنك تعديلها",
+  "en": "Preparation and turnaround come from the catalogue and can be edited",
+  "ur": "تیاری اور نتیجے کا وقت کیٹلاگ سے آتا ہے اور بدلا جا سکتا ہے",
+  "hi": "तैयारी और नतीजे का समय कैटलॉग से आता है और बदला जा सकता है",
+  "bn": "প্রস্তুতি ও ফলাফলের সময় ক্যাটালগ থেকে আসে এবং বদলানো যায়",
+  "tl": "Galing sa katalogo ang paghahanda at tagal ng resulta at puwedeng i-edit"
+ },
+ "ord32.t2": {
+  "ar": "تغيير السعر لعدة فحوص",
+  "en": "Change the price of many tests",
+  "ur": "کئی ٹیسٹ کی قیمت بدلیں",
+  "hi": "कई टेस्ट की कीमत बदलें",
+  "bn": "একসাথে অনেক টেস্টের দাম বদলান",
+  "tl": "Baguhin ang presyo ng maraming test"
+ },
+ "ord32.t2.b": {
+  "ar": "طبّق على {n} فحوص",
+  "en": "Apply to {n} tests",
+  "ur": "{n} ٹیسٹ پر لاگو کریں",
+  "hi": "{n} टेस्ट पर लागू करें",
+  "bn": "{n}টি টেস্টে প্রয়োগ করুন",
+  "tl": "Ilapat sa {n} test",
+  "_layout": "Button/pill: min-height 44px and no fixed width; the label wraps to two lines and the control grows in the longest languages (en/fil/bn)."
+ },
+ "ord32.t2.mode": {
+  "ar": "الوضع",
+  "en": "Mode",
+  "ur": "طریقہ",
+  "hi": "तरीका",
+  "bn": "ধরন",
+  "tl": "Paraan"
+ },
+ "ord32.t2.scope": {
+  "ar": "{n} فحوص محددة",
+  "en": "{n} tests selected",
+  "ur": "{n} ٹیسٹ منتخب",
+  "hi": "{n} टेस्ट चुने गए",
+  "bn": "{n}টি টেস্ট নির্বাচিত",
+  "tl": "{n} test ang napili"
+ },
+ "ord32.t2.val": {
+  "ar": "القيمة",
+  "en": "Value",
+  "ur": "قدر",
+  "hi": "मान",
+  "bn": "মান",
+  "tl": "Halaga"
+ },
+ "ord32.t3": {
+  "ar": "استيراد وتصدير CSV",
+  "en": "CSV import and export",
+  "ur": "CSV امپورٹ اور ایکسپورٹ",
+  "hi": "CSV आयात और निर्यात",
+  "bn": "CSV আমদানি ও রপ্তানি",
+  "tl": "CSV import at export"
+ },
+ "ord32.t3.exp": {
+  "ar": "تصدير فحوصي",
+  "en": "Export my tests",
+  "ur": "میرے ٹیسٹ ایکسپورٹ کریں",
+  "hi": "मेरे टेस्ट निर्यात करें",
+  "bn": "আমার টেস্ট রপ্তানি",
+  "tl": "I-export ang mga test ko",
+  "_layout": "Button/pill: min-height 44px and no fixed width; the label wraps to two lines and the control grows in the longest languages (en/fil/bn)."
+ },
+ "ord32.t3.imp": {
+  "ar": "استيراد ملف",
+  "en": "Import a file",
+  "ur": "فائل امپورٹ کریں",
+  "hi": "फ़ाइल आयात करें",
+  "bn": "ফাইল আমদানি",
+  "tl": "Mag-import ng file",
+  "_layout": "Button/pill: min-height 44px and no fixed width; the label wraps to two lines and the control grows in the longest languages (en/fil/bn)."
+ },
+ "ord32.t3.tpl": {
+  "ar": "تنزيل القالب",
+  "en": "Download template",
+  "ur": "ٹیمپلیٹ ڈاؤن لوڈ کریں",
+  "hi": "टेम्पलेट डाउनलोड करें",
+  "bn": "টেমপ্লেট ডাউনলোড",
+  "tl": "I-download ang template",
+  "_layout": "Button/pill: min-height 44px and no fixed width; the label wraps to two lines and the control grows in the longest languages (en/fil/bn)."
+ },
+ "ord32.t4": {
+  "ar": "نسخ من وضع إلى وضع",
+  "en": "Copy from one mode to another",
+  "ur": "ایک طریقے سے دوسرے میں کاپی",
+  "hi": "एक तरीके से दूसरे में कॉपी",
+  "bn": "এক ধরন থেকে অন্য ধরনে কপি",
+  "tl": "Kopyahin mula sa isang paraan patungo sa isa",
+  "_layout": "Body text wraps; container grows in height (no fixed height)."
+ },
+ "ord32.title": {
+  "ar": "أدوات التعديل المجمّع",
+  "en": "Bulk tools",
+  "ur": "بلک ٹولز",
+  "hi": "बल्क टूल",
+  "bn": "বাল্ক টুলস",
+  "tl": "Mga bulk tool"
+ },
+ "ord32.to": {
+  "ar": "إلى",
+  "en": "To",
+  "ur": "میں",
+  "hi": "में",
+  "bn": "এতে",
+  "tl": "Patungo sa"
+ },
+ "ord33.dn": {
+  "ar": "مكتمل",
+  "en": "Done",
+  "ur": "مکمل",
+  "hi": "पूरा",
+  "bn": "সম্পন্ন",
+  "tl": "Tapos"
+ },
+ "ord33.head": {
+  "ar": "اكتمال ملفك {n}٪",
+  "en": "Your profile is {n}% complete",
+  "ur": "آپ کا پروفائل {n}٪ مکمل",
+  "hi": "आपकी प्रोफ़ाइल {n}% पूर्ण",
+  "bn": "আপনার প্রোফাইল {n}% সম্পূর্ণ",
+  "tl": "{n}% kumpleto ang profile mo"
+ },
+ "ord33.k1": {
+  "ar": "طرق الخدمة والنطاق",
+  "en": "Modes and radius",
+  "ur": "خدمت کے طریقے اور دائرہ",
+  "hi": "सेवा के तरीके और दायरा",
+  "bn": "সেবার ধরন ও পরিধি",
+  "tl": "Mga paraan at saklaw"
+ },
+ "ord33.k2": {
+  "ar": "شركات التأمين وفئاتها",
+  "en": "Insurers and classes",
+  "ur": "انشورنس کمپنیاں اور کلاسیں",
+  "hi": "बीमा कंपनियाँ और श्रेणियाँ",
+  "bn": "বিমা কোম্পানি ও শ্রেণি",
+  "tl": "Mga insurer at klase"
+ },
+ "ord33.k3": {
+  "ar": "ساعات الدوام",
+  "en": "Working hours",
+  "ur": "کام کے اوقات",
+  "hi": "कार्य समय",
+  "bn": "কাজের সময়",
+  "tl": "Oras ng trabaho"
+ },
+ "ord33.k4": {
+  "ar": "أضف أسعار {n} فحصًا",
+  "en": "Add prices for {n} tests",
+  "ur": "{n} ٹیسٹ کی قیمتیں شامل کریں",
+  "hi": "{n} टेस्ट की कीमतें जोड़ें",
+  "bn": "{n}টি টেস্টের দাম যোগ করুন",
+  "tl": "Magdagdag ng presyo sa {n} test"
+ },
+ "ord33.k5": {
+  "ar": "أضف مدة النتيجة لـ {n} فحوص",
+  "en": "Add turnaround for {n} tests",
+  "ur": "{n} ٹیسٹ کا نتیجے کا وقت شامل کریں",
+  "hi": "{n} टेस्ट का नतीजे का समय जोड़ें",
+  "bn": "{n}টি টেস্টের ফলাফলের সময় যোগ করুন",
+  "tl": "Magdagdag ng tagal ng resulta sa {n} test",
+  "_layout": "Body text wraps; container grows in height (no fixed height)."
+ },
+ "ord33.k6": {
+  "ar": "حدّد جنس الطاقم المتاح",
+  "en": "Set the staff genders available",
+  "ur": "دستیاب عملے کی جنس طے کریں",
+  "hi": "उपलब्ध स्टाफ़ का लिंग तय करें",
+  "bn": "উপলব্ধ কর্মীর লিঙ্গ ঠিক করুন",
+  "tl": "Itakda ang kasarian ng available na staff",
+  "_layout": "Body text wraps; container grows in height (no fixed height)."
+ },
+ "ord33.pct": {
+  "ar": "{n}٪",
+  "en": "{n}%",
+  "ur": "{n}٪",
+  "hi": "{n}%",
+  "bn": "{n}%",
+  "tl": "{n}%"
+ },
+ "ord33.prev.s": {
+  "ar": "معاينة لبطاقتك في نتائج البحث بحسب سياق المريض",
+  "en": "A preview of your card in search results for the patient's context",
+  "ur": "مریض کے سیاق کے مطابق تلاش کے نتائج میں آپ کے کارڈ کا نمونہ",
+  "hi": "मरीज़ के संदर्भ के अनुसार खोज परिणामों में आपके कार्ड का पूर्वावलोकन",
+  "bn": "রোগীর প্রসঙ্গ অনুযায়ী সার্চ ফলাফলে আপনার কার্ডের প্রিভিউ",
+  "tl": "Preview ng card mo sa resulta ng paghahanap ayon sa konteksto ng pasyente",
+  "_layout": "Body text wraps; container grows in height (no fixed height)."
+ },
+ "ord33.prev.t": {
+  "ar": "كما يراك المريض",
+  "en": "How patients see you",
+  "ur": "مریض آپ کو کیسے دیکھتے ہیں",
+  "hi": "मरीज़ आपको कैसे देखते हैं",
+  "bn": "রোগীরা আপনাকে যেভাবে দেখেন",
+  "tl": "Paano ka nakikita ng pasyente"
+ },
+ "ord33.pts": {
+  "ar": "+{n}٪",
+  "en": "+{n}%",
+  "ur": "+{n}٪",
+  "hi": "+{n}%",
+  "bn": "+{n}%",
+  "tl": "+{n}%"
+ },
+ "ord33.pv.hide": {
+  "ar": "{n} فحصًا بلا سعر لا تظهر للمريض",
+  "en": "{n} tests without a price are hidden from patients",
+  "ur": "بغیر قیمت کے {n} ٹیسٹ مریضوں کو نظر نہیں آتے",
+  "hi": "बिना कीमत के {n} टेस्ट मरीज़ों को नहीं दिखते",
+  "bn": "দাম ছাড়া {n}টি টেস্ট রোগীদের কাছে দেখা যায় না",
+  "tl": "Nakatago sa pasyente ang {n} test na walang presyo",
+  "_layout": "Body text wraps; container grows in height (no fixed height)."
+ },
+ "ord33.pv.name": {
+  "ar": "[اسم المختبر]",
+  "en": "[Lab name]",
+  "ur": "[لیب کا نام]",
+  "hi": "[लैब का नाम]",
+  "bn": "[ল্যাবের নাম]",
+  "tl": "[Pangalan ng lab]"
+ },
+ "ord33.pv.net": {
+  "ar": "ضمن شبكة بوبا – ذهبي",
+  "en": "In network for Bupa – Gold",
+  "ur": "بوپا – گولڈ نیٹ ورک میں",
+  "hi": "बूपा – गोल्ड नेटवर्क में",
+  "bn": "বুপা – গোল্ড নেটওয়ার্কে",
+  "tl": "Sa network ng Bupa – Gold"
+ },
+ "ord33.pv.open": {
+  "ar": "مفتوح الآن",
+  "en": "Open now",
+  "ur": "ابھی کھلا ہے",
+  "hi": "अभी खुला है",
+  "bn": "এখন খোলা",
+  "tl": "Bukas ngayon"
+ },
+ "ord33.pv.rate": {
+  "ar": "[٤٫٦]",
+  "en": "[4.6]",
+  "ur": "[4.6]",
+  "hi": "[4.6]",
+  "bn": "[4.6]",
+  "tl": "[4.6]"
+ },
+ "ord33.sub": {
+  "ar": "أضف أسعار {m} فحصًا لتصل إلى {k}٪",
+  "en": "Add prices for {m} tests to reach {k}%",
+  "ur": "{k}٪ تک پہنچنے کے لیے {m} ٹیسٹ کی قیمتیں شامل کریں",
+  "hi": "{k}% तक पहुँचने के लिए {m} टेस्ट की कीमतें जोड़ें",
+  "bn": "{k}% পৌঁছাতে {m}টি টেস্টের দাম যোগ করুন",
+  "tl": "Magdagdag ng presyo sa {m} test para umabot sa {k}%",
+  "_layout": "Body text wraps; container grows in height (no fixed height)."
+ },
+ "ord33.title": {
+  "ar": "اكتمال ملفك",
+  "en": "Profile completeness",
+  "ur": "پروفائل کی تکمیل",
+  "hi": "प्रोफ़ाइल की पूर्णता",
+  "bn": "প্রোফাইলের সম্পূর্ণতা",
+  "tl": "Pagkakumpleto ng profile"
+ },
+ "ord33.todo": {
+  "ar": "المتبقي",
+  "en": "To do",
+  "ur": "باقی",
+  "hi": "बाकी",
+  "bn": "বাকি",
+  "tl": "Natitira"
+ }
+}
