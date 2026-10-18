@@ -1329,7 +1329,11 @@
     "kindLabPackage": "باقة تحاليل",
     "kindRadiology": "أشعة",
     "kindNursing": "تمريض",
-    "kindArticle": "مقال"
+    "kindArticle": "مقال",
+    "recentTitle": "عمليات البحث الأخيرة",
+    "recentClear": "مسح",
+    "trendingTitle": "الأكثر بحثًا الآن",
+    "tryTitle": "جرّب أحد هذه"
   },
   "SearchSuggest": {
     "listLabel": "اقتراحات البحث",

@@ -1329,7 +1329,11 @@
     "kindLabPackage": "টেস্ট প্যাকেজ",
     "kindRadiology": "রেডিওলজি",
     "kindNursing": "নার্সিং",
-    "kindArticle": "নিবন্ধ"
+    "kindArticle": "নিবন্ধ",
+    "recentTitle": "সাম্প্রতিক অনুসন্ধান",
+    "recentClear": "মুছুন",
+    "trendingTitle": "এখন জনপ্রিয়",
+    "tryTitle": "এর যেকোনো একটি চেষ্টা করুন"
   },
   "SearchSuggest": {
     "listLabel": "খোঁজার পরামর্শ",

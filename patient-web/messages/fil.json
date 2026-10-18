@@ -1329,7 +1329,11 @@
     "kindLabPackage": "Pakete ng test",
     "kindRadiology": "Radyolohiya",
     "kindNursing": "Pag-aalaga",
-    "kindArticle": "Artikulo"
+    "kindArticle": "Artikulo",
+    "recentTitle": "Mga kamakailang paghahanap",
+    "recentClear": "I-clear",
+    "trendingTitle": "Trending ngayon",
+    "tryTitle": "Subukan ang isa sa mga ito"
   },
   "SearchSuggest": {
     "listLabel": "Mga mungkahi sa paghahanap",

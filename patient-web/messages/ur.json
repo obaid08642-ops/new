@@ -1329,7 +1329,11 @@
     "kindLabPackage": "ٹیسٹ پیکج",
     "kindRadiology": "ریڈیالوجی",
     "kindNursing": "نرسنگ",
-    "kindArticle": "مضمون"
+    "kindArticle": "مضمون",
+    "recentTitle": "حالیہ تلاش",
+    "recentClear": "صاف کریں",
+    "trendingTitle": "ابھی مقبول تلاشیں",
+    "tryTitle": "ان میں سے کوئی آزمائیں"
   },
   "SearchSuggest": {
     "listLabel": "تلاش کی تجاویز",

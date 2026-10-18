@@ -1329,7 +1329,11 @@
     "kindLabPackage": "Test package",
     "kindRadiology": "Radiology",
     "kindNursing": "Nursing",
-    "kindArticle": "Article"
+    "kindArticle": "Article",
+    "recentTitle": "Recent searches",
+    "recentClear": "Clear",
+    "trendingTitle": "Trending now",
+    "tryTitle": "Try one of these"
   },
   "SearchSuggest": {
     "listLabel": "Search suggestions",
