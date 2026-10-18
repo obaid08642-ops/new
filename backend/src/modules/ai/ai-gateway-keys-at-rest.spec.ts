@@ -53,14 +53,40 @@ describe('16.1 AI provider keys at rest', () => {
     expect(providers.updateOne).not.toHaveBeenCalled();
   });
 
-  it('keeps plaintext and warns when the encryption key is missing, then migrates once it exists', async () => {
+  it('keeps plaintext and warns once without the encryption key, then migrates after the retry window', async () => {
     delete process.env.AI_KEYS_ENC_KEY;
-    const { svc, docs } = setup([row('gemini', 'AIzaSyLegacyKey1234', 1)]);
+    const { svc, docs, providers } = setup([row('gemini', 'AIzaSyLegacyKey1234', 1)]);
+    const warn = jest.spyOn((svc as any).logger, 'warn').mockImplementation(() => undefined);
+    await svc.listProviders();
     await svc.listProviders();
     expect(docs[0].api_key).toBe('AIzaSyLegacyKey1234');
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(providers.find).toHaveBeenCalledTimes(3); // 2 list reads + 1 migration scan, none in the retry window
     process.env.AI_KEYS_ENC_KEY = Buffer.alloc(32, 7).toString('base64');
+    const now = Date.now();
+    jest.spyOn(Date, 'now').mockReturnValue(now + 11 * 60_000);
     await svc.listProviders();
     expect(docs[0].api_key.startsWith('enc:')).toBe(true);
+  });
+
+  it('a failing write never breaks the registry', async () => {
+    process.env.AI_KEYS_ENC_KEY = Buffer.alloc(32, 7).toString('base64');
+    const { svc, providers } = setup([row('gemini', 'AIzaSyLegacyKey1234', 1)]);
+    const warn = jest.spyOn((svc as any).logger, 'warn').mockImplementation(() => undefined);
+    providers.updateOne.mockRejectedValueOnce(new Error('not primary'));
+    const out = await svc.listProviders();
+    expect(out.providers).toHaveLength(1);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('not primary'));
+  });
+
+  it('flags a key that cannot be decrypted instead of hiding it', async () => {
+    process.env.AI_KEYS_ENC_KEY = Buffer.alloc(32, 7).toString('base64');
+    const { encryptApiKey } = await import('./ai-gateway.service');
+    const wrapped = encryptApiKey('sk-live-abcdefgh');
+    process.env.AI_KEYS_ENC_KEY = Buffer.alloc(32, 9).toString('base64'); // rotated key
+    const { svc } = setup([row('openai', wrapped, 1)]);
+    const out = await svc.listProviders();
+    expect(out.providers[0]).toMatchObject({ has_key: true, key_preview: null, key_unreadable: true });
   });
 
   it('does not overwrite a key an admin saved while the migration ran', async () => {

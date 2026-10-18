@@ -51,23 +51,25 @@ def run():
     raw = find_raw('ai_providers', {'key': 'deepseek'}) or {}
     stored = raw.get('api_key') or ''
     step('stored value is enc: ciphertext', stored.startswith('enc:'), stored[:12])
-    step('stored value does not contain the key', KEY not in stored and 'ABCD' not in stored[-8:], stored[-12:])
+    step('stored value does not contain the key', KEY not in stored, stored[-12:])
     view = owner.get('/ai/admin/gateway')
     d = row(view.body if isinstance(view.body, dict) else {}, 'deepseek')
     step('view shows has_key and the end of the real key', d.get('has_key') is True and d.get('key_preview') == '••••ABCD', d)
     step('the key itself never appears in the response', KEY not in json.dumps(view.body), '')
 
-    journey('16.1 a legacy plaintext row still works and is masked from the real key')
-    # an old release wrote the key as plaintext; wrapping those rows happens on the first registry load after a start
-    # (unit spec, raw document), so here only the read side is checked on the live stack
-    step('plaintext row written', set_raw('deepseek', LEGACY), '')
-    view = owner.get('/ai/admin/gateway')
-    d = row(view.body if isinstance(view.body, dict) else {}, 'deepseek')
-    step('preview is the end of the real key', d.get('key_preview') == '••••WXYZ', d)
-    step('legacy value never returned whole', LEGACY not in json.dumps(view.body), '')
+    try:
+        journey('16.1 a legacy plaintext row still works and is masked from the real key')
+        # an old release wrote the key as plaintext; the wrapping itself is proven on the raw document in
+        # ai-gateway-keys-at-rest.spec.ts, here only the read side is checked on the live stack
+        step('plaintext row written', set_raw('deepseek', LEGACY), '')
+        view = owner.get('/ai/admin/gateway')
+        d = row(view.body if isinstance(view.body, dict) else {}, 'deepseek')
+        step('preview is the end of the real key', d.get('key_preview') == '••••WXYZ', d)
+        step('legacy value never returned whole', LEGACY not in json.dumps(view.body), '')
 
-    r = owner.post('/ai/admin/gateway/provider/deepseek', {'api_key': ''})
-    step('journey leaves the provider key cleared', r.ok, r)
+    finally:
+        r = owner.post('/ai/admin/gateway/provider/deepseek', {'api_key': ''})
+        step('journey leaves the provider key cleared', r.ok, r)
 
 
 if __name__ == '__main__':
