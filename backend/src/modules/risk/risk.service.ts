@@ -236,7 +236,14 @@ export class RiskService {
   private static readonly STAFF = new Set(['admin', 'super_admin']);
   @OnEvent('user.registered') async onRegistered(p: { user_id?: string; role?: string }) {
     if (RiskService.STAFF.has(String(p?.role))) return;
-    await this.safe(async () => { await this.recordOrigin(p.user_id!, 'register'); await this.evaluate(p.user_id!, { force: true }); });
+    await this.safe(async () => {
+      await this.recordOrigin(p.user_id!, 'register');
+      const scored = await this.evaluate(p.user_id!, { force: true });
+      // the newest account is the one that completes a farm: the accounts that came before it are scored again, or they would keep their old, lower score
+      const farm = scored?.signals.find((x) => x.type === 'account_farm' && (x.evidence as { by?: string }).by === 'device');
+      const others = ((farm?.evidence as { user_ids?: string[] } | undefined)?.user_ids ?? []).filter((id) => id !== p.user_id).slice(0, 20);
+      for (const id of others) await this.evaluate(id, { force: true });
+    });
   }
   @OnEvent('user.logged_in') async onLoggedIn(p: { user_id?: string; role?: string }) {
     if (RiskService.STAFF.has(String(p?.role))) return;

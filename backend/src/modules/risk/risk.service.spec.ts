@@ -38,6 +38,14 @@ describe('Phase 22.11 risk scoring', () => {
   const types = (s: { signals: Array<{ type: string }> } | null) => (s?.signals ?? []).map((x) => x.type).sort();
 
   describe('account farms and shared devices', () => {
+    it('the account that completes a farm brings the earlier ones up to the same score', async () => {
+      const register = (id: string, ip: string) => runWithLogContext({ deviceId: 'dev-farm', ip }, () => risk.onRegistered({ user_id: id, role: 'patient' }));
+      await register('f1', '10.1.0.1'); await register('f2', '10.1.0.2');
+      expect((await col('risk_scores').findOne({ user_id: 'f1' }))?.level ?? 'low').toBe('low');
+      await register('f3', '10.1.0.3');
+      for (const u of ['f1', 'f2', 'f3']) expect(await col('risk_scores').findOne({ user_id: u })).toMatchObject({ level: 'medium', signals: [{ type: 'account_farm' }] });
+    });
+
     it('three accounts registered from one device in a day are a farm; two are not', async () => {
       await origin('a1', 'register', 'dev-1', '10.0.0.1');
       await origin('a2', 'register', 'dev-1', '10.0.0.2');
