@@ -110,6 +110,7 @@ export class HomeCareBooking extends Document {
   @Prop() payment_method?: string;
   @Prop({ enum: ['none', 'pending', 'approved', 'rejected'], default: 'none' }) insurance_status: string;
   @Prop({ type: InsuranceDetailsSchema }) insurance_details?: InsuranceDetails;
+  @Prop() insurance_request_id?: string; // the insurance request opened with the booking (19.11)
 
   // Pre-Visit Checklist (Module 9)
   @Prop({ type: Object, default: {} }) checklist: {

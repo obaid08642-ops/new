@@ -65,6 +65,11 @@ const SESSION_ESTABLISHING = /^\/auth\/(login|register|social-login|session\/exc
  * guest's cart and orders. The backend verifies this token's signature and
  * burns it for the merge.
  */
+/** Whether a signed-in session token is stored (no network call). */
+export async function hasSession(): Promise<boolean> {
+  return (await getToken()) !== null;
+}
+
 export async function currentGuestToken(): Promise<string | null> {
   try {
     const token = await SecureStore.getItemAsync(STORAGE_KEYS.AUTH_TOKEN);

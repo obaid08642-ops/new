@@ -46,7 +46,7 @@ import { ProviderProfileController, ProviderScoreController } from '../modules/p
 describe('Gate P3 live: empty bodies do not create records', () => {
   const users: any = { getPatientProfile: async () => ({ addresses: [], insurance: {} }), updatePatientProfile: async () => ({}) };
   it('address needs a street/line1 or coordinates', async () => {
-    const c = new UsersAddressesController(users);
+    const c = new UsersAddressesController(users, {} as any);
     await expect(c.addAddress('p1', {} as any)).rejects.toBeInstanceOf(BadRequestException);
     await expect(c.addAddress('p1', { label: 'المنزل' } as any)).rejects.toBeInstanceOf(BadRequestException);
     await expect(c.addAddress('p1', { line1: 'شارع العليا' } as any)).resolves.toBeDefined();
@@ -141,7 +141,7 @@ describe('Gate P3 live: the accepted fields are stored, not dropped', () => {
     expect(a).toMatchObject({ line1: 'L1', district: 'D', region: 'R', notes: 'N' });
     let stored: any[] = [];
     const users: any = { getPatientProfile: async () => ({ addresses: [] }), updatePatientProfile: async (_: string, d: any) => { stored = d.addresses; } };
-    await new UsersAddressesController(users).addAddress('u1', { line1: 'شارع العليا', city: 'الرياض' } as any);
+    await new UsersAddressesController(users, {} as any).addAddress('u1', { line1: 'شارع العليا', city: 'الرياض' } as any);
     expect(stored[0]).toMatchObject({ street: 'شارع العليا', line1: 'شارع العليا' });
   });
 

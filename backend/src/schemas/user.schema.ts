@@ -17,6 +17,7 @@ export class User {
   /** Restricted identity allowed to complete onboarding but not provider operations. */
   @Prop({ default: false, index: true }) onboarding_only?: boolean;
   @Prop({ default: false }) is_guest: boolean;
+  @Prop() last_active_at?: Date; // 21.8: a guest's latest use (refresh), so inactivity is measured from use, not from creation
   @Prop() deleted_at?: Date;
   /** PDPL erasure audit: why and when the account was anonymised (10.1). */
   @Prop() deletion_reason?: string;

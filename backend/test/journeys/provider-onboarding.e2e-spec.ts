@@ -41,7 +41,10 @@ import { TEST_JWT_SECRET, signToken, tokenFor } from '../security/harness';
 import { makeDb } from '../support/fake-db';
 import request from 'supertest';
 import { ownerEmail } from '../../src/common/effective-permissions';
-import { createHash } from 'crypto';
+import { createHash, randomBytes } from 'crypto';
+
+// Generated per run: a literal password here is what a secret scanner reads as a leaked key.
+const JOURNEY_PASSWORD = `Pw-${randomBytes(6).toString('hex')}-journe`;
 
 jest.setTimeout(180_000);
 
@@ -138,7 +141,7 @@ describe('Gate P2 provider onboarding journeys', () => {
 
       it('start → step2 → step3 → submit', async () => {
         const s = await post('/api/v1/provider-onboarding/start', '', {
-          phone: leg.phone, password: 'Secret123', full_name: 'Journey User', email: leg.email, type: leg.type,
+          phone: leg.phone, password: JOURNEY_PASSWORD, full_name: 'Journey User', email: leg.email, type: leg.type,
         });
         expect([200, 201]).toContain(s.status);
         userId = s.body.user_id;
@@ -155,7 +158,7 @@ describe('Gate P2 provider onboarding journeys', () => {
         const ap = await post(`/api/v1/admin/providers/${userId}/approve`, admin, {});
         if (ap.status !== 201) console.log('APPROVE-BODY', ap.status, JSON.stringify(ap.body).slice(0, 300));
         expect([200, 201]).toContain(ap.status);
-        const login = await post('/api/v1/provider/auth/login', '', { email: leg.email, password: 'Secret123' });
+        const login = await post('/api/v1/provider/auth/login', '', { email: leg.email, password: JOURNEY_PASSWORD });
         expect([200, 201]).toContain(login.status);
         providerToken = login.body.access_token;
         expect(providerToken).toBeTruthy();
@@ -166,9 +169,9 @@ describe('Gate P2 provider onboarding journeys', () => {
 
       it('suspend → login 403; reactivate → login 200', async () => {
         await post(`/api/v1/admin/providers/${userId}/suspend`, admin, { reason: 'audit' }).expect(201);
-        await post('/api/v1/provider/auth/login', '', { email: leg.email, password: 'Secret123' }).expect(403);
+        await post('/api/v1/provider/auth/login', '', { email: leg.email, password: JOURNEY_PASSWORD }).expect(403);
         await post(`/api/v1/admin/providers/${userId}/reactivate`, admin, {}).expect(201);
-        const back = await post('/api/v1/provider/auth/login', '', { email: leg.email, password: 'Secret123' });
+        const back = await post('/api/v1/provider/auth/login', '', { email: leg.email, password: JOURNEY_PASSWORD });
         expect([200, 201]).toContain(back.status);
       });
     });

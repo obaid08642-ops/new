@@ -12,7 +12,7 @@ import { CartProvider } from '../src/context/CartContext';
 const mockApiFetch = jest.fn();
 let mockLang = 'ur';
 jest.mock('react-native-localize', () => require('react-native-localize/mock'));
-jest.mock('../src/utils/api', () => ({ apiFetch: (...a: unknown[]) => mockApiFetch(...a), BASE_URL: 'https://api.example.test/api/v1' }));
+jest.mock('../src/utils/api', () => ({ apiFetch: (...a: unknown[]) => mockApiFetch(...a), hasSession: () => false, BASE_URL: 'https://api.example.test/api/v1' }));
 jest.mock('../src/utils/isOffline', () => ({ isOffline: jest.fn(async () => false) }));
 jest.mock('../src/utils/logger', () => ({ logError: jest.fn() }));
 jest.mock('expo-router', () => ({

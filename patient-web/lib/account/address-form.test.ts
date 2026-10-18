@@ -7,7 +7,7 @@ const saved = { id: "3f2b8c1e-5d4a-4b6f-9a2c-1e8d7f6a5b4c", label: "Home", line1
 
 describe("editing a saved address (issue 769)", () => {
   it("fills the form with what is saved and leaves a missing field empty", () => {
-    expect(addressToForm(saved)).toEqual({ label: "Home", line1: "12 King Fahd Rd", line2: "", city: "riyadh", district: "olaya", region: "riyadh_region", notes: "Gate 2" });
+    expect(addressToForm(saved)).toEqual({ label: "Home", line1: "12 King Fahd Rd", line2: "", city: "riyadh", district: "olaya", region: "riyadh_region", notes: "Gate 2", short_address: "" });
     expect(addressToForm({ id: "x" })).toEqual(EMPTY_ADDRESS_FORM);
   });
 
@@ -21,6 +21,22 @@ describe("editing a saved address (issue 769)", () => {
     expect(buildAddressPatch(saved, { ...addressToForm(saved), label: "  " })).toBeNull();
     expect(buildAddressPatch(saved, { ...addressToForm(saved), line1: "" })).toBeNull();
     expect(isAddressFormValid(addressToForm(saved))).toBe(true);
+  });
+
+  it("sends a short address that changed, and an empty one removes it (19.7)", () => {
+    expect(buildAddressPatch(saved, { ...addressToForm(saved), short_address: " RRRD2929 " })).toEqual({ short_address: "RRRD2929" });
+    const withCode = { ...saved, short_address: "RRRD2929" };
+    expect(addressToForm(withCode).short_address).toBe("RRRD2929");
+    expect(buildAddressPatch(withCode, { ...addressToForm(withCode), short_address: "" })).toEqual({ short_address: "" });
+    expect(buildAddressPatch(withCode, addressToForm(withCode))).toBeNull();
+  });
+
+  it("looks a short address up through the patient proxy, GET only, with a plain code", () => {
+    expect(isAllowedPatientApiRequest("/national-address/lookup?code=RRRD2929", "GET")).toBe(true);
+    expect(isAllowedPatientApiRequest("/national-address/lookup?code=RRRD%202929", "GET")).toBe(true);
+    expect(isAllowedPatientApiRequest("/national-address/lookup?code=RRRD2929", "POST")).toBe(false);
+    expect(isAllowedPatientApiRequest("/national-address/lookup?code=../../admin", "GET")).toBe(false);
+    expect(isAllowedPatientApiRequest("/national-address/lookup", "GET")).toBe(false);
   });
 
   it("goes through the patient proxy with the narrow PATCH and DELETE entries only", () => {

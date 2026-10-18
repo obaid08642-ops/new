@@ -22,6 +22,15 @@ export class Article {
   @Prop() cover_image?: string;
   @Prop() author_name?: string;
   @Prop() author_title?: string; // طبيب / أخصائي تغذية / ...
+  // P13-R15: medical content trust — a named reviewer with credentials, the
+  // review time, and cited references. AI-generated drafts cannot publish
+  // until a human reviewer signs them (enforced in ArticlesService.publish).
+  @Prop() reviewer_name?: string;
+  @Prop() reviewer_credentials?: string; // e.g. استشاري باطنية، رقم الترخيص
+  @Prop() reviewed_at?: Date;
+  @Prop({ type: [{ label: String, url: String }], default: [] })
+  references?: Array<{ label?: string; url?: string }>;
+  @Prop({ default: false, index: true }) ai_generated?: boolean;
   @Prop({ default: 'DRAFT', index: true }) status: string; // DRAFT | PUBLISHED
   @Prop({ index: true }) published_at?: Date;
   @Prop() seo_description_ar?: string;

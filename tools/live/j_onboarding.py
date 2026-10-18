@@ -122,6 +122,12 @@ def provider_after_approval(prov):
     tok = r.get('access_token')
     step('provider login', r.ok and tok, r)
     prov['token'] = tok
+    # 23.6: a provider sees their own sign-in history and signed-in devices
+    c = provider_client(tok)
+    r = c.get('/provider/auth/history')
+    step('provider sees their own sign-in history (the login just made)', r.ok and any(e.get('action') == 'login' for e in r.get('events') or []) and 'hash' not in str(r.body), r)
+    r = c.get('/provider/auth/sessions')
+    step('provider sees their own signed-in device (no token hash)', r.ok and len(r.get('devices') or []) >= 1 and 'refresh_token' not in str(r.body), r)
     return tok
 
 

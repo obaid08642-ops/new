@@ -89,6 +89,8 @@ export enum Permission {
   CRM_MANAGE = 'crm.manage',
   // 20.3: read-only view of the stored warn/error log lines (/admin/logs)
   SYSTEM_LOGS_VIEW = 'system.logs.view',
+  // 16.9: who viewed which medical record (/admin/medical-access-log), read-only
+  MEDICAL_ACCESS_LOG_VIEW = 'medical.access_log.view',
 }
 
 /** Arabic labels for the permission catalog (RBAC editor UI). */
@@ -160,6 +162,7 @@ export const PERMISSION_LABELS_AR: Record<string, string> = {
   [Permission.SUPPORT_MANAGE]: 'إدارة الدعم والمكالمات',
   [Permission.CRM_MANAGE]: 'إدارة شرائح العملاء',
   [Permission.SYSTEM_LOGS_VIEW]: 'عرض سجلات النظام (قراءة فقط)',
+  [Permission.MEDICAL_ACCESS_LOG_VIEW]: 'عرض سجل الاطلاع على السجلات الطبية (قراءة فقط)',
 };
 
 export interface OwnershipOptions {

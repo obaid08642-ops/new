@@ -18,6 +18,7 @@ import { StartDto, SubmitDto, AdminContractVisibilityDto } from './provider-onbo
 import { PROVIDER_PUBLIC_PROJECTION } from './provider-private-fields';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { enforcePasswordPolicy } from '../../common/password-security.service';
 /**
  * Unified Provider Onboarding Wizard.
  * 3 sequential steps to register/upgrade any provider type:
@@ -66,6 +67,7 @@ export class ProviderOnboardingService {
     }
     if (!user) {
       if (!body.password) throw new BadRequestException('password_required_for_new_user');
+      await enforcePasswordPolicy(body.password);
       const hash = await bcrypt.hash(body.password, 12);
       try {
         user = await this.userModel.create({

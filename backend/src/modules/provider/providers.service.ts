@@ -15,6 +15,7 @@ import { CatalogPublicationService } from '../events/catalog-publication.service
 import { escapeRegex } from '../../common/slug.util';
 import { ManualLicenseCheck, requiresScfhs } from '../../common/scfhs-license';
 import { ScfhsLicenseService } from './services/scfhs-license.service';
+import { enforcePasswordPolicy } from '../../common/password-security.service';
 
 /**
  * Fields a provider may edit on their own profile (and, via the
@@ -137,6 +138,7 @@ export class ProvidersService {
   }) {
     const exists = await this.userModel.findOne({ phone: { $eq: data.phone } });
     if (exists) throw new ConflictException('Phone already registered');
+    await enforcePasswordPolicy(data.password);
     const hash = await bcrypt.hash(data.password, 12);
     const role = this.typeToRole(data.type);
     const user = await this.userModel.create({
@@ -175,6 +177,7 @@ export class ProvidersService {
     // can flag `auto_approve=true` to skip review.
     const exists = await this.userModel.findOne({ phone: { $eq: data.phone } });
     if (exists) throw new ConflictException('Phone already registered');
+    if (data.password) await enforcePasswordPolicy(data.password);
     const password = data.password || generateTempPassword();
     const hash = await bcrypt.hash(password, 12);
     const role = this.typeToRole(data.type);
