@@ -23,7 +23,6 @@ import { ConsultationsProvider } from '../src/context/ConsultationsContext';
 import NotificationHandler from '../src/components/NotificationHandler';
 import OfflineBanner from '../src/components/OfflineBanner';
 import AppGate from '../src/components/AppGate';
-import PaymentResume from '../src/components/PaymentResume';
 import { ModuleRouteGate, ModulesProvider } from '../src/context/ModulesContext';
 import { initSentry } from '../src/utils/sentry';
 import { SyncManager } from '../src/data/sync/SyncManager';
@@ -102,7 +101,6 @@ function RootLayout() {
                       <NotificationHandler />
                       <OfflineBanner />
                       <AppGate>
-                      <PaymentResume />
                       <ModuleRouteGate>
                       <Stack 
                         screenOptions={{ headerShown: false, animation: 'fade_from_bottom', animationDuration: 250 }}
