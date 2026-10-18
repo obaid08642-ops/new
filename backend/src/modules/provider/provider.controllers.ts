@@ -73,6 +73,13 @@ export class ProviderAuthController {
   }
   @Get('me')
   me(@CurrentUser() user: any) { return this.svc.me(user); }
+  /** 23.6 — the provider's own signed-in devices and sign-in history. */
+  @SelfService()
+  @Get('sessions')
+  sessions(@CurrentUser() user: any, @Query('session_id') sessionId?: string) { return this.svc.listSessions(user, sessionId).then((devices) => ({ devices })); }
+  @SelfService()
+  @Get('history')
+  history(@CurrentUser() user: any, @Query('page') page?: string, @Query('limit') limit?: string) { return this.svc.history(user, Number(page) || 1, Number(limit) || 30); }
 }
 
 @Controller('provider')

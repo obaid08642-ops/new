@@ -66,8 +66,19 @@ export class GuestPermissionMatrixService {
 
   constructor(@InjectConnection() private readonly connection: Connection) {}
 
+  /** The matrix is read on every guest request; a few seconds of cache keeps that off the database. An admin edit clears it at once. */
+  private cache: { at: number; value: Record<GuestCapability, boolean> } | null = null;
+  static readonly CACHE_MS = 3000;
+
   /** Read the admin-editable matrix, falling back to the owner-approved default. */
   async matrix(): Promise<Record<GuestCapability, boolean>> {
+    if (this.cache && Date.now() - this.cache.at < GuestPermissionMatrixService.CACHE_MS) return { ...this.cache.value };
+    const value = await this.readMatrix();
+    this.cache = { at: Date.now(), value };
+    return { ...value };
+  }
+
+  private async readMatrix(): Promise<Record<GuestCapability, boolean>> {
     const row = await this.connection.collection(MATRIX_COLLECTION).findOne({ id: MATRIX_ID });
     const stored = (row?.capabilities ?? {}) as Partial<Record<GuestCapability, boolean>>;
     const merged = { ...DEFAULT_GUEST_CAPABILITIES };
@@ -88,11 +99,16 @@ export class GuestPermissionMatrixService {
       if (typeof value !== 'boolean') throw new ForbiddenException(`guest_capability_must_be_boolean:${key}`);
       clean[key] = value;
     }
+    // MERGE the patch into what is stored. The old code replaced the whole map, so switching one capability silently reset
+    // every earlier change to its default.
+    const set: Record<string, unknown> = { id: MATRIX_ID, updated_by: updatedBy, updated_at: new Date() };
+    for (const [key, value] of Object.entries(clean)) set[`capabilities.${key}`] = value;
     await this.connection.collection(MATRIX_COLLECTION).updateOne(
       { id: MATRIX_ID },
-      { $set: { id: MATRIX_ID, capabilities: clean, updated_by: updatedBy, updated_at: new Date() }, $setOnInsert: { created_at: new Date() } },
+      { $set: set, $setOnInsert: { created_at: new Date() } },
       { upsert: true },
     );
+    this.cache = null;
     this.logger.log(`guest capability matrix updated by ${updatedBy}: ${JSON.stringify(clean)}`);
     return this.matrix();
   }
@@ -132,7 +148,6 @@ export class GuestCapabilityGuard implements CanActivate {
     const user = request?.user;
     if (!user?.is_guest) return true;
     if (await this.matrix.isAllowed(required)) return true;
-    const { code } = await this.matrix.explain(required);
-    throw new ForbiddenException(code);
+    throw new ForbiddenException({ statusCode: 403, code: 'account_required', capability: required, message: 'account_required' });
   }
 }

@@ -306,6 +306,43 @@ export class ProviderAuthService {
     return { account: this.publicAccount(fresh), token: this.signToken(fresh) };
   }
 
+  /** 23.6 — the provider's own signed-in devices: active sessions, newest first. The device id is shown only as a short tail. */
+  async listSessions(user: any, currentSessionId?: string) {
+    const rows: any[] = await this.sessions.model
+      .find({ provider_account_id: user.id, status: 'active', expires_at: { $gt: new Date() } }, { refresh_token_hash: 0 })
+      .sort({ createdAt: -1 }).limit(50).lean();
+    return rows.map((r) => ({
+      session_id: r.id,
+      device: r.device_identifier ? `…${String(r.device_identifier).slice(-4)}` : null,
+      signed_in_at: r.createdAt ?? null,
+      last_used_at: r.updatedAt ?? null,
+      expires_at: r.expires_at,
+      current: !!currentSessionId && r.id === currentSessionId,
+    }));
+  }
+
+  /** 23.6 — the provider's own sign-in history (sign-up, sign-in, sign-out, password change, revoked sessions). */
+  async history(user: any, page = 1, limit = 30) {
+    const pageN = Math.max(1, Math.floor(page) || 1);
+    const limitN = Math.max(1, Math.min(100, Math.floor(limit) || 30));
+    const filter = { provider_account_id: user.id, action: { $in: ['auth.register', 'auth.login', 'auth.logout', 'auth.password_change', 'auth.session_revoked'] } };
+    const [rows, total] = await Promise.all([
+      this.audit.model.find(filter).sort({ createdAt: -1 }).skip((pageN - 1) * limitN).limit(limitN).lean() as Promise<any[]>,
+      this.audit.model.countDocuments(filter),
+    ]);
+    const ip = (v: unknown) => { const m = /^(?:::ffff:)?(\d+)\.(\d+)\.\d+\.\d+$/.exec(String(v || '')); return m ? `${m[1]}.${m[2]}.*.*` : null; };
+    return {
+      total, page: pageN, limit: limitN,
+      events: rows.map((r) => ({
+        id: r.id, at: r.createdAt, action: r.action.replace(/^auth\./, ''),
+        outcome: r.action === 'auth.session_revoked' ? 'revoked' : 'success',
+        ip: ip(r.meta?.ip ?? r.ip),
+        device: r.meta?.device ? `…${String(r.meta.device).slice(-4)}` : null,
+        reason: r.meta?.reason ?? null,
+      })),
+    };
+  }
+
   async me(user: any) {
     const a = await this.accounts.findOne({ id: user.id });
     if (!a) throw new NotFoundException();

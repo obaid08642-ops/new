@@ -37,6 +37,17 @@ jobs:
       - name: Every .env is ignored, templates stay tracked
         run: bash tools/audit/env_ignore_check.sh
 
+  # Phase 16.4 — nginx keeps the security headers on what it serves itself, and never lists a directory.
+  nginx-headers:
+    name: nginx security headers and autoindex off
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Static check of deploy/nginx
+        run: |
+          python3 tools/audit/nginx_headers_check.py
+          python3 -m unittest tools/audit/test_nginx_headers_check.py
+
   # Phase 16.7 — dependency audit as a gate for every app: 0 NEW high/critical runtime advisories.
   # tools/audit/audit-baseline.json lists the known ones per app with the reason; a baseline entry that is no longer
   # vulnerable fails too, so the list only shrinks. Dev-only tooling is not audited (--omit=dev / --prod).

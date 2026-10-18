@@ -426,6 +426,7 @@ export class AuthController {
   }
 
   /** 21.3 — what a guest may do, as the server sees it right now. */
+  @Public()
   @Get('guest/capabilities')
   async guestCapabilities() {
     return { capabilities: await this.guestMatrix.matrix() };
@@ -447,6 +448,6 @@ export class AuthController {
   @RequirePermissions(Permission.OPS_CRONS_RUN)
   @Post('guest/cleanup')
   async cleanupGuests(@Body() dto: GuestCleanupDto) {
-    return this.guestLifecycle.purgeInactiveGuests();
+    return this.guestLifecycle.purgeInactiveGuests({ retentionDays: dto.retention_days });
   }
 }

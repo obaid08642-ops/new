@@ -1,3 +1,4 @@
+import { UserRateLimit, UserRateLimitGuard } from '../../common/user-rate-limit';
 import { Controller, Get, HttpCode, Module, Post, Query, UseGuards } from '@nestjs/common';
 import { IsIn, IsOptional, IsString, Matches, MaxLength } from 'class-validator';
 import { JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
@@ -27,7 +28,10 @@ export class SuggestQueryDto {
 export class SearchController {
   constructor(private readonly svc: SearchService) {}
 
+  // 16.12: search hits the search engine; an account (a visitor: an address) gets 120 searches and 600 suggestions a minute
   @Public() @Get()
+  @UseGuards(UserRateLimitGuard)
+  @UserRateLimit('search', 120, 60)
   search(@Query() dto: SearchQueryDto) {
     return this.svc.search(dto.q || '', { section: dto.section, locale: dto.locale, limit: dto.limit ? Number(dto.limit) : undefined });
   }
@@ -39,6 +43,8 @@ export class SearchController {
   @Public()
   @PublicCache(3600, ['search'], { cacheControl: SUGGEST_CACHE_CONTROL })
   @Get('suggest')
+  @UseGuards(UserRateLimitGuard)
+  @UserRateLimit('search_suggest', 600, 60)
   suggest(@Query() dto: SuggestQueryDto) {
     return this.svc.suggest(dto.q || '', dto.locale);
   }

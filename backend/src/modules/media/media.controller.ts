@@ -1,3 +1,4 @@
+import { UserRateLimit, UserRateLimitGuard } from '../../common/user-rate-limit';
 import { Controller, Get, GoneException, HttpCode, Post, Delete, Body, Param, UseGuards, UseInterceptors, UploadedFile, BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
@@ -23,7 +24,10 @@ export class MediaController {
     private readonly uploadSecurity: UploadSecurityService,
   ) {}
 
+  // 16.12: an account may upload 60 files an hour (USER_RATE_LIMIT_UPLOAD=<limit>/<seconds> tunes it)
   @Post('upload')
+  @UseGuards(UserRateLimitGuard)
+  @UserRateLimit('upload', 60, 3600)
   @UseInterceptors(
     FileInterceptor('file', {
       limits: { fileSize: 15 * 1024 * 1024 }, // 15MB limit
