@@ -14,6 +14,6 @@ describe("wishlist rows", () => {
     const actions = readFileSync(resolve(process.cwd(), "components-next/pharmacy/wishlist-row-actions.tsx"), "utf8");
     expect(actions).toContain("requestWishlistToggle(itemId, true, newIdempotencyKey())");
     expect(actions).toContain("addItem({ id: itemId, name, rx, onlineOnly");
-    expect(actions).toContain('reorder("addToCart")');
+    expect(actions).toContain('t("addToCart", { name })');
   });
 });

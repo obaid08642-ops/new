@@ -16,7 +16,6 @@ import styles from "./pharmacy.module.css";
  */
 export function WishlistRowActions({ locale, itemId, name, rx, onlineOnly }: { locale: string; itemId: string; name: string; rx: boolean; onlineOnly: boolean }) {
   const t = useTranslations("PharmacyBrowse");
-  const reorder = useTranslations("OrderReorder");
   const router = useRouter();
   const { addItem } = useCart();
   const [busy, setBusy] = useState(false);
@@ -43,7 +42,7 @@ export function WishlistRowActions({ locale, itemId, name, rx, onlineOnly }: { l
   return (
     <div className={styles.rowActions}>
       <IconButton name="heart" label={t("wishlistRemove")} variant="filled" loading={busy} onClick={remove} />
-      <Button size="sm" variant={added ? "primary" : "outline"} label={reorder("addToCart")} onClick={addToCart} />
+      <Button size="sm" variant={added ? "primary" : "outline"} label={t("addToCart", { name })} onClick={addToCart} />
     </div>
   );
 }
