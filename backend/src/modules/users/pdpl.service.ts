@@ -1,4 +1,5 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { exportAuditEvents } from '../security/user-history.service';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -141,6 +142,9 @@ export class PdplService {
         data.collections[collection] = rows.map((r) => this.sanitize(r as any));
       }
     }
+
+    // 23.6: the export includes the person's own audit events (sign-ins, security and consent events, their actions)
+    data.audit_events = await exportAuditEvents(this.conn, String(userId));
 
     return {
       exported_at: new Date().toISOString(),
