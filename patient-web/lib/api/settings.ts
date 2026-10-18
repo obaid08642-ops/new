@@ -2,8 +2,11 @@ import { z } from "zod";
 
 const privacySchema = z.object({ profile_visible: z.boolean().optional(), share_data: z.boolean().optional() }).passthrough();
 const securitySchema = z.object({ biometric: z.boolean().optional(), two_factor: z.boolean().optional() }).passthrough();
-const storageItemSchema = z.object({ label: z.string().max(120), val: z.string().max(80), pct: z.number().min(0).max(100) }).passthrough();
-const storageSchema = z.object({ used: z.string().max(80).optional(), total: z.string().max(80).optional(), items: z.array(storageItemSchema).max(20).optional() }).passthrough();
+// issue 1585: the server sends a stable item key; the page translates it from the locale files.
+export const STORAGE_ITEM_KEYS = ["uploaded_prescriptions", "medical_reports"] as const;
+export type StorageItemKey = (typeof STORAGE_ITEM_KEYS)[number];
+const storageItemSchema = z.object({ key: z.enum(STORAGE_ITEM_KEYS), val: z.string().max(80), pct: z.number().min(0).max(100) }).passthrough();
+const storageSchema = z.object({ used: z.string().max(80).optional(), total: z.string().max(80).optional(), items: z.array(z.unknown()).max(20).optional() }).passthrough();
 const sessionSchema = z.object({ device: z.string().max(160).nullable().optional(), expires_in_seconds: z.number().int().min(0).max(31536000).optional() }).passthrough();
 
 function record(payload: unknown): Record<string, unknown> | null {
@@ -14,7 +17,7 @@ function record(payload: unknown): Record<string, unknown> | null {
 
 export type PrivacySettings = { profileVisible?: boolean; shareData?: boolean };
 export type SecuritySettings = { biometric?: boolean; twoFactor?: boolean };
-export type StorageSummary = { used?: string; total?: string; items: { label: string; value: string; percent: number }[] };
+export type StorageSummary = { used?: string; total?: string; items: { key: StorageItemKey; value: string; percent: number }[] };
 export type SessionSummary = { device?: string | null; expiresInSeconds?: number };
 
 export function parsePrivacySettings(payload: unknown): PrivacySettings {
@@ -55,5 +58,8 @@ export function parseOwnSessions(payload: unknown): OwnSession[] {
 export function parseStorageSummary(payload: unknown): StorageSummary {
   const parsed = storageSchema.safeParse(record(payload));
   if (!parsed.success) return { items: [] };
-  return { used: parsed.data.used, total: parsed.data.total, items: (parsed.data.items ?? []).map((item) => ({ label: item.label, value: item.val, percent: item.pct })) };
+  return { used: parsed.data.used, total: parsed.data.total, items: (parsed.data.items ?? []).flatMap((raw) => {
+    const item = storageItemSchema.safeParse(raw);
+    return item.success ? [{ key: item.data.key, value: item.data.val, percent: item.data.pct }] : [];
+  }) };
 }

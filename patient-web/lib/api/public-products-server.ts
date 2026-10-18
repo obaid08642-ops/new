@@ -48,6 +48,35 @@ export type PublicProduct = {
   country_of_origin: string | null;
   images: string[];
   image: string | null;
+  /** Decision D (issue 1556): the product's variant group (powers, colours, shades), null when it has none. */
+  variant_group?: string | null;
+  variant?: PublicVariantAttr | null;
+};
+
+/** A record's own attribute inside its variant group (decision D). Colour and shade are words of the English name. */
+export type PublicVariantAttr = {
+  kind: "power" | "colour" | "colour_power" | "shade" | "picture" | string;
+  power: number | null;
+  colour: string | null;
+  shade: string | null;
+  position: number;
+};
+
+/** One variant of a product (GET /public/product-variants/:locale/:id): its own id, SKU, price and picture. */
+export type PublicVariant = {
+  id: string;
+  sku: number | null;
+  slug: string;
+  name: string | null;
+  price: number;
+  old_price: number | null;
+  currency: string;
+  is_rx: boolean;
+  online_exclusive: boolean;
+  available: boolean;
+  availability_status: string;
+  image: string | null;
+  variant: PublicVariantAttr;
 };
 
 export type PublicProductCard = {
@@ -244,6 +273,13 @@ const toCard = (it: PublicProductCard): PublicProductCard => ({
   name: cleanProductName(it.name, it.official_name),
   image: resolveImageUri(it.image) || (Array.isArray(it.images) && it.images[0] ? resolveImageUri(it.images[0]) : null),
 });
+
+/** Decision D (issue 1556): the variants of a product for the picker; none when it has no group or the read fails. */
+export async function getPublicVariants(locale: Locale, product: { id: string; variant_group?: string | null }): Promise<PublicVariant[]> {
+  if (!isLocale(locale) || !product.variant_group) return [];
+  const data = await getJson<{ variants?: PublicVariant[] }>(`/public/product-variants/${locale}/${encodeURIComponent(product.id)}`);
+  return Array.isArray(data?.variants) ? data.variants.filter((v) => v && v.id && v.variant) : [];
+}
 
 /**
  * The product's equivalents (`GET /public/product-equivalents/{locale}/{id}`): the published products with the same

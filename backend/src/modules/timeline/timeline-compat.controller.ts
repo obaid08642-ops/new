@@ -1,3 +1,5 @@
+import { revealHealthDoc } from '../../common/health-fields';
+import { MedicalAccessLogService, logMedicalRead } from '../../common/pdpl-compliance.module';
 import { Controller, Get, Param, ForbiddenException, NotFoundException, UseGuards } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -13,7 +15,7 @@ const uid = (u: any) => u?.id || u?._id || u?.user_id;
 
 @Controller('reports')
 export class ReportsTimelineController {
-  constructor(@InjectConnection() private conn: Connection) {}
+  constructor(@InjectConnection() private conn: Connection, private readonly access: MedicalAccessLogService) {}
 
   @Get('timeline')
   async timeline(@CurrentUser() user: any) {
@@ -35,6 +37,8 @@ export class ReportsTimelineController {
     if (r.patient_id && String(r.patient_id) !== String(u)) {
       throw new ForbiddenException('لا تملك صلاحية عرض هذا التقرير');
     }
-    return { ...r, id: r.id || String(r._id) };
+    // 16.9: a raw read, so the report text is decrypted here; and it is a read of a medical record
+    await logMedicalRead(this.access, user, [{ kind: 'medical_report', id: String(r.id || r._id), action: 'read', subject_id: r.patient_id ? String(r.patient_id) : undefined }]);
+    return { ...revealHealthDoc('medicalreports', r), id: r.id || String(r._id) };
   }
 }

@@ -16,6 +16,7 @@ import { randomUUID } from 'crypto';
 import { ProductRankingEventService } from '../product-ranking/product-ranking-event.service';
 import { AuthService } from '../auth/auth.service';
 import { publicMedicineFilter } from '../medicines/public-medicine-filter';
+import { enforcePasswordPolicy } from '../../common/password-security.service';
 
 @Injectable()
 export class UsersService {
@@ -325,9 +326,11 @@ export class UsersService {
       used: fmt(usedBytes),
       total: `${LIMIT_GB} GB`,
       limit: LIMIT_GB,
+      // issue 1585: stable keys; the clients translate them. `label` stays only for app builds already installed
+      // that read it (current web and app use `key`); remove it once those builds are retired.
       items: [
-        { label: 'الوصفات المرفوعة', val: fmt(prescBytes), pct: pct(prescBytes), color: '#23B5CE' },
-        { label: 'التقارير الطبية', val: fmt(reportBytes), pct: pct(reportBytes), color: '#7A6BEA' },
+        { key: 'uploaded_prescriptions', label: 'الوصفات المرفوعة', val: fmt(prescBytes), pct: pct(prescBytes), color: '#23B5CE' },
+        { key: 'medical_reports', label: 'التقارير الطبية', val: fmt(reportBytes), pct: pct(reportBytes), color: '#7A6BEA' },
       ],
     };
   }
@@ -357,7 +360,7 @@ export class UsersService {
   async changePassword(id: string, body: any, deviceId?: string) {
     const current = String(body?.current_password || '');
     const next = String(body?.new_password || '');
-    if (next.length < 8) throw new BadRequestException('كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل');
+    await enforcePasswordPolicy(next);
     const u: any = await this.userRepository.findOne({ id });
     if (!u) throw new NotFoundException();
     if (u.password_hash) {

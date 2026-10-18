@@ -1,7 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: npm
-    directories: [/backend, /patient-web, /patient-app, /provider-app]
+    directories: [/backend, /admin, /patient-web, /patient-app, /provider-app, /packages/ui, /packages/ui-native, /packages/shared-contracts]
     schedule:
       interval: weekly
       day: saturday
@@ -18,3 +18,11 @@ updates:
       day: saturday
     open-pull-requests-limit: 3
     labels: [dependencies, ci]
+  # Phase 16.7: base images of the production Dockerfiles (the Trivy image scan reports what they carry).
+  - package-ecosystem: docker
+    directories: [/backend, /deploy/docker]
+    schedule:
+      interval: weekly
+      day: saturday
+    open-pull-requests-limit: 3
+    labels: [dependencies, docker]

@@ -17,7 +17,7 @@ describe('P13-R17 provider verified badge', () => {
 
   it('an active provider gets a dofollow snippet to its canonical page', async () => {
     const ctl = controllerWith({
-      id: 'doc-1', slug: 'dr-ok', status: 'active',
+      id: 'doc-1', slug: 'dr-ok', status: 'active', medical_review_status: 'approved', public_eligibility: true,
       display_name_ar: 'د. أحمد', display_name_en: 'Dr. Ahmed',
     });
     const out: any = await ctl.badge('doc-1');
@@ -31,6 +31,16 @@ describe('P13-R17 provider verified badge', () => {
   it('a suspended provider gets no badge (404)', async () => {
     const ctl = controllerWith({ id: 'doc-2', slug: 'dr-x', status: 'suspended' });
     await expect(ctl.badge('doc-2')).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('an active provider still pending medical review gets no badge (404)', async () => {
+    const ctl = controllerWith({ id: 'doc-3', slug: 'dr-p', status: 'active', medical_review_status: 'pending', public_eligibility: true });
+    await expect(ctl.badge('doc-3')).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('an approved provider that is not published gets no badge (404)', async () => {
+    const ctl = controllerWith({ id: 'doc-4', slug: 'dr-n', status: 'active', medical_review_status: 'approved', public_eligibility: false });
+    await expect(ctl.badge('doc-4')).rejects.toBeInstanceOf(NotFoundException);
   });
 
   it('an unknown provider gets no badge (404)', async () => {
