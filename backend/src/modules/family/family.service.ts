@@ -1,3 +1,4 @@
+import { revealHealthDocs } from '../../common/health-fields';
 import {
   Injectable,
   NotFoundException,
@@ -277,7 +278,7 @@ export class FamilyService {
           .catch(() => []),
         this.connection.db.collection('prescriptions')
           .find({ patient_id: targetMemberId, state: { $nin: ['DISPENSED', 'ARCHIVED'] } }, { projection: { _id: 0, id: 1, items: 1, state: 1, createdAt: 1, doctor_name: 1 } })
-          .sort({ createdAt: -1 }).limit(30).toArray().catch(() => []),
+          .sort({ createdAt: -1 }).limit(30).toArray().then((r: any[]) => revealHealthDocs('prescriptions', r)).catch(() => []),
       ]).then(([reminders, prescriptions]) => { out.meds = reminders; out.prescriptions = prescriptions; }));
     }
     if (can('reports')) {
