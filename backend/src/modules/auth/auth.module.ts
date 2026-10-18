@@ -31,6 +31,7 @@ import { GuestLifecycleService } from './guest-lifecycle.service';
 import { AccountLinkingService } from './account-linking.service';
 import { CheckoutContactService } from './checkout-contact.service';
 import { GuestCapabilityGuard, GuestPermissionMatrixService } from './permission-matrix.service';
+import { GuestChatListInterceptor, GuestPolicyGuard } from './guest-policy';
 
 @Global()
 @Module({
@@ -59,7 +60,7 @@ import { GuestCapabilityGuard, GuestPermissionMatrixService } from './permission
     ]),
   ],
   controllers: [AuthController, PasskeyController, AdminDevicesController, AdminRecoveryController, StepUpController],
-  providers: [AuthService, PasskeyService, DeviceTrustService, AdminDeviceService, AdminDeviceApprovalService, AdminSessionService, AdminRecoveryService, StepUpService, StepUpGuard, JwtAuthGuard, GuestService, GuestLifecycleService, AccountLinkingService, CheckoutContactService, GuestPermissionMatrixService, GuestCapabilityGuard, { provide: 'PatientProfileRepository', useClass: PatientProfileRepository }, { provide: 'UserRepository', useClass: UserRepository }],
-  exports: [AuthService, JwtModule, JwtAuthGuard, MongooseModule, DeviceTrustService, AdminSessionService, GuestService, GuestLifecycleService, AccountLinkingService, CheckoutContactService, GuestPermissionMatrixService, GuestCapabilityGuard],
+  providers: [AuthService, PasskeyService, DeviceTrustService, AdminDeviceService, AdminDeviceApprovalService, AdminSessionService, AdminRecoveryService, StepUpService, StepUpGuard, JwtAuthGuard, GuestService, GuestLifecycleService, AccountLinkingService, CheckoutContactService, GuestPermissionMatrixService, GuestCapabilityGuard, GuestPolicyGuard, GuestChatListInterceptor, { provide: 'PatientProfileRepository', useClass: PatientProfileRepository }, { provide: 'UserRepository', useClass: UserRepository }],
+  exports: [AuthService, JwtModule, JwtAuthGuard, MongooseModule, DeviceTrustService, AdminSessionService, GuestService, GuestLifecycleService, AccountLinkingService, CheckoutContactService, GuestPermissionMatrixService, GuestCapabilityGuard, GuestPolicyGuard, GuestChatListInterceptor],
 })
 export class AuthModule {}
