@@ -1,0 +1,11 @@
+# Journeys that run as scripts but are not in the live gate, one per line. Remove a line once the journey is green.
+# j_admin_clicks is not listed here: run_gate.sh runs it on its own, after the list.
+j_admin
+j_admin_ops
+j_admin_sweep
+j_catalog_suggest
+j_chat
+j_concurrency
+j_insurance
+j_jobs
+j_returns

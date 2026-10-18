@@ -21,6 +21,7 @@ import { RedisService } from '../redis/redis.service';
 import { hasEffectiveRole } from '../../common/auth.guard';
 import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
 import { isAdminUser } from '../../common/enums';
+import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
 
 @Injectable()
 export class HomeCareSvc {
@@ -35,6 +36,7 @@ export class HomeCareSvc {
     private readonly bus: EventBusService,
     @Optional() private readonly redis?: RedisService,
     @Optional() private readonly killSwitches?: KillSwitchesService,
+    @Optional() private readonly insurance?: InsuranceFlowService,
   ) {}
 
   async list(opts: { category?: string; search?: string; duration?: string }) {
@@ -121,6 +123,21 @@ export class HomeCareSvc {
     });
     this.events.emit('homecare.booking_created', { booking_id: booking.id, patient_id: user.id });
     await this.engine.announceCreated({ kind: 'nursing', entity_id: booking.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { service_id: svc.id, total, sessions } });
+    // 19.11 step 2: an insurance visit opens its insurance request now, so the nurse receives it with the patient's
+    // company, class and documents and decides it (labs and consultations do the same). A refusal (no saved policy,
+    // provider not contracted for the company and class) cancels the visit and tells the patient why.
+    if (paymentMethod === 'insurance' && this.insurance && providerId) {
+      try {
+        const request: any = await this.insurance.createRequest(user, { booking_kind: 'nursing', booking_id: booking.id });
+        await this.bkgModel.updateOne({ id: booking.id }, { $set: { insurance_request_id: request.id, insurance_status: 'pending' } });
+      } catch (e) {
+        await this.bkgModel.updateOne({ id: booking.id }, {
+          $set: { state: 'CANCELLED' },
+          $push: { state_history: { from: booking.state, to: 'CANCELLED', by_user_id: 'system', at: new Date(), note: 'insurance request refused' } },
+        });
+        throw e;
+      }
+    }
     return booking.toObject();
   }
 

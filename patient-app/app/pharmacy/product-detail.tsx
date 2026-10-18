@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { optimistic } from '../../src/utils/optimistic';
+import { useNotice } from '../../src/hooks/useNotice';
 import {
   FlatList,
   Modal,
@@ -124,6 +126,7 @@ const SUGGEST_FIELDS = [
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { theme, t, c, dir, flow, k, num, money, lang } = useScreenUi();
+  const notice = useNotice(theme);
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const colWidth = Math.min(width, 440);
@@ -202,14 +205,16 @@ export default function ProductDetailScreen() {
   const toggleWishlist = async () => {
     if (wishlistBusy) return;
     setWishlistBusy(true);
-    try {
-      const res = await apiFetch<{ in_wishlist?: boolean }>(`/users/me/wishlist/${id}`, { method: 'POST' });
-      setInWishlist(res?.in_wishlist ?? !inWishlist);
-    } catch {
-      // honest failure: leave the icon unchanged
-    } finally {
-      setWishlistBusy(false);
-    }
+    const was = inWishlist;
+    // 15.3: the heart changes at once; it goes back, with a message, when the server refused
+    const done = await optimistic({
+      apply: () => setInWishlist(!was),
+      request: () => apiFetch<{ in_wishlist?: boolean }>(`/users/me/wishlist/${id}`, { method: 'POST' }),
+      rollback: () => setInWishlist(was),
+      onFail: () => notice.show(k('common.optimisticUndone')),
+    });
+    if (done.ok) setInWishlist(done.value?.in_wishlist ?? !was);
+    setWishlistBusy(false);
   };
 
   // GET /medicines/:id/details — the enriched row: every field, the gallery, the discount, alternatives and stock
@@ -753,6 +758,7 @@ export default function ProductDetailScreen() {
           </View>
         </View>
       </Screen>
+      {notice.node}
 
       {/* back, share, favourite, cart over the gallery */}
       <View pointerEvents="box-none" style={{ position: 'absolute', top: 0, start: 0, end: 0, zIndex: 20, paddingTop: insets.top + 7, paddingHorizontal: 16 }}>

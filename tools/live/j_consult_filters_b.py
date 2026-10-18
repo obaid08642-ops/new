@@ -76,7 +76,7 @@ def main():
     tag = uuid.uuid4().hex[:6]
     body = (f'<h2>نوم صحي {tag}</h2><p>نم ثماني ساعات <strong>كل ليلة</strong>.</p><ul><li>أطفئ الشاشات</li></ul>'
             f'<script>window.__pwned_{tag}=1</script><p onclick="x()">اشرب الماء<img src=x onerror="window.__pwned_{tag}=2"></p>')
-    r = admin.post('/admin/admin/articles', {'title_ar': f'مقال اختبار {tag}', 'title_en': f'Test article {tag}', 'excerpt_ar': 'ملخص', 'excerpt_en': 'Summary', 'body_ar': body, 'body_en': '<p>English body</p>', 'category': 'sleep'})
+    r = admin.post('/admin/admin/articles', {'title_ar': f'مقال اختبار {tag}', 'title_en': f'Test article {tag}', 'excerpt_ar': 'ملخص', 'excerpt_en': 'Summary', 'body_ar': body, 'body_en': '<p>English body</p>', 'category': 'sleep', 'author_name': 'د. مؤلف الاختبار (TEST data)'})
     art = r.body.get('data', r.body) if isinstance(r.body, dict) else {}
     step('the admin writes an article (TEST data)', r.ok and art.get('id'), r)
     if not art.get('id'):

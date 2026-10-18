@@ -29,6 +29,7 @@ jest.mock('../src/components/LocalizedAlert', () => ({ showLocalizedAlert: jest.
 
 import PharmacyHub from '../app/(tabs)/pharmacy';
 import ProductDetail from '../app/pharmacy/product-detail';
+import WishlistScreen from '../app/pharmacy/wishlist';
 
 const metrics = { frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 47, bottom: 34, left: 0, right: 0 } };
 const store = (signedIn = false) =>
@@ -221,5 +222,64 @@ describe('Product page insurance row (SPEC §A, issue 456)', () => {
     await waitFor(() => expect(screen.getAllByText('دواء ١').length).toBeGreaterThan(0));
     expect(mockApiFetch).not.toHaveBeenCalledWith('/users/me/insurance');
     expect(screen.queryByTestId('product-insurance-row')).toBeNull();
+  });
+});
+
+
+// 15.3: optimistic only where it is safe. The heart and the favourites list change at once and go back, with a message,
+// when the server refuses (a forced 500).
+describe('15.3 wishlist is optimistic and rolls back', () => {
+  const UNDONE = 'تعذّر حفظ التغيير فأُلغي. حاول مرة أخرى.';
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockParams = { id: 'm1' };
+  });
+  const serve = (post: (path: string) => unknown, list: unknown[] = []) =>
+    mockApiFetch.mockImplementation(async (path: string, init?: { method?: string }) => {
+      if (init?.method === 'POST') {
+        const r = post(path);
+        if (r instanceof Error) throw r;
+        return r;
+      }
+      if (path.startsWith('/medicines/m1/details')) return { id: 'm1', name_ar: 'دواء ١', price: 20 };
+      if (path === '/users/me/wishlist') return list;
+      return {};
+    });
+
+  it('the heart on the product page fills at once; a 500 empties it again and says why', async () => {
+    serve(() => Object.assign(new Error('Internal Server Error'), { status: 500 }));
+    await render(wrap(<ProductDetail />));
+    await waitFor(() => expect(screen.getAllByText('دواء ١').length).toBeGreaterThan(0));
+    await fireEvent.press(screen.getByLabelText('أضف للمفضلة'));
+    await waitFor(() => expect(screen.getByText(UNDONE)).toBeTruthy());
+    expect(screen.getByLabelText('أضف للمفضلة')).toBeTruthy();
+    expect(screen.queryByLabelText('إزالة من المفضلة')).toBeNull();
+  });
+
+  it('when the server accepts, the heart stays filled and nothing is announced', async () => {
+    serve(() => ({ in_wishlist: true }));
+    await render(wrap(<ProductDetail />));
+    await waitFor(() => expect(screen.getAllByText('دواء ١').length).toBeGreaterThan(0));
+    await fireEvent.press(screen.getByLabelText('أضف للمفضلة'));
+    await waitFor(() => expect(screen.getByLabelText('إزالة من المفضلة')).toBeTruthy());
+    expect(screen.queryByText(UNDONE)).toBeNull();
+  });
+
+  it('removing a favourite takes the row away at once; a 500 brings it back and says why', async () => {
+    serve(() => Object.assign(new Error('Internal Server Error'), { status: 500 }), [{ id: 'm1', name_ar: 'دواء ١', price: 20 }]);
+    await render(wrap(<WishlistScreen />));
+    await waitFor(() => expect(screen.getByText('دواء ١')).toBeTruthy());
+    await fireEvent.press(screen.getByLabelText('إزالة من المفضلة'));
+    await waitFor(() => expect(screen.getByText(UNDONE)).toBeTruthy());
+    expect(screen.getByText('دواء ١')).toBeTruthy();
+  });
+
+  it('a favourite the server removed stays removed', async () => {
+    serve(() => ({ in_wishlist: false }), [{ id: 'm1', name_ar: 'دواء ١', price: 20 }]);
+    await render(wrap(<WishlistScreen />));
+    await waitFor(() => expect(screen.getByText('دواء ١')).toBeTruthy());
+    await fireEvent.press(screen.getByLabelText('إزالة من المفضلة'));
+    await waitFor(() => expect(screen.queryByText('دواء ١')).toBeNull());
+    expect(screen.queryByText(UNDONE)).toBeNull();
   });
 });

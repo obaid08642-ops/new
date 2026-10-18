@@ -15,7 +15,7 @@ describe('MediaController delete authorization', () => {
       findOne: jest.fn((q: any) => ({ lean: async () => (q?.id?.$eq === ASSET.id ? ASSET : null) })),
       deleteOne: jest.fn(async () => ({ deletedCount: 1 })),
     };
-    const controller = new MediaController(media as any, assets as any, {} as any, {} as any);
+    const controller = new MediaController(media as any, assets as any, {} as any, {} as any, {} as any);
     return { controller, media, assets };
   };
 
