@@ -10,11 +10,11 @@ const FUTURE = new Date('2026-12-01T00:00:00Z');
 const PAST = new Date('2026-09-01T00:00:00Z');
 const user = { id: 'pat-1', role: 'patient' };
 
-function build(opts: { order?: any; rx?: any; taken?: number } = {}) {
+function build(opts: { order?: any; rx?: any; taken?: number; draftStatus?: string } = {}) {
   const order = opts.order === undefined
     ? { id: 'ord-1', patient_account_id: 'pat-1', items: [{ raw_name: 'Amlodipine', medicine_id: 'med-1', qty: 2, matched_sku: 'SKU-1', dosage: '5mg' }], prescription_id: 'rx-1', fulfillment: 'delivery', payment_mode: 'cash', payment_method: 'cash', delivery_address_id: 'addr-1' }
     : opts.order;
-  const pharmacy = { findOne: jest.fn().mockResolvedValue(order) };
+  const pharmacy = { findOne: jest.fn().mockImplementation(async (filter: any) => (filter.patient_account_id ? order : { status: opts.draftStatus ?? 'draft' })) };
   const prescriptions = {
     findOne: jest.fn().mockResolvedValue(opts.rx === undefined ? { id: 'rx-1', valid_until: FUTURE, refills_remaining: 2 } : opts.rx),
     updateOne: jest.fn().mockResolvedValue({ modifiedCount: opts.taken ?? 1 }),
@@ -74,7 +74,7 @@ describe('PharmacyRefillService (22.1)', () => {
   it('409 when a concurrent refill took the last one', async () => {
     const { service, orders } = build({ taken: 0 });
     await expect(service.refill(user, 'ord-1', NOW)).rejects.toThrow(REFILL_ERROR.refillsExhausted);
-    expect(orders.create).not.toHaveBeenCalled();
+    expect(orders.submit).not.toHaveBeenCalled();
   });
 
   it('creates and submits an ordinary order, and takes one refill', async () => {
@@ -102,11 +102,35 @@ describe('PharmacyRefillService (22.1)', () => {
     expect(orders.submit).toHaveBeenCalled();
   });
 
-  it('cancels the draft and gives the refill back when submit fails', async () => {
+  it('cancels the draft and gives the refill back when submit fails before the order goes out', async () => {
     const { service, orders, prescriptions } = build();
     orders.submit.mockRejectedValue(new ConflictException('pharmacy_broadcast_disabled'));
     await expect(service.refill(user, 'ord-1', NOW)).rejects.toThrow('pharmacy_broadcast_disabled');
     expect(orders.cancel).toHaveBeenCalledWith(user, 'draft-1', 'refill_not_submitted');
     expect(prescriptions.updateOne).toHaveBeenLastCalledWith({ id: 'rx-1' }, { $inc: { refills_remaining: 1 } });
+  });
+
+  it('keeps the refill used when the order already went out, even if submit then failed', async () => {
+    const { service, orders, prescriptions } = build({ draftStatus: 'ready_for_split' });
+    orders.submit.mockRejectedValue(new Error('detail failed after broadcast'));
+    await expect(service.refill(user, 'ord-1', NOW)).rejects.toThrow('detail failed after broadcast');
+    expect(orders.cancel).not.toHaveBeenCalled();
+    expect(prescriptions.updateOne).not.toHaveBeenCalledWith({ id: 'rx-1' }, { $inc: { refills_remaining: 1 } });
+  });
+
+  it('still surfaces the submit error when the give-back itself fails', async () => {
+    const { service, orders, prescriptions } = build();
+    orders.submit.mockRejectedValue(new ConflictException('pharmacy_broadcast_disabled'));
+    prescriptions.updateOne.mockImplementation(async (_f: any, u: any) => (u.$inc.refills_remaining === 1 ? Promise.reject(new Error('db down')) : { modifiedCount: 1 }));
+    await expect(service.refill(user, 'ord-1', NOW)).rejects.toThrow('pharmacy_broadcast_disabled');
+  });
+
+  it('takes the refill only after the draft exists, and cancels the draft when the take loses the race', async () => {
+    const { service, orders, prescriptions } = build({ taken: 0, rx: { id: 'rx-1', valid_until: FUTURE, refills_remaining: 2 } });
+    prescriptions.findOne.mockResolvedValueOnce({ id: 'rx-1', valid_until: FUTURE, refills_remaining: 2 }).mockResolvedValueOnce({ id: 'rx-1', valid_until: FUTURE, refills_remaining: 0 });
+    await expect(service.refill(user, 'ord-1', NOW)).rejects.toThrow(REFILL_ERROR.refillsExhausted);
+    expect(orders.create).toHaveBeenCalled();
+    expect(orders.cancel).toHaveBeenCalledWith(user, 'draft-1', 'refill_not_submitted');
+    expect(orders.submit).not.toHaveBeenCalled();
   });
 });
