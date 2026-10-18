@@ -32,6 +32,7 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/reports', label: 'التقارير التشغيلية', permission: 'analytics.read' },
       { href: '/admin/search', label: 'البحث الشامل', permission: 'user.read' },
       { href: '/admin/fraud-monitoring', label: 'مراقبة الاحتيال' },
+      { href: '/admin/risk-dashboard', label: 'لوحة المخاطر', permission: 'analytics.read' },
     ],
   },
   {
@@ -133,6 +134,7 @@ function permitted(item: NavItem, permissions: Set<string>) {
 const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/command-center': 'command.center.view',
   '/admin/fraud-monitoring': 'command.center.view',
+  '/admin/risk-dashboard': 'analytics.read',
   '/admin/health-dashboard': 'command.center.view',
   '/admin/web-vitals': 'command.center.view',
   '/admin/dashboard': 'command.center.view',

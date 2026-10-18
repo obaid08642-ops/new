@@ -1,4 +1,5 @@
-import { Injectable, BadRequestException, UnauthorizedException, ConflictException, GoneException, ForbiddenException, Inject, HttpException, HttpStatus, ServiceUnavailableException } from '@nestjs/common';
+import { NotFoundException, Injectable, BadRequestException, UnauthorizedException, ConflictException, GoneException, ForbiddenException, Inject, HttpException, HttpStatus, ServiceUnavailableException } from '@nestjs/common';
+import { currentRequestMeta, describeClient, maskIp } from '../../common/request-meta';
 import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
@@ -100,32 +101,41 @@ export class AuthService {
     }
   }
 
-  signToken(user: any, deviceId?: string) {
+  signToken(user: any, deviceIdIn?: string, session?: { sid?: string; created?: number }) {
+    // 21.7: a sign-in path that was not handed a device id (password login, register, social) uses the one on the request
+    const deviceId = deviceIdIn ?? currentRequestMeta().deviceId;
     // The access token carries its own id: the guest merge burns that jti so a
     // captured guest token cannot be replayed (21.2). Without it, single-use
     // could not be enforced.
     const accessJti = randomUUID();
+    // 21.7: `sid` names the sign-in (one per device); it survives every refresh, so the session list, "sign out other
+    // devices" and the push token of this device can all point at it.
+    const sid = session?.sid || randomUUID();
     const accessToken = this.jwt.sign(
-      { sub: user.id, id: user.id, role: user.role, phone: user.phone, is_guest: !!user.is_guest, tv: Number(user.token_version ?? 0), jti: accessJti, ...(deviceId ? { dev: deviceId.slice(0, 32) } : {}) },
+      { sub: user.id, id: user.id, role: user.role, phone: user.phone, is_guest: !!user.is_guest, tv: Number(user.token_version ?? 0), jti: accessJti, sid, ...(deviceId ? { dev: deviceId.slice(0, 32) } : {}) },
       { expiresIn: '1h' } // Short-lived access token
     );
     // Refresh token carries a unique session id (jti) — tracked in Redis so
     // rotation can revoke the previous token and detect replay attacks.
     const jti = randomUUID();
     const refreshToken = this.jwt.sign(
-      { sub: user.id, type: 'refresh', jti },
+      { sub: user.id, type: 'refresh', jti, sid },
       { expiresIn: '14d' }
     );
-    this.storeRefreshSession(user.id, jti, deviceId).catch(() => {});
+    this.storeRefreshSession(user.id, jti, deviceId, { sid, created: session?.created }).catch(() => {});
     return { accessToken, refreshToken };
   }
 
   /** Persist the refresh session (14d TTL matches token life), device-bound. */
-  private async storeRefreshSession(userId: string, jti: string, deviceId?: string) {
+  private async storeRefreshSession(userId: string, jti: string, deviceId?: string, session?: { sid?: string; created?: number }) {
     try {
       const client = (this.redisService as any).getClient?.();
       if (!client) return;
-      await client.set(`refresh:${jti}`, JSON.stringify({ u: userId, d: deviceId || null }), 'EX', 14 * 24 * 3600);
+      const meta = currentRequestMeta();
+      const now = Date.now();
+      // s: the sign-in id, c: when this sign-in started, l: last use, ua/ip: the client of the latest use
+      const record = { u: userId, d: deviceId || null, s: session?.sid || jti, c: session?.created ?? now, l: now, ua: meta.userAgent ?? null, ip: meta.ip ?? null };
+      await client.set(`refresh:${jti}`, JSON.stringify(record), 'EX', 14 * 24 * 3600);
       await client.sadd(`refresh_user:${userId}`, jti);
       await client.expire(`refresh_user:${userId}`, 30 * 24 * 3600);
     } catch { /* session store failure must not break login */ }
@@ -143,21 +153,33 @@ export class AuthService {
     // Replay/rotation enforcement: the jti must still be an active session
     const client = (this.redisService as any).getClient?.();
     let boundDevice: string | null = null;
+    let sessionMeta: { sid?: string; created?: number } = { sid: payload.sid };
     if (client && payload.jti) {
       const raw = await client.get(`refresh:${payload.jti}`);
       if (!raw) {
+        // Two requests of one client can present the same token a moment apart (two tabs, a retry): within seconds of
+        // the rotation that is a lost race, not theft, so only this call fails.
+        if (await client.get(`refresh_rotated:${payload.jti}`).catch(() => null)) throw new UnauthorizedException('refresh_token_rotated');
+        // A sign-in the person ended on purpose ("sign out other devices", sign-out): its token is dead, but presenting it
+        // again is not theft, and must not end the sign-ins they kept.
+        if (await client.get(`refresh_revoked:${payload.jti}`).catch(() => null)) throw new UnauthorizedException('refresh_token_revoked');
         // Reuse of a rotated/unknown token — possible theft: kill the whole family
-        if (payload.sub) await this.revokeAllUserSessions(payload.sub).catch(() => {});
+        if (payload.sub) await this.endAllSessions(payload.sub);
         throw new UnauthorizedException('refresh_token_reused_or_revoked');
       }
-      try { boundDevice = JSON.parse(raw).d || null; } catch { boundDevice = null; }
+      try {
+        const stored = JSON.parse(raw);
+        boundDevice = stored.d || null;
+        sessionMeta = { sid: payload.sid || stored.s || payload.jti, created: stored.c };
+      } catch { boundDevice = null; }
       // Device binding: a token minted for device A must not refresh on device B
       if (boundDevice && deviceId && boundDevice !== deviceId) {
-        if (payload.sub) await this.revokeAllUserSessions(payload.sub).catch(() => {});
+        if (payload.sub) await this.endAllSessions(payload.sub);
         throw new UnauthorizedException('refresh_token_device_mismatch');
       }
       // Rotate: revoke the presented token immediately
       await client.del(`refresh:${payload.jti}`);
+      await client.set(`refresh_rotated:${payload.jti}`, '1', 'EX', 10).catch(() => undefined);
       if (payload.sub) await client.srem(`refresh_user:${payload.sub}`, payload.jti);
     }
 
@@ -165,7 +187,13 @@ export class AuthService {
     if (!u || u.active === false) throw new UnauthorizedException('User not found or disabled');
     // 21.8: a guest who keeps using the app is not inactive; written at most once a day
     if (u.is_guest === true) await this.touchGuestActivity(u);
-    return this.signToken(u, boundDevice || deviceId);
+    return this.signToken(u, boundDevice || deviceId, sessionMeta);
+  }
+
+  /** Theft response: every sign-in of the account ends now, access tokens included. */
+  private async endAllSessions(userId: string): Promise<void> {
+    await this.endSessions(userId, () => true).catch(() => undefined);
+    await this.revokeAllUserSessions(userId).catch(() => undefined);
   }
 
   /** 21.8: the guest was active now (at most one write a day). Failure never blocks the refresh. */
@@ -214,12 +242,15 @@ export class AuthService {
   /** signToken stores its refresh session fire-and-forget; await it when the caller must be able to refresh right away. */
   private async storeRefreshSessionFromToken(refreshToken: string, userId: string, deviceId?: string) {
     try {
-      const jti = (this.jwt.decode(refreshToken) as any)?.jti;
-      if (jti) await this.storeRefreshSession(userId, jti, deviceId);
+      const decoded = this.jwt.decode(refreshToken) as any;
+      if (decoded?.jti) await this.storeRefreshSession(userId, decoded.jti, deviceId, { sid: decoded.sid });
     } catch { /* same contract as signToken: store failure never breaks the response */ }
   }
 
-  /** Issue 440: revoke the one refresh session a signed-out token belongs to. A token that does not verify revokes nothing. */
+  /**
+   * Issue 440 / 21.7: sign out with the refresh token of the session. The session ends, its access tokens stop working
+   * at once and the push tokens of this device are removed. A token that does not verify revokes nothing.
+   */
   async revokeRefreshSession(refreshToken: string): Promise<boolean> {
     let payload: any;
     try {
@@ -227,72 +258,129 @@ export class AuthService {
     } catch {
       return false;
     }
-    if (payload?.type !== 'refresh' || !payload.jti) return false;
-    const client = (this.redisService as any).getClient?.();
-    if (!client) return false;
-    const removed = await client.del(`refresh:${payload.jti}`).catch(() => 0);
-    if (payload.sub) await client.srem(`refresh_user:${payload.sub}`, payload.jti).catch(() => 0);
-    if (removed > 0 && payload.sub) this.events.emit('auth.session_ended', { user_id: payload.sub, scope: 'this_device', sessions: 1 });
-    return removed > 0;
+    if (payload?.type !== 'refresh' || !payload.jti || !payload.sub) return false;
+    const ended = await this.endSessions(payload.sub, (m) => m.jti === payload.jti);
+    if (ended.revoked > 0) this.events.emit('auth.session_ended', { user_id: payload.sub, scope: 'this_device', sessions: ended.revoked });
+    return ended.revoked > 0;
   }
 
   async logoutAllDevices(userId: string) {
-    // Real revocation: kill every refresh session for this user
-    await this.revokeAllUserSessions(userId).catch(() => {});
+    // Real revocation: every sign-in ends, its access tokens stop at once and its push tokens go
+    await this.endAllSessions(userId);
     this.events.emit('USER_LOGGED_OUT_ALL', { user_id: userId });
     this.events.emit('auth.session_ended', { user_id: userId, scope: 'all_devices' });
     return { ok: true, message: 'Logged out from all devices' };
   }
 
   /**
-   * 21.7 — sign out of one device. The refresh sessions bound to that device
-   * are revoked and its push token is removed, so a shared phone stops
-   * receiving this account's notifications.
+   * The one place sessions end. Every refresh session of `userId` that `match` accepts is deleted, its sign-in id is
+   * marked revoked (the guard refuses its access tokens until they would have expired anyway) and the push tokens of
+   * that sign-in (or, for tokens registered before sessions were tracked, of its device) are removed.
    */
-  async logoutDevice(userId: string, deviceId?: string) {
+  private async endSessions(
+    userId: string,
+    match: (m: { jti: string; sid: string; device: string | null }) => boolean,
+  ): Promise<{ revoked: number; sids: string[]; push_removed: number }> {
     const client = (this.redisService as any).getClient?.();
+    if (!client) return { revoked: 0, sids: [], push_removed: 0 };
+    const jtis: string[] = await client.smembers(`refresh_user:${userId}`).catch(() => [] as string[]);
+    const sids = new Set<string>();
+    const devices = new Set<string>();
     let revoked = 0;
-    if (client) {
-      const jtis: string[] = await client.smembers(`refresh_user:${userId}`).catch(() => [] as string[]);
-      for (const jti of jtis) {
-        if (deviceId) {
-          const raw = await client.get(`refresh:${jti}`).catch(() => null);
-          let bound: string | null = null;
-          try { bound = raw ? JSON.parse(raw).d ?? null : null; } catch { bound = null; }
-          if (bound && bound !== deviceId) continue;
-        }
-        await client.del(`refresh:${jti}`);
-        await client.srem(`refresh_user:${userId}`, jti);
-        revoked += 1;
-      }
+    for (const jti of jtis) {
+      const raw = await client.get(`refresh:${jti}`).catch(() => null);
+      if (!raw) { await client.srem(`refresh_user:${userId}`, jti).catch(() => 0); continue; }
+      let rec: any = {};
+      try { rec = JSON.parse(raw); } catch { rec = {}; }
+      const entry = { jti, sid: String(rec.s || jti), device: (rec.d as string | null) ?? null };
+      if (!match(entry)) continue;
+      await client.del(`refresh:${jti}`);
+      await client.set(`refresh_revoked:${jti}`, '1', 'EX', 14 * 24 * 3600).catch(() => undefined);
+      await client.srem(`refresh_user:${userId}`, jti);
+      revoked += 1;
+      sids.add(entry.sid);
+      if (entry.device) devices.add(entry.device);
     }
+    if (!sids.size) return { revoked, sids: [], push_removed: 0 };
     const db = (this.userModel as any).model?.db ?? (this.userModel as any).db;
-    let push_removed = 0;
     if (db) {
-      const filter: Record<string, unknown> = { user_id: userId };
-      if (deviceId) filter.device_id = deviceId;
-      const res = await db.collection('push_tokens').deleteMany(filter).catch(() => null);
-      push_removed = res?.deletedCount ?? 0;
+      const col = db.collection('revoked_sessions');
+      // the marks only matter while an access token of the session could still be alive (1 h) — keep them 2 h
+      await col.createIndex({ at: 1 }, { expireAfterSeconds: 2 * 3600 }).catch(() => undefined);
+      const at = new Date();
+      await Promise.all([...sids].map((sid) => col.updateOne({ sid }, { $set: { sid, user_id: userId, at } }, { upsert: true }).catch(() => undefined)));
     }
-    this.events.emit('USER_LOGGED_OUT', { user_id: userId, device_id: deviceId ?? null });
-    this.events.emit('auth.session_ended', { user_id: userId, scope: 'this_device', sessions: revoked });
-    return { ok: true, sessions_revoked: revoked, push_tokens_removed: push_removed };
+    const push_removed = (await this.push?.removeForSessions?.(userId, [...sids], [...devices]).catch(() => 0)) ?? 0;
+    this.events.emit('USER_SESSIONS_ENDED', { user_id: userId, session_ids: [...sids] });
+    return { revoked, sids: [...sids], push_removed };
   }
 
-  /** 21.7 — the signed-in devices of an account. */
-  async listSessions(userId: string) {
+  /**
+   * 21.7 — sign out of this device. The sign-in of the caller (its `sid`, or for older tokens its device id) ends; the
+   * other devices stay signed in. Nothing matches without one of the two, so an anonymous call never signs everyone out.
+   */
+  async logoutDevice(userId: string, current: { sid?: string; deviceId?: string }) {
+    if (!current.sid && !current.deviceId) throw new BadRequestException('current_session_unknown');
+    const r = await this.endSessions(userId, (m) => (current.sid ? m.sid === current.sid : m.device === current.deviceId));
+    this.events.emit('USER_LOGGED_OUT', { user_id: userId, device_id: current.deviceId ?? null });
+    this.events.emit('auth.session_ended', { user_id: userId, scope: 'this_device', sessions: r.revoked });
+    return { ok: true, sessions_revoked: r.revoked, push_tokens_removed: r.push_removed };
+  }
+
+  /** 21.7 — "sign out other devices": every sign-in except the caller's. */
+  async revokeOtherSessions(userId: string, current: { sid?: string; deviceId?: string }) {
+    if (!current.sid && !current.deviceId) throw new BadRequestException('current_session_unknown');
+    const r = await this.endSessions(userId, (m) => (current.sid ? m.sid !== current.sid : m.device !== current.deviceId));
+    if (r.revoked > 0) this.events.emit('auth.session_ended', { user_id: userId, scope: 'other_devices', sessions: r.revoked });
+    return { ok: true, sessions_revoked: r.revoked, push_tokens_removed: r.push_removed };
+  }
+
+  /**
+   * 21.7 — sign out the sign-in that holds this refresh session id (what `GET /users/me/sessions` lists and the apps send to
+   * `DELETE /users/me/sessions/:jti`). Same effect as ending it by its sign-in id: the access token stops at once and its
+   * push tokens go.
+   */
+  async revokeSessionByJti(userId: string, jti: string) {
+    const r = await this.endSessions(userId, (m) => m.jti === jti);
+    if (!r.revoked) throw new NotFoundException('session_not_found');
+    return { ok: true, sessions_revoked: r.revoked, push_tokens_removed: r.push_removed };
+  }
+
+  /** 21.7 — sign out one listed device by its session id. Only the account's own sessions are ever in the set. */
+  async revokeSession(userId: string, sessionId: string) {
+    const r = await this.endSessions(userId, (m) => m.sid === sessionId);
+    if (!r.revoked) throw new NotFoundException('session_not_found');
+    return { ok: true, sessions_revoked: r.revoked, push_tokens_removed: r.push_removed };
+  }
+
+  /** 21.7 — the signed-in devices of an account, newest use first; the caller's own is marked `current`. */
+  async listSessions(userId: string, current: { sid?: string; deviceId?: string } = {}) {
     const client = (this.redisService as any).getClient?.();
     if (!client) return [];
     const jtis: string[] = await client.smembers(`refresh_user:${userId}`).catch(() => [] as string[]);
-    const out: Array<{ session_id: string; device_id: string | null }> = [];
+    const out: Array<{
+      session_id: string; device_id: string | null; platform: string; label: string;
+      created_at: string | null; last_seen_at: string | null; ip: string | null; current: boolean;
+    }> = [];
     for (const jti of jtis) {
       const raw = await client.get(`refresh:${jti}`).catch(() => null);
       if (!raw) continue;
-      let device: string | null = null;
-      try { device = JSON.parse(raw).d ?? null; } catch { device = null; }
-      out.push({ session_id: jti, device_id: device });
+      let rec: any = {};
+      try { rec = JSON.parse(raw); } catch { rec = {}; }
+      const sid = String(rec.s || jti);
+      const who = describeClient(rec.ua);
+      out.push({
+        session_id: sid,
+        device_id: rec.d ?? null,
+        platform: who.platform,
+        label: who.label,
+        created_at: rec.c ? new Date(rec.c).toISOString() : null,
+        last_seen_at: rec.l ? new Date(rec.l).toISOString() : null,
+        ip: maskIp(rec.ip),
+        current: current.sid ? sid === current.sid : !!current.deviceId && rec.d === current.deviceId,
+      });
     }
-    return out;
+    return out.sort((a, b) => String(b.last_seen_at).localeCompare(String(a.last_seen_at)));
   }
 
   async recordComplianceConsent(userId: string, documentType: string, version: string) {

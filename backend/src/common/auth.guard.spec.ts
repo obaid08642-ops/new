@@ -96,6 +96,32 @@ describe('JwtAuthGuard', () => {
     expect(req.user).toEqual({ id: 'u1', role: UserRole.PATIENT });
   });
 
+  it('21.7: an access token of a sign-in that was ended is refused at once; public routes see an anonymous caller', async () => {
+    const ended = new Set(['sid-ended']);
+    (connection.collection as jest.Mock).mockImplementation((name: string) => ({
+      findOne: jest.fn(async (q: any) => (name === 'revoked_sessions' ? (ended.has(q.sid) ? { _id: 1 } : null) : null)),
+    }));
+    reflector.getAllAndOverride.mockReturnValue(null);
+    jwtService.verifyAsync.mockResolvedValue({ id: 'u1', role: UserRole.PATIENT, sid: 'sid-ended' });
+    await expect(guard.canActivate(createMockContext({ authorization: 'Bearer t' }))).rejects.toThrow('session_revoked');
+
+    jwtService.verifyAsync.mockResolvedValue({ id: 'u1', role: UserRole.PATIENT, sid: 'sid-live' });
+    await expect(guard.canActivate(createMockContext({ authorization: 'Bearer t' }))).resolves.toBe(true);
+
+    reflector.getAllAndOverride.mockImplementation((key) => (key === 'isPublic' ? true : null));
+    jwtService.verifyAsync.mockResolvedValue({ id: 'u1', role: UserRole.PATIENT, sid: 'sid-ended' });
+    const ctx = createMockContext({ authorization: 'Bearer t' });
+    await expect(guard.canActivate(ctx)).resolves.toBe(true);
+    expect(ctx.switchToHttp().getRequest().user).toBeUndefined();
+  });
+
+  it('21.7: a failed revoked-session lookup does not lock a signed-in user out', async () => {
+    (connection.collection as jest.Mock).mockReturnValue({ findOne: jest.fn(async () => { throw new Error('db down'); }) });
+    reflector.getAllAndOverride.mockReturnValue(null);
+    jwtService.verifyAsync.mockResolvedValue({ id: 'u1', role: UserRole.PATIENT, sid: 'sid-1' });
+    await expect(guard.canActivate(createMockContext({ authorization: 'Bearer t' }))).resolves.toBe(true);
+  });
+
   it('should enforce role checks', async () => {
     reflector.getAllAndOverride.mockImplementation((key) => {
       if (key === 'roles') return [UserRole.ADMIN];

@@ -110,14 +110,18 @@ def main():
     step('the patient\'s offer line says the price is not verified', any(l.get('price_status') == 'not_verified' for l in lines), lines)
     try:
         page.goto(f'{WEB}/ar/pharmacy/broadcast-status?orderId={oid}', wait_until='load', timeout=60000)
-        note = page.get_by_text('السعر غير متحقق منه', exact=False).first
         try:
             # the offer's lines are in its details: open them as the patient does, once the page is interactive
             page.locator('details summary').first.wait_for(timeout=30000)
             page.wait_for_function("() => { const d = document.querySelector('details'); return !!d && Object.keys(d).some((k) => k.startsWith('__react')); }", timeout=30000)
-            for summary in page.locator('details summary').all():
-                summary.click()
-            note.wait_for(timeout=30000)
+            # open each offer once: a second click on an open <details> closes it again (it then reads "إخفاء الأصناف والأسعار"),
+            # and a streamed hidden copy of the list must not count
+            for d in page.locator('details').all():
+                if d.is_visible() and not d.evaluate('(el) => el.open'):
+                    d.locator('summary').first.click()
+            page.wait_for_function(
+                "(t) => [...document.querySelectorAll('details[open]')].some((d) => d.offsetParent !== null && d.innerText.includes(t))",
+                arg='السعر غير متحقق منه', timeout=30000)
             shown = True
         except Exception:
             shown = False

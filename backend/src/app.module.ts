@@ -96,6 +96,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { SlotLocksModule } from './modules/slot-locks/slot-locks.module';
 import { PushModule } from './modules/push/push.module';
 import { SecurityModule } from './modules/security/security.module';
+import { RiskModule } from './modules/risk/risk.module';
 import { RealtimeSseModule } from './modules/realtime/realtime.sse';
 import { ProviderOpsModule } from './modules/provider-ops/provider-ops.module';
 import { PatientUxModule } from './modules/patient-ux/patient-ux.module';
@@ -142,6 +143,7 @@ import { BillingModule } from './modules/billing/billing.module';
 import { ArticlesModule } from './modules/articles/articles.module';
 
 import { CorrelationMiddleware } from './common/correlation.middleware';
+import { RequestMetaMiddleware } from './common/request-meta';
 import { ObservabilityModule } from './modules/observability/observability.module';
 import { LogsModule } from './modules/logs/logs.module';
 import { RumModule } from './modules/rum/rum.module';
@@ -271,6 +273,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     FinanceEngineModule,
     SlotLocksModule,
     PushModule,
+    RiskModule,
     SecurityModule,
     RealtimeSseModule,
     ProviderOpsModule,
@@ -328,6 +331,6 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(BansMiddleware, CorrelationMiddleware).forRoutes('*');
+    consumer.apply(BansMiddleware, CorrelationMiddleware, RequestMetaMiddleware).forRoutes('*');
   }
 }
