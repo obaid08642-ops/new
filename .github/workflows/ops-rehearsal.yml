@@ -15,6 +15,14 @@ jobs:
       - uses: actions/checkout@v4
       - name: Mail env and DNS checks (production shape, broken DNS, no key file, no secrets)
         run: bash tools/ops/rehearsal/mail-scenarios.sh
+  cloudflare-edge:
+    # tools/ops/cf/43-search-suggest-cache-*.sh and 44-email-routing-*.sh against the stand-in API (owner/reviewer, 2026-10-18)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Suggest cache rule (apply, rollback, private origin) and Email Routing (wait for confirmation, SPF stays one record, foreign MX)
+        run: bash tools/ops/rehearsal/cf-scenarios.sh
   livekit-rotate:
     runs-on: ubuntu-latest
     timeout-minutes: 40

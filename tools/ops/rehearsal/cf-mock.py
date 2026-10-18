@@ -8,7 +8,7 @@ import json, sys, uuid
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 ACCOUNT = "acc0000000000000000000000000rehe"
-STATE = {"buckets": {}, "lifecycle": {}, "tokens": {}, "public": set()}
+STATE = {"buckets": {}, "lifecycle": {}, "tokens": {}, "public": set(), "rulesets": {}, "er": {"enabled": False, "addresses": [], "rules": []}, "edge": {}, "cached": set(), "purges": []}
 PG = [{"id": "2efd5506f9c8494dacb1fa10a3e7d5b6", "name": "Workers R2 Storage Bucket Item Write"},
       {"id": "6a018a9f2fc74eb6b293b0c548f38b39", "name": "Workers R2 Storage Bucket Item Read"},
       {"id": "bf7481a1826f439697cb59a20b22293e", "name": "Workers R2 Storage Write"}]
@@ -46,6 +46,19 @@ class H(BaseHTTPRequestHandler):
             ok = self.headers.get("Authorization", "").startswith("Bearer ") and data and data.get("to") and data.get("from")
             STATE.setdefault("mails", []).append({"subject": (data or {}).get("subject"), "to_count": len((data or {}).get("to") or [])})
             return self.send(200 if ok else 422, {"id": "mail-rehearsal"}, ok=bool(ok))
+        if p == "/_reset":
+            STATE["er"] = {"enabled": False, "addresses": [], "rules": []}
+            STATE["edge"], STATE["cached"], STATE["purges"] = {}, set(), []
+            STATE["rulesets"] = {}
+            return self.send(200, {})
+        if p == "/_verify_dest" and method == "POST":  # the owner clicks the link in Cloudflare's e-mail
+            for a in STATE["er"]["addresses"]:
+                a["verified"] = "2026-10-18T00:00:00Z"
+            return self.send(200, {})
+        if p == "/_er":
+            er = STATE["er"]
+            return self.send(200, {"enabled": er["enabled"], "addresses": [a["email"] for a in er["addresses"]], "rules": [r["matchers"][0]["value"] for r in er["rules"]],
+                                   "purges": STATE["purges"], "dns": [(r["type"], r["name"]) for r in (STATE.get("mail") or {}).get("dns", [])]})
         if p == "/_mails":
             return self.send(200, STATE.get("mails", []))
         # mail DNS and providers (tools/ops/cf/41-mail-verify.sh, tasks/70-mail-env.sh): seed with POST /_mail
@@ -97,10 +110,102 @@ class H(BaseHTTPRequestHandler):
                 r["checks"] = r.get("checks", 0) + 1
                 return self.raw(200, {"object": "domain", "id": r.get("id")})
             return self.raw(200, r)
+        # --- 43-search-suggest-cache: the edge in front of api.nabd.plus (GET /api/v1/search/suggest) and cache rules
+        if p == "/_edge":
+            if method == "POST":
+                STATE["edge"] = data
+                STATE["cached"] = set()
+            return self.send(200, STATE["edge"])
+        if p == "/api/v1/search/suggest":
+            e = STATE["edge"]
+            rules = STATE["rulesets"].get("http_request_cache_settings", {}).get("rules", [])
+            has_rule = any(r.get("enabled") and r.get("description", "").startswith("Search suggest") for r in rules)
+            signed = bool(self.headers.get("Authorization") or "nabd_access" in (self.headers.get("Cookie") or ""))
+            key = self.path
+            if signed and has_rule and e.get("signed_hit"):
+                status = "HIT"  # a broken rule: a signed-in request served from the cache
+            elif signed or not has_rule:
+                status = "BYPASS" if signed else "DYNAMIC"
+            elif key in STATE["cached"]:
+                status = "HIT"
+            else:
+                status = "MISS"
+                STATE["cached"].add(key)
+            self.send_response(200)
+            if e.get("cache_control"):
+                self.send_header("Cache-Control", e["cache_control"])
+            self.send_header("CF-Cache-Status", status)
+            self.send_header("Content-Length", "2")
+            self.end_headers()
+            self.wfile.write(b"[]")
+            return
+        if p.startswith("/zones/") and "/rulesets/" in p:
+            if not (self.headers.get("X-Auth-Email") and self.headers.get("X-Auth-Key")):
+                return self.send(403, ok=False, err="missing global key headers")
+            if "/phases/" in p and p.endswith("/entrypoint"):
+                phase = p.split("/phases/")[1].split("/")[0]
+                rs = STATE["rulesets"].setdefault(phase, {"id": "rs-" + phase, "rules": []})
+                for i, r in enumerate(rs["rules"]):
+                    r.setdefault("id", "r%d" % i)
+                    r["version"] = "1"
+                return self.send(200, rs)
+            if method == "PUT":
+                rid = p.rsplit("/", 1)[1]
+                for phase, rs in STATE["rulesets"].items():
+                    if rs["id"] == rid:
+                        rs["rules"] = [dict(r, id=r.get("id") or uuid.uuid4().hex[:8]) for r in data["rules"]]
+                        return self.send(200, rs)
+            return self.send(404, ok=False, err="ruleset not found")
+        if p.startswith("/zones/") and p.endswith("/purge_cache") and method == "POST":
+            STATE["purges"].append(data)
+            if data and data.get("tags") and not STATE["edge"].get("no_purge_effect"):
+                STATE["cached"] = set()
+            return self.send(200, {"id": "purge-1"})
+        # --- 44-email-routing: Cloudflare Email Routing and the DNS records it adds
+        if p.startswith("/zones/") and "/email/routing" in p or (p.startswith("/accounts/") and "/email/routing" in p):
+            if not (self.headers.get("X-Auth-Email") and self.headers.get("X-Auth-Key")):
+                return self.send(403, ok=False, err="missing global key headers")
+            if STATE["edge"].get("er_forbidden"):
+                return self.send(403, ok=False, err="Authentication error")
+            er = STATE["er"]
+            if p.endswith("/email/routing") and method == "GET":
+                return self.send(200, {"enabled": er["enabled"], "name": "nabd.plus"})
+            if p.endswith("/email/routing/dns") and method == "POST":
+                er["enabled"] = True
+                dns = STATE.setdefault("mail", {}).setdefault("dns", [])
+                for i in (1, 2, 3):
+                    dns.append({"type": "MX", "name": "nabd.plus", "content": "route%d.mx.cloudflare.net" % i})
+                if STATE["edge"].get("er_adds_spf"):
+                    dns.append({"type": "TXT", "name": "nabd.plus", "content": "\"v=spf1 include:_spf.mx.cloudflare.net ~all\""})
+                return self.send(200, {"enabled": True})
+            if p.endswith("/email/routing/addresses"):
+                if method == "POST":
+                    er["addresses"].append({"email": data["email"], "verified": None, "tag": uuid.uuid4().hex[:8]})
+                    return self.send(200, er["addresses"][-1])
+                return self.send(200, [dict(a, verified=a["verified"] or None) for a in er["addresses"]])
+            if p.endswith("/email/routing/rules"):
+                if method == "POST":
+                    ok = any(a["email"] == (data["actions"][0]["value"][0]) and a["verified"] for a in er["addresses"])
+                    if not ok:
+                        return self.send(400, ok=False, err="destination address not verified")
+                    er["rules"].append(data)
+                    return self.send(200, data)
+                return self.send(200, er["rules"])
+            if method == "GET" and p.count("/") == 4:
+                return self.send(200, {"id": "x"})
+        if p.startswith("/zones/") and "/dns_records/" in p and method == "DELETE":
+            rid = p.rsplit("/", 1)[1]
+            dns = (STATE.get("mail") or {}).get("dns", [])
+            before = len(dns)
+            dns[:] = [r for r in dns if r.get("id") != rid]
+            return self.send(200 if len(dns) < before else 404, {"id": rid}, ok=len(dns) < before)
         if p.startswith("/zones/") and p.endswith("/dns_records"):
             if not (self.headers.get("X-Auth-Key") or self.headers.get("Authorization")):
                 return self.send(403, ok=False, err="no auth")
-            return self.send(200, mail.get("dns", []))
+            dns = mail.setdefault("dns", []) if STATE.get("mail") is not None else []
+            for i, r in enumerate(dns):
+                r.setdefault("id", "d%d" % i)
+            return self.send(200, dns)
         if not (self.headers.get("X-Auth-Email") and self.headers.get("X-Auth-Key")):
             return self.send(403, ok=False, err="missing global key headers")
         parts = p.strip("/").split("/")
