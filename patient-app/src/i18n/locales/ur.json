@@ -3269,6 +3269,8 @@
   "diag.result.error": "نتیجہ لوڈ نہیں ہو سکا",
   "diag.result.by": "جاری کنندہ",
   "diag.result.values": "اقدار",
+  "diag.result.trendTitle": "رجحان",
+  "diag.result.trendNote": "اسی ٹیسٹ کے پچھلے نتائج",
   "diag.result.range": "نارمل حد {low} – {high}",
   "diag.result.flag.normal": "نارمل",
   "diag.result.flag.high": "زیادہ",
