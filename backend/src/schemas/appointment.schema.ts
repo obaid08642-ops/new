@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuid } from 'uuid';
 import { InsuranceDetails, InsuranceDetailsSchema } from './insurance.schema';
+import { healthFieldsPlugin } from '../common/health-fields';
 
 /**
  * Appointment state machine
@@ -149,6 +150,8 @@ export class Appointment {
 }
 export type AppointmentDocument = Appointment & Document;
 export const AppointmentSchema = SchemaFactory.createForClass(Appointment);
+// 16.9: the doctor's consultation summary and the patient's note are ciphertext at rest
+AppointmentSchema.plugin(healthFieldsPlugin, { registry: 'appointments' });
 // Prevent double-booking at the SAME slot for the SAME doctor
 AppointmentSchema.index(
   { doctor_id: 1, slot_start: 1 },
