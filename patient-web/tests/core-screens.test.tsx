@@ -52,7 +52,8 @@ describe("search screen", () => {
     expect(doctor).toContain('href="/ar/consultations/doctors/doc-1"');
     expect(doctor).toContain("price:150");
     const lab = renderToStaticMarkup(<ResultItem locale="ar" query="" result={{ id: "x", type: "Lab", typeEn: "Lab", name: "CBC", sub: "whole_body", price: "0" }} />);
-    expect(lab).not.toContain("<a ");
+    // A lab result links to its test detail page by id (parity audit: it had no link).
+    expect(lab).toContain('href="/ar/diagnostics/test-detail?testId=x"');
     expect(lab).not.toContain("whole_body");
     expect(lab).not.toContain("price:");
   });
