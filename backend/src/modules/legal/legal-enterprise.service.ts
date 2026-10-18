@@ -3,6 +3,7 @@
  * full admin audit log, license monitoring, insurance matrix, SLA dashboard,
  * consent management, version diff, country-ready targeting.
  */
+import { recordAudit } from '../../common/audit-record';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -141,6 +142,12 @@ export class LegalEnterpriseService {
       ip: reqMeta.ip || null,
       device: reqMeta.device || null,
       timestamp: new Date(),
+    });
+    // 23.2: an admin's change to the legal texts or fees is also in the tamper-evident trail
+    await recordAudit(this.conn, {
+      action, user_id: adminId, role: 'admin', resource_kind: 'legal', resource_id: target,
+      changes: { before: before && typeof before === 'object' ? before : { value: before }, after: after && typeof after === 'object' ? after : { value: after } },
+      severity: 'warn',
     });
   }
 

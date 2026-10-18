@@ -209,6 +209,7 @@ export class AuthService {
     if (!client) return false;
     const removed = await client.del(`refresh:${payload.jti}`).catch(() => 0);
     if (payload.sub) await client.srem(`refresh_user:${payload.sub}`, payload.jti).catch(() => 0);
+    if (removed > 0 && payload.sub) this.events.emit('auth.session_ended', { user_id: payload.sub, scope: 'this_device', sessions: 1 });
     return removed > 0;
   }
 
@@ -216,6 +217,7 @@ export class AuthService {
     // Real revocation: kill every refresh session for this user
     await this.revokeAllUserSessions(userId).catch(() => {});
     this.events.emit('USER_LOGGED_OUT_ALL', { user_id: userId });
+    this.events.emit('auth.session_ended', { user_id: userId, scope: 'all_devices' });
     return { ok: true, message: 'Logged out from all devices' };
   }
 
@@ -250,6 +252,7 @@ export class AuthService {
       push_removed = res?.deletedCount ?? 0;
     }
     this.events.emit('USER_LOGGED_OUT', { user_id: userId, device_id: deviceId ?? null });
+    this.events.emit('auth.session_ended', { user_id: userId, scope: 'this_device', sessions: revoked });
     return { ok: true, sessions_revoked: revoked, push_tokens_removed: push_removed };
   }
 
@@ -435,6 +438,7 @@ export class AuthService {
     const user = await this.userModel.findOne(normalized.includes('@') ? { email: normalized } : { phone: normalized });
     if (!user || user.active === false) return this.opaqueOtpResponse(normalized);
 
+    this.events.emit('auth.otp_requested', { user_id: user.id, purpose: 'login', channel: normalized.includes('@') ? 'email' : 'phone' });
     const code = require('crypto').randomInt(100000, 1000000).toString();
     await this.redisService.setJson(
       this.patientOtpKey(normalized),
@@ -599,6 +603,7 @@ export class AuthService {
     await user.save();
     // P3.0a: reset ends every session (access + refresh, patient + provider).
     await this.revokeAfterCredentialChange(user.id);
+    this.events.emit('auth.password_changed', { user_id: user.id, role: user.role, how: 'reset_link' });
     return { reset: true };
   }
 
@@ -660,6 +665,7 @@ export class AuthService {
     const now = new Date();
     for (const c of consents) {
       await col.insertOne({ user_id: userId, policy_key: c.policy_id, version: c.version, timestamp: now });
+      this.events.emit('legal.accepted', { user_id: userId, role: 'patient', policy_key: c.policy_id, version: c.version });
     }
   }
 
@@ -819,6 +825,11 @@ export class AuthService {
     return { user: this.publicUser(u), token: this.signToken(u) };
   }
 
+  /** 23.2: a failed sign-in is an audit event (the identifier is only ever stored hashed, by the audit handler). */
+  private auditLoginFailed(identifier: string, userId: string | undefined, reason: string, ctx?: { ua?: string; ip?: string }) {
+    this.events.emit('auth.login_failed', { phone: identifier, user_id: userId, reason, ip: ctx?.ip, user_agent: ctx?.ua });
+  }
+
   async login(identifier: string, password: string, ctx?: { deviceToken?: string; ua?: string; ip?: string }, guestToken?: string) {
     AuthService.assertString(identifier, 'identifier');
     AuthService.assertString(password, 'password');
@@ -827,14 +838,19 @@ export class AuthService {
     const u = await this.userModel.findOne(query);
     if (!u || !u.password_hash) {
       if (u) await this.adminLoginAlert(u, false, ctx); // C5: known account, bad secret
+      this.auditLoginFailed(identifier, u?.id, u ? 'no_password' : 'unknown_account', ctx);
       throw new UnauthorizedException('Invalid credentials');
     }
     const ok = await bcrypt.compare(password, u.password_hash);
     if (!ok) {
       await this.adminLoginAlert(u, false, ctx); // C5: failed admin login attempt
+      this.auditLoginFailed(identifier, u.id, 'wrong_password', ctx);
       throw new UnauthorizedException('Invalid credentials');
     }
-    if (u.active === false) throw new UnauthorizedException('Account disabled');
+    if (u.active === false) {
+      this.auditLoginFailed(identifier, u.id, 'account_disabled', ctx);
+      throw new UnauthorizedException('Account disabled');
+    }
 
     // Check 2FA requirement
     if (u.role === UserRole.SUPER_ADMIN || u.role === UserRole.ADMIN) {
@@ -1068,7 +1084,9 @@ export class AuthService {
 
   async revokeTrustedDevice(userId: string, deviceId: string) {
     if (!this.deviceTrust) throw new BadRequestException('device_trust_unavailable');
-    return this.deviceTrust.revoke(userId, deviceId);
+    const revoked = await this.deviceTrust.revoke(userId, deviceId);
+    this.events.emit('auth.device_changed', { user_id: userId, change: 'revoked' });
+    return revoked;
   }
 
   async deviceHeartbeat(userId: string, deviceToken: string | undefined, ua?: string, ip?: string) {
@@ -1259,6 +1277,7 @@ export class AuthService {
     // /auth/register requires (the code goes to the identifier itself).
     const u: any = existing || { id: null, email: isEmail ? normalized : undefined, phone: isEmail ? undefined : normalized };
 
+    this.events.emit('auth.otp_requested', { user_id: u.id ?? undefined, purpose: purpose || 'login', channel: isEmail ? 'email' : 'phone' });
     const code = require('crypto').randomInt(100000, 1000000).toString();
     // Store only a bcrypt hash. The plaintext code must never persist in Redis or logs.
     await this.redisService.setJson(
@@ -1358,6 +1377,7 @@ export class AuthService {
     await u.save();
     // P3.0a: a reset must not leave stolen access/refresh tokens alive.
     await this.revokeAfterCredentialChange(u.id);
+    this.events.emit('auth.password_changed', { user_id: u.id, role: u.role, how: 'reset_code' });
     return { ok: true };
   }
 

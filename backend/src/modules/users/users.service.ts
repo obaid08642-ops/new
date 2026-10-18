@@ -367,6 +367,7 @@ export class UsersService {
     const hash = await bcrypt.hash(next, 12);
     // F09: bump token_version in the same write as the new hash.
     await this.userRepository.updateOne({ id }, { $set: { password_hash: hash }, $inc: { token_version: 1 } });
+    this.events?.emit('auth.password_changed', { user_id: id, role: u.role, how: 'change' });
     if (!this.auth) return { success: true };
     const tokens = await this.auth.rotateSessionsAfterPasswordChange(id, deviceId);
     return { success: true, access_token: tokens.accessToken, refresh_token: tokens.refreshToken };

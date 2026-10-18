@@ -18,6 +18,14 @@ export interface LogContext {
   requestId?: string;
   userId?: string;
   role?: string;
+  /** 23.1 "where": filled by the correlation middleware, read by the audit writer (never logged as-is). */
+  ip?: string;
+  userAgent?: string;
+  deviceId?: string;
+  platform?: string;
+  appVersion?: string;
+  /** Set when an admin acts as someone else (the admin's id). */
+  impersonatorId?: string;
 }
 
 /** One context per async flow, so a log line knows which request it belongs to. */
@@ -35,12 +43,13 @@ export function currentLogContext(): LogContext {
  * Called by the auth guard once the caller is known: every later line of this request carries the account id (the id
  * only, never a name, phone or e-mail). A no-op outside a request context.
  */
-export function setLogUser(userId: unknown, role?: unknown) {
+export function setLogUser(userId: unknown, role?: unknown, impersonatorId?: unknown) {
   const store = storage.getStore();
   if (!store) return;
   const id = userId === undefined || userId === null ? '' : String(userId);
   if (id) store.userId = id;
   if (role) store.role = String(role);
+  if (impersonatorId) store.impersonatorId = String(impersonatorId);
 }
 
 /**

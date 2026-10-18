@@ -1,4 +1,5 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { recordAudit } from '../../common/audit-record';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -142,6 +143,9 @@ export class PdplService {
       }
     }
 
+    // 23.2: a data export is an event in the trail (who asked, from where), never the content
+    await recordAudit(this.conn, { action: 'data_export', user_id: String(userId), role: (user as any).role, resource_kind: 'user', resource_id: String(userId), severity: 'warn', details: { collections: Object.keys(data.collections).length } });
+
     return {
       exported_at: new Date().toISOString(),
       format: 'pdpl-portability-v1',
@@ -272,6 +276,13 @@ export class PdplService {
     );
 
     if (!scrubbed) throw new BadRequestException('user_not_found');
+
+    // 23.2: the erasure itself stays in the trail (the person goes, the fact that it happened does not)
+    await recordAudit(this.conn, {
+      action: 'data_erasure', user_id: String(userId), role: (user as any).role, resource_kind: 'user', resource_id: String(userId),
+      reason: opts?.reason || 'pdpl_erasure_request', severity: 'critical',
+      details: { deleted: Object.values(deleted).reduce((a, b) => a + b, 0), anonymised: Object.values(anonymised).reduce((a, b) => a + b, 0) },
+    });
 
     this.logger.warn(
       `PDPL erasure executed for ${userId}: ${Object.values(deleted).reduce((a, b) => a + b, 0)} rows deleted, ` +

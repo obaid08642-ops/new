@@ -1,4 +1,5 @@
 import { Controller, Get, Put, Body, UseGuards, BadRequestException } from '@nestjs/common';
+import { recordAudit } from '../../../../common/audit-record';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { JwtAuthGuard } from '../../../../common/auth.guard';
@@ -42,15 +43,15 @@ export class AdminConfigController {
       { $set: { key: SLA_KEY, value, updated_at: new Date() }, $setOnInsert: { created_at: new Date() } },
       { upsert: true },
     );
-    await this.conn.collection('audit_logs').insertOne({
-      id: `sla_${Date.now()}`,
+    await recordAudit(this.conn, {
       action: 'sla_update',
       resource_kind: 'system_config',
       resource_id: `system_config:${SLA_KEY}`,
-      actor_account_id: admin?.id,
-      actor_role: admin?.role,
-      metadata: { value, reason: (body as any)?.reason || null },
-      created_at: new Date(),
+      user_id: admin?.id,
+      role: admin?.role,
+      reason: (body as any)?.reason || undefined,
+      changes: { after: { value } },
+      severity: 'warn',
     });
     return { ...(await this.conn.collection('system_configs').findOne({ key: SLA_KEY }))?.value, systemStatus: 'online' };
   }
@@ -78,15 +79,15 @@ export class AdminConfigController {
       { $set: { key: DISPUTE_CONFIG_KEY, value, updated_at: new Date() }, $setOnInsert: { created_at: new Date() } },
       { upsert: true },
     );
-    await this.conn.collection('audit_logs').insertOne({
-      id: `dispute_config_${Date.now()}`,
+    await recordAudit(this.conn, {
       action: 'dispute_config_update',
       resource_kind: 'system_config',
       resource_id: `system_config:${DISPUTE_CONFIG_KEY}`,
-      actor_account_id: admin?.id,
-      actor_role: admin?.role,
-      metadata: { value, reason: (body as any)?.reason || null },
-      created_at: new Date(),
+      user_id: admin?.id,
+      role: admin?.role,
+      reason: (body as any)?.reason || undefined,
+      changes: { after: { value } },
+      severity: 'warn',
     });
     return value;
   }
@@ -117,15 +118,15 @@ export class AdminConfigController {
       { $set: { key: ORDERS_CONSOLE_CONFIG_KEY, value, updated_at: new Date() }, $setOnInsert: { created_at: new Date() } },
       { upsert: true },
     );
-    await this.conn.collection('audit_logs').insertOne({
-      id: `orders_console_config_${Date.now()}`,
+    await recordAudit(this.conn, {
       action: 'orders_console_config_update',
       resource_kind: 'system_config',
       resource_id: `system_config:${ORDERS_CONSOLE_CONFIG_KEY}`,
-      actor_account_id: admin?.id,
-      actor_role: admin?.role,
-      metadata: { value, reason: (body as any)?.reason || null },
-      created_at: new Date(),
+      user_id: admin?.id,
+      role: admin?.role,
+      reason: (body as any)?.reason || undefined,
+      changes: { after: { value } },
+      severity: 'warn',
     });
     return value;
   }
@@ -161,15 +162,15 @@ export class AdminConfigController {
       { $set: { key: 'app_versions', value, updated_at: new Date() }, $setOnInsert: { created_at: new Date() } },
       { upsert: true },
     );
-    await this.conn.collection('audit_logs').insertOne({
-      id: `app_versions_${Date.now()}`,
+    await recordAudit(this.conn, {
       action: 'app_versions_update',
       resource_kind: 'system_config',
       resource_id: 'system_config:app_versions',
-      actor_account_id: admin?.id,
-      actor_role: admin?.role,
-      metadata: { value, reason: (body as any)?.reason || null },
-      created_at: new Date(),
+      user_id: admin?.id,
+      role: admin?.role,
+      reason: (body as any)?.reason || undefined,
+      changes: { after: { value } },
+      severity: 'warn',
     });
     return value;
   }

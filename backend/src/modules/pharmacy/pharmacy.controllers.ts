@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Header, Headers, ForbiddenException, ServiceUnavailableException, Optional, BadRequestException, NotFoundException } from '@nestjs/common';
+import { recordAudit } from '../../common/audit-record';
 import { CurrentUser, JwtAuthGuard, Roles, Public } from '../../common/auth.guard';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -374,7 +375,7 @@ export class AdminFulfillmentPolicyController {
         $setOnInsert: { id: 'platform-cod', payment_method: 'cod', provider_account_id: null, createdAt: now } },
       { upsert: true },
     );
-    await this.conn.collection('audit_logs').insertOne({ id: uuidv4(), actor_id: u?.id, actor_role: 'admin', action: 'pharmacy.cod_policy_set', after: { active: b.active === true }, createdAt: now });
+    await recordAudit(this.conn, { action: 'pharmacy.cod_policy_set', user_id: u?.id, role: 'admin', resource_kind: 'fulfillment_policy', resource_id: 'platform-cod', changes: { after: { active: b.active === true } }, severity: 'warn' });
     return this.col.findOne({ id: 'platform-cod' }, { projection: { _id: 0 } });
   }
 }
