@@ -55,6 +55,11 @@ export default function ProviderModeration() {
   const [approveIns, setApproveIns] = useState('');
   const [approveBusy, setApproveBusy] = useState(false);
   const [approveError, setApproveError] = useState('');
+  // 19.3: a doctor, pharmacist or individual nurse is approved only on a confirmed SCFHS licence. When the server could not
+  // confirm it, the admin records their own check (reference + expiry date) and approves again.
+  const [needsLicense, setNeedsLicense] = useState(false);
+  const [licenseRef, setLicenseRef] = useState('');
+  const [licenseExpiry, setLicenseExpiry] = useState('');
   const [bankBusy, setBankBusy] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [geo, setGeo] = useState<{ region?: string; city?: string; district?: string }>({});
@@ -115,6 +120,9 @@ export default function ProviderModeration() {
     setApproveCash(String(def));
     setApproveIns(String(def));
     setApproveError('');
+    setNeedsLicense(false);
+    setLicenseRef('');
+    setLicenseExpiry('');
     setApproveFor(provider);
   };
 
@@ -131,7 +139,8 @@ export default function ProviderModeration() {
     setApproveBusy(true);
     setApproveError('');
     try {
-      const res = await fetchWithAdminGuard(`/api/admin/admin/providers/${approveFor.id}/approve`, { method: 'POST', body: JSON.stringify({ reason, commission_cash: cash, commission_insurance: ins }) });
+      const manual = needsLicense && licenseRef.trim() && licenseExpiry ? { manual_license_check: { reference: licenseRef.trim(), expiry_date: new Date(licenseExpiry).toISOString() } } : {};
+      const res = await fetchWithAdminGuard(`/api/admin/admin/providers/${approveFor.id}/approve`, { method: 'POST', body: JSON.stringify({ reason, commission_cash: cash, commission_insurance: ins, ...manual }) });
       if (res.ok) {
         const approvedId = approveFor.id;
         setPendingProviders(prev => prev.filter(p => p.id !== approvedId));
@@ -139,7 +148,22 @@ export default function ProviderModeration() {
         setApproveFor(null);
       } else {
         const err = await res.json().catch(() => null);
-        setApproveError('فشل الاعتماد: ' + (err?.message || res.status));
+        const code = String(err?.message || '');
+        if (res.status === 409 && (code.startsWith('scfhs_') || code === 'manual_check_invalid')) {
+          const licenseErrors: Record<string, string> = {
+            scfhs_license_expired: 'ترخيص هيئة التخصصات الصحية منتهي. لا يمكن الاعتماد.',
+            scfhs_license_suspended: 'ترخيص هيئة التخصصات الصحية موقوف. لا يمكن الاعتماد.',
+            scfhs_license_not_found: 'رقم الترخيص غير موجود لدى هيئة التخصصات الصحية. لا يمكن الاعتماد.',
+            scfhs_unavailable_manual_check_required: 'تعذّر التحقق الآلي من الترخيص. تحقق منه بنفسك وأدخل مرجع التحقق وتاريخ انتهاء الترخيص.',
+            scfhs_license_number_missing: 'لا يوجد رقم ترخيص للتحقق منه. تحقق من الترخيص بنفسك وأدخل مرجع التحقق وتاريخ انتهائه.',
+            manual_check_invalid: 'مرجع التحقق مطلوب، وتاريخ انتهاء الترخيص يجب أن يكون في المستقبل.',
+          };
+          // Only a missing answer can be settled by hand; an expired, suspended or unknown licence cannot.
+          setNeedsLicense(code === 'scfhs_unavailable_manual_check_required' || code === 'scfhs_license_number_missing' || code === 'manual_check_invalid');
+          setApproveError(licenseErrors[code] || 'تعذّر التحقق من الترخيص');
+        } else {
+          setApproveError('فشل الاعتماد: ' + (err?.message || res.status));
+        }
       }
     } catch (e) {
       console.error(e);
@@ -422,6 +446,16 @@ export default function ProviderModeration() {
                 <input type="number" min="0" max="100" value={approveIns} onChange={(e) => setApproveIns(e.target.value)} className="mt-1 w-full border border-gray-300 rounded p-2 font-normal" />
               </label>
             </div>
+            {needsLicense && (
+              <div className="grid grid-cols-2 gap-3">
+                <label className="block text-sm font-bold">مرجع التحقق من الترخيص
+                  <input value={licenseRef} onChange={(e) => setLicenseRef(e.target.value)} maxLength={200} className="mt-1 w-full border border-gray-300 rounded p-2 font-normal" />
+                </label>
+                <label className="block text-sm font-bold">تاريخ انتهاء الترخيص
+                  <input type="date" value={licenseExpiry} onChange={(e) => setLicenseExpiry(e.target.value)} className="mt-1 w-full border border-gray-300 rounded p-2 font-normal" />
+                </label>
+              </div>
+            )}
             {approveError && <p role="alert" className="rounded bg-rose-50 p-2 text-sm text-rose-700">{approveError}</p>}
           </>
         )}

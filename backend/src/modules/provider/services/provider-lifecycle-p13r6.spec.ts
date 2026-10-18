@@ -24,10 +24,12 @@ describe('P13-R6 provider suspend/reactivate propagation', () => {
     const accounts = { findOne: jest.fn(async () => account), model: { db } };
     const audit = { create: jest.fn(async () => null) };
     const seoPipeline = { processEntity: jest.fn(async () => ({ published: true })) };
+    // The licence rules have their own tests (scfhs-license-gate.spec.ts); here the licence is good.
+    const scfhs = { decideFor: jest.fn(async () => ({ decision: { verified: true, license_status: 'verified' }, result: null, number: 'n' })), store: jest.fn(async () => undefined) };
     const publication = { refresh: jest.fn(async () => ({ published: true })) };
     const svc = new ProviderAdminService(
       accounts as any, {} as any, {} as any, {} as any, audit as any,
-      seoPipeline as any, {} as any, publication as any,
+      seoPipeline as any, {} as any, scfhs as any, publication as any,
     );
     return { svc, account, profileCol, usersCol, audit, seoPipeline, publication };
   }
