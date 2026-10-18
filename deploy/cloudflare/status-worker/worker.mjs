@@ -18,6 +18,7 @@ import ur from "../../../patient-web/messages/ur.json" with { type: "json" };
 import hi from "../../../patient-web/messages/hi.json" with { type: "json" };
 import bn from "../../../patient-web/messages/bn.json" with { type: "json" };
 import fil from "../../../patient-web/messages/fil.json" with { type: "json" };
+import { runJourneys, journeyNotices, notify, noticeText } from "./journeys.mjs";
 
 const MESSAGES = { ar, en, ur, hi, bn, fil };
 const LOCALES = Object.keys(MESSAGES);
@@ -34,7 +35,7 @@ export const TARGETS = [
   { component: "api", url: "https://api.nabd.plus/api/v1/health/readiness", expect: 200 },
 ];
 /** Components the page knows a name for (patient-web messages: StatusPage.component<Name>); any other id is shown as it is. */
-export const KNOWN = { website: "componentWebsite", api: "componentApi", search: "componentSearch", product: "componentProduct", cart: "componentCart", doctors: "componentDoctors", login: "componentLogin" };
+export const KNOWN = { home: "componentHome", website: "componentWebsite", api: "componentApi", search: "componentSearch", product: "componentProduct", cart: "componentCart", doctors: "componentDoctors", login: "componentLogin" };
 
 // ---------------------------------------------------------------------------------------------------- the state (pure)
 export const emptyState = () => ({ v: 1, updated: 0, vantages: {}, days: {}, incidents: [] });
@@ -267,7 +268,22 @@ export async function runCron(env, now = Date.now(), fetchImpl = fetch) {
   return results;
 }
 
+/** The journeys cron (every 10 minutes): run them, report as the "journeys" vantage, alert on a second failure in a row. */
+export async function runJourneyCron(env, now = Date.now(), fetchImpl = fetch) {
+  const results = await runJourneys(env, { fetchImpl, now });
+  if (!results.length) return { results, sent: [] };
+  let state = applyReport(await load(env), "journeys", results, now);
+  const { journeys, notices } = journeyNotices(state.journeys, results);
+  state.journeys = journeys;
+  await save(env, state);                       // saved first: a failing notification must not lose the counters
+  const sent = [];
+  for (const n of notices) { const t = noticeText(n); sent.push({ ...n, ...(await notify(env, t.subject, t.text, fetchImpl)) }); }
+  return { results, sent };
+}
+
+export const JOURNEY_CRON = "*/10 * * * *";
+
 export default {
   fetch: (request, env) => handle(request, env),
-  scheduled: (_event, env, ctx) => ctx.waitUntil(runCron(env)),
+  scheduled: (event, env, ctx) => ctx.waitUntil(event.cron === JOURNEY_CRON ? runJourneyCron(env) : runCron(env)),
 };
