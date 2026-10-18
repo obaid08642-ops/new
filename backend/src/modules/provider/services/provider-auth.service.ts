@@ -15,6 +15,8 @@ import * as crypto from 'crypto';
 import { revokeAllCredentialSessions } from '../../../common/credential-revocation';
 import { RedisService } from '../../redis/redis.service';
 import { findLinkedUser } from '../provider-credential';
+import { enforcePasswordPolicy, dummyPasswordHash } from '../../../common/password-security.service';
+import { LoginLockService } from '../../../common/login-lock.service';
 
 @Injectable()
 export class ProviderAuthService {
@@ -27,6 +29,7 @@ export class ProviderAuthService {
     private readonly otp: ProviderOtpService,
     private readonly jwt: JwtService,
     @Optional() private readonly redis?: RedisService,
+    @Optional() private readonly loginLock?: LoginLockService,
   ) {}
 
   private signToken(a: ProviderAccount) {
@@ -38,14 +41,14 @@ export class ProviderAuthService {
   private validateEmail(email: string) {
     if (typeof email !== 'string' || email.length > 254 || !isEmail(email)) throw new BadRequestException('invalid email');
   }
+  /** 16.2: the one password rule (10+ characters, not breached, within bcrypt's 72 bytes). */
   private validatePassword(p: string) {
-    if (!p || p.length < 8) throw new BadRequestException('password must be at least 8 characters');
-    if (!/[A-Za-z]/.test(p) || !/[0-9]/.test(p)) throw new BadRequestException('password must contain letters and numbers');
+    return enforcePasswordPolicy(p);
   }
 
   async register(input: { email: string; password: string; confirm_password: string; provider_type: ProviderType; meta?: any }) {
     this.validateEmail(input.email);
-    this.validatePassword(input.password);
+    await this.validatePassword(input.password);
     if (input.password !== input.confirm_password) throw new BadRequestException('passwords do not match');
     if (!Object.values(ProviderType).includes(input.provider_type)) throw new BadRequestException('invalid provider_type');
     const email = input.email.toLowerCase().trim();
@@ -126,26 +129,34 @@ export class ProviderAuthService {
 
   async login(input: { email: string; password: string; meta?: any }) {
     const email = (input.email || '').toLowerCase().trim();
+    const ip = input.meta?.ip;
+    // 16.2: one progressive lockout for every password sign-in, counted per identifier whether or not the account exists.
+    await this.loginLock?.assertNotLocked(email, ip);
     const a = await this.accounts.findOne({ email });
-    if (!a) throw new UnauthorizedException('invalid credentials');
-    // F09: suspended providers cannot start new sessions at all.
-    if (a.status === ProviderAccountStatus.SUSPENDED) {
-      throw new ForbiddenException('account_suspended');
+    if (!a) {
+      // The same bcrypt work as a real check, so an unknown e-mail does not answer faster.
+      await bcrypt.compare(typeof input.password === 'string' ? input.password : '', await dummyPasswordHash());
+      await this.loginLock?.recordFailure(email, ip);
+      throw new UnauthorizedException('invalid credentials');
     }
     // P3.0b: verify against the linked users.password_hash only.
     const user = await this.linkedUser(a);
-    // A banned linked user (admin ban sets users.active=false) must not start
-    // provider sessions either.
-    if (user && user.active === false) throw new ForbiddenException('account_suspended');
-    if (a.locked_until && a.locked_until.getTime() > Date.now()) throw new UnauthorizedException('account temporarily locked — too many failed attempts');
     if (!user) this.logger.warn(`provider_account_unlinked ${a.id}: no users row — run 2026-09-unify-provider-passwords`);
     const ok = !!user?.password_hash && typeof input.password === 'string' && await bcrypt.compare(input.password, user.password_hash);
     if (!ok) {
+      if (!user?.password_hash) await bcrypt.compare(typeof input.password === 'string' ? input.password : '', await dummyPasswordHash());
       a.failed_login_attempts = (a.failed_login_attempts || 0) + 1;
-      if (a.failed_login_attempts >= 5) { a.locked_until = new Date(Date.now() + 15 * 60 * 1000); a.failed_login_attempts = 0; }
       await a.save();
+      await this.loginLock?.recordFailure(email, ip);
       throw new UnauthorizedException('invalid credentials');
     }
+    // Only a caller who knows the password learns the state of the account (a suspended or banned account used to
+    // answer "suspended" to anybody who typed its e-mail).
+    // F09: suspended providers cannot start new sessions at all.
+    if (a.status === ProviderAccountStatus.SUSPENDED) throw new ForbiddenException('account_suspended');
+    // A banned linked user (admin ban sets users.active=false) must not start provider sessions either.
+    if (user && user.active === false) throw new ForbiddenException('account_suspended');
+    await this.loginLock?.recordSuccess(email, ip);
     a.failed_login_attempts = 0; a.locked_until = undefined as any; a.last_login_at = new Date(); await a.save();
     await this.audit.create({ provider_account_id: a.id, actor_id: a.id, actor_role: 'provider', action: 'auth.login', meta: { ip: input.meta?.ip, device: input.meta?.device_identifier } });
     return this.openSession(a, input.meta?.device_identifier);
@@ -157,7 +168,7 @@ export class ProviderAuthService {
    * provider session for this device.
    */
   async changePassword(principal: any, input: { current_password: string; new_password: string; device_identifier?: string; meta?: any }) {
-    this.validatePassword(input.new_password);
+    await this.validatePassword(input.new_password);
     const a = await this.accounts.findOne({ id: principal?.id });
     if (!a) throw new NotFoundException('provider_account_not_found');
     const user = await this.linkedUser(a);
@@ -276,7 +287,7 @@ export class ProviderAuthService {
   }
 
   async resetPassword(input: { email: string; code: string; new_password: string; meta?: any }) {
-    this.validatePassword(input.new_password);
+    await this.validatePassword(input.new_password);
     const a = await this.accounts.findOne({ email: input.email.toLowerCase().trim() });
     if (!a) throw new NotFoundException();
     const user = await this.linkedUser(a);
@@ -293,6 +304,43 @@ export class ProviderAuthService {
     const fresh = (await this.accounts.findOne({ id: a.id })) || a;
     await this.audit.create({ provider_account_id: a.id, actor_id: a.id, actor_role: 'provider', action: 'auth.password_reset' });
     return { account: this.publicAccount(fresh), token: this.signToken(fresh) };
+  }
+
+  /** 23.6 — the provider's own signed-in devices: active sessions, newest first. The device id is shown only as a short tail. */
+  async listSessions(user: any, currentSessionId?: string) {
+    const rows: any[] = await this.sessions.model
+      .find({ provider_account_id: user.id, status: 'active', expires_at: { $gt: new Date() } }, { refresh_token_hash: 0 })
+      .sort({ createdAt: -1 }).limit(50).lean();
+    return rows.map((r) => ({
+      session_id: r.id,
+      device: r.device_identifier ? `…${String(r.device_identifier).slice(-4)}` : null,
+      signed_in_at: r.createdAt ?? null,
+      last_used_at: r.updatedAt ?? null,
+      expires_at: r.expires_at,
+      current: !!currentSessionId && r.id === currentSessionId,
+    }));
+  }
+
+  /** 23.6 — the provider's own sign-in history (sign-up, sign-in, sign-out, password change, revoked sessions). */
+  async history(user: any, page = 1, limit = 30) {
+    const pageN = Math.max(1, Math.floor(page) || 1);
+    const limitN = Math.max(1, Math.min(100, Math.floor(limit) || 30));
+    const filter = { provider_account_id: user.id, action: { $in: ['auth.register', 'auth.login', 'auth.logout', 'auth.password_change', 'auth.session_revoked'] } };
+    const [rows, total] = await Promise.all([
+      this.audit.model.find(filter).sort({ createdAt: -1 }).skip((pageN - 1) * limitN).limit(limitN).lean() as Promise<any[]>,
+      this.audit.model.countDocuments(filter),
+    ]);
+    const ip = (v: unknown) => { const m = /^(?:::ffff:)?(\d+)\.(\d+)\.\d+\.\d+$/.exec(String(v || '')); return m ? `${m[1]}.${m[2]}.*.*` : null; };
+    return {
+      total, page: pageN, limit: limitN,
+      events: rows.map((r) => ({
+        id: r.id, at: r.createdAt, action: r.action.replace(/^auth\./, ''),
+        outcome: r.action === 'auth.session_revoked' ? 'revoked' : 'success',
+        ip: ip(r.meta?.ip ?? r.ip),
+        device: r.meta?.device ? `…${String(r.meta.device).slice(-4)}` : null,
+        reason: r.meta?.reason ?? null,
+      })),
+    };
   }
 
   async me(user: any) {

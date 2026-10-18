@@ -37,6 +37,8 @@ export class PatientPharmacyController {
   @Get('orders') list(@CurrentUser() u: any, @Query('status') status?: string) { return this.orders.list(u, status); }
   @Get('orders/:id') detail(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.detail(u, id); }
   @Patch('orders/:id') @RequireIdempotency() update(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateDto) { return this.orders.update(u, id, b); }
+  // 22.5: the lines a chosen pharmacy could not fill become a new draft order of their own
+  @Post('orders/:id/split-remaining') @RequireIdempotency() splitRemaining(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.splitRemaining(u, id); }
   @Post('orders/:id/submit') @RequireIdempotency() submit(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.submit(u, id); }
   @Post('orders/:id/cancel') @RequireIdempotency() cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelDto) { return this.orders.cancel(u, id, b?.reason || ''); }
   @Post('orders/:id/insurance-rejection/cancel') cancelRejectedInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelRejectedInsuranceDto, @Headers('idempotency-key') idemHeader?: string) { return this.insurance.cancelRejectedByPatient(u, id, b?.idempotency_key || idemHeader); }

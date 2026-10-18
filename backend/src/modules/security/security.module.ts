@@ -2,6 +2,8 @@ import { Module, Injectable, Controller, Get, Post, Delete, Body, Param, NestMid
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { AuditRetentionService } from './audit-retention.service';
 import { AuditCoverageService } from './audit-coverage.service';
+import { UserHistoryService } from './user-history.service';
+import { UserHistoryController } from './user-history.controller';
 import { escapeRegex } from '../../common/slug.util';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -329,19 +331,6 @@ export class AuditService {
   /** 23.1 — a role that touches money or configuration must say why. */
   static readonly REASONS_REQUIRED = new Set(['admin_refund', 'user_modify', 'commission_change', 'admin_force_cancel', 'config_change']);
 
-  async queryPersonal(userId: string, options: { page?: number; limit?: number }) {
-    const page = Math.max(1, options.page || 1);
-    const limit = Math.max(1, Math.min(options.limit || 20, 100));
-    const filter = { user_id: userId };
-    const total = await this.logs.countDocuments(filter);
-    const logs = await this.logs.find(filter)
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .lean();
-    return { logs, total, page, limit };
-  }
-
   // ── Event-driven Audit Capture ──────────────────────────────
 
   // Patient Actions
@@ -423,6 +412,8 @@ export class TracingMiddleware implements NestMiddleware {
   }
 }
 
+export const HSTS_VALUE = 'max-age=63072000; includeSubDomains; preload';
+
 /** Minimal helmet-style header hardening WITHOUT adding the helmet dependency. */
 @Injectable()
 export class SecurityHeadersMiddleware implements NestMiddleware {
@@ -431,8 +422,12 @@ export class SecurityHeadersMiddleware implements NestMiddleware {
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     res.setHeader('X-DNS-Prefetch-Control', 'off');
-    res.setHeader('Strict-Transport-Security', 'max-age=15552000; includeSubDomains');
+    // 16.4: two years, every subdomain, preload-eligible (the owner submits the domain to hstspreload.org).
+    res.setHeader('Strict-Transport-Security', HSTS_VALUE);
     res.setHeader('X-Permitted-Cross-Domain-Policies', 'none');
+    // The API is JSON: no page of it may use a camera, microphone, position or payment sheet, or share a window group.
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
     next();
   }
 }
@@ -440,7 +435,7 @@ export class SecurityHeadersMiddleware implements NestMiddleware {
 @Controller('security/audit')
 @UseGuards(JwtAuthGuard)
 export class AuditController {
-  constructor(private svc: AuditService, private readonly retention: AuditRetentionService) {}
+  constructor(private svc: AuditService, private readonly retention: AuditRetentionService, private readonly history: UserHistoryService) {}
 
   @Get('admin')
   @Roles(UserRole.ADMIN)
@@ -461,7 +456,8 @@ export class AuditController {
     @Query('page') page = 1,
     @Query('limit') limit = 20,
   ) {
-    return this.svc.queryPersonal(u.id, { page: +page, limit: +limit });
+    // 23.6: the caller's own events only, as a person may see them (no hashes, masked address)
+    return this.history.activity(u.id, +page, +limit);
   }
 
   @Get('recent')
@@ -593,9 +589,9 @@ export class AuditRetentionJob {
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: 'AuditLog', schema: AuditLogSchema }])],
-  controllers: [AuditController],
-  providers: [AuditService, AuditCoverageService, AuditRetentionService, AuditRetentionJob, TracingMiddleware, SecurityHeadersMiddleware],
-  exports: [AuditService, TracingMiddleware, SecurityHeadersMiddleware],
+  controllers: [AuditController, UserHistoryController],
+  providers: [AuditService, AuditCoverageService, UserHistoryService, AuditRetentionService, AuditRetentionJob, TracingMiddleware, SecurityHeadersMiddleware],
+  exports: [AuditService, UserHistoryService, TracingMiddleware, SecurityHeadersMiddleware],
 })
 export class SecurityModule {
   configure(consumer: MiddlewareConsumer) {

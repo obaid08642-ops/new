@@ -17,12 +17,12 @@ export class ReferralController {
   /** GET /api/v1/referrals/my — my code, stats, and invite list */
   @Get('my')
   my(@Req() req: any) {
-    return this.svc.myDashboard(req.user?.id);
+    return this.svc.myDashboard(req.user?.id, req.user?.dev);
   }
 
   /** POST /api/v1/referrals/apply — apply someone's referral code (new users) */
   @Post('apply')
   apply(@Req() req: any, @Body() body: ApplyDto) {
-    return this.svc.apply(req.user?.id, body?.code);
+    return this.svc.apply(req.user?.id, body?.code, req.user?.dev);
   }
 }

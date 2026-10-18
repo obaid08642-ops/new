@@ -94,8 +94,8 @@ async function dataTab(locale: Locale, token: string, failed: React.ReactNode, t
             </span>
           </div>
           {storage.items.map((item) => (
-            <div className={styles.itemRow} key={item.label}>
-              <span className={styles.itemText}><span className={styles.itemTitle} dir="auto">{item.label}</span></span>
+            <div className={styles.itemRow} key={item.key}>
+              <span className={styles.itemText}><span className={styles.itemTitle}>{t(`storageItem.${item.key}`)}</span></span>
               <span className={styles.itemEnd}><bdi>{item.value} · {item.percent}%</bdi></span>
             </div>
           ))}

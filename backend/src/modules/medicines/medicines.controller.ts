@@ -1,5 +1,7 @@
 import { Body, Controller, Get, Headers, Param, Patch, Post, Query, UseGuards, Delete, Put, GoneException, Res, Header, BadRequestException } from '@nestjs/common';
 import { MedicinesService } from './medicines.service';
+import { toPublicMedicine, toPublicProductCard } from './public-medicine';
+import { PUBLIC_CATALOG_LOCALES } from './med-i18n';
 import { queryInt } from '../../common/safe-query';
 import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
@@ -12,9 +14,11 @@ import { SuggestChangeDto, SuggestNewItemDto, AdminUpdateCatalogDto, AdminCreate
 export class MedicinesController {
   constructor(private svc: MedicinesService) {}
 
+  // Issue 1555: every @Public() route below answers with public fields only (toPublicMedicine / toPublicProductCard,
+  // applied at the return so a cached row is cleaned too) of items that pass the public catalogue filter.
   @Public()
   @Get()
-  list(
+  async list(
     @Query('search') search: string,
     @Query('q') q: string,
     @Query('category') category: string,
@@ -44,17 +48,17 @@ export class MedicinesController {
     const filters = { forms: list(forms), brands: list(brands), rx_only: rxOnly === '1' || rxOnly === 'true', min_price: price(minPrice), max_price: price(maxPrice) };
     const ordered = sort === 'price_asc' || sort === 'price_desc' || sort === 'newest';
     if (ordered || filters.forms.length || filters.brands.length || filters.rx_only || filters.min_price !== undefined || filters.max_price !== undefined) {
-      return this.svc.filtered(term, category, filters, ordered ? sort! : 'relevant', page === undefined ? undefined : queryInt(page, 1), queryInt(limit, 30));
+      return toPublicMedicine(await this.svc.filtered(term, category, filters, ordered ? sort! : 'relevant', page === undefined ? undefined : queryInt(page, 1), queryInt(limit, 30)));
     }
     // Cursor mode (O(1) deep browsing) takes precedence when ?cursor= is present
     if (cursor !== undefined) {
-      return this.svc.cursorPage(term, category, cursor || undefined, queryInt(limit, 30));
+      return toPublicMedicine(await this.svc.cursorPage(term, category, cursor || undefined, queryInt(limit, 30)));
     }
     if (page !== undefined) {
       // A public list: only the governed (approved, published) catalogue, as in list() below.
-      return this.svc.paginate(term, category, queryInt(page, 1), queryInt(limit, 30), false, sort || 'smart_ranking', pharmacyId);
+      return toPublicMedicine(await this.svc.paginate(term, category, queryInt(page, 1), queryInt(limit, 30), false, sort || 'smart_ranking', pharmacyId));
     }
-    return this.svc.list(term, category, false, limit === undefined ? undefined : queryInt(limit, 30), userId, sort || 'smart_ranking', pharmacyId);
+    return toPublicMedicine(await this.svc.list(term, category, false, limit === undefined ? undefined : queryInt(limit, 30), userId, sort || 'smart_ranking', pharmacyId));
   }
 
   /** Decode (not verify) JWT for analytics attribution — never a security gate. */
@@ -69,20 +73,25 @@ export class MedicinesController {
 
   @Public()
   @Get('autocomplete')
-  autocomplete(@Query('q') q: string) {
-    return this.svc.autocomplete(q);
+  async autocomplete(@Query('q') q: string) {
+    return toPublicMedicine(await this.svc.autocomplete(q));
   }
 
   @Public()
   @Post('lookup-barcode')
-  lookupBarcode(@Body() body: LookupBarcodeDto) {
-    return this.svc.byBarcode(body?.code || '');
+  async lookupBarcode(@Body() body: LookupBarcodeDto) {
+    return this.publicBarcodeAnswer(await this.svc.byBarcode(body?.code || ''));
   }
 
   @Public()
   @Get('by-barcode/:code')
-  byBarcode(@Param('code') code: string) {
-    return this.svc.byBarcode(code);
+  async byBarcode(@Param('code') code: string) {
+    return this.publicBarcodeAnswer(await this.svc.byBarcode(code));
+  }
+
+  /** The barcode answer keeps its own `source` (catalog / fuzzy / none); only the medicine row is projected. */
+  private publicBarcodeAnswer<T extends { medicine?: unknown }>(answer: T): T {
+    return answer?.medicine ? { ...answer, medicine: toPublicMedicine(answer.medicine) } : answer;
   }
 
   @Public()
@@ -99,8 +108,8 @@ export class MedicinesController {
 
   @Public()
   @Post('compare')
-  compare(@Body() body: CompareDto) {
-    return this.svc.compare(body?.ids || []);
+  async compare(@Body() body: CompareDto) {
+    return toPublicMedicine(await this.svc.compare(body?.ids || []));
   }
 
 
@@ -109,8 +118,8 @@ export class MedicinesController {
   /** Smart Cache: Top 50 hot medicines (daily cron, weighted 50/30/20) */
   @Public()
   @Get('hot')
-  hot() {
-    return this.svc.hot();
+  async hot() {
+    return toPublicMedicine(await this.svc.hot());
   }
 
   /** "Did you mean?" suggestion for a misspelled term */
@@ -383,7 +392,7 @@ export class MedicinesController {
       }
       for await (const doc of cursor) {
         if (!first) raw.write(',');
-        raw.write(JSON.stringify(doc));
+        raw.write(JSON.stringify(toPublicMedicine(doc)));
         first = false;
       }
       raw.write(']}');
@@ -404,23 +413,38 @@ export class MedicinesController {
 
   @Public()
   @Get(':id')
-  one(@Param('id') id: string) {
-    return this.svc.getPublicById(id);
+  async one(@Param('id') id: string) {
+    return toPublicMedicine(await this.svc.getPublicById(id));
+  }
+
+  /**
+   * How many pharmacies stock the item (owner, 2026-10-16): only for a signed-in patient, never on a public route.
+   * The count comes from the live inventory, not from the cached field on the record.
+   */
+  @Get(':id/availability')
+  @Roles(UserRole.PATIENT)
+  async availability(@Param('id') id: string): Promise<{ pharmacies_count: number; in_stock: boolean }> {
+    await this.svc.getPublicById(id);
+    const stock = await this.svc.aggregateStock(id);
+    return { pharmacies_count: stock.pharmacies_count, in_stock: stock.in_stock };
   }
 
   @Public()
   @Get(':id/details')
-  details(@Param('id') id: string, @Headers('authorization') auth?: string, @Query('lang') lang?: string, @Headers('accept-language') acceptLang?: string) {
+  async details(@Param('id') id: string, @Headers('authorization') auth?: string, @Query('lang') lang?: string, @Headers('accept-language') acceptLang?: string) {
     const wanted = (lang || (acceptLang || '').split(',')[0] || '').toLowerCase().trim();
     const dbLang = wanted.startsWith('ar') ? 'ar' : wanted.startsWith('ur') ? 'ur' : wanted.startsWith('hi') ? 'hi' : wanted.startsWith('bn') ? 'bn' : (wanted.startsWith('tl') || wanted.startsWith('fil')) ? 'tl' : wanted.startsWith('en') ? 'en' : undefined;
-    return this.svc.details(id, this.optionalUserId(auth), dbLang);
+    return toPublicMedicine(await this.svc.details(id, this.optionalUserId(auth), dbLang));
   }
 
 
   @Public()
   @Get(':id/alternatives')
-  alts(@Param('id') id: string) {
-    return this.svc.alternatives(id);
+  async alts(@Param('id') id: string, @Query('locale') locale?: string) {
+    // Issue 1555: the public product card of GET /public/products/search, in the asked locale (Arabic by default).
+    const loc = (PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale || '') ? locale! : 'ar';
+    const rows = await this.svc.alternatives(id);
+    return (rows as Array<Record<string, unknown>>).map((m) => toPublicProductCard(m, loc));
   }
 
   @RequirePermissions(Permission.CATALOG_CREATE)

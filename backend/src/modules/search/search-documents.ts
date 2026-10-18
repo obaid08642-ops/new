@@ -14,7 +14,13 @@ export type SearchSection = (typeof SEARCH_SECTIONS)[number];
 export type SearchType = 'medicine' | 'doctor' | 'specialty' | 'lab_test' | 'lab_package' | 'radiology' | 'nursing' | 'article';
 
 /** Home groups follow this order. Health articles are found from home only (no section owns them). */
-export const SEARCH_TYPES: SearchType[] = ['medicine', 'doctor', 'specialty', 'lab_test', 'lab_package', 'radiology', 'nursing', 'article'];
+/**
+ * The cache tag of the public suggestions (search.controller.ts) and of the search index: a catalogue write or a change of
+ * the suggestions kill switch purges it, so no edge copy outlives the change by more than the purge.
+ */
+export const SEARCH_CACHE_TAG = 'search';
+
+export const SEARCH_TYPES: SearchType[] =['medicine', 'doctor', 'specialty', 'lab_test', 'lab_package', 'radiology', 'nursing', 'article'];
 
 export const SECTION_TYPES: Record<SearchSection, SearchType[]> = {
   pharmacy: ['medicine'],

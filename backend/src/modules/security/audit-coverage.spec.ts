@@ -35,7 +35,8 @@ describe('Phase 23.2 covered events', () => {
   });
   afterAll(async () => { registerAuditSink(null); await conn?.close(); await server?.stop(); });
   beforeEach(async () => {
-    await Logs.deleteMany({});
+    // audit_logs is append-only through the model (16.6); a test resets it on the raw collection
+    await conn.collection(Logs.collection.collectionName).deleteMany({});
     await conn.collection('audit_sequence').deleteMany({});
   });
 

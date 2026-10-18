@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   INITIAL_SUGGEST_STATE, SuggestController, highlightParts,
-  type SuggestState, type SuggestType, type Suggestion,
+  type SuggestState, type SuggestType, type Suggestion, type TextRange,
 } from "@/lib/search/suggest";
 import styles from "./search-suggest.module.css";
 
@@ -27,6 +27,8 @@ export function useSearchSuggest(locale: string) {
   const [state, setState] = useState<SuggestState>(INITIAL_SUGGEST_STATE);
   const ref = useRef<SuggestController | null>(null);
   if (!ref.current) {
+    // The browser never keeps an answer (no-store): turning the suggestions kill switch off must apply on the next letter.
+    // The edge still caches the shared answer (the route forwards the API's public s-maxage) and is purged on every change.
     ref.current = new SuggestController({ locale, fetcher: (url, init) => fetch(url, { ...init, cache: "no-store" }), onChange: setState });
   }
   const controller = ref.current;
@@ -34,9 +36,9 @@ export function useSearchSuggest(locale: string) {
   return { state, controller };
 }
 
-/** The matched part of the name in a <mark>: text nodes only, nothing from the server is drawn as HTML. */
-export function SuggestName({ name, query }: { name: string; query: string }) {
-  return <>{highlightParts(name, query).map((part, i) => (part.match ? <mark key={i} className={styles.mark}>{part.text}</mark> : <Fragment key={i}>{part.text}</Fragment>))}</>;
+/** The matched part of the name (the server's ranges) in a <mark>: text nodes only, nothing from the server is drawn as HTML. */
+export function SuggestName({ name, highlights }: { name: string; highlights: readonly TextRange[] }) {
+  return <>{highlightParts(name, highlights).map((part, i) => (part.match ? <mark key={i} className={styles.mark}>{part.text}</mark> : <Fragment key={i}>{part.text}</Fragment>))}</>;
 }
 
 type KindKey = "kindMedicine" | "kindDoctor" | "kindSpecialty" | "kindLab" | "kindLabPackage" | "kindRadiology" | "kindNursing" | "kindArticle";
@@ -120,7 +122,7 @@ export function SearchSuggest({ state, controller, renderField, allResultsHref }
                 onMouseMove={() => controller.hover(i)}
                 onClick={() => controller.close()}
               >
-                <span className={styles.name}><SuggestName name={item.name} query={state.query} /></span>
+                <span className={styles.name}><SuggestName name={item.name} highlights={item.highlights} /></span>
                 <span className={styles.kind}>{kinds(KIND[item.type])}</span>
               </Link>
             </li>

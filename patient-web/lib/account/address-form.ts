@@ -11,12 +11,14 @@ export type AddressRecord = {
   district?: string | null;
   region?: string | null;
   notes?: string | null;
+  /** 19.7: the Saudi National Address short code. */
+  short_address?: string | null;
   is_default?: boolean | null;
 };
 
-export type AddressForm = { label: string; line1: string; line2: string; city: string; district: string; region: string; notes: string };
+export type AddressForm = { label: string; line1: string; line2: string; city: string; district: string; region: string; notes: string; short_address: string };
 
-export const EMPTY_ADDRESS_FORM: AddressForm = { label: "", line1: "", line2: "", city: "", district: "", region: "", notes: "" };
+export const EMPTY_ADDRESS_FORM: AddressForm = { label: "", line1: "", line2: "", city: "", district: "", region: "", notes: "", short_address: "" };
 const KEYS = Object.keys(EMPTY_ADDRESS_FORM) as Array<keyof AddressForm>;
 
 /** The form filled with what is saved; a field the server did not send is empty. */

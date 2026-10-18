@@ -11,6 +11,7 @@ import { getLocales } from 'react-native-localize';
  * the SAME inline dictionary (6 languages, Arabic fallback).
  */
 import { translations as sharedTranslations } from './index';
+import { pickDeviceLanguage } from './deviceLanguage';
 
 const translations = sharedTranslations as any;
 
@@ -39,11 +40,7 @@ export class LanguageManager {
       this.setLanguage(savedLang as SupportedLanguage, false);
       return;
     }
-    const deviceCode = String(getLocales()?.[0]?.languageCode || '').toLowerCase();
-    const selected: SupportedLanguage = (['ar', 'en', 'ur', 'hi', 'bn', 'fil', 'tl'].includes(deviceCode)
-      ? (deviceCode === 'tl' ? 'fil' : deviceCode)
-      : 'ar') as SupportedLanguage;
-    this.setLanguage(selected, false);
+    this.setLanguage(pickDeviceLanguage(getLocales()), false);
   }
 
   public async setLanguage(lang: SupportedLanguage, restartRequired: boolean = true): Promise<void> {

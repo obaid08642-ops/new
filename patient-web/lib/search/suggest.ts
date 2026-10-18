@@ -5,10 +5,15 @@
 /** The item types of GET /search/suggest (backend search-documents.ts SearchType). */
 export type SuggestType = "medicine" | "doctor" | "specialty" | "lab_test" | "lab_package" | "radiology" | "nursing" | "article";
 
+/** A matched range of the displayed name, in UTF-16 code units (the backend computes it: suggest-rank.ts). */
+export interface TextRange { start: number; length: number }
+
 export interface Suggestion {
   id: string;
   type: SuggestType;
   name: string;
+  /** The matched characters of `name`, as the server found them. */
+  highlights: TextRange[];
   /** The page the suggestion opens. */
   href: string;
 }
@@ -49,6 +54,32 @@ export function suggestionHref(locale: string, row: { id: string; type: SuggestT
 const TYPES: readonly string[] = ["medicine", "doctor", "specialty", "lab_test", "lab_package", "radiology", "nursing", "article"];
 const text = (v: unknown): string | null => (typeof v === "string" && v.trim() ? v : null);
 
+/**
+ * The server's `highlights` for one name, checked: whole numbers inside the name only, sorted, overlaps merged. A malformed
+ * entry is dropped, so a bad answer shows the name plain rather than cutting it wrongly.
+ */
+export function parseHighlights(value: unknown, name: string): TextRange[] {
+  if (!Array.isArray(value)) return [];
+  const ranges: TextRange[] = [];
+  for (const entry of value) {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) continue;
+    const { start, length } = entry as Record<string, unknown>;
+    if (!Number.isInteger(start) || !Number.isInteger(length)) continue;
+    const from = start as number;
+    const size = length as number;
+    if (from < 0 || size <= 0 || from + size > name.length) continue;
+    ranges.push({ start: from, length: size });
+  }
+  ranges.sort((a, b) => a.start - b.start);
+  const merged: TextRange[] = [];
+  for (const range of ranges) {
+    const last = merged[merged.length - 1];
+    if (last && range.start <= last.start + last.length) last.length = Math.max(last.length, range.start + range.length - last.start);
+    else merged.push({ ...range });
+  }
+  return merged;
+}
+
 /** The answer of GET /search/suggest: `{ suggestions: [...] }`, or `{ suggestions: [], disabled: true }` when the kill switch is off. */
 export function parseSuggestions(payload: unknown, locale: string): { items: Suggestion[]; disabled: boolean } {
   const root = payload && typeof payload === "object" && !Array.isArray(payload) ? (payload as Record<string, unknown>) : {};
@@ -65,62 +96,27 @@ export function parseSuggestions(payload: unknown, locale: string): { items: Sug
     const href = suggestionHref(locale, { id, type, slug: text(row.slug), code: text(row.code) });
     if (!href) continue;
     seen.add(`${type}:${id}`);
-    items.push({ id, type, name, href });
+    items.push({ id, type, name, highlights: parseHighlights(row.highlights, name), href });
   }
   return { items, disabled: root.disabled === true };
-}
-
-/** One character folded the way the backend's normalizeSearchText folds it (seo-search.module.ts). */
-function fold(ch: string): string {
-  if (/\s/.test(ch)) return " ";
-  return ch
-    .normalize("NFKD")
-    .toLowerCase()
-    .replace(/[ً-ٰٟـ]/g, "")
-    .replace(/[أإآٱ]/g, "ا")
-    .replace(/[ىی]/g, "ي")
-    .replace(/ة/g, "ه")
-    .replace(/[̀-ͯ]/g, "");
-}
-
-function foldText(value: string): string {
-  return Array.from(value).map(fold).join("").replace(/ +/g, " ").trim();
 }
 
 export interface HighlightPart { text: string; match: boolean }
 
 /**
- * The name split around the typed text, so the matched part is drawn in a <mark> (plain text nodes: nothing from the
- * server is rendered as HTML). The match is found the way the backend found it: ignoring case, Arabic diacritics and
- * letter variants (أ/إ/ا, ى/ي, ة/ه), at the start of a word first, then anywhere.
+ * The name split at the server's ranges, so each matched part is drawn in a <mark>. Plain text pieces only: nothing from
+ * the server is rendered as HTML.
  */
-export function highlightParts(name: string, query: string): HighlightPart[] {
-  const q = foldText(query);
-  if (!q) return [{ text: name, match: false }];
-  const chars = Array.from(name);
-  // folded text, and for each folded character the index of the original character it came from
-  let folded = "";
-  const from: number[] = [];
-  chars.forEach((ch, i) => {
-    const f = fold(ch);
-    for (const c of Array.from(f)) {
-      if (c === " " && (folded.length === 0 || folded.endsWith(" "))) continue;
-      folded += c;
-      from.push(i);
-    }
-  });
-  let at = -1;
-  for (let p = folded.indexOf(q); p !== -1; p = folded.indexOf(q, p + 1)) {
-    if (p === 0 || folded[p - 1] === " ") { at = p; break; }
-  }
-  if (at === -1) at = folded.indexOf(q);
-  if (at === -1) return [{ text: name, match: false }];
-  const start = from[at];
-  const end = at + q.length < from.length ? from[at + q.length] : chars.length;
+export function highlightParts(name: string, highlights: readonly TextRange[]): HighlightPart[] {
   const parts: HighlightPart[] = [];
-  if (start > 0) parts.push({ text: chars.slice(0, start).join(""), match: false });
-  parts.push({ text: chars.slice(start, end).join(""), match: true });
-  if (end < chars.length) parts.push({ text: chars.slice(end).join(""), match: false });
+  let at = 0;
+  for (const range of highlights) {
+    if (range.start < at) continue;
+    if (range.start > at) parts.push({ text: name.slice(at, range.start), match: false });
+    parts.push({ text: name.slice(range.start, range.start + range.length), match: true });
+    at = range.start + range.length;
+  }
+  if (at < name.length || parts.length === 0) parts.push({ text: name.slice(at), match: false });
   return parts;
 }
 
